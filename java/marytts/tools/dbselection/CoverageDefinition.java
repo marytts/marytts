@@ -373,8 +373,8 @@ public class CoverageDefinition{
             //add them to the list of possible values   
             //System.out.println(basenames[index]);
      
-            String nextBasename = wikiToDB.getFileNameFromTable(id, "dbselection");
-            basenames[index] = nextBasename;
+ //mmmm           String nextBasename = wikiToDB.getFileNameFromTable(id, "dbselection");
+//          mmmm            basenames[index] = nextBasename;
             byte[] vectorBuf;
             int numFeatVects;
             if (needToReadVectors){
@@ -403,8 +403,7 @@ public class CoverageDefinition{
             
 
             /* loop over the feature vectors of size[4] */
-            System.out.println("Analysing feature vectors of id=" + id + ": " + nextBasename 
-                             + "  numFeatVects=" + numFeatVects);
+            System.out.println("Analysing feature vectors of id=" + id + ":  numFeatVects=" + numFeatVects);
             for (int i=0;i<numFeatVects;i++){
                 numTokens++;
                 

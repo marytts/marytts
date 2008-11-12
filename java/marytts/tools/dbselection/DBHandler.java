@@ -99,16 +99,16 @@ public class DBHandler {
   }
   
   public void createDataBaseSelectionTable() {
-      String dbselection = "CREATE TABLE dbselection ( id INT NOT NULL AUTO_INCREMENT, " +
-                                                       "fromFile TEXT, " +
+      String dbselection = "CREATE TABLE dbselection ( id INT NOT NULL AUTO_INCREMENT, " +                                                       
                                                        "sentence TEXT, " +
                                                        "features BLOB, " +
                                                        "reliable BOOLEAN, " +
+                                                       "unknownWords BOOLEAN, " +
+                                                       "strangeSymbols BOOLEAN, " +
                                                        "primary key(id));";
-   
+      String str;
       boolean dbExist = false;
-      boolean unExist = false;
-      // if database does not exist create them      
+      // if database does not exist create it    
       System.out.println("Checking if the database already exist.");
       try {
           rs = st.executeQuery("SHOW TABLES;");
@@ -117,8 +117,8 @@ public class DBHandler {
       }
       
       try { 
-          if( rs.next() ) {
-            String str = rs.getString(1);
+          while( rs.next() ) {
+            str = rs.getString(1);
             if( str.contentEquals("dbselection") ){
                System.out.println("TABLE = " + str + " already exist.");
                dbExist = true;
@@ -244,6 +244,53 @@ public class DBHandler {
       } 
   }
 
+  
+  public void createWikipediaCleanTextTable() {
+      // wiki must be already created
+      // String creteWiki = "CREATE DATABASE wiki;";
+      String createCleanTextTable = "CREATE TABLE `clean_text` (" +
+              " clean_id int UNSIGNED NOT NULL AUTO_INCREMENT," +
+              " clean_text mediumblob NOT NULL," +
+              " processed BOOLEAN, " +
+              " PRIMARY KEY clean_id (clean_id)" +
+              " ) MAX_ROWS=250000 AVG_ROW_LENGTH=10240;";
+           
+      // If database does not exist create it, if it exists delete it and create an empty one.      
+      System.out.println("Checking if the TABLE=clean_text already exist.");
+      try {
+          rs = st.executeQuery("SHOW TABLES;");
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+      boolean resText=false;
+      try { 
+         
+          while( rs.next() ) {
+            String str = rs.getString(1);
+            if( str.contentEquals("clean_text") )
+               resText=true;
+          } 
+          // Do we need to delete it if already exists???
+          if(resText==true){
+            System.out.println("TABLE = clean_text already exist deleting.");  
+            boolean res0 = st.execute( "DROP TABLE clean_text;" );  
+          }
+          
+          boolean res1;
+          int res2;
+          // creating TABLE=clean_text
+          if( !resText ){
+            System.out.println("\nCreating table:" + createCleanTextTable);
+            res1 = st.execute( createCleanTextTable );         
+            System.out.println("TABLE = clean_text succesfully created.");
+          }
+           
+      } catch (SQLException e) {
+          e.printStackTrace();
+      } 
+  }
+
+ /* 
   public String[] getPageIdsOfTextTable() {
       int num, i, j;
       String idSet[]=null;
@@ -269,21 +316,56 @@ public class DBHandler {
       
       return idSet;
   }
-  
+ */ 
+ 
   /***
-   * Get the ids from TABLE page
-   * @return String[] an array containing the ids, the size of this array normally will be 25000 (pages).
+   * 
+   * @param field
+   * @param table
+   * @return
    */
-  public String[] getPageIds() {
+  public String[] getIds(String field, String table) {
       int num, i, j;
       String idSet[]=null;
       
-      String str = queryTable("SELECT count(page_id) FROM page;");  // normally this should be 25000 ids
+      String str = queryTable("SELECT count("+ field + ") FROM " + table + ";");  
       num = Integer.parseInt(str);
       idSet = new String[num];
       
       try {
-          rs = st.executeQuery("SELECT page_id FROM page;"); 
+          rs = st.executeQuery("SELECT " + field + " FROM " + table + ";"); 
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+      try { 
+          i=0;
+          while( rs.next() ) {
+            idSet[i] = rs.getString(1);
+            i++;
+          }
+      } catch (SQLException e) {
+          e.printStackTrace();
+      } 
+      
+      return idSet;
+  }
+  
+  /***
+   * This function will select just the unprocessed clean_text records.
+   * @param field
+   * @param table
+   * @return
+   */
+  public String[] getUnprocessedTextIds() {
+      int num, i, j;
+      String idSet[]=null;
+      
+      String str = queryTable("select count(clean_id) from clean_text where processed=false;");  
+      num = Integer.parseInt(str);
+      idSet = new String[num];
+      
+      try {
+          rs = st.executeQuery("select clean_id from clean_text where processed=false;"); 
       } catch (Exception e) {
           e.printStackTrace();
       }
@@ -301,45 +383,84 @@ public class DBHandler {
   }
   
   
-  
   public void setDBTable(String table){
     currentTable = table;
   }
 
   
-  public void insertSentenceAndFeatures(String file, String sentence, byte features[]){
-    System.out.println("inserting in dbselection: file=" + file + " Num features=" + features.length + " sentence=" + sentence);
-    try { 
-      // INSERT INTO dbselection VALUES (id, fromFile, sentence, features, realiable)
-      PreparedStatement ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?, ?)");
+  public void insertCleanText(String text){
+      System.out.println("inserting in clean_text: ");
+      byte clean_text[]=null;
+      
+      try {
+        clean_text = text.getBytes("UTF8");
+      } catch (Exception e) {  // UnsupportedEncodedException
+        e.printStackTrace();
+      } 
+      
+      try { 
+        PreparedStatement ps = cn.prepareStatement("INSERT INTO clean_text VALUES (null, ?, ?)");
+        if(clean_text != null){
+          ps.setBytes(1, clean_text);
+          ps.setBoolean(2, false);   // it will be true after processed by the FeatureMaker
+          ps.execute();
+        } else
+           System.out.println("WARNING: can not insert in clean_text: " + text); 
+        
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
+    }
+  
+  /****
+   * Insert processed sentence in dbselection
+   * @param sentence text of the sentence.
+   * @param features features if sentences is reliable.
+   * @param reliable true/false.
+   */
+  public void insertSentence(String sentence, byte features[], boolean reliable, boolean unknownWords, boolean strangeSymbols){
     
-      ps.setString(1, file);
-      ps.setString(2, sentence);
-      ps.setBytes(3, features);
-      ps.setBoolean(4, true);
+    if(unknownWords) 
+      System.out.print("unknownWords");
+    if(strangeSymbols)
+      System.out.print(" strangeSymbols");  
+    if(!reliable)  
+      System.out.println(" : inserting unreliable sentence = " + sentence);  
+    
+    
+    try { 
+      // INSERT INTO dbselection VALUES (id, sentence, features, realiable)
+      PreparedStatement ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?, ?, ?)");
+    
+      ps.setString(1, sentence);
+      ps.setBytes(2, features);
+      ps.setBoolean(3, reliable);
+      ps.setBoolean(4, unknownWords);
+      ps.setBoolean(5, strangeSymbols);
       ps.execute();
       
     } catch (SQLException e) {
       e.printStackTrace();
     }
   }
-  
-  public void insertUnreliableSentence(String file, String sentence){
-      System.out.println("inserting in dbselection: file=" + file + "reliable=false" + " sentence=" + sentence);
+
+  /*
+  public void insertUnreliableSentence(String sentence){
+      System.out.println("inserting in dbselection: reliable=false" + " sentence=" + sentence);
       try { 
-        // INSERT INTO dbselection VALUES (id, fromFile, sentence, features, realiable)
-        PreparedStatement ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?, ?)");
-      
-        ps.setString(1, file);
-        ps.setString(2, sentence);
-        ps.setBytes(3, null);
-        ps.setBoolean(4, false);
+        // INSERT INTO dbselection VALUES (id, sentence, features, realiable)
+        PreparedStatement ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?)");
+
+        ps.setString(1, sentence);
+        ps.setBytes(2, null);
+        ps.setBoolean(3, false);
         ps.execute();
         
       } catch (SQLException e) {
         e.printStackTrace();
       }
     }
+  */
   
   public void closeDBConnection(){
     try {
@@ -382,11 +503,6 @@ public class DBHandler {
       return idSet;
   }
   
-  public String getFileNameFromTable(int id, String table) {
-      String dbQuery = "Select fromFile FROM " + table + " WHERE id=" + id;
-      return queryTable(dbQuery);      
-  }
-  
   public String getSentenceFromTable(int id, String table) {
       String dbQuery = "Select sentence FROM " + table + " WHERE id=" + id;
       return queryTable(dbQuery);      
@@ -395,7 +511,7 @@ public class DBHandler {
   // Firts filtering:
   // get first the page_title and check if it is not Image: or  Wikipedia:Votes_for_deletion/
   // maybe we can check also the length
-  public String getTextFromPage(String id, int minPageLength) {
+  public String getTextFromWikiPage(String id, int minPageLength) {
       String pageTitle, pageLen, dbQuery, textId, text=null;
       byte[] textBytes=null;
       int len;
@@ -407,8 +523,10 @@ public class DBHandler {
       pageLen = queryTable(dbQuery);
       len = Integer.parseInt(pageLen);
       
-      if(len < minPageLength || pageTitle.contains("Image:") 
-                             || pageTitle.contains("Wikipedia:")
+      if(len < minPageLength || pageTitle.contains("Wikipedia:") 
+                             || pageTitle.contains("Image:")
+                             || pageTitle.contains("Template:")
+                             || pageTitle.contains("Category:")
                              || pageTitle.contains("List_of_")){
         //System.out.println("PAGE NOT USED page title=" + pageTitle + " Len=" + len);       
         /*
@@ -439,9 +557,44 @@ public class DBHandler {
       return text;   
   }
   
+  public String getCleanText(String id){
+      String dbQuery, text=null;
+      byte[] textBytes=null;
+             
+      dbQuery = " select clean_text from clean_text where clean_id=" + id;
+      textBytes = queryTableByte(dbQuery);
+      
+      try {
+          text = new String(textBytes, "UTF8");
+          //System.out.println("  TEXT: " + text);
+      } catch (Exception e) {  // UnsupportedEncodedException
+        e.printStackTrace();
+      } 
+      // once retrieved the text record mark it as processed
+      updateTable("UPDATE clean_text SET processed=true WHERE clean_id="+id);   
+     
+      return text;     
+  }
+  
+  
   public String getFeaturesFromTable(int id, String table) {
       String dbQuery = "Select features FROM " + table + " WHERE id=" + id;
       return queryTable(dbQuery);
+      
+  }
+  
+  private boolean updateTable(String sql)
+  {
+      String str = "";
+      boolean res=false;
+      
+      try {
+          res = st.execute(sql);
+      } catch (Exception e) {
+          e.printStackTrace();
+      } 
+      
+      return res;
       
   }
 
@@ -559,7 +712,7 @@ public class DBHandler {
       tmp[2] = 30;
       tmp[3] = 40;
       
-      wikiToDB.insertSentenceAndFeatures("file1", "sentence1", tmp);
+      wikiToDB.insertSentence("sentence1", tmp, true, false, false);
       byte res[];
       
       res = wikiToDB.getFeatures(1);
