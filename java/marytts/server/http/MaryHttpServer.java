@@ -407,13 +407,22 @@ public class MaryHttpServer {
             Map<String, String> keyValuePairs = MaryHttpClientUtils.toKeyValuePairs(fullParameters, false);
             
             boolean bProcessed = false;
+            boolean isDefaultPageRequested = false;
+            if (keyValuePairs==null)
+                isDefaultPageRequested = true;
+            else
+            {
+                String tmpVal = keyValuePairs.get("DEFAULT_PAGE");
+                if (tmpVal!=null && tmpVal.compareTo("?")==0)
+                    isDefaultPageRequested = true;
+            }
             
-            if (keyValuePairs==null) //A web browser client is asking for the default html page
+            if (isDefaultPageRequested) //A web browser client is asking for the default html page
             {
                 MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
                 
                 MaryHtmlForm htmlForm = new MaryHtmlForm(serverAddressAtClient,
-                                                         fullParameters,
+                                                         "",
                                                          getMaryVersion(),
                                                          getVoices(),
                                                          getDataTypes(),

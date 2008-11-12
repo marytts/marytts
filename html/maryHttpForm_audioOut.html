@@ -3,8 +3,26 @@
   <head>
     <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>MARY Web Client</title>
+    
+    <script language="javascript">
+		function initForm() 
+		{
+       		maryWebClient.inputtype.selectedIndex = 0;
+       		maryWebClient.outputtype.selectedIndex = maryWebClient.outputtype.options.length-1;
+       		maryWebClient.format.selectedIndex = maryWebClient.format.options.length-1;
+       		hideDiv();
+    	} 
+    	function hideDiv()
+    	{
+    	    <-- document.getElementById('hideable').style.display = 'none'; -->
+    	    <-- document.getElementById('inputtext').style.display = 'none'; -->
+    	}
+    	</script>
+    	
   </head>
+    
 
+    	
   <body onload="initForm()">
     <font STYLE="font-family: Verdana">
     <table>
@@ -57,8 +75,8 @@
         </tr>
 
         <tr>
-          <td>Input Text:</td>
-          <td><textarea name="inputtext" rows="15" cols="45">Show input text here...</textarea>
+          <td><div id="hideable">Input Text:</div></td>
+          <td><textarea name="inputtext" id="inputtext" rows="15" cols="45">Show input text here...</textarea>
           </td> 
 
           <td> 
@@ -106,17 +124,10 @@
         <tr>
           <td><input type="submit" value="SPEAK" STYLE="font-size:11pt; font-weight=bold;"></td>
           <td>Click to send synthesis request to MARY server</td>
-          <td><input type="button" value="TEST" onclick="return initForm()"></td>
+          <td><input type="button" value="TEST" onclick="return hideDiv();"></td>
         </tr>
         
-        <script language="javascript">
-		function initForm() 
-		{
-       		maryWebClient.inputtype.selectedIndex = 0;
-       		maryWebClient.outputtype.selectedIndex = maryWebClient.outputtype.options.length-1;
-       		maryWebClient.format.selectedIndex = maryWebClient.format.options.length-1;
-    	} 
-    	</script>
+        
       
       </form>
       

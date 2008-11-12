@@ -448,6 +448,16 @@ public class MaryHtmlForm {
     
     public void toSelections(String fullParameters, Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
     {        
+        keyValuePairs = MaryHttpClientUtils.toKeyValuePairs(fullParameters, false);
+        
+        toSelections(keyValuePairs, defaultVoiceExampleTexts);
+    }
+    
+    //Parse fullParamaters which is of the form key1=value1&key2=value2...
+    public void toSelections(Map<String, String> keyValuePairsIn, Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
+    {
+        keyValuePairs = keyValuePairsIn;
+        
         inputTypeSelected = 0;
         inputText = "";
         if (outputDataTypes!=null && outputDataTypes.size()>0)
@@ -470,16 +480,7 @@ public class MaryHtmlForm {
             
             effectsBoxData = new AudioEffectsBoxData(audioEffects, audioEffectsHelpTextLineBreak);
         }
-
-        keyValuePairs = MaryHttpClientUtils.toKeyValuePairs(fullParameters, false);
         
-        toSelections(keyValuePairs, defaultVoiceExampleTexts);
-    }
-    
-    //Parse fullParamaters which is of the form key1=value1&key2=value2...
-    public void toSelections(Map<String, String> keyValuePairsIn, Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
-    {
-        keyValuePairs = keyValuePairsIn;
         if (keyValuePairs!=null)
         {
             int i;
@@ -605,7 +606,6 @@ public class MaryHtmlForm {
             }
             //
         
-            
             //Audio effects
             String currentEffectName;
             for (i=0; i<effectsBoxData.getTotalEffects(); i++)
@@ -614,7 +614,7 @@ public class MaryHtmlForm {
 
                 //Check box
                 selected = keyValuePairs.get("effect_" + currentEffectName + "_selected"); 
-                if (selected!=null) //Effect is selected
+                if (selected!=null && selected.compareTo("on")==0) //Effect is selected
                     effectsBoxData.getControlData(i).setSelected(true);
                 else //If not found, effect is not selected
                     effectsBoxData.getControlData(i).setSelected(false);
