@@ -146,6 +146,7 @@ public class BaseAudioEffect implements AudioEffect{
         String params2 = params;
         params2 = params2.replace('=', chParamEquals);
         params2 = params2.replace(',', chParamSeparator);
+        params2 = params2.replaceAll(" ", "");
         
         return params2;
     }

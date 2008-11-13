@@ -403,6 +403,7 @@ public class MaryData {
         }
     }
     
+    /*
     public void writeTo(HttpResponse response)
     throws TransformerConfigurationException, FileNotFoundException, TransformerException, IOException, Exception {
         if (type.isUtterances())
@@ -420,9 +421,9 @@ public class MaryData {
             
             //writer.output(xmlDocument, new BufferedOutputStream(os));
 
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            writer.output(xmlDocument, new BufferedOutputStream(baos));
-            NByteArrayEntity body = new NByteArrayEntity(baos.toByteArray());
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            writer.output(xmlDocument, new BufferedOutputStream(os));
+            NByteArrayEntity body = new NByteArrayEntity(os.toByteArray());
             body.setContentType("text/html; charset=UTF-8");
             response.setEntity(body);
         } 
@@ -430,9 +431,9 @@ public class MaryData {
         { 
             //writeTo(new OutputStreamWriter(os, "UTF-8"));
             
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            writeTo(new OutputStreamWriter(baos, "UTF-8"));
-            NByteArrayEntity body = new NByteArrayEntity(baos.toByteArray());
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            writeTo(new OutputStreamWriter(os, "UTF-8"));
+            NByteArrayEntity body = new NByteArrayEntity(os.toByteArray());
             body.setContentType("text/html; charset=UTF-8");
             response.setEntity(body);
         } 
@@ -442,13 +443,14 @@ public class MaryData {
             //AudioSystem.write(audio, audioFileFormat.getType(), os);
             //os.flush();
             
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            AudioSystem.write(audio, audioFileFormat.getType(), output);
-            output.flush();
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            AudioSystem.write(audio, audioFileFormat.getType(), os);
+            os.flush();
             
-            MaryHttpServerUtils.toHttpResponse(output.toByteArray(), response);   
+            MaryHttpServerUtils.toHttpResponse(os.toByteArray(), response);   
         }
     }
+    */
     
     /**
      * Write our internal representation to writer <code>w</code>,

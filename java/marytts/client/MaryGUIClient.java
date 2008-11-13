@@ -857,7 +857,7 @@ public class MaryGUIClient extends JPanel
                     {   
                         strTmpParam = "";
                         try {
-                            strTmpParam = processor.requestFullEffect(effectsBox.getData().getControlData(i).getEffectName(), effectsBox.effectControls[i].txtParams.getText().trim());
+                            strTmpParam = processor.requestFullEffect(effectsBox.getData().getControlData(i).getEffectName(), effectsBox.effectControls[i].txtParams.getText());
                         } catch (UnknownHostException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();

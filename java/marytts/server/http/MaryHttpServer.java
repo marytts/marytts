@@ -29,6 +29,7 @@
 package marytts.server.http;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.StringReader;
@@ -82,6 +83,7 @@ import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.nio.NHttpConnection;
+import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.reactor.IOEventDispatch;
@@ -810,7 +812,7 @@ public class MaryHttpServer {
 
                 RequestHttp request = new RequestHttp(inputType, outputType, locale, voice, effects, style, id, audioFileFormat, streamingAudio);
 
-                Thread.yield();
+                //Thread.yield();
 
                 //Send off to new request
                 String inputText = keyValuePairs.get("INPUT_TEXT");
@@ -857,6 +859,8 @@ public class MaryHttpServer {
                                 currentEffectParams = keyValuePairs.get("effect_" + currentEffectName + "_parameters");
                                 if (currentEffectParams!=null && currentEffectParams.length()>0)
                                     effects += currentEffectName + "(" + currentEffectParams + ")";
+                                else
+                                    effects += currentEffectName;
                             }
                         }
                     }
@@ -1142,8 +1146,7 @@ public class MaryHttpServer {
                     if (ae!=null)
                     {
                         ae.setParams(currentEffectParams);
-                        String audioEffectFull = ae.getFullEffectAsString();
-                        output = audioEffectFull.trim();
+                        output = ae.getFullEffectAsString();
                     }
 
                     break;

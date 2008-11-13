@@ -455,7 +455,7 @@ public class MaryHtmlForm {
             //
             
             //Voice selected
-            selected = keyValuePairs.get("voice");
+            selected = keyValuePairs.get("VOICE");
             if (selected!=null)
             {
                 for (i=0; i<allVoices.size(); i++)
@@ -521,7 +521,7 @@ public class MaryHtmlForm {
             //
         
             //Audio format selected
-            selected = keyValuePairs.get("audioformat");
+            selected = keyValuePairs.get("AUDIO");
             int spaceInd;
             if (selected!=null)
             {
