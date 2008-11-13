@@ -105,6 +105,7 @@ public class DBHandler {
                                                        "reliable BOOLEAN, " +
                                                        "unknownWords BOOLEAN, " +
                                                        "strangeSymbols BOOLEAN, " +
+                                                       "clean_text_id INT UNSIGNED NOT NULL, " +   // the clean_text id where this sentence comes from
                                                        "primary key(id));";
       String str;
       boolean dbExist = false;
@@ -252,6 +253,8 @@ public class DBHandler {
               " clean_id int UNSIGNED NOT NULL AUTO_INCREMENT," +
               " clean_text mediumblob NOT NULL," +
               " processed BOOLEAN, " +
+              " page_id int UNSIGNED NOT NULL, " +
+              " text_id int UNSIGNED NOT NULL, " +
               " PRIMARY KEY clean_id (clean_id)" +
               " ) MAX_ROWS=250000 AVG_ROW_LENGTH=10240;";
            
@@ -279,11 +282,10 @@ public class DBHandler {
           boolean res1;
           int res2;
           // creating TABLE=clean_text
-          if( !resText ){
-            System.out.println("\nCreating table:" + createCleanTextTable);
-            res1 = st.execute( createCleanTextTable );         
-            System.out.println("TABLE = clean_text succesfully created.");
-          }
+          System.out.println("\nCreating table:" + createCleanTextTable);
+          res1 = st.execute( createCleanTextTable );         
+          System.out.println("TABLE = clean_text succesfully created.");
+         
            
       } catch (SQLException e) {
           e.printStackTrace();
@@ -388,8 +390,8 @@ public class DBHandler {
   }
 
   
-  public void insertCleanText(String text){
-      System.out.println("inserting in clean_text: ");
+  public void insertCleanText(String text, String page_id, String text_id){
+      //System.out.println("inserting in clean_text: ");
       byte clean_text[]=null;
       
       try {
@@ -399,10 +401,12 @@ public class DBHandler {
       } 
       
       try { 
-        PreparedStatement ps = cn.prepareStatement("INSERT INTO clean_text VALUES (null, ?, ?)");
+        PreparedStatement ps = cn.prepareStatement("INSERT INTO clean_text VALUES (null, ?, ?, ?, ?)");
         if(clean_text != null){
           ps.setBytes(1, clean_text);
           ps.setBoolean(2, false);   // it will be true after processed by the FeatureMaker
+          ps.setInt(3, Integer.parseInt(page_id));
+          ps.setInt(4, Integer.parseInt(text_id));
           ps.execute();
         } else
            System.out.println("WARNING: can not insert in clean_text: " + text); 
@@ -417,8 +421,11 @@ public class DBHandler {
    * @param sentence text of the sentence.
    * @param features features if sentences is reliable.
    * @param reliable true/false.
+   * @param unknownWords true/false.
+   * @param strangeSymbols true/false.
+   * @param clean_text_id the id of the clean_text this sentence comes from.
    */
-  public void insertSentence(String sentence, byte features[], boolean reliable, boolean unknownWords, boolean strangeSymbols){
+  public void insertSentence(String sentence, byte features[], boolean reliable, boolean unknownWords, boolean strangeSymbols, int clean_text_id){
     
     if(unknownWords) 
       System.out.print("unknownWords");
@@ -430,13 +437,14 @@ public class DBHandler {
     
     try { 
       // INSERT INTO dbselection VALUES (id, sentence, features, realiable)
-      PreparedStatement ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?, ?, ?)");
+      PreparedStatement ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?, ?, ?, ?)");
     
       ps.setString(1, sentence);
       ps.setBytes(2, features);
       ps.setBoolean(3, reliable);
       ps.setBoolean(4, unknownWords);
       ps.setBoolean(5, strangeSymbols);
+      ps.setInt(6, clean_text_id);
       ps.execute();
       
     } catch (SQLException e) {
@@ -511,7 +519,7 @@ public class DBHandler {
   // Firts filtering:
   // get first the page_title and check if it is not Image: or  Wikipedia:Votes_for_deletion/
   // maybe we can check also the length
-  public String getTextFromWikiPage(String id, int minPageLength) {
+  public String getTextFromWikiPage(String id, int minPageLength, StringBuffer old_id, PrintWriter pw) {
       String pageTitle, pageLen, dbQuery, textId, text=null;
       byte[] textBytes=null;
       int len;
@@ -538,12 +546,15 @@ public class DBHandler {
         */
       }
       else {
-        System.out.print("PAGE page_id=" + id + "  ");  
-        System.out.println("PAGE USED page title=" + pageTitle + " Len=" + len);
-        //text="";
+        System.out.println("PAGE page_id=" + id + " PAGE SELECTED page title=" + pageTitle + " Len=" + len);
+        if(pw!=null)
+          pw.println("\nSELECTED PAGE TITLE=" + pageTitle + " Len=" + len);
         
         dbQuery = "select rev_text_id from revision where rev_page=" + id;
         textId = queryTable(dbQuery);
+        old_id.delete(0, old_id.length());
+        old_id.insert(0, textId);
+        
         dbQuery = "select old_text from text where old_id=" + textId;        
         textBytes = queryTableByte(dbQuery); 
         try {
@@ -712,7 +723,7 @@ public class DBHandler {
       tmp[2] = 30;
       tmp[3] = 40;
       
-      wikiToDB.insertSentence("sentence1", tmp, true, false, false);
+      wikiToDB.insertSentence("sentence1", tmp, true, false, false, 1);
       byte res[];
       
       res = wikiToDB.getFeatures(1);
