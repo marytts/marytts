@@ -127,14 +127,16 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent) + "function initForm()" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
-        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.VOICE.selectedIndex = " + String.valueOf(htmlForm.voiceSelected) + ";" + nextline;
+        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.VOICE_SELECTIONS.selectedIndex = " + String.valueOf(htmlForm.voiceSelected) + ";" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.INPUT_TYPE.selectedIndex = " + String.valueOf(htmlForm.inputTypeSelected) + ";" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.OUTPUT_TYPE.selectedIndex = " + String.valueOf(htmlForm.outputTypeSelected) + ";" + nextline;
-        htmlPage += indenter(numIndents, strIndent) + "maryWebClient.audioformat.selectedIndex = " + String.valueOf(htmlForm.audioFormatSelected) + ";" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "maryWebClient.AUDIO.selectedIndex = " + String.valueOf(htmlForm.audioFormatSelected) + ";" + nextline;
         //htmlPage += indenter(numIndents, strIndent) + "alert('inside initForm()');" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.INPUT_TEXT.value = '" + formatStringForJavaScript(htmlForm.inputText) + "';" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.OUTPUT_TEXT.value = '" + formatStringForJavaScript(htmlForm.outputText) + "';" + nextline;
-
+        htmlPage += indenter(numIndents, strIndent) + "maryWebClient.LOCALE.value = '" + htmlForm.allVoices.get(htmlForm.voiceSelected).getLocale() + "';" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "maryWebClient.VOICE.value = '" + htmlForm.allVoices.get(htmlForm.voiceSelected).name() + "';" + nextline;
+        
         if (htmlForm.allVoices.elementAt(htmlForm.voiceSelected).isLimitedDomain())
             htmlPage += indenter(numIndents, strIndent) + "maryWebClient.exampletext.selectedIndex = " + String.valueOf(htmlForm.limitedDomainExampleTextSelected) + ";" + nextline;
         
@@ -164,7 +166,7 @@ public class MaryWebHttpClientHandler
         
         //Handle visibility of audio format types
         htmlPage += indenter(++numIndents, strIndent) + "document.getElementById('hideFormat').style.display = " + visibilityOfOutputAudioItems + ";" + nextline;
-        htmlPage += indenter(numIndents, strIndent) + "document.getElementById('audioformat').style.display = " + visibilityOfOutputAudioItems + ";" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "document.getElementById('AUDIO').style.display = " + visibilityOfOutputAudioItems + ";" + nextline;
         
         //Handle visibility of audio effects
         if (htmlForm.effectsBoxData!=null && htmlForm.effectsBoxData.hasEffects())
@@ -207,6 +209,15 @@ public class MaryWebHttpClientHandler
         htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
         //
         
+        //Send synthesis request
+        htmlPage += nextline;
+        htmlPage += indenter(numIndents, strIndent) + "function requestSynthesis()" + nextline; 
+        htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
+        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.SYNTHESIS_OUTPUT.value = '?';" + nextline;  
+        htmlPage += indenter(++numIndents, strIndent) + "doSubmit();" + nextline;
+        htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
+        //
+        
         //Default clicked to request default page from server
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent) + "function defaultClicked()" + nextline; 
@@ -220,7 +231,7 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent) + "function inputTypeChanged()" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
-        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.EXAMPLE_TEXT.value = '? ' + maryWebClient.INPUT_TYPE.value + ' ' + '" + htmlForm.allVoices.get(htmlForm.voiceSelected).getLocale() + "';" + nextline;  
+        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.EXAMPLE_TEXT.value = '? ' + maryWebClient.INPUT_TYPE.value + ' ' + maryWebClient.LOCALE.value;" + nextline;  
         htmlPage += indenter(numIndents, strIndent) + "doSubmit();" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
         //
@@ -229,6 +240,16 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent) + "function outputTypeChanged()" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "doSubmit();" + nextline;
+        htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
+        //
+        
+        //Voice changed
+        htmlPage += nextline;
+        htmlPage += indenter(numIndents, strIndent) + "function voiceChanged()" + nextline; 
+        htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
+        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.LOCALE.value = '" + htmlForm.allVoices.get(htmlForm.voiceSelected).getLocale() + "';" + nextline; 
+        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.VOICE.value = '" + htmlForm.allVoices.get(htmlForm.voiceSelected).name() + "';" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "doSubmit();" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
         //
@@ -354,61 +375,59 @@ public class MaryWebHttpClientHandler
         htmlPage += indenter(numIndents, strIndent);
         if (htmlForm.isOutputText) htmlPage += "</td>" + nextline;
         htmlPage += nextline;
-        
-            //Audio effects
-            if (htmlForm.effectsBoxData!=null && htmlForm.effectsBoxData.hasEffects())
+
+        //Audio effects
+        if (htmlForm.effectsBoxData!=null && htmlForm.effectsBoxData.hasEffects())
+        {
+            //Effects and Parameters text
+            htmlPage += indenter(numIndents, strIndent);
+            if (!htmlForm.isOutputText) htmlPage += "<td>"; 
+            htmlPage += nextline; 
+            htmlPage += indenter(++numIndents, strIndent);
+            if (!htmlForm.isOutputText) htmlPage += "<table>";
+            htmlPage += nextline;
+            htmlPage += indenter(++numIndents, strIndent);
+            if (!htmlForm.isOutputText) htmlPage += "<tr> <td> </td> <td>";
+
+            htmlPage += "<div id=\"hideEffects\">Effects</div>";
+            if (!htmlForm.isOutputText) htmlPage += "</td> <td>";
+            htmlPage += "<div id=\"hideParameters\">Parameters</div>";
+            if (!htmlForm.isOutputText) htmlPage += "</td></tr>";
+            htmlPage += nextline;
+            //
+
+            for (i=0; i<htmlForm.effectsBoxData.getTotalEffects(); i++)
             {
-                //Effects and Parameters text
+                String effectName = htmlForm.effectsBoxData.getControlData(i).getEffectName();
+                String defaultParams = htmlForm.effectsBoxData.getControlData(i).getParams();
+                boolean isSelected = htmlForm.effectsBoxData.getControlData(i).getSelected();
                 htmlPage += indenter(numIndents, strIndent);
-                if (!htmlForm.isOutputText) htmlPage += "<td>"; 
-                htmlPage += nextline; 
-                htmlPage += indenter(++numIndents, strIndent);
-                if (!htmlForm.isOutputText) htmlPage += "<table>";
-                htmlPage += nextline;
-                htmlPage += indenter(++numIndents, strIndent);
-                if (!htmlForm.isOutputText) htmlPage += "<tr> <td> </td> <td>";
-                
-                htmlPage += "<div id=\"hideEffects\">Effects</div>";
-                if (!htmlForm.isOutputText) htmlPage += "</td> <td>";
-                htmlPage += "<div id=\"hideParameters\">Parameters</div>";
-                if (!htmlForm.isOutputText) htmlPage += "</td></tr>";
-                htmlPage += nextline;
-                //
-                
-                for (i=0; i<htmlForm.effectsBoxData.getTotalEffects(); i++)
-                {
-                    String effectName = htmlForm.effectsBoxData.getControlData(i).getEffectName();
-                    String defaultParams = htmlForm.effectsBoxData.getControlData(i).getParams();
-                    boolean isSelected = htmlForm.effectsBoxData.getControlData(i).getSelected();
-                    htmlPage += indenter(numIndents, strIndent);
-                    if (!htmlForm.isOutputText) htmlPage += "<tr> <td>";
-                    htmlPage += "<input type=\"checkbox\" name=\"effect_" + effectName + "_selected\" id=\"effect_" + effectName + "_selected\" " + (isSelected?("checked"):("")) + ">"; 
-                    if (!htmlForm.isOutputText) htmlPage += "</td> ";
-                    if (!htmlForm.isOutputText) htmlPage += "<td>";
-                    htmlPage += "<div id=\"" + effectName + "\">" + effectName + "</div>";
-                    if (!htmlForm.isOutputText) htmlPage += "</td> ";
-                    if (!htmlForm.isOutputText) htmlPage += "<td>";
-                    htmlPage += "<textarea name=\"effect_" + effectName + "_parameters\" id=\"effect_" + effectName + "_parameters\" rows=\"1\" cols=\"20\">" + defaultParams + "</textarea>";
-                    if (!htmlForm.isOutputText) htmlPage += "</td> "; 
-                    if (!htmlForm.isOutputText) htmlPage += "<td>";
-                    htmlPage += "<input type=\"button\" name=\"effect_" + effectName + "_help\" id=\"effect_" + effectName + "_help\" value=\"Help\">";
-                    if (!htmlForm.isOutputText) htmlPage += "</td> ";
-                    if (!htmlForm.isOutputText) htmlPage += "<td>";
-                    htmlPage += "<input type=\"button\" name=\"effect_" + effectName + "_default\" id=\"effect_" + effectName + "_default\" value=\"Default\" onClick=\"return " + effectName + "DefaultClicked();\">";
-                    if (!htmlForm.isOutputText) htmlPage += "</td> "; 
-                    if (!htmlForm.isOutputText) htmlPage += "</tr>";
-                    htmlPage += nextline;
-                }
-                  
-                htmlPage += indenter(--numIndents, strIndent);
-                if (!htmlForm.isOutputText)  htmlPage += "</table>";
-                htmlPage += nextline;
-                htmlPage += indenter(--numIndents, strIndent);
-                if (!htmlForm.isOutputText) htmlPage += "</td>";
+                if (!htmlForm.isOutputText) htmlPage += "<tr> <td>";
+                htmlPage += "<input type=\"checkbox\" name=\"effect_" + effectName + "_selected\" id=\"effect_" + effectName + "_selected\" " + (isSelected?("checked"):("")) + ">"; 
+                if (!htmlForm.isOutputText) htmlPage += "</td> ";
+                if (!htmlForm.isOutputText) htmlPage += "<td>";
+                htmlPage += "<div id=\"" + effectName + "\">" + effectName + "</div>";
+                if (!htmlForm.isOutputText) htmlPage += "</td> ";
+                if (!htmlForm.isOutputText) htmlPage += "<td>";
+                htmlPage += "<textarea name=\"effect_" + effectName + "_parameters\" id=\"effect_" + effectName + "_parameters\" rows=\"1\" cols=\"20\">" + defaultParams + "</textarea>";
+                if (!htmlForm.isOutputText) htmlPage += "</td> "; 
+                if (!htmlForm.isOutputText) htmlPage += "<td>";
+                htmlPage += "<input type=\"button\" name=\"effect_" + effectName + "_help\" id=\"effect_" + effectName + "_help\" value=\"Help\">";
+                if (!htmlForm.isOutputText) htmlPage += "</td> ";
+                if (!htmlForm.isOutputText) htmlPage += "<td>";
+                htmlPage += "<input type=\"button\" name=\"effect_" + effectName + "_default\" id=\"effect_" + effectName + "_default\" value=\"Default\" onClick=\"return " + effectName + "DefaultClicked();\">";
+                if (!htmlForm.isOutputText) htmlPage += "</td> "; 
+                if (!htmlForm.isOutputText) htmlPage += "</tr>";
                 htmlPage += nextline;
             }
-        //}
-        
+
+            htmlPage += indenter(--numIndents, strIndent);
+            if (!htmlForm.isOutputText)  htmlPage += "</table>";
+            htmlPage += nextline;
+            htmlPage += indenter(--numIndents, strIndent);
+            if (!htmlForm.isOutputText) htmlPage += "</td>";
+            htmlPage += nextline;
+        }
 
         htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;
         htmlPage += nextline;
@@ -445,7 +464,7 @@ public class MaryWebHttpClientHandler
         
         htmlPage += indenter(numIndents, strIndent) + "<tr>" + nextline;
         htmlPage += indenter(++numIndents, strIndent) + "<td>Voice:</td>" + nextline;
-        htmlPage += indenter(numIndents, strIndent) + "<td><select name=\"VOICE\" size=\"1\" onChange=\"return doSubmit();\">" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "<td><select name=\"VOICE_SELECTIONS\" size=\"1\" onChange=\"return voiceChanged();\">" + nextline;
 
         //Fill voices
         for (i=0; i<htmlForm.allVoices.size(); i++)
@@ -465,7 +484,7 @@ public class MaryWebHttpClientHandler
         
         htmlPage += indenter(++numIndents, strIndent);
         if (htmlForm.isOutputText) htmlPage += "<td>";
-        htmlPage += "<input type=\"button\" value=\"PROCESS\" id=\"PROCESS\" STYLE=\"font-size:11pt; font-weight=bold;\" onClick=\"return doSubmit();\">";
+        htmlPage += "<input type=\"button\" value=\"PROCESS\" id=\"PROCESS\" STYLE=\"font-size:11pt; font-weight=bold;\" onClick=\"return requestSynthesis();\">";
         if (htmlForm.isOutputText) htmlPage += "</td>";
         htmlPage += nextline;
 
@@ -476,7 +495,7 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent);
         if (!htmlForm.isOutputText) htmlPage += "<td>";
-        htmlPage += "<select name=\"audioformat\" id=\"audioformat\" size=\"1\" onChange=\"return doSubmit();\">" + nextline;
+        htmlPage += "<select name=\"AUDIO\" id=\"AUDIO\" size=\"1\" onChange=\"return doSubmit();\">" + nextline;
 
         //Fill audio file format types
         for (i=0; i<htmlForm.audioFileFormatTypes.length; i++)
@@ -505,7 +524,7 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
         htmlPage += indenter(++numIndents, strIndent); 
         if (!htmlForm.isOutputText) htmlPage += "<td>";
-        htmlPage += "<input type=\"button\" value=\"SPEAK\" id=\"SPEAK\" STYLE=\"font-size:11pt; font-weight=bold;\" onClick=\"return doSubmit();\">";
+        htmlPage += "<input type=\"button\" value=\"SPEAK\" id=\"SPEAK\" STYLE=\"font-size:11pt; font-weight=bold;\" onClick=\"return requestSynthesis();\">";
         if (!htmlForm.isOutputText) htmlPage += "</td>";
         htmlPage += nextline;
 
@@ -517,13 +536,22 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;     
         htmlPage += indenter(numIndents, strIndent) + "<tr>" + nextline;
         //Tells server that this is a web browser client
-        htmlPage += indenter(numIndents, strIndent) + "<td><input type=\"hidden\" name=\"iswebbrowserclient\" value=\"true\"></td>" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "<td><input type=\"hidden\" name=\"WEB_BROWSER_CLIENT\" value=\"true\"></td>" + nextline;
         //Requests example texts depending on input/output type and voice
         htmlPage += indenter(numIndents, strIndent) + "<td><input type=\"hidden\" name=\"EXAMPLE_TEXT\" value=\"\"></td>" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;        
         //Requests default page
         htmlPage += indenter(numIndents, strIndent) + "<td><input type=\"hidden\" name=\"DEFAULT_PAGE\" value=\"\"></td>" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;  
+        //Sends synthesis request
+        htmlPage += indenter(numIndents, strIndent) + "<td><input type=\"hidden\" name=\"SYNTHESIS_OUTPUT\" value=\"\"></td>" + nextline;
+        htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;  
+        //Keeps locale info
+        htmlPage += indenter(numIndents, strIndent) + "<td><input type=\"hidden\" name=\"LOCALE\" value=\"\"></td>" + nextline;
+        htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline; 
+        //Keeps voice info
+        htmlPage += indenter(numIndents, strIndent) + "<td><input type=\"hidden\" name=\"VOICE\" value=\"\"></td>" + nextline;
+        htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline; 
         //
         
         htmlPage += indenter(--numIndents, strIndent) + "</form>" + nextline;

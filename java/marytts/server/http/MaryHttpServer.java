@@ -406,31 +406,46 @@ public class MaryHttpServer {
             
             Map<String, String> keyValuePairs = MaryHttpClientUtils.toKeyValuePairs(fullParameters, false);
             
+            boolean isWebBrowserClient = false;
             boolean bProcessed = false;
             boolean isDefaultPageRequested = false;
             if (keyValuePairs==null)
+            {
                 isDefaultPageRequested = true;
+                isWebBrowserClient = true;
+            }
             else
             {
                 String tmpVal = keyValuePairs.get("DEFAULT_PAGE");
                 if (tmpVal!=null && tmpVal.compareTo("?")==0)
                     isDefaultPageRequested = true;
+                
+                tmpVal = keyValuePairs.get("WEB_BROWSER_CLIENT");
+                if (tmpVal!=null && tmpVal.compareTo("true")==0)
+                    isWebBrowserClient = true;
+                else
+                    isWebBrowserClient = false; 
             }
             
             if (isDefaultPageRequested) //A web browser client is asking for the default html page
             {
-                MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
-                
-                MaryHtmlForm htmlForm = new MaryHtmlForm(serverAddressAtClient,
-                                                         getMaryVersion(),
-                                                         getVoices(),
-                                                         getDataTypes(),
-                                                         getAudioFileFormatTypes(),
-                                                         getAudioEffectHelpTextLineBreak(),
-                                                         getDefaultAudioEffects(),
-                                                         getDefaultVoiceExampleTexts());
-                
-                webHttpClient.toHttpResponse(htmlForm, response);
+                if (isWebBrowserClient)
+                {
+                    MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
+
+                    MaryHtmlForm htmlForm = new MaryHtmlForm(serverAddressAtClient,
+                            getMaryVersion(),
+                            getVoices(),
+                            getDataTypes(),
+                            getAudioFileFormatTypes(),
+                            getAudioEffectHelpTextLineBreak(),
+                            getDefaultAudioEffects(),
+                            getDefaultVoiceExampleTexts());
+
+                    webHttpClient.toHttpResponse(htmlForm, response);
+                }
+                else
+                    throw new Exception("Invalid request to Mary server!");
             }
             else
             {
@@ -440,7 +455,10 @@ public class MaryHttpServer {
                     handleSynthesisRequest(keyValuePairs, response);
 
                     //TO DO: How to send audio to web browser client?
-
+                    if (isWebBrowserClient)
+                    {
+                        
+                    }
 
                     bProcessed = true;
                 }
@@ -451,9 +469,7 @@ public class MaryHttpServer {
 
                     if (keyValuePairs!=null)
                     {
-                        String isWebBrowserClient = keyValuePairs.get("iswebbrowserclient");
-   
-                        if (isWebBrowserClient!=null && isWebBrowserClient.compareTo("true")==0) //Generate info response for web browser client
+                        if (isWebBrowserClient) //Generate info response for web browser client
                         {
                             MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
                             MaryHtmlForm htmlForm = new MaryHtmlForm(serverAddressAtClient,
@@ -732,15 +748,11 @@ public class MaryHttpServer {
                     }
                     
                     if (voice == null) 
-                    {
-                        throw new Exception("No voice matches `" + voiceName
-                                            + "'. Use a different voice name or remove VOICE= tag from request.");
-                    }
+                        throw new Exception("No voice matches `" + voiceName + "'. Use a different voice name or remove VOICE= tag from request.");
                 }
 
-                if (voice == null) 
+                if (voice == null) // no voice tag -- use locale default
                 {
-                    // no voice tag -- use locale default
                     voice = Voice.getDefaultVoice(locale);
                     logger.debug("No voice requested -- using default " + voice);
                 }
@@ -760,18 +772,13 @@ public class MaryHttpServer {
                 }
                 //
                     
-                //Optional EFFECTS field
-                helper = keyValuePairs.get("EFFECTS");
-                if (helper!=null && helper.length()>0)
-                {
-                    effects = helper;
+                //Optional: Audio effects
+                effects = toRequestedAudioEffectsString(keyValuePairs);
+
+                if (effects.length()>0)
                     logger.debug("Audio effects requested: " + effects);
-                }
                 else
-                {
-                    effects = "";
                     logger.debug("No audio effects requested");
-                }
                 //
   
                 //Optional LOG field
@@ -820,6 +827,43 @@ public class MaryHttpServer {
             }
 
             return false;
+        }
+        
+        private String toRequestedAudioEffectsString(Map<String, String> keyValuePairs)
+        {
+            String effects = "";
+            StringTokenizer tt;
+            Set<String> keys = keyValuePairs.keySet();
+            String currentKey;
+            String currentEffectName, currentEffectParams;
+            for (Iterator<String> it = keys.iterator(); it.hasNext();)
+            {
+                currentKey = it.next();
+                if (currentKey.startsWith("effect_"))
+                {
+                    if (currentKey.endsWith("_selected"))
+                    {
+                        if (keyValuePairs.get(currentKey).compareTo("on")==0)
+                        {
+                            if (effects.length()>0)
+                                effects += "+";
+                            
+                            tt = new StringTokenizer(currentKey, "_");
+                            if (tt.hasMoreTokens()) tt.nextToken(); //Skip "effects_"
+                            if (tt.hasMoreTokens()) //The next token is the effect name
+                            {
+                                currentEffectName = tt.nextToken();
+
+                                currentEffectParams = keyValuePairs.get("effect_" + currentEffectName + "_parameters");
+                                if (currentEffectParams!=null && currentEffectParams.length()>0)
+                                    effects += currentEffectName + "(" + currentEffectParams + ")";
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return effects;
         }
 
         private String getMaryVersion()

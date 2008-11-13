@@ -788,46 +788,36 @@ public class MaryGUIHttpClient extends JPanel
 
     //Create a single String parameter by reading the selected effect parameters in the interface
     //If no effect is selected or the effects are not being shown, an empty String is returned
-    private String getAudioEffectsAsString()
+    private Map<String, String> getAudioEffectsMap()
     {
-        String strParams = "";
-        String strTmpParam;
-
+        Map<String, String> effectsMap = null;
+        String key, value;
         if (effectsBox!=null)
         {
             if (isButtonHide)
-            {         
-                boolean bFirst = true;
+            {        
                 for (int i=0; i<effectsBox.getData().getTotalEffects(); i++)
                 {
+                    if (effectsMap==null)
+                        effectsMap=new HashMap<String, String>();
+
+                    key = "effect_" + effectsBox.getData().getControlData(i).getEffectName() + "_selected";
+
                     if (effectsBox.effectControls[i].chkEnabled.isSelected())
-                    {  
-                        strTmpParam = "";
-                        try {
-                            strTmpParam = processor.requestFullEffect(effectsBox.getData().getControlData(i).getEffectName(), effectsBox.effectControls[i].txtParams.getText().trim());
-                        } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (InterruptedException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                        
-                        strTmpParam = strTmpParam.trim();
-                        
-                        if (!bFirst)
-                            strParams += effectsBox.getData().getEffectSeparator() + strTmpParam;
-                        else
-                        {
-                            strParams += strTmpParam;
-                            bFirst = false;
-                        }
-                    }
+                        value = "on";
+                    else
+                        value = "off";
+
+                    effectsMap.put(key, value);
+
+                    key = "effect_" + effectsBox.getData().getControlData(i).getEffectName() + "_parameters";
+                    value = effectsBox.effectControls[i].txtParams.getText().trim();
+                    effectsMap.put(key, value); 
                 }
             }
         }
         
-        return strParams;
+        return effectsMap;
     }
     
     private void setExampleInputText()
@@ -1078,7 +1068,7 @@ public class MaryGUIHttpClient extends JPanel
                                 audioType,
                                 ((MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                                 "",
-                                getAudioEffectsAsString(),
+                                getAudioEffectsMap(),
                                 new FileOutputStream(saveFile));
                     }
                 }
@@ -1229,7 +1219,7 @@ public class MaryGUIHttpClient extends JPanel
                         streamMp3 ? "MP3":"WAVE",
                                 ((MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                                 "",
-                                getAudioEffectsAsString(),
+                                getAudioEffectsMap(),
                                 audioPlayer,
                                 new MaryHttpClient.AudioPlayerListener() {
                     public void playerFinished()
@@ -1260,7 +1250,7 @@ public class MaryGUIHttpClient extends JPanel
                         null,
                         ((MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                         "",
-                        getAudioEffectsAsString(),
+                        getAudioEffectsMap(),
                         os);
 
                 try {
