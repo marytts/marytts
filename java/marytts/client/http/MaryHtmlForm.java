@@ -633,7 +633,7 @@ public class MaryHtmlForm {
     }
     
     public InputStream requestInputStream(String input, String inputType, String outputType, String locale, String audioType, 
-                                          String defaultVoiceName, String defaultStyle, String defaultEffects,
+                                          String defaultVoiceName, String defaultStyle, Map<String, String> effects, //String defaultEffects,
                                           boolean streamingAudio) throws IOException, InterruptedException
     {
         keyValuePairs.put("SYNTHESIS_OUTPUT", "?");
@@ -650,7 +650,11 @@ public class MaryHtmlForm {
             keyValuePairs.put("VOICE", defaultVoiceName);
         
         keyValuePairs.put("STYLE", defaultStyle);
-        keyValuePairs.put("EFFECTS", defaultEffects);
+        
+        //keyValuePairs.put("EFFECTS", defaultEffects);
+        
+        if (effects!=null)
+            keyValuePairs.putAll(effects);
         
         return httpRequester.requestInputStream(hostAddress, keyValuePairs);
     }

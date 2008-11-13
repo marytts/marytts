@@ -196,7 +196,7 @@ public class MaryHttpClient extends MaryHtmlForm {
      * @see #getInputDataTypes()
      * @see #getVoices()
      */
-    public void streamAudio(String input, String inputType, String locale, String audioType, String defaultVoiceName, String defaultStyle, String defaultEffects, marytts.util.data.audio.AudioPlayer audioPlayer, AudioPlayerListener listener)
+    public void streamAudio(String input, String inputType, String locale, String audioType, String defaultVoiceName, String defaultStyle, Map<String, String> defaultEffects, marytts.util.data.audio.AudioPlayer audioPlayer, AudioPlayerListener listener)
     throws UnknownHostException, IOException, Exception
     {
         _process(input, inputType, "AUDIO", locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, audioPlayer, 0, true, listener);
@@ -219,7 +219,7 @@ public class MaryHttpClient extends MaryHtmlForm {
      * @see #getVoices()
      */
     public void process(String input, String inputType, String outputType, String locale,
-        String audioType, String defaultVoiceName, String defaultStyle, String defaultEffects, OutputStream output)
+        String audioType, String defaultVoiceName, String defaultStyle, Map<String, String> defaultEffects, OutputStream output)
         throws UnknownHostException, IOException, Exception
     {
         _process(input, inputType, outputType, locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, output, 0, false, null);
@@ -229,7 +229,7 @@ public class MaryHttpClient extends MaryHtmlForm {
             String audioType, String defaultVoiceName, OutputStream output)
             throws UnknownHostException, IOException, Exception
     {
-        process( input,  inputType,  outputType, locale, audioType,  defaultVoiceName,  "", "", output);
+        process( input,  inputType,  outputType, locale, audioType,  defaultVoiceName,  "", null, output);
     }
 
     /**
@@ -251,7 +251,7 @@ public class MaryHttpClient extends MaryHtmlForm {
      * @see #getVoices()
      */
     public void process(String input, String inputType, String outputType, String locale,
-        String audioType, String defaultVoiceName, String defaultStyle, String defaultEffects, OutputStream output, long timeout)
+        String audioType, String defaultVoiceName, String defaultStyle, Map<String, String> defaultEffects, OutputStream output, long timeout)
         throws UnknownHostException, IOException, Exception
     {
         _process(input, inputType, outputType, locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, output, timeout, false, null);
@@ -261,70 +261,11 @@ public class MaryHttpClient extends MaryHtmlForm {
          String audioType, String defaultVoiceName, OutputStream output, long timeout)
          throws UnknownHostException, IOException, Exception
     {
-        process(input,  inputType, outputType, locale, audioType,  defaultVoiceName, "",  "", output, timeout);
-    }
-    
-    
-    /**
-     * The easiest way to call the MARY client when the output is to
-     * be played via a FreeTTS audio player. 
-     * @param input a textual representation of the input data 
-     * @param inputType the name of the input data type, e.g. TEXT or RAWMARYXML. See #getInputDataTypes().
-     * @param defaultVoiceName the name of the voice to use, e.g. de7 or us1. See #getVoices().
-     * @param audioEffects the audio effects and their parameters to be applied as a post-processing step, e.g. Robot(Amount=100), Whisper(amount=50)
-     * @param player the FreeTTS audio player with which to play the synthesised audio data. The
-     * given audio player must already be instanciated. See the package
-     * <code>com.sun.speech.freetts.audio</code> in FreeTTS for implementations of AudioPlayer.
-     * @throws IOException if communication with the server fails
-     * @throws UnknownHostException if the host could not be found
-     */
-    @Deprecated
-    public void process(String input, String inputType, String locale, String defaultVoiceName, String defaultStyle,  String defaultEffects, com.sun.speech.freetts.audio.AudioPlayer player)
-        throws UnknownHostException, IOException, Exception
-    {
-        _process(input, inputType, "AUDIO", locale, "AU", defaultVoiceName, defaultStyle, defaultEffects, player, 0, false, null);
-    }
-    
-    @Deprecated
-    public void process(String input, String inputType, String locale, String defaultVoiceName, com.sun.speech.freetts.audio.AudioPlayer player)
-    throws UnknownHostException, IOException, Exception
-    {
-        process(input, inputType, locale, defaultVoiceName, "", "", player);
-    }
-
-    /**
-     * An alternative way to call the MARY client when the output is to
-     * be played via a FreeTTS audio player, with a timeout. 
-     * @param input a textual representation of the input data 
-     * @param inputType the name of the input data type, e.g. TEXT or RAWMARYXML.
-     * @param defaultVoiceName the name of the voice to use, e.g. de7 or us1.
-     * @param audioEffects the audio effects and their parameters to be applied as a post-processing step, e.g. Robot(Amount=100), Whisper(amount=50)
-     * @param player the FreeTTS audio player with which to play the synthesised audio data. The
-     * given audio player must already be instanciated. See the package
-     * <code>com.sun.speech.freetts.audio</code> in FreeTTS for implementations of AudioPlayer.
-     * @param timeout if >0, sets a timer to as many milliseconds; if processing is not finished by then,
-     * the connection with the Mary server is forcefully cut, resulting in an IOException.
-     * @throws IOException if communication with the server fails
-     * @throws UnknownHostException if the host could not be found
-     * @see #getInputDataTypes()
-     * @see #getVoices()
-     */
-    @Deprecated
-    public void process(String input, String inputType, String locale, String defaultVoiceName, String defaultStyle, String defaultEffects, com.sun.speech.freetts.audio.AudioPlayer player, long timeout)
-        throws UnknownHostException, IOException, Exception
-    {
-        _process(input, inputType, "AUDIO", locale, "AU", defaultVoiceName, defaultStyle, defaultEffects, player, timeout, false, null);
-    }
-
-    @Deprecated
-    public void process(String input, String inputType, String locale, String defaultVoiceName, com.sun.speech.freetts.audio.AudioPlayer player, long timeout)
-    throws UnknownHostException, IOException, Exception
-    {
-        process( input, inputType, locale, defaultVoiceName, "", "", player, timeout);
+        process(input,  inputType, outputType, locale, audioType,  defaultVoiceName, "",  null, output, timeout);
     }
 
     private void _process(String input, String inputType, String outputType, String locale, String audioType, 
-                          String defaultVoiceName, String defaultStyle, String defaultEffects, 
+                          String defaultVoiceName, String defaultStyle, Map<String, String> defaultEffects, 
                           Object output, long timeout, boolean streamingAudio, AudioPlayerListener playerListener)
                                                                            throws UnknownHostException, IOException, Exception
     {
@@ -585,7 +526,7 @@ public class MaryHttpClient extends MaryHtmlForm {
         }
         String defaultVoiceName = System.getProperty("voice.default", "de7");
         String defaultStyle = "";
-        String defaultEffects = "";
+        Map<String, String> defaultEffects = null;
 
         if (args.length > 0) {
             File file = new File(args[0]);
