@@ -208,7 +208,7 @@ public class FeatureMakerMaryServer{
                 /* Insert in the database the new sentence and its features. */
               
                 numSentencesInText++;
-                wikiToDB.insertSentence(newSentence,feas, true, false, false);
+                wikiToDB.insertSentence(newSentence,feas, true, false, false, Integer.parseInt(textId[i]));
                      		
 			}//end of loop over sentences
           numSentences += numSentencesInText;
@@ -500,6 +500,7 @@ public class FeatureMakerMaryServer{
 			if (t.hasAttribute("pos") && !t.getAttribute("pos").startsWith("$")){					
 				//no transcription given -> unreliable	
 				//newUsefulSentence = false;
+                //System.out.println("t.getTextContent = " + t.getTextContent() + "  t.getAttribute=" + t.getAttribute("pos"));
                 newUsefulSentence = 2;
                 
 			} //else punctuation -> credible
@@ -674,7 +675,7 @@ public class FeatureMakerMaryServer{
                          
                         // Here the reason why is unreliable can be added to the DB.
                         // for the moment there is just one field reliable=false in this case.
-                        wikiToDB.insertSentence(sentence.toString(), null, usefulSentence, unknownWords, strangeSymbols);
+                        wikiToDB.insertSentence(sentence.toString(), null, usefulSentence, unknownWords, strangeSymbols, Integer.parseInt(id));
 					}
 					sentenceIndex++;
 				} else {

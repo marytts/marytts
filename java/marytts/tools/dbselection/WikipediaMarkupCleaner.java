@@ -21,7 +21,8 @@ public class WikipediaMarkupCleaner {
            // process text until it finds any of these labels:
            if( line.indexOf("==References")>=0 || line.indexOf("== References")>=0 || 
                    line.indexOf("==See also")>=0 || line.indexOf("== See also")>=0 ||
-                   line.indexOf("==External links and sources")>=0 || line.indexOf("==External links")>=0 || line.indexOf("== External links")>=0 ||
+                   line.indexOf("==External links and sources")>=0 || line.indexOf("==External links")>=0 || 
+                   line.indexOf("== External links")>=0 || line.indexOf("== External Links")>=0 ||
                    line.indexOf("== External links and sources")>=0 ||
                    line.indexOf("==Notes")>=0 || line.indexOf("== Notes")>=0 ||
                    line.indexOf("==Sources")>=0 || line.indexOf("== Sources")>=0 ||
@@ -48,7 +49,7 @@ public class WikipediaMarkupCleaner {
                  clean = false;
              }
              
-             if( line.indexOf("<table") >= 0){
+             if( line.indexOf("<table") >= 0){  // tables
                  line = removeSection(s, line, "<table", "</table>", debug);
                  clean = false;
              }
@@ -57,18 +58,18 @@ public class WikipediaMarkupCleaner {
                  line = removeSection(s, line, "<TABLE", "</TABLE>", debug);
                  clean = false;
              }
+             
+             if( line.indexOf("{{col-begin}}") >= 0){
+                 line = removeSection(s, line, "{{col-begin}}", "{{col-end}}", debug);
+                 clean = false;
+             }
               
-             if( line.indexOf("{|") >= 0){  // this should go before {{ because a table can contain {{ }}
+             if( line.indexOf("{|") >= 0){  // this is a table, this should go before {{ because a table can contain {{ }}
                  line = removeSectionTable(s, line, "{|", "|}", debug);
                  clean = false;
              }
-             
-             if( line.indexOf("<noinclude") >= 0){  // after table normally there is another noinclude
-                 line = removeSection(s, line, "<noinclude", "</noinclude>", debug);
-                 clean = false;
-             }
                
-             if( line.indexOf("<ref") >= 0){
+             if( line.indexOf("<ref") >= 0){  // references
                line = removeSectionRef(s, line);  // This is special because it can be <ref>, <ref, </ref> or />
                clean = false;
              }
@@ -112,10 +113,25 @@ public class WikipediaMarkupCleaner {
                  clean = false;
              }
                    
-            if( line.indexOf("[[Image:") >= 0){
+             if( line.indexOf("[[Image:") >= 0){
                  line = removeSectionImage1(s, line, "[[Image:", "]]", debug);
                  clean = false;
-            }
+             }
+            
+             if( line.indexOf("<div") >= 0){ // span and div tags are used to separate images from text
+                 line = removeSection(s, line, "<div", "</div>", debug);
+                 clean = false;
+             }
+             
+             if( line.indexOf("<DIV") >= 0){
+                line = removeSectionImage1(s, line, "<DIV", "</DIV>", debug);
+                clean = false;
+             }
+             
+             if( line.indexOf("<span") >= 0){
+                 line = removeSection(s, line, "<span", "</span>", debug);
+                 clean = false;
+             }
                         
              if( line.indexOf("<math>") >= 0){
                  line = removeSection(s, line, "<math>", "</math>", debug);
@@ -126,12 +142,7 @@ public class WikipediaMarkupCleaner {
                  line = removeSection(s, line, "<timeline>", "</timeline>", debug);
                  clean = false;
              }
-             
-             if( line.indexOf("<div") >= 0){
-                 line = removeSection(s, line, "<div", "</div>", debug);
-                 clean = false;
-             }
-             
+            
              if( line.indexOf("<nowiki") >= 0){
                  line = removeSection(s, line, "<nowiki", "</nowiki>", debug);
                  clean = false;
@@ -154,11 +165,6 @@ public class WikipediaMarkupCleaner {
              
              if( line.indexOf("<poem") >= 0){
                  line = removeSection(s, line, "<poem", "</poem>", debug);
-                 clean = false;
-             }
-                       
-             if( line.indexOf("<span") >= 0){
-                 line = removeSection(s, line, "<span", "</span>", debug);
                  clean = false;
              }
              
@@ -244,9 +250,13 @@ public class WikipediaMarkupCleaner {
                line = new StringBuffer(line.toString().replaceAll("</small>", ""));
                line = new StringBuffer(line.toString().replaceAll("<ul>", ""));
                line = new StringBuffer(line.toString().replaceAll("</ul>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<UL>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</UL>", ""));
                line = new StringBuffer(line.toString().replaceAll("<br>", ""));
                line = new StringBuffer(line.toString().replaceAll("<br", ""));
-               line = new StringBuffer(line.toString().replaceAll("/>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<BR>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<br", ""));
+               line = new StringBuffer(line.toString().replaceAll("<br/>", ""));
                line = new StringBuffer(line.toString().replaceAll("<Center>", ""));
                line = new StringBuffer(line.toString().replaceAll("<center>", ""));
                line = new StringBuffer(line.toString().replaceAll("</center>", ""));
@@ -256,6 +266,8 @@ public class WikipediaMarkupCleaner {
                line = new StringBuffer(line.toString().replaceAll("</cite>", ""));
                line = new StringBuffer(line.toString().replaceAll("<li>", ""));
                line = new StringBuffer(line.toString().replaceAll("</li>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<LI>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</LI>", ""));
                line = new StringBuffer(line.toString().replaceAll("<dl>", ""));
                line = new StringBuffer(line.toString().replaceAll("</dl>", ""));
                line = new StringBuffer(line.toString().replaceAll("<dt>", ""));
@@ -272,6 +284,8 @@ public class WikipediaMarkupCleaner {
                line = new StringBuffer(line.toString().replaceAll("</tt>", ""));
                line = new StringBuffer(line.toString().replaceAll("<i>", ""));
                line = new StringBuffer(line.toString().replaceAll("</i>", ""));
+               line = new StringBuffer(line.toString().replaceAll("<I>", ""));
+               line = new StringBuffer(line.toString().replaceAll("</I>", ""));
                line = new StringBuffer(line.toString().replaceAll("<s>", ""));
                line = new StringBuffer(line.toString().replaceAll("</s>", ""));
                line = new StringBuffer(line.toString().replaceAll("<em>", ""));
@@ -799,7 +813,14 @@ public class WikipediaMarkupCleaner {
        while ( (index1 = line.indexOf("[http:")) >= 0 || (index1 = line.indexOf("[https:")) >= 0) {
            //System.out.println("LINE(BEFORE): " + line); 
            if( (index2 = line.indexOf("]", index1)) >= 0 ) {
-              line.delete(index1, index2+1);   
+           //   line.delete(index1, index2+1);
+             if ( ( index3 = line.indexOf(" ", index1)) >= 0  && index3 < index2){  // if there is text to display
+               line.delete(index1, index3+1);   // delete the link and [http:    until forst black space before ]
+               index2 = line.indexOf("]");     // since i delete some text i need to find egain the next ]]
+               line.delete(index2, index2+1);
+             } else {                            
+               line.delete(index1, index2+1);   // no text to display, delete the whole ref
+             }
                 
            //System.out.println("LINE (AFTER): " + line + "\n");    
                
@@ -821,69 +842,27 @@ public class WikipediaMarkupCleaner {
     
     
     void processWikipediaSQLTablesDebug(String textFile, String pageFile, String revisionFile)throws Exception{
-        //Put sentences and features in the database.
+        
         DBHandler wikiToDB = new DBHandler();
 
-        wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
-        
-        textFile = "/project/mary/marcela/anna_wikipedia/pages_xml_splits/text.txt";
-        pageFile = "/project/mary/marcela/anna_wikipedia/pages_xml_splits/page.txt";
-        revisionFile = "/project/mary/marcela/anna_wikipedia/pages_xml_splits/revision.txt";
-        
-      //  wikiToDB.createAndLoadWikipediaTables(textFile, pageFile, revisionFile);
-        
-        String pageId[];
-        pageId = wikiToDB.getIds("page_id", "page");
-        
-       
-        wikiToDB.createWikipediaCleanTextTable();
-        
-        
+        wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");    
         String text;
-        String pwFile="/project/mary/marcela/anna_wikipedia/wiki-filter.txt";
-        PrintWriter pw = new PrintWriter(new FileWriter(new File(pwFile)));
-        
+        StringBuffer textId = new StringBuffer();
         int numPagesUsed=0;
-        int minPageLength=20000;  // minimum size of a wikipedia page, to be used in the first filtering of pages
-        for(int i=0; i<pageId.length; i++){
-    
-           
-          //System.out.print("PAGE page_id[" + i + "]=" + pageId[i] + "  "); 
-          // first filter  
-          text = wikiToDB.getTextFromWikiPage(pageId[i], minPageLength);
+        int minPageLength=1;  
         
-            //text = wikiToDB.getTextFromPage("18783089", minPageLength);
-            //text = wikiToDB.getTextFromPage("18717261", minPageLength);
-            //text = wikiToDB.getTextFromPage("18717338", minPageLength);
-            //text = wikiToDB.getTextFromPage("18836159", minPageLength);
-            //text = wikiToDB.getTextFromPage("18695129", minPageLength);
-            //text = wikiToDB.getTextFromPage("18937878", minPageLength);
-            //System.out.println("text=" + text);
-            
-            if(text!=null){         
-            System.out.println("numPagesUsed=" + numPagesUsed); 
-            //if(numPagesUsed==308)
-            //  text = wikiCleaner.removeMarKup(text, true);  
-            //else
-              text = removeMarKup(text, false); 
-              
-            // if text is not empty we need to keep it in a table in wiki
-            if( !text.contentEquals("") )
-              wikiToDB.insertCleanText(text);  
-              
-            //if(numPagesUsed==308)
-            //  System.out.println("\n\nnumPagesUsed=" +numPagesUsed+ " CLEANED PAGE page_id[" + i + "]=" + pageId[i] + " :\n" + text);
-            pw.println("\n\nnumPagesUsed=" +numPagesUsed+ " CLEANED PAGE page_id[" + i + "]=" + pageId[i] + " :\n" + text);  
-            //System.out.println("\n\nnumPagesUsed=" +numPagesUsed+ " CLEANED PAGE :\n" + text);
-            numPagesUsed++;
-          }
-       
-          //System.out.println("PAGE page_id[" + i + "]=" + pageId[i] + " : " + text);
-            
-        }
-        System.out.println("Number of PAGES USED=" + numPagesUsed);
+        //String idtest="18702442";
+        String idtest="19194346";
         
-        pw.close(); 
+        // get text from the DB
+        text = wikiToDB.getTextFromWikiPage(idtest, minPageLength, textId, null);
+        System.out.println("text:" + text);
+        
+        if(text!=null){         
+          text = removeMarKup(text, false); 
+          System.out.println("\nCLEANED PAGE SIZE=" + text.length() + "  text:\n" + text);
+        } else
+            System.out.println("NO CLEANED TEXT");   
         
     }
     
@@ -896,34 +875,45 @@ public class WikipediaMarkupCleaner {
         
         
         // This loading takes a while
+        // 
+       
       //  wikiToDB.createAndLoadWikipediaTables(textFile, pageFile, revisionFile);
         
         String pageId[];
         pageId = wikiToDB.getIds("page_id","page");
-             
+        
+        String pagexmlName = "clean_text_pagexml30";
         wikiToDB.createWikipediaCleanTextTable();
                
         String text;
         String pwFile="/project/mary/marcela/anna_wikipedia/wiki-filter.txt";
         PrintWriter pw = new PrintWriter(new FileWriter(new File(pwFile)));
         
+        StringBuffer textId = new StringBuffer();
         int numPagesUsed=0;
-        int minPageLength=20000;  // minimum size of a wikipedia page, to be used in the first filtering of pages
+        int minPageLength=10000;  // minimum size of a wikipedia page, to be used in the first filtering of pages
         for(int i=0; i<pageId.length; i++){
           // first filter  
-          text = wikiToDB.getTextFromWikiPage(pageId[i], minPageLength);
+          text = wikiToDB.getTextFromWikiPage(pageId[i], minPageLength, textId, pw);
           
-          if(text!=null){         
-            System.out.println("numPagesUsed=" + numPagesUsed); 
+          if(text!=null){ 
             text = removeMarKup(text, false); 
               
             // if text is not empty we need to keep it in a table in wiki
-            if( !text.contentEquals("") )
-              wikiToDB.insertCleanText(text);  
+            if( text.length() > 1000 ){
+              // if after cleaning the text is not empty or 
+              numPagesUsed++;  
+              System.out.println("numPagesUsed=" + numPagesUsed);   
+              wikiToDB.insertCleanText(text, pageId[i], textId.toString()); 
+              System.out.println("text_id=" + textId.toString() + "  Length=" + text.length());
               
-            pw.println("\n\nnumPagesUsed=" +numPagesUsed+ " CLEANED PAGE page_id[" + i + "]=" + pageId[i] + " :\n" + text);  
-            numPagesUsed++;
+              pw.println("CLEANED PAGE page_id[" + i + "]=" + pageId[i] + " length=" + text.length() 
+                         + "  NUM_PAGES_USED=" +numPagesUsed + " text:\n\n" + text);               
+            }else
+              pw.println("PAGE NOT USED AFTER CLEANING length=" + text.length());
           }
+              
+          
         }
         System.out.println("Number of PAGES USED=" + numPagesUsed);
         
@@ -940,7 +930,8 @@ public class WikipediaMarkupCleaner {
         String pageFile = "/project/mary/marcela/anna_wikipedia/pages_xml_splits/page.txt";
         String revisionFile = "/project/mary/marcela/anna_wikipedia/pages_xml_splits/revision.txt";
         
-        wikiCleaner.processWikipediaSQLTables(textFile, pageFile, revisionFile);
+        //wikiCleaner.processWikipediaSQLTables(textFile, pageFile, revisionFile);
+        wikiCleaner.processWikipediaSQLTablesDebug(textFile, pageFile, revisionFile);
     }
        
    }
