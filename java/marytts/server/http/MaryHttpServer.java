@@ -30,12 +30,15 @@ package marytts.server.http;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
+import java.nio.channels.FileChannel;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -82,10 +85,18 @@ import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicLineParser;
+import org.apache.http.nio.ContentDecoder;
+import org.apache.http.nio.ContentDecoderChannel;
+import org.apache.http.nio.FileContentDecoder;
+import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpConnection;
+import org.apache.http.nio.entity.ConsumingNHttpEntity;
+import org.apache.http.nio.entity.ConsumingNHttpEntityTemplate;
+import org.apache.http.nio.entity.ContentListener;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.protocol.EventListener;
+import org.apache.http.nio.protocol.SimpleNHttpRequestHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.BasicHttpParams;
@@ -279,8 +290,10 @@ public class MaryHttpServer {
         return runningNumber++;
     }
 
-    public class HttpClientHandler implements HttpRequestHandler  
-    {           
+    public class HttpClientHandler extends SimpleNHttpRequestHandler implements HttpRequestHandler  
+    {    
+        private final boolean useFileChannels = true;
+        
         public HttpClientHandler() 
         {
             super();
@@ -290,6 +303,35 @@ public class MaryHttpServer {
 
         public void handle(final HttpRequest request, final HttpResponse response, final HttpContext context)
         {
+            
+            /* This code handles File requests from clients
+            String target = request.getRequestLine().getUri();
+            final File file = new File(this.docRoot, URLDecoder.decode(target, "UTF-8"));
+            if (!file.exists()) {
+                response.setStatusCode(HttpStatus.SC_NOT_FOUND);
+                NStringEntity entity = new NStringEntity(
+                        "<html><body><h1>File" + file.getPath() +
+                        " not found</h1></body></html>",
+                        "UTF-8");
+                entity.setContentType("text/html; charset=UTF-8");
+                response.setEntity(entity);
+            } else if (!file.canRead() || file.isDirectory()) {
+                response.setStatusCode(HttpStatus.SC_FORBIDDEN);
+                NStringEntity entity = new NStringEntity(
+                        "<html><body><h1>Access denied</h1></body></html>",
+                        "UTF-8");
+                entity.setContentType("text/html; charset=UTF-8");
+                response.setEntity(entity);
+            } else {
+                response.setStatusCode(HttpStatus.SC_OK);
+                NFileEntity entity = new NFileEntity(file, "text/html", useFileChannels);
+                response.setEntity(entity);
+            }
+            */
+            
+            
+            
+            
             Header[] tmp = request.getHeaders("Host");
             
             Address serverAddressAtClient = getServerAddressAtClient(tmp[0].getValue().toString());
@@ -455,11 +497,27 @@ public class MaryHttpServer {
                 if (tmp!=null && tmp.compareTo("?")==0)
                 {
                     handleSynthesisRequest(keyValuePairs, response);
-
-                    //TO DO: How to send audio to web browser client?
+                    
                     if (isWebBrowserClient)
                     {
+                        MaryHtmlForm htmlForm = new MaryHtmlForm(serverAddressAtClient,
+                                keyValuePairs,
+                                getMaryVersion(),
+                                getVoices(),
+                                getDataTypes(),
+                                getAudioFileFormatTypes(),
+                                getAudioEffectHelpTextLineBreak(),
+                                getDefaultAudioEffects(),
+                                getDefaultVoiceExampleTexts());
                         
+                        //byte[] audioBytes = MaryHttpClientUtils.toByteArray(response);
+                        //What to do with these bytes:
+                        //Save to a random named file, with some request id
+                        //Create an html page that will connect to the server in its initForm (using MaryWebHttpClientHandler):
+                        //MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
+                        //webHttpClient.toHttpResponse(htmlForm, response);
+                        //
+                        //The server must send the random named file to the client and then delete the random named file
                     }
 
                     bProcessed = true;
@@ -473,7 +531,6 @@ public class MaryHttpServer {
                     {
                         if (isWebBrowserClient) //Generate info response for web browser client
                         {
-                            MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
                             MaryHtmlForm htmlForm = new MaryHtmlForm(serverAddressAtClient,
                                     keyValuePairs,
                                     getMaryVersion(),
@@ -484,6 +541,7 @@ public class MaryHttpServer {
                                     getDefaultAudioEffects(),
                                     getDefaultVoiceExampleTexts());
 
+                            MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
                             webHttpClient.toHttpResponse(htmlForm, response);
                         }
                         else //Generate info response for GUI client
@@ -824,9 +882,13 @@ public class MaryHttpServer {
                 rh.join();
 
                 response = rh.response;
+                
+                keyValuePairs.put("SYNTHESIS_OUTPUT", "DONE");
 
                 return true;
             }
+            
+            keyValuePairs.put("SYNTHESIS_OUTPUT", "FAILED");
 
             return false;
         }
@@ -900,8 +962,8 @@ public class MaryHttpServer {
         private String getVoices()
         {
             String output = "";
-            Collection voices = Voice.getAvailableVoices();
-            for (Iterator it = voices.iterator(); it.hasNext();) 
+            Collection<Voice> voices = Voice.getAvailableVoices();
+            for (Iterator<Voice> it = voices.iterator(); it.hasNext();) 
             {
                 Voice v = (Voice) it.next();
                 if (v instanceof InterpolatingVoice) {
@@ -1118,8 +1180,7 @@ public class MaryHttpServer {
 
             return output;
         }
-
-
+        
         private String getFullAudioEffect(String effectName, String currentEffectParams)
         {
             String output = "";
@@ -1228,8 +1289,55 @@ public class MaryHttpServer {
             
             return output;
         }
+
+        public ConsumingNHttpEntity entityRequest(
+                final HttpEntityEnclosingRequest request,
+                final HttpContext context) throws HttpException, IOException {
+            return new ConsumingNHttpEntityTemplate(
+                    request.getEntity(),
+                    new FileWriteListener(useFileChannels));
+        }
     }
     
+    static class FileWriteListener implements ContentListener {
+        private final File file;
+        private final FileInputStream inputFile;
+        private final FileChannel fileChannel;
+        private final boolean useFileChannels;
+        private long idx = 0;
+
+        public FileWriteListener(boolean useFileChannels) throws IOException {
+            this.file = File.createTempFile("tmp", ".tmp", null);
+            this.inputFile = new FileInputStream(file);
+            this.fileChannel = inputFile.getChannel();
+            this.useFileChannels = useFileChannels;
+        }
+
+        public void contentAvailable(ContentDecoder decoder, IOControl ioctrl)
+                throws IOException {
+            long transferred;
+            if(useFileChannels && decoder instanceof FileContentDecoder) {
+                transferred = ((FileContentDecoder) decoder).transfer(
+                        fileChannel, idx, Long.MAX_VALUE);
+            } else {
+                transferred = fileChannel.transferFrom(
+                        new ContentDecoderChannel(decoder), idx, Long.MAX_VALUE);
+            }
+
+            if(transferred > 0)
+                idx += transferred;
+        }
+
+        public void finished() {
+            try {
+                inputFile.close();
+            } catch(IOException ignored) {}
+            try {
+                fileChannel.close();
+            } catch(IOException ignored) {}
+        }
+    }
+
     static class EventLogger implements EventListener
     {
         public void connectionOpen(final NHttpConnection conn) 

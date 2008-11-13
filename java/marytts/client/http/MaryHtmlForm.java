@@ -91,7 +91,7 @@ public class MaryHtmlForm {
     
     protected MaryHttpRequester httpRequester; //Sends and receives HTTP requests to/from server
     public Map<String, String> keyValuePairs; //Key-Value pairs for communication with server
-    
+
     public MaryHtmlForm() throws IOException, InterruptedException
     {
         String serverHost = System.getProperty("server.host", DEFAULT_HOST);
@@ -156,9 +156,9 @@ public class MaryHtmlForm {
    {
         httpRequester = new MaryHttpRequester();
         hostAddress = null;
-        String serverVersionInfo = null;
-        String serverVersionNo = "unknown";
-        boolean serverCanStream = false;
+        serverVersionInfo = null;
+        serverVersionNo = "unknown";
+        serverCanStream = false;
         
         allVoices = null;
         voicesByLocaleMap = null;
