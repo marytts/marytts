@@ -495,14 +495,9 @@ public class MaryServer {
                     logger.error("Effect name missing in reuqest!");
                     return false;
                 }
-                String currentEffectParams;
-                if (tt.hasMoreTokens())
-                    currentEffectParams = tt.nextToken();
-                else
-                {
-                    logger.error("Current effect parameters missing in reuqest!");
-                    return false;
-                }
+                String currentEffectParams = ""; //Some effects might have no parameters
+                while (tt.hasMoreTokens())
+                    currentEffectParams += tt.nextToken();
                 
                 for (int i=0; i<MaryProperties.effectNames().size(); i++)
                 {
@@ -529,7 +524,7 @@ public class MaryServer {
                         {
                             ae.setParams(currentEffectParams);
                             String audioEffectFull = ae.getFullEffectAsString();
-                            outputWriter.println(audioEffectFull.trim());
+                            outputWriter.println(audioEffectFull);
                         }
                      
                         // upon failure, simply return nothing

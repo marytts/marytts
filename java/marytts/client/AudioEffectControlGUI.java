@@ -43,6 +43,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 
 /**
@@ -74,6 +76,7 @@ public class AudioEffectControlGUI {
         mainPanel = new JPanel();
         chkEnabled = new JCheckBox();
         txtParams = new JTextField("Parameters");
+
         btnHelp = new JButton("?");
 
         isVisible = true;
@@ -116,12 +119,6 @@ public class AudioEffectControlGUI {
             g.setConstraints(chkEnabled, c);
             txtParams.setPreferredSize(new Dimension(150,25));
             txtParams.setText(data.getParams());
-            txtParams.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    if (e.getActionCommand().compareTo("oytun")==0)
-                        data.setParams(((JTextField)e.getSource()).getText());     
-                }
-            });
             mainPanel.add(txtParams);
 
             c.gridx = GridBagConstraints.RELATIVE;

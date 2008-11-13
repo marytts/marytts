@@ -28,14 +28,20 @@
  */
 package marytts.server.http;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.sound.sampled.AudioFileFormat;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.log4j.Logger;
 import org.jsresources.AppendableSequenceAudioInputStream;
 
@@ -69,21 +75,57 @@ public class RequestHttp extends Request
      */
     public void writeOutputData(HttpResponse response) throws Exception 
     {
-        if (outputData == null) {
+        if (outputData == null)
             throw new NullPointerException("No output data -- did process() succeed?");
-        }
-
+     
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        
+        if (outputStream == null)
+            throw new NullPointerException("cannot write to null output stream");
+        // Safety net: if the output is not written within a certain amount of
+        // time, give up. This prevents our thread from being locked forever if an
+        // output deadlock occurs (happened very rarely on Java 1.4.2beta).
+        final OutputStream os = outputStream;
+        Timer timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            public void run() {
+                logger.warn("Timeout occurred while writing output. Forcefully closing output stream.");
+                try {
+                    os.close();
+                } catch (IOException ioe) {
+                    logger.warn(ioe);
+                }
+            }
+        };
         int timeout = MaryProperties.getInteger("modules.timeout", 10000);
         if (outputType.equals(MaryDataType.get("AUDIO"))) {
             // This means either a lot of data (for WAVE etc.) or a lot of processing
             // effort (for MP3), so allow for a lot of time:
             timeout *= 5;
         }
-
+        timer.schedule(timerTask, timeout);
         try {
-            outputData.writeTo(response);
+            outputData.writeTo(os);
         } catch (Exception e) {
+            timer.cancel();
             throw e;
         }
+        
+        timer.cancel(); 
+        
+        if (outputData.getType().isXMLType()) 
+        {
+            NByteArrayEntity body = new NByteArrayEntity(((ByteArrayOutputStream)os).toByteArray());
+            body.setContentType("text/html; charset=UTF-8");
+            response.setEntity(body);
+        } 
+        else if (outputData.getType().isTextType()) // caution: XML types are text types!
+        { 
+            NByteArrayEntity body = new NByteArrayEntity(((ByteArrayOutputStream)os).toByteArray());
+            body.setContentType("text/html; charset=UTF-8");
+            response.setEntity(body);
+        } 
+        else // audio 
+            MaryHttpServerUtils.toHttpResponse(((ByteArrayOutputStream)os).toByteArray(), response);
     }
 }
