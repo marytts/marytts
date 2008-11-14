@@ -3,6 +3,9 @@ package marytts.tools.dbselection;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Scanner;
 
 public class WikipediaMarkupCleaner {
@@ -852,7 +855,7 @@ public class WikipediaMarkupCleaner {
         int minPageLength=1;  
         
         //String idtest="18702442";
-        String idtest="19194346";
+        String idtest="19286202";
         
         // get text from the DB
         text = wikiToDB.getTextFromWikiPage(idtest, minPageLength, textId, null);
@@ -867,31 +870,43 @@ public class WikipediaMarkupCleaner {
     }
     
     
-    void processWikipediaSQLTables(String textFile, String pageFile, String revisionFile)throws Exception{
+    void processWikipediaSQLTables(String textFile, String pageFile, String revisionFile, String wikiLog)throws Exception{
         //Put sentences and features in the database.
+        
+        DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
+        Date date = new Date();
+        String dateStringIni = fullDate.format(date);
+        
         DBHandler wikiToDB = new DBHandler();
-
-        wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
+        
+        System.out.println("Creating connection to DB server...");
+        //wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
+        // in semaine
+        wikiToDB.createDBConnection("penguin.dfki.uni-sb.de","MaryDBSelector","MaryDBSel_admin","p4rpt3jr");
         
         
-        // This loading takes a while
-        // 
-       
-      //  wikiToDB.createAndLoadWikipediaTables(textFile, pageFile, revisionFile);
+        // This loading can take a while
+        // create and load TABLES: page, text and revision
+        System.out.println("Creating and loading TABLES: page, text and revision. (The loading can take a while...)");
+        wikiToDB.createAndLoadWikipediaTables(textFile, pageFile, revisionFile);
         
+        System.out.println("Getting page IDs");
         String pageId[];
         pageId = wikiToDB.getIds("page_id","page");
         
-        String pagexmlName = "clean_text_pagexml30";
+        // create clean_text TABLE
+        System.out.println("Creating clean_text TABLE");
         wikiToDB.createWikipediaCleanTextTable();
                
         String text;
-        String pwFile="/project/mary/marcela/anna_wikipedia/wiki-filter.txt";
-        PrintWriter pw = new PrintWriter(new FileWriter(new File(pwFile)));
+        PrintWriter pw = new PrintWriter(new FileWriter(new File(wikiLog)));
         
         StringBuffer textId = new StringBuffer();
         int numPagesUsed=0;
+        
         int minPageLength=10000;  // minimum size of a wikipedia page, to be used in the first filtering of pages
+        int minTextLength=1000;
+        System.out.println("\nStart processing of wikipedia pages....\n");
         for(int i=0; i<pageId.length; i++){
           // first filter  
           text = wikiToDB.getTextFromWikiPage(pageId[i], minPageLength, textId, pw);
@@ -900,38 +915,53 @@ public class WikipediaMarkupCleaner {
             text = removeMarKup(text, false); 
               
             // if text is not empty we need to keep it in a table in wiki
-            if( text.length() > 1000 ){
+            if( text.length() > minTextLength ){
               // if after cleaning the text is not empty or 
               numPagesUsed++;  
-              System.out.println("numPagesUsed=" + numPagesUsed);   
+              //System.out.println("numPagesUsed=" + numPagesUsed);   
               wikiToDB.insertCleanText(text, pageId[i], textId.toString()); 
-              System.out.println("text_id=" + textId.toString() + "  Length=" + text.length());
+              //System.out.println("text_id=" + textId.toString() + "  Length=" + text.length());
               
-              pw.println("CLEANED PAGE page_id[" + i + "]=" + pageId[i] + " length=" + text.length() 
+              if(pw != null)
+                pw.println("CLEANED PAGE page_id[" + i + "]=" + pageId[i] + " length=" + text.length() 
                          + "  NUM_PAGES_USED=" +numPagesUsed + " text:\n\n" + text);               
             }else
-              pw.println("PAGE NOT USED AFTER CLEANING length=" + text.length());
+              if(pw != null)  
+                pw.println("PAGE NOT USED AFTER CLEANING length=" + text.length());
           }
               
           
         }
-        System.out.println("Number of PAGES USED=" + numPagesUsed);
+        String dateStringEnd = fullDate.format(date);
         
-        pw.close(); 
+        
+        if(pw != null){
+          pw.close(); 
+        }
+        
+        System.out.println("Number of PAGES USED=" + numPagesUsed 
+                + "minPageLength=" + minPageLength + "minTextLength=" + minTextLength
+                + "Start time:" + dateStringIni + "  End time:" + dateStringEnd);
         
     }
     
     
     public static void main(String[] args) throws Exception{
         
+        String textFile, pageFile, revisionFile, wikiLog;
         WikipediaMarkupCleaner wikiCleaner = new WikipediaMarkupCleaner(); 
         
-        String textFile = "/project/mary/marcela/anna_wikipedia/pages_xml_splits/text.txt";
-        String pageFile = "/project/mary/marcela/anna_wikipedia/pages_xml_splits/page.txt";
-        String revisionFile = "/project/mary/marcela/anna_wikipedia/pages_xml_splits/revision.txt";
+        if (args.length == 4){
+          textFile = args[0];
+          pageFile = args[1];  
+          revisionFile = args[2];
+          wikiLog = args[3];
+          
+          wikiCleaner.processWikipediaSQLTables(textFile, pageFile, revisionFile, wikiLog);
+          //wikiCleaner.processWikipediaSQLTablesDebug(textFile, pageFile, revisionFile);
+        } else
+          System.out.println("use: WikipediaMarkupCleaner textFile pageFile revisionFile");   
         
-        //wikiCleaner.processWikipediaSQLTables(textFile, pageFile, revisionFile);
-        wikiCleaner.processWikipediaSQLTablesDebug(textFile, pageFile, revisionFile);
     }
-       
+
    }

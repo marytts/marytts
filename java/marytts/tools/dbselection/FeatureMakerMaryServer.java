@@ -115,18 +115,6 @@ public class FeatureMakerMaryServer{
 			printUsage();
 			return;
 		}
-				
-		/* read in the basenames */
-		BufferedReader basenameIn = 
-			new BufferedReader(
-					new FileReader(
-							new File(textFiles)));
-		String line;
-		List<String> basenames = new ArrayList<String>();
-		while ((line=basenameIn.readLine())!= null){
-			if (line.equals("")) continue;
-			basenames.add(line.trim());
-		}
 		
 		/* Start the Mary client */
 		System.setProperty("server.host", maryHost);
@@ -134,18 +122,15 @@ public class FeatureMakerMaryServer{
 		mary = new MaryClient();
 		
 		/* start the Credibility Checker */
-	
-		/* read in the list of already processed files */
-		//List alreadyDone = readInDoneFiles(doneFileName);
 		       
         /* Here the DB connection for reliable sentences is open */
-         //DBHandler wikiToDB = new DBHandler();
          wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
          //wikiToDB.createDBConnection("penguin.dfki.uni-sb.de","MaryDBSelector","MaryDBSel_admin","p4rpt3jr");
          // check if tables exist
          wikiToDB.createDataBaseSelectionTable();
         
          // Get the set of id for unprocessed records in clean_text
+         // this will be useful when the process is stoped and then resumed
          String textId[];
          textId = wikiToDB.getUnprocessedTextIds();
          String text;
@@ -159,8 +144,9 @@ public class FeatureMakerMaryServer{
 		//for (Iterator it = basenames.iterator();it.hasNext();){
         for(int i=0; i<textId.length; i++){
           // get next unprocessed text  
-          System.out.println("Processing text id=" + textId[i]);
+          
           text = wikiToDB.getCleanText(textId[i]); 
+          System.out.println("Processing text id=" + textId[i] + " text length=" + text.length());
           
 	      if (text.equals("")
                     || text.equals("\n")) continue;
@@ -200,24 +186,23 @@ public class FeatureMakerMaryServer{
                 //System.out.println(sentence);
 				index = nextKey.intValue();
 				MaryData d = processSentence(newSentence,textId[i]);
-				if (d==null) continue;
-                    
-				/* get the features of the sentence */  
-				feas = getFeatures(d);     
+				if (d!=null){
+				  /* get the features of the sentence */  
+				  feas = getFeatures(d);     
 	
-                /* Insert in the database the new sentence and its features. */
-              
-                numSentencesInText++;
-                wikiToDB.insertSentence(newSentence,feas, true, false, false, Integer.parseInt(textId[i]));
+                  /* Insert in the database the new sentence and its features. */
+                  numSentencesInText++;
+                  wikiToDB.insertSentence(newSentence,feas, true, false, false, Integer.parseInt(textId[i]));
+                }
                      		
 			}//end of loop over sentences
+
           numSentences += numSentencesInText;
           System.out.println("Inserted " + numSentencesInText + " sentences from text id=" + textId[i] + " (Total reliable = "+ numSentences+")");
                          
 		} //end of loop over articles    
         
         wikiToDB.closeDBConnection();
-        
 		System.out.println("Done");
 	}//end of main method
 	
@@ -381,8 +366,7 @@ public class FeatureMakerMaryServer{
 	 * @param filename the file containing the sentence
 	 * @return the result of the processing as MaryData object
 	 */
-	protected static MaryData processSentence(String nextSentence,
-			String filename){
+	protected static MaryData processSentence(String nextSentence, String textId){
 		//do a bit of normalization
 		nextSentence = nextSentence.replaceAll("\\\\","").trim();
 		nextSentence = nextSentence.replaceAll("\\s/\\s","").trim();
@@ -402,7 +386,7 @@ public class FeatureMakerMaryServer{
 			if (d!=null){  
 				if (d.getPlainText()!=null){
 					System.out.println("Error processing sentence "
-							+filename
+							+textId
 							+": \""+nextSentence+"\":\n"+d.getPlainText()
 							+"; skipping sentence");
 				} else {
@@ -428,14 +412,14 @@ public class FeatureMakerMaryServer{
 							System.out.println("; skipping sentence");
 						}else {
 							System.out.println("Error processing sentence "
-									+filename
+									+textId
 									+": \""+nextSentence+"\"; skipping sentence");                        
 						}
 					}
 				}
 			} else {
 				System.out.println("Error processing sentence "
-						+filename
+						+textId
 						+": \""+nextSentence+"\"; skipping sentence");                        
 			}
 			return null;
@@ -443,7 +427,7 @@ public class FeatureMakerMaryServer{
 		catch (AssertionError ae){
 			ae.printStackTrace();
 			System.out.println("Error processing sentence "
-					+filename
+					+textId
 					+": \""+nextSentence+"\"; skipping sentence");
 			return null;
 		}
@@ -607,7 +591,7 @@ public class FeatureMakerMaryServer{
 		 * @param doneDirsTextName the file to read from
 		 * @return the list of already processed files
 		 * @throws Exception
-		 */
+		 *//*
 		protected static List readInDoneFiles(String doneFilesTextName) throws Exception{
 			File doneDirsText = new File(doneFilesTextName);
 			List<String> doneList = new ArrayList<String>();
@@ -627,9 +611,11 @@ public class FeatureMakerMaryServer{
 			//doneOut = new PrintWriter(new FileWriter(doneDirsText,true),true);
 			return doneList;
 		}
-		
+		*/
+        
+        
 		/**
-		 * Split the content of the file
+		 * Split the text
 		 * into separate sentences
 		 * 
 		 * @param file the file
@@ -689,14 +675,15 @@ public class FeatureMakerMaryServer{
 			return true;
 		}
 		
-        
+        /*
         private static String getShortFileName(int index, String longName){
-          // find last  /   /* this will not work in windows! */
+          // find last  /   this will not work in windows!
           String shortName = longName.substring(longName.lastIndexOf("/")+1);
           shortName = shortName + "_" + ((Integer) index).toString();
             
           return shortName;  
         }
+        */
         
 		/**
 		 * Process the given text with the MaryClient
