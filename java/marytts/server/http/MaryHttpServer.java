@@ -67,6 +67,7 @@ import marytts.signalproc.effects.BaseAudioEffect;
 import marytts.signalproc.effects.EffectsApplier;
 import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.interpolation.InterpolatingVoice;
+import marytts.util.ConversionUtils;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.string.StringUtils;
@@ -499,14 +500,23 @@ public class MaryHttpServer {
                                 getDefaultAudioEffects(),
                                 getDefaultVoiceExampleTexts());
                         
-                        //byte[] audioBytes = MaryHttpClientUtils.toByteArray(response);
-                        //What to do with these bytes:
-                        //Save to a random named file, with some request id
-                        //Create an html page that will connect to the server in its initForm (using MaryWebHttpClientHandler):
-                        //MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
-                        //webHttpClient.toHttpResponse(htmlForm, response);
-                        //
-                        //The server must send the random named file to the client and then delete the random named file
+                        if (htmlForm.isOutputText)
+                        {
+                            htmlForm.outputText = ConversionUtils.toString(MaryHttpClientUtils.toByteArray(response));
+                            MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
+                            webHttpClient.toHttpResponse(htmlForm, response);
+                        }
+                        else
+                        {
+                            //byte[] outputBytes = MaryHttpClientUtils.toByteArray(response);
+                            //What to do with these bytes:
+                            //Save to a random named file, with some request id
+                            //Create an html page that will connect to the server in its initForm (using MaryWebHttpClientHandler):
+                            //MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
+                            //webHttpClient.toHttpResponse(htmlForm, response);
+                            //
+                            //The server must send the random named file to the client and then delete the random named file
+                        }
                     }
 
                     bProcessed = true;
