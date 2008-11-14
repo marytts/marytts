@@ -29,6 +29,7 @@
 
 package marytts.server.http;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -40,7 +41,9 @@ import marytts.util.ConversionUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.nio.entity.NByteArrayEntity;
+import org.apache.http.nio.entity.NFileEntity;
 
 /**
  * @author oytun.turk
@@ -80,5 +83,23 @@ public class MaryHttpServerUtils
         NByteArrayEntity body = new NByteArrayEntity(byteArray);
         body.setContentType("text/html; charset=UTF-8");
         response.setEntity(body);
+    }
+    
+    public static int fileToHttpResponse(String fullPathFile, HttpResponse response, boolean useFileChannels)
+    {
+        int status;
+        final File file = new File(fullPathFile);
+        if (!file.exists())
+            status = HttpStatus.SC_NOT_FOUND;
+        else if (!file.canRead() || file.isDirectory())
+            status = HttpStatus.SC_FORBIDDEN;
+        else 
+        {
+            status = HttpStatus.SC_OK;
+            NFileEntity entity = new NFileEntity(file, "text/html", useFileChannels);
+            response.setEntity(entity);
+        }
+
+        return status;
     }
 }
