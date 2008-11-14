@@ -57,9 +57,11 @@ import marytts.util.string.StringUtils;
  */
 public class MaryWebHttpClientHandler
 {    
+    public String outputAudioFile; //output audio file for web browser client
+    
     public MaryWebHttpClientHandler()
     {
-        
+        outputAudioFile = "";
     }
     
     //Convert for to an html page and put it in response
@@ -482,7 +484,7 @@ public class MaryWebHttpClientHandler
         htmlPage += indenter(numIndents, strIndent) + "</select>" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "</td>" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;
-        htmlPage += nextline;     
+        htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent) + "<tr>" + nextline;
         
         htmlPage += indenter(++numIndents, strIndent);
@@ -532,29 +534,27 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
 
         htmlPage += indenter(numIndents, strIndent) + "<td>Click to send synthesis request to MARY server</td>" + nextline;
+        //Embed audio file
+        if (!htmlForm.isOutputText && outputAudioFile!=null && outputAudioFile.length()>0)
+            htmlPage += indenter(numIndents, strIndent) + "<td><embed src=\"" + outputAudioFile + "\" autostart=\"true\" loop=\"false\" width=200 height=40></td>" + nextline;
+        //
         htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;
         //
-        
+
         //Invisible fields for communication with server
         htmlPage += nextline;     
-        htmlPage += indenter(numIndents, strIndent) + "<tr>" + nextline;
         //Tells server that this is a web browser client
-        htmlPage += indenter(numIndents, strIndent) + "<td><input type=\"hidden\" name=\"WEB_BROWSER_CLIENT\" value=\"true\"></td>" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "<input type=\"hidden\" name=\"WEB_BROWSER_CLIENT\" value=\"true\">" + nextline;
         //Requests example texts depending on input/output type and voice
-        htmlPage += indenter(numIndents, strIndent) + "<td><input type=\"hidden\" name=\"EXAMPLE_TEXT\" value=\"\"></td>" + nextline;
-        htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;        
+        htmlPage += indenter(numIndents, strIndent) + "<input type=\"hidden\" name=\"EXAMPLE_TEXT\" value=\"\">" + nextline;    
         //Requests default page
-        htmlPage += indenter(numIndents, strIndent) + "<td><input type=\"hidden\" name=\"DEFAULT_PAGE\" value=\"\"></td>" + nextline;
-        htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;  
+        htmlPage += indenter(numIndents, strIndent) + "<input type=\"hidden\" name=\"DEFAULT_PAGE\" value=\"\">" + nextline;
         //Sends synthesis request
-        htmlPage += indenter(numIndents, strIndent) + "<td><input type=\"hidden\" name=\"SYNTHESIS_OUTPUT\" value=\"\"></td>" + nextline;
-        htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;  
+        htmlPage += indenter(numIndents, strIndent) + "<input type=\"hidden\" name=\"SYNTHESIS_OUTPUT\" value=\"\">" + nextline; 
         //Keeps locale info
-        htmlPage += indenter(numIndents, strIndent) + "<td><input type=\"hidden\" name=\"LOCALE\" value=\"\"></td>" + nextline;
-        htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline; 
+        htmlPage += indenter(numIndents, strIndent) + "<input type=\"hidden\" name=\"LOCALE\" value=\"\">" + nextline;
         //Keeps voice info
-        htmlPage += indenter(numIndents, strIndent) + "<td><input type=\"hidden\" name=\"VOICE\" value=\"\"></td>" + nextline;
-        htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline; 
+        htmlPage += indenter(numIndents, strIndent) + "<input type=\"hidden\" name=\"VOICE\" value=\"\">" + nextline;
         //
         
         htmlPage += indenter(--numIndents, strIndent) + "</form>" + nextline;

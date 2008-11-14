@@ -32,6 +32,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.StringReader;
@@ -41,6 +42,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -70,6 +72,7 @@ import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.ConversionUtils;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
+import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
 
 import org.apache.http.Header;
@@ -231,6 +234,7 @@ public class MaryHttpServer {
     private static Logger logger;
     private int runningNumber = 1;
     //private Map<Integer,Object[]> clientMap;
+    private Map<String, Integer> audioOutputMap;
 
     public MaryHttpServer() {
         logger = Logger.getLogger("server");
@@ -238,6 +242,7 @@ public class MaryHttpServer {
 
     public void run() throws IOException, NoSuchPropertyException 
     {
+        audioOutputMap = new HashMap<String, Integer>();
         logger.info("Starting server.");
         //clientMap = Collections.synchronizedMap(new HashMap<Integer,Object[]>());
         
@@ -411,28 +416,67 @@ public class MaryHttpServer {
          */
         private void handleClientRequest(String fullParameters, HttpResponse response, Address serverAddressAtClient) throws Exception 
         {   
-            if (fullParameters!=null && fullParameters.compareToIgnoreCase("favicon.ico")==0)
+            String tempOutputAudioFilePrefix = "mary_audio_out_temp_";
+            if (fullParameters!=null && (fullParameters.compareToIgnoreCase("favicon.ico")==0 || fullParameters.startsWith(tempOutputAudioFilePrefix))) //Check first whether a file is being requested
             {
-                //Check whether a file is being requested
-                if (fullParameters!=null && fullParameters.compareTo("favicon.ico")==0)
+                String fullPathFile = "";
+                boolean isDeleteFiles = false;
+                if (fullParameters.compareToIgnoreCase("favicon.ico")==0)
                 {
                     URL resUrl = MaryHttpServer.class.getResource(fullParameters);
                     if (resUrl!=null)
                     {
-                        String fullPathFile = resUrl.getPath();
+                        fullPathFile = resUrl.getPath();
                         while (fullPathFile.startsWith("/"))
                             fullPathFile = fullPathFile.substring(1, fullPathFile.length());
                         while (fullPathFile.startsWith("\\"))
                             fullPathFile = fullPathFile.substring(1, fullPathFile.length());
-
-                        int status = MaryHttpServerUtils.fileToHttpResponse(fullPathFile, response, useFileChannels);
-
-                        response.setStatusCode(status);
-                        return;
                     }
                 }
-                //
-
+                else if (fullParameters.startsWith(tempOutputAudioFilePrefix))
+                {
+                    fullPathFile = fullParameters;
+                    isDeleteFiles = true;
+                }
+                
+                if (fullPathFile!="")
+                {
+                    logger.debug("Audio output file requested by client:" + fullPathFile);
+                    
+                    int status = MaryHttpServerUtils.fileToHttpResponse(fullPathFile, response, useFileChannels);
+                    
+                    if (isDeleteFiles)
+                    {
+                        //Check the map and delete files that have already been sent
+                        //Note that this always checks previous files, so there is no way to delete the last file synthesized
+                        //That file remains under the working folder
+                        Set<String> prevFiles = audioOutputMap.keySet();
+                        String strFile;
+                        for (Iterator<String> it = prevFiles.iterator(); it.hasNext();)
+                        {
+                            strFile = it.next();
+                            if (audioOutputMap.get(strFile)==2)
+                            {
+                                FileUtils.delete(strFile);
+                                audioOutputMap.remove(strFile);
+                            }
+                        }
+                        //
+                        
+                        //Put the new file
+                        Integer numRequested = audioOutputMap.get(fullPathFile);
+                        if (numRequested==null)
+                            audioOutputMap.put(fullPathFile, new Integer(1));
+                        else
+                            audioOutputMap.put(fullPathFile, ++numRequested);
+                        //
+                    }
+                    
+                    response.setStatusCode(status);
+                    
+                    return;
+                }
+                
                 return;
             }
             
@@ -508,14 +552,20 @@ public class MaryHttpServer {
                         }
                         else
                         {
-                            //byte[] outputBytes = MaryHttpClientUtils.toByteArray(response);
-                            //What to do with these bytes:
-                            //Save to a random named file, with some request id
-                            //Create an html page that will connect to the server in its initForm (using MaryWebHttpClientHandler):
-                            //MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
-                            //webHttpClient.toHttpResponse(htmlForm, response);
-                            //
-                            //The server must send the random named file to the client and then delete the random named file
+                            byte[] outputBytes = MaryHttpClientUtils.toByteArray(response); 
+                            String fileExt = htmlForm.audioFileFormatTypes[htmlForm.audioFormatSelected];
+                            int spaceInd = fileExt.indexOf(' ');
+                            fileExt = fileExt.substring(0, spaceInd);
+                            String randomFile = StringUtils.getRandomFileName(tempOutputAudioFilePrefix, 10, fileExt);
+                            File file = new File(randomFile);
+                            FileOutputStream fos = new FileOutputStream(file);
+                            fos.write(outputBytes);
+                            fos.close();
+                            logger.debug("Output written to file:" + randomFile);
+                            
+                            MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
+                            webHttpClient.outputAudioFile = randomFile;
+                            webHttpClient.toHttpResponse(htmlForm, response);
                         }
                     }
 

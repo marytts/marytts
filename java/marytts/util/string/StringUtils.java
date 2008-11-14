@@ -761,10 +761,11 @@ public class StringUtils {
             System.out.println("Error! Cannot create file: " + textFile);
     }
     
-    public static String getRandomFileName(String preName, int fileNameLength, String fileExtension)
+    public static String getRandomFileName(String preName, int randomNameLength, String fileExtension)
     {
-        String randomName = String.valueOf((int)(Math.pow(10, fileNameLength+1)*Math.random()));
-        randomName = randomName.substring(0, fileNameLength);
+        String randomName = "";
+        while (randomName.length()<randomNameLength)
+            randomName += String.valueOf((int)(10*Math.random()));
         
         if (fileExtension.charAt(0)!='.')
             fileExtension = "." + fileExtension;
