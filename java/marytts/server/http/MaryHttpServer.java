@@ -473,7 +473,6 @@ public class MaryHttpServer {
                     }
                     
                     response.setStatusCode(status);
-                    
                     return;
                 }
                 
