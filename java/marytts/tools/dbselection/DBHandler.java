@@ -546,7 +546,7 @@ public class DBHandler {
         */
       }
       else {
-        System.out.println("PAGE page_id=" + id + " PAGE SELECTED page title=" + pageTitle + " Len=" + len);
+        //System.out.println("PAGE page_id=" + id + " PAGE SELECTED page title=" + pageTitle + " Len=" + len);
         if(pw!=null)
           pw.println("\nSELECTED PAGE TITLE=" + pageTitle + " Len=" + len);
         
@@ -696,10 +696,6 @@ public class DBHandler {
   }
 
   public static void main(String[] args) throws Exception{
-      
-      WikipediaMarkupCleaner wikiCleaner = new WikipediaMarkupCleaner(); 
-      
-      wikiCleaner.processWikipediaSQLTables("", "", "");
       
       //Put sentences and features in the database.
       DBHandler wikiToDB = new DBHandler();
