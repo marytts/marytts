@@ -284,7 +284,8 @@ public class MaryWebHttpClientHandler
         htmlPage += indenter(++numIndents, strIndent) + "<font STYLE=\"font-family: Verdana\">" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "<table>" + nextline;
         htmlPage += indenter(++numIndents, strIndent) + "<tr>" + nextline;
-        htmlPage += indenter(++numIndents, strIndent) + "<td><img src=\"http://mary.dfki.de/favicon.ico\"></td>" + nextline;
+        //htmlPage += indenter(++numIndents, strIndent) + "<td><img src=\"http://mary.dfki.de/favicon.ico\"></td>" + nextline;
+        htmlPage += indenter(++numIndents, strIndent) + "<td><img src=\"" + htmlForm.getServerHttpAddress() + "/favicon.ico\"></td>" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "<td>" + nextline;        
         htmlPage += indenter(++numIndents, strIndent) + "<table>" + nextline;
         htmlPage += indenter(++numIndents, strIndent) + "<tr>" + nextline;
@@ -304,16 +305,16 @@ public class MaryWebHttpClientHandler
         htmlPage += indenter(--numIndents, strIndent) + "</table>" + nextline;
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent) + "<table>" + nextline;
-        htmlPage += indenter(++numIndents, strIndent) + "<form id=\"defaultSettingsLoader\" action=\"http://localhost:59125\" method=\"post\">" + nextline;
         htmlPage += indenter(++numIndents, strIndent) + "<tr>" + nextline;
         htmlPage += indenter(++numIndents, strIndent) + "<td><input type=\"button\" value=\"Default\" STYLE=\"font-size:11pt;\" onClick=\"return defaultClicked();\"></td>" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "<td>Click to load default client settings from server</td>" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;
-        htmlPage += indenter(--numIndents, strIndent) + "</form>" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "</table>" + nextline;
         htmlPage += nextline;  
         htmlPage += indenter(numIndents, strIndent) + "<table>" + nextline;
-        htmlPage += indenter(numIndents, strIndent) + "<form id=\"maryWebClient\" action=\"http://localhost:59125\" method=\"post\">" + nextline;
+        //htmlPage += indenter(numIndents, strIndent) + "<form id=\"maryWebClient\" action=\"http://localhost:59125\" method=\"post\">" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "<form id=\"maryWebClient\" action=\"" + htmlForm.getServerHttpAddress() + "\" method=\"post\">" + nextline;
+        
         htmlPage += indenter(++numIndents, strIndent) + "<tr>" + nextline;
         htmlPage += indenter(++numIndents, strIndent) + "<td></td>" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "<td>Input Type:" + nextline;

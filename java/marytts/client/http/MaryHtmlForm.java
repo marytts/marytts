@@ -1074,6 +1074,13 @@ public class MaryHtmlForm {
     // get the server port to which this client connects
     public int getPort() { return hostAddress.port; }
 
+    public String getServerHttpAddress() 
+    {
+        String httpAdr = "http://" + hostAddress.fullAddress;
+        
+        return httpAdr;
+    }
+        
     /**
      * An abstraction of server info about available voices.
      * @author Marc Schr&ouml;der

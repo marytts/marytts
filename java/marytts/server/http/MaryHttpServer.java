@@ -37,6 +37,7 @@ import java.io.InterruptedIOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
 import java.util.Collection;
@@ -302,36 +303,7 @@ public class MaryHttpServer {
         }
 
         public void handle(final HttpRequest request, final HttpResponse response, final HttpContext context)
-        {
-            
-            /* This code handles File requests from clients
-            String target = request.getRequestLine().getUri();
-            final File file = new File(this.docRoot, URLDecoder.decode(target, "UTF-8"));
-            if (!file.exists()) {
-                response.setStatusCode(HttpStatus.SC_NOT_FOUND);
-                NStringEntity entity = new NStringEntity(
-                        "<html><body><h1>File" + file.getPath() +
-                        " not found</h1></body></html>",
-                        "UTF-8");
-                entity.setContentType("text/html; charset=UTF-8");
-                response.setEntity(entity);
-            } else if (!file.canRead() || file.isDirectory()) {
-                response.setStatusCode(HttpStatus.SC_FORBIDDEN);
-                NStringEntity entity = new NStringEntity(
-                        "<html><body><h1>Access denied</h1></body></html>",
-                        "UTF-8");
-                entity.setContentType("text/html; charset=UTF-8");
-                response.setEntity(entity);
-            } else {
-                response.setStatusCode(HttpStatus.SC_OK);
-                NFileEntity entity = new NFileEntity(file, "text/html", useFileChannels);
-                response.setEntity(entity);
-            }
-            */
-            
-            
-            
-            
+        {            
             Header[] tmp = request.getHeaders("Host");
             
             Address serverAddressAtClient = getServerAddressAtClient(tmp[0].getValue().toString());
@@ -440,9 +412,26 @@ public class MaryHttpServer {
         {   
             if (fullParameters!=null && fullParameters.compareToIgnoreCase("favicon.ico")==0)
             {
-                //TO DO: How to send the Mary icon in HTTP response: Check NHttpFileServer in Apache HttpCore maybe?
-                //Currently the class MaryWebHttpClientHandler gets the icon directly from web: http://mary.dfki.de/favicon.ico
-                //So, if the computer on which the client runs does not have internet connection, the icon will be empty
+                //Check whether a file is being requested
+                if (fullParameters!=null && fullParameters.compareTo("favicon.ico")==0)
+                {
+                    URL resUrl = MaryHttpServer.class.getResource(fullParameters);
+                    if (resUrl!=null)
+                    {
+                        String fullPathFile = resUrl.getPath();
+                        while (fullPathFile.startsWith("/"))
+                            fullPathFile = fullPathFile.substring(1, fullPathFile.length());
+                        while (fullPathFile.startsWith("\\"))
+                            fullPathFile = fullPathFile.substring(1, fullPathFile.length());
+
+                        int status = MaryHttpServerUtils.fileToHttpResponse(fullPathFile, response, useFileChannels);
+
+                        response.setStatusCode(status);
+                        return;
+                    }
+                }
+                //
+
                 return;
             }
             
