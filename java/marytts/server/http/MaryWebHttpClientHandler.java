@@ -242,7 +242,7 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent) + "function outputTypeChanged()" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
-        htmlPage += indenter(numIndents, strIndent) + "doSubmit();" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "requestSynthesis();" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
         //
         
