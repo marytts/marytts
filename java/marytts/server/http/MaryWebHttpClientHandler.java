@@ -287,7 +287,8 @@ public class MaryWebHttpClientHandler
         htmlPage += indenter(numIndents, strIndent) + "<table>" + nextline;
         htmlPage += indenter(++numIndents, strIndent) + "<tr>" + nextline;
         //htmlPage += indenter(++numIndents, strIndent) + "<td><img src=\"http://mary.dfki.de/favicon.ico\"></td>" + nextline;
-        htmlPage += indenter(++numIndents, strIndent) + "<td><img src=\"" + htmlForm.getServerHttpAddress() + "/favicon.ico\"></td>" + nextline;
+        //htmlPage += indenter(++numIndents, strIndent) + "<td><img src=\"" + htmlForm.getServerHttpAddress() + "/favicon.ico\"></td>" + nextline;
+        htmlPage += indenter(++numIndents, strIndent) + "<td><img src=\"favicon.ico\"></td>" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "<td>" + nextline;        
         htmlPage += indenter(++numIndents, strIndent) + "<table>" + nextline;
         htmlPage += indenter(++numIndents, strIndent) + "<tr>" + nextline;

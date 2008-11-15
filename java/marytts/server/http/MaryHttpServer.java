@@ -425,15 +425,7 @@ public class MaryHttpServer {
                 {
                     URL resUrl = MaryHttpServer.class.getResource(fullParameters);
                     if (resUrl!=null)
-                    {
                         fullPathFile = resUrl.getPath();
-                        /*
-                        while (fullPathFile.startsWith("/"))
-                            fullPathFile = fullPathFile.substring(1, fullPathFile.length());
-                        while (fullPathFile.startsWith("\\"))
-                            fullPathFile = fullPathFile.substring(1, fullPathFile.length());
-                            */
-                    }
                 }
                 else if (fullParameters.startsWith(tempOutputAudioFilePrefix))
                 {
