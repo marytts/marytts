@@ -426,14 +426,14 @@ public class DBHandler {
    * @param clean_text_id the id of the clean_text this sentence comes from.
    */
   public void insertSentence(String sentence, byte features[], boolean reliable, boolean unknownWords, boolean strangeSymbols, int clean_text_id){
-    
+   /* 
     if(unknownWords) 
       System.out.print("unknownWords");
     if(strangeSymbols)
       System.out.print(" strangeSymbols");  
     if(!reliable)  
       System.out.println(" : inserting unreliable sentence = " + sentence);  
-    
+    */
     
     try { 
       // INSERT INTO dbselection VALUES (id, sentence, features, realiable)
