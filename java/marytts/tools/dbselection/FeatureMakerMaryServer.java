@@ -40,7 +40,10 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -92,7 +95,7 @@ public class FeatureMakerMaryServer{
 	//the list of files containing the text to be processed
 	protected static String textFiles;
 	//file containing the list of already processed sentences
-	protected static String doneFileName;
+	protected static String logFileName;
     //host of the Mary server
 	protected static String maryHost;
 	//port of the Mary server
@@ -110,6 +113,11 @@ public class FeatureMakerMaryServer{
 	public static void main(String[] args)throws Exception{
 		
 		System.out.println("FeatureMaker started...");
+        
+        DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
+        Date dateIni = new Date();
+        String dateStringIni = fullDate.format(dateIni);
+        
 		/* check the arguments */
 		if (!readArgs(args)){
 			printUsage();
@@ -139,43 +147,40 @@ public class FeatureMakerMaryServer{
 		/* loop over the text records in clean_text table of wiki */
         // once procesed the clean_text records are marked as processed=true, so here retrieve
         // the next clean_text record untill all are processed.
-		System.out.println("Looping over clean_text records from wikipedia...");
-        
-		//for (Iterator it = basenames.iterator();it.hasNext();){
+		System.out.println("Looping over clean_text records from wikipedia...");       
+        PrintWriter pw = new PrintWriter(new FileWriter(new File(logFileName)));
+       
         for(int i=0; i<textId.length; i++){
           // get next unprocessed text  
           
           text = wikiToDB.getCleanText(textId[i]); 
-          System.out.println("Processing text id=" + textId[i] + " text length=" + text.length());
+          //System.out.println("Processing text id=" + textId[i] + " text length=" + text.length());
           
-	      if (text.equals("")
-                    || text.equals("\n")) continue;
+	      if (text.equals("") || text.equals("\n")) continue;
           
+          if( splitIntoSentences(text, textId[i], pw) ) {
+  /*        
 		  //process the article in a different thread
 		  MaryCallerThread mct = new MaryCallerThread(text, textId[i]);
-		  mct.start();
-			
+		  mct.start();			
 	      // allow the separate thread to process a limited time span
-	      mct.join(timeOutAfter);
-			
+	      mct.join(timeOutAfter);			
 		  // check if there was a timeout
 		  if(!(mct.isFinished())){
 				// resolution was stopped due to time out
 				mct.interrupt();
 				mct.join();
-				System.out.println("Timeout when processing text id="+textId[i]);
-				
+				pw.println("Timeout when processing text id="+textId[i]);				
 				continue;
 		  }
 		  if (!mct.wasSuccessful()){
-				System.out.println("Could not process text id="+textId[i]);
-				
+				pw.println("Could not process text id="+textId[i]);				
 				continue;
 		  }
 		  mct = null;
-		
-		  int index=0;
-			
+*/	
+          
+		  int index=0;			
           /* loop over the sentences */
           int numSentencesInText=0;
           byte feas[];  // for directly saving a vector of bytes as BLOB in mysql DB
@@ -198,11 +203,21 @@ public class FeatureMakerMaryServer{
 			}//end of loop over sentences
 
           numSentences += numSentencesInText;
-          System.out.println("Inserted " + numSentencesInText + " sentences from text id=" + textId[i] + " (Total reliable = "+ numSentences+")");
+          pw.println("Inserted " + numSentencesInText + " sentences from text id=" + textId[i] + " (Total reliable = "+ numSentences+")\n");
+          System.out.println("Inserted " + numSentencesInText + " sentences from text id=" + textId[i] + " (Total reliable = "+ numSentences+")\n");
+          
+          }
                          
 		} //end of loop over articles    
         
         wikiToDB.closeDBConnection();
+        
+        Date dateEnd = new Date();
+        String dateStringEnd = fullDate.format(dateEnd);
+        pw.println("numSentencesInText;=" + numSentences);
+        pw.println("Start time:" + dateStringIni + "  End time:" + dateStringEnd);  
+        pw.close(); 
+        
 		System.out.println("Done");
 	}//end of main method
 	
@@ -254,7 +269,7 @@ public class FeatureMakerMaryServer{
 	protected static boolean readArgs(String[] args){
 		//initialise default values
 		textFiles = "./textFiles.txt";
-		doneFileName = "./done.txt";
+		logFileName = "./featureMaker.log";
 		maryHost = "localhost";
 		maryPort = "59125";
 		timeOutAfter = 30000;
@@ -276,13 +291,13 @@ public class FeatureMakerMaryServer{
 				i++;
 				continue;
 			}
-			if (args[i].equals("-doneFile")){
+			if (args[i].equals("-logFile")){
 				if (args.length>i+1){
 					i++;
-					doneFileName = args[i];
-					System.out.println("-doneFile "+args[i]);
+					logFileName = args[i];
+					System.out.println("-logFile "+args[i]);
 				} else {
-					System.out.println("Please specify a file after -doneFile");
+					System.out.println("Please specify a file after -logFile");
 					return false;
 				}
 				i++;
@@ -622,7 +637,7 @@ public class FeatureMakerMaryServer{
 		 * @return true, if successful
 		 * @throws Exception
 		 */
-		protected static boolean splitIntoSentences(String text, String id)throws Exception{
+		protected static boolean splitIntoSentences(String text, String id, PrintWriter pw)throws Exception{
 			index2sentences = new TreeMap<Integer,String>();
 			Document doc = phonemiseText(text);
 			if (doc == null) return false;
@@ -670,6 +685,7 @@ public class FeatureMakerMaryServer{
 				}
 			} 
             numUnreliableSentences += unrelSentences;
+            pw.println("Inserted " + unrelSentences + " sentences from text id=" + id + " (Total unreliable = " + numUnreliableSentences + ")");
             System.out.println("Inserted " + unrelSentences + " sentences from text id=" + id + " (Total unreliable = " + numUnreliableSentences + ")");
             
 			return true;
@@ -844,7 +860,7 @@ public class FeatureMakerMaryServer{
 			 */
 			public void run(){
 				try{
-					successful = splitIntoSentences(text, textId);
+					//successful = splitIntoSentences(text, textId);
 				}catch(Exception e){
 					e.printStackTrace();
 					throw new Error("Error processing text");

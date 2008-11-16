@@ -873,16 +873,16 @@ public class WikipediaMarkupCleaner {
     void processWikipediaSQLTables(String textFile, String pageFile, String revisionFile, String wikiLog)throws Exception{
         //Put sentences and features in the database.
         
-        DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
-        Date date = new Date();
-        String dateStringIni = fullDate.format(date);
+        DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
+        Date dateIni = new Date();
+        String dateStringIni = fullDate.format(dateIni);
         
         DBHandler wikiToDB = new DBHandler();
         
         System.out.println("Creating connection to DB server...");
-        //wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
+        wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
         // in semaine
-        wikiToDB.createDBConnection("penguin.dfki.uni-sb.de","MaryDBSelector","MaryDBSel_admin","p4rpt3jr");
+        //wikiToDB.createDBConnection("penguin.dfki.uni-sb.de","MaryDBSelector","MaryDBSel_admin","p4rpt3jr");
         
         
         // This loading can take a while
@@ -932,14 +932,18 @@ public class WikipediaMarkupCleaner {
               
           
         }
-        String dateStringEnd = fullDate.format(date);
+        Date dateEnd = new Date();
+        String dateStringEnd = fullDate.format(dateEnd);
         
         
         if(pw != null){
+          pw.println("Number of PAGES USED=" + numPagesUsed 
+                    + "minPageLength=" + minPageLength + "minTextLength=" + minTextLength
+                    + "Start time:" + dateStringIni + "  End time:" + dateStringEnd);  
           pw.close(); 
         }
         
-        System.out.println("Number of PAGES USED=" + numPagesUsed 
+        System.out.println("\nNumber of PAGES USED=" + numPagesUsed 
                 + "minPageLength=" + minPageLength + "minTextLength=" + minTextLength
                 + "Start time:" + dateStringIni + "  End time:" + dateStringEnd);
         
