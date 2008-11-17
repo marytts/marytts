@@ -49,11 +49,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Vector;
 
 import marytts.client.MaryClient;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.features.FeatureDefinition;
+import marytts.htsengine.HTSModel;
 import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Document;
@@ -78,22 +80,24 @@ public class FeatureMakerMaryServer{
 	//the Mary Client connected to the server
 	protected static MaryClient mary;
 	//buffer used for collecting words of a sentence
-	protected static StringBuffer sentence;
+//	protected static StringBuffer sentence;
 	//stores result of credibility check for current sentence
 	protected static boolean usefulSentence;
     protected static boolean unknownWords;
     protected static boolean strangeSymbols;
     
 	//list of sentences of a chunk of text
-	protected static Map <Integer,String>index2sentences;    
+//	protected static Map <Integer,String>index2sentences;    
 	//feature definition
 	protected static FeatureDefinition featDef;
 	//print writer for writing list of processed files
 //	protected static PrintWriter doneOut;
 	//print writer for writing list of unreliable files
-	protected static PrintWriter unreliableLog;
+
+//    protected static PrintWriter unreliableLog;
 	//the list of files containing the text to be processed
-	protected static String textFiles;
+
+    protected static String textFiles;
 	//file containing the list of already processed sentences
 	protected static String logFileName;
     //host of the Mary server
@@ -113,11 +117,11 @@ public class FeatureMakerMaryServer{
 	public static void main(String[] args)throws Exception{
 		
 		System.out.println("FeatureMaker started...");
-        
+       /* 
         DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
         Date dateIni = new Date();
         String dateStringIni = fullDate.format(dateIni);
-        
+        */
 		/* check the arguments */
 		if (!readArgs(args)){
 			printUsage();
@@ -149,8 +153,10 @@ public class FeatureMakerMaryServer{
         // the next clean_text record untill all are processed.
 		System.out.println("Looping over clean_text records from wikipedia...");       
         PrintWriter pw = new PrintWriter(new FileWriter(new File(logFileName)));
-       
-        for(int i=0; i<textId.length; i++){
+        
+        Vector<String> sentenceList;  // this will be the list of sentences in each clean_text
+        int i, j;
+        for(i=0; i<textId.length; i++){
           // get next unprocessed text  
           
           text = wikiToDB.getCleanText(textId[i]); 
@@ -158,8 +164,10 @@ public class FeatureMakerMaryServer{
           
 	      if (text.equals("") || text.equals("\n")) continue;
           
-          if( splitIntoSentences(text, textId[i], pw) ) {
-  /*        
+          sentenceList = splitIntoSentences(text, textId[i], pw);
+          
+          
+    /*     
 		  //process the article in a different thread
 		  MaryCallerThread mct = new MaryCallerThread(text, textId[i]);
 		  mct.start();			
@@ -178,44 +186,48 @@ public class FeatureMakerMaryServer{
 				continue;
 		  }
 		  mct = null;
-*/	
-          
+	*/
+          if( sentenceList != null ) {
+              
 		  int index=0;			
-          /* loop over the sentences */
+          // loop over the sentences
           int numSentencesInText=0;
+          String newSentence;
           byte feas[];  // for directly saving a vector of bytes as BLOB in mysql DB
-		  for (Iterator it2=index2sentences.keySet().iterator();it2.hasNext();){
-				Integer nextKey = (Integer) it2.next();
-				
-				String newSentence = (String) index2sentences.get(nextKey);
-                //System.out.println(sentence);
-				index = nextKey.intValue();
-				MaryData d = processSentence(newSentence,textId[i]);
+          for(j=0; j<sentenceList.size(); j++) {
+				newSentence = sentenceList.elementAt(j);
+                MaryData d = processSentence(newSentence,textId[i]);
 				if (d!=null){
-				  /* get the features of the sentence */  
+				  // get the features of the sentence  
 				  feas = getFeatures(d);     
-	
-                  /* Insert in the database the new sentence and its features. */
+                  // Insert in the database the new sentence and its features.
                   numSentencesInText++;
                   wikiToDB.insertSentence(newSentence,feas, true, false, false, Integer.parseInt(textId[i]));
                 }
                      		
-			}//end of loop over sentences
+	      }//end of loop over list of sentences
+          sentenceList.clear();
+          
 
           numSentences += numSentencesInText;
-          pw.println("Inserted " + numSentencesInText + " sentences from text id=" + textId[i] + " (Total reliable = "+ numSentences+")\n");
-          System.out.println("Inserted " + numSentencesInText + " sentences from text id=" + textId[i] + " (Total reliable = "+ numSentences+")\n");
+          pw.println("Inserted " + numSentencesInText + " sentences from text id=" + textId[i] 
+                                 + " (Total reliable = "+ numSentences+")\n");
+          System.out.println("Inserted " + numSentencesInText + " sentences from text id=" 
+                             + textId[i] + " (Total reliable = "+ numSentences+")\n");
           
           }
                          
 		} //end of loop over articles    
         
         wikiToDB.closeDBConnection();
-        
+     /*   
         Date dateEnd = new Date();
         String dateStringEnd = fullDate.format(dateEnd);
         pw.println("numSentencesInText;=" + numSentences);
-        pw.println("Start time:" + dateStringIni + "  End time:" + dateStringEnd);  
+        pw.println("Start time:" + dateStringIni + "  End time:" + dateStringEnd);
+        
+          
+          */
         pw.close(); 
         
 		System.out.println("Done");
@@ -637,10 +649,18 @@ public class FeatureMakerMaryServer{
 		 * @return true, if successful
 		 * @throws Exception
 		 */
-		protected static boolean splitIntoSentences(String text, String id, PrintWriter pw)throws Exception{
-			index2sentences = new TreeMap<Integer,String>();
-			Document doc = phonemiseText(text);
-			if (doc == null) return false;
+		protected static Vector<String> splitIntoSentences(String text, String id, PrintWriter pw)throws Exception{
+            
+            Vector<String> sentenceList = null;
+            StringBuffer sentence;
+            //index2sentences = new TreeMap<Integer,String>();
+			
+            Document doc = phonemiseText(text);
+			//if (doc == null) return false;
+            
+            if (doc != null) {
+            sentenceList = new Vector<String>();    
+                
 			NodeList sentences = doc.getElementsByTagName("s");   
 			
             int sentenceIndex = 1;
@@ -659,12 +679,13 @@ public class FeatureMakerMaryServer{
 					Node nextToken = tokens.item(k);
 					//ignore all non-element children
 					if (!(nextToken instanceof Element)) continue; 
-					collectTokens(nextToken);                            
+					sentence = collectTokens(nextToken, sentence);                            
 				}
 				if (sentence!=null){
 					if (usefulSentence){	
 						//store sentence in sentence map
-						index2sentences.put(new Integer(sentenceIndex),sentence.toString());  
+						//index2sentences.put(new Integer(sentenceIndex),sentence.toString());
+                        sentenceList.add(sentence.toString());
 					} else {
 						//just print useless sentence to log file
 						//System.out.println(filename+"; "+sentenceIndex+": "+sentence
@@ -688,7 +709,9 @@ public class FeatureMakerMaryServer{
             pw.println("Inserted " + unrelSentences + " sentences from text id=" + id + " (Total unreliable = " + numUnreliableSentences + ")");
             System.out.println("Inserted " + unrelSentences + " sentences from text id=" + id + " (Total unreliable = " + numUnreliableSentences + ")");
             
-			return true;
+            } 
+            
+			return sentenceList;
 		}
 		
         /*
@@ -739,7 +762,7 @@ public class FeatureMakerMaryServer{
          *  1 if the sentence contains unknownWords (so the sentence is not useful)
          *  2 if the sentence contains strangeSymbols (so the sentence is not useful)
 		 */
-		protected static void collectTokens(Node nextToken){
+		protected static StringBuffer collectTokens(Node nextToken, StringBuffer sentence){
             int credibility = 0;  
 			String name = nextToken.getLocalName();
 			if (name.equals("t")){
@@ -776,11 +799,13 @@ public class FeatureMakerMaryServer{
 						Node nextMTUToken = mtuTokens.item(l);
 						//ignore all non-element children
 						if (!(nextMTUToken instanceof Element)) continue; 
-						collectTokens(nextMTUToken);
+						collectTokens(nextMTUToken, sentence);
 					}
 				}
 				
 			}
+            
+            return sentence;
 		}
 		
 		/**
