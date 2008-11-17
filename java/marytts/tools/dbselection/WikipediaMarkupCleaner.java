@@ -7,12 +7,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.Vector;
 
 public class WikipediaMarkupCleaner {
 
-    public String removeMarKup(String page, boolean debug) {
+    public Vector<String> removeMarKup(String page, int maxTextLength, boolean debug) {
         StringBuffer str = new StringBuffer("");
         StringBuffer line = null;
+        Vector<String> textList = new Vector<String>();
                
         boolean endOfText=false;
         Scanner s = null;
@@ -313,6 +315,8 @@ public class WikipediaMarkupCleaner {
                    line.replace(0, 2, "");
                if( line.toString().startsWith("*") || line.toString().startsWith("#") )
                    line.replace(0, 1, "");
+               if( line.toString().startsWith(";") || line.toString().startsWith(";") )  // in glosaries definitions start with ;
+                   line.replace(0, 1, "");
                  
                // remove this when the text is almost clean
                if( line.indexOf("<font") >= 0)
@@ -332,7 +336,14 @@ public class WikipediaMarkupCleaner {
                str.append(line);
                if(!str.toString().endsWith("\n"))
                  str.append("\n");
-            
+               
+               // check length of the text 
+               if(str.length() > maxTextLength ){
+                 textList.add(str.toString());
+                 //System.out.println("\n-----------\n" + str.toString());
+                 str = new StringBuffer(""); 
+               }
+                             
              }
              
            } // endOfText=false
@@ -343,8 +354,10 @@ public class WikipediaMarkupCleaner {
             if (s != null)
               s.close();
         }   
-          
-        return str.toString();  
+         
+        if(!str.toString().contentEquals(""))
+          textList.add(str.toString());
+        return textList;  
       }
       
     // This is special because it can be:
@@ -482,7 +495,7 @@ public class WikipediaMarkupCleaner {
           //System.out.println("nextline="+line);
         } else {
           System.out.println("removeSection: WARNING no " + endTag);  
-          System.out.println("removeSection: WARNING no " + endTag + " in line: " + line);
+          //System.out.println("removeSection: WARNING no " + endTag + " in line: " + line);
           //line.delete(index1, line.length());
           line = new StringBuffer("");
         } 
@@ -569,7 +582,7 @@ public class WikipediaMarkupCleaner {
           //System.out.println("nextline="+line);
         } else {
           System.out.println("removeSection: WARNING no " + endTag);  
-          System.out.println("removeSection: WARNING no " + endTag + " in line: " + line);
+          //System.out.println("removeSection: WARNING no " + endTag + " in line: " + line);
           //line.delete(index1, line.length());
           line = new StringBuffer("");
         } 
@@ -674,7 +687,7 @@ public class WikipediaMarkupCleaner {
           //System.out.println("nextline="+line);
         } else {
           System.out.println("removeSection: WARNING no " + endTag);  
-          System.out.println("removeSection: WARNING no " + endTag + " in line: " + line);
+          //System.out.println("removeSection: WARNING no " + endTag + " in line: " + line);
           //line.delete(index1, line.length());
           line = new StringBuffer("");
         } 
@@ -761,7 +774,7 @@ public class WikipediaMarkupCleaner {
           //System.out.println("nextline="+line);
         } else {
           System.out.println("removeSection: WARNING no " + endTag);  
-          System.out.println("removeSection: WARNING no " + endTag + " in line: " + line);
+          //System.out.println("removeSection: WARNING no " + endTag + " in line: " + line);
           //line.delete(index1, line.length());
           line = new StringBuffer("");
         } 
@@ -855,15 +868,21 @@ public class WikipediaMarkupCleaner {
         int minPageLength=1;  
         
         //String idtest="18702442";
-        String idtest="19286202";
+        String idtest="18951367";
         
         // get text from the DB
         text = wikiToDB.getTextFromWikiPage(idtest, minPageLength, textId, null);
-        System.out.println("text:" + text);
+        System.out.println("\nPAGE SIZE=" + text.length() + "  text:\n" + text);
+        //System.out.println("text:" + text);
+        
+        int maxTextLength=15000;
+        Vector<String> textList;
         
         if(text!=null){         
-          text = removeMarKup(text, false); 
-          System.out.println("\nCLEANED PAGE SIZE=" + text.length() + "  text:\n" + text);
+          textList = removeMarKup(text, maxTextLength, false); 
+          for(int i=0; i<textList.size(); i++)
+            System.out.println("text(" + i + "): \n" + textList.get(i));  
+          
         } else
             System.out.println("NO CLEANED TEXT");   
         
@@ -887,8 +906,8 @@ public class WikipediaMarkupCleaner {
         
         // This loading can take a while
         // create and load TABLES: page, text and revision
-        System.out.println("Creating and loading TABLES: page, text and revision. (The loading can take a while...)");
-        wikiToDB.createAndLoadWikipediaTables(textFile, pageFile, revisionFile);
+    //    System.out.println("Creating and loading TABLES: page, text and revision. (The loading can take a while...)");
+    //    wikiToDB.createAndLoadWikipediaTables(textFile, pageFile, revisionFile);
         
         System.out.println("Getting page IDs");
         String pageId[];
@@ -906,28 +925,37 @@ public class WikipediaMarkupCleaner {
         
         int minPageLength=10000;  // minimum size of a wikipedia page, to be used in the first filtering of pages
         int minTextLength=1000;
+        int maxTextLength=15000;  // the average lenght in one big xml file is approx. 12000
+        Vector<String> textList;
         System.out.println("\nStart processing of wikipedia pages....\n");
+ 
         for(int i=0; i<pageId.length; i++){
           // first filter  
           text = wikiToDB.getTextFromWikiPage(pageId[i], minPageLength, textId, pw);
           
           if(text!=null){ 
-            text = removeMarKup(text, false); 
+            textList = removeMarKup(text, maxTextLength, false); 
+            
+            for(int j=0; j<textList.size(); j++){
+                
+              text = textList.get(j);
               
-            // if text is not empty we need to keep it in a table in wiki
-            if( text.length() > minTextLength ){
-              // if after cleaning the text is not empty or 
-              numPagesUsed++;  
-              //System.out.println("numPagesUsed=" + numPagesUsed);   
-              wikiToDB.insertCleanText(text, pageId[i], textId.toString()); 
-              //System.out.println("text_id=" + textId.toString() + "  Length=" + text.length());
+              if( text.length() > minTextLength ){
+                // if after cleaning the text is not empty or 
+                numPagesUsed++;  
+                //System.out.println("numPagesUsed=" + numPagesUsed);   
+                wikiToDB.insertCleanText(text, pageId[i], textId.toString()); 
+                System.out.println("text_id=" + textId.toString() + " textList (" + (j+1) + "/"+ textList.size() + ")  Length=" + text.length());
               
-              if(pw != null)
-                pw.println("CLEANED PAGE page_id[" + i + "]=" + pageId[i] + " length=" + text.length() 
+                if(pw != null)
+                  pw.println("CLEANED PAGE page_id[" + i + "]=" + pageId[i] 
+                         + " textList (" + (j+1) + "/"+ textList.size() + ") length=" + text.length() 
                          + "  NUM_PAGES_USED=" +numPagesUsed + " text:\n\n" + text);               
-            }else
-              if(pw != null)  
-                pw.println("PAGE NOT USED AFTER CLEANING length=" + text.length());
+              } else
+                if(pw != null)  
+                  pw.println("PAGE NOT USED AFTER CLEANING length=" + text.length());
+            }  // for each text in textList
+            textList.clear();  // clear the list of text
           }
               
           

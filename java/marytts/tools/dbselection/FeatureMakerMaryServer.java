@@ -158,14 +158,15 @@ public class FeatureMakerMaryServer{
         int i, j;
         for(i=0; i<textId.length; i++){
           // get next unprocessed text  
+          //text = wikiToDB.getCleanText(textId[i]);
+          text = wikiToDB.getCleanText("743"); 
           
-          text = wikiToDB.getCleanText(textId[i]); 
-          //System.out.println("Processing text id=" + textId[i] + " text length=" + text.length());
+          System.out.println("Processing text id=" + textId[i] + " text length=" + text.length());
           
 	      if (text.equals("") || text.equals("\n")) continue;
           
-          sentenceList = splitIntoSentences(text, textId[i], pw);
-          
+          //sentenceList = splitIntoSentences(text, textId[i], pw);
+          sentenceList = splitIntoSentences(text, "743", pw);
           
     /*     
 		  //process the article in a different thread
@@ -196,14 +197,19 @@ public class FeatureMakerMaryServer{
           byte feas[];  // for directly saving a vector of bytes as BLOB in mysql DB
           for(j=0; j<sentenceList.size(); j++) {
 				newSentence = sentenceList.elementAt(j);
-                MaryData d = processSentence(newSentence,textId[i]);
-				if (d!=null){
-				  // get the features of the sentence  
-				  feas = getFeatures(d);     
-                  // Insert in the database the new sentence and its features.
-                  numSentencesInText++;
-                  wikiToDB.insertSentence(newSentence,feas, true, false, false, Integer.parseInt(textId[i]));
-                }
+                
+                // Here we can check that the sentence is not . 
+                if( !newSentence.contentEquals(".") ) {
+                  MaryData d = processSentence(newSentence,textId[i]);
+				  if (d!=null){
+				    // get the features of the sentence  
+				    feas = getFeatures(d);     
+                    // Insert in the database the new sentence and its features.
+                    numSentencesInText++;
+                    wikiToDB.insertSentence(newSentence,feas, true, false, false, Integer.parseInt(textId[i]));
+                  }
+                } else
+                  System.out.println("newSentence=" + newSentence);
                      		
 	      }//end of loop over list of sentences
           sentenceList.clear();
@@ -445,7 +451,7 @@ public class FeatureMakerMaryServer{
 					}
 				}
 			} else {
-				System.out.println("Error processing sentence "
+				System.out.println("Error processing sentence from textId="
 						+textId
 						+": \""+nextSentence+"\"; skipping sentence");                        
 			}
@@ -453,7 +459,7 @@ public class FeatureMakerMaryServer{
 		}
 		catch (AssertionError ae){
 			ae.printStackTrace();
-			System.out.println("Error processing sentence "
+			System.out.println("Error processing sentence from textId="
 					+textId
 					+": \""+nextSentence+"\"; skipping sentence");
 			return null;
@@ -747,7 +753,7 @@ public class FeatureMakerMaryServer{
 				return maryData.getDocument();
 			} catch (Exception e){
 				e.printStackTrace();
-                System.out.println(textString);
+                System.out.println("PhonemiseText: problem when processing: " + textString);
 				return null;            
 			}
 			
