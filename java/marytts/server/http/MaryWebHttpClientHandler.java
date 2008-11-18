@@ -69,7 +69,7 @@ public class MaryWebHttpClientHandler
     {        
         String htmlPage = toHtmlPage(htmlForm);
             
-        MaryHttpServerUtils.toHttpResponse(htmlPage, response);
+        MaryHttpServerUtils.toHttpResponse(htmlPage, response, "text/html; charset=UTF-8");
     }
     
     public static String formatStringForJavaScript(String strIn)
@@ -217,8 +217,8 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent) + "function requestSynthesis()" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
-        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.SYNTHESIS_OUTPUT.value = '?';" + nextline;  
-        htmlPage += indenter(++numIndents, strIndent) + "doSubmit();" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "maryWebClient.SYNTHESIS_OUTPUT.value = '?';" + nextline;  
+        htmlPage += indenter(numIndents, strIndent) + "doSubmit();" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
         //
         
@@ -227,7 +227,7 @@ public class MaryWebHttpClientHandler
         htmlPage += indenter(numIndents, strIndent) + "function defaultClicked()" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
         htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.DEFAULT_PAGE.value = '?';" + nextline;  
-        htmlPage += indenter(++numIndents, strIndent) + "doSubmit();" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "doSubmit();" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
         //
         
@@ -235,7 +235,8 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent) + "function inputTypeChanged()" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
-        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.EXAMPLE_TEXT.value = '? ' + maryWebClient.INPUT_TYPE.value + ' ' + maryWebClient.LOCALE.value;" + nextline;  
+        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.INPUT_TYPE.value = maryWebClient.INPUT_TYPE.options[maryWebClient.INPUT_TYPE.selectedIndex].text;" + nextline; 
+        htmlPage += indenter(numIndents, strIndent) + "maryWebClient.EXAMPLE_TEXT.value = '? ' + maryWebClient.INPUT_TYPE.value + ' ' + maryWebClient.LOCALE.value;" + nextline;  
         htmlPage += indenter(numIndents, strIndent) + "doSubmit();" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
         //
@@ -244,6 +245,7 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent) + "function outputTypeChanged()" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
+        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.OUTPUT_TYPE.value = maryWebClient.OUTPUT_TYPE.options[maryWebClient.OUTPUT_TYPE.selectedIndex].text;" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "requestSynthesis();" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
         //
@@ -253,8 +255,17 @@ public class MaryWebHttpClientHandler
         htmlPage += indenter(numIndents, strIndent) + "function voiceChanged()" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
         htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.LOCALE.value = '" + htmlForm.allVoices.get(htmlForm.voiceSelected).getLocale() + "';" + nextline; 
-        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.VOICE.value = '" + htmlForm.allVoices.get(htmlForm.voiceSelected).name() + "';" + nextline; 
+        htmlPage += indenter(numIndents, strIndent) + "maryWebClient.VOICE.value = '" + htmlForm.allVoices.get(htmlForm.voiceSelected).name() + "';" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "doSubmit();" + nextline;
+        htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
+        //
+        
+        //Audio format changed
+        htmlPage += nextline;
+        htmlPage += indenter(numIndents, strIndent) + "function audioChanged()" + nextline; 
+        htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
+        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.AUDIO.value = maryWebClient.AUDIO.options[maryWebClient.AUDIO.selectedIndex].text;" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "requestSynthesis();" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
         //
         
@@ -501,7 +512,7 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent);
         if (!htmlForm.isOutputText) htmlPage += "<td>";
-        htmlPage += "<select name=\"AUDIO\" id=\"AUDIO\" size=\"1\" onChange=\"return doSubmit();\">" + nextline;
+        htmlPage += "<select name=\"AUDIO\" id=\"AUDIO\" size=\"1\" onChange=\"return audioChanged();\">" + nextline;
 
         //Fill audio file format types
         for (i=0; i<htmlForm.audioFileFormatTypes.length; i++)

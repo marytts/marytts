@@ -29,8 +29,10 @@
 
 package marytts.server.http;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 import javax.sound.sampled.AudioInputStream;
@@ -42,8 +44,11 @@ import marytts.util.data.audio.AudioDoubleDataSource;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.nio.entity.BufferingNHttpEntity;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.entity.NFileEntity;
+import org.jsresources.AppendableSequenceAudioInputStream;
 
 /**
  * @author oytun.turk
@@ -51,41 +56,70 @@ import org.apache.http.nio.entity.NFileEntity;
  */
 public class MaryHttpServerUtils 
 {
-    public static void toHttpResponse(Map<String, String> keyValuePairs, HttpResponse response) throws IOException
+    public static void toHttpResponse(Map<String, String> keyValuePairs, HttpResponse response, String contentType) throws IOException
     {
-        toHttpResponse(MaryHttpClientUtils.toHttpString(keyValuePairs), response);
+        toHttpResponse(MaryHttpClientUtils.toHttpString(keyValuePairs), response, contentType);
     }
     
-    public static void toHttpResponse(AudioInputStream audio, HttpResponse response) throws IOException
+    /*
+    public static void toHttpResponse(AudioInputStream audio, HttpResponse response, String contentType) throws IOException
     {
         AudioDoubleDataSource signal = new AudioDoubleDataSource(audio);
 
-        toHttpResponse(signal.getAllData(), response);
+        toHttpResponse(signal.getAllData(), response, contentType);
     }
+    */
     
-    public static void toHttpResponse(double[] x, HttpResponse response) throws IOException
+    public static void toHttpResponse(double[] x, HttpResponse response, String contentType) throws IOException
     {   
-        toHttpResponse(ConversionUtils.toByteArray(x), response);
+        toHttpResponse(ConversionUtils.toByteArray(x), response, contentType);
     }
     
-    public static void toHttpResponse(int[] x, HttpResponse response) throws IOException
+    public static void toHttpResponse(int[] x, HttpResponse response, String contentType) throws IOException
     {   
-        toHttpResponse(ConversionUtils.toByteArray(x), response);
+        toHttpResponse(ConversionUtils.toByteArray(x), response, contentType);
     }
-    
-    public static void toHttpResponse(String x, HttpResponse response) throws IOException
+
+    public static void toHttpResponse(String x, HttpResponse response, String contentType) throws IOException
     {   
-        toHttpResponse(ConversionUtils.toByteArray(x), response);
+        toHttpResponse(ConversionUtils.toByteArray(x), response, contentType);
     }
     
-    public static void toHttpResponse(byte[] byteArray, HttpResponse response)
+    public static void toHttpResponse(ByteArrayOutputStream baos, HttpResponse response, String contentType) throws IOException
+    {
+        toHttpResponse(baos.toByteArray(), response, contentType);
+    }
+    
+    public static void toHttpResponse(byte[] byteArray, HttpResponse response, String contentType) throws IOException
     {
         NByteArrayEntity body = new NByteArrayEntity(byteArray);
-        body.setContentType("text/html; charset=UTF-8");
+        body.setContentType(contentType);
         response.setEntity(body);
+        response.setStatusCode(HttpStatus.SC_OK);
     }
     
-    public static int fileToHttpResponse(String fullPathFile, HttpResponse response, boolean useFileChannels)
+    public static void toHttpResponse(InputStream stream, HttpResponse response, String contentType) throws IOException
+    {
+        toHttpResponse(stream, response, contentType, -1);
+    }
+    
+    public static void toHttpResponse(AppendableSequenceAudioInputStream stream, HttpResponse response, String contentType) throws IOException
+    {
+        InputStreamEntity body = new InputStreamEntity(stream, -1);        
+        body.setContentType(contentType);
+        response.setEntity(body);
+        response.setStatusCode(HttpStatus.SC_OK);
+    }
+    
+    public static void toHttpResponse(InputStream stream, HttpResponse response, String contentType, long streamLength) throws IOException
+    {
+        InputStreamEntity body = new InputStreamEntity(stream, streamLength);        
+        body.setContentType(contentType);
+        response.setEntity(body);
+        response.setStatusCode(HttpStatus.SC_OK);
+    }
+    
+    public static void fileToHttpResponse(String fullPathFile, HttpResponse response, String contentType, boolean useFileChannels)
     {
         int status;
         final File file = new File(fullPathFile);
@@ -96,10 +130,10 @@ public class MaryHttpServerUtils
         else 
         {
             status = HttpStatus.SC_OK;
-            NFileEntity entity = new NFileEntity(file, "text/html", useFileChannels);
+            NFileEntity entity = new NFileEntity(file, contentType, useFileChannels);
             response.setEntity(entity);
         }
 
-        return status;
+        response.setStatusCode(status);
     }
 }

@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -250,7 +251,7 @@ public class MaryHttpServer {
         
         HttpParams params = new BasicHttpParams();
         params
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 50000)
+            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0) // 0 means no timeout, any positive value means time out in miliseconds (i.e. 50000 for 50 seconds)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
@@ -417,59 +418,60 @@ public class MaryHttpServer {
         private void handleClientRequest(String fullParameters, HttpResponse response, Address serverAddressAtClient) throws Exception 
         {   
             String tempOutputAudioFilePrefix = "mary_audio_out_temp_";
-            if (fullParameters!=null && (fullParameters.compareToIgnoreCase("favicon.ico")==0 || fullParameters.startsWith(tempOutputAudioFilePrefix))) //Check first whether a file is being requested
+
+            if (fullParameters!=null && fullParameters.compareToIgnoreCase("favicon.ico")==0)
+            {
+                InputStream stream = MaryHttpServer.class.getResourceAsStream(fullParameters);
+
+                if (stream!=null)
+                {
+                    logger.debug("Mary icon requested by client:" + fullParameters);
+
+                    MaryHttpServerUtils.toHttpResponse(stream, response, "text/plain");
+                }
+
+                return;
+            }
+            else if (fullParameters!=null && fullParameters.startsWith(tempOutputAudioFilePrefix))
             {
                 String fullPathFile = "";
-                boolean isDeleteFiles = false;
-                if (fullParameters.compareToIgnoreCase("favicon.ico")==0)
-                {
-                    URL resUrl = MaryHttpServer.class.getResource(fullParameters);
-                    if (resUrl!=null)
-                        fullPathFile = resUrl.getPath();
-                }
-                else if (fullParameters.startsWith(tempOutputAudioFilePrefix))
-                {
-                    fullPathFile = fullParameters;
-                    isDeleteFiles = true;
-                }
-                
+                fullPathFile = fullParameters;
+
                 if (fullPathFile!="")
                 {
                     logger.debug("Audio output file requested by client:" + fullPathFile);
-                    
-                    int status = MaryHttpServerUtils.fileToHttpResponse(fullPathFile, response, useFileChannels);
-                    
-                    if (isDeleteFiles)
+
+                    MaryHttpServerUtils.fileToHttpResponse(fullPathFile, response, "text/plain", useFileChannels);
+                    //The following results in not all of the wav file to be sent for some reason
+                    //InputStream fis = new FileInputStream(fullPathFile);
+                    //MaryHttpServerUtils.toHttpResponse(fis, response, "text/plain");
+                    //
+
+                    //Check the map and delete files that have already been sent
+                    //Note that this always checks previous files, so there is no way to delete the last file synthesized
+                    //That file remains under the working folder
+                    Set<String> prevFiles = audioOutputMap.keySet();
+                    String strFile;
+                    for (Iterator<String> it = prevFiles.iterator(); it.hasNext();)
                     {
-                        //Check the map and delete files that have already been sent
-                        //Note that this always checks previous files, so there is no way to delete the last file synthesized
-                        //That file remains under the working folder
-                        Set<String> prevFiles = audioOutputMap.keySet();
-                        String strFile;
-                        for (Iterator<String> it = prevFiles.iterator(); it.hasNext();)
+                        strFile = it.next();
+                        if (audioOutputMap.get(strFile)==2)
                         {
-                            strFile = it.next();
-                            if (audioOutputMap.get(strFile)==2)
-                            {
-                                FileUtils.delete(strFile);
-                                audioOutputMap.remove(strFile);
-                            }
+                            FileUtils.delete(strFile);
+                            audioOutputMap.remove(strFile);
                         }
-                        //
-                        
-                        //Put the new file
-                        Integer numRequested = audioOutputMap.get(fullPathFile);
-                        if (numRequested==null)
-                            audioOutputMap.put(fullPathFile, new Integer(1));
-                        else
-                            audioOutputMap.put(fullPathFile, ++numRequested);
-                        //
                     }
-                    
-                    response.setStatusCode(status);
-                    return;
+                    //
+
+                    //Put the new file
+                    Integer numRequested = audioOutputMap.get(fullPathFile);
+                    if (numRequested==null)
+                        audioOutputMap.put(fullPathFile, new Integer(1));
+                    else
+                        audioOutputMap.put(fullPathFile, ++numRequested);
+                    //
                 }
-                
+
                 return;
             }
             
@@ -505,13 +507,13 @@ public class MaryHttpServer {
                     MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
 
                     MaryHtmlForm htmlForm = new MaryHtmlForm(serverAddressAtClient,
-                            getMaryVersion(),
-                            getVoices(),
-                            getDataTypes(),
-                            getAudioFileFormatTypes(),
-                            getAudioEffectHelpTextLineBreak(),
-                            getDefaultAudioEffects(),
-                            getDefaultVoiceExampleTexts());
+                                                             getMaryVersion(),
+                                                             getVoices(),
+                                                             getDataTypes(),
+                                                             getAudioFileFormatTypes(),
+                                                             getAudioEffectHelpTextLineBreak(),
+                                                             getDefaultAudioEffects(),
+                                                             getDefaultVoiceExampleTexts());
 
                     webHttpClient.toHttpResponse(htmlForm, response);
                 }
@@ -528,14 +530,14 @@ public class MaryHttpServer {
                     if (isWebBrowserClient)
                     {
                         MaryHtmlForm htmlForm = new MaryHtmlForm(serverAddressAtClient,
-                                keyValuePairs,
-                                getMaryVersion(),
-                                getVoices(),
-                                getDataTypes(),
-                                getAudioFileFormatTypes(),
-                                getAudioEffectHelpTextLineBreak(),
-                                getDefaultAudioEffects(),
-                                getDefaultVoiceExampleTexts());
+                                                                 keyValuePairs,
+                                                                 getMaryVersion(),
+                                                                 getVoices(),
+                                                                 getDataTypes(),
+                                                                 getAudioFileFormatTypes(),
+                                                                 getAudioEffectHelpTextLineBreak(),
+                                                                 getDefaultAudioEffects(),
+                                                                 getDefaultVoiceExampleTexts());
                         
                         if (htmlForm.isOutputText)
                         {
@@ -587,15 +589,10 @@ public class MaryHttpServer {
                             webHttpClient.toHttpResponse(htmlForm, response);
                         }
                         else //Generate info response for GUI client
-                            MaryHttpServerUtils.toHttpResponse(keyValuePairs, response); 
+                            MaryHttpServerUtils.toHttpResponse(keyValuePairs, response, "text/html; charset=UTF-8"); 
                     }
                 }
             }
-            
-            if (bProcessed)
-                response.setStatusCode(HttpStatus.SC_OK);
-            else
-                response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
         }
 
         //Tries to fill in requested information from the client
@@ -827,7 +824,7 @@ public class MaryHttpServer {
                         audioFileFormatType = MaryAudioUtils.getAudioFileFormatType(helper.substring(streaming.length()));
                     } 
                     else
-                        audioFileFormatType = MaryAudioUtils.getAudioFileFormatType(helper);                    
+                        audioFileFormatType = MaryAudioUtils.getAudioFileFormatType(helper);    
                 }
                 //
 
