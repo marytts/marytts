@@ -158,15 +158,14 @@ public class FeatureMakerMaryServer{
         int i, j;
         for(i=0; i<textId.length; i++){
           // get next unprocessed text  
-          //text = wikiToDB.getCleanText(textId[i]);
-          text = wikiToDB.getCleanText("743"); 
+          text = wikiToDB.getCleanText(textId[i]);
+         
           
           System.out.println("Processing text id=" + textId[i] + " text length=" + text.length());
           
 	      if (text.equals("") || text.equals("\n")) continue;
           
-          //sentenceList = splitIntoSentences(text, textId[i], pw);
-          sentenceList = splitIntoSentences(text, "743", pw);
+          sentenceList = splitIntoSentences(text, textId[i], pw);
           
     /*     
 		  //process the article in a different thread
@@ -207,13 +206,14 @@ public class FeatureMakerMaryServer{
                     // Insert in the database the new sentence and its features.
                     numSentencesInText++;
                     wikiToDB.insertSentence(newSentence,feas, true, false, false, Integer.parseInt(textId[i]));
+                    feas = null;
                   }
                 } else
                   System.out.println("newSentence=" + newSentence);
                      		
 	      }//end of loop over list of sentences
           sentenceList.clear();
-          
+          sentenceList=null;
 
           numSentences += numSentencesInText;
           pw.println("Inserted " + numSentencesInText + " sentences from text id=" + textId[i] 
@@ -401,6 +401,7 @@ public class FeatureMakerMaryServer{
 	 */
 	protected static MaryData processSentence(String nextSentence, String textId){
 		//do a bit of normalization
+        StringBuffer docBuf = null;
 		nextSentence = nextSentence.replaceAll("\\\\","").trim();
 		nextSentence = nextSentence.replaceAll("\\s/\\s","").trim();
 		nextSentence = nextSentence.replaceAll("^/\\s","").trim();
@@ -424,7 +425,7 @@ public class FeatureMakerMaryServer{
 							+"; skipping sentence");
 				} else {
 					if (d.getDocument() != null){
-						StringBuffer docBuf = new StringBuffer();
+						docBuf = new StringBuffer();
 						getXMLAsString(d.getDocument(),docBuf);
 						System.out.println("Error processing sentence "
 								+": \""+nextSentence+"\":\n"+docBuf.toString()
@@ -464,6 +465,8 @@ public class FeatureMakerMaryServer{
 					+": \""+nextSentence+"\"; skipping sentence");
 			return null;
 		}
+        
+        docBuf = null;
 		return d;
 		
 		
@@ -684,9 +687,10 @@ public class FeatureMakerMaryServer{
 				for (int k=0;k<tokens.getLength();k++){
 					Node nextToken = tokens.item(k);
 					//ignore all non-element children
-					if (!(nextToken instanceof Element)) continue; 
-					sentence = collectTokens(nextToken, sentence);                            
+					if ( (nextToken instanceof Element) ) 
+					  sentence = collectTokens(nextToken, sentence);                            
 				}
+                //System.out.println(sentence);
 				if (sentence!=null){
 					if (usefulSentence){	
 						//store sentence in sentence map
@@ -717,6 +721,7 @@ public class FeatureMakerMaryServer{
             
             } 
             
+            sentence = null;
 			return sentenceList;
 		}
 		

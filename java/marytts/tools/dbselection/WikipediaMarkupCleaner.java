@@ -906,8 +906,8 @@ public class WikipediaMarkupCleaner {
         
         // This loading can take a while
         // create and load TABLES: page, text and revision
-    //    System.out.println("Creating and loading TABLES: page, text and revision. (The loading can take a while...)");
-    //    wikiToDB.createAndLoadWikipediaTables(textFile, pageFile, revisionFile);
+        System.out.println("Creating and loading TABLES: page, text and revision. (The loading can take a while...)");
+        wikiToDB.createAndLoadWikipediaTables(textFile, pageFile, revisionFile);
         
         System.out.println("Getting page IDs");
         String pageId[];

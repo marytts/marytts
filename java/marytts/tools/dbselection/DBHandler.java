@@ -53,6 +53,8 @@ public class DBHandler {
   private Statement  st = null;
   private ResultSet  rs = null;
   private String currentTable = null;
+  private PreparedStatement psSentence = null;
+  private PreparedStatement psCleanText = null;
   
   /**
    * The constructor loads the database driver.
@@ -93,6 +95,10 @@ public class DBHandler {
       p.put("database", db);
       cn = DriverManager.getConnection( url, p );    
       st = cn.createStatement();
+      
+      psCleanText = cn.prepareStatement("INSERT INTO clean_text VALUES (null, ?, ?, ?, ?)");
+      psSentence = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?, ?, ?, ?)");
+      
     } catch (Exception e) {
         e.printStackTrace();
     } 
@@ -401,13 +407,14 @@ public class DBHandler {
       } 
       
       try { 
-        PreparedStatement ps = cn.prepareStatement("INSERT INTO clean_text VALUES (null, ?, ?, ?, ?)");
+        //ps = cn.prepareStatement("INSERT INTO clean_text VALUES (null, ?, ?, ?, ?)");
         if(clean_text != null){
-          ps.setBytes(1, clean_text);
-          ps.setBoolean(2, false);   // it will be true after processed by the FeatureMaker
-          ps.setInt(3, Integer.parseInt(page_id));
-          ps.setInt(4, Integer.parseInt(text_id));
-          ps.execute();
+            psCleanText.setBytes(1, clean_text);
+            psCleanText.setBoolean(2, false);   // it will be true after processed by the FeatureMaker
+            psCleanText.setInt(3, Integer.parseInt(page_id));
+            psCleanText.setInt(4, Integer.parseInt(text_id));
+            psCleanText.execute();
+            psCleanText.clearParameters();
         } else
            System.out.println("WARNING: can not insert in clean_text: " + text); 
         
@@ -437,15 +444,17 @@ public class DBHandler {
     
     try { 
       // INSERT INTO dbselection VALUES (id, sentence, features, realiable)
-      PreparedStatement ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?, ?, ?, ?)");
+      //ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?, ?, ?, ?)");
     
-      ps.setString(1, sentence);
-      ps.setBytes(2, features);
-      ps.setBoolean(3, reliable);
-      ps.setBoolean(4, unknownWords);
-      ps.setBoolean(5, strangeSymbols);
-      ps.setInt(6, clean_text_id);
-      ps.execute();
+        psSentence.setString(1, sentence);
+        psSentence.setBytes(2, features);
+        psSentence.setBoolean(3, reliable);
+        psSentence.setBoolean(4, unknownWords);
+        psSentence.setBoolean(5, strangeSymbols);
+        psSentence.setInt(6, clean_text_id);
+        psSentence.execute();
+      
+        psSentence.clearParameters();
       
     } catch (SQLException e) {
       e.printStackTrace();
