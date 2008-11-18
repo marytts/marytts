@@ -113,19 +113,12 @@ public class RequestHttp extends Request
         
         timer.cancel(); 
         
-        if (outputData.getType().isXMLType()) 
-        {
-            NByteArrayEntity body = new NByteArrayEntity(((ByteArrayOutputStream)os).toByteArray());
-            body.setContentType("text/html; charset=UTF-8");
-            response.setEntity(body);
-        } 
-        else if (outputData.getType().isTextType()) // caution: XML types are text types!
-        { 
-            NByteArrayEntity body = new NByteArrayEntity(((ByteArrayOutputStream)os).toByteArray());
-            body.setContentType("text/html; charset=UTF-8");
-            response.setEntity(body);
-        } 
-        else // audio 
-            MaryHttpServerUtils.toHttpResponse(((ByteArrayOutputStream)os).toByteArray(), response);
+        String contextType;
+        if (outputData.getType().isXMLType() || outputData.getType().isTextType()) //text output
+            contextType = "text/html; charset=UTF-8";
+        else //audio output
+            contextType = "audio/" + audioFileFormat.getType();
+        
+        MaryHttpServerUtils.toHttpResponse((ByteArrayOutputStream)os, response, contextType);
     }
 }

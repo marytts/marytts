@@ -46,6 +46,8 @@ import marytts.util.MaryUtils;
 import marytts.util.io.LoggingReader;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -107,7 +109,7 @@ public class RequestHttpHandler extends Thread {
         // No stack trace on clientLogger
         
         try {
-            MaryHttpServerUtils.toHttpResponse(message + "\n" + e.toString(), response);
+            MaryHttpServerUtils.toHttpResponse(message + "\n" + e.toString(), response, "text/html; charset=UTF-8");
         } catch (IOException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
@@ -127,7 +129,7 @@ public class RequestHttpHandler extends Thread {
         if (!(e instanceof TransformerException || e instanceof SAXParseException))
         {
             try {
-                MaryHttpServerUtils.toHttpResponse(message + "\n" + MaryUtils.getThrowableAndCausesAsString(e), response);
+                MaryHttpServerUtils.toHttpResponse(message + "\n" + MaryUtils.getThrowableAndCausesAsString(e), response, "text/html; charset=UTF-8");
             } catch (IOException e1) {
                 // TODO Auto-generated catch block
                 e1.printStackTrace();
@@ -269,9 +271,9 @@ public class RequestHttpHandler extends Thread {
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 AudioSystem.write(request.getAudio(), request.getAudioFileFormat().getType(), output);
                 output.flush();
+                MaryHttpServerUtils.toHttpResponse(output.toByteArray(), response, "audio/"+request.getAudioFileFormat().getType());
                 
-                //MaryHttpServerUtils.toResponse(request.getAudio(), response);
-                MaryHttpServerUtils.toHttpResponse(output.toByteArray(), response);
+                //MaryHttpServerUtils.toHttpResponse(request.getAudio(), response, "audio/"+request.getAudioFileFormat().getType());
                 
                 logger.info("Finished writing output");
                 
