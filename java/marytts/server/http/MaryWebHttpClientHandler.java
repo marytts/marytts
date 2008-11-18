@@ -135,7 +135,6 @@ public class MaryWebHttpClientHandler
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.INPUT_TYPE.selectedIndex = " + String.valueOf(htmlForm.inputTypeSelected) + ";" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.OUTPUT_TYPE.selectedIndex = " + String.valueOf(htmlForm.outputTypeSelected) + ";" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.AUDIO.selectedIndex = " + String.valueOf(htmlForm.audioFormatSelected) + ";" + nextline;
-        //htmlPage += indenter(numIndents, strIndent) + "alert('inside initForm()');" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.INPUT_TEXT.value = '" + formatStringForJavaScript(htmlForm.inputText) + "';" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.OUTPUT_TEXT.value = '" + formatStringForJavaScript(htmlForm.outputText) + "';" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.LOCALE.value = '" + htmlForm.allVoices.get(htmlForm.voiceSelected).getLocale() + "';" + nextline;
@@ -153,8 +152,6 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent) + "function handleVisibility()" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
-        
-        //htmlPage += indenter(numIndents, strIndent) + "alert('inside handleVisibility()');" + nextline;
         
         String visibilityOfOutputTextItems = "'none'"; //not visible
         String visibilityOfOutputAudioItems = "'inline'"; //visible
@@ -188,6 +185,11 @@ public class MaryWebHttpClientHandler
                 htmlPage += indenter(numIndents, strIndent) + "document.getElementById('effect_" + effectName + "_default').style.display = " + visibilityOfOutputAudioItems + ";" + nextline;
             }
         }
+        
+        //Handle visibility of help text title and area
+        htmlPage += indenter(numIndents, strIndent) + "document.getElementById('hideHelpTextTitle').style.display = " + visibilityOfOutputAudioItems + ";" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "document.getElementById('HELP_TEXT').style.display = " + visibilityOfOutputAudioItems + ";" + nextline;
+        
         
         //Handle visibility of SPEAK button
         htmlPage += indenter(numIndents, strIndent) + "document.getElementById('SPEAK').style.display = " + visibilityOfOutputAudioItems + ";" + nextline;
@@ -284,6 +286,24 @@ public class MaryWebHttpClientHandler
                 htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
             }
         }
+        
+        //Help displayers for audio effects
+        if (htmlForm.effectsBoxData!=null && htmlForm.effectsBoxData.hasEffects())
+        {
+            for (i=0; i<htmlForm.effectsBoxData.getTotalEffects(); i++)
+            {
+                String effectName = htmlForm.effectsBoxData.getControlData(i).getEffectName();
+                String helpText = htmlForm.effectsBoxData.getControlData(i).getHelpText();
+                helpText = StringUtils.replace(helpText, htmlForm.audioEffectsHelpTextLineBreak, "\\n");
+                helpText = formatStringForJavaScript(helpText);
+                
+                htmlPage += nextline;
+                htmlPage += indenter(numIndents, strIndent) + "function " + effectName + "HelpClicked()" + nextline; 
+                htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
+                htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.HELP_TEXT.value = '" + helpText + "';" + nextline;
+                htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
+            }
+        }
         //
         
         htmlPage += nextline;
@@ -344,7 +364,7 @@ public class MaryWebHttpClientHandler
         }
         //
         
-        htmlPage += indenter(numIndents, strIndent) + "</select>" + nextline;
+        htmlPage += indenter(--numIndents, strIndent) + "</select>" + nextline;
         
         htmlPage += indenter(--numIndents, strIndent) + "</td>" + nextline;
         
@@ -392,6 +412,7 @@ public class MaryWebHttpClientHandler
         htmlPage += indenter(numIndents, strIndent);
         if (htmlForm.isOutputText) htmlPage += "</td>" + nextline;
         htmlPage += nextline;
+        //
 
         //Audio effects
         if (htmlForm.effectsBoxData!=null && htmlForm.effectsBoxData.hasEffects())
@@ -429,11 +450,11 @@ public class MaryWebHttpClientHandler
                 htmlPage += "<textarea name=\"effect_" + effectName + "_parameters\" id=\"effect_" + effectName + "_parameters\" rows=\"1\" cols=\"20\">" + defaultParams + "</textarea>";
                 if (!htmlForm.isOutputText) htmlPage += "</td> "; 
                 if (!htmlForm.isOutputText) htmlPage += "<td>";
-                htmlPage += "<input type=\"button\" name=\"effect_" + effectName + "_help\" id=\"effect_" + effectName + "_help\" value=\"Help\">";
+                htmlPage += "<input type=\"button\" name=\"effect_" + effectName + "_default\" id=\"effect_" + effectName + "_default\" value=\"Default\" onClick=\"return " + effectName + "DefaultClicked();\">";
                 if (!htmlForm.isOutputText) htmlPage += "</td> ";
                 if (!htmlForm.isOutputText) htmlPage += "<td>";
-                htmlPage += "<input type=\"button\" name=\"effect_" + effectName + "_default\" id=\"effect_" + effectName + "_default\" value=\"Default\" onClick=\"return " + effectName + "DefaultClicked();\">";
-                if (!htmlForm.isOutputText) htmlPage += "</td> "; 
+                htmlPage += "<input type=\"button\" name=\"effect_" + effectName + "_help\" id=\"effect_" + effectName + "_help\" value=\"Help\" onClick=\"return " + effectName + "HelpClicked();\">";
+                if (!htmlForm.isOutputText) htmlPage += "</td> ";
                 if (!htmlForm.isOutputText) htmlPage += "</tr>";
                 htmlPage += nextline;
             }
@@ -443,7 +464,22 @@ public class MaryWebHttpClientHandler
             htmlPage += nextline;
             htmlPage += indenter(--numIndents, strIndent);
             if (!htmlForm.isOutputText) htmlPage += "</td>";
+            htmlPage += nextline;  
+            
+            //Help text area for audio effects
+            htmlPage += indenter(numIndents, strIndent) + "<td>" + nextline;
+            if (!htmlForm.isOutputText) htmlPage += indenter(++numIndents, strIndent) + "<table>" + nextline;
+            htmlPage += indenter(++numIndents, strIndent) + "<tr>";
+            if (!htmlForm.isOutputText) htmlPage += "<td><div id=\"hideHelpTextTitle\">Help Text:</div></td>";
+            htmlPage += "</tr>";
             htmlPage += nextline;
+            htmlPage += indenter(numIndents, strIndent) + "<tr>";
+            if (!htmlForm.isOutputText) htmlPage += "<td><textarea name=\"HELP_TEXT\" id=\"HELP_TEXT\" rows=\"15\" cols=\"50\"></textarea>";
+            htmlPage += "</td></tr>" + nextline;
+            if (!htmlForm.isOutputText) htmlPage += indenter(--numIndents, strIndent);
+            if (!htmlForm.isOutputText) htmlPage += "</table>" + nextline;
+            htmlPage += indenter(--numIndents, strIndent) + "</td>" + nextline;
+            //
         }
 
         htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;
