@@ -45,7 +45,7 @@ import marytts.tools.dbselection.WikipediaMarkupCleaner;
 /**
  * Various functions for handling connection, inserting and querying a mysql database.
  * 
- * @author Holmer Hemsen, Marcela Charfuelan.
+ * @author Marcela Charfuelan, Holmer Hemsen.
  */
 public class DBHandler {
     
@@ -251,6 +251,48 @@ public class DBHandler {
       } 
   }
 
+  public boolean checkWikipediaTables() {
+      // wiki must be already created
+      
+      // If database does not exist create it, if it exists delete it and create an empty one.      
+      System.out.println("Checking if the TABLE=text already exist.");
+      try {
+          rs = st.executeQuery("SHOW TABLES;");
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+      boolean resText=false, resPage=false, resRevision=false;
+      try { 
+         
+          while( rs.next() ) {
+            String str = rs.getString(1);
+            if( str.contentEquals("text") )
+               resText=true;
+            else if( str.contentEquals("page") )
+               resPage=true;
+            else if( str.contentEquals("revision") )
+               resRevision=true;
+            
+          } 
+          if(resText)
+            System.out.println("TABLE = text already exist.");          
+          if(resPage)
+            System.out.println("TABLE = page already exist.");  
+          if(resRevision)
+            System.out.println("TABLE = revision already exist.");  
+                  
+          
+      } catch (SQLException e) {
+          e.printStackTrace();
+      } 
+      
+      if(resText && resPage && resRevision)
+        return true;
+      else
+        return false;
+      
+  }
+
   
   public void createWikipediaCleanTextTable() {
       // wiki must be already created
@@ -279,7 +321,6 @@ public class DBHandler {
             if( str.contentEquals("clean_text") )
                resText=true;
           } 
-          // Do we need to delete it if already exists???
           if(resText==true){
             System.out.println("TABLE = clean_text already exist deleting.");  
             boolean res0 = st.execute( "DROP TABLE clean_text;" );  
@@ -298,33 +339,32 @@ public class DBHandler {
       } 
   }
 
- /* 
-  public String[] getPageIdsOfTextTable() {
-      int num, i, j;
-      String idSet[]=null;
-      
-      String str = queryTable("SELECT count(old_id) FROM text;");  // normally this should be 25000
-      num = Integer.parseInt(str);
-      idSet = new String[num];
-      
+  public boolean checkWikipediaCleanTextTable() {
+      // wiki must be already created
+           
+      // If database does not exist create it, if it exists delete it and create an empty one.      
+      System.out.println("Checking if the TABLE=clean_text already exist.");
       try {
-          rs = st.executeQuery("SELECT old_id FROM text;"); 
+          rs = st.executeQuery("SHOW TABLES;");
       } catch (Exception e) {
           e.printStackTrace();
       }
-      try { 
-          i=0;
+      boolean resText=false;
+      try {        
           while( rs.next() ) {
-            idSet[i] = rs.getString(1);
-            i++;
-          }
+            String str = rs.getString(1);
+            if( str.contentEquals("clean_text") )
+               resText=true;
+          } 
+          
       } catch (SQLException e) {
           e.printStackTrace();
       } 
       
-      return idSet;
+      return resText;
+      
   }
- */ 
+
  
   /***
    * 
@@ -461,23 +501,6 @@ public class DBHandler {
     }
   }
 
-  /*
-  public void insertUnreliableSentence(String sentence){
-      System.out.println("inserting in dbselection: reliable=false" + " sentence=" + sentence);
-      try { 
-        // INSERT INTO dbselection VALUES (id, sentence, features, realiable)
-        PreparedStatement ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?)");
-
-        ps.setString(1, sentence);
-        ps.setBytes(2, null);
-        ps.setBoolean(3, false);
-        ps.execute();
-        
-      } catch (SQLException e) {
-        e.printStackTrace();
-      }
-    }
-  */
   
   public void closeDBConnection(){
     try {

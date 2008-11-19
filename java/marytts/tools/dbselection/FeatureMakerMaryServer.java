@@ -79,33 +79,20 @@ public class FeatureMakerMaryServer{
 	
 	//the Mary Client connected to the server
 	protected static MaryClient mary;
-	//buffer used for collecting words of a sentence
-//	protected static StringBuffer sentence;
 	//stores result of credibility check for current sentence
 	protected static boolean usefulSentence;
     protected static boolean unknownWords;
     protected static boolean strangeSymbols;
     
-	//list of sentences of a chunk of text
-//	protected static Map <Integer,String>index2sentences;    
-	//feature definition
+    //feature definition
 	protected static FeatureDefinition featDef;
-	//print writer for writing list of processed files
-//	protected static PrintWriter doneOut;
-	//print writer for writing list of unreliable files
-
-//    protected static PrintWriter unreliableLog;
-	//the list of files containing the text to be processed
-
-    protected static String textFiles;
-	//file containing the list of already processed sentences
+    // log file
 	protected static String logFileName;
     //host of the Mary server
 	protected static String maryHost;
 	//port of the Mary server
 	protected static String maryPort;
-	//maximum time in ms to process a chunk of text
-	protected static int timeOutAfter;
+
     //if true, credibility is strict, else crebibility is lax
 	protected static boolean strictCredibility;
 
@@ -113,6 +100,11 @@ public class FeatureMakerMaryServer{
     protected static int numUnreliableSentences = 0;
     
     protected static DBHandler wikiToDB = new DBHandler();
+    //  mySql database 
+    private static String mysqlHost;
+    private static String mysqlDB;
+    private static String mysqlUser;
+    private static String mysqlPasswd;
 	
 	public static void main(String[] args)throws Exception{
 		
@@ -167,26 +159,6 @@ public class FeatureMakerMaryServer{
           
           sentenceList = splitIntoSentences(text, textId[i], pw);
           
-    /*     
-		  //process the article in a different thread
-		  MaryCallerThread mct = new MaryCallerThread(text, textId[i]);
-		  mct.start();			
-	      // allow the separate thread to process a limited time span
-	      mct.join(timeOutAfter);			
-		  // check if there was a timeout
-		  if(!(mct.isFinished())){
-				// resolution was stopped due to time out
-				mct.interrupt();
-				mct.join();
-				pw.println("Timeout when processing text id="+textId[i]);				
-				continue;
-		  }
-		  if (!mct.wasSuccessful()){
-				pw.println("Could not process text id="+textId[i]);				
-				continue;
-		  }
-		  mct = null;
-	*/
           if( sentenceList != null ) {
               
 		  int index=0;			
@@ -286,107 +258,53 @@ public class FeatureMakerMaryServer{
 	 */
 	protected static boolean readArgs(String[] args){
 		//initialise default values
-		textFiles = "./textFiles.txt";
+		
 		logFileName = "./featureMaker.log";
 		maryHost = "localhost";
 		maryPort = "59125";
-		timeOutAfter = 30000;
 		strictCredibility = true;
 		
 		//now parse the args
-		int i = 0;
-		while (args.length>i){
+        if (args.length >= 24){
+          for(int i=0; i<args.length; i++) { 
 			System.out.println(args[i]);
-			if (args[i].equals("-textFiles")){
-				if (args.length>i+1){
-					i++;
-					textFiles = args[i];
-					System.out.println("-textFiles "+args[i]);
-				} else {
-					System.out.println("Please specify a file after -textFiles");
-					return false;
-				}
-				i++;
-				continue;
-			}
-			if (args[i].equals("-logFile")){
-				if (args.length>i+1){
-					i++;
-					logFileName = args[i];
-					System.out.println("-logFile "+args[i]);
-				} else {
-					System.out.println("Please specify a file after -logFile");
-					return false;
-				}
-				i++;
-				continue;
-			}
-			if (args[i].equals("-host")){
-				if (args.length>i+1){
-					i++;
-					maryHost = args[i];
-					System.out.println("-host "+args[i]);
-				} else {
-					System.out.println("Please specify a server host after -host");
-					return false;
-				}
-				i++;
-				continue;
-			}
-			if (args[i].equals("-port")){
-				if (args.length>i+1){
-					i++;
-					maryPort = args[i];
-					System.out.println("-port "+args[i]);
-				} else {
-					System.out.println("Please specify a server port after -port");
-					return false;
-				}
-				i++;
-				continue;
-			}
-			if (args[i].equals("-timeOut")){
-				if (args.length>i+1){
-					i++;
-					timeOutAfter = Integer.parseInt(args[i]);
-					System.out.println("-timeOut "+args[i]);
-				} else {
-					System.out.println("Please specify the timeout (in ms) after -timeOut");
-					return false;
-				}
-				i++;
-				continue;
-			}
-			if (args[i].equals("-credibility")){
-				if (args.length>i+1){
-					i++;
-					String credibilitySetting = args[i];
-					if (credibilitySetting.equals("strict")
-							|| credibilitySetting.equals("strict")){
-						strictCredibility = true;
-						System.out.println("credibility strict");
-					} else {
-						if (credibilitySetting.equals("lax")
-								|| credibilitySetting.equals("lax")){
-							strictCredibility = false;
-							System.out.println("credibility lax");
-						} else {
-							System.out.println("Unknown argument for credibility "
-									+credibilitySetting);
-							return false;
-						}
-					}
-				} else {
-					System.out.println("Please specify setting \"strict\" or \"lax\" after -credibility");
-					return false;
-				}
-				i++;
-				continue;
-			}
-			//unknown argument
-			System.out.println("Unknown argument "+args[i]);
+			          
+            if (args[i].equals("-host") && args.length>=i+1 )
+              maryHost = args[++i];
+            
+            if (args[i].equals("-port") && args.length>=i+1 )
+              maryPort = args[++i];
+			
+			if (args[i].equals("-credibility") && args.length>=i+1){
+			  String credibilitySetting = args[++i];
+			  if (credibilitySetting.equals("strict") || credibilitySetting.equals("strict"))
+				strictCredibility = true;
+			  else {
+				if (credibilitySetting.equals("lax") || credibilitySetting.equals("lax"))
+					strictCredibility = false;
+			    else 
+				  System.out.println("Unknown argument for credibility " +credibilitySetting);
+			  }
+            }
+            
+            // mysql database parameters
+               if(args[i].contentEquals("-h") && args.length >= (i+1) )
+                   mysqlHost = args[++i];
+                 
+                 if(args[i].contentEquals("-u") && args.length >= (i+1) )
+                   mysqlUser = args[++i];
+                   
+                 if(args[i].contentEquals("-p") && args.length >= (i+1) )
+                   mysqlPasswd = args[++i];
+                 
+                 if(args[i].contentEquals("-DB") && args.length >= (i+1) )
+                  mysqlDB = args[++i];
+            
+            if (args[i].equals("-logFile") && args.length>=i+1 )
+              logFileName = args[++i];
+          }	
+		} else  //unknown argumen
 			return false;
-		}
 
 		return true;
 	}
@@ -621,34 +539,7 @@ public class FeatureMakerMaryServer{
 		}
 		
 		
-		/**
-		 * Read the list of already processed files
-		 * 
-		 * @param doneDirsTextName the file to read from
-		 * @return the list of already processed files
-		 * @throws Exception
-		 *//*
-		protected static List readInDoneFiles(String doneFilesTextName) throws Exception{
-			File doneDirsText = new File(doneFilesTextName);
-			List<String> doneList = new ArrayList<String>();
-			
-			if (doneDirsText.exists()){
-				
-				BufferedReader doneIn =
-					new BufferedReader(new FileReader(doneDirsText));
-				String line;
-				
-				while((line=doneIn.readLine()) != null){
-					doneList.add(line.trim());
-				}
-				doneIn.close();
-			} 
-			
-			//doneOut = new PrintWriter(new FileWriter(doneDirsText,true),true);
-			return doneList;
-		}
-		*/
-        
+	
         
 		/**
 		 * Split the text
@@ -725,16 +616,7 @@ public class FeatureMakerMaryServer{
 			return sentenceList;
 		}
 		
-        /*
-        private static String getShortFileName(int index, String longName){
-          // find last  /   this will not work in windows!
-          String shortName = longName.substring(longName.lastIndexOf("/")+1);
-          shortName = shortName + "_" + ((Integer) index).toString();
-            
-          return shortName;  
-        }
-        */
-        
+      
 		/**
 		 * Process the given text with the MaryClient
 		 * from Text to Chunked
@@ -865,53 +747,7 @@ public class FeatureMakerMaryServer{
 			}
 		}
 		
-		/**
-		 * Class for processing one chunk of text
-		 * 
-		 * @author Anna
-		 *
-		 */
-		static class MaryCallerThread extends Thread{
-			
-			protected String text;
-			protected String textId;
-			protected boolean finished;
-			protected boolean successful;
-			
-			/**
-			 * Build a new MaryCallerThread
-			 * 
-			 * @param file the file to process
-			 */
-			public MaryCallerThread(String text, String id){
-				this.text = text;
-                this.textId = id;
-				finished = false;
-				successful = false;
-				setName("mary caller");
-			}
-			
-			/**
-			 * Process the file
-			 */
-			public void run(){
-				try{
-					//successful = splitIntoSentences(text, textId);
-				}catch(Exception e){
-					e.printStackTrace();
-					throw new Error("Error processing text");
-				}
-				finished = true;
-			}
-			
-			public boolean isFinished(){
-				return finished;
-			} 
-			
-			public boolean wasSuccessful(){
-				return successful;
-			}
-		}
+
 		
 		
 	}
