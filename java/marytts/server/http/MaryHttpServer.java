@@ -435,52 +435,28 @@ public class MaryHttpServer {
             
             Map<String, String> keyValuePairs = MaryHttpClientUtils.toKeyValuePairs(fullParameters, false);
             
-            boolean bProcessed = false;
-            boolean isWebBrowserClient = false;
             boolean isDefaultPageRequested = false;
-            if (keyValuePairs==null)
-            {
+            if (keyValuePairs==null || (keyValuePairs.get("DEFAULT_PAGE")!=null && keyValuePairs.get("DEFAULT_PAGE").compareTo("?")==0))
                 isDefaultPageRequested = true;
-                isWebBrowserClient = true;
-            }
-            else
-            {
-                String tmpVal = keyValuePairs.get("DEFAULT_PAGE");
-                if (tmpVal!=null && tmpVal.compareTo("?")==0)
-                    isDefaultPageRequested = true;
-                
-                tmpVal = keyValuePairs.get("WEB_BROWSER_CLIENT");
-                if (tmpVal!=null && tmpVal.compareTo("true")==0)
-                    isWebBrowserClient = true;
-                else
-                    isWebBrowserClient = false; 
-            }
             
             if (isDefaultPageRequested) //A web browser client is asking for the default html page
             {
+                boolean isWebBrowserClient = false;
+                if (keyValuePairs==null || (keyValuePairs.get("WEB_BROWSER_CLIENT")!=null && keyValuePairs.get("WEB_BROWSER_CLIENT").compareTo("true")==0))
+                    isWebBrowserClient = true;
+                
                 if (isWebBrowserClient)
                     infoRequestProcessor.sendDefaultHtmlPage(serverAddressAtClient, response);
                 else
                     throw new Exception("Invalid request to Mary server!");
-                
-                return;
             }
             else
             {
                 String tmp = keyValuePairs.get("SYNTHESIS_OUTPUT");
                 if (tmp!=null && tmp.compareTo("?")==0)
-                {
                     synthesisRequestProcessor.process(serverAddressAtClient, keyValuePairs, tempOutputAudioFilePrefix, response);
-                    
-                    return;
-                }
-
-                if (!bProcessed)
-                {
-                    bProcessed = infoRequestProcessor.process(serverAddressAtClient, keyValuePairs, response);
-                    
-                    return;
-                }
+                else
+                    infoRequestProcessor.process(serverAddressAtClient, keyValuePairs, response);
             }
         }
 
