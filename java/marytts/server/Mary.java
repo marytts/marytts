@@ -371,7 +371,7 @@ public class Mary {
             if (MaryProperties.getProperty("server").compareTo("socket")==0) //socket server mode
                 request = new Request(inputType, outputType, locale, voice, "", "", 1, audioFileFormat);
             else if (MaryProperties.getProperty("server").compareTo("http")==0) //http server mode
-                request = new RequestHttp(inputType, outputType, locale, voice, "", "", 1, audioFileFormat);
+                request = new RequestHttp(inputType, outputType, locale, voice, "", "", audioFileFormat);
             
             if (request!=null)
             {
