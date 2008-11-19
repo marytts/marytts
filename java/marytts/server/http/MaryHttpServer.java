@@ -231,11 +231,7 @@ import org.apache.log4j.Logger;
  */
 
 public class MaryHttpServer {
-    //private ServerSocket server;
     private static Logger logger;
-    private int runningNumber = 1;
-    //private Map<Integer,Object[]> clientMap;
-    private Map<String, Integer> audioOutputMap;
 
     public MaryHttpServer() {
         logger = Logger.getLogger("server");
@@ -243,7 +239,6 @@ public class MaryHttpServer {
 
     public void run() throws IOException, NoSuchPropertyException 
     {
-        audioOutputMap = new HashMap<String, Integer>();
         logger.info("Starting server.");
         //clientMap = Collections.synchronizedMap(new HashMap<Integer,Object[]>());
         
@@ -291,16 +286,14 @@ public class MaryHttpServer {
         } catch (IOException e) {
             logger.info("Cannot write to client.");
         }
-        System.out.println("Shutdown");
-    }
-
-    private synchronized int getID() {
-        return runningNumber++;
+        logger.debug("Shutdown");
     }
 
     public class HttpClientHandler extends SimpleNHttpRequestHandler implements HttpRequestHandler  
     {    
         private final boolean useFileChannels = true;
+        
+        private FileRequestProcessor fileRequestProcessor;
         private InfoRequestProcessor infoRequestProcessor;
         private SynthesisRequestProcessor synthesisRequestProcessor;
         
@@ -310,6 +303,7 @@ public class MaryHttpServer {
             
             logger = Logger.getLogger("server");
             
+            fileRequestProcessor = new FileRequestProcessor();
             infoRequestProcessor = new InfoRequestProcessor();
             synthesisRequestProcessor = new SynthesisRequestProcessor();
         }
@@ -411,7 +405,7 @@ public class MaryHttpServer {
             
             preprocessedParameters = StringUtils.urlDecode(preprocessedParameters);
             
-            System.out.println("Preprocessed request: " + preprocessedParameters);
+            logger.debug("Preprocessed request: " + preprocessedParameters);
          
             return preprocessedParameters;
         }
@@ -426,56 +420,13 @@ public class MaryHttpServer {
 
             if (fullParameters!=null && fullParameters.compareToIgnoreCase("favicon.ico")==0)
             {
-                InputStream stream = MaryHttpServer.class.getResourceAsStream(fullParameters);
-
-                if (stream!=null)
-                {
-                    logger.debug("Mary icon requested by client:" + fullParameters);
-
-                    MaryHttpServerUtils.toHttpResponse(stream, response, "text/plain");
-                }
+                fileRequestProcessor.sendResourceAsStream(fullParameters, response);
 
                 return;
             }
             else if (fullParameters!=null && fullParameters.startsWith(tempOutputAudioFilePrefix))
             {
-                String fullPathFile = "";
-                fullPathFile = fullParameters;
-
-                if (fullPathFile!="")
-                {
-                    logger.debug("Audio output file requested by client:" + fullPathFile);
-
-                    MaryHttpServerUtils.fileToHttpResponse(fullPathFile, response, "text/plain", useFileChannels);
-                    //The following results in not all of the wav file to be sent for some reason
-                    //InputStream fis = new FileInputStream(fullPathFile);
-                    //MaryHttpServerUtils.toHttpResponse(fis, response, "text/plain");
-                    //
-
-                    //Check the map and delete files that have already been sent
-                    //Note that this always checks previous files, so there is no way to delete the last file synthesized
-                    //That file remains under the working folder
-                    Set<String> prevFiles = audioOutputMap.keySet();
-                    String strFile;
-                    for (Iterator<String> it = prevFiles.iterator(); it.hasNext();)
-                    {
-                        strFile = it.next();
-                        if (audioOutputMap.get(strFile)==2)
-                        {
-                            FileUtils.delete(strFile);
-                            audioOutputMap.remove(strFile);
-                        }
-                    }
-                    //
-
-                    //Put the new file
-                    Integer numRequested = audioOutputMap.get(fullPathFile);
-                    if (numRequested==null)
-                        audioOutputMap.put(fullPathFile, new Integer(1));
-                    else
-                        audioOutputMap.put(fullPathFile, ++numRequested);
-                    //
-                }
+                fileRequestProcessor.sendFile(fullParameters, response);
 
                 return;
             }
@@ -484,8 +435,8 @@ public class MaryHttpServer {
             
             Map<String, String> keyValuePairs = MaryHttpClientUtils.toKeyValuePairs(fullParameters, false);
             
-            boolean isWebBrowserClient = false;
             boolean bProcessed = false;
+            boolean isWebBrowserClient = false;
             boolean isDefaultPageRequested = false;
             if (keyValuePairs==null)
             {

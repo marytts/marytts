@@ -105,7 +105,7 @@ public class MaryHttpServerUtils
     
     public static void toHttpResponse(AppendableSequenceAudioInputStream stream, HttpResponse response, String contentType) throws IOException
     {
-        InputStreamEntity body = new InputStreamEntity(stream, -1);        
+        InputStreamEntity body = new InputStreamEntity(stream, -1);  
         body.setContentType(contentType);
         response.setEntity(body);
         response.setStatusCode(HttpStatus.SC_OK);
@@ -113,7 +113,7 @@ public class MaryHttpServerUtils
     
     public static void toHttpResponse(InputStream stream, HttpResponse response, String contentType, long streamLength) throws IOException
     {
-        InputStreamEntity body = new InputStreamEntity(stream, streamLength);        
+        InputStreamEntity body = new InputStreamEntity(stream, streamLength); 
         body.setContentType(contentType);
         response.setEntity(body);
         response.setStatusCode(HttpStatus.SC_OK);

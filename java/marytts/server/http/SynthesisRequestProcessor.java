@@ -63,6 +63,8 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
     public SynthesisRequestProcessor()
     {
         super();
+        
+        //Add extra initialisations here
     }
     
     public void process(Address serverAddressAtClient, 
