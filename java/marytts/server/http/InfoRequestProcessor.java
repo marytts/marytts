@@ -67,6 +67,8 @@ public class InfoRequestProcessor extends BaselineRequestProcessor {
     public InfoRequestProcessor()
     {
         super();
+        
+        //Add extra initialisations here
     }
     
     public void sendDefaultHtmlPage(Address serverAddressAtClient, HttpResponse response) throws IOException, InterruptedException
