@@ -55,19 +55,19 @@ public class RequestHttp extends Request
 {
     public RequestHttp(MaryDataType inputType, MaryDataType outputType,
             Locale defaultLocale, Voice defaultVoice, String defaultEffects,
-            String defaultStyle, int id, AudioFileFormat audioFileFormat) 
+            String defaultStyle, AudioFileFormat audioFileFormat) 
     {
         super(inputType, outputType, defaultLocale, defaultVoice, defaultEffects,
-                defaultStyle, id, audioFileFormat);
+                defaultStyle, 0, audioFileFormat);
     }
     
     public RequestHttp(MaryDataType inputType, MaryDataType outputType, Locale defaultLocale,
             Voice defaultVoice, String defaultEffects, String defaultStyle,
-            int id, AudioFileFormat audioFileFormat, boolean streamAudio)
+            AudioFileFormat audioFileFormat, boolean streamAudio)
     {
         super(inputType, outputType, defaultLocale,
             defaultVoice, defaultEffects, defaultStyle,
-            id, audioFileFormat, streamAudio);
+            0, audioFileFormat, streamAudio);
     }
     
     /**
