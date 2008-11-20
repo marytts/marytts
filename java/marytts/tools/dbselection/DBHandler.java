@@ -39,7 +39,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
+import java.util.Iterator;
 import java.util.Properties;
+import java.util.HashMap;
+import java.util.TreeMap;
+
 import marytts.tools.dbselection.WikipediaMarkupCleaner;
 
 /**
@@ -54,6 +58,7 @@ public class DBHandler {
   private ResultSet  rs = null;
   private String currentTable = null;
   private PreparedStatement psSentence = null;
+  private PreparedStatement psWord = null;
   private PreparedStatement psCleanText = null;
   
   /**
@@ -62,7 +67,7 @@ public class DBHandler {
    */
   public DBHandler() {
     initDB_Driver();
-    System.out.println("Mysql driver loaded.");  
+    System.out.println("\nMysql driver loaded.");  
   } 
   
   /** Loading DB Driver */
@@ -97,7 +102,8 @@ public class DBHandler {
       st = cn.createStatement();
       
       psCleanText = cn.prepareStatement("INSERT INTO clean_text VALUES (null, ?, ?, ?, ?)");
-      psSentence = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?, ?, ?, ?)");
+      psWord      = cn.prepareStatement("INSERT INTO wordlist VALUES (null, ?, ?)");
+      psSentence  = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?, ?, ?, ?)");
       
     } catch (Exception e) {
         e.printStackTrace();
@@ -116,7 +122,7 @@ public class DBHandler {
       String str;
       boolean dbExist = false;
       // if database does not exist create it    
-      System.out.println("Checking if the database already exist.");
+      System.out.println("Checking if dbselection already exist.");
       try {
           rs = st.executeQuery("SHOW TABLES;");
       } catch (Exception e) {
@@ -139,6 +145,7 @@ public class DBHandler {
           e.printStackTrace();
       } 
   }
+  
   
   /***
    * 
@@ -339,29 +346,33 @@ public class DBHandler {
       } 
   }
 
-  public boolean checkWikipediaCleanTextTable() {
+  /***
+   * 
+   * @return true if TABLE=tableName exist.
+   */
+  public boolean tableExist(String tableName) {
       // wiki must be already created
            
       // If database does not exist create it, if it exists delete it and create an empty one.      
-      System.out.println("Checking if the TABLE=clean_text already exist.");
+      System.out.println("Checking if the TABLE=" + tableName + " exist.");
       try {
           rs = st.executeQuery("SHOW TABLES;");
       } catch (Exception e) {
           e.printStackTrace();
       }
-      boolean resText=false;
+      boolean res=false;
       try {        
           while( rs.next() ) {
             String str = rs.getString(1);
-            if( str.contentEquals("clean_text") )
-               resText=true;
+            if( str.contentEquals(tableName) )
+               res=true;
           } 
           
       } catch (SQLException e) {
           e.printStackTrace();
       } 
       
-      return resText;
+      return res;
       
   }
 
@@ -501,6 +512,47 @@ public class DBHandler {
     }
   }
 
+  /****
+   * Creates a wordlist table, if already exists deletes it and creates a new to insert
+   * current wordList.
+   * 
+   */
+  public void insertWordList(HashMap<String, Integer> wordList){
+    String key;
+    Integer value; 
+    boolean res;
+    
+    String wordlist = "CREATE TABLE wordlist ( id INT NOT NULL AUTO_INCREMENT, " +                                                       
+                                              "word varchar(255) NOT NULL, " +
+                                              "frequency INT UNSIGNED NOT NULL, " +
+                                              "primary key(id));";
+    
+    try { 
+        System.out.println("Inserting wordList in DB...");
+        // if wordlist table already exist it should be deleted before inserting this list
+        if( tableExist("wordlist") ){
+          res = st.execute( "DROP TABLE wordlist;" );
+          res = st.execute( wordlist );
+        } else
+          res = st.execute( wordlist );   
+        
+        //psWord = cn.prepareStatement("INSERT INTO wordlist VALUES (null, ?, ?)");           
+        Iterator iteratorSorted = wordList.keySet().iterator();
+        while (iteratorSorted.hasNext()) {
+           key = iteratorSorted.next().toString();
+           value = wordList.get(key);
+           psWord.setString(1, key);
+           psWord.setInt(2, value);
+           psWord.execute();
+           psWord.clearParameters();
+        } 
+        System.out.println("Inserted new wordlist table."); 
+        
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+  
   
   public void closeDBConnection(){
     try {
@@ -541,6 +593,85 @@ public class DBHandler {
       } 
       
       return idSet;
+  }
+  
+  /****
+   * 
+   * @return the word list in a HashMap
+   */
+  public HashMap<String, Integer> getWordList() {
+
+      HashMap<String, Integer> wordList;
+      int initialCapacity = 20000;  // CHECK wich initial value is meaningful!!!
+      wordList = new HashMap<String, Integer>(initialCapacity);
+      
+      try {
+          rs = st.executeQuery("SELECT word,frequency from wordlist;"); 
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+      try { 
+          while( rs.next() ) {
+            wordList.put(rs.getString(1), new Integer(rs.getInt(2)));
+          }
+      } catch (SQLException e) {
+          e.printStackTrace();
+      } 
+      
+      return wordList;
+  }
+  
+  /****
+   * 
+   * @return the word list in a HashMap
+   */
+  public void printWordList(String fileName, String order) {
+      PrintWriter pw;
+      
+      try {
+          rs = st.executeQuery("SELECT word,frequency from wordlist order by " + order + ";"); 
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+      try { 
+          pw = new PrintWriter(new FileWriter(new File(fileName)));
+          while( rs.next() ) {
+            pw.println(rs.getString(1) + " " + rs.getInt(2));
+          }
+          pw.close();
+          
+      } catch (SQLException e) {
+          e.printStackTrace();
+      } catch (Exception e){
+          e.printStackTrace();
+      } 
+      System.out.println("Wordlist printed in file: " + fileName + " ordered by " + order);
+      
+  }
+  
+  /****
+   * 
+   * @return the word list in an ordered TreeMap
+   */
+  public TreeMap<String, Integer> getWordListOrdered() {
+
+      int num;
+      TreeMap<String, Integer> wordList = new TreeMap<String, Integer>();
+      
+      try {
+          rs = st.executeQuery("SELECT word,frequency from wordlist;"); 
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+      try { 
+          while( rs.next() ) {
+            wordList.put(rs.getString(1), new Integer(rs.getInt(2)));
+          }
+      } catch (SQLException e) {
+          e.printStackTrace();
+      } 
+      
+      return wordList;
   }
   
   public String getSentenceFromTable(int id, String table) {

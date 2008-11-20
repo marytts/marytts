@@ -50,6 +50,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
+import java.util.HashMap;
 
 import marytts.client.MaryClient;
 import marytts.datatypes.MaryData;
@@ -99,16 +100,19 @@ public class FeatureMakerMaryServer{
     protected static int numSentences = 0;
     protected static int numUnreliableSentences = 0;
     
-    protected static DBHandler wikiToDB = new DBHandler();
+    protected static DBHandler wikiToDB;
     //  mySql database 
     private static String mysqlHost;
     private static String mysqlDB;
     private static String mysqlUser;
     private static String mysqlPasswd;
+    
+    // hashMap for the dictionary, HashMap is faster than TreeMap so to list of words will
+    // be keep it in a hashMap. When the process finish the hashMap will be dump in the database sorted.
+    private static HashMap<String, Integer> wordList;
 	
 	public static void main(String[] args)throws Exception{
-		
-		System.out.println("FeatureMaker started...");
+			
        /* 
         DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
         Date dateIni = new Date();
@@ -119,7 +123,8 @@ public class FeatureMakerMaryServer{
 			printUsage();
 			return;
 		}
-		
+  
+        System.out.println("\nFeatureMaker started...");
 		/* Start the Mary client */
 		System.setProperty("server.host", maryHost);
 		System.setProperty("server.port", maryPort);
@@ -128,22 +133,35 @@ public class FeatureMakerMaryServer{
 		/* start the Credibility Checker */
 		       
         /* Here the DB connection for reliable sentences is open */
-         wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
+         wikiToDB = new DBHandler();
+         wikiToDB.createDBConnection(mysqlHost,mysqlDB,mysqlUser,mysqlPasswd);
          //wikiToDB.createDBConnection("penguin.dfki.uni-sb.de","MaryDBSelector","MaryDBSel_admin","p4rpt3jr");
          // check if tables exist
          wikiToDB.createDataBaseSelectionTable();
+         if( wikiToDB.tableExist("wordlist") ){
+           System.out.println("loading wordList from table....");
+           wordList = wikiToDB.getWordList();
+           //printWordList();
+         } else {
+           System.out.println("started Hashtable for wordList.");
+           int initialCapacity = 20000;  // CHECK wich initial value is meaningful!!!
+           wordList = new HashMap<String, Integer>(initialCapacity);
+           
+         }
         
          // Get the set of id for unprocessed records in clean_text
          // this will be useful when the process is stoped and then resumed
+         System.out.println("\nGetting list of unprocessed clean_text records from wikipedia...");
          String textId[];
          textId = wikiToDB.getUnprocessedTextIds();
+         System.out.println("Number of clean_text records to process: " + textId.length);
          String text;
          
 		
 		/* loop over the text records in clean_text table of wiki */
         // once procesed the clean_text records are marked as processed=true, so here retrieve
         // the next clean_text record untill all are processed.
-		System.out.println("Looping over clean_text records from wikipedia...");       
+		System.out.println("Looping over clean_text records from wikipedia...\n");       
         PrintWriter pw = new PrintWriter(new FileWriter(new File(logFileName)));
         
         Vector<String> sentenceList;  // this will be the list of sentences in each clean_text
@@ -151,14 +169,9 @@ public class FeatureMakerMaryServer{
         for(i=0; i<textId.length; i++){
           // get next unprocessed text  
           text = wikiToDB.getCleanText(textId[i]);
-         
-          
           System.out.println("Processing text id=" + textId[i] + " text length=" + text.length());
-          
-	      if (text.equals("") || text.equals("\n")) continue;
-          
           sentenceList = splitIntoSentences(text, textId[i], pw);
-          
+        
           if( sentenceList != null ) {
               
 		  int index=0;			
@@ -167,22 +180,16 @@ public class FeatureMakerMaryServer{
           String newSentence;
           byte feas[];  // for directly saving a vector of bytes as BLOB in mysql DB
           for(j=0; j<sentenceList.size(); j++) {
-				newSentence = sentenceList.elementAt(j);
-                
-                // Here we can check that the sentence is not . 
-                if( !newSentence.contentEquals(".") ) {
-                  MaryData d = processSentence(newSentence,textId[i]);
-				  if (d!=null){
-				    // get the features of the sentence  
-				    feas = getFeatures(d);     
-                    // Insert in the database the new sentence and its features.
-                    numSentencesInText++;
-                    wikiToDB.insertSentence(newSentence,feas, true, false, false, Integer.parseInt(textId[i]));
-                    feas = null;
-                  }
-                } else
-                  System.out.println("newSentence=" + newSentence);
-                     		
+			newSentence = sentenceList.elementAt(j);
+            MaryData d = processSentence(newSentence,textId[i]);
+		    if (d!=null){
+			  // get the features of the sentence  
+			  feas = getFeatures(d);     
+              // Insert in the database the new sentence and its features.
+              numSentencesInText++;
+              wikiToDB.insertSentence(newSentence,feas, true, false, false, Integer.parseInt(textId[i]));
+              feas = null;
+            }        		
 	      }//end of loop over list of sentences
           sentenceList.clear();
           sentenceList=null;
@@ -191,11 +198,17 @@ public class FeatureMakerMaryServer{
           pw.println("Inserted " + numSentencesInText + " sentences from text id=" + textId[i] 
                                  + " (Total reliable = "+ numSentences+")\n");
           System.out.println("Inserted " + numSentencesInText + " sentences from text id=" 
-                             + textId[i] + " (Total reliable = "+ numSentences+")\n");
+                             + textId[i] + " (Total reliable = "+ numSentences+")  "
+                             + " Wordlist[" + wordList.size() + "]\n");
           
           }
                          
-		} //end of loop over articles    
+		} //end of loop over articles  
+        
+        wikiToDB.insertWordList(wordList);
+        
+        //printWordList("/project/mary/marcela/anna_wikipedia/wordlist.txt");
+        wikiToDB.printWordList("/project/mary/marcela/anna_wikipedia/wordlist-freq.txt", "frequency");
         
         wikiToDB.closeDBConnection();
      /*   
@@ -217,39 +230,35 @@ public class FeatureMakerMaryServer{
 	 */
 	protected static void printUsage(){
 		System.out.println("Usage:\n"
-				+"java -cp $CLASSPATH -ea -Dendorsed.dirs=$MARYBASE/lib/endorsed "
-				+"-Dmary.base=$MARYBASE "
-				+"marytts.tools.dbselection.FeatureMakerMaryServer\n"
-				+"Please see readme file for details of starting this program\n\n"
-				+"Arguments:\n"
-				+"-textFiles <file>: File containing the list of text files to be "
-				+"processed. Default: textFiles.txt\n\n"
-				+"-doneFile <file>: File containing the list of files that have already "
-				+"been processed. This file is created automatically during the "
-				+"run of the program. Default: done.txt\n\n"
-				+"-featureDir <file>: Directory where the features are stored. "
-				+"Default: features1. Per default, appropriate sentence files are stored "
-				+"in sentences1. The index of feature/sentence dir is increased when the feature "
-				+"dir is full.\n\n"
-				+"-host <hostname>: Host of the Mary server. Default: localhost\n\n"
-				+"-port <port>: Port of the Mary server. Default: 59125\n\n"
-				+"-timeOut <time in ms>: The time in milliseconds the Mary server is allowed "
-				+"to split the text of a file into sentence. After the limit is exceeded, "
-				+"processing on this file is stopped, and the program continues to the "
-				+"next file. Default 30000ms\n\n"
-				+"-unreliableLog <file>: Logfile for the unreliable sentence. "
-				+"Default: unreliableSents.log\n\n"
-				+"-credibility <setting>: Setting that determnines what kind of sentences "
-				+"are regarded as credible. There are two settings: strict and lax. With "
-				+"setting strict, only those sentences that contain words in the lexicon "
-				+"or words that were transcribed by the preprocessor are regarded as credible; "
-				+"the other sentences as unreliable. With setting lax, also those words that "
-				+"are transcribed with the Denglish and the compound module are regarded credible. "
-				+"Default: strict\n\n"
-				+"-basenames <file>: File containing the list of feature files that can be "
-				+"used in the selection algorithm. Default: basenames.lst\n");
+				+"java FeatureMakerMaryServer -mysqlHost host -mysqlUser user -mysqlPasswd passwd -mysqlDB wikiDB\n"
+                + "  default/optional: [-maryHost localhost -maryPort 59125 -strictCredibility true]\n"
+                + "  optional: [-strictCredibility [strict|lax] -log logFileName]\n\n"
+            	+"-credibility [strict|lax]: Setting that determnines what kind of sentences \n"
+				+"  are regarded as credible. There are two settings: strict and lax. With \n"
+				+"  setting strict, only those sentences that contain words in the lexicon \n"
+				+"  or words that were transcribed by the preprocessor are regarded as credible; \n"
+				+"  the other sentences as unreliable. With setting lax, also those words that \n"
+				+"  are transcribed with the Denglish and the compound module are regarded credible. \n\n");
+                
 	}
 	
+   private static void printParameters(){
+        System.out.println("FeatureMakerMaryServer parameters:" +
+        "\n  -maryHost " + maryHost +
+        "\n  -maryPort " + maryPort +
+        "\n  -mysqlHost " + mysqlHost +
+        "\n  -mysqlUser " + mysqlUser +
+        "\n  -mysqlPasswd " + mysqlPasswd +
+        "\n  -mysqlDB " + mysqlDB);
+        
+        if( strictCredibility )
+          System.out.println("  -strictCredibility true");
+        else
+          System.out.println("  -strictCredibility false");  
+       
+    }
+        
+    
 	/**
 	 * Read and parse the command line args
 	 * 
@@ -265,22 +274,22 @@ public class FeatureMakerMaryServer{
 		strictCredibility = true;
 		
 		//now parse the args
-        if (args.length >= 24){
+        if (args.length >= 8){
           for(int i=0; i<args.length; i++) { 
-			System.out.println(args[i]);
+			
 			          
-            if (args[i].equals("-host") && args.length>=i+1 )
+            if (args[i].equals("-maryHost") && args.length>=i+1 )
               maryHost = args[++i];
             
-            if (args[i].equals("-port") && args.length>=i+1 )
+            if (args[i].equals("-maryPort") && args.length>=i+1 )
               maryPort = args[++i];
 			
 			if (args[i].equals("-credibility") && args.length>=i+1){
 			  String credibilitySetting = args[++i];
-			  if (credibilitySetting.equals("strict") || credibilitySetting.equals("strict"))
+			  if (credibilitySetting.equals("strict"))
 				strictCredibility = true;
 			  else {
-				if (credibilitySetting.equals("lax") || credibilitySetting.equals("lax"))
+				if (credibilitySetting.equals("lax"))
 					strictCredibility = false;
 			    else 
 				  System.out.println("Unknown argument for credibility " +credibilitySetting);
@@ -288,24 +297,26 @@ public class FeatureMakerMaryServer{
             }
             
             // mysql database parameters
-               if(args[i].contentEquals("-h") && args.length >= (i+1) )
-                   mysqlHost = args[++i];
-                 
-                 if(args[i].contentEquals("-u") && args.length >= (i+1) )
-                   mysqlUser = args[++i];
+            if(args[i].contentEquals("-mysqlHost") && args.length >= (i+1) )
+              mysqlHost = args[++i];
+                
+            if(args[i].contentEquals("-mysqlUser") && args.length >= (i+1) )
+              mysqlUser = args[++i];
                    
-                 if(args[i].contentEquals("-p") && args.length >= (i+1) )
-                   mysqlPasswd = args[++i];
+            if(args[i].contentEquals("-mysqlPasswd") && args.length >= (i+1) )
+              mysqlPasswd = args[++i];
                  
-                 if(args[i].contentEquals("-DB") && args.length >= (i+1) )
-                  mysqlDB = args[++i];
+            if(args[i].contentEquals("-mysqlDB") && args.length >= (i+1) )
+              mysqlDB = args[++i];
             
             if (args[i].equals("-logFile") && args.length>=i+1 )
               logFileName = args[++i];
+            
           }	
 		} else  //unknown argumen
 			return false;
 
+        printParameters();
 		return true;
 	}
 	
@@ -552,6 +563,7 @@ public class FeatureMakerMaryServer{
 		protected static Vector<String> splitIntoSentences(String text, String id, PrintWriter pw)throws Exception{
             
             Vector<String> sentenceList = null;
+            Vector<String> wordsInSentence = null; // to keep reliable sentences without punctuation
             StringBuffer sentence;
             //index2sentences = new TreeMap<Integer,String>();
 			
@@ -560,7 +572,7 @@ public class FeatureMakerMaryServer{
             
             if (doc != null) {
             sentenceList = new Vector<String>();    
-                
+            wordsInSentence = new Vector<String>();    
 			NodeList sentences = doc.getElementsByTagName("s");   
 			
             int sentenceIndex = 1;
@@ -579,14 +591,19 @@ public class FeatureMakerMaryServer{
 					Node nextToken = tokens.item(k);
 					//ignore all non-element children
 					if ( (nextToken instanceof Element) ) 
-					  sentence = collectTokens(nextToken, sentence);                            
+					  sentence = collectTokens(nextToken, sentence, wordsInSentence);                            
 				}
                 //System.out.println(sentence);
 				if (sentence!=null){
 					if (usefulSentence){	
 						//store sentence in sentence map
 						//index2sentences.put(new Integer(sentenceIndex),sentence.toString());
-                        sentenceList.add(sentence.toString());
+                        // check if the sentence is not . 
+                        if( !sentence.toString().contentEquals(".") ){
+                         sentenceList.add(sentence.toString());
+                         insertInWordList(wordsInSentence);
+                         //System.out.println("sentence=" + sentence.toString() + "\n");
+                        }
 					} else {
 						//just print useless sentence to log file
 						//System.out.println(filename+"; "+sentenceIndex+": "+sentence
@@ -601,6 +618,7 @@ public class FeatureMakerMaryServer{
                         wikiToDB.insertSentence(sentence.toString(), null, usefulSentence, unknownWords, strangeSymbols, Integer.parseInt(id));
 					}
 					sentenceIndex++;
+                    wordsInSentence.clear();
 				} else {
 					//ignore
 					//System.out.println("NULL SENTENCE!!!");
@@ -613,6 +631,7 @@ public class FeatureMakerMaryServer{
             } 
             
             sentence = null;
+            wordsInSentence=null;
 			return sentenceList;
 		}
 		
@@ -655,8 +674,9 @@ public class FeatureMakerMaryServer{
          *  1 if the sentence contains unknownWords (so the sentence is not useful)
          *  2 if the sentence contains strangeSymbols (so the sentence is not useful)
 		 */
-		protected static StringBuffer collectTokens(Node nextToken, StringBuffer sentence){
-            int credibility = 0;  
+		protected static StringBuffer collectTokens(Node nextToken, StringBuffer sentence, Vector<String> wordsInSentence){
+            int credibility = 0; 
+            String tokenText, word;
 			String name = nextToken.getLocalName();
 			if (name.equals("t")){
 				if ( ( credibility = checkCredibility((Element) nextToken) ) > 0 ){
@@ -670,18 +690,25 @@ public class FeatureMakerMaryServer{
 				if (sentence == null){
 					sentence = new StringBuffer();
 					//first word of the sentence
-					sentence.append(MaryDomUtils.tokenText((Element)nextToken));
+                     word = MaryDomUtils.tokenText((Element)nextToken);
+                     wordsInSentence.add(word);
+                     //System.out.println("word=" + word);                     
+					 sentence.append(word);
+                     
 				} else {
 					String pos = ((Element)nextToken).getAttribute("pos");
 					if (pos.startsWith("$")){
 						//punctuation
-						String tokenText = MaryDomUtils.tokenText((Element)nextToken);
+						tokenText = MaryDomUtils.tokenText((Element)nextToken);
 						//just append without whitespace
 						sentence.append(tokenText);
 						
 					} else {
 						//normal word, append a whitespace before it
-						sentence.append(" "+MaryDomUtils.tokenText((Element)nextToken));
+                        word = MaryDomUtils.tokenText((Element)nextToken);
+                        //System.out.println("word=" + word);
+                        sentence.append(" " + word);
+                        wordsInSentence.add(word);
 					}
 				}
 			} else {
@@ -692,7 +719,7 @@ public class FeatureMakerMaryServer{
 						Node nextMTUToken = mtuTokens.item(l);
 						//ignore all non-element children
 						if (!(nextMTUToken instanceof Element)) continue; 
-						collectTokens(nextMTUToken, sentence);
+						collectTokens(nextMTUToken, sentence, wordsInSentence);
 					}
 				}
 				
@@ -747,7 +774,54 @@ public class FeatureMakerMaryServer{
 			}
 		}
 		
+     
+    protected static void insertInWordList(Vector<String> words) {
+      String word;  
+      Integer i;
+      
+      for(int j=0; j<words.size(); j++){
+        word = words.elementAt(j);
+        i = (Integer) wordList.get(word);
+      
+        // if key is not in the map then give it value one
+        // otherwise increment its value by 1
+        if(i==null)
+          wordList.put(word, new Integer(1));
+        else
+          wordList.put(word, new Integer( i.intValue() + 1));
+      }
+      
+    }
+	
+    protected static void printWordList(String fileName) {
+        
+      TreeMap<String, Integer> wl;
+      PrintWriter pw;
+      String key, value;
+      try{
+        pw = new PrintWriter(new FileWriter(new File(fileName)));
+        wl = wikiToDB.getWordListOrdered();
+        Iterator iterator = wl.keySet().iterator();
 
-		
+        while (iterator.hasNext()) {
+           key = iterator.next().toString();
+           value = wl.get(key).toString();  
+           pw.println(key + " " + value);
+        } 
+          
+        pw.close();
+        System.out.println("Wordlist printed in file: " + fileName);
+        
+      } catch (Exception e){
+          e.printStackTrace();
+      } 
+    }
+    
+    
+        
+       
+          
+   
+    
 		
 	}
