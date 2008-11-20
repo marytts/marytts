@@ -883,7 +883,7 @@ public class WikipediaMarkupCleaner {
           System.out.println("Creating (deleting if already exist) clean_text TABLE");
           wikiToDB.createWikipediaCleanTextTable();
         } else {
-          if(wikiToDB.checkWikipediaCleanTextTable())  
+          if( wikiToDB.tableExist("clean_text") )  
             System.out.println("clean_text TABLE already exist (WARNING ADDING TO EXISTING clean_text TABLE)");
           else {
             System.out.println("Creating clean_text TABLE");
@@ -948,10 +948,10 @@ public class WikipediaMarkupCleaner {
     
     private void printParameters(){
         System.out.println("WikipediaMarkupCleaner parameters:" +
-        "\n  -h " + getMysqlHost() +
-        "\n  -u " + getMysqlUser() +
-        "\n  -p " + getMysqlPasswd() +
-        "\n  -DB " + getMysqlDB() +
+        "\n  -mysqlHost " + getMysqlHost() +
+        "\n  -mysqlUser " + getMysqlUser() +
+        "\n  -mysqlPasswd " + getMysqlPasswd() +
+        "\n  -mysqlDB " + getMysqlDB() +
         "\n  -text " + getTextFile() +
         "\n  -page " + getPageFile() +
         "\n  -revision " + getRevisionFile() +
@@ -979,7 +979,7 @@ public class WikipediaMarkupCleaner {
     public static void main(String[] args) throws Exception{
         
         boolean debug=false;
-        String help = "\nUse: java WikipediaMarkupCleaner -h mysqlHost -u mysqlUser -p mysqlPasswd -DB mysqlDB \n" +
+        String help = "\nUse: java WikipediaMarkupCleaner -mysqlHost host -mysqlUser user -mysqlPasswd passwd -mysqlDB wikiDB \n" +
         "      -text wikiTextFile -page wikiPageFile -revision wikiRevisionFile \n" +
         "      default/optional: [-minPage 10000 -minText 1000 -maxText 15000] \n" +
         "      optional: [-log wikiLogFile -id pageId -debug]\n\n" +
@@ -996,18 +996,18 @@ public class WikipediaMarkupCleaner {
       
         WikipediaMarkupCleaner wikiCleaner = new WikipediaMarkupCleaner(); 
         
-        if (args.length >= 14){
+        if (args.length >= 14){  // minimum 14 parameters
           for(int i=0; i<args.length; i++) { 
-            if(args[i].contentEquals("-h") && args.length >= (i+1) )
+            if(args[i].contentEquals("-mysqlHost") && args.length >= (i+1) )
               wikiCleaner.setMysqlHost(args[++i]);
             
-            if(args[i].contentEquals("-u") && args.length >= (i+1) )
+            if(args[i].contentEquals("-mysqlUser") && args.length >= (i+1) )
                 wikiCleaner.setMysqlUser(args[++i]);
               
-            if(args[i].contentEquals("-p") && args.length >= (i+1) )
+            if(args[i].contentEquals("-mysqlPasswd") && args.length >= (i+1) )
                 wikiCleaner.setMysqlPasswd(args[++i]);
             
-            if(args[i].contentEquals("-DB") && args.length >= (i+1) )
+            if(args[i].contentEquals("-mysqlDB") && args.length >= (i+1) )
               wikiCleaner.setMysqlDB(args[++i]);
             
             if(args[i].contentEquals("-text") && args.length >= (i+1) )
