@@ -36,11 +36,13 @@ import java.io.InputStream;
 import java.util.Map;
 
 import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioFileFormat;
 
 import marytts.client.http.MaryHtmlForm;
 import marytts.client.http.MaryHttpClientUtils;
 import marytts.util.ConversionUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
+import marytts.util.data.audio.MaryAudioUtils;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -119,4 +121,20 @@ public class MaryHttpServerUtils
 
         response.setStatusCode(status);
     }
+
+    public static String getMimeType(AudioFileFormat.Type audioType)
+    {
+        if (audioType == AudioFileFormat.Type.WAVE) {
+            return "audio/x-wav";
+        } else if (audioType == AudioFileFormat.Type.AU) {
+            return "audio/basic";
+        } else if (audioType == AudioFileFormat.Type.AIFF
+                || audioType == AudioFileFormat.Type.AIFC) {
+            return "audio/x-aiff";
+        } else if (audioType.equals(MaryAudioUtils.getAudioFileFormatType("MP3"))) {
+            return "audio/x-mp3";
+        }
+        return "audio/basic"; // this is probably wrong but better than text/plain...
+    }
+
 }
