@@ -211,7 +211,9 @@ public class RequestHttpHandler extends Thread {
                         //rp = new StreamingOutputPiper(pis, new File("d:\\a.wav")); //Pipe to a binary file
                         
                         //rp = new StreamingOutputPiper(pis, response, "text/plain"); //Pipe to an input stream in text/plain mode
-                        rp = new StreamingOutputPiper(pis, response, "audio/" + request.getAudioFileFormat().getType().toString()); 
+                        String mimeType = MaryHttpServerUtils.getMimeType(request.getAudioFileFormat().getType());
+                        //rp = new StreamingOutputPiper(pis, response, "audio/" + request.getAudioFileFormat().getType().toString()); 
+                        rp = new StreamingOutputPiper(pis, response, mimeType); 
                         rw.start();
                         rp.start();
                         request.process();
