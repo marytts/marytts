@@ -92,6 +92,8 @@ public class MaryHtmlForm {
     protected MaryHttpRequester httpRequester; //Sends and receives HTTP requests to/from server
     public Map<String, String> keyValuePairs; //Key-Value pairs for communication with server
     
+    public String outputAudioResponseID; //output audio file for web browser client
+    
     public MaryHtmlForm() throws IOException, InterruptedException
     {
         String serverHost = System.getProperty("server.host", DEFAULT_HOST);
@@ -154,6 +156,7 @@ public class MaryHtmlForm {
                      String defaultAudioEffects,
                      Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
    {
+        outputAudioResponseID = "";
         httpRequester = new MaryHttpRequester();
         hostAddress = null;
         serverVersionInfo = null;
@@ -521,7 +524,7 @@ public class MaryHtmlForm {
             //
         
             //Audio format selected
-            selected = keyValuePairs.get("AUDIO");
+            selected = keyValuePairs.get("AUDIO_FORMAT");
             int spaceInd;
             if (selected!=null)
             {

@@ -28,9 +28,13 @@
  */
 package marytts.server.http;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -73,15 +77,13 @@ public class RequestHttp extends Request
     /**
      * Write the output data to the specified Http response.
      */
-    public void writeOutputData(HttpResponse response) throws Exception 
+    public void writeNonstreamingOutputData(HttpResponse response) throws Exception 
     {
         if (outputData == null)
             throw new NullPointerException("No output data -- did process() succeed?");
      
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         
-        if (outputStream == null)
-            throw new NullPointerException("cannot write to null output stream");
         // Safety net: if the output is not written within a certain amount of
         // time, give up. This prevents our thread from being locked forever if an
         // output deadlock occurs (happened very rarely on Java 1.4.2beta).
@@ -104,10 +106,11 @@ public class RequestHttp extends Request
             timeout *= 5;
         }
         timer.schedule(timerTask, timeout);
+   
         try {
             outputData.writeTo(os);
         } catch (Exception e) {
-            timer.cancel();
+            //timer.cancel();
             throw e;
         }
         

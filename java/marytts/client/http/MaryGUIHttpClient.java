@@ -1216,7 +1216,7 @@ public class MaryGUIHttpClient extends JPanel
                 processor.streamAudio(inputText.getText(), 
                         ((MaryHttpClient.DataType)cbInputType.getSelectedItem()).name(),
                         ((MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
-                        streamMp3 ? "MP3":"WAVE",
+                        streamMp3 ? "MP3":"AU",
                                 ((MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                                 "",
                                 getAudioEffectsMap(),

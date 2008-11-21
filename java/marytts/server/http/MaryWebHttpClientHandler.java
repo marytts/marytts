@@ -57,11 +57,9 @@ import marytts.util.string.StringUtils;
  */
 public class MaryWebHttpClientHandler
 {    
-    public String outputAudioFile; //output audio file for web browser client
-    
     public MaryWebHttpClientHandler()
     {
-        outputAudioFile = "";
+        
     }
     
     //Convert for to an html page and put it in response
@@ -134,7 +132,8 @@ public class MaryWebHttpClientHandler
         htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.VOICE_SELECTIONS.selectedIndex = " + String.valueOf(htmlForm.voiceSelected) + ";" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.INPUT_TYPE.selectedIndex = " + String.valueOf(htmlForm.inputTypeSelected) + ";" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.OUTPUT_TYPE.selectedIndex = " + String.valueOf(htmlForm.outputTypeSelected) + ";" + nextline;
-        htmlPage += indenter(numIndents, strIndent) + "maryWebClient.AUDIO.selectedIndex = " + String.valueOf(htmlForm.audioFormatSelected) + ";" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "maryWebClient.AUDIO_FORMAT.selectedIndex = " + String.valueOf(htmlForm.audioFormatSelected) + ";" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "maryWebClient.AUDIO.value = 'STREAMING_' + maryWebClient.AUDIO_FORMAT.options[maryWebClient.AUDIO_FORMAT.selectedIndex].text;" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.INPUT_TEXT.value = '" + formatStringForJavaScript(htmlForm.inputText) + "';" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.OUTPUT_TEXT.value = '" + formatStringForJavaScript(htmlForm.outputText) + "';" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.LOCALE.value = '" + htmlForm.allVoices.get(htmlForm.voiceSelected).getLocale() + "';" + nextline;
@@ -167,7 +166,7 @@ public class MaryWebHttpClientHandler
         
         //Handle visibility of audio format types
         htmlPage += indenter(++numIndents, strIndent) + "document.getElementById('hideFormat').style.display = " + visibilityOfOutputAudioItems + ";" + nextline;
-        htmlPage += indenter(numIndents, strIndent) + "document.getElementById('AUDIO').style.display = " + visibilityOfOutputAudioItems + ";" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "document.getElementById('AUDIO_FORMAT').style.display = " + visibilityOfOutputAudioItems + ";" + nextline;
         
         //Handle visibility of audio effects
         if (htmlForm.effectsBoxData!=null && htmlForm.effectsBoxData.hasEffects())
@@ -219,6 +218,7 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent) + "function requestSynthesis()" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "maryWebClient.AUDIO.value = 'STREAMING_' + maryWebClient.AUDIO_FORMAT.options[maryWebClient.AUDIO_FORMAT.selectedIndex].text;" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "maryWebClient.SYNTHESIS_OUTPUT.value = '?';" + nextline;  
         htmlPage += indenter(numIndents, strIndent) + "doSubmit();" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
@@ -237,8 +237,7 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent) + "function inputTypeChanged()" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
-        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.INPUT_TYPE.value = maryWebClient.INPUT_TYPE.options[maryWebClient.INPUT_TYPE.selectedIndex].text;" + nextline; 
-        htmlPage += indenter(numIndents, strIndent) + "maryWebClient.EXAMPLE_TEXT.value = '? ' + maryWebClient.INPUT_TYPE.value + ' ' + maryWebClient.LOCALE.value;" + nextline;  
+        htmlPage += indenter(numIndents, strIndent) + "maryWebClient.EXAMPLE_TEXT.value = '? ' + maryWebClient.INPUT_TYPE.options[maryWebClient.INPUT_TYPE.selectedIndex].text + ' ' + maryWebClient.LOCALE.value;" + nextline;  
         htmlPage += indenter(numIndents, strIndent) + "doSubmit();" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
         //
@@ -247,7 +246,6 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent) + "function outputTypeChanged()" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
-        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.OUTPUT_TYPE.value = maryWebClient.OUTPUT_TYPE.options[maryWebClient.OUTPUT_TYPE.selectedIndex].text;" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "requestSynthesis();" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
         //
@@ -264,9 +262,8 @@ public class MaryWebHttpClientHandler
         
         //Audio format changed
         htmlPage += nextline;
-        htmlPage += indenter(numIndents, strIndent) + "function audioChanged()" + nextline; 
+        htmlPage += indenter(numIndents, strIndent) + "function audioFormatChanged()" + nextline; 
         htmlPage += indenter(numIndents, strIndent) + "{" + nextline;
-        htmlPage += indenter(++numIndents, strIndent) + "maryWebClient.AUDIO.value = maryWebClient.AUDIO.options[maryWebClient.AUDIO.selectedIndex].text;" + nextline;
         htmlPage += indenter(numIndents, strIndent) + "requestSynthesis();" + nextline;
         htmlPage += indenter(--numIndents, strIndent) + "};" + nextline;
         //
@@ -548,7 +545,7 @@ public class MaryWebHttpClientHandler
         htmlPage += nextline;
         htmlPage += indenter(numIndents, strIndent);
         if (!htmlForm.isOutputText) htmlPage += "<td>";
-        htmlPage += "<select name=\"AUDIO\" id=\"AUDIO\" size=\"1\" onChange=\"return audioChanged();\">" + nextline;
+        htmlPage += "<select name=\"AUDIO_FORMAT\" id=\"AUDIO_FORMAT\" size=\"1\" onChange=\"return audioFormatChanged();\">" + nextline;
 
         //Fill audio file format types
         for (i=0; i<htmlForm.audioFileFormatTypes.length; i++)
@@ -583,8 +580,8 @@ public class MaryWebHttpClientHandler
 
         htmlPage += indenter(numIndents, strIndent) + "<td>Click to send synthesis request to MARY server</td>" + nextline;
         //Embed audio file
-        if (!htmlForm.isOutputText && outputAudioFile!=null && outputAudioFile.length()>0)
-            htmlPage += indenter(numIndents, strIndent) + "<td><embed src=\"" + outputAudioFile + "\" autostart=\"true\" loop=\"false\" width=200 height=40></td>" + nextline;
+        if (!htmlForm.isOutputText && htmlForm.outputAudioResponseID!=null && htmlForm.outputAudioResponseID.length()>0)
+            htmlPage += indenter(numIndents, strIndent) + "<td><embed src=\"" + htmlForm.outputAudioResponseID + "\" autostart=\"true\" loop=\"false\" width=200 height=40></td>" + nextline;
         //
         htmlPage += indenter(--numIndents, strIndent) + "</tr>" + nextline;
         //
@@ -603,6 +600,8 @@ public class MaryWebHttpClientHandler
         htmlPage += indenter(numIndents, strIndent) + "<input type=\"hidden\" name=\"LOCALE\" value=\"\">" + nextline;
         //Keeps voice info
         htmlPage += indenter(numIndents, strIndent) + "<input type=\"hidden\" name=\"VOICE\" value=\"\">" + nextline;
+        //Keeps audio info
+        htmlPage += indenter(numIndents, strIndent) + "<input type=\"hidden\" name=\"AUDIO\" value=\"\">" + nextline;
         //
         
         htmlPage += indenter(--numIndents, strIndent) + "</form>" + nextline;

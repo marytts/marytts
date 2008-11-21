@@ -30,6 +30,7 @@
 package marytts.server;
 
 // General Java Classes
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
@@ -387,13 +388,8 @@ public class Mary {
             else
                 logger.error("Request cannot be initiated!");
             
-            if (MaryProperties.getProperty("server").compareTo("socket")==0) //socket server mode
+            if (MaryProperties.getProperty("server").compareTo("socket")==0 || MaryProperties.getProperty("server").compareTo("http")==0) //socket or http server mode
                 request.writeOutputData(System.out);
-            else if (MaryProperties.getProperty("server").compareTo("http")==0) //http server mode
-            {
-                BasicHttpResponse response = new BasicHttpResponse(new ProtocolVersion("1.1", 0, 0), 0, voice.getLocale().toString());
-                ((RequestHttp)request).writeOutputData(response);
-            }
         }
         shutdown();
     }

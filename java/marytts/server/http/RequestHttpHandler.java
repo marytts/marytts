@@ -31,23 +31,36 @@ package marytts.server.http;
 // General Java Classes
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.Socket;
+import java.util.Map;
+import java.util.Vector;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.xml.transform.TransformerException;
 
+import marytts.client.http.MaryHtmlForm;
+import marytts.client.http.MaryHttpClientUtils;
 import marytts.datatypes.MaryDataType;
+import marytts.server.RequestHandler.StreamingOutputPiper;
+import marytts.server.RequestHandler.StreamingOutputWriter;
+import marytts.util.ConversionUtils;
 import marytts.util.MaryUtils;
 import marytts.util.io.LoggingReader;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.StatusLine;
 import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -66,10 +79,25 @@ public class RequestHttpHandler extends Thread {
     private RequestHttp request;
     private LoggingReader inputReader;
     private Logger logger;
-    //private Logger clientLogger;
+    private HttpResponse response;
     
-    //private String clientAddress;
-    public HttpResponse response;
+    private Address serverAddressAtClient;
+    private Map<String, String> keyValuePairs;
+    private String version;
+    private String voices;
+    private String dataTypes;
+    private String audioFileFormatTypes;
+    private String audioEffectHelpTextLineBreak;
+    private String defaultAudioEffects;
+    private Vector<String> defaultVoiceExampleTexts;
+    private String responseID;
+    
+    private StreamingOutputWriter rw;
+    private StreamingOutputPiper rp;
+    private PipedOutputStream pos;
+    private PipedInputStream pis;
+    private boolean isWebBrowserClient;
+    private boolean isSecondCall;
 
     /**
      * Constructor to be used for Socket processing (running as a standalone
@@ -78,63 +106,57 @@ public class RequestHttpHandler extends Thread {
      * because the mary server does a buffered read on that input stream, and
      * without passing that buffered reader on, data gets lost.
      */
-    public RequestHttpHandler(
-        RequestHttp request,
-        HttpResponse response,
-        //String clientAddress,
-        Reader inputReader) {
+    public RequestHttpHandler(RequestHttp request, 
+                              HttpResponse response,
+                              Reader inputReader,
+                              Address serverAddressAtClient,
+                              Map<String, String> keyValuePairs,
+                              String version,
+                              String voices,
+                              String dataTypes,
+                              String audioFileFormatTypes,
+                              String audioEffectHelpTextLineBreak,
+                              String defaultAudioEffects,
+                              Vector<String> defaultVoiceExampleTexts,
+                              String responseID,
+                              boolean isSecondCall
+                              ) 
+    {
         if (request == null)
             throw new NullPointerException("Cannot handle null request");
         this.request = request;
         
-        //this.clientAddress = clientAddress;
         this.response = response;
 
         this.setName("RH " + request.getId());
         logger = Logger.getLogger(this.getName());
         this.inputReader = new LoggingReader(inputReader, logger);
-    }
-
-    private void clientLogWarning(String message, Exception e) 
-    {
-        // Only print to client if there is one;
-        // do not print TransformerException and SAXParseException
-        // (that has been done by the LoggingErrorHander already).
-        /*
-        if (!(clientLogger == null
-            || e instanceof TransformerException
-            || e instanceof SAXParseException))
-            clientLogger.warn(message + "\n" + e.toString());
-            */
-        // No stack trace on clientLogger
         
-        try {
-            MaryHttpServerUtils.toHttpResponse(message + "\n" + e.toString(), response, "text/html; charset=UTF-8");
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-    }
-
-    private void clientLogError(String message, Throwable e) {
-        // Only print to client if there is one;
-        // do not print TransformerException and SAXParseException
-        // (that has been done by the LoggingErrorHander already).
-        /*
-        if (!(clientLogger == null || e instanceof TransformerException || e instanceof SAXParseException))
-            clientLogger.error(message + "\n" + MaryUtils.getThrowableAndCausesAsString(e));
-            */
-        // No stack trace on clientLogger
+        this.serverAddressAtClient = serverAddressAtClient;
+        this.keyValuePairs = keyValuePairs;
+        this.version = version;
+        this.voices = voices;
+        this.dataTypes = dataTypes;
+        this.audioFileFormatTypes = audioFileFormatTypes;
+        this.audioEffectHelpTextLineBreak = audioEffectHelpTextLineBreak;
+        this.defaultAudioEffects = defaultAudioEffects;
+        this.defaultVoiceExampleTexts = defaultVoiceExampleTexts;
+        this.responseID = responseID;
         
-        if (!(e instanceof TransformerException || e instanceof SAXParseException))
+        isWebBrowserClient = false;
+        if (keyValuePairs!=null)
         {
-            try {
-                MaryHttpServerUtils.toHttpResponse(message + "\n" + MaryUtils.getThrowableAndCausesAsString(e), response, "text/html; charset=UTF-8");
-            } catch (IOException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-            }
+            String tmpVal = keyValuePairs.get("WEB_BROWSER_CLIENT");
+            if (tmpVal!=null && tmpVal.compareTo("true")==0)
+                isWebBrowserClient = true;
         }
+        
+        this.isSecondCall = isSecondCall;
+        
+        rw = null;
+        rp = null;
+        pos = null;
+        pis = null;
     }
 
     /**
@@ -164,79 +186,165 @@ public class RequestHttpHandler extends Thread {
         } catch (Exception e) {
             String message = "Problem reading input";
             logger.warn(message, e);
-            clientLogWarning(message, e);
             ok = false;
         }
-
+        
         boolean streamingOutput = false;
-        StreamingOutputWriter rw = null;
+
         // Process input data to output data
         if (ok)
         {
-            try {
-                if (request.getOutputType().equals(MaryDataType.get("AUDIO"))
-                        && request.getStreamAudio()) {
+            try 
+            {
+                if (request.getOutputType().equals(MaryDataType.get("AUDIO")) && request.getStreamAudio()) 
+                {
                     streamingOutput = true;
-                    //rw = new StreamingOutputWriter(request, dataSocket.getOutputStream());
-                    rw = new StreamingOutputWriter(request, response);
-                    rw.start();
+
+                    pos = new PipedOutputStream();
+                    pis = new PipedInputStream(pos);
+                    rw = new StreamingOutputWriter(request, pos);
+                    
+                    //Pipe to an input stream
+                    if (!isWebBrowserClient || isSecondCall) //Non-web browser clients or second call from web-browser client
+                    {
+                        //rp = new StreamingOutputPiper(pis, "d:\\a.txt"); //Pipe to a text file
+                        //rp = new StreamingOutputPiper(pis, new File("d:\\a.wav")); //Pipe to a binary file
+                        
+                        //rp = new StreamingOutputPiper(pis, response, "text/plain"); //Pipe to an input stream in text/plain mode
+                        rp = new StreamingOutputPiper(pis, response, "audio/" + request.getAudioFileFormat().getType().toString()); 
+                        rw.start();
+                        rp.start();
+                        request.process();
+                    }
                 }
-                
-                request.process();
-            } catch (Throwable e) {
+                else
+                    request.process();
+            } 
+            catch (Throwable e) 
+            {
                 String message = "Processing failed.";
                 logger.error(message, e);
-                clientLogError(message, e);
                 ok = false;
             }
         }
 
-        /*
-        // For simple clients, we need to close the infoSocket before sending
-        // the data on dataSocket. Otherwise there may be deadlock.
-        try {
-            if (clientLogger != null) {
-                clientLogger.removeAllAppenders();
-                clientLogger = null;
-            }
-            infoSocket.close();
-        } catch (IOException e) {
-            logger.warn("Couldn't close info socket properly.", e);
-            ok = false;
-        }
-        */
-
-        // Write output:
-        if (ok) 
+        // Write output
+        String synthesisStatus = "";
+        MaryHtmlForm htmlForm = null;
+        MaryWebHttpClientHandler webHttpClient = null;
+        ByteArrayOutputStream outputStream = null;
+        
+        if (isWebBrowserClient)
         {
-            if (!streamingOutput) 
+            webHttpClient = new MaryWebHttpClientHandler();
+            
+            try {
+                htmlForm = new MaryHtmlForm(serverAddressAtClient,
+                        keyValuePairs,
+                        version,
+                        voices,
+                        dataTypes,
+                        audioFileFormatTypes,
+                        audioEffectHelpTextLineBreak,
+                        defaultAudioEffects,
+                        defaultVoiceExampleTexts);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        if (ok) 
+        {  
+            if (!streamingOutput) //Non-streaming output
             {
-                try {
-                    request.writeOutputData(response);    
-                } catch (Exception e) {
-                    String message = "Cannot write output, client seems to have disconnected.";
-                    logger.warn(message, e);
-                    ok = false;
+                if (!isWebBrowserClient) //Non-streaming output sent to non-web-browser client
+                {
+                    try 
+                    {
+                        request.writeNonstreamingOutputData(response); 
+                        synthesisStatus = "DONE";
+                    } 
+                    catch (Exception e) 
+                    {
+                        String message = "Cannot write output, client seems to have disconnected.";
+                        logger.warn(message, e);
+                        ok = false;
+                        synthesisStatus = "FAILED";
+                    }
+                }
+                else //Non-streaming output sent to web-browser client 
+                {
+                    outputStream = new ByteArrayOutputStream();
+                    try 
+                    {
+                        request.writeOutputData(outputStream);
+                        synthesisStatus = "DONE";
+                    } 
+                    catch (Exception e) 
+                    {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                        synthesisStatus = "FAILED";
+                    }
                 }
             } 
-            else 
-            { // streaming output
-                try {
-                    rw.join();
-                } catch (InterruptedException ie) {
-                    logger.warn(ie);
+            else //Streaming output
+            {
+                if (!isWebBrowserClient) //Streaming output to non-web-browser client
+                {
+                    try 
+                    {
+                        rp.join();
+                        synthesisStatus = "DONE";
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                        synthesisStatus = "FAILED";
+                    }
+                }
+                else //Streaming output to web-browser client
+                {
+                    if (isSecondCall)
+                        synthesisStatus = "DONE";
+                    else //Second call is required, set synthesis status to pending
+                        synthesisStatus = "PENDING";
                 }
             }
-        }    
+        }   
         
-        /*
-        try {
-            dataSocket.close();
-        } catch (IOException e) {
-            logger.warn("Couldn't close data socket properly.", e);
-            ok = false;
+        keyValuePairs.put("SYNTHESIS_OUTPUT", synthesisStatus);
+        
+        if (isSecondCall) //Return if this is the second call of synthesis request (the output already written to pis
+            return;
+        else if (isWebBrowserClient) //Handle html page output for web browser clients
+        {
+            if (htmlForm!=null)
+            {
+                if (!request.getOutputType().equals(MaryDataType.get("AUDIO"))) //Non-audio output to web browser client
+                {
+                    if (outputStream!=null)
+                        htmlForm.outputText = ConversionUtils.toString(outputStream.toByteArray());
+                    else
+                        htmlForm.outputText = "Cannot convert this type of input to selected output...";
+                }
+                else //Initiate audio output request in web browser client for second request
+                    htmlForm.outputAudioResponseID = String.valueOf(responseID) + "." + request.getAudioFileFormat().getType().getExtension();
+
+                try {
+                    webHttpClient.toHttpResponse(htmlForm, response); //Send the html page
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
         }
-        */
         
         if (ok)
             logger.info("Request handled successfully.");
@@ -250,37 +358,4 @@ public class RequestHttpHandler extends Thread {
         }
 
     } // run()
-
-    public static class StreamingOutputWriter extends Thread
-    {
-        private RequestHttp request;
-        private HttpResponse response;
-        private Logger logger;
-        
-        public StreamingOutputWriter(RequestHttp request, HttpResponse response) throws Exception
-        {
-            this.request = request;
-            this.response = response;
-            this.setName("RW " + request.getId());
-            logger = Logger.getLogger(this.getName());
-        }
-        
-        public void run()
-        {
-            try {
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-                AudioSystem.write(request.getAudio(), request.getAudioFileFormat().getType(), output);
-                output.flush();
-                MaryHttpServerUtils.toHttpResponse(output.toByteArray(), response, "audio/"+request.getAudioFileFormat().getType());
-                
-                //MaryHttpServerUtils.toHttpResponse(request.getAudio(), response, "audio/"+request.getAudioFileFormat().getType());
-                
-                logger.info("Finished writing output");
-                
-            } catch (IOException ioe) {
-                logger.info("Cannot write output, client seems to have disconnected. ", ioe);
-                request.abort();
-            }
-        }
-    }
 }

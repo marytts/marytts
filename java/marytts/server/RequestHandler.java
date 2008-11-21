@@ -29,7 +29,12 @@
 package marytts.server;
 
 // General Java Classes
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -39,9 +44,13 @@ import javax.sound.sampled.AudioSystem;
 import javax.xml.transform.TransformerException;
 
 import marytts.datatypes.MaryDataType;
+import marytts.server.http.MaryHttpServerUtils;
 import marytts.util.MaryUtils;
 import marytts.util.io.LoggingReader;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
@@ -240,10 +249,143 @@ public class RequestHandler extends Thread {
             try {
                 AudioSystem.write(request.getAudio(), request.getAudioFileFormat().getType(), output);
                 output.flush();
+                output.close();                
                 logger.info("Finished writing output");
             } catch (IOException ioe) {
                 logger.info("Cannot write output, client seems to have disconnected. ", ioe);
                 request.abort();
+            }
+        }
+    }
+    
+    //A reader class for debugging purposes for StreamingOutputWriter
+    public static class StreamingOutputPiper extends Thread
+    {
+        private InputStream input;
+        private Logger logger = null;
+        private BufferedWriter textWriter = null;
+        private FileOutputStream binaryWriter = null;
+        private HttpResponse response = null;
+        private String contentType = null;
+        
+        //Reads from input and pipes the output to logger
+        public StreamingOutputPiper(InputStream input) throws Exception
+        {
+              this.input = input;
+              
+              logger = Logger.getLogger(this.getName());
+              textWriter = null;
+              binaryWriter = null;
+              response = null;
+              contentType = null;
+        }
+        
+        //Reads from input and pipes the output to text file
+        public StreamingOutputPiper(InputStream input, String outTextFile) throws Exception
+        {
+              this.input = input;
+              
+              logger = null;
+              textWriter = new BufferedWriter(new FileWriter(outTextFile));
+              binaryWriter = null;
+              response = null;
+              contentType = null;
+        }
+        
+        //Reads from input and pipes the output to binary file
+        public StreamingOutputPiper(InputStream input, File outFile) throws Exception
+        {
+              this.input = input;
+              
+              logger = null;
+              textWriter = null;
+              binaryWriter = new FileOutputStream(outFile);
+              response = null;
+              contentType = null;
+        }
+        
+        //Reads from input and pipes the output to Http response
+        public StreamingOutputPiper(InputStream input, HttpResponse response, String contentType) throws Exception
+        {
+              this.input = input;
+              
+              logger = null;
+              textWriter = null;
+              binaryWriter = null;
+              this.response = response;
+              this.contentType = contentType;
+        }
+        
+        public void run()
+        {
+            String message;
+            
+            try 
+            {
+                int val;
+                if (logger!=null)
+                {
+                    while ((val=input.read())!=-1)
+                        logger.debug(val+System.getProperty("line.separator"));
+                    
+                    input.close(); 
+                }
+                else if (textWriter!=null)
+                {
+                    while ((val=input.read())!=-1)
+                    {
+                        textWriter.write(val);
+                        textWriter.newLine();
+                    }
+                    
+                    input.close(); 
+                }
+                else if (binaryWriter!=null)
+                {
+                    while ((val=input.read())!=-1)
+                        binaryWriter.write((byte)val);
+                    
+                    input.close(); 
+                }
+                else if (response!=null)
+                {
+                    MaryHttpServerUtils.toHttpResponse(input, response, contentType);
+
+                    //Important! input.close() is not needed here since toHttpResponse already closes the input
+                }
+                else
+                {
+                    System.out.println("Error: No writers initialised!");
+                    input.close(); 
+                    return;
+                }
+
+                message = "Finished reading output";
+                if (logger!=null)
+                    logger.info(message);
+                else if (textWriter!=null)
+                {
+                    textWriter.write(message);
+                    textWriter.newLine();
+                    textWriter.close();
+                }
+                else if (binaryWriter!=null)
+                    binaryWriter.close();
+            } 
+            catch (IOException ioe) 
+            {
+                message = "Cannot read output, client seems to have disconnected. ";
+                if (logger!=null)
+                    logger.info(message, ioe);
+                else if (textWriter!=null)
+                {
+                    try {
+                        textWriter.write(message);
+                        textWriter.newLine();
+                    } catch (IOException e) {
+                        System.out.println("Error: Cannot write to text writer!");
+                    }
+                }
             }
         }
     }

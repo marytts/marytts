@@ -392,14 +392,16 @@ public class StringUtils {
         int ind2 = fullpathFilename.lastIndexOf('/');
         
         ind1 = Math.max(ind1, ind2);
+        if (ind1<0)
+            ind1=-1;
         
-        if (ind1>=0 && ind1<fullpathFilename.length()-2)
+        if (ind1<fullpathFilename.length()-2)
             filename = fullpathFilename.substring(ind1+1);
         
         if (bRemoveExtension)
         {
             ind1 = filename.lastIndexOf('.');
-            if (ind1>0 && ind1-1>=0)
+            if (ind1>=1)
                 filename = filename.substring(0, ind1);
         }
         
@@ -761,18 +763,37 @@ public class StringUtils {
             System.out.println("Error! Cannot create file: " + textFile);
     }
     
-    public static String getRandomFileName(String preName, int randomNameLength, String fileExtension)
+    public static String getRandomName(int randomNameLength)
+    {
+        return getRandomName(null, randomNameLength);
+    }
+    
+    public static String getRandomName(String preName, int randomNameLength)
+    {
+        return getRandomName(preName, randomNameLength, null);
+    }
+    
+    public static String getRandomName(String preName, int randomNameLength, String postName)
     {
         String randomName = "";
         while (randomName.length()<randomNameLength)
             randomName += String.valueOf((int)(10*Math.random()));
+
+        if (preName!=null)
+            randomName = preName + randomName;
         
+        if (postName!=null)
+            randomName += postName;
+        
+        return randomName;
+    }
+    
+    public static String getRandomFileName(String preName, int randomNameLength, String fileExtension)
+    {
         if (fileExtension.charAt(0)!='.')
             fileExtension = "." + fileExtension;
         
-        randomName = preName + randomName + fileExtension;
-        
-        return randomName;
+        return getRandomName(preName, randomNameLength, fileExtension);
     }
     
     public static boolean isOneOf(String item, String[] list)
