@@ -107,17 +107,13 @@ public class FeatureMakerMaryServer{
     private static String mysqlUser;
     private static String mysqlPasswd;
     
-    // hashMap for the dictionary, HashMap is faster than TreeMap so to list of words will
-    // be keep it in a hashMap. When the process finish the hashMap will be dump in the database sorted.
-    private static HashMap<String, Integer> wordList;
-	
 	public static void main(String[] args)throws Exception{
 			
-       /* 
+       
         DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
         Date dateIni = new Date();
         String dateStringIni = fullDate.format(dateIni);
-        */
+        
 		/* check the arguments */
 		if (!readArgs(args)){
 			printUsage();
@@ -130,25 +126,13 @@ public class FeatureMakerMaryServer{
 		System.setProperty("server.port", maryPort);
 		mary = new MaryClient();
 		
-		/* start the Credibility Checker */
-		       
         /* Here the DB connection for reliable sentences is open */
          wikiToDB = new DBHandler();
          wikiToDB.createDBConnection(mysqlHost,mysqlDB,mysqlUser,mysqlPasswd);
          //wikiToDB.createDBConnection("penguin.dfki.uni-sb.de","MaryDBSelector","MaryDBSel_admin","p4rpt3jr");
          // check if tables exist
          wikiToDB.createDataBaseSelectionTable();
-         if( wikiToDB.tableExist("wordlist") ){
-           System.out.println("loading wordList from table....");
-           wordList = wikiToDB.getWordList();
-           //printWordList();
-         } else {
-           System.out.println("started Hashtable for wordList.");
-           int initialCapacity = 20000;  // CHECK wich initial value is meaningful!!!
-           wordList = new HashMap<String, Integer>(initialCapacity);
-           
-         }
-        
+         
          // Get the set of id for unprocessed records in clean_text
          // this will be useful when the process is stoped and then resumed
          System.out.println("\nGetting list of unprocessed clean_text records from wikipedia...");
@@ -198,27 +182,20 @@ public class FeatureMakerMaryServer{
           pw.println("Inserted " + numSentencesInText + " sentences from text id=" + textId[i] 
                                  + " (Total reliable = "+ numSentences+")\n");
           System.out.println("Inserted " + numSentencesInText + " sentences from text id=" 
-                             + textId[i] + " (Total reliable = "+ numSentences+")  "
-                             + " Wordlist[" + wordList.size() + "]\n");
+                             + textId[i] + " (Total reliable = "+ numSentences+") \n");
           
           }
                          
 		} //end of loop over articles  
         
-        wikiToDB.insertWordList(wordList);
-        
-        //printWordList("/project/mary/marcela/anna_wikipedia/wordlist.txt");
-        wikiToDB.printWordList("/project/mary/marcela/anna_wikipedia/wordlist-freq.txt", "frequency");
         
         wikiToDB.closeDBConnection();
-     /*   
+        
         Date dateEnd = new Date();
         String dateStringEnd = fullDate.format(dateEnd);
         pw.println("numSentencesInText;=" + numSentences);
         pw.println("Start time:" + dateStringIni + "  End time:" + dateStringEnd);
         
-          
-          */
         pw.close(); 
         
 		System.out.println("Done");
@@ -563,7 +540,6 @@ public class FeatureMakerMaryServer{
 		protected static Vector<String> splitIntoSentences(String text, String id, PrintWriter pw)throws Exception{
             
             Vector<String> sentenceList = null;
-            Vector<String> wordsInSentence = null; // to keep reliable sentences without punctuation
             StringBuffer sentence;
             //index2sentences = new TreeMap<Integer,String>();
 			
@@ -572,7 +548,6 @@ public class FeatureMakerMaryServer{
             
             if (doc != null) {
             sentenceList = new Vector<String>();    
-            wordsInSentence = new Vector<String>();    
 			NodeList sentences = doc.getElementsByTagName("s");   
 			
             int sentenceIndex = 1;
@@ -591,7 +566,7 @@ public class FeatureMakerMaryServer{
 					Node nextToken = tokens.item(k);
 					//ignore all non-element children
 					if ( (nextToken instanceof Element) ) 
-					  sentence = collectTokens(nextToken, sentence, wordsInSentence);                            
+					  sentence = collectTokens(nextToken, sentence);                            
 				}
                 //System.out.println(sentence);
 				if (sentence!=null){
@@ -601,7 +576,6 @@ public class FeatureMakerMaryServer{
                         // check if the sentence is not . 
                         if( !sentence.toString().contentEquals(".") ){
                          sentenceList.add(sentence.toString());
-                         insertInWordList(wordsInSentence);
                          //System.out.println("sentence=" + sentence.toString() + "\n");
                         }
 					} else {
@@ -618,7 +592,7 @@ public class FeatureMakerMaryServer{
                         wikiToDB.insertSentence(sentence.toString(), null, usefulSentence, unknownWords, strangeSymbols, Integer.parseInt(id));
 					}
 					sentenceIndex++;
-                    wordsInSentence.clear();
+                   
 				} else {
 					//ignore
 					//System.out.println("NULL SENTENCE!!!");
@@ -631,7 +605,6 @@ public class FeatureMakerMaryServer{
             } 
             
             sentence = null;
-            wordsInSentence=null;
 			return sentenceList;
 		}
 		
@@ -674,7 +647,7 @@ public class FeatureMakerMaryServer{
          *  1 if the sentence contains unknownWords (so the sentence is not useful)
          *  2 if the sentence contains strangeSymbols (so the sentence is not useful)
 		 */
-		protected static StringBuffer collectTokens(Node nextToken, StringBuffer sentence, Vector<String> wordsInSentence){
+		protected static StringBuffer collectTokens(Node nextToken, StringBuffer sentence){
             int credibility = 0; 
             String tokenText, word;
 			String name = nextToken.getLocalName();
@@ -690,9 +663,7 @@ public class FeatureMakerMaryServer{
 				if (sentence == null){
 					sentence = new StringBuffer();
 					//first word of the sentence
-                     word = MaryDomUtils.tokenText((Element)nextToken);
-                     wordsInSentence.add(word);
-                     //System.out.println("word=" + word);                     
+                     word = MaryDomUtils.tokenText((Element)nextToken);                   
 					 sentence.append(word);
                      
 				} else {
@@ -708,7 +679,6 @@ public class FeatureMakerMaryServer{
                         word = MaryDomUtils.tokenText((Element)nextToken);
                         //System.out.println("word=" + word);
                         sentence.append(" " + word);
-                        wordsInSentence.add(word);
 					}
 				}
 			} else {
@@ -719,7 +689,7 @@ public class FeatureMakerMaryServer{
 						Node nextMTUToken = mtuTokens.item(l);
 						//ignore all non-element children
 						if (!(nextMTUToken instanceof Element)) continue; 
-						collectTokens(nextMTUToken, sentence, wordsInSentence);
+						collectTokens(nextMTUToken, sentence);
 					}
 				}
 				
@@ -773,55 +743,6 @@ public class FeatureMakerMaryServer{
 				}
 			}
 		}
-		
-     
-    protected static void insertInWordList(Vector<String> words) {
-      String word;  
-      Integer i;
-      
-      for(int j=0; j<words.size(); j++){
-        word = words.elementAt(j);
-        i = (Integer) wordList.get(word);
-      
-        // if key is not in the map then give it value one
-        // otherwise increment its value by 1
-        if(i==null)
-          wordList.put(word, new Integer(1));
-        else
-          wordList.put(word, new Integer( i.intValue() + 1));
-      }
-      
-    }
-	
-    protected static void printWordList(String fileName) {
-        
-      TreeMap<String, Integer> wl;
-      PrintWriter pw;
-      String key, value;
-      try{
-        pw = new PrintWriter(new FileWriter(new File(fileName)));
-        wl = wikiToDB.getWordListOrdered();
-        Iterator iterator = wl.keySet().iterator();
-
-        while (iterator.hasNext()) {
-           key = iterator.next().toString();
-           value = wl.get(key).toString();  
-           pw.println(key + " " + value);
-        } 
-          
-        pw.close();
-        System.out.println("Wordlist printed in file: " + fileName);
-        
-      } catch (Exception e){
-          e.printStackTrace();
-      } 
-    }
-    
-    
-        
-       
-          
-   
-    
+		  
 		
 	}

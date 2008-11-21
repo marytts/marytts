@@ -101,8 +101,8 @@ public class DBHandler {
       cn = DriverManager.getConnection( url, p );    
       st = cn.createStatement();
       
-      psCleanText = cn.prepareStatement("INSERT INTO clean_text VALUES (null, ?, ?, ?, ?)");
-      psWord      = cn.prepareStatement("INSERT INTO wordlist VALUES (null, ?, ?)");
+      psCleanText = cn.prepareStatement("INSERT INTO cleanText VALUES (null, ?, ?, ?, ?)");
+      psWord      = cn.prepareStatement("INSERT INTO wordList VALUES (null, ?, ?)");
       psSentence  = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?, ?, ?, ?)");
       
     } catch (Exception e) {
@@ -117,7 +117,7 @@ public class DBHandler {
                                                        "reliable BOOLEAN, " +
                                                        "unknownWords BOOLEAN, " +
                                                        "strangeSymbols BOOLEAN, " +
-                                                       "clean_text_id INT UNSIGNED NOT NULL, " +   // the clean_text id where this sentence comes from
+                                                       "cleanText_id INT UNSIGNED NOT NULL, " +   // the cleanText id where this sentence comes from
                                                        "primary key(id));";
       String str;
       boolean dbExist = false;
@@ -304,17 +304,17 @@ public class DBHandler {
   public void createWikipediaCleanTextTable() {
       // wiki must be already created
       // String creteWiki = "CREATE DATABASE wiki;";
-      String createCleanTextTable = "CREATE TABLE `clean_text` (" +
-              " clean_id int UNSIGNED NOT NULL AUTO_INCREMENT," +
-              " clean_text mediumblob NOT NULL," +
+      String createCleanTextTable = "CREATE TABLE `cleanText` (" +
+              " id int UNSIGNED NOT NULL AUTO_INCREMENT," +
+              " cleanText mediumblob NOT NULL," +
               " processed BOOLEAN, " +
               " page_id int UNSIGNED NOT NULL, " +
               " text_id int UNSIGNED NOT NULL, " +
-              " PRIMARY KEY clean_id (clean_id)" +
+              " PRIMARY KEY id (id)" +
               " ) MAX_ROWS=250000 AVG_ROW_LENGTH=10240;";
            
       // If database does not exist create it, if it exists delete it and create an empty one.      
-      System.out.println("Checking if the TABLE=clean_text already exist.");
+      System.out.println("Checking if the TABLE=cleanText already exist.");
       try {
           rs = st.executeQuery("SHOW TABLES;");
       } catch (Exception e) {
@@ -325,20 +325,20 @@ public class DBHandler {
          
           while( rs.next() ) {
             String str = rs.getString(1);
-            if( str.contentEquals("clean_text") )
+            if( str.contentEquals("cleanText") )
                resText=true;
           } 
           if(resText==true){
-            System.out.println("TABLE = clean_text already exist deleting.");  
-            boolean res0 = st.execute( "DROP TABLE clean_text;" );  
+            System.out.println("TABLE = cleanText already exist deleting.");  
+            boolean res0 = st.execute( "DROP TABLE cleanText;" );  
           }
           
           boolean res1;
           int res2;
-          // creating TABLE=clean_text
+          // creating TABLE=cleanText
           System.out.println("\nCreating table:" + createCleanTextTable);
           res1 = st.execute( createCleanTextTable );         
-          System.out.println("TABLE = clean_text succesfully created.");
+          System.out.println("TABLE = cleanText succesfully created.");
          
            
       } catch (SQLException e) {
@@ -410,7 +410,7 @@ public class DBHandler {
   }
   
   /***
-   * This function will select just the unprocessed clean_text records.
+   * This function will select just the unprocessed cleanText records.
    * @param field
    * @param table
    * @return
@@ -419,12 +419,12 @@ public class DBHandler {
       int num, i, j;
       String idSet[]=null;
       
-      String str = queryTable("select count(clean_id) from clean_text where processed=false;");  
+      String str = queryTable("select count(id) from cleanText where processed=false;");  
       num = Integer.parseInt(str);
       idSet = new String[num];
       
       try {
-          rs = st.executeQuery("select clean_id from clean_text where processed=false;"); 
+          rs = st.executeQuery("select id from cleanText where processed=false;"); 
       } catch (Exception e) {
           e.printStackTrace();
       }
@@ -448,26 +448,26 @@ public class DBHandler {
 
   
   public void insertCleanText(String text, String page_id, String text_id){
-      //System.out.println("inserting in clean_text: ");
-      byte clean_text[]=null;
+      //System.out.println("inserting in cleanText: ");
+      byte cleanText[]=null;
       
       try {
-        clean_text = text.getBytes("UTF8");
+        cleanText = text.getBytes("UTF8");
       } catch (Exception e) {  // UnsupportedEncodedException
         e.printStackTrace();
       } 
       
       try { 
-        //ps = cn.prepareStatement("INSERT INTO clean_text VALUES (null, ?, ?, ?, ?)");
-        if(clean_text != null){
-            psCleanText.setBytes(1, clean_text);
+        //ps = cn.prepareStatement("INSERT INTO cleanText VALUES (null, ?, ?, ?, ?)");
+        if(cleanText != null){
+            psCleanText.setBytes(1, cleanText);
             psCleanText.setBoolean(2, false);   // it will be true after processed by the FeatureMaker
             psCleanText.setInt(3, Integer.parseInt(page_id));
             psCleanText.setInt(4, Integer.parseInt(text_id));
             psCleanText.execute();
             psCleanText.clearParameters();
         } else
-           System.out.println("WARNING: can not insert in clean_text: " + text); 
+           System.out.println("WARNING: can not insert in cleanText: " + text); 
         
       } catch (SQLException e) {
         e.printStackTrace();
@@ -481,9 +481,9 @@ public class DBHandler {
    * @param reliable true/false.
    * @param unknownWords true/false.
    * @param strangeSymbols true/false.
-   * @param clean_text_id the id of the clean_text this sentence comes from.
+   * @param cleanText_id the id of the cleanText this sentence comes from.
    */
-  public void insertSentence(String sentence, byte features[], boolean reliable, boolean unknownWords, boolean strangeSymbols, int clean_text_id){
+  public void insertSentence(String sentence, byte features[], boolean reliable, boolean unknownWords, boolean strangeSymbols, int cleanText_id){
    /* 
     if(unknownWords) 
       System.out.print("unknownWords");
@@ -502,7 +502,7 @@ public class DBHandler {
         psSentence.setBoolean(3, reliable);
         psSentence.setBoolean(4, unknownWords);
         psSentence.setBoolean(5, strangeSymbols);
-        psSentence.setInt(6, clean_text_id);
+        psSentence.setInt(6, cleanText_id);
         psSentence.execute();
       
         psSentence.clearParameters();
@@ -513,7 +513,7 @@ public class DBHandler {
   }
 
   /****
-   * Creates a wordlist table, if already exists deletes it and creates a new to insert
+   * Creates a wordList table, if already exists deletes it and creates a new to insert
    * current wordList.
    * 
    */
@@ -522,21 +522,21 @@ public class DBHandler {
     Integer value; 
     boolean res;
     
-    String wordlist = "CREATE TABLE wordlist ( id INT NOT NULL AUTO_INCREMENT, " +                                                       
+    String wordListTable = "CREATE TABLE wordList ( id INT NOT NULL AUTO_INCREMENT, " +                                                       
                                               "word varchar(255) NOT NULL, " +
                                               "frequency INT UNSIGNED NOT NULL, " +
                                               "primary key(id));";
     
     try { 
         System.out.println("Inserting wordList in DB...");
-        // if wordlist table already exist it should be deleted before inserting this list
-        if( tableExist("wordlist") ){
-          res = st.execute( "DROP TABLE wordlist;" );
-          res = st.execute( wordlist );
+        // if wordList table already exist it should be deleted before inserting this list
+        if( tableExist("wordList") ){
+          res = st.execute( "DROP TABLE wordList;" );
+          res = st.execute( wordListTable );
         } else
-          res = st.execute( wordlist );   
+          res = st.execute( wordListTable );   
         
-        //psWord = cn.prepareStatement("INSERT INTO wordlist VALUES (null, ?, ?)");           
+        //psWord = cn.prepareStatement("INSERT INTO wordList VALUES (null, ?, ?)");           
         Iterator iteratorSorted = wordList.keySet().iterator();
         while (iteratorSorted.hasNext()) {
            key = iteratorSorted.next().toString();
@@ -546,7 +546,7 @@ public class DBHandler {
            psWord.execute();
            psWord.clearParameters();
         } 
-        System.out.println("Inserted new wordlist table."); 
+        System.out.println("Inserted new wordList table."); 
         
     } catch (SQLException e) {
       e.printStackTrace();
@@ -602,11 +602,11 @@ public class DBHandler {
   public HashMap<String, Integer> getWordList() {
 
       HashMap<String, Integer> wordList;
-      int initialCapacity = 20000;  // CHECK wich initial value is meaningful!!!
+      int initialCapacity = 200000;  // CHECK wich initial value is meaningful!!!
       wordList = new HashMap<String, Integer>(initialCapacity);
       
       try {
-          rs = st.executeQuery("SELECT word,frequency from wordlist;"); 
+          rs = st.executeQuery("SELECT word,frequency from wordList;"); 
       } catch (Exception e) {
           e.printStackTrace();
       }
@@ -629,7 +629,7 @@ public class DBHandler {
       PrintWriter pw;
       
       try {
-          rs = st.executeQuery("SELECT word,frequency from wordlist order by " + order + ";"); 
+          rs = st.executeQuery("SELECT word,frequency from wordList order by " + order + ";"); 
       } catch (Exception e) {
           e.printStackTrace();
       }
@@ -645,7 +645,7 @@ public class DBHandler {
       } catch (Exception e){
           e.printStackTrace();
       } 
-      System.out.println("Wordlist printed in file: " + fileName + " ordered by " + order);
+      System.out.println("wordList printed in file: " + fileName + " ordered by " + order);
       
   }
   
@@ -659,7 +659,7 @@ public class DBHandler {
       TreeMap<String, Integer> wordList = new TreeMap<String, Integer>();
       
       try {
-          rs = st.executeQuery("SELECT word,frequency from wordlist;"); 
+          rs = st.executeQuery("SELECT word,frequency from wordList;"); 
       } catch (Exception e) {
           e.printStackTrace();
       }
@@ -735,7 +735,7 @@ public class DBHandler {
       String dbQuery, text=null;
       byte[] textBytes=null;
              
-      dbQuery = " select clean_text from clean_text where clean_id=" + id;
+      dbQuery = " select cleanText from cleanText where id=" + id;
       textBytes = queryTableByte(dbQuery);
       
       try {
@@ -745,7 +745,7 @@ public class DBHandler {
         e.printStackTrace();
       } 
       // once retrieved the text record mark it as processed
-      updateTable("UPDATE clean_text SET processed=true WHERE clean_id="+id);   
+      updateTable("UPDATE cleanText SET processed=true WHERE id="+id);   
      
       return text;     
   }
