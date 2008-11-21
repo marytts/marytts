@@ -61,15 +61,6 @@ public class MaryHttpServerUtils
         toHttpResponse(MaryHttpClientUtils.toHttpString(keyValuePairs), response, contentType);
     }
     
-    /*
-    public static void toHttpResponse(AudioInputStream audio, HttpResponse response, String contentType) throws IOException
-    {
-        AudioDoubleDataSource signal = new AudioDoubleDataSource(audio);
-
-        toHttpResponse(signal.getAllData(), response, contentType);
-    }
-    */
-    
     public static void toHttpResponse(double[] x, HttpResponse response, String contentType) throws IOException
     {   
         toHttpResponse(ConversionUtils.toByteArray(x), response, contentType);
@@ -101,14 +92,6 @@ public class MaryHttpServerUtils
     public static void toHttpResponse(InputStream stream, HttpResponse response, String contentType) throws IOException
     {
         toHttpResponse(stream, response, contentType, -1);
-    }
-    
-    public static void toHttpResponse(AppendableSequenceAudioInputStream stream, HttpResponse response, String contentType) throws IOException
-    {
-        InputStreamEntity body = new InputStreamEntity(stream, -1);  
-        body.setContentType(contentType);
-        response.setEntity(body);
-        response.setStatusCode(HttpStatus.SC_OK);
     }
     
     public static void toHttpResponse(InputStream stream, HttpResponse response, String contentType, long streamLength) throws IOException

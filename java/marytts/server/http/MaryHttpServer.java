@@ -28,6 +28,7 @@
  */
 package marytts.server.http;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -36,6 +37,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.io.PipedInputStream;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
@@ -43,6 +45,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -90,6 +93,7 @@ import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
+import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentDecoderChannel;
@@ -232,15 +236,22 @@ import org.apache.log4j.Logger;
 
 public class MaryHttpServer {
     private static Logger logger;
+    private int runningNumber = 1;
+    private Map<String,Object[]> requestMap;
 
     public MaryHttpServer() {
         logger = Logger.getLogger("server");
+    }
+    
+    private synchronized String getResponseID() 
+    {
+        return "OUTPUT_AUDIO_RESPONSE_ID_" + StringUtils.getRandomName(10) + String.valueOf(runningNumber++);
     }
 
     public void run() throws IOException, NoSuchPropertyException 
     {
         logger.info("Starting server.");
-        //clientMap = Collections.synchronizedMap(new HashMap<Integer,Object[]>());
+        requestMap = Collections.synchronizedMap(new HashMap<String, Object[]>());
         
         int localPort = MaryProperties.needInteger("socket.port");
         
@@ -416,17 +427,49 @@ public class MaryHttpServer {
          */
         private void handleClientRequest(String fullParameters, HttpResponse response, Address serverAddressAtClient) throws Exception 
         {   
-            String tempOutputAudioFilePrefix = "mary_audio_out_temp_";
-
             if (fullParameters!=null && fullParameters.compareToIgnoreCase("favicon.ico")==0)
             {
                 fileRequestProcessor.sendResourceAsStream(fullParameters, response);
 
                 return;
             }
-            else if (fullParameters!=null && fullParameters.startsWith(tempOutputAudioFilePrefix))
+            else if (fullParameters!=null && fullParameters.startsWith("OUTPUT_AUDIO_RESPONSE_ID_"))
             {
-                fileRequestProcessor.sendFile(fullParameters, response);
+                String currentKey = StringUtils.getFileName(fullParameters);
+                Object[] objects = new Object[3];
+                objects = requestMap.get(currentKey);
+                if (objects!=null)
+                {
+                    int numPrevCalls = (Integer)objects[0];
+
+                    if (numPrevCalls==0) //Do nothing yet until another call to this response is received
+                    {
+                        numPrevCalls++;
+                        objects[0] = numPrevCalls;
+                        requestMap.put(currentKey, objects);
+
+                        return;
+                    }
+                    else if (numPrevCalls==1)
+                    {
+                        //String contentType = (String)objects[2];
+                        ////FileInputStream f = new FileInputStream(new File("d:\\a.wav"));
+                        ////MaryHttpServerUtils.toHttpResponse(f, response, contentType);
+                        //MaryHttpServerUtils.toHttpResponse((InputStream)objects[1], response, contentType);
+
+                        //Second synthesis request call for non-web browser clients
+                        objects[0] = 0;
+                        Address savedServerAddressAtClient = (Address)objects[1];
+                        Map<String, String> savedKeyValuePairs = (Map<String, String>)objects[2];
+                        synthesisRequestProcessor.process(savedServerAddressAtClient, savedKeyValuePairs, currentKey, response);
+                        
+                        requestMap.remove(currentKey);
+
+                        return;
+                    }
+                    else //This should never be the case but remove the response as a precaution
+                        requestMap.remove(currentKey);
+                }
 
                 return;
             }
@@ -454,7 +497,24 @@ public class MaryHttpServer {
             {
                 String tmp = keyValuePairs.get("SYNTHESIS_OUTPUT");
                 if (tmp!=null && tmp.compareTo("?")==0)
-                    synthesisRequestProcessor.process(serverAddressAtClient, keyValuePairs, tempOutputAudioFilePrefix, response);
+                {
+                    //Audio streaming for web browser clients require special processing: 
+                    // - First a response page should be created
+                    // - That page should ask for embedded audio
+                    // - Upon this second request, the request should be processed and the output should be streamed
+                    // Here is the first call of the synthesis request which is common with non-web browser clients
+                    // The second call is up above 
+                    
+                    String currentID = getResponseID();
+                    synthesisRequestProcessor.process(serverAddressAtClient, keyValuePairs, currentID, response);
+
+                    Object[] objects = new Object[3];
+                    objects[0] = 0;
+                    objects[1] = serverAddressAtClient;
+                    objects[2] = keyValuePairs;
+
+                    requestMap.put(currentID, objects);
+                }
                 else
                     infoRequestProcessor.process(serverAddressAtClient, keyValuePairs, response);
             }

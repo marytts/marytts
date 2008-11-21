@@ -71,11 +71,11 @@ public class InfoRequestProcessor extends BaselineRequestProcessor {
         //Add extra initialisations here
     }
     
-    public void sendDefaultHtmlPage(Address serverAddressAtClient, HttpResponse response) throws IOException, InterruptedException
+    public void sendDefaultHtmlPage(Address clientAddress, HttpResponse response) throws IOException, InterruptedException
     {
         MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
 
-        MaryHtmlForm htmlForm = new MaryHtmlForm(serverAddressAtClient,
+        MaryHtmlForm htmlForm = new MaryHtmlForm(clientAddress,
                                                  getMaryVersion(),
                                                  getVoices(),
                                                  getDataTypes(),

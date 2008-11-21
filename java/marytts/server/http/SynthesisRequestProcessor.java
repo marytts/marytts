@@ -33,6 +33,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PipedInputStream;
 import java.io.StringReader;
 import java.util.Locale;
 import java.util.Map;
@@ -68,61 +70,13 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
     }
     
     public void process(Address serverAddressAtClient, 
-                        Map<String, String> keyValuePairs, 
-                        String tempOutputAudioFilePrefix,
-                        HttpResponse response) throws Exception
+                                      Map<String, String> keyValuePairs, 
+                                      String responseID,
+                                      HttpResponse response
+                                      ) throws Exception
     {
-        handleSynthesisRequest(keyValuePairs, response);
-
-        if (keyValuePairs!=null)
-        {
-            boolean isWebBrowserClient = false;
-            String tmpVal = keyValuePairs.get("WEB_BROWSER_CLIENT");
-            if (tmpVal!=null && tmpVal.compareTo("true")==0)
-                isWebBrowserClient = true;
-
-            if (isWebBrowserClient)
-            {
-                MaryHtmlForm htmlForm = new MaryHtmlForm(serverAddressAtClient,
-                                                         keyValuePairs,
-                                                         getMaryVersion(),
-                                                         getVoices(),
-                                                         getDataTypes(),
-                                                         getAudioFileFormatTypes(),
-                                                         getAudioEffectHelpTextLineBreak(),
-                                                         getDefaultAudioEffects(),
-                                                         getDefaultVoiceExampleTexts());
-
-                if (htmlForm.isOutputText)
-                {
-                    htmlForm.outputText = ConversionUtils.toString(MaryHttpClientUtils.toByteArray(response));
-                    MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
-                    webHttpClient.toHttpResponse(htmlForm, response);
-                }
-                else
-                {
-                    byte[] outputBytes = MaryHttpClientUtils.toByteArray(response); 
-                    String fileExt = htmlForm.audioFileFormatTypes[htmlForm.audioFormatSelected];
-                    int spaceInd = fileExt.indexOf(' ');
-                    fileExt = fileExt.substring(0, spaceInd);
-                    String randomFile = StringUtils.getRandomFileName(tempOutputAudioFilePrefix, 10, fileExt);
-                    File file = new File(randomFile);
-                    FileOutputStream fos = new FileOutputStream(file);
-                    fos.write(outputBytes);
-                    fos.close();
-                    logger.debug("Output written to file:" + randomFile);
-
-                    MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
-                    webHttpClient.outputAudioFile = randomFile;
-                    webHttpClient.toHttpResponse(htmlForm, response);
-                }
-            }
-        }
-    }
-    
-    private boolean handleSynthesisRequest(Map<String, String> keyValuePairs, HttpResponse response) throws Exception
-    {
-        if (keyValuePairs.get("SYNTHESIS_OUTPUT").compareTo("?")==0) 
+        RequestHttp request = null;
+        if (keyValuePairs.get("SYNTHESIS_OUTPUT").compareTo("?")==0 || keyValuePairs.get("SYNTHESIS_OUTPUT").compareTo("PENDING")==0) 
         {
             String helper;
             StringTokenizer tt;
@@ -152,6 +106,10 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
             if (outputType == null) {
                 throw new Exception("Invalid output type: " + keyValuePairs.get("OUTPUT_TYPE"));
             }
+            
+            boolean isOutputText = true;
+            if (outputType.name().contains("AUDIO"))
+                isOutputText = false;
             //
             
             //LOCALE
@@ -244,7 +202,7 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
             // in case we need to pass via audio to get our output type.
             AudioFileFormat audioFileFormat = null;
             if (audioFileFormatType == null) {
-                audioFileFormatType = AudioFileFormat.Type.WAVE;
+                audioFileFormatType = AudioFileFormat.Type.AU;
             }
             AudioFormat audioFormat = voice.dbAudioFormat();
             if (audioFileFormatType.toString().equals("MP3")) {
@@ -258,28 +216,29 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
             }
             audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
 
-            RequestHttp request = new RequestHttp(inputType, outputType, locale, voice, effects, style, audioFileFormat, streamingAudio);
-
-            //Thread.yield();
+            request = new RequestHttp(inputType, outputType, locale, voice, effects, style, audioFileFormat, streamingAudio);
 
             //Send off to new request
             String inputText = keyValuePairs.get("INPUT_TEXT");
             BufferedReader reader = new BufferedReader(new StringReader(inputText));
-            RequestHttpHandler rh = new RequestHttpHandler(request, response, reader);
+            boolean isStreamingToWebBrowserClient = (keyValuePairs.get("SYNTHESIS_OUTPUT").compareTo("PENDING")==0) ? true : false;
+            RequestHttpHandler rh = new RequestHttpHandler(request, response, reader,
+                                        serverAddressAtClient,
+                                        keyValuePairs,
+                                        getMaryVersion(),
+                                        getVoices(),
+                                        getDataTypes(),
+                                        getAudioFileFormatTypes(),
+                                        getAudioEffectHelpTextLineBreak(),
+                                        getDefaultAudioEffects(),
+                                        getDefaultVoiceExampleTexts(),
+                                        responseID,
+                                        isStreamingToWebBrowserClient);
 
             rh.start();
-
-            rh.join();
-
-            response = rh.response;
             
-            keyValuePairs.put("SYNTHESIS_OUTPUT", "DONE");
-
-            return true;
-        }
-        
-        keyValuePairs.put("SYNTHESIS_OUTPUT", "FAILED");
-
-        return false;
+            //TO DO (Very important!): We need to find a way to remove this. Otherwise the Http server works in single thread mode
+            rh.join();
+        }  
     }
 }

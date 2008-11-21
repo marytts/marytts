@@ -98,36 +98,6 @@ public class MaryHttpRequester
         return is;
     }
     
-    /*
-    public String[] requestStringArray(Address hostAddress, Map<String, String> keyValuePairs) throws IOException, InterruptedException
-    {
-        HttpResponse response = request(hostAddress, keyValuePairs);
-        
-        return MaryHttpClientUtils.toStringArray(response); 
-    }
-    
-    public String requestString(Address hostAddress, Map<String, String> keyValuePairs) throws IOException, InterruptedException
-    {
-        HttpResponse response = request(hostAddress, keyValuePairs);
-        
-        return MaryHttpClientUtils.toString(response);
-    }
-    
-    public int[] requestIntArray(Address hostAddress, Map<String, String> keyValuePairs) throws IOException, InterruptedException
-    {
-        HttpResponse response = request(hostAddress, keyValuePairs);
-        
-        return MaryHttpClientUtils.toIntArray(response);
-    }
-    
-    public double[] requestDoubleArray(Address hostAddress, Map<String, String> keyValuePairs) throws IOException, InterruptedException
-    {
-        HttpResponse response = request(hostAddress, keyValuePairs);
-        
-        return MaryHttpClientUtils.toDoubleArray(response);
-    }
-    */
-    
     public Map<String, String> request(Address hostAddress, Map<String, String> keyValuePairs) throws IOException, InterruptedException
     { 
         return MaryHttpClientUtils.toKeyValuePairs(requestBase(hostAddress, keyValuePairs), true);
@@ -137,7 +107,7 @@ public class MaryHttpRequester
     {    
         params = new BasicHttpParams();
         params
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 50000)
+            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0)
             .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
             .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
@@ -257,10 +227,10 @@ public class MaryHttpRequester
         
         public void handleResponse(final HttpResponse response, final HttpContext context) throws IOException 
         {
-            responseOut = response;
-            
             context.setAttribute(RESPONSE_RECEIVED, Boolean.TRUE);
 
+            responseOut = response;
+            
             requestCount.countDown();
         }  
     }
