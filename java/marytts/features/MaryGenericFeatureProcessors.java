@@ -2301,18 +2301,16 @@ public class MaryGenericFeatureProcessors
         
         protected TargetElementNavigator navigator;
         protected ByteStringTranslator values = new ByteStringTranslator(new String[] {
-                "0", "stressed", "pre-nuclear", "nuclear", "finalHigh", "finalLow"});
+                "0", "stressed", "pre-nuclear", "nuclear", "finalHigh", "finalLow", "final"});
         private Set<String> lowEndtones = new HashSet<String>(Arrays.asList(new String[] {
             "L-", "L-%", "L-L%"
         }));
         private Set<String> highEndtones = new HashSet<String>(Arrays.asList(new String[] {
                 "H-", "!H-", "H-%", "H-L%", "!H-%", "H-^H%", "!H-^H%", "L-H%", "H-H%" 
             }));
-        private AccentedSylsFromPhraseEnd as;
         
         public Selection_Prosody (TargetElementNavigator syllableNavigator) {
             this.navigator = syllableNavigator;
-            as = new AccentedSylsFromPhraseEnd();
         }
         public String getName() { return "selection_prosody"; }
         
@@ -2325,7 +2323,8 @@ public class MaryGenericFeatureProcessors
          * 
          *@param target the target
          *@return 0 - unstressed, 1 - stressed, 2 - pre-nuclear accent
-         *		3 - nuclear accent, 4 - phrase final high, 5 - phrase final low
+         *		3 - nuclear accent, 4 - phrase final high, 5 - phrase final low,
+         *      6 - phrase final (with unknown high/low status).
          */
         public byte process(Target target) {
             //first find out if syllable is stressed
@@ -2339,6 +2338,7 @@ public class MaryGenericFeatureProcessors
             boolean accented = syllable.hasAttribute("accent");
             boolean nuclear = true; // relevant only if accented == true
             //find out the position of the target
+            boolean phraseFinal = false;
             String endtone = null;
             Element sentence = (Element) MaryDomUtils.getAncestor(syllable, MaryXML.SENTENCE);
             if (sentence == null) return 0;
@@ -2347,6 +2347,7 @@ public class MaryGenericFeatureProcessors
             Element e = (Element) tw.nextNode();
             if (e != null) {
                 if (e.getTagName().equals(MaryXML.BOUNDARY)) {
+                    phraseFinal = true;
                     endtone = e.getAttribute("tone");
                 }
                 if (accented) { // look forward for any accent
@@ -2371,10 +2372,14 @@ public class MaryGenericFeatureProcessors
                 } else {
                     return values.get("pre-nuclear");
                 }
-            } else if (endtone != null && highEndtones.contains(endtone)) {
-                return values.get("finalHigh");
-            } else if (endtone != null && lowEndtones.contains(endtone)) {
-                return values.get("finalLow");
+            } else if (phraseFinal) {
+                if (endtone != null && highEndtones.contains(endtone)) {
+                    return values.get("finalHigh");
+                } else if (endtone != null && lowEndtones.contains(endtone)) {
+                    return values.get("finalLow");
+                } else {
+                    return values.get("final");
+                }
             } else if (stressed) {
                 return values.get("stressed");
             }
