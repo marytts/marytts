@@ -595,18 +595,39 @@ public class DBHandler {
       return idSet;
   }
   
+  /***
+   * Get number of words in the wordList table.
+   * @return int number of words.
+   */
+  public int getNumberOfWords(){
+      String dbQuery = "SELECT count(word) FROM wordList;";
+      String str = queryTable(dbQuery);
+      return Integer.parseInt(str);  
+  }
+  
   /****
    * 
    * @return the word list in a HashMap
+   * @param numWords max number of words to retrieve, if numWords=0 then it will retrieve
+   *                 all the words in the list in descending order of frequency.
    */
-  public HashMap<String, Integer> getWordList() {
+  public HashMap<String, Integer> getMostFrequentWords(int numWords) {
 
       HashMap<String, Integer> wordList;
-      int initialCapacity = 200000;  // CHECK wich initial value is meaningful!!!
-      wordList = new HashMap<String, Integer>(initialCapacity);
+      String query;
+      int initialCapacity = 200000;  
+      
+      if(numWords>0){
+        query = "SELECT word,frequency from wordList order by frequency desc limit " + numWords +";";
+        wordList = new HashMap<String, Integer>(numWords);
+      }
+      else {  
+        query = "SELECT word,frequency from wordList order by frequency desc";
+        wordList = new HashMap<String, Integer>(initialCapacity);
+      }
       
       try {
-          rs = st.executeQuery("SELECT word,frequency from wordList;"); 
+          rs = st.executeQuery(query); 
       } catch (Exception e) {
           e.printStackTrace();
       }
@@ -623,13 +644,29 @@ public class DBHandler {
   
   /****
    * 
-   * @return the word list in a HashMap
+   * @param fileName file to write the list
+   * @param order word or frequency
+   * @param numWords max number of words, if numWords=0 then it will retrieve all the
+   *                 words in the list.
    */
-  public void printWordList(String fileName, String order) {
+  public void printWordList(String fileName, String order, int numWords) {
       PrintWriter pw;
+      String query;
+      String orderBy;
+      
+      if(order.contentEquals("word"))
+        orderBy = "word asc";
+      else
+        orderBy = "frequency desc";  
+      
+      if(numWords>0)
+        query = "SELECT word,frequency from wordList order by " + orderBy + " limit " + numWords +";"; 
+      else   
+        query = "SELECT word,frequency from wordList order by " + orderBy;
+          
       
       try {
-          rs = st.executeQuery("SELECT word,frequency from wordList order by " + order + ";"); 
+          rs = st.executeQuery(query); 
       } catch (Exception e) {
           e.printStackTrace();
       }

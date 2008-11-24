@@ -859,8 +859,8 @@ public class WikipediaMarkupCleaner {
             if(w.startsWith("(") )
               w = w.substring(1, w.length());
                     
-            if( w.length()>1 && StringUtils.isAlpha(w) && StringUtils.isAsciiPrintable(w) && 
-                                StringUtils.isNotBlank(w) && StringUtils.isNotEmpty(w) ) {
+            if( w.length()>1 && StringUtils.isAlpha(w) && StringUtils.isNotBlank(w) 
+                             && StringUtils.isNotEmpty(w) ) {
               //System.out.print(w + " ");
               i = (Integer) wordList.get(w);
               // if key is not in the map then give it value one
@@ -985,11 +985,11 @@ public class WikipediaMarkupCleaner {
         // Checking if word list exist
         if( wikiToDB.tableExist("wordList") ){
           System.out.println("loading wordList from table....");
-          wordList = wikiToDB.getWordList();
+          wordList = wikiToDB.getMostFrequentWords(0);
           //printWordList();
         } else {
           System.out.println("started Hashtable for wordList.");
-          int initialCapacity = 200000;  // CHECK wich initial value is meaningful!!!
+          int initialCapacity = 200000;  
           wordList = new HashMap<String, Integer>(initialCapacity);
         }
                
@@ -1048,7 +1048,7 @@ public class WikipediaMarkupCleaner {
         wikiToDB.insertWordList(wordList);
         
         //printWordList("/project/mary/marcela/anna_wikipedia/wordlist.txt");
-        wikiToDB.printWordList("/project/mary/marcela/anna_wikipedia/wordlist-freq.txt", "frequency");
+        wikiToDB.printWordList("/project/mary/marcela/anna_wikipedia/wordlist-freq.txt", "frequency", 0);
         
         
         System.out.println("\nNumber of PAGES USED=" + numPagesUsed 
