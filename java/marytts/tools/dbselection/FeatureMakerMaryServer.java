@@ -53,6 +53,7 @@ import java.util.Vector;
 import java.util.HashMap;
 
 import marytts.client.MaryClient;
+import marytts.client.http.MaryHttpClient;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.features.FeatureDefinition;
@@ -77,9 +78,11 @@ import com.sun.speech.freetts.Utterance;
  *
  */
 public class FeatureMakerMaryServer{
-	
+    // locale
+    private static String locale;
 	//the Mary Client connected to the server
 	protected static MaryClient mary;
+    //protected static MaryHttpClient mary;
 	//stores result of credibility check for current sentence
 	protected static boolean usefulSentence;
     protected static boolean unknownWords;
@@ -87,6 +90,9 @@ public class FeatureMakerMaryServer{
     
     //feature definition
 	protected static FeatureDefinition featDef;
+    protected static Vector<String> selectionFeature;
+    protected static int[] selectionFeatureIndex;
+    
     // log file
 	protected static String logFileName;
     //host of the Mary server
@@ -109,10 +115,11 @@ public class FeatureMakerMaryServer{
     
 	public static void main(String[] args)throws Exception{
 			
-       
-        DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
-        Date dateIni = new Date();
-        String dateStringIni = fullDate.format(dateIni);
+        String dateStringIni="";
+        String dateStringEnd="";
+//        DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
+//        Date dateIni = new Date();
+//        String dateStringIni = fullDate.format(dateIni);
         
 		/* check the arguments */
 		if (!readArgs(args)){
@@ -124,10 +131,11 @@ public class FeatureMakerMaryServer{
 		/* Start the Mary client */
 		System.setProperty("server.host", maryHost);
 		System.setProperty("server.port", maryPort);
-		mary = new MaryClient();
+		//mary = new MaryHttpClient();
+        mary = new MaryClient();
 		
         /* Here the DB connection for reliable sentences is open */
-         wikiToDB = new DBHandler();
+         wikiToDB = new DBHandler(locale);
          wikiToDB.createDBConnection(mysqlHost,mysqlDB,mysqlUser,mysqlPasswd);
          //wikiToDB.createDBConnection("penguin.dfki.uni-sb.de","MaryDBSelector","MaryDBSel_admin","p4rpt3jr");
          // check if tables exist
@@ -191,8 +199,8 @@ public class FeatureMakerMaryServer{
         
         wikiToDB.closeDBConnection();
         
-        Date dateEnd = new Date();
-        String dateStringEnd = fullDate.format(dateEnd);
+//        Date dateEnd = new Date();
+//        dateStringEnd = fullDate.format(dateEnd);
         pw.println("numSentencesInText;=" + numSentences);
         pw.println("Start time:" + dateStringIni + "  End time:" + dateStringEnd);
         
@@ -207,10 +215,11 @@ public class FeatureMakerMaryServer{
 	 */
 	protected static void printUsage(){
 		System.out.println("Usage:\n"
-				+"java FeatureMakerMaryServer -mysqlHost host -mysqlUser user -mysqlPasswd passwd -mysqlDB wikiDB\n"
-                + "  default/optional: [-maryHost localhost -maryPort 59125 -strictCredibility true]\n"
-                + "  optional: [-strictCredibility [strict|lax] -log logFileName]\n\n"
-            	+"-credibility [strict|lax]: Setting that determnines what kind of sentences \n"
+				+"java FeatureMakerMaryServer -locale en_US -mysqlHost host -mysqlUser user -mysqlPasswd passwd -mysqlDB wikiDB\n"
+                +"  default/optional: [-maryHost localhost -maryPort 59125 -strictCredibility true]\n"
+                +"  optional: [-strictCredibility [strict|lax] -log logFileName]\n"
+                +"  optional: [-featuresForSelection phoneme,next_phoneme,selection_prosody,..] (features separated by ,) \n\n"
+            	+"  -credibility [strict|lax]: Setting that determnines what kind of sentences \n"
 				+"  are regarded as credible. There are two settings: strict and lax. With \n"
 				+"  setting strict, only those sentences that contain words in the lexicon \n"
 				+"  or words that were transcribed by the preprocessor are regarded as credible; \n"
@@ -221,6 +230,7 @@ public class FeatureMakerMaryServer{
 	
    private static void printParameters(){
         System.out.println("FeatureMakerMaryServer parameters:" +
+        "\n  -locale " + locale +        
         "\n  -maryHost " + maryHost +
         "\n  -maryPort " + maryPort +
         "\n  -mysqlHost " + mysqlHost +
@@ -233,6 +243,11 @@ public class FeatureMakerMaryServer{
         else
           System.out.println("  -strictCredibility false");  
        
+        System.out.print("  -featuresForselection ");
+        int i=0;
+        for(i=0; i<selectionFeature.size()-1; i++)
+          System.out.print(selectionFeature.elementAt(i) + ",");
+        System.out.println(selectionFeature.elementAt(i));
     }
         
     
@@ -243,25 +258,32 @@ public class FeatureMakerMaryServer{
 	 * @return true, if successful, false otherwise
 	 */
 	protected static boolean readArgs(String[] args){
-		//initialise default values
-		
+		//initialise default values		
 		logFileName = "./featureMaker.log";
 		maryHost = "localhost";
 		maryPort = "59125";
+        locale = "en_US";
 		strictCredibility = true;
-		
+        featDef = null;
+        selectionFeature = new Vector<String>();
+        selectionFeature.add("phoneme");
+        selectionFeature.add("next_phoneme");
+        selectionFeature.add("selection_prosody");
+        
 		//now parse the args
-        if (args.length >= 8){
+        if (args.length >= 10){
           for(int i=0; i<args.length; i++) { 
 			
+            if (args[i].equals("-locale") && args.length>=i+1 )
+              locale = args[++i];  
 			          
-            if (args[i].equals("-maryHost") && args.length>=i+1 )
+            else if (args[i].equals("-maryHost") && args.length>=i+1 )
               maryHost = args[++i];
             
-            if (args[i].equals("-maryPort") && args.length>=i+1 )
+            else if (args[i].equals("-maryPort") && args.length>=i+1 )
               maryPort = args[++i];
 			
-			if (args[i].equals("-credibility") && args.length>=i+1){
+            else if (args[i].equals("-credibility") && args.length>=i+1){
 			  String credibilitySetting = args[++i];
 			  if (credibilitySetting.equals("strict"))
 				strictCredibility = true;
@@ -273,24 +295,38 @@ public class FeatureMakerMaryServer{
 			  }
             }
             
+            else if(args[i].contentEquals("-featuresForSelection") && args.length >= (i+1) ){
+              selectionFeature.clear();  
+              String selection = args[++i];
+              String feas[] = selection.split(",");
+              for(int k=0; k<feas.length; k++)
+                  selectionFeature.add(feas[k]);             
+            }
+            
             // mysql database parameters
-            if(args[i].contentEquals("-mysqlHost") && args.length >= (i+1) )
+            else if(args[i].contentEquals("-mysqlHost") && args.length >= (i+1) )
               mysqlHost = args[++i];
                 
-            if(args[i].contentEquals("-mysqlUser") && args.length >= (i+1) )
+            else if(args[i].contentEquals("-mysqlUser") && args.length >= (i+1) )
               mysqlUser = args[++i];
                    
-            if(args[i].contentEquals("-mysqlPasswd") && args.length >= (i+1) )
+            else if(args[i].contentEquals("-mysqlPasswd") && args.length >= (i+1) )
               mysqlPasswd = args[++i];
                  
-            if(args[i].contentEquals("-mysqlDB") && args.length >= (i+1) )
+            else if(args[i].contentEquals("-mysqlDB") && args.length >= (i+1) )
               mysqlDB = args[++i];
             
-            if (args[i].equals("-logFile") && args.length>=i+1 )
+            else if (args[i].equals("-logFile") && args.length>=i+1 )
               logFileName = args[++i];
             
+            else { //unknown argument
+              System.out.println("\nOption not known: " + args[i]);
+              return false;
+            }
+                
+            
           }	
-		} else  //unknown argumen
+		} else  // arguments less than 10
 			return false;
 
         printParameters();
@@ -318,7 +354,8 @@ public class FeatureMakerMaryServer{
 			mary.process(nextSentence, "TEXT","TARGETFEATURES", "en_US", null, "hsmm-slt", os);
 			//read into mary data object                
 			//d = new MaryData(MaryDataType.get("TARGETFEATURES"), null);
-            d = new MaryData(MaryDataType.TARGETFEATURES, Locale.US);
+            //d = new MaryData(MaryDataType.TARGETFEATURES, Locale.US);
+            d = new MaryData(MaryDataType.TARGETFEATURES, null);
             
 			d.readFrom(new ByteArrayInputStream(os.toByteArray()));			
 		} catch (Exception e){
@@ -406,7 +443,6 @@ public class FeatureMakerMaryServer{
 				if (!method.equals("lexicon") && !method.equals("userdict")){
 					if (strictCredibility){
 						//method other than lexicon or userdict -> unreliable
-						//newUsefulSentence = false;
                         newUsefulSentence = 1;
                        
 					} else {
@@ -414,7 +450,6 @@ public class FeatureMakerMaryServer{
 						if (!method.equals("phonemiseDenglish") && !method.equals("compound")){
 							//method other than lexicon, userdict, phonemiseDenglish 
 							//or compound -> unreliable
-							//newUsefulSentence = false;
                             newUsefulSentence = 1;
                             
 						} //else method is phonemiseDenglish or compound -> credible						
@@ -425,10 +460,7 @@ public class FeatureMakerMaryServer{
 			//we dont have a transcription
 			if (t.hasAttribute("pos") && !t.getAttribute("pos").startsWith("$")){					
 				//no transcription given -> unreliable	
-				//newUsefulSentence = false;
-                //System.out.println("t.getTextContent = " + t.getTextContent() + "  t.getAttribute=" + t.getAttribute("pos"));
-                newUsefulSentence = 2;
-                
+                newUsefulSentence = 2;      
 			} //else punctuation -> credible
 		} 
 		return newUsefulSentence;
@@ -445,41 +477,27 @@ public class FeatureMakerMaryServer{
 		 * @throws Exception
 		 */
 		protected static byte[] getFeatures(MaryData d)throws Exception{
-			BufferedReader featsDis = 
-				new BufferedReader(
-						new InputStreamReader(
-								new ByteArrayInputStream(d.getPlainText().getBytes())));
+            
+            BufferedReader featsDis = new BufferedReader(new InputStreamReader(
+                    new ByteArrayInputStream(d.getPlainText().getBytes())));    
 			String line;
-			if (featDef == null){
-				featDef = new FeatureDefinition(featsDis,false);            
-			} else {
+            // The first time the feaDef is null, so then load the featureDefinition and the indexes of the features
+            // used for selection. 
+			if (featDef == null){  
+ 			  featDef = new FeatureDefinition(featsDis,false);
+              // find the indexes of the features for selection
+              selectionFeatureIndex = new int[selectionFeature.size()];
+              for(int i=0; i<selectionFeature.size(); i++){
+                 selectionFeatureIndex[i] = featDef.getFeatureIndex(selectionFeature.elementAt(i));  
+              }
+            }  else { // once the featDef has been load just skip the first part of the featDis
 				//read until an empty line occurs
 				while ((line = featsDis.readLine()) != null){
 					if (line.equals("")) break;
 				}
 			}
 			
-			/* get the indices of our features */
-            
-            // DE example
-            /*
-			int phoneIndex = featDef.getFeatureIndex("phoneme");
-			int nextPhoneIndex = featDef.getFeatureIndex("next_phoneme");
-			int phoneIndex = featDef.getFeatureIndex("phoneme");
-			int nextPhoneIndex = featDef.getFeatureIndex("next_phoneme");
-			int nextPhoneClassIndex = featDef.getFeatureIndex("selection_next_phone_class");
-			int prosodyIndex = featDef.getFeatureIndex("selection_prosody");
-            */
-            // EN example (not sure if these features are adequate! just for testing)
-            int phoneIndex = featDef.getFeatureIndex("phoneme");
-            int nextPhoneIndex = featDef.getFeatureIndex("next_phoneme");
-            int nextPhoneClassIndex = featDef.getFeatureIndex("gpos");
-            int prosodyIndex = featDef.getFeatureIndex("position_type");
-            // these two are not available in EN
-            //int nextPhoneClassIndex = featDef.getFeatureIndex("selection_next_phone_class");
-			//int prosodyIndex = featDef.getFeatureIndex("selection_prosody");
-            
-			/* loop over the feature vectors */
+			// loop over the feature vectors 
 			List<String> featureLines = new ArrayList<String>();
 			while ((line = featsDis.readLine()) != null){
 				if (line.equals("")) break;
@@ -491,18 +509,10 @@ public class FeatureMakerMaryServer{
 			for (int i=0;i<numLines;i++){
 				line = (String) featureLines.get(i);
 				String[] fv = line.split(" ");
-				String phoneString = fv[phoneIndex];
 				byte[] nextVector = new byte[4];
-				nextVector[0] = 
-					featDef.getFeatureValueAsByte(phoneIndex,phoneString);
-				nextVector[1] = 
-					featDef.getFeatureValueAsByte(nextPhoneIndex,fv[nextPhoneIndex]);
-				nextVector[2] = 
-					featDef.getFeatureValueAsByte(nextPhoneClassIndex,fv[nextPhoneClassIndex]);
-				nextVector[3] = 
-					featDef.getFeatureValueAsByte(prosodyIndex,fv[prosodyIndex]);                
-				featVects[i] = nextVector;
-				
+                for(int j=0; j<selectionFeature.size(); j++)
+                  nextVector[j] =  featDef.getFeatureValueAsByte(selectionFeature.elementAt(j),fv[selectionFeatureIndex[j]]);
+                featVects[i] = nextVector;
 				
 			} //end of while-loop over the feature vectors
               
@@ -515,15 +525,11 @@ public class FeatureMakerMaryServer{
 				if (nextFeatVects == null){
 					System.out.println("nextFeatVects are null at index "+i);
 				}
-			    feasVector[n++] = nextFeatVects[0];
-                feasVector[n++] = nextFeatVects[1];
-                feasVector[n++] = nextFeatVects[2];
-                feasVector[n++] = nextFeatVects[3];
-			}
-			
-            //System.out.println("feas=" + feas);
-            return feasVector;
-			
+               for(int m=0; m<selectionFeature.size(); m++)
+                   feasVector[n++] = nextFeatVects[m];
+    		}
+            
+	        return feasVector;
 		}
 		
 		
@@ -543,7 +549,7 @@ public class FeatureMakerMaryServer{
             StringBuffer sentence;
             //index2sentences = new TreeMap<Integer,String>();
 			
-            Document doc = phonemiseText(text);
+            Document doc = phonemiseText(text, id);
 			//if (doc == null) return false;
             
             if (doc != null) {
@@ -617,7 +623,7 @@ public class FeatureMakerMaryServer{
 		 * @return the resulting XML-Document
 		 * @throws Exception
 		 */
-		protected static Document phonemiseText(String textString) throws Exception{
+		protected static Document phonemiseText(String textString, String id) throws Exception{
 			try{
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				//process and dump
@@ -625,6 +631,7 @@ public class FeatureMakerMaryServer{
                 
                 //read into mary data object                
 				//MaryData maryData = new MaryData(MaryDataType.PHONEMES, Locale.GERMAN);
+                //MaryData maryData = new MaryData(MaryDataType.PHONEMES, Locale.US);
                 MaryData maryData = new MaryData(MaryDataType.PHONEMES, Locale.US);
                 
 				maryData.readFrom(new ByteArrayInputStream(os.toByteArray()));
@@ -632,7 +639,7 @@ public class FeatureMakerMaryServer{
 				return maryData.getDocument();
 			} catch (Exception e){
 				e.printStackTrace();
-                System.out.println("PhonemiseText: problem when processing: " + textString);
+                System.out.println("PhonemiseText: problem processing text id=" + id);
 				return null;            
 			}
 			

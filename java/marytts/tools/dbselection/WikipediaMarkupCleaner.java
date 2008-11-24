@@ -17,6 +17,8 @@ import org.apache.commons.lang.StringUtils;
 
 public class WikipediaMarkupCleaner {
     
+    // locale
+    private String locale="en_US";  // default en_US
     // mySql database 
     private String mysqlHost;
     private String mysqlDB;
@@ -40,7 +42,7 @@ public class WikipediaMarkupCleaner {
     // Use this variable to do not create a new cleanText table, but adding to an already existing cleanText table.
     private boolean deleteCleanTextTable = true;
     
-    
+    public void setLocale(String str){ locale = str; }
     public void setMysqlHost(String str){ mysqlHost = str; }
     public void setMysqlDB(String str){ mysqlDB = str; }
     public void setMysqlUser(String str){ mysqlUser = str; }
@@ -60,6 +62,7 @@ public class WikipediaMarkupCleaner {
     public void setLoadWikiTables(boolean bval){ loadWikiTables = bval; }
     public void setDeleteCleanTextTable(boolean bval){ deleteCleanTextTable = bval; }
        
+    public String getLocale(){ return locale; }
     public String getMysqlHost(){ return mysqlHost; }
     public String getMysqlDB(){ return mysqlDB; }
     public String getMysqlUser(){ return mysqlUser; }
@@ -369,6 +372,7 @@ public class WikipediaMarkupCleaner {
                line = new StringBuffer(line.toString().replaceAll("</br>", ""));
                line = new StringBuffer(line.toString().replaceAll("</div>", ""));
                line = new StringBuffer(line.toString().replaceAll("</ref>", ""));
+               line = new StringBuffer(line.toString().replaceAll("/>", ""));
                
                // Removing quotation marks
                line = new StringBuffer(line.toString().replaceAll("\"", ""));
@@ -838,7 +842,7 @@ public class WikipediaMarkupCleaner {
        
      }
    
-    public void insertWordList(String text, HashMap<String, Integer> wordList) {
+    public void addWordToHashMap(String text, HashMap<String, Integer> wordList) {
         String sentences[];
         String words[], w;  
         Integer i;
@@ -849,7 +853,7 @@ public class WikipediaMarkupCleaner {
           //System.out.println(sentences[m]);
           words = sentences[m].split(" ");
           for(n=0; n<words.length; n++){
-            w = words[n];  
+            w = words[n];
             // remove punctuation
             if( w.endsWith(",") || w.endsWith(";") || w.endsWith(".") ||
                 w.endsWith(":") || w.endsWith("'") || w.endsWith(")") || w.endsWith("?") )  
@@ -904,7 +908,7 @@ public class WikipediaMarkupCleaner {
     
     void processWikipediaSQLTablesDebug()throws Exception{
         
-        DBHandler wikiToDB = new DBHandler();
+        DBHandler wikiToDB = new DBHandler(locale);
 
         wikiToDB.createDBConnection(mysqlHost, mysqlDB, mysqlUser, mysqlPasswd);
         String text;
@@ -942,9 +946,9 @@ public class WikipediaMarkupCleaner {
         DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
         Date dateIni = new Date();
         dateStringIni = fullDate.format(dateIni);
-       
         
-        DBHandler wikiToDB = new DBHandler();
+        
+        DBHandler wikiToDB = new DBHandler(locale);
         
         // hashMap for the dictionary, HashMap is faster than TreeMap so the list of words will
         // be kept it in a hashMap. When the process finish the hashMap will be dump in the database.
@@ -961,31 +965,31 @@ public class WikipediaMarkupCleaner {
         } else {
           // Checking if tables are already created and loaded in the DB
           if(wikiToDB.checkWikipediaTables())  
-            System.out.println("TABLES page, text and revision already loaded (WARNING USING EXISTING WIKIPEDIA TABLES).");
+            System.out.println("TABLES " + locale + "_page, " + locale + "_text and " + locale + "_revision already loaded (WARNING USING EXISTING WIKIPEDIA TABLES).");
           else
-           throw new Exception("WikipediaMarkupCleaner: ERROR IN TABLES page, text and revision, they are not CREATED/LOADED.");          
+           throw new Exception("WikipediaMarkupCleaner: ERROR IN TABLES " + locale + "_page, " + locale + "_text and " + locale + "_revision, they are not CREATED/LOADED.");          
         }    
         
         System.out.println("Getting page IDs");
         String pageId[];
-        pageId = wikiToDB.getIds("page_id","page");
+        pageId = wikiToDB.getIds("page_id",locale+"_page");
         
         // create cleanText TABLE
         if( deleteCleanTextTable ){
-          System.out.println("Creating (deleting if already exist) cleanText TABLE");
+          System.out.println("Creating (deleting if already exist) " + locale + "_cleanText TABLE");
           wikiToDB.createWikipediaCleanTextTable();
         } else {
-          if( wikiToDB.tableExist("cleanText") )  
-            System.out.println("cleanText TABLE already exist (WARNING ADDING TO EXISTING cleanText TABLE)");
+          if( wikiToDB.tableExist(locale + "_cleanText") )  
+            System.out.println(locale + "_cleanText TABLE already exist (WARNING ADDING TO EXISTING cleanText TABLE)");
           else {
-            System.out.println("Creating cleanText TABLE");
+            System.out.println("Creating " + locale + "_cleanText TABLE");
             wikiToDB.createWikipediaCleanTextTable();  
           }
         }
         // Checking if word list exist
-        if( wikiToDB.tableExist("wordList") ){
-          System.out.println("loading wordList from table....");
-          wordList = wikiToDB.getMostFrequentWords(0);
+        if( wikiToDB.tableExist(locale + "_wordList") ){
+          System.out.println("loading " + locale + "_wordList from table....");
+          wordList = wikiToDB.getMostFrequentWords(0,0);
           //printWordList();
         } else {
           System.out.println("started Hashtable for wordList.");
@@ -1017,7 +1021,7 @@ public class WikipediaMarkupCleaner {
                 numPagesUsed++;  
                 wikiToDB.insertCleanText(text, pageId[i], textId.toString()); 
                 // insert the words in text in wordlist
-                insertWordList(text, wordList);
+                addWordToHashMap(text, wordList);
                 System.out.println("Cleanedpage_id[" + i + "]=" + pageId[i] 
                         + "  textList (" + (j+1) + "/"+ textList.size() + ") length=" + text.length() 
                         + "  numPagesUsed=" +numPagesUsed + "  Wordlist[" + wordList.size() + "] ");
@@ -1048,12 +1052,15 @@ public class WikipediaMarkupCleaner {
         wikiToDB.insertWordList(wordList);
         
         //printWordList("/project/mary/marcela/anna_wikipedia/wordlist.txt");
-        wikiToDB.printWordList("/project/mary/marcela/anna_wikipedia/wordlist-freq.txt", "frequency", 0);
+        wikiToDB.printWordList("/project/mary/marcela/anna_wikipedia/wordlist-freq.txt", "frequency", 0, 0);
         
         
         System.out.println("\nNumber of PAGES USED=" + numPagesUsed 
                 + " minPageLength=" + minPageLength + " minTextLength=" + minTextLength
                 + " Start time:" + dateStringIni + "  End time:" + dateStringEnd);
+        
+        // Once created the cleantext table delete the wikipedia text, page and revision tables.
+        wikiToDB.deleteWikipediaTables();
         
         wikiToDB.closeDBConnection();
         
@@ -1090,10 +1097,16 @@ public class WikipediaMarkupCleaner {
     }
     
     
-    public static void main(String[] args) throws Exception{
+    //
+    /**
+     * Read and parse the command line args
+     * 
+     * @param args the args
+     * @return true, if successful, false otherwise
+     */
+    private boolean readArgs(String[] args){
         
-        boolean debug=false;
-        String help = "\nUse: java WikipediaMarkupCleaner -mysqlHost host -mysqlUser user -mysqlPasswd passwd -mysqlDB wikiDB \n" +
+        String help = "\nUsage: java WikipediaMarkupCleaner -locale en_US -mysqlHost host -mysqlUser user -mysqlPasswd passwd -mysqlDB wikiDB \n" +
         "      -text wikiTextFile -page wikiPageFile -revision wikiRevisionFile \n" +
         "      default/optional: [-minPage 10000 -minText 1000 -maxText 15000] \n" +
         "      optional: [-log wikiLogFile -id pageId -debug]\n\n" +
@@ -1106,72 +1119,94 @@ public class WikipediaMarkupCleaner {
         "           the tables will not be loaded, so it is asumed that page, text and revision tables are already loaded.\n" +
         "      -noLoadWikiTables use this variable to save time NOT loading wiki tables, they must already exist in the the DB.\n" +
         "      -noDeleteCleanTextTable use this variable to do NOT create a new cleanText table, but adding to an already existing cleanText table.\n";
-        
-      
-        WikipediaMarkupCleaner wikiCleaner = new WikipediaMarkupCleaner(); 
-        
-        if (args.length >= 14){  // minimum 14 parameters
-          for(int i=0; i<args.length; i++) { 
-            if(args[i].contentEquals("-mysqlHost") && args.length >= (i+1) )
-              wikiCleaner.setMysqlHost(args[++i]);
-            
-            if(args[i].contentEquals("-mysqlUser") && args.length >= (i+1) )
-                wikiCleaner.setMysqlUser(args[++i]);
               
-            if(args[i].contentEquals("-mysqlPasswd") && args.length >= (i+1) )
-                wikiCleaner.setMysqlPasswd(args[++i]);
+        if (args.length >= 16){  // minimum 16 parameters
+          for(int i=0; i<args.length; i++) { 
+            if(args[i].contentEquals("-locale") && args.length >= (i+1) )
+              setLocale(args[++i]);
+              
+            else if(args[i].contentEquals("-mysqlHost") && args.length >= (i+1) )
+              setMysqlHost(args[++i]);
             
-            if(args[i].contentEquals("-mysqlDB") && args.length >= (i+1) )
-              wikiCleaner.setMysqlDB(args[++i]);
+            else if(args[i].contentEquals("-mysqlUser") && args.length >= (i+1) )
+               setMysqlUser(args[++i]);
+              
+            else if(args[i].contentEquals("-mysqlPasswd") && args.length >= (i+1) )
+               setMysqlPasswd(args[++i]);
             
-            if(args[i].contentEquals("-text") && args.length >= (i+1) )
-              wikiCleaner.setTextFile(args[++i]);
+            else if(args[i].contentEquals("-mysqlDB") && args.length >= (i+1) )
+              setMysqlDB(args[++i]);
             
-            if(args[i].contentEquals("-page") && args.length >= (i+1) )
-              wikiCleaner.setPageFile(args[++i]); 
+            else if(args[i].contentEquals("-text") && args.length >= (i+1) )
+              setTextFile(args[++i]);
             
-            if(args[i].contentEquals("-revision") && args.length >= (i+1) )
-              wikiCleaner.setRevisionFile(args[++i]);
+            else if(args[i].contentEquals("-page") && args.length >= (i+1) )
+              setPageFile(args[++i]); 
+            
+            else if(args[i].contentEquals("-revision") && args.length >= (i+1) )
+              setRevisionFile(args[++i]);
             
             // From here the arguments are optional
-            if(args[i].contentEquals("-minPage") && args.length >= (i+1) )
-                wikiCleaner.setMinPageLength(Integer.parseInt(args[++i]));
+            else if(args[i].contentEquals("-minPage") && args.length >= (i+1) )
+              setMinPageLength(Integer.parseInt(args[++i]));
             
-            if(args[i].contentEquals("-minText") && args.length >= (i+1) )
-                wikiCleaner.setMinTextLength(Integer.parseInt(args[++i]));
+            else if(args[i].contentEquals("-minText") && args.length >= (i+1) )
+              setMinTextLength(Integer.parseInt(args[++i]));
             
-            if(args[i].contentEquals("-maxText") && args.length >= (i+1) )
-                wikiCleaner.setMaxTextLength(Integer.parseInt(args[++i]));
+            else if(args[i].contentEquals("-maxText") && args.length >= (i+1) )
+             setMaxTextLength(Integer.parseInt(args[++i]));
             
-            if(args[i].contentEquals("-log") && args.length >= (i+1) )
-                wikiCleaner.setWikiLog(args[++i]);
+            else if(args[i].contentEquals("-log") && args.length >= (i+1) )
+              setWikiLog(args[++i]);
             
-            if(args[i].contentEquals("-debugPageId") && args.length >= (i+1) )
-                wikiCleaner.setTestId(args[++i]);
+            else if(args[i].contentEquals("-debugPageId") && args.length >= (i+1) )
+             setTestId(args[++i]);
             
-            if(args[i].contentEquals("-debug") )
-              debug=true;
+            else if(args[i].contentEquals("-debug") )
+              setDebug(true);
            
             // Use this variable to save time NOT loading wiki tables, they must already exist in the DB
-            if(args[i].contentEquals("-noLoadWikiTables") )
-                wikiCleaner.setLoadWikiTables(false);
+            else if(args[i].contentEquals("-noLoadWikiTables") )
+              setLoadWikiTables(false);
             
             //Use this variable to do not create a new cleanText table, but adding to an already existing cleanText table.
-            if(args[i].contentEquals("-noDeleteCleanTextTable") )
-                wikiCleaner.setDeleteCleanTextTable(false);
+            else if(args[i].contentEquals("-noDeleteCleanTextTable") )
+              setDeleteCleanTextTable(false);
+            
+            else { //unknown argument
+                System.out.println("\nOption not known: " + args[i]);
+                System.out.println(help);
+                return false;
+              }
             
           }
-          
-          wikiCleaner.printParameters();
-          
-          if(wikiCleaner.getTestId() != null)
-            wikiCleaner.processWikipediaSQLTablesDebug();
-          else
-            wikiCleaner.processWikipediaSQLTables();
-          
-          
-        } else
+       } else { // num arguments less than 16
           System.out.println(help);
+          return false;
+        }
+        
+      return true;  
     }
 
+    
+    public static void main(String[] args) throws Exception{
+        
+        
+        WikipediaMarkupCleaner wikiCleaner = new WikipediaMarkupCleaner(); 
+        
+        /* check the arguments */
+        if (!wikiCleaner.readArgs(args))
+            return;
+        
+        wikiCleaner.printParameters();
+        
+        if(wikiCleaner.getTestId() != null)
+          wikiCleaner.processWikipediaSQLTablesDebug();
+        else
+          wikiCleaner.processWikipediaSQLTables();
+        
+        
+    }
+    
+    
    }

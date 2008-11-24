@@ -65,6 +65,8 @@ import marytts.features.FeatureDefinition;
  */
 public class CoverageDefinition{
 
+    // locale
+    private String locale="en_US";  // default en_US
     private int trueNumSentences;
     /* cover sets for simple and clustered diphones */
     private CoverNode simpleCover;
@@ -337,7 +339,7 @@ public class CoverageDefinition{
         buildCover();
 
         
-        DBHandler wikiToDB = new DBHandler();
+        DBHandler wikiToDB = new DBHandler(locale);
         wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");    
         
         //wikiToDB.createDBConnection("penguin.dfki.uni-sb.de","MaryDBSelector","MaryDBSel_user","1iyhyvwq");
