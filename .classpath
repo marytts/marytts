@@ -34,5 +34,6 @@
 	<classpathentry kind="lib" path="java/maxent-2.5.1.jar"/>
 	<classpathentry kind="lib" path="java/opennlp-tools-1.4.1.jar"/>
 	<classpathentry kind="lib" path="java/trove.jar"/>
+	<classpathentry kind="lib" path="java/commons-lang-2.4.jar"/>
 	<classpathentry kind="output" path="java"/>
 </classpath>
