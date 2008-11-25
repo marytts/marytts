@@ -172,15 +172,14 @@ import org.apache.log4j.Logger;
  * The optional AUDIO=AUDIOTYPE specifies the type of audio file
  * to be sent for audio output. Possible values are:
  * <ul>
- *   <li> WAVE </li>
- *   <li> AU </li>
- *   <li> SND </li>
+ *   <li> WAVE_FILE </li>
+ *   <li> AU_FILE </li>
  *   <li> AIFF </li>
- *   <li> AIFC </li>
- *   <li> MP3 </li>
- *   <li> Vorbis </li>
- *   <li> STREAMING_AU</li>
- *   <li> STREAMING_MP3</li>
+ *   <li> AIFC_FILE </li>
+ *   <li> MP3_FILE </li>
+ *   <li> Vorbis_FILE </li>
+ *   <li> AU_STREAM</li>
+ *   <li> MP3_STREAM</li>
  * </ul>
  * <p>
  * The optional VOICE=VOICENAME specifies the default voice with which
@@ -285,7 +284,7 @@ public class MaryHttpServer {
         handler.setEventListener(new EventLogger());
 
         IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(handler, params);
-        ListeningIOReactor ioReactor = new DefaultListeningIOReactor(2, params);
+        ListeningIOReactor ioReactor = new DefaultListeningIOReactor(6, params);
         
         logger.info("Waiting for client to connect on port " + localPort);
         

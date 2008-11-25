@@ -30,15 +30,19 @@
 package marytts.server.http;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -46,14 +50,18 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.apache.http.HttpResponse;
+import org.apache.log4j.Logger;
 
 import marytts.client.http.MaryHtmlForm;
 import marytts.client.http.MaryHttpClientUtils;
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
+import marytts.server.RequestHandler.StreamingOutputPiper;
+import marytts.server.RequestHandler.StreamingOutputWriter;
 import marytts.util.ConversionUtils;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
+import marytts.util.io.LoggingReader;
 import marytts.util.string.StringUtils;
 
 /**
@@ -62,18 +70,22 @@ import marytts.util.string.StringUtils;
  */
 public class SynthesisRequestProcessor extends BaselineRequestProcessor {
 
+    private StreamingOutputWriter outputToStream;
+    private StreamingOutputPiper streamToPipe;
+    private PipedOutputStream pipedOutput;
+    private PipedInputStream pipedInput;
+    
     public SynthesisRequestProcessor()
     {
         super();
-        
-        //Add extra initialisations here
+
+        outputToStream = null;
+        streamToPipe = null;
+        pipedOutput = null;
+        pipedInput = null;
     }
-    
-    public void process(Address serverAddressAtClient, 
-                                      Map<String, String> keyValuePairs, 
-                                      String responseID,
-                                      HttpResponse response
-                                      ) throws Exception
+
+    public void process(Address serverAddressAtClient, Map<String, String> keyValuePairs, String responseID, HttpResponse response) throws Exception
     {
         RequestHttp request = null;
         if (keyValuePairs.get("SYNTHESIS_OUTPUT").compareTo("?")==0 || keyValuePairs.get("SYNTHESIS_OUTPUT").compareTo("PENDING")==0) 
@@ -85,39 +97,39 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
 
             AudioFileFormat.Type audioFileFormatType = null;
             boolean streamingAudio = false;
-            
+
             //INPUT
             helper = keyValuePairs.get("INPUT_TYPE");
             if (helper==null)
                 throw new Exception("Expected INPUT_TYPE=<input>");
-            
+
             MaryDataType inputType = MaryDataType.get(helper);
             if (inputType == null) {
                 throw new Exception("Invalid input type: " + helper);
             }
             //
-            
+
             //OUTPUT
             helper = keyValuePairs.get("OUTPUT_TYPE");
             if (helper==null)
                 throw new Exception("Expected OUTPUT_TYPE=<output>");
-            
+
             MaryDataType outputType = MaryDataType.get(helper);
             if (outputType == null) {
                 throw new Exception("Invalid output type: " + keyValuePairs.get("OUTPUT_TYPE"));
             }
-            
+
             boolean isOutputText = true;
             if (outputType.name().contains("AUDIO"))
                 isOutputText = false;
             //
-            
+
             //LOCALE
             Locale locale = MaryUtils.string2locale(keyValuePairs.get("LOCALE"));
             if (locale==null)
                 throw new Exception("Expected LOCALE=<locale>");
             //
-            
+
             //AUDIO
             helper = keyValuePairs.get("AUDIO");
             if (helper==null) //no AUDIO field
@@ -128,14 +140,18 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
             else
             {
                 // The value of AUDIO=
-                String streaming = "STREAMING_";
-                if (helper.startsWith(streaming)) 
-                {
+                int scoreInd = helper.indexOf('_');
+                if (helper.endsWith("_STREAM")) 
                     streamingAudio = true;
-                    audioFileFormatType = MaryAudioUtils.getAudioFileFormatType(helper.substring(streaming.length()));
-                } 
+                else if (helper.endsWith("_FILE"))
+                    streamingAudio = false; 
                 else
-                    audioFileFormatType = MaryAudioUtils.getAudioFileFormatType(helper);    
+                {
+                    scoreInd = helper.length();
+                    streamingAudio = false; 
+                }
+                
+                audioFileFormatType = MaryAudioUtils.getAudioFileFormatType(helper.substring(0, scoreInd));
             }
             //
 
@@ -156,7 +172,7 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
                     // Plain old voice name
                     voice = Voice.getVoice(voiceName);
                 }
-                
+
                 if (voice == null) 
                     throw new Exception("No voice matches `" + voiceName + "'. Use a different voice name or remove VOICE= tag from request.");
             }
@@ -181,7 +197,7 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
                 logger.debug("No style requested");
             }
             //
-                
+
             //Optional: Audio effects
             effects = toRequestedAudioEffectsString(keyValuePairs);
 
@@ -205,13 +221,18 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
                 audioFileFormatType = AudioFileFormat.Type.AU;
             }
             AudioFormat audioFormat = voice.dbAudioFormat();
-            if (audioFileFormatType.toString().equals("MP3")) {
+            if (audioFileFormatType.toString().equals("MP3")) 
+            {
                 if (!MaryAudioUtils.canCreateMP3())
                     throw new UnsupportedAudioFileException("Conversion to MP3 not supported.");
+                
                 audioFormat = MaryAudioUtils.getMP3AudioFormat();
-            } else if (audioFileFormatType.toString().equals("Vorbis")) {
+            } 
+            else if (audioFileFormatType.toString().equals("Vorbis")) 
+            {
                 if (!MaryAudioUtils.canCreateOgg())
                     throw new UnsupportedAudioFileException("Conversion to OGG Vorbis format not supported.");
+                
                 audioFormat = MaryAudioUtils.getOggAudioFormat();
             }
             audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
@@ -219,26 +240,238 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
             request = new RequestHttp(inputType, outputType, locale, voice, effects, style, audioFileFormat, streamingAudio);
 
             //Send off to new request
-            String inputText = keyValuePairs.get("INPUT_TEXT");
-            BufferedReader reader = new BufferedReader(new StringReader(inputText));
-            boolean isStreamingToWebBrowserClient = (keyValuePairs.get("SYNTHESIS_OUTPUT").compareTo("PENDING")==0) ? true : false;
-            RequestHttpHandler rh = new RequestHttpHandler(request, response, reader,
-                                        serverAddressAtClient,
-                                        keyValuePairs,
-                                        getMaryVersion(),
-                                        getVoices(),
-                                        getDataTypes(),
-                                        getAudioFileFormatTypes(),
-                                        getAudioEffectHelpTextLineBreak(),
-                                        getDefaultAudioEffects(),
-                                        getDefaultVoiceExampleTexts(),
-                                        responseID,
-                                        isStreamingToWebBrowserClient);
-
-            rh.start();
+            boolean isWebBrowserClient = false;
+            if (keyValuePairs!=null)
+            {
+                String tmpVal = keyValuePairs.get("WEB_BROWSER_CLIENT");
+                if (tmpVal!=null && tmpVal.compareTo("true")==0)
+                    isWebBrowserClient = true;
+            }
             
-            //TO DO (Very important!): We need to find a way to remove this. Otherwise the Http server works in single thread mode
-            rh.join();
+            boolean isSecondCall = false;
+            String tmpVal = keyValuePairs.get("SYNTHESIS_OUTPUT");
+            if (tmpVal!=null && tmpVal.compareTo("PENDING")==0)
+                isSecondCall = true;
+
+            boolean ok = false;
+            if (isWebBrowserClient && !isSecondCall)
+                ok = handleWebBrowserClientFirstRequest(request, response, serverAddressAtClient, keyValuePairs, responseID);
+            else
+                ok = handleClientRequest(request, response, keyValuePairs);
+            
+            if (ok)
+                logger.info("Request handled successfully.");
+            else
+                logger.info("Request couldn't be handled successfully.");
+            if (MaryUtils.lowMemoryCondition()) 
+            {
+                logger.info("Low memory condition detected (only " + MaryUtils.availableMemory() + " bytes left). Triggering garbage collection.");
+                Runtime.getRuntime().gc();
+                logger.info("After garbage collection: " + MaryUtils.availableMemory() + " bytes available.");
+            }
         }  
+    }
+
+    //This function handles request with immediate response to web browser clients
+    //and first stage of two-staged responses, i.e. sending audio to web browser clients
+    public boolean handleWebBrowserClientFirstRequest(RequestHttp request, 
+                                                      HttpResponse response, 
+                                                      Address serverAddressAtClient, 
+                                                      Map<String, String> keyValuePairs, 
+                                                      String responseID) throws IOException, InterruptedException 
+    {
+        if (request == null)
+            throw new NullPointerException("Cannot handle null request");
+
+        String inputText = keyValuePairs.get("INPUT_TEXT");
+        Reader reader = new LoggingReader(new BufferedReader(new StringReader(inputText)), logger);
+
+        outputToStream = null;
+        streamToPipe = null;
+        pipedOutput = null;
+        pipedInput = null;
+        
+        boolean ok = true;
+        // tasks:
+        // * read the input according to its type
+        // * determine which modules are needed
+        // * in turn, write to and read from each module according to data type
+        // * for non-streaming output: write output according to its type
+        // * for streaming output: 
+        //       write the output to a pipe and put the pipe input into an http response entity
+        //       for direct access by the http client
+        try {
+            request.readInputData(reader);
+        } catch (Exception e) {
+            String message = "Problem reading input";
+            logger.warn(message, e);
+            ok = false;
+        }
+
+        boolean streamingOutput = false;
+        boolean isSecondCallRequired = false;
+        if (request.getOutputType().equals(MaryDataType.get("AUDIO")))
+            isSecondCallRequired = true;
+
+        // Process input data to output data
+        if (ok)
+        {        
+            try 
+            {
+                if (request.getOutputType().equals(MaryDataType.get("AUDIO"))==false) 
+                    request.process();
+            } 
+            catch (Throwable e) 
+            {
+                String message = "Processing failed.";
+                logger.error(message, e);
+                ok = false;
+            }
+        }
+
+        // Write output
+        String synthesisStatus = "FAILED";
+        ByteArrayOutputStream outputStream = null;
+
+        if (isSecondCallRequired) //Synthesis result will be kept for the next call
+            synthesisStatus = "PENDING";
+        else //Synthesis result will be sent by the end of this call
+        {
+            outputStream = new ByteArrayOutputStream();
+            try 
+            {
+                request.writeOutputData(outputStream);
+                synthesisStatus = "DONE";
+            } 
+            catch (Exception e) 
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                synthesisStatus = "FAILED";
+            }
+        }
+        
+        keyValuePairs.put("SYNTHESIS_OUTPUT", synthesisStatus);
+
+        MaryHtmlForm htmlForm = new MaryHtmlForm(serverAddressAtClient,
+                keyValuePairs,
+                getMaryVersion(),
+                getVoices(),
+                getDataTypes(),
+                getAudioFileFormatTypes(),
+                getAudioEffectHelpTextLineBreak(),
+                getDefaultAudioEffects(),
+                getDefaultVoiceExampleTexts());
+
+        if (htmlForm!=null)
+        {
+            if (!request.getOutputType().equals(MaryDataType.get("AUDIO"))) //Non-audio output to web browser client
+            {
+                if (outputStream!=null)
+                    htmlForm.outputText = ConversionUtils.toString(outputStream.toByteArray());
+                else
+                    htmlForm.outputText = "Cannot convert this type of input to selected output...";
+            }
+            else //Initiate audio output request in web browser client for second request
+                htmlForm.outputAudioResponseID = String.valueOf(responseID) + "." + request.getAudioFileFormat().getType().getExtension();  
+        }
+        else  //There was something wrong, call the default page
+        {
+            htmlForm = new MaryHtmlForm(serverAddressAtClient,
+                    keyValuePairs,
+                    getMaryVersion(),
+                    getVoices(),
+                    getDataTypes(),
+                    getAudioFileFormatTypes(),
+                    getAudioEffectHelpTextLineBreak(),
+                    getDefaultAudioEffects(),
+                    getDefaultVoiceExampleTexts());
+        }
+
+        MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
+        webHttpClient.toHttpResponse(htmlForm, response); //Send the html page
+
+        return ok;
+    }
+    
+    public boolean handleClientRequest(RequestHttp request, 
+                                    HttpResponse response, 
+                                    Map<String, String> keyValuePairs) throws Exception 
+    {
+        if (request == null)
+            throw new NullPointerException("Cannot handle null request");
+
+        String inputText = keyValuePairs.get("INPUT_TEXT");
+        Reader reader = new LoggingReader(new BufferedReader(new StringReader(inputText)), logger);
+
+        outputToStream = null;
+        streamToPipe = null;
+        pipedOutput = null;
+        pipedInput = null;
+        
+        boolean ok = true;
+        // tasks:
+        // * read the input according to its type
+        // * determine which modules are needed
+        // * in turn, write to and read from each module according to data type
+        // * write output according to its type
+
+        try {
+            request.readInputData(reader);
+        } catch (Exception e) {
+            String message = "Problem reading input";
+            logger.warn(message, e);
+            ok = false;
+        }
+
+        boolean streamingOutput = false;
+
+        // Process input data to output data
+        if (ok)
+        {
+            try 
+            {
+                if (request.getOutputType().equals(MaryDataType.get("AUDIO")) && request.getStreamAudio()) 
+                {
+                    streamingOutput = true;
+
+                    pipedOutput = new PipedOutputStream();
+                    pipedInput = new PipedInputStream(pipedOutput);
+                    outputToStream = new StreamingOutputWriter(request, pipedOutput);
+
+                    //Pipe to an input stream
+                    String mimeType = MaryHttpServerUtils.getMimeType(request.getAudioFileFormat().getType());
+                    streamToPipe = new StreamingOutputPiper(pipedInput, response, mimeType); 
+                    outputToStream.start();
+                    streamToPipe.start();
+                }
+    
+                request.process();
+            } 
+            catch (Throwable e) 
+            {
+                String message = "Processing failed.";
+                logger.error(message, e);
+                ok = false;
+            }
+        }
+
+        // Write output
+        String synthesisStatus = "FAILED";
+        ByteArrayOutputStream outputStream = null;
+
+        if (ok) 
+        {  
+            if (!streamingOutput) //Non-streaming output
+                request.writeNonstreamingOutputData(response); 
+            else //Streaming output
+                streamToPipe.join();
+            
+            synthesisStatus = "DONE";
+        }   
+
+        keyValuePairs.put("SYNTHESIS_OUTPUT", synthesisStatus);
+
+        return ok;
     }
 }

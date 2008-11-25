@@ -122,7 +122,7 @@ public class MaryHttpServerUtils
         response.setStatusCode(status);
     }
 
-    public static String getMimeType(AudioFileFormat.Type audioType)
+    public static String getMimeType(AudioFileFormat.Type audioType) throws Exception
     {
         if (audioType == AudioFileFormat.Type.WAVE) {
             return "audio/x-wav";
@@ -132,7 +132,7 @@ public class MaryHttpServerUtils
                 || audioType == AudioFileFormat.Type.AIFC) {
             return "audio/x-aiff";
         } else if (audioType.equals(MaryAudioUtils.getAudioFileFormatType("MP3"))) {
-            return "audio/x-mp3";
+            return "audio/x-mpeg";  //"audio/x-mp3; //Does not work for Internet Explorer"
         }
         return "audio/basic"; // this is probably wrong but better than text/plain...
     }
