@@ -83,10 +83,11 @@ public class MaryHttpRequester
     private HttpParams params;
     private ConnectingIOReactor ioReactor;
     private BasicHttpProcessor httpproc;
+    private boolean beQuiet;
    
-    public MaryHttpRequester()
+    public MaryHttpRequester(boolean beQuiet)
     {
-
+        this.beQuiet = beQuiet;
     }
     
     public InputStream requestInputStream(Address hostAddress, Map<String, String> keyValuePairs) throws IOException, InterruptedException
@@ -133,7 +134,7 @@ public class MaryHttpRequester
         // I/O event and main threads
         CountDownLatch requestCount = new CountDownLatch(1);
         
-        MaryHttpRequestExecutionHandler maryReqExeHandler = new MaryHttpRequestExecutionHandler(requestCount);
+        MaryHttpRequestExecutionHandler maryReqExeHandler = new MaryHttpRequestExecutionHandler(requestCount, beQuiet);
         
         BufferingHttpClientHandler handler = new BufferingHttpClientHandler(
                 httpproc,
@@ -141,7 +142,7 @@ public class MaryHttpRequester
                 new DefaultConnectionReuseStrategy(),
                 params);
 
-        handler.setEventListener(new EventLogger());
+        handler.setEventListener(new EventLogger(beQuiet));
         
         final IOEventDispatch ioEventDispatch = new DefaultClientIOEventDispatch(handler, params);
         
@@ -151,11 +152,14 @@ public class MaryHttpRequester
                 try {
                     ioReactor.execute(ioEventDispatch);
                 } catch (InterruptedIOException ex) {
-                    System.err.println("Interrupted");
+                    if(!beQuiet)
+                        System.err.println("Interrupted");
                 } catch (IOException e) {
-                    System.err.println("I/O error: " + e.getMessage());
+                    if(!beQuiet)
+                        System.err.println("I/O error: " + e.getMessage());
                 }
-                System.out.println("Shutdown");
+                if(!beQuiet)
+                    System.out.println("Shutdown");
             }
         });
         t.start();
@@ -182,10 +186,12 @@ public class MaryHttpRequester
         private final static String RESPONSE_RECEIVED  = "response-received";
         
         private final CountDownLatch requestCount;
+        private boolean beQuiet;
         
-        public MaryHttpRequestExecutionHandler(final CountDownLatch requestCount) {
+        public MaryHttpRequestExecutionHandler(final CountDownLatch requestCount, boolean beQuiet) {
             super();
             this.requestCount = requestCount;
+            this.beQuiet = beQuiet;
         }
         
         public void initalizeContext(final HttpContext context, final Object attachment) {
@@ -209,9 +215,12 @@ public class MaryHttpRequester
                 // Stick some object into the context
                 context.setAttribute(REQUEST_SENT, Boolean.TRUE);
 
-                System.out.println("--------------");
-                System.out.println("Sending request from client to server " + targetHost.toURI());
-                System.out.println("--------------");
+                if(!beQuiet)
+                {
+                    System.out.println("--------------");
+                    System.out.println("Sending request from client to server " + targetHost.toURI());
+                    System.out.println("--------------");
+                }
                
                 BasicRequestLine requestLine = new BasicRequestLine("GET", targetHost.toURI(), HttpVersion.HTTP_1_1);
                 //BasicRequestLine requestLine = new BasicRequestLine("POST", targetHost.toURI(), HttpVersion.HTTP_1_1);
@@ -262,24 +271,40 @@ public class MaryHttpRequester
     
     static class EventLogger implements EventListener 
     {
-        public void connectionOpen(final NHttpConnection conn) {
-            System.out.println("Connection open: " + conn);
+        private boolean beQuiet;
+        public EventLogger(boolean beQuiet)
+        {
+            this.beQuiet = beQuiet;
+        }
+        
+        public void connectionOpen(final NHttpConnection conn) 
+        {
+            if(!beQuiet)
+                System.out.println("Connection open: " + conn);
         }
 
-        public void connectionTimeout(final NHttpConnection conn) {
-            System.out.println("Connection timed out: " + conn);
+        public void connectionTimeout(final NHttpConnection conn) 
+        {
+            if(!beQuiet)
+                System.out.println("Connection timed out: " + conn);
         }
 
-        public void connectionClosed(final NHttpConnection conn) {
-            System.out.println("Connection closed: " + conn);
+        public void connectionClosed(final NHttpConnection conn) 
+        {
+            if(!beQuiet)
+                System.out.println("Connection closed: " + conn);
         }
 
-        public void fatalIOException(final IOException ex, final NHttpConnection conn) {
-            System.err.println("I/O error: " + ex.getMessage());
+        public void fatalIOException(final IOException ex, final NHttpConnection conn) 
+        {
+            if(!beQuiet)
+                System.err.println("I/O error: " + ex.getMessage());
         }
 
-        public void fatalProtocolException(final HttpException ex, final NHttpConnection conn) {
-            System.err.println("HTTP error: " + ex.getMessage());
+        public void fatalProtocolException(final HttpException ex, final NHttpConnection conn) 
+        {
+            if(!beQuiet)
+                System.err.println("HTTP error: " + ex.getMessage());
         }   
     }
 }
