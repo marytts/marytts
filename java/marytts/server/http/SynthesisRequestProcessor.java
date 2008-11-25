@@ -272,8 +272,6 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
         }  
     }
 
-    //This function handles request with immediate response to web browser clients
-    //and first stage of two-staged responses, i.e. sending audio to web browser clients
     public boolean handleWebBrowserClientFirstRequest(RequestHttp request, 
                                                       HttpResponse response, 
                                                       Address serverAddressAtClient, 
