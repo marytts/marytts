@@ -86,22 +86,24 @@ public class MaryAudioUtils {
      * In addition to the built-in types, this can deal with MP3
      * supported by tritonus.
      */
-    public static AudioFileFormat.Type getAudioFileFormatType(String name)
+    public static AudioFileFormat.Type getAudioFileFormatType(String name) throws Exception
     {
         AudioFileFormat.Type at;
-        if (name.equals("MP3")) {
+        if (name.equals("MP3")) 
+        {
             // Supported by tritonus plugin
             at = AudioFileTypes.getType("MP3", "mp3");
-        } else if (name.equals("Vorbis")) {
+        } 
+        else if (name.equals("Vorbis")) 
+        {
             // supported by tritonus plugin
             at = new AudioFileFormat.Type("Vorbis", "ogg");
-        } else {
-            try {
-                at = (AudioFileFormat.Type) AudioFileFormat.Type.class.getField(name).get(null);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Invalid audio type: " + name);
-            }
+        } 
+        else 
+        {
+            at = (AudioFileFormat.Type) AudioFileFormat.Type.class.getField(name).get(null);
         }
+        
         return at;
     }
 

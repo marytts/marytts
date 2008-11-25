@@ -40,8 +40,13 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.AudioFileFormat.Type;
+
 import marytts.client.AudioEffectsBoxData;
 import marytts.server.http.Address;
+import marytts.util.MaryUtils;
+import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.string.StringUtils;
 
@@ -75,14 +80,17 @@ public class MaryHtmlForm {
     public Map<String, String> voiceExampleTextsLimitedDomain;
     public Map<String, String> voiceExampleTextsGeneralDomain;
     public Map<String, String> audioEffectHelpTextsMap;
-    public String[] audioFileFormatTypes;
+    public Vector<String> audioFileFormatTypes;
+    public Vector<String> audioOutTypes;
     public String inputText;
     public String outputText;
+    public String errorMessage;
     public boolean isOutputText;
     public int voiceSelected;
     public int inputTypeSelected;
     public int outputTypeSelected;
     public int audioFormatSelected;
+    public int audioOutSelected;
     public int limitedDomainExampleTextSelected;
     public String audioEffects;
     public String audioEffectsHelpTextLineBreak;
@@ -93,6 +101,7 @@ public class MaryHtmlForm {
     public Map<String, String> keyValuePairs; //Key-Value pairs for communication with server
     
     public String outputAudioResponseID; //output audio file for web browser client
+    public String mimeType; //MIME type for output audio (web browser clients)
     
     public MaryHtmlForm() throws IOException, InterruptedException
     {
@@ -157,6 +166,7 @@ public class MaryHtmlForm {
                      Vector<String> defaultVoiceExampleTexts) throws IOException, InterruptedException
    {
         outputAudioResponseID = "";
+        mimeType = "";
         httpRequester = new MaryHttpRequester();
         hostAddress = null;
         serverVersionInfo = null;
@@ -175,6 +185,7 @@ public class MaryHtmlForm {
         voiceExampleTextsGeneralDomain = new HashMap<String, String>();
         audioEffectHelpTextsMap = new HashMap<String, String>();
         audioFileFormatTypes = null;
+        audioOutTypes = null;
         inputText = "";
         outputText = "";
         isOutputText = false;
@@ -182,6 +193,7 @@ public class MaryHtmlForm {
         inputTypeSelected = 0;
         outputTypeSelected = 0;
         audioFormatSelected = 0;
+        audioOutSelected = 0;
         limitedDomainExampleTextSelected = 0;
         audioEffects = "";
         audioEffectsHelpTextLineBreak = "";
@@ -194,7 +206,7 @@ public class MaryHtmlForm {
         toServerVersionInfo(versionIn);
         toVoices(voicesIn);
         toDataTypes(dataTypesIn);
-        toAudioFileFormatTypes(audioFileFormatTypesIn);
+        toAudioFileFormatAndOutTypes(audioFileFormatTypesIn);
         toAudioEffectsHelpTextLineBreak(audioEffectHelpTextLineBreakIn);
         toAudioEffects(defaultAudioEffects);
         toSelections(keyValuePairsIn, defaultVoiceExampleTexts);
@@ -352,12 +364,48 @@ public class MaryHtmlForm {
         }
     }
     
-    public void toAudioFileFormatTypes(String info)
+    public void toAudioFileFormatAndOutTypes(String info)
     {
+        audioFileFormatTypes = null;
+        audioOutTypes = null;
+        
+        String[] allTypes = null;
+        int spaceInd;
+        
         if (info!=null && info.length()>0)
-            audioFileFormatTypes = StringUtils.toStringArray(info);
-        else
-            audioFileFormatTypes = null;
+            allTypes = StringUtils.toStringArray(info);
+        
+        if (allTypes!=null)
+        {
+            for (int i=0; i<allTypes.length; i++)
+            { 
+                spaceInd = allTypes[i].indexOf(' ');
+                String typeName = allTypes[i].substring(spaceInd+1);
+                Type audioType = null;
+                boolean isSupported = true;
+                try {
+                    audioType = MaryAudioUtils.getAudioFileFormatType(typeName);
+                } catch (Exception e) {
+                    isSupported = false;
+                }
+
+                if (audioType!=null && AudioSystem.isFileTypeSupported(audioType))
+                {
+                    if (audioFileFormatTypes==null)
+                        audioFileFormatTypes=new Vector<String>();
+                    
+                    audioFileFormatTypes.add(allTypes[i]);
+                    
+                    if (audioOutTypes==null)
+                        audioOutTypes=new Vector<String>();
+                    
+                    audioOutTypes.add(typeName + "_FILE");
+                    
+                    if (typeName.compareTo("MP3")==0)
+                        audioOutTypes.add(typeName + "_STREAM");
+                }
+            }   
+        }
     }
     
     public void toAudioEffectsHelpTextLineBreak(String strLineBreak)
@@ -523,18 +571,33 @@ public class MaryHtmlForm {
             }
             //
         
-            //Audio format selected
-            selected = keyValuePairs.get("AUDIO_FORMAT");
+            //Audio out format selected:
+            //The clients can send audio format in two ways:
+            selected = keyValuePairs.get("AUDIO_OUT");
+            
             int spaceInd;
+            int scoreInd;
             if (selected!=null)
             {
-                for (i=0; i<audioFileFormatTypes.length; i++)
+                scoreInd = selected.indexOf('_');
+                String selectedTypeName = selected.substring(scoreInd+1);
+                for (i=0; i<audioFileFormatTypes.size(); i++)
                 {
-                    spaceInd = audioFileFormatTypes[i].indexOf(' ');
-                    String typeName = audioFileFormatTypes[i].substring(spaceInd+1);
+                    spaceInd = audioFileFormatTypes.get(i).indexOf(' ');
+                    String typeName = audioFileFormatTypes.get(i).substring(spaceInd+1);
                     if (typeName.compareTo(selected)==0)
                     {
                         audioFormatSelected = i;
+                        break;
+                    }
+                }
+                
+                for (i=0; i<audioOutTypes.size(); i++)
+                {
+                    String typeName = audioOutTypes.get(i);
+                    if (typeName.compareTo(selected)==0)
+                    {
+                        audioOutSelected = i;
                         break;
                     }
                 }
@@ -647,14 +710,12 @@ public class MaryHtmlForm {
         keyValuePairs.put("LOCALE", locale);
         
         if (audioType != null)
-            keyValuePairs.put("AUDIO", ( (streamingAudio && serverCanStream) ? ("STREAMING_"+audioType) : (audioType) ) );
+            keyValuePairs.put("AUDIO", ( (streamingAudio && serverCanStream) ? (audioType+"_STREAM") : (audioType+"_FILE") ) );
         
         if (defaultVoiceName != null) 
             keyValuePairs.put("VOICE", defaultVoiceName);
         
         keyValuePairs.put("STYLE", defaultStyle);
-        
-        //keyValuePairs.put("EFFECTS", defaultEffects);
         
         if (effects!=null)
             keyValuePairs.putAll(effects);
@@ -1027,23 +1088,31 @@ public class MaryHtmlForm {
      * @throws IOException
      * @throws UnknownHostException
      */
-    public String[] getAudioFileFormatTypes() throws IOException, InterruptedException
+    public Vector<String> getAudioFileFormatTypes() throws IOException, InterruptedException
     {
-        fillAudioFileFormatTypes();
+        fillAudioFileFormatAndOutTypes();
 
         return audioFileFormatTypes;
     }
     
-    protected void fillAudioFileFormatTypes()  throws IOException, InterruptedException
+    public Vector<String> getAudioOutTypes() throws IOException, InterruptedException
     {
-        if (audioFileFormatTypes == null) 
-            toAudioFileFormatTypes(getFromServer("AUDIO_FILE_FORMAT_TYPES"));  
+        fillAudioFileFormatAndOutTypes();
+
+        return audioOutTypes;
+    }
+    
+    protected void fillAudioFileFormatAndOutTypes()  throws IOException, InterruptedException
+    {
+        if (audioFileFormatTypes==null || audioOutTypes==null) 
+            toAudioFileFormatAndOutTypes(getFromServer("AUDIO_FILE_FORMAT_TYPES"));  
     }
     
     //Check if all selections are appropriately made, i.e. no array bounds exceeded etc
     public void checkAndCorrectSelections()
     {
-        audioFormatSelected = MathUtils.CheckLimits(audioFormatSelected, 0, audioFileFormatTypes.length-1);
+        audioFormatSelected = MathUtils.CheckLimits(audioFormatSelected, 0, audioFileFormatTypes.size()-1);
+        audioOutSelected = MathUtils.CheckLimits(audioOutSelected, 0, audioOutTypes.size()-1);
         inputTypeSelected = MathUtils.CheckLimits(inputTypeSelected, 0, inputDataTypes.size()-1);
         outputTypeSelected = MathUtils.CheckLimits(outputTypeSelected, 0, outputDataTypes.size()-1);
         voiceSelected = MathUtils.CheckLimits(voiceSelected, 0, allVoices.size()-1);

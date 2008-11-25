@@ -110,7 +110,7 @@ public class RequestHttp extends Request
         try {
             outputData.writeTo(os);
         } catch (Exception e) {
-            //timer.cancel();
+            timer.cancel();
             throw e;
         }
         

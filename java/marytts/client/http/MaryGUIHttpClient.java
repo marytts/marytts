@@ -1022,14 +1022,14 @@ public class MaryGUIHttpClient extends JPanel
                 if (lastDirectory != null) {
                     fc.setCurrentDirectory(lastDirectory);
                 }
-                String[] knownAudioTypes = processor.getAudioFileFormatTypes();
-                String[] extensions = new String[knownAudioTypes.length];
-                String[] typeNames = new String[knownAudioTypes.length];
+                Vector<String> knownAudioTypes = processor.getAudioFileFormatTypes();
+                String[] extensions = new String[knownAudioTypes.size()];
+                String[] typeNames = new String[knownAudioTypes.size()];
                 FileFilter defaultFilter = null;
-                for (int i=0; i<knownAudioTypes.length; i++) {
-                    int iSpace = knownAudioTypes[i].indexOf(' ');
-                    extensions[i] = knownAudioTypes[i].substring(0, iSpace);
-                    typeNames[i] = knownAudioTypes[i].substring(iSpace+1);
+                for (int i=0; i<knownAudioTypes.size(); i++) {
+                    int iSpace = knownAudioTypes.get(i).indexOf(' ');
+                    extensions[i] = knownAudioTypes.get(i).substring(0, iSpace);
+                    typeNames[i] = knownAudioTypes.get(i).substring(iSpace+1);
                     FileFilter ff = new SimpleFileFilter(extensions[i],
                             typeNames[i] + " (." + extensions[i] + ")");
                     fc.addChoosableFileFilter(ff);
@@ -1051,7 +1051,7 @@ public class MaryGUIHttpClient extends JPanel
                     lastDirectory = saveFile.getParentFile();
                     lastExtension = ext;
                     String audioType = null;
-                    for (int i=0; i<knownAudioTypes.length; i++) {
+                    for (int i=0; i<knownAudioTypes.size(); i++) {
                         if (extensions[i].equals(ext)) {
                             audioType = typeNames[i];
                             break;
