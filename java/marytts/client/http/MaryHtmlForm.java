@@ -64,10 +64,13 @@ public class MaryHtmlForm {
     // Default values which can be overridden from the command line.
     private final String DEFAULT_HOST = "cling.dfki.uni-sb.de";
     private final int DEFAULT_PORT = 59125;
+    
     protected Address hostAddress = null;
     protected String serverVersionInfo = null;
     protected String serverVersionNo = "unknown";
     protected boolean serverCanStream = false;
+    
+    protected boolean beQuiet = false;
     
     public Vector<MaryHtmlForm.Voice> allVoices;
     public Map<Locale, Vector<MaryHtmlForm.Voice>> voicesByLocaleMap;
@@ -167,7 +170,7 @@ public class MaryHtmlForm {
    {
         outputAudioResponseID = "";
         mimeType = "";
-        httpRequester = new MaryHttpRequester();
+        httpRequester = new MaryHttpRequester(beQuiet);
         hostAddress = null;
         serverVersionInfo = null;
         serverVersionNo = "unknown";

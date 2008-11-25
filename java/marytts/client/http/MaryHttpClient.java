@@ -68,7 +68,6 @@ import marytts.server.http.Address;
 public class MaryHttpClient extends MaryHtmlForm {
     
     private boolean doProfile = false;
-    private boolean beQuiet = false;
 
     /**
      * The simplest way to create a mary client. It will connect to the
@@ -82,6 +81,15 @@ public class MaryHttpClient extends MaryHtmlForm {
         
         boolean profile = Boolean.getBoolean("mary.client.profile");
         boolean quiet = Boolean.getBoolean("mary.client.quiet");
+        
+        initialise(profile, quiet);
+    }
+    
+    public MaryHttpClient(boolean quiet) throws IOException, InterruptedException
+    {
+        super();
+        
+        boolean profile = Boolean.getBoolean("mary.client.profile");
         
         initialise(profile, quiet);
     }
