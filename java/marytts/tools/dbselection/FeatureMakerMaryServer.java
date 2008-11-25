@@ -80,15 +80,19 @@ import com.sun.speech.freetts.Utterance;
 public class FeatureMakerMaryServer{
     // locale
     private static String locale;
+    
+    //TODO: In the future we will not need this defaultVoice, with the locale should be enought to get
+    //      the corresponding default voice for each locale.
+    private static String defaultVoice;
+    
 	//the Mary Client connected to the server
-	protected static MaryClient mary;
-    //protected static MaryHttpClient mary;
+    protected static MaryHttpClient mary;
 	//stores result of credibility check for current sentence
 	protected static boolean usefulSentence;
     protected static boolean unknownWords;
     protected static boolean strangeSymbols;
     
-    //feature definition
+    //feature definition, features for selection and their indexes
 	protected static FeatureDefinition featDef;
     protected static Vector<String> selectionFeature;
     protected static int[] selectionFeatureIndex;
@@ -108,10 +112,10 @@ public class FeatureMakerMaryServer{
     
     protected static DBHandler wikiToDB;
     //  mySql database 
-    private static String mysqlHost;
-    private static String mysqlDB;
-    private static String mysqlUser;
-    private static String mysqlPasswd;
+    private static String mysqlHost=null;
+    private static String mysqlDB=null;
+    private static String mysqlUser=null;
+    private static String mysqlPasswd=null;
     
 	public static void main(String[] args)throws Exception{
 			
@@ -131,8 +135,8 @@ public class FeatureMakerMaryServer{
 		/* Start the Mary client */
 		System.setProperty("server.host", maryHost);
 		System.setProperty("server.port", maryPort);
-		//mary = new MaryHttpClient();
-        mary = new MaryClient();
+		mary = new MaryHttpClient();
+        //mary = new MaryClient();
 		
         /* Here the DB connection for reliable sentences is open */
          wikiToDB = new DBHandler(locale);
@@ -215,11 +219,11 @@ public class FeatureMakerMaryServer{
 	 */
 	protected static void printUsage(){
 		System.out.println("Usage:\n"
-				+"java FeatureMakerMaryServer -locale en_US -mysqlHost host -mysqlUser user -mysqlPasswd passwd -mysqlDB wikiDB\n"
-                +"  default/optional: [-maryHost localhost -maryPort 59125 -strictCredibility true]\n"
-                +"  optional: [-strictCredibility [strict|lax] -log logFileName]\n"
-                +"  optional: [-featuresForSelection phoneme,next_phoneme,selection_prosody,..] (features separated by ,) \n\n"
-            	+"  -credibility [strict|lax]: Setting that determnines what kind of sentences \n"
+				+"java FeatureMakerMaryServer -mysqlHost host -mysqlUser user -mysqlPasswd passwd -mysqlDB wikiDB\n"
+                +"  default/optional: [-maryHost localhost -maryPort 59125 -locale en_US -defaultVoice hmm-slt -strictCredibility true]\n"
+                +"  default/optional: [-featuresForSelection phoneme,next_phoneme,selection_prosody] (features separated by ,) \n"
+                +"  optional: [-strictCredibility [strict|lax] -log logFileName]\n\n"
+            	+"  -credibility [strict|lax]: Setting that determines what kind of sentences \n"
 				+"  are regarded as credible. There are two settings: strict and lax. With \n"
 				+"  setting strict, only those sentences that contain words in the lexicon \n"
 				+"  or words that were transcribed by the preprocessor are regarded as credible; \n"
@@ -230,9 +234,11 @@ public class FeatureMakerMaryServer{
 	
    private static void printParameters(){
         System.out.println("FeatureMakerMaryServer parameters:" +
-        "\n  -locale " + locale +        
+              
         "\n  -maryHost " + maryHost +
         "\n  -maryPort " + maryPort +
+        "\n  -locale " + locale +  
+        "\n  -defaultVoice " + defaultVoice +  
         "\n  -mysqlHost " + mysqlHost +
         "\n  -mysqlUser " + mysqlUser +
         "\n  -mysqlPasswd " + mysqlPasswd +
@@ -263,6 +269,7 @@ public class FeatureMakerMaryServer{
 		maryHost = "localhost";
 		maryPort = "59125";
         locale = "en_US";
+        defaultVoice = "hsmm-slt";
 		strictCredibility = true;
         featDef = null;
         selectionFeature = new Vector<String>();
@@ -271,12 +278,15 @@ public class FeatureMakerMaryServer{
         selectionFeature.add("selection_prosody");
         
 		//now parse the args
-        if (args.length >= 10){
+        if (args.length >= 8){
           for(int i=0; i<args.length; i++) { 
 			
             if (args[i].equals("-locale") && args.length>=i+1 )
               locale = args[++i];  
 			          
+            else if (args[i].equals("-defaultVoice") && args.length>=i+1 )
+                defaultVoice = args[++i]; 
+            
             else if (args[i].equals("-maryHost") && args.length>=i+1 )
               maryHost = args[++i];
             
@@ -329,6 +339,13 @@ public class FeatureMakerMaryServer{
 		} else  // arguments less than 10
 			return false;
 
+        if(mysqlHost==null || mysqlUser==null || mysqlPasswd==null || mysqlDB==null){
+           System.out.println("Missing mysql parameters.");
+           printParameters();
+           return false;
+        }
+          
+        
         printParameters();
 		return true;
 	}
@@ -351,11 +368,11 @@ public class FeatureMakerMaryServer{
 		try{                    
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			//process and dump
-			mary.process(nextSentence, "TEXT","TARGETFEATURES", "en_US", null, "hsmm-slt", os);
+			mary.process(nextSentence, "TEXT","TARGETFEATURES", locale, null, defaultVoice, os);
 			//read into mary data object                
 			//d = new MaryData(MaryDataType.get("TARGETFEATURES"), null);
             //d = new MaryData(MaryDataType.TARGETFEATURES, Locale.US);
-            d = new MaryData(MaryDataType.TARGETFEATURES, null);
+            d = new MaryData(MaryDataType.TARGETFEATURES, null);  // CHECK! how to get here the corresponding Locale for locale
             
 			d.readFrom(new ByteArrayInputStream(os.toByteArray()));			
 		} catch (Exception e){
@@ -627,12 +644,12 @@ public class FeatureMakerMaryServer{
 			try{
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 				//process and dump
-				mary.process(textString, "TEXT","PHONEMES", "en_US", null, "hsmm-slt", os);
+				mary.process(textString, "TEXT","PHONEMES", locale, null, defaultVoice, os);
                 
                 //read into mary data object                
 				//MaryData maryData = new MaryData(MaryDataType.PHONEMES, Locale.GERMAN);
                 //MaryData maryData = new MaryData(MaryDataType.PHONEMES, Locale.US);
-                MaryData maryData = new MaryData(MaryDataType.PHONEMES, Locale.US);
+                MaryData maryData = new MaryData(MaryDataType.PHONEMES, null); // CHECK! how to get here the corresponding Locale for locale
                 
 				maryData.readFrom(new ByteArrayInputStream(os.toByteArray()));
                

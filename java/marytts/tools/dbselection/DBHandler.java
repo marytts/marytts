@@ -242,22 +242,24 @@ public class DBHandler {
           boolean res1;
           int res2;
           // creating TABLE=text
-          System.out.println("\nCreating table:" + createTextTable);
+          //System.out.println("\nCreating table:" + createTextTable);
+          System.out.println("\nCreating table:" + locale + "_text");
           res1 = st.execute( createTextTable );         
           System.out.println("Loading sql file: " + textFile);
-          //int res2 = st.executeUpdate("SOURCE " + sourceSqlFile + ";");  // This does not work, i do not know??
           res2 = st.executeUpdate("LOAD DATA LOCAL INFILE '" + textFile + "' into table " + locale + "_text;");
           System.out.println("TABLE = " + locale + "_text succesfully created.");   
           
           // creating TABLE=page
-          System.out.println("\nCreating table:" + createPageTable);
+          //System.out.println("\nCreating table:" + createPageTable);
+          System.out.println("\nCreating table:" + locale + "_page");
           res1 = st.execute( createPageTable );         
           System.out.println("Loading sql file: " + pageFile);
           res2 = st.executeUpdate("LOAD DATA LOCAL INFILE '" + pageFile + "' into table " + locale + "_page;");
           System.out.println("TABLE = " + locale + "_page succesfully created.");  
           
           // creating TABLE=revision
-          System.out.println("\n\nCreating table:" + createRevisionTable);
+          //System.out.println("\n\nCreating table:" + createRevisionTable);
+          System.out.println("\nCreating table:" + locale + "_revision");
           res1 = st.execute( createRevisionTable );         
           System.out.println("Loading sql file: " + revisionFile);
           System.out.println("SOURCE " + revisionFile + ";" );
@@ -390,7 +392,8 @@ public class DBHandler {
           boolean res1;
           int res2;
           // creating TABLE=cleanText
-          System.out.println("\nCreating table:" + createCleanTextTable);
+          //System.out.println("\nCreating table:" + createCleanTextTable);
+          System.out.println("\nCreating table:" + cleanTextTableName);
           res1 = st.execute( createCleanTextTable );         
           System.out.println("TABLE = " + cleanTextTableName + " succesfully created.");
          
