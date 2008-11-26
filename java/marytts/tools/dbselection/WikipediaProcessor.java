@@ -310,7 +310,7 @@ public class WikipediaProcessor {
         Vector<String> filesDone;
         
         WikipediaProcessor wiki = new WikipediaProcessor(); 
-        WikipediaMarkupCleaner wikiCleaner = new WikipediaMarkupCleaner(); 
+       // WikipediaMarkupCleaner wikiCleaner = new WikipediaMarkupCleaner(); 
         
         /* check the arguments */
         if (!wiki.readArgs(args))
@@ -318,19 +318,7 @@ public class WikipediaProcessor {
         
         wiki.printParameters();
         
-        // Set parameters in the WikipediaMarkupCleaner
-        wikiCleaner.setDebug(false);
-        wikiCleaner.setDeleteCleanTextTable(false);
-        wikiCleaner.setLoadWikiTables(true);
-        wikiCleaner.setLocale(wiki.getLocale());
-        wikiCleaner.setMaxTextLength(wiki.getMaxTextLength());
-        wikiCleaner.setMinPageLength(wiki.getMinPageLength());
-        wikiCleaner.setMinTextLength(wiki.getMinTextLength());
-        wikiCleaner.setMysqlDB(wiki.getMysqlDB());
-        wikiCleaner.setMysqlHost(wiki.getMysqlHost());
-        wikiCleaner.setMysqlPasswd(wiki.getMysqlPasswd());
-        wikiCleaner.setMysqlUser(wiki.getMysqlUser());
-        
+       
         
         filesToProcess = wiki.getWikipediaFiles(wiki.getListFile());
         filesDone = wiki.getWikipediaFiles("./done.txt");
@@ -344,6 +332,22 @@ public class WikipediaProcessor {
                System.out.println("\n_______________________________________________________________________________"); 
                System.out.println("\nProcessing file:" + wFile);
                
+               WikipediaMarkupCleaner wikiCleaner = new WikipediaMarkupCleaner();
+               
+               // Set parameters in the WikipediaMarkupCleaner
+               wikiCleaner.setDebug(false);
+               wikiCleaner.setDeleteCleanTextTable(false);
+               wikiCleaner.setLoadWikiTables(true);
+               wikiCleaner.setLocale(wiki.getLocale());
+               wikiCleaner.setMaxTextLength(wiki.getMaxTextLength());
+               wikiCleaner.setMinPageLength(wiki.getMinPageLength());
+               wikiCleaner.setMinTextLength(wiki.getMinTextLength());
+               wikiCleaner.setMysqlDB(wiki.getMysqlDB());
+               wikiCleaner.setMysqlHost(wiki.getMysqlHost());
+               wikiCleaner.setMysqlPasswd(wiki.getMysqlPasswd());
+               wikiCleaner.setMysqlUser(wiki.getMysqlUser());
+               
+               
                // create the wikipedia files text, page and revision.
                cmdLine = wiki.getXml2SqlCommand() + " " + wFile; 
                System.out.println("Using command xml2sql to create files: text.txt, page.txt and revision.txt");
@@ -354,6 +358,8 @@ public class WikipediaProcessor {
                wikiCleaner.setPageFile("./page.txt");
                wikiCleaner.setRevisionFile("./revision.txt");
                wikiCleaner.processWikipediaSQLTables();
+               
+               wikiCleaner = null;
                
                // when finished
                wiki.setWikipediaFileDone("./done.txt", wFile);

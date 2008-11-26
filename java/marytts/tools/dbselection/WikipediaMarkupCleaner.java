@@ -898,7 +898,7 @@ public class WikipediaMarkupCleaner {
               w = w.substring(1, w.length());
                     
             if( w.length()>1 && StringUtils.isAlpha(w) && StringUtils.isNotBlank(w) 
-                             && StringUtils.isNotEmpty(w) ) {
+                             && StringUtils.isNotEmpty(w) && StringUtils.isAsciiPrintable(w)) {
               //System.out.print(w + " ");
               i = (Integer) wordList.get(w);
               // if key is not in the map then give it value one
@@ -915,29 +915,40 @@ public class WikipediaMarkupCleaner {
         sentences = null;
     }
     
-    public void printWordList(DBHandler wikiToDB, String fileName) {
-        
-        TreeMap<String, Integer> wl;
-        PrintWriter pw;
-        String key, value;
-        try{
-          pw = new PrintWriter(new FileWriter(new File(fileName)));
-          wl = wikiToDB.getWordListOrdered();
-          Iterator iterator = wl.keySet().iterator();
-
-          while (iterator.hasNext()) {
-             key = iterator.next().toString();
-             value = wl.get(key).toString();  
-             pw.println(key + " " + value);
-          } 
+    
+    public void updateWordList(DBHandler wikiToDB,  HashMap<String, Integer> wlNew){
+       String w;
+       HashMap<String, Integer> wlOld;
+       Integer freq;
+       Integer i;
+       
+       // Checking if word list exist
+       if( wikiToDB.tableExist(locale + "_wordList") ){
+         System.out.println("Updating " + locale + "_wordList from table....");
+         wlOld = wikiToDB.getMostFrequentWords(0,0);
+         
+         // combine the two tables
+         Iterator iterator = wlNew.keySet().iterator();
+         while (iterator.hasNext()) {
+            w = iterator.next().toString();
+            freq = wlNew.get(w);  
             
-          pw.close();
-          System.out.println("Wordlist printed in file: " + fileName);
-          
-        } catch (Exception e){
-            e.printStackTrace();
-        } 
-      }
+            i = (Integer) wlOld.get(w);
+            // if key is not in the map then give it value freq
+            // otherwise increment its value by freq
+            if(i==null)
+              wlOld.put(w, new Integer(freq));
+            else
+              wlOld.put(w, new Integer( i.intValue() + freq));  
+         } 
+         wikiToDB.insertWordList(wlOld);
+         
+       } else {
+         System.out.println("Saving " + locale + "_wordList table....");  
+         wikiToDB.insertWordList(wlNew);  
+       }
+       
+    }
      
     
     void processWikipediaSQLTablesDebug()throws Exception{
@@ -977,9 +988,9 @@ public class WikipediaMarkupCleaner {
     void processWikipediaSQLTables()throws Exception{
         //Put sentences and features in the database.
         String dateStringIni="", dateStringEnd="";
-        DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
-        Date dateIni = new Date();
-        dateStringIni = fullDate.format(dateIni);
+//        DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
+//        Date dateIni = new Date();
+//        dateStringIni = fullDate.format(dateIni);
         
         
         DBHandler wikiToDB = new DBHandler(locale);
@@ -1021,17 +1032,11 @@ public class WikipediaMarkupCleaner {
             wikiToDB.createWikipediaCleanTextTable();  
           }
         }
-        // Checking if word list exist
-        if( wikiToDB.tableExist(locale + "_wordList") ){
-          System.out.println("loading " + locale + "_wordList from table....");
-          wordList = wikiToDB.getMostFrequentWords(0,0);
-          //printWordList();
-        } else {
-          System.out.println("started Hashtable for wordList.");
-          int initialCapacity = 200000;  
-          wordList = new HashMap<String, Integer>(initialCapacity);
-        }
-               
+        
+        System.out.println("Starting Hashtable for wordList.");
+        int initialCapacity = 200000;  
+        wordList = new HashMap<String, Integer>(initialCapacity);
+        
         String text;
         PrintWriter pw = null;
         if(wikiLog != null)
@@ -1043,7 +1048,8 @@ public class WikipediaMarkupCleaner {
         Vector<String> textList;
         System.out.println("\nStart processing Wikipedia pages.... Start time:" + dateStringIni + "\n");
  
-         for(int i=0; i<pageId.length; i++){
+        for(int i=0; i<pageId.length; i++){
+        
           // first filter  
           text = wikiToDB.getTextFromWikiPage(pageId[i], minPageLength, textId, pw);
           
@@ -1077,7 +1083,7 @@ public class WikipediaMarkupCleaner {
           }         
         }
         Date dateEnd = new Date();
-        dateStringEnd = fullDate.format(dateEnd);
+//        dateStringEnd = fullDate.format(dateEnd);
         
         
         if(pw != null){
@@ -1087,7 +1093,8 @@ public class WikipediaMarkupCleaner {
           pw.close(); 
         }
         
-        wikiToDB.insertWordList(wordList);
+        // save the wordList in the DB
+        updateWordList(wikiToDB,  wordList);
         
         //printWordList("/project/mary/marcela/anna_wikipedia/wordlist.txt");
         wikiToDB.printWordList("/project/mary/marcela/anna_wikipedia/wordlist-freq.txt", "frequency", 0, 0);

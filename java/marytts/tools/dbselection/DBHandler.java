@@ -603,7 +603,7 @@ public class DBHandler {
            psWord.execute();
            psWord.clearParameters();
         } 
-        System.out.println("Inserted new " + wordListTableName + " table."); 
+        System.out.println("Inserted new words in " + wordListTableName + " table."); 
         
     } catch (SQLException e) {
       e.printStackTrace();
@@ -758,30 +758,6 @@ public class DBHandler {
       
   }
   
-  /****
-   * 
-   * @return the word list in an ordered TreeMap
-   */
-  public TreeMap<String, Integer> getWordListOrdered() {
-
-      int num;
-      TreeMap<String, Integer> wordList = new TreeMap<String, Integer>();
-      
-      try {
-          rs = st.executeQuery("SELECT word,frequency from " + wordListTableName + ";"); 
-      } catch (Exception e) {
-          e.printStackTrace();
-      }
-      try { 
-          while( rs.next() ) {
-            wordList.put(rs.getString(1), new Integer(rs.getInt(2)));
-          }
-      } catch (SQLException e) {
-          e.printStackTrace();
-      } 
-      
-      return wordList;
-  }
   
   public String getSentenceFromTable(int id, String table) {
       String dbQuery = "Select sentence FROM " + table + " WHERE id=" + id;
