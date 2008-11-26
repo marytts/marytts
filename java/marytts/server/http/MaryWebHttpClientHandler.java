@@ -65,9 +65,14 @@ public class MaryWebHttpClientHandler
     //Convert for to an html page and put it in response
     public void toHttpResponse(MaryHtmlForm htmlForm, HttpResponse response) throws IOException, InterruptedException
     {        
+        toHttpResponse(htmlForm, response, "text/html; charset=UTF-8");
+    }
+    
+    public void toHttpResponse(MaryHtmlForm htmlForm, HttpResponse response, String contentType) throws IOException, InterruptedException
+    {        
         String htmlPage = toHtmlPage(htmlForm);
             
-        MaryHttpServerUtils.toHttpResponse(htmlPage, response, "text/html; charset=UTF-8");
+        MaryHttpServerUtils.toHttpResponse(htmlPage, response, contentType);
     }
     
     public static String formatStringForJavaScript(String strIn)

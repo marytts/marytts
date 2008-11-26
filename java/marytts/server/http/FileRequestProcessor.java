@@ -56,15 +56,25 @@ public class FileRequestProcessor extends BaselineRequestProcessor {
         //Add extra initialisations here
     }
 
-    public void sendResourceAsStream(String resourceFilename, HttpResponse response) throws IOException
+    public boolean sendResourceAsStream(String resourceFilename, HttpResponse response)
     {
+        boolean ok = false;
         InputStream stream = MaryHttpServer.class.getResourceAsStream(resourceFilename);
 
         if (stream!=null)
         {
             logger.debug("Resource stream requested by client: " + resourceFilename);
 
-            MaryHttpServerUtils.toHttpResponse(stream, response, "text/plain");
+            try {
+                MaryHttpServerUtils.toHttpResponse(stream, response, "text/plain");
+                ok = true;
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                ok = false;
+            }
         }
+        
+        return ok;
     }
 }

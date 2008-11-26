@@ -85,9 +85,10 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
         pipedInput = null;
     }
 
-    public void process(Address serverAddressAtClient, Map<String, String> keyValuePairs, String responseID, HttpResponse response) throws Exception
+    public boolean process(Address serverAddressAtClient, Map<String, String> keyValuePairs, String responseID, HttpResponse response) throws Exception
     {
         RequestHttp request = null;
+        boolean ok = false;
         if (keyValuePairs.get("SYNTHESIS_OUTPUT").compareTo("?")==0 || keyValuePairs.get("SYNTHESIS_OUTPUT").compareTo("PENDING")==0) 
         {
             String helper;
@@ -253,7 +254,6 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
             if (tmpVal!=null && tmpVal.compareTo("PENDING")==0)
                 isSecondCall = true;
 
-            boolean ok = false;
             if (isWebBrowserClient && !isSecondCall)
                 ok = handleWebBrowserClientFirstRequest(request, response, serverAddressAtClient, keyValuePairs, responseID);
             else
@@ -270,13 +270,15 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
                 logger.info("After garbage collection: " + MaryUtils.availableMemory() + " bytes available.");
             }
         }  
+        
+        return ok;
     }
 
     public boolean handleWebBrowserClientFirstRequest(RequestHttp request, 
                                                       HttpResponse response, 
                                                       Address serverAddressAtClient, 
                                                       Map<String, String> keyValuePairs, 
-                                                      String responseID) throws IOException, InterruptedException 
+                                                      String responseID) throws Exception 
     {
         if (request == null)
             throw new NullPointerException("Cannot handle null request");
@@ -316,7 +318,7 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
         {        
             try 
             {
-                if (request.getOutputType().equals(MaryDataType.get("AUDIO"))==false) 
+                if (!isSecondCallRequired) 
                     request.process();
             } 
             catch (Throwable e) 
@@ -361,9 +363,10 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
                 getDefaultAudioEffects(),
                 getDefaultVoiceExampleTexts());
 
+        String contentType = "text/html; charset=UTF-8";
         if (htmlForm!=null)
         {
-            if (!request.getOutputType().equals(MaryDataType.get("AUDIO"))) //Non-audio output to web browser client
+            if (!isSecondCallRequired) //Non-audio output to web browser client
             {
                 if (outputStream!=null)
                     htmlForm.outputText = ConversionUtils.toString(outputStream.toByteArray());
@@ -387,7 +390,7 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
         }
 
         MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
-        webHttpClient.toHttpResponse(htmlForm, response); //Send the html page
+        webHttpClient.toHttpResponse(htmlForm, response, contentType); //Send the html page
 
         return ok;
     }
