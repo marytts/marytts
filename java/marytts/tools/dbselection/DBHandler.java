@@ -973,9 +973,12 @@ public class DBHandler {
       DBHandler wikiToDB = new DBHandler("en_US");
 
       wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
-      wikiToDB.setDBTable("dbselection");
       
+      int numWords = wikiToDB.getNumberOfWords(0);
+      
+      wikiToDB.closeDBConnection();
  
+      
       wikiToDB.createDataBaseSelectionTable();
       
       wikiToDB.getIdListOfType("reliable");

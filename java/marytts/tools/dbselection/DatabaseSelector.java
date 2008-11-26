@@ -137,17 +137,13 @@ public class DatabaseSelector{
         String dateString = fullDate.format(date);
         String dateDir = day.format(date);
         
-        //String dateDir = "10.23.2008"; 
-        //String dateString = "10.23.2008-14:00";
-        
         System.out.println("Reading arguments ...");
         StringBuffer logBuf = new StringBuffer();
         if (!readArgs(args,logBuf))
             return null;
 
         //make sure the stop criterion is allright
-        SelectionFunction selFunc = 
-            new SelectionFunction();
+        SelectionFunction selFunc = new SelectionFunction();
         if (!selFunc.stopIsOkay(stopCriterion)){
             System.out.println("Stop criterion format is wrong");
             printUsage();
@@ -163,8 +159,7 @@ public class DatabaseSelector{
             dateDirFile.mkdir();
 
         //open log file
-        String filename = selectionDirName+dateDir
-        +"/selectionLog_"+dateString+".txt";
+        String filename = selectionDirName + dateDir + "/selectionLog_" + dateString + ".txt";
         try{
             logOut = new PrintWriter(
                     new BufferedWriter(

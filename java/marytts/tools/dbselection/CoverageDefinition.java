@@ -375,7 +375,7 @@ public class CoverageDefinition{
             //add them to the list of possible values   
             //System.out.println(basenames[index]);
      
- //mmmm           String nextBasename = wikiToDB.getFileNameFromTable(id, "dbselection");
+//mmmm           String nextBasename = wikiToDB.getFileNameFromTable(id, "dbselection");
 //          mmmm            basenames[index] = nextBasename;
             byte[] vectorBuf;
             int numFeatVects;
