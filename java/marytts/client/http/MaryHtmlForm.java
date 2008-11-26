@@ -70,8 +70,6 @@ public class MaryHtmlForm {
     protected String serverVersionNo = "unknown";
     protected boolean serverCanStream = false;
     
-    protected boolean beQuiet = false;
-    
     public Vector<MaryHtmlForm.Voice> allVoices;
     public Map<Locale, Vector<MaryHtmlForm.Voice>> voicesByLocaleMap;
     public Map<String, Vector<String>> limitedDomainVoices;
@@ -170,7 +168,7 @@ public class MaryHtmlForm {
    {
         outputAudioResponseID = "";
         mimeType = "";
-        httpRequester = new MaryHttpRequester(beQuiet);
+        httpRequester = new MaryHttpRequester(false);
         hostAddress = null;
         serverVersionInfo = null;
         serverVersionNo = "unknown";

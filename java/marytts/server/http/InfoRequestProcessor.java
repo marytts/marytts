@@ -71,27 +71,56 @@ public class InfoRequestProcessor extends BaselineRequestProcessor {
         //Add extra initialisations here
     }
     
-    public void sendDefaultHtmlPage(Address clientAddress, HttpResponse response) throws IOException, InterruptedException
+    public boolean sendDefaultHtmlPage(Address clientAddress, HttpResponse response)
     {
+        boolean ok = false;
         MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
 
-        MaryHtmlForm htmlForm = new MaryHtmlForm(clientAddress,
-                                                 getMaryVersion(),
-                                                 getVoices(),
-                                                 getDataTypes(),
-                                                 getAudioFileFormatTypes(),
-                                                 getAudioEffectHelpTextLineBreak(),
-                                                 getDefaultAudioEffects(),
-                                                 getDefaultVoiceExampleTexts());
+        MaryHtmlForm htmlForm = null;
+        try {
+            htmlForm = new MaryHtmlForm(clientAddress,
+                                                     getMaryVersion(),
+                                                     getVoices(),
+                                                     getDataTypes(),
+                                                     getAudioFileFormatTypes(),
+                                                     getAudioEffectHelpTextLineBreak(),
+                                                     getDefaultAudioEffects(),
+                                                     getDefaultVoiceExampleTexts());
+            ok = true;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            ok = false;
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            ok = false;
+        }
 
-        webHttpClient.toHttpResponse(htmlForm, response);
+        if (htmlForm!=null)
+        {
+            try {
+                webHttpClient.toHttpResponse(htmlForm, response);
+                ok = true;
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                ok = false;
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                ok = false;
+            }
+        }
+        
+        return ok;
     }
     
     public boolean process(Address serverAddressAtClient, Map<String, String> keyValuePairs, HttpResponse response) throws IOException, InterruptedException
     {
         boolean bProcessed = handleInfoRequests(keyValuePairs);
 
-        if (keyValuePairs!=null)
+        if (keyValuePairs!=null && bProcessed)
         {
             boolean isWebBrowserClient = false;
             String tmpVal = keyValuePairs.get("WEB_BROWSER_CLIENT");

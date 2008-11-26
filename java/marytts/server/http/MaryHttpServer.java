@@ -244,7 +244,17 @@ public class MaryHttpServer {
     
     private synchronized String getResponseID() 
     {
-        return "OUTPUT_AUDIO_RESPONSE_ID_" + StringUtils.getRandomName(10) + String.valueOf(runningNumber++);
+        String id = "OUTPUT_AUDIO_RESPONSE_ID_" + String.valueOf(runningNumber);
+        
+        if (runningNumber<Integer.MAX_VALUE)
+            runningNumber++;
+        else
+        {
+            logger.debug("Resetting runningNumber in order not to exceed integer limits...");
+            runningNumber = 1;
+        }
+        
+        return id;
     }
 
     public void run() throws IOException, NoSuchPropertyException 
@@ -284,7 +294,9 @@ public class MaryHttpServer {
         handler.setEventListener(new EventLogger());
 
         IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(handler, params);
-        ListeningIOReactor ioReactor = new DefaultListeningIOReactor(6, params);
+        
+        int numParallelThreads = MaryProperties.getInteger("server.http.parallelthreads");
+        ListeningIOReactor ioReactor = new DefaultListeningIOReactor(numParallelThreads, params);
         
         logger.info("Waiting for client to connect on port " + localPort);
         
@@ -422,26 +434,58 @@ public class MaryHttpServer {
 
         /**
          * Implement the protocol for communicating with an HTTP client.
+         * The Http server receives parameters from a Http request (fullParameters)
+         *                     and has to write the Http response inside (response)
+         * In addition, the server address at client has to be specified
+         * 
+         * An HTTP request can be received from two basic types of clients:
+         *   (1) A client that has its own code (i.e. a GUI client)
+         *   (2) A client that requires its code to be generated at run-time by the server (i.e. a web browser client)
+         * For case (2), more complicated processing is required since all client code has to be generated 
+         * properly at run-time based on the request in addition to the appropriate "synthesis" response 
+         * 
+         * When the Http server receives a request from the client, the following cases are considered:
+         *   CASE1: Check if a web browser client is asking for Mary icon (favicon.ico) and send it as a resource stream using FileRequestProcessor
+         *  If CASE1 does not hold:
+         *   CASE2: Check if a second-time connection is received from a web browser client about a previous request.
+         *          This is required to handle <EMBED> and <OBJECT> tags that could be put in html pages.
+         *          Such tags result in two requests being sent to the server:
+         *          Request1: The server has to take parameters(i.e. request ID), and keep it until second request with this ID
+         *                    !!!It´s important *not* to generate any response to this first request!!!
+         *          Request2: The server produces the corresponding response corresponding to Request1         
+         *  If CASE2 does not hold:  
+         *    CASE3: Web browser client is asking for the default html page, i.e. when fullParameters is null or empty("") or it contains the key-value pair "DEFAULT_PAGE=?".   
+         *           The server replies with an html page filled in with default client parameters using InforRequestProcessor.
+         *  If CASE3 does not hold:
+         *    CASE4: Either a synthesis or an information request is received.
+         *      CASE4a: A synthesis request is received.
+         *              The server calls SynthesisRequestProcessor to handle the request.
+         *      If CASE4a does not hold
+         *      CASE4b: An information request is received.
+         *              The server calls InformationRequestProcessor to handle the request.
+         *  If CASE4 does not old:
+         *    CASE5: Invalid request. An error message is displayed in logger.
+         *                
          * @throws Exception 
          */
         private void handleClientRequest(String fullParameters, HttpResponse response, Address serverAddressAtClient) throws Exception 
         {   
-            if (fullParameters!=null && fullParameters.compareToIgnoreCase("favicon.ico")==0)
+            if (fullParameters!=null && fullParameters.compareToIgnoreCase("favicon.ico")==0) //CASE1: Web browser client asking for Mary icon
             {
-                fileRequestProcessor.sendResourceAsStream(fullParameters, response);
+                fileRequestProcessor.sendResourceAsStream(fullParameters, response); //Put icon as a resource stream into HttpResponse
 
                 return;
             }
-            else if (fullParameters!=null && fullParameters.startsWith("OUTPUT_AUDIO_RESPONSE_ID_"))
+            else if (fullParameters!=null && fullParameters.startsWith("OUTPUT_AUDIO_RESPONSE_ID_")) //CASE2: Check if second time connection received for a prvious request
             {
                 String currentKey = StringUtils.getFileName(fullParameters);
                 Object[] objects = new Object[3];
                 objects = requestMap.get(currentKey);
                 if (objects!=null)
                 {
-                    int numPrevCalls = (Integer)objects[0];
+                    int numPrevCalls = (Integer)objects[0]; //Check how many times this request has been made
 
-                    if (numPrevCalls==0) //Do nothing yet until another call to this response is received
+                    if (numPrevCalls==0) //This is the first call, increase the total number of calls to this request. Do *not* generate any response yet!
                     {
                         numPrevCalls++;
                         objects[0] = numPrevCalls;
@@ -449,13 +493,8 @@ public class MaryHttpServer {
 
                         return;
                     }
-                    else if (numPrevCalls==1)
+                    else if (numPrevCalls==1) //This is the second call, now it is time to generate the response
                     {
-                        //String contentType = (String)objects[2];
-                        ////FileInputStream f = new FileInputStream(new File("d:\\a.wav"));
-                        ////MaryHttpServerUtils.toHttpResponse(f, response, contentType);
-                        //MaryHttpServerUtils.toHttpResponse((InputStream)objects[1], response, contentType);
-
                         //Second synthesis request call for non-web browser clients
                         objects[0] = 0;
                         Address savedServerAddressAtClient = (Address)objects[1];
@@ -481,21 +520,21 @@ public class MaryHttpServer {
             if (keyValuePairs==null || (keyValuePairs.get("DEFAULT_PAGE")!=null && keyValuePairs.get("DEFAULT_PAGE").compareTo("?")==0))
                 isDefaultPageRequested = true;
             
-            if (isDefaultPageRequested) //A web browser client is asking for the default html page
+            if (isDefaultPageRequested) //CASE3: Web browser client is asking for the default html page
             {
                 boolean isWebBrowserClient = false;
                 if (keyValuePairs==null || (keyValuePairs.get("WEB_BROWSER_CLIENT")!=null && keyValuePairs.get("WEB_BROWSER_CLIENT").compareTo("true")==0))
                     isWebBrowserClient = true;
                 
                 if (isWebBrowserClient)
-                    infoRequestProcessor.sendDefaultHtmlPage(serverAddressAtClient, response);
-                else
-                    throw new Exception("Invalid request to Mary server!");
+                    infoRequestProcessor.sendDefaultHtmlPage(serverAddressAtClient, response); //Respond with default html page
+                
+                return;
             }
-            else
+            else //CASE4: Either a synthesis or an information request is received
             {
                 String tmp = keyValuePairs.get("SYNTHESIS_OUTPUT");
-                if (tmp!=null && tmp.compareTo("?")==0)
+                if (tmp!=null && tmp.compareTo("?")==0) //CASE4a: Synthesis request received
                 {
                     //Audio streaming for web browser clients require special processing: 
                     // - First a response page should be created
@@ -513,9 +552,18 @@ public class MaryHttpServer {
                     objects[2] = keyValuePairs;
 
                     requestMap.put(currentID, objects);
+                    
+                    return;
+                } 
+                else //CASE4b: Information request is received
+                {
+                    boolean ok = infoRequestProcessor.process(serverAddressAtClient, keyValuePairs, response);
+                    
+                    if (!ok) //CASE5: Invalid request
+                        logger.error("Error: Cannot process this request!");
+                    
+                    return;
                 }
-                else
-                    infoRequestProcessor.process(serverAddressAtClient, keyValuePairs, response);
             }
         }
 

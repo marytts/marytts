@@ -67,6 +67,7 @@ import marytts.server.http.Address;
 
 public class MaryHttpClient extends MaryHtmlForm {
     
+    protected boolean beQuiet = false;
     private boolean doProfile = false;
 
     /**
@@ -152,10 +153,11 @@ public class MaryHttpClient extends MaryHtmlForm {
         // This must work for applets too, so no system property queries here:
         doProfile = profile;
         beQuiet = quiet;
+        httpRequester = new MaryHttpRequester(beQuiet);
+        
         String[] info;
-        if (!beQuiet) {
+        if (!beQuiet)
             System.err.println("Mary TTS client " + Version.specificationVersion() + " (impl. " + Version.implementationVersion() + ")");
-        }
         
         try {
             fillServerVersion();
