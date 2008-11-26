@@ -59,8 +59,6 @@ import marytts.server.http.RequestHttp;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 
-import org.apache.http.ProtocolVersion;
-import org.apache.http.message.BasicHttpResponse;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Category;
 import org.apache.log4j.FileAppender;
@@ -99,7 +97,7 @@ public class Mary {
     }
 
     
-    protected static void addJarsToClasspath() throws Exception
+    public static void addJarsToClasspath() throws Exception
     {
         File jarDir = new File(MaryProperties.maryBase()+"/java");
         File[] jarFiles = jarDir.listFiles(new FilenameFilter() {
