@@ -386,13 +386,15 @@ public class MaryHtmlForm {
                 String typeName = allTypes[i].substring(spaceInd+1);
                 Type audioType = null;
                 boolean isSupported = true;
+                if (typeName.equals("MP3")) isSupported = MaryAudioUtils.canCreateMP3();
+                else if (typeName.equals("Vorbis")) isSupported = MaryAudioUtils.canCreateOgg();
                 try {
                     audioType = MaryAudioUtils.getAudioFileFormatType(typeName);
                 } catch (Exception e) {
                     isSupported = false;
                 }
 
-                if (audioType!=null && AudioSystem.isFileTypeSupported(audioType))
+                if (isSupported && audioType!=null && AudioSystem.isFileTypeSupported(audioType))
                 {
                     if (audioFileFormatTypes==null)
                         audioFileFormatTypes=new Vector<String>();
