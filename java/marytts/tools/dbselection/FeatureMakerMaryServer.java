@@ -87,6 +87,8 @@ public class FeatureMakerMaryServer{
     
 	//the Mary Client connected to the server
     protected static MaryHttpClient mary;
+    //protected static MaryClient mary;
+    
 	//stores result of credibility check for current sentence
 	protected static boolean usefulSentence;
     protected static boolean unknownWords;
@@ -122,8 +124,8 @@ public class FeatureMakerMaryServer{
         String dateStringIni="";
         String dateStringEnd="";
 //        DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
-//        Date dateIni = new Date();
-//        String dateStringIni = fullDate.format(dateIni);
+ //       Date dateIni = new Date();
+ //       dateStringIni = fullDate.format(dateIni);
         
 		/* check the arguments */
 		if (!readArgs(args)){
@@ -135,7 +137,7 @@ public class FeatureMakerMaryServer{
 		/* Start the Mary client */
 		System.setProperty("server.host", maryHost);
 		System.setProperty("server.port", maryPort);
-		mary = new MaryHttpClient();
+		mary = new MaryHttpClient(true);
         //mary = new MaryClient();
 		
         /* Here the DB connection for reliable sentences is open */
@@ -496,17 +498,37 @@ public class FeatureMakerMaryServer{
 		protected static byte[] getFeatures(MaryData d)throws Exception{
             
             BufferedReader featsDis = new BufferedReader(new InputStreamReader(
-                    new ByteArrayInputStream(d.getPlainText().getBytes())));    
+                    new ByteArrayInputStream(d.getPlainText().getBytes())));  
+            
+            
 			String line;
             // The first time the feaDef is null, so then load the featureDefinition and the indexes of the features
             // used for selection. 
 			if (featDef == null){  
  			  featDef = new FeatureDefinition(featsDis,false);
               // find the indexes of the features for selection
+              // here we need to generate a featureDefinition file with the selectionFeatures
               selectionFeatureIndex = new int[selectionFeature.size()];
+              PrintWriter pw = new PrintWriter(new FileWriter(new File("./" + locale + "_featureDefinition.txt")));
+              System.out.println("\nCreated featureDefinition file:" + "./" + locale + "_featureDefinition.txt");
+              pw.write("# This file lists the features to be used for the selection algorithm. \n" +
+                       "#\n" +
+                       "# Note that the feature definitions must be identical between this file\n" +
+                       "# and the feature files used for selection. Use the corresponding file\n" +
+                       "# [locale]-targetfeatures.config for feature computation.\n" +
+                       "# \n");
+              
               for(int i=0; i<selectionFeature.size(); i++){
-                 selectionFeatureIndex[i] = featDef.getFeatureIndex(selectionFeature.elementAt(i));  
+                 selectionFeatureIndex[i] = featDef.getFeatureIndex(selectionFeature.elementAt(i));
+                 
+                 String[] feas = featDef.getPossibleValues(selectionFeatureIndex[i]);
+                 pw.print(selectionFeature.elementAt(i) + " ");
+                 for(int j=0; j<feas.length; j++)
+                   pw.print(feas[j] + " ");  
+                 pw.println();
               }
+              pw.close();
+              
             }  else { // once the featDef has been load just skip the first part of the featDis
 				//read until an empty line occurs
 				while ((line = featsDis.readLine()) != null){
@@ -565,6 +587,8 @@ public class FeatureMakerMaryServer{
             Vector<String> sentenceList = null;
             StringBuffer sentence;
             //index2sentences = new TreeMap<Integer,String>();
+            
+          //  System.out.println(text);
 			
             Document doc = phonemiseText(text, id);
 			//if (doc == null) return false;
@@ -697,12 +721,13 @@ public class FeatureMakerMaryServer{
 						tokenText = MaryDomUtils.tokenText((Element)nextToken);
 						//just append without whitespace
 						sentence.append(tokenText);
-						
+					//	System.out.println(sentence);
 					} else {
 						//normal word, append a whitespace before it
                         word = MaryDomUtils.tokenText((Element)nextToken);
                         //System.out.println("word=" + word);
                         sentence.append(" " + word);
+                     //   System.out.println(sentence);
 					}
 				}
 			} else {

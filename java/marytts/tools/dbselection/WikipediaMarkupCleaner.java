@@ -1004,9 +1004,10 @@ public class WikipediaMarkupCleaner {
            throw new Exception("WikipediaMarkupCleaner: ERROR IN TABLES " + locale + "_page, " + locale + "_text and " + locale + "_revision, they are not CREATED/LOADED.");          
         }    
         
-        System.out.println("Getting page IDs");
+        System.out.println("\nGetting page IDs");
         String pageId[];
         pageId = wikiToDB.getIds("page_id",locale+"_page");
+        System.out.println("Number of page IDs to process: " + pageId.length + "\n");
         
         // create cleanText TABLE
         if( deleteCleanTextTable ){
@@ -1048,11 +1049,11 @@ public class WikipediaMarkupCleaner {
           
           if(text!=null){ 
             textList = removeMarKup(text); 
+            numPagesUsed++; 
             for(int j=0; j<textList.size(); j++){
               text = textList.get(j);
               if( text.length() > minTextLength ){
-                // if after cleaning the text is not empty or 
-                numPagesUsed++;  
+                // if after cleaning the text is not empty or                 
                 wikiToDB.insertCleanText(text, pageId[i], textId.toString()); 
                 // insert the words in text in wordlist
                 addWordToHashMap(text, wordList);
@@ -1070,6 +1071,8 @@ public class WikipediaMarkupCleaner {
                 if(pw != null)  
                   pw.println("PAGE NOT USED AFTER CLEANING page_id[" + i + "]=" + pageId[i] + " length=" + text.length());
             }  // for each text in textList
+            System.out.println("Cleanedpage_id[" + i + "]=" + pageId[i] + "  numPagesUsed=" +numPagesUsed 
+                                                            + "  Wordlist[" + wordList.size() + "] ");
             textList.clear();  // clear the list of text
           }         
         }
