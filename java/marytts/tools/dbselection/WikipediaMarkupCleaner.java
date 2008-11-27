@@ -988,9 +988,9 @@ public class WikipediaMarkupCleaner {
     void processWikipediaSQLTables()throws Exception{
         //Put sentences and features in the database.
         String dateStringIni="", dateStringEnd="";
-//        DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
-//        Date dateIni = new Date();
-//        dateStringIni = fullDate.format(dateIni);
+        DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
+        Date dateIni = new Date();
+        dateStringIni = fullDate.format(dateIni);
         
         
         DBHandler wikiToDB = new DBHandler(locale);
@@ -1083,7 +1083,7 @@ public class WikipediaMarkupCleaner {
           }         
         }
         Date dateEnd = new Date();
-//        dateStringEnd = fullDate.format(dateEnd);
+        dateStringEnd = fullDate.format(dateEnd);
         
         
         if(pw != null){

@@ -97,7 +97,7 @@ public class CoverageDefinition{
     /* the index of the four features in the feature vector */
     private int phoneFeatIndex;
     private int diphoneFeatIndex;
-    private int phoneClassesIndex;
+//    private int phoneClassesIndex;
     private int prosodyIndex;
     /* the number of possible phone classes */
     private int numPhoneClasses;
@@ -295,7 +295,8 @@ public class CoverageDefinition{
      * @param basenames the list of filenames 
      * @throws IOException
      */
-    public String[] initialiseCoverage()throws IOException{
+ //   public String[] initialiseCoverage()throws IOException{
+      public int[] initialiseCoverage()throws IOException{
         //stuff used for counting the phones and diphones
         possiblePhoneTypes = new HashSet();
         simpleDiphones2Frequency = new TreeMap();
@@ -314,12 +315,12 @@ public class CoverageDefinition{
         
         // EN for testing
         phoneFeatIndex = featDef.getFeatureIndex("phoneme");
-        phoneClassesIndex = featDef.getFeatureIndex("gpos");
+//        phoneClassesIndex = featDef.getFeatureIndex("gpos");
         diphoneFeatIndex = featDef.getFeatureIndex("next_phoneme");
         prosodyIndex = featDef.getFeatureIndex("position_type");
         
         
-        numPhoneClasses = featDef.getNumberOfValues(phoneClassesIndex);
+//        numPhoneClasses = featDef.getNumberOfValues(phoneClassesIndex);
         numPhoneValues = featDef.getNumberOfValues(phoneFeatIndex);
         numPhoneValuesMinusIgnored = numPhoneValues-phonesToIgnore.size()-1;
 
@@ -332,7 +333,7 @@ public class CoverageDefinition{
         //get the features for the values
         possiblePhoneArray = featDef.getPossibleValues(phoneFeatIndex);
         possibleNextPhoneArray = featDef.getPossibleValues(diphoneFeatIndex);
-        possibleNextPhoneClassArray = featDef.getPossibleValues(phoneClassesIndex);
+//        possibleNextPhoneClassArray = featDef.getPossibleValues(phoneClassesIndex);
         possibleProsodyArray = featDef.getPossibleValues(prosodyIndex);
 
         //build Cover
@@ -346,7 +347,7 @@ public class CoverageDefinition{
         
         
         numSentences = wikiToDB.getNumberOfReliableSentences();
-        int idList[] = wikiToDB.getIdListOfType("reliable");
+        int idSentencesList[] = wikiToDB.getIdListOfType("reliable");
         
         
         // here the String[] basenames is created with the fromFile field of
@@ -365,7 +366,7 @@ public class CoverageDefinition{
         int id;
         for (int index=0;index<numSentences;index++){
             
-            id = idList[index];
+            id = idSentencesList[index];
             
             if ((index % tenPercent) == 0 && index!=0){
                 int percentage = index/tenPercent;
@@ -383,7 +384,7 @@ public class CoverageDefinition{
              
               trueNumSentences--;
               vectorBuf = wikiToDB.getFeatures(id);  //
-              numFeatVects = (vectorBuf.length)/4;   // mmmmmmm!!!
+              numFeatVects = (vectorBuf.length)/3;   // mmmmmmm!!! 3 because phone, next_phoneme and position_type
 
               if (holdVectorsInMemory){
                     vectorArray[index] = vectorBuf;
@@ -404,7 +405,7 @@ public class CoverageDefinition{
             int myphoneFeatIndex = featDef.getFeatureIndex("phoneme");
             
 
-            /* loop over the feature vectors of size[4] */
+            /* loop over the feature vectors of size[4] NEW: size[3] */
             System.out.println("Analysing feature vectors of id=" + id + ":  numFeatVects=" + numFeatVects);
             for (int i=0;i<numFeatVects;i++){
                 numTokens++;
@@ -414,8 +415,8 @@ public class CoverageDefinition{
                 leaf.addPossibleInstance();
 
                 //save feature vector in clustered diphone tree
-                leaf = goDownTree(false,vectorBuf,i,false);
-                leaf.addPossibleInstance();
+ //               leaf = goDownTree(false,vectorBuf,i,false);
+ //               leaf.addPossibleInstance();
 
 
                 //first deal with current phone
@@ -440,20 +441,21 @@ public class CoverageDefinition{
                 buf.append(possibleNextPhoneArray[nextnextPhonebyte]);  
                 String simpleDiphone = buf.toString();
 
-                nextnextPhonebyte = getVectorValue(vectorBuf,i,phoneClassesIndex);
+//                nextnextPhonebyte = getVectorValue(vectorBuf,i,phoneClassesIndex);
 
 
                 /**
 				 String clusteredDiphone = possiblePhoneArray[nextPhonebyte]
 				 +"_"+possibleNextPhoneClassArray[nextnextPhonebyte];
                  **/
-
+/*
                 buf = new StringBuffer(5);
                 buf.append(possiblePhoneArray[nextPhonebyte]);
                 buf.append("_");
                 buf.append(possibleNextPhoneClassArray[nextnextPhonebyte]);  
                 String clusteredDiphone = buf.toString();
-
+*/
+                
                 //add 1 to the frequency value of the diphone
                 if (simpleDiphones2Frequency.containsKey(simpleDiphone)){
                     int freq = 
@@ -465,6 +467,7 @@ public class CoverageDefinition{
                 }
 
                 //add 1 to the frequency value of the diphone
+/*                
                 if (clusteredDiphones2Frequency.containsKey(clusteredDiphone)){
                     int freq = 
                         ((Integer)clusteredDiphones2Frequency.get(clusteredDiphone)).intValue()+1;
@@ -473,7 +476,7 @@ public class CoverageDefinition{
                     numClusteredDiphoneTypes++;
                     clusteredDiphones2Frequency.put(clusteredDiphone,new Integer(1));
                 } 
-
+*/
                 //deal with current diphone
                 byte prosodyValue = getVectorValue(vectorBuf,i,prosodyIndex);
                 /**
@@ -491,14 +494,15 @@ public class CoverageDefinition{
 				 clusteredFeatVectTypes.add(clusteredDiphone+"_"
 				 +possibleProsodyArray[prosodyValue]);
                  **/
-                buf = new StringBuffer(7);
-                buf.append(clusteredDiphone);
+ //               buf = new StringBuffer(7);
+ //               buf.append(clusteredDiphone);
+                
                 buf.append("_");
                 buf.append(prosodyValue); 
                 clusteredFeatVectTypes.add(buf.toString());
                 buf = null;
                 simpleDiphone = null;
-                clusteredDiphone = null;
+//                clusteredDiphone = null;
 
             } 
         }//end of for-loop over feature vectors
@@ -554,7 +558,9 @@ public class CoverageDefinition{
         numSimpleFeatVectsInCover = 0;
         numClusteredFeatVectsInCover = 0;
         
-        return basenames;
+        //return basenames;
+        return idSentencesList;
+        
     }
 
     /**
@@ -666,27 +672,32 @@ public class CoverageDefinition{
         }
         if (addNewFeatureVector)
             nextNode.decreaseWantedWeight();
-
+        
         //go down to diphone level
         if (simpleDiphones){
             nextIndex = getVectorValue(vectors,index,diphoneFeatIndex);
+            
         } else {
-            nextIndex = getVectorValue(vectors,index,phoneClassesIndex);
+           // nextIndex = getVectorValue(vectors,index,phoneClassesIndex);
         }        
+
         nextNode = nextNode.getChild(nextIndex);
         if (addNewFeatureVector)
             nextNode.decreaseWantedWeight();
+        
         //go down to prosody level
         nextIndex = getVectorValue(vectors,index,prosodyIndex);
         nextNode = nextNode.getChild(nextIndex);
         if (addNewFeatureVector)
             nextNode.decreaseWantedWeight();
+        
         if (!(nextNode instanceof CoverLeaf)){
             //something went wrong
             throw new Error("Went down cover tree for feature vector"
                     +" and did not end up on leaf!");
         }
         return (CoverLeaf)nextNode;
+        
     }
 
     /**
@@ -1014,7 +1025,8 @@ public class CoverageDefinition{
      * @param coveredFVs the feature vectors to add 
      */
     public void updateCover(byte[] coveredFVs){
-        int numNewFeatVects = coveredFVs.length/4;
+        //int numNewFeatVects = coveredFVs.length/4;
+        int numNewFeatVects = coveredFVs.length/3;
         int newPhones = 0;
         int newDiphones = 0;
         //loop through the feature vectors
@@ -1038,7 +1050,7 @@ public class CoverageDefinition{
             simpleDiphonesInCover.add(diphone);
 
             /* update clusteredCover */
-            leaf = goDownTree(false,coveredFVs,i,true);
+//            leaf = goDownTree(false,coveredFVs,i,true);
             //if this is the first feature vector in this leaf
             //decrease cover size
             if (leaf.getNumFeatureVectors()==0){
@@ -1046,8 +1058,7 @@ public class CoverageDefinition{
             }
             leaf.addFeatureVector();
             //update coverage statistics
-            diphone = phone+"_"
-            +possibleNextPhoneClassArray[getVectorValue(coveredFVs,i,phoneClassesIndex)];
+//            diphone = phone+"_"+possibleNextPhoneClassArray[getVectorValue(coveredFVs,i,phoneClassesIndex)];
             clusteredDiphonesInCover.add(diphone);
         } 
         //update phone coverage statistics
@@ -1136,7 +1147,8 @@ public class CoverageDefinition{
      */
     public double usefulnessOfFVs(byte[] featureVectors){
         double usefulness = 0.0;
-        int numFeatureVectors = featureVectors.length/4;
+        //int numFeatureVectors = featureVectors.length/4;
+        int numFeatureVectors = featureVectors.length/3;
         if (considerSentenceLength){
             //too long sentences are useless
             if (numFeatureVectors>maxSentLengthAllowed)
@@ -1167,7 +1179,7 @@ public class CoverageDefinition{
             if (simpleDiphones){
                 nextIndex = getVectorValue(featureVectors,i,diphoneFeatIndex);
             } else {
-                nextIndex = getVectorValue(featureVectors,i,phoneClassesIndex);
+//                nextIndex = getVectorValue(featureVectors,i,phoneClassesIndex);
             }        
             nextNode = nextNode.getChild(nextIndex);
             relFreq = nextNode.getFrequencyWeight();
@@ -1194,7 +1206,8 @@ public class CoverageDefinition{
     }
 
     public byte getVectorValue(byte[] vectors,int vectorIndex, int valueIndex){
-        byte result = vectors[vectorIndex*4+valueIndex];
+        //byte result = vectors[vectorIndex*4+valueIndex];
+        byte result = vectors[vectorIndex*3+valueIndex];
         return result;
     }
 
@@ -1286,10 +1299,9 @@ public class CoverageDefinition{
      * @param basenames the list of basenames
      * @throws Exception
      */
-    public void readCoverageBin(String filename,
-            FeatureDefinition featDef,
-            String[] basenames)throws Exception{
-        this.featDef = featDef;
+ //   public void readCoverageBin(String filename, FeatureDefinition fDef, String[] basenames)throws Exception{
+      public void readCoverageBin(String filename, FeatureDefinition fDef, int[] idSentenceList)throws Exception{
+        this.featDef = fDef;
         
         // DE
         /*
@@ -1301,11 +1313,11 @@ public class CoverageDefinition{
         
         // EN
         phoneFeatIndex = featDef.getFeatureIndex("phoneme");        
-        phoneClassesIndex = featDef.getFeatureIndex("gpos");                
+//        phoneClassesIndex = featDef.getFeatureIndex("gpos");                
         diphoneFeatIndex = featDef.getFeatureIndex("next_phoneme");        
         prosodyIndex = featDef.getFeatureIndex("position_type");
         
-        numPhoneClasses = featDef.getNumberOfValues(phoneClassesIndex);
+//        numPhoneClasses = featDef.getNumberOfValues(phoneClassesIndex);
         numPhoneValues = featDef.getNumberOfValues(phoneFeatIndex);
         numPhoneValuesMinusIgnored = numPhoneValues-phonesToIgnore.size()-1;
         numPossibleSimpleDiphones = numPhoneValuesMinusIgnored*(numPhoneValuesMinusIgnored+1);
@@ -1313,7 +1325,7 @@ public class CoverageDefinition{
 
         possiblePhoneArray = featDef.getPossibleValues(phoneFeatIndex);
         possibleNextPhoneArray = featDef.getPossibleValues(diphoneFeatIndex);
-        possibleNextPhoneClassArray = featDef.getPossibleValues(phoneClassesIndex);
+//        possibleNextPhoneClassArray = featDef.getPossibleValues(phoneClassesIndex);
         possibleProsodyArray = featDef.getPossibleValues(prosodyIndex);
 
         //initialise several variables
@@ -1359,37 +1371,54 @@ public class CoverageDefinition{
         if (holdVectorsInMemory && needToReadVectors){
             System.out.print("Reading feature vectors...");
             //read in the vectors
-            int numSentences = basenames.length;
+            
+            //int numSentences = basenames.length;  // this variable is overriding the global numSentences
+                                                    // so which one is actually used????
+            int numSentences = idSentenceList.length;
+            
             trueNumSentences = numSentences;
             vectorArray = new byte[numSentences][];
             int tenPercent = numSentences/10; 
+            
+            DBHandler wikiToDB = new DBHandler(locale);
+            wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");    
+            
+            // get here the fv corresponding to the idSentences
+            int id;
             for (int index=0;index<numSentences;index++){
+                id = idSentenceList[index];
+                
                 if ((index % tenPercent) == 0 && index!=0){
                     int percentage = index/tenPercent*10;
                     System.out.print(" "+percentage+"%");
                 }
-                FileInputStream fis;
-                try{ fis =
-                    new FileInputStream(new File(basenames[index]));
-                } catch (FileNotFoundException fnfe){
-                    System.out.println("Could not find file "+basenames[index]);
-                    vectorArray[index] = null;
-                    basenames[index] = null;
-                    trueNumSentences--;
-                    continue;
-                }
+                
+                
+             //   FileInputStream fis;
+             //   try{ fis =
+             //       new FileInputStream(new File(basenames[index]));
+             //   } catch (FileNotFoundException fnfe){
+             //       System.out.println("Could not find file "+basenames[index]);
+             //       vectorArray[index] = null;
+             //       basenames[index] = null;
+             //       trueNumSentences--;
+             //       continue;
+             //   }
 
+                /*
                 byte[] vlength = new byte[4];
-                fis.read(vlength);
-
-                int numFeatVects = (((vlength[0] & 0xff) << 24) 
+             //  fis.read(vlength);
+               int numFeatVects = (((vlength[0] & 0xff) << 24) 
                         | ((vlength[1] & 0xff) << 16) 
                         | ((vlength[2] & 0xff) << 8)
                         | (vlength[3] & 0xff));
                 byte[] vectorBuf = new byte[4*numFeatVects];
-                fis.read(vectorBuf);
-                fis.close();
-
+                
+              //  fis.read(vectorBuf);
+              //  fis.close();
+               */
+                
+                byte[] vectorBuf = wikiToDB.getFeatures(id);
                 vectorArray[index] = vectorBuf;
             }
 

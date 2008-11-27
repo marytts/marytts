@@ -52,7 +52,9 @@ public class SelectionFunction{
     //the vectors that are selected next 
     private byte[] selectedVectors;
     //the filename of the sentence that is selected next
-    private String selectedBasename;
+    //private String selectedBasename;
+    private int selectedIdSentence;
+    
     //if true, algorithm stop after maxNumSents are selected
     private boolean stopNumSentences;
     //if true, algorithm stops when maximum coverage of 
@@ -156,13 +158,23 @@ public class SelectionFunction{
     * @return the list of selected filenames
     * @throws IOException
     */
+  /*  
     public void select(List selectedFilenames,
             CoverageDefinition coverageDefinition,
             PrintWriter logFile,
             String[] basenameList,
             boolean holdVectorsInMemory,
             boolean verbose)throws IOException{
-        this.verbose = verbose;
+    */    
+    public void select(List <Integer>selectedFilenames,
+                CoverageDefinition coverageDefinition,
+                PrintWriter logFile,
+                int[] idSentenceList,
+                boolean holdVectorsInMemory,
+                boolean verboseSelect,
+                DBHandler wikiToDB)throws IOException{
+              
+        this.verbose = verboseSelect;
         //get the array of vectors if they are loaded in memory
         byte[][] vectorArray = null;
         if (holdVectorsInMemory){
@@ -177,14 +189,12 @@ public class SelectionFunction{
                 coverageDefinition)){ 
             
             //select the next sentence  
-            selectNext(coverageDefinition,
-                    logFile,
-                    sentIndex,
-                    basenameList,
-                    vectorArray);
+            //selectNext(coverageDefinition, logFile, sentIndex, basenameList, vectorArray);
+            selectNext(coverageDefinition, logFile, sentIndex, idSentenceList, vectorArray, wikiToDB);
 
             //check if we selected something
-            if (selectedBasename == null){
+            //if (selectedBasename == null){
+            if (selectedIdSentence < 0){
                 //nothing more to select
                 //System.out.println("Nothing more to select");
                 logFile.println("Nothing more to select");
@@ -193,7 +203,8 @@ public class SelectionFunction{
 
 
             //add the selected sentence to the set
-            selectedFilenames.add(selectedBasename);                
+            //selectedFilenames.add(selectedBasename);
+            selectedFilenames.add(selectedIdSentence);
             //update coverageDefinition         
             coverageDefinition.updateCover(selectedVectors);
             sentIndex++;
@@ -218,63 +229,83 @@ public class SelectionFunction{
      *                    if the vectors are on disk
      * @throws IOException
      */
+    /*
     private void selectNext(CoverageDefinition coverageDefinition,
             PrintWriter logFile,
             int sentenceIndex,
             String[] basenameList,
             byte[][] vectorArray)throws IOException{
+    */
+    private void selectNext(CoverageDefinition coverageDefinition,
+                PrintWriter logFile,
+                int sentenceIndex,
+                int[] idSentenceList,
+                byte[][] vectorArray,
+                DBHandler wikiToDB)throws IOException{
+             
         
-        selectedBasename = null;
+        //selectedBasename = null;
+        selectedIdSentence = -1;
         double highestUsefulness = -1;
         int selectedSentenceIndex = 0;
         int numSentsInBasenames = 0;
+        
+        
+        int id;
         //loop over the filenames
-        for (int i=0;i<basenameList.length;i++){
-            String nextBasename = basenameList[i];
+        //for (int i=0;i<basenameList.length;i++){
+        for (int i=0;i<idSentenceList.length;i++){
+            id = idSentenceList[i];
+            
+            //String nextBasename = basenameList[i];           
             //if the next sentence was already selected, continue
-            if (nextBasename == null) continue;
+            //if (nextBasename == null) continue;
+            if (id < 0) continue;
+            
             numSentsInBasenames++;
             //get the next feature vector
             byte[] nextFeatVects;
             if (vectorArray != null){
                 nextFeatVects = vectorArray[i];
             } else {
-                nextFeatVects = 
-                    getNextFeatureVectors(nextBasename);
+                //nextFeatVects = getNextFeatureVectors(nextBasename);
+                nextFeatVects = wikiToDB.getFeatures(id); 
             }
             //calculate how useful the feature vectors are
-            double usefulness = 
-                coverageDefinition.usefulnessOfFVs(nextFeatVects);
+            double usefulness = coverageDefinition.usefulnessOfFVs(nextFeatVects);
            
             if(usefulness > highestUsefulness){                         
-                //the current sentence is (currently) 
-                //the best sentence to add
-                selectedBasename = nextBasename;
+                //the current sentence is (currently) the best sentence to add
+                //selectedBasename = nextBasename;
+                selectedIdSentence = id;
                 selectedVectors = nextFeatVects;
                 highestUsefulness = usefulness;     
                 selectedSentenceIndex = i;
             }
             
             if (usefulness == -1.0)
-                basenameList[i] = null;
+             idSentenceList[i] = -1;     // THIS ID CAN NOT BE NEGATIVE SO CHECK!!!
+                //basenameList[i] = null;
         }
         //System.out.println(numSentsInBasenames+" sentences left");
-
-        if (selectedBasename != null){
+       
+        
+        //if (selectedBasename != null){
+        if (selectedIdSentence > 0){
             //if we selected something,
             //remove selected filename from basename list
-            basenameList[selectedSentenceIndex] = null;
+            //basenameList[selectedSentenceIndex] = null;
+            idSentenceList[selectedSentenceIndex] = -1;  // i do not understand why it is removed???
             //print information
             if (verbose){
-                System.out.println("sentence "+sentenceIndex
-                        +" ("+selectedBasename+"), score: "
-                        +highestUsefulness);
+              //System.out.println("sentence "+sentenceIndex+" ("+selectedBasename+"), score: "+highestUsefulness);
+              System.out.println("sentence "+sentenceIndex+" ("+selectedIdSentence+"), score: "+highestUsefulness);  
             }
-            logFile.println("Sentence "+sentenceIndex
-                    +" ("+selectedBasename+"), score: "
-                    +highestUsefulness);
+            //logFile.println("Sentence "+sentenceIndex+" ("+selectedBasename+"), score: "+highestUsefulness);
+            logFile.println("Sentence "+sentenceIndex+" ("+selectedIdSentence+"), score: "+highestUsefulness);
             logFile.flush();
-        }        
+        }   
+        
     }
 
     /**
@@ -359,7 +390,7 @@ public class SelectionFunction{
      * 
      * @throws IOException
      */
-    private byte[] getNextFeatureVectors(String basename)
+    private byte[] getNextFeatureVectors1(String basename)
     throws IOException{
         //open the file
         FileInputStream fis =
