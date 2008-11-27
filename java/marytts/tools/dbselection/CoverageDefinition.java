@@ -347,7 +347,7 @@ public class CoverageDefinition{
         
         
         numSentences = wikiToDB.getNumberOfReliableSentences();
-        int idSentenceList[] = wikiToDB.getIdListOfType("reliable");
+        int idSentenceList[] = wikiToDB.getIdListOfType("dbselection","reliable");
         
         
         // here the String[] basenames is created with the fromFile field of

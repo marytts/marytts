@@ -140,10 +140,10 @@ public class FeatureMakerMaryServer{
 		mary = new MaryHttpClient(true);
         //mary = new MaryClient();
 		
-        /* Here the DB connection for reliable sentences is open */
+        /* Here the DB connection is open */
          wikiToDB = new DBHandler(locale);
          wikiToDB.createDBConnection(mysqlHost,mysqlDB,mysqlUser,mysqlPasswd);
-         //wikiToDB.createDBConnection("penguin.dfki.uni-sb.de","MaryDBSelector","MaryDBSel_admin","p4rpt3jr");
+        
          // check if tables exist
          wikiToDB.createDataBaseSelectionTable();
          
@@ -512,8 +512,9 @@ public class FeatureMakerMaryServer{
                  pw.print(selectionFeature.elementAt(i) + " ");
                  for(int j=0; j<feas.length; j++)
                    pw.print(feas[j] + " ");  
-                 pw.println("ShortValuedFeatureProcessors\nContinuousFeatureProcessors\n");
+                 pw.println();
               }
+              pw.println("ShortValuedFeatureProcessors\nContinuousFeatureProcessors\n");
               pw.close();
               
             }  else { // once the featDef has been load just skip the first part of the featDis

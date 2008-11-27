@@ -59,13 +59,14 @@ public class DBHandler {
   private ResultSet  rs = null;
   private String currentTable = null;
   private PreparedStatement psSentence = null;
+  private PreparedStatement psSelectedSentence = null;
   private PreparedStatement psWord = null;
   private PreparedStatement psCleanText = null;
  
   private String cleanTextTableName = "_cleanText";
   private String wordListTableName = "_wordList";
   private String dbselectionTableName = "_dbselection";
-  private String selectedSentencesTableName = "_selectedSenteces";
+  private String selectedSentencesTableName = "_selectedSentences";
   //public void setLocale(String str){ locale = str; }
   //public String getLocale(){ return locale; }
   
@@ -116,7 +117,8 @@ public class DBHandler {
       
       psCleanText = cn.prepareStatement("INSERT INTO " + cleanTextTableName + " VALUES (null, ?, ?, ?, ?)");
       psWord      = cn.prepareStatement("INSERT INTO " + wordListTableName + " VALUES (null, ?, ?)");
-      psSentence  = cn.prepareStatement("INSERT INTO " + dbselectionTableName + " VALUES (null, ?, ?, ?, ?, ?, ?)");
+      psSentence  = cn.prepareStatement("INSERT INTO " + dbselectionTableName + " VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?)");
+      psSelectedSentence  = cn.prepareStatement("INSERT INTO " + selectedSentencesTableName + " VALUES (null, ?, ?, ?)");
       
     } catch (Exception e) {
         e.printStackTrace();
@@ -130,6 +132,8 @@ public class DBHandler {
                                                        "reliable BOOLEAN, " +
                                                        "unknownWords BOOLEAN, " +
                                                        "strangeSymbols BOOLEAN, " +
+                                                       "selected BOOLEAN, " +
+                                                       "unwanted BOOLEAN, " +
                                                        "cleanText_id INT UNSIGNED NOT NULL, " +   // the cleanText id where this sentence comes from
                                                        "primary key(id));";
       String str;
@@ -154,6 +158,43 @@ public class DBHandler {
               boolean res = st.execute( dbselection );
               System.out.println("TABLE = " + dbselectionTableName + " succesfully created.");   
           }
+      } catch (SQLException e) {
+          e.printStackTrace();
+      } 
+  }
+  
+  
+  public void createSelectedSentencesTable() {
+      String selected = "CREATE TABLE " + selectedSentencesTableName + " ( id INT NOT NULL AUTO_INCREMENT, " +                                                       
+                                                       "sentence TEXT, " +
+                                                       "unwanted BOOLEAN, " +
+                                                       "dbselection_id INT UNSIGNED NOT NULL, " +   // the dbselection id where this sentence comes from
+                                                       "primary key(id));";
+      String str;
+      boolean dbExist = false;
+      // if database does not exist create it    
+      System.out.println("Checking if " + selectedSentencesTableName + " already exist.");
+      try {
+          rs = st.executeQuery("SHOW TABLES;");
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+      
+      try { 
+          while( rs.next() ) {
+            str = rs.getString(1);
+            if( str.contentEquals(selectedSentencesTableName) ){
+               dbExist = true;
+            }
+          }
+          if(dbExist==true){
+              System.out.println("TABLE = " + selectedSentencesTableName + " already exist deleting.");  
+              boolean res0 = st.execute( "DROP TABLE " + selectedSentencesTableName + ";" );  
+          }
+          
+          boolean res = st.execute( selected );
+          System.out.println("TABLE = " + selectedSentencesTableName + " succesfully created.");   
+          
       } catch (SQLException e) {
           e.printStackTrace();
       } 
@@ -551,18 +592,51 @@ public class DBHandler {
     */
     
     try { 
-      // INSERT INTO dbselection VALUES (id, sentence, features, realiable)
-      //ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?, ?, ?, ?)");
+      // INSERT INTO dbselection VALUES (id, sentence, features, realiable, unknownWords, strangeSymbols, selected, unwanted, cleanText_id)
+      //ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?, ?, ?, ?,?)");
     
         psSentence.setString(1, sentence);
         psSentence.setBytes(2, features);
         psSentence.setBoolean(3, reliable);
         psSentence.setBoolean(4, unknownWords);
         psSentence.setBoolean(5, strangeSymbols);
-        psSentence.setInt(6, cleanText_id);
+        psSentence.setBoolean(6, false);
+        psSentence.setBoolean(7, false);
+        psSentence.setInt(8, cleanText_id);
         psSentence.execute();
       
         psSentence.clearParameters();
+      
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+  
+  /****
+   * Insert processed sentence in dbselection
+   * @param sentence text of the sentence.
+   * @param features features if sentences is reliable.
+   * @param reliable true/false.
+   * @param unknownWords true/false.
+   * @param strangeSymbols true/false.
+   * @param cleanText_id the id of the cleanText this sentence comes from.
+   */
+  public void insertSelectedSentence(int dbselection_id, boolean unwanted){
+  
+    try {
+      // First get the sentence
+       String sentence = getSentence("dbselection", dbselection_id);
+        
+        
+      // INSERT INTO dbselection VALUES (id, sentence, unwanted, dbselection_id)
+      //ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?)");
+    
+        psSelectedSentence.setString(1, sentence);
+        psSelectedSentence.setBoolean(2, unwanted);
+        psSelectedSentence.setInt(3, dbselection_id);
+        psSelectedSentence.execute();
+      
+        psSelectedSentence.clearParameters();
       
     } catch (SQLException e) {
       e.printStackTrace();
@@ -626,16 +700,32 @@ public class DBHandler {
       return Integer.parseInt(str);
   }
   
-  public int[] getIdListOfType(String type) {
+
+  /***
+   * Get a list of id's
+   * @param table cleanText, wordList, dbselection, selectedSenteces (no need to add locale)
+   * @param type reliable, unknownWords, strangeSymbols, selected, unwanted or type=null
+   *             for querying without type constraint.
+   * @return int array
+   */
+  public int[] getIdListOfType(String table, String type) {
       int num, i, j;
       int idSet[]=null;
+      String getNum, getIds;
+      if(type!=null){
+        getNum =  "SELECT count(id) FROM " + locale + "_" + table + " where " + type + "=true;";
+        getIds =  "SELECT id FROM " + locale + "_" + table +  " where " + type + "=true;";
+      } else {
+        getNum =  "SELECT count(id) FROM " + locale + "_" + table + ";";
+        getIds =  "SELECT id FROM " + locale + "_" + table + ";";
+      }
       
-      String str = queryTable("SELECT count(id) FROM " + dbselectionTableName + " where " + type + "=true;");
+      String str = queryTable(getNum);
       num = Integer.parseInt(str);
       idSet = new int[num];
       
       try {
-          rs = st.executeQuery("SELECT id FROM " + dbselectionTableName + " where " + type + "=true;"); 
+          rs = st.executeQuery(getIds); 
       } catch (Exception e) {
           e.printStackTrace();
       }
@@ -758,9 +848,13 @@ public class DBHandler {
       
   }
   
-  
-  public String getSentenceFromTable(int id, String table) {
-      String dbQuery = "Select sentence FROM " + table + " WHERE id=" + id;
+  /***
+   * Get a sentence from dbselection table or selectedSentences table
+   * @param table dbselection, selectedSenteces (no need to add locale)
+   * @return String sentence
+   */
+  public String getSentence(String table, int id) {
+      String dbQuery = "Select sentence FROM " + locale + "_" + table + " WHERE id=" + id;
       return queryTable(dbQuery);      
   }
   
@@ -835,6 +929,22 @@ public class DBHandler {
       return text;     
   }
   
+  /***
+   * Set a sentence record field as true/false in dbselection table.
+   * @param id
+   * @param field  reliable, unknownWords, strangeSymbols, selected or unwanted = true/false
+   * @param fieldvalue true/false (as string)
+   */
+  public void setSentenceRecord(int id, String field, boolean fieldValue){
+    String bval;  
+    if(fieldValue)
+      bval = "true";
+    else
+      bval = "false";   
+        
+    updateTable("UPDATE " + dbselectionTableName + " SET " + field + "=" + bval + " WHERE id=" + id);  
+      
+  }
   
   public String getFeaturesFromTable(int id, String table) {
       String dbQuery = "Select features FROM " + table + " WHERE id=" + id;
@@ -957,7 +1067,7 @@ public class DBHandler {
       
       wikiToDB.createDataBaseSelectionTable();
       
-      wikiToDB.getIdListOfType("reliable");
+      wikiToDB.getIdListOfType("dbselection", "reliable");
       
       int num = wikiToDB.getNumberOfReliableSentences();
       
@@ -985,7 +1095,7 @@ public class DBHandler {
       wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
       wikiToDB.setDBTable("dbselection");
       //String sentence = wikiToDB.queryTable(3, "sentence");
-      String sentence = wikiToDB.getSentenceFromTable(3, "dbselection");
+      String sentence = wikiToDB.getSentence("dbselection", 3);
       System.out.println("sentence 3 = " + sentence );
       
       String fea = wikiToDB.getFeaturesFromTable(3, "dbselection");

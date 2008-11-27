@@ -228,7 +228,7 @@ public class DatabaseSelector{
             //coverage can be read from file 
             //covDef.readCoverageBin(initFileName,featDef,basenameList);
 
-            idSentenceList = wikiToDB.getIdListOfType("reliable");
+            idSentenceList = wikiToDB.getIdListOfType("dbselection", "reliable");
             covDef.readCoverageBin(wikiToDB, initFileName,featDef,idSentenceList);
         }
         
