@@ -347,7 +347,7 @@ public class CoverageDefinition{
         
         
         numSentences = wikiToDB.getNumberOfReliableSentences();
-        int idSentencesList[] = wikiToDB.getIdListOfType("reliable");
+        int idSentenceList[] = wikiToDB.getIdListOfType("reliable");
         
         
         // here the String[] basenames is created with the fromFile field of
@@ -366,7 +366,7 @@ public class CoverageDefinition{
         int id;
         for (int index=0;index<numSentences;index++){
             
-            id = idSentencesList[index];
+            id = idSentenceList[index];
             
             if ((index % tenPercent) == 0 && index!=0){
                 int percentage = index/tenPercent;
@@ -559,7 +559,7 @@ public class CoverageDefinition{
         numClusteredFeatVectsInCover = 0;
         
         //return basenames;
-        return idSentencesList;
+        return idSentenceList;
         
     }
 
@@ -1300,7 +1300,7 @@ public class CoverageDefinition{
      * @throws Exception
      */
  //   public void readCoverageBin(String filename, FeatureDefinition fDef, String[] basenames)throws Exception{
-      public void readCoverageBin(String filename, FeatureDefinition fDef, int[] idSentenceList)throws Exception{
+      public void readCoverageBin(DBHandler wikiToDB, String filename, FeatureDefinition fDef, int[] idSentenceList)throws Exception{
         this.featDef = fDef;
         
         // DE
@@ -1374,14 +1374,12 @@ public class CoverageDefinition{
             
             //int numSentences = basenames.length;  // this variable is overriding the global numSentences
                                                     // so which one is actually used????
-            int numSentences = idSentenceList.length;
+            
+            int numSentences = idSentenceList.length;    // and this value was read before???
             
             trueNumSentences = numSentences;
             vectorArray = new byte[numSentences][];
             int tenPercent = numSentences/10; 
-            
-            DBHandler wikiToDB = new DBHandler(locale);
-            wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");    
             
             // get here the fv corresponding to the idSentences
             int id;
