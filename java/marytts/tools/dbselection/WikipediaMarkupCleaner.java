@@ -30,7 +30,9 @@
 package marytts.tools.dbselection;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -888,6 +890,39 @@ public class WikipediaMarkupCleaner {
           words = sentences[m].split(" ");
           for(n=0; n<words.length; n++){
             w = words[n];
+            
+            // Split into letter sections that we will cosider atomic "words":
+            int start=0, end=0;
+            int minimumLength = 2;
+            for (; end<w.length(); end++) {
+                if (Character.isLetter(w.charAt(end))) {
+                    if (start < 0) start = end;
+                    continue;
+                }
+                // not a letter
+                if (start >= 0 && end-start >= minimumLength) {
+                    String oneWord = w.substring(start, end);
+                    Integer count = (Integer) wordList.get(oneWord);
+                    // if key is not in the map then give it value one
+                    // otherwise increment its value by 1
+                    if(count==null)
+                      wordList.put(oneWord, new Integer(1));
+                    else
+                      wordList.put(oneWord, new Integer( count.intValue() + 1));
+                }
+                start = -1;
+            }
+            if (start >= 0 && end-start >= minimumLength) {
+                String oneWord = w.substring(start, end);
+                Integer count = (Integer) wordList.get(oneWord);
+                // if key is not in the map then give it value one
+                // otherwise increment its value by 1
+                if(count==null)
+                  wordList.put(oneWord, new Integer(1));
+                else
+                  wordList.put(oneWord, new Integer( count.intValue() + 1));
+            }
+/*            
             // remove punctuation
             if( w.endsWith(",") || w.endsWith(";") || w.endsWith(".") ||
                 w.endsWith(":") || w.endsWith("'") || w.endsWith(")") || w.endsWith("?") )  
@@ -896,7 +931,7 @@ public class WikipediaMarkupCleaner {
               w = w.substring(0, (w.length()-2));      
             if(w.startsWith("(") )
               w = w.substring(1, w.length());
-                    
+
             if( w.length()>1 && StringUtils.isAlpha(w) && StringUtils.isNotBlank(w) 
                              && StringUtils.isNotEmpty(w) && StringUtils.isAsciiPrintable(w)) {
               //System.out.print(w + " ");
@@ -908,6 +943,7 @@ public class WikipediaMarkupCleaner {
               else
                 wordList.put(w, new Integer( i.intValue() + 1));
             } // if word is > 1 and isAlpha
+*/
           }
           //System.out.println("\n");
           words = null;
@@ -915,6 +951,7 @@ public class WikipediaMarkupCleaner {
         sentences = null;
     }
     
+
     
     public void updateWordList(DBHandler wikiToDB,  HashMap<String, Integer> wlNew){
        String w;
@@ -1098,7 +1135,6 @@ public class WikipediaMarkupCleaner {
         
         //printWordList("/project/mary/marcela/anna_wikipedia/wordlist.txt");
         wikiToDB.printWordList("./wordlist-freq.txt", "frequency", 0, 0);
-        
         
         System.out.println("\nNumber of pages used=" + numPagesUsed + " Wordlist[" + wordList.size() + "] "
                 + " Start time:" + dateStringIni + "  End time:" + dateStringEnd);
