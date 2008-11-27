@@ -436,56 +436,38 @@ public class FeatureMakerMaryServer{
 	}
 	
 	
-	
-	/**
-	 * Phonemise the given document with 
-	 * the help of JPhonemiser
+    /**
+     * Process the given text with the MaryClient
+     * from Text to Chunked
      * 
-     * g2p_method
-     * "contains-unknown-words" or "contains-strange-symbols",
-	 * 
-	 * @param d
-	 * @return 0 if the sentence is useful
-     *         1 if the sentence contains unknownWords
-     *         2 if the sentence contains strangeSymbols
-	 */
-	protected static int checkCredibility(Element t){
+     * @param textString the text to process
+     * @return the resulting XML-Document
+     * @throws Exception
+     */
+    protected static Document phonemiseText(String textString, String id) throws Exception{
+        try{
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            //process and dump
+            mary.process(textString, "TEXT","PHONEMES", locale, null, defaultVoice, os);
+            
+            //read into mary data object                
+            //MaryData maryData = new MaryData(MaryDataType.PHONEMES, Locale.GERMAN);
+            //MaryData maryData = new MaryData(MaryDataType.PHONEMES, Locale.US);
+            MaryData maryData = new MaryData(MaryDataType.PHONEMES, null); // CHECK! how to get here the corresponding Locale for locale
+            
+            maryData.readFrom(new ByteArrayInputStream(os.toByteArray()));
+           
+            return maryData.getDocument();
+        } catch (Exception e){
+            e.printStackTrace();
+            System.out.println("PhonemiseText: problem processing text id=" + id);
+            return null;            
+        }
         
-		//boolean newUsefulSentence = true;
-        int newUsefulSentence = 0;
-        
-		if (t.hasAttribute("ph")){
-			//we have a transcription
-			if (t.hasAttribute("g2p_method")) {
-				//check method of transcription
-				String method = t.getAttribute("g2p_method");
-				if (!method.equals("lexicon") && !method.equals("userdict")){
-					if (strictCredibility){
-						//method other than lexicon or userdict -> unreliable
-                        newUsefulSentence = 1;
-                       
-					} else {
-						//lax credibility criterion
-						if (!method.equals("phonemiseDenglish") && !method.equals("compound")){
-							//method other than lexicon, userdict, phonemiseDenglish 
-							//or compound -> unreliable
-                            newUsefulSentence = 1;
-                            
-						} //else method is phonemiseDenglish or compound -> credible						
-					}
-				}// else method is lexicon or userdict -> credible				
-			} //else no method -> preprocessed -> credible			
-		} else {      
-			//we dont have a transcription
-			if (t.hasAttribute("pos") && !t.getAttribute("pos").startsWith("$")){					
-				//no transcription given -> unreliable	
-                newUsefulSentence = 2;      
-			} //else punctuation -> credible
-		} 
-		return newUsefulSentence;
-	}
-		
-		
+    }
+    
+
+	
 		
 		/**
 		 * Process the target features
@@ -516,7 +498,9 @@ public class FeatureMakerMaryServer{
                        "# Note that the feature definitions must be identical between this file\n" +
                        "# and the feature files used for selection. Use the corresponding file\n" +
                        "# [locale]-targetfeatures.config for feature computation.\n" +
-                       "# \n");
+                       "# \n" +
+                       "\n" +
+                       "ByteValuedFeatureProcessors\n");
               
               for(int i=0; i<selectionFeature.size(); i++){
                  selectionFeatureIndex[i] = featDef.getFeatureIndex(selectionFeature.elementAt(i));
@@ -525,7 +509,7 @@ public class FeatureMakerMaryServer{
                  pw.print(selectionFeature.elementAt(i) + " ");
                  for(int j=0; j<feas.length; j++)
                    pw.print(feas[j] + " ");  
-                 pw.println();
+                 pw.println("ShortValuedFeatureProcessors\nContinuousFeatureProcessors\n");
               }
               pw.close();
               
@@ -588,7 +572,7 @@ public class FeatureMakerMaryServer{
             StringBuffer sentence;
             //index2sentences = new TreeMap<Integer,String>();
             
-          //  System.out.println(text);
+            //System.out.println(text);
 			
             Document doc = phonemiseText(text, id);
 			//if (doc == null) return false;
@@ -631,9 +615,13 @@ public class FeatureMakerMaryServer{
 						//		+" : is unreliable");
                         
                         unrelSentences++;
+                        /*
+                        if(unknownWords)
+                          System.out.println("unknownWords: " + sentence.toString());
+                        if(strangeSymbols)
+                            System.out.println("strangeSymbols: " + sentence.toString());
+                         */
                         
-                        //System.out.println("Inserting unreliable sentence:");
-                         
                         // Here the reason why is unreliable can be added to the DB.
                         // for the moment there is just one field reliable=false in this case.
                         wikiToDB.insertSentence(sentence.toString(), null, usefulSentence, unknownWords, strangeSymbols, Integer.parseInt(id));
@@ -656,96 +644,121 @@ public class FeatureMakerMaryServer{
 		}
 		
       
-		/**
-		 * Process the given text with the MaryClient
-		 * from Text to Chunked
-		 * 
-		 * @param textString the text to process
-		 * @return the resulting XML-Document
-		 * @throws Exception
-		 */
-		protected static Document phonemiseText(String textString, String id) throws Exception{
-			try{
-				ByteArrayOutputStream os = new ByteArrayOutputStream();
-				//process and dump
-				mary.process(textString, "TEXT","PHONEMES", locale, null, defaultVoice, os);
-                
-                //read into mary data object                
-				//MaryData maryData = new MaryData(MaryDataType.PHONEMES, Locale.GERMAN);
-                //MaryData maryData = new MaryData(MaryDataType.PHONEMES, Locale.US);
-                MaryData maryData = new MaryData(MaryDataType.PHONEMES, null); // CHECK! how to get here the corresponding Locale for locale
-                
-				maryData.readFrom(new ByteArrayInputStream(os.toByteArray()));
-               
-				return maryData.getDocument();
-			} catch (Exception e){
-				e.printStackTrace();
-                System.out.println("PhonemiseText: problem processing text id=" + id);
-				return null;            
-			}
-			
-		}
-		
-		/**
-		 * Collect the tokens of a sentence
-		 * 
-		 * @param nextToken the Node to start from
+        /**
+         * Collect the tokens of a sentence
+         * 
+         * @param nextToken the Node to start from
          * checkCredibility returns
          *  0 if the sentence is useful
          *  1 if the sentence contains unknownWords (so the sentence is not useful)
          *  2 if the sentence contains strangeSymbols (so the sentence is not useful)
-		 */
-		protected static StringBuffer collectTokens(Node nextToken, StringBuffer sentence){
+         */
+        protected static StringBuffer collectTokens(Node nextToken, StringBuffer sentence){
             int credibility = 0; 
             String tokenText, word;
-			String name = nextToken.getLocalName();
-			if (name.equals("t")){
-				if ( ( credibility = checkCredibility((Element) nextToken) ) > 0 ){
-					//memorize that we found unreliable sentence
-					usefulSentence = false;
+            String name = nextToken.getLocalName();
+            if (name.equals("t")){
+                if ( ( credibility = checkCredibility((Element) nextToken) ) > 0 ){
+                    //memorize that we found unreliable sentence
+                    usefulSentence = false;
                     if(credibility == 1)
                       unknownWords = true;
                     else if(credibility == 2)
                       strangeSymbols = true;  
-				}
-				if (sentence == null){
-					sentence = new StringBuffer();
-					//first word of the sentence
+                }
+                if (sentence == null){
+                    sentence = new StringBuffer();
+                    //first word of the sentence
                      word = MaryDomUtils.tokenText((Element)nextToken);                   
-					 sentence.append(word);
+                     sentence.append(word);
                      
-				} else {
-					String pos = ((Element)nextToken).getAttribute("pos");
-					if (pos.startsWith("$")){
-						//punctuation
-						tokenText = MaryDomUtils.tokenText((Element)nextToken);
-						//just append without whitespace
-						sentence.append(tokenText);
-					//	System.out.println(sentence);
-					} else {
-						//normal word, append a whitespace before it
+                } else {
+                    String pos = ((Element)nextToken).getAttribute("pos");
+                    //if (pos.startsWith("$")){
+                    if (".,'`:#$".indexOf(pos.substring(0,1)) != -1) {
+                        //punctuation
+                        tokenText = MaryDomUtils.tokenText((Element)nextToken);
+                        //just append without whitespace
+                        sentence.append(tokenText);
+                        //System.out.println(sentence);
+                    } else {
+                        //normal word, append a whitespace before it
                         word = MaryDomUtils.tokenText((Element)nextToken);
                         //System.out.println("word=" + word);
                         sentence.append(" " + word);
-                     //   System.out.println(sentence);
-					}
-				}
-			} else {
-				if (name.equals("mtu")){
-					//get the tokens
-					NodeList mtuTokens = nextToken.getChildNodes();
-					for (int l=0;l<mtuTokens.getLength();l++){
-						Node nextMTUToken = mtuTokens.item(l);
-						//ignore all non-element children
-						if (!(nextMTUToken instanceof Element)) continue; 
-						collectTokens(nextMTUToken, sentence);
-					}
-				}
-				
-			}
-            
+                        //System.out.println(sentence);
+                    }
+                }
+            } else {
+                if (name.equals("mtu")){
+                    //get the tokens
+                    NodeList mtuTokens = nextToken.getChildNodes();
+                    for (int l=0;l<mtuTokens.getLength();l++){
+                        Node nextMTUToken = mtuTokens.item(l);
+                        //ignore all non-element children
+                        if (!(nextMTUToken instanceof Element)) continue; 
+                        collectTokens(nextMTUToken, sentence);
+                    }
+                }
+                
+            }
             return sentence;
-		}
+        }
+        
+        
+        /**
+         * Phonemise the given document with 
+         * the help of JPhonemiser
+         * 
+         * g2p_method
+         * "contains-unknown-words" or "contains-strange-symbols",
+         * 
+         * @param d
+         * @return 0 if the sentence is useful
+         *         1 if the sentence contains unknownWords
+         *         2 if the sentence contains strangeSymbols
+         */
+        protected static int checkCredibility(Element t){
+            
+            //boolean newUsefulSentence = true;
+            int newUsefulSentence = 0;
+            
+            if (t.hasAttribute("ph")){
+                //we have a transcription
+                if (t.hasAttribute("g2p_method")) {
+                    //check method of transcription
+                    String method = t.getAttribute("g2p_method");
+                    if (!method.equals("lexicon") && !method.equals("userdict") && !method.equals("rules")){ // NEW: method is rules
+                        if (strictCredibility){
+                            //method other than lexicon or userdict -> unreliable
+                            newUsefulSentence = 1;
+                           
+                        } else {
+                            //lax credibility criterion
+                            if (!method.equals("phonemiseDenglish") && !method.equals("compound")){
+                                //method other than lexicon, userdict, phonemiseDenglish 
+                                //or compound -> unreliable
+                                newUsefulSentence = 1;
+                                
+                            } //else method is phonemiseDenglish or compound -> credible                        
+                        }
+                    }// else method is lexicon or userdict -> credible           
+                } //else no method -> preprocessed -> credible          
+            } else {      
+                //we dont have a transcription
+                //if (t.hasAttribute("pos") && !t.getAttribute("pos").startsWith("$")){
+                String pos = t.getAttribute("pos");
+                if (".,'`:#$".indexOf(pos.substring(0,1)) == -1){
+                    //no transcription given -> unreliable  
+                    newUsefulSentence = 2;      
+                } //else punctuation -> credible
+            } 
+            return newUsefulSentence;
+        }
+            
+            
+        
+	
 		
 		/**
 		 * Convert the given xml-node and its subnodes to Strings
