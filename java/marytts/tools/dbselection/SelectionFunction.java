@@ -31,6 +31,7 @@ package marytts.tools.dbselection;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -184,9 +185,12 @@ public class SelectionFunction{
         int sentIndex = selectedFilenames.size()+1;
         selectedVectors = null;
                 
+        // create the selectedSentences table 
+        // CHECK if there is an old table it should be deleted? 
+        wikiToDB.createSelectedSentencesTable();
+        
         // while the stop criterion is not reached      
-        while(!stopCriterionIsReached(selectedFilenames,
-                coverageDefinition)){ 
+        while(!stopCriterionIsReached(selectedFilenames, coverageDefinition)){ 
             
             //select the next sentence  
             //selectNext(coverageDefinition, logFile, sentIndex, basenameList, vectorArray);
@@ -200,7 +204,10 @@ public class SelectionFunction{
                 logFile.println("Nothing more to select");
                 break;
             }
-
+            // the selected sentences will be marked as selected=true in the DB
+            System.out.println("selectedIdSentence=" + selectedIdSentence);           
+            wikiToDB.setSentenceRecord(selectedIdSentence, "selected", true);
+            wikiToDB.insertSelectedSentence(selectedIdSentence, false);
 
             //add the selected sentence to the set
             //selectedFilenames.add(selectedBasename);
@@ -213,6 +220,18 @@ public class SelectionFunction{
         sentIndex--;
         if (verbose)
             System.out.println("Total number of sentences : "+sentIndex);
+        
+        // saving sentences is a file
+        System.out.println("Saving selected sentences in ./selected.log");
+        PrintWriter selectedLog = new PrintWriter(new FileWriter(new File("./selected.log")));
+        int sel[] = wikiToDB.getIdListOfType("selectedSentences", null);
+        String str;
+        for(int i=0; i<sel.length; i++){
+          str = wikiToDB.getSentence("selectedSentences", sel[i]);  
+          //System.out.println("id=" + sel[i] + str);  
+          selectedLog.println("id=" + sel[i] + " " + str);
+        }
+        selectedLog.close();
         logFile.println("Total number of sentences : "+sentIndex);
     }
 
