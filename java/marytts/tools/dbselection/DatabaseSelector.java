@@ -56,13 +56,18 @@ import marytts.features.FeatureDefinition;
  *
  */
 public class DatabaseSelector{
+    
+    //  locale
+    private static String locale;
 
     //the feature definition for the feature vectors
     public static FeatureDefinition featDef;
     //the file containing the feature definition
     private static String featDefFileName;
+
     //the file containing the filenames from which to select
-    private static String basenameFileName;
+//    private static String basenameFileName;
+
     //the file containing the coverage data needed 
     //to initialise the algorithm
     private static String initFileName;
@@ -96,6 +101,13 @@ public class DatabaseSelector{
     //file containing the list of sentences that
     //are not wanted on the basename list
     private static String unwantedSentsFile;
+    
+    protected static DBHandler wikiToDB;
+    //  mySql database 
+    private static String mysqlHost;
+    private static String mysqlDB;
+    private static String mysqlUser;
+    private static String mysqlPasswd;
     
     /**
      * Main method to be run from the directory where the data is.
@@ -136,13 +148,13 @@ public class DatabaseSelector{
         long time = System.currentTimeMillis();
         PrintWriter logOut;
         
+        String dateString = "", dateDir = "";
         DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
         DateFormat day = new SimpleDateFormat("dd_MM_yyyy");
         Date date = new Date();
-        String dateString = fullDate.format(date);
-        String dateDir = day.format(date);
-//        String dateString = "";
-//        String dateDir = "";
+        dateString = fullDate.format(date);
+        dateDir = day.format(date);
+          
         
         System.out.println("Reading arguments ...");
         StringBuffer logBuf = new StringBuffer();
@@ -179,6 +191,9 @@ public class DatabaseSelector{
         //print date and arguments to log file
         logOut.println("Date: "+dateString);
         logOut.println(logBuf.toString());
+        
+        wikiToDB = new DBHandler(locale);
+        wikiToDB.createDBConnection(mysqlHost,mysqlDB,mysqlUser,mysqlPasswd);
 
         /* Load the filenames */   
  //       System.out.println("Loading basenames...");
@@ -212,7 +227,9 @@ public class DatabaseSelector{
         } else {                
             //coverage can be read from file 
             //covDef.readCoverageBin(initFileName,featDef,basenameList);
-            covDef.readCoverageBin(initFileName,featDef,idSentenceList);
+
+            idSentenceList = wikiToDB.getIdListOfType("reliable");
+            covDef.readCoverageBin(wikiToDB, initFileName,featDef,idSentenceList);
         }
         
         if (vectorArrayNull) vectorArray = covDef.getVectorArray();
@@ -255,14 +272,10 @@ public class DatabaseSelector{
 
         /* Start the algorithm */
         System.out.println("Selecting sentences...");
-        DBHandler wikiToDB = new DBHandler("en_US");
-        wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123"); 
-        
+       
         //selFunc.select(selectedSents,covDef,logOut,basenameList,holdVectorsInMemory,verbose);
         selFunc.select(selectedIdSents,covDef,logOut,idSentenceList,holdVectorsInMemory,verbose,wikiToDB);
 
-        wikiToDB.closeDBConnection(); 
-        
         /* Store list of selected files */
         filename = selectionDirName+dateDir
         +"/selectionResult_"+dateString+".txt";
@@ -309,6 +322,9 @@ public class DatabaseSelector{
                 +elapsedTime+" milliseconds)");
         logOut.flush();
         logOut.close();
+        
+        wikiToDB.closeDBConnection();    
+
         System.out.println("All done!");   
         return vectorArray;
     }
@@ -323,6 +339,7 @@ public class DatabaseSelector{
      */
     private static boolean readArgs(String[] args,StringBuffer log){
         //initialise default values
+        locale = null;
         selectionDirName = null;
         initFileName = null;
         covDefConfigFileName = null;
@@ -332,36 +349,100 @@ public class DatabaseSelector{
         logCovDevelopment = false;
         selectedSentsFile = null;
         unwantedSentsFile = null;
+        mysqlHost = null;
+        mysqlDB = null;
+        mysqlUser = null;
+        mysqlPasswd = null;
         
         int i=0;
         int numEssentialArgs = 0;
         
         //loop over args
-        while (args.length > i){             
-            if (args[i].equals("-featDef")){
+        while (args.length > i){ 
+            if (args[i].equals("-locale")){
                 if (args.length > i+1){
                     i++;
-                    featDefFileName = args[i];
-                    log.append("FeatDefFileName : "+args[i]+"\n");
-                    System.out.println("FeatDefFileName : "+args[i]);
+                    locale = args[i];
+                    log.append("locale : "+args[i]+"\n");
+                    System.out.println("  locale : "+args[i]);
                     numEssentialArgs++;
                 } else {
-                    System.out.println("No featDef file");
+                    System.out.println("No locale.");
                     printUsage();
                     return false;
                 }
                 i++;
                 continue;
             }
-            if (args[i].equals("-basenames")){
+            if (args[i].equals("-mysqlHost")){
                 if (args.length > i+1){
                     i++;
-                    basenameFileName = args[i];
-                    log.append("Basenames : "+args[i]+"\n");
-                    System.out.println("Basenames : "+args[i]);
+                    mysqlHost = args[i];
+                    log.append("mysqlHost : "+args[i]+"\n");
+                    System.out.println("  mysqlHost : "+args[i]);
                     numEssentialArgs++;
                 } else {
-                    System.out.println("No basenames file name");
+                    System.out.println("No mysqlHost.");
+                    printUsage();
+                    return false;
+                }
+                i++;
+                continue;
+            }
+            if (args[i].equals("-mysqlDB")){
+                if (args.length > i+1){
+                    i++;
+                    mysqlDB = args[i];
+                    log.append("mysqlDB : "+args[i]+"\n");
+                    System.out.println("  mysqlDB : "+args[i]);
+                    numEssentialArgs++;
+                } else {
+                    System.out.println("No mysqlDB.");
+                    printUsage();
+                    return false;
+                }
+                i++;
+                continue;
+            }
+            if (args[i].equals("-mysqlUser")){
+                if (args.length > i+1){
+                    i++;
+                    mysqlUser = args[i];
+                    log.append("mysqlUser : "+args[i]+"\n");
+                    System.out.println("  mysqlUser : "+args[i]);
+                    numEssentialArgs++;
+                } else {
+                    System.out.println("No mysqlUser.");
+                    printUsage();
+                    return false;
+                }
+                i++;
+                continue;
+            }
+            if (args[i].equals("-mysqlPasswd")){
+                if (args.length > i+1){
+                    i++;
+                    mysqlPasswd = args[i];
+                    log.append("mysqlPasswd : "+args[i]+"\n");
+                    System.out.println("  mysqlPasswd : "+args[i]);
+                    numEssentialArgs++;
+                } else {
+                    System.out.println("No mysqlPasswd.");
+                    printUsage();
+                    return false;
+                }
+                i++;
+                continue;
+            }
+            if (args[i].equals("-featDef")){
+                if (args.length > i+1){
+                    i++;
+                    featDefFileName = args[i];
+                    log.append("FeatDefFileName : "+args[i]+"\n");
+                    System.out.println("  FeatDefFileName : "+args[i]);
+                    numEssentialArgs++;
+                } else {
+                    System.out.println("No featDef file");
                     printUsage();
                     return false;
                 }
@@ -373,7 +454,7 @@ public class DatabaseSelector{
                     i++;
                     initFileName = args[i];
                     log.append("initFile : "+args[i]+"\n");
-                    System.out.println("initFile : "+args[i]);
+                    System.out.println("  initFile : "+args[i]);
                 } else {
                     System.out.println("No initFile");
                     printUsage();
@@ -387,7 +468,7 @@ public class DatabaseSelector{
                     i++;
                     selectedSentsFile = args[i];
                     log.append("selectedSentences file : "+args[i]+"\n");
-                    System.out.println("selectedSentences file: "+args[i]);
+                    System.out.println("  selectedSentences file: "+args[i]);
                 } else {
                     System.out.println("No selectedSentences file");
                     printUsage();
@@ -402,7 +483,7 @@ public class DatabaseSelector{
                     i++;
                     unwantedSentsFile = args[i];
                     log.append("unwantedSentences file : "+args[i]+"\n");
-                    System.out.println("unwantedSentences file: "+args[i]);
+                    System.out.println("  unwantedSentences file: "+args[i]);
                 } else {
                     System.out.println("No unwantedSentences file");
                     printUsage();
@@ -415,21 +496,21 @@ public class DatabaseSelector{
             if (args[i].equals("-vectorsOnDisk")){
                 holdVectorsInMemory = false;
                 log.append("vectorsOnDisk");
-                System.out.println("vectorsOnDisk");
+                System.out.println("  vectorsOnDisk");
                 i++;
                 continue;
             }
             if (args[i].equals("-verbose")){
                 verbose = true;
                 log.append("verbose");
-                System.out.println("verbose");
+                System.out.println("  verbose");
                 i++;
                 continue;
             }
             if (args[i].equals("-logCoverageDevelopment")){
                 logCovDevelopment = true;
                 log.append("logCoverageDevelopment");
-                System.out.println("logCoverageDevelopment");
+                System.out.println("  logCoverageDevelopment");
                 i++;
                 continue;
             }
@@ -444,7 +525,7 @@ public class DatabaseSelector{
                         selectionDirName = selectionDirName+"/"; 
                     }
                     log.append("selectionDir : "+args[i]+"\n");
-                    System.out.println("selectionDir : "+args[i]);
+                    System.out.println("  selectionDir : "+args[i]);
                 } else {
                     System.out.println("No selectionDir");
                     printUsage();
@@ -458,7 +539,7 @@ public class DatabaseSelector{
                     i++;
                     covDefConfigFileName = args[i];
                     log.append("coverageConfig : "+args[i]+"\n");
-                    System.out.println("coverageConfig : "+args[i]);
+                    System.out.println("  coverageConfig : "+args[i]);
                 } else {
                     System.out.println("No coverageConfig");
                     printUsage();
@@ -477,7 +558,7 @@ public class DatabaseSelector{
                 } 
                 stopCriterion = tmp.toString();
                 log.append("stop criterion : "+stopCriterion+"\n");
-                System.out.println("stop criterion : "+stopCriterion);
+                System.out.println("  stop criterion : "+stopCriterion);
                 numEssentialArgs++;
                 continue;
             }
@@ -486,7 +567,7 @@ public class DatabaseSelector{
                     i++;
                     overallLogFile = args[i];
                     log.append("overallLogFile : "+args[i]+"\n");
-                    System.out.println("overallLogFile : "+args[i]);
+                    System.out.println("  overallLogFile : "+args[i]);
                     numEssentialArgs++;
                 } else {
                     System.out.println("No overall log file");
@@ -498,11 +579,11 @@ public class DatabaseSelector{
             }
             i++;
         }
-
-        if (numEssentialArgs<3){
+        System.out.println();
+        if (numEssentialArgs<8){
             //not all essential arguments were given
-            System.out.println("You must at least specify featureDefinition file, "
-                    +"basename list file and stop criterion");
+            System.out.println("You must at least specify locale, (4) mysql info, featureDefinition file, stop criterion and" +
+                    " coverage config file.");
             printUsage();
             return false;
         }
@@ -527,57 +608,39 @@ public class DatabaseSelector{
      */
     private static void printUsage(){
         System.out.println("Usage:\n"
-                +"java -cp path/to/mary/java/mary-common.jar "
-                +"marytts.tools.dbselection.DatabaseSelector"
-                +" -basenames <file>"
-                +" -featDef <file>"                
-                +" -stop <stopCriterion>"
-                +"\nOptional arguments: \n"
-                +"-coverageConfig <file>\n"
-                +"-initFile <file>\n"
-                +"-selectedSentences <file>\n"
-                +"-unwantedSentences <file>\n"
-                +"-vectorsOnDisk\n"                                 
-                +"-overallLog <file>\n"
-                +"-selectionDir <dir>\n" 
-                +"-logCoverageDevelopment\n"
-                +"-verbose\n\n"     
-                +"Arguments:\n\n"
-                +"-basenames <file> : The list of basenames\n\n"
-                +"-featDef <file> : The feature definition for the features\n\n"
-                +"-stop <stopCriterion> : which stop criterion "
-                +"to use. There are five stop criteria. "
-                +"They can be used individually or can be combined:\n"
-                +"  - numSentences <n> : selection stops after n sentences\n"
-                +"  - simpleDiphones : selection stops when simple diphone "
-                +"coverage has reached maximum\n"
-                +"  - clusteredDiphones : selection stops when clustered diphone "
-                +"coverage has reached maximum\n"
-                +"  - simpleProsody : selection stops when simple prosody "
-                +"coverage has reached maximum\n"
-                +"  - clusteredProsody : selection stops when clustered prosody "
-                +"coverage has reached maximum\n\n"
-                +"-coverageConfig <file> : The config file for the coverage definition. "
-                +"Standard config file is selection/covDef.config.\n\n"                
-                +"-vectorsOnDisk: if this option is given, the feature vectors "
-                +"are not loaded into memory during the run of the program. This "
-                +"notably slows down the run of the program!\n\n"
-                +"-initFile <file> : The file containing the coverage data needed to initialise the algorithm. "
-                +"Standard init file is selection/init.bin\n\n"
-                +"-selectedSentences <file>: File containing a list of sentences selected in a previous pass "
-                +"of the algorithm. They are added to the cover before selection starts. "
-                +"The sentences can be part of the basename list.\n\n"
-                +"-unwantedSentences <file>: File containing those sentences that are to be removed "
-                +"from the basename list prior to selection.\n\n"
-                +"-overallLog <file> : Log file for all runs of the program: date, settings "
-                +"and results of the current run are appended to the end of the file. "
-                +"This file is needed if you want to analyse your results with the ResultAnalyser later.\n\n"
-                +"-selectionDir <dir> : the directory where all selection data is stored."
-                +"Standard directory is ./selection\n\n" 
-                +"-logCoverageDevelopment : If this option is given, the coverage development over time "
-                +"is stored.\n\n"
-                +"-verbose : If this option is given, there will be more output on the command line "
-                +"during the run of the program.\n");       
+                +"java DatabaseSelector -locale en_US -mysqlHost host -mysqlUser user -mysqlPasswd passwd \n"
+                +"                      -mysqlDB wikiDB -featDef file -stop stopCriterion \n"
+                +"        [-coverageConfig file -initFile file -selectedSentences file -unwantedSentences file ]\n"                                 
+                +"        [-vectorsOnDisk -overallLog file -selectionDir dir -logCoverageDevelopment -verbose]\n\n"     
+                +"Arguments:\n"
+                +"-featDef file : The feature definition for the features\n"
+                +"-stop stopCriterion : which stop criterion to use. There are five stop criteria. \n"
+                +" They can be used individually or can be combined:\n"
+                +"  - numSentences n : selection stops after n sentences\n"
+                +"  - simpleDiphones : selection stops when simple diphone coverage has reached maximum\n"
+                +"  - clusteredDiphones : selection stops when clustered diphone coverage has reached maximum\n"
+                +"  - simpleProsody : selection stops when simple prosody coverage has reached maximum\n"
+                +"  - clusteredProsody : selection stops when clustered prosody coverage has reached maximum\n"
+                +"-coverageConfig file : The config file for the coverage definition. \n"
+                +"   Standard config file is selection/covDef.config.\n"                
+                +"-vectorsOnDisk: if this option is given, the feature vectors are not loaded into memory during \n"
+                +" the run of the program. This notably slows down the run of the program!\n"
+                +"-initFile file : The file containing the coverage data needed to initialise the algorithm.\n"
+                +"   Standard init file is selection/init.bin\n"
+                +"-selectedSentences file: File containing a list of sentences selected in a previous pass \n"
+                +" of the algorithm. They are added to the cover before selection starts. The sentences can be part \n"
+                +" of the basename list.\n"
+                +"-unwantedSentences file: File containing those sentences that are to be removed \n"
+                +" from the basename list prior to selection.\n"
+                +"-overallLog file : Log file for all runs of the program: date, settings and results of the current\n"
+                +" run are appended to the end of the file. This file is needed if you want to analyse your results \n"
+                +" with the ResultAnalyser later.\n"
+                +"-selectionDir dir : the directory where all selection data is stored.\n"
+                +"   Standard directory is ./selection\n" 
+                +"-logCoverageDevelopment : If this option is given, the coverage development over time \n"
+                +" is stored.\n"
+                +"-verbose : If this option is given, there will be more output on the command line\n"
+                +" during the run of the program.\n");       
     }
 
     /**
@@ -650,9 +713,6 @@ public class DatabaseSelector{
         //selectedSents = new ArrayList();
         selectedIdSents = new ArrayList<Integer>();
         
-        DBHandler wikiToDB = new DBHandler("en_US");
-        wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
-        
         int id;
         byte[] vectorBuf;
         while ((line=sentsIn.readLine())!= null){
@@ -688,7 +748,6 @@ public class DatabaseSelector{
             selectedIdSents.add(Integer.parseInt(line));
             
         }
-        wikiToDB.closeDBConnection();
 
         //int numSelectedSents = selectedSents.size();
         int numSelectedSents = selectedIdSents.size();

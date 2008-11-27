@@ -123,9 +123,9 @@ public class FeatureMakerMaryServer{
 			
         String dateStringIni="";
         String dateStringEnd="";
-//        DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
- //       Date dateIni = new Date();
- //       dateStringIni = fullDate.format(dateIni);
+        DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
+        Date dateIni = new Date();
+        dateStringIni = fullDate.format(dateIni);
         
 		/* check the arguments */
 		if (!readArgs(args)){
@@ -205,8 +205,8 @@ public class FeatureMakerMaryServer{
         
         wikiToDB.closeDBConnection();
         
-//        Date dateEnd = new Date();
-//        dateStringEnd = fullDate.format(dateEnd);
+        Date dateEnd = new Date();
+        dateStringEnd = fullDate.format(dateEnd);
         pw.println("numSentencesInText;=" + numSentences);
         pw.println("Start time:" + dateStringIni + "  End time:" + dateStringEnd);
         
@@ -220,17 +220,20 @@ public class FeatureMakerMaryServer{
 	 *
 	 */
 	protected static void printUsage(){
-		System.out.println("Usage:\n"
-				+"java FeatureMakerMaryServer -mysqlHost host -mysqlUser user -mysqlPasswd passwd -mysqlDB wikiDB\n"
-                +"  default/optional: [-maryHost localhost -maryPort 59125 -locale en_US -defaultVoice hmm-slt -strictCredibility true]\n"
-                +"  default/optional: [-featuresForSelection phoneme,next_phoneme,selection_prosody] (features separated by ,) \n"
-                +"  optional: [-strictCredibility [strict|lax] -log logFileName]\n\n"
-            	+"  -credibility [strict|lax]: Setting that determines what kind of sentences \n"
-				+"  are regarded as credible. There are two settings: strict and lax. With \n"
-				+"  setting strict, only those sentences that contain words in the lexicon \n"
-				+"  or words that were transcribed by the preprocessor are regarded as credible; \n"
-				+"  the other sentences as unreliable. With setting lax, also those words that \n"
-				+"  are transcribed with the Denglish and the compound module are regarded credible. \n\n");
+		System.out.println("Usage:\n" +
+				"java FeatureMakerMaryServer -locale en_US -mysqlHost host -mysqlUser user -mysqlPasswd passwd -mysqlDB wikiDB\n" +
+                "                          [-maryHost localhost -maryPort 59125 -defaultVoice hmm-slt -strictCredibility strict]\n" +
+                "                          [-featuresForSelection phoneme,next_phoneme,selection_prosody -log logFileName]\n\n" +
+                "  required: This program requires a MARY server running and an already created cleanText table in the DB. \n" +
+                "  default/optional: [-maryHost localhost -maryPort 59125 -locale en_US -defaultVoice hmm-slt]\n" +
+                "  default/optional: [-featuresForSelection phoneme,next_phoneme,selection_prosody] (features separated by ,) \n" +
+                "  optional: [-strictCredibility [strict|lax] -log logFileName]\n\n" +
+            	"  -strictCredibility: setting that determines what kind of sentences \n" +
+				"  are regarded as credible. There are two settings: strict and lax. With \n" +
+				"  setting strict (default), only those sentences that contain words in the lexicon \n" +
+				"  or words that were transcribed by the preprocessor are regarded as credible; \n" +
+				"  the other sentences as unreliable. With setting lax, also those words that \n" +
+				"  are transcribed with the Denglish and the compound module are regarded credible. \n\n");
                 
 	}
 	

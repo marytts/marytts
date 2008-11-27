@@ -141,8 +141,11 @@ public class WikipediaProcessor {
      */
     private boolean readArgs(String[] args){
         
-        String help = "\nUsage: java WikipediaMarkupCleaner -locale en_US -mysqlHost host -mysqlUser user -mysqlPasswd passwd -mysqlDB wikiDB \n" +
-        "                       -listFile wikiFileList -xml2sql ./bin/xml2sql\n" +
+        String help = "\nUsage: java WikipediaMarkupCleaner -locale en_US -mysqlHost host -mysqlUser user -mysqlPasswd passwd \n" +
+        "                                       -mysqlDB wikiDB -listFile wikiFileList -xml2sql ./bin/xml2sql\n" +
+        "                                       [-minPage 10000 -minText 1000 -maxText 15000] \n\n" +
+        "      -listFile is a a text file that contains the xml wikipedia file names to be procesed. \n" +
+        "      -xml2sql is the command (and its path) used to convert the xml files into mysql tables.\n\n" +
         "      default/optional: [-minPage 10000 -minText 1000 -maxText 15000] \n" +
         "      -minPage is the minimum size of a wikipedia page that will be considered for cleaning.\n" +
         "      -minText is the minimum size of a text to be kept in the DB.\n" +
