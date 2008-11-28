@@ -27,16 +27,19 @@
  * THIS SOFTWARE.
  */
 
-package marytts.server.http;
+package marytts.client.http;
 
 /**
  * @author oytun.turk
- *
+ * 
+ * A class to keep host and port information in a structure
+ * 
  */
 public class Address {
-    public String host;
-    public int port;
-    public String fullAddress;
+    private String host;
+    private int port;
+    private String fullAddress; // --> host:port
+    private String httpAddress; // --> http:\\host:port
     
     public Address()
     {
@@ -87,5 +90,18 @@ public class Address {
             this.port = Integer.MIN_VALUE;
             this.fullAddress = this.host;
         }
+        
+        if (this.fullAddress!=null && this.fullAddress.length()>0)
+            this.httpAddress = "http://" + this.fullAddress;
+        else
+            this.httpAddress = null;
     }
+    
+    public String getHost() { return host; }
+
+    public int getPort() { return port; }
+    
+    public String getFullAddress() { return fullAddress; }
+
+    public String getHttpAddress() { return httpAddress; }
 }

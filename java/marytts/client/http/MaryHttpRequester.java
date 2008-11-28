@@ -38,7 +38,6 @@ import java.net.URLDecoder;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import marytts.server.http.Address;
 import marytts.util.ConversionUtils;
 import marytts.util.string.StringUtils;
 
@@ -164,9 +163,9 @@ public class MaryHttpRequester
         });
         t.start();
 
-        ioReactor.connect(new InetSocketAddress(hostAddress.host, hostAddress.port), 
+        ioReactor.connect(new InetSocketAddress(hostAddress.getHost(), hostAddress.getPort()), 
                           null,
-                          new HttpHost(hostAddress.fullAddress + "?" + MaryHttpClientUtils.toHttpString(keyValuePairs)),
+                          new HttpHost(hostAddress.getFullAddress() + "?" + MaryHttpClientUtils.toHttpString(keyValuePairs)),
                           new MySessionRequestCallback(requestCount));
         
         // Block until all connections signal

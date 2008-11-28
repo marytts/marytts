@@ -61,7 +61,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.Version;
-import marytts.client.http.MaryHtmlForm;
+import marytts.client.http.Address;
+import marytts.client.http.MaryBaseClient;
 import marytts.client.http.MaryHttpClientUtils;
 import marytts.datatypes.MaryDataType;
 import marytts.exceptions.NoSuchPropertyException;

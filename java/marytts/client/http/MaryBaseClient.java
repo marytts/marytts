@@ -44,7 +44,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.AudioFileFormat.Type;
 
 import marytts.client.AudioEffectsBoxData;
-import marytts.server.http.Address;
+import marytts.client.MaryClient;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.math.MathUtils;
@@ -60,22 +60,22 @@ import marytts.util.string.StringUtils;
  * (ii) use an object of type MaryHttpForm or of a derived class (Example: MaryGUIHttpClient)
  * 
  */
-public class MaryHtmlForm {
+public class MaryBaseClient {
     // Default values which can be overridden from the command line.
     private final String DEFAULT_HOST = "cling.dfki.uni-sb.de";
     private final int DEFAULT_PORT = 59125;
     
-    protected Address hostAddress = null;
+    public Address hostAddress = null;
     protected String serverVersionInfo = null;
     protected String serverVersionNo = "unknown";
     protected boolean serverCanStream = false;
     
-    public Vector<MaryHtmlForm.Voice> allVoices;
-    public Map<Locale, Vector<MaryHtmlForm.Voice>> voicesByLocaleMap;
+    public Vector<MaryClient.Voice> allVoices;
+    public Map<Locale, Vector<MaryClient.Voice>> voicesByLocaleMap;
     public Map<String, Vector<String>> limitedDomainVoices;
-    public Vector<MaryHtmlForm.DataType> allDataTypes;
-    public Vector<MaryHtmlForm.DataType> inputDataTypes;
-    public Vector<MaryHtmlForm.DataType> outputDataTypes;
+    public Vector<MaryClient.DataType> allDataTypes;
+    public Vector<MaryClient.DataType> inputDataTypes;
+    public Vector<MaryClient.DataType> outputDataTypes;
     public Map<String, String> serverExampleTexts;
     public String currentExampleText;
     public Map<String, String> voiceExampleTextsLimitedDomain;
@@ -104,7 +104,7 @@ public class MaryHtmlForm {
     public String outputAudioResponseID; //output audio file for web browser client
     public String mimeType; //MIME type for output audio (web browser clients)
     
-    public MaryHtmlForm() throws IOException, InterruptedException
+    public MaryBaseClient() throws IOException, InterruptedException
     {
         String serverHost = System.getProperty("server.host", DEFAULT_HOST);
         int serverPort = 0;
@@ -118,12 +118,12 @@ public class MaryHtmlForm {
         init(serverAddress, null, null, null, null, null, null, null, null);
     }
     
-    public MaryHtmlForm(Address serverAddress) throws IOException, InterruptedException
+    public MaryBaseClient(Address serverAddress) throws IOException, InterruptedException
     {
         init(serverAddress, null, null, null, null, null, null, null, null);
     }
     
-    public MaryHtmlForm(Address serverAddress,
+    public MaryBaseClient(Address serverAddress,
             String versionIn,
             String voicesIn,
             String dataTypesIn,
@@ -135,7 +135,7 @@ public class MaryHtmlForm {
         this(serverAddress, null, versionIn, voicesIn, dataTypesIn, audioFileFormatTypesIn, audioEffectHelpTextLineBreakIn, defaultAudioEffects, defaultVoiceExampleTexts);
     }
     
-    public MaryHtmlForm(Address serverAddress,
+    public MaryBaseClient(Address serverAddress,
             Map<String, String> keyValuePairsIn,
             String versionIn,
             String voicesIn,
@@ -247,8 +247,8 @@ public class MaryHtmlForm {
 
         if (info!=null && info.length()>0)
         {
-            allVoices = new Vector<MaryHtmlForm.Voice>();
-            voicesByLocaleMap = new HashMap<Locale,Vector<MaryHtmlForm.Voice>>();
+            allVoices = new Vector<MaryClient.Voice>();
+            voicesByLocaleMap = new HashMap<Locale,Vector<MaryClient.Voice>>();
             limitedDomainVoices = new HashMap<String, Vector<String>>();
             String[] voiceStrings = info.split("\n");
 
@@ -264,7 +264,7 @@ public class MaryHtmlForm {
                 if (!st.hasMoreTokens()) continue; // ignore entry
                 String gender = st.nextToken();
 
-                Voice voice = null;
+                MaryClient.Voice voice = null;
                 if (isServerNotOlderThan("3.5.0"))
                 {
                     String synthesizerType;
@@ -276,13 +276,13 @@ public class MaryHtmlForm {
                     if (!st.hasMoreTokens())
                     { 
                         //assume domain is general
-                        voice = new Voice(name, locale, gender, "general");
+                        voice = new MaryClient.Voice(name, locale, gender, "general");
                     }
                     else
                     { 
                         //read in the domain
                         String domain = st.nextToken();
-                        voice = new Voice(name, locale, gender, domain);
+                        voice = new MaryClient.Voice(name, locale, gender, domain);
                     }
 
                     voice.setSynthesizerType(synthesizerType);
@@ -292,28 +292,28 @@ public class MaryHtmlForm {
                     if (!st.hasMoreTokens())
                     { 
                         //assume domain is general
-                        voice = new Voice(name, locale, gender, "general");
+                        voice = new MaryClient.Voice(name, locale, gender, "general");
                     }
                     else
                     { 
                         //read in the domain
                         String domain = st.nextToken();
-                        voice = new Voice(name, locale, gender, domain);
+                        voice = new MaryClient.Voice(name, locale, gender, domain);
                     }
                 }
 
                 allVoices.add(voice);
-                Vector<MaryHtmlForm.Voice> localeVoices = null;
+                Vector<MaryClient.Voice> localeVoices = null;
                 if (voicesByLocaleMap.containsKey(locale))
                     localeVoices = voicesByLocaleMap.get(locale);
                 else 
                 {
-                    localeVoices = new Vector<MaryHtmlForm.Voice>();
+                    localeVoices = new Vector<MaryClient.Voice>();
                     voicesByLocaleMap.put(locale, localeVoices);
                 }
                 localeVoices.add(voice);
 
-                if (voice.isLimitedDomain)
+                if (voice.isLimitedDomain())
                 {
                     String exampleText = getVoiceExampleTextLimitedDomain(voice.name());
                     limitedDomainVoices.put(voice.name(), StringUtils.processVoiceExampleText(exampleText));
@@ -330,9 +330,9 @@ public class MaryHtmlForm {
 
         if (info!=null && info.length()>0)
         {
-            allDataTypes = new Vector<MaryHtmlForm.DataType>();
-            inputDataTypes = new Vector<MaryHtmlForm.DataType>();
-            outputDataTypes = new Vector<MaryHtmlForm.DataType>();
+            allDataTypes = new Vector<MaryClient.DataType>();
+            inputDataTypes = new Vector<MaryClient.DataType>();
+            outputDataTypes = new Vector<MaryClient.DataType>();
 
             String[] typeStrings = info.split("\n");
 
@@ -353,7 +353,7 @@ public class MaryHtmlForm {
                         isOutputType = true;
                     }
                 }
-                DataType dt = new DataType(name, isInputType, isOutputType);
+                MaryClient.DataType dt = new MaryClient.DataType(name, isInputType, isOutputType);
                 allDataTypes.add(dt);
                 if (dt.isInputType()) {
                     inputDataTypes.add(dt);
@@ -733,7 +733,7 @@ public class MaryHtmlForm {
      * may help to avoid incompatibilities.
      * @throws Exception if communication with the server fails
      */
-    public Vector<MaryHtmlForm.DataType> getAllDataTypes() throws IOException, InterruptedException
+    public Vector<MaryClient.DataType> getAllDataTypes() throws IOException, InterruptedException
     {
         if (allDataTypes == null)
             fillDataTypes();
@@ -751,7 +751,7 @@ public class MaryHtmlForm {
      * @return a Vector of MaryHttpClient.DataType objects.
      * @throws Exception if communication with the server fails
      */
-    public Vector<MaryHtmlForm.DataType> getInputDataTypes() throws IOException, InterruptedException
+    public Vector<MaryClient.DataType> getInputDataTypes() throws IOException, InterruptedException
     {
         if (inputDataTypes == null)
             fillDataTypes();
@@ -770,7 +770,7 @@ public class MaryHtmlForm {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public Vector<MaryHtmlForm.DataType> getOutputDataTypes() throws IOException, InterruptedException
+    public Vector<MaryClient.DataType> getOutputDataTypes() throws IOException, InterruptedException
     {
         if (outputDataTypes == null)
             fillDataTypes();
@@ -794,7 +794,7 @@ public class MaryHtmlForm {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public Vector<MaryHtmlForm.Voice> getVoices() throws IOException, InterruptedException
+    public Vector<MaryClient.Voice> getVoices() throws IOException, InterruptedException
     {
         if (allVoices == null)
             fillVoices();
@@ -816,7 +816,7 @@ public class MaryHtmlForm {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public Vector<MaryHtmlForm.Voice> getVoices(Locale locale) throws IOException, InterruptedException
+    public Vector<MaryClient.Voice> getVoices(Locale locale) throws IOException, InterruptedException
     {
         if (allVoices == null)
             fillVoices();
@@ -834,12 +834,12 @@ public class MaryHtmlForm {
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public Vector<MaryHtmlForm.Voice> getGeneralDomainVoices() throws IOException, InterruptedException
+    public Vector<MaryClient.Voice> getGeneralDomainVoices() throws IOException, InterruptedException
     {
-        Vector<MaryHtmlForm.Voice> voices = getVoices();
-        Vector<MaryHtmlForm.Voice> requestedVoices = new Vector<MaryHtmlForm.Voice>();
+        Vector<MaryClient.Voice> voices = getVoices();
+        Vector<MaryClient.Voice> requestedVoices = new Vector<MaryClient.Voice>();
         
-        for (Voice v: voices) 
+        for (MaryClient.Voice v: voices) 
         {
             if (!v.isLimitedDomain())
                 requestedVoices.add(v);
@@ -860,12 +860,12 @@ public class MaryHtmlForm {
      * @return a Vector of MaryHttpClient.Voice objects, or null if no such voices exist.
      * @throws Exception if communication with the server fails
      */
-    public Vector<MaryHtmlForm.Voice> getLimitedDomainVoices() throws IOException, InterruptedException
+    public Vector<MaryClient.Voice> getLimitedDomainVoices() throws IOException, InterruptedException
     {
-        Vector<MaryHtmlForm.Voice> voices = getVoices();
-        Vector<MaryHtmlForm.Voice> requestedVoices = new Vector<MaryHtmlForm.Voice>();
+        Vector<MaryClient.Voice> voices = getVoices();
+        Vector<MaryClient.Voice> requestedVoices = new Vector<MaryClient.Voice>();
         
-        for (Voice v : voices) 
+        for (MaryClient.Voice v : voices) 
         {
             if (v.isLimitedDomain())
                 requestedVoices.add(v);
@@ -887,12 +887,12 @@ public class MaryHtmlForm {
      * @return a Vector of MaryHttpClient.Voice objects, or null if no such voices exist.
      * @throws Exception if communication with the server fails
      */
-    public Vector<MaryHtmlForm.Voice> getGeneralDomainVoices(Locale locale) throws IOException, InterruptedException
+    public Vector<MaryClient.Voice> getGeneralDomainVoices(Locale locale) throws IOException, InterruptedException
     {
-        Vector<MaryHtmlForm.Voice> voices = getVoices(locale);
-        Vector<MaryHtmlForm.Voice> requestedVoices = new Vector<MaryHtmlForm.Voice>();
+        Vector<MaryClient.Voice> voices = getVoices(locale);
+        Vector<MaryClient.Voice> requestedVoices = new Vector<MaryClient.Voice>();
         
-        for (Voice v : voices) 
+        for (MaryClient.Voice v : voices) 
         {
             if (!v.isLimitedDomain())
                 requestedVoices.add(v);
@@ -914,11 +914,11 @@ public class MaryHtmlForm {
      * @return a Vector of MaryHttpClient.Voice objects, or null if no such voices exist.
      * @throws Exception if communication with the server fails
      */
-    public Vector<MaryHtmlForm.Voice> getLimitedDomainVoices(Locale locale) throws IOException, InterruptedException
+    public Vector<MaryClient.Voice> getLimitedDomainVoices(Locale locale) throws IOException, InterruptedException
     {
-        Vector<MaryHtmlForm.Voice> voices = getVoices(locale);
-        Vector<MaryHtmlForm.Voice> requestedVoices = new Vector<MaryHtmlForm.Voice>();
-        for (Voice v : voices) 
+        Vector<MaryClient.Voice> voices = getVoices(locale);
+        Vector<MaryClient.Voice> requestedVoices = new Vector<MaryClient.Voice>();
+        for (MaryClient.Voice v : voices) 
         {
             if (v.isLimitedDomain())
                 requestedVoices.add(v);
@@ -1143,81 +1143,4 @@ public class MaryHtmlForm {
         locale = new Locale(language, country, variant);
         return locale;
     }
-    
-    // get the server host to which this client connects
-    public String getHost() { return hostAddress.host; }
-    // get the server port to which this client connects
-    public int getPort() { return hostAddress.port; }
-
-    public String getServerHttpAddress() 
-    {
-        String httpAdr = "http://" + hostAddress.fullAddress;
-        
-        return httpAdr;
-    }
-        
-    /**
-     * An abstraction of server info about available voices.
-     * @author Marc Schr&ouml;der
-     *
-     */
-    public static class Voice
-    {
-        private String name;
-        private Locale locale;
-        private String gender;
-        private String domain;
-        private String synthesizerType;
-     
-        private boolean isLimitedDomain;
-        Voice(String name, Locale locale, String gender, String domain)
-        {
-            this.name = name;
-            this.locale = locale;
-            this.gender = gender;
-            this.domain = domain;
-            if (domain == null || domain.equals("general")){
-                isLimitedDomain = false;}
-            else {isLimitedDomain = true;}
-            
-            this.synthesizerType = "not-specified";
-        }
-        public Locale getLocale() { return locale; }
-        public String name() { return name; }
-        public String gender() { return gender; }
-        public String synthesizerType() {return synthesizerType;}
-        public void setSynthesizerType(String synthesizerTypeIn) {synthesizerType = synthesizerTypeIn;}
-        public String toString() { return name + " (" + locale.getDisplayLanguage() + ", " + gender
-            + (isLimitedDomain ? ", " + domain : "") +")";}
-        public boolean isLimitedDomain() { return isLimitedDomain; }
-        public boolean isHMMVoice() {
-            if (synthesizerType.compareToIgnoreCase("hmm")==0)
-                return true;
-            else
-                return false;
-        }
-    }
-    
-    /**
-     * An abstraction of server info about available data types.
-     * @author Marc Schr&ouml;der
-     *
-     */
-    public static class DataType
-    {
-        private String name;
-        private boolean isInputType;
-        private boolean isOutputType;
-        DataType(String name, boolean isInputType, boolean isOutputType) {
-            this.name = name;
-            this.isInputType = isInputType;
-            this.isOutputType = isOutputType;
-        }
-        public String name() { return name; }
-        public boolean isInputType() { return isInputType; }
-        public boolean isOutputType() { return isOutputType; }
-        public boolean isTextType() { return !name.equals("AUDIO"); }
-        public String toString() { return name; }
-    }
-
 }

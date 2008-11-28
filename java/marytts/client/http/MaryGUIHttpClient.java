@@ -88,8 +88,8 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import marytts.client.AudioEffectsBoxGUI;
+import marytts.client.MaryClient;
 import marytts.client.SimpleFileFilter;
-import marytts.server.http.Address;
 import marytts.util.MaryUtils;
 
 import org.incava.util.diff.Diff;
@@ -164,7 +164,7 @@ public class MaryGUIHttpClient extends JPanel
     private marytts.util.data.audio.AudioPlayer audioPlayer = null;
     private boolean allowSave;
     private boolean streamMp3 = false;
-    private MaryHtmlForm.Voice prevVoice = null;
+    private MaryClient.Voice prevVoice = null;
 
     //Map of limited Domain Voices and their example Texts
     private Map<String, Vector<String>> limDomVoices = new HashMap<String, Vector<String>>();
@@ -340,7 +340,7 @@ public class MaryGUIHttpClient extends JPanel
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     if (doReplaceInput
-                            && ((MaryHttpClient.DataType)cbInputType.getSelectedItem()).name().startsWith("TEXT"))
+                            && ((MaryClient.DataType)cbInputType.getSelectedItem()).name().startsWith("TEXT"))
                         setInputText((String)cbVoiceExampleText.getSelectedItem());
                 }
             }
@@ -371,8 +371,8 @@ public class MaryGUIHttpClient extends JPanel
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     fillExampleTexts();
                     verifyExamplesVisible();
-                    MaryHttpClient.Voice voice = (MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem();
-                    MaryHttpClient.DataType dataType = (MaryHttpClient.DataType)cbInputType.getSelectedItem(); 
+                    MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
+                    MaryClient.DataType dataType = (MaryClient.DataType)cbInputType.getSelectedItem(); 
                     if (doReplaceInput
                             && (voice.isLimitedDomain() && dataType.name().startsWith("TEXT")
                                     || getPrevVoice() == null
@@ -388,7 +388,7 @@ public class MaryGUIHttpClient extends JPanel
         // For the limited domain voices, get example texts: 
         Iterator it = processor.getVoices().iterator();
         while (it.hasNext()) {
-            MaryHttpClient.Voice v = (MaryHttpClient.Voice) it.next();
+            MaryClient.Voice v = (MaryClient.Voice) it.next();
             if (v.isLimitedDomain()){
                 String exampleText = processor.getVoiceExampleTextLimitedDomain(v.name());
                 limDomVoices.put(v.name(), processVoiceExampleText(exampleText));
@@ -496,7 +496,7 @@ public class MaryGUIHttpClient extends JPanel
         outputTypePanel.add( cbOutputType );
 
         // Output Text area
-        if (((MaryHttpClient.DataType)cbOutputType.getSelectedItem()).isTextType())
+        if (((MaryClient.DataType)cbOutputType.getSelectedItem()).isTextType())
             showingTextOutput = true;
         else
             showingTextOutput = false;
@@ -759,7 +759,7 @@ public class MaryGUIHttpClient extends JPanel
         {     
             if (effectsBox.hasEffects() && effectsBox.getData().getTotalEffects()>0)
             {
-                MaryHttpClient.Voice voice = (MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem();
+                MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
                 
                 for (int i=0; i<effectsBox.getData().getTotalEffects(); i++)
                 {
@@ -822,8 +822,8 @@ public class MaryGUIHttpClient extends JPanel
     
     private void setExampleInputText()
     {
-        MaryHttpClient.Voice defaultVoice = (MaryHttpClient.Voice) cbDefaultVoice.getSelectedItem();
-        MaryHttpClient.DataType inputType = (MaryHttpClient.DataType) cbInputType.getSelectedItem();
+        MaryClient.Voice defaultVoice = (MaryClient.Voice) cbDefaultVoice.getSelectedItem();
+        MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
         if (defaultVoice.isLimitedDomain() && inputType.name().startsWith("TEXT")) {
             setInputText((String) cbVoiceExampleText.getSelectedItem());
         } else {
@@ -838,7 +838,7 @@ public class MaryGUIHttpClient extends JPanel
 
     private void fillExampleTexts()
     {
-        MaryHttpClient.Voice defaultVoice = (MaryHttpClient.Voice) cbDefaultVoice.getSelectedItem();
+        MaryClient.Voice defaultVoice = (MaryClient.Voice) cbDefaultVoice.getSelectedItem();
         if (!defaultVoice.isLimitedDomain()) return;
         Vector<String> sentences = (Vector<String>)limDomVoices.get(defaultVoice.name());
         assert sentences != null;
@@ -851,8 +851,8 @@ public class MaryGUIHttpClient extends JPanel
 
     private void verifyExamplesVisible()
     {
-        MaryHttpClient.Voice defaultVoice = (MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem();
-        MaryHttpClient.DataType inputType = (MaryHttpClient.DataType) cbInputType.getSelectedItem();
+        MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
+        MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
 
         if (defaultVoice.isLimitedDomain() && inputType.name().startsWith("TEXT")) {
             cbVoiceExampleText.setVisible(true);
@@ -862,7 +862,7 @@ public class MaryGUIHttpClient extends JPanel
     }
 
     private void verifyEnableButtons() {
-        if (((MaryHttpClient.DataType)cbOutputType.getSelectedItem()).isTextType()) {
+        if (((MaryClient.DataType)cbOutputType.getSelectedItem()).isTextType()) {
             buttonPanel.setVisible(true);
             if (!cbOutputType.hasFocus()) bProcess.requestFocusInWindow();
         } else { // do not show these three buttons for audio output:
@@ -883,7 +883,7 @@ public class MaryGUIHttpClient extends JPanel
         }
         // Compare button:
         // Only enabled if both input and output are text types
-        if (((MaryHttpClient.DataType)cbOutputType.getSelectedItem()).isTextType() &&
+        if (((MaryClient.DataType)cbOutputType.getSelectedItem()).isTextType() &&
                 outputText.getText().length() > 0) {
             bCompare.setEnabled(true);
         } else {
@@ -899,12 +899,12 @@ public class MaryGUIHttpClient extends JPanel
      */
     private void verifyDefaultVoices() throws IOException, InterruptedException 
     {
-        MaryHttpClient.DataType inputType = (MaryHttpClient.DataType)cbInputType.getSelectedItem();
+        MaryClient.DataType inputType = (MaryClient.DataType)cbInputType.getSelectedItem();
         // Is the default voice still suitable for the input locale?
-        MaryHttpClient.Voice defaultVoice = (MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem();
+        MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
         // Reset the list, just in case
         cbDefaultVoice.removeAllItems();
-        for (MaryHttpClient.Voice v : processor.getVoices()) {
+        for (MaryClient.Voice v : processor.getVoices()) {
             cbDefaultVoice.addItem(v);
         }
         if (defaultVoice != null) {
@@ -931,10 +931,10 @@ public class MaryGUIHttpClient extends JPanel
 
     private void setOutputTypeItems() throws IOException, InterruptedException
     {
-        MaryHttpClient.DataType inputType = (MaryHttpClient.DataType) cbInputType.getSelectedItem();
-        MaryHttpClient.DataType selectedItem = (MaryHttpClient.DataType) cbOutputType.getSelectedItem();
+        MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
+        MaryClient.DataType selectedItem = (MaryClient.DataType) cbOutputType.getSelectedItem();
         cbOutputType.removeAllItems();
-        for (MaryHttpClient.DataType d : processor.getOutputDataTypes()) {
+        for (MaryClient.DataType d : processor.getOutputDataTypes()) {
             cbOutputType.addItem(d);
         }
         cbOutputType.setSelectedItem(selectedItem);
@@ -942,7 +942,7 @@ public class MaryGUIHttpClient extends JPanel
 
     private void verifyOutputDisplay()
     {
-        if (((MaryHttpClient.DataType)cbOutputType.getSelectedItem()).isTextType()) 
+        if (((MaryClient.DataType)cbOutputType.getSelectedItem()).isTextType()) 
         {
             setOutputText(""); // erase the output text
             if (!showingTextOutput) 
@@ -1062,11 +1062,11 @@ public class MaryGUIHttpClient extends JPanel
                                 "Cannot write file of type `." + ext + "'");
                     } else { // OK, we know what to do
                         processor.process(inputText.getText(),
-                                ((MaryHttpClient.DataType)cbInputType.getSelectedItem()).name(),
+                                ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
                                 "AUDIO",
-                                ((MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
+                                ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
                                 audioType,
-                                ((MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
+                                ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                                 "",
                                 getAudioEffectsMap(),
                                 new FileOutputStream(saveFile));
@@ -1139,11 +1139,11 @@ public class MaryGUIHttpClient extends JPanel
                                 "Cannot write file of type `." + ext + "'");
                     } else { // OK, we know what to do
                         processor.process(inputText.getText(),
-                                ((MaryHttpClient.DataType)cbInputType.getSelectedItem()).name(),
-                                ((MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
+                                ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
+                                ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
                                 "AUDIO",
                                 audioType.toString(),
-                                ((MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
+                                ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                                 new FileOutputStream(saveFile));
                     }
                 }
@@ -1209,15 +1209,15 @@ public class MaryGUIHttpClient extends JPanel
     private void processInput()
     {
         OutputStream os;
-        MaryHttpClient.DataType outputType = (MaryHttpClient.DataType)cbOutputType.getSelectedItem();
+        MaryClient.DataType outputType = (MaryClient.DataType)cbOutputType.getSelectedItem();
         if (outputType.name().equals("AUDIO")) {
             try {
                 audioPlayer = new marytts.util.data.audio.AudioPlayer();
                 processor.streamAudio(inputText.getText(), 
-                        ((MaryHttpClient.DataType)cbInputType.getSelectedItem()).name(),
-                        ((MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
+                        ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
+                        ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
                         streamMp3 ? "MP3":"AU",
-                                ((MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
+                                ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                                 "",
                                 getAudioEffectsMap(),
                                 audioPlayer,
@@ -1244,11 +1244,11 @@ public class MaryGUIHttpClient extends JPanel
                 // Write to a byte array (to be converted to a string later)
                 os = new ByteArrayOutputStream();
                 processor.process(inputText.getText(),
-                        ((MaryHttpClient.DataType)cbInputType.getSelectedItem()).name(),
+                        ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
                         outputType.name(),
-                        ((MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
+                        ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
                         null,
-                        ((MaryHttpClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
+                        ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                         "",
                         getAudioEffectsMap(),
                         os);
@@ -1267,7 +1267,7 @@ public class MaryGUIHttpClient extends JPanel
     }
 
     private void editOutput() {
-        MaryHttpClient.DataType type = (MaryHttpClient.DataType) cbOutputType.getSelectedItem();
+        MaryClient.DataType type = (MaryClient.DataType) cbOutputType.getSelectedItem();
         if (type == null || !type.isTextType() || !type.isInputType())
             return;
         setInputText(outputText.getText());
@@ -1285,7 +1285,7 @@ public class MaryGUIHttpClient extends JPanel
 
     private void compareTexts() {
         // Only try to compare if both are MaryXML and non-empty:
-        if (!((MaryHttpClient.DataType)cbOutputType.getSelectedItem()).isTextType() ||
+        if (!((MaryClient.DataType)cbOutputType.getSelectedItem()).isTextType() ||
                 inputText.getText().length() == 0 ||
                 outputText.getText().length() == 0) {
             return;
@@ -1364,8 +1364,8 @@ public class MaryGUIHttpClient extends JPanel
         outputText.setCaretPosition(0);
     }
 
-    private MaryHttpClient.Voice getPrevVoice() { return prevVoice; }
-    private void setPrevVoice(MaryHttpClient.Voice prevVoice) {
+    private MaryClient.Voice getPrevVoice() { return prevVoice; }
+    private void setPrevVoice(MaryClient.Voice prevVoice) {
         this.prevVoice = prevVoice;
     }
 
