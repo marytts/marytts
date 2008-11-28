@@ -1134,7 +1134,6 @@ public class WikipediaMarkupCleaner {
         // save the wordList in the DB
         updateWordList(wikiToDB,  wordList);
         
-        //printWordList("/project/mary/marcela/anna_wikipedia/wordlist.txt");
         wikiToDB.printWordList("./wordlist-freq.txt", "frequency", 0, 0);
         
         System.out.println("\nNumber of pages used=" + numPagesUsed + " Wordlist[" + wordList.size() + "] "

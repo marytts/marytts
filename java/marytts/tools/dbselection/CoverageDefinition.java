@@ -296,7 +296,7 @@ public class CoverageDefinition{
      * @throws IOException
      */
  //   public String[] initialiseCoverage()throws IOException{
-      public int[] initialiseCoverage()throws IOException{
+      public int[] initialiseCoverage(DBHandler wikiToDB)throws IOException{
         //stuff used for counting the phones and diphones
         possiblePhoneTypes = new HashSet();
         simpleDiphones2Frequency = new TreeMap();
@@ -338,10 +338,6 @@ public class CoverageDefinition{
 
         //build Cover
         buildCover();
-
-        
-        DBHandler wikiToDB = new DBHandler(locale);
-        wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");    
         
         //wikiToDB.createDBConnection("penguin.dfki.uni-sb.de","MaryDBSelector","MaryDBSel_user","1iyhyvwq");
         
@@ -507,11 +503,6 @@ public class CoverageDefinition{
             } 
         }//end of for-loop over feature vectors
         
-        
-        wikiToDB.closeDBConnection();
-        
-        
-
         //compute average sentence length
         averageSentLength = averageSentLength/(double) trueNumSentences;
 
