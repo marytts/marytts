@@ -52,7 +52,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import org.apache.http.HttpResponse;
 import org.apache.log4j.Logger;
 
-import marytts.client.http.MaryHtmlForm;
+import marytts.client.http.Address;
+import marytts.client.http.MaryBaseClient;
 import marytts.client.http.MaryHttpClientUtils;
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
@@ -353,7 +354,7 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
         
         keyValuePairs.put("SYNTHESIS_OUTPUT", synthesisStatus);
 
-        MaryHtmlForm htmlForm = new MaryHtmlForm(serverAddressAtClient,
+        MaryBaseClient htmlForm = new MaryBaseClient(serverAddressAtClient,
                 keyValuePairs,
                 getMaryVersion(),
                 getVoices(),
@@ -378,7 +379,7 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
         }
         else  //There was something wrong, call the default page
         {
-            htmlForm = new MaryHtmlForm(serverAddressAtClient,
+            htmlForm = new MaryBaseClient(serverAddressAtClient,
                     keyValuePairs,
                     getMaryVersion(),
                     getVoices(),

@@ -55,7 +55,6 @@ import javax.sound.sampled.AudioFormat.Encoding;
 
 import marytts.Version;
 import marytts.client.MaryGUIClient;
-import marytts.server.http.Address;
 
 /**
  * An HTTP client implementing the MARY protocol.
@@ -65,7 +64,7 @@ import marytts.server.http.Address;
  * @see marytts.server.MaryServer Description of the MARY protocol
  */
 
-public class MaryHttpClient extends MaryHtmlForm {
+public class MaryHttpClient extends MaryBaseClient {
     
     protected boolean beQuiet = false;
     private boolean doProfile = false;
@@ -164,14 +163,14 @@ public class MaryHttpClient extends MaryHtmlForm {
         } catch (IOException e1) {
             e1.printStackTrace();
             throw new IOException("MARY client cannot connect to MARY server at\n"+
-                    hostAddress.fullAddress+"\n"+
+                    hostAddress.getFullAddress()+"\n"+
                     "Make sure that you have started the mary server\n"+
                     "or specify a different host or port using \n"+
             "maryclient -Dserver.host=my.host.com -Dserver.port=12345");
         } catch (InterruptedException e2) {
             e2.printStackTrace();
             throw new InterruptedException("MARY client cannot connect to MARY server at\n"+
-                    hostAddress.fullAddress+"\n"+
+                    hostAddress.getFullAddress()+"\n"+
                     "Make sure that you have started the mary server\n"+
                     "or specify a different host or port using \n"+
             "maryclient -Dserver.host=my.host.com -Dserver.port=12345");
@@ -179,7 +178,7 @@ public class MaryHttpClient extends MaryHtmlForm {
         
         if (!beQuiet) 
         {
-            System.err.print("Connected to " + hostAddress.fullAddress + ", ");
+            System.err.print("Connected to " + hostAddress.getFullAddress() + ", ");
             System.err.println(serverVersionInfo);
             
             if (!serverCanStream) {

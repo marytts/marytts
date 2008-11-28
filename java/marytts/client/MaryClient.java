@@ -1367,7 +1367,7 @@ public class MaryClient {
         private String synthesizerType;
      
         private boolean isLimitedDomain;
-        Voice(String name, Locale locale, String gender, String domain)
+        public Voice(String name, Locale locale, String gender, String domain)
         {
             this.name = name;
             this.locale = locale;
@@ -1406,7 +1406,7 @@ public class MaryClient {
         private String name;
         private boolean isInputType;
         private boolean isOutputType;
-        DataType(String name, boolean isInputType, boolean isOutputType) {
+        public DataType(String name, boolean isInputType, boolean isOutputType) {
             this.name = name;
             this.isInputType = isInputType;
             this.isOutputType = isOutputType;

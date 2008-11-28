@@ -40,7 +40,7 @@ import org.apache.http.HttpResponse;
 import marytts.client.AudioEffectsBoxData;
 import marytts.client.MaryClient;
 import marytts.client.http.MaryHttpClient;
-import marytts.client.http.MaryHtmlForm;
+import marytts.client.http.MaryBaseClient;
 import marytts.client.http.MaryHttpClientUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.string.StringUtils;
@@ -63,12 +63,12 @@ public class MaryWebHttpClientHandler
     }
     
     //Convert for to an html page and put it in response
-    public void toHttpResponse(MaryHtmlForm htmlForm, HttpResponse response) throws IOException, InterruptedException
+    public void toHttpResponse(MaryBaseClient htmlForm, HttpResponse response) throws IOException, InterruptedException
     {        
         toHttpResponse(htmlForm, response, "text/html; charset=UTF-8");
     }
     
-    public void toHttpResponse(MaryHtmlForm htmlForm, HttpResponse response, String contentType) throws IOException, InterruptedException
+    public void toHttpResponse(MaryBaseClient htmlForm, HttpResponse response, String contentType) throws IOException, InterruptedException
     {        
         String htmlPage = toHtmlPage(htmlForm);
             
@@ -113,7 +113,7 @@ public class MaryWebHttpClientHandler
     
     //Avoid server requests here! 
     //It will cause an infinite loop as the server calls this function while processing web browser client requests
-    public String toHtmlPage(MaryHtmlForm htmlForm) throws IOException, InterruptedException
+    public String toHtmlPage(MaryBaseClient htmlForm) throws IOException, InterruptedException
     {   
         int i, spaceInd;
         String htmlPage = "";
@@ -342,7 +342,7 @@ public class MaryWebHttpClientHandler
         htmlPage += indenter(--numIndents, strIndent) + "</table>" + nextline;
         htmlPage += nextline;  
         htmlPage += indenter(numIndents, strIndent) + "<table>" + nextline;
-        htmlPage += indenter(numIndents, strIndent) + "<form id=\"maryWebClient\" action=\"" + htmlForm.getServerHttpAddress() + "\" method=\"post\">" + nextline;
+        htmlPage += indenter(numIndents, strIndent) + "<form id=\"maryWebClient\" action=\"" + htmlForm.hostAddress.getHttpAddress() + "\" method=\"post\">" + nextline;
         
         htmlPage += indenter(++numIndents, strIndent) + "<tr>" + nextline;
         htmlPage += indenter(++numIndents, strIndent) + "<td></td>" + nextline;

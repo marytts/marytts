@@ -910,8 +910,6 @@ public class StringUtils {
 
     public static String urlEncode(String strRequest)
     {
-        //String encoded = StringUtils.replace(strRequest, " ", "%20");
-        
         String encoded = strRequest;
         
         try {
@@ -920,10 +918,7 @@ public class StringUtils {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
-        //encoded = StringUtils.replace(encoded, System.getProperty("line.separator"), "_HTTPREQUESTLINEBREAK_");
-        //encoded = StringUtils.replace(encoded, "\n", "_HTTPREQUESTLINEBREAK_");
-        
+
         return encoded;
     }
     

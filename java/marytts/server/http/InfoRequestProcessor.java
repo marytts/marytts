@@ -46,7 +46,8 @@ import org.apache.http.HttpResponse;
 import org.apache.log4j.Logger;
 
 import marytts.Version;
-import marytts.client.http.MaryHtmlForm;
+import marytts.client.http.Address;
+import marytts.client.http.MaryBaseClient;
 import marytts.datatypes.MaryDataType;
 import marytts.htsengine.HMMVoice;
 import marytts.modules.synthesis.Voice;
@@ -76,9 +77,9 @@ public class InfoRequestProcessor extends BaselineRequestProcessor {
         boolean ok = false;
         MaryWebHttpClientHandler webHttpClient = new MaryWebHttpClientHandler();
 
-        MaryHtmlForm htmlForm = null;
+        MaryBaseClient htmlForm = null;
         try {
-            htmlForm = new MaryHtmlForm(clientAddress,
+            htmlForm = new MaryBaseClient(clientAddress,
                                                      getMaryVersion(),
                                                      getVoices(),
                                                      getDataTypes(),
@@ -129,7 +130,7 @@ public class InfoRequestProcessor extends BaselineRequestProcessor {
 
             if (isWebBrowserClient) //Generate info response for web browser client
             {
-                MaryHtmlForm htmlForm = new MaryHtmlForm(serverAddressAtClient,
+                MaryBaseClient htmlForm = new MaryBaseClient(serverAddressAtClient,
                                                          keyValuePairs,
                                                          getMaryVersion(),
                                                          getVoices(),

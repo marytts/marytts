@@ -38,7 +38,7 @@ import java.util.Map;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioFileFormat;
 
-import marytts.client.http.MaryHtmlForm;
+import marytts.client.http.MaryBaseClient;
 import marytts.client.http.MaryHttpClientUtils;
 import marytts.util.ConversionUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
