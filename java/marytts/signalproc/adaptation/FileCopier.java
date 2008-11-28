@@ -36,11 +36,9 @@ import marytts.util.string.StringUtils;
 
 
 /**
- * 
- * @author oytun.turk
- * 
  * Generic utility class for renaming and copying voice conversion training files
- *
+ * 
+ * @author Oytun T&uumlrk
  */
 public class FileCopier {
     public FileCopier()

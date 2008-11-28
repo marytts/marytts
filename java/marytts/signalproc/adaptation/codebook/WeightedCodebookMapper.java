@@ -38,11 +38,10 @@ import marytts.util.math.MathUtils;
 
 
 /**
- * @author oytun.turk
- *
  * This class performs mapping of acoustic features to be transformed to the codebook
  * entries
  * 
+ * @author Oytun T&uumlrk
  */
 public class WeightedCodebookMapper extends VocalTractTransformationFunction {
     public WeightedCodebookMapperParams mapperParams;

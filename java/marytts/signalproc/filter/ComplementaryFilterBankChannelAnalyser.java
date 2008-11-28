@@ -45,14 +45,14 @@ import marytts.util.signal.SignalProcUtils;
 
 
 /**
- * @author oytun.turk
- *
  * This class implements a single channel of the complementary filter bank used in 
  *    [Levine, et. al., 1999] for multiresolution sinusoidal modeling.
  *
  * [Levine, et. al., 1999] Levine, S. N., Verma, T. S., and Smith III, J. O., "Multiresolution sinusoidal
  *    modeling for wideband audio with modifications", in Proc. of the IEEE ICASSP 1998, 
  *    Volume 6, Issue , 12-15 May 1998, pp. 3585-3588.
+ *    
+ * @author Oytun T&uumlrk
  */
 public class ComplementaryFilterBankChannelAnalyser {
     public double[] lpfOut; //Output of lowpass sub-channel

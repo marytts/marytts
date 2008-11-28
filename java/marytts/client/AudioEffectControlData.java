@@ -35,7 +35,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 /**
- * @author oytun.turk
+ * Data for an audio effect control.
+ * 
+ * @author Oytun T&uumlrk
  *
  */
 public class AudioEffectControlData {

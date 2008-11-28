@@ -66,7 +66,9 @@ import marytts.util.io.LoggingReader;
 import marytts.util.string.StringUtils;
 
 /**
- * @author oytun.turk
+ * Provides functionality to process synthesis http requests
+ * 
+ * @author Oytun T&uumlrk
  *
  */
 public class SynthesisRequestProcessor extends BaselineRequestProcessor {

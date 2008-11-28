@@ -33,10 +33,10 @@ import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
 
 /**
- * @author oytun.turk
  *
  * Temporal smoother can be used to smooth LSF contours, spectral envelope, etc
- *
+ * 
+ * @author Oytun T&uumlrk
  */
 public class TemporalSmoother {
     public static final int DEFAULT_NUM_NEIGHBOURS = 4;

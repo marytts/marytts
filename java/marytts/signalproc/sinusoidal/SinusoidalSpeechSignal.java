@@ -30,8 +30,7 @@
 package marytts.signalproc.sinusoidal;
 
 /**
- * @author oytun.turk
- *
+ * @author Oytun T&uumlrk
  */
 public class SinusoidalSpeechSignal {
     public SinusoidalSpeechFrame [] framesSins;

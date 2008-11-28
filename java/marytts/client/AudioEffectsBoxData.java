@@ -30,7 +30,9 @@
 package marytts.client;
 
 /**
- * @author oytun.turk
+ * Data for a set of audio effects, i.e. "an audio effects box".
+ * 
+ * @author Oytun T&uumlrk
  *
  */
 public class AudioEffectsBoxData {

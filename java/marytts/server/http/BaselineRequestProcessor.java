@@ -56,8 +56,9 @@ import marytts.util.string.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
- * @author oytun.turk
- *
+ * Provides baseline functionality to process http requests to the Mary server.
+ * 
+ * @author Oytun T&uumlrk
  */
 public class BaselineRequestProcessor {
     protected static Logger logger;
@@ -173,9 +174,10 @@ public class BaselineRequestProcessor {
         StringTokenizer st = new StringTokenizer(parameters);
         if (st.hasMoreTokens()) 
         {
+            //First parameter should be type name
             String typeName = st.nextToken();
             try {
-                //Next should be locale:
+                //Second parameter should be locale
                 Locale locale = MaryUtils.string2locale(st.nextToken());
                 MaryDataType type = MaryDataType.get(typeName);
                 if (type != null) {
@@ -222,6 +224,7 @@ public class BaselineRequestProcessor {
 
         if (st.hasMoreTokens()) 
         {
+            //The parameter should be voice name
             String voiceName = st.nextToken();
             Voice v = Voice.getVoice(voiceName);
             

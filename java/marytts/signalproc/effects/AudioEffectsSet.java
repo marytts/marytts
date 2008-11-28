@@ -32,8 +32,7 @@ package marytts.signalproc.effects;
 import java.util.Vector;
 
 /**
- * @author oytun.turk
- *
+ * @author Oytun T&uumlrk
  */
 //A set of audio effects with names, default parameters, and help information
 public class AudioEffectsSet {

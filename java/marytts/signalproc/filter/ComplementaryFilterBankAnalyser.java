@@ -45,8 +45,6 @@ import marytts.util.signal.SignalProcUtils;
 
 
 /**
- * @author oytun.turk
- *
  * This class implements the complementary filter bank used in 
  *    [Levine, et. al., 1999] for multiresolution sinusoidal modeling.
  *    The filter bank consists of a collection of filter channels 
@@ -55,6 +53,8 @@ import marytts.util.signal.SignalProcUtils;
  * [Levine, et. al., 1999] Levine, S. N., Verma, T. S., and Smith III, J. O., "Multiresolution sinusoidal
  *    modeling for wideband audio with modifications", in Proc. of the IEEE ICASSP 1998, 
  *    Volume 6, Issue , 12-15 May 1998, pp. 3585-3588.
+ *
+ * @author Oytun T&uumlrk
  */
 public class ComplementaryFilterBankAnalyser extends FilterBankAnalyserBase {
     public int numLevels;

@@ -41,10 +41,9 @@ import marytts.util.io.MaryRandomAccessFile;
 
 /**
  * 
- * @author oytun.turk
- * 
  * A class for handling file I/O of weighted codebook file headers
- *
+ * 
+ * @author Oytun T&uumlrk
  */
 public class WeightedCodebookFileHeader {
     public int totalEntries;

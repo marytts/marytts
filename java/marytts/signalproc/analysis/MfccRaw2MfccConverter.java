@@ -39,12 +39,10 @@ import marytts.util.io.MaryRandomAccessFile;
 import marytts.util.string.StringUtils;
 
 /**
- * 
- * @author oytun.turk
- *
  * Converts binary MFCC files in raw SPTK format into Mary MFCC file format
  * with header
- *  
+ * 
+ * @author Oytun T&uumlrk
  */
 public class MfccRaw2MfccConverter {
     public static void convertFolder(String folder, 

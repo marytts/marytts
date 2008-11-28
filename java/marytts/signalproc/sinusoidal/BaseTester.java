@@ -43,10 +43,9 @@ import marytts.util.math.MathUtils;
 
 
 /**
- * @author oytun.turk
- *
  * All tester classes should be derived from this baseline class
  * 
+ * @author Oytun T&uumlrk
  */
 public class BaseTester {
     public static float DEFAULT_AMP = 0.8f;

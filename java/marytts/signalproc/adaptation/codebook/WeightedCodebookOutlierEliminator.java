@@ -37,10 +37,9 @@ import marytts.util.io.FileUtils;
 
 /**
  * 
- * @author oytun.turk
- * 
  * A collection of outlier eliminators for weighted codebook mapping
  *
+ * @author Oytun T&uumlrk
  */
 public class WeightedCodebookOutlierEliminator {
     private GaussianOutlierEliminator gaussian;

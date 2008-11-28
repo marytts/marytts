@@ -49,10 +49,11 @@ import marytts.util.signal.SignalProcUtils;
 
 
 /**
- * @author oytun.turk
  * Initial pitch, voicing, maximum frequency of voicing, and refined pitch estimation
  * as described in:
  * Stylianou, Y., "A Pitch and Maximum Voiced Frequency Estimation Technique adapted to Harmonic Models of Speech".
+ *
+ * @author Oytun T&uumlrk
  */
 public class HnmPitchVoicingAnalyzer {
     //Default search range for voicing detection, i.e. voicing criterion will be computed for frequency range:

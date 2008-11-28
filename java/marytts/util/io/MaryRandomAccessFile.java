@@ -6,12 +6,11 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 /**
- * @author oytun.turk
- *
  * A class that extends RandomAccessFile to read/write arrays of different types while allowing random
  * access to a binary file (i.e. the file can be opened in both read/write mode and there is support for
  * moving the file pointer to any location as required
  * 
+ * @author Oytun T&uumlrk
  */
 
 public final class MaryRandomAccessFile extends RandomAccessFile

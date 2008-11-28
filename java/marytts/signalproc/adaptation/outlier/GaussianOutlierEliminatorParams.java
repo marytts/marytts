@@ -31,10 +31,9 @@ package marytts.signalproc.adaptation.outlier;
 
 /**
  * 
- * @author oytun.turk
- * 
  * Parameters for single Gaussian based outlier elimination
- *
+ * 
+ *  @author Oytun T&uumlrk
  */
 public class GaussianOutlierEliminatorParams extends BaselineOutlierEliminatorParams {
     public TotalStandardDeviations totalStandardDeviations;

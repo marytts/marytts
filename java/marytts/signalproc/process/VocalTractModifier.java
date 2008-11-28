@@ -40,7 +40,7 @@ import marytts.util.signal.SignalProcUtils;
 
 
 /**
- * @author oytun.turk
+ * @author Oytun T&uumlrk
  *
  */
 public class VocalTractModifier implements InlineDataProcessor {

@@ -127,111 +127,114 @@ import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
 /**
- * Listen for clients on socket port
+ * Listen for clients as an Http server at port
  *          <code>MaryProperties.socketPort()</code>.
- *          For each new client, create a new RequestHandler thread.
+ * <p>        
+ * There are two types of clients that can be handled:
  * <p>
- * Clients are expected to follow the following <b>protocol</b>:
+ * (1) Non-web browser clients
+ * (2) Web browser clients
  * <p>
- * A client opens two socket connections to the server. The first,
- * <code>infoSocket</code>, serves for passing meta-information,
- * such as the requested input and output types or warnings.
- * The second, <code>dataSocket</code>, serves for passing the actual
- * input and output data.
- * The server expects the communication as follows.
- * <ol>
- * <li> The client opens an <code>infoSocket</code>,
- * optionally sends one line "MARY VERSION" to obtain
- * three lines of version information, and then sends one line
- * "MARY IN=INPUTTYPE OUT=OUTPUTTYPE [AUDIO=AUDIOTYPE]",
- * where INPUTTYPE and OUTPUTTYPE can have a number of different values,
- * depending on the configuration with which the server was started.
- * For an English system, these values include:
- * <ul>
- *   <li>  TEXT_EN          plain ASCII text, English (input only) </li>
- *   <li>  SABLE         text annotated with SABLE markup (input only) </li>
- *   <li>  SSML          text annotated with SSML markup (input only) </li>
- *   <li>  APML          text annotated with APML markup (input only) </li>
- *   <li>  RAWMARYXML    untokenised MaryXML </li>
- *   <li>  TOKENS_EN     tokenized text </li>
- *   <li>  WORDS_EN      numbers and abbreviations expanded </li>
- *   <li>  POS_EN        parts of speech tags added </li>
- *   <li>  SEGMENTS_EN   phoneme symbols </li>
- *   <li>  INTONATION_EN ToBI intonation symbols </li>
- *   <li>  POSTPROCESSED_EN post-lexical phonological rules </li>
- *   <li>  ACOUSTPARAMS  acoustic parameters in MaryXML structure </li>
- *   <li>  MBROLA        phone symbols, duration and frequency values </li>
- *   <li>  AUDIO         audio data (output only) </li>
- * </ul>
- * INPUTTYPE must be earlier in this list than OUTPUTTYPE.
- * The list of input and output data types can be requested from the server by
- * sending it a line "MARY LIST DATATYPES". The server will reply with a list of lines
- * where each line represents one data type, e.g. "RAWMARYXML INPUT OUTPUT",
-        "TEXT INPUT" or "AUDIO OUTPUT".
- * See the code in MaryClient.fillDataTypes().  
+ * Note that non-web browser clients can mimic web browser clients by setting WEB_BROWSER_CLIENT parameter to "true"
+ * in the Http request string
  * <p>
- * The optional AUDIO=AUDIOTYPE specifies the type of audio file
- * to be sent for audio output. Possible values are:
- * <ul>
- *   <li> WAVE_FILE </li>
- *   <li> AU_FILE </li>
- *   <li> AIFF </li>
- *   <li> AIFC_FILE </li>
- *   <li> MP3_FILE </li>
- *   <li> Vorbis_FILE </li>
- *   <li> AU_STREAM</li>
- *   <li> MP3_STREAM</li>
- * </ul>
+ * Clients can request the following (See below for more details):
  * <p>
- * The optional VOICE=VOICENAME specifies the default voice with which
- * the text is to be spoken. As for the data types, possible values
- * depend on the configuration of the server. The list can be retrieved
- * by sending the server a line "MARY LIST VOICES", which will reply with
- * lines such as "de7 de female", "kevin16 en male" or "us2 en male". 
+ * (1) A file such as Mary icon or an audio file
+ * (2) Information like available voices, example texts, available audio formats, etc
+ * (3) Synthesis of an appropriate input with appropriate additional parameters
  * <p>
- * The optional EFFECTS=EFFECTSWITHPARAMETERS specifies the audio effects
- * to be applied as a post-processing step along with their parameters. 
- * EFFECTSWITHPARAMETERS is a String of the form 
- * "Effect1Name(Effect1Parameter1=Effect1Value1; Effect1Parameter2=Effect1Value2), Effect2Name(Effect2Parameter1=Effect2Value1)"
- * For example, "Robot(amount=100),Whisper(amount=50)" will convert the output into 
- * a whispered robotic voice with the specified amounts.
+ * For all clients, the responses are always sent in an HttpResponses.
+ * The entity in the response body can represent:
  * <p>
- * Example: The line
- * <pre>
- *   MARY IN=TEXT_EN OUT=AUDIO AUDIO=WAVE VOICE=kevin16 EFFECTS
- * </pre>
- * will process normal ASCII text, and send back a WAV audio file
- * synthesised with the voice "kevin16".
- * </li>
- *
- * <li> The server reads and parses this input line. If its format is correct,
- * a line containing a single integer is sent back to the client
- * on <code>infoSocket</code>. This
- * integer is a unique identification number for this request.
- * </li>
- *
- * <li> The client opens a second socket connection to the server, on the same
- * port, the <code>dataSocket</code>. As a first line on this
- * <code>dataSocket</code>,
- * it sends the single integer it had just received via the
- * <code>infoSocket</code>.
- * </li>
- *
- * <li> The server groups dataSocket and infoSocket together based on this
- * identification number, and starts reading data of the requested input
- * type from <code>dataSocket</code>.
- * </li>
- *
- * <li> If any errors or warning messages are issued during input parsing or
- * consecutive processing, these are printed to <code>infoSocket</code>.
- * </li>
- *
- * <li> The processing result is output to <code>dataSocket</code>.
- * </li>
- * </ol>
- *
- * @see RequestHttpHandler
- * @author Marc Schr&ouml;der, oytun.turk
+ * (1) An html page (applies only to web browser clients)
+ * (2) Some binary data (such as bytes of Mary icon for file requests, or bytes of audio data for synthesis requests)
+ * (3) Some piece of text
+ * <p>
+ * A valid Mary Http request string is a collection of individual key-value pairs combined in Http request sytle:
+ * pair1&pair2&pair3... etc
+ * <p>
+ * Each pair has the following structure:
+ * <p>
+ * KEY=VALUE where
+ * <p>
+ * VALUE should start with a question mark (?) for querying the actual value corresponding to the KEY.
+ * <p>
+ * In addition, for some KEYs, VALUE may contain parameters separated by spaces after the question mark.
+ * <p>
+ * For example:
+ * <p>
+ * VOICE_EXAMPLE_TEXT=? hmm-slt 
+ * <p>
+ * returns the example text for voice "hmm-slt" from the server.
+ * <p>
+ * A list of KEYs for requesting information from the server are as follows:
+ * <p>
+ * VERSION (asks server version) 
+ * <p>
+ * DATA_TYPES (asks available data types - both input and output) 
+ * <p>
+ * VOICES (asks all available voices) 
+ * <p>
+ * AUDIO_FILE_FORMAT_TYPES (asks all supported audio formats) 
+ * <p>
+ * EXAMPLE_TEXT (asks example texts given a data type and locale
+ * <p>
+ * VOICE_EXAMPLE_TEXT (asks example texts given a voice) 
+ * <p>
+ * DEFAULT_AUDIO_EFFECTS (asks for the default audio effects set)
+ * <p>
+ * AUDIO_EFFECT_HELP_TEXT_LINE_BREAK (asks for the line break symbol used in audio effect help texts)
+ * <p>
+ * AUDIO_EFFECT_DEFAULT_PARAM (asks for the default parameters of an audio effect. Its parameter should be the effect name)
+ * <p>
+ * FULL_AUDIO_EFFECT (asks for a full audio effect - effect name + parameters and help texts)
+ * <p>
+ * AUDIO_EFFECT_HELP_TEXT (asks for the help text of an audio effect)
+ * <p>
+ * IS_HMM_AUDIO_EFFECT (asks if a given effect is only available for hmm voices
+ *         
+ * <p>
+ * The following keys are used for passing additional information from server to client and/or vice versa:
+ * <p>
+ * INPUT_TYPE (input data type)
+ * <p>
+ * OUTPUT_TYPE (output data type)
+ * <p>
+ * AUDIO (audio format. It may include streaming/non-streaming information as well.
+ *        Example values for non-streaming formats: AU_FILE, MP3_FILE, WAVE_FILE
+ *        Example values for streaming formats: AU_STREAM, MP3_STREAM)
+ * <p>
+ * STYLE (Style descriptor)
+ * <p>
+ * INPUT_TEXT (Input text to be synthesised)
+ * <p>
+ * OUTPUT_TEXT (Output text - if the output type is not audio)
+ * <p>
+ * SYNTHESIS_OUTPUT (A key to ask for synthesis, or to represent synthesis result.
+ *                   Example values: SYNTHESIS_OUTPUT=? instantiates a synthesis request
+ *                                   In response, the server can set SYNTHESIS_OUTPUT to DONE, PENDING, or FAILED depending on the validity and type of te request
+ *                                   PENDING is a special case used for handling double requests due to <EMBED< or <OBJECT> tags in web browser client html pages                           
+ *     
+ * <p>
+ * Additionally, web browser clients should use the following key-value pair to tell the server about their type:
+ * <p>
+ * WEB_BROWSER_CLIENT=true (All other values will be interpreted as non-web browser client)
+ * <p>
+ * An easy way to test the http server is as follows:
+ * <p>
+ * (1) Run mary server in "http" mode by setting server=http in marybase.config
+ * <p>
+ * (2) Copy and paste the following to a web browser´s address bar:
+ * <p>
+ * http://localhost:59125/?INPUT_TYPE=TEXT&OUTPUT_TYPE=AUDIO&INPUT_TEXT=Welcome+to+the+world+of+speech+synthesis!&AUDIO=AU&SYNTHESIS_OUTPUT=%3F&LOCALE=en_US&VOICE=hsmm-slt
+ * <p>
+ * Provided that the server runs at localhost:59125 (or change "http://localhost:59125/" part as required), 
+ * the web browser supports AUDIO type (if not try other formats such as WAVE, MP3, OGG or install a plug-in to play the target format),
+ * and the VOICE is installed (hmm-slt), the synthesis result should be sent to the web browser for playback or saving (depending on web browser settings).
+ * <p>
+ * @see InfoRequestProcessor, FileRequestProcessor, SynthesisRequestProcessor, BaselineRequestProcessor, RequestHttp, MaryWebHttpClientHandler
+ * @author Oytun T&uumlrk, Marc Schr&ouml;der 
  */
 
 public class MaryHttpServer {

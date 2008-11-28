@@ -32,8 +32,8 @@ package marytts.signalproc.effects;
 import marytts.util.data.DoubleDataSource;
 
 /**
- * @author oytun.turk
- *
+ * 
+ * @author Oytun T&uumlrk
  */
 public interface AudioEffect {    
     public String getName(); //Returns the unique name of the effect

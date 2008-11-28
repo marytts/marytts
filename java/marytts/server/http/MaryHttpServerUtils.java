@@ -53,8 +53,9 @@ import org.apache.http.nio.entity.NFileEntity;
 import org.jsresources.AppendableSequenceAudioInputStream;
 
 /**
- * @author oytun.turk
- *
+ * Utility functions for Mary http server
+ * 
+ * @author Oytun T&uumlrk
  */
 public class MaryHttpServerUtils 
 {

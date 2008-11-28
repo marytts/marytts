@@ -36,10 +36,10 @@ import marytts.util.math.MathUtils;
 
 
 /**
- * @author oytun.turk
- *
+ * 
  * Wrapper for a Gaussian Mixture Model
  * 
+ * @author Oytun T&uumlrk
  */
 public class GMM {
     public double[] weights;

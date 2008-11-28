@@ -45,13 +45,11 @@ import javax.sound.sampled.AudioFileFormat.Type;
 
 import marytts.client.AudioEffectsBoxData;
 import marytts.client.MaryClient;
-import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.string.StringUtils;
 
 /**
- * @author oytun.turk
  *
  * This class nests all the information and functions that a Mary client needs
  * to receive/send data from/to server.
@@ -59,6 +57,7 @@ import marytts.util.string.StringUtils;
  * (i) extend this class (Example: MaryHttpClient, MaryWebHttpClient)
  * (ii) use an object of type MaryHttpForm or of a derived class (Example: MaryGUIHttpClient)
  * 
+ * @author Oytun T&uumlrk
  */
 public class MaryBaseClient {
     // Default values which can be overridden from the command line.

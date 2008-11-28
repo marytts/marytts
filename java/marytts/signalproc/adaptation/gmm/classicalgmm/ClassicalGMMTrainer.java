@@ -33,10 +33,9 @@ import marytts.machinelearning.GMMTrainer;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookParallelTrainer;
 
 /**
- * @author oytun.turk
- *
  * TO DO: Classical GMM based spectral conversion (Stylianou, 1998)
  * 
+ * @author Oytun T&uumlrk
  */
 public class ClassicalGMMTrainer {
     

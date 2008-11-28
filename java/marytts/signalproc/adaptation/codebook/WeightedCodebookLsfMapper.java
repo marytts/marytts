@@ -45,11 +45,9 @@ import marytts.util.signal.SignalProcUtils;
 
 
 /**
- * 
- * @author oytun.turk
- * 
  * Implements mapping functionality of LSFs between source and target
- *
+ * 
+ * @author Oytun T&uumlrk
  */
 public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
     private WeightedCodebookTrainerParams params;

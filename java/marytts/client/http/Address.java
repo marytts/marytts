@@ -30,10 +30,10 @@
 package marytts.client.http;
 
 /**
- * @author oytun.turk
  * 
  * A class to keep host and port information in a structure
  * 
+ * @author Oytun T&uumlrk
  */
 public class Address {
     private String host;

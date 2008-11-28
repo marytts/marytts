@@ -31,10 +31,9 @@ package marytts.signalproc.sinusoidal;
 
 
 /**
- * @author oytun.turk
- *
  * Single speech frame sinusoids with spectrum
  * 
+ * @author Oytun T&uumlrk
  */
 public class SinusoidalSpeechFrame {
     public Sinusoid [] sinusoids;

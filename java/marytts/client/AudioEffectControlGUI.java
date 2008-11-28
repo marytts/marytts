@@ -48,13 +48,19 @@ import javax.swing.event.DocumentListener;
 
 
 /**
- * @author oytun.turk
  * 
- * A MaryEffectControl consists of a checkbox, a text pane, a text field, and a button
- * The checkbox indicates whether the effect will be applied or not
- * The label contains the name of the effect
- * The text field contains the parameters of the effect
- * The button shows help information about the usage of the effect when clicked
+ * An AudioEffectControlGUI consists of a checkbox, a text pane, a text field, and a button.
+ * <p>
+ * The checkbox indicates whether the effect will be applied or not.
+ * <p>
+ * The label contains the name of the effect.
+ * <p>
+ * The text field contains the parameters of the effect.
+ * <p>
+ * The button shows help information about the usage of the effect when clicked.
+ * <p>
+ * 
+ * @author Oytun T&uumlrk
  */
 public class AudioEffectControlGUI {
     

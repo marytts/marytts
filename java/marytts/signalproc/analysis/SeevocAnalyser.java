@@ -37,14 +37,12 @@ import marytts.util.signal.SignalProcUtils;
 
 
 /**
- * 
- * @author oytun.turk
- * 
  * Spectral Enveope Estimation Vocoder (SEEVOC) -  a simple implementation
  * 
  * Reference: Paul, D., 1981, "The Spectral Envelope Estimation Vocoder", 
  *              IEEE Trans. Acoust. Speech Signal Proc., ASSP-29, pp. 786-794.
  *
+ * @author Oytun T&uumlrk
  */
 public class SeevocAnalyser {
     public static double[] calcSpecEnvelope(double [] absMagSpecIndB, int samplingRate)

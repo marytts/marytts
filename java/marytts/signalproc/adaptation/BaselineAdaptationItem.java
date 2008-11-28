@@ -32,13 +32,12 @@ package marytts.signalproc.adaptation;
 import marytts.util.string.StringUtils;
 
 /**
- * @author oytun.turk
- * 
  * This class keeps information on each specific training item
  * For example, a training item for a sentence based voice conversion training database
  * could be a wav file, the corresponding text transcription, label file, pitch contour file, etc.
  * The training set is a collection of BaseTrainingItem objects
  *
+ * @author Oytun T&uumlrk
  */
 public class BaselineAdaptationItem {
     //A decomposition of the file into its sinus+noise+transients+residual components

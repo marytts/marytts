@@ -44,8 +44,9 @@ import marytts.util.io.FileUtils;
 import org.apache.http.HttpResponse;
 
 /**
- * @author oytun.turk
- *
+ * Processor class for file http requests to Mary server
+ * 
+ * @author Oytun T&uumlrk
  */
 public class FileRequestProcessor extends BaselineRequestProcessor {
     

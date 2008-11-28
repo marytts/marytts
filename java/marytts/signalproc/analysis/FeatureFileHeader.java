@@ -34,11 +34,9 @@ import java.io.IOException;
 import marytts.util.io.MaryRandomAccessFile;
 
 /**
- * 
- * @author oytun.turk
- * 
  * Generic file header for binary acoustic feature files
  * 
+ * @author Oytun T&uumlrk
  */
 public class FeatureFileHeader {
     public int numfrm; //Total number of frames

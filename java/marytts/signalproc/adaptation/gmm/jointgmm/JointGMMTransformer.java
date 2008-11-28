@@ -56,10 +56,9 @@ import marytts.util.string.StringUtils;
 
 /**
  * 
- * @author oytun.turk
- * 
  * Voice conversion transformation using Joint-GMM approach
- *
+ * 
+ * @author Oytun T&uumlrk
  */
 public class JointGMMTransformer extends BaselineTransformer {
 

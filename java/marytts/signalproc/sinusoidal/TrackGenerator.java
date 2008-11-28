@@ -30,10 +30,9 @@
 package marytts.signalproc.sinusoidal;
 
 /**
- * @author oytun.turk
- *
  * This class generates the sinusoidal tracks given individual peak amplitudes measured from the DFT spectrum
  * 
+ * @author Oytun T&uumlrk
  */
 public class TrackGenerator {
     public static float ZERO_AMP_SHIFT_IN_SECONDS = 0.005f; //Time instant before/after current time to insert a turning-on/off event

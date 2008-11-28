@@ -46,13 +46,13 @@ import marytts.util.signal.SignalProcUtils;
 
 
 /**
- * @author oytun.turk
- *
  * This is a simple FIR bandpass filterbank structure with no resampling operations
  * The filters are overlapping and a simple DFT-based frequency response estimation method
  *  is used for reducing reconstruction error due to non-ideal filtering scheme and overlap among filters
  * Given a sampling rate and a set of lower and upper cutoff frequency values in Hz,
  *  a set of bandpass filters that overlap by some amount in frequency
+ *  
+ * @author Oytun T&uumlrk
  */
 public class FIRBandPassFilterBankAnalyser extends FilterBankAnalyserBase {
     public static final double OVERLAP_AROUND_1000HZ_DEFAULT = 100.0;

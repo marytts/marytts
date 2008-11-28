@@ -48,11 +48,9 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
- * 
- * @author oytun.turk
- * 
  * Implements a pitch tracker based on Quatieri´s book
  * 
+ * @author Oytun T&uumlrk
  */
 public class CombFilterPitchTracker extends BaseSinusoidalPitchTracker {
 

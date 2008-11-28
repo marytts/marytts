@@ -32,7 +32,7 @@ package marytts.signalproc.adaptation.prosody;
 import marytts.signalproc.adaptation.BaselineParams;
 
 /**
- * @author oytun.turk
+ * @author Oytun T&uumlrk
  *
  */
 public class ProsodyTransformerParams extends BaselineParams {

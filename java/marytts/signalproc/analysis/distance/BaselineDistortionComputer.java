@@ -30,10 +30,9 @@
 package marytts.signalproc.analysis.distance;
 
 /**
- * @author oytun.turk
- *
  * A base class from which all distortion computing classes should derive from
  * 
+ * @author Oytun T&uumlrk
  */
 public class BaselineDistortionComputer {
     public BaselineDistortionComputer()

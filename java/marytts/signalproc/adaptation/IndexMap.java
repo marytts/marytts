@@ -37,11 +37,10 @@ import marytts.util.io.LEDataOutputStream;
 
 
 /**
- * @author oytun.turk
- *
  * A class for handling source-target frame indices mapping
  * It can be used in various ways:
  * 
+ * @author Oytun T&uumlrk
  */
 public class IndexMap {
     public FileMap [] files; //A frame map for individual file pairs

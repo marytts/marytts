@@ -43,11 +43,9 @@ import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.util.math.MathUtils;
 
 /**
- * 
- * @author oytun.turk
- * 
  * K-Means clustering and mapping based outlier elimination
- *
+ * 
+ * @author Oytun T&uumlrk
  */
 public class KMeansMappingEliminator {
     //Separate clusterers

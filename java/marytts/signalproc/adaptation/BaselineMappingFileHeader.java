@@ -34,10 +34,9 @@ import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.PitchFileHeader;
 
 /**
- * @author oytun.turk
- * 
  * Baseline class for voice conversion function binary file header
  *
+ * @author Oytun T&uumlrk
  */
 public class BaselineMappingFileHeader {
     public String sourceTag; //Source name tag (i.e. style or speaker identity)

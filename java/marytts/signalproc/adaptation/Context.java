@@ -34,10 +34,9 @@ import marytts.util.string.StringUtils;
 
 
 /**
- * @author oytun.turk
- *
  * A wrapper class for representing phonetic context
  * 
+ * @author Oytun T&uumlrk
  */
 public class Context {
     public int numLeftNeighbours;

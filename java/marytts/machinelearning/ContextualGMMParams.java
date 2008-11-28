@@ -42,11 +42,11 @@ import marytts.util.string.StringUtils;
 
 
 /**
- * @author oytun.turk
  * 
  * Wrapper for contextual parameters for GMM training - includes various phoneme identity or class
  * based groups
- *
+ * 
+ * @author Oytun T&uumlrk
  */
 public class ContextualGMMParams {
     public static final int FRICATIVE =   Integer.parseInt("000000000001", 2);

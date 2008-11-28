@@ -60,11 +60,9 @@ import org.xml.sax.SAXException;
 
 
 /**
- * 
- * @author oytun.turk
- * 
  * Joint-GMM voice conversion training using parallel source and target databases
- *
+ * 
+ * @author Oytun T&uumlrk
  */
 public class JointGMMParallelTrainer extends JointGMMTrainer {
     protected WeightedCodebookParallelTrainer wcpTrainer;

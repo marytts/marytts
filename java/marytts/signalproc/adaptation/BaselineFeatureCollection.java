@@ -31,10 +31,9 @@ package marytts.signalproc.adaptation;
 
 /**
  * 
- * @author oytun.turk
- * 
  * Baseline class for indexed binary files of acoustic feature sets 
  *
+ * @author Oytun T&uumlrk
  */
 public class BaselineFeatureCollection {
 

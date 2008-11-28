@@ -35,11 +35,9 @@ import marytts.util.io.MaryRandomAccessFile;
 
 
 /**
- * 
- * @author oytun.turk
- *
  * A wrapper class for frame based mel frequency cepstral coefficient vectors.
  *
+ * @author Oytun T&uumlrk
  */
 public class Mfccs {
     public double[][] mfccs;

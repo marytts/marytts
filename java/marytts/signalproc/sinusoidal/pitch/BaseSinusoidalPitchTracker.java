@@ -34,7 +34,7 @@ import marytts.signalproc.sinusoidal.SinusoidalSpeechSignal;
 import marytts.util.math.MathUtils;
 
 /**
- * @author oytun.turk
+ * @author Oytun T&uumlrk
  *
  */
 public class BaseSinusoidalPitchTracker {

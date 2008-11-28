@@ -33,10 +33,9 @@ import marytts.signalproc.adaptation.BaselineParams;
 
 /**
  * 
- * @author oytun.turk
- * 
  * Baseline class for outlier elimination parameters
- *
+ * 
+ * @author Oytun T&uumlrk
  */
 public class BaselineOutlierEliminatorParams extends BaselineParams {
     public boolean isCheckLsfOutliers;

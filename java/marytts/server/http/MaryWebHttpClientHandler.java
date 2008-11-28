@@ -46,14 +46,13 @@ import marytts.util.math.MathUtils;
 import marytts.util.string.StringUtils;
 
 /**
- * @author oytun.turk
- *
- * This class implements a web browser client
- * It is different as compared to other Mary clients in the sense that 
- * it is dynamically created by MaryHttpServer to send an appropriate html form 
- * to a web browser that connect to a Mary server.
- * This form is updated dynamically by user requests and server responses.
+ * This class implements the server-side code for handling a web browser client.
+ * Te handling is different as compared to conventional Mary clients since 
+ * MaryHttpServer has to use this class to send an appropriate html form 
+ * to the web browser client.
+ * The form is updated dynamically by user requests and server responses in this class.
  * 
+ * @author Oytun T&uumlrk
  */
 public class MaryWebHttpClientHandler
 {    
@@ -545,19 +544,6 @@ public class MaryWebHttpClientHandler
         if (!htmlForm.isOutputText) htmlPage += "<td>";
         htmlPage += "<select name=\"AUDIO_OUT\" id=\"AUDIO_OUT\" size=\"1\" onChange=\"return audioOutChanged();\">" + nextline;
 
-        //Fill audio file format types
-        /*
-        for (i=0; i<htmlForm.audioFileFormatTypes.size(); i++)
-        {
-            if (i==0)
-                numIndents++;
-
-            spaceInd = htmlForm.audioFileFormatTypes.get(i).indexOf(' ');
-            String typeName = htmlForm.audioFileFormatTypes.get(i).substring(spaceInd+1);
-
-            htmlPage += indenter(numIndents, strIndent) + "<option>" + typeName + "</option>" + nextline;
-        }
-        */
         for (i=0; i<htmlForm.audioOutTypes.size(); i++)
         {
             if (i==0)

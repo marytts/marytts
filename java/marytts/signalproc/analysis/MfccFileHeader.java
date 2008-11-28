@@ -34,12 +34,10 @@ import java.io.IOException;
 import marytts.util.io.MaryRandomAccessFile;
 
 /**
- * 
- * @author oytun.turk
- * 
  * Implements a structured header with file I/O functionality 
  * for binary files that store frame based mel frequency cepstral coefficient vectors 
  *  
+ * @author Oytun T&uumlrk
  */
 public class MfccFileHeader extends FeatureFileHeader {
     

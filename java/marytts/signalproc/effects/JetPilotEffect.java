@@ -30,8 +30,7 @@
 package marytts.signalproc.effects;
 
 /**
- * @author oytun.turk
- *
+ * @author Oytun T&uumlrk
  */
 public class JetPilotEffect extends FilterEffectBase {
     

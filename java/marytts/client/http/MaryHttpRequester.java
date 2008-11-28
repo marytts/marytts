@@ -38,9 +38,6 @@ import java.net.URLDecoder;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
-import marytts.util.ConversionUtils;
-import marytts.util.string.StringUtils;
-
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -74,8 +71,9 @@ import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
 
 /**
- * @author oytun.turk
- *
+ * Http request sender for Mary Http clients
+ * 
+ * @author Oytun T&uumlrk
  */       
 public class MaryHttpRequester 
 {

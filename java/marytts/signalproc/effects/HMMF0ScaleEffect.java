@@ -33,8 +33,7 @@ import marytts.util.data.DoubleDataSource;
 import marytts.util.math.MathUtils;
 
 /**
- * @author oytun.turk
- *
+ * @author Oytun T&uumlrk
  */
 public class HMMF0ScaleEffect extends BaseAudioEffect {
     public float f0Scale;
