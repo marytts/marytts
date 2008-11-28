@@ -961,7 +961,7 @@ public class WikipediaMarkupCleaner {
        
        // Checking if word list exist
        if( wikiToDB.tableExist(locale + "_wordList") ){
-         System.out.println("Updating " + locale + "_wordList from table....");
+         System.out.println("Updating " + locale + "_wordList in DB table....");
          wlOld = wikiToDB.getMostFrequentWords(0,0);
          
          // combine the two tables
@@ -979,6 +979,7 @@ public class WikipediaMarkupCleaner {
               wlOld.put(w, new Integer( i.intValue() + freq));  
          } 
          wikiToDB.insertWordList(wlOld);
+         System.out.println("Final size of wordList after combining old and new lists: wordList=[" + wlOld.size() + "]");
          
        } else {
          System.out.println("Saving " + locale + "_wordList table....");  
