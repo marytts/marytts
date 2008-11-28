@@ -28,7 +28,6 @@
 	<classpathentry kind="lib" path="java/commons-collections-3.2.1.jar" sourcepath="java/commons-collections-3.2.1-sources.jar"/>
 	<classpathentry kind="lib" path="java/weka.jar"/>
 	<classpathentry kind="lib" path="java/httpcore-4.0-beta2.jar"/>
-	<classpathentry kind="lib" path="java/httpclient-4.0-alpha4.jar"/>
 	<classpathentry kind="lib" path="java/httpcore-nio-4.0-beta2.jar"/>
 	<classpathentry kind="lib" path="java/junit-4.5.jar"/>
 	<classpathentry kind="lib" path="java/maxent-2.5.1.jar"/>
