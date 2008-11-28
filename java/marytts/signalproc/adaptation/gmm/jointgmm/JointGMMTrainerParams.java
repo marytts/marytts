@@ -36,10 +36,9 @@ import marytts.signalproc.adaptation.BaselineTrainerParams;
 
 /**
  * 
- * @author oytun.turk
- * 
  * Parameters for joint-GMM based voice conversion training
  *
+ * @author Oytun T&uumlrk
  */
 public class JointGMMTrainerParams extends BaselineTrainerParams {
     public boolean isContextualGMMs;

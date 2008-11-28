@@ -82,10 +82,10 @@ import marytts.util.signal.SignalProcUtils;
 
 
 /**
- * @author oytun.turk
- *
  * A class that supports voice conversion through weighted codebook mapping and FDPSOLA based
  * prosody and vocal tract modifications
+ * 
+ * @author Oytun T&uumlrk
  * 
  */
 public class FdpsolaAdapter {

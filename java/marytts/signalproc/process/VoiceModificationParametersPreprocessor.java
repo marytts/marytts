@@ -39,7 +39,7 @@ import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
 /**
- * @author oytun.turk
+ * @author Oytun T&uumlrk
  *
  */
 public class VoiceModificationParametersPreprocessor extends VoiceModificationParameters 

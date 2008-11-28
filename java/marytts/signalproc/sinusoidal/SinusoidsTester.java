@@ -36,11 +36,10 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
- * @author oytun.turk
- *
  * This class can be used to generate various sinusoid signals and writing them to wav and ptc files
  * to be used in testing the analysis/synthesis algorithms
  * 
+ * @author Oytun T&uumlrk
  */
 public class SinusoidsTester extends BaseTester{
     public static float DEFAULT_PHASE = 0.0f;

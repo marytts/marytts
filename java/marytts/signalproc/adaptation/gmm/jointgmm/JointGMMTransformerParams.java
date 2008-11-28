@@ -32,11 +32,9 @@ package marytts.signalproc.adaptation.gmm.jointgmm;
 import marytts.signalproc.adaptation.BaselineTransformerParams;
 
 /**
- * 
- * @author oytun.turk
- * 
  * Parameters for joint-GMM based voice conversion transformation stage
  *
+ * @author Oytun T&uumlrk
  */
 public class JointGMMTransformerParams extends BaselineTransformerParams {
     public String jointGmmFile; //Joint GMM file

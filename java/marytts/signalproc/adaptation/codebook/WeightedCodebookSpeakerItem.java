@@ -37,10 +37,10 @@ import marytts.util.io.MaryRandomAccessFile;
 
 /**
  * 
- * @author oytun.turk
- *
  * A collection of speaker specific acoustic features for a voice conversion unit, i.e. a speech frame
  * or a phoneme, etc.
+ * 
+ * @author Oytun T&uumlrk
  *
  */
 public class WeightedCodebookSpeakerItem {

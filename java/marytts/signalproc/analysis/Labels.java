@@ -37,11 +37,9 @@ import marytts.util.string.StringUtils;
 
 
 /**
- * 
- * @author oytun.turk
- *
  * A collection of EST formatted labels with ascii text file input/output functionality
  * 
+ * @author Oytun T&uumlrk
  */
 public class Labels {
     public Label[] items;

@@ -42,8 +42,7 @@ import marytts.unitselection.select.SelectedUnit;
 
 
 /**
- * @author oytun.turk
- *
+ * @author Oytun T&uumlrk
  */
 public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     private boolean [][] voicings;

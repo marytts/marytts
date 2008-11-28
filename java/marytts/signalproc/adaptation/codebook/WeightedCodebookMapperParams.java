@@ -30,11 +30,9 @@
 package marytts.signalproc.adaptation.codebook;
 
 /**
- * 
- * @author oytun.turk
- * 
  * Wrapper for parameters of weighted codebook mapping procedure
- *
+ * 
+ * @author Oytun T&uumlrk
  */
 public class WeightedCodebookMapperParams {
     public int numBestMatches; // Number of best matches in codebook

@@ -30,8 +30,17 @@
 package marytts.util.math;
 
 /**
- * @author oytun.turk
- *
+ * Computes the N-point Discrete Hilbert Transform of real valued vector x:
+ * The algorithm consists of the following stages:
+ * - X(w) = FFT(x) is computed
+ * - H(w), DFT of a Hilbert transform filter h[n], is created:
+ *   H[0]=H[N/2]=1
+ *   H[w]=2 for w=1,2,...,N/2-1
+ *   H[w]=0 for w=N/2+1,...,N-1
+ * - x[n] and h[n] are convolved (i.e. X(w) and H(w) multiplied)
+ * - y[n], the Discrete Hilbert Transform of x[n] is computed by y[n]=IFFT(X(w)H(w)) for n=0,...,N-1
+ * 
+ * @author Oytun T&uumlrk
  */
 public class Hilbert {
     public static ComplexArray transform(double [] x)
@@ -39,15 +48,7 @@ public class Hilbert {
         return transform(x, x.length);
     }
     
-    //Computes the N-point Discrete Hilbert Transform of real valued vector x:
-    // The algorithm consists of the following stages:
-    // - X(w) = FFT(x) is computed
-    // - H(w), DFT of a Hilbert transform filter h[n], is created:
-    //   H[0]=H[N/2]=1
-    //   H[w]=2 for w=1,2,...,N/2-1
-    //   H[w]=0 for w=N/2+1,...,N-1
-    // - x[n] and h[n] are convolved (i.e. X(w) and H(w) multiplied)
-    // - y[n], the Discrete Hilbert Transform of x[n] is computed by y[n]=IFFT(X(w)H(w)) for n=0,...,N-1
+    
     public static ComplexArray transform(double [] x, int N)
     {
         ComplexArray X = FFTMixedRadix.fftReal(x, N);

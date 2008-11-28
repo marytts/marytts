@@ -60,8 +60,9 @@ import marytts.util.MaryUtils;
 import marytts.util.string.StringUtils;
 
 /**
- * @author oytun.turk
- *
+ * Processor class for information http requests to Mary server
+ * 
+ * @author Oytun T&uumlrk
  */
 public class InfoRequestProcessor extends BaselineRequestProcessor {
 

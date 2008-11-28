@@ -34,10 +34,9 @@ import marytts.util.math.MathUtils;
 
 
 /**
- * @author oytun.turk
- * 
  * K-Means clustering training algorithm
  *
+ * @author Oytun T&uumlrk
  */
 public class KMeansClusteringTrainer {    
     public Cluster[] clusters; //Parameters of each cluster

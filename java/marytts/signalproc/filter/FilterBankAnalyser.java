@@ -30,7 +30,7 @@
 package marytts.signalproc.filter;
 
 /**
- * @author oytun.turk
+ * @author Oytun T&uumlrk
  *
  */
 public interface FilterBankAnalyser {

@@ -54,7 +54,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.AudioFormat.Encoding;
 
 import marytts.Version;
-import marytts.client.MaryGUIClient;
 
 /**
  * An HTTP client implementing the MARY protocol.

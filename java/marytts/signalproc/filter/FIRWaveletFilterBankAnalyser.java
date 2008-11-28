@@ -45,7 +45,7 @@ import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.signal.SignalProcUtils;
 
 /**
- * @author oytun.turk
+ * @author Oytun T&uumlrk
  *
  */
 public class FIRWaveletFilterBankAnalyser extends FilterBankAnalyserBase {

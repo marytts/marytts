@@ -33,8 +33,7 @@ import marytts.util.data.DoubleDataSource;
 import marytts.util.math.MathUtils;
 
 /**
- * @author oytun.turk
- *
+ * @author Oytun T&uumlrk
  */
 public class HMMDurationScaleEffect extends BaseAudioEffect {
     public float durScale;

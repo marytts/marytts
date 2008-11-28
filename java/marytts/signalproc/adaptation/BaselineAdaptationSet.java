@@ -32,10 +32,9 @@ package marytts.signalproc.adaptation;
 import marytts.tools.voiceimport.BasenameList;
 
 /**
- * @author oytun.turk
- * 
  * Baseline class for speaker specific voice conversion training set
- *
+ * 
+ * @author Oytun T&uumlrk
  */
 public class BaselineAdaptationSet {
     public BaselineAdaptationItem[] items;

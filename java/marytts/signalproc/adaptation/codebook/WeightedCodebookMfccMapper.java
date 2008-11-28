@@ -45,10 +45,9 @@ import marytts.util.signal.SignalProcUtils;
 
 /**
  * 
- * @author oytun.turk
- * 
  * Implements mapping functionality of MFCCs between source and target
- *
+ * 
+ * @author Oytun T&uumlrk
  */
 public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
     private WeightedCodebookTrainerParams params;

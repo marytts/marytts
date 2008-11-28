@@ -32,10 +32,9 @@ package marytts.signalproc.analysis.distance;
 
 
 /**
- * @author oytun.turk
- *
  * Implements root-mean-square LP spectral envelope distance between two speech frames
  * 
+ * @author Oytun T&uumlrk
  */
 public class RmsLogLPSpectralEnvelopeDistortionComputer extends BaselineLPSpectralEnvelopeDistortionComputer {
     

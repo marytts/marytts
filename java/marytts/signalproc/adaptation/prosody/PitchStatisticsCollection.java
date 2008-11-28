@@ -31,7 +31,7 @@ package marytts.signalproc.adaptation.prosody;
 
 
 /**
- * @author oytun.turk
+ * @author Oytun T&uumlrk
  *
  */
 public class PitchStatisticsCollection {

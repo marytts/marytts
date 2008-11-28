@@ -30,11 +30,10 @@
 package marytts.machinelearning;
 
 /**
- * @author oytun.turk
- * 
- * TO Do: Implement a GMM based classifier that takes as input several GMMs and data
+ * TO DO: Implement a GMM based classifier that takes as input several GMMs and data
  * and outputs the probability of each GMM generating the data, the most likely GMM, etc
  *
+ * @author Oytun T&uumlrk
  */
 public class GMMClassifier {
 

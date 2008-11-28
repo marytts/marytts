@@ -30,7 +30,7 @@
 package marytts.util;
 
 /**
- * @author oytun.turk
+ * @author Oytun T&uumlrk
  *
  */
 public class ConversionUtils 

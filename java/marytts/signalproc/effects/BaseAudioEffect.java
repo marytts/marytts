@@ -33,8 +33,7 @@ import marytts.util.data.DoubleDataSource;
 import marytts.util.string.StringUtils;
 
 /**
- * @author oytun.turk
- *
+ * @author Oytun T&uumlrk
  */
 //Baseline audio effect class
 //It serves as a null effect

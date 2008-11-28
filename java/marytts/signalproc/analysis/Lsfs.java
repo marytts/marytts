@@ -36,11 +36,10 @@ import marytts.util.io.MaryRandomAccessFile;
 
 /**
  * 
- * @author oytun.turk
- *
  * A wrapper class for line spectral frequencies.
  * For Actual LSF analysis, check LsfAnalyser.
  * 
+ * @author Oytun T&uumlrk
  */
 public class Lsfs {
     public double[][] lsfs;

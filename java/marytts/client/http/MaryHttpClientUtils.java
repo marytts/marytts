@@ -45,8 +45,9 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 
 /**
- * @author oytun.turk
- *
+ * Utilits functions for Http clients
+ * 
+ * @author Oytun T&uumlrk
  */
 public class MaryHttpClientUtils 
 {    

@@ -30,11 +30,9 @@
 package marytts.signalproc.analysis;
 
 /**
- * 
- * @author oytun.turk
- *
  * A class to keep all information on a single EST format label
  * 
+ * @author Oytun T&uumlrk
  */
 public class Label {
     public double time; //Ending time of phonetic label

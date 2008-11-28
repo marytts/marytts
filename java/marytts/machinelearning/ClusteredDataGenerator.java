@@ -35,10 +35,10 @@ import marytts.util.math.MathUtils;
 
 
 /**
- * @author oytun.turk
  * 
  * Generates clustered data for testing machine learning algorithms
- *
+ * 
+ * @author Oytun T&uumlrk
  */
 public class ClusteredDataGenerator {
     public static final int DEFAULT_NUM_SAMPLES_IN_CLUSTERS = 50;

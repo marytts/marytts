@@ -30,10 +30,9 @@
 package marytts.signalproc.adaptation;
 
 /**
- * @author oytun.turk
- * 
  * A class for handling source-target frame indices mapping for a single pair
- *
+ * 
+ * @author Oytun T&uumlrk
  */
 public class FileMap {
     public int [][] indicesMap;

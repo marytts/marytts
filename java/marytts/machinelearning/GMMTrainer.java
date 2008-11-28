@@ -39,10 +39,10 @@ import marytts.util.math.MathUtils;
 import marytts.util.string.StringUtils;
 
 /**
- * @author oytun.turk
  * 
  * Expectation-Maximization (EM) based GMM training
- *
+ * 
+ * @author Oytun T&uumlrk
  */
 public class GMMTrainer {
 

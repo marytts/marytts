@@ -30,11 +30,9 @@
 package marytts.signalproc.adaptation;
 
 /**
- * 
- * @author oytun.turk
- * 
  * Baseline class for pre-processing operations after voice conversion
  *
+ * @author Oytun T&uumlrk
  */
 public class BaselinePreprocessor {
     

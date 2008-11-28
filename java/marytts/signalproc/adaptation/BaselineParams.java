@@ -30,11 +30,10 @@
 package marytts.signalproc.adaptation;
 
 /**
- * @author oytun.turk
- * 
  * Baseline voice conversion parameters.
  * Both training and transformation parameters should be derived from this class.
- *
+ * 
+ * @author Oytun T&uumlrk
  */
 public class BaselineParams {
    

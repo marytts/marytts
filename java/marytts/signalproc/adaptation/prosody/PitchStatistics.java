@@ -37,7 +37,6 @@ import marytts.util.signal.SignalProcUtils;
 
 
 /**
- * @author oytun.turk
  *  
  *  Pitch statistics (could be for all recordings, for a group of recordings or even for a single utterance):
  *  - Mean of (voiced) f0s
@@ -45,6 +44,8 @@ import marytts.util.signal.SignalProcUtils;
  *  - Global minimum of f0s
  *  - Global maximum of f0s
  *  - Average tilt of f0 contours, or tilt of single contour
+ *  
+ * @author Oytun T&uumlrk
  */
 public class PitchStatistics {
     public static int STATISTICS_IN_HERTZ = 1;

@@ -36,12 +36,12 @@ import marytts.util.math.MathUtils;
 
 
 /**
- * @author oytun.turk
- *
+ * 
  * Implements a single Gaussian component with a mean vector and a covariance matrix
  * It also computes terms for pdf computation out of this Gaussian component once the mean 
  * and covariance is specified
  * 
+ * @author Oytun T&uumlrk
  */
 public class GaussianComponent {
     public double[] meanVector;

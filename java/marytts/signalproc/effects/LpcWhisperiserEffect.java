@@ -38,8 +38,7 @@ import marytts.util.math.MathUtils;
 
 
 /**
- * @author oytun.turk
- *
+ * @author Oytun T&uumlrk
  */
 public class LpcWhisperiserEffect extends BaseAudioEffect {
 

@@ -30,11 +30,10 @@
 package marytts.signalproc.analysis.distance;
 
 /**
- * @author oytun.turk
- *
  * A general purpose class for computing various distance measures
  * Examples include Euclidean, Mahalanobis, distance to GMMs etc.
  * 
+ * @author Oytun T&uumlrk
  **/
 
 public class DistanceComputer {

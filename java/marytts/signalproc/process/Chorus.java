@@ -42,7 +42,7 @@ import marytts.util.data.audio.DDSAudioInputStream;
 
 
 /**
- * @author oytun.turk
+ * @author Oytun T&uumlrk
  *
  */
 public class Chorus implements InlineDataProcessor {

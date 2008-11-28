@@ -50,14 +50,13 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
- * @author oytun.turk
- *
  * Sinusoidal Modeling Analysis Module
  * Given a speech/audio signal, a set of amplitudes, frequencies and phases are estimated on a frame-by-frame basis
  * Then, sinusoids that are close in frequency are grouped together to form sinusoidal tracks
  * Optional amplitude and phase continuity constraints can be employed during track generation
  * The implementation consists of ideas and algorithms from various papers as described in function headers
  *
+ * @author Oytun T&uumlrk
  */
 public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     public static float DEFAULT_DELTA_IN_HZ = 50.0f;

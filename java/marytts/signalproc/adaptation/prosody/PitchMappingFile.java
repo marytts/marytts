@@ -37,7 +37,7 @@ import marytts.util.io.MaryRandomAccessFile;
 
 
 /**
- * @author oytun.turk
+ * @author Oytun T&uumlrk
  *
  */
 public class PitchMappingFile {

@@ -41,10 +41,9 @@ import marytts.signalproc.analysis.Mfccs;
 import marytts.util.io.FileUtils;
 
 /**
- * @author oytun.turk
- *
  * This class transforms MFCCs to MFCCs
  * 
+ * @author Oytun T&uumlrk
  */
 public class MfccAdapter {
     

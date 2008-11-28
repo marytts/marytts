@@ -38,12 +38,10 @@ import marytts.util.io.MaryRandomAccessFile;
 
 
 /**
- * 
- * @author oytun.turk
- *
  * A collection of JointGMMs, 
  * i.e. joint source-target gmms each trained separately using groups of source-target feature vectors
  * 
+ * @author Oytun T&uumlrk
  */
 public class JointGMMSet extends VocalTractTransformationData {
     public static final String DEFAULT_EXTENSION = ".jgs";

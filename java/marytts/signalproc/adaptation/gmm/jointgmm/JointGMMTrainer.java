@@ -36,11 +36,10 @@ import marytts.signalproc.adaptation.BaselineTrainer;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookTrainerParams;
 
 /**
- * @author oytun.turk
- *
  * Joint-GMM voice conversion training
  * Both parallel and non-parallel training should derive from this class
  * 
+ * @author Oytun T&uumlrk
  */
 public class JointGMMTrainer extends BaselineTrainer {
 

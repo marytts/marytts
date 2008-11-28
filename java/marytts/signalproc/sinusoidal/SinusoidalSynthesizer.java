@@ -49,12 +49,11 @@ import marytts.util.signal.SignalProcUtils;
 
 
 /**
- * @author oytun.turk
- * 
  * Sinusoidal Modeling Synthesis Module
  * Given tracks of sinusoids estimated during analysis and after possible modifications,
  * output speech is synthesized.
  * 
+ * @author Oytun T&uumlrk
  */
 public class SinusoidalSynthesizer {
     public int fs; //Sampling rate in Hz

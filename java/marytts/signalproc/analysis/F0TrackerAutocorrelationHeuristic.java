@@ -45,12 +45,10 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
- * 
- * @author oytun.turk
- *
  * Autocorrelation based F0 tracker with heuristic rules based on statistics for smoothing
  * and halving/doubling prevention
  *
+ * @author Oytun T&uumlrk
  */
 public class F0TrackerAutocorrelationHeuristic { 
     public double[] f0s;

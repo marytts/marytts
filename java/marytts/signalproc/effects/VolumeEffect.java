@@ -34,8 +34,7 @@ import marytts.util.data.DoubleDataSource;
 import marytts.util.math.MathUtils;
 
 /**
- * @author oytun.turk
- *
+ * @author Oytun T&uumlrk
  */
 public class VolumeEffect extends BaseAudioEffect {
     float amount;
