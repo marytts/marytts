@@ -127,7 +127,7 @@ public class DBHandler {
   
   public void createDataBaseSelectionTable() {
       String dbselection = "CREATE TABLE " + dbselectionTableName + " ( id INT NOT NULL AUTO_INCREMENT, " +                                                       
-                                                       "sentence TEXT, " +
+                                                       "sentence MEDIUMBLOB NOT NULL, " +
                                                        "features BLOB, " +
                                                        "reliable BOOLEAN, " +
                                                        "unknownWords BOOLEAN, " +
@@ -166,7 +166,7 @@ public class DBHandler {
   
   public void createSelectedSentencesTable() {
       String selected = "CREATE TABLE " + selectedSentencesTableName + " ( id INT NOT NULL AUTO_INCREMENT, " +                                                       
-                                                       "sentence TEXT, " +
+                                                       "sentence MEDIUMBLOB NOT NULL, " +
                                                        "unwanted BOOLEAN, " +
                                                        "dbselection_id INT UNSIGNED NOT NULL, " +   // the dbselection id where this sentence comes from
                                                        "primary key(id)) CHARACTER SET utf8;";
@@ -403,7 +403,7 @@ public class DBHandler {
       // String creteWiki = "CREATE DATABASE wiki;";
       String createCleanTextTable = "CREATE TABLE "+ cleanTextTableName +" (" +
               " id int UNSIGNED NOT NULL AUTO_INCREMENT," +
-              " cleanText mediumblob NOT NULL," +
+              " cleanText MEDIUMBLOB NOT NULL," +
               " processed BOOLEAN, " +
               " page_id int UNSIGNED NOT NULL, " +
               " text_id int UNSIGNED NOT NULL, " +
@@ -582,20 +582,19 @@ public class DBHandler {
    * @param cleanText_id the id of the cleanText this sentence comes from.
    */
   public void insertSentence(String sentence, byte features[], boolean reliable, boolean unknownWords, boolean strangeSymbols, int cleanText_id){
-   /* 
-    if(unknownWords) 
-      System.out.print("unknownWords");
-    if(strangeSymbols)
-      System.out.print(" strangeSymbols");  
-    if(!reliable)  
-      System.out.println(" : inserting unreliable sentence = " + sentence);  
-    */
+      
+    byte strByte[]=null;  
+    try {
+       strByte = sentence.getBytes("UTF8");
+    } catch (Exception e) {  // UnsupportedEncodedException
+          e.printStackTrace();
+    } 
     
     try { 
       // INSERT INTO dbselection VALUES (id, sentence, features, realiable, unknownWords, strangeSymbols, selected, unwanted, cleanText_id)
       //ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?, ?, ?, ?,?)");
-    
-        psSentence.setString(1, sentence);
+      
+        psSentence.setBytes(1, strByte);
         psSentence.setBytes(2, features);
         psSentence.setBoolean(3, reliable);
         psSentence.setBoolean(4, unknownWords);
@@ -606,6 +605,7 @@ public class DBHandler {
         psSentence.execute();
       
         psSentence.clearParameters();
+      
       
     } catch (SQLException e) {
       e.printStackTrace();
@@ -623,15 +623,17 @@ public class DBHandler {
    */
   public void insertSelectedSentence(int dbselection_id, boolean unwanted){
   
+    String dbQuery = "Select sentence FROM " + dbselectionTableName + " WHERE id=" + dbselection_id;
+    byte[] sentenceBytes=null;
+      
     try {
       // First get the sentence
-       String sentence = getSentence("dbselection", dbselection_id);
-        
+       sentenceBytes = queryTableByte(dbQuery);    
         
       // INSERT INTO dbselection VALUES (id, sentence, unwanted, dbselection_id)
       //ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?)");
     
-        psSelectedSentence.setString(1, sentence);
+        psSelectedSentence.setBytes(1, sentenceBytes);
         psSelectedSentence.setBoolean(2, unwanted);
         psSelectedSentence.setInt(3, dbselection_id);
         psSelectedSentence.execute();
@@ -649,12 +651,13 @@ public class DBHandler {
    * 
    */
   public void insertWordList(HashMap<String, Integer> wordList){
-    String key;
+    String word;
     Integer value; 
     boolean res;
+    byte wordByte[];
     
     String wordListTable = "CREATE TABLE " + wordListTableName + " ( id INT NOT NULL AUTO_INCREMENT, " +                                                       
-                                              "word varchar(255) NOT NULL, " +
+                                              "word TINYBLOB NOT NULL, " +
                                               "frequency INT UNSIGNED NOT NULL, " +
                                               "primary key(id)) CHARACTER SET utf8;";
     
@@ -667,16 +670,22 @@ public class DBHandler {
         } else
           res = st.execute( wordListTable );   
         
-        //psWord = cn.prepareStatement("INSERT INTO wordList VALUES (null, ?, ?)");           
-        Iterator iteratorSorted = wordList.keySet().iterator();
-        while (iteratorSorted.hasNext()) {
-           key = iteratorSorted.next().toString();
-           value = wordList.get(key);
-           psWord.setString(1, key);
-           psWord.setInt(2, value);
-           psWord.execute();
-           psWord.clearParameters();
-        } 
+        //psWord = cn.prepareStatement("INSERT INTO wordList VALUES (null, ?, ?)");   
+        try {
+          Iterator iteratorSorted = wordList.keySet().iterator();
+          while (iteratorSorted.hasNext()) {
+            word = iteratorSorted.next().toString();
+            value = wordList.get(word);
+            wordByte=null;  
+            wordByte = word.getBytes("UTF8");
+            psWord.setBytes(1, wordByte);
+            psWord.setInt(2, value);
+            psWord.execute();
+            psWord.clearParameters();
+          } 
+        } catch (Exception e) {  // UnsupportedEncodedException
+            e.printStackTrace();
+      } 
         System.out.println("Inserted new words in " + wordListTableName + " table."); 
         
     } catch (SQLException e) {
@@ -812,6 +821,8 @@ public class DBHandler {
       PrintWriter pw;
       String dbQuery, where="";
       String orderBy;
+      byte wordBytes[];
+      String word;
       
       if(maxFrequency>0)
           where = "where frequency > " + maxFrequency;
@@ -834,8 +845,11 @@ public class DBHandler {
       }
       try { 
           pw = new PrintWriter(new FileWriter(new File(fileName)));
+          wordBytes=null;
           while( rs.next() ) {
-            pw.println(rs.getString(1) + " " + rs.getInt(2));
+            wordBytes=rs.getBytes(1);
+            word = new String(wordBytes, "UTF8");  
+            pw.println(word + " " + rs.getInt(2));
           }
           pw.close();
           
@@ -854,8 +868,19 @@ public class DBHandler {
    * @return String sentence
    */
   public String getSentence(String table, int id) {
+      String sentence="";
       String dbQuery = "Select sentence FROM " + locale + "_" + table + " WHERE id=" + id;
-      return queryTable(dbQuery);      
+      byte[] sentenceBytes=null;
+      
+      sentenceBytes = queryTableByte(dbQuery); 
+      try {
+        sentence = new String(sentenceBytes, "UTF8");
+        //System.out.println("  TEXT: " + text);
+      } catch (Exception e) {  // UnsupportedEncodedException
+           e.printStackTrace();
+      } 
+      
+      return sentence;      
   }
   
   // Firts filtering:
