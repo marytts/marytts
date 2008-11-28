@@ -135,7 +135,7 @@ public class DBHandler {
                                                        "selected BOOLEAN, " +
                                                        "unwanted BOOLEAN, " +
                                                        "cleanText_id INT UNSIGNED NOT NULL, " +   // the cleanText id where this sentence comes from
-                                                       "primary key(id));";
+                                                       "primary key(id)) CHARACTER SET utf8;";
       String str;
       boolean dbExist = false;
       // if database does not exist create it    
@@ -169,7 +169,7 @@ public class DBHandler {
                                                        "sentence TEXT, " +
                                                        "unwanted BOOLEAN, " +
                                                        "dbselection_id INT UNSIGNED NOT NULL, " +   // the dbselection id where this sentence comes from
-                                                       "primary key(id));";
+                                                       "primary key(id)) CHARACTER SET utf8;";
       String str;
       boolean dbExist = false;
       // if database does not exist create it    
@@ -408,7 +408,7 @@ public class DBHandler {
               " page_id int UNSIGNED NOT NULL, " +
               " text_id int UNSIGNED NOT NULL, " +
               " PRIMARY KEY id (id)" +
-              " ) MAX_ROWS=250000 AVG_ROW_LENGTH=10240;";
+              " ) MAX_ROWS=250000 AVG_ROW_LENGTH=10240 CHARACTER SET utf8;";
            
       // If database does not exist create it, if it exists delete it and create an empty one.      
       System.out.println("Checking if the TABLE=" + cleanTextTableName + " already exist.");
@@ -656,7 +656,7 @@ public class DBHandler {
     String wordListTable = "CREATE TABLE " + wordListTableName + " ( id INT NOT NULL AUTO_INCREMENT, " +                                                       
                                               "word varchar(255) NOT NULL, " +
                                               "frequency INT UNSIGNED NOT NULL, " +
-                                              "primary key(id));";
+                                              "primary key(id)) CHARACTER SET utf8;";
     
     try { 
         System.out.println("Inserting wordList in DB...");
