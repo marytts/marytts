@@ -221,7 +221,7 @@ public class DatabaseSelector{
             //coverage has to be initialised
             readCovFromFile = false;
  //           basenameList = covDef.initialiseCoverage();   // pass here the dbselection DB
-            idSentenceList = covDef.initialiseCoverage(); 
+            idSentenceList = covDef.initialiseCoverage(wikiToDB); 
             System.out.println("Writing coverage to file "+initFileName);
             covDef.writeCoverageBin(initFileName);   // generate here the file taking the basenames from dbselection DB
         } else {                
