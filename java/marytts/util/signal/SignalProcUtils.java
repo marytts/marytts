@@ -57,7 +57,8 @@ public class SignalProcUtils {
         return oddFilterOrder;
     }
     
-    public static int getLifterOrder(int fs){
+    public static int getLifterOrder(int fs)
+    {
         int lifterOrder = 2*(int)(fs/1000.0f+2);
         
         if (lifterOrder%2==1)
@@ -223,23 +224,27 @@ public class SignalProcUtils {
     // ws: window size used for pitch extraction in seconds
     // ss: skip size used for pitch extraction in seconds
     //
+    // offset: applies a fixed offset to the first pitch mark so that all pitch marks are shifted by same amount
+    // 
     // To do:
     // Perform marking on the residual by trying to locate glottal closure instants (might be implemented as a separate function indeed)
     // This may improve PSOLA performance also */
-    public static PitchMarks pitchContour2pitchMarks(double [] f0s, int fs, int len, double ws, double ss, boolean bPaddZerosForFinalPitchMark)
+    public static PitchMarks pitchContour2pitchMarks(double[] f0s, int fs, int len, double ws, double ss, boolean bPaddZerosForFinalPitchMark, int offset)
     {
         //Interpolate unvoiced segments
-        double [] interpf0s = interpolate_pitch_uv(f0s);
+        double[] interpf0s = interpolate_pitch_uv(f0s);
         int numfrm = f0s.length;
         int maxTotalPitchMarks = len;
-        int [] tmpPitchMarks = MathUtils.zerosInt(maxTotalPitchMarks);
-        boolean [] tmpVuvs = new boolean[maxTotalPitchMarks];
+        int[] tmpPitchMarks = MathUtils.zerosInt(maxTotalPitchMarks);
+        boolean[] tmpVuvs = new boolean[maxTotalPitchMarks];
         
         int count = 0;
         int prevInd = 1;
         int ind;
         double T0;
         boolean bVuv;
+        
+        assert offset>0;
         
         for (int i=1; i<=len; i++)
         {
@@ -264,7 +269,7 @@ public class SignalProcUtils {
             {
                 count++;
                 
-                tmpPitchMarks[count-1] = i-1;
+                tmpPitchMarks[count-1] = i-1+offset;
                 prevInd = i;
                 
                 if (i>1)

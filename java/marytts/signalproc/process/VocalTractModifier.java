@@ -124,7 +124,7 @@ public class VocalTractModifier implements InlineDataProcessor {
         //h = FFTMixedRadix.fftComplexArray(h);
         FFT.transform(h.real, h.imag, false);
         
-        vtSpectrum = LpcAnalyser.calcSpec(coeffs.getA(), p, fftSize, expTerm);
+        vtSpectrum = LpcAnalyser.calcSpecLinear(coeffs.getA(), p, fftSize, expTerm);
         
         for (k=0; k<maxFreq; k++)
             vtSpectrum[k] *= sqrtGain;

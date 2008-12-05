@@ -41,8 +41,11 @@ import marytts.signalproc.analysis.CepstrumSpeechAnalyser;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.SeevocAnalyser;
+import marytts.signalproc.analysis.SpectrumWithPeakIndices;
 import marytts.signalproc.window.Window;
+import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
+import marytts.util.io.FileUtils;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.FFT;
 import marytts.util.math.FFTMixedRadix;
@@ -354,6 +357,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         int totalNonNull = 0;
         int peakCounter;
         float currentTime;
+        boolean isOutputToTextFile = false;
         
         for (i=0; i<totalFrm; i++)
         {
@@ -365,15 +369,22 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
             
             currentTime = (float)((i*ss+0.5*ws)/fs);
             
+            /*
+            if (currentTime>0.500 && currentTime<0.520)
+                isOutputToTextFile = true;
+            else
+                isOutputToTextFile = false;
+                */
+            
             if (spectralEnvelopeType==SEEVOC_SPEC && f0s!=null)
             {
                 f0Ind = (int)Math.floor((currentTime-0.5*ws_f0)/ss_f0+0.5);
                 f0Ind = Math.min(f0Ind, f0s.length-1);
                 f0Ind = Math.max(0, f0Ind);
-                sinSignal.framesSins[i] = analyze_frame(frm, spectralEnvelopeType, f0s[f0Ind]);
+                sinSignal.framesSins[i] = analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, f0s[f0Ind]);
             }
             else
-                sinSignal.framesSins[i] = analyze_frame(frm, spectralEnvelopeType);
+                sinSignal.framesSins[i] = analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType);
             
             if (sinSignal.framesSins[i]!=null)
             {
@@ -440,29 +451,29 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         System.out.println("Total sinusoids to model this file = " + String.valueOf(totalSins));
     }
 
-    public SinusoidalSpeechFrame analyze_frame(double [] frm)
+    public SinusoidalSpeechFrame analyze_frame(double [] frm, boolean isOutputToTextFile)
     { 
-        return analyze_frame(frm, LP_SPEC, -1.0);
+        return analyze_frame(frm, isOutputToTextFile, LP_SPEC, -1.0);
     }
     
-    public SinusoidalSpeechFrame analyze_frame(double [] frm, int spectralEnvelopeType)
+    public SinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType)
     { 
         if (spectralEnvelopeType==SEEVOC_SPEC)
-            return analyze_frame(frm, spectralEnvelopeType, 100.0);
+            return analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, 100.0);
         else
-            return analyze_frame(frm, spectralEnvelopeType, -1.0);
+            return analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, -1.0);
     }
     
-    public SinusoidalSpeechFrame analyze_frame(double [] frm, int spectralEnvelopeType, double f0)
+    public SinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType, double f0)
     {
-        return analyze_frame(frm, spectralEnvelopeType, f0, false);
+        return analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, f0, false);
     }
     
     //Extract sinusoidal model parameter from a windowed speech frame using the DFT peak-picking algorithm
     // frm: Windowed speech frame
     // spectralEnvelopeType: Desired spectral envelope (See above, i.e LP_SPEC, SEEVOC_SPEC, etc.)
     // 
-    public SinusoidalSpeechFrame analyze_frame(double[] frm, int spectralEnvelopeType, double f0, boolean bEstimateHNMVoicing)
+    public SinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType, double f0, boolean bEstimateHNMVoicing)
     {   
         SinusoidalSpeechFrame frameSins = null;
 
@@ -475,13 +486,13 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         setNeighFreq();
 
         int maxFreq = (int) (Math.floor(0.5*fftSize+0.5)+1);
-        ComplexArray Y = new ComplexArray(fftSize);
+        ComplexArray frameDft = new ComplexArray(fftSize);
         int i;
         
         //Perform circular buffering as described in (Quatieri, 2001) to provide correct phase estimates
         int midPoint = (int) Math.floor(0.5*frm.length+0.5);
-        System.arraycopy(frm, midPoint, Y.real, 0, frm.length-midPoint);
-        System.arraycopy(frm, 0, Y.real, fftSize-midPoint, midPoint);
+        System.arraycopy(frm, midPoint, frameDft.real, 0, frm.length-midPoint);
+        System.arraycopy(frm, 0, frameDft.real, fftSize-midPoint, midPoint);
         //
 
         //Take windowed frame derivative´s FFT for spectral reassignment
@@ -501,16 +512,13 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
 
         //Compute DFT
         if (MathUtils.isPowerOfTwo(fftSize))
-            FFT.transform(Y.real, Y.imag, false);
+            FFT.transform(frameDft.real, frameDft.imag, false);
         else
-            Y = FFTMixedRadix.fftComplex(Y);
+            frameDft = FFTMixedRadix.fftComplex(frameDft);
         //
 
         //Compute magnitude spectrum in dB as peak frequency estimates tend to be more accurate
-        double [] Ydb = new double[maxFreq]; 
-
-        for (i=0; i<maxFreq; i++)
-            Ydb[i] = 10*Math.log10(Y.real[i]*Y.real[i]+Y.imag[i]*Y.imag[i]+1e-80);
+        double[] frameDftDB = MathUtils.amp2db(frameDft, 0, maxFreq-1);
         //
         
         int [] freqInds = null;
@@ -558,15 +566,66 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
             //
             
             int startInd = 0;
-            int endInd = Ydb.length-1;
+            int endInd = maxFreq-1;
             if (startFreq>=0)
                 startInd = SignalProcUtils.freq2index(startFreq, fs, maxFreq);
             if (endFreq>=0)
                 endInd = SignalProcUtils.freq2index(endFreq, fs, maxFreq);
             
+            //Vocal tract magnitude spectrum (linear) & phase analysis
+            double[] vocalTractSpec = null;
+            //SpectrumWithPeakIndices swpi = SeevocAnalyser.calcSpecEnvelopeLinear(frameDftDB, fs, f0); //Note that frameDftDB is in dB but the computed envelope is returned as linear
+            
+            if (spectralEnvelopeType==LP_SPEC)
+                vocalTractSpec = LpcAnalyser.calcSpecFrameLinear(frm, LPOrder, fftSize);
+            else if (spectralEnvelopeType==SEEVOC_SPEC)
+            {
+                SpectrumWithPeakIndices swpi = SeevocAnalyser.calcSpecEnvelopeLinear(frameDftDB, fs, f0); //Note that frameDftDB is in dB but the computed envelope is returned as linear
+                vocalTractSpec = swpi.spec;
+            }
+            
             //Determine peak amplitude indices and the corresponding amplitudes, frequencies, and phases 
             if (!bManualPeakPickingTest)
-                freqInds = MathUtils.getExtrema(Ydb, freqSampNeighs, freqSampNeighs, true, startInd, endInd, MIN_PEAK_IN_DB);
+            {
+                //Conventional method: Gets local extrema from db spectrum
+                freqInds = MathUtils.getExtrema(frameDftDB, freqSampNeighs, freqSampNeighs, true, startInd, endInd, MIN_PEAK_IN_DB);
+                
+                /*
+                //A hybrid method:
+                // Gets lower freq peaks from SEEVOC, i.e. harmonic peaks
+                // and upper freq peaks from local extrema
+                int[] maxInds = MathUtils.getExtrema(frameDftDB, freqSampNeighs, freqSampNeighs, true, startInd, endInd, MIN_PEAK_IN_DB);
+
+                int cutoffInd = SignalProcUtils.freq2index(5.5*f0, fs, maxFreq);
+                int totalFromHarmonics = 0;
+                int totalFromExtrema = 0;
+                for (i=0; i<swpi.indices.length; i++)
+                {
+                    if (swpi.indices[i]<cutoffInd)
+                        totalFromHarmonics++;
+                }
+                
+                for (i=0; i<maxInds.length; i++)
+                {
+                    if (maxInds[i]>=cutoffInd)
+                        totalFromExtrema++;
+                }
+                
+                freqInds = new int[totalFromHarmonics+totalFromExtrema];
+                int counter=0;
+                for (i=0; i<swpi.indices.length; i++)
+                {
+                    if (swpi.indices[i]<cutoffInd)
+                        freqInds[counter++] = swpi.indices[i];
+                }
+                
+                for (i=0; i<maxInds.length; i++)
+                {
+                    if (maxInds[i]>=cutoffInd)
+                        freqInds[counter++] = maxInds[i];
+                }
+                */
+            }
 
             if (freqInds != null)
             {
@@ -575,29 +634,29 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
 
                 //Perform parabola fitting around peak estimates to refine frequency estimation (Ref. - PARSHL, see the function for more details)
                 freqIndsRefined = new float[numFrameSinusoids];
-                float [] ampsRefined = new float[numFrameSinusoids];
+                float[] ampsDBRefined = new float[numFrameSinusoids];
 
-                float [] amps = new float[numFrameSinusoids];
+                float[] ampsDB = new float[numFrameSinusoids];
                 for (i=0; i<numFrameSinusoids; i++)
-                    amps[i] = (float)Ydb[freqInds[i]];
+                    ampsDB[i] = (float)frameDftDB[freqInds[i]];
 
                 if (bRefinePeakEstimatesParabola)
                 {
-                    refinePeakEstimatesParabola(Ydb, freqInds, freqIndsRefined, ampsRefined);
+                    refinePeakEstimatesParabola(frameDftDB, freqInds, freqIndsRefined, ampsDBRefined);
 
                     if (bRefinePeakEstimatesBias)
-                        refinePeakEstimatesBias(Ydb, freqInds, freqIndsRefined, ampsRefined);
+                        refinePeakEstimatesBias(frameDftDB, freqInds, freqIndsRefined, ampsDBRefined);
                 }
                 else
                 {
-                    System.arraycopy(amps, 0, ampsRefined, 0, numFrameSinusoids);
+                    System.arraycopy(ampsDB, 0, ampsDBRefined, 0, numFrameSinusoids);
 
                     for (i=0; i<numFrameSinusoids; i++)
                         freqIndsRefined[i] = (float)freqInds[i];
                 }
                     
                 if (bSpectralReassignment)
-                    freqIndsRefined = refineBySpectralReassignment(Y, windowedFrameDerivativeFFT, freqIndsRefined);
+                    freqIndsRefined = refineBySpectralReassignment(frameDft, windowedFrameDerivativeFFT, freqIndsRefined);
 
                 for (i=0; i<numFrameSinusoids; i++)
                 {
@@ -605,19 +664,19 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
 
                     /*
                     // Use simple peak detection results
-                    frameSins.sinusoids[i].amp = (float)(MathUtils.db2amplitude(Ydb[freqInds[i]]));
+                    frameSins.sinusoids[i].amp = (float)(MathUtils.db2amplitude(frameDftDB[freqInds[i]]));
                     //frameSins.sinusoids[i].freq = (float) ((0.5*fs*freqInds[i])/(maxFreq-1)); //freq in Hz
                     frameSins.sinusoids[i].freq = (float) ((0.5*MathUtils.TWOPI*freqInds[i])/(maxFreq-1));  //freq in radians
                      */
 
                     //Use results of refined peak estimation after simple peak detection
-                    frameSins.sinusoids[i].amp = (float)(MathUtils.db2amplitude(ampsRefined[i]));
+                    frameSins.sinusoids[i].amp = (float)(MathUtils.db2amp(ampsDBRefined[i])); //amp in linear scale
 
                     //frameSins[i].freq = (float)((0.5*fs*freqIndsRefined[i])/(maxFreq-1)); //freq in Hz
                     frameSins.sinusoids[i].freq = (float) ((0.5*MathUtils.TWOPI*freqIndsRefined[i])/(maxFreq-1));  //freq in radians
                     //
 
-                    frameSins.sinusoids[i].phase = (float) (Math.atan2(Y.imag[freqInds[i]], Y.real[freqInds[i]])); //phase in radians
+                    frameSins.sinusoids[i].phase = (float) (Math.atan2(frameDft.imag[freqInds[i]], frameDft.real[freqInds[i]])); //phase in radians
 
                     /*
                     if (Y.real[freqInds[i]]<0)
@@ -626,29 +685,49 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
 
                     //Possible improvement: Refinement of phase values
                 }
+                
+                //For visualization purposes:
+                if (isOutputToTextFile)
+                {
+                    double[] absSpec = new double[maxFreq];
+                    for (i=0; i<maxFreq; i++)
+                        absSpec[i] = Math.sqrt(frameDft.real[i]*frameDft.real[i]+frameDft.imag[i]*frameDft.imag[i]);
+                    
+                    double[] excSpecMag = new double[maxFreq];
+                    for (i=0; i<maxFreq; i++)
+                        excSpecMag[i] = absSpec[i]/vocalTractSpec[i];
 
-                //Vocal tract magnitude spectrum & phase analysis
-                double [] vocalTractSpec = null;
-                if (spectralEnvelopeType==LP_SPEC)
-                    vocalTractSpec = LpcAnalyser.calcSpecFrame(frm, LPOrder, fftSize);
-                else if (spectralEnvelopeType==SEEVOC_SPEC)
-                    vocalTractSpec = SeevocAnalyser.calcSpecEnvelopeLinear(Ydb, fs, f0); //Note that Ydb is in dB but the computed envelope is returned as linear
- 
-                double [] tmpSpec = null;
-                //tmpSpec = SignalProcUtils.cepstralSmoothedSpectrumInNeper(frm, fftSize, lifterOrder); //Use cepstral processing to find minimum phase system response
-                //Use LP spectrum to find a minimum phase system response
-                tmpSpec = new double[fftSize];
-                System.arraycopy(vocalTractSpec, 0, tmpSpec, 0, vocalTractSpec.length);
-                for (i=fftSize-1; i>=vocalTractSpec.length; i--)
-                    tmpSpec[i] = tmpSpec[fftSize-i];
+                    FileUtils.writeToTextFile(excSpecMag, "d:/out_exc.txt");
+                    FileUtils.writeToTextFile(vocalTractSpec, "d:/out_vt.txt");
+                    FileUtils.writeToTextFile(absSpec, "d:/out_spec.txt");
+                }
                 //
                 
-                double [] tmpPhase = CepstrumSpeechAnalyser.minimumPhaseResponseInRadians(tmpSpec);
-                double [] vocalTractPhase = new double[fftSize/2+1];
-                System.arraycopy(tmpPhase, 0, vocalTractPhase, 0, vocalTractPhase.length);
-               
-                frameSins.setSystemAmps(vocalTractSpec);
-                frameSins.setSystemPhases(vocalTractPhase);
+                double [] vocalTractPhase = null;
+                if (vocalTractSpec!=null)
+                {
+                    double [] tmpSpec = null;
+                    //tmpSpec = SignalProcUtils.cepstralSmoothedSpectrumInNeper(frm, fftSize, lifterOrder); //Use cepstral processing to find minimum phase system response
+                    //Use LP spectrum to find a minimum phase system response
+                    tmpSpec = new double[fftSize];
+                    System.arraycopy(vocalTractSpec, 0, tmpSpec, 0, vocalTractSpec.length);
+                    for (i=fftSize-1; i>=vocalTractSpec.length; i--)
+                        tmpSpec[i] = tmpSpec[fftSize-i];
+                    tmpSpec = MathUtils.amp2neper(tmpSpec);
+                    //
+
+                    double[] tmpPhase = CepstrumSpeechAnalyser.minimumPhaseResponseInRadians(tmpSpec);
+                    vocalTractPhase = new double[fftSize/2+1];
+                    System.arraycopy(tmpPhase, 0, vocalTractPhase, 0, vocalTractPhase.length);
+                    
+                    //MaryUtils.plot(vocalTractSpec);
+                    //MaryUtils.plot(tmpSpec);
+                    
+                    //Arrays.fill(vocalTractSpec, 1.0); //Set system amps to one for testing purposes
+                    //Arrays.fill(vocalTractPhase, 0.0); //Set system phase to zero for testing purposes
+                    frameSins.setSystemAmps(vocalTractSpec);
+                    frameSins.setSystemPhases(vocalTractPhase);
+                }
                 //
             }
             //
@@ -812,6 +891,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         int i, j;
         for (i=0; i<st.times.length; i++)
         {
+            
             
         }
         

@@ -32,7 +32,7 @@ package marytts.signalproc.sinusoidal;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.Vector;
 
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
@@ -51,8 +51,8 @@ public class SinusoidalTracks {
     public float absMaxOriginal; //Absolute maximum of the original waveform
     public float totalEnergy; //Total energy of the original waveform
     
-    public LinkedList<double[]> sysAmps; //System amplitudes for each speech frame
-    public LinkedList<double[]> sysPhases; //System phases for each speech frame
+    public Vector<double[]> sysAmps; //System amplitudes for each speech frame
+    public Vector<double[]> sysPhases; //System phases for each speech frame
     public float [] times; //Analysis time instants for each speech frame
     
     public SinusoidalTracks(int len, int samplingRate)
@@ -290,12 +290,12 @@ public class SinusoidalTracks {
             times = null;  
     }
     
-    public void setSystemAmps(LinkedList<double[]> sysAmpsIn)
+    public void setSystemAmps(Vector<double[]> sysAmpsIn)
     {
         sysAmps = sysAmpsIn;
     }
     
-    public void setSystemPhases(LinkedList<double[]> sysPhasesIn)
+    public void setSystemPhases(Vector<double[]> sysPhasesIn)
     {
         sysPhases = sysPhasesIn;
     }
@@ -339,8 +339,8 @@ public class SinusoidalTracks {
         }
         else
         {
-            sysAmps = new LinkedList<double[]>();
-            sysPhases = new LinkedList<double[]>();
+            sysAmps = new Vector<double[]>();
+            sysPhases = new Vector<double[]>();
             times = new float[framesSins.length];
             
             for (int i=0; i<framesSins.length; i++)

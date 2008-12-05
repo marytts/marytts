@@ -39,4 +39,5 @@ public class BaseSinusoidalAnalyzer {
     public static final int PITCHSYNCHRONOUS_FULLBAND_ANALYZER = 2;
     public static final int FIXEDRATE_MULTIRESOLUTION_ANALYZER = 3;
     public static final int PITCHSYNCHRONOUS_MULTIRESOLUTION_ANALYZER = 4;
+    
 }

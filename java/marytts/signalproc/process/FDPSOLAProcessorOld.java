@@ -112,7 +112,7 @@ public class FDPSOLAProcessorOld extends VocalTractModifier {
         numPeriods = NUM_PITCH_SYNC_PERIODS;
         
         F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
-        pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, origLen, f0.header.ws, f0.header.ss, true);
+        pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, origLen, f0.header.ws, f0.header.ss, true, 0);
         
         numfrm = pm.pitchMarks.length-numPeriods; //Total pitch synchronous frames (This is the actual number of frames to be processed)
         numfrmFixed = (int)(Math.floor(((double)(origLen + pm.totalZerosToPadd)/fs-0.5*wsFixed)/ssFixed+0.5)+2); //Total frames if the analysis was fixed skip-rate

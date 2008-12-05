@@ -99,16 +99,16 @@ public class CepstrumSpeechAnalyser
     
     //Estimates the phase response (in Radians) of the vocal tract transfer function
     // using the minimum phase assumption using real cepstrum based spectral smoothing
-    public static double [] systemPhaseResponse(double [] x, int fftSize, int lifterOrder)
+    public static double[] systemPhaseResponse(double [] x, int fftSize, int lifterOrder)
     {
-        double [] systemAmpsInNeper = cepstralSmoothedSpectrumInNeper(x, fftSize, lifterOrder);
+        double[] systemAmpsInNeper = cepstralSmoothedSpectrumInNeper(x, fftSize, lifterOrder);
         
         return minimumPhaseResponseInRadians(systemAmpsInNeper);
     }
     
     //Estimates the phase response (in Radians) of the vocal tract transfer function
     // using the minimum phase assumption using real cepstrum based spectral smoothing
-    public static double [] systemPhaseResponse(double [] x, int fs)
+    public static double[] systemPhaseResponse(double [] x, int fs)
     {   
         double [] systemAmpsInNeper = cepstralSmoothedSpectrumInNeper(x, fs);
         
@@ -116,7 +116,7 @@ public class CepstrumSpeechAnalyser
     }
     
     //Returns the phase response(in radians) of a minimum phase system given the system amplitudes in dB
-    public static double [] minimumPhaseResponseInRadians(double[] systemAmpsInNeper)
+    public static double[] minimumPhaseResponseInRadians(double[] systemAmpsInNeper)
     {
         ComplexArray phaseResponse = minimumPhaseResponse(systemAmpsInNeper);
         
@@ -143,14 +143,14 @@ public class CepstrumSpeechAnalyser
     }
     
     //Returns the cepstral smoothed amplitude spectrum in dB
-    public static double [] cepstralSmoothedSpectrumInNeper(double [] x, int fs)
+    public static double[] cepstralSmoothedSpectrumInNeper(double[] x, int fs)
     {
         int lifterOrder = SignalProcUtils.getLifterOrder(fs);
         int fftSize = SignalProcUtils.getDFTSize(fs);
         return  cepstralSmoothedSpectrumInNeper(x, fftSize, lifterOrder);
     }
 
-    public static double [] cepstralSmoothedSpectrumInNeper(double [] x, int fftSize, int lifterOrder)
+    public static double[] cepstralSmoothedSpectrumInNeper(double[] x, int fftSize, int lifterOrder)
     {
         double[] rceps = realCepstrum(x, fftSize);
         double[] w = new double[rceps.length];

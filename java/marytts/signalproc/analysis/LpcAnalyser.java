@@ -163,44 +163,44 @@ public class LpcAnalyser extends FrameBasedAnalyser
     }
     
     //Computes LP smoothed spectrum of a windowed speech frame (linear)
-    public static double [] calcSpecFrame(double [] windowedFrame, int p)
+    public static double[] calcSpecFrameLinear(double [] windowedFrame, int p)
     {
-        return calcSpecFrame(windowedFrame, p, windowedFrame.length);
+        return calcSpecFrameLinear(windowedFrame, p, windowedFrame.length);
     }
     
     //Computes LP smoothed spectrum of a windowed speech frame
-    public static double [] calcSpecFrame(double [] windowedFrame, int p, int fftSize)
+    public static double [] calcSpecFrameLinear(double[] windowedFrame, int p, int fftSize)
     {
-        return calcSpecFrame(windowedFrame, p, fftSize, null);
+        return calcSpecFrameLinear(windowedFrame, p, fftSize, null);
     }
     
     //Computes LP smoothed spectrum of a windowed speech frame
-    public static double [] calcSpecFrame(double [] windowedFrame, int p, int fftSize, ComplexArray expTerm)
+    public static double[] calcSpecFrameLinear(double [] windowedFrame, int p, int fftSize, ComplexArray expTerm)
     {
         LpCoeffs c = calcLPC(windowedFrame, p);
         
         if (expTerm==null || expTerm.real == null)
-            return calcSpec(c.getA(), c.getGain(), fftSize, null);
+            return calcSpecLinear(c.getA(), c.getGain(), fftSize, null);
         else
-            return calcSpec(c.getA(), c.getGain(), fftSize, expTerm);
+            return calcSpecLinear(c.getA(), c.getGain(), fftSize, expTerm);
     }
     
-    public static double [] calcSpecFromOneMinusA(double [] oneMinusA,  float gain, int fftSize, ComplexArray expTerm)
+    public static double [] calcSpecLinearFromOneMinusA(double[] oneMinusA,  float gain, int fftSize, ComplexArray expTerm)
     {  
         double[] alpha = new double[oneMinusA.length-1];
         for (int i=1; i<oneMinusA.length; i++)
             alpha[i-1] = -1*oneMinusA[i];
-        return calcSpec(alpha, gain, fftSize, expTerm);
+        return calcSpecLinear(alpha, gain, fftSize, expTerm);
     }
     
     //Computes LP smoothed spectrum from LP coefficients
     public static double [] calcSpec(double [] alpha, int fftSize, ComplexArray expTerm)
     {  
-        return calcSpec(alpha, 1.0f, fftSize, expTerm);
+        return calcSpecLinear(alpha, 1.0f, fftSize, expTerm);
     }
     
     //Computes LP smoothed spectrum from LP coefficients
-    public static double [] calcSpec(double [] alpha, double gain, int fftSize, ComplexArray expTerm)
+    public static double [] calcSpecLinear(double[] alpha, double sqrtGain, int fftSize, ComplexArray expTerm)
     {
         int p = alpha.length;
         int maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
@@ -223,7 +223,7 @@ public class LpcAnalyser extends FrameBasedAnalyser
                 tmp.imag[0] -= alpha[i]*expTerm.imag[fInd];
             }
             
-            vtSpectrum[w] = gain/Math.sqrt(tmp.real[0]*tmp.real[0]+tmp.imag[0]*tmp.imag[0]);
+            vtSpectrum[w] = sqrtGain/Math.sqrt(tmp.real[0]*tmp.real[0]+tmp.imag[0]*tmp.imag[0]);
         }
         
         return vtSpectrum;
