@@ -196,8 +196,8 @@ public class SpectralDistanceMeasures {
         w2.apply(windowedSpeechFrame2, 0);
         //
 
-        double[] Xabs1 = LpcAnalyser.calcSpecFrame(speechFrame1, lpOrder, fftSize);
-        double[] Xabs2 = LpcAnalyser.calcSpecFrame(speechFrame2, lpOrder, fftSize);
+        double[] Xabs1 = LpcAnalyser.calcSpecFrameLinear(speechFrame1, lpOrder, fftSize);
+        double[] Xabs2 = LpcAnalyser.calcSpecFrameLinear(speechFrame2, lpOrder, fftSize);
         
         int w;        
         double dist = 0.0;
@@ -222,8 +222,8 @@ public class SpectralDistanceMeasures {
         w2.apply(windowedSpeechFrame2, 0);
         //
 
-        double[] Xabs1 = LpcAnalyser.calcSpecFrame(speechFrame1, lpOrder, fftSize);
-        double[] Xabs2 = LpcAnalyser.calcSpecFrame(speechFrame2, lpOrder, fftSize);
+        double[] Xabs1 = LpcAnalyser.calcSpecFrameLinear(speechFrame1, lpOrder, fftSize);
+        double[] Xabs2 = LpcAnalyser.calcSpecFrameLinear(speechFrame2, lpOrder, fftSize);
 
         int w;        
         double klDist = 0.0;
@@ -248,8 +248,8 @@ public class SpectralDistanceMeasures {
         w2.apply(windowedSpeechFrame2, 0);
         //
 
-        double[] Xabs1 = LpcAnalyser.calcSpecFrame(speechFrame1, lpOrder, fftSize);
-        double[] Xabs2 = LpcAnalyser.calcSpecFrame(speechFrame2, lpOrder, fftSize);
+        double[] Xabs1 = LpcAnalyser.calcSpecFrameLinear(speechFrame1, lpOrder, fftSize);
+        double[] Xabs2 = LpcAnalyser.calcSpecFrameLinear(speechFrame2, lpOrder, fftSize);
 
         int w;
 
@@ -287,8 +287,8 @@ public class SpectralDistanceMeasures {
         //
         
         int w;
-        double[] Xabs1 = LpcAnalyser.calcSpecFrame(speechFrame1, lpOrder, fftSize);
-        double[] Xabs2 = LpcAnalyser.calcSpecFrame(speechFrame2, lpOrder, fftSize);
+        double[] Xabs1 = LpcAnalyser.calcSpecFrameLinear(speechFrame1, lpOrder, fftSize);
+        double[] Xabs2 = LpcAnalyser.calcSpecFrameLinear(speechFrame2, lpOrder, fftSize);
         
         //Itakura-Saito distance using power spectrum: pf1/pf2 - log(pf1/pf2) - 1
         double dist = 0.0;
@@ -322,8 +322,8 @@ public class SpectralDistanceMeasures {
         //
         
         int w;
-        double[] Xabs1 = LpcAnalyser.calcSpecFrame(speechFrame1, lpOrder, fftSize);
-        double[] Xabs2 = LpcAnalyser.calcSpecFrame(speechFrame2, lpOrder, fftSize);
+        double[] Xabs1 = LpcAnalyser.calcSpecFrameLinear(speechFrame1, lpOrder, fftSize);
+        double[] Xabs2 = LpcAnalyser.calcSpecFrameLinear(speechFrame2, lpOrder, fftSize);
         
         //COSH distance using power spectrum: 
         // dcosh = 0.5(d12+d21) where

@@ -263,7 +263,8 @@ public class MultiresolutionSinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         {
             String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
             F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
-            PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true);
+            int pitchMarkOffset = 0;
+            PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true, pitchMarkOffset);
             PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true, true, true, 0.0, 0.5*samplingRate);
        
             subbandTracks = msa.analyze(x, lowestBandWindowSizeInSeconds, windowType, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, bFreqLimitedAnalysis, true, pm.pitchMarks, numPeriods);

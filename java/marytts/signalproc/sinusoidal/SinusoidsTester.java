@@ -229,23 +229,21 @@ public class SinusoidsTester extends BaseTester{
         s = new SinusoidsTester(200.0f);
         //
 
-        /*
         //Several sinusoids, time-invariant
-        numSins = 8;
+        numSins = 1;
         Sinusoid [] sins = new Sinusoid[numSins];
         tStarts = new float[numSins];
         tEnds = new float[numSins];
-        sins[0] = new Sinusoid(100.0f, 134.0f, 0.0f); tStarts[0] = 0.0f; tEnds[0] = 1.5f;
-        sins[1] = new Sinusoid(25.0f, 211.0f, 0.0f); tStarts[1] = 0.0f; tEnds[1] = 1.5f;
-        sins[2] = new Sinusoid(125.0f, 555.0f, 0.0f); tStarts[2] = 0.0f; tEnds[2] = 1.5f;
-        sins[3] = new Sinusoid(110.0f, 917.0f, 0.0f); tStarts[3] = 0.0f; tEnds[3] = 1.5f;
-        sins[4] = new Sinusoid(100.0f, 175.0f, 0.0f); tStarts[4] = 1.3f; tEnds[4] = 2.5f;
-        sins[5] = new Sinusoid(25.0f, 346.0f, 0.0f); tStarts[5] = 1.3f; tEnds[5] = 2.5f;
-        sins[6] = new Sinusoid(125.0f, 981.0f, 0.0f); tStarts[6] = 2.0f; tEnds[6] = 3.0f;
-        sins[7] = new Sinusoid(70.0f, 1317.0f, 0.0f); tStarts[7] = 2.0f; tEnds[7] = 3.5f;
-        s = new Tester(sins, tStarts, tEnds);
+        sins[0] = new Sinusoid(100.0f, 400.0f, 0.0f); tStarts[0] = 0.0f; tEnds[0] = 1.5f;
+        //sins[1] = new Sinusoid(25.0f, 211.0f, 0.0f); tStarts[1] = 0.0f; tEnds[1] = 1.5f;
+        //sins[2] = new Sinusoid(125.0f, 555.0f, 0.0f); tStarts[2] = 0.0f; tEnds[2] = 1.5f;
+        //sins[3] = new Sinusoid(110.0f, 917.0f, 0.0f); tStarts[3] = 0.0f; tEnds[3] = 1.5f;
+        //sins[4] = new Sinusoid(100.0f, 175.0f, 0.0f); tStarts[4] = 1.3f; tEnds[4] = 2.5f;
+        //sins[5] = new Sinusoid(25.0f, 346.0f, 0.0f); tStarts[5] = 1.3f; tEnds[5] = 2.5f;
+        //sins[6] = new Sinusoid(125.0f, 981.0f, 0.0f); tStarts[6] = 2.0f; tEnds[6] = 3.0f;
+        //sins[7] = new Sinusoid(70.0f, 1317.0f, 0.0f); tStarts[7] = 2.0f; tEnds[7] = 3.5f;
+        s = new SinusoidsTester(sins, tStarts, tEnds);
         //
-         */
         
         /*
         //Sinus part

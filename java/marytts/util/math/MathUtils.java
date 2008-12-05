@@ -969,14 +969,20 @@ public class MathUtils {
      */
     public static double db(double energy)
     {
-        if (energy <= 0) return Double.NaN;
+        if (energy <= 1e-80) return -200.0;
         else return 10 * log10(energy);
     }
 
     public static double amp2db(double amp)
     {
-        if (amp <= 0) return Double.NaN;
+        if (amp <= 1e-80) return -200.0;
         else return 20 * log10(amp);
+    }
+    
+    public static double amp2neper(double amp)
+    {
+        if (amp <= 1e-80) return -200.0;
+        else return Math.log(amp);
     }
 
     public static double[] db(double[] energies)
@@ -987,6 +993,15 @@ public class MathUtils {
     public static double[] amp2db(double[] amps)
     {
         return multiply(log10(amps), 20);
+    }
+    
+    public static double[] amp2neper(double[] amps)
+    {
+        double[] newAmps = new double[amps.length];
+        for (int i=0; i<amps.length; i++)
+            newAmps[i] = amp2neper(amps[i]);
+        
+        return newAmps;
     }
 
     public static double[] amp2db(ComplexArray c)
@@ -1007,7 +1022,7 @@ public class MathUtils {
 
         double[] dbs = new double[endInd-startInd+1];
         for (int i=startInd; i<=endInd; i++)
-            dbs[i-startInd] = 10*log10(c.real[i]*c.real[i]+c.imag[i]*c.imag[i]);
+            dbs[i-startInd] = amp2db(Math.sqrt(c.real[i]*c.real[i]+c.imag[i]*c.imag[i]));
 
         return dbs;
     }
@@ -1033,16 +1048,34 @@ public class MathUtils {
         return multiply(log10(linears), 10.0);
     }
 
-    public static float db2amplitude(float dbAmplitude)
+    public static float db2amp(float dbAmplitude)
     {
         if (Float.isNaN(dbAmplitude)) return 0.0f;
         else return (float)(Math.pow(10.0, dbAmplitude/20));
     }
 
-    public static double db2amplitude(double dbAmplitude)
+    public static double db2amp(double dbAmplitude)
     {
         if (Double.isNaN(dbAmplitude)) return 0.;
         else return Math.pow(10.0, dbAmplitude/20);
+    }
+    
+    public static float[] db2amp(float[] dbAmplitudes)
+    {
+        float[] amps = new float[dbAmplitudes.length];
+        for (int i=0; i<dbAmplitudes.length; i++)
+            amps[i] = db2amp(dbAmplitudes[i]);
+        
+        return amps;
+    }
+
+    public static double[] db2amp(double[] dbAmplitudes)
+    {
+        double[] amps = new double[dbAmplitudes.length];
+        for (int i=0; i<dbAmplitudes.length; i++)
+            amps[i] = db2amp(dbAmplitudes[i]);
+        
+        return amps;
     }
 
     public static float radian2degrees(float rad)
@@ -2735,6 +2768,16 @@ public class MathUtils {
                 y[i] = (x[i]-xmin)+0.5*(minVal+maxVal);
         }   
 
+        return y;
+    }
+    
+    public static double[] normalizeToAbsMax(double[] x, double absMax)
+    {
+        double[] y = new double[x.length];
+        double currentAbsMax = getAbsMax(x);
+        for (int i=0; i<x.length; i++)
+            y[i] = x[i]*absMax/currentAbsMax;
+        
         return y;
     }
 

@@ -14,7 +14,10 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
+import java.text.DecimalFormat;
 import java.util.Arrays;
+
+import marytts.util.math.ComplexArray;
 
 
 /**
@@ -138,7 +141,6 @@ public class FileUtils
         else
             System.out.println("Error! Cannot create file: " + textFile);
     }
-    
 
     public static void writeToBinaryFile(int[] pitchMarks, String filename) throws IOException 
     {

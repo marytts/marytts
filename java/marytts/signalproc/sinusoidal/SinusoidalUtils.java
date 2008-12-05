@@ -27,52 +27,26 @@
  * THIS SOFTWARE.
  */
 
-package marytts.util.math;
+package marytts.signalproc.sinusoidal;
 
 /**
- * Computes the N-point Discrete Hilbert Transform of real valued vector x:
- * The algorithm consists of the following stages:
- * - X(w) = FFT(x) is computed
- * - H(w), DFT of a Hilbert transform filter h[n], is created:
- *   H[0]=H[N/2]=1
- *   H[w]=2 for w=1,2,...,N/2-1
- *   H[w]=0 for w=N/2+1,...,N-1
- * - x[n] and h[n] are convolved (i.e. X(w) and H(w) multiplied)
- * - y[n], the Discrete Hilbert Transform of x[n] is computed by y[n]=IFFT(X(w)H(w)) for n=0,...,N-1
- * 
- * @author Oytun T&uumlrk
+ * @author oytun.turk
+ *
  */
-public class Hilbert {
-    public static ComplexArray transform(double [] x)
-    {
-        return transform(x, x.length);
-    }
-    
-    
-    public static ComplexArray transform(double [] x, int N)
-    {
-        ComplexArray X = FFTMixedRadix.fftReal(x, N);
-        double[] H = new double[N];
-        
-        int NOver2 = (int)Math.floor(N/2+0.5);
-        int w;
-        
-        H[0] = 1.0;
-        H[NOver2] = 1.0;
-        
-        for (w=1; w<=NOver2-1; w++)
-            H[w] = 2.0;
-        
-        for (w=NOver2+1; w<=N-1; w++)
-            H[w] = 0.0;
-        
-        for (w=0; w<N; w++)
-        {
-            X.real[w] *= H[w];
-            X.imag[w] *= H[w];
-        }
-        
-        return FFTMixedRadix.ifft(X);
-    }
+public class SinusoidalUtils {
 
+    //Collect each track´s sinusoids in speech frame sinusoids
+    //This way, we will have a collection of sinusoids representing each speech frame
+    //Then, overlap-add synthesis can be performed to avoid concatenation artifacts and smoothness problems
+    //Quatieri mentions that even single sinusoids can be used using this approach, i.e.
+    // each track starts and ends within one frame
+    //However, the skip rate should be dense enough, i.e. at most 0.01 s.(at least 100 Hz)
+    public static SinusoidalSpeechFrame[] tracks2frameSins(SinusoidalTracks[] sts)
+    {
+        SinusoidalSpeechFrame[] frameSins = null;
+        
+        
+        
+        return frameSins;
+    }
 }

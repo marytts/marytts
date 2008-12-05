@@ -27,52 +27,34 @@
  * THIS SOFTWARE.
  */
 
-package marytts.util.math;
+package marytts.signalproc.sinusoidal;
+
+import java.util.Arrays;
 
 /**
- * Computes the N-point Discrete Hilbert Transform of real valued vector x:
- * The algorithm consists of the following stages:
- * - X(w) = FFT(x) is computed
- * - H(w), DFT of a Hilbert transform filter h[n], is created:
- *   H[0]=H[N/2]=1
- *   H[w]=2 for w=1,2,...,N/2-1
- *   H[w]=0 for w=N/2+1,...,N-1
- * - x[n] and h[n] are convolved (i.e. X(w) and H(w) multiplied)
- * - y[n], the Discrete Hilbert Transform of x[n] is computed by y[n]=IFFT(X(w)H(w)) for n=0,...,N-1
- * 
- * @author Oytun T&uumlrk
+ *  @author Oytun T&uumlrk
+ *
  */
-public class Hilbert {
-    public static ComplexArray transform(double [] x)
-    {
-        return transform(x, x.length);
+public class OverlapAddSinusoidalSynthesizer extends BaseSinusoidalSynthesizer {
+
+    public OverlapAddSinusoidalSynthesizer(int samplingRate) {
+        super(samplingRate);
+        // TODO Auto-generated constructor stub
     }
     
-    
-    public static ComplexArray transform(double [] x, int N)
+    public double[] synthesize(SinusoidalTracks[] sts)
     {
-        ComplexArray X = FFTMixedRadix.fftReal(x, N);
-        double[] H = new double[N];
-        
-        int NOver2 = (int)Math.floor(N/2+0.5);
-        int w;
-        
-        H[0] = 1.0;
-        H[NOver2] = 1.0;
-        
-        for (w=1; w<=NOver2-1; w++)
-            H[w] = 2.0;
-        
-        for (w=NOver2+1; w<=N-1; w++)
-            H[w] = 0.0;
-        
-        for (w=0; w<N; w++)
-        {
-            X.real[w] *= H[w];
-            X.imag[w] *= H[w];
-        }
-        
-        return FFTMixedRadix.ifft(X);
+        return synthesize(sts, false);
     }
 
+    public double[] synthesize(SinusoidalTracks[] sts, boolean isSilentSynthesis)
+    {
+        double[] y = null;
+        
+        SinusoidalSpeechFrame[] frameSins = SinusoidalUtils.tracks2frameSins(sts);
+        
+        
+        
+        return y;
+    }
 }

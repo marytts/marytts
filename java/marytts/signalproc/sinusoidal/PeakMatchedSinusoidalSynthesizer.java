@@ -55,18 +55,20 @@ import marytts.util.signal.SignalProcUtils;
  * 
  * @author Oytun T&uumlrk
  */
-public class SinusoidalSynthesizer {
-    public int fs; //Sampling rate in Hz
-    public static float DEFAULT_ABS_MAX_OUT = 0.90f;
+public class PeakMatchedSinusoidalSynthesizer extends BaseSinusoidalSynthesizer{
+
     
-    public SinusoidalSynthesizer(int samplingRate)
+    public PeakMatchedSinusoidalSynthesizer(int samplingRate)
     {
-        fs = samplingRate;
+        super(samplingRate);
     }
     
     public double[] synthesize(SinusoidalTracks st)
     {
-        return synthesize(st, false);
+        SinusoidalTracks[] sts = new SinusoidalTracks[1];
+        sts[0] = st;
+        
+        return synthesize(sts, false);
     }
     
     public double[] synthesize(SinusoidalTracks[] sts)
@@ -224,6 +226,7 @@ public class SinusoidalSynthesizer {
         int samplingRate = (int)inputAudio.getFormat().getSampleRate();
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
         double [] x = signal.getAllData();
+        double maxOrig = MathUtils.getAbsMax(x);
         
         SinusoidalAnalyzer sa = null;
         SinusoidalTracks st = null;
@@ -278,7 +281,8 @@ public class SinusoidalSynthesizer {
             //Pitch synchronous analysis
             String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
             F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
-            PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true);
+            int pitchMarkOffset = 0;
+            PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true, pitchMarkOffset);
             pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HANNING, 
                                                         bRefinePeakEstimatesParabola, 
                                                         bRefinePeakEstimatesBias, 
@@ -292,17 +296,15 @@ public class SinusoidalSynthesizer {
         //
         
         //Resynthesis
-        SinusoidalSynthesizer ss = new SinusoidalSynthesizer(samplingRate);
+        PeakMatchedSinusoidalSynthesizer ss = new PeakMatchedSinusoidalSynthesizer(samplingRate);
         x = ss.synthesize(st, isSilentSynthesis);
         //
         
-        /*
         //This scaling is only for comparison among different parameter sets, different synthesizer outputs etc
-        double maxx = MathUtils.getAbsMax(x);
+        double maxNew = MathUtils.getAbsMax(x);
         for (int i=0; i<x.length; i++)
-            x[i] = x[i]/maxx*0.9;
+            x[i] = x[i]*(maxOrig/maxNew);
         //
-        */
         
         //File output
         DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(x), inputAudio.getFormat());

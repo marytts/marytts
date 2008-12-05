@@ -51,10 +51,11 @@ import marytts.util.signal.SignalProcUtils;
  * @author Oytun T&uumlrk
  *
  */
-public class ProsodyModifier extends SinusoidalSynthesizer {
+public class ProsodyModifier {
+    public int fs;
     
     public ProsodyModifier(int samplingRate) {
-        super(samplingRate);
+        fs = samplingRate;
     }
     
     public double [] process(double[] x, 
@@ -75,7 +76,9 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                              boolean isSilentSynthesis,
                              double absMaxDesired,
                              int spectralEnvelopeType,
-                             int analyzerType)
+                             int analyzerType,
+                             int synthesizerType,
+                             int pitchMarkOffset) throws Exception
     {    
         float [] tScales = new float[1];
         float [] tScalesTimes = new float[1];
@@ -107,7 +110,9 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                        isSilentSynthesis,
                        absMaxDesired,
                        spectralEnvelopeType,
-                       analyzerType);
+                       analyzerType,
+                       synthesizerType,
+                       pitchMarkOffset);
     }
     
     public double [] process(double[] x, 
@@ -130,11 +135,13 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                              boolean isSilentSynthesis,
                              double absMaxDesired,
                              int spectralEnvelopeType,
-                             int analyzerType)
+                             int analyzerType,
+                             int synthesizerType,
+                             int pitchMarkOffset) throws Exception
     {     
         int windowType = Window.HANNING;
         //Analysis
-        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0s, fs, x.length, f0_ws, f0_ss, false);
+        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0s, fs, x.length, f0_ws, f0_ss, false, pitchMarkOffset);
         
         BaseSinusoidalAnalyzer an = null;
         SinusoidalTracks[] st = null;
@@ -219,16 +226,33 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
             stMod[i] = TrackModifier.modify(st[i], f0s, f0_ss, f0_ws, pm.pitchMarks, st[i].voicings, numPeriods, 
                                             isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold,
                                             isVoicingAdaptivePitchScaling,  
-                                            timeScales, timeScalesTimes, pitchScales, pitchScalesTimes);
+                                            timeScales, timeScalesTimes, pitchScales, pitchScalesTimes, pitchMarkOffset);
         }
         
         //Synthesis
-        return synthesize(stMod, isSilentSynthesis);
+        double[] y = null;
+        if (synthesizerType==BaseSinusoidalSynthesizer.PEAK_MATCHED_TRACK_SYNTHESIZER)
+        {
+            PeakMatchedSinusoidalSynthesizer synthesizer = new PeakMatchedSinusoidalSynthesizer(fs);
+            y = synthesizer.synthesize(stMod, isSilentSynthesis);
+        }
+        else if (synthesizerType==BaseSinusoidalSynthesizer.PEAK_MATCHED_TRACK_SYNTHESIZER)
+        {
+            OverlapAddSinusoidalSynthesizer synthesizer = new OverlapAddSinusoidalSynthesizer(fs);
+            y = synthesizer.synthesize(stMod, isSilentSynthesis);
+        }
+        else
+            throw new Exception("Unknown sinusoidal synthesizer type!");
+        
+        if (y!=null)
+            y = MathUtils.normalizeToAbsMax(y, absMaxDesired);
+        
+        return y;
     }
     
-    public static void main(String[] args) throws UnsupportedAudioFileException, IOException
+    public static void main(String[] args) throws Exception
     {
-        if (true)
+        if (false)
         {
             //File input
             AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[0]));
@@ -266,7 +290,11 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
             
             //int analyzerType = BaseSinusoidalAnalyzer.FIXEDRATE_FULLBAND_ANALYZER;
             //int analyzerType = BaseSinusoidalAnalyzer.PITCHSYNCHRONOUS_FULLBAND_ANALYZER;
+            int pitchMarkOffset = 0; //Only used in PITCHSYNCHRONOUS_FULLBAND_ANALYZER
             int analyzerType = BaseSinusoidalAnalyzer.FIXEDRATE_MULTIRESOLUTION_ANALYZER;
+            
+            int synthesizerType = BaseSinusoidalSynthesizer.PEAK_MATCHED_TRACK_SYNTHESIZER;
+            //int synthesizerType = BaseSinusoidalSynthesizer.OVERLAP_ADD_SYNTHESIZER;
 
             ProsodyModifier pm = new ProsodyModifier(samplingRate);
             double [] y = null;
@@ -279,7 +307,7 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                         isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                         timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
                         bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
-                        absMaxOriginal, spectralEnvelopeType, analyzerType);
+                        absMaxOriginal, spectralEnvelopeType, analyzerType, synthesizerType, pitchMarkOffset);
             }
             else
             {
@@ -292,7 +320,7 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                         isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                         timeScales, timeScalesTimes, pitchScales, pitchScalesTimes, skipSizeInSeconds, deltaInHz, numPeriods,
                         bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
-                        absMaxOriginal, spectralEnvelopeType, analyzerType);
+                        absMaxOriginal, spectralEnvelopeType, analyzerType, synthesizerType, pitchMarkOffset);
             }
 
             //File output
@@ -305,13 +333,14 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
             main2(args);
     }
     
-    public static void main2(String[] args) throws UnsupportedAudioFileException, IOException
+    public static void main2(String[] args) throws Exception
     {
         //File input
         AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[0]));
         int samplingRate = (int)inputAudio.getFormat().getSampleRate();
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
         double [] x = signal.getAllData();
+        
 
         //Read pitch contour (real speech or create it from pm file
         F0ReaderWriter f0 = null;
@@ -324,10 +353,10 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
         float numPeriods = PitchSynchronousSinusoidalAnalyzer.DEFAULT_ANALYSIS_PERIODS;
         boolean isSilentSynthesis = false;
 
-        boolean bRefinePeakEstimatesParabola = true;
-        boolean bRefinePeakEstimatesBias = true;
-        boolean bSpectralReassignment = true;
-        boolean bAdjustNeighFreqDependent = true;
+        boolean bRefinePeakEstimatesParabola = false;
+        boolean bRefinePeakEstimatesBias = false;
+        boolean bSpectralReassignment = false;
+        boolean bAdjustNeighFreqDependent = false;
 
         double absMaxOriginal = MathUtils.getAbsMax(x);
 
@@ -335,15 +364,20 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
         //skipSizeInSeconds = -1.0f;
         //skipSizeInSeconds = 0.002f;
 
-        boolean isVoicingAdaptiveTimeScaling = true;
+        boolean isVoicingAdaptiveTimeScaling = false;
         float timeScalingVoicingThreshold = 0.5f;
-        boolean isVoicingAdaptivePitchScaling = true;
+        boolean isVoicingAdaptivePitchScaling = false;
 
-        int spectralEnvelopeType = SinusoidalAnalyzer.LP_SPEC;
+        //int spectralEnvelopeType = SinusoidalAnalyzer.LP_SPEC; String envelopeName="lp";
+        int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC; String envelopeName="sv";
         
         //int analyzerType = BaseSinusoidalAnalyzer.FIXEDRATE_FULLBAND_ANALYZER;
-        int analyzerType = BaseSinusoidalAnalyzer.PITCHSYNCHRONOUS_FULLBAND_ANALYZER;
+        int analyzerType = BaseSinusoidalAnalyzer.PITCHSYNCHRONOUS_FULLBAND_ANALYZER; 
+        int pitchMarkOffset = 0; //Only used in PITCHSYNCHRONOUS_FULLBAND_ANALYZER
         //int analyzerType = BaseSinusoidalAnalyzer.FIXEDRATE_MULTIRESOLUTION_ANALYZER;
+        
+        int synthesizerType = BaseSinusoidalSynthesizer.PEAK_MATCHED_TRACK_SYNTHESIZER;
+        //int synthesizerType = BaseSinusoidalSynthesizer.OVERLAP_ADD_SYNTHESIZER;
 
         ProsodyModifier pm = new ProsodyModifier(samplingRate);
         double [] y = null;
@@ -353,26 +387,43 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
         DDSAudioInputStream outputAudio;
         String outFileName;
         
-        pitchScale = 1.0f;
-        timeScale = 1.0f;
-        y = pm.process(x, f0.contour, (float)f0.header.ws, (float)f0.header.ss, 
-                       isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
-                       timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
-                       bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
-                       absMaxOriginal, spectralEnvelopeType, analyzerType);
-        outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
-        outFileName = args[0].substring(0, args[0].length()-4) + "_sin3_none" + ".wav";
-        AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+        //String[] pitchScales = {"0.80", "0.90", "0.95", "0.99", "1.01", "1.05", "1.10", "1.20"};
+        String[] pitchScales = {"2.00"};
+        String pitchMarkOffsetStr;
+        
+        int n=0;
+        //for (n=0; n<=58; n++)
+        {
+            pitchMarkOffset = n;
+            
+            pitchMarkOffsetStr = String.valueOf(pitchMarkOffset);
+            if (n<10)
+                pitchMarkOffsetStr = "0"+pitchMarkOffsetStr;
+            
+            timeScale = 1.0f;
+            for (int i=0; i<pitchScales.length; i++)
+            {
+                y = pm.process(x, f0.contour, (float)f0.header.ws, (float)f0.header.ss, 
+                        isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
+                        timeScale, Float.valueOf(pitchScales[i]), skipSizeInSeconds, deltaInHz, numPeriods, 
+                        bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
+                        absMaxOriginal, spectralEnvelopeType, analyzerType, synthesizerType, pitchMarkOffset);
+                outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
+                outFileName = args[0].substring(0, args[0].length()-4) + "_sin_p" + pitchScales[i] + "_" + envelopeName + "_offset" + pitchMarkOffsetStr + ".wav";
+                AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+            }
+        }
 
+        /*
         pitchScale = 0.55f;
         timeScale = 1.0f;
         y = pm.process(x, f0.contour, (float)f0.header.ws, (float)f0.header.ss, 
                 isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                 timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
                 bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
-                absMaxOriginal, spectralEnvelopeType, analyzerType);
+                absMaxOriginal, spectralEnvelopeType, analyzerType, synthesizerType);
         outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
-        outFileName = args[0].substring(0, args[0].length()-4) + "_sin3_p055" + ".wav";
+        outFileName = args[0].substring(0, args[0].length()-4) + "_sin_p055" + ".wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
         
         pitchScale = 0.80f;
@@ -381,9 +432,9 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                 isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                 timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
                 bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
-                absMaxOriginal, spectralEnvelopeType, analyzerType);
+                absMaxOriginal, spectralEnvelopeType, analyzerType, synthesizerType);
         outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
-        outFileName = args[0].substring(0, args[0].length()-4) + "_sin3_p080" + ".wav";
+        outFileName = args[0].substring(0, args[0].length()-4) + "_sin_p080" + ".wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
         
         pitchScale = 1.50f;
@@ -392,9 +443,9 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                 isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                 timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
                 bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
-                absMaxOriginal, spectralEnvelopeType, analyzerType);
+                absMaxOriginal, spectralEnvelopeType, analyzerType, synthesizerType);
         outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
-        outFileName = args[0].substring(0, args[0].length()-4) + "_sin3_p150" + ".wav";
+        outFileName = args[0].substring(0, args[0].length()-4) + "_sin_p150" + ".wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
         
         pitchScale = 2.50f;
@@ -403,9 +454,9 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                 isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                 timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
                 bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
-                absMaxOriginal, spectralEnvelopeType, analyzerType);
+                absMaxOriginal, spectralEnvelopeType, analyzerType, synthesizerType);
         outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
-        outFileName = args[0].substring(0, args[0].length()-4) + "_sin3_p250" + ".wav";
+        outFileName = args[0].substring(0, args[0].length()-4) + "_sin_p250" + ".wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
         
         timeScale = 0.55f;
@@ -414,7 +465,7 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                 isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                 timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
                 bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
-                absMaxOriginal, spectralEnvelopeType, analyzerType);
+                absMaxOriginal, spectralEnvelopeType, analyzerType, synthesizerType);
         outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
         outFileName = args[0].substring(0, args[0].length()-4) + "_sin3_d055" + ".wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
@@ -425,7 +476,7 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                 isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                 timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
                 bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
-                absMaxOriginal, spectralEnvelopeType, analyzerType);
+                absMaxOriginal, spectralEnvelopeType, analyzerType, synthesizerType);
         outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
         outFileName = args[0].substring(0, args[0].length()-4) + "_sin3_d080" + ".wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
@@ -436,7 +487,7 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                 isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                 timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
                 bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
-                absMaxOriginal, spectralEnvelopeType, analyzerType);
+                absMaxOriginal, spectralEnvelopeType, analyzerType, synthesizerType);
         outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
         outFileName = args[0].substring(0, args[0].length()-4) + "_sin3_d150" + ".wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
@@ -447,7 +498,7 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                 isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                 timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
                 bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
-                absMaxOriginal, spectralEnvelopeType, analyzerType);
+                absMaxOriginal, spectralEnvelopeType, analyzerType, synthesizerType);
         outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
         outFileName = args[0].substring(0, args[0].length()-4) + "_sin3_d250" + ".wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
@@ -458,7 +509,7 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                 isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                 timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
                 bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
-                absMaxOriginal, spectralEnvelopeType, analyzerType);
+                absMaxOriginal, spectralEnvelopeType, analyzerType, synthesizerType);
         outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
         outFileName = args[0].substring(0, args[0].length()-4) + "_sin3_p055_d080" + ".wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
@@ -469,7 +520,7 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                 isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                 timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
                 bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
-                absMaxOriginal, spectralEnvelopeType, analyzerType);
+                absMaxOriginal, spectralEnvelopeType, analyzerType, synthesizerType);
         outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
         outFileName = args[0].substring(0, args[0].length()-4) + "_sin3_p080_d250" + ".wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
@@ -480,7 +531,7 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                 isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                 timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
                 bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
-                absMaxOriginal, spectralEnvelopeType, analyzerType);
+                absMaxOriginal, spectralEnvelopeType, analyzerType, synthesizerType);
         outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
         outFileName = args[0].substring(0, args[0].length()-4) + "_sin3_p150_d055" + ".wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
@@ -491,7 +542,7 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                 isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                 timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
                 bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
-                absMaxOriginal, spectralEnvelopeType, analyzerType);
+                absMaxOriginal, spectralEnvelopeType, analyzerType, synthesizerType);
         outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
         outFileName = args[0].substring(0, args[0].length()-4) + "_sin3_p250_d150" + ".wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
@@ -502,10 +553,11 @@ public class ProsodyModifier extends SinusoidalSynthesizer {
                 isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                 timeScales, null, pitchScales, null, skipSizeInSeconds, deltaInHz, numPeriods,
                 bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
-                absMaxOriginal, spectralEnvelopeType, analyzerType);
+                absMaxOriginal, spectralEnvelopeType, analyzerType, synthesizerType);
         outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
         outFileName = args[0].substring(0, args[0].length()-4) + "_sin3_pvar_dvar" + ".wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+        */
         
         System.out.println("Sinusoidal prosody modifications completed...");
     }

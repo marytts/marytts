@@ -45,22 +45,24 @@ import marytts.util.signal.SignalProcUtils;
  * @author Oytun T&uumlrk
  */
 public class SeevocAnalyser {
-    public static double[] calcSpecEnvelope(double [] absMagSpecIndB, int samplingRate)
+    public static SpectrumWithPeakIndices calcSpecEnvelopeDB(double [] absMagSpecIndB, int samplingRate)
     {
-        return calcSpecEnvelope(absMagSpecIndB, samplingRate, 100.0);
+        return calcSpecEnvelopeDB(absMagSpecIndB, samplingRate, 100.0);
     }
     
     //The returned spectral envelope is in linear scale
-    public static double[] calcSpecEnvelopeLinear(double [] absMagSpecIndB, int samplingRate, double f0)
+    public static SpectrumWithPeakIndices calcSpecEnvelopeLinear(double [] absMagSpecIndB, int samplingRate, double f0)
     {
-        double [] H = calcSpecEnvelope(absMagSpecIndB, samplingRate, f0);
-
-        return MathUtils.db2linear(H);
+        SpectrumWithPeakIndices s = calcSpecEnvelopeDB(absMagSpecIndB, samplingRate, f0);
+        s.spec = MathUtils.db2amp(s.spec);
+        
+        return s;
     }
     
     //The returned spectral envelope is also in dB
-    public static double[] calcSpecEnvelope(double [] absMagSpecIndB, int samplingRate, double f0)
+    public static SpectrumWithPeakIndices calcSpecEnvelopeDB(double[] absMagSpecIndB, int samplingRate, double f0)
     {
+        SpectrumWithPeakIndices s = new SpectrumWithPeakIndices();
         int i, j;
         if (f0<10.0)
             f0 = 100.0f;
@@ -171,35 +173,38 @@ public class SeevocAnalyser {
         }
         //
         
-        double [] H = new double[maxFreqInd+1];
+        s.spec = new double[maxFreqInd+1];
         
         for (j=0; j<peakInds[0]; j++)
-            H[j] = absMagSpecIndB[0] + (absMagSpecIndB[peakInds[0]]-absMagSpecIndB[0])/peakFreqs[0]*freqs[j];
+            s.spec[j] = absMagSpecIndB[0] + (absMagSpecIndB[peakInds[0]]-absMagSpecIndB[0])/peakFreqs[0]*freqs[j];
         
         for (i=0; i<numPeaks-1; i++)
         {
             for (j=peakInds[i]; j<peakInds[i+1]; j++)
-                H[j] = absMagSpecIndB[peakInds[i]] + (absMagSpecIndB[peakInds[i+1]]-absMagSpecIndB[peakInds[i]])/(peakFreqs[i+1]-peakFreqs[i])*(freqs[j]-peakFreqs[i]);
+                s.spec[j] = absMagSpecIndB[peakInds[i]] + (absMagSpecIndB[peakInds[i+1]]-absMagSpecIndB[peakInds[i]])/(peakFreqs[i+1]-peakFreqs[i])*(freqs[j]-peakFreqs[i]);
         }
 
         for (j=peakInds[numPeaks-1]; j<=maxFreqInd; j++)
-            H[j] = absMagSpecIndB[peakInds[numPeaks-1]] + (absMagSpecIndB[maxFreqInd]-absMagSpecIndB[peakInds[numPeaks-1]])/(0.5*samplingRate-peakFreqs[numPeaks-1])*(freqs[j]-peakFreqs[numPeaks-1]);
+            s.spec[j] = absMagSpecIndB[peakInds[numPeaks-1]] + (absMagSpecIndB[maxFreqInd]-absMagSpecIndB[peakInds[numPeaks-1]])/(0.5*samplingRate-peakFreqs[numPeaks-1])*(freqs[j]-peakFreqs[numPeaks-1]);
         
-        //H = SignalProcUtils.medianFilter(H, 5, H[0], H[H.length-1]); 
-        //H = SignalProcUtils.meanFilter(H, 19, H[0], H[H.length-1]);
+        //s.spec = SignalProcUtils.medianFilter(H, 5, H[0], H[H.length-1]); 
+        //s.spec = SignalProcUtils.meanFilter(H, 19, H[0], H[H.length-1]);
         
         //Plot the DFT and the estimated spectral envelope to check visually
-        //double [] excIndB = new double[H.length];
-        //for (i=0; i<H.length; i++)
+        //double [] excIndB = new double[s.spec.length];
+        //for (i=0; i<s.spec.length; i++)
         //    excIndB[i] = absMagSpecIndB[i]-H[i];
 
         //JFrame frame1 = showGraph(absMagSpecIndB, "DFT spectrum");
-        //JFrame frame2 = showGraph(H, "SEEVOC");
+        //JFrame frame2 = showGraph(s.spec, "SEEVOC");
         //try { Thread.sleep(3000); } catch (InterruptedException e) {}
         //frame1.dispose();
         //frame2.dispose();
         
-        return H;
+        s.indices = new int[numPeaks];
+        System.arraycopy(peakInds, 0, s.indices, 0, numPeaks);
+        
+        return s;
     }
     
     protected static JFrame showGraph(double[] array, String title)

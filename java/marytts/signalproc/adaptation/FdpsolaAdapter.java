@@ -302,7 +302,7 @@ public class FdpsolaAdapter {
             fs = (int)inputAudio.getFormat().getSampleRate();
 
             F0ReaderWriter f0 = new F0ReaderWriter(inputItem.f0File);
-            pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, origLen, f0.header.ws, f0.header.ss, true);
+            pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, origLen, f0.header.ws, f0.header.ss, true, 0);
 
             numfrmFixed = (int)(Math.floor(((double)(origLen + pm.totalZerosToPadd)/fs-0.5*wsFixedInSeconds)/ssFixedInSeconds+0.5)+2); //Total frames if the analysis was fixed skip-rate
             if (!baseParams.isFixedRateVocalTractConversion)
@@ -822,7 +822,7 @@ public class FdpsolaAdapter {
                 inputExpTerm = LpcAnalyser.calcExpTerm(fftSize, baseParams.lsfParams.dimension);
                 outputExpTerm = LpcAnalyser.calcExpTerm(newFftSize, baseParams.lsfParams.dimension);
 
-                inputVocalTractSpectrum = LpcAnalyser.calcSpecFromOneMinusA(inputLPCoeffs.getOneMinusA(), baseParams.lsfParams.dimension, fftSize, inputExpTerm);
+                inputVocalTractSpectrum = LpcAnalyser.calcSpecLinearFromOneMinusA(inputLPCoeffs.getOneMinusA(), (float)sqrtInputGain, fftSize, inputExpTerm);
 
                 //Use a weighted codebook estimate of the input vocal tract spectrum. This will result in a smoother transformation filter
                 if (baseParams.isSourceVocalTractSpectrumFromModel && baseParams.isVocalTractTransformation)
@@ -842,11 +842,8 @@ public class FdpsolaAdapter {
                             interpolatedInputLpcs = LsfAnalyser.lsfInHz2lpc(((JointGMMMatch)gmmMatch).outputFeatures, fs);  
                     }
 
-                    sourceVocalTractSpectrumEstimate = LpcAnalyser.calcSpecFromOneMinusA(interpolatedInputLpcs, 1.0f, newFftSize, outputExpTerm);
+                    sourceVocalTractSpectrumEstimate = LpcAnalyser.calcSpecLinearFromOneMinusA(interpolatedInputLpcs, 1.0f, newFftSize, outputExpTerm);
                 }
-
-                for (k=0; k<maxFreq; k++)
-                    inputVocalTractSpectrum[k] *= sqrtInputGain;
 
                 //For checking
                 if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
@@ -930,10 +927,10 @@ public class FdpsolaAdapter {
                         if (outputExpTerm==null || newMaxFreq*baseParams.lsfParams.dimension!=outputExpTerm.real.length)
                             outputExpTerm = LpcAnalyser.calcExpTerm(newFftSize, baseParams.lsfParams.dimension);
 
-                        targetVocalTractSpectrumEstimate = LpcAnalyser.calcSpecFromOneMinusA(targetLpcs, 1.0f, newFftSize, outputExpTerm);
+                        targetVocalTractSpectrumEstimate = LpcAnalyser.calcSpecLinearFromOneMinusA(targetLpcs, 1.0f, newFftSize, outputExpTerm);
                     }
                     else
-                        targetVocalTractSpectrumEstimate = LpcAnalyser.calcSpecFromOneMinusA(targetLpcs, 1.0f, newFftSize, inputExpTerm);
+                        targetVocalTractSpectrumEstimate = LpcAnalyser.calcSpecLinearFromOneMinusA(targetLpcs, 1.0f, newFftSize, inputExpTerm);
 
                     for (k=0; k<newMaxFreq; k++)
                         targetVocalTractSpectrumEstimate[k] *= sqrtInputGain;

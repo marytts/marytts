@@ -216,7 +216,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 fs = (int)inputAudio.getFormat().getSampleRate();
 
                 F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
-                pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, origLen, f0.header.ws, f0.header.ss, true);
+                pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, origLen, f0.header.ws, f0.header.ss, true, 0);
 
                 numfrmFixed = (int)(Math.floor(((double)(origLen + pm.totalZerosToPadd)/fs-0.5*wsFixedInSeconds)/ssFixedInSeconds+0.5)+2); //Total frames if the analysis was fixed skip-rate
                 if (!isFixedRate)

@@ -172,6 +172,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         int currentTimeInd = 0;
         float f0;
         float currentTime;
+        boolean isOutputToTextFile = false;
         
         for (i=0; i<totalFrm; i++)
         {   
@@ -223,7 +224,26 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
             win.normalize(1.0f); //Normalize to sum up to unity
             win.applyInline(frm, 0, ws);
             
-            sinSignal.framesSins[i] = analyze_frame(frm, spectralEnvelopeType, f0);
+            if (!bFixedSkipRate)
+            {
+                //currentTime = (float)(0.5*(pitchMarks[i+1]+pitchMarks[i])/fs);
+                currentTime = (float)((pitchMarks[i]+0.5f*ws)/fs);
+            }
+            else
+            {
+                //currentTime = (currentTimeInd+0.5f*T0)/fs;
+                currentTime = (currentTimeInd+0.5f*ws)/fs;
+                currentTimeInd += ss;
+            }
+            
+            /*
+            if (currentTime>0.500 && currentTime<0.520)
+                isOutputToTextFile = true;
+            else
+                isOutputToTextFile = false;
+                */
+            
+            sinSignal.framesSins[i] = analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, f0);
             
             if (sinSignal.framesSins[i]!=null)
             {
@@ -239,19 +259,6 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
                 isSinusoidNulls[i] = false;
                 totalNonNull++;
                 peakCount = sinSignal.framesSins[i].sinusoids.length;
-            }
-
-
-            if (!bFixedSkipRate)
-            {
-                //currentTime = (float)(0.5*(pitchMarks[i+1]+pitchMarks[i])/fs);
-                currentTime = (float)((pitchMarks[i]+0.5f*ws)/fs);
-            }
-            else
-            {
-                //currentTime = (currentTimeInd+0.5f*T0)/fs;
-                currentTime = (currentTimeInd+0.5f*ws)/fs;
-                currentTimeInd += ss;
             }
 
             if (sinSignal.framesSins[i]!=null)
@@ -296,7 +303,8 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         
         String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
         F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
-        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true);
+        int pitchMarkOffset = 0;
+        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true, pitchMarkOffset);
         PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true, true, true, 0.0, 0.5*samplingRate);
         
         SinusoidalTracks st = sa.analyzePitchSynchronous(x, pm.pitchMarks);        

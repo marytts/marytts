@@ -175,7 +175,7 @@ public class SnackPitchmarker extends VoiceImportComponent
 
             WavReader wf = new WavReader(wavFile);
             int sampleRate = wf.getSampleRate();
-            PitchMarks snackPitchmarker = SignalProcUtils.pitchContour2pitchMarks(pm,sampleRate,wf.getNumSamples(),0.0075,0.01,false);
+            PitchMarks snackPitchmarker = SignalProcUtils.pitchContour2pitchMarks(pm,sampleRate,wf.getNumSamples(),0.0075,0.01,false,0);
             int[] pitchmarkSamples = snackPitchmarker.pitchMarks; 
 
             float[] pitchmarkSeconds = new float[pitchmarkSamples.length];
