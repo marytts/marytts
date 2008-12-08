@@ -145,8 +145,6 @@ public class EHMMLabeler extends VoiceImportComponent {
             if (!ehmmFile.exists()) {
                 throw new IOException("EHMM path setting is wrong. Because file "+ehmmFile.getAbsolutePath()+" does not exist");
             }
-            //allophoneSet = AllophoneSet.getAllophoneSet(getProp(PHONEMEXML));
-            
             System.out.println("Preparing voice database for labelling using EHMM :");
             System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
             //get the voicename        
@@ -157,7 +155,6 @@ public class EHMMLabeler extends VoiceImportComponent {
             outputDir = ehmm.getAbsolutePath()+"/etc";
             
             // setup the EHMM directory 
-           
             System.out.println("Setting up EHMM directory ...");
             setup();
             System.out.println(" ... done.");
@@ -369,10 +366,7 @@ public class EHMMLabeler extends VoiceImportComponent {
          PrintWriter pw = new PrintWriter(
                  new OutputStreamWriter(process.getOutputStream()));
          
-         
          if(getProp(INITEHMMDIR).equals("/")){
-         
-             
              pw.print("( cd "+ehmm.getAbsolutePath()
                  +"; perl "+getProp(EHMMDIR)+"/bin/seqproc.pl "
                  +outputDir+"/"+"ehmm"+".align "
@@ -380,14 +374,10 @@ public class EHMMLabeler extends VoiceImportComponent {
                  +"; exit )\n");
          }
          else{
-             
-            
-             
              File modelFile = new File(getProp(INITEHMMDIR)+"/mod/model101.txt");
              if (!modelFile.exists()) {
                  throw new IOException("Model file "+modelFile.getAbsolutePath()+" does not exist");
              }
-             
              pw.print("( cd "+ehmm.getAbsolutePath()
                      +"; "+"cp "+getProp(INITEHMMDIR)+"/etc/ehmm.phoneList "
                      +outputDir
@@ -397,9 +387,7 @@ public class EHMMLabeler extends VoiceImportComponent {
                      +outputDir+"/"+"ehmm"+".align "
                      +outputDir+"/"+"ehmm"+".phoneList 2 2 13 >> log.txt"
                      +"; exit )\n");
-             
          }
-         
          pw.flush();
          //shut down
          pw.close();
@@ -424,29 +412,27 @@ public class EHMMLabeler extends VoiceImportComponent {
          
          if(getProp(INITEHMMDIR).equals("/")){
              
-         System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
-         System.out.println("EHMM baum-welch re-estimation ...");
-         System.out.println("It may take more time (may be 1 or 2 days) depending on voice database ...");
+             System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
+             System.out.println("EHMM baum-welch re-estimation ...");
+             System.out.println("It may take more time (may be 1 or 2 days) depending on voice database ...");
              
-         System.out.println("( cd "+ehmm.getAbsolutePath()
-                 +"; "+getProp(EHMMDIR)+"/bin/ehmm "
-                 +outputDir+"/"+"ehmm"+".phoneList.int "
-                 +outputDir+"/"+"ehmm"+".align.int 1 0 "
-                 +ehmm.getAbsolutePath()+"/feat ft"
-                 +ehmm.getAbsolutePath()+"/mod 0 0 0 >> log.txt"
-                 +"; exit )\n");
+             System.out.println("( cd "+ehmm.getAbsolutePath()
+                     +"; "+getProp(EHMMDIR)+"/bin/ehmm "
+                     +outputDir+"/"+"ehmm"+".phoneList.int "
+                     +outputDir+"/"+"ehmm"+".align.int 1 0 "
+                     +ehmm.getAbsolutePath()+"/feat ft"
+                     +ehmm.getAbsolutePath()+"/mod 0 0 0 >> log.txt"
+                     +"; exit )\n");
          
-         pw.print("( cd "+ehmm.getAbsolutePath()
-                 +"; "+getProp(EHMMDIR)+"/bin/ehmm "
-                 +outputDir+"/"+"ehmm"+".phoneList.int "
-                 +outputDir+"/"+"ehmm"+".align.int 1 0 "
-                 +ehmm.getAbsolutePath()+"/feat ft "
-                 +ehmm.getAbsolutePath()+"/mod 0 0 0 >> log.txt"
-                 +"; exit )\n");
-         
+             pw.print("( cd "+ehmm.getAbsolutePath()
+                     +"; "+getProp(EHMMDIR)+"/bin/ehmm "
+                     +outputDir+"/"+"ehmm"+".phoneList.int "
+                     +outputDir+"/"+"ehmm"+".align.int 1 0 "
+                     +ehmm.getAbsolutePath()+"/feat ft "
+                     +ehmm.getAbsolutePath()+"/mod 0 0 0 >> log.txt"
+                     +"; exit )\n");
          }
          else if(getProp(RETRAIN).equals("true")){
-             
              System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
              System.out.println("EHMM baum-welch re-estimation ... Re-Training... ");
              System.out.println("It may take more time (may be 1 or 2 days) depending on voice database ...");
@@ -466,10 +452,7 @@ public class EHMMLabeler extends VoiceImportComponent {
                      +ehmm.getAbsolutePath()+"/feat ft "
                      +ehmm.getAbsolutePath()+"/mod 0 0 0 >> log.txt"
                      +"; exit )\n");  
-             
-             
          }
-         
          pw.flush();
          //shut down
          pw.close();
