@@ -32,6 +32,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -52,6 +53,7 @@ import javax.xml.xpath.XPathFactory;
 
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
+import marytts.util.io.FileUtils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -75,8 +77,8 @@ public class EHMMLabeler extends VoiceImportComponent {
         protected String xmlExt = ".xml";
         
         private int progress = -1;
+        private int countShortSil = 0;
         private String locale;
-        private AllophoneSet allophoneSet;
         
         public final String EDIR = "EHMMLabeler.eDir";
         public final String EHMMDIR = "EHMMLabeler.ehmmDir";
@@ -84,7 +86,6 @@ public class EHMMLabeler extends VoiceImportComponent {
         public final String OUTLABDIR = "EHMMLabeler.outputLabDir";
         public final String INITEHMMDIR = "EHMMLabeler.startEHMMModelDir";
         public final String RETRAIN = "EHMMLabeler.reTrainFlag";
-        public final String PHONEMEXML = "EHMMLabeler.phonemeXMLFile";
         
         public final String getName(){
             return "EHMMLabeler";
@@ -113,19 +114,6 @@ public class EHMMLabeler extends VoiceImportComponent {
                        +System.getProperty("file.separator"));
                props.put(INITEHMMDIR,"/");
                props.put(RETRAIN,"false");
-               
-               if(locale.startsWith("de")){
-                   phonemeXml = db.getProp(db.MARYBASE)
-                           +File.separator+"lib"+File.separator+"modules"
-                           +File.separator+"de"+File.separator+"cap"+File.separator+"phoneme-list-de.xml";
-               }
-               else{
-                   phonemeXml = db.getProp(db.MARYBASE)
-                           +File.separator+"lib"+File.separator+"modules"
-                           +File.separator+"en"+File.separator+"cap"+File.separator+"phoneme-list-en.xml";
-               }
-               props.put(PHONEMEXML, phonemeXml);
-               
            }
            return props;
        }
@@ -138,7 +126,6 @@ public class EHMMLabeler extends VoiceImportComponent {
            props2Help.put(OUTLABDIR, "Directory to store generated lebels from EHMM.");
            props2Help.put(INITEHMMDIR,"If you provide a path to previous EHMM Directory, Models will intialize with those models. other wise EHMM Models will build with Flat-Start Initialization");
            props2Help.put(RETRAIN,"true - Do re-training by initializing with given models. false - Do just Decoding");
-           props2Help.put(PHONEMEXML, "Phoneme XML file for given language.");
        }
         
         public void initialiseComp()
@@ -158,7 +145,7 @@ public class EHMMLabeler extends VoiceImportComponent {
             if (!ehmmFile.exists()) {
                 throw new IOException("EHMM path setting is wrong. Because file "+ehmmFile.getAbsolutePath()+" does not exist");
             }
-            allophoneSet = AllophoneSet.getAllophoneSet(getProp(PHONEMEXML));
+            //allophoneSet = AllophoneSet.getAllophoneSet(getProp(PHONEMEXML));
             
             System.out.println("Preparing voice database for labelling using EHMM :");
             System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
@@ -545,26 +532,31 @@ public class EHMMLabeler extends VoiceImportComponent {
          */
      
         private void getPhoneSequence() throws Exception {
-                        
-            
+            String phoneSeq; 
+            File alignFile = new File(outputDir+"/"+"ehmm"+".align");
             // open transcription file used for labeling
             PrintWriter transLabelOut = new PrintWriter(
-                    new FileOutputStream (new File(outputDir+"/"+"ehmm"+".align")));
-            
-            String phoneSeq; 
-            
+                    new FileOutputStream (alignFile));
             for (int i=0; i<bnl.getLength(); i++) {
-                           
-                //phoneSeq = getSingleLine(bnl.getName(i));
                 phoneSeq = getLineFromXML(bnl.getName(i));
                 transLabelOut.println(phoneSeq.trim());
-
-                //System.out.println( "    " + bnl.getName(i) );
-                           
             }
             transLabelOut.flush();
             transLabelOut.close();
             
+            String data = FileUtils.getFileAsString(alignFile, "UTF-8");
+            PrintWriter pw = new PrintWriter(new FileWriter(alignFile));
+            // Check for minimum number of short pauses should be in Text
+            if(countShortSil > 10){  // delete word boundaries  
+                data = data.replaceAll("vssil ", "");
+            }
+            else{     // else insert short pauses at each word boundary
+                data = data.replaceAll("vssil ", "ssil ");
+                data = data.replaceAll("ssil ssil ", "ssil ");
+            }
+            pw.print(data);
+            pw.flush();
+            pw.close();
         }
         
         
@@ -578,33 +570,18 @@ public class EHMMLabeler extends VoiceImportComponent {
             
             String line;
             String phoneSeq;
-            Matcher matcher;
-            Pattern pattern;
-            StringBuffer alignBuff = new StringBuffer();
-            alignBuff.append(basename);
             DocumentBuilderFactory factory  = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder  = factory.newDocumentBuilder();
             Document doc = builder.parse( new File( getProp(INTONISEDDIR)+"/"+basename+xmlExt ) );
             XPath xpath = XPathFactory.newInstance().newXPath();
             NodeList tokens = (NodeList) xpath.evaluate("//t | //boundary", doc, XPathConstants.NODESET);
             
+            StringBuffer alignBuff = new StringBuffer();
+            alignBuff.append(basename);
             alignBuff.append(collectTranscription(tokens));
             phoneSeq = alignBuff.toString();
-            pattern = Pattern.compile("pau ssil ");
-            matcher = pattern.matcher(phoneSeq);
-            phoneSeq = matcher.replaceAll("pau ");
-            
-            pattern = Pattern.compile(" ssil pau$");
-            matcher = pattern.matcher(phoneSeq);
-            phoneSeq = matcher.replaceAll(" pau");
-            
-            /* TODO: Extra code need to write
-             * to maintain minimum number of short sil.
-             * or consider word boundaries as ssil.
-             */ 
-            pattern = Pattern.compile(" vssil ");
-            matcher = pattern.matcher(phoneSeq);
-            phoneSeq = matcher.replaceAll(" ");
+            phoneSeq = phoneSeq.replaceAll("pau ssil ", "pau ");
+            phoneSeq = phoneSeq.replaceAll(" ssil pau$"," pau");
             
             return phoneSeq;
         }
@@ -618,61 +595,35 @@ public class EHMMLabeler extends VoiceImportComponent {
          */
         private String collectTranscription(NodeList tokens) {
 
-            // TODO: make delims argument
-            // String Tokenizer devides transcriptions into syllables
-            // syllable delimiters and stress symbols are retained
-            String delims = "',-";
-
             // String storing the original transcription begins with a pause
-            String orig =  " pau " ;
-            
+            String transcription =  " pau " ;
             // get original phoneme String
-            for (int tNr = 0; tNr < tokens.getLength() ; tNr++ ){
-                
-                Element token = (Element) tokens.item(tNr);
-                
+            for (int i = 0; i < tokens.getLength() ; i++ ){
+                Element token = (Element) tokens.item(i);
                 // only look at it if there is a sampa to change
                 if ( token.hasAttribute("ph") ){                   
-                    
                     String sampa = token.getAttribute("ph");
-        
-                    List<String> sylsAndDelims = new ArrayList<String>();
-                    StringTokenizer sTok = new StringTokenizer(sampa, delims, true);
-                    
-                    while(sTok.hasMoreElements()){
-                        String currTok = sTok.nextToken();
-                        
-                        if (delims.indexOf(currTok) == -1) {
-                            // current Token is no delimiter
-                            for (Allophone ph : allophoneSet.splitIntoAllophones(currTok)){
-                                orig += ph.name() + " ";
-                            }// ... for each phoneme
-                        }// ... if no delimiter
-                    }// ... while there are more tokens    
+                    sampa = sampa.replaceAll("' ", "");
+                    sampa = sampa.replaceAll("- ", "");
+                    sampa = sampa.replaceAll(", ", "");
+                    transcription += sampa + " ";
                 }
-                    
                 // TODO: simplify
                 if ( token.getTagName().equals("t") ){
-                                    
                     // if the following element is no boundary, insert a non-pause delimiter
-                    if (tNr == tokens.getLength()-1 || 
-                        !((Element) tokens.item(tNr+1)).getTagName().equals("boundary") ){
-                            orig += "vssil "; // word boundary
-                            
-                        }
-                                                           
+                    if (i == tokens.getLength()-1 || !((Element) tokens.item(i+1)).getTagName().equals("boundary") ){
+                            transcription += "vssil "; // word boundary
+                    }
                 } else if ( token.getTagName().equals("boundary")){
-                                    
-                        orig += "ssil "; // phrase boundary
-
+                        transcription += "ssil "; // phrase boundary
+                        countShortSil++;
                 } else {
                     // should be "t" or "boundary" elements
                     assert(false);
                 }
-                            
             }// ... for each t-Element
-            orig += "pau";
-            return orig;
+            transcription += "pau";
+            return transcription;
         }
         
         
@@ -683,7 +634,6 @@ public class EHMMLabeler extends VoiceImportComponent {
          */        
         private void getProperLabelFormat() throws Exception {
             for (int i=0; i<bnl.getLength(); i++) {
-            
                 convertSingleLabelFile(bnl.getName(i));               
                 System.out.println( "    " + bnl.getName(i) );
                 
@@ -712,14 +662,12 @@ public class EHMMLabeler extends VoiceImportComponent {
             PrintWriter labelOut = new PrintWriter(
                     new FileOutputStream (new File(labDir+"/"+basename+labExt)));
             
-            
             BufferedReader labelIn = new BufferedReader(
                     new InputStreamReader(new FileInputStream(getProp(EDIR)+"/lab/"+basename+labExt)));
             
             previous = labelIn.readLine();
                                   
             while((line = labelIn.readLine()) != null){
-
                 //Replace all occurrences of pattern in input
                 Matcher matcher = pattern.matcher(line);
                 current = matcher.replaceAll(" _");
@@ -728,12 +676,9 @@ public class EHMMLabeler extends VoiceImportComponent {
                     previous = current;
                     continue;
                 }
-                                             
                 labelOut.println(previous);
                 previous = current;
-                
             }
-            
             labelOut.println(previous);
             labelOut.flush();
             labelOut.close();
