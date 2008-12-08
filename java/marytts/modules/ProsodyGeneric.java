@@ -168,7 +168,14 @@ public class ProsodyGeneric extends InternalModule {
 			if(list.hasAttribute("items")) { // list is defined in the xml file (no external list)
 				String items = list.getAttribute("items"); 
 				HashSet itemSet = new HashSet(); // build a set with the elements in the list
-				StringTokenizer st = new StringTokenizer(items,":");
+				StringTokenizer st;
+				if(items.contains(" ")){
+				     st = new StringTokenizer(items," ");
+				}
+				else{
+				     st = new StringTokenizer(items,":");
+				}
+				
 				while(st.hasMoreTokens()) {
 					itemSet.add(st.nextToken());
 				}

@@ -90,7 +90,7 @@ Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of
   <list name="pos_tonal_accent" items="JJ:JJR:JJS:NN:NNP:NNPS:NNS:UH:VB:VBD:VBG:VBN:content"/>
 
   <!-- list of part of speechs for punctuation (used in boundary rules)-->
-  <list name="pos_punctuation" items="$PUNCT:$,:$(:punc"/>
+  <list name="pos_punctuation" items="$PUNCT $, $( punc , '' # : ."/>
 
   <!-- list of chunk phrases that trigger a minor boundary preceding them -->
   <list name="bi2_phrases" items="AP:CAP:NP:CNP:PP:CPP"/>
