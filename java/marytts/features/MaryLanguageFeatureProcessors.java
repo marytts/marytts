@@ -105,7 +105,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
     {
         protected String name;
         protected ByteStringTranslator values;
-        protected String pauseSymbol;
+        protected String pauseSymbol = "_";
         
         /**
          * Initialise a UnitName feature processor. 
