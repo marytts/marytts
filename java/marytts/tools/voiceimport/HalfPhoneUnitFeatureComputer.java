@@ -64,13 +64,7 @@ public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer
             }
             System.out.print("Created successfully.\n");
         }    
-       
-        if(locale.startsWith("en")){
-            maryInputType = "INTONATION_EN";
-        }
-        else if(locale.startsWith("de")){
-            maryInputType = "INTONISED_DE";
-        }
+        maryInputType  = "INTONATION";
         maryOutputType = "HALFPHONE_TARGETFEATURES";
     }
     
