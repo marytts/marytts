@@ -153,13 +153,6 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
         MaryClient maryClient = getMaryClient();
         
         Vector<MaryClient.Voice> voices = maryClient.getVoices(localVoice);
-        if (voices == null) {
-            if(locale.equals("en")) {
-               locale  =  "en_US";
-               localVoice = MaryClient.string2locale(locale);
-               voices = maryClient.getVoices(localVoice);
-            } 
-        }
         // try again:
         if (voices == null) {
             StringBuffer buf = new StringBuffer("Mary server has no voices for locale '"+localVoice+"' -- known voices are:\n");
