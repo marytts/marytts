@@ -105,7 +105,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
     {
         protected String name;
         protected ByteStringTranslator values;
-        protected String pauseSymbol = "_";
+        protected String pauseSymbol;
         
         /**
          * Initialise a UnitName feature processor. 
@@ -116,6 +116,7 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
         public HalfPhoneUnitName(String[] possiblePhonemes, String pauseSymbol)
         {
             this.name = "halfphone_unitname";
+            this.pauseSymbol = pauseSymbol;
             String[] possibleValues = new String[2*possiblePhonemes.length+1];
             possibleValues[0] = "0"; // the "n/a" value
             for (int i=0; i<possiblePhonemes.length; i++) {
