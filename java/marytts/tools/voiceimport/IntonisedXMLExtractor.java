@@ -11,6 +11,7 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import marytts.client.MaryClient;
+import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;
 
 
@@ -115,6 +116,7 @@ public class IntonisedXMLExtractor extends VoiceImportComponent
         String text;
         Locale localVoice;
         localVoice = MaryClient.string2locale(locale);
+        String xmlLocale = MaryUtils.locale2xmllang(localVoice);
         
         String fullFileName;
         
@@ -137,7 +139,7 @@ public class IntonisedXMLExtractor extends VoiceImportComponent
         if (rawmaryxmlFile.exists()) {
             text = FileUtils.getFileAsString(rawmaryxmlFile, "UTF-8");
         } else {
-            text = getMaryXMLHeaderWithInitialBoundary(locale)
+            text = getMaryXMLHeaderWithInitialBoundary(xmlLocale)
                 + FileUtils.getFileAsString(new File(inputDir 
                                 + basename + db.getProp(db.TEXTEXT)), "UTF-8")
                 + "</maryxml>";
@@ -148,18 +150,14 @@ public class IntonisedXMLExtractor extends VoiceImportComponent
         
         Vector<MaryClient.Voice> voices = maryClient.getVoices(localVoice);
         if (voices == null) {
-            if(locale.equals("en")) {
-               locale  =  "en_US";
-               localVoice = MaryClient.string2locale(locale);
                voices = maryClient.getVoices(localVoice);
-            } 
         }
         // try again:
         if (voices == null) {
-            StringBuffer buf = new StringBuffer("Mary server has no voices for locale '"+localVoice+"' -- known voices are:\n");
+            StringBuffer buf = new StringBuffer("Mary server has no voices for locale '"+localVoice+"'. \n Known voices are:\n");
             Vector<MaryClient.Voice> allVoices = maryClient.getVoices();
             for (MaryClient.Voice v: allVoices) {
-                buf.append(v.toString()); buf.append("\n");
+                buf.append(v.toString()); buf.append("  Locale: "+v.getLocale().toString());  buf.append("\n");
             }
             throw new RuntimeException(buf.toString());
         }
