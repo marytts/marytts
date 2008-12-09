@@ -149,9 +149,6 @@ public class IntonisedXMLExtractor extends VoiceImportComponent
         MaryClient maryClient = getMaryClient();
         
         Vector<MaryClient.Voice> voices = maryClient.getVoices(localVoice);
-        if (voices == null) {
-               voices = maryClient.getVoices(localVoice);
-        }
         // try again:
         if (voices == null) {
             StringBuffer buf = new StringBuffer("Mary server has no voices for locale '"+localVoice+"'. \n Known voices are:\n");
