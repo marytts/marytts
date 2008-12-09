@@ -509,7 +509,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
         XPath xpath = XPathFactory.newInstance().newXPath();
         // we rely on the assumption that the result of the evaluation is 
         // a list rather than a set and that it is retrieved in document order
-        NodeList tokens = (NodeList) xpath.evaluate("//t[@sampa] | //boundary", doc, XPathConstants.NODESET);
+        NodeList tokens = (NodeList) xpath.evaluate("//t[@ph] | //boundary", doc, XPathConstants.NODESET);
                 
         String orig = this.collectTranscription(tokens);
         
