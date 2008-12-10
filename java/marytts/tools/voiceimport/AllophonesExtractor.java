@@ -17,11 +17,11 @@ import marytts.util.io.FileUtils;
 
 
 /**
- * For the given texts, compute intonisation features, especially boundary tags.
+ * For the given texts, compute allophones, especially boundary tags.
  * @author Benjamin Roth, adapted from Sathish Chandra Pammi
  *
  */
-public class IntonisedXMLExtractor extends VoiceImportComponent
+public class AllophonesExtractor extends VoiceImportComponent
 {
     protected File textDir;
     protected File unitfeatureDir;
@@ -34,41 +34,40 @@ public class IntonisedXMLExtractor extends VoiceImportComponent
     protected DatabaseLayout db = null;
     protected int percent = 0;
     
-    public String INTONISED = "IntonisedXMLExtractor.intonisedDir";
-    public String MARYSERVERHOST = "IntonisedXMLExtractor.maryServerHost";
-    public String MARYSERVERPORT = "IntonisedXMLExtractor.maryServerPort";
+    public String ALLOPHONES = "AllophonesExtractor.promptallophonesDir";
+    public String MARYSERVERHOST = "AllophonesExtractor.maryServerHost";
+    public String MARYSERVERPORT = "AllophonesExtractor.maryServerPort";
        
    
     
    public String getName(){
-        return "IntonisedXMLExtractor";
+        return "AllophonesExtractor";
     }
      
    public void initialiseComp()
     {      
         locale = db.getProp(db.LOCALE);   
-        
         mary = null; // initialised only if needed   
-        unitfeatureDir = new File(getProp(INTONISED));
+        unitfeatureDir = new File(getProp(ALLOPHONES));
         if (!unitfeatureDir.exists()){
-            System.out.print(INTONISED+" "+getProp(INTONISED)
+            System.out.print(ALLOPHONES+" "+getProp(ALLOPHONES)
                     +" does not exist; ");
             if (!unitfeatureDir.mkdir()){
-                throw new Error("Could not create INTONISED");
+                throw new Error("Could not create ALLOPHONES");
             }
             System.out.print("Created successfully.\n");
         }    
         
         maryInputType = "RAWMARYXML";
-        maryOutputType = "INTONATION";
+        maryOutputType = "ALLOPHONES";
     }
      
      public SortedMap getDefaultProps(DatabaseLayout db){
          this.db = db;
          if (props == null){
              props = new TreeMap();
-             props.put(INTONISED, db.getProp(db.ROOTDIR)
-                     +"intonisedXML"
+             props.put(ALLOPHONES, db.getProp(db.ROOTDIR)
+                     +"prompt_allophones"
                      +System.getProperty("file.separator"));
              props.put(MARYSERVERHOST,"localhost");
              props.put(MARYSERVERPORT,"59125");
@@ -78,7 +77,7 @@ public class IntonisedXMLExtractor extends VoiceImportComponent
      
      protected void setupHelp(){
          props2Help = new TreeMap();
-         props2Help.put(INTONISED, "directory to store intonationXML files." 
+         props2Help.put(ALLOPHONES, "directory to store allophonesXML files." 
                  +"Will be created if it does not exist");
          props2Help.put(MARYSERVERHOST,"the host were the Mary server is running, default: \"localhost\"");
          props2Help.put(MARYSERVERPORT,"the port were the Mary server is listening, default: \"59125\"");

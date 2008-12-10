@@ -36,7 +36,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
     protected int percent = 0;
     
     public String FEATUREDIR = "PhoneUnitFeatureComputer.featureDir";
-    public String INTONISED = "PhoneUnitFeatureComputer.correctedIntonisedXMLDir";
+    public String ALLOPHONES = "PhoneUnitFeatureComputer.allophonesDir";
     public String MARYSERVERHOST = "PhoneUnitFeatureComputer.maryServerHost";
     public String MARYSERVERPORT = "PhoneUnitFeatureComputer.maryServerPort";
        
@@ -72,7 +72,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
             System.out.print("Created successfully.\n");
         }  
         
-        maryInputType = "INTONATION";
+        maryInputType = "ALLOPHONES";
         maryOutputType = "TARGETFEATURES";
     }
      
@@ -83,8 +83,8 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
              props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
                      +"phonefeatures"
                      +System.getProperty("file.separator"));
-             props.put(INTONISED, db.getProp(db.ROOTDIR)
-                     +"correctedIntonisedXML"
+             props.put(ALLOPHONES, db.getProp(db.ROOTDIR)
+                     +"allophones"
                      +System.getProperty("file.separator"));
              props.put(MARYSERVERHOST,"localhost");
              props.put(MARYSERVERPORT,"59125");
@@ -97,7 +97,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
          props2Help = new TreeMap();
          props2Help.put(FEATUREDIR, "directory containing the phone features." 
                  +"Will be created if it does not exist");
-         props2Help.put(INTONISED, "Directory of corrected Intonised XML files.");
+         props2Help.put(ALLOPHONES, "Directory of corrected allophones files.");
          props2Help.put(MARYSERVERHOST,"the host were the Mary server is running, default: \"localhost\"");
          props2Help.put(MARYSERVERPORT,"the port were the Mary server is listening, default: \"59125\"");
      }
@@ -145,9 +145,9 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
                         		+ basename + db.getProp(db.TEXTEXT)), "UTF-8")
                 + "</maryxml>";
         }
-        File intonisedxmlFile = new File(getProp(INTONISED)
+        File allophoneFile = new File(getProp(ALLOPHONES)
                 + basename + xmlExt);
-        text = FileUtils.getFileAsString(intonisedxmlFile, "UTF-8");
+        text = FileUtils.getFileAsString(allophoneFile, "UTF-8");
         
         OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( unitfeatureDir, basename + featsExt )));
         MaryClient maryClient = getMaryClient();
