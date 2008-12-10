@@ -64,15 +64,15 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class CorrectedTranscriptionAligner extends VoiceImportComponent {
+public class TranscriptionAligner extends VoiceImportComponent {
     
     private DatabaseLayout db;
     private String locale;
     // properties
-    public final String ORIGTRANS = "CorrectedTranscriptionAligner.original";
-    public final String CORRTRANS = "CorrectedTranscriptionAligner.corrected";
-    public final String RESULTTRANS = "CorrectedTranscriptionAligner.results";
-    public final String PHONEMEXML = "CorrectedTranscriptionAligner.phonesetXML";
+    public final String ORIGTRANS = "TranscriptionAligner.original";
+    public final String CORRTRANS = "TranscriptionAligner.corrected";
+    public final String RESULTTRANS = "TranscriptionAligner.results";
+    public final String ALLOPHONEXML = "TranscriptionAligner.allophoneSetXML";
     private int progress;
     
     Map<String, Integer> aligncost;
@@ -84,14 +84,14 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     private String possibleBnd = "_";
 
     
-    public CorrectedTranscriptionAligner() {
+    public TranscriptionAligner() {
         this.aligncost = new HashMap<String, Integer>();
         this.defaultcost = 1;
         this.skipcost = 1;
     }
 
     public String getName() {
-        return "CorrectedTranscriptionAligner";
+        return "TranscriptionAligner";
     }
     
     public void initialiseComp()
@@ -101,7 +101,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     
     public SortedMap getDefaultProps(DatabaseLayout db) {
         this.db = db;
-        String phonemeXml;
+        String allophoneSetXml;
         locale = db.getProp(db.LOCALE);
         if (props == null){
             props = new TreeMap();
@@ -110,7 +110,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
             String origTrans = System.getProperty(ORIGTRANS);
             if ( origTrans == null ) {
                 origTrans = db.getProp(db.ROOTDIR)
-                +"intonisedXML"//phonemisedXML?
+                +"prompt_allophones"
                 +System.getProperty("file.separator");
             }
             props.put(ORIGTRANS,origTrans);
@@ -128,23 +128,23 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
             String resultTrans = System.getProperty(RESULTTRANS);
             if ( resultTrans == null ) {
                 resultTrans = db.getProp(db.ROOTDIR)
-                +"correctedIntonisedXML"//correctedPhonemisedXML?
+                +"allophones"
                 +System.getProperty("file.separator");
             }
             props.put(RESULTTRANS,resultTrans);
                         
             // alignment costs
             if(locale.startsWith("de")){
-                phonemeXml = db.getProp(db.MARYBASE)
+                allophoneSetXml = db.getProp(db.MARYBASE)
                         +File.separator+"lib"+File.separator+"modules"
                         +File.separator+"de"+File.separator+"cap"+File.separator+"phoneme-list-de.xml";
             }
             else{
-                phonemeXml = db.getProp(db.MARYBASE)
+                allophoneSetXml = db.getProp(db.MARYBASE)
                         +File.separator+"lib"+File.separator+"modules"
                         +File.separator+"en"+File.separator+"cap"+File.separator+"phoneme-list-en.xml";
             }
-            props.put(PHONEMEXML, phonemeXml);
+            props.put(ALLOPHONEXML, allophoneSetXml);
 
         }
         return props;
@@ -202,7 +202,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
         // set costs used for distance computation
         
         // phoneme set is used for splitting the sampa strings and setting the costs
-        this.setAllophoneSet(AllophoneSet.getAllophoneSet((String) props.get(this.PHONEMEXML)));
+        this.setAllophoneSet(AllophoneSet.getAllophoneSet((String) props.get(this.ALLOPHONEXML)));
 
         this.setDistance();
         
@@ -526,7 +526,7 @@ public class CorrectedTranscriptionAligner extends VoiceImportComponent {
     
     /**
      * 
-     * This computes a string of phonetic symbols out of an intonised mary xml:
+     * This computes a string of phonetic symbols out of an allophones xml:
      * - standard phonemes are taken from "ph" attribute
      * - after each token-element (except those followed by a "boundary"-element), 
      *   a "bnd" symbol is inserted (standing for a possible pause)

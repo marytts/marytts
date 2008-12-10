@@ -82,7 +82,7 @@ public class EHMMLabeler extends VoiceImportComponent {
         
         public final String EDIR = "EHMMLabeler.eDir";
         public final String EHMMDIR = "EHMMLabeler.ehmmDir";
-        public final String INTONISEDDIR = "EHMMLabeler.intonisedDir";
+        public final String ALLOPHONESDIR = "EHMMLabeler.promtallophonesDir";
         public final String OUTLABDIR = "EHMMLabeler.outputLabDir";
         public final String INITEHMMDIR = "EHMMLabeler.startEHMMModelDir";
         public final String RETRAIN = "EHMMLabeler.reTrainFlag";
@@ -106,8 +106,8 @@ public class EHMMLabeler extends VoiceImportComponent {
                props.put(EDIR,db.getProp(db.ROOTDIR)
                             +"ehmm"
                             +System.getProperty("file.separator"));
-               props.put(INTONISEDDIR, db.getProp(db.ROOTDIR)
-                       +"intonisedXML"
+               props.put(ALLOPHONESDIR, db.getProp(db.ROOTDIR)
+                       +"prompt_allophones"
                        +System.getProperty("file.separator"));
                props.put(OUTLABDIR, db.getProp(db.ROOTDIR)
                        +"lab"
@@ -122,7 +122,7 @@ public class EHMMLabeler extends VoiceImportComponent {
            props2Help = new TreeMap();
            props2Help.put(EHMMDIR,"directory containing the local installation of EHMM Labeller"); 
            props2Help.put(EDIR,"directory containing all files used for training and labeling. Will be created if it does not exist.");
-           props2Help.put(INTONISEDDIR, "directory containing the IntonisedXML files.");
+           props2Help.put(ALLOPHONESDIR, "directory containing the IntonisedXML files.");
            props2Help.put(OUTLABDIR, "Directory to store generated lebels from EHMM.");
            props2Help.put(INITEHMMDIR,"If you provide a path to previous EHMM Directory, Models will intialize with those models. other wise EHMM Models will build with Flat-Start Initialization");
            props2Help.put(RETRAIN,"true - Do re-training by initializing with given models. false - Do just Decoding");
@@ -555,7 +555,7 @@ public class EHMMLabeler extends VoiceImportComponent {
             String phoneSeq;
             DocumentBuilderFactory factory  = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder  = factory.newDocumentBuilder();
-            Document doc = builder.parse( new File( getProp(INTONISEDDIR)+"/"+basename+xmlExt ) );
+            Document doc = builder.parse( new File( getProp(ALLOPHONESDIR)+"/"+basename+xmlExt ) );
             XPath xpath = XPathFactory.newInstance().newXPath();
             NodeList tokens = (NodeList) xpath.evaluate("//t | //boundary", doc, XPathConstants.NODESET);
             
@@ -571,7 +571,7 @@ public class EHMMLabeler extends VoiceImportComponent {
  
         /**
          * 
-         * This computes a string of phonetic symbols out of an intonised mary xml:
+         * This computes a string of phonetic symbols out of an allophones xml:
          * - standard phonemes are taken from "ph" attribute
          * @param tokens
          * @return
