@@ -814,7 +814,7 @@ public class FdpsolaAdapter {
                 if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
                     tmpComp = new ComplexArray(inputDft);
-                    tmpSpec = MathUtils.amp2db(tmpComp, 0, maxFreq);
+                    tmpSpec = MathUtils.dft2ampdb(tmpComp, 0, maxFreq);
                     MaryUtils.plot(tmpSpec, "1.Input DFT");
                 }
                 //
@@ -880,7 +880,7 @@ public class FdpsolaAdapter {
                 if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
                     tmpComp = new ComplexArray(inputResidual);
-                    tmpSpec = MathUtils.amp2db(tmpComp, 0, maxFreq-1);
+                    tmpSpec = MathUtils.dft2ampdb(tmpComp, 0, maxFreq-1);
                     MaryUtils.plot(tmpSpec, "4.Input Residual");
                 }
                 //
@@ -1116,7 +1116,7 @@ public class FdpsolaAdapter {
                 if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
                     tmpComp = new ComplexArray(outputResidual);
-                    tmpSpec = MathUtils.amp2db(tmpComp, 0, newMaxFreq-1);
+                    tmpSpec = MathUtils.dft2ampdb(tmpComp, 0, newMaxFreq-1);
                     MaryUtils.plot(tmpSpec, "7.Output Residual");
                 }
                 //
@@ -1165,7 +1165,7 @@ public class FdpsolaAdapter {
                 if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
                 {
                     tmpComp = new ComplexArray(outputDft);
-                    tmpSpec = MathUtils.amp2db(tmpComp, 0, newMaxFreq);
+                    tmpSpec = MathUtils.dft2ampdb(tmpComp, 0, newMaxFreq);
                     MaryUtils.plot(tmpSpec, "9.Output DFT");
                     bShowSpectralPlots = false;
                 }

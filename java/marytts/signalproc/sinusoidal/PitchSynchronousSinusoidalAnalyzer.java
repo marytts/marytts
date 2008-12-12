@@ -227,12 +227,12 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
             if (!bFixedSkipRate)
             {
                 //currentTime = (float)(0.5*(pitchMarks[i+1]+pitchMarks[i])/fs);
-                currentTime = (float)((pitchMarks[i]+0.5f*ws)/fs);
+                currentTime = (float)((pitchMarks[i]+0.5f*ws)/fs);  //Middle of analysis frame
             }
             else
             {
                 //currentTime = (currentTimeInd+0.5f*T0)/fs;
-                currentTime = (currentTimeInd+0.5f*ws)/fs;
+                currentTime = (currentTimeInd+0.5f*ws)/fs; //Middle of analysis frame
                 currentTimeInd += ss;
             }
             
@@ -241,7 +241,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
                 isOutputToTextFile = true;
             else
                 isOutputToTextFile = false;
-                */
+            */
             
             sinSignal.framesSins[i] = analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, f0);
             

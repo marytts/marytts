@@ -27,41 +27,58 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.sinusoidal;
+package marytts.signalproc.sinusoidal.test;
+
+import java.io.IOException;
+
+import marytts.signalproc.sinusoidal.Sinusoid;
+import marytts.util.io.FileUtils;
+import marytts.util.math.MathUtils;
 
 /**
- * A single sinusoid
- * 
- * @author Oytun T&uumlrk
+ * @author oytun.turk
+ *
  */
-public class Sinusoid {
-    public float amp; //Amplitude (Total amplitude, i.e. excitation x system)
-    public float freq; //Frequency in radians
-    public float phase; //Phase
-    public int frameIndex; //Frame index
+public class HarmonicsNoiseTester extends SinusoidsNoiseTester {
 
-    public static int NON_EXISTING_FRAME_INDEX = -1; //Used for sinusoid components added for parameter smoothing
-    
-    public Sinusoid(float freqIn)
-    {
-        this(1.0f, freqIn, 0.0f);
+    public HarmonicsNoiseTester(HarmonicsTester s, NoiseTester n) {
+        super(s, n);
+        // TODO Auto-generated constructor stub
     }
     
-    public Sinusoid(float ampIn, float freqIn, float phaseIn)
-    {
-        this(ampIn, freqIn, phaseIn, NON_EXISTING_FRAME_INDEX);
+    public static void main(String[] args) throws IOException
+    { 
+        int i;
+        HarmonicsTester s = null;
+        NoiseTester n = null;
+        HarmonicsNoiseTester h = null;
+        
+        //Harmonics part
+        float f1 = 400.f;
+        int numHarmonics = 8;
+        s = new HarmonicsTester(f1, numHarmonics);
+        //
+        
+        //Noise part
+        int numNoises = 1;
+        float [][] freqs = new float[numNoises][];
+        float [] amps = new float[numNoises];
+        for (i=0; i<numNoises; i++)
+            freqs[i] = new float[2];
+        
+        freqs[0][0] = 4000;
+        freqs[0][1] = 6000;
+        amps[0] = DEFAULT_AMP;
+
+        n = new NoiseTester(freqs, amps);
+        //
+        
+        h = new HarmonicsNoiseTester(s, n);
+        
+        if (args.length>1)
+            h.write(args[0], args[1]);
+        else
+            h.write(args[0]);
     }
-    
-    public Sinusoid(Sinusoid existingSinusoid)
-    {
-        this(existingSinusoid.amp, existingSinusoid.freq, existingSinusoid.phase, existingSinusoid.frameIndex);
-    }
-    
-    public Sinusoid(float ampIn, float freqIn, float phaseIn, int frameIndexIn)
-    {
-        this.amp = ampIn;
-        this.freq = freqIn;
-        this.phase = phaseIn;
-        this.frameIndex = frameIndexIn;
-    }
+
 }

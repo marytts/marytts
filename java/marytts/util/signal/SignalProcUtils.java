@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Vector;
 
+import marytts.signalproc.analysis.CepstrumSpeechAnalyser;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.filter.BandPassFilter;
@@ -14,6 +15,7 @@ import marytts.signalproc.filter.RecursiveFilter;
 import marytts.signalproc.window.HammingWindow;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.FFT;
+import marytts.util.math.FFTMixedRadix;
 import marytts.util.math.MathUtils;
 
 
@@ -1718,6 +1720,73 @@ public class SignalProcUtils {
         }
         
         return n;
+    }
+    
+    //These functions implement cepstrum computations asdescribed in van Santen et. al.´s book - Chapter 5
+    //(van Santen, et. al., Progress in Speech Synthesis)
+    public static double[] specLinear2cepstrum(double[] specLinear, int cepsOrder)
+    {
+        int fftSizeFromLen = 2*(specLinear.length-1);
+        int fftSize = 2;
+        while (fftSize<fftSizeFromLen)
+            fftSize *= 2;
+        
+        //double[] specLog = MathUtils.log10(specLinear);
+        double[] specLog = MathUtils.log(specLinear);
+        double[] real = new double[fftSize];
+        double[] imag = new double[fftSize];
+        Arrays.fill(real, 0.0);
+        Arrays.fill(imag, 0.0);
+        System.arraycopy(specLog, 0, real, 0, Math.min(specLog.length, fftSize));
+        
+        FFT.transform(real, imag, true);
+        
+        double[] nceps = new double[cepsOrder+1];
+        System.arraycopy(real, 0, nceps, 0, cepsOrder+1);
+        
+        return nceps;
+    }
+    
+    public static double cepstrum2linearSpecAmp(double[] ceps, float freqInRadians)
+    {
+        double logM = ceps[0];
+        for (int m=1; m<ceps.length; m++)
+            logM += 2*ceps[m]*Math.cos(m*freqInRadians);
+        
+        //return Math.pow(10.0, logM);
+        return Math.exp(logM);
+    }
+    
+    public static double cepstrum2minimumPhase(double[] ceps, float freqInRadians)
+    {
+        double minPhase = 0.0;
+        for (int m=1; m<ceps.length; m++)
+            minPhase -= 2*ceps[m]*Math.sin(m*freqInRadians);
+        
+        return minPhase;
+    }
+    
+    public static double getMaximumFreqOfVoicingInHz(double[] specAmpsLinear, int[] peakInds, int[][] freqBandInds, int samplingRate)
+    {
+        //freqBandInds is an Nx2 array, [0][0]: left index of first band, [0][1]: right index of first band, etc
+        //use overlapping bands in frequency
+        
+        double maximumFreqOfVoicingInHz = 0.5*samplingRate;
+        int i;
+        for (i=0; i<freqBandInds.length; i++)
+        {
+            //TO DO: 
+            //-Find peakInds in this range
+            //-Compute total energy of non-peaks in this range and divide by total energy in this range
+            //-Take log of the value
+            //-Compare with threshold and declare voicingfor this band
+        }
+        
+        //3-point Median filter voicing decisions
+        //Find last "voiced"
+        //Declare frequency of voicing as the end of the last voiced band
+        
+        return maximumFreqOfVoicingInHz;
     }
     
     public static void main(String[] args)

@@ -27,7 +27,7 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.sinusoidal;
+package marytts.signalproc.sinusoidal.test;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,6 +40,7 @@ import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.MathUtils;
+import marytts.util.string.StringUtils;
 
 
 /**
@@ -64,6 +65,12 @@ public class BaseTester {
     {
         ws = DEFAULT_WINDOW_SIZE_FOR_PITCH_CONTOUR;
         ss = DEFAULT_SKIP_SIZE_FOR_PITCH_CONTOUR;
+    }
+    
+    public void write(String outWavFile) throws IOException
+    {
+        String outPtcFile = StringUtils.modifyExtension(outWavFile, ".ptc");
+        write(outWavFile, outPtcFile);
     }
     
     public void write(String outWavFile, String outPtcFile) throws IOException
