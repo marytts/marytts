@@ -230,15 +230,18 @@ public class TrackModifier {
                     }   
                     
                     //Apply triangular decreasing of pitch scale in voiced/unvoiced transition region
+                    /*
                     if (pScaleCurrent!=1.0f)
                     {
-                        float modFreqLowerCutoffInHz = 3500.0f;
-                        float modFreqUpperCutoffInHz = 4500.0f;
+                        float maxFreqOfVoicingInHz = SignalProcUtils.radian2Hz(trIn.tracks[i].maxFreqOfVoicings[j], trIn.fs);
+                        float modFreqLowerCutoffInHz = maxFreqOfVoicingInHz; //3500.0f;
+                        float modFreqUpperCutoffInHz = maxFreqOfVoicingInHz; //4500.0f;
                         if (freqInHz>=modFreqLowerCutoffInHz && freqInHz<modFreqLowerCutoffInHz)
                             pScaleCurrent = (freqInHz-modFreqLowerCutoffInHz)*(pScaleCurrent-1.0f)/(modFreqUpperCutoffInHz-modFreqLowerCutoffInHz)+1.0f;
                         else if (freqInHz>=modFreqLowerCutoffInHz)
                             pScaleCurrent = 1.0f;
                     }
+                    */
                     //
 
                     int tScaleInd = MathUtils.findClosest(tScalesTimes, trIn.tracks[i].times[j]);
@@ -356,7 +359,13 @@ public class TrackModifier {
                         //MaryUtils.plot(trIn.sysAmps.get(sysTimeInd));
                     }
                     
-                    trMod.tracks[currentInd].amps[j] = excAmpMod*sysAmpMod;
+                    //Apply triangular decreasing of pitch scale in voiced/unvoiced transition region
+                    float maxFreqOfVoicingInHz = SignalProcUtils.radian2Hz(trIn.tracks[i].maxFreqOfVoicings[j], trIn.fs);
+                    if (pScaleCurrent!=1.0f && freqInHz>maxFreqOfVoicingInHz)
+                        trMod.tracks[currentInd].amps[j] = 0.0f;
+                    else
+                        trMod.tracks[currentInd].amps[j] = excAmpMod*sysAmpMod;
+                    
                     trMod.tracks[currentInd].freqs[j] = freqMod;
                     trMod.tracks[currentInd].phases[j] = sysPhaseMod + excPhaseMod;
                     trMod.tracks[currentInd].times[j] = middleSynthesisTime;

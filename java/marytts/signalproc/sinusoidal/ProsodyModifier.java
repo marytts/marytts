@@ -431,7 +431,7 @@ public class ProsodyModifier {
                 pitchMarkOffsetStr = "0"+pitchMarkOffsetStr;
 
             timeScale = 1.0f;
-            pitchScale = 0.6f;
+            pitchScale = 1.5f;
             //for (int i=0; i<pitchScales.length; i++)
             {
                 y = pm.process(x, f0.contour, (float)f0.header.ws, (float)f0.header.ss, 

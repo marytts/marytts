@@ -45,7 +45,7 @@ public class SinusoidalSpeechFrame {
     public ComplexArray frameDfts;
     public float time;
     public float voicing;
-    public float maxFreqOfVoicingInHz;
+    public float maxFreqOfVoicing;
     
     public SinusoidalSpeechFrame(int numSins)
     {
@@ -60,7 +60,7 @@ public class SinusoidalSpeechFrame {
         frameDfts = null;
         time = -1.0f;
         voicing = -1.0f;
-        maxFreqOfVoicingInHz = -1.0f;
+        maxFreqOfVoicing = -1.0f;
     }
     
     public SinusoidalSpeechFrame(SinusoidalSpeechFrame existing)
@@ -76,7 +76,7 @@ public class SinusoidalSpeechFrame {
         setFrameDfts(existing.frameDfts);
         time = existing.time;
         voicing = existing.voicing;
-        maxFreqOfVoicingInHz = existing.maxFreqOfVoicingInHz;
+        maxFreqOfVoicing = existing.maxFreqOfVoicing;
     }
     
     public void setSystemAmps(double[] newAmps)

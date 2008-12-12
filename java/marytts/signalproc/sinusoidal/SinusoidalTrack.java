@@ -45,7 +45,9 @@ public class SinusoidalTrack {
     public float [] phases; //Phases of the sinusoids in radians
     public int [] frameIndices; //Frame indices of sinusoids
     public float [] times; //Times of the sinusoids in seconds
-    public int [] states; //State of the track for a given index (one of the flags below, by default: LIVING
+    public float [] maxFreqOfVoicings; //Voicing probabilities of track components
+    
+    public int [] states; //State of the track for a given index (one of the flags below, by default: ACTIVE
     
     public static int ACTIVE = 0; //The track has been turned on in a previous frame and has not been turned off until now
     public static int TURNED_ON = 1; //The track is turned on at the current time instant
@@ -159,9 +161,9 @@ public class SinusoidalTrack {
     }
     
     //Create a track from a single sinusoid
-    public SinusoidalTrack(float time, Sinusoid sin, int state)
+    public SinusoidalTrack(float time, Sinusoid sin, float maxFreqOfVoicing, int state)
     {
-        add(time, sin.amp, sin.freq, sin.phase, sin.frameIndex, state);
+        add(time, sin.amp, sin.freq, sin.phase, sin.frameIndex, maxFreqOfVoicing, state);
     }
     
   //Create a track from a track
@@ -181,6 +183,7 @@ public class SinusoidalTrack {
             freqs = new float[totalSins];
             phases = new float[totalSins];
             frameIndices = new int[totalSins];
+            maxFreqOfVoicings = new float[totalSins];
             states = new int[totalSins];
         }
         else
@@ -191,6 +194,7 @@ public class SinusoidalTrack {
             freqs = null;
             phases = null;
             frameIndices = null;
+            maxFreqOfVoicings = null;
             states = null;
         }
         
@@ -224,6 +228,7 @@ public class SinusoidalTrack {
             System.arraycopy(srcTrack.freqs, startSinIndex, this.freqs, 0, endSinIndex-startSinIndex+1);
             System.arraycopy(srcTrack.phases, startSinIndex, this.phases, 0, endSinIndex-startSinIndex+1);
             System.arraycopy(srcTrack.frameIndices, startSinIndex, this.frameIndices, 0, endSinIndex-startSinIndex+1);
+            System.arraycopy(srcTrack.maxFreqOfVoicings, startSinIndex, this.maxFreqOfVoicings, 0, endSinIndex-startSinIndex+1);
             System.arraycopy(srcTrack.states, startSinIndex, this.states, 0, endSinIndex-startSinIndex+1);
             currentIndex = endSinIndex-startSinIndex;
         }
@@ -235,8 +240,14 @@ public class SinusoidalTrack {
         copy(srcTrack, 0, srcTrack.totalSins-1);
     }
     
+    
+    public void add(float time, Sinusoid newSin, float pVoicing, int state)
+    {
+        add(time, newSin.amp, newSin.freq, newSin.phase, newSin.frameIndex, pVoicing, state);
+    }
+    
     //Add a new sinusoid to the track
-    public void add(float time, float amp, float freq, float phase, int frameIndex, int state)
+    public void add(float time, float amp, float freq, float phase, int frameIndex,  float maxFreqOfVoicing, int state)
     {
         if (currentIndex+1>=totalSins) //Expand the current track to twice its length and then add
         {
@@ -260,16 +271,12 @@ public class SinusoidalTrack {
         freqs[currentIndex] = freq;
         phases[currentIndex] = phase;
         frameIndices[currentIndex] = frameIndex;
+        maxFreqOfVoicings[currentIndex] = maxFreqOfVoicing;
         states[currentIndex] = state;
     }
     
-    public void add(float time, Sinusoid newSin, int state)
-    {
-        add(time, newSin.amp, newSin.freq, newSin.phase, newSin.frameIndex, state);
-    }
-    
     //Update parameters of <index>th sinusoid in track
-    public void update(int index, int time, float amp, float freq, float phase, int frameIndex, float sysAmp, int state)
+    public void update(int index, int time, float amp, float freq, float phase, int frameIndex, float sysAmp, float maxFreqOfVoicing, int state)
     {
         if (index<totalSins)
         {            
@@ -278,6 +285,7 @@ public class SinusoidalTrack {
             freqs[index] = freq;
             phases[index] = phase;
             frameIndices[index] = frameIndex;
+            maxFreqOfVoicings[index] = maxFreqOfVoicing;
             states[index] = state;
         }
     }
