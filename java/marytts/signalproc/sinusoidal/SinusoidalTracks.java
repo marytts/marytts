@@ -180,11 +180,11 @@ public class SinusoidalTracks {
             origDur = track.times[track.totalSins-1];
     }
     
-    public void add(float time, Sinusoid [] sins, int state)
+    public void add(float time, Sinusoid [] sins, float maxFreqOfVoicing, int state)
     {
         for (int i=0; i<sins.length; i++)
         {
-            SinusoidalTrack tmpTrack = new SinusoidalTrack(time, sins[i], state);
+            SinusoidalTrack tmpTrack = new SinusoidalTrack(time, sins[i], maxFreqOfVoicing, state);
             add(tmpTrack);
             
             if (time>origDur)

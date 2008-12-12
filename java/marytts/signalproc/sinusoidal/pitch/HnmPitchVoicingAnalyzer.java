@@ -63,7 +63,12 @@ public class HnmPitchVoicingAnalyzer {
     public static float HARMONICS_NEIGH = 0.3f; //Between 0.0 and 1.0: How much the search range for voicing detection will be extended beyond the first and the last harmonic
                                                 //0.3 means the region [0.7xf0, 4.3xf0] will be considered in voicing decision
     //
-    public static double HARMONIC_DEVIATION_PERCENT = 20.0; //Harmonic deviation in percent when searching for maximum frequency of voicing
+    
+    //These are the three thresholds used in Stylianou for maximum voicing frequency estimation using the harmonic model
+    public static double CUMULATIVE_AMP_THRESHOLD = 2.0;
+    public static double MAXIMUM_AMP_THRESHOLD = 13.0;
+    public static double HARMONIC_DEVIATION_PERCENT = 20.0;
+    //
     
     public float [] initialF0s;
     public float [] f0s;
@@ -311,17 +316,29 @@ public class HnmPitchVoicingAnalyzer {
             int startInd = SignalProcUtils.freq2index(fc-0.5*f0, samplingRate, maxFreqIndex);
             int endInd = SignalProcUtils.freq2index(fc+0.5*f0, samplingRate, maxFreqIndex);
             int[] peakInds = MathUtils.getExtrema(absDBSpec, 1, 1, true, startInd, endInd);
+            double[] Ams = null;
+            double[] Amcs = null;
             if (peakInds!=null)
             {
                 if (peakInds.length>1)
                 {
-                    double[] Ams = new double[peakInds.length-1];
-                    double[] Amcs = new double[peakInds.length-1];
+                    int total = 0;
+                    for (n=0; n<peakInds.length; n++)
+                    {
+                        if (peakInds[n]!=fcIndex)
+                            total++;
+                    }
+                    
+                    Ams = new double[total];
+                    Amcs = new double[total];
+                    int counter = 0;
                     for (n=0; n<peakInds.length; n++)
                     {
                         if (peakInds[n]!=fcIndex)
                         {
-                            
+                            Ams[counter] = absDBSpec[peakInds[n]];
+                            Amcs[counter] = computeAmc(absDBSpec, peakInds[n], valleyInds);
+                            counter++;
                         }
                     }
                 }
@@ -329,11 +346,35 @@ public class HnmPitchVoicingAnalyzer {
             //
             
             //Now do harmonic tests
+            if (Ams!=null && Amcs!=null)
+            {
+                double meanAmcs = MathUtils.mean(Amcs);
+                double maxAms = MathUtils.max(Ams);
+                if ((Amc/meanAmcs)>CUMULATIVE_AMP_THRESHOLD || (Am-maxAms)>MAXIMUM_AMP_THRESHOLD)
+                {
+                    if ((Math.abs(fc-(double)i*f0)/((double)i*f0))<(HARMONIC_DEVIATION_PERCENT/100.0))
+                        voiceds[i]=1.0;
+                }
+            }
+            //
         }
         
         //Median filter voicing decisions
+        voiceds = SignalProcUtils.medianFilter(voiceds, 3);
+        int maxVoicedHarmonicBand = -1;   
+        for (i=0; i<voiceds.length; i++)
+        {
+            if (voiceds[i]<1.0)
+                break;
+            else
+                maxVoicedHarmonicBand=i+1;
+        }
         
         //Get the max freq. of voicing
+        if (maxVoicedHarmonicBand>-1)
+            maxFreqOfVoicing = (float)Math.min((maxVoicedHarmonicBand+0.5)*f0, 0.5*samplingRate);
+        
+        System.out.println("Max freq of voicing=" + String.valueOf(maxFreqOfVoicing));
         
         return maxFreqOfVoicing;
     }

@@ -479,7 +479,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     public SinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType, double f0, boolean bEstimateHNMVoicing)
     {   
         SinusoidalSpeechFrame frameSins = null;
-        float maxFreqOfVoicing = 0.5f*fs;
+        float maxFreqOfVoicingInHz = 0.5f*fs;
 
         if (fftSize<frm.length)
             fftSize = frm.length;
@@ -522,9 +522,8 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         //
 
         //Compute magnitude spectrum in dB as peak frequency estimates tend to be more accurate
-        //double[] frameDftAbs = MathUtils.abs(frameDft, 0, maxFreq-1);
-        //double[] frameDftDB = MathUtils.amp2db(frameDftAbs);
-        double[] frameDftDB = MathUtils.dft2ampdb(frameDft, 0, maxFreq-1);
+        double[] frameDftAbs = MathUtils.abs(frameDft, 0, maxFreq-1);
+        double[] frameDftDB = MathUtils.amp2db(frameDftAbs);
         //
         
         int[] freqIndsLow = null;
@@ -726,17 +725,9 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                 //For visualization purposes:
                 if (isOutputToTextFile)
                 {  
-                    double[] absSpec = new double[maxFreq];
-                    for (i=0; i<maxFreq; i++)
-                        absSpec[i] = Math.sqrt(frameDft.real[i]*frameDft.real[i]+frameDft.imag[i]*frameDft.imag[i]);
-                    
-                    double[] excSpecMag = new double[maxFreq];
-                    for (i=0; i<maxFreq; i++)
-                        excSpecMag[i] = absSpec[i]/vocalTractSpec[i];
-
-                    FileUtils.writeToTextFile(excSpecMag, "d:/out_exc.txt");
+                    //FileUtils.writeToTextFile(excDftAbs, "d:/out_exc.txt");
                     FileUtils.writeToTextFile(vocalTractSpec, "d:/out_vt.txt");
-                    FileUtils.writeToTextFile(absSpec, "d:/out_spec.txt");
+                    FileUtils.writeToTextFile(frameDftAbs, "d:/out_spec.txt");
                 }
                 //
                 
@@ -775,7 +766,18 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                 }
                 //
                 
-                maxFreqOfVoicing = HnmPitchVoicingAnalyzer.estimateMaxFrequencyOfVoicingsFrame(frameDftDB, fs, (float)f0);
+                //Use abs dft in db for maximum frequency of voicing estimation
+                maxFreqOfVoicingInHz = HnmPitchVoicingAnalyzer.estimateMaxFrequencyOfVoicingsFrame(frameDftDB, fs, (float)f0); 
+                
+                /*
+                //Use abs excitation in db for maximum frequency of voicing estimation
+                double[] excDftAbs = new double[maxFreq];
+                for (i=0; i<maxFreq; i++)
+                    excDftAbs[i] = frameDftAbs[i]/vocalTractSpec[i];
+                
+                double[] excDftDB = MathUtils.amp2db(excDftAbs);
+                maxFreqOfVoicingInHz = HnmPitchVoicingAnalyzer.estimateMaxFrequencyOfVoicingsFrame(excDftDB, fs, (float)f0); 
+                */
             }
             //
         }
@@ -783,7 +785,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         if (frameSins!=null)
         {
             frameSins.voicing = (float)SignalProcUtils.getVoicingProbability(frm, fs);
-            frameSins.maxFreqOfVoicingInHz = maxFreqOfVoicing;
+            frameSins.maxFreqOfVoicing = SignalProcUtils.hz2radian(maxFreqOfVoicingInHz, fs);
         }
 
         return frameSins;
