@@ -151,7 +151,7 @@ public class Synthesis extends InternalModule
 
         NodeIterator it = ((DocumentTraversal)doc).createNodeIterator
             (doc, NodeFilter.SHOW_ELEMENT,
-             new NameNodeFilter(new String[]{MaryXML.TOKEN, MaryXML.BOUNDARY}),
+             new NameNodeFilter(new String[]{MaryXML.TOKEN, MaryXML.BOUNDARY, MaryXML.NONVERBAL}),
              false);
         List<Element> elements = new ArrayList<Element>();
         Element element = null;
@@ -163,6 +163,19 @@ public class Synthesis extends InternalModule
         while ((element = (Element) it.nextNode()) != null) {
             Element v = (Element) MaryDomUtils.getAncestor(element, MaryXML.VOICE);
             Element s = (Element) MaryDomUtils.getAncestor(element, MaryXML.SENTENCE);
+            
+            // Check for non-verbal elements
+            if(element.getNodeName().equals(MaryXML.NONVERBAL)){
+                if(v != null){
+                    Voice newvoice = Voice.getVoice(v);
+                    if(newvoice != null && newvoice.hasBackchannelSupport()){
+                        AudioInputStream ais = newvoice.getBackchannelSynthesizer().synthesize(newvoice, d.getAudioFileFormat(), element);
+                        result.appendAudio(ais);
+                    }
+                }
+                continue;
+            }
+            
             // Chunk at boundaries between voice sections
             if (v == null) {
                 if (currentVoiceElement != null) {

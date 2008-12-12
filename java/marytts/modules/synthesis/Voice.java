@@ -62,6 +62,7 @@ import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
+import marytts.nonverbal.BackchannelSynthesizer;
 import marytts.server.MaryProperties;
 import marytts.unitselection.interpolation.InterpolatingSynthesizer;
 import marytts.unitselection.interpolation.InterpolatingVoice;
@@ -154,7 +155,8 @@ public class Voice
     private TargetFeatureComputer targetFeatureComputer;
     private TargetFeatureComputer halfphoneTargetFeatureComputer;
     private Lexicon lexicon;
-
+    private boolean backchannelSupport;
+    private BackchannelSynthesizer backchannelSynthesizer;
     
     public Voice(String[] nameArray, Locale locale, 
                  AudioFormat dbAudioFormat,
@@ -194,6 +196,10 @@ public class Voice
         String lexiconClass = MaryProperties.getProperty(header+".lexiconClass");
         String lexiconName = MaryProperties.getProperty(header+".lexicon");
         lexicon = getLexicon(lexiconClass, lexiconName);
+        backchannelSupport = MaryProperties.getBoolean(header+".backchannelSupport", false);
+        if(backchannelSupport){
+            backchannelSynthesizer = new BackchannelSynthesizer(this);
+        }
     }
 
     /**
@@ -324,7 +330,8 @@ public class Voice
     public AudioFormat dbAudioFormat() { return dbAudioFormat; }
     public WaveformSynthesizer synthesizer() { return synthesizer; }
     public Gender gender() { return gender; }
-
+    public boolean hasBackchannelSupport() { return backchannelSupport; }
+    public BackchannelSynthesizer getBackchannelSynthesizer() { return backchannelSynthesizer; }
     /**
      * Get the target feature computer to be used in conjunction with this voice
      * when computing target feature vectors,
