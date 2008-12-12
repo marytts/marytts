@@ -989,7 +989,24 @@ public class MathUtils {
     {
         return multiply(log10(energies), 10);
     }
+    
+    public static double[] abs(ComplexArray c, int startInd, int endInd)
+    {
+        if (startInd<0)
+            startInd=0;
+        if (startInd>Math.min(c.real.length-1,c.imag.length-1))
+            startInd=Math.min(c.real.length-1,c.imag.length-1);
+        if (endInd<startInd)
+            endInd=startInd;
+        if (endInd>Math.min(c.real.length-1,c.imag.length-1))
+            endInd=Math.min(c.real.length-1,c.imag.length-1);
 
+        double[] absVals = new double[endInd-startInd+1];
+        for (int i=startInd; i<=endInd; i++)
+            absVals[i-startInd] = Math.sqrt(c.real[i]*c.real[i]+c.imag[i]*c.imag[i]);
+
+        return absVals;
+    }
     public static double[] amp2db(double[] amps)
     {
         return multiply(log10(amps), 20);
@@ -1004,12 +1021,12 @@ public class MathUtils {
         return newAmps;
     }
 
-    public static double[] amp2db(ComplexArray c)
+    public static double[] dft2ampdb(ComplexArray c)
     {
-        return amp2db(c, 0, c.real.length-1);
+        return dft2ampdb(c, 0, c.real.length-1);
     }
 
-    public static double[] amp2db(ComplexArray c, int startInd, int endInd)
+    public static double[] dft2ampdb(ComplexArray c, int startInd, int endInd)
     {
         if (startInd<0)
             startInd=0;
@@ -1406,6 +1423,11 @@ public class MathUtils {
         }
 
         return y;
+    }
+    
+    public static double interpolatedSample(double xStart, double xVal, double xEnd, double yStart, double yEnd)
+    {
+        return (xVal-xStart)*(yEnd-yStart)/(xEnd-xStart)+yStart;
     }
 
     public static int getMax(int [] x)
@@ -2573,14 +2595,14 @@ public class MathUtils {
 
         return pathInds;
     }
-
+    
     //Returns the linearly mapped version of x which is in range xStart and xEnd in a new range
     // yStart and yEnd
     public static float linearMap(float x, float xStart, float xEnd, float yStart, float yEnd)
     {
         return (x-xStart)/(xEnd-xStart)*(yEnd-yStart)+yStart;
     }
-
+    
     public static double linearMap(double x, double xStart, double xEnd, double yStart, double yEnd)
     {
         return (x-xStart)/(xEnd-xStart)*(yEnd-yStart)+yStart;
@@ -2590,6 +2612,7 @@ public class MathUtils {
     {
         return (int)Math.floor(((double)x-xStart)/((double)xEnd-xStart)*(yEnd-yStart)+yStart + 0.5);
     }
+    //
 
     //In place sorting of array x, return value are the sorted 0-based indices 
     //Sorting is from lowest to highest

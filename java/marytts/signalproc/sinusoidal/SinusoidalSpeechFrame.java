@@ -29,6 +29,8 @@
 
 package marytts.signalproc.sinusoidal;
 
+import marytts.util.math.ComplexArray;
+
 
 /**
  * Single speech frame sinusoids with spectrum
@@ -37,10 +39,13 @@ package marytts.signalproc.sinusoidal;
  */
 public class SinusoidalSpeechFrame {
     public Sinusoid [] sinusoids;
-    public double [] systemAmps;
+    public double[] systemAmps;
     public double [] systemPhases;
+    public double[] systemCeps; 
+    public ComplexArray frameDfts;
     public float time;
     public float voicing;
+    public float maxFreqOfVoicingInHz;
     
     public SinusoidalSpeechFrame(int numSins)
     {
@@ -51,8 +56,11 @@ public class SinusoidalSpeechFrame {
         
         systemAmps = null;
         systemPhases = null;
+        systemCeps = null;
+        frameDfts = null;
         time = -1.0f;
         voicing = -1.0f;
+        maxFreqOfVoicingInHz = -1.0f;
     }
     
     public SinusoidalSpeechFrame(SinusoidalSpeechFrame existing)
@@ -64,11 +72,14 @@ public class SinusoidalSpeechFrame {
         
         setSystemAmps(existing.systemAmps);
         setSystemPhases(existing.systemPhases);
+        setSystemCeps(existing.systemCeps);
+        setFrameDfts(existing.frameDfts);
         time = existing.time;
         voicing = existing.voicing;
+        maxFreqOfVoicingInHz = existing.maxFreqOfVoicingInHz;
     }
     
-    public void setSystemAmps(double [] newAmps)
+    public void setSystemAmps(double[] newAmps)
     {
         if (newAmps!=null && newAmps.length>0)
         {
@@ -79,7 +90,7 @@ public class SinusoidalSpeechFrame {
             systemAmps = null;
     }
     
-    public void setSystemPhases(double [] newPhases)
+    public void setSystemPhases(double[] newPhases)
     {
         if (newPhases!=null && newPhases.length>0)
         {
@@ -88,5 +99,24 @@ public class SinusoidalSpeechFrame {
         }
         else
             systemPhases = null;
+    }
+    
+    public void setSystemCeps(double[] newCeps)
+    {
+        if (newCeps!=null && newCeps.length>0)
+        {
+            systemCeps = new double[newCeps.length];
+            System.arraycopy(newCeps, 0, systemCeps, 0, newCeps.length);
+        }
+        else
+            systemCeps = null;
+    }
+    
+    public void setFrameDfts(ComplexArray newDfts)
+    {
+        if (newDfts!=null)
+            frameDfts = new ComplexArray(newDfts);
+        else
+            frameDfts = null;
     }
 }

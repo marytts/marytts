@@ -27,11 +27,12 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.sinusoidal;
+package marytts.signalproc.sinusoidal.test;
 
 import java.io.IOException;
 import java.util.Arrays;
 
+import marytts.signalproc.sinusoidal.Sinusoid;
 import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
@@ -46,8 +47,8 @@ import marytts.util.signal.SignalProcUtils;
  * 
  * @author Oytun T&uumlrk
  **/
-public class HybridTester extends BaseTester{
-    public HybridTester(SinusoidsTester s, NoiseTester n)
+public class SinusoidsNoiseTester extends BaseTester{
+    public SinusoidsNoiseTester(SinusoidsTester s, NoiseTester n)
     {
         assert s.fs == n.fs;
         fs = s.fs;
@@ -184,7 +185,7 @@ public class HybridTester extends BaseTester{
         
         SinusoidsTester s = null;
         NoiseTester n = null;
-        HybridTester h = null;
+        SinusoidsNoiseTester h = null;
         
         //Sinus part
         numSins = 4;
@@ -204,7 +205,7 @@ public class HybridTester extends BaseTester{
         //Noise part
         numNoises = 1;
         float [][] freqs = new float[numNoises][];
-        float [] amps = new float[1];
+        float [] amps = new float[numNoises];
         for (i=0; i<numNoises; i++)
             freqs[i] = new float[2];
         
@@ -215,9 +216,12 @@ public class HybridTester extends BaseTester{
         n = new NoiseTester(freqs, amps);
         //
         
-        h = new HybridTester(s, n);
+        h = new SinusoidsNoiseTester(s, n);
         
-        h.write(args[0], args[1]);
+        if (args.length>1)
+            h.write(args[0], args[1]);
+        else
+            h.write(args[0]);
         
         System.out.println(String.valueOf(MathUtils.getAbsMax(h.signal)) + " " + MathUtils.getAbsMax(s.signal) + " " + MathUtils.getAbsMax(n.signal));
         

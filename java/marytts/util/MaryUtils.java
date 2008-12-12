@@ -850,10 +850,20 @@ public class MaryUtils {
         else
             return false;
     }
+
+    public static void plot(float [] x)
+    {
+        plot(x, "");
+    }
     
     public static void plot(double [] x)
     {
         plot(x, "");
+    }
+    
+    public static void plot(float [] x, String strTitle)
+    {
+        plot(x, strTitle, false);
     }
     
     public static void plot(double [] x, String strTitle)
@@ -861,9 +871,19 @@ public class MaryUtils {
         plot(x, strTitle, false);
     }
     
+    public static void plot(float [] x, String strTitle, boolean bAutoClose)
+    {
+        plot(x, strTitle, bAutoClose, 3000);
+    }
+    
     public static void plot(double [] x, String strTitle, boolean bAutoClose)
     {
         plot(x, strTitle, bAutoClose, 3000);
+    }
+    
+    public static void plotZoomed(float [] x, String strTitle, double minVal)
+    {
+        plotZoomed(x, strTitle, minVal, MathUtils.getMax(x));
     }
     
     public static void plotZoomed(double [] x, String strTitle, double minVal)
@@ -871,14 +891,33 @@ public class MaryUtils {
         plotZoomed(x, strTitle, minVal, MathUtils.getMax(x));
     }
     
+    public static void plotZoomed(float [] x, String strTitle, double minVal, double maxVal)
+    {
+        plotZoomed(x, strTitle, minVal, maxVal, false);
+    }
+    
     public static void plotZoomed(double [] x, String strTitle, double minVal, double maxVal)
     {
         plotZoomed(x, strTitle, minVal, maxVal, false);
     }
     
+    public static void plotZoomed(float [] x, String strTitle, double minVal, double maxVal, boolean bAutoClose)
+    {
+        plotZoomed(x, strTitle, minVal, maxVal, bAutoClose, 3000);
+    }
+    
     public static void plotZoomed(double [] x, String strTitle, double minVal, double maxVal, boolean bAutoClose)
     {
         plotZoomed(x, strTitle, minVal, maxVal, bAutoClose, 3000);
+    }
+    
+    public static void plotZoomed(float [] x, String strTitle, double minVal, double maxVal, boolean bAutoClose, int milliSecondsToClose)
+    {
+        double[] xd = new double[x.length];
+        for (int i=0; i<x.length; i++)
+            xd[i] = x[i];
+        
+        plotZoomed(xd, strTitle, minVal, maxVal, bAutoClose, milliSecondsToClose);
     }
     
     public static void plotZoomed(double [] x, String strTitle, double minVal, double maxVal, boolean bAutoClose, int milliSecondsToClose)
@@ -903,6 +942,22 @@ public class MaryUtils {
             }
                 
             plot(y, strTitle, bAutoClose, milliSecondsToClose);
+        }
+    }
+    
+    public static void plot(float[] x, String strTitle, boolean bAutoClose, int milliSecondsToClose)
+    {
+        double[] xd = new double[x.length];
+        for (int i=0; i<x.length; i++)
+            xd[i] = x[i];
+        
+        FunctionGraph graph = new FunctionGraph(400, 200, 0, 1, xd);
+        JFrame frame = graph.showInJFrame(strTitle, 500, 300, true, false);
+        
+        if (bAutoClose)
+        {
+            try { Thread.sleep(milliSecondsToClose); } catch (InterruptedException e) {}
+            frame.dispose();
         }
     }
     

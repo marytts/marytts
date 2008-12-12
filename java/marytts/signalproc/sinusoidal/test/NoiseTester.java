@@ -27,7 +27,7 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.sinusoidal;
+package marytts.signalproc.sinusoidal.test;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -245,26 +245,16 @@ public class NoiseTester extends BaseTester{
         numTracks = 1;
         float [][] freqs = new float[numTracks][];
         for (i=0; i<numTracks; i++)
-        {
             freqs[i] = new float[2];
-            
-            if (i>0)
-                freqs[i][0] = freqs[i-1][1]+200;
-            else
-                freqs[i][0] = 1500;
-                
-            freqs[i][1] = freqs[i][0] + 250;
-        }
         
-        freqs[0][0] = 2000;
-        freqs[0][1] = 4000;
+        freqs[0][0] = 1500;
+        freqs[0][1] = 3500;
 
         t = new NoiseTester(freqs);
         
-        t.write(args[0], args[1]);
-        
-        int [] pitchMarks = FileUtils.readFromBinaryFile(args[1]);
-        for (i=0; i<pitchMarks.length; i++)
-            System.out.println(String.valueOf(pitchMarks[i]) + " ");
+        if (args.length>1)
+            t.write(args[0], args[1]);
+        else
+            t.write(args[0]);
     }
 }

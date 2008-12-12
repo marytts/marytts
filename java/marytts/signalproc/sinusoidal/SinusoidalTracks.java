@@ -34,6 +34,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Vector;
 
+import marytts.util.math.ComplexArray;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
@@ -53,6 +54,8 @@ public class SinusoidalTracks {
     
     public Vector<double[]> sysAmps; //System amplitudes for each speech frame
     public Vector<double[]> sysPhases; //System phases for each speech frame
+    public Vector<double[]> sysCeps; //System cepstral coeffs for each speech frame
+    public Vector<ComplexArray> frameDfts; //System phases for each speech frame
     public float [] times; //Analysis time instants for each speech frame
     
     public SinusoidalTracks(int len, int samplingRate)
@@ -135,6 +138,8 @@ public class SinusoidalTracks {
         setTimes(srcTracks.times);
         setSystemAmps(srcTracks.sysAmps);
         setSystemPhases(srcTracks.sysPhases);
+        setSystemCeps(srcTracks.sysCeps);
+        setFrameDfts(srcTracks.frameDfts);
     }
     
     // Copy existing tracks (srcTracks) into the current tracks
@@ -300,6 +305,16 @@ public class SinusoidalTracks {
         sysPhases = sysPhasesIn;
     }
     
+    public void setSystemCeps(Vector<double[]> sysCepsIn)
+    {
+        sysCeps = sysCepsIn;
+    }
+    
+    public void setFrameDfts(Vector<ComplexArray> frameDftsIn)
+    {
+        frameDfts = frameDftsIn;
+    }
+    
     public void writeToTextFile(String filename) throws IOException
     {
         File outFile = new File(filename);
@@ -329,24 +344,30 @@ public class SinusoidalTracks {
         out.close();
     }
     
-    public void setSysAmpsAndTimes(SinusoidalSpeechFrame [] framesSins)
+    public void setSysAmpsAndTimes(SinusoidalSpeechFrame[] framesSins)
     {
         if (framesSins==null || framesSins.length<=0)
         {
             sysAmps = null;
             sysPhases = null;
+            sysCeps = null;
+            frameDfts = null;
             times = null;
         }
         else
         {
             sysAmps = new Vector<double[]>();
             sysPhases = new Vector<double[]>();
+            sysCeps = new Vector<double[]>();
+            frameDfts = new Vector<ComplexArray>();
             times = new float[framesSins.length];
             
             for (int i=0; i<framesSins.length; i++)
             {
                 sysAmps.add(framesSins[i].systemAmps);
                 sysPhases.add(framesSins[i].systemPhases);
+                sysCeps.add(framesSins[i].systemCeps);
+                frameDfts.add(framesSins[i].frameDfts);
                 times[i] = framesSins[i].time;
             }
         }

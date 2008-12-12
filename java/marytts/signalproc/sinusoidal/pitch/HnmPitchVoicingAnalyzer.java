@@ -40,6 +40,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.signalproc.sinusoidal.SinusoidalAnalyzer;
 import marytts.signalproc.sinusoidal.SinusoidalSpeechFrame;
 import marytts.signalproc.window.Window;
+import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.FFT;
@@ -259,22 +260,19 @@ public class HnmPitchVoicingAnalyzer {
                 Y = FFTMixedRadix.fftComplex(Y);
             //
             
-          //Compute magnitude spectrum in dB as peak frequency estimates tend to be more accurate
-            double [] YAbs = new double[maxFreq]; 
-
-            for (int i=0; i<maxFreq; i++)
-                YAbs[i] = Math.sqrt(Y.real[i]*Y.real[i]+Y.imag[i]*Y.imag[i]+1e-80);
+            //Compute magnitude spectrum in dB as peak frequency estimates tend to be more accurate
+            double[] YAbsDB = MathUtils.dft2ampdb(Y, 0, maxFreq-1);
             //
             
-            int [] peakInds = MathUtils.getExtrema(YAbs, 3, 3, true);
-            int [] valleyInds = MathUtils.getExtrema(YAbs, 1, 1, false);
-            voicings[n] = estimateVoicingFromFrameSpectrum(YAbs, samplingRate, initialF0s[n], peakInds, valleyInds);
+            int [] peakInds = MathUtils.getExtrema(YAbsDB, 3, 3, true);
+            int [] valleyInds = MathUtils.getExtrema(YAbsDB, 1, 1, false);
+            voicings[n] = estimateVoicingFromFrameSpectrum(YAbsDB, samplingRate, initialF0s[n], peakInds, valleyInds);
 
             if (voicings[n]==false)
                 initialF0s[n] = 0.0f;
             
             if (voicings[n])
-                maxFrequencyOfVoicings[n] = estimateMaxFrequencyOfVoicingsFrame(YAbs, samplingRate, initialF0s[n]);
+                maxFrequencyOfVoicings[n] = estimateMaxFrequencyOfVoicingsFrame(YAbsDB, samplingRate, initialF0s[n]);
             else
                 maxFrequencyOfVoicings[n] = 0.0f;
             
@@ -285,145 +283,100 @@ public class HnmPitchVoicingAnalyzer {
         }
     }
     
-    public static float estimateMaxFrequencyOfVoicingsFrame(double [] absSpec, int samplingRate, float initialF0)
-    {
-        int [] tmpValleyInds = null;
-        int peakInd, valleyInd1, valleyInd2, freqStartInd, freqEndInd;
-        double f0StartHz, f0EndHz;
-        double Am, Amc, AmcMean, AmMax, fc;
-        int i, n, L;
-        int maxFreq = absSpec.length-1;
-        int [] peakInds = null;
-        int counter;
+    public static float estimateMaxFrequencyOfVoicingsFrame(double[] absDBSpec, int samplingRate, float f0)
+    {     
+        int i, n;
+        float maxFreqOfVoicing = 0.0f; //Means the spectrum is completely unvoiced
+        if (f0<10.0f)
+            f0=100.0f;
         
-        fc = initialF0;
-        int maxHarmonics = 0;
-        while ((maxHarmonics+0.5)*fc<=0.5*samplingRate)
-            maxHarmonics++;
-        maxHarmonics *= 2;
+        int maxFreqIndex = absDBSpec.length-1;
+        int numHarmonics = (int)Math.floor((0.5*samplingRate)/f0+0.5);
+        int[] bandInds = new int[numHarmonics+1]; //0.5f0 1.5f0 2.5f0 ... (numHarmonics-0.5)f0 (numHarmonics+0.5)f0
+        for (i=0; i<bandInds.length; i++)
+            bandInds[i] = SignalProcUtils.freq2index((i-0.5)*f0, samplingRate, maxFreqIndex);
         
-        double [] voiceds = new double[maxHarmonics];
-        float [] peakFreqs = new float[maxHarmonics];
-        int numHarmonics = 0;
-        
-        double ampRatio, ampDiff, harmDevPerc;
-        double maxHarmDevPerc = HARMONIC_DEVIATION_PERCENT/100.0;
-        
-        L = 1;
-        while(true)
-        {
-            numHarmonics++;
-            if (numHarmonics>maxHarmonics)
-                break;
-            
-            voiceds[L] = 0.0;
-            f0StartHz = (L-0.5)*fc;
-            f0EndHz = (L+0.5)*fc;
-            
-            if (f0EndHz>0.5*samplingRate)
-                break;
-            
-            freqStartInd = SignalProcUtils.freq2index(f0StartHz, samplingRate, maxFreq);
-            freqEndInd = SignalProcUtils.freq2index(f0EndHz, samplingRate, maxFreq);
-
-            peakInd = MathUtils.getMaxIndex(absSpec, freqStartInd, freqEndInd);
-            fc = (float)SignalProcUtils.index2freq(peakInd, samplingRate, maxFreq-1);
-            peakFreqs[numHarmonics-1] = (float)fc;
-            
-            tmpValleyInds = MathUtils.getExtrema(absSpec, 1, 1, false, freqStartInd, peakInd-1);
-            if (tmpValleyInds!=null)
-                valleyInd1 = MathUtils.getMax(tmpValleyInds);
-            else
-                valleyInd1 = freqStartInd;
-            
-            tmpValleyInds = MathUtils.getExtrema(absSpec, 1, 1, false, peakInd+1, freqEndInd);
-            if (tmpValleyInds!=null)
-                valleyInd2 = MathUtils.getMin(tmpValleyInds);
-            else
-                valleyInd2 = freqEndInd;
-
-            Am = absSpec[peakInd];
-            
-            Amc = 0.0;
-            for (i=valleyInd1; i<=valleyInd2; i++)
-                Amc += absSpec[i];
-            
-            //Search other peaks in the range fc-f0/2,fc+f0/2
-            f0StartHz = fc-0.5*initialF0;
-            f0EndHz = fc+0.5*initialF0;
-            freqStartInd = SignalProcUtils.freq2index(f0StartHz, samplingRate, maxFreq);
-            freqEndInd = SignalProcUtils.freq2index(f0EndHz, samplingRate, maxFreq);
-            peakInds = MathUtils.getExtrema(absSpec, 1, 1, true, freqStartInd, freqEndInd);
-            
-            if (peakInds!=null)
-            {
-                AmcMean = 0.0;
-                AmMax = 1e-50;
-                counter = 0;
-                for (n=0; n<peakInds.length; n++)
-                {
-                    if (peakInds[n]!=peakInd)
-                    {
-                        tmpValleyInds = MathUtils.getExtrema(absSpec, 1, 1, false, freqStartInd, peakInds[n]-1);
-                        if (tmpValleyInds!=null)
-                            valleyInd1 = MathUtils.getMax(tmpValleyInds);
-                        else
-                            valleyInd1 = freqStartInd;
-                        
-                        tmpValleyInds = MathUtils.getExtrema(absSpec, 1, 1, false, peakInds[n]+1, freqEndInd);
-                        if (tmpValleyInds!=null)
-                            valleyInd2 = MathUtils.getMin(tmpValleyInds);
-                        else
-                            valleyInd2 = freqEndInd;
-                        
-                        counter++;
-
-                        for (i=valleyInd1; i<=valleyInd2; i++)
-                            AmcMean += absSpec[i];
-                    }
-
-                    if (counter>0)
-                        AmcMean /= counter;
-
-                    if (counter==0 || absSpec[peakInds[n]]>AmMax)
-                        AmMax = absSpec[peakInds[n]];
-                }
-
-                ampRatio = Amc/AmcMean;
-                ampDiff = MathUtils.amp2db(Am-AmMax);
-                System.out.println("ampRatio(>?2.0)=" + String.valueOf(ampRatio) + " " + "ampDiff(>?13)=" + String.valueOf(ampDiff));
-                
-                if (ampRatio>2.0 || ampDiff>13)
-                {
-                    harmDevPerc = (Math.abs(fc-L*initialF0)/(L*initialF0));
-                    System.out.println("harmDevPerc(<?" + String.valueOf(maxHarmDevPerc) + "=" + String.valueOf(harmDevPerc));
-                    if (harmDevPerc<maxHarmDevPerc)
-                        voiceds[L] = 1.0;
-                }
-            }
-            
-            L++;
-        }
-        
-        //Median filtering
-        double [] tmpVoiceds = new double[numHarmonics];
-        System.arraycopy(voiceds, 0, tmpVoiceds, 0, numHarmonics);
-        voiceds = SignalProcUtils.medianFilter(tmpVoiceds, 3);
-        int maxVoicedHarmonic = -1;
+        double[] voiceds = new double[numHarmonics];
+        Arrays.fill(voiceds, 0.0);
+        int[] valleyInds = MathUtils.getExtrema(absDBSpec, 1, 1, false);
         for (i=0; i<numHarmonics; i++)
         {
-            if (voiceds[i]<1.0)
-                break;
-            else
-                maxVoicedHarmonic++;
+            //Get local peak
+            int fcIndex = MathUtils.getMaxIndex(absDBSpec, bandInds[i], bandInds[i+1]);
+            double fc = SignalProcUtils.index2freq(fcIndex, samplingRate, maxFreqIndex);
+            double Am = absDBSpec[fcIndex];
+            double Amc = computeAmc(absDBSpec, fcIndex, valleyInds);
+            
+            //Search for other peaks and compute Ams and Amcs
+            int startInd = SignalProcUtils.freq2index(fc-0.5*f0, samplingRate, maxFreqIndex);
+            int endInd = SignalProcUtils.freq2index(fc+0.5*f0, samplingRate, maxFreqIndex);
+            int[] peakInds = MathUtils.getExtrema(absDBSpec, 1, 1, true, startInd, endInd);
+            if (peakInds!=null)
+            {
+                if (peakInds.length>1)
+                {
+                    double[] Ams = new double[peakInds.length-1];
+                    double[] Amcs = new double[peakInds.length-1];
+                    for (n=0; n<peakInds.length; n++)
+                    {
+                        if (peakInds[n]!=fcIndex)
+                        {
+                            
+                        }
+                    }
+                }
+            }
+            //
+            
+            //Now do harmonic tests
         }
         
-        float maxFreqOfVoicing = 0.0f;
+        //Median filter voicing decisions
         
-        if (maxVoicedHarmonic>-1)
-            maxFreqOfVoicing = peakFreqs[maxVoicedHarmonic];
+        //Get the max freq. of voicing
         
         return maxFreqOfVoicing;
+    }
+    
+    private static double computeAmc(double[] absDBSpec, int fcIndex, int[] valleyInds)
+    {
+        double Amc = absDBSpec[fcIndex];
+
+        if (valleyInds!=null)
+        {
+            //Find closest valley indices
+            int vLeftInd = -1;
+            int vRightInd = -1;
+            int counter = 0;
+            vLeftInd = 0;
+            while (fcIndex>valleyInds[counter])
+            {
+                vLeftInd = valleyInds[counter];
+                if (counter==valleyInds.length-1)
+                    break;
+
+                counter++;
+            }
+
+            counter = valleyInds.length-1;
+            vRightInd = absDBSpec.length-1;
+            while (valleyInds[counter]>fcIndex)
+            {
+                vRightInd = valleyInds[counter];
+                if (counter==0)
+                    break;
+
+                counter--;
+            }
+
+            for (int i=vLeftInd; i<=vRightInd; i++)
+            {
+                if (i!=fcIndex)
+                    Amc += absDBSpec[i];
+            }
+        }
+        
+        return Amc;
     }
     
     public static boolean estimateVoicingFromFrameSpectrum(double [] absSpec, int samplingRate, float initialF0, int [] peakInds, int [] valleyInds) 

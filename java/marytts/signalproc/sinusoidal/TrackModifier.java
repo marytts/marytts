@@ -30,6 +30,7 @@
 package marytts.signalproc.sinusoidal;
 
 import marytts.signalproc.analysis.PitchMarks;
+import marytts.util.MaryUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
@@ -43,6 +44,11 @@ public class TrackModifier {
                                                                  // large duration modification factors or to realize more accurate final target lengths
                                                                  // because the time scaling resolution will only be as low as the skip size
     
+    public static final int FROM_ORIGINAL = 1;
+    public static final int FROM_RESAMPLED = 2;
+    public static final int FROM_CEPSTRUM = 3;
+    public static final int FROM_INTERPOLATED = 4; //This is only available for phase
+    
     public static SinusoidalTracks modifyTimeScale(SinusoidalTracks trIn, 
                                                     double[] f0s, 
                                                     float f0_ss, float f0_ws,
@@ -53,7 +59,9 @@ public class TrackModifier {
                                                     float timeScalingVoicingThreshold, 
                                                     boolean isVoicingAdaptivePitchScaling, 
                                                     float tScale,
-                                                    int offset)
+                                                    int offset,
+                                                    int sysAmpModMethod,
+                                                    int sysPhaseModMethod)
     {  
         float [] tScales = new float[1];
         float [] tScalesTimes = new float[1];
@@ -73,7 +81,9 @@ public class TrackModifier {
                                tScalesTimes,
                                null,
                                null,
-                               offset);
+                               offset,
+                               sysAmpModMethod,
+                               sysPhaseModMethod);
     }
 
     public static SinusoidalTracks modify(SinusoidalTracks trIn, 
@@ -89,7 +99,9 @@ public class TrackModifier {
                                             float[] tScalesTimes,
                                             float[] pScales,
                                             float[] pScalesTimes,
-                                            int offset)
+                                            int offset,
+                                            int sysAmpModMethod,
+                                            int sysPhaseModMethod)
     {   
         int i, j, lShift;
         
@@ -127,6 +139,8 @@ public class TrackModifier {
         float excPhase, excPhaseMod;
         float prevExcPhase, prevExcPhaseMod;
         float sysPhase, sysPhaseMod;
+        float sysPhaseModReal;
+        float sysPhaseModImag; 
         float excAmp, excAmpMod;
         float sysAmp, sysAmpMod;
         float freq, freqMod;
@@ -134,11 +148,13 @@ public class TrackModifier {
         int closestInd;
         int closestIndMod;
         int sysTimeInd, sysFreqInd, sysFreqIndMod;
+        double sysFreqIndDouble;
         int currentInd;
         int n0, n0Mod, n0Prev, n0ModPrev;
         int Pm;
         int J, JMod;
-
+        int tempIndex;
+        
         int middleAnalysisSample;
         int prevMiddleAnalysisSample;
         float middleSynthesisTime;
@@ -194,6 +210,9 @@ public class TrackModifier {
 
                     closestInd = MathUtils.findClosest(pitchMarks, middleAnalysisSample);
 
+                    sysTimeInd = MathUtils.findClosest(trIn.times, trIn.tracks[i].times[j]);
+                    freqInHz = SignalProcUtils.radian2Hz(trIn.tracks[i].freqs[j], trIn.fs);
+                    
                     int pScaleInd = MathUtils.findClosest(pScalesTimes, trIn.tracks[i].times[j]);
                     pScaleCurrent = pScales[pScaleInd];
 
@@ -209,7 +228,18 @@ public class TrackModifier {
                         else
                             pScaleCurrent = pScales[pScaleInd];
                     }   
-
+                    
+                    //Apply triangular decreasing of pitch scale in voiced/unvoiced transition region
+                    if (pScaleCurrent!=1.0f)
+                    {
+                        float modFreqLowerCutoffInHz = 3500.0f;
+                        float modFreqUpperCutoffInHz = 4500.0f;
+                        if (freqInHz>=modFreqLowerCutoffInHz && freqInHz<modFreqLowerCutoffInHz)
+                            pScaleCurrent = (freqInHz-modFreqLowerCutoffInHz)*(pScaleCurrent-1.0f)/(modFreqUpperCutoffInHz-modFreqLowerCutoffInHz)+1.0f;
+                        else if (freqInHz>=modFreqLowerCutoffInHz)
+                            pScaleCurrent = 1.0f;
+                    }
+                    //
 
                     int tScaleInd = MathUtils.findClosest(tScalesTimes, trIn.tracks[i].times[j]);
                     tScaleCurrent = tScales[tScaleInd];
@@ -223,18 +253,20 @@ public class TrackModifier {
                             tScaleCurrent = 1.0f;
                         else
                             tScaleCurrent = (1.0f-pVoicing) + pVoicing*tScales[tScaleInd];
-                    }
-
-                    sysTimeInd = MathUtils.findClosest(trIn.times, trIn.tracks[i].times[j]);
-                    freqInHz = SignalProcUtils.radian2Hz(trIn.tracks[i].freqs[j], trIn.fs);
+                    }     
+                    
                     sysFreqInd = SignalProcUtils.freq2index(freqInHz, trIn.fs, trIn.sysAmps.get(sysTimeInd).length-1);
-                    sysFreqInd = Math.min(sysFreqInd, trIn.sysAmps.get(sysTimeInd).length-1);
-                    sysFreqInd = Math.max(sysFreqInd, 0);
+                    sysFreqIndDouble = SignalProcUtils.freq2indexDouble(freqInHz, trIn.fs, trIn.sysAmps.get(sysTimeInd).length-1);
                     sysAmp = (float)(trIn.sysAmps.get(sysTimeInd)[sysFreqInd]);
+                    
+                    //This is from Van Santen´s et.al.´s book - Chapter 5 
+                    //(van Santen, et. al., Progress in Speech Synthesis)
+                    //sysAmp = (float)SignalProcUtils.cepstrum2linearSpecAmp(trIn.sysCeps.get(sysTimeInd), trIn.tracks[i].freqs[j]);
 
                     excPhase = prevExcPhase + trIn.tracks[i].freqs[j]*(middleAnalysisSample-prevMiddleAnalysisSample);
                     sysPhase = trIn.tracks[i].phases[j]-excPhase;
                     excAmp = trIn.tracks[i].amps[j]/sysAmp;
+                    //excAmp = 1.0f; //This should hold whenever an envelope that passes from spectral peaks is used, i.e. SEEVOC
                     freq = trIn.tracks[i].freqs[j];
 
                     //Estimate modified excitation phase
@@ -249,22 +281,79 @@ public class TrackModifier {
 
                     excPhaseMod = prevExcPhaseMod + pScaleCurrent*trIn.tracks[i].freqs[j]*(middleSynthesisSample-prevMiddleSynthesisSample);
                     excAmpMod = excAmp;
-                    freqMod = (float)Math.min(pScaleCurrent*freq, 0.5f*MathUtils.TWOPI);
+                    //excAmpMod = 1.0f; //This should hold whenever an envelope that passes from spectral peaks is used, i.e. SEEVOC
+                    
+                    freqMod = (float)pScaleCurrent*freq;
+                    if (freqMod>0.5*MathUtils.TWOPI)
+                        excAmpMod=0.0f;
+                    while (freqMod>MathUtils.TWOPI)
+                        freqMod -= MathUtils.TWOPI;
 
-                    if (pScaleCurrent==1.0f)
+                    sysFreqIndMod = sysFreqInd;
+                    sysPhaseMod = sysPhase;
+                    sysAmpMod = sysAmp;
+                    
+                    if (pScaleCurrent!=1.0f) //Modify system phase and amplitude according to pitch scale modification factor
                     {
-                        sysFreqIndMod = sysFreqInd;
-                        sysPhaseMod = sysPhase;
-                        sysAmpMod = sysAmp;
-                    }
-                    else //Modify system phase and amplitude according to pitch scale modification factor
-                    {
-                        sysFreqIndMod = SignalProcUtils.freq2index(pScaleCurrent*freqInHz, trIn.fs, trIn.sysPhases.get(sysTimeInd).length-1);
-                        sysFreqIndMod = Math.min(sysFreqIndMod, trIn.sysPhases.get(sysTimeInd).length-1);
+                        sysFreqIndMod = SignalProcUtils.freq2index(pScaleCurrent*freqInHz, trIn.fs, trIn.sysAmps.get(sysTimeInd).length-1);
+                        sysFreqIndMod = Math.min(sysFreqIndMod, trIn.sysAmps.get(sysTimeInd).length-1);
                         sysFreqIndMod = Math.max(sysFreqIndMod, 0);
-                        sysPhaseMod = (float)(trIn.sysPhases.get(sysTimeInd)[sysFreqIndMod]);
-                        sysAmpMod = (float)(trIn.sysAmps.get(sysTimeInd)[sysFreqIndMod]);
-                        //sysAmpMod = sysAmp; //This will make vocal tract scaled in proportion to pitch scale amount
+
+                        //System phase modification for pitch scaling
+                        if (sysPhaseModMethod==FROM_ORIGINAL)
+                            sysPhaseMod = sysPhase;
+                        else if (sysPhaseModMethod==FROM_RESAMPLED)
+                            sysPhaseMod = (float)(trIn.sysPhases.get(sysTimeInd)[sysFreqIndMod]); //This is wrong, create phase envelope for real and imaginary parts, and then resample
+                        else if (sysPhaseModMethod==FROM_INTERPOLATED)
+                        {
+                            if (freqInHz<0.5*trIn.fs/pScaleCurrent-50.0f)
+                            {
+                                //This is from Quatieri´s paper "Shape Invariant..."
+                                tempIndex = (int)Math.floor(pScaleCurrent*sysFreqIndDouble);
+                                if (sysFreqInd<trIn.frameDfts.get(sysTimeInd).real.length-1)
+                                {
+                                    sysPhaseModReal = (float)MathUtils.interpolatedSample(tempIndex, sysFreqIndDouble, tempIndex+1, trIn.frameDfts.get(sysTimeInd).real[tempIndex], trIn.frameDfts.get(sysTimeInd).real[tempIndex+1]);
+                                    sysPhaseModImag = (float)MathUtils.interpolatedSample(tempIndex, sysFreqIndDouble, tempIndex+1, trIn.frameDfts.get(sysTimeInd).imag[tempIndex], trIn.frameDfts.get(sysTimeInd).imag[tempIndex+1]);   
+                                }
+                                else
+                                {
+                                    sysPhaseModReal = (float)MathUtils.interpolatedSample(tempIndex-1, sysFreqIndDouble, tempIndex, trIn.frameDfts.get(sysTimeInd).real[tempIndex-1], trIn.frameDfts.get(sysTimeInd).real[tempIndex]);
+                                    sysPhaseModImag = (float)MathUtils.interpolatedSample(tempIndex-1, sysFreqIndDouble, tempIndex, trIn.frameDfts.get(sysTimeInd).imag[tempIndex-1], trIn.frameDfts.get(sysTimeInd).imag[tempIndex]);   
+                                }
+                                sysPhaseMod = (float)Math.atan2(sysPhaseModImag, sysPhaseModReal);
+                            }
+                            else
+                                sysPhaseMod = sysPhase;
+                        }
+                        else if (sysPhaseModMethod==FROM_CEPSTRUM)
+                        {
+                            //This is from Van Santen´s et.al.´s book - Chapter 5 
+                            //(van Santen, et. al., Progress in Speech Synthesis)
+                            sysPhaseMod = (float)SignalProcUtils.cepstrum2minimumPhase(trIn.sysCeps.get(sysTimeInd), pScaleCurrent*trIn.tracks[i].freqs[j]);
+                        }
+                        //
+                        
+                        //System amplitude modification for pitch scaling
+                        if (sysAmpModMethod==FROM_ORIGINAL)
+                        {
+                            //This will make vocal tract scaled in proportion to pitch scale amount
+                            sysAmpMod = sysAmp; 
+                        }
+                        else if (sysAmpModMethod==FROM_RESAMPLED)
+                        {
+                            //This is from Quatieri´s paper "Shape Invariant..."
+                            //Get system amp from modified location
+                            sysAmpMod = (float)(trIn.sysAmps.get(sysTimeInd)[sysFreqIndMod]); 
+                        }
+                        else if (sysAmpModMethod==FROM_CEPSTRUM)
+                        {
+                            //This is from Van Santen´s et.al.´s book - Chapter 5 
+                            //(van Santen, et. al., Progress in Speech Synthesis)
+                            sysAmpMod = (float)SignalProcUtils.cepstrum2linearSpecAmp(trIn.sysCeps.get(sysTimeInd), pScaleCurrent*trIn.tracks[i].freqs[j]);
+                        }
+                        //
+
+                        //MaryUtils.plot(trIn.sysAmps.get(sysTimeInd));
                     }
                     
                     trMod.tracks[currentInd].amps[j] = excAmpMod*sysAmpMod;
@@ -297,6 +386,13 @@ public class TrackModifier {
         }
 
         trMod.origDur = maxDur;
+        
+        if (trMod!=null)
+        {
+            System.out.println("--- Modified track statistics ---");
+            trMod.getTrackStatistics();
+            SinusoidalAnalyzer.getGrossStatistics(trMod);
+        }
 
         return trMod;
     }

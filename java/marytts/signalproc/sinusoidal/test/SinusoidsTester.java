@@ -27,11 +27,12 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.sinusoidal;
+package marytts.signalproc.sinusoidal.test;
 
 import java.io.IOException;
 import java.util.Arrays;
 
+import marytts.signalproc.sinusoidal.Sinusoid;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
@@ -44,6 +45,11 @@ import marytts.util.signal.SignalProcUtils;
 public class SinusoidsTester extends BaseTester{
     public static float DEFAULT_PHASE = 0.0f;
     public static int DEFAULT_FRAME_INDEX = 0;
+    
+    public SinusoidsTester()
+    {
+        
+    }
     
     public SinusoidsTester(float freqInHz)
     {
@@ -286,6 +292,9 @@ public class SinusoidsTester extends BaseTester{
         //
          */
         
-        s.write(args[0], args[1]);
+        if (args.length>1)
+            s.write(args[0], args[1]);
+        else
+            s.write(args[0]);
     }
 }
