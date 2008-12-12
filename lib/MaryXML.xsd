@@ -595,6 +595,12 @@ THIS SOFTWARE.
         <xsd:attribute name="accent" type="accentposition.type"/>
     </xsd:complexType>
 
+    <xsd:element name="nvv" substitutionGroup="awp" type="non-verbal"/>
+    <xsd:complexType mixed="true" name="non-verbal">
+        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="arousal" type="xsd:string"/>
+    </xsd:complexType>
+	
     <xsd:element name="t" substitutionGroup="awp" type="token"/>
     <xsd:complexType mixed="true" name="token">
         <xsd:sequence>
