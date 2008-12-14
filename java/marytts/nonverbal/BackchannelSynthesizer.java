@@ -43,6 +43,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.xml.soap.Node;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -55,6 +56,7 @@ import marytts.signalproc.effects.EffectsApplier;
 import marytts.unitselection.concat.DatagramDoubleDataSource;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;
+import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
@@ -81,13 +83,15 @@ public class BackchannelSynthesizer {
     
     TimelineReader audioTimeline;
     BackchannelUnitFileReader unitFileReader;
+    int samplingRate;
     
     public BackchannelSynthesizer(Voice voice){
         try{
             String unitFileName = MaryProperties.getFilename("voice."+voice.getName()+".backchannel.unitfile");
             String timelineFile = MaryProperties.getFilename("voice."+voice.getName()+".backchannel.timeline");
-            unitFileReader = new BackchannelUnitFileReader(unitFileName);
-            audioTimeline = new TimelineReader(timelineFile);
+            this.unitFileReader = new BackchannelUnitFileReader(unitFileName);
+            this.samplingRate   = unitFileReader.getSampleRate();
+            this.audioTimeline  = new TimelineReader(timelineFile);
         }
         catch(Exception e){
             e.printStackTrace();
@@ -101,11 +105,25 @@ public class BackchannelSynthesizer {
         int min = 0;
         int max = numberOfBackChannels - 1;
         int rawRandomNumber = (int) (Math.random() * (max - min + 1) ) + min;
-        BackchannelUnit unit = unitFileReader.getUnit(rawRandomNumber);
-        long start = unit.getStart();
-        int duration  = unit.getDuration();
+        BackchannelUnit bUnit = unitFileReader.getUnit(rawRandomNumber);
+        long start = bUnit.getStart();
+        int duration  = bUnit.getDuration();
         Datagram[] frames = audioTimeline.getDatagrams(start, duration); 
         assert frames != null : "Cannot generate audio from null frames";
+        
+        Unit[] units = bUnit.getUnits();
+        String[] unitNames = bUnit.getUnitNames();
+        long endTime = 0l;
+        for(int i=0;i<units.length;i++){
+            int unitDuration = units[i].getDuration() * 1000 / samplingRate;
+            endTime += unitDuration;
+            Element element = MaryXML.createElement(domElement.getOwnerDocument(), MaryXML.PHONE);
+            element.setAttribute("d", ""+unitDuration);
+            element.setAttribute("end", ""+endTime);
+            element.setAttribute("p", unitNames[i]);
+            domElement.appendChild(element);
+        }
+        
         // Generate audio from frames
         LinkedList<Datagram> datagrams = new LinkedList<Datagram>();
         datagrams.addAll(Arrays.asList(frames));

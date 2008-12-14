@@ -122,16 +122,24 @@ public class BackchannelUnitFileReader
                 int noOfUnits = dis.readInt();
                 //System.out.println("No. of Local Units : "+ noOfUnits);
                 Unit[] units = new Unit[noOfUnits];
+                String[] unitNames = new String[noOfUnits];
                 for ( int j = 0; j < noOfUnits; j++ ) {
                     long startTime = dis.readLong();
                     int duration = dis.readInt();
                     //System.out.println("Local Unit Data : "+ startTime+" "+ duration+" "+ j);
                     units[j] = new Unit(startTime, duration, j);
+                    int charArraySize = dis.readInt();
+                    char[] phoneChar  = new char[charArraySize];
+                    for(int k=0; k<charArraySize; k++){
+                        phoneChar[k] =  dis.readChar();
+                    }
+                    unitNames[j] = new String(phoneChar);
                 }
                 long startBCTime = units[0].getStart();
                 int bcDuration = (((int) units[noOfUnits - 1].getStart() + units[noOfUnits - 1].getDuration()) - (int)units[0].getStart());
                 backchannelUnits[i] = new BackchannelUnit(startBCTime,bcDuration,i);
                 backchannelUnits[i].setUnits(units);
+                backchannelUnits[i].setUnitNames(unitNames);
                 //System.out.println("BC UNIT START:"+backchannelUnits[i].getStart());
                 //System.out.println("BC UNIT Duration:"+backchannelUnits[i].getDuration());
             }

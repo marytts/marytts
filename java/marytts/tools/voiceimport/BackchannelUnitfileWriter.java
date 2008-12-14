@@ -137,9 +137,9 @@ public class BackchannelUnitfileWriter extends VoiceImportComponent
                 double duration = endTime - startTime;
                 long end = (long)( endTime * (double)(samplingRate) );
                 long start = (long)( startTime * (double)(samplingRate) );
-                System.out.println("Global start: "+ (long)(globalStart + start));
-                System.out.println("Duaration : "+ (long) (end - start));
                 out.writeLong( globalStart + start); out.writeInt((int) (end - start));
+                out.writeInt(fileLabels[j].unitName.toCharArray().length);
+                out.writeChars(fileLabels[j].unitName);
             }
             globalStart += ((long)( (double)( unitTimeSpan  ) * (double)(samplingRate) ));
         }
@@ -261,7 +261,6 @@ public class BackchannelUnitfileWriter extends VoiceImportComponent
     {
         if (line == null) return null;
         if (line.trim().equals("")) return null;
-        System.out.println("LINE: "+line);
         ArrayList unitData = new ArrayList();
         StringTokenizer st = new StringTokenizer(line.trim());
         //the first token is the time

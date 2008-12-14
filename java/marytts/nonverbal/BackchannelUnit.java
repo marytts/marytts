@@ -41,6 +41,7 @@ import marytts.unitselection.data.Unit;
 public class BackchannelUnit extends marytts.unitselection.data.Unit
 {
     protected Unit[] units;
+    protected String[] unitNames; 
     
     public BackchannelUnit(long startTime, int duration, int index)
     {
@@ -56,4 +57,18 @@ public class BackchannelUnit extends marytts.unitselection.data.Unit
         this.units = units;
     }
     
+    public Unit[] getUnits()
+    {
+        return this.units;
+    }
+    
+    public void setUnitNames(String[] unitNames)
+    {
+        this.unitNames = unitNames;
+    }
+    
+    public String[] getUnitNames()
+    {
+        return this.unitNames;
+    }
 }
