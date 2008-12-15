@@ -218,11 +218,12 @@ public class TrackModifier {
                     int pScaleInd = MathUtils.findClosest(pScalesTimes, trIn.tracks[i].times[j]);
                     pScaleCurrent = pScales[pScaleInd];
                     
-                    maxFreqOfVoicingInHz = SignalProcUtils.radian2Hz(trIn.tracks[i].maxFreqOfVoicings[j], trIn.fs); //From hnm analysis  
+                    maxFreqOfVoicingInHz = SignalProcUtils.radian2Hz(trIn.tracks[i].maxFreqOfVoicings[j], trIn.fs); //Max freq. of voicing from hnm analysis  
                     //maxFreqOfVoicingInHz = 3600.0f; //Manual
                     if (freqInHz>maxFreqOfVoicingInHz)
                         pScaleCurrent = 1.0f;
 
+                    //This might not be necessary after the above implementation, check and remove as required, also use is isVoicingAdaptivePitchScaling above somehow
                     //Voicing dependent pitch scale modification factor estimation
                     if (voicings!=null && isVoicingAdaptivePitchScaling)
                     {
@@ -268,9 +269,7 @@ public class TrackModifier {
                     sysFreqInd = SignalProcUtils.freq2index(freqInHz, trIn.fs, trIn.sysAmps.get(sysTimeInd).length-1);
                     sysFreqIndDouble = SignalProcUtils.freq2indexDouble(freqInHz, trIn.fs, trIn.sysAmps.get(sysTimeInd).length-1);
                     sysAmp = (float)(trIn.sysAmps.get(sysTimeInd)[sysFreqInd]);
-                    
-                    
-                    
+
                     //This is from Van Santen´s et.al.´s book - Chapter 5 
                     //(van Santen, et. al., Progress in Speech Synthesis)
                     //sysAmp = (float)SignalProcUtils.cepstrum2linearSpecAmp(trIn.sysCeps.get(sysTimeInd), trIn.tracks[i].freqs[j]);
@@ -370,7 +369,11 @@ public class TrackModifier {
                        
                     trMod.tracks[currentInd].amps[j] = excAmpMod*sysAmpMod;
                     trMod.tracks[currentInd].freqs[j] = freqMod;
-                    trMod.tracks[currentInd].phases[j] = sysPhaseMod + excPhaseMod;
+                    
+                    if (freqInHz>maxFreqOfVoicingInHz)
+                        trMod.tracks[currentInd].phases[j] = (float)(MathUtils.TWOPI*(Math.random()-0.5)); //Assign random phase to higher freq
+                    else
+                        trMod.tracks[currentInd].phases[j] = sysPhaseMod + excPhaseMod;
                     trMod.tracks[currentInd].times[j] = middleSynthesisTime;
 
                     if (trMod.tracks[currentInd].times[j]>maxDur)
