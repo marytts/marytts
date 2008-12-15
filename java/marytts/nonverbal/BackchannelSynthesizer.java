@@ -43,7 +43,6 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.xml.soap.Node;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
