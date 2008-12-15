@@ -65,12 +65,12 @@ public class HnmPitchVoicingAnalyzer {
     //
     
     //These are the three thresholds used in Stylianou for maximum voicing frequency estimation using the harmonic model
-    public static double CUMULATIVE_AMP_THRESHOLD = 0.0;
-    public static double MAXIMUM_AMP_THRESHOLD_IN_DB = 0.0;
-    public static double HARMONIC_DEVIATION_PERCENT = 100.0;
-    public static double SHARP_PEAK_AMP_DIFF_IN_DB = 2.0;
-    public static int MINIMUM_TOTAL_HARMONICS = 0; //At least this much total harmonics will be included in voiced spectral region (effective only when f0>10.0)
-    public static int MAXIMUM_TOTAL_HARMONICS = 100; //At most this much total harmonics will be included in voiced süpectral region (effective only when f0>10.0)
+    public static double CUMULATIVE_AMP_THRESHOLD = 2.0;
+    public static double MAXIMUM_AMP_THRESHOLD_IN_DB = 13.0;
+    public static double HARMONIC_DEVIATION_PERCENT = 20.0;
+    public static double SHARP_PEAK_AMP_DIFF_IN_DB = 1.0;
+    public static int MINIMUM_TOTAL_HARMONICS = 25; //At least this much total harmonics will be included in voiced spectral region (effective only when f0>10.0)
+    public static int MAXIMUM_TOTAL_HARMONICS = 50; //At most this much total harmonics will be included in voiced süpectral region (effective only when f0>10.0)
     //
     
     public float [] initialF0s;
@@ -300,7 +300,6 @@ public class HnmPitchVoicingAnalyzer {
         //double[] ampSpec = MathUtils.db2amp(absDBSpec);
         VoicingAnalysisOutputData output = new VoicingAnalysisOutputData();
         int i, n;
-        int count=0;
         output.maxFreqOfVoicing = 0.0f; //Means the spectrum is completely unvoiced
         if (f0<10.0f)
             f0=100.0f;
@@ -321,8 +320,8 @@ public class HnmPitchVoicingAnalyzer {
         
         Arrays.fill(voiceds, 0.0);
         int[] valleyInds = MathUtils.getExtrema(absDBSpec, 1, 1, false);
-        output.peakIndices = new int[numHarmonics];
-        Arrays.fill(output.peakIndices, -1);
+        int[] tmpPeakIndices = new int[numHarmonics];
+        
         double bandExtremaVal;
         int fcIndex;
         for (i=0; i<numHarmonics; i++)
@@ -443,17 +442,8 @@ public class HnmPitchVoicingAnalyzer {
             }
             //
             
-            //Send in output if voiced
-            if (voiceds[i]==1.0)
-                output.peakIndices[count++] = fcIndex;
-        }
-        
-        if (count<output.peakIndices.length)
-        {
-            int[] tmpInds = new int[count];
-            System.arraycopy(output.peakIndices, 0, tmpInds, 0, count);
-            output.peakIndices = new int[count];
-            System.arraycopy(tmpInds, 0, output.peakIndices, 0, count);
+            //Save for senidng peak indices to output
+            tmpPeakIndices[i] = fcIndex;
         }
         
         //Median filter voicing decisions
@@ -481,6 +471,18 @@ public class HnmPitchVoicingAnalyzer {
         else
             output.maxFreqOfVoicing = 0.0f; //Meaning the spectrum is completely unvoiced
         
+        //Put harmonic peak indices into output as well
+        if (output.maxFreqOfVoicing>0.0f)
+        {
+            int count = (int)Math.floor(output.maxFreqOfVoicing/f0+0.5);
+            count = MathUtils.CheckLimits(count, 0, numHarmonics);
+            if (count>0)
+            {
+                output.peakIndices = new int[count];
+                System.arraycopy(tmpPeakIndices, 0, output.peakIndices, 0, count);
+            }
+        }
+        //
         
         /*
         String strDebug = "";

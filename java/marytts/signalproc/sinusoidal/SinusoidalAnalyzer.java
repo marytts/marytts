@@ -610,29 +610,33 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
             if (!bManualPeakPickingTest)
             {
                 //Method A: Conventional method gets local extrema from db spectrum
-                //freqInds = MathUtils.getExtrema(frameDftDB, freqSampNeighs, freqSampNeighs, true, startIndLow, endIndHigh, MIN_PEAK_IN_DB_LOW);
+                freqInds = MathUtils.getExtrema(frameDftDB, freqSampNeighs, freqSampNeighs, true, startIndLow, endIndHigh, MIN_PEAK_IN_DB_LOW);
                 
+                /*
                 //Method B: Peak picking in lower freqs + Peak picking in upper freqs but with different parameters
                 freqIndsLow = MathUtils.getExtrema(frameDftDB, DEFAULT_FREQ_SAMP_NEIGHS_LOW, DEFAULT_FREQ_SAMP_NEIGHS_LOW, true, startIndLow, endIndLow, MIN_PEAK_IN_DB_LOW);
                 freqIndsHigh = MathUtils.getExtrema(frameDftDB, DEFAULT_FREQ_SAMP_NEIGHS_HIGH, DEFAULT_FREQ_SAMP_NEIGHS_HIGH, true, startIndHigh, endIndHigh, MIN_PEAK_IN_DB_HIGH);
                 //
+                */
                 
                 /*
                 //Method C: Peak picking in lower freqs + Uniform sampling in upper freqs
                 freqIndsLow = MathUtils.getExtrema(frameDftDB, DEFAULT_FREQ_SAMP_NEIGHS_LOW, DEFAULT_FREQ_SAMP_NEIGHS_LOW, true, startIndLow, endIndLow, MIN_PEAK_IN_DB_LOW);
-                int totalHighs = (int)(Math.floor(0.5*fs-voicingCutoffInHz)/upperFreqSamplingStepInHz);
+                int totalHighs = (int)(Math.floor(0.5*fs-maxVoicingFreqInHz)/upperFreqSamplingStepInHz);
                 if (totalHighs>0)
                 {
                     freqIndsHigh = new int[totalHighs];
                     for (i=0; i<totalHighs; i++)
-                        freqIndsHigh[i] = SignalProcUtils.freq2index(voicingCutoffInHz+(i-0.5)*upperFreqSamplingStepInHz, fs, maxFreq);
+                        freqIndsHigh[i] = SignalProcUtils.freq2index(maxVoicingFreqInHz+(i-0.5)*upperFreqSamplingStepInHz, fs, maxFreq);
                 }
                 */
                 
+                /*
                 //Method D: Lower peaks from hnm analysis, upper peaks with peak picking
-                //freqIndsLow = vo.peakIndices;
-                //freqIndsHigh = MathUtils.getExtrema(frameDftDB, DEFAULT_FREQ_SAMP_NEIGHS_HIGH, DEFAULT_FREQ_SAMP_NEIGHS_HIGH, true, startIndHigh, endIndHigh, MIN_PEAK_IN_DB_HIGH);
+                freqIndsLow = vo.peakIndices;
+                freqIndsHigh = MathUtils.getExtrema(frameDftDB, DEFAULT_FREQ_SAMP_NEIGHS_HIGH, DEFAULT_FREQ_SAMP_NEIGHS_HIGH, true, startIndHigh, endIndHigh, MIN_PEAK_IN_DB_HIGH);
                 //
+                 */
                 
                 int numInds = 0;
                 if (freqIndsLow!=null)
