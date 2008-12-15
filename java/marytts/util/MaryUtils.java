@@ -853,32 +853,52 @@ public class MaryUtils {
 
     public static void plot(float [] x)
     {
-        plot(x, "");
+        plot(x, 0, x.length-1);
     }
     
     public static void plot(double [] x)
     {
-        plot(x, "");
+        plot(x, 0, x.length-1);
     }
     
-    public static void plot(float [] x, String strTitle)
+    public static void plot(float[] x, int startInd, int endInd)
     {
-        plot(x, strTitle, false);
+        plot(x, startInd, endInd, "");
+    }
+    
+    public static void plot(double[] x, int startInd, int endInd)
+    {
+        plot(x, startInd, endInd, "");
+    }
+    
+    public static void plot(float[] x, String strTitle)
+    {
+        plot(x, 0, x.length-1, strTitle, false);
     }
     
     public static void plot(double [] x, String strTitle)
     {
-        plot(x, strTitle, false);
+        plot(x, 0, x.length-1, strTitle, false);
     }
     
-    public static void plot(float [] x, String strTitle, boolean bAutoClose)
+    public static void plot(float[] x, int startInd, int endInd, String strTitle)
     {
-        plot(x, strTitle, bAutoClose, 3000);
+        plot(x, startInd, endInd, strTitle, false);
     }
     
-    public static void plot(double [] x, String strTitle, boolean bAutoClose)
+    public static void plot(double [] x, int startInd, int endInd, String strTitle)
     {
-        plot(x, strTitle, bAutoClose, 3000);
+        plot(x, startInd, endInd, strTitle, false);
+    }
+    
+    public static void plot(float [] x, int startInd, int endInd, String strTitle, boolean bAutoClose)
+    {
+        plot(x, startInd, endInd, strTitle, bAutoClose, 3000);
+    }
+    
+    public static void plot(double [] x, int startInd, int endInd, String strTitle, boolean bAutoClose)
+    {
+        plot(x, startInd, endInd, strTitle, bAutoClose, 3000);
     }
     
     public static void plotZoomed(float [] x, String strTitle, double minVal)
@@ -941,15 +961,14 @@ public class MaryUtils {
                     y[i] = maxVal;
             }
                 
-            plot(y, strTitle, bAutoClose, milliSecondsToClose);
+            plot(y, 0, y.length-1, strTitle, bAutoClose, milliSecondsToClose);
         }
     }
     
-    public static void plot(float[] x, String strTitle, boolean bAutoClose, int milliSecondsToClose)
+    public static void plot(float[] xIn, int startInd, int endInd, String strTitle, boolean bAutoClose, int milliSecondsToClose)
     {
-        double[] xd = new double[x.length];
-        for (int i=0; i<x.length; i++)
-            xd[i] = x[i];
+        double[] xd = new double[endInd-startInd+1];
+        System.arraycopy(xIn, startInd, xd, 0, xd.length);
         
         FunctionGraph graph = new FunctionGraph(400, 200, 0, 1, xd);
         JFrame frame = graph.showInJFrame(strTitle, 500, 300, true, false);
@@ -964,8 +983,14 @@ public class MaryUtils {
     // Plots the values in x
     // If bAutoClose is specified, the figure is closed after milliSecondsToClose milliseconds
     // milliSecondsToClose: has no effect if bAutoClose is false
-    public static void plot(double [] x, String strTitle, boolean bAutoClose, int milliSecondsToClose)
+    public static void plot(double [] xIn, int startInd, int endInd, String strTitle, boolean bAutoClose, int milliSecondsToClose)
     {
+        endInd = MathUtils.CheckLimits(endInd, 0, xIn.length-1);
+        startInd = MathUtils.CheckLimits(startInd, 0, endInd);
+        
+        double[] x = new double[endInd-startInd+1];
+        System.arraycopy(xIn, startInd, x, 0, x.length);
+        
         FunctionGraph graph = new FunctionGraph(400, 200, 0, 1, x);
         JFrame frame = graph.showInJFrame(strTitle, 500, 300, true, false);
         

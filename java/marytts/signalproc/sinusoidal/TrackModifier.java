@@ -160,6 +160,8 @@ public class TrackModifier {
         float middleSynthesisTime;
         int middleSynthesisSample;
         int prevMiddleSynthesisSample;
+        
+        float maxFreqOfVoicingInHz; 
 
         float freqInHz;
         
@@ -215,6 +217,11 @@ public class TrackModifier {
                     
                     int pScaleInd = MathUtils.findClosest(pScalesTimes, trIn.tracks[i].times[j]);
                     pScaleCurrent = pScales[pScaleInd];
+                    
+                    maxFreqOfVoicingInHz = SignalProcUtils.radian2Hz(trIn.tracks[i].maxFreqOfVoicings[j], trIn.fs); //From hnm analysis  
+                    //maxFreqOfVoicingInHz = 3600.0f; //Manual
+                    if (freqInHz>maxFreqOfVoicingInHz)
+                        pScaleCurrent = 1.0f;
 
                     //Voicing dependent pitch scale modification factor estimation
                     if (voicings!=null && isVoicingAdaptivePitchScaling)
@@ -229,8 +236,8 @@ public class TrackModifier {
                             pScaleCurrent = pScales[pScaleInd];
                     }   
                     
-                    //Apply triangular decreasing of pitch scale in voiced/unvoiced transition region
                     /*
+                    //Apply triangular decreasing of pitch scale in voiced/unvoiced transition region
                     if (pScaleCurrent!=1.0f)
                     {
                         float maxFreqOfVoicingInHz = SignalProcUtils.radian2Hz(trIn.tracks[i].maxFreqOfVoicings[j], trIn.fs);
@@ -241,8 +248,8 @@ public class TrackModifier {
                         else if (freqInHz>=modFreqLowerCutoffInHz)
                             pScaleCurrent = 1.0f;
                     }
-                    */
                     //
+                    */
 
                     int tScaleInd = MathUtils.findClosest(tScalesTimes, trIn.tracks[i].times[j]);
                     tScaleCurrent = tScales[tScaleInd];
@@ -261,6 +268,8 @@ public class TrackModifier {
                     sysFreqInd = SignalProcUtils.freq2index(freqInHz, trIn.fs, trIn.sysAmps.get(sysTimeInd).length-1);
                     sysFreqIndDouble = SignalProcUtils.freq2indexDouble(freqInHz, trIn.fs, trIn.sysAmps.get(sysTimeInd).length-1);
                     sysAmp = (float)(trIn.sysAmps.get(sysTimeInd)[sysFreqInd]);
+                    
+                    
                     
                     //This is from Van Santen´s et.al.´s book - Chapter 5 
                     //(van Santen, et. al., Progress in Speech Synthesis)
@@ -281,7 +290,7 @@ public class TrackModifier {
 
                     middleSynthesisSample = (int)SignalProcUtils.time2sample(middleSynthesisTime, trIn.fs);
                     closestIndMod = MathUtils.findClosest(pmMod.pitchMarks, middleSynthesisSample);
-
+                    
                     excPhaseMod = prevExcPhaseMod + pScaleCurrent*trIn.tracks[i].freqs[j]*(middleSynthesisSample-prevMiddleSynthesisSample);
                     excAmpMod = excAmp;
                     //excAmpMod = 1.0f; //This should hold whenever an envelope that passes from spectral peaks is used, i.e. SEEVOC
@@ -294,7 +303,7 @@ public class TrackModifier {
 
                     sysFreqIndMod = sysFreqInd;
                     sysPhaseMod = sysPhase;
-                    sysAmpMod = sysAmp;
+                    sysAmpMod = sysAmp; 
                     
                     if (pScaleCurrent!=1.0f) //Modify system phase and amplitude according to pitch scale modification factor
                     {
@@ -358,14 +367,8 @@ public class TrackModifier {
 
                         //MaryUtils.plot(trIn.sysAmps.get(sysTimeInd));
                     }
-                    
-                    //Apply triangular decreasing of pitch scale in voiced/unvoiced transition region
-                    float maxFreqOfVoicingInHz = SignalProcUtils.radian2Hz(trIn.tracks[i].maxFreqOfVoicings[j], trIn.fs);
-                    if (pScaleCurrent!=1.0f && freqInHz>maxFreqOfVoicingInHz)
-                        trMod.tracks[currentInd].amps[j] = 0.0f;
-                    else
-                        trMod.tracks[currentInd].amps[j] = excAmpMod*sysAmpMod;
-                    
+                       
+                    trMod.tracks[currentInd].amps[j] = excAmpMod*sysAmpMod;
                     trMod.tracks[currentInd].freqs[j] = freqMod;
                     trMod.tracks[currentInd].phases[j] = sysPhaseMod + excPhaseMod;
                     trMod.tracks[currentInd].times[j] = middleSynthesisTime;

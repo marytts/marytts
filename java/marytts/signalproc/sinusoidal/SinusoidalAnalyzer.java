@@ -43,6 +43,7 @@ import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.SeevocAnalyser;
 import marytts.signalproc.analysis.SpectrumWithPeakIndices;
 import marytts.signalproc.sinusoidal.pitch.HnmPitchVoicingAnalyzer;
+import marytts.signalproc.sinusoidal.pitch.VoicingAnalysisOutputData;
 import marytts.signalproc.window.Window;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
@@ -68,7 +69,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     public static float DEFAULT_ANALYSIS_SKIP_SIZE = 0.010f;
     public static double MIN_ENERGY_TH = 1e-50; //Minimum energy threshold to analyze a frame
     public static double MIN_PEAK_IN_DB_LOW = -200.0f;
-    public static double MIN_PEAK_IN_DB_HIGH = -300.0f;
+    public static double MIN_PEAK_IN_DB_HIGH = -200.0f;
     
     public static boolean DEFAULT_REFINE_PEAK_ESTIMATES_PARABOLA = true;
     public static boolean DEFAULT_REFINE_PEAK_ESTIMATES_BIAS = true;
@@ -99,7 +100,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
 
     protected int [] freqSampNeighs; //Number of neighbouring samples to search for a peak in the spectrum
     protected boolean bAdjustNeighFreqDependent; //Adjust number of neighbouring samples to search for a peak adaptively depending on frequency?
-    public static int DEFAULT_FREQ_SAMP_NEIGHS_LOW = 5; //Default search range for low frequencies for spectral peak detection
+    public static int DEFAULT_FREQ_SAMP_NEIGHS_LOW = 2; //Default search range for low frequencies for spectral peak detection
     public static int DEFAULT_FREQ_SAMP_NEIGHS_HIGH = 2; //Default search range for high frequencies for spectral peak detection
     
     public static float MIN_WINDOW_SIZE = 0.020f; 
@@ -478,8 +479,9 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     // 
     public SinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType, double f0, boolean bEstimateHNMVoicing)
     {   
+        VoicingAnalysisOutputData vo = null;
+        float maxVoicingFreqInHz = 0.0f;
         SinusoidalSpeechFrame frameSins = null;
-        float maxFreqOfVoicingInHz = 0.5f*fs;
 
         if (fftSize<frm.length)
             fftSize = frm.length;
@@ -581,13 +583,6 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                 endInd = SignalProcUtils.freq2index(endFreq, fs, maxFreq);
                 */
             
-            float voicingCutoffInHz = 4000.0f;
-            float upperFreqSamplingStepInHz = 100.0f;
-            int startIndLow = SignalProcUtils.freq2index(startFreq, fs, maxFreq);
-            int endIndLow = SignalProcUtils.freq2index(voicingCutoffInHz, fs, maxFreq);
-            int startIndHigh = endIndLow+1;
-            int endIndHigh = SignalProcUtils.freq2index(endFreq, fs, maxFreq);
-            
             //Vocal tract magnitude spectrum (linear) & phase analysis
             double[] vocalTractSpec = null;
             //SpectrumWithPeakIndices swpi = SeevocAnalyser.calcSpecEnvelopeLinear(frameDftDB, fs, f0); //Note that frameDftDB is in dB but the computed envelope is returned as linear
@@ -600,17 +595,31 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                 vocalTractSpec = swpi.spec;
             }
             
+            //Use abs dft in db for maximum frequency of voicing estimation
+            vo = HnmPitchVoicingAnalyzer.estimateMaxFrequencyOfVoicingsFrame(frameDftDB, fs, (float)f0);
+            maxVoicingFreqInHz = vo.maxFreqOfVoicing; //From hnm, not working very properly yet
+            //maxVoicingFreqInHz = 3600.0f; //manual
+            
+            float upperFreqSamplingStepInHz = 100.0f;
+            int startIndLow = SignalProcUtils.freq2index(startFreq, fs, maxFreq);
+            int endIndLow = SignalProcUtils.freq2index(maxVoicingFreqInHz, fs, maxFreq);
+            int startIndHigh = endIndLow+1;
+            int endIndHigh = SignalProcUtils.freq2index(endFreq, fs, maxFreq);
+            
             //Determine peak amplitude indices and the corresponding amplitudes, frequencies, and phases 
             if (!bManualPeakPickingTest)
             {
-                //Conventional method: Gets local extrema from db spectrum
-                //freqInds = MathUtils.getExtrema(frameDftDB, freqSampNeighs, freqSampNeighs, true, startInd, endInd, MIN_PEAK_IN_DB);
+                //Method A: Conventional method gets local extrema from db spectrum
+                //freqInds = MathUtils.getExtrema(frameDftDB, freqSampNeighs, freqSampNeighs, true, startIndLow, endIndHigh, MIN_PEAK_IN_DB_LOW);
                 
-                //Peak picking in lower freqs
+                //Method B: Peak picking in lower freqs + Peak picking in upper freqs but with different parameters
                 freqIndsLow = MathUtils.getExtrema(frameDftDB, DEFAULT_FREQ_SAMP_NEIGHS_LOW, DEFAULT_FREQ_SAMP_NEIGHS_LOW, true, startIndLow, endIndLow, MIN_PEAK_IN_DB_LOW);
-
+                freqIndsHigh = MathUtils.getExtrema(frameDftDB, DEFAULT_FREQ_SAMP_NEIGHS_HIGH, DEFAULT_FREQ_SAMP_NEIGHS_HIGH, true, startIndHigh, endIndHigh, MIN_PEAK_IN_DB_HIGH);
+                //
+                
                 /*
-                //Uniform sampling in upper freqs
+                //Method C: Peak picking in lower freqs + Uniform sampling in upper freqs
+                freqIndsLow = MathUtils.getExtrema(frameDftDB, DEFAULT_FREQ_SAMP_NEIGHS_LOW, DEFAULT_FREQ_SAMP_NEIGHS_LOW, true, startIndLow, endIndLow, MIN_PEAK_IN_DB_LOW);
                 int totalHighs = (int)(Math.floor(0.5*fs-voicingCutoffInHz)/upperFreqSamplingStepInHz);
                 if (totalHighs>0)
                 {
@@ -620,8 +629,10 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                 }
                 */
                 
-                //Peak picking in lower freqs
-                freqIndsHigh = MathUtils.getExtrema(frameDftDB, DEFAULT_FREQ_SAMP_NEIGHS_HIGH, DEFAULT_FREQ_SAMP_NEIGHS_HIGH, true, startIndHigh, endIndHigh, MIN_PEAK_IN_DB_HIGH);
+                //Method D: Lower peaks from hnm analysis, upper peaks with peak picking
+                //freqIndsLow = vo.peakIndices;
+                //freqIndsHigh = MathUtils.getExtrema(frameDftDB, DEFAULT_FREQ_SAMP_NEIGHS_HIGH, DEFAULT_FREQ_SAMP_NEIGHS_HIGH, true, startIndHigh, endIndHigh, MIN_PEAK_IN_DB_HIGH);
+                //
                 
                 int numInds = 0;
                 if (freqIndsLow!=null)
@@ -765,19 +776,6 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                     //
                 }
                 //
-                
-                //Use abs dft in db for maximum frequency of voicing estimation
-                maxFreqOfVoicingInHz = HnmPitchVoicingAnalyzer.estimateMaxFrequencyOfVoicingsFrame(frameDftDB, fs, (float)f0); 
-                
-                /*
-                //Use abs excitation in db for maximum frequency of voicing estimation
-                double[] excDftAbs = new double[maxFreq];
-                for (i=0; i<maxFreq; i++)
-                    excDftAbs[i] = frameDftAbs[i]/vocalTractSpec[i];
-                
-                double[] excDftDB = MathUtils.amp2db(excDftAbs);
-                maxFreqOfVoicingInHz = HnmPitchVoicingAnalyzer.estimateMaxFrequencyOfVoicingsFrame(excDftDB, fs, (float)f0); 
-                */
             }
             //
         }
@@ -785,7 +783,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         if (frameSins!=null)
         {
             frameSins.voicing = (float)SignalProcUtils.getVoicingProbability(frm, fs);
-            frameSins.maxFreqOfVoicing = SignalProcUtils.hz2radian(maxFreqOfVoicingInHz, fs);
+            frameSins.maxFreqOfVoicing = SignalProcUtils.hz2radian(maxVoicingFreqInHz, fs);
         }
 
         return frameSins;
