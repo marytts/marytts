@@ -65,9 +65,12 @@ public class HnmPitchVoicingAnalyzer {
     //
     
     //These are the three thresholds used in Stylianou for maximum voicing frequency estimation using the harmonic model
-    public static double CUMULATIVE_AMP_THRESHOLD = 2.0;
-    public static double MAXIMUM_AMP_THRESHOLD = 13.0;
-    public static double HARMONIC_DEVIATION_PERCENT = 20.0;
+    public static double CUMULATIVE_AMP_THRESHOLD = 0.0;
+    public static double MAXIMUM_AMP_THRESHOLD_IN_DB = 0.0;
+    public static double HARMONIC_DEVIATION_PERCENT = 100.0;
+    public static double SHARP_PEAK_AMP_DIFF_IN_DB = 2.0;
+    public static int MINIMUM_TOTAL_HARMONICS = 0; //At least this much total harmonics will be included in voiced spectral region (effective only when f0>10.0)
+    public static int MAXIMUM_TOTAL_HARMONICS = 100; //At most this much total harmonics will be included in voiced süpectral region (effective only when f0>10.0)
     //
     
     public float [] initialF0s;
@@ -276,8 +279,12 @@ public class HnmPitchVoicingAnalyzer {
             if (voicings[n]==false)
                 initialF0s[n] = 0.0f;
             
+            VoicingAnalysisOutputData vo = null;
             if (voicings[n])
-                maxFrequencyOfVoicings[n] = estimateMaxFrequencyOfVoicingsFrame(YAbsDB, samplingRate, initialF0s[n]);
+            {
+                vo = estimateMaxFrequencyOfVoicingsFrame(YAbsDB, samplingRate, initialF0s[n]);
+                maxFrequencyOfVoicings[n] = vo.maxFreqOfVoicing;
+            }
             else
                 maxFrequencyOfVoicings[n] = 0.0f;
             
@@ -288,36 +295,82 @@ public class HnmPitchVoicingAnalyzer {
         }
     }
     
-    public static float estimateMaxFrequencyOfVoicingsFrame(double[] absDBSpec, int samplingRate, float f0)
-    {     
+    public static VoicingAnalysisOutputData estimateMaxFrequencyOfVoicingsFrame(double[] absDBSpec, int samplingRate, float f0)
+    {  
+        //double[] ampSpec = MathUtils.db2amp(absDBSpec);
+        VoicingAnalysisOutputData output = new VoicingAnalysisOutputData();
         int i, n;
-        float maxFreqOfVoicing = 0.0f; //Means the spectrum is completely unvoiced
+        int count=0;
+        output.maxFreqOfVoicing = 0.0f; //Means the spectrum is completely unvoiced
         if (f0<10.0f)
             f0=100.0f;
         
         int maxFreqIndex = absDBSpec.length-1;
-        int numHarmonics = (int)Math.floor((0.5*samplingRate)/f0+0.5);
+        int numHarmonics = (int)Math.floor((0.5*samplingRate-1.5*f0)/f0+0.5); //Leave some space at the end of spectrum, i.e. 1.5*f0 to avoid very narrow bands there
         int[] bandInds = new int[numHarmonics+1]; //0.5f0 1.5f0 2.5f0 ... (numHarmonics-0.5)f0 (numHarmonics+0.5)f0
         for (i=0; i<bandInds.length; i++)
-            bandInds[i] = SignalProcUtils.freq2index((i-0.5)*f0, samplingRate, maxFreqIndex);
+            bandInds[i] = SignalProcUtils.freq2index((i+0.5)*f0, samplingRate, maxFreqIndex);
         
         double[] voiceds = new double[numHarmonics];
+        double[] vals1 = new double[numHarmonics];
+        double[] vals2 = new double[numHarmonics];
+        double[] vals3 = new double[numHarmonics];
+        Arrays.fill(vals1, Double.NEGATIVE_INFINITY);
+        Arrays.fill(vals2, Double.NEGATIVE_INFINITY);
+        Arrays.fill(vals3, Double.NEGATIVE_INFINITY);
+        
         Arrays.fill(voiceds, 0.0);
         int[] valleyInds = MathUtils.getExtrema(absDBSpec, 1, 1, false);
+        output.peakIndices = new int[numHarmonics];
+        Arrays.fill(output.peakIndices, -1);
+        double bandExtremaVal;
+        int fcIndex;
         for (i=0; i<numHarmonics; i++)
         {
             //Get local peak
-            int fcIndex = MathUtils.getMaxIndex(absDBSpec, bandInds[i], bandInds[i+1]);
+            int[] fcIndices = MathUtils.getExtrema(absDBSpec, 1, 1, true, bandInds[i], bandInds[i+1]);
+            if (fcIndices!=null)
+            {
+                fcIndex = fcIndices[0];
+                bandExtremaVal = absDBSpec[fcIndex];
+                for (n=1; n<fcIndices.length; n++)
+                {
+                    if (absDBSpec[fcIndices[n]]>bandExtremaVal)
+                    {
+                        fcIndex = fcIndices[n];
+                        bandExtremaVal = absDBSpec[fcIndex];
+                    }
+                }
+            }
+            else
+            {
+                fcIndex = MathUtils.getAbsMaxInd(absDBSpec, bandInds[i], bandInds[i+1]);
+                if (fcIndex==-1)
+                    fcIndex = (int)Math.floor(0.5*(bandInds[i]+bandInds[i+1])+0.5);
+            }
+            
             double fc = SignalProcUtils.index2freq(fcIndex, samplingRate, maxFreqIndex);
+            
+            //From db spec
             double Am = absDBSpec[fcIndex];
             double Amc = computeAmc(absDBSpec, fcIndex, valleyInds);
+            //
+            
+            /*
+            //From linear spec
+            double Am = ampSpec[fcIndex];
+            double Amc = computeAmc(ampSpec, fcIndex, valleyInds);
+            */
             
             //Search for other peaks and compute Ams and Amcs
             int startInd = SignalProcUtils.freq2index(fc-0.5*f0, samplingRate, maxFreqIndex);
             int endInd = SignalProcUtils.freq2index(fc+0.5*f0, samplingRate, maxFreqIndex);
             int[] peakInds = MathUtils.getExtrema(absDBSpec, 1, 1, true, startInd, endInd);
+            //MaryUtils.plot(absDBSpec, startInd, endInd);
             double[] Ams = null;
             double[] Amcs = null;
+            voiceds[i] = 0.0;
+            double bandMedVal;
             if (peakInds!=null)
             {
                 if (peakInds.length>1)
@@ -336,52 +389,115 @@ public class HnmPitchVoicingAnalyzer {
                     {
                         if (peakInds[n]!=fcIndex)
                         {
+                            //From db spec
                             Ams[counter] = absDBSpec[peakInds[n]];
                             Amcs[counter] = computeAmc(absDBSpec, peakInds[n], valleyInds);
+                            //
+                            
+                            /*
+                            //From linear spec
+                            Ams[counter] = ampSpec[peakInds[n]];
+                            Amcs[counter] = computeAmc(ampSpec, peakInds[n], valleyInds); 
+                            //
+                            */
                             counter++;
                         }
+                    }
+                }
+                else //A very sharp single peak might exist in this range, check by comparing with rage median
+                {
+                    bandMedVal = MathUtils.median(absDBSpec, startInd, endInd);
+                    if (Am-bandMedVal>SHARP_PEAK_AMP_DIFF_IN_DB)
+                    {
+                        voiceds[i] = 1.0;
+                        //MaryUtils.plot(absDBSpec, startInd, endInd);
                     }
                 }
             }
             //
             
             //Now do harmonic tests
-            if (Ams!=null && Amcs!=null)
+            if (voiceds[i]!=1.0 && Amcs!=null)
             {
                 double meanAmcs = MathUtils.mean(Amcs);
-                double maxAms = MathUtils.max(Ams);
-                if ((Amc/meanAmcs)>CUMULATIVE_AMP_THRESHOLD || (Am-maxAms)>MAXIMUM_AMP_THRESHOLD)
-                {
-                    if ((Math.abs(fc-(double)i*f0)/((double)i*f0))<(HARMONIC_DEVIATION_PERCENT/100.0))
+                
+                vals1[i] = Amc/meanAmcs;
+                vals3[i] = (Math.abs(fc-(double)(i+1)*f0)/((double)(i+1)*f0));
+                
+                //if (vals1[i]>CUMULATIVE_AMP_THRESHOLD && vals3[i]<(HARMONIC_DEVIATION_PERCENT/100.0))
+                if (vals1[i]>CUMULATIVE_AMP_THRESHOLD && vals3[i]<(HARMONIC_DEVIATION_PERCENT/100.0))
                         voiceds[i]=1.0;
-                }
+            }
+            
+            if (voiceds[i]!=1.0 && Ams!=null)
+            {
+                double maxAms = MathUtils.max(Ams);
+                
+                vals2[i] = Am-maxAms;
+                //val2 = (MathUtils.amp2db(Am)-MathUtils.amp2db(maxAms)); //in amp should be converted to db
+                vals3[i] = (Math.abs(fc-(double)(i+1)*f0)/((double)(i+1)*f0));
+                
+                //if (vals2[i]>MAXIMUM_AMP_THRESHOLD_IN_DB && vals3[i]<(HARMONIC_DEVIATION_PERCENT/100.0))
+                if (vals2[i]>MAXIMUM_AMP_THRESHOLD_IN_DB && vals3[i]<(HARMONIC_DEVIATION_PERCENT/100.0))
+                    voiceds[i]=1.0;
             }
             //
+            
+            //Send in output if voiced
+            if (voiceds[i]==1.0)
+                output.peakIndices[count++] = fcIndex;
+        }
+        
+        if (count<output.peakIndices.length)
+        {
+            int[] tmpInds = new int[count];
+            System.arraycopy(output.peakIndices, 0, tmpInds, 0, count);
+            output.peakIndices = new int[count];
+            System.arraycopy(tmpInds, 0, output.peakIndices, 0, count);
         }
         
         //Median filter voicing decisions
         voiceds = SignalProcUtils.medianFilter(voiceds, 3);
+        
+        //Forward look
         int maxVoicedHarmonicBand = -1;   
-        for (i=0; i<voiceds.length; i++)
+        for (i=0; i<voiceds.length-2; i++)
         {
-            if (voiceds[i]<1.0)
+            if (voiceds[i]==1.0 && voiceds[i+1]==0.0 && voiceds[i+2]==0.0)
+            {
+                maxVoicedHarmonicBand=i;
                 break;
-            else
-                maxVoicedHarmonicBand=i+1;
+            }    
         }
         
         //Get the max freq. of voicing
         if (maxVoicedHarmonicBand>-1)
-            maxFreqOfVoicing = (float)Math.min((maxVoicedHarmonicBand+0.5)*f0, 0.5*samplingRate);
+            output.maxFreqOfVoicing = (float)Math.min((maxVoicedHarmonicBand+0.5)*f0, 0.5*samplingRate);
+        else
+            output.maxFreqOfVoicing = 0.0f;
+       
+        if (f0>10.0)
+            output.maxFreqOfVoicing = MathUtils.CheckLimits(output.maxFreqOfVoicing, (float)(MINIMUM_TOTAL_HARMONICS*f0), (float)(MAXIMUM_TOTAL_HARMONICS*f0)); //From hnm with some limiting depending on f0
+        else
+            output.maxFreqOfVoicing = 0.0f; //Meaning the spectrum is completely unvoiced
         
-        System.out.println("Max freq of voicing=" + String.valueOf(maxFreqOfVoicing));
         
-        return maxFreqOfVoicing;
+        /*
+        String strDebug = "";
+        for (i=0; i<voiceds.length; i++)
+            System.out.println(String.valueOf(voiceds[i]) + " " + String.valueOf(vals1[i]) + " " + String.valueOf(vals2[i]) + " " + String.valueOf(vals3[i]) + " ");
+        */
+        
+        System.out.println("Max req of voicing=" + String.valueOf(output.maxFreqOfVoicing));
+        
+        //MaryUtils.plot(absDBSpec);
+        
+        return output;
     }
     
-    private static double computeAmc(double[] absDBSpec, int fcIndex, int[] valleyInds)
+    private static double computeAmc(double[] spec, int fcIndex, int[] valleyInds)
     {
-        double Amc = absDBSpec[fcIndex];
+        double Amc = spec[fcIndex];
 
         if (valleyInds!=null)
         {
@@ -400,7 +516,7 @@ public class HnmPitchVoicingAnalyzer {
             }
 
             counter = valleyInds.length-1;
-            vRightInd = absDBSpec.length-1;
+            vRightInd = spec.length-1;
             while (valleyInds[counter]>fcIndex)
             {
                 vRightInd = valleyInds[counter];
@@ -413,7 +529,7 @@ public class HnmPitchVoicingAnalyzer {
             for (int i=vLeftInd; i<=vRightInd; i++)
             {
                 if (i!=fcIndex)
-                    Amc += absDBSpec[i];
+                    Amc += spec[i];
             }
         }
         
