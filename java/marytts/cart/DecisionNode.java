@@ -1,6 +1,7 @@
 package marytts.cart;
 
 import marytts.cart.LeafNode.FeatureVectorLeafNode;
+import marytts.cart.LeafNode.IntAndFloatArrayLeafNode;
 import marytts.cart.LeafNode.IntArrayLeafNode;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
@@ -175,7 +176,7 @@ public abstract class DecisionNode extends Node
         LeafNode firstLeaf = getNextLeafNode(0);
         if (firstLeaf == null) return null;
         Object result;
-        if (firstLeaf instanceof IntArrayLeafNode) {
+        if (firstLeaf instanceof IntArrayLeafNode || firstLeaf instanceof IntAndFloatArrayLeafNode) {
             result = new int[nData];
         } else if (firstLeaf instanceof FeatureVectorLeafNode) {
             result = new FeatureVector[nData];
@@ -189,6 +190,7 @@ public abstract class DecisionNode extends Node
     protected void fillData(Object target, int pos, int total) {
         //assert pos + total <= target.length;
         for (int i = 0; i < daughters.length; i++) {
+            if(daughters[i] == null) continue;  
             int len = daughters[i].getNumberOfData();
             daughters[i].fillData(target, pos, len);
             pos += len;
@@ -227,7 +229,7 @@ public abstract class DecisionNode extends Node
      * our right.
      * 
      * @param daughterIndex
-     * @return the next leaf node, or null if there is no further leaf node in
+     * @return the next non-null leaf node, or null if there is no further leaf node in
      *         the tree.
      */
     protected LeafNode getNextLeafNode(int daughterIndex) {
@@ -241,6 +243,7 @@ public abstract class DecisionNode extends Node
         }
         if (daughters[daughterIndex] instanceof LeafNode)
             return (LeafNode) daughters[daughterIndex];
+        if(daughters[daughterIndex] == null) return getNextLeafNode(daughterIndex+1);
         assert daughters[daughterIndex] instanceof DecisionNode;
         return ((DecisionNode) daughters[daughterIndex]).getNextLeafNode(0);
     }
@@ -256,7 +259,9 @@ public abstract class DecisionNode extends Node
         for (int i = 0; i < daughters.length; i++) {
             if (daughters[i] instanceof DecisionNode)
                 ((DecisionNode) daughters[i]).countData();
-            nData += daughters[i].getNumberOfData();
+            if(daughters[i] != null){
+                nData += daughters[i].getNumberOfData();
+            }
         }
     }
 

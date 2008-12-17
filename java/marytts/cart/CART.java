@@ -137,7 +137,7 @@ public class CART
         Node prevNode = null;
 
         // logger.debug("Starting cart at "+nodeIndex);
-        while (currentNode.getNumberOfData() > minNumberOfData
+        while (currentNode != null && currentNode.getNumberOfData() > minNumberOfData
                 && !(currentNode instanceof LeafNode)) {
             // while we have not reached the bottom,
             // get the next node based on the features of the target
@@ -148,8 +148,9 @@ public class CART
             // decision.findFeature(item) + "' => "+ nodeIndex);
         }
         // Now usually we will have gone down one level too far
-        if (currentNode.getNumberOfData() < minNumberOfData
-                && prevNode != null) {
+        if (currentNode == null 
+                || currentNode.getNumberOfData() < minNumberOfData
+                   && prevNode != null) {
             currentNode = prevNode;
         }
 

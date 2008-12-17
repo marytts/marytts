@@ -200,7 +200,11 @@ public abstract class LeafNode extends Node {
         }
     	
     	protected void fillData(Object target, int pos, int len){
-    		System.out.println("Not implemented for IntAndFloatArrayLeafNode");
+            if (!(target instanceof int[])) 
+                throw new IllegalArgumentException("Expected target object of type int[], got "+target.getClass());
+            int[] array = (int[]) target;
+            assert len <= data.length;
+            System.arraycopy(data, 0, array, pos, len);
     	}
     	
     	public int getNumberOfData(){
