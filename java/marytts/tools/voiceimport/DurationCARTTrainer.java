@@ -29,13 +29,20 @@
 package marytts.tools.voiceimport;
 
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import marytts.cart.CART;
+import marytts.cart.Node;
+import marytts.cart.LeafNode.LeafType;
+import marytts.cart.io.MaryCARTWriter;
+import marytts.cart.io.WagonCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.TimelineReader;
@@ -190,6 +197,14 @@ public class DurationCARTTrainer extends VoiceImportComponent
                     +" -desc "+durationDescFile.getAbsolutePath()
                     +" -stop 10 "
                     +" -output "+wagonTreeFile.getAbsolutePath());            
+        }
+        if(ok){
+            String destinationFile = getProp(DURTREE);
+            WagonCARTReader wagonDURReader = new WagonCARTReader(LeafType.FloatLeafNode);
+            Node rootNode = wagonDURReader.load(new BufferedReader(new FileReader(destinationFile)), featureDefinition);
+            CART durCart = new CART(rootNode, featureDefinition);
+            MaryCARTWriter wwdur = new MaryCARTWriter();
+            wwdur.dumpMaryCART(durCart, destinationFile);
         }
         percent = 100;
         return ok;

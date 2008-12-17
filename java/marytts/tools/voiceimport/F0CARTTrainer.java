@@ -32,6 +32,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -42,6 +43,10 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
+import marytts.cart.CART;
+import marytts.cart.LeafNode.LeafType;
+import marytts.cart.io.MaryCARTWriter;
+import marytts.cart.io.WagonCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.data.Datagram;
@@ -307,6 +312,36 @@ public class F0CARTTrainer extends VoiceImportComponent
                     +" -stop 10 "
                     +" -output "+wagonTreeFile.getAbsolutePath());
         }
+        
+        if(ok){
+            
+            // F0 Left file
+            String destinationFile = getProp(F0LEFTTREEFILE);
+            WagonCARTReader wagonLReader = new WagonCARTReader(LeafType.FloatLeafNode);
+            marytts.cart.Node rootLNode = wagonLReader.load(new BufferedReader(new FileReader(destinationFile)), featureDefinition);
+            CART leftF0Cart = new CART(rootLNode, featureDefinition);
+            MaryCARTWriter wwl = new MaryCARTWriter();
+            wwl.dumpMaryCART(leftF0Cart, destinationFile);
+            
+            // F0 Mid tree
+            destinationFile = getProp(F0MIDTREEFILE);
+            WagonCARTReader wagonMReader = new WagonCARTReader(LeafType.FloatLeafNode);
+            marytts.cart.Node rootMNode = wagonMReader.load(new BufferedReader(new FileReader(destinationFile)), featureDefinition);
+            CART midF0Cart = new CART(rootMNode, featureDefinition);
+            MaryCARTWriter wwm = new MaryCARTWriter();
+            wwm.dumpMaryCART(midF0Cart, destinationFile);
+            
+            // F0 Right tree
+            destinationFile = getProp(F0RIGHTTREEFILE);
+            WagonCARTReader wagonRReader = new WagonCARTReader(LeafType.FloatLeafNode);
+            marytts.cart.Node rootRNode = wagonRReader.load(new BufferedReader(new FileReader(destinationFile)), featureDefinition);
+            CART rightF0Cart = new CART(rootRNode, featureDefinition);
+            MaryCARTWriter wwr = new MaryCARTWriter();
+            wwr.dumpMaryCART(rightF0Cart, destinationFile);
+            
+            
+        }
+        
         percent = 100;
         return ok;
     }
