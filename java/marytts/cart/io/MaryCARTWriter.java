@@ -48,6 +48,7 @@ import marytts.cart.LeafNode.FeatureVectorLeafNode;
 import marytts.cart.LeafNode.FloatLeafNode;
 import marytts.cart.LeafNode.IntAndFloatArrayLeafNode;
 import marytts.cart.LeafNode.IntArrayLeafNode;
+import marytts.cart.LeafNode.LeafType;
 import marytts.cart.LeafNode.StringAndFloatLeafNode;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
@@ -281,12 +282,17 @@ public class MaryCARTWriter{
            LeafNode leaf = (LeafNode) node;
            if (leaf.getUniqueLeafId() == 0) // empty leaf, do not write
                return;
+           LeafType leafType = leaf.getLeafNodeType();
+           if (leafType == LeafType.FeatureVectorLeafNode) {
+               leafType = LeafType.IntArrayLeafNode;
+               // save feature vector leaf nodes as int array leaf nodes
+           }
            if (out != null) {
                // Leaf node type
-               out.writeInt(leaf.getLeafNodeType().ordinal());
+               out.writeInt(leafType.ordinal());
            }
            if (pw != null) {
-               pw.print("id"+leaf.getUniqueLeafId()+" "+leaf.getLeafNodeType());
+               pw.print("id"+leaf.getUniqueLeafId()+" "+leafType);
            }
            switch (leaf.getLeafNodeType()) {
            case IntArrayLeafNode:
