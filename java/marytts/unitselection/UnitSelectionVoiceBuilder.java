@@ -39,6 +39,7 @@ import java.util.Map;
 
 import marytts.cart.CART;
 import marytts.cart.LeafNode.LeafType;
+import marytts.cart.io.MaryCARTReader;
 import marytts.cart.io.WagonCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
@@ -147,19 +148,20 @@ public class UnitSelectionVoiceBuilder
             unitReader.load(unitsFile);
             
             logger.debug("...loading cart file...");
-            String cartReaderClass = MaryProperties.needProperty(header+".cartReaderClass");
+            //String cartReaderClass = MaryProperties.needProperty(header+".cartReaderClass");
             String cartFile = MaryProperties.getFilename(header+".cartFile");
            
             // old: CART cart = (CART) Class.forName(cartReaderClass).newInstance();
-            CART cart = new CART();
+            //CART cart = new CART();
             
             // old: cart.load(cartFile, targetFunction.getFeatureDefinition(),null);
             //String treeType = cartReaderClass.substring(cartReaderClass.lastIndexOf(".")+1);
             //System.out.println("\ntreeType = " + treeType);
             // Marc, 30.10.2008: hard-coding IntArrayLeafNode for now, this will be
             // converted to MaryCARTReader anyway.
-            WagonCARTReader wagonReader = new WagonCARTReader(LeafType.IntArrayLeafNode);
-            cart.setRootNode(wagonReader.load(cartFile, targetFunction.getFeatureDefinition(),null));
+            // old: WagonCARTReader wagonReader = new WagonCARTReader(LeafType.IntArrayLeafNode);
+            //      cart.setRootNode(wagonReader.load(cartFile, targetFunction.getFeatureDefinition(),null));
+            CART cart = (new MaryCARTReader()).load(cartFile);
             
             logger.debug("...loading audio time line...");
             String timelineReaderClass = MaryProperties.needProperty(header+".audioTimelineReaderClass");
@@ -210,18 +212,17 @@ public class UnitSelectionVoiceBuilder
 			
             // see if there are any voice-specific duration and f0 models to load
             CART durationCart = null;
-            WagonCARTReader wagonDurReader = new WagonCARTReader(LeafType.FloatLeafNode);
+            //WagonCARTReader wagonDurReader = new WagonCARTReader(LeafType.FloatLeafNode);
             
             FeatureDefinition durationCartFeatDef = null;
             String durationCartFile = MaryProperties.getFilename(header+".duration.cart");
             if (durationCartFile != null) {
                 logger.debug("...loading duration tree...");
                 File fdFile = new File(MaryProperties.needFilename(header+".duration.featuredefinition"));
-                durationCartFeatDef = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);
-                
+                durationCart = (new MaryCARTReader()).load(durationCartFile);
+                //durationCartFeatDef = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);
+                durationCartFeatDef =  durationCart.getFeatureDefinition();
                 // old: durationCart = new RegressionTree(new BufferedReader(new FileReader(durationCartFile)), durationCartFeatDef);
-                durationCart.setRootNode(wagonDurReader.load(new BufferedReader(new FileReader(durationCartFile)), 
-                                                             durationCartFeatDef));
             }
             CART[] f0Carts = null;
             FeatureDefinition f0CartsFeatDef = null;
@@ -229,21 +230,24 @@ public class UnitSelectionVoiceBuilder
             if (leftF0CartFile != null) {
                 logger.debug("...loading f0 trees...");
                 File fdFile = new File(MaryProperties.needFilename(header+".f0.featuredefinition"));
-                f0CartsFeatDef = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);
+                //f0CartsFeatDef = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);
                 f0Carts = new CART[3];
                 // left cart:
                 // old: f0Carts[0] = new RegressionTree(new BufferedReader(new FileReader(leftF0CartFile)), f0CartsFeatDef);
-                f0Carts[0].setRootNode(wagonDurReader.load(new BufferedReader(new FileReader(leftF0CartFile)), f0CartsFeatDef));
-                String midF0CartFile = MaryProperties.needFilename(header+".f0.cart.mid");
+                //f0Carts[0].setRootNode(wagonDurReader.load(new BufferedReader(new FileReader(leftF0CartFile)), f0CartsFeatDef));
+                f0Carts[0] = (new MaryCARTReader()).load(leftF0CartFile);
+                f0CartsFeatDef = f0Carts[0].getFeatureDefinition();
                 
+                String midF0CartFile = MaryProperties.needFilename(header+".f0.cart.mid");
+                f0Carts[1] = (new MaryCARTReader()).load(midF0CartFile);
                 // mid cart:
                 // old: f0Carts[1] = new RegressionTree(new BufferedReader(new FileReader(midF0CartFile)), f0CartsFeatDef);
-                f0Carts[1].setRootNode(wagonDurReader.load(new BufferedReader(new FileReader(midF0CartFile)), f0CartsFeatDef));
+                //f0Carts[1].setRootNode(wagonDurReader.load(new BufferedReader(new FileReader(midF0CartFile)), f0CartsFeatDef));
                 String rightF0CartFile = MaryProperties.needFilename(header+".f0.cart.right");
-                
+                f0Carts[2] = (new MaryCARTReader()).load(rightF0CartFile);
                 // right cart:
                 // old: f0Carts[2] = new RegressionTree(new BufferedReader(new FileReader(rightF0CartFile)), f0CartsFeatDef);
-                f0Carts[2].setRootNode(wagonDurReader.load(new BufferedReader(new FileReader(rightF0CartFile)), f0CartsFeatDef));
+                //f0Carts[2].setRootNode(wagonDurReader.load(new BufferedReader(new FileReader(rightF0CartFile)), f0CartsFeatDef));
             }
 
 	        //build the voice
