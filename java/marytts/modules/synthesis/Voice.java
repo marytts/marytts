@@ -450,17 +450,22 @@ public class Voice
         }
 	}
 
+	/**
+	 * Get the voice with the given name, or null if there is no voice with that name.
+	 * @param name
+	 * @return
+	 */
     public static Voice getVoice(String name)
     {
-        for (Iterator it = allVoices.iterator(); it.hasNext(); ) {
-            Voice v = (Voice) it.next();
+        for (Iterator<Voice> it = allVoices.iterator(); it.hasNext(); ) {
+            Voice v = it.next();
             if (v.hasName(name)) return v;
         }
         // Interpolating voices are created as needed:
         if (InterpolatingVoice.isInterpolatingVoiceName(name)) {
             InterpolatingSynthesizer interpolatingSynthesizer = null;
-            for (Iterator it = allVoices.iterator(); it.hasNext(); ) {
-                Voice v = (Voice) it.next();
+            for (Iterator<Voice> it = allVoices.iterator(); it.hasNext(); ) {
+                Voice v = it.next();
                 if (v instanceof InterpolatingVoice) {
                     interpolatingSynthesizer = (InterpolatingSynthesizer) v.synthesizer();
                     break;

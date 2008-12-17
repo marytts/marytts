@@ -638,7 +638,7 @@ THIS SOFTWARE.
         <xsd:attribute name="p" type="xsd:string" use="required"/>
         <!-- The phoneme duration, in milliseconds -->
         <xsd:attribute name="d" type="xsd:positiveInteger" use="optional"/>
-        <xsd:attribute name="end" type="xsd:positiveInteger" use="optional"/>
+        <xsd:attribute name="end" type="xsd:float" use="optional"/>
         <xsd:attribute name="f0" type="xsd:string" use="optional"/>
         <xsd:attribute name="vq" use="optional">
             <xsd:simpleType>

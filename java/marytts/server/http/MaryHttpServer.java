@@ -89,6 +89,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ParseException;
+import org.apache.http.RequestLine;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultServerIOEventDispatch;
@@ -299,7 +300,7 @@ public class MaryHttpServer {
 
         IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(handler, params);
         
-        int numParallelThreads = MaryProperties.getInteger("server.http.parallelthreads");
+        int numParallelThreads = MaryProperties.getInteger("server.http.parallelthreads", 5);
         ListeningIOReactor ioReactor = new DefaultListeningIOReactor(numParallelThreads, params);
         
         logger.info("Waiting for client to connect on port " + localPort);

@@ -134,6 +134,9 @@ public class MaryProperties
         // Throws all sorts of exceptions, each of them should lead to
         // a program halt: We cannot start up properly.
         
+        if (p != null) // we have done this already
+            return;
+        
         File confDir = new File(maryBase()+"/conf");
         if (!confDir.exists()) {
             throw new FileNotFoundException("Configuration directory not found: "+ confDir.getPath());

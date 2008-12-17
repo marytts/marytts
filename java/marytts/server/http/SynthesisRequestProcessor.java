@@ -449,7 +449,6 @@ public class SynthesisRequestProcessor extends BaselineRequestProcessor {
                     outputToStream.start();
                     streamToPipe.start();
                 }
-    
                 request.process();
             } 
             catch (Throwable e) 
