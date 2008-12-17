@@ -36,6 +36,7 @@ import java.util.Locale;
 import marytts.cart.CART;
 import marytts.cart.StringPredictionTree;
 import marytts.cart.LeafNode.LeafType;
+import marytts.cart.io.MaryCARTReader;
 import marytts.cart.io.WagonCARTReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -116,12 +117,7 @@ public class CARTDurationModeller extends InternalModule
         File fdFile = new File(MaryProperties.needFilename(propertyPrefix+"featuredefinition"));
         FeatureDefinition featureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);
         File cartFile = new File(MaryProperties.needFilename(propertyPrefix+"cart"));
-        
-        //cart = new RegressionTree(new BufferedReader(new FileReader(cartFile)), featureDefinition);
-        //CART cart = new CART();
-        WagonCARTReader wagonRegReader = new WagonCARTReader(LeafType.FloatLeafNode);
-        cart.setRootNode(wagonRegReader.load(new BufferedReader(new FileReader(cartFile)), featureDefinition));
-        
+        cart = (new MaryCARTReader()).load(cartFile.getAbsolutePath());
         if ( null != MaryProperties.getFilename(propertyPrefix+"pausetree")){
             String pausefileName = MaryProperties.needFilename(propertyPrefix+"pausetree");
 

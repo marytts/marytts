@@ -86,7 +86,8 @@ public class Target
             return duration;
         } else {
         if (maryxmlElement == null)
-            throw new NullPointerException("Target "+name+" does not have a maryxml element.");
+            return 0;
+            //throw new NullPointerException("Target "+name+" does not have a maryxml element.");
         duration = new MaryGenericFeatureProcessors.UnitDuration().process(this);
         return duration;
         }

@@ -35,6 +35,7 @@ import java.util.Locale;
 
 import marytts.cart.CART;
 import marytts.cart.LeafNode.LeafType;
+import marytts.cart.io.MaryCARTReader;
 import marytts.cart.io.WagonCARTReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -117,19 +118,21 @@ public class CARTF0Modeller extends InternalModule
         
         File leftCartFile = new File(MaryProperties.needFilename(propertyPrefix+"cart.left"));
         // old: leftCart = new RegressionTree(new BufferedReader(new FileReader(leftCartFile)), featureDefinition);
-        leftCart = new CART();
-        leftCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(leftCartFile)), featureDefinition));
+        //leftCart = new CART();
+        //leftCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(leftCartFile)), featureDefinition));
+        leftCart = (new MaryCARTReader()).load(leftCartFile.getAbsolutePath());
         
         File midCartFile = new File(MaryProperties.needFilename(propertyPrefix+"cart.mid"));
         // old: midCart = new RegressionTree(new BufferedReader(new FileReader(midCartFile)), featureDefinition);
-        midCart = new CART();
-        midCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(midCartFile)), featureDefinition));
+        //midCart = new CART();
+        //midCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(midCartFile)), featureDefinition));
+        midCart = (new MaryCARTReader()).load(midCartFile.getAbsolutePath());
         
         File rightCartFile = new File(MaryProperties.needFilename(propertyPrefix+"cart.right"));
         // old: rightCart = new RegressionTree(new BufferedReader(new FileReader(rightCartFile)), featureDefinition);
-        rightCart = new CART();
-        rightCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(rightCartFile)), featureDefinition));
-        
+        //rightCart = new CART();
+        //rightCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(rightCartFile)), featureDefinition));
+        rightCart = (new MaryCARTReader()).load(rightCartFile.getAbsolutePath());
         featureComputer = new TargetFeatureComputer(featureProcessorManager, featureDefinition.getFeatureNames());
     }
 
