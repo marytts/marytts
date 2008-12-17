@@ -69,7 +69,7 @@ public class HnmPitchVoicingAnalyzer {
     public static double MAXIMUM_AMP_THRESHOLD_IN_DB = 13.0;
     public static double HARMONIC_DEVIATION_PERCENT = 20.0;
     public static double SHARP_PEAK_AMP_DIFF_IN_DB = 1.0;
-    public static int MINIMUM_TOTAL_HARMONICS = 25; //At least this much total harmonics will be included in voiced spectral region (effective only when f0>10.0)
+    public static int MINIMUM_TOTAL_HARMONICS = 20; //At least this much total harmonics will be included in voiced spectral region (effective only when f0>10.0)
     public static int MAXIMUM_TOTAL_HARMONICS = 50; //At most this much total harmonics will be included in voiced süpectral region (effective only when f0>10.0)
     //
     
@@ -282,7 +282,7 @@ public class HnmPitchVoicingAnalyzer {
             VoicingAnalysisOutputData vo = null;
             if (voicings[n])
             {
-                vo = estimateMaxFrequencyOfVoicingsFrame(YAbsDB, samplingRate, initialF0s[n]);
+                vo = estimateMaxFrequencyOfVoicingsFrame(YAbsDB, samplingRate, initialF0s[n], voicings[n]);
                 maxFrequencyOfVoicings[n] = vo.maxFreqOfVoicing;
             }
             else
@@ -295,13 +295,13 @@ public class HnmPitchVoicingAnalyzer {
         }
     }
     
-    public static VoicingAnalysisOutputData estimateMaxFrequencyOfVoicingsFrame(double[] absDBSpec, int samplingRate, float f0)
+    public static VoicingAnalysisOutputData estimateMaxFrequencyOfVoicingsFrame(double[] absDBSpec, int samplingRate, float f0, boolean isVoiced)
     {  
         //double[] ampSpec = MathUtils.db2amp(absDBSpec);
         VoicingAnalysisOutputData output = new VoicingAnalysisOutputData();
         int i, n;
         output.maxFreqOfVoicing = 0.0f; //Means the spectrum is completely unvoiced
-        if (f0<10.0f)
+        if (!isVoiced)
             f0=100.0f;
         
         int maxFreqIndex = absDBSpec.length-1;
@@ -466,7 +466,7 @@ public class HnmPitchVoicingAnalyzer {
         else
             output.maxFreqOfVoicing = 0.0f;
        
-        if (f0>10.0)
+        if (isVoiced)
             output.maxFreqOfVoicing = MathUtils.CheckLimits(output.maxFreqOfVoicing, (float)(MINIMUM_TOTAL_HARMONICS*f0), (float)(MAXIMUM_TOTAL_HARMONICS*f0)); //From hnm with some limiting depending on f0
         else
             output.maxFreqOfVoicing = 0.0f; //Meaning the spectrum is completely unvoiced

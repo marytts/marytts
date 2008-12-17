@@ -220,9 +220,23 @@ public class TrackModifier {
                     
                     maxFreqOfVoicingInHz = SignalProcUtils.radian2Hz(trIn.tracks[i].maxFreqOfVoicings[j], trIn.fs); //Max freq. of voicing from hnm analysis  
                     //maxFreqOfVoicingInHz = 3600.0f; //Manual
-                    if (freqInHz>maxFreqOfVoicingInHz)
-                        pScaleCurrent = 1.0f;
-
+                    float newGain = 1.0f;
+                    if (pScaleCurrent>1.0f)
+                    {
+                        if (pScaleCurrent*freqInHz>maxFreqOfVoicingInHz) //Only set pitch scale coeff to 1.0
+                        {
+                            pScaleCurrent = 1.0f;
+                            newGain = 0.0f;
+                        }
+                        else if (freqInHz>maxFreqOfVoicingInHz) //Do not include these components since these will interfere with pitch scale modified sines
+                        {
+                            pScaleCurrent = 1.0f;
+                            newGain = 0.0f;
+                        }
+                    }
+                    //TO DO: How about pscale<1.0, how do we bridge the gap between voiced and unvoiced region?
+                    
+                    
                     //This might not be necessary after the above implementation, check and remove as required, also use is isVoicingAdaptivePitchScaling above somehow
                     //Voicing dependent pitch scale modification factor estimation
                     if (voicings!=null && isVoicingAdaptivePitchScaling)
@@ -367,13 +381,17 @@ public class TrackModifier {
                         //MaryUtils.plot(trIn.sysAmps.get(sysTimeInd));
                     }
                        
-                    trMod.tracks[currentInd].amps[j] = excAmpMod*sysAmpMod;
+                    trMod.tracks[currentInd].amps[j] = newGain*excAmpMod*sysAmpMod;
                     trMod.tracks[currentInd].freqs[j] = freqMod;
                     
+                    trMod.tracks[currentInd].phases[j] = sysPhaseMod + excPhaseMod;
+                    /*
+                    //Assign random phase to upper freq sines
                     if (freqInHz>maxFreqOfVoicingInHz)
                         trMod.tracks[currentInd].phases[j] = (float)(MathUtils.TWOPI*(Math.random()-0.5)); //Assign random phase to higher freq
                     else
                         trMod.tracks[currentInd].phases[j] = sysPhaseMod + excPhaseMod;
+                    */
                     trMod.tracks[currentInd].times[j] = middleSynthesisTime;
 
                     if (trMod.tracks[currentInd].times[j]>maxDur)
