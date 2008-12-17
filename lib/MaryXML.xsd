@@ -599,6 +599,7 @@ THIS SOFTWARE.
     <xsd:complexType mixed="true" name="non-verbal">
         <xsd:attribute name="name" type="xsd:string"/>
         <xsd:attribute name="arousal" type="xsd:string"/>
+        <xsd:attribute name="variant" type="xsd:string"/>
     </xsd:complexType>
 	
     <xsd:element name="t" substitutionGroup="awp" type="token"/>
