@@ -56,6 +56,7 @@ import marytts.cart.Node;
 import marytts.cart.LeafNode.FeatureVectorLeafNode;
 import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.MaryCARTReader;
+import marytts.cart.io.MaryCARTWriter;
 import marytts.cart.io.WagonCARTReader;
 import marytts.cart.io.WagonCARTWriter;
 import marytts.features.FeatureDefinition;
@@ -352,8 +353,8 @@ public class CARTBuilder extends VoiceImportComponent {
          
          // dump big CART to binary file
          String destinationFile = getProp(CARTFILE);
-         WagonCARTWriter ww = new WagonCARTWriter();
-         ww.dumpWagonCART(topLevelCART, destinationFile);         
+         MaryCARTWriter ww = new MaryCARTWriter();
+         ww.dumpMaryCART(topLevelCART, destinationFile);         
              
          //Dump the resulting Cart to a text file
          /*
