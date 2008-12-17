@@ -199,7 +199,7 @@ public class CARTDurationModeller extends InternalModule
                 end += durInSeconds;
                 int durInMillis = (int) (1000 * durInSeconds);
                 if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) {
-                    segmentOrBoundary.setAttribute("dur", String.valueOf(durInMillis));
+                    segmentOrBoundary.setAttribute("duration", String.valueOf(durInMillis));
                 } else { // phone
                     segmentOrBoundary.setAttribute("d", String.valueOf(durInMillis));
                     segmentOrBoundary.setAttribute("end", String.valueOf(end));
@@ -226,9 +226,9 @@ public class CARTDurationModeller extends InternalModule
             throw new IllegalArgumentException("cannot call enterPauseDuration for non-pause element");
         
         // If there is already a duration, keep it:
-        if (boundary.hasAttribute("dur")) {
+        if (boundary.hasAttribute("duration")) {
             try {
-                return Float.parseFloat(boundary.getAttribute("dur"))  * 0.001f;
+                return Float.parseFloat(boundary.getAttribute("duration"))  * 0.001f;
             } catch (NumberFormatException nfe) {}
         }
 

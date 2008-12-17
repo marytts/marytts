@@ -2391,9 +2391,7 @@ public class MaryGenericFeatureProcessors
     
 
     /**
-     * Returns the duration of the given segment This is a feature processor. A
-     * feature processor takes an item, performs some sort of processing on the
-     * item and returns an object.
+     * Returns the duration of the given segment, in seconds.
      */
     public static class UnitDuration implements ContinuousFeatureProcessor
     {
@@ -2414,13 +2412,14 @@ public class MaryGenericFeatureProcessors
             if (seg.getTagName().equals(MaryXML.PHONE)) sDur = seg.getAttribute("d");
             else {
                 assert seg.getTagName().equals(MaryXML.BOUNDARY) : "segment should be a phone or a boundary, but is a "+seg.getTagName();
-                sDur = seg.getAttribute("dur");
+                sDur = seg.getAttribute("duration");
             }
             if (sDur.equals("")) {
                 return 0;
             }
             try {
-                phoneDuration = Float.parseFloat(sDur);
+                // parse duration string, and convert from milliseconds into seconds:
+                phoneDuration = Float.parseFloat(sDur) * 0.001f;
             } catch (NumberFormatException nfe) {}
             if (target instanceof HalfPhoneTarget)
                 return phoneDuration / 2;

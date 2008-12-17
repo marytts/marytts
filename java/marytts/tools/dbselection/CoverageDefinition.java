@@ -317,7 +317,7 @@ public class CoverageDefinition{
         phoneFeatIndex = featDef.getFeatureIndex("phoneme");
 //        phoneClassesIndex = featDef.getFeatureIndex("gpos");
         diphoneFeatIndex = featDef.getFeatureIndex("next_phoneme");
-        prosodyIndex = featDef.getFeatureIndex("position_type");
+        prosodyIndex = featDef.getFeatureIndex("selection_prosody");
         
         
 //        numPhoneClasses = featDef.getNumberOfValues(phoneClassesIndex);
@@ -380,7 +380,7 @@ public class CoverageDefinition{
              
               trueNumSentences--;
               vectorBuf = wikiToDB.getFeatures(id);  //
-              numFeatVects = (vectorBuf.length)/3;   // mmmmmmm!!! 3 because phone, next_phoneme and position_type
+              numFeatVects = (vectorBuf.length)/3;   // mmmmmmm!!! 3 because phone, next_phoneme and selection_prosody
 
               if (holdVectorsInMemory){
                     vectorArray[index] = vectorBuf;
@@ -1306,7 +1306,7 @@ public class CoverageDefinition{
         phoneFeatIndex = featDef.getFeatureIndex("phoneme");        
 //        phoneClassesIndex = featDef.getFeatureIndex("gpos");                
         diphoneFeatIndex = featDef.getFeatureIndex("next_phoneme");        
-        prosodyIndex = featDef.getFeatureIndex("position_type");
+        prosodyIndex = featDef.getFeatureIndex("selection_prosody");
         
 //        numPhoneClasses = featDef.getNumberOfValues(phoneClassesIndex);
         numPhoneValues = featDef.getNumberOfValues(phoneFeatIndex);

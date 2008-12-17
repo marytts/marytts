@@ -279,7 +279,7 @@ public class Request {
             // Convert to RAWMARYXML
             rawmaryxml = processOneChunk(inputData, MaryDataType.get("RAWMARYXML"));
             
-            assert rawmaryxml.getDefaultVoice() != null;
+            //assert rawmaryxml.getDefaultVoice() != null;
             inputDataList = splitIntoChunks(rawmaryxml);
         } else if (inputType.equals(MaryDataType.get("RAWMARYXML"))) {
             rawmaryxml = inputData;
@@ -316,9 +316,9 @@ public class Request {
                 outputNodeList = currentInputParagraph.getChildNodes();
             } else { // process "real" data:
                 MaryData oneInputData = extractParagraphAsMaryData(rawmaryxml, currentInputParagraph);
-                assert oneInputData.getDefaultVoice() != null;
+                //assert oneInputData.getDefaultVoice() != null;
                 MaryData oneOutputData = processOneChunk(oneInputData, outputType);
-                assert oneOutputData.getDefaultVoice() != null;
+                //assert oneOutputData.getDefaultVoice() != null;
                 if (outputType.isMaryXML()) {
                     NodeList outParagraphList = oneOutputData.getDocument().getDocumentElement().getElementsByTagName(MaryXML.PARAGRAPH);
                     // This does not hold for Tibetan:
