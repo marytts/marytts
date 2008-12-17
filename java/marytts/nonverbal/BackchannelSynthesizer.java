@@ -101,10 +101,16 @@ public class BackchannelSynthesizer {
         
         if(!voice.hasBackchannelSupport()) return null;
         int numberOfBackChannels = unitFileReader.getNumberOfUnits();
-        int min = 0;
-        int max = numberOfBackChannels - 1;
-        int rawRandomNumber = (int) (Math.random() * (max - min + 1) ) + min;
-        BackchannelUnit bUnit = unitFileReader.getUnit(rawRandomNumber);
+        int backchannelNumber  = 0;
+        
+        if(domElement.hasAttribute("variant")){
+            backchannelNumber  = Integer.parseInt(domElement.getAttribute("variant"));
+        }
+        if(backchannelNumber >= numberOfBackChannels){
+            backchannelNumber = 0;
+        }
+       
+        BackchannelUnit bUnit = unitFileReader.getUnit(backchannelNumber);
         long start = bUnit.getStart();
         int duration  = bUnit.getDuration();
         Datagram[] frames = audioTimeline.getDatagrams(start, duration); 
