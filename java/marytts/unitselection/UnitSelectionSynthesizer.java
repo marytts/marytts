@@ -235,8 +235,9 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
             if (maryxmlElement != null) {
                 if (maryxmlElement.getNodeName().equals(MaryXML.PHONE)) {
                     int oldD = Integer.parseInt(maryxmlElement.getAttribute("d"));
-                    int oldEnd = Integer.parseInt(maryxmlElement.getAttribute("end"));
-
+                    //int oldEnd = Integer.parseInt(maryxmlElement.getAttribute("end"));
+                    double doubleEnd = Double.parseDouble(maryxmlElement.getAttribute("end"));
+                    int oldEnd = (int)(doubleEnd * 1000);
                     if (oldEnd == oldD) {
                         // start new end computation
                         endInSeconds = unitDurationInSeconds;
