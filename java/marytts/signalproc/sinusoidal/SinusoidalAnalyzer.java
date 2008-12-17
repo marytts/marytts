@@ -70,6 +70,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     public static double MIN_ENERGY_TH = 1e-50; //Minimum energy threshold to analyze a frame
     public static double MIN_PEAK_IN_DB_LOW = -200.0f;
     public static double MIN_PEAK_IN_DB_HIGH = -200.0f;
+    public static double MAX_VOICED_FREQ_IN_HZ = 2500.0f; //Maximum voiced freq allowed
     
     public static boolean DEFAULT_REFINE_PEAK_ESTIMATES_PARABOLA = true;
     public static boolean DEFAULT_REFINE_PEAK_ESTIMATES_BIAS = true;
@@ -380,15 +381,20 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                 isOutputToTextFile = false;
                 */
             
+            
             if (spectralEnvelopeType==SEEVOC_SPEC && f0s!=null)
             {
                 f0Ind = (int)Math.floor((currentTime-0.5*ws_f0)/ss_f0+0.5);
                 f0Ind = Math.min(f0Ind, f0s.length-1);
                 f0Ind = Math.max(0, f0Ind);
-                sinSignal.framesSins[i] = analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, f0s[f0Ind]);
+                boolean isVoiced = false;
+                if (f0s[f0Ind]>10.0f)
+                    isVoiced = true;
+                
+                sinSignal.framesSins[i] = analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, isVoiced, f0s[f0Ind]);
             }
             else
-                sinSignal.framesSins[i] = analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType);
+                sinSignal.framesSins[i] = analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, true);
             
             if (sinSignal.framesSins[i]!=null)
             {
@@ -455,29 +461,29 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         System.out.println("Total sinusoids to model this file = " + String.valueOf(totalSins));
     }
 
-    public SinusoidalSpeechFrame analyze_frame(double [] frm, boolean isOutputToTextFile)
+    public SinusoidalSpeechFrame analyze_frame(double [] frm, boolean isOutputToTextFile, boolean isVoiced)
     { 
-        return analyze_frame(frm, isOutputToTextFile, LP_SPEC, -1.0);
+        return analyze_frame(frm, isOutputToTextFile, LP_SPEC, isVoiced, -1.0);
     }
     
-    public SinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType)
+    public SinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType, boolean isVoiced)
     { 
         if (spectralEnvelopeType==SEEVOC_SPEC)
-            return analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, 100.0);
+            return analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, isVoiced, 100.0);
         else
-            return analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, -1.0);
+            return analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, isVoiced, -1.0);
     }
     
-    public SinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType, double f0)
+    public SinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType, boolean isVoiced, double f0)
     {
-        return analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, f0, false);
+        return analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, isVoiced, f0, false);
     }
     
     //Extract sinusoidal model parameter from a windowed speech frame using the DFT peak-picking algorithm
     // frm: Windowed speech frame
     // spectralEnvelopeType: Desired spectral envelope (See above, i.e LP_SPEC, SEEVOC_SPEC, etc.)
     // 
-    public SinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType, double f0, boolean bEstimateHNMVoicing)
+    public SinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType, boolean isVoiced, double f0, boolean bEstimateHNMVoicing)
     {   
         VoicingAnalysisOutputData vo = null;
         float maxVoicingFreqInHz = 0.0f;
@@ -596,8 +602,9 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
             }
             
             //Use abs dft in db for maximum frequency of voicing estimation
-            vo = HnmPitchVoicingAnalyzer.estimateMaxFrequencyOfVoicingsFrame(frameDftDB, fs, (float)f0);
-            maxVoicingFreqInHz = vo.maxFreqOfVoicing; //From hnm, not working very properly yet
+            vo = HnmPitchVoicingAnalyzer.estimateMaxFrequencyOfVoicingsFrame(frameDftDB, fs, (float)f0, isVoiced);
+            
+            maxVoicingFreqInHz = (float)Math.min(vo.maxFreqOfVoicing, MAX_VOICED_FREQ_IN_HZ); //From hnm, not working very properly yet
             //maxVoicingFreqInHz = 3600.0f; //manual
             
             float upperFreqSamplingStepInHz = 100.0f;

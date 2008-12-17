@@ -172,7 +172,7 @@ public class ProsodyModifier {
                                                         bAdjustNeighFreqDependent, 0.0, 0.5*fs);
             
             st = new SinusoidalTracks[1];
-            st[0] = ((PitchSynchronousSinusoidalAnalyzer)an).analyzePitchSynchronous(x, pm.pitchMarks, numPeriods, skipSizeInSeconds, deltaInHz, spectralEnvelopeType); 
+            st[0] = ((PitchSynchronousSinusoidalAnalyzer)an).analyzePitchSynchronous(x, pm, numPeriods, skipSizeInSeconds, deltaInHz, spectralEnvelopeType); 
         }
         else if (analyzerType==BaseSinusoidalAnalyzer.FIXEDRATE_MULTIRESOLUTION_ANALYZER)
         {
@@ -431,7 +431,7 @@ public class ProsodyModifier {
                 pitchMarkOffsetStr = "0"+pitchMarkOffsetStr;
 
             timeScale = 1.0f;
-            pitchScale = 0.5f;
+            pitchScale = 1.5f;
             //for (int i=0; i<pitchScales.length; i++)
             {
                 y = pm.process(x, f0.contour, (float)f0.header.ws, (float)f0.header.ss, 
