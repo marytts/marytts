@@ -290,7 +290,7 @@ public class PeakMatchedSinusoidalSynthesizer extends BaseSinusoidalSynthesizer{
                                                         bAdjustNeighFreqDependent,
                                                         startFreq, endFreq);
             
-            st = pa.analyzePitchSynchronous(x, pm.pitchMarks, numPeriods, -1.0f, deltaInHz);
+            st = pa.analyzePitchSynchronous(x, pm, numPeriods, -1.0f, deltaInHz);
             isSilentSynthesis = false;
         }
         //

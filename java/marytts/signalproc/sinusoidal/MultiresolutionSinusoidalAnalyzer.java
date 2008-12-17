@@ -129,7 +129,7 @@ public class MultiresolutionSinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                                       boolean bAdjustNeighFreqDependent,
                                       boolean bFreqLimitedAnalysis,
                                       boolean bPitchSynchronousAnalysis,
-                                      int[] pitchMarks, //Only used when bPitchSynchronousAnalysis=true
+                                      PitchMarks pm, //Only used when bPitchSynchronousAnalysis=true
                                       float numPeriods) //Only used when bPitchSynchronousAnalysis=true
     {
         SinusoidalTracks[] subbandTracks = new SinusoidalTracks[numBands];
@@ -207,7 +207,7 @@ public class MultiresolutionSinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                     float deltaInHz = 50.0f; //Also make this frequency range dependent??
                     float numPeriodsCurrent = (float)(numPeriods/Math.pow(2.0,i)); //This iteratively halves the effective window size for higher frequency subbands
 
-                    subbandTracks[i] = sa.analyzePitchSynchronous(x, pitchMarks, numPeriodsCurrent, skipSizeInSeconds, deltaInHz, SinusoidalAnalyzer.LP_SPEC);
+                    subbandTracks[i] = sa.analyzePitchSynchronous(x, pm, numPeriodsCurrent, skipSizeInSeconds, deltaInHz, SinusoidalAnalyzer.LP_SPEC);
                 }
             }
         }
@@ -267,7 +267,7 @@ public class MultiresolutionSinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
             PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true, pitchMarkOffset);
             PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true, true, true, 0.0, 0.5*samplingRate);
        
-            subbandTracks = msa.analyze(x, lowestBandWindowSizeInSeconds, windowType, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, bFreqLimitedAnalysis, true, pm.pitchMarks, numPeriods);
+            subbandTracks = msa.analyze(x, lowestBandWindowSizeInSeconds, windowType, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, bFreqLimitedAnalysis, true, pm, numPeriods);
         }   
     }
 }
