@@ -340,12 +340,31 @@ public class MathUtils {
     {
         return variance(data, mean(data));
     }
+    
+    public static float variance(float[] data)
+    {
+        return variance(data, mean(data));
+    }
 
     public static double variance(double[] data, double meanVal)
     {
         return variance(data, meanVal, 0, data.length-1);
     }
+    
+    public static float variance(float[] data, float meanVal)
+    {
+        return variance(data, meanVal, 0, data.length-1);
+    }
 
+    public static float variance(float[] data, float meanVal, int startIndex, int endIndex)
+    {
+        double[] ddata = new double[data.length];
+        for (int i=0; i<data.length; i++)
+            ddata[i] = data[i];
+        
+        return (float)variance(ddata, meanVal, startIndex, endIndex);
+    }
+    
     public static double variance(double[] data, double meanVal, int startIndex, int endIndex)
     {
         double var = 0.0;
@@ -1615,6 +1634,17 @@ public class MathUtils {
     {
         return getMaxIndex(x, 0);
     }
+    
+    public static int getMaxIndex(double[] x, int[] inds)
+    {
+        double[] tmp = new double[inds.length];
+        for (int i=0; i<inds.length; i++)
+            tmp[i] = x[inds[i]];
+        
+        int maxIndInd = MathUtils.getMaxIndex(tmp);
+        
+        return inds[maxIndInd];
+    }
 
     public static int getMaxIndex(double [] x, int startInd)
     {
@@ -1755,7 +1785,7 @@ public class MathUtils {
                                                                                                                               // If there is no local peak, -1 is returned. This means that the peak is either at [startInd] or [endInd].
     // However, it is the responsibility of the calling function to further check this situation as the returned index
     // will be -1 in both cases
-    public static int getAbsMaxInd(double [] x, int startInd, int endInd)
+    public static int getAbsMaxInd(double[] x, int startInd, int endInd)
     {
         int index = -1;
         double max = x[startInd];
@@ -1771,7 +1801,7 @@ public class MathUtils {
 
         return index;
     }
-
+    
     //Return an array where each entry is set to val
     public static double [] filledArray(double val, int len)
     {
@@ -2207,32 +2237,38 @@ public class MathUtils {
                 {    
                     bExtremum = true;
 
-                    if (i-numLeftNs[i]>=0)
+                    if (numLeftNs==null || i-numLeftNs[i]>=0)
                     {
-                        for (j=i-numLeftNs[i]; j<i; j++)
+                        if (numLeftNs!=null)
                         {
-                            if (x[i]<x[j])
+                            for (j=i-numLeftNs[i]; j<i; j++)
                             {
-                                bExtremum = false;
-                                break;
+                                if (x[i]<x[j])
+                                {
+                                    bExtremum = false;
+                                    break;
+                                }
                             }
                         }
 
                         if (bExtremum)
                         {
-                            if (i+numRightNs[i]<x.length)
+                            if (numRightNs!=null)
                             {
-                                for (j=i+1; j<=i+numRightNs[i]; j++)
+                                if (i+numRightNs[i]<x.length)
                                 {
-                                    if (x[i]<x[j])
+                                    for (j=i+1; j<=i+numRightNs[i]; j++)
                                     {
-                                        bExtremum = false;
-                                        break;
+                                        if (x[i]<x[j])
+                                        {
+                                            bExtremum = false;
+                                            break;
+                                        }
                                     }
                                 }
+                                else
+                                    bExtremum = false;
                             }
-                            else
-                                bExtremum = false;
                         }
                     }
                     else
@@ -2252,32 +2288,38 @@ public class MathUtils {
                 if (x[i]<th)
                 {
                     bExtremum = true;
-                    if (i-numLeftNs[i]>=0)
+                    if (numLeftNs==null || i-numLeftNs[i]>=0)
                     {
-                        for (j=i-numLeftNs[i]; j<i; j++)
+                        if (numLeftNs!=null)
                         {
-                            if (x[i]>x[j])
+                            for (j=i-numLeftNs[i]; j<i; j++)
                             {
-                                bExtremum = false;
-                                break;
+                                if (x[i]>x[j])
+                                {
+                                    bExtremum = false;
+                                    break;
+                                }
                             }
                         }
 
                         if (bExtremum)
                         {
-                            if (i+numRightNs[i]<x.length)
+                            if (numRightNs!=null)
                             {
-                                for (j=i+1; j<=i+numRightNs[i]; j++)
+                                if (i+numRightNs[i]<x.length)
                                 {
-                                    if (x[i]>x[j])
+                                    for (j=i+1; j<=i+numRightNs[i]; j++)
                                     {
-                                        bExtremum = false;
-                                        break;
+                                        if (x[i]>x[j])
+                                        {
+                                            bExtremum = false;
+                                            break;
+                                        }
                                     }
                                 }
+                                else
+                                    bExtremum = false;
                             }
-                            else
-                                bExtremum = false;
                         }
                     }
                     else

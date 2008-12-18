@@ -191,6 +191,8 @@ public class TrackModifier {
         prevMiddleAnalysisSample = 0;
         prevMiddleSynthesisSample = 0;
 
+        float trackMeanFreqInHz, trackMeanFreqInRadians;
+        
         for (i=trackSt; i<=trackEn; i++)
         {
             if (bSingleTrackTest)
@@ -198,6 +200,9 @@ public class TrackModifier {
 
             n0Prev = 0;
             n0ModPrev = 0;
+            
+            trackMeanFreqInRadians = MathUtils.mean(trIn.tracks[i].freqs);
+            trackMeanFreqInHz = SignalProcUtils.radian2Hz(trackMeanFreqInRadians, trIn.fs);
 
             for (j=0; j<trIn.tracks[i].totalSins; j++)
             {   
@@ -223,10 +228,14 @@ public class TrackModifier {
                     float newGain = 1.0f;
                     if (pScaleCurrent>1.0f)
                     {
-                        if (pScaleCurrent*freqInHz>maxFreqOfVoicingInHz) //Only set pitch scale coeff to 1.0
+                        if (freqInHz<10.0f) //Very low frequencies
                         {
                             pScaleCurrent = 1.0f;
-                            newGain = 0.0f;
+                        }
+                        else if (freqInHz+(pScaleCurrent-1.0)*trackMeanFreqInHz>maxFreqOfVoicingInHz) //Frequencies that should be noise like
+                        {
+                            pScaleCurrent = 1.0f;
+                            newGain = 0.0f; //This results in higher freqs not being synthesized
                         }
                         else if (freqInHz>maxFreqOfVoicingInHz) //Do not include these components since these will interfere with pitch scale modified sines
                         {
@@ -304,11 +313,11 @@ public class TrackModifier {
                     middleSynthesisSample = (int)SignalProcUtils.time2sample(middleSynthesisTime, trIn.fs);
                     closestIndMod = MathUtils.findClosest(pmMod.pitchMarks, middleSynthesisSample);
                     
-                    excPhaseMod = prevExcPhaseMod + pScaleCurrent*trIn.tracks[i].freqs[j]*(middleSynthesisSample-prevMiddleSynthesisSample);
+                    excPhaseMod = prevExcPhaseMod + (freq+(pScaleCurrent-1.0f)*trackMeanFreqInRadians)*(middleSynthesisSample-prevMiddleSynthesisSample);
                     excAmpMod = excAmp;
                     //excAmpMod = 1.0f; //This should hold whenever an envelope that passes from spectral peaks is used, i.e. SEEVOC
                     
-                    freqMod = (float)pScaleCurrent*freq;
+                    freqMod = (float)(freq+(pScaleCurrent-1.0)*trackMeanFreqInRadians);
                     if (freqMod>0.5*MathUtils.TWOPI)
                         excAmpMod=0.0f;
                     while (freqMod>MathUtils.TWOPI)
@@ -320,7 +329,7 @@ public class TrackModifier {
                     
                     if (pScaleCurrent!=1.0f) //Modify system phase and amplitude according to pitch scale modification factor
                     {
-                        sysFreqIndMod = SignalProcUtils.freq2index(pScaleCurrent*freqInHz, trIn.fs, trIn.sysAmps.get(sysTimeInd).length-1);
+                        sysFreqIndMod = SignalProcUtils.freq2index(freqInHz+(pScaleCurrent-1.0)*trackMeanFreqInHz, trIn.fs, trIn.sysAmps.get(sysTimeInd).length-1);
                         sysFreqIndMod = Math.min(sysFreqIndMod, trIn.sysAmps.get(sysTimeInd).length-1);
                         sysFreqIndMod = Math.max(sysFreqIndMod, 0);
 
@@ -331,10 +340,11 @@ public class TrackModifier {
                             sysPhaseMod = (float)(trIn.sysPhases.get(sysTimeInd)[sysFreqIndMod]); //This is wrong, create phase envelope for real and imaginary parts, and then resample
                         else if (sysPhaseModMethod==FROM_INTERPOLATED)
                         {
-                            if (freqInHz<0.5*trIn.fs/pScaleCurrent-50.0f)
+                            
+                            if (freqInHz<0.5*trIn.fs-(pScaleCurrent-1.0)*trackMeanFreqInHz-50.0f)
                             {
                                 //This is from Quatieri´s paper "Shape Invariant..."
-                                tempIndex = (int)Math.floor(pScaleCurrent*sysFreqIndDouble);
+                                tempIndex = (int)Math.floor(sysFreqIndDouble+SignalProcUtils.freq2index((pScaleCurrent-1.0)*trackMeanFreqInHz, trIn.fs, trIn.sysAmps.get(sysTimeInd).length-1));
                                 if (sysFreqInd<trIn.frameDfts.get(sysTimeInd).real.length-1)
                                 {
                                     sysPhaseModReal = (float)MathUtils.interpolatedSample(tempIndex, sysFreqIndDouble, tempIndex+1, trIn.frameDfts.get(sysTimeInd).real[tempIndex], trIn.frameDfts.get(sysTimeInd).real[tempIndex+1]);
@@ -354,7 +364,7 @@ public class TrackModifier {
                         {
                             //This is from Van Santen´s et.al.´s book - Chapter 5 
                             //(van Santen, et. al., Progress in Speech Synthesis)
-                            sysPhaseMod = (float)SignalProcUtils.cepstrum2minimumPhase(trIn.sysCeps.get(sysTimeInd), pScaleCurrent*trIn.tracks[i].freqs[j]);
+                            sysPhaseMod = (float)SignalProcUtils.cepstrum2minimumPhase(trIn.sysCeps.get(sysTimeInd), trIn.tracks[i].freqs[j]+(pScaleCurrent-1.0f)*trackMeanFreqInRadians);
                         }
                         //
                         

@@ -48,6 +48,7 @@ import marytts.signalproc.window.Window;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.io.FileUtils;
+import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.FFT;
 import marytts.util.math.FFTMixedRadix;
@@ -70,7 +71,8 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     public static double MIN_ENERGY_TH = 1e-50; //Minimum energy threshold to analyze a frame
     public static double MIN_PEAK_IN_DB_LOW = -200.0f;
     public static double MIN_PEAK_IN_DB_HIGH = -200.0f;
-    public static double MAX_VOICED_FREQ_IN_HZ = 2500.0f; //Maximum voiced freq allowed
+    public static double MIN_VOICED_FREQ_IN_HZ = 5000.0f; //Minimum voiced freq allowed (for voiced regions only)
+    public static double MAX_VOICED_FREQ_IN_HZ = 5000.0f; //Maximum voiced freq allowed (for voiced regions only)
     
     public static boolean DEFAULT_REFINE_PEAK_ESTIMATES_PARABOLA = true;
     public static boolean DEFAULT_REFINE_PEAK_ESTIMATES_BIAS = true;
@@ -311,10 +313,6 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         sinTracks.absMaxOriginal = (float)absMax;
         sinTracks.totalEnergy = (float)totalEnergy;
         
-        int numSinusoidsPerFrame = 20;
-        
-        sinTracks = postProcessing(sinTracks, numSinusoidsPerFrame);
-        
         return sinTracks;
     }
     
@@ -537,6 +535,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         int[] freqIndsLow = null;
         int[] freqIndsHigh = null;
         int[] freqInds = null;
+        int[] freqIndsLowest = null;
         float [] freqIndsRefined = null;
         
         double frmEn = SignalProcUtils.getEnergy(frm);
@@ -605,6 +604,9 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
             vo = HnmPitchVoicingAnalyzer.estimateMaxFrequencyOfVoicingsFrame(frameDftDB, fs, (float)f0, isVoiced);
             
             maxVoicingFreqInHz = (float)Math.min(vo.maxFreqOfVoicing, MAX_VOICED_FREQ_IN_HZ); //From hnm, not working very properly yet
+            if (maxVoicingFreqInHz>0.0f)
+                maxVoicingFreqInHz = (float)Math.max(maxVoicingFreqInHz, MIN_VOICED_FREQ_IN_HZ); //From hnm, not working very properly yet
+            
             //maxVoicingFreqInHz = 3600.0f; //manual
             
             float upperFreqSamplingStepInHz = 100.0f;
@@ -612,12 +614,17 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
             int endIndLow = SignalProcUtils.freq2index(maxVoicingFreqInHz, fs, maxFreq);
             int startIndHigh = endIndLow+1;
             int endIndHigh = SignalProcUtils.freq2index(endFreq, fs, maxFreq);
+            int halfF0Ind = SignalProcUtils.freq2index(0.5*f0, fs, maxFreq);
             
             //Determine peak amplitude indices and the corresponding amplitudes, frequencies, and phases 
             if (!bManualPeakPickingTest)
             {
+                /*
                 //Method A: Conventional method gets local extrema from db spectrum
                 freqInds = MathUtils.getExtrema(frameDftDB, freqSampNeighs, freqSampNeighs, true, startIndLow, endIndHigh, MIN_PEAK_IN_DB_LOW);
+                if (!ArrayUtils.isOneOf(freqInds, 0)) //Add zeroth index since it is the dc bias
+                     freqInds = ArrayUtils.appendToStart(freqInds, 0);
+                */
                 
                 /*
                 //Method B: Peak picking in lower freqs + Peak picking in upper freqs but with different parameters
@@ -638,12 +645,15 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                 }
                 */
                 
-                /*
-                //Method D: Lower peaks from hnm analysis, upper peaks with peak picking
+                //Method D: Lower peaks from HNM analysis, upper peaks with peak picking
                 freqIndsLow = vo.peakIndices;
+                if (freqIndsLow!=null)
+                {
+                    if (!ArrayUtils.isOneOf(freqIndsLow, 0)) //Add zeroth index since it is the dc bias
+                        freqIndsLow = ArrayUtils.appendToStart(freqIndsLow, 0);
+                }
                 freqIndsHigh = MathUtils.getExtrema(frameDftDB, DEFAULT_FREQ_SAMP_NEIGHS_HIGH, DEFAULT_FREQ_SAMP_NEIGHS_HIGH, true, startIndHigh, endIndHigh, MIN_PEAK_IN_DB_HIGH);
                 //
-                 */
                 
                 int numInds = 0;
                 if (freqIndsLow!=null)
@@ -941,23 +951,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
             
         return freqIndsRefined;
     }
-    
-    //This function turns part of the sinusoidal components off to satisfy different requirements
-    // (1) Model based approaches require a fixed number of sinusiodal parameters for each speech frame
-    //     Therefore, a mechanism is required to reduce/fix the number of components at each frame
-    // (2) Perceptual masking can be used to reduce the number of relevant components
-    public SinusoidalTracks postProcessing(SinusoidalTracks st, int numSinusoidsPerFrame)
-    {
-        //Simplest method: Take the first numSinusoidsPerFrame highest amplitude components, turn the remanining off
-        int i, j;
-        for (i=0; i<st.times.length; i++)
-        {
-            
-            
-        }
-        
-        return st;
-    }
+
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
     {

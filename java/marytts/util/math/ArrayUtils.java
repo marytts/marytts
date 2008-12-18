@@ -43,5 +43,79 @@ public class ArrayUtils
         System.arraycopy(orig, off, sub, 0, len);
         return sub;
     }
+    
+    //Returns true if val is at least once contained in array
+    //Otherwise returns false
+    public static boolean isOneOf(int[] array, int val)
+    {
+        boolean ret = false;
+        for (int i=0; i<array.length; i++)
+        {
+            if (array[i]==val)
+            {
+                ret = true;
+                break;
+            }
+        }
+        
+        return ret;
+    }
 
+    //Appends val to the beginning of array
+    public static int[] appendToStart(int[] array, int val)
+    {
+        int len = 1;
+        if (array!=null)
+            len += array.length;
+
+        int[] arrayOut = new int[len];
+        arrayOut[0] = val;
+        if (array!=null)
+            System.arraycopy(array, 0, arrayOut, 1, array.length);
+        
+        return arrayOut;
+    }
+    
+    //Appends val to the end of array
+    public static int[] appendToEnd(int[] array, int val)
+    {
+        int len = 1;
+        if (array!=null)
+            len += array.length;
+
+        int[] arrayOut = new int[len];
+        arrayOut[len-1] = val;
+        if (array!=null)
+            System.arraycopy(array, 0, arrayOut, 0, array.length);
+        
+        return arrayOut;
+    }
+    
+    public static double[] toDoubleArray(float[] x)
+    {
+        double[] xd = null;
+
+        if (x!=null && x.length>0)
+        {
+            xd = new double[x.length];
+            for (int i=0; i<x.length; i++)
+                xd[i] = x[i];
+        }
+        
+        return xd;
+    }
+    
+    public static float[] toFloatArray(double[] x)
+    {
+        float[] xf = null;
+
+        if (x!=null && x.length>0)
+        {
+            xf = new float[x.length];
+            for (int i=0; i<x.length; i++)
+                xf[i] = (float)x[i];
+        }
+        
+        return xf;
+    }
 }

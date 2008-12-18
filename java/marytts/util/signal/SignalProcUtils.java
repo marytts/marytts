@@ -13,6 +13,7 @@ import marytts.signalproc.filter.HighPassFilter;
 import marytts.signalproc.filter.LowPassFilter;
 import marytts.signalproc.filter.RecursiveFilter;
 import marytts.signalproc.window.HammingWindow;
+import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.FFT;
 import marytts.util.math.FFTMixedRadix;
@@ -911,11 +912,21 @@ public class SignalProcUtils {
         return medianFilter(x, 3);
     }
     
+    public static float[] medianFilter(float[] x)
+    {
+        return medianFilter(x, 3);
+    }
+    
     //Median filtering: All values in x are replaced by the median of the N closest context neighbours
     // If N is odd, the output y[k] is the median of x[k-(N-1)/2],...,x[k+(N-1)/2]
     // If N is even, the output y[k] is the median of x[k-(N/2)+1],...,x[k+(N/2)-1], i.e. the average of the (N/2-1)th and (N/2)th of the sorted values
     // All out-of-boundary values are assumed 0.0
     public static double[] medianFilter(double[] x, int N)
+    {
+        return medianFilter(x, N, 0.0);
+    }
+    
+    public static float[] medianFilter(float[] x, int N)
     {
         return medianFilter(x, N, 0.0);
     }
@@ -927,6 +938,27 @@ public class SignalProcUtils {
     public static double[] medianFilter(double[] x, int N, double outOfBound)
     {
         return medianFilter(x, N, outOfBound, outOfBound);
+    }
+    
+    public static float[] medianFilter(float[] x, int N, double outOfBound)
+    {
+        return medianFilter(x, N, outOfBound, outOfBound);
+    }
+    
+    public static float[] medianFilter(float[] x, int N, double leftOutOfBound, double rightOutOfBound)
+    {
+        double[] x2 = new double[x.length];
+        int i;
+        for (i=0; i<x.length; i++)
+            x2[i] = x[i];
+        
+        x2 = medianFilter(x2, N, leftOutOfBound, rightOutOfBound);
+        
+        float[] y = new float[x.length];
+        for (i=0; i<x.length; i++)
+            y[i] = (float)(x2[i]);
+        
+        return y;
     }
     
     //Median filtering: All values in x are replaced by the median of the N closest context neighbours and the value itself
@@ -1002,13 +1034,32 @@ public class SignalProcUtils {
         return y;
     }
     
+    public static double[] meanFilter(double[] x, int N)
+    {
+        return meanFilter(x, N, x[0], x[x.length-1]);
+    }
+    
+    public static float[] meanFilter(float[] x, int N)
+    {
+        return meanFilter(x, N, x[0], x[x.length-1]);
+    }
+    
+    public static float[] meanFilter(float[] x, int N, float leftOutOfBound, float rightOutOfBound)
+    {
+        double[] xd = ArrayUtils.toDoubleArray(x);
+        
+        xd = meanFilter(xd, N, (double)leftOutOfBound, (double)rightOutOfBound);
+        
+        return ArrayUtils.toFloatArray(xd);
+    }
+    
     //Mean filtering: All values in x are replaced by the mean of the N closest context neighbours and the value itself
     // If N is odd, the output y[k] is the mean of x[k-(N-1)/2],...,x[k+(N-1)/2]
     // If N is even, the output y[k] is the mean of x[k-(N/2)+1],...,x[k+(N/2)-1]
     // The out-of-boundary values are assumed leftOutOfBound for k-i<0 and rightOutOfBound for k+i>x.length-1
     public static double[] meanFilter(double[] x, int N, double leftOutOfBound, double rightOutOfBound)
     {
-        double [] y = new double[x.length];
+        double[] y = new double[x.length];
         Vector v = new Vector();
 
         int k, j, midVal;

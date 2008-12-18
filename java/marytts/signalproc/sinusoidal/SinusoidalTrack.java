@@ -315,5 +315,4 @@ public class SinusoidalTrack {
             }
         }
     }
-
 }
