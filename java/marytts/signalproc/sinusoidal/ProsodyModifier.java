@@ -40,6 +40,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.filter.FilterBankAnalyserBase;
+import marytts.signalproc.process.OverlapAddEnergyNormalizer;
 import marytts.signalproc.window.Window;
 import marytts.util.MaryUtils;
 import marytts.util.data.BufferedDoubleDataSource;
@@ -253,7 +254,10 @@ public class ProsodyModifier {
             throw new Exception("Unknown sinusoidal synthesizer type!");
         
         if (y!=null)
+        {
+            //y = OverlapAddEnergyNormalizer.normalize(y, st[0].fs, f0_ws, f0_ss, windowType, 1.0);
             y = MathUtils.normalizeToAbsMax(y, absMaxDesired);
+        }
         
         return y;
     }
@@ -321,7 +325,7 @@ public class ProsodyModifier {
             if (true)
             {
                 float timeScale = 1.0f;
-                float pitchScale = 1.5f;
+                float pitchScale = 1.05f;
                 y = pm.process(x, f0.contour, (float)f0.header.ws, (float)f0.header.ss, 
                         isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                         timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
@@ -431,7 +435,7 @@ public class ProsodyModifier {
                 pitchMarkOffsetStr = "0"+pitchMarkOffsetStr;
 
             timeScale = 1.0f;
-            pitchScale = 1.5f;
+            pitchScale = 2.0f;
             //for (int i=0; i<pitchScales.length; i++)
             {
                 y = pm.process(x, f0.contour, (float)f0.header.ws, (float)f0.header.ss, 

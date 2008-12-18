@@ -29,14 +29,21 @@
 
 package marytts.signalproc.sinusoidal;
 
+import marytts.util.MaryUtils;
+import marytts.util.math.MathUtils;
+import marytts.util.signal.SignalProcUtils;
+
 /**
  * This class generates the sinusoidal tracks given individual peak amplitudes measured from the DFT spectrum
  * 
  * @author Oytun T&uumlrk
  */
 public class TrackGenerator {
-    public static float ZERO_AMP_SHIFT_IN_SECONDS = 0.005f; //Time instant before/after current time to insert a turning-on/off event
+    public static float ZERO_AMP_SHIFT_IN_SECONDS = 0.001f; //Time instant before/after current time to insert a turning-on/off event
                                                             //The amplitudes and synthesis freqs/phases are accordingly interpolated to provide a smooth transition
+    
+    public static int MEAN_FILTER_FREQ_AXIS = 3; //Median filter each tracks frequency values
+    public static int MEAN_FILTER_AMP_AXIS = 3; //Median filter each tracks amplitude values
     
     public TrackGenerator()
     {
@@ -65,6 +72,7 @@ public class TrackGenerator {
     public SinusoidalTracks generateTracks(SinusoidalSpeechSignal sinSignal, float deltaInHz, int samplingRate)
     {
         int numFrames = sinSignal.framesSins.length;
+        float deltaInRadians = SignalProcUtils.hz2radian(deltaInHz, samplingRate);
         
         SinusoidalTracks tr = null;
         int i;
@@ -94,7 +102,7 @@ public class TrackGenerator {
                         tr.tracks[tr.currentIndex].add(sinSignal.framesSins[i].time, sinSignal.framesSins[i].sinusoids[j], sinSignal.framesSins[i].maxFreqOfVoicing, SinusoidalTrack.ACTIVE);
                     }
                 }
-                else //If there are tracks, first check "continuations" by checking whether a given sinusoid is in the +-deltaInHz neighbourhood of the previous track. 
+                else //If there are tracks, first check "continuations" by checking whether a given sinusoid is in the +-deltaInRadians neighbourhood of the previous track. 
                      // Those tracks that do not continue are "turned off". 
                      // All sinusoids of the current frame that are not assigned to any of the "continuations" or "turned off" are "birth"s of new tracks.
                 {
@@ -110,7 +118,7 @@ public class TrackGenerator {
                     for (k=0; k<sinSignal.framesSins[i].sinusoids.length; k++)
                     {
                         minDist = Math.abs(sinSignal.framesSins[i].sinusoids[k].freq-tr.tracks[0].freqs[tr.tracks[0].currentIndex]);
-                        if (minDist<deltaInHz)
+                        if (minDist<deltaInRadians)
                             trackInd = 0;
                         else
                             trackInd = -1;
@@ -119,7 +127,7 @@ public class TrackGenerator {
                         {
                             tmpDist = Math.abs(sinSignal.framesSins[i].sinusoids[k].freq-tr.tracks[j].freqs[tr.tracks[j].currentIndex]);
                             
-                            if (tmpDist<deltaInHz && (trackInd==-1 || tmpDist<minDist))
+                            if (tmpDist<deltaInRadians && (trackInd==-1 || tmpDist<minDist))
                             {
                                 minDist = tmpDist;
                                 trackInd = j;
@@ -206,6 +214,24 @@ public class TrackGenerator {
         
         tr.setOriginalDurationManual(sinSignal.originalDurationInSeconds);
         
-        return new SinusoidalTracks(tr, 0, tr.currentIndex);
+        SinusoidalTracks trOut = new SinusoidalTracks(tr, 0, tr.currentIndex);
+        trOut = postProcess(trOut);
+            
+        return trOut;
+    }
+    
+    //Simple median filtering along frequencies and amplitudes
+    public SinusoidalTracks postProcess(SinusoidalTracks st)
+    {
+        for(int i=0; i<st.totalTracks; i++)
+        {
+            if (st.tracks[i].totalSins>20)
+            { 
+                st.tracks[i].freqs = SignalProcUtils.meanFilter(st.tracks[i].freqs, MEAN_FILTER_FREQ_AXIS);
+                st.tracks[i].amps = SignalProcUtils.meanFilter(st.tracks[i].amps, MEAN_FILTER_AMP_AXIS);
+            }
+        }
+        
+        return st;
     }
 }

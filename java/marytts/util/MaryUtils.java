@@ -968,7 +968,8 @@ public class MaryUtils {
     public static void plot(float[] xIn, int startInd, int endInd, String strTitle, boolean bAutoClose, int milliSecondsToClose)
     {
         double[] xd = new double[endInd-startInd+1];
-        System.arraycopy(xIn, startInd, xd, 0, xd.length);
+        for (int i=startInd; i<=endInd; i++)
+            xd[i-startInd] = xIn[i];
         
         FunctionGraph graph = new FunctionGraph(400, 200, 0, 1, xd);
         JFrame frame = graph.showInJFrame(strTitle, 500, 300, true, false);
