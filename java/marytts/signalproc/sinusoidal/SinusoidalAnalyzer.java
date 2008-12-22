@@ -40,6 +40,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.signalproc.analysis.CepstrumSpeechAnalyser;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.LpcAnalyser;
+import marytts.signalproc.analysis.RegularizedCepstralEnvelopeEstimator;
 import marytts.signalproc.analysis.SeevocAnalyser;
 import marytts.signalproc.analysis.SpectrumWithPeakIndices;
 import marytts.signalproc.sinusoidal.pitch.HnmPitchVoicingAnalyzer;
@@ -80,8 +81,9 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     public static boolean DEFAULT_ADJUST_NEIGH_FREQ_DEPENDENT = false;
     
     public static int NO_SPEC = -1; //No spectral envelope information is extracted
-    public static int LP_SPEC = 0; //Linear Prediction (LP) based envelope
-    public static int SEEVOC_SPEC = 1; //Spectral Envelope Estimation Vocoder (SEEVOC) based envelope
+    public static int LP_SPEC = 0; //Linear Prediction (LP) based envelope (Makhoul)
+    public static int SEEVOC_SPEC = 1; //Spectral Envelope Estimation Vocoder (SEEVOC) based envelope (Paul, 1981)
+    public static int REGULARIZED_CEPS = 2; //Regularized cepstrum based envelope (Cappe, et. al. 1995, Stylianou, et. al. 1995)
     
     protected int fs; //Sampling rate in Hz
     protected int windowType; //Type of window (See class Window for details)
@@ -270,6 +272,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
      *                       NO_SPEC (do not compute spectral envelope) 
      *                       LP_SPEC (linear prediction based envelope)
      *                       SEEVOC_SPEC (Spectral Envelope Estimation Vocoder based envelope)
+     *                       REGULARIZED_CEPS (Regularized cepstrum based envelope)
      *                       See below for details...
      */
     public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
@@ -288,6 +291,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
      *                       NO_SPEC (do not compute spectral envelope) 
      *                       LP_SPEC (linear prediction based envelope)
      *                       SEEVOC_SPEC (Spectral Envelope Estimation Vocoder based envelope)
+     *                       REGULARIZED_CEPS (Regularized cepstrum based envelope)
      * f0s: f0 values in Hz (optional, required for SEEVOC based spectral envelope estimation. 
      *      If not specified, SEEVOC based estimation will be performed at a fixed f0 value of 100.0 Hz    
      * ws_f0s: Window size in seconds used for f0 extraction (Functional only for SEEVOC based envelope estimation and when f0s are not null)
@@ -479,7 +483,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     
     //Extract sinusoidal model parameter from a windowed speech frame using the DFT peak-picking algorithm
     // frm: Windowed speech frame
-    // spectralEnvelopeType: Desired spectral envelope (See above, i.e LP_SPEC, SEEVOC_SPEC, etc.)
+    // spectralEnvelopeType: Desired spectral envelope (See above, i.e LP_SPEC, SEEVOC_SPEC, REGULARIZED_CEPS)
     // 
     public SinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType, boolean isVoiced, double f0, boolean bEstimateHNMVoicing)
     {   
@@ -495,7 +499,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
 
         setNeighFreq();
 
-        int maxFreq = (int) (Math.floor(0.5*fftSize+0.5)+1);
+        int maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
         ComplexArray frameDft = new ComplexArray(fftSize);
         int i;
         
@@ -599,6 +603,27 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                 SpectrumWithPeakIndices swpi = SeevocAnalyser.calcSpecEnvelopeLinear(frameDftDB, fs, f0); //Note that frameDftDB is in dB but the computed envelope is returned as linear
                 vocalTractSpec = swpi.spec;
             }
+            else if (spectralEnvelopeType==REGULARIZED_CEPS)
+            {
+                SpectrumWithPeakIndices swpi = SeevocAnalyser.calcSpecEnvelopeLinear(frameDftDB, fs, f0); //Note that frameDftDB is in dB but the computed envelope is returned as linear
+                int cepsOrder = 17;
+                boolean convertFreqsToBark = true; //TO DO: the case "true" is not being handled correctly in RegularizedCepstralEnvelopeEstimator, 
+                                                   //(handled in ceps computation but not in returning to spectrum). See cepstrum2logAmpHalfSpectrum for details
+                                                   //Without bark-scaling, this does not work properly unless a proper weighting strategy is implemented
+                int numPeaks = swpi.indices.length;
+                double[] linearAmps = new double[numPeaks];
+                double[] freqsInHz = new double [numPeaks];
+                for (i=0; i<numPeaks; i++)
+                {
+                    linearAmps[i] = frameDftAbs[swpi.indices[i]];
+                    freqsInHz[i] = SignalProcUtils.index2freq(swpi.indices[i], fs, maxFreq-1);
+                }
+                vocalTractSpec = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2linearAmpHalfSpectrum(linearAmps, freqsInHz, fs, cepsOrder, fftSize, convertFreqsToBark);
+            }
+            
+            double[] vocalTractSpecDB = MathUtils.amp2db(vocalTractSpec);
+            MaryUtils.plot(frameDftDB);
+            MaryUtils.plot(vocalTractSpecDB);
             
             //Use abs dft in db for maximum frequency of voicing estimation
             vo = HnmPitchVoicingAnalyzer.estimateMaxFrequencyOfVoicingsFrame(frameDftDB, fs, (float)f0, isVoiced);

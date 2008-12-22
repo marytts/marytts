@@ -107,6 +107,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
      *                       NO_SPEC (do not compute spectral envelope) 
      *                       LP_SPEC (linear prediction based envelope)
      *                       SEEVOC_SPEC (Spectral Envelope Estimation Vocoder based envelope)
+     *                       REGULARIZED_CEPS (Regularized cepstrum based envelope)
      */
     public SinusoidalTracks analyzePitchSynchronous(double[] x, PitchMarks pm, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
     {

@@ -136,8 +136,10 @@ public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
         float windowSizeInSeconds = SinusoidalAnalyzer.DEFAULT_ANALYSIS_WINDOW_SIZE;
         float skipSizeInSeconds = SinusoidalAnalyzer.DEFAULT_ANALYSIS_SKIP_SIZE;
         float deltaInHz  = SinusoidalAnalyzer.DEFAULT_DELTA_IN_HZ;
-        int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC;
+        
         //int spectralEnvelopeType = SinusoidalAnalyzer.LP_SPEC;
+        int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC;
+        //int spectralEnvelopeType = SinusoidalAnalyzer.REGULARIZED_CEPS;
         
         boolean bRefinePeakEstimatesParabola = false;
         boolean bRefinePeakEstimatesBias = false;
