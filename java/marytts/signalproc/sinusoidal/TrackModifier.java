@@ -340,7 +340,6 @@ public class TrackModifier {
                             sysPhaseMod = (float)(trIn.sysPhases.get(sysTimeInd)[sysFreqIndMod]); //This is wrong, create phase envelope for real and imaginary parts, and then resample
                         else if (sysPhaseModMethod==FROM_INTERPOLATED)
                         {
-                            
                             if (freqInHz<0.5*trIn.fs-(pScaleCurrent-1.0)*trackMeanFreqInHz-50.0f)
                             {
                                 //This is from Quatieri´s paper "Shape Invariant..."
