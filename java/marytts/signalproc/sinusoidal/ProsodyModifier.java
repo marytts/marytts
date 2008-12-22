@@ -392,7 +392,8 @@ public class ProsodyModifier {
         boolean isVoicingAdaptivePitchScaling = false;
 
         //int spectralEnvelopeType = SinusoidalAnalyzer.LP_SPEC; String envelopeName="lp";
-        int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC; String envelopeName="sv";
+        //int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC; String envelopeName="sv";
+        int spectralEnvelopeType = SinusoidalAnalyzer.REGULARIZED_CEPS; String envelopeName="rc";
         
         //int analyzerType = BaseSinusoidalAnalyzer.FIXEDRATE_FULLBAND_ANALYZER;
         int analyzerType = BaseSinusoidalAnalyzer.PITCHSYNCHRONOUS_FULLBAND_ANALYZER; 

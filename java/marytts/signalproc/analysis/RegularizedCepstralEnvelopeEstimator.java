@@ -58,24 +58,62 @@ public class RegularizedCepstralEnvelopeEstimator
 {
     public static final double DEFAULT_LAMBDA = 5e-4;
     
-    public static double[] freqsAmps2regularizedLogAmpEnvelopeHalfSpectrum(double[] linearAmps, 
-                                                                           double[] freqsInHz, 
-                                                                           int samplingRateInHz,
-                                                                           int cepsOrder,
-                                                                           int fftSize)
+    public static double[] freqsLinearAmps2logAmpHalfSpectrum(double[] linearAmps, 
+                                                              double[] freqsInHz, 
+                                                              int samplingRateInHz,
+                                                              int cepsOrder,
+                                                              int fftSize,
+                                                              boolean convertFreqsToBark)
     {
-        double[] ceps = freqsAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrder);
+        double[] ceps = freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrder, convertFreqsToBark);
         
-        return cepstrum2halfAbsSpectrum(ceps, fftSize, samplingRateInHz);
+        return cepstrum2logAmpHalfSpectrum(ceps, fftSize, samplingRateInHz, convertFreqsToBark);
     }
     
-    public static double[] freqsAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrder)
+    public static double[] freqsLinearAmps2linearAmpHalfSpectrum(double[] linearAmps, 
+                                                                 double[] freqsInHz, 
+                                                                 int samplingRateInHz,
+                                                                 int cepsOrder,
+                                                                 int fftSize,
+                                                                 boolean convertFreqsToBark)
     {
-        return freqsAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrder, null, DEFAULT_LAMBDA);
+        double[] ceps = freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrder, convertFreqsToBark);
+
+        return cepstrum2linearAmpHalfSpectrum(ceps, fftSize, samplingRateInHz, convertFreqsToBark);
+    }
+    
+    public static double[] freqsLinearAmps2logAmpFullSpectrum(double[] linearAmps, 
+                                                              double[] freqsInHz, 
+                                                              int samplingRateInHz,
+                                                              int cepsOrder,
+                                                              int fftSize,
+                                                              boolean convertFreqsToBark)
+    { 
+        double[] ceps = freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrder, convertFreqsToBark);
+
+        return cepstrum2logAmpFullSpectrum(ceps, fftSize, samplingRateInHz, convertFreqsToBark);
+    }
+
+    public static double[] freqsLinearAmps2linearAmpFullSpectrum(double[] linearAmps, 
+                                                                 double[] freqsInHz, 
+                                                                 int samplingRateInHz,
+                                                                 int cepsOrder,
+                                                                 int fftSize,
+                                                                 boolean convertFreqsToBark)
+    {
+        double[] ceps = freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrder, convertFreqsToBark);
+
+        return cepstrum2linearAmpFullSpectrum(ceps, fftSize, samplingRateInHz, convertFreqsToBark);
+    }
+
+    public static double[] freqsLinearAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrder, boolean convertFreqsToBark)
+    {
+        return freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrder, null, DEFAULT_LAMBDA, convertFreqsToBark);
     }
     
     //lambda: regularization term (typically on the order of 0.0001
-    public static double[] freqsAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrder, double[] weights, double lambda)
+    //Note that cepstrum is always computed using log amps, therefore the fitted spectrum computed from these cepstrum coeffs will be in log amp domain
+    public static double[] freqsLinearAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrder, double[] weights, double lambda, boolean convertFreqsToBark)
     { 
         assert linearAmps.length==freqsInHz.length;
         
@@ -86,10 +124,14 @@ public class RegularizedCepstralEnvelopeEstimator
         double[][] M = new double[L][p+1];
         int i, j;
         double w;
+        double denum = (2.0*SignalProcUtils.freq2barkNew(0.5*samplingRateInHz));
         for (i=0; i<L; i++)
         {
             M[i][0] = 1.0;
-            w = SignalProcUtils.hz2radian(freqsInHz[i], samplingRateInHz);
+            if (!convertFreqsToBark)
+                w = SignalProcUtils.hz2radian(freqsInHz[i], samplingRateInHz);
+            else
+                w = MathUtils.TWOPI*SignalProcUtils.freq2barkNew(freqsInHz[i])/denum;
             
             for (j=1; j<p+1; j++)  
                 M[i][j] = 2.0*Math.cos(w*j);
@@ -130,17 +172,27 @@ public class RegularizedCepstralEnvelopeEstimator
     //ceps: real cepstrum values including c0, i.e. a vector of size p+1 where p is the cepstrum order
     //fftSize: size of fft (a vector of fftSize/2+1 is returned)
     //samplingRateInHz: number of samples per second
-    public static double[] cepstrum2halfAbsSpectrum(double[] ceps, int fftSize, int samplingRateInHz)
+    //
+    // TO DO: VERY IMPORTANT, other wise we cannot use this code at all (or we need to do weighting in freqsLinearAmps2cepstrum)
+    // bark scaling is not handled yet, it should do reverse scaling to obtain spectral values at correct indices, currently this gives values at bark scaled indices
+    // i.e. convertBarksToFreqs has no effect
+    // To do this, we have to reverse scale the bark axis into frequency in Hz after computing halfAbsSpectrum.
+    // So, for each freq in Hz index, we need to find the closest entries in halfAbsSpectrum (which are bark scaled indices)
+    // Then, according to the distance to these indices, we need to do some interpolation
+    // It will be logical to do the interpolation in bark domain
+    //
+    public static double[] cepstrum2logAmpHalfSpectrum(double[] ceps, int fftSize, int samplingRateInHz, boolean convertBarksToFreqs)
     {
         int maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
         double[] halfAbsSpectrum = new double[maxFreq];
         int p = ceps.length-1;
         int i, k;
         double w;
-        
+
         for (k=0; k<maxFreq; k++)
         {
             w = SignalProcUtils.hz2radian((((double)k)/(maxFreq-1.0))*(0.5*samplingRateInHz),samplingRateInHz);
+
             halfAbsSpectrum[k] = ceps[0];
             for (i=1; i<=p; i++)
                 halfAbsSpectrum[k] += ceps[i]*Math.cos(w*i);   
@@ -149,8 +201,18 @@ public class RegularizedCepstralEnvelopeEstimator
         return halfAbsSpectrum;
     }
     
-    public static double[] cepstrum2fullAbsSpectrum(double[] ceps, int fftSize, int samplingRateInHz)
+    public static double[] cepstrum2logAmpFullSpectrum(double[] ceps, int fftSize, int samplingRateInHz, boolean convertBarksToFreqs)
     { 
-        return SignalProcUtils.spectralMirror(cepstrum2halfAbsSpectrum(ceps, fftSize, samplingRateInHz));
+        return SignalProcUtils.spectralMirror(cepstrum2logAmpHalfSpectrum(ceps, fftSize, samplingRateInHz, convertBarksToFreqs));
+    }
+    
+    public static double[] cepstrum2linearAmpHalfSpectrum(double[] ceps, int fftSize, int samplingRateInHz, boolean convertBarksToFreqs)
+    {
+        return MathUtils.db2amp(cepstrum2logAmpHalfSpectrum(ceps, fftSize, samplingRateInHz, convertBarksToFreqs));
+    }
+    
+    public static double[] cepstrum2linearAmpFullSpectrum(double[] ceps, int fftSize, int samplingRateInHz, boolean convertBarksToFreqs)
+    { 
+        return MathUtils.db2amp(cepstrum2logAmpFullSpectrum(ceps, fftSize, samplingRateInHz, convertBarksToFreqs));
     }
 }

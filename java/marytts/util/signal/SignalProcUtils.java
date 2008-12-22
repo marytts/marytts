@@ -602,6 +602,15 @@ public class SignalProcUtils {
         return 13.0*Math.atan(0.00076*freqInHz)+3.5*Math.atan((freqInHz*freqInHz/(7500*7500)));
     }
     
+    //This was in [Zwicker, 1980] which is more recent as compared to above
+    public static double freq2barkNew(double freqInHz)
+    {
+        if (freqInHz>=605)
+            return 13.0*Math.atan(0.00076*freqInHz);
+        else
+            return 8.7+14.2*Math.log10(freqInHz/1000.0);
+    }
+    
     //Convert frequency in Hz to frequency sample index
     // maxFreq corresponds to half sampling rate, i.e. sample no: fftSize/2+1 where freq sample indices are 0,1,...,maxFreq-1
     public static int[] freq2index(double [] freqsInHz, int samplingRateInHz, int maxFreq)
