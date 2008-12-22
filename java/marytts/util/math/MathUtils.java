@@ -614,6 +614,24 @@ public class MathUtils {
 
         return d;
     }
+    
+    public static double[][] toDiagonalMatrix(double[] x)
+    {
+        double[][] m = null;
+        
+        if (x!=null && x.length>0)
+        {
+            m = new double[x.length][x.length];
+            int i;
+            for (i=0; i<x.length; i++)
+                Arrays.fill(m[i], 0.0);
+            
+            for (i=0; i<x.length; i++)
+                m[i][i] = x[i];
+        }
+        
+        return m;
+    }
 
     public static double[][] transpoze(double[] x)
     {

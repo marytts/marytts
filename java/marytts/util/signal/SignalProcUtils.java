@@ -75,6 +75,11 @@ public class SignalProcUtils {
         return (int)(Math.floor(fftSize/2.0+1.5));
     }
     
+    public static int fullSpectrumSize(int maxFreq)
+    {
+        return 2*(maxFreq-1);
+    }
+    
     public static double getEnergydB(double x)
     {   
         double [] y = new double[1];
@@ -1838,6 +1843,25 @@ public class SignalProcUtils {
         //Declare frequency of voicing as the end of the last voiced band
         
         return maximumFreqOfVoicingInHz;
+    }
+    
+    //Converts half-left part of the spectrum into a full spectrum as follows:
+    // fullSpectrum[0 ... maxFreq-1] = halfSpectrum[0 ... maxFreq-1]
+    // fullSpectrum[maxFreq ... fftSize-1] = halfSpectrum[maxFreq-2 ... 1]
+    // where maxFreq-1 = halfSpectrum.length
+    // and fftSize = 2*(maxFreq-1);
+    public static double[] spectralMirror(double[] halfSpectrum)
+    {
+        int maxFreq = halfSpectrum.length+1;
+        int fftSize = fullSpectrumSize(maxFreq);
+        double[] fullSpectrum = new double[fftSize];
+        
+        int k;
+        System.arraycopy(halfSpectrum, 0, fullSpectrum, 0, maxFreq-1);
+        for (k=maxFreq; k<=fftSize-1; k++)
+            fullSpectrum[k] = halfSpectrum[2*maxFreq-k-2];
+            
+        return fullSpectrum;
     }
     
     public static void main(String[] args)
