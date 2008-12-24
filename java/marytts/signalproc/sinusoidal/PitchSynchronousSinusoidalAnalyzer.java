@@ -111,7 +111,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
      */
     public SinusoidalTracks analyzePitchSynchronous(double[] x, PitchMarks pm, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
     {
-        SinusoidalSpeechSignal sinSignal = extracSinusoidsPitchSynchronous(x, pm, numPeriods, skipSizeInSeconds, deltaInHz, spectralEnvelopeType);
+        SinusoidalSpeechFrames sinSignal = extracSinusoidsPitchSynchronous(x, pm, numPeriods, skipSizeInSeconds, deltaInHz, spectralEnvelopeType);
         
         //Extract sinusoidal tracks
         TrackGenerator tg = new TrackGenerator();
@@ -131,12 +131,12 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         return sinTracks;
     }
     
-    public SinusoidalSpeechSignal extracSinusoidsPitchSynchronous(double[] x, PitchMarks pm, float numPeriods, float skipSizeInSeconds, float deltaInHz)
+    public SinusoidalSpeechFrames extracSinusoidsPitchSynchronous(double[] x, PitchMarks pm, float numPeriods, float skipSizeInSeconds, float deltaInHz)
     {
         return extracSinusoidsPitchSynchronous(x, pm, numPeriods, skipSizeInSeconds, deltaInHz, SinusoidalAnalyzer.LP_SPEC);
     }
     
-    public SinusoidalSpeechSignal extracSinusoidsPitchSynchronous(double[] x, PitchMarks pm, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
+    public SinusoidalSpeechFrames extracSinusoidsPitchSynchronous(double[] x, PitchMarks pm, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
     {
         absMax = MathUtils.getAbsMax(x);
         totalEnergy = SignalProcUtils.energy(x);
@@ -164,7 +164,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         int i, j;
         int T0;
         
-        SinusoidalSpeechSignal sinSignal =  new SinusoidalSpeechSignal(totalFrm);
+        SinusoidalSpeechFrames sinSignal =  new SinusoidalSpeechFrames(totalFrm);
         boolean [] isSinusoidNulls = new boolean[totalFrm]; 
         Arrays.fill(isSinusoidNulls, false);
         int totalNonNull = 0;
@@ -279,12 +279,12 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         }
         //
         
-        SinusoidalSpeechSignal sinSignal2 = null;
+        SinusoidalSpeechFrames sinSignal2 = null;
         float [] voicings2 = null;
         if (totalNonNull>0)
         {
             //Collect non-null sinusoids only
-            sinSignal2 =  new SinusoidalSpeechSignal(totalNonNull);
+            sinSignal2 =  new SinusoidalSpeechFrames(totalNonNull);
             int ind = 0;
             for (i=0; i<totalFrm; i++)
             {

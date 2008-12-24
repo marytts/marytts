@@ -43,6 +43,7 @@ import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.RegularizedCepstralEnvelopeEstimator;
 import marytts.signalproc.analysis.SeevocAnalyser;
 import marytts.signalproc.analysis.SpectrumWithPeakIndices;
+import marytts.signalproc.sinusoidal.hnm.HnmFrames;
 import marytts.signalproc.sinusoidal.pitch.HnmPitchVoicingAnalyzer;
 import marytts.signalproc.sinusoidal.pitch.VoicingAnalysisOutputData;
 import marytts.signalproc.window.Window;
@@ -72,7 +73,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     public static double MIN_ENERGY_TH = 1e-50; //Minimum energy threshold to analyze a frame
     public static double MIN_PEAK_IN_DB_LOW = -200.0f;
     public static double MIN_PEAK_IN_DB_HIGH = -200.0f;
-    public static double MIN_VOICED_FREQ_IN_HZ = 5000.0f; //Minimum voiced freq allowed (for voiced regions only)
+    public static double MIN_VOICED_FREQ_IN_HZ = 4000.0f; //Minimum voiced freq allowed (for voiced regions only)
     public static double MAX_VOICED_FREQ_IN_HZ = 5000.0f; //Maximum voiced freq allowed (for voiced regions only)
     
     public static boolean DEFAULT_REFINE_PEAK_ESTIMATES_PARABOLA = true;
@@ -300,7 +301,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz,
                                              int spectralEnvelopeType, double[] f0s, float ws_f0, float ss_f0)
     {
-        SinusoidalSpeechSignal sinSignal = extractSinusoidsFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz,
+        SinusoidalSpeechFrames sinSignal = extractSinusoidsFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz,
                                                                      spectralEnvelopeType, f0s, ws_f0, ss_f0);
             
         //Extract sinusoidal tracks
@@ -320,12 +321,12 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         return sinTracks;
     }
     
-    public SinusoidalSpeechSignal extractSinusoidsFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz)
+    public SinusoidalSpeechFrames extractSinusoidsFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz)
     {
         return extractSinusoidsFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz, LP_SPEC);
     }
     
-    public SinusoidalSpeechSignal extractSinusoidsFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz,
+    public SinusoidalSpeechFrames extractSinusoidsFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz,
                                                             int spectralEnvelopeType)
     {
         return extractSinusoidsFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz, spectralEnvelopeType, null, -1.0f, -1.0f);
@@ -333,7 +334,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     
     // ws_f0: Window size in pitch extraction in seconds
     // ss_f0: Skip size in pitch extraction in seconds
-    public SinusoidalSpeechSignal extractSinusoidsFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz,
+    public SinusoidalSpeechFrames extractSinusoidsFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz,
                                                             int spectralEnvelopeType, double [] f0s, float ws_f0, float ss_f0)
     {
         int i, j;
@@ -358,7 +359,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         //Extract frames and analyze them
         double [] frm = new double[ws];
 
-        SinusoidalSpeechSignal sinSignal =  new SinusoidalSpeechSignal(totalFrm);
+        SinusoidalSpeechFrames sinSignal =  new SinusoidalSpeechFrames(totalFrm);
         boolean [] isSinusoidNulls = new boolean[totalFrm]; 
         Arrays.fill(isSinusoidNulls, false);
         int totalNonNull = 0;
@@ -422,11 +423,11 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         }
         //
         
-        SinusoidalSpeechSignal sinSignal2 = null;
+        SinusoidalSpeechFrames sinSignal2 = null;
         if (totalNonNull>0)
         {
             //Collect non-null sinusoids only
-            sinSignal2 =  new SinusoidalSpeechSignal(totalNonNull);
+            sinSignal2 =  new SinusoidalSpeechFrames(totalNonNull);
             int ind = 0;
             for (i=0; i<totalFrm; i++)
             {
@@ -606,10 +607,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
             else if (spectralEnvelopeType==REGULARIZED_CEPS)
             {
                 SpectrumWithPeakIndices swpi = SeevocAnalyser.calcSpecEnvelopeLinear(frameDftDB, fs, f0); //Note that frameDftDB is in dB but the computed envelope is returned as linear
-                int cepsOrder = 17;
-                boolean convertFreqsToBark = true; //TO DO: the case "true" is not being handled correctly in RegularizedCepstralEnvelopeEstimator, 
-                                                   //(handled in ceps computation but not in returning to spectrum). See cepstrum2logAmpHalfSpectrum for details
-                                                   //Without bark-scaling, this does not work properly unless a proper weighting strategy is implemented
+                int cepsOrder = 19;
                 int numPeaks = swpi.indices.length;
                 double[] linearAmps = new double[numPeaks];
                 double[] freqsInHz = new double [numPeaks];
@@ -618,12 +616,19 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                     linearAmps[i] = frameDftAbs[swpi.indices[i]];
                     freqsInHz[i] = SignalProcUtils.index2freq(swpi.indices[i], fs, maxFreq-1);
                 }
-                vocalTractSpec = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2linearAmpHalfSpectrum(linearAmps, freqsInHz, fs, cepsOrder, fftSize, convertFreqsToBark);
+                vocalTractSpec = RegularizedCepstralEnvelopeEstimator.spectralEnvelopeLinear(linearAmps, freqsInHz, fs, cepsOrder, fftSize);
             }
             
+            /*
             double[] vocalTractSpecDB = MathUtils.amp2db(vocalTractSpec);
+            double[] excSpecAbs = new double[maxFreq];
+            for (i=0; i<maxFreq; i++)
+                excSpecAbs[i] = frameDftAbs[i]/vocalTractSpec[i];
+            double[] excSpecDB = MathUtils.amp2db(excSpecAbs);
             MaryUtils.plot(frameDftDB);
             MaryUtils.plot(vocalTractSpecDB);
+            MaryUtils.plot(excSpecDB);
+            */
             
             //Use abs dft in db for maximum frequency of voicing estimation
             vo = HnmPitchVoicingAnalyzer.estimateMaxFrequencyOfVoicingsFrame(frameDftDB, fs, (float)f0, isVoiced);

@@ -602,13 +602,44 @@ public class SignalProcUtils {
         return 13.0*Math.atan(0.00076*freqInHz)+3.5*Math.atan((freqInHz*freqInHz/(7500*7500)));
     }
     
-    //This was in [Zwicker, 1980] which is more recent as compared to above
     public static double freq2barkNew(double freqInHz)
     {
-        if (freqInHz>=605)
-            return 13.0*Math.atan(0.00076*freqInHz);
+        if (freqInHz>=605.0)
+            return 13.0*Math.atan(0.00076*freqInHz); //5.60265754
         else
-            return 8.7+14.2*Math.log10(freqInHz/1000.0);
+            return 8.7+14.2*Math.log10((freqInHz+1e-20)/1000.0); //5.60092632
+    }
+    
+    public static double barkNew2freq(double barkNew)
+    {
+        if (barkNew>=5.6017) //Roughly average of the above two values for 605.0 Hz in freq2barkNew
+            return (Math.tan(barkNew/13.0))/0.00076;
+        else  
+            return 1000.0*Math.pow(10.0, (barkNew-8.7)/14.2);
+    }
+    
+    public static double bark2freq(double bark, int samplingRateInHz)
+    {
+        double midFreqInHz = 0.25*samplingRateInHz;
+        double stepInHz = 0.5*0.25*samplingRateInHz;
+        double midFreqInBark = SignalProcUtils.freq2bark(midFreqInHz);
+        while (Math.abs(midFreqInBark-bark)>1e-10)
+        {
+            if (midFreqInBark<bark)
+                midFreqInHz += stepInHz;
+            else
+                midFreqInHz -= stepInHz;
+            
+            stepInHz *= 0.5;
+            midFreqInBark = SignalProcUtils.freq2bark(midFreqInHz);
+        }
+        
+        return midFreqInHz;
+    }
+    
+    public static double barkNew2radian(double bark, int samplingRateInHz)
+    {
+        return SignalProcUtils.hz2radian(barkNew2freq(bark), samplingRateInHz);
     }
     
     //Convert frequency in Hz to frequency sample index

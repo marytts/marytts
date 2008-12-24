@@ -392,8 +392,8 @@ public class ProsodyModifier {
         boolean isVoicingAdaptivePitchScaling = false;
 
         //int spectralEnvelopeType = SinusoidalAnalyzer.LP_SPEC; String envelopeName="lp";
-        //int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC; String envelopeName="sv";
-        int spectralEnvelopeType = SinusoidalAnalyzer.REGULARIZED_CEPS; String envelopeName="rc";
+        int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC; String envelopeName="sv";
+        //int spectralEnvelopeType = SinusoidalAnalyzer.REGULARIZED_CEPS; String envelopeName="rc";
         
         //int analyzerType = BaseSinusoidalAnalyzer.FIXEDRATE_FULLBAND_ANALYZER;
         int analyzerType = BaseSinusoidalAnalyzer.PITCHSYNCHRONOUS_FULLBAND_ANALYZER; 
@@ -436,7 +436,7 @@ public class ProsodyModifier {
                 pitchMarkOffsetStr = "0"+pitchMarkOffsetStr;
 
             timeScale = 1.0f;
-            pitchScale = 2.0f;
+            pitchScale = 4.0f;
             //for (int i=0; i<pitchScales.length; i++)
             {
                 y = pm.process(x, f0.contour, (float)f0.header.ws, (float)f0.header.ss, 

@@ -41,7 +41,7 @@ import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.sinusoidal.PitchSynchronousSinusoidalAnalyzer;
 import marytts.signalproc.sinusoidal.SinusoidalAnalyzer;
 import marytts.signalproc.sinusoidal.SinusoidalSpeechFrame;
-import marytts.signalproc.sinusoidal.SinusoidalSpeechSignal;
+import marytts.signalproc.sinusoidal.SinusoidalSpeechFrames;
 import marytts.signalproc.window.Window;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.math.MathUtils;
@@ -160,7 +160,7 @@ public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
                                                                                        bAdjustNeighFreqDependent,
                                                                                        startFreq, endFreq);
         
-        SinusoidalSpeechSignal ss = sa.extractSinusoidsFixedRate(x, windowSizeInSeconds, skipSizeInSeconds, deltaInHz, spectralEnvelopeType, f0.contour, (float)f0.header.ws, (float)f0.header.ss);
+        SinusoidalSpeechFrames ss = sa.extractSinusoidsFixedRate(x, windowSizeInSeconds, skipSizeInSeconds, deltaInHz, spectralEnvelopeType, f0.contour, (float)f0.header.ws, (float)f0.header.ss);
         
         HarmonicPitchTracker p = new HarmonicPitchTracker();
         float [] f0s = p.pitchTrack(ss, samplingRate, searchStepInHz, minFreqInHz, maxFreqInHz);    
