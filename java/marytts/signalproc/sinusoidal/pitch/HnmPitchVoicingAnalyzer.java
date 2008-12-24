@@ -38,7 +38,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.sinusoidal.SinusoidalAnalyzer;
-import marytts.signalproc.sinusoidal.SinusoidalSpeechFrame;
+import marytts.signalproc.sinusoidal.NonharmonicSinusoidalSpeechFrame;
 import marytts.signalproc.window.Window;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
@@ -243,7 +243,7 @@ public class HnmPitchVoicingAnalyzer {
             Arrays.fill(frm, 0.0);
             System.arraycopy(x, frmInds[n][0], frm, 0, frmInds[n][1]-frmInds[n][0]);
             
-            SinusoidalSpeechFrame frameSins = null;
+            NonharmonicSinusoidalSpeechFrame frameSins = null;
 
             int fftSize = SinusoidalAnalyzer.getDefaultFFTSize(samplingRate);
             if (fftSize<frm.length)

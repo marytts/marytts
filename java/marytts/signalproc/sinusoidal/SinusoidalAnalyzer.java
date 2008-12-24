@@ -300,8 +300,8 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     public SinusoidalTracks analyzeFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz,
                                              int spectralEnvelopeType, double[] f0s, float ws_f0, float ss_f0)
     {
-        SinusoidalSpeechFrames sinSignal = extractSinusoidsFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz,
-                                                                     spectralEnvelopeType, f0s, ws_f0, ss_f0);
+        NonharmonicSinusoidalSpeechSignal sinSignal = extractSinusoidsFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz,
+                                                                                spectralEnvelopeType, f0s, ws_f0, ss_f0);
             
         //Extract sinusoidal tracks
         TrackGenerator tg = new TrackGenerator();
@@ -320,12 +320,12 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         return sinTracks;
     }
     
-    public SinusoidalSpeechFrames extractSinusoidsFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz)
+    public NonharmonicSinusoidalSpeechSignal extractSinusoidsFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz)
     {
         return extractSinusoidsFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz, LP_SPEC);
     }
     
-    public SinusoidalSpeechFrames extractSinusoidsFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz,
+    public NonharmonicSinusoidalSpeechSignal extractSinusoidsFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz,
                                                             int spectralEnvelopeType)
     {
         return extractSinusoidsFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz, spectralEnvelopeType, null, -1.0f, -1.0f);
@@ -333,7 +333,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     
     // ws_f0: Window size in pitch extraction in seconds
     // ss_f0: Skip size in pitch extraction in seconds
-    public SinusoidalSpeechFrames extractSinusoidsFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz,
+    public NonharmonicSinusoidalSpeechSignal extractSinusoidsFixedRate(double [] x, float winSizeInSeconds, float skipSizeInSeconds, float deltaInHz,
                                                             int spectralEnvelopeType, double [] f0s, float ws_f0, float ss_f0)
     {
         int i, j;
@@ -358,7 +358,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         //Extract frames and analyze them
         double [] frm = new double[ws];
 
-        SinusoidalSpeechFrames sinSignal =  new SinusoidalSpeechFrames(totalFrm);
+        NonharmonicSinusoidalSpeechSignal sinSignal =  new NonharmonicSinusoidalSpeechSignal(totalFrm);
         boolean [] isSinusoidNulls = new boolean[totalFrm]; 
         Arrays.fill(isSinusoidNulls, false);
         int totalNonNull = 0;
@@ -382,8 +382,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
             else
                 isOutputToTextFile = false;
                 */
-            
-            
+
             if (spectralEnvelopeType==SEEVOC_SPEC && f0s!=null)
             {
                 f0Ind = (int)Math.floor((currentTime-0.5*ws_f0)/ss_f0+0.5);
@@ -422,17 +421,17 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         }
         //
         
-        SinusoidalSpeechFrames sinSignal2 = null;
+        NonharmonicSinusoidalSpeechSignal sinSignal2 = null;
         if (totalNonNull>0)
         {
             //Collect non-null sinusoids only
-            sinSignal2 =  new SinusoidalSpeechFrames(totalNonNull);
+            sinSignal2 =  new NonharmonicSinusoidalSpeechSignal(totalNonNull);
             int ind = 0;
             for (i=0; i<totalFrm; i++)
             {
                 if (!isSinusoidNulls[i])
                 {
-                    sinSignal2.framesSins[ind] = new SinusoidalSpeechFrame(sinSignal.framesSins[i]);
+                    sinSignal2.framesSins[ind] = new NonharmonicSinusoidalSpeechFrame(sinSignal.framesSins[i]);
 
                     ind++;
                     if (ind>totalNonNull-1)
@@ -463,12 +462,12 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         System.out.println("Total sinusoids to model this file = " + String.valueOf(totalSins));
     }
 
-    public SinusoidalSpeechFrame analyze_frame(double [] frm, boolean isOutputToTextFile, boolean isVoiced)
+    public NonharmonicSinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, boolean isVoiced)
     { 
         return analyze_frame(frm, isOutputToTextFile, LP_SPEC, isVoiced, -1.0);
     }
     
-    public SinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType, boolean isVoiced)
+    public NonharmonicSinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType, boolean isVoiced)
     { 
         if (spectralEnvelopeType==SEEVOC_SPEC)
             return analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, isVoiced, 100.0);
@@ -476,7 +475,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
             return analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, isVoiced, -1.0);
     }
     
-    public SinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType, boolean isVoiced, double f0)
+    public NonharmonicSinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType, boolean isVoiced, double f0)
     {
         return analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, isVoiced, f0, false);
     }
@@ -485,11 +484,11 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
     // frm: Windowed speech frame
     // spectralEnvelopeType: Desired spectral envelope (See above, i.e LP_SPEC, SEEVOC_SPEC, REGULARIZED_CEPS)
     // 
-    public SinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType, boolean isVoiced, double f0, boolean bEstimateHNMVoicing)
+    public NonharmonicSinusoidalSpeechFrame analyze_frame(double[] frm, boolean isOutputToTextFile, int spectralEnvelopeType, boolean isVoiced, double f0, boolean bEstimateHNMVoicing)
     {   
         VoicingAnalysisOutputData vo = null;
         float maxVoicingFreqInHz = 0.0f;
-        SinusoidalSpeechFrame frameSins = null;
+        NonharmonicSinusoidalSpeechFrame frameSins = null;
 
         if (fftSize<frm.length)
             fftSize = frm.length;
@@ -744,7 +743,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
             if (freqInds != null)
             {
                 int numFrameSinusoids = freqInds.length;
-                frameSins = new SinusoidalSpeechFrame(numFrameSinusoids);
+                frameSins = new NonharmonicSinusoidalSpeechFrame(numFrameSinusoids);
 
                 //Perform parabola fitting around peak estimates to refine frequency estimation (Ref. - PARSHL, see the function for more details)
                 freqIndsRefined = new float[numFrameSinusoids];

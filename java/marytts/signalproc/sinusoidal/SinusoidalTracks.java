@@ -344,7 +344,7 @@ public class SinusoidalTracks {
         out.close();
     }
     
-    public void setSysAmpsAndTimes(SinusoidalSpeechFrame[] framesSins)
+    public void setSysAmpsAndTimes(NonharmonicSinusoidalSpeechFrame[] framesSins)
     {
         if (framesSins==null || framesSins.length<=0)
         {

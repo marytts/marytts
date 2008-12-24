@@ -40,8 +40,8 @@ import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.sinusoidal.PitchSynchronousSinusoidalAnalyzer;
 import marytts.signalproc.sinusoidal.SinusoidalAnalyzer;
-import marytts.signalproc.sinusoidal.SinusoidalSpeechFrame;
-import marytts.signalproc.sinusoidal.SinusoidalSpeechFrames;
+import marytts.signalproc.sinusoidal.NonharmonicSinusoidalSpeechFrame;
+import marytts.signalproc.sinusoidal.NonharmonicSinusoidalSpeechSignal;
 import marytts.signalproc.window.Window;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.math.MathUtils;
@@ -60,7 +60,7 @@ public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
         
     }
     
-    public double performanceCriterion(SinusoidalSpeechFrame sinFrame, float f0Candidate, int samplingRate)
+    public double performanceCriterion(NonharmonicSinusoidalSpeechFrame sinFrame, float f0Candidate, int samplingRate)
     {   
         int l, k, kw0Ind, Kw0, K;
         double kw0;
@@ -160,7 +160,7 @@ public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
                                                                                        bAdjustNeighFreqDependent,
                                                                                        startFreq, endFreq);
         
-        SinusoidalSpeechFrames ss = sa.extractSinusoidsFixedRate(x, windowSizeInSeconds, skipSizeInSeconds, deltaInHz, spectralEnvelopeType, f0.contour, (float)f0.header.ws, (float)f0.header.ss);
+        NonharmonicSinusoidalSpeechSignal ss = sa.extractSinusoidsFixedRate(x, windowSizeInSeconds, skipSizeInSeconds, deltaInHz, spectralEnvelopeType, f0.contour, (float)f0.header.ws, (float)f0.header.ss);
         
         HarmonicPitchTracker p = new HarmonicPitchTracker();
         float [] f0s = p.pitchTrack(ss, samplingRate, searchStepInHz, minFreqInHz, maxFreqInHz);    

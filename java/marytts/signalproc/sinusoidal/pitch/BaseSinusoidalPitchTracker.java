@@ -29,8 +29,8 @@
 
 package marytts.signalproc.sinusoidal.pitch;
 
-import marytts.signalproc.sinusoidal.SinusoidalSpeechFrame;
-import marytts.signalproc.sinusoidal.SinusoidalSpeechFrames;
+import marytts.signalproc.sinusoidal.NonharmonicSinusoidalSpeechFrame;
+import marytts.signalproc.sinusoidal.NonharmonicSinusoidalSpeechSignal;
 import marytts.util.math.MathUtils;
 
 /**
@@ -58,7 +58,7 @@ public class BaseSinusoidalPitchTracker {
         
     }
     
-    public float [] pitchTrack(SinusoidalSpeechFrames sinSignal, int samplingRate, float searchStepInHz, float minFreqInHz, float maxFreqInHz)
+    public float [] pitchTrack(NonharmonicSinusoidalSpeechSignal sinSignal, int samplingRate, float searchStepInHz, float minFreqInHz, float maxFreqInHz)
     {
         f0s = null;
         Qs = null;
@@ -84,7 +84,7 @@ public class BaseSinusoidalPitchTracker {
         return f0s;
     }
     
-    public F0Value pitchAnalyzeFrame(SinusoidalSpeechFrame sinFrame, int samplingRate, float searchStepInHz, float minFreqInHz, float maxFreqInHz)
+    public F0Value pitchAnalyzeFrame(NonharmonicSinusoidalSpeechFrame sinFrame, int samplingRate, float searchStepInHz, float minFreqInHz, float maxFreqInHz)
     {
         F0Value v = new F0Value();
 
@@ -144,7 +144,7 @@ public class BaseSinusoidalPitchTracker {
     }
     
     //Baseline version that does nothing, implement functionality in derived classes
-    public double performanceCriterion(SinusoidalSpeechFrame sinFrame, float f0Candidate, int samplingRate)
+    public double performanceCriterion(NonharmonicSinusoidalSpeechFrame sinFrame, float f0Candidate, int samplingRate)
     {
         return -1.0f;
     }

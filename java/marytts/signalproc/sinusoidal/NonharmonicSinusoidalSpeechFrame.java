@@ -37,7 +37,7 @@ import marytts.util.math.ComplexArray;
  * 
  * @author Oytun T&uumlrk
  */
-public class SinusoidalSpeechFrame {
+public class NonharmonicSinusoidalSpeechFrame extends BaseSinusoidalSpeechFrame {
     public Sinusoid [] sinusoids;
     public double[] systemAmps;
     public double [] systemPhases;
@@ -47,7 +47,7 @@ public class SinusoidalSpeechFrame {
     public float voicing;
     public float maxFreqOfVoicing;
     
-    public SinusoidalSpeechFrame(int numSins)
+    public NonharmonicSinusoidalSpeechFrame(int numSins)
     {
         if (numSins>0)
             sinusoids = new Sinusoid[numSins];
@@ -63,7 +63,7 @@ public class SinusoidalSpeechFrame {
         maxFreqOfVoicing = -1.0f;
     }
     
-    public SinusoidalSpeechFrame(SinusoidalSpeechFrame existing)
+    public NonharmonicSinusoidalSpeechFrame(NonharmonicSinusoidalSpeechFrame existing)
     {
         this(existing.sinusoids.length);
         
