@@ -43,7 +43,6 @@ import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.RegularizedCepstralEnvelopeEstimator;
 import marytts.signalproc.analysis.SeevocAnalyser;
 import marytts.signalproc.analysis.SpectrumWithPeakIndices;
-import marytts.signalproc.sinusoidal.hnm.HnmFrames;
 import marytts.signalproc.sinusoidal.pitch.HnmPitchVoicingAnalyzer;
 import marytts.signalproc.sinusoidal.pitch.VoicingAnalysisOutputData;
 import marytts.signalproc.window.Window;
