@@ -51,7 +51,7 @@ public class OverlapAddSinusoidalSynthesizer extends BaseSinusoidalSynthesizer {
     {
         double[] y = null;
         
-        SinusoidalSpeechFrame[] frameSins = SinusoidalUtils.tracks2frameSins(sts);
+        NonharmonicSinusoidalSpeechFrame[] frameSins = SinusoidalUtils.tracks2frameSins(sts);
         
         
         

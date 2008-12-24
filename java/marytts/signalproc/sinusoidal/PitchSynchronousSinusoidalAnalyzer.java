@@ -111,7 +111,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
      */
     public SinusoidalTracks analyzePitchSynchronous(double[] x, PitchMarks pm, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
     {
-        SinusoidalSpeechFrames sinSignal = extracSinusoidsPitchSynchronous(x, pm, numPeriods, skipSizeInSeconds, deltaInHz, spectralEnvelopeType);
+        NonharmonicSinusoidalSpeechSignal sinSignal = extracSinusoidsPitchSynchronous(x, pm, numPeriods, skipSizeInSeconds, deltaInHz, spectralEnvelopeType);
         
         //Extract sinusoidal tracks
         TrackGenerator tg = new TrackGenerator();
@@ -131,12 +131,12 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         return sinTracks;
     }
     
-    public SinusoidalSpeechFrames extracSinusoidsPitchSynchronous(double[] x, PitchMarks pm, float numPeriods, float skipSizeInSeconds, float deltaInHz)
+    public NonharmonicSinusoidalSpeechSignal extracSinusoidsPitchSynchronous(double[] x, PitchMarks pm, float numPeriods, float skipSizeInSeconds, float deltaInHz)
     {
         return extracSinusoidsPitchSynchronous(x, pm, numPeriods, skipSizeInSeconds, deltaInHz, SinusoidalAnalyzer.LP_SPEC);
     }
     
-    public SinusoidalSpeechFrames extracSinusoidsPitchSynchronous(double[] x, PitchMarks pm, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
+    public NonharmonicSinusoidalSpeechSignal extracSinusoidsPitchSynchronous(double[] x, PitchMarks pm, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
     {
         absMax = MathUtils.getAbsMax(x);
         totalEnergy = SignalProcUtils.energy(x);
@@ -164,7 +164,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         int i, j;
         int T0;
         
-        SinusoidalSpeechFrames sinSignal =  new SinusoidalSpeechFrames(totalFrm);
+        NonharmonicSinusoidalSpeechSignal sinSignal =  new NonharmonicSinusoidalSpeechSignal(totalFrm);
         boolean [] isSinusoidNulls = new boolean[totalFrm]; 
         Arrays.fill(isSinusoidNulls, false);
         int totalNonNull = 0;
@@ -254,7 +254,7 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
                 isOutputToTextFile = false;
             */
             
-            sinSignal.framesSins[i] = analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, isVoiced, f0);
+            sinSignal.framesSins[i] = (NonharmonicSinusoidalSpeechFrame)analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, isVoiced, f0);
             
             if (sinSignal.framesSins[i]!=null)
             {
@@ -279,18 +279,18 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         }
         //
         
-        SinusoidalSpeechFrames sinSignal2 = null;
+        NonharmonicSinusoidalSpeechSignal sinSignal2 = null;
         float [] voicings2 = null;
         if (totalNonNull>0)
         {
             //Collect non-null sinusoids only
-            sinSignal2 =  new SinusoidalSpeechFrames(totalNonNull);
+            sinSignal2 =  new NonharmonicSinusoidalSpeechSignal(totalNonNull);
             int ind = 0;
             for (i=0; i<totalFrm; i++)
             {
                 if (!isSinusoidNulls[i])
                 {
-                    sinSignal2.framesSins[ind] = new SinusoidalSpeechFrame(sinSignal.framesSins[i]);
+                    sinSignal2.framesSins[ind] = new NonharmonicSinusoidalSpeechFrame(sinSignal.framesSins[i]);
 
                     ind++;
                     if (ind>totalNonNull-1)
