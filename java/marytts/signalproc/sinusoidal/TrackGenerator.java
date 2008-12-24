@@ -69,7 +69,7 @@ public class TrackGenerator {
      * the more likely the current sinusoid gets assigned to that track
      * 
      */
-    public SinusoidalTracks generateTracks(SinusoidalSpeechSignal sinSignal, float deltaInHz, int samplingRate)
+    public SinusoidalTracks generateTracks(SinusoidalSpeechFrames sinSignal, float deltaInHz, int samplingRate)
     {
         int numFrames = sinSignal.framesSins.length;
         float deltaInRadians = SignalProcUtils.hz2radian(deltaInHz, samplingRate);

@@ -30,7 +30,7 @@
 package marytts.signalproc.sinusoidal.pitch;
 
 import marytts.signalproc.sinusoidal.SinusoidalSpeechFrame;
-import marytts.signalproc.sinusoidal.SinusoidalSpeechSignal;
+import marytts.signalproc.sinusoidal.SinusoidalSpeechFrames;
 import marytts.util.math.MathUtils;
 
 /**
@@ -58,7 +58,7 @@ public class BaseSinusoidalPitchTracker {
         
     }
     
-    public float [] pitchTrack(SinusoidalSpeechSignal sinSignal, int samplingRate, float searchStepInHz, float minFreqInHz, float maxFreqInHz)
+    public float [] pitchTrack(SinusoidalSpeechFrames sinSignal, int samplingRate, float searchStepInHz, float minFreqInHz, float maxFreqInHz)
     {
         f0s = null;
         Qs = null;

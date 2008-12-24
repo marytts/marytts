@@ -32,11 +32,11 @@ package marytts.signalproc.sinusoidal;
 /**
  * @author Oytun T&uumlrk
  */
-public class SinusoidalSpeechSignal {
+public class SinusoidalSpeechFrames {
     public SinusoidalSpeechFrame [] framesSins;
     public float originalDurationInSeconds ;
     
-    public SinusoidalSpeechSignal(int totalFrm)
+    public SinusoidalSpeechFrames(int totalFrm)
     {
         if (totalFrm>0)
             framesSins =  new SinusoidalSpeechFrame[totalFrm];
