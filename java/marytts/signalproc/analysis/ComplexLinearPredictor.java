@@ -1,5 +1,5 @@
 /**
- * Copyright 2004-2006 DFKI GmbH.
+ * Copyright 2007 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
  * 
  * Permission is hereby granted, free of charge, to use and distribute
@@ -27,61 +27,34 @@
  * THIS SOFTWARE.
  */
 
-package marytts.util.math;
+package marytts.signalproc.analysis;
 
-import java.util.Arrays;
+import marytts.util.math.ComplexArray;
 
 /**
- * This is a wrapper class that can hold two double arrays, one of which is 
- * interpreted as containing the real values, the other the imaginary values
- * of the complex numbers.
- * @author Marc Schr&ouml;der
+ * A class for nesting results of complex valued linear prediction
+ * 
+ * @author Oytun T&uumlrk
  *
  */
-public class ComplexArray
+public class ComplexLinearPredictor 
 {
-    public double[] real;
-    public double[] imag;
-
-    public ComplexArray(int len)
-    {
-        init(len);
-    }
+    public ComplexArray complexLPCoeffs;
+    public ComplexArray reflectionCoeffs;
+    public double variance; //LP gain squared
+    public double gain;
     
-    public ComplexArray(double[] realVals, double[] imagVals)
+    public ComplexLinearPredictor(int predictionOrder)
     {
-        if (realVals!=null && imagVals!=null && realVals.length==imagVals.length)
+        if (predictionOrder>0)
         {
-            init(realVals.length);
-            System.arraycopy(realVals, 0, real, 0, realVals.length);
-            System.arraycopy(imagVals, 0, imag, 0, imagVals.length);
-        }
-    }
-
-    public ComplexArray(ComplexArray c)
-    {
-        this(c.real, c.imag);
-    }
-
-    public void init(int len)
-    {
-        if (len>0)
-        {
-            real = new double[len];
-            imag = new double[len];
-
-            Arrays.fill(real, 0.0);
-            Arrays.fill(imag, 0.0);
+            complexLPCoeffs = new ComplexArray(predictionOrder);
+            reflectionCoeffs = new ComplexArray(predictionOrder);
         }
         else
         {
-            real = null;
-            imag = null;
+            complexLPCoeffs = null;
+            reflectionCoeffs = null;
         }
-    }
-    
-    public ComplexNumber get(int index)
-    {
-        return new ComplexNumber(real[index], imag[index]);
     }
 }

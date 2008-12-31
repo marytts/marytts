@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Vector;
 
+import marytts.signalproc.analysis.ComplexLinearPredictor;
 import marytts.util.string.StringUtils;
 
 
@@ -725,7 +726,140 @@ public class MathUtils {
         }
         return c;        
     }
+    
+    public static ComplexNumber complexConjugate(ComplexNumber x)
+    {
+        return new ComplexNumber(x.real, -1.0*x.imag);
+    }
+    
+    public static ComplexNumber complexConjugate(double xReal, double xImag)
+    {
+        return new ComplexNumber(xReal, -1.0*xImag);
+    }
+    
+    public static ComplexNumber addComplex(ComplexNumber x1, ComplexNumber x2)
+    {
+        return new ComplexNumber(x1.real+x2.real, x1.imag+x2.imag);
+    }
+    
+    public static ComplexNumber addComplex(ComplexNumber x, double yReal, double yImag)
+    {
+        return new ComplexNumber(x.real+yReal, x.imag+yImag);
+    }
+    
+    public static ComplexNumber addComplex(double yReal, double yImag, ComplexNumber x)
+    {
+        return new ComplexNumber(x.real+yReal, x.imag+yImag);
+    }
+    
+    public static ComplexNumber addComplex(double xReal, double xImag, double yReal, double yImag)
+    {
+        return new ComplexNumber(xReal+yReal, xImag+yImag);
+    }
+    
+    public static ComplexNumber subtractComplex(ComplexNumber x1, ComplexNumber x2)
+    {
+        return new ComplexNumber(x1.real-x2.real, x1.imag-x2.imag);
+    }
+    
+    public static ComplexNumber subtractComplex(ComplexNumber x, double yReal, double yImag)
+    {
+        return new ComplexNumber(x.real-yReal, x.imag-yImag);
+    }
+    
+    public static ComplexNumber subtractComplex(double yReal, double yImag, ComplexNumber x)
+    {
+        return new ComplexNumber(yReal-x.real, yImag-x.imag);
+    }
+    
+    public static ComplexNumber subtractComplex(double xReal, double xImag, double yReal, double yImag)
+    {
+        return new ComplexNumber(xReal-yReal, xImag-yImag);
+    }
+    
+    public static ComplexNumber multiplyComplex(ComplexNumber x1, ComplexNumber x2)
+    {
+        return new ComplexNumber(x1.real*x2.real-x1.imag*x2.imag, x1.real*x2.imag+x1.imag*x2.real);
+    }
+    
+    public static ComplexNumber multiplyComplex(ComplexNumber x, double yReal, double yImag)
+    {
+        return new ComplexNumber(x.real*yReal-x.imag*yImag, x.real*yImag+x.imag*yReal);
+    }
+    
+    public static ComplexNumber multiplyComplex(double yReal, double yImag, ComplexNumber x)
+    {
+        return new ComplexNumber(x.real*yReal-x.imag*yImag, x.real*yImag+x.imag*yReal);
+    }
 
+    public static ComplexNumber multiplyComplex(double xReal, double xImag, double yReal, double yImag)
+    {
+        return new ComplexNumber(xReal*yReal-xImag*yImag, xReal*yImag+xImag*yReal);
+    }
+    
+    public static ComplexNumber multiply(double x1, ComplexNumber x2)
+    {
+        return new ComplexNumber(x1*x2.real, x1*x2.imag);
+    }
+    
+    public static ComplexNumber divideComplex(ComplexNumber x, double yReal, double yImag)
+    {
+        double denum = magnitudeComplexSquared(yReal, yImag);
+
+        return new ComplexNumber((x.real*yReal+x.imag*yImag)/denum, (x.imag*yReal-x.real*yImag)/denum);
+    }
+    
+    public static ComplexNumber divideComplex(double yReal, double yImag, ComplexNumber x)
+    {
+        double denum = magnitudeComplexSquared(x.real, x.imag);
+
+        return new ComplexNumber((yReal*x.real+yImag*x.imag)/denum, (yImag*x.real-yReal*x.imag)/denum);
+    }
+    
+    public static ComplexNumber divideComplex(ComplexNumber x1, ComplexNumber x2)
+    {
+        double denum = magnitudeComplexSquared(x2.real, x2.imag);
+
+        return new ComplexNumber((x1.real*x2.real+x1.imag*x2.imag)/denum, (x1.imag*x2.real-x1.real*x2.imag)/denum);
+    }
+    
+    public static ComplexNumber divideComplex(double xReal, double xImag, double yReal, double yImag)
+    {
+        double denum = magnitudeComplexSquared(yReal, yImag);
+
+        return new ComplexNumber((xReal*yReal+xImag*yImag)/denum, (xImag*yReal-xReal*yImag)/denum);
+    }
+    
+    public static ComplexNumber divide(ComplexNumber x1, double x2)
+    {
+        return new ComplexNumber(x1.real/x2, x1.imag/x2);
+    }
+    
+    public static ComplexNumber divide(double x1, ComplexNumber x2)
+    {
+        return divideComplex(x1, 0.0, x2);
+    }
+    
+    public static double magnitudeComplexSquared(ComplexNumber x)
+    {
+        return x.real*x.real+x.imag*x.imag;
+    }
+    
+    public static double magnitudeComplexSquared(double xReal, double xImag)
+    {
+        return xReal*xReal+xImag*xImag;
+    }
+    
+    public static double magnitudeComplex(ComplexNumber x)
+    {
+        return Math.sqrt(magnitudeComplexSquared(x));
+    }
+    
+    public static double magnitudeComplex(double xReal, double xImag)
+    {
+        return Math.sqrt(magnitudeComplexSquared(xReal, xImag));
+    }
+    
     public static double[] divide(double[] a, double[] b)
     {
         if (a.length != b.length) {
@@ -1409,6 +1543,121 @@ public class MathUtils {
         }
          */
         return coeffs;
+    }
+    
+    //Levinson recursion for complex-valued normal equations: Tb=c
+    //x is a px1 complex valued vector of solution values
+    //R is the complex values of a Hermitian matrix, T, with real diagonal terms:
+    //     [R(0)   R*(1) R*(2) ...  R*(p-1)]
+    //     [R(1)   R(0)  ...        R*(p-2)]
+    // T = [...        R(0)         ...    ]
+    //     [R(p-2) R(p-3)      R(0) R*(1)  ]
+    //     [R(p-1) R(p-2)      R(1) R(0)   ]  
+    //c is a px1 complex valued vector
+    //
+    // Returns a complex array of size px1 which are the solution to the system of equations Tb=c, i.e. b=(T^-1)c
+    //
+    // Reference:
+    // Proakis, J.G., and Manolakis, D.G.,Digital Signal Processing - Principles, Algorithms, Applications, Prentice-Hall Inc, New Jersey, 1996.
+    // pp. 864-868.
+    public static ComplexArray levinson(ComplexArray R, ComplexArray c)
+    {
+        int i;
+        int p = R.real.length; //prediction order
+        assert R.imag.length==p;
+        assert c.real.length==p;
+        assert c.imag.length==p;
+        
+        ComplexArray K = new ComplexArray(p+1);
+        ComplexArray a = new ComplexArray(p+1);
+        ComplexArray aPrev = new ComplexArray(p+1);
+        ComplexArray b = new ComplexArray(p+1);
+        ComplexArray bPrev = new ComplexArray(p+1);
+        double[] E = new double[p+1];
+        E[0] = R.real[0];
+        ComplexNumber tmp = divideComplex(multiply(-1.0, R.get(1)), R.get(0));
+        K.real[1] = tmp.real;
+        K.imag[1] = tmp.imag;
+        a.real[1] = tmp.real;
+        a.imag[1] = tmp.imag;
+        
+        tmp = divideComplex(c.get(0), R.get(0)); //c goes from 0 to p-1 so it is not c(1) here as in the book
+        b.real[1] = tmp.real;
+        b.imag[1] = tmp.imag;
+        
+        E[1] = E[0]*(1.0-MathUtils.magnitudeComplexSquared(K.get(1)));
+        
+        int n, k;
+        ComplexNumber numTermA, denTermA, numTermB;
+        for (int m=2; m<p; m++)
+        {
+            numTermA = multiplyComplex(R.get(m-1), aPrev.get(1));
+            for (n=m-2; n>=1; n--)
+            {
+                tmp = multiplyComplex(R.get(n), aPrev.get(m-n));
+                numTermA = addComplex(numTermA, tmp);
+            }
+            numTermA = addComplex(numTermA, R.get(0));
+            
+            denTermA = multiplyComplex(R.get(m-1), complexConjugate(aPrev.get(m-1)));
+            for (n=m-2; n>=1; n--)
+            {
+                tmp = multiplyComplex(R.get(n), complexConjugate(aPrev.get(n)));
+                denTermA = addComplex(denTermA, tmp);
+            }
+            
+            numTermB = multiplyComplex(R.get(m-1), bPrev.get(1));
+            for (n=m-2; n>=1; n--)
+            {
+                tmp = multiplyComplex(R.get(n), bPrev.get(m-n));
+                numTermB = addComplex(numTermB, tmp);
+            }
+            numTermB = addComplex(c.get(m), multiply(-1.0, numTermB));
+            
+            tmp = divideComplex(multiply(-1.0, numTermA), denTermA);
+            a.real[m] = tmp.real;
+            a.imag[m] = tmp.imag;
+            K.real[m] = tmp.real;
+            K.imag[m] = tmp.imag;
+            
+            tmp = divide(numTermB, E[m-1]);
+            b.real[m] = tmp.real;
+            b.imag[m] = tmp.imag;
+            
+            for (k=1; k<=m-1; k++)
+            {
+                tmp = multiplyComplex(a.get(m), complexConjugate(aPrev.get(m-k)));
+                tmp = addComplex(tmp, aPrev.get(k));
+                a.real[k] = tmp.real;
+                a.imag[k] = tmp.imag;
+            }
+            
+            for (k=1; k<=m-1; k++)
+            {
+                tmp = multiplyComplex(b.get(m), complexConjugate(aPrev.get(m-k)));
+                tmp = multiply(-1.0, tmp);
+                tmp = addComplex(tmp, bPrev.get(k));
+                b.real[k] = tmp.real;
+                b.imag[k] = tmp.imag;
+            }
+            
+            for (k=0; k<=m; k++)
+            {
+                aPrev.real[k] = a.real[k];
+                aPrev.imag[k] = a.imag[k];
+                bPrev.real[k] = b.real[k];
+                bPrev.imag[k] = b.imag[k];
+            }
+        }
+        
+        ComplexArray tmpb = new ComplexArray(p);
+        System.arraycopy(b.real, 1, tmpb.real, 0, p);
+        System.arraycopy(b.imag, 1, tmpb.imag, 0, p);
+        b = new ComplexArray(p);
+        System.arraycopy(tmpb.real, 0, tmpb.real, 0, p);
+        System.arraycopy(tmpb.imag, 0, tmpb.imag, 0, p);
+        
+        return b;
     }
 
     /* Performs interpolation to increase or decrease the size of array x
@@ -3415,48 +3664,34 @@ public class MathUtils {
     
     public static void main(String[] args)
     {
-        double[] x = new double[4];
-        double[] y = new double[4];
-        int i, j;
-        for (i=0; i<x.length; i++)
-            x[i] = i;
-        for (j=0; j<y.length; j++)
-            y[j] = j+1;
-        double[] z1 = MathUtils.add(x, y);
-        double[] z2 = MathUtils.substract(x, y);
-        double[] z3 = MathUtils.add(x, 0.5);
-        double[] z4 = MathUtils.substract(y, -10);
-        double[][] x1= new double[x.length][1];
-        double[][] y1= new double[1][y.length];
-        for (i=0; i<x.length; i++)
-            x1[i][0] = x[i];
-        System.arraycopy(y, 0, y1[0], 0, y.length);
-        double[][] z5 = MathUtils.matrixProduct(x1, y1);
-        double[][] z6 = MathUtils.vectorProduct(x, true, y, false);
+        int p = 20;
+        ComplexArray Rxx = new ComplexArray(p+1);
+        ComplexArray c = new ComplexArray(p+1);
+        double[] R = new double[p+1];
 
-        double[][] xx = new double[4][4];
-        xx[0][0] = 1;
-        xx[0][1] = 2;
-        xx[0][2] = 3;
-        xx[0][3] = 4;
-        xx[1][0] = 2;
-        xx[1][1] = 5;
-        xx[1][2] = 7;
-        xx[1][3] = 9;
-        xx[2][0] = 0;
-        xx[2][1] = -1;
-        xx[2][2] = -4;
-        xx[2][3] = 2;
-        xx[3][0] = -10;
-        xx[3][1] = 11;
-        xx[3][2] = -11;
-        xx[3][3] = 10;
-        
-        double m=mean(xx[0]);
-        
-        double[][] z7 = inverse(xx);
-        double[][] z8 = matrixProduct(xx, z7);
+        for (int j=0; j<p+1; j++)
+        { 
+            //This makes it normal equations
+            Rxx.real[j] = Math.random()+0.1;
+            Rxx.imag[j] = 0.0;
+            R[j] = Rxx.real[j];
+            if (j==0)
+                c.real[j] = 1.0;
+            else
+                c.real[j] = 0.0;
+            c.imag[j] = 0.0;
+            //
 
+            //This is the generalized case
+            //Rxx.real[j] = Math.random()+0.1;
+            //Rxx.imag[j] = Math.random()+0.1;
+            //c.real[j] = Math.random()+0.1;
+            //c.imag[j] = Math.random()+0.1;
+        }
+        
+        ComplexArray coeffs = MathUtils.levinson(Rxx, c);
+        double[] coeffs2 = MathUtils.levinson(R, p);
+        
         System.out.println("Test completed...");
     }
 }
