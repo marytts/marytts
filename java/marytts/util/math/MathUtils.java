@@ -1588,6 +1588,15 @@ public class MathUtils {
         E[1] = E[0]*(1.0-MathUtils.magnitudeComplexSquared(K.get(1)));
         
         int n, k;
+        
+        for (k=0; k<=1; k++)
+        {
+            aPrev.real[k] = a.real[k];
+            aPrev.imag[k] = a.imag[k];
+            bPrev.real[k] = b.real[k];
+            bPrev.imag[k] = b.imag[k];
+        }
+
         ComplexNumber numTermA, denTermA, numTermB;
         for (int m=2; m<p; m++)
         {
@@ -1597,7 +1606,7 @@ public class MathUtils {
                 tmp = multiplyComplex(R.get(n), aPrev.get(m-n));
                 numTermA = addComplex(numTermA, tmp);
             }
-            numTermA = addComplex(numTermA, R.get(0));
+            numTermA = addComplex(numTermA, R.get(m));
             
             denTermA = multiplyComplex(R.get(m-1), complexConjugate(aPrev.get(m-1)));
             for (n=m-2; n>=1; n--)
@@ -1605,6 +1614,9 @@ public class MathUtils {
                 tmp = multiplyComplex(R.get(n), complexConjugate(aPrev.get(n)));
                 denTermA = addComplex(denTermA, tmp);
             }
+            denTermA = addComplex(denTermA, R.get(0));
+            
+            E[m] = denTermA.real;
             
             numTermB = multiplyComplex(R.get(m-1), bPrev.get(1));
             for (n=m-2; n>=1; n--)
@@ -1614,7 +1626,7 @@ public class MathUtils {
             }
             numTermB = addComplex(c.get(m), multiply(-1.0, numTermB));
             
-            tmp = divideComplex(multiply(-1.0, numTermA), denTermA);
+            tmp = divide(multiply(-1.0, numTermA), E[m]);
             a.real[m] = tmp.real;
             a.imag[m] = tmp.imag;
             K.real[m] = tmp.real;
@@ -3665,11 +3677,11 @@ public class MathUtils {
     public static void main(String[] args)
     {
         int p = 20;
-        ComplexArray Rxx = new ComplexArray(p+1);
-        ComplexArray c = new ComplexArray(p+1);
-        double[] R = new double[p+1];
+        ComplexArray Rxx = new ComplexArray(p);
+        ComplexArray c = new ComplexArray(p);
+        double[] R = new double[p];
 
-        for (int j=0; j<p+1; j++)
+        for (int j=0; j<p; j++)
         { 
             //This makes it normal equations
             Rxx.real[j] = Math.random()+0.1;
