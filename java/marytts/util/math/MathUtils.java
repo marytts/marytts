@@ -855,6 +855,16 @@ public class MathUtils {
         return Math.sqrt(magnitudeComplexSquared(x));
     }
     
+    public static double[] magnitudeComplex(ComplexNumber[] xs)
+    {
+        double[] mags = new double[xs.length];
+        
+        for (int i=0; i<xs.length; i++)
+            mags[i] = magnitudeComplex(xs[i]);
+        
+        return mags;
+    }
+    
     public static double magnitudeComplex(double xReal, double xImag)
     {
         return Math.sqrt(magnitudeComplexSquared(xReal, xImag));
@@ -987,6 +997,22 @@ public class MathUtils {
         return y3;
     }
     
+    public static ComplexNumber[] matrixProduct(ComplexNumber[][] x, ComplexNumber[] y)
+    {
+        ComplexNumber[][] y2 = new ComplexNumber[y.length][1];
+        int i;
+        for (i=0; i<y.length; i++)
+            y2[i][0] = new ComplexNumber(y[i]);
+        
+        y2 = matrixProduct(x, y2);
+        
+        ComplexNumber[] y3 = new ComplexNumber[y2.length];
+        for (i=0; i<y2.length; i++)
+            y3[i] = new ComplexNumber(y2[i][0]);
+        
+        return y3;
+    }
+    
     //Vector of size N is multiplied with matrix of size NxM
     // Returns a matrix of size NxM
     public static double[][] matrixProduct(double[] x, double[][] y)
@@ -995,6 +1021,16 @@ public class MathUtils {
         int i;
         for (i=0; i<x.length; i++)
             x2[i][0] = x[i];
+        
+        return matrixProduct(x2, y);
+    }
+    
+    public static ComplexNumber[][] matrixProduct(ComplexNumber[] x, ComplexNumber[][] y)
+    {
+        ComplexNumber[][] x2 = new ComplexNumber[x.length][1];
+        int i;
+        for (i=0; i<x.length; i++)
+            x2[i][0] = new ComplexNumber(x[i]);
         
         return matrixProduct(x2, y);
     }
@@ -1591,6 +1627,11 @@ public class MathUtils {
         return coeffs;
     }
     
+    /*
+    // The following does not work properly yet, need to check if needed. 
+    // But one can always use inverse(ComplexNumber[][]) function to do the required inversion.
+    // However, Levinson routine should be faster as it makes use of the Hermition structure in R
+    //
     //Levinson recursion for complex-valued normal equations: Tb=c
     //x is a px1 complex valued vector of solution values
     //R is the complex values of a Hermitian matrix, T, with real diagonal terms:
@@ -1715,9 +1756,9 @@ public class MathUtils {
         
         return b;
     }
-
-    /* Performs interpolation to increase or decrease the size of array x
-       to newLength*/
+    */
+    
+    //Performs linear interpolation to increase or decrease the size of array x to newLength
     public static double [] interpolate(double [] x, int newLength)
     {
         double [] y = null;
