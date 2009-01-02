@@ -44,10 +44,31 @@ public class ComplexNumber {
     {
         
     }
+    public ComplexNumber(ComplexNumber c)
+    {
+        this.real = c.real;
+        this.imag = c.imag;
+    }
     
     public ComplexNumber(double realIn, double imagIn)
     {
         this.real = realIn;
         this.imag = imagIn;
+    }
+    
+    public String toString()
+    {
+        String str;
+        //if (Math.abs(real)>1e-10 || Math.abs(imag)>1e-10)
+        //{
+            if (imag>=0.0)
+                str = String.valueOf(real) + "+i" + String.valueOf(Math.abs(imag));
+            else
+                str = String.valueOf(real) + "-i" + String.valueOf(Math.abs(imag));
+        //}
+        //else
+        //    str = "0";
+        
+        return str;
     }
 }

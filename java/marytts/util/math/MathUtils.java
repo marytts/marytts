@@ -1045,6 +1045,52 @@ public class MathUtils {
         return z;
     }
 
+    //This is a "*" product --> should return a matrix provided that the sizes are appropriate
+    public static ComplexNumber[][] matrixProduct(ComplexNumber[][] x, ComplexNumber[][] y)
+    {
+        ComplexNumber[][] z = null;
+
+        if (x!=null && y!=null)
+        {
+            if (x.length==1 && y.length==1) //Special case -- diagonal matrix multiplication, returns a diagonal matrix
+            {
+                assert x[0].length==y[0].length;
+                z = new ComplexNumber[1][x[0].length];
+                for (int i=0; i<x[0].length; i++)
+                    z[0][i] = multiplyComplex(x[0][i],y[0][i]);
+            }
+            else
+            {
+                int i, j, m;
+                int rowSizex = x.length;
+                int colSizex = x[0].length;
+                int rowSizey = y.length;
+                int colSizey = y[0].length;
+                for (i=1; i<x.length; i++)
+                    assert x[i].length == colSizex;
+                for (i=1; i<y.length; i++)
+                    assert y[i].length == colSizey;
+                assert colSizex==rowSizey;
+
+                z = new ComplexNumber[rowSizex][colSizey];
+                ComplexNumber tmpSum;
+                for (i=0; i<rowSizex; i++)
+                {
+                    for (j=0; j<colSizey; j++)
+                    {
+                        tmpSum = new ComplexNumber(0.0, 0.0);
+                        for (m=0; m<x[i].length; m++)
+                            tmpSum = addComplex(tmpSum, multiplyComplex(x[i][m],y[m][j]));
+
+                        z[i][j] = new ComplexNumber(tmpSum);
+                    }
+                }
+            }
+        }
+
+        return z;
+    }
+    
     //"x" product of two vectors
     public static double[][] vectorProduct(double[] x, boolean isColumnVectorX, double[] y, boolean isColumnVectorY)
     {
@@ -1575,6 +1621,11 @@ public class MathUtils {
         ComplexArray bPrev = new ComplexArray(p+1);
         double[] E = new double[p+1];
         E[0] = R.real[0];
+        a.real[0] = 1.0;
+        a.imag[0] = 0.0;
+        b.real[0] = 1.0;
+        b.imag[0] = 0.0;
+        
         ComplexNumber tmp = divideComplex(multiply(-1.0, R.get(1)), R.get(0));
         K.real[1] = tmp.real;
         K.imag[1] = tmp.imag;
@@ -1660,14 +1711,7 @@ public class MathUtils {
                 bPrev.real[k] = b.real[k];
                 bPrev.imag[k] = b.imag[k];
             }
-        }
-        
-        ComplexArray tmpb = new ComplexArray(p);
-        System.arraycopy(b.real, 1, tmpb.real, 0, p);
-        System.arraycopy(b.imag, 1, tmpb.imag, 0, p);
-        b = new ComplexArray(p);
-        System.arraycopy(tmpb.real, 0, tmpb.real, 0, p);
-        System.arraycopy(tmpb.imag, 0, tmpb.imag, 0, p);
+        }    
         
         return b;
     }
@@ -3386,6 +3430,16 @@ public class MathUtils {
         return invx;
     }
     
+    public static ComplexNumber[] inverse(ComplexNumber[] x)
+    {
+        ComplexNumber[] invx = new ComplexNumber[x.length];
+
+        for (int i=0; i<x.length; i++)
+            invx[i] = divide(1.0, multiply(x.length,x[i]));
+
+        return invx;
+    }
+    
     //Square matrix inversion using LU decomposition
     public static double[][] inverse(double[][] matrix)
     {
@@ -3400,6 +3454,31 @@ public class MathUtils {
             invMatrix = new double[matrix.length][matrix.length];
             for (int i=0; i<matrix.length; i++)            
                 System.arraycopy(matrix[i], 0, invMatrix[i], 0, matrix[i].length);
+
+            inverseInPlace(invMatrix);
+        }
+        
+        return invMatrix;
+    }
+    
+    //Square complex-valued matrix inversion using LU decomposition
+    public static ComplexNumber[][] inverse(ComplexNumber[][] matrix)
+    {
+        ComplexNumber[][] invMatrix = null;
+        if (matrix.length==1) //Diagonal matrix
+        {
+            invMatrix = new ComplexNumber[1][matrix[0].length];
+            invMatrix[0] = inverse(matrix[0]);
+        }
+        else //Full square matrix
+        {
+            invMatrix = new ComplexNumber[matrix.length][matrix.length];
+            int i, j;
+            for (i=0; i<matrix.length; i++)            
+            {
+                for (j=0; j<matrix[i].length; j++)
+                    invMatrix[i][j] = new ComplexNumber(matrix[i][j]);
+            }
 
             inverseInPlace(invMatrix);
         }
@@ -3436,9 +3515,42 @@ public class MathUtils {
             System.arraycopy(y[i], 0, matrix[i], 0, dim);
     }
     
-    public static void luDecompose(double [][]a, int n, int[] indx, double[] d)
+    public static void inverseInPlace(ComplexNumber[][] matrix)
     {
-        double TINY = 1e-20;
+        int dim = matrix.length;
+        int i,j;
+        
+        ComplexNumber[][] y;
+        ComplexNumber[] d = new ComplexNumber[1];
+        ComplexNumber[] col;
+
+        y = new ComplexNumber[dim][dim];
+
+        int[] indices = new int[dim];
+        col = new ComplexNumber[dim];
+
+        luDecompose(matrix, dim, indices, d);
+        for (j=0;j<dim;j++)
+        {
+            for (i=0;i<dim;i++) 
+                col[i] = new ComplexNumber(0.0, 0.0);
+
+            col[j] = new ComplexNumber(1.0, 0.0);
+            luSubstitute(matrix, indices, col);
+            for (i=0;i<dim;i++) 
+                y[i][j] = new ComplexNumber(col[i]);
+        }
+
+        for (i=0;i<dim;i++)
+        {
+            for (j=0; j<dim; j++)
+                matrix[i][j] = new ComplexNumber(y[i][j]);
+        } 
+    }
+    
+    public static void luDecompose(double[][]a, int n, int[] indx, double[] d)
+    {
+        double TINYVAL = 1e-20;
         int i,imax,j,k;
         double big,dum,sum,temp;
         double[] vv;
@@ -3496,12 +3608,93 @@ public class MathUtils {
             }
             indx[j-1]=imax;
             if (a[j-1][j-1] == 0.0) 
-                a[j-1][j-1]=TINY;
+                a[j-1][j-1]=TINYVAL;
             if (j != n) 
             {
                 dum=1.0/(a[j-1][j-1]);
                 for (i=j+1;i<=n;i++) 
                     a[i-1][j-1] *= dum;
+            }
+        }
+    }
+    
+    public static void luDecompose(ComplexNumber[][] a, int n, int[] indx, ComplexNumber[] d)
+    {
+        double TINYVAL = 1e-20;
+        int i,imax,j,k;
+        ComplexNumber big = new ComplexNumber(0.0, 0.0);
+        ComplexNumber dum = new ComplexNumber(0.0, 0.0);
+        ComplexNumber sum = new ComplexNumber(0.0, 0.0);
+        ComplexNumber temp = new ComplexNumber(0.0, 0.0);
+        ComplexNumber[] vv;
+        imax=0;
+
+        vv = new ComplexNumber[n];
+        d[0] = new ComplexNumber(1.0, 0.0);
+        
+        for (i=1;i<=n;i++) 
+        {
+            big = new ComplexNumber(0.0, 0.0);
+            for (j=1;j<=n;j++)
+            {
+                if (magnitudeComplex(a[i-1][j-1]) > magnitudeComplex(big)) 
+                    big = new ComplexNumber(a[i-1][j-1]);
+            }
+            
+            if (magnitudeComplex(big)==0.0) 
+                System.out.println("Singular matrix in routine ludcmp");
+            vv[i-1]=divide(1.0, big);
+        }
+        
+        for (j=1;j<=n;j++) 
+        {
+            for (i=1;i<j;i++) 
+            {
+                sum = new ComplexNumber(a[i-1][j-1]);
+                for (k=1;k<i;k++) 
+                    sum = subtractComplex(sum, multiplyComplex(a[i-1][k-1],a[k-1][j-1]));
+                a[i-1][j-1] = new ComplexNumber(sum);
+            }
+            
+            big = new ComplexNumber(0.0, 0.0);
+            for (i=j;i<=n;i++) 
+            {
+                sum = new ComplexNumber(a[i-1][j-1]);
+                for (k=1;k<j;k++)
+                    sum = subtractComplex(sum, multiplyComplex(a[i-1][k-1],a[k-1][j-1]));
+                
+                a[i-1][j-1] = new ComplexNumber(sum);
+                dum = multiply(magnitudeComplex(sum),vv[i-1]);
+                if ( (magnitudeComplex(dum)) >= magnitudeComplex(big)) 
+                {
+                    big = new ComplexNumber(dum);
+                    imax=i;
+                }                
+            }
+            
+            if (j != imax) 
+            {
+                for (k=1;k<=n;k++) 
+                {
+                    dum = new ComplexNumber(a[imax-1][k-1]);
+                    a[imax-1][k-1] = new ComplexNumber(a[j-1][k-1]);
+                    a[j-1][k-1] = new ComplexNumber(dum);
+                }
+                
+                d[0] = multiply(-1.0,d[0]);
+                
+                vv[imax-1] = new ComplexNumber(vv[j-1]);
+            }
+            
+            indx[j-1]=imax;
+            if (magnitudeComplex(a[j-1][j-1])==0.0) 
+                a[j-1][j-1] = new ComplexNumber(TINYVAL, TINYVAL);
+            
+            if (j != n) 
+            {
+                dum=divide(1.0,a[j-1][j-1]);
+                for (i=j+1;i<=n;i++) 
+                    a[i-1][j-1] = multiplyComplex(dum, a[i-1][j-1]);
             }
         }
     }
@@ -3535,6 +3728,39 @@ public class MathUtils {
                 sum -= a[i-1][j-1]*b[j-1];
             
             b[i-1]=sum/a[i-1][i-1];
+        }
+    }
+    
+    public static void luSubstitute(ComplexNumber[][] a, int[] indx, ComplexNumber b[])
+    {
+        int n = a.length;
+        int i=0;
+        int ii=0;
+        int ip,j;
+        ComplexNumber sum = new ComplexNumber(0.0, 0.0);
+
+        for (i=1;i<=n;i++) 
+        {
+            ip=indx[i-1];
+            sum = new ComplexNumber(b[ip-1]);
+            b[ip-1] = new ComplexNumber(b[i-1]);
+            if (ii!=0)
+            {
+                for (j=ii;j<=i-1;j++) 
+                    sum = subtractComplex(sum, multiplyComplex(a[i-1][j-1],b[j-1]));
+            }
+            else if (magnitudeComplex(sum)!=0.0) 
+                ii=i;
+            b[i-1] = new ComplexNumber(sum);
+        }
+        
+        for (i=n;i>=1;i--) 
+        {
+            sum = new ComplexNumber(b[i-1]);
+            for (j=i+1;j<=n;j++) 
+                sum = subtractComplex(sum, multiplyComplex(a[i-1][j-1], b[j-1]));
+            
+            b[i-1] = divideComplex(sum, a[i-1][i-1]);
         }
     }
     //
@@ -3676,33 +3902,40 @@ public class MathUtils {
     
     public static void main(String[] args)
     {
-        int p = 20;
-        ComplexArray Rxx = new ComplexArray(p);
-        ComplexArray c = new ComplexArray(p);
-        double[] R = new double[p];
-
-        for (int j=0; j<p; j++)
-        { 
-            //This makes it normal equations
-            Rxx.real[j] = Math.random()+0.1;
-            Rxx.imag[j] = 0.0;
-            R[j] = Rxx.real[j];
-            if (j==0)
-                c.real[j] = 1.0;
-            else
-                c.real[j] = 0.0;
-            c.imag[j] = 0.0;
-            //
-
-            //This is the generalized case
-            //Rxx.real[j] = Math.random()+0.1;
-            //Rxx.imag[j] = Math.random()+0.1;
-            //c.real[j] = Math.random()+0.1;
-            //c.imag[j] = Math.random()+0.1;
-        }
+        int i,j;
         
-        ComplexArray coeffs = MathUtils.levinson(Rxx, c);
-        double[] coeffs2 = MathUtils.levinson(R, p);
+        int d = 20;
+        ComplexNumber[][] R = new ComplexNumber[d][d];
+        double[][] D = new double[d][d];
+        
+        for (i=0; i<d; i++)
+        {
+            for (j=0; j<d; j++)
+            { 
+                if (i==j)
+                    R[i][j] = new ComplexNumber(i*i+0.5, 0.0);  
+                else
+                {
+                    //R[i][j] = new ComplexNumber(-2*i+i*i+0.6, 0.0);
+                    R[i][j] = new ComplexNumber(-2*i+i*i+0.6, Math.log10(20*i+5.0)+i*i);
+                }
+                
+                D[i][j] = R[i][j].real;
+            }
+        }
+
+        ComplexNumber[][] invR = inverse(R);
+        ComplexNumber[][] y = matrixProduct(R, invR);
+        
+        //double[][] invD = inverse(D);
+        //double[][] y2 = matrixProduct(D, invD);
+        
+        System.out.print(StringUtils.toString(invR));
+        //System.out.print(StringUtils.toString(invD));
+        
+        System.out.print(StringUtils.toString(y));
+        //System.out.print(StringUtils.toString(y2));
+        
         
         System.out.println("Test completed...");
     }

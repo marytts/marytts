@@ -15,6 +15,7 @@ import java.util.Vector;
 import marytts.modules.phonemiser.Allophone;
 import marytts.signalproc.analysis.Label;
 import marytts.util.io.FileUtils;
+import marytts.util.math.ComplexNumber;
 
 
 public class StringUtils {
@@ -960,6 +961,46 @@ public class StringUtils {
         }
         
         return sentences;
+    }
+    
+    public static String toString(ComplexNumber[][] array)
+    {
+        String str = "";
+        int i, j;
+        for (i=0; i<array.length; i++)
+        {
+            for (j=0; j<array[i].length; j++)
+            {
+                str += array[i][j].toString();
+                if (j<array[i].length-1)
+                    str += " ";
+            }
+            str += System.getProperty("line.separator");
+        }
+        
+        str += System.getProperty("line.separator");
+        
+        return str;
+    }
+    
+    public static String toString(double[][] array)
+    {
+        String str = "";
+        int i, j;
+        for (i=0; i<array.length; i++)
+        {
+            for (j=0; j<array[i].length; j++)
+            {
+                str += String.valueOf(array[i][j]);
+                if (j<array[i].length-1)
+                    str += " ";
+            }
+            str += System.getProperty("line.separator");
+        }
+        
+        str += System.getProperty("line.separator");
+        
+        return str;
     }
     
     public static void main(String[] args)
