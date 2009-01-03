@@ -187,7 +187,7 @@ public class HnmAnalyzer {
             for (j=0; j<wgtSquared.length; j++)
                 wgtSquared[j] = wgtSquared[j]*wgtSquared[j];
             
-            double maxFreqOfVoicingInHz = 700.0;
+            double maxFreqOfVoicingInHz = 3300.0;
             
             //Step4. Estimate complex amplitudes of harmonics if voiced
             //       The phase of the complex amplitude is the phase and its magnitude is the absolute amplitude of the harmonic
@@ -249,7 +249,7 @@ public class HnmAnalyzer {
         
         ComplexNumber[] x = MathUtils.matrixProduct(MathUtils.inverse(R), b);
         ComplexNumber[] xpart = new ComplexNumber[L+1];
-        for (k=0; k<L+1; k++)
+        for (k=0; k<L+1; k++) //The remaning complex amplitudes from L+1 to 2L are complex conjugates of entries from L-1,...,1
             xpart[k] = new ComplexNumber(x[k]);
         
         return xpart;

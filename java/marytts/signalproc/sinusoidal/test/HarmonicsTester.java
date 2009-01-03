@@ -74,7 +74,11 @@ public class HarmonicsTester extends SinusoidsTester {
         //Single sinusoid, time-invariant
         float f1 = 400.0f;
         int numHarmonics = 8;
-        s = new HarmonicsTester(f1, numHarmonics);
+        //s = new HarmonicsTester(f1, numHarmonics);
+        float[] amps = new float[numHarmonics];
+        for (int i=0; i<numHarmonics; i++)
+            amps[i] = (float)Math.pow(2.0, -1.0*i);
+        s = new HarmonicsTester(f1, numHarmonics, amps);
         //
         
         if (args.length>1)
