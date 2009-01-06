@@ -512,7 +512,12 @@ public class FdpsolaAdapter {
 
             boolean isVoiced;
             if (!baseParams.isFixedRateVocalTractConversion)
-                isVoiced = pm.vuvs[i];
+            {
+                if (pm.f0s[i]>10.0)
+                    isVoiced=true;
+                else
+                    isVoiced=false;
+            }
             else
             {
                 if (f0s[index]>10.0)

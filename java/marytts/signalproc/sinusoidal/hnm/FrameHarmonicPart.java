@@ -29,26 +29,23 @@
 
 package marytts.signalproc.sinusoidal.hnm;
 
-import marytts.signalproc.sinusoidal.BaseSinusoidalSpeechFrame;
+import marytts.util.math.ComplexNumber;
 
 /**
- * @author oytun.turk
+ * @author Oytun T&uumlrk
  *
  */
-public class HnmSpeechFrame extends BaseSinusoidalSpeechFrame 
+public class FrameHarmonicPart 
 {
-    FrameHarmonicPart h; //Harmonics component (lower frequencies which are less than maximum frequency of voicing)
-    FrameNoisePart n; //Noise component (upper frequencies)
-    double[] ceps; //Cepstral coefficients for amplitude envelope
+    ComplexNumber[] harmonicAmps; //Amplitudes and phases of harmonics
+    float f0InHz;
     
-    float maximumFrequencyOfVoicingInHz; //If 0.0, then the frame is unvoiced
-    float tAnalysisInSeconds; //Middle of analysis frame in seconds
-    
-    public HnmSpeechFrame()
+    public FrameHarmonicPart(ComplexNumber[] harmonicAmpsIn, float f0InHzIn)
     {
-        h = null;
-        n = null;
-        maximumFrequencyOfVoicingInHz = 0.0f;
-        tAnalysisInSeconds = -1.0f;
+        harmonicAmps = new ComplexNumber[harmonicAmpsIn.length];
+        for (int i=0; i<harmonicAmpsIn.length; i++)
+            harmonicAmps[i] = new ComplexNumber(harmonicAmpsIn[i]);
+        
+        f0InHz = f0InHzIn;
     }
 }

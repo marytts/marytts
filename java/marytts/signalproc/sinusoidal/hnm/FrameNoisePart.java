@@ -29,26 +29,18 @@
 
 package marytts.signalproc.sinusoidal.hnm;
 
-import marytts.signalproc.sinusoidal.BaseSinusoidalSpeechFrame;
-
 /**
- * @author oytun.turk
+ * @author Oytun T&uumlrk
  *
  */
-public class HnmSpeechFrame extends BaseSinusoidalSpeechFrame 
-{
-    FrameHarmonicPart h; //Harmonics component (lower frequencies which are less than maximum frequency of voicing)
-    FrameNoisePart n; //Noise component (upper frequencies)
-    double[] ceps; //Cepstral coefficients for amplitude envelope
+public class FrameNoisePart {
+    double[] lpCoeffs;
+    double lpGain; //Sqrt of prediction error
     
-    float maximumFrequencyOfVoicingInHz; //If 0.0, then the frame is unvoiced
-    float tAnalysisInSeconds; //Middle of analysis frame in seconds
-    
-    public HnmSpeechFrame()
+    public FrameNoisePart(double[] lpCoeffsIn, double lpGainIn)
     {
-        h = null;
-        n = null;
-        maximumFrequencyOfVoicingInHz = 0.0f;
-        tAnalysisInSeconds = -1.0f;
+        lpCoeffs = new double[lpCoeffsIn.length];
+        System.arraycopy(lpCoeffsIn, 0, lpCoeffs, 0, lpCoeffsIn.length);
+        lpGain = lpGainIn;
     }
 }
