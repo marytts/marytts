@@ -37,25 +37,25 @@ package marytts.signalproc.analysis;
  */
 public class PitchMarks {
 
-    public int [] pitchMarks;
-    public boolean [] vuvs;
+    public int[] pitchMarks;
+    public float[] f0s;
     public int totalZerosToPadd;
     
     //count=total pitch marks
-    public PitchMarks(int count, int [] pitchMarksIn, boolean [] vuvsIn, int totalZerosToPaddIn)
+    public PitchMarks(int count, int[] pitchMarksIn, float[] f0sIn, int totalZerosToPaddIn)
     {
         if (count>1)
         {
             pitchMarks = new int[count];
-            vuvs = new boolean[count-1];
+            f0s = new float[count-1];
         
             System.arraycopy(pitchMarksIn, 0, pitchMarks, 0, Math.min(pitchMarksIn.length, count));
-            System.arraycopy(vuvsIn, 0, vuvs, 0, Math.min(vuvsIn.length, count-1));
+            System.arraycopy(f0sIn, 0, f0s, 0, Math.min(f0sIn.length, count-1));
         }
         else
         {
             pitchMarks = null;
-            vuvs = null;
+            f0s = null;
         }
         
         totalZerosToPadd = Math.max(0, totalZerosToPaddIn);

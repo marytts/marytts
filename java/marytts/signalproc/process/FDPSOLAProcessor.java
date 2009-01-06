@@ -983,6 +983,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         boolean isLastInputFrame;
         int inputFrameSize;
         int currentPeriod;
+        boolean isVoiced;
         
         inputFrameIndex = 0;
         for (i=0; i<numfrm; i++)
@@ -1000,7 +1001,8 @@ public class FDPSOLAProcessor extends VocalTractModifier {
             currentPeriod = pm.pitchMarks[i+1]-pm.pitchMarks[i];
             inputFrameSize = pm.pitchMarks[i+modParams.numPeriods]-pm.pitchMarks[i]+1;
             
-            processFrame(frmIn, pm.vuvs[i], modParams.pscalesVar[i], modParams.tscalesVar[i], modParams.escalesVar[i], modParams.vscalesVar[i], isLastInputFrame, 
+            isVoiced = pm.f0s[i]>10.0 ? true:false;
+            processFrame(frmIn, isVoiced, modParams.pscalesVar[i], modParams.tscalesVar[i], modParams.escalesVar[i], modParams.vscalesVar[i], isLastInputFrame, 
                          currentPeriod, inputFrameSize);
         }
 

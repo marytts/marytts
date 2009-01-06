@@ -190,6 +190,7 @@ public class FDPSOLAProcessorOld extends VocalTractModifier {
         double [] tmpvsc = new double[1];
         int remain;
         int kInd; 
+        boolean isVoiced;
        
         for (i=0; i<numfrm; i++)
         {   
@@ -210,7 +211,9 @@ public class FDPSOLAProcessorOld extends VocalTractModifier {
             if (frmSize<4)
                 frmSize = 4;
 
-            if (pm.vuvs[i])
+            isVoiced = pm.f0s[i]>10.0 ? true:false;
+            
+            if (isVoiced)
             {
                 newFrmSize = (int)(Math.floor(frmSize/modParams.pscalesVar[i]+0.5));
                 if ((newFrmSize % 2) !=0)
@@ -285,7 +288,7 @@ public class FDPSOLAProcessorOld extends VocalTractModifier {
                 else
                     bWarp=false; 
                 
-                if ((pm.vuvs[i] && modParams.pscalesVar[i]!=1.0) || bWarp)
+                if ((isVoiced && modParams.pscalesVar[i]!=1.0) || bWarp)
                 {
                     newMaxFreq = (int)Math.floor(maxFreq/modParams.pscalesVar[i]+0.5);
                     
@@ -421,7 +424,7 @@ public class FDPSOLAProcessorOld extends VocalTractModifier {
                     
                 for (j=1; j<=repeatSkipCount+1; j++)
                 {
-                    if (pm.vuvs[i])
+                    if (isVoiced)
                         newSkipSize = (int)Math.floor((pm.pitchMarks[i+1]-pm.pitchMarks[i])/modParams.pscalesVar[i]+0.5);
                     else
                         newSkipSize = (int)Math.floor((pm.pitchMarks[i+1]-pm.pitchMarks[i])+0.5);
@@ -548,7 +551,7 @@ public class FDPSOLAProcessorOld extends VocalTractModifier {
                     }
                     else //Normal frame
                     {
-                        if (!pm.vuvs[i] && ((repeatSkipCount%2)==1)) //Reverse unvoiced repeated frames once in two consecutive repetitions to reduce distortion
+                        if (!isVoiced && ((repeatSkipCount%2)==1)) //Reverse unvoiced repeated frames once in two consecutive repetitions to reduce distortion
                             frmy = SignalProcUtils.reverse(frmy);
 
                         synthTotal = synthSt+newFrmSize;

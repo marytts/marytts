@@ -244,13 +244,12 @@ public class SignalProcUtils {
         int numfrm = f0s.length;
         int maxTotalPitchMarks = len;
         int[] tmpPitchMarks = MathUtils.zerosInt(maxTotalPitchMarks);
-        boolean[] tmpVuvs = new boolean[maxTotalPitchMarks];
+        float[] tmpF0s = new float[maxTotalPitchMarks];
         
         int count = 0;
         int prevInd = 1;
         int ind;
         double T0;
-        boolean bVuv;
         
         assert offset>0;
         
@@ -267,11 +266,6 @@ public class SignalProcUtils {
                 T0 = (fs/interpf0s[ind-1]);
             else
                 T0 = (fs/100.0f);
-            
-            if (f0s[ind-1]>10.0)
-                bVuv = true;
-            else
-                bVuv = false;
 
             if (i==1 || i-T0>=prevInd) //Insert new pitch mark
             {
@@ -281,7 +275,7 @@ public class SignalProcUtils {
                 prevInd = i;
                 
                 if (i>1)
-                    tmpVuvs[count-2] = bVuv;
+                    tmpF0s[count-2] = (float)f0s[ind-1];
             }
         }
 
@@ -291,12 +285,12 @@ public class SignalProcUtils {
             //Check if last pitch mark corresponds to the end of signal, otherwise put an additional pitch mark to match the last period and note to padd sufficient zeros
             if (bPaddZerosForFinalPitchMark && tmpPitchMarks[count-1] != len-1)
             {
-                pm = new PitchMarks(count+1, tmpPitchMarks, tmpVuvs, 0);
+                pm = new PitchMarks(count+1, tmpPitchMarks, tmpF0s, 0);
                 pm.pitchMarks[pm.pitchMarks.length-1] = pm.pitchMarks[pm.pitchMarks.length-2]+(pm.pitchMarks[pm.pitchMarks.length-2]-pm.pitchMarks[pm.pitchMarks.length-3]);
                 pm.totalZerosToPadd = pm.pitchMarks[pm.pitchMarks.length-1]-(len-1);
             }
             else
-                pm = new PitchMarks(count, tmpPitchMarks, tmpVuvs, 0);
+                pm = new PitchMarks(count, tmpPitchMarks, tmpF0s, 0);
         }
         
         return pm;
@@ -305,8 +299,8 @@ public class SignalProcUtils {
     //Convert pitch marks to pitch contour values in Hz using a fixed analysis rate
     public static double [] pitchMarks2PitchContour(int [] pitchMarks, float ws, float ss, int samplingRate)
     {
-        double [] f0s = null;
-        float [] times = samples2times(pitchMarks, samplingRate);
+        double[] f0s = null;
+        float[] times = samples2times(pitchMarks, samplingRate);
         int numfrm = (int)Math.floor((times[times.length-1]-0.5*ws)/ss+0.5);
         
         if (numfrm>0)
@@ -336,6 +330,7 @@ public class SignalProcUtils {
         double[] f0s = new double[numfrm];
 
         int i, ind, sample;
+        boolean isVoiced;
         for (i=0; i<numfrm; i++)
         {
             sample = SignalProcUtils.time2sample((float)(i*ssFixedInSeconds+0.5*wsFixedInSeconds), samplingRate);
@@ -350,7 +345,8 @@ public class SignalProcUtils {
                     ind=1;
             }
             
-            if (pm.vuvs[ind-1])
+            isVoiced = pm.f0s[ind-1]>10.0 ? true:false;
+            if (isVoiced)
             {
                 if (ind>0)
                     f0s[i] = ((double)samplingRate)/(pm.pitchMarks[ind]-pm.pitchMarks[ind-1]);

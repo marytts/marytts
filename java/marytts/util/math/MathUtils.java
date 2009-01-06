@@ -2180,6 +2180,21 @@ public class MathUtils {
 
         return x;
     }
+    
+    //Return an array where each entry is set to val
+    public static float[] filledArray(float val, int len)
+    {
+        float [] x = null;
+
+        if (len>0)
+        {
+            x = new float[len];
+            for (int i=0; i<len; i++)
+                x[i] = val;
+        }
+
+        return x;
+    }
 
     //Return an array where each entry is set to val
     public static int [] filledArray(int val, int len)
@@ -2197,29 +2212,41 @@ public class MathUtils {
     }
 
     //Return an array filled with 0´s
-    public static double [] zeros(int len)
+    public static double[] zeros(int len)
     {
         return filledArray(0.0, len);
     }
 
     //Return an array filled with 1´s
-    public static double [] ones(int len)
+    public static double[] ones(int len)
     {
         return filledArray(1.0, len);
     }
 
-//  Return an array filled with 0´s
+    //Return an array filled with 0´s
     public static int [] zerosInt(int len)
     {
         return filledArray(0, len);
     }
 
     //Return an array filled with 1´s
-    public static int [] onesInt(int len)
+    public static int[] onesInt(int len)
     {
         return filledArray(1, len);
     }
 
+    //Return an array filled with 0´s
+    public static float[] zerosFloat(int len)
+    {
+        return filledArray(0.0f, len);
+    }
+
+    //Return an array filled with 1´s
+    public static float[] onesFloat(int len)
+    {
+        return filledArray(1.0f, len);
+    }
+    
     public static int [] find(int[] x, int comparator, int val)
     {
         double[] xd = new double[x.length];

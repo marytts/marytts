@@ -181,7 +181,8 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
             if (!bFixedSkipRate)
             {
                 T0 = pm.pitchMarks[i+1]-pm.pitchMarks[i];
-                isVoiced = pm.vuvs[i];
+                isVoiced = pm.f0s[i]>10.0 ? true:false;
+                f0 = pm.f0s[i];
             }
             else
             {
@@ -198,17 +199,17 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
                 if (pmInd<pm.pitchMarks.length-1)
                 {
                     T0 = pm.pitchMarks[pmInd+1]-pm.pitchMarks[pmInd];
-                    isVoiced = pm.vuvs[pmInd];
+                    isVoiced = pm.f0s[pmInd]>10.0 ? true:false;
                 }
                 else
                 {
                     T0 = pm.pitchMarks[pmInd]-pm.pitchMarks[pmInd-1];
-                    isVoiced = pm.vuvs[pmInd-1];
+                    isVoiced = pm.f0s[pmInd-1]>10.0 ? true:false;
                 }
+                
+                f0 = ((float)fs)/T0;
             }
-            
-            f0 = ((float)fs)/T0;
-            
+
             ws = (int)Math.floor(numPeriods*T0+ 0.5);
             if (ws%2==0) //Always use an odd window size to have a zero-phase analysis window
                 ws++;
