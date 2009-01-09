@@ -14,6 +14,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -313,6 +314,59 @@ public class LTSTrainer extends AlignerTrainer
 
             // remove all secondary stress markers
             String phonStr = lineParts[1].replaceAll(",", "");
+            String[] syllables = phonStr.split("-");
+            List<String> separatedPhones = new ArrayList<String>();
+            List<String> separatedGraphemes = new ArrayList<String>();
+            String currPh;
+            for (String syl : syllables) {
+                boolean stress = false;
+                if (syl.startsWith("'")){
+                    syl = syl.substring(1);
+                    stress = true;
+                }
+                for (Allophone ph : phSet.splitIntoAllophones(syl)) {
+                    currPh = ph.name();
+                    if (stress && considerStress && ph.isVowel()) {
+                        currPh += "1";
+                        stress = false;
+                    }
+                    separatedPhones.add(currPh);
+                }// ... for each allophone
+            }
+            
+            for ( int i = 0 ; i < graphStr.length() ; i++ ) {
+                this.graphemeSet.add(graphStr.substring(i, i+1));
+                separatedGraphemes.add(graphStr.substring(i, i+1));
+            }
+            this.addAlreadySplit(separatedGraphemes, separatedPhones);
+        }
+        // Need one entry for the "null" grapheme, which maps to the empty string:
+        this.addAlreadySplit(new String[]{"null"}, new String[]{""});
+    }
+    
+    /**
+     * reads in a lexicon in text format, lines are of the kind:
+     * 
+     * graphemechain | phonemechain | otherinformation
+     * 
+     * Stress is optionally preserved, marking the first vowel of a stressed
+     * syllable with "1".
+     * 
+     * @param lexicon
+     * @throws IOException
+     */
+    public void readLexicon(HashMap<String, String> lexicon) {
+        
+        String line;
+        Iterator<String> it = lexicon.keySet().iterator();
+        while (it.hasNext()){
+            String graphStr = it.next(); 
+            
+            // remove all secondary stress markers
+            String phonStr = lexicon.get(graphStr).replaceAll(",", "");
+            if (convertToLowercase) graphStr = graphStr.toLowerCase(phSet.getLocale());
+            graphStr = graphStr.replaceAll("['-.]", "");
+
             String[] syllables = phonStr.split("-");
             List<String> separatedPhones = new ArrayList<String>();
             List<String> separatedGraphemes = new ArrayList<String>();
