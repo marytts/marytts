@@ -61,9 +61,10 @@ public class WikipediaMarkupCleaner {
     private String mysqlUser=null;
     private String mysqlPasswd=null;
     // Wikipedia files:
-    private String textFile=null;
-    private String pageFile=null;
-    private String revisionFile=null;
+    private String sqlSourceFile=null;
+    //private String textFile=null;
+    //private String pageFile=null;
+    //private String revisionFile=null;
     private String wikiLog = null;
     private boolean debug = false;
     private String debugPageId = null;
@@ -84,9 +85,9 @@ public class WikipediaMarkupCleaner {
     public void setMysqlUser(String str){ mysqlUser = str; }
     public void setMysqlPasswd(String str){ mysqlPasswd = str; }
     
-    public void setTextFile(String str){ textFile = str; }
-    public void setPageFile(String str){ pageFile = str; }
-    public void setRevisionFile(String str){ revisionFile = str; }
+    public void setSqlSourceFile(String str){ sqlSourceFile = str; }
+    //public void setPageFile(String str){ pageFile = str; }
+    //public void setRevisionFile(String str){ revisionFile = str; }
     public void setWikiLog(String str){ wikiLog = str; }
     public void setTestId(String str){ debugPageId = str; }
     
@@ -104,9 +105,9 @@ public class WikipediaMarkupCleaner {
     public String getMysqlUser(){ return mysqlUser; }
     public String getMysqlPasswd(){ return mysqlPasswd; }
     
-    public String getTextFile(){ return textFile; }
-    public String getPageFile(){ return pageFile; }
-    public String getRevisionFile(){ return revisionFile; }
+    public String getSqlSourceFile(){ return sqlSourceFile; }
+    //public String getPageFile(){ return pageFile; }
+    //public String getRevisionFile(){ return revisionFile; }
     public String getWikiLog(){ return wikiLog; }
     public String getTestId(){ return debugPageId; }
     
@@ -1023,8 +1024,8 @@ public class WikipediaMarkupCleaner {
     }
     
     
-    void processWikipediaSQLTables()throws Exception{
-        //Put sentences and features in the database.
+    void processWikipediaSQLSourceFile()throws Exception{
+        // Extract clean text and  create word list.
         String dateStringIni="", dateStringEnd="";
         DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
         Date dateIni = new Date();
@@ -1042,9 +1043,11 @@ public class WikipediaMarkupCleaner {
         
         // This loading can take a while
         // create and load TABLES: page, text and revision
+        /*
         if(loadWikiTables) {
           System.out.println("Creating and loading TABLES: page, text and revision. (The loading can take a while...)");
-          wikiToDB.createAndLoadWikipediaTables(textFile, pageFile, revisionFile);
+          //wikiToDB.createAndLoadWikipediaTables(textFile, pageFile, revisionFile);
+          wikiToDB.createAndLoadWikipediaTables(sqlSourceFile);
         } else {
           // Checking if tables are already created and loaded in the DB
           if(wikiToDB.checkWikipediaTables())  
@@ -1052,6 +1055,7 @@ public class WikipediaMarkupCleaner {
           else
            throw new Exception("WikipediaMarkupCleaner: ERROR IN TABLES " + locale + "_page, " + locale + "_text and " + locale + "_revision, they are not CREATED/LOADED.");          
         }    
+        */
         
         System.out.println("\nGetting page IDs");
         String pageId[];
@@ -1153,9 +1157,7 @@ public class WikipediaMarkupCleaner {
         "\n  -mysqlUser " + getMysqlUser() +
         "\n  -mysqlPasswd " + getMysqlPasswd() +
         "\n  -mysqlDB " + getMysqlDB() +
-        "\n  -text " + getTextFile() +
-        "\n  -page " + getPageFile() +
-        "\n  -revision " + getRevisionFile() +
+        "\n  -source " + getSqlSourceFile() +
         "\n  -minPage " + getMinPageLength() +
         "\n  -minText " + getMinTextLength() +
         "\n  -maxText " + getMaxTextLength() +
@@ -1186,8 +1188,8 @@ public class WikipediaMarkupCleaner {
      */
     private boolean readArgs(String[] args){
         
-        String help = "\nUsage: java WikipediaMarkupCleaner -locale en_US -mysqlHost host -mysqlUser user -mysqlPasswd passwd -mysqlDB wikiDB \n" +
-        "                       -text wikiTextFile -page wikiPageFile -revision wikiRevisionFile \n" +
+        String help = "\nUsage: java WikipediaMarkupCleaner -locale en_US -mysqlHost host -mysqlUser user  \n" +
+        "                       -mysqlPasswd passwd -mysqlDB wikiDB -source sqlSourceFile \n" +
         "      default/optional: [-minPage 10000 -minText 1000 -maxText 15000] \n" +
         "      optional: [-log wikiLogFile -id pageId -debug]\n\n" +
         "      -minPage is the minimum size of a wikipedia page that will be considered for cleaning.\n" +
@@ -1218,14 +1220,8 @@ public class WikipediaMarkupCleaner {
             else if(args[i].contentEquals("-mysqlDB") && args.length >= (i+1) )
               setMysqlDB(args[++i]);
             
-            else if(args[i].contentEquals("-text") && args.length >= (i+1) )
-              setTextFile(args[++i]);
-            
-            else if(args[i].contentEquals("-page") && args.length >= (i+1) )
-              setPageFile(args[++i]); 
-            
-            else if(args[i].contentEquals("-revision") && args.length >= (i+1) )
-              setRevisionFile(args[++i]);
+            else if(args[i].contentEquals("-source") && args.length >= (i+1) )
+              setSqlSourceFile(args[++i]);
             
             // From here the arguments are optional
             else if(args[i].contentEquals("-minPage") && args.length >= (i+1) )
@@ -1280,9 +1276,8 @@ public class WikipediaMarkupCleaner {
             return false;
          } 
         
-        if(getTextFile()==null || getPageFile()==null || getRevisionFile()==null){
-            System.out.println("\nMissing required parameters, the three files: text, page or revision.\n" +
-                    "(one/several required variables are null)");
+        if(getSqlSourceFile()==null){
+            System.out.println("\nMissing required parameter, the sql source file\n");
             printParameters();
             System.out.println(help);
             return false; 
@@ -1306,7 +1301,7 @@ public class WikipediaMarkupCleaner {
         if(wikiCleaner.getTestId() != null)
           wikiCleaner.processWikipediaSQLTablesDebug();
         else
-          wikiCleaner.processWikipediaSQLTables();
+          wikiCleaner.processWikipediaSQLSourceFile();
         
         
     }

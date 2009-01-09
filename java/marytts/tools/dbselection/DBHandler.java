@@ -202,8 +202,10 @@ public class DBHandler {
   
   
   /***
-   * 
-   * @param sourceFile is a text file.
+   * This function creates text, page and revision tables loading them from text files.
+   * @param textFile
+   * @param pageFile
+   * @param revisionFile
    */
   public void createAndLoadWikipediaTables(String textFile, String pageFile, String revisionFile) {
       
@@ -312,6 +314,275 @@ public class DBHandler {
           e.printStackTrace();
       } 
   }
+  
+  
+  /***
+   * This function creates text, page and revision tables loading them from a sql source file.
+   * @param sqlSourceFile this sql source files has instructions of the type:
+   *   INSERT INTO local_text
+   *   INSERT INTO local_page
+   *   INSERT INTO local_revision
+   *   where local is the language of the wikipedia to process.
+   */
+  public void createAndLoadWikipediaTables(String sqlSourceFile) {
+      
+      String createTextTable = "CREATE TABLE " + locale + "_text (" +
+              " old_id int UNSIGNED NOT NULL AUTO_INCREMENT," +
+              " old_text mediumblob NOT NULL," +
+              " old_flags tinyblob NOT NULL," +
+              " PRIMARY KEY old_id (old_id)" +
+              " ) MAX_ROWS=250000 AVG_ROW_LENGTH=10240;";
+      
+      String createPageTable = "CREATE TABLE " + locale + "_page (" +
+            "page_id int UNSIGNED NOT NULL AUTO_INCREMENT," +
+            "page_namespace int(11) NOT NULL," +
+            "page_title varchar(255) NOT NULL," +
+            "page_restrictions tinyblob NOT NULL," +
+            "page_counter bigint(20) unsigned NOT NULL," +
+            "page_is_redirect tinyint(3) unsigned NOT NULL," +
+            "page_is_new tinyint(3) unsigned NOT NULL," +
+            "page_random double unsigned NOT NULL," +
+            "page_touched binary(14) NOT NULL," +
+            "page_latest int(10) unsigned NOT NULL," +
+            "page_len int(10) unsigned NOT NULL," +
+            "PRIMARY KEY page_id (page_id)," +
+            "KEY page_namespace (page_namespace)," +
+            "KEY page_random (page_random)," +
+            "KEY page_len (page_len) ) MAX_ROWS=250000 AVG_ROW_LENGTH=10240; ";
+      
+      String createRevisionTable = "CREATE TABLE " + locale + "_revision (" +
+            "rev_id int UNSIGNED NOT NULL AUTO_INCREMENT," +
+            "rev_page int(10) unsigned NOT NULL," +
+            "rev_text_id int(10) unsigned NOT NULL," +
+            "rev_comment tinyblob NOT NULL," +
+            "rev_user int(10) unsigned NOT NULL," +
+            "rev_user_text varchar(255) NOT NULL, " +
+            "rev_timestamp binary(14) NOT NULL, " +
+            "rev_minor_edit tinyint(3) unsigned NOT NULL," +
+            " rev_deleted tinyint(3) unsigned NOT NULL," +
+            "rev_len int(10) unsigned NULL," +
+            "rev_parent_id int(10) unsigned NULL," +
+            "KEY rev_user (rev_user),KEY rev_user_text (rev_user_text)," +
+            "KEY rev_timestamp (rev_timestamp)," +
+            "PRIMARY KEY rev_id (rev_id)) MAX_ROWS=250000 AVG_ROW_LENGTH=10240;";
+      
+      // If database does not exist create it, if it exists delete it and create an empty one.      
+      //System.out.println("Checking if the TABLE=text already exist.");
+      try {
+          rs = st.executeQuery("SHOW TABLES;");
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+      boolean resText=false, resPage=false, resRevision=false;
+      try { 
+         
+          while( rs.next() ) {
+            String str = rs.getString(1);
+            if( str.contentEquals(locale+"_text") )
+               resText=true;
+            else if( str.contentEquals(locale+"_page") )
+               resPage=true;
+            else if( str.contentEquals(locale+"_revision") )
+               resRevision=true;
+            
+          } 
+          boolean res0;
+          if(resText==true){
+            System.out.println("TABLE = " + locale + "_text already exist deleting.");  
+            res0 = st.execute( "DROP TABLE " + locale + "_text;" );  
+          }
+          if(resPage==true){
+              System.out.println("TABLE = " + locale + "_page already exist deleting.");  
+              res0 = st.execute( "DROP TABLE " + locale + "_page;" );  
+          }
+          if(resRevision==true){
+              System.out.println("TABLE = " + locale + "_revision already exist deleting.");  
+              res0 = st.execute( "DROP TABLE " + locale + "_revision;" );  
+          }
+          
+          boolean res1;
+          int res2;
+          // creating TABLE=text,page and revision
+          System.out.println("\nCreating table:" + locale + "_text");
+          res1 = st.execute( createTextTable );  
+          System.out.println("\nCreating table:" + locale + "_page");
+          res1 = st.execute( createPageTable );
+          System.out.println("\nCreating table:" + locale + "_revision");
+          res1 = st.execute( createRevisionTable ); 
+          
+          System.out.println("Loading sql source file: " + sqlSourceFile);
+          System.out.println("executing:" + "SOURCE " + sqlSourceFile + ";");
+          res1 = st.execute("SOURCE " + sqlSourceFile + ";");
+          //res1 = st.execute("source /project/mary/marcela/anna_wikipedia/xml_splits/page1.sql;");
+          System.out.println("source file succesfully loaded.");          
+          
+      } catch (SQLException e) {
+          e.printStackTrace();
+      } 
+  }
+  
+  
+  /***
+   * This function creates text, page and revision tables (without locale prefix).
+   * If the tables already exist it will delete them.
+   */
+  public void createEmptyWikipediaTables() {
+      System.out.println("Creating empty wikipedia tables");
+      String createTextTable = "CREATE TABLE text (" +
+              " old_id int UNSIGNED NOT NULL AUTO_INCREMENT," +
+              " old_text mediumblob NOT NULL," +
+              " old_flags tinyblob NOT NULL," +
+              " PRIMARY KEY old_id (old_id)" +
+              " ) MAX_ROWS=250000 AVG_ROW_LENGTH=10240;";
+      
+      String createPageTable = "CREATE TABLE page (" +
+            "page_id int UNSIGNED NOT NULL AUTO_INCREMENT," +
+            "page_namespace int(11) NOT NULL," +
+            "page_title varchar(255) NOT NULL," +
+            "page_restrictions tinyblob NOT NULL," +
+            "page_counter bigint(20) unsigned NOT NULL," +
+            "page_is_redirect tinyint(3) unsigned NOT NULL," +
+            "page_is_new tinyint(3) unsigned NOT NULL," +
+            "page_random double unsigned NOT NULL," +
+            "page_touched binary(14) NOT NULL," +
+            "page_latest int(10) unsigned NOT NULL," +
+            "page_len int(10) unsigned NOT NULL," +
+            "PRIMARY KEY page_id (page_id)," +
+            "KEY page_namespace (page_namespace)," +
+            "KEY page_random (page_random)," +
+            "KEY page_len (page_len) ) MAX_ROWS=250000 AVG_ROW_LENGTH=10240; ";
+      
+      String createRevisionTable = "CREATE TABLE revision (" +
+            "rev_id int UNSIGNED NOT NULL AUTO_INCREMENT," +
+            "rev_page int(10) unsigned NOT NULL," +
+            "rev_text_id int(10) unsigned NOT NULL," +
+            "rev_comment tinyblob NOT NULL," +
+            "rev_user int(10) unsigned NOT NULL," +
+            "rev_user_text varchar(255) NOT NULL, " +
+            "rev_timestamp binary(14) NOT NULL, " +
+            "rev_minor_edit tinyint(3) unsigned NOT NULL," +
+            " rev_deleted tinyint(3) unsigned NOT NULL," +
+            "rev_len int(10) unsigned NULL," +
+            "rev_parent_id int(10) unsigned NULL," +
+            "KEY rev_user (rev_user),KEY rev_user_text (rev_user_text)," +
+            "KEY rev_timestamp (rev_timestamp)," +
+            "PRIMARY KEY rev_id (rev_id)) MAX_ROWS=250000 AVG_ROW_LENGTH=10240;";
+      
+      // If database does not exist create it, if it exists delete it and create an empty one.      
+      //System.out.println("Checking if the TABLE=text already exist.");
+      try {
+          rs = st.executeQuery("SHOW TABLES;");
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+      boolean resText=false, resPage=false, resRevision=false;
+      try { 
+         
+          while( rs.next() ) {
+            String str = rs.getString(1);
+            if( str.contentEquals("text") )
+               resText=true;
+            else if( str.contentEquals("page") )
+               resPage=true;
+            else if( str.contentEquals("revision") )
+               resRevision=true;
+            
+          } 
+          boolean res0;
+          if(resText==true){
+            System.out.println("  TABLE = text already exist deleting.");  
+            res0 = st.execute( "DROP TABLE text;" );  
+          }
+          if(resPage==true){
+              System.out.println("  TABLE = page already exist deleting.");  
+              res0 = st.execute( "DROP TABLE page;" );  
+          }
+          if(resRevision==true){
+              System.out.println("  TABLE = revision already exist deleting.");  
+              res0 = st.execute( "DROP TABLE revision;" );  
+          }
+          
+          boolean res1;
+          int res2;
+          // creating TABLE=text,page and revision
+          System.out.println("  Creating table: text");
+          res1 = st.execute( createTextTable );  
+          System.out.println("  Creating table: page");
+          res1 = st.execute( createPageTable );
+          System.out.println("  Creating table: revision");
+          res1 = st.execute( createRevisionTable );           
+          
+      } catch (SQLException e) {
+          e.printStackTrace();
+      } 
+  }
+ 
+  /****
+   * Rename the Wikipedia tables adding the prefix locale: 
+   *  locale_text
+   *  locale_page and 
+   *  locale_revision.
+   *  if any of the locale_* tables exist will be deleted before renaming the table.
+   */
+  public void addLocalePrefixToWikipediaTables() {
+        
+     System.out.println("Deleting already used wikipedia tables and adding local prefix to new ones.");
+     try {
+         rs = st.executeQuery("SHOW TABLES;");
+     } catch (Exception e) {
+         e.printStackTrace();
+     }
+     boolean resText=false, resPage=false, resRevision=false;
+     boolean resLocaleText=false, resLocalePage=false, resLocaleRevision=false;
+     try { 
+        
+         while( rs.next() ) {
+           String str = rs.getString(1);
+           if( str.contentEquals("text") )
+              resText=true;
+           else if( str.contentEquals(locale + "_text") )
+               resLocaleText=true;
+           else if( str.contentEquals("page") )
+              resPage=true;
+           else if( str.contentEquals(locale + "_page") )
+               resLocalePage=true;
+           else if( str.contentEquals("revision") )
+              resRevision=true;
+           else if( str.contentEquals(locale + "_revision") )
+               resLocaleRevision=true;
+         } 
+         if(resLocaleText==true){
+             System.out.println("  Deleting TABLE = " + locale + "_text.");  
+             boolean res0 = st.execute( "DROP TABLE " + locale + "_text;" );  
+           }
+           if(resLocalePage==true){
+               System.out.println("  Deleting TABLE = " + locale + "_page.");  
+               boolean res0 = st.execute( "DROP TABLE " + locale + "_page;" );  
+           }
+           if(resLocaleRevision==true){
+               System.out.println("  Deleting TABLE = " + locale + "_revision.");  
+               boolean res0 = st.execute( "DROP TABLE " + locale + "_revision;" );  
+           }   
+           
+         if(resText==true){
+           System.out.println("  RENAME TABLE = text TO " + locale + "_text.");  
+           boolean res0 = st.execute( "RENAME TABLE text TO " + locale + "_text;" );  
+         }
+         if(resPage==true){
+             System.out.println("  RENAME TABLE = page TO " + locale + "_page.");  
+             boolean res0 = st.execute( "RENAME TABLE page TO " + locale + "_page;" );  
+         }
+         if(resRevision==true){
+             System.out.println("  RENAME TABLE = revision TO " + locale + "_revision.");  
+             boolean res0 = st.execute( "RENAME TABLE revision TO " + locale + "_revision;" );  
+         }       
+         
+     } catch (SQLException e) {
+         e.printStackTrace();
+     } 
+ }
+  
+  
    /****
     * Delete the Wikipedia tables: text, page and revision tables.
     *
@@ -338,15 +609,15 @@ public class DBHandler {
             
           } 
           if(resText==true){
-            System.out.println("Deleting TABLE = " + locale + "_text.");  
+            System.out.println("  Deleting TABLE = " + locale + "_text.");  
             boolean res0 = st.execute( "DROP TABLE " + locale + "_text;" );  
           }
           if(resPage==true){
-              System.out.println("Deleting TABLE = " + locale + "_page.");  
+              System.out.println("  Deleting TABLE = " + locale + "_page.");  
               boolean res0 = st.execute( "DROP TABLE " + locale + "_page;" );  
           }
           if(resRevision==true){
-              System.out.println("Deleting TABLE = " + locale + "_revision.");  
+              System.out.println("  Deleting TABLE = " + locale + "_revision.");  
               boolean res0 = st.execute( "DROP TABLE " + locale + "_revision;" );  
           }       
           
