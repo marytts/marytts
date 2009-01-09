@@ -37,10 +37,22 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Scanner;
 import java.util.Vector;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.ClassLoader;
+
 /**
- * WikipediaProcesso
+ * WikipediaProcessor
+ * This program processes one by one the xml files split with wikipediaDumpSplitter.
+ * Each xml file is converted to an sql source file with mwdumper-2008-04-13.jar (org.mediawiki.dumper.Dumper)
+ * The tables names in the sql source are prefixed with the local (ex. en_US, de etc.) 
+ * Each sql source is loaded in a mysql database, basically the tables local_text, local_page and local_revision are loaded.
+ * Once the tables are loaded the WikipediMarkupCleaner is used to extract clean text and a wordList, as a 
+ * result two tables will be created in the database: local_cleanText and local_wordList (the wordList is also 
+ * saved in a file).
  * 
  * @author Marcela Charfuelan.
  */
@@ -58,7 +70,6 @@ public class WikipediaProcessor {
     private String textFile=null;
     private String pageFile=null;
     private String revisionFile=null;
-    private String xml2sqlCommand=null;
     private String wikiLog = null;
     private boolean debug = false;
     private String debugPageId = null;
@@ -78,9 +89,8 @@ public class WikipediaProcessor {
     public void setMysqlDB(String str){ mysqlDB = str; }
     public void setMysqlUser(String str){ mysqlUser = str; }
     public void setMysqlPasswd(String str){ mysqlPasswd = str; }
-    
+   
     public void setListFile(String str){ listFile = str; }
-    public void setXml2SqlCommand(String str){ xml2sqlCommand = str; }
     public void setTextFile(String str){ textFile = str; }
     public void setPageFile(String str){ pageFile = str; }
     public void setRevisionFile(String str){ revisionFile = str; }
@@ -102,7 +112,6 @@ public class WikipediaProcessor {
     public String getMysqlPasswd(){ return mysqlPasswd; }
     
     public String getListFile(){ return listFile; }
-    public String getXml2SqlCommand(){return xml2sqlCommand; }
     public String getTextFile(){ return textFile; }
     public String getPageFile(){ return pageFile; }
     public String getRevisionFile(){ return revisionFile; }
@@ -132,7 +141,6 @@ public class WikipediaProcessor {
     }
     
     
-    //
     /**
      * Read and parse the command line args
      * 
@@ -141,17 +149,17 @@ public class WikipediaProcessor {
      */
     private boolean readArgs(String[] args){
         
-        String help = "\nUsage: java WikipediaMarkupCleaner -locale en_US -mysqlHost host -mysqlUser user -mysqlPasswd passwd \n" +
-        "                                       -mysqlDB wikiDB -listFile wikiFileList -xml2sql ./bin/xml2sql\n" +
-        "                                       [-minPage 10000 -minText 1000 -maxText 15000] \n\n" +
+        String help = "\nUsage: java WikipediaProcessor -locale en_US -mysqlHost host -mysqlUser user -mysqlPasswd passwd \n" +
+        "                                   -mysqlDB wikiDB -listFile wikiFileList.\n" +
+        "                                   [-minPage 10000 -minText 1000 -maxText 15000] \n\n" +
         "      -listFile is a a text file that contains the xml wikipedia file names to be procesed. \n" +
-        "      -xml2sql is the command (and its path) used to convert the xml files into mysql tables.\n\n" +
+        "      This program requires the jar file mwdumper-2008-04-13.jar (or latest). \n\n" +
         "      default/optional: [-minPage 10000 -minText 1000 -maxText 15000] \n" +
         "      -minPage is the minimum size of a wikipedia page that will be considered for cleaning.\n" +
         "      -minText is the minimum size of a text to be kept in the DB.\n" +
         "      -maxText is used to split big articles in small chunks, this is the maximum chunk size. \n";
               
-        if (args.length >= 14){  // minimum 10 parameters
+        if (args.length >= 12){  // minimum 12 parameters
           for(int i=0; i<args.length; i++) { 
             if(args[i].contentEquals("-locale") && args.length >= (i+1) )
               setLocale(args[++i]);
@@ -167,12 +175,9 @@ public class WikipediaProcessor {
             
             else if(args[i].contentEquals("-mysqlDB") && args.length >= (i+1) )
               setMysqlDB(args[++i]);
-            
+                      
             else if(args[i].contentEquals("-listFile") && args.length >= (i+1) )
                 setListFile(args[++i]);
-            
-            else if(args[i].contentEquals("-xml2sql") && args.length >= (i+1) )
-                setXml2SqlCommand(args[++i]);
             
             // From here the arguments are optional
             else if(args[i].contentEquals("-minPage") && args.length >= (i+1) )
@@ -191,16 +196,9 @@ public class WikipediaProcessor {
               }
             
           }
-       } else { // num arguments less than 14
+       } else { // num arguments less than 12
           System.out.println(help);
           return false;
-        }
-        
-        if(getLocale() == null || getXml2SqlCommand() == null ) {
-            System.out.println("\nMissing required parameters, (one/several required variables are null).");
-            printParameters();
-            System.out.println(help);
-            return false;
         }
         
         if(getMysqlHost()==null || getMysqlUser()==null || getMysqlPasswd()==null || getMysqlDB()==null){
@@ -265,66 +263,63 @@ public class WikipediaProcessor {
         
       }
     
-    /**
-     * A general process launcher for the various tasks
-     * (copied from ESTCaller.java)
-     * @param cmdLine the command line to be launched.
-     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
-     * @param the basename of the file currently processed, for error messages.
-     */
-    private void launchProc( String cmdLine) {
-        
-        Process proc = null;
-        BufferedReader procStdout = null;
-        String line = null;
-        System.out.println("Running: "+ cmdLine);
+    
+    private void addLocalePrefixToTables(String sqlFile, String outFile){
+        String line, localLine;
+        Scanner s = null;
+        FileWriter outputStream = null;
         
         try {
-            /* Java 1.0 equivalent: */
-            proc = Runtime.getRuntime().exec( cmdLine );
+          s = new Scanner(new BufferedReader(new FileReader(sqlFile)));
+          
+          
+          System.out.println("Adding local prefix to sql tables.");
+          outputStream = new FileWriter(outFile);
+          
+          
+          while (s.hasNext()) {
+            line = s.nextLine();
             
-            /* Collect stdout and send it to System.out: */
-            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
-            while( true ) {
-                line = procStdout.readLine();
-                if ( line == null ) break;
-                System.out.println( line );
-            }
-            /* Wait and check the exit value */
-            proc.waitFor();
-            if ( proc.exitValue() != 0 ) {
-                throw new RuntimeException("Computation failed, command line was: [" + cmdLine + "]." );
-            }
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException("Computation provoked an IOException: ", e );
-        }
-        catch ( InterruptedException e ) {
-            throw new RuntimeException("Computation interrupted on file : ", e );
-        }
+            if(line.contains("INSERT INTO ")){
+               localLine = line.replaceAll("INSERT INTO ", "INSERT INTO " + locale + "_");
+               outputStream.write(localLine+"\n");
+            } else
+                outputStream.write(line+"\n");  
+            
+          }
+          outputStream.close();
+          System.out.println("Added local=" + locale + " to tables in outFile:" + outFile);
+          
+        }catch (Exception e) {
+            System.err.println("Exception: " + e.getMessage());
+        } finally {
+            if (s != null)
+              s.close();
+        }   
         
-    }    
+        
+    }
     
     
     public static void main(String[] args) throws Exception{
-        
-        String wFile, cmdLine;
+        String wFile;                    // xml wiki file
+        String sqlDump;                  // sql source file after converting xml --> sql
+        String sqlLocaleDump;            // sql source file after adding locale prefix to tables names
+        String doneFile = "./done.txt";  // file that contains the xml files already processed
         Vector<String> filesToProcess;
         Vector<String> filesDone;
-        
         WikipediaProcessor wiki = new WikipediaProcessor(); 
-       // WikipediaMarkupCleaner wikiCleaner = new WikipediaMarkupCleaner(); 
         
         /* check the arguments */
         if (!wiki.readArgs(args))
             return;
-        
         wiki.printParameters();
         
+        DBHandler wikiToDB = new DBHandler(wiki.getLocale());
        
-        
+       
         filesToProcess = wiki.getWikipediaFiles(wiki.getListFile());
-        filesDone = wiki.getWikipediaFiles("./done.txt");
+        filesDone = wiki.getWikipediaFiles(doneFile);
         if(filesDone==null)
            filesDone = new Vector<String>();
         
@@ -333,7 +328,9 @@ public class WikipediaProcessor {
             wFile = filesToProcess.elementAt(i);
             if(filesDone.indexOf(wFile) == -1){
                System.out.println("\n_______________________________________________________________________________"); 
-               System.out.println("\nProcessing file:" + wFile);
+               
+               System.out.println("\nProcessing xml file:" + wFile);
+               System.out.println("Converting xml file into sql source file and loading text, page and revision tables into the DB.");
                
                WikipediaMarkupCleaner wikiCleaner = new WikipediaMarkupCleaner();
                
@@ -342,6 +339,7 @@ public class WikipediaProcessor {
                wikiCleaner.setDeleteCleanTextTable(false);
                wikiCleaner.setLoadWikiTables(true);
                wikiCleaner.setLocale(wiki.getLocale());
+               
                wikiCleaner.setMaxTextLength(wiki.getMaxTextLength());
                wikiCleaner.setMinPageLength(wiki.getMinPageLength());
                wikiCleaner.setMinTextLength(wiki.getMinTextLength());
@@ -350,24 +348,74 @@ public class WikipediaProcessor {
                wikiCleaner.setMysqlPasswd(wiki.getMysqlPasswd());
                wikiCleaner.setMysqlUser(wiki.getMysqlUser());
                
+               System.out.println("Creating connection to DB server...");
+               wikiToDB.createDBConnection(wiki.getMysqlHost(),wiki.getMysqlDB(),wiki.getMysqlUser(),wiki.getMysqlPasswd());
                
-               // create the wikipedia files text, page and revision.
-               cmdLine = wiki.getXml2SqlCommand() + " " + wFile; 
-               System.out.println("Using command xml2sql to create files: text.txt, page.txt and revision.txt");
-               wiki.launchProc(cmdLine);
+               // Before runing the mwdumper the tables text, page and revision should be deleted and created empty.
+               wikiToDB.createEmptyWikipediaTables();
+               
+               // Run the mwdumper jar file xml -> sql
+               /*
+               sqlDump = wFile + ".sql";
+               String[] argsDump = new String[3];
+               argsDump[0] = "--output=file:"+sqlDump;
+               argsDump[1] = "--format=sql:1.5";
+               argsDump[2] = wFile;
+               */
+               sqlDump = wFile + ".sql";
+               String[] argsDump = new String[3];
+               argsDump[0] = "--output=mysql://" + wiki.getMysqlHost() + "/" + wiki.getMysqlDB() 
+                             + "?user=" + wiki.getMysqlUser() + "&password=" + wiki.getMysqlPasswd();
+               argsDump[1] = "--format=sql:1.5";
+               argsDump[2] = wFile;
+               
+               //--- The following ClassLoader code from:
+               //   http://java.sun.com/docs/books/tutorial/deployment/jar/examples/JarClassLoader.java
+               // Class c = loadClass(name);                                    // this does not work (example from sun)
+               // Class c = Class.forName("org.mediawiki.dumper.Dumper");                              // this works
+               Class c = ClassLoader.getSystemClassLoader().loadClass("org.mediawiki.dumper.Dumper");  // this also works
+               Method m = c.getMethod("main", new Class[] { argsDump.getClass() });
+               m.setAccessible(true);
+               int mods = m.getModifiers();
+               if (m.getReturnType() != void.class || !Modifier.isStatic(mods) ||
+                   !Modifier.isPublic(mods)) {
+                   throw new NoSuchMethodException("main");
+               }
+               try {
+                   m.invoke(null, new Object[] { argsDump });
+             
+               } catch (IllegalAccessException e) {
+                   // This should not happen, as we have disabled access checks
+               } 
+               //---
+               //System.out.println("Created sql source file:" + sqlDump);
+               
+               // Now I need to add/change the prefix locale to the table names
+               wikiToDB.addLocalePrefixToWikipediaTables();
+           //    sqlLocaleDump = sqlDump + "." + wiki.getLocale() + ".sql";
+           //    wiki.addLocalePrefixToTables(sqlDump, sqlLocaleDump);
+               // delete generated files
+            //   System.out.println("Deleting file:" + sqlDump);    
+            //   File dump = new File(sqlDump);
+            //   if(dump.exists())
+            //     dump.delete();
+              
+               wikiToDB.closeDBConnection(); 
                
                // now call the wikipediaMarkupCleaner
-               wikiCleaner.setTextFile("./text.txt");
-               wikiCleaner.setPageFile("./page.txt");
-               wikiCleaner.setRevisionFile("./revision.txt");
-               wikiCleaner.processWikipediaSQLTables();
-               
-               wikiCleaner = null;
+        //       wikiCleaner.setSqlSourceFile(sqlLocaleDump);
+               wikiCleaner.processWikipediaSQLSourceFile();              
+        //       wikiCleaner = null;
                
                // when finished
                wiki.setWikipediaFileDone("./done.txt", wFile);
-               // delete files text, page and revision
                
+               // delete generated files
+           //    System.out.println("Deleting file:" + sqlLocaleDump);              
+           //    File localDump = new File(sqlLocaleDump);
+           //    if(localDump.exists())
+           //      localDump.delete();
+              
             } else
               System.out.println("File already procesed: " + wFile);
               
@@ -376,11 +424,8 @@ public class WikipediaProcessor {
             
         } else
           System.out.println("No files to process..");
-            
-        //wikiCleaner.processWikipediaSQLTables();
-        
-        
-        
+             
+       
         
         
     }
