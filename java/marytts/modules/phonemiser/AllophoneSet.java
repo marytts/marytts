@@ -218,4 +218,55 @@ public class AllophoneSet
         }
         return (Allophone[]) phones.toArray(new Allophone[0]);
     }
+    
+    
+    public String checkAllophoneSyntax(String allophoneString)
+    {
+        List<Allophone> phones = new ArrayList<Allophone>();
+        boolean haveSeenNucleus = false;
+        for (int i=0; i<allophoneString.length(); i++) {
+            String one = allophoneString.substring(i,i+1);
+            // symbols to skip silently: primary and secondary stress, syllable boundary, and space:
+            if ("',- ".contains(one))
+                continue;
+            // Try to cut off individual segments, 
+            // starting with the longest prefixes:
+            Allophone ph = null;
+            String phString = "";
+            if (i+2 <= allophoneString.length()) {
+                String two = allophoneString.substring(i,i+2);
+                // look up in phoneme list:
+                ph = getAllophone(two);
+                if (ph != null) {
+                    // OK, a two-character segment
+                    phString = two;
+                    i++; // in addition to the i++ in the for loop
+                }
+            }
+            if (ph == null) {
+                ph = getAllophone(one);
+                if (ph != null) {
+                    // OK, a one-character segment
+                    name = one;
+                }
+            }
+            if (ph != null) {
+                // have found a valid phoneme
+                if (ph.isSyllabic())
+                    haveSeenNucleus = true;
+                else if (phString.equals("6") &&
+                         !haveSeenNucleus) {
+                    // This "6" is the nucleus, must be coded as "=6"
+                    ph = getAllophone("=6");
+                    haveSeenNucleus = true;
+                }
+                phones.add(ph);
+            } else {
+                return "Found unknown symbol `" + one +"' in phonetic string `" + allophoneString + "' -- ignoring.";
+            }
+        }
+        return "OK";
+    }
+    
+    
 }
