@@ -62,7 +62,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.Version;
 import marytts.client.http.Address;
-import marytts.client.http.MaryBaseClient;
+import marytts.client.http.MaryFormData;
 import marytts.client.http.MaryHttpClientUtils;
 import marytts.datatypes.MaryDataType;
 import marytts.exceptions.NoSuchPropertyException;
@@ -145,58 +145,37 @@ import org.apache.log4j.Logger;
  * (2) Information like available voices, example texts, available audio formats, etc
  * (3) Synthesis of an appropriate input with appropriate additional parameters
  * <p>
- * For all clients, the responses are always sent in an HttpResponses.
+ * For all clients, the responses are always sent in an HttpResponse.
  * The entity in the response body can represent:
  * <p>
  * (1) An html page (applies only to web browser clients)
  * (2) Some binary data (such as bytes of Mary icon for file requests, or bytes of audio data for synthesis requests)
  * (3) Some piece of text
  * <p>
- * A valid Mary Http request string is a collection of individual key-value pairs combined in Http request sytle:
- * pair1&pair2&pair3... etc
+ * A valid Mary Http request string is a collection of individual key-value pairs combined in Http request style:
+ * <code>address?pair1&pair2&pair3...</code> etc.
  * <p>
- * Each pair has the following structure:
+ * The <code>address</code> identifies the kind of thing that the client is asking for:
+ * <ul>
+ *   <li><code>version</code> requests the version of the MARY server;</li>
+ *   <li><code>datatypes</code> requests the list of available data types;</li>
+ *   <li><code>voices</code> requests the list of available voices;</li>
+ *   <li><code>audioformats</code> requests the list of supported audio file format types;</li>
+ *   <li><code>exampletext?voice=hmm-slt<code> requests the example text for the given voice;</li>
+ *   <li><code>exampletext?datatype=RAWMARYXML&locale=de</code> requests an example text for data of the given type and locale;</li>
+ *   <li><code>audioeffects</code> requests the list of default audio effects;</li>
+ *   <li><code>audioeffect-default-param?effect=Robot</code> requests the default parameters of the given audio effect;</li>
+ *   <li><code>audioeffect-full?effect=Robot&params=amount:100.0</code> requests a full description of the given audio effect, including effect name, parameters and help text;</li>
+ *   <li><code>audioeffect-help?effect=Robot</code> requests a help text describing the given audio effect;</li>
+ *   <li><code>audioeffect-is-hmm-effect?effect=Robot</code> requests a boolean value (plain text "yes" or "no") indicating whether or not the given effect is an effect that operates on HMM-based voices only;</li>
+ *   <li><code>process</code> requests the synthesis of some text (see below).</li>
+ * </ul>
  * <p>
- * KEY=VALUE where
+ * In Each pair has the following structure:
  * <p>
- * VALUE should start with a question mark (?) for querying the actual value corresponding to the KEY.
+ * <code>KEY=VALUE</code>
  * <p>
- * In addition, for some KEYs, VALUE may contain parameters separated by spaces after the question mark.
- * <p>
- * For example:
- * <p>
- * VOICE_EXAMPLE_TEXT=? hmm-slt 
- * <p>
- * returns the example text for voice "hmm-slt" from the server.
- * <p>
- * A list of KEYs for requesting information from the server are as follows:
- * <p>
- * VERSION (asks server version) 
- * <p>
- * DATA_TYPES (asks available data types - both input and output) 
- * <p>
- * VOICES (asks all available voices) 
- * <p>
- * AUDIO_FILE_FORMAT_TYPES (asks all supported audio formats) 
- * <p>
- * EXAMPLE_TEXT (asks example texts given a data type and locale
- * <p>
- * VOICE_EXAMPLE_TEXT (asks example texts given a voice) 
- * <p>
- * DEFAULT_AUDIO_EFFECTS (asks for the default audio effects set)
- * <p>
- * AUDIO_EFFECT_HELP_TEXT_LINE_BREAK (asks for the line break symbol used in audio effect help texts)
- * <p>
- * AUDIO_EFFECT_DEFAULT_PARAM (asks for the default parameters of an audio effect. Its parameter should be the effect name)
- * <p>
- * FULL_AUDIO_EFFECT (asks for a full audio effect - effect name + parameters and help texts)
- * <p>
- * AUDIO_EFFECT_HELP_TEXT (asks for the help text of an audio effect)
- * <p>
- * IS_HMM_AUDIO_EFFECT (asks if a given effect is only available for hmm voices
- *         
- * <p>
- * The following keys are used for passing additional information from server to client and/or vice versa:
+ * where the following keys are used for passing additional information from server to client and/or vice versa:
  * <p>
  * INPUT_TYPE (input data type)
  * <p>
@@ -228,44 +207,28 @@ import org.apache.log4j.Logger;
  * <p>
  * (2) Copy and paste the following to a web browser´s address bar:
  * <p>
- * http://localhost:59125/?INPUT_TYPE=TEXT&OUTPUT_TYPE=AUDIO&INPUT_TEXT=Welcome+to+the+world+of+speech+synthesis!&AUDIO=AU&SYNTHESIS_OUTPUT=%3F&LOCALE=en_US&VOICE=hsmm-slt
+ * http://localhost:59125/process?INPUT_TYPE=TEXT&OUTPUT_TYPE=AUDIO&INPUT_TEXT=Welcome+to+the+world+of+speech+synthesis!&AUDIO=AU&LOCALE=en_US&VOICE=hsmm-slt
  * <p>
  * Provided that the server runs at localhost:59125 (or change "http://localhost:59125/" part as required), 
  * the web browser supports AUDIO type (if not try other formats such as WAVE, MP3, OGG or install a plug-in to play the target format),
  * and the VOICE is installed (hmm-slt), the synthesis result should be sent to the web browser for playback or saving (depending on web browser settings).
  * <p>
  * @see InfoRequestProcessor, FileRequestProcessor, SynthesisRequestProcessor, BaselineRequestProcessor, RequestHttp, MaryWebHttpClientHandler
- * @author Oytun T&uumlrk, Marc Schr&ouml;der 
+ * @author Oytun T&uuml;rk, Marc Schr&ouml;der 
  */
 
-public class MaryHttpServer {
+public class MaryHttpServer extends Thread
+{
     private static Logger logger;
-    private int runningNumber = 1;
-    private Map<String,Object[]> requestMap;
 
     public MaryHttpServer() {
         logger = Logger.getLogger("server");
     }
     
-    private synchronized String getResponseID() 
-    {
-        String id = "OUTPUT_AUDIO_RESPONSE_ID_" + String.valueOf(runningNumber);
-        
-        if (runningNumber<Integer.MAX_VALUE)
-            runningNumber++;
-        else
-        {
-            logger.debug("Resetting runningNumber in order not to exceed integer limits...");
-            runningNumber = 1;
-        }
-        
-        return id;
-    }
 
-    public void run() throws IOException, NoSuchPropertyException 
+    public void run()
     {
         logger.info("Starting server.");
-        requestMap = Collections.synchronizedMap(new HashMap<String, Object[]>());
         
         int localPort = MaryProperties.needInteger("socket.port");
         
@@ -290,10 +253,23 @@ public class MaryHttpServer {
                 params);
 
         // Set up request handlers
-        HttpRequestHandlerRegistry reqistry = new HttpRequestHandlerRegistry();
-        reqistry.register("*", new HttpClientHandler());
+        HttpRequestHandlerRegistry registry = new HttpRequestHandlerRegistry();
+        registry.register("/process", new SynthesisRequestHandler());
+        InfoRequestHandler infoRH = new InfoRequestHandler();
+        registry.register("/version", infoRH);
+        registry.register("/datatypes", infoRH);
+        registry.register("/voices", infoRH);
+        registry.register("/audioformats", infoRH);
+        registry.register("/exampletext", infoRH);
+        registry.register("/audioeffects", infoRH);
+        registry.register("/audioeffect-default-param", infoRH);
+        registry.register("/audioeffect-full", infoRH);
+        registry.register("/audioeffect-help", infoRH);
+        registry.register("/audioeffect-is-hmm-effect", infoRH);
+        registry.register("*", new FileRequestHandler());
 
-        handler.setHandlerResolver(reqistry);
+
+        handler.setHandlerResolver(registry);
 
         // Provide an event logger
         handler.setEventListener(new EventLogger());
@@ -301,325 +277,22 @@ public class MaryHttpServer {
         IOEventDispatch ioEventDispatch = new DefaultServerIOEventDispatch(handler, params);
         
         int numParallelThreads = MaryProperties.getInteger("server.http.parallelthreads", 5);
-        ListeningIOReactor ioReactor = new DefaultListeningIOReactor(numParallelThreads, params);
         
         logger.info("Waiting for client to connect on port " + localPort);
         
         try {
+            ListeningIOReactor ioReactor = new DefaultListeningIOReactor(numParallelThreads, params);
             ioReactor.listen(new InetSocketAddress(localPort));
             ioReactor.execute(ioEventDispatch);
         } catch (InterruptedIOException ex) {
-            logger.info("Interrupted");
+            logger.info("Interrupted", ex);
         } catch (IOException e) {
-            logger.info("Cannot write to client.");
+            logger.info("Problem with HTTP connection", e);
         }
         logger.debug("Shutdown");
     }
-
-    public class HttpClientHandler extends SimpleNHttpRequestHandler implements HttpRequestHandler  
-    {    
-        private final boolean useFileChannels = true;
-        
-        private FileRequestProcessor fileRequestProcessor;
-        private InfoRequestProcessor infoRequestProcessor;
-        private SynthesisRequestProcessor synthesisRequestProcessor;
-        
-        public HttpClientHandler() 
-        {
-            super();
-            
-            logger = Logger.getLogger("server");
-            
-            fileRequestProcessor = new FileRequestProcessor();
-            infoRequestProcessor = new InfoRequestProcessor();
-            synthesisRequestProcessor = new SynthesisRequestProcessor();
-        }
-
-        public void handle(final HttpRequest request, final HttpResponse response, final HttpContext context)
-        {            
-            Header[] tmp = request.getHeaders("Host");
-            
-            Address serverAddressAtClient = getServerAddressAtClient(tmp[0].getValue().toString());
-            logger.info("New connection from client");
-            
-            String method = request.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
-            String fullParameters = null;
-            
-            if (method.equals("GET") || method.equals("POST"))
-            {   
-                fullParameters = request.getRequestLine().getUri().toString();
-                fullParameters = preprocess(fullParameters);
-                
-                //Try and get parameters from different HTTP POST requests if you have not been able to do this above
-                if (method.equals("POST") && fullParameters.length()<1) 
-                {
-                    String fullParameters2 = "";
-                    
-                    if (request instanceof HttpEntityEnclosingRequest)
-                    {
-                        try {
-                            fullParameters2 = EntityUtils.toString(((HttpEntityEnclosingRequest) request).getEntity());
-                        } catch (ParseException e1) {
-                            // TODO Auto-generated catch block
-                            e1.printStackTrace();
-                        } catch (IOException e1) {
-                            // TODO Auto-generated catch block
-                            e1.printStackTrace();
-                        }
-                    }
-                    else if (request instanceof BasicHttpEntityEnclosingRequest)
-                    {
-                        try {
-                            fullParameters2 = EntityUtils.toString(((BasicHttpEntityEnclosingRequest) request).getEntity());
-                        } catch (ParseException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                    }
-                    
-                    if (fullParameters2.length()>0)
-                        fullParameters = preprocess(fullParameters2);
-                }
-            }
-            else
-            {
-                try {
-                    throw new MethodNotSupportedException(method + " method not supported");
-                } catch (MethodNotSupportedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } 
-            }
-
-            //Parse request and create appropriate response
-            try {
-                handleClientRequest(fullParameters, response, serverAddressAtClient);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        
-        private Address getServerAddressAtClient(String fullHeader)
-        {
-            String fullAddress = fullHeader.trim();
-            int index = fullAddress.indexOf('?');
-            
-            if (index>0)
-                fullAddress = fullAddress.substring(0, index);
-            
-            return new Address(fullAddress);
-        }
-        
-        private String preprocess(String fullParameters)
-        {
-            String preprocessedParameters = fullParameters.trim();
-            int index1 = preprocessedParameters.indexOf('/');
-            int index2 = preprocessedParameters.indexOf('?');
-            int index = 0;
-            if (index1>-1)
-                index=index1+1;
-            if (index2>-1 && index2>=index)
-                index=index2+1;
-            
-            preprocessedParameters = preprocessedParameters.substring(index);
-            
-            preprocessedParameters = StringUtils.urlDecode(preprocessedParameters);
-            
-            logger.debug("Preprocessed request: " + preprocessedParameters);
-         
-            return preprocessedParameters;
-        }
-
-        /**
-         * Implement the protocol for communicating with an HTTP client.
-         * The Http server receives parameters from a Http request (fullParameters)
-         *                     and has to write the Http response inside (response)
-         * In addition, the server address at client has to be specified
-         * 
-         * An HTTP request can be received from two basic types of clients:
-         *   (1) A client that has its own code (i.e. a GUI client)
-         *   (2) A client that requires its code to be generated at run-time by the server (i.e. a web browser client)
-         * For case (2), more complicated processing is required since all client code has to be generated 
-         * properly at run-time based on the request in addition to the appropriate "synthesis" response 
-         * 
-         * When the Http server receives a request from the client, the following cases are considered:
-         *   CASE1: Check if a web browser client is asking for Mary icon (favicon.ico) and send it as a resource stream using FileRequestProcessor
-         *  If CASE1 does not hold:
-         *   CASE2: Check if a second-time connection is received from a web browser client about a previous request.
-         *          This is required to handle <EMBED> and <OBJECT> tags that could be put in html pages.
-         *          Such tags result in two requests being sent to the server:
-         *          Request1: The server has to take parameters(i.e. request ID), and keep it until second request with this ID
-         *                    !!!It´s important *not* to generate any response to this first request!!!
-         *          Request2: The server produces the corresponding response corresponding to Request1         
-         *  If CASE2 does not hold:  
-         *    CASE3: Web browser client is asking for the default html page, i.e. when fullParameters is null or empty("") or it contains the key-value pair "DEFAULT_PAGE=?".   
-         *           The server replies with an html page filled in with default client parameters using InforRequestProcessor.
-         *  If CASE3 does not hold:
-         *    CASE4: Either a synthesis or an information request is received.
-         *      CASE4a: A synthesis request is received.
-         *              The server calls SynthesisRequestProcessor to handle the request.
-         *      If CASE4a does not hold
-         *      CASE4b: An information request is received.
-         *              The server calls InformationRequestProcessor to handle the request.
-         *  If CASE4 does not old:
-         *    CASE5: Invalid request. An error message is displayed in logger.
-         *                
-         * @throws Exception 
-         */
-        private void handleClientRequest(String fullParameters, HttpResponse response, Address serverAddressAtClient) throws Exception 
-        {   
-            if (fullParameters!=null && fullParameters.compareToIgnoreCase("favicon.ico")==0) //CASE1: Web browser client asking for Mary icon
-            {
-                fileRequestProcessor.sendResourceAsStream(fullParameters, response); //Put icon as a resource stream into HttpResponse
-
-                return;
-            }
-            else if (fullParameters!=null && fullParameters.startsWith("OUTPUT_AUDIO_RESPONSE_ID_")) //CASE2: Check if second time connection received for a prvious request
-            {
-                String currentKey = StringUtils.getFileName(fullParameters);
-                Object[] objects = new Object[3];
-                objects = requestMap.get(currentKey);
-                if (objects!=null)
-                {
-                    int numPrevCalls = (Integer)objects[0]; //Check how many times this request has been made
-
-                    if (numPrevCalls==0) //This is the first call, increase the total number of calls to this request. Do *not* generate any response yet!
-                    {
-                        numPrevCalls++;
-                        objects[0] = numPrevCalls;
-                        requestMap.put(currentKey, objects);
-
-                        return;
-                    }
-                    else if (numPrevCalls==1) //This is the second call, now it is time to generate the response
-                    {
-                        //Second synthesis request call for non-web browser clients
-                        objects[0] = 0;
-                        Address savedServerAddressAtClient = (Address)objects[1];
-                        Map<String, String> savedKeyValuePairs = (Map<String, String>)objects[2];
-                        synthesisRequestProcessor.process(savedServerAddressAtClient, savedKeyValuePairs, currentKey, response);
-                        
-                        requestMap.remove(currentKey);
-
-                        return;
-                    }
-                    else //This should never be the case but remove the response as a precaution
-                        requestMap.remove(currentKey);
-                }
-
-                return;
-            }
-            
-            logger.debug("Read HTML form request: '" + fullParameters + "'");
-            
-            Map<String, String> keyValuePairs = MaryHttpClientUtils.toKeyValuePairs(fullParameters, false);
-            
-            boolean isDefaultPageRequested = false;
-            if (keyValuePairs==null || (keyValuePairs.get("DEFAULT_PAGE")!=null && keyValuePairs.get("DEFAULT_PAGE").compareTo("?")==0))
-                isDefaultPageRequested = true;
-            
-            if (isDefaultPageRequested) //CASE3: Web browser client is asking for the default html page
-            {
-                boolean isWebBrowserClient = false;
-                if (keyValuePairs==null || (keyValuePairs.get("WEB_BROWSER_CLIENT")!=null && keyValuePairs.get("WEB_BROWSER_CLIENT").compareTo("true")==0))
-                    isWebBrowserClient = true;
-                
-                if (isWebBrowserClient)
-                    infoRequestProcessor.sendDefaultHtmlPage(serverAddressAtClient, response); //Respond with default html page
-                
-                return;
-            }
-            else //CASE4: Either a synthesis or an information request is received
-            {
-                String tmp = keyValuePairs.get("SYNTHESIS_OUTPUT");
-                if (tmp!=null && tmp.compareTo("?")==0) //CASE4a: Synthesis request received
-                {
-                    //Audio streaming for web browser clients require special processing: 
-                    // - First a response page should be created
-                    // - That page should ask for embedded audio
-                    // - Upon this second request, the request should be processed and the output should be streamed
-                    // Here is the first call of the synthesis request which is common with non-web browser clients
-                    // The second call is up above 
-                    
-                    String currentID = getResponseID();
-                    synthesisRequestProcessor.process(serverAddressAtClient, keyValuePairs, currentID, response);
-
-                    Object[] objects = new Object[3];
-                    objects[0] = 0;
-                    objects[1] = serverAddressAtClient;
-                    objects[2] = keyValuePairs;
-
-                    requestMap.put(currentID, objects);
-                    
-                    return;
-                } 
-                else //CASE4b: Information request is received
-                {
-                    boolean ok = infoRequestProcessor.process(serverAddressAtClient, keyValuePairs, response);
-                    
-                    if (!ok) //CASE5: Invalid request
-                        logger.error("Error: Cannot process this request!");
-                    
-                    return;
-                }
-            }
-        }
-
-        public ConsumingNHttpEntity entityRequest(
-                final HttpEntityEnclosingRequest request,
-                final HttpContext context) throws HttpException, IOException {
-            return new ConsumingNHttpEntityTemplate(
-                    request.getEntity(),
-                    new FileWriteListener(useFileChannels));
-        }
-    }
     
-    static class FileWriteListener implements ContentListener {
-        private final File file;
-        private final FileInputStream inputFile;
-        private final FileChannel fileChannel;
-        private final boolean useFileChannels;
-        private long idx = 0;
-
-        public FileWriteListener(boolean useFileChannels) throws IOException {
-            this.file = File.createTempFile("tmp", ".tmp", null);
-            this.inputFile = new FileInputStream(file);
-            this.fileChannel = inputFile.getChannel();
-            this.useFileChannels = useFileChannels;
-        }
-
-        public void contentAvailable(ContentDecoder decoder, IOControl ioctrl)
-                throws IOException {
-            long transferred;
-            if(useFileChannels && decoder instanceof FileContentDecoder) {
-                transferred = ((FileContentDecoder) decoder).transfer(
-                        fileChannel, idx, Long.MAX_VALUE);
-            } else {
-                transferred = fileChannel.transferFrom(
-                        new ContentDecoderChannel(decoder), idx, Long.MAX_VALUE);
-            }
-
-            if(transferred > 0)
-                idx += transferred;
-        }
-
-        public void finished() {
-            try {
-                inputFile.close();
-            } catch(IOException ignored) {}
-            try {
-                fileChannel.close();
-            } catch(IOException ignored) {}
-        }
-    }
-
+    
     static class EventLogger implements EventListener
     {
         public void connectionOpen(final NHttpConnection conn) 

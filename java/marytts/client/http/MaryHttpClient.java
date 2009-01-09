@@ -54,19 +54,24 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.AudioFormat.Encoding;
 
 import marytts.Version;
+import marytts.client.AudioEffectsBoxData;
+import marytts.client.MaryClient;
+import marytts.util.string.StringUtils;
 
 /**
  * An HTTP client implementing the MARY protocol.
  * It can be used as a command line client or from within java code.
  * @author Marc Schr&ouml;der, oytun.turk
- * @see MaryGUIClient A GUI interface to this client
+ * @see MaryGUIHttpClient A GUI interface to this client
  * @see marytts.server.MaryServer Description of the MARY protocol
  */
 
-public class MaryHttpClient extends MaryBaseClient {
-    
+public class MaryHttpClient
+{
+    private MaryFormData data = new MaryFormData();
     protected boolean beQuiet = false;
     private boolean doProfile = false;
+    protected MaryHttpRequester httpRequester; //Sends and receives HTTP requests to/from server
 
     /**
      * The simplest way to create a mary client. It will connect to the
@@ -110,7 +115,7 @@ public class MaryHttpClient extends MaryBaseClient {
      */
     public MaryHttpClient(Address serverAddress) throws IOException, InterruptedException
     {
-        super(serverAddress);
+        data.hostAddress = serverAddress;
         
         boolean profile = Boolean.getBoolean("mary.client.profile");
         boolean quiet = Boolean.getBoolean("mary.client.quiet");
@@ -132,7 +137,7 @@ public class MaryHttpClient extends MaryBaseClient {
      */
     public MaryHttpClient(Address serverAddress, boolean profile, boolean quiet) throws IOException, InterruptedException
     {
-        super(serverAddress);
+        data.hostAddress = serverAddress;
         
         initialise(profile, quiet);
     }
@@ -152,7 +157,7 @@ public class MaryHttpClient extends MaryBaseClient {
         doProfile = profile;
         beQuiet = quiet;
         httpRequester = new MaryHttpRequester(beQuiet);
-        
+
         String[] info;
         if (!beQuiet)
             System.err.println("Mary TTS client " + Version.specificationVersion() + " (impl. " + Version.implementationVersion() + ")");
@@ -160,31 +165,524 @@ public class MaryHttpClient extends MaryBaseClient {
         try {
             fillServerVersion();
         } catch (IOException e1) {
-            e1.printStackTrace();
             throw new IOException("MARY client cannot connect to MARY server at\n"+
-                    hostAddress.getFullAddress()+"\n"+
+                    data.hostAddress.getFullAddress()+"\n"+
                     "Make sure that you have started the mary server\n"+
                     "or specify a different host or port using \n"+
-            "maryclient -Dserver.host=my.host.com -Dserver.port=12345");
-        } catch (InterruptedException e2) {
-            e2.printStackTrace();
-            throw new InterruptedException("MARY client cannot connect to MARY server at\n"+
-                    hostAddress.getFullAddress()+"\n"+
-                    "Make sure that you have started the mary server\n"+
-                    "or specify a different host or port using \n"+
-            "maryclient -Dserver.host=my.host.com -Dserver.port=12345");
+            "maryclient -Dserver.host=my.host.com -Dserver.port=12345", e1);
         }
         
         if (!beQuiet) 
         {
-            System.err.print("Connected to " + hostAddress.getFullAddress() + ", ");
-            System.err.println(serverVersionInfo);
+            System.err.print("Connected to " + data.hostAddress.getFullAddress() + ", ");
+            System.err.println(data.serverVersionInfo);
             
-            if (!serverCanStream) {
-                System.err.println("Server version " + serverVersionNo + " cannot stream audio, defaulting to non-streaming");
+            if (!data.serverCanStream) {
+                System.err.println("Server version " + data.serverVersionNo + " cannot stream audio, defaulting to non-streaming");
             }
         }
+        
+        fillVoices();
+        //Limited domain example texts
+        if (data.allVoices!=null && data.allVoices.size()>0)
+        {
+            if (data.allVoices.elementAt(data.voiceSelected).isLimitedDomain())
+            {
+                data.limitedDomainExampleTexts = getVoiceExampleTextsLimitedDomain(data.allVoices.elementAt(data.voiceSelected).name());
+            }
+        }
+        //
+
+        //Input text
+        if (data.allVoices!=null && data.allVoices.size()>0 && data.inputDataTypes!=null && data.inputDataTypes.size()>0)
+        {
+            if (data.allVoices.elementAt(data.voiceSelected).isLimitedDomain())
+                data.inputText = data.limitedDomainExampleTexts.get(data.limitedDomainExampleTextSelected);
+            else
+                data.inputText = getServerExampleText(data.inputDataTypes.get(data.inputTypeSelected).name(), data.allVoices.elementAt(data.voiceSelected).getLocale().toString());
+        } 
+        //
+
     }
+    
+    
+    
+    ///////////////////////////////////////////////////////////////////////
+    //////////////////////// Information requests /////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    
+    
+    
+    
+    
+    
+    
+    
+    /**
+     * Get the audio file format types known by the server, one per line.
+     * Each line has the format: <code>extension name</code>
+     * @return
+     * @throws IOException
+     * @throws UnknownHostException
+     */
+    public Vector<String> getAudioFileFormatTypes() throws IOException, InterruptedException
+    {
+        fillAudioFileFormatAndOutTypes();
+
+        return data.audioFileFormatTypes;
+    }
+    
+    public Vector<String> getAudioOutTypes() throws IOException, InterruptedException
+    {
+        fillAudioFileFormatAndOutTypes();
+
+        return data.audioOutTypes;
+    }
+    
+    protected void fillAudioFileFormatAndOutTypes()  throws IOException, InterruptedException
+    {
+        if (data.audioFileFormatTypes==null || data.audioOutTypes==null) 
+            data.toAudioFileFormatAndOutTypes(getFromServer("AUDIO_FILE_FORMAT_TYPES"));  
+    }
+
+    public void fillServerVersion() throws IOException
+    {
+        data.toServerVersionInfo(getFromServer("VERSION"));
+    }
+    
+    
+    public boolean isServerVersionAtLeast(String version)
+    throws IOException
+    {
+        if (data.serverVersionNo.equals("unknown"))
+            fillServerVersion();
+        return data.isServerVersionAtLeast(version);
+    }
+    
+    public InputStream requestInputStream(String input, String inputType, String outputType, String locale, String audioType, 
+                                          String defaultVoiceName, String defaultStyle, Map<String, String> effects, //String defaultEffects,
+                                          boolean streamingAudio) throws IOException
+    {
+        data.keyValuePairs.put("SYNTHESIS_OUTPUT", "?");
+        
+        data.keyValuePairs.put("INPUT_TEXT", input);
+        data.keyValuePairs.put("INPUT_TYPE", inputType);
+        data.keyValuePairs.put("OUTPUT_TYPE", outputType);
+        data.keyValuePairs.put("LOCALE", locale);
+        
+        if (audioType != null)
+            data.keyValuePairs.put("AUDIO", ( (streamingAudio && data.serverCanStream) ? (audioType+"_STREAM") : (audioType+"_FILE") ) );
+        
+        if (defaultVoiceName != null) 
+            data.keyValuePairs.put("VOICE", defaultVoiceName);
+        
+        data.keyValuePairs.put("STYLE", defaultStyle);
+        
+        if (effects!=null)
+            data.keyValuePairs.putAll(effects);
+        
+        return httpRequester.requestInputStream(data.hostAddress, data.keyValuePairs);
+    }
+    
+    /**
+     * Obtain a list of all data types known to the server. If the information is not
+     * yet available, the server is queried. This is optional information
+     * which is not required for the normal operation of the client, but
+     * may help to avoid incompatibilities.
+     * @throws Exception if communication with the server fails
+     */
+    public Vector<MaryClient.DataType> getAllDataTypes() throws IOException
+    {
+        if (data.allDataTypes == null)
+            fillDataTypes();
+        
+        assert data.allDataTypes != null && data.allDataTypes.size() > 0;
+        
+        return data.allDataTypes;
+    }
+
+    /**
+     * Obtain a list of input data types known to the server. If the information is not
+     * yet available, the server is queried. This is optional information
+     * which is not required for the normal operation of the client, but
+     * may help to avoid incompatibilities.
+     * @return a Vector of MaryHttpClient.DataType objects.
+     * @throws Exception if communication with the server fails
+     */
+    public Vector<MaryClient.DataType> getInputDataTypes() throws IOException
+    {
+        if (data.inputDataTypes == null)
+            fillDataTypes();
+       
+        assert data.inputDataTypes != null && data.inputDataTypes.size() > 0;
+        
+        return data.inputDataTypes;
+    }
+
+    /**
+     * Obtain a list of output data types known to the server. If the information is not
+     * yet available, the server is queried. This is optional information
+     * which is not required for the normal operation of the client, but
+     * may help to avoid incompatibilities.
+     * @return a Vector of MaryHttpClient.DataType objects.
+     * @throws IOException if communication with the server fails
+     * @throws UnknownHostException if the host could not be found
+     */
+    public Vector<MaryClient.DataType> getOutputDataTypes() throws IOException
+    {
+        if (data.outputDataTypes == null)
+            fillDataTypes();
+       
+        assert data.outputDataTypes != null && data.outputDataTypes.size() > 0;
+        
+        return data.outputDataTypes;
+    }
+
+    protected void fillDataTypes() throws IOException 
+    {  
+        data.toDataTypes(getFromServer("DATA_TYPES"));
+    }
+    
+    /**
+     * Provide a list of voices known to the server. If the information is not yet
+     * available, query the server for it. This is optional information
+     * which is not required for the normal operation of the client, but
+     * may help to avoid incompatibilities.
+     * @return a Vector of MaryHttpClient.Voice objects.
+     * @throws IOException if communication with the server fails
+     * @throws UnknownHostException if the host could not be found
+     */
+    public Vector<MaryClient.Voice> getVoices() throws IOException
+    {
+        if (data.allVoices == null)
+            fillVoices();
+        
+        assert data.allVoices != null && data.allVoices.size() > 0;
+        
+        return data.allVoices;
+    }
+    
+    /**
+     * Provide a list of voices known to the server for the given locale.
+     * If the information is not yet available, query the server for it.
+     * This is optional information
+     * which is not required for the normal operation of the client, but
+     * may help to avoid incompatibilities.
+     * @param locale the requested voice locale
+     * @return a Vector of MaryHttpClient.Voice objects, or null if no voices exist for
+     * that locale.
+     * @throws IOException if communication with the server fails
+     * @throws UnknownHostException if the host could not be found
+     */
+    public Vector<MaryClient.Voice> getVoices(Locale locale) throws IOException
+    {
+        if (data.allVoices == null)
+            fillVoices();
+
+        return data.voicesByLocaleMap.get(locale);
+    }
+
+    /**
+     * Provide a list of general domain voices known to the server.
+     * If the information is not yet available, query the server for it.
+     * This is optional information
+     * which is not required for the normal operation of the client, but
+     * may help to avoid incompatibilities.
+     * @return a Vector of MaryHttpClient.Voice objects, or null if no such voices exist.
+     * @throws IOException if communication with the server fails
+     * @throws UnknownHostException if the host could not be found
+     */
+    public Vector<MaryClient.Voice> getGeneralDomainVoices() throws IOException
+    {
+        Vector<MaryClient.Voice> voices = getVoices();
+        Vector<MaryClient.Voice> requestedVoices = new Vector<MaryClient.Voice>();
+        
+        for (MaryClient.Voice v: voices) 
+        {
+            if (!v.isLimitedDomain())
+                requestedVoices.add(v);
+        }
+        
+        if (!requestedVoices.isEmpty())
+            return requestedVoices;
+        else
+            return null;
+    }
+
+    /**
+     * Provide a list of limited domain voices known to the server.
+     * If the information is not yet available, query the server for it.
+     * This is optional information
+     * which is not required for the normal operation of the client, but
+     * may help to avoid incompatibilities.
+     * @return a Vector of MaryHttpClient.Voice objects, or null if no such voices exist.
+     * @throws Exception if communication with the server fails
+     */
+    public Vector<MaryClient.Voice> getLimitedDomainVoices() throws IOException
+    {
+        Vector<MaryClient.Voice> voices = getVoices();
+        Vector<MaryClient.Voice> requestedVoices = new Vector<MaryClient.Voice>();
+        
+        for (MaryClient.Voice v : voices) 
+        {
+            if (v.isLimitedDomain())
+                requestedVoices.add(v);
+        }
+        
+        if (!requestedVoices.isEmpty())
+            return requestedVoices;
+        else
+            return null;
+    }
+
+    /**
+     * Provide a list of general domain voices known to the server.
+     * If the information is not yet available, query the server for it.
+     * This is optional information
+     * which is not required for the normal operation of the client, but
+     * may help to avoid incompatibilities.
+     * @param locale the requested voice locale
+     * @return a Vector of MaryHttpClient.Voice objects, or null if no such voices exist.
+     * @throws Exception if communication with the server fails
+     */
+    public Vector<MaryClient.Voice> getGeneralDomainVoices(Locale locale) throws IOException
+    {
+        Vector<MaryClient.Voice> voices = getVoices(locale);
+        Vector<MaryClient.Voice> requestedVoices = new Vector<MaryClient.Voice>();
+        
+        for (MaryClient.Voice v : voices) 
+        {
+            if (!v.isLimitedDomain())
+                requestedVoices.add(v);
+        }
+        
+        if (!requestedVoices.isEmpty())
+            return requestedVoices;
+        else
+            return null;
+    }
+
+    /**
+     * Provide a list of limited domain voices known to the server.
+     * If the information is not yet available, query the server for it.
+     * This is optional information
+     * which is not required for the normal operation of the client, but
+     * may help to avoid incompatibilities.
+     * @param locale the requested voice locale
+     * @return a Vector of MaryHttpClient.Voice objects, or null if no such voices exist.
+     * @throws Exception if communication with the server fails
+     */
+    public Vector<MaryClient.Voice> getLimitedDomainVoices(Locale locale) throws IOException
+    {
+        Vector<MaryClient.Voice> voices = getVoices(locale);
+        Vector<MaryClient.Voice> requestedVoices = new Vector<MaryClient.Voice>();
+        for (MaryClient.Voice v : voices) 
+        {
+            if (v.isLimitedDomain())
+                requestedVoices.add(v);
+        }
+        
+        if (!requestedVoices.isEmpty())
+            return requestedVoices;
+        else
+            return null;
+    }
+
+    protected void fillVoices() throws IOException
+    {
+        data.toVoices(getFromServer("VOICES"));
+    }
+    
+    /**
+     * Request the example text of a limited domain
+     * unit selection voice from the server
+     * @param voicename the voice
+     * @return the example text
+     * @throws IOException
+     * @throws UnknownHostException
+     */
+    public String getVoiceExampleTextLimitedDomain(String voicename) throws IOException 
+    {
+        if (!data.voiceExampleTextsLimitedDomain.containsKey(voicename)) 
+        {
+            String info = getFromServer("VOICE_EXAMPLE_TEXT", voicename);
+            
+            if (info.length() == 0)
+                throw new IOException("Could not get example text from Mary server");
+
+            data.voiceExampleTextsLimitedDomain.put(voicename, info.replaceAll("\n", System.getProperty("line.separator")));
+        }
+
+        return data.voiceExampleTextsLimitedDomain.get(voicename);
+    }
+    
+    public Vector<String> getVoiceExampleTextsLimitedDomain(String voicename) throws IOException
+    {
+        return StringUtils.processVoiceExampleText(getVoiceExampleTextLimitedDomain(voicename));
+    }
+    
+    /**
+     * Request an example text for a given data type from the server.
+     * @param dataType the string representation of the data type,
+     * e.g. "RAWMARYXML". This is optional information
+     * which is not required for the normal operation of the client, but
+     * may help to avoid incompatibilities.
+     * @return the example text, or null if none could be obtained.
+     * @throws IOException if communication with the server fails
+     * @throws UnknownHostException if the host could not be found
+     */
+    public String getServerExampleText(String dataType, String locale) throws IOException
+    {
+        if (!data.serverExampleTexts.containsKey(dataType+" "+locale)) 
+        {
+            String info = getFromServer("EXAMPLE_TEXT", dataType + " " + locale);
+            
+            if (info.length() == 0)
+                throw new IOException("Could not get example text from Mary server");
+            
+            data.serverExampleTexts.put(dataType+" "+locale, info.replaceAll("\n", System.getProperty("line.separator")));
+        }
+        
+        data.currentExampleText = data.serverExampleTexts.get(dataType+" "+locale);
+        
+        return data.currentExampleText;
+    }
+
+    /**
+     * Request the available audio effects for a voice from the server
+     * @param voicename the voice
+     * @return A string of available audio effects and default parameters, i.e. "FIRFilter,Robot(amount=50)"
+     * @throws IOException
+     * @throws UnknownHostException
+     */
+    public String getDefaultAudioEffects() throws IOException 
+    {
+        String defaultAudioEffects = getFromServer("DEFAULT_AUDIO_EFFECTS");
+
+        return defaultAudioEffects;
+    }
+
+    public String getAudioEffects() throws IOException 
+    {
+        if (data.audioEffects==null)
+            data.audioEffects = getDefaultAudioEffects();
+
+        return data.audioEffects;
+    }
+    
+    public AudioEffectsBoxData getAudioEffectsBox() throws IOException
+    {
+        if (data.effectsBoxData==null)
+            data.effectsBoxData = new AudioEffectsBoxData(getAudioEffects(), getAudioEffectHelpTextLineBreak());
+        
+        return data.effectsBoxData;
+    }
+    
+    public String getAudioEffectHelpTextLineBreak() throws IOException 
+    {
+        return "_LINEBREAK_";
+    }
+    
+    public String requestDefaultEffectParameters(String effectName) throws IOException 
+    { 
+        String info = getFromServer("AUDIO_EFFECT_DEFAULT_PARAM", effectName);
+
+        if (info==null || info.length() == 0)
+            return "";
+
+        return info.replaceAll("\n", System.getProperty("line.separator"));
+    }
+
+    public String requestFullEffect(String effectName, String currentEffectParameters) throws IOException 
+    {
+        String info = getFromServer("FULL_AUDIO_EFFECT", effectName + " " + currentEffectParameters);
+
+        if (info.length() == 0)
+            return "";
+
+        return info.replaceAll("\n", System.getProperty("line.separator"));
+    }
+    
+    public String requestEffectHelpText(String effectName) throws IOException, InterruptedException 
+    {
+        if (!data.audioEffectHelpTextsMap.containsKey(effectName))
+        {
+            String info = getFromServer("AUDIO_EFFECT_HELP_TEXT", effectName);
+            
+            if (info.length() == 0)
+                return "";
+
+            data.audioEffectHelpTextsMap.put(effectName, info.replaceAll("\n", System.getProperty("line.separator")));
+        }
+        
+        return data.audioEffectHelpTextsMap.get(effectName);
+    }
+    
+    public boolean isHMMEffect(String effectName) throws IOException, InterruptedException
+    {
+        String info = getFromServer("IS_HMM_AUDIO_EFFECT", effectName);
+        
+        if (info.length() == 0)
+            return false;
+
+        boolean bRet = false;
+        info = info.toLowerCase();
+        if (info.indexOf("yes")>-1)
+            bRet = true;
+        
+        return bRet;
+    }
+    
+    
+    
+    
+    private String getFromServer(String key) throws IOException
+    {
+        return getFromServer(key, null);
+    }
+    
+    //This handles each request one by one
+    private String getFromServer(String key, String params) throws IOException
+    {
+        if (data.keyValuePairs==null)
+            data.keyValuePairs = new HashMap<String, String>();
+
+        Map<String, String> singleKeyValuePair = new HashMap<String, String>();
+
+        if (params==null || params.length()<1)
+            singleKeyValuePair.put(key, "?");
+        else 
+            singleKeyValuePair.put(key, "? " + params);
+
+        singleKeyValuePair = httpRequester.request(data.hostAddress, singleKeyValuePair);
+
+        data.keyValuePairs.put(key, singleKeyValuePair.get(key));
+
+        return data.keyValuePairs.get(key);
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    ///////////////////////////////////////////////////////////////////////
+    //////////////////////// Actual synthesis requests ////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    
     
     /**
      * Call the mary client to stream audio via the given audio player. The server will

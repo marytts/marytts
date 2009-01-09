@@ -87,7 +87,7 @@ public class MaryHttpRequester
         this.beQuiet = beQuiet;
     }
     
-    public InputStream requestInputStream(Address hostAddress, Map<String, String> keyValuePairs) throws IOException, InterruptedException
+    public InputStream requestInputStream(Address hostAddress, Map<String, String> keyValuePairs) throws IOException
     {
         HttpResponse response = requestBase(hostAddress, keyValuePairs);
        
@@ -96,12 +96,12 @@ public class MaryHttpRequester
         return is;
     }
     
-    public Map<String, String> request(Address hostAddress, Map<String, String> keyValuePairs) throws IOException, InterruptedException
+    public Map<String, String> request(Address hostAddress, Map<String, String> keyValuePairs) throws IOException
     { 
         return MaryHttpClientUtils.toKeyValuePairs(requestBase(hostAddress, keyValuePairs), true);
     }
     
-    public HttpResponse requestBase(Address hostAddress, Map<String, String> keyValuePairs) throws IOException, InterruptedException
+    public HttpResponse requestBase(Address hostAddress, Map<String, String> keyValuePairs) throws IOException
     {    
         params = new BasicHttpParams();
         params
@@ -168,7 +168,9 @@ public class MaryHttpRequester
         
         // Block until all connections signal
         // completion of the request execution
-        requestCount.await();
+        try {
+            requestCount.await();
+        } catch (InterruptedException e) {}
         
         ioReactor.shutdown();
         

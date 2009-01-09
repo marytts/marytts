@@ -488,7 +488,7 @@ public class Voice
      * Get the list of all available voices. The iterator of the collection returned
      * will return the voices in decreasing order of their "wantToBeDefault" value.
      */
-    public static Collection getAvailableVoices() { return Collections.unmodifiableSet(allVoices); }
+    public static Collection<Voice> getAvailableVoices() { return Collections.unmodifiableSet(allVoices); }
 
     /**
      * Get the list of all available voices for a given locale. The iterator of the collection returned

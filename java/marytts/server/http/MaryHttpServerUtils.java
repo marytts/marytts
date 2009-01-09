@@ -33,12 +33,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioFileFormat;
 
-import marytts.client.http.MaryBaseClient;
+import marytts.client.http.MaryFormData;
 import marytts.client.http.MaryHttpClientUtils;
 import marytts.util.ConversionUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
@@ -50,6 +53,7 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.nio.entity.BufferingNHttpEntity;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.entity.NFileEntity;
+import org.apache.http.nio.entity.NStringEntity;
 import org.jsresources.AppendableSequenceAudioInputStream;
 
 /**
@@ -136,6 +140,61 @@ public class MaryHttpServerUtils
             return "audio/x-mpeg";  //"audio/x-mp3; //Does not work for Internet Explorer"
         }
         return "audio/basic"; // this is probably wrong but better than text/plain...
+    }
+
+    public static void errorFileNotFound(HttpResponse response, String uri)
+    {
+        response.setStatusCode(HttpStatus.SC_NOT_FOUND);
+        try {
+            NStringEntity entity = new NStringEntity(
+                    "<html><body><h1>File " + uri +
+                    " not found</h1></body></html>", "UTF-8");
+            entity.setContentType("text/html; charset=UTF-8");
+            response.setEntity(entity);
+        } catch (UnsupportedEncodingException e){}
+    }
+    
+    public static void errorInternalServerError(HttpResponse response, String message, Throwable exception)
+    {
+        response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        try {
+            StringWriter sw = new StringWriter();
+            exception.printStackTrace(new PrintWriter(sw, true));
+            NStringEntity entity = new NStringEntity(
+                    "<html><body><h1>Internal server error</h1><p>"
+                    +(message != null?message:"")
+                    +"<pre>"
+                    + sw.toString()
+                    + "</pre></body></html>", "UTF-8");
+            entity.setContentType("text/html; charset=UTF-8");
+            response.setEntity(entity);
+        } catch (UnsupportedEncodingException e){}
+    }
+    
+    public static void errorMissingQueryParameter(HttpResponse response, String param)
+    {
+        response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
+        try {
+            NStringEntity entity = new NStringEntity(
+                    "<html><body><h1>Bad request</h1><p>Request must contain the parameter " + param +
+                    ".</h1></body></html>", "UTF-8");
+            entity.setContentType("text/html; charset=UTF-8");
+            response.setEntity(entity);
+        } catch (UnsupportedEncodingException e){}
+    }
+
+    public static void errorWrongQueryParameterValue(HttpResponse response, String paramName, String illegalValue, String explanation)
+    {
+        response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
+        try {
+            NStringEntity entity = new NStringEntity(
+                    "<html><body><h1>Bad request</h1><p>The value '" + illegalValue + "' of parameter '" + paramName +
+                    "' is not valid"
+                    + (explanation != null ? ": "+explanation : "")
+                    +".</h1></body></html>", "UTF-8");
+            entity.setContentType("text/html; charset=UTF-8");
+            response.setEntity(entity);
+        } catch (UnsupportedEncodingException e){}
     }
 
 }

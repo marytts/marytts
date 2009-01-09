@@ -1,0 +1,126 @@
+<html>
+  <head>
+    <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <title>MARY Web Client</title>
+      <script language="javascript" src="mary.js">
+      </script>
+    </head>
+
+    <body onload="initForm();">
+      <font STYLE="font-family: Verdana">
+
+      <table>
+        <tr>
+          <td><img src="favicon.ico"></td>
+          <td>
+            <table>
+              <tr>
+                <td></td>
+              </tr>
+
+            <tr>
+              <td><h1><font STYLE="color:#587D9D">MARY Web Client</font></h1></td>
+            </tr>
+
+            <tr>
+              <td></td>
+            </tr>
+          </table>
+        </td>
+
+      </tr>
+    </table>
+
+    <table>
+      <tr>
+        <td><input type="button" value="Default" STYLE="font-size:11pt;" onClick="window.location.reload();"></td>
+        <td>Click to load default client settings from server</td>
+      </tr>
+    </table>
+
+    <form id="maryWebClient" action="process" method="post">
+    <table>
+      <tr>
+        <td>Input Type:
+          <select id="INPUT_TYPE" name="INPUT_TYPE" size="1" onChange="inputTypeChanged();">
+          </select>
+        </td>
+        
+        <td>Output Type:
+          <select id="OUTPUT_TYPE" name="OUTPUT_TYPE" size="1"  onChange="outputTypeChanged();">
+          </select>
+        </td>
+      </tr>
+
+      <tr>
+          <td>
+            <div>Input Text:</div>
+            <textarea id="INPUT_TEXT" name="INPUT_TEXT" rows="30" cols="45"></textarea>
+          </td>
+
+          <td>
+            <span id="outputSection">
+              <div id="hideOutputText">Output Text:</div>
+              <textarea id="OUTPUT_TEXT" name="OUTPUT_TEXT" rows="30" cols="45" readonly="true"></textarea>
+            </span>
+			<span id="audioEffectsSection">
+	            <table id="effectsTable">
+	              <tr>
+	                <td> </td>
+	                <td><div id="hideEffects">Effects</div></td> 
+	                <td><div id="hideParameters">Parameters</div></td>
+	              </tr>
+	
+	            </table>
+            </span>
+          </td>
+          <td>
+	          <span id="helpSection">
+	            <table>
+	              <tr><td><div id="hideHelpTextTitle">Help Text:</div></td></tr>
+	              <tr><td><textarea name="HELP_TEXT" id="HELP_TEXT" rows="15" cols="50" readonly="true"></textarea></td></tr>
+	            </table>
+	          </span>
+          </td>
+
+        </tr>
+      </table>
+      <table>
+        <tr>
+          <td>Voice:</td>
+          <td>
+            <select id="VOICE_SELECTIONS" name="VOICE_SELECTIONS" size="1" onChange="voiceChanged();">
+            </select>
+          </td>
+        </tr>
+
+        <tr>
+            <td><div id="hideAudioOut">Audio-Out:</div></td>
+            <td>
+              <select name="AUDIO_OUT" id="AUDIO_OUT" size="1" onChange="audioOutChanged();">
+              </select>
+            </td>
+        </tr>
+        <tr>
+          <td>
+             <input type="button" value="PROCESS" id="PROCESS" STYLE="font-size:11pt; font-weight:bold;" onClick="requestSynthesis();">
+             <input type="button" value="SPEAK" id="SPEAK" STYLE="font-size:11pt; font-weight:bold;" onClick="requestSynthesis();"></td>
+          <td></td>
+
+        </tr>
+
+        <input type="hidden" id="LOCALE" name="LOCALE" value="">
+        <input type="hidden" id="VOICE" name="VOICE" value="">
+        <input type="hidden" id="AUDIO" name="AUDIO" value="">
+
+
+
+    </table>
+  </form>
+  <div id="audioDestination"></div>
+
+
+
+  </font>
+</body>
+</html>

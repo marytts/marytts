@@ -39,7 +39,7 @@ import marytts.util.string.StringUtils;
 //It serves as a null effect
 //It´s main functionality is providing base functions for parsing parameter strings
 public class BaseAudioEffect implements AudioEffect{
-    public static String strLineBreak = "_LINEBREAK_";
+    public static String strLineBreak = "\n";
     
     public static float NULL_FLOAT_PARAM = -100000.0f;
     public static double NULL_DOUBLE_PARAM = -100000;
