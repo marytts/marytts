@@ -815,6 +815,9 @@ public class DBHandler {
     currentTable = table;
   }
 
+  public void setWordListTable(String table){ 
+      wordListTableName = table;
+  }
   
   public void insertCleanText(String text, String page_id, String text_id){
       //System.out.println("inserting in cleanText: ");
