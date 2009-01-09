@@ -150,44 +150,34 @@ public class MaryHttpClientUtils
     //Convert HTTP request string into key-value pairs
     public static Map<String, String> toKeyValuePairs(String httpString, boolean performUrlDecode)
     {
-        Map<String, String> keyValuePairs = null;
-        if (httpString!=null)
-        {
-            if (httpString.length()>0)
-            {
-                if (performUrlDecode)
-                    httpString = StringUtils.urlDecode(httpString);
-                
-                StringTokenizer st = new StringTokenizer(httpString);
-                String newToken = null;
-                String param, val;
-                int equalSignInd;
-                while (st.hasMoreTokens() && (newToken = st.nextToken("&"))!=null)
-                {   
-                    equalSignInd = newToken.indexOf("=");
+        if (httpString==null || httpString.length()==0) {
+            return null;
+        }
 
-                    //Default values unless we have a param=value pair
-                    param = newToken;
-                    val = "";
-                    //
+        Map<String, String> keyValuePairs = new HashMap<String, String>();
 
-                    //We have either a "param=value" pair, or "param=" only
-                    if (equalSignInd>-1)
-                    {
-                        param = newToken.substring(0, equalSignInd);
+        StringTokenizer st = new StringTokenizer(httpString);
+        String newToken = null;
+        String param, val;
+        int equalSignInd;
+        while (st.hasMoreTokens() && (newToken = st.nextToken("&"))!=null) {
+            equalSignInd = newToken.indexOf("=");
 
-                        if (equalSignInd+1<newToken.length()) //"param=val" pair
-                            val = newToken.substring(equalSignInd+1);
-                        else //"param=" only
-                            val = "";
-                    }
+            //Default values unless we have a param=value pair
+            param = newToken;
+            val = "";
 
-                    if (keyValuePairs==null)
-                        keyValuePairs = new HashMap<String, String>();
-                    
-                    keyValuePairs.put(param, val);
-                }
+            //We have either a "param=value" pair, or "param=" only
+            if (equalSignInd>-1) {
+                param = newToken.substring(0, equalSignInd);
+                val = newToken.substring(equalSignInd+1);
             }
+
+            if (performUrlDecode) {
+                param = StringUtils.urlDecode(param);
+                val = StringUtils.urlDecode(val);
+            }
+            keyValuePairs.put(param, val);
         }
         
         return keyValuePairs;

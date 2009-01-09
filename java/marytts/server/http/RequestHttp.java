@@ -118,7 +118,7 @@ public class RequestHttp extends Request
         
         String contextType;
         if (outputData.getType().isXMLType() || outputData.getType().isTextType()) //text output
-            contextType = "text/html; charset=UTF-8";
+            contextType = "text/plain; charset=UTF-8";
         else //audio output
             contextType = MaryHttpServerUtils.getMimeType(audioFileFormat.getType());
         MaryHttpServerUtils.toHttpResponse((ByteArrayOutputStream)os, response, contextType);

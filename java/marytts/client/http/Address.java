@@ -39,7 +39,7 @@ public class Address {
     private String host;
     private int port;
     private String fullAddress; // --> host:port
-    private String httpAddress; // --> http:\\host:port
+    private String httpAddress; // --> http://host:port
     
     public Address()
     {

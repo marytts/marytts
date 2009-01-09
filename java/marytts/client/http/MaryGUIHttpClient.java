@@ -994,7 +994,7 @@ public class MaryGUIHttpClient extends JPanel
     private String lastExtension = null;
     private void saveOutput() throws IOException, InterruptedException
     {   
-        if (processor.isServerNotOlderThan("3.5.0"))
+        if (processor.isServerVersionAtLeast("3.5.0"))
             saveOutputNew();
         else
             saveOutputOld();
