@@ -358,8 +358,12 @@ public class MaryFormData {
         }
     }
     
+
     public void toAudioFileFormatAndOutTypes(String info)
     {
+        // TODO: this method uses code which is meaningful only
+        // in the server (MaryAudioUtils.canCreateMP3() etc.).
+        // It should be moved into the server code.
         audioFileFormatTypes = null;
         audioOutTypes = null;
         
@@ -420,7 +424,7 @@ public class MaryFormData {
             audioEffects = null;
         
         if (audioEffects!=null && audioEffects.length()>0)
-            effectsBoxData = new AudioEffectsBoxData(audioEffects, audioEffectsHelpTextLineBreak);
+            effectsBoxData = new AudioEffectsBoxData(audioEffects);
         else
             effectsBoxData = null;
     }
@@ -452,7 +456,7 @@ public class MaryFormData {
             if (audioEffects==null)
                 getAudioEffects();
             */
-            effectsBoxData = new AudioEffectsBoxData(audioEffects, audioEffectsHelpTextLineBreak);
+            effectsBoxData = new AudioEffectsBoxData(audioEffects);
         }
         
         

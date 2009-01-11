@@ -87,6 +87,7 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import marytts.client.AudioEffectControlData;
 import marytts.client.AudioEffectsBoxGUI;
 import marytts.client.MaryClient;
 import marytts.client.SimpleFileFilter;
@@ -713,14 +714,19 @@ public class MaryGUIHttpClient extends JPanel
             e.printStackTrace();
         }
         
-        try {
-            strLineBreak = processor.getAudioEffectHelpTextLineBreak();
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        effectsBox = new AudioEffectsBoxGUI(availableAudioEffects);
+        // TODO: this is overkill, we could load a help text when the
+        // user presses a help button, but it would require re-engineering the code a bit.
+        // fill help through separate queries:
+        for (int i=0; i< effectsBox.getData().getTotalEffects(); i++) {
+            AudioEffectControlData eff = effectsBox.getData().getControlData(i);
+            try {
+                eff.setHelpText(processor.requestEffectHelpText(eff.getEffectName()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-        effectsBox = new AudioEffectsBoxGUI(availableAudioEffects, strLineBreak);
     }
     
     private void showHideEffectAction()

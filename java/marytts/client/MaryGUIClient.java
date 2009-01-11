@@ -760,17 +760,7 @@ public class MaryGUIClient extends JPanel
             e.printStackTrace();
         }
         
-        try {
-            strLineBreak = processor.getAudioEffectHelpTextLineBreak();
-        } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        effectsBox = new AudioEffectsBoxGUI(availableAudioEffects, strLineBreak);
+        effectsBox = new AudioEffectsBoxGUI(availableAudioEffects);
     }
     
     private void showHideEffectAction()
@@ -869,7 +859,7 @@ public class MaryGUIClient extends JPanel
                         strTmpParam = strTmpParam.trim();
                         
                         if (!bFirst)
-                            strParams += effectsBox.getData().getEffectSeparator() + strTmpParam;
+                            strParams += "+" + strTmpParam;
                         else
                         {
                             strParams += strTmpParam;

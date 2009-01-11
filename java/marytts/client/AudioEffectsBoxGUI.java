@@ -50,9 +50,9 @@ public class AudioEffectsBoxGUI {
     public JScrollPane scrollPane;
     public JPanel effectControlsPanel;
     
-    public AudioEffectsBoxGUI(String availableEffects, String lineBreak)
+    public AudioEffectsBoxGUI(String availableEffects)
     {
-        data = new AudioEffectsBoxData(availableEffects, lineBreak);
+        data = new AudioEffectsBoxData(availableEffects);
         
         if (availableEffects!=null || availableEffects!="")
         {

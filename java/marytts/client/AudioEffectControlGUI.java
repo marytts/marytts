@@ -77,7 +77,7 @@ public class AudioEffectControlGUI {
     //Create a Mary audio effect with help text
     public AudioEffectControlGUI(AudioEffectControlData dataIn)
     { 
-        data = new AudioEffectControlData(dataIn);
+        data = dataIn;
         
         mainPanel = new JPanel();
         chkEnabled = new JCheckBox();
@@ -138,7 +138,7 @@ public class AudioEffectControlGUI {
                     {
                         isHelpWindowOpen = true;
                         helpWindow = new JFrame("Help: " + chkEnabled.getText() + " Effect");
-                        JTextArea helpTextArea = new JTextArea(data.parseLineBreaks(data.getHelpText()));
+                        JTextArea helpTextArea = new JTextArea(data.getHelpText());
                         helpTextArea.setEditable(false);
 
                         helpWindow.getContentPane().add(helpTextArea, BorderLayout.WEST);

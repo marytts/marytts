@@ -38,7 +38,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -47,6 +51,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Vector;
 
+import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -54,8 +59,11 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.AudioFormat.Encoding;
 
 import marytts.Version;
+import marytts.client.AudioEffectControlData;
 import marytts.client.AudioEffectsBoxData;
 import marytts.client.MaryClient;
+import marytts.util.data.audio.MaryAudioUtils;
+import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
 
 /**
@@ -71,7 +79,6 @@ public class MaryHttpClient
     private MaryFormData data = new MaryFormData();
     protected boolean beQuiet = false;
     private boolean doProfile = false;
-    protected MaryHttpRequester httpRequester; //Sends and receives HTTP requests to/from server
 
     /**
      * The simplest way to create a mary client. It will connect to the
@@ -156,7 +163,6 @@ public class MaryHttpClient
         // This must work for applets too, so no system property queries here:
         doProfile = profile;
         beQuiet = quiet;
-        httpRequester = new MaryHttpRequester(beQuiet);
 
         String[] info;
         if (!beQuiet)
@@ -241,13 +247,25 @@ public class MaryHttpClient
     
     protected void fillAudioFileFormatAndOutTypes()  throws IOException, InterruptedException
     {
-        if (data.audioFileFormatTypes==null || data.audioOutTypes==null) 
-            data.toAudioFileFormatAndOutTypes(getFromServer("AUDIO_FILE_FORMAT_TYPES"));  
+        if (data.audioFileFormatTypes==null || data.audioOutTypes==null) {
+            String audioFormatInfo = serverInfoRequest("audioformats", null);
+            data.audioOutTypes = new Vector<String>(Arrays.asList(StringUtils.toStringArray(audioFormatInfo)));
+            data.audioFileFormatTypes = new Vector<String>();
+            for (String af : data.audioOutTypes) {
+                if (af.endsWith("_FILE")) {
+                    String typeName = af.substring(0, af.indexOf("_"));
+                    try {
+                        AudioFileFormat.Type type = MaryAudioUtils.getAudioFileFormatType(typeName);
+                        data.audioFileFormatTypes.add(typeName+" "+type.getExtension());
+                    } catch (Exception e) {}
+                }
+            }
+        }
     }
 
     public void fillServerVersion() throws IOException
     {
-        data.toServerVersionInfo(getFromServer("VERSION"));
+        data.toServerVersionInfo(serverInfoRequest("version", null));
     }
     
     
@@ -263,25 +281,47 @@ public class MaryHttpClient
                                           String defaultVoiceName, String defaultStyle, Map<String, String> effects, //String defaultEffects,
                                           boolean streamingAudio) throws IOException
     {
-        data.keyValuePairs.put("SYNTHESIS_OUTPUT", "?");
         
-        data.keyValuePairs.put("INPUT_TEXT", input);
-        data.keyValuePairs.put("INPUT_TYPE", inputType);
-        data.keyValuePairs.put("OUTPUT_TYPE", outputType);
-        data.keyValuePairs.put("LOCALE", locale);
+        StringBuilder params = new StringBuilder();
+        params.append("INPUT_TEXT=").append(URLEncoder.encode(input, "UTF-8"));
+        params.append("&INPUT_TYPE=").append(URLEncoder.encode(inputType, "UTF-8"));
+        params.append("&OUTPUT_TYPE=").append(URLEncoder.encode(outputType, "UTF-8"));
+        params.append("&LOCALE=").append(URLEncoder.encode(locale, "UTF-8"));
+        if (audioType != null) {
+            params.append("&AUDIO=").append(URLEncoder.encode((streamingAudio && data.serverCanStream) ? audioType+"_STREAM" : audioType + "_FILE", "UTF-8"));
+        }
         
-        if (audioType != null)
-            data.keyValuePairs.put("AUDIO", ( (streamingAudio && data.serverCanStream) ? (audioType+"_STREAM") : (audioType+"_FILE") ) );
+        if (defaultVoiceName != null) {
+            params.append("&VOICE=").append(URLEncoder.encode(defaultVoiceName, "UTF-8"));
+        }
         
-        if (defaultVoiceName != null) 
-            data.keyValuePairs.put("VOICE", defaultVoiceName);
+        if (defaultStyle != null) {
+            params.append("&STYLE=").append(URLEncoder.encode(defaultStyle, "UTF-8"));
+        }
         
-        data.keyValuePairs.put("STYLE", defaultStyle);
+        if (effects != null) {
+            for (String key : effects.keySet()) {
+                params.append("&").append(key).append("=").append(URLEncoder.encode(effects.get(key), "UTF-8"));
+            }
+        }
         
-        if (effects!=null)
-            data.keyValuePairs.putAll(effects);
+      //to make HTTP Post request with HttpURLConnection
+        URL url = new URL(data.hostAddress.getHttpAddress()+"/process");
+        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+
+        conn.setRequestMethod("POST");
+        conn.setAllowUserInteraction(false); // no user interact [like pop up]
+        conn.setDoOutput(true); // want to send
+        conn.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
+        OutputStream ost = conn.getOutputStream();
+        PrintWriter pw = new PrintWriter(ost);
+        pw.print(params.toString()); // here we "send" our body!
+        pw.flush();
+        pw.close();
+
+        //and InputStream from here will be body
+        return conn.getInputStream();
         
-        return httpRequester.requestInputStream(data.hostAddress, data.keyValuePairs);
     }
     
     /**
@@ -340,7 +380,7 @@ public class MaryHttpClient
 
     protected void fillDataTypes() throws IOException 
     {  
-        data.toDataTypes(getFromServer("DATA_TYPES"));
+        data.toDataTypes(serverInfoRequest("datatypes", null));
     }
     
     /**
@@ -490,7 +530,7 @@ public class MaryHttpClient
 
     protected void fillVoices() throws IOException
     {
-        data.toVoices(getFromServer("VOICES"));
+        data.toVoices(serverInfoRequest("voices", null));
     }
     
     /**
@@ -505,7 +545,9 @@ public class MaryHttpClient
     {
         if (!data.voiceExampleTextsLimitedDomain.containsKey(voicename)) 
         {
-            String info = getFromServer("VOICE_EXAMPLE_TEXT", voicename);
+            Map<String,String> queryItems = new HashMap<String, String>();
+            queryItems.put("voice", voicename);
+            String info = serverInfoRequest("exampletext", queryItems);
             
             if (info.length() == 0)
                 throw new IOException("Could not get example text from Mary server");
@@ -535,7 +577,10 @@ public class MaryHttpClient
     {
         if (!data.serverExampleTexts.containsKey(dataType+" "+locale)) 
         {
-            String info = getFromServer("EXAMPLE_TEXT", dataType + " " + locale);
+            Map<String,String> queryItems = new HashMap<String, String>();
+            queryItems.put("datatype", dataType);
+            queryItems.put("locale", locale);
+            String info = serverInfoRequest("exampletext", queryItems);
             
             if (info.length() == 0)
                 throw new IOException("Could not get example text from Mary server");
@@ -557,7 +602,7 @@ public class MaryHttpClient
      */
     public String getDefaultAudioEffects() throws IOException 
     {
-        String defaultAudioEffects = getFromServer("DEFAULT_AUDIO_EFFECTS");
+        String defaultAudioEffects = serverInfoRequest("audioeffects", null);
 
         return defaultAudioEffects;
     }
@@ -570,22 +615,13 @@ public class MaryHttpClient
         return data.audioEffects;
     }
     
-    public AudioEffectsBoxData getAudioEffectsBox() throws IOException
-    {
-        if (data.effectsBoxData==null)
-            data.effectsBoxData = new AudioEffectsBoxData(getAudioEffects(), getAudioEffectHelpTextLineBreak());
-        
-        return data.effectsBoxData;
-    }
-    
-    public String getAudioEffectHelpTextLineBreak() throws IOException 
-    {
-        return "_LINEBREAK_";
-    }
     
     public String requestDefaultEffectParameters(String effectName) throws IOException 
-    { 
-        String info = getFromServer("AUDIO_EFFECT_DEFAULT_PARAM", effectName);
+    {
+        Map<String, String> queryItems = new HashMap<String, String>();
+        queryItems.put("effect", effectName);
+        
+        String info = serverInfoRequest("audioeffect-default-param", queryItems);
 
         if (info==null || info.length() == 0)
             return "";
@@ -595,7 +631,11 @@ public class MaryHttpClient
 
     public String requestFullEffect(String effectName, String currentEffectParameters) throws IOException 
     {
-        String info = getFromServer("FULL_AUDIO_EFFECT", effectName + " " + currentEffectParameters);
+        Map<String, String> queryItems = new HashMap<String, String>();
+        queryItems.put("effect", effectName);
+        queryItems.put("params", currentEffectParameters);
+        
+        String info = serverInfoRequest("audioeffect-full", queryItems);
 
         if (info.length() == 0)
             return "";
@@ -603,11 +643,14 @@ public class MaryHttpClient
         return info.replaceAll("\n", System.getProperty("line.separator"));
     }
     
-    public String requestEffectHelpText(String effectName) throws IOException, InterruptedException 
+    public String requestEffectHelpText(String effectName) throws IOException
     {
         if (!data.audioEffectHelpTextsMap.containsKey(effectName))
         {
-            String info = getFromServer("AUDIO_EFFECT_HELP_TEXT", effectName);
+            Map<String, String> queryItems = new HashMap<String, String>();
+            queryItems.put("effect", effectName);
+            
+            String info = serverInfoRequest("audioeffect-help", queryItems);
             
             if (info.length() == 0)
                 return "";
@@ -618,9 +661,12 @@ public class MaryHttpClient
         return data.audioEffectHelpTextsMap.get(effectName);
     }
     
-    public boolean isHMMEffect(String effectName) throws IOException, InterruptedException
+    public boolean isHMMEffect(String effectName) throws IOException
     {
-        String info = getFromServer("IS_HMM_AUDIO_EFFECT", effectName);
+        Map<String, String> queryItems = new HashMap<String, String>();
+        queryItems.put("effect", effectName);
+        
+        String info = serverInfoRequest("audioeffect-is-hmm-effect", queryItems);
         
         if (info.length() == 0)
             return false;
@@ -635,8 +681,51 @@ public class MaryHttpClient
     
     
     
+    private String serverInfoRequest(String request, Map<String,String>queryItems)
+    throws IOException
+    {
+        StringBuilder url = new StringBuilder();
+        url.append(data.hostAddress.getHttpAddress()).append("/").append(request);
+        if (queryItems != null) {
+            url.append("?");
+            boolean first = true;
+            for (String key : queryItems.keySet()) {
+                if (first) first = false;
+                else url.append("&");
+                url.append(key).append("=");
+                url.append(URLEncoder.encode(queryItems.get(key), "UTF-8"));
+            }
+        }
+        return serverInfoRequest(new URL(url.toString()));
+        
+    }
+
+    private String serverInfoRequest(URL url)
+    throws IOException
+    {
+        HttpURLConnection http = (HttpURLConnection)url.openConnection();
+        http.setRequestMethod("GET");
+        http.connect();
+
+        if(http.getResponseCode() != HttpURLConnection.HTTP_OK) {
+            throw new IOException(http.getResponseCode() + ":" + http.getResponseMessage());
+        }
+        return FileUtils.getStreamAsString(http.getInputStream(), "UTF-8");
+/*  The following is example code if we were to use HttpClient:
+ *         HttpClient httpclient = new DefaultHttpClient();
+
+        HttpGet httpget = new HttpGet("http://www.google.com/"); 
+
+        System.out.println("executing request " + httpget.getURI());
+
+        // Create a response handler
+        ResponseHandler<String> responseHandler = new BasicResponseHandler();
+        String responseBody = httpclient.execute(httpget, responseHandler);
+        System.out.println(responseBody);
+*/
+    }
     
-    private String getFromServer(String key) throws IOException
+/*    private String getFromServer(String key) throws IOException
     {
         return getFromServer(key, null);
     }
@@ -661,7 +750,7 @@ public class MaryHttpClient
         return data.keyValuePairs.get(key);
     }
 
-    
+  */  
     
     
     
