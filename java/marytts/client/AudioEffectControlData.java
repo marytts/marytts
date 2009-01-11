@@ -44,26 +44,16 @@ public class AudioEffectControlData {
     private String effectName;
     private String helpText;
     private String exampleParams;
-    private String lineBreak;
     private String params;
     private boolean isSelected;
     
-    public AudioEffectControlData(AudioEffectControlData dataIn)
-    {
-        this(dataIn.effectName, dataIn.exampleParams, dataIn.helpText, dataIn.lineBreak);
-        
-        this.params = dataIn.params;
-        this.isSelected = dataIn.isSelected;
-    }
-    
-    public AudioEffectControlData(String strEffectNameIn, String strExampleParams, String strHelpTextIn, String lineBreakIn)
+    public AudioEffectControlData(String strEffectNameIn, String strExampleParams, String strHelpTextIn)
     { 
-        init(strEffectNameIn, strExampleParams, strHelpTextIn, lineBreakIn);
+        init(strEffectNameIn, strExampleParams, strHelpTextIn);
     }
     
-    public void init(String strEffectNameIn, String strExampleParamsIn, String strHelpTextIn, String lineBreakIn)
+    public void init(String strEffectNameIn, String strExampleParamsIn, String strHelpTextIn)
     {
-        lineBreak = lineBreakIn;
         setEffectName(strEffectNameIn);
         setExampleParams(strExampleParamsIn);
         setHelpText(strHelpTextIn); 
@@ -82,31 +72,4 @@ public class AudioEffectControlData {
     public void setSelected(boolean bSelected) { isSelected = bSelected; }
     public boolean getSelected() { return isSelected; }
     
-    //Parse string according to line break string
-    public String parseLineBreaks(String strInput)
-    {
-        String strOut = "";
-        String strTmp;
-        
-        for (int i=0; i<strInput.length()-lineBreak.length(); i++)
-        {
-            strTmp = strInput.substring(i, i+lineBreak.length());
-            
-            if (strTmp.equals(lineBreak)==false)
-                strOut += strInput.substring(i, i+1);
-            else
-            {
-                strOut += System.getProperty("line.separator");
-                i += lineBreak.length()-1;
-            }
-        }
-        
-        strTmp = strInput.substring(strInput.length()-lineBreak.length(), strInput.length());
-        if (strTmp.compareTo(lineBreak)!=0)
-            strOut += strTmp;
-        else
-            strOut += System.getProperty("line.separator");
-        
-        return strOut;
-    }
 }

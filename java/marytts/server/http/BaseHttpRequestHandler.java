@@ -49,7 +49,6 @@ import javax.sound.sampled.AudioSystem;
 
 import marytts.Version;
 import marytts.client.http.Address;
-import marytts.client.http.MaryHttpClientUtils;
 import marytts.datatypes.MaryDataType;
 import marytts.htsengine.HMMVoice;
 import marytts.modules.synthesis.Voice;
@@ -141,7 +140,7 @@ public abstract class BaseHttpRequestHandler extends SimpleNHttpRequestHandler i
             }
             Map<String,String> queryItems = null;
             if (query != null && query.length() > 0) {
-                queryItems = MaryHttpClientUtils.toKeyValuePairs(query, true);
+                queryItems = MaryHttpServerUtils.toKeyValuePairs(query, true);
             }
             
             //Try and get parameters from different HTTP POST requests if you have not been able to do this above
@@ -149,7 +148,7 @@ public abstract class BaseHttpRequestHandler extends SimpleNHttpRequestHandler i
                     && request instanceof HttpEntityEnclosingRequest) {
                 try {
                     String postQuery = EntityUtils.toString(((HttpEntityEnclosingRequest) request).getEntity());
-                    queryItems = MaryHttpClientUtils.toKeyValuePairs(postQuery, true);
+                    queryItems = MaryHttpServerUtils.toKeyValuePairs(postQuery, true);
                 } catch (Exception e) {
                     logger.debug("Cannot read post query", e);
                     MaryHttpServerUtils.errorInternalServerError(response, "Cannot read post query", e);

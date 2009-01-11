@@ -36,16 +36,18 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioFileFormat;
 
 import marytts.client.http.MaryFormData;
-import marytts.client.http.MaryHttpClientUtils;
 import marytts.util.ConversionUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.MaryAudioUtils;
+import marytts.util.string.StringUtils;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -63,10 +65,6 @@ import org.jsresources.AppendableSequenceAudioInputStream;
  */
 public class MaryHttpServerUtils 
 {
-    public static void toHttpResponse(Map<String, String> keyValuePairs, HttpResponse response, String contentType) throws IOException
-    {
-        toHttpResponse(MaryHttpClientUtils.toHttpString(keyValuePairs), response, contentType);
-    }
     
     public static void toHttpResponse(double[] x, HttpResponse response, String contentType) throws IOException
     {   
@@ -127,6 +125,55 @@ public class MaryHttpServerUtils
         response.setStatusCode(status);
     }
 
+    
+    
+    /** 
+     * Convert HTTP request string into key-value pairs
+     * @param httpString the query part of the http request url
+     * @param performUrlDecode whether to URL-decode the keys and values
+     * @return
+     */
+    public static Map<String, String> toKeyValuePairs(String httpString, boolean performUrlDecode)
+    {
+        if (httpString==null || httpString.length()==0) {
+            return null;
+        }
+
+        Map<String, String> keyValuePairs = new HashMap<String, String>();
+
+        StringTokenizer st = new StringTokenizer(httpString);
+        String newToken = null;
+        String param, val;
+        int equalSignInd;
+        while (st.hasMoreTokens() && (newToken = st.nextToken("&"))!=null) {
+            equalSignInd = newToken.indexOf("=");
+
+            //Default values unless we have a param=value pair
+            param = newToken;
+            val = "";
+            //
+
+            //We have either a "param=value" pair, or "param=" only
+            if (equalSignInd>-1) {
+                param = newToken.substring(0, equalSignInd);
+                val = newToken.substring(equalSignInd+1);
+            }
+
+            if (performUrlDecode) {
+                param = StringUtils.urlDecode(param);
+                val = StringUtils.urlDecode(val);
+            }
+            keyValuePairs.put(param, val);
+        }
+        
+        return keyValuePairs;
+    }
+    //
+    
+    
+    
+    
+    
     public static String getMimeType(AudioFileFormat.Type audioType) throws Exception
     {
         if (audioType == AudioFileFormat.Type.WAVE) {

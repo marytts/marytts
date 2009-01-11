@@ -56,7 +56,6 @@ import org.apache.log4j.Logger;
 
 import marytts.client.http.Address;
 import marytts.client.http.MaryFormData;
-import marytts.client.http.MaryHttpClientUtils;
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
 import marytts.server.RequestHandler.StreamingOutputPiper;
