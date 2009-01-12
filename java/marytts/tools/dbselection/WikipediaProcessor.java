@@ -40,9 +40,6 @@ import java.io.RandomAccessFile;
 import java.util.Scanner;
 import java.util.Vector;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.ClassLoader;
 
 /**
  * WikipediaProcessor
@@ -347,9 +344,9 @@ public class WikipediaProcessor {
                wikiCleaner.setMysqlHost(wiki.getMysqlHost());
                wikiCleaner.setMysqlPasswd(wiki.getMysqlPasswd());
                wikiCleaner.setMysqlUser(wiki.getMysqlUser());
-               
-               System.out.println("Creating connection to DB server...");
-               wikiToDB.createDBConnection(wiki.getMysqlHost(),wiki.getMysqlDB(),wiki.getMysqlUser(),wiki.getMysqlPasswd());
+           /*    
+              System.out.println("Creating connection to DB server...");
+              wikiToDB.createDBConnection(wiki.getMysqlHost(),wiki.getMysqlDB(),wiki.getMysqlUser(),wiki.getMysqlPasswd());
                
                // Before runing the mwdumper the tables text, page and revision should be deleted and created empty.
                wikiToDB.createEmptyWikipediaTables();
@@ -362,10 +359,13 @@ public class WikipediaProcessor {
                argsDump[1] = "--format=sql:1.5";
                argsDump[2] = wFile;
                */
+               
+            /*   
                sqlDump = wFile + ".sql";
                String[] argsDump = new String[3];
                argsDump[0] = "--output=mysql://" + wiki.getMysqlHost() + "/" + wiki.getMysqlDB() 
-                             + "?user=" + wiki.getMysqlUser() + "&password=" + wiki.getMysqlPasswd();
+                             + "?user=" + wiki.getMysqlUser() + "&password=" + wiki.getMysqlPasswd() 
+                             + "&useUnicode=true&characterEncoding=utf8";
                argsDump[1] = "--format=sql:1.5";
                argsDump[2] = wFile;
                
@@ -387,25 +387,31 @@ public class WikipediaProcessor {
                } catch (IllegalAccessException e) {
                    // This should not happen, as we have disabled access checks
                } 
-               //---
-               //System.out.println("Created sql source file:" + sqlDump);
                
+               // System.out.println("Created sql source file:" + sqlDump);
                // Now I need to add/change the prefix locale to the table names
-               wikiToDB.addLocalePrefixToWikipediaTables();
-           //    sqlLocaleDump = sqlDump + "." + wiki.getLocale() + ".sql";
-           //    wiki.addLocalePrefixToTables(sqlDump, sqlLocaleDump);
+               wikiToDB.addLocalePrefixToWikipediaTables();  // this change the name of already created and loaded tables
+               
+               
+               sqlLocaleDump = sqlDump + "." + wiki.getLocale() + ".sql";
+               //++wiki.addLocalePrefixToTables(sqlDump, sqlLocaleDump);
                // delete generated files
             //   System.out.println("Deleting file:" + sqlDump);    
             //   File dump = new File(sqlDump);
             //   if(dump.exists())
             //     dump.delete();
               
-               wikiToDB.closeDBConnection(); 
-               
+              wikiToDB.closeDBConnection(); 
+              */ 
                // now call the wikipediaMarkupCleaner
-        //       wikiCleaner.setSqlSourceFile(sqlLocaleDump);
+              //++ wikiCleaner.setSqlSourceFile(sqlLocaleDump);
+               
+               
+               
+               wikiCleaner.setXmlWikiFile(wFile);
                wikiCleaner.processWikipediaSQLSourceFile();              
-        //       wikiCleaner = null;
+               wikiCleaner = null;
+               
                
                // when finished
                wiki.setWikipediaFileDone("./done.txt", wFile);
