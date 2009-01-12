@@ -61,7 +61,7 @@ public class WikipediaMarkupCleaner {
     private String mysqlUser=null;
     private String mysqlPasswd=null;
     // Wikipedia files:
-    private String sqlSourceFile=null;
+    private String xmlWikiFile=null;
     //private String textFile=null;
     //private String pageFile=null;
     //private String revisionFile=null;
@@ -85,7 +85,7 @@ public class WikipediaMarkupCleaner {
     public void setMysqlUser(String str){ mysqlUser = str; }
     public void setMysqlPasswd(String str){ mysqlPasswd = str; }
     
-    public void setSqlSourceFile(String str){ sqlSourceFile = str; }
+    public void setXmlWikiFile(String str){ xmlWikiFile = str; }
     //public void setPageFile(String str){ pageFile = str; }
     //public void setRevisionFile(String str){ revisionFile = str; }
     public void setWikiLog(String str){ wikiLog = str; }
@@ -105,7 +105,7 @@ public class WikipediaMarkupCleaner {
     public String getMysqlUser(){ return mysqlUser; }
     public String getMysqlPasswd(){ return mysqlPasswd; }
     
-    public String getSqlSourceFile(){ return sqlSourceFile; }
+    public String getXmlWikiFile(){ return xmlWikiFile; }
     //public String getPageFile(){ return pageFile; }
     //public String getRevisionFile(){ return revisionFile; }
     public String getWikiLog(){ return wikiLog; }
@@ -887,22 +887,24 @@ public class WikipediaMarkupCleaner {
         
         sentences = text.split("\n");
         for(m=0; m<sentences.length; m++){
-          //System.out.println(sentences[m]);
+          //System.out.println("\n" + sentences[m]);
           words = sentences[m].split(" ");
           for(n=0; n<words.length; n++){
             w = words[n];
-            
+            //System.out.print("word=" + words[n] + "   -->");
             // Split into letter sections that we will cosider atomic "words":
             int start=0, end=0;
             int minimumLength = 2;
             for (; end<w.length(); end++) {
-                if (Character.isLetter(w.charAt(end))) {
+                //if (Character.isLetter(w.charAt(end))) {
+                if (Character.isLetter(w.codePointAt(end))) {
                     if (start < 0) start = end;
                     continue;
                 }
                 // not a letter
                 if (start >= 0 && end-start >= minimumLength) {
                     String oneWord = w.substring(start, end);
+                    //System.out.print(" oneWord1=" + oneWord);
                     Integer count = (Integer) wordList.get(oneWord);
                     // if key is not in the map then give it value one
                     // otherwise increment its value by 1
@@ -915,6 +917,7 @@ public class WikipediaMarkupCleaner {
             }
             if (start >= 0 && end-start >= minimumLength) {
                 String oneWord = w.substring(start, end);
+                //System.out.print(" oneWord2=" + oneWord);
                 Integer count = (Integer) wordList.get(oneWord);
                 // if key is not in the map then give it value one
                 // otherwise increment its value by 1
@@ -945,6 +948,7 @@ public class WikipediaMarkupCleaner {
                 wordList.put(w, new Integer( i.intValue() + 1));
             } // if word is > 1 and isAlpha
 */
+           // System.out.println("\n");
           }
           //System.out.println("\n");
           words = null;
@@ -1043,11 +1047,13 @@ public class WikipediaMarkupCleaner {
         
         // This loading can take a while
         // create and load TABLES: page, text and revision
-        /*
+        
         if(loadWikiTables) {
           System.out.println("Creating and loading TABLES: page, text and revision. (The loading can take a while...)");
           //wikiToDB.createAndLoadWikipediaTables(textFile, pageFile, revisionFile);
-          wikiToDB.createAndLoadWikipediaTables(sqlSourceFile);
+         // wikiToDB.createAndLoadWikipediaTables(sqlSourceFile);
+          wikiToDB.loadPagesWithMWDumper(xmlWikiFile,locale, mysqlHost,mysqlDB,mysqlUser,mysqlPasswd);
+          
         } else {
           // Checking if tables are already created and loaded in the DB
           if(wikiToDB.checkWikipediaTables())  
@@ -1055,7 +1061,7 @@ public class WikipediaMarkupCleaner {
           else
            throw new Exception("WikipediaMarkupCleaner: ERROR IN TABLES " + locale + "_page, " + locale + "_text and " + locale + "_revision, they are not CREATED/LOADED.");          
         }    
-        */
+        
         
         System.out.println("\nGetting page IDs");
         String pageId[];
@@ -1157,7 +1163,7 @@ public class WikipediaMarkupCleaner {
         "\n  -mysqlUser " + getMysqlUser() +
         "\n  -mysqlPasswd " + getMysqlPasswd() +
         "\n  -mysqlDB " + getMysqlDB() +
-        "\n  -source " + getSqlSourceFile() +
+        "\n  -xmlFile " + getXmlWikiFile() +
         "\n  -minPage " + getMinPageLength() +
         "\n  -minText " + getMinTextLength() +
         "\n  -maxText " + getMaxTextLength() +
@@ -1220,8 +1226,8 @@ public class WikipediaMarkupCleaner {
             else if(args[i].contentEquals("-mysqlDB") && args.length >= (i+1) )
               setMysqlDB(args[++i]);
             
-            else if(args[i].contentEquals("-source") && args.length >= (i+1) )
-              setSqlSourceFile(args[++i]);
+            else if(args[i].contentEquals("-xmlFile") && args.length >= (i+1) )
+              setXmlWikiFile(args[++i]);
             
             // From here the arguments are optional
             else if(args[i].contentEquals("-minPage") && args.length >= (i+1) )
@@ -1276,8 +1282,8 @@ public class WikipediaMarkupCleaner {
             return false;
          } 
         
-        if(getSqlSourceFile()==null){
-            System.out.println("\nMissing required parameter, the sql source file\n");
+        if(getXmlWikiFile()==null){
+            System.out.println("\nMissing required parameter, the XML wikipedia file\n");
             printParameters();
             System.out.println(help);
             return false; 
