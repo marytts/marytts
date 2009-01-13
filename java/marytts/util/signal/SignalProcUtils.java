@@ -1954,6 +1954,11 @@ public class SignalProcUtils {
         
         return y;
     }
+
+    public static double[] subtractSignals(double[] s1, double[] s2)
+    {
+        return addSignals(s1, 1.0, s2, -1.0);
+    }
     
     public static void main(String[] args)
     {  
