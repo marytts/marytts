@@ -202,13 +202,20 @@ public class HnmAnalyzer {
             for (j=pm.pitchMarks[i]; j<Math.min(pm.pitchMarks[i]+ws-1, x.length); j++)
                 frm[j-pm.pitchMarks[i]] = x[j];
             
+            //Get a window for which w[0]^2+w[1]^2+...+w[ws-1]^2=1.0. Also compute w^2 terms
             win = Window.get(windowType, ws);
-            win.normalize(1.0f); //Normalize to sum up to unity
             double[] wgtSquared = win.getCoeffs();
             for (j=0; j<wgtSquared.length; j++)
                 wgtSquared[j] = wgtSquared[j]*wgtSquared[j];
             
-            
+            double tmpSum = 0.0;
+            for (j=0; j<wgtSquared.length; j++)
+                tmpSum += wgtSquared[j];
+            win.normalize(1.0f/(float)Math.sqrt(tmpSum)); //Normalize to sum up to unity
+            wgtSquared = win.getCoeffs();
+            for (j=0; j<wgtSquared.length; j++)
+                wgtSquared[j] = wgtSquared[j]*wgtSquared[j];
+            //
             
             //Step4. Estimate complex amplitudes of harmonics if voiced
             //       The phase of the complex amplitude is the phase and its magnitude is the absolute amplitude of the harmonic

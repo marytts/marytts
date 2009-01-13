@@ -120,7 +120,7 @@ public class HnmSynthesizer {
         int Mk;
         boolean isVoiced, isNextVoiced;
         int origLen = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
-        h = new double[origLen+2000]; //In fact, this should be prosody scaled length when you implement prosody modifications
+        h = new double[origLen]; //In fact, this should be prosody scaled length when you implement prosody modifications
         Arrays.fill(h, 0.0);
         
         for (i=0; i<hnmSignal.frames.length; i++)
@@ -131,17 +131,31 @@ public class HnmSynthesizer {
             else
                 isNextVoiced = false;
             
-            tsi = hnmSignal.frames[i].tAnalysisInSeconds;
+            if (i==0)
+                tsi = 0.0f;
+            else
+                tsi = hnmSignal.frames[i].tAnalysisInSeconds;
             startIndex = SignalProcUtils.time2sample(tsi, hnmSignal.samplingRateInHz);
             if (isNextVoiced)
             {
-                tsiPlusOne = hnmSignal.frames[i+1].tAnalysisInSeconds;
+                if (i==hnmSignal.frames.length-1)
+                    tsiPlusOne = hnmSignal.originalDurationInSeconds;
+                else
+                    tsiPlusOne = hnmSignal.frames[i+1].tAnalysisInSeconds;
                 endIndex = SignalProcUtils.time2sample(tsiPlusOne, hnmSignal.samplingRateInHz);
             }
             else
             {
-                endIndex = startIndex + lastPeriodInSamples;
-                tsiPlusOne = SignalProcUtils.sample2time(endIndex, hnmSignal.samplingRateInHz);
+                if (i==hnmSignal.frames.length-1)
+                {
+                    tsiPlusOne = hnmSignal.originalDurationInSeconds;
+                    endIndex = SignalProcUtils.time2sample(tsiPlusOne, hnmSignal.samplingRateInHz);
+                }
+                else
+                {
+                    endIndex = startIndex + lastPeriodInSamples;
+                    tsiPlusOne = SignalProcUtils.sample2time(endIndex, hnmSignal.samplingRateInHz);
+                }
             }
 
             numHarmonicsCurrentFrame = hnmSignal.frames[i].h.phases.length;
@@ -177,13 +191,6 @@ public class HnmSynthesizer {
                         aksiPlusOnes[k] = 0.0;
 
                     akt = aksis[k] + (aksiPlusOnes[k]-aksis[k])*(t-tsi)/(tsiPlusOne-tsi);
-                    
-                    /*
-                    f0InHzNext = 400.0f;
-                    f0InHz = 400.0f;
-                    f0av = 400.0f;
-                    akt = 1.0;
-                    */
                     //
 
                     //Estimate phase
@@ -254,16 +261,29 @@ public class HnmSynthesizer {
         double[] y = hs.syntesize(hnmSignal, tScales, tScalesTimes, pScales, pScalesTimes);
         //
         
+        //A small test here: What if we substract y from x: In case no noise part is synthesized, this should be like a noise signal
+        double[] nEstimate = null;
+        nEstimate = SignalProcUtils.subtractSignals(x, y); //Not good, still phase diff between original and synthesized
+        
+        /*
         //This scaling is only for comparison among different parameter sets, different synthesizer outputs etc
         double maxNew = MathUtils.getAbsMax(y);
         for (int i=0; i<y.length; i++)
             y[i] = y[i]*(maxOrig/maxNew);
         //
+        */
         
         //File output
         DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
         String outFileName = args[0].substring(0, args[0].length()-4) + "_hnmResynth.wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+        
+        if (nEstimate!=null)
+        {
+            outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(nEstimate), inputAudio.getFormat());
+            outFileName = args[0].substring(0, args[0].length()-4) + "_hnmDiff.wav";
+            AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+        }
         //
     }
 }
