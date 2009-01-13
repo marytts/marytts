@@ -135,8 +135,10 @@ public class TranscriptionTable extends JPanel implements ActionListener {
     private void checkTranscriptionSyntax(int row){
         
         String transcription =  (String) transcriptionModel.getDataAt(row, 2);
-        transcription = transcription.replaceAll("\\s*", "");
-        this.transcriptionModel.setValueAt(transcription , row, 2);
+        if (transcription.matches("\\s+")) {
+            transcription = transcription.replaceAll("\\s+", "");
+            this.transcriptionModel.setValueAt(transcription , row, 2);
+        }
         if(!transcription.equals("")){
             String check = phoneSet.checkAllophoneSyntax(transcription);
             if(check.equals("OK")){
