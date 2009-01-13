@@ -245,8 +245,7 @@ public class HnmAnalyzer {
                 double[] freqsInHz = new double [numHarmonics];
                 for (j=0; j<numHarmonics; j++)
                 {
-                    linearAmps[j] = MathUtils.magnitudeComplex(harmonicAmps[numHarmonics-j-1]);
-                    //linearAmps[j] = MathUtils.magnitudeComplex(harmonicAmps[j]);
+                    linearAmps[j] = MathUtils.magnitudeComplex(harmonicAmps[j]);
                     freqsInHz[j] = f0InHz*(j+1);
                 }
                 hnmSignal.frames[i].ceps = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, fs, cepsOrder);
@@ -400,8 +399,8 @@ public class HnmAnalyzer {
         
         ComplexNumber[] x = MathUtils.matrixProduct(MathUtils.inverse(R), b);
         ComplexNumber[] xpart = new ComplexNumber[numHarmonics+1];
-        for (k=0; k<numHarmonics+1; k++) //The remaning complex amplitudes from L+1 to 2L are complex conjugates of entries from L-1,...,1
-            xpart[k] = new ComplexNumber(x[k]);
+        for (k=numHarmonics+1; k<2*numHarmonics+1; k++) //The remaning complex amplitudes from L+1 to 2L are complex conjugates of entries from L-1,...,1
+            xpart[k-(numHarmonics+1)] = new ComplexNumber(x[k]);
         
         return xpart;
     }
