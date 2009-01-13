@@ -64,6 +64,8 @@ public class HnmPitchVoicingAnalyzer {
                                                 //0.3 means the region [0.7xf0, 4.3xf0] will be considered in voicing decision
     //
     
+    public static float NUM_PERIODS_AT_LEAST = 3.0f;
+    
     //These are the three thresholds used in Stylianou for maximum voicing frequency estimation using the harmonic model
     public static double CUMULATIVE_AMP_THRESHOLD = 2.0;
     public static double MAXIMUM_AMP_THRESHOLD_IN_DB = 13.0;
@@ -73,11 +75,17 @@ public class HnmPitchVoicingAnalyzer {
     public static int MAXIMUM_TOTAL_HARMONICS = 50; //At most this much total harmonics will be included in voiced süpectral region (effective only when f0>10.0)
     //
     
-    public float [] initialF0s;
-    public float [] f0s;
+    //For voicing detection
+    public static double VUV_SEARCH_MIN_HARMONIC_MULTIPLIER = 0.7;
+    public static double VUV_SEARCH_MAX_HARMONIC_MULTIPLIER = 4.3;
+    //
+    
+    public float[] initialF0s;
+    public float[] f0s;
     public boolean [] voicings;
-    public float [] maxFrequencyOfVoicings;
-    public int [][] frmInds;
+    public float[] maxFrequencyOfVoicings;
+    public int[][] frmInds;
+    public float analysisWindowSizeInSeconds;
     
     public HnmPitchVoicingAnalyzer()
     {
@@ -88,30 +96,52 @@ public class HnmPitchVoicingAnalyzer {
         frmInds = null;
     }
     
-    public void estimateInitialPitch(double [] x, int samplingRate, float windowSizeInSeconds, float skipSizeInSeconds, 
-                                     float f0MinInHz, float f0MaxInHz, float searchStepInHz) 
+    public void analyze(double[] x, int samplingRate, float windowSizeInSeconds, float skipSizeInSeconds,
+            int windowType, float f0MinInHz, float f0MaxInHz,
+            float leftNeighInHz, float rightNeighInHz, float searchStepInHz) 
+    {
+        int fftSize = getDefaultFFTSize(samplingRate);
+
+        estimateInitialPitch(x, samplingRate, windowSizeInSeconds, skipSizeInSeconds, f0MinInHz, f0MaxInHz, windowType);
+        analyzeVoicings(x, samplingRate, fftSize);
+        estimateRefinedPitch(fftSize, samplingRate, leftNeighInHz, rightNeighInHz, searchStepInHz);
+    }  
+
+    public static int getDefaultFFTSize(int samplingRate)
+    { 
+        if (samplingRate<10000)
+            return 2048;
+        else if (samplingRate<20000)
+            return 4096;
+        else
+            return 8192;
+    }
+    
+    public void estimateInitialPitch(double[] x, int samplingRate, float windowSizeInSeconds, float skipSizeInSeconds, 
+                                     float f0MinInHz, float f0MaxInHz, int windowType) 
     {
         int PMax = (int)Math.floor(samplingRate/f0MinInHz+0.5);
         int PMin = (int)Math.floor(samplingRate/f0MaxInHz+0.5);
         
-        int ws = (int)Math.floor(windowSizeInSeconds*samplingRate + 0.5);
-        ws = Math.max(ws, (int)Math.floor(2.5*PMin+0.5));
+        int ws = SignalProcUtils.time2sample(windowSizeInSeconds, samplingRate);
+        ws = Math.max(ws, (int)Math.floor(NUM_PERIODS_AT_LEAST*PMin+0.5));
+        analysisWindowSizeInSeconds = SignalProcUtils.sample2time(ws, samplingRate);
+        
         int ss = (int)Math.floor(skipSizeInSeconds*samplingRate + 0.5);
         int numfrm = (int)Math.floor(((double)x.length-ws)/ss+0.5);
 
         int numCandidates = PMax-PMin+1;
         
-        double [] E = new double[numCandidates];
-        int [][] minInds = new int[numfrm][];
-        double [][] minEs = new double[numfrm][];
+        double[] E = new double[numCandidates];
         
         int P;
         int i, t, l, k;
         double term1, term2, term3, r;
 
-        double [] frm = new double[ws];
-        Window win = Window.get(Window.HANNING, ws);
-        double [] wgt2 = win.getCoeffs();
+        double[] frm = new double[ws];
+        Window win = Window.get(windowType, ws);
+        double[] wgt2 = win.getCoeffs();
+        wgt2 = MathUtils.normalizeToSumUpTo(wgt2, 1.0);
         
         for (t=0; t<ws; t++)
             wgt2[t] = wgt2[t]*wgt2[t];
@@ -123,7 +153,7 @@ public class HnmPitchVoicingAnalyzer {
         for (t=0; t<ws; t++)
             wgt2[t] = wgt2[t]/tmpSum;
         
-        double [] wgt4 = new double[ws];
+        double[] wgt4 = new double[ws];
         System.arraycopy(wgt2, 0, wgt4, 0, ws);
         for (t=0; t<ws; t++)
             wgt4[t] = wgt4[t]*wgt4[t];
@@ -136,6 +166,7 @@ public class HnmPitchVoicingAnalyzer {
         frmInds = new int[numfrm][2];
         voicings = new boolean[numfrm];
         maxFrequencyOfVoicings = new float[numfrm];
+        int minInd;
         
         for (i=0; i<numfrm; i++)
         {
@@ -150,14 +181,19 @@ public class HnmPitchVoicingAnalyzer {
             for (t=0; t<ws; t++)
                 term1 += frm[t]*frm[t]*wgt2[t];
             
+            float lLim;
             for (P=PMin; P<=PMax; P++)
             {
+                lLim = ((float)ws)/P;
                 term2 = 0.0;
-                for (l=0; l<ws; l++)
+                for (l=(int)(Math.floor(-1.0f*lLim)+1); l<lLim; l++)
                 {
                     r=0.0;
-                    for (t=0; t<ws-l*P; t++)
-                        r += frm[t]*wgt2[t]*frm[t+l*P]*wgt2[t+l*P];
+                    for (t=0; t<ws; t++)
+                    {
+                        if (t+l*P>=0 && t+l*P<ws)
+                            r += frm[t]*wgt2[t]*frm[t+l*P]*wgt2[t+l*P];
+                    }
 
                     term2 += r;
                 }
@@ -168,73 +204,20 @@ public class HnmPitchVoicingAnalyzer {
                 E[P-PMin] = (term1-term2)/(term1*term3);
             }
 
-            //MaryUtils.plot(E, true, 1000);
+            MaryUtils.plot(E);
             
-            minInds[i] = MathUtils.getExtrema(E, 2, 2, false);
-            if (minInds[i]!=null)
-            {
-                minEs[i] = new double[minInds[i].length];
-                for (t=0; t<minInds[i].length; t++)
-                    minEs[i][t] = E[minInds[i][t]];
-            }
-            else
-                minEs[i] = null;
-        }
-
-        //Search for local minimum error paths to assign pitch values
-        //Previous and next <neigh> neighbors are used for searching of the local total minimum
-        int neigh = 0;
-        int [] totalNodes = new int[2*neigh+1];
-        int minLocalEInd;
-        int [][] pathInds;
-        double [] localEs;
-        
-        for (i=0; i<numfrm; i++)
-        {
-            if (minEs!=null && minInds[i]!=null)
-            {
-                for (t=-neigh; t<=neigh; t++)
-                {
-                    if (i+t>=0 && i+t<minEs.length && minEs[i+t]!=null)
-                        totalNodes[t+neigh] = minEs[i+t].length;
-                    else
-                        totalNodes[t+neigh] = 1;
-                }
-
-                //Here is a factorial design of all possible paths
-                pathInds = MathUtils.factorialDesign(totalNodes);
-                localEs = new double[pathInds.length];
-
-                for (k=0; k<pathInds.length; k++)
-                {
-                    localEs[k] = 0.0;
-                    for (t=0; t<pathInds[k].length; t++)
-                    {
-                        //System.out.println(String.valueOf(i) + " " + String.valueOf(k) + " " + String.valueOf(t) + " ");
-                        
-                        if (minEs!=null)
-                            if (i-neigh+t>=0)
-                                if (i-neigh+t<minEs.length)
-                                    if (minEs[i-neigh+t]!=null)
-                                        if (pathInds[k][t]<minEs[i-neigh+t].length)
-                                            localEs[k] += minEs[i-neigh+t][pathInds[k][t]];
-                    }
-                }
-
-                minLocalEInd = MathUtils.getMinIndex(localEs);
-                //System.out.println(String.valueOf(minLocalEInd));
-                initialF0s[i] = ((float)samplingRate)/(minInds[i][pathInds[minLocalEInd][neigh]]+PMin);
-            }
+            minInd = MathUtils.getMinIndex(E);
+            if (E[minInd]<0.5)
+                initialF0s[i] = 1.0f/SignalProcUtils.sample2time(minInd+PMin, samplingRate);
             else
                 initialF0s[i] = 0.0f;
-            
-            System.out.println(String.valueOf(initialF0s[i]));
-        }
+        }   
     }
     
-    public void analyzeVoicings(double [] x, int samplingRate) 
+    public void analyzeVoicings(double [] x, int samplingRate, int fftSize) 
     {
         double [] frm;
+        double[] voicingErrors = new double[initialF0s.length];
 
         for (int n=0; n<initialF0s.length; n++)
         {
@@ -245,12 +228,8 @@ public class HnmPitchVoicingAnalyzer {
             
             NonharmonicSinusoidalSpeechFrame frameSins = null;
 
-            int fftSize = SinusoidalAnalyzer.getDefaultFFTSize(samplingRate);
             if (fftSize<frm.length)
-                fftSize = frm.length;
-
-            if (fftSize % 2 == 1)
-                fftSize++;
+                fftSize *= 2;
 
             int maxFreq = (int) (Math.floor(0.5*fftSize+0.5)+1);
             ComplexArray Y = new ComplexArray(fftSize);
@@ -269,15 +248,21 @@ public class HnmPitchVoicingAnalyzer {
             //
             
             //Compute magnitude spectrum in dB as peak frequency estimates tend to be more accurate
-            double[] YAbsDB = MathUtils.dft2ampdb(Y, 0, maxFreq-1);
+            double[] YAbs = MathUtils.abs(Y, 0, maxFreq-1);
+            double[] YAbsDB = MathUtils.amp2db(YAbs);
             //
             
-            int [] peakInds = MathUtils.getExtrema(YAbsDB, 3, 3, true);
-            int [] valleyInds = MathUtils.getExtrema(YAbsDB, 1, 1, false);
-            voicings[n] = estimateVoicingFromFrameSpectrum(YAbsDB, samplingRate, initialF0s[n], peakInds, valleyInds);
+            voicings[n] = false;
+            if (initialF0s[n]>10.0f)
+            {
+                voicingErrors[n] = estimateVoicingFromFrameSpectrum(YAbs, samplingRate, initialF0s[n]);
 
-            if (voicings[n]==false)
-                initialF0s[n] = 0.0f;
+                if (voicingErrors[n]<-15.0)
+                    voicings[n] = true;
+            }
+                      
+            //if (voicings[n]==false)
+            //    initialF0s[n] = 0.0f;
             
             VoicingAnalysisOutputData vo = null;
             if (voicings[n])
@@ -293,6 +278,8 @@ public class HnmPitchVoicingAnalyzer {
             else
                 System.out.println("Time=" + String.valueOf(0.5*(frmInds[n][1]+frmInds[n][0])/samplingRate)+ " sec." + " f0=" + String.valueOf(initialF0s[n]) + " Hz." + " Unvoiced" + " MaxVFreq=" + String.valueOf(maxFrequencyOfVoicings[n]));
         }
+        
+        MaryUtils.plot(voicingErrors);
     }
     
     public static VoicingAnalysisOutputData estimateMaxFrequencyOfVoicingsFrame(double[] absDBSpec, int samplingRate, float f0, boolean isVoiced)
@@ -538,82 +525,97 @@ public class HnmPitchVoicingAnalyzer {
         return Amc;
     }
     
-    public static boolean estimateVoicingFromFrameSpectrum(double [] absSpec, int samplingRate, float initialF0, int [] peakInds, int [] valleyInds) 
+    public static double estimateVoicingFromFrameSpectrum(double[] absSpec, int samplingRate, float f0) 
     {
-        boolean bVoicing = false;
-        int maxFreq = absSpec.length-1;
-        double numTerm = 0.0;
-        double denTerm = 0.0;
+        boolean isVoiced = false;
         
-        if (peakInds!=null)
+        int maxFreq = absSpec.length;
+        int minFreqInd = SignalProcUtils.freq2index(VUV_SEARCH_MIN_HARMONIC_MULTIPLIER*f0, samplingRate, maxFreq-1);
+        int maxFreqInd = SignalProcUtils.freq2index(VUV_SEARCH_MAX_HARMONIC_MULTIPLIER*f0, samplingRate, maxFreq-1);
+        int harmonicNoFirst = ((int)Math.floor(VUV_SEARCH_MIN_HARMONIC_MULTIPLIER))+1;
+        int harmonicNoLast = ((int)Math.floor(VUV_SEARCH_MAX_HARMONIC_MULTIPLIER));
+        int numHarmonicsInRange = harmonicNoLast-harmonicNoFirst+1;
+        int currentHarmonicInd;
+        int i, j;
+        int[] harmonicsInds = new int[numHarmonicsInRange];
+        for (i=harmonicNoFirst; i<=harmonicNoLast; i++)
+            harmonicsInds[i-harmonicNoFirst] = SignalProcUtils.freq2index(i*f0, samplingRate, maxFreq-1);
+        
+        double num = 0.0;
+        double denum = 0.0;
+        
+        for (j=minFreqInd; j<harmonicsInds[0]-2; j++)
+            num += absSpec[j]*absSpec[j];
+        
+        for (i=0; i<numHarmonicsInRange-1; i++)
         {
-            double f0StartHz = (1.0 - HARMONICS_NEIGH)*initialF0;
-            double f0EndHz = (NUM_HARMONICS_FOR_VOICING + HARMONICS_NEIGH)*initialF0;
-            double f0NeighHz = 10.0f;
-            int freqStartInd = SignalProcUtils.freq2index(f0StartHz, samplingRate, maxFreq);
-            int freqEndInd = SignalProcUtils.freq2index(f0EndHz, samplingRate, maxFreq);
-            int f0NeighInd = SignalProcUtils.freq2index(f0NeighHz, samplingRate, maxFreq);
-
-            int i, j;
-            int freqInd;
-
-            //Signal energy around peaks
-            for (i=0; i<peakInds.length; i++)
-            {
-                if (peakInds[i]>=freqStartInd)
-                {
-                    if (peakInds[i]<=freqEndInd)
-                    {
-                        for (j=peakInds[i]-f0NeighInd; j<=peakInds[i]+f0NeighInd; j++)
-                            numTerm += absSpec[j]*absSpec[j];
-                    }
-                    else
-                        break;
-                }
-            }
-            //
-
-            //Signal energy around valleys
-            if (valleyInds!=null)
-            {
-                for (i=0; i<valleyInds.length; i++)
-                {
-                    if (valleyInds[i]>=freqStartInd)
-                    {
-                        if (valleyInds[i]<=freqEndInd)
-                        {
-                            for (j=valleyInds[i]-f0NeighInd; j<=valleyInds[i]+f0NeighInd; j++)
-                                denTerm += absSpec[j]*absSpec[j];
-                        }
-                        else
-                            break;
-                    }
-                }
-            }
-            //
+            for (j=harmonicsInds[i]+1+2; j<harmonicsInds[i+1]-2; j++)
+                num += absSpec[j]*absSpec[j];
         }
         
-        double E = MathUtils.db((numTerm+1e-20)/(denTerm+1e-20)); 
-        if (E>6.0)
-            bVoicing = true;
+        for (j=harmonicsInds[numHarmonicsInRange-1]+1+2; j<=maxFreqInd; j++)
+            num += absSpec[j]*absSpec[j];
+        
+        for (j=minFreqInd; j<=maxFreqInd; j++)
+            denum += absSpec[j]*absSpec[j];
+        
+        double E = num/denum;
+        E = MathUtils.db(E);
+        
+        /*
+        if (E<-15.0)
+            isVoiced = true;
+        else
+            isVoiced = false;
 
-        //System.out.println(String.valueOf(E));
-
-        return bVoicing;
+        return isVoiced;
+        */
+        return E;
     }
     
-    public void estimateRefinedPitch() 
+    public void estimateRefinedPitch(int fftSize, int samplingRateInHz, float leftNeighInHz, float rightNeighInHz, float searchStepInHz)
     {
-        
+        f0s = new float[initialF0s.length];
+        for (int i=0; i<initialF0s.length; i++)
+            f0s[i] = estimateRefinedFramePitch(initialF0s[i], maxFrequencyOfVoicings[i], fftSize, samplingRateInHz, leftNeighInHz, rightNeighInHz, searchStepInHz);
     }
-
-    public void analyze(double [] x, int samplingRate, float windowSizeInSeconds, float skipSizeInSeconds,
-                        int windowType, float f0MinInHz, float f0MaxInHz, float searchStepInHz) 
+    
+    //Searches for a refined f0 value by searching the range [f0InHz-leftNeighInHz, f0InHz+rightNeighInHz] in steps searchStepInHz
+    //This is done by evaluating the error function
+    // E(f0New) = sum_i=0^maxVoicedIndex |iInHz-i*f0New|^2 
+    //    for f0New=f0InHz-leftNeighInHz,f0InHz-leftNeighInHz+searchStepInHz,f0InHz-leftNeighInHz+2*searchStepInHz, ...,f0InHz+rightNeighInHz
+    // and finding the value of f0New that minimizes it
+    public float estimateRefinedFramePitch(float f0InHz, float maxFreqOfVoicingInHz, int fftSize, int samplingRateInHz, float leftNeighInHz, float rightNeighInHz, float searchStepInHz) 
     {
-        estimateInitialPitch(x, samplingRate, windowSizeInSeconds, skipSizeInSeconds, f0MinInHz, f0MaxInHz, searchStepInHz);
-        analyzeVoicings(x, samplingRate);
-        estimateRefinedPitch();
-    }   
+        float refinedF0InHz = 0.0f;
+        double E, Emin;
+        int maxFreqIndex = fftSize/2+1;
+        int maxVoicedFreqInd = SignalProcUtils.freq2index(maxFreqOfVoicingInHz, samplingRateInHz, maxFreqIndex);
+        
+        float f0New;
+        int i;
+        
+        float[] freqIndsInHz = new float[maxVoicedFreqInd];
+        for (i=0; i<maxVoicedFreqInd; i++)
+            freqIndsInHz[i] = (float)SignalProcUtils.index2freq(i, samplingRateInHz, maxFreqIndex-1);
+        
+        Emin = Double.MAX_VALUE;
+        refinedF0InHz = f0InHz;
+        for (f0New=f0InHz-leftNeighInHz; f0New<=f0InHz+rightNeighInHz; f0New+=searchStepInHz)
+        {
+            E = 0.0;
+            for (i=0; i<maxVoicedFreqInd; i++)
+                E += Math.abs(freqIndsInHz[i]-i*f0New);
+            
+            if (E<Emin)
+            {
+                Emin = E;
+                refinedF0InHz = f0New;
+            }
+        }
+        
+        return refinedF0InHz;
+    } 
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
     {
@@ -623,19 +625,26 @@ public class HnmPitchVoicingAnalyzer {
         double [] x = signal.getAllData();
         
         float windowSizeInSeconds = 0.040f;
-        float skipSizeInSeconds = 0.005f;
-        int windowType = Window.HANNING;
+        float skipSizeInSeconds = 0.010f;
+        int windowType = Window.BLACKMAN;
         float f0MinInHz = 60.0f;
         float f0MaxInHz = 500.0f;
-        float searchStepInHz = 0.5f;
+        
+        //Pitch refinement parameters
+        float leftNeighInHz = 20.0f; 
+        float rightNeighInHz = 20.0f;
+        float searchStepInHz = 0.01f;
+        //
         
         HnmPitchVoicingAnalyzer h = new HnmPitchVoicingAnalyzer();
         h.analyze(x, samplingRate, windowSizeInSeconds, skipSizeInSeconds, 
-                  windowType, f0MinInHz, f0MaxInHz, searchStepInHz);
+                  windowType, f0MinInHz, f0MaxInHz,
+                  leftNeighInHz, rightNeighInHz, searchStepInHz);
         
-        /*
-        for (int i=0; i<h.initialF0s.length; i++)
-            System.out.println(String.valueOf(i*skipSizeInSeconds+0.5f*windowSizeInSeconds) + " sec. = " + String.valueOf(h.initialF0s[i]));
-            */
+        for (int i=0; i<h.f0s.length; i++)
+            System.out.println(String.valueOf(i*skipSizeInSeconds+0.5f*h.analysisWindowSizeInSeconds) + " sec. InitialF0=" + String.valueOf(h.initialF0s[i]) + " RefinedF0="+ String.valueOf(h.f0s[i]));
+        
+        MaryUtils.plot(h.initialF0s);
+        MaryUtils.plot(h.f0s);
     }
 }

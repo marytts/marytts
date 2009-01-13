@@ -37,15 +37,17 @@ import marytts.util.math.ComplexNumber;
  */
 public class FrameHarmonicPart 
 {
-    ComplexNumber[] harmonicAmps; //Amplitudes and phases of harmonics
+    float[] ceps; //To keep harmonic amplitudes
+    float[] phases; //To keep harmonic phases
     float f0InHz;
     
-    public FrameHarmonicPart(ComplexNumber[] harmonicAmpsIn, float f0InHzIn)
-    {
-        harmonicAmps = new ComplexNumber[harmonicAmpsIn.length];
-        for (int i=0; i<harmonicAmpsIn.length; i++)
-            harmonicAmps[i] = new ComplexNumber(harmonicAmpsIn[i]);
-        
+    public FrameHarmonicPart()
+    {        
+        this(-1.0f);
+    }
+    
+    public FrameHarmonicPart(float f0InHzIn)
+    {        
         f0InHz = f0InHzIn;
     }
 }

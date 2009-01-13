@@ -40,13 +40,21 @@ import marytts.signalproc.sinusoidal.BaseSinusoidalSpeechSignal;
 public class HnmSpeechSignal extends BaseSinusoidalSpeechSignal 
 {    
     public HnmSpeechFrame[] frames;
-    public float originalDurationInSeconds ;
+    public float originalDurationInSeconds;
+    public int samplingRateInHz;
     
-    public HnmSpeechSignal(int totalFrm)
+    public HnmSpeechSignal(int totalFrm, int samplingRateInHz, float originalDurationInSeconds)
     {
         if (totalFrm>0)
+        {
             frames =  new HnmSpeechFrame[totalFrm];
+            for (int i=00; i<totalFrm; i++)
+                frames[i] = new HnmSpeechFrame();
+        }
         else
             frames = null;
+        
+        this.samplingRateInHz = samplingRateInHz;
+        this.originalDurationInSeconds = originalDurationInSeconds;
     }
 }

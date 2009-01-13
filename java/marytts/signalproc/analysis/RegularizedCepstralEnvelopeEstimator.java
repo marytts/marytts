@@ -150,4 +150,37 @@ public class RegularizedCepstralEnvelopeEstimator
         
         return halfAbsSpectrum;
     }
+    
+    public static double cepstrum2linearSpectrumValue(double[] ceps, double freqInHz, int samplingRateInHz)
+    {
+        return MathUtils.db2amp(cepstrum2dbSpectrumValue(ceps, freqInHz, samplingRateInHz));
+    }
+    
+    public static double cepstrum2dbSpectrumValue(double[] ceps, double freqInHz, int samplingRateInHz)
+    {
+        int p = ceps.length-1;
+
+        double denum = (2.0*SignalProcUtils.freq2barkNew(0.5*samplingRateInHz));
+        double f = SignalProcUtils.freq2barkNew(freqInHz)/denum;
+
+        double val = ceps[0];
+        for (int i=1; i<=p; i++)
+            val += 2.0*ceps[i]*Math.cos(MathUtils.TWOPI*f*i);   
+
+        return val;
+    }
+    
+    public static double[] cepstrum2linearSpectrumValues(double[] ceps, double[] freqsInHz, int samplingRateInHz)
+    {
+        return MathUtils.db2amp(cepstrum2dbSpectrumValues(ceps, freqsInHz, samplingRateInHz));
+    }
+    
+    public static double[] cepstrum2dbSpectrumValues(double[] ceps, double[] freqsInHz, int samplingRateInHz)
+    {
+        double[] vals = new double[freqsInHz.length];
+        for (int i=0; i<freqsInHz.length; i++)
+            vals[i] = cepstrum2dbSpectrumValue(ceps, freqsInHz[i], samplingRateInHz);
+        
+        return vals;
+    }
 }

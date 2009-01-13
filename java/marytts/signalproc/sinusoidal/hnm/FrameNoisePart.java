@@ -37,10 +37,21 @@ public class FrameNoisePart {
     double[] lpCoeffs;
     double lpGain; //Sqrt of prediction error
     
+    public FrameNoisePart()
+    {
+        this(null, 1.0);
+    }
+    
     public FrameNoisePart(double[] lpCoeffsIn, double lpGainIn)
     {
-        lpCoeffs = new double[lpCoeffsIn.length];
-        System.arraycopy(lpCoeffsIn, 0, lpCoeffs, 0, lpCoeffsIn.length);
+        if (lpCoeffsIn!=null)
+        {
+            lpCoeffs = new double[lpCoeffsIn.length];
+            System.arraycopy(lpCoeffsIn, 0, lpCoeffs, 0, lpCoeffsIn.length);
+        }
+        else
+            lpCoeffs = null;
+            
         lpGain = lpGainIn;
     }
 }

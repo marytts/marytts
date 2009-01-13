@@ -1900,6 +1900,61 @@ public class SignalProcUtils {
         return fullSpectrum;
     }
     
+    //Returns s1+s2 with length max(length(s1), length(s2))
+    public static double[] addSignals(double[] s1, double[] s2)
+    {
+        int len = 0;
+        if (s1!=null)
+            len = s1.length;
+        if (s2!=null && s2.length>len)
+            len = s2.length;
+        
+        double[] y = null;
+        if (len>0)
+            y = new double[len];
+        
+        if (s1!=null)
+            System.arraycopy(s1, 0, y, 0, s1.length);
+        
+        if (s2!=null)
+        {
+            for (int i=0; i<s2.length; i++)
+                y[i] += s2[i];
+        }
+        
+        return y;
+    }
+    
+    //Returns gain1.s1+gain2.s2 with length max(length(s1), length(s2))
+    public static double[] addSignals(double[] s1, double gain1, double[] s2, double gain2)
+    {
+        int len = 0;
+        if (s1!=null)
+            len = s1.length;
+        if (s2!=null && s2.length>len)
+            len = s2.length;
+        
+        double[] y = null;
+        if (len>0) 
+            y = new double[len];
+        
+        if (s1!=null)
+            System.arraycopy(s1, 0, y, 0, s1.length);
+        
+        if (s2!=null)
+        {
+            for (int i=0; i<s2.length; i++)
+                y[i] = gain1*y[i] + gain2*s2[i];
+        }
+        else if (s1!=null)
+        {
+            for (int i=0; i<s1.length; i++)
+                y[i] = gain1*y[i];
+        }
+        
+        return y;
+    }
+    
     public static void main(String[] args)
     {  
         LowPassFilter f = new LowPassFilter(0.25, 11);
