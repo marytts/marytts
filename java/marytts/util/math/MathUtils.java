@@ -870,6 +870,17 @@ public class MathUtils {
         return Math.sqrt(magnitudeComplexSquared(xReal, xImag));
     }
     
+    public static double phaseInRadians(ComplexNumber x)
+    {
+        return Math.atan2(x.imag, x.real);
+    }
+    
+    //Returns a+jb such that a+jb=r.exp(j.theta) where theta is in radians
+    public static ComplexNumber complexNumber(double r, double theta)
+    {
+        return new ComplexNumber(r*Math.cos(theta), r*Math.sin(theta));
+    }
+    
     public static double[] divide(double[] a, double[] b)
     {
         if (a.length != b.length) {
@@ -1241,6 +1252,13 @@ public class MathUtils {
     public static double[] db(double[] energies)
     {
         return multiply(log10(energies), 10);
+    }
+    
+    public static double[] abs(ComplexArray c)
+    {
+        int len = Math.min(c.real.length, c.imag.length);
+        
+        return abs(c, 0, len-1);
     }
     
     public static double[] abs(ComplexArray c, int startInd, int endInd)

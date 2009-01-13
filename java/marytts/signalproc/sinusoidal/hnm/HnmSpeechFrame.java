@@ -46,8 +46,8 @@ public class HnmSpeechFrame extends BaseSinusoidalSpeechFrame
     
     public HnmSpeechFrame()
     {
-        h = null;
-        n = null;
+        h = new FrameHarmonicPart();
+        n = new FrameNoisePart();
         maximumFrequencyOfVoicingInHz = 0.0f;
         tAnalysisInSeconds = -1.0f;
     }

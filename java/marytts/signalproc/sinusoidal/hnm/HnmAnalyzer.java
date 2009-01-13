@@ -79,8 +79,9 @@ public class HnmAnalyzer {
         
     }
     
-    public void analyze(String wavFile, double skipSizeInSeconds)
+    public HnmSpeechSignal analyze(String wavFile, double skipSizeInSeconds)
     {
+        HnmSpeechSignal hnmSignal = null;
         double[] f0s = null;
         AudioInputStream inputAudio = null;
         try {
@@ -96,10 +97,11 @@ public class HnmAnalyzer {
         int fs = (int)inputAudio.getFormat().getSampleRate();
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
         double [] x = signal.getAllData();
+        float originalDurationInSeconds = SignalProcUtils.sample2time(x.length, fs);
         int lpOrder = SignalProcUtils.getLPOrder(fs);
         double preCoef = 0.97;
         
-        /* TO DO
+        //// TO DO
         //Step1. Initial pitch estimation
         
         //Step2: Do for each frame (at 10 ms skip rate):
@@ -107,16 +109,15 @@ public class HnmAnalyzer {
         
         //2.b. If voiced, maximum frequency of voicing estimation
         //     Otherwise, maximum frequency of voicing is set to 0.0
+        float maxFreqOfVoicingInHz = 3300.0f; //This should come from the above automatic analysis
         
         //2.c. Refined pitch estimation
-        //
-        */
+        ////
         
         String strPitchFile = StringUtils.modifyExtension(wavFile, ".ptc");
         F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
         int pitchMarkOffset = 0;
         PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.ws, f0.header.ss, true, pitchMarkOffset);
-        
         
         //Step3. Determine analysis time instants based on refined pitch values.
         //       (Pitch synchronous if voiced, 10 ms skip if unvoiced)
@@ -144,8 +145,9 @@ public class HnmAnalyzer {
             totalFrm = pm.pitchMarks.length-1;
         
         //Extract frames and analyze them
-        double [] frm = null;
-        int i, j;
+        double[] frm = null; //Extracted pitch synchronously
+        double[] frmNoise = null; //Extracted at fixed window size around analysis time instant since LP analysis requires longer windows (40 ms)
+        int i, j, k;
         
         int pmInd = 0;
         
@@ -153,7 +155,18 @@ public class HnmAnalyzer {
         Window win;
         int closestInd;
         
-        HnmSpeechFrame[] hnmFrames = new HnmSpeechFrame[totalFrm];
+        
+        hnmSignal = new HnmSpeechSignal(totalFrm, fs, originalDurationInSeconds);
+        boolean isPrevVoiced = false;
+        
+        int numHarmonics = 0;
+        int prevNumHarmonics = 0;
+        ComplexNumber[] harmonicAmps = null;
+        
+        double[] phases;
+        double[] dPhases;
+        double[] dPhasesPrev = null;
+        int M;
         
         for (i=0; i<totalFrm; i++)
         {  
@@ -164,8 +177,8 @@ public class HnmAnalyzer {
             if (ws%2==0) //Always use an odd window size to have a zero-phase analysis window
                 ws++;            
             
-            hnmFrames[i] = new HnmSpeechFrame();
-            hnmFrames[i].tAnalysisInSeconds = (float)((pm.pitchMarks[i]+0.5f*ws)/fs);  //Middle of analysis frame
+            hnmSignal.frames[i].tAnalysisInSeconds = (float)((pm.pitchMarks[i]+0.5f*ws)/fs);  //Middle of analysis frame
+            hnmSignal.frames[i].maximumFrequencyOfVoicingInHz = maxFreqOfVoicingInHz;
           
             f0InHz = pm.f0s[i];
             
@@ -195,21 +208,22 @@ public class HnmAnalyzer {
             for (j=0; j<wgtSquared.length; j++)
                 wgtSquared[j] = wgtSquared[j]*wgtSquared[j];
             
-            double maxFreqOfVoicingInHz = 3300.0; //This should come from the above automatic analysis
+            
             
             //Step4. Estimate complex amplitudes of harmonics if voiced
             //       The phase of the complex amplitude is the phase and its magnitude is the absolute amplitude of the harmonic
-            int numHarmonics;
-            ComplexNumber[] harmonicAmps;
             if (isVoiced)
             {
                 numHarmonics = (int)Math.floor(maxFreqOfVoicingInHz/f0InHz+0.5);
                 harmonicAmps = estimateComplexAmplitudes(frm, wgtSquared, f0InHz, numHarmonics, fs);
-                double[] absMags = MathUtils.magnitudeComplex(harmonicAmps);
-                double[] dbMags = MathUtils.amp2db(absMags);
-                MaryUtils.plot(dbMags);
                 
-                hnmFrames[i].h = new FrameHarmonicPart(harmonicAmps, (float)f0InHz);
+                //Only for visualization
+                //double[] absMags = MathUtils.magnitudeComplex(harmonicAmps);
+                //double[] dbMags = MathUtils.amp2db(absMags);
+                //MaryUtils.plot(dbMags);
+                //
+                
+                hnmSignal.frames[i].h = new FrameHarmonicPart((float)f0InHz);
             }
             else
                 numHarmonics = 0;
@@ -220,7 +234,7 @@ public class HnmAnalyzer {
             //Additionally, we have support for preemphasis - this needs to be handled during synthesis of the noisy part with preemphasis removal
             frm = win.apply(frm, 0);
             LpCoeffs lpcs = LpcAnalyser.calcLPC(frm, lpOrder, (float)preCoef);
-            hnmFrames[i].n = new FrameNoisePart(lpcs.getA(), lpcs.getGain());
+            hnmSignal.frames[i].n = new FrameNoisePart(lpcs.getA(), lpcs.getGain());
             //
             
             //Step6. Estimate amplitude envelopes
@@ -231,23 +245,116 @@ public class HnmAnalyzer {
                 double[] freqsInHz = new double [numHarmonics];
                 for (j=0; j<numHarmonics; j++)
                 {
-                    linearAmps[j] = MathUtils.magnitudeComplex(hnmFrames[i].h.harmonicAmps[numHarmonics-j-1]);
+                    linearAmps[j] = MathUtils.magnitudeComplex(harmonicAmps[numHarmonics-j-1]);
+                    //linearAmps[j] = MathUtils.magnitudeComplex(harmonicAmps[j]);
                     freqsInHz[j] = f0InHz*(j+1);
                 }
-                hnmFrames[i].ceps = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, fs, cepsOrder);
+                hnmSignal.frames[i].ceps = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, fs, cepsOrder);
                 //The following is only for visualization
-                int fftSize = 4096;
-                double[] vocalTractDB = RegularizedCepstralEnvelopeEstimator.cepstrum2logAmpHalfSpectrum(hnmFrames[i].ceps , fftSize, fs);
-                MaryUtils.plot(vocalTractDB);
+                //int fftSize = 4096;
+                //double[] vocalTractDB = RegularizedCepstralEnvelopeEstimator.cepstrum2logAmpHalfSpectrum(hnmFrames[i].ceps , fftSize, fs);
+                //MaryUtils.plot(vocalTractDB);
                 //
             }
             //
             
-            //Step7. Estimate phase envelopes
-            //
+            if (true) //NOT SURE IF STEP7 IS REQUIRED SINCE IN SYNTHESIS WE WILL DO SIMILAR THINGS, SO WE PASS A DIRECT COPY OF PHASES HERE
+            {
+                hnmSignal.frames[i].h.phases = new float[numHarmonics];
+                for (k=0; k<numHarmonics; k++)
+                    hnmSignal.frames[i].h.phases[numHarmonics-k-1] = (float)MathUtils.phaseInRadians(harmonicAmps[numHarmonics-k-1]);
+            }
+            else
+            {
+                //Step7. Estimate phase envelopes
+                if (isVoiced)
+                {
+                    phases = new double[numHarmonics];
+                    dPhases = new double[numHarmonics];
 
-            System.out.println("Analysis complete at " + String.valueOf(hnmFrames[i].tAnalysisInSeconds) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm)); 
+                    for (k=0; k<numHarmonics; k++)
+                        phases[k] = MathUtils.phaseInRadians(harmonicAmps[numHarmonics-k-1]);
+
+                    if (!isPrevVoiced) //A new voiced segment starts here
+                    {
+                        for (k=0; k<numHarmonics; k++)
+                        {
+                            if (k==0)
+                            {
+                                if (k<numHarmonics-1)
+                                    dPhases[k] = phases[k+1]-phases[k];
+                                else
+                                    dPhases[k] = 0.0;
+                            }
+                            else
+                            {
+                                if (k<numHarmonics-1)
+                                {
+                                    M = (int)Math.floor(dPhases[k-1]/((phases[k+1]-phases[k])*MathUtils.TWOPI)+0.5);
+                                    phases[k] = (phases[k+1]+M*MathUtils.TWOPI) - phases[k]; 
+                                    dPhases[k] = phases[k+1]-phases[k];
+                                }
+                                else
+                                    dPhases[k] = 0.0;
+                            }
+                        }
+                    }
+                    else //Already inside a voiced segment
+                    {
+                        for (k=0; k<Math.min(numHarmonics, prevNumHarmonics); k++)
+                        {
+                            if (k>0 && k<phases.length-1)
+                            {
+                                M = (int)Math.floor(dPhasesPrev[k-1]/((phases[k+1]-phases[k])*MathUtils.TWOPI)+0.5);
+                                phases[k] = (phases[k+1]+M*MathUtils.TWOPI) - phases[k]; 
+                                dPhasesPrev[k] = phases[k+1]-phases[k];
+                            }
+                            else
+                                dPhasesPrev[k] = 0.0;
+                        }
+                        
+                        for (k=prevNumHarmonics; k<numHarmonics; k++)
+                        {
+                            if (k==0)
+                            {
+                                if (k<numHarmonics-1)
+                                    dPhases[k] = phases[k+1]-phases[k];
+                                else
+                                    dPhases[k] = 0.0;
+                            }
+                            else
+                            {
+                                M = (int)Math.floor(dPhases[k-1]/((phases[k+1]-phases[k])*MathUtils.TWOPI)+0.5);
+                                phases[k] = (phases[k+1]+M*MathUtils.TWOPI) - phases[k]; 
+                                dPhases[k] = phases[k+1]-phases[k];
+                            }
+                        }
+                    }
+
+                    hnmSignal.frames[i].h.phases = new float[numHarmonics];
+                    for (k=0; k<numHarmonics; k++)
+                        hnmSignal.frames[i].h.phases[numHarmonics-k-1] = (float)phases[k];
+
+                    prevNumHarmonics = numHarmonics;
+                    dPhasesPrev = new double[prevNumHarmonics];
+                    System.arraycopy(dPhases, 0, dPhasesPrev, 0, prevNumHarmonics);  
+                }
+                //
+            }
+            
+            
+            if (isVoiced)
+                isPrevVoiced = true;
+            else
+            {
+                prevNumHarmonics = 0;
+                isPrevVoiced = false;
+            }
+
+            System.out.println("Analysis complete at " + String.valueOf(hnmSignal.frames[i].tAnalysisInSeconds) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm)); 
         }
+        
+        return hnmSignal;
     }
     
     //N: local pitch period in samples
@@ -306,7 +413,7 @@ public class HnmAnalyzer {
         
         HnmAnalyzer ha = new HnmAnalyzer();
         
-        ha.analyze(wavFile, skipSizeInSeconds);
+        HnmSpeechSignal hnmSignal = ha.analyze(wavFile, skipSizeInSeconds);
     }
 }
 
