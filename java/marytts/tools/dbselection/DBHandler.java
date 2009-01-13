@@ -33,8 +33,8 @@ package marytts.tools.dbselection;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -44,7 +44,9 @@ import java.sql.PreparedStatement;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.HashMap;
-import java.util.TreeMap;
+import java.util.Set;
+import java.util.Map;
+import java.util.ArrayList;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -139,7 +141,11 @@ public class DBHandler {
   }
   
   /***
-   * Use MWDUMPER for extracting pages from a XML wikipedia dump file.
+   * Use mwdumper for extracting pages from a XML wikipedia dump file. The mwdumper reads a xml wikipedia
+   * file and extract the tables "text", "page" and "revision" in sql format. In this configuration the mwdumper
+   * creates a connection to the DB and load directly the tables, so the tables must be already created
+   * and they should be empty. Here these tables are created empty using the function createEmptyWikipediaTables,
+   * this function deletes any existing text, page and revision table before creating new ones.
    * @param xmlFile xml dump file
    * @param lang locale language  
    * @param host
@@ -156,56 +162,92 @@ public class DBHandler {
        wikiDB.createDBConnection(host,db,user,passwd);
        
        // Before runing the mwdumper the tables text, page and revision should be deleted and created empty.
-       // maybe for these we can create TEMPORARY tables  ???
-       wikiDB.createEmptyWikipediaTables();
-       
-       // Run the mwdumper jar file xml -> sql
-       //  Use these parameters for saving the output in a dump.sql source file
-       /*
-       String sqlDump = xmlFile + ".sql";
-       String[] argsDump = new String[3];
-       argsDump[0] = "--output=file:"+sqlDump;
-       argsDump[1] = "--format=sql:1.5";
-       argsDump[2] = xmlFile;
-       */
-       
-       /* Use these parameters for loading direclty the pages in the DB */
-       String[] argsDump = new String[3];
-       argsDump[0] = "--output=mysql://" + host + "/" + db 
-                     + "?user=" + user + "&password=" + passwd 
-                     + "&useUnicode=true&characterEncoding=utf8";
-       argsDump[1] = "--format=sql:1.5";
-       argsDump[2] = xmlFile;
-       
-       //--- The following ClassLoader code from:
-       //   http://java.sun.com/docs/books/tutorial/deployment/jar/examples/JarClassLoader.java
-       // Class c = loadClass(name);                                    // this does not work (example from sun)
-       // Class c = Class.forName("org.mediawiki.dumper.Dumper");                              // this works
-       Class c = ClassLoader.getSystemClassLoader().loadClass("org.mediawiki.dumper.Dumper");  // this also works
-       Method m = c.getMethod("main", new Class[] { argsDump.getClass() });
-       m.setAccessible(true);
-       int mods = m.getModifiers();
-       if (m.getReturnType() != void.class || !Modifier.isStatic(mods) ||
-           !Modifier.isPublic(mods)) {
-           throw new NoSuchMethodException("main");
+       if( wikiDB.createEmptyWikipediaTables()) {
+           
+           // Run the mwdumper jar file xml -> sql
+           //  Use these parameters for saving the output in a dump.sql source file
+           /*
+           String sqlDump = "dump.sql";
+           String[] argsDump = new String[3];
+           argsDump[0] = "--output=file:"+sqlDump;
+           argsDump[1] = "--format=sql:1.5";
+           argsDump[2] = xmlFile;
+           */
+           
+           /* Use these parameters for loading the pages direclty in the DB */
+           String[] argsDump = new String[3];
+           argsDump[0] = "--output=mysql://" + host + "/" + db 
+                         + "?user=" + user + "&password=" + passwd 
+                         + "&useUnicode=true&characterEncoding=utf8";
+           argsDump[1] = "--format=sql:1.5";
+           argsDump[2] = xmlFile;
+           
+           //--- The following ClassLoader code from:
+           //   http://java.sun.com/docs/books/tutorial/deployment/jar/examples/JarClassLoader.java
+           // Class c = loadClass(name);                                    // this does not work (example from sun)
+           // Class c = Class.forName("org.mediawiki.dumper.Dumper");                              // this works
+           Class c = ClassLoader.getSystemClassLoader().loadClass("org.mediawiki.dumper.Dumper");  // this also works
+           Method m = c.getMethod("main", new Class[] { argsDump.getClass() });
+           m.setAccessible(true);
+           int mods = m.getModifiers();
+           if (m.getReturnType() != void.class || !Modifier.isStatic(mods) ||
+               !Modifier.isPublic(mods)) {
+               throw new NoSuchMethodException("main");
+           }
+           try {
+               m.invoke(null, new Object[] { argsDump });
+         
+           } catch (IllegalAccessException e) {
+               // This should not happen, as we have disabled access checks
+           }
+           
+           // Now I need to add/change the prefix locale to the table names
+           // Renaming tables
+           wikiDB.addLocalePrefixToWikipediaTables();  // this change the name of already created and loaded tables
+           
+       } else {
+         wikiDB.closeDBConnection();
+         // problems creating the tables
+         System.exit(1);
        }
-       try {
-           m.invoke(null, new Object[] { argsDump });
-     
-       } catch (IllegalAccessException e) {
-           // This should not happen, as we have disabled access checks
-       }
-       
-       // Now I need to add/change the prefix locale to the table names
-       // Renaming tables
-       wikiDB.addLocalePrefixToWikipediaTables();  // this change the name of already created and loaded tables
-       wikiDB.closeDBConnection();
-       
+         
+  }
+ 
+
+/****************************************************************************************
+*  FUNCTIONS FOR CREATING TABLES   
+****************************************************************************************/  
+  /***
+   * Ask the user if the table should be deleted
+   * @return true if user answers false otherwise.
+   */
+  public boolean askIfDeletingTable(String table){
+      char c;
+      boolean result=false;
+      InputStreamReader isr = new InputStreamReader(System.in);
+      BufferedReader br = new BufferedReader(isr);
+      
+      System.out.print("  TABLE = \"" + table + "\" already exists deleting (y/n)?"); 
+      try{
+        String s = br.readLine();  
+        if( s.contentEquals("y")){
+            result = true; 
+        } else {
+            System.out.println("\n----To continue please check if the table \"" + table + "\" should be deleted.----\n");
+            result = false;
+        }
+      
+        
+      } catch(Exception e){
+          System.out.println(e); 
+      }
+     return result;  
   }
   
-  
-  
-  
+ 
+  /***
+   * Creates dbselectionTable
+   */
   public void createDataBaseSelectionTable() {
       String dbselection = "CREATE TABLE " + dbselectionTableName + " ( id INT NOT NULL AUTO_INCREMENT, " +                                                       
                                                        "sentence MEDIUMBLOB NOT NULL, " +
@@ -219,7 +261,7 @@ public class DBHandler {
                                                        "primary key(id)) CHARACTER SET utf8;";
       String str;
       boolean dbExist = false;
-      // if database does not exist create it    
+      // if database does not exist create it, if it exist it will ask if it should be deleted  
       System.out.println("Checking if " + dbselectionTableName + " already exist.");
       try {
           rs = st.executeQuery("SHOW TABLES;");
@@ -244,7 +286,10 @@ public class DBHandler {
       } 
   }
   
-  
+  /***
+   * Creates a selectedSentencesTable.
+   *
+   */
   public void createSelectedSentencesTable() {
       String selected = "CREATE TABLE " + selectedSentencesTableName + " ( id INT NOT NULL AUTO_INCREMENT, " +                                                       
                                                        "sentence MEDIUMBLOB NOT NULL, " +
@@ -400,17 +445,20 @@ public class DBHandler {
   
   
   /***
-   * This function creates text, page and revision tables (without locale prefix).
+   * This function creates empty text, page and revision tables (without locale prefix).
    * If the tables already exist it will delete them.
+   * @return true if the tables were created succesfully, false otherwise.
    */
-  public void createEmptyWikipediaTables() {
-      System.out.println("Creating empty wikipedia tables");
+  public boolean createEmptyWikipediaTables() {
+      
+      boolean result = true;
+      System.out.println("Creating empty wikipedia tables: checking if tables text, page and revision already exist.");
       String createTextTable = "CREATE TABLE text (" +
               " old_id int UNSIGNED NOT NULL AUTO_INCREMENT," +
               " old_text mediumblob NOT NULL," +
               " old_flags tinyblob NOT NULL," +
               " PRIMARY KEY old_id (old_id)" +
-              " ) MAX_ROWS=250000 AVG_ROW_LENGTH=10240 CHARACTER SET utf8;;";
+              " ) MAX_ROWS=250000 AVG_ROW_LENGTH=10240 CHARACTER SET utf8;";
       
       String createPageTable = "CREATE TABLE page (" +
             "page_id int UNSIGNED NOT NULL AUTO_INCREMENT," +
@@ -427,7 +475,7 @@ public class DBHandler {
             "PRIMARY KEY page_id (page_id)," +
             "KEY page_namespace (page_namespace)," +
             "KEY page_random (page_random)," +
-            "KEY page_len (page_len) ) MAX_ROWS=250000 AVG_ROW_LENGTH=10240 CHARACTER SET utf8;; ";
+            "KEY page_len (page_len) ) MAX_ROWS=250000 AVG_ROW_LENGTH=10240 CHARACTER SET utf8;";
       
       String createRevisionTable = "CREATE TABLE revision (" +
             "rev_id int UNSIGNED NOT NULL AUTO_INCREMENT," +
@@ -443,7 +491,7 @@ public class DBHandler {
             "rev_parent_id int(10) unsigned NULL," +
             "KEY rev_user (rev_user),KEY rev_user_text (rev_user_text)," +
             "KEY rev_timestamp (rev_timestamp)," +
-            "PRIMARY KEY rev_id (rev_id)) MAX_ROWS=250000 AVG_ROW_LENGTH=10240 CHARACTER SET utf8;;";
+            "PRIMARY KEY rev_id (rev_id)) MAX_ROWS=250000 AVG_ROW_LENGTH=10240 CHARACTER SET utf8;";
       
       // If database does not exist create it, if it exists delete it and create an empty one.      
       //System.out.println("Checking if the TABLE=text already exist.");
@@ -465,33 +513,31 @@ public class DBHandler {
                resRevision=true;
             
           } 
-          boolean res0;
-          if(resText==true){
-            System.out.println("  TABLE = text already exist deleting.");  
-            res0 = st.execute( "DROP TABLE text;" );  
-          }
-          if(resPage==true){
-              System.out.println("  TABLE = page already exist deleting.");  
-              res0 = st.execute( "DROP TABLE page;" );  
-          }
-          if(resRevision==true){
-              System.out.println("  TABLE = revision already exist deleting.");  
-              res0 = st.execute( "DROP TABLE revision;" );  
-          }
+          boolean res0, res1;
+          if(resText && !askIfDeletingTable("text") )
+              result = false;
+          else if(resPage && !askIfDeletingTable("page") )
+              result = false;
+          else if(resRevision && !askIfDeletingTable("revision") )
+              result = false;
           
-          boolean res1;
-          int res2;
-          // creating TABLE=text,page and revision
-          System.out.println("  Creating table: text");
-          res1 = st.execute( createTextTable );  
-          System.out.println("  Creating table: page");
-          res1 = st.execute( createPageTable );
-          System.out.println("  Creating table: revision");
-          res1 = st.execute( createRevisionTable );           
+          if(result) {
+              res0 = st.execute( "DROP TABLE IF EXISTS text;" ); 
+              System.out.println("  Creating table: text");
+              res1 = st.execute( createTextTable );  
+              res0 = st.execute( "DROP TABLE IF EXISTS page;" );
+              System.out.println("  Creating table: page");
+              res1 = st.execute( createPageTable );
+              res0 = st.execute( "DROP TABLE IF EXISTS revision;" );
+              System.out.println("  Creating table: revision");
+              res1 = st.execute( createRevisionTable );
+          } 
           
       } catch (SQLException e) {
           e.printStackTrace();
       } 
+      
+      return result;
   }
  
   /****
@@ -503,7 +549,8 @@ public class DBHandler {
    */
   public void addLocalePrefixToWikipediaTables() {
         
-     System.out.println("Deleting already used wikipedia tables and adding local prefix to new ones.");
+     System.out.println("Adding local prefix " + locale + " to tables text, page and revision, checking if " +
+            "already exist tables with that prefix.");
      try {
          rs = st.executeQuery("SHOW TABLES;");
      } catch (Exception e) {
@@ -561,7 +608,7 @@ public class DBHandler {
   
   
    /****
-    * Delete the Wikipedia tables: text, page and revision tables.
+    * Delete the Wikipedia tables: locale_text, locale_page and locale_revision tables.
     *
     */
    public void deleteWikipediaTables() {
@@ -724,8 +771,8 @@ public class DBHandler {
 
  
   /***
-   * 
-   * @param field
+   * Get a list of ids from field in table.
+   * @param fiel 
    * @param table
    * @return
    */
@@ -1018,8 +1065,7 @@ public class DBHandler {
   }
   
   /****
-   * 
-   * @return the word list in a HashMap
+   * Get the most frequent words and its frequency in a HashMap.
    * @param numWords max number of words to retrieve, if numWords=0 then it will retrieve
    *                 all the words in the list in descending order of frequency.
    * @param maxFreq max frequency of a word to be considered in the list, if maxFrequency=0
@@ -1064,6 +1110,50 @@ public class DBHandler {
       return wordList;
   }
   
+ 
+  /****
+   * Get the most frequent words sorted by frequency (descendent) in an ArrayList.
+   * @param numWords max number of words to retrieve, if numWords=0 then it will retrieve
+   *                 all the words in the list in descending order of frequency.
+   * @param maxFreq max frequency of a word to be considered in the list, if maxFrequency=0
+   *                 it will retrieve all the words with frequency>=1.
+   */
+  public ArrayList<String> getMostFrequentWordsArray(int numWords, int maxFrequency) {
+
+      ArrayList<String> words = new ArrayList<String>();;
+      String dbQuery, where="", word;
+      int initialCapacity = 200000;  
+      byte wordBytes[];
+      
+      if(maxFrequency>0)
+        where = "where frequency > " + maxFrequency;
+      
+      if(numWords>0)
+        dbQuery = "SELECT word,frequency FROM " + wordListTableName + " " + where + " order by frequency desc limit " + numWords +";";
+      else 
+        dbQuery = "SELECT word,frequency FROM " + wordListTableName + " " + where + " order by frequency desc";
+        
+      try {
+          rs = st.executeQuery(dbQuery); 
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+      try { 
+          while( rs.next() ) {
+            wordBytes=rs.getBytes(1);
+            word = new String(wordBytes, "UTF8");  
+            words.add(word);
+          }
+      } catch (SQLException e) {
+          e.printStackTrace();
+      } catch (Exception e){   // catch unsupported encoding exception
+          e.printStackTrace();
+      } 
+      
+      return words;
+  }
+  
+
   /****
    * 
    * @param fileName file to write the list
@@ -1334,7 +1424,7 @@ public class DBHandler {
     return str;  
   }
 
-  public static void main(String[] args) throws Exception{
+  public static void main1(String[] args) throws Exception{
       
       //Put sentences and features in the database.
       DBHandler wikiToDB = new DBHandler("en_US");
@@ -1387,5 +1477,38 @@ public class DBHandler {
   } // end of main()
 
 
+  public static void main(String[] args) throws Exception{
+     
+      DBHandler wikiDB = new DBHandler("es");
+
+      wikiDB.createDBConnection("localhost","wiki","marcela","wiki123");
+      
+      int numWords = wikiDB.getNumberOfWords(0);
+      System.out.println("numWords=" + numWords);
+      
+      //wikiDB.printWordList("./tmp.txt", "frequency", 0, 0);
+      /*
+      ArrayList<String> w = new ArrayList<String>();
+      HashMap<String, Integer> wordList = wikiDB.getMostFrequentWords(0, 0, w);
+  
+      for(int i=0; i<w.size(); i++){
+        System.out.println(w.get(i) + "  :  "  + wordList.get(w.get(i)));  
+      }*/
+      
+      ArrayList<String> w = wikiDB.getMostFrequentWordsArray(0, 0);
+      for(int i=0; i<w.size(); i++)
+        System.out.println(w.get(i));  
+      
+      wikiDB.closeDBConnection(); 
+           
+  }
+    
 
 }
+
+
+
+
+
+
+

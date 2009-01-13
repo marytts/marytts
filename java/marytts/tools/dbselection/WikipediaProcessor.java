@@ -300,8 +300,6 @@ public class WikipediaProcessor {
     
     public static void main(String[] args) throws Exception{
         String wFile;                    // xml wiki file
-        String sqlDump;                  // sql source file after converting xml --> sql
-        String sqlLocaleDump;            // sql source file after adding locale prefix to tables names
         String doneFile = "./done.txt";  // file that contains the xml files already processed
         Vector<String> filesToProcess;
         Vector<String> filesDone;
@@ -313,7 +311,6 @@ public class WikipediaProcessor {
         wiki.printParameters();
         
         DBHandler wikiToDB = new DBHandler(wiki.getLocale());
-       
        
         filesToProcess = wiki.getWikipediaFiles(wiki.getListFile());
         filesDone = wiki.getWikipediaFiles(doneFile);
@@ -327,8 +324,7 @@ public class WikipediaProcessor {
                System.out.println("\n_______________________________________________________________________________"); 
                
                System.out.println("\nProcessing xml file:" + wFile);
-               System.out.println("Converting xml file into sql source file and loading text, page and revision tables into the DB.");
-               
+              
                WikipediaMarkupCleaner wikiCleaner = new WikipediaMarkupCleaner();
                
                // Set parameters in the WikipediaMarkupCleaner
@@ -344,96 +340,21 @@ public class WikipediaProcessor {
                wikiCleaner.setMysqlHost(wiki.getMysqlHost());
                wikiCleaner.setMysqlPasswd(wiki.getMysqlPasswd());
                wikiCleaner.setMysqlUser(wiki.getMysqlUser());
-           /*    
-              System.out.println("Creating connection to DB server...");
-              wikiToDB.createDBConnection(wiki.getMysqlHost(),wiki.getMysqlDB(),wiki.getMysqlUser(),wiki.getMysqlPasswd());
-               
-               // Before runing the mwdumper the tables text, page and revision should be deleted and created empty.
-               wikiToDB.createEmptyWikipediaTables();
-               
-               // Run the mwdumper jar file xml -> sql
-               /*
-               sqlDump = wFile + ".sql";
-               String[] argsDump = new String[3];
-               argsDump[0] = "--output=file:"+sqlDump;
-               argsDump[1] = "--format=sql:1.5";
-               argsDump[2] = wFile;
-               */
-               
-            /*   
-               sqlDump = wFile + ".sql";
-               String[] argsDump = new String[3];
-               argsDump[0] = "--output=mysql://" + wiki.getMysqlHost() + "/" + wiki.getMysqlDB() 
-                             + "?user=" + wiki.getMysqlUser() + "&password=" + wiki.getMysqlPasswd() 
-                             + "&useUnicode=true&characterEncoding=utf8";
-               argsDump[1] = "--format=sql:1.5";
-               argsDump[2] = wFile;
-               
-               //--- The following ClassLoader code from:
-               //   http://java.sun.com/docs/books/tutorial/deployment/jar/examples/JarClassLoader.java
-               // Class c = loadClass(name);                                    // this does not work (example from sun)
-               // Class c = Class.forName("org.mediawiki.dumper.Dumper");                              // this works
-               Class c = ClassLoader.getSystemClassLoader().loadClass("org.mediawiki.dumper.Dumper");  // this also works
-               Method m = c.getMethod("main", new Class[] { argsDump.getClass() });
-               m.setAccessible(true);
-               int mods = m.getModifiers();
-               if (m.getReturnType() != void.class || !Modifier.isStatic(mods) ||
-                   !Modifier.isPublic(mods)) {
-                   throw new NoSuchMethodException("main");
-               }
-               try {
-                   m.invoke(null, new Object[] { argsDump });
-             
-               } catch (IllegalAccessException e) {
-                   // This should not happen, as we have disabled access checks
-               } 
-               
-               // System.out.println("Created sql source file:" + sqlDump);
-               // Now I need to add/change the prefix locale to the table names
-               wikiToDB.addLocalePrefixToWikipediaTables();  // this change the name of already created and loaded tables
-               
-               
-               sqlLocaleDump = sqlDump + "." + wiki.getLocale() + ".sql";
-               //++wiki.addLocalePrefixToTables(sqlDump, sqlLocaleDump);
-               // delete generated files
-            //   System.out.println("Deleting file:" + sqlDump);    
-            //   File dump = new File(sqlDump);
-            //   if(dump.exists())
-            //     dump.delete();
-              
-              wikiToDB.closeDBConnection(); 
-              */ 
-               // now call the wikipediaMarkupCleaner
-              //++ wikiCleaner.setSqlSourceFile(sqlLocaleDump);
-               
-               
-               
+           
+               // process xml file
                wikiCleaner.setXmlWikiFile(wFile);
-               wikiCleaner.processWikipediaSQLSourceFile();              
+               wikiCleaner.processWikipediaPages();              
                wikiCleaner = null;
-               
                
                // when finished
                wiki.setWikipediaFileDone("./done.txt", wFile);
-               
-               // delete generated files
-           //    System.out.println("Deleting file:" + sqlLocaleDump);              
-           //    File localDump = new File(sqlLocaleDump);
-           //    if(localDump.exists())
-           //      localDump.delete();
-              
+      
             } else
-              System.out.println("File already procesed: " + wFile);
-              
+              System.out.println("File already procesed: " + wFile);           
           }
-            
-            
         } else
           System.out.println("No files to process..");
-             
-       
-        
-        
+            
     }
     
     
