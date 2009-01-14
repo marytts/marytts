@@ -187,7 +187,7 @@ public class SelectionFunction{
                 
         // create the selectedSentences table 
         // CHECK if there is an old table it should be deleted? 
-        wikiToDB.createSelectedSentencesTable();
+        if ( wikiToDB.createSelectedSentencesTable() ) {
         
         // while the stop criterion is not reached      
         while(!stopCriterionIsReached(selectedFilenames, coverageDefinition)){ 
@@ -233,6 +233,12 @@ public class SelectionFunction{
         }
         selectedLog.close();
         logFile.println("Total number of sentences : "+sentIndex);
+        
+        }  else {   // problems creating SelectedSentencesTable
+            wikiToDB.closeDBConnection();
+            System.exit(1);  
+         }
+        
     }
 
 
