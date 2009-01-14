@@ -226,19 +226,30 @@ public class DBHandler {
       boolean result=false;
       InputStreamReader isr = new InputStreamReader(System.in);
       BufferedReader br = new BufferedReader(isr);
+      boolean wikipediaTables = false;
       
-      System.out.println("\n ***To continue please check if the table \"" + table + "\" is used by another user/process.*** \n" +
-              "    Tables \"text\", \"page\" and \"revision\" are temporary tables used by mwdumper to extract wikipedia pages. \n" +
-              "    Just one user/process can use these tables at the same time in the same DataBase, please use other DataBase if possible.\n" +
-              "    If the tables are not in use by any other user/process please use the option for deleting.\n");
+      String helpToContinue = "\n ***To continue please check if the table \"" + table + "\" is used by another user/process.*** \n" +
+      "    Tables \"text\", \"page\" and \"revision\" are temporary tables used by mwdumper to extract wikipedia pages. \n" +
+      "    Just one user/process can use these tables at the same time in the same DataBase, please use other DataBase if possible.\n" +
+      "    If the tables are not in use by any other user/process please use the option for deleting.\n";
+      
+      if(table.contentEquals("text") || table.contentEquals("page") || table.contentEquals("revision")){
+        System.out.println(helpToContinue);
+        wikipediaTables = true;
+      }
+      
       System.out.print("    TABLE = \"" + table + "\" already exists deleting (y/n)?"); 
       try{
         String s = br.readLine();  
         if( s.contentEquals("y")){
             result = true; 
         } else {
-            System.out.println("\nTo continue please check if the table \"" + table + "\" can be deleted " +
+            if(wikipediaTables)
+              System.out.println("\nTo continue please check if the table \"" + table + "\" can be deleted " +
                     "or is used by another user/process.\n");
+            else
+              System.out.println("\nTo continue please check if the table \"" + table + "\" should be deleted " +
+                "or data can be added to this table.\n");   
             result = false;
         }
       
@@ -252,8 +263,10 @@ public class DBHandler {
  
   /***
    * Creates dbselectionTable
+   * @return true if the table was created succesfully or it exists already,
+   *         false if the table exist and it can not be deleted.
    */
-  public void createDataBaseSelectionTable() {
+  public boolean createDataBaseSelectionTable() {
       String dbselection = "CREATE TABLE " + dbselectionTableName + " ( id INT NOT NULL AUTO_INCREMENT, " +                                                       
                                                        "sentence MEDIUMBLOB NOT NULL, " +
                                                        "features BLOB, " +
@@ -266,7 +279,8 @@ public class DBHandler {
                                                        "primary key(id)) CHARACTER SET utf8;";
       String str;
       boolean dbExist = false;
-      // if database does not exist create it, if it exist it will ask if it should be deleted  
+      boolean result = true;
+      // if database does not exist create it, if it exists it will ask if it should be deleted  
       System.out.println("Checking if " + dbselectionTableName + " already exist.");
       try {
           rs = st.executeQuery("SHOW TABLES;");
@@ -282,20 +296,29 @@ public class DBHandler {
                dbExist = true;
             }
           }
-          if( !dbExist ) {
-              boolean res = st.execute( dbselection );
-              System.out.println("TABLE = " + dbselectionTableName + " succesfully created.");   
+          boolean res;
+          if(dbExist && !askIfDeletingTable(dbselectionTableName) )
+              result = false;
+          
+          // if DB exists and it should be deleted
+          if( result ){
+              res = st.execute( "DROP TABLE IF EXISTS " + dbselectionTableName); 
+              res = st.execute( dbselection );
+              System.out.println("TABLE = " + dbselectionTableName + " succesfully created."); 
           }
+         
       } catch (SQLException e) {
           e.printStackTrace();
       } 
+      
+      return result;
   }
   
   /***
    * Creates a selectedSentencesTable.
    *
    */
-  public void createSelectedSentencesTable() {
+  public boolean createSelectedSentencesTable() {
       String selected = "CREATE TABLE " + selectedSentencesTableName + " ( id INT NOT NULL AUTO_INCREMENT, " +                                                       
                                                        "sentence MEDIUMBLOB NOT NULL, " +
                                                        "unwanted BOOLEAN, " +
@@ -303,6 +326,7 @@ public class DBHandler {
                                                        "primary key(id)) CHARACTER SET utf8;";
       String str;
       boolean dbExist = false;
+      boolean result = true;
       // if database does not exist create it    
       System.out.println("Checking if " + selectedSentencesTableName + " already exist.");
       try {
@@ -315,20 +339,26 @@ public class DBHandler {
           while( rs.next() ) {
             str = rs.getString(1);
             if( str.contentEquals(selectedSentencesTableName) ){
+               System.out.println("TABLE = " + str + " already exist.");  
                dbExist = true;
             }
           }
-          if(dbExist==true){
-              System.out.println("TABLE = " + selectedSentencesTableName + " already exist deleting.");  
-              boolean res0 = st.execute( "DROP TABLE " + selectedSentencesTableName + ";" );  
+          
+          if(dbExist && !askIfDeletingTable(selectedSentencesTableName) )
+              result = false;
+          
+          if(result){
+            boolean res0 = st.execute( "DROP TABLE IF EXISTS " + selectedSentencesTableName + ";" ); 
+            boolean res = st.execute( selected );
+            System.out.println("TABLE = " + selectedSentencesTableName + " succesfully created.");               
           }
           
-          boolean res = st.execute( selected );
-          System.out.println("TABLE = " + selectedSentencesTableName + " succesfully created.");   
           
       } catch (SQLException e) {
           e.printStackTrace();
       } 
+      
+      return result;
   }
   
   

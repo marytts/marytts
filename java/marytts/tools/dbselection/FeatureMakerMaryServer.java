@@ -144,75 +144,75 @@ public class FeatureMakerMaryServer{
          wikiToDB = new DBHandler(locale);
          wikiToDB.createDBConnection(mysqlHost,mysqlDB,mysqlUser,mysqlPasswd);
         
-         // check if tables exist
-         wikiToDB.createDataBaseSelectionTable();
-         
-         // Get the set of id for unprocessed records in clean_text
-         // this will be useful when the process is stoped and then resumed
-         System.out.println("\nGetting list of unprocessed clean_text records from wikipedia...");
-         String textId[];
-         textId = wikiToDB.getUnprocessedTextIds();
-         System.out.println("Number of clean_text records to process: " + textId.length);
-         String text;
-         
-		
-		/* loop over the text records in clean_text table of wiki */
-        // once procesed the clean_text records are marked as processed=true, so here retrieve
-        // the next clean_text record untill all are processed.
-		System.out.println("Looping over clean_text records from wikipedia...\n");       
-        PrintWriter pw = new PrintWriter(new FileWriter(new File(logFileName)));
-        
-        Vector<String> sentenceList;  // this will be the list of sentences in each clean_text
-        int i, j;
-        for(i=0; i<textId.length; i++){
-          // get next unprocessed text  
-          text = wikiToDB.getCleanText(textId[i]);
-          System.out.println("Processing text id=" + textId[i] + " text length=" + text.length());
-          sentenceList = splitIntoSentences(text, textId[i], pw);
-        
-          if( sentenceList != null ) {
-              
-		  int index=0;			
-          // loop over the sentences
-          int numSentencesInText=0;
-          String newSentence;
-          byte feas[];  // for directly saving a vector of bytes as BLOB in mysql DB
-          for(j=0; j<sentenceList.size(); j++) {
-			newSentence = sentenceList.elementAt(j);
-            MaryData d = processSentence(newSentence,textId[i]);
-		    if (d!=null){
-			  // get the features of the sentence  
-			  feas = getFeatures(d);     
-              // Insert in the database the new sentence and its features.
-              numSentencesInText++;
-              wikiToDB.insertSentence(newSentence,feas, true, false, false, Integer.parseInt(textId[i]));
-              feas = null;
-            }        		
-	      }//end of loop over list of sentences
-          sentenceList.clear();
-          sentenceList=null;
-
-          numSentences += numSentencesInText;
-          pw.println("Inserted " + numSentencesInText + " sentences from text id=" + textId[i] 
-                                 + " (Total reliable = "+ numSentences+")\n");
-          System.out.println("Inserted " + numSentencesInText + " sentences from text id=" 
-                             + textId[i] + " (Total reliable = "+ numSentences+") \n");
-          
-          }
-                         
-		} //end of loop over articles  
-        
-        
-        wikiToDB.closeDBConnection();
-        
-        Date dateEnd = new Date();
-        dateStringEnd = fullDate.format(dateEnd);
-        pw.println("numSentencesInText;=" + numSentences);
-        pw.println("Start time:" + dateStringIni + "  End time:" + dateStringEnd);
-        
-        pw.close(); 
-        
-		System.out.println("Done");
+         // check if table exists, if exists already ask user if delete or re-use
+         if( wikiToDB.createDataBaseSelectionTable() ) {
+             
+             // Get the set of id for unprocessed records in clean_text
+             // this will be useful when the process is stoped and then resumed
+             System.out.println("\nGetting list of unprocessed clean_text records from wikipedia...");
+             String textId[];
+             textId = wikiToDB.getUnprocessedTextIds();
+             System.out.println("Number of clean_text records to process: " + textId.length);
+             String text;
+             
+    		
+    		/* loop over the text records in clean_text table of wiki */
+            // once procesed the clean_text records are marked as processed=true, so here retrieve
+            // the next clean_text record untill all are processed.
+    		System.out.println("Looping over clean_text records from wikipedia...\n");       
+            PrintWriter pw = new PrintWriter(new FileWriter(new File(logFileName)));
+            
+            Vector<String> sentenceList;  // this will be the list of sentences in each clean_text
+            int i, j;
+            for(i=0; i<textId.length; i++){
+              // get next unprocessed text  
+              text = wikiToDB.getCleanText(textId[i]);
+              System.out.println("Processing text id=" + textId[i] + " text length=" + text.length());
+              sentenceList = splitIntoSentences(text, textId[i], pw);
+            
+              if( sentenceList != null ) {
+                int index=0;			
+                // loop over the sentences
+                int numSentencesInText=0;
+                String newSentence;
+                byte feas[];  // for directly saving a vector of bytes as BLOB in mysql DB
+                for(j=0; j<sentenceList.size(); j++) {
+    			  newSentence = sentenceList.elementAt(j);
+                  MaryData d = processSentence(newSentence,textId[i]);
+    		      if (d!=null){
+    			    // get the features of the sentence  
+    			    feas = getFeatures(d);     
+                    // Insert in the database the new sentence and its features.
+                    numSentencesInText++;
+                    wikiToDB.insertSentence(newSentence,feas, true, false, false, Integer.parseInt(textId[i]));
+                    feas = null;
+                  }        		
+    	        }//end of loop over list of sentences
+                sentenceList.clear();
+                sentenceList=null;
+    
+                numSentences += numSentencesInText;
+                pw.println("Inserted " + numSentencesInText + " sentences from text id=" + textId[i] 
+                                     + " (Total reliable = "+ numSentences+")\n");
+                System.out.println("Inserted " + numSentencesInText + " sentences from text id=" 
+                                 + textId[i] + " (Total reliable = "+ numSentences+") \n"); 
+              }  // if sentenceList is not null
+    		} //end of loop over articles  
+            wikiToDB.closeDBConnection();
+            
+            Date dateEnd = new Date();
+            dateStringEnd = fullDate.format(dateEnd);
+            pw.println("numSentencesInText;=" + numSentences);
+            pw.println("Start time:" + dateStringIni + "  End time:" + dateStringEnd);
+            
+            pw.close(); 
+            
+    		System.out.println("Done");
+            
+        } else {   // problems creating DataBaseSelectionTable
+           wikiToDB.closeDBConnection();
+           System.exit(1);  
+        }
 	}//end of main method
 	
 	/**
