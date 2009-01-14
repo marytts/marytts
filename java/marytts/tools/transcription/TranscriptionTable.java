@@ -43,6 +43,8 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.text.Element;
 import javax.swing.text.TableView.TableRow;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -68,6 +70,7 @@ import java.awt.Dimension;
 public class TranscriptionTable extends JPanel implements ActionListener { 
     private JTable table;
     int itsRow =0;
+    int rowEnterPressed = -1;
     TranscriptionTableModel transcriptionModel;
     private AllophoneSet phoneSet;
     private int editableColumns = 2;
@@ -75,6 +78,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
     boolean trainPredict = false;
     JScrollPane scrollpane;
     String locale;
+    CellEditorListener editorListener = null;
     
     public TranscriptionTable() throws Exception{
         super();
@@ -95,6 +99,10 @@ public class TranscriptionTable extends JPanel implements ActionListener {
         int columnSize = column.getPreferredWidth();
         column.setPreferredWidth(2*columnSize);
         table.getColumnModel().getColumn(2).setPreferredWidth(2*columnSize);
+
+        table.setSurrendersFocusOnKeystroke(true);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
     }
 
     
@@ -332,6 +340,34 @@ public class TranscriptionTable extends JPanel implements ActionListener {
     private class KeyEventListener implements KeyListener {
         
         public void keyPressed(KeyEvent arg0) {
+            if (arg0.getKeyCode() == 10) { // enter key
+                rowEnterPressed = itsRow;
+            }
+        }
+
+        public void keyReleased(KeyEvent arg0) {
+            System.out.println("Received key release event, key nr. "+arg0.getKeyCode());
+            System.out.println("Key released in row "+itsRow);
+            if(arg0.getKeyCode() == 10) { // enter key
+                if (rowEnterPressed != -1) { 
+                    // enter was pressed in a row in non-editing mode; edit this row
+                    System.out.println("RowEnterPressed = "+rowEnterPressed);
+                    table.editCellAt(rowEnterPressed, 2);
+                    table.getSelectionModel().setLeadSelectionIndex(rowEnterPressed);
+                } else {
+                    // coming out of edit, start editing next line
+                    System.out.println("row nr. "+itsRow);
+                    //table.changeSelection(itsRow, 2, false, false);
+                    int nextRow = itsRow+1;
+                    table.getSelectionModel().setLeadSelectionIndex(nextRow);
+                    table.editCellAt(nextRow, 2);
+                }
+                if (editorListener == null) {
+                    CellEditor editor = table.getCellEditor();
+                    editorListener = new CellEditListener();
+                    editor.addCellEditorListener(editorListener);
+                }
+            }
             int[] selectedRows = table.getSelectedRows();
             if(arg0.getKeyCode() == 32){
                 for(int i=0 ; i<selectedRows.length; i++){
@@ -345,14 +381,19 @@ public class TranscriptionTable extends JPanel implements ActionListener {
             }
         }
 
-        public void keyReleased(KeyEvent arg0) {
-            if(arg0.getKeyCode() == 10){
-                table.editCellAt(itsRow, 2);
-            }
-        }
-
         public void keyTyped(KeyEvent arg0) {
-            // TODO Auto-generated method stub
+        }
+    }
+    
+    private class CellEditListener implements CellEditorListener
+    {
+        public void editingCanceled(ChangeEvent e) {
+            System.out.println("cancelled");
+            rowEnterPressed = -1;
+        }
+        public void editingStopped(ChangeEvent e) {
+            System.out.println("stopped");
+            rowEnterPressed = -1;
         }
     }
     
