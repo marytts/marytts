@@ -142,7 +142,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
                 data[i][3] = new Boolean(false);
                 continue; 
             }
-            String[]  words = lines[i].split("\\s+");
+            String[]  words = lines[i].trim().split("\\s+");
             data[i][0] = (new Integer(i)).toString();
             data[i][1] = words[0];
             if(lines[i].trim().endsWith("functional")){
@@ -157,7 +157,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
             }
             else{
                 data[i][3] = new Boolean(false);
-                if(words.length == 2){
+                if(words.length >= 2){
                     data[i][2] = words[1];
                     setAsManualVerify(i, true);
                 }

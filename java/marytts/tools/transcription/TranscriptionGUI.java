@@ -8,6 +8,7 @@ package marytts.tools.transcription;
 
 import java.awt.Dimension;
 import java.awt.MenuShortcut;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -23,6 +24,8 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 import marytts.tools.dbselection.DBHandler;
 
@@ -46,9 +49,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
     /** Creates new form TranscriptionGUI */
     public TranscriptionGUI() {
         initComponents();
-        //saveToFile.setMnemonic(KeyEvent.VK_A);
-        //saveToFile.fireM
-        //new MenuShortcut();
+        setupMenuAccelerators();
         try {
             simplePanel = new TranscriptionTable();
             simplePanel.resize(tablePanel.size());
@@ -68,6 +69,12 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         trainPredictButton.setEnabled(false);
         this.setVisible(true);
         //tablePanel.setVisible(false);
+        helpMenuItemActionPerformed(null);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                startUpHelpDialog.toFront();
+            }
+        });
         
     }
     
@@ -485,8 +492,25 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         
     }//GEN-LAST:event_saveToFileActionPerformed
 
+    
+    private void setupMenuAccelerators()
+    {
+        int controlKey = ActionEvent.CTRL_MASK;
+        if (System.getProperty("os.name").contains("Mac"))
+            controlKey = ActionEvent.META_MASK; // Apple key
+        saveToFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, controlKey));
+        loadFromFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, controlKey));
+        //saveToFile.setMnemonic(KeyEvent.VK_A);
+        //saveToFile.fireM
+        //new MenuShortcut();
+
+    }
+    
     private void closeHelpDialog(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeHelpDialog
         startUpHelpDialog.show(false);
+        if (phoneSetFile == null) {
+            loadPhoneSetActionPerformed(null);
+        }
     }//GEN-LAST:event_closeHelpDialog
 
     private void cancelMySqlDetails(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelMySqlDetails
@@ -559,6 +583,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
     private void loadPhoneSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadPhoneSetActionPerformed
         if(!checkNecessaryEvents("phoneset")) return;
         JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle("Load phoneset file");
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int returnVal = fc.showOpenDialog(TranscriptionGUI.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -599,6 +624,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
     private void loadFromFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromFileActionPerformed
         if(!checkNecessaryEvents("load")) return;
         JFileChooser fc = new JFileChooser();
+        fc.setDialogTitle("Open transcription file");
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int returnVal = fc.showOpenDialog(TranscriptionGUI.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
