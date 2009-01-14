@@ -77,9 +77,7 @@ public class DBHandler {
   private String wordListTableName = "_wordList";
   private String dbselectionTableName = "_dbselection";
   private String selectedSentencesTableName = "_selectedSentences";
-  //public void setLocale(String str){ locale = str; }
-  //public String getLocale(){ return locale; }
-  
+ 
   /**
    * The constructor loads the database driver.
    * @param localVal database language. 
@@ -161,7 +159,9 @@ public class DBHandler {
        System.out.println("Creating connection to DB server...");
        wikiDB.createDBConnection(host,db,user,passwd);
        
-       // Before runing the mwdumper the tables text, page and revision should be deleted and created empty.
+       // Before runing the mwdumper the tables text, page and revision should be created empty.
+       // If the tables exist, it could be that other user/process is using these tables so in that case
+       // the program will stop. If no other user/program is using these tables the user has the option of deleting them.
        if( wikiDB.createEmptyWikipediaTables()) {
            
            // Run the mwdumper jar file xml -> sql
@@ -227,13 +227,18 @@ public class DBHandler {
       InputStreamReader isr = new InputStreamReader(System.in);
       BufferedReader br = new BufferedReader(isr);
       
-      System.out.print("  TABLE = \"" + table + "\" already exists deleting (y/n)?"); 
+      System.out.println("\n ***To continue please check if the table \"" + table + "\" is used by another user/process.*** \n" +
+              "    Tables \"text\", \"page\" and \"revision\" are temporary tables used by mwdumper to extract wikipedia pages. \n" +
+              "    Just one user/process can use these tables at the same time in the same DataBase, please use other DataBase if possible.\n" +
+              "    If the tables are not in use by any other user/process please use the option for deleting.\n");
+      System.out.print("    TABLE = \"" + table + "\" already exists deleting (y/n)?"); 
       try{
         String s = br.readLine();  
         if( s.contentEquals("y")){
             result = true; 
         } else {
-            System.out.println("\n----To continue please check if the table \"" + table + "\" should be deleted.----\n");
+            System.out.println("\nTo continue please check if the table \"" + table + "\" can be deleted " +
+                    "or is used by another user/process.\n");
             result = false;
         }
       
@@ -968,7 +973,6 @@ public class DBHandler {
         } else
           res = st.execute( wordListTable );   
         
-        //psWord = cn.prepareStatement("INSERT INTO wordList VALUES (null, ?, ?)");   
         try {
           Iterator iteratorSorted = wordList.keySet().iterator();
           while (iteratorSorted.hasNext()) {

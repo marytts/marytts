@@ -73,7 +73,7 @@ public class WikipediaMarkupCleaner {
     // Use this variable to save time not loading Wiki tables, if they already exist in the DB
     private boolean loadWikiTables = true;
    
-    // Use this variable to do not create a new cleanText table, but adding to an already existing cleanText table.
+    // Use this variable to do NOT create a new cleanText table, but adding to an already existing cleanText table.
     private boolean deleteCleanTextTable = true;
     
     public void setLocale(String str){ locale = str; }
@@ -1021,7 +1021,7 @@ public class WikipediaMarkupCleaner {
     }
     
     /***
-     * Using mwdumper extract pages from a xmlWikiFile and load them in a mysql DB (it loads the
+     * Using mwdumper extracts pages from a xmlWikiFile and load them in a mysql DB (it loads the
      * tables "locale_text", "locale_page" and "locale_revision", where locale is the corresponding 
      * wikipedia language). Once the tables are loaded, extract/clean text from the pages and create
      * a cleanText table. It also creates a wordList table including frequencies.  
@@ -1070,7 +1070,7 @@ public class WikipediaMarkupCleaner {
           wikiToDB.createWikipediaCleanTextTable();
         } else {
           if( wikiToDB.tableExist(locale + "_cleanText") )  
-            System.out.println(locale + "_cleanText TABLE already exist (WARNING ADDING TO EXISTING cleanText TABLE)");
+            System.out.println(locale + "_cleanText TABLE already exist (ADDING TO EXISTING cleanText TABLE)");
           else {
             System.out.println("Creating " + locale + "_cleanText TABLE");
             wikiToDB.createWikipediaCleanTextTable();  
