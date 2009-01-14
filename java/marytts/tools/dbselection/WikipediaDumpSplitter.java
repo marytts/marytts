@@ -8,7 +8,7 @@ import java.util.Vector;
 
 public class WikipediaDumpSplitter {
     
-    private int maxPages = 0;
+    private int maxPages = 25000;
     private String xmlWikipediaDumpFile = null;
     private String dirOuputFiles = null;
     
@@ -57,7 +57,7 @@ public class WikipediaDumpSplitter {
                 siteInfo=false;
                 checkSiteInfo=false;
                 strInfo.append(nextLine + "\n");
-                System.out.println("Extracted <siteinfo> from header.");
+                System.out.println("Extracted <siteinfo> from header, it will be added to all the xml files.\n");
                 //System.out.println("siteInfo:" + strInfo);
               } else if( nextLine.startsWith("  </page") ){
                 // if a page appears before the siteInfo maybe there is no siteinfo in the header 
@@ -118,23 +118,46 @@ public class WikipediaDumpSplitter {
      */
     private boolean readArgs(String[] args){
         
-        String help = "\nUsage: java WikipediaDumpSplitter xmlDumpFile outputFilesDir maxNumberPages \n" +
-        "      xmlDumpFile: xml wikipedia file. \n" +
-        "      outputFilesDir: directory where the small xml chunks will be saved.\n" +
-        "      maxNumberPages: maximum number of pages of each small xml chunk. \n\n";
-              
-        if (args.length == 3){  // minimum 3 parameters
-          setXmlWikipediaDumpFile(args[0]);
-          setDirOuputFiles(args[1]);
-          setMaxPages(Integer.parseInt(args[2]));
-        }      
-        if(getXmlWikipediaDumpFile()==null || getDirOuputFiles()==null || getMaxPages()==0 ){
+        String help = "\nUsage: java WikipediaDumpSplitter -xmlDump xmlDumpFile -dirOut outputFilesDir -maxPages maxNumberPages \n" +
+        "      -xmlDump xml wikipedia dump file. \n" +
+        "      -outDir directory where the small xml chunks will be saved.\n" +
+        "      -maxPages maximum number of pages of each small xml chunk (if no specified default 25000). \n\n";             
+
+        if (args.length >= 4){  // minimum 2 parameters
+            for(int i=0; i<args.length; i++) { 
+              if(args[i].contentEquals("-xmlDump") && args.length >= (i+1) )
+                  setXmlWikipediaDumpFile(args[++i]);
+                
+              else if(args[i].contentEquals("-outDir") && args.length >= (i+1) )
+                  setDirOuputFiles(args[++i]);
+              // this argument is optional
+              else if(args[i].contentEquals("-maxPages") && args.length >= (i+1) )
+                  setMaxPages(Integer.parseInt(args[++i]));
+            }
+        } else {
+            System.out.println(help);
+            return false;
+        }
+   
+        if(getXmlWikipediaDumpFile()==null || getDirOuputFiles()==null){
+          System.out.println("\nMissing required parameter -xmlDump or -dirOut.");  
           System.out.println(help);
           return false; 
-        } else
+        } 
+        if (getMaxPages()==0 ){
+            System.out.println("Number of pages per xml file not specified. Using defaul value maxPages = 25000");
+            setMaxPages(25000);
+        }
           return true;
     }
     
+    private void printParameters(){
+        System.out.println("\nWikipediaDumpSplitter parameters:" +
+        "\n  -xmlDump  " + getXmlWikipediaDumpFile() +
+        "\n  -outDir   " + getDirOuputFiles() +
+        "\n  -maxPages " + getMaxPages() + "\n");
+        
+    }
     
     public static void main(String[] args) throws Exception{
         String wFile, cmdLine;
@@ -146,6 +169,7 @@ public class WikipediaDumpSplitter {
         /* check the arguments */
         if (!wiki.readArgs(args))
             return;
+        wiki.printParameters();
       
         wiki.splitWikipediaDump(wiki.getXmlWikipediaDumpFile(), wiki.getDirOuputFiles(), wiki.getMaxPages());
         

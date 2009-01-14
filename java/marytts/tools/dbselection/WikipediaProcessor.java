@@ -146,7 +146,7 @@ public class WikipediaProcessor {
      */
     private boolean readArgs(String[] args){
         
-        String help = "\nUsage: java WikipediaProcessor -locale en_US -mysqlHost host -mysqlUser user -mysqlPasswd passwd \n" +
+        String help = "\nUsage: java WikipediaProcessor -locale language -mysqlHost host -mysqlUser user -mysqlPasswd passwd \n" +
         "                                   -mysqlDB wikiDB -listFile wikiFileList.\n" +
         "                                   [-minPage 10000 -minText 1000 -maxText 15000] \n\n" +
         "      -listFile is a a text file that contains the xml wikipedia file names to be procesed. \n" +

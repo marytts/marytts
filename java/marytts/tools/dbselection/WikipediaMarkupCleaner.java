@@ -1190,7 +1190,7 @@ public class WikipediaMarkupCleaner {
      */
     private boolean readArgs(String[] args){
         
-        String help = "\nUsage: java WikipediaMarkupCleaner -locale en_US -mysqlHost host -mysqlUser user  \n" +
+        String help = "\nUsage: java WikipediaMarkupCleaner -locale language -mysqlHost host -mysqlUser user  \n" +
         "                       -mysqlPasswd passwd -mysqlDB wikiDB -xmlFile xmlWikiFile \n" +
         "      default/optional: [-minPage 10000 -minText 1000 -maxText 15000] \n" +
         "      optional: [-log wikiLogFile -id pageId -debug]\n\n" +
