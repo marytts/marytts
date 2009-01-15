@@ -39,7 +39,6 @@ public class HnmSpeechFrame extends BaseSinusoidalSpeechFrame
 {
     FrameHarmonicPart h; //Harmonics component (lower frequencies which are less than maximum frequency of voicing)
     FrameNoisePart n; //Noise component (upper frequencies)
-    double[] ceps; //Cepstral coefficients for amplitude envelope
     
     float maximumFrequencyOfVoicingInHz; //If 0.0, then the frame is unvoiced
     float tAnalysisInSeconds; //Middle of analysis frame in seconds

@@ -30,11 +30,36 @@
 package marytts.signalproc.sinusoidal.hnm;
 
 /**
- * Baseline class to represent noise part of a speech frame
+ * LPC based noise modeling for a given speech frame
+ * Full spectrum LP coefficients and LP gain are used
+ * Synthesis handles noise generation for upper frequencies(i.e. frequencies larger than maximum voicing freq.)
  * 
- * @author Oytun T&uumlrk
+ * @author oytun.turk
  *
  */
-public class FrameNoisePart {
+public class FrameNoisePartLpc extends FrameNoisePart {
+    
+    double[] lpCoeffs;
+    double lpGain; //Sqrt of prediction error
+    
+    public FrameNoisePartLpc()
+    {
+        super();
+    }
+    
+    public FrameNoisePartLpc(double[] lpCoeffsIn, double lpGainIn)
+    {
+        super();
+        
+        if (lpCoeffsIn!=null)
+        {
+            lpCoeffs = new double[lpCoeffsIn.length];
+            System.arraycopy(lpCoeffsIn, 0, lpCoeffs, 0, lpCoeffsIn.length);
+        }
+        else
+            lpCoeffs = null;
+            
+        lpGain = lpGainIn;
+    }
 
 }
