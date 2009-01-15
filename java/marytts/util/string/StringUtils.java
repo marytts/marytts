@@ -92,6 +92,7 @@ public class StringUtils {
     
     public static int[] find(String str, char ch)
     {
+        if (str.length() == 0) return null;
         return find(str, ch, 0, str.length()-1);
     }
     

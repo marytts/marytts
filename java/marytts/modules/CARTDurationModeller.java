@@ -43,6 +43,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
+import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
@@ -124,7 +125,7 @@ public class CARTDurationModeller extends InternalModule
             File pauseFdFile = new File(MaryProperties.needFilename(propertyPrefix+"pausefeatures"));
             
             FeatureDefinition pauseFeatureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(pauseFdFile)), false);
-            pauseFeatureComputer = new TargetFeatureComputer(featureProcessorManager, pauseFeatureDefinition.getFeatureNames());
+            pauseFeatureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, pauseFeatureDefinition.getFeatureNames());
             
             File pauseFile = new File(pausefileName);
             
@@ -132,7 +133,7 @@ public class CARTDurationModeller extends InternalModule
         } else {
             this.pausetree = null;
         }
-        featureComputer = new TargetFeatureComputer(featureProcessorManager, featureDefinition.getFeatureNames());
+        featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, featureDefinition.getFeatureNames());
     }
 
     public MaryData process(MaryData d)
@@ -169,8 +170,7 @@ public class CARTDurationModeller extends InternalModule
                 FeatureDefinition voiceFeatDef = 
                     ((UnitSelectionVoice)maryVoice).getDurationCartFeatDef();
                 if (voiceFeatDef != null){
-                    currentFeatureComputer = 
-                        new TargetFeatureComputer(featureProcessorManager, voiceFeatDef.getFeatureNames());
+                    currentFeatureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, voiceFeatDef.getFeatureNames());
                     logger.debug("Using voice feature definition");
                 }
             }
