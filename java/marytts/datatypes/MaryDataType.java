@@ -106,24 +106,19 @@ public class MaryDataType
 
     public MaryDataType(String name, boolean isInputType, boolean isOutputType, Traits traits)
     {
-        this(name, isInputType, isOutputType, traits, null, null);
+        this(name, isInputType, isOutputType, traits, null);
     }
     
     public MaryDataType(String name, boolean isInputType, boolean isOutputType, Traits traits, String rootElement)
-    {
-        this(name, isInputType, isOutputType, traits, rootElement, null);
-    }
-
-    
-    public MaryDataType(String name, boolean isInputType, boolean isOutputType, Traits traits, String rootElement, String endMarker)
     {
         this.name         = name;
         this.isInputType  = isInputType;
         this.isOutputType = isOutputType;
         this.traits = traits;
         this.rootElement  = rootElement;
-        this.endMarker    = endMarker;
     }
+
+    
 
     public String name() { return name; }
     public boolean isInputType() { return isInputType; }
@@ -152,6 +147,10 @@ public class MaryDataType
 
     public String toString() { return name; }
 
+    protected Traits getTraits()
+    {
+        return traits;
+    }
     /////////////////////////////////////////////////////////////////////
     ////////////////////////// Static registry //////////////////////////
     /////////////////////////////////////////////////////////////////////

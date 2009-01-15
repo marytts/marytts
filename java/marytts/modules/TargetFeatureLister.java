@@ -30,10 +30,12 @@ package marytts.modules;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.features.FeatureRegistry;
 import marytts.features.FeatureVector;
 import marytts.features.TargetFeatureComputer;
 import marytts.modules.synthesis.Voice;
@@ -74,11 +76,16 @@ public class TargetFeatureLister extends InternalModule
     throws Exception
     {
         Voice voice = d.getDefaultVoice();
-        if (voice == null) {
-            throw new NullPointerException("Need default voice to be set in input data, but it is null");
+        String features = d.getOutputParams();
+        TargetFeatureComputer featureComputer;
+        if (voice != null) {
+            featureComputer = FeatureRegistry.getTargetFeatureComputer(voice, features);
+        } else {
+            Locale locale = d.getLocale(); 
+            assert locale != null;
+            featureComputer = FeatureRegistry.getTargetFeatureComputer(locale, features);
         }
-        TargetFeatureComputer featureComputer = getTargetFeatureComputer(voice);
-        assert featureComputer != null : "Voice provides null instead of a feature computer!";
+        assert featureComputer != null : "Cannot get a feature computer!";
         Document doc = d.getDocument();
         // First, get the list of segments and boundaries in the current document
         TreeWalker tw = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.PHONE, MaryXML.BOUNDARY);
@@ -120,17 +127,7 @@ public class TargetFeatureLister extends InternalModule
         return out;
     }
     
-    /**
-     * Get the appropriate target feature computer for this target feature lister from voice
-     * @param v
-     * @return
-     */
-    protected TargetFeatureComputer getTargetFeatureComputer(Voice v)
-    {
-        return v.getTargetFeatureComputer();
-    }
 
-    
     
     /**
      * Access the code from within the our own code so that a subclass

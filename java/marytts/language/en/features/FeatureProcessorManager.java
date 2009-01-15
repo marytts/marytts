@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -156,6 +157,12 @@ public class FeatureProcessorManager extends
             e.printStackTrace();
             throw new Error("Problem building Pos or PhoneSet");}
         }
+    
+    @Override
+    public Locale getLocale()
+    {
+        return Locale.ENGLISH;
+    }
     
     /**
      * Loads the PoS conversion file, if it is needed

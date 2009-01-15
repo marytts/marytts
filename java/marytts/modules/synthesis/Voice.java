@@ -57,6 +57,7 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureProcessorManager;
+import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
@@ -136,9 +137,6 @@ public class Voice
 
     protected static Logger logger = Logger.getLogger("Voice");
 
-    /** A local map of already-instantiated target feature computers */
-    private static Map<String,TargetFeatureComputer> knownTargetFeatureComputers = new HashMap<String,TargetFeatureComputer>();
-    
     /** A local map of already-instantiated Lexicons */
     private static Map<String, Lexicon> lexicons = new HashMap<String, Lexicon>();
 
@@ -152,8 +150,6 @@ public class Voice
     private AllophoneSet allophoneSet;
     String preferredModulesClasses;
     private Vector<MaryModule> preferredModules;
-    private TargetFeatureComputer targetFeatureComputer;
-    private TargetFeatureComputer halfphoneTargetFeatureComputer;
     private Lexicon lexicon;
     private boolean backchannelSupport;
     private BackchannelSynthesizer backchannelSynthesizer;
@@ -190,75 +186,33 @@ public class Voice
         }
         preferredModulesClasses = MaryProperties.getProperty(header+".preferredModules");
         
-        // Determine target feature computer from config settings, if available
-        targetFeatureComputer = initTargetFeatureProcessor("targetfeaturelister");
-        halfphoneTargetFeatureComputer = initTargetFeatureProcessor("halfphone-targetfeaturelister");
+        initFeatureProcessorManager();
         String lexiconClass = MaryProperties.getProperty(header+".lexiconClass");
         String lexiconName = MaryProperties.getProperty(header+".lexicon");
         lexicon = getLexicon(lexiconClass, lexiconName);
         backchannelSupport = MaryProperties.getBoolean(header+".backchannelSupport", false);
-        if(backchannelSupport){
+        if(backchannelSupport) {
             backchannelSynthesizer = new BackchannelSynthesizer(this);
         }
     }
 
     /**
-     * Try to determine a feature processor manager and a list of features for the 
-     * given config setting. This will look in the voice-specific config settings
-     * (prefix: <code>voice.(voicename).</code>) first, and then in the language-specific
-     * settings (prefix: <code>(locale).</code>). If no feature processor manager or no 
-     * list of features is found, null is returned.
-     * @param configSetting "targetfeaturelister" for phone features, "halfphone-targetfeaturelister" 
-     * for halfphone features
-     * @return the target feature computer, or null if none is configered.
+     * Try to determine a feature processor manager. This will look for the voice-specific config setting
+     * <code>voice.(voicename).featuremanager</code>. If a feature processor manager 
+     * is found, it is initialised and entered into the {@link marytts.features.FeatureRegistry}.
      */
-    private TargetFeatureComputer initTargetFeatureProcessor(String configSetting) {
+    private void initFeatureProcessorManager() {
         // First, the feature processor manager to use:
-        String keyVoiceFeatMgr = "voice."+getName()+"."+configSetting+".featuremanager";
+        String keyVoiceFeatMgr = "voice."+getName()+".featuremanager";
         String featMgrClass = MaryProperties.getProperty(keyVoiceFeatMgr);
-        if (featMgrClass == null) {
-            String localePrefix = MaryProperties.localePrefix(locale);
-            if (localePrefix == null) {
-                throw new NoSuchPropertyException("Cannot determine config prefix for locale "+locale);
-            }
-            String keyLocaleFeatMgr = localePrefix+"."+configSetting+".featuremanager";
-            featMgrClass = MaryProperties.getProperty(keyLocaleFeatMgr);
-            if (featMgrClass == null) {
-                logger.debug("No feature processor manager setting '"+keyVoiceFeatMgr+"' or '"+keyLocaleFeatMgr+"' -- will set to null.");
-                return null;
-            }
-        }
-        assert featMgrClass != null;
-        // Now, the feature list to use:
-        String keyVoiceFeatures = "voice."+getName()+"."+configSetting+".features";
-        String features = MaryProperties.getProperty(keyVoiceFeatures);
-        if (features == null) {
-            String localePrefix = MaryProperties.localePrefix(locale);
-            if (localePrefix == null) {
-                throw new NoSuchPropertyException("Cannot determine config prefix for locale "+locale);
-            }
-            String keyLocaleFeatures = localePrefix+"."+configSetting+".features";
-            features = MaryProperties.getProperty(keyLocaleFeatures);
-            if (features == null) {
-                logger.debug("No features setting '"+keyVoiceFeatures+"' or '"+keyLocaleFeatures+"' -- will set to null.");
-                return null;
-            }
-        }
-        assert features != null;
-        String key = featMgrClass + "|" + features;
-        TargetFeatureComputer tfc = knownTargetFeatureComputers.get(key);
-        if (tfc == null) { // not known yet, initialise
-            FeatureProcessorManager featMgr = null;
+        if (featMgrClass != null) {
             try {
-                featMgr = (FeatureProcessorManager) Class.forName(featMgrClass).newInstance();
+                FeatureProcessorManager featMgr = (FeatureProcessorManager) Class.forName(featMgrClass).newInstance();
+                FeatureRegistry.setFeatureProcessorManager(this, featMgr);
             } catch (Exception e) {
-                throw new IllegalArgumentException("Cannot initialise FeatureProcessorManager", e);
+                throw new IllegalArgumentException("Cannot initialise voice-specific FeatureProcessorManager", e);
             }
-            assert featMgr != null;
-            tfc = new TargetFeatureComputer(featMgr, features);
-            knownTargetFeatureComputers.put(key, tfc);
         }
-        return tfc;
     }
     
 
@@ -332,41 +286,6 @@ public class Voice
     public Gender gender() { return gender; }
     public boolean hasBackchannelSupport() { return backchannelSupport; }
     public BackchannelSynthesizer getBackchannelSynthesizer() { return backchannelSynthesizer; }
-    /**
-     * Get the target feature computer to be used in conjunction with this voice
-     * when computing target feature vectors,
-     * e.g. for unit selection or HMM-based synthesis.
-     * This can be voice-specific if there are config settings
-     * <code>voice.(voicename).targetfeaturelister.featuremanager</code> and/or 
-     * <code>voice.(voicename).targetfeaturelister.features</code>, or else this will default to the
-     * locale specific versions
-     * <code>(locale).targetfeaturelister.featuremanager</code> and
-     * <code>(locale).targetfeaturelister.features</code>.
-     * If there are no locale-specific versions either, null is returned.
-     * @return a target feature computer object, or null.
-     */
-    public TargetFeatureComputer getTargetFeatureComputer()
-    {
-        return targetFeatureComputer;
-    }
-
-    /**
-     * Get the target feature computer to be used in conjunction with this voice
-     * when computing target feature vectors,
-     * e.g. for unit selection or HMM-based synthesis.
-     * This can be voice-specific if there are config settings
-     * <code>voice.(voicename).halfphone-targetfeaturelister.featuremanager</code> and/or 
-     * <code>voice.(voicename).halfphone-targetfeaturelister.features</code>, or else this will default to the
-     * locale specific versions
-     * <code>(locale).halfphone-targetfeaturelister.featuremanager</code> and
-     * <code>(locale).halfphone-targetfeaturelister.features</code>.
-     * If there are no locale-specific versions either, null is returned.
-     * @return a target feature computer object, or null.
-     */
-    public TargetFeatureComputer getHalfphoneTargetFeatureComputer()
-    {
-        return halfphoneTargetFeatureComputer;
-    }
 
     
 

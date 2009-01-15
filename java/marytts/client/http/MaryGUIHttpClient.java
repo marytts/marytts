@@ -1075,6 +1075,7 @@ public class MaryGUIHttpClient extends JPanel
                                 ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                                 "",
                                 getAudioEffectsMap(),
+                                null,
                                 new FileOutputStream(saveFile));
                     }
                 }
@@ -1257,6 +1258,7 @@ public class MaryGUIHttpClient extends JPanel
                         ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                         "",
                         getAudioEffectsMap(),
+                        null,
                         os);
 
                 try {

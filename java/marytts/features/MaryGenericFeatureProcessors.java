@@ -617,7 +617,7 @@ public class MaryGenericFeatureProcessors
         public byte process(Target target)
         {
             if (!(target instanceof HalfPhoneTarget))
-                throw new IllegalArgumentException("This feature processor should only be called for half-phone unit targets!");
+                return 0;
             HalfPhoneTarget hpTarget = (HalfPhoneTarget) target;
             String value = (hpTarget.isLeftHalf() ? "L" : "R");
             return values.get(value);

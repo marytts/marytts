@@ -87,9 +87,11 @@ import com.sun.speech.freetts.Utterance;
  * input stream containing audio data.
  * @author Marc Schr&ouml;der
  */
-public class MaryData {
+public class MaryData
+{
     private MaryDataType type;
     private Locale locale;
+    private String outputParams = null;
     // Only one of the following data representations should be non-null
     // for a given instance; which one depends on our type.
     private Document xmlDocument = null;
@@ -619,5 +621,15 @@ public class MaryData {
             ((AppendableSequenceAudioInputStream)this.audio).append(audioToAppend);
         else
             this.audio = new SequenceAudioInputStream(this.audio.getFormat(), Arrays.asList(new AudioInputStream[] {this.audio, audioToAppend}));
+    }
+    
+    public void setOutputParams(String params)
+    {
+        this.outputParams = params;
+    }
+    
+    public String getOutputParams()
+    {
+        return outputParams;
     }
 }

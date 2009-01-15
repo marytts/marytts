@@ -50,15 +50,6 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
         super(MaryDataType.HALFPHONE_TARGETFEATURES);
     }
     
-    /**
-     * Get the appropriate target feature computer for this target feature lister from voice
-     * @param v
-     * @return
-     */
-    protected TargetFeatureComputer getTargetFeatureComputer(Voice v)
-    {
-        return v.getHalfphoneTargetFeatureComputer();
-    }
 
 
     

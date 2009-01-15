@@ -228,9 +228,9 @@ public class TargetFeatureComputer
      */
     public String getAllFeatureProcessorNamesAndValues()
     {
-        return "ByteValuedFeatureProcessors\n" + getByteValuedFeatureProcessorNamesAndValues()
-            + "ShortValuedFeatureProcessors\n" + getShortValuedFeatureProcessorNamesAndValues()
-            + "ContinuousFeatureProcessors\n" + getContinuousFeatureProcessorNamesAndValues();
+        return FeatureDefinition.BYTEFEATURES + "\n" + getByteValuedFeatureProcessorNamesAndValues()
+            + FeatureDefinition.SHORTFEATURES + "\n" + getShortValuedFeatureProcessorNamesAndValues()
+            + FeatureDefinition.CONTINUOUSFEATURES + "\n" + getContinuousFeatureProcessorNamesAndValues();
     }
 
     /**

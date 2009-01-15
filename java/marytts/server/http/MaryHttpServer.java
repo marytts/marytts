@@ -167,6 +167,8 @@ import org.apache.log4j.Logger;
  *   <li><code>audioeffect-full?effect=Robot&params=amount:100.0</code> requests a full description of the given audio effect, including effect name, parameters and help text;</li>
  *   <li><code>audioeffect-help?effect=Robot</code> requests a help text describing the given audio effect;</li>
  *   <li><code>audioeffect-is-hmm-effect?effect=Robot</code> requests a boolean value (plain text "yes" or "no") indicating whether or not the given effect is an effect that operates on HMM-based voices only;</li>
+ *   <li><code>features?locale=de</code> requests the list of available features that can be computed for the given locale;</li>
+ *   <li><code>features?voice=hmm-slt</code> requests the list of available features that can be computed for the given voice;</li>
  *   <li><code>process</code> requests the synthesis of some text (see below).</li>
  * </ul>
  * <p>
@@ -265,6 +267,7 @@ public class MaryHttpServer extends Thread
         registry.register("/audioeffect-full", infoRH);
         registry.register("/audioeffect-help", infoRH);
         registry.register("/audioeffect-is-hmm-effect", infoRH);
+        registry.register("/features", infoRH);
         registry.register("*", new FileRequestHandler());
 
 

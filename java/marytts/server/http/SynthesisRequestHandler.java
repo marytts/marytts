@@ -58,6 +58,7 @@ import marytts.client.http.Address;
 import marytts.client.http.MaryFormData;
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
+import marytts.server.Request;
 import marytts.server.RequestHandler.StreamingOutputPiper;
 import marytts.server.RequestHandler.StreamingOutputWriter;
 import marytts.util.ConversionUtils;
@@ -165,6 +166,9 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler
                 return;
             }
         }
+        // optionally, there may be output type parameters
+        // (e.g., the list of features to produce for the output type TARGETFEATURES)
+        String outputTypeParams = queryItems.get("OUTPUT_TYPE_PARAMS");
 
         Locale locale = MaryUtils.string2locale(queryItems.get("LOCALE"));
         if (locale == null) {
@@ -224,8 +228,8 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler
         }
         AudioFileFormat audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
         
-
-        RequestHttp request = new RequestHttp(inputType, outputType, locale, voice, effects, style, audioFileFormat, streamingAudio);
+        int id = 123;
+        Request request = new Request(inputType, outputType, locale, voice, effects, style, id, audioFileFormat, streamingAudio, outputTypeParams);
         
         boolean ok = handleClientRequest(inputText, request, response);
         
@@ -243,7 +247,7 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler
 
 
 
-    private boolean handleClientRequest(String inputText, RequestHttp request, HttpResponse response)
+    private boolean handleClientRequest(String inputText, Request request, HttpResponse response)
     {
         Reader reader = new LoggingReader(new BufferedReader(new StringReader(inputText)), logger);
 
