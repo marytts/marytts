@@ -79,12 +79,7 @@ import com.sun.speech.freetts.Utterance;
  */
 public class FeatureMakerMaryServer{
     // locale
-    private static String locale;
-    
-    //TODO: In the future we will not need this defaultVoice, with the locale should be enought to get
-    //      the corresponding default voice for each locale.
-    private static String defaultVoice;
-    
+    private static String locale;    // using locale we should be able to get the default voice. 
 	//the Mary Client connected to the server
     protected static MaryHttpClient mary;
     //protected static MaryClient mary;
@@ -99,8 +94,6 @@ public class FeatureMakerMaryServer{
     protected static Vector<String> selectionFeature;
     protected static int[] selectionFeatureIndex;
     
-    // log file
-	protected static String logFileName;
     //host of the Mary server
 	protected static String maryHost;
 	//port of the Mary server
@@ -145,74 +138,65 @@ public class FeatureMakerMaryServer{
          wikiToDB.createDBConnection(mysqlHost,mysqlDB,mysqlUser,mysqlPasswd);
         
          // check if table exists, if exists already ask user if delete or re-use
-         if( wikiToDB.createDataBaseSelectionTable() ) {
+         wikiToDB.createDataBaseSelectionTable();
              
-             // Get the set of id for unprocessed records in clean_text
-             // this will be useful when the process is stoped and then resumed
-             System.out.println("\nGetting list of unprocessed clean_text records from wikipedia...");
-             String textId[];
-             textId = wikiToDB.getUnprocessedTextIds();
-             System.out.println("Number of clean_text records to process: " + textId.length);
-             String text;
-             
-    		
-    		/* loop over the text records in clean_text table of wiki */
-            // once procesed the clean_text records are marked as processed=true, so here retrieve
-            // the next clean_text record untill all are processed.
-    		System.out.println("Looping over clean_text records from wikipedia...\n");       
-            PrintWriter pw = new PrintWriter(new FileWriter(new File(logFileName)));
-            
-            Vector<String> sentenceList;  // this will be the list of sentences in each clean_text
-            int i, j;
-            for(i=0; i<textId.length; i++){
-              // get next unprocessed text  
-              text = wikiToDB.getCleanText(textId[i]);
-              System.out.println("Processing text id=" + textId[i] + " text length=" + text.length());
-              sentenceList = splitIntoSentences(text, textId[i], pw);
-            
-              if( sentenceList != null ) {
-                int index=0;			
-                // loop over the sentences
-                int numSentencesInText=0;
-                String newSentence;
-                byte feas[];  // for directly saving a vector of bytes as BLOB in mysql DB
-                for(j=0; j<sentenceList.size(); j++) {
-    			  newSentence = sentenceList.elementAt(j);
-                  MaryData d = processSentence(newSentence,textId[i]);
-    		      if (d!=null){
-    			    // get the features of the sentence  
-    			    feas = getFeatures(d);     
-                    // Insert in the database the new sentence and its features.
-                    numSentencesInText++;
-                    wikiToDB.insertSentence(newSentence,feas, true, false, false, Integer.parseInt(textId[i]));
-                    feas = null;
-                  }        		
-    	        }//end of loop over list of sentences
-                sentenceList.clear();
-                sentenceList=null;
-    
-                numSentences += numSentencesInText;
-                pw.println("Inserted " + numSentencesInText + " sentences from text id=" + textId[i] 
-                                     + " (Total reliable = "+ numSentences+")\n");
-                System.out.println("Inserted " + numSentencesInText + " sentences from text id=" 
-                                 + textId[i] + " (Total reliable = "+ numSentences+") \n"); 
-              }  // if sentenceList is not null
-    		} //end of loop over articles  
-            wikiToDB.closeDBConnection();
-            
-            Date dateEnd = new Date();
-            dateStringEnd = fullDate.format(dateEnd);
-            pw.println("numSentencesInText;=" + numSentences);
-            pw.println("Start time:" + dateStringIni + "  End time:" + dateStringEnd);
-            
-            pw.close(); 
-            
-    		System.out.println("Done");
-            
-        } else {   // problems creating DataBaseSelectionTable
-           wikiToDB.closeDBConnection();
-           System.exit(1);  
-        }
+         // Get the set of id for unprocessed records in clean_text
+         // this will be useful when the process is stoped and then resumed
+         System.out.println("\nGetting list of unprocessed clean_text records from wikipedia...");
+         String textId[];
+         textId = wikiToDB.getUnprocessedTextIds();
+         System.out.println("Number of unprocessed clean_text records to process --> [" + textId.length + "]");
+         String text;
+         
+		
+		/* loop over the text records in clean_text table of wiki */
+        // once procesed the clean_text records are marked as processed=true, so here retrieve
+        // the next clean_text record untill all are processed.
+		System.out.println("Looping over unprocessed clean_text records from wikipedia..."); 
+        System.out.println("Starting time:" + dateStringIni + "\n");
+        
+        Vector<String> sentenceList;  // this will be the list of sentences in each clean_text
+        int i, j;
+        for(i=0; i<textId.length; i++){
+          // get next unprocessed text  
+          text = wikiToDB.getCleanText(textId[i]);
+          System.out.println("Processing(" + i + ") text id=" + textId[i] + " text length=" + text.length());
+          sentenceList = splitIntoSentences(text, textId[i]);
+        
+          if( sentenceList != null ) {
+            int index=0;			
+            // loop over the sentences
+            int numSentencesInText=0;
+            String newSentence;
+            byte feas[];  // for directly saving a vector of bytes as BLOB in mysql DB
+            for(j=0; j<sentenceList.size(); j++) {
+			  newSentence = sentenceList.elementAt(j);
+              MaryData d = processSentence(newSentence,textId[i]);
+		      if (d!=null){
+			    // get the features of the sentence  
+			    feas = getFeatures(d);     
+                // Insert in the database the new sentence and its features.
+                numSentencesInText++;
+                wikiToDB.insertSentence(newSentence,feas, true, false, false, Integer.parseInt(textId[i]));
+                feas = null;
+              }        		
+	        }//end of loop over list of sentences
+            sentenceList.clear();
+            sentenceList=null;
+
+            numSentences += numSentencesInText;
+            System.out.println("Inserted " + numSentencesInText + " sentences from text id=" 
+                             + textId[i] + " (Total reliable = "+ numSentences+") \n"); 
+          }  // if sentenceList is not null
+		} //end of loop over articles  
+        wikiToDB.closeDBConnection();
+        
+        Date dateEnd = new Date();
+        dateStringEnd = fullDate.format(dateEnd);
+        System.out.println("numSentencesInText;=" + numSentences);
+        System.out.println("Start time:" + dateStringIni + "  End time:" + dateStringEnd);   
+		System.out.println("Done");
+        
 	}//end of main method
 	
 	/**
@@ -220,20 +204,22 @@ public class FeatureMakerMaryServer{
 	 *
 	 */
 	protected static void printUsage(){
-		System.out.println("Usage:\n" +
-				"java FeatureMakerMaryServer -locale en_US -mysqlHost host -mysqlUser user -mysqlPasswd passwd -mysqlDB wikiDB\n" +
-                "                          [-maryHost localhost -maryPort 59125 -defaultVoice hmm-slt -strictCredibility strict]\n" +
-                "                          [-featuresForSelection phoneme,next_phoneme,selection_prosody -log logFileName]\n\n" +
+		System.out.println("\nUsage: " +
+				"java FeatureMakerMaryServer -locale language -mysqlHost host -mysqlUser user\n" +
+                "                 -mysqlPasswd passwd -mysqlDB wikiDB\n" +
+                "                 [-maryHost localhost -maryPort 59125 -strictCredibility strict]\n" +
+                "                 [-featuresForSelection phoneme,next_phoneme,position_type]\n\n" +
                 "  required: This program requires a MARY server running and an already created cleanText table in the DB. \n" +
-                "  default/optional: [-maryHost localhost -maryPort 59125 -locale en_US -defaultVoice hmm-slt]\n" +
-                "  default/optional: [-featuresForSelection phoneme,next_phoneme,selection_prosody] (features separated by ,) \n" +
-                "  optional: [-strictCredibility [strict|lax] -log logFileName]\n\n" +
+                "            The cleanText table can be created with the WikipediaProcess program. \n" +
+                "  default/optional: [-maryHost localhost -maryPort 59125]\n" +
+                "  default/optional: [-featuresForSelection phoneme,next_phoneme,position_type] (features separated by ,) \n" +
+                "  optional: [-strictCredibility [strict|lax]]\n\n" +
             	"  -strictCredibility: setting that determines what kind of sentences \n" +
 				"  are regarded as credible. There are two settings: strict and lax. With \n" +
 				"  setting strict (default), only those sentences that contain words in the lexicon \n" +
 				"  or words that were transcribed by the preprocessor are regarded as credible; \n" +
 				"  the other sentences as unreliable. With setting lax, also those words that \n" +
-				"  are transcribed with the Denglish and the compound module are regarded credible. \n\n");
+				"  are transcribed with the Denglish and the compound module are regarded as credible. \n\n");
                 
 	}
 	
@@ -243,7 +229,6 @@ public class FeatureMakerMaryServer{
         "\n  -maryHost " + maryHost +
         "\n  -maryPort " + maryPort +
         "\n  -locale " + locale +  
-        "\n  -defaultVoice " + defaultVoice +  
         "\n  -mysqlHost " + mysqlHost +
         "\n  -mysqlUser " + mysqlUser +
         "\n  -mysqlPasswd " + mysqlPasswd +
@@ -269,29 +254,24 @@ public class FeatureMakerMaryServer{
 	 * @return true, if successful, false otherwise
 	 */
 	protected static boolean readArgs(String[] args){
-		//initialise default values		
-		logFileName = "./featureMaker.log";
+		//initialise default values	
 		maryHost = "localhost";
 		maryPort = "59125";
-        locale = "en_US";
-        defaultVoice = "hsmm-slt";
+        locale = null;
 		strictCredibility = true;
         featDef = null;
         selectionFeature = new Vector<String>();
         selectionFeature.add("phoneme");
         selectionFeature.add("next_phoneme");
-        selectionFeature.add("selection_prosody");
+        selectionFeature.add("position_type");
         
 		//now parse the args
-        if (args.length >= 8){
+        if (args.length >= 10){
           for(int i=0; i<args.length; i++) { 
 			
             if (args[i].equals("-locale") && args.length>=i+1 )
               locale = args[++i];  
-			          
-            else if (args[i].equals("-defaultVoice") && args.length>=i+1 )
-                defaultVoice = args[++i]; 
-            
+		    
             else if (args[i].equals("-maryHost") && args.length>=i+1 )
               maryHost = args[++i];
             
@@ -330,10 +310,7 @@ public class FeatureMakerMaryServer{
                  
             else if(args[i].contentEquals("-mysqlDB") && args.length >= (i+1) )
               mysqlDB = args[++i];
-            
-            else if (args[i].equals("-logFile") && args.length>=i+1 )
-              logFileName = args[++i];
-            
+          
             else { //unknown argument
               System.out.println("\nOption not known: " + args[i]);
               return false;
@@ -341,16 +318,20 @@ public class FeatureMakerMaryServer{
                 
             
           }	
-		} else  // arguments less than 10
+		} else  // arguments less than 12
 			return false;
 
         if(mysqlHost==null || mysqlUser==null || mysqlPasswd==null || mysqlDB==null){
-           System.out.println("Missing mysql parameters.");
+           System.out.println("\nMissing mysql parameters.\n");
            printParameters();
            return false;
         }
-          
-        
+        if(locale==null){
+            System.out.println("\nPlease specify locale = wikipedia language.\n");
+            printParameters();
+            return false;
+         }
+ 
         printParameters();
 		return true;
 	}
@@ -373,34 +354,32 @@ public class FeatureMakerMaryServer{
 		try{                    
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			//process and dump
-			mary.process(nextSentence, "TEXT","TARGETFEATURES", locale, null, defaultVoice, os);
-			//read into mary data object                
-			//d = new MaryData(MaryDataType.get("TARGETFEATURES"), null);
-            //d = new MaryData(MaryDataType.TARGETFEATURES, Locale.US);
-            d = new MaryData(MaryDataType.TARGETFEATURES, null);  // CHECK! how to get here the corresponding Locale for locale
+		    mary.process(nextSentence, "TEXT","TARGETFEATURES", locale, null, null, null, null, "phoneme next_phoneme position_type", os);
+        
+            d = new MaryData(MaryDataType.TARGETFEATURES, null);
+           
+			d.readFrom(new ByteArrayInputStream(os.toByteArray()));		
             
-			d.readFrom(new ByteArrayInputStream(os.toByteArray()));			
+            //System.out.println("TARGETFEATURES:\n" + d.getPlainText());
+            
 		} catch (Exception e){
 			e.printStackTrace();
 			if (d!=null){  
 				if (d.getPlainText()!=null){
 					System.out.println("Error processing sentence "
 							+textId
-							+": \""+nextSentence+"\":\n"+d.getPlainText()
-							+"; skipping sentence");
+							+": \""+nextSentence+"\":\n"+d.getPlainText() + "; skipping sentence");
 				} else {
 					if (d.getDocument() != null){
 						docBuf = new StringBuffer();
 						getXMLAsString(d.getDocument(),docBuf);
 						System.out.println("Error processing sentence "
-								+": \""+nextSentence+"\":\n"+docBuf.toString()
-								+"; skipping sentence");
+								+": \""+nextSentence+"\":\n"+docBuf.toString() + "; skipping sentence");
 					} else {
 						if (d.getUtterances() != null){
 							List utterances = d.getUtterances();
 							Iterator it = utterances.iterator();
-							System.out.println("Error processing sentence "
-									+": \""+nextSentence+"\":\n");
+							System.out.println("Error processing sentence " + ": \""+nextSentence+"\":\n");
 							while (it.hasNext()) {
 								Utterance utterance = (Utterance) it.next();
 								StringWriter sw = new StringWriter();
@@ -410,31 +389,23 @@ public class FeatureMakerMaryServer{
 							}
 							System.out.println("; skipping sentence");
 						}else {
-							System.out.println("Error processing sentence "
-									+textId
-									+": \""+nextSentence+"\"; skipping sentence");                        
+							System.out.println("Error processing sentence " + textId + ": \""+nextSentence+"\"; skipping sentence");                        
 						}
 					}
 				}
 			} else {
-				System.out.println("Error processing sentence from textId="
-						+textId
-						+": \""+nextSentence+"\"; skipping sentence");                        
+				System.out.println("Error processing sentence from textId=" + textId + ": \""+nextSentence+"\"; skipping sentence");                        
 			}
 			return null;
 		}
 		catch (AssertionError ae){
 			ae.printStackTrace();
-			System.out.println("Error processing sentence from textId="
-					+textId
-					+": \""+nextSentence+"\"; skipping sentence");
+			System.out.println("Error processing sentence from textId=" + textId + ": \""+nextSentence+"\"; skipping sentence");
 			return null;
 		}
         
         docBuf = null;
 		return d;
-		
-		
 		
 	}
 	
@@ -451,12 +422,10 @@ public class FeatureMakerMaryServer{
         try{
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             //process and dump
-            mary.process(textString, "TEXT","PHONEMES", locale, null, defaultVoice, os);
+            mary.process(textString, "TEXT","PHONEMES", locale, null, null, os);
             
             //read into mary data object                
-            //MaryData maryData = new MaryData(MaryDataType.PHONEMES, Locale.GERMAN);
-            //MaryData maryData = new MaryData(MaryDataType.PHONEMES, Locale.US);
-            MaryData maryData = new MaryData(MaryDataType.PHONEMES, null); // CHECK! how to get here the corresponding Locale for locale
+            MaryData maryData = new MaryData(MaryDataType.PHONEMES, null); 
             
             maryData.readFrom(new ByteArrayInputStream(os.toByteArray()));
            
@@ -570,14 +539,12 @@ public class FeatureMakerMaryServer{
 		 * @return true, if successful
 		 * @throws Exception
 		 */
-		protected static Vector<String> splitIntoSentences(String text, String id, PrintWriter pw)throws Exception{
+		protected static Vector<String> splitIntoSentences(String text, String id)throws Exception{
             
             Vector<String> sentenceList = null;
             StringBuffer sentence;
             //index2sentences = new TreeMap<Integer,String>();
-            
-            //System.out.println(text);
-			
+          
             Document doc = phonemiseText(text, id);
 			//if (doc == null) return false;
             
@@ -637,8 +604,7 @@ public class FeatureMakerMaryServer{
 					//System.out.println("NULL SENTENCE!!!");
 				}
 			} 
-            numUnreliableSentences += unrelSentences;
-            pw.println("Inserted " + unrelSentences + " sentences from text id=" + id + " (Total unreliable = " + numUnreliableSentences + ")");
+            numUnreliableSentences += unrelSentences;         
             System.out.println("Inserted " + unrelSentences + " sentences from text id=" + id + " (Total unreliable = " + numUnreliableSentences + ")");
             
             } 

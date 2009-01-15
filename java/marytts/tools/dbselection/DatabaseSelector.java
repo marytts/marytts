@@ -607,9 +607,9 @@ public class DatabaseSelector{
      * to standard out
      */
     private static void printUsage(){
-        System.out.println("Usage:\n"
-                +"java DatabaseSelector -locale en_US -mysqlHost host -mysqlUser user -mysqlPasswd passwd \n"
-                +"                      -mysqlDB wikiDB -featDef file -stop stopCriterion \n"
+        System.out.println("\nUsage: "
+                +"java DatabaseSelector -locale language -mysqlHost host -mysqlUser user\n"
+                +"        -mysqlPasswd passwd -mysqlDB wikiDB -featDef file -stop stopCriterion \n"
                 +"        [-coverageConfig file -initFile file -selectedSentences file -unwantedSentences file ]\n"                                 
                 +"        [-vectorsOnDisk -overallLog file -selectionDir dir -logCoverageDevelopment -verbose]\n\n"     
                 +"Arguments:\n"

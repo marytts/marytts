@@ -266,7 +266,7 @@ public class DBHandler {
    * @return true if the table was created succesfully or it exists already,
    *         false if the table exist and it can not be deleted.
    */
-  public boolean createDataBaseSelectionTable() {
+  public void createDataBaseSelectionTable() {
       String dbselection = "CREATE TABLE " + dbselectionTableName + " ( id INT NOT NULL AUTO_INCREMENT, " +                                                       
                                                        "sentence MEDIUMBLOB NOT NULL, " +
                                                        "features BLOB, " +
@@ -279,8 +279,7 @@ public class DBHandler {
                                                        "primary key(id)) CHARACTER SET utf8;";
       String str;
       boolean dbExist = false;
-      boolean result = true;
-      // if database does not exist create it, if it exists it will ask if it should be deleted  
+      // if database does not exist create it, if it exists it will continue adding sentences to this table
       System.out.println("Checking if " + dbselectionTableName + " already exist.");
       try {
           rs = st.executeQuery("SHOW TABLES;");
@@ -292,17 +291,14 @@ public class DBHandler {
           while( rs.next() ) {
             str = rs.getString(1);
             if( str.contentEquals(dbselectionTableName) ){
-               System.out.println("TABLE = " + str + " already exist.");
+               System.out.println("TABLE = " + str + " already exist, adding sentences to this table.");
                dbExist = true;
             }
           }
           boolean res;
-          if(dbExist && !askIfDeletingTable(dbselectionTableName) )
-              result = false;
           
-          // if DB exists and it should be deleted
-          if( result ){
-              res = st.execute( "DROP TABLE IF EXISTS " + dbselectionTableName); 
+          // if DB exists does not exist it will be created
+          if( !dbExist ){ 
               res = st.execute( dbselection );
               System.out.println("TABLE = " + dbselectionTableName + " succesfully created."); 
           }
@@ -311,7 +307,6 @@ public class DBHandler {
           e.printStackTrace();
       } 
       
-      return result;
   }
   
   /***
