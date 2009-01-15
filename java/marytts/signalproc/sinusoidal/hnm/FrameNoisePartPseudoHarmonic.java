@@ -30,11 +30,20 @@
 package marytts.signalproc.sinusoidal.hnm;
 
 /**
- * Baseline class to represent noise part of a speech frame
+ * An alternative model for the noise part of a given speech frame.
+ * Fullband harmonic parameters are stored (amplitudes only) at a constant "virtual" f0.
+ * Cepstral amplitudes are kept only.
+ * Synthesis handles noise part generation using the cepstral amplitudes and random phase generation above maximum frequency of voicing
  * 
  * @author Oytun T&uumlrk
  *
  */
-public class FrameNoisePart {
+public class FrameNoisePartPseudoHarmonic extends FrameNoisePart {
 
+    double[] ceps; //To keep harmonic amplitudes
+    
+    public FrameNoisePartPseudoHarmonic()
+    {
+
+    }
 }

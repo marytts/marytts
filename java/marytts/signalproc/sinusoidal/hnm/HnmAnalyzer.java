@@ -74,12 +74,17 @@ import marytts.util.string.StringUtils;
  *
  */
 public class HnmAnalyzer {
+    public static final int LPC = 1; //Noise part model based on LPC
+    public static final int PSEUDO_HARMONIC = 2; //Noise part model based on pseude harmonics for f0=NOISE_F0_IN_HZ
+    public static final double NOISE_F0_IN_HZ = 100.0; //Pseudo-pitch for unvoiced portions (will be used for pseudo harmonic modelling of the noise part)
+    
+    
     public HnmAnalyzer()
     {
         
     }
     
-    public HnmSpeechSignal analyze(String wavFile, double skipSizeInSeconds)
+    public HnmSpeechSignal analyze(String wavFile, double skipSizeInSeconds, int noisePartRepresentation)
     {
         HnmSpeechSignal hnmSignal = null;
         double[] f0s = null;
@@ -162,11 +167,24 @@ public class HnmAnalyzer {
         int numHarmonics = 0;
         int prevNumHarmonics = 0;
         ComplexNumber[] harmonicAmps = null;
+        ComplexNumber[] noiseHarmonicAmps = null;
         
         double[] phases;
         double[] dPhases;
         double[] dPhasesPrev = null;
-        int M;
+        int MValue;
+        
+        int cepsOrderNoise = 10;
+        int numNoiseHarmonics = (int)Math.floor((0.5*fs)/NOISE_F0_IN_HZ+0.5);
+        double[] freqsInHzNoise = new double [numNoiseHarmonics];
+        for (j=0; j<numHarmonics; j++)
+            freqsInHzNoise[j] = NOISE_F0_IN_HZ*(j+1);
+        
+        double[][] M = RegularizedCepstralEnvelopeEstimator.precomputeM(freqsInHzNoise, fs, cepsOrderNoise);
+        double[][] MTransW = RegularizedCepstralEnvelopeEstimator.precomputeMTransW(M, null);
+        double[][] MTransWM = RegularizedCepstralEnvelopeEstimator.precomputeMTransWM(MTransW, M); 
+        double[][] lambdaR = RegularizedCepstralEnvelopeEstimator.precomputeLambdaR(RegularizedCepstralEnvelopeEstimator.DEFAULT_LAMBDA, cepsOrderNoise);
+        double[][] inverted = RegularizedCepstralEnvelopeEstimator.precomputeInverted(MTransWM, lambdaR);
         
         for (i=0; i<totalFrm; i++)
         {  
@@ -227,18 +245,41 @@ public class HnmAnalyzer {
                 numHarmonics = 0;
             
             //Step5. Perform full-spectrum LPC analysis for generating noise part
-            //Stylianou does this in a separate, fixed frame rate (10 ms) and window size (40 ms) loop
-            //Here, it is pitch synchronous for voiced frames and pitch asynchronous for unvoiced ones
-            //Additionally, we have support for preemphasis - this needs to be handled during synthesis of the noisy part with preemphasis removal
-            frm = win.apply(frm, 0);
-            LpCoeffs lpcs = LpcAnalyser.calcLPC(frm, lpOrder, (float)preCoef);
-            hnmSignal.frames[i].n = new FrameNoisePart(lpcs.getA(), lpcs.getGain());
+            if (noisePartRepresentation==LPC)
+            {
+                //Stylianou does this in a separate, fixed frame rate (10 ms) and window size (40 ms) loop
+                //Here, it is pitch synchronous for voiced frames and pitch asynchronous for unvoiced ones
+                //Additionally, we have support for preemphasis - this needs to be handled during synthesis of the noisy part with preemphasis removal
+                frm = win.apply(frm, 0);
+                LpCoeffs lpcs = LpcAnalyser.calcLPC(frm, lpOrder, (float)preCoef);
+                hnmSignal.frames[i].n = new FrameNoisePartLpc(lpcs.getA(), lpcs.getGain());
+            }
+            else if (noisePartRepresentation==PSEUDO_HARMONIC)
+            {
+                //TO DO: Replace this with the simpler form of the autocorrelation, i.e. harmonics are uncorrelated for noise
+                noiseHarmonicAmps = estimateComplexAmplitudes(frm, wgtSquared, NOISE_F0_IN_HZ, numNoiseHarmonics, fs);
+                
+                double[] linearAmpsNoise = new double[numNoiseHarmonics];
+                for (j=0; j<numNoiseHarmonics; j++)
+                    linearAmpsNoise[j] = MathUtils.magnitudeComplex(noiseHarmonicAmps[j]);
+                
+                hnmSignal.frames[i].n = new FrameNoisePartPseudoHarmonic();
+                ((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2cepstrum(linearAmpsNoise, MTransW, inverted);
+                
+                
+                //The following is only for visualization
+                //int fftSize = 4096;
+                //double[] vocalTractDB = RegularizedCepstralEnvelopeEstimator.cepstrum2logAmpHalfSpectrum(((FrameNoisePartHarmonic)hnmSignal.frames[i].n).ceps, fftSize, fs);
+                //MaryUtils.plot(vocalTractDB);
+                //
+            }
+            
             //
             
             //Step6. Estimate amplitude envelopes
             if (isVoiced)
             {
-                int cepsOrder = 19;
+                int cepsOrderHarmonic = 12;
                 double[] linearAmps = new double[numHarmonics];
                 double[] freqsInHz = new double [numHarmonics];
                 for (j=0; j<numHarmonics; j++)
@@ -246,7 +287,7 @@ public class HnmAnalyzer {
                     linearAmps[j] = MathUtils.magnitudeComplex(harmonicAmps[j]);
                     freqsInHz[j] = f0InHz*(j+1);
                 }
-                hnmSignal.frames[i].ceps = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, fs, cepsOrder);
+                hnmSignal.frames[i].h.ceps = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, fs, cepsOrderHarmonic);
                 //The following is only for visualization
                 //int fftSize = 4096;
                 //double[] vocalTractDB = RegularizedCepstralEnvelopeEstimator.cepstrum2logAmpHalfSpectrum(hnmFrames[i].ceps , fftSize, fs);
@@ -254,92 +295,11 @@ public class HnmAnalyzer {
                 //
             }
             //
-            
-            if (true) //NOT SURE IF STEP7 IS REQUIRED SINCE IN SYNTHESIS WE WILL DO SIMILAR THINGS, SO WE PASS A DIRECT COPY OF PHASES HERE
-            {
-                hnmSignal.frames[i].h.phases = new float[numHarmonics];
-                for (k=0; k<numHarmonics; k++)
-                    hnmSignal.frames[i].h.phases[numHarmonics-k-1] = (float)MathUtils.phaseInRadians(harmonicAmps[numHarmonics-k-1]);
-            }
-            else
-            {
-                //Step7. Estimate phase envelopes
-                if (isVoiced)
-                {
-                    phases = new double[numHarmonics];
-                    dPhases = new double[numHarmonics];
 
-                    for (k=0; k<numHarmonics; k++)
-                        phases[k] = MathUtils.phaseInRadians(harmonicAmps[numHarmonics-k-1]);
+            hnmSignal.frames[i].h.phases = new float[numHarmonics];
+            for (k=0; k<numHarmonics; k++)
+                hnmSignal.frames[i].h.phases[numHarmonics-k-1] = (float)MathUtils.phaseInRadians(harmonicAmps[numHarmonics-k-1]);
 
-                    if (!isPrevVoiced) //A new voiced segment starts here
-                    {
-                        for (k=0; k<numHarmonics; k++)
-                        {
-                            if (k==0)
-                            {
-                                if (k<numHarmonics-1)
-                                    dPhases[k] = phases[k+1]-phases[k];
-                                else
-                                    dPhases[k] = 0.0;
-                            }
-                            else
-                            {
-                                if (k<numHarmonics-1)
-                                {
-                                    M = (int)Math.floor(dPhases[k-1]/((phases[k+1]-phases[k])*MathUtils.TWOPI)+0.5);
-                                    phases[k] = (phases[k+1]+M*MathUtils.TWOPI) - phases[k]; 
-                                    dPhases[k] = phases[k+1]-phases[k];
-                                }
-                                else
-                                    dPhases[k] = 0.0;
-                            }
-                        }
-                    }
-                    else //Already inside a voiced segment
-                    {
-                        for (k=0; k<Math.min(numHarmonics, prevNumHarmonics); k++)
-                        {
-                            if (k>0 && k<phases.length-1)
-                            {
-                                M = (int)Math.floor(dPhasesPrev[k-1]/((phases[k+1]-phases[k])*MathUtils.TWOPI)+0.5);
-                                phases[k] = (phases[k+1]+M*MathUtils.TWOPI) - phases[k]; 
-                                dPhasesPrev[k] = phases[k+1]-phases[k];
-                            }
-                            else
-                                dPhasesPrev[k] = 0.0;
-                        }
-                        
-                        for (k=prevNumHarmonics; k<numHarmonics; k++)
-                        {
-                            if (k==0)
-                            {
-                                if (k<numHarmonics-1)
-                                    dPhases[k] = phases[k+1]-phases[k];
-                                else
-                                    dPhases[k] = 0.0;
-                            }
-                            else
-                            {
-                                M = (int)Math.floor(dPhases[k-1]/((phases[k+1]-phases[k])*MathUtils.TWOPI)+0.5);
-                                phases[k] = (phases[k+1]+M*MathUtils.TWOPI) - phases[k]; 
-                                dPhases[k] = phases[k+1]-phases[k];
-                            }
-                        }
-                    }
-
-                    hnmSignal.frames[i].h.phases = new float[numHarmonics];
-                    for (k=0; k<numHarmonics; k++)
-                        hnmSignal.frames[i].h.phases[numHarmonics-k-1] = (float)phases[k];
-
-                    prevNumHarmonics = numHarmonics;
-                    dPhasesPrev = new double[prevNumHarmonics];
-                    System.arraycopy(dPhases, 0, dPhasesPrev, 0, prevNumHarmonics);  
-                }
-                //
-            }
-            
-            
             if (isVoiced)
                 isPrevVoiced = true;
             else
@@ -410,7 +370,10 @@ public class HnmAnalyzer {
         
         HnmAnalyzer ha = new HnmAnalyzer();
         
-        HnmSpeechSignal hnmSignal = ha.analyze(wavFile, skipSizeInSeconds);
+        //int noisePartRepresentation = HnmAnalyzer.LPC;
+        int noisePartRepresentation = HnmAnalyzer.PSEUDO_HARMONIC;
+        
+        HnmSpeechSignal hnmSignal = ha.analyze(wavFile, skipSizeInSeconds, noisePartRepresentation);
     }
 }
 

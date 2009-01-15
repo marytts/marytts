@@ -30,11 +30,11 @@
 package marytts.signalproc.sinusoidal.hnm;
 
 /**
- * Baseline class to represent noise part of a speech frame
- * 
- * @author Oytun T&uumlrk
+ * @author oytun.turk
  *
  */
-public class FrameNoisePart {
+public class HnmSynthesizedSignal {
+    double[] harmonicPart;
+    double[] noisePart;
 
 }
