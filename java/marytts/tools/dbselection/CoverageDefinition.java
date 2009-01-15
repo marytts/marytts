@@ -317,7 +317,7 @@ public class CoverageDefinition{
         phoneFeatIndex = featDef.getFeatureIndex("phoneme");
 //        phoneClassesIndex = featDef.getFeatureIndex("gpos");
         diphoneFeatIndex = featDef.getFeatureIndex("next_phoneme");
-        prosodyIndex = featDef.getFeatureIndex("selection_prosody");
+        prosodyIndex = featDef.getFeatureIndex("position_type");
         
         
 //        numPhoneClasses = featDef.getNumberOfValues(phoneClassesIndex);
@@ -1306,7 +1306,7 @@ public class CoverageDefinition{
         phoneFeatIndex = featDef.getFeatureIndex("phoneme");        
 //        phoneClassesIndex = featDef.getFeatureIndex("gpos");                
         diphoneFeatIndex = featDef.getFeatureIndex("next_phoneme");        
-        prosodyIndex = featDef.getFeatureIndex("selection_prosody");
+        prosodyIndex = featDef.getFeatureIndex("position_type");
         
 //        numPhoneClasses = featDef.getNumberOfValues(phoneClassesIndex);
         numPhoneValues = featDef.getNumberOfValues(phoneFeatIndex);
