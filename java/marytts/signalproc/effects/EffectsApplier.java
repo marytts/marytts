@@ -132,7 +132,7 @@ public class EffectsApplier {
         audioEffects = null;
         optimumEffectIndices = null;
         
-        if (param!="")
+        if (param.length() > 0)
         {
             param = StringUtils.deblank(param);
             int [] effectInds = StringUtils.find(param, chEffectSeparator);
