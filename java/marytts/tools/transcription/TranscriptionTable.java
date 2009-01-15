@@ -110,6 +110,30 @@ public class TranscriptionTable extends JPanel implements ActionListener {
         String command = event.getActionCommand();
     }
 
+    private void checkTranscription(){
+        int size = transcriptionModel.getData().length;
+        for(int row=0; row<size; row++){
+            String transcription =  (String) transcriptionModel.getDataAt(row, 2);
+            if (transcription.matches("\\s+")) {
+                transcription = transcription.replaceAll("\\s+", "");
+                this.transcriptionModel.setValueAt(transcription , row, 2);
+            }
+            if(!transcription.equals("")){
+                String check = phoneSet.checkAllophoneSyntax(transcription);
+                if(check.equals("OK")){
+                    transcriptionModel.setAsCorrectSyntax(row, true);
+                }
+                else transcriptionModel.setAsCorrectSyntax(row, false);
+                //if(row == itsRow){
+                //    transcriptionModel.setAsManualVerify(row, true);
+                //}
+            }
+            else{
+                transcriptionModel.setAsCorrectSyntax(row, false);
+            }
+        }
+    }
+    
     /**
      *  verify previous row transcription syntax
      */
@@ -127,10 +151,10 @@ public class TranscriptionTable extends JPanel implements ActionListener {
                     transcriptionModel.setAsCorrectSyntax(previousRow, true);
                 }
                 else transcriptionModel.setAsCorrectSyntax(previousRow, false);
-                transcriptionModel.setAsManualVerify(previousRow, true);
-                if(x == itsRow){
-                    transcriptionModel.setAsManualVerify(x, true);
-                }
+                //transcriptionModel.setAsManualVerify(previousRow, true);
+                //if(x == itsRow){
+                //    transcriptionModel.setAsManualVerify(x, true);
+                //}
             }
         }
         previousRow = x;
@@ -153,9 +177,9 @@ public class TranscriptionTable extends JPanel implements ActionListener {
                 transcriptionModel.setAsCorrectSyntax(row, true);
             }
             else transcriptionModel.setAsCorrectSyntax(row, false);
-            if(row == itsRow){
-                transcriptionModel.setAsManualVerify(row, true);
-            }
+            //if(row == itsRow){
+            //    transcriptionModel.setAsManualVerify(row, true);
+            //}
         }
         else{
             transcriptionModel.setAsCorrectSyntax(row, false);
@@ -214,6 +238,13 @@ public class TranscriptionTable extends JPanel implements ActionListener {
                     transcriptionModel.setAsManualVerify(i, false);
                 }
             }
+            if(((String) transcriptionModel.getDataAt(itsRow, 2)).equals("")){
+                String grapheme = (String) tableData[itsRow][1];
+                String phoneme = trainedLTS.syllabify(trainedLTS.predictPronunciation(grapheme));
+                transcriptionModel.setValueAt(phoneme.replaceAll("\\s+", ""), itsRow, 2);
+                transcriptionModel.setAsCorrectSyntax(itsRow, true);
+                transcriptionModel.setAsManualVerify(itsRow, false);
+            }
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -228,12 +259,24 @@ public class TranscriptionTable extends JPanel implements ActionListener {
     public void saveTranscription(String fileName) {
         try {
             this.transcriptionModel.saveTranscription(fileName);
-            File parentDir = (new File(fileName)).getParentFile();
-            String parentPath = parentDir.getAbsolutePath();
-            String lexiconFile = parentPath+File.separator+"lexicon_"+locale+".dict";
-            String fstFile = parentPath+File.separator+"lexicon_"+locale+".fst";
-            String posFile = parentPath+File.separator+"functional_"+locale+".list";
-            String posFst = parentPath+File.separator+"functional_"+locale+".fst";
+            //File parentDir = (new File(fileName)).getParentFile();
+            //String parentPath = parentDir.getAbsolutePath();
+            File saveFile = new File(fileName);
+            String dirName = saveFile.getParentFile().getAbsolutePath();
+            String filename = saveFile.getName();
+            String baseName, suffix;
+            if(filename.lastIndexOf(".")==-1){
+                baseName = filename;
+                suffix   = "";
+            }
+            else{
+                baseName = filename.substring(0,filename.lastIndexOf("."));
+                suffix   = filename.substring(filename.lastIndexOf("."),filename.length());
+            }
+            String lexiconFile = dirName+File.separator+baseName+"_lexicon.dict";
+            String fstFile = dirName+File.separator+baseName+"_lexicon.fst";
+            String posFile = dirName+File.separator+baseName+"_pos.list";
+            String posFst = dirName+File.separator+baseName+"_pos.fst";
             
             transcriptionModel.saveSampaLexiconFormat(lexiconFile);
             transcriptionModel.createLexicon(lexiconFile, fstFile);
@@ -257,6 +300,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        checkTranscription();
         scrollpane.updateUI();
         table.repaint();
         this.repaint();
@@ -270,6 +314,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
      */
     public void loadTranscription(HashMap<String, Integer> map) throws Exception {
             this.transcriptionModel.loadTranscription(map);
+            checkTranscription();
             scrollpane.updateUI();
             table.repaint();
             this.repaint();
@@ -312,7 +357,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
             }
             itsRow = table.getSelectionModel().getLeadSelectionIndex();
             table.repaint();
-            checkTranscriptionSyntax();
+            //checkTranscriptionSyntax();
         }
     }
 
@@ -328,7 +373,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
             }
             itsRow = table.getSelectionModel().getLeadSelectionIndex();
             table.repaint();
-            checkTranscriptionSyntax();
+            //checkTranscriptionSyntax();
         }
     }
 
@@ -352,8 +397,8 @@ public class TranscriptionTable extends JPanel implements ActionListener {
                 if (rowEnterPressed != -1) { 
                     // enter was pressed in a row in non-editing mode; edit this row
                     System.out.println("RowEnterPressed = "+rowEnterPressed);
-                    table.editCellAt(rowEnterPressed, 2);
                     table.getSelectionModel().setLeadSelectionIndex(rowEnterPressed);
+                    table.editCellAt(rowEnterPressed, 2);
                 } else {
                     // coming out of edit, start editing next line
                     System.out.println("row nr. "+itsRow);
@@ -392,7 +437,9 @@ public class TranscriptionTable extends JPanel implements ActionListener {
             rowEnterPressed = -1;
         }
         public void editingStopped(ChangeEvent e) {
-            System.out.println("stopped");
+            System.out.println("stopped: "+itsRow);
+            checkTranscriptionSyntax(itsRow);
+            transcriptionModel.setAsManualVerify(itsRow, true);
             rowEnterPressed = -1;
         }
     }
@@ -408,7 +455,6 @@ public class TranscriptionTable extends JPanel implements ActionListener {
           Component cell = super.getTableCellRendererComponent(
                              ttable, obj, isSelected, hasFocus, row, column);
           
-          checkTranscriptionSyntax(row);
           boolean[] hasManualVerify = transcriptionModel.getManualVerifiedList();
           boolean[] hasCorrectSyntax = transcriptionModel.getCorrectSyntaxList(); 
           cell.setFont(new Font("Serif", Font.BOLD, 12));
@@ -423,9 +469,6 @@ public class TranscriptionTable extends JPanel implements ActionListener {
                   cell.setForeground(Color.LIGHT_GRAY);
               }
               else {
-                  cell.setForeground(Color.BLACK);
-              }
-              if(row == itsRow){
                   cell.setForeground(Color.BLACK);
               }
           }

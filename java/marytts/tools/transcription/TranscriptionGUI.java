@@ -44,6 +44,9 @@ public class TranscriptionGUI extends javax.swing.JFrame {
     String phoneSetFile = null;
     boolean loadTranscription = false;  
     String treeAbsolutePath = null;
+    String dirName = null;
+    String baseName = null;
+    String suffix = null;
     String locale = null;
     
     /** Creates new form TranscriptionGUI */
@@ -110,7 +113,6 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         tablePanel = new javax.swing.JPanel();
         buttonPanel = new javax.swing.JPanel();
         trainPredictButton = new javax.swing.JButton();
-        jButton1 = new javax.swing.JButton();
         jMenuBar2 = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         loadFromFile = new javax.swing.JMenuItem();
@@ -118,6 +120,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         saveAsToFile = new javax.swing.JMenuItem();
         loadFromMySql = new javax.swing.JMenuItem();
         loadPhoneSet = new javax.swing.JMenuItem();
+        quitTool = new javax.swing.JMenuItem();
         helpMenu = new javax.swing.JMenu();
         helpMenuItem = new javax.swing.JMenuItem();
 
@@ -243,6 +246,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         );
         startUpHelpDialog.setTitle("Help");
         closeHelp.setText("Close");
+        closeHelp.setSelected(true);
         closeHelp.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 closeHelpDialog(evt);
@@ -339,31 +343,20 @@ public class TranscriptionGUI extends javax.swing.JFrame {
             }
         });
 
-        jButton1.setText("Close");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                closeTranscriptionTool(evt);
-            }
-        });
-
         javax.swing.GroupLayout buttonPanelLayout = new javax.swing.GroupLayout(buttonPanel);
         buttonPanel.setLayout(buttonPanelLayout);
         buttonPanelLayout.setHorizontalGroup(
             buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, buttonPanelLayout.createSequentialGroup()
-                .addContainerGap(251, Short.MAX_VALUE)
+                .addContainerGap(162, Short.MAX_VALUE)
                 .addComponent(trainPredictButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
-                .addContainerGap())
+                .addGap(164, 164, 164))
         );
         buttonPanelLayout.setVerticalGroup(
             buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(buttonPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(buttonPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(trainPredictButton))
+                .addComponent(trainPredictButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -374,8 +367,10 @@ public class TranscriptionGUI extends javax.swing.JFrame {
             .addGroup(transcriptionPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(transcriptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(tablePanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(buttonPanel, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(transcriptionPanelLayout.createSequentialGroup()
+                        .addGap(12, 12, 12)
+                        .addComponent(buttonPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(tablePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         transcriptionPanelLayout.setVerticalGroup(
@@ -433,6 +428,15 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         });
 
         fileMenu.add(loadPhoneSet);
+
+        quitTool.setText("Quit");
+        quitTool.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeTranscriptionTool(evt);
+            }
+        });
+
+        fileMenu.add(quitTool);
 
         jMenuBar2.add(fileMenu);
 
@@ -540,6 +544,14 @@ public class TranscriptionGUI extends javax.swing.JFrame {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        fileNametoSave = null; 
+        phoneSetFile = null;
+        
+        treeAbsolutePath = null;
+        dirName = null;
+        baseName = null;
+        suffix = null;
+        
         mySqlDetailsDialog.show(false);
         loadTranscription = true;
         saveToFile.setEnabled(true);
@@ -605,7 +617,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         Dimension d = new Dimension(500, 250);
         mySqlDetailsDialog.setSize(d);
         mySqlDetailsDialog.show(true);
-        
+        checkNecessaryEvents("load");
     }//GEN-LAST:event_loadFromMySqlActionPerformed
 
     private void saveAsToFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsToFileActionPerformed
@@ -616,6 +628,17 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
             fileNametoSave = file.getAbsolutePath();
+            File saveFile = new File(fileNametoSave);
+            dirName = saveFile.getParentFile().getAbsolutePath();
+            String filename = saveFile.getName();
+            if(filename.lastIndexOf(".")==-1){
+                baseName = filename;
+                suffix   = "";
+            }
+            else{
+                baseName = filename.substring(0,filename.lastIndexOf("."));
+                suffix   = filename.substring(filename.lastIndexOf("."),filename.length());
+            }
             simplePanel.saveTranscription(file.getAbsolutePath());
         }
         checkNecessaryEvents("save");
@@ -629,11 +652,28 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         int returnVal = fc.showOpenDialog(TranscriptionGUI.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
+            //System.out.println("Desc: "+fc.getTypeDescription(file));
             simplePanel.loadTranscription(file.getAbsolutePath());
+            fileNametoSave = file.getAbsolutePath();
+            File saveFile = new File(fileNametoSave);
+            dirName = saveFile.getParentFile().getAbsolutePath();
+            String filename = saveFile.getName();
+            if(filename.lastIndexOf(".")==-1){
+                baseName = filename;
+                suffix   = "";
+            }
+            else{
+                baseName = filename.substring(0,filename.lastIndexOf("."));
+                suffix   = filename.substring(filename.lastIndexOf("."),filename.length());
+            }
+            //System.out.println("File Base: "+ baseName);
+            //System.out.println("Suffix: "+ suffix);
+            
             loadTranscription = true;
             saveToFile.setEnabled(true);
             saveAsToFile.setEnabled(true);
         }
+        checkNecessaryEvents("load");
     }//GEN-LAST:event_loadFromFileActionPerformed
 
     private void helpMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpMenuItemActionPerformed
@@ -648,7 +688,14 @@ public class TranscriptionGUI extends javax.swing.JFrame {
             startUpHelpDialog.setSize(new Dimension(700, 500));
             startUpHelpDialog.repaint();
             //htmlEditor.addHyperlinkListener(sratUpHelpDialog);
+            //closeHelp.se.doClick(); //.setSelected(true);
+            closeHelp.setEnabled(true);
+            closeHelp.setSelected(true);
+            closeHelp.setFocusable(true);
+            closeHelp.updateUI();
             startUpHelpDialog.show(true);
+            
+            startUpHelpDialog.repaint();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -659,6 +706,19 @@ public class TranscriptionGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_helpMenuItemActionPerformed
 
     private void trainPredictActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_trainPredictActionPerformed
+        //if(phoneSetFile != null && loadTranscription && treeAbsolutePath == null){
+        if(phoneSetFile != null && loadTranscription && treeAbsolutePath == null){
+            if(!checkNecessaryEvents("save")) return;
+            JFileChooser fc = new JFileChooser();
+            fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            int returnVal = fc.showSaveDialog(TranscriptionGUI.this);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+                fileNametoSave = file.getAbsolutePath();
+                simplePanel.saveTranscription(file.getAbsolutePath());
+            }
+            checkNecessaryEvents("save");
+        }
         if(treeAbsolutePath != null){
             simplePanel.trainPredict(treeAbsolutePath);
         }
@@ -701,16 +761,15 @@ public class TranscriptionGUI extends javax.swing.JFrame {
                     return false;
                 }
             }
-            
-            // set treeAbsolutePath
-            if(fileNametoSave != null){
-                 String dirName = (new File(fileNametoSave)).getParentFile().getAbsolutePath();
-                 treeAbsolutePath = dirName+File.separator+"lexicon_"+locale+".lts";
-            }
+        }
+        
+        // set treeAbsolutePath
+        if(fileNametoSave != null){
+            treeAbsolutePath = dirName+File.separator+baseName+".lts";
         }
         
         // When to enable train-predict button
-        if(phoneSetFile != null && loadTranscription && treeAbsolutePath != null){
+        if(phoneSetFile != null && loadTranscription){
             trainPredictButton.setEnabled(true);
         }
         else{
@@ -742,7 +801,6 @@ public class TranscriptionGUI extends javax.swing.JFrame {
     private javax.swing.JMenuItem helpMenuItem;
     private javax.swing.JTextField hostNameTextField;
     private javax.swing.JEditorPane htmlEditor;
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -759,6 +817,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
     private javax.swing.JDialog mySqlDetailsDialog;
     private javax.swing.JButton okButton;
     private javax.swing.JPasswordField passwordTextField;
+    private javax.swing.JMenuItem quitTool;
     private javax.swing.JMenuItem saveAsToFile;
     private javax.swing.JMenuItem saveToFile;
     private javax.swing.JDialog startUpHelpDialog;
