@@ -150,6 +150,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
                 if(words.length == 3){
                     data[i][2] = words[1];
                     setAsManualVerify(i, true);
+                    setAsCorrectSyntax(i, true);
                 }
                 else{
                     data[i][2] = "";
@@ -160,6 +161,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
                 if(words.length >= 2){
                     data[i][2] = words[1];
                     setAsManualVerify(i, true);
+                    setAsCorrectSyntax(i, true);
                 }
                 else{
                     data[i][2] = "";
