@@ -279,7 +279,7 @@ public class MaryHttpClient
     
     public InputStream requestInputStream(String input, String inputType, String outputType, String locale, String audioType, 
                                           String defaultVoiceName, String defaultStyle, Map<String, String> effects, //String defaultEffects,
-                                          boolean streamingAudio) throws IOException
+                                          boolean streamingAudio, String outputTypeParams) throws IOException
     {
         
         StringBuilder params = new StringBuilder();
@@ -289,6 +289,9 @@ public class MaryHttpClient
         params.append("&LOCALE=").append(URLEncoder.encode(locale, "UTF-8"));
         if (audioType != null) {
             params.append("&AUDIO=").append(URLEncoder.encode((streamingAudio && data.serverCanStream) ? audioType+"_STREAM" : audioType + "_FILE", "UTF-8"));
+        }
+        if (outputTypeParams != null) {
+            params.append("&OUTPUT_TYPE_PARAMS=").append(URLEncoder.encode(outputTypeParams, "UTF-8"));
         }
         
         if (defaultVoiceName != null) {
@@ -794,7 +797,7 @@ public class MaryHttpClient
     public void streamAudio(String input, String inputType, String locale, String audioType, String defaultVoiceName, String defaultStyle, Map<String, String> defaultEffects, marytts.util.data.audio.AudioPlayer audioPlayer, AudioPlayerListener listener)
     throws UnknownHostException, IOException, Exception
     {
-        _process(input, inputType, "AUDIO", locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, audioPlayer, 0, true, listener);
+        _process(input, inputType, "AUDIO", locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, audioPlayer, 0, true, null, listener);
     }
 
     /**
@@ -806,6 +809,7 @@ public class MaryHttpClient
      * @param audioType the name of the audio format, e.g. "WAVE" or "MP3".
      * @param defaultVoiceName the name of the voice to use, e.g. de7 or us1.
      * @param audioEffects the audio effects and their parameters to be applied as a post-processing step, e.g. Robot(Amount=100), Whisper(amount=50)
+     * @param outputTypeParams any additional parameters, e.g. for output type TARGETFEATURES, the space-separated list of features to produce. Can be null. 
      * @param output the output stream into which the data from the server is to be written.
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
@@ -814,17 +818,17 @@ public class MaryHttpClient
      * @see #getVoices()
      */
     public void process(String input, String inputType, String outputType, String locale,
-        String audioType, String defaultVoiceName, String defaultStyle, Map<String, String> defaultEffects, OutputStream output)
+        String audioType, String defaultVoiceName, String defaultStyle, Map<String, String> defaultEffects, String outputTypeParams, OutputStream output)
         throws UnknownHostException, IOException, Exception
     {
-        _process(input, inputType, outputType, locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, output, 0, false, null);
+        _process(input, inputType, outputType, locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, output, 0, false, outputTypeParams, null);
     }
     
     public void process(String input, String inputType, String outputType, String locale,
             String audioType, String defaultVoiceName, OutputStream output)
             throws UnknownHostException, IOException, Exception
     {
-        process( input,  inputType,  outputType, locale, audioType,  defaultVoiceName,  "", null, output);
+        process( input,  inputType,  outputType, locale, audioType,  defaultVoiceName,  "", null, null, output);
     }
 
     /**
@@ -836,6 +840,7 @@ public class MaryHttpClient
      * @param audioType the name of the audio format, e.g. "WAVE" or "MP3".
      * @param defaultVoiceName the name of the voice to use, e.g. de7 or us1.
      * @param audioEffects the audio effects and their parameters to be applied as a post-processing step, e.g. Robot(Amount=100), Whisper(amount=50)
+     * @param outputTypeParams any additional parameters, e.g. for output type TARGETFEATURES, the space-separated list of features to produce. Can be null. 
      * @param output the output stream into which the data from the server is to be written.
      * @param timeout if >0, sets a timer to as many milliseconds; if processing is not finished by then,
      * the connection with the Mary server is forcefully cut, resulting in an IOException.
@@ -846,22 +851,23 @@ public class MaryHttpClient
      * @see #getVoices()
      */
     public void process(String input, String inputType, String outputType, String locale,
-        String audioType, String defaultVoiceName, String defaultStyle, Map<String, String> defaultEffects, OutputStream output, long timeout)
+        String audioType, String defaultVoiceName, String defaultStyle, Map<String, String> defaultEffects, String outputTypeParams,
+        OutputStream output, long timeout)
         throws UnknownHostException, IOException, Exception
     {
-        _process(input, inputType, outputType, locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, output, timeout, false, null);
+        _process(input, inputType, outputType, locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, output, timeout, false, outputTypeParams, null);
     }
 
     public void process(String input, String inputType, String outputType, String locale,
          String audioType, String defaultVoiceName, OutputStream output, long timeout)
          throws UnknownHostException, IOException, Exception
     {
-        process(input,  inputType, outputType, locale, audioType,  defaultVoiceName, "",  null, output, timeout);
+        process(input,  inputType, outputType, locale, audioType,  defaultVoiceName, "",  null, null, output, timeout);
     }
 
     private void _process(String input, String inputType, String outputType, String locale, String audioType, 
                           String defaultVoiceName, String defaultStyle, Map<String, String> defaultEffects, 
-                          Object output, long timeout, boolean streamingAudio, AudioPlayerListener playerListener)
+                          Object output, long timeout, boolean streamingAudio, String outputTypeParams, AudioPlayerListener playerListener)
                                                                            throws UnknownHostException, IOException, Exception
     {
         boolean isFreettsAudioPlayer = false;
@@ -878,7 +884,7 @@ public class MaryHttpClient
         
         final InputStream fromServerStream = requestInputStream(input, inputType, outputType, locale, audioType, 
                                                                 defaultVoiceName, defaultStyle, defaultEffects, 
-                                                                streamingAudio);
+                                                                streamingAudio, outputTypeParams);
 
         // If timeout is > 0, create a timer. It will close the input stream,
         // thus causing an IOException in the reading code.
@@ -1072,19 +1078,21 @@ public class MaryHttpClient
         System.err.println();
         System.err.println("Properties are: -Dinput.type=INPUTTYPE");
         System.err.println("                -Doutput.type=OUTPUTTYPE");
+        System.err.println("                -Dlocale=LOCALE");
         System.err.println("                -Daudio.type=AUDIOTYPE");
         System.err.println("                -Dvoice.default=male|female|de1|de2|de3|...");
         System.err.println("                -Dserver.host=HOSTNAME");
         System.err.println("                -Dserver.port=PORTNUMBER");
         System.err.println(
-            "where INPUTTYPE is one of TEXT_DE, TEXT_EN, RAWMARYXML, TOKENISED_DE, PREPROCESSED_DE, CHUNKED_DE,");
+            "where INPUTTYPE is one of TEXT, RAWMARYXML, TOKENS, WORDS, POS,");
         System.err.println(
-            "                          PHONEMISED_DE, INTONISED_DE, POSTPROCESSED_DE, ACOUSTPARAMS or MBROLA,");
-        System.err.println("     OUTPUTTYPE is one of TOKENISED_DE, PREPROCESSED_DE, CHUNKED_DE, PHONEMISED_DE");
-        System.err.println("                          INTONISED_DE, POSTPROCESSED_DE, ACOUSTPARAMS, MBROLA, or AUDIO,");
-        System.err.println("and AUDIOTYPE is one of AIFC, AIFF, AU, SND, WAVE, MP3, and Vorbis.");
-        System.err.println("The default values for input.type and output.type are TEXT_DE and AUDIO,");
-        System.err.println("respectively; the default audio.type is WAVE.");
+            "                          PHONEMES, INTONATION, ALLOPHONES, ACOUSTPARAMS or MBROLA,");
+        System.err.println("     OUTPUTTYPE is one of TOKENS, WORDS, POS, PHONEMES,");
+        System.err.println("                          INTONATION, ALLOPHONES, ACOUSTPARAMS, MBROLA, or AUDIO,");
+        System.err.println("     LOCALE is the language and/or the country (e.g., de, en_US);");
+        System.err.println("and AUDIOTYPE is one of AIFF, AU, WAVE, MP3, and Vorbis.");
+        System.err.println("The default values for input.type and output.type are TEXT and AUDIO,");
+        System.err.println("respectively; default locale is en_US; the default audio.type is WAVE.");
         System.err.println();
         System.err.println("inputfile must be of type input.type.");
         System.err.println("If no inputfile is given, the program will read from standard input.");
@@ -1103,7 +1111,7 @@ public class MaryHttpClient
         MaryHttpClient mc = new MaryHttpClient();
         BufferedReader inputReader = null;
         // read requested input/output type from properties:
-        String inputType = System.getProperty("input.type", "TEXT_DE");
+        String inputType = System.getProperty("input.type", "TEXT");
         String outputType = System.getProperty("output.type", "AUDIO");
         String locale = System.getProperty("locale", "en_US");
         String audioType = System.getProperty("audio.type", "WAVE");
@@ -1119,10 +1127,11 @@ public class MaryHttpClient
                 usage();
                 System.exit(1);
         }
-        String defaultVoiceName = System.getProperty("voice.default", "de7");
+        String defaultVoiceName = System.getProperty("voice.default");
         String defaultStyle = "";
         Map<String, String> defaultEffects = null;
-
+        String outputTypeParams = System.getProperty("output.type.params"); // null if not present
+        
         if (args.length > 0) {
             File file = new File(args[0]);
             inputReader = new BufferedReader(new FileReader(file));
@@ -1139,7 +1148,7 @@ public class MaryHttpClient
         }
 
         try {
-            mc.process(sb.toString(), inputType, outputType, locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, System.out);
+            mc.process(sb.toString(), inputType, outputType, locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, outputTypeParams, System.out);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);

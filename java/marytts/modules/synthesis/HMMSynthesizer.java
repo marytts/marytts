@@ -66,6 +66,8 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.SynthesisException;
+import marytts.features.FeatureRegistry;
+import marytts.features.TargetFeatureComputer;
 import marytts.htsengine.HMMVoice;
 import marytts.htsengine.PhoneTranslator;
 import marytts.modules.HTSEngine;
@@ -223,6 +225,9 @@ public class HMMSynthesizer implements WaveformSynthesizer {
              if (exampleText != null) {
                  in.readFrom(new StringReader(exampleText));
                  in.setDefaultVoice(v);
+                 assert v instanceof HMMVoice : "Expected voice to be a HMMVoice, but it is a " + v.getClass().toString();
+                 String features = ((HMMVoice)v).getHMMData().getFeatureDefinition().getFeatureNames();
+                 in.setOutputParams(features);
 
                  MaryData targetFeatures = targetFeatureLister.process(in);
                  targetFeatures.setDefaultVoice(v);
@@ -271,7 +276,10 @@ public class HMMSynthesizer implements WaveformSynthesizer {
             }
         }
         try {
-            String targetFeatureString = targetFeatureLister.listTargetFeatures(voice.getTargetFeatureComputer(), segmentsAndBoundaries);
+            assert voice instanceof HMMVoice : "Expected voice to be a HMMVoice, but it is a " + voice.getClass().toString();
+            String features = ((HMMVoice)voice).getHMMData().getFeatureDefinition().getFeatureNames();
+            TargetFeatureComputer comp = FeatureRegistry.getTargetFeatureComputer(voice, features);
+            String targetFeatureString = targetFeatureLister.listTargetFeatures(comp, segmentsAndBoundaries);
             MaryData targetFeatures = new MaryData(targetFeatureLister.outputType(), voice.getLocale());
             targetFeatures.setPlainText(targetFeatureString);
             targetFeatures.setDefaultVoice(voice);

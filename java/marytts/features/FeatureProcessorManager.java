@@ -29,7 +29,9 @@
 package marytts.features;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TreeMap;
 
 import marytts.modules.phonemiser.AllophoneSet;
 
@@ -41,7 +43,7 @@ public class FeatureProcessorManager
     
     public FeatureProcessorManager()
     {
-        processors = new HashMap<String,MaryFeatureProcessor>();
+        processors = new TreeMap<String,MaryFeatureProcessor>();
 
         MaryGenericFeatureProcessors.TargetElementNavigator segment = new MaryGenericFeatureProcessors.SegmentNavigator();
         MaryGenericFeatureProcessors.TargetElementNavigator prevSegment = new MaryGenericFeatureProcessors.PrevSegmentNavigator();
@@ -133,6 +135,85 @@ public class FeatureProcessorManager
         // vrnd: 0=n/a +=on -=off
         phonefeatures2values.put("vrnd", new String[] {"0", "+", "-"});
     }
+    
+    /**
+     * Get the locale for this feature processor manager.
+     * Locale-specific subclasses must override this method to return
+     * the respective locale. This base class returns null to indicate
+     * that the feature processor manager can be used as a fallback for
+     * any locale.
+     * @return
+     */
+    public Locale getLocale()
+    {
+        return null;
+    }
+    
+    /**
+     * Provide a space-separated list of the feature names for all the 
+     * feature processors known to this feature processor manager.
+     * The list is unsorted except that byte-valued feature processors come first,
+     * followed by short-valued feature processors, followed by continuous feature
+     * processors.
+     * @return
+     */
+    public String listFeatureProcessorNames()
+    {
+        String bytes = listByteValuedFeatureProcessorNames();
+        String shorts = listShortValuedFeatureProcessorNames();
+        String conts = listContinuousFeatureProcessorNames();
+        StringBuilder sb = new StringBuilder(bytes.length()+shorts.length()+conts.length()+2);
+        sb.append(bytes);
+        if (bytes.length() > 0 && shorts.length() > 0) {
+            sb.append(" ");
+        }
+        sb.append(shorts);
+        if (conts.length() > 0) {
+            sb.append(" ");
+        }
+        sb.append(conts);
+        return sb.toString();
+    }
+    
+    public String listByteValuedFeatureProcessorNames()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (String name : processors.keySet()) {
+            MaryFeatureProcessor fp = processors.get(name);
+            if (fp instanceof ByteValuedFeatureProcessor) {
+                if (sb.length() > 0) sb.append(" ");
+                sb.append(name);
+            }
+        }
+        return sb.toString();
+    }
+
+    public String listShortValuedFeatureProcessorNames()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (String name : processors.keySet()) {
+            MaryFeatureProcessor fp = processors.get(name);
+            if (fp instanceof ShortValuedFeatureProcessor) {
+                if (sb.length() > 0) sb.append(" ");
+                sb.append(name);
+            }
+        }
+        return sb.toString();
+    }
+
+    public String listContinuousFeatureProcessorNames()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (String name : processors.keySet()) {
+            MaryFeatureProcessor fp = processors.get(name);
+            if (fp instanceof ContinuousFeatureProcessor) {
+                if (sb.length() > 0) sb.append(" ");
+                sb.append(name);
+            }
+        }
+        return sb.toString();
+    }
+
     
     protected void addFeatureProcessor(MaryFeatureProcessor fp)
     {

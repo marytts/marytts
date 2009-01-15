@@ -826,7 +826,7 @@ public class MaryServer {
                 }
                 audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
 
-                Request request = new Request(inputType, outputType, locale, voice, effects, style, id, audioFileFormat, streamingAudio);
+                Request request = new Request(inputType, outputType, locale, voice, effects, style, id, audioFileFormat, streamingAudio, null);
                 outputWriter.println(id);
                 //   -- create new clientMap entry
                 Object[] value = new Object[2];

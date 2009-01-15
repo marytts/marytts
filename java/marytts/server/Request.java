@@ -50,15 +50,18 @@ import javax.xml.transform.TransformerException;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
+import marytts.datatypes.MaryDataTypeWithParams;
 import marytts.datatypes.MaryXML;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.synthesis.Voice;
+import marytts.server.http.MaryHttpServerUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
+import org.apache.http.HttpResponse;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jsresources.AppendableSequenceAudioInputStream;
@@ -87,6 +90,7 @@ import org.w3c.dom.traversal.TreeWalker;
 public class Request {
     protected MaryDataType inputType;
     protected MaryDataType outputType;
+    protected String outputTypeParams;
     protected AudioFileFormat audioFileFormat;
     protected AppendableSequenceAudioInputStream appendableAudioStream;
     protected Locale defaultLocale;
@@ -110,12 +114,13 @@ public class Request {
                    Voice defaultVoice, String defaultEffects, String defaultStyle,
                    int id, AudioFileFormat audioFileFormat)
     {
-    	this(inputType, outputType, defaultLocale, defaultVoice, defaultEffects, defaultStyle, id, audioFileFormat, false);
+    	this(inputType, outputType, defaultLocale, defaultVoice, defaultEffects, defaultStyle, id, audioFileFormat, false, null);
     }
     
     public Request(MaryDataType inputType, MaryDataType outputType, Locale defaultLocale,
                    Voice defaultVoice, String defaultEffects, String defaultStyle,
-                   int id, AudioFileFormat audioFileFormat, boolean streamAudio)
+                   int id, AudioFileFormat audioFileFormat, boolean streamAudio,
+                   String outputTypeParams)
     {
         if (!inputType.isInputType())
             throw new IllegalArgumentException("not an input type: " + inputType.name());
@@ -138,6 +143,7 @@ public class Request {
             this.appendableAudioStream = null;
         }
         this.logger = Logger.getLogger("R " + id);
+        this.outputTypeParams = outputTypeParams;
         this.inputData = null;
         this.outputData = null;
         StringBuffer info =
@@ -277,7 +283,7 @@ public class Request {
         if (inputType.isTextType() && inputType.name().startsWith("TEXT")
             || inputType.isXMLType() && !inputType.isMaryXML()) {
             // Convert to RAWMARYXML
-            rawmaryxml = processOneChunk(inputData, MaryDataType.get("RAWMARYXML"));
+            rawmaryxml = processOneChunk(inputData, MaryDataType.get("RAWMARYXML"), null);
             
             //assert rawmaryxml.getDefaultVoice() != null;
             inputDataList = splitIntoChunks(rawmaryxml);
@@ -286,7 +292,7 @@ public class Request {
             inputDataList = splitIntoChunks(inputData);
         } else {
             // other input data types are processed as a whole
-            outputData = processOneChunk(inputData, outputType);
+            outputData = processOneChunk(inputData, outputType, outputTypeParams);
             assert outputData.getDefaultVoice() != null;
             if (appendableAudioStream != null) appendableAudioStream.doneAppending();
             return;
@@ -317,7 +323,7 @@ public class Request {
             } else { // process "real" data:
                 MaryData oneInputData = extractParagraphAsMaryData(rawmaryxml, currentInputParagraph);
                 //assert oneInputData.getDefaultVoice() != null;
-                MaryData oneOutputData = processOneChunk(oneInputData, outputType);
+                MaryData oneOutputData = processOneChunk(oneInputData, outputType, outputTypeParams);
                 //assert oneOutputData.getDefaultVoice() != null;
                 if (outputType.isMaryXML()) {
                     NodeList outParagraphList = oneOutputData.getDocument().getDocumentElement().getElementsByTagName(MaryXML.PARAGRAPH);
@@ -353,7 +359,7 @@ public class Request {
      * @param usedModules for the record, the modules used (will be added to)
      * @param timingInfo for the record, the processing time used for each module (will be added to)
      */
-    private MaryData processOneChunk(MaryData oneInputData, MaryDataType oneOutputType) 
+    private MaryData processOneChunk(MaryData oneInputData, MaryDataType oneOutputType, String outputParams) 
     throws TransformerConfigurationException, FileNotFoundException, TransformerException, IOException, Exception {
         if (logger.getEffectiveLevel().equals(Level.DEBUG)
             && (oneInputData.getType().isTextType() || oneInputData.getType().isXMLType())) {
@@ -401,6 +407,9 @@ public class Request {
             if (m.outputType() == MaryDataType.get("AUDIO")) {
                 currentData.setAudioFileFormat(audioFileFormat);
                 currentData.setAudio(appendableAudioStream);
+            }
+            if (m.outputType() == oneOutputType) {
+                currentData.setOutputParams(outputParams);
             }
             if (logger.getEffectiveLevel().equals(Level.DEBUG)
                 && (currentData.getType().isTextType() || currentData.getType().isXMLType())) {
@@ -722,6 +731,56 @@ public class Request {
             throw e;
         }
         timer.cancel();
+    }
+
+    /**
+     * Write the output data to the specified Http response.
+     */
+    public void writeNonstreamingOutputData(HttpResponse response) throws Exception 
+    {
+        if (outputData == null)
+            throw new NullPointerException("No output data -- did process() succeed?");
+     
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        
+        // Safety net: if the output is not written within a certain amount of
+        // time, give up. This prevents our thread from being locked forever if an
+        // output deadlock occurs (happened very rarely on Java 1.4.2beta).
+        final OutputStream os = outputStream;
+        Timer timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            public void run() {
+                logger.warn("Timeout occurred while writing output. Forcefully closing output stream.");
+                try {
+                    os.close();
+                } catch (IOException ioe) {
+                    logger.warn(ioe);
+                }
+            }
+        };
+        int timeout = MaryProperties.getInteger("modules.timeout", 10000);
+        if (outputType.equals(MaryDataType.get("AUDIO"))) {
+            // This means either a lot of data (for WAVE etc.) or a lot of processing
+            // effort (for MP3), so allow for a lot of time:
+            timeout *= 5;
+        }
+        timer.schedule(timerTask, timeout);
+   
+        try {
+            outputData.writeTo(os);
+        } catch (Exception e) {
+            timer.cancel();
+            throw e;
+        }
+        
+        timer.cancel(); 
+        
+        String contextType;
+        if (outputData.getType().isXMLType() || outputData.getType().isTextType()) //text output
+            contextType = "text/plain; charset=UTF-8";
+        else //audio output
+            contextType = MaryHttpServerUtils.getMimeType(audioFileFormat.getType());
+        MaryHttpServerUtils.toHttpResponse((ByteArrayOutputStream)os, response, contextType);
     }
 
 }

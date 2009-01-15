@@ -43,6 +43,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Locale;
 import java.util.SortedSet;
+import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 
@@ -55,12 +56,14 @@ import javax.xml.transform.TransformerFactory;
 
 import marytts.Version;
 import marytts.datatypes.MaryDataType;
+import marytts.exceptions.NoSuchPropertyException;
+import marytts.features.FeatureProcessorManager;
+import marytts.features.FeatureRegistry;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.Synthesis;
 import marytts.modules.synthesis.Voice;
 import marytts.server.http.MaryHttpServer;
-import marytts.server.http.RequestHttp;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.io.FileUtils;
@@ -130,7 +133,6 @@ public class Mary {
 
     private static void startModules()
         throws ClassNotFoundException, InstantiationException, Exception {
-        // TODO: add parameterisation here, to be able to provide configuration parameters to modules at startup time 
         for (String moduleClassName : MaryProperties.moduleInitInfo()) {
             MaryModule m = ModuleRegistry.instantiateModule(moduleClassName);
             // Partially fill module repository here; 
@@ -158,6 +160,32 @@ public class Mary {
         }
     }
 
+    private static void setupFeatureProcessors()
+    throws Exception
+    {
+        String featureProcessorManagers = MaryProperties.getProperty("featuremanager.classes.list");
+        if (featureProcessorManagers == null) {
+            throw new NoSuchPropertyException("Expected list property 'featuremanager.classes.list' is missing.");
+        }
+        StringTokenizer st = new StringTokenizer(featureProcessorManagers);
+        while (st.hasMoreTokens()) {
+            String fpmClassName = st.nextToken();
+            try {
+                Class fpmClass = Class.forName(fpmClassName);
+                FeatureProcessorManager mgr = (FeatureProcessorManager) fpmClass.newInstance();
+                Locale locale = mgr.getLocale();
+                if (locale != null) {
+                    FeatureRegistry.setFeatureProcessorManager(locale, mgr);
+                } else {
+                    logger.debug("Setting fallback feature processor manager to '"+fpmClassName+"'");
+                    FeatureRegistry.setFallbackFeatureProcessorManager(mgr);
+                }
+            } catch (Throwable t) {
+                throw new Exception("Cannot instantiate feature processor manager '"+fpmClassName+"'", t);
+            }
+        }
+    }
+    
     /**
      * Start the MARY system and all modules. This method must be called
      * once before any calls to {@link #process()} are possible.
@@ -213,6 +241,8 @@ public class Mary {
         // Essential environment checks:
         EnvironmentChecks.check();
 
+        setupFeatureProcessors();
+        
         // Instantiate module classes and startup modules:
         startModules();
 

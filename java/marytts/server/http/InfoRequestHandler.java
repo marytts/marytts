@@ -61,6 +61,8 @@ import marytts.Version;
 import marytts.client.http.Address;
 import marytts.client.http.MaryFormData;
 import marytts.datatypes.MaryDataType;
+import marytts.features.FeatureProcessorManager;
+import marytts.features.FeatureRegistry;
 import marytts.htsengine.HMMVoice;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
@@ -175,6 +177,38 @@ public class InfoRequestHandler extends BaseHttpRequestHandler
                 }
             }
             MaryHttpServerUtils.errorMissingQueryParameter(response, "'effect'");
+            return null;
+        }
+        else if (request.equals("features")) {
+            if (queryItems != null) {
+                // List of features that can be computed for the voice
+                FeatureProcessorManager mgr = null;
+                String voiceName = queryItems.get("voice");
+                String localeName = queryItems.get("locale");
+                if (voiceName != null) {
+                    Voice voice = Voice.getVoice(voiceName);
+                    if (voice == null) {
+                        MaryHttpServerUtils.errorWrongQueryParameterValue(response, "voice", voiceName, "No voice with that name");
+                        return null;
+                    }
+                    mgr = FeatureRegistry.getFeatureProcessorManager(voice);
+                    if (mgr == null) {
+                        mgr = FeatureRegistry.getFeatureProcessorManager(voice.getLocale());
+                    }
+                    if (mgr == null) {
+                        mgr = FeatureRegistry.getFallbackFeatureProcessorManager();
+                    }
+                } else if (localeName != null) {
+                    Locale locale = MaryUtils.string2locale(localeName);
+                    mgr = FeatureRegistry.getFeatureProcessorManager(locale);
+                    if (mgr == null) {
+                        mgr = FeatureRegistry.getFallbackFeatureProcessorManager();
+                    }
+                }
+                if (mgr != null)
+                    return mgr.listFeatureProcessorNames();
+            }
+            MaryHttpServerUtils.errorMissingQueryParameter(response, "'voice' or 'locale'");
             return null;
         }
         
