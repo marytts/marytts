@@ -906,7 +906,7 @@ public class SignalProcUtils {
                 noise[i] = Math.random()-0.5;
             
             FIRFilter f=null;
-            if (normalizedStartFreq>0.0 && normalizedEndFreq<1.0f) //Bandpass
+            if (normalizedStartFreq>0.0 && normalizedEndFreq<0.5f) //Bandpass
                 f = new BandPassFilter(normalizedStartFreq, normalizedEndFreq);
             else if (normalizedStartFreq>0.0)
                 f = new HighPassFilter(normalizedStartFreq);
@@ -1959,6 +1959,76 @@ public class SignalProcUtils {
     {
         return addSignals(s1, 1.0, s2, -1.0);
     }
+    
+    //yInitial should be at least of length p=a.length and should contain y values from previous frame
+    public static double[] arFilter(double[] x, double[] a, double lpGain, double[] yInitial)
+    {
+        double[] y = new double[x.length];
+        int p = a.length;
+        int n, k;
+        for (n=0; n<x.length; n++)
+        {
+            y[n] = lpGain*x[n];
+            for (k=1; k<=Math.min(p, n); k++)
+                y[n] += a[k-1]*y[n-k];
+            for (k=n+1; k<=p; k++)
+                y[n] += a[k-1]*yInitial[yInitial.length-k+n];
+        }
+        
+        return y;
+    }
+    
+    public static double[] fdFilter(double[] x, float startFreqInHz, float endFreqInHz, int samplingRateInHz, int fftSize)
+    {
+        while (fftSize<x.length)
+            fftSize *= 2;
+        
+        ComplexArray frameDft = new ComplexArray(fftSize);
+        System.arraycopy(x, 0, frameDft.real, 0, x.length);
+        
+        if (fftSize%2!=0)
+            fftSize++;
+        
+        if (MathUtils.isPowerOfTwo(fftSize))
+            FFT.transform(frameDft.real, frameDft.imag, false);
+        else
+            frameDft = FFTMixedRadix.fftComplex(frameDft);
+        
+        int maxFreq = fftSize/2+1;
+        int startFreqInd = SignalProcUtils.freq2index(startFreqInHz, samplingRateInHz, maxFreq-1);
+        int endFreqInd = SignalProcUtils.freq2index(endFreqInHz, samplingRateInHz, maxFreq-1);
+        
+        int i;
+        for (i=0; i<startFreqInd; i++)
+        {
+            frameDft.real[i] = 0.0;
+            frameDft.imag[i] = 0.0;
+        }
+        
+        for (i=endFreqInd+1; i<maxFreq; i++)
+        {
+            frameDft.real[i] = 0.0;
+            frameDft.imag[i] = 0.0;
+        }
+        
+        for (i=maxFreq; i<fftSize; i++)
+        {
+            frameDft.real[i] = frameDft.real[fftSize-i];
+            frameDft.imag[i] = -1.0*frameDft.imag[fftSize-i];
+        }
+        
+        if (MathUtils.isPowerOfTwo(fftSize))
+            FFT.transform(frameDft.real, frameDft.imag, true);
+        else
+            frameDft = FFTMixedRadix.ifft(frameDft);
+        
+        double[] y = new double[x.length];
+        for (i=0; i<x.length; i++)
+            y[i] = frameDft.real[i];
+        
+        return y;
+    }
+
     
     public static void main(String[] args)
     {  

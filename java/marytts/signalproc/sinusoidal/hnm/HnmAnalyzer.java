@@ -114,7 +114,7 @@ public class HnmAnalyzer {
         
         //2.b. If voiced, maximum frequency of voicing estimation
         //     Otherwise, maximum frequency of voicing is set to 0.0
-        float maxFreqOfVoicingInHz = 400.0f; //This should come from the above automatic analysis
+        float maxFreqOfVoicingInHz = 2950.0f; //This should come from the above automatic analysis
         
         //2.c. Refined pitch estimation
         ////
