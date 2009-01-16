@@ -67,6 +67,7 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
     }
     
     public void initialiseComp()
+    throws Exception
     {
         maryDir = new File(db.getProp(db.FILEDIR));
         
@@ -214,7 +215,7 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
         return percent;
     }
 
-    public static void main(String[] args) throws IOException
+    public static void main(String[] args) throws Exception
     {
         PhoneUnitfileWriter ufw = new PhoneUnitfileWriter();
         new DatabaseLayout(ufw); 

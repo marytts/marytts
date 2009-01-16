@@ -282,7 +282,7 @@ public class BackchannelUnitfileWriter extends VoiceImportComponent
         return percent;
     }
 
-    public static void main(String[] args) throws IOException
+    public static void main(String[] args) throws Exception
     {
         BackchannelUnitfileWriter ufw = new BackchannelUnitfileWriter();
         new DatabaseLayout(ufw); 

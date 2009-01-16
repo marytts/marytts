@@ -230,7 +230,7 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
     /**
      * @param args
      */
-    public static void main(String[] args) throws IOException
+    public static void main(String[] args) throws Exception
     {
         AcousticFeatureFileWriter acfeatsWriter = 
             new AcousticFeatureFileWriter();

@@ -11,6 +11,8 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import marytts.client.MaryClient;
+import marytts.client.http.Address;
+import marytts.client.http.MaryHttpClient;
 import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;
 
@@ -27,7 +29,7 @@ public class AllophonesExtractor extends VoiceImportComponent
     protected File unitfeatureDir;
     protected String featsExt = ".xml";
     protected String locale;
-    protected MaryClient mary;
+    protected MaryHttpClient mary;
     protected String maryInputType;
     protected String maryOutputType;
     
@@ -62,10 +64,11 @@ public class AllophonesExtractor extends VoiceImportComponent
         maryOutputType = "ALLOPHONES";
     }
      
-     public SortedMap getDefaultProps(DatabaseLayout db){
-         this.db = db;
-         if (props == null){
-             props = new TreeMap();
+     public SortedMap<String,String> getDefaultProps(DatabaseLayout theDb)
+     {
+         this.db = theDb;
+         if (props == null) {
+             props = new TreeMap<String, String>();
              props.put(ALLOPHONES, db.getProp(db.ROOTDIR)
                      +"prompt_allophones"
                      +System.getProperty("file.separator"));
@@ -75,19 +78,21 @@ public class AllophonesExtractor extends VoiceImportComponent
          return props;
      }
      
-     protected void setupHelp(){
-         props2Help = new TreeMap();
+     protected void setupHelp()
+     {
+         props2Help = new TreeMap<String, String>();
          props2Help.put(ALLOPHONES, "directory to store allophonesXML files." 
                  +"Will be created if it does not exist");
          props2Help.put(MARYSERVERHOST,"the host were the Mary server is running, default: \"localhost\"");
          props2Help.put(MARYSERVERPORT,"the port were the Mary server is listening, default: \"59125\"");
      }
      
-     public MaryClient getMaryClient() throws IOException
+     public MaryHttpClient getMaryClient() throws IOException
      {
         if (mary == null) {
             try{
-                mary = new MaryClient(getProp(MARYSERVERHOST), Integer.parseInt(getProp(MARYSERVERPORT)));        
+                Address server = new Address(getProp(MARYSERVERHOST), Integer.parseInt(getProp(MARYSERVERPORT)));
+                mary = new MaryHttpClient(server);
             } catch (IOException e){
                 throw new IOException("Could not connect to Maryserver at "
                         +getProp(MARYSERVERHOST)+" "+getProp(MARYSERVERPORT));
@@ -110,7 +115,8 @@ public class AllophonesExtractor extends VoiceImportComponent
         return true;
     }
 
-    public void computeFeaturesFor(String basename, String inputDir, String outputDir) throws IOException
+    public void computeFeaturesFor(String basename, String inputDir, String outputDir)
+    throws IOException
     {
         String text;
         Locale localVoice;
@@ -145,7 +151,7 @@ public class AllophonesExtractor extends VoiceImportComponent
         }
         
         OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( outputDir, basename + featsExt )));
-        MaryClient maryClient = getMaryClient();
+        MaryHttpClient maryClient = getMaryClient();
         
         Vector<MaryClient.Voice> voices = maryClient.getVoices(localVoice);
         // try again:

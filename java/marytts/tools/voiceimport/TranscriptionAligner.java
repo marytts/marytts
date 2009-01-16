@@ -80,7 +80,7 @@ public class TranscriptionAligner extends VoiceImportComponent {
     int skipcost;
     AllophoneSet allophoneSet;
     
-    // String for a baundary
+    // String for a boundary
     private String possibleBnd = "_";
 
     
@@ -99,12 +99,12 @@ public class TranscriptionAligner extends VoiceImportComponent {
         
     }
     
-    public SortedMap getDefaultProps(DatabaseLayout db) {
-        this.db = db;
+    public SortedMap<String,String> getDefaultProps(DatabaseLayout theDb) {
+        this.db = theDb;
         String allophoneSetXml;
         locale = db.getProp(db.LOCALE);
         if (props == null){
-            props = new TreeMap();
+            props = new TreeMap<String, String>();
             
             // original transcriptions (?LABDIR / TEXTDIR)
             String origTrans = System.getProperty(ORIGTRANS);
@@ -134,16 +134,13 @@ public class TranscriptionAligner extends VoiceImportComponent {
             props.put(RESULTTRANS,resultTrans);
                         
             // alignment costs
-            if(locale.startsWith("de")){
-                allophoneSetXml = db.getProp(db.MARYBASE)
-                        +File.separator+"lib"+File.separator+"modules"
-                        +File.separator+"de"+File.separator+"cap"+File.separator+"phoneme-list-de.xml";
-            }
-            else{
-                allophoneSetXml = db.getProp(db.MARYBASE)
-                        +File.separator+"lib"+File.separator+"modules"
-                        +File.separator+"en"+File.separator+"cap"+File.separator+"phoneme-list-en.xml";
-            }
+            // generate file location of allophone definition file from locale as:
+            // MARYBASE/lib/modules/en/us/lexicon/allophones.en_US.xml
+            String[] localeParts = locale.split("_");
+            allophoneSetXml = db.getProp(db.MARYBASE)+"/lib/modules/"
+                + localeParts[0].toLowerCase()
+                + ((localeParts.length > 1) ? "/"+localeParts[1].toLowerCase() : "")
+                + "/lexicon/allophones."+locale+".xml";
             props.put(ALLOPHONEXML, allophoneSetXml);
 
         }
@@ -151,7 +148,7 @@ public class TranscriptionAligner extends VoiceImportComponent {
     }
     
     protected void setupHelp(){
-        props2Help = new TreeMap();
+        props2Help = new TreeMap<String, String>();
         props2Help.put(ORIGTRANS,"directory containing the files with text and automatic phonemization");
         props2Help.put(CORRTRANS,"directory containing manually corrected transcriptions");
         props2Help.put(RESULTTRANS,"directory for the texts with aligned corrected transcriptions");

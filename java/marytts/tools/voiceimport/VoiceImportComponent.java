@@ -52,7 +52,9 @@ public abstract class VoiceImportComponent
      * @param bnl the list of basenames
      * @param props the map from properties to values
      */
-    public final void initialise(BasenameList bnl, SortedMap<String,String> props){
+    public final void initialise(BasenameList bnl, SortedMap<String,String> props)
+    throws Exception
+    {
         //setupHelp(); this is now done by DatabaseLayout
         this.props = props;
         this.bnl = bnl;
@@ -66,7 +68,9 @@ public abstract class VoiceImportComponent
      * 
      * @param bnl the list of basenames
      */
-    public void initialiseComp(){}
+    public void initialiseComp()
+    throws Exception
+    {}
         
     
     /**

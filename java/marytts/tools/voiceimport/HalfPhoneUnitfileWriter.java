@@ -54,6 +54,7 @@ public class HalfPhoneUnitfileWriter extends PhoneUnitfileWriter
     }
     
     public void initialiseComp()
+    throws Exception
     {
         maryDir = new File(db.getProp(db.FILEDIR));
         

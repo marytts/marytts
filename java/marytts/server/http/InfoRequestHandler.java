@@ -196,11 +196,17 @@ public class InfoRequestHandler extends BaseHttpRequestHandler
                         mgr = FeatureRegistry.getFeatureProcessorManager(voice.getLocale());
                     }
                     if (mgr == null) {
+                        mgr = FeatureRegistry.getFeatureProcessorManager(new Locale(voice.getLocale().getLanguage()));
+                    }
+                    if (mgr == null) {
                         mgr = FeatureRegistry.getFallbackFeatureProcessorManager();
                     }
                 } else if (localeName != null) {
                     Locale locale = MaryUtils.string2locale(localeName);
                     mgr = FeatureRegistry.getFeatureProcessorManager(locale);
+                    if (mgr == null) {
+                        mgr = FeatureRegistry.getFeatureProcessorManager(new Locale(locale.getLanguage()));
+                    }
                     if (mgr == null) {
                         mgr = FeatureRegistry.getFallbackFeatureProcessorManager();
                     }

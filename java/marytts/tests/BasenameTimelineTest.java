@@ -47,7 +47,7 @@ public class BasenameTimelineTest {
     /**
      * @param args
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         
         BasenameTimelineMaker btlm = new BasenameTimelineMaker();
         HalfPhoneFeatureFileWriter ffw = new HalfPhoneFeatureFileWriter();
