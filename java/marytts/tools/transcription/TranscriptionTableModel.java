@@ -140,6 +140,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
                 data[i][1] = "";
                 data[i][2] = "";
                 data[i][3] = new Boolean(false);
+                setAsManualVerify(i, false);
                 continue; 
             }
             String[]  words = lines[i].trim().split("\\s+");
@@ -154,6 +155,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
                 }
                 else{
                     data[i][2] = "";
+                    setAsManualVerify(i, false);
                 }
             }
             else{
@@ -165,6 +167,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
                 }
                 else{
                     data[i][2] = "";
+                    setAsManualVerify(i, false);
                 }
             }
        }

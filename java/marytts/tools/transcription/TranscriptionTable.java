@@ -226,6 +226,17 @@ public class TranscriptionTable extends JPanel implements ActionListener {
         Object[][] tableData = transcriptionModel.getData();
         boolean[] hasManualVerify = transcriptionModel.getManualVerifiedList();
         boolean[] hasCorrectSyntax = transcriptionModel.getCorrectSyntaxList();
+        
+        // Check for number of manual entries available
+        int numberOfManualEntries = 0;
+        for(int i=0; i<hasManualVerify.length; i++){
+            if(hasManualVerify[i]) numberOfManualEntries++;
+        }
+        if(numberOfManualEntries == 0){
+            System.out.println("No manual entries available for train and predict ... do nothing!");
+            return;
+        }
+        
         try {
             LTSTrainer tp = this.trainLTS(treeAbsolutePath); 
             TrainedLTS trainedLTS = new TrainedLTS(phoneSet,treeAbsolutePath);
