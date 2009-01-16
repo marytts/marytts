@@ -120,7 +120,7 @@ public class MaryHttpClient
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public MaryHttpClient(Address serverAddress) throws IOException, InterruptedException
+    public MaryHttpClient(Address serverAddress) throws IOException
     {
         data.hostAddress = serverAddress;
         
@@ -158,7 +158,7 @@ public class MaryHttpClient
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    private void initialise(boolean profile, boolean quiet) throws IOException, InterruptedException
+    private void initialise(boolean profile, boolean quiet) throws IOException
     {  
         // This must work for applets too, so no system property queries here:
         doProfile = profile;
@@ -795,7 +795,7 @@ public class MaryHttpClient
      * @see #getVoices()
      */
     public void streamAudio(String input, String inputType, String locale, String audioType, String defaultVoiceName, String defaultStyle, Map<String, String> defaultEffects, marytts.util.data.audio.AudioPlayer audioPlayer, AudioPlayerListener listener)
-    throws UnknownHostException, IOException, Exception
+    throws IOException
     {
         _process(input, inputType, "AUDIO", locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, audioPlayer, 0, true, null, listener);
     }
@@ -819,14 +819,14 @@ public class MaryHttpClient
      */
     public void process(String input, String inputType, String outputType, String locale,
         String audioType, String defaultVoiceName, String defaultStyle, Map<String, String> defaultEffects, String outputTypeParams, OutputStream output)
-        throws UnknownHostException, IOException, Exception
+        throws IOException
     {
         _process(input, inputType, outputType, locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, output, 0, false, outputTypeParams, null);
     }
     
     public void process(String input, String inputType, String outputType, String locale,
             String audioType, String defaultVoiceName, OutputStream output)
-            throws UnknownHostException, IOException, Exception
+    throws IOException
     {
         process( input,  inputType,  outputType, locale, audioType,  defaultVoiceName,  "", null, null, output);
     }
@@ -853,14 +853,14 @@ public class MaryHttpClient
     public void process(String input, String inputType, String outputType, String locale,
         String audioType, String defaultVoiceName, String defaultStyle, Map<String, String> defaultEffects, String outputTypeParams,
         OutputStream output, long timeout)
-        throws UnknownHostException, IOException, Exception
+        throws IOException
     {
         _process(input, inputType, outputType, locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, output, timeout, false, outputTypeParams, null);
     }
 
     public void process(String input, String inputType, String outputType, String locale,
          String audioType, String defaultVoiceName, OutputStream output, long timeout)
-         throws UnknownHostException, IOException, Exception
+         throws IOException
     {
         process(input,  inputType, outputType, locale, audioType,  defaultVoiceName, "",  null, null, output, timeout);
     }
@@ -868,7 +868,7 @@ public class MaryHttpClient
     private void _process(String input, String inputType, String outputType, String locale, String audioType, 
                           String defaultVoiceName, String defaultStyle, Map<String, String> defaultEffects, 
                           Object output, long timeout, boolean streamingAudio, String outputTypeParams, AudioPlayerListener playerListener)
-                                                                           throws UnknownHostException, IOException, Exception
+    throws IOException
     {
         boolean isFreettsAudioPlayer = false;
         boolean isMaryAudioPlayer = false;
