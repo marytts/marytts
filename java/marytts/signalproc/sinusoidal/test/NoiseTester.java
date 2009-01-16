@@ -247,8 +247,8 @@ public class NoiseTester extends BaseTester{
         for (i=0; i<numTracks; i++)
             freqs[i] = new float[2];
         
-        freqs[0][0] = 1500;
-        freqs[0][1] = 3500;
+        freqs[0][0] = 500;
+        freqs[0][1] = 4000;
 
         t = new NoiseTester(freqs);
         

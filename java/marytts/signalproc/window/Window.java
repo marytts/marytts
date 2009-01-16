@@ -374,6 +374,20 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
             window[i] *= scale;
     }
     
+    //Normalize window coefficients such that squared sum of coefficients is equal to val
+    public void normalizeSquaredSum(float val)
+    {
+        float total = 0.0f;
+        int i;
+        for (i=0; i<window.length; i++)
+            total += window[i]*window[i];
+
+        float scale = (float)(Math.sqrt(val)/Math.sqrt(total));
+
+        for (i=0; i<window.length; i++)
+            window[i] *= scale;
+    }
+    
     public double[] getCoeffs()
     {
         return window;
