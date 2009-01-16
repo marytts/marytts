@@ -450,7 +450,7 @@ public class F0CARTTrainer extends VoiceImportComponent
         return percent;
     }
 
-    public static void main(String[] args) throws IOException
+    public static void main(String[] args) throws Exception
     {
         F0CARTTrainer f0ct = new F0CARTTrainer();
         DatabaseLayout db = new DatabaseLayout(f0ct);

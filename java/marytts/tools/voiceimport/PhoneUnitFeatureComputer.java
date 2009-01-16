@@ -11,6 +11,8 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import marytts.client.MaryClient;
+import marytts.client.http.Address;
+import marytts.client.http.MaryHttpClient;
 import marytts.util.io.FileUtils;
 
 
@@ -23,12 +25,15 @@ import marytts.util.io.FileUtils;
  */
 public class PhoneUnitFeatureComputer extends VoiceImportComponent
 {
+    public static final String PHONEFEATURE = "phoneme";
+    
     protected File textDir;
     protected File unitfeatureDir;
+    protected String featureList;
     protected String featsExt = ".pfeats";
     protected String xmlExt = ".xml";
     protected String locale;
-    protected MaryClient mary;
+    protected MaryHttpClient mary;
     protected String maryInputType;
     protected String maryOutputType;
     
@@ -37,6 +42,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
     
     public String FEATUREDIR = "PhoneUnitFeatureComputer.featureDir";
     public String ALLOPHONES = "PhoneUnitFeatureComputer.allophonesDir";
+    public String FEATURELIST = "PhoneUnitFeatureComputer.featureFile";
     public String MARYSERVERHOST = "PhoneUnitFeatureComputer.maryServerHost";
     public String MARYSERVERPORT = "PhoneUnitFeatureComputer.maryServerPort";
        
@@ -57,7 +63,8 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
         
     }
     
-     public void initialiseComp()
+    public void initialiseComp()
+    throws Exception
     {      
         locale = db.getProp(db.LOCALE);   
         
@@ -70,22 +77,49 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
                 throw new Error("Could not create FEATUREDIR");
             }
             System.out.print("Created successfully.\n");
-        }  
-        
+        }
+        File featureFile = new File(getProp(FEATURELIST));
+        if (!featureFile.exists()) {
+            throw new Error("No feature file: '"+getProp(FEATURELIST)+"'");
+        }
+        System.out.println("Loading features from file "+getProp(FEATURELIST));
+        try {
+            featureList = FileUtils.getFileAsString(featureFile, "UTF-8");
+            featureList = featureList.replaceAll("\\s+", " ");
+            // Exclude specific halfphone features if present:
+            for (String f : HalfPhoneUnitFeatureComputer.HALFPHONE_FEATURES) {
+                if (featureList.contains(f)) {
+                    featureList = featureList.replaceAll(f, "");
+                }
+            }
+            if (!featureList.contains(PHONEFEATURE)) {
+                throw new Exception("Feature list does not contain feature '"+PHONEFEATURE+"'. It makes no sense to continue.");
+            }
+            if (!featureList.startsWith(PHONEFEATURE)) {
+                // PHONEFEATURE must be the first one in the list
+                featureList = featureList.replaceFirst("\\s+"+PHONEFEATURE+"\\s+", " ");
+                featureList = PHONEFEATURE + " " + featureList;
+            }
+        } catch (IOException e) {
+            throw new IOException("Cannot read list of features", e);
+        }
+
         maryInputType = "ALLOPHONES";
         maryOutputType = "TARGETFEATURES";
     }
      
-     public SortedMap getDefaultProps(DatabaseLayout db){
-         this.db = db;
+     public SortedMap<String,String> getDefaultProps(DatabaseLayout theDb){
+         this.db = theDb;
          if (props == null){
-             props = new TreeMap();
+             props = new TreeMap<String, String>();
              props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
                      +"phonefeatures"
                      +System.getProperty("file.separator"));
              props.put(ALLOPHONES, db.getProp(db.ROOTDIR)
                      +"allophones"
                      +System.getProperty("file.separator"));
+             props.put(FEATURELIST,
+                     db.getProp(db.CONFIGDIR) + "features.txt");
              props.put(MARYSERVERHOST,"localhost");
              props.put(MARYSERVERPORT,"59125");
          } 
@@ -94,7 +128,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
      }
      
      protected void setupHelp(){
-         props2Help = new TreeMap();
+         props2Help = new TreeMap<String, String>();
          props2Help.put(FEATUREDIR, "directory containing the phone features." 
                  +"Will be created if it does not exist");
          props2Help.put(ALLOPHONES, "Directory of corrected allophones files.");
@@ -102,11 +136,11 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
          props2Help.put(MARYSERVERPORT,"the port were the Mary server is listening, default: \"59125\"");
      }
      
-     public MaryClient getMaryClient() throws IOException
+     public MaryHttpClient getMaryClient() throws IOException
      {
         if (mary == null) {
             try{
-                mary = new MaryClient(getProp(MARYSERVERHOST), Integer.parseInt(getProp(MARYSERVERPORT)));        
+                mary = new MaryHttpClient(new Address(getProp(MARYSERVERHOST), Integer.parseInt(getProp(MARYSERVERPORT))));        
             } catch (IOException e){
                 throw new IOException("Could not connect to Maryserver at "
                         +getProp(MARYSERVERHOST)+" "+getProp(MARYSERVERPORT));
@@ -150,7 +184,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
         text = FileUtils.getFileAsString(allophoneFile, "UTF-8");
         
         OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( unitfeatureDir, basename + featsExt )));
-        MaryClient maryClient = getMaryClient();
+        MaryHttpClient maryClient = getMaryClient();
         
         Vector<MaryClient.Voice> voices = maryClient.getVoices(localVoice);
         // try again:
@@ -165,7 +199,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
         MaryClient.Voice defaultVoice = (MaryClient.Voice) voices.firstElement();
         String voiceName = defaultVoice.name();
         //maryClient.process(text, maryInputType, maryOutputType, null, null, os);
-        maryClient.process(text, maryInputType, maryOutputType, locale, null, voiceName, os);
+        maryClient.process(text, maryInputType, maryOutputType, locale, null, voiceName, "", null, featureList, os);
         os.flush();
         os.close();
     }

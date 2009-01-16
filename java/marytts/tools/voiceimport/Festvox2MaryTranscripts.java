@@ -133,7 +133,7 @@ public class Festvox2MaryTranscripts extends VoiceImportComponent
     /**
      * @param args
      */
-    public static void main(String[] args) throws IOException 
+    public static void main(String[] args) throws Exception 
     {
         Festvox2MaryTranscripts f2mt = 
             new Festvox2MaryTranscripts();

@@ -261,7 +261,7 @@ public class DurationCARTTrainer extends VoiceImportComponent
     }
 
 
-    public static void main(String[] args) throws IOException
+    public static void main(String[] args) throws Exception
     {
         DurationCARTTrainer dct = new DurationCARTTrainer();
          DatabaseLayout db = new DatabaseLayout(dct);

@@ -54,7 +54,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     
     protected DatabaseLayout db = null;
     protected int percent = 0;
-    protected Map problems;
+    protected Map<String,String> problems;
     protected boolean correctedPauses = false;
     //protected boolean wait =false;
     
@@ -74,12 +74,13 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         return "PhoneLabelFeatureAligner";
     }
    
-     public void initialiseComp()
+    public void initialiseComp()
+    throws Exception
     {
         this.featureComputer = new PhoneUnitFeatureComputer();
         db.initialiseComponent(featureComputer);    
         
-        this.pauseSymbol = System.getProperty("pause.symbol", "pau");
+        this.pauseSymbol = System.getProperty("pause.symbol", "_");
         File unitfeatureDir = new File(getProp(FEATUREDIR));
         if (!unitfeatureDir.exists()){
             System.out.print(FEATUREDIR+" "+getProp(FEATUREDIR)
@@ -100,10 +101,10 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         } 
     }
     
-    public SortedMap getDefaultProps(DatabaseLayout db){
-        this.db = db;
+    public SortedMap<String,String> getDefaultProps(DatabaseLayout theDb){
+        this.db = theDb;
        if (props == null){
-           props = new TreeMap();
+           props = new TreeMap<String, String>();
            props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
                         +"phonefeatures"
                         +System.getProperty("file.separator"));
@@ -115,7 +116,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     }
 
     protected void setupHelp(){
-        props2Help = new TreeMap();
+        props2Help = new TreeMap<String, String>();
         props2Help.put(FEATUREDIR, "directory containing the phone features.");
         props2Help.put(LABELDIR, "directory containing the phone labels");
     }
@@ -133,7 +134,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     {
         int bnlLengthIn = bnl.getLength();
         System.out.println( "Verifying feature-label alignment for "+ bnlLengthIn + " utterances." );
-        problems = new TreeMap();
+        problems = new TreeMap<String, String>();
         
         for (int i=0; i<bnl.getLength(); i++) {
             percent = 100*i/bnl.getLength();
@@ -160,8 +161,8 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         boolean removeAll = false;
         boolean skipAll = false;
         boolean tryAgain = true;
-        for (Iterator it = problems.keySet().iterator(); it.hasNext(); ) {
-            String basename = (String) it.next();
+        for (Iterator<String> it = problems.keySet().iterator(); it.hasNext(); ) {
+            String basename = it.next();
             String errorMessage;
             if ( !(removeAll || skipAll) ){ // These may be set true after a previous call to letUserCorrect()
                 do {
@@ -267,7 +268,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
      * @param numProblems the number of problems
      * @throws IOException
      */
-    protected void deleteProblemsYesNo(Map problems, String basename) throws IOException
+    protected void deleteProblemsYesNo(Map<String,String> someProblems, String basename) throws IOException
     {
         int choice = JOptionPane.showOptionDialog(null,
                 "Removed problematic utterance(s) from List. Also delete file(s)?",
@@ -279,10 +280,10 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
                 null);
         
         if (choice == 0){
-            if (problems != null){
+            if (someProblems != null){
                 //we have a map basenames->problems
-                for (Iterator it = problems.keySet().iterator(); it.hasNext(); ) {
-                    String nextBasename = (String) it.next(); 
+                for (Iterator<String> it = someProblems.keySet().iterator(); it.hasNext(); ) {
+                    String nextBasename = it.next(); 
                     File nextLabFile = new File(getProp(LABELDIR)+ nextBasename + labExt);
                     nextLabFile.delete();
                     File nextFeatFile = new File(getProp(FEATUREDIR)+nextBasename + featsExt);
@@ -391,7 +392,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     {
         correctedPauses = true;
         //clear the list of problems
-        problems = new TreeMap();
+        problems = new TreeMap<String, String>();
         //go through all files        
         for (int l=0; l<bnl.getLength(); l++) {
             percent = 100*l/bnl.getLength();
@@ -413,7 +414,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         	}
         
         	//store units of label file in List
-        	List labelUnits = new ArrayList();
+        	List<String> labelUnits = new ArrayList<String>();
         	while ((line = labels.readLine()) != null) {
         	    labelUnits.add(line+"\n");
         	}
@@ -429,7 +430,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         	}
 
         	//store text units of feature file in list
-        	List featureUnits = new ArrayList();
+        	List<String> featureUnits = new ArrayList<String>();
         	while ((line = features.readLine()) != null) {
         	    if (line.trim().equals("")) break; // empty line marks end of section
         	    featureUnits.add(line);
@@ -438,7 +439,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
             labels.close();
             features.close();
             
-        	ArrayList labelUnitData;        
+        	ArrayList<String> labelUnitData;        
         	String labelUnit;
         	String featureUnit;
         	String returnString = null;
@@ -451,9 +452,9 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
 	        while (i<numLabelUnits && j<numFeatureUnits) {
 	            //System.out.println("featureUnit : "+featureUnit
 	            //      +" labelUnit : "+labelUnit);
-	            labelUnitData = getLabelUnitData((String)labelUnits.get(i));
-	            labelUnit = (String) labelUnitData.get(2);
-	            featureUnit = getFeatureUnit((String)featureUnits.get(j));
+	            labelUnitData = getLabelUnitData(labelUnits.get(i));
+	            labelUnit = labelUnitData.get(2);
+	            featureUnit = getFeatureUnit(featureUnits.get(j));
 	            
 	            if (!featureUnit.equals(labelUnit)) {
                 
@@ -462,8 +463,8 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
 	                    System.out.println(" Adding pause unit in labels before unit "+i);
 	                    String pauseUnit;
 	                    if (i-1>=0){
-	                        ArrayList previousUnitData = 
-	    	                            getLabelUnitData((String)labelUnits.get(i-1));
+	                        ArrayList<String> previousUnitData = 
+	    	                            getLabelUnitData(labelUnits.get(i-1));
 	                    	pauseUnit = (String)previousUnitData.get(0)+" "
                     			+(String) labelUnitData.get(1)+" _\n";
 	                    } else {
@@ -480,8 +481,8 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
                         System.out.println(" Adding pause units in labels before unit "+i);
                         String pauseUnit;
                         if (i-1>=0){
-                            ArrayList previousUnitData = getLabelUnitData((String)labelUnits.get(i-1));
-                            pauseUnit = (String)previousUnitData.get(0)+" "
+                            ArrayList<String> previousUnitData = getLabelUnitData(labelUnits.get(i-1));
+                            pauseUnit = previousUnitData.get(0)+" "
                                 +(String) labelUnitData.get(1)+" __L\n";
                             labelUnits.add(i,pauseUnit);
                             i++;
@@ -511,8 +512,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
                         System.out.println(" Removing pause units in labels at index "+i);                                    
                         if (i-1>=0) {
                             //lengthen the unit before the pause
-                            ArrayList previousUnitData = 
-                                getLabelUnitData((String)labelUnits.get(i-1));
+                            ArrayList<String> previousUnitData = getLabelUnitData(labelUnits.get(i-1));
                             labelUnits.set(i-1,(String)labelUnitData.get(0)
                                     +" "+(String)previousUnitData.get(1)
                                     +" "+(String)previousUnitData.get(2)+"\n");
@@ -523,7 +523,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
                         numLabelUnits=labelUnits.size();
                         continue;
                     } else {
-                        //truely not matching
+                        //truly not matching
                         if (returnString == null){
                             //only remember the first mismatch
                             int unitIndex = i-1;
@@ -600,7 +600,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
 	            String nextUnit = (String)labelUnits.get(k);
 	            if (nextUnit != null){
 	                //correct the unit index
-	                ArrayList nextUnitData = getLabelUnitData(nextUnit);
+	                ArrayList<String> nextUnitData = getLabelUnitData(nextUnit);
 	                labelFileWriter.print((String)nextUnitData.get(0)
 	                        +" "+k+" "+(String) nextUnitData.get(2)+"\n");
 	            }
@@ -627,7 +627,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     protected void defineReplacements(String text) throws Exception{
         
         /*read the replacements into a map*/
-        Map phone2Replace = new HashMap();
+        Map<String, String> phone2Replace = new HashMap<String, String>();
         String error = null;
         String[] textlines = text.split("\n");
         for (int i=0;i<textlines.length;i++){
@@ -651,7 +651,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
              the labels with the specified replacements */
             
             //clear the list of problems
-            problems = new TreeMap();
+            problems = new TreeMap<String, String>();
             //go through all files        
             for (int l=0; l<bnl.getLength(); l++) {
                 percent = 100*l/bnl.getLength();
@@ -673,7 +673,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
                 }
                 
                 //store units of label file in List
-                List labelUnits = new ArrayList();
+                List<String> labelUnits = new ArrayList<String>();
                 while ((line = labels.readLine()) != null) {
                     labelUnits.add(line+"\n");
                 }
@@ -689,13 +689,13 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
                 }
                 
                 //store text units of feature file in list
-                List featureUnits = new ArrayList();
+                List<String> featureUnits = new ArrayList<String>();
                 while ((line = features.readLine()) != null) {
                     if (line.trim().equals("")) break; // empty line marks end of section
                     featureUnits.add(line);
                 }
                 
-                ArrayList labelUnitData;        
+                ArrayList<String> labelUnitData;        
                 String labelUnit;
                 String featureUnit;
                 String returnString = null;
@@ -764,7 +764,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
                         String nextUnit = (String)labelUnits.get(k);
                         if (nextUnit != null){
                             //correct the unit index
-                            ArrayList nextUnitData = getLabelUnitData(nextUnit);
+                            ArrayList<String> nextUnitData = getLabelUnitData(nextUnit);
                             labelFileWriter.print((String)nextUnitData.get(0)
                                     +" "+k+" "+(String) nextUnitData.get(2)+"\n");
                         }
@@ -828,7 +828,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
             line = labels.readLine();
             String labelUnit = null;
             if (line != null){
-                List labelUnitData = getLabelUnitData(line);
+                List<String> labelUnitData = getLabelUnitData(line);
                 labelUnit = (String)labelUnitData.get(2);
                 unitIndex = Integer.parseInt((String)labelUnitData.get(1));
             }
@@ -868,11 +868,11 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     
    
     
-    private ArrayList getLabelUnitData(String line)
+    private ArrayList<String> getLabelUnitData(String line)
     throws IOException
     {
         if (line == null) return null;
-        ArrayList unitData = new ArrayList();
+        ArrayList<String> unitData = new ArrayList<String>();
         StringTokenizer st = new StringTokenizer(line.trim());
         //the first token is the time
         unitData.add(st.nextToken()); 
@@ -994,7 +994,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         	}
         
         	//store units of label file in List
-        	List labelUnits = new ArrayList();
+        	List<String> labelUnits = new ArrayList<String>();
         	while ((line = labels.readLine()) != null) {
         	    labelUnits.add(line+"\n");
         	}
@@ -1005,7 +1005,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         	}
 
         	//store text units of feature file in list
-        	List featureTextUnits = new ArrayList();
+        	List<String> featureTextUnits = new ArrayList<String>();
         	while ((line = features.readLine()) != null) {
         	    if (line.trim().equals("")) break; // empty line marks end of section
         	    featureTextUnits.add(line);
@@ -1014,7 +1014,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
             labels.close();
             features.close();
             
-        	ArrayList labelUnitData;        
+        	ArrayList<String> labelUnitData;        
         	String labelUnit;
         	String featureUnit;
         	String returnString = null;
@@ -1054,7 +1054,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
 	            String nextUnit = (String)labelUnits.get(k);
 	            if (nextUnit != null){
 	                //correct the unit index
-	                ArrayList nextUnitData = getLabelUnitData(nextUnit);
+	                ArrayList<String> nextUnitData = getLabelUnitData(nextUnit);
 	                labelFileWriter.print((String)nextUnitData.get(0)
 	                        +" "+k+" "+(String) nextUnitData.get(2)+"\n");
 	            }
@@ -1091,7 +1091,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         new EditFrameShower(new File(getProp(LABELDIR)+ basename + labExt )).display();
     }
 
-    public static void main(String[] args) throws IOException
+    public static void main(String[] args) throws Exception
     {
         PhoneLabelFeatureAligner lfa = new PhoneLabelFeatureAligner();
         new DatabaseLayout(lfa);

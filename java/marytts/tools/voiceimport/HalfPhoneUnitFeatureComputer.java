@@ -30,8 +30,11 @@
 package marytts.tools.voiceimport;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import marytts.util.io.FileUtils;
 
 /**
  * @author marc
@@ -39,6 +42,12 @@ import java.util.TreeMap;
  */
 public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer 
 {
+    public static final String[] HALFPHONE_FEATURES = new String[] {
+        "halfphone_lr",
+        "halfphone_unitname"
+    };
+    public static final String HALFPHONE_UNITNAME = "halfphone_unitname";
+    
     public String getName(){
         return "HalfPhoneUnitFeatureComputer";
     }
@@ -47,11 +56,14 @@ public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer
         featsExt = ".hpfeats";
         FEATUREDIR = "HalfPhoneUnitFeatureComputer.featureDir";
         ALLOPHONES = "HalfPhoneUnitFeatureComputer.allophonesDir";
+        FEATURELIST = "HalfPhoneUnitFeatureComputer.featureFile";
         MARYSERVERHOST = "HalfPhoneUnitFeatureComputer.maryServerHost";
         MARYSERVERPORT = "HalfPhoneUnitFeatureComputer.maryServerPort";   
     }
     
-     public void initialiseComp()
+    @Override
+    public void initialiseComp()
+    throws Exception
     {       
         locale = db.getProp(db.LOCALE);        
         mary = null; // initialised only if needed   
@@ -63,21 +75,46 @@ public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer
                 throw new Error("Could not create FEATUREDIR");
             }
             System.out.print("Created successfully.\n");
-        }    
+        }
+        File featureFile = new File(getProp(FEATURELIST));
+        if (!featureFile.exists()) {
+            throw new Error("No feature file: '"+getProp(FEATURELIST)+"'");
+        }
+        System.out.println("Loading features from file "+getProp(FEATURELIST));
+        try {
+            featureList = FileUtils.getFileAsString(featureFile, "UTF-8");
+            featureList = featureList.replaceAll("\\s+", " ");
+            // Make sure specific halfphone features are included:
+            for (String f : HALFPHONE_FEATURES) {
+                if (!featureList.contains(f)) {
+                    featureList = f + " " + featureList;
+                }
+            }
+            if (!featureList.startsWith(HALFPHONE_UNITNAME)) {
+                // HALFPHONE_UNITNAME must be the first one in the list
+                featureList = featureList.replaceFirst("\\s+"+HALFPHONE_UNITNAME+"\\s+", " ");
+                featureList = HALFPHONE_UNITNAME + " " + featureList;
+
+            }
+        } catch (IOException e) {
+            throw new IOException("Cannot read feature list", e);
+        }
         maryInputType  = "ALLOPHONES";
         maryOutputType = "HALFPHONE_TARGETFEATURES";
     }
     
-      public SortedMap getDefaultProps(DatabaseLayout db){
-        this.db = db;
+      public SortedMap<String,String> getDefaultProps(DatabaseLayout theDb){
+        this.db = theDb;
        if (props == null){
-           props = new TreeMap();
+           props = new TreeMap<String, String>();
            props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
                         +"halfphonefeatures"
                         +System.getProperty("file.separator"));
            props.put(ALLOPHONES, db.getProp(db.ROOTDIR)
                    +"allophones"
                    +System.getProperty("file.separator"));
+           props.put(FEATURELIST,
+                   db.getProp(db.CONFIGDIR) + "features.txt");
            props.put(MARYSERVERHOST,"localhost");
            props.put(MARYSERVERPORT,"59125");
        } 
@@ -85,7 +122,7 @@ public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer
       }
       
       protected void setupHelp(){
-         props2Help = new TreeMap();
+         props2Help = new TreeMap<String, String>();
          props2Help.put(FEATUREDIR, "directory containing the halfphone features." 
                  +"Will be created if it does not exist.");
          props2Help.put(ALLOPHONES, "Directory of corrected Allophones files.");

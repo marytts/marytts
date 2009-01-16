@@ -65,7 +65,8 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
     public String UNITFILE = "PhoneFeatureFileWriter.unitFile";
     public String WEIGHTSFILE = "PhoneFeatureFileWriter.weightsFile";
     
-    public String getName(){
+    public String getName()
+    {
         return name;
     }
     
@@ -260,7 +261,7 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
     /**
      * @param args
      */
-    public static void main(String[] args) throws IOException
+    public static void main(String[] args) throws Exception
     {
         PhoneFeatureFileWriter ffw = new PhoneFeatureFileWriter();
         DatabaseLayout db = new DatabaseLayout(ffw);

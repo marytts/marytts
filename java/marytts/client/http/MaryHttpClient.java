@@ -682,7 +682,15 @@ public class MaryHttpClient
         return bRet;
     }
     
+    public String getFeatures(String locale) throws IOException
+    {
+        return serverInfoRequest("features?locale="+locale, null);
+    }
     
+    public String getFeaturesForVoice(String voice) throws IOException
+    {
+        return serverInfoRequest("features?voice="+voice, null);
+    }
     
     private String serverInfoRequest(String request, Map<String,String>queryItems)
     throws IOException

@@ -75,7 +75,14 @@ import marytts.util.string.StringUtils;
  */
 public class SynthesisRequestHandler extends BaseHttpRequestHandler
 {
-
+    private static int id = 0;
+    
+    private static synchronized int getId()
+    {
+        return id++;
+    }
+    
+    
     private StreamingOutputWriter outputToStream;
     private StreamingOutputPiper streamToPipe;
     private PipedOutputStream pipedOutput;
@@ -228,8 +235,7 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler
         }
         AudioFileFormat audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
         
-        int id = 123;
-        Request request = new Request(inputType, outputType, locale, voice, effects, style, id, audioFileFormat, streamingAudio, outputTypeParams);
+        Request request = new Request(inputType, outputType, locale, voice, effects, style, getId(), audioFileFormat, streamingAudio, outputTypeParams);
         
         boolean ok = handleClientRequest(inputText, request, response);
         

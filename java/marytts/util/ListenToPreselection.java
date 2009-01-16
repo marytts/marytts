@@ -49,7 +49,7 @@ public class ListenToPreselection {
     /**
      * @param args
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
 
         WaveTimelineMaker wtlm = new WaveTimelineMaker();
         HalfPhoneFeatureFileWriter ffw = new HalfPhoneFeatureFileWriter();
