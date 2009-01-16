@@ -119,18 +119,23 @@ public class HnmSynthesizer {
         
         float phasekiPlusOneEstimate = 0.0f;
         int Mk;
-        boolean isVoiced, isNextVoiced;
+        boolean isVoiced, isNextVoiced, isPrevVoiced;
         int origLen = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
         harmonicPart = new double[origLen]; //In fact, this should be prosody scaled length when you implement prosody modifications
         Arrays.fill(harmonicPart, 0.0);
         
         for (i=0; i<hnmSignal.frames.length; i++)
         {
-            isVoiced = (hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0f) ? true : false;
+            isVoiced = ((hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0f) ? true : false);
             if (i<hnmSignal.frames.length-1)
-                isNextVoiced = (hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz>0.0f) ? true : false;
+                isNextVoiced = ((hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz>0.0f) ? true : false);
             else
                 isNextVoiced = false;
+            
+            if (i>0)
+                isPrevVoiced = ((hnmSignal.frames[i-1].maximumFrequencyOfVoicingInHz>0.0f) ? true : false);
+            else
+                isPrevVoiced = false;
             
             if (i==0)
                 tsi = 0.0f;
@@ -180,7 +185,7 @@ public class HnmSynthesizer {
                         aksis[k] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(hnmSignal.frames[i].h.ceps, (k+1)*f0InHz, hnmSignal.samplingRateInHz);
                     else
                     {
-                        if (hnmSignal.frames[i-1].maximumFrequencyOfVoicingInHz>0.0f)
+                        if (isPrevVoiced)
                             aksis[k] = aksiPlusOnes[k]; //from previous
                         else
                             aksis[k] = 0.0;
@@ -246,7 +251,6 @@ public class HnmSynthesizer {
             double[] aksis = null;
             double[] aksiPlusOnes = null;
             float[] phasekis = null;
-            float[] phasekiPlusOnes = null;
             
             int numNoiseHarmonicsCurrentFrame;
             int numNoiseHarmonicsNextFrame = 0;
@@ -269,9 +273,8 @@ public class HnmSynthesizer {
                 aksiPlusOnes = new double[maxNumHarmonics];
                 Arrays.fill(aksis, 0.0);
                 phasekis = new float[maxNumHarmonics];
-                Arrays.fill(phasekis, 0.0f);
-                phasekiPlusOnes = new float[maxNumHarmonics];
-                Arrays.fill(phasekiPlusOnes, 0.0f);
+                for (i=0; i<maxNumHarmonics; i++)
+                    phasekis[i] = (float)(MathUtils.TWOPI*Math.random()-0.5*MathUtils.TWOPI); 
             }
             
             int lastPeriodInSamples = 0;
@@ -280,7 +283,7 @@ public class HnmSynthesizer {
             
             float phasekiPlusOneEstimate = 0.0f;
             int Mk;
-            boolean isNoised, isNextNoised;
+            boolean isNoised, isNextNoised, isPrevNoised;
             int origLen = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
             noisePart = new double[origLen]; //In fact, this should be prosody scaled length when you implement prosody modifications
             Arrays.fill(noisePart, 0.0);
@@ -300,11 +303,16 @@ public class HnmSynthesizer {
                     numNoiseHarmonicsNextFrame = endPseudoHarmonicNo-startPseudoHarmonicNoNext+1;
                 }
                 
-                isNoised = (hnmSignal.frames[i].maximumFrequencyOfVoicingInHz<0.5f*hnmSignal.samplingRateInHz) ? true : false;
+                isNoised = ((hnmSignal.frames[i].maximumFrequencyOfVoicingInHz<0.5f*hnmSignal.samplingRateInHz) ? true : false);
                 if (i<hnmSignal.frames.length-1)
-                    isNextNoised = (hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz<0.5f*hnmSignal.samplingRateInHz) ? true : false;
+                    isNextNoised = ((hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz<0.5f*hnmSignal.samplingRateInHz) ? true : false);
                 else
                     isNextNoised = true;
+                
+                if (i>0)
+                    isPrevNoised = ((hnmSignal.frames[i-1].maximumFrequencyOfVoicingInHz<0.5f*hnmSignal.samplingRateInHz) ? true : false);
+                else
+                    isPrevNoised = true;
                 
                 if (i==0)
                     tsi = 0.0f;
@@ -342,42 +350,40 @@ public class HnmSynthesizer {
                     {
                         //Estimate amplitude
                         if (i==0)
-                            aksis[k-startPseudoHarmonicNo] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, (k+1)*HnmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);
+                        {
+                            //aksis[k-startPseudoHarmonicNo] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, (k+1)*HnmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);
+                            //What if analysis sends noise amplitudes directly?
+                            aksis[k-startPseudoHarmonicNo] = ((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps[k-startPseudoHarmonicNo];
+                        }
                         else
                         {
-                            if (hnmSignal.frames[i-1].maximumFrequencyOfVoicingInHz>0.0f)
+                            if (isPrevNoised)
                                 aksis[k-startPseudoHarmonicNo] = aksiPlusOnes[k-startPseudoHarmonicNo]; //from previous
                             else
                                 aksis[k-startPseudoHarmonicNo] = 0.0;
                         }
 
                         if (isNextNoised && i<hnmSignal.frames.length-1)
-                            aksiPlusOnes[k-startPseudoHarmonicNo] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps , (k+1)*HnmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);
+                        {
+                            //aksiPlusOnes[k-startPseudoHarmonicNo] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps , (k+1)*HnmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);
+                            //What if analysis sends noise amplitudes directly?
+                            aksiPlusOnes[k-startPseudoHarmonicNo] = ((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps[k-startPseudoHarmonicNo];
+                        }
                         else
                             aksiPlusOnes[k-startPseudoHarmonicNo] = 0.0;
 
                         akt = aksis[k-startPseudoHarmonicNo] + (aksiPlusOnes[k-startPseudoHarmonicNo]-aksis[k-startPseudoHarmonicNo])*(t-tsi)/(tsiPlusOne-tsi);
                         //
 
-                        //Estimate phase
-                        if (isNoised)
-                            phasekis[k-startPseudoHarmonicNo] = (float)(MathUtils.TWOPI*Math.random()-0.5*MathUtils.TWOPI); //hnmSignal.frames[i].h.phases[k];
-                        
-                        if (isNextNoised && k<numNoiseHarmonicsNextFrame)
-                            phasekiPlusOnes[k-startPseudoHarmonicNo] = (float)(MathUtils.TWOPI*Math.random()-0.5*MathUtils.TWOPI); //hnmSignal.frames[i+1].h.phases[k];
-                            
-                        if (!isNoised)
-                            phasekis[k-startPseudoHarmonicNo] = (float)( phasekiPlusOnes[k-startPseudoHarmonicNo] - (k+1)*MathUtils.TWOPI*HnmAnalyzer.NOISE_F0_IN_HZ*(tsiPlusOne-tsi) ); //Equation (3.54)
-                         
-                        if (!(isNextNoised && k<numNoiseHarmonicsNextFrame))
-                            phasekiPlusOnes[k-startPseudoHarmonicNo] = (float)( phasekis[k-startPseudoHarmonicNo] + (k+1)*MathUtils.TWOPI*HnmAnalyzer.NOISE_F0_IN_HZ*(tsiPlusOne-tsi) ); //Equation (3.55)
-                            
+                        //Estimate phase   
                         phasekiPlusOneEstimate = (float)( phasekis[k-startPseudoHarmonicNo] + (k+1)*MathUtils.TWOPI*HnmAnalyzer.NOISE_F0_IN_HZ*(tsiPlusOne-tsi));
-                        Mk = (int)Math.floor((phasekiPlusOneEstimate-phasekiPlusOnes[k-startPseudoHarmonicNo])/MathUtils.TWOPI + 0.5);
-                        phasekt = (float)( phasekis[k-startPseudoHarmonicNo] + (phasekiPlusOnes[k-startPseudoHarmonicNo]+MathUtils.TWOPI*Mk-phasekis[k-startPseudoHarmonicNo])*(t-tsi)/(tsiPlusOne-tsi) );
+                        phasekt = (float)(phasekiPlusOneEstimate*(t-tsi)/(tsiPlusOne-tsi) );
                         //
 
                         noisePart[n] += akt*Math.cos(phasekt);
+                        
+                        if (!isNextNoised) //Set to random if next frame is fully voiced (which should be an extremely rare case!)
+                            phasekis[k-startPseudoHarmonicNo] = (float)(MathUtils.TWOPI*Math.random()-0.5*MathUtils.TWOPI);
                     }
                 }
 

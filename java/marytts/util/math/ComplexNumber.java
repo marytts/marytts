@@ -37,8 +37,8 @@ package marytts.util.math;
  */
 public class ComplexNumber {
     
-    double real;
-    double imag;
+    public double real;
+    public double imag;
     
     public ComplexNumber()
     {
