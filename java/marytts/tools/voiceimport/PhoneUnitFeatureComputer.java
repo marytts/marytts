@@ -186,20 +186,7 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
         OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( unitfeatureDir, basename + featsExt )));
         MaryHttpClient maryClient = getMaryClient();
         
-        Vector<MaryClient.Voice> voices = maryClient.getVoices(localVoice);
-        // try again:
-        if (voices == null) {
-            StringBuffer buf = new StringBuffer("Mary server has no voices for locale '"+localVoice+"' -- known voices are:\n");
-            Vector<MaryClient.Voice> allVoices = maryClient.getVoices();
-            for (MaryClient.Voice v: allVoices) {
-                buf.append(v.toString()); buf.append("\n");
-            }
-            throw new RuntimeException(buf.toString());
-        }
-        MaryClient.Voice defaultVoice = (MaryClient.Voice) voices.firstElement();
-        String voiceName = defaultVoice.name();
-        //maryClient.process(text, maryInputType, maryOutputType, null, null, os);
-        maryClient.process(text, maryInputType, maryOutputType, locale, null, voiceName, "", null, featureList, os);
+        maryClient.process(text, maryInputType, maryOutputType, locale, null, null, "", null, featureList, os);
         os.flush();
         os.close();
     }

@@ -111,37 +111,42 @@ public abstract class Utt2XMLBase extends InternalModule {
             }
 
             // Make sure we have the correct voice:
-            marytts.modules.synthesis.Voice maryVoice = FreeTTSVoices.getMaryVoice(utterance.getVoice());
-            if (insertHere.getTagName().equals(MaryXML.VOICE)) {
-                // Are utterance voice and voiceElement voice the same?
-                if (maryVoice.hasName(insertHere.getAttribute("name"))) {
-                    // then insertHere is set OK, leave it like it is
+            Voice maryVoice = null;
+            if (utterance.getVoice() != null) {
+                maryVoice = FreeTTSVoices.getMaryVoice(utterance.getVoice());
+            }
+            if (maryVoice != null) {
+                if (insertHere.getTagName().equals(MaryXML.VOICE)) {
+                    // Are utterance voice and voiceElement voice the same?
+                    if (maryVoice.hasName(insertHere.getAttribute("name"))) {
+                        // then insertHere is set OK, leave it like it is
+                    } else {
+                        // get one higher up, create new voice element after this
+                        // one, and make insertHere point to the new voice element
+                        Element parent = (Element) insertHere.getParentNode();
+                        Element newVoice = MaryXML.createElement(doc, MaryXML.VOICE);
+                        parent.appendChild(newVoice);
+                        newVoice.setAttribute("name", maryVoice.getName());
+                        insertHere = newVoice;
+                    }
                 } else {
-                    // get one higher up, create new voice element after this
-                    // one, and make insertHere point to the new voice element
-                    Element parent = (Element) insertHere.getParentNode();
+                    // create a new voice element, insert it as a child of this
+                    // node, and let insertHere point to it
                     Element newVoice = MaryXML.createElement(doc, MaryXML.VOICE);
-                    parent.appendChild(newVoice);
+                    insertHere.appendChild(newVoice);
                     newVoice.setAttribute("name", maryVoice.getName());
                     insertHere = newVoice;
                 }
-            } else {
-                // create a new voice element, insert it as a child of this
-                // node, and let insertHere point to it
-                Element newVoice = MaryXML.createElement(doc, MaryXML.VOICE);
-                insertHere.appendChild(newVoice);
-                newVoice.setAttribute("name", maryVoice.getName());
-                insertHere = newVoice;
+                // Now insertHere is the correct <voice> element.
+
+                // Any prosodic settings to insert?
+                Element  prosody = insertProsodySettings(insertHere, utterance);
+                if (prosody != null) insertHere = prosody;
+                
             }
-            // Now insertHere is the correct <voice> element.
-
-            // Any prosodic settings to insert?
-            Element  prosody = insertProsodySettings(insertHere, utterance);
-
             // Create a sentence element <s> for this utterance:
             Element sentence = MaryXML.createElement(doc, MaryXML.SENTENCE);
-            if (prosody != null) prosody.appendChild(sentence);
-            else insertHere.appendChild(sentence);
+            insertHere.appendChild(sentence);
 
             fillSentence(sentence, utterance);
         }
@@ -183,7 +188,10 @@ public abstract class Utt2XMLBase extends InternalModule {
             throw new NullPointerException("Null arguments to insertToken()");
         }
         Document doc = parent.getOwnerDocument();
-        Voice maryVoice = FreeTTSVoices.getMaryVoice(tokenItem.getUtterance().getVoice());
+        Voice maryVoice = null;
+        if (tokenItem.getUtterance().getVoice() != null) {
+            maryVoice = FreeTTSVoices.getMaryVoice(tokenItem.getUtterance().getVoice());
+        }
         Element insertHere = parent;
         boolean needMtu = false;
         boolean insertPhones = tokenItem.getFeatures().isPresent("phones");

@@ -31,10 +31,10 @@ package marytts.cart;
 
 import java.io.IOException;
 
+import marytts.cart.impose.FeatureArrayIndexer;
+import marytts.cart.impose.MaryNode;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import de.dfki.lt.mary.unitselection.FeatureArrayIndexer;
-import de.dfki.lt.mary.unitselection.MaryNode;
 
 /**
  * @author marc

@@ -26,7 +26,7 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package de.dfki.lt.mary.unitselection;
+package marytts.cart.impose;
 
 import marytts.features.FeatureVector;
 
@@ -103,7 +103,7 @@ public class MaryNode {
     }
     
     //debug output
-    public void toStandardOut(FeatureFileIndexer ffi, int level ){
+    public void toStandardOut(FeatureArrayIndexer ffi, int level ){
         
         String blanks = "";
         for ( int i = 0; i < level; i++ ) blanks += "   ";

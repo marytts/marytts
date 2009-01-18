@@ -44,6 +44,7 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.TargetFeatureComputer;
 import marytts.modules.phonemiser.Allophone;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.unitselection.UnitSelectionVoice;
@@ -144,6 +145,7 @@ public class CARTF0Modeller extends InternalModule
             createNodeIterator(doc, NodeFilter.SHOW_ELEMENT,
                            new NameNodeFilter(MaryXML.SENTENCE), false);
         Element sentence = null;
+        AllophoneSet allophoneSet = null;
         while ((sentence = (Element) sentenceIt.nextNode()) != null) {
             // Make sure we have the correct voice:
             Element voice = (Element) MaryDomUtils.getAncestor(sentence, MaryXML.VOICE);
@@ -156,12 +158,11 @@ public class CARTF0Modeller extends InternalModule
                 Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
                 maryVoice = Voice.getDefaultVoice(locale);
             }
-            assert maryVoice != null;
             CART currentLeftCart  = leftCart;
             CART currentMidCart   = midCart;
             CART currentRightCart = rightCart;
             TargetFeatureComputer currentFeatureComputer = featureComputer;
-            if (maryVoice instanceof UnitSelectionVoice) {
+            if (maryVoice != null && maryVoice instanceof UnitSelectionVoice) {
                 CART[] voiceTrees = ((UnitSelectionVoice)maryVoice).getF0Trees();
                 if (voiceTrees != null) {
                     currentLeftCart  = voiceTrees[0];
@@ -189,7 +190,11 @@ public class CARTF0Modeller extends InternalModule
                 for (Element s = MaryDomUtils.getFirstChildElement(syllable); s != null; s = MaryDomUtils.getNextSiblingElement(s)) {
                     assert s.getTagName().equals(MaryXML.PHONE) : "expected phone element, found "+s.getTagName();
                     String phone = s.getAttribute("p");
-                    Allophone allophone = maryVoice.getAllophone(phone);
+                    if (allophoneSet == null) {
+                        allophoneSet = AllophoneSet.determineAllophoneSet(s);
+                    }
+                    assert allophoneSet != null;
+                    Allophone allophone = allophoneSet.getAllophone(phone);
                     assert allophone != null : "Unknown allophone: ["+phone+"]";
                     if (allophone.isVowel()) {
                         // found a vowel

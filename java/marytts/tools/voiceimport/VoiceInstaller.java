@@ -299,9 +299,9 @@ public class VoiceInstaller extends VoiceImportComponent{
                      "# We can require a component by name or by an abstract \"group name\"\n"+ 
                      "# as listed under the \"provides\" element.\n"+
              		 "requires = \\\n"+longLocale+" \\\nmarybase\n\n"+
-             		 "requires.marybase.version = 3.1.0\n"+
-             		 "requires."+longLocale+".version = 3.0.0\n"+
-             		 "requires."+longLocale+".download = http://mary.dfki.de/download/mary-install-3.x.x.jar\n");
+             		 "requires.marybase.version = 4.0.0\n"+
+             		 "requires."+longLocale+".version = 4.0.0\n"+
+             		 "requires."+longLocale+".download = http://mary.dfki.de/download/mary-install-4.x.x.jar\n");
              
              //now follow the module settings
               configOut.println("####################################################################\n"+
@@ -334,27 +334,15 @@ public class VoiceInstaller extends VoiceImportComponent{
                       voiceHeader+".viterbi.wTargetCosts = "+"0.95"+"\n");
               
               //language specific settings 
-              if (!cutLocale.equals("en")||cutLocale.equals("de")){
-                  configOut.println("Unsupported locale "+db.getProp(db.LOCALE));
-              }
-              if (cutLocale.equals("en")){
-                  configOut.println("# Only set the lexicon for English\n"+
-                          voiceHeader+".lexiconClass = com.sun.speech.freetts.en.us.CMULexicon\n"+
-                          voiceHeader+".lexicon = cmudict04\n\n"+
-                          "# Phoneme conversion for English voices \n"+
-                          voiceHeader+".sampamapfile = MARY_BASE/lib/modules/en/synthesis/sampa2mrpa_en.map\n\n"+
-                          "# Language-specific feature processor manager:\n"+
-                          voiceHeader+".featureProcessorsClass = marytts.language.en.features.FeatureProcessorManager\n");                  
-              } else {
-                  //cutLocale.equals("de")
+              if (cutLocale.equals("de")) {
                   configOut.println("# Sampa mapping for German voices \n"+
                           voiceHeader+".sampamap = \\\n"+
                           "=6->6 \\\n"+"=n->n \\\n"+"=m->m \\\n"+
                           "=N->N \\\n"+"=l->l \\\n"+"i->i: \\\n"+
-                          "e->e: \\\n"+"u->u: \\\n"+"o->o: \n\n"+
-                          "# Language-specific feature processor manager:\n"+
-                          voiceHeader+".featureProcessorsClass = de.dfki.lt.mary.unitselection.featureprocessors.de.FeatureProcessorManager\n");       
+                          "e->e: \\\n"+"u->u: \\\n"+"o->o: \n\n");       
               }
+              configOut.println("# Language-specific feature processor manager:\n"+
+                      "featuremanager.classes.list = marytts.language."+cutLocale+".features.FeatureProcessorManager\n");
               
               //unit selection classes
               configOut.println("# Java classes to use for the various unit selection components\n"+

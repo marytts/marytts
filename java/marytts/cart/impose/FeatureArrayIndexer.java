@@ -26,24 +26,29 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package de.dfki.lt.mary.unitselection;
+package marytts.cart.impose;
 
-import java.io.DataOutput;
-import java.io.IOException;
 import java.util.Arrays;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.unitselection.data.FeatureFileReader;
-import marytts.unitselection.select.Target;
 
 
-public class FeatureFileIndexer extends FeatureFileReader {
+/**
+ * A class branched from FeatureFileIndexer which works directly on
+ * a feature array, rather than extending FeatureFileReader.
+ * @author Marc Schr&ouml;der
+ *
+ */
+public class FeatureArrayIndexer
+{
     
     private MaryNode tree = null;
     private int[] featureSequence = null;
     private FeatureComparator c = new FeatureComparator( -1 );
     private UnitIndexComparator cui = new UnitIndexComparator();
+    private FeatureVector[] featureVectors;
+    private FeatureDefinition featureDefinition;
     
     private long numberOfLeaves = 0;
     
@@ -53,48 +58,49 @@ public class FeatureFileIndexer extends FeatureFileReader {
     /****************/
 
     /**
-     * Constructor which loads the feature file and launches an indexing
+     * Constructor which takes an array of feature vectors and launches an indexing
      * operation according to a feature sequence constraint.
      * 
-     * @param fileName The name of the file to load.
+     * @param featureVectors an array of feature vectors
+     * @param featureDefinition a feature definition to make sense of the feature vectors
      * @param setFeatureSequence An array of indexes indicating the hierarchical order
      * (or, equivalently, the sequence) of the features to use for the indexing.
      * 
-     * @throws IOException
-     * @see FeatureFileReader
      */
-    public FeatureFileIndexer( String fileName, int[] setFeatureSequence ) throws IOException {
-        super( fileName );
+    public FeatureArrayIndexer(FeatureVector[] featureVectors, FeatureDefinition featureDefinition, int[] setFeatureSequence )
+    {
+        this(featureVectors, featureDefinition);
         deepSort( setFeatureSequence );
     }
     
     /**
-     * Constructor which loads the feature file and launches an indexing
+     * Constructor which takes an array of feature vectors and launches an indexing
      * operation according to a feature sequence constraint.
      * 
-     * @param fileName The name of the file to load.
+     * @param featureVectors an array of feature vectors
+     * @param featureDefinition a feature definition to make sense of the feature vectors
      * @param setFeatureSequence An array of feature names indicating the hierarchical order
      * (or, equivalently, the sequence) of the features to use for the indexing.
      * 
-     * @throws IOException
-     * @see FeatureFileReader
      */
-    public FeatureFileIndexer( String fileName, String[] setFeatureSequence ) throws IOException {
-        super( fileName );
+    public FeatureArrayIndexer( FeatureVector[] featureVectors, FeatureDefinition featureDefinition, String[] setFeatureSequence )
+    {
+        this(featureVectors, featureDefinition);
         deepSort( setFeatureSequence );
     }
     
     /**
-     * Constructor which loads the feature file and but does not launch an indexing
+     * Constructor which loads the feature vector array but does not launch an indexing
      * operation.
      * 
-     * @param fileName The name of the file to load.
+     * @param featureVectors an array of feature vectors
+     * @param featureDefinition a feature definition to make sense of the feature vectors
      * 
-     * @throws IOException
-     * @see FeatureFileReader
      */
-    public FeatureFileIndexer( String fileName ) throws IOException {
-        super( fileName );
+    public FeatureArrayIndexer( FeatureVector[] featureVectors, FeatureDefinition featureDefinition )
+    {
+        this.featureVectors = featureVectors;
+        this.featureDefinition = featureDefinition;
     }
     
     /********************/
@@ -259,8 +265,8 @@ public class FeatureFileIndexer extends FeatureFileReader {
      * @param v A feature vector for which to send back an array of complying unit indexes.
      * @return A query result, comprising an array of feature vectors and the depth level which was actually reached.
      * 
-     * @see FeatureFileIndexer#deepSort(int[])
-     * @see FeatureFileIndexer#deepFill(MaryNode)
+     * @see FeatureArrayIndexer#deepSort(int[])
+     * @see FeatureArrayIndexer#deepFill(MaryNode)
      */
     public FeatureFileIndexingResult retrieve( FeatureVector v ) {
         int level = 0;
@@ -302,8 +308,8 @@ public class FeatureFileIndexer extends FeatureFileReader {
      * 
      * @return A query result, comprising an array of feature vectors and the depth level which was actually reached.
      * 
-     * @see FeatureFileIndexer#deepSort(int[])
-     * @see FeatureFileIndexer#deepFill(MaryNode)
+     * @see FeatureArrayIndexer#deepSort(int[])
+     * @see FeatureArrayIndexer#deepFill(MaryNode)
      */
     public static final int MAXDEPTH = 0;
     public static final int MAXLEVEL = 1;
@@ -342,71 +348,7 @@ public class FeatureFileIndexer extends FeatureFileReader {
         FeatureFileIndexingResult qr = new FeatureFileIndexingResult( getFeatureVectors(n.from,n.to), level );
         return( qr );
     }
-
-    
-    /***************************/
-    /* CART INTERFACE          */
-    /***************************/
-
-    /**
-     * Load from the given file
-     * @param fileName the file to load the cart from
-     * @param featDefinition the feature definition
-     * @param setFeatureSequence a sequence of features for indexing the feature vectors.
-     * @throws IOException if a problem occurs while loading
-     */
-    public void load(String fileName, FeatureDefinition featDefinition, String[] setFeatureSequence ) throws IOException {
-        load( fileName );
-        deepSort( setFeatureSequence );
-    }
-    
-    
-    /**
-     * An implementation of the retrieval method from the CART interface.
-     * 
-     * @param target the target to analyze
-     * @param backtrace the backtrace setting
-     *
-     * @return the interpretation
-     */
-    public Object interpret( Target target, int backtrace ) {
-        FeatureVector v = target.getFeatureVector();
-        /* Check if the tree is there */
-        if ( tree == null ) {
-            throw new RuntimeException( "Can't retrieve candidate units if a tree has not been built." +
-                    " (Run this.deepSort(int[]) or this.deepFill(MaryNode) first.)" );
-        }
-       /* Walk down the tree */
-        MaryNode n = tree;
-        MaryNode next = null;
-        while ( !n.isLeaf() ) {
-            next = n.getChild( v.getFeatureAsInt( n.getFeatureIndex() ) );
-            /* Check for the number of units in the next node */
-            if ( (next.to - next.from) < backtrace ) break;
-            /* Check if the next node is a dead branch */
-            if ( next != null ) n = next;
-            else break;
-        }
-        /* Dereference the reached node or leaf */
-        int[] ret = new int[n.to-n.from];
-        for ( int i = n.from; i < n.to; i++ ) {
-            ret[i] = featureVectors[i].getUnitIndex();
-        }
-        return( ret );
-    }
         
-    
-    /**
-     * Does nothing, just here to comply with the CART interface.
-     *
-     * @param os the DataOutputStream or RandomAccessFile to write to.
-     *
-     * @throws IOException if an error occurs during output
-     */
-    public void dumpBinary(DataOutput os) throws IOException {
-        System.out.println( "The dumpBinary() method does nothing in the case of FeatureFileIndexer objects." );
-    }
-    
     
     /***************************/
     /* MISCELLANEOUS ACCESSORS */
@@ -442,6 +384,11 @@ public class FeatureFileIndexer extends FeatureFileReader {
             vectors[i-from] = featureVectors[i];
         }
         return vectors;
+    }
+    
+    public FeatureDefinition getFeatureDefinition()
+    {
+        return featureDefinition;
     }
     
     /**

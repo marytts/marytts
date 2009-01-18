@@ -55,6 +55,8 @@ import marytts.cart.LeafNode;
 import marytts.cart.Node;
 import marytts.cart.LeafNode.FeatureVectorLeafNode;
 import marytts.cart.LeafNode.LeafType;
+import marytts.cart.impose.FeatureArrayIndexer;
+import marytts.cart.impose.MaryNode;
 import marytts.cart.io.MaryCARTReader;
 import marytts.cart.io.MaryCARTWriter;
 import marytts.cart.io.WagonCARTReader;
@@ -66,8 +68,6 @@ import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.MCepDatagram;
 import marytts.unitselection.data.MCepTimelineReader;
 import marytts.unitselection.data.UnitFileReader;
-import de.dfki.lt.mary.unitselection.FeatureArrayIndexer;
-import de.dfki.lt.mary.unitselection.MaryNode;
 
 public class CARTBuilder extends VoiceImportComponent {
     

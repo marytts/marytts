@@ -156,12 +156,11 @@ public class CARTDurationModeller extends InternalModule
                 Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
                 maryVoice = Voice.getDefaultVoice(locale);
             }
-            assert maryVoice != null;
 
             CART currentCart = cart;
             TargetFeatureComputer currentFeatureComputer = featureComputer;
             // TODO: cleanup: shouldn't all voices have the option of including their own CART?
-            if (maryVoice instanceof UnitSelectionVoice) {
+            if (maryVoice != null && maryVoice instanceof UnitSelectionVoice) {
                 CART voiceCart = ((UnitSelectionVoice)maryVoice).getDurationTree();
                 if (voiceCart != null) {
                     currentCart  = voiceCart;

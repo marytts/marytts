@@ -56,6 +56,7 @@ import org.apache.http.nio.entity.BufferingNHttpEntity;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.entity.NFileEntity;
 import org.apache.http.nio.entity.NStringEntity;
+import org.apache.log4j.Logger;
 import org.jsresources.AppendableSequenceAudioInputStream;
 
 /**
@@ -65,6 +66,7 @@ import org.jsresources.AppendableSequenceAudioInputStream;
  */
 public class MaryHttpServerUtils 
 {
+    private static Logger logger = Logger.getLogger("http"); 
     
     public static void toHttpResponse(double[] x, HttpResponse response, String contentType) throws IOException
     {   
@@ -191,11 +193,14 @@ public class MaryHttpServerUtils
 
     public static void errorFileNotFound(HttpResponse response, String uri)
     {
-        response.setStatusCode(HttpStatus.SC_NOT_FOUND);
+        int status = HttpStatus.SC_NOT_FOUND;
+        response.setStatusCode(status);
+        String message = "File " + uri + " not found";
+        logger.debug("Returning HTTP status "+status+": "+message);
         try {
             NStringEntity entity = new NStringEntity(
-                    "<html><body><h1>File " + uri +
-                    " not found</h1></body></html>", "UTF-8");
+                    "<html><body><h1>File not found</h1><p>" + message +
+                    "</p></body></html>", "UTF-8");
             entity.setContentType("text/html; charset=UTF-8");
             response.setEntity(entity);
         } catch (UnsupportedEncodingException e){}
@@ -203,10 +208,13 @@ public class MaryHttpServerUtils
     
     public static void errorInternalServerError(HttpResponse response, String message, Throwable exception)
     {
-        response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+        response.setStatusCode(status);
+        StringWriter sw = new StringWriter();
+        exception.printStackTrace(new PrintWriter(sw, true));
+        String logMessage = (message != null?message+"\n":"") + sw.toString(); 
+        logger.debug("Returning HTTP status "+status+": "+logMessage);
         try {
-            StringWriter sw = new StringWriter();
-            exception.printStackTrace(new PrintWriter(sw, true));
             NStringEntity entity = new NStringEntity(
                     "<html><body><h1>Internal server error</h1><p>"
                     +(message != null?message:"")
@@ -220,10 +228,13 @@ public class MaryHttpServerUtils
     
     public static void errorMissingQueryParameter(HttpResponse response, String param)
     {
-        response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
+        int status = HttpStatus.SC_BAD_REQUEST;
+        response.setStatusCode(status);
+        String message = "Request must contain the parameter " + param;
+        logger.debug("Returning HTTP status "+status+": "+message);
         try {
             NStringEntity entity = new NStringEntity(
-                    "<html><body><h1>Bad request</h1><p>Request must contain the parameter " + param +
+                    "<html><body><h1>Bad request</h1><p>"+message+
                     ".</h1></body></html>", "UTF-8");
             entity.setContentType("text/html; charset=UTF-8");
             response.setEntity(entity);
@@ -232,12 +243,15 @@ public class MaryHttpServerUtils
 
     public static void errorWrongQueryParameterValue(HttpResponse response, String paramName, String illegalValue, String explanation)
     {
-        response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
+        int status = HttpStatus.SC_BAD_REQUEST;
+        response.setStatusCode(status);
+        String message = "The value '" + illegalValue + "' of parameter '" + paramName +
+            "' is not valid"
+            + (explanation != null ? ": "+explanation : "");
+        logger.debug("Returning HTTP status "+status+": "+message);
         try {
             NStringEntity entity = new NStringEntity(
-                    "<html><body><h1>Bad request</h1><p>The value '" + illegalValue + "' of parameter '" + paramName +
-                    "' is not valid"
-                    + (explanation != null ? ": "+explanation : "")
+                    "<html><body><h1>Bad request</h1><p>"+message
                     +".</h1></body></html>", "UTF-8");
             entity.setContentType("text/html; charset=UTF-8");
             response.setEntity(entity);

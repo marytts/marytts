@@ -187,19 +187,7 @@ public class PronunciationModel extends InternalModule
         while ((t = (Element) tw.nextNode()) != null) {
             // First, create the substructure of <t> elements: <syllable> and <ph>.
             if (allophoneSet == null) { // need to determine it once, then assume it is the same for all
-                Element voice = (Element) MaryDomUtils.getAncestor(t, MaryXML.VOICE);
-                Voice maryVoice = Voice.getVoice(voice);
-                if (maryVoice == null) {                
-                    maryVoice = d.getDefaultVoice();
-                }
-                if (maryVoice == null) {
-                    // Determine Locale in order to use default voice
-                    Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
-                    maryVoice = Voice.getDefaultVoice(locale);
-                }
-                assert maryVoice != null;
-                allophoneSet = maryVoice.getAllophoneSet();
-                assert allophoneSet != null;
+                allophoneSet = AllophoneSet.determineAllophoneSet(t);
             }
             createSubStructure(t, allophoneSet);
             

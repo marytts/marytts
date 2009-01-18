@@ -32,8 +32,9 @@ import java.io.IOException;
 import java.util.Random;
 
 import junit.framework.TestCase;
+import marytts.cart.impose.FeatureArrayIndexer;
 import marytts.features.FeatureDefinition;
-import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
+import marytts.unitselection.data.FeatureFileReader;
 
 /**
  * Test case for the FeatureFileIndexer.
@@ -41,7 +42,7 @@ import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
  * @author sacha
  *
  */
-public class FeatureFileIndexerTest extends TestCase {
+public class FeatureArrayIndexerTest extends TestCase {
 
     /**
      * MAIN!
@@ -53,7 +54,8 @@ public class FeatureFileIndexerTest extends TestCase {
         
         /* Load a target feature file */
         String feaFile = "/home/cl-home/sacha/disk/cmu_us_bdl_arctic/mary/targetFeatures.bin";
-        FeatureFileIndexer ffi = new FeatureFileIndexer( feaFile );
+        FeatureFileReader ffr = new FeatureFileReader(feaFile);
+        FeatureArrayIndexer ffi = new FeatureArrayIndexer( ffr.getFeatureVectors(), ffr.getFeatureDefinition() );
         
         /* Determine the number of discrete features */
         FeatureDefinition feaDef = ffi.getFeatureDefinition();
@@ -145,7 +147,7 @@ public class FeatureFileIndexerTest extends TestCase {
 
         
         /* Measure the indexing time */
-        System.out.println( "Starting to index across [" + ffi.getNumberOfUnits() + "] units..." );
+        System.out.println( "Starting to index across [" + ffr.getNumberOfUnits() + "] units..." );
         System.out.flush();
         long tic = System.currentTimeMillis();
         final int NUMITER = 10;

@@ -39,6 +39,7 @@ import java.util.StringTokenizer;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.language.en.DummyFreeTTSVoice;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.FreeTTSVoices;
@@ -106,7 +107,7 @@ public abstract class XML2UttBase extends InternalModule
             logger.debug(debugOut.toString());
        }
 
-        List utterances = new ArrayList();
+        List<Utterance> utterances = new ArrayList<Utterance>();
         NodeIterator sentenceIt = ((DocumentTraversal)doc).
             createNodeIterator(doc, NodeFilter.SHOW_ELEMENT,
                                new NameNodeFilter(MaryXML.SENTENCE), false);
@@ -122,10 +123,15 @@ public abstract class XML2UttBase extends InternalModule
                 // Determine Locale in order to use default voice
                 Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
                 maryVoice = Voice.getDefaultVoice(locale);
-                assert maryVoice != null;
             }
-            com.sun.speech.freetts.Voice freettsVoice =
-                FreeTTSVoices.getFreeTTSVoice(maryVoice);
+            com.sun.speech.freetts.Voice freettsVoice;
+            if (maryVoice != null) {
+                freettsVoice = FreeTTSVoices.getFreeTTSVoice(maryVoice);
+            } else if (d.getLocale() != null && d.getLocale().equals(Locale.US)) {
+                freettsVoice = new marytts.language.en.DummyFreeTTSVoice();
+            } else {
+                freettsVoice = new marytts.modules.DummyFreeTTSVoice();
+            }
             if (freettsVoice == null) {
                 throw new NullPointerException("No FreeTTS voice for mary voice " + maryVoice.getName());
             }
@@ -301,7 +307,10 @@ public abstract class XML2UttBase extends InternalModule
         boolean createTargetRelation)
          
     {
-        Voice maryVoice = FreeTTSVoices.getMaryVoice(utterance.getVoice());
+        Voice maryVoice = null;
+        if (utterance.getVoice() != null) {
+            maryVoice = FreeTTSVoices.getMaryVoice(utterance.getVoice());
+        }
         StringBuffer sentenceBuf = new StringBuffer();
         List<String> phoneList = null;
         Relation tokenRelation = utterance.getRelation(Relation.TOKEN);
