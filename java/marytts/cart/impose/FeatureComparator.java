@@ -26,7 +26,7 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package de.dfki.lt.mary.unitselection;
+package marytts.cart.impose;
 
 import java.util.Comparator;
 

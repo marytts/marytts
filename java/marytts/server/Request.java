@@ -256,7 +256,7 @@ public class Request {
         if (defaultVoice == null) {
             defaultVoice = Voice.getSuitableVoice(inputData);
         }
-        assert defaultVoice != null;
+        //assert defaultVoice != null;
         inputData.setDefaultVoice(defaultVoice);
         inputData.setDefaultStyle(defaultStyle);
         inputData.setDefaultEffects(defaultEffects);
@@ -293,7 +293,7 @@ public class Request {
         } else {
             // other input data types are processed as a whole
             outputData = processOneChunk(inputData, outputType, outputTypeParams);
-            assert outputData.getDefaultVoice() != null;
+            //assert outputData.getDefaultVoice() != null;
             if (appendableAudioStream != null) appendableAudioStream.doneAppending();
             return;
         }

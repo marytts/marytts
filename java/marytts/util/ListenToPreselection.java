@@ -31,6 +31,8 @@ package marytts.util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import marytts.cart.impose.FeatureArrayIndexer;
+import marytts.cart.impose.FeatureFileIndexingResult;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.tools.voiceimport.DatabaseLayout;
@@ -38,11 +40,10 @@ import marytts.tools.voiceimport.HalfPhoneFeatureFileWriter;
 import marytts.tools.voiceimport.VoiceImportComponent;
 import marytts.tools.voiceimport.WaveTimelineMaker;
 import marytts.unitselection.data.Datagram;
+import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.util.data.audio.WavWriter;
-import de.dfki.lt.mary.unitselection.FeatureFileIndexer;
-import de.dfki.lt.mary.unitselection.FeatureFileIndexingResult;
 
 public class ListenToPreselection {
     
@@ -60,7 +61,8 @@ public class ListenToPreselection {
         UnitFileReader ufr = new UnitFileReader( ffw.getProp(ffw.UNITFILE));
         TimelineReader tlr = new TimelineReader( wtlm.getProp(wtlm.WAVETIMELINE));
         //TimelineReader tlr = new TimelineReader( dbl.lpcTimelineFileName() );
-        FeatureFileIndexer ffi = new FeatureFileIndexer( ffw.getProp(ffw.FEATUREFILE));
+        FeatureFileReader ffr = new FeatureFileReader( ffw.getProp(ffw.FEATUREFILE));
+        FeatureArrayIndexer ffi = new FeatureArrayIndexer(ffr.getFeatureVectors(), ffr.getFeatureDefinition());
         FeatureDefinition feaDef = ffi.getFeatureDefinition();
         WavWriter ww = new WavWriter();
         

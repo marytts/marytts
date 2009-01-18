@@ -153,20 +153,7 @@ public class AllophonesExtractor extends VoiceImportComponent
         OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( outputDir, basename + featsExt )));
         MaryHttpClient maryClient = getMaryClient();
         
-        Vector<MaryClient.Voice> voices = maryClient.getVoices(localVoice);
-        // try again:
-        if (voices == null) {
-            StringBuffer buf = new StringBuffer("Mary server has no voices for locale '"+localVoice+"'. \n Known voices are:\n");
-            Vector<MaryClient.Voice> allVoices = maryClient.getVoices();
-            for (MaryClient.Voice v: allVoices) {
-                buf.append(v.toString()); buf.append("  Locale: "+v.getLocale().toString());  buf.append("\n");
-            }
-            throw new RuntimeException(buf.toString());
-        }
-        
-        MaryClient.Voice defaultVoice = (MaryClient.Voice) voices.firstElement();
-        String voiceName = defaultVoice.name();
-        maryClient.process(text, maryInputType, maryOutputType, db.getProp(db.LOCALE), null, voiceName, os);
+        maryClient.process(text, maryInputType, maryOutputType, db.getProp(db.LOCALE), null, null, os);
         os.flush();
         os.close();
     }

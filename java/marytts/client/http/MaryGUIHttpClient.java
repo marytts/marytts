@@ -323,10 +323,10 @@ public class MaryGUIHttpClient extends JPanel
         inputText.getAccessibleContext().setAccessibleName("Input Text Area");
 
         //Set Tab and Shift-Tab for Keyboard movement
-        Set forwardKeys = new HashSet();
+        Set<KeyStroke> forwardKeys = new HashSet<KeyStroke>();
         forwardKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0, false));
         inputText.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,forwardKeys);
-        Set backwardKeys = new HashSet();
+        Set<KeyStroke> backwardKeys = new HashSet<KeyStroke>();
         backwardKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_TAB,KeyEvent.SHIFT_MASK+KeyEvent.SHIFT_DOWN_MASK, false));
         inputText.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS,backwardKeys);
 
@@ -386,15 +386,17 @@ public class MaryGUIHttpClient extends JPanel
             }
         });
         
-        // For the limited domain voices, get example texts: 
-        Iterator it = processor.getVoices().iterator();
-        while (it.hasNext()) {
-            MaryClient.Voice v = (MaryClient.Voice) it.next();
-            if (v.isLimitedDomain()){
-                String exampleText = processor.getVoiceExampleTextLimitedDomain(v.name());
-                limDomVoices.put(v.name(), processVoiceExampleText(exampleText));
+        // For the limited domain voices, get example texts:
+        Vector<MaryClient.Voice> voices = processor.getVoices();
+        if (voices != null) {
+            for (MaryClient.Voice v : voices) {
+                if (v.isLimitedDomain()){
+                    String exampleText = processor.getVoiceExampleTextLimitedDomain(v.name());
+                    limDomVoices.put(v.name(), processVoiceExampleText(exampleText));
+                }
             }
         }
+
         verifyDefaultVoices();
         fillExampleTexts();
         verifyExamplesVisible();
@@ -766,6 +768,7 @@ public class MaryGUIHttpClient extends JPanel
             if (effectsBox.hasEffects() && effectsBox.getData().getTotalEffects()>0)
             {
                 MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
+                if (voice == null) return;
                 
                 for (int i=0; i<effectsBox.getData().getTotalEffects(); i++)
                 {
@@ -829,6 +832,7 @@ public class MaryGUIHttpClient extends JPanel
     private void setExampleInputText()
     {
         MaryClient.Voice defaultVoice = (MaryClient.Voice) cbDefaultVoice.getSelectedItem();
+        if (defaultVoice == null) return;
         MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
         if (defaultVoice.isLimitedDomain() && inputType.name().startsWith("TEXT")) {
             setInputText((String) cbVoiceExampleText.getSelectedItem());
@@ -845,7 +849,7 @@ public class MaryGUIHttpClient extends JPanel
     private void fillExampleTexts()
     {
         MaryClient.Voice defaultVoice = (MaryClient.Voice) cbDefaultVoice.getSelectedItem();
-        if (!defaultVoice.isLimitedDomain()) return;
+        if (defaultVoice == null || !defaultVoice.isLimitedDomain()) return;
         Vector<String> sentences = (Vector<String>)limDomVoices.get(defaultVoice.name());
         assert sentences != null;
         cbVoiceExampleText.removeAllItems();
@@ -860,7 +864,7 @@ public class MaryGUIHttpClient extends JPanel
         MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
         MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
 
-        if (defaultVoice.isLimitedDomain() && inputType.name().startsWith("TEXT")) {
+        if (defaultVoice != null && defaultVoice.isLimitedDomain() && inputType.name().startsWith("TEXT")) {
             cbVoiceExampleText.setVisible(true);
         } else {
             cbVoiceExampleText.setVisible(false);
@@ -910,13 +914,16 @@ public class MaryGUIHttpClient extends JPanel
         MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
         // Reset the list, just in case
         cbDefaultVoice.removeAllItems();
-        for (MaryClient.Voice v : processor.getVoices()) {
-            cbDefaultVoice.addItem(v);
-        }
-        if (defaultVoice != null) {
-            cbDefaultVoice.setSelectedItem(defaultVoice);
-        } else { // First in list is default voice:
-            cbDefaultVoice.setSelectedIndex(0);
+        Vector<MaryClient.Voice> voices = processor.getVoices();
+        if (voices != null) {
+            for (MaryClient.Voice v : processor.getVoices()) {
+                cbDefaultVoice.addItem(v);
+            }
+            if (defaultVoice != null) {
+                cbDefaultVoice.setSelectedItem(defaultVoice);
+            } else { // First in list is default voice:
+                cbDefaultVoice.setSelectedIndex(0);
+            }
         }
     }
 
@@ -1250,12 +1257,15 @@ public class MaryGUIHttpClient extends JPanel
             try {
                 // Write to a byte array (to be converted to a string later)
                 os = new ByteArrayOutputStream();
+                MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
+                String voiceName = voice != null ? voice.name() : null;
+                String locale = voice != null ? voice.getLocale().toString() : null;
                 processor.process(inputText.getText(),
                         ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
                         outputType.name(),
-                        ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
+                        locale,
                         null,
-                        ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
+                        locale,
                         "",
                         getAudioEffectsMap(),
                         null,

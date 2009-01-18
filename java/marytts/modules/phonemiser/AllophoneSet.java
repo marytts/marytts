@@ -41,6 +41,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import marytts.datatypes.MaryXML;
+import marytts.modules.synthesis.Voice;
+import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
@@ -58,7 +61,7 @@ public class AllophoneSet
      * It will only be loaded if it was not loaded before.
      */
     public static AllophoneSet getAllophoneSet(String filename)
-        throws SAXException, IOException, ParserConfigurationException
+    throws SAXException, IOException, ParserConfigurationException
     {
         AllophoneSet as = allophoneSets.get(filename);
         if (as == null) {
@@ -69,6 +72,37 @@ public class AllophoneSet
         return as;
     }
 
+    /**
+     * For an element in a MaryXML document, do what you can to determine
+     * the appropriate AllophoneSet. First search for the suitable voice,
+     * then if that fails, go by locale.
+     * @param e
+     * @return an allophone set if there is any way of determining it, or null.
+     */
+    public static AllophoneSet determineAllophoneSet(Element e)
+    throws SAXException, IOException, ParserConfigurationException
+    {
+        AllophoneSet allophoneSet = null;
+        Element voice = (Element) MaryDomUtils.getAncestor(e, MaryXML.VOICE);
+        Voice maryVoice = Voice.getVoice(voice);
+        if (maryVoice == null) {
+            // Determine Locale in order to use default voice
+            Locale locale = MaryUtils.string2locale(e.getOwnerDocument().getDocumentElement().getAttribute("xml:lang"));
+            maryVoice = Voice.getDefaultVoice(locale);
+        }
+        if (maryVoice != null) {
+            allophoneSet = maryVoice.getAllophoneSet();
+        } else {
+            Locale locale = MaryUtils.string2locale(e.getOwnerDocument().getDocumentElement().getAttribute("xml:lang"));
+            String propertyPrefix = MaryProperties.localePrefix(locale);
+            if (propertyPrefix != null) {
+                String propertyName = propertyPrefix + ".allophoneset";
+                String filename = MaryProperties.needFilename(propertyName);
+                allophoneSet = AllophoneSet.getAllophoneSet(filename);
+            }
+        }
+        return allophoneSet;
+    }
 
 
     ////////////////////////////////////////////////////////////////////

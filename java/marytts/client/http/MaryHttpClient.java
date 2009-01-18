@@ -286,7 +286,9 @@ public class MaryHttpClient
         params.append("INPUT_TEXT=").append(URLEncoder.encode(input, "UTF-8"));
         params.append("&INPUT_TYPE=").append(URLEncoder.encode(inputType, "UTF-8"));
         params.append("&OUTPUT_TYPE=").append(URLEncoder.encode(outputType, "UTF-8"));
-        params.append("&LOCALE=").append(URLEncoder.encode(locale, "UTF-8"));
+        if (locale != null) {
+            params.append("&LOCALE=").append(URLEncoder.encode(locale, "UTF-8"));
+        }
         if (audioType != null) {
             params.append("&AUDIO=").append(URLEncoder.encode((streamingAudio && data.serverCanStream) ? audioType+"_STREAM" : audioType + "_FILE", "UTF-8"));
         }
