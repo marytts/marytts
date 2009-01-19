@@ -37,6 +37,7 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.server.MaryProperties;
+import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 
@@ -56,7 +57,9 @@ import de.dfki.lt.tools.tokenizer.annotate.FastAnnotatedString;
  *
  *
  */
-public abstract class JTokeniser extends InternalModule {
+public abstract class JTokeniser extends InternalModule
+{
+    public static final int TOKEN_MAXLENGTH = 100;
 
     private JTok jtok;
 
@@ -243,6 +246,21 @@ public abstract class JTokeniser extends InternalModule {
                     MaryXML.PARAGRAPH);
             }
         }
+        
+        // And finally, we make sure for every token that it is not longer than TOKEN_MAXLENGTH:
+        NodeIterator tIt = MaryDomUtils.createNodeIterator(doc.getDocumentElement(), MaryXML.TOKEN);
+        Element t = null;
+        while ((t = (Element) tIt.nextNode()) != null) {
+            String tokenText = MaryDomUtils.tokenText(t);
+            if (tokenText.length() > TOKEN_MAXLENGTH) {
+                String cutTT = tokenText.substring(0, TOKEN_MAXLENGTH);
+                logger.info("Cutting exceedingly long input token (length "+tokenText.length()+" ) to length "+TOKEN_MAXLENGTH+":\n"
+                        + "before: "+tokenText
+                        +"\nafter: "+cutTT);
+                MaryDomUtils.setTokenText(t, cutTT);
+            }
+        }
+        
         MaryData result = new MaryData(outputType(), d.getLocale());
         result.setDocument(doc);
         return result;
