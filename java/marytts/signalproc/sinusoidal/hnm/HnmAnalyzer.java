@@ -104,7 +104,7 @@ public class HnmAnalyzer {
         double [] x = signal.getAllData();
         float originalDurationInSeconds = SignalProcUtils.sample2time(x.length, fs);
         int lpOrder = SignalProcUtils.getLPOrder(fs);
-        double preCoef = 0.0;
+        float preCoefNoise = 0.0f;
         
         //// TO DO
         //Step1. Initial pitch estimation
@@ -114,7 +114,7 @@ public class HnmAnalyzer {
         
         //2.b. If voiced, maximum frequency of voicing estimation
         //     Otherwise, maximum frequency of voicing is set to 0.0
-        float maxFreqOfVoicingInHz = 2950.0f; //This should come from the above automatic analysis
+        float maxFreqOfVoicingInHz = 0.0f; //This should come from the above automatic analysis
         
         //2.c. Refined pitch estimation
         ////
@@ -143,7 +143,19 @@ public class HnmAnalyzer {
         
         T0 = (int)Math.floor(fs/f0InHz+0.5);
         
+        int i, j, k;
+        
         int ws;
+        float windowDurationInSecondsNoise = 0.050f;
+        int wsNoise = SignalProcUtils.time2sample(windowDurationInSecondsNoise, fs);
+        if (wsNoise%2==0) //Always use an odd window size to have a zero-phase analysis window
+            wsNoise++;  
+        
+        Window winNoise = Window.get(windowType, wsNoise);
+        winNoise.normalizeSquaredSum(1.0f);
+        double[] wgtSquaredNoise = winNoise.getCoeffs();
+        for (j=0; j<wgtSquaredNoise.length; j++)
+            wgtSquaredNoise[j] = wgtSquaredNoise[j]*wgtSquaredNoise[j];
 
         int totalFrm = (int)Math.floor(pm.pitchMarks.length-numPeriods+0.5);
         if (totalFrm>pm.pitchMarks.length-1)
@@ -151,8 +163,8 @@ public class HnmAnalyzer {
         
         //Extract frames and analyze them
         double[] frm = null; //Extracted pitch synchronously
-        double[] frmNoise = null; //Extracted at fixed window size around analysis time instant since LP analysis requires longer windows (40 ms)
-        int i, j, k;
+        double[] frmNoise = new double[wsNoise]; //Extracted at fixed window size around analysis time instant since LP analysis requires longer windows (40 ms)
+        int noiseFrmStartInd;
         
         int pmInd = 0;
         
@@ -160,8 +172,7 @@ public class HnmAnalyzer {
         Window win;
         int closestInd;
         
-        
-        hnmSignal = new HnmSpeechSignal(totalFrm, fs, originalDurationInSeconds);
+        hnmSignal = new HnmSpeechSignal(totalFrm, fs, originalDurationInSeconds, windowDurationInSecondsNoise, preCoefNoise);
         boolean isPrevVoiced = false;
         
         int numHarmonics = 0;
@@ -188,25 +199,20 @@ public class HnmAnalyzer {
         
         for (i=0; i<totalFrm; i++)
         {  
+            hnmSignal.frames[i].maximumFrequencyOfVoicingInHz = maxFreqOfVoicingInHz; //Normally, this should come from analysis!!!
             T0 = pm.pitchMarks[i+1]-pm.pitchMarks[i];
-            isVoiced = pm.f0s[i]>10.0 ? true:false;
+            isVoiced = hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0 ? true:false;
             
             ws = (int)Math.floor(numPeriods*T0+ 0.5);
             if (ws%2==0) //Always use an odd window size to have a zero-phase analysis window
                 ws++;            
             
             hnmSignal.frames[i].tAnalysisInSeconds = (float)((pm.pitchMarks[i]+0.5f*ws)/fs);  //Middle of analysis frame
-            hnmSignal.frames[i].maximumFrequencyOfVoicingInHz = maxFreqOfVoicingInHz;
           
             f0InHz = pm.f0s[i];
             
-            if (f0InHz>10.0)
-                isVoiced = true;
-            else
-            {
-                isVoiced = false;
+            if (!isVoiced)
                 f0InHz = assumedF0ForUnvoicedInHz;
-            }
 
             T0 = (int)Math.floor(fs/f0InHz+0.5);
 
@@ -245,13 +251,16 @@ public class HnmAnalyzer {
                 numHarmonics = 0;
             
             //Step5. Perform full-spectrum LPC analysis for generating noise part
+            Arrays.fill(frmNoise, 0.0);
+            noiseFrmStartInd = Math.max(0, SignalProcUtils.time2sample(hnmSignal.frames[i].tAnalysisInSeconds-0.5f*windowDurationInSecondsNoise, fs));
+            for (j=noiseFrmStartInd; j<Math.min(noiseFrmStartInd+wsNoise, x.length); j++)
+                frmNoise[j-noiseFrmStartInd] = x[j];
+            
             if (noisePartRepresentation==LPC)
             {
-                //Stylianou does this in a separate, fixed frame rate (10 ms) and window size (40 ms) loop
-                //Here, it is pitch synchronous for voiced frames and pitch asynchronous for unvoiced ones
-                //Additionally, we have support for preemphasis - this needs to be handled during synthesis of the noisy part with preemphasis removal
-                frm = win.apply(frm, 0);
-                LpCoeffs lpcs = LpcAnalyser.calcLPC(frm, lpOrder, (float)preCoef);
+                //We have support for preemphasis - this needs to be handled during synthesis of the noisy part with preemphasis removal
+                frmNoise = winNoise.apply(frmNoise, 0);
+                LpCoeffs lpcs = LpcAnalyser.calcLPC(frmNoise, lpOrder, preCoefNoise);
                 hnmSignal.frames[i].n = new FrameNoisePartLpc(lpcs.getA(), lpcs.getGain());
             }
             else if (noisePartRepresentation==PSEUDO_HARMONIC)
@@ -262,7 +271,7 @@ public class HnmAnalyzer {
                 //i.e. for 16 KHz 5 to 8 KHz bandwidth in steps of 100 Hz produces 50 to 80 pseudo-harmonics
                 
                 //(1) Uncorrelated approach as in Stylianou´s thesis
-                noiseHarmonicAmps = estimateComplexAmplitudesUncorrelated(frm, wgtSquared, NOISE_F0_IN_HZ, numNoiseHarmonics, fs);
+                noiseHarmonicAmps = estimateComplexAmplitudesUncorrelated(frmNoise, wgtSquaredNoise, NOISE_F0_IN_HZ, numNoiseHarmonics, fs);
                 //OR... (2)Expensive approach which does not work very well
                 //noiseHarmonicAmps = estimateComplexAmplitudes(frm, wgtSquared, NOISE_F0_IN_HZ, numNoiseHarmonics, fs);
                 //OR... (3) Uncorrelated approach using full autocorrelation matrix (checking if there is a problem in estimateComplexAmplitudesUncorrelated

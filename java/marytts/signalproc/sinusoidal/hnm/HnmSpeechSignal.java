@@ -42,8 +42,10 @@ public class HnmSpeechSignal extends BaseSinusoidalSpeechSignal
     public HnmSpeechFrame[] frames;
     public float originalDurationInSeconds;
     public int samplingRateInHz;
+    public float windowDurationInSecondsNoise;
+    public float preCoefNoise;
     
-    public HnmSpeechSignal(int totalFrm, int samplingRateInHz, float originalDurationInSeconds)
+    public HnmSpeechSignal(int totalFrm, int samplingRateInHz, float originalDurationInSeconds, float windowDurationInSecondsNoise, float preCoefNoise)
     {
         if (totalFrm>0)
         {
@@ -56,5 +58,7 @@ public class HnmSpeechSignal extends BaseSinusoidalSpeechSignal
         
         this.samplingRateInHz = samplingRateInHz;
         this.originalDurationInSeconds = originalDurationInSeconds;
+        this.windowDurationInSecondsNoise = windowDurationInSecondsNoise;
+        this.preCoefNoise = preCoefNoise;
     }
 }

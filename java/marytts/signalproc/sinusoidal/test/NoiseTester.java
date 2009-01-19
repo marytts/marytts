@@ -86,6 +86,11 @@ public class NoiseTester extends BaseTester{
         init(freqs);
     }
     
+    public NoiseTester(float [][] freqs, float durationInSeconds)
+    {
+        init(freqs, durationInSeconds);
+    }
+    
     public NoiseTester(float [][] freqs, float [] amps)
     {
         init(freqs, amps);
@@ -143,6 +148,16 @@ public class NoiseTester extends BaseTester{
             amps[i] = DEFAULT_AMP;
         
         init(freqs, amps);
+    }
+    
+    public void init(float [][] freqs, float durationInSeconds)
+    {
+        float [] amps = new float[freqs.length];
+        
+        for (int i=0; i<amps.length; i++)
+            amps[i] = DEFAULT_AMP;
+        
+        init(freqs, amps, durationInSeconds);
     }
     
     public void init(float [][] freqs, float [] amps)
@@ -227,7 +242,7 @@ public class NoiseTester extends BaseTester{
                 //Synthesize noise
                 for (i=0; i<freqs.length; i++)
                 {
-                    double [] noise = SignalProcUtils.getNoise(freqs[i][0], freqs[i][1], fs, endSampleIndices[i]-startSampleIndices[i]+1); 
+                    double[] noise = SignalProcUtils.getNoise(freqs[i][0], freqs[i][1], fs, endSampleIndices[i]-startSampleIndices[i]+1); 
                     
                     for (j=startSampleIndices[i]; j<endSampleIndices[i]; j++)
                         signal[j] += 2.0f*amps[i]*noise[j-startSampleIndices[i]];
@@ -242,15 +257,18 @@ public class NoiseTester extends BaseTester{
         float [] tStarts, tEnds;
         NoiseTester t = null;
 
-        numTracks = 1;
+        numTracks = 2;
         float [][] freqs = new float[numTracks][];
         for (i=0; i<numTracks; i++)
             freqs[i] = new float[2];
         
-        freqs[0][0] = 3000;
-        freqs[0][1] = 7000;
+        freqs[0][0] = 1000;
+        freqs[0][1] = 3000;
+        freqs[1][0] = 5000;
+        freqs[1][1] = 6500;
+        float durationInSeconds = 0.25f;
 
-        t = new NoiseTester(freqs);
+        t = new NoiseTester(freqs, durationInSeconds);
         
         if (args.length>1)
             t.write(args[0], args[1]);

@@ -897,26 +897,33 @@ public class SignalProcUtils {
     
     public static double [] getNoise(double normalizedStartFreq, double normalizedEndFreq, int len)
     {
-        double [] noise = null;
+        double[] noise = null;
         
         if (len>0)
-        {
+        {            
+            FIRFilter f=null;
+            int origLen = len;
+            if (normalizedStartFreq!=0.0 && normalizedEndFreq!=0.5) //No filtering is required
+            { 
+                if (normalizedStartFreq>0.0 && normalizedEndFreq<0.5) //Bandpass
+                    f = new BandPassFilter(normalizedStartFreq, normalizedEndFreq);
+                else if (normalizedStartFreq>0.0)
+                    f = new HighPassFilter(normalizedStartFreq);
+                else if (normalizedEndFreq<0.5f)
+                    f = new LowPassFilter(normalizedEndFreq);
+
+                origLen = len;
+                len += f.getImpulseResponseLength(); //This is for avoiding initial zeros in the beginning of the signal
+            }
+            
             noise = new double[len];
             for (int i=0; i<len; i++)
                 noise[i] = Math.random()-0.5;
             
-            FIRFilter f=null;
-            if (normalizedStartFreq>0.0 && normalizedEndFreq<0.5f) //Bandpass
-                f = new BandPassFilter(normalizedStartFreq, normalizedEndFreq);
-            else if (normalizedStartFreq>0.0)
-                f = new HighPassFilter(normalizedStartFreq);
-            else if (normalizedEndFreq<1.0f)
-                f = new LowPassFilter(normalizedEndFreq);
-            
             if (f!=null)
             {
                 double [] noise2 = f.apply(noise);
-                System.arraycopy(noise2, 0, noise, 0, len);
+                System.arraycopy(noise2, f.getImpulseResponseLength(), noise, 0, len);
             }
         }
         
@@ -1810,6 +1817,14 @@ public class SignalProcUtils {
             for (int i=0; i<totalSamples; i++)
                 n[i] = 2.0*maxAbsGain*(Math.random()-0.5);
         }
+        
+        return n;
+    }
+    
+    public static double[] getWhiteNoiseOfVariance(int totalSamples, double variance)
+    {
+        double[] n = getWhiteNoise(totalSamples, 1.0);
+        MathUtils.adjustVariance(n, variance);
         
         return n;
     }
