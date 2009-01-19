@@ -50,6 +50,7 @@ import marytts.datatypes.MaryXML;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.TargetFeatureComputer;
+import marytts.fst.FSTLookup;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.unitselection.UnitSelectionVoice;
@@ -85,7 +86,7 @@ public class OpenNLPPosTagger extends InternalModule
     private String propertyPrefix;
     private POSTaggerME tagger;
     private Map<String,String> posMapper = null;
-    
+    private FSTLookup posFST = null;
     /**
      * Constructor which can be directly called from init info in the config file.
      * Different languages can call this code with different settings.
@@ -104,9 +105,34 @@ public class OpenNLPPosTagger extends InternalModule
         this.propertyPrefix = propertyPrefix;
     }
 
+    /**
+     * Constructor which can be directly called from init info in the config file.
+     * when locale is not available, new language config settings can call this part of code   
+     * @param propertyPrefix
+     * @throws Exception
+     */
+    public OpenNLPPosTagger(String propertyPrefix)
+    throws Exception
+    {
+        super("OpenNLPPosTagger",
+                MaryDataType.WORDS,
+                MaryDataType.PARTSOFSPEECH,
+                null);
+        if (!propertyPrefix.endsWith(".")) propertyPrefix = propertyPrefix + ".";
+        this.propertyPrefix = propertyPrefix;
+    }
+    
+    
     public void startup() throws Exception
     {
         super.startup();
+        
+        // If locale is null, use fallback procedure for a newlanguage
+        if(this.getLocale() == null){
+            posFST = new FSTLookup(MaryProperties.needFilename(propertyPrefix+"fst"));
+            return;
+        }
+        
         String modelFile = MaryProperties.needFilename(propertyPrefix+"model");
         String tagdict = MaryProperties.getFilename(propertyPrefix+"tagdict");
         boolean caseSensitive = MaryProperties.getBoolean(propertyPrefix+"tagdict.isCaseSensitive", true);
@@ -138,6 +164,11 @@ public class OpenNLPPosTagger extends InternalModule
     public MaryData process(MaryData d)
     throws Exception
     {
+        // If locale is null, use fallback procedure for a newlanguage
+        if(this.getLocale() == null){
+            return newLanguageProcess(d);
+        }   
+        
         Document doc = d.getDocument(); 
         NodeIterator sentenceIt = MaryDomUtils.createNodeIterator(doc, doc, MaryXML.SENTENCE);
         Element sentence;
@@ -167,5 +198,33 @@ public class OpenNLPPosTagger extends InternalModule
         output.setDocument(doc);
         return output;
     }
+    
+    /**
+     * fallback procedure for parts-of-speech tag (to newlanguage support)
+     * @param d
+     * @return
+     */
+    public MaryData newLanguageProcess(MaryData d){
+        Document doc = d.getDocument(); 
+        NodeIterator sentenceIt = MaryDomUtils.createNodeIterator(doc, doc, MaryXML.SENTENCE);
+        Element sentence;
+        while ((sentence = (Element) sentenceIt.nextNode()) != null) {
+            TreeWalker tokenIt = MaryDomUtils.createTreeWalker(sentence, MaryXML.TOKEN);
+            Element t;
+            while ((t = (Element) tokenIt.nextNode()) != null) {
+                String pos = "content";
+                if (posFST != null) {
+                    String[] result = posFST.lookup(MaryDomUtils.tokenText(t));
+                    if(result.length != 0)
+                        pos = "function";
+                }
+                t.setAttribute("pos", pos);
+            }
+        }
+        MaryData output = new MaryData(outputType(), d.getLocale());
+        output.setDocument(doc);
+        return output;
+    }
+    
 
 }
