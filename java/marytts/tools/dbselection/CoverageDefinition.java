@@ -97,8 +97,11 @@ public class CoverageDefinition{
     /* the index of the four features in the feature vector */
     private int phoneFeatIndex;
     private int diphoneFeatIndex;
-//    private int phoneClassesIndex;
+   // private int phoneClassesIndex;  // CHECK IF THIS FEATURE WILL NOT BE USED ANY MORE???
     private int prosodyIndex;
+    // number of target features used, (phone, next_phone, selection_prosody = 3 ) 
+    private int numTargetFeaturesUsed;
+    
     /* the number of possible phone classes */
     private int numPhoneClasses;
     /* the number of possible phones */
@@ -203,11 +206,8 @@ public class CoverageDefinition{
 
         //read config file             
         try{
-            BufferedReader configIn = 
-                new BufferedReader(
-                        new InputStreamReader(
-                                new FileInputStream(
-                                        new File(configFile)),"UTF-8"));
+            BufferedReader configIn = new BufferedReader(new InputStreamReader(
+                                new FileInputStream(new File(configFile)),"UTF-8"));
             String line;
             int numparams = 0;
             //loop over the lines of the config file
@@ -296,7 +296,7 @@ public class CoverageDefinition{
      * @throws IOException
      */
  //   public String[] initialiseCoverage()throws IOException{
-      public int[] initialiseCoverage(DBHandler wikiToDB)throws IOException{
+      public int[] initialiseCoverage(DBHandler wikiToDB, boolean verbose)throws IOException{
         //stuff used for counting the phones and diphones
         possiblePhoneTypes = new HashSet();
         simpleDiphones2Frequency = new TreeMap();
@@ -304,6 +304,29 @@ public class CoverageDefinition{
         Set simpleFeatVectTypes = new HashSet();
         Set clusteredFeatVectTypes = new HashSet();
 
+        System.out.println("TARGETFEATURES to initialise coverage:");
+        numTargetFeaturesUsed=0;
+        for(int i=0; i<featDef.getNumberOfFeatures(); i++){
+          if(featDef.getFeatureName(i).contentEquals("phoneme")){
+            phoneFeatIndex = featDef.getFeatureIndex("phoneme");
+            numTargetFeaturesUsed++;
+            System.out.println("  feature(" + i + ")=" + featDef.getFeatureName(i));
+          }
+          else if(featDef.getFeatureName(i).contentEquals("next_phoneme")){  
+            diphoneFeatIndex = featDef.getFeatureIndex("next_phoneme");
+            numTargetFeaturesUsed++;
+            System.out.println("  feature(" + i + ")=" + featDef.getFeatureName(i));
+          }
+          else if(featDef.getFeatureName(i).contentEquals("selection_prosody")){  
+            prosodyIndex = featDef.getFeatureIndex("selection_prosody");
+            numTargetFeaturesUsed++;
+            System.out.println("  feature(" + i + ")=" + featDef.getFeatureName(i));
+          }
+          else
+            System.out.println("  NO implementation in CoverageDefinition for the feature =" + featDef.getFeatureName(i));
+            
+        }
+          
         
         // DE original
         /*
@@ -313,14 +336,7 @@ public class CoverageDefinition{
         prosodyIndex = featDef.getFeatureIndex("selection_prosody");
         */
         
-        // EN for testing
-        phoneFeatIndex = featDef.getFeatureIndex("phoneme");
-//        phoneClassesIndex = featDef.getFeatureIndex("gpos");
-        diphoneFeatIndex = featDef.getFeatureIndex("next_phoneme");
-        prosodyIndex = featDef.getFeatureIndex("position_type");
-        
-        
-//        numPhoneClasses = featDef.getNumberOfValues(phoneClassesIndex);
+        //numPhoneClasses = featDef.getNumberOfValues(phoneClassesIndex);
         numPhoneValues = featDef.getNumberOfValues(phoneFeatIndex);
         numPhoneValuesMinusIgnored = numPhoneValues-phonesToIgnore.size()-1;
 
@@ -333,21 +349,18 @@ public class CoverageDefinition{
         //get the features for the values
         possiblePhoneArray = featDef.getPossibleValues(phoneFeatIndex);
         possibleNextPhoneArray = featDef.getPossibleValues(diphoneFeatIndex);
-//        possibleNextPhoneClassArray = featDef.getPossibleValues(phoneClassesIndex);
         possibleProsodyArray = featDef.getPossibleValues(prosodyIndex);
-
+        //possibleNextPhoneClassArray = featDef.getPossibleValues(phoneClassesIndex);
+       
+        
         //build Cover
         buildCover();
         
-        //wikiToDB.createDBConnection("penguin.dfki.uni-sb.de","MaryDBSelector","MaryDBSel_user","1iyhyvwq");
-        
-        
         numSentences = wikiToDB.getNumberOfReliableSentences();
-        int idSentenceList[] = wikiToDB.getIdListOfType("dbselection","reliable");
+        int idSentenceList[] = wikiToDB.getIdListOfType("dbselection","reliable=true");
         
         
-        // here the String[] basenames is created with the fromFile field of
-        // the dbselection DB
+        // here the String[] basenames is created with the number of reliable sentences in the DB
         String[] basenames = new String[numSentences];
 
         //numSentences = basenames.length;
@@ -360,6 +373,7 @@ public class CoverageDefinition{
         
         //loop over the feature vectors
         int id;
+        System.out.println("\nAnalysing " + numSentences + " sentences:");
         for (int index=0;index<numSentences;index++){
             
             id = idSentenceList[index];
@@ -372,16 +386,17 @@ public class CoverageDefinition{
             //add them to the list of possible values   
             //System.out.println(basenames[index]);
      
-//mmmm           String nextBasename = wikiToDB.getFileNameFromTable(id, "dbselection");
-//          mmmm            basenames[index] = nextBasename;
+
+            // basenames[index] = nextBasename;
             byte[] vectorBuf;
             int numFeatVects;
             if (needToReadVectors){
              
               trueNumSentences--;
               vectorBuf = wikiToDB.getFeatures(id);  //
-              numFeatVects = (vectorBuf.length)/3;   // mmmmmmm!!! 3 because phone, next_phoneme and selection_prosody
-
+              //numFeatVects = (vectorBuf.length)/3;   // 3 because phone, next_phoneme and selection_prosody
+              numFeatVects = (vectorBuf.length)/numTargetFeaturesUsed;
+              
               if (holdVectorsInMemory){
                     vectorArray[index] = vectorBuf;
               }
@@ -402,7 +417,8 @@ public class CoverageDefinition{
             
 
             /* loop over the feature vectors of size[4] NEW: size[3] */
-            System.out.println("Analysing feature vectors of id=" + id + ":  numFeatVects=" + numFeatVects);
+            if(verbose)
+              System.out.println("Analysing feature vectors of id=" + id + ":  numFeatVects=" + numFeatVects);
             for (int i=0;i<numFeatVects;i++){
                 numTokens++;
                 
@@ -559,10 +575,8 @@ public class CoverageDefinition{
      *
      */
     private void buildCover(){       
-        simpleCover = 
-            new CoverNode((byte)numPhoneValues,wantedWeightDecrease);
-        clusteredCover = 
-            new CoverNode((byte)numPhoneValues,wantedWeightDecrease);
+        simpleCover = new CoverNode((byte)numPhoneValues,wantedWeightDecrease);
+        clusteredCover = new CoverNode((byte)numPhoneValues,wantedWeightDecrease);
 
         //compute all possible combinations
         for (int k=0;k<possiblePhoneArray.length;k++){
@@ -571,11 +585,9 @@ public class CoverageDefinition{
             byte nextIndex = (byte)k;
 
             //add a node for the phonetic identity of the next phone
-            CoverNode nextSimpleChild = 
-                new CoverNode((byte)numPhoneValues,wantedWeightDecrease);
+            CoverNode nextSimpleChild = new CoverNode((byte)numPhoneValues,wantedWeightDecrease);
             //add a node for the phone class of the next phone
-            CoverNode nextClusteredChild = 
-                new CoverNode((byte)numPhoneClasses,wantedWeightDecrease);
+            CoverNode nextClusteredChild = new CoverNode((byte)numPhoneClasses,wantedWeightDecrease);
 
             //set the weight that determines how many instances 
             //are wanted of this phone
@@ -771,11 +783,13 @@ public class CoverageDefinition{
         out.println("diphones: "+df.format(possibleSimpleDiphoneCoverage));
         out.println("overall: "+df.format(possibleOverallSimpleCoverage));
 
+        /*
         out.println("\nClustered Coverage:");
         out.println("phones: "+df.format(possiblePhoneCoverage));
         out.println("diphones: "+df.format(possibleClusteredDiphoneCoverage));
         out.println("overall: "+df.format(possibleOverallClusteredCoverage)+"\n\n");
-
+        */
+        
         if (possiblePhoneCoverage<100){
             out.println("The following phones are missing: ");
             for (int k=1;k<possiblePhoneArray.length;k++){
@@ -928,12 +942,13 @@ public class CoverageDefinition{
         disOut.println("phones: "+df.format(phoneCov)+" ("+df.format(possiblePhoneCoverage)+")");
 
         disOut.println("Simple Coverage:");
-        //disOut.println("phones: "+df.format(phoneCov)+" ("+df.format(possiblePhoneCoverage)+")");
+        disOut.println("phones: "+df.format(phoneCov)+" ("+df.format(possiblePhoneCoverage)+")");
         disOut.println("diphones: "+df.format(simpleDiphoneCov)
                 +" ("+df.format(possibleSimpleDiphoneCoverage)+")");
         disOut.println("overall: "+df.format(overallSimpleCov)
                 +" ("+df.format(possibleOverallSimpleCoverage)+")");
 
+        /*
         disOut.println("Clustered Coverage:");
         //disOut.println("phones: "+df.format(phoneCov)+" ("+df.format(possiblePhoneCoverage)+")");
         disOut.println("diphones: "+df.format(clusteredDiphoneCov)
@@ -942,6 +957,7 @@ public class CoverageDefinition{
                 +" ("+df.format(possibleOverallClusteredCoverage)+")");         
         disOut.flush();
         disOut.close();
+        */
 
         /* print coverage development over time */
         if (logDevelopment){
@@ -999,13 +1015,14 @@ public class CoverageDefinition{
         logOut.println("overall: "+df.format(overallSimpleCov)
                 +" ("+df.format(possibleOverallSimpleCoverage)+")");
 
+        /*
         logOut.println("Clustered Coverage:");
         //logOut.println("phones: "+df.format(phoneCov)+" ("+df.format(possiblePhoneCoverage)+")");
         logOut.println("diphones: "+df.format(clusteredDiphoneCov)
                 +" ("+df.format(possibleClusteredDiphoneCoverage)+")");
         logOut.println("overall: "+df.format(overallClusteredCov)
                 +" ("+df.format(possibleOverallClusteredCoverage)+")\n\n");         
-
+         */
 
     }
 
@@ -1017,7 +1034,7 @@ public class CoverageDefinition{
      */
     public void updateCover(byte[] coveredFVs){
         //int numNewFeatVects = coveredFVs.length/4;
-        int numNewFeatVects = coveredFVs.length/3;
+        int numNewFeatVects = coveredFVs.length/numTargetFeaturesUsed;
         int newPhones = 0;
         int newDiphones = 0;
         //loop through the feature vectors
@@ -1139,7 +1156,7 @@ public class CoverageDefinition{
     public double usefulnessOfFVs(byte[] featureVectors){
         double usefulness = 0.0;
         //int numFeatureVectors = featureVectors.length/4;
-        int numFeatureVectors = featureVectors.length/3;
+        int numFeatureVectors = featureVectors.length/numTargetFeaturesUsed;
         if (considerSentenceLength){
             //too long sentences are useless
             if (numFeatureVectors>maxSentLengthAllowed)
@@ -1198,7 +1215,7 @@ public class CoverageDefinition{
 
     public byte getVectorValue(byte[] vectors,int vectorIndex, int valueIndex){
         //byte result = vectors[vectorIndex*4+valueIndex];
-        byte result = vectors[vectorIndex*3+valueIndex];
+        byte result = vectors[vectorIndex*numTargetFeaturesUsed+valueIndex];
         return result;
     }
 
@@ -1302,12 +1319,29 @@ public class CoverageDefinition{
         prosodyIndex = featDef.getFeatureIndex("selection_prosody");
         */
         
-        // EN
-        phoneFeatIndex = featDef.getFeatureIndex("phoneme");        
-//        phoneClassesIndex = featDef.getFeatureIndex("gpos");                
-        diphoneFeatIndex = featDef.getFeatureIndex("next_phoneme");        
-        prosodyIndex = featDef.getFeatureIndex("position_type");
-        
+        System.out.println("TARGETFEATURES used in the cover sets:");
+        numTargetFeaturesUsed=0;
+        for(int i=0; i<fDef.getNumberOfFeatures(); i++){
+          if(fDef.getFeatureName(i).contentEquals("phoneme")){
+            phoneFeatIndex = fDef.getFeatureIndex("phoneme");
+            numTargetFeaturesUsed++;
+            System.out.println("  feature(" + i + ")=" + fDef.getFeatureName(i));
+          }
+          else if(fDef.getFeatureName(i).contentEquals("next_phoneme")){  
+            diphoneFeatIndex = fDef.getFeatureIndex("next_phoneme");
+            numTargetFeaturesUsed++;
+            System.out.println("  feature(" + i + ")=" + fDef.getFeatureName(i));
+          }
+          else if(fDef.getFeatureName(i).contentEquals("selection_prosody")){  
+            prosodyIndex = fDef.getFeatureIndex("selection_prosody");
+            numTargetFeaturesUsed++;
+            System.out.println("  feature(" + i + ")=" + fDef.getFeatureName(i));
+          }
+          else
+            System.out.println("  NO implementation in CoverageDefinition for the feature =" + fDef.getFeatureName(i));
+            
+        }
+               
 //        numPhoneClasses = featDef.getNumberOfValues(phoneClassesIndex);
         numPhoneValues = featDef.getNumberOfValues(phoneFeatIndex);
         numPhoneValuesMinusIgnored = numPhoneValues-phonesToIgnore.size()-1;
@@ -1360,7 +1394,7 @@ public class CoverageDefinition{
         in.close();
         System.out.print("Num Tokens: "+numTokens+"\n");
         if (holdVectorsInMemory && needToReadVectors){
-            System.out.print("Reading feature vectors...");
+            System.out.print("Reading feature vectors from DB...");
             //read in the vectors
             
             //int numSentences = basenames.length;  // this variable is overriding the global numSentences
@@ -1412,7 +1446,7 @@ public class CoverageDefinition{
             }
 
         }
-        System.out.println("True num sentences "+trueNumSentences);
+        System.out.println("  True num sentences "+trueNumSentences);
     }
 
 

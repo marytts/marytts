@@ -187,7 +187,7 @@ public class SelectionFunction{
                 
         // create the selectedSentences table 
         // CHECK if there is an old table it should be deleted? 
-        if ( wikiToDB.createSelectedSentencesTable() ) {
+        wikiToDB.createSelectedSentencesTable();
         
         // while the stop criterion is not reached      
         while(!stopCriterionIsReached(selectedFilenames, coverageDefinition)){ 
@@ -205,7 +205,7 @@ public class SelectionFunction{
                 break;
             }
             // the selected sentences will be marked as selected=true in the DB
-            System.out.println("selectedIdSentence=" + selectedIdSentence);           
+            System.out.println("  selectedId=" + selectedIdSentence);           
             wikiToDB.setSentenceRecord(selectedIdSentence, "selected", true);
             wikiToDB.insertSelectedSentence(selectedIdSentence, false);
 
@@ -221,23 +221,28 @@ public class SelectionFunction{
         if (verbose)
             System.out.println("Total number of sentences : "+sentIndex);
         
-        // saving sentences is a file
-        System.out.println("Saving selected sentences in ./selected.log");
-        PrintWriter selectedLog = new PrintWriter(new FileWriter(new File("./selected.log")));
-        int sel[] = wikiToDB.getIdListOfType("selectedSentences", null);
-        String str;
-        for(int i=0; i<sel.length; i++){
-          str = wikiToDB.getSentence("selectedSentences", sel[i]);  
-          //System.out.println("id=" + sel[i] + str);  
-          selectedLog.println("id=" + sel[i] + " " + str);
-        }
-        selectedLog.close();
-        logFile.println("Total number of sentences : "+sentIndex);
         
-        }  else {   // problems creating SelectedSentencesTable
-            wikiToDB.closeDBConnection();
-            System.exit(1);  
-         }
+        //int sel[] = wikiToDB.getIdListOfType("selectedSentences", null);
+        // not sure if we need to make another table???
+        int sel[] = wikiToDB.getIdListOfType("dbselection", "selected=true and unwanted=false");
+        
+        if( sel != null){
+          // saving sentences in a file
+          System.out.println("Saving selected sentences in ./selected.log");
+          PrintWriter selectedLog = new PrintWriter(new FileWriter(new File("./selected.log")));
+            
+          String str;
+          for(int i=0; i<sel.length; i++){
+            // not sure if we need to make another table???
+            // str = wikiToDB.getSentence("selectedSentences", sel[i]);
+            str = wikiToDB.getSentence("dbselection", sel[i]);  
+            //System.out.println("id=" + sel[i] + str);  
+            selectedLog.println(sel[i] + " " + str);
+          }
+          selectedLog.close();
+          logFile.println("Total number of sentences : "+sentIndex);
+        } else
+            System.out.println("No selected sentences to save.");  
         
     }
 
