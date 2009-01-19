@@ -262,13 +262,13 @@ public class HnmSynthesizer {
             Arrays.fill(winWgtSum, 0.0);
             int startIndex, endIndex;
 
-            float t, tsi, tsiPlusOne; //Time in seconds
-            float lastPeriodInSeconds = 0.0f;
-            int ws;
+            float t, tsi; //Time in seconds
+
             Window win;
             int windowType = Window.HAMMING;
-            float numPeriods = 2.0f;
+            float numPeriods = 4.0f;
             double[] x;
+            double[] xWindowed;
             double[] y;
             double[] yWindowed;
             double[] yFiltered;
@@ -278,6 +278,10 @@ public class HnmSynthesizer {
             int n;
             HighPassFilter hpf;
             int fftSize = SignalProcUtils.getDFTSize(hnmSignal.samplingRateInHz);
+            
+            int wsNoise = SignalProcUtils.time2sample(hnmSignal.windowDurationInSecondsNoise, hnmSignal.samplingRateInHz);
+            if (wsNoise%2==0) //Always use an odd window size to have a zero-phase analysis window
+                wsNoise++; 
             
             for (i=0; i<hnmSignal.frames.length; i++)
             {
@@ -290,50 +294,44 @@ public class HnmSynthesizer {
                 if (isNoised)
                 {
                     if (i==0)
-                    {
                         tsi = 0.0f;
-                        lastPeriodInSeconds = hnmSignal.frames[i+1].tAnalysisInSeconds-hnmSignal.frames[i].tAnalysisInSeconds;
-                    }
                     else
-                        tsi = Math.max(0.0f, hnmSignal.frames[i].tAnalysisInSeconds-0.5f*numPeriods*lastPeriodInSeconds);
+                        tsi = Math.max(0.0f, hnmSignal.frames[i].tAnalysisInSeconds-0.5f*hnmSignal.windowDurationInSecondsNoise);
 
                     startIndex = SignalProcUtils.time2sample(tsi, hnmSignal.samplingRateInHz);
 
-                    if (i==hnmSignal.frames.length-1)
-                        tsiPlusOne = hnmSignal.originalDurationInSeconds;
-                    else
-                        tsiPlusOne = Math.min(tsi + 0.5f*numPeriods*lastPeriodInSeconds, hnmSignal.originalDurationInSeconds);
-                    endIndex = SignalProcUtils.time2sample(tsiPlusOne, hnmSignal.samplingRateInHz);
-                    endIndex = Math.min(endIndex, origLen-1);
-                    ws = endIndex-startIndex+1;
-                    x = SignalProcUtils.getWhiteNoise(ws, 1.0);
+                    //Compute window
+                    win = Window.get(windowType, wsNoise);
+                    wgt = win.getCoeffs();
+                    //
+                    
+                    x = SignalProcUtils.getWhiteNoiseOfVariance(wsNoise, 1.0);
+                    //xWindowed = win.apply(x, 0);
                     y = SignalProcUtils.arFilter(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpGain, yInitial);
                     
-                    //Highpass filter and overlap-add
-                    win = Window.get(windowType, ws);
-                    wgt = win.getCoeffs();
-                    yWindowed = win.apply(y, 0);
-                    yFiltered = SignalProcUtils.fdFilter(yWindowed, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5f*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz, fftSize);
+                    //MaryUtils.plot(x);
+                    //MaryUtils.plot(y);
                     
-                    for (n=startIndex; n<=endIndex; n++)
+                    //Highpass filter and overlap-add
+                    
+                    yWindowed = win.apply(y, 0);
+                    //yFiltered = SignalProcUtils.fdFilter(yWindowed, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5f*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz, fftSize);
+                    
+                    for (n=startIndex; n<Math.min(startIndex+wsNoise, noisePart.length); n++)
                     {
                         noisePart[n] += y[n-startIndex]*wgt[n-startIndex]; 
-                        winWgtSum[n] += wgt[n-startIndex]*wgt[n-startIndex]; 
+                        winWgtSum[n] += wgt[n-startIndex]; 
                     }
                     //
                     
                     //Save last lpOrder filter outputs to use as initial conditions for the next frame, provided that next frame is noised, otherwise set them to zero again
                     if (isNextNoised)
                     {
-                        for (n=ws-lpOrder; n<=ws-1; n++)
-                            yInitial[n-ws+lpOrder] = y[n];
+                        for (n=wsNoise-lpOrder; n<=wsNoise-1; n++)
+                            yInitial[n-wsNoise+lpOrder] = y[n];
                     }
                     else
                         Arrays.fill(yInitial, 0.0);
-                    //
-                    
-                    //Update period
-                    lastPeriodInSeconds = tsiPlusOne - tsi;
                     //
                 }
             }
