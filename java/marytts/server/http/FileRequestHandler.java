@@ -67,8 +67,8 @@ public class FileRequestHandler extends BaseHttpRequestHandler
     private Set<String> validFiles = new HashSet<String>(Arrays.asList(new String[] {
         "favicon.ico",
         "index.html",
-        "mary.js",
-        "sparcle.wav"
+        "documentation.html",
+        "mary.js"
         }));
     
     public FileRequestHandler()
