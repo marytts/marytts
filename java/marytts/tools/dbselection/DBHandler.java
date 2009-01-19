@@ -248,8 +248,7 @@ public class DBHandler {
               System.out.println("\nTo continue please check if the table \"" + table + "\" can be deleted " +
                     "or is used by another user/process.\n");
             else
-              System.out.println("\nTo continue please check if the table \"" + table + "\" should be deleted " +
-                "or data can be added to this table.\n");   
+              System.out.println("    Adding data to TABLE = \"" + table + "\".\n");   
             result = false;
         }
       
@@ -323,7 +322,7 @@ public class DBHandler {
       boolean dbExist = false;
       boolean result = true;
       // if database does not exist create it    
-      System.out.println("Checking if " + selectedSentencesTableName + " already exist.");
+      //System.out.println("Checking if " + selectedSentencesTableName + " already exist.");
       try {
           rs = st.executeQuery("SHOW TABLES;");
       } catch (Exception e) {
@@ -334,19 +333,22 @@ public class DBHandler {
           while( rs.next() ) {
             str = rs.getString(1);
             if( str.contentEquals(selectedSentencesTableName) ){
-               System.out.println("TABLE = " + str + " already exist.");  
+               //System.out.println("TABLE = " + str + " already exist.");  
                dbExist = true;
             }
           }
           
-          if(dbExist && !askIfDeletingTable(selectedSentencesTableName) )
-              result = false;
+         // Ask if delete? 
+         // if(dbExist && !askIfDeletingTable(selectedSentencesTableName) )
+         //     result = false;
           
-          if(result){
+         // if(result){
+         // Always create a new table? do we need this table at all? the selected and unwanted 
+         // can be extracted from the dbselection
             boolean res0 = st.execute( "DROP TABLE IF EXISTS " + selectedSentencesTableName + ";" ); 
             boolean res = st.execute( selected );
             System.out.println("TABLE = " + selectedSentencesTableName + " succesfully created.");               
-          }
+         // }
           
           
       } catch (SQLException e) {
@@ -919,9 +921,6 @@ public class DBHandler {
     } 
     
     try { 
-      // INSERT INTO dbselection VALUES (id, sentence, features, realiable, unknownWords, strangeSymbols, selected, unwanted, cleanText_id)
-      //ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?, ?, ?, ?,?)");
-      
         psSentence.setBytes(1, strByte);
         psSentence.setBytes(2, features);
         psSentence.setBoolean(3, reliable);
@@ -940,15 +939,12 @@ public class DBHandler {
     }
   }
   
-  /****
-   * Insert processed sentence in dbselection
-   * @param sentence text of the sentence.
-   * @param features features if sentences is reliable.
-   * @param reliable true/false.
-   * @param unknownWords true/false.
-   * @param strangeSymbols true/false.
-   * @param cleanText_id the id of the cleanText this sentence comes from.
-   */
+ /***
+  * With the  dbselection_id get first the sentence and then insert it in the 
+  * locale_selectedSentences table. 
+  * @param dbselection_id
+  * @param unwanted
+  */
   public void insertSelectedSentence(int dbselection_id, boolean unwanted){
   
     String dbQuery = "Select sentence FROM " + dbselectionTableName + " WHERE id=" + dbselection_id;
@@ -958,9 +954,6 @@ public class DBHandler {
       // First get the sentence
        sentenceBytes = queryTableByte(dbQuery);    
         
-      // INSERT INTO dbselection VALUES (id, sentence, unwanted, dbselection_id)
-      //ps = cn.prepareStatement("INSERT INTO dbselection VALUES (null, ?, ?, ?)");
-    
         psSelectedSentence.setBytes(1, sentenceBytes);
         psSelectedSentence.setBoolean(2, unwanted);
         psSelectedSentence.setInt(3, dbselection_id);
@@ -1036,21 +1029,23 @@ public class DBHandler {
       return Integer.parseInt(str);
   }
   
-
+  
   /***
    * Get a list of id's
    * @param table cleanText, wordList, dbselection, selectedSenteces (no need to add locale)
-   * @param type reliable, unknownWords, strangeSymbols, selected, unwanted or type=null
-   *             for querying without type constraint.
-   * @return int array
+   * @param condition reliable, unknownWords, strangeSymbols, selected, unwanted = true/false
+   *             (combined are posible: "reliable=true and unwanted=false"); 
+   *             or condition=null for querying without condition.
+   * @return int array or null if the list of id's is empty.
    */
-  public int[] getIdListOfType(String table, String type) {
+  public int[] getIdListOfType(String table, String condition) {
       int num, i, j;
       int idSet[]=null;
       String getNum, getIds;
-      if(type!=null){
-        getNum =  "SELECT count(id) FROM " + locale + "_" + table + " where " + type + "=true;";
-        getIds =  "SELECT id FROM " + locale + "_" + table +  " where " + type + "=true;";
+      
+      if(condition!=null){
+        getNum =  "SELECT count(id) FROM " + locale + "_" + table + " where " + condition;
+        getIds =  "SELECT id FROM " + locale + "_" + table +  " where " + condition;
       } else {
         getNum =  "SELECT count(id) FROM " + locale + "_" + table + ";";
         getIds =  "SELECT id FROM " + locale + "_" + table + ";";
@@ -1058,25 +1053,31 @@ public class DBHandler {
       
       String str = queryTable(getNum);
       num = Integer.parseInt(str);
-      idSet = new int[num];
       
-      try {
+      if(num>0) { 
+        idSet = new int[num];
+          
+        try {
           rs = st.executeQuery(getIds); 
-      } catch (Exception e) {
+        } catch (Exception e) {
           e.printStackTrace();
-      }
-      try { 
+        }
+        try { 
           i=0;
           while( rs.next() ) {
             idSet[i] = rs.getInt(1);
             i++;
           }
-      } catch (SQLException e) {
+        } catch (SQLException e) {
           e.printStackTrace();
-      } 
+        } 
+      } else
+        System.out.println("WARNING empty list for: " + getIds);  
       
       return idSet;
   }
+  
+  
   
   /***
    * Get number of words in the wordList table.
@@ -1467,7 +1468,7 @@ public class DBHandler {
       
       wikiToDB.createDataBaseSelectionTable();
       
-      wikiToDB.getIdListOfType("dbselection", "reliable");
+      wikiToDB.getIdListOfType("dbselection", "reliable=true");
       
       int num = wikiToDB.getNumberOfReliableSentences();
       

@@ -1,5 +1,6 @@
 package marytts.tools.dbselection;
 
+import java.io.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -42,14 +43,15 @@ public class WikipediaDumpSplitter {
       int num = (int)Math.round(maxPagesPerChunk * 0.50);
       
       // we need to scan line by line a big (for ex. 19GB for enwiki) xml file
-      Scanner s = null;
+      
+      BufferedReader inputStream = null;
+           
       try {
-        s = new Scanner(new BufferedReader(new FileReader(xmlFile)));
+     
+        inputStream = new BufferedReader(new FileReader(xmlFile));  
+        while ( (nextLine = inputStream.readLine()) != null ) {
         
-        while (s.hasNext()) {
-          nextLine = s.nextLine(); 
-         
-          // get first the siteinfo
+         // get first the siteinfo
          if(checkSiteInfo) {
               if (nextLine.startsWith("  <siteinfo") )
                 siteInfo=true;
@@ -105,8 +107,13 @@ public class WikipediaDumpSplitter {
       } catch (Exception e) {
           System.err.println("Exception: " + e.getMessage());
       } finally {
-          if (s != null)
-            s.close();
+         try{ 
+          if (inputStream != null) {
+              inputStream.close();
+          }
+         } catch (Exception e) {
+             System.err.println("Exception: " + e.getMessage());
+         }
       }   
      }
     

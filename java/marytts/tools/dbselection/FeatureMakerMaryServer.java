@@ -134,29 +134,35 @@ public class FeatureMakerMaryServer{
         //mary = new MaryClient();
 		
         /* Here the DB connection is open */
-         wikiToDB = new DBHandler(locale);
-         wikiToDB.createDBConnection(mysqlHost,mysqlDB,mysqlUser,mysqlPasswd);
+        wikiToDB = new DBHandler(locale);
+        wikiToDB.createDBConnection(mysqlHost,mysqlDB,mysqlUser,mysqlPasswd);
         
-         // check if table exists, if exists already ask user if delete or re-use
-         wikiToDB.createDataBaseSelectionTable();
+        // check if table exists, if exists already ask user if delete or re-use
+        wikiToDB.createDataBaseSelectionTable();
              
-         // Get the set of id for unprocessed records in clean_text
-         // this will be useful when the process is stoped and then resumed
-         System.out.println("\nGetting list of unprocessed clean_text records from wikipedia...");
-         String textId[];
-         textId = wikiToDB.getUnprocessedTextIds();
-         System.out.println("Number of unprocessed clean_text records to process --> [" + textId.length + "]");
-         String text;
+        // Get the set of id for unprocessed records in clean_text
+        // this will be useful when the process is stoped and then resumed
+        System.out.println("\nGetting list of unprocessed clean_text records from wikipedia...");
+        String textId[];
+        textId = wikiToDB.getUnprocessedTextIds();
+        System.out.println("Number of unprocessed clean_text records to process --> [" + textId.length + "]");
+        String text;
          
+        Vector<String> sentenceList;  // this will be the list of sentences in each clean_text
+        String targetFeatures = "";
+        int i, j;
 		
-		/* loop over the text records in clean_text table of wiki */
+        // get a list separated by spaces of the target features to extract
+        for(i=0; i<selectionFeature.size(); i++)
+          targetFeatures += selectionFeature.elementAt(i) + " ";
+        /* loop over the text records in clean_text table of wiki */
         // once procesed the clean_text records are marked as processed=true, so here retrieve
         // the next clean_text record untill all are processed.
-		System.out.println("Looping over unprocessed clean_text records from wikipedia..."); 
+        System.out.println("Looping over unprocessed clean_text records from wikipedia...");
+        System.out.println("TARGETFEATURES to extract: " + targetFeatures);
         System.out.println("Starting time:" + dateStringIni + "\n");
         
-        Vector<String> sentenceList;  // this will be the list of sentences in each clean_text
-        int i, j;
+        
         for(i=0; i<textId.length; i++){
           // get next unprocessed text  
           text = wikiToDB.getCleanText(textId[i]);
@@ -171,7 +177,7 @@ public class FeatureMakerMaryServer{
             byte feas[];  // for directly saving a vector of bytes as BLOB in mysql DB
             for(j=0; j<sentenceList.size(); j++) {
 			  newSentence = sentenceList.elementAt(j);
-              MaryData d = processSentence(newSentence,textId[i]);
+              MaryData d = processSentence(newSentence,textId[i],targetFeatures);
 		      if (d!=null){
 			    // get the features of the sentence  
 			    feas = getFeatures(d);     
@@ -208,11 +214,11 @@ public class FeatureMakerMaryServer{
 				"java FeatureMakerMaryServer -locale language -mysqlHost host -mysqlUser user\n" +
                 "                 -mysqlPasswd passwd -mysqlDB wikiDB\n" +
                 "                 [-maryHost localhost -maryPort 59125 -strictCredibility strict]\n" +
-                "                 [-featuresForSelection phoneme,next_phoneme,position_type]\n\n" +
+                "                 [-featuresForSelection phoneme,next_phoneme,selection_prosody]\n\n" +
                 "  required: This program requires a MARY server running and an already created cleanText table in the DB. \n" +
                 "            The cleanText table can be created with the WikipediaProcess program. \n" +
                 "  default/optional: [-maryHost localhost -maryPort 59125]\n" +
-                "  default/optional: [-featuresForSelection phoneme,next_phoneme,position_type] (features separated by ,) \n" +
+                "  default/optional: [-featuresForSelection phoneme,next_phoneme,selection_prosody] (features separated by ,) \n" +
                 "  optional: [-strictCredibility [strict|lax]]\n\n" +
             	"  -strictCredibility: setting that determines what kind of sentences \n" +
 				"  are regarded as credible. There are two settings: strict and lax. With \n" +
@@ -263,7 +269,7 @@ public class FeatureMakerMaryServer{
         selectionFeature = new Vector<String>();
         selectionFeature.add("phoneme");
         selectionFeature.add("next_phoneme");
-        selectionFeature.add("position_type");
+        selectionFeature.add("selection_prosody");
         
 		//now parse the args
         if (args.length >= 10){
@@ -342,9 +348,10 @@ public class FeatureMakerMaryServer{
 	 * 
 	 * @param nextSentence the sentence
 	 * @param filename the file containing the sentence
+     * @param feas target features names separated by space (ex. "phoneme next_phoneme selection_prosody")
 	 * @return the result of the processing as MaryData object
 	 */
-	protected static MaryData processSentence(String nextSentence, String textId){
+	protected static MaryData processSentence(String nextSentence, String textId, String feas){
 		//do a bit of normalization
         StringBuffer docBuf = null;
 		nextSentence = nextSentence.replaceAll("\\\\","").trim();
@@ -354,7 +361,7 @@ public class FeatureMakerMaryServer{
 		try{                    
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			//process and dump
-		    mary.process(nextSentence, "TEXT","TARGETFEATURES", locale, null, null, null, null, "phoneme next_phoneme position_type", os);
+		    mary.process(nextSentence, "TEXT","TARGETFEATURES", locale, null, null, null, null, feas, os);
         
             d = new MaryData(MaryDataType.TARGETFEATURES, null);
            

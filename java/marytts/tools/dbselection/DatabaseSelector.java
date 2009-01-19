@@ -93,7 +93,10 @@ public class DatabaseSelector{
     private static boolean logCovDevelopment;
     //file containing the list of sentences that
     //are already selected
+    
+    
     private static String selectedSentsFile;
+//    private static boolean loadSelectedSentences=false;
     //list of selected sentences
     //private static List selectedSents;
     private static List<Integer> selectedIdSents;
@@ -154,8 +157,7 @@ public class DatabaseSelector{
         Date date = new Date();
         dateString = fullDate.format(date);
         dateDir = day.format(date);
-          
-        
+                
         System.out.println("Reading arguments ...");
         StringBuffer logBuf = new StringBuffer();
         if (!readArgs(args,logBuf))
@@ -180,10 +182,7 @@ public class DatabaseSelector{
         //open log file
         String filename = selectionDirName + dateDir + "/selectionLog_" + dateString + ".txt";
         try{
-            logOut = new PrintWriter(
-                    new BufferedWriter(
-                            new FileWriter(
-                                    new File(filename))),true);
+            logOut = new PrintWriter(new BufferedWriter(new FileWriter(new File(filename))),true);
         } catch (Exception e){
             e.printStackTrace();
             throw new Error("Error opening logfile");
@@ -201,14 +200,12 @@ public class DatabaseSelector{
 
         /* Read in the feature definition */
         System.out.println("Loading feature definition...");
-        BufferedReader uttFeats = 
-            new BufferedReader(
-                    new InputStreamReader(
-                            new FileInputStream(
-                                    new File( featDefFileName )), "UTF-8"));
+        BufferedReader uttFeats = new BufferedReader(new InputStreamReader(new FileInputStream(new File( featDefFileName )), "UTF-8"));
         featDef = new FeatureDefinition(uttFeats, false);  
         uttFeats.close();
 
+        System.out.println("TARGETFEATURES:" + featDef.getNumberOfFeatures() + " =  " + featDef.getFeatureNames());
+        
         /* Initialise the coverage definition */
         System.out.println("Initiating coverage...");
         CoverageDefinition covDef = new CoverageDefinition(featDef,covDefConfigFileName,holdVectorsInMemory,vectorArray);
@@ -221,30 +218,30 @@ public class DatabaseSelector{
             //coverage has to be initialised
             readCovFromFile = false;
  //           basenameList = covDef.initialiseCoverage();   // pass here the dbselection DB
-            idSentenceList = covDef.initialiseCoverage(wikiToDB); 
-            System.out.println("Writing coverage to file "+initFileName);
+            idSentenceList = covDef.initialiseCoverage(wikiToDB, verbose); 
+            System.out.println("\nWriting coverage to file "+initFileName);
             covDef.writeCoverageBin(initFileName);   // generate here the file taking the basenames from dbselection DB
         } else {                
             //coverage can be read from file 
             //covDef.readCoverageBin(initFileName,featDef,basenameList);
 
-            idSentenceList = wikiToDB.getIdListOfType("dbselection", "reliable");
+            idSentenceList = wikiToDB.getIdListOfType("dbselection", "reliable=true");
             covDef.readCoverageBin(wikiToDB, initFileName,featDef,idSentenceList);
         }
         
         if (vectorArrayNull) vectorArray = covDef.getVectorArray();
         
         /* add already selected sentences to cover */
+        selectedIdSents = new ArrayList<Integer>();
         if (selectedSentsFile != null){     // at start this file should not exist??
             addSelectedSents(covDef);
-        } else {
+        } //else {
             //selectedSents = new ArrayList();
-            selectedIdSents = new ArrayList<Integer>();
-        }
+        //}
         
         /* remove unwanted sentences from basename list */
         if (unwantedSentsFile != null){ 
-           // removeUnwantedSentences();    //mmmmmmmmm
+           removeUnwantedSentences();    
            // maybe here we can mark the sentence as unwanted=true or selected=false  
         }
         
@@ -271,14 +268,13 @@ public class DatabaseSelector{
         covDef.printSettings(logOut);
 
         /* Start the algorithm */
-        System.out.println("Selecting sentences...");
+        System.out.println("\n\nSelecting sentences...");
        
         //selFunc.select(selectedSents,covDef,logOut,basenameList,holdVectorsInMemory,verbose);
         selFunc.select(selectedIdSents,covDef,logOut,idSentenceList,holdVectorsInMemory,verbose,wikiToDB);
 
         /* Store list of selected files */
-        filename = selectionDirName+dateDir
-        +"/selectionResult_"+dateString+".txt";
+        filename = selectionDirName+dateDir + "/selectionResult_" + dateString + ".txt";
         //storeResult(filename,selectedSents);
         storeResult(filename,selectedIdSents);
 
@@ -297,13 +293,9 @@ public class DatabaseSelector{
 
         if (overallLogFile != null){
             //append results to end of overall log file
-            PrintWriter overallLogOut = 
-                new PrintWriter(
-                        new OutputStreamWriter(
-                                new FileOutputStream(
+            PrintWriter overallLogOut = new PrintWriter(new OutputStreamWriter(new FileOutputStream(
                                         new File(overallLogFile),true),"UTF-8"),true);
-            overallLogOut.println("*******************************\n"
-                    +"Results for "+dateString+":");
+            overallLogOut.println("*******************************\n" + "Results for "+dateString+":");
             
             //overallLogOut.println("number of basenames "+basenameList.length);
             overallLogOut.println("number of basenames "+idSentenceList.length);
@@ -316,10 +308,8 @@ public class DatabaseSelector{
         //print timing information
         long elapsedTime = System.currentTimeMillis() - time;
         double minutes = (double)elapsedTime/(double)1000/(double)60;
-        System.out.println("Selection took "+minutes+" minutes("
-                +elapsedTime+" milliseconds)");
-        logOut.println("Selection took "+minutes+" minutes ("
-                +elapsedTime+" milliseconds)");
+        System.out.println("Selection took "+minutes+" minutes("+elapsedTime+" milliseconds)");
+        logOut.println("Selection took "+minutes+" minutes ("+elapsedTime+" milliseconds)");
         logOut.flush();
         logOut.close();
         
@@ -695,30 +685,37 @@ public class DatabaseSelector{
     
     /**
      * Add a list of sentences to the cover
-     * 
+     * Here the already selected sentences are added to the cover and the indexes removed
+     * (or set to -1) in the idSentenceList
      * @param covDef the cover
      * @throws Exception
      */
     private static void addSelectedSents(CoverageDefinition covDef)throws Exception{
          
         if (verbose)
-            System.out.println("Adding previously selected sentences ...");
+            System.out.println("\nAdding previously selected sentences ...");
         /* open the sentence file */
-        BufferedReader sentsIn =
-            new BufferedReader(
-                    new FileReader(
-                            new File(selectedSentsFile)));
-        /* read in the sentences */
+        BufferedReader sentsIn = new BufferedReader(new FileReader(new File(selectedSentsFile)));
+        /* read in the ids and sentences 
+         * every line starts with the id and next the sentence .*/
         String line;
+        
+        
         //selectedSents = new ArrayList();
-        selectedIdSents = new ArrayList<Integer>();
+     //   selectedIdSents = new ArrayList<Integer>();
+        
+     //   int idSentenceListSelected[] = wikiToDB.getIdListOfType("dbselection", "selected");
+        
         
         int id;
         byte[] vectorBuf;
+  //      if( idSentenceListSelected != null ){
+  //        for(int i=0; i<idSentenceListSelected.length; i++){
         while ((line=sentsIn.readLine())!= null){
-            if (line.equals("")) continue;
-            // read in the features
-            id = Integer.parseInt(line);
+           if (line.equals("")) continue;
+           // read in the features, get first the id from the line
+           String words[] = line.split(" ");
+           id = Integer.parseInt(words[0]);
             
             
             /*
@@ -738,6 +735,7 @@ public class DatabaseSelector{
             fis.close(); 
             */
             
+            //id = idSentenceListSelected[i];
             vectorBuf = wikiToDB.getFeatures(id); 
             
             //fill the cover set with the sentence
@@ -745,14 +743,15 @@ public class DatabaseSelector{
             
             //add the filename to the sentence list
             //selectedSents.add(line);
-            selectedIdSents.add(Integer.parseInt(line));
+            //selectedIdSents.add(Integer.parseInt(line));
+            selectedIdSents.add((Integer)id);
             
         }
 
         //int numSelectedSents = selectedSents.size();
         int numSelectedSents = selectedIdSents.size();
         int numRemovedSents = 0;
-        
+             
         //loop over basename array
         //for (int i=0;i<basenameList.length;i++){
         for (int i=0;i<idSentenceList.length;i++){
@@ -765,13 +764,16 @@ public class DatabaseSelector{
             }
             */
             if (selectedIdSents.contains(idSentenceList[i])){
-                //remove the sentence also from the basename list
+                //remove the sentence also from the idSentenceList
+                if (verbose)
+                  System.out.println("  Removing from idSentenceList id=" + idSentenceList[i]);
                 idSentenceList[i] = -1;
                 numRemovedSents++;
             }
             
             if (numSelectedSents == numRemovedSents) break;
-        }         
+        }  
+         
     }
 
     /**
@@ -779,40 +781,60 @@ public class DatabaseSelector{
      * 
      * @throws Exception
      */
-    /*
+    
     private static void removeUnwantedSentences() throws Exception{
         if (verbose)
-          System.out.println("Removing unwanted sentences ...");
+          System.out.println("\nRemoving unwanted sentences ...");
         // open the sentence file
-        BufferedReader sentsIn =
-            new BufferedReader(
-                    new FileReader(
-                            new File(unwantedSentsFile)));
+        BufferedReader sentsIn = new BufferedReader(new FileReader(new File(unwantedSentsFile)));
         // read in the sentences
         String line;
-        List sents = new ArrayList();
+        //List sents = new ArrayList();
+        ArrayList<Integer> unwantedIdSents = new ArrayList<Integer>();
+        int id;
         while ((line=sentsIn.readLine())!= null){
             if (line.equals("")) continue;           
+            
+            String words[] = line.split(" ");
+            id = Integer.parseInt(words[0]);
+            
+            // marc sentence as unwanted in the database
+            wikiToDB.setSentenceRecord(id, "unwanted", true);
+            
             //add the filename to the sentence list
-            sents.add(line);
+            //sents.add(line);
+            unwantedIdSents.add((Integer)id);
+            
         }
         // remove sentences from basename list 
-        int numSelectedSents = sents.size();
+        //int numSelectedSents = sents.size();
+        int numSelectedSents = unwantedIdSents.size();
         int numRemovedSents = 0;
         // loop over basename array
         
-        for (int i=0;i<basenameList.length;i++){
+       // for (int i=0;i<basenameList.length;i++){
+        for (int i=0;i<idSentenceList.length;i++){
             //check if next basename is in the list of sentences
+            /*
             if (sents.remove(basenameList[i])){
                 //remove the sentence also from the basename list
                 basenameList[i] = null;
+                numRemovedSents++;
+            }
+            */
+            if (unwantedIdSents.contains(idSentenceList[i])){
+                //remove the sentence also from the idSentenceList
+                if (verbose)
+                  System.out.println("  Removing (unwanted)from idSentenceList id=" + idSentenceList[i]);
+                idSentenceList[i] = -1;
                 numRemovedSents++;
             }
             if (numSelectedSents == numRemovedSents) break;
         }
         
     }
-    */
+  
+ 
     
     /**
      * Print the list of selected files
@@ -824,9 +846,7 @@ public class DatabaseSelector{
 
         PrintWriter out;
         try{
-            out = new PrintWriter(
-                    new FileWriter(
-                            new File(filename)));
+            out = new PrintWriter(new FileWriter(new File(filename)));
         } catch (Exception e){
             e.printStackTrace();
             throw new Error("Error storing result");
