@@ -187,7 +187,7 @@ public class SelectionFunction{
                 
         // create the selectedSentences table 
         // CHECK if there is an old table it should be deleted? 
-        wikiToDB.createSelectedSentencesTable();
+        //wikiToDB.createSelectedSentencesTable();
         
         // while the stop criterion is not reached      
         while(!stopCriterionIsReached(selectedFilenames, coverageDefinition)){ 
@@ -205,7 +205,7 @@ public class SelectionFunction{
                 break;
             }
             // the selected sentences will be marked as selected=true in the DB
-            System.out.println("  selectedId=" + selectedIdSentence);           
+            System.out.println("  " + sentIndex + " selectedId=" + selectedIdSentence);           
             wikiToDB.setSentenceRecord(selectedIdSentence, "selected", true);
             wikiToDB.insertSelectedSentence(selectedIdSentence, false);
 
@@ -218,8 +218,8 @@ public class SelectionFunction{
         }  
         //print out total number of sentences
         sentIndex--;
-        if (verbose)
-            System.out.println("Total number of sentences : "+sentIndex);
+        System.out.println("Total number of selected sentences in TABLE: " + wikiToDB.getSelectedSentencesTableName()
+                + " = " + sentIndex);
         
         
         //int sel[] = wikiToDB.getIdListOfType("selectedSentences", null);

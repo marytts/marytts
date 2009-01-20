@@ -66,7 +66,7 @@ import marytts.features.FeatureDefinition;
 public class CoverageDefinition{
 
     // locale
-    private String locale="en_US";  // default en_US
+    //private String locale="en_US";  // default en_US
     private int trueNumSentences;
     /* cover sets for simple and clustered diphones */
     private CoverNode simpleCover;
@@ -373,7 +373,7 @@ public class CoverageDefinition{
         
         //loop over the feature vectors
         int id;
-        System.out.println("\nAnalysing " + numSentences + " sentences:");
+        System.out.println("\nAnalysing feature vectors of " + numSentences + " sentences:");
         for (int index=0;index<numSentences;index++){
             
             id = idSentenceList[index];
@@ -936,8 +936,8 @@ public class CoverageDefinition{
         double phoneCov = (double)phonesInCover.size()/(double)numPhoneValuesMinusIgnored;
         double simpleDiphoneCov = (double)simpleDiphonesInCover.size()/(double)numPossibleSimpleDiphones;
         double overallSimpleCov =  (double)numSimpleFeatVectsInCover/(double)numSimpleLeaves;
-        double clusteredDiphoneCov = (double)clusteredDiphonesInCover.size()/(double)numPossibleClusteredDiphones;
-        double overallClusteredCov =  (double)numClusteredFeatVectsInCover/(double)numClusteredLeaves;
+       // double clusteredDiphoneCov = (double)clusteredDiphonesInCover.size()/(double)numPossibleClusteredDiphones;
+       // double overallClusteredCov =  (double)numClusteredFeatVectsInCover/(double)numClusteredLeaves;
 
         disOut.println("phones: "+df.format(phoneCov)+" ("+df.format(possiblePhoneCoverage)+")");
 
@@ -954,10 +954,12 @@ public class CoverageDefinition{
         disOut.println("diphones: "+df.format(clusteredDiphoneCov)
                 +" ("+df.format(possibleClusteredDiphoneCoverage)+")");
         disOut.println("overall: "+df.format(overallClusteredCov)
-                +" ("+df.format(possibleOverallClusteredCoverage)+")");         
+                +" ("+df.format(possibleOverallClusteredCoverage)+")");  
+                
+        */               
         disOut.flush();
         disOut.close();
-        */
+        
 
         /* print coverage development over time */
         if (logDevelopment){

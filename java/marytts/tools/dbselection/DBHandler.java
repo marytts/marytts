@@ -31,10 +31,12 @@ package marytts.tools.dbselection;
 
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -72,6 +74,7 @@ public class DBHandler {
   private PreparedStatement psSelectedSentence = null;
   private PreparedStatement psWord = null;
   private PreparedStatement psCleanText = null;
+  private PreparedStatement psTablesDescription = null;
  
   private String cleanTextTableName = "_cleanText";
   private String wordListTableName = "_wordList";
@@ -104,6 +107,27 @@ public class DBHandler {
     }
   }
 
+  /***
+   * By default the name of the selected sentence is "locale + _selectedSentences"
+   * with this function the name can be changed, the locale prefix will be kept
+   * and the suffix "_selectedSentences". 
+   * NOTE: If the name is changed this function should be called before calling 
+   * createDBConnection() because ther prepared statments for each table are initialised.
+   * @param name
+   */
+  public void setSelectedSentencesTableName(String name){
+      if(name.contentEquals(""))
+        selectedSentencesTableName = locale + "_selectedSentences";
+      else
+        selectedSentencesTableName = locale + "_" + name + "_selectedSentences"; 
+      System.out.println("Current selected sentences table name = " + selectedSentencesTableName);
+  }
+  public String getSelectedSentencesTableName(){ return selectedSentencesTableName; }
+  public String getCleanTextTableName(){ return cleanTextTableName; }
+  public String getWordListTableName(){ return wordListTableName; }
+  public String getDBselectionTableName(){ return dbselectionTableName; }
+ 
+  
  
   /**
    * The <code>createDBConnection</code> method creates the database connection.
@@ -131,6 +155,7 @@ public class DBHandler {
       psWord      = cn.prepareStatement("INSERT INTO " + wordListTableName + " VALUES (null, ?, ?)");
       psSentence  = cn.prepareStatement("INSERT INTO " + dbselectionTableName + " VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?)");
       psSelectedSentence  = cn.prepareStatement("INSERT INTO " + selectedSentencesTableName + " VALUES (null, ?, ?, ?)");
+      psTablesDescription = cn.prepareStatement("INSERT INTO tablesDescription VALUES (null, ?, ?, ?, ?, ?, ?, ?)");
       
       
     } catch (Exception e) {
@@ -259,6 +284,28 @@ public class DBHandler {
      return result;  
   }
   
+  
+  /***
+   * This table contains information about tables in the DB, specially for selected sentences tables.
+   */
+  public void createTablesDescriptionTable() {
+      
+      String tables = "CREATE TABLE IF NOT EXISTS tablesDescription ( id INT NOT NULL AUTO_INCREMENT, "  +
+                                                       "name TINYTEXT," +
+                                                       "description MEDIUMTEXT," +
+                                                       "stopCriterion TINYTEXT," +
+                                                       "featuresDefinitionFileName TINYTEXT," +
+                                                       "featuresDefinitionFile MEDIUMTEXT," +
+                                                       "covDefConfigFileName TINYTEXT," +
+                                                       "covDefConfigFile MEDIUMTEXT," +
+                                                       "primary key(id)) CHARACTER SET utf8;";     
+      try { 
+            boolean res = st.execute( tables );
+      } catch (SQLException e) {
+          e.printStackTrace();
+      }      
+  }
+  
  
   /***
    * Creates dbselectionTable
@@ -312,17 +359,17 @@ public class DBHandler {
    * Creates a selectedSentencesTable.
    *
    */
-  public boolean createSelectedSentencesTable() {
+  public void createSelectedSentencesTable(String stopCriterion, String featDefFileName, String covDefConfigFileName) {
       String selected = "CREATE TABLE " + selectedSentencesTableName + " ( id INT NOT NULL AUTO_INCREMENT, " +                                                       
                                                        "sentence MEDIUMBLOB NOT NULL, " +
                                                        "unwanted BOOLEAN, " +
-                                                       "dbselection_id INT UNSIGNED NOT NULL, " +   // the dbselection id where this sentence comes from
+                                                       "dbselection_id INT UNSIGNED NOT NULL, " +   // the dbselection id where this sentence comes from                                                    
                                                        "primary key(id)) CHARACTER SET utf8;";
+   
       String str;
       boolean dbExist = false;
-      boolean result = true;
       // if database does not exist create it    
-      //System.out.println("Checking if " + selectedSentencesTableName + " already exist.");
+      System.out.println("\nChecking if " + selectedSentencesTableName + " already exist.");
       try {
           rs = st.executeQuery("SHOW TABLES;");
       } catch (Exception e) {
@@ -333,7 +380,8 @@ public class DBHandler {
           while( rs.next() ) {
             str = rs.getString(1);
             if( str.contentEquals(selectedSentencesTableName) ){
-               //System.out.println("TABLE = " + str + " already exist.");  
+               System.out.println("  TABLE = " + str + " already exist. New selected sentences " +
+                    "will be added to this table.");  
                dbExist = true;
             }
           }
@@ -342,20 +390,22 @@ public class DBHandler {
          // if(dbExist && !askIfDeletingTable(selectedSentencesTableName) )
          //     result = false;
           
-         // if(result){
-         // Always create a new table? do we need this table at all? the selected and unwanted 
-         // can be extracted from the dbselection
-            boolean res0 = st.execute( "DROP TABLE IF EXISTS " + selectedSentencesTableName + ";" ); 
+          if(!dbExist){
+            // if creating a new table then the set the fields selected=false and unwanted=false
+            // in dbselection table
+            System.out.println("  TABLE = " + selectedSentencesTableName + " does not exist, creating a new table and ");
+            System.out.println("  Initialising fields selected=false and unwanted=false in TABLE = " + dbselectionTableName);
+            updateTable("UPDATE " + dbselectionTableName + " SET selected=false;"); 
+            updateTable("UPDATE " + dbselectionTableName + " SET unwanted=false;");  
             boolean res = st.execute( selected );
-            System.out.println("TABLE = " + selectedSentencesTableName + " succesfully created.");               
-         // }
-          
+            System.out.println("  TABLE = " + selectedSentencesTableName + " succesfully created.");
+            
+          }
           
       } catch (SQLException e) {
           e.printStackTrace();
       } 
       
-      return result;
   }
   
   
@@ -776,10 +826,8 @@ public class DBHandler {
    * @return true if TABLE=tableName exist.
    */
   public boolean tableExist(String tableName) {
-      // wiki must be already created
-           
       // If database does not exist create it, if it exists delete it and create an empty one.      
-      System.out.println("Checking if the TABLE=" + tableName + " exist.");
+      System.out.println("  Checking if the TABLE=" + tableName + " exist.");
       try {
           rs = st.executeQuery("SHOW TABLES;");
       } catch (Exception e) {
@@ -791,17 +839,14 @@ public class DBHandler {
             String str = rs.getString(1);
             if( str.contentEquals(tableName) )
                res=true;
-          } 
-          
+          }          
       } catch (SQLException e) {
           e.printStackTrace();
-      } 
-      
+      }       
       return res;
-      
   }
 
- 
+
   /***
    * Get a list of ids from field in table.
    * @param fiel 
@@ -1032,7 +1077,9 @@ public class DBHandler {
   
   /***
    * Get a list of id's
-   * @param table cleanText, wordList, dbselection, selectedSenteces (no need to add locale)
+   * @param table cleanText, wordList, dbselection (no need to add locale)
+   *              (this function does not work for the selectedSentences table, for 
+   *              this table use the function etIdListOfSelectedSentences ).
    * @param condition reliable, unknownWords, strangeSymbols, selected, unwanted = true/false
    *             (combined are posible: "reliable=true and unwanted=false"); 
    *             or condition=null for querying without condition.
@@ -1044,8 +1091,8 @@ public class DBHandler {
       String getNum, getIds;
       
       if(condition!=null){
-        getNum =  "SELECT count(id) FROM " + locale + "_" + table + " where " + condition;
-        getIds =  "SELECT id FROM " + locale + "_" + table +  " where " + condition;
+        getNum =  "SELECT count(id) FROM " + locale + "_" + table + " where " + condition + ";";
+        getIds =  "SELECT id FROM " + locale + "_" + table +  " where " + condition + ";";
       } else {
         getNum =  "SELECT count(id) FROM " + locale + "_" + table + ";";
         getIds =  "SELECT id FROM " + locale + "_" + table + ";";
@@ -1077,6 +1124,44 @@ public class DBHandler {
       return idSet;
   }
   
+  /***
+   * Get a list of id's from table selectedSentencesTableName.
+   * @param condition unwanted=true/false
+   * @return
+   */
+  public int[] getIdListOfSelectedSentences(String condition) {
+      int num, i, j;
+      int idSet[]=null;
+      String getNum, getIds;
+         
+      getNum =  "SELECT count(dbselection_id) FROM " + selectedSentencesTableName + " where " + condition + ";";
+      getIds =  "SELECT dbselection_id FROM " + selectedSentencesTableName + " where " + condition + ";";
+    
+      String str = queryTable(getNum);
+      num = Integer.parseInt(str);
+      
+      if(num>0) { 
+        idSet = new int[num];
+          
+        try {
+          rs = st.executeQuery(getIds); 
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+        try { 
+          i=0;
+          while( rs.next() ) {
+            idSet[i] = rs.getInt(1);
+            i++;
+          }
+        } catch (SQLException e) {
+          e.printStackTrace();
+        } 
+      } else
+        System.out.println("WARNING empty list for: " + getIds);  
+      
+      return idSet;
+  }
   
   
   /***
@@ -1346,6 +1431,133 @@ public class DBHandler {
     updateTable("UPDATE " + dbselectionTableName + " SET " + field + "=" + bval + " WHERE id=" + id);  
       
   }
+  
+  /***
+   * Set a description for table = name, it checks if the table tablesDescription exist, if 
+   * not it creates it.
+   * @param name the name of the table, it can not be null
+   * @param description  if no description set to null
+   * @param stopCriterion if no stopCriterion set to null
+   * @param featuresDefinitionFileName if no featuresDefinitionFileName set to null
+   * @param covDefConfigFileName if no covDefConfigFileNamen set to null
+   */
+  public void setTableDescription(String tableName, String description, String stopCriterion, 
+                                  String featuresDefinitionFileName, String covDefConfigFileName) {
+    boolean descExists=false;
+    int val=0;
+    
+    if(tableName != null){
+      // check if tablesDescription exists
+      if( tableExist("tablesDescription") ) {
+        // check if a description for that name already exist
+        try {
+          rs = st.executeQuery("SELECT id from tablesDescription where name='" + tableName + "';");
+          while( rs.next() ) {
+              val = rs.getInt(1);
+              if( val>0 )
+                descExists=true;
+          }          
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+      } else 
+        createTablesDescriptionTable(); 
+            
+      if(!descExists) {
+       try{   
+        System.out.println("  Adding a description for the table " + tableName + " in TABLE = tablesDescription.");  
+        psTablesDescription.setString(1, tableName);
+        
+        if( description != null )
+          psTablesDescription.setString(2, description);   
+        else
+          psTablesDescription.setString(2, "");  
+      
+        if( stopCriterion != null )
+          psTablesDescription.setString(3, stopCriterion);
+        else  
+          psTablesDescription.setString(3, "");  
+      
+        // get the file and the content of the file
+        if( featuresDefinitionFileName != null ){          
+          psTablesDescription.setString(4, featuresDefinitionFileName);  
+          String str="", features="";
+          try {
+            BufferedReader in = new BufferedReader(new FileReader(featuresDefinitionFileName));        
+            while ((str = in.readLine()) != null)
+                features += str + "\n";
+            in.close();
+          } catch (IOException e) {
+          }
+          psTablesDescription.setString(5, features);
+        } else {
+           psTablesDescription.setString(4, "");
+           psTablesDescription.setString(5, "");
+        }
+      
+        //get the file and the content of the file
+        if( covDefConfigFileName != null ){
+          psTablesDescription.setString(6, covDefConfigFileName);
+          String str="", config="";
+          try {
+            BufferedReader in = new BufferedReader(new FileReader(covDefConfigFileName));        
+            while ((str = in.readLine()) != null)
+                config += str + "\n";
+            in.close();
+          } catch (IOException e) {
+          }
+          psTablesDescription.setString(7, config);
+        } else {
+           psTablesDescription.setString(6, ""); 
+           psTablesDescription.setString(7, "");
+        }
+        
+        psTablesDescription.execute();
+        psTablesDescription.clearParameters();
+        
+       } catch (SQLException e) {
+           e.printStackTrace();
+       }  
+        
+      } else // if a description for this name already exist
+       System.out.println("  A description for the table " + tableName + " already exist in TABLE = tablesDescription."); 
+    } else // tableName can not be null
+        System.out.println("  Error setting table description: tableName can not be null");
+    
+  }
+  
+  /***
+   * Get the description of the tableName
+   * @param tableName
+   * @return and String array where:
+   *   desc[0] tableName
+   *   desc[1] description
+   *   desc[2] stopCriterion
+   *   desc[3] featuresDefinitionFileName
+   *   desc[4] featuresDefinitionFile
+   *   desc[5] covDefConfigFileName
+   *   desc[6] covDefConfigFile
+   */
+  public String[] getTableDescription(String tableName){
+    String [] desc = new String[7];
+    PreparedStatement psDesc = null;  
+    try {  
+      psDesc = cn.prepareStatement("SELECT * from tablesDescription where name='" + tableName + "';");
+      rs = psDesc.executeQuery();    
+      while( rs.next() ) {
+          for(int i=2; i<9; i++){
+            desc[(i-2)] = rs.getString(i);  // the id is not returned
+            //System.out.println("desc[" + i + "]=" + desc[(i-2)]);
+          }
+        }     
+      psDesc.close();  
+    } catch (SQLException e) {
+        e.printStackTrace();
+    } 
+    return desc;
+              
+  }
+  
   
   public String getFeaturesFromTable(int id, String table) {
       String dbQuery = "Select features FROM " + table + " WHERE id=" + id;
