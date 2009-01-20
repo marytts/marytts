@@ -204,11 +204,30 @@ public class Mary {
         logger = Logger.getLogger("main");
         Logger.getRootLogger().setLevel(Level.toLevel(MaryProperties.needProperty("log.level")));
         PatternLayout layout = new PatternLayout("%d [%t] %-5p %-10c %m\n");
+        File logFile = null;
         if (MaryProperties.needAutoBoolean("log.tofile")) {
             String filename = MaryProperties.getFilename("log.filename", "mary.log");
-            File logFile = new File(filename);
-            if (logFile.exists()) logFile.delete();
-            BasicConfigurator.configure(new FileAppender(layout, filename));
+            logFile = new File(filename);
+            if (!(logFile.exists()&&logFile.canWrite() // exists and writable
+                    || logFile.getParentFile().exists() && logFile.getParentFile().canWrite())) { // parent exists and writable
+                // cannot write to file
+                System.err.print("\nCannot write to log file '"+filename+"' -- ");
+                File fallbackLogFile = new File(System.getProperty("user.home")+"/mary.log");
+                if (fallbackLogFile.exists()&&fallbackLogFile.canWrite() // exists and writable 
+                        || fallbackLogFile.exists()&&fallbackLogFile.canWrite()) { // parent exists and writable
+                    // fallback log file is OK
+                    System.err.println("will log to '"+fallbackLogFile.getAbsolutePath()+"' instead.");
+                    logFile = fallbackLogFile;
+                } else {
+                    // cannot write to fallback log either
+                    System.err.println("will log to standard output instead.");
+                    logFile = null;
+                }
+            }
+            if (logFile != null && logFile.exists()) logFile.delete();
+        }
+        if (logFile != null) {
+            BasicConfigurator.configure(new FileAppender(layout, logFile.getAbsolutePath()));
         } else {
             BasicConfigurator.configure(new WriterAppender(layout, System.err));
         }
