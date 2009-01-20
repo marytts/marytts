@@ -105,6 +105,9 @@ public class DatabaseSelector{
     //are not wanted on the basename list
     private static String unwantedSentsFile;
     
+    private static String selectedSentencesTableName;
+    private static String tableDescription;
+    
     protected static DBHandler wikiToDB;
     //  mySql database 
     private static String mysqlHost;
@@ -152,11 +155,11 @@ public class DatabaseSelector{
         PrintWriter logOut;
         
         String dateString = "", dateDir = "";
-        DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
+      /*  DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
         DateFormat day = new SimpleDateFormat("dd_MM_yyyy");
         Date date = new Date();
         dateString = fullDate.format(date);
-        dateDir = day.format(date);
+        dateDir = day.format(date);*/
                 
         System.out.println("Reading arguments ...");
         StringBuffer logBuf = new StringBuffer();
@@ -192,14 +195,22 @@ public class DatabaseSelector{
         logOut.println(logBuf.toString());
         
         wikiToDB = new DBHandler(locale);
+        
+        // Check if name of selectedSentencesTable has to be changed
+        if(selectedSentencesTableName != null)
+          wikiToDB.setSelectedSentencesTableName(selectedSentencesTableName);
+        else
+          System.out.println("Current selected sentences table name = " + selectedSentencesTableName);
+              
         wikiToDB.createDBConnection(mysqlHost,mysqlDB,mysqlUser,mysqlPasswd);
-
+        
+        
         /* Load the filenames */   
  //       System.out.println("Loading basenames...");
  //       loadBasenames();
 
         /* Read in the feature definition */
-        System.out.println("Loading feature definition...");
+        System.out.println("\nLoading feature definition...");
         BufferedReader uttFeats = new BufferedReader(new InputStreamReader(new FileInputStream(new File( featDefFileName )), "UTF-8"));
         featDef = new FeatureDefinition(uttFeats, false);  
         uttFeats.close();
@@ -207,8 +218,18 @@ public class DatabaseSelector{
         System.out.println("TARGETFEATURES:" + featDef.getNumberOfFeatures() + " =  " + featDef.getFeatureNames());
         
         /* Initialise the coverage definition */
-        System.out.println("Initiating coverage...");
+        System.out.println("\nInitiating coverage...");
         CoverageDefinition covDef = new CoverageDefinition(featDef,covDefConfigFileName,holdVectorsInMemory,vectorArray);
+        
+        // If the selectedSentencesTable is new, (does not exist) then a new table
+        // will be created so the selected and unwanted fields in the dbselection table 
+        // should be initialised, set to selected=false and unwanted=false for all the realible
+        // sentences.
+        // create the selectedSentences table 
+        // CHECK if there is an old table it should be deleted? 
+        wikiToDB.createSelectedSentencesTable(stopCriterion, featDefFileName, covDefConfigFileName);
+        wikiToDB.setTableDescription(wikiToDB.getSelectedSentencesTableName(), tableDescription, 
+                                     stopCriterion,featDefFileName, covDefConfigFileName);
 
         long startTime = System.currentTimeMillis();
         File covSetFile = new File(initFileName);
@@ -232,18 +253,23 @@ public class DatabaseSelector{
         if (vectorArrayNull) vectorArray = covDef.getVectorArray();
         
         /* add already selected sentences to cover */
+        System.out.println("\nAdd to cover already selected sentences marked as unwanted=false.");
         selectedIdSents = new ArrayList<Integer>();
-        if (selectedSentsFile != null){     // at start this file should not exist??
-            addSelectedSents(covDef);
-        } //else {
+        addSelectedSents(covDef);
+        
+        
+        //if (selectedSentsFile != null){     // at start this file should not exist??
+        //    addSelectedSents(covDef);
+        //} //else {
             //selectedSents = new ArrayList();
         //}
         
         /* remove unwanted sentences from basename list */
-        if (unwantedSentsFile != null){ 
-           removeUnwantedSentences();    
+        //if (unwantedSentsFile != null){
+        System.out.println("\nRemoving selected sentences marked as unwanted=true.");
+        removeUnwantedSentences();    
            // maybe here we can mark the sentence as unwanted=true or selected=false  
-        }
+        //}
         
         
         long startDuration = System.currentTimeMillis() -startTime;
@@ -268,7 +294,7 @@ public class DatabaseSelector{
         covDef.printSettings(logOut);
 
         /* Start the algorithm */
-        System.out.println("\n\nSelecting sentences...");
+        System.out.println("\nSelecting sentences...");
        
         //selFunc.select(selectedSents,covDef,logOut,basenameList,holdVectorsInMemory,verbose);
         selFunc.select(selectedIdSents,covDef,logOut,idSentenceList,holdVectorsInMemory,verbose,wikiToDB);
@@ -280,10 +306,8 @@ public class DatabaseSelector{
 
         /* print statistics */
         System.out.println("Printing selection distribution and table...");
-        String disFile = selectionDirName+dateDir
-        +"/selectionDistribution_"+dateString+".txt";
-        String devFile = selectionDirName+dateDir
-        +"/selectionDevelopment_"+dateString+".txt";
+        String disFile = selectionDirName+dateDir + "/selectionDistribution_" + dateString + ".txt";
+        String devFile = selectionDirName+dateDir + "/selectionDevelopment_" + dateString + ".txt";
         try{
             covDef.printSelectionDistribution(disFile,devFile,logCovDevelopment);
         } catch (Exception e){
@@ -312,6 +336,9 @@ public class DatabaseSelector{
         logOut.println("Selection took "+minutes+" minutes ("+elapsedTime+" milliseconds)");
         logOut.flush();
         logOut.close();
+        
+ //       checkSelectedSentences();
+ //       wikiToDB.getTableDescription(wikiToDB.getSelectedSentencesTableName());
         
         wikiToDB.closeDBConnection();    
 
@@ -343,6 +370,8 @@ public class DatabaseSelector{
         mysqlDB = null;
         mysqlUser = null;
         mysqlPasswd = null;
+        selectedSentencesTableName = null;
+        tableDescription = "";
         
         int i=0;
         int numEssentialArgs = 0;
@@ -467,7 +496,34 @@ public class DatabaseSelector{
                 i++;
                 continue;
             }
-            
+            if (args[i].equals("-tableName")){
+                if (args.length > i+1){
+                    i++;
+                    selectedSentencesTableName = args[i];
+                    log.append("selectedSentencesTable name : "+args[i]+"\n");
+                    System.out.println("  selectedSentencesTable name: "+args[i]);
+                } else {
+                    System.out.println("No selectedSentencesTable name");
+                    printUsage();
+                    return false;
+                }
+                i++;
+                continue;
+            }
+            if (args[i].equals("-tableDescription")){
+                if (args.length > i+1){
+                    i++;
+                    tableDescription = args[i];
+                    log.append("tableDescription : "+args[i]+"\n");
+                    System.out.println("  tableDescription: "+args[i]);
+                } else {
+                    System.out.println("No tableDescription");
+                    printUsage();
+                    return false;
+                }
+                i++;
+                continue;
+            }
             if (args[i].equals("-unwantedSentences")){
                 if (args.length > i+1){
                     i++;
@@ -570,12 +626,17 @@ public class DatabaseSelector{
             i++;
         }
         System.out.println();
-        if (numEssentialArgs<8){
+        if (numEssentialArgs<9){
             //not all essential arguments were given
-            System.out.println("You must at least specify locale, (4) mysql info, featureDefinition file, stop criterion and" +
-                    " coverage config file.");
+            System.out.println("You must at least specify locale, mysql (host,user,paswd,DB), selectedSentencesTableName" +
+                    "featureDefinition file, stop criterion and coverage config file.");
             printUsage();
             return false;
+        } 
+        if(selectedSentencesTableName==null){
+            System.out.println("Please provide a name for the selectedSentencesTable.");
+            printUsage();
+            return false;  
         }
         if (selectionDirName == null){
             selectionDirName = "./selection/";
@@ -598,25 +659,28 @@ public class DatabaseSelector{
      */
     private static void printUsage(){
         System.out.println("\nUsage: "
-                +"java DatabaseSelector -locale language -mysqlHost host -mysqlUser user\n"
-                +"        -mysqlPasswd passwd -mysqlDB wikiDB -featDef file -stop stopCriterion \n"
-                +"        [-coverageConfig file -initFile file -selectedSentences file -unwantedSentences file ]\n"                                 
+                +"java DatabaseSelector -locale language -mysqlHost host -mysqlUser user -mysqlPasswd passwd -mysqlDB wikiDB \n"
+                +"        -tableName selectedSentencesTableName -featDef file -stop stopCriterion \n"
+                +"        [-coverageConfig file -initFile file -selectedSentences file -unwantedSentences file ]\n" 
+                +"        [-tableDescription a brief description of the table ]\n"
                 +"        [-vectorsOnDisk -overallLog file -selectionDir dir -logCoverageDevelopment -verbose]\n\n"     
                 +"Arguments:\n"
+                +"-tableName selectedSentencesTableName : The name of a new selection set, change this name when\n"
+                +"    generating several selection sets. FINAL name will be: \"locale_name_selectedSenteces\". \n"
+                +"    where name is the name provided for the selected sentences table.\n"
+                +"-tableDescription : short description of the selected sentences table. (default: empty)"
                 +"-featDef file : The feature definition for the features\n"
                 +"-stop stopCriterion : which stop criterion to use. There are five stop criteria. \n"
                 +" They can be used individually or can be combined:\n"
                 +"  - numSentences n : selection stops after n sentences\n"
                 +"  - simpleDiphones : selection stops when simple diphone coverage has reached maximum\n"
-                +"  - clusteredDiphones : selection stops when clustered diphone coverage has reached maximum\n"
                 +"  - simpleProsody : selection stops when simple prosody coverage has reached maximum\n"
-                +"  - clusteredProsody : selection stops when clustered prosody coverage has reached maximum\n"
                 +"-coverageConfig file : The config file for the coverage definition. \n"
-                +"   Standard config file is selection/covDef.config.\n"                
+                +"   Default config file is ./covDef.config.\n"                
                 +"-vectorsOnDisk: if this option is given, the feature vectors are not loaded into memory during \n"
                 +" the run of the program. This notably slows down the run of the program!\n"
                 +"-initFile file : The file containing the coverage data needed to initialise the algorithm.\n"
-                +"   Standard init file is selection/init.bin\n"
+                +"   Default init file is ./init.bin\n"
                 +"-selectedSentences file: File containing a list of sentences selected in a previous pass \n"
                 +" of the algorithm. They are added to the cover before selection starts. The sentences can be part \n"
                 +" of the basename list.\n"
@@ -683,6 +747,50 @@ public class DatabaseSelector{
     }
     */
     
+    
+    private static void checkSelectedSentences(){
+        InputStreamReader isr = new InputStreamReader(System.in);
+        BufferedReader br = new BufferedReader(isr);
+        
+        try{
+        System.out.println("\nChecking selected sentences whether they are wanted or not.");   
+        System.out.println(" selected sentences will be saved in ./selected.log");
+        PrintWriter selectedLog = new PrintWriter(new FileWriter(new File("./selected.log")));
+        
+        System.out.println(" unwanted sentences will be saved in ./unwanted.log");
+        PrintWriter unwantedLog = new PrintWriter(new FileWriter(new File("./unwanted.log")));
+        
+        int sel[] = wikiToDB.getIdListOfType("dbselection", "selected=true and unwanted=false");
+               
+        if( sel != null){
+          // checking selected sentences
+          System.out.println(" Select \"y\" for marking sentence as \"wanted\" otherwise \"n\" . Press any other key to finish: \n");     
+          String str;
+          for(int i=0; i<sel.length; i++){
+            str = wikiToDB.getSentence("dbselection", sel[i]);  
+            System.out.print("id=" + sel[i] + ":  "+ str + "\n  Wanted?(y/n):");             
+            
+                String s = br.readLine();  
+                if( s.contentEquals("n")){
+                  wikiToDB.setSentenceRecord(sel[i], "unwanted", true);
+                  unwantedLog.println(sel[i] + " " + str);
+                } else if( s.contentEquals("y")){
+                  selectedLog.println(sel[i] + " " + str);
+                } else{
+                  unwantedLog.close();
+                  selectedLog.close();
+                  break;
+                }          
+          }
+        } else
+            System.out.println("There is no selected sentences in the DB.");  
+        
+        } catch(Exception e){
+            System.out.println(e); 
+        }
+        
+    }
+    
     /**
      * Add a list of sentences to the cover
      * Here the already selected sentences are added to the cover and the indexes removed
@@ -695,27 +803,28 @@ public class DatabaseSelector{
         if (verbose)
             System.out.println("\nAdding previously selected sentences ...");
         /* open the sentence file */
-        BufferedReader sentsIn = new BufferedReader(new FileReader(new File(selectedSentsFile)));
+       // BufferedReader sentsIn = new BufferedReader(new FileReader(new File(selectedSentsFile)));
         /* read in the ids and sentences 
          * every line starts with the id and next the sentence .*/
-        String line;
+      //  String line;
         
         
         //selectedSents = new ArrayList();
      //   selectedIdSents = new ArrayList<Integer>();
         
-     //   int idSentenceListSelected[] = wikiToDB.getIdListOfType("dbselection", "selected");
+        //int idSentenceListSelected[] = wikiToDB.getIdListOfType("dbselection", "selected");
+        int idSentenceListSelected[] = wikiToDB.getIdListOfSelectedSentences("unwanted=false");
         
         
         int id;
         byte[] vectorBuf;
-  //      if( idSentenceListSelected != null ){
-  //        for(int i=0; i<idSentenceListSelected.length; i++){
-        while ((line=sentsIn.readLine())!= null){
-           if (line.equals("")) continue;
+        if( idSentenceListSelected != null ){
+         for(int i=0; i<idSentenceListSelected.length; i++){
+       // while ((line=sentsIn.readLine())!= null){
+       //    if (line.equals("")) continue;
            // read in the features, get first the id from the line
-           String words[] = line.split(" ");
-           id = Integer.parseInt(words[0]);
+         //  String words[] = line.split(" ");
+         //  id = Integer.parseInt(words[0]);
             
             
             /*
@@ -735,7 +844,7 @@ public class DatabaseSelector{
             fis.close(); 
             */
             
-            //id = idSentenceListSelected[i];
+            id = idSentenceListSelected[i];
             vectorBuf = wikiToDB.getFeatures(id); 
             
             //fill the cover set with the sentence
@@ -772,7 +881,11 @@ public class DatabaseSelector{
             }
             
             if (numSelectedSents == numRemovedSents) break;
-        }  
+        } 
+        System.out.println("Added to cover " + idSentenceListSelected.length + " selected sentences");
+        
+        } else
+          System.out.println("There is no already selected sentences to add to the list.");
          
     }
 
@@ -786,19 +899,25 @@ public class DatabaseSelector{
         if (verbose)
           System.out.println("\nRemoving unwanted sentences ...");
         // open the sentence file
-        BufferedReader sentsIn = new BufferedReader(new FileReader(new File(unwantedSentsFile)));
+        //BufferedReader sentsIn = new BufferedReader(new FileReader(new File(unwantedSentsFile)));
         // read in the sentences
-        String line;
+        //String line;
         //List sents = new ArrayList();
+        int idSentenceListUnwanted[] = wikiToDB.getIdListOfSelectedSentences("unwanted=true");
+        
         ArrayList<Integer> unwantedIdSents = new ArrayList<Integer>();
         int id;
-        while ((line=sentsIn.readLine())!= null){
-            if (line.equals("")) continue;           
+        if( idSentenceListUnwanted != null ){
+            for(int i=0; i<idSentenceListUnwanted.length; i++){
+        
+           //while ((line=sentsIn.readLine())!= null){
+           // if (line.equals("")) continue;           
             
-            String words[] = line.split(" ");
-            id = Integer.parseInt(words[0]);
+           // String words[] = line.split(" ");
+           // id = Integer.parseInt(words[0]);
+            id = idSentenceListUnwanted[i];
             
-            // marc sentence as unwanted in the database
+            // marc sentence as unwanted in the locale_dbselection table
             wikiToDB.setSentenceRecord(id, "unwanted", true);
             
             //add the filename to the sentence list
@@ -831,6 +950,9 @@ public class DatabaseSelector{
             }
             if (numSelectedSents == numRemovedSents) break;
         }
+           System.out.println("Removed " + idSentenceListUnwanted.length + " unwanted sentences.");        
+        } else 
+           System.out.println("There is no unwanted sentences to remove.");
         
     }
   
