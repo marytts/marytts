@@ -34,7 +34,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * An implementation of a finite state transducer lookup.
@@ -42,6 +44,17 @@ import java.util.List;
  */
 public class FSTLookup
 {
+    /////////////////////// Static FST repository ////////////////////
+    /**
+     * Map "filename encoding" or "filename" to FST.
+     */
+    private static Map<String,FST> knownFSTs = new HashMap<String, FST>();
+    
+    
+    
+    
+    ////////////////////// An individual FSTLookup class //////////////
+    
     private FST fst;
 
     /**
@@ -52,7 +65,11 @@ public class FSTLookup
      */
     public FSTLookup(String fileName) throws IOException
     {
-        fst = new FST(fileName);
+        fst = knownFSTs.get(fileName);
+        if (fst == null) {
+            fst = new FST(fileName);
+            knownFSTs.put(fileName, fst);
+        }
     }
 
     /**
@@ -66,7 +83,12 @@ public class FSTLookup
     public FSTLookup(String fileName, String encoding)
     throws IOException, UnsupportedEncodingException
     {
-        fst = new FST(fileName, encoding);
+        String key = fileName+" "+encoding;
+        fst = knownFSTs.get(key);
+        if (fst == null) {
+            fst = new FST(fileName, encoding);
+            knownFSTs.put(key, fst);
+        }
     }
 
     /**
