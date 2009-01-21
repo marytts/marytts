@@ -11,6 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -195,6 +196,25 @@ public class TranscriptionTableModel extends AbstractTableModel {
                        
         }
         
+    }
+    
+
+    public void loadTranscription(ArrayList<String> wordList) {
+        
+        int length = wordList.size();
+        this.data  =  new Object[length][4];
+        this.hasManualVerification  =  new boolean[length];
+        this.hasCorrectSyntax  =  new boolean[length];
+        Iterator<String> it = wordList.iterator();
+        for(int i=0; it.hasNext(); i++){
+            data[i][0] = (new Integer(i)).toString();
+            data[i][1] = (String) it.next(); //wordList.get(i);
+            data[i][2] = "";
+            data[i][3] = new Boolean(false);
+            setAsManualVerify(i, false);
+            setAsCorrectSyntax(i, true);
+                       
+        }
     }
     
     /**
@@ -403,5 +423,6 @@ public class TranscriptionTableModel extends AbstractTableModel {
         data[row][col] = value;
         fireTableCellUpdated(row, col);
     }
+
 
 }

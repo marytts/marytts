@@ -15,6 +15,7 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.JDialog;
@@ -519,10 +520,11 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         wikiToDB.createDBConnection(hostName,databaseName,userName,password);
         wikiToDB.setWordListTable(tableName);
         int noWords = wikiToDB.getNumberOfWords(0);
-        HashMap<String, Integer> hpMap = wikiToDB.getMostFrequentWords(noWords, 0);
+        //HashMap<String, Integer> hpMap = wikiToDB.getMostFrequentWords(noWords, 0);
+        ArrayList<String> arrList = wikiToDB.getMostFrequentWordsArray(noWords, 0);
         wikiToDB.closeDBConnection();
         try {
-            simplePanel.loadTranscription(hpMap);
+            simplePanel.loadTranscription(arrList);
             simplePanel.repaint();
             simplePanel.updateUI();
         } catch (Exception e) {
