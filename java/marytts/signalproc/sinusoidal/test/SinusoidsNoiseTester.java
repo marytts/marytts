@@ -188,12 +188,13 @@ public class SinusoidsNoiseTester extends BaseTester{
         SinusoidsNoiseTester h = null;
         
         //Sinus part
-        numSins = 4;
+        numSins = 5;
         float [] sinFreqs = new float[numSins];
-        sinFreqs[0] = 80.0f;
-        sinFreqs[1] = 280.0f;
-        sinFreqs[2] = 780.0f;
-        sinFreqs[3] = 6600.0f;
+        sinFreqs[0] = 120.0f;
+        sinFreqs[1] = 230.0f;
+        sinFreqs[2] = 500.0f;
+        sinFreqs[3] = 1100.0f;
+        sinFreqs[4] = 1500.0f;
         
         Sinusoid [] sins = new Sinusoid[numSins];
         for (i=0; i<numSins; i++)

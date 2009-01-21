@@ -40,7 +40,7 @@ package marytts.signalproc.sinusoidal.hnm;
  */
 public class FrameNoisePartPseudoHarmonic extends FrameNoisePart {
 
-    double[] ceps; //To keep harmonic amplitudes
+    public double[] ceps; //To keep harmonic amplitudes
     
     public FrameNoisePartPseudoHarmonic()
     {

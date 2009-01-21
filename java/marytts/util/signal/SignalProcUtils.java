@@ -6,6 +6,7 @@ import java.util.Vector;
 
 import marytts.signalproc.analysis.CepstrumSpeechAnalyser;
 import marytts.signalproc.analysis.Labels;
+import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.filter.BandPassFilter;
 import marytts.signalproc.filter.FIRFilter;
@@ -13,6 +14,8 @@ import marytts.signalproc.filter.HighPassFilter;
 import marytts.signalproc.filter.LowPassFilter;
 import marytts.signalproc.filter.RecursiveFilter;
 import marytts.signalproc.window.HammingWindow;
+import marytts.signalproc.window.Window;
+import marytts.util.MaryUtils;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.FFT;
@@ -715,6 +718,11 @@ public class SignalProcUtils {
         return (int)Math.floor(time*samplingRate+0.5f);
     }
     
+    public static int time2sample(double time, int samplingRate)
+    {
+        return (int)Math.floor(time*samplingRate+0.5);
+    }
+    
     //Convert sample indices to time values in seconds
     public static float[] samples2times(int [] samples, int samplingRate)
     {
@@ -903,7 +911,9 @@ public class SignalProcUtils {
         {            
             FIRFilter f=null;
             int origLen = len;
-            if (normalizedStartFreq!=0.0 && normalizedEndFreq!=0.5) //No filtering is required
+            noise = new double[origLen];
+            
+            if (normalizedStartFreq!=0.0 || normalizedEndFreq!=0.5) //else --> No filtering is required
             { 
                 if (normalizedStartFreq>0.0 && normalizedEndFreq<0.5) //Bandpass
                     f = new BandPassFilter(normalizedStartFreq, normalizedEndFreq);
@@ -913,17 +923,25 @@ public class SignalProcUtils {
                     f = new LowPassFilter(normalizedEndFreq);
 
                 origLen = len;
-                len += f.getImpulseResponseLength(); //This is for avoiding initial zeros in the beginning of the signal
+                len += 3*f.getImpulseResponseLength(); //This is for avoiding initial zeros in the beginning of the signal
             }
             
-            noise = new double[len];
-            for (int i=0; i<len; i++)
-                noise[i] = Math.random()-0.5;
-            
-            if (f!=null)
+            if (f==null)
             {
-                double [] noise2 = f.apply(noise);
-                System.arraycopy(noise2, f.getImpulseResponseLength(), noise, 0, len);
+                for (int i=0; i<origLen; i++)
+                    noise[i] = Math.random()-0.5;
+                
+                return noise;
+            }
+            else
+            {
+                double[] noise2 = new double[len];
+                for (int i=0; i<len; i++)
+                    noise2[i] = Math.random()-0.5;
+                
+                noise2 = f.apply(noise2);
+
+                System.arraycopy(noise2, f.getImpulseResponseLength(), noise, 0, origLen);
             }
         }
         
@@ -1829,6 +1847,15 @@ public class SignalProcUtils {
         return n;
     }
     
+    public static double[] getWhiteNoiseOfMeanVariance(int totalSamples, double mean, double variance)
+    {
+        double[] n = getWhiteNoise(totalSamples, 1.0);
+        MathUtils.adjustMean(n, mean);
+        MathUtils.adjustVariance(n, variance);
+        
+        return n;
+    }
+    
     //These functions implement cepstrum computations asdescribed in van Santen et. al.´s book - Chapter 5
     //(van Santen, et. al., Progress in Speech Synthesis)
     public static double[] specLinear2cepstrum(double[] specLinear, int cepsOrder)
@@ -1975,7 +2002,11 @@ public class SignalProcUtils {
         return addSignals(s1, 1.0, s2, -1.0);
     }
     
-    //yInitial should be at least of length p=a.length and should contain y values from previous frame
+    public static double[] arFilter(double[] x, double[] a, double lpGain)
+    {
+        return arFilter(x, a, lpGain, null);
+    }
+
     public static double[] arFilter(double[] x, double[] a, double lpGain, double[] yInitial)
     {
         double[] y = new double[x.length];
@@ -1986,8 +2017,12 @@ public class SignalProcUtils {
             y[n] = lpGain*x[n];
             for (k=1; k<=Math.min(p, n); k++)
                 y[n] += a[k-1]*y[n-k];
-            for (k=n+1; k<=p; k++)
-                y[n] += a[k-1]*yInitial[yInitial.length-k+n];
+            
+            if (yInitial!=null)
+            {
+                for (k=n+1; k<=p; k++)
+                    y[n] += a[k-1]*yInitial[p-k+n];
+            }
         }
         
         return y;
@@ -2010,8 +2045,8 @@ public class SignalProcUtils {
             frameDft = FFTMixedRadix.fftComplex(frameDft);
         
         int maxFreq = fftSize/2+1;
-        int startFreqInd = SignalProcUtils.freq2index(startFreqInHz, samplingRateInHz, maxFreq-1);
-        int endFreqInd = SignalProcUtils.freq2index(endFreqInHz, samplingRateInHz, maxFreq-1);
+        int startFreqInd = SignalProcUtils.freq2index(startFreqInHz, samplingRateInHz, maxFreq);
+        int endFreqInd = SignalProcUtils.freq2index(endFreqInHz, samplingRateInHz, maxFreq);
         
         int i;
         for (i=0; i<startFreqInd; i++)
@@ -2043,7 +2078,122 @@ public class SignalProcUtils {
         
         return y;
     }
+    
+    public static void displayDFTSpectrumLinearNoWindowing(double[] frame)
+    {
+        int fftSize = 2;
+        while (fftSize<frame.length)
+            fftSize *= 2;
+        
+        displayDFTSpectrumLinearNoWindowing(frame, fftSize);
+    }
+    
+    public static void displayDFTSpectrumLinearNoWindowing(double[] frame, int fftSize)
+    {
+        displayDFTSpectrumLinear(frame, fftSize, Window.RECT);
+    }
+    
+    public static void displayDFTSpectrumLinear(double[] frame)
+    {
+        int fftSize = 2;
+        while (fftSize<frame.length)
+            fftSize *= 2;
+        
+        displayDFTSpectrumLinear(frame, fftSize);
+    }
+    
+    public static void displayDFTSpectrumLinear(double[] frame, int fftSize)
+    {
+        displayDFTSpectrumLinear(frame, fftSize, Window.HAMMING);
+    }
+    
+    public static void displayDFTSpectrumLinear(double[] frame, int fftSize, int windowType)
+    {
+        Window win = Window.get(windowType, frame.length);
+        win.normalizeSquaredSum(1.0f);
+        double[] frameW = win.apply(frame, 0);
+        
+        while (fftSize<frameW.length)
+            fftSize *= 2;
+        
+        if (fftSize%2!=0)
+            fftSize++;
+        
+        ComplexArray frameDft = new ComplexArray(fftSize);
+        System.arraycopy(frameW, 0, frameDft.real, 0, frame.length);
+        
+        if (MathUtils.isPowerOfTwo(fftSize))
+            FFT.transform(frameDft.real, frameDft.imag, false);
+        else
+            frameDft = FFTMixedRadix.fftComplex(frameDft);
+  
+        
+        MaryUtils.plot(MathUtils.magnitudeComplex(frameDft));
+    }
+    
+    public static void displayDFTSpectrumInDBNoWindowing(double[] frame)
+    {
+        int fftSize = 2;
+        while (fftSize<frame.length)
+            fftSize *= 2;
+        
+        displayDFTSpectrumInDBNoWindowing(frame, fftSize);
+    }
+    
+    public static void displayDFTSpectrumInDBNoWindowing(double[] frame, int fftSize)
+    {
+        displayDFTSpectrumInDB(frame, fftSize, Window.RECT);
+    }
+    
+    public static void displayDFTSpectrumInDB(double[] frame)
+    {
+        int fftSize = 2;
+        while (fftSize<frame.length)
+            fftSize *= 2;
+        
+        displayDFTSpectrumInDB(frame, fftSize);
+    }
+    
+    public static void displayDFTSpectrumInDB(double[] frame, int fftSize)
+    {
+        displayDFTSpectrumInDB(frame, fftSize, Window.HAMMING);
+    }
+    
+    public static void displayDFTSpectrumInDB(double[] frame, int fftSize, int windowType)
+    {
+        Window win = Window.get(windowType, frame.length);
+        win.normalizeSquaredSum(1.0f);
+        double[] frameW = win.apply(frame, 0);
+        
+        while (fftSize<frameW.length)
+            fftSize *= 2;
+        
+        if (fftSize%2!=0)
+            fftSize++;
+        
+        ComplexArray frameDft = new ComplexArray(fftSize);
+        System.arraycopy(frameW, 0, frameDft.real, 0, frame.length);
+        
+        if (MathUtils.isPowerOfTwo(fftSize))
+            FFT.transform(frameDft.real, frameDft.imag, false);
+        else
+            frameDft = FFTMixedRadix.fftComplex(frameDft);
+  
+        
+        MaryUtils.plot(MathUtils.amp2db(MathUtils.magnitudeComplex(frameDft)));
+    }
 
+    public static void displayLPSpectrumLinear(double[] alpha, double lpGain, int fftSize)
+    {
+        double[] lpSpec = LpcAnalyser.calcSpecLinear(alpha, lpGain, fftSize);
+        MaryUtils.plot(lpSpec);
+    }
+    
+    public static void displayLPSpectrumInDB(double[] alpha, double lpGain, int fftSize)
+    {
+        double[] lpSpecInDB = MathUtils.amp2db(LpcAnalyser.calcSpecLinear(alpha, lpGain, fftSize));
+        MaryUtils.plot(lpSpecInDB);
+    }
     
     public static void main(String[] args)
     {  

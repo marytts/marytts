@@ -37,9 +37,9 @@ import marytts.util.math.ComplexNumber;
  */
 public class FrameHarmonicPart 
 {
-    double[] ceps; //Cepstral coefficients for amplitude envelope
-    float[] phases; //To keep harmonic phases
-    float f0InHz;
+    public double[] ceps; //Cepstral coefficients for amplitude envelope
+    public float[] phases; //To keep harmonic phases
+    public float f0InHz;
     
     public FrameHarmonicPart()
     {        

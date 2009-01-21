@@ -81,32 +81,47 @@ public class NoiseTester extends BaseTester{
         init(freqs, amps, durationInSeconds, samplingRateInHz);
     }
     
-    public NoiseTester(float [][] freqs)
+    public NoiseTester(float[][] freqs)
     {        
         init(freqs);
     }
     
-    public NoiseTester(float [][] freqs, float durationInSeconds)
+    public NoiseTester(float[][] freqs, float durationInSeconds)
     {
         init(freqs, durationInSeconds);
     }
     
-    public NoiseTester(float [][] freqs, float [] amps)
+    public NoiseTester(float[][] freqs, float[] amps)
     {
         init(freqs, amps);
     }
     
-    public NoiseTester(float [][] freqs, float [] amps, float durationInSeconds)
+    public NoiseTester(float[][] freqs, float[] amps, float durationInSeconds)
     {
         init(freqs, amps, durationInSeconds);
     }
     
-    public NoiseTester(float [][] freqs, float [] amps, float durationInSeconds, int samplingRateInHz)
+    public NoiseTester(float[][] freqs, float[] amps, float startTimeInSeconds, float endTimeInSeconds)
+    {
+        this(freqs, amps, startTimeInSeconds, endTimeInSeconds, DEFAULT_FS);
+    }
+    
+    public NoiseTester(float[][] freqs, float[] amps, float durationInSeconds, int samplingRateInHz)
     {
         init(freqs, amps, durationInSeconds, samplingRateInHz);
     }
     
-    public NoiseTester(float [][] freqs, float [] amps, float [] startTimesInSeconds, float [] endTimesInSeconds, int samplingRateInHz)
+    public NoiseTester(float[][] freqs, float[] amps, float startTimeInSeconds, float endTimeInSeconds, int samplingRateInHz)
+    {
+        float[] startTimesInSeconds = new float[freqs.length];
+        float[] endTimesInSeconds = new float[freqs.length];
+        Arrays.fill(startTimesInSeconds, startTimeInSeconds);
+        Arrays.fill(endTimesInSeconds, endTimeInSeconds);
+        
+        init(freqs, amps, startTimesInSeconds, endTimesInSeconds, samplingRateInHz);
+    }
+    
+    public NoiseTester(float[][] freqs, float[] amps, float[] startTimesInSeconds, float[] endTimesInSeconds, int samplingRateInHz)
     {
         init(freqs, amps, startTimesInSeconds, endTimesInSeconds, samplingRateInHz);
     }
@@ -169,13 +184,13 @@ public class NoiseTester extends BaseTester{
     {
         init(freqs, amps, durationInSeconds, DEFAULT_FS);
     }
-    
-    public void init(float [][] freqs, float [] amps, float durationInSeconds, int samplingRateInHz)
+   
+    public void init(float[][] freqs, float [] amps, float durationInSeconds, int samplingRateInHz)
     {
         if (freqs!=null && freqs.length>0)
         {
-            float [] startTimesInSeconds = new float[freqs.length];
-            float [] endTimesInSeconds = new float[freqs.length];
+            float[] startTimesInSeconds = new float[freqs.length];
+            float[] endTimesInSeconds = new float[freqs.length];
             
             for (int i=0; i<freqs.length; i++)
             {
@@ -257,16 +272,14 @@ public class NoiseTester extends BaseTester{
         float [] tStarts, tEnds;
         NoiseTester t = null;
 
-        numTracks = 2;
+        numTracks = 1;
         float [][] freqs = new float[numTracks][];
         for (i=0; i<numTracks; i++)
             freqs[i] = new float[2];
         
-        freqs[0][0] = 1000;
-        freqs[0][1] = 3000;
-        freqs[1][0] = 5000;
-        freqs[1][1] = 6500;
-        float durationInSeconds = 0.25f;
+        freqs[0][0] = 0;
+        freqs[0][1] = 4000;
+        float durationInSeconds = 1.0f;
 
         t = new NoiseTester(freqs, durationInSeconds);
         
