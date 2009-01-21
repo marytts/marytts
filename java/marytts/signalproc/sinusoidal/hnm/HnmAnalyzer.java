@@ -45,6 +45,7 @@ import marytts.signalproc.analysis.RegularizedCepstralEnvelopeEstimator;
 import marytts.signalproc.analysis.SeevocAnalyser;
 import marytts.signalproc.analysis.SpectrumWithPeakIndices;
 import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
+import marytts.signalproc.filter.HighPassFilter;
 import marytts.signalproc.sinusoidal.NonharmonicSinusoidalSpeechFrame;
 import marytts.signalproc.sinusoidal.NonharmonicSinusoidalSpeechSignal;
 import marytts.signalproc.sinusoidal.PitchSynchronousSinusoidalAnalyzer;
@@ -77,7 +78,9 @@ public class HnmAnalyzer {
     public static final int LPC = 1; //Noise part model based on LPC
     public static final int PSEUDO_HARMONIC = 2; //Noise part model based on pseude harmonics for f0=NOISE_F0_IN_HZ
     public static final double NOISE_F0_IN_HZ = 100.0; //Pseudo-pitch for unvoiced portions (will be used for pseudo harmonic modelling of the noise part)
-    
+    public static float FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST = 0.0f;
+    public static float HPF_TRANSITION_BANDWIDTH_IN_HZ = 50.0f;
+    public static float NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS = 0.050f; //Fixed window size for noise analysis, should be generally large (>=0.040 seconds)
     
     public HnmAnalyzer()
     {
@@ -101,7 +104,7 @@ public class HnmAnalyzer {
 
         int fs = (int)inputAudio.getFormat().getSampleRate();
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
-        double [] x = signal.getAllData();
+        double[] x = signal.getAllData();
         float originalDurationInSeconds = SignalProcUtils.sample2time(x.length, fs);
         int lpOrder = SignalProcUtils.getLPOrder(fs);
         float preCoefNoise = 0.0f;
@@ -114,7 +117,7 @@ public class HnmAnalyzer {
         
         //2.b. If voiced, maximum frequency of voicing estimation
         //     Otherwise, maximum frequency of voicing is set to 0.0
-        float maxFreqOfVoicingInHz = 0.0f; //This should come from the above automatic analysis
+        float maxFreqOfVoicingInHz = HnmAnalyzer.FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST; //This should come from the above automatic analysis
         
         //2.c. Refined pitch estimation
         ////
@@ -132,7 +135,7 @@ public class HnmAnalyzer {
         double f0InHz = f0.contour[0];
         int T0;
         double assumedF0ForUnvoicedInHz = 100.0;
-        boolean isVoiced;
+        boolean isVoiced, isNoised;
         if (f0InHz>10.0)
             isVoiced=true;
         else
@@ -146,8 +149,7 @@ public class HnmAnalyzer {
         int i, j, k;
         
         int ws;
-        float windowDurationInSecondsNoise = 0.050f;
-        int wsNoise = SignalProcUtils.time2sample(windowDurationInSecondsNoise, fs);
+        int wsNoise = SignalProcUtils.time2sample(NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, fs);
         if (wsNoise%2==0) //Always use an odd window size to have a zero-phase analysis window
             wsNoise++;  
         
@@ -157,6 +159,8 @@ public class HnmAnalyzer {
         for (j=0; j<wgtSquaredNoise.length; j++)
             wgtSquaredNoise[j] = wgtSquaredNoise[j]*wgtSquaredNoise[j];
 
+        int fftSizeNoise = SignalProcUtils.getDFTSize(fs);
+        
         int totalFrm = (int)Math.floor(pm.pitchMarks.length-numPeriods+0.5);
         if (totalFrm>pm.pitchMarks.length-1)
             totalFrm = pm.pitchMarks.length-1;
@@ -172,7 +176,7 @@ public class HnmAnalyzer {
         Window win;
         int closestInd;
         
-        hnmSignal = new HnmSpeechSignal(totalFrm, fs, originalDurationInSeconds, windowDurationInSecondsNoise, preCoefNoise);
+        hnmSignal = new HnmSpeechSignal(totalFrm, fs, originalDurationInSeconds, NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, preCoefNoise);
         boolean isPrevVoiced = false;
         
         int numHarmonics = 0;
@@ -185,6 +189,7 @@ public class HnmAnalyzer {
         double[] dPhasesPrev = null;
         int MValue;
         
+        int cepsOrderHarmonic = 16;
         int cepsOrderNoise = 16;
         int numNoiseHarmonics = (int)Math.floor((0.5*fs)/NOISE_F0_IN_HZ+0.5);
         double[] freqsInHzNoise = new double [numNoiseHarmonics];
@@ -199,18 +204,23 @@ public class HnmAnalyzer {
         
         for (i=0; i<totalFrm; i++)
         {  
-            hnmSignal.frames[i].maximumFrequencyOfVoicingInHz = maxFreqOfVoicingInHz; //Normally, this should come from analysis!!!
+            f0InHz = pm.f0s[i];
             T0 = pm.pitchMarks[i+1]-pm.pitchMarks[i];
-            isVoiced = hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0 ? true:false;
-            
             ws = (int)Math.floor(numPeriods*T0+ 0.5);
             if (ws%2==0) //Always use an odd window size to have a zero-phase analysis window
                 ws++;            
             
             hnmSignal.frames[i].tAnalysisInSeconds = (float)((pm.pitchMarks[i]+0.5f*ws)/fs);  //Middle of analysis frame
-          
-            f0InHz = pm.f0s[i];
             
+            //if (hnmSignal.frames[i].tAnalysisInSeconds<0.7 && f0InHz>10.0)
+            if (f0InHz>10.0)
+                hnmSignal.frames[i].maximumFrequencyOfVoicingInHz = maxFreqOfVoicingInHz; //Normally, this should come from analysis!!!
+            else
+                hnmSignal.frames[i].maximumFrequencyOfVoicingInHz = 0.0f;
+            
+            isVoiced = hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0 ? true:false;
+            isNoised = hnmSignal.frames[i].maximumFrequencyOfVoicingInHz<0.5*fs ? true:false;
+
             if (!isVoiced)
                 f0InHz = assumedF0ForUnvoicedInHz;
 
@@ -236,7 +246,7 @@ public class HnmAnalyzer {
             //       The phase of the complex amplitude is the phase and its magnitude is the absolute amplitude of the harmonic
             if (isVoiced)
             {
-                numHarmonics = (int)Math.floor(maxFreqOfVoicingInHz/f0InHz+0.5);
+                numHarmonics = (int)Math.floor(hnmSignal.frames[i].maximumFrequencyOfVoicingInHz/f0InHz+0.5);
                 harmonicAmps = estimateComplexAmplitudes(frm, wgtSquared, f0InHz, numHarmonics, fs);
                 
                 //Only for visualization
@@ -252,88 +262,112 @@ public class HnmAnalyzer {
             
             //Step5. Perform full-spectrum LPC analysis for generating noise part
             Arrays.fill(frmNoise, 0.0);
-            noiseFrmStartInd = Math.max(0, SignalProcUtils.time2sample(hnmSignal.frames[i].tAnalysisInSeconds-0.5f*windowDurationInSecondsNoise, fs));
+            noiseFrmStartInd = Math.max(0, SignalProcUtils.time2sample(hnmSignal.frames[i].tAnalysisInSeconds-0.5f*NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, fs));
             for (j=noiseFrmStartInd; j<Math.min(noiseFrmStartInd+wsNoise, x.length); j++)
                 frmNoise[j-noiseFrmStartInd] = x[j];
             
-            if (noisePartRepresentation==LPC)
+            if (isNoised)
             {
-                //We have support for preemphasis - this needs to be handled during synthesis of the noisy part with preemphasis removal
-                frmNoise = winNoise.apply(frmNoise, 0);
-                LpCoeffs lpcs = LpcAnalyser.calcLPC(frmNoise, lpOrder, preCoefNoise);
-                hnmSignal.frames[i].n = new FrameNoisePartLpc(lpcs.getA(), lpcs.getGain());
+                if (noisePartRepresentation==LPC)
+                {
+                    double origStd = MathUtils.standardDeviation(frmNoise);
+                    //frmNoise = MathUtils.multiply(frmNoise, 32768.0);
+                    
+                    //We have support for preemphasis - this needs to be handled during synthesis of the noisy part with preemphasis removal
+                    frmNoise = winNoise.apply(frmNoise, 0);
+                    
+                    //SignalProcUtils.displayDFTSpectrumInDBNoWindowing(frmNoise, fftSizeNoise);  
+
+                    if (hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0f)
+                    {
+                        //frmNoise = SignalProcUtils.fdFilter(frmNoise, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5f*fs, fs, fftSizeNoise);
+                        HighPassFilter hpf = new HighPassFilter(hnmSignal.frames[i].maximumFrequencyOfVoicingInHz/fs, HnmAnalyzer.HPF_TRANSITION_BANDWIDTH_IN_HZ/fs);
+                        frmNoise = hpf.apply(frmNoise);
+                    }
+                    
+                    //Only for display purposes...
+                    //SignalProcUtils.displayDFTSpectrumInDBNoWindowing(frmNoise, fftSizeNoise); 
+
+                    LpCoeffs lpcs = LpcAnalyser.calcLPC(frmNoise, lpOrder, preCoefNoise);
+                    //hnmSignal.frames[i].n = new FrameNoisePartLpc(lpcs.getA(), lpcs.getGain());
+                    hnmSignal.frames[i].n = new FrameNoisePartLpc(lpcs.getA(), origStd);
+                    
+                    //Only for display purposes...
+                    //SignalProcUtils.displayLPSpectrumInDB(((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, ((FrameNoisePartLpc)hnmSignal.frames[i].n).gain, fftSizeNoise);
+                }
+                else if (noisePartRepresentation==PSEUDO_HARMONIC)
+                {
+                    //Note that for noise we use the uncorrelated version of the complex amplitude estimator
+                    //Correlated version resulted in ill-conditioning
+                    //Also, analysis was pretty slow since the number of harmonics is large for pseudo-harmonics of noise, 
+                    //i.e. for 16 KHz 5 to 8 KHz bandwidth in steps of 100 Hz produces 50 to 80 pseudo-harmonics
+
+                    //(1) Uncorrelated approach as in Stylianou´s thesis
+                    noiseHarmonicAmps = estimateComplexAmplitudesUncorrelated(frmNoise, wgtSquaredNoise, NOISE_F0_IN_HZ, numNoiseHarmonics, fs);
+                    //OR... (2)Expensive approach which does not work very well
+                    //noiseHarmonicAmps = estimateComplexAmplitudes(frm, wgtSquared, NOISE_F0_IN_HZ, numNoiseHarmonics, fs);
+                    //OR... (3) Uncorrelated approach using full autocorrelation matrix (checking if there is a problem in estimateComplexAmplitudesUncorrelated
+                    //noiseHarmonicAmps = estimateComplexAmplitudesUncorrelated2(frm, wgtSquared, NOISE_F0_IN_HZ, numNoiseHarmonics, fs);
+
+                    double[] linearAmpsNoise = new double[numNoiseHarmonics];
+                    for (j=0; j<numNoiseHarmonics; j++)
+                        linearAmpsNoise[j] = MathUtils.magnitudeComplex(noiseHarmonicAmps[j]);
+
+                    double[] vocalTractDB = MathUtils.amp2db(linearAmpsNoise);
+                    MaryUtils.plot(vocalTractDB);
+
+                    hnmSignal.frames[i].n = new FrameNoisePartPseudoHarmonic();
+                    //(1) This is how amplitudes are represented in Stylianou´s thesis
+                    ((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2cepstrum(linearAmpsNoise, MTransW, inverted);
+                    //OR... (2) The following is the expensive approach in which all matrices are computed again and again
+                    //((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2cepstrum(linearAmpsNoise, freqsInHzNoise, fs, cepsOrderNoise);
+                    //OR... (3) Let´s try to copy linearAmps as they are with no cepstral processing to see if synthesis works OK:
+                    //((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps = new double[numNoiseHarmonics];
+                    //System.arraycopy(linearAmpsNoise, 0, ((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, 0, numNoiseHarmonics);
+
+
+                    /*
+                    //The following is only for visualization
+                    //int fftSize = 4096;
+                    //double[] vocalTractDB = RegularizedCepstralEnvelopeEstimator.cepstrum2logAmpHalfSpectrum(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, fftSize, fs);
+                    double[] vocalTractDB = new double[numNoiseHarmonics];
+                    for (j=0; j<numNoiseHarmonics; j++)
+                        vocalTractDB[j] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, (j+1)*HnmAnalyzer.NOISE_F0_IN_HZ, fs);
+                    vocalTractDB = MathUtils.amp2db(vocalTractDB);
+                    MaryUtils.plot(vocalTractDB);
+                    //
+                     */    
+                }
             }
-            else if (noisePartRepresentation==PSEUDO_HARMONIC)
-            {
-                //Note that for noise we use the uncorrelated version of the complex amplitude estimator
-                //Correlated version resulted in ill-conditioning
-                //Also, analysis was pretty slow since the number of harmonics is large for pseudo-harmonics of noise, 
-                //i.e. for 16 KHz 5 to 8 KHz bandwidth in steps of 100 Hz produces 50 to 80 pseudo-harmonics
-                
-                //(1) Uncorrelated approach as in Stylianou´s thesis
-                noiseHarmonicAmps = estimateComplexAmplitudesUncorrelated(frmNoise, wgtSquaredNoise, NOISE_F0_IN_HZ, numNoiseHarmonics, fs);
-                //OR... (2)Expensive approach which does not work very well
-                //noiseHarmonicAmps = estimateComplexAmplitudes(frm, wgtSquared, NOISE_F0_IN_HZ, numNoiseHarmonics, fs);
-                //OR... (3) Uncorrelated approach using full autocorrelation matrix (checking if there is a problem in estimateComplexAmplitudesUncorrelated
-                //noiseHarmonicAmps = estimateComplexAmplitudesUncorrelated2(frm, wgtSquared, NOISE_F0_IN_HZ, numNoiseHarmonics, fs);
-                
-                double[] linearAmpsNoise = new double[numNoiseHarmonics];
-                for (j=0; j<numNoiseHarmonics; j++)
-                    linearAmpsNoise[j] = MathUtils.magnitudeComplex(noiseHarmonicAmps[j]);
-                
-              
-                double[] vocalTractDB = MathUtils.amp2db(linearAmpsNoise);
-                MaryUtils.plot(vocalTractDB);
-                
-                
-                hnmSignal.frames[i].n = new FrameNoisePartPseudoHarmonic();
-                //(1) This is how amplitudes are represented in Stylianou´s thesis
-                //((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2cepstrum(linearAmpsNoise, MTransW, inverted);
-                //OR... (2) The following is the expensive approach in which all matrices are computed again and again
-                //((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2cepstrum(linearAmpsNoise, freqsInHzNoise, fs, cepsOrderNoise);
-                //OR... (3) Let´s try to copy linearAmps as they are with no cepstral processing to see if synthesis works OK:
-                ((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps = new double[numNoiseHarmonics];
-                System.arraycopy(linearAmpsNoise, 0, ((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, 0, numNoiseHarmonics);
-                
-               
-                /*
-                //The following is only for visualization
-                //int fftSize = 4096;
-                //double[] vocalTractDB = RegularizedCepstralEnvelopeEstimator.cepstrum2logAmpHalfSpectrum(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, fftSize, fs);
-                double[] vocalTractDB = new double[numNoiseHarmonics];
-                for (j=0; j<numNoiseHarmonics; j++)
-                    vocalTractDB[j] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, (j+1)*HnmAnalyzer.NOISE_F0_IN_HZ, fs);
-                vocalTractDB = MathUtils.amp2db(vocalTractDB);
-                MaryUtils.plot(vocalTractDB);
-                //
-                */    
-            }
-            
+            else
+                hnmSignal.frames[i].n = null;
             //
             
             //Step6. Estimate amplitude envelopes
-            if (isVoiced)
+            if (numHarmonics>0)
             {
-                int cepsOrderHarmonic = 12;
-                double[] linearAmps = new double[numHarmonics];
-                double[] freqsInHz = new double [numHarmonics];
-                for (j=0; j<numHarmonics; j++)
+                if (isVoiced)
                 {
-                    linearAmps[j] = MathUtils.magnitudeComplex(harmonicAmps[j]);
-                    freqsInHz[j] = f0InHz*(j+1);
+                    double[] linearAmps = new double[numHarmonics];
+                    double[] freqsInHz = new double [numHarmonics];
+                    for (j=0; j<numHarmonics; j++)
+                    {
+                        linearAmps[j] = MathUtils.magnitudeComplex(harmonicAmps[j]);
+                        freqsInHz[j] = f0InHz*(j+1);
+                    }
+                    hnmSignal.frames[i].h.ceps = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, fs, cepsOrderHarmonic);
+                    //The following is only for visualization
+                    //int fftSize = 4096;
+                    //double[] vocalTractDB = RegularizedCepstralEnvelopeEstimator.cepstrum2logAmpHalfSpectrum(hnmFrames[i].ceps , fftSize, fs);
+                    //MaryUtils.plot(vocalTractDB);
+                    //
                 }
-                hnmSignal.frames[i].h.ceps = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, fs, cepsOrderHarmonic);
-                //The following is only for visualization
-                //int fftSize = 4096;
-                //double[] vocalTractDB = RegularizedCepstralEnvelopeEstimator.cepstrum2logAmpHalfSpectrum(hnmFrames[i].ceps , fftSize, fs);
-                //MaryUtils.plot(vocalTractDB);
                 //
-            }
-            //
 
-            hnmSignal.frames[i].h.phases = new float[numHarmonics];
-            for (k=0; k<numHarmonics; k++)
-                hnmSignal.frames[i].h.phases[numHarmonics-k-1] = (float)MathUtils.phaseInRadians(harmonicAmps[numHarmonics-k-1]);
+                hnmSignal.frames[i].h.phases = new float[numHarmonics];
+                for (k=0; k<numHarmonics; k++)
+                    hnmSignal.frames[i].h.phases[numHarmonics-k-1] = (float)MathUtils.phaseInRadians(harmonicAmps[numHarmonics-k-1]);
+            }
 
             if (isVoiced)
                 isPrevVoiced = true;

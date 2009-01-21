@@ -56,13 +56,17 @@ public class HarmonicsNoiseTester extends SinusoidsNoiseTester {
         //Harmonics part
         float f1 = 400.f;
         int numHarmonics = 8;
-        s = new HarmonicsTester(f1, numHarmonics);
+        float harmonicsStartTimeInSeconds = 0.0f;
+        float harmonicsEndTimeInSeconds = 1.0f;
+        s = new HarmonicsTester(f1, numHarmonics, harmonicsStartTimeInSeconds, harmonicsEndTimeInSeconds);
         //
         
         //Noise part
         int numNoises = 1;
         float [][] freqs = new float[numNoises][];
         float [] amps = new float[numNoises];
+        float noiseStartTimeInSeconds = 0.7f;
+        float noiseEndTimeInSeconds = 1.5f;
         for (i=0; i<numNoises; i++)
             freqs[i] = new float[2];
         
@@ -70,7 +74,7 @@ public class HarmonicsNoiseTester extends SinusoidsNoiseTester {
         freqs[0][1] = 6000;
         amps[0] = DEFAULT_AMP;
 
-        n = new NoiseTester(freqs, amps);
+        n = new NoiseTester(freqs, amps, noiseStartTimeInSeconds, noiseEndTimeInSeconds);
         //
         
         h = new HarmonicsNoiseTester(s, n);

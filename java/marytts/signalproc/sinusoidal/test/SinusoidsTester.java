@@ -151,7 +151,17 @@ public class SinusoidsTester extends BaseTester{
         } 
     }
     
-    public void init(Sinusoid [] sinsIn, float [] startTimesInSeconds, float [] endTimesInSeconds, int samplingRateInHz)
+    public void init(Sinusoid[] sinsIn, float startTimeInSeconds, float endTimeInSeconds, int samplingRateInHz)
+    {
+        float[] startTimesInSeconds = new float[sinsIn.length];
+        float[] endTimesInSeconds = new float[sinsIn.length];
+        Arrays.fill(startTimesInSeconds, startTimeInSeconds);
+        Arrays.fill(endTimesInSeconds, endTimeInSeconds);
+        
+        init(sinsIn, startTimesInSeconds, endTimesInSeconds, samplingRateInHz);
+    }
+    
+    public void init(Sinusoid[] sinsIn, float[] startTimesInSeconds, float[] endTimesInSeconds, int samplingRateInHz)
     {
         fs = samplingRateInHz;
         signal = null;

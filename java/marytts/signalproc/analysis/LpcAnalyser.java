@@ -134,11 +134,15 @@ public class LpcAnalyser extends FrameBasedAnalyser
             x = SignalProcUtils.applyPreemphasis(x, preCoef);
         
         int i;
+        /*
         for (i=0; i<x.length; i++)
             x[i] += Math.random()*1e-50;
+            */
         
-        double[] autocorr = FFT.autoCorrelateWithZeroPadding(x);
         double[] r;
+ 
+        //Frequency domain autocorrelation computation
+        double[] autocorr = FFT.autoCorrelateWithZeroPadding(x);
         if (2*(p+1)<autocorr.length) { // normal case: frame long enough
             r = ArrayUtils.subarray(autocorr, autocorr.length/2, p+1);
         } else { // absurdly short frame
@@ -146,18 +150,12 @@ public class LpcAnalyser extends FrameBasedAnalyser
             r = new double[p+1];
             System.arraycopy(autocorr, autocorr.length/2, r, 0, autocorr.length-autocorr.length/2);
         }
-        double[] coeffs = MathUtils.levinson(r, p);
+        //
+        
+        double[] coeffs = MathUtils.levinson(r, p); //These are oneMinusA!
+        
         // gain factor:
         double g = Math.sqrt(MathUtils.sum(MathUtils.multiply(coeffs, r)));
-        
-        /*
-        //Oytun: Correct gain computation might be as follows!
-        double g2 = r[0];
-        for (i=1; i<=p; i++)
-            g2 -= coeffs[i-1]*r[i];
-        g2 = Math.sqrt(g2);
-        //
-        */
 
         return new LpCoeffs(coeffs, g);
     }
@@ -197,6 +195,12 @@ public class LpcAnalyser extends FrameBasedAnalyser
     public static double [] calcSpec(double [] alpha, int fftSize, ComplexArray expTerm)
     {  
         return calcSpecLinear(alpha, 1.0f, fftSize, expTerm);
+    }
+    
+    //Computes LP smoothed spectrum from LP coefficients
+    public static double[] calcSpecLinear(double[] alpha, double sqrtGain, int fftSize)
+    {
+        return calcSpecLinear(alpha, sqrtGain, fftSize, null);
     }
     
     //Computes LP smoothed spectrum from LP coefficients

@@ -39,15 +39,15 @@ package marytts.signalproc.sinusoidal.hnm;
  */
 public class FrameNoisePartLpc extends FrameNoisePart {
     
-    double[] lpCoeffs;
-    double lpGain; //Sqrt of prediction error
+    public double[] lpCoeffs;
+    public double gain; //Sqrt of prediction error
     
     public FrameNoisePartLpc()
     {
         super();
     }
     
-    public FrameNoisePartLpc(double[] lpCoeffsIn, double lpGainIn)
+    public FrameNoisePartLpc(double[] lpCoeffsIn, double gainIn)
     {
         super();
         
@@ -59,7 +59,7 @@ public class FrameNoisePartLpc extends FrameNoisePart {
         else
             lpCoeffs = null;
             
-        lpGain = lpGainIn;
+        gain = gainIn;
     }
 
 }

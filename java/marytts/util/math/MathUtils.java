@@ -865,6 +865,17 @@ public class MathUtils {
         return mags;
     }
     
+    public static double[] magnitudeComplex(ComplexArray x)
+    {
+        assert x.real.length == x.imag.length;
+        double[] mags = new double[x.real.length];
+        
+        for (int i=0; i<x.real.length; i++)
+            mags[i] = magnitudeComplex(new ComplexNumber(x.real[i], x.imag[i]));
+        
+        return mags;
+    }
+    
     public static double magnitudeComplex(double xReal, double xImag)
     {
         return Math.sqrt(magnitudeComplexSquared(xReal, xImag));
@@ -3269,11 +3280,22 @@ public class MathUtils {
     {
         adjustStandardDeviation(x, Math.sqrt(newVariance));
     }
+    
+    public static void adjustVariance(double[] x, double newVariance, double currentMean)
+    {
+        adjustStandardDeviation(x, Math.sqrt(newVariance), currentMean);
+    }
 
-    //Assigns new standard deviation while keeping the mean value of x
     public static void adjustStandardDeviation(double[] x, double newStandardDeviation)
     {
         double currentMean = mean(x);
+        
+        adjustStandardDeviation(x, newStandardDeviation, currentMean);
+    }
+    
+    //Assigns new standard deviation while keeping the mean value of x
+    public static void adjustStandardDeviation(double[] x, double newStandardDeviation, double currentMean)
+    {
         double currentStdDev = standardDeviation(x, currentMean);
 
         for (int i=0; i<x.length; i++)
@@ -3985,6 +4007,22 @@ public class MathUtils {
     {
         return 2.58*standardDeviation;
     } 
+    
+    public static double[] autocorr(double[] x, int P)
+    {
+        double[] R = new double[P+1];
+        
+        int N = x.length;
+        int m, n;
+        for (m=0; m<=P; m++)
+        {
+            R[m] = 0.0;
+            for (n=0; n<=N-m-1; n++)
+                R[m] += x[n]*x[n+m];
+        }
+
+        return R;
+    }
     
     public static void main(String[] args)
     {

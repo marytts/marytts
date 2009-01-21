@@ -67,6 +67,47 @@ public class HarmonicsTester extends SinusoidsTester {
         }
     }
     
+    public HarmonicsTester(float freqInHz, int numHarmonics, float startTimeInSeconds, float endTimeInSeconds) 
+    {
+        this(freqInHz, numHarmonics, startTimeInSeconds, endTimeInSeconds, DEFAULT_FS);
+    }
+    
+    public HarmonicsTester(float freqInHz, int numHarmonics, float startTimeInSeconds, float endTimeInSeconds, int samplingRateInHz) 
+    {
+        this(freqInHz, numHarmonics, startTimeInSeconds, endTimeInSeconds, samplingRateInHz, null);
+    }
+    
+    public HarmonicsTester(float freqInHz, int numHarmonics, float startTimeInSeconds, float endTimeInSeconds, int samplingRateInHz, float[] amps) 
+    {
+        this(freqInHz, numHarmonics, startTimeInSeconds, endTimeInSeconds, samplingRateInHz, amps, null);  
+    }
+    
+    public HarmonicsTester(float freqInHz, int numHarmonics, float startTimeInSeconds, float endTimeInSeconds, int samplingRateInHz, float[] amps, float[] phases) 
+    {
+        if (numHarmonics>0)
+        {
+            Sinusoid[] sins = new Sinusoid[numHarmonics];
+            
+            float currentAmp, currentPhase;
+            for (int i=0; i<numHarmonics; i++)
+            {
+                if (amps!=null && amps.length>i)
+                    currentAmp = amps[i];
+                else
+                    currentAmp = DEFAULT_AMP;
+                
+                if (phases!=null && phases.length>i)
+                    currentPhase = phases[i];
+                else
+                    currentPhase = DEFAULT_PHASE;
+                
+                sins[i] = new Sinusoid(currentAmp, freqInHz*(i+1), currentPhase);
+            }
+            
+            init(sins, startTimeInSeconds, endTimeInSeconds, samplingRateInHz);
+        }
+    }
+    
     public static void main(String[] args) throws IOException
     {
         HarmonicsTester s = null;
