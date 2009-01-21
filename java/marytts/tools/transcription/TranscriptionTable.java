@@ -88,7 +88,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
         
         table = new JTable(transcriptionModel);
         table.setPreferredScrollableViewportSize(new Dimension(500, 70));
-        table.setFillsViewportHeight(true);
+        //table.setFillsViewportHeight(true);
         table.getSelectionModel().addListSelectionListener(new RowListener());
         table.getColumnModel().getColumn(2).setCellRenderer(new CustomTableCellRenderer());
         table.addKeyListener(new KeyEventListener());
@@ -368,7 +368,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
             }
             itsRow = table.getSelectionModel().getLeadSelectionIndex();
             table.repaint();
-            //checkTranscriptionSyntax();
+            checkTranscriptionSyntax();
         }
     }
 
@@ -449,6 +449,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
         }
         public void editingStopped(ChangeEvent e) {
             System.out.println("stopped: "+itsRow);
+            checkTranscriptionSyntax();
             checkTranscriptionSyntax(itsRow);
             transcriptionModel.setAsManualVerify(itsRow, true);
             rowEnterPressed = -1;
