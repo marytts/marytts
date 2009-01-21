@@ -333,6 +333,22 @@ public class TranscriptionTable extends JPanel implements ActionListener {
     }
     
     /**
+     * Load transcription from a arrayList
+     * @param map
+     * @throws Exception
+     */
+    public void loadTranscription(ArrayList<String> arrList) throws Exception {
+            this.transcriptionModel.loadTranscription(arrList);
+            checkTranscription();
+            scrollpane.updateUI();
+            table.repaint();
+            this.repaint();
+            this.updateUI();
+    }
+    
+    
+    
+    /**
      * load phoneset
      * @param filePath
      */
