@@ -64,7 +64,7 @@ public class MaryAudioUtils {
       * @throws IllegalArgumentException if the vector contains no elements,
       * any element is not an AudioInputStream.
       */
-     public static AudioInputStream createSingleAudioInputStream(Vector audioInputStreams) {
+     public static AudioInputStream createSingleAudioInputStream(Vector<AudioInputStream> audioInputStreams) {
          if (audioInputStreams == null)
              throw new NullPointerException("Received null vector of AudioInputStreams");
          if (audioInputStreams.isEmpty())
@@ -85,8 +85,11 @@ public class MaryAudioUtils {
      * Return an audio file format type for the given string.
      * In addition to the built-in types, this can deal with MP3
      * supported by tritonus.
+     * @return the audio file format type if it is known, or null.
+     * @see #canCreateMP3()
+     * @see #canCreateOgg()
      */
-    public static AudioFileFormat.Type getAudioFileFormatType(String name) throws Exception
+    public static AudioFileFormat.Type getAudioFileFormatType(String name)
     {
         AudioFileFormat.Type at;
         if (name.equals("MP3")) 
@@ -101,7 +104,11 @@ public class MaryAudioUtils {
         } 
         else 
         {
-            at = (AudioFileFormat.Type) AudioFileFormat.Type.class.getField(name).get(null);
+            try {
+                at = (AudioFileFormat.Type) AudioFileFormat.Type.class.getField(name).get(null);
+            } catch (Exception e) {
+                return null;
+            }
         }
         
         return at;

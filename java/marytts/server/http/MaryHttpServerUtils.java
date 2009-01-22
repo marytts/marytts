@@ -83,11 +83,7 @@ public class MaryHttpServerUtils
         toHttpResponse(ConversionUtils.toByteArray(x), response, contentType);
     }
     
-    public static void toHttpResponse(ByteArrayOutputStream baos, HttpResponse response, String contentType) throws IOException
-    {
-        toHttpResponse(baos.toByteArray(), response, contentType);
-    }
-    
+
     public static void toHttpResponse(byte[] byteArray, HttpResponse response, String contentType) throws IOException
     {
         NByteArrayEntity body = new NByteArrayEntity(byteArray);
@@ -176,7 +172,7 @@ public class MaryHttpServerUtils
     
     
     
-    public static String getMimeType(AudioFileFormat.Type audioType) throws Exception
+    public static String getMimeType(AudioFileFormat.Type audioType)
     {
         if (audioType == AudioFileFormat.Type.WAVE) {
             return "audio/x-wav";

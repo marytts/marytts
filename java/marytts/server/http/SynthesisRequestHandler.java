@@ -37,8 +37,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
@@ -48,10 +50,14 @@ import java.util.Vector;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.nio.entity.NStringEntity;
 import org.apache.log4j.Logger;
 
 import marytts.client.http.Address;
@@ -102,6 +108,12 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler
     protected void handleClientRequest(String absPath, Map<String,String> queryItems, HttpResponse response, Address serverAddressAtClient)
     throws IOException
     {
+/*        response.setStatusCode(HttpStatus.SC_OK);
+        TestProducingNHttpEntity entity = new TestProducingNHttpEntity();
+        entity.setContentType("audio/x-mp3");
+        response.setEntity(entity);
+        if (true) return;
+  */      
         logger.debug("New synthesis request: "+absPath);
         if (queryItems != null) {
             for (String key : queryItems.keySet()) {
@@ -235,10 +247,79 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler
         }
         AudioFileFormat audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
         
-        Request request = new Request(inputType, outputType, locale, voice, effects, style, getId(), audioFileFormat, streamingAudio, outputTypeParams);
+        final Request maryRequest = new Request(inputType, outputType, locale, voice, effects, style, getId(), audioFileFormat, streamingAudio, outputTypeParams);
         
-        boolean ok = handleClientRequest(inputText, request, response);
-        
+        // Process the request and send back the data
+        boolean ok = true;
+        try {
+            maryRequest.setInputData(inputText);
+            logger.info("Read: "+inputText);
+        } catch (Exception e) {
+            String message = "Problem reading input";
+            logger.warn(message, e);
+            MaryHttpServerUtils.errorInternalServerError(response, message, e);
+            ok = false;
+        }
+        if (ok) {
+            if (streamingAudio) {
+                // Start two separate threads:
+                // 1. one thread to process the request;
+                new Thread("RH "+maryRequest.getId()) {
+                    public void run() 
+                    {
+                        Logger myLogger = Logger.getLogger(this.getName());
+                        try {
+                            maryRequest.process();
+                            myLogger.info("Streaming request processed successfully.");
+                        } catch (Throwable t) {
+                            myLogger.error("Processing failed.", t);
+                        }
+                    }
+                }.start();
+                
+                // 2. one thread to take the audio data as it becomes available
+                //    and write it into the ProducingNHttpEntity.
+                // The second one does not depend on the first one practically,
+                // because the AppendableSequenceAudioInputStream returned by
+                // maryRequest.getAudio() was already created in the constructor of Request.
+                AudioInputStream audio = maryRequest.getAudio();
+                assert audio != null : "Streaming audio but no audio stream -- very strange indeed! :-(";
+                AudioFileFormat.Type audioType = maryRequest.getAudioFileFormat().getType();
+                AudioStreamNHttpEntity entity = new AudioStreamNHttpEntity(maryRequest);
+                new Thread(entity, "HTTPWriter "+maryRequest.getId()).start();
+                // entity knows its contentType, no need to set explicitly here.
+                response.setEntity(entity);
+                response.setStatusCode(HttpStatus.SC_OK);
+                return;
+            } else { // not streaming audio
+                // Process input data to output data
+                try {
+                    maryRequest.process(); // this may take some time
+                } catch (Throwable e) {
+                    String message = "Processing failed.";
+                    logger.error(message, e);
+                    MaryHttpServerUtils.errorInternalServerError(response, message, e);
+                    ok = false;
+                }
+                // Write output data to client
+                try {
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    maryRequest.writeOutputData(outputStream);
+                    String contentType;
+                    if (maryRequest.getOutputType().isXMLType() || maryRequest.getOutputType().isTextType()) //text output
+                        contentType = "text/plain; charset=UTF-8";
+                    else //audio output
+                        contentType = MaryHttpServerUtils.getMimeType(maryRequest.getAudioFileFormat().getType());
+                    MaryHttpServerUtils.toHttpResponse(outputStream.toByteArray(), response, contentType);
+                } catch (Exception e) {
+                    String message = "Cannot write output";
+                    logger.warn(message, e);
+                    MaryHttpServerUtils.errorInternalServerError(response, message, e);
+                    ok = false;
+                } 
+            }
+        }
+
        
         if (ok)
             logger.info("Request handled successfully.");
@@ -252,76 +333,6 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler
     }
 
 
-
-    private boolean handleClientRequest(String inputText, Request request, HttpResponse response)
-    {
-        Reader reader = new LoggingReader(new BufferedReader(new StringReader(inputText)), logger);
-
-        outputToStream = null;
-        streamToPipe = null;
-        pipedOutput = null;
-        pipedInput = null;
-        
-        // tasks:
-        // * read the input according to its type
-        // * determine which modules are needed
-        // * in turn, write to and read from each module according to data type
-        // * write output according to its type
-
-        try {
-            request.readInputData(reader);
-        } catch (Exception e) {
-            String message = "Problem reading input";
-            logger.warn(message, e);
-            MaryHttpServerUtils.errorInternalServerError(response, message, e);
-            return false;
-        }
-
-        boolean streamingOutput = false;
-
-        // Process input data to output data
-        try {
-            if (request.getOutputType().equals(MaryDataType.get("AUDIO")) && request.getStreamAudio()) {
-                streamingOutput = true;
-
-                pipedOutput = new PipedOutputStream();
-                pipedInput = new PipedInputStream(pipedOutput);
-                outputToStream = new StreamingOutputWriter(request, pipedOutput);
-
-                //Pipe to an input stream
-                String mimeType = MaryHttpServerUtils.getMimeType(request.getAudioFileFormat().getType());
-                streamToPipe = new StreamingOutputPiper(pipedInput, response, mimeType); 
-                outputToStream.start();
-                streamToPipe.start();
-            }
-            request.process();
-        } catch (Throwable e) {
-            String message = "Processing failed.";
-            logger.error(message, e);
-            MaryHttpServerUtils.errorInternalServerError(response, message, e);
-            return false;
-        }
-
-        // Write output
-        if (!streamingOutput) { //Non-streaming output
-            try {
-                request.writeNonstreamingOutputData(response);
-            } catch (Exception e) {
-                String message = "Cannot write output";
-                logger.warn(message, e);
-                MaryHttpServerUtils.errorInternalServerError(response, message, e);
-                return false;
-            } 
-        } else { //Streaming output
-            try {
-                streamToPipe.join();
-            } catch (InterruptedException e) {
-            }
-        }
-        return true;
-    }
-
-    
     protected String toRequestedAudioEffectsString(Map<String, String> keyValuePairs)
     {
         StringBuilder effects = new StringBuilder();
