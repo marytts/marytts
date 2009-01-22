@@ -110,7 +110,12 @@ public class HnmAnalyzer {
         float preCoefNoise = 0.0f;
         
         //// TO DO
-        //Step1. Initial pitch estimation
+        //Step1. Initial pitch estimation: Current version just reads from a file
+        String strPitchFile = StringUtils.modifyExtension(wavFile, ".ptc");
+        F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
+        int pitchMarkOffset = 0;
+        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.ws, f0.header.ss, true, pitchMarkOffset);
+        //
         
         //Step2: Do for each frame (at 10 ms skip rate):
         //2.a. Voiced/Unvoiced decision
@@ -122,11 +127,7 @@ public class HnmAnalyzer {
         //2.c. Refined pitch estimation
         ////
         
-        String strPitchFile = StringUtils.modifyExtension(wavFile, ".ptc");
-        F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
-        int pitchMarkOffset = 0;
-        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.ws, f0.header.ss, true, pitchMarkOffset);
-        
+       
         //Step3. Determine analysis time instants based on refined pitch values.
         //       (Pitch synchronous if voiced, 10 ms skip if unvoiced)
         int windowType = Window.HAMMING;
