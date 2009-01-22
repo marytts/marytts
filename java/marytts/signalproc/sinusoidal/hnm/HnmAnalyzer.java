@@ -78,9 +78,9 @@ public class HnmAnalyzer {
     public static final int LPC = 1; //Noise part model based on LPC
     public static final int PSEUDO_HARMONIC = 2; //Noise part model based on pseude harmonics for f0=NOISE_F0_IN_HZ
     public static final double NOISE_F0_IN_HZ = 100.0; //Pseudo-pitch for unvoiced portions (will be used for pseudo harmonic modelling of the noise part)
-    public static float FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST = 0.0f;
+    public static float FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST = 2000.0f;
     public static float HPF_TRANSITION_BANDWIDTH_IN_HZ = 50.0f;
-    public static float NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS = 0.050f; //Fixed window size for noise analysis, should be generally large (>=0.040 seconds)
+    public static float NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS = 0.040f; //Fixed window size for noise analysis, should be generally large (>=0.040 seconds)
     
     public HnmAnalyzer()
     {
@@ -224,7 +224,7 @@ public class HnmAnalyzer {
             if (!isVoiced)
                 f0InHz = assumedF0ForUnvoicedInHz;
 
-            T0 = (int)Math.floor(fs/f0InHz+0.5);
+            T0 = SignalProcUtils.time2sample(1.0/f0InHz, fs);
 
             ws = (int)Math.floor(numPeriods*T0+ 0.5);
             if (ws%2==0) //Always use an odd window size to have a zero-phase analysis window
@@ -289,8 +289,8 @@ public class HnmAnalyzer {
                     //SignalProcUtils.displayDFTSpectrumInDBNoWindowing(frmNoise, fftSizeNoise); 
 
                     LpCoeffs lpcs = LpcAnalyser.calcLPC(frmNoise, lpOrder, preCoefNoise);
-                    //hnmSignal.frames[i].n = new FrameNoisePartLpc(lpcs.getA(), lpcs.getGain());
-                    hnmSignal.frames[i].n = new FrameNoisePartLpc(lpcs.getA(), origStd);
+                    hnmSignal.frames[i].n = new FrameNoisePartLpc(lpcs.getA(), lpcs.getGain());
+                    //hnmSignal.frames[i].n = new FrameNoisePartLpc(lpcs.getA(), origStd);
                     
                     //Only for display purposes...
                     //SignalProcUtils.displayLPSpectrumInDB(((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, ((FrameNoisePartLpc)hnmSignal.frames[i].n).gain, fftSizeNoise);
@@ -314,7 +314,7 @@ public class HnmAnalyzer {
                         linearAmpsNoise[j] = MathUtils.magnitudeComplex(noiseHarmonicAmps[j]);
 
                     double[] vocalTractDB = MathUtils.amp2db(linearAmpsNoise);
-                    MaryUtils.plot(vocalTractDB);
+                    //MaryUtils.plot(vocalTractDB);
 
                     hnmSignal.frames[i].n = new FrameNoisePartPseudoHarmonic();
                     //(1) This is how amplitudes are represented in Stylianou´s thesis

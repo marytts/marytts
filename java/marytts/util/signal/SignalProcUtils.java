@@ -2028,6 +2028,50 @@ public class SignalProcUtils {
         return y;
     }
     
+    public static double[] arFilterFreqDomain(double[] windowedFrame, double[] a, double lpGain)
+    {
+        int fftSize = 2;
+        while (fftSize<windowedFrame.length)
+            fftSize *= 2;
+        
+        ComplexArray X = new ComplexArray(fftSize);
+        System.arraycopy(windowedFrame, 0, X.real, 0, windowedFrame.length);
+        
+        if (MathUtils.isPowerOfTwo(fftSize))
+            FFT.transform(X.real, X.imag, false);
+        else
+            X = FFTMixedRadix.fftComplex(X);
+        
+        double[] H = LpcAnalyser.calcSpecLinear(a, lpGain, fftSize);
+
+        ComplexArray Y = new ComplexArray(fftSize);
+
+        int maxFreq = fftSize/2+1;
+        int k;
+        for (k=0; k<maxFreq; k++)
+        {
+            Y.real[k] = X.real[k]*H[k];
+            Y.imag[k] = X.imag[k]*H[k];;
+        }
+        
+        for (k=maxFreq; k<fftSize; k++)
+        {
+            Y.real[k] = Y.real[fftSize-k];
+            Y.imag[k] = -1.0*Y.imag[fftSize-k];
+        }
+        
+        if (MathUtils.isPowerOfTwo(fftSize))
+            FFT.transform(Y.real, Y.imag, true);
+        else
+            Y = FFTMixedRadix.ifft(Y);
+        
+        double[] y = new double[windowedFrame.length];
+        for (k=0; k<windowedFrame.length; k++)
+            y[k] = Y.real[k];
+        
+        return y;
+    }
+    
     public static double[] fdFilter(double[] x, float startFreqInHz, float endFreqInHz, int samplingRateInHz, int fftSize)
     {
         while (fftSize<x.length)
