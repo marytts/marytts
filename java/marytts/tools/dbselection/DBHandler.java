@@ -157,9 +157,11 @@ public class DBHandler {
       psSelectedSentence  = cn.prepareStatement("INSERT INTO " + selectedSentencesTableName + " VALUES (null, ?, ?, ?)");
       psTablesDescription = cn.prepareStatement("INSERT INTO tablesDescription VALUES (null, ?, ?, ?, ?, ?, ?, ?)");
       
-      
+      System.out.println("Mysql connection created successfully.");
     } catch (Exception e) {
+        System.out.println("Problems creating Mysql connection.");
         e.printStackTrace();
+        System.exit(1);
     } 
   }
   
@@ -177,7 +179,8 @@ public class DBHandler {
    * @param passwd
    * @throws Exception
    */
-  public void loadPagesWithMWDumper(String xmlFile, String lang, String host, String db, String user, String passwd) throws Exception{
+  public void loadPagesWithMWDumper(String xmlFile, String lang, String host, String db, String user, String passwd) 
+       throws Exception{
        
        DBHandler wikiDB = new DBHandler(lang);
        System.out.println("Using mwdumper to convert xml file into sql source file and loading text, page and revision tables into the DB.");
@@ -1061,7 +1064,8 @@ public class DBHandler {
   
   public void closeDBConnection(){
     try {
-        cn.close();    
+        cn.close(); 
+        System.out.println("\nMysql connection closed.");
     } catch (SQLException e) {
         e.printStackTrace();
     }  
@@ -1078,8 +1082,8 @@ public class DBHandler {
   /***
    * Get a list of id's
    * @param table cleanText, wordList, dbselection (no need to add locale)
-   *              (this function does not work for the selectedSentences table, for 
-   *              this table use the function etIdListOfSelectedSentences ).
+   *              (NOTE: this function does not work for the selectedSentences table,
+   *              for this table use the function getIdListOfSelectedSentences ).
    * @param condition reliable, unknownWords, strangeSymbols, selected, unwanted = true/false
    *             (combined are posible: "reliable=true and unwanted=false"); 
    *             or condition=null for querying without condition.
@@ -1125,17 +1129,20 @@ public class DBHandler {
   }
   
   /***
-   * Get a list of id's from table selectedSentencesTableName.
+   * Get a list of id's from a selected sentences table which actual name = "lang_tableName_selectedSentences".
+   * @param lang language locale of the table
+   * @param tableName name of the selected sentences table
    * @param condition unwanted=true/false
    * @return
    */
-  public int[] getIdListOfSelectedSentences(String condition) {
+  public int[] getIdListOfSelectedSentences(String lang, String tableName, String condition) {
       int num, i, j;
       int idSet[]=null;
       String getNum, getIds;
+      String actualTableName = lang + "_" + tableName + "_selectedSentences";
          
-      getNum =  "SELECT count(dbselection_id) FROM " + selectedSentencesTableName + " where " + condition + ";";
-      getIds =  "SELECT dbselection_id FROM " + selectedSentencesTableName + " where " + condition + ";";
+      getNum =  "SELECT count(dbselection_id) FROM " + actualTableName + " where " + condition + ";";
+      getIds =  "SELECT dbselection_id FROM " + actualTableName + " where " + condition + ";";
     
       String str = queryTable(getNum);
       num = Integer.parseInt(str);
@@ -1666,64 +1673,12 @@ public class DBHandler {
     return str;  
   }
 
-  public static void main1(String[] args) throws Exception{
-      
-      //Put sentences and features in the database.
-      DBHandler wikiToDB = new DBHandler("en_US");
-
-      wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
-      
-      int numWords = wikiToDB.getNumberOfWords(0);
-      
-      wikiToDB.closeDBConnection();
- 
-      
-      wikiToDB.createDataBaseSelectionTable();
-      
-      wikiToDB.getIdListOfType("dbselection", "reliable=true");
-      
-      int num = wikiToDB.getNumberOfReliableSentences();
-      
-      String feas = wikiToDB.getFeaturesFromTable(1, "dbselection");
-      
-      
-      byte [] tmp = new byte[4];
-      tmp[0] = 10;
-      tmp[1] = 20;
-      tmp[2] = 30;
-      tmp[3] = 40;
-      
-      wikiToDB.insertSentence("sentence1", tmp, true, false, false, 1);
-      byte res[];
-      
-      res = wikiToDB.getFeatures(1);
-     /*
-      for(int i= 1; i<5; i++) {
-        wikiToDB.insertSentenceAndFeatures("file1", "this is a ( )"+ i + " test", "long feature string "+i);
-      }
-      */
-      wikiToDB.closeDBConnection();
-
-      //Get the URLs and send them to wget.
-      wikiToDB.createDBConnection("localhost","wiki","marcela","wiki123");
-      wikiToDB.setDBTable("dbselection");
-      //String sentence = wikiToDB.queryTable(3, "sentence");
-      String sentence = wikiToDB.getSentence("dbselection", 3);
-      System.out.println("sentence 3 = " + sentence );
-      
-      String fea = wikiToDB.getFeaturesFromTable(3, "dbselection");
-      System.out.println("feature 3 = " + fea );
-      
-      wikiToDB.closeDBConnection();
-
-  } // end of main()
-
 
   public static void main(String[] args) throws Exception{
      
       DBHandler wikiDB = new DBHandler("es");
 
-      wikiDB.createDBConnection("localhost","wiki","marcela","wiki123");
+      wikiDB.createDBConnection(args[0],args[1],args[2],args[3]);
       
       int numWords = wikiDB.getNumberOfWords(0);
       System.out.println("numWords=" + numWords);

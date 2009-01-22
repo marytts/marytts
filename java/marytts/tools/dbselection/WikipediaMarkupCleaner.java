@@ -1018,6 +1018,8 @@ public class WikipediaMarkupCleaner {
         if(pw != null)
           pw.close(); 
         
+        wikiToDB.closeDBConnection();
+        
     }
     
     /***
