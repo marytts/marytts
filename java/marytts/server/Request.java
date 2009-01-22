@@ -33,6 +33,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,6 +46,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioInputStream;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -61,7 +63,6 @@ import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
-import org.apache.http.HttpResponse;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.jsresources.AppendableSequenceAudioInputStream;
@@ -138,7 +139,7 @@ public class Request {
         if (outputType == MaryDataType.get("AUDIO")) {
             if (audioFileFormat == null)
                 throw new NullPointerException("audio file format is needed for output type AUDIO");
-            this.appendableAudioStream = new AppendableSequenceAudioInputStream(audioFileFormat.getFormat(), new ArrayList());
+            this.appendableAudioStream = new AppendableSequenceAudioInputStream(audioFileFormat.getFormat(), new ArrayList<AudioInputStream>());
         } else {
             this.appendableAudioStream = null;
         }
@@ -262,6 +263,11 @@ public class Request {
         inputData.setDefaultEffects(defaultEffects);
     }
 
+    public void setInputData(String inputText) throws Exception
+    {
+        readInputData(new StringReader(inputText));
+    }
+    
     /**
      * Process the input data to produce the output data.
      * @see #getOutputData for direct access to the resulting output data
@@ -382,15 +388,13 @@ public class Request {
             throw new UnsupportedOperationException(message);
         }
         usedModules.addAll(neededModules);
-        MaryModule m = null;
         logger.info("Handling request using the following modules:");
-        for (Iterator it = neededModules.iterator(); it.hasNext(); ) {
-            m = (MaryModule) it.next();
+        for (MaryModule m : neededModules) {
             logger.info("- " + m.name() + " (" + m.getClass().getName() + ")");
         }
         MaryData currentData = oneInputData;
-        for (Iterator it = neededModules.iterator(); it.hasNext() && !abortRequested;) {
-            m = (MaryModule) it.next();
+        for (MaryModule m : neededModules) {
+            if (abortRequested) break;
             if (m.getState() == MaryModule.MODULE_OFFLINE) {
                 // This should happen only in command line mode:
                 assert MaryProperties.needProperty("server").compareTo("commandline") == 0;
@@ -733,54 +737,5 @@ public class Request {
         timer.cancel();
     }
 
-    /**
-     * Write the output data to the specified Http response.
-     */
-    public void writeNonstreamingOutputData(HttpResponse response) throws Exception 
-    {
-        if (outputData == null)
-            throw new NullPointerException("No output data -- did process() succeed?");
-     
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        
-        // Safety net: if the output is not written within a certain amount of
-        // time, give up. This prevents our thread from being locked forever if an
-        // output deadlock occurs (happened very rarely on Java 1.4.2beta).
-        final OutputStream os = outputStream;
-        Timer timer = new Timer();
-        TimerTask timerTask = new TimerTask() {
-            public void run() {
-                logger.warn("Timeout occurred while writing output. Forcefully closing output stream.");
-                try {
-                    os.close();
-                } catch (IOException ioe) {
-                    logger.warn(ioe);
-                }
-            }
-        };
-        int timeout = MaryProperties.getInteger("modules.timeout", 10000);
-        if (outputType.equals(MaryDataType.get("AUDIO"))) {
-            // This means either a lot of data (for WAVE etc.) or a lot of processing
-            // effort (for MP3), so allow for a lot of time:
-            timeout *= 5;
-        }
-        timer.schedule(timerTask, timeout);
-   
-        try {
-            outputData.writeTo(os);
-        } catch (Exception e) {
-            timer.cancel();
-            throw e;
-        }
-        
-        timer.cancel(); 
-        
-        String contextType;
-        if (outputData.getType().isXMLType() || outputData.getType().isTextType()) //text output
-            contextType = "text/plain; charset=UTF-8";
-        else //audio output
-            contextType = MaryHttpServerUtils.getMimeType(audioFileFormat.getType());
-        MaryHttpServerUtils.toHttpResponse((ByteArrayOutputStream)os, response, contextType);
-    }
 
 }

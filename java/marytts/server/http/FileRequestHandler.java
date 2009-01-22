@@ -122,6 +122,10 @@ public class FileRequestHandler extends BaseHttpRequestHandler
             contentType = "text/html; charset=UTF-8";
         else if (resourceFilename.endsWith(".wav"))
             contentType = "audio/wav";
+        else if (resourceFilename.endsWith(".m3u"))
+            contentType = "audio/x-mpegurl";
+        else if (resourceFilename.endsWith(".swf"))
+            contentType = "application/x-shockwave-flash";
         else
             contentType = "text/plain";
         if (stream!=null) {
