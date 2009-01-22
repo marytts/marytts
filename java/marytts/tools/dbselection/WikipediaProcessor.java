@@ -309,8 +309,6 @@ public class WikipediaProcessor {
         if (!wiki.readArgs(args))
             return;
         wiki.printParameters();
-        
-        DBHandler wikiToDB = new DBHandler(wiki.getLocale());
        
         filesToProcess = wiki.getWikipediaFiles(wiki.getListFile());
         filesDone = wiki.getWikipediaFiles(doneFile);
