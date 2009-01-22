@@ -192,6 +192,11 @@ public class LpcAnalyser extends FrameBasedAnalyser
     }
     
     //Computes LP smoothed spectrum from LP coefficients
+    public static double [] calcSpec(double[] alpha, int fftSize)
+    {  
+        return calcSpecLinear(alpha, 1.0f, fftSize, null);
+    }
+    
     public static double [] calcSpec(double [] alpha, int fftSize, ComplexArray expTerm)
     {  
         return calcSpecLinear(alpha, 1.0f, fftSize, expTerm);
