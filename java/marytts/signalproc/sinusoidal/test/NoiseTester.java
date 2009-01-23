@@ -34,6 +34,7 @@ import marytts.util.signal.SignalProcUtils;
  * @author Oytun T&uumlrk
  */
 public class NoiseTester extends BaseTester{
+    public static final float DEFAULT_TRANSITION_BANDWIDTH_IN_HZ = 50.0f;
     
     public NoiseTester()
     {
@@ -192,7 +193,7 @@ public class NoiseTester extends BaseTester{
         }
     }
 
-    public void init(float [][] freqs, float [] amps, float [] startTimesInSeconds, float [] endTimesInSeconds, int samplingRateInHz)
+    public void init(float[][] freqs, float [] amps, float [] startTimesInSeconds, float [] endTimesInSeconds, int samplingRateInHz)
     {
         fs = samplingRateInHz;
         signal = null;
@@ -247,7 +248,7 @@ public class NoiseTester extends BaseTester{
                 //Synthesize noise
                 for (i=0; i<freqs.length; i++)
                 {
-                    double[] noise = SignalProcUtils.getNoise(freqs[i][0], freqs[i][1], fs, endSampleIndices[i]-startSampleIndices[i]+1); 
+                    double[] noise = SignalProcUtils.getNoise(freqs[i][0], freqs[i][1], DEFAULT_TRANSITION_BANDWIDTH_IN_HZ, fs, endSampleIndices[i]-startSampleIndices[i]+1); 
                     
                     for (j=startSampleIndices[i]; j<endSampleIndices[i]; j++)
                         signal[j] += 2.0f*amps[i]*noise[j-startSampleIndices[i]];

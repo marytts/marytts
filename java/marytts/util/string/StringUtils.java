@@ -219,6 +219,21 @@ public class StringUtils {
         return strNewname;
     }
     
+    public static String getFileExtension(String strFilename, boolean isIncludeDot)
+    {
+        int lastDotIndex = strFilename.lastIndexOf('.');
+        String strExtension = "";
+        if (lastDotIndex>-1)
+        {
+            if (isIncludeDot)
+                strExtension = strFilename.substring(lastDotIndex, strFilename.length());
+            else
+                strExtension = strFilename.substring(lastDotIndex+1, strFilename.length());
+        }
+        
+        return strExtension;
+    }
+    
     
     //This version assumes that there can only be insertions and deletions but no substitutions 
     // (i.e. text based alignment with possible differences in pauses only)

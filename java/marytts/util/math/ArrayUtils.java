@@ -34,6 +34,16 @@ public class ArrayUtils
         return sub;
     }
     
+    public static float[] subarrayf(double[] orig, int off, int len)
+    {
+        if (off+len>orig.length) throw new IllegalArgumentException("requested subarray exceeds array length");
+        float[] sub = new float[len];
+        for (int i=0; i<len; i++)
+            sub[i] = (float)orig[i+off];
+
+        return sub;
+    }
+    
     //Returns true if val is at least once contained in array
     //Otherwise returns false
     public static boolean isOneOf(int[] array, int val)

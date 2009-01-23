@@ -67,20 +67,23 @@ import marytts.util.string.StringUtils;
 public class HnmAnalyzer {
     public static final int LPC = 1; //Noise part model based on LPC
     public static final int PSEUDO_HARMONIC = 2; //Noise part model based on pseude harmonics for f0=NOISE_F0_IN_HZ
+    
     public static final double NOISE_F0_IN_HZ = 100.0; //Pseudo-pitch for unvoiced portions (will be used for pseudo harmonic modelling of the noise part)
-    public static float FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST = 2000.0f;
+    public static float FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST = 0.0f;
+    public static float FIXED_MAX_FREQ_OF_NOISE_FOR_QUICK_TEST = 8000.0f;
     public static float HPF_TRANSITION_BANDWIDTH_IN_HZ = 50.0f;
     public static float NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS = 0.040f; //Fixed window size for noise analysis, should be generally large (>=0.040 seconds)
+    public static float HARMONICS_FIXED_GAIN = 0.40f;
+    public static float NOISE_FIXED_GAIN = 0.02f;
     
     public HnmAnalyzer()
     {
         
     }
     
-    public HnmSpeechSignal analyze(String wavFile, double skipSizeInSeconds, int noisePartRepresentation)
+    public HnmSpeechSignal analyze(String wavFile, float windowSizeInSeconds, float skipSizeInSeconds, int noisePartRepresentation)
     {
         HnmSpeechSignal hnmSignal = null;
-        double[] f0s = null;
         AudioInputStream inputAudio = null;
         try {
             inputAudio = AudioSystem.getAudioInputStream(new File(wavFile));
@@ -95,6 +98,7 @@ public class HnmAnalyzer {
         int fs = (int)inputAudio.getFormat().getSampleRate();
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
         double[] x = signal.getAllData();
+        x = MathUtils.multiply(x, 32768.0);
         float originalDurationInSeconds = SignalProcUtils.sample2time(x.length, fs);
         int lpOrder = SignalProcUtils.getLPOrder(fs);
         float preCoefNoise = 0.0f;
@@ -105,6 +109,9 @@ public class HnmAnalyzer {
         F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
         int pitchMarkOffset = 0;
         PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.ws, f0.header.ss, true, pitchMarkOffset);
+        
+        float[] initialF0s = ArrayUtils.subarrayf(f0.contour, 0, f0.header.numfrm);
+        //float[] initialF0s = HnmPitchVoicingAnalyzer.estimateInitialPitch(x, samplingRate, windowSizeInSeconds, skipSizeInSeconds, f0MinInHz, f0MaxInHz, windowType);
         //
         
         //Step2: Do for each frame (at 10 ms skip rate):
@@ -112,9 +119,14 @@ public class HnmAnalyzer {
         
         //2.b. If voiced, maximum frequency of voicing estimation
         //     Otherwise, maximum frequency of voicing is set to 0.0
-        float maxFreqOfVoicingInHz = HnmAnalyzer.FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST; //This should come from the above automatic analysis
+        int fftSize = 4096;
+        float[] maxFrequencyOfVoicings = HnmPitchVoicingAnalyzer.analyzeVoicings(x, fs, windowSizeInSeconds, skipSizeInSeconds, fftSize, initialF0s);
+        float maxFreqOfVoicingInHz;
+        //maxFreqOfVoicingInHz = HnmAnalyzer.FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST; //This should come from the above automatic analysis
         
         //2.c. Refined pitch estimation
+        float[] f0s = ArrayUtils.subarrayf(f0.contour, 0, f0.header.numfrm);
+        //float[] f0s = HnmPitchVoicingAnalyzer.estimateRefinedPitch(fftSize, fs, leftNeighInHz, rightNeighInHz, searchStepInHz, initialF0s, maxFrequencyOfVoicings);
         ////
         
        
@@ -123,7 +135,7 @@ public class HnmAnalyzer {
         int windowType = Window.HAMMING;
         double numPeriods = 2.0;
  
-        double f0InHz = f0.contour[0];
+        double f0InHz = f0s[0];
         int T0;
         double assumedF0ForUnvoicedInHz = 100.0;
         boolean isVoiced, isNoised;
@@ -145,7 +157,7 @@ public class HnmAnalyzer {
             wsNoise++;  
         
         Window winNoise = Window.get(windowType, wsNoise);
-        winNoise.normalizeSquaredSum(1.0f);
+        //winNoise.normalize(1.0f);
         double[] wgtSquaredNoise = winNoise.getCoeffs();
         for (j=0; j<wgtSquaredNoise.length; j++)
             wgtSquaredNoise[j] = wgtSquaredNoise[j]*wgtSquaredNoise[j];
@@ -181,7 +193,7 @@ public class HnmAnalyzer {
         int MValue;
         
         int cepsOrderHarmonic = 16;
-        int cepsOrderNoise = 16;
+        int cepsOrderNoise = 12;
         int numNoiseHarmonics = (int)Math.floor((0.5*fs)/NOISE_F0_IN_HZ+0.5);
         double[] freqsInHzNoise = new double [numNoiseHarmonics];
         for (j=0; j<numNoiseHarmonics; j++)
@@ -192,7 +204,7 @@ public class HnmAnalyzer {
         double[][] MTransWM = RegularizedCepstralEnvelopeEstimator.precomputeMTransWM(MTransW, M); 
         double[][] lambdaR = RegularizedCepstralEnvelopeEstimator.precomputeLambdaR(RegularizedCepstralEnvelopeEstimator.DEFAULT_LAMBDA, cepsOrderNoise);
         double[][] inverted = RegularizedCepstralEnvelopeEstimator.precomputeInverted(MTransWM, lambdaR);
-        
+        int maxVoicingIndex;
         for (i=0; i<totalFrm; i++)
         {  
             f0InHz = pm.f0s[i];
@@ -203,6 +215,9 @@ public class HnmAnalyzer {
             
             hnmSignal.frames[i].tAnalysisInSeconds = (float)((pm.pitchMarks[i]+0.5f*ws)/fs);  //Middle of analysis frame
             
+            maxVoicingIndex = SignalProcUtils.time2frameIndex(hnmSignal.frames[i].tAnalysisInSeconds, windowSizeInSeconds, skipSizeInSeconds);
+            maxVoicingIndex = Math.min(maxVoicingIndex, maxFrequencyOfVoicings.length-1);
+            maxFreqOfVoicingInHz = maxFrequencyOfVoicings[maxVoicingIndex];
             //if (hnmSignal.frames[i].tAnalysisInSeconds<0.7 && f0InHz>10.0)
             if (f0InHz>10.0)
                 hnmSignal.frames[i].maximumFrequencyOfVoicingInHz = maxFreqOfVoicingInHz; //Normally, this should come from analysis!!!
@@ -225,10 +240,10 @@ public class HnmAnalyzer {
             Arrays.fill(frm, 0.0);
 
             for (j=pm.pitchMarks[i]; j<Math.min(pm.pitchMarks[i]+ws-1, x.length); j++)
-                frm[j-pm.pitchMarks[i]] = x[j];
+                frm[j-pm.pitchMarks[i]] = HARMONICS_FIXED_GAIN*x[j];
             
             win = Window.get(windowType, ws);
-            win.normalizeSquaredSum(1.0f);
+            //win.normalize(1.0f);
             double[] wgtSquared = win.getCoeffs();
             for (j=0; j<wgtSquared.length; j++)
                 wgtSquared[j] = wgtSquared[j]*wgtSquared[j];
@@ -262,7 +277,7 @@ public class HnmAnalyzer {
                 if (noisePartRepresentation==LPC)
                 {
                     double origStd = MathUtils.standardDeviation(frmNoise);
-                    //frmNoise = MathUtils.multiply(frmNoise, 32768.0);
+                    frmNoise = MathUtils.multiply(frmNoise, NOISE_FIXED_GAIN);
                     
                     //We have support for preemphasis - this needs to be handled during synthesis of the noisy part with preemphasis removal
                     frmNoise = winNoise.apply(frmNoise, 0);
@@ -346,7 +361,11 @@ public class HnmAnalyzer {
                         linearAmps[j] = MathUtils.magnitudeComplex(harmonicAmps[j]);
                         freqsInHz[j] = f0InHz*(j+1);
                     }
+                    
                     hnmSignal.frames[i].h.ceps = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, fs, cepsOrderHarmonic);
+                    //Use amplitudes directly:
+                    //hnmSignal.frames[i].h.ceps = ArrayUtils.subarray(linearAmps, 0, linearAmps.length);
+                    
                     //The following is only for visualization
                     //int fftSize = 4096;
                     //double[] vocalTractDB = RegularizedCepstralEnvelopeEstimator.cepstrum2logAmpHalfSpectrum(hnmFrames[i].ceps , fftSize, fs);
@@ -523,14 +542,15 @@ public class HnmAnalyzer {
     public static void main(String[] args)
     {
         String wavFile = args[0];
-        double skipSizeInSeconds = 0.010;
+        float windowSizeInSeconds = 0.040f;
+        float skipSizeInSeconds = 0.010f;
         
         HnmAnalyzer ha = new HnmAnalyzer();
         
         //int noisePartRepresentation = HnmAnalyzer.LPC;
         int noisePartRepresentation = HnmAnalyzer.PSEUDO_HARMONIC;
         
-        HnmSpeechSignal hnmSignal = ha.analyze(wavFile, skipSizeInSeconds, noisePartRepresentation);
+        HnmSpeechSignal hnmSignal = ha.analyze(wavFile, windowSizeInSeconds, skipSizeInSeconds, noisePartRepresentation);
     }
 }
 

@@ -71,8 +71,7 @@ public class RegularizedCepstralEnvelopeEstimator
     { 
         assert linearAmps.length==freqsInHz.length;
         
-        double[] logAmps = MathUtils.log10(linearAmps);
-        double[] a = MathUtils.multiply(logAmps, 20.0);
+        double[] a = MathUtils.amp2db(linearAmps);
         int L = linearAmps.length;
         int p = cepsOrder;
         double[][] M = new double[L][p+1];

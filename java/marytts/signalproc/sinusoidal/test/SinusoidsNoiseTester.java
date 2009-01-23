@@ -60,7 +60,7 @@ public class SinusoidsNoiseTester extends BaseTester{
         {
             System.arraycopy(s.signal, 0, signal, 0, s.signal.length);
             
-            System.out.println("1: " + String.valueOf(MathUtils.getAbsMax(signal)));
+            //System.out.println("1: " + String.valueOf(MathUtils.getAbsMax(signal)));
             
             if (n.signal!=null)
             {
@@ -68,12 +68,12 @@ public class SinusoidsNoiseTester extends BaseTester{
                     signal[i] += n.signal[i];
             }
             
-            System.out.println("2: " + String.valueOf(MathUtils.getAbsMax(signal)));
+            //System.out.println("2: " + String.valueOf(MathUtils.getAbsMax(signal)));
             
             for (i=0; i<signal.length; i++)
                 signal[i] *= 0.5;
             
-            System.out.println("3: " + String.valueOf(MathUtils.getAbsMax(signal)));
+            //System.out.println("3: " + String.valueOf(MathUtils.getAbsMax(signal)));
             
             if (s.pitchMarks!=null)
             {

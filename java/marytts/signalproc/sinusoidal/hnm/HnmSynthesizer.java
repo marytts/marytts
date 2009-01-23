@@ -186,7 +186,10 @@ public class HnmSynthesizer {
 
                     //Estimate amplitude
                     if (i==0)
+                    {
                         aksis[k] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(hnmSignal.frames[i].h.ceps, (k+1)*f0InHz, hnmSignal.samplingRateInHz);
+                        //aksis[k] = hnmSignal.frames[i].h.ceps[k]; //Use amplitudes directly without cepstrum method
+                    }
                     else
                     {
                         if (isPrevVoiced)
@@ -196,7 +199,10 @@ public class HnmSynthesizer {
                     }
 
                     if (isNextVoiced && hnmSignal.frames[i+1].h.ceps!=null)
+                    {
                         aksiPlusOnes[k] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(hnmSignal.frames[i+1].h.ceps , (k+1)*f0InHzNext, hnmSignal.samplingRateInHz);
+                        //aksiPlusOnes[k] = hnmSignal.frames[i+1].h.ceps[k]; //Use amplitudes directly without cepstrum method
+                    }
                     else
                         aksiPlusOnes[k] = 0.0;
 
@@ -228,6 +234,8 @@ public class HnmSynthesizer {
             lastPeriodInSamples = SignalProcUtils.time2sample(tsiPlusOne - tsi, hnmSignal.samplingRateInHz);
         }
 
+        harmonicPart = MathUtils.divide(harmonicPart, 32768.0);
+        
         return harmonicPart;
     }
 
@@ -288,9 +296,38 @@ public class HnmSynthesizer {
             boolean isDisplay = false;
             int T0 = 0;
             int T0Next = 0;
-            //double[] noiseSource = SignalProcUtils.getNoise(2000.0f, 4000.0f, hnmSignal.samplingRateInHz, (int)(1.1*origLen)); //Pink noise full signal length, works OK
+            
+            //Noise source of full length
+            //double[] noiseSource = SignalProcUtils.getNoise(HnmAnalyzer.FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST, 0.5f*hnmSignal.samplingRateInHz, HnmAnalyzer.HPF_TRANSITION_BANDWIDTH_IN_HZ,  hnmSignal.samplingRateInHz, (int)(1.1*origLen)); //Pink noise full signal length, works OK
+            double[] noiseSourceHpf = SignalProcUtils.getNoise(HnmAnalyzer.FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST, HnmAnalyzer.FIXED_MAX_FREQ_OF_NOISE_FOR_QUICK_TEST, HnmAnalyzer.HPF_TRANSITION_BANDWIDTH_IN_HZ,  hnmSignal.samplingRateInHz, (int)(1.1*origLen)); //Pink noise full signal length, works OK
+            MathUtils.adjustMeanVariance(noiseSourceHpf, 0.0, 1.0);
+            double[] noiseSourceFull = SignalProcUtils.getWhiteNoise((int)(1.1*origLen), 1.0); //White noise full signal length, works OK
+            MathUtils.adjustMeanVariance(noiseSourceFull, 0.0, 1.0);
+            /*
+            //Write the noise source to a wav file for checking
+            AudioInputStream inputAudio = null;
+            try {
+                inputAudio = AudioSystem.getAudioInputStream(new File("d:\\hn.wav"));
+            } catch (UnsupportedAudioFileException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(noiseSource), inputAudio.getFormat());
+            try {
+                AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File("d:\\noiseSource.wav"));
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            */
+            //
+            
             for (i=0; i<hnmSignal.frames.length; i++)
             {
+                isVoiced = ((hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0f) ? true : false);
                 isNoised = ((hnmSignal.frames[i].maximumFrequencyOfVoicingInHz<0.5f*hnmSignal.samplingRateInHz) ? true : false);
                 if (i<hnmSignal.frames.length-1)
                     isNextNoised = ((hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz<0.5f*hnmSignal.samplingRateInHz) ? true : false);
@@ -353,11 +390,25 @@ public class HnmSynthesizer {
 
                 if (isNoised)
                 {
-                    x = SignalProcUtils.getWhiteNoiseOfVariance(wsNoise, 1.0); //Variance specified white noise
+                    //x = SignalProcUtils.getWhiteNoiseOfVariance(wsNoise, 1.0); //Variance specified white noise
                     //x = SignalProcUtils.getWhiteNoise(wsNoise, 0.5); //Absolute value limited white noise
                     //x = SignalProcUtils.getNoise(hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5f*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz, wsNoise); //Pink noise
                     //x = SignalProcUtils.getNoise(hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 4000.0f, hnmSignal.samplingRateInHz, wsNoise); //Pink noise
-                    //x = new double[wsNoise]; System.arraycopy(noiseSource, startIndex, x, 0, wsNoise); //Get white noise from continuous buffer
+                    
+                    if (isVoiced)
+                    {
+                        //Get pink noise from continuous buffer
+                        x = new double[wsNoise]; 
+                        System.arraycopy(noiseSourceHpf, startIndex, x, 0, wsNoise); 
+                        //
+                    }
+                    else
+                    {
+                        //Get white noise from continuous buffer
+                        x = new double[wsNoise]; 
+                        System.arraycopy(noiseSourceFull, startIndex, x, 0, wsNoise);   
+                        //
+                    }
                         
                     if (isDisplay)
                     {
@@ -483,7 +534,7 @@ public class HnmSynthesizer {
         }
         
         //We need to get rid of this normalization and make sure the noise part gain level matches the original signal without modifications
-        //noisePart = MathUtils.multiply(noisePart, 0.1/MathUtils.absMax(noisePart));
+        noisePart = MathUtils.divide(noisePart, 32768.0);
         //
         
         return noisePart;
@@ -659,7 +710,7 @@ public class HnmSynthesizer {
         }
 
         //We need to get rid of this normalization and make sure the noise part gain level matches the original signal without modifications
-        noisePart = MathUtils.divide(noisePart, MathUtils.absMax(noisePart));
+        noisePart = MathUtils.divide(noisePart, 32768.0);
         //
         
         return noisePart;
@@ -676,13 +727,14 @@ public class HnmSynthesizer {
         //
 
         //Analysis
-        double skipSizeInSeconds = 0.010;
+        float windowSizeInSeconds = 0.040f;
+        float skipSizeInSeconds = 0.010f;
 
         HnmAnalyzer ha = new HnmAnalyzer();
         int noisePartRepresentation = HnmAnalyzer.LPC;
         //int noisePartRepresentation = HnmAnalyzer.PSEUDO_HARMONIC;
 
-        HnmSpeechSignal hnmSignal = ha.analyze(wavFile, skipSizeInSeconds, noisePartRepresentation);
+        HnmSpeechSignal hnmSignal = ha.analyze(wavFile, windowSizeInSeconds, skipSizeInSeconds, noisePartRepresentation);
         //
 
         //Synthesis
@@ -693,9 +745,7 @@ public class HnmSynthesizer {
 
         HnmSynthesizer hs = new HnmSynthesizer();
         HnmSynthesizedSignal xhat = hs.syntesize(hnmSignal, tScales, tScalesTimes, pScales, pScalesTimes);
-        double gainHarmonic = 0.3;
-        double gainNoise = 1.0-gainHarmonic;
-        double[] y = SignalProcUtils.addSignals(xhat.harmonicPart, gainHarmonic, xhat.noisePart, gainNoise);
+        double[] y = SignalProcUtils.addSignals(xhat.harmonicPart, xhat.noisePart);
         //
 
         //A small test here: What if we substract y from x: In case no noise part is synthesized, this should be like a noise signal
@@ -718,6 +768,9 @@ public class HnmSynthesizer {
         outFileName = args[0].substring(0, args[0].length()-4) + "_hnmNoise.wav";
         AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
 
+        //MaryUtils.plot(xhat.harmonicPart);
+        //MaryUtils.plot(xhat.noisePart);
+        
         /*
         if (nEstimate!=null)
         {

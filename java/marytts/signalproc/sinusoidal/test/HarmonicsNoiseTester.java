@@ -24,6 +24,7 @@ import java.io.IOException;
 import marytts.signalproc.sinusoidal.Sinusoid;
 import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
+import marytts.util.string.StringUtils;
 
 /**
  * @author oytun.turk
@@ -55,8 +56,8 @@ public class HarmonicsNoiseTester extends SinusoidsNoiseTester {
         int numNoises = 1;
         float [][] freqs = new float[numNoises][];
         float [] amps = new float[numNoises];
-        float noiseStartTimeInSeconds = 0.7f;
-        float noiseEndTimeInSeconds = 1.5f;
+        float noiseStartTimeInSeconds = 0.0f;
+        float noiseEndTimeInSeconds = 1.0f;
         for (i=0; i<numNoises; i++)
             freqs[i] = new float[2];
         
@@ -67,12 +68,25 @@ public class HarmonicsNoiseTester extends SinusoidsNoiseTester {
         n = new NoiseTester(freqs, amps, noiseStartTimeInSeconds, noiseEndTimeInSeconds);
         //
         
+        String wavFile = args[0];
+        String ptcFile;
+        if (args.length>1)
+            ptcFile = args[1];
+        else
+            ptcFile = StringUtils.modifyExtension(wavFile, "ptc");
+        
+        String fileExt = StringUtils.getFileExtension(wavFile, true);
+        String harmonicsWavFile = StringUtils.getFolderName(wavFile) + StringUtils.getFileName(wavFile, true) + "_harmonicsOrig" + fileExt;
+        String noiseWavFile = StringUtils.getFolderName(wavFile) + StringUtils.getFileName(wavFile, true) + "_noiseOrig" + fileExt;
+        s.write(harmonicsWavFile);
+        n.write(noiseWavFile);
+        
         h = new HarmonicsNoiseTester(s, n);
         
         if (args.length>1)
-            h.write(args[0], args[1]);
+            h.write(wavFile, ptcFile);
         else
-            h.write(args[0]);
+            h.write(wavFile);
     }
 
 }
