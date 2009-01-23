@@ -225,7 +225,7 @@ public class SelectionFunction{
           for(int i=0; i<sel.length; i++){
             // not sure if we need to make another table???
             // str = wikiToDB.getSentence("selectedSentences", sel[i]);
-            str = wikiToDB.getSentence("dbselection", sel[i]);  
+            str = wikiToDB.getDBSelectionSentence(sel[i]);  
             //System.out.println("id=" + sel[i] + str);  
             selectedLog.println(sel[i] + " " + str);
           }
