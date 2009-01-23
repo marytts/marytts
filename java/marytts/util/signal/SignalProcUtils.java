@@ -917,12 +917,12 @@ public class SignalProcUtils {
     }
     
     //Returns samples from a white noise process. The sample amplitudes are between [-0.5,0.5]
-    public static double [] getNoise(double startFreqInHz, double endFreqInHz, int samplingRateInHz, int len)
+    public static double [] getNoise(double startFreqInHz, double endFreqInHz, double transitionBandwidthInHz, int samplingRateInHz, int len)
     {
-        return getNoise(startFreqInHz/samplingRateInHz, endFreqInHz/samplingRateInHz, len);
+        return getNoiseNormalizedFreqs(startFreqInHz/samplingRateInHz, endFreqInHz/samplingRateInHz, transitionBandwidthInHz/samplingRateInHz, len);
     }
     
-    public static double [] getNoise(double normalizedStartFreq, double normalizedEndFreq, int len)
+    public static double[] getNoiseNormalizedFreqs(double normalizedStartFreq, double normalizedEndFreq, double normalizedTransitionBandwidth, int len)
     {
         double[] noise = null;
         
@@ -935,11 +935,11 @@ public class SignalProcUtils {
             if (normalizedStartFreq!=0.0 || normalizedEndFreq!=0.5) //else --> No filtering is required
             { 
                 if (normalizedStartFreq>0.0 && normalizedEndFreq<0.5) //Bandpass
-                    f = new BandPassFilter(normalizedStartFreq, normalizedEndFreq);
+                    f = new BandPassFilter(normalizedStartFreq, normalizedEndFreq, normalizedTransitionBandwidth);
                 else if (normalizedStartFreq>0.0)
-                    f = new HighPassFilter(normalizedStartFreq);
+                    f = new HighPassFilter(normalizedStartFreq, normalizedTransitionBandwidth);
                 else if (normalizedEndFreq<0.5f)
-                    f = new LowPassFilter(normalizedEndFreq);
+                    f = new LowPassFilter(normalizedEndFreq, normalizedTransitionBandwidth);
 
                 origLen = len;
                 len += 3*f.getImpulseResponseLength(); //This is for avoiding initial zeros in the beginning of the signal
@@ -2256,6 +2256,61 @@ public class SignalProcUtils {
     {
         double[] lpSpecInDB = MathUtils.amp2db(LpcAnalyser.calcSpecLinear(alpha, lpGain, fftSize));
         MaryUtils.plot(lpSpecInDB);
+    }
+    
+    //Shifts an array by N points (to right if N is positive, to left if negative)
+    //The length of the returned array is the same as the original
+    //Additonal end points are simply replicates of values at boundaries
+    public static double[] shift(double[] x, int N)
+    {
+        if (N==0)
+            return x;
+
+        double[] y = new double[x.length];
+        int i;
+        if (N>0)
+        {
+            for (i=0; i<N; i++)
+                y[i] = x[0];
+            for (i=N; i<x.length-N; i++)
+                y[i] = x[i-N];
+        }
+        else 
+        {
+            N = -1*N;
+            for (i=0; i<x.length-N; i++)
+                y[i] = x[i+N];
+            for (i=x.length-N; i<x.length; i++)
+                y[i] = x[x.length-1];   
+        }
+        
+        return y;
+    }
+    
+    public static float[] shift(float[] x, int N)
+    {
+        if (N==0)
+            return x;
+
+        float[] y = new float[x.length];
+        int i;
+        if (N>0)
+        {
+            for (i=0; i<N; i++)
+                y[i] = x[0];
+            for (i=N; i<x.length-N; i++)
+                y[i] = x[i-N];
+        }
+        else 
+        {
+            N = -1*N;
+            for (i=0; i<x.length-N; i++)
+                y[i] = x[i+N];
+            for (i=x.length-N; i<x.length; i++)
+                y[i] = x[x.length-1];   
+        }
+        
+        return y;
     }
     
     public static void main(String[] args)

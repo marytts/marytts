@@ -3271,11 +3271,21 @@ public class MathUtils {
         adjustStandardDeviation(x, Math.sqrt(newVariance));
     }
     
+    public static void adjustMeanVariance(double[] x, double newMean, double newVariance)
+    {
+        adjustMeanStandardDeviation(x, newMean, Math.sqrt(newVariance));
+    }
+    
     public static void adjustVariance(double[] x, double newVariance, double currentMean)
     {
         adjustStandardDeviation(x, Math.sqrt(newVariance), currentMean);
     }
 
+    public static void adjustMeanStandardDeviation(double[] x, double newMean, double newStandardDeviation)
+    {
+        adjustMeanStandardDeviation(x, MathUtils.mean(x), newMean, newStandardDeviation);
+    }
+    
     public static void adjustStandardDeviation(double[] x, double newStandardDeviation)
     {
         double currentMean = mean(x);
@@ -3283,13 +3293,23 @@ public class MathUtils {
         adjustStandardDeviation(x, newStandardDeviation, currentMean);
     }
     
-    //Assigns new standard deviation while keeping the mean value of x
+    //Adjusts standard deviation while keeping the mean value of x as it is
     public static void adjustStandardDeviation(double[] x, double newStandardDeviation, double currentMean)
     {
         double currentStdDev = standardDeviation(x, currentMean);
 
         for (int i=0; i<x.length; i++)
             x[i] = ((x[i]-currentMean)*newStandardDeviation/currentStdDev) + currentMean;
+    }
+    //
+    
+    //Adjusts mean and standard deviation of x
+    public static void adjustMeanStandardDeviation(double[] x, double currentMean, double newMean, double newStandardDeviation)
+    {
+        double currentStdDev = standardDeviation(x, currentMean);
+
+        for (int i=0; i<x.length; i++)
+            x[i] = ((x[i]-currentMean)*newStandardDeviation/currentStdDev) + newMean;
     }
     //
 

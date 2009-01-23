@@ -57,12 +57,12 @@ public class HnmPitchVoicingAnalyzer {
     public static float NUM_PERIODS_AT_LEAST = 3.0f;
     
     //These are the three thresholds used in Stylianou for maximum voicing frequency estimation using the harmonic model
-    public static double CUMULATIVE_AMP_THRESHOLD = 2.0;
-    public static double MAXIMUM_AMP_THRESHOLD_IN_DB = 13.0;
-    public static double HARMONIC_DEVIATION_PERCENT = 20.0;
-    public static double SHARP_PEAK_AMP_DIFF_IN_DB = 1.0;
+    public static double CUMULATIVE_AMP_THRESHOLD = 0.8;
+    public static double MAXIMUM_AMP_THRESHOLD_IN_DB = 5.0; //Decreased ==> Voicing increases
+    public static double HARMONIC_DEVIATION_PERCENT = 40.0; //Increased ==> Voicing increases
+    public static double SHARP_PEAK_AMP_DIFF_IN_DB = 0.2; //Decreased ==> Voicing increases
     public static int MINIMUM_TOTAL_HARMONICS = 20; //At least this much total harmonics will be included in voiced spectral region (effective only when f0>10.0)
-    public static int MAXIMUM_TOTAL_HARMONICS = 50; //At most this much total harmonics will be included in voiced süpectral region (effective only when f0>10.0)
+    public static int MAXIMUM_TOTAL_HARMONICS = 60; //At most this much total harmonics will be included in voiced spectral region (effective only when f0>10.0)
     //
     
     //For voicing detection
@@ -236,7 +236,7 @@ public class HnmPitchVoicingAnalyzer {
             {
                 voicingErrors[i] = estimateVoicingFromFrameSpectrum(YAbs, samplingRate, initialF0s[i]);
 
-                if (voicingErrors[i]<-15.0)
+                if (voicingErrors[i]<-1.0)
                     isVoiced = true;
             }
             
@@ -255,6 +255,54 @@ public class HnmPitchVoicingAnalyzer {
             else
                 System.out.println("Time=" + String.valueOf(currentTime)+ " sec." + " f0=" + String.valueOf(initialF0s[i]) + " Hz." + " Unvoiced" + " MaxVFreq=" + String.valueOf(maxFrequencyOfVoicings[i]));
         }
+        
+        MaryUtils.plot(maxFrequencyOfVoicings);
+        
+        int i;
+        //Smooth with a median filter
+        int NPoints = 10;
+        maxFrequencyOfVoicings = SignalProcUtils.medianFilter(maxFrequencyOfVoicings, NPoints);
+        maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, (int)Math.floor(0.5*NPoints+0.5));
+        for (i=0; i<maxFrequencyOfVoicings.length; i++)
+        {
+            if (initialF0s[i]<10.0f)
+                maxFrequencyOfVoicings[i] = 0.0f;
+        }
+        MaryUtils.plot(maxFrequencyOfVoicings);
+        
+        //Smooth with a moving average filter
+        int MPoints = 10;
+        maxFrequencyOfVoicings = SignalProcUtils.meanFilter(maxFrequencyOfVoicings, MPoints);
+        maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, (int)Math.floor(0.5*MPoints+0.5));
+        MaryUtils.plot(maxFrequencyOfVoicings);
+        
+        //Smooth with a median filter
+        NPoints = 4;
+        maxFrequencyOfVoicings = SignalProcUtils.medianFilter(maxFrequencyOfVoicings, NPoints);
+        maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, (int)Math.floor(0.5*NPoints+0.5));
+        MaryUtils.plot(maxFrequencyOfVoicings);
+        
+        //Smooth with a moving average filter
+        MPoints = 6;
+        maxFrequencyOfVoicings = SignalProcUtils.meanFilter(maxFrequencyOfVoicings, MPoints);
+        maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, (int)Math.floor(0.5*MPoints+0.5));
+        for (i=0; i<maxFrequencyOfVoicings.length; i++)
+        {
+            if (initialF0s[i]<10.0f)
+                maxFrequencyOfVoicings[i] = 0.0f;
+        }
+        MaryUtils.plot(maxFrequencyOfVoicings);
+        
+        //Final check for voicings and number of harmonics constraints for voiced portions
+        for (i=0; i<maxFrequencyOfVoicings.length; i++)
+        {
+            if (initialF0s[i]<10.0f)
+                maxFrequencyOfVoicings[i] = 0.0f;
+            
+            if (initialF0s[i]>10.0f)
+                maxFrequencyOfVoicings[i] = MathUtils.CheckLimits(maxFrequencyOfVoicings[i], MINIMUM_TOTAL_HARMONICS*initialF0s[i], MAXIMUM_TOTAL_HARMONICS*initialF0s[i]);
+        }
+        MaryUtils.plot(maxFrequencyOfVoicings);
         
         //MaryUtils.plot(voicingErrors);
         
