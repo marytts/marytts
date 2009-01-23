@@ -758,7 +758,7 @@ public class DatabaseSelector{
           System.out.println(" Select \"y\" for marking sentence as \"wanted\" otherwise \"n\" . Press any other key to finish: \n");     
           String str;
           for(int i=0; i<sel.length; i++){
-            str = wikiToDB.getSentence("dbselection", sel[i]);  
+            str = wikiToDB.getSelectedSentence(wikiToDB.getSelectedSentencesTableName(), sel[i]);  
             System.out.print("id=" + sel[i] + ":  "+ str + "\n  Wanted?(y/n):");             
             
                 String s = br.readLine();  
@@ -804,7 +804,8 @@ public class DatabaseSelector{
      //   selectedIdSents = new ArrayList<Integer>();
         
         //int idSentenceListSelected[] = wikiToDB.getIdListOfType("dbselection", "selected");
-        int idSentenceListSelected[] = wikiToDB.getIdListOfSelectedSentences(locale, tableName, "unwanted=false");
+        int idSentenceListSelected[] = wikiToDB.getIdListOfSelectedSentences(
+                                       wikiToDB.getSelectedSentencesTableName(), "unwanted=false");
         
         
         int id;
@@ -894,7 +895,8 @@ public class DatabaseSelector{
         // read in the sentences
         //String line;
         //List sents = new ArrayList();
-        int idSentenceListUnwanted[] = wikiToDB.getIdListOfSelectedSentences(locale, tableName, "unwanted=true");
+        int idSentenceListUnwanted[] = wikiToDB.getIdListOfSelectedSentences(
+                                       wikiToDB.getSelectedSentencesTableName(), "unwanted=true");
         
         ArrayList<Integer> unwantedIdSents = new ArrayList<Integer>();
         int id;

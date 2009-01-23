@@ -126,8 +126,10 @@ public class DBHandler {
    * @param db a <code>String</code> value. The database to connect to. 
    * @param user a <code>String</code> value. Database user that has excess to the database.
    * @param passwd a <code>String</code> value. The 'secret' password. 
+   * @return true if connection was succesfull, false otherwise
    */
-  public void createDBConnection(String host, String db, String user, String passwd){
+  public boolean createDBConnection(String host, String db, String user, String passwd){
+    boolean result = false;  
     String url = "jdbc:mysql://" + host + "/" + db;
     try {
       Properties p = new Properties();
@@ -146,13 +148,14 @@ public class DBHandler {
       psSentence  = cn.prepareStatement("INSERT INTO " + dbselectionTableName + " VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?)");
       psSelectedSentence  = cn.prepareStatement("INSERT INTO " + selectedSentencesTableName + " VALUES (null, ?, ?, ?)");
       psTablesDescription = cn.prepareStatement("INSERT INTO tablesDescription VALUES (null, ?, ?, ?, ?, ?, ?, ?)");
-      
+      result = true;
       System.out.println("Mysql connection created successfully.");
+      
     } catch (Exception e) {
         System.out.println("Problems creating Mysql connection.");
         e.printStackTrace();
-        System.exit(1);
-    } 
+    }
+    return result;
   }
   
   /***
@@ -818,8 +821,7 @@ public class DBHandler {
    * 
    * @return true if TABLE=tableName exist.
    */
-  public boolean tableExist(String tableName) {
-      // If database does not exist create it, if it exists delete it and create an empty one.      
+  public boolean tableExist(String tableName) {   
       System.out.println("  Checking if the TABLE=" + tableName + " exist.");
       try {
           rs = st.executeQuery("SHOW TABLES;");
@@ -1119,17 +1121,18 @@ public class DBHandler {
   }
   
   /***
-   * Get a list of id's from a selected sentences table which actual name = "lang_tableName_selectedSentences".
+   * Get a list of id's from a selected sentences table.<br>
+   * NOTE: use the actual table name: local + tableName + selectedsentences
    * @param lang language locale of the table
-   * @param tableName name of the selected sentences table
+   * @param actualTableName = locale_tableName_selectedSentences
    * @param condition unwanted=true/false
    * @return
    */
-  public int[] getIdListOfSelectedSentences(String lang, String tableName, String condition) {
+  public int[] getIdListOfSelectedSentences(String actualTableName, String condition) {
       int num, i, j;
       int idSet[]=null;
       String getNum, getIds;
-      String actualTableName = lang + "_" + tableName + "_selectedSentences";
+      //String actualTableName = lang + "_" + tableName + "_selectedSentences";
          
       getNum =  "SELECT count(dbselection_id) FROM " + actualTableName + " where " + condition + ";";
       getIds =  "SELECT dbselection_id FROM " + actualTableName + " where " + condition + ";";
@@ -1321,13 +1324,35 @@ public class DBHandler {
   }
   
   /***
-   * Get a sentence from dbselection table or selectedSentences table
-   * @param table dbselection, selectedSenteces (no need to add locale)
+   * Get a sentence from a locale_dbselection table.
+   * @param table dbselection (no need to add locale)
    * @return String sentence
    */
-  public String getSentence(String table, int id) {
+  public String getDBSelectionSentence(int id) {
       String sentence="";
-      String dbQuery = "Select sentence FROM " + locale + "_" + table + " WHERE id=" + id;
+      String dbQuery = "Select sentence FROM " + dbselectionTableName + " WHERE id=" + id;
+      byte[] sentenceBytes=null;
+      
+      sentenceBytes = queryTableByte(dbQuery); 
+      try {
+        sentence = new String(sentenceBytes, "UTF8");
+        //System.out.println("  TEXT: " + text);
+      } catch (Exception e) {  // UnsupportedEncodedException
+           e.printStackTrace();
+      } 
+      
+      return sentence;      
+  }
+  
+  /**
+   * Get a 
+   * @param tableName
+   * @param id
+   * @return
+   */
+  public String getSelectedSentence(String tableName, int id) {
+      String sentence="";
+      String dbQuery = "Select sentence FROM " + tableName + " WHERE dbselection_id=" + id;
       byte[] sentenceBytes=null;
       
       sentenceBytes = queryTableByte(dbQuery); 
@@ -1428,6 +1453,25 @@ public class DBHandler {
     updateTable("UPDATE " + dbselectionTableName + " SET " + field + "=" + bval + " WHERE id=" + id);  
       
   }
+  /***
+   * This function updates the unwanted field as true/false of dbselection TABLE and 
+   * selectedSentencesTable TABLE. <br>
+   * NOTE: use the actual table name: local + tableName + selectedsentences
+   * @param actualTableName including local and _selectedSentences 
+   * @param id id in dbselection table
+   * @param fieldValue true/false
+   */
+  public void setUnwantedSentenceRecord(String actualTableName, int id, boolean fieldValue){
+      String bval;  
+      if(fieldValue)
+        bval = "true";
+      else
+        bval = "false";   
+          
+      updateTable("UPDATE " + actualTableName + " SET unwanted=" + bval + " WHERE dbselection_id=" + id);
+      updateTable("UPDATE " + dbselectionTableName + " SET unwanted=" + bval + " WHERE id=" + id);  
+        
+    }
   
   /***
    * Set a description for table = name, it checks if the table tablesDescription exist, if 
