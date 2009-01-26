@@ -69,7 +69,7 @@ public class HnmAnalyzer {
     public static final int PSEUDO_HARMONIC = 2; //Noise part model based on pseude harmonics for f0=NOISE_F0_IN_HZ
     
     public static final double NOISE_F0_IN_HZ = 100.0; //Pseudo-pitch for unvoiced portions (will be used for pseudo harmonic modelling of the noise part)
-    public static float FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST = 0.0f;
+    public static float FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST = 3500.0f;
     public static float FIXED_MAX_FREQ_OF_NOISE_FOR_QUICK_TEST = 8000.0f;
     public static float HPF_TRANSITION_BANDWIDTH_IN_HZ = 50.0f;
     public static float NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS = 0.040f; //Fixed window size for noise analysis, should be generally large (>=0.040 seconds)

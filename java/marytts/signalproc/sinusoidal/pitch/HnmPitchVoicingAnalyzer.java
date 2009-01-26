@@ -300,7 +300,10 @@ public class HnmPitchVoicingAnalyzer {
                 maxFrequencyOfVoicings[i] = 0.0f;
             
             if (initialF0s[i]>10.0f)
+            {
                 maxFrequencyOfVoicings[i] = MathUtils.CheckLimits(maxFrequencyOfVoicings[i], MINIMUM_TOTAL_HARMONICS*initialF0s[i], MAXIMUM_TOTAL_HARMONICS*initialF0s[i]);
+                maxFrequencyOfVoicings[i] = MathUtils.CheckLimits(maxFrequencyOfVoicings[i], 0.0f, 0.5f*samplingRate);
+            }
         }
         MaryUtils.plot(maxFrequencyOfVoicings);
         
