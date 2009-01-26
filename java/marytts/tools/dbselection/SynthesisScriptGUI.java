@@ -46,7 +46,7 @@ import java.io.PrintWriter;
  */
 public class SynthesisScriptGUI extends JPanel implements TableModelListener{
  
-    String colNames[] = {"Unwanted", "No.", "Sentence"};
+    String colNames[] = {"Unwanted", "No.", "Selected Sentences"};
     Object[][] data = null;
     DefaultTableModel dtm;
     private static JTextArea output;
@@ -504,14 +504,18 @@ public class SynthesisScriptGUI extends JPanel implements TableModelListener{
                   output.setCaretPosition(output.getDocument().getLength());
                   DatabaseSelector.main(argsSelector);
                   loadTable(); 
+                  //int sel[] = wikiToDB.getIdListOfType("selectedSentences", null);
+                  // not sure if we need to make another table???
                 } catch (Exception ex){
-                    ex.printStackTrace();
+                    //ex.printStackTrace();
                     output.append("\nERROR RUNNING: DatabaseSelector, please check the parameters. \n");
                     output.append(ex.getMessage() + "\n");
                     output.setCaretPosition(output.getDocument().getLength());
                 }
                 // once read the parameters close the window 
                 f.dispose();
+                //int sel[] = wikiToDB.getIdListOfType("selectedSentences", null);
+                // not sure if we need to make another table???
                
             }
         });

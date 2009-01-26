@@ -390,9 +390,11 @@ public class DBHandler {
             // if creating a new table then the set the fields selected=false and unwanted=false
             // in dbselection table
             System.out.println("  TABLE = " + selectedSentencesTableName + " does not exist, creating a new table and ");
-            System.out.println("  Initialising fields selected=false and unwanted=false in TABLE = " + dbselectionTableName);
+            //System.out.println("  Initialising fields selected=false and unwanted=false in TABLE = " + dbselectionTableName);
+            System.out.println("  Initialising fields selected=false in TABLE = " + dbselectionTableName + 
+                                  " (Previously selected sentences marked as unwanted will be kept)" );
             updateTable("UPDATE " + dbselectionTableName + " SET selected=false;"); 
-            updateTable("UPDATE " + dbselectionTableName + " SET unwanted=false;");  
+            //updateTable("UPDATE " + dbselectionTableName + " SET unwanted=false;");  
             boolean res = st.execute( selected );
             System.out.println("  TABLE = " + selectedSentencesTableName + " succesfully created.");
             
