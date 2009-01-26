@@ -153,15 +153,18 @@ public class DatabaseSelector{
                 
         System.out.println("Reading arguments ...");
         StringBuffer logBuf = new StringBuffer();
-        if (!readArgs(args,logBuf))
-            return null;
+        if (!readArgs(args,logBuf)){
+            throw new Exception("Something wrong with the arguments.");
+            //return null;
+        }
 
         //make sure the stop criterion is allright
         SelectionFunction selFunc = new SelectionFunction();
         if (!selFunc.stopIsOkay(stopCriterion)){
-            System.out.println("Stop criterion format is wrong");
+            System.out.println("Stop criterion format is wrong.");
             printUsage();
-            return null;
+            throw new Exception("Stop criterion format is wrong.");
+            //return null;
         }
 
         //make various dirs
@@ -178,7 +181,7 @@ public class DatabaseSelector{
             logOut = new PrintWriter(new BufferedWriter(new FileWriter(new File(filename))),true);
         } catch (Exception e){
             e.printStackTrace();
-            throw new Error("Error opening logfile");
+            throw new Exception("Error opening logfile");
         }
         //print date and arguments to log file
         logOut.println("Date: "+dateString);
@@ -191,8 +194,9 @@ public class DatabaseSelector{
           wikiToDB.setSelectedSentencesTableName(selectedSentencesTableName);
         else
           System.out.println("Current selected sentences table name = " + selectedSentencesTableName);
-              
-        wikiToDB.createDBConnection(mysqlHost,mysqlDB,mysqlUser,mysqlPasswd);
+        
+        // If connection succeed
+        if(wikiToDB.createDBConnection(mysqlHost,mysqlDB,mysqlUser,mysqlPasswd)) {
         
         
         /* Load the filenames */   
@@ -201,7 +205,8 @@ public class DatabaseSelector{
 
         /* Read in the feature definition */
         System.out.println("\nLoading feature definition...");
-        BufferedReader uttFeats = new BufferedReader(new InputStreamReader(new FileInputStream(new File( featDefFileName )), "UTF-8"));
+        BufferedReader uttFeats = new BufferedReader(new InputStreamReader(
+                                  new FileInputStream(new File( featDefFileName )), "UTF-8"));
         featDef = new FeatureDefinition(uttFeats, false);  
         uttFeats.close();
 
@@ -276,7 +281,7 @@ public class DatabaseSelector{
                 covDef.printTextCorpusStatistics(filename);
             } catch (Exception e){
                 e.printStackTrace();
-                throw new Error("Error printing statistics");
+                throw new Exception("Error printing statistics");
             }
         }
 
@@ -302,7 +307,7 @@ public class DatabaseSelector{
             covDef.printSelectionDistribution(disFile,devFile,logCovDevelopment);
         } catch (Exception e){
             e.printStackTrace();
-            throw new Error("Error printing statistics");
+            throw new Exception("Error printing statistics");
         }
 
         if (overallLogFile != null){
@@ -330,9 +335,15 @@ public class DatabaseSelector{
  //       checkSelectedSentences();
  //       wikiToDB.getTableDescription(wikiToDB.getSelectedSentencesTableName());
         
-        wikiToDB.closeDBConnection();    
+        wikiToDB.closeDBConnection(); 
+        System.out.println("All done!");  
+        
+        } else { // connection did not succeed
+            System.out.println("\nERROR: Problems with connection to the DB, please check the mysql parameters.");
+            throw new Exception("ERROR: Problems with connection to the DB, please check the mysql parameters.");
+        }
 
-        System.out.println("All done!");   
+         
         return vectorArray;
     }
 

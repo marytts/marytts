@@ -728,6 +728,10 @@ public class DBHandler {
       } 
   }
 
+  /***
+   * check if tables: locale_text, locale_page and locale_revision exist.
+   * @return
+   */ 
   public boolean checkWikipediaTables() {
       // wiki must be already created
       
@@ -822,7 +826,7 @@ public class DBHandler {
    * @return true if TABLE=tableName exist.
    */
   public boolean tableExist(String tableName) {   
-      System.out.println("  Checking if the TABLE=" + tableName + " exist.");
+      //System.out.println("  Checking if the TABLE=" + tableName + " exist.");
       try {
           rs = st.executeQuery("SHOW TABLES;");
       } catch (Exception e) {
@@ -876,8 +880,6 @@ public class DBHandler {
   
   /***
    * This function will select just the unprocessed cleanText records.
-   * @param field
-   * @param table
    * @return
    */
   public String[] getUnprocessedTextIds() {
@@ -906,6 +908,25 @@ public class DBHandler {
       return idSet;
   }
   
+  /***
+   * Get the list of tables for this locale
+   * @return ArrayList<String>
+   */
+  public ArrayList<String> getListOfTables() {
+      ArrayList<String> tablesList = new ArrayList<String>();
+      try {
+          rs = st.executeQuery("show tables like '" + locale + "%';"); 
+      } catch (Exception e) {
+          e.printStackTrace();
+      }
+      try { 
+          while( rs.next() )
+            tablesList.add(rs.getString(1));            
+      } catch (SQLException e) {
+          e.printStackTrace();
+      }      
+      return tablesList;
+  }
   
   public void setDBTable(String table){
     currentTable = table;
