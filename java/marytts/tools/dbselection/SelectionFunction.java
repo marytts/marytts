@@ -139,7 +139,7 @@ public class SelectionFunction{
     * which is defined by the coverageDefinition. Stop, when 
     * the stop criterion is reached
     * 
-    * @param selectedFilenames the list of selected filenames
+    * @param selectedIdSents the list of selected id sentences
     * @param coverageDefinition the coverage definition for the feature vectors
     * @param logFile the logFile to document the progress
     * @param basenameList the list of filenames of the sentences
@@ -148,16 +148,8 @@ public class SelectionFunction{
     * @param verbose print output also to command line
     * @return the list of selected filenames
     * @throws IOException
-    */
-  /*  
-    public void select(List selectedFilenames,
-            CoverageDefinition coverageDefinition,
-            PrintWriter logFile,
-            String[] basenameList,
-            boolean holdVectorsInMemory,
-            boolean verbose)throws IOException{
-    */    
-    public void select(List <Integer>selectedFilenames,
+    */ 
+    public void select(List <Integer>selectedIdSents,
                 CoverageDefinition coverageDefinition,
                 PrintWriter logFile,
                 int[] idSentenceList,
@@ -172,15 +164,12 @@ public class SelectionFunction{
             vectorArray = coverageDefinition.getVectorArray();
         }
         byte[][] featVects = null;
-        int sentIndex = selectedFilenames.size()+1;
+        int sentIndex = selectedIdSents.size()+1;
         selectedVectors = null;
                 
         // create the selectedSentences table 
-        // CHECK if there is an old table it should be deleted? 
-        //wikiToDB.createSelectedSentencesTable();
-        
         // while the stop criterion is not reached      
-        while(!stopCriterionIsReached(selectedFilenames, coverageDefinition)){ 
+        while(!stopCriterionIsReached(selectedIdSents, coverageDefinition)){ 
             
             //select the next sentence  
             //selectNext(coverageDefinition, logFile, sentIndex, basenameList, vectorArray);
@@ -195,13 +184,15 @@ public class SelectionFunction{
                 break;
             }
             // the selected sentences will be marked as selected=true in the DB
-            System.out.println("  " + sentIndex + " selectedId=" + selectedIdSentence);           
+            System.out.println("  " + sentIndex + " selectedId=" + selectedIdSentence); 
+            // Mark the sentence as selected in dbselection
             wikiToDB.setSentenceRecord(selectedIdSentence, "selected", true);
+            // Insert selected sentence in table
             wikiToDB.insertSelectedSentence(selectedIdSentence, false);
 
             //add the selected sentence to the set
             //selectedFilenames.add(selectedBasename);
-            selectedFilenames.add(selectedIdSentence);
+            selectedIdSents.add(selectedIdSentence);
             //update coverageDefinition         
             coverageDefinition.updateCover(selectedVectors);
             sentIndex++;
@@ -212,8 +203,6 @@ public class SelectionFunction{
                 + " = " + sentIndex);
         
         
-        //int sel[] = wikiToDB.getIdListOfType("selectedSentences", null);
-        // not sure if we need to make another table???
         int sel[] = wikiToDB.getIdListOfType("dbselection", "selected=true and unwanted=false");
         
         if( sel != null){
@@ -249,13 +238,6 @@ public class SelectionFunction{
      *                    if the vectors are on disk
      * @throws IOException
      */
-    /*
-    private void selectNext(CoverageDefinition coverageDefinition,
-            PrintWriter logFile,
-            int sentenceIndex,
-            String[] basenameList,
-            byte[][] vectorArray)throws IOException{
-    */
     private void selectNext(CoverageDefinition coverageDefinition,
                 PrintWriter logFile,
                 int sentenceIndex,

@@ -178,7 +178,7 @@ public class CoverageDefinition{
      * @param readConfigFile if true, read the config file,
      *                       else use default values
      * @param featDef the feature definition for the vectors
-     * @param configFile the config file name
+     * @param configFile the coverage config file name
      * @param holdVectorsInMemory if true, vectors are stored in memory
      */
     public CoverageDefinition(FeatureDefinition featDef,
@@ -267,12 +267,12 @@ public class CoverageDefinition{
                 }
             }
             if (numparams<6){
-                throw new Exception("Error reading config file: there are only "
+                throw new Exception("Error reading coverage Definition Config File: " + configFile + " there are only "
                         +numparams+" instead of 6 settings");
             }
         } catch (Exception e){
             e.printStackTrace();
-            throw new Exception("Could not read config file");
+            throw new Exception("Could not read coverage Definition Config File: " + configFile);
         } 
 
     }
