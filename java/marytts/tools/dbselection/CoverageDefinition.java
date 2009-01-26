@@ -184,7 +184,7 @@ public class CoverageDefinition{
     public CoverageDefinition(FeatureDefinition featDef,
             String configFile,
             boolean holdVectorsInMemory,
-            byte[][] vectorArray){
+            byte[][] vectorArray) throws Exception{
         this.holdVectorsInMemory = holdVectorsInMemory;
         this.vectorArray = vectorArray;
         if (vectorArray == null){
@@ -267,12 +267,12 @@ public class CoverageDefinition{
                 }
             }
             if (numparams<6){
-                throw new Error("Error reading config file: there are only "
+                throw new Exception("Error reading config file: there are only "
                         +numparams+" instead of 6 settings");
             }
         } catch (Exception e){
             e.printStackTrace();
-            throw new Error("Could not read config file");
+            throw new Exception("Could not read config file");
         } 
 
     }
