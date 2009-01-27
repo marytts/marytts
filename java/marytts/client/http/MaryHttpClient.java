@@ -162,11 +162,13 @@ public class MaryHttpClient
         try {
             fillServerVersion();
         } catch (IOException e1) {
-            throw new IOException("MARY client cannot connect to MARY server at\n"+
+            IOException ioe = new IOException("MARY client cannot connect to MARY server at\n"+
                     data.hostAddress.getFullAddress()+"\n"+
                     "Make sure that you have started the mary server\n"+
                     "or specify a different host or port using \n"+
-            "maryclient -Dserver.host=my.host.com -Dserver.port=12345", e1);
+            "maryclient -Dserver.host=my.host.com -Dserver.port=12345");
+            ioe.initCause(e1);
+            throw ioe;
         }
         
         if (!beQuiet) 
