@@ -120,7 +120,9 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
                 featureList = PHONEFEATURE + " " + featureList;
             }
         } catch (IOException e) {
-            throw new IOException("Cannot read list of features", e);
+            IOException ioe = new IOException("Cannot read list of features");
+            ioe.initCause(e);
+            throw ioe;
         }
 
         maryInputType = "ALLOPHONES";

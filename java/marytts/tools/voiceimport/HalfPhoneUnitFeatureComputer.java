@@ -87,7 +87,9 @@ public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer
 
             }
         } catch (IOException e) {
-            throw new IOException("Cannot read feature list", e);
+            IOException ioe = new IOException("Cannot read feature list");
+            ioe.initCause(e);
+            throw ioe;
         }
         maryInputType  = "ALLOPHONES";
         maryOutputType = "HALFPHONE_TARGETFEATURES";
