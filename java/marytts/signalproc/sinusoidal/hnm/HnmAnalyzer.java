@@ -192,7 +192,7 @@ public class HnmAnalyzer {
         double[] dPhasesPrev = null;
         int MValue;
         
-        int cepsOrderHarmonic = 16;
+        int cepsOrderHarmonic = 24;
         int cepsOrderNoise = 12;
         int numNoiseHarmonics = (int)Math.floor((0.5*fs)/NOISE_F0_IN_HZ+0.5);
         double[] freqsInHzNoise = new double [numNoiseHarmonics];

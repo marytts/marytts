@@ -63,6 +63,8 @@ public class HnmPitchVoicingAnalyzer {
     public static double SHARP_PEAK_AMP_DIFF_IN_DB = 0.2; //Decreased ==> Voicing increases
     public static int MINIMUM_TOTAL_HARMONICS = 20; //At least this much total harmonics will be included in voiced spectral region (effective only when f0>10.0)
     public static int MAXIMUM_TOTAL_HARMONICS = 60; //At most this much total harmonics will be included in voiced spectral region (effective only when f0>10.0)
+    public static float MINIMUM_VOICED_FREQUENCY_OF_VOICING = 5000.0f; //All voiced sections will have at least this freq. of voicing
+    public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 5000.0f; //All voiced sections will have at least this freq. of voicing
     //
     
     //For voicing detection
@@ -256,8 +258,6 @@ public class HnmPitchVoicingAnalyzer {
                 System.out.println("Time=" + String.valueOf(currentTime)+ " sec." + " f0=" + String.valueOf(initialF0s[i]) + " Hz." + " Unvoiced" + " MaxVFreq=" + String.valueOf(maxFrequencyOfVoicings[i]));
         }
         
-        MaryUtils.plot(maxFrequencyOfVoicings);
-        
         int i;
         //Smooth with a median filter
         int NPoints = 10;
@@ -268,19 +268,16 @@ public class HnmPitchVoicingAnalyzer {
             if (initialF0s[i]<10.0f)
                 maxFrequencyOfVoicings[i] = 0.0f;
         }
-        MaryUtils.plot(maxFrequencyOfVoicings);
         
         //Smooth with a moving average filter
         int MPoints = 10;
         maxFrequencyOfVoicings = SignalProcUtils.meanFilter(maxFrequencyOfVoicings, MPoints);
         maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, (int)Math.floor(0.5*MPoints+0.5));
-        MaryUtils.plot(maxFrequencyOfVoicings);
-        
+    
         //Smooth with a median filter
         NPoints = 4;
         maxFrequencyOfVoicings = SignalProcUtils.medianFilter(maxFrequencyOfVoicings, NPoints);
         maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, (int)Math.floor(0.5*NPoints+0.5));
-        MaryUtils.plot(maxFrequencyOfVoicings);
         
         //Smooth with a moving average filter
         MPoints = 6;
@@ -291,8 +288,7 @@ public class HnmPitchVoicingAnalyzer {
             if (initialF0s[i]<10.0f)
                 maxFrequencyOfVoicings[i] = 0.0f;
         }
-        MaryUtils.plot(maxFrequencyOfVoicings);
-        
+
         //Final check for voicings and number of harmonics constraints for voiced portions
         for (i=0; i<maxFrequencyOfVoicings.length; i++)
         {
@@ -302,6 +298,7 @@ public class HnmPitchVoicingAnalyzer {
             if (initialF0s[i]>10.0f)
             {
                 maxFrequencyOfVoicings[i] = MathUtils.CheckLimits(maxFrequencyOfVoicings[i], MINIMUM_TOTAL_HARMONICS*initialF0s[i], MAXIMUM_TOTAL_HARMONICS*initialF0s[i]);
+                maxFrequencyOfVoicings[i] = MathUtils.CheckLimits(maxFrequencyOfVoicings[i], MINIMUM_VOICED_FREQUENCY_OF_VOICING, MAXIMUM_VOICED_FREQUENCY_OF_VOICING);   
                 maxFrequencyOfVoicings[i] = MathUtils.CheckLimits(maxFrequencyOfVoicings[i], 0.0f, 0.5f*samplingRate);
             }
         }
@@ -484,7 +481,11 @@ public class HnmPitchVoicingAnalyzer {
             output.maxFreqOfVoicing = 0.0f;
        
         if (isVoiced)
-            output.maxFreqOfVoicing = MathUtils.CheckLimits(output.maxFreqOfVoicing, (float)(MINIMUM_TOTAL_HARMONICS*f0), (float)(MAXIMUM_TOTAL_HARMONICS*f0)); //From hnm with some limiting depending on f0
+        {
+            output.maxFreqOfVoicing = MathUtils.CheckLimits(output.maxFreqOfVoicing, MINIMUM_TOTAL_HARMONICS*f0, MAXIMUM_TOTAL_HARMONICS*f0);
+            output.maxFreqOfVoicing = MathUtils.CheckLimits(output.maxFreqOfVoicing, MINIMUM_VOICED_FREQUENCY_OF_VOICING, MAXIMUM_VOICED_FREQUENCY_OF_VOICING);   
+            output.maxFreqOfVoicing = MathUtils.CheckLimits(output.maxFreqOfVoicing, 0.0f, 0.5f*samplingRate);
+        }
         else
             output.maxFreqOfVoicing = 0.0f; //Meaning the spectrum is completely unvoiced
         
