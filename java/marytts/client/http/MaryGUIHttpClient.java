@@ -1256,7 +1256,7 @@ public class MaryGUIHttpClient extends JPanel
                         outputType.name(),
                         locale,
                         null,
-                        locale,
+                        voiceName,
                         "",
                         getAudioEffectsMap(),
                         null,
@@ -1339,10 +1339,8 @@ public class MaryGUIHttpClient extends JPanel
                 //System.err.println("Output Word nr. " + i + ": [" + outputWords[i] + "], indexes " + outputIndex[i] + "-" + (outputIndex[i]+outputWords[i].length()) + "[" + output.substring(outputIndex[i], outputIndex[i]+outputWords[i].length()) + "]");
             }
             outputIndex[outputWords.length] = total;
-            List diffs = new Diff(inputWords, outputWords).diff();
-            Iterator it = diffs.iterator();
-            while (it.hasNext()) {
-                Difference diff = (Difference)it.next();
+            List<Difference> diffs = new Diff(inputWords, outputWords).diff();
+            for (Difference diff : diffs) {
                 int delStart = diff.getDeletedStart();
                 int delEnd = diff.getDeletedEnd();
                 int addStart = diff.getAddedStart();
