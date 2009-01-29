@@ -1107,36 +1107,56 @@ public class DBHandler {
   public int[] getIdListOfType(String table, String condition) {
       int num, i, j;
       int idSet[]=null;
-      String getNum, getIds;
+      int maxNum=1000000;
+      String getNum, getIds, getIdsShort;
       
       if(condition!=null){
         getNum =  "SELECT count(id) FROM " + locale + "_" + table + " where " + condition + ";";
-        getIds =  "SELECT id FROM " + locale + "_" + table +  " where " + condition + ";";
+        getIds =  "SELECT id FROM " + locale + "_" + table +  " where " + condition;
       } else {
         getNum =  "SELECT count(id) FROM " + locale + "_" + table + ";";
-        getIds =  "SELECT id FROM " + locale + "_" + table + ";";
+        getIds =  "SELECT id FROM " + locale + "_" + table;
       }
       
       String str = queryTable(getNum);
       num = Integer.parseInt(str);
-      
+      System.out.println("num = " + num);
       if(num>0) { 
         idSet = new int[num];
-          
-        try {
-          rs = st.executeQuery(getIds); 
-        } catch (Exception e) {
-          e.printStackTrace();
-        }
-        try { 
-          i=0;
-          while( rs.next() ) {
-            idSet[i] = rs.getInt(1);
-            i++;
+        i=0;
+        if(num > maxNum) {
+          for(j=0; j<num; j+=maxNum){
+            try {
+              getIdsShort = getIds + " limit " + (j+1) + "," + maxNum;
+              //System.out.println("getIdsShort=" + getIdsShort);
+              
+              rs = st.executeQuery(getIdsShort); 
+              
+              while( rs.next() ) {
+                idSet[i] = rs.getInt(1);
+                i++;
+              }
+              System.out.println("  Num of ids retrieved = " + i);
+              rs.close();
+              
+            } catch (SQLException e) {
+              e.printStackTrace();
+            }
           }
-        } catch (SQLException e) {
-          e.printStackTrace();
-        } 
+        } else { // if num < maxNum
+            try {
+                
+                rs = st.executeQuery(getIds); 
+                
+                while( rs.next() ) {
+                  idSet[i] = rs.getInt(1);
+                  i++;
+                }
+              } catch (SQLException e) {
+                e.printStackTrace();
+              }  
+        }
+        
       } else
         System.out.println("WARNING empty list for: " + getIds);  
       

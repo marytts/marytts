@@ -119,12 +119,12 @@ public class DatabaseSelector{
         PrintWriter logOut;
         
         String dateString = "", dateDir = "";
-        DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
+     /*   DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss");
         DateFormat day = new SimpleDateFormat("dd_MM_yyyy");
         Date date = new Date();
         dateString = fullDate.format(date);
         dateDir = day.format(date);
-                
+      */          
         System.out.println("Reading arguments ...");
         StringBuffer logBuf = new StringBuffer();
         if (!readArgs(args,logBuf)){
