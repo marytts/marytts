@@ -346,12 +346,14 @@ public class CoverageDefinition{
         //build Cover
         buildCover();
         
-        numSentences = wikiToDB.getNumberOfReliableSentences();
+        System.out.println("Getting a list of ids for all the sentences in the DB, if the number of sentences\n" +
+                " is big it can take a while...\n");
+        //numSentences = wikiToDB.getNumberOfReliableSentences();
         int idSentenceList[] = wikiToDB.getIdListOfType("dbselection","reliable=true");
-        
+        numSentences = idSentenceList.length;
         
         // here the String[] basenames is created with the number of reliable sentences in the DB
-        String[] basenames = new String[numSentences];
+        //String[] basenames1111 = new String[numSentences];
 
         //numSentences = basenames.length;
         trueNumSentences = numSentences;
