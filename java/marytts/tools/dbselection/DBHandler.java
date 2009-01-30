@@ -65,6 +65,7 @@ public class DBHandler {
   private PreparedStatement psWord = null;
   private PreparedStatement psCleanText = null;
   private PreparedStatement psTablesDescription = null;
+  private PreparedStatement psFeatures = null;
  
   private String cleanTextTableName = "_cleanText";
   private String wordListTableName = "_wordList";
@@ -148,6 +149,7 @@ public class DBHandler {
       psSentence  = cn.prepareStatement("INSERT INTO " + dbselectionTableName + " VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?)");
       psSelectedSentence  = cn.prepareStatement("INSERT INTO " + selectedSentencesTableName + " VALUES (null, ?, ?, ?)");
       psTablesDescription = cn.prepareStatement("INSERT INTO tablesDescription VALUES (null, ?, ?, ?, ?, ?, ?, ?)");
+      psFeatures = cn.prepareStatement("SELECT features FROM " + dbselectionTableName + " WHERE id=?");
       result = true;
       System.out.println("Mysql connection created successfully.");
       
@@ -1710,13 +1712,34 @@ public class DBHandler {
       
   }
 
-  public byte[] getFeatures(int id)
+  public byte[] getFeaturesOld(int id)
   {
       byte[] fea = null;
       String dbQuery = "Select features FROM " + dbselectionTableName + " WHERE id=" + id;
       //System.out.println("querying: " + dbQuery);
       try {
           rs = st.executeQuery( dbQuery );
+      } catch (Exception e) {
+          e.printStackTrace();
+      } 
+
+      try {   
+          while( rs.next() ) {
+              fea = rs.getBytes(1);
+          }
+      } catch (SQLException e) {
+          e.printStackTrace();
+      } 
+      return fea;
+      
+  }
+  
+  public byte[] getFeatures(int id)
+  {
+      byte[] fea = null;
+      try {
+          psFeatures.setInt(1, id);  
+          rs = psFeatures.executeQuery();
       } catch (Exception e) {
           e.printStackTrace();
       } 
