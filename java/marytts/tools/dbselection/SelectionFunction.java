@@ -24,6 +24,9 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -165,8 +168,9 @@ public class SelectionFunction{
         }
         byte[][] featVects = null;
         int sentIndex = selectedIdSents.size()+1;
-        selectedVectors = null;
-                
+        selectedVectors = null;  
+        DateFormat fullDate = new SimpleDateFormat("HH_mm_ss");
+       
         // create the selectedSentences table 
         // while the stop criterion is not reached      
         while(!stopCriterionIsReached(selectedIdSents, coverageDefinition)){ 
@@ -184,7 +188,9 @@ public class SelectionFunction{
                 break;
             }
             // the selected sentences will be marked as selected=true in the DB
-            System.out.println("  " + sentIndex + " selectedId=" + selectedIdSentence); 
+            Date date = new Date();
+            System.out.println("  " + sentIndex + " selectedId=" + selectedIdSentence + "  " 
+                    + fullDate.format(date)); 
             // Mark the sentence as selected in dbselection
             wikiToDB.setSentenceRecord(selectedIdSentence, "selected", true);
             // Insert selected sentence in table
@@ -245,51 +251,71 @@ public class SelectionFunction{
                 byte[][] vectorArray,
                 DBHandler wikiToDB)throws IOException{
              
-        
-        //selectedBasename = null;
         selectedIdSentence = -1;
         double highestUsefulness = -1;
         int selectedSentenceIndex = 0;
         int numSentsInBasenames = 0;
+       
         
-        
+        int i, j, k, n, maxNum=1000;
+        byte[][] tmpVectorArray;
         int id;
-        //loop over the filenames
-        //for (int i=0;i<basenameList.length;i++){
-        for (int i=0;i<idSentenceList.length;i++){
+        //loop over the ids
+        if( vectorArray != null) {  // so the vectors are in memory
+          for (i=0;i<idSentenceList.length;i++){
             id = idSentenceList[i];
-            
-            //String nextBasename = basenameList[i];           
+        
             //if the next sentence was already selected, continue
-            //if (nextBasename == null) continue;
+            // the ids = -1 correspond to sentences already selected
             if (id < 0) continue;
             
             numSentsInBasenames++;
             //get the next feature vector
-            byte[] nextFeatVects;
-            if (vectorArray != null){
-                nextFeatVects = vectorArray[i];
-            } else {
-                //nextFeatVects = getNextFeatureVectors(nextBasename);
-                nextFeatVects = wikiToDB.getFeatures(id); 
-            }
+            byte[] nextFeatVects = vectorArray[i];
+           
             //calculate how useful the feature vectors are
             double usefulness = coverageDefinition.usefulnessOfFVs(nextFeatVects);
            
             if(usefulness > highestUsefulness){                         
                 //the current sentence is (currently) the best sentence to add
-                //selectedBasename = nextBasename;
                 selectedIdSentence = id;
                 selectedVectors = nextFeatVects;
                 highestUsefulness = usefulness;     
                 selectedSentenceIndex = i;
-            }
-            
+            }           
             if (usefulness == -1.0)
-             idSentenceList[i] = -1;     // THIS ID CAN NOT BE NEGATIVE SO CHECK!!!
-                //basenameList[i] = null;
-        }
-        //System.out.println(numSentsInBasenames+" sentences left");
+             idSentenceList[i] = -1;     // Here the sentence should be marked as unwanted?
+          }  // end loop over all idsentence list
+          
+        } else {
+            for (i=0;i<idSentenceList.length;i++){
+                id = idSentenceList[i];
+            
+                //if the next sentence was already selected, continue
+                // the ids = -1 correspond to sentences already selected
+                if (id < 0) continue;
+                
+                numSentsInBasenames++;
+                //get the next feature vector
+                byte[] nextFeatVects =  wikiToDB.getFeatures(id); 
+               
+                //calculate how useful the feature vectors are
+                double usefulness = coverageDefinition.usefulnessOfFVs(nextFeatVects);
+               
+                if(usefulness > highestUsefulness){                         
+                    //the current sentence is (currently) the best sentence to add
+                    selectedIdSentence = id;
+                    selectedVectors = nextFeatVects;
+                    highestUsefulness = usefulness;     
+                    selectedSentenceIndex = i;
+                }           
+                if (usefulness == -1.0)
+                 idSentenceList[i] = -1;     // Here the sentence should be marked as unwanted?
+              }  // end loop over all idsentence list 
+        } // end else the vector are not in memory
+        
+        // end loop over all idsentence list 
+        // System.out.println(numSentsInBasenames+" sentences left");
        
         
         //if (selectedBasename != null){
