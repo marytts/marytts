@@ -1107,7 +1107,7 @@ public class DBHandler {
   public int[] getIdListOfType(String table, String condition) {
       int num, i, j;
       int idSet[]=null;
-      int maxNum=1000000;
+      int maxNum=500000;
       String getNum, getIds, getIdsShort;
       
       if(condition!=null){
@@ -1120,18 +1120,17 @@ public class DBHandler {
       
       String str = queryTable(getNum);
       num = Integer.parseInt(str);
-      System.out.println("num = " + num);
+      //System.out.println("num = " + num);
       if(num>0) { 
         idSet = new int[num];
         i=0;
         if(num > maxNum) {
           for(j=0; j<num; j+=maxNum){
             try {
-              getIdsShort = getIds + " limit " + (j+1) + "," + maxNum;
+              getIdsShort = getIds + " limit " + j + "," + maxNum;
               //System.out.println("getIdsShort=" + getIdsShort);
               
               rs = st.executeQuery(getIdsShort); 
-              
               while( rs.next() ) {
                 idSet[i] = rs.getInt(1);
                 i++;
@@ -1144,10 +1143,8 @@ public class DBHandler {
             }
           }
         } else { // if num < maxNum
-            try {
-                
-                rs = st.executeQuery(getIds); 
-                
+            try {                
+                rs = st.executeQuery(getIds);                
                 while( rs.next() ) {
                   idSet[i] = rs.getInt(1);
                   i++;
@@ -1159,7 +1156,7 @@ public class DBHandler {
         
       } else
         System.out.println("WARNING empty list for: " + getIds);  
-      
+      //System.out.println("idSet.length=" + idSet.length);
       return idSet;
   }
   
