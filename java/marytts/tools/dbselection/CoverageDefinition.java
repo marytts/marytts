@@ -1409,36 +1409,10 @@ public class CoverageDefinition{
                     int percentage = index/tenPercent*10;
                     System.out.print(" "+percentage+"%");
                 }
-                
-                
-             //   FileInputStream fis;
-             //   try{ fis =
-             //       new FileInputStream(new File(basenames[index]));
-             //   } catch (FileNotFoundException fnfe){
-             //       System.out.println("Could not find file "+basenames[index]);
-             //       vectorArray[index] = null;
-             //       basenames[index] = null;
-             //       trueNumSentences--;
-             //       continue;
-             //   }
-
-                /*
-                byte[] vlength = new byte[4];
-             //  fis.read(vlength);
-               int numFeatVects = (((vlength[0] & 0xff) << 24) 
-                        | ((vlength[1] & 0xff) << 16) 
-                        | ((vlength[2] & 0xff) << 8)
-                        | (vlength[3] & 0xff));
-                byte[] vectorBuf = new byte[4*numFeatVects];
-                
-              //  fis.read(vectorBuf);
-              //  fis.close();
-               */
-                
+  
                 byte[] vectorBuf = wikiToDB.getFeatures(id);
                 vectorArray[index] = vectorBuf;
             }
-
         }
         System.out.println("  True num sentences "+trueNumSentences);
     }
