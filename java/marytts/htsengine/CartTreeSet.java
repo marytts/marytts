@@ -134,18 +134,21 @@ public class CartTreeSet {
      * HTSModel m.
      * @param m HTSModel where mean and variances per state are copied          
      * @param fv context feature vector
-     * @param featureDef Feature definition
+     * @param htsData HMMData with configuration settings
      * @return duration
      * @throws Exception
      */
-    public double searchDurInCartTree(HTSModel m, FeatureVector fv, FeatureDefinition featureDef,
-            boolean firstPh, boolean lastPh, double rho, double diffdur, double durscale) 
+    public double searchDurInCartTree(HTSModel m, FeatureVector fv, HMMData htsData,
+            boolean firstPh, boolean lastPh, double diffdur) 
       throws Exception {     
       int s, i;
       double data, dd;
+      double rho = htsData.getRho();
+      double durscale = htsData.getDurationScale();
       double meanVector[], varVector[];
       Node node;
      
+      
       // the duration tree has only one state
       node = durTree[0].interpretToNode(fv, 1);
       
@@ -170,13 +173,14 @@ public class CartTreeSet {
         if(m.getDur(s) < 1 )
           m.setDur(s, 1);
         
-       // System.out.println("   state: " + s + " dur=" + m.getDur(s));               
+        // System.out.println("   state: " + s + " dur=" + m.getDur(s));               
         m.setTotalDur(m.getTotalDur() + m.getDur(s));      
         dd = dd + ( data - (double)m.getDur(s) );       
       }
       return dd; 
       
     }
+    
     
     
     /***
