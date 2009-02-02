@@ -139,6 +139,7 @@ public abstract class DecisionNode extends Node
         daughters[lastDaughter] = daughter;
         if (daughter != null) {
             daughter.setNodeIndex(lastDaughter);
+            daughter.setMother(this);
         }
         lastDaughter++;
     }
