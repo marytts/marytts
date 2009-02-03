@@ -259,7 +259,7 @@ public class SelectionFunction{
         int numSentsInBasenames = 0;
         HashMap<Integer,byte[]> feas;
         
-        int i, j, k, n, maxNum=5000000;
+        int i, j, k, n, maxNum=100000;
         int id;
         // loop over the ids
         if( vectorArray != null) {  // so the vectors are in memory

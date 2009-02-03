@@ -101,9 +101,10 @@ public class FeatureMakerMaryServer{
     private static String mysqlDB=null;
     private static String mysqlUser=null;
     private static String mysqlPasswd=null;
+   
     
 	public static void main(String[] args)throws Exception{
-			
+		boolean test=false;	
         String dateStringIni="";
         String dateStringEnd="";
         DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
@@ -133,7 +134,7 @@ public class FeatureMakerMaryServer{
         // Get the set of id for unprocessed records in clean_text
         // this will be useful when the process is stoped and then resumed
         System.out.println("\nGetting list of unprocessed clean_text records from wikipedia...");
-        String textId[];
+        int textId[];
         textId = wikiToDB.getUnprocessedTextIds();
         System.out.println("Number of unprocessed clean_text records to process --> [" + textId.length + "]");
         String text;
@@ -157,7 +158,7 @@ public class FeatureMakerMaryServer{
           // get next unprocessed text  
           text = wikiToDB.getCleanText(textId[i]);
           System.out.println("Processing(" + i + ") text id=" + textId[i] + " text length=" + text.length());
-          sentenceList = splitIntoSentences(text, textId[i]);
+          sentenceList = splitIntoSentences(text, textId[i], test);
         
           if( sentenceList != null ) {
             int index=0;			
@@ -173,7 +174,8 @@ public class FeatureMakerMaryServer{
 			    feas = getFeatures(d);     
                 // Insert in the database the new sentence and its features.
                 numSentencesInText++;
-                wikiToDB.insertSentence(newSentence,feas, true, false, false, Integer.parseInt(textId[i]));
+                if(!test)
+                  wikiToDB.insertSentence(newSentence,feas, true, false, false, textId[i]);
                 feas = null;
               }        		
 	        }//end of loop over list of sentences
@@ -341,7 +343,7 @@ public class FeatureMakerMaryServer{
      * @param feas target features names separated by space (ex. "phoneme next_phoneme selection_prosody")
 	 * @return the result of the processing as MaryData object
 	 */
-	protected static MaryData processSentence(String nextSentence, String textId, String feas){
+	protected static MaryData processSentence(String nextSentence, int textId, String feas){
 		//do a bit of normalization
         StringBuffer docBuf = null;
 		nextSentence = nextSentence.replaceAll("\\\\","").trim();
@@ -415,7 +417,7 @@ public class FeatureMakerMaryServer{
      * @return the resulting XML-Document
      * @throws Exception
      */
-    protected static Document phonemiseText(String textString, String id) throws Exception{
+    protected static Document phonemiseText(String textString, int id) throws Exception{
         try{
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             //process and dump
@@ -536,7 +538,7 @@ public class FeatureMakerMaryServer{
 		 * @return true, if successful
 		 * @throws Exception
 		 */
-		protected static Vector<String> splitIntoSentences(String text, String id)throws Exception{
+		protected static Vector<String> splitIntoSentences(String text, int id, boolean test)throws Exception{
             
             Vector<String> sentenceList = null;
             StringBuffer sentence;
@@ -575,7 +577,7 @@ public class FeatureMakerMaryServer{
                         // check if the sentence is not . 
                         if( !sentence.toString().contentEquals(".") ){
                          sentenceList.add(sentence.toString());
-                         //System.out.println("sentence=" + sentence.toString() + "\n");
+                         //System.out.println("reliable sentence=" + sentence.toString() + "\n");
                         }
 					} else {
 						//just print useless sentence to log file
@@ -592,7 +594,17 @@ public class FeatureMakerMaryServer{
                         
                         // Here the reason why is unreliable can be added to the DB.
                         // for the moment there is just one field reliable=false in this case.
-                        wikiToDB.insertSentence(sentence.toString(), null, usefulSentence, unknownWords, strangeSymbols, Integer.parseInt(id));
+                        if(!test)
+                          wikiToDB.insertSentence(sentence.toString(), null, usefulSentence, unknownWords, strangeSymbols, id);
+                        else{
+                          wikiToDB.setSentenceRecord(id, "reliable", false);
+                          if(unknownWords)
+                           wikiToDB.setSentenceRecord(id, "unknownWords", true);
+                          if(strangeSymbols)
+                           wikiToDB.setSentenceRecord(id, "strangeSymbols", true);
+                          
+                          //System.out.println("unreliable sentence: " + sentence.toString());
+                        }
 					}
 					sentenceIndex++;
                    
@@ -695,18 +707,18 @@ public class FeatureMakerMaryServer{
                 if (t.hasAttribute("g2p_method")) {
                     //check method of transcription
                     String method = t.getAttribute("g2p_method");
-                    if (!method.equals("lexicon") && !method.equals("userdict") && !method.equals("rules")){ // NEW: method is rules
+                    if (!method.equals("lexicon") && !method.equals("userdict") ){ 
                         if (strictCredibility){
                             //method other than lexicon or userdict -> unreliable
                             newUsefulSentence = 1;
-                           
+                            //System.out.println("  unknownwords: method other than lexicon or userdict -> unreliable");
                         } else {
                             //lax credibility criterion
-                            if (!method.equals("phonemiseDenglish") && !method.equals("compound")){
+                            if (!method.equals("phonemiseDenglish") && !method.equals("compound") && !method.equals("rules")){ // NEW: method is rules
                                 //method other than lexicon, userdict, phonemiseDenglish 
                                 //or compound -> unreliable
                                 newUsefulSentence = 1;
-                                
+                                //System.out.println("   unknownwords: method other than lexicon, userdict, phonemiseDenglish or compound -> unreliable");
                             } //else method is phonemiseDenglish or compound -> credible                        
                         }
                     }// else method is lexicon or userdict -> credible           
@@ -717,7 +729,8 @@ public class FeatureMakerMaryServer{
                 String pos = t.getAttribute("pos");
                 if (".,'`:#$".indexOf(pos.substring(0,1)) == -1){
                     //no transcription given -> unreliable  
-                    newUsefulSentence = 2;      
+                    newUsefulSentence = 2; 
+                    //System.out.println("  strangeSymbols: no transcription given -> unreliable");
                 } //else punctuation -> credible
             } 
             return newUsefulSentence;

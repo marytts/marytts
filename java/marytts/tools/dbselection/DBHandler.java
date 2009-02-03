@@ -886,13 +886,13 @@ public class DBHandler {
    * This function will select just the unprocessed cleanText records.
    * @return
    */
-  public String[] getUnprocessedTextIds() {
+  public int[] getUnprocessedTextIds() {
       int num, i, j;
-      String idSet[]=null;
+      int idSet[]=null;
       
       String str = queryTable("select count(id) from " + cleanTextTableName + " where processed=false;");  
       num = Integer.parseInt(str);
-      idSet = new String[num];
+      idSet = new int[num];
       
       try {
           rs = st.executeQuery("select id from " + cleanTextTableName +" where processed=false;"); 
@@ -902,7 +902,7 @@ public class DBHandler {
       try { 
           i=0;
           while( rs.next() ) {
-            idSet[i] = rs.getString(1);
+            idSet[i] = rs.getInt(1);
             i++;
           }
       } catch (SQLException e) {
@@ -1460,7 +1460,7 @@ public class DBHandler {
       return text;   
   }
   
-  public String getCleanText(String id){
+  public String getCleanText(int id){
       String dbQuery, text=null;
       byte[] textBytes=null;
              
