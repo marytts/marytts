@@ -43,6 +43,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.server.MaryProperties;
+import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
@@ -89,8 +90,29 @@ public class ProsodyGeneric extends InternalModule {
         this.accentPriorities = accentPriorities;
         this.syllableAccents = syllableAccents;
         this.paragraphDeclination = paragraphDeclination;
+        
     }
 
+    public ProsodyGeneric(String locale, String propertyPrefix)
+    {
+        super("Prosody",MaryDataType.PHONEMES,MaryDataType.INTONATION, MaryUtils.string2locale(locale));
+        
+        this.tobiPredFilename = propertyPrefix + "tobipredparams";
+        this.accentPriorities = propertyPrefix + "accentPriorities";
+        this.syllableAccents = propertyPrefix + "paragraphdeclination";
+        this.paragraphDeclination = propertyPrefix + "syllableaccents";
+    }
+    
+    public ProsodyGeneric(String propertyPrefix)
+    {
+        super("Prosody",MaryDataType.PHONEMES,MaryDataType.INTONATION, null);
+        
+        this.tobiPredFilename = propertyPrefix + "tobipredparams";
+        this.accentPriorities = propertyPrefix + "accentPriorities";
+        this.syllableAccents = propertyPrefix + "paragraphdeclination";
+        this.paragraphDeclination = propertyPrefix + "syllableaccents";
+    }
+    
     public void startup() throws Exception {
     	priorities = new Properties();
     	if (accentPriorities != null) {
