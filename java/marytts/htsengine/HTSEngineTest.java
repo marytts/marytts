@@ -48,18 +48,25 @@
 */
 package marytts.htsengine;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Scanner;
+import java.util.Vector;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
 import marytts.modules.HTSEngine;
+import marytts.signalproc.analysis.Mfccs;
 
 /***
  * Several functions for running the htsEngine or other components stand alone
@@ -182,12 +189,186 @@ public class HTSEngineTest {
       
     }  /* main method */
     
-     
+    /***
+     * Calculate mfcc using SPTK, uses sox to convert wav-->raw
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws Exception
+     */
+    public void getSptkMfcc() throws IOException, InterruptedException, Exception{
+       
+       String inFile = "/project/mary/marcela/quality-control-experiment/slt/cmu_us_arctic_slt_a0001.wav";     
+       String outFile = "/project/mary/marcela/quality-control-experiment/slt/cmu_us_arctic_slt_a0001.mfc";
+       String tmpFile = "/project/mary/marcela/quality-control-experiment/slt/tmp.mfc";
+       String tmpRawFile = "/project/mary/marcela/quality-control-experiment/slt/tmp.raw";
+       String cmd;
+       // SPTK parameters
+       int fs = 16000;
+       int frameLength = 400;
+       int frameLengthOutput = 512;
+       int framePeriod = 80;
+       int mgcOrder = 24;
+       int mgcDimension = 25;
+       // Mary header parameters
+       double ws = (frameLength/fs);   // window size in seconds 
+       double ss = (framePeriod/fs);   // skip size in seconds
+       
+       // SOX and SPTK commands
+       String sox = "/usr/bin/sox";
+       String x2x = " /project/mary/marcela/sw/SPTK-3.1/bin/x2x";
+       String frame = " /project/mary/marcela/sw/SPTK-3.1/bin/frame";
+       String window = " /project/mary/marcela/sw/SPTK-3.1/bin/window";
+       String mcep = " /project/mary/marcela/sw/SPTK-3.1/bin/mcep";
+       String swab = "/project/mary/marcela/sw/SPTK-3.1/bin/swab";
+       
+      
+       // convert the wav file to raw file with sox
+       cmd = sox + " " + inFile + " " +  tmpRawFile;
+       launchProc( cmd, "sox", inFile);
+       
+       System.out.println("Extracting MGC coefficients from " + inFile);
+       
+       cmd = x2x + " +sf " + tmpRawFile + " | " +
+                    frame + " +f -l " + frameLength + " -p " + framePeriod + " | " +
+                    window + " -l " + frameLength + " -L " + frameLengthOutput + " -w 1 -n 1 | " +
+                    mcep + " -a 0.42 -m " + mgcOrder + "  -l " + frameLengthOutput + " | " +
+                    swab + " +f > " + tmpFile;
+       
+       System.out.println("cmd=" + cmd);
+       launchBatchProc( cmd, "getSptkMfcc", inFile );
+       
+       // Now get the data and add the Mary header
+       int numFrames;
+       DataInputStream mfcData=null;
+       Vector <Float> mfc = new Vector<Float>();
+      
+       mfcData = new DataInputStream (new BufferedInputStream(new FileInputStream(tmpFile)));
+       try {
+         while(true){
+           mfc.add(mfcData.readFloat());
+         }         
+       } catch (EOFException e) { }
+       mfcData.close();
+
+       numFrames = mfc.size();
+       int numVectors = numFrames/mgcDimension;
+       Mfccs mgc = new Mfccs(numVectors, mgcDimension);
+       
+       int k=0;
+       for(int i=0; i<numVectors; i++){
+         for(int j=0; j<mgcDimension; j++){
+           mgc.mfccs[i][j] = mfc.get(k);
+           k++;
+         }
+       }
+       // Mary header parameters
+       mgc.params.samplingRate = fs;         /* samplingRateInHz */
+       mgc.params.skipsize     = (float)ss;  /* skipSizeInSeconds */
+       mgc.params.winsize      = (float)ws;  /* windowSizeInSeconds */
+       
+       mgc.writeMfccFile(outFile);
+
+        
+    }
+    
+    
+    /**
+     * A general process launcher for the various tasks
+     * (copied from ESTCaller.java)
+     * @param cmdLine the command line to be launched.
+     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
+     * @param the basename of the file currently processed, for error messages.
+     */
+    private void launchProc( String cmdLine, String task, String baseName ) {
+        
+        Process proc = null;
+        BufferedReader procStdout = null;
+        String line = null;
+        try {
+           proc = Runtime.getRuntime().exec( cmdLine );
+            
+            /* Collect stdout and send it to System.out: */
+            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
+            while( true ) {
+                line = procStdout.readLine();
+                if ( line == null ) break;
+                System.out.println( line );
+            }
+            /* Wait and check the exit value */
+            proc.waitFor();
+            if ( proc.exitValue() != 0 ) {
+                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
+                        + "Command line was: [" + cmdLine + "]." );
+            }
+        }
+        catch ( IOException e ) {
+            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
+        }
+        catch ( InterruptedException e ) {
+            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
+        }
+        
+    }    
+
+    
+    /**
+     * A general process launcher for the various tasks but using an intermediate batch file
+     * (copied from ESTCaller.java)
+     * @param cmdLine the command line to be launched.
+     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
+     * @param the basename of the file currently processed, for error messages.
+     */
+    private void launchBatchProc( String cmdLine, String task, String baseName ) {
+        
+        Process proc = null;
+        Process proctmp = null;
+        BufferedReader procStdout = null;
+        String line = null;
+        String tmpFile = "./tmp.bat";
+       
+        try {
+            FileWriter tmp = new FileWriter(tmpFile);
+            tmp.write(cmdLine);
+            tmp.close();
+            
+            /* make it executable... */
+            proctmp = Runtime.getRuntime().exec( "chmod +x "+tmpFile );
+            proctmp.waitFor();
+            proc = Runtime.getRuntime().exec( tmpFile );
+            
+            /* Collect stdout and send it to System.out: */
+            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
+            while( true ) {
+                line = procStdout.readLine();
+                if ( line == null ) break;
+                System.out.println( line );
+            }
+            /* Wait and check the exit value */
+            proc.waitFor();
+            if ( proc.exitValue() != 0 ) {
+                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
+                        + "Command line was: [" + cmdLine + "]." );
+            }
+                       
+        }
+        catch ( IOException e ) {
+            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
+        }
+        catch ( InterruptedException e ) {
+            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
+        }
+        
+    }     
     
     public static void main(String[] args) throws Exception {
         
        HTSEngineGUI test = new HTSEngineGUI();
+       
+       // generate parameters out of a hsmm voice
        test.generateParameters(args);
+       
+       // extract mfcc from a wav file using sptk
+       test.getSptkMfcc();
       
      }
      
