@@ -62,9 +62,9 @@ public class HnmPitchVoicingAnalyzer {
     public static double HARMONIC_DEVIATION_PERCENT = 40.0; //Increased ==> Voicing increases
     public static double SHARP_PEAK_AMP_DIFF_IN_DB = 0.2; //Decreased ==> Voicing increases
     public static int MINIMUM_TOTAL_HARMONICS = 20; //At least this much total harmonics will be included in voiced spectral region (effective only when f0>10.0)
-    public static int MAXIMUM_TOTAL_HARMONICS = 60; //At most this much total harmonics will be included in voiced spectral region (effective only when f0>10.0)
-    public static float MINIMUM_VOICED_FREQUENCY_OF_VOICING = 5000.0f; //All voiced sections will have at least this freq. of voicing
-    public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 5000.0f; //All voiced sections will have at least this freq. of voicing
+    public static int MAXIMUM_TOTAL_HARMONICS = 50; //At most this much total harmonics will be included in voiced spectral region (effective only when f0>10.0)
+    public static float MINIMUM_VOICED_FREQUENCY_OF_VOICING = 3000.0f; //All voiced sections will have at least this freq. of voicing
+    public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 6000.0f; //All voiced sections will have at least this freq. of voicing
     //
     
     //For voicing detection
@@ -199,7 +199,7 @@ public class HnmPitchVoicingAnalyzer {
         boolean isVoiced;
         float[] maxFrequencyOfVoicings = new float[numfrm];
         float currentTime;
-        double [] frm = new double[ws];
+        double[] frm = new double[ws];
         for (int i=0; i<numfrm; i++)
         {  
             Arrays.fill(frm, 0.0);
@@ -209,7 +209,7 @@ public class HnmPitchVoicingAnalyzer {
             
             NonharmonicSinusoidalSpeechFrame frameSins = null;
 
-            if (fftSize<frm.length)
+            while (fftSize<frm.length)
                 fftSize *= 2;
 
             int maxFreq = (int) (Math.floor(0.5*fftSize+0.5)+1);
@@ -237,7 +237,7 @@ public class HnmPitchVoicingAnalyzer {
             if (initialF0s[i]>10.0f)
             {
                 voicingErrors[i] = estimateVoicingFromFrameSpectrum(YAbs, samplingRate, initialF0s[i]);
-
+                
                 if (voicingErrors[i]<-1.0)
                     isVoiced = true;
             }
@@ -270,17 +270,17 @@ public class HnmPitchVoicingAnalyzer {
         }
         
         //Smooth with a moving average filter
-        int MPoints = 10;
+        int MPoints = 16;
         maxFrequencyOfVoicings = SignalProcUtils.meanFilter(maxFrequencyOfVoicings, MPoints);
         maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, (int)Math.floor(0.5*MPoints+0.5));
     
         //Smooth with a median filter
-        NPoints = 4;
+        NPoints = 8;
         maxFrequencyOfVoicings = SignalProcUtils.medianFilter(maxFrequencyOfVoicings, NPoints);
         maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, (int)Math.floor(0.5*NPoints+0.5));
         
         //Smooth with a moving average filter
-        MPoints = 6;
+        MPoints = 10;
         maxFrequencyOfVoicings = SignalProcUtils.meanFilter(maxFrequencyOfVoicings, MPoints);
         maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, (int)Math.floor(0.5*MPoints+0.5));
         for (i=0; i<maxFrequencyOfVoicings.length; i++)
@@ -304,7 +304,7 @@ public class HnmPitchVoicingAnalyzer {
         }
         MaryUtils.plot(maxFrequencyOfVoicings);
         
-        //MaryUtils.plot(voicingErrors);
+        MaryUtils.plot(voicingErrors);
         
         return maxFrequencyOfVoicings;
     }
@@ -461,7 +461,8 @@ public class HnmPitchVoicingAnalyzer {
         }
         
         //Median filter voicing decisions
-        voiceds = SignalProcUtils.medianFilter(voiceds, 3);
+        voiceds = SignalProcUtils.medianFilter(voiceds, 4);
+        voiceds = SignalProcUtils.shift(voiceds, 2);
         
         //Forward look
         int maxVoicedHarmonicBand = -1;   

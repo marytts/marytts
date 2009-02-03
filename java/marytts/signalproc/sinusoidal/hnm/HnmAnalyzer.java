@@ -75,6 +75,7 @@ public class HnmAnalyzer {
     public static float NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS = 0.040f; //Fixed window size for noise analysis, should be generally large (>=0.040 seconds)
     public static float HARMONICS_FIXED_GAIN = 0.40f;
     public static float NOISE_FIXED_GAIN = 0.02f;
+    public static float OVERLAP_BETWEEN_HARMONIC_AND_NOISE_REGIONS_IN_HZ = 200.0f;
     
     public HnmAnalyzer()
     {
@@ -192,7 +193,7 @@ public class HnmAnalyzer {
         double[] dPhasesPrev = null;
         int MValue;
         
-        int cepsOrderHarmonic = 24;
+        int cepsOrderHarmonic = 16;
         int cepsOrderNoise = 12;
         int numNoiseHarmonics = (int)Math.floor((0.5*fs)/NOISE_F0_IN_HZ+0.5);
         double[] freqsInHzNoise = new double [numNoiseHarmonics];
@@ -284,10 +285,10 @@ public class HnmAnalyzer {
                     
                     //SignalProcUtils.displayDFTSpectrumInDBNoWindowing(frmNoise, fftSizeNoise);  
 
-                    if (hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0f)
+                    if (hnmSignal.frames[i].maximumFrequencyOfVoicingInHz-OVERLAP_BETWEEN_HARMONIC_AND_NOISE_REGIONS_IN_HZ>0.0f)
                     {
                         //frmNoise = SignalProcUtils.fdFilter(frmNoise, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5f*fs, fs, fftSizeNoise);
-                        HighPassFilter hpf = new HighPassFilter(hnmSignal.frames[i].maximumFrequencyOfVoicingInHz/fs, HnmAnalyzer.HPF_TRANSITION_BANDWIDTH_IN_HZ/fs);
+                        HighPassFilter hpf = new HighPassFilter((hnmSignal.frames[i].maximumFrequencyOfVoicingInHz-OVERLAP_BETWEEN_HARMONIC_AND_NOISE_REGIONS_IN_HZ)/fs, HnmAnalyzer.HPF_TRANSITION_BANDWIDTH_IN_HZ/fs);
                         frmNoise = hpf.apply(frmNoise);
                     }
                     
