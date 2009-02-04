@@ -25,6 +25,7 @@ import java.io.IOException;
 
 import marytts.cart.CART;
 import marytts.unitselection.select.JoinCostFunction;
+import marytts.unitselection.select.StatisticalCostFunction;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.TargetCostFunction;
 import marytts.unitselection.select.ViterbiCandidate;
@@ -42,6 +43,7 @@ public class UnitDatabase
 {
     protected TargetCostFunction targetCostFunction;
     protected JoinCostFunction joinCostFunction;
+    protected StatisticalCostFunction sCostFunction = null;
     protected UnitFileReader unitReader;
     protected CART preselectionCART;
     protected TimelineReader audioTimeline;
@@ -55,7 +57,7 @@ public class UnitDatabase
     }
     
      public void load(TargetCostFunction aTargetCostFunction,
-                      JoinCostFunction aJoinCostFunction,
+                      JoinCostFunction aJoinCostFunction, 
                       UnitFileReader aUnitReader,
                       CART aPreselectionCART,
                       TimelineReader anAudioTimeline,
@@ -64,6 +66,25 @@ public class UnitDatabase
      {
          this.targetCostFunction = aTargetCostFunction;
          this.joinCostFunction = aJoinCostFunction;
+         this.unitReader = aUnitReader;
+         this.preselectionCART = aPreselectionCART;
+         this.audioTimeline = anAudioTimeline;
+         this.basenameTimeline = aBasenameTimeline;
+         this.backtrace = backtraceLeafSize;
+     }
+
+     public void load(TargetCostFunction aTargetCostFunction,
+             JoinCostFunction aJoinCostFunction,
+             StatisticalCostFunction asCostFunction,
+             UnitFileReader aUnitReader,
+             CART aPreselectionCART,
+             TimelineReader anAudioTimeline,
+             TimelineReader aBasenameTimeline,
+             int backtraceLeafSize)
+     {
+         this.targetCostFunction = aTargetCostFunction;
+         this.joinCostFunction = aJoinCostFunction;
+         this.sCostFunction = asCostFunction;
          this.unitReader = aUnitReader;
          this.preselectionCART = aPreselectionCART;
          this.audioTimeline = anAudioTimeline;
@@ -91,7 +112,10 @@ public class UnitDatabase
          return audioTimeline;
      }
 
-     
+     public StatisticalCostFunction getSCostFunction()
+     {
+         return sCostFunction;
+     }
      
     /**
      * Preselect a set of candidates that could be used to realise the

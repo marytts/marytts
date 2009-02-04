@@ -87,6 +87,7 @@ public  class Viterbi
     protected int searchStrategy = 25;
     protected final float wTargetCosts;
     protected final float wJoinCosts;
+    protected final float wSCosts;
     
     protected ViterbiPoint firstPoint = null;
     protected ViterbiPoint lastPoint = null;
@@ -94,6 +95,7 @@ public  class Viterbi
     private UnitDatabase database;
     protected TargetCostFunction targetCostFunction;
     protected JoinCostFunction joinCostFunction;
+    protected StatisticalCostFunction sCostFunction;
     protected Logger logger;
     // for debugging, try to get an idea of the average effect of join vs. target costs:
     protected double cumulJoinCosts;
@@ -116,9 +118,11 @@ public  class Viterbi
 	    this.database = database;
 	    this.targetCostFunction = database.getTargetCostFunction();
 	    this.joinCostFunction = database.getJoinCostFunction();
+	    this.sCostFunction = database.getSCostFunction();
         this.logger = Logger.getLogger("Viterbi");
         this.wTargetCosts = wTargetCosts;
         wJoinCosts = 1 - wTargetCosts;
+        wSCosts = 0;
         this.cumulJoinCosts = 0;
         this.nJoinCosts = 0;
         this.cumulTargetCosts = 0;
@@ -146,7 +150,49 @@ public  class Viterbi
     	}
     }
    
-    
+	/**
+     * Creates a Viterbi class to process the given utterance.
+     * A queue of ViterbiPoints corresponding to the Items in the Relation segs 
+     * is built up.
+     * 
+     */
+    public Viterbi(List<Target> targets, UnitDatabase database, float wTargetCosts, float wSCosts)
+    {
+        this.database = database;
+        this.targetCostFunction = database.getTargetCostFunction();
+        this.joinCostFunction = database.getJoinCostFunction();
+        this.sCostFunction = database.getSCostFunction();
+        this.logger = Logger.getLogger("Viterbi");
+        this.wTargetCosts = wTargetCosts;
+        this.wSCosts = wSCosts;
+        wJoinCosts = 1 - (wTargetCosts + wSCosts);
+        this.cumulJoinCosts = 0;
+        this.nJoinCosts = 0;
+        this.cumulTargetCosts = 0;
+        this.nTargetCosts = 0;
+        ViterbiPoint last = null;
+        f = new LinkedHashMap();
+        //for each segment, build a ViterbiPoint
+        for (Target target : targets) {
+            ViterbiPoint nextPoint = new ViterbiPoint(target);
+            
+            if (last != null) { // continue to build up the queue
+                last.setNext(nextPoint);
+            } else { // firstPoint is the start of the queue
+                firstPoint = nextPoint;
+                // dummy start path:
+                firstPoint.getPaths().add(new ViterbiPath());
+            }
+            last = nextPoint;
+        }
+        // And add one point where the paths from the last candidate can end:
+        lastPoint = new ViterbiPoint(null);
+        last.setNext(lastPoint);
+        if (searchStrategy == 0) {
+            throw new IllegalStateException("General beam search not implemented");
+        }
+    }
+	
     /**
      * Sets the given feature to the given value.
      *
@@ -435,6 +481,7 @@ public  class Viterbi
         newPath.setCandidate(candidate);
         newPath.setPrevious(path);
         double joinCost;
+        double sCost = 0;
         double targetCost;
         // Target costs:
         targetCost = candidate.getTargetCost(targetCostFunction);
@@ -447,13 +494,15 @@ public  class Viterbi
             Target prevTarget = prevCandidate.getTarget();
             Unit prevUnit = prevCandidate.getUnit();
             joinCost = joinCostFunction.cost(prevTarget, prevUnit, candidateTarget, candidateUnit);
+            if(sCostFunction != null) sCost = sCostFunction.cost(prevUnit, candidateUnit);
         }
         // Total cost is a weighted sum of join cost and target cost:
         //     cost = (1-r) * joinCost + r * targetCost,
         // where r is given as the property "viterbi.wTargetCost" in a config file.
         targetCost *= wTargetCosts;
         joinCost *= wJoinCosts;
-        cost = joinCost + targetCost;
+        sCost *= wSCosts;
+        cost = joinCost + targetCost + sCost;
         if (joinCost < Float.POSITIVE_INFINITY)
             cumulJoinCosts += joinCost;
         nJoinCosts++;

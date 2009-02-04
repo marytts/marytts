@@ -42,7 +42,7 @@ public class UnitSelector
     protected UnitDatabase database;
     protected Logger logger;
     protected float targetCostWeight;
-
+    protected float sCostWeight = -1;
     
     /**
      * Initialise the unit selector. Need to call load() separately.
@@ -57,6 +57,13 @@ public class UnitSelector
     {
         this.database = unitDatabase;
         this.targetCostWeight = targetCostWeight;
+    }
+    
+    public void load(UnitDatabase unitDatabase, float targetCostWeight, float sCostWeight)
+    {
+        this.database = unitDatabase;
+        this.targetCostWeight = targetCostWeight;
+        this.sCostWeight = sCostWeight;
     }
     
     /**
@@ -97,9 +104,15 @@ public class UnitSelector
         for (Target target : targets) {
             tcf.computeTargetFeatures(target);
         }
-
+        
+        Viterbi viterbi;
         //Select the best candidates using Viterbi and the join cost function.
-        Viterbi viterbi = new Viterbi(targets, database, targetCostWeight);
+        if(sCostWeight < 0){
+            viterbi = new Viterbi(targets, database, targetCostWeight);
+        }else{
+            viterbi = new Viterbi(targets, database, targetCostWeight, sCostWeight);
+        }
+        
         viterbi.apply();
         List<SelectedUnit> selectedUnits = viterbi.getSelectedUnits();
         // If you can not associate the candidate units in the best path 

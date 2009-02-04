@@ -43,6 +43,7 @@ import marytts.unitselection.data.UnitDatabase;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.unitselection.select.JoinCostFunction;
 import marytts.unitselection.select.JoinModelCost;
+import marytts.unitselection.select.StatisticalCostFunction;
 import marytts.unitselection.select.TargetCostFunction;
 import marytts.unitselection.select.UnitSelector;
 import marytts.util.MaryUtils;
@@ -130,6 +131,17 @@ public class UnitSelectionVoiceBuilder
             }
             joinFunction.init(header);
             
+            // build sCost function
+            StatisticalCostFunction sCostFunction = null;
+            boolean useSCost = MaryProperties.getBoolean(header+".useSCost", false);
+            if(useSCost){
+                logger.debug("...loading scost function...");
+                String sCostClass = MaryProperties.needProperty(header+".sCostClass");
+                sCostFunction = (StatisticalCostFunction) Class.forName(sCostClass).newInstance();
+                sCostFunction.init(header);
+            }
+            
+            
 	        // Build the various file readers
             logger.debug("...loading units file...");
             String unitReaderClass = MaryProperties.needProperty(header+".unitReaderClass");
@@ -179,14 +191,25 @@ public class UnitSelectionVoiceBuilder
             logger.debug("...instantiating database...");
             String databaseClass = MaryProperties.needProperty(header+".databaseClass");
             UnitDatabase unitDatabase = (UnitDatabase) Class.forName(databaseClass).newInstance();
-            unitDatabase.load(targetFunction, joinFunction, unitReader, cart, timelineReader, basenameTimelineReader, backtrace);
-	        
+            if(useSCost){
+                unitDatabase.load(targetFunction, joinFunction, sCostFunction , unitReader, cart, timelineReader, basenameTimelineReader, backtrace);
+            }
+            else{
+                unitDatabase.load(targetFunction, joinFunction, unitReader, cart, timelineReader, basenameTimelineReader, backtrace);
+            }
+            
 	        //build Selector
             logger.debug("...instantiating unit selector...");
             String selectorClass = MaryProperties.needProperty(header+".selectorClass");
 	        UnitSelector unitSelector = (UnitSelector) Class.forName(selectorClass).newInstance();
-	        float targetCostWeights = Float.parseFloat(MaryProperties.getProperty(header+".viterbi.wTargetCosts", "0.5"));
-	        unitSelector.load(unitDatabase,targetCostWeights);
+	        float targetCostWeights = Float.parseFloat(MaryProperties.getProperty(header+".viterbi.wTargetCosts", "0.33"));
+	        if(!useSCost){
+	            unitSelector.load(unitDatabase,targetCostWeights);
+	        }
+	        else{
+	            float sCostWeights = Float.parseFloat(MaryProperties.getProperty(header+".viterbi.wSCosts", "0.33"));
+	            unitSelector.load(unitDatabase,targetCostWeights, sCostWeights);
+	        }
             
 	        //samplingRate -> bin, audioformat -> concatenator
 	        //build Concatenator
