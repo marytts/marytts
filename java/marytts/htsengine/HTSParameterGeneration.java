@@ -307,7 +307,7 @@ public class HTSParameterGeneration {
              }
              else
                f0s[t] = 0.0;
-             System.out.println("GEN f0s[" + t + "]=" + f0s[t]);
+             //System.out.println("GEN f0s[" + t + "]=" + f0s[t]);
              
           }
           /* i am using this function but it changes the values of sw, and ss  *samplingrate+0.5??? for the HTS values ss=0.005 and sw=0.025 is not a problem though */
