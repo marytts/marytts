@@ -78,6 +78,7 @@ import marytts.htsengine.CartTreeSet;
 import marytts.htsengine.HTSUttModel;
 import marytts.htsengine.HTSVocoder;
 import marytts.htsengine.PhoneTranslator;
+import marytts.htsengine.HTSEngineTest.PhonemeDuration;
 import marytts.modules.synthesis.Voice;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.util.data.audio.AudioPlayer;
@@ -101,17 +102,17 @@ public class HTSEngine extends InternalModule
     private String realisedDurations;  // HMM realised duration to be save in a file
     private boolean phonemeAlignmentForDurations;
     private boolean stateAlignmentForDurations;
-    private Vector<Float> alignDur;  // list of duration per phoneme for alignment
+    private Vector<PhonemeDuration> alignDur;  // list of duration per phoneme for alignment
     
     public String getRealisedDurations(){ return realisedDurations; }
     public boolean getPhonemeAlignmentForDurations(){ return phonemeAlignmentForDurations; }
     public boolean getStateAlignmentForDurations(){ return stateAlignmentForDurations;}
-    public Vector<Float> getAlignDurations(){ return alignDur; }
+    public Vector<PhonemeDuration> getAlignDurations(){ return alignDur; }
     
     public void setRealisedDurations(String str){ realisedDurations=str; }
     public void setPhonemeAlignmentForDurations(boolean bval){ phonemeAlignmentForDurations=bval; }
     public void setStateAlignmentForDurations(boolean bval){ stateAlignmentForDurations=bval; }
-    public void setAlignDurations(Vector<Float> val){ alignDur = val; }
+    public void setAlignDurations(Vector<PhonemeDuration> val){ alignDur = val; }
      
     public HTSEngine()
     {
@@ -309,11 +310,13 @@ public class HTSEngine extends InternalModule
            
         
         if( phonemeAlignmentForDurations ){
-          if( alignDur != null ){  
-            // IGNORING THE FIRST LINE WITH 0
-            // CHECK!! This has to be done as long as the durations do not include the pause at the beginning
-            // the feature vector includes a line of ceros at the beginning  
-            nextLine = s.nextLine();
+          if( alignDur != null ){              
+            if(alignDur.get(0).getPhoneme().contentEquals("_") )  
+              alignDur.get(0).setPhoneme("0");
+            else{ // If the label file does not start with silence (_) AND the feature vector start with silence (0)
+                  // CHECK: This will work as long as the feature vector includes a line of ceros at the beginning.
+                nextLine = s.nextLine();
+            }
             alignDurSize = alignDur.size();
           } else
             throw new Exception("No vector of durations for phoneme alignment.");
@@ -336,17 +339,24 @@ public class HTSEngine extends InternalModule
 
             // Determine state-level duration                      
             if( phonemeAlignmentForDurations ) {  // use phoneme alignment for duration 
-              diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, lastPh, diffdurOld);
-              nf=0;
-              // get the sum of the state durations
-              for(k=0; k<htsData.getCartTreeSet().getNumStates(); k++)
-                nf += m.getDur(k);
+              logger.info("Using phoneme alignment for duration");  
+              // check if the external phoneme corresponds to the current
+              if( alignDur.get(i).getPhoneme().contentEquals(m.getPhoneName()) ){
+                diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, lastPh, diffdurOld);
+                nf=0;
+                // get the sum of the state durations
+                for(k=0; k<htsData.getCartTreeSet().getNumStates(); k++)
+                  nf += m.getDur(k);
               
-              if(i < alignDurSize )
-                f = alignDur.get(i)/(fperiodsec*nf);
-              else
-                throw new Exception("The number of durations provided for phoneme alignment (" + alignDurSize +
-                        ") is less than the number of feature vectors, so far (" + um.getNumUttModel() + ")."); 
+                if(i < alignDurSize )
+                  f = alignDur.get(i).getDuration()/(fperiodsec*nf);
+                else
+                  throw new Exception("The number of durations provided for phoneme alignment (" + alignDurSize +
+                        ") is less than the number of feature vectors, so far (" + um.getNumUttModel() + ").");
+              } else {
+                  throw new Exception("External phoneme: " + alignDur.get(i).getPhoneme() +
+                         " does not correspond to current feature vector phoneme: " + m.getPhoneName() );
+              }
               
               m.setTotalDur(0);
               for(k=0; k<htsData.getCartTreeSet().getNumStates(); k++){
@@ -363,6 +373,7 @@ public class HTSEngine extends InternalModule
               // Not implemented yet  
                 
             } else { // Estimate state duration from state duration model (Gaussian)  
+                logger.info("Estimate state duration from state duration model (Gaussian)");
                 diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, lastPh, diffdurOld);  
                 um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());             
             }
@@ -376,7 +387,7 @@ public class HTSEngine extends InternalModule
             numLab++;
             dur = m.getTotalDurMillisec();
             um.concatRealisedAcoustParams(m.getPhoneName() + " " + dur.toString() + "\n");
-            //System.out.println("phoneme=" + m.getPhoneName() + " dur=" + m.getTotalDur() +" durTotal=" + um.getTotalFrame() );
+            System.out.println("phoneme=" + m.getPhoneName() + " dur=" + m.getTotalDur() +" durTotal=" + um.getTotalFrame() );
             
             /* Find pdf for LF0, this function sets the pdf for each state. */ 
             cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
@@ -428,7 +439,7 @@ public class HTSEngine extends InternalModule
      */
     public static void main(String[] args) throws IOException, InterruptedException{
        
-      int i, j;  
+      int i, j; 
       /* configure log info */
       org.apache.log4j.BasicConfigurator.configure();
 
@@ -448,7 +459,7 @@ public class HTSEngine extends InternalModule
        * TreeSet: Contains the tree-xxx.inf, xxx: dur, lf0, mcp, str and mag 
        *          these are all the trees trained for a particular voice. */
       HMMData htsData = new HMMData();
-      
+            
       /* For initialise provide the name of the hmm voice and the name of its configuration file,*/
        
       String MaryBase    = "/project/mary/marcela/openmary/"; /* MARY_BASE directory.*/
@@ -486,6 +497,7 @@ public class HTSEngine extends InternalModule
           FileWriter outputStream = new FileWriter(durFile);
           outputStream.write(hmm_tts.realisedDurations);
           outputStream.close();
+          
 
           /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */
           /* the generated parameters will be saved in tmp.mfc and tmp.f0, including Mary header. */
@@ -515,6 +527,7 @@ public class HTSEngine extends InternalModule
       }
     }  /* main method */
     
-
+    
+  
 }  /* class HTSEngine*/
 

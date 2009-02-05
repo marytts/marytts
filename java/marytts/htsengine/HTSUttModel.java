@@ -50,7 +50,10 @@
 package marytts.htsengine;
 
 
+import java.util.Scanner;
 import java.util.Vector;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * list of Model objects for current utterance.
@@ -75,6 +78,7 @@ public class HTSUttModel {
 	lf0Frame = 0;
 	modelList = new Vector<HTSModel>();
     realisedAcoustParams = "";
+    
   }
   
   public void setNumModel(int val){ numModel = val; }
@@ -98,5 +102,8 @@ public class HTSUttModel {
   public void concatRealisedAcoustParams(String str){
       realisedAcoustParams = realisedAcoustParams + str;
   }
+  
+
+  
   
 }
