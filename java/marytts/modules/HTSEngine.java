@@ -387,7 +387,7 @@ public class HTSEngine extends InternalModule
             numLab++;
             dur = m.getTotalDurMillisec();
             um.concatRealisedAcoustParams(m.getPhoneName() + " " + dur.toString() + "\n");
-            System.out.println("phoneme=" + m.getPhoneName() + " dur=" + m.getTotalDur() +" durTotal=" + um.getTotalFrame() );
+            //System.out.println("phoneme=" + m.getPhoneName() + " dur=" + m.getTotalDur() +" durTotal=" + um.getTotalFrame() );
             
             /* Find pdf for LF0, this function sets the pdf for each state. */ 
             cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
