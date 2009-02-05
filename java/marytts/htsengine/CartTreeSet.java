@@ -173,7 +173,7 @@ public class CartTreeSet {
         if(m.getDur(s) < 1 )
           m.setDur(s, 1);
         
-        // System.out.println("   state: " + s + " dur=" + m.getDur(s));               
+        System.out.println("   state: " + s + " dur=" + m.getDur(s));               
         m.setTotalDur(m.getTotalDur() + m.getDur(s));      
         dd = dd + ( data - (double)m.getDur(s) );       
       }

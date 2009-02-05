@@ -1206,7 +1206,7 @@ public class HTSVocoder {
       real = new double[T2];
       imag = new double[T2];
 
-      /* copy Fourier magnitudes (Wai C. Chu "Speech Coding algorithms foundation and evolution of standadized coders" pg. 460) */
+      /* copy Fourier magnitudes (Wai C. Chu "Speech Coding algorithms foundation and evolution of standardized coders" pg. 460) */
       real[0] = real[T] = 0.0;   /* DC component set to zero */
       for(i=1; i<=numHarm; i++){     
         real[i] = real[T-i] = real[T+i] =  real[T2-i] = mag.getPar(n, i-1);  /* Symetric extension */
@@ -1493,7 +1493,7 @@ public class HTSVocoder {
        boolean [] voiced = null;
        DataInputStream lf0Data, mcepData, strData, magData;
        String lf0File, mcepFile, strFile, magFile, resFile;
-       String voiceExample, outFile="";
+       String voiceExample, outFile="tmp";
        String voiceHMM, voiceName, parDir="", outDir="";
        
        int ex = 4;
@@ -1540,27 +1540,24 @@ public class HTSVocoder {
        } else {       
        // slt, english
                       
-           voiceHMM = "20-lsp";
+           //voiceHMM = "20-lsp";
            //voiceHMM = "20-mel-lsp";
            //voiceHMM = "20-mgc-lsp";
-           //voiceHMM = "24-mel-cepstrum";
-           voiceName = "hsmm-"+voiceHMM;
-           parDir = "/project/mary/marcela/hmm-voice-conversion-experiment/gen-par/" + voiceName + "/";
+           voiceHMM = "24-mel-cepstrum";
+           voiceName = "hsmm-slt";
+           parDir = "/project/mary/marcela/hmm-mag-experiment/gen-par/";
            //outDir = "/project/mary/marcela/hmm-gen-experiment/MLSA-MGLSA/" + voiceName + "/";
            outDir = "/project/mary/marcela/openmary/tmp/";
            voiceExample = "cmu_us_arctic_slt_a0001";
-           outFile = "slt-lpc-vocoder-gen-exc";
-           htsData.initHMMData(voiceName, MaryBase, "english-hsmm-"+voiceHMM+".config");    
+           htsData.initHMMData(voiceName, MaryBase, "english-hsmm-slt.config");    
 
-       /* parameters extracted from real data */   
-           
+       /* parameters extracted from real data */              
        lf0File  = parDir + "cmu_us_arctic_slt_a0001-littend.lf0";
        mcepFile = parDir + "cmu_us_arctic_slt_a0001-littend.mgc";
        strFile  = parDir + "cmu_us_arctic_slt_a0001-littend.str";
        magFile  = parDir + "cmu_us_arctic_slt_a0001-littend.mag";
          
-       //resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/cmu_us_arctic_slt_a0001_res.wav";
-       resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/cmu_us_arctic_slt_a0001_res_sinResynth.wav";
+       resFile = "/project/mary/marcela/hmm-mag-experiment/tmp.wav";
        }
        
         
@@ -1665,7 +1662,7 @@ public class HTSVocoder {
        
        //par2speech.setUseLpcVocoder(true);
        htsData.setUseMixExc(true);
-       htsData.setUseFourierMag(false);  /* use Fourier magnitudes for pulse generation */
+       htsData.setUseFourierMag(true);  /* use Fourier magnitudes for pulse generation */
           
        audio_double = par2speech.htsMLSAVocoder(lf0Pst, mcepPst, strPst, magPst, voiced, htsData);
        //audio_double = par2speech.htsMLSAVocoder_residual(htsData, mcepPst, resFile);
