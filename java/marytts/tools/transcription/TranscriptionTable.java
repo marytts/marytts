@@ -155,32 +155,6 @@ public class TranscriptionTable extends JPanel implements ActionListener {
     }
     
     /**
-     *  verify previous row transcription syntax
-     */
-    private void checkTranscriptionSyntax(){
-        
-        int x = table.getSelectionModel().getLeadSelectionIndex();
-        
-        if(previousRow!=x){
-            String transcription =  (String) transcriptionModel.getDataAt(previousRow, 2);
-            transcription = transcription.replaceAll("\\s*", "");
-            this.transcriptionModel.setValueAt(transcription , previousRow, 2);
-            if(!transcription.equals("")){
-                String check = phoneSet.checkAllophoneSyntax(transcription);
-                if(check.equals("OK")){
-                    transcriptionModel.setAsCorrectSyntax(previousRow, true);
-                }
-                else transcriptionModel.setAsCorrectSyntax(previousRow, false);
-                //transcriptionModel.setAsManualVerify(previousRow, true);
-                //if(x == itsRow){
-                //    transcriptionModel.setAsManualVerify(x, true);
-                //}
-            }
-        }
-        previousRow = x;
-    }
-    
-    /**
      * verify transcription syntax
      * @param row
      */
@@ -404,7 +378,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
             }
             itsRow = table.getSelectionModel().getLeadSelectionIndex();
             table.repaint();
-            checkTranscriptionSyntax();
+            checkTranscription();
         }
     }
 
@@ -420,7 +394,6 @@ public class TranscriptionTable extends JPanel implements ActionListener {
             }
             itsRow = table.getSelectionModel().getLeadSelectionIndex();
             table.repaint();
-            //checkTranscriptionSyntax();
         }
     }
 
@@ -485,7 +458,6 @@ public class TranscriptionTable extends JPanel implements ActionListener {
         }
         public void editingStopped(ChangeEvent e) {
             System.out.println("stopped: "+itsRow);
-            checkTranscriptionSyntax();
             checkTranscriptionSyntax(itsRow);
             transcriptionModel.setAsManualVerify(itsRow, true);
             rowEnterPressed = -1;
