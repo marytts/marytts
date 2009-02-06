@@ -109,9 +109,10 @@ public class TranscriptionTable extends JPanel implements ActionListener {
         table.setPreferredScrollableViewportSize(new Dimension(500, 70));
         //table.setFillsViewportHeight(true);
         table.getSelectionModel().addListSelectionListener(new RowListener());
+        table.getColumnModel().getColumn(0).setCellRenderer(new CustomTableCellRenderer());
         table.getColumnModel().getColumn(2).setCellRenderer(new CustomTableCellRenderer());
         table.addKeyListener(new KeyEventListener());
-        
+        table.setFont(new Font("Serif", Font.TRUETYPE_FONT, 12));
         scrollpane = new JScrollPane(table);
         add(scrollpane);
         TableColumn column = table.getColumnModel().getColumn(1);
@@ -504,10 +505,12 @@ public class TranscriptionTable extends JPanel implements ActionListener {
           
           boolean[] hasManualVerify = transcriptionModel.getManualVerifiedList();
           boolean[] hasCorrectSyntax = transcriptionModel.getCorrectSyntaxList(); 
-          cell.setFont(new Font("Serif", Font.BOLD, 12));
+          if(column == 0){
+              cell.setFont(new Font("Serif", Font.TRUETYPE_FONT, 12));
+          }
           
           if(column == 2){
-              
+              cell.setFont(new Font("Serif", Font.BOLD, 12));
               if(!hasCorrectSyntax[row]){
                   cell.setForeground(Color.RED);
                   transcriptionModel.setAsManualVerify(row, false);
@@ -525,6 +528,15 @@ public class TranscriptionTable extends JPanel implements ActionListener {
           return cell;
         }
       }
+ 
+
+    public void changeTableFont(String fontName) {
+        
+        int fontSize =  table.getFont().getSize();
+        System.out.println("prev: "+table.getFont().getName());
+        table.setFont(new Font(fontName, Font.TRUETYPE_FONT,fontSize));
+        System.out.println("next: "+fontName);
+    }
    
     
 }
