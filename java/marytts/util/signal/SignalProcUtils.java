@@ -1008,12 +1008,12 @@ public class SignalProcUtils {
     // All out-of-boundary values are assumed 0.0
     public static double[] medianFilter(double[] x, int N)
     {
-        return medianFilter(x, N, 0.0);
+        return medianFilter(x, N, x[x.length-1]);
     }
     
     public static float[] medianFilter(float[] x, int N)
     {
-        return medianFilter(x, N, 0.0);
+        return medianFilter(x, N, x[x.length-1]);
     }
     
     //Median filtering: All values in x are replaced by the median of the N closest context neighbours
@@ -2287,6 +2287,8 @@ public class SignalProcUtils {
         return y;
     }
     
+    //If N<0, shift the sequence left
+    //If N>0, shift the sequence right
     public static float[] shift(float[] x, int N)
     {
         if (N==0)
@@ -2294,22 +2296,23 @@ public class SignalProcUtils {
 
         float[] y = new float[x.length];
         int i;
-        if (N>0)
+        
+        if (N>0) //Shift right
         {
             for (i=0; i<N; i++)
                 y[i] = x[0];
-            for (i=N; i<x.length-N; i++)
+            for (i=N; i<x.length; i++)
                 y[i] = x[i-N];
         }
-        else 
+        else //Shift left
         {
-            N = -1*N;
+            N=-1*N;
             for (i=0; i<x.length-N; i++)
                 y[i] = x[i+N];
             for (i=x.length-N; i<x.length; i++)
-                y[i] = x[x.length-1];   
+                y[i] = x[x.length-1];
         }
-        
+
         return y;
     }
     

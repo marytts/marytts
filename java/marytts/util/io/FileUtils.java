@@ -35,7 +35,10 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Vector;
 
+import marytts.tools.voiceimport.BasenameList;
 import marytts.util.math.ComplexArray;
 
 
@@ -332,5 +335,84 @@ public class FileUtils
         }
     }
     
+    //Gets filenames only without paths!
+    public static String[] getFileNameList(String directory, String extension)
+    {
+        return  getFileNameList(directory, extension, true);
+    }
+    
+    //Gets filenames only without paths!
+    public static String[] getFileNameList(String directory, String extension, boolean recurse)
+    {
+        File[] files = listFilesAsArray(new File(directory), new FileFilter(extension), recurse);
+        String[] fileList = null;
+        if (files!=null && files.length>0)
+        {
+            fileList = new String[files.length];
+            for (int i=0; i<files.length; i++)
+                fileList[i] = files[i].getName();
+        }
+        
+        return fileList;
+    }
+    
+    //Gets filenames with full path
+    public static String[] getFileList(String directory, String extension)
+    {
+        return  getFileList(directory, extension, true);
+    }
+    
+    //Gets filenames with full path
+    public static String[] getFileList(String directory, String extension, boolean recurse)
+    {
+        File[] files = listFilesAsArray(new File(directory), new FileFilter(extension), recurse);
+        String[] fileList = null;
+        if (files!=null && files.length>0)
+        {
+            fileList = new String[files.length];
+            for (int i=0; i<files.length; i++)
+                fileList[i] = files[i].getAbsolutePath();
+        }
+        
+        return fileList;
+    }
+    
+    public static File[] listFilesAsArray(File directory, FilenameFilter filter, boolean recurse)
+    {
+        Collection<File> files = listFiles(directory, filter, recurse);
+  
+        File[] arr = new File[files.size()];
+        return files.toArray(arr);
+    }
+
+    public static Collection<File> listFiles(File directory, FilenameFilter filter, boolean recurse)
+    {
+        // List of files / directories
+        Vector<File> files = new Vector<File>();
+        
+        // Get files / directories in the directory
+        File[] entries = directory.listFiles();
+        
+        // Go over entries
+        for (File entry : entries)
+        {
+            // If there is no filter or the filter accepts the 
+            // file / directory, add it to the list
+            if (filter == null || filter.accept(directory, entry.getName()))
+            {
+                files.add(entry);
+            }
+            
+            // If the file is a directory and the recurse flag
+            // is set, recurse into the directory
+            if (recurse && entry.isDirectory())
+            {
+                files.addAll(listFiles(entry, filter, recurse));
+            }
+        }
+        
+        // Return collection of files
+        return files;       
+    }
 }
 
