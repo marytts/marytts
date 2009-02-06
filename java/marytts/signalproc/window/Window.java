@@ -23,6 +23,7 @@ import java.util.Arrays;
 
 import marytts.signalproc.process.CopyingDataProcessor;
 import marytts.signalproc.process.InlineDataProcessor;
+import marytts.util.math.ArrayUtils;
 
 
 /**
@@ -381,6 +382,18 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
     public double[] getCoeffs()
     {
         return window;
+    }
+    
+    public double[] getCoeffsLeftHalf()
+    {
+        return ArrayUtils.subarray(window, 0, (int)Math.floor(0.5*window.length+0.5));
+    }
+    
+    public double[] getCoeffsRightHalf()
+    {
+        int off = (int)Math.floor(0.5*window.length+0.5)+1;
+        int len = window.length-off;
+        return ArrayUtils.subarray(window, off, len);
     }
 }
 

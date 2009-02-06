@@ -234,7 +234,7 @@ public class PeakMatchedSinusoidalSynthesizer extends BaseSinusoidalSynthesizer{
         boolean bSpectralReassignment = false;
         boolean bAdjustNeighFreqDependent = false;
         
-        int spectralEnvelopeType = SinusoidalAnalyzer.LP_SPEC;
+        int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC;
         
         boolean isFixedRateAnalysis = false;
         boolean isRealSpeech = true;
