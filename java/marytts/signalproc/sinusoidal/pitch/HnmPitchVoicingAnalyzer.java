@@ -29,6 +29,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.sinusoidal.SinusoidalAnalyzer;
 import marytts.signalproc.sinusoidal.NonharmonicSinusoidalSpeechFrame;
+import marytts.signalproc.sinusoidal.hnm.HnmAnalyzer;
+import marytts.signalproc.window.HanningWindow;
 import marytts.signalproc.window.Window;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
@@ -54,17 +56,19 @@ public class HnmPitchVoicingAnalyzer {
                                                 //0.3 means the region [0.7xf0, 4.3xf0] will be considered in voicing decision
     //
     
-    public static float NUM_PERIODS_AT_LEAST = 3.0f;
+    public static float NUM_PERIODS_AT_LEAST = 2.0f;
     
     //These are the three thresholds used in Stylianou for maximum voicing frequency estimation using the harmonic model
-    public static double CUMULATIVE_AMP_THRESHOLD = 0.8;
-    public static double MAXIMUM_AMP_THRESHOLD_IN_DB = 5.0; //Decreased ==> Voicing increases
-    public static double HARMONIC_DEVIATION_PERCENT = 40.0; //Increased ==> Voicing increases
-    public static double SHARP_PEAK_AMP_DIFF_IN_DB = 0.2; //Decreased ==> Voicing increases
-    public static int MINIMUM_TOTAL_HARMONICS = 20; //At least this much total harmonics will be included in voiced spectral region (effective only when f0>10.0)
-    public static int MAXIMUM_TOTAL_HARMONICS = 50; //At most this much total harmonics will be included in voiced spectral region (effective only when f0>10.0)
-    public static float MINIMUM_VOICED_FREQUENCY_OF_VOICING = 3000.0f; //All voiced sections will have at least this freq. of voicing
+    public static double CUMULATIVE_AMP_THRESHOLD = 1.2; //Decreased ==> Voicing increases (Orig: 2.0)
+    public static double MAXIMUM_AMP_THRESHOLD_IN_DB = 8.0; //Decreased ==> Voicing increases (Orig: 13.0)
+    public static double HARMONIC_DEVIATION_PERCENT = 30.0; //Increased ==> Voicing increases (Orig: 20.0)
+    public static double SHARP_PEAK_AMP_DIFF_IN_DB = 2.0; //Decreased ==> Voicing increases
+    public static int MINIMUM_TOTAL_HARMONICS = 4; //Minimum number of total harmonics to be included in voiced region (effective only when f0>10.0)
+    public static int MAXIMUM_TOTAL_HARMONICS = 40; //Maximum number of total harmonics to be included in voiced region (effective only when f0>10.0)
+    public static float MINIMUM_VOICED_FREQUENCY_OF_VOICING = 1000.0f; //All voiced sections will have at least this freq. of voicing
     public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 6000.0f; //All voiced sections will have at least this freq. of voicing
+    public static float MAXIMUM_FREQUENCY_OF_VOICING_FINAL_SHIFT = 0.0f; //The max freq. of voicing contour is shifted by this amount finally
+    public static float RUNNING_MEAN_VOICING_THRESHOLD = 0.5f; //Between 0.0 and 1.0, decrease ==> Max. voicing freq increases
     //
     
     //For voicing detection
@@ -173,7 +177,7 @@ public class HnmPitchVoicingAnalyzer {
                 E[P-PMin] = (term1-term2)/(term1*term3);
             }
 
-            MaryUtils.plot(E);
+            //MaryUtils.plot(E);
             
             minInd = MathUtils.getMinIndex(E);
             if (E[minInd]<0.5)
@@ -186,10 +190,20 @@ public class HnmPitchVoicingAnalyzer {
     }
     
     public static  float[] analyzeVoicings(double[] x, int samplingRate, float windowSizeInSeconds, float skipSizeInSeconds,
-                                        int fftSize, float[] initialF0s) 
+                                        int fftSize, float[] initialF0s, float windowSizeInSecondsF0Analysis, float skipSizeInSecondsF0Analysis) 
     {
-        int numfrm = initialF0s.length;
+        //First remove dc-bias and ormalize signal energy
+        //MaryUtils.plot(x);
+        double[] xNorm = MathUtils.add(x, -1.0*MathUtils.mean(x));
+        double xEn = SignalProcUtils.energy(x);
+        xNorm = MathUtils.multiply(x, 500.0/Math.sqrt(xEn/x.length));
+        //MaryUtils.plot(xNorm);
+        //
         
+        double durationInSeconds = SignalProcUtils.sample2time(x.length, samplingRate);
+        int numfrm = (int)Math.floor((durationInSeconds-0.5*windowSizeInSeconds)/skipSizeInSeconds+0.5);
+        
+        float[] mappedF0s = new float[numfrm];
         double[] voicingErrors = new double[numfrm];
         
         int ws = SignalProcUtils.time2sample(windowSizeInSeconds, samplingRate);
@@ -200,13 +214,26 @@ public class HnmPitchVoicingAnalyzer {
         float[] maxFrequencyOfVoicings = new float[numfrm];
         float currentTime;
         double[] frm = new double[ws];
-        for (int i=0; i<numfrm; i++)
+        HanningWindow w = new HanningWindow(ws);
+        int currentF0Index;
+        int i;
+        for (i=0; i<numfrm; i++)
         {  
             Arrays.fill(frm, 0.0);
-            System.arraycopy(x, i*ss, frm, 0, Math.min(ws, x.length-i*ss));
+            //System.arraycopy(xNorm, i*ss, frm, 0, Math.min(ws, x.length-i*ss));
+            if (i*ss+ws<x.length)
+                System.arraycopy(xNorm, i*ss, frm, 0, ws);
+            else
+                System.arraycopy(xNorm, x.length-ws, frm, 0, ws); //Here is a trick to avoid zeros in the last frame
+                
+            frm = w.apply(frm, 0);
             startIndex = i*ss;
             endIndex = startIndex+Math.min(ws, x.length-i*ss)-1;
             
+            currentTime = i*skipSizeInSeconds+0.5f*windowSizeInSeconds;
+            currentF0Index = SignalProcUtils.time2frameIndex(currentTime, windowSizeInSecondsF0Analysis, skipSizeInSecondsF0Analysis);
+            currentF0Index = MathUtils.CheckLimits(currentF0Index, 0, initialF0s.length-1);
+            mappedF0s[i] = initialF0s[currentF0Index];
             NonharmonicSinusoidalSpeechFrame frameSins = null;
 
             while (fftSize<frm.length)
@@ -215,10 +242,7 @@ public class HnmPitchVoicingAnalyzer {
             int maxFreq = (int) (Math.floor(0.5*fftSize+0.5)+1);
             ComplexArray Y = new ComplexArray(fftSize);
 
-            //Perform circular buffering as described in (Quatieri, 2001) to provide correct phase estimates
-            int midPoint = (int) Math.floor(0.5*frm.length+0.5);
-            System.arraycopy(frm, midPoint, Y.real, 0, frm.length-midPoint);
-            System.arraycopy(frm, 0, Y.real, fftSize-midPoint, midPoint);
+            System.arraycopy(frm, 0, Y.real, 0, frm.length);
             //
 
             //Compute DFT
@@ -233,10 +257,11 @@ public class HnmPitchVoicingAnalyzer {
             double[] YAbsDB = MathUtils.amp2db(YAbs);
             //
             
+            //isVoiced = (mappedF0s[i]>10.0f) ? true : false;
             isVoiced = false;
-            if (initialF0s[i]>10.0f)
+            if (mappedF0s[i]>10.0f)
             {
-                voicingErrors[i] = estimateVoicingFromFrameSpectrum(YAbs, samplingRate, initialF0s[i]);
+                voicingErrors[i] = estimateVoicingFromFrameSpectrum(YAbs, samplingRate, mappedF0s[i]);
                 
                 if (voicingErrors[i]<-1.0)
                     isVoiced = true;
@@ -245,66 +270,71 @@ public class HnmPitchVoicingAnalyzer {
             VoicingAnalysisOutputData vo = null;
             if (isVoiced)
             {
-                vo = estimateMaxFrequencyOfVoicingsFrame(YAbsDB, samplingRate, initialF0s[i], isVoiced);
+                vo = estimateMaxFrequencyOfVoicingsFrame(YAbsDB, samplingRate, mappedF0s[i], isVoiced);
                 maxFrequencyOfVoicings[i] = vo.maxFreqOfVoicing;
             }
             else
                 maxFrequencyOfVoicings[i] = 0.0f;
             
-            currentTime = SignalProcUtils.sample2time((int)Math.floor(0.5*(startIndex+endIndex)+0.5), samplingRate);
             if (isVoiced)
-                System.out.println("Time=" + String.valueOf(currentTime)+ " sec." + " f0=" + String.valueOf(initialF0s[i]) + " Hz." + " Voiced" + " MaxVFreq=" + String.valueOf(maxFrequencyOfVoicings[i]));
+                System.out.println("Time=" + String.valueOf(currentTime)+ " sec." + " f0=" + String.valueOf(mappedF0s[i]) + " Hz." + " Voiced" + " MaxVFreq=" + String.valueOf(maxFrequencyOfVoicings[i]));
             else
-                System.out.println("Time=" + String.valueOf(currentTime)+ " sec." + " f0=" + String.valueOf(initialF0s[i]) + " Hz." + " Unvoiced" + " MaxVFreq=" + String.valueOf(maxFrequencyOfVoicings[i]));
+                System.out.println("Time=" + String.valueOf(currentTime)+ " sec." + " f0=" + String.valueOf(mappedF0s[i]) + " Hz." + " Unvoiced" + " MaxVFreq=" + String.valueOf(maxFrequencyOfVoicings[i]));
         }
         
-        int i;
         //Smooth with a median filter
-        int NPoints = 10;
+        int NPoints = 12;
         maxFrequencyOfVoicings = SignalProcUtils.medianFilter(maxFrequencyOfVoicings, NPoints);
-        maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, (int)Math.floor(0.5*NPoints+0.5));
+        maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, -1*(int)Math.floor(0.5*NPoints+0.5));
+        
+        //Smooth with a moving average filter
+        int MPoints = 12;
+        maxFrequencyOfVoicings = SignalProcUtils.meanFilter(maxFrequencyOfVoicings, MPoints);
+        maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, -1*(int)Math.floor(0.5*MPoints+0.5));
+
+        MPoints = 12;
+        maxFrequencyOfVoicings = SignalProcUtils.meanFilter(maxFrequencyOfVoicings, MPoints);
+        maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, -1*(int)Math.floor(0.5*MPoints+0.5));
+        
         for (i=0; i<maxFrequencyOfVoicings.length; i++)
         {
-            if (initialF0s[i]<10.0f)
+            if (mappedF0s[i]<10.0f)
                 maxFrequencyOfVoicings[i] = 0.0f;
         }
         
-        //Smooth with a moving average filter
-        int MPoints = 16;
-        maxFrequencyOfVoicings = SignalProcUtils.meanFilter(maxFrequencyOfVoicings, MPoints);
-        maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, (int)Math.floor(0.5*MPoints+0.5));
-    
-        //Smooth with a median filter
-        NPoints = 8;
-        maxFrequencyOfVoicings = SignalProcUtils.medianFilter(maxFrequencyOfVoicings, NPoints);
-        maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, (int)Math.floor(0.5*NPoints+0.5));
-        
-        //Smooth with a moving average filter
-        MPoints = 10;
-        maxFrequencyOfVoicings = SignalProcUtils.meanFilter(maxFrequencyOfVoicings, MPoints);
-        maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, (int)Math.floor(0.5*MPoints+0.5));
         for (i=0; i<maxFrequencyOfVoicings.length; i++)
         {
-            if (initialF0s[i]<10.0f)
+            if (mappedF0s[i]<10.0f)
                 maxFrequencyOfVoicings[i] = 0.0f;
         }
 
+        for (i=0; i<maxFrequencyOfVoicings.length; i++)
+        {
+            if (mappedF0s[i]<10.0f)
+                maxFrequencyOfVoicings[i] = 0.0f;
+            else
+            {
+                maxFrequencyOfVoicings[i] = MathUtils.CheckLimits(maxFrequencyOfVoicings[i], MINIMUM_TOTAL_HARMONICS*mappedF0s[i], MAXIMUM_TOTAL_HARMONICS*mappedF0s[i]);
+                maxFrequencyOfVoicings[i] = MathUtils.CheckLimits(maxFrequencyOfVoicings[i], MINIMUM_VOICED_FREQUENCY_OF_VOICING, MAXIMUM_VOICED_FREQUENCY_OF_VOICING);   
+            }
+        }
+        //MaryUtils.plot(maxFrequencyOfVoicings);
+        
+        maxFrequencyOfVoicings = MathUtils.add(maxFrequencyOfVoicings,MAXIMUM_FREQUENCY_OF_VOICING_FINAL_SHIFT);
+        //MaryUtils.plot(maxFrequencyOfVoicings);
+        
         //Final check for voicings and number of harmonics constraints for voiced portions
         for (i=0; i<maxFrequencyOfVoicings.length; i++)
         {
-            if (initialF0s[i]<10.0f)
+            if (mappedF0s[i]<10.0f)
                 maxFrequencyOfVoicings[i] = 0.0f;
-            
-            if (initialF0s[i]>10.0f)
-            {
-                maxFrequencyOfVoicings[i] = MathUtils.CheckLimits(maxFrequencyOfVoicings[i], MINIMUM_TOTAL_HARMONICS*initialF0s[i], MAXIMUM_TOTAL_HARMONICS*initialF0s[i]);
-                maxFrequencyOfVoicings[i] = MathUtils.CheckLimits(maxFrequencyOfVoicings[i], MINIMUM_VOICED_FREQUENCY_OF_VOICING, MAXIMUM_VOICED_FREQUENCY_OF_VOICING);   
+            else
                 maxFrequencyOfVoicings[i] = MathUtils.CheckLimits(maxFrequencyOfVoicings[i], 0.0f, 0.5f*samplingRate);
-            }
         }
+        
         MaryUtils.plot(maxFrequencyOfVoicings);
         
-        MaryUtils.plot(voicingErrors);
+        //MaryUtils.plot(voicingErrors);
         
         return maxFrequencyOfVoicings;
     }
@@ -369,11 +399,9 @@ public class HnmPitchVoicingAnalyzer {
             double Amc = computeAmc(absDBSpec, fcIndex, valleyInds);
             //
             
-            /*
             //From linear spec
-            double Am = ampSpec[fcIndex];
-            double Amc = computeAmc(ampSpec, fcIndex, valleyInds);
-            */
+            //double Am = ampSpec[fcIndex];
+            //double Amc = computeAmc(ampSpec, fcIndex, valleyInds);
             
             //Search for other peaks and compute Ams and Amcs
             int startInd = SignalProcUtils.freq2index(fc-0.5*f0, samplingRate, maxFreqIndex);
@@ -407,63 +435,78 @@ public class HnmPitchVoicingAnalyzer {
                             Amcs[counter] = computeAmc(absDBSpec, peakInds[n], valleyInds);
                             //
                             
-                            /*
                             //From linear spec
-                            Ams[counter] = ampSpec[peakInds[n]];
-                            Amcs[counter] = computeAmc(ampSpec, peakInds[n], valleyInds); 
+                            //Ams[counter] = ampSpec[peakInds[n]];
+                            //Amcs[counter] = computeAmc(ampSpec, peakInds[n], valleyInds); 
                             //
-                            */
+
                             counter++;
                         }
                     }
                 }
                 else //A very sharp single peak might exist in this range, check by comparing with rage median
                 {
+                    //MaryUtils.plot(absDBSpec, startInd, endInd);
                     bandMedVal = MathUtils.median(absDBSpec, startInd, endInd);
                     if (Am-bandMedVal>SHARP_PEAK_AMP_DIFF_IN_DB)
-                    {
                         voiceds[i] = 1.0;
-                        //MaryUtils.plot(absDBSpec, startInd, endInd);
-                    }
                 }
             }
             //
             
             //Now do harmonic tests
-            if (voiceds[i]!=1.0 && Amcs!=null)
+            if (voiceds[i]!=1.0)
             {
-                double meanAmcs = MathUtils.mean(Amcs);
-                
-                vals1[i] = Amc/meanAmcs;
-                vals3[i] = (Math.abs(fc-(double)(i+1)*f0)/((double)(i+1)*f0));
-                
-                //if (vals1[i]>CUMULATIVE_AMP_THRESHOLD && vals3[i]<(HARMONIC_DEVIATION_PERCENT/100.0))
-                if (vals1[i]>CUMULATIVE_AMP_THRESHOLD && vals3[i]<(HARMONIC_DEVIATION_PERCENT/100.0))
+                if (Amcs!=null)
+                {
+                    double meanAmcs = MathUtils.mean(Amcs);
+
+                    vals1[i] = Amc/meanAmcs;
+                    vals3[i] = (Math.abs(fc-(double)(i+1)*f0)/((double)(i+1)*f0));
+
+                    if (vals1[i]>CUMULATIVE_AMP_THRESHOLD && vals3[i]<(HARMONIC_DEVIATION_PERCENT/100.0))
                         voiceds[i]=1.0;
+                }
+                else
+                {
+                    vals3[i] = (Math.abs(fc-(double)(i+1)*f0)/((double)(i+1)*f0));
+
+                    if (vals3[i]<(HARMONIC_DEVIATION_PERCENT/100.0))
+                        voiceds[i]=1.0;
+                }
             }
             
-            if (voiceds[i]!=1.0 && Ams!=null)
+            if (voiceds[i]!=1.0)
             {
-                double maxAms = MathUtils.max(Ams);
+                if (Ams!=null)
+                {
+                    double maxAms = MathUtils.max(Ams);
                 
-                vals2[i] = Am-maxAms;
-                //val2 = (MathUtils.amp2db(Am)-MathUtils.amp2db(maxAms)); //in amp should be converted to db
-                vals3[i] = (Math.abs(fc-(double)(i+1)*f0)/((double)(i+1)*f0));
+                    vals2[i] = Am-maxAms;
+                    //val2 = (MathUtils.amp2db(Am)-MathUtils.amp2db(maxAms)); //in amp should be converted to db
+                    vals3[i] = (Math.abs(fc-(double)(i+1)*f0)/((double)(i+1)*f0));
                 
-                //if (vals2[i]>MAXIMUM_AMP_THRESHOLD_IN_DB && vals3[i]<(HARMONIC_DEVIATION_PERCENT/100.0))
-                if (vals2[i]>MAXIMUM_AMP_THRESHOLD_IN_DB && vals3[i]<(HARMONIC_DEVIATION_PERCENT/100.0))
-                    voiceds[i]=1.0;
+                    if (vals2[i]>MAXIMUM_AMP_THRESHOLD_IN_DB && vals3[i]<(HARMONIC_DEVIATION_PERCENT/100.0))
+                        voiceds[i]=1.0;
+                }
+                else
+                {
+                    vals3[i] = (Math.abs(fc-(double)(i+1)*f0)/((double)(i+1)*f0));
+                    
+                    if (vals3[i]<(HARMONIC_DEVIATION_PERCENT/100.0))
+                        voiceds[i]=1.0;
+                } 
             }
             //
             
-            //Save for senidng peak indices to output
+            //Save for sending peak indices to output
             tmpPeakIndices[i] = fcIndex;
         }
         
-        //Median filter voicing decisions
-        voiceds = SignalProcUtils.medianFilter(voiceds, 4);
-        voiceds = SignalProcUtils.shift(voiceds, 2);
-        
+        /*
+        //Median filter voicing cut-off
+        int numPoints = 3;
+        voiceds = SignalProcUtils.medianFilter(voiceds, numPoints);
         //Forward look
         int maxVoicedHarmonicBand = -1;   
         for (i=0; i<voiceds.length-2; i++)
@@ -474,21 +517,33 @@ public class HnmPitchVoicingAnalyzer {
                 break;
             }    
         }
+        */
         
-        //Get the max freq. of voicing
+        //Running average computer for voicing cut-off
+        double[] runningMeans = new double[voiceds.length];
+        for (i=0; i<voiceds.length; i++)
+            runningMeans[i] = MathUtils.mean(voiceds, 0, i);
+
+        int numPoints = 12;
+        runningMeans = SignalProcUtils.meanFilter(runningMeans, numPoints); 
+        int maxVoicedHarmonicBand = -1; 
+        for (i=0; i<runningMeans.length-2; i++)
+        {
+            if (runningMeans[i]<RUNNING_MEAN_VOICING_THRESHOLD && runningMeans[i+1]<RUNNING_MEAN_VOICING_THRESHOLD && runningMeans[i+1]<RUNNING_MEAN_VOICING_THRESHOLD)
+                break;
+            else
+                maxVoicedHarmonicBand = i+2;
+        }
+        //MaryUtils.plot(runningMeans);
+        //
+        
+        //Get the max freq. of voicing considering the shift by filtering
         if (maxVoicedHarmonicBand>-1)
-            output.maxFreqOfVoicing = (float)Math.min((maxVoicedHarmonicBand+0.5)*f0, 0.5*samplingRate);
+            output.maxFreqOfVoicing = (float)Math.min((maxVoicedHarmonicBand+0.5)*f0+0.5*numPoints*f0, 0.5*samplingRate);
         else
             output.maxFreqOfVoicing = 0.0f;
        
-        if (isVoiced)
-        {
-            output.maxFreqOfVoicing = MathUtils.CheckLimits(output.maxFreqOfVoicing, MINIMUM_TOTAL_HARMONICS*f0, MAXIMUM_TOTAL_HARMONICS*f0);
-            output.maxFreqOfVoicing = MathUtils.CheckLimits(output.maxFreqOfVoicing, MINIMUM_VOICED_FREQUENCY_OF_VOICING, MAXIMUM_VOICED_FREQUENCY_OF_VOICING);   
-            output.maxFreqOfVoicing = MathUtils.CheckLimits(output.maxFreqOfVoicing, 0.0f, 0.5f*samplingRate);
-        }
-        else
-            output.maxFreqOfVoicing = 0.0f; //Meaning the spectrum is completely unvoiced
+        output.maxFreqOfVoicing = MathUtils.CheckLimits(output.maxFreqOfVoicing, 0.0f, 0.5f*samplingRate);
         
         //Put harmonic peak indices into output as well
         if (output.maxFreqOfVoicing>0.0f)
@@ -503,11 +558,9 @@ public class HnmPitchVoicingAnalyzer {
         }
         //
         
-        /*
-        String strDebug = "";
-        for (i=0; i<voiceds.length; i++)
-            System.out.println(String.valueOf(voiceds[i]) + " " + String.valueOf(vals1[i]) + " " + String.valueOf(vals2[i]) + " " + String.valueOf(vals3[i]) + " ");
-        */
+        //String strDebug = "";
+        //for (i=0; i<voiceds.length; i++)
+        //    System.out.println(String.valueOf(voiceds[i]) + " " + String.valueOf(vals1[i]) + " " + String.valueOf(vals2[i]) + " " + String.valueOf(vals3[i]) + " ");
         
         System.out.println("Max req of voicing=" + String.valueOf(output.maxFreqOfVoicing));
         
@@ -515,6 +568,7 @@ public class HnmPitchVoicingAnalyzer {
         
         return output;
     }
+
     
     private static double computeAmc(double[] spec, int fcIndex, int[] valleyInds)
     {
@@ -665,7 +719,7 @@ public class HnmPitchVoicingAnalyzer {
         int fftSize = getDefaultFFTSize(samplingRate);
 
         float[] initialF0s = HnmPitchVoicingAnalyzer.estimateInitialPitch(x, samplingRate, windowSizeInSeconds, skipSizeInSeconds, f0MinInHz, f0MaxInHz, windowType);
-        float[] maxFrequencyOfVoicings = HnmPitchVoicingAnalyzer.analyzeVoicings(x, samplingRate, windowSizeInSeconds, skipSizeInSeconds, fftSize, initialF0s);
+        float[] maxFrequencyOfVoicings = HnmPitchVoicingAnalyzer.analyzeVoicings(x, samplingRate, windowSizeInSeconds, skipSizeInSeconds, fftSize, initialF0s, windowSizeInSeconds, skipSizeInSeconds);
         float[] f0s = HnmPitchVoicingAnalyzer.estimateRefinedPitch(fftSize, samplingRate, leftNeighInHz, rightNeighInHz, searchStepInHz, initialF0s, maxFrequencyOfVoicings);
         
         for (int i=0; i<f0s.length; i++)
