@@ -129,11 +129,40 @@ public class FeatureMakerMaryServer{
         wikiToDB.createDBConnection(mysqlHost,mysqlDB,mysqlUser,mysqlPasswd);
         
         // check if table exists, if exists already ask user if delete or re-use
-        wikiToDB.createDataBaseSelectionTable();
-             
+        char c;
+        boolean result=false, processCleanTextRecords=true;
+        InputStreamReader isr = new InputStreamReader(System.in);
+        BufferedReader br = new BufferedReader(isr);
+    
+        String table = wikiToDB.getDBselectionTableName();
+        if(wikiToDB.tableExist(table)) {
+          System.out.print("    TABLE = \"" + table + "\" already exists, should it be deleted (y/n)?"); 
+          try{
+            String s = br.readLine();  
+            if( s.contentEquals("y")){
+              wikiToDB.createDataBaseSelectionTable();
+            } else {                
+              System.out.print("    ADDING sentences TO EXISTING dbselection TABLE \"" + table + "\" (y/n)?");
+              s = br.readLine();
+              if( s.contentEquals("y"))
+                processCleanTextRecords=true;
+              else{
+                processCleanTextRecords=false;
+                System.out.print("    please check the \"locale\" prefix of the dbselection TABLE you want to create or add to.");
+              }
+            }        
+        } catch(Exception e){
+            System.out.println(e); 
+        }
+        } else {
+          System.out.print("    TABLE = \"" + table + "\" does not exist, it will be created.");
+          wikiToDB.createDataBaseSelectionTable();
+        }
+        
+        if(processCleanTextRecords){     
         // Get the set of id for unprocessed records in clean_text
         // this will be useful when the process is stoped and then resumed
-        System.out.println("\nGetting list of unprocessed clean_text records from wikipedia...");
+        System.out.println("\nGetting list of unprocessed clean_text records from " + wikiToDB.getCleanTextTableName());
         int textId[];
         textId = wikiToDB.getUnprocessedTextIds();
         System.out.println("Number of unprocessed clean_text records to process --> [" + textId.length + "]");
@@ -194,6 +223,11 @@ public class FeatureMakerMaryServer{
         System.out.println("numSentencesInText;=" + numSentences);
         System.out.println("Start time:" + dateStringIni + "  End time:" + dateStringEnd);   
 		System.out.println("Done");
+        
+        } else {
+           wikiToDB.closeDBConnection(); 
+           System.out.println("FeatureMakerMaryServer terminated.");   
+        }
         
 	}//end of main method
 	

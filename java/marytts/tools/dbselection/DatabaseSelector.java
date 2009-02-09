@@ -113,7 +113,7 @@ public class DatabaseSelector{
      */
     public static byte[][] main2(String[] args,byte[][] vectorArray)throws Exception{
         /* Sort out the filenames and dirs for the logfiles */
-        System.out.println("Starting DatabSystem.out.println(e.getMessage());ase Selection...");
+        System.out.println("Starting Database Selection...");
         
         long time = System.currentTimeMillis();
         PrintWriter logOut;

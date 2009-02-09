@@ -20,6 +20,7 @@
 package marytts.tools.dbselection;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.BufferedReader;
@@ -206,7 +207,7 @@ public class WikipediaProcessor {
       return true;  
     }
     
-    private Vector<String> getWikipediaFiles(String fileName){
+    private Vector<String> getWikipediaFiles(String fileName)throws Exception {
         
       BufferedReader in = null;
       String line;
@@ -227,6 +228,8 @@ public class WikipediaProcessor {
         } catch( Exception e ) {
           e.printStackTrace();
         }       
+      } else {
+        throw new Exception("The file: " + fileName + " does not exist!");  
       }
       
       return files;
@@ -299,7 +302,40 @@ public class WikipediaProcessor {
         if (!wiki.readArgs(args))
             return;
         wiki.printParameters();
-       
+        
+        // checking if cleanText table exist
+        DBHandler wikiToDB = new DBHandler(wiki.getLocale());
+        wikiToDB.createDBConnection(wiki.getMysqlHost(),wiki.getMysqlDB(),wiki.getMysqlUser(),wiki.getMysqlPasswd());
+        char c;
+        boolean result=false, processFiles=true;
+        InputStreamReader isr = new InputStreamReader(System.in);
+        BufferedReader br = new BufferedReader(isr);
+    
+        String table = wiki.getLocale() + "_cleanText";
+        if(wikiToDB.tableExist(table)) {
+          System.out.print("    TABLE = \"" + table + "\" already exists, should it be deleted (y/n)?"); 
+          try{
+            String s = br.readLine();  
+            if( s.contentEquals("y")){
+              wikiToDB.createWikipediaCleanTextTable();
+            } else {                
+              System.out.print("    ADDING clean text TO EXISTING cleanText TABLE \"" + wiki.getLocale() + "_cleanText\" (y/n)?");
+              s = br.readLine();
+              if( s.contentEquals("y"))
+                processFiles=true;
+              else{
+                processFiles=false;
+                System.out.print("    please check the \"locale\" prefix of the locale_cleanText TABLE you want to create or add to.");
+              }
+            }        
+        } catch(Exception e){
+            System.out.println(e); 
+        }
+        } else 
+          System.out.print("    TABLE = \"" + table + "\" does not exist, it will be created."); 
+        wikiToDB.closeDBConnection();
+        
+        if(processFiles){
         filesToProcess = wiki.getWikipediaFiles(wiki.getListFile());
         filesDone = wiki.getWikipediaFiles(doneFile);
         if(filesDone==null)
@@ -341,7 +377,9 @@ public class WikipediaProcessor {
               System.out.println("File already procesed: " + wFile);           
           }
         } else
-          System.out.println("No files to process..");
+          System.out.println("Empty list of files to process.");
+        } else 
+          System.out.println("WikipediaProcessor terminated.");   
             
     }
     
