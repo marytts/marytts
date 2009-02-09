@@ -381,13 +381,16 @@ public class CoverageDefinition{
 
             // basenames[index] = nextBasename;
             byte[] vectorBuf;
-            int numFeatVects;
+            int numFeatVects=0;
             if (needToReadVectors){
              
               trueNumSentences--;
               vectorBuf = wikiToDB.getFeatures(id);  //
               //numFeatVects = (vectorBuf.length)/3;   // 3 because phone, next_phoneme and selection_prosody
-              numFeatVects = (vectorBuf.length)/numTargetFeaturesUsed;
+              if(vectorBuf != null)
+                numFeatVects = (vectorBuf.length)/numTargetFeaturesUsed;
+              else
+                System.out.println("null features for id=" + id);  
               
               if (holdVectorsInMemory){
                     vectorArray[index] = vectorBuf;
