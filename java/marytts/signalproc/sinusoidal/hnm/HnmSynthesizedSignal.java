@@ -24,8 +24,15 @@ package marytts.signalproc.sinusoidal.hnm;
  *
  */
 public class HnmSynthesizedSignal {
-    double[] harmonicPart;
-    double[] noisePart;
-
+    public double[] harmonicPart;
+    public double[] noisePart;
+    public double[] transientPart;
+    
+    public HnmSynthesizedSignal()
+    {
+        harmonicPart = null;
+        noisePart = null;
+        transientPart = null;
+    }
 }
 
