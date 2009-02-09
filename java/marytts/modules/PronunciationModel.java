@@ -100,14 +100,19 @@ public class PronunciationModel extends InternalModule
         // TODO: pronunciation model tree and feature definition should be voice-specific
         // get featureDefinition used for trees - just to tell the tree that the
         // features are discrete
-        String fdFilename = MaryProperties.getFilename("german.pronunciation.featuredefinition");
+        String fdFilename = null;
+        if (getLocale() != null) {
+            fdFilename = MaryProperties.getFilename(MaryProperties.localePrefix(getLocale())
+                    +".pronunciation.featuredefinition");
+        }
         if (fdFilename != null) {
             File fdFile = new File(fdFilename);
             //                                              reader for file, readweights = false
             featDef = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), false);
 
             // get path where the prediction trees lie
-            File treePath = new File(MaryProperties.needFilename("german.pronunciation.treepath"));
+            File treePath = new File(MaryProperties.needFilename(
+                    MaryProperties.localePrefix(getLocale())+".pronunciation.treepath"));
 
             // valid predicion tree files are named prediction_<phone_symbol>.tree
             Pattern treeFilePattern = Pattern.compile("^prediction_(.*)\\.tree$");
@@ -140,9 +145,11 @@ public class PronunciationModel extends InternalModule
             logger.debug("Reading in feature definition and decision trees finished.");
 
             // TODO: change property name to german.pronunciation.featuremanager/features
-            String managerClass = MaryProperties.needProperty("german.pronunciation.targetfeaturelister.featuremanager");
+            String managerClass = MaryProperties.needProperty(
+                    MaryProperties.localePrefix(getLocale())+".pronunciation.targetfeaturelister.featuremanager");
             FeatureProcessorManager manager = (FeatureProcessorManager) Class.forName(managerClass).newInstance();
-            String features = MaryProperties.needProperty("german.pronunciation.targetfeaturelister.features");
+            String features = MaryProperties.needProperty(
+                    MaryProperties.localePrefix(getLocale())+".pronunciation.targetfeaturelister.features");
             this.featureComputer = new TargetFeatureComputer(manager, features);
         }
         logger.debug("Building feature computer finished.");

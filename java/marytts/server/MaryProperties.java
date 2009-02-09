@@ -810,11 +810,15 @@ public class MaryProperties
      * Provide the config file prefix used for different locales in the
      * config files. Will return "german" for Locale.GERMAN, "english" for
      * Locale.US and Locale.ENGLISH, and "tibetan" for Locale("tib").
+     * For all other locales, return the string representation of the locale
+     * as produced by locale.toString(), e.g. "en_UK";
+     * if locale is null, return null.
      * @param locale
      * @return
      */
     public static String localePrefix(Locale locale)
     {
+        if (locale == null) return null;
         if (locale2prefix.containsKey(locale)) {
             return locale2prefix.get(locale);
         }
@@ -823,7 +827,7 @@ public class MaryProperties
                 return locale2prefix.get(l);
             }
         }
-        return null;
+        return locale.toString();
     }
 
 }
