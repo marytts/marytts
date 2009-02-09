@@ -69,7 +69,7 @@ public class ContextualGMMParams {
     public static final int SILENCE_MULTIPLIER     = 1;
     public static final int SPEECH_MULTIPLIER      = 8;
     
-    public String[][] phonemeClasses; //Each row corresponds to a String arrray of phonemes that are grouped in the same class
+    public String[][] phonemeClasses; //Each row corresponds to a String array of phonemes that are grouped in the same class
     public GMMTrainerParams[] classTrainerParams; //Training parameters for each context class
     
     public ContextualGMMParams()
@@ -111,6 +111,24 @@ public class ContextualGMMParams {
         }
     }
     
+    public static Allophone[] getAllophones(AllophoneSet allophoneSet)
+    {
+        Set<String> tmpPhonemes = allophoneSet.getAllophoneNames();
+
+        int count = 0;
+        Allophone[] phns = new Allophone[tmpPhonemes.size()];
+        for (Iterator<String> it=tmpPhonemes.iterator(); it.hasNext();)
+        {
+            phns[count] = allophoneSet.getAllophone(it.next());
+            count++;
+            
+            if (count>=tmpPhonemes.size())
+                break;
+        }
+        
+        return phns;
+    }
+    
     public ContextualGMMParams(AllophoneSet allophoneSet, GMMTrainerParams[] params, int contextClassificationTypeIn)
     {
         //To do: Use contextClassificationType to actually create classes here
@@ -118,19 +136,9 @@ public class ContextualGMMParams {
         
         if (allophoneSet!=null)
         {
-            Set<String> tmpPhonemes = allophoneSet.getAllophoneNames();
+            Allophone[] phns = getAllophones(allophoneSet);
             
-            allocate(tmpPhonemes.size());
-            int count = 0;
-            Allophone[] phns = new Allophone[tmpPhonemes.size()];
-            for (Iterator<String> it=tmpPhonemes.iterator(); it.hasNext();)
-            {
-                phns[count] = allophoneSet.getAllophone(it.next());
-                count++;
-                
-                if (count>=tmpPhonemes.size())
-                    break;
-            }
+            allocate(phns.length);
             
             setClasses(phns, params);
         }
@@ -580,7 +588,7 @@ public class ContextualGMMParams {
         }
     }
     
-    public int[] getPhonologyClasses(Allophone[] phns)
+    public static int[] getPhonologyClasses(Allophone[] phns)
     {
         int[] phonologyClasses = null;
         
