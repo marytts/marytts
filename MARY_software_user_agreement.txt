@@ -94,6 +94,11 @@ building on the JavaOpenAIR reference implementation from
 http://www.mindmakers.org, which is licensed under the 
 (BSD-style) JavaOpenAIR license, see doc/licenses/JavaOpenAIR-license.txt
 (files concerned: java/JavaOpenAIR.jar)
+
+mwdumper: A tool for extracting sets of pages from a MediaWiki dump file.
+mwdumper is MIT-style like licensed, see http://www.mediawiki.org/wiki/Mwdumper
+and for the license http://en.wikipedia.org/wiki/MIT_License.
+(files concerned: java/mwdumper-2008-04-13.jar)
  
 IT IS YOUR OBLIGATION TO READ AND ACCEPT ALL SUCH TERMS
 AND CONDITIONS PRIOR TO USE OF THIS CONTENT.
