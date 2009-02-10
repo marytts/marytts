@@ -73,6 +73,8 @@ public class DatabaseSelector{
     private static boolean logCovDevelopment;
     //private static List of selected sentences ids;
     private static List<Integer> selectedIdSents;
+    private static List<Integer> unwantedIdSents;
+    
     private static String selectedSentencesTableName;
     private static String tableDescription;
     // mySql database
@@ -219,6 +221,7 @@ public class DatabaseSelector{
        
         /* remove unwanted sentences from basename list */
         System.out.println("\nRemoving selected sentences marked as unwanted=true.");
+        unwantedIdSents = new ArrayList<Integer>();
         removeUnwantedSentences(selectedSentencesTableName);    
        
         long startDuration = System.currentTimeMillis() -startTime;
@@ -246,7 +249,7 @@ public class DatabaseSelector{
         System.out.println("\nSelecting sentences...");
        
         //selFunc.select(selectedSents,covDef,logOut,basenameList,holdVectorsInMemory,verbose);
-        selFunc.select(selectedIdSents,covDef,logOut,idSentenceList,holdVectorsInMemory,verbose,wikiToDB);
+        selFunc.select(selectedIdSents,unwantedIdSents,covDef,logOut,idSentenceList,holdVectorsInMemory,verbose,wikiToDB);
 
         /* Store list of selected files */
         filename = selectionDirName+dateDir + "/selectionResult_" + dateString + ".txt";
@@ -687,10 +690,13 @@ public class DatabaseSelector{
             selectedIdSents.add((Integer)id);
             
         }
+         
+        /* 
         int numSelectedSents = selectedIdSents.size();
         int numRemovedSents = 0;
              
         //loop over basename array
+        // No need to mark id negative
         for (int i=0;i<idSentenceList.length;i++){
             if (selectedIdSents.contains(idSentenceList[i])){
                 //remove the sentence also from the idSentenceList
@@ -701,6 +707,7 @@ public class DatabaseSelector{
             }            
             if (numSelectedSents == numRemovedSents) break;
         } 
+        */
         System.out.println("Added to cover " + idSentenceListSelected.length + " selected sentences");        
         } else
           System.out.println("There is no already selected sentences to add to the list.");
@@ -718,7 +725,6 @@ public class DatabaseSelector{
         int idSentenceListUnwanted[] = wikiToDB.getIdListOfSelectedSentences(
                                        wikiToDB.getSelectedSentencesTableName(), "unwanted=true");
         
-        ArrayList<Integer> unwantedIdSents = new ArrayList<Integer>();
         int id;
         if( idSentenceListUnwanted != null ){
             for(int i=0; i<idSentenceListUnwanted.length; i++){
@@ -728,11 +734,12 @@ public class DatabaseSelector{
             //wikiToDB.setSentenceRecord(id, "unwanted", true);
             unwantedIdSents.add((Integer)id);
         }
+        /*    
         // remove sentences from basename list 
         int numSelectedSents = unwantedIdSents.size();
         int numRemovedSents = 0;
         // loop over basename array
-       for (int i=0;i<idSentenceList.length;i++){
+        for (int i=0;i<idSentenceList.length;i++){
             if (unwantedIdSents.contains(idSentenceList[i])){
                 //remove the sentence also from the idSentenceList
                 if (verbose)
@@ -741,8 +748,11 @@ public class DatabaseSelector{
                 numRemovedSents++;
             }
             if (numSelectedSents == numRemovedSents) break;
-        }
-           System.out.println("Removed " + idSentenceListUnwanted.length + " unwanted sentences.");        
+        } 
+        */
+           
+          System.out.println("Removed " + idSentenceListUnwanted.length + " unwanted sentences.");
+          
         } else 
            System.out.println("There is no unwanted sentences to remove.");
         

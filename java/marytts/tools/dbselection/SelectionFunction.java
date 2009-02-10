@@ -144,6 +144,7 @@ public class SelectionFunction{
     * the stop criterion is reached
     * 
     * @param selectedIdSents the list of selected id sentences
+    * @param unwantedIdSents the list of unwanted id sentences
     * @param coverageDefinition the coverage definition for the feature vectors
     * @param logFile the logFile to document the progress
     * @param basenameList the list of filenames of the sentences
@@ -154,6 +155,7 @@ public class SelectionFunction{
     * @throws IOException
     */ 
     public void select(List <Integer>selectedIdSents,
+                List <Integer>unwantedIdSents,
                 CoverageDefinition coverageDefinition,
                 PrintWriter logFile,
                 int[] idSentenceList,
@@ -178,7 +180,7 @@ public class SelectionFunction{
             
             //select the next sentence  
             //selectNext(coverageDefinition, logFile, sentIndex, basenameList, vectorArray);
-            selectNext(coverageDefinition, logFile, sentIndex, idSentenceList, vectorArray, wikiToDB);
+            selectNext(selectedIdSents, unwantedIdSents, coverageDefinition, logFile, sentIndex, idSentenceList, vectorArray, wikiToDB);
 
             //check if we selected something
             //if (selectedBasename == null){
@@ -199,7 +201,7 @@ public class SelectionFunction{
 
             //add the selected sentence to the set
             //selectedFilenames.add(selectedBasename);
-            selectedIdSents.add(selectedIdSentence);
+            // selectedIdSents.add(selectedIdSentence); already done in selectNext
             //update coverageDefinition         
             coverageDefinition.updateCover(selectedVectors);
             sentIndex++;
@@ -245,7 +247,9 @@ public class SelectionFunction{
      *                    if the vectors are on disk
      * @throws IOException
      */
-    private void selectNext(CoverageDefinition coverageDefinition,
+    private void selectNext(List <Integer>selectedIdSents,
+                List <Integer>unwantedIdSents,
+                CoverageDefinition coverageDefinition,
                 PrintWriter logFile,
                 int sentenceIndex,
                 int[] idSentenceList,
@@ -268,7 +272,8 @@ public class SelectionFunction{
         
             //if the next sentence was already selected, continue
             // the ids = -1 correspond to sentences already selected
-            if (id < 0) continue;
+            //if (id < 0) continue;
+            if( selectedIdSents.contains(id) || unwantedIdSents.contains(id) ) continue;
             
             numSentsInBasenames++;
             //get the next feature vector
@@ -284,8 +289,13 @@ public class SelectionFunction{
                 highestUsefulness = usefulness;     
                 selectedSentenceIndex = i;
             }           
-            if (usefulness == -1.0)
-             idSentenceList[i] = -1;     // Here the sentence should be marked as unwanted?
+            if (usefulness == -1.0){
+              unwantedIdSents.add(id);
+              // idSentenceList[i] = -1;     // Here the sentence should be marked as unwanted?
+              //System.out.println("unwanted id=" + id);
+            }
+             
+                
           }  // end loop over all idsentence list
           
         } else { //The vectors are not in memory but will be loaded in groups
@@ -307,7 +317,8 @@ public class SelectionFunction{
                 id = idSentenceList[k];
                 //if the next sentence was already selected, continue
                 // the ids = -1 correspond to sentences already selected
-                if (id < 0) continue;
+                //if (id < 0) continue;
+                if( selectedIdSents.contains(id) || unwantedIdSents.contains(id) ) continue;
                 
                 numSentsInBasenames++;
                 //get the next feature vector
@@ -326,8 +337,11 @@ public class SelectionFunction{
                     highestUsefulness = usefulness;     
                     selectedSentenceIndex = k;
                 }           
-                if (usefulness == -1.0)
-                 idSentenceList[k] = -1;     // Here the sentence should be marked as unwanted?
+                if (usefulness == -1.0){
+                  unwantedIdSents.add(id);
+                  //System.out.println("unwanted id=" + id);                
+                 //idSentenceList[k] = -1;     // Here the sentence should be marked as unwanted?
+                }
               }  // end loop over one group 
               feas = null;
               
@@ -346,7 +360,9 @@ public class SelectionFunction{
             //if we selected something,
             //remove selected filename from basename list
             //basenameList[selectedSentenceIndex] = null;
-            idSentenceList[selectedSentenceIndex] = -1;  // i do not understand why it is removed???
+            //idSentenceList[selectedSentenceIndex] = -1;  
+            selectedIdSents.add(selectedIdSentence);
+            
             //print information
             if (verbose){
               //System.out.println("sentence "+sentenceIndex+" ("+selectedBasename+"), score: "+highestUsefulness);
