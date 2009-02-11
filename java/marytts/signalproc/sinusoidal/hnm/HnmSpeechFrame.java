@@ -27,16 +27,23 @@ import marytts.signalproc.sinusoidal.BaseSinusoidalSpeechFrame;
  */
 public class HnmSpeechFrame extends BaseSinusoidalSpeechFrame 
 {
-    FrameHarmonicPart h; //Harmonics component (lower frequencies which are less than maximum frequency of voicing)
-    FrameNoisePart n; //Noise component (upper frequencies)
+    public FrameHarmonicPart h; //Harmonics component (lower frequencies which are less than maximum frequency of voicing)
+    public FrameNoisePart n; //Noise component (upper frequencies)
     
-    float maximumFrequencyOfVoicingInHz; //If 0.0, then the frame is unvoiced
-    float tAnalysisInSeconds; //Middle of analysis frame in seconds
+    public float f0InHz;
+    public float maximumFrequencyOfVoicingInHz; //If 0.0, then the frame is unvoiced
+    public float tAnalysisInSeconds; //Middle of analysis frame in seconds
     
     public HnmSpeechFrame()
     {
+        this(0.0f);
+    }
+    
+    public HnmSpeechFrame(float f0InHzIn)
+    {
         h = new FrameHarmonicPart();
         n = new FrameNoisePart();
+        f0InHz = f0InHzIn;
         maximumFrequencyOfVoicingInHz = 0.0f;
         tAnalysisInSeconds = -1.0f;
     }

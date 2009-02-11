@@ -83,8 +83,9 @@ public class HnmAnalyzer {
     public static float FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST = 3500.0f;
     public static float FIXED_MAX_FREQ_OF_NOISE_FOR_QUICK_TEST = 8000.0f;
     public static float HPF_TRANSITION_BANDWIDTH_IN_HZ = 100.0f;
-    public static float NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS = 0.060f; //Fixed window size for noise analysis, should be generally large (>=0.040 seconds)
+    public static float NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS = 0.050f; //Fixed window size for noise analysis, should be generally large (>=0.040 seconds)
     public static float OVERLAP_BETWEEN_HARMONIC_AND_NOISE_REGIONS_IN_HZ = 0.0f;
+    public static float OVERLAP_BETWEEN_TRANSIENT_AND_NONTRANSIENT_REGIONS_IN_SECONDS = 0.005f;
     
     public HnmAnalyzer()
     {
@@ -171,7 +172,7 @@ public class HnmAnalyzer {
                 wsNoise++;  
 
             Window winNoise = Window.get(windowType, wsNoise);
-            //winNoise.normalize(1.0f);
+            winNoise.normalizePeakValue(1.0f);
             double[] wgtSquaredNoise = winNoise.getCoeffs();
             for (j=0; j<wgtSquaredNoise.length; j++)
                 wgtSquaredNoise[j] = wgtSquaredNoise[j]*wgtSquaredNoise[j];
@@ -200,7 +201,11 @@ public class HnmAnalyzer {
             else if (model == HnmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE)
             {
                 String strLabFile = StringUtils.modifyExtension(wavFile, ".lab"); 
-                assert FileUtils.exists(strLabFile)==true; //Labels required for transients analysis (unless we designan automatic algorithm)
+                if (FileUtils.exists(strLabFile)!=true) //Labels required for transients analysis (unless we designan automatic algorithm)
+                {
+                    System.out.println("Error! Labels required for transient analysis...");
+                    System.exit(1);
+                }
                 labels = new Labels(strLabFile);
                 
                 hnmSignal = new HnmPlusTransientsSpeechSignal(totalFrm, fs, originalDurationInSeconds, NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, preCoefNoise, labels.items.length);
@@ -264,7 +269,7 @@ public class HnmAnalyzer {
                             {
                                 isInTransientSegment = true;
                                 ((HnmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd] = new TransientSegment();
-                                ((HnmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].startTime = (((float)pm.pitchMarks[i])/fs);
+                                ((HnmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].startTime = Math.max(0.0f, (((float)pm.pitchMarks[i])/fs)-HnmAnalyzer.OVERLAP_BETWEEN_TRANSIENT_AND_NONTRANSIENT_REGIONS_IN_SECONDS);
                                 break;
                             }
                         }
@@ -284,7 +289,7 @@ public class HnmAnalyzer {
                         if (!isTransientPhoneme) //End of transient segment, put it in transient part
                         {
                             
-                            ((HnmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].endTime = (((float)pm.pitchMarks[i]+0.5f*ws)/fs);
+                            ((HnmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].endTime = Math.min((((float)pm.pitchMarks[i]+0.5f*ws)/fs)+HnmAnalyzer.OVERLAP_BETWEEN_TRANSIENT_AND_NONTRANSIENT_REGIONS_IN_SECONDS, hnmSignal.originalDurationInSeconds);
                             int waveformStartInd = Math.max(0, SignalProcUtils.time2sample(((HnmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].startTime, fs));
                             int waveformEndInd = Math.min(x.length-1, SignalProcUtils.time2sample(((HnmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].endTime, fs));
                             if (waveformEndInd-waveformStartInd+1>0)
@@ -353,7 +358,8 @@ public class HnmAnalyzer {
                         //MaryUtils.plot(dbMags);
                         //
 
-                        hnmSignal.frames[i].h = new FrameHarmonicPart((float)f0InHz);
+                        hnmSignal.frames[i].f0InHz = (float)f0InHz;
+                        hnmSignal.frames[i].h = new FrameHarmonicPart();
                     }
                     else
                         numHarmonics = 0;
@@ -643,8 +649,8 @@ public class HnmAnalyzer {
         
         HnmAnalyzer ha = new HnmAnalyzer();
         
-        int model = HnmAnalyzer.HARMONICS_PLUS_NOISE;
-        //int model = HnmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE;
+        //int model = HnmAnalyzer.HARMONICS_PLUS_NOISE;
+        int model = HnmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE;
         
         int noisePartRepresentation = HnmAnalyzer.LPC;
         //int noisePartRepresentation = HnmAnalyzer.PSEUDO_HARMONIC;
