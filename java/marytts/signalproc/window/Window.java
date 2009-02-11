@@ -24,6 +24,7 @@ import java.util.Arrays;
 import marytts.signalproc.process.CopyingDataProcessor;
 import marytts.signalproc.process.InlineDataProcessor;
 import marytts.util.math.ArrayUtils;
+import marytts.util.math.MathUtils;
 
 
 /**
@@ -352,6 +353,17 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
     }
 
     //Normalize window coefficients to sum up to val
+    public void normalizePeakValue(float desiredPeakValue)
+    {
+        double maxVal = MathUtils.getMax(window);
+
+        double scale = desiredPeakValue/maxVal;
+
+        for (int i=0; i<window.length; i++)
+            window[i] *= scale;
+    }
+    
+    //Normalize window coefficients to sum up to val
     public void normalize(float val)
     {
         float total = 0.0f;
@@ -391,7 +403,7 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
     
     public double[] getCoeffsRightHalf()
     {
-        int off = (int)Math.floor(0.5*window.length+0.5)+1;
+        int off = (int)Math.floor(0.5*window.length+0.5);
         int len = window.length-off;
         return ArrayUtils.subarray(window, off, len);
     }
