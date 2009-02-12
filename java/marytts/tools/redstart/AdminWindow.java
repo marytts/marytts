@@ -829,7 +829,7 @@ public class AdminWindow extends javax.swing.JFrame {
 
         jScrollPane_Instructions.setViewportView(jEditorPane_Instructions);
 
-        jLabel_SessionStatus.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/dfki/lt/mary/recsessionmgr/gui/icons/stopped_48x48.png")));
+        jLabel_SessionStatus.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/stopped_48x48.png")));
         jLabel_SessionStatus.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jLabel_SessionStatusMouseClicked(evt);
@@ -900,7 +900,7 @@ public class AdminWindow extends javax.swing.JFrame {
             }
         });
 
-        jButton_Record.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/dfki/lt/mary/recsessionmgr/gui/icons/recording_16x16.png")));
+        jButton_Record.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/recording_16x16.png")));
         jButton_Record.setText("Record");
         jButton_Record.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jButton_Record.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
@@ -913,7 +913,7 @@ public class AdminWindow extends javax.swing.JFrame {
             }
         });
 
-        jButton_Play.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/dfki/lt/mary/recsessionmgr/gui/icons/playing_16x16.png")));
+        jButton_Play.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/playing_16x16.png")));
         jButton_Play.setText("Play");
         jButton_Play.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jButton_Play.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
@@ -999,7 +999,7 @@ public class AdminWindow extends javax.swing.JFrame {
         jPanel_AdminControlsLayout.linkSize(new java.awt.Component[] {jButton_Play, jButton_Record}, org.jdesktop.layout.GroupLayout.VERTICAL);
 
         jMenu_File.setText("File");
-        jMenuItem_Open.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/dfki/lt/mary/recsessionmgr/gui/icons/open_16x16.png")));
+        jMenuItem_Open.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/open_16x16.png")));
         jMenuItem_Open.setText("Open Voice...");
         jMenuItem_Open.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1011,7 +1011,7 @@ public class AdminWindow extends javax.swing.JFrame {
 
         jMenu_File.add(jSeparator_File);
 
-        jMenuItem_Exit.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/dfki/lt/mary/recsessionmgr/gui/icons/exit_16x16.png")));
+        jMenuItem_Exit.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/exit_16x16.png")));
         jMenuItem_Exit.setText("Exit");
         jMenuItem_Exit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1024,7 +1024,7 @@ public class AdminWindow extends javax.swing.JFrame {
         jMenuBar_AdminWindow.add(jMenu_File);
 
         jMenu_Tools.setText("Tools");
-        jMenuItem_Options.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/dfki/lt/mary/recsessionmgr/gui/icons/options_16x16.png")));
+        jMenuItem_Options.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/options_16x16.png")));
         jMenuItem_Options.setText("Options...");
         jMenuItem_Options.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1054,7 +1054,7 @@ public class AdminWindow extends javax.swing.JFrame {
         jMenuBar_AdminWindow.add(jMenu_Window);
 
         jMenu_Help.setText("Help");
-        jMenu_About.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/dfki/lt/mary/recsessionmgr/gui/icons/about_16x16.png")));
+        jMenu_About.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/about_16x16.png")));
         jMenu_About.setText("About Redstart");
         jMenu_About.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -1291,7 +1291,7 @@ public class AdminWindow extends javax.swing.JFrame {
         Properties options = new Properties();
         try {
             // First, load defaults from resource in classpath:
-            options.load(Redstart.class.getResourceAsStream("options/user.options"));
+            options.load(Redstart.class.getResourceAsStream("user.options"));
 
             // Then, overwrite from file if present:
             File fileHandle = new File(optionsDialog.getOptionsPathString());

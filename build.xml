@@ -292,13 +292,14 @@ THIS SOFTWARE.
 	         includes="marytts/tools/redstart/**/*.class
 	                   marytts/tools/redstart/**/*.wav
 	                   marytts/tools/redstart/**/*.options
+			   marytts/tools/redstart/**/*.jpg
 	                   marytts/tools/redstart/**/*.png">
 	      <manifest>
 	        <attribute name="Built-By" value="${user.name}"/>
 	        <attribute name="Main-Class"
 	                   value="marytts.tools.redstart.Redstart"/>
 	        <attribute name="Class-Path"
-	                   value="signalproc.jar swing-layout-1.0.jar jsresources.jar"/>
+	                   value="signalproc.jar swing-layout-1.0.jar jsresources.jar mary-common.jar"/>
 
 	      </manifest>
 	    </jar>

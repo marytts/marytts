@@ -53,8 +53,8 @@ import marytts.util.data.audio.MonoAudioInputStream;
 
 public class Options extends javax.swing.JFrame {
     //  Location of beeps for recording countdown, start and end
-    private static final URL BEEP_HIGH_URL         = Redstart.class.getResource("sounds/beep_high.wav");
-    private static final URL BEEP_LOW_URL          = Redstart.class.getResource("sounds/beep_low.wav");
+    private static final URL BEEP_HIGH_URL         = Redstart.class.getResource("beep_high.wav");
+    private static final URL BEEP_LOW_URL          = Redstart.class.getResource("beep_low.wav");
     
     private AdminWindow adminWindow;
     
@@ -315,7 +315,7 @@ public class Options extends javax.swing.JFrame {
             // Get the properties from the options file
             Properties options = new Properties();
             // First, load defaults from resource in classpath:
-            options.load(Redstart.class.getResourceAsStream("options/user.options"));
+            options.load(Redstart.class.getResourceAsStream("user.options"));
             // Then, overwrite from file if present:
             File fileHandle = new File(optionsPathString);
             if (fileHandle.exists()) {
@@ -519,7 +519,7 @@ public class Options extends javax.swing.JFrame {
             }
         });
 
-        jButton_SaveOptions.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/dfki/lt/mary/recsessionmgr/gui/icons/ok_16x16.png")));
+        jButton_SaveOptions.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/ok_16x16.png")));
         jButton_SaveOptions.setText("Save");
         jButton_SaveOptions.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -527,7 +527,7 @@ public class Options extends javax.swing.JFrame {
             }
         });
 
-        jButton_CancelOptions.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/dfki/lt/mary/recsessionmgr/gui/icons/cancel_16x16.png")));
+        jButton_CancelOptions.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/cancel_16x16.png")));
         jButton_CancelOptions.setText("Cancel");
         jButton_CancelOptions.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -547,7 +547,7 @@ public class Options extends javax.swing.JFrame {
             }
         });
 
-        jButton_Record.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/dfki/lt/mary/recsessionmgr/gui/icons/recording_16x16.png")));
+        jButton_Record.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/recording_16x16.png")));
         jButton_Record.setText("Record");
         jButton_Record.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jButton_Record.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
@@ -560,7 +560,7 @@ public class Options extends javax.swing.JFrame {
             }
         });
 
-        jButton_Play.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/dfki/lt/mary/recsessionmgr/gui/icons/playing_16x16.png")));
+        jButton_Play.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/playing_16x16.png")));
         jButton_Play.setText("Play");
         jButton_Play.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         jButton_Play.setHorizontalTextPosition(javax.swing.SwingConstants.RIGHT);
