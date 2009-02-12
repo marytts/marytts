@@ -147,7 +147,7 @@ public class SpeakerWindow extends javax.swing.JFrame {
         jEditorPane_Instructions.setFont(new java.awt.Font("Tahoma", 0, 18));
         jScrollPane_Instructions.setViewportView(jEditorPane_Instructions);
 
-        jLabel_SessionStatus.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/dfki/lt/mary/recsessionmgr/gui/icons/stopped_64x64.png")));
+        jLabel_SessionStatus.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/stopped_64x64.png")));
 
         jProgressBar_SpeakerProgress.setFocusable(false);
 

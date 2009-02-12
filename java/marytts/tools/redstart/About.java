@@ -72,9 +72,9 @@ public class About extends JDialog {
 
         jLabel_VersionNum.setText("Version 1.0");
 
-        jLabel_DFKILogo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/dfki/lt/mary/recsessionmgr/gui/icons/dfki_logo.jpg")));
+        jLabel_DFKILogo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/dfki_logo.jpg")));
 
-        jButton_OK.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/dfki/lt/mary/recsessionmgr/gui/icons/ok_16x16.png")));
+        jButton_OK.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/ok_16x16.png")));
         jButton_OK.setText("OK");
         jButton_OK.setPreferredSize(new java.awt.Dimension(95, 25));
         jButton_OK.addActionListener(new java.awt.event.ActionListener() {
@@ -83,13 +83,13 @@ public class About extends JDialog {
             }
         });
 
-        jLabel_ToolIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/dfki/lt/mary/recsessionmgr/gui/icons/redstop_48x48.png")));
+        jLabel_ToolIcon.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/redstop_48x48.png")));
 
         jLabel_CopyrightDate.setText("Copyright (c) 2007  DFKI GmbH");
 
         jLabel_MARYLink.setText("Visit the MARY TTS Home Page at http://mary.dfki.de");
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/de/dfki/lt/mary/recsessionmgr/gui/icons/mary_logo.PNG")));
+        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/mary_logo.png")));
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 18));
         jLabel3.setText("Redstart");

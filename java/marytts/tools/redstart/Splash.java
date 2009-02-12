@@ -43,7 +43,7 @@ public class Splash extends JWindow {
  
     public Splash() throws IOException
     {
-        this(ImageIO.read(Splash.class.getResourceAsStream("images/splash_bg.png")));
+        this(ImageIO.read(Splash.class.getResourceAsStream("splash_bg.png")));
     }
     
     public Splash(BufferedImage image) {
