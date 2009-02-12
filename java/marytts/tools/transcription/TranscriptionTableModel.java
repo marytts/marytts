@@ -39,6 +39,7 @@ import javax.swing.table.AbstractTableModel;
 import marytts.fst.AlignerTrainer;
 import marytts.fst.FSTLookup;
 import marytts.fst.TransducerTrie;
+import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.tools.dbselection.DBHandler;
 import marytts.tools.newlanguage.LexiconCreator;
@@ -251,6 +252,27 @@ public class TranscriptionTableModel extends AbstractTableModel {
                 line =  (String) data[i][1];
                 //line += "\\"+(String)data[i][2]+"\\";
                 line += "|"+(String)data[i][2];
+                out.println(line);
+            }
+        }
+        out.flush();
+        out.close();
+    }
+    
+    /**
+     * Save user entered and verified transcription in to lexicon format 
+     * @param fileName
+     * @throws IOException
+     */
+    public void saveSampaLexiconFormat(String fileName, AllophoneSet phoneSet) throws IOException{
+        if(!hasLexiconData()) return;
+        PrintWriter out = new PrintWriter(new FileWriter(fileName));
+        for(int i=0; i < data.length; i++){
+            String line;
+            if(!((String)data[i][2]).equals("") && this.hasManualVerification[i] && this.hasCorrectSyntax[i]){
+                line =  (String) data[i][1];
+                String grapheme = phoneSet.splitAllophoneString((String)data[i][2]);
+                line += "|"+grapheme;
                 out.println(line);
             }
         }

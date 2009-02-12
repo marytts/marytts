@@ -283,7 +283,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
             String posFile = dirName+File.separator+baseName+"_pos.list";
             String posFst = dirName+File.separator+baseName+"_pos.fst";
             
-            transcriptionModel.saveSampaLexiconFormat(lexiconFile);
+            transcriptionModel.saveSampaLexiconFormat(lexiconFile, phoneSet);
             transcriptionModel.createLexicon(lexiconFile, fstFile);
             transcriptionModel.saveFunctionalWords(posFile);
             transcriptionModel.createPOSFst(posFile, posFst);
