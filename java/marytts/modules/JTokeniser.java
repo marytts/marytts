@@ -48,16 +48,22 @@ import de.dfki.lt.tools.tokenizer.annotate.FastAnnotatedString;
  *
  *
  */
-public abstract class JTokeniser extends InternalModule
+public class JTokeniser extends InternalModule
 {
     public static final int TOKEN_MAXLENGTH = 100;
 
     private JTok jtok;
 
     public JTokeniser() {
-        this(MaryDataType.RAWMARYXML,
-                MaryDataType.TOKENS,
-                Locale.ENGLISH);
+        this((Locale) null);
+    }
+    
+    public JTokeniser(String locale) {
+        super("JTokeniser", MaryDataType.RAWMARYXML, MaryDataType.TOKENS, new Locale(locale));
+    }
+    
+    public JTokeniser(Locale locale) {
+        super("JTokeniser", MaryDataType.RAWMARYXML, MaryDataType.TOKENS, locale);
     }
     
     public JTokeniser(MaryDataType inputType, MaryDataType outputType,
@@ -126,7 +132,14 @@ public abstract class JTokeniser extends InternalModule
         // Now maryText is the input text annotated with the Text nodes in the
         // MaryXML document.
         // Tokenise:
-        AnnotatedString tokenisedText = jtok.tokenize(inputText.toString(), getLocale().getLanguage());
+        AnnotatedString tokenisedText;
+        // if locale == null, use English tokeniser as default/fallback tokeniser 
+        if(getLocale() == null){
+            tokenisedText = jtok.tokenize(inputText.toString(), "en");
+        }
+        else{
+            tokenisedText = jtok.tokenize(inputText.toString(), getLocale().getLanguage());
+        }
         //System.err.println("maryText: `" + maryText.toString() + "'"); 
         //System.err.println("tokenisedText: `" + tokenisedText.toString() + "'"); 
         //assert tokenisedText.toString().equals(maryText.toString());
