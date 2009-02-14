@@ -204,12 +204,20 @@ public class OpenNLPPosTagger extends InternalModule
             Element t;
             while ((t = (Element) tokenIt.nextNode()) != null) {
                 String pos = "content";
+                String tokenText = MaryDomUtils.tokenText(t);
                 if (posFST != null) {
-                    String[] result = posFST.lookup(MaryDomUtils.tokenText(t));
+                    String[] result = posFST.lookup(tokenText);
                     if(result.length != 0)
                         pos = "function";
                 }
-                t.setAttribute("pos", pos);
+                tokenText = tokenText.trim();
+                if (tokenText.equals(",") || tokenText.equals(".") || tokenText.equals("?") 
+                        || tokenText.equals("!") || tokenText.equals(";")){
+                    t.setAttribute("pos", "$PUNCT");
+                }
+                else{
+                    t.setAttribute("pos", pos);
+                }
             }
         }
         MaryData output = new MaryData(outputType(), d.getLocale());

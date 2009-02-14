@@ -80,6 +80,10 @@ public class ProsodyGeneric extends InternalModule {
 	protected HashMap tobiPredMap = new HashMap(); // map that will be filled with the rules
 	protected HashMap listMap = new HashMap(); // map that will contain the lists defined in the xml rule file
 	
+	public ProsodyGeneric(){
+	    this((Locale) null); 
+	}
+	
     public ProsodyGeneric(MaryDataType inputType,MaryDataType outputType,
             Locale locale,
             String tobipredFileName,String accentPriorities, String syllableAccents, String paragraphDeclination)
@@ -95,7 +99,12 @@ public class ProsodyGeneric extends InternalModule {
 
     public ProsodyGeneric(String locale, String propertyPrefix)
     {
-        super("Prosody",MaryDataType.PHONEMES,MaryDataType.INTONATION, MaryUtils.string2locale(locale));
+        this(new Locale(locale), propertyPrefix);
+    }
+    
+    public ProsodyGeneric(Locale locale, String propertyPrefix)
+    {
+        super("Prosody",MaryDataType.PHONEMES,MaryDataType.INTONATION, locale);
         
         this.tobiPredFilename = propertyPrefix + "tobipredparams";
         this.accentPriorities = propertyPrefix + "accentPriorities";
@@ -103,14 +112,12 @@ public class ProsodyGeneric extends InternalModule {
         this.paragraphDeclination = propertyPrefix + "syllableaccents";
     }
     
-    public ProsodyGeneric(String propertyPrefix)
-    {
-        super("Prosody",MaryDataType.PHONEMES,MaryDataType.INTONATION, null);
-        
-        this.tobiPredFilename = propertyPrefix + "tobipredparams";
-        this.accentPriorities = propertyPrefix + "accentPriorities";
-        this.syllableAccents = propertyPrefix + "paragraphdeclination";
-        this.paragraphDeclination = propertyPrefix + "syllableaccents";
+    public ProsodyGeneric(String locale){
+        this(new Locale(locale), "fallback.prosody.");
+    }
+    
+    public ProsodyGeneric(Locale locale){
+        this(locale, "fallback.prosody.");
     }
     
     public void startup() throws Exception {
