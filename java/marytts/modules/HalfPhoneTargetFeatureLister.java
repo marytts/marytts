@@ -50,9 +50,10 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
      * @param segs
      * @return
      */
-    protected List<Target> overridableCreateTargetsWithPauses(List<Element> segmentsAndBoundaries)
+    @Override
+    protected List<Target> overridableCreateTargetsWithPauses(List<Element> segmentsAndBoundaries, String pauseSymbol)
     {
-        return HalfPhoneTargetFeatureLister.createTargetsWithPauses(segmentsAndBoundaries);
+        return HalfPhoneTargetFeatureLister.createTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
     }
     
     /**
@@ -61,16 +62,14 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
      * @param segmentsAndBoundaries a list of MaryXML phone and boundary elements
      * @return a list of Target objects
      */
-    public static List<Target> createTargetsWithPauses(List<Element> segmentsAndBoundaries) {
+    public static List<Target> createTargetsWithPauses(List<Element> segmentsAndBoundaries, String silenceSymbol) {
         List<Target> targets = new ArrayList<Target>();
         if (segmentsAndBoundaries.size() == 0) return targets;
-        // TODO: how can we know the silence symbol here?
-        String silenceSymbol = "_";
         Element first = segmentsAndBoundaries.get(0);
         if (!first.getTagName().equals(MaryXML.BOUNDARY)) {
-            // need to insert a dummy silence target
-            targets.add(new HalfPhoneTarget(silenceSymbol+"_L", null, true));
-            targets.add(new HalfPhoneTarget(silenceSymbol+"_R", null, false));
+            Element initialPause = MaryXML.createElement(first.getOwnerDocument(), MaryXML.BOUNDARY);
+            first.getParentNode().insertBefore(initialPause, first);
+            segmentsAndBoundaries.add(0, initialPause);
         }
         for (Element sOrB : segmentsAndBoundaries) {
             String phone = UnitSelector.getPhoneSymbol(sOrB);

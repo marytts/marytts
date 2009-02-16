@@ -37,6 +37,8 @@ public class TargetFeatureComputer
     protected ShortValuedFeatureProcessor[] shortValuedDiscreteFeatureProcessors;
     protected ContinuousFeatureProcessor[] continuousFeatureProcessors;
     
+    protected String pauseSymbol = null;
+    
     /**
      * Construct a TargetFeatureComputer that knows how to compute features
      * for a Target using the given set of feature processor names. These names
@@ -282,6 +284,23 @@ public class TargetFeatureComputer
             buf.append(" float\n");
         }
         return buf.toString();
+    }
+    
+    /**
+     * Get the pause symbol as associated with the "phoneme" feature processor used.
+     * @return
+     */
+    public String getPauseSymbol()
+    {
+        if (pauseSymbol == null) {
+            for (MaryFeatureProcessor fp : byteValuedDiscreteFeatureProcessors) {
+                if (fp instanceof MaryLanguageFeatureProcessors.Phoneme) {
+                    pauseSymbol = ((MaryLanguageFeatureProcessors.Phoneme) fp).getPauseSymbol();
+                    break;
+                }
+            }
+        }
+        return pauseSymbol;
     }
 
 }
