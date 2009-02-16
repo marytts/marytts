@@ -102,7 +102,8 @@ public class TargetFeatureLister extends InternalModule
      */
     public String listTargetFeatures(TargetFeatureComputer featureComputer, List<Element> segmentsAndBoundaries) 
     {
-        List<Target> targets = overridableCreateTargetsWithPauses(segmentsAndBoundaries);
+        String pauseSymbol = featureComputer.getPauseSymbol();
+        List<Target> targets = overridableCreateTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
         // Third, compute the feature vectors and convert them to text
         String header = featureComputer.getAllFeatureProcessorNamesAndValues();
         StringBuilder text = new StringBuilder();
@@ -126,9 +127,9 @@ public class TargetFeatureLister extends InternalModule
      * @param segs
      * @return
      */
-    protected List<Target> overridableCreateTargetsWithPauses(List<Element> segmentsAndBoundaries)
+    protected List<Target> overridableCreateTargetsWithPauses(List<Element> segmentsAndBoundaries, String pauseSymbol)
     {
-        return TargetFeatureLister.createTargetsWithPauses(segmentsAndBoundaries);
+        return TargetFeatureLister.createTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
     }
     
     /**
@@ -137,15 +138,14 @@ public class TargetFeatureLister extends InternalModule
      * @param segmentsAndBoundaries a list of MaryXML phone and boundary elements
      * @return a list of Target objects
      */
-    public static List<Target> createTargetsWithPauses(List<Element> segmentsAndBoundaries) {
+    public static List<Target> createTargetsWithPauses(List<Element> segmentsAndBoundaries, String silenceSymbol) {
         List<Target> targets = new ArrayList<Target>();
         if (segmentsAndBoundaries.size() == 0) return targets;
-        // TODO: how can we know the silence symbol here?
-        String silenceSymbol = "_";
         Element first = segmentsAndBoundaries.get(0);
         if (!first.getTagName().equals(MaryXML.BOUNDARY)) {
-            // need to insert a dummy silence target
-            targets.add(new Target(silenceSymbol, null));
+            Element initialPause = MaryXML.createElement(first.getOwnerDocument(), MaryXML.BOUNDARY);
+            first.getParentNode().insertBefore(initialPause, first);
+            segmentsAndBoundaries.add(0, initialPause);
         }
         for (Element sOrB : segmentsAndBoundaries) {
             String phone = UnitSelector.getPhoneSymbol(sOrB);

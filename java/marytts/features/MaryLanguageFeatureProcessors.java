@@ -88,11 +88,16 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
         public byte process(Target target)
         {
             Element segment = navigator.getElement(target);
-            if (segment == null) return values.get("0");
+            if (segment == null) return values.get(pauseSymbol);
             if (!segment.getTagName().equals(MaryXML.PHONE)) return values.get(pauseSymbol);
             String ph = segment.getAttribute("p");
             if (!values.contains(ph)) return values.get("0");
             return values.get(ph);
+        }
+        
+        public String getPauseSymbol()
+        {
+            return pauseSymbol;
         }
     }
 
@@ -133,9 +138,10 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
                 return 0;
             HalfPhoneTarget hpTarget = (HalfPhoneTarget) target;
             Element segment = target.getMaryxmlElement();
-            if (segment == null) return values.get("0");
             String phoneLabel;
-            if (!segment.getTagName().equals(MaryXML.PHONE)) {
+            if (segment == null) {
+                phoneLabel = pauseSymbol;
+            } else if (!segment.getTagName().equals(MaryXML.PHONE)) {
                 phoneLabel = pauseSymbol;
             } else {
                 phoneLabel = segment.getAttribute("p");
