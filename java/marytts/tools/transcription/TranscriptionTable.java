@@ -139,14 +139,8 @@ public class TranscriptionTable extends JPanel implements ActionListener {
                 this.transcriptionModel.setValueAt(transcription , row, 2);
             }
             if(!transcription.equals("")){
-                String check = phoneSet.checkAllophoneSyntax(transcription);
-                if(check.equals("OK")){
-                    transcriptionModel.setAsCorrectSyntax(row, true);
-                }
-                else transcriptionModel.setAsCorrectSyntax(row, false);
-                //if(row == itsRow){
-                //    transcriptionModel.setAsManualVerify(row, true);
-                //}
+                boolean ok = phoneSet.checkAllophoneSyntax(transcription);
+                transcriptionModel.setAsCorrectSyntax(row, ok);
             }
             else{
                 transcriptionModel.setAsCorrectSyntax(row, false);
@@ -165,17 +159,10 @@ public class TranscriptionTable extends JPanel implements ActionListener {
             transcription = transcription.replaceAll("\\s+", "");
             this.transcriptionModel.setValueAt(transcription , row, 2);
         }
-        if(!transcription.equals("")){
-            String check = phoneSet.checkAllophoneSyntax(transcription);
-            if(check.equals("OK")){
-                transcriptionModel.setAsCorrectSyntax(row, true);
-            }
-            else transcriptionModel.setAsCorrectSyntax(row, false);
-            //if(row == itsRow){
-            //    transcriptionModel.setAsManualVerify(row, true);
-            //}
-        }
-        else{
+        if(!transcription.equals("")) {
+            boolean ok = phoneSet.checkAllophoneSyntax(transcription);
+            transcriptionModel.setAsCorrectSyntax(row, ok);
+        } else {
             transcriptionModel.setAsCorrectSyntax(row, false);
         }
     }
