@@ -50,11 +50,22 @@ package marytts.tools.voiceimport;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import marytts.features.FeatureDefinition;
+import marytts.htsengine.PhoneTranslator;
+import marytts.modules.phonemiser.AllophoneSet;
 
 public class HMMVoiceMakeData extends VoiceImportComponent{
     
@@ -73,6 +84,9 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     public final String MLF           = name+".makeMLF";
     public final String LIST          = name+".makeLIST";
     public final String SCP           = name+".makeSCP";
+    public final String questionsFile   = name+".questionsFile";
+    public final String contextFile     = name+".contextFile";
+    public final String featureListFile = name+".featureListFile";
     
     public String getName(){
         return name;
@@ -99,6 +113,9 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
            props.put(MLF, "1");
            props.put(LIST, "1");
            props.put(SCP, "1");
+           props.put(questionsFile, "data/questions/questions_qst001.hed");
+           props.put(contextFile, "data/phonefeatures/cmu_us_arctic_slt_a0001.pfeats");
+           props.put(featureListFile, "data/feature_list_en.pl");
            
        }
        return props;
@@ -118,6 +135,11 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         props2Help.put(MLF, "Generating monophone and fullcontext Master Label Files (MLF).");
         props2Help.put(LIST, "Generating a fullcntext model list occurred in the training data.");
         props2Help.put(SCP, "Generating a trainig data script.");
+        props2Help.put(questionsFile, "Name of the file that will contain the questions.");
+        props2Help.put(contextFile, "An example of context feature file used for training, this file will be used to extract" +
+                " the FeatureDefinition.");
+        props2Help.put(featureListFile, "A (perl) file that contains the aditional context features used for training, normally it" +
+                " should be in data/ for example data/feature_list_en.pl (language dependent)");
 
     }
 
@@ -163,8 +185,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           launchBatchProc(cmdLine, "", filedir);
       }
       if( Integer.parseInt(getProp(QUESTIONSMARY)) == 1 ){
-          cmdLine = "cd data\nmake questions-mary\n";
-          launchBatchProc(cmdLine, "", filedir);
+          makeQuestions(getProp(questionsFile), getProp(contextFile), getProp(featureListFile));          
       }
       if( Integer.parseInt(getProp(MLF)) == 1 ){
           cmdLine = "cd data\nmake mlf\n";
@@ -251,6 +272,211 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         
     }    
 
+    /***
+     * Java version of the makeQuestions script (data/scripts/make_questions.pl)
+     * @param questionsFile
+     * @param contextFile 
+     * @param featureListFile
+     * @throws Exception
+     */
+    private void makeQuestions(String questionsFile, String contextFile, String featureListFile) throws Exception {
+        
+        FileWriter out = new FileWriter(questionsFile);
+        int i;
+        String phon;
+        System.out.println("Generating questions file: " + questionsFile);
+                
+        // Get feature definition, whatever context feature file used for training can be passed here.       
+        Scanner context = new Scanner(new BufferedReader(new FileReader(contextFile)));
+        String strContext="";
+        System.out.println("FeatureDefinition extracted from context file example: " + contextFile);
+        while (context.hasNext()) {
+          strContext += context.nextLine(); 
+          strContext += "\n";
+        }
+        context.close();
+        FeatureDefinition feaDef = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false);
+       
+        // list of additional context features used for training
+        // The features indicated in: data/feature_list.pl (The modes indicated in this list are not used)
+        // Since the features are provided by the user, it should be checked that the feature exist
+        Set <String> featureList = new HashSet<String>();        
+        Scanner feaList = new Scanner(new BufferedReader(new FileReader(featureListFile)));
+        String line;
+        System.out.println("The following are other context features used for training, they were extracted from file: " + featureListFile);
+        while (feaList.hasNext()) {
+          line = feaList.nextLine();
+          if( !line.startsWith("#") && !line.startsWith("%") && !line.contentEquals("") && !line.contains(");") && !line.contains("1;")){
+            String elem[] = line.split(",");
+            if( !elem[0].contains("#") ){
+              elem[0] = elem[0].substring(elem[0].indexOf("\"")+1, elem[0].lastIndexOf("\""));
+              // Check if the feature exist
+              if(feaDef.hasFeature(elem[0]) ){
+                featureList.add(elem[0]);
+                System.out.println("  Added to featureList = " + elem[0]);
+              }
+              else{
+                throw new Exception("Error: feature \"" + elem[0] + "\" in feature list file: " + featureListFile + " does not exist in FeatureDefinition.");
+              }
+            }
+          }
+        }
+        feaList.close();
+         
+        // Get possible values of phonological features, and initialise a set of phonemes
+        // that have that value (new HashSet<String>)
+        // mary_vc
+        String val_vc[]      = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vc"));
+        HashMap<String, Set<String>> mary_vc = new HashMap<String, Set<String>>();
+        for(i=0; i<val_vc.length; i++)
+          mary_vc.put(val_vc[i], new HashSet<String>());   
+
+        // mary_vlng
+        String val_vlng[]    = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vlng"));
+        HashMap<String, Set<String>> mary_vlng = new HashMap<String, Set<String>>();
+        for(i=0; i<val_vlng.length; i++)
+          mary_vlng.put(val_vlng[i], new HashSet<String>());          
+
+        // mary_vheight
+        String val_vheight[] = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vheight"));
+        HashMap<String, Set<String>> mary_vheight = new HashMap<String, Set<String>>();
+        for(i=0; i<val_vheight.length; i++)
+          mary_vheight.put(val_vheight[i], new HashSet<String>());  
+
+        // mary_vfront      
+        String val_vfront[]  = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vfront"));
+        HashMap<String, Set<String>> mary_vfront = new HashMap<String, Set<String>>();
+        for(i=0; i<val_vfront.length; i++)
+          mary_vfront.put(val_vfront[i], new HashSet<String>());  
+
+        // mary_vrnd
+        String val_vrnd[]    = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vrnd"));
+        HashMap<String, Set<String>> mary_vrnd = new HashMap<String, Set<String>>();
+        for(i=0; i<val_vrnd.length; i++)
+          mary_vrnd.put(val_vrnd[i], new HashSet<String>());  
+
+        // mary_ctype
+        String val_ctype[]   = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_ctype"));
+        HashMap<String, Set<String>> mary_ctype = new HashMap<String, Set<String>>();
+        for(i=0; i<val_ctype.length; i++)
+          mary_ctype.put(val_ctype[i], new HashSet<String>());  
+        
+        // mary_cplace
+        String val_cplace[]  = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_cplace"));
+        HashMap<String, Set<String>> mary_cplace = new HashMap<String, Set<String>>();
+        for(i=0; i<val_cplace.length; i++)
+          mary_cplace.put(val_cplace[i], new HashSet<String>());  
+        
+        // mary_cvox
+        String val_cvox[]    = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_cvox"));
+        HashMap<String, Set<String>> mary_cvox = new HashMap<String, Set<String>>();
+        for(i=0; i<val_cvox.length; i++)
+          mary_cvox.put(val_cvox[i], new HashSet<String>());  
+        
+        AllophoneSet allophoneSet;
+        String phonemeXML = "/project/mary/marcela/openmary/lib/modules/en/us/lexicon/allophones.en_US.xml";
+        allophoneSet = AllophoneSet.getAllophoneSet(phonemeXML);
+        
+        
+        String phoneSeq;         
+        Set<String> phonesList = allophoneSet.getAllophoneNames();
+        // Left-righ phoneme ID context questions
+        Iterator<String> it = phonesList.iterator();
+        while(it.hasNext()){
+            phon = it.next();
+            out.write(""); 
+            out.write("QS \"prev_prev_phoneme=" + phon + "\"\t{"   + phon + "^*}\n");
+            out.write("QS \"prev_phoneme=" + phon    + "\"\t\t{*^" + phon + "-*}\n");
+            out.write("QS \"phoneme=" + phon       + "\"\t\t\t{*-" + phon + "+*}\n");
+            out.write("QS \"next_phoneme=" + phon    + "\"\t\t{*+" + phon + "=*}\n");
+            out.write("QS \"next_next_phoneme=" + phon + "\"\t{*=" + phon + "||*}\n");
+            out.write("\n");
+            
+            // Get the phonological value of each phoneme, and add it to the corresponding
+            // set of phonemes that have that value.
+            //System.out.println(phon + " vc = " + allophoneSet.getPhoneFeature(phon, "vc"));
+            mary_vc.get(allophoneSet.getPhoneFeature(phon, "vc")).add(PhoneTranslator.replaceTrickyPhones(phon));
+            
+            //System.out.println(phon + " vlng = " + allophoneSet.getPhoneFeature(phon, "vlng"));
+            mary_vlng.get(allophoneSet.getPhoneFeature(phon, "vlng")).add(PhoneTranslator.replaceTrickyPhones(phon));
+            
+            //System.out.println(phon + " vheight = " + allophoneSet.getPhoneFeature(phon, "vheight"));  
+            mary_vheight.get(allophoneSet.getPhoneFeature(phon, "vheight")).add(PhoneTranslator.replaceTrickyPhones(phon));
+            
+            //System.out.println(phon + " vfront = " + allophoneSet.getPhoneFeature(phon, "vfront"));
+            mary_vfront.get(allophoneSet.getPhoneFeature(phon, "vfront")).add(PhoneTranslator.replaceTrickyPhones(phon));
+            
+            //System.out.println(phon + " vrnd = " + allophoneSet.getPhoneFeature(phon, "vrnd"));
+            mary_vrnd.get(allophoneSet.getPhoneFeature(phon, "vrnd")).add(PhoneTranslator.replaceTrickyPhones(phon));
+            
+            //System.out.println(phon + " ctype = " + allophoneSet.getPhoneFeature(phon, "ctype"));
+            mary_ctype.get(allophoneSet.getPhoneFeature(phon, "ctype")).add(PhoneTranslator.replaceTrickyPhones(phon));
+            
+            //System.out.println(phon + " cplace = " + allophoneSet.getPhoneFeature(phon, "cplace"));
+            mary_cplace.get(allophoneSet.getPhoneFeature(phon, "cplace")).add(PhoneTranslator.replaceTrickyPhones(phon));
+            
+            //System.out.println(phon + " cvox = " + allophoneSet.getPhoneFeature(phon, "cvox"));
+            mary_cvox.get(allophoneSet.getPhoneFeature(phon, "cvox")).add(PhoneTranslator.replaceTrickyPhones(phon));
+             
+        }
+
+        // phonological questions
+        //String val, prev_prev, prev, ph, next, next_next;
+        out.write("\n"); 
+        writePhonologicalFeatures("vc", val_vc, mary_vc, out);
+        writePhonologicalFeatures("vlng", val_vlng, mary_vlng, out);
+        writePhonologicalFeatures("vheight", val_vheight, mary_vheight, out);
+        writePhonologicalFeatures("vfront", val_vfront, mary_vfront, out);
+        writePhonologicalFeatures("vrnd", val_vrnd, mary_vrnd, out);
+        writePhonologicalFeatures("ctype", val_ctype, mary_ctype, out);
+        writePhonologicalFeatures("cplace", val_cplace, mary_cplace, out);
+        writePhonologicalFeatures("cvox", val_cvox, mary_cvox, out);
+       
+        // Questions for other features, the additional features used for trainning.
+        it = featureList.iterator();
+        String fea, mode;
+        while (it.hasNext() ){
+            fea = it.next();
+            String val_fea[] = feaDef.getPossibleValues(feaDef.getFeatureIndex(fea)); 
+            for(i=0; i<val_fea.length; i++)
+                out.write("QS \"" + fea + "=" + val_fea[i] + "\" \t{*|" + fea + "=" + val_fea[i] + "|*}\n");
+            out.write("\n");            
+        }
+        
+        out.close();
+    }
+    
+    public void writePhonologicalFeatures(String fea, String fval[], HashMap<String, Set<String>> mary_fea, FileWriter out)
+    throws Exception{
+        String val, prev_prev, prev, ph, next, next_next;
+        for(int i=0; i<fval.length; i++){    
+            prev_prev = "QS \"prev_prev_" + fea + "=" + fval[i] + "\"\t\t{";
+            prev      = "QS \"prev_" + fea + "=" + fval[i]      + "\"\t\t{";
+            ph        = "QS \"ph_" + fea + "=" + fval[i]        + "\"\t\t\t{";
+            next      = "QS \"next_" + fea + "=" + fval[i]      + "\"\t\t{";
+            next_next = "QS \"next_next_" + fea + "=" + fval[i] + "\"\t\t{";
+            Iterator<String> it = mary_fea.get(fval[i]).iterator();
+            while (it.hasNext()){
+              val = it.next();  
+              prev_prev +=        val + "^*,";  
+              prev      += "*^" + val + "-*,";
+              ph        += "*-" + val + "+*,";
+              next      += "*+" + val + "=*,";
+              next_next += "*=" + val + "||*,";
+            }
+            // remove last unnecessary comma, and close curly brackets
+            out.write(prev_prev.substring(0,prev_prev.lastIndexOf(",")) + "}\n");
+            out.write(prev.substring(0,prev.lastIndexOf(","))           + "}\n");
+            out.write(ph.substring(0,ph.lastIndexOf(","))               + "}\n");
+            out.write(next.substring(0,next.lastIndexOf(","))           + "}\n");
+            out.write(next_next.substring(0,next_next.lastIndexOf(",")) + "}\n");
+            out.write("\n");
+        }  
+        
+    }
+    
+    
+    
     
     /**
      * Provide the progress of computation, in percent, or -1 if
