@@ -185,7 +185,10 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           launchBatchProc(cmdLine, "", filedir);
       }
       if( Integer.parseInt(getProp(QUESTIONSMARY)) == 1 ){
-          makeQuestions(getProp(questionsFile), getProp(contextFile), getProp(featureListFile));          
+          // uses: questionsFile
+          //       contextFile 
+          //       featureListFile
+          makeQuestions();          
       }
       if( Integer.parseInt(getProp(MLF)) == 1 ){
           cmdLine = "cd data\nmake mlf\n";
@@ -274,22 +277,22 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
 
     /***
      * Java version of the makeQuestions script (data/scripts/make_questions.pl)
-     * @param questionsFile
-     * @param contextFile 
-     * @param featureListFile
+     * uses: questionsFile
+     *       contextFile 
+     *       featureListFile
      * @throws Exception
      */
-    private void makeQuestions(String questionsFile, String contextFile, String featureListFile) throws Exception {
+    private void makeQuestions() throws Exception {
         
-        FileWriter out = new FileWriter(questionsFile);
+        FileWriter out = new FileWriter(getProp(questionsFile));
         int i;
         String phon;
-        System.out.println("Generating questions file: " + questionsFile);
+        System.out.println("Generating questions file: " + getProp(questionsFile));
                 
         // Get feature definition, whatever context feature file used for training can be passed here.       
-        Scanner context = new Scanner(new BufferedReader(new FileReader(contextFile)));
+        Scanner context = new Scanner(new BufferedReader(new FileReader(getProp(contextFile))));
         String strContext="";
-        System.out.println("FeatureDefinition extracted from context file example: " + contextFile);
+        System.out.println("FeatureDefinition extracted from context file example: " + getProp(contextFile));
         while (context.hasNext()) {
           strContext += context.nextLine(); 
           strContext += "\n";
@@ -301,9 +304,9 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         // The features indicated in: data/feature_list.pl (The modes indicated in this list are not used)
         // Since the features are provided by the user, it should be checked that the feature exist
         Set <String> featureList = new HashSet<String>();        
-        Scanner feaList = new Scanner(new BufferedReader(new FileReader(featureListFile)));
+        Scanner feaList = new Scanner(new BufferedReader(new FileReader(getProp(featureListFile))));
         String line;
-        System.out.println("The following are other context features used for training, they were extracted from file: " + featureListFile);
+        System.out.println("The following are other context features used for training, they were extracted from file: " + getProp(featureListFile));
         while (feaList.hasNext()) {
           line = feaList.nextLine();
           if( !line.startsWith("#") && !line.startsWith("%") && !line.contentEquals("") && !line.contains(");") && !line.contains("1;")){
@@ -316,7 +319,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
                 System.out.println("  Added to featureList = " + elem[0]);
               }
               else{
-                throw new Exception("Error: feature \"" + elem[0] + "\" in feature list file: " + featureListFile + " does not exist in FeatureDefinition.");
+                throw new Exception("Error: feature \"" + elem[0] + "\" in feature list file: " + getProp(featureListFile) + " does not exist in FeatureDefinition.");
               }
             }
           }
