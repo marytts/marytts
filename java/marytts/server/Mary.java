@@ -159,19 +159,19 @@ public class Mary {
         }
         StringTokenizer st = new StringTokenizer(featureProcessorManagers);
         while (st.hasMoreTokens()) {
-            String fpmClassName = st.nextToken();
+            String fpmInitInfo = st.nextToken();
             try {
-                Class fpmClass = Class.forName(fpmClassName);
-                FeatureProcessorManager mgr = (FeatureProcessorManager) fpmClass.newInstance();
+
+                FeatureProcessorManager mgr = (FeatureProcessorManager) MaryUtils.instantiateObject(fpmInitInfo);
                 Locale locale = mgr.getLocale();
                 if (locale != null) {
                     FeatureRegistry.setFeatureProcessorManager(locale, mgr);
                 } else {
-                    logger.debug("Setting fallback feature processor manager to '"+fpmClassName+"'");
+                    logger.debug("Setting fallback feature processor manager to '"+fpmInitInfo+"'");
                     FeatureRegistry.setFallbackFeatureProcessorManager(mgr);
                 }
             } catch (Throwable t) {
-                throw new Exception("Cannot instantiate feature processor manager '"+fpmClassName+"'", t);
+                throw new Exception("Cannot instantiate feature processor manager '"+fpmInitInfo+"'", t);
             }
         }
     }

@@ -32,6 +32,7 @@ import java.util.Locale;
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
+import marytts.util.MaryUtils;
 
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.log4j.Logger;
@@ -86,36 +87,8 @@ public class ModuleRegistry
     throws ClassNotFoundException, InstantiationException, IllegalAccessException,
     InvocationTargetException, NoSuchMethodException
     {
-        MaryModule m = null;
-        String[] args = null;
-        String className = null;
-        if (moduleInitInfo.contains("(")) { // arguments
-            className = moduleInitInfo.substring(0, moduleInitInfo.indexOf('('));
-            args = moduleInitInfo.substring(moduleInitInfo.indexOf('(')+1, moduleInitInfo.indexOf(')')).split(",");
-            for (int i=0; i<args.length; i++) {
-                if (args[i].startsWith("$")) {
-                    // replace value with content of property named after the $
-                    args[i] = MaryProperties.getProperty(args[i].substring(1));
-                }
-            }
-        } else { // no arguments
-            className = moduleInitInfo;
-        }
-        logger.info("Now initiating class '"+className+"'");
-        Class<? extends MaryModule> theClass = Class.forName(className).asSubclass(MaryModule.class);
-        // Now invoke Constructor with args.length String arguments
-        if (args != null) {
-            Class<String>[] constructorArgTypes = new Class[args.length];
-            Object[] constructorArgs = new Object[args.length];
-            for (int i=0; i<args.length; i++) {
-                constructorArgTypes[i] = String.class;
-                constructorArgs[i] = args[i];
-            }
-            Constructor<? extends MaryModule> constructor = (Constructor<? extends MaryModule>) theClass.getConstructor(constructorArgTypes);
-            m = constructor.newInstance(constructorArgs);
-        } else {
-            m = theClass.newInstance();
-        }
+        logger.info("Now initiating mary module '"+moduleInitInfo+"'");
+        MaryModule m = (MaryModule) MaryUtils.instantiateObject(moduleInitInfo);
         return m;
     }
     
