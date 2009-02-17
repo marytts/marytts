@@ -23,6 +23,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,6 +39,7 @@ import java.util.TimerTask;
 
 import javax.swing.JFrame;
 
+import marytts.modules.MaryModule;
 import marytts.server.MaryProperties;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.util.math.MathUtils;
@@ -64,6 +67,60 @@ public class MaryUtils {
         return m;
     }
 
+    /**
+     * Instantiate an object by calling one of its constructors.
+     * @param objectInitInfo a string description of the object to instantiate.
+     * The objectInitInfo is expected to have one of the following forms:
+     * <ol>
+     *   <li> my.cool.Stuff</li>
+     *   <li> my.cool.Stuff(any,string,args,without,spaces)</li>
+     *   <li>my.cool.Stuff(arguments,$my.special.property,other,args)</li>
+     * </ol>
+     * where 'my.special.property' is a property in one of the MARY config files.
+     * @return the newly instantiated object.
+     * @throws ClassNotFoundException
+     * @throws IllegalArgumentException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws InvocationTargetException
+     * @throws SecurityException
+     * @throws NoSuchMethodException
+     */
+    public static Object instantiateObject(String objectInitInfo)
+    throws ClassNotFoundException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException
+    {
+        Object obj = null;
+        String[] args = null;
+        String className = null;
+        if (objectInitInfo.contains("(")) { // arguments
+            className = objectInitInfo.substring(0, objectInitInfo.indexOf('('));
+            args = objectInitInfo.substring(objectInitInfo.indexOf('(')+1, objectInitInfo.indexOf(')')).split(",");
+            for (int i=0; i<args.length; i++) {
+                if (args[i].startsWith("$")) {
+                    // replace value with content of property named after the $
+                    args[i] = MaryProperties.getProperty(args[i].substring(1));
+                }
+            }
+        } else { // no arguments
+            className = objectInitInfo;
+        }
+        Class<? extends Object> theClass = Class.forName(className).asSubclass(Object.class);
+        // Now invoke Constructor with args.length String arguments
+        if (args != null) {
+            Class<String>[] constructorArgTypes = new Class[args.length];
+            Object[] constructorArgs = new Object[args.length];
+            for (int i=0; i<args.length; i++) {
+                constructorArgTypes[i] = String.class;
+                constructorArgs[i] = args[i];
+            }
+            Constructor<? extends Object> constructor = (Constructor<? extends Object>) theClass.getConstructor(constructorArgTypes);
+            obj = constructor.newInstance(constructorArgs);
+        } else {
+            obj = theClass.newInstance();
+        }
+        return obj;
+    }
+    
     public static Character[] StringToCharacterArray(String s) {
         Character[] cArray = new Character[s.length()];
         for (int i = 0; i < s.length(); i++) {

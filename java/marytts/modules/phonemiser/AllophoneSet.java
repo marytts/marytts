@@ -22,11 +22,14 @@ package marytts.modules.phonemiser;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -100,9 +103,11 @@ public class AllophoneSet
 
     private String name; // the name of the allophone set
     private Locale locale; // the locale of the allophone set, e.g. US English
-    private String[] featureNames;
     // The map of segment objects, indexed by their phonetic symbol:
     private Map<String, Allophone> allophones = null;
+    // Map feature names to the list of possible values in this AllophoneSet
+    private Map<String, String[]> featureValueMap = null;
+    
     private Allophone silence = null;
     // The number of characters in the longest Allophone symbol
     private int maxAllophoneSymbolLength = 1;
@@ -110,7 +115,7 @@ public class AllophoneSet
     private AllophoneSet(String filename)
     throws SAXException, IOException, ParserConfigurationException
     {
-        allophones = new HashMap<String, Allophone>();
+        allophones = new TreeMap<String, Allophone>();
         // parse the xml file:
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setValidating(false);
@@ -120,7 +125,7 @@ public class AllophoneSet
         name = root.getAttribute("name");
         String xmlLang = root.getAttribute("xml:lang");
         locale = MaryUtils.string2locale(xmlLang);
-        featureNames = root.getAttribute("features").split(" ");
+        String[] featureNames = root.getAttribute("features").split(" ");
         NodeIterator ni = MaryDomUtils.createNodeIterator(document, root, "vowel", "consonant", "silence");
         Element a;
         while ((a = (Element) ni.nextNode()) != null) {
@@ -140,6 +145,25 @@ public class AllophoneSet
         }
         if (silence == null)
             throw new IllegalArgumentException("File "+filename+" does not contain a silence symbol");
+        // Fill the list of possible values for all features
+        // such that "0" comes first and all other values are sorted alphabetically
+        featureValueMap = new TreeMap<String, String[]>();
+        for (String feature : featureNames) {
+            Set<String> featureValueSet = new TreeSet<String>();
+            for (Allophone ap : allophones.values()) {
+                featureValueSet.add(ap.getFeature(feature));
+            }
+            if (featureValueSet.contains("0")) featureValueSet.remove("0");
+            String[] featureValues = new String[featureValueSet.size()+1];
+            featureValues[0] = "0";
+            int i=1;
+            for (String f : featureValueSet) {
+                featureValues[i++] = f;
+            }
+            featureValueMap.put(feature, featureValues);
+        }
+        // Special "vc" feature:
+        featureValueMap.put("vc", new String[] {"0", "+", "-"});
     }
 
     public Locale getLocale()
@@ -181,9 +205,33 @@ public class AllophoneSet
      */
     public String getPhoneFeature(String ph, String featureName)
     {
+        if (ph == null) return null;
         Allophone a = allophones.get(ph);
         if (a == null) return null;
         return a.getFeature(featureName);
+    }
+    
+    /**
+     * Get the list of available phone features for this allophone set.
+     * @return
+     */
+    public Set<String> getPhoneFeatures()
+    {
+        return Collections.unmodifiableSet(featureValueMap.keySet());
+    }
+    
+    /**
+     * For the given feature name, get the list of all possible values
+     * that the feature can take in this allophone set.
+     * @param featureName
+     * @throws IllegalArgumentException if featureName is not a known feature name.
+     * @return the list of values, "0" first.
+     */
+    public String[] getPossibleFeatureValues(String featureName)
+    {
+        String[] vals = featureValueMap.get(featureName);
+        if (vals == null) throw new IllegalArgumentException("No such feature: "+featureName);
+        return vals;
     }
     
     /**

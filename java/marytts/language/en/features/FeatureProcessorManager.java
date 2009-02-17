@@ -75,8 +75,10 @@ public class FeatureProcessorManager extends
             phonemeValues[0] = "0";
             System.arraycopy(phonemes, 0, phonemeValues, 1, phonemes.length);*/
 
+            setupHardcodedPhoneFeatureValues();
+            
             String pauseSymbol = allophoneSet.getSilence().name();
-            setupPhonemeFeatureProcessors(allophoneSet, phonemeValues, pauseSymbol);
+            setupPhoneFeatureProcessors(allophoneSet, phonemeValues, pauseSymbol, phonefeatures2values);
 
             String wordFrequencyFilename = MaryProperties.getFilename("english.wordFrequency.fst");
             String wordFrequencyEncoding = MaryProperties.getProperty("english.wordFrequency.encoding");
