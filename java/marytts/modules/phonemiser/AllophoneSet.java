@@ -104,6 +104,8 @@ public class AllophoneSet
     // The map of segment objects, indexed by their phonetic symbol:
     private Map<String, Allophone> allophones = null;
     private Allophone silence = null;
+    // The number of characters in the longest Allophone symbol
+    private int maxAllophoneSymbolLength = 1;
 
     private AllophoneSet(String filename)
     throws SAXException, IOException, ParserConfigurationException
@@ -130,6 +132,10 @@ public class AllophoneSet
                 if (silence != null)
                     throw new IllegalArgumentException("File "+filename+" contains more than one silence symbol: '"+silence.name()+"' and '"+ap.name()+"'!");
                 silence = ap;
+            }
+            int len = ap.name().length();
+            if (len > maxAllophoneSymbolLength) {
+                maxAllophoneSymbolLength = len;
             }
         }
         if (silence == null)
@@ -197,163 +203,98 @@ public class AllophoneSet
      */
     public Allophone[] splitIntoAllophones(String allophoneString)
     {
-        List<Allophone> phones = new ArrayList<Allophone>();
-        boolean haveSeenNucleus = false;
-        for (int i=0; i<allophoneString.length(); i++) {
-            String one = allophoneString.substring(i,i+1);
-            // symbols to skip silently: primary and secondary stress, syllable boundary, and space:
-            if ("',- ".contains(one))
-                continue;
-            // Try to cut off individual segments, 
-            // starting with the longest prefixes:
-            Allophone ph = null;
-            String phString = "";
-            if (i+2 <= allophoneString.length()) {
-                String two = allophoneString.substring(i,i+2);
-                // look up in phoneme list:
-                ph = getAllophone(two);
-                if (ph != null) {
-                    // OK, a two-character segment
-                    phString = two;
-                    i++; // in addition to the i++ in the for loop
-                }
-            }
-            if (ph == null) {
-                ph = getAllophone(one);
-                if (ph != null) {
-                    // OK, a one-character segment
-                    name = one;
-                }
-            }
-            if (ph != null) {
-                // have found a valid phoneme
-                if (ph.isSyllabic())
-                    haveSeenNucleus = true;
-                else if (phString.equals("6") &&
-                         !haveSeenNucleus) {
-                    // This "6" is the nucleus, must be coded as "=6"
-                    ph = getAllophone("=6");
-                    haveSeenNucleus = true;
-                }
-                phones.add(ph);
-            } else {
-                throw new IllegalArgumentException("Found unknown symbol `" + one +
-                            "' in phonetic string `" + allophoneString + "' -- ignoring.");
-            }
+        List<String> phones = splitIntoAllophoneList(allophoneString, false);
+        Allophone[] allos = new Allophone[phones.size()];
+        for (int i=0; i<phones.size(); i++) {
+            allos[i] = getAllophone(phones.get(i));
+            assert allos[i] != null : "Symbol '"+phones.get(i)+"' really should be an allophone, but isn't!";
         }
-        return (Allophone[]) phones.toArray(new Allophone[0]);
+        return allos;
     }
     
     
     /**
-     * split allophoneString into allophones separated with spaces
+     * Split allophone string into a list of allophone symbols.
+     * Include stress markers (',) and syllable boundaries (-), skip space characters.
      * @param allophoneString
-     * @return String, allophones separated with spaces
+     * @throws IllegalArgumentException if the string contains illegal symbols.
+     * @return a String containing allophones and stress markers / syllable boundaries, separated with spaces
      */
     public String splitAllophoneString(String allophoneString)
+    {
+        List<String> phones = splitIntoAllophoneList(allophoneString, true);
+        StringBuilder pronunciation = new StringBuilder();
+        for(String a : phones) {
+            if (pronunciation.length()>0) pronunciation.append(" ");
+            pronunciation.append(a);
+        }
+        return pronunciation.toString();
+    }
+
+    /**
+     * Split allophone string into a list of allophone symbols.
+     * Include (or ignore, depending on parameter 'includeStressAndSyllableMarkers')
+     *  stress markers (',), syllable boundaries (-). Ignores space characters.
+     * @param allophoneString
+     * @param includeStressAndSyllableMarkers whether to skip stress markers and syllable
+     * boundaries. If true, will return each such marker as a separate string in the list.
+     * @throws IllegalArgumentException if the string contains illegal symbols.
+     * @return a list of allophone objects.
+     */
+    private List<String> splitIntoAllophoneList(String allophoneString, boolean includeStressAndSyllableMarkers)
     {
         List<String> phones = new ArrayList<String>();
         boolean haveSeenNucleus = false;
         for (int i=0; i<allophoneString.length(); i++) {
             String one = allophoneString.substring(i,i+1);
             
-            if ("',- ".contains(one)){
-                phones.add(one); 
+            if ("',-".contains(one)) {
+                if (includeStressAndSyllableMarkers) phones.add(one); 
+                continue;
+            } else if (one.equals(" ")) {
                 continue;
             }
             // Try to cut off individual segments, 
             // starting with the longest prefixes:
             Allophone ph = null;
-            String phString = "";
-            if (i+2 <= allophoneString.length()) {
-                String two = allophoneString.substring(i,i+2);
-                // look up in phoneme list:
-                ph = getAllophone(two);
-                if (ph != null) {
-                    // OK, a two-character segment
-                    phString = two;
-                    i++; // in addition to the i++ in the for loop
-                }
-            }
-            if (ph == null) {
-                ph = getAllophone(one);
-                if (ph != null) {
-                    // OK, a one-character segment
-                    name = one;
+            for (int l=maxAllophoneSymbolLength; l>=1; l--) {
+                if (i+l <= allophoneString.length()) {
+                    String s = allophoneString.substring(i, i+l);
+                    // look up in allophone map:
+                    ph = getAllophone(s);
+                    if (ph != null) {
+                        // OK, found a symbol of length l.
+                        i += l-1; // together with the i++ in the for loop, move by l
+                        break;
+                    }
                 }
             }
             if (ph != null) {
                 // have found a valid phoneme
-                if (ph.isSyllabic())
-                    haveSeenNucleus = true;
-                else if (phString.equals("6") &&
-                         !haveSeenNucleus) {
-                    // This "6" is the nucleus, must be coded as "=6"
-                    ph = getAllophone("=6");
-                    haveSeenNucleus = true;
-                }
                 phones.add(ph.name());
             } else {
-                throw new IllegalArgumentException("Found unknown symbol `" + one +
-                            "' in phonetic string `" + allophoneString + "' -- ignoring.");
+                throw new IllegalArgumentException("Found unknown symbol `" + 
+                        allophoneString.charAt(i) +
+                        "' in phonetic string `" + allophoneString + "' -- ignoring.");
             }
         }
-        
-        String pronunciation = "";
-        for(String str : phones){
-            pronunciation += " "+str;
-        }
-        
-        return pronunciation;
+        return phones;
     }
     
-    
-    public String checkAllophoneSyntax(String allophoneString)
+    /**
+     * Check whether the given allophone string has a correct syntax 
+     * according to this allophone set.
+     * @param allophoneString
+     * @return true if the syntax is correct, false otherwise.
+     */
+    public boolean checkAllophoneSyntax(String allophoneString)
     {
-        List<Allophone> phones = new ArrayList<Allophone>();
-        boolean haveSeenNucleus = false;
-        for (int i=0; i<allophoneString.length(); i++) {
-            String one = allophoneString.substring(i,i+1);
-            // symbols to skip silently: primary and secondary stress, syllable boundary, and space:
-            if ("',- ".contains(one))
-                continue;
-            // Try to cut off individual segments, 
-            // starting with the longest prefixes:
-            Allophone ph = null;
-            String phString = "";
-            if (i+2 <= allophoneString.length()) {
-                String two = allophoneString.substring(i,i+2);
-                // look up in phoneme list:
-                ph = getAllophone(two);
-                if (ph != null) {
-                    // OK, a two-character segment
-                    phString = two;
-                    i++; // in addition to the i++ in the for loop
-                }
-            }
-            if (ph == null) {
-                ph = getAllophone(one);
-                if (ph != null) {
-                    // OK, a one-character segment
-                    name = one;
-                }
-            }
-            if (ph != null) {
-                // have found a valid phoneme
-                if (ph.isSyllabic())
-                    haveSeenNucleus = true;
-                else if (phString.equals("6") &&
-                         !haveSeenNucleus) {
-                    // This "6" is the nucleus, must be coded as "=6"
-                    ph = getAllophone("=6");
-                    haveSeenNucleus = true;
-                }
-                phones.add(ph);
-            } else {
-                return "Found unknown symbol `" + one +"' in phonetic string `" + allophoneString + "' -- ignoring.";
-            }
+        try {
+            splitIntoAllophoneList(allophoneString, false);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
         }
-        return "OK";
     }
     
     
