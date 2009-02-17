@@ -323,19 +323,21 @@ public class HMMSynthesizer implements WaveformSynthesizer {
       }
       
       for (Element e : tokensAndBoundaries) {
-        
+         //System.out.println("TAG: " + e.getTagName());
          if( e.getTagName().contentEquals(MaryXML.TOKEN) ) {
           no1 = e.getChildNodes();
           for(i=0; i< no1.getLength(); i++) {
+            //System.out.println("NodeName1=" + no1.item(i).getNodeName());  
             if(no1.item(i).getNodeName().contentEquals(MaryXML.SYLLABLE)) {
            
               no2 = no1.item(i).getChildNodes();
               for(j=0; j<no2.getLength(); j++){
-             
+                  
                 if( no2.item(j).getNodeName().contentEquals(MaryXML.PHONE) ) {
+                   //System.out.println("NodeName2=" + no2.item(j).getNodeName());  
                    att = no2.item(j).getAttributes(); 
                    
-                   
+                   //System.out.println(att.getNamedItem("p").getNodeValue());
                    if( ( index = ph.indexOf(att.getNamedItem("p").getNodeValue()) ) >= 0 ){ 
                      totalDur = totalDur + dur.elementAt(index);
                      att.getNamedItem("d").setNodeValue(dur.elementAt(index).toString());
@@ -344,8 +346,11 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                      /* remove this element of the vector otherwise next time it will return the same */
                      ph.set(index, "");
                    } else
-                       throw new SynthesisException("problems phoneme " + att.getNamedItem("p") + " NOT found in HTSEngine phoneme set");
+                       throw new SynthesisException("setActualDurations: problems phoneme " + att.getNamedItem("p") + " NOT found in HTSEngine phoneme set");
                    
+                } else if ( no2.item(j).getNodeName().contentEquals(MaryXML.BOUNDARY) ){
+                    // don't do anything
+                    //System.out.println("NodeName2=" + no2.item(j).getNodeName());   
                 } else
                     throw new SynthesisException("setActualDurations: problem parsing PHONE in List<Element> tokensAndBoundaries.");               
               }              
