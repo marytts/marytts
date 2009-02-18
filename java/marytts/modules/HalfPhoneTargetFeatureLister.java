@@ -29,6 +29,7 @@ import marytts.modules.synthesis.Voice;
 import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.UnitSelector;
+import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Element;
 
@@ -68,17 +69,23 @@ public class HalfPhoneTargetFeatureLister extends TargetFeatureLister
         Element first = segmentsAndBoundaries.get(0);
         if (!first.getTagName().equals(MaryXML.BOUNDARY)) {
             Element initialPause = MaryXML.createElement(first.getOwnerDocument(), MaryXML.BOUNDARY);
-            first.getParentNode().insertBefore(initialPause, first);
+            Element token = (Element) MaryDomUtils.getAncestor(first, MaryXML.TOKEN);
+            Element parent = (Element) token.getParentNode();
+            parent.insertBefore(initialPause, token);
             segmentsAndBoundaries.add(0, initialPause);
+        }
+        Element last = segmentsAndBoundaries.get(segmentsAndBoundaries.size()-1);
+        if (!last.getTagName().equals(MaryXML.BOUNDARY)) {
+            Element finalPause = MaryXML.createElement(last.getOwnerDocument(), MaryXML.BOUNDARY);
+            Element token = (Element) MaryDomUtils.getAncestor(last, MaryXML.TOKEN);
+            Element parent = (Element) token.getParentNode();
+            parent.appendChild(finalPause);
+            segmentsAndBoundaries.add(finalPause);
         }
         for (Element sOrB : segmentsAndBoundaries) {
             String phone = UnitSelector.getPhoneSymbol(sOrB);
             targets.add(new HalfPhoneTarget(phone+"_L", sOrB, true));
             targets.add(new HalfPhoneTarget(phone+"_R", sOrB, false));
-        }
-        if (!targets.get(targets.size()-1).isSilence()) {
-            targets.add(new HalfPhoneTarget(silenceSymbol+"_L", null, true));
-            targets.add(new HalfPhoneTarget(silenceSymbol+"_R", null, false));
         }
         return targets;
     }
