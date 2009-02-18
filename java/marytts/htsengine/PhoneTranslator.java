@@ -167,7 +167,7 @@ public class PhoneTranslator  {
      * @param lab
      * @return String
      */
-    public String replaceTrickyPhones(String lab){
+    public static String replaceTrickyPhones(String lab){
       String s = lab;
       
       /** the replace is done for the labels: phoneme, prev_phoneme and next_phoneme */
