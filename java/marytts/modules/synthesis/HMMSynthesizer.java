@@ -83,6 +83,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.NodeIterator;
 
@@ -332,7 +333,8 @@ public class HMMSynthesizer implements WaveformSynthesizer {
            
               no2 = no1.item(i).getChildNodes();
               for(j=0; j<no2.getLength(); j++){
-                  
+                if (no2.item(j).getNodeType() == Node.TEXT_NODE) continue;
+                
                 if( no2.item(j).getNodeName().contentEquals(MaryXML.PHONE) ) {
                    //System.out.println("NodeName2=" + no2.item(j).getNodeName());  
                    att = no2.item(j).getAttributes(); 
