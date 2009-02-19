@@ -45,6 +45,19 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
     
     private DatabaseLayout db;
     private String name = "HMMVoiceInstaller";
+    /** HMM Voice-specific parameters, these are parameters used during models training
+    if using MGC: 
+             gamma=0  alpha=0.42 linear gain (default)
+    if using LSP: gamma>0 
+        LSP: gamma=1  alpha=0.0  linear gain/log gain 
+    Mel-LSP: gamma=1  alpha=0.42 log gain
+    MGC-LSP: gamma=3  alpha=0.42 log gain  */
+    public final String alpha   = name+".alpha";
+    public final String gamma   = name+".gamma";    
+    public final String logGain = name+".logGain";
+
+    /** Parameter beta for postfiltering  */    
+    public final String beta    = name+".beta";
        
     /** Tree files and TreeSet object */
     public final String treeDurFile = name+".Ftd";
@@ -70,15 +83,16 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
         
     /** Variables for mixed excitation */
     public final String useMixExc      = name+".useMixExc";
+    public final String useFourierMag  = name+".useFourierMag";
     public final String mixFiltersFile = name+".Fif";
     public final String numFilters     = name+".in";
     public final String orderFilters   = name+".io";
     
     /** Feature list file and Vector which will contain the loaded features from this file */
-    public final String featureListFile = name+".FeaList";
+    //public final String featureListFile = name+".FeaList";
        
-    /** Example context feature file in HTSCONTEXT_EN format */
-    public final String labFile = name+".Flab";
+    /** Example context feature file (TARGETFEATURES in MARY) */
+    public final String featuresFile = name+".FeaFile";
     
     public final String createZipFile = name+".createZipFile";
     public final String zipCommand = name+".zipCommand";
@@ -99,7 +113,10 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
            props = new TreeMap<String,String>();
            
            String rootdir = db.getProp(db.ROOTDIR);
-           
+           props.put(alpha, "0.42");
+           props.put(beta, "0.0");
+           props.put(gamma, "0");
+           props.put(logGain, "false");
            props.put(treeDurFile, "voices/qst001/ver1/tree-dur.inf"); 
            props.put(treeLf0File, "voices/qst001/ver1/tree-lf0.inf");
            props.put(treeMcpFile, "voices/qst001/ver1/tree-mgc.inf");
@@ -116,11 +133,11 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
            props.put(pdfStrGVFile, "data/gv/gv-str-littend.pdf");
            props.put(pdfMagGVFile, "data/gv/gv-mag-littend.pdf");
            props.put(useMixExc, "true");
+           props.put(useFourierMag, "true");
            props.put(mixFiltersFile, "data/filters/mix_excitation_filters.txt"); 
            props.put(numFilters, "5");
-           props.put(orderFilters, "48");
-           props.put(featureListFile, "data/feature_list_en.pl");
-           props.put(labFile, "data/labels/gen/gen_EM001_ARCTIC_0001.lab");
+           props.put(orderFilters, "48");           
+           props.put(featuresFile, "phonefeatures/cmu_us_arctic_slt_a0001.pfeats");
            props.put(createZipFile, "false");
            props.put(zipCommand, "/usr/bin/zip");
            
@@ -130,7 +147,10 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
     
     protected void setupHelp(){
         props2Help = new TreeMap();
-        
+        props2Help.put(alpha, "Training parameter: Frequency wrapping coefficient. 0.42 for mel frequency.");
+        props2Help.put(beta, "Postfiltering coefficient, -0.8 - 0.8");
+        props2Help.put(gamma, "Training parameter: gamma=0 for MGC, gamma>0 for LSP");
+        props2Help.put(logGain, "Training parameter: use log gain / linear gain, default for MGC logGain=false");
         props2Help.put(treeDurFile, "durations tree file"); 
         props2Help.put(treeLf0File, "log F0 tree file");
         props2Help.put(treeMcpFile, "Mel-cepstral (mcp or Mel-generalized cepstral mgc, HTS Version 2.0.1 used mgc) tree file");
@@ -147,11 +167,11 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
         props2Help.put(pdfStrGVFile, "Global variance for Bandpass voicing strengths mean and (diagonal) variance PDF file (optional: used for mixed excitation)");
         props2Help.put(pdfMagGVFile, "Global variance for Fourier Magnitudes mean and (diagonal) variance PDF file (optional: used for mixed excitation)");
         props2Help.put(useMixExc, "Use mixed excitation in speech generation (true/false)");
+        props2Help.put(useFourierMag, "Use Fourier magnitudes for pulse generation (true/false)");
         props2Help.put(mixFiltersFile, "Filter taps of bandpass filters for mixed excitation (optional: used for mixed excitation)"); 
         props2Help.put(numFilters, "Number of filters in bandpass bank, default 5 filters (optional: used for mixed excitation)");
         props2Help.put(orderFilters, "Number of taps in bandpass filters, default 48 taps (optional: used for mixed excitation)");
-        props2Help.put(featureListFile, "Requested features for the fullcontext names and tree questions");
-        props2Help.put(labFile, "File for testing the HMMSynthesiser, example of a file in HTSCONTEXT format. If the file is not provided or does not exist a file from data/labels/gen/ will be used.");
+        props2Help.put(featuresFile, "File for testing the HMMSynthesiser, example of a file in HTSCONTEXT format. If the file is not provided or does not exist a file from data/labels/gen/ will be used.");
         props2Help.put(createZipFile, "Create zip file for Mary voices installation (used by Mary voices administrator only).");
         props2Help.put(zipCommand, "zip command to create a voice.zip file for voice installation.");
         
@@ -201,7 +221,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
               out = new File(newVoiceDir + getFileName(getProp(treeStrFile)));
               copy(in,out);    
             }
-            /* optional file for mixed excitation */
+            /* optional file for using Fourier magnitudes in pulse generation */
             in = new File(getProp(treeMagFile));
             if(in.exists()) {
               out = new File(newVoiceDir + getFileName(getProp(treeMagFile)));
@@ -218,7 +238,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
             out = new File(newVoiceDir + getFileName(getProp(pdfMcpFile)));
             copy(in,out);   
             
-            /* optional file for mixed excitation */
+            /* optional file for using Fourier magnitudes in pulse generation */
             in = new File(getProp(pdfStrFile));
             if(in.exists()) {
               out = new File(newVoiceDir + getFileName(getProp(pdfStrFile)));
@@ -256,27 +276,24 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
             in = new File(getProp(mixFiltersFile));
             out = new File(newVoiceDir + getFileName(getProp(mixFiltersFile)));
             copy(in,out);
-            in = new File(getProp(featureListFile));
-            out = new File(newVoiceDir + getFileName(getProp(featureListFile)));
-            copy(in,out);
             
             
-            in = new File(getProp(labFile));
+            in = new File(getProp(featuresFile));
             if(in.exists()){
-              out = new File(newVoiceDir + getFileName(getProp(labFile)));
+              out = new File(newVoiceDir + getFileName(getProp(featuresFile)));
               copy(in,out); 
             } else {
               /* copy one example of hts context features file, it can be one of the 
                * files used for testing in data/labels/gen/*.lab*/
               File dirGenLab  = new File("data/labels/gen");
               if( dirGenLab.exists() && dirGenLab.list().length > 0 ){ 
-                String[] labFiles = dirGenLab.list();
-                in = new File("data/labels/gen/"+labFiles[0]);
-                out = new File(newVoiceDir + getFileName(labFiles[0]));
+                String[] feaFiles = dirGenLab.list();
+                in = new File("phonefeatures/gen/"+feaFiles[0]);
+                out = new File(newVoiceDir + getFileName(feaFiles[0]));
                 copy(in,out);
-                props.put(labFile, "data/labels/gen/"+labFiles[0]);
+                props.put(featuresFile, "phonefeatures/gen/"+feaFiles[0]);
               } else
-                System.out.println("Problem copying one example of HTS context features, the directory data/labels/gen/ is empty or directory does not exist.");
+                System.out.println("Problem copying one example of context features, the directory phonefeatures/gen/ is empty or directory does not exist.");
             }   
                
         }catch (IOException ioe){
@@ -329,8 +346,8 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
                          + installZipFile + " " 
                          + configFileName + " "
                          + "lib/voices/" + db.getProp(db.VOICENAME).toLowerCase() + fileSeparator + "*";  
-          System.out.println("CommandLine:" + cmdLine)
-;          launchBatchProc(cmdLine, "zip", filedir);
+          System.out.println("CommandLine:" + cmdLine);
+          launchBatchProc(cmdLine, "zip", filedir);
           System.out.println();
         }
         
@@ -400,7 +417,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
             configOut.println("#Auto-generated config file for voice "+voicename+"\n");
             //print name and version info
              configOut.println("name = " + longLocale + "-" + voicename);
-             String version = "3.5.0"; // TODO: turn this into a config setting
+             String version = "4.0"; // TODO: turn this into a config setting
              configOut.println(longLocale + "-voice.version = "+version+"\n");
              configOut.println("voice.version = "+version+"\n");
              //print providing info
@@ -414,7 +431,6 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
                      "# We can require a component by name or by an abstract \"group name\"\n"+ 
                      "# as listed under the \"provides\" element.\n"+
              		 "requires = \\\n   "+longLocale+" \\\n   marybase \\");
-             configOut.println("   " + longLocale + "-targetfeatures \\");  
              configOut.println("   hmm \n\n");
              configOut.println("requires.marybase.version = 3.1.0\n"+
                      "requires.marybase.download = http://mary.dfki.de/download/mary-install-3.x.x.jar\n" +
@@ -455,7 +471,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
                           voiceHeader+".lexiconClass = com.sun.speech.freetts.en.us.CMULexicon\n"+
                           voiceHeader+".lexicon = cmudict04\n\n"+
                           "# Phoneme conversion for English voices \n"+
-                          voiceHeader+".sampamapfile = MARY_BASE/lib/modules/en/synthesis/sampa2mrpa_en.map\n\n");                                            
+                          voiceHeader+".sampamapfile = MARY_BASE/lib/modules/en/synthesis/sampa2mrpa_en.map\n");                                            
               } else {
                   //cutLocale.equals("de")
                   configOut.println("# Sampa mapping for German voices \n"+
@@ -466,42 +482,57 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
               }
                      
               //voice data
+              configOut.println("# HMM Voice-specific parameters \n" +
+                    "# parameters used during models training \n" +
+                    "# MGC: stage=gamma=0 alpha=0.42 linear gain (default) \n" +
+                    "# LSP: gamma>0  \n" +
+                    "#          LSP: gamma=1 alpha=0.0  linear gain/log gain \n" +
+                    "#      Mel-LSP: gamma=1 alpha=0.42 log gain \n" +
+                    "#      MGC-LSP: gamma=3 alpha=0.42 log gain \n" +
+                    voiceHeader+".alpha = " + getProp(alpha) + "\n" +
+                    voiceHeader+".gamma = " + getProp(gamma) + "\n" +
+                    voiceHeader+".logGain = " + getProp(logGain) + "\n");
+              
+              configOut.println("# Parameter beta for postfiltering \n" +
+                      voiceHeader+".beta = " + getProp(beta) + "\n"); 
+              
               configOut.println("# HMM Voice-specific files\n# Information about trees\n"+
                       voiceHeader+".Ftd = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(treeDurFile))+"\n"+
                       voiceHeader+".Ftf = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(treeLf0File))+"\n"+
                       voiceHeader+".Ftm = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(treeMcpFile)));
               if( new File(getProp(treeStrFile)).exists())
-                configOut.println(voiceHeader+".Fts = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(treeStrFile))+"\n");
+                configOut.println(voiceHeader+".Fts = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(treeStrFile)));
               if( new File(getProp(treeMagFile)).exists())
-                configOut.println(voiceHeader+".Fta = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(treeMagFile))+"\n");
+                configOut.println(voiceHeader+".Fta = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(treeMagFile)));
               configOut.println("\n# Information about means and variances PDFs \n"+
                       voiceHeader+".Fmd = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfDurFile))+"\n"+
                       voiceHeader+".Fmf = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfLf0File))+"\n"+
                       voiceHeader+".Fmm = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfMcpFile)));
               if( new File(getProp(pdfStrFile)).exists())
-               configOut.println(voiceHeader+".Fms = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfStrFile))+"\n");
+               configOut.println(voiceHeader+".Fms = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfStrFile)));
               if( new File(getProp(pdfMagFile)).exists())
-               configOut.println(voiceHeader+".Fma = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfMagFile))+"\n");
+               configOut.println(voiceHeader+".Fma = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfMagFile)));
               
-              configOut.println("\n# Information about Global Mean and Variance PDFs");
+              configOut.println("\n# Information about Global Mean and Variance PDFs \n" +
+                    "# By default GV is not used for generating strengths and Fourier magnitudes,\n" +
+                    "# although the gv pdf for these are generated during training. \n" +
+                    "# Uncomment the lines corresponding to gv-str and gv-mag for using them.");
               configOut.println(voiceHeader+".useGV = "+ getProp(useGV));
               if( new File(getProp(pdfLf0GVFile)).exists())
                   configOut.println(voiceHeader+".Fgvf = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfLf0GVFile)));
               if( new File(getProp(pdfMcpGVFile)).exists())
                   configOut.println(voiceHeader+".Fgvm = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfMcpGVFile)));
               if( new File(getProp(pdfStrGVFile)).exists())
-                  configOut.println(voiceHeader+".Fgvs = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfStrGVFile)));
+                  configOut.println("#" + voiceHeader+".Fgvs = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfStrGVFile)));
               if( new File(getProp(pdfMagGVFile)).exists())
-                  configOut.println(voiceHeader+".Fgva = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfMagGVFile)));
-              configOut.println();
+                  configOut.println("#" + voiceHeader+".Fgva = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfMagGVFile)));
               
-              configOut.println("\n# File for testing the HMMSynthesiser, example of a file in HTSCONTEXT format\n" +
-                      voiceHeader+".FLab = MARY_BASE/lib/voices/"+voicename+"/"+getFileName(getProp(labFile))+"\n\n"+
-                      "# Requested features for the fullcontext names and tree questions \n" +
-                      voiceHeader+".FeaList = MARY_BASE/lib/voices/"+voicename+"/"+getFileName(getProp(featureListFile))+"\n\n");
+              configOut.println("\n# File for testing the HMMSynthesiser, a context features file example.\n" +
+                      voiceHeader+".FeaFile = MARY_BASE/lib/voices/"+voicename+"/"+getFileName(getProp(featuresFile)));
               
               configOut.println("\n# Information about Mixed Excitation");
               configOut.println(voiceHeader+".useMixExc = "+ getProp(useMixExc));
+              configOut.println(voiceHeader+".useFourierMag = "+ getProp(useFourierMag));
               configOut.println();
               if( new File(getProp(treeStrFile)).exists()) {
                 configOut.println("# Filter taps of bandpass filters for mixed excitation \n" +

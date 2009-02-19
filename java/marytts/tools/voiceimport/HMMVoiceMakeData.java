@@ -50,6 +50,7 @@ package marytts.tools.voiceimport;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -62,6 +63,7 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.Vector;
 
 import marytts.features.FeatureDefinition;
 import marytts.htsengine.PhoneTranslator;
@@ -477,8 +479,6 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         }  
         
     }
-    
-    
     
     
     /**
