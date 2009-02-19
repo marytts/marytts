@@ -75,8 +75,6 @@ public class SilenceMarker extends Histogram
         showXAxis = false;
         paddingTop = 5;
         paddingBottom = 5;
-        graphColor = Color.LIGHT_GRAY;
-        histogramBorderColor = graphColor;
         double frameDuration = 0.01; // seconds
         int frameLength = (int) (samplingRate*frameDuration);
         int frameShift = frameLength / 2;
@@ -91,6 +89,8 @@ public class SilenceMarker extends Histogram
             else silenceData[i] = 1.;
         }
         super.initialise(width, height, 0, (double)frameShift/samplingRate, silenceData);
+        histogramBorderColor = Color.LIGHT_GRAY;
+        setPrimaryDataSeriesStyle(histogramBorderColor, DRAW_HISTOGRAM, -1);
     }
 
     public static void main(String[] args) throws Exception
