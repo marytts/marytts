@@ -106,11 +106,11 @@ public class HTSEngineTest {
        
       int i, j;  
       // context features file
-      String feaFile = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/cmu_us_arctic_slt_a0001.pfeats";     
+      String feaFile = "/project/mary/marcela/openmary/lib/voices/hsmm-slt-mary4.0/cmu_us_arctic_slt_a0001.pfeats";     
       // external duration extracted with the voice import tools - EHMM
-      //String labFile = "/project/mary/marcela/f0-hsmm-experiment/cmu_us_arctic_slt_a0001.lab";
-      // external duration obtained with MARY
-      String labFile = "/project/mary/marcela/f0-hsmm-experiment/cmu_us_arctic_slt_a0001.realised_durations";
+      String labFile = "/project/mary/marcela/f0-hsmm-experiment/cmu_us_arctic_slt_a0001.lab";
+      // external duration obtained with MARY, there is a problem with this because it does not have an initial sil
+      //String labFile = "/project/mary/marcela/f0-hsmm-experiment/cmu_us_arctic_slt_a0001.realised_durations";
       // external F0 contour
       String f0File = "/project/mary/marcela/f0-hsmm-experiment/cmu_us_arctic_slt_a0001-littend.lf0";
 
@@ -119,8 +119,8 @@ public class HTSEngineTest {
       
       /* For initialise provide the name of the hmm voice and the name of its configuration file,*/     
       String MaryBase    = "/project/mary/marcela/openmary/"; /* MARY_BASE directory.*/
-      String voiceName   = "hsmm-slt";                        /* voice name */
-      String voiceConfig = "english-hsmm-slt.config";         /* voice configuration file name. */        
+      String voiceName   = "hsmm-slt-mary4.0";                        /* voice name */
+      String voiceConfig = "english-hsmm-slt-mary4.0.config";         /* voice configuration file name. */        
       String outWavFile  = MaryBase + "tmp/tmp.wav";          /* to save generated audio file */
       
       htsData.initHMMData(voiceName, MaryBase, voiceConfig);
@@ -562,10 +562,9 @@ public class HTSEngineTest {
     } 
     
     
-    
-    
-    
     public static void main(String[] args) throws Exception {
+       /* configure log info */
+       org.apache.log4j.BasicConfigurator.configure();
         
        HTSEngineTest test = new HTSEngineTest();
        

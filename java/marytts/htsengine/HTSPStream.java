@@ -163,14 +163,11 @@ public class HTSPStream {
   
   /* mlpg: generate sequence of speech parameter vector maximizing its output probability for 
    * given pdf sequence */
-  public void mlpg(HMMData htsData) {
+  public void mlpg(HMMData htsData, boolean useGV) {
 	 int m,t;
 	 int M = order;
 	 boolean debug=false;
-
-     if( htsData.getUseGV() && (feaType == HMMData.MCP || feaType == HMMData.LF0 ) )
-         logger.info("Generation using Global Variance");
-     
+ 
      htsData.getGVModelSet().setTotalNumIter(0);
      htsData.getGVModelSet().setFirstIter(0);
      
@@ -181,31 +178,24 @@ public class HTSPStream {
 	   backwardSubstitution(m);   /* backward substitution in Cholesky decomposition */
        
        /* Global variance optimisation for MCP and LF0 */
-       if( (htsData.getUseGV() || htsData.getUseGmmGV() ) && ( feaType == HMMData.MCP || feaType == HMMData.LF0 ) ) {
+       if( useGV ) {
+         logger.info("Generation using Global Variance");  
          if(feaType == HMMData.MCP)  
            logger.info("GV optimization for MCP feature: ("+ m + ")"); 
          if(feaType == HMMData.LF0)  
              logger.info("GV optimization for LF0 feature: ("+ m + ")");
+         if(feaType == HMMData.STR)  
+             logger.info("GV optimization for STR feature: ("+ m + ")");
+         if(feaType == HMMData.MAG)  
+             logger.info("GV optimization for MAG feature: ("+ m + ")");
+         
          gvParmGen(m, htsData.getGVModelSet(), debug);  
        
-        if(debug) 
-        logger.info("Total number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
+         if(debug) 
+           logger.info("Total number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
                      "  average = " + htsData.getGVModelSet().getTotalNumIter()/M + 
                      "  first iteration = " + htsData.getGVModelSet().getFirstIter() );
        }
-       
-      /* } else if ( htsData.getUseGV() && feaType == HMMData.LF0 ) {
-           logger.info("Optimization LF0 feature: ("+ m + ")");    
-           gvParmGen(m, htsData.getGVModelSet().getGVmeanLf0(), htsData.getGVModelSet().getGVcovInvLf0());           
-       } else if ( false && feaType == HMMData.STR ) {
-           logger.info("Optimization STR feature: ("+ m + ")");    
-           gvParmGen(m, htsData.getGVModelSet().getGVmeanStr(), htsData.getGVModelSet().getGVcovInvStr());           
-       } else if ( false && feaType == HMMData.MAG ) {
-           logger.info("Optimization MAG feature: ("+ m + ")");    
-           gvParmGen(m, htsData.getGVModelSet().getGVmeanMag(), htsData.getGVModelSet().getGVcovInvMag());           
-       }
-*/        
-       
 	 } 
 	 if(debug) {
 	   for(m=0; m<M; m++){
@@ -373,17 +363,23 @@ public class HTSPStream {
       g[t] = 0.0;
       par_ori[t] = par[t][m];  
     }
-    
+    nmix = gv.getNumMix();
     if( feaType == HMMData.MCP){
-      nmix = gv.getNumMix();
       gvweights = gv.getGVweightsMcp();
       gvmean = gv.getGVmeanMcp();
       gvcovInv = gv.getGVcovInvMcp();
-    } else { //if( feaType == HMMData.LF0){
-      nmix = gv.getNumMix();  
+    } else if( feaType == HMMData.LF0){
       gvweights = gv.getGVweightsLf0();
       gvmean = gv.getGVmeanLf0();
       gvcovInv = gv.getGVcovInvLf0();
+    } else if( feaType == HMMData.STR){
+      gvweights = gv.getGVweightsStr();
+      gvmean = gv.getGVmeanStr();
+      gvcovInv = gv.getGVcovInvStr();
+    } else {//if( feaType == HMMData.MAG) 
+      gvweights = gv.getGVweightsMag();
+      gvmean = gv.getGVmeanMag();
+      gvcovInv = gv.getGVcovInvMag();
     } 
     
     

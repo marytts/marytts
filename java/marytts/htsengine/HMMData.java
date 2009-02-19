@@ -99,7 +99,7 @@ public class HMMData {
     private double beta        = 0.0;    /* variable for postfiltering                 */
     private boolean useLogGain = false;  /* log gain flag (for LSP) */
     
-	private double uv      = 0.5;   /* variable for U/V threshold                 */
+	private double uv             = 0.5;   /* variable for U/V threshold                 */
 	private boolean algnst        = false; /* use state level alignment for duration     */
 	private boolean algnph        = false; /* use phoneme level alignment for duration   */
     private boolean useMixExc     = true;  /* use Mixed Excitation */
@@ -151,12 +151,7 @@ public class HMMData {
 	private int numFilters;
 	private int orderFilters;
     private double mixFilters[][];      /* filters for mixed excitation */
-	
-	/* Feature list file and Vector which will contain the loaded features from this file */
-	private String featureListFile;
-    private Vector<String> featureList = new Vector<String>();
-    
-    
+	 
     /* Example CONTEXTFEATURE file in MARY format */
     private String feaFile;
 	
@@ -197,10 +192,6 @@ public class HMMData {
     public String getPdfMcpGVFile() { return pdfMcpGVFile; } 
     public String getPdfStrGVFile() { return pdfStrGVFile; } 
     public String getPdfMagGVFile() { return pdfMagGVFile; }
-    	
-	public String getFeatureListFile() { return featureListFile; }
-    /* This function returns the feature list already loaded in a Vector */
-    public Vector<String> getFeatureList() { return featureList; }  
     public String getFeaFile() { return feaFile; }
 	
 	public String getMixFiltersFile() { return mixFiltersFile; } 
@@ -277,8 +268,6 @@ public class HMMData {
     public void setPdfMcpGVFile(String str) { pdfMcpGVFile = str; } 
     public void setPdfStrGVFile(String str) { pdfStrGVFile = str; } 
     public void setPdfMagGVFile(String str) { pdfMagGVFile = str; } 
-    
-    public void setFeaListFile(String str) { featureListFile = str; }
     public void setFeaFile(String str) { feaFile = str; }
     
     public void setMixFiltersFile(String str) { mixFiltersFile = str; } 
@@ -342,10 +331,7 @@ public class HMMData {
               pdfLf0GVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgmmgvf" ).substring(10);        
               pdfMcpGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgmmgvm" ).substring(10);
           }
-          
-          /* Feature list file */
-          featureListFile = MaryBase + props.getProperty( "voice." + voice + ".FeaList" ).substring(10);
-          
+ 
           /* Example context feature file in HTSCONTEXT_EN format */
           feaFile = MaryBase + props.getProperty( "voice." + voice + ".FeaFile" ).substring(10);
           
@@ -378,71 +364,15 @@ public class HMMData {
       
         /* Load (un-commented) context feature list from featureListFile */
         logger.info("Loading Feature List:");
-        readFeatureList(featureList, featureListFile);
+        //readFeatureList(featureList, featureListFile);
       }
       catch (Exception e) {
           logger.debug(e.getMessage()); 
       }
-      
-      if( featureList.size() == 0)
-          logger.debug("initHMMData: Warning feature list file empty or feature list not loaded. ");
    		
 	}
 	
-    
-    /** This function reads the feature list file, for example feature_list_en_05.pl
-     * and fills in a vector the elements in that list that are un-commented 
-     */
-    public void readFeatureList(Vector<String> feaList, String feaListFile) throws FileNotFoundException {
-      String line;
-      int i;
-      
-      Scanner s = null;
-      try {
-        s = new Scanner(new BufferedReader(new FileReader(feaListFile))).useDelimiter("\n");
-         
-        /*  see NOTE in HTSCONTEXTTRANSLATOR processTargetFeatures() 
-        feaList.addElement("phoneme");
-        feaList.addElement("prev_phoneme");
-        feaList.addElement("prev_prev_phoneme");
-        feaList.addElement("next_phoneme");
-        feaList.addElement("next_next_phoneme");
-        */
-        
-        while (s.hasNext()) {
-          line = s.next();
-          //System.out.println("fea: "+ line);
-          if(!line.contains("#") && line.length()>0){    /* if it is not commented */
-              // MS, 20 Oct 2008: as the feature names don't contain the prefix "mary_" anymore,
-              // we cannot identify feature names as before.
-              // However, it seems that, when there is a comma in the line, 
-              // the first element should be the right one in all examples I found.
-              if (line.contains(",")) { // it contains a comma
-                  String[] elem = line.split(",");
-                  String feaString = elem[0];
-                  assert feaString.contains("\"") : "Unlikely to contain a feature name: '"+feaString+"'!";
-                  feaList.addElement(feaString.substring(feaString.indexOf("\"")+1, feaString.lastIndexOf("\"")));
-                  //for(i=0; i<elem.length; i++)
-                  //  if(elem[i].contains("mary_")){  /* if starts with mary_ */                 
-                  //    feaList.addElement(elem[i].substring(elem[i].indexOf("\"")+1, elem[i].lastIndexOf("\"")));
-                  //    //System.out.println("  -->  "+ featureList.lastElement()); 
-                  //  }                  
-              }
-          }
-        }
-                
-        if (s != null) { 
-          s.close();
-        }
-        
-      } catch (FileNotFoundException e) {
-          logger.debug("readFeatureList:  " + e.getMessage());
-          throw new FileNotFoundException("readFeatureList " + e.getMessage());
-      }
-      
-      logger.info("readFeatureList: loaded " + feaList.size() + " context features from " + featureListFile);
-      
-    } /* method ReadFeatureList */
+ 
 
     
     /** Initialisation for mixed excitation : it loads the filter taps are read from 
