@@ -19,6 +19,8 @@
  */
 package marytts.signalproc.sinusoidal.hnm;
 
+import marytts.util.math.ArrayUtils;
+
 /**
  * An alternative model for the noise part of a given speech frame.
  * Fullband harmonic parameters are stored (amplitudes only) at a constant "virtual" f0.
@@ -34,7 +36,13 @@ public class FrameNoisePartPseudoHarmonic extends FrameNoisePart {
     
     public FrameNoisePartPseudoHarmonic()
     {
-
+        super();
+    }
+    
+    public FrameNoisePartPseudoHarmonic(FrameNoisePartPseudoHarmonic existing)
+    {
+        super();
+        ceps = ArrayUtils.copy(existing.ceps);
     }
 }
 

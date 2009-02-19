@@ -39,8 +39,12 @@ public class HnmSpeechSignal {
     public int samplingRateInHz;
     public float windowDurationInSecondsNoise;
     public float preCoefNoise;
+    public float f0WindowDurationInSeconds;
+    public float f0SkipSizeInSeconds;
     
-    public HnmSpeechSignal(int totalFrm, int samplingRateInHz, float originalDurationInSeconds, float windowDurationInSecondsNoise, float preCoefNoise)
+    public HnmSpeechSignal(int totalFrm, int samplingRateInHz, float originalDurationInSeconds, 
+                           float f0WindowDurationInSeconds, float f0SkipSizeInSeconds,
+                           float windowDurationInSecondsNoise, float preCoefNoise)
     {
         if (totalFrm>0)
         {
@@ -55,5 +59,7 @@ public class HnmSpeechSignal {
         this.originalDurationInSeconds = originalDurationInSeconds;
         this.windowDurationInSecondsNoise = windowDurationInSecondsNoise;
         this.preCoefNoise = preCoefNoise;
+        this.f0WindowDurationInSeconds = f0WindowDurationInSeconds;
+        this.f0SkipSizeInSeconds = f0SkipSizeInSeconds;
     }
 }

@@ -38,11 +38,13 @@ public class HnmPlusTransientsSpeechSignal extends HnmSpeechSignal {
     public TransientPart transients;
     
     public HnmPlusTransientsSpeechSignal(int totalFrm, int samplingRateInHz, float originalDurationInSeconds,
-                                     float windowDurationInSecondsNoise, float preCoefNoise, int numMaxTransients) 
+                                         float f0WindowDurationInSeconds, float f0SkipSizeInSeconds,
+                                         float windowDurationInSecondsNoise, float preCoefNoise, int numMaxTransients) 
     {
-        super(totalFrm, samplingRateInHz, originalDurationInSeconds, windowDurationInSecondsNoise, preCoefNoise);
-        // TODO Auto-generated constructor stub
-        
+        super(totalFrm, samplingRateInHz, originalDurationInSeconds, 
+              f0WindowDurationInSeconds, f0SkipSizeInSeconds, 
+              windowDurationInSecondsNoise, preCoefNoise);
+
         transients = new TransientPart(numMaxTransients);
     }
 

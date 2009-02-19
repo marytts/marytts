@@ -19,6 +19,7 @@
  */
 package marytts.signalproc.sinusoidal.hnm;
 
+import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexNumber;
 
 /**
@@ -34,6 +35,12 @@ public class FrameHarmonicPart
     {        
         ceps = null;
         phases = null;
+    }
+    
+    public FrameHarmonicPart(FrameHarmonicPart existing)
+    {        
+        ceps = ArrayUtils.copy(existing.ceps);
+        phases = ArrayUtils.copyf(existing.phases);
     }
 }
 
