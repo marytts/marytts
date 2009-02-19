@@ -303,30 +303,28 @@ public class HTSEngine extends InternalModule
           if (nextLine.trim().equals("")) break;
         }
         /* skip until byte values */
+        int numLines=0;
         while (s.hasNext()) {
-            nextLine = s.nextLine(); 
+          nextLine = s.nextLine();          
           if (nextLine.trim().equals("")) break;
+          numLines++;
         }
            
         
         if( phonemeAlignmentForDurations ){
-          if( alignDur != null ){              
-            if(alignDur.get(0).getPhoneme().contentEquals("_") )  
-              alignDur.get(0).setPhoneme("0");
-            else{ // If the label file does not start with silence (_) AND the feature vector start with silence (0)
-                  // CHECK: This will work as long as the feature vector includes a line of ceros at the beginning.
-                nextLine = s.nextLine();
-            }
+          if( alignDur != null ){ 
             alignDurSize = alignDur.size();
+            logger.info("Using phoneme alignment for duration");  
           } else
             throw new Exception("No vector of durations for phoneme alignment.");
-        }
+        } else
+            logger.info("Estimate state duration from state duration model (Gaussian)");
         
         /* Parse byte values  */
         i=0;
         while (s.hasNext()) {
             nextLine = s.nextLine();
-            //System.out.println("STR: " + nextLine);
+            //System.out.println("STR: " + nextLine);     
             
             fv = feaDef.toFeatureVector(0, nextLine);
             um.addUttModel(new HTSModel(cart.getNumStates()));            
@@ -334,12 +332,18 @@ public class HTSEngine extends InternalModule
             /* this function also sets the phoneme name, the phoneme between - and + */
             m.setName(fv.toString(), fv.getFeatureAsString(feaDef.getFeatureIndex("phoneme"), feaDef));
             
+           /* System.out.print("context: " + fv.getFeatureAsString(feaDef.getFeatureIndex("prev_prev_phoneme"), feaDef) + 
+                                     " " + fv.getFeatureAsString(feaDef.getFeatureIndex("prev_phoneme"), feaDef) +
+                                     " " + fv.getFeatureAsString(feaDef.getFeatureIndex("phoneme"), feaDef) + 
+                                     " " + fv.getFeatureAsString(feaDef.getFeatureIndex("next_phoneme"), feaDef) +
+                                     " " + fv.getFeatureAsString(feaDef.getFeatureIndex("next_next_phoneme"), feaDef));
+            */
             if(!(s.hasNext()) )
               lastPh = true;
 
             // Determine state-level duration                      
             if( phonemeAlignmentForDurations ) {  // use phoneme alignment for duration 
-              logger.info("Using phoneme alignment for duration");  
+              
               // check if the external phoneme corresponds to the current
               if( alignDur.get(i).getPhoneme().contentEquals(m.getPhoneName()) ){
                 diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, lastPh, diffdurOld);
@@ -372,8 +376,7 @@ public class HTSEngine extends InternalModule
             } else if(stateAlignmentForDurations) {  // use state alignment for duration
               // Not implemented yet  
                 
-            } else { // Estimate state duration from state duration model (Gaussian)  
-                logger.info("Estimate state duration from state duration model (Gaussian)");
+            } else { // Estimate state duration from state duration model (Gaussian)                 
                 diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, lastPh, diffdurOld);  
                 um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());             
             }
@@ -453,7 +456,8 @@ public class HTSEngine extends InternalModule
       
       /* htsData contains:
        * Data in the configuration file, .pdf, tree-xxx.inf file names and other parameters. 
-       * After initHMMData it contains TreeSet ts and ModelSet ms 
+       * After initHMMData it containswhile(it.hasNext()){
+            phon = it.next(); TreeSet ts and ModelSet ms 
        * ModelSet: Contains the .pdf's (means and variances) for dur, lf0, mcp, str and mag
        *           these are all the HMMs trained for a particular voice 
        * TreeSet: Contains the tree-xxx.inf, xxx: dur, lf0, mcp, str and mag 
@@ -469,13 +473,13 @@ public class HTSEngine extends InternalModule
       String parFile     = MaryBase + "tmp/tmp";              /* to save generated parameters tmp.mfc and tmp.f0 in Mary format */
       String outWavFile  = MaryBase + "tmp/tmp.wav";          /* to save generated audio file */
       
+      // The settings for using GV and MixExc can be changed in this way:      
       htsData.initHMMData(voiceName, MaryBase, voiceConfig);
-      
-      // The settings for using GV and MixExc can be changed in this way:
       htsData.setUseGV(true);
       htsData.setUseMixExc(true);
-      htsData.setUseFourierMag(false);  // if the voice was trained with Fourier magnitudes
-        
+      htsData.setUseFourierMag(true);  // if the voice was trained with Fourier magnitudes
+      
+       
       /** The utterance model, um, is a Vector (or linked list) of Model objects. 
        * It will contain the list of models for current label file. */
       HTSUttModel um = new HTSUttModel();
@@ -485,7 +489,7 @@ public class HTSEngine extends InternalModule
                
       /** Example of context features file */
       String feaFile = htsData.getFeaFile();
-     
+      
       try {
           /* Process Mary context features file and creates UttModel um, a linked             
            * list of all the models in the utterance. For each model, it searches in each tree, dur,   
@@ -520,7 +524,7 @@ public class HTSEngine extends InternalModule
           player.start();  
           player.join();
           System.out.println("Audioplayer finished...");
-       
+      
      
       } catch (Exception e) {
           System.err.println("Exception: " + e.getMessage());

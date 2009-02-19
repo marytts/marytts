@@ -165,7 +165,6 @@ public class HMMSynthesizer implements WaveformSynthesizer {
             
            /** When creating a HMMVoice object it should create and initialise a 
             * TreeSet ts, a ModelSet ms and load the context feature list used in this voice. */
-            //MaryProperties.getBoolean("voice."+voiceName+".useMixExc")
             
             HMMVoice v = new HMMVoice (new String[] { voiceName },
                 locale, format, this, gender,
@@ -184,7 +183,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                 MaryProperties.getFilename("voice."+voiceName+".Fms"),     /* Model STR */
                 MaryProperties.getFilename("voice."+voiceName+".Fma"),     /* Model MAG */
                 MaryProperties.getProperty("voice."+voiceName+".useMixExc"), /* Use Mixed excitation */
-                MaryProperties.getProperty("voice."+voiceName+".useFourierMag"), /* Use Fourier magnitudes in Mixed excitation */
+                MaryProperties.getProperty("voice."+voiceName+".useFourierMag"), /* Use Fourier magnitudes for pulse generation */
                 MaryProperties.getBoolean("voice."+voiceName+".useGV"),     /* Use Global Variance in parameter generation */
                 MaryProperties.getBoolean("voice."+voiceName+".useGmmGV"),  /* Use Global Variance as Gausian Mixture model */
                 MaryProperties.getFilename("voice."+voiceName+".Fgvf"),     /* GV Model LF0 */
@@ -193,8 +192,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                 MaryProperties.getFilename("voice."+voiceName+".Fgva"),     /* GV Model MAG */
                 MaryProperties.getFilename("voice."+voiceName+".Fgmmgvf"),  /* GMM GV Model LF0 */
                 MaryProperties.getFilename("voice."+voiceName+".Fgmmgvm"),  /* GMM GV Model MCP */
-                MaryProperties.getFilename("voice."+voiceName+".FeaList"),  /* Feature list file */
-                MaryProperties.getFilename("voice."+voiceName+".FeaFile"),  /* label file, for testing*/
+                MaryProperties.getFilename("voice."+voiceName+".FeaFile"),  /* targetfeatures file, for testing*/
                 MaryProperties.getFilename("voice."+voiceName+".Fif"),      /* Filter coefficients file for mixed excitation*/
                 MaryProperties.getInteger("voice."+voiceName+".in"),        /* Number of filters */
                 MaryProperties.getInteger("voice."+voiceName+".io"));       /* Number of taps per filter or filters order */
