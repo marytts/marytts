@@ -1053,7 +1053,7 @@ public class SignalProcUtils {
     public static double[] medianFilter(double[] x, int N, double leftOutOfBound, double rightOutOfBound)
     {
         double [] y = new double[x.length];
-        Vector v = new Vector();
+        Vector<Double> v = new Vector<Double>();
 
         int k, j, midVal;
 
@@ -1145,7 +1145,7 @@ public class SignalProcUtils {
     public static double[] meanFilter(double[] x, int N, double leftOutOfBound, double rightOutOfBound)
     {
         double[] y = new double[x.length];
-        Vector v = new Vector();
+        Vector<Double> v = new Vector<Double>();
 
         int k, j, midVal;
 

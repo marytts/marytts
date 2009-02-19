@@ -27,9 +27,11 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.filter.BandPassFilter;
 import marytts.signalproc.filter.FIRFilter;
 import marytts.signalproc.filter.LowPassFilter;
+import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
@@ -133,6 +135,15 @@ public class F0TrackerAutocorrelationHeuristic {
         
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
         
+        pitchAnalyze(signal);
+    }
+
+    /**
+     * Analyse the f0 contour of the given audio signal.
+     * @param signal
+     */
+    public void pitchAnalyze(DoubleDataSource signal)
+    {
         pitchAnalyze(signal.getAllData());
         
         if (f0s!=null)
@@ -321,5 +332,29 @@ public class F0TrackerAutocorrelationHeuristic {
         
         return f0;
     }
+    
+    /**
+     * The frame shift time, in seconds.
+     * @return
+     */
+    public double getFrameShiftTime()
+    {
+        return params.ss;
+    }
+    
+    public double[] getF0Contour()
+    {
+        return f0s;
+    }
+    
+    public static void main(String[] args)
+    throws Exception
+    {
+        F0TrackerAutocorrelationHeuristic tracker = new F0TrackerAutocorrelationHeuristic(new PitchFileHeader());
+        tracker.pitchAnalyzeWavFile(args[0]);
+        FunctionGraph f0Graph = new FunctionGraph(0, tracker.params.ss, tracker.f0s);
+        f0Graph.showInJFrame("F0 curve for "+args[0], false, true);
+    }
+    
 }
 

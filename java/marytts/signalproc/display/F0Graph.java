@@ -28,6 +28,8 @@ import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.analysis.F0Tracker;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationDP;
+import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
+import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
@@ -67,10 +69,19 @@ public class F0Graph extends FunctionGraph
     
     protected void initialise(DoubleDataSource signal, int samplingRate, int width, int height)
     {
+        /*
         F0Tracker f0Tracker = new F0TrackerAutocorrelationDP();
         F0Tracker.F0Contour f0Contour = f0Tracker.analyse(signal, samplingRate);
         double frameShiftTime = f0Contour.getFrameShiftTime();
         double[] f0Array = f0Contour.getContour();
+        */
+        PitchFileHeader params = new PitchFileHeader();
+        params.fs = samplingRate;
+        F0TrackerAutocorrelationHeuristic tracker = new F0TrackerAutocorrelationHeuristic(params);
+        tracker.pitchAnalyze(signal);
+        double frameShiftTime = tracker.getFrameShiftTime();
+        double[] f0Array = tracker.getF0Contour();
+        
         super.initialise(width, height, 0, frameShiftTime, f0Array);
         graphStyle = DRAW_DOTS;
         dotStyle = DOT_FULLDIAMOND;
