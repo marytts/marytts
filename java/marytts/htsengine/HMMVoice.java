@@ -75,7 +75,7 @@ public class HMMVoice extends Voice {
             String Ftd, String Ftf, String Ftm, String Fts, String Fta, 
             String Fmd, String Fmf, String Fmm, String Fms, String Fma,
             String useMixExc, String useFourierMag, boolean useGV, boolean useGmmGV, String Fgvf, String Fgvm, 
-            String Fgvs, String Fgva, String Fgmmgvf, String Fgmmgvm,String FeaList, String FeaFile, 
+            String Fgvs, String Fgva, String Fgmmgvf, String Fgmmgvm, String FeaFile, 
             String Fif, int nFilters, int norderFilters) throws Exception {
         super(nameArray, locale, dbAudioFormat, synthesizer, gender);
         
@@ -119,9 +119,6 @@ public class HMMVoice extends Voice {
          this.htsData.setPdfMcpGVFile(Fgmmgvm);
        }
             
-       /* Feature list file */
-       this.htsData.setFeaListFile(FeaList);
-
        /* Example context feature file in TARGETFEATURES format */
        this.htsData.setFeaFile(FeaFile);
 
@@ -142,19 +139,9 @@ public class HMMVoice extends Voice {
        logger.info("Loading GV Model Set:");
        this.htsData.loadGVModelSet();
        
-       /* Load (un-commented) context feature list from featureListFile */
-       logger.info("Loading Context feature list:");      
-       this.htsData.readFeatureList(this.htsData.getFeatureList(), FeaList);
-
-       if( getFeatureList().size() == 0)
-          logger.debug("Warning feature list file empty or feature list not loaded. ");
-            
-
    }
    
    public HMMData getHMMData(){ return this.htsData; }
-   
-   public Vector<String> getFeatureList(){ return this.htsData.getFeatureList(); }
    
    /* set parameters for generation: f0Std, f0Mean and length, default values 1.0, 0.0 and 0.0 */
    /* take the values from audio effects component through a MaryData object */

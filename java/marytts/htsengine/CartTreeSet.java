@@ -152,7 +152,8 @@ public class CartTreeSet {
       // the duration tree has only one state
       node = durTree[0].interpretToNode(fv, 1);
       
-      if ( node instanceof PdfLeafNode ) {       
+      if ( node instanceof PdfLeafNode ) { 
+        //System.out.println("  PDF INDEX = " + ((PdfLeafNode)node).getUniqueLeafId() );  
         meanVector = ((PdfLeafNode)node).getMean();
         varVector = ((PdfLeafNode)node).getVariance();
       } else 

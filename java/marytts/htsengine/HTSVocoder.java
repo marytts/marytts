@@ -330,9 +330,9 @@ public class HTSVocoder {
         
         /* Normalise the signal before return, this will normalise between 1 and -1 */
         double MaxSample = MathUtils.getAbsMax(audio_double);
-        for (int i=0; i<audio_double.length; i++)
-           audio_double[i] = 0.3 * ( audio_double[i] / MaxSample ); 
-        
+        for (int i=0; i<audio_double.length; i++)        
+           audio_double[i] = 0.3 * ( audio_double[i] / MaxSample );
+                
         DDSAudioInputStream oais = new DDSAudioInputStream(new BufferedDoubleDataSource(audio_double), af);
         return oais;
         
@@ -679,7 +679,7 @@ public class HTSVocoder {
             }
             i = iprd;
           }
- //         System.out.println("  i=" + i + "  inc=" + inc + "  pc=" + pc + "  p1=" + p1);
+         // System.out.println("  i=" + i + "  inc=" + inc + "  pc=" + pc + "  p1=" + p1);
           
         } /* for each sample in a period fprd */
         
@@ -701,7 +701,7 @@ public class HTSVocoder {
         data_out_mix.close();
       }
       
-      logger.info("Finish processing " + mcepframe + " mcep frames." + "  Num samples in bytes s=" + s );
+      logger.info("Finish processing " + mcepframe + " mcep frames.");
         
       return(audio_double);
       

@@ -235,23 +235,29 @@ public class HTSParameterGeneration {
 		
 	/* parameter generation for mcep */    
 	logger.info("Parameter generation for MCEP: ");
-    mcepPst.mlpg(htsData);
+    mcepPst.mlpg(htsData, htsData.getUseGV());
 
     /* parameter generation for lf0 */
     logger.info("Parameter generation for LF0: ");
     if (lf0Frame>0)
-      lf0Pst.mlpg(htsData);
+      lf0Pst.mlpg(htsData, htsData.getUseGV());
     
 	/* parameter generation for str */
+    boolean useGV=false;
     if( strPst != null ) {
       logger.info("Parameter generation for STR: ");
-	  strPst.mlpg(htsData);
+      if(htsData.getUseGV() && (htsData.getPdfStrGVFile() != null) )
+        useGV = true;
+      strPst.mlpg(htsData, useGV);
     }
 
 	/* parameter generation for mag */
+    useGV = false;
     if( magPst != null ) {
       logger.info("Parameter generation for MAG: ");
-	  magPst.mlpg(htsData);
+      if(htsData.getUseGV() && (htsData.getPdfMagGVFile() != null) )
+        useGV = true;  
+	  magPst.mlpg(htsData, useGV);
     }
 	   
     if(debug) {
