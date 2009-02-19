@@ -74,6 +74,7 @@ public class F0Graph extends FunctionGraph
         F0Tracker.F0Contour f0Contour = f0Tracker.analyse(signal, samplingRate);
         double frameShiftTime = f0Contour.getFrameShiftTime();
         double[] f0Array = f0Contour.getContour();
+        double xOffset = 0;
         */
         PitchFileHeader params = new PitchFileHeader();
         params.fs = samplingRate;
@@ -81,8 +82,8 @@ public class F0Graph extends FunctionGraph
         tracker.pitchAnalyze(signal);
         double frameShiftTime = tracker.getFrameShiftTime();
         double[] f0Array = tracker.getF0Contour();
-        
-        super.initialise(width, height, 0, frameShiftTime, f0Array);
+        double xOffset = tracker.getWindowSizeInSeconds() / 2;
+        super.initialise(width, height, xOffset, frameShiftTime, f0Array);
         graphStyle = DRAW_DOTS;
         dotStyle = DOT_FULLDIAMOND;
         dotSize = 8;
