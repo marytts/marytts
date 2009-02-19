@@ -38,10 +38,10 @@ public class Histogram extends FunctionGraph
     }
 
     public void initialise(int width, int height, 
-            double x0, double xStep,  double[] y)
+            double newX0, double newXStep,  double[] y)
     {
-        graphStyle = DRAW_HISTOGRAM;
-        super.initialise(width, height, x0, xStep, y);
+        super.initialise(width, height, newX0, newXStep, y);
+        setPrimaryDataSeriesStyle(graphColor.get(0), DRAW_HISTOGRAM, -1);
     }
 
 }

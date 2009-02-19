@@ -71,7 +71,7 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
     protected int paddingBottom = 40;
     protected double x0;
     protected double xStep;
-    protected double[] y;
+    protected List<double[]> dataseries = new ArrayList<double[]>();
     protected double ymin;
     protected double ymax;
     protected boolean showXAxis = true;
@@ -79,10 +79,10 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
     protected BufferedImage graphImage = null;
     protected Color backgroundColor = Color.WHITE;
     protected Color axisColor = Color.BLACK;
-    protected Color graphColor = Color.BLUE;
+    protected List<Color> graphColor = new ArrayList<Color>();
     protected Color histogramBorderColor = Color.BLACK;
-    protected int graphStyle = DRAW_LINE;
-    protected int dotStyle = DOT_FULLCIRCLE;
+    protected List<Integer> graphStyle = new ArrayList<Integer>();
+    protected List<Integer> dotStyle = new ArrayList<Integer>();
     protected int dotSize = 6;
     protected int histogramWidth = 10;
 
@@ -119,7 +119,7 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
    }
    
    public void initialise(int width, int height, 
-                    double x0, double xStep,  double[] y)
+                    double newX0, double newXStep,  double[] data)
    {
        setPreferredSize(new Dimension(width, height));
        setOpaque(true);
@@ -150,28 +150,36 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
            public void mouseEntered(MouseEvent e) {}
            public void mouseExited(MouseEvent e) {}
        });
-       updateData(x0, xStep, y);
+       // set styles for primary data series:
+       graphColor.add(Color.BLUE);
+       graphStyle.add(DRAW_LINE);
+       dotStyle.add(DOT_FULLCIRCLE);
+       updateData(newX0, newXStep, data);
    }
    
-   protected void updateData(double x0, double xStep, double[] y)
+   protected void updateData(double newX0, double newXStep, double[] data)
    {
-       this.x0 = x0;
-        this.xStep = xStep;
-        this.y = new double[y.length];
-        System.arraycopy(y, 0, this.y, 0, y.length);
+       this.x0 = newX0;
+        this.xStep = newXStep;
+        double[] series = new double[data.length];
+        System.arraycopy(data, 0, series, 0, data.length);
+        if (dataseries.size() > 0) {
+            dataseries.remove(0);
+        }
+        this.dataseries.add(0, series);
         ymin = Double.NaN;
         ymax = Double.NaN;
-        for (int i=0; i<y.length; i++) {
-            if (Double.isNaN(y[i])) // missing value -- skip
+        for (int i=0; i<data.length; i++) {
+            if (Double.isNaN(data[i])) // missing value -- skip
                 continue;
             if (Double.isNaN(ymin)) {
                 assert Double.isNaN(ymax);
-                ymin = y[i];
-                ymax = y[i];
+                ymin = data[i];
+                ymax = data[i];
                 continue;
             }
-            if (y[i] < ymin) ymin = y[i];
-            else if (y[i] > ymax) ymax = y[i];
+            if (data[i] < ymin) ymin = data[i];
+            else if (data[i] > ymax) ymax = data[i];
         }
         
         // If the x axis is painted in the middle (ymin << 0),
@@ -183,9 +191,55 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
         graphImage = null;
     }
 
+   public void setPrimaryDataSeriesStyle(Color newGraphColor, int newGraphStyle, int newDotStyle)
+   {
+       graphColor.remove(0);
+       graphColor.add(0, newGraphColor);
+       graphStyle.remove(0);
+       graphStyle.add(0, newGraphStyle);
+       dotStyle.remove(0);
+       dotStyle.add(0, newDotStyle);
+   }
+   
+   public void addDataSeries(double[] data, Color newGraphColor, int newGraphStyle, int newDotStyle)
+   {
+       if (data == null) throw new NullPointerException("Cannot add null data");
+       if (dataseries.get(0).length != data.length)
+           throw new IllegalArgumentException("Can only add data of the exact same length as the original data series; len(orig)="
+                   +dataseries.get(0).length+", len(data)="+data.length);
+        double[] series = new double[data.length];
+        System.arraycopy(data, 0, series, 0, data.length);
+        dataseries.add(series);
+        graphColor.add(newGraphColor);
+        graphStyle.add(newGraphStyle);
+        dotStyle.add(newDotStyle);
+        for (int i=0; i<data.length; i++) {
+            if (Double.isNaN(data[i])) // missing value -- skip
+                continue;
+            if (Double.isNaN(ymin)) {
+                assert Double.isNaN(ymax);
+                ymin = data[i];
+                ymax = data[i];
+                continue;
+            }
+            if (data[i] < ymin) ymin = data[i];
+            else if (data[i] > ymax) ymax = data[i];
+        }
+        
+        // If the x axis is painted in the middle (ymin << 0),
+        // we need much less paddingBottom:
+        if (ymin < 0) {
+            paddingBottom = paddingTop;
+        }
+        // And invalidate any previous graph image:
+        graphImage = null;
+    }
+
+   
     public double getZoomX()
     {
-        double zoom = ((double)getPreferredSize().width-paddingLeft-paddingRight) / y.length;
+        double[] data = dataseries.get(0);
+        double zoom = ((double)getPreferredSize().width-paddingLeft-paddingRight) / data.length;
         //System.err.println("Current Zoom: " + zoom + "(pref. size: " + getPreferredSize().width + "x" + getPreferredSize().height + ")");
         return zoom;
     }
@@ -201,7 +255,8 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
         // Old visible rectangle:
         Rectangle r = getVisibleRect();
         int oldWidth = getPreferredSize().width;
-        int newWidth = (int)(y.length*factor)+paddingLeft+paddingRight;
+        double[] data = dataseries.get(0);
+        int newWidth = (int)(data.length*factor)+paddingLeft+paddingRight;
         if (isVisible()) {
             setVisible(false);
             setPreferredSize(new Dimension(newWidth, getPreferredSize().height));
@@ -252,7 +307,10 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
 
         // Draw the function itself:
         if (getYRange() > 0) {
-            drawData(g, image_fromX-startX, image_toX-startX, startX, image_y_origin, startY, (int) height);
+            for (int s=0; s<dataseries.size(); s++) {
+                drawData(g, image_fromX-startX, image_toX-startX, startX, image_y_origin, startY, (int) height,
+                        dataseries.get(s), graphColor.get(s), graphStyle.get(s), dotStyle.get(s));
+            }
         }
         
         // Draw the x axis, if requested:
@@ -289,30 +347,32 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
     protected void drawData(Graphics2D g,
         int image_fromX, int image_toX,
         int image_refX, int image_refY,
-        int startY, int image_height) {
+        int startY, int image_height,
+        double[] data, Color currentGraphColor, int currentGraphStyle, int currentDotStyle)
+    {
         int index_fromX = imageX2indexX(image_fromX);
         if (index_fromX < 0) index_fromX = 0;
         int index_toX   = imageX2indexX(image_toX);
-        if (index_toX < y.length) index_toX += 20;
-        if (index_toX > y.length) index_toX = y.length;
+        if (index_toX < data.length) index_toX += 20;
+        if (index_toX > data.length) index_toX = data.length;
         //System.err.println("Drawing values " + index_fromX + " to " + index_toX + " of " + y.length);
         double xo = 0.0;
         double yo = 0.0;
         double xp = 0.0;
         double yp = 0.0;
-        g.setColor(graphColor);
+        g.setColor(currentGraphColor);
         for (int i = index_fromX; i < index_toX; i++) {
-            if (!Double.isNaN(y[i])) {
+            if (!Double.isNaN(data[i])) {
                 xp = indexX2imageX(i);
-                yp = y2imageY(y[i]);
+                yp = y2imageY(data[i]);
                 //System.err.println("Point "+i+": ("+(image_refX+(int)xp)+","+(image_refY-(int)yp)+")");
-                if (graphStyle == DRAW_LINE || graphStyle == DRAW_LINEWITHDOTS) {
+                if (currentGraphStyle == DRAW_LINE || currentGraphStyle == DRAW_LINEWITHDOTS) {
                     g.drawLine(image_refX+(int)xo, image_refY-(int)yo, image_refX+(int)xp, image_refY-(int)yp);
                 }
-                if (graphStyle == DRAW_DOTS || graphStyle == DRAW_LINEWITHDOTS) {
-                    drawDot(g, image_refX+(int)xp, image_refY-(int)yp);
+                if (currentGraphStyle == DRAW_DOTS || currentGraphStyle == DRAW_LINEWITHDOTS) {
+                    drawDot(g, image_refX+(int)xp, image_refY-(int)yp, currentDotStyle);
                 }
-                if (graphStyle == DRAW_HISTOGRAM) {
+                if (currentGraphStyle == DRAW_HISTOGRAM) {
                     int topY = image_refY;
                     if (yp>0) topY = image_refY-(int)yp;
                     int histHeight = (int) Math.abs(yp);
@@ -320,7 +380,7 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
                     if (topY+histHeight>startY) {
                         histHeight = startY-topY;
                     }
-                    g.setColor(graphColor);
+                    g.setColor(currentGraphColor);
                     g.fillRect(image_refX+(int)xp-histogramWidth/2, topY, histogramWidth, histHeight);
                     g.setColor(histogramBorderColor);
                     g.drawRect(image_refX+(int)xp-histogramWidth/2, topY, histogramWidth, histHeight);
@@ -331,9 +391,9 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
         }
     }
 
-    protected void drawDot(Graphics2D g, int x, int y)
+    protected void drawDot(Graphics2D g, int x, int y, int currentDotStyle)
     {
-        switch(dotStyle) {
+        switch(currentDotStyle) {
             case DOT_FULLCIRCLE:
                 g.fillOval(x-dotSize/2, y-dotSize/2, dotSize, dotSize);
                 break;
@@ -451,26 +511,29 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
 
     protected int imageX2indexX(int imageX)
     {
-        double xScaleFactor = ((double) getWidth()-paddingLeft-paddingRight)/y.length;
+        double[] data = dataseries.get(0);
+        double xScaleFactor = ((double) getWidth()-paddingLeft-paddingRight)/data.length;
         return (int) (imageX / xScaleFactor);
     }
 
     protected double imageX2X(int imageX)
     {
-        
-        double xScaleFactor = ((double)getWidth()-paddingLeft-paddingRight)/(y.length*xStep);
+        double[] data = dataseries.get(0);
+        double xScaleFactor = ((double)getWidth()-paddingLeft-paddingRight)/(data.length*xStep);
         return x0 + imageX / xScaleFactor;
     }
 
     protected int indexX2imageX(int indexX)
     {
-        double xScaleFactor = ((double)getWidth()-paddingLeft-paddingRight)/y.length;
+        double[] data = dataseries.get(0);
+        double xScaleFactor = ((double)getWidth()-paddingLeft-paddingRight)/data.length;
         return (int) (indexX * xScaleFactor);
     }
 
     protected int X2imageX(double x)
     {
-        double xScaleFactor = ((double)getWidth()-paddingLeft-paddingRight)/(y.length*xStep);
+        double[] data = dataseries.get(0);
+        double xScaleFactor = ((double)getWidth()-paddingLeft-paddingRight)/(data.length*xStep);
         return (int) ((x - x0) * xScaleFactor);
     }
 
@@ -502,7 +565,8 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
     
     protected double getXRange()
     {
-        double xRange = y.length * xStep;
+        double[] data = dataseries.get(0);
+        double xRange = data.length * xStep;
         return xRange;
     }
     
@@ -669,8 +733,9 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
         int precisionY = -(int)(Math.log(getYRange())/Math.log(10)) + 2;
         if (precisionY < 0) precisionY = 0;
         int indexX = X2indexX(x);
+        double[] data = dataseries.get(0);
         return "f(" + new PrintfFormat("%."+precisionX+"f").sprintf(x)
-            + ")=" + new PrintfFormat("%."+precisionY+"f").sprintf(this.y[indexX]);
+            + ")=" + new PrintfFormat("%."+precisionY+"f").sprintf(data[indexX]);
 
     }
     

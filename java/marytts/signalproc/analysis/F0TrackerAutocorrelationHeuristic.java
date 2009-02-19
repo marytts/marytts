@@ -342,6 +342,15 @@ public class F0TrackerAutocorrelationHeuristic {
         return params.ss;
     }
     
+    /**
+     * The size of the analysis window, in seconds.
+     * @return
+     */
+    public double getWindowSizeInSeconds()
+    {
+        return params.ws;
+    }
+    
     public double[] getF0Contour()
     {
         return f0s;

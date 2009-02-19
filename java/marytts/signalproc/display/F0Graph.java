@@ -84,10 +84,8 @@ public class F0Graph extends FunctionGraph
         double[] f0Array = tracker.getF0Contour();
         double xOffset = tracker.getWindowSizeInSeconds() / 2;
         super.initialise(width, height, xOffset, frameShiftTime, f0Array);
-        graphStyle = DRAW_DOTS;
-        dotStyle = DOT_FULLDIAMOND;
+        setPrimaryDataSeriesStyle(Color.RED, DRAW_DOTS, DOT_FULLDIAMOND);
         dotSize = 8;
-        graphColor = Color.RED;
     }
 
     public static void main(String[] args) throws Exception
