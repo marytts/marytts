@@ -19,6 +19,8 @@
  */
 package marytts.signalproc.sinusoidal.hnm;
 
+import marytts.util.math.ArrayUtils;
+
 /**
  * LPC based noise modeling for a given speech frame
  * Full spectrum LP coefficients and LP gain are used
@@ -35,6 +37,13 @@ public class FrameNoisePartLpc extends FrameNoisePart {
     public FrameNoisePartLpc()
     {
         super();
+    }
+    
+    public FrameNoisePartLpc(FrameNoisePartLpc existing)
+    {
+        super();
+        lpCoeffs = ArrayUtils.copy(existing.lpCoeffs);
+        gain = existing.gain;
     }
     
     public FrameNoisePartLpc(double[] lpCoeffsIn, double gainIn)

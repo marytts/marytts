@@ -338,7 +338,7 @@ public class F0TrackerAutocorrelationHeuristic {
      * @return
      */
     public double getFrameShiftTime()
-    {
+    { 
         return params.ss;
     }
     

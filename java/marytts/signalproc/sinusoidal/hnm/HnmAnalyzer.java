@@ -197,18 +197,18 @@ public class HnmAnalyzer {
             String[] transientPhonemesList = {"p", "t", "k", "pf", "ts", "tS"};
             Labels labels = null;
             if (model == HnmAnalyzer.HARMONICS_PLUS_NOISE)
-                hnmSignal = new HnmSpeechSignal(totalFrm, fs, originalDurationInSeconds, NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, preCoefNoise);
+                hnmSignal = new HnmSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.ws, (float)f0.header.ss, NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, preCoefNoise);
             else if (model == HnmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE)
             {
                 String strLabFile = StringUtils.modifyExtension(wavFile, ".lab"); 
-                if (FileUtils.exists(strLabFile)!=true) //Labels required for transients analysis (unless we designan automatic algorithm)
+                if (FileUtils.exists(strLabFile)!=true) //Labels required for transients analysis (unless we design an automatic algorithm)
                 {
                     System.out.println("Error! Labels required for transient analysis...");
                     System.exit(1);
                 }
                 labels = new Labels(strLabFile);
                 
-                hnmSignal = new HnmPlusTransientsSpeechSignal(totalFrm, fs, originalDurationInSeconds, NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, preCoefNoise, labels.items.length);
+                hnmSignal = new HnmPlusTransientsSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.ws, (float)f0.header.ss, NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, preCoefNoise, labels.items.length);
             }
             
             boolean isPrevVoiced = false;

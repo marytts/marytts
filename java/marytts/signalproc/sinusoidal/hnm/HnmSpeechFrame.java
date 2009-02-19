@@ -47,5 +47,18 @@ public class HnmSpeechFrame extends BaseSinusoidalSpeechFrame
         maximumFrequencyOfVoicingInHz = 0.0f;
         tAnalysisInSeconds = -1.0f;
     }
+    
+    public HnmSpeechFrame(HnmSpeechFrame existing)
+    {
+        h = new FrameHarmonicPart(existing.h);
+        if (existing.n instanceof FrameNoisePartLpc)
+            n = new FrameNoisePartLpc((FrameNoisePartLpc)existing.n);
+        else if (existing.n instanceof FrameNoisePartPseudoHarmonic)
+            n = new FrameNoisePartPseudoHarmonic((FrameNoisePartPseudoHarmonic)existing.n);
+        
+        f0InHz = existing.f0InHz;
+        maximumFrequencyOfVoicingInHz = existing.maximumFrequencyOfVoicingInHz;
+        tAnalysisInSeconds = existing.tAnalysisInSeconds;
+    }
 }
 

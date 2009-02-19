@@ -34,5 +34,10 @@
 	<classpathentry kind="lib" path="java/opennlp-tools-1.4.1.jar"/>
 	<classpathentry kind="lib" path="java/trove.jar"/>
 	<classpathentry kind="lib" path="java/commons-lang-2.4.jar"/>
+	<classpathentry kind="lib" path="java/commons-collections-3.2.1-sources.jar"/>
+	<classpathentry kind="lib" path="java/httpcore-4.0-beta3.jar"/>
+	<classpathentry kind="lib" path="java/httpcore-nio-4.0-beta3.jar"/>
+	<classpathentry kind="lib" path="java/mwdumper-2008-04-13.jar"/>
+	<classpathentry kind="lib" path="java/mysql-connector-java-5.1.7-bin.jar"/>
 	<classpathentry kind="output" path="java"/>
 </classpath>

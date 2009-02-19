@@ -28,6 +28,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.analysis.RegularizedCepstralEnvelopeEstimator;
 import marytts.signalproc.filter.HighPassFilter;
 import marytts.signalproc.sinusoidal.BaseSinusoidalSpeechSignal;
@@ -72,10 +73,51 @@ public class HnmSynthesizer {
             float[] pScales,
             float[] pScalesTimes)
     {
+        //Contour preprocessing carried out here for time and pitch modification
+        //Pitch scale pitch contour
+        //double[] f0s = null;
+        //double[] f0sMod = SignalProcUtils.pitchScalePitchContour(f0s, hnmSignal.f0WindowDurationInSeconds, hnmSignal.f0SkipSizeInSeconds, pScales, pScalesTimes);
+
+        //Time scale pitch contour
+        //f0sMod = SignalProcUtils.timeScalePitchContour(f0sMod, hnmSignal.f0WindowDurationInSeconds, hnmSignal.f0SkipSizeInSeconds, tScales, tScalesTimes);
+
+        //float maxDur = SignalProcUtils.timeScaledTime(hnmSignal.originalDurationInSeconds, tScales, tScalesTimes);
+
+        //Find modified onsets
+        //PitchMarks pmMod = SignalProcUtils.pitchContour2pitchMarks(f0sMod, hnmSignal.samplingRateInHz, (int)Math.floor(maxDur*hnmSignal.samplingRateInHz+0.5), hnmSignal.f0WindowDurationInSeconds, hnmSignal.f0SkipSizeInSeconds, false, 0);
+        //
+        //
+        
+        
+        
         HnmSynthesizedSignal s = new HnmSynthesizedSignal();
 
         //Synthesize harmonic part
-        s.harmonicPart = synthesizeHarmonicPartLinearPhaseInterpolation(hnmSignal, tScales, tScalesTimes, pScales, pScalesTimes);
+        HnmSpeechSignal hnmSignal2 = new HnmSpeechSignal(2*hnmSignal.frames.length, hnmSignal.samplingRateInHz, 2.0f*hnmSignal.originalDurationInSeconds, 
+                                                         hnmSignal.f0WindowDurationInSeconds, hnmSignal.f0SkipSizeInSeconds,
+                                                         hnmSignal.windowDurationInSecondsNoise, hnmSignal.preCoefNoise);
+        
+        float currentTime = 0.0f;
+        for (int i=0; i<hnmSignal.frames.length; i++)
+        {
+            hnmSignal2.frames[2*i] = new HnmSpeechFrame(hnmSignal2.frames[i]);
+            hnmSignal2.frames[2*i+1] = new HnmSpeechFrame(hnmSignal2.frames[i]);
+            if (i==0)
+                hnmSignal2.frames[2*i].tAnalysisInSeconds = hnmSignal2.frames[i].tAnalysisInSeconds;
+            else
+                hnmSignal2.frames[2*i].tAnalysisInSeconds = currentTime + (hnmSignal2.frames[i].tAnalysisInSeconds-hnmSignal2.frames[i-1].tAnalysisInSeconds);
+            
+            currentTime = hnmSignal2.frames[2*i].tAnalysisInSeconds;
+            
+            if (i==0)
+                hnmSignal2.frames[2*i+1].tAnalysisInSeconds = 2*currentTime;
+            else
+                hnmSignal2.frames[2*i+1].tAnalysisInSeconds = currentTime + (hnmSignal2.frames[i].tAnalysisInSeconds-hnmSignal2.frames[i-1].tAnalysisInSeconds);
+            
+            currentTime = hnmSignal2.frames[2*i+1].tAnalysisInSeconds;
+        }
+        
+        s.harmonicPart = synthesizeHarmonicPartLinearPhaseInterpolation(hnmSignal2, tScales, tScalesTimes, pScales, pScalesTimes);
         //
 
         //Synthesize noise part
