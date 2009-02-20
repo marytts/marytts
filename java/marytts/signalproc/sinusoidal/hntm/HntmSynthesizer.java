@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.signalproc.sinusoidal.hnm;
+package marytts.signalproc.sinusoidal.hntm;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,7 +53,7 @@ import marytts.util.string.StringUtils;
  * @author Oytun T&uumlrk
  *
  */
-public class HnmSynthesizer {
+public class HntmSynthesizer {
 
     public static final double ENERGY_TRIANGLE_LOWER_VALUE = 1.0;
     public static final double ENERGY_TRIANGLE_UPPER_VALUE = 0.5;
@@ -62,80 +62,40 @@ public class HnmSynthesizer {
     public static final float NOISE_SYNTHESIS_TRANSITION_OVERLAP_IN_SECONDS = 0.010f;
     public static final float HARMONIC_NONHARMONIC_TRANSITION_OVERLAP_IN_SECONDS = 0.005f;
 
-    public HnmSynthesizer()
+    public HntmSynthesizer()
     {
 
     }
 
-    public HnmSynthesizedSignal synthesize(HnmSpeechSignal hnmSignal, 
+    public HntmSynthesizedSignal synthesize(HntmSpeechSignal hntmSignal, 
             float[] tScales,
             float[] tScalesTimes,
             float[] pScales,
             float[] pScalesTimes)
     {
-        //Contour preprocessing carried out here for time and pitch modification
-        //Pitch scale pitch contour
-        //double[] f0s = null;
-        //double[] f0sMod = SignalProcUtils.pitchScalePitchContour(f0s, hnmSignal.f0WindowDurationInSeconds, hnmSignal.f0SkipSizeInSeconds, pScales, pScalesTimes);
-
-        //Time scale pitch contour
-        //f0sMod = SignalProcUtils.timeScalePitchContour(f0sMod, hnmSignal.f0WindowDurationInSeconds, hnmSignal.f0SkipSizeInSeconds, tScales, tScalesTimes);
-
-        //float maxDur = SignalProcUtils.timeScaledTime(hnmSignal.originalDurationInSeconds, tScales, tScalesTimes);
-
-        //Find modified onsets
-        //PitchMarks pmMod = SignalProcUtils.pitchContour2pitchMarks(f0sMod, hnmSignal.samplingRateInHz, (int)Math.floor(maxDur*hnmSignal.samplingRateInHz+0.5), hnmSignal.f0WindowDurationInSeconds, hnmSignal.f0SkipSizeInSeconds, false, 0);
-        //
-        //
         
+        HntmSpeechSignal hntmSignalMod = HntmDurationModifier.modify(hntmSignal, tScales, tScalesTimes);
         
-        
-        HnmSynthesizedSignal s = new HnmSynthesizedSignal();
-
-        //Synthesize harmonic part
-        HnmSpeechSignal hnmSignal2 = new HnmSpeechSignal(2*hnmSignal.frames.length, hnmSignal.samplingRateInHz, 2.0f*hnmSignal.originalDurationInSeconds, 
-                                                         hnmSignal.f0WindowDurationInSeconds, hnmSignal.f0SkipSizeInSeconds,
-                                                         hnmSignal.windowDurationInSecondsNoise, hnmSignal.preCoefNoise);
-        
-        float currentTime = 0.0f;
-        for (int i=0; i<hnmSignal.frames.length; i++)
-        {
-            hnmSignal2.frames[2*i] = new HnmSpeechFrame(hnmSignal.frames[i]);
-            hnmSignal2.frames[2*i+1] = new HnmSpeechFrame(hnmSignal.frames[i]);
-            if (i==0)
-                hnmSignal2.frames[2*i].tAnalysisInSeconds = hnmSignal.frames[i].tAnalysisInSeconds;
-            else
-                hnmSignal2.frames[2*i].tAnalysisInSeconds = currentTime + (hnmSignal.frames[i].tAnalysisInSeconds-hnmSignal.frames[i-1].tAnalysisInSeconds);
-            
-            currentTime = hnmSignal2.frames[2*i].tAnalysisInSeconds;
-            
-            if (i==0)
-                hnmSignal2.frames[2*i+1].tAnalysisInSeconds = 2*currentTime;
-            else
-                hnmSignal2.frames[2*i+1].tAnalysisInSeconds = currentTime + (hnmSignal.frames[i].tAnalysisInSeconds-hnmSignal.frames[i-1].tAnalysisInSeconds);
-            
-            currentTime = hnmSignal2.frames[2*i+1].tAnalysisInSeconds;
-        }
-        
-        s.harmonicPart = synthesizeHarmonicPartLinearPhaseInterpolation(hnmSignal2, tScales, tScalesTimes, pScales, pScalesTimes);
+        HntmSynthesizedSignal s = new HntmSynthesizedSignal();
+        s.harmonicPart = synthesizeHarmonicPartLinearPhaseInterpolation(hntmSignalMod, tScales, tScalesTimes, pScales, pScalesTimes);
         //
 
         //Synthesize noise part
-        if (hnmSignal2.frames[0].n instanceof FrameNoisePartLpc)
-            s.noisePart = synthesizeNoisePartLpc(hnmSignal2, tScales, tScalesTimes, pScales, pScalesTimes);
-        else if (hnmSignal2.frames[0].n instanceof FrameNoisePartPseudoHarmonic)
-            s.noisePart = synthesizeNoisePartPseudoHarmonic(hnmSignal2, tScales, tScalesTimes, pScales, pScalesTimes);
+        if (hntmSignalMod.frames[0].n instanceof FrameNoisePartLpc)
+            s.noisePart = synthesizeNoisePartLpc(hntmSignalMod, tScales, tScalesTimes, pScales, pScalesTimes);
+        else if (hntmSignalMod.frames[0].n instanceof FrameNoisePartPseudoHarmonic)
+            s.noisePart = synthesizeNoisePartPseudoHarmonic(hntmSignalMod, tScales, tScalesTimes, pScales, pScalesTimes);
         //
         
         //Synthesize transients
-        if (hnmSignal instanceof HnmPlusTransientsSpeechSignal && ((HnmPlusTransientsSpeechSignal)hnmSignal).transients!=null)
-            s.transientPart = synthesizeTransientPart((HnmPlusTransientsSpeechSignal)hnmSignal, tScales, tScalesTimes, pScales, pScalesTimes);
+        if (hntmSignalMod instanceof HntmPlusTransientsSpeechSignal && ((HntmPlusTransientsSpeechSignal)hntmSignalMod).transients!=null)
+            s.transientPart = synthesizeTransientPart((HntmPlusTransientsSpeechSignal)hntmSignalMod, tScales, tScalesTimes, pScales, pScalesTimes);
         //
         
         return s;
     }
 
-    public double[] synthesizeHarmonicPartLinearPhaseInterpolation(HnmSpeechSignal hnmSignal, 
+    public double[] synthesizeHarmonicPartLinearPhaseInterpolation(HntmSpeechSignal hnmSignal, 
             float[] tScales,
             float[] tScalesTimes,
             float[] pScales,
@@ -424,7 +384,7 @@ public class HnmSynthesizer {
     }
 
     //LPC based noise model + OLA approach
-    public double[] synthesizeNoisePartLpc(HnmSpeechSignal hnmSignal, 
+    public double[] synthesizeNoisePartLpc(HntmSpeechSignal hnmSignal, 
             float[] tScales,
             float[] tScalesTimes,
             float[] pScales,
@@ -724,7 +684,7 @@ public class HnmSynthesizer {
     }
 
     //Pseudo harmonics based noise generation for pseudo periods
-    public static double[] synthesizeNoisePartPseudoHarmonic(HnmSpeechSignal hnmSignal, 
+    public static double[] synthesizeNoisePartPseudoHarmonic(HntmSpeechSignal hnmSignal, 
             float[] tScales,
             float[] tScalesTimes,
             float[] pScales,
@@ -750,7 +710,7 @@ public class HnmSynthesizer {
 
         double akt;
         int startPseudoHarmonicNo, startPseudoHarmonicNoNext;
-        int endPseudoHarmonicNo = (int)Math.floor((0.5*hnmSignal.samplingRateInHz)/HnmAnalyzer.NOISE_F0_IN_HZ+0.5);
+        int endPseudoHarmonicNo = (int)Math.floor((0.5*hnmSignal.samplingRateInHz)/HntmAnalyzer.NOISE_F0_IN_HZ+0.5);
 
         int numNoiseHarmonicsCurrentFrame;
         int numNoiseHarmonicsNextFrame = 0;
@@ -758,7 +718,7 @@ public class HnmSynthesizer {
         for (i=0; i<hnmSignal.frames.length; i++)
         {
             if (hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0f && hnmSignal.frames[i].maximumFrequencyOfVoicingInHz<0.5*hnmSignal.samplingRateInHz)
-                startPseudoHarmonicNo = (int)(Math.floor((hnmSignal.frames[i].maximumFrequencyOfVoicingInHz+0.5*HnmAnalyzer.NOISE_F0_IN_HZ)/HnmAnalyzer.NOISE_F0_IN_HZ))-1; 
+                startPseudoHarmonicNo = (int)(Math.floor((hnmSignal.frames[i].maximumFrequencyOfVoicingInHz+0.5*HntmAnalyzer.NOISE_F0_IN_HZ)/HntmAnalyzer.NOISE_F0_IN_HZ))-1; 
             else
                 startPseudoHarmonicNo = 0;
 
@@ -848,7 +808,7 @@ public class HnmSynthesizer {
             }
 
             if (hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0f && hnmSignal.frames[i].maximumFrequencyOfVoicingInHz<0.5*hnmSignal.samplingRateInHz)
-                startPseudoHarmonicNo = (int)(Math.floor((hnmSignal.frames[i].maximumFrequencyOfVoicingInHz+0.5*HnmAnalyzer.NOISE_F0_IN_HZ)/HnmAnalyzer.NOISE_F0_IN_HZ))-1;
+                startPseudoHarmonicNo = (int)(Math.floor((hnmSignal.frames[i].maximumFrequencyOfVoicingInHz+0.5*HntmAnalyzer.NOISE_F0_IN_HZ)/HntmAnalyzer.NOISE_F0_IN_HZ))-1;
             else
                 startPseudoHarmonicNo = 0;
 
@@ -860,7 +820,7 @@ public class HnmSynthesizer {
             if (i<hnmSignal.frames.length-1)
             {  
                 if (hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz>0.0f && hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz<0.5*hnmSignal.samplingRateInHz)
-                    startPseudoHarmonicNoNext = (int)(Math.floor((hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz+0.5*HnmAnalyzer.NOISE_F0_IN_HZ)/HnmAnalyzer.NOISE_F0_IN_HZ))-1;
+                    startPseudoHarmonicNoNext = (int)(Math.floor((hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz+0.5*HntmAnalyzer.NOISE_F0_IN_HZ)/HntmAnalyzer.NOISE_F0_IN_HZ))-1;
                 else
                     startPseudoHarmonicNoNext = 0;
 
@@ -901,15 +861,15 @@ public class HnmSynthesizer {
                     for (k=startPseudoHarmonicNo; k<=endPseudoHarmonicNo; k++)
                     {
                         //Estimate amplitude
-                        aksis[k] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, (k+1)*HnmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);
+                        aksis[k] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, (k+1)*HntmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);
                         //aksis[k] = hnmSignal.frames[i].h.ceps[k]; //Use amplitudes directly without cepstrum method
 
                         aksiPlusOnes[k] = aksis[k];
                         if (isNextNoised && i<hnmSignal.frames.length-1 && ((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps!=null)
                         {
-                            if ((k+1)*HnmAnalyzer.NOISE_F0_IN_HZ<0.5*hnmSignal.samplingRateInHz)
+                            if ((k+1)*HntmAnalyzer.NOISE_F0_IN_HZ<0.5*hnmSignal.samplingRateInHz)
                             {     
-                                aksiPlusOnes[k] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps , (k+1)*HnmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);
+                                aksiPlusOnes[k] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps , (k+1)*HntmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);
                                 //aksiPlusOnes[k] = hnmSignal.frames[i+1].h.ceps[k]; //Use amplitudes directly without cepstrum method
                             }
                         }
@@ -922,12 +882,12 @@ public class HnmSynthesizer {
                         phasekiPlusOnes[k] = (float)(MathUtils.TWOPI*(Math.random()-0.5));
 
                         if (!isNoised)
-                            phasekis[k] = (float)( phasekiPlusOnes[k] - (k+1)*MathUtils.TWOPI*HnmAnalyzer.NOISE_F0_IN_HZ*(tsiPlusOne-tsi) ); //Equation (3.54)
+                            phasekis[k] = (float)( phasekiPlusOnes[k] - (k+1)*MathUtils.TWOPI*HntmAnalyzer.NOISE_F0_IN_HZ*(tsiPlusOne-tsi) ); //Equation (3.54)
 
                         if (!isNextNoised)
-                            phasekiPlusOnes[k] = (float)( phasekis[k] + (k+1)*MathUtils.TWOPI*HnmAnalyzer.NOISE_F0_IN_HZ*(tsiPlusOne-tsi) ); //Equation (3.55)
+                            phasekiPlusOnes[k] = (float)( phasekis[k] + (k+1)*MathUtils.TWOPI*HntmAnalyzer.NOISE_F0_IN_HZ*(tsiPlusOne-tsi) ); //Equation (3.55)
 
-                        phasekiPlusOneEstimate = (float)( phasekis[k] + (k+1)*MathUtils.TWOPI*HnmAnalyzer.NOISE_F0_IN_HZ*(tsiPlusOne-tsi));
+                        phasekiPlusOneEstimate = (float)( phasekis[k] + (k+1)*MathUtils.TWOPI*HntmAnalyzer.NOISE_F0_IN_HZ*(tsiPlusOne-tsi));
                         Mk = (int)Math.floor((phasekiPlusOneEstimate-phasekiPlusOnes[k])/MathUtils.TWOPI + 0.5);
                         phasekt = (float)( phasekis[k] + (phasekiPlusOnes[k]+MathUtils.TWOPI*Mk-phasekis[k])*(t-tsi)/(tsiPlusOne-tsi) );
                         //
@@ -989,7 +949,7 @@ public class HnmSynthesizer {
         return noisePart;
     }
     
-    public double[] synthesizeTransientPart(HnmPlusTransientsSpeechSignal hnmSignal, 
+    public double[] synthesizeTransientPart(HntmPlusTransientsSpeechSignal hnmSignal, 
             float[] tScales,
             float[] tScalesTimes,
             float[] pScales,
@@ -1005,7 +965,7 @@ public class HnmSynthesizer {
             int i, j;
             int startInd, endInd;
             int windowLeftEndInd, windowRightStartInd;
-            int ws = SignalProcUtils.time2sample(2*HnmAnalyzer.OVERLAP_BETWEEN_TRANSIENT_AND_NONTRANSIENT_REGIONS_IN_SECONDS, hnmSignal.samplingRateInHz);
+            int ws = SignalProcUtils.time2sample(2*HntmAnalyzer.OVERLAP_BETWEEN_TRANSIENT_AND_NONTRANSIENT_REGIONS_IN_SECONDS, hnmSignal.samplingRateInHz);
             if (ws%2==0)
                 ws++;
             Window win = new HammingWindow(ws);
@@ -1046,15 +1006,15 @@ public class HnmSynthesizer {
         float windowSizeInSeconds = 0.050f;
         float skipSizeInSeconds = 0.010f;
 
-        HnmAnalyzer ha = new HnmAnalyzer();
+        HntmAnalyzer ha = new HntmAnalyzer();
         
-        int model = HnmAnalyzer.HARMONICS_PLUS_NOISE;
+        int model = HntmAnalyzer.HARMONICS_PLUS_NOISE;
         //int model = HnmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE;
         
-        int noisePartRepresentation = HnmAnalyzer.LPC;
+        int noisePartRepresentation = HntmAnalyzer.LPC;
         //int noisePartRepresentation = HnmAnalyzer.PSEUDO_HARMONIC;
 
-        HnmSpeechSignal hnmSignal = ha.analyze(wavFile, windowSizeInSeconds, skipSizeInSeconds, model, noisePartRepresentation);
+        HntmSpeechSignal hnmSignal = ha.analyze(wavFile, windowSizeInSeconds, skipSizeInSeconds, model, noisePartRepresentation);
         //
 
         if (hnmSignal!=null)
@@ -1065,8 +1025,8 @@ public class HnmSynthesizer {
             float[] pScales = {1.0f};
             float[] pScalesTimes = null;
 
-            HnmSynthesizer hs = new HnmSynthesizer();
-            HnmSynthesizedSignal xhat = hs.synthesize(hnmSignal, tScales, tScalesTimes, pScales, pScalesTimes);
+            HntmSynthesizer hs = new HntmSynthesizer();
+            HntmSynthesizedSignal xhat = hs.synthesize(hnmSignal, tScales, tScalesTimes, pScales, pScalesTimes);
 
             double hGain = 1.0;
             double nGain = 0.05/32768;
@@ -1101,9 +1061,9 @@ public class HnmSynthesizer {
             String outFileName = null;
             String strExt = "";
             String modelName = "";
-            if (model==HnmAnalyzer.HARMONICS_PLUS_NOISE)
+            if (model==HntmAnalyzer.HARMONICS_PLUS_NOISE)
                 modelName = "hnm";
-            else if (model==HnmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE)
+            else if (model==HntmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE)
                 modelName = "hnmt";
 
             outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());

@@ -27,22 +27,39 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.sinusoidal.hnm;
+package marytts.signalproc.sinusoidal.hntm;
 
 /**
- * This class represents all transient segments in a waveform
- * 
  * @author oytun.turk
  *
  */
-public class TransientPart {
-    public TransientSegment[] segments;
+public class HntmSpeechSignal {
+    public HntmSpeechFrame[] frames;
+    public float originalDurationInSeconds;
+    public int samplingRateInHz;
+    public float windowDurationInSecondsNoise;
+    public float preCoefNoise;
+    public float f0WindowDurationInSeconds;
+    public float f0SkipSizeInSeconds;
     
-    public TransientPart(int numMaxTransients)
+    public HntmSpeechSignal(int totalFrm, int samplingRateInHz, float originalDurationInSeconds, 
+                           float f0WindowDurationInSeconds, float f0SkipSizeInSeconds,
+                           float windowDurationInSecondsNoise, float preCoefNoise)
     {
-        if (numMaxTransients>0)
-            segments = new TransientSegment[numMaxTransients];
+        if (totalFrm>0)
+        {
+            frames =  new HntmSpeechFrame[totalFrm];
+            for (int i=00; i<totalFrm; i++)
+                frames[i] = new HntmSpeechFrame();
+        }
         else
-            segments = null;
+            frames = null;
+        
+        this.samplingRateInHz = samplingRateInHz;
+        this.originalDurationInSeconds = originalDurationInSeconds;
+        this.windowDurationInSecondsNoise = windowDurationInSecondsNoise;
+        this.preCoefNoise = preCoefNoise;
+        this.f0WindowDurationInSeconds = f0WindowDurationInSeconds;
+        this.f0SkipSizeInSeconds = f0SkipSizeInSeconds;
     }
 }

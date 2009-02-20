@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.signalproc.sinusoidal.hnm;
+package marytts.signalproc.sinusoidal.hntm;
 
 import marytts.signalproc.sinusoidal.BaseSinusoidalSpeechFrame;
 
@@ -25,7 +25,7 @@ import marytts.signalproc.sinusoidal.BaseSinusoidalSpeechFrame;
  * @author oytun.turk
  *
  */
-public class HnmSpeechFrame extends BaseSinusoidalSpeechFrame 
+public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame 
 {
     public FrameHarmonicPart h; //Harmonics component (lower frequencies which are less than maximum frequency of voicing)
     public FrameNoisePart n; //Noise component (upper frequencies)
@@ -34,12 +34,12 @@ public class HnmSpeechFrame extends BaseSinusoidalSpeechFrame
     public float maximumFrequencyOfVoicingInHz; //If 0.0, then the frame is unvoiced
     public float tAnalysisInSeconds; //Middle of analysis frame in seconds
     
-    public HnmSpeechFrame()
+    public HntmSpeechFrame()
     {
         this(0.0f);
     }
     
-    public HnmSpeechFrame(float f0InHzIn)
+    public HntmSpeechFrame(float f0InHzIn)
     {
         h = new FrameHarmonicPart();
         n = new FrameNoisePart();
@@ -48,7 +48,7 @@ public class HnmSpeechFrame extends BaseSinusoidalSpeechFrame
         tAnalysisInSeconds = -1.0f;
     }
     
-    public HnmSpeechFrame(HnmSpeechFrame existing)
+    public HntmSpeechFrame(HntmSpeechFrame existing)
     {
         h = new FrameHarmonicPart(existing.h);
         if (existing.n instanceof FrameNoisePartLpc)

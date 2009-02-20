@@ -17,22 +17,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.signalproc.sinusoidal.hnm;
+package marytts.signalproc.sinusoidal.hntm;
+
+import marytts.util.math.ArrayUtils;
+import marytts.util.math.ComplexNumber;
 
 /**
- * @author oytun.turk
+ * @author Oytun T&uumlrk
  *
  */
-public class HnmSynthesizedSignal {
-    public double[] harmonicPart;
-    public double[] noisePart;
-    public double[] transientPart;
+public class FrameHarmonicPart 
+{
+    public double[] ceps; //Cepstral coefficients for amplitude envelope
+    public float[] phases; //To keep harmonic phases
     
-    public HnmSynthesizedSignal()
-    {
-        harmonicPart = null;
-        noisePart = null;
-        transientPart = null;
+    public FrameHarmonicPart()
+    {        
+        ceps = null;
+        phases = null;
+    }
+    
+    public FrameHarmonicPart(FrameHarmonicPart existing)
+    {        
+        ceps = ArrayUtils.copy(existing.ceps);
+        phases = ArrayUtils.copyf(existing.phases);
     }
 }
 

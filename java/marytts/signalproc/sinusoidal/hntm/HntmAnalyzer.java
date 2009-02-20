@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.signalproc.sinusoidal.hnm;
+package marytts.signalproc.sinusoidal.hntm;
 
 import java.io.File;
 import java.io.IOException;
@@ -72,7 +72,7 @@ import marytts.util.string.StringUtils;
  * @author Oytun T&uumlrk
  *
  */
-public class HnmAnalyzer {
+public class HntmAnalyzer {
     public static final int HARMONICS_PLUS_NOISE = 1;
     public static final int HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE = 2;
     
@@ -87,15 +87,15 @@ public class HnmAnalyzer {
     public static float OVERLAP_BETWEEN_HARMONIC_AND_NOISE_REGIONS_IN_HZ = 0.0f;
     public static float OVERLAP_BETWEEN_TRANSIENT_AND_NONTRANSIENT_REGIONS_IN_SECONDS = 0.005f;
     
-    public HnmAnalyzer()
+    public HntmAnalyzer()
     {
         
     }
     
-    public HnmSpeechSignal analyze(String wavFile, float windowSizeInSeconds, float skipSizeInSeconds, 
+    public HntmSpeechSignal analyze(String wavFile, float windowSizeInSeconds, float skipSizeInSeconds, 
                                    int model, int noisePartRepresentation)
     {
-        HnmSpeechSignal hnmSignal = null;
+        HntmSpeechSignal hnmSignal = null;
         
         AudioInputStream inputAudio = null;
         try {
@@ -196,9 +196,9 @@ public class HnmAnalyzer {
 
             String[] transientPhonemesList = {"p", "t", "k", "pf", "ts", "tS"};
             Labels labels = null;
-            if (model == HnmAnalyzer.HARMONICS_PLUS_NOISE)
-                hnmSignal = new HnmSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.ws, (float)f0.header.ss, NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, preCoefNoise);
-            else if (model == HnmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE)
+            if (model == HntmAnalyzer.HARMONICS_PLUS_NOISE)
+                hnmSignal = new HntmSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.ws, (float)f0.header.ss, NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, preCoefNoise);
+            else if (model == HntmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE)
             {
                 String strLabFile = StringUtils.modifyExtension(wavFile, ".lab"); 
                 if (FileUtils.exists(strLabFile)!=true) //Labels required for transients analysis (unless we design an automatic algorithm)
@@ -208,7 +208,7 @@ public class HnmAnalyzer {
                 }
                 labels = new Labels(strLabFile);
                 
-                hnmSignal = new HnmPlusTransientsSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.ws, (float)f0.header.ss, NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, preCoefNoise, labels.items.length);
+                hnmSignal = new HntmPlusTransientsSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.ws, (float)f0.header.ss, NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, preCoefNoise, labels.items.length);
             }
             
             boolean isPrevVoiced = false;
@@ -249,7 +249,7 @@ public class HnmAnalyzer {
 
                 hnmSignal.frames[i].tAnalysisInSeconds = (float)((pm.pitchMarks[i]+0.5f*ws)/fs);  //Middle of analysis frame
                 
-                if (model == HnmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE && labels!=null)
+                if (model == HntmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE && labels!=null)
                 {
                     while(labels.items[currentLabInd].time<hnmSignal.frames[i].tAnalysisInSeconds)
                     {
@@ -268,8 +268,8 @@ public class HnmAnalyzer {
                             if (labels.items[currentLabInd].phn.compareTo(transientPhonemesList[j])==0)
                             {
                                 isInTransientSegment = true;
-                                ((HnmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd] = new TransientSegment();
-                                ((HnmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].startTime = Math.max(0.0f, (((float)pm.pitchMarks[i])/fs)-HnmAnalyzer.OVERLAP_BETWEEN_TRANSIENT_AND_NONTRANSIENT_REGIONS_IN_SECONDS);
+                                ((HntmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd] = new TransientSegment();
+                                ((HntmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].startTime = Math.max(0.0f, (((float)pm.pitchMarks[i])/fs)-HntmAnalyzer.OVERLAP_BETWEEN_TRANSIENT_AND_NONTRANSIENT_REGIONS_IN_SECONDS);
                                 break;
                             }
                         }
@@ -289,14 +289,14 @@ public class HnmAnalyzer {
                         if (!isTransientPhoneme) //End of transient segment, put it in transient part
                         {
                             
-                            ((HnmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].endTime = Math.min((((float)pm.pitchMarks[i]+0.5f*ws)/fs)+HnmAnalyzer.OVERLAP_BETWEEN_TRANSIENT_AND_NONTRANSIENT_REGIONS_IN_SECONDS, hnmSignal.originalDurationInSeconds);
-                            int waveformStartInd = Math.max(0, SignalProcUtils.time2sample(((HnmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].startTime, fs));
-                            int waveformEndInd = Math.min(x.length-1, SignalProcUtils.time2sample(((HnmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].endTime, fs));
+                            ((HntmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].endTime = Math.min((((float)pm.pitchMarks[i]+0.5f*ws)/fs)+HntmAnalyzer.OVERLAP_BETWEEN_TRANSIENT_AND_NONTRANSIENT_REGIONS_IN_SECONDS, hnmSignal.originalDurationInSeconds);
+                            int waveformStartInd = Math.max(0, SignalProcUtils.time2sample(((HntmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].startTime, fs));
+                            int waveformEndInd = Math.min(x.length-1, SignalProcUtils.time2sample(((HntmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].endTime, fs));
                             if (waveformEndInd-waveformStartInd+1>0)
                             {
-                                ((HnmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].waveform = new int[waveformEndInd-waveformStartInd+1];
+                                ((HntmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].waveform = new int[waveformEndInd-waveformStartInd+1];
                                 for (j=waveformStartInd; j<=waveformEndInd; j++)
-                                    ((HnmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].waveform[j-waveformStartInd] = (int)x[j];
+                                    ((HntmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].waveform[j-waveformStartInd] = (int)x[j];
                             }
                             
                             transientSegmentInd++;
@@ -647,15 +647,15 @@ public class HnmAnalyzer {
         float windowSizeInSeconds = 0.040f;
         float skipSizeInSeconds = 0.010f;
         
-        HnmAnalyzer ha = new HnmAnalyzer();
+        HntmAnalyzer ha = new HntmAnalyzer();
         
         //int model = HnmAnalyzer.HARMONICS_PLUS_NOISE;
-        int model = HnmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE;
+        int model = HntmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE;
         
-        int noisePartRepresentation = HnmAnalyzer.LPC;
+        int noisePartRepresentation = HntmAnalyzer.LPC;
         //int noisePartRepresentation = HnmAnalyzer.PSEUDO_HARMONIC;
         
-        HnmSpeechSignal hnmSignal = ha.analyze(wavFile, windowSizeInSeconds, skipSizeInSeconds, model, noisePartRepresentation);
+        HntmSpeechSignal hnmSignal = ha.analyze(wavFile, windowSizeInSeconds, skipSizeInSeconds, model, noisePartRepresentation);
         
         System.out.println("Analysis finished...");
     }
