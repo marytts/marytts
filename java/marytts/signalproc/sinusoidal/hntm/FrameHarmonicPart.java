@@ -38,9 +38,14 @@ public class FrameHarmonicPart
     }
     
     public FrameHarmonicPart(FrameHarmonicPart existing)
-    {        
-        ceps = ArrayUtils.copy(existing.ceps);
-        phases = ArrayUtils.copyf(existing.phases);
+    {       
+        this();
+        
+        if (existing!=null)
+        {
+            ceps = ArrayUtils.copy(existing.ceps);
+            phases = ArrayUtils.copy(existing.phases);
+        }
     }
 }
 

@@ -492,6 +492,36 @@ public class HntmAnalyzer {
              }
         }
         
+        if (hnmSignal instanceof HntmPlusTransientsSpeechSignal)
+        {
+            int i;
+            int numTransientSegments = 0;
+            for (i=0; i<((HntmPlusTransientsSpeechSignal)hnmSignal).transients.segments.length; i++)
+            {
+                if (((HntmPlusTransientsSpeechSignal)hnmSignal).transients.segments[i]!=null)
+                    numTransientSegments++;
+            }
+            
+            if (numTransientSegments>0)
+            {
+                TransientPart tempPart = new TransientPart(numTransientSegments);
+                int count = 0;
+                for (i=0; i<((HntmPlusTransientsSpeechSignal)hnmSignal).transients.segments.length; i++)
+                {
+                    if (((HntmPlusTransientsSpeechSignal)hnmSignal).transients.segments[i]!=null)
+                    {
+                        tempPart.segments[count++] = new TransientSegment(((HntmPlusTransientsSpeechSignal)hnmSignal).transients.segments[i]);
+                        if (count>=numTransientSegments)
+                            break;
+                    }
+                }
+                
+                ((HntmPlusTransientsSpeechSignal)hnmSignal).transients = new TransientPart(tempPart);
+            }
+            else
+                ((HntmPlusTransientsSpeechSignal)hnmSignal).transients = null;
+        }
+        
         return hnmSignal;
     }
     
