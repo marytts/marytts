@@ -100,19 +100,19 @@ public class HnmSynthesizer {
         float currentTime = 0.0f;
         for (int i=0; i<hnmSignal.frames.length; i++)
         {
-            hnmSignal2.frames[2*i] = new HnmSpeechFrame(hnmSignal2.frames[i]);
-            hnmSignal2.frames[2*i+1] = new HnmSpeechFrame(hnmSignal2.frames[i]);
+            hnmSignal2.frames[2*i] = new HnmSpeechFrame(hnmSignal.frames[i]);
+            hnmSignal2.frames[2*i+1] = new HnmSpeechFrame(hnmSignal.frames[i]);
             if (i==0)
-                hnmSignal2.frames[2*i].tAnalysisInSeconds = hnmSignal2.frames[i].tAnalysisInSeconds;
+                hnmSignal2.frames[2*i].tAnalysisInSeconds = hnmSignal.frames[i].tAnalysisInSeconds;
             else
-                hnmSignal2.frames[2*i].tAnalysisInSeconds = currentTime + (hnmSignal2.frames[i].tAnalysisInSeconds-hnmSignal2.frames[i-1].tAnalysisInSeconds);
+                hnmSignal2.frames[2*i].tAnalysisInSeconds = currentTime + (hnmSignal.frames[i].tAnalysisInSeconds-hnmSignal.frames[i-1].tAnalysisInSeconds);
             
             currentTime = hnmSignal2.frames[2*i].tAnalysisInSeconds;
             
             if (i==0)
                 hnmSignal2.frames[2*i+1].tAnalysisInSeconds = 2*currentTime;
             else
-                hnmSignal2.frames[2*i+1].tAnalysisInSeconds = currentTime + (hnmSignal2.frames[i].tAnalysisInSeconds-hnmSignal2.frames[i-1].tAnalysisInSeconds);
+                hnmSignal2.frames[2*i+1].tAnalysisInSeconds = currentTime + (hnmSignal.frames[i].tAnalysisInSeconds-hnmSignal.frames[i-1].tAnalysisInSeconds);
             
             currentTime = hnmSignal2.frames[2*i+1].tAnalysisInSeconds;
         }
@@ -121,10 +121,10 @@ public class HnmSynthesizer {
         //
 
         //Synthesize noise part
-        if (hnmSignal.frames[0].n instanceof FrameNoisePartLpc)
-            s.noisePart = synthesizeNoisePartLpc(hnmSignal, tScales, tScalesTimes, pScales, pScalesTimes);
-        else if (hnmSignal.frames[0].n instanceof FrameNoisePartPseudoHarmonic)
-            s.noisePart = synthesizeNoisePartPseudoHarmonic(hnmSignal, tScales, tScalesTimes, pScales, pScalesTimes);
+        if (hnmSignal2.frames[0].n instanceof FrameNoisePartLpc)
+            s.noisePart = synthesizeNoisePartLpc(hnmSignal2, tScales, tScalesTimes, pScales, pScalesTimes);
+        else if (hnmSignal2.frames[0].n instanceof FrameNoisePartPseudoHarmonic)
+            s.noisePart = synthesizeNoisePartPseudoHarmonic(hnmSignal2, tScales, tScalesTimes, pScales, pScalesTimes);
         //
         
         //Synthesize transients
@@ -1135,14 +1135,12 @@ public class HnmSynthesizer {
             //MaryUtils.plot(xhat.noisePart);
             //MaryUtils.plot(y);
 
-            /*
-        if (nEstimate!=null)
-        {
-            outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(nEstimate), inputAudio.getFormat());
-            outFileName = args[0].substring(0, args[0].length()-4) + "_" + modelName + "Diff.wav";
-            AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
-        }
-             */
+            //if (nEstimate!=null)
+            //{
+            //    outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(nEstimate), inputAudio.getFormat());
+            //    outFileName = args[0].substring(0, args[0].length()-4) + "_" + modelName + "Diff.wav";
+            //    AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+            //}
             //
         }
     }
