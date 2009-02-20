@@ -27,17 +27,17 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.sinusoidal.hnm;
+package marytts.signalproc.sinusoidal.hntm;
 
 /**
  * @author oytun.turk
  *
  */
-public class HnmPlusTransientsSpeechSignal extends HnmSpeechSignal {
+public class HntmPlusTransientsSpeechSignal extends HntmSpeechSignal {
     
     public TransientPart transients;
     
-    public HnmPlusTransientsSpeechSignal(int totalFrm, int samplingRateInHz, float originalDurationInSeconds,
+    public HntmPlusTransientsSpeechSignal(int totalFrm, int samplingRateInHz, float originalDurationInSeconds,
                                          float f0WindowDurationInSeconds, float f0SkipSizeInSeconds,
                                          float windowDurationInSecondsNoise, float preCoefNoise, int numMaxTransients) 
     {

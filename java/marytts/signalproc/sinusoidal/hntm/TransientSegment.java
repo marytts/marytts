@@ -27,7 +27,7 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.sinusoidal.hnm;
+package marytts.signalproc.sinusoidal.hntm;
 
 /**
  * This class represents a transient segment of the waveform
