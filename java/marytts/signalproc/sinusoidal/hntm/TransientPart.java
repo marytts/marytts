@@ -45,4 +45,15 @@ public class TransientPart {
         else
             segments = null;
     }
+    
+    public TransientPart(TransientPart existing)
+    {
+        segments = null;
+        if (existing!=null && existing.segments!=null)
+        {
+            segments = new TransientSegment[existing.segments.length];
+            for (int i=0; i<existing.segments.length; i++)
+                segments[i] = new TransientSegment(existing.segments[i]);
+        }
+    }
 }

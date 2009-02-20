@@ -29,6 +29,8 @@
 
 package marytts.signalproc.sinusoidal.hntm;
 
+import marytts.util.math.ArrayUtils;
+
 /**
  * This class represents a transient segment of the waveform
  * 
@@ -45,5 +47,17 @@ public class TransientSegment {
         startTime = -1.0f;
         endTime = -1.0f;
         waveform = null;
+    }
+    
+    public TransientSegment(TransientSegment existing)
+    {
+        this();
+        
+        if (existing!=null)
+        {
+            this.startTime = existing.startTime;
+            this.endTime = existing.endTime;
+            this.waveform = ArrayUtils.copy(existing.waveform);
+        }
     }
 }
