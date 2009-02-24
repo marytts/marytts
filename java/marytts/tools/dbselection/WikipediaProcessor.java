@@ -228,9 +228,7 @@ public class WikipediaProcessor {
         } catch( Exception e ) {
           e.printStackTrace();
         }       
-      } else {
-        throw new Exception("The file: " + fileName + " does not exist!");  
-      }
+      } 
       
       return files;
       
