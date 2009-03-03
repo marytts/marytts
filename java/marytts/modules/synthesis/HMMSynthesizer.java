@@ -151,7 +151,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
             String voiceName = st.nextToken();
             logger.debug("Voice '" + voiceName + "'");
             Locale locale = MaryUtils.string2locale(MaryProperties.needProperty("voice."+voiceName+".locale"));
-            int samplingRate = MaryProperties.getInteger("voice."+voiceName+".samplingrate", 16000);
+            int samplingRate = MaryProperties.getInteger("voice."+voiceName+".samplingRate", 16000);
             
             Gender gender = new Gender(MaryProperties.needProperty("voice."+voiceName+".gender"));
             AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
