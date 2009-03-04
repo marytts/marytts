@@ -1063,6 +1063,7 @@ public class SignalProcUtils {
 
             for (k=0; k<x.length; k++)
             {
+                /*
                 for (j=0; j<midVal; j++)
                 {
                     if (k-j>=0)
@@ -1078,7 +1079,14 @@ public class SignalProcUtils {
                     else
                         v.add(rightOutOfBound);
                 }
-                
+                */
+                // MS, 27.2.09: Ignore left/right out of bound; use window of size N, centered around current point
+                // if possible but staying within the range of data.
+                int iLeft = Math.max(0, k-midVal);
+                int iRight = Math.min(x.length-1, iLeft+N);
+                for (j=iLeft; j<=iRight; j++) {
+                    v.add(x[j]);
+                }
                 Collections.sort(v);
                 
                 y[k] = ((Double)(v.get(midVal))).doubleValue();
@@ -1092,7 +1100,7 @@ public class SignalProcUtils {
 
             for (k=0; k<x.length; k++)
             {
-                for (j=0; j<=midVal; j++)
+                /*for (j=0; j<=midVal; j++)
                 {
                     if (k-j>=0)
                         v.add(x[k-j]);
@@ -1106,7 +1114,15 @@ public class SignalProcUtils {
                         v.add(x[k+j]);
                     else
                         v.add(rightOutOfBound);
+                }*/
+                // MS, 27.2.09: Ignore left/right out of bound; use window of size N, centered around current point
+                // if possible but staying within the range of data.
+                int iLeft = Math.max(0, k-midVal);
+                int iRight = Math.min(x.length-1, k+midVal);
+                for (j=iLeft; j<=iRight; j++) {
+                    v.add(x[j]);
                 }
+
                 
                 Collections.sort(v);
                 
