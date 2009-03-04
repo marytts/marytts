@@ -2430,8 +2430,9 @@ public class MaryGenericFeatureProcessors
 
 
     /**
-     * Calculates the pitch of a segment This processor should be used by target
-     * items only
+     * Calculates the log of the fundamental frequency in the middle of a unit segment.
+     * This processor should be used by target items only -- for unit features during voice
+     * building, the actual measured values should be used.
      */
     public static class UnitLogF0 implements ContinuousFeatureProcessor
     {
@@ -2439,6 +2440,19 @@ public class MaryGenericFeatureProcessors
 
         public float process(Target target)
         {
+            return process(target, false);
+        }
+        
+        /**
+         * Compute log f0 and log f0 delta for the given target.
+         * @param target
+         * @param delta if true, return the delta, i.e. the logF0 slope; if false, return the log f0 value itself. 
+         * @return
+         */
+        protected float process(Target target, boolean delta)
+        {
+            // Note: all variables in this method with "f0" in their name
+            // actually represent log f0 values.
             if (target instanceof DiphoneTarget) {
                 DiphoneTarget diphone = (DiphoneTarget) target;
                 return (process(diphone.getLeft()) + process(diphone.getRight())) / 2;
@@ -2467,7 +2481,7 @@ public class MaryGenericFeatureProcessors
             float lastF0 = 0;
             Float nextPos = null; // position relative to mid, in milliseconds
             float nextF0 = 0;
-            Float[] f0values = getF0Values(seg);
+            Float[] f0values = getLogF0Values(seg);
             assert f0values != null;
             // values are position, f0, position, f0, etc.; 
             // position is in percent of phone duration between 0 and 1, f0 is in Hz
@@ -2487,7 +2501,7 @@ public class MaryGenericFeatureProcessors
                 Element e = seg;
                 while ((e = MaryDomUtils.getPreviousSiblingElement(e)) != null) {
                     float dur = getDuration(e);
-                    f0values = getF0Values(e);
+                    f0values = getLogF0Values(e);
                     if (f0values.length == 0) {
                         msBack -= dur;
                         continue;
@@ -2505,7 +2519,7 @@ public class MaryGenericFeatureProcessors
                 Element e = seg;
                 while ((e = MaryDomUtils.getNextSiblingElement(e)) != null) {
                     float dur = getDuration(e);
-                    f0values = getF0Values(e);
+                    f0values = getLogF0Values(e);
                     if (f0values.length == 0) {
                         msForward += dur;
                         continue;
@@ -2523,29 +2537,33 @@ public class MaryGenericFeatureProcessors
                 return 0;
             } else if (lastPos == null) {
                 // have only nextF0;
-                return (float)Math.log(nextF0);
+                if (delta) return 0;
+                else return nextF0;
             } else if (nextPos == null) {
                 // have only lastF0
-                return (float) Math.log(lastF0);
+                if (delta) return 0;
+                else return lastF0;
             }
             assert lastPos <= 0 && 0 <= nextPos : "unexpected: lastPos="+lastPos+", nextPos="+nextPos;
             // build a linear function (f(x) = slope*x+intersectionYAxis)
             float f0;
+            float slope;
             if (lastPos == nextPos) {
                 f0 = (lastF0 + nextF0) / 2;
+                slope = 0;
             } else {
-                float slope = (nextF0 - lastF0) / (nextPos - lastPos);
+                slope = (nextF0 - lastF0) / (nextPos - lastPos);
                 // calculate the pitch
                 f0 = lastF0 + slope * (-lastPos);
             }
             assert lastF0 <= f0 && nextF0 >= f0 || lastF0 >= f0 && nextF0 <= f0 : "f0 should be between last and next values";
             assert !Float.isNaN(f0) : "f0 is not a number";
 
-            if (f0 == 0) return 0;
-            return (float) Math.log(f0);
+            if (delta) return slope;
+            else return f0;
         }
 
-        private Float[] getF0Values(Element ph)
+        private Float[] getLogF0Values(Element ph)
         {
             String mbrTargets = ph.getAttribute("f0");
             if (mbrTargets.equals("")) {
@@ -2565,8 +2583,9 @@ public class MaryGenericFeatureProcessors
                     float pos = Float.parseFloat(posString) * 0.01f;
                     assert 0 <= pos && pos <= 1 : "invalid position:"+pos+" (pos string was '"+posString+"' coming from '"+mbrTargets+"')";
                     float f0 = Float.parseFloat(f0String);
+                    float logF0 = (float) Math.log(f0);
                     values.add(pos);
-                    values.add(f0);
+                    values.add(logF0);
                 }
             } catch (Exception e) {
                 return new Float[0];
@@ -2587,5 +2606,21 @@ public class MaryGenericFeatureProcessors
         }
     }
     
-    
+    /**
+     * Calculates the slope of a linear approximation of the fundamental frequency, in the log domain.
+     * The slope is computed by linearly connecting the two log f0 values closest to the middle of the unit segment.
+     * This processor should be used by target items only -- for unit features during voice
+     * building, the actual measured values should be used.
+     */
+    public static class UnitLogF0Delta extends UnitLogF0
+    {
+        @Override
+        public String getName() { return "unit_logf0delta"; }
+
+        public float process(Target target)
+        {
+            return process(target, true);
+        }
+    }
+
 }
