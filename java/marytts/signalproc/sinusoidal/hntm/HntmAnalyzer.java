@@ -675,10 +675,12 @@ public class HntmAnalyzer {
         for (k=L-1; k>=0; k--) //The remaning complex amplitudes from L+1 to 2L are complex conjugates of entries from L-1,...,0
             xpart[L-1-k] = new ComplexNumber(x[k].real, x[k].imag);
         
+        /*
         double gain = MathUtils.absMax(s)/MathUtils.sum(MathUtils.abs(xpart));
         
         for (k=0; k<xpart.length; k++)
             xpart[k] = MathUtils.multiply(gain, xpart[k]);
+            */
         
         return xpart;
     }

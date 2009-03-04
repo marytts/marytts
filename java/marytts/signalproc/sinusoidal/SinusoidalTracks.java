@@ -24,6 +24,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Vector;
 
+import marytts.signalproc.sinusoidal.hntm.FrameHarmonicPart;
+import marytts.signalproc.sinusoidal.hntm.HntmSpeechSignal;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
@@ -359,6 +361,30 @@ public class SinusoidalTracks {
                 sysCeps.add(framesSins[i].systemCeps);
                 frameDfts.add(framesSins[i].frameDfts);
                 times[i] = framesSins[i].time;
+            }
+        }
+    }
+    
+    public void setSysAmpsAndTimes(HntmSpeechSignal hntmSignal)
+    {
+        sysAmps = null;
+        sysPhases = null;
+        frameDfts = null;
+
+        if (hntmSignal==null || hntmSignal.frames==null || hntmSignal.frames.length<=0)
+        {
+            sysCeps = null;   
+            times = null;
+        }
+        else
+        {
+            sysCeps = new Vector<double[]>();
+            times = new float[hntmSignal.frames.length];
+            
+            for (int i=0; i<hntmSignal.frames.length; i++)
+            {
+                sysCeps.add(hntmSignal.frames[i].h.ceps);
+                times[i] = hntmSignal.frames[i].tAnalysisInSeconds;
             }
         }
     }

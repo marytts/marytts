@@ -1095,7 +1095,10 @@ public class SignalProcUtils {
                 
                 Collections.sort(v);
                 
-                y[k] = 0.5*(((Double)(v.get(midVal))).doubleValue()+((Double)(v.get(midVal+1))).doubleValue());
+                if (midVal+1<v.size())
+                    y[k] = 0.5*(((Double)(v.get(midVal))).doubleValue()+((Double)(v.get(midVal+1))).doubleValue());
+                else
+                    y[k] = ((Double)(v.get(midVal))).doubleValue();
                 
                 v.clear();
             }

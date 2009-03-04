@@ -66,7 +66,7 @@ public class HnmPitchVoicingAnalyzer {
     public static int MINIMUM_TOTAL_HARMONICS = 0; //Minimum number of total harmonics to be included in voiced region (effective only when f0>10.0)
     public static int MAXIMUM_TOTAL_HARMONICS = 100; //Maximum number of total harmonics to be included in voiced region (effective only when f0>10.0)
     public static float MINIMUM_VOICED_FREQUENCY_OF_VOICING = 0.0f; //All voiced sections will have at least this freq. of voicing
-    public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 4500.0f; //All voiced sections will have at least this freq. of voicing
+    public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 6000.0f; //All voiced sections will have at least this freq. of voicing
     public static float MAXIMUM_FREQUENCY_OF_VOICING_FINAL_SHIFT = 0.0f; //The max freq. of voicing contour is shifted by this amount finally
     public static float RUNNING_MEAN_VOICING_THRESHOLD = 0.1f; //Between 0.0 and 1.0, decrease ==> Max. voicing freq increases
     //

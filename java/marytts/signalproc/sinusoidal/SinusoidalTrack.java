@@ -48,8 +48,8 @@ public class SinusoidalTrack {
     
     //These two parameters are used for keeping temporary information 
     // on new sinusoid candidates to be appended to the current track during track generation
-    protected Sinusoid newCandidate;
-    protected int newCandidateInd;
+    public Sinusoid newCandidate;
+    public int newCandidateInd;
     //
     
     //These are for checking some statistics and debugging only, not required for actual analysis/synthesis
