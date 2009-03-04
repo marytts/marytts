@@ -29,11 +29,15 @@
 
 package marytts.signalproc.sinusoidal.hntm;
 
+import java.util.Arrays;
 import java.util.Vector;
 
+import marytts.signalproc.process.TDPSOLAInstants;
+import marytts.signalproc.process.TDPSOLAProcessor;
 import marytts.signalproc.sinusoidal.hntm.HntmSpeechFrame;
 import marytts.signalproc.sinusoidal.hntm.HntmSpeechSignal;
 import marytts.signalproc.sinusoidal.hntm.HntmSynthesizedSignal;
+import marytts.util.MaryUtils;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
@@ -44,72 +48,131 @@ import marytts.util.signal.SignalProcUtils;
  */
 public class HntmDurationModifier {
     
-    public static HntmSpeechSignal modify(HntmSpeechSignal hntmSignal, float[] tScales, float[] tScalesTimes)
+    public static HntmSpeechSignal modify(HntmSpeechSignal hntmSignal, float[] tScales, float[] tScalesTimes, float[] pScales, float[] pScalesTimes)
     {
-        int i, j;
-        //Contour preprocessing carried out here for time and pitch modification
-        //Pitch scale pitch contour
-        //double[] f0s = null;
-        //double[] f0sMod = SignalProcUtils.pitchScalePitchContour(f0s, hnmSignal.f0WindowDurationInSeconds, hnmSignal.f0SkipSizeInSeconds, pScales, pScalesTimes);
-
-        //Time scale pitch contour
-        //f0sMod = SignalProcUtils.timeScalePitchContour(f0sMod, hnmSignal.f0WindowDurationInSeconds, hnmSignal.f0SkipSizeInSeconds, tScales, tScalesTimes);
-
-        //float maxDur = SignalProcUtils.timeScaledTime(hntmSignal.originalDurationInSeconds, tScales, tScalesTimes);
-
-        //Find modified onsets
-        //PitchMarks pmMod = SignalProcUtils.pitchContour2pitchMarks(f0sMod, hnmSignal.samplingRateInHz, (int)Math.floor(maxDur*hnmSignal.samplingRateInHz+0.5), hnmSignal.f0WindowDurationInSeconds, hnmSignal.f0SkipSizeInSeconds, false, 0);
-        //
-        //
-        
-        //Synthesize harmonic part
-        /*
-        HntmSpeechSignal hntmSignalMod = new HntmSpeechSignal(2*hntmSignal.frames.length, hntmSignal.samplingRateInHz, 2.0f*hntmSignal.originalDurationInSeconds, 
-                                                              hntmSignal.f0WindowDurationInSeconds, hntmSignal.f0SkipSizeInSeconds,
-                                                              hntmSignal.windowDurationInSecondsNoise, hntmSignal.preCoefNoise);
-        
-        float currentTime = 0.0f;
-        for (i=0; i<hntmSignal.frames.length; i++)
-        {
-            hntmSignalMod.frames[2*i] = new HntmSpeechFrame(hntmSignal.frames[i]);
-            hntmSignalMod.frames[2*i+1] = new HntmSpeechFrame(hntmSignal.frames[i]);
-            if (i==0)
-                hntmSignalMod.frames[2*i].tAnalysisInSeconds = hntmSignal.frames[i].tAnalysisInSeconds;
-            else
-                hntmSignalMod.frames[2*i].tAnalysisInSeconds = currentTime + (hntmSignal.frames[i].tAnalysisInSeconds-hntmSignal.frames[i-1].tAnalysisInSeconds);
-            
-            currentTime = hntmSignalMod.frames[2*i].tAnalysisInSeconds;
-            
-            if (i==0)
-                hntmSignalMod.frames[2*i+1].tAnalysisInSeconds = 2*currentTime;
-            else
-                hntmSignalMod.frames[2*i+1].tAnalysisInSeconds = currentTime + (hntmSignal.frames[i].tAnalysisInSeconds-hntmSignal.frames[i-1].tAnalysisInSeconds);
-            
-            currentTime = hntmSignalMod.frames[2*i+1].tAnalysisInSeconds;
-        }
-        */
-        
+        int i, j;                
         HntmSpeechSignal hntmSignalMod = null;
         
-        //Pre-process tScales and tScaleTimes to make sure transients are not duration modified but only shifted
-        float[] tScalesMod = null;
-        float[] tScalesTimesMod = null;
+        //Pre-process tScales and tScaleTimes to make sure transients are not duration modified but only shifted#
+        //Sort input time scales if required
+        int[] sortedIndices;
+        
+        if (tScalesTimes!=null)
+        {  
+            sortedIndices = MathUtils.quickSort(tScalesTimes);
+            tScales = MathUtils.sortAs(tScales, sortedIndices);
+        }
+        
+        float[] tScalesMod = new float[hntmSignal.frames.length+1];
+        float[] allScalesTimes = new float[hntmSignal.frames.length+1];
+        float[] pScalesMod = new float[hntmSignal.frames.length+1];
+        for (i=0; i<hntmSignal.frames.length; i++)
+            allScalesTimes[i] = hntmSignal.frames[i].tAnalysisInSeconds;
+        allScalesTimes[hntmSignal.frames.length] = hntmSignal.frames[hntmSignal.frames.length-1].tAnalysisInSeconds+(hntmSignal.frames[hntmSignal.frames.length-1].tAnalysisInSeconds-hntmSignal.frames[hntmSignal.frames.length-2].tAnalysisInSeconds);
+        
         if (tScalesTimes!=null)
         {
-            assert tScales.length==tScalesTimes.length;
-            tScalesMod = ArrayUtils.copy(tScales);
-            tScalesTimesMod = ArrayUtils.copy(tScalesTimes);
+            if (tScales.length!=tScalesTimes.length)
+            {
+                System.out.println("Error! Time scale array and associated instants should be of identical length");
+                return null;
+            }
+            
+            //Map tScalesTimes to the analysis time axis (which is now in allScalesTimes)
+            int scaleIndex;
+            float alpha;
+            for (i=0; i<allScalesTimes.length; i++)
+            {
+                //For time scales
+                scaleIndex = MathUtils.findClosest(tScalesTimes, allScalesTimes[i]);
+                if (allScalesTimes[i]>tScalesTimes[scaleIndex])
+                {
+                    if (scaleIndex<tScalesTimes.length-1)
+                    {
+                        if ((tScalesTimes[scaleIndex+1]-tScalesTimes[scaleIndex])>1e-10)
+                            alpha = (tScalesTimes[scaleIndex+1]-allScalesTimes[i])/(tScalesTimes[scaleIndex+1]-tScalesTimes[scaleIndex]);
+                        else
+                            alpha = 0.5f;
+                        
+                        tScalesMod[i] = alpha*tScales[scaleIndex] + (1.0f-alpha)*tScales[scaleIndex+1];
+                    }
+                    else
+                        tScalesMod[i] = tScales[scaleIndex];
+                }
+                else if (allScalesTimes[i]<tScalesTimes[scaleIndex])
+                {
+                    if (scaleIndex>0)
+                    {
+                        if ((tScalesTimes[scaleIndex]-tScalesTimes[scaleIndex-1])>1e-10)
+                            alpha = (tScalesTimes[scaleIndex]-allScalesTimes[i])/(tScalesTimes[scaleIndex]-tScalesTimes[scaleIndex-1]);
+                        else
+                            alpha = 0.5f;
+                        
+                        tScalesMod[i] = alpha*tScales[scaleIndex-1] + (1.0f-alpha)*tScales[scaleIndex];        
+                    }
+                    else
+                        tScalesMod[i] = tScales[scaleIndex];
+                }
+                else
+                    tScalesMod[i] = tScales[scaleIndex];
+                //
+            }
+            //
         }
         else
+            Arrays.fill(tScalesMod, tScales[0]);
+        
+        if (pScalesTimes!=null)
         {
-            tScalesMod = new float[2];
-            tScalesMod[0] = tScales[0];
-            tScalesMod[1] = tScales[0];
+            if (pScales.length!=pScalesTimes.length)
+            {
+                System.out.println("Error! Pitch scale array and associated instants should be of identical length");
+                return null;
+            }
             
-            tScalesTimesMod = new float[2];
-            tScalesTimesMod[0] = 0.0f;
-            tScalesTimesMod[1] = hntmSignal.originalDurationInSeconds;
+            //Map pScalesTimes to the analysis time axis (which is now in allScalesTimes)
+            int scaleIndex;
+            float alpha;
+            for (i=0; i<allScalesTimes.length; i++)
+            {
+                //For pitch scales
+                scaleIndex = MathUtils.findClosest(pScalesTimes, allScalesTimes[i]);
+                if (allScalesTimes[i]>pScalesTimes[scaleIndex])
+                {
+                    if (scaleIndex<pScalesTimes.length-1)
+                    {
+                        if ((pScalesTimes[scaleIndex+1]-pScalesTimes[scaleIndex])>1e-10)
+                            alpha = (pScalesTimes[scaleIndex+1]-allScalesTimes[i])/(pScalesTimes[scaleIndex+1]-pScalesTimes[scaleIndex]);
+                        else
+                            alpha = 0.5f;
+                        
+                        pScalesMod[i] = alpha*pScales[scaleIndex] + (1.0f-alpha)*pScales[scaleIndex+1];
+                    }
+                    else
+                        pScalesMod[i] = pScales[scaleIndex];
+                }
+                else if (allScalesTimes[i]<pScalesTimes[scaleIndex])
+                {
+                    if (scaleIndex>0)
+                    {
+                        if ((pScalesTimes[scaleIndex]-pScalesTimes[scaleIndex-1])>1e-10)
+                            alpha = (pScalesTimes[scaleIndex]-allScalesTimes[i])/(pScalesTimes[scaleIndex]-pScalesTimes[scaleIndex-1]);
+                        else
+                            alpha = 0.5f;
+                        
+                        pScalesMod[i] = alpha*pScales[scaleIndex-1] + (1.0f-alpha)*pScales[scaleIndex];
+                    }
+                    else
+                        pScalesMod[i] = pScales[scaleIndex];
+                }
+                else
+                    pScalesMod[i] = pScales[scaleIndex];
+                //
+            }
+            //
         }
+        else
+            Arrays.fill(pScalesMod, pScales[0]);
         
         if (hntmSignal instanceof HntmPlusTransientsSpeechSignal && ((HntmPlusTransientsSpeechSignal)hntmSignal).transients!=null)
         {   
@@ -121,16 +184,17 @@ public class HntmDurationModifier {
 
             if (numTransientSegments>0)
             {
-                float[] tempScales = new float[2*numTransientSegments];
-                float[] tempScalesTimes = new float[2*numTransientSegments];
+                float[] tempScales = new float[4*numTransientSegments];
+                float[] tempScalesTimes = new float[4*numTransientSegments];
                 float[] tempScales2 = ArrayUtils.copy(tScalesMod);
-                float[] tempScalesTimes2 = ArrayUtils.copy(tScalesTimesMod);
+                float[] tempScalesTimes2 = ArrayUtils.copy(allScalesTimes);
                 
+                int ind = 0;
                 for (i=0; i<numTransientSegments; i++)
                 {
                     tempScalesTimes[2*i] = ((HntmPlusTransientsSpeechSignal)hntmSignal).transients.segments[i].startTime;
-                    tempScalesTimes[2*i+1] = ((HntmPlusTransientsSpeechSignal)hntmSignal).transients.segments[i].endTime;
                     tempScales[2*i] = 1.0f;
+                    tempScalesTimes[2*i+1] = ((HntmPlusTransientsSpeechSignal)hntmSignal).transients.segments[i].getEndTime(hntmSignal.samplingRateInHz);
                     tempScales[2*i+1] = 1.0f;
                  
                     if (tempScalesTimes2!=null)
@@ -143,16 +207,41 @@ public class HntmDurationModifier {
                     }
                 }
                 
+                for (i=numTransientSegments; i<2*numTransientSegments; i++)
+                {
+                    tempScalesTimes[2*i] = ((HntmPlusTransientsSpeechSignal)hntmSignal).transients.segments[i-numTransientSegments].startTime-0.001f;
+                    tempScales[2*i] = 1.0f;
+                    for (j=0; j<allScalesTimes.length; j++)
+                    {
+                        if (tempScalesTimes[2*i]>allScalesTimes[j])
+                        {
+                            tempScales[2*i] = tScalesMod[j];
+                            break;
+                        }
+                    }
+                    
+                    tempScalesTimes[2*i+1] = ((HntmPlusTransientsSpeechSignal)hntmSignal).transients.segments[i-numTransientSegments].getEndTime(hntmSignal.samplingRateInHz)+0.001f;
+                    tempScales[2*i+1] = 1.0f;
+                    
+                    for (j=allScalesTimes.length-1; j>=0; j--)
+                    {
+                        if (tempScalesTimes[2*i+1]<allScalesTimes[j])
+                        {
+                            tempScales[2*i+1] = tScalesMod[j];
+                            break;
+                        }
+                    }
+                }
+                
                 tScalesMod = ArrayUtils.combine(tempScales, tempScales2);
-                tScalesTimesMod = ArrayUtils.combine(tempScalesTimes, tempScalesTimes2);
-                int[] sortedIndices = MathUtils.quickSort(tScalesTimesMod);
+                allScalesTimes = ArrayUtils.combine(tempScalesTimes, tempScalesTimes2);
+                sortedIndices = MathUtils.quickSort(allScalesTimes);
                 tScalesMod = MathUtils.sortAs(tScalesMod, sortedIndices);
                 
                 for (i=0; i<numTransientSegments; i++)
                 {
                     ((HntmPlusTransientsSpeechSignal)hntmSignalMod).transients.segments[i] = new TransientSegment(((HntmPlusTransientsSpeechSignal)hntmSignal).transients.segments[i]);
-                    ((HntmPlusTransientsSpeechSignal)hntmSignalMod).transients.segments[i].startTime = SignalProcUtils.timeScaledTime(((HntmPlusTransientsSpeechSignal)hntmSignal).transients.segments[i].startTime, tScalesMod, tScalesTimesMod);
-                    ((HntmPlusTransientsSpeechSignal)hntmSignalMod).transients.segments[i].endTime = SignalProcUtils.timeScaledTime(((HntmPlusTransientsSpeechSignal)hntmSignal).transients.segments[i].endTime, tScalesMod, tScalesTimesMod);
+                    ((HntmPlusTransientsSpeechSignal)hntmSignalMod).transients.segments[i].startTime = SignalProcUtils.timeScaledTime(((HntmPlusTransientsSpeechSignal)hntmSignal).transients.segments[i].startTime, tScalesMod, allScalesTimes);
                 }
             }
         }
@@ -164,30 +253,67 @@ public class HntmDurationModifier {
         }
         //
         
-        float currentTime = 0.0f;
-        float modTimeCurrent, modTimePrev;
+        /*
         for (i=0; i<hntmSignal.frames.length; i++)
         {
             hntmSignalMod.frames[i] = new HntmSpeechFrame(hntmSignal.frames[i]);
-
-            if (i==0)
-            {
-                //hntmSignalMod.frames[i].tAnalysisInSeconds = hntmSignal.frames[i].tAnalysisInSeconds;
-                hntmSignalMod.frames[i].tAnalysisInSeconds = SignalProcUtils.timeScaledTime(hntmSignal.frames[i].tAnalysisInSeconds, tScalesMod, tScalesTimesMod);
-            }
-            else
-            {
-                //hntmSignalMod.frames[i].tAnalysisInSeconds = currentTime + 2.0f*(hntmSignal.frames[i].tAnalysisInSeconds-hntmSignal.frames[i-1].tAnalysisInSeconds);
-                modTimePrev = SignalProcUtils.timeScaledTime(hntmSignal.frames[i-1].tAnalysisInSeconds, tScalesMod, tScalesTimesMod);
-                modTimeCurrent = SignalProcUtils.timeScaledTime(hntmSignal.frames[i].tAnalysisInSeconds, tScalesMod, tScalesTimesMod);
-                hntmSignalMod.frames[i].tAnalysisInSeconds = currentTime + modTimeCurrent - modTimePrev;
-            }
-
-            currentTime = hntmSignalMod.frames[i].tAnalysisInSeconds;
+            hntmSignalMod.frames[i].tAnalysisInSeconds = SignalProcUtils.timeScaledTime(hntmSignal.frames[i].tAnalysisInSeconds, tScalesMod, tScalesTimesMod);
         }
         
         hntmSignalMod.originalDurationInSeconds = SignalProcUtils.timeScaledTime(hntmSignal.originalDurationInSeconds, tScalesMod, tScalesTimesMod);
+        */
+        
+        float[] tAnalysis = new float[hntmSignal.frames.length+1];
+        for (i=0; i<hntmSignal.frames.length; i++)
+            tAnalysis[i] = hntmSignal.frames[i].tAnalysisInSeconds;
+        tAnalysis[hntmSignal.frames.length] = hntmSignal.frames[hntmSignal.frames.length-1].tAnalysisInSeconds+(hntmSignal.frames[hntmSignal.frames.length-1].tAnalysisInSeconds-hntmSignal.frames[hntmSignal.frames.length-2].tAnalysisInSeconds);
+        boolean[] vuvs = new boolean[hntmSignal.frames.length+1];
+        for (i=0; i<hntmSignal.frames.length; i++)
+        {
+            if (hntmSignal.frames[i].f0InHz>10.0)
+                vuvs[i] = true;
+            else
+                vuvs[i] = false;
+        }
+        vuvs[hntmSignal.frames.length] = vuvs[hntmSignal.frames.length-1];
+        
+        TDPSOLAInstants synthesisInstants = TDPSOLAProcessor.transformAnalysisInstants(tAnalysis, hntmSignal.samplingRateInHz, vuvs, tScalesMod, pScalesMod);
 
+        hntmSignalMod.frames = new HntmSpeechFrame[synthesisInstants.synthesisInstantsInSeconds.length];
+        int currentSynthesisIndex = 0;
+        boolean bBroke = false;
+        for (i=0; i<synthesisInstants.repeatSkipCounts.length; i++) //This is of the same length with total analysis frames 
+        {
+            for (j=0; j<=synthesisInstants.repeatSkipCounts[i]; j++)
+            {
+                if (i<hntmSignal.frames.length)
+                    hntmSignalMod.frames[currentSynthesisIndex] = new HntmSpeechFrame(hntmSignal.frames[i]);
+                else
+                    hntmSignalMod.frames[currentSynthesisIndex] = new HntmSpeechFrame(hntmSignal.frames[hntmSignal.frames.length-1]);
+                
+                hntmSignalMod.frames[currentSynthesisIndex].tAnalysisInSeconds = synthesisInstants.synthesisInstantsInSeconds[currentSynthesisIndex];
+                currentSynthesisIndex++;
+                
+                if (currentSynthesisIndex>=hntmSignalMod.frames.length)
+                {
+                    bBroke = true;
+                    break;
+                }
+            }
+            
+            if (bBroke)
+                break;
+        }
+        
+        float[] tSynthesis = new float[hntmSignalMod.frames.length];
+        for (i=0; i<hntmSignalMod.frames.length; i++)
+            tSynthesis[i] = hntmSignalMod.frames[i].tAnalysisInSeconds;
+        
+        hntmSignalMod.originalDurationInSeconds = hntmSignalMod.frames[hntmSignalMod.frames.length-1].tAnalysisInSeconds;
+        
+        MaryUtils.plot(tAnalysis);
+        MaryUtils.plot(tSynthesis);
+        
         return hntmSignalMod;
     }
 }
