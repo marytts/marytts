@@ -1038,6 +1038,39 @@ public class StringUtils {
         return str;
     }
     
+    /**
+     * Determine whether the given codepoint is either a letter or
+     * a modifier according to the Unicode standard. More precisely,
+     * this returns true if codepoint belongs to one of the following categories
+     * as defined at http://unicode.org/Public/UNIDATA/UCD.html#General_Category_Values:
+     * <ul>
+     * <li>Lu   Letter, Uppercase</li>
+     * <li>Ll  Letter, Lowercase</li>
+     * <li>Lt  Letter, Titlecase</li>
+     * <li>Lm  Letter, Modifier</li>
+     * <li>Lo  Letter, Other</li>
+     * <li>Mn  Mark, Nonspacing</li>
+     * <li>Mc  Mark, Spacing Combining</li>
+     * <li>Me  Mark, Enclosing</li>
+     * </ul>
+     * Whether a given character is associated with this category can be looked up
+     * at http://unicode.org/Public/UNIDATA/UnicodeData.txt
+     * @param codePoint the unicode codepoint as determined e.g. by String.codePointAt().
+     * @return true if the above condition is met, false otherwise
+     */
+    public static boolean isLetterOrModifier(int codePoint)
+    {
+        int type = Character.getType(codePoint);
+        return type == Character.UPPERCASE_LETTER
+            || type == Character.LOWERCASE_LETTER
+            || type == Character.TITLECASE_LETTER
+            || type == Character.MODIFIER_LETTER
+            || type == Character.OTHER_LETTER
+            || type == Character.NON_SPACING_MARK
+            || type == Character.COMBINING_SPACING_MARK
+            || type == Character.ENCLOSING_MARK;
+    }
+    
     public static void main(String[] args)
     {
         String[] items1 = readTextFile("D:\\items.txt");
