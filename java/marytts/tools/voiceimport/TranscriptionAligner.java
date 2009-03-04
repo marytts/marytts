@@ -47,12 +47,16 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import marytts.datatypes.MaryXML;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
+import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.traversal.NodeIterator;
+import org.w3c.dom.traversal.TreeWalker;
 import org.xml.sax.SAXException;
 
 public class TranscriptionAligner extends VoiceImportComponent {
@@ -207,7 +211,8 @@ public class TranscriptionAligner extends VoiceImportComponent {
             
         // for parsing xml files
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        DocumentBuilder db = dbf.newDocumentBuilder();
+        dbf.setNamespaceAware(true);
+        DocumentBuilder docBuilder = dbf.newDocumentBuilder();
         
         // for writing xml files
         TransformerFactory tFactory = TransformerFactory.newInstance();
@@ -224,7 +229,7 @@ public class TranscriptionAligner extends VoiceImportComponent {
             System.out.println(bnl.getName(i));
             
             // get original xml file
-            Document doc = db.parse(nextFile);
+            Document doc = docBuilder.parse(nextFile);
 
             // open destination xml file
             FileWriter docDest  = new FileWriter((String) props.get(this.RESULTTRANS) + nextFile.getName());
@@ -376,8 +381,6 @@ public class TranscriptionAligner extends VoiceImportComponent {
         String[] istr = in.split(" ");
         String[] ostr = out.split(" ");
         String delim = "#";
-
-
         
         // distances:
         // 1. previous distance (= previous column in matrix)
@@ -493,21 +496,24 @@ public class TranscriptionAligner extends VoiceImportComponent {
      */
     public Document alignXmlTranscriptions(Document doc, String correct) throws SAXException, IOException, ParserConfigurationException, XPathExpressionException    {
         
-        // use xpath to get all t and boundary elements
-        XPath xpath = XPathFactory.newInstance().newXPath();
-        // we rely on the assumption that the result of the evaluation is 
-        // a list rather than a set and that it is retrieved in document order
-        NodeList tokens = (NodeList) xpath.evaluate("//t[@ph] | //boundary", doc, XPathConstants.NODESET);
-                
+        // get all t and boundary elements
+        NodeIterator tokenIt = MaryDomUtils.createNodeIterator(doc, MaryXML.TOKEN, MaryXML.BOUNDARY);
+        List<Element> tokens = new ArrayList<Element>();
+        Element e;
+        while ((e = (Element) tokenIt.nextNode()) != null) {
+            tokens.add(e);
+        }
+        
         String orig = this.collectTranscription(tokens);
         
         // now we align the transcriptions and split it at the delimiters
         String al = this.distanceAlign(orig.trim(),correct.trim()) + " ";
 
+        System.out.println("Alignments: "+al);
         String[] alignments = al.split("#");
         
         // change the transcription in xml according to the aligned one
-        doc = this.changeTranscriptions(doc, tokens, orig, alignments);
+        doc = this.changeTranscriptions(doc, tokens, alignments);
                 
         return doc;
     }
@@ -522,9 +528,8 @@ public class TranscriptionAligner extends VoiceImportComponent {
      * @param tokens
      * @return
      */
-    private String collectTranscription(NodeList tokens) {
-
-        // todo: make delims argument
+    private String collectTranscription(List<Element> tokens)
+    {
         // String Tokenizer devides transcriptions into syllables
         // syllable delimiters and stress symbols are retained
         String delims = "',-";
@@ -534,12 +539,12 @@ public class TranscriptionAligner extends VoiceImportComponent {
 
         
         // get original phoneme String
-        for (int tNr = 0; tNr < tokens.getLength() ; tNr++ ){
+        for (int tNr = 0; tNr < tokens.size() ; tNr++ ){
             
-            Element token = (Element) tokens.item(tNr);
+            Element token = (Element) tokens.get(tNr);
             
             // only look at it if there is a sampa to change
-            if ( token.hasAttribute("ph") ){                   
+            if ( token.hasAttribute("ph") ) {                   
                 
                 String sampa = token.getAttribute("ph");
     
@@ -564,7 +569,7 @@ public class TranscriptionAligner extends VoiceImportComponent {
                 }// ... while there are more tokens    
             }
             
-            if ( token.hasAttribute("ph") )
+            if ( token.getTagName().equals(MaryXML.TOKEN) )
                 orig += this.possibleBnd + " ";
                                         
         }// ... for each t-Element
@@ -584,7 +589,7 @@ public class TranscriptionAligner extends VoiceImportComponent {
      * @param alignments
      * @return
      */
-    private Document changeTranscriptions(Document doc, NodeList tokens, String orig, String[] alignments){
+    private Document changeTranscriptions(Document doc, List<Element> tokens, String[] alignments){
         
         // todo: make delims argument
         // String Tokenizer devides transcriptions into syllables
@@ -596,104 +601,92 @@ public class TranscriptionAligner extends VoiceImportComponent {
         int currAl = 0;
         
         // second looping: get original phoneme String
-        for (int tNr = 0; tNr < tokens.getLength() ; tNr++ ){
-            Element token = (Element) tokens.item(tNr);
+        for (int tNr = 0; tNr < tokens.size() ; tNr++ ){
+            Element token = tokens.get(tNr);
    
-            String sampa = token.getAttribute("ph");
-            
-            // the transcription to which the old is aligned
-            String newSampa = "";
-            
-                
-            // only look at it if there is a sampa to change
-            if ( ((Element) tokens.item(tNr)).hasAttribute("ph") ){   
-                List<String> sylsAndDelims = new ArrayList<String>();
-                StringTokenizer sTok = new StringTokenizer(sampa, delims, true);
-                
-                while(sTok.hasMoreElements()){
-                    String currTok = sTok.nextToken();
-                    
-                    if (delims.indexOf(currTok) == -1) {
-                        // current Token is no delimiter
-                        for (Allophone ph : allophoneSet.splitIntoAllophones(currTok)){
-                            orig += ph.name();
-                           
-                            // new transciption is the aligned ones without white spaces
-                            newSampa += alignments[currAl].replaceAll(" ", "");
-                            currAl +=1;
-                        }
-                        
-                        
-                    } else {
-                        // all delimiters have to be copied
-                        
-                        
-                        // exceptions treated below...
-                        String previousChar;
-                        if (newSampa.length() == 0)
-                            previousChar = "";
-                        else
-                            previousChar = newSampa.substring(newSampa.length()-1);
-                        
-                        
-                        // with a few exceptions:
-                        // 1. a syllable is only indicated after a phoneme symbol
-                        // 2. no two subsequent stress symbols are allowed
-                        if ( ( previousChar.equals("") && currTok.equals("-") ) || 
-                             ( previousChar.equals("-") && currTok.equals("-") )||
-                             ( previousChar.equals("'") && currTok.equals("-") )||
-                             ( previousChar.equals(",") && currTok.equals("-") )||
-                             ( previousChar.equals("'") && currTok.equals("'") )||
-                             ( previousChar.equals(",") && currTok.equals("'") )||
-                             ( previousChar.equals("'") && currTok.equals(",") )||
-                             ( previousChar.equals(",") && currTok.equals(",") )){
-                            // continue
-
-                        } else { //...
-                            newSampa += currTok;
-
-                        }                      
-                    }
-                }// ... while there are more tokens 
-                
-                // if new sampa ends with delimiters, delete them
-                while (newSampa.length() > 0 &&
-                        delims.indexOf( newSampa.substring(newSampa.length()-1) ) != -1 )
-                {
-                    newSampa = newSampa.substring(0,newSampa.length()-1);
-                }
-                
-                // set new sampa
-                token.setAttribute("ph", newSampa);
-                
-            }// ... if there is transcription
-            
             // treat boundaries
-            if ( token.getTagName().equals("t") ){
-                
-                // if the following element is no boundary, a delimiter was inserted
-                if (tNr == tokens.getLength()-1 || 
-                    !((Element) tokens.item(tNr+1)).getTagName().equals("boundary") ){
+            if ( token.getTagName().equals("t") ) {
+                String sampa = token.getAttribute("ph");
+                StringBuilder newSampa = new StringBuilder();
+                // only look at it if there is a sampa to change
+                if ( !sampa.equals("") ) {
+                    List<String> sylsAndDelims = new ArrayList<String>();
+                    StringTokenizer sTok = new StringTokenizer(sampa, delims, true);
                     
-                    if (alignments[currAl].indexOf(possibleBnd) > -1){
-                        
-                            System.out.println("  inserted boundary in xml");
-                            Element b = doc.createElement("boundary");
-                            b.setAttribute("breakindex", "3");
-                            token.getParentNode().insertBefore(b, token.getNextSibling());
+                    while(sTok.hasMoreElements()) {
+                        String currTok = sTok.nextToken();
+                        if (delims.indexOf(currTok) == -1) {
+                            // current Token is no delimiter
+                            for (Allophone ph : allophoneSet.splitIntoAllophones(currTok)) {
+                                if (newSampa.length() > 0) { // insert a space between all symbols
+                                    newSampa.append(" ");
+                                }
+                                // new transcription is the aligned ones without white spaces
+                                newSampa.append(alignments[currAl].replaceAll(" ", ""));
+                                currAl +=1;
+                            }
+                        } else {
+                            // all delimiters have to be copied
+                            // exceptions treated below...
+                            String previousChar;
+                            if (newSampa.length() == 0)
+                                previousChar = "";
+                            else
+                                previousChar = newSampa.substring(newSampa.length()-1);
+                            
+                            // with a few exceptions:
+                            // 1. a syllable is only indicated after a phoneme symbol
+                            // 2. no two subsequent stress symbols are allowed
+                            if ( ( previousChar.equals("") && currTok.equals("-") ) || 
+                                 ( previousChar.equals("-") && currTok.equals("-") )||
+                                 ( previousChar.equals("'") && currTok.equals("-") )||
+                                 ( previousChar.equals(",") && currTok.equals("-") )||
+                                 ( previousChar.equals("'") && currTok.equals("'") )||
+                                 ( previousChar.equals(",") && currTok.equals("'") )||
+                                 ( previousChar.equals("'") && currTok.equals(",") )||
+                                 ( previousChar.equals(",") && currTok.equals(",") )){
+                                // continue
+                            } else { //...
+                                if (newSampa.length() > 0) { // spaces between all symbols
+                                    newSampa.append(" ");
+                                }
+                                newSampa.append(currTok);
+                            }                      
                         }
-                        
-                        currAl += 1;                        
+                    }// ... while there are more syllables 
+                    
+                    // if new sampa ends with delimiters, delete them
+                    while (newSampa.length() > 0 &&
+                            delims.indexOf( newSampa.substring(newSampa.length()-1) ) != -1 ) {
+                        newSampa.deleteCharAt(newSampa.length()-1);
                     }
-                                   
-            } else if ( token.getTagName().equals("boundary")){
-                
-                if (!alignments[currAl].trim().equals(possibleBnd)){
+                    
+                    // set new sampa
+                    token.setAttribute("ph", newSampa.toString());
+                    reCreateSubStructure(token);
+                }// ... if there is transcription
 
-                    // TODO: delete or change bi?
+                // There is always an entry in alignment between words, usually an empty one, but
+                // sometimes a pause symbol (_).
+                // if the following element is no boundary, a delimiter was inserted
+                if (tNr == tokens.size()-1 || 
+                    !((Element) tokens.get(tNr+1)).getTagName().equals("boundary") ) {
+                    
+                    if (currAl < alignments.length && alignments[currAl].indexOf(possibleBnd) > -1) {
+                        System.out.println("  inserted boundary in xml");
+                        Element b = doc.createElement("boundary");
+                        b.setAttribute("breakindex", "3");
+                        token.getParentNode().insertBefore(b, token.getNextSibling());
+                    }
+                    currAl += 1; // Step forward in alignment only when no boundary is following
+                    
+                }
+            } else if (token.getTagName().equals("boundary")) {
+                
+                if (currAl >= alignments.length 
+                        || !alignments[currAl].trim().equals(possibleBnd)) {
                     System.out.println("  deleted boundary from xml");
                     token.getParentNode().removeChild(token);
-
                 }
 
                     currAl += 1;   
@@ -708,6 +701,49 @@ public class TranscriptionAligner extends VoiceImportComponent {
         return doc;
     }
 
+    private void reCreateSubStructure(Element token)
+    {
+        String phone = token.getAttribute("ph");
+        if (phone.equals(""))
+            return; // nothing to do
+
+        // First delete all child elements
+        Element child;
+        while ((child = MaryDomUtils.getFirstChildElement(token)) != null) {
+            token.removeChild(child);
+        }
+        // Now create them new:
+        StringTokenizer tok = new StringTokenizer(phone, "-");
+        Document document = token.getOwnerDocument();
+        while (tok.hasMoreTokens()) {
+            String sylString = tok.nextToken();
+            Element syllable = MaryXML.createElement(document, MaryXML.SYLLABLE);
+            token.appendChild(syllable);
+            // Check for stress signs:
+            String first = sylString.substring(0, 1);
+            if (first.equals("'")) {
+                syllable.setAttribute("stress", "1");
+                // The primary stressed syllable of a word
+                // inherits the accent:
+                if (token.hasAttribute("accent")) {
+                    syllable.setAttribute("accent", token.getAttribute("accent"));
+                }
+            } else if (first.equals(",")) {
+                syllable.setAttribute("stress", "2");
+            }
+            // Remember transcription in ph attribute:
+            syllable.setAttribute("ph", sylString);
+            // Now identify the composing segments:
+            Allophone[] allophones = allophoneSet.splitIntoAllophones(sylString);
+            for (int i = 0; i < allophones.length; i++) {
+                Element segment = MaryXML.createElement(document, MaryXML.PHONE);
+                syllable.appendChild(segment);
+                segment.setAttribute("p", allophones[i].name());
+                // TODO: need to set loudness-specific voice quality attribute "vq" for de6 and de7
+            }
+        }
+    }
+    
 
     private int getMaxCost(){
         int maxMapping = Collections.max(this.aligncost.values());
@@ -737,6 +773,16 @@ public class TranscriptionAligner extends VoiceImportComponent {
             // otherwise use 0 for equal symbols and defaultcost for different symbols
             return (aString1.equals(aString2))? 0:this.defaultcost;
         }
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) throws Exception
+    {
+        VoiceImportComponent vic  =  new TranscriptionAligner();
+        DatabaseLayout db = new DatabaseLayout(vic);
+        vic.compute();
     }
 }
 
