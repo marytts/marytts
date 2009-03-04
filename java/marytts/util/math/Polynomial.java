@@ -43,27 +43,39 @@ public class Polynomial
     {
         if (data == null) throw new NullPointerException("Null data");
         if (order < 0) throw new IllegalArgumentException("Polynomial order < 0 not supported");
-        if (data.length < order) throw new IllegalArgumentException("Data length must be at least order");
-        
+        //if (data.length < order) throw new IllegalArgumentException("Data length must be at least order");
+
         double[][] A = new double[data.length][order+1];
         double[][] b = new double[data.length][1];
         for (int i=0; i<A.length; i++) {
-            b[i][0] = data[i];
-            // We write the polynomial as:
-            // a_order t^order + a_(order-1) t^(order-1) + ... + a_1 t + a_0
-            double t = ((double) i) / data.length;
-            for (int j=0; j<=order; j++) {
-                A[i][j] = Math.pow(t, order-j);
+            if (Double.isNaN(data[i])) { // not a number -- ignore this data point
+                // set value and coeffs to zero
+                b[i][0] = 0;
+                for (int j=0; j<=order; j++) {
+                    A[i][j] = 0;
+                }
+            } else { // normal case: valid data point
+                b[i][0] = data[i];
+                // We write the polynomial as:
+                // a_order t^order + a_(order-1) t^(order-1) + ... + a_1 t + a_0
+                double t = ((double) i) / data.length;
+                for (int j=0; j<=order; j++) {
+                    A[i][j] = Math.pow(t, order-j);
+                }
             }
         }
         // Least-square solution A x = b, where
         // x = (a_order, a_(order-1), ..., a_1, a_0)
-        Matrix x = new Matrix(A).solve(new Matrix(b));
-        double[] coeffs = new double[order+1];
-        for (int j=0; j<=order; j++) {
-            coeffs[j] = x.get(j, 0);
+        try {
+            Matrix x = new Matrix(A).solve(new Matrix(b));
+            double[] coeffs = new double[order+1];
+            for (int j=0; j<=order; j++) {
+                coeffs[j] = x.get(j, 0);
+            }
+            return coeffs;
+        } catch (RuntimeException re) {
+            return null;
         }
-        return coeffs;
     }
     
     /**

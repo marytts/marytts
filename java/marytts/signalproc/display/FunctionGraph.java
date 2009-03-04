@@ -85,6 +85,7 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
     protected List<Integer> dotStyle = new ArrayList<Integer>();
     protected int dotSize = 6;
     protected int histogramWidth = 10;
+    protected boolean autoYMinMax = true; // automatically determine ymin and ymax
 
     // data to be used for drawing cursor et al on the GlassPane:
     // x and y coordinates, in data space
@@ -157,36 +158,39 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
        updateData(newX0, newXStep, data);
    }
    
-   protected void updateData(double newX0, double newXStep, double[] data)
+   public void updateData(double newX0, double newXStep, double[] data)
    {
        this.x0 = newX0;
         this.xStep = newXStep;
         double[] series = new double[data.length];
         System.arraycopy(data, 0, series, 0, data.length);
-        if (dataseries.size() > 0) {
+        // Do not allow old secondary data sets with a new primary one:
+        while (dataseries.size() > 0) {
             dataseries.remove(0);
         }
         this.dataseries.add(0, series);
-        ymin = Double.NaN;
-        ymax = Double.NaN;
-        for (int i=0; i<data.length; i++) {
-            if (Double.isNaN(data[i])) // missing value -- skip
-                continue;
-            if (Double.isNaN(ymin)) {
-                assert Double.isNaN(ymax);
-                ymin = data[i];
-                ymax = data[i];
-                continue;
+        if (autoYMinMax) {
+            ymin = Double.NaN;
+            ymax = Double.NaN;
+            for (int i=0; i<data.length; i++) {
+                if (Double.isNaN(data[i])) // missing value -- skip
+                    continue;
+                if (Double.isNaN(ymin)) {
+                    assert Double.isNaN(ymax);
+                    ymin = data[i];
+                    ymax = data[i];
+                    continue;
+                }
+                if (data[i] < ymin) ymin = data[i];
+                else if (data[i] > ymax) ymax = data[i];
             }
-            if (data[i] < ymin) ymin = data[i];
-            else if (data[i] > ymax) ymax = data[i];
+            // If the x axis is painted in the middle (ymin << 0),
+            // we need much less paddingBottom:
+            if (ymin < 0) {
+                paddingBottom = paddingTop;
+            }
         }
         
-        // If the x axis is painted in the middle (ymin << 0),
-        // we need much less paddingBottom:
-        if (ymin < 0) {
-            paddingBottom = paddingTop;
-        }
         // And invalidate any previous graph image:
         graphImage = null;
     }
@@ -201,6 +205,23 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
        dotStyle.add(0, newDotStyle);
    }
    
+   /**
+    * Manually set the min and max values for the y axis.
+    * @param theYMin
+    * @param theYMax
+    */
+   public void setYMinMax(double theYMin, double theYMax)
+   {
+       autoYMinMax = false;
+       ymin = theYMin;
+       ymax = theYMax;
+       // If the x axis is painted in the middle (ymin << 0),
+       // we need much less paddingBottom:
+       if (ymin < 0) {
+           paddingBottom = paddingTop;
+       }
+   }
+   
    public void addDataSeries(double[] data, Color newGraphColor, int newGraphStyle, int newDotStyle)
    {
        if (data == null) throw new NullPointerException("Cannot add null data");
@@ -213,24 +234,26 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
         graphColor.add(newGraphColor);
         graphStyle.add(newGraphStyle);
         dotStyle.add(newDotStyle);
-        for (int i=0; i<data.length; i++) {
-            if (Double.isNaN(data[i])) // missing value -- skip
-                continue;
-            if (Double.isNaN(ymin)) {
-                assert Double.isNaN(ymax);
-                ymin = data[i];
-                ymax = data[i];
-                continue;
+        if (autoYMinMax) {
+            for (int i=0; i<data.length; i++) {
+                if (Double.isNaN(data[i])) // missing value -- skip
+                    continue;
+                if (Double.isNaN(ymin)) {
+                    assert Double.isNaN(ymax);
+                    ymin = data[i];
+                    ymax = data[i];
+                    continue;
+                }
+                if (data[i] < ymin) ymin = data[i];
+                else if (data[i] > ymax) ymax = data[i];
             }
-            if (data[i] < ymin) ymin = data[i];
-            else if (data[i] > ymax) ymax = data[i];
+            // If the x axis is painted in the middle (ymin << 0),
+            // we need much less paddingBottom:
+            if (ymin < 0) {
+                paddingBottom = paddingTop;
+            }
         }
         
-        // If the x axis is painted in the middle (ymin << 0),
-        // we need much less paddingBottom:
-        if (ymin < 0) {
-            paddingBottom = paddingTop;
-        }
         // And invalidate any previous graph image:
         graphImage = null;
     }

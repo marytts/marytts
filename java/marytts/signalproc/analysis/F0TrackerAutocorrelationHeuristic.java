@@ -172,10 +172,12 @@ public class F0TrackerAutocorrelationHeuristic {
         
         int numfrm = (int)Math.floor(((double)x.length-ws)/ss+0.5);
         
-        double maxSample = MathUtils.getAbsMax(x);
         
-        if (numfrm>0)
-            f0s = new double[numfrm];
+        if (numfrm <= 0) return;
+        
+        double maxSample = MathUtils.getAbsMax(x);
+
+        f0s = new double[numfrm];
         
         int i, j;
         frameIndex = 0;
