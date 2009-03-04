@@ -880,7 +880,7 @@ public class WikipediaMarkupCleaner {
             int minimumLength = 2;
             for (; end<w.length(); end++) {
                 //if (Character.isLetter(w.charAt(end))) {
-                if (Character.isLetter(w.codePointAt(end))) {
+                if (marytts.util.string.StringUtils.isLetterOrModifier(w.codePointAt(end))) {
                     if (start < 0) start = end;
                     continue;
                 }
