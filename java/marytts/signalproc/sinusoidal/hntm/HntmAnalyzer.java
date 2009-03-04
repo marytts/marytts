@@ -60,6 +60,15 @@ import marytts.util.math.ComplexNumber;
 import marytts.util.math.FFT;
 import marytts.util.math.FFTMixedRadix;
 import marytts.util.math.MathUtils;
+/*
+import marytts.util.math.jampack.H;
+import marytts.util.math.jampack.Inv;
+import marytts.util.math.jampack.JampackException;
+import marytts.util.math.jampack.Parameters;
+import marytts.util.math.jampack.Times;
+import marytts.util.math.jampack.Z;
+import marytts.util.math.jampack.Zmat;
+*/
 import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
@@ -92,36 +101,20 @@ public class HntmAnalyzer {
         
     }
     
-    public HntmSpeechSignal analyze(String wavFile, float windowSizeInSeconds, float skipSizeInSeconds, 
-                                   int model, int noisePartRepresentation)
+    public HntmSpeechSignal analyze(double[] x, int fs, F0ReaderWriter f0, Labels labels, 
+                                    float windowSizeInSeconds, float skipSizeInSeconds, 
+                                    int model, int noisePartRepresentation)
     {
         HntmSpeechSignal hnmSignal = null;
         
-        AudioInputStream inputAudio = null;
-        try {
-            inputAudio = AudioSystem.getAudioInputStream(new File(wavFile));
-        } catch (UnsupportedAudioFileException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        int fs = (int)inputAudio.getFormat().getSampleRate();
-        AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
-        double[] x = signal.getAllData();
-        x = MathUtils.multiply(x, 32768.0);
         float originalDurationInSeconds = SignalProcUtils.sample2time(x.length, fs);
         int lpOrder = SignalProcUtils.getLPOrder(fs);
         float preCoefNoise = 0.0f;
 
         //// TO DO
         //Step1. Initial pitch estimation: Current version just reads from a file
-        String strPitchFile = StringUtils.modifyExtension(wavFile, ".ptc");
-        if (FileUtils.exists(strPitchFile))
+        if (f0!=null)
         {
-            F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
             int pitchMarkOffset = 0;
             PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.ws, f0.header.ss, true, pitchMarkOffset);
 
@@ -195,21 +188,11 @@ public class HntmAnalyzer {
             int closestInd;
 
             String[] transientPhonemesList = {"p", "t", "k", "pf", "ts", "tS"};
-            Labels labels = null;
+
             if (model == HntmAnalyzer.HARMONICS_PLUS_NOISE)
                 hnmSignal = new HntmSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.ws, (float)f0.header.ss, NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, preCoefNoise);
-            else if (model == HntmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE)
-            {
-                String strLabFile = StringUtils.modifyExtension(wavFile, ".lab"); 
-                if (FileUtils.exists(strLabFile)!=true) //Labels required for transients analysis (unless we design an automatic algorithm)
-                {
-                    System.out.println("Error! Labels required for transient analysis...");
-                    System.exit(1);
-                }
-                labels = new Labels(strLabFile);
-                
+            else if (model == HntmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE && labels!=null)
                 hnmSignal = new HntmPlusTransientsSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.ws, (float)f0.header.ss, NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, preCoefNoise, labels.items.length);
-            }
             
             boolean isPrevVoiced = false;
 
@@ -230,11 +213,20 @@ public class HntmAnalyzer {
             for (j=0; j<numNoiseHarmonics; j++)
                 freqsInHzNoise[j] = NOISE_F0_IN_HZ*(j+1);
 
-            double[][] M = RegularizedCepstralEnvelopeEstimator.precomputeM(freqsInHzNoise, fs, cepsOrderNoise);
-            double[][] MTransW = RegularizedCepstralEnvelopeEstimator.precomputeMTransW(M, null);
-            double[][] MTransWM = RegularizedCepstralEnvelopeEstimator.precomputeMTransWM(MTransW, M); 
-            double[][] lambdaR = RegularizedCepstralEnvelopeEstimator.precomputeLambdaR(RegularizedCepstralEnvelopeEstimator.DEFAULT_LAMBDA, cepsOrderNoise);
-            double[][] inverted = RegularizedCepstralEnvelopeEstimator.precomputeInverted(MTransWM, lambdaR);
+            double[][] M = null;
+            double[][] MTransW = null;
+            double[][] MTransWM = null; 
+            double[][] lambdaR = null;
+            double[][] inverted = null;
+            if (noisePartRepresentation==PSEUDO_HARMONIC)
+            {
+                M = RegularizedCepstralEnvelopeEstimator.precomputeM(freqsInHzNoise, fs, cepsOrderNoise);
+                MTransW = RegularizedCepstralEnvelopeEstimator.precomputeMTransW(M, null);
+                MTransWM = RegularizedCepstralEnvelopeEstimator.precomputeMTransWM(MTransW, M); 
+                lambdaR = RegularizedCepstralEnvelopeEstimator.precomputeLambdaR(RegularizedCepstralEnvelopeEstimator.DEFAULT_LAMBDA, cepsOrderNoise);
+                inverted = RegularizedCepstralEnvelopeEstimator.precomputeInverted(MTransWM, lambdaR);
+            }
+            
             int maxVoicingIndex;
             int currentLabInd = 0;
             boolean isInTransientSegment = false;
@@ -289,9 +281,9 @@ public class HntmAnalyzer {
                         if (!isTransientPhoneme) //End of transient segment, put it in transient part
                         {
                             
-                            ((HntmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].endTime = Math.min((((float)pm.pitchMarks[i]+0.5f*ws)/fs)+HntmAnalyzer.OVERLAP_BETWEEN_TRANSIENT_AND_NONTRANSIENT_REGIONS_IN_SECONDS, hnmSignal.originalDurationInSeconds);
+                            float endTime = Math.min((((float)pm.pitchMarks[i]+0.5f*ws)/fs)+HntmAnalyzer.OVERLAP_BETWEEN_TRANSIENT_AND_NONTRANSIENT_REGIONS_IN_SECONDS, hnmSignal.originalDurationInSeconds);
                             int waveformStartInd = Math.max(0, SignalProcUtils.time2sample(((HntmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].startTime, fs));
-                            int waveformEndInd = Math.min(x.length-1, SignalProcUtils.time2sample(((HntmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].endTime, fs));
+                            int waveformEndInd = Math.min(x.length-1, SignalProcUtils.time2sample(endTime, fs));
                             if (waveformEndInd-waveformStartInd+1>0)
                             {
                                 ((HntmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].waveform = new int[waveformEndInd-waveformStartInd+1];
@@ -341,16 +333,31 @@ public class HntmAnalyzer {
 
                     win = Window.get(windowType, ws);
                     //win.normalize(1.0f);
-                    double[] wgtSquared = win.getCoeffs();
-                    for (j=0; j<wgtSquared.length; j++)
-                        wgtSquared[j] = wgtSquared[j]*wgtSquared[j];
+                    double[] wgt = win.getCoeffs();
+                    //double[] wgtSquared = new double[wgt.length];
+                    //for (j=0; j<wgt.length; j++)
+                    //    wgtSquared[j] = wgt[j]*wgt[j];
 
                     //Step4. Estimate complex amplitudes of harmonics if voiced
                     //       The phase of the complex amplitude is the phase and its magnitude is the absolute amplitude of the harmonic
                     if (isVoiced)
                     {
                         numHarmonics = (int)Math.floor(hnmSignal.frames[i].maximumFrequencyOfVoicingInHz/f0InHz+0.5);
-                        harmonicAmps = estimateComplexAmplitudes(frm, wgtSquared, f0InHz, numHarmonics, fs);
+                        
+                        harmonicAmps = estimateComplexAmplitudes(frm, wgt, f0InHz, numHarmonics, fs, hnmSignal.frames[i].tAnalysisInSeconds);
+                        
+                        /*
+                        //Jampack version for matrix operations
+                        try {
+                            harmonicAmps = estimateComplexAmplitudesJampack(frm, wgt, f0InHz, numHarmonics, fs, hnmSignal.frames[i].tAnalysisInSeconds);
+                        } catch (JampackException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        //
+                        */
+                        
+                        //harmonicAmps = estimateComplexAmplitudesUncorrelated(frm, wgtSquared, numHarmonics, f0InHz, fs);
 
                         //Only for visualization
                         //double[] absMags = MathUtils.magnitudeComplex(harmonicAmps);
@@ -409,11 +416,11 @@ public class HntmAnalyzer {
                             //i.e. for 16 KHz 5 to 8 KHz bandwidth in steps of 100 Hz produces 50 to 80 pseudo-harmonics
 
                             //(1) Uncorrelated approach as in Stylianou´s thesis
-                            noiseHarmonicAmps = estimateComplexAmplitudesUncorrelated(frmNoise, wgtSquaredNoise, NOISE_F0_IN_HZ, numNoiseHarmonics, fs);
+                            noiseHarmonicAmps = estimateComplexAmplitudesUncorrelated(frmNoise, wgtSquaredNoise, numNoiseHarmonics, NOISE_F0_IN_HZ, fs);
                             //OR... (2)Expensive approach which does not work very well
-                            //noiseHarmonicAmps = estimateComplexAmplitudes(frm, wgtSquared, NOISE_F0_IN_HZ, numNoiseHarmonics, fs);
+                            //noiseHarmonicAmps = estimateComplexAmplitudes(frm, wgt, numNoiseHarmonics, NOISE_F0_IN_HZ, fs);
                             //OR... (3) Uncorrelated approach using full autocorrelation matrix (checking if there is a problem in estimateComplexAmplitudesUncorrelated
-                            //noiseHarmonicAmps = estimateComplexAmplitudesUncorrelated2(frm, wgtSquared, NOISE_F0_IN_HZ, numNoiseHarmonics, fs);
+                            //noiseHarmonicAmps = estimateComplexAmplitudesUncorrelated2(frm, wgtSquared, numNoiseHarmonics, NOISE_F0_IN_HZ, fs);
 
                             double[] linearAmpsNoise = new double[numNoiseHarmonics];
                             for (j=0; j<numNoiseHarmonics; j++)
@@ -463,8 +470,7 @@ public class HntmAnalyzer {
                             }
 
                             hnmSignal.frames[i].h.ceps = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, fs, cepsOrderHarmonic);
-                            //Use amplitudes directly:
-                            //hnmSignal.frames[i].h.ceps = ArrayUtils.subarray(linearAmps, 0, linearAmps.length);
+                            //hnmSignal.frames[i].h.ceps = ArrayUtils.subarray(linearAmps, 0, linearAmps.length); //Use amplitudes directly
 
                             //The following is only for visualization
                             //int fftSize = 4096;
@@ -525,29 +531,33 @@ public class HntmAnalyzer {
         return hnmSignal;
     }
     
-    //Complex amplitude estimation for harmonics in time domain (Full correlation matrix approach, no independence between harmonics assumed)
-    //The main advantage is the operation being in time domain.
-    //Therefore, we can use window sizes as short as two pitch periods and track rapid changes in amplitudes and phases
-    //N: local pitch period in samples
-    //wgtSquared: window weights squared
-    //frm: speech frame to be analysed (its length should be 2*N+1)
-    //Uses Equation 3.25 in Stylianou`s thesis
-    public ComplexNumber[] estimateComplexAmplitudes(double[] frm, double[] wgtSquared, double f0InHz, int numHarmonics, int samplingRateInHz)
+    //Complex amplitude estimation for harmonics in time domain 
+    //(Full correlation matrix approach, no independence between harmonics assumed)
+    //  This function implements Equation 3.25 in Stylianou`s PhD thesis
+    //  The main advantage is the operation being in time domain.
+    //  Therefore, we can use window sizes as short as two pitch periods and track rapid changes in amplitudes and phases
+    //  frm: speech frame to be analysed (its length should be 2*N+1)
+    //  wgtSquared: window weights squared
+    //  f0InHz: f0 value for the current frame in Hz
+    //  L: number of harmonics
+    //  samplingRateInHz: sampling rate in Hz
+    /*
+    public ComplexNumber[] estimateComplexAmplitudes(double[] frm, double[] wgtSquared, double f0InHz, int L, double samplingRateInHz)
     {
         int M = frm.length;
         assert M % 2==1; //Frame length should be odd
         int N = (M-1)/2;
         
-        ComplexNumber[][] R = new ComplexNumber[2*numHarmonics+1][2*numHarmonics+1];
-        ComplexNumber[] b = new ComplexNumber[2*numHarmonics+1];
+        ComplexNumber[][] R = new ComplexNumber[2*L+1][2*L+1];
+        ComplexNumber[] b = new ComplexNumber[2*L+1];
         ComplexNumber tmp;
         
         int t, i, k;
         double omega;
 
-        for (i=1; i<=2*numHarmonics+1; i++)
+        for (i=1; i<=2*L+1; i++)
         {
-            for (k=1; k<=2*numHarmonics+1; k++)
+            for (k=1; k<=2*L+1; k++)
             {
                 R[i-1][k-1] = new ComplexNumber(0.0, 0.0);
                 for (t=-N; t<=N; t++)
@@ -559,24 +569,226 @@ public class HntmAnalyzer {
             }
         }   
         
-        for (k=1; k<=2*numHarmonics+1; k++)
+        for (k=1; k<=2*L+1; k++)
         {
             b[k-1] = new ComplexNumber(0.0, 0.0);
             for (t=-N; t<=N; t++)
             {
-                omega = MathUtils.TWOPI*f0InHz*t/samplingRateInHz*(numHarmonics+1-k);
+                omega = MathUtils.TWOPI*f0InHz*t/samplingRateInHz*(L+1-k);
                 tmp = new ComplexNumber(wgtSquared[t+N]*frm[t+N]*Math.cos(omega), wgtSquared[t+N]*frm[t+N]*Math.sin(omega));
                 b[k-1] = MathUtils.addComplex(b[k-1], tmp);
             }
         }
+
+        ComplexNumber[][] invR = MathUtils.inverse(R);
         
-        ComplexNumber[] x = MathUtils.matrixProduct(MathUtils.inverse(R), b);
-        ComplexNumber[] xpart = new ComplexNumber[numHarmonics+1];
-        for (k=numHarmonics+1; k<2*numHarmonics+1; k++) //The remaning complex amplitudes from L+1 to 2L are complex conjugates of entries from L-1,...,1
-            xpart[k-(numHarmonics+1)] = new ComplexNumber(x[k]);
+       
+        //Check matrix inversion operation
+        //ComplexNumber[][] RinvR = MathUtils.matrixProduct(R, invR);
+        //for (i=0; i<RinvR.length; i++)
+        //{
+        //    for (k=0; k<RinvR[i].length; k++)
+        //    {
+        //        if (i!=k && MathUtils.magnitudeComplex(RinvR[i][k])>1e-10)
+        //            System.out.println("Check here! Non-zero non-diagonal element detected!");
+        //        if (i==k && Math.abs(MathUtils.magnitudeComplex(RinvR[i][k])-1.0)>1e-10)
+        //            System.out.println("Check here! Non-unity diagonal element detected!");
+        //    }
+        //}
+        //
+        
+        //
+        ComplexNumber[] x = MathUtils.matrixProduct(invR, b);
+        ComplexNumber[] xpart = new ComplexNumber[L+1];
+        for (k=L+1; k<2*L+1; k++) //The remaning complex amplitudes from L+1 to 2L are complex conjugates of entries from L-1,...,1
+            xpart[k-(L+1)] = new ComplexNumber(x[k]);
         
         return xpart;
     }
+    */
+    
+    public ComplexNumber[] estimateComplexAmplitudes(double[] s, double[] wgt, double f0InHz, int L, double samplingRateInHz, float tAnalysis)
+    {
+        int M = s.length;
+        assert M % 2==1; //Frame length should be odd
+        int N = (M-1)/2;
+        
+        ComplexNumber[][] B = new ComplexNumber[2*N+1][2*L+1];
+        ComplexNumber tmp;
+        
+        int t, i, k;
+        double omega;
+
+        ComplexNumber[][] W = MathUtils.diagonalComplexMatrix(wgt);
+        for (t=-N; t<=N; t++)
+        {
+            for (k=-L; k<=L; k++)
+            {
+                //omega = MathUtils.TWOPI*k*f0InHz*(tAnalysis+t/samplingRateInHz);
+                omega = MathUtils.TWOPI*k*f0InHz*(t/samplingRateInHz);
+                B[t+N][k+L] = new ComplexNumber(Math.cos(omega), Math.sin(omega));
+            }
+        }
+        ComplexNumber[][] BTWTW = MathUtils.matrixProduct(MathUtils.hermitianTranspoze(B), MathUtils.transpoze(W));
+        BTWTW = MathUtils.matrixProduct(BTWTW, W);
+        
+        ComplexNumber[] b = MathUtils.matrixProduct(BTWTW, s);
+        
+        //ComplexNumber[][] R = MathUtils.matrixProduct(BTWTW, B);
+        
+        ComplexNumber[][] R = new ComplexNumber[2*L+1][2*L+1];
+        for (i=1; i<=2*L+1; i++)
+        {
+            for (k=1; k<=2*L+1; k++)
+            {
+                R[i-1][k-1] = new ComplexNumber(0.0, 0.0);
+                for (t=-N; t<=N; t++)
+                {
+                    //omega = MathUtils.TWOPI*f0InHz*(tAnalysis+t/samplingRateInHz)*(i-k);
+                    omega = MathUtils.TWOPI*f0InHz*(t/samplingRateInHz)*(i-k);
+                    tmp = new ComplexNumber(wgt[t+N]*wgt[t+N]*Math.cos(omega), wgt[t+N]*wgt[t+N]*Math.sin(omega));
+                    R[i-1][k-1] = MathUtils.addComplex(R[i-1][k-1], tmp);
+                }
+            }
+        } 
+        
+        ComplexNumber[][] invR = MathUtils.inverse(R);
+
+        //Check matrix inversion operation
+        ComplexNumber[][] RinvR = MathUtils.matrixProduct(R, invR);
+        for (i=0; i<RinvR.length; i++)
+        {
+            for (k=0; k<RinvR[i].length; k++)
+            {
+                if (i!=k && MathUtils.magnitudeComplex(RinvR[i][k])>1e-10)
+                    System.out.println("Check here! Non-zero non-diagonal element detected!");
+                if (i==k && Math.abs(MathUtils.magnitudeComplex(RinvR[i][k])-1.0)>1e-10)
+                    System.out.println("Check here! Non-unity diagonal element detected!");
+            }
+        }
+        //
+        
+        //
+        ComplexNumber[] x = MathUtils.matrixProduct(invR, b);
+        ComplexNumber[] xpart = new ComplexNumber[L];
+        
+        for (k=L-1; k>=0; k--) //The remaning complex amplitudes from L+1 to 2L are complex conjugates of entries from L-1,...,0
+            xpart[L-1-k] = new ComplexNumber(x[k].real, x[k].imag);
+        
+        double gain = MathUtils.absMax(s)/MathUtils.sum(MathUtils.abs(xpart));
+        
+        for (k=0; k<xpart.length; k++)
+            xpart[k] = MathUtils.multiply(gain, xpart[k]);
+        
+        return xpart;
+    }
+    
+    /*
+    public ComplexNumber[] estimateComplexAmplitudesJampack(double[] s, double[] wgt, double f0InHz, int L, double samplingRateInHz, float tAnalysis) throws JampackException
+    {
+        if (Parameters.getBaseIndex()!=0)
+            Parameters.setBaseIndex(0);
+        
+        int M = s.length;
+        assert M % 2==1; //Frame length should be odd
+        int N = (M-1)/2;
+        
+        //ComplexNumber[][] B = new ComplexNumber[2*N+1][2*L+1];
+        Zmat B = new Zmat(2*N+1, 2*L+1);
+        //ComplexNumber tmp;
+        Z tmp;
+        
+        int t, i, k;
+        double omega;
+
+        //ComplexNumber[][] W = MathUtils.diagonalComplexMatrix(wgt);
+        Zmat W = new Zmat(wgt.length, wgt.length);
+        for (t=0; t<wgt.length; t++)
+            W.put(t,t,new Z(wgt[t], 0.0));
+        
+        for (t=-N; t<=N; t++)
+        {
+            for (k=-L; k<=L; k++)
+            {
+                //omega = MathUtils.TWOPI*k*f0InHz*(tAnalysis+t/samplingRateInHz);
+                omega = MathUtils.TWOPI*k*f0InHz*(t/samplingRateInHz);
+                //B[t+N][k+L] = new ComplexNumber(Math.cos(omega), Math.sin(omega));
+                B.put(t+N, k+L, new Z(Math.cos(omega), Math.sin(omega)));
+            }
+        }
+        //ComplexNumber[][] BTWTW = MathUtils.matrixProduct(MathUtils.transpoze(B), MathUtils.transpoze(W));
+        //BTWTW = MathUtils.matrixProduct(BTWTW, W);
+        Zmat BTWTW = Times.o(H.o(B), H.o(W));
+        BTWTW = Times.o(BTWTW, W);
+        
+        //ComplexNumber[] b = MathUtils.matrixProduct(BTWTW, s);
+        Zmat S = new Zmat(s.length, 1);
+        for (t=0; t<s.length; t++)
+            S.put(t, 0, new Z(s[t], 0.0));
+        Zmat b = Times.o(BTWTW, S);
+        
+        //ComplexNumber[][] R = MathUtils.matrixProduct(BTWTW, B);
+        
+        //ComplexNumber[][] R = new ComplexNumber[2*L+1][2*L+1];
+        Zmat R = new Zmat(2*L+1, 2*L+1);
+        for (i=1; i<=2*L+1; i++)
+        {
+            for (k=1; k<=2*L+1; k++)
+            {
+                //R[i-1][k-1] = new ComplexNumber(0.0, 0.0);
+                R.put(i-1, k-1, new Z(0.0, 0.0));
+                for (t=-N; t<=N; t++)
+                {
+                    //omega = MathUtils.TWOPI*f0InHz*(tAnalysis+t/samplingRateInHz)*(i-k);
+                    omega = MathUtils.TWOPI*f0InHz*(t/samplingRateInHz)*(i-k);
+                    //tmp = new ComplexNumber(wgt[t+N]*wgt[t+N]*Math.cos(omega), wgt[t+N]*wgt[t+N]*Math.sin(omega));
+                    tmp = new Z(wgt[t+N]*wgt[t+N]*Math.cos(omega), wgt[t+N]*wgt[t+N]*Math.sin(omega));
+                    //R[i-1][k-1] = MathUtils.addComplex(R[i-1][k-1], tmp);
+                    R.put(i-1, k-1, new Z(R.get(i-1, k-1).re+tmp.re, R.get(i-1, k-1).im+tmp.im));
+                }
+            }
+        } 
+        
+        //ComplexNumber[][] invR = MathUtils.inverse(R);
+        Zmat invR = Inv.o(R);
+
+        //Check matrix inversion operation
+        //ComplexNumber[][] RinvR = MathUtils.matrixProduct(R, invR);
+        Zmat RinvR = Times.o(R, invR);
+        //for (i=0; i<RinvR.length; i++)
+        for (i=0; i<RinvR.nr; i++)
+        {
+            //for (k=0; k<RinvR[i].length; k++)
+            for (k=0; k<RinvR.nc; k++)
+            {
+                //if (i!=k && MathUtils.magnitudeComplex(RinvR[i][k])>1e-10)
+                if (i!=k && MathUtils.magnitudeComplex(RinvR.get(i, k).re, RinvR.get(i, k).im)>1e-10)
+                    System.out.println("Check here! Non-zero non-diagonal element detected!");
+                //if (i==k && Math.abs(MathUtils.magnitudeComplex(RinvR[i][k])-1.0)>1e-10)
+                if (i==k && Math.abs(MathUtils.magnitudeComplex(RinvR.get(i, k).re, RinvR.get(i, k).im)-1.0)>1e-10)
+                    System.out.println("Check here! Non-unity diagonal element detected!");
+            }
+        }
+        //
+        
+        //
+        //ComplexNumber[] x = MathUtils.matrixProduct(invR, b);
+        Zmat x = Times.o(invR, b);
+        ComplexNumber[] xpart = new ComplexNumber[L];
+        
+        for (k=L-1; k>=0; k--) //The remaning complex amplitudes from L+1 to 2L are complex conjugates of entries from L-1,...,0
+        {
+            //xpart[L-1-k] = new ComplexNumber(x[k].real, x[k].imag);
+            xpart[L-1-k] = new ComplexNumber(x.get(k,0).re, x.get(k,0).im);
+        }
+        
+        //double gain = MathUtils.absMax(s)/MathUtils.sum(MathUtils.abs(xpart));
+        //for (k=0; k<xpart.length; k++)
+            //xpart[k] = MathUtils.multiply(gain, xpart[k]);
+
+        return xpart;
+    }
+    */
     
     //Complex amplitude estimation for harmonics in time domain (Diagonal correlation matrix approach, harmonics assumed independent)
     //The main advantage is the operation being in time domain.
@@ -588,7 +800,7 @@ public class HntmAnalyzer {
     //This requires harmonics to be uncorrelated.
     //We use this for estimating pseudo-harmonic amplitudes of the noise part.
     //Note that this function is equivalent to peak-picking in the frequency domain in Quatieri´s sinusoidal framework.
-    public ComplexNumber[] estimateComplexAmplitudesUncorrelated(double[] frm, double[] wgtSquared, double f0InHz, int numHarmonics, int samplingRateInHz)
+    public ComplexNumber[] estimateComplexAmplitudesUncorrelated(double[] frm, double[] wgtSquared, int L, double f0InHz, double samplingRateInHz)
     {
         int M = frm.length;
         assert M % 2==1; //Frame length should be odd
@@ -603,8 +815,8 @@ public class HntmAnalyzer {
         for (t=-N; t<=N; t++)
             denum += wgtSquared[t+N];
         
-        ComplexNumber[] Ak = new ComplexNumber[numHarmonics];
-        for (k=1; k<=numHarmonics; k++)
+        ComplexNumber[] Ak = new ComplexNumber[L];
+        for (k=1; k<=L; k++)
         {
             Ak[k-1] = new ComplexNumber(0.0, 0.0);
             for (t=-N; t<=N; t++)
@@ -619,24 +831,23 @@ public class HntmAnalyzer {
         return Ak;
     }
     
-    /*
     //This is just for testing the full autocorrelation algorithm with diagonal autocorrelation matrix. It produced the same result using estimateComplexAmplitudesUncorrelated2
-    public ComplexNumber[] estimateComplexAmplitudesUncorrelated2(double[] frm, double[] wgtSquared, double f0InHz, int numHarmonics, int samplingRateInHz)
+    public ComplexNumber[] estimateComplexAmplitudesUncorrelated2(double[] frm, double[] wgtSquared, int L, double f0InHz, double samplingRateInHz)
     {
         int M = frm.length;
         assert M % 2==1; //Frame length should be odd
         int N = (M-1)/2;
         
-        ComplexNumber[][] R = new ComplexNumber[2*numHarmonics+1][2*numHarmonics+1];
-        ComplexNumber[] b = new ComplexNumber[2*numHarmonics+1];
+        ComplexNumber[][] R = new ComplexNumber[2*L+1][2*L+1];
+        ComplexNumber[] b = new ComplexNumber[2*L+1];
         ComplexNumber tmp;
         
         int t, i, k;
         double omega;
 
-        for (i=1; i<=2*numHarmonics+1; i++)
+        for (i=1; i<=2*L+1; i++)
         {
-            for (k=1; k<=2*numHarmonics+1; k++)
+            for (k=1; k<=2*L+1; k++)
             {
                 R[i-1][k-1] = new ComplexNumber(0.0, 0.0);
                 if (i==k)
@@ -651,43 +862,23 @@ public class HntmAnalyzer {
             }
         }   
         
-        for (k=1; k<=2*numHarmonics+1; k++)
+        for (k=1; k<=2*L+1; k++)
         {
             b[k-1] = new ComplexNumber(0.0, 0.0);
             for (t=-N; t<=N; t++)
             {
-                omega = MathUtils.TWOPI*f0InHz*t/samplingRateInHz*(numHarmonics+1-k);
+                omega = MathUtils.TWOPI*f0InHz*t/samplingRateInHz*(L+1-k);
                 tmp = new ComplexNumber(wgtSquared[t+N]*frm[t+N]*Math.cos(omega), wgtSquared[t+N]*frm[t+N]*Math.sin(omega));
                 b[k-1] = MathUtils.addComplex(b[k-1], tmp);
             }
         }
         
         ComplexNumber[] x = MathUtils.matrixProduct(MathUtils.inverse(R), b);
-        ComplexNumber[] xpart = new ComplexNumber[numHarmonics+1];
-        for (k=numHarmonics+1; k<2*numHarmonics+1; k++) //The remaning complex amplitudes from L+1 to 2L are complex conjugates of entries from L-1,...,1
-            xpart[k-(numHarmonics+1)] = new ComplexNumber(x[k]);
+        ComplexNumber[] xpart = new ComplexNumber[L+1];
+        for (k=L+1; k<2*L+1; k++) //The remaning complex amplitudes from L+1 to 2L are complex conjugates of entries from L-1,...,1
+            xpart[k-(L+1)] = new ComplexNumber(x[k]);
         
         return xpart;
-    }
-    */
-    
-    public static void main(String[] args)
-    {
-        String wavFile = args[0];
-        float windowSizeInSeconds = 0.040f;
-        float skipSizeInSeconds = 0.010f;
-        
-        HntmAnalyzer ha = new HntmAnalyzer();
-        
-        //int model = HnmAnalyzer.HARMONICS_PLUS_NOISE;
-        int model = HntmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE;
-        
-        int noisePartRepresentation = HntmAnalyzer.LPC;
-        //int noisePartRepresentation = HnmAnalyzer.PSEUDO_HARMONIC;
-        
-        HntmSpeechSignal hnmSignal = ha.analyze(wavFile, windowSizeInSeconds, skipSizeInSeconds, model, noisePartRepresentation);
-        
-        System.out.println("Analysis finished...");
     }
 }
 

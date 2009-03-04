@@ -30,6 +30,7 @@
 package marytts.signalproc.sinusoidal.hntm;
 
 import marytts.util.math.ArrayUtils;
+import marytts.util.signal.SignalProcUtils;
 
 /**
  * This class represents a transient segment of the waveform
@@ -39,13 +40,11 @@ import marytts.util.math.ArrayUtils;
  */
 public class TransientSegment {
     public float startTime; //Start time of segment in seconds
-    public float endTime; //End time of segment in seconds
     public int[] waveform; //Waveform values in 16-bit
     
     public TransientSegment()
     {
         startTime = -1.0f;
-        endTime = -1.0f;
         waveform = null;
     }
     
@@ -56,8 +55,15 @@ public class TransientSegment {
         if (existing!=null)
         {
             this.startTime = existing.startTime;
-            this.endTime = existing.endTime;
             this.waveform = ArrayUtils.copy(existing.waveform);
         }
+    }
+    
+    public float getEndTime(int samplingRateInHz)
+    {
+        if (waveform!=null && startTime>-1.0f)
+            return startTime + SignalProcUtils.sample2time(waveform.length, samplingRateInHz);
+        else
+            return -1.0f;
     }
 }

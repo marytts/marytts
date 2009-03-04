@@ -777,43 +777,41 @@ public class SignalProcUtils {
     // t: instant of time which we want to convert to the new time scale
     // s: time scale factors at times given by alphas
     // alphas: time instants at which the time scale modification factor is the corresponding entry in s
-    public static float timeScaledTime(float t, float [] s, float [] alphas)
+    public static float timeScaledTime(float t, float[] scales, float [] times)
     {
-        assert s!=null;
-        assert alphas!=null;
-        assert s.length==alphas.length;
+        assert scales!=null;
+        if (times!=null)
+            assert scales.length==times.length;
         
-        int N = s.length;
-        float tNew = 0.0f;
+        int N = scales.length;
+        float tNew = t;
+        int i;
         
         if (N>0)
         {
-            if (t<=alphas[0])
-            {
-                tNew = t*s[0];
-            }
-            else if (t>=alphas[N-1])
-            {
-                tNew = alphas[0]*s[0];
-                for (int i=0; i<N-2; i++)
-                    tNew += 0.5*(alphas[i+1]-alphas[i])*(s[i]+s[i+1]);
-                
-                tNew += (t-alphas[N-1])*s[N-1];
-            }
+            if (times==null || t<=times[0])
+                tNew = t*scales[0];
             else
             {
-                int k = MathUtils.findClosest(alphas, t);
-                if (alphas[k]>=t)
-                    k--;
+                int ind = -1; //greatest time index that t is greater than
+                for (i=0; i<N; i++)
+                {
+                    if (t>times[i])
+                        ind=i;
+                    else
+                        break;
+                }
                 
-                tNew = alphas[0]*s[0];
-                
-                for (int i=0; i<=k-1; i++)
-                    tNew += 0.5*(alphas[i+1]-alphas[i])*(s[i]+s[i+1]);
-                
-                float st0 = (t-alphas[k])*(s[k+1]-s[k])/(alphas[k+1]-alphas[k]) + s[k];
-                
-                tNew += 0.5*(t-alphas[k])*(st0+s[k]);
+                if (ind==-1)
+                    tNew = scales[0]*t;
+                else
+                {
+                    tNew = scales[0]*times[0];
+                    for (i=0; i<ind; i++)
+                        tNew += scales[i+1]*(times[i+1]-times[i]);
+                    
+                    tNew += scales[ind]*(t-times[ind]);
+                }
             }
         }
         
@@ -1002,42 +1000,14 @@ public class SignalProcUtils {
         return medianFilter(x, 3);
     }
     
-    //Median filtering: All values in x are replaced by the median of the N closest context neighbours
-    // If N is odd, the output y[k] is the median of x[k-(N-1)/2],...,x[k+(N-1)/2]
-    // If N is even, the output y[k] is the median of x[k-(N/2)+1],...,x[k+(N/2)-1], i.e. the average of the (N/2-1)th and (N/2)th of the sorted values
-    // All out-of-boundary values are assumed 0.0
-    public static double[] medianFilter(double[] x, int N)
-    {
-        return medianFilter(x, N, x[x.length-1]);
-    }
-    
     public static float[] medianFilter(float[] x, int N)
-    {
-        return medianFilter(x, N, x[x.length-1]);
-    }
-    
-    //Median filtering: All values in x are replaced by the median of the N closest context neighbours
-    // If N is odd, the output y[k] is the median of x[k-(N-1)/2],...,x[k+(N-1)/2]
-    // If N is even, the output y[k] is the median of x[k-(N/2)+1],...,x[k+(N/2)-1], i.e. the average of the (N/2-1)th and (N/2)th of the sorted values
-    // All out-of-boundary values are assumed outOfBound
-    public static double[] medianFilter(double[] x, int N, double outOfBound)
-    {
-        return medianFilter(x, N, outOfBound, outOfBound);
-    }
-    
-    public static float[] medianFilter(float[] x, int N, double outOfBound)
-    {
-        return medianFilter(x, N, outOfBound, outOfBound);
-    }
-    
-    public static float[] medianFilter(float[] x, int N, double leftOutOfBound, double rightOutOfBound)
     {
         double[] x2 = new double[x.length];
         int i;
         for (i=0; i<x.length; i++)
             x2[i] = x[i];
         
-        x2 = medianFilter(x2, N, leftOutOfBound, rightOutOfBound);
+        x2 = medianFilter(x2, N);
         
         float[] y = new float[x.length];
         for (i=0; i<x.length; i++)
@@ -1049,8 +1019,7 @@ public class SignalProcUtils {
     //Median filtering: All values in x are replaced by the median of the N closest context neighbours and the value itself
     // If N is odd, the output y[k] is the median of x[k-(N-1)/2],...,x[k+(N-1)/2]
     // If N is even, the output y[k] is the median of x[k-(N/2)+1],...,x[k+(N/2)-1], i.e. the average of the (N/2-1)th and (N/2)th of the sorted values
-    // The out-of-boundary values are assumed leftOutOfBound for k-i<0 and rightOutOfBound for k+i>x.length-1
-    public static double[] medianFilter(double[] x, int N, double leftOutOfBound, double rightOutOfBound)
+    public static double[] medianFilter(double[] x, int N)
     {
         double [] y = new double[x.length];
         Vector<Double> v = new Vector<Double>();

@@ -59,16 +59,16 @@ public class HnmPitchVoicingAnalyzer {
     public static float NUM_PERIODS_AT_LEAST = 2.0f;
     
     //These are the three thresholds used in Stylianou for maximum voicing frequency estimation using the harmonic model
-    public static double CUMULATIVE_AMP_THRESHOLD = 1.0; //Decreased ==> Voicing increases (Orig: 2.0)
-    public static double MAXIMUM_AMP_THRESHOLD_IN_DB = 6.5; //Decreased ==> Voicing increases (Orig: 13.0)
-    public static double HARMONIC_DEVIATION_PERCENT = 40.0; //Increased ==> Voicing increases (Orig: 20.0)
-    public static double SHARP_PEAK_AMP_DIFF_IN_DB = 1.0; //Decreased ==> Voicing increases
-    public static int MINIMUM_TOTAL_HARMONICS = 6; //Minimum number of total harmonics to be included in voiced region (effective only when f0>10.0)
-    public static int MAXIMUM_TOTAL_HARMONICS = 40; //Maximum number of total harmonics to be included in voiced region (effective only when f0>10.0)
-    public static float MINIMUM_VOICED_FREQUENCY_OF_VOICING = 2500.0f; //All voiced sections will have at least this freq. of voicing
-    public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 6000.0f; //All voiced sections will have at least this freq. of voicing
-    public static float MAXIMUM_FREQUENCY_OF_VOICING_FINAL_SHIFT = 500.0f; //The max freq. of voicing contour is shifted by this amount finally
-    public static float RUNNING_MEAN_VOICING_THRESHOLD = 0.5f; //Between 0.0 and 1.0, decrease ==> Max. voicing freq increases
+    public static double CUMULATIVE_AMP_THRESHOLD = 3.0; //Decreased ==> Voicing increases (Orig: 2.0)
+    public static double MAXIMUM_AMP_THRESHOLD_IN_DB = 15.0; //Decreased ==> Voicing increases (Orig: 13.0)
+    public static double HARMONIC_DEVIATION_PERCENT = 20.0; //Increased ==> Voicing increases (Orig: 20.0)
+    public static double SHARP_PEAK_AMP_DIFF_IN_DB = 6.0; //Decreased ==> Voicing increases
+    public static int MINIMUM_TOTAL_HARMONICS = 0; //Minimum number of total harmonics to be included in voiced region (effective only when f0>10.0)
+    public static int MAXIMUM_TOTAL_HARMONICS = 100; //Maximum number of total harmonics to be included in voiced region (effective only when f0>10.0)
+    public static float MINIMUM_VOICED_FREQUENCY_OF_VOICING = 0.0f; //All voiced sections will have at least this freq. of voicing
+    public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 4500.0f; //All voiced sections will have at least this freq. of voicing
+    public static float MAXIMUM_FREQUENCY_OF_VOICING_FINAL_SHIFT = 0.0f; //The max freq. of voicing contour is shifted by this amount finally
+    public static float RUNNING_MEAN_VOICING_THRESHOLD = 0.1f; //Between 0.0 and 1.0, decrease ==> Max. voicing freq increases
     //
     
     //For voicing detection

@@ -28,6 +28,8 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.analysis.RegularizedCepstralEnvelopeEstimator;
 import marytts.signalproc.filter.HighPassFilter;
@@ -74,7 +76,7 @@ public class HntmSynthesizer {
             float[] pScalesTimes)
     {
         //Handle time scaling by adjusting synthesis times
-        HntmSpeechSignal hntmSignalMod = HntmDurationModifier.modify(hntmSignal, tScales, tScalesTimes);
+        HntmSpeechSignal hntmSignalMod = HntmDurationModifier.modify(hntmSignal, tScales, tScalesTimes, pScales, pScalesTimes);
         //
         
         HntmSynthesizedSignal s = new HntmSynthesizedSignal();
@@ -312,6 +314,8 @@ public class HntmSynthesizer {
                             phasekiPlusOnes[k] = (float)( phasekis[k] + (k+1)*MathUtils.TWOPI*f0InHz*(tsiPlusOne-tsi)); //Equation (3.55)
 
                         phasekiPlusOneEstimate = (float)( phasekis[k] + (k+1)*MathUtils.TWOPI*f0av*(tsiPlusOne-tsi));
+                        //phasekiPlusOneEstimate = (float) (MathUtils.TWOPI*(Math.random()-0.5)); //Random phase
+                        
                         Mk = (int)Math.floor((phasekiPlusOneEstimate-phasekiPlusOnes[k])/MathUtils.TWOPI + 0.5);
                         phasekt = (float)( phasekis[k] + (phasekiPlusOnes[k]+MathUtils.TWOPI*Mk-phasekis[k])*(t-tsi)/(tsiPlusOne-tsi) );
                         //
@@ -336,8 +340,9 @@ public class HntmSynthesizer {
             lastPeriodInSeconds= tsiPlusOne - tsi;
         }
 
-        harmonicPart = MathUtils.divide(harmonicPart, 32768.0);
+        //harmonicPart = MathUtils.divide(harmonicPart, 32768.0);
 
+        /*
         //Write individual tracks to file for examination
         AudioInputStream inputAudio = null;
         try {
@@ -350,7 +355,6 @@ public class HntmSynthesizer {
             e.printStackTrace();
         }
         
-        /*
         if (inputAudio!=null)
         {
             //k=1;
@@ -624,6 +628,7 @@ public class HntmSynthesizer {
             */
         }
 
+        /*
         //Now, apply the triangular noise envelope for voiced parts
         double[] enEnv;
         int enEnvLen;
@@ -672,6 +677,7 @@ public class HntmSynthesizer {
                     noisePart[n] *= enEnv[n-startIndex];
             }
         }
+        */
 
         return noisePart;
     }
@@ -962,11 +968,11 @@ public class HntmSynthesizer {
             int winMidInd = (ws-1)/2;
             for (i=0; i<hnmSignal.transients.segments.length; i++)
             {
-                if (hnmSignal.transients.segments[i]!=null && hnmSignal.transients.segments[i].waveform!=null && hnmSignal.transients.segments[i].startTime>=0.0f && hnmSignal.transients.segments[i].endTime>=0.0f)
+                if (hnmSignal.transients.segments[i]!=null && hnmSignal.transients.segments[i].waveform!=null && hnmSignal.transients.segments[i].waveform.length>0 && hnmSignal.transients.segments[i].startTime>=0.0f)
                 {
                     startInd = Math.min(SignalProcUtils.time2sample(hnmSignal.transients.segments[i].startTime, hnmSignal.samplingRateInHz), outputLen-1);
                     windowLeftEndInd = Math.min(startInd+winMidInd, outputLen-1);
-                    endInd = Math.min(SignalProcUtils.time2sample(hnmSignal.transients.segments[i].endTime, hnmSignal.samplingRateInHz), outputLen-1);
+                    endInd = Math.min(SignalProcUtils.time2sample(hnmSignal.transients.segments[i].startTime,hnmSignal.samplingRateInHz)+hnmSignal.transients.segments[i].waveform.length-1, outputLen-1);
                     windowRightStartInd = endInd-winMidInd;
                     
                     for (j=startInd; j<=windowLeftEndInd; j++)
@@ -989,6 +995,7 @@ public class HntmSynthesizer {
         int samplingRate = (int)inputAudio.getFormat().getSampleRate();
         AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
         double[] x = signal.getAllData();
+        x = MathUtils.multiply(x, 32768.0);
         //
 
         //Analysis
@@ -997,20 +1004,40 @@ public class HntmSynthesizer {
 
         HntmAnalyzer ha = new HntmAnalyzer();
         
-        //int model = HntmAnalyzer.HARMONICS_PLUS_NOISE;
-        int model = HntmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE;
+        int model = HntmAnalyzer.HARMONICS_PLUS_NOISE;
+        //int model = HntmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE;
         
         int noisePartRepresentation = HntmAnalyzer.LPC;
         //int noisePartRepresentation = HnmAnalyzer.PSEUDO_HARMONIC;
 
-        HntmSpeechSignal hnmSignal = ha.analyze(wavFile, windowSizeInSeconds, skipSizeInSeconds, model, noisePartRepresentation);
+        F0ReaderWriter f0 = null;
+        String strPitchFile = StringUtils.modifyExtension(wavFile, ".ptc");
+        if (FileUtils.exists(strPitchFile))
+            f0 = new F0ReaderWriter(strPitchFile);
+        
+        Labels labels = null;
+        if (model == HntmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE)
+        {
+            String strLabFile = StringUtils.modifyExtension(wavFile, ".lab"); 
+            if (FileUtils.exists(strLabFile)!=true) //Labels required for transients analysis (unless we design an automatic algorithm)
+            {
+                System.out.println("Error! Labels required for transient analysis...");
+                System.exit(1);
+            }
+            labels = new Labels(strLabFile);
+        }
+            
+        HntmSpeechSignal hnmSignal = ha.analyze(x, samplingRate, f0, labels, windowSizeInSeconds, skipSizeInSeconds, model, noisePartRepresentation);
         //
 
         if (hnmSignal!=null)
         {
             //Synthesis
-            float[] tScales = {2.0f};
-            float[] tScalesTimes = null; //{0.3f, 0.6f, 0.9f, 1.2f, 1.4f, 1.6f, 1.8f};
+            //float[] tScales = {0.3f, 0.5f, 1.0f, 1.5f, 2.5f};
+            float[] tScales = {1.0f};
+            //float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f, 2.5f};
+            float[] tScalesTimes = null;
+            
             float[] pScales = {1.0f};
             float[] pScalesTimes = null;
 
@@ -1022,7 +1049,8 @@ public class HntmSynthesizer {
             double tGain = 0.3/32768;
             if (xhat.harmonicPart!=null)
             {
-                xhat.harmonicPart = MathUtils.multiply(xhat.harmonicPart, hGain);
+                //xhat.harmonicPart = MathUtils.multiply(xhat.harmonicPart, hGain);
+                //xhat.harmonicPart = MathUtils.multiply(xhat.harmonicPart, MathUtils.absMax(x)/MathUtils.absMax(xhat.harmonicPart));
                 //MaryUtils.plot(xhat.harmonicPart);
             }
             
@@ -1040,7 +1068,21 @@ public class HntmSynthesizer {
 
             double[] y = SignalProcUtils.addSignals(xhat.harmonicPart, xhat.noisePart);
             y = SignalProcUtils.addSignals(y, xhat.transientPart);
-            y = MathUtils.multiply(y, MathUtils.absMax(x)/MathUtils.absMax(y));
+            //y = MathUtils.multiply(y, MathUtils.absMax(x)/MathUtils.absMax(y));
+            
+            //double[] d = SignalProcUtils.addSignals(x, 1.0f, xhat.harmonicPart, -1.0f);
+            
+            for (int i=0; i<300; i+=100)
+            {
+                int startIndex = i;
+                int len = 100;
+                double[] xPart = ArrayUtils.subarray(x, startIndex, len);
+                double[] hPart = ArrayUtils.subarray(xhat.harmonicPart, startIndex, len);
+                double[] dPart = SignalProcUtils.addSignals(xPart, 1.0f, hPart, -1.0f);
+                MaryUtils.plot(xPart);
+                MaryUtils.plot(hPart);
+                MaryUtils.plot(dPart);
+            }
 
             //xhat.noisePart = ArrayUtils.subarray(hpf, 0, hpf.length);
             //
@@ -1053,7 +1095,7 @@ public class HntmSynthesizer {
             if (model==HntmAnalyzer.HARMONICS_PLUS_NOISE)
                 modelName = "hnm";
             else if (model==HntmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE)
-                modelName = "hnmt";
+                modelName = "hntm";
 
             outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), inputAudio.getFormat());
             outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + "Resynth" + strExt + ".wav";
@@ -1061,7 +1103,7 @@ public class HntmSynthesizer {
 
             if (xhat.harmonicPart!=null)
             {
-                outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(xhat.harmonicPart), inputAudio.getFormat());
+                outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(MathUtils.divide(xhat.harmonicPart, 32768.0)), inputAudio.getFormat());
                 outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + "Harmonic" + strExt + ".wav";
                 AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
             }

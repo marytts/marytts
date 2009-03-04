@@ -34,15 +34,23 @@ public class ArrayUtils
             return null;
     }
     
-    public static float[] copyf(double[] orig)
+    public static float[] copy(float[] orig)
     {
         if (orig!=null)
-            return subarrayf(orig, 0, orig.length);
+            return subarray(orig, 0, orig.length);
         else
             return null;
     }
     
-    public static float[] copyf(float[] orig)
+    public static int[] copy(int[] orig)
+    {
+        if (orig!=null)
+            return subarray(orig, 0, orig.length);
+        else
+            return null;
+    }
+    
+    public static float[] copyf(double[] orig)
     {
         if (orig!=null)
             return subarrayf(orig, 0, orig.length);
@@ -68,10 +76,20 @@ public class ArrayUtils
         return sub;
     }
     
-    public static float[] subarrayf(float[] orig, int off, int len)
+    public static float[] subarray(float[] orig, int off, int len)
     {
         if (off+len>orig.length) throw new IllegalArgumentException("requested subarray exceeds array length");
         float[] sub = new float[len];
+        for (int i=0; i<len; i++)
+            sub[i] = orig[i+off];
+
+        return sub;
+    }
+    
+    public static int[] subarray(int[] orig, int off, int len)
+    {
+        if (off+len>orig.length) throw new IllegalArgumentException("requested subarray exceeds array length");
+        int[] sub = new int[len];
         for (int i=0; i<len; i++)
             sub[i] = orig[i+off];
 
@@ -151,6 +169,35 @@ public class ArrayUtils
         }
         
         return xf;
+    }
+    
+    //Returns the vector [x y]
+    public static float[] combine(float[] x, float[] y)
+    {
+        int len = 0;
+        if (x!=null)
+            len += x.length;
+        if (y!=null)
+            len += y.length;
+        
+        float[] z = null;
+        
+        if (len>0)
+        {
+            z = new float[len];
+
+            int currentPos = 0;
+            if (x!=null)
+            {
+                System.arraycopy(x, 0, z, currentPos, x.length);
+                currentPos = x.length;
+            }
+
+            if (y!=null)
+                System.arraycopy(y, 0, z, currentPos, y.length);
+        }
+        
+        return z;
     }
 }
 

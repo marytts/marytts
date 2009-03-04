@@ -139,6 +139,31 @@ public class MathUtils {
         return sum;
     }
 
+    public static float sum(float[] data)
+    {
+        float sum = 0.0f;
+        for (int i=0; i<data.length; i++) {
+            if (Float.isNaN(data[i])) continue; 
+            sum += data[i];
+        }
+        return sum;
+    }
+    
+    public static int sum(int[] data)
+    {
+        int sum = 0;
+        for (int i=0; i<data.length; i++)
+            sum += data[i];
+        
+        return sum;
+    }
+    
+    
+    public static double sumSquared(double[] data)
+    {
+        return sumSquared(data, 0.0);
+    }
+    
     //Computes sum_i=0^data.length-1 (data[i]+term)^2
     public static double sumSquared(double[] data, double term)
     {
@@ -655,6 +680,74 @@ public class MathUtils {
 
         return y;
     }
+    
+    public static ComplexNumber[][] transpoze(ComplexNumber[][] x)
+    {
+        ComplexNumber[][] y = null;
+
+        if (x!=null)
+        {
+            int i, j;
+            int rowSizex = x.length;
+            int colSizex = x[0].length;
+            for (i=1; i<rowSizex; i++)
+                assert x[i].length==colSizex;
+
+            y = new ComplexNumber[colSizex][rowSizex];
+            for (i=0; i<rowSizex; i++)
+            {
+                for (j=0; j<colSizex; j++)
+                    y[j][i] = new ComplexNumber(x[i][j]);
+            }
+        }
+
+        return y;
+    }
+    
+    public static ComplexNumber[][] hermitianTranspoze(ComplexNumber[][] x)
+    {
+        ComplexNumber[][] y = null;
+
+        if (x!=null)
+        {
+            int i, j;
+            int rowSizex = x.length;
+            int colSizex = x[0].length;
+            for (i=1; i<rowSizex; i++)
+                assert x[i].length==colSizex;
+
+            y = new ComplexNumber[colSizex][rowSizex];
+            for (i=0; i<rowSizex; i++)
+            {
+                for (j=0; j<colSizex; j++)
+                    y[j][i] = new ComplexNumber(x[i][j].real, -1.0*x[i][j].imag);
+            }
+        }
+
+        return y;
+    }
+    
+    public static ComplexNumber[][] diagonalComplexMatrix(double[] diag)
+    {
+        ComplexNumber[][] x = null;
+        int N = diag.length;
+        if (N>0)
+        {
+            x = new ComplexNumber[N][N];
+            for (int i=0; i<N; i++)
+            {
+                for (int j=0; j<N; j++)
+                {
+                    if (i==j)
+                        x[i][j] = new ComplexNumber(diag[i], 0.0);
+                    else
+                        x[i][j] = new ComplexNumber(0.0, 0.0);
+                }
+            }
+        }
+        
+        return x;
+    }
 
     public static double[] add(double[] x, double[] y)
     {
@@ -1025,6 +1118,22 @@ public class MathUtils {
         return y3;
     }
     
+    public static ComplexNumber[] matrixProduct(ComplexNumber[][] x, double[] y)
+    {
+        ComplexNumber[][] y2 = new ComplexNumber[y.length][1];
+        int i;
+        for (i=0; i<y.length; i++)
+            y2[i][0] = new ComplexNumber(y[i], 0.0);
+        
+        y2 = matrixProduct(x, y2);
+        
+        ComplexNumber[] y3 = new ComplexNumber[y2.length];
+        for (i=0; i<y2.length; i++)
+            y3[i] = new ComplexNumber(y2[i][0]);
+        
+        return y3;
+    }
+    
     //Vector of size N is multiplied with matrix of size NxM
     // Returns a matrix of size NxM
     public static double[][] matrixProduct(double[] x, double[][] y)
@@ -1260,6 +1369,21 @@ public class MathUtils {
         int len = Math.min(c.real.length, c.imag.length);
         
         return abs(c, 0, len-1);
+    }
+    
+    public static double[] abs(ComplexNumber[] x)
+    {
+        double[] absMags = null;
+        
+        if (x.length>0)
+        {
+            absMags = new double[x.length];
+         
+            for (int i=0; i<x.length; i++)
+                absMags[i] = magnitudeComplex(x[i]);
+        }
+        
+        return absMags;
     }
     
     public static double[] abs(ComplexArray c, int startInd, int endInd)
@@ -3093,6 +3217,17 @@ public class MathUtils {
 
         return indices;
     }
+    
+    public static int[] quickSort(float[] x)
+    {
+        int[] indices = new int[x.length];
+        for (int i=0; i<x.length; i++)
+            indices[i] = i;
+
+        quickSort(x, indices);
+
+        return indices;
+    }
 
     //In place sorting of elements of array x between startIndex(included) and endIndex(included)
     //Sorting is from lowest to highest
@@ -3125,10 +3260,49 @@ public class MathUtils {
         return indices;
     }
 
+    //In place sorting of elements of array x between startIndex(included) and endIndex(included)
+    //Sorting is from lowest to highest
+    public static int[] quickSort(float[] x, int startIndex, int endIndex)
+    {
+        if (startIndex<0)
+            startIndex=0;
+        if (startIndex>x.length-1)
+            startIndex=x.length-1;
+        if (endIndex<startIndex)
+            endIndex=startIndex;
+        if (endIndex>x.length-1)
+            endIndex=x.length-1;
+
+        int[] indices = new int[endIndex-startIndex+1];
+        float[] x2 = new float[endIndex-startIndex+1];
+        int i;
+
+        for (i=startIndex; i<=endIndex; i++)
+        {
+            indices[i-startIndex] = i;
+            x2[i-startIndex] = x[i];
+        }
+
+        quickSort(x2, indices);
+
+        for (i=startIndex; i<=endIndex; i++)
+            x[i] = x2[i-startIndex];
+
+        return indices;
+    }
 
     //Sorts x, y is also sorted as x so it can be used to obtain sorted indices
     //Sorting is from lowest to highest
     public static void quickSort(double[] x, int[] y)
+    {
+        assert x.length==y.length;
+
+        quickSort(x, y, 0, x.length-1);
+    }
+    
+    //Sorts x, y is also sorted as x so it can be used to obtain sorted indices
+    //Sorting is from lowest to highest
+    public static void quickSort(float[] x, int[] y)
     {
         assert x.length==y.length;
 
@@ -3146,6 +3320,17 @@ public class MathUtils {
         } 
     }
 
+    //Sorting is from lowest to highest
+    public static void quickSort(float[] x, int[] y, int startIndex, int endIndex)
+    {   
+        if(startIndex<endIndex)
+        {
+            int j = partition(x, y, startIndex, endIndex);
+            quickSort(x, y, startIndex, j-1);
+            quickSort(x, y, j+1, endIndex);
+        } 
+    }
+    
     private static int partition(double[] x, int[] y, int startIndex, int endIndex) 
     {
         int i = startIndex; 
@@ -3189,6 +3374,84 @@ public class MathUtils {
         return j;
     }
 
+    private static int partition(float[] x, int[] y, int startIndex, int endIndex) 
+    {
+        int i = startIndex; 
+        int j = endIndex+1;
+        float t;
+        int ty;
+        float pivot = x[startIndex];
+
+        while(true)
+        {
+            do {
+                ++i;
+            } while(i<=endIndex && x[i]<=pivot);
+
+            do {
+                --j;
+            } while(x[j]>pivot);
+
+            if(i>=j) 
+                break;
+
+            t = x[i]; 
+            ty = y[i];
+
+            x[i] = x[j];
+            y[i] = y[j];
+
+            x[j] = t;
+            y[j] = ty;
+        }
+
+        t = x[startIndex]; 
+        ty = y[startIndex];
+
+        x[startIndex] = x[j]; 
+        y[startIndex] = y[j];
+
+        x[j] = t;
+        y[j] = ty;
+
+        return j;
+    }
+    
+    //Returns a sorted version of x using sorted indices
+    public static double[] sortAs(double[] x, int[] sortedIndices)
+    {
+        if (x==null)
+            return null;
+        else if (sortedIndices==null)
+            return ArrayUtils.copy(x);
+        else
+        {
+            assert x.length==sortedIndices.length;
+            double[] y = new double[x.length];
+            for (int i=0; i<sortedIndices.length; i++)
+                y[i] = x[sortedIndices[i]];
+        
+            return y;
+        }
+    }
+    
+    public static float[] sortAs(float[] x, int[] sortedIndices)
+    {
+        if (x==null)
+            return null;
+        else if (sortedIndices==null)
+            return ArrayUtils.copy(x);
+        else
+        {
+            assert x.length==sortedIndices.length;
+            float[] y = new float[x.length];
+            for (int i=0; i<sortedIndices.length; i++)
+                y[i] = x[sortedIndices[i]];
+        
+            return y;
+        }
+    }
+    
     public static double[] normalizeToSumUpTo(double[] x, double sumUp)
     {
         return normalizeToSumUpTo(x, x.length, sumUp);
