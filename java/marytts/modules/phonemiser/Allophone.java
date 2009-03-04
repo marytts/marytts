@@ -105,6 +105,7 @@ public class Allophone
     {
         if (isVowel()) {
             String vlng = features.get("vlng");
+            if (vlng == null) return 5; // language doesn't make a distinction between vowels of different length
             if ("ld".contains(vlng)) return 6;
             else if ("s".equals(vlng)) return 5;
             else if ("a".equals(vlng)) return 4;
