@@ -211,7 +211,7 @@ public class TrackGenerator {
     }
     
     //Simple median filtering along frequencies and amplitudes
-    public SinusoidalTracks postProcess(SinusoidalTracks st)
+    public static SinusoidalTracks postProcess(SinusoidalTracks st)
     {
         for(int i=0; i<st.totalTracks; i++)
         {

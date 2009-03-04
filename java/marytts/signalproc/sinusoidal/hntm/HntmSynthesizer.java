@@ -1045,8 +1045,8 @@ public class HntmSynthesizer {
             HntmSynthesizedSignal xhat = hs.synthesize(hnmSignal, tScales, tScalesTimes, pScales, pScalesTimes);
 
             double hGain = 1.0;
-            double nGain = 0.05/32768;
-            double tGain = 0.3/32768;
+            double nGain = 1.0;
+            double tGain = 1.0;
             if (xhat.harmonicPart!=null)
             {
                 //xhat.harmonicPart = MathUtils.multiply(xhat.harmonicPart, hGain);
@@ -1063,15 +1063,22 @@ public class HntmSynthesizer {
             if (xhat.transientPart!=null)
             {
                 xhat.transientPart = MathUtils.multiply(xhat.transientPart, tGain);
-              //MaryUtils.plot(xhat.transientPart);
+                //MaryUtils.plot(xhat.transientPart);
             }
 
             double[] y = SignalProcUtils.addSignals(xhat.harmonicPart, xhat.noisePart);
             y = SignalProcUtils.addSignals(y, xhat.transientPart);
             //y = MathUtils.multiply(y, MathUtils.absMax(x)/MathUtils.absMax(y));
+            MaryUtils.plot(x);
+            MaryUtils.plot(xhat.harmonicPart);
+            MaryUtils.plot(xhat.noisePart);
+            if (xhat.transientPart!=null)
+                MaryUtils.plot(xhat.transientPart);
+            MaryUtils.plot(y);
             
             //double[] d = SignalProcUtils.addSignals(x, 1.0f, xhat.harmonicPart, -1.0f);
             
+            /*
             for (int i=0; i<300; i+=100)
             {
                 int startIndex = i;
@@ -1083,6 +1090,7 @@ public class HntmSynthesizer {
                 MaryUtils.plot(hPart);
                 MaryUtils.plot(dPart);
             }
+            */
 
             //xhat.noisePart = ArrayUtils.subarray(hpf, 0, hpf.length);
             //
@@ -1110,14 +1118,14 @@ public class HntmSynthesizer {
             
             if (xhat.noisePart!=null)
             {
-                outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(xhat.noisePart), inputAudio.getFormat());
+                outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(MathUtils.divide(xhat.noisePart, 32768.0)), inputAudio.getFormat());
                 outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + "Noise" + strExt + ".wav";
                 AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
             }
 
             if (xhat.transientPart!=null)
             {
-                outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(xhat.transientPart), inputAudio.getFormat());
+                outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(MathUtils.divide(xhat.transientPart, 32768.0)), inputAudio.getFormat());
                 outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + "Transient" + strExt + ".wav";
                 AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
             }
