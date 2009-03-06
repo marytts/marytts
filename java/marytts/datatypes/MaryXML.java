@@ -103,6 +103,9 @@ public class MaryXML
     	if (!doc.getDocumentElement().getTagName().equals(getRootTagname()))
     		throw new IllegalArgumentException("Not a maryxml document: "
     		    + doc.getDocumentElement().getTagName());
+    	if (doc.getDocumentElement().getNamespaceURI() == null) {
+    	    throw new IllegalArgumentException("Document has no namespace!");
+    	}
 		if (!doc.getDocumentElement().getNamespaceURI().equals(getNamespace()))
 			throw new IllegalArgumentException("Document has wrong namespace: "
 			    + doc.getDocumentElement().getNamespaceURI());
