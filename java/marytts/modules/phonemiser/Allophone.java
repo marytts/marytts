@@ -29,7 +29,6 @@ import org.w3c.dom.Element;
 public class Allophone
 {
     private String name;
-    private String vc;
     private final Map<String, String> features;
 
     /**
@@ -41,19 +40,28 @@ public class Allophone
     public Allophone(Element a, String[] featureNames)
     {
         name = a.getAttribute("ph");
+        String vc;
+        String isTone;
         if (name.equals(""))
             throw new IllegalArgumentException("Element must have a 'ph' attribute");
         if (a.getTagName().equals("consonant")) {
             vc = "-";
+            isTone = "-";
         } else if (a.getTagName().equals("vowel")) {
             vc = "+";
+            isTone = "-";
         } else if (a.getTagName().equals("silence")) {
             vc = "0";
+            isTone = "-";
+        } else if (a.getTagName().equals("tone")) {
+            vc = "0";
+            isTone = "+";
         } else {
             throw new IllegalArgumentException("Element must be one of <vowel>, <consonant> and <silence>, but is <"+a.getTagName()+">");
         }
         Map<String, String> feats = new HashMap<String, String>();
         feats.put("vc", vc);
+        feats.put("isTone", isTone);
         for (String f : featureNames) {
             feats.put(f, getAttribute(a, f));
         }
@@ -75,9 +83,9 @@ public class Allophone
 
     public String name() { return name; }
     public String toString() { return name; }
-    public boolean isVowel() { return vc.equals("+"); }
+    public boolean isVowel() { return "+".equals(features.get("vc")); }
     public boolean isSyllabic() { return isVowel(); }
-    public boolean isConsonant() { return vc.equals("-"); }
+    public boolean isConsonant() { return "-".equals(features.get("vc")); }
     
     public boolean isVoiced()
     {
@@ -99,7 +107,20 @@ public class Allophone
     }
 
     public boolean isPlosive() { return "s".equals(features.get("ctype")); }
-    public boolean isPause() { return vc.equals("0"); }
+    public boolean isPause()
+    {
+        return "0".equals(features.get("vc")) &&
+            "-".equals(features.get("isTone"));
+    }
+    
+    /**
+     * Whether the Allophone object represents a tone symbol.
+     * @return
+     */
+    public boolean isTone()
+    {
+        return "+".equals(features.get("isTone"));
+    }
     
     public int sonority()
     {

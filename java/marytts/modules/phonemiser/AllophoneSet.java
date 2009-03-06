@@ -126,7 +126,7 @@ public class AllophoneSet
         String xmlLang = root.getAttribute("xml:lang");
         locale = MaryUtils.string2locale(xmlLang);
         String[] featureNames = root.getAttribute("features").split(" ");
-        NodeIterator ni = MaryDomUtils.createNodeIterator(document, root, "vowel", "consonant", "silence");
+        NodeIterator ni = MaryDomUtils.createNodeIterator(document, root, "vowel", "consonant", "silence", "tone");
         Element a;
         while ((a = (Element) ni.nextNode()) != null) {
             Allophone ap = new Allophone(a, featureNames);
