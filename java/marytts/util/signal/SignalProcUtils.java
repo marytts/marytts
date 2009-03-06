@@ -185,6 +185,13 @@ public class SignalProcUtils {
         return getAverageSampleEnergy(x, x.length, 0);
     }
     
+    public static double[] normalizeAverageSampleEnergy(double[] x, double newAverageSampleEnergy)
+    {
+        double gain = newAverageSampleEnergy/getAverageSampleEnergy(x);
+        
+        return MathUtils.multiply(x, gain);
+    }
+    
     public static double[] getEnergyContourRms(double[] x, double windowSizeInSeconds, double skipSizeInSeconds, int samplingRate)
     {
         int ws = (int)Math.floor(windowSizeInSeconds*samplingRate+0.5);
@@ -212,6 +219,41 @@ public class SignalProcUtils {
         }
         
         return energies;
+    }
+    
+    
+    //Returns the average sample energy contour around times using analysis windows of site windowDurationInSeconds
+    public static float[] getAverageSampleEnergyContour(double[] x, float[] times, int samplingRateInHz, float windowDurationInSeconds)
+    {
+        float[] averageSampleEnergies = null;
+        
+        if (x!=null && times!=null)
+        {
+            int startInd, endInd;
+            int len;
+            double[] frm;
+            averageSampleEnergies = new float[times.length];
+            for (int i=0; i<times.length; i++)
+            {
+                startInd = SignalProcUtils.time2sample(Math.max(0.0f, times[i]-0.5f*windowDurationInSeconds), samplingRateInHz);
+                endInd = SignalProcUtils.time2sample(times[i]+0.5*windowDurationInSeconds, samplingRateInHz);
+                if (endInd>x.length-1)
+                    endInd = x.length-1;
+                
+                len = endInd-startInd+1;
+                if (len>0)
+                {
+                    frm = new double[len];
+                    System.arraycopy(x, startInd, frm, 0, len);
+                
+                    averageSampleEnergies[i] = (float)SignalProcUtils.getAverageSampleEnergy(frm);
+                }
+                else
+                    averageSampleEnergies[i] = 0.0f;
+            }
+        }
+        
+        return averageSampleEnergies;
     }
     
     //Returns the reversed version of the input array
@@ -1195,7 +1237,7 @@ public class SignalProcUtils {
         return y;
     }
     
-    public static double mean(Vector v)
+    public static double mean(Vector<Double> v)
     {
         double m = 0.0;
         
@@ -2080,7 +2122,7 @@ public class SignalProcUtils {
     }
     
     public static double[] fdFilter(double[] x, float startFreqInHz, float endFreqInHz, int samplingRateInHz, int fftSize)
-    {
+    { 
         while (fftSize<x.length)
             fftSize *= 2;
         
@@ -2100,6 +2142,7 @@ public class SignalProcUtils {
         int endFreqInd = SignalProcUtils.freq2index(endFreqInHz, samplingRateInHz, maxFreq);
         
         int i;
+        
         for (i=0; i<startFreqInd; i++)
         {
             frameDft.real[i] = 0.0;
@@ -2122,11 +2165,11 @@ public class SignalProcUtils {
             FFT.transform(frameDft.real, frameDft.imag, true);
         else
             frameDft = FFTMixedRadix.ifft(frameDft);
-        
+
         double[] y = new double[x.length];
         for (i=0; i<x.length; i++)
             y[i] = frameDft.real[i];
-        
+         
         return y;
     }
     

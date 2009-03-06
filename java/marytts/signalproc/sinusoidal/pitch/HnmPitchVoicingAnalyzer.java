@@ -59,16 +59,20 @@ public class HnmPitchVoicingAnalyzer {
     public static float NUM_PERIODS_AT_LEAST = 2.0f;
     
     //These are the three thresholds used in Stylianou for maximum voicing frequency estimation using the harmonic model
-    public static double CUMULATIVE_AMP_THRESHOLD = 3.0; //Decreased ==> Voicing increases (Orig: 2.0)
-    public static double MAXIMUM_AMP_THRESHOLD_IN_DB = 15.0; //Decreased ==> Voicing increases (Orig: 13.0)
+    public static double CUMULATIVE_AMP_THRESHOLD = 2.0; //Decreased ==> Voicing increases (Orig: 2.0)
+    public static double MAXIMUM_AMP_THRESHOLD_IN_DB = 13.0; //Decreased ==> Voicing increases (Orig: 13.0)
     public static double HARMONIC_DEVIATION_PERCENT = 20.0; //Increased ==> Voicing increases (Orig: 20.0)
-    public static double SHARP_PEAK_AMP_DIFF_IN_DB = 6.0; //Decreased ==> Voicing increases
+    public static double SHARP_PEAK_AMP_DIFF_IN_DB = 2.0; //Decreased ==> Voicing increases
     public static int MINIMUM_TOTAL_HARMONICS = 0; //Minimum number of total harmonics to be included in voiced region (effective only when f0>10.0)
     public static int MAXIMUM_TOTAL_HARMONICS = 100; //Maximum number of total harmonics to be included in voiced region (effective only when f0>10.0)
     public static float MINIMUM_VOICED_FREQUENCY_OF_VOICING = 0.0f; //All voiced sections will have at least this freq. of voicing
     public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 6000.0f; //All voiced sections will have at least this freq. of voicing
     public static float MAXIMUM_FREQUENCY_OF_VOICING_FINAL_SHIFT = 0.0f; //The max freq. of voicing contour is shifted by this amount finally
     public static float RUNNING_MEAN_VOICING_THRESHOLD = 0.1f; //Between 0.0 and 1.0, decrease ==> Max. voicing freq increases
+    public static int MEDIAN_FILTER_LENGTH = 12; //12; //Length of median filter for smoothing the max. freq. of voicing contour
+    public static int MOVING_AVERAGE_FILTER_LENGTH1 = 12; //12; //Length of first moving averaging filter for smoothing the max. freq. of voicing contour
+    public static int MOVING_AVERAGE_FILTER_LENGTH2 = 12; //12; //Length of second moving averaging filter for smoothing the max. freq. of voicing contour
+    
     //
     
     //For voicing detection
@@ -283,18 +287,25 @@ public class HnmPitchVoicingAnalyzer {
         }
         
         //Smooth with a median filter
-        int NPoints = 12;
-        maxFrequencyOfVoicings = SignalProcUtils.medianFilter(maxFrequencyOfVoicings, NPoints);
-        maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, -1*(int)Math.floor(0.5*NPoints+0.5));
+        if (MEDIAN_FILTER_LENGTH>1)
+        {
+            maxFrequencyOfVoicings = SignalProcUtils.medianFilter(maxFrequencyOfVoicings, MEDIAN_FILTER_LENGTH);
+            maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, -1*(int)Math.floor(0.5*MEDIAN_FILTER_LENGTH+0.5));
+        }
         
-        //Smooth with a moving average filter
-        int MPoints = 12;
-        maxFrequencyOfVoicings = SignalProcUtils.meanFilter(maxFrequencyOfVoicings, MPoints);
-        maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, -1*(int)Math.floor(0.5*MPoints+0.5));
-
-        MPoints = 12;
-        maxFrequencyOfVoicings = SignalProcUtils.meanFilter(maxFrequencyOfVoicings, MPoints);
-        maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, -1*(int)Math.floor(0.5*MPoints+0.5));
+        //Smooth with moving average filters
+        if (MOVING_AVERAGE_FILTER_LENGTH1>1)
+        {
+            maxFrequencyOfVoicings = SignalProcUtils.meanFilter(maxFrequencyOfVoicings, MOVING_AVERAGE_FILTER_LENGTH1);
+            maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, -1*(int)Math.floor(0.5*MOVING_AVERAGE_FILTER_LENGTH1+0.5));
+        }
+        
+        if (MOVING_AVERAGE_FILTER_LENGTH2>1)
+        {
+            maxFrequencyOfVoicings = SignalProcUtils.meanFilter(maxFrequencyOfVoicings, MOVING_AVERAGE_FILTER_LENGTH2);
+            maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, -1*(int)Math.floor(0.5*MOVING_AVERAGE_FILTER_LENGTH2+0.5));
+        }
+        //
         
         for (i=0; i<maxFrequencyOfVoicings.length; i++)
         {

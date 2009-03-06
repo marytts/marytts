@@ -62,4 +62,18 @@ public class HntmSpeechSignal {
         this.f0WindowDurationInSeconds = f0WindowDurationInSeconds;
         this.f0SkipSizeInSeconds = f0SkipSizeInSeconds;
     }
+    
+    public float[] getAnalysisTimes()
+    {
+        float[] times = null;
+        
+        if (frames!=null)
+        {
+            times = new float[frames.length];
+            for (int i=0; i<frames.length; i++)
+                times[i] = frames[i].tAnalysisInSeconds;
+        }
+        
+        return times;
+    }
 }

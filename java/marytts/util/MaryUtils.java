@@ -901,12 +901,14 @@ public class MaryUtils {
 
     public static void plot(float [] x)
     {
-        plot(x, 0, x.length-1);
+        if (x!=null)
+            plot(x, 0, x.length-1);
     }
     
     public static void plot(double [] x)
     {
-        plot(x, 0, x.length-1);
+        if (x!=null)
+            plot(x, 0, x.length-1);
     }
     
     public static void plot(float[] x, int startInd, int endInd)
@@ -921,12 +923,14 @@ public class MaryUtils {
     
     public static void plot(float[] x, String strTitle)
     {
-        plot(x, 0, x.length-1, strTitle, false);
+        if (x!=null)
+            plot(x, 0, x.length-1, strTitle, false);
     }
     
     public static void plot(double [] x, String strTitle)
     {
-        plot(x, 0, x.length-1, strTitle, false);
+        if (x!=null)
+            plot(x, 0, x.length-1, strTitle, false);
     }
     
     public static void plot(float[] x, int startInd, int endInd, String strTitle)
@@ -934,65 +938,69 @@ public class MaryUtils {
         plot(x, startInd, endInd, strTitle, false);
     }
     
-    public static void plot(double [] x, int startInd, int endInd, String strTitle)
+    public static void plot(double[] x, int startInd, int endInd, String strTitle)
     {
         plot(x, startInd, endInd, strTitle, false);
     }
     
-    public static void plot(float [] x, int startInd, int endInd, String strTitle, boolean bAutoClose)
+    public static void plot(float[] x, int startInd, int endInd, String strTitle, boolean bAutoClose)
     {
         plot(x, startInd, endInd, strTitle, bAutoClose, 3000);
     }
     
-    public static void plot(double [] x, int startInd, int endInd, String strTitle, boolean bAutoClose)
+    public static void plot(double[] x, int startInd, int endInd, String strTitle, boolean bAutoClose)
     {
         plot(x, startInd, endInd, strTitle, bAutoClose, 3000);
     }
     
-    public static void plotZoomed(float [] x, String strTitle, double minVal)
+    public static void plotZoomed(float[] x, String strTitle, double minVal)
     {
         plotZoomed(x, strTitle, minVal, MathUtils.getMax(x));
     }
     
-    public static void plotZoomed(double [] x, String strTitle, double minVal)
+    public static void plotZoomed(double[] x, String strTitle, double minVal)
     {
-        plotZoomed(x, strTitle, minVal, MathUtils.getMax(x));
+        if (x!=null)
+            plotZoomed(x, strTitle, minVal, MathUtils.getMax(x));
     }
     
-    public static void plotZoomed(float [] x, String strTitle, double minVal, double maxVal)
+    public static void plotZoomed(float[] x, String strTitle, double minVal, double maxVal)
     {
         plotZoomed(x, strTitle, minVal, maxVal, false);
     }
     
-    public static void plotZoomed(double [] x, String strTitle, double minVal, double maxVal)
+    public static void plotZoomed(double[] x, String strTitle, double minVal, double maxVal)
     {
         plotZoomed(x, strTitle, minVal, maxVal, false);
     }
     
-    public static void plotZoomed(float [] x, String strTitle, double minVal, double maxVal, boolean bAutoClose)
+    public static void plotZoomed(float[] x, String strTitle, double minVal, double maxVal, boolean bAutoClose)
     {
         plotZoomed(x, strTitle, minVal, maxVal, bAutoClose, 3000);
     }
     
-    public static void plotZoomed(double [] x, String strTitle, double minVal, double maxVal, boolean bAutoClose)
+    public static void plotZoomed(double[] x, String strTitle, double minVal, double maxVal, boolean bAutoClose)
     {
         plotZoomed(x, strTitle, minVal, maxVal, bAutoClose, 3000);
     }
     
-    public static void plotZoomed(float [] x, String strTitle, double minVal, double maxVal, boolean bAutoClose, int milliSecondsToClose)
+    public static void plotZoomed(float[] x, String strTitle, double minVal, double maxVal, boolean bAutoClose, int milliSecondsToClose)
     {
-        double[] xd = new double[x.length];
-        for (int i=0; i<x.length; i++)
-            xd[i] = x[i];
+        if (x!=null)
+        {
+            double[] xd = new double[x.length];
+            for (int i=0; i<x.length; i++)
+                xd[i] = x[i];
         
-        plotZoomed(xd, strTitle, minVal, maxVal, bAutoClose, milliSecondsToClose);
+            plotZoomed(xd, strTitle, minVal, maxVal, bAutoClose, milliSecondsToClose);
+        }
     }
     
     public static void plotZoomed(double [] x, String strTitle, double minVal, double maxVal, boolean bAutoClose, int milliSecondsToClose)
     {
-        double[] y = null;
         if (x!=null)
         {
+            double[] y = null;
             if (minVal>maxVal)
             {
                 double tmp = minVal;
@@ -1015,17 +1023,20 @@ public class MaryUtils {
     
     public static void plot(float[] xIn, int startInd, int endInd, String strTitle, boolean bAutoClose, int milliSecondsToClose)
     {
-        double[] xd = new double[endInd-startInd+1];
-        for (int i=startInd; i<=endInd; i++)
-            xd[i-startInd] = xIn[i];
-        
-        FunctionGraph graph = new FunctionGraph(400, 200, 0, 1, xd);
-        JFrame frame = graph.showInJFrame(strTitle, 500, 300, true, false);
-        
-        if (bAutoClose)
+        if (xIn!=null)
         {
-            try { Thread.sleep(milliSecondsToClose); } catch (InterruptedException e) {}
-            frame.dispose();
+            double[] xd = new double[endInd-startInd+1];
+            for (int i=startInd; i<=endInd; i++)
+                xd[i-startInd] = xIn[i];
+
+            FunctionGraph graph = new FunctionGraph(400, 200, 0, 1, xd);
+            JFrame frame = graph.showInJFrame(strTitle, 500, 300, true, false);
+
+            if (bAutoClose)
+            {
+                try { Thread.sleep(milliSecondsToClose); } catch (InterruptedException e) {}
+                frame.dispose();
+            }
         }
     }
     
@@ -1034,19 +1045,22 @@ public class MaryUtils {
     // milliSecondsToClose: has no effect if bAutoClose is false
     public static void plot(double [] xIn, int startInd, int endInd, String strTitle, boolean bAutoClose, int milliSecondsToClose)
     {
-        endInd = MathUtils.CheckLimits(endInd, 0, xIn.length-1);
-        startInd = MathUtils.CheckLimits(startInd, 0, endInd);
-        
-        double[] x = new double[endInd-startInd+1];
-        System.arraycopy(xIn, startInd, x, 0, x.length);
-        
-        FunctionGraph graph = new FunctionGraph(400, 200, 0, 1, x);
-        JFrame frame = graph.showInJFrame(strTitle, 500, 300, true, false);
-        
-        if (bAutoClose)
+        if (xIn!=null)
         {
-            try { Thread.sleep(milliSecondsToClose); } catch (InterruptedException e) {}
-            frame.dispose();
+            endInd = MathUtils.CheckLimits(endInd, 0, xIn.length-1);
+            startInd = MathUtils.CheckLimits(startInd, 0, endInd);
+
+            double[] x = new double[endInd-startInd+1];
+            System.arraycopy(xIn, startInd, x, 0, x.length);
+
+            FunctionGraph graph = new FunctionGraph(400, 200, 0, 1, x);
+            JFrame frame = graph.showInJFrame(strTitle, 500, 300, true, false);
+
+            if (bAutoClose)
+            {
+                try { Thread.sleep(milliSecondsToClose); } catch (InterruptedException e) {}
+                frame.dispose();
+            }
         }
     }
     
