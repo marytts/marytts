@@ -22,11 +22,16 @@ package marytts.util.dom;
 // DOM classes
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import marytts.server.MaryProperties;
 
@@ -41,6 +46,7 @@ import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
 import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 
@@ -596,7 +602,9 @@ public class DomUtils
     
     public static TreeWalker createTreeWalker(Node root, String... tagNames)
     {
-        return createTreeWalker(root.getOwnerDocument(), root, tagNames);
+        return createTreeWalker(root.getNodeType() == Node.DOCUMENT_NODE ? (Document) root : root.getOwnerDocument(),
+                root,
+                tagNames);
     }
 
     public static NodeIterator createNodeIterator(Document doc, Node root, String... tagNames)
@@ -606,7 +614,43 @@ public class DomUtils
 
     public static NodeIterator createNodeIterator(Node root, String... tagNames)
     {
-        return createNodeIterator(root.getOwnerDocument(), root, tagNames);
+        return createNodeIterator(root.getNodeType() == Node.DOCUMENT_NODE ? (Document) root : root.getOwnerDocument(),
+                root,
+                tagNames);
+    }
+
+
+
+    /**
+     * DOM-parse the given file. Namespace-aware but non-validating.
+     * @param is
+     * @return
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException
+     */
+    public static Document parseDocument(File file)
+    throws ParserConfigurationException, SAXException, IOException
+    {
+        return parseDocument(new FileInputStream(file));
+    }
+    
+    /**
+     * DOM-parse the given input stream. Namespace-aware but non-validating.
+     * @param is
+     * @return
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException
+     */
+    public static Document parseDocument(InputStream is)
+    throws ParserConfigurationException, SAXException, IOException
+    {
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        DocumentBuilder builder = dbf.newDocumentBuilder();
+        Document doc = builder.parse(is);
+        return doc;
     }
 }
 
