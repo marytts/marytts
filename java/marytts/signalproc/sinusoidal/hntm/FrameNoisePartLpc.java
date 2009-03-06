@@ -32,7 +32,7 @@ import marytts.util.math.ArrayUtils;
 public class FrameNoisePartLpc extends FrameNoisePart {
     
     public double[] lpCoeffs;
-    public double gain; //Sqrt of prediction error
+    public float averageNoiseSampleEnergy;
     
     public FrameNoisePartLpc()
     {
@@ -43,10 +43,10 @@ public class FrameNoisePartLpc extends FrameNoisePart {
     {
         super();
         lpCoeffs = ArrayUtils.copy(existing.lpCoeffs);
-        gain = existing.gain;
+        averageNoiseSampleEnergy = existing.averageNoiseSampleEnergy;
     }
     
-    public FrameNoisePartLpc(double[] lpCoeffsIn, double gainIn)
+    public FrameNoisePartLpc(double[] lpCoeffsIn, float averageNoiseSampleEnergyIn)
     {
         super();
         
@@ -58,7 +58,7 @@ public class FrameNoisePartLpc extends FrameNoisePart {
         else
             lpCoeffs = null;
             
-        gain = gainIn;
+        averageNoiseSampleEnergy = averageNoiseSampleEnergyIn;
     }
 
 }
