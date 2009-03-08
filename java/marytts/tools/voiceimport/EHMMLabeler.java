@@ -553,8 +553,6 @@ public class EHMMLabeler extends VoiceImportComponent {
             StringBuffer alignBuff = new StringBuffer();
             alignBuff.append(basename);
             alignBuff.append(collectTranscription(tokens));
-            System.out.println(basename);
-            System.out.println(collectTranscription(tokens));
             
             phoneSeq = alignBuff.toString();
             phoneSeq = phoneSeq.replaceAll("pau ssil ", "pau ");
