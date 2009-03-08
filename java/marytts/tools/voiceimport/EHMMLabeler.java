@@ -155,7 +155,7 @@ public class EHMMLabeler extends VoiceImportComponent {
             getPhoneSequence();
             System.out.println(" ... done.");
            
-            /*System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
+            System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
             // dump the filenames 
             System.out.println("Dumping required files ....");
             dumpRequiredFiles();
@@ -181,7 +181,7 @@ public class EHMMLabeler extends VoiceImportComponent {
             
             System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
             System.out.println("Aligning EHMM for labelling ...");
-            alignEHMM();*/
+            alignEHMM();
             
 //            System.out.println("And Copying label files into lab directory ...");
 //            getProperLabelFormat();
