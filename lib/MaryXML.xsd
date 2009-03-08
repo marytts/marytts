@@ -625,6 +625,7 @@ THIS SOFTWARE.
             <xsd:element maxOccurs="unbounded" name="ph" type="ph"/>
         </xsd:sequence>
         <xsd:attribute name="ph" type="xsd:string"/>
+        <xsd:attribute name="tone" type="xsd:string"/>
         <xsd:attribute default="0" name="stress">
             <xsd:simpleType>
                 <xsd:restriction base="xsd:nonNegativeInteger">
