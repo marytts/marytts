@@ -155,7 +155,7 @@ public class EHMMLabeler extends VoiceImportComponent {
             getPhoneSequence();
             System.out.println(" ... done.");
            
-            System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
+            /*System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
             // dump the filenames 
             System.out.println("Dumping required files ....");
             dumpRequiredFiles();
@@ -181,7 +181,7 @@ public class EHMMLabeler extends VoiceImportComponent {
             
             System.out.println("See $ROOTDIR/ehmm/log.txt for EHMM Labelling status... ");
             System.out.println("Aligning EHMM for labelling ...");
-            alignEHMM();
+            alignEHMM();*/
             
 //            System.out.println("And Copying label files into lab directory ...");
 //            getProperLabelFormat();
@@ -548,11 +548,14 @@ public class EHMMLabeler extends VoiceImportComponent {
             DocumentBuilder builder  = factory.newDocumentBuilder();
             Document doc = builder.parse( new File( getProp(ALLOPHONESDIR)+"/"+basename+xmlExt ) );
             XPath xpath = XPathFactory.newInstance().newXPath();
-            NodeList tokens = (NodeList) xpath.evaluate("//t | //boundary", doc, XPathConstants.NODESET);
+            NodeList tokens = (NodeList) xpath.evaluate("//t | //ph | //boundary", doc, XPathConstants.NODESET);
             
             StringBuffer alignBuff = new StringBuffer();
             alignBuff.append(basename);
             alignBuff.append(collectTranscription(tokens));
+            System.out.println(basename);
+            System.out.println(collectTranscription(tokens));
+            
             phoneSeq = alignBuff.toString();
             phoneSeq = phoneSeq.replaceAll("pau ssil ", "pau ");
             phoneSeq = phoneSeq.replaceAll(" ssil pau$"," pau");
@@ -574,16 +577,10 @@ public class EHMMLabeler extends VoiceImportComponent {
             // get original phoneme String
             for (int i = 0; i < tokens.getLength() ; i++ ){
                 Element token = (Element) tokens.item(i);
-                // only look at it if there is a sampa to change
-                if ( token.hasAttribute("ph") ){                   
-                    String sampa = token.getAttribute("ph");
-                    sampa = sampa.replaceAll("' ", "");
-                    sampa = sampa.replaceAll("- ", "");
-                    sampa = sampa.replaceAll(", ", "");
-                    transcription += sampa + " ";
-                }
-                // TODO: simplify
-                if ( token.getTagName().equals("t") ){
+                
+                if(token.getTagName().equals("ph")){
+                    transcription += token.getAttribute("p") + " ";
+                } else if ( token.getTagName().equals("t") ){
                     // if the following element is no boundary, insert a non-pause delimiter
                     if (i == tokens.getLength()-1 || !((Element) tokens.item(i+1)).getTagName().equals("boundary") ){
                             transcription += "vssil "; // word boundary
