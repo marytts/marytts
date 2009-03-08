@@ -288,8 +288,22 @@ public class PronunciationModel extends InternalModule
         Document document = token.getOwnerDocument();
         while (tok.hasMoreTokens()) {
             String sylString = tok.nextToken();
+            Allophone[] allophones = allophoneSet.splitIntoAllophones(sylString);
             Element syllable = MaryXML.createElement(document, MaryXML.SYLLABLE);
             token.appendChild(syllable);
+            String syllableText = "";
+            for (int i = 0; i < allophones.length; i++) {
+                if(allophones[i].isTone()){
+                    syllable.setAttribute("tone", allophones[i].name());
+                    continue;
+                }
+                if(i==0){
+                    syllableText = allophones[i].name();
+                }
+                else{
+                    syllableText = syllableText+" "+allophones[i].name();
+                }
+            }
             // Check for stress signs:
             String first = sylString.substring(0, 1);
             if (first.equals("'")) {
@@ -303,10 +317,12 @@ public class PronunciationModel extends InternalModule
                 syllable.setAttribute("stress", "2");
             }
             // Remember transcription in ph attribute:
-            syllable.setAttribute("ph", sylString);
+            syllable.setAttribute("ph", syllableText);
             // Now identify the composing segments:
-            Allophone[] allophones = allophoneSet.splitIntoAllophones(sylString);
             for (int i = 0; i < allophones.length; i++) {
+                if(allophones[i].isTone()){
+                    continue;
+                }
                 Element segment = MaryXML.createElement(document, MaryXML.PHONE);
                 syllable.appendChild(segment);
                 segment.setAttribute("p", allophones[i].name());
