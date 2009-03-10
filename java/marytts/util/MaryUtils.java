@@ -493,7 +493,10 @@ public class MaryUtils {
     public static String locale2xmllang(Locale locale) 
     {
         if (locale == null) throw new IllegalArgumentException("Locale must not be null");
-        return locale.getLanguage()+"-"+locale.getCountry();
+        String country = locale.getCountry();
+        if (!"".equals(country))
+            return locale.getLanguage()+"-"+country;
+        return locale.getLanguage();
     }
     
     
