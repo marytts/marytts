@@ -20,6 +20,7 @@
 package marytts.util.io;
 
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -33,13 +34,13 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
-import java.text.DecimalFormat;
+import java.net.Socket;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Vector;
 
-import marytts.tools.voiceimport.BasenameList;
-import marytts.util.math.ComplexArray;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 
 /**
@@ -50,6 +51,49 @@ import marytts.util.math.ComplexArray;
  */
 public class FileUtils
 {
+
+    /*
+     * Close a socket and closeables.
+     * Use this in a finally clause.
+     * Exists because Sockets are only closeable in jdk 1.7.
+     * @param socket to close.
+     * @param closeables to close.
+     */
+    public static void close(Socket socket, Closeable... closeables) {
+        for (Closeable c : closeables) {
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (Exception ex) {
+                    Logger.getLogger(FileUtils.class.getName()).log(Level.WARN, "Couldn't close Closeable.", ex);
+                }
+            }
+        }
+        if (socket != null) {
+            try {
+                socket.close();
+            } catch (Exception ex) {
+                Logger.getLogger(FileUtils.class.getName()).log(Level.WARN, "Couldn't close Socket.", ex);
+            }
+        }
+    }
+
+    /**
+     * Close closeables. Use this in a finally clause.
+     * @param Closeables closeables to close.
+     */
+    public static void close(Closeable... closeables) {
+        for (Closeable c : closeables) {
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (Exception ex) {
+                    Logger.getLogger(FileUtils.class.getName()).log(Level.WARN, "Couldn't close Closeable.", ex);
+                }
+            }
+        }
+    }
+
     /**
      * List the basenames of all files in directory that end in suffix, without that suffix.
      * For example, if suffix is ".wav", return the names of all .wav files in the
