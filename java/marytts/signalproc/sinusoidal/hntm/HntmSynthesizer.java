@@ -50,7 +50,7 @@ import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
 /**
- * Synthesis using harmonics plus noise model
+ * Synthesis using harmonics plus noise (and possibly plus transients) model
  * 
  * @author Oytun T&uumlrk
  *
@@ -62,7 +62,7 @@ public class HntmSynthesizer {
     public static final double NUM_PERIODS_NOISE = 2.0;
     public static final float NOISE_SYNTHESIS_WINDOW_DURATION_IN_SECONDS = 0.050f;
     public static final float NOISE_SYNTHESIS_TRANSITION_OVERLAP_IN_SECONDS = 0.010f;
-    public static final float HARMONIC_NONHARMONIC_TRANSITION_OVERLAP_IN_SECONDS = 0.005f;
+    public static final float HARMONIC_SYNTHESIS_TRANSITION_OVERLAP_IN_SECONDS = 0.002f;
 
     public HntmSynthesizer()
     {
@@ -104,22 +104,15 @@ public class HntmSynthesizer {
     public double[] synthesizeHarmonicPartLinearPhaseInterpolation(HntmSpeechSignal hnmSignal, float[] pScales, float[] pScalesTimes)
     {
         double[] harmonicPart = null;
-        //double[][] harmonicTracks = null;
-        //double[][] trackAmps = null;
-        //double[][] trackPhases = null;
-        //double[] currentFrameTrack = null;
         int trackNoToExamine = 1;
 
-        int overlapSize = SignalProcUtils.time2sample(HARMONIC_NONHARMONIC_TRANSITION_OVERLAP_IN_SECONDS, hnmSignal.samplingRateInHz);
-        Window w = new HanningWindow(2*overlapSize+1);
-        w.normalizePeakValue(1.0f);
-        double[] wgtLeft = w.getCoeffsLeftHalf();
-        double[] wgtRight = w.getCoeffsRightHalf();
-
         int i, k, n;
-        double t, tsi, tsiPlusOne; //Time in seconds
-        double frameStartInSeconds, frameEndInSeconds;
-        int frameStartIndex, frameEndIndex;
+        double t; //Time in seconds
+        double tsik = 0.0; //Time in seconds
+        double tsikPlusOne = 0.0; //Time in seconds
+        double trackStartInSeconds, trackEndInSeconds;
+        double lastPeriodInSeconds = 0.0;
+        int trackStartIndex, trackEndIndex;
         double akt;
         int numHarmonicsCurrentFrame;
         int maxNumHarmonics = 0;
@@ -133,42 +126,36 @@ public class HntmSynthesizer {
             }  
         }
 
-        double[] aksis = null;
-        double[] aksiPlusOnes = null;
-        float[] phasekis = null;
-        float[] phasekiPlusOnes = null;
-        if (maxNumHarmonics>0)
-        {
-            //harmonicTracks = new double[maxNumHarmonics][];
-            //trackAmps = new double[maxNumHarmonics][];
-            //trackPhases = new double[maxNumHarmonics][];
-
-            aksis = new double[maxNumHarmonics];
-            Arrays.fill(aksis, 0.0);
-            aksiPlusOnes = new double[maxNumHarmonics];
-            Arrays.fill(aksis, 0.0);
-            phasekis = new float[maxNumHarmonics];
-            Arrays.fill(phasekis, 0.0f);
-            phasekiPlusOnes = new float[maxNumHarmonics];
-            Arrays.fill(phasekiPlusOnes, 0.0f);
-        }
+        double aksi;
+        double aksiPlusOne;
+        float phaseki;
+        float phasekiPlusOne;
 
         float f0InHz, f0InHzNext, f0InHzPrev, f0av;
         f0InHzPrev = 0.0f;
-        double lastPeriodInSeconds = 0.0;
         double ht;
         float phasekt = 0.0f;
 
         float phasekiPlusOneEstimate = 0.0f;
         int Mk;
         boolean isVoiced, isNextVoiced, isPrevVoiced;
+        boolean isTrackVoiced, isNextTrackVoiced, isPrevTrackVoiced;
         int outputLen = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
         
         harmonicPart = new double[outputLen]; //In fact, this should be prosody scaled length when you implement prosody modifications
         Arrays.fill(harmonicPart, 0.0);
-        double currentWgt;
         
-        /*
+        //Write separate tracks to output
+        double[][] harmonicTracks = null;
+        double[][] trackAmps = null;
+        double[][] trackPhases = null;
+        double[] currentFrameTrack = null;
+        if (maxNumHarmonics>0)
+        {
+            harmonicTracks = new double[maxNumHarmonics][];
+            trackAmps = new double[maxNumHarmonics][];
+            trackPhases = new double[maxNumHarmonics][];
+        }
         for (k=0; k<maxNumHarmonics; k++)
         {
             harmonicTracks[k] = new double[outputLen];
@@ -178,178 +165,180 @@ public class HntmSynthesizer {
             trackPhases[k] = new double[outputLen];
             Arrays.fill(trackPhases[k], 0.0);
         }
-        */
+        //
 
         for (i=0; i<hnmSignal.frames.length; i++)
         {
+            isVoiced = false;
+            isNextVoiced = false;
+            isPrevVoiced = false;
+            
             if (hnmSignal.frames[i].h!=null && hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0f)
                 isVoiced = true;
-            else
-                isVoiced = false;
-            
+
             if (i<hnmSignal.frames.length-1 && hnmSignal.frames[i+1].h!=null && hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz>0.0f)
                 isNextVoiced = true;
-            else
-                isNextVoiced = false;
 
             if (i>0 && hnmSignal.frames[i-1].h!=null && hnmSignal.frames[i-1].maximumFrequencyOfVoicingInHz>0.0f)
                 isPrevVoiced =  true;
-            else
-                isPrevVoiced = false;
-
-            if (i==0)
-                tsi = 0.0f;
-            else
-                tsi = hnmSignal.frames[i].tAnalysisInSeconds;
-
-            //System.out.println("Time="+String.valueOf(tsi)+ " " + (isPrevVoiced?"+":"-") + (isVoiced?"+":"-") + (isNextVoiced?"+":"-"));
-                
-            frameStartInSeconds = tsi;
-            if (isNextVoiced)
-            {
-                if (i==hnmSignal.frames.length-1)
-                    tsiPlusOne = hnmSignal.originalDurationInSeconds;
-                else
-                    tsiPlusOne = hnmSignal.frames[i+1].tAnalysisInSeconds;
-                frameEndInSeconds = tsiPlusOne;
-            }
-            else
-            {
-                if (i==hnmSignal.frames.length-1)
-                {
-                    tsiPlusOne = hnmSignal.originalDurationInSeconds;
-                    frameEndInSeconds = tsiPlusOne;
-                }
-                else
-                {
-                    frameEndInSeconds = (frameStartInSeconds + lastPeriodInSeconds);
-                    tsiPlusOne = frameEndInSeconds;
-                }
-            }
-
-            if (hnmSignal.frames[i].h!=null && hnmSignal.frames[i].h.phases!=null)
+            
+            if (isVoiced)
                 numHarmonicsCurrentFrame = hnmSignal.frames[i].h.phases.length;
+            else if (!isVoiced && isNextVoiced)
+                numHarmonicsCurrentFrame = hnmSignal.frames[i+1].h.phases.length;
             else
                 numHarmonicsCurrentFrame = 0;
-
-            frameStartIndex = SignalProcUtils.time2sample(frameStartInSeconds, hnmSignal.samplingRateInHz);
-            frameEndIndex = SignalProcUtils.time2sample(frameEndInSeconds, hnmSignal.samplingRateInHz);
-
-            int tempStartIndex;
-            if (!isPrevVoiced && isVoiced)
-                tempStartIndex = Math.max(0,frameStartIndex-overlapSize);
+            
+            f0InHz = hnmSignal.frames[i].f0InHz;
+            if (isNextVoiced)
+                f0InHzNext = hnmSignal.frames[i+1].f0InHz;
             else
-                tempStartIndex = frameStartIndex;
+                f0InHzNext = f0InHz;
 
-            int tempEndIndex;
-            if (isVoiced && !isNextVoiced)
-                tempEndIndex = Math.min(frameEndIndex+overlapSize, outputLen-1);
+            if (i>0)
+                f0InHzPrev = hnmSignal.frames[i-1].f0InHz;
             else
-                tempEndIndex = frameEndIndex;
+                f0InHzPrev = f0InHz;
 
-            if (hnmSignal.frames[i].h!=null && tempEndIndex-tempStartIndex+1>0)
+            f0av = 0.5f*(f0InHz+f0InHzNext);
+
+            for (k=0; k<numHarmonicsCurrentFrame; k++)
             {
-                //currentFrameTrack = new double[tempEndIndex-tempStartIndex+1];
+                aksi = 0.0;
+                aksiPlusOne = 0.0;
+                phaseki = 0.0f;
+                phasekiPlusOne = 0.0f;
+                
+                isTrackVoiced = false;
+                isNextTrackVoiced = false;
+                isPrevTrackVoiced = false;
+                
+                if (hnmSignal.frames[i].h!=null && hnmSignal.frames[i].h.phases!=null && hnmSignal.frames[i].h.phases.length>k)
+                    isTrackVoiced = true;
 
-                for (n=tempStartIndex; n<=Math.min(tempEndIndex, outputLen-1); n++)
+                if (i<hnmSignal.frames.length-1 && hnmSignal.frames[i+1].h!=null && hnmSignal.frames[i+1].h.phases!=null && hnmSignal.frames[i+1].h.phases.length>k)
+                    isNextTrackVoiced = true;
+
+                if (i>0 && hnmSignal.frames[i-1].h!=null && hnmSignal.frames[i-1].h.phases!=null && hnmSignal.frames[i-1].h.phases.length>k)
+                    isPrevTrackVoiced = true;
+
+                tsik = hnmSignal.frames[i].tAnalysisInSeconds;
+
+                trackStartInSeconds = tsik;
+                if (isNextTrackVoiced)
                 {
-                    if (!isPrevVoiced && isVoiced && n<frameStartIndex)
-                        currentWgt = wgtLeft[n-tempStartIndex];
-                    else if (isVoiced && !isNextVoiced && n>frameEndIndex)
-                        currentWgt = wgtRight[n-frameEndIndex-1];
+                    if (i==hnmSignal.frames.length-1)
+                        tsikPlusOne = hnmSignal.originalDurationInSeconds;
                     else
-                        currentWgt = 1.0;
-
-                    t = SignalProcUtils.sample2time(n, hnmSignal.samplingRateInHz);
-
-                    f0InHz = hnmSignal.frames[i].f0InHz;
-                    if (isNextVoiced)
-                        f0InHzNext = hnmSignal.frames[i+1].f0InHz;
-                    else
-                        f0InHzNext = f0InHz;
-
-                    if (i>0)
-                        f0InHzPrev = hnmSignal.frames[i-1].f0InHz;
-
-                    f0av = 0.5f*(f0InHz+f0InHzNext);
-
-                    /*
-                    TO DO: Synthesis times has to change with prosody modifications, also check amplitude and phase envelope resampling
-                    double pscale = 1.5;
-                    f0InHz *= pscale;
-                    f0InHzNext *= pscale;
-                    f0av *= pscale;
-                    */
-
-                    harmonicPart[n] = 0.0;
-                    for (k=0; k<Math.min(numHarmonicsCurrentFrame,maxNumHarmonics); k++)
+                        tsikPlusOne = hnmSignal.frames[i+1].tAnalysisInSeconds;
+                    trackEndInSeconds = tsikPlusOne;
+                }
+                else
+                {
+                    if (i==hnmSignal.frames.length-1)
                     {
-                        //Estimate amplitude
-                        aksis[k] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(hnmSignal.frames[i].h.ceps, (k+1)*f0InHz, hnmSignal.samplingRateInHz);
-                        //aksis[k] = hnmSignal.frames[i].h.ceps[k]; //Use amplitudes directly without cepstrum method
-
-                        aksiPlusOnes[k] = aksis[k];
-                        if (isNextVoiced && i<hnmSignal.frames.length-1 && hnmSignal.frames[i+1].h!=null && hnmSignal.frames[i+1].h.ceps!=null)
-                        {
-                            //if ((k+1)*f0InHzNext<hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz) //This if condition results in discontinuity
-                            {     
-                                aksiPlusOnes[k] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(hnmSignal.frames[i+1].h.ceps , (k+1)*f0InHzNext, hnmSignal.samplingRateInHz);
-                                //aksiPlusOnes[k] = hnmSignal.frames[i+1].h.ceps[k]; //Use amplitudes directly without cepstrum method
-                            }
-                        }
-                        else
-                            aksiPlusOnes[k] = 0.0; //This is important, or you get discontinuity at voiced-unvoiced passages
-
-                        akt = aksis[k] + (aksiPlusOnes[k]-aksis[k])*(t-tsi)/(tsiPlusOne-tsi);
-                        //
-
-                        //Estimate phase                     
-                        if (isVoiced)
-                            phasekis[k] = hnmSignal.frames[i].h.phases[k];
-
-                        if (isNextVoiced && hnmSignal.frames[i+1].h!=null && hnmSignal.frames[i+1].h.phases!=null && k<hnmSignal.frames[i+1].h.phases.length)
-                            phasekiPlusOnes[k] = hnmSignal.frames[i+1].h.phases[k];
-                        else
-                            phasekiPlusOnes[k] = (float)( phasekis[k] + (k+1)*MathUtils.TWOPI*f0InHz*(tsiPlusOne-tsi));
-                            //phasekiPlusOnes[k] = (float)(MathUtils.TWOPI*(Math.random()-0.5));
-
-                        if (!isVoiced)
-                            phasekis[k] = (float)( phasekiPlusOnes[k] - (k+1)*MathUtils.TWOPI*f0InHzNext*(tsiPlusOne-tsi)); //Equation (3.54)
-
-                        if (!(isNextVoiced && hnmSignal.frames[i+1].h!=null && hnmSignal.frames[i+1].h.phases!=null && k<hnmSignal.frames[i+1].h.phases.length))
-                            phasekiPlusOnes[k] = (float)( phasekis[k] + (k+1)*MathUtils.TWOPI*f0InHz*(tsiPlusOne-tsi)); //Equation (3.55)
-
-                        phasekiPlusOneEstimate = (float)( phasekis[k] + (k+1)*MathUtils.TWOPI*f0av*(tsiPlusOne-tsi));
-                        //phasekiPlusOneEstimate = (float) (MathUtils.TWOPI*(Math.random()-0.5)); //Random phase
-                        
-                        Mk = (int)Math.floor((phasekiPlusOneEstimate-phasekiPlusOnes[k])/MathUtils.TWOPI + 0.5);
-                        phasekt = (float)( phasekis[k] + (phasekiPlusOnes[k]+MathUtils.TWOPI*Mk-phasekis[k])*(t-tsi)/(tsiPlusOne-tsi) );
-                        //
-
-                        harmonicPart[n] += currentWgt*akt*Math.cos(phasekt);
-                        //harmonicTracks[k][n] = harmonicPart[n];
-                        //trackAmps[k][n] = akt;
-                        //trackPhases[k][n] = phasekt;
-
-                        //if (trackNoToExamine==k+1)
-                        //    currentFrameTrack[n-tempStartIndex] = harmonicPart[n];
+                        tsikPlusOne = hnmSignal.originalDurationInSeconds;
+                        trackEndInSeconds = tsikPlusOne;
+                    }
+                    else
+                    {
+                        trackEndInSeconds = trackStartInSeconds + lastPeriodInSeconds;
+                        tsikPlusOne = trackEndInSeconds;
                     }
                 }
 
-            }
-               
-            /*
-            if (tsi>0.40 && tsi<0.45)
-                MaryUtils.plot(currentFrameTrack);
-            */
+                trackStartIndex = SignalProcUtils.time2sample(trackStartInSeconds, hnmSignal.samplingRateInHz);
+                trackEndIndex = SignalProcUtils.time2sample(trackEndInSeconds, hnmSignal.samplingRateInHz);
 
-            lastPeriodInSeconds= tsiPlusOne - tsi;
+                if ((isTrackVoiced || isNextTrackVoiced) && trackEndIndex-trackStartIndex+1>0)
+                {
+                    //Amplitudes    
+                    if (isTrackVoiced && isNextTrackVoiced)
+                    {
+                        aksi = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(hnmSignal.frames[i].h.ceps, (k+1)*f0InHz, hnmSignal.samplingRateInHz);
+                        //aksi = hnmSignal.frames[i].h.ceps[k]; //Use amplitudes directly without cepstrum method
+                        
+                        aksiPlusOne = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(hnmSignal.frames[i+1].h.ceps , (k+1)*f0InHzNext, hnmSignal.samplingRateInHz);
+                        //aksiPlusOne = hnmSignal.frames[i+1].h.ceps[k]; //Use amplitudes directly without cepstrum method
+                    }
+                    else if (!isTrackVoiced && isNextTrackVoiced)
+                    {
+                        aksi = 0.0;
+                        
+                        aksiPlusOne = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(hnmSignal.frames[i+1].h.ceps , (k+1)*f0InHzNext, hnmSignal.samplingRateInHz);
+                        //aksiPlusOne = hnmSignal.frames[i+1].h.ceps[k]; //Use amplitudes directly without cepstrum method
+                    }
+                    else if (isTrackVoiced && !isNextTrackVoiced)
+                    {
+                        aksi = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(hnmSignal.frames[i].h.ceps, (k+1)*f0InHz, hnmSignal.samplingRateInHz);
+                        //aksi = hnmSignal.frames[i].h.ceps[k]; //Use amplitudes directly without cepstrum method
+                        
+                        aksiPlusOne = 0.0;
+                    } 
+                    //
+
+                    //Phases
+                    if (isTrackVoiced && isNextTrackVoiced)
+                    {
+                        phaseki = hnmSignal.frames[i].h.phases[k];
+                        phasekiPlusOne = hnmSignal.frames[i+1].h.phases[k];
+                    }
+                    else if (!isTrackVoiced && isNextTrackVoiced)
+                    {
+                        phasekiPlusOne = hnmSignal.frames[i+1].h.phases[k];
+                        phaseki = (float)( phasekiPlusOne - (k+1)*MathUtils.TWOPI*f0InHzNext*(tsikPlusOne-tsik)); //Equation (3.54)
+                    }
+                    else if (isTrackVoiced && !isNextTrackVoiced)
+                    {
+                        phaseki = hnmSignal.frames[i].h.phases[k];
+                        phasekiPlusOne = (float)( phaseki + (k+1)*MathUtils.TWOPI*f0InHz*(tsikPlusOne-tsik)); //Equation (3.55)
+                    } 
+                    
+                    phasekiPlusOneEstimate = (float)( phaseki + (k+1)*MathUtils.TWOPI*f0av*(tsikPlusOne-tsik));
+                    //phasekiPlusOneEstimate = (float) (MathUtils.TWOPI*(Math.random()-0.5)); //Random phase
+
+                    Mk = (int)Math.floor((phasekiPlusOneEstimate-phasekiPlusOne)/MathUtils.TWOPI + 0.5);
+                    //
+
+                    //Write separate tracks to output
+                    currentFrameTrack = new double[Math.min(trackEndIndex, outputLen-1)-trackStartIndex+1];
+                    //
+     
+                    for (n=trackStartIndex; n<=Math.min(trackEndIndex, outputLen-1); n++)
+                    {
+                        t = SignalProcUtils.sample2time(n, hnmSignal.samplingRateInHz);
+
+                        /*
+                        TO DO: Synthesis times has to change with prosody modifications, also check amplitude and phase envelope resampling
+                        double pscale = 1.5;
+                        f0InHz *= pscale;
+                        f0InHzNext *= pscale;
+                        f0av *= pscale;
+                         */
+
+                        //Amplitude estimate
+                        akt = aksi + (aksiPlusOne-aksi)*(t-tsik)/(tsikPlusOne-tsik);
+                        //
+
+                        //Phase estimate                     
+                        phasekt = (float)( phaseki + (phasekiPlusOne+MathUtils.TWOPI*Mk-phaseki)*(t-tsik)/(tsikPlusOne-tsik) );
+                        //
+
+                        harmonicPart[n] += akt*Math.cos(phasekt);
+
+                        harmonicTracks[k][n] = akt*Math.cos(phasekt);
+                        trackAmps[k][n] = akt;
+                        trackPhases[k][n] = phasekt;
+                    } 
+                }
+            }
+            
+            lastPeriodInSeconds= tsikPlusOne - tsik;
         }
 
         //harmonicPart = MathUtils.divide(harmonicPart, 32768.0);
 
-        /*
-        //Write individual tracks to file for examination
+        //Write separate tracks to output
         AudioInputStream inputAudio = null;
         try {
             inputAudio = AudioSystem.getAudioInputStream(new File("d:\\i.wav"));
@@ -366,11 +355,7 @@ public class HntmSynthesizer {
             //k=1;
             for (k=0; k<harmonicTracks.length; k++)
             {
-                //MaryUtils.plot(trackAmps[k]);
-                //MaryUtils.plot(trackPhases[k]);
-
                 harmonicTracks[k] = MathUtils.divide(harmonicTracks[k], 32768.0);
-                //MaryUtils.plot(harmonicTracks[k]);
 
                 DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(harmonicTracks[k]), inputAudio.getFormat());
                 String outFileName = "d:\\harmonicTrack" + String.valueOf(k+1) + ".wav";
@@ -383,7 +368,6 @@ public class HntmSynthesizer {
             }
         }
         //
-        */
 
         return harmonicPart;
     }
@@ -631,7 +615,6 @@ public class HntmSynthesizer {
         double[][] noiseTracks = null;
         double[][] trackAmps = null;
         double[][] trackPhases = null;
-        double[] currentFrameTrack = null;
         int trackNoToExamine = 1;
 
         double overlapAmountInSeconds = 0.005;
@@ -781,8 +764,6 @@ public class HntmSynthesizer {
 
             if (tempEndIndex-tempStartIndex+1>0)
             {
-                currentFrameTrack = new double[tempEndIndex-tempStartIndex+1];
-
                 for (n=tempStartIndex; n<=Math.min(tempEndIndex, origLen-1); n++)
                 {
                     if (!isPrevNoised && isNoised && n<frameStartIndex)
@@ -833,9 +814,6 @@ public class HntmSynthesizer {
                         noiseTracks[k][n] = noisePart[n];
                         trackAmps[k][n] = akt;
                         trackPhases[k][n] = phasekt;
-
-                        if (trackNoToExamine==k+1)
-                            currentFrameTrack[n-tempStartIndex] = noisePart[n];
                     }
                 }
             }
