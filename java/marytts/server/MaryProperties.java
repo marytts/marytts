@@ -265,7 +265,7 @@ public class MaryProperties
         }
 
         // Setup locale translation table:
-        locale2prefix.put(Locale.ENGLISH, "english");
+        locale2prefix.put(Locale.US, "english");
         locale2prefix.put(Locale.GERMAN, "german");
         locale2prefix.put(new Locale("tib"), "tibetan");
     }
