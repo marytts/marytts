@@ -150,8 +150,9 @@ public class FileUtils {
     }
 
     public static byte[] getFileAsBytes(File file) throws IOException {
-        InputStream is = new FileInputStream(file);
+        InputStream is = null;
         try {
+            is = new FileInputStream(file);
             long length = file.length();
 
             if (length > Integer.MAX_VALUE) {
@@ -180,41 +181,40 @@ public class FileUtils {
 
     public static void writeToTextFile(double[] array, String textFile) {
         FileWriter outFile = null;
+        PrintWriter out = null;
         try {
             outFile = new FileWriter(textFile);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        if (outFile != null) {
-            PrintWriter out = new PrintWriter(outFile);
+            out = new PrintWriter(outFile);
 
             for (int i = 0; i < array.length; i++) {
                 out.println(String.valueOf(array[i]));
             }
-            out.close();
-        } else {
+  
+        } catch (IOException e) {
             System.out.println("Error! Cannot create file: " + textFile);
+        }finally{
+            close(outFile, out);
         }
     }
 
     public static void writeToBinaryFile(int[] pitchMarks, String filename) throws IOException {
-        DataOutputStream d = new DataOutputStream(new FileOutputStream(new File(filename)));
+        DataOutputStream d = null;
         try {
+            d = new DataOutputStream(new FileOutputStream(new File(filename)));
             d.writeInt(pitchMarks.length);
 
             for (int i = 0; i < pitchMarks.length; i++) {
                 d.writeInt(pitchMarks[i]);
             }
         } finally {
-            d.close();
+            close(d);
         }
     }
 
     public static int[] readFromBinaryFile(String filename) throws IOException {
-        DataInputStream d = new DataInputStream(new FileInputStream(new File(filename)));
+        DataInputStream d = null;
         try {
+            d = new DataInputStream(new FileInputStream(new File(filename)));
             int[] x = null;
             int len = d.readInt();
 
@@ -226,9 +226,8 @@ public class FileUtils {
                 }
             }
             return x;
-
         } finally {
-            d.close();
+            close(d);
         }
     }
 
