@@ -25,17 +25,19 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -53,8 +55,8 @@ import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 
+import marytts.util.io.FileUtils;
 import org.apache.log4j.Logger;
-
 
 /**
  * Listen for clients on socket port
@@ -97,8 +99,8 @@ import org.apache.log4j.Logger;
  * The list of input and output data types can be requested from the server by
  * sending it a line "MARY LIST DATATYPES". The server will reply with a list of lines
  * where each line represents one data type, e.g. "RAWMARYXML INPUT OUTPUT",
-        "TEXT INPUT" or "AUDIO OUTPUT".
- * See the code in MaryClient.fillDataTypes().  
+"TEXT INPUT" or "AUDIO OUTPUT".
+ * See the code in MaryClient.fillDataTypes().
  * <p>
  * The optional AUDIO=AUDIOTYPE specifies the type of audio file
  * to be sent for audio output. Possible values are:
@@ -118,13 +120,13 @@ import org.apache.log4j.Logger;
  * the text is to be spoken. As for the data types, possible values
  * depend on the configuration of the server. The list can be retrieved
  * by sending the server a line "MARY LIST VOICES", which will reply with
- * lines such as "de7 de female", "kevin16 en male" or "us2 en male". 
+ * lines such as "de7 de female", "kevin16 en male" or "us2 en male".
  * <p>
  * The optional EFFECTS=EFFECTSWITHPARAMETERS specifies the audio effects
- * to be applied as a post-processing step along with their parameters. 
- * EFFECTSWITHPARAMETERS is a String of the form 
+ * to be applied as a post-processing step along with their parameters.
+ * EFFECTSWITHPARAMETERS is a String of the form
  * "Effect1Name(Effect1Parameter1=Effect1Value1; Effect1Parameter2=Effect1Value2), Effect2Name(Effect2Parameter1=Effect2Value1)"
- * For example, "Robot(amount=100),Whisper(amount=50)" will convert the output into 
+ * For example, "Robot(amount=100),Whisper(amount=50)" will convert the output into
  * a whispered robotic voice with the specified amounts.
  * <p>
  * Example: The line
@@ -164,12 +166,13 @@ import org.apache.log4j.Logger;
  * @see RequestHandler
  * @author Marc Schr&ouml;der
  */
-
 public class MaryServer {
+
     private ServerSocket server;
     private Logger logger;
     private int runningNumber = 1;
-    private Map<Integer,Object[]> clientMap;
+    private Map<Integer, Object[]> clientMap = Collections.synchronizedMap(new HashMap<Integer, Object[]>());
+    private Executor clients = Executors.newCachedThreadPool();
 
     public MaryServer() {
         logger = Logger.getLogger("server");
@@ -177,19 +180,15 @@ public class MaryServer {
 
     public void run() throws IOException, NoSuchPropertyException {
         logger.info("Starting server.");
-        clientMap = Collections.synchronizedMap(new HashMap<Integer,Object[]>());
+
         server = new ServerSocket(MaryProperties.needInteger("socket.port"));
 
         while (true) {
             logger.info("Waiting for client to connect on port " + server.getLocalPort());
             Socket client = server.accept();
             logger.info(
-                "Connection from "
-                    + client.getInetAddress().getHostName()
-                    + " ("
-                    + client.getInetAddress().getHostAddress()
-                    + ").");
-            new ClientHandler(client).start();
+                    "Connection from " + client.getInetAddress().getHostName() + " (" + client.getInetAddress().getHostAddress() + ").");
+            clients.execute(new ClientHandler(client));
         }
     }
 
@@ -197,60 +196,63 @@ public class MaryServer {
         return runningNumber++;
     }
 
-    public class ClientHandler extends Thread {
-        Socket client;
+    public class ClientHandler implements Runnable {
 
-        public ClientHandler(Socket client) {
+        Socket client;
+        PrintWriter clientOut;
+
+        public ClientHandler(Socket client) throws IOException {
             this.client = client;
         }
 
         public void run() {
             logger = Logger.getLogger("server");
             try {
+                OutputStreamWriter clientUTFOutput = new OutputStreamWriter(client.getOutputStream(), "UTF-8");
+                clientOut = new PrintWriter(clientUTFOutput, true);
                 handle();
+            } catch (UnsupportedEncodingException ex) {
+                throw new AssertionError("UTF-8 is always a supported encoding.");
             } catch (Exception e) {
                 logger.info("Error parsing request:", e);
-                try {
-                    PrintWriter outputWriter = new PrintWriter(client.getOutputStream(), true);
-                    outputWriter.println("Error parsing request:");
-                    outputWriter.println(e.getMessage());
-                    outputWriter.close();
-                    client.close();
-                } catch (IOException ioe) {
+                if (clientOut == null) {
                     logger.info("Cannot write to client.");
+                } else {
+                    clientOut.println("Error parsing request:");
+                    clientOut.println(e.getMessage());
                 }
+            } finally {
+                FileUtils.close(client, clientOut);
             }
         }
-        
+
         //Implement the protocol for communicating with a socket client.
         private void handle() throws Exception {
             // !!!! reject all clients that are not from authorized domains?
 
             // Read one line from client
-            BufferedReader buffReader = null;
-            PrintWriter outputWriter = null;
-            String line = null;
-            buffReader = new BufferedReader(new InputStreamReader(client.getInputStream(), "UTF-8"));
-            outputWriter = new PrintWriter(new OutputStreamWriter(client.getOutputStream(), "UTF-8"), true);
-            line = buffReader.readLine();
-            logger.debug("read request: `"+line+"'");
+            BufferedReader buffReader = new BufferedReader(new InputStreamReader(client.getInputStream(), "UTF-8"));
+            String line = buffReader.readLine();
+            logger.debug("read request: `" + line + "'");
+
             if (line == null) {
                 logger.info("Client seems to have disconnected - cannot read.");
                 return;
             }
-            
+
             // A: General information request, no synthesis.
             // This may consist of one or several lines of info requests and
             // may either stand alone or precede another request.
-            while (handleInfoRequest(line, outputWriter)) {
+            while (handleInfoRequest(line)) {
                 // In case this precedes another request, try to read another line:
                 line = buffReader.readLine();
-                if (line == null)
+                if (line == null) {
                     return;
+                }
             }
-           
+
             // VARIANT B1: Synthesis request.
-            if (handleSynthesisRequest(line, outputWriter)) {
+            if (handleSynthesisRequest(line)) {
                 return;
                 // VARIANT B2: Second connection of synthesis request.
             } else if (handleNumberRequest(line, buffReader)) {
@@ -259,578 +261,225 @@ public class MaryServer {
                 // complain
                 String nl = System.getProperty("line.separator");
                 throw new Exception(
-                    "Expected either a line"
-                        + nl
-                        + "MARY IN=<INPUTTYPE> OUT=<OUTPUTTYPE> [AUDIO=<AUDIOTYPE>]"
-                        + nl
-                        + "or a line containing only a number identifying a request.");
-
+                        "Expected either a line" + nl + "MARY IN=<INPUTTYPE> OUT=<OUTPUTTYPE> [AUDIO=<AUDIOTYPE>]" + nl + "or a line containing only a number identifying a request.");
             }
-       
+
         }
 
-        private boolean handleInfoRequest(String inputLine, PrintWriter outputWriter) {
-            // Optional version information:
+        private boolean handleInfoRequest(String inputLine) {
             if (inputLine.startsWith("MARY VERSION")) {
                 logger.debug("InfoRequest " + inputLine);
-                // Write version information to client.
-                outputWriter.println("Mary TTS server " + Version.specificationVersion() + " (impl. " + Version.implementationVersion() + ")");
-                // Empty line marks end of info:
-                outputWriter.println();
-                return true;
+                return handleVersion();
             } else if (inputLine.startsWith("MARY LIST DATATYPES")) {
                 logger.debug("InfoRequest " + inputLine);
-                // List all known datatypes
-                List<MaryDataType> allTypes = MaryDataType.getDataTypes();
-                for (MaryDataType t : allTypes) {
-                    outputWriter.print(t.name());
-                    if (t.isInputType())
-                        outputWriter.print(" INPUT");
-                    if (t.isOutputType())
-                        outputWriter.print(" OUTPUT");
-                    outputWriter.println();
-                }
-                // Empty line marks end of info:
-                outputWriter.println();
-                return true;
+                return listDataTypes();
             } else if (inputLine.startsWith("MARY LIST VOICES")) {
                 logger.debug("InfoRequest " + inputLine);
-                // list all known voices
-                Collection voices = Voice.getAvailableVoices();
-                for (Iterator it = voices.iterator(); it.hasNext();) {
-                    Voice v = (Voice) it.next();
-                    if (v instanceof InterpolatingVoice) {
-                        // do not list interpolating voice
-                    } else if (v instanceof UnitSelectionVoice){
-                        outputWriter.println(v.getName() + " " 
-                                			+ v.getLocale() + " " 
-                                			+ v.gender().toString() + " " 
-                                			+ "unitselection" + " "
-                                			+((UnitSelectionVoice)v).getDomain());}
-                    else if (v instanceof HMMVoice)
-                    {
-                        	outputWriter.println(v.getName() + " " 
-                        	        			+ v.getLocale()+ " " 
-                        	        			+ v.gender().toString()+ " "
-                        	        			+ "hmm");
-                    }
-                    else
-                    {
-                        outputWriter.println(v.getName() + " " 
-                                            + v.getLocale()+ " " 
-                                            + v.gender().toString() + " "
-                                            + "other");
-                    }
-                }
-                // Empty line marks end of info:
-                outputWriter.println();
-                return true;
+                return listVoices();
             } else if (inputLine.startsWith("MARY LIST AUDIOFILEFORMATTYPES")) {
                 logger.debug("InfoRequest " + inputLine);
-                AudioFileFormat.Type[] audioTypes = AudioSystem.getAudioFileTypes();
-                for (int t=0; t<audioTypes.length; t++) {
-                    outputWriter.println(audioTypes[t].getExtension()+" "+audioTypes[t].toString());
-                }
-                // Empty line marks end of info:
-                outputWriter.println();
-                return true;
+                return listAudioFileFormatTypes();
             } else if (inputLine.startsWith("MARY EXAMPLETEXT")) {
                 logger.debug("InfoRequest " + inputLine);
-                // send an example text for a given data type
-                StringTokenizer st = new StringTokenizer(inputLine);
-                // discard two tokens (MARY and EXAMPLETEXT)
-                st.nextToken();
-                st.nextToken();
-                if (st.hasMoreTokens()) {
-                    String typeName = st.nextToken();
-                    try {
-                        // next should be locale:
-                        Locale locale = MaryUtils.string2locale(st.nextToken());
-                        MaryDataType type = MaryDataType.get(typeName);
-                        if (type != null) {
-                            String exampleText = type.exampleText(locale);
-                            if (exampleText != null)
-                                outputWriter.println(exampleText.trim());
-                            
-                        }
-                    } catch (Error err) {} // type doesn't exist
-                }
-                // upon failure, simply return nothing
-                outputWriter.println();
-                return true;
-            } 
-            else if (inputLine.startsWith("MARY VOICE EXAMPLETEXT")) 
-            { 
-                //the request is about the example text of 
-                //a limited domain unit selection voice
-
+                return exampleText(inputLine);
+            } else if (inputLine.startsWith("MARY VOICE EXAMPLETEXT")) {
                 logger.debug("InfoRequest " + inputLine);
-                // send an example text for a given data type
-                StringTokenizer st = new StringTokenizer(inputLine);
-                // discard three tokens (MARY, VOICE, and EXAMPLETEXT)
-                st.nextToken();
-                st.nextToken();
-                st.nextToken();
-                if (st.hasMoreTokens()) {
-                    String voiceName = st.nextToken();
-                    Voice v = Voice.getVoice(voiceName);
-                    if (v != null) {
-                        String text = ((marytts.unitselection.UnitSelectionVoice) v).getExampleText();
-                        outputWriter.println(text);
-                    }
-                }
-                // upon failure, simply return nothing
-                outputWriter.println();
-                return true; 
-            }
-            else if (inputLine.startsWith("MARY VOICE GETDEFAULTAUDIOEFFECTS"))
-            { 
+                return voiceExampleText(inputLine);
+            } else if (inputLine.startsWith("MARY VOICE GETDEFAULTAUDIOEFFECTS")) {
+                logger.debug("InfoRequest " + inputLine);
                 //the request is about the available audio effects
+                return voiceGetDefaultAudioEffects(inputLine);
+            } else if (inputLine.startsWith("MARY VOICE GETAUDIOEFFECTHELPTEXTLINEBREAK")) {
                 logger.debug("InfoRequest " + inputLine);
-                
-                // <EffectSeparator>charEffectSeparator</EffectSeparator>
-                // <Effect>
-                //   <Name>effect´s name</Name> 
-                //   <SampleParam>example parameters string</SampleParam>
-                //   <HelpText>help text string</HelpText>
-                // </Effect>
-                // <Effect>
-                //   <Name>effect´s name</effectName> 
-                //   <SampleParam>example parameters string</SampleParam>
-                //   <HelpText>help text string</HelpText>
-                // </Effect>
-                // ...
-                // <Effect>
-                //   <Name>effect´s name</effectName> 
-                //   <SampleParam>example parameters string</SampleParam>
-                //   <HelpText>help text string</HelpText>
-                // </Effect>
-                String audioEffectClass = "<EffectSeparator>" + EffectsApplier.chEffectSeparator + "</EffectSeparator>";
-
-                for (int i=0; i<MaryProperties.effectClasses().size(); i++)
-                {
-                    audioEffectClass += "<Effect>";
-                    audioEffectClass += "<Name>" + MaryProperties.effectNames().elementAt(i) + "</Name>";
-                    audioEffectClass += "<Param>" + MaryProperties.effectSampleParams().elementAt(i) + "</Param>";
-                    audioEffectClass += "<SampleParam>" + MaryProperties.effectSampleParams().elementAt(i) + "</SampleParam>";
-                    audioEffectClass += "<HelpText>" + MaryProperties.effectHelpTexts().elementAt(i) + "</HelpText>";
-                    audioEffectClass += "</Effect>";
-                }
-                
-                outputWriter.println(audioEffectClass);
-                    
-                // upon failure, simply return nothing
-                outputWriter.println();
-                return true;
-            }
-            else if (inputLine.startsWith("MARY VOICE GETAUDIOEFFECTHELPTEXTLINEBREAK"))
-            {
-                logger.debug("InfoRequest " + inputLine);
-                
-                outputWriter.println(BaseAudioEffect.strLineBreak);
-                
-                // upon failure, simply return nothing
-                outputWriter.println();
-                return true;
-
-            }
-            else if (inputLine.startsWith("MARY VOICE GETAUDIOEFFECTDEFAULTPARAM "))
-            {
-                for (int i=0; i<MaryProperties.effectNames().size(); i++)
-                {
-                    int tmpInd = inputLine.indexOf("MARY VOICE GETAUDIOEFFECTDEFAULTPARAM "+MaryProperties.effectNames().elementAt(i));
-                    if (tmpInd>-1)
-                    {   
-                        //the request is about the parameters of a specific audio effect
-                        logger.debug("InfoRequest " + inputLine);
-
-                        BaseAudioEffect ae = null;
-                        try {
-                            ae = (BaseAudioEffect)Class.forName(MaryProperties.effectClasses().elementAt(i)).newInstance();
-                        } catch (InstantiationException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (IllegalAccessException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (ClassNotFoundException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                        
-                        if (ae!=null)
-                        {
-                            String audioEffectParams = ae.getExampleParameters();
-                            outputWriter.println(audioEffectParams.trim());
-                        }
-                     
-                        // upon failure, simply return nothing
-                        outputWriter.println();
-                        return true;
-                    }
-                }
-                
+                return voiceGetAudioEffectHelpTextLineBreak();
+            } else if (inputLine.startsWith("MARY VOICE GETAUDIOEFFECTDEFAULTPARAM ")) {
+                return getAudioEffectDefaultParameters(inputLine);
+            } else if (inputLine.startsWith("MARY VOICE GETFULLAUDIOEFFECT ")) {
+                return voiceGetFullAudioEffect(inputLine);
+            } else if (inputLine.startsWith("MARY VOICE GETAUDIOEFFECTHELPTEXT ")) {
+                return getAudioEffectHelpText(inputLine);
+            } else if (inputLine.startsWith("MARY VOICE ISHMMAUDIOEFFECT ")) {
+                return isHMMAudioEffect(inputLine);
+            } else {
                 return false;
             }
-            else if (inputLine.startsWith("MARY VOICE GETFULLAUDIOEFFECT "))
-            {
-                StringTokenizer tt = new StringTokenizer(inputLine);
-                tt.nextToken();
-                tt.nextToken();
-                tt.nextToken();
-                String effectName;
-                if (tt.hasMoreTokens())
-                    effectName = tt.nextToken();
-                else
-                {
-                    logger.error("Effect name missing in reuqest!");
-                    return false;
-                }
-                String currentEffectParams = ""; //Some effects might have no parameters
-                while (tt.hasMoreTokens())
-                    currentEffectParams += tt.nextToken();
-                
-                for (int i=0; i<MaryProperties.effectNames().size(); i++)
-                {
-                    if (effectName.compareTo(MaryProperties.effectNames().elementAt(i))==0)
-                    {   
-                        //the request is about the parameters of a specific audio effect
-                        logger.debug("InfoRequest " + inputLine);
-
-                        BaseAudioEffect ae = null;
-                        try {
-                            ae = (BaseAudioEffect)Class.forName(MaryProperties.effectClasses().elementAt(i)).newInstance();
-                        } catch (InstantiationException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (IllegalAccessException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (ClassNotFoundException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-
-                        if (ae!=null)
-                        {
-                            ae.setParams(currentEffectParams);
-                            String audioEffectFull = ae.getFullEffectAsString();
-                            outputWriter.println(audioEffectFull);
-                        }
-                     
-                        // upon failure, simply return nothing
-                        outputWriter.println();
-                        return true;
-                    }
-                }
-                
-                return false;
-            }
-            else if (inputLine.startsWith("MARY VOICE GETAUDIOEFFECTHELPTEXT "))
-            {
-                for (int i=0; i<MaryProperties.effectNames().size(); i++)
-                {
-                    int tmpInd = inputLine.indexOf("MARY VOICE GETAUDIOEFFECTHELPTEXT " + MaryProperties.effectNames().elementAt(i));
-                    if (tmpInd>-1)
-                    {   
-                        //the request is about the parameters of a specific audio effect
-                        logger.debug("InfoRequest " + inputLine);
-
-                        BaseAudioEffect ae = null;
-                        try {
-                            ae = (BaseAudioEffect)Class.forName(MaryProperties.effectClasses().elementAt(i)).newInstance();
-                        } catch (InstantiationException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (IllegalAccessException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (ClassNotFoundException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                        
-                        if (ae!=null)
-                        {
-                            String helpText = ae.getHelpText();
-                            outputWriter.println(helpText.trim());
-                        }
-                     
-                        // upon failure, simply return nothing
-                        outputWriter.println();
-                        return true;
-                    }
-                }
-                
-                return false;
-            }
-            else if (inputLine.startsWith("MARY VOICE ISHMMAUDIOEFFECT "))
-            {
-                for (int i=0; i<MaryProperties.effectNames().size(); i++)
-                {
-                    int tmpInd = inputLine.indexOf("MARY VOICE ISHMMAUDIOEFFECT " + MaryProperties.effectNames().elementAt(i));
-                    if (tmpInd>-1)
-                    {   
-                        //the request is about the parameters of a specific audio effect
-                        logger.debug("InfoRequest " + inputLine);
-
-                        BaseAudioEffect ae = null;
-                        try {
-                            ae = (BaseAudioEffect)Class.forName(MaryProperties.effectClasses().elementAt(i)).newInstance();
-                        } catch (InstantiationException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (IllegalAccessException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (ClassNotFoundException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                        
-                        if (ae!=null)
-                        {
-                            String strRet = "no";
-                            
-                            if (ae.isHMMEffect())
-                                strRet = "yes";
-                            
-                            outputWriter.println(strRet.trim());
-                        }
-                     
-                        // upon failure, simply return nothing
-                        outputWriter.println();
-                        return true;
-                    }
-                }
-                
-                return false;
-                
-            }
-            else
-                return false;
         }
 
-        private boolean handleSynthesisRequest(String inputLine, PrintWriter outputWriter) throws Exception {
+        private boolean handleSynthesisRequest(String inputLine) throws Exception {
             int id = 0;
-            // * if MARY ..., then
-            if (inputLine.startsWith("MARY")) {
-                StringTokenizer t = new StringTokenizer(inputLine);
-                String helper = null;
-                MaryDataType inputType = null;
-                MaryDataType outputType = null;
-                Locale locale = null;
-                Voice voice = null;
-                String style = "";
-                String effects = "";
-               
-                AudioFileFormat.Type audioFileFormatType = null;
-                boolean streamingAudio = false;
 
-                if (t.hasMoreTokens())
-                    t.nextToken(); // discard MARY head
-                // IN=
-                if (t.hasMoreTokens()) {
-                    String token = t.nextToken();
-                    StringTokenizer tt = new StringTokenizer(token, "=");
-                    if (tt.countTokens() == 2 && tt.nextToken().equals("IN")) {
-                        // The value of IN=
-                        helper = tt.nextToken(); // the input type
-                        inputType = MaryDataType.get(helper);
-                        if (inputType == null) {
-                            throw new Exception("Invalid input type: " + helper);
-                        }
-                    } else {
-                        throw new Exception("Expected IN=<INPUTTYPE>");
-                    }
-                } else { // IN is required
-                    throw new Exception("Expected IN=<INPUTTYPE>");
-                }
-                // OUT=
-                if (t.hasMoreTokens()) {
-                    String token = t.nextToken();
-                    StringTokenizer tt = new StringTokenizer(token, "=");
-                    if (tt.countTokens() == 2 && tt.nextToken().equals("OUT")) {
-                        // The value of OUT=
-                        helper = tt.nextToken(); // the output type
-                        outputType = MaryDataType.get(helper);
-                        if (outputType == null) {
-                            throw new Exception("Invalid output type: " + helper);
-                        }
-                    } else {
-                        throw new Exception("Expected OUT=<OUTPUTTYPE>");
-                    }
-                } else { // OUT is required
-                    throw new Exception("Expected OUT=<OUTPUTTYPE>");
-                }
-                // LOCALE=
-                if (t.hasMoreTokens()) {
-                    String token = t.nextToken();
-                    StringTokenizer tt = new StringTokenizer(token, "=");
-                    if (tt.countTokens() == 2 && tt.nextToken().equals("LOCALE")) {
-                        // The value of LOCALE=
-                        helper = tt.nextToken(); // the output type
-                        locale = MaryUtils.string2locale(helper);
-                    } else {
-                        throw new Exception("Expected LOCALE=<locale>");
-                    }
-                } else { // LOCALE is required
-                    throw new Exception("Expected LOCALE=<locale>");
-                }
-                if (t.hasMoreTokens()) {
-                    String token = t.nextToken();
-                    boolean tokenConsumed = false;
-                    StringTokenizer tt = new StringTokenizer(token, "=");
+            if (!inputLine.startsWith("MARY")) {
+                return false;
+            }
+
+            StringTokenizer t = new StringTokenizer(inputLine);
+
+            if (t.hasMoreTokens()) {
+                t.nextToken(); // discard MARY head
+            }
+
+            MaryDataType inputType = parseSynthesisRequiredInputType(t);
+            MaryDataType outputType = parseSynthesisRequiredOutputType(t);
+            Locale locale = parseSynthesisRequiredLocale(t);
+
+            //Optional from here on
+            AudioFileFormat.Type audioFileFormatType = null;
+            boolean streamingAudio = false;
+            Voice voice = null;
+            String style = null;
+            String effects = null;
+
+            while (t.hasMoreTokens()) {
+                String token = t.nextToken();
+                if (token.startsWith("AUDIO")) {
                     // AUDIO (optional and ignored if output type != AUDIO)
-                    if (tt.countTokens() == 2 && tt.nextToken().equals("AUDIO")) {
-                        tokenConsumed = true;
-                        if (outputType == MaryDataType.get("AUDIO")) {
-                            // The value of AUDIO=
-                        	String typeString = tt.nextToken();
-                        	if (typeString.startsWith("STREAMING_")) {
-                        		streamingAudio = true;
-                        		audioFileFormatType = MaryAudioUtils.getAudioFileFormatType(typeString.substring(10));
-                        	} else {
-                        		audioFileFormatType = MaryAudioUtils.getAudioFileFormatType(typeString);
-                        	}
-                        }
-                    } else { // no AUDIO field
-                        if (outputType == MaryDataType.get("AUDIO")) {
-                            throw new Exception("Expected AUDIO=<AUDIOTYPE>");
+                    String audio = parseProtocolParameter(token, "AUDIO", "AUDIOTYPE");
+                    streamingAudio = audio.startsWith("STREAMING_");
+                    if (outputType == MaryDataType.get("AUDIO")) {
+                        if (streamingAudio) {
+                            audioFileFormatType = MaryAudioUtils.getAudioFileFormatType(audio.substring(10));
+                        } else {
+                            audioFileFormatType = MaryAudioUtils.getAudioFileFormatType(audio);
                         }
                     }
-
-                    if (tokenConsumed && t.hasMoreTokens()) {
-                        token = t.nextToken();
-                        tokenConsumed = false;
-                    }
-                    
+                } else if (token.startsWith("VOICE")) {
                     // Optional VOICE field
-                    if (!tokenConsumed) {
-                        tt = new StringTokenizer(token, "=");
-                        if (tt.countTokens() == 2 && tt.nextToken().equals("VOICE")) {
-                            tokenConsumed = true;
-                            // the values of VOICE=
-                            String voiceName = tt.nextToken();
-                            if ((voiceName.equals("male") || voiceName.equals("female"))
-                                && locale != null) {
-                                // Locale-specific interpretation of gender
-                                voice = Voice.getVoice(locale, new Voice.Gender(voiceName));
-                            } else {
-                                // Plain old voice name
-                                voice = Voice.getVoice(voiceName);
-                            }
-                            if (voice == null) {
-                                throw new Exception(
-                                    "No voice matches `"
-                                        + voiceName
-                                        + "'. Use a different voice name or remove VOICE= tag from request.");
-                            }
-                        }
-                    }
-                    if (voice == null) {
-                        // no voice tag -- use locale default
-                        voice = Voice.getDefaultVoice(locale);
-                        logger.debug("No voice requested -- using default " + voice);
-                    }
-                    if (tokenConsumed && t.hasMoreTokens()) {
-                        token = t.nextToken();
-                        tokenConsumed = false;
-                    }
-                    
+                    voice = parseSynthesisVoiceType(token, locale);
+                } else if (token.startsWith("STYLE")) {
                     //Optional STYLE field
-                    style = "";
-                    if (!tokenConsumed) {
-                        tt = new StringTokenizer(token, "=");
-                        if (tt.countTokens()==2 && tt.nextToken().equals("STYLE")) {
-                            tokenConsumed = true;
-                            // the values of STYLE=
-                            style = tt.nextToken();
-                        }
-                    }
-                    if (style == "")
-                        logger.debug("No style requested");
-                    else
-                        logger.debug("Style requested: " + style);
-                    
-                    if (tokenConsumed && t.hasMoreTokens()) {
-                        token = t.nextToken();
-                        tokenConsumed = false;
-                    }
-                    //
-                    
+                    style = parseProtocolParameter(token, "STYLE", "STYLE_NAME");
+                } else if (token.startsWith("EFFECTS")) {
                     //Optional EFFECTS field
-                    effects = "";
-                    if (!tokenConsumed) {
-                        tt = new StringTokenizer(token, "=");
-                        if (tt.countTokens()==2 && tt.nextToken().equals("EFFECTS")) {
-                            tokenConsumed = true;
-                            // the values of EFFECTS=
-                            effects = tt.nextToken();
-                        }
-                    }
-                    if (effects == "")
-                        logger.debug("No audio effects requested");
-                    else
-                        logger.debug("Audio effects requested: " + effects);
-                    
-                    if (tokenConsumed && t.hasMoreTokens()) {
-                        token = t.nextToken();
-                        tokenConsumed = false;
-                    }
-                    //
-                    
+                    effects = parseProtocolParameter(token, "EFFECTS", "EFFECTS_LIST");
+                } else if (token.startsWith("LOG")) {
                     // Optional LOG field
                     // If present, the rest of the line counts as the value of LOG=
-                    if (!tokenConsumed) {
-                        tt = new StringTokenizer(token, "=");
-                        if (tt.countTokens() >= 2 && tt.nextToken().equals("LOG")) {
-                            tokenConsumed = true;
-                            // the values of LOG=
-                            helper = tt.nextToken();
-                            // Rest of line:
-                            while (t.hasMoreTokens())
-                                helper = helper + " " + t.nextToken();
-                            logger.info("Connection info: " + helper);
-                        }
-                    }
+                    parseSynthesisLog(token, t);
                 }
-
-                // Now, the parse is complete.
-                // this request's id:
-                id = getID();
-                // Construct audio file format -- even when output is not AUDIO,
-                // in case we need to pass via audio to get our output type.
-                AudioFileFormat audioFileFormat = null;
-                if (audioFileFormatType == null) {
-                    audioFileFormatType = AudioFileFormat.Type.WAVE;
-                }
-                AudioFormat audioFormat = voice.dbAudioFormat();
-                if (audioFileFormatType.toString().equals("MP3")) {
-                    if (!MaryAudioUtils.canCreateMP3())
-                        throw new UnsupportedAudioFileException("Conversion to MP3 not supported.");
-                    audioFormat = MaryAudioUtils.getMP3AudioFormat();
-                } else if (audioFileFormatType.toString().equals("Vorbis")) {
-                    if (!MaryAudioUtils.canCreateOgg())
-                        throw new UnsupportedAudioFileException("Conversion to OGG Vorbis format not supported.");
-                    audioFormat = MaryAudioUtils.getOggAudioFormat();
-                }
-                audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
-
-                Request request = new Request(inputType, outputType, locale, voice, effects, style, id, audioFileFormat, streamingAudio, null);
-                outputWriter.println(id);
-                //   -- create new clientMap entry
-                Object[] value = new Object[2];
-                value[0] = client;
-                value[1] = request;
-                clientMap.put(id, value);
-                return true;
             }
-            return false;
+
+            // Construct audio file format -- even when output is not AUDIO,
+            // in case we need to pass via audio to get our output type.
+            if (audioFileFormatType == null) {
+                audioFileFormatType = AudioFileFormat.Type.WAVE;
+            }
+            if (voice == null) {
+                // no voice tag -- use locale default
+                voice = Voice.getDefaultVoice(locale);
+                logger.debug("No voice requested -- using default " + voice);
+            }
+            if (style == null) {
+                logger.debug("No style requested");
+            } else {
+                logger.debug("Style requested: " + style);
+            }
+            if (effects == null) {
+                logger.debug("No audio effects requested");
+            } else {
+                logger.debug("Audio effects requested: " + effects);
+            }
+
+            // Now, the parse is complete.
+            // this request's id:
+            id = getID();
+
+
+            AudioFormat audioFormat = voice.dbAudioFormat();
+            if (audioFileFormatType.toString().equals("MP3")) {
+                if (!MaryAudioUtils.canCreateMP3()) {
+                    throw new UnsupportedAudioFileException("Conversion to MP3 not supported.");
+                }
+                audioFormat = MaryAudioUtils.getMP3AudioFormat();
+            } else if (audioFileFormatType.toString().equals("Vorbis")) {
+                if (!MaryAudioUtils.canCreateOgg()) {
+                    throw new UnsupportedAudioFileException("Conversion to OGG Vorbis format not supported.");
+                }
+                audioFormat = MaryAudioUtils.getOggAudioFormat();
+            }
+
+            AudioFileFormat audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
+            Request request = new Request(inputType, outputType, locale, voice, effects, style, id, audioFileFormat, streamingAudio, null);
+            clientOut.println(id);
+            //   -- create new clientMap entry
+            Object[] value = new Object[2];
+            value[0] = client;
+            value[1] = request;
+            clientMap.put(id, value);
+            return true;
+        }
+
+        /**
+         * Verifies and parses the protocol parameter
+         * @param token the string to read the parameter from
+         * @param expectedParameterName the expected parameter name
+         * @param parameterDescription human readable description of the parameter
+         * @return The value for the given parameter.
+         * @throws Exception if the parameter is not of the type expected or the
+         * protocol is malformed.
+         * @throws NullPointerException - if token is null
+         */
+        private String parseProtocolParameter(String token, String expectedParameterType, String parameterDescription) throws Exception {
+            StringTokenizer tt = new StringTokenizer(token, "=");
+            if (tt.countTokens() != 2 || !tt.nextToken().equals(expectedParameterType)) {
+                throw new Exception("Expected " + expectedParameterType + "=<" + parameterDescription + ">");
+            }
+            return tt.nextToken();
+        }
+
+        private void parseSynthesisLog(String token, StringTokenizer t) throws Exception {
+            String log = parseProtocolParameter(token, "LOG", "LOG_INPUT");
+            // Rest of line:
+            while (t.hasMoreTokens()) {
+                log = log + " " + t.nextToken();
+            }
+            logger.info("Connection info: " + log);
+        }
+
+        private Voice parseSynthesisVoiceType(String t, Locale locale) throws Exception {
+            String voiceName = parseProtocolParameter(t, "VOICE", "VOICE_NAME_OR_GENDER");
+            if ((voiceName.equals("male") || voiceName.equals("female")) && locale != null) {
+                // Locale-specific interpretation of gender
+                return Voice.getVoice(locale, new Voice.Gender(voiceName));
+            } else {
+                // Plain old voice name
+                return Voice.getVoice(voiceName);
+            }
+        }
+
+        private MaryDataType parseSynthesisRequiredInputType(StringTokenizer t) throws Exception {
+            if (!t.hasMoreTokens()) {
+                throw new Exception("Expected IN=<INPUTTYPE>");
+            }
+            String input = parseProtocolParameter(t.nextToken(), "IN", "INPUTTYPE");
+            MaryDataType inputType = MaryDataType.get(input);
+            if (inputType == null) {
+                throw new Exception("Invalid input type: " + input);
+            }
+            return inputType;
+        }
+
+        private MaryDataType parseSynthesisRequiredOutputType(StringTokenizer t) throws Exception {
+            if (!t.hasMoreTokens()) {
+                throw new Exception("Expected OUT=<OUTPUTTYPE>");
+            }
+            String output = parseProtocolParameter(t.nextToken(), "OUT", "OUTPUTTYPE");
+            MaryDataType outputType = MaryDataType.get(output);
+            if (outputType == null) {
+                throw new Exception("Invalid output type: " + output);
+            }
+            return outputType;
+        }
+
+        private Locale parseSynthesisRequiredLocale(StringTokenizer t) throws Exception {
+            if (!t.hasMoreTokens()) {
+                throw new Exception("Expected LOCALE=<locale>");
+            }
+            String localeString = parseProtocolParameter(t.nextToken(), "LOCALE", "locale");
+            return MaryUtils.string2locale(localeString);
         }
 
         private boolean handleNumberRequest(String inputLine, Reader reader)
-            throws Exception {
+                throws Exception {
             // * if number
             int id = 0;
             try {
@@ -856,9 +505,7 @@ public class MaryServer {
             }
             // Verify that the request is non-null and that the
             // corresponding socket comes from the same IP address:
-            if (request == null
-                || infoSocket == null
-                || !infoSocket.getInetAddress().equals(client.getInetAddress())) {
+            if (request == null || infoSocket == null || !infoSocket.getInetAddress().equals(client.getInetAddress())) {
                 throw new Exception("Invalid identification number.");
                 // Don't be more specific, because in general it is none of
                 // their business whether in principle someone else has
@@ -875,6 +522,254 @@ public class MaryServer {
             RequestHandler rh = new RequestHandler(request, infoSocket, client, reader);
             rh.start();
             return true;
+        }
+
+        private BaseAudioEffect getBaseAudioEffect(int number) {
+            try {
+                return (BaseAudioEffect) Class.forName(MaryProperties.effectClasses().elementAt(number)).newInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        private boolean handleVersion() {
+            // Write version information to client.
+            clientOut.println("Mary TTS server " + Version.specificationVersion() + " (impl. " + Version.implementationVersion() + ")");
+            // Empty line marks end of info:
+            clientOut.println();
+            return true;
+        }
+
+        private boolean isHMMAudioEffect(String inputLine) {
+            List<String> effectNames = MaryProperties.effectNames();
+            for (int i = 0; i < effectNames.size(); i++) {
+                int tmpInd = inputLine.indexOf("MARY VOICE ISHMMAUDIOEFFECT " + effectNames.get(i));
+                if (tmpInd > -1) {
+                    //the request is about the parameters of a specific audio effect
+                    logger.debug("InfoRequest " + inputLine);
+                    BaseAudioEffect ae = getBaseAudioEffect(i);
+                    if (ae != null) {
+                        clientOut.println(ae.isHMMEffect() ? "yes" : "no");
+                    }
+                    // upon failure, simply return nothing
+                    clientOut.println();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private boolean listAudioFileFormatTypes() {
+            for (AudioFileFormat.Type t : AudioSystem.getAudioFileTypes()) {
+                clientOut.println(t.getExtension() + " " + t.toString());
+            }
+            // Empty line marks end of info:
+            clientOut.println();
+            return true;
+        }
+
+        private boolean listDataTypes() {
+            // List all known datatypes
+            for (MaryDataType t : MaryDataType.getDataTypes()) {
+                clientOut.print(t.name());
+                if (t.isInputType()) {
+                    clientOut.print(" INPUT");
+                }
+                if (t.isOutputType()) {
+                    clientOut.print(" OUTPUT");
+                }
+                clientOut.println();
+            }
+            // Empty line marks end of info:
+            clientOut.println();
+            return true;
+        }
+
+        private boolean listVoices() {
+            // list all known voices
+            for (Voice v : Voice.getAvailableVoices()) {
+                if (v instanceof InterpolatingVoice) {
+                    // do not list interpolating voice
+                } else if (v instanceof UnitSelectionVoice) {
+                    clientOut.println(v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "unitselection" + " " + ((UnitSelectionVoice) v).getDomain());
+                } else if (v instanceof HMMVoice) {
+                    clientOut.println(v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "hmm");
+                } else {
+                    clientOut.println(v.getName() + " " + v.getLocale() + " " + v.gender().toString() + " " + "other");
+                }
+            }
+            // Empty line marks end of info:
+            clientOut.println();
+            return true;
+        }
+
+        private boolean exampleText(String inputLine) {
+            // send an example text for a given data type
+            StringTokenizer st = new StringTokenizer(inputLine);
+            st.nextToken();
+            st.nextToken();
+            try {
+                String typeName = st.nextToken();
+                // next should be locale:
+                Locale locale = MaryUtils.string2locale(st.nextToken());
+                MaryDataType type = MaryDataType.get(typeName);
+                String exampleText = type.exampleText(locale);
+                if (exampleText != null) {
+                    clientOut.println(exampleText.trim());
+                }
+            } catch (NullPointerException err) {/*type doesn't exist*/
+
+            } catch (NoSuchElementException nse) {/*type doesn't exist*/
+
+            }
+            // upon failure, simply return nothing
+            clientOut.println();
+            return true;
+        }
+
+        private boolean voiceExampleText(String inputLine) {
+            //the request is about the example text of
+            //a limited domain unit selection voice
+            // send an example text for a given data type
+            StringTokenizer st = new StringTokenizer(inputLine);
+            st.nextToken();
+            st.nextToken();
+            st.nextToken();
+            try {
+                String voiceName = st.nextToken();
+                Voice v = Voice.getVoice(voiceName);
+                String text = ((marytts.unitselection.UnitSelectionVoice) v).getExampleText();
+                if (text != null) {
+                    clientOut.println(text);
+                }
+            } catch (NullPointerException err) {/*type doesn't exist*/
+
+            } catch (NoSuchElementException nse) {/*type doesn't exist*/
+
+            }
+            // upon failure, simply return nothing
+            clientOut.println();
+            return true;
+        }
+
+        private boolean voiceGetAudioEffectHelpTextLineBreak() {
+            clientOut.println(BaseAudioEffect.strLineBreak);
+            // upon failure, simply return nothing
+            clientOut.println();
+            return true;
+        }
+
+        private boolean voiceGetDefaultAudioEffects(String inputLine) {
+            // <EffectSeparator>charEffectSeparator</EffectSeparator>
+            // <Effect>
+            //   <Name>effectÂ´s name</Name>
+            //   <SampleParam>example parameters string</SampleParam>
+            //   <HelpText>help text string</HelpText>
+            // </Effect>
+            // <Effect>
+            //   <Name>effectÂ´s name</effectName>
+            //   <SampleParam>example parameters string</SampleParam>
+            //   <HelpText>help text string</HelpText>
+            // </Effect>
+            // ...
+            // <Effect>
+            //   <Name>effectÂ´s name</effectName>
+            //   <SampleParam>example parameters string</SampleParam>
+            //   <HelpText>help text string</HelpText>
+            // </Effect>
+            String audioEffectClass = "<EffectSeparator>" + EffectsApplier.chEffectSeparator + "</EffectSeparator>";
+
+            for (int i = 0; i < MaryProperties.effectClasses().size(); i++) {
+                audioEffectClass += "<Effect>";
+                audioEffectClass += "<Name>" + MaryProperties.effectNames().elementAt(i) + "</Name>";
+                audioEffectClass += "<Param>" + MaryProperties.effectSampleParams().elementAt(i) + "</Param>";
+                audioEffectClass += "<SampleParam>" + MaryProperties.effectSampleParams().elementAt(i) + "</SampleParam>";
+                audioEffectClass += "<HelpText>" + MaryProperties.effectHelpTexts().elementAt(i) + "</HelpText>";
+                audioEffectClass += "</Effect>";
+            }
+
+            clientOut.println(audioEffectClass);
+            // upon failure, simply return nothing
+            clientOut.println();
+            return true;
+        }
+
+        private boolean getAudioEffectDefaultParameters(String inputLine) {
+            for (int i = 0; i < MaryProperties.effectNames().size(); i++) {
+                int tmpInd = inputLine.indexOf("MARY VOICE GETAUDIOEFFECTDEFAULTPARAM " + MaryProperties.effectNames().elementAt(i));
+                if (tmpInd > -1) {
+                    //the request is about the parameters of a specific audio effect
+                    logger.debug("InfoRequest " + inputLine);
+                    BaseAudioEffect ae = getBaseAudioEffect(i);
+                    if (ae != null) {
+                        String audioEffectParams = ae.getExampleParameters();
+                        clientOut.println(audioEffectParams.trim());
+                    }
+                    // upon failure, simply return nothing
+                    clientOut.println();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private boolean voiceGetFullAudioEffect(String inputLine) {
+            StringTokenizer tt = new StringTokenizer(inputLine);
+            tt.nextToken();
+            tt.nextToken();
+            tt.nextToken();
+            String effectName;
+            if (tt.hasMoreTokens()) {
+                effectName = tt.nextToken();
+            } else {
+                logger.error("Effect name missing in request!");
+                return false;
+            }
+            String currentEffectParams = ""; //Some effects might have no parameters
+            while (tt.hasMoreTokens()) {
+                currentEffectParams += tt.nextToken();
+            }
+
+            List<String> effectNames = MaryProperties.effectNames();
+            for (int i = 0; i < effectNames.size(); i++) {
+                if (effectName.equals(effectNames.get(i))) {
+                    //the request is about the parameters of a specific audio effect
+                    logger.debug("InfoRequest " + inputLine);
+
+                    BaseAudioEffect ae = getBaseAudioEffect(i);
+                    if (ae != null) {
+                        ae.setParams(currentEffectParams);
+                        String audioEffectFull = ae.getFullEffectAsString();
+                        clientOut.println(audioEffectFull);
+                    }
+                    // upon failure, simply return nothing
+                    clientOut.println();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private boolean getAudioEffectHelpText(String inputLine) {
+            List<String> effectNames = MaryProperties.effectNames();
+            for (int i = 0; i < effectNames.size(); i++) {
+                int tmpInd = inputLine.indexOf("MARY VOICE GETAUDIOEFFECTHELPTEXT " + effectNames.get(i));
+                if (tmpInd > -1) {
+                    //the request is about the parameters of a specific audio effect
+                    logger.debug("InfoRequest " + inputLine);
+
+                    BaseAudioEffect ae = getBaseAudioEffect(i);
+                    if (ae != null) {
+                        String helpText = ae.getHelpText();
+                        clientOut.println(helpText.trim());
+                    }
+                    // upon failure, simply return nothing
+                    clientOut.println();
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
