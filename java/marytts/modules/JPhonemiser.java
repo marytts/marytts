@@ -157,7 +157,7 @@ public class JPhonemiser extends InternalModule
                     
                     if (ph != null && ph.length() > 0) {
                         setPh(t, ph.toString());
-                        t.setAttribute("g2p_method", g2pMethod.toString());
+                        t.setAttribute("g2p_method", g2pMethod);
                     }
             }
         }

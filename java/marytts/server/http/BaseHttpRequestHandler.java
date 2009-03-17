@@ -106,7 +106,7 @@ public abstract class BaseHttpRequestHandler extends SimpleNHttpRequestHandler i
     {
         try {
             Header[] tmp = request.getHeaders("Host");
-            Address serverAddressAtClient = getServerAddressAtClient(tmp[0].getValue().toString());
+            Address serverAddressAtClient = getServerAddressAtClient(tmp[0].getValue());
             String uri = request.getRequestLine().getUri();
             
             String method = request.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
