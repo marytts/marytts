@@ -124,7 +124,7 @@ public class FST
         File f=new File(fileName);
         int i;
         DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(f)));
-        int fileSize=(new Long(f.length())).intValue();
+        int fileSize= (int) f.length();
         
         int encLen = in.readInt(); 
         byte[] encBytes = new byte[encLen];
@@ -182,7 +182,7 @@ public class FST
         File f=new File(fileName);
         int i;
         DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(f)));
-        int fileSize=(new Long(f.length())).intValue();
+        int fileSize= (int) f.length();
         int nArcs=in.readInt();
         // arcs = new int[nArcs];
         

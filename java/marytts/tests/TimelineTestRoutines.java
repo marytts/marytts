@@ -67,7 +67,7 @@ public class TimelineTestRoutines extends TimelineReader {
             byte[] buff = new byte[len];
             /* Fill all the bytes with the datagram index */
             for ( int l = 0; l < len; l++ ) {
-                buff[l] = new Integer(i).byteValue();
+                buff[l] = (byte) i;
             }
             /* Make a random datagram duration */
             dur = (long)( rand.nextInt(MAXDATAGRAMDURATION) + 1 );
