@@ -104,7 +104,7 @@ public class SynthesisScriptGUI extends JPanel implements TableModelListener{
               numUnwanted=0;
               for(int i=0; i<selIds.length; i++){
                 str = wikiToDB.getSelectedSentence(actualTableName, selIds[i]);
-                dtm.addRow(new Object[]{new Boolean(false), (i+1), str });
+                dtm.addRow(new Object[]{Boolean.FALSE, (i+1), str });
               }
             } else
               output.append("There are not selected sentences in TABLE = " + actualTableName);
