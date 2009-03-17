@@ -50,13 +50,7 @@ public class MfccFileHeader extends FeatureFileHeader {
     
     public boolean isIdenticalAnalysisParams(MfccFileHeader hdr)
     {
-        
-        boolean bRet = super.isIdenticalAnalysisParams(hdr);
-       
-        if (bRet==false)
-            return false;
-        
-        return true;
+        return super.isIdenticalAnalysisParams(hdr);
     }
     
     public void readHeader(MaryRandomAccessFile ler, boolean bLeaveStreamOpen) throws IOException
