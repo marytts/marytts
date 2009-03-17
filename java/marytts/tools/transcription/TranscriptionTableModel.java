@@ -157,7 +157,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
         
         for(int i=0; i < lines.length; i++){
             if(lines[i].trim().equals("")){
-                data[i][0] = ("").toString();
+                data[i][0] = "";
                 data[i][1] = "";
                 data[i][2] = "";
                 data[i][3] = Boolean.FALSE;
