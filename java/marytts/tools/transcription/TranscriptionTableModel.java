@@ -69,7 +69,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
             data[i][0] = "";
             data[i][1] = "";
             data[i][2] = "";
-            data[i][3] = new Boolean(false);
+            data[i][3] = Boolean.FALSE;
             setAsManualVerify(i, false);
             setAsCorrectSyntax(i, true);
         }
@@ -91,7 +91,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
             data[i][0] = (new Integer(i)).toString();
             data[i][1] = words[i];
             data[i][2] = "";
-            data[i][3] = new Boolean(false);
+            data[i][3] = Boolean.FALSE;
             setAsManualVerify(i, false);
             setAsCorrectSyntax(i, true);
         }
@@ -160,7 +160,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
                 data[i][0] = ("").toString();
                 data[i][1] = "";
                 data[i][2] = "";
-                data[i][3] = new Boolean(false);
+                data[i][3] = Boolean.FALSE;
                 setAsManualVerify(i, false);
                 continue; 
             }
@@ -210,7 +210,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
             data[i][0] = (new Integer(i)).toString();
             data[i][1] = (String) it.next(); //wordList.get(i);
             data[i][2] = "";
-            data[i][3] = new Boolean(false);
+            data[i][3] = Boolean.FALSE;
             setAsManualVerify(i, false);
             setAsCorrectSyntax(i, true);
                        
@@ -230,7 +230,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
             data[i][0] = (new Integer(i)).toString();
             data[i][1] = (String) it.next(); //wordList.get(i);
             data[i][2] = "";
-            data[i][3] = new Boolean(false);
+            data[i][3] = Boolean.FALSE;
             setAsManualVerify(i, false);
             setAsCorrectSyntax(i, true);
                        
