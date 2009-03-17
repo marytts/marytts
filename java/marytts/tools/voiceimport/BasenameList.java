@@ -202,7 +202,7 @@ public class BasenameList
      * Adds a basename to the list.
      */
     public void add( String str ) {
-        if ( !bList.contains( str ) ) bList.add( new String( str ) );
+        if ( !bList.contains( str ) ) bList.add(str);
         hasChanged = true;
     }
     
@@ -302,7 +302,7 @@ public class BasenameList
      * @return The corresponding basename.
      */
     public String getName( int i ) {
-        return( new String( (String)(bList.elementAt(i)) ) );
+        return (String) bList.elementAt(i);
     }
     
     /**
