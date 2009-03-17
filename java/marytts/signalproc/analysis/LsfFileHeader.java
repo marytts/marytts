@@ -37,15 +37,13 @@ public class LsfFileHeader extends FeatureFileHeader {
     public LsfFileHeader()
     {
         super();
-        
         preCoef = 0.0f;
         windowType = Window.HAMMING;
     }
     
     public LsfFileHeader(LsfFileHeader existingHeader)
     {
-        super((FeatureFileHeader)existingHeader);
-
+        super(existingHeader);
         preCoef = existingHeader.preCoef;
         windowType = existingHeader.windowType;
     }
@@ -98,7 +96,6 @@ public class LsfFileHeader extends FeatureFileHeader {
     public void writeHeader(MaryRandomAccessFile ler) throws IOException
     {   
         super.writeHeader(ler);
-        
         ler.writeFloat(preCoef);
         ler.writeInt(windowType);
     }

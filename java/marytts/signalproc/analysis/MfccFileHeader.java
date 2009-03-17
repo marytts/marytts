@@ -40,7 +40,7 @@ public class MfccFileHeader extends FeatureFileHeader {
     
     public MfccFileHeader(MfccFileHeader existingHeader)
     {
-        super((FeatureFileHeader)existingHeader);
+        super(existingHeader);
     }
     
     public MfccFileHeader(String mfccFile)
