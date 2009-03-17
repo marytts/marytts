@@ -228,7 +228,7 @@ public class MCEPMaker extends VoiceImportComponent {
             }
             dos.writeBytes( "EST_File Track\n" +
                     "DataType ascii\n" +
-                    "NumFrames " + new Integer(pmOut.length).toString() + "\n" +
+                    "NumFrames " + Integer.toString(pmOut.length) + "\n" +
                     "NumChannels 0\n" +
                     "NumAuxChannels 0\n" +
                     "EqualSpace 0\n" +
