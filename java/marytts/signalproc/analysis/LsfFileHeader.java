@@ -64,17 +64,15 @@ public class LsfFileHeader extends FeatureFileHeader {
     
     public boolean isIdenticalAnalysisParams(LsfFileHeader hdr)
     {
-        if (!(hdr instanceof LsfFileHeader))
-            return false;
-        
-        boolean bRet = super.isIdenticalAnalysisParams((FeatureFileHeader)hdr);
+
+        boolean bRet = super.isIdenticalAnalysisParams(hdr);
        
         if (bRet==false)
             return false;
 
-        if (this.preCoef!=((LsfFileHeader)hdr).preCoef)
+        if (this.preCoef!= hdr.preCoef)
             return false;
-        if (this.windowType!=((LsfFileHeader)hdr).windowType)
+        if (this.windowType!= hdr.windowType)
             return false;
         
         return bRet;
