@@ -50,10 +50,8 @@ public class MfccFileHeader extends FeatureFileHeader {
     
     public boolean isIdenticalAnalysisParams(MfccFileHeader hdr)
     {
-        if (!(hdr instanceof MfccFileHeader))
-            return false;
         
-        boolean bRet = super.isIdenticalAnalysisParams((FeatureFileHeader)hdr);
+        boolean bRet = super.isIdenticalAnalysisParams(hdr);
        
         if (bRet==false)
             return false;
