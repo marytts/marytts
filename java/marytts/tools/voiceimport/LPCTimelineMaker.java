@@ -179,7 +179,7 @@ public class LPCTimelineMaker extends VoiceImportComponent
             props.setProperty("lpc.range", String.valueOf(lpcRange));
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             props.store(baos, null);
-            String processingHeader = new String(baos.toString("latin1"));
+            String processingHeader = baos.toString("latin1");
             
             /* Instantiate the TimelineWriter: */
             TimelineWriter lpcTimeline = new TimelineWriter( lpcTimelineName, processingHeader, globSampleRate, 0.01 );

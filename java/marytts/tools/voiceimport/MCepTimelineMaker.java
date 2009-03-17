@@ -178,7 +178,7 @@ public class MCepTimelineMaker extends VoiceImportComponent
             props.setProperty("mcep.range", String.valueOf(mcepRange));
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             props.store(baos, null);
-            String processingHeader = new String(baos.toString("latin1"));
+            String processingHeader = baos.toString("latin1");
             
             
             /* Instantiate the TimelineWriter: */
