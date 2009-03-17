@@ -1188,7 +1188,7 @@ public class HTKLabeler extends VoiceImportComponent {
            }
            String line;
            while((line=htkLab.readLine()) != null){
-               line.trim();
+               line = line.trim();
                String fileName = line.substring(1, line.length()-1);
                //line.replaceAll("\"", "");
                //System.err.println("LINE: "+fileName);

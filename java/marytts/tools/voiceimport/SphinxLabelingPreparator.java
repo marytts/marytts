@@ -664,7 +664,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
         StringBuffer stBuf = new StringBuffer();
         String line = bufIn.readLine();
         while (line != null){
-            line.trim();
+            line = line.trim();
             if (line.equals("\t \"-di wav -ei sph -do \\\"$CFG_FEATFILES_DIR\\\" \" .")){
                 line = "\t \"-di wav -ei wav -do \\\"$CFG_FEATFILES_DIR\\\" \" . ";
             }

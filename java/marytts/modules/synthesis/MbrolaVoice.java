@@ -154,7 +154,7 @@ public class MbrolaVoice extends Voice
         String[] parts = null;
         // For one-to-many mappings, '+' can be used to group phoneme symbols.
         // E.g., the line "EI->E:+I" would map "EI" to "E:" and "I" 
-        entry.replace('+', ' ');
+        entry = entry.replace('+', ' ');
         if (entry.indexOf("<->") != -1) {
             parts = entry.split("<->");
             s2v = true;
