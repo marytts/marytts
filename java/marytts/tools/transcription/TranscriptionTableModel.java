@@ -88,7 +88,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
         this.hasManualVerification  =  new boolean[words.length];
         this.hasCorrectSyntax  =  new boolean[words.length];
         for(int i=0; i < words.length; i++){
-            data[i][0] = (new Integer(i)).toString();
+            data[i][0] = Integer.toString(i);
             data[i][1] = words[i];
             data[i][2] = "";
             data[i][3] = Boolean.FALSE;
@@ -165,7 +165,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
                 continue; 
             }
             String[]  words = lines[i].trim().split("\\s+");
-            data[i][0] = (new Integer(i)).toString();
+            data[i][0] = Integer.toString(i);
             data[i][1] = words[0];
             if(lines[i].trim().endsWith("functional")){
                 data[i][3] = new Boolean(true);
@@ -207,7 +207,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
         this.hasCorrectSyntax  =  new boolean[length];
         Iterator<String> it = wordList.keySet().iterator();
         for(int i=0; it.hasNext(); i++){
-            data[i][0] = (new Integer(i)).toString();
+            data[i][0] = Integer.toString(i);
             data[i][1] = (String) it.next(); //wordList.get(i);
             data[i][2] = "";
             data[i][3] = Boolean.FALSE;
@@ -227,7 +227,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
         this.hasCorrectSyntax  =  new boolean[length];
         Iterator<String> it = wordList.iterator();
         for(int i=0; it.hasNext(); i++){
-            data[i][0] = (new Integer(i)).toString();
+            data[i][0] = Integer.toString(i);
             data[i][1] = (String) it.next(); //wordList.get(i);
             data[i][2] = "";
             data[i][3] = Boolean.FALSE;

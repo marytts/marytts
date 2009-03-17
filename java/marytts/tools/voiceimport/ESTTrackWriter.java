@@ -89,7 +89,7 @@ public class ESTTrackWriter {
                 "CommentChar ;\n" );
         String K;
         for ( int k = 0; k < numChannels; k++ ) {
-            K = new Integer(k).toString();
+            K = Integer.toString(k);
             dos.writeBytes( "Channel_" + K + " " + feaType + "_" + K + "\n" );
         }
         dos.writeBytes( "EST_Header_End\n" );
@@ -107,12 +107,12 @@ public class ESTTrackWriter {
         // - in ASCII mode
         else {
             for ( int i = 0; i < times.length; i++ ) {
-                dos.writeBytes( new Float(times[i]).toString() );
+                dos.writeBytes( Float.toString(times[i]) );
                 dos.writeBytes( "\t1\t" );
                 if (numChannels > 0) {
-                    dos.writeBytes( new Float(frames[i][0]).toString() );
+                    dos.writeBytes( Float.toString(frames[i][0]) );
                     for ( int k = 1; k < frames[0].length; k++ ) {
-                        dos.writeBytes( " " + new Float(frames[i][k]).toString() );
+                        dos.writeBytes( " " + Float.toString(frames[i][k]) );
                     }
                 }
                 dos.writeBytes( "\n" );                    
