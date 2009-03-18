@@ -82,18 +82,20 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
     public final String step11_$ERST3 = name+".runStep11_$ERST3";
     public final String step12_$CXCL2 = name+".runStep12_$CXCL2";
     public final String step13_$ERST4 = name+".runStep13_$ERST4";
-    public final String step14_$CXCL3 = name+".runStep14_$CXCL3";
-    public final String step15_$MKUN1 = name+".runStep15_$MKUN1";
-    public final String step16_$PGEN1 = name+".runStep16_$PGEN1";
-    public final String step17_$WGEN1 = name+".runStep17_$WGEN1";
-    public final String step18_$CONVM = name+".runStep18_$CONVM";
-    public final String step19_$ENGIN = name+".runStep19_$ENGIN";
-    public final String step20_$UPMIX = name+".runStep20_$UPMIX";
-    public final String step21_$ERST5 = name+".runStep21_$ERST5";
-    public final String step22_$CXCL4 = name+".runStep22_$CXCL4";
-    public final String step23_$MKUN2 = name+".runStep23_$MKUN2";
-    public final String step24_$PGEN2 = name+".runStep24_$PGEN2";
-    public final String step25_$WGEN2 = name+".runStep25_$WGEN2";
+    public final String step14_$MKUN1 = name+".runStep14_$MKUN1";
+    public final String step15_$PGEN1 = name+".runStep15_$PGEN1";
+    public final String step16_$WGEN1 = name+".runStep16_$WGEN1";
+    public final String step17_$CONVM = name+".runStep17_$CONVM";
+    public final String step18_$ENGIN = name+".runStep18_$ENGIN";
+    public final String step19_$UPMIX = name+".runStep19_$UPMIX";   
+    public final String step20_$SEMIT = name+".runStep20_$SEMIT";
+    public final String step21_$MKUNS = name+".runStep21_$MKUNS";
+    public final String step22_$PGENS = name+".runStep22_$PGENS";
+    public final String step23_$WGENS = name+".runStep23_$WGENS";
+    public final String step24_$ERST5 = name+".runStep24_$ERST5";
+    public final String step25_$MKUN2 = name+".runStep25_$MKUN2";
+    public final String step26_$PGEN2 = name+".runStep26_$PGEN2";
+    public final String step27_$WGEN2 = name+".runStep27_$WGEN2";
 
     private ArrayList<String> steps = new ArrayList<String>();
     
@@ -124,19 +126,20 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
            props.put(step11_$ERST3, "1"); 
            props.put(step12_$CXCL2, "1"); 
            props.put(step13_$ERST4, "1"); 
-           props.put(step14_$CXCL3, "1"); 
-           props.put(step15_$MKUN1, "1"); 
-           props.put(step16_$PGEN1, "1"); 
-           props.put(step17_$WGEN1, "1"); 
-           props.put(step18_$CONVM, "1"); 
-           props.put(step19_$ENGIN, "1"); 
-           props.put(step20_$UPMIX, "1"); 
-           props.put(step21_$ERST5, "1"); 
-           props.put(step22_$CXCL4, "1"); 
-           props.put(step23_$MKUN2, "1"); 
-           props.put(step24_$PGEN2, "1"); 
-           props.put(step25_$WGEN2, "1");
-           
+           props.put(step14_$MKUN1, "1");
+           props.put(step15_$PGEN1, "1");
+           props.put(step16_$WGEN1, "1");
+           props.put(step17_$CONVM, "1");
+           props.put(step18_$ENGIN, "1");
+           props.put(step19_$UPMIX, "1");
+           props.put(step20_$SEMIT, "1");
+           props.put(step21_$MKUNS, "1");
+           props.put(step22_$PGENS, "1");
+           props.put(step23_$WGENS, "1");
+           props.put(step24_$ERST5, "1");
+           props.put(step25_$MKUN2, "1");
+           props.put(step26_$PGEN2, "1");
+           props.put(step27_$WGEN2, "1");
        }
        return props;
        }
@@ -159,15 +162,17 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
         steps.add("embedded reestimation (untied)");
         steps.add("tree-based context clustering (cmp)");
         steps.add("embedded reestimation (re-clustered)");
-        steps.add("tree-based context clustering (dur)");
         steps.add("making unseen models (1mix)");
         steps.add("generating speech parameter sequences (1mix)");
         steps.add("synthesizing waveforms (1mix)");
         steps.add("converting mmfs to the hts_engine file format");
         steps.add("synthesizing waveforms using hts_engine");
         steps.add("increasing the number of mixture components (1mix -> 2mix)");
+        steps.add("semi-tied covariance matrices");
+        steps.add("making unseen models (stc)");
+        steps.add("generating speech parameter sequences (stc)");
+        steps.add("synthesizing waveforms (stc)");
         steps.add("embedded reestimation (2mix)");
-        steps.add("tree-based context clustering (dur, 2mix)");
         steps.add("making unseen models (2mix)");
         steps.add("generating speech parameter sequences (2mix)");
         steps.add("synthesizing waveforms (2mix)");
@@ -184,19 +189,21 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
         props2Help.put(step10_$UNTIE, steps.get(9));
         props2Help.put(step11_$ERST3, steps.get(10));
         props2Help.put(step12_$CXCL2, steps.get(11));
-        props2Help.put(step13_$ERST4, steps.get(12));
-        props2Help.put(step14_$CXCL3, steps.get(13));
-        props2Help.put(step15_$MKUN1, steps.get(14));
-        props2Help.put(step16_$PGEN1, steps.get(15));
-        props2Help.put(step17_$WGEN1, steps.get(16));
-        props2Help.put(step18_$CONVM, steps.get(17));
-        props2Help.put(step19_$ENGIN, steps.get(18));
-        props2Help.put(step20_$UPMIX, steps.get(19));
-        props2Help.put(step21_$ERST5, steps.get(20));
-        props2Help.put(step22_$CXCL4, steps.get(21));
-        props2Help.put(step23_$MKUN2, steps.get(22));
-        props2Help.put(step24_$PGEN2, steps.get(23));
-        props2Help.put(step25_$WGEN2, steps.get(24));
+        props2Help.put(step13_$ERST4, steps.get(12));      
+        props2Help.put(step14_$MKUN1, steps.get(13));
+        props2Help.put(step15_$PGEN1, steps.get(14));
+        props2Help.put(step16_$WGEN1, steps.get(15));
+        props2Help.put(step17_$CONVM, steps.get(16));
+        props2Help.put(step18_$ENGIN, steps.get(17));
+        props2Help.put(step19_$UPMIX, steps.get(18));
+        props2Help.put(step20_$SEMIT, steps.get(19));
+        props2Help.put(step21_$MKUNS, steps.get(20));
+        props2Help.put(step22_$PGENS, steps.get(21));
+        props2Help.put(step23_$WGENS, steps.get(22));
+        props2Help.put(step24_$ERST5, steps.get(23));
+        props2Help.put(step25_$MKUN2, steps.get(24));
+        props2Help.put(step26_$PGEN2, steps.get(25));
+        props2Help.put(step27_$WGEN2, steps.get(26));
 
     }
  
@@ -244,18 +251,21 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
         config.append("$ERST3 = " + getProp(step11_$ERST3) + ";  # " + props2Help.get(step11_$ERST3) + "\n");
         config.append("$CXCL2 = " + getProp(step12_$CXCL2) + ";  # " + props2Help.get(step12_$CXCL2) + "\n");
         config.append("$ERST4 = " + getProp(step13_$ERST4) + ";  # " + props2Help.get(step13_$ERST4) + "\n");
-        config.append("$CXCL3 = " + getProp(step14_$CXCL3) + ";  # " + props2Help.get(step14_$CXCL3) + "\n");
-        config.append("$MKUN1 = " + getProp(step15_$MKUN1) + ";  # " + props2Help.get(step15_$MKUN1) + "\n");
-        config.append("$PGEN1 = " + getProp(step16_$PGEN1) + ";  # " + props2Help.get(step16_$PGEN1) + "\n");
-        config.append("$WGEN1 = " + getProp(step17_$WGEN1) + ";  # " + props2Help.get(step17_$WGEN1) + "\n");
-        config.append("$CONVM = " + getProp(step18_$CONVM) + ";  # " + props2Help.get(step18_$CONVM) + "\n");
-        config.append("$ENGIN = " + getProp(step19_$ENGIN) + ";  # " + props2Help.get(step19_$ENGIN) + "\n");
-        config.append("$UPMIX = " + getProp(step20_$UPMIX) + ";  # " + props2Help.get(step20_$UPMIX) + "\n");
-        config.append("$ERST5 = " + getProp(step21_$ERST5) + ";  # " + props2Help.get(step21_$ERST5) + "\n");
-        config.append("$CXCL4 = " + getProp(step22_$CXCL4) + ";  # " + props2Help.get(step22_$CXCL4) + "\n");       
-        config.append("$MKUN2 = " + getProp(step23_$MKUN2) + ";  # " + props2Help.get(step23_$MKUN2) + "\n");
-        config.append("$PGEN2 = " + getProp(step24_$PGEN2) + ";  # " + props2Help.get(step24_$PGEN2) + "\n");
-        config.append("$WGEN2 = " + getProp(step25_$WGEN2) + ";  # " + props2Help.get(step25_$WGEN2) + "\n");
+        
+        config.append("$MKUN1 = " + getProp(step14_$MKUN1) + ";  # " + props2Help.get(step14_$MKUN1) + "\n");
+        config.append("$PGEN1 = " + getProp(step15_$PGEN1) + ";  # " + props2Help.get(step15_$PGEN1) + "\n");
+        config.append("$WGEN1 = " + getProp(step16_$WGEN1) + ";  # " + props2Help.get(step16_$WGEN1) + "\n");
+        config.append("$CONVM = " + getProp(step17_$CONVM) + ";  # " + props2Help.get(step17_$CONVM) + "\n");
+        config.append("$ENGIN = " + getProp(step18_$ENGIN) + ";  # " + props2Help.get(step18_$ENGIN) + "\n");
+        config.append("$UPMIX = " + getProp(step19_$UPMIX) + ";  # " + props2Help.get(step19_$UPMIX) + "\n");
+        config.append("$SEMIT = " + getProp(step20_$SEMIT) + ";  # " + props2Help.get(step20_$SEMIT) + "\n");
+        config.append("$MKUNS = " + getProp(step21_$MKUNS) + ";  # " + props2Help.get(step21_$MKUNS) + "\n");
+        config.append("$PGENS = " + getProp(step22_$PGENS) + ";  # " + props2Help.get(step22_$PGENS) + "\n");
+        config.append("$WGENS = " + getProp(step23_$WGENS) + ";  # " + props2Help.get(step23_$WGENS) + "\n");
+        config.append("$ERST5 = " + getProp(step24_$ERST5) + ";  # " + props2Help.get(step24_$ERST5) + "\n");
+        config.append("$MKUN2 = " + getProp(step25_$MKUN2) + ";  # " + props2Help.get(step25_$MKUN2) + "\n");
+        config.append("$PGEN2 = " + getProp(step26_$PGEN2) + ";  # " + props2Help.get(step26_$PGEN2) + "\n");
+        config.append("$WGEN2 = " + getProp(step27_$WGEN2) + ";  # " + props2Help.get(step27_$WGEN2) + "\n");
         
         config.append("\n" + "1;" + "\n");
         
@@ -325,16 +335,8 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
             while( true ) {
                 line = procStdout.readLine();                 
                 if ( line == null ) break;
-                if(line.contains("Start ")){
-                  for( String stepLine : steps){
-                    if( line.contains(stepLine) ){
-                      //System.out.println("STEP: " + steps.indexOf(stepLine));
-                      numSteps = steps.indexOf(stepLine);
-                      break;
-                    }
-                  }  
-                  System.out.println( "\nStep (" + (numSteps+1) + "): " + line );
-                }
+                if(line.contains("Start "))
+                  System.out.println( "\nStep: " + line );
                 log.write(line+"\n");
             }
             /* Wait and check the exit value */

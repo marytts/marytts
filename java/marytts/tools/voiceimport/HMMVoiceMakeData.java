@@ -77,6 +77,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     /** Tree files and TreeSet object */
     public final String MGC           = name+".makeMGC";
     public final String LF0           = name+".makeLF0";
+    public final String MAG           = name+".makeMAG";
     public final String STR           = name+".makeSTR";
     public final String CMPMARY       = name+".makeCMPMARY";
     public final String GVMARY        = name+".makeGV";
@@ -106,6 +107,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
            
            props.put(MGC, "1");
            props.put(LF0, "1");
+           props.put(MAG, "1");
            props.put(STR, "1");
            props.put(CMPMARY, "1");
            props.put(GVMARY, "1");
@@ -128,6 +130,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         
         props2Help.put(MGC, "Extracting MGC or MGC-LSP coefficients from raw audio.");
         props2Help.put(LF0, "Extracting log f0 sequence from raw audio.");
+        props2Help.put(MAG, "Extracting Fourier magnitudes from raw audio.");
         props2Help.put(STR, "Extracting strengths from 5 filtered bands from raw audio.");
         props2Help.put(CMPMARY, "Composing training data files from mgc, lf0 and str files.");
         props2Help.put(GVMARY, "Calculating GV and saving in Mary format.");
@@ -166,6 +169,10 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           cmdLine = "cd data\nmake lf0\n";
           launchBatchProc(cmdLine, "", filedir);
       }
+      if( Integer.parseInt(getProp(MAG)) == 1 ){
+          cmdLine = "cd data\nmake mag\n";
+          launchBatchProc(cmdLine, "", filedir);
+      }
       if( Integer.parseInt(getProp(STR)) == 1 ){
           cmdLine = "cd data\nmake str\n";
           launchBatchProc(cmdLine, "", filedir);
@@ -176,6 +183,9 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
       }
       if( Integer.parseInt(getProp(GVMARY)) == 1 ){
           cmdLine = "cd data\nmake gv-mary\n";
+          launchBatchProc(cmdLine, "", filedir);
+          // also execute HTS gv to avoid problems when running the training script
+          cmdLine = "cd data\nmake gv\n";
           launchBatchProc(cmdLine, "", filedir);
       }
       if( Integer.parseInt(getProp(LABELMARY)) == 1 ){
@@ -286,6 +296,11 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
      */
     private void makeQuestions() throws Exception {
         
+        // check if questions directory exis, if not create it
+        File dirQuestions  = new File("data/questions");
+        if( !(dirQuestions.exists()) )
+          dirQuestions.mkdir();
+                
         FileWriter out = new FileWriter(getProp(questionsFile));
         int i;
         String phon;
