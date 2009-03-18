@@ -119,10 +119,10 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
            String rootdir = db.getProp(db.ROOTDIR);
            
            props.put(CONFIGUREFILE, rootdir+"configure");
-           props.put(HTSPATH,       "/project/mary/marcela/sw/HTS_2.0.1/htk/bin");
-           props.put(HTSENGINEPATH, "/project/mary/marcela/sw/HTS_2.0.1/hts_engine_API-0.95/src/bin");
-           props.put(SPTKPATH,      "/project/mary/marcela/sw/SPTK-3.1/bin");
-           props.put(TCLPATH,       "/opt/ActiveTcl-8.4/bin");
+           props.put(HTSPATH,       "/project/mary/marcela/sw/htk/bin");
+           props.put(HTSENGINEPATH, "/project/mary/marcela/sw/htk/hts_engine_API-1.01/bin");
+           props.put(SPTKPATH,      "/project/mary/marcela/sw/SPTK-3.2/bin");
+           props.put(TCLPATH,       "/project/mary/marcela/sw/ActiveTcl-8.6/bin");           
            props.put(SOXPATH,       "/usr/bin");
            props.put(FEATURELIST,   rootdir+"data/feature_list_en.pl");
            props.put(VOICELANG,     "en");
