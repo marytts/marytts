@@ -112,6 +112,8 @@ public class MultiresolutionSinusoidalSynthesizer {
         //multiresolutionFilterbankType = FilterBankAnalyserBase.COMPLEMENTARY_FILTERBANK;
         int numBands = 2;
         double lowestBandWindowSizeInSeconds = 0.020;
+        double startFreqInHz = 0.0;
+        double endFreqInHz = 0.5*samplingRate;
         int windowType = Window.HANNING;
         boolean bRefinePeakEstimatesParabola = false;
         boolean bRefinePeakEstimatesBias = false;
@@ -121,6 +123,12 @@ public class MultiresolutionSinusoidalSynthesizer {
         boolean bFreqLimitedAnalysis = false; //Only used for FIR_BANDPASS_FILTERBANK
         boolean bPitchSynchronous = false;
         float numPeriods = 2.5f;
+        
+        SinusoidalAnalysisParams params = new SinusoidalAnalysisParams(samplingRate, startFreqInHz, endFreqInHz, windowType, 
+                                                                       bRefinePeakEstimatesParabola,
+                                                                       bRefinePeakEstimatesBias,
+                                                                       bSpectralReassignment,
+                                                                       bAdjustNeighFreqDependent);
 
         MultiresolutionSinusoidalAnalyzer msa = new MultiresolutionSinusoidalAnalyzer(multiresolutionFilterbankType, numBands, samplingRate);
 
@@ -134,7 +142,7 @@ public class MultiresolutionSinusoidalSynthesizer {
             F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
             int pitchMarkOffset = 0;
             PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true, pitchMarkOffset);
-            PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, true, true, true, true, 0.0, 0.5*samplingRate);
+            PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(params);
        
             subbandTracks = msa.analyze(x, lowestBandWindowSizeInSeconds, windowType, bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, bFreqLimitedAnalysis, true, pm, numPeriods);
         }

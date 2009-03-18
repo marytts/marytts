@@ -224,37 +224,40 @@ public class PeakMatchedSinusoidalSynthesizer extends BaseSinusoidalSynthesizer{
         //
         
         //Analysis
-        float deltaInHz = SinusoidalAnalyzer.DEFAULT_DELTA_IN_HZ;
+        float deltaInHz = SinusoidalAnalysisParams.DEFAULT_DELTA_IN_HZ;
         float numPeriods = PitchSynchronousSinusoidalAnalyzer.DEFAULT_ANALYSIS_PERIODS;
         
         boolean isSilentSynthesis = false;
+        
+        int windowType = Window.HANNING;
         
         boolean bRefinePeakEstimatesParabola = false;
         boolean bRefinePeakEstimatesBias = false;
         boolean bSpectralReassignment = false;
         boolean bAdjustNeighFreqDependent = false;
         
-        int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC;
+        int spectralEnvelopeType = SinusoidalAnalysisParams.SEEVOC_SPEC;
         
         boolean isFixedRateAnalysis = false;
         boolean isRealSpeech = true;
-        double startFreq = 0.0;
-        double endFreq = 0.5*samplingRate;
+        double startFreqInHz = 0.0;
+        double endFreqInHz = 0.5*samplingRate;
         
+        SinusoidalAnalysisParams params = new SinusoidalAnalysisParams(samplingRate, startFreqInHz, endFreqInHz, windowType, 
+                                                                       bRefinePeakEstimatesParabola,
+                                                                       bRefinePeakEstimatesBias,
+                                                                       bSpectralReassignment,
+                                                                       bAdjustNeighFreqDependent);
+
         if (isFixedRateAnalysis)
         {
             //Fixed window size and skip rate analysis
             double [] f0s = null;
             float ws_f0 = -1.0f;
             float ss_f0 = -1.0f;
-            sa = new SinusoidalAnalyzer(samplingRate, Window.HANNING, 
-                                        bRefinePeakEstimatesParabola, 
-                                        bRefinePeakEstimatesBias, 
-                                        bSpectralReassignment,
-                                        bAdjustNeighFreqDependent, 
-                                        startFreq, endFreq);
+            sa = new SinusoidalAnalyzer(params);
             
-            if (spectralEnvelopeType == SinusoidalAnalyzer.SEEVOC_SPEC) //Pitch info needed
+            if (spectralEnvelopeType == SinusoidalAnalysisParams.SEEVOC_SPEC) //Pitch info needed
             {
                 String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
                 F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
@@ -273,12 +276,7 @@ public class PeakMatchedSinusoidalSynthesizer extends BaseSinusoidalSynthesizer{
             F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
             int pitchMarkOffset = 0;
             PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true, pitchMarkOffset);
-            pa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HANNING, 
-                                                        bRefinePeakEstimatesParabola, 
-                                                        bRefinePeakEstimatesBias, 
-                                                        bSpectralReassignment, 
-                                                        bAdjustNeighFreqDependent,
-                                                        startFreq, endFreq);
+            pa = new PitchSynchronousSinusoidalAnalyzer(params);
             
             st = pa.analyzePitchSynchronous(x, pm, numPeriods, -1.0f, deltaInHz);
             isSilentSynthesis = false;

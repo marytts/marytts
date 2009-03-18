@@ -143,24 +143,22 @@ public class ProsodyModifier {
         
         BaseSinusoidalAnalyzer an = null;
         SinusoidalTracks[] st = null;
+        SinusoidalAnalysisParams params = new SinusoidalAnalysisParams(fs, 0.0, 0.5*fs, windowType, 
+                                                                       bRefinePeakEstimatesParabola, 
+                                                                       bRefinePeakEstimatesBias, 
+                                                                       bSpectralReassignment,
+                                                                       bAdjustNeighFreqDependent);
+        
         if (analyzerType==BaseSinusoidalAnalyzer.FIXEDRATE_FULLBAND_ANALYZER)
         {
-            an = new SinusoidalAnalyzer(fs, windowType, 
-                                        bRefinePeakEstimatesParabola, 
-                                        bRefinePeakEstimatesBias, 
-                                        bSpectralReassignment,
-                                        bAdjustNeighFreqDependent, 0.0, 0.5*fs);
+            an = new SinusoidalAnalyzer(params);
             
             st = new SinusoidalTracks[1];
             st[0] = ((SinusoidalAnalyzer)an).analyzeFixedRate(x, f0_ws, f0_ss, deltaInHz, spectralEnvelopeType, f0s, f0_ws, f0_ss);
         }
         else if (analyzerType==BaseSinusoidalAnalyzer.PITCHSYNCHRONOUS_FULLBAND_ANALYZER)
         {
-            an = new PitchSynchronousSinusoidalAnalyzer(fs, windowType, 
-                                                        bRefinePeakEstimatesParabola, 
-                                                        bRefinePeakEstimatesBias, 
-                                                        bSpectralReassignment,
-                                                        bAdjustNeighFreqDependent, 0.0, 0.5*fs);
+            an = new PitchSynchronousSinusoidalAnalyzer(params);
             
             st = new SinusoidalTracks[1];
             st[0] = ((PitchSynchronousSinusoidalAnalyzer)an).analyzePitchSynchronous(x, pm, numPeriods, skipSizeInSeconds, deltaInHz, spectralEnvelopeType); 
@@ -269,7 +267,7 @@ public class ProsodyModifier {
             //
 
             //Analysis
-            float deltaInHz = SinusoidalAnalyzer.DEFAULT_DELTA_IN_HZ;
+            float deltaInHz = SinusoidalAnalysisParams.DEFAULT_DELTA_IN_HZ;
             float numPeriods = PitchSynchronousSinusoidalAnalyzer.DEFAULT_ANALYSIS_PERIODS;
             boolean isSilentSynthesis = false;
 
@@ -288,7 +286,7 @@ public class ProsodyModifier {
             float timeScalingVoicingThreshold = 0.5f;
             boolean isVoicingAdaptivePitchScaling = true;
 
-            int spectralEnvelopeType = SinusoidalAnalyzer.LP_SPEC;
+            int spectralEnvelopeType = SinusoidalAnalysisParams.LP_SPEC;
             
             //int analyzerType = BaseSinusoidalAnalyzer.FIXEDRATE_FULLBAND_ANALYZER;
             //int analyzerType = BaseSinusoidalAnalyzer.PITCHSYNCHRONOUS_FULLBAND_ANALYZER;
@@ -362,7 +360,7 @@ public class ProsodyModifier {
         //
 
         //Analysis
-        float deltaInHz = SinusoidalAnalyzer.DEFAULT_DELTA_IN_HZ;
+        float deltaInHz = SinusoidalAnalysisParams.DEFAULT_DELTA_IN_HZ;
         float numPeriods = PitchSynchronousSinusoidalAnalyzer.DEFAULT_ANALYSIS_PERIODS;
         boolean isSilentSynthesis = false;
 
@@ -381,9 +379,9 @@ public class ProsodyModifier {
         float timeScalingVoicingThreshold = 0.5f;
         boolean isVoicingAdaptivePitchScaling = false;
 
-        //int spectralEnvelopeType = SinusoidalAnalyzer.LP_SPEC; String envelopeName="lp";
-        int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC; String envelopeName="sv";
-        //int spectralEnvelopeType = SinusoidalAnalyzer.REGULARIZED_CEPS; String envelopeName="rc";
+        //int spectralEnvelopeType = SinusoidalAnalysisParams.LP_SPEC; String envelopeName="lp";
+        int spectralEnvelopeType = SinusoidalAnalysisParams.SEEVOC_SPEC; String envelopeName="sv";
+        //int spectralEnvelopeType = SinusoidalAnalysisParams.REGULARIZED_CEPS; String envelopeName="rc";
         
         //int analyzerType = BaseSinusoidalAnalyzer.FIXEDRATE_FULLBAND_ANALYZER;
         int analyzerType = BaseSinusoidalAnalyzer.PITCHSYNCHRONOUS_FULLBAND_ANALYZER; 

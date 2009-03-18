@@ -314,7 +314,7 @@ public class FrameProvider
             double err = MathUtils.sumSquaredError(signal, result);
             System.err.println("Sum squared error: " + err);
             if (err > 0.000001) {
-                double[] difference = MathUtils.substract(signal, result);
+                double[] difference = MathUtils.subtract(signal, result);
                 FunctionGraph diffGraph = new SignalGraph(difference, samplingRate);
                 diffGraph.showInJFrame("difference", true, true);
             }

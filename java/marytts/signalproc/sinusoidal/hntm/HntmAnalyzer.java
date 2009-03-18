@@ -47,6 +47,8 @@ import marytts.signalproc.sinusoidal.BaseSinusoidalSpeechSignal;
 import marytts.signalproc.sinusoidal.NonharmonicSinusoidalSpeechFrame;
 import marytts.signalproc.sinusoidal.NonharmonicSinusoidalSpeechSignal;
 import marytts.signalproc.sinusoidal.PitchSynchronousSinusoidalAnalyzer;
+import marytts.signalproc.sinusoidal.SinusoidalAnalysisParams;
+import marytts.signalproc.sinusoidal.SinusoidalAnalyzer;
 import marytts.signalproc.sinusoidal.pitch.HnmPitchVoicingAnalyzer;
 import marytts.signalproc.sinusoidal.pitch.VoicingAnalysisOutputData;
 import marytts.signalproc.window.HammingWindow;
@@ -60,6 +62,7 @@ import marytts.util.math.ComplexNumber;
 import marytts.util.math.FFT;
 import marytts.util.math.FFTMixedRadix;
 import marytts.util.math.MathUtils;
+import marytts.util.signal.FrequencyDomainFilterOutput;
 import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
@@ -97,20 +100,69 @@ public class HntmAnalyzer {
     public static float OVERLAP_BETWEEN_HARMONIC_AND_NOISE_REGIONS_IN_HZ = 0.0f;
     public static float OVERLAP_BETWEEN_TRANSIENT_AND_NONTRANSIENT_REGIONS_IN_SECONDS = 0.005f;
     
+    public static int TIME_DOMAIN_CORRELATION_HARMONICS_ANALYSIS = 1;
+    public static int FREQUENCY_DOMAIN_PEAK_PICKING_HARMONICS_ANALYSIS = 2;
+
+    public static double DEFAULT_HNM_ANALYSIS_PERIODS = 2.0;
+    
+    
+    //Default search range for voicing detection, i.e. voicing criterion will be computed for frequency range:
+    // [DEFAULT_VOICING_START_HARMONIC x f0, DEFAULT_VOICING_START_HARMONIC x f0] where f0 is the fundamental frequency estimate
+    public static int NUM_HARMONICS_FOR_VOICING = 4;
+    public static float HARMONICS_NEIGH = 0.3f; //Between 0.0 and 1.0: How much the search range for voicing detection will be extended beyond the first and the last harmonic
+                                                //0.3 means the region [0.7xf0, 4.3xf0] will be considered in voicing decision
+    //
+    
+    public static float NUM_PERIODS_AT_LEAST = 2.0f;
+    
+    ////The following parameters are used by HnmPitchVoicingAnalyzer
+    //They are included here so that all fixed analysis parameters are in the same class within the code
+    public static double CUMULATIVE_AMP_THRESHOLD = 2.0; //Decreased ==> Voicing increases (Orig: 2.0)
+    public static double MAXIMUM_AMP_THRESHOLD_IN_DB = 13.0; //Decreased ==> Voicing increases (Orig: 13.0)
+    public static double HARMONIC_DEVIATION_PERCENT = 20.0; //Increased ==> Voicing increases (Orig: 20.0)
+    public static double SHARP_PEAK_AMP_DIFF_IN_DB = 12.0; //Decreased ==> Voicing increases
+    public static int MINIMUM_TOTAL_HARMONICS = 0; //Minimum number of total harmonics to be included in voiced region (effective only when f0>10.0)
+    public static int MAXIMUM_TOTAL_HARMONICS = 100; //Maximum number of total harmonics to be included in voiced region (effective only when f0>10.0)
+    public static float MINIMUM_VOICED_FREQUENCY_OF_VOICING = 0.0f; //All voiced sections will have at least this freq. of voicing
+    public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 5000.0f; //All voiced sections will have at least this freq. of voicing
+    public static float MAXIMUM_FREQUENCY_OF_VOICING_FINAL_SHIFT = 0.0f; //The max freq. of voicing contour is shifted by this amount finally
+    public static float RUNNING_MEAN_VOICING_THRESHOLD = 0.2f; //Between 0.0 and 1.0, decrease ==> Max. voicing freq increases
+    
+    public static int NUM_FILTERING_STAGES = 1;
+    public static int MEDIAN_FILTER_LENGTH = 6; //12; //Length of median filter for smoothing the max. freq. of voicing contour
+    public static int MOVING_AVERAGE_FILTER_LENGTH = 20; //12; //Length of first moving averaging filter for smoothing the max. freq. of voicing contour
+    
+    //For voicing detection
+    public static double VUV_SEARCH_MIN_HARMONIC_MULTIPLIER = 0.7;
+    public static double VUV_SEARCH_MAX_HARMONIC_MULTIPLIER = 4.3;
+    //
+    
+    public static double NEIGHS_PERCENT = 50.0; //Should be between 0.0 and 100.0. 50.0 means the peak in the band should be greater than 50% of the half of the band samples
+    ////
+    
     public HntmAnalyzer()
     {
         
     }
     
     public HntmSpeechSignal analyze(double[] x, int fs, F0ReaderWriter f0, Labels labels, 
-                                    float windowSizeInSeconds, float skipSizeInSeconds, 
-                                    int model, int noisePartRepresentation)
+                                    float windowSizeInSeconds, float skipSizeInSeconds, int fftSize,
+                                    int model, int noisePartRepresentation,
+                                    int harmonicPartAnalysisMethod)
     {
         HntmSpeechSignal hnmSignal = null;
         
         float originalDurationInSeconds = SignalProcUtils.sample2time(x.length, fs);
         int lpOrder = SignalProcUtils.getLPOrder(fs);
         float preCoefNoise = 0.0f;
+        
+        //Only effective for FREQUENCY_DOMAIN_PEAK_PICKING_HARMONICS_ANALYSIS 
+        SinusoidalAnalysisParams sinAnaParams = null;
+        boolean bRefinePeakEstimatesParabola = false;
+        boolean bRefinePeakEstimatesBias = false;
+        boolean bSpectralReassignment = false;
+        boolean bAdjustNeighFreqDependent = false;
+        //
 
         //// TO DO
         //Step1. Initial pitch estimation: Current version just reads from a file
@@ -128,7 +180,6 @@ public class HntmAnalyzer {
 
             //2.b. If voiced, maximum frequency of voicing estimation
             //     Otherwise, maximum frequency of voicing is set to 0.0
-            int fftSize = 4096;
             float[] maxFrequencyOfVoicings = HnmPitchVoicingAnalyzer.analyzeVoicings(x, fs, windowSizeInSeconds, skipSizeInSeconds, fftSize, initialF0s, (float)f0.header.ws, (float)f0.header.ss);
             float maxFreqOfVoicingInHz;
             //maxFreqOfVoicingInHz = HnmAnalyzer.FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST; //This should come from the above automatic analysis
@@ -142,7 +193,12 @@ public class HntmAnalyzer {
             //Step3. Determine analysis time instants based on refined pitch values.
             //       (Pitch synchronous if voiced, 10 ms skip if unvoiced)
             int windowType = Window.HAMMING;
-            double numPeriods = 2.0;
+            double numPeriods = DEFAULT_HNM_ANALYSIS_PERIODS;
+            
+            if (harmonicPartAnalysisMethod==TIME_DOMAIN_CORRELATION_HARMONICS_ANALYSIS)
+                numPeriods = DEFAULT_HNM_ANALYSIS_PERIODS;
+            else if (harmonicPartAnalysisMethod==FREQUENCY_DOMAIN_PEAK_PICKING_HARMONICS_ANALYSIS)
+                numPeriods = PitchSynchronousSinusoidalAnalyzer.DEFAULT_ANALYSIS_PERIODS;
 
             double f0InHz = f0s[0];
             int T0;
@@ -282,7 +338,6 @@ public class HntmAnalyzer {
                         
                         if (!isTransientPhoneme) //End of transient segment, put it in transient part
                         {
-                            
                             float endTime = Math.min((((float)pm.pitchMarks[i]+0.5f*ws)/fs)+HntmAnalyzer.OVERLAP_BETWEEN_TRANSIENT_AND_NONTRANSIENT_REGIONS_IN_SECONDS, hnmSignal.originalDurationInSeconds);
                             int waveformStartInd = Math.max(0, SignalProcUtils.time2sample(((HntmPlusTransientsSpeechSignal)hnmSignal).transients.segments[transientSegmentInd].startTime, fs));
                             int waveformEndInd = Math.min(x.length-1, SignalProcUtils.time2sample(endTime, fs));
@@ -334,7 +389,7 @@ public class HntmAnalyzer {
                         frm[j-pm.pitchMarks[i]] = x[j];
 
                     win = Window.get(windowType, ws);
-                    //win.normalize(1.0f);
+                    win.normalize(1.0f);
                     double[] wgt = win.getCoeffs();
                     //double[] wgtSquared = new double[wgt.length];
                     //for (j=0; j<wgt.length; j++)
@@ -344,23 +399,44 @@ public class HntmAnalyzer {
                     //       The phase of the complex amplitude is the phase and its magnitude is the absolute amplitude of the harmonic
                     if (isVoiced)
                     {
-                        numHarmonics = (int)Math.floor(hnmSignal.frames[i].maximumFrequencyOfVoicingInHz/f0InHz+0.5);
-                        
-                        harmonicAmps = estimateComplexAmplitudes(frm, wgt, f0InHz, numHarmonics, fs, hnmSignal.frames[i].tAnalysisInSeconds);
-                        
-                        /*
-                        //Jampack versions for matrix operations
-                        try {
-                            harmonicAmps = estimateComplexAmplitudesJampack(frm, wgt, f0InHz, numHarmonics, fs, hnmSignal.frames[i].tAnalysisInSeconds);
-                            //harmonicAmps = estimateComplexAmplitudesJampack2(frm, wgt, f0InHz, numHarmonics, fs, hnmSignal.frames[i].tAnalysisInSeconds);
-                        } catch (JampackException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
+                        numHarmonics = (int)Math.floor((hnmSignal.frames[i].maximumFrequencyOfVoicingInHz-0.5*f0InHz)/f0InHz+0.5);
+                    
+                        if (harmonicPartAnalysisMethod==TIME_DOMAIN_CORRELATION_HARMONICS_ANALYSIS)
+                        {
+                            //Method 1: Time-domain full cross-correlation, i.e. harmonics are correlated
+                            harmonicAmps = estimateComplexAmplitudes(frm, wgt, f0InHz, numHarmonics, fs, hnmSignal.frames[i].tAnalysisInSeconds);
+                            //
+                            
+                            /*
+                            //Method 2: Jampack versions for matrix operations
+                            try {
+                                harmonicAmps = estimateComplexAmplitudesJampack(frm, wgt, f0InHz, numHarmonics, fs, hnmSignal.frames[i].tAnalysisInSeconds);
+                                //harmonicAmps = estimateComplexAmplitudesJampack2(frm, wgt, f0InHz, numHarmonics, fs, hnmSignal.frames[i].tAnalysisInSeconds);
+                            } catch (JampackException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                            //
+                            */
+                            
+                            //Method 3: Assumes uncorrelated harmonics
+                            //harmonicAmps = estimateComplexAmplitudesUncorrelated(frm, wgtSquared, numHarmonics, f0InHz, fs);
                         }
-                        //
-                        */
-                        
-                        //harmonicAmps = estimateComplexAmplitudesUncorrelated(frm, wgtSquared, numHarmonics, f0InHz, fs);
+                        else if (harmonicPartAnalysisMethod==FREQUENCY_DOMAIN_PEAK_PICKING_HARMONICS_ANALYSIS)
+                        {
+                            sinAnaParams = new SinusoidalAnalysisParams(fs, 0.0, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, windowType,
+                                                                        bRefinePeakEstimatesParabola, 
+                                                                        bRefinePeakEstimatesBias,
+                                                                        bSpectralReassignment,
+                                                                        bAdjustNeighFreqDependent);
+                            sinAnaParams.fftSize = fftSize;
+                            
+                            double[] windowedFrm = win.apply(frm, 0);
+                            harmonicAmps = estimateComplexAmplitudesPeakPicking(windowedFrm, SinusoidalAnalysisParams.NO_SPEC, isVoiced, (float)f0InHz,
+                                                                                hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, false, sinAnaParams);
+                            
+                            numHarmonics = harmonicAmps.length;
+                        }
 
                         //Only for visualization
                         //double[] absMags = MathUtils.magnitudeComplex(harmonicAmps);
@@ -380,31 +456,39 @@ public class HntmAnalyzer {
                     for (j=noiseFrmStartInd; j<Math.min(noiseFrmStartInd+wsNoise, x.length); j++)
                         frmNoise[j-noiseFrmStartInd] = x[j];
 
+                    float totalAverageSampleEnergy = (float)SignalProcUtils.getAverageSampleEnergy(frmNoise);
+                    hnmSignal.frames[i].totalSampleEnergy = totalAverageSampleEnergy;
+                    //hnmSignal.frames[i].harmonicTotalEnergyRatio = 1.0f;
+                    
                     if (isNoised)
                     {
                         if (noisePartRepresentation==LPC)
                         {
                             //We have support for preemphasis - this needs to be handled during synthesis of the noisy part with preemphasis removal
-                            //frmNoise = winNoise.apply(frmNoise, 0);
+                            frmNoise = winNoise.apply(frmNoise, 0);
                             
                             //SignalProcUtils.displayDFTSpectrumInDBNoWindowing(frmNoise, fftSizeNoise);  
-                            float averageNoiseSampleEnergy;
+        
+                            FrequencyDomainFilterOutput fdfo = new FrequencyDomainFilterOutput();
                             if (hnmSignal.frames[i].maximumFrequencyOfVoicingInHz-OVERLAP_BETWEEN_HARMONIC_AND_NOISE_REGIONS_IN_HZ>0.0f)
-                                frmNoise = SignalProcUtils.fdFilter(frmNoise, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5f*fs, fs, fftSizeNoise);
-    
-                            averageNoiseSampleEnergy = (float)SignalProcUtils.getAverageSampleEnergy(frmNoise);
+                                fdfo = SignalProcUtils.fdFilter(frmNoise, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz-OVERLAP_BETWEEN_HARMONIC_AND_NOISE_REGIONS_IN_HZ, 0.5f*fs, fs, fftSizeNoise);
 
-                            //Only for display purposes...
+                            if (fdfo.y!=null)
+                                frmNoise = ArrayUtils.copy(fdfo.y);
+                            else
+                                fdfo.passBandToTotalEnergyRatio = 1.0f;
+                            
                             //SignalProcUtils.displayDFTSpectrumInDBNoWindowing(frmNoise, fftSizeNoise);
                             
                             frmNoise = winNoise.apply(frmNoise, 0);
                             LpCoeffs lpcs = LpcAnalyser.calcLPC(frmNoise, lpOrder, preCoefNoise);
-                            //hnmSignal.frames[i].n = new FrameNoisePartLpc(lpcs.getA(), lpcs.getGain());
-                            hnmSignal.frames[i].n = new FrameNoisePartLpc(lpcs.getA(), averageNoiseSampleEnergy);
+                            //hnmSignal.frames[i].n = new FrameNoisePartLpc(lpcs.getA(), (float)lpcs.getGain());
+                            hnmSignal.frames[i].n = new FrameNoisePartLpc(lpcs.getA());
+                            hnmSignal.frames[i].noiseTotalEnergyRatio = fdfo.passBandToTotalEnergyRatio;
+                            //hnmSignal.frames[i].harmonicTotalEnergyRatio = 1.0f-hnmSignal.frames[i].noiseTotalEnergyRatio;
+                            
                             if (Double.isNaN(lpcs.getGain()))
                                 System.out.println("NaN in analysis!!!");
-
-                            //hnmSignal.frames[i].n = new FrameNoisePartLpc(lpcs.getA(), origStd);
 
                             //Only for display purposes...
                             //SignalProcUtils.displayLPSpectrumInDB(((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, ((FrameNoisePartLpc)hnmSignal.frames[i].n).gain, fftSizeNoise);
@@ -976,6 +1060,34 @@ public class HntmAnalyzer {
         
         return xpart;
     }
+    
+    public ComplexNumber[] estimateComplexAmplitudesPeakPicking(double[] windowedFrm, int spectralEnvelopeType, boolean isVoiced, float f0, float maximumFreqOfVoicingInHz, boolean bEstimateHNMVoicing, SinusoidalAnalysisParams params)
+    {
+        ComplexNumber[] x = null;
+        int numHarmonics = (int)Math.floor(maximumFreqOfVoicingInHz/f0+0.5);
+        if (numHarmonics>0)
+        {
+            /*
+            float[] initialPeakLocationsInHz = new float[numHarmonics+1];
+            initialPeakLocationsInHz[0] = 0.0f;
+            for (int i=1; i<numHarmonics+1; i++)
+                initialPeakLocationsInHz[i] = i*f0;
+                */
+            
+            float[] initialPeakLocationsInHz = new float[numHarmonics];
+            for (int i=0; i<numHarmonics; i++)
+                initialPeakLocationsInHz[i] = (i+1)*f0;
+            
+            NonharmonicSinusoidalSpeechFrame nhs = SinusoidalAnalyzer.analyze_frame(windowedFrm, false, spectralEnvelopeType, isVoiced, f0, maximumFreqOfVoicingInHz, bEstimateHNMVoicing, params, initialPeakLocationsInHz);
+
+            x = new ComplexNumber[nhs.sinusoids.length];
+            for (int i=0; i<nhs.sinusoids.length; i++)
+                x[i] = new ComplexNumber(nhs.sinusoids[i].amp, nhs.sinusoids[i].phase);
+        }
+
+        return x;
+    }
+    
 }
 
 
