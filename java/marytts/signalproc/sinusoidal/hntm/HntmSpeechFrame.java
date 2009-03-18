@@ -34,6 +34,10 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
     public float maximumFrequencyOfVoicingInHz; //If 0.0, then the frame is unvoiced
     public float tAnalysisInSeconds; //Middle of analysis frame in seconds
     
+    public float totalSampleEnergy;
+    public float noiseTotalEnergyRatio;
+    //public float harmonicTotalEnergyRatio;
+    
     public HntmSpeechFrame()
     {
         this(0.0f);
@@ -46,6 +50,9 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         f0InHz = f0InHzIn;
         maximumFrequencyOfVoicingInHz = 0.0f;
         tAnalysisInSeconds = -1.0f;
+        totalSampleEnergy = 0.0f;
+        noiseTotalEnergyRatio = 0.0f;
+        //harmonicTotalEnergyRatio = 0.0f;
     }
     
     public HntmSpeechFrame(HntmSpeechFrame existing)
@@ -59,6 +66,9 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         f0InHz = existing.f0InHz;
         maximumFrequencyOfVoicingInHz = existing.maximumFrequencyOfVoicingInHz;
         tAnalysisInSeconds = existing.tAnalysisInSeconds;
+        totalSampleEnergy  = existing.totalSampleEnergy;
+        noiseTotalEnergyRatio = existing.noiseTotalEnergyRatio;
+        //harmonicTotalEnergyRatio = existing.harmonicTotalEnergyRatio;
     }
 }
 

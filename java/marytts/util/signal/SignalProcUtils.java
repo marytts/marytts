@@ -235,25 +235,61 @@ public class SignalProcUtils {
             averageSampleEnergies = new float[times.length];
             for (int i=0; i<times.length; i++)
             {
-                startInd = SignalProcUtils.time2sample(Math.max(0.0f, times[i]-0.5f*windowDurationInSeconds), samplingRateInHz);
-                endInd = SignalProcUtils.time2sample(times[i]+0.5*windowDurationInSeconds, samplingRateInHz);
-                if (endInd>x.length-1)
-                    endInd = x.length-1;
-                
-                len = endInd-startInd+1;
-                if (len>0)
+                averageSampleEnergies[i] = 0.0f;
+                if (times[i]>-1.0f)
                 {
-                    frm = new double[len];
-                    System.arraycopy(x, startInd, frm, 0, len);
-                
-                    averageSampleEnergies[i] = (float)SignalProcUtils.getAverageSampleEnergy(frm);
+                    startInd = SignalProcUtils.time2sample(Math.max(0.0f, times[i]-0.5f*windowDurationInSeconds), samplingRateInHz);
+                    endInd = SignalProcUtils.time2sample(times[i]+0.5*windowDurationInSeconds, samplingRateInHz);
+                    if (endInd>x.length-1)
+                        endInd = x.length-1;
+
+                    len = endInd-startInd+1;
+                    if (len>0)
+                    {
+                        frm = new double[len];
+                        System.arraycopy(x, startInd, frm, 0, len);
+
+                        averageSampleEnergies[i] = (float)SignalProcUtils.getAverageSampleEnergy(frm);
+                    } 
                 }
-                else
-                    averageSampleEnergies[i] = 0.0f;
             }
         }
         
         return averageSampleEnergies;
+    }
+ 
+    public static double[] normalizeAverageSampleEnergyContour(double[] x, float[] times, float[] currentContour, float[] targetContour, int samplingRateInHz, float windowDurationInSeconds)
+    {
+        float[] averageSampleEnergies = null;
+        double[] y = null;
+        
+        if (x!=null && times!=null)
+        {
+            y = ArrayUtils.copy(x);
+            int n;
+            float t;
+            int ind;
+            float gain;
+            for (n=0; n<y.length; n++)
+            {
+                t = SignalProcUtils.sample2time(n, samplingRateInHz);
+                ind = MathUtils.findClosest(times, t);
+                gain = 1.0f;
+                if (currentContour[ind]>0.0f && times[ind]>-1.0f)
+                {
+                    if (t<times[ind] && ind>0 && currentContour[ind-1]>0.0f && times[ind-1]>-1.0f)
+                        gain = MathUtils.linearMap(t, times[ind-1], times[ind], targetContour[ind-1]/currentContour[ind-1], targetContour[ind]/currentContour[ind]);
+                    else if (t>times[ind] && ind<times.length-1 && currentContour[ind+1]>0.0f && times[ind+1]>-1.0f)
+                        gain = MathUtils.linearMap(t, times[ind], times[ind+1], targetContour[ind]/currentContour[ind], targetContour[ind+1]/currentContour[ind+1]);
+                    else
+                        gain = targetContour[ind]/currentContour[ind];
+                }
+                
+                y[n] *= gain;
+            }
+        }
+        
+        return y;
     }
     
     //Returns the reversed version of the input array
@@ -756,6 +792,7 @@ public class SignalProcUtils {
     }
     
     //Convert a zero based spectrum index value to frequency in Hz
+    //If fftSize is 512, zeroBasedMaxFreqIndex=256 is the last index
     public static double index2freq(int zeroBasedFreqIndex, int samplingRateInHz, int zeroBasedMaxFreqIndex)
     {
         return zeroBasedFreqIndex*(0.5*samplingRateInHz)/zeroBasedMaxFreqIndex;
@@ -2121,8 +2158,12 @@ public class SignalProcUtils {
         return y;
     }
     
-    public static double[] fdFilter(double[] x, float startFreqInHz, float endFreqInHz, int samplingRateInHz, int fftSize)
+    public static FrequencyDomainFilterOutput fdFilter(double[] x, float startFreqInHz, float endFreqInHz, int samplingRateInHz, int fftSize)
     { 
+        FrequencyDomainFilterOutput fdfo = new FrequencyDomainFilterOutput();
+        
+        float totalRmsEnergy = 0.0f;
+        float passbandRmsEnergy = 0.0f;
         while (fftSize<x.length)
             fftSize *= 2;
         
@@ -2137,25 +2178,33 @@ public class SignalProcUtils {
         else
             frameDft = FFTMixedRadix.fftComplex(frameDft);
         
-        int maxFreq = fftSize/2+1;
-        int startFreqInd = SignalProcUtils.freq2index(startFreqInHz, samplingRateInHz, maxFreq);
-        int endFreqInd = SignalProcUtils.freq2index(endFreqInHz, samplingRateInHz, maxFreq);
+        int maxFreqInd = fftSize/2;
+        int startFreqInd = SignalProcUtils.freq2index(startFreqInHz, samplingRateInHz, maxFreqInd);
+        int endFreqInd = SignalProcUtils.freq2index(endFreqInHz, samplingRateInHz, maxFreqInd);
         
         int i;
-        
-        for (i=0; i<startFreqInd; i++)
+
+        for (i=0; i<=startFreqInd; i++)
         {
+            totalRmsEnergy += frameDft.real[i]*frameDft.real[i] + frameDft.imag[i]*frameDft.imag[i];
             frameDft.real[i] = 0.0;
             frameDft.imag[i] = 0.0;
         }
         
-        for (i=endFreqInd+1; i<maxFreq; i++)
+        for (i=startFreqInd+1; i<endFreqInd; i++)
         {
+            totalRmsEnergy += frameDft.real[i]*frameDft.real[i] + frameDft.imag[i]*frameDft.imag[i];
+            passbandRmsEnergy += frameDft.real[i]*frameDft.real[i] + frameDft.imag[i]*frameDft.imag[i];
+        }
+            
+        for (i=endFreqInd; i<=maxFreqInd; i++)
+        {
+            totalRmsEnergy += frameDft.real[i]*frameDft.real[i] + frameDft.imag[i]*frameDft.imag[i];
             frameDft.real[i] = 0.0;
             frameDft.imag[i] = 0.0;
         }
         
-        for (i=maxFreq; i<fftSize; i++)
+        for (i=maxFreqInd+1; i<fftSize; i++)
         {
             frameDft.real[i] = frameDft.real[fftSize-i];
             frameDft.imag[i] = -1.0*frameDft.imag[fftSize-i];
@@ -2166,11 +2215,13 @@ public class SignalProcUtils {
         else
             frameDft = FFTMixedRadix.ifft(frameDft);
 
-        double[] y = new double[x.length];
+        fdfo.y = new double[x.length];
         for (i=0; i<x.length; i++)
-            y[i] = frameDft.real[i];
-         
-        return y;
+            fdfo.y[i] = frameDft.real[i];
+
+        fdfo.passBandToTotalEnergyRatio = (float)Math.sqrt(passbandRmsEnergy/totalRmsEnergy);
+        
+        return fdfo;
     }
     
     public static void displayDFTSpectrumLinearNoWindowing(double[] frame)

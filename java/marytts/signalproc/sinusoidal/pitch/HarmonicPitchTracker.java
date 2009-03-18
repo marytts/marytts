@@ -29,6 +29,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.sinusoidal.PitchSynchronousSinusoidalAnalyzer;
+import marytts.signalproc.sinusoidal.SinusoidalAnalysisParams;
 import marytts.signalproc.sinusoidal.SinusoidalAnalyzer;
 import marytts.signalproc.sinusoidal.NonharmonicSinusoidalSpeechFrame;
 import marytts.signalproc.sinusoidal.NonharmonicSinusoidalSpeechSignal;
@@ -123,32 +124,34 @@ public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
         float minFreqInHz = 40.0f;
         float maxFreqInHz = 400.0f;
         
-        float windowSizeInSeconds = SinusoidalAnalyzer.DEFAULT_ANALYSIS_WINDOW_SIZE;
-        float skipSizeInSeconds = SinusoidalAnalyzer.DEFAULT_ANALYSIS_SKIP_SIZE;
-        float deltaInHz  = SinusoidalAnalyzer.DEFAULT_DELTA_IN_HZ;
+        float windowSizeInSeconds = SinusoidalAnalysisParams.DEFAULT_ANALYSIS_WINDOW_SIZE;
+        float skipSizeInSeconds = SinusoidalAnalysisParams.DEFAULT_ANALYSIS_SKIP_SIZE;
+        float deltaInHz  = SinusoidalAnalysisParams.DEFAULT_DELTA_IN_HZ;
         
-        //int spectralEnvelopeType = SinusoidalAnalyzer.LP_SPEC;
-        int spectralEnvelopeType = SinusoidalAnalyzer.SEEVOC_SPEC;
-        //int spectralEnvelopeType = SinusoidalAnalyzer.REGULARIZED_CEPS;
+        //int spectralEnvelopeType = SinusoidalAnalysisParams.LP_SPEC;
+        int spectralEnvelopeType = SinusoidalAnalysisParams.SEEVOC_SPEC;
+        //int spectralEnvelopeType = SinusoidalAnalysisParams.REGULARIZED_CEPS;
         
+        double startFreqInHz = 0.0;
+        double endFreqInHz = 0.5*samplingRate;
+        int windowType = Window.HAMMING;
         boolean bRefinePeakEstimatesParabola = false;
         boolean bRefinePeakEstimatesBias = false;
         boolean bSpectralReassignment = false;
         boolean bAdjustNeighFreqDependent = false;
+
+        SinusoidalAnalysisParams params = new SinusoidalAnalysisParams(samplingRate, startFreqInHz, endFreqInHz, windowType, 
+                                                                       bRefinePeakEstimatesParabola, 
+                                                                       bRefinePeakEstimatesBias, 
+                                                                       bSpectralReassignment,
+                                                                       bAdjustNeighFreqDependent);
         
-        double startFreq = 0.0;
-        double endFreq = 0.5*samplingRate;
         
         String strPitchFileIn = args[0].substring(0, args[0].length()-4) + ".ptc";
         F0ReaderWriter f0 = new F0ReaderWriter(strPitchFileIn);
         int pitchMarkOffset = 0;
         PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true, 0);
-        PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(samplingRate, Window.HAMMING, 
-                                                                                       bRefinePeakEstimatesParabola, 
-                                                                                       bRefinePeakEstimatesBias, 
-                                                                                       bSpectralReassignment,
-                                                                                       bAdjustNeighFreqDependent,
-                                                                                       startFreq, endFreq);
+        PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(params);
         
         NonharmonicSinusoidalSpeechSignal ss = sa.extractSinusoidsFixedRate(x, windowSizeInSeconds, skipSizeInSeconds, deltaInHz, spectralEnvelopeType, f0.contour, (float)f0.header.ws, (float)f0.header.ss);
         

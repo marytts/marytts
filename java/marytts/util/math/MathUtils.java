@@ -585,7 +585,7 @@ public class MathUtils {
 
                 for (i=0; i<numObservations; i++)
                 {
-                    tmpVector = substract(x[indicesOfX[i]], meanVector);
+                    tmpVector = subtract(x[indicesOfX[i]], meanVector);
                     zeroMean = transpoze(tmpVector);
                     zeroMeanTranspoze = transpoze(zeroMean);
 
@@ -768,7 +768,7 @@ public class MathUtils {
         return c;        
     }
 
-    public static double[] substract(double[] a, double[] b)
+    public static double[] subtract(double[] a, double[] b)
     {
         if (a.length != b.length) {
             throw new IllegalArgumentException("Arrays must be equal length");
@@ -780,7 +780,7 @@ public class MathUtils {
         return c;
     }
 
-    public static double[] substract(double[] a, double b)
+    public static double[] subtract(double[] a, double b)
     {
         double[] c = new double[a.length];
         for (int i=0; i<a.length; i++) {
@@ -1027,7 +1027,7 @@ public class MathUtils {
 
     //Returns the difference of two matrices, i.e. x-y
     //x and y should be of same size
-    public static double[][] substract(double[][] x, double[][] y)
+    public static double[][] subtract(double[][] x, double[][] y)
     {
         double[][] z = null;
 
@@ -1606,7 +1606,7 @@ public class MathUtils {
         return c;        
     }
 
-    public static float[] substract(float[] a, float[] b)
+    public static float[] subtract(float[] a, float[] b)
     {
         if (a.length != b.length) {
             throw new IllegalArgumentException("Arrays must be equal length");
@@ -1618,7 +1618,7 @@ public class MathUtils {
         return c;
     }
 
-    public static float[] substract(float[] a, float b)
+    public static float[] subtract(float[] a, float b)
     {
         float[] c = new float[a.length];
         for (int i=0; i<a.length; i++) {
@@ -2288,8 +2288,8 @@ public class MathUtils {
     }
 
     //Return the local peak index for values x[startInd],x[startInd+1],...,x[endInd]
-                                                                             // Note that the returned index is in the range [startInd,endInd]
-                                                                                                                              // If there is no local peak, -1 is returned. This means that the peak is either at [startInd] or [endInd].
+    // Note that the returned index is in the range [startInd,endInd]
+    // If there is no local peak, -1 is returned. This means that the peak is either at [startInd] or [endInd].
     // However, it is the responsibility of the calling function to further check this situation as the returned index
     // will be -1 in both cases
     public static int getAbsMaxInd(double[] x, int startInd, int endInd)
@@ -3727,7 +3727,7 @@ public class MathUtils {
     public static double getGaussianPdfValue(double[] x, double[] meanVector, double[][] inverseCovarianceMatrix, double constantTerm)
     {
         double[][] z = new double[1][x.length];
-        z[0] = MathUtils.substract(x, meanVector);
+        z[0] = MathUtils.subtract(x, meanVector);
         double[][] zT = MathUtils.transpoze(z);
 
         double[][] prod = MathUtils.matrixProduct(MathUtils.matrixProduct(z, inverseCovarianceMatrix), zT);

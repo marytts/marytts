@@ -31,7 +31,7 @@ package marytts.signalproc.sinusoidal.hybrid;
 
 import marytts.signalproc.analysis.RegularizedCepstralEnvelopeEstimator;
 import marytts.signalproc.sinusoidal.Sinusoid;
-import marytts.signalproc.sinusoidal.SinusoidalAnalyzer;
+import marytts.signalproc.sinusoidal.SinusoidalAnalysisParams;
 import marytts.signalproc.sinusoidal.SinusoidalTrack;
 import marytts.signalproc.sinusoidal.SinusoidalTracks;
 import marytts.signalproc.sinusoidal.TrackGenerator;
@@ -60,7 +60,7 @@ public class HarmonicsToTrackConverter {
     public static SinusoidalTracks convert(HntmSpeechSignal hntmSignal)
     {        
         int numFrames = hntmSignal.frames.length;
-        float deltaInRadians = SignalProcUtils.hz2radian(SinusoidalAnalyzer.DEFAULT_DELTA_IN_HZ, hntmSignal.samplingRateInHz);
+        float deltaInRadians = SignalProcUtils.hz2radian(SinusoidalAnalysisParams.DEFAULT_DELTA_IN_HZ, hntmSignal.samplingRateInHz);
         
         SinusoidalTracks tr = null;
         int i;

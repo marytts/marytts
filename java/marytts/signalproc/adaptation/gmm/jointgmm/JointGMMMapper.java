@@ -121,7 +121,7 @@ public class JointGMMMapper extends GMMMapper {
             {
                 tmpMappedSourceLsfs = MathUtils.multiply(jointGMM.source.components[i].meanVector, h[i]);
                 
-                inputMeanNormalized = MathUtils.substract(inputLsfs, jointGMM.source.components[i].meanVector);
+                inputMeanNormalized = MathUtils.subtract(inputLsfs, jointGMM.source.components[i].meanVector);
                 covarianceTransformed = MathUtils.matrixProduct(jointGMM.covarianceTerms.components[i].covMatrix, inputMeanNormalized);
                 targetMeanAdded = MathUtils.add(jointGMM.targetMeans.components[i].meanVector, covarianceTransformed);
                 tmpOutputLsfs = MathUtils.multiply(targetMeanAdded, h[i]);

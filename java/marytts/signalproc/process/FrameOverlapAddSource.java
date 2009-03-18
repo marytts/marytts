@@ -409,7 +409,7 @@ public class FrameOverlapAddSource extends BlockwiseDoubleDataSource {
             double err = MathUtils.sumSquaredError(signal, result);
             System.err.println("Sum squared error: " + err);
 
-            double[] difference = MathUtils.substract(signal, result);
+            double[] difference = MathUtils.subtract(signal, result);
             FunctionGraph diffGraph = new SignalGraph(difference, samplingRate);
             diffGraph.showInJFrame("difference", true, true);
             

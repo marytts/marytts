@@ -87,11 +87,10 @@ public class HntmHybridSynthesizer extends HntmSynthesizer {
         //
 
         float[] times = hntmSignalMod.getAnalysisTimes();
-        float[] averageSampleEnergyContourHarmonic = SignalProcUtils.getAverageSampleEnergyContour(s.harmonicPart, times, hntmSignalMod.samplingRateInHz, NOISE_SYNTHESIS_WINDOW_DURATION_IN_SECONDS);
-        
+
         //Synthesize noise part
         if (hntmSignalMod.frames[0].n instanceof FrameNoisePartLpc)
-            s.noisePart = synthesizeNoisePartLpc(hntmSignalMod, averageSampleEnergyContourHarmonic);
+            s.noisePart = synthesizeNoisePartLpc(hntmSignalMod);
         else if (hntmSignalMod.frames[0].n instanceof FrameNoisePartPseudoHarmonic)
             s.noisePart = synthesizeNoisePartPseudoHarmonic(hntmSignalMod, pScales, pScalesTimes);
         //
@@ -142,8 +141,12 @@ public class HntmHybridSynthesizer extends HntmSynthesizer {
             }
             labels = new Labels(strLabFile);
         }
-            
-        HntmSpeechSignal hnmSignal = ha.analyze(x, samplingRate, f0, labels, windowSizeInSeconds, skipSizeInSeconds, model, noisePartRepresentation);
+         
+        int fftSize = 4096;
+        int harmonicPartAnalysisMethod = HntmAnalyzer.TIME_DOMAIN_CORRELATION_HARMONICS_ANALYSIS;
+        //int harmonicPartAnalysisMethod = HntmAnalyzer.FREQUENCY_DOMAIN_PEAK_PICKING_HARMONICS_ANALYSIS;
+        
+        HntmSpeechSignal hnmSignal = ha.analyze(x, samplingRate, f0, labels, windowSizeInSeconds, skipSizeInSeconds, fftSize, model, noisePartRepresentation, harmonicPartAnalysisMethod);
         //
 
         if (hnmSignal!=null)
