@@ -25,6 +25,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -874,6 +875,18 @@ public class FeatureDefinition
         }
         for (int i=0; i<numContinuousFeatures; i++) {
             floats[i] = Float.parseFloat(featureValues[numByteFeatures+numShortFeatures+i]);
+        }
+        return new FeatureVector(bytes, shorts, floats, unitIndex);
+    }
+    
+    public FeatureVector toFeatureVector(int unitIndex, byte[] bytes, short[] shorts, float[] floats)
+    {
+        if (!((numByteFeatures == 0 && bytes == null || numByteFeatures == bytes.length)
+                && (numShortFeatures == 0 && shorts == null || numShortFeatures == shorts.length)
+                && (numContinuousFeatures == 0 && floats == null || numContinuousFeatures == floats.length))) {
+            throw new IllegalArgumentException("Expected "+numByteFeatures+" bytes (got "+(bytes == null ? "0" : bytes.length)
+                    + "), "+numShortFeatures+" shorts (got "+(shorts==null ? "0" : shorts.length)
+                    + "), "+numContinuousFeatures+" floats (got "+(floats==null ? "0" : floats.length)+")");
         }
         return new FeatureVector(bytes, shorts, floats, unitIndex);
     }
