@@ -4297,6 +4297,26 @@ public class MathUtils {
         return R;
     }
     
+    public static float[] toFloat(double[] array)
+    {
+        if (array == null) return null;
+        float[] floats = new float[array.length];
+        for (int i=0; i<array.length; i++) {
+            floats[i] = (float) array[i];
+        }
+        return floats;
+    }
+    
+    public static double[] toDouble(float[] array)
+    {
+        if (array == null) return null;
+        double[] doubles = new double[array.length];
+        for (int i=0; i<array.length; i++) {
+            doubles[i] = (double) array[i];
+        }
+        return doubles;
+    }
+    
     public static void main(String[] args)
     {
         int i,j;
