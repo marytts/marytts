@@ -112,4 +112,132 @@ public class Polynomial
         return pred;
     }
 
+    /**
+     * Compute the integrated distance between two polynomials of same order.
+     * More precisely, this will return the absolute value of 
+     * the integral from 0 to 1 of 
+     * the difference between the two functions. 
+     * 
+     * @param coeffs1 polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
+     * @param coeffs2 polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
+     * @return
+     */
+    public static double polynomialDistance(double[] coeffs1, double[] coeffs2)
+    {
+        if (coeffs1 == null || coeffs2 == null)
+            throw new NullPointerException("Received null argument");
+        if (coeffs1.length != coeffs2.length)
+            throw new IllegalArgumentException("Can only compare polynomials with same order");
+        double dist = 0;
+        int order = coeffs1.length - 1;
+        for (int i=0; i<= order; i++) {
+            dist += (coeffs1[order - i] - coeffs2[order - i]) / (i+1);
+        }
+        return Math.abs(dist);
+    }
+ 
+    /**
+     * Compute the integrated distance between two polynomials of same order.
+     * More precisely, this will return the absolute value of 
+     * the integral from 0 to 1 of 
+     * the difference between the two functions. 
+     * 
+     * @param coeffs1 polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
+     * @param coeffs2 polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
+     * @return
+     */
+    public static double polynomialDistance(float[] coeffs1, float[] coeffs2)
+    {
+        if (coeffs1 == null || coeffs2 == null)
+            throw new NullPointerException("Received null argument");
+        if (coeffs1.length != coeffs2.length)
+            throw new IllegalArgumentException("Can only compare polynomials with same order");
+        double dist = 0;
+        int order = coeffs1.length - 1;
+        for (int i=0; i<= order; i++) {
+            dist += ((double)coeffs1[order - i] - coeffs2[order - i]) / (i+1);
+        }
+        return Math.abs(dist);
+    }
+
+    /**
+     * Compute the integral of the squared difference between two polynomials of same order.
+     * More precisely, this will return the  
+     * the integral from 0 to 1 of 
+     * the square of
+     * the difference between the two functions.
+     * <p>
+     * This implements the algebraic solution proposed by Maxima from
+     * the following command:
+     * <code>expand(integrate((sum(a[i]*x**i, i, 0, order))**2, x, 0, 1));</code>,
+     * with order varied from 0 to 4. Increasing order by 1 adds (order+1) summands.
+     * 
+     * @param coeffs1 polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
+     * @param coeffs2 polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
+     * @return
+     */
+    public static double polynomialSquaredDistance(double[] coeffs1, double[] coeffs2)
+    {
+        if (coeffs1 == null || coeffs2 == null)
+            throw new NullPointerException("Received null argument");
+        if (coeffs1.length != coeffs2.length)
+            throw new IllegalArgumentException("Can only compare polynomials with same order");
+        int order = coeffs1.length - 1;
+        double[] a = new double[coeffs1.length];
+        for (int i=0; i<a.length; i++) {
+            a[i] = coeffs1[order-i] - coeffs2[order-i];
+        }
+        return integrateSquared(order, a);
+    }
+
+    /**
+     * Compute the integral of the squared difference between two polynomials of same order.
+     * More precisely, this will return the  
+     * the integral from 0 to 1 of 
+     * the square of
+     * the difference between the two functions.
+     * <p>
+     * This implements the algebraic solution proposed by Maxima from
+     * the following command:
+     * <code>expand(integrate((sum(a[i]*x**i, i, 0, order))**2, x, 0, 1));</code>,
+     * with order varied from 0 to 4. Increasing order by 1 adds (order+1) summands.
+     * 
+     * @param coeffs1 polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
+     * @param coeffs2 polynomial coefficients, [a_order, a_(order-1), ..., a_1, a_0]
+     * @return
+     */
+    public static double polynomialSquaredDistance(float[] coeffs1, float[] coeffs2)
+    {
+        if (coeffs1 == null || coeffs2 == null)
+            throw new NullPointerException("Received null argument");
+        if (coeffs1.length != coeffs2.length)
+            throw new IllegalArgumentException("Can only compare polynomials with same order");
+        int order = coeffs1.length - 1;
+        double[] a = new double[coeffs1.length];
+        for (int i=0; i<a.length; i++) {
+            a[i] = coeffs1[order-i] - coeffs2[order-i];
+        }
+        return integrateSquared(order, a);
+    }
+
+    private static double integrateSquared(int order, double[] a) {
+        double dist = 0;
+        // Order 0 terms: a0^2
+        dist += a[0]*a[0];
+        if (order == 0) return dist;
+        // Order 1 terms: a0 a1 + 1/3 a1^2
+        dist += a[0]*a[1] + 1./3 * a[1]*a[1];
+        if (order == 1) return dist;
+        // Order 2 terms: 2/3 a0 a2 + 1/2 a1 a2 + 1/5 a2^2
+        dist += 2./3*a[0]*a[2] + 1./2*a[1]*a[2] + 1./5*a[2]*a[2];
+        if (order == 2) return dist;
+        // Order 3 terms: 1/2 a0 a3 + 2/5 a1 a3 + 1/3 a2 a3 + 1/7 a3^2
+        dist += 1./2*a[0]*a[3] + 2./5*a[1]*a[3] + 1./3*a[2]*a[3] + 1./7 * a[3]*a[3];
+        if (order == 3) return dist;
+        // Order 4 terms: 2/5 a0 a4 + 1/3 a1 a4 + 2/7 a2 a4 + 1/4 a3 a4 + 1/9 a4^2
+        dist += 2./5*a[0]*a[4] + 1./3*a[1]*a[4] + 2./7*a[2]*a[4] + 1./4*a[3]*a[4] + 1./9*a[4]*a[4];
+        if (order == 4) return dist;
+        throw new IllegalArgumentException("Order greater than 4 not supported");
+    }
+
 }
