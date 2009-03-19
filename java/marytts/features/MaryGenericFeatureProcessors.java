@@ -1560,14 +1560,16 @@ public class MaryGenericFeatureProcessors
         {
             Element segment = target.getMaryxmlElement();
             if (segment == null) return 0;
-            if (!segment.getTagName().equals(MaryXML.PHONE)) return 0;
-            Element syllable = (Element) segment.getParentNode();
-            if (syllable == null) return 0;
-            Element phrase = (Element) MaryDomUtils.getAncestor(syllable, MaryXML.PHRASE);
+            Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
             if (phrase == null) return 0;
             int count = 0;
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.SYLLABLE);
-            tw.setCurrentNode(syllable);
+            Element syllable = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SYLLABLE);
+            if (syllable != null) {
+                tw.setCurrentNode(syllable);
+            } else {
+                tw.setCurrentNode(segment);
+            }
             Element e;
             while ((e = (Element) tw.previousNode()) != null) {
                 count++;
@@ -1594,14 +1596,11 @@ public class MaryGenericFeatureProcessors
         {
             Element segment = target.getMaryxmlElement();
             if (segment == null) return 0;
-            if (!segment.getTagName().equals(MaryXML.PHONE)) return 0;
-            Element syllable = (Element) segment.getParentNode();
-            if (syllable == null) return 0;
-            Element phrase = (Element) MaryDomUtils.getAncestor(syllable, MaryXML.PHRASE);
+            Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
             if (phrase == null) return 0;
             int count = 0;
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.SYLLABLE);
-            tw.setCurrentNode(syllable);
+            tw.setCurrentNode(segment);
             Element e;
             while ((e = (Element) tw.nextNode()) != null) {
                 count++;
@@ -1628,14 +1627,16 @@ public class MaryGenericFeatureProcessors
         {
             Element segment = target.getMaryxmlElement();
             if (segment == null) return 0;
-            if (!segment.getTagName().equals(MaryXML.PHONE)) return 0;
-            Element syllable = (Element) segment.getParentNode();
-            if (syllable == null) return 0;
-            Element phrase = (Element) MaryDomUtils.getAncestor(syllable, MaryXML.PHRASE);
+            Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
             if (phrase == null) return 0;
             int count = 0;
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.SYLLABLE);
-            tw.setCurrentNode(syllable);
+            Element syllable = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SYLLABLE);
+            if (syllable != null) {
+                tw.setCurrentNode(syllable);
+            } else {
+                tw.setCurrentNode(segment);
+            }
             Element e;
             while ((e = (Element) tw.previousNode()) != null) {
                 String stress = e.getAttribute("stress");
@@ -1664,14 +1665,11 @@ public class MaryGenericFeatureProcessors
         {
             Element segment = target.getMaryxmlElement();
             if (segment == null) return 0;
-            if (!segment.getTagName().equals(MaryXML.PHONE)) return 0;
-            Element syllable = (Element) segment.getParentNode();
-            if (syllable == null) return 0;
-            Element phrase = (Element) MaryDomUtils.getAncestor(syllable, MaryXML.PHRASE);
+            Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
             if (phrase == null) return 0;
             int count = 0;
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.SYLLABLE);
-            tw.setCurrentNode(syllable);
+            tw.setCurrentNode(segment);
             Element e;
             while ((e = (Element) tw.nextNode()) != null) {
                 String stress = e.getAttribute("stress");
@@ -1700,14 +1698,16 @@ public class MaryGenericFeatureProcessors
         {
             Element segment = target.getMaryxmlElement();
             if (segment == null) return 0;
-            if (!segment.getTagName().equals(MaryXML.PHONE)) return 0;
-            Element syllable = (Element) segment.getParentNode();
-            if (syllable == null) return 0;
-            Element phrase = (Element) MaryDomUtils.getAncestor(syllable, MaryXML.PHRASE);
+            Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
             if (phrase == null) return 0;
             int count = 0;
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.SYLLABLE);
-            tw.setCurrentNode(syllable);
+            Element syllable = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SYLLABLE);
+            if (syllable != null) {
+                tw.setCurrentNode(syllable);
+            } else {
+                tw.setCurrentNode(segment);
+            }
             Element e;
             while ((e = (Element) tw.previousNode()) != null) {
                 String accent = e.getAttribute("accent");
@@ -1737,14 +1737,11 @@ public class MaryGenericFeatureProcessors
         {
             Element segment = target.getMaryxmlElement();
             if (segment == null) return 0;
-            if (!segment.getTagName().equals(MaryXML.PHONE)) return 0;
-            Element syllable = (Element) segment.getParentNode();
-            if (syllable == null) return 0;
-            Element phrase = (Element) MaryDomUtils.getAncestor(syllable, MaryXML.PHRASE);
+            Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
             if (phrase == null) return 0;
             int count = 0;
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.SYLLABLE);
-            tw.setCurrentNode(syllable);
+            tw.setCurrentNode(segment);
             Element e;
             while ((e = (Element) tw.nextNode()) != null) {
                 String accent = e.getAttribute("accent");
@@ -1774,13 +1771,16 @@ public class MaryGenericFeatureProcessors
         {
             Element segment = target.getMaryxmlElement();
             if (segment == null) return 0;
-            Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
-            if (word == null) return 0;
-            Element phrase = (Element) MaryDomUtils.getAncestor(word, MaryXML.PHRASE);
+            Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
             if (phrase == null) return 0;
             int count = 0;
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.TOKEN);
-            tw.setCurrentNode(word);
+            Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
+            if (word != null) {
+                tw.setCurrentNode(word);
+            } else {
+                tw.setCurrentNode(segment);
+            }
             Element e;
             while ((e = (Element) tw.previousNode()) != null) {
                 // only count tokens that have a "ph" attribute:
@@ -1809,13 +1809,11 @@ public class MaryGenericFeatureProcessors
         {
             Element segment = target.getMaryxmlElement();
             if (segment == null) return 0;
-            Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
-            if (word == null) return 0;
-            Element phrase = (Element) MaryDomUtils.getAncestor(word, MaryXML.PHRASE);
+            Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
             if (phrase == null) return 0;
             int count = 0;
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.TOKEN);
-            tw.setCurrentNode(word);
+            tw.setCurrentNode(segment);
             Element e;
             while ((e = (Element) tw.nextNode()) != null) {
                 // only count tokens that have a "ph" attribute
@@ -1844,13 +1842,16 @@ public class MaryGenericFeatureProcessors
         {
             Element segment = target.getMaryxmlElement();
             if (segment == null) return 0;
-            Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
-            if (word == null) return 0;
-            Element sentence = (Element) MaryDomUtils.getAncestor(word, MaryXML.SENTENCE);
+            Element sentence = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SENTENCE);
             if (sentence == null) return 0;
             int count = 0;
             TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.TOKEN);
-            tw.setCurrentNode(word);
+            Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
+            if (word != null) {
+                tw.setCurrentNode(word);
+            } else {
+                tw.setCurrentNode(segment);
+            }
             Element e;
             while ((e = (Element) tw.previousNode()) != null) {
                 // only count tokens that have a "ph" attribute:
@@ -1879,13 +1880,11 @@ public class MaryGenericFeatureProcessors
         {
             Element segment = target.getMaryxmlElement();
             if (segment == null) return 0;
-            Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
-            if (word == null) return 0;
-            Element sentence = (Element) MaryDomUtils.getAncestor(word, MaryXML.SENTENCE);
+            Element sentence = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SENTENCE);
             if (sentence == null) return 0;
             int count = 0;
             TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.TOKEN);
-            tw.setCurrentNode(word);
+            tw.setCurrentNode(segment);
             Element e;
             while ((e = (Element) tw.nextNode()) != null) {
                 // only count tokens that have a "ph" attribute:
@@ -1914,13 +1913,16 @@ public class MaryGenericFeatureProcessors
         {
             Element segment = target.getMaryxmlElement();
             if (segment == null) return 0;
-            Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
-            if (phrase == null) return 0;
-            Element sentence = (Element) MaryDomUtils.getAncestor(phrase, MaryXML.SENTENCE);
+            Element sentence = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SENTENCE);
             if (sentence == null) return 0;
             int count = 0;
             TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.PHRASE);
-            tw.setCurrentNode(phrase);
+            Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
+            if (phrase != null) {
+                tw.setCurrentNode(phrase);
+            } else {
+                tw.setCurrentNode(segment);
+            }
             Element e;
             while ((e = (Element) tw.previousNode()) != null) {
                 count++;
@@ -1947,13 +1949,11 @@ public class MaryGenericFeatureProcessors
         {
             Element segment = target.getMaryxmlElement();
             if (segment == null) return 0;
-            Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
-            if (phrase == null) return 0;
-            Element sentence = (Element) MaryDomUtils.getAncestor(phrase, MaryXML.SENTENCE);
+            Element sentence = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SENTENCE);
             if (sentence == null) return 0;
             int count = 0;
             TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.PHRASE);
-            tw.setCurrentNode(phrase);
+            tw.setCurrentNode(segment);
             Element e;
             while ((e = (Element) tw.nextNode()) != null) {
                 count++;
@@ -1981,14 +1981,16 @@ public class MaryGenericFeatureProcessors
         {
             Element segment = target.getMaryxmlElement();
             if (segment == null) return 0;
-            if (!segment.getTagName().equals(MaryXML.PHONE)) return 0;
-            Element syllable = (Element) segment.getParentNode();
-            if (syllable == null) return 0;
-            Element phrase = (Element) MaryDomUtils.getAncestor(syllable, MaryXML.PHRASE);
+            Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
             if (phrase == null) return 0;
             int count = 0;
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.SYLLABLE);
-            tw.setCurrentNode(syllable);
+            Element syllable = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SYLLABLE);
+            if (syllable != null) {
+                tw.setCurrentNode(syllable);
+            } else {
+                tw.setCurrentNode(segment);
+            }
             Element e;
             while ((e = (Element) tw.previousNode()) != null) {
                 count++;
@@ -2017,14 +2019,11 @@ public class MaryGenericFeatureProcessors
         {
             Element segment = target.getMaryxmlElement();
             if (segment == null) return 0;
-            if (!segment.getTagName().equals(MaryXML.PHONE)) return 0;
-            Element syllable = (Element) segment.getParentNode();
-            if (syllable == null) return 0;
-            Element phrase = (Element) MaryDomUtils.getAncestor(syllable, MaryXML.PHRASE);
+            Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
             if (phrase == null) return 0;
             int count = 0;
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.SYLLABLE);
-            tw.setCurrentNode(syllable);
+            tw.setCurrentNode(segment);
             Element e;
             while ((e = (Element) tw.nextNode()) != null) {
                 count++;
@@ -2053,14 +2052,16 @@ public class MaryGenericFeatureProcessors
         {
             Element segment = target.getMaryxmlElement();
             if (segment == null) return 0;
-            if (!segment.getTagName().equals(MaryXML.PHONE)) return 0;
-            Element syllable = (Element) segment.getParentNode();
-            if (syllable == null) return 0;
-            Element phrase = (Element) MaryDomUtils.getAncestor(syllable, MaryXML.PHRASE);
+            Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
             if (phrase == null) return 0;
             int count = 0;
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.SYLLABLE);
-            tw.setCurrentNode(syllable);
+            Element syllable = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SYLLABLE);
+            if (syllable != null) {
+                tw.setCurrentNode(syllable);
+            } else {
+                tw.setCurrentNode(segment);
+            }
             Element e;
             while ((e = (Element) tw.previousNode()) != null) {
                 count++;
@@ -2089,14 +2090,11 @@ public class MaryGenericFeatureProcessors
         {
             Element segment = target.getMaryxmlElement();
             if (segment == null) return 0;
-            if (!segment.getTagName().equals(MaryXML.PHONE)) return 0;
-            Element syllable = (Element) segment.getParentNode();
-            if (syllable == null) return 0;
-            Element phrase = (Element) MaryDomUtils.getAncestor(syllable, MaryXML.PHRASE);
+            Element phrase = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PHRASE);
             if (phrase == null) return 0;
             int count = 0;
             TreeWalker tw = MaryDomUtils.createTreeWalker(phrase, MaryXML.SYLLABLE);
-            tw.setCurrentNode(syllable);
+            tw.setCurrentNode(segment);
             Element e;
             while ((e = (Element) tw.nextNode()) != null) {
                 count++;
