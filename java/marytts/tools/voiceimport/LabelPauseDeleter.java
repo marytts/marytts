@@ -41,7 +41,7 @@ public class LabelPauseDeleter extends VoiceImportComponent {
         private File ehmm;
         private String outputDir;
         protected String labExt = ".lab";
-        
+        protected String pauseSymbol;
         private int progress;
         private String locale;
         
@@ -69,7 +69,6 @@ public class LabelPauseDeleter extends VoiceImportComponent {
                        +"lab"
                        +System.getProperty("file.separator"));
                props.put(PAUSETHR, "100");
-               
            }
            return props;
        }
@@ -84,6 +83,7 @@ public class LabelPauseDeleter extends VoiceImportComponent {
         public void initialiseComp()
         {
            locale = db.getProp(db.LOCALE);
+           this.pauseSymbol = System.getProperty("pause.symbol", "_");
         }
         
         /**
@@ -130,87 +130,56 @@ public class LabelPauseDeleter extends VoiceImportComponent {
             
             String line;
             String previous, current;
-            String regexp = "\\spau|\\sssil";
-
-            //Compile regular expression
-            Pattern pattern = Pattern.compile(regexp);
-
+            String regexp1 = "pau";
+            String regexp2 = "ssil";
+            
             File labDir = new File(getProp(OUTLABDIR));
             if(!labDir.exists()){
                 labDir.mkdir();
             }
             
-            PrintWriter labelOut = new PrintWriter(
-                    new FileOutputStream (new File(labDir+"/"+basename+labExt)));
+            // READ LABEL FILE
+            UnitLabel[] ulab = UnitLabel.readLabFile(getProp(EDIR)+"/lab/"+basename+labExt);
             
-            ArrayList<String> labelList = new ArrayList<String>(); 
-            
-            BufferedReader labelIn = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(getProp(EDIR)+"/lab/"+basename+labExt)));
-            
-            previous = labelIn.readLine();
-                                  
-            while((line = labelIn.readLine()) != null){
-
-                //Replace all occurrences of pattern in input
-                Matcher matcher = pattern.matcher(line);
-                current = matcher.replaceAll(" _");
-                
-                if(previous.endsWith("_") && current.endsWith("_")){
-                    previous = current;
-                    continue;
+            // Remove multiple consecutive pauses
+            ArrayList<UnitLabel> arrayLabel = new ArrayList<UnitLabel>();
+            for(int i=0; i<ulab.length; i++){
+                boolean iscPause = ulab[i].getUnitName().matches(regexp1) || ulab[i].getUnitName().matches(regexp2);
+                if((i+1)<ulab.length){
+                    boolean isnPause = ulab[i+1].getUnitName().matches(regexp1) || ulab[i+1].getUnitName().matches(regexp2);
+                    if(iscPause && isnPause){
+                        ulab[i+1].setStartTime(ulab[i].getStartTime());
+                        //System.out.println(ulab[i].getEndTime()+" "+ulab[i].getUnitIndex()+" "+ulab[i].getUnitName());
+                        continue;
+                    }
                 }
-                labelList.add(previous);                             
-                previous = current;
-                
-            }
-            
-            double startTimeStamp = 0.0;
-            double endTimeStamp = 0.0;
-            boolean correct = true;
-            String labelUnit = null;
-            
-            labelList.add(previous);
-            
-         int n = labelList.size();
-            
-//            for(int i = 0; i < n ; i++)
-//              System.out.println( labelList.get( i ) );
-            
-         for(int i = 0; i < n ; i++) { 
-            line = labelList.get( i );
-            
-            if(line.equals("#")){
-                labelOut.println(line);
-                continue;
-            }
-            
-            if (line != null){
-                List labelUnitData = getLabelUnitData(line);
-                labelUnit = (String)labelUnitData.get(2);
-                endTimeStamp = Double.parseDouble((String)labelUnitData.get(0)); 
-            }
-            double phoneDuration =  endTimeStamp - startTimeStamp;
-            
-            if(labelUnit.equals("_")){
-                if(isRealPause(phoneDuration)){
-                    labelOut.println(line);
+                if(iscPause){
+                    ulab[i].setUnitName(pauseSymbol);
                 }
-                
-            }
-            else {
-                labelOut.println(line);
+                arrayLabel.add(ulab[i]);
             }
             
-            startTimeStamp = endTimeStamp;
+            // Remove pauses below given threshold 
+            for(int i=0; i<arrayLabel.size(); i++){
+                UnitLabel ul = arrayLabel.get(i);
+                if(i>0 && (i+1)<arrayLabel.size()){
+                    if(ul.getUnitName().equals(pauseSymbol)){
+                        double duration = ul.endTime - ul.startTime;
+                        if(!isRealPause(duration)){
+                            //System.out.println(ul.startTime + " "+ ul.endTime + " "+ul.unitName);
+                            UnitLabel pul = arrayLabel.get(i-1);
+                            UnitLabel nul = arrayLabel.get(i+1);
+                            pul.setEndTime(pul.getEndTime()+((double)duration / 2.0));
+                            nul.setStartTime(nul.getStartTime()-((double)duration / 2.0));
+                            arrayLabel.remove(i--);
+                        }
+                    }
+                }
+            }
+            ulab = arrayLabel.toArray(new UnitLabel[0]);
             
-          }
-            
-           labelOut.flush();
-           labelOut.close();
-           labelIn.close();
-           labelList.clear();
-                        
+            // write labels into given file
+            UnitLabel.writeLabFile(ulab, labDir+"/"+basename+labExt);
         }
       
       private boolean isRealPause(double phoneDuration){
@@ -219,9 +188,11 @@ public class LabelPauseDeleter extends VoiceImportComponent {
            */
           
           double threshold = Double.parseDouble(getProp(PAUSETHR)) ;
-          if(phoneDuration > (threshold / (double) 1000.0))
-          return true;
-          else return false;
+          if(phoneDuration > (threshold / (double) 1000.0)){
+              return true;
+          }
+          
+          return false;
       }
       
          

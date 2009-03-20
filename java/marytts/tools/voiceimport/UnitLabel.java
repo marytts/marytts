@@ -3,12 +3,18 @@ package marytts.tools.voiceimport;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+
+import marytts.tools.voiceimport.DTWQualityControl.VarianceData;
+import marytts.util.math.DTW;
 
 public class UnitLabel {
     public String unitName;
@@ -31,8 +37,41 @@ public class UnitLabel {
         this.unitIndex = unitIndex;
         this.sCost = sCost;
     }
+    
     public double getSCost(){
         return this.sCost;
+    }
+    
+    public double getStartTime(){
+        return this.startTime;
+    }
+    
+    public double getEndTime(){
+        return this.endTime;
+    }
+    
+    public int getUnitIndex(){
+        return this.unitIndex;
+    }
+    
+    public String getUnitName(){
+        return this.unitName;
+    }
+   
+    public void setStartTime(double startTime){
+        this.startTime = startTime;
+    }
+    
+    public void setEndTime(double endTime){
+        this.endTime = endTime;
+    }
+    
+    public void setUnitIndex(int unitIndex){
+        this.unitIndex = unitIndex;
+    }
+    
+    public void setUnitName(String unitName){
+        this.unitName = unitName;
     }
     
     /**
@@ -87,6 +126,18 @@ public class UnitLabel {
                     (new Double(wrds[4])).doubleValue());
         }
         return ulab;
+    }
+    
+    public static void writeLabFile(UnitLabel[] ulab, String outFile)
+    throws IOException
+    {
+        PrintWriter pw = new PrintWriter(new FileWriter(outFile));
+        pw.println("#");
+        for(int i=0; i<ulab.length; i++){
+            pw.println(ulab[i].getEndTime()+" "+ulab[i].getUnitIndex()+" "+ulab[i].getUnitName());
+        }
+        pw.flush();
+        pw.close();
     }
     
     /**
