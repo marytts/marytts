@@ -27,16 +27,18 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.sinusoidal.hntm;
+package marytts.signalproc.sinusoidal.hntm.modification;
 
 import java.util.Arrays;
 import java.util.Vector;
 
 import marytts.signalproc.process.TDPSOLAInstants;
 import marytts.signalproc.process.TDPSOLAProcessor;
-import marytts.signalproc.sinusoidal.hntm.HntmSpeechFrame;
-import marytts.signalproc.sinusoidal.hntm.HntmSpeechSignal;
-import marytts.signalproc.sinusoidal.hntm.HntmSynthesizedSignal;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmPlusTransientsSpeechSignal;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
+import marytts.signalproc.sinusoidal.hntm.analysis.TransientSegment;
+import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizedSignal;
 import marytts.util.MaryUtils;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
@@ -311,8 +313,8 @@ public class HntmDurationModifier {
         
         hntmSignalMod.originalDurationInSeconds = hntmSignalMod.frames[hntmSignalMod.frames.length-1].tAnalysisInSeconds;
         
-        MaryUtils.plot(tAnalysis);
-        MaryUtils.plot(tSynthesis);
+        //MaryUtils.plot(tAnalysis);
+        //MaryUtils.plot(tSynthesis);
         
         return hntmSignalMod;
     }

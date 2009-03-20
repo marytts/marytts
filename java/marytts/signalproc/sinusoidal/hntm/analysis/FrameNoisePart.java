@@ -17,22 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.signalproc.sinusoidal.hntm;
+package marytts.signalproc.sinusoidal.hntm.analysis;
 
 /**
- * @author oytun.turk
+ * Baseline class to represent noise part of a speech frame
+ * 
+ * @author Oytun T&uumlrk
  *
  */
-public class HntmSynthesizedSignal {
-    public double[] harmonicPart;
-    public double[] noisePart;
-    public double[] transientPart;
-    
-    public HntmSynthesizedSignal()
-    {
-        harmonicPart = null;
-        noisePart = null;
-        transientPart = null;
-    }
+public class FrameNoisePart {
+
 }
 

@@ -27,43 +27,34 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.sinusoidal.hntm;
+package marytts.signalproc.sinusoidal.hntm.analysis;
 
-import marytts.util.math.ArrayUtils;
-import marytts.util.signal.SignalProcUtils;
 
 /**
- * This class represents a transient segment of the waveform
+ * This class represents all transient segments in a waveform
  * 
  * @author oytun.turk
  *
  */
-public class TransientSegment {
-    public float startTime; //Start time of segment in seconds
-    public int[] waveform; //Waveform values in 16-bit
+public class TransientPart {
+    public TransientSegment[] segments;
     
-    public TransientSegment()
+    public TransientPart(int numMaxTransients)
     {
-        startTime = -1.0f;
-        waveform = null;
-    }
-    
-    public TransientSegment(TransientSegment existing)
-    {
-        this();
-        
-        if (existing!=null)
-        {
-            this.startTime = existing.startTime;
-            this.waveform = ArrayUtils.copy(existing.waveform);
-        }
-    }
-    
-    public float getEndTime(int samplingRateInHz)
-    {
-        if (waveform!=null && startTime>-1.0f)
-            return startTime + SignalProcUtils.sample2time(waveform.length, samplingRateInHz);
+        if (numMaxTransients>0)
+            segments = new TransientSegment[numMaxTransients];
         else
-            return -1.0f;
+            segments = null;
+    }
+    
+    public TransientPart(TransientPart existing)
+    {
+        segments = null;
+        if (existing!=null && existing.segments!=null)
+        {
+            segments = new TransientSegment[existing.segments.length];
+            for (int i=0; i<existing.segments.length; i++)
+                segments[i] = new TransientSegment(existing.segments[i]);
+        }
     }
 }

@@ -27,7 +27,8 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.sinusoidal.hntm;
+package marytts.signalproc.sinusoidal.hntm.analysis;
+
 
 /**
  * @author oytun.turk
@@ -75,5 +76,19 @@ public class HntmSpeechSignal {
         }
         
         return times;
+    }
+    
+    public float[] getTargetEnergyContour()
+    {
+        float[] targetEnergyContour = null;
+        
+        if (frames!=null)
+        {
+            targetEnergyContour = new float[frames.length];
+            for (int i=0; i<frames.length; i++)
+                targetEnergyContour[i] = (1.0f-frames[i].noiseTotalEnergyRatio)*frames[i].totalSampleEnergy;
+        }
+        
+        return targetEnergyContour;
     }
 }
