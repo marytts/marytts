@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -239,7 +241,15 @@ public class AllophoneSet
      * as a Set of Strings
      */
     public Set<String> getAllophoneNames(){
-        return this.allophones.keySet();
+        Iterator<String> it = allophones.keySet().iterator();
+        Set<String> allophoneKeySet = new HashSet<String>();
+        while(it.hasNext()){
+            String keyString = it.next();
+            if(!allophones.get(keyString).isTone()){
+                allophoneKeySet.add(keyString);
+            }
+        }
+        return allophoneKeySet;
     }
 
     /**
