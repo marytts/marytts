@@ -17,15 +17,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.signalproc.sinusoidal.hntm;
+package marytts.signalproc.sinusoidal.hntm.analysis;
+
+import marytts.util.math.ArrayUtils;
+import marytts.util.math.ComplexNumber;
 
 /**
- * Baseline class to represent noise part of a speech frame
- * 
  * @author Oytun T&uumlrk
  *
  */
-public class FrameNoisePart {
-
+public class FrameHarmonicPart 
+{
+    public double[] ceps; //Cepstral coefficients for amplitude envelope
+    public float[] phases; //To keep harmonic phases
+    
+    public FrameHarmonicPart()
+    {        
+        ceps = null;
+        phases = null;
+    }
+    
+    public FrameHarmonicPart(FrameHarmonicPart existing)
+    {       
+        this();
+        
+        if (existing!=null)
+        {
+            ceps = ArrayUtils.copy(existing.ceps);
+            phases = ArrayUtils.copy(existing.phases);
+        }
+    }
 }
 

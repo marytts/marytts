@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.signalproc.sinusoidal.hntm;
+package marytts.signalproc.sinusoidal.hntm.analysis;
 
 import marytts.signalproc.sinusoidal.BaseSinusoidalSpeechFrame;
 
@@ -60,6 +60,8 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         h = new FrameHarmonicPart(existing.h);
         if (existing.n instanceof FrameNoisePartLpc)
             n = new FrameNoisePartLpc((FrameNoisePartLpc)existing.n);
+        else if (existing.n instanceof FrameNoisePartRegularizedCeps)
+            n = new FrameNoisePartRegularizedCeps((FrameNoisePartRegularizedCeps)existing.n);
         else if (existing.n instanceof FrameNoisePartPseudoHarmonic)
             n = new FrameNoisePartPseudoHarmonic((FrameNoisePartPseudoHarmonic)existing.n);
         

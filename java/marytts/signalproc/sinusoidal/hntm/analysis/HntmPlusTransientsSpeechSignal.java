@@ -27,33 +27,26 @@
  * THIS SOFTWARE.
  */
 
-package marytts.signalproc.sinusoidal.hntm;
+package marytts.signalproc.sinusoidal.hntm.analysis;
+
 
 /**
- * This class represents all transient segments in a waveform
- * 
  * @author oytun.turk
  *
  */
-public class TransientPart {
-    public TransientSegment[] segments;
+public class HntmPlusTransientsSpeechSignal extends HntmSpeechSignal {
     
-    public TransientPart(int numMaxTransients)
-    {
-        if (numMaxTransients>0)
-            segments = new TransientSegment[numMaxTransients];
-        else
-            segments = null;
-    }
+    public TransientPart transients;
     
-    public TransientPart(TransientPart existing)
+    public HntmPlusTransientsSpeechSignal(int totalFrm, int samplingRateInHz, float originalDurationInSeconds,
+                                         float f0WindowDurationInSeconds, float f0SkipSizeInSeconds,
+                                         float windowDurationInSecondsNoise, float preCoefNoise, int numMaxTransients) 
     {
-        segments = null;
-        if (existing!=null && existing.segments!=null)
-        {
-            segments = new TransientSegment[existing.segments.length];
-            for (int i=0; i<existing.segments.length; i++)
-                segments[i] = new TransientSegment(existing.segments[i]);
-        }
+        super(totalFrm, samplingRateInHz, originalDurationInSeconds, 
+              f0WindowDurationInSeconds, f0SkipSizeInSeconds, 
+              windowDurationInSecondsNoise, preCoefNoise);
+
+        transients = new TransientPart(numMaxTransients);
     }
+
 }

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.signalproc.sinusoidal.hntm;
+package marytts.signalproc.sinusoidal.hntm.analysis;
 
 import marytts.util.math.ArrayUtils;
 
@@ -30,10 +30,8 @@ import marytts.util.math.ArrayUtils;
  * @author Oytun T&uumlrk
  *
  */
-public class FrameNoisePartPseudoHarmonic extends FrameNoisePart {
+public class FrameNoisePartPseudoHarmonic extends FrameNoisePartRegularizedCeps {
 
-    public double[] ceps; //To keep harmonic amplitudes
-    
     public FrameNoisePartPseudoHarmonic()
     {
         super();
@@ -41,8 +39,7 @@ public class FrameNoisePartPseudoHarmonic extends FrameNoisePart {
     
     public FrameNoisePartPseudoHarmonic(FrameNoisePartPseudoHarmonic existing)
     {
-        super();
-        ceps = ArrayUtils.copy(existing.ceps);
+        super(existing);
     }
 }
 
