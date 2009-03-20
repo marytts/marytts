@@ -41,8 +41,8 @@ import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartRegularizedCeps
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmPlusTransientsSpeechSignal;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
+import marytts.signalproc.sinusoidal.hntm.analysis.pitch.HnmPitchVoicingAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.modification.HntmDurationModifier;
-import marytts.signalproc.sinusoidal.pitch.HnmPitchVoicingAnalyzer;
 import marytts.signalproc.window.HammingWindow;
 import marytts.signalproc.window.HanningWindow;
 import marytts.signalproc.window.Window;
