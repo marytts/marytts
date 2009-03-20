@@ -24,8 +24,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Vector;
 
-import marytts.signalproc.sinusoidal.hntm.FrameHarmonicPart;
-import marytts.signalproc.sinusoidal.hntm.HntmSpeechSignal;
+import marytts.signalproc.sinusoidal.hntm.analysis.FrameHarmonicPart;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
