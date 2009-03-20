@@ -29,7 +29,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.sinusoidal.SinusoidalAnalyzer;
 import marytts.signalproc.sinusoidal.NonharmonicSinusoidalSpeechFrame;
-import marytts.signalproc.sinusoidal.hntm.HntmAnalyzer;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.window.HanningWindow;
 import marytts.signalproc.window.Window;
 import marytts.util.MaryUtils;
@@ -73,7 +73,7 @@ public class HnmPitchVoicingAnalyzer {
         int PMin = (int)Math.floor(samplingRate/f0MaxInHz+0.5);
         
         int ws = SignalProcUtils.time2sample(windowSizeInSeconds, samplingRate);
-        ws = Math.max(ws, (int)Math.floor(HntmAnalyzer.NUM_PERIODS_AT_LEAST*PMin+0.5));
+        ws = Math.max(ws, (int)Math.floor(HntmAnalyzer.NUM_PERIODS_INITIAL_PITCH_ESTIMATION*PMin+0.5));
         
         int ss = (int)Math.floor(skipSizeInSeconds*samplingRate + 0.5);
         int numfrm = (int)Math.floor(((double)x.length-ws)/ss+0.5);
@@ -270,7 +270,7 @@ public class HnmPitchVoicingAnalyzer {
                 System.out.println("Time=" + String.valueOf(currentTime)+ " sec." + " f0=" + String.valueOf(mappedF0s[i]) + " Hz." + " Unvoiced" + " MaxVFreq=" + String.valueOf(maxFrequencyOfVoicings[i]));
         }
         
-        MaryUtils.plot(maxFrequencyOfVoicings);
+        //MaryUtils.plot(maxFrequencyOfVoicings);
         
         maxFrequencyOfVoicings = smoothUsingPeaks(maxFrequencyOfVoicings);
         //MaryUtils.plot(maxFrequencyOfVoicings);
