@@ -731,6 +731,44 @@ public class MaryGenericFeatureProcessors
         }
     }
 
+    /**
+     * Syllable tone for the given target
+     * @author sathish pammi
+     *
+     */
+    public static class SyllableTone implements ByteValuedFeatureProcessor
+    {
+        protected String name;
+        protected TargetElementNavigator navigator;
+        public SyllableTone(String name, TargetElementNavigator syllableNavigator)
+        {
+            this.name = name;
+            this.navigator = syllableNavigator;
+        }
+        public String getName() { return name; }
+        public String[] getValues() {
+            return new String[] {"0", "1", "2", "3", "4"};
+        }
+
+        /**
+         * Performs some processing on the given item.
+         * @param target the target to process
+         * @return tone value
+         */
+        public byte process(Target target)
+        {
+            Element syllable = navigator.getElement(target);
+            if (syllable == null) return 0;
+            String value = syllable.getAttribute("tone");
+            if (value.equals("")) return 0;
+            byte toneValue = Byte.parseByte(value);
+            if (toneValue > 4 || toneValue < 1){
+                //out of range, set to 0
+                toneValue = 0;
+            }
+            return toneValue;
+        }
+    }
 
     /**
      * Returns as a byte the number of phrases in the current sentence.
