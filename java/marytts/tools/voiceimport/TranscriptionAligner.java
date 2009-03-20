@@ -314,7 +314,7 @@ public class TranscriptionAligner extends VoiceImportComponent {
             result = "_ " + result;
             //this.pauseLengths.add(0, 0);
         }
-        
+        lab.close();
         return result;
     }
 
