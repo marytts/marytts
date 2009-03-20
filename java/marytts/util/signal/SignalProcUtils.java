@@ -2114,11 +2114,13 @@ public class SignalProcUtils {
         return y;
     }
     
-    public static double[] arFilterFreqDomain(double[] windowedFrame, double[] a, double lpGain)
+    public static double[] arFilterFreqDomain(double[] windowedFrame, double[] a, double lpGain, double startFreqInHz, double endFreqInHz, int samplingRateInHz)
     {
+        int k;
         int fftSize = 2;
         while (fftSize<windowedFrame.length)
             fftSize *= 2;
+        int maxFreqInd = fftSize/2;
         
         ComplexArray X = new ComplexArray(fftSize);
         System.arraycopy(windowedFrame, 0, X.real, 0, windowedFrame.length);
@@ -2129,18 +2131,23 @@ public class SignalProcUtils {
             X = FFTMixedRadix.fftComplex(X);
         
         double[] H = LpcAnalyser.calcSpecLinear(a, lpGain, fftSize);
+        int startFreqInd = SignalProcUtils.freq2index(startFreqInHz, samplingRateInHz, maxFreqInd);
+        int endFreqInd = SignalProcUtils.freq2index(endFreqInHz, samplingRateInHz, maxFreqInd);
+        for (k=0; k<startFreqInd; k++)
+            H[k] = 0.0;
+        for (k=endFreqInd+1; k<=maxFreqInd; k++)
+            H[k] = 0.0;
 
         ComplexArray Y = new ComplexArray(fftSize);
 
-        int maxFreq = fftSize/2+1;
-        int k;
-        for (k=0; k<maxFreq; k++)
+        
+        for (k=0; k<=maxFreqInd; k++)
         {
             Y.real[k] = X.real[k]*H[k];
             Y.imag[k] = X.imag[k]*H[k];;
         }
         
-        for (k=maxFreq; k<fftSize; k++)
+        for (k=maxFreqInd+1; k<fftSize; k++)
         {
             Y.real[k] = Y.real[fftSize-k];
             Y.imag[k] = -1.0*Y.imag[fftSize-k];
@@ -2158,29 +2165,59 @@ public class SignalProcUtils {
         return y;
     }
     
+    public static double[] fdFilter(double[] x, double[] filterFreqResponse)
+    {
+        int i;
+        int maxFreqInd = filterFreqResponse.length-1;
+        int fftSize = 2*maxFreqInd;
+        
+        ComplexArray frameDft = SignalProcUtils.getFrameDft(x, fftSize);
+        
+        for (i=0; i<=maxFreqInd; i++)
+        {
+            frameDft.real[i] *= filterFreqResponse[i];
+            frameDft.imag[i] *= filterFreqResponse[i];
+        }
+        
+        for (i=maxFreqInd+1; i<fftSize; i++)
+        {
+            frameDft.real[i] = frameDft.real[fftSize-i];
+            frameDft.imag[i] = -1.0*frameDft.imag[fftSize-i];
+        }
+
+        if (MathUtils.isPowerOfTwo(fftSize))
+            FFT.transform(frameDft.real, frameDft.imag, true);
+        else
+            frameDft = FFTMixedRadix.ifft(frameDft);
+
+        double[] y = new double[Math.min(x.length, frameDft.real.length)];
+        for (i=0; i<x.length; i++)
+            y[i] = frameDft.real[i];
+        
+        return y;
+    }
+    
     public static FrequencyDomainFilterOutput fdFilter(double[] x, float startFreqInHz, float endFreqInHz, int samplingRateInHz, int fftSize)
-    { 
+    {  
+        while (fftSize<x.length)
+            fftSize *= 2;
+        
+        ComplexArray frameDft = SignalProcUtils.getFrameDft(x, fftSize);
+        
+        return fdFilter(frameDft, startFreqInHz, endFreqInHz, samplingRateInHz, x.length);
+    }
+    
+    public static FrequencyDomainFilterOutput fdFilter(ComplexArray frameDft, float startFreqInHz, float endFreqInHz, int samplingRateInHz, int origLen)
+    {
+        int fftSize = frameDft.real.length;
+        int maxFreqInd = fftSize/2;
+        int startFreqInd = SignalProcUtils.freq2index(startFreqInHz, samplingRateInHz, maxFreqInd);
+        int endFreqInd = SignalProcUtils.freq2index(endFreqInHz, samplingRateInHz, maxFreqInd);
+
         FrequencyDomainFilterOutput fdfo = new FrequencyDomainFilterOutput();
         
         float totalRmsEnergy = 0.0f;
         float passbandRmsEnergy = 0.0f;
-        while (fftSize<x.length)
-            fftSize *= 2;
-        
-        ComplexArray frameDft = new ComplexArray(fftSize);
-        System.arraycopy(x, 0, frameDft.real, 0, x.length);
-        
-        if (fftSize%2!=0)
-            fftSize++;
-        
-        if (MathUtils.isPowerOfTwo(fftSize))
-            FFT.transform(frameDft.real, frameDft.imag, false);
-        else
-            frameDft = FFTMixedRadix.fftComplex(frameDft);
-        
-        int maxFreqInd = fftSize/2;
-        int startFreqInd = SignalProcUtils.freq2index(startFreqInHz, samplingRateInHz, maxFreqInd);
-        int endFreqInd = SignalProcUtils.freq2index(endFreqInHz, samplingRateInHz, maxFreqInd);
         
         int i;
 
@@ -2190,37 +2227,37 @@ public class SignalProcUtils {
             frameDft.real[i] = 0.0;
             frameDft.imag[i] = 0.0;
         }
-        
+
         for (i=startFreqInd+1; i<endFreqInd; i++)
         {
             totalRmsEnergy += frameDft.real[i]*frameDft.real[i] + frameDft.imag[i]*frameDft.imag[i];
             passbandRmsEnergy += frameDft.real[i]*frameDft.real[i] + frameDft.imag[i]*frameDft.imag[i];
         }
-            
+
         for (i=endFreqInd; i<=maxFreqInd; i++)
         {
             totalRmsEnergy += frameDft.real[i]*frameDft.real[i] + frameDft.imag[i]*frameDft.imag[i];
             frameDft.real[i] = 0.0;
             frameDft.imag[i] = 0.0;
         }
-        
+
         for (i=maxFreqInd+1; i<fftSize; i++)
         {
             frameDft.real[i] = frameDft.real[fftSize-i];
             frameDft.imag[i] = -1.0*frameDft.imag[fftSize-i];
         }
-        
+
         if (MathUtils.isPowerOfTwo(fftSize))
             FFT.transform(frameDft.real, frameDft.imag, true);
         else
             frameDft = FFTMixedRadix.ifft(frameDft);
 
-        fdfo.y = new double[x.length];
-        for (i=0; i<x.length; i++)
+        fdfo.y = new double[Math.min(origLen, frameDft.real.length)];
+        for (i=0; i<origLen; i++)
             fdfo.y[i] = frameDft.real[i];
 
         fdfo.passBandToTotalEnergyRatio = (float)Math.sqrt(passbandRmsEnergy/totalRmsEnergy);
-        
+
         return fdfo;
     }
     
@@ -2307,8 +2344,39 @@ public class SignalProcUtils {
     public static void displayDFTSpectrumInDB(double[] frame, int fftSize, int windowType)
     {
         Window win = Window.get(windowType, frame.length);
-        win.normalizeSquaredSum(1.0f);
-        double[] frameW = win.apply(frame, 0);
+        if (windowType==Window.RECT)
+            win.normalizePeakValue(1.0f);
+        
+        displayDFTSpectrumInDB(frame, fftSize, win.getCoeffs());
+    }
+    
+    public static void displayDFTSpectrumInDB(double[] frame, int fftSize, double[] wgt)
+    {
+        ComplexArray frameDft = getFrameDft(frame, fftSize, wgt);
+        
+        MaryUtils.plot(MathUtils.amp2db(MathUtils.magnitudeComplex(frameDft)));
+    }
+
+    //No windowing, i.e. rectangular window
+    public static ComplexArray getFrameDft(double[] frame, int fftSize)
+    {
+        return getFrameDft(frame, fftSize, Window.RECT);
+    }
+    
+    public static ComplexArray getFrameDft(double[] frame, int fftSize, int windowType)
+    {
+        Window win = Window.get(windowType, frame.length);
+        if (windowType==Window.RECT)
+            win.normalizePeakValue(1.0f);
+        
+        double[] wgt = win.getCoeffs();
+        
+        return getFrameDft(frame, fftSize, wgt);    
+    }
+    
+    public static ComplexArray getFrameDft(double[] frame, int fftSize, double[] windowWgt)
+    {  
+        double[] frameW = MathUtils.multiply(frame, windowWgt);
         
         while (fftSize<frameW.length)
             fftSize *= 2;
@@ -2323,11 +2391,10 @@ public class SignalProcUtils {
             FFT.transform(frameDft.real, frameDft.imag, false);
         else
             frameDft = FFTMixedRadix.fftComplex(frameDft);
-  
         
-        MaryUtils.plot(MathUtils.amp2db(MathUtils.magnitudeComplex(frameDft)));
+        return frameDft;
     }
-
+    
     public static void displayLPSpectrumLinear(double[] alpha, double lpGain, int fftSize)
     {
         double[] lpSpec = LpcAnalyser.calcSpecLinear(alpha, lpGain, fftSize);
