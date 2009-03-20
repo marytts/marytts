@@ -664,6 +664,16 @@ public class EHMMLabeler extends VoiceImportComponent {
         {
             return progress;
         }
+        
+        /**
+         * @param args
+         */
+        public static void main(String[] args) throws Exception
+        {
+            VoiceImportComponent vic  =  new EHMMLabeler();
+            DatabaseLayout db = new DatabaseLayout(vic);
+            vic.compute();
+        }
 
 }
 
