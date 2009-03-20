@@ -1770,136 +1770,89 @@ public class MathUtils {
         return coeffs;
     }
     
-    /*
-    // The following does not work properly yet, need to check if needed. 
-    // But one can always use inverse(ComplexNumber[][]) function to do the required inversion.
-    // However, Levinson routine should be faster as it makes use of the Hermition structure in R
+    // Modified(Generalized) Levinson recursion to solve the matrix equation R*h=c 
+    //   where R is a complex-valued Toeplitz matrix 
     //
-    //Levinson recursion for complex-valued normal equations: Tb=c
-    //x is a px1 complex valued vector of solution values
-    //R is the complex values of a Hermitian matrix, T, with real diagonal terms:
-    //     [R(0)   R*(1) R*(2) ...  R*(p-1)]
-    //     [R(1)   R(0)  ...        R*(p-2)]
-    // T = [...        R(0)         ...    ]
-    //     [R(p-2) R(p-3)      R(0) R*(1)  ]
-    //     [R(p-1) R(p-2)      R(1) R(0)   ]  
-    //c is a px1 complex valued vector
-    //
-    // Returns a complex array of size px1 which are the solution to the system of equations Tb=c, i.e. b=(T^-1)c
-    //
-    // Reference:
-    // Proakis, J.G., and Manolakis, D.G.,Digital Signal Processing - Principles, Algorithms, Applications, Prentice-Hall Inc, New Jersey, 1996.
-    // pp. 864-868.
-    public static ComplexArray levinson(ComplexArray R, ComplexArray c)
+    // r : Complex vector of length N containing the first row of the correlation matrix R
+    // c : Complex vector containing the right handside of the equation 
+    public static ComplexNumber[] levinson(ComplexNumber[] r, ComplexNumber[] c)
     {
+        assert r.length == c.length;
+        
+        int M = r.length; //Order of equations to be solved
+        ComplexNumber[] a = new ComplexNumber[M]; //Temporary array for computations
+        ComplexNumber[] b = new ComplexNumber[M]; //Temporary array for computations
+        ComplexNumber[] h = new ComplexNumber[M]; //Output
+        ComplexNumber alpha, beta, gamma, xk, q;
         int i;
-        int p = R.real.length; //prediction order
-        assert R.imag.length==p;
-        assert c.real.length==p;
-        assert c.imag.length==p;
         
-        ComplexArray K = new ComplexArray(p+1);
-        ComplexArray a = new ComplexArray(p+1);
-        ComplexArray aPrev = new ComplexArray(p+1);
-        ComplexArray b = new ComplexArray(p+1);
-        ComplexArray bPrev = new ComplexArray(p+1);
-        double[] E = new double[p+1];
-        E[0] = R.real[0];
-        a.real[0] = 1.0;
-        a.imag[0] = 0.0;
-        b.real[0] = 1.0;
-        b.imag[0] = 0.0;
-        
-        ComplexNumber tmp = divideComplex(multiply(-1.0, R.get(1)), R.get(0));
-        K.real[1] = tmp.real;
-        K.imag[1] = tmp.imag;
-        a.real[1] = tmp.real;
-        a.imag[1] = tmp.imag;
-        
-        tmp = divideComplex(c.get(0), R.get(0)); //c goes from 0 to p-1 so it is not c(1) here as in the book
-        b.real[1] = tmp.real;
-        b.imag[1] = tmp.imag;
-        
-        E[1] = E[0]*(1.0-MathUtils.magnitudeComplexSquared(K.get(1)));
-        
-        int n, k;
-        
-        for (k=0; k<=1; k++)
+        //Check for zero input
+        if (r[0].real==0.0 && r[0].imag==0.0)
         {
-            aPrev.real[k] = a.real[k];
-            aPrev.imag[k] = a.imag[k];
-            bPrev.real[k] = b.real[k];
-            bPrev.imag[k] = b.imag[k];
-        }
+            for (i=1; i<=M; i++)
+                h[i-1] = new ComplexNumber(0.0, 0.0);
 
-        ComplexNumber numTermA, denTermA, numTermB;
-        for (int m=2; m<p; m++)
-        {
-            numTermA = multiplyComplex(R.get(m-1), aPrev.get(1));
-            for (n=m-2; n>=1; n--)
-            {
-                tmp = multiplyComplex(R.get(n), aPrev.get(m-n));
-                numTermA = addComplex(numTermA, tmp);
-            }
-            numTermA = addComplex(numTermA, R.get(m));
-            
-            denTermA = multiplyComplex(R.get(m-1), complexConjugate(aPrev.get(m-1)));
-            for (n=m-2; n>=1; n--)
-            {
-                tmp = multiplyComplex(R.get(n), complexConjugate(aPrev.get(n)));
-                denTermA = addComplex(denTermA, tmp);
-            }
-            denTermA = addComplex(denTermA, R.get(0));
-            
-            E[m] = denTermA.real;
-            
-            numTermB = multiplyComplex(R.get(m-1), bPrev.get(1));
-            for (n=m-2; n>=1; n--)
-            {
-                tmp = multiplyComplex(R.get(n), bPrev.get(m-n));
-                numTermB = addComplex(numTermB, tmp);
-            }
-            numTermB = addComplex(c.get(m), multiply(-1.0, numTermB));
-            
-            tmp = divide(multiply(-1.0, numTermA), E[m]);
-            a.real[m] = tmp.real;
-            a.imag[m] = tmp.imag;
-            K.real[m] = tmp.real;
-            K.imag[m] = tmp.imag;
-            
-            tmp = divide(numTermB, E[m-1]);
-            b.real[m] = tmp.real;
-            b.imag[m] = tmp.imag;
-            
-            for (k=1; k<=m-1; k++)
-            {
-                tmp = multiplyComplex(a.get(m), complexConjugate(aPrev.get(m-k)));
-                tmp = addComplex(tmp, aPrev.get(k));
-                a.real[k] = tmp.real;
-                a.imag[k] = tmp.imag;
-            }
-            
-            for (k=1; k<=m-1; k++)
-            {
-                tmp = multiplyComplex(b.get(m), complexConjugate(aPrev.get(m-k)));
-                tmp = multiply(-1.0, tmp);
-                tmp = addComplex(tmp, bPrev.get(k));
-                b.real[k] = tmp.real;
-                b.imag[k] = tmp.imag;
-            }
-            
-            for (k=0; k<=m; k++)
-            {
-                aPrev.real[k] = a.real[k];
-                aPrev.imag[k] = a.imag[k];
-                bPrev.real[k] = b.real[k];
-                bPrev.imag[k] = b.imag[k];
-            }
-        }    
+            return h;
+        }
         
-        return b;
+        //First order solution
+        a[0] = new ComplexNumber(1.0, 0.0);
+        beta = new ComplexNumber(r[1]);
+        alpha = new ComplexNumber(r[0]);
+        h[0] = MathUtils.divideComplex(c[0], r[0]);
+        if (M==1)
+            return h;
+        
+        //Second order solution
+        gamma = MathUtils.multiplyComplex(h[0], r[1]);
+        xk = MathUtils.divideComplex(MathUtils.multiply(-1.0, beta), alpha);
+        a[1] = new ComplexNumber(xk);
+        alpha = MathUtils.addComplex(alpha, MathUtils.multiplyComplex(xk, MathUtils.complexConjugate(beta)));
+        q = MathUtils.divideComplex((MathUtils.subtractComplex(c[1], gamma)), MathUtils.complexConjugate(alpha));                                       
+        h[0] = MathUtils.addComplex(h[0], MathUtils.multiplyComplex(q, MathUtils.complexConjugate(a[1])));
+        h[1] = new ComplexNumber(q);                                        
+        if (M==2)
+            return h;
+                                                             
+        // Recursion for orders >= 3
+        beta = MathUtils.addComplex(r[2], MathUtils.multiplyComplex(a[1], r[1]));
+        gamma = MathUtils.addComplex(MathUtils.multiplyComplex(h[0], r[2]), MathUtils.multiplyComplex(h[1], r[1]));
+        int M1 = M-1;
+                                                          
+        for (int N=2; N<=M1; N++)
+        {
+            xk = MathUtils.divideComplex(MathUtils.multiply(-1.0, beta), MathUtils.complexConjugate(alpha));
+
+            for (i=2; i<=N; i++)                                                   
+                b[i-1] = MathUtils.addComplex(a[i-1], MathUtils.multiplyComplex(xk, MathUtils.complexConjugate(a[N+1-i])));                              
+
+            for (i=2; i<=N; i++)                                                   
+                a[i-1] = new ComplexNumber(b[i-1]);
+                                                                        
+            a[N] = new ComplexNumber(xk);      
+            alpha = MathUtils.addComplex(alpha, MathUtils.multiplyComplex(xk, MathUtils.complexConjugate(beta)));
+            q = MathUtils.divideComplex(MathUtils.subtractComplex(c[N], gamma), MathUtils.complexConjugate(alpha));
+            h[0] = MathUtils.addComplex(h[0], MathUtils.multiplyComplex(q, MathUtils.complexConjugate(a[N])));                            
+            for (i=2; i<=N; i++)                                   
+                h[i-1] = MathUtils.addComplex(h[i-1], MathUtils.multiplyComplex(q, MathUtils.complexConjugate(a[N+1-i])));                                                   
+                              
+            h[N] = new ComplexNumber(q);                                                     
+            
+            if (N==M1)
+                return h;
+                  
+            gamma = new ComplexNumber(0.0, 0.0);
+            beta = new ComplexNumber(0.0, 0.0);
+
+            for (i=1; i<=N+1; i++)
+            {
+                beta = MathUtils.addComplex(beta, MathUtils.multiplyComplex(a[i-1], r[N-i+2]));                                   
+                gamma = MathUtils.addComplex(gamma, MathUtils.multiplyComplex(h[i-1], r[N-i+2]));
+            }                                                     
+        }                                                         
+
+        return h;
     }
-    */
     
     //Performs linear interpolation to increase or decrease the size of array x to newLength
     public static double [] interpolate(double [] x, int newLength)
@@ -4319,41 +4272,22 @@ public class MathUtils {
     
     public static void main(String[] args)
     {
-        int i,j;
+        ComplexNumber[][] x1 = new ComplexNumber[2][2];
+        x1[0][0] = new ComplexNumber(1.0, 2.0);
+        x1[0][1] = new ComplexNumber(2.0, 1.0);
+        x1[1][0] = new ComplexNumber(1.0, 2.0);
+        x1[1][1] = new ComplexNumber(3.0, 1.0);
         
-        int d = 20;
-        ComplexNumber[][] R = new ComplexNumber[d][d];
-        double[][] D = new double[d][d];
+        ComplexNumber[][] x2 = new ComplexNumber[2][2];
+        x2[0][0] = new ComplexNumber(1.0, 2.0);
+        x2[0][1] = new ComplexNumber(2.0, 1.0);
+        x2[1][0] = new ComplexNumber(1.0, 2.0);
+        x2[1][1] = new ComplexNumber(3.0, 1.0);
         
-        for (i=0; i<d; i++)
-        {
-            for (j=0; j<d; j++)
-            { 
-                if (i==j)
-                    R[i][j] = new ComplexNumber(i*i+0.5, 0.0);  
-                else
-                {
-                    //R[i][j] = new ComplexNumber(-2*i+i*i+0.6, 0.0);
-                    R[i][j] = new ComplexNumber(-2*i+i*i+0.6, Math.log10(20*i+5.0)+i*i);
-                }
-                
-                D[i][j] = R[i][j].real;
-            }
-        }
-
-        ComplexNumber[][] invR = inverse(R);
-        ComplexNumber[][] y = matrixProduct(R, invR);
-        
-        //double[][] invD = inverse(D);
-        //double[][] y2 = matrixProduct(D, invD);
-        
-        System.out.print(StringUtils.toString(invR));
-        //System.out.print(StringUtils.toString(invD));
+        ComplexNumber[][] y = matrixProduct(x1, x2);
         
         System.out.print(StringUtils.toString(y));
-        //System.out.print(StringUtils.toString(y2));
-        
-        
+
         System.out.println("Test completed...");
     }
 }
