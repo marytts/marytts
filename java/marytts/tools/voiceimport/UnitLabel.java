@@ -13,9 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import marytts.tools.voiceimport.DTWQualityControl.VarianceData;
-import marytts.util.math.DTW;
-
 public class UnitLabel {
     public String unitName;
     public double startTime;
