@@ -181,8 +181,10 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                 MaryProperties.getFilename("voice."+voiceName+".Fmf"),     /* Model LF0 */
                 MaryProperties.getFilename("voice."+voiceName+".Fmm"),     /* Model MCP */
                 MaryProperties.getFilename("voice."+voiceName+".Fms"),     /* Model STR */
-                MaryProperties.getFilename("voice."+voiceName+".Fma"),     /* Model MAG */
-                MaryProperties.getProperty("voice."+voiceName+".useMixExc"), /* Use Mixed excitation */
+                MaryProperties.getFilename("voice."+voiceName+".Fma"),     /* Model MAG */        
+                MaryProperties.getFilename("voice."+voiceName+".useExtDur"),     /* use external prosody: unit_duration targetfeature */
+                MaryProperties.getFilename("voice."+voiceName+".useExtLogF0"),   /* use external prosody: unit_logf0 and unit_logf0delta targetfeatures */
+                MaryProperties.getProperty("voice."+voiceName+".useMixExc"),     /* Use Mixed excitation */
                 MaryProperties.getProperty("voice."+voiceName+".useFourierMag"), /* Use Fourier magnitudes for pulse generation */
                 MaryProperties.getBoolean("voice."+voiceName+".useGV"),     /* Use Global Variance in parameter generation */
                 MaryProperties.getBoolean("voice."+voiceName+".useGmmGV"),  /* Use Global Variance as Gausian Mixture model */
