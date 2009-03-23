@@ -101,17 +101,18 @@ public class HTSEngine extends InternalModule
     private Logger logger = Logger.getLogger("HTSEngine");
     private String realisedDurations;  // HMM realised duration to be save in a file
     private boolean phonemeAlignmentForDurations;
-    private boolean stateAlignmentForDurations;
-    private Vector<PhonemeDuration> alignDur;  // list of duration per phoneme for alignment
+    private boolean stateAlignmentForDurations=false;   
+    private Vector<PhonemeDuration> alignDur=null;  // list of external duration per phoneme for alignment
+     
     
     public String getRealisedDurations(){ return realisedDurations; }
     public boolean getPhonemeAlignmentForDurations(){ return phonemeAlignmentForDurations; }
-    public boolean getStateAlignmentForDurations(){ return stateAlignmentForDurations;}
+    public boolean getStateAlignmentForDurations(){ return stateAlignmentForDurations;}    
     public Vector<PhonemeDuration> getAlignDurations(){ return alignDur; }
-    
+  
     public void setRealisedDurations(String str){ realisedDurations=str; }
-    public void setPhonemeAlignmentForDurations(boolean bval){ phonemeAlignmentForDurations=bval; }
     public void setStateAlignmentForDurations(boolean bval){ stateAlignmentForDurations=bval; }
+    public void setPhonemeAlignmentForDurations(boolean bval){ phonemeAlignmentForDurations=bval; }    
     public void setAlignDurations(Vector<PhonemeDuration> val){ alignDur = val; }
      
     public HTSEngine()
@@ -154,7 +155,7 @@ public class HTSEngine extends InternalModule
         Voice v = d.getDefaultVoice(); /* This is the way of getting a Voice through a MaryData type */
         assert v instanceof HMMVoice;
         HMMVoice hmmv = (HMMVoice)v;
-              
+        
         String context = d.getPlainText();
         //System.out.println("TARGETFEATURES:" + TARGETFEATURES);
               
@@ -311,14 +312,16 @@ public class HTSEngine extends InternalModule
         }
            
         
-        if( phonemeAlignmentForDurations ){
+        if( phonemeAlignmentForDurations || htsData.getUseUnitDurationContinuousFeature()){
           if( alignDur != null ){ 
             alignDurSize = alignDur.size();
-            logger.info("Using phoneme alignment for duration");  
-          } else
-            throw new Exception("No vector of durations for phoneme alignment.");
+            logger.info("Using external prosody for duration: using phoneme alignment for duration from external file.");  
+          } else {
+            logger.info("Using external prosody for duration: using phoneme alignment for duration from ContinuousFeatureProcessors.");  
+            //throw new Exception("No vector of durations for phoneme alignment.");
+          }
         } else
-            logger.info("Estimate state duration from state duration model (Gaussian)");
+            logger.info("Estimating state durations from (Gaussian) state duration model.");
         
         /* Parse byte values  */
         i=0;
@@ -332,34 +335,43 @@ public class HTSEngine extends InternalModule
             /* this function also sets the phoneme name, the phoneme between - and + */
             m.setName(fv.toString(), fv.getFeatureAsString(feaDef.getFeatureIndex("phoneme"), feaDef));
             
-           /* System.out.print("context: " + fv.getFeatureAsString(feaDef.getFeatureIndex("prev_prev_phoneme"), feaDef) + 
+            /*System.out.println("context: " + fv.getFeatureAsString(feaDef.getFeatureIndex("prev_prev_phoneme"), feaDef) + 
                                      " " + fv.getFeatureAsString(feaDef.getFeatureIndex("prev_phoneme"), feaDef) +
                                      " " + fv.getFeatureAsString(feaDef.getFeatureIndex("phoneme"), feaDef) + 
                                      " " + fv.getFeatureAsString(feaDef.getFeatureIndex("next_phoneme"), feaDef) +
-                                     " " + fv.getFeatureAsString(feaDef.getFeatureIndex("next_next_phoneme"), feaDef));
-            */
+                                     " " + fv.getFeatureAsString(feaDef.getFeatureIndex("next_next_phoneme"), feaDef) +
+                                     "  DUR= " + fv.getContinuousFeature(feaDef.getFeatureIndex("unit_duration")) +
+                                     "  LF0= " + fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0")) );
+            */                         
+            m.setUnit_logF0(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0")));
+            m.setUnit_logF0delta(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0delta")));
+            
             if(!(s.hasNext()) )
               lastPh = true;
 
             // Determine state-level duration                      
-            if( phonemeAlignmentForDurations ) {  // use phoneme alignment for duration 
-              
-              // check if the external phoneme corresponds to the current
-              if( alignDur.get(i).getPhoneme().contentEquals(m.getPhoneName()) ){
-                diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, lastPh, diffdurOld);
-                nf=0;
-                // get the sum of the state durations
-                for(k=0; k<htsData.getCartTreeSet().getNumStates(); k++)
-                  nf += m.getDur(k);
-              
-                if(i < alignDurSize )
-                  f = alignDur.get(i).getDuration()/(fperiodsec*nf);
-                else
-                  throw new Exception("The number of durations provided for phoneme alignment (" + alignDurSize +
+            if( phonemeAlignmentForDurations || htsData.getUseUnitDurationContinuousFeature() ) {  // use phoneme alignment for duration 
+              diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, lastPh, diffdurOld);
+              nf=0;
+              // get the sum of state durations
+              for(k=0; k<htsData.getCartTreeSet().getNumStates(); k++)
+                nf += m.getDur(k);
+                
+              // get the external duration
+              if( alignDur != null) { 
+                // check if the external phoneme corresponds to the current  
+                if( alignDur.get(i).getPhoneme().contentEquals(m.getPhoneName()) ){
+                  if(i < alignDurSize )
+                    f = alignDur.get(i).getDuration()/(fperiodsec*nf);
+                  else
+                    throw new Exception("The number of durations provided for phoneme alignment (" + alignDurSize +
                         ") is less than the number of feature vectors, so far (" + um.getNumUttModel() + ").");
-              } else {
+                } else {
                   throw new Exception("External phoneme: " + alignDur.get(i).getPhoneme() +
                          " does not correspond to current feature vector phoneme: " + m.getPhoneName() );
+                }
+              } else {  // if no alignDur use ContinuousFeatureProcessors unit_duration float
+                 f = fv.getContinuousFeature(feaDef.getFeatureIndex("unit_duration"))/(fperiodsec*nf);; 
               }
               
               m.setTotalDur(0);
@@ -416,7 +428,7 @@ public class HTSEngine extends InternalModule
               firstPh = false;
         }
         
-        if(phonemeAlignmentForDurations)
+        if(phonemeAlignmentForDurations && alignDur != null)
           if( um.getNumUttModel() != alignDurSize )
               throw new Exception("The number of durations provided for phoneme alignment (" + alignDurSize +
                       ") is greater than the number of feature vectors (" + um.getNumUttModel() + ")."); 
@@ -524,7 +536,7 @@ public class HTSEngine extends InternalModule
           player.start();  
           player.join();
           System.out.println("Audioplayer finished...");
-      
+   
      
       } catch (Exception e) {
           System.err.println("Exception: " + e.getMessage());
