@@ -106,6 +106,8 @@ public class HMMData {
     private boolean useFourierMag = false;   /* use Fourier magnitudes for pulse generation */
     private boolean useGV         = false; /* use global variance in parameter generation */
     private boolean useGmmGV      = false; /* use global variance as a Gaussian Mixture Model */
+    private boolean useUnitDurationContinuousFeature = false; /* for using external duration, so it will not be generated from HMMs*/
+    private boolean useUnitLogF0ContinuousFeature = false;    /* for using external f0, so it will not be generated from HMMs*/
     
     /** variables for controling generation of speech in the vocoder                
      * these variables have default values but can be fixed and read from the      
@@ -183,6 +185,11 @@ public class HMMData {
 	public String getPdfMcpFile() { return pdfMcpFile; } 
 	public String getPdfStrFile() { return pdfStrFile; } 
 	public String getPdfMagFile() { return pdfMagFile; } 
+    
+    public boolean getUseUnitLogF0ContinuousFeature(){ return useUnitLogF0ContinuousFeature; }
+    public boolean getUseUnitDurationContinuousFeature(){ return useUnitDurationContinuousFeature; }
+    public void setUseUnitLogF0ContinuousFeature(boolean bval){ useUnitLogF0ContinuousFeature=bval; }
+    public void setUseUnitDurationContinuousFeature(boolean bval){ useUnitDurationContinuousFeature=bval; }
     
     public boolean getUseMixExc(){ return useMixExc; }
     public boolean getUseFourierMag(){ return useFourierMag; }
@@ -312,6 +319,12 @@ public class HMMData {
             pdfStrFile = MaryBase + props.getProperty( "voice." + voice + ".Fms" ).substring(10);
           if( props.getProperty( "voice." + voice + ".Fma" ) != null)
             pdfMagFile = MaryBase + props.getProperty( "voice." + voice + ".Fma" ).substring(10);
+          
+          if( props.getProperty( "voice." + voice + ".useExtDur" ) != null)
+            useUnitDurationContinuousFeature = Boolean.valueOf(props.getProperty( "voice." + voice + ".useExtDur" )).booleanValue();
+          
+          if( props.getProperty( "voice." + voice + ".useExtLogF0" ) != null)
+            useUnitLogF0ContinuousFeature = Boolean.valueOf(props.getProperty( "voice." + voice + ".useExtLogF0" )).booleanValue();
           
           if( props.getProperty( "voice." + voice + ".useMixExc" ) != null)
             useMixExc = Boolean.valueOf(props.getProperty( "voice." + voice + ".useMixExc" )).booleanValue();

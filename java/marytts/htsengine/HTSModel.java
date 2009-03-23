@@ -84,6 +84,9 @@ public class HTSModel {
 
   private boolean voiced[];         /* voiced/unvoiced decision for each state of this HMM */
   
+  private Float unit_logF0;         /* external lf0 value from ContinuousFeatureProcessors */
+  private Float unit_logF0delta;    /* external lf0 delta value from ContinuousFeatureProcessors */
+  
   /** This function also sets the phoneName */
   public void setName(String var, String phonemeName){ 
       name = var;
@@ -182,6 +185,10 @@ public class HTSModel {
   public void setVoiced(int i, boolean val){ voiced[i] = val; }
   public boolean getVoiced(int i){ return voiced[i]; }
   
+  public void setUnit_logF0(float fval){unit_logF0 = fval;}
+  public float getUnit_logF0(){return unit_logF0;}
+  public void setUnit_logF0delta(float fval){unit_logF0delta = fval;}
+  public float getUnit_logF0delta(){return unit_logF0delta;}
   
   /* Constructor */
   /* Every Model is initialised with the information in ModelSet*/

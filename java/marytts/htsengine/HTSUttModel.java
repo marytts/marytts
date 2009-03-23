@@ -77,8 +77,7 @@ public class HTSUttModel {
 	totalFrame = 0;
 	lf0Frame = 0;
 	modelList = new Vector<HTSModel>();
-    realisedAcoustParams = "";
-    
+    realisedAcoustParams = "";   
   }
   
   public void setNumModel(int val){ numModel = val; }
@@ -101,9 +100,6 @@ public class HTSUttModel {
   public String getRealisedAcoustParams(){ return realisedAcoustParams; }
   public void concatRealisedAcoustParams(String str){
       realisedAcoustParams = realisedAcoustParams + str;
-  }
-  
-
-  
+  } 
   
 }
