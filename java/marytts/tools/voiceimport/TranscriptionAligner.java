@@ -560,8 +560,9 @@ public class TranscriptionAligner extends VoiceImportComponent {
                         
                         for (Allophone ph : allophoneSet.splitIntoAllophones(currTok)){
                             
-                            
-                            orig += ph.name() + " ";
+                            if (!ph.isTone()) {
+                                orig += ph.name() + " ";
+                            }
                         }// ... for each phoneme
                         
                         
@@ -618,6 +619,8 @@ public class TranscriptionAligner extends VoiceImportComponent {
                         if (delims.indexOf(currTok) == -1) {
                             // current Token is no delimiter
                             for (Allophone ph : allophoneSet.splitIntoAllophones(currTok)) {
+                                if (ph.isTone()) continue; // skip tone symbols, if any
+                                
                                 if (newSampa.length() > 0) { // insert a space between all symbols
                                     newSampa.append(" ");
                                 }
