@@ -267,7 +267,10 @@ public class FeatureProcessorManager
         MaryGenericFeatureProcessors.TargetElementNavigator segment = new MaryGenericFeatureProcessors.SegmentNavigator();
 
         if (phonemeValues == null) {
-            phonemeValues = (String[]) phoneset.getAllophoneNames().toArray(new String[0]);
+            String[] pValues = (String[]) phoneset.getAllophoneNames().toArray(new String[0]);
+            phonemeValues = new String[pValues.length+1];
+            phonemeValues[0] = "0";
+            System.arraycopy(pValues, 0, phonemeValues, 1, pValues.length);
         }
         if (pauseSymbol == null) {
             pauseSymbol = phoneset.getSilence().name();
