@@ -355,6 +355,9 @@ public class PronunciationModel extends InternalModule
             syl.setAttribute("ph", sylPhString);
             if (tPh.length() > 0) tPh.append(" - ");
             tPh.append(sylPhString);
+            if (syl.hasAttribute("tone")) {
+                tPh.append(" "+syl.getAttribute("tone"));
+            }
         }
         token.setAttribute("ph", tPh.toString());
     }
