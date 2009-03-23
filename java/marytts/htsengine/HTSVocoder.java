@@ -445,11 +445,11 @@ public class HTSVocoder {
       for(mcepframe=0,lf0frame=0; mcepframe<mcepPst.getT(); mcepframe++) {
         if(voiced[mcepframe]){  
           f0MeanOri = f0MeanOri + Math.exp(lf0Pst.getPar(lf0frame, 0));
-          //System.out.print(Math.exp(lf0Pst.getPar(lf0frame, 0)) + "  ");
+          //System.out.println("voiced t=" + mcepframe + "  " + lf0Pst.getPar(lf0frame, 0) + "  ");
           lf0frame++;
         }
         //else
-          //System.out.print("0.0  ");  
+          //System.out.println("unvoiced t=" + mcepframe + "  0.0  ");  
       }
       f0MeanOri = f0MeanOri/lf0frame;
    

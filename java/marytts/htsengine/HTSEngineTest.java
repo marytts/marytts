@@ -1,5 +1,5 @@
 /**   
-*           The HMM-Based Speech Synthesis System (HTS)             
+ *           The HMM-Based Speech Synthesis System (HTS)             
 *                       HTS Working Group                           
 *                                                                   
 *                  Department of Computer Science                   
@@ -58,6 +58,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -68,6 +69,7 @@ import javax.sound.sampled.AudioSystem;
 import marytts.modules.HTSEngine;
 import marytts.signalproc.analysis.Mfccs;
 import marytts.util.data.audio.AudioPlayer;
+import marytts.util.data.text.SnackTextfileDoubleDataSource;
 
 /***
  * Several functions for running the htsEngine or other components stand alone
@@ -104,9 +106,9 @@ public class HTSEngineTest {
      */
     public void synthesisWithExternalProsodySpecification() throws Exception{
        
-      int i, j;  
+      int i, j, n, t;  
       // context features file
-      String feaFile = "/project/mary/marcela/openmary/lib/voices/hsmm-slt-mary4.0/cmu_us_arctic_slt_a0001.pfeats";     
+      String feaFile = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/cmu_us_arctic_slt_a0001.pfeats";     
       // external duration extracted with the voice import tools - EHMM
       String labFile = "/project/mary/marcela/f0-hsmm-experiment/cmu_us_arctic_slt_a0001.lab";
       // external duration obtained with MARY, there is a problem with this because it does not have an initial sil
@@ -119,22 +121,25 @@ public class HTSEngineTest {
       
       /* For initialise provide the name of the hmm voice and the name of its configuration file,*/     
       String MaryBase    = "/project/mary/marcela/openmary/"; /* MARY_BASE directory.*/
-      String voiceName   = "hsmm-slt-mary4.0";                        /* voice name */
-      String voiceConfig = "english-hsmm-slt-mary4.0.config";         /* voice configuration file name. */        
+      String voiceName   = "hsmm-slt";                        /* voice name */
+      String voiceConfig = "english-hsmm-slt.config";         /* voice configuration file name. */        
       String outWavFile  = MaryBase + "tmp/tmp.wav";          /* to save generated audio file */
       
       htsData.initHMMData(voiceName, MaryBase, voiceConfig);
       
-      // Load and set durations    
-      hmm_tts.setPhonemeAlignmentForDurations(true);
-      Vector<PhonemeDuration> durations = loadDurationsForAlignment(labFile);
-      hmm_tts.setAlignDurations(durations);
+      // Load and set external durations    
+      //hmm_tts.setPhonemeAlignmentForDurations(false);
+      // comment the following lines if no external label file
+      //Vector<PhonemeDuration> durations = loadDurationsForAlignment(labFile);
+      //hmm_tts.setAlignDurations(durations);
+      htsData.setUseUnitDurationContinuousFeature(true);
+      htsData.setUseUnitLogF0ContinuousFeature(true);
       
       
       // The settings for using GV and MixExc can be change in this way:
       htsData.setUseGV(true);
       htsData.setUseMixExc(true);
-      htsData.setUseFourierMag(false);  // if the voice was trained with Fourier magnitudes
+      htsData.setUseFourierMag(true);  // if the voice was trained with Fourier magnitudes
         
       /** The utterance model, um, is a Vector (or linked list) of Model objects. 
        * It will contain the list of models for current label file. */
@@ -151,11 +156,7 @@ public class HTSEngineTest {
           /* the generated parameters will be saved in tmp.mfc and tmp.f0, including Mary header. */
           boolean debug = false;  /* so it DOES NOT save the generated parameters in parFile */
           pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData, null, debug);
-          
-          // load F0
-          // It does not work yet because the contour is NOT aligned with the duration
-          //loadF0contour(f0File, pdf2par);
-          
+         
           /* Synthesize speech waveform, generate speech out of sequence of parameters */
           ais = par2speech.htsMLSAVocoder(pdf2par, htsData);
      
@@ -170,8 +171,7 @@ public class HTSEngineTest {
           AudioPlayer player = new AudioPlayer(fileOut);
           player.start();  
           player.join();
-          System.out.println("audioplayer finished...");
-       
+          System.out.println("audioplayer finished...");     
      
       } catch (Exception e) {
           System.err.println("Exception: " + e.getMessage());
@@ -467,10 +467,114 @@ public class HTSEngineTest {
        mgc.params.skipsize     = (float)ss;  /* skipSizeInSeconds */
        mgc.params.winsize      = (float)ws;  /* windowSizeInSeconds */
        
-       mgc.writeMfccFile(outFile);
-
-        
+       mgc.writeMfccFile(outFile);       
     }
+    
+    
+    /***
+     * Calculate mfcc using SPTK, uses sox to convert wav-->raw
+     * @throws IOException
+     * @throws InterruptedException
+     * @throws Exception
+     */
+    public void getSptkSnackLf0() throws IOException, InterruptedException, Exception{
+       
+       String inFile = "/project/mary/marcela/quality-control-experiment/slt/cmu_us_arctic_slt_a0001.wav";     
+       String outFile = "/project/mary/marcela/quality-control-experiment/slt/cmu_us_arctic_slt_a0001.lf0";
+       String tmpFile = "/project/mary/marcela/quality-control-experiment/slt/tmp.mfc";
+       String tmpRawFile = "/project/mary/marcela/quality-control-experiment/slt/tmp.raw";
+       String tmpRawLongFile = "/project/mary/marcela/quality-control-experiment/slt/tmp_long.raw";
+       String scriptFileName = "/project/mary/marcela/quality-control-experiment/slt/lf0.tcl";
+       String snackFile = "/project/mary/marcela/quality-control-experiment/slt/tmp.lf0";
+       String MAXPITCH;  
+       String MINPITCH;
+       String gender = "female";
+       if(gender.contentEquals("female")){
+         MAXPITCH = "500";  
+         MINPITCH = "100";
+       } else {  // male
+         MAXPITCH = "300";  
+         MINPITCH = "75";
+       }
+       String FRAMELENGTH = "0.005";
+       String FRAMERATE = "16000";
+       
+       String cmd;
+       
+       // SOX and SPTK commands
+       String sox = "/usr/bin/sox";
+       String x2x = " /project/mary/marcela/sw/SPTK-3.1/bin/x2x";
+       String step = "/project/mary/marcela/sw/SPTK-3.1/bin/step";
+       String nrand = "/project/mary/marcela/sw/SPTK-3.1/bin/nrand";
+       String sopr = "/project/mary/marcela/sw/SPTK-3.1/bin/sopr";
+       String vopr = "/project/mary/marcela/sw/SPTK-3.1/bin/vopr"; 
+       String SNACKDIR = "/project/mary/marcela/sw/snack2.2.10/";
+       
+      
+       // convert the wav file to raw file with sox
+       cmd = sox + " " + inFile + " " +  tmpRawFile;
+       launchProc( cmd, "sox", inFile);
+       
+       // create temporary raw file, with 0.005 ms of silence (with a bit noise) added 
+       // at the beginning and 0.025 at the end
+       System.out.println("Create temporary raw file" + inFile);       
+       cmd = step + " -l 80 -v 0.0 | x2x +fs > tmp.head\n" +
+             step + " -l 400 -v 0.0 | x2x +fs > tmp.tail\n" +
+             "cat tmp.head " + tmpRawFile + " tmp.tail | x2x +sf > tmp.long\n" +
+             "leng=`x2x +fa tmp.long | /usr/bin/wc -l`\n" +
+             "echo \"leng=$leng\"\n" +
+             nrand + " -l $leng | " + sopr + " -m 50 | " + vopr + " -a tmp.long | " + x2x + " +fs > " + tmpRawLongFile + "\n" +
+                    "rm tmp.tail tmp.long tmp.head " + tmpRawFile + "\n";
+       
+       System.out.println("cmd=" + cmd);
+       launchBatchProc( cmd, "getSptkSnackLf0", tmpRawFile );
+       
+       // Now extract F0 with snack and the modified raw file
+       System.out.println("scriptFileName = " + scriptFileName);
+       File script = new File(scriptFileName);
+       
+       System.out.println("Extracting LF0 coefficients from " + inFile);    
+       if (script.exists()) script.delete();
+       PrintWriter toScript = new PrintWriter(new FileWriter(script));
+       toScript.println("#!"+SNACKDIR);
+       toScript.println("");
+       toScript.println("package require snack");
+       toScript.println("");
+       toScript.println("snack::sound s");
+       toScript.println("");
+       toScript.println("s read [lindex $argv 0] -fileformat RAW -rate [lindex $argv 1] -encoding Lin16 -byteorder littleEndian");
+       toScript.println("");
+       toScript.println("set fd [open [lindex $argv 2] w]");
+       toScript.println("set tmp [s pitch -method esps -maxpitch [lindex $argv 3] " +
+                        "-minpitch [lindex $argv 4] -framelength [lindex $argv 5]]\n" +
+                        "foreach line $tmp {\n" +
+                        "  set x [lindex $line 0]\n" +
+                        "  if { $x == 0 } {\n" +
+                        "    puts $fd -1.0e+10\n" +
+                        "  } else {\n" +
+                        "    puts $fd [expr log($x)]\n" +
+                        "  }\n" +
+                        "}\n");
+       toScript.println("close $fd");
+       toScript.println("");
+       toScript.println("exit"); 
+       toScript.println("");
+       toScript.close();
+       
+       
+       cmd = "tcl " + scriptFileName + " " + tmpRawLongFile + " " + FRAMERATE + " " + snackFile + " " + MAXPITCH + " " + MINPITCH + " " + FRAMELENGTH;
+       System.out.println("cmd=" + cmd);
+       launchProc( cmd, "getSptkSnackLf0", tmpRawLongFile );
+       
+       
+       double[] f0 = new SnackTextfileDoubleDataSource(new FileReader(snackFile)).getAllData();
+       for(int j=0; j<f0.length; j++){
+         System.out.println(j + "  f0["+ j + "]= " + f0[j]);  
+       }
+       
+       
+        
+    }    
     
     
     /**
@@ -574,9 +678,12 @@ public class HTSEngineTest {
        // extract mfcc from a wav file using sptk
        //test.getSptkMfcc();
        
+       // extract lf0 from a wav file using sptk and snack
+       //test.getSptkSnackLf0();
+             
        // Synthesis with external duration and f0
        test.synthesisWithExternalProsodySpecification();
-      
+       
      }
      
     

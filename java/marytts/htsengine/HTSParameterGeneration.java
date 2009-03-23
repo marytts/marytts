@@ -102,6 +102,7 @@ public class HTSParameterGeneration {
   public void setlf0Pst(HTSPStream var){ lf0Pst = var; };
   
   public boolean getVoiced(int i){ return voiced[i]; }
+  public void setVoiced(int i, boolean bval){ voiced[i]=bval; }
   public boolean [] getVoicedArray(){ return voiced; }
   public void setVoicedArray(boolean []var){ voiced = var; }
 	
@@ -148,7 +149,7 @@ public class HTSParameterGeneration {
     if (htsData.getPdfMagFile() != null )
 	  magPst  = new HTSPStream(ms.getMagVsize(), um.getTotalFrame(), HMMData.MAG);
 	   
-	
+    
 	uttFrame = lf0Frame = 0;
 	voiced = new boolean[um.getTotalFrame()];
 	
@@ -241,11 +242,13 @@ public class HTSParameterGeneration {
     logger.info("Parameter generation for LF0: ");
     if (lf0Frame>0)
       lf0Pst.mlpg(htsData, htsData.getUseGV());
+    if(htsData.getUseUnitLogF0ContinuousFeature())
+      loadUnitLogF0ContinuousFeature(um);
     
 	/* parameter generation for str */
     boolean useGV=false;
     if( strPst != null ) {
-      logger.info("Parameter generation for STR: ");
+      logger.info("Parameter generation for STR ");
       if(htsData.getUseGV() && (htsData.getPdfStrGVFile() != null) )
         useGV = true;
       strPst.mlpg(htsData, useGV);
@@ -254,7 +257,7 @@ public class HTSParameterGeneration {
 	/* parameter generation for mag */
     useGV = false;
     if( magPst != null ) {
-      logger.info("Parameter generation for MAG: ");
+      logger.info("Parameter generation for MAG ");
       if(htsData.getUseGV() && (htsData.getPdfMagGVFile() != null) )
         useGV = true;  
 	  magPst.mlpg(htsData, useGV);
@@ -395,6 +398,43 @@ public class HTSParameterGeneration {
     } catch (IOException e) {
         logger.info("IO exception = " + e );
     }    
+  }
+  
+  public void loadUnitLogF0ContinuousFeature(HTSUttModel um) throws Exception{
+      int i, j, n, t;  
+      // Use the ContinuousFeatureProcessors unit_logf0 and unit_logf0delta, they are saved in each model of um
+      // Modify the f0 generated values according to the external ones
+      logger.info("Using external prosody for lf0: using unit_logf0 and unit_logF0delta from ContinuousFeatureProcessors.");
+      int totalDur=0; 
+      float externalLf0=0;
+      float externalLf0Delta=0;
+      int numVoiced=0;
+      i=0;
+      boolean newVoiced[] = new boolean[um.getTotalFrame()];
+      HTSPStream newLf0Pst  = new HTSPStream(3, um.getTotalFrame(), HMMData.LF0); // actually the size of lf0Pst is 
+                                                                                  // just the number of voiced frames
+      for(n=0; n<um.getNumModel(); n++){
+        externalLf0 =  um.getUttModel(n).getUnit_logF0(); 
+        externalLf0Delta = um.getUttModel(n).getUnit_logF0delta();
+        for(t=totalDur; t<(totalDur + um.getUttModel(n).getTotalDur()); t++){
+          if(externalLf0 > 0){ 
+            newVoiced[t] = true;
+            numVoiced++;
+            newLf0Pst.setPar(i, 0, (double)externalLf0);
+            //System.out.println((t+1) + " " + externalLf0  + " " + externalLf0Delta);
+            i++;
+          }
+          else{
+            newVoiced[t] = false;
+            //System.out.println((t+1) + " " + externalLf0  + " " + externalLf0Delta);
+          }
+        }
+        totalDur += um.getUttModel(n).getTotalDur();
+      }
+     
+      setVoicedArray(newVoiced);
+      setlf0Pst(newLf0Pst);  
+      
   }
   
 } /* class ParameterGeneration */

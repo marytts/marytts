@@ -74,6 +74,7 @@ public class HMMVoice extends Voice {
             String alpha, String gamma, String logGain, String beta,
             String Ftd, String Ftf, String Ftm, String Fts, String Fta, 
             String Fmd, String Fmf, String Fmm, String Fms, String Fma,
+            String useExtDur, String useExtLogF0,
             String useMixExc, String useFourierMag, boolean useGV, boolean useGmmGV, String Fgvf, String Fgvm, 
             String Fgvs, String Fgva, String Fgmmgvf, String Fgmmgvm, String FeaFile, 
             String Fif, int nFilters, int norderFilters) throws Exception {
@@ -101,6 +102,12 @@ public class HMMVoice extends Voice {
        this.htsData.setPdfStrFile(Fms);
        this.htsData.setPdfMagFile(Fma);
 
+       if(useExtDur != null)
+           this.htsData.setUseUnitDurationContinuousFeature(Boolean.valueOf(useExtDur).booleanValue());
+       
+       if(useExtLogF0 != null)
+           this.htsData.setUseUnitLogF0ContinuousFeature(Boolean.valueOf(useExtLogF0).booleanValue());
+       
        if(useMixExc != null)
          this.htsData.setUseMixExc(Boolean.valueOf(useMixExc).booleanValue());
        
