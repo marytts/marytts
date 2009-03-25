@@ -28,8 +28,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
 import marytts.datatypes.MaryData;
@@ -38,6 +40,7 @@ import marytts.datatypes.MaryXML;
 import marytts.exceptions.SynthesisException;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
+import marytts.modules.synthesis.Voice.Gender;
 import marytts.server.MaryProperties;
 import marytts.unitselection.concat.UnitConcatenator;
 import marytts.unitselection.concat.BaseUnitConcatenator.UnitData;
@@ -46,6 +49,7 @@ import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.UnitSelector;
+import marytts.util.MaryUtils;
 import marytts.util.dom.MaryNormalisedWriter;
 import marytts.util.dom.NameNodeFilter;
 
@@ -87,12 +91,23 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
         logger.debug("Register UnitSelection voices:");
         String voiceNames = MaryProperties.getProperty("unitselection.voices.list");
         if (voiceNames != null) { // voices present
-            UnitSelectionVoiceBuilder voiceBuilder = new UnitSelectionVoiceBuilder(this);
             for (StringTokenizer st = new StringTokenizer(voiceNames); st.hasMoreTokens(); ) {
                 String voiceName = st.nextToken();
                 //take the time
                 long time = System.currentTimeMillis();
-                Voice unitSelVoice = voiceBuilder.buildVoice(voiceName);
+                
+                Locale locale = MaryUtils.string2locale(MaryProperties.needProperty("voice."+voiceName+".locale"));
+                int samplingRate = MaryProperties.getInteger("voice."+voiceName+".samplingRate", 16000);
+                
+                Gender gender = new Gender(MaryProperties.needProperty("voice."+voiceName+".gender"));
+                AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+                        samplingRate, // samples per second
+                        16, // bits per sample
+                        1, // mono
+                        2, // nr. of bytes per frame
+                        samplingRate, // nr. of frames per second
+                        false);
+                Voice unitSelVoice = new UnitSelectionVoice(voiceName, locale, format, this, gender);
                 logger.debug("Voice '" + unitSelVoice + "'");
                 Voice.registerVoice(unitSelVoice);    
                 long newtime = System.currentTimeMillis()-time;

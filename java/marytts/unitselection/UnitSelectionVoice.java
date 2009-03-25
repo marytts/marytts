@@ -40,12 +40,22 @@ import java.util.Locale;
 import javax.sound.sampled.AudioFormat;
 
 import marytts.cart.CART;
+import marytts.cart.io.MaryCARTReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
+import marytts.features.FeatureProcessorManager;
+import marytts.features.FeatureRegistry;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
+import marytts.server.MaryProperties;
 import marytts.unitselection.concat.UnitConcatenator;
+import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.UnitDatabase;
+import marytts.unitselection.data.UnitFileReader;
+import marytts.unitselection.select.JoinCostFunction;
+import marytts.unitselection.select.JoinModelCost;
+import marytts.unitselection.select.StatisticalCostFunction;
+import marytts.unitselection.select.TargetCostFunction;
 import marytts.unitselection.select.UnitSelector;
 
 /**
@@ -62,52 +72,139 @@ public class UnitSelectionVoice extends Voice {
     protected CART durationCart;
     protected CART[] f0Carts;
     protected String exampleText;
-    protected FeatureDefinition durationCartFeatDef;
-    protected FeatureDefinition f0CartsFeatDef;
+
     
-    
-    /**
-     * Build a new UnitSelectionVoice
-     * @param database the database of this voice
-     * @param unitSelector the unit selector of this voice
-     * @param concatenator the concatenator of this voice
-     * @param path ?
-     * @param nameArray the name(s) of this voice
-     * @param locale the language of this voice
-     * @param dbAudioFormat the AudioFormat of this voice
-     * @param synthesizer the synthesizer of this voice
-     * @param gender the gender of this voice
-     * @param topStart ?
-     * @param topEnd ?
-     * @param baseStart ?
-     * @param baseEnd ?
-     * @param knownVoiceQualities ?
-     * @param lexicon the name of the lexicon of this voice
-     * @param domain the domain of this voice
-     * @param exampleTextFile name of file containing example text for
-     * 						  this voice (null for general domain voice)
-     */
-    public UnitSelectionVoice(UnitDatabase database, UnitSelector unitSelector,
-            UnitConcatenator concatenator, String[] nameArray, Locale locale, 
-            AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, 
-            Gender gender,
-            String domain,
-            String exampleTextFile, CART durationCart, CART[] f0Carts,
-            FeatureDefinition durationCartFeatDef, FeatureDefinition f0CartsFeatDef)
+    public UnitSelectionVoice(String name, Locale locale, AudioFormat dbAudioFormat, WaveformSynthesizer synthesizer, Gender gender)
     throws MaryConfigurationException
     {
-        super(nameArray, locale, dbAudioFormat, synthesizer, gender);
-        this.database = database; 
-        this.unitSelector = unitSelector;
-        this.concatenator = concatenator;
-        this.domain = domain;
-        this.name = nameArray[0];
-        if (exampleTextFile != null)
-            readExampleText(exampleTextFile);
-        this.durationCart = durationCart;
-        this.f0Carts = f0Carts;
-        this.durationCartFeatDef = durationCartFeatDef;
-        this.f0CartsFeatDef = f0CartsFeatDef;
+        super(new String[] {name}, locale, dbAudioFormat, synthesizer, gender);
+
+        try {
+            String header = "voice."+name;
+            
+            domain = MaryProperties.needProperty(header+".domain");
+            String exampleTextFile = null;
+            if (!domain.equals("general")){
+                exampleTextFile = MaryProperties.needFilename(header+".exampleTextFile");
+                readExampleText(exampleTextFile);
+            }
+            
+            FeatureProcessorManager featProcManager = FeatureRegistry.getFeatureProcessorManager(this);
+            if (featProcManager == null) featProcManager = FeatureRegistry.getFeatureProcessorManager(locale);
+            if (featProcManager == null) throw new MaryConfigurationException("No feature processor manager for voice '"+name+"' (locale "+locale+")");
+            
+            // build and load targetCostFunction
+            logger.debug("...loading target cost function...");
+            String featureFileName = MaryProperties.needFilename(header+".featureFile");
+            String targetWeightFile = MaryProperties.getFilename(header + ".targetCostWeights");
+            String targetCostClass = MaryProperties.needProperty(header+".targetCostClass");
+            TargetCostFunction targetFunction = (TargetCostFunction) Class.forName(targetCostClass).newInstance();
+            targetFunction.load(featureFileName, targetWeightFile, featProcManager);
+            
+            // build joinCostFunction
+            logger.debug("...loading join cost function...");
+            String joinCostClass = MaryProperties.needProperty(header+".joinCostClass");
+            JoinCostFunction joinFunction = (JoinCostFunction) Class.forName(joinCostClass).newInstance();
+            if (joinFunction instanceof JoinModelCost) {
+                ((JoinModelCost)joinFunction).setFeatureDefinition(targetFunction.getFeatureDefinition());
+            }
+            joinFunction.init(header);
+            
+            // build sCost function
+            StatisticalCostFunction sCostFunction = null;
+            boolean useSCost = MaryProperties.getBoolean(header+".useSCost", false);
+            if(useSCost){
+                logger.debug("...loading scost function...");
+                String sCostClass = MaryProperties.needProperty(header+".sCostClass");
+                sCostFunction = (StatisticalCostFunction) Class.forName(sCostClass).newInstance();
+                sCostFunction.init(header);
+            }
+            
+            
+            // Build the various file readers
+            logger.debug("...loading units file...");
+            String unitReaderClass = MaryProperties.needProperty(header+".unitReaderClass");
+            String unitsFile = MaryProperties.needFilename(header+".unitsFile");
+            UnitFileReader unitReader = (UnitFileReader) Class.forName(unitReaderClass).newInstance();
+            unitReader.load(unitsFile);
+            
+            logger.debug("...loading cart file...");
+            //String cartReaderClass = MaryProperties.needProperty(header+".cartReaderClass");
+            String cartFile = MaryProperties.needFilename(header+".cartFile");
+            CART cart = (new MaryCARTReader()).load(cartFile);
+            //get the backtrace information
+            int backtrace = MaryProperties.getInteger(header+".cart.backtrace", 100);
+            
+            logger.debug("...loading audio time line...");
+            String timelineReaderClass = MaryProperties.needProperty(header+".audioTimelineReaderClass");
+            String timelineFile = MaryProperties.needFilename(header+".audioTimelineFile");
+            TimelineReader timelineReader = (TimelineReader) Class.forName(timelineReaderClass).newInstance();
+            timelineReader.load(timelineFile);
+
+            // optionally, get basename timeline
+            String basenameTimelineFile = MaryProperties.getFilename(header+".basenameTimeline");
+            TimelineReader basenameTimelineReader = null;
+            if (basenameTimelineFile != null) {
+                logger.debug("...loading basename time line...");
+                basenameTimelineReader = new TimelineReader(basenameTimelineFile);
+            }
+            
+            //build and load database
+            logger.debug("...instantiating database...");
+            String databaseClass = MaryProperties.needProperty(header+".databaseClass");
+            database = (UnitDatabase) Class.forName(databaseClass).newInstance();
+            if(useSCost) {
+                database.load(targetFunction, joinFunction, sCostFunction , unitReader, cart, timelineReader, basenameTimelineReader, backtrace);
+            } else {
+                database.load(targetFunction, joinFunction, unitReader, cart, timelineReader, basenameTimelineReader, backtrace);
+            }
+            
+            //build Selector
+            logger.debug("...instantiating unit selector...");
+            String selectorClass = MaryProperties.needProperty(header+".selectorClass");
+            unitSelector = (UnitSelector) Class.forName(selectorClass).newInstance();
+            float targetCostWeights = Float.parseFloat(MaryProperties.getProperty(header+".viterbi.wTargetCosts", "0.33"));
+            if (!useSCost) {
+                unitSelector.load(database, targetCostWeights);
+            } else {
+                float sCostWeights = Float.parseFloat(MaryProperties.getProperty(header+".viterbi.wSCosts", "0.33"));
+                unitSelector.load(database, targetCostWeights, sCostWeights);
+            }
+            
+            //samplingRate -> bin, audioformat -> concatenator
+            //build Concatenator
+            logger.debug("...instantiating unit concatenator...");
+            String concatenatorClass = MaryProperties.needProperty(header+".concatenatorClass");
+            concatenator = (UnitConcatenator) Class.forName(concatenatorClass).newInstance();
+            concatenator.load(database);
+            
+            
+            // see if there are any voice-specific duration and f0 models to load
+            durationCart = null;
+            String durationCartFile = MaryProperties.getFilename(header+".duration.cart");
+            if (durationCartFile != null) {
+                logger.debug("...loading duration tree...");
+                durationCart = (new MaryCARTReader()).load(durationCartFile);
+            }
+            f0Carts = null;
+            String leftF0CartFile = MaryProperties.getFilename(header+".f0.cart.left");
+            if (leftF0CartFile != null) {
+                logger.debug("...loading f0 trees...");
+                f0Carts = new CART[3];
+                f0Carts[0] = (new MaryCARTReader()).load(leftF0CartFile);
+                // mid cart:
+                String midF0CartFile = MaryProperties.needFilename(header+".f0.cart.mid");
+                f0Carts[1] = (new MaryCARTReader()).load(midF0CartFile);
+                // right cart:
+                String rightF0CartFile = MaryProperties.needFilename(header+".f0.cart.right");
+                f0Carts[2] = (new MaryCARTReader()).load(rightF0CartFile);
+            }
+        } catch (MaryConfigurationException mce) {
+            throw mce;
+        } catch (Exception ex) {
+            throw new MaryConfigurationException("Cannot build unit selection voice '"+name+"'", ex);
+        }
+        
     }
     
     
@@ -188,12 +285,13 @@ public class UnitSelectionVoice extends Voice {
     
     public FeatureDefinition getDurationCartFeatDef()
     {
-        return durationCartFeatDef;
+        return durationCart.getFeatureDefinition();
     }
     
     public FeatureDefinition getF0CartsFeatDef()
     {
-        return f0CartsFeatDef;
+        if (f0Carts == null || f0Carts.length < 1) return null;
+        return f0Carts[0].getFeatureDefinition();
     }
     
 }
