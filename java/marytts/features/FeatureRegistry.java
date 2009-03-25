@@ -95,7 +95,11 @@ public class FeatureRegistry
      */
     public static FeatureProcessorManager getFeatureProcessorManager(Locale locale)
     {
-        return managersByLocale.get(locale);
+        FeatureProcessorManager m = managersByLocale.get(locale);
+        if (m != null) return m;
+        // Maybe locale is language_COUNTRY, so look up by language also:
+        Locale lang = new Locale(locale.getLanguage());
+        return managersByLocale.get(lang);
     }
 
     /**
