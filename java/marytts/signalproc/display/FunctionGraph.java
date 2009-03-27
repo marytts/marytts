@@ -151,11 +151,11 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
            public void mouseEntered(MouseEvent e) {}
            public void mouseExited(MouseEvent e) {}
        });
+       updateData(newX0, newXStep, data);
        // set styles for primary data series:
        graphColor.add(Color.BLUE);
        graphStyle.add(DRAW_LINE);
        dotStyle.add(DOT_FULLCIRCLE);
-       updateData(newX0, newXStep, data);
    }
    
    public void updateData(double newX0, double newXStep, double[] data)
@@ -167,6 +167,16 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
         // Do not allow old secondary data sets with a new primary one:
         while (dataseries.size() > 0) {
             dataseries.remove(0);
+        }
+        // Also remove the styles of the secondary data sets:
+        while (graphColor.size() > 1) {
+            graphColor.remove(1);
+        }
+        while (graphStyle.size() > 1) {
+            graphStyle.remove(1);
+        }
+        while (dotStyle.size() > 1) {
+            dotStyle.remove(1);
         }
         this.dataseries.add(0, series);
         if (autoYMinMax) {

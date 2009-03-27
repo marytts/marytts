@@ -146,7 +146,7 @@ public class FSTLookup
         long iBegin=System.currentTimeMillis();
         
         if(args.length==0) {
-            System.err.println("usage: java de.dfki.lt.util.FSTLookup FstFile [-g] [word ...]");
+            System.err.println("usage: java marytts.fst.FSTLookup FstFile [-g] [word ...]");
             System.exit(-1);
         }
         

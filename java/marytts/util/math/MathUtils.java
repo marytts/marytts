@@ -104,6 +104,25 @@ public class MathUtils {
         }
         return imax;
     }
+    
+    /**
+     * Find the maximum of all elements in the array, ignoring elements that are NaN.
+     * @param data
+     * @return the index number of the maximum element
+     */
+    public static int findGlobalPeakLocation(float[] data)
+    {
+        float max = Float.NaN;
+        int imax = -1;
+        for (int i=0; i<data.length; i++) {
+            if (Float.isNaN(data[i])) continue;
+            if (Float.isNaN(max)|| data[i] > max) {
+                max = data[i];
+                imax = i;
+            }
+        }
+        return imax;
+    }
 
     /**
      * Find the minimum of all elements in the array, ignoring elements that are NaN.
@@ -117,6 +136,26 @@ public class MathUtils {
         for (int i=0; i<data.length; i++) {
             if (Double.isNaN(data[i])) continue;
             if (Double.isNaN(min)|| data[i] < min) {
+                min = data[i];
+                imin = i;
+            }
+        }
+        return imin;
+    }
+
+
+    /**
+     * Find the minimum of all elements in the array, ignoring elements that are NaN.
+     * @param data
+     * @return the index number of the minimum element
+     */
+    public static int findGlobalValleyLocation(float[] data)
+    {
+        float min = Float.NaN;
+        int imin = -1;
+        for (int i=0; i<data.length; i++) {
+            if (Float.isNaN(data[i])) continue;
+            if (Float.isNaN(min)|| data[i] < min) {
                 min = data[i];
                 imin = i;
             }

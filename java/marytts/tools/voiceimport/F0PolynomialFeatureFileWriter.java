@@ -76,7 +76,7 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
     public final String UNITFILE = "F0PolynomialFeatureFileWriter.unitFile";
     public final String WAVETIMELINE = "F0PolynomialFeatureFileWriter.waveTimeLine";
     public final String FEATUREFILE = "F0PolynomialFeatureFileWriter.featureFile";
-    public final String F0FEATUREFILE = "F0PolynomialFeatureFileWriter.acFeatureFile";  
+    public final String F0FEATUREFILE = "F0PolynomialFeatureFileWriter.f0FeatureFile";  
     public final String POLYNOMORDER = "F0PolynomialFeatureFileWriter.polynomOrder";
     public final String SHOWGRAPH = "F0PolynomialFeatureFileWriter.showGraph";
     public final String INTERPOLATE = "F0PolynomialFeatureFileWriter.interpolate";
@@ -120,7 +120,7 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
    
     public boolean compute() throws IOException
     {
-        System.out.println("F0 polynom file writer started.");
+        logger.info("F0 polynomial feature file writer started.");
 
         maryDir = new File( db.getProp(db.FILEDIR));
         if (!maryDir.exists()) {
@@ -143,8 +143,8 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
         }
         pw.close();
         String fd = sw.toString();
-        System.out.println("Generated the following feature definition:");
-        System.out.println(fd);
+        logger.debug("Generated the following feature definition:");
+        logger.debug(fd);
         StringReader sr = new StringReader(fd);
         BufferedReader br = new BufferedReader(sr);
         outFeatureDefinition = new FeatureDefinition(br, true);
@@ -154,7 +154,7 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
         writeHeaderTo(out);
         writeUnitFeaturesTo(out);
         out.close();
-        System.out.println("Number of processed units: " + units.getNumberOfUnits() );
+        logger.debug("Number of processed units: " + units.getNumberOfUnits() );
 
         FeatureFileReader tester = FeatureFileReader.getFeatureFileReader(getProp(F0FEATUREFILE));
         int unitsOnDisk = tester.getNumberOfUnits();
@@ -186,7 +186,7 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
         int unitIndex = 0;
 
         out.writeInt( numUnits );
-        System.out.println("Number of units : "+numUnits);
+        logger.debug("Number of units : "+numUnits);
 
         FeatureDefinition featureDefinition = features.getFeatureDefinition();
         int fiPhoneme = featureDefinition.getFeatureIndex("phoneme");
@@ -220,7 +220,7 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
         for (int i=0; i<numUnits; i++) {
             percent = 100*i/numUnits;
             FeatureVector fv = features.getFeatureVector(i);
-            System.out.print(featureDefinition.getFeatureValueAsString("phoneme", fv));
+            //System.out.print(featureDefinition.getFeatureValueAsString("phoneme", fv));
             if (fv.getByteFeature(fiPhoneme) == fvPhoneme_0
                     || fv.getByteFeature(fiPhoneme) == fvPhoneme_Silence) continue;
             if (iSentenceStart == -1
@@ -228,22 +228,22 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
                     && fv.getByteFeature(fiWordStart) == 0
                     && fv.getByteFeature(fiLR) == fvLR_L) { // first unit in sentence
                 iSentenceStart = i;
-                System.out.print(", is sentence start");
+                //System.out.print(", is sentence start");
             }
             if (fv.getByteFeature(fiSylStart) == 0 && fv.getByteFeature(fiLR) == fvLR_L) { // first segment in syllable
                 if (iSylStarts.size() > iSylEnds.size()) {
                     System.err.println("Syllable ends before other syllable starts!");
                 }
                 iSylStarts.add(i);
-                System.out.print(", is syl start");
+                //System.out.print(", is syl start");
             }
             if (fv.getByteFeature(fiVowel) == fvVowel_Plus && iSylVowels.size() < iSylStarts.size()) { // first vowel unit in syllable
                 iSylVowels.add(i);
-                System.out.print(", is vowel");
+                //System.out.print(", is vowel");
             }
             if (fv.getByteFeature(fiSylEnd) == 0 && fv.getByteFeature(fiLR) == fvLR_R) { // last segment in syllable
                 iSylEnds.add(i);
-                System.out.print(", is syl end");
+                //System.out.print(", is syl end");
                 assert iSylStarts.size() == iSylEnds.size();
                 if (iSylVowels.size() < iSylEnds.size()) {
                     System.err.println("Syllable contains no vowel -- skipping");
@@ -256,13 +256,13 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
                     && fv.getByteFeature(fiWordEnd) == 0
                     && fv.getByteFeature(fiLR) == fvLR_R) { // last unit in sentence
                 iSentenceEnd = i;
-                System.out.print(", is sentence end");
+                //System.out.print(", is sentence end");
                 if (iSylEnds.size() < iSylStarts.size()) {
                     System.err.println("Last syllable in sentence is not properly closed");
                     iSylEnds.add(i);
                 }
             }
-            System.out.println();
+            //System.out.println();
             
             if (iSentenceStart >= 0 && iSentenceEnd >= iSentenceStart && iSylVowels.size() > 0) {
                 assert iSylStarts.size() == iSylEnds.size() : "Have "+iSylStarts.size()+" syllable starts, but "+iSylEnds.size()+" syllable ends!";
@@ -367,11 +367,11 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
                                 unitIndex++;
                             }
                             float[] fcoeffs = MathUtils.toFloat(coeffs);
-                            System.out.print("Polynomial values (unit "+unitIndex+") ");
-                            for (int p=0; p<fcoeffs.length; p++) {
-                                System.out.print(", "+fcoeffs[p]);
-                            }
-                            System.out.println();
+                            //System.out.print("Polynomial values (unit "+unitIndex+") ");
+                            //for (int p=0; p<fcoeffs.length; p++) {
+                            //    System.out.print(", "+fcoeffs[p]);
+                            //}
+                            //System.out.println();
                             FeatureVector outFV = outFeatureDefinition.toFeatureVector(unitIndex, null, null, fcoeffs);
                             outFV.writeTo(out);
                             unitIndex++;

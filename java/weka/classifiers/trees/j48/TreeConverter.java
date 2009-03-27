@@ -130,8 +130,6 @@ public class TreeConverter{
 			
 			// a return node is made and everything set
 			returnNode = new LeafNode.IntAndFloatArrayLeafNode(data, probs);
-			returnNode.setMother(aMother);
-			returnNode.setNodeIndex(aNodeIndex);
 		} else {
 			// TODO: perform test if attributes are nominal/numerical... (both in instances and feature def)
 			// we preliminarily assume binary split with nomimal attribute 
@@ -159,10 +157,6 @@ public class TreeConverter{
             // TODO: be aware at this point when allowing for non-binary splits
             ((DecisionNode) returnNode).addDaughter( toStringPredictionTreeNode( (C45PruneableClassifierTree) c45Tree.m_sons[0],returnNode, 0, fd, inst) );
             ((DecisionNode) returnNode).addDaughter( toStringPredictionTreeNode( (C45PruneableClassifierTree) c45Tree.m_sons[1],returnNode, 1, fd, inst) );
-
-            returnNode.setMother(aMother);
-            returnNode.setNodeIndex(aNodeIndex);
-                     
 		}
 		return returnNode;
 	}
@@ -204,8 +198,6 @@ public class TreeConverter{
 	            // a return node is made and everything set
                 //System.err.println("creating StringAnfFloatLeafNode");
 	            returnNode = new LeafNode.StringAndFloatLeafNode(data, probs);
-	            returnNode.setMother(aMother);
-	            returnNode.setNodeIndex(aNodeIndex);
 	        } else {
 	            // TODO: perform test if attributes are nominal/numerical... (both in instances and feature def)
 	            // we preliminarily assume binary split with nomimal attribute 
@@ -233,10 +225,6 @@ public class TreeConverter{
 	            // TODO: be aware at this point when allowing for non-binary splits
 	            ((DecisionNode) returnNode).addDaughter( toStringTreeNode( (C45PruneableClassifierTree) c45Tree.m_sons[0],returnNode, 0, fd, inst, fid, targetVals) );
 	            ((DecisionNode) returnNode).addDaughter( toStringTreeNode( (C45PruneableClassifierTree) c45Tree.m_sons[1],returnNode, 1, fd, inst, fid, targetVals) );
-
-	            returnNode.setMother(aMother);
-	            returnNode.setNodeIndex(aNodeIndex);
-	                     
 	        }
 	        return returnNode;
 	    }

@@ -253,13 +253,11 @@ private Node loadStateTree(BufferedReader s, double pdf[][][]) throws Exception 
             iaux = Integer.parseInt(buf.substring(1));
             // create an empty binary decision node with unique id
             BinaryByteDecisionNode auxnode = new DecisionNode.BinaryByteDecisionNode(iaux, featDef);
-            auxnode.setMother(node);
             ((DecisionNode) node).replaceDaughter(auxnode, 1);
           } else {                  // LeafNode
             iaux = Integer.parseInt(buf.substring(buf.lastIndexOf("_")+1, buf.length()-1));
             // create an empty PdfLeafNode
             PdfLeafNode auxnode = new LeafNode.PdfLeafNode(iaux, pdf[iaux-1]);
-            auxnode.setMother(node);
             ((DecisionNode) node).replaceDaughter(auxnode, 1);
             nleaf++;
           }
@@ -270,13 +268,11 @@ private Node loadStateTree(BufferedReader s, double pdf[][][]) throws Exception 
             iaux = Integer.parseInt(buf.substring(1));
             // create an empty binary decision node with unique id=0
             BinaryByteDecisionNode auxnode = new DecisionNode.BinaryByteDecisionNode(iaux, featDef);
-            auxnode.setMother(node);
             ((DecisionNode) node).replaceDaughter(auxnode, 0);
           } else {                   // LeafNode
             iaux = Integer.parseInt(buf.substring(buf.lastIndexOf("_")+1, buf.length()-1));
             // create an empty PdfLeafNode
             PdfLeafNode auxnode = new LeafNode.PdfLeafNode(iaux, pdf[iaux-1]);
-            auxnode.setMother(node);
             ((DecisionNode) node).replaceDaughter(auxnode, 0);
             nleaf++;
           } 

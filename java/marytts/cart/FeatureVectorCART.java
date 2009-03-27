@@ -44,6 +44,9 @@ public class FeatureVectorCART extends CART {
      public FeatureVectorCART(MaryNode tree, FeatureArrayIndexer ffi) {
         featDef = ffi.getFeatureDefinition();
         addDaughters(null, tree, ffi);
+        if (rootNode != null && rootNode instanceof DecisionNode) {
+            ((DecisionNode)rootNode).countData();
+        }
     }
      
     public void load(String fileName, FeatureDefinition featDefinition, String[] setFeatureSequence ) throws IOException
@@ -67,7 +70,6 @@ public class FeatureVectorCART extends CART {
         if (currentTreeNode == null) {
             LeafNode l = new LeafNode.FeatureVectorLeafNode(new FeatureVector[0]);
             motherCARTNode.addDaughter(l);
-            l.setMother(motherCARTNode);
             return;
         }
         if (currentTreeNode.isNode()) { // if we are not at a leaf
@@ -105,7 +107,6 @@ public class FeatureVectorCART extends CART {
                 // if the current node is not the root,
                 // set mother and daughter accordingly
                 motherCARTNode.addDaughter(daughterNode);
-                daughterNode.setMother(motherCARTNode);
             }
             // for every daughter go in recursion
             for (int i = 0; i < numDaughters; i++) {
@@ -127,7 +128,6 @@ public class FeatureVectorCART extends CART {
                 rootNode = leaf;
             } else {
                 // set mother and daughter
-                leaf.setMother(motherCARTNode);
                 motherCARTNode.addDaughter(leaf);
             }
         }

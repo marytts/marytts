@@ -56,26 +56,13 @@ public abstract class LeafNode extends Node {
         super();
         isRoot = false;
     }
-
-
-       
-    /**
-     * Return the leaf node following this one in the tree.
-     * @return the next leaf node, or null if this one is the last one.
-     */
-    public LeafNode getNextLeafNode()
+    
+    @Override public boolean isLeafNode()
     {
-        if (mother == null) return null;
-        assert mother instanceof DecisionNode;
-        return ((DecisionNode)mother).getNextLeafNode(getNodeIndex()+1);
+        return true;
     }
 
-    public String getDecisionPath()
-    {
-        if (mother == null) return "null - "+toString();
-        assert mother instanceof DecisionNode;
-        return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + toString();
-    }
+
     
     /**
      * Count all the nodes at and below this node.
@@ -90,11 +77,19 @@ public abstract class LeafNode extends Node {
     }
     
     //  unique index used in MaryCART format
-    public void setUniqueLeafId(int id) {
+    public void setUniqueLeafId(int id)
+    {
         this.uniqueLeafId = id;
     }
-    public int getUniqueLeafId() {
+    
+    public int getUniqueLeafId()
+    {
         return uniqueLeafId;
+    }
+    
+    public String toString()
+    {
+        return "id"+uniqueLeafId;
     }
     
     /**
@@ -144,7 +139,6 @@ public abstract class LeafNode extends Node {
     public abstract LeafType getLeafNodeType();
     
     
-    
 
     /**
      * An LeafNode class suitable for representing the leaves of 
@@ -155,7 +149,7 @@ public abstract class LeafNode extends Node {
      */
     public static class IntArrayLeafNode extends LeafNode
     {
-        private int[] data;
+        protected int[] data;
         public IntArrayLeafNode(int[] data)
         {
             super();
@@ -199,49 +193,21 @@ public abstract class LeafNode extends Node {
         
         public String toString()
         {
-            if (data == null) return "int[null]";
-            return "int["+data.length+"]";
+            if (data == null) return super.toString()+"(int[null])";
+            return super.toString()+"(int["+data.length+"])";
         }
 
     }
      
 
-    public static class IntAndFloatArrayLeafNode extends LeafNode{
+    public static class IntAndFloatArrayLeafNode extends IntArrayLeafNode {
     	
-    	protected int[] data;
     	protected float[] floats;
     	
     	public IntAndFloatArrayLeafNode(int[] data, float[] floats)
         {
-            super();
-            this.data = data;
+            super(data);
             this.floats = floats;
-        }
-    	
-    	protected void fillData(Object target, int pos, int len){
-            if (!(target instanceof int[])) 
-                throw new IllegalArgumentException("Expected target object of type int[], got "+target.getClass());
-            int[] array = (int[]) target;
-            assert len <= data.length;
-            System.arraycopy(data, 0, array, pos, len);
-    	}
-    	
-    	public int getNumberOfData(){
-    		if (data != null) return data.length;
-    		return 0;
-    	}
-    	
-    	public boolean isEmpty()
-    	{
-    	    return data == null || data.length == 0;
-    	}
-    	
-    	public Object getAllData(){
-    		return data;
-    	}
-        
-    	public int[] getIntData(){
-            return data;
         }
         
     	public float[] getFloatData(){
@@ -295,8 +261,8 @@ public abstract class LeafNode extends Node {
 
          
         public String toString(){
-            if (data == null) return "int[null]";
-            return "int and floats["+data.length+"]";
+            if (data == null) return super.toString()+"(int and floats[null])";
+            return super.toString()+"(int and floats["+data.length+"])";
         }
         
     }
@@ -325,8 +291,8 @@ public abstract class LeafNode extends Node {
         
         public String toString()
         {
-            if (data == null) return "string and floats[null]";
-            return "string and floats["+data.length+"]";
+            if (data == null) return super.toString()+"(string and floats[null])";
+            return super.toString()+"(string and floats["+data.length+"])";
         }
         
         public LeafType getLeafNodeType()
@@ -440,8 +406,8 @@ public abstract class LeafNode extends Node {
         public String toString()
         {
             if (growable) return "fv["+featureVectorList.size()+"]";
-            if (featureVectors == null) return "fv[null]";
-            return "fv["+featureVectors.length+"]";
+            if (featureVectors == null) return super.toString()+"(fv[null])";
+            return super.toString()+"(fv["+featureVectors.length+"])";
         }
 
     }
@@ -497,8 +463,8 @@ public abstract class LeafNode extends Node {
 
         public String toString()
         {
-            if (data == null) return "mean=null, stddev=null";
-            return "mean="+data[1]+", stddev="+data[0];
+            if (data == null) return super.toString()+"(mean=null, stddev=null)";
+            return super.toString()+"(mean="+data[1]+", stddev="+data[0]+")";
         }
 
     }
@@ -600,8 +566,8 @@ public abstract class LeafNode extends Node {
 
         public String toString()
         {
-            if (mean == null) return "mean=null, stddev=null";
-            return "mean=[" + vectorSize + "], stddev=[" + vectorSize + "]";
+            if (mean == null) return super.toString()+"(mean=null, stddev=null)";
+            return super.toString()+"(mean=[" + vectorSize + "], stddev=[" + vectorSize + "])";
         }
 
     }
