@@ -64,7 +64,12 @@ public class MaryCARTWriter{
     public void dumpMaryCART(CART cart, String destFile)
     throws IOException
     {
-        logger.debug("Dumping CART in MaryCART format to "+destFile+".new ...");
+        if (cart == null)
+            throw new NullPointerException("Cannot dump null CART");
+        if (destFile == null)
+            throw new NullPointerException("No destination file");
+        
+        logger.debug("Dumping CART in MaryCART format to "+destFile+" ...");
         
         //Open the destination file (cart.bin) and output the header       
         DataOutputStream out = new DataOutputStream(new

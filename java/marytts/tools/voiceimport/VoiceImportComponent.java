@@ -21,6 +21,9 @@ package marytts.tools.voiceimport;
 
 import java.util.SortedMap;
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+
 /**
  * A component in the process of importing a voice into MARY format.
  * @author Marc Schr&ouml;der, Anna Hunecke
@@ -31,6 +34,7 @@ public abstract class VoiceImportComponent
     protected SortedMap<String,String> props = null;
     protected SortedMap<String,String> props2Help = null;
     protected BasenameList bnl;
+    protected Logger logger;
     
     protected abstract void setupHelp();
     /**
@@ -50,6 +54,8 @@ public abstract class VoiceImportComponent
         this.props = props;
         this.bnl = bnl;
         initialiseComp();
+        BasicConfigurator.configure();
+        logger = Logger.getLogger(getName());
     }
     
     /**

@@ -102,6 +102,11 @@ public abstract class DecisionNode extends Node
         this.featureDefinition = featureDefinition;
     }
     
+    @Override public boolean isDecisionNode()
+    {
+        return true;
+    }
+    
 
     /**
      * Get the name of the feature
@@ -129,8 +134,6 @@ public abstract class DecisionNode extends Node
      *            the new daughter
      */
     public void addDaughter(Node daughter) {
-      
-        
         if (lastDaughter > daughters.length - 1) {
             throw new RuntimeException("Can not add daughter number "
                     + (lastDaughter + 1) + ", since node has only "
@@ -138,8 +141,7 @@ public abstract class DecisionNode extends Node
         }
         daughters[lastDaughter] = daughter;
         if (daughter != null) {
-            daughter.setNodeIndex(lastDaughter);
-            daughter.setMother(this);
+            daughter.setMother(this, lastDaughter);
         }
         lastDaughter++;
     }
@@ -173,6 +175,7 @@ public abstract class DecisionNode extends Node
                     + (daughters.length - 1) + "!");
         }
         daughters[index] = newDaughter;
+        newDaughter.setMother(this, index);
     }
 
     /**
@@ -193,10 +196,10 @@ public abstract class DecisionNode extends Node
      */
     public Object getAllData() {
         // What to do depends on the type of leaves.
-        LeafNode firstLeaf = getNextLeafNode(0);
+        LeafNode firstLeaf = new NodeIterator<LeafNode>(this, true, false, false).next();
         if (firstLeaf == null) return null;
         Object result;
-        if (firstLeaf instanceof IntArrayLeafNode || firstLeaf instanceof IntAndFloatArrayLeafNode) {
+        if (firstLeaf instanceof IntArrayLeafNode) { // this includes subclass IntAndFloatArrayLeafNode
             result = new int[nData];
         } else if (firstLeaf instanceof FeatureVectorLeafNode) {
             result = new FeatureVector[nData];
@@ -243,30 +246,6 @@ public abstract class DecisionNode extends Node
         return daughters.length;
     }
     
-    /**
-     * Try to find a leaf node below the given daughter index. If there is no
-     * such daughter, backtrace to our mother, and make the mother continue to
-     * our right.
-     * 
-     * @param daughterIndex
-     * @return the next non-null leaf node, or null if there is no further leaf node in
-     *         the tree.
-     */
-    protected LeafNode getNextLeafNode(int daughterIndex) {
-        if (daughterIndex < 0 || daughterIndex >= daughters.length) {
-            // nothing we can do -- backtrace to mother
-            if (mother == null)
-                return null; // no further options
-            assert mother instanceof DecisionNode;
-            // Try next sibling or cause backtrace:
-            return ((DecisionNode) mother).getNextLeafNode(getNodeIndex() + 1);
-        }
-        if (daughters[daughterIndex] instanceof LeafNode)
-            return (LeafNode) daughters[daughterIndex];
-        if(daughters[daughterIndex] == null) return getNextLeafNode(daughterIndex+1);
-        assert daughters[daughterIndex] instanceof DecisionNode;
-        return ((DecisionNode) daughters[daughterIndex]).getNextLeafNode(0);
-    }
 
     /**
      * Set the number of candidates correctly, by counting while walking down
@@ -283,6 +262,12 @@ public abstract class DecisionNode extends Node
                 nData += daughters[i].getNumberOfData();
             }
         }
+    }
+    
+    
+    public String toString()
+    {
+        return "dn"+uniqueDecisionNodeId;
     }
 
     /**
@@ -420,8 +405,10 @@ public abstract class DecisionNode extends Node
             if (daughterIndex == 0) thisNodeInfo = feature + "==" + featureDefinition.getFeatureValueAsString(featureIndex, value);
             else thisNodeInfo = feature + "!=" + featureDefinition.getFeatureValueAsString(featureIndex, value);
             if (mother == null) return thisNodeInfo;
-            assert mother instanceof DecisionNode;
-            return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + thisNodeInfo;
+            else if (mother.isDecisionNode())
+                return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + thisNodeInfo;
+            else
+                return mother.getDecisionPath() + " - " + thisNodeInfo;
         }
 
 
@@ -511,8 +498,10 @@ public abstract class DecisionNode extends Node
             if (daughterIndex == 0) thisNodeInfo = feature + "==" + featureDefinition.getFeatureValueAsString(featureIndex, value);
             else thisNodeInfo = feature + "!=" + featureDefinition.getFeatureValueAsString(featureIndex, value);
             if (mother == null) return thisNodeInfo;
-            assert mother instanceof DecisionNode;
-            return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + thisNodeInfo;
+            else if (mother.isDecisionNode())
+                return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + thisNodeInfo;
+            else
+                return mother.getDecisionPath() + " - " + thisNodeInfo;
         }
 
 
@@ -612,8 +601,10 @@ public abstract class DecisionNode extends Node
             if (daughterIndex == 0) thisNodeInfo = feature + "<" + value;
             else thisNodeInfo = feature + ">=" + value;
             if (mother == null) return thisNodeInfo;
-            assert mother instanceof DecisionNode;
-            return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + thisNodeInfo;
+            else if (mother.isDecisionNode())
+                return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + thisNodeInfo;
+            else
+                return mother.getDecisionPath() + " - " + thisNodeInfo;
         }
 
         /**
@@ -682,8 +673,10 @@ public abstract class DecisionNode extends Node
         {
             String thisNodeInfo = feature + "==" + featureDefinition.getFeatureValueAsString(featureIndex, daughterIndex);
             if (mother == null) return thisNodeInfo;
-            assert mother instanceof DecisionNode;
-            return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + thisNodeInfo;
+            else if (mother.isDecisionNode())
+                return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + thisNodeInfo;
+            else
+                return mother.getDecisionPath() + " - " + thisNodeInfo;
         }
 
 
@@ -753,8 +746,10 @@ public abstract class DecisionNode extends Node
         {
             String thisNodeInfo = feature + "==" + featureDefinition.getFeatureValueAsString(featureIndex, daughterIndex);
             if (mother == null) return thisNodeInfo;
-            assert mother instanceof DecisionNode;
-            return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + thisNodeInfo;
+            else if (mother.isDecisionNode())
+                return ((DecisionNode)mother).getDecisionPath(getNodeIndex()) + " - " + thisNodeInfo;
+            else
+                return mother.getDecisionPath() + " - " + thisNodeInfo;
         }
 
 

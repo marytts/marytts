@@ -33,10 +33,10 @@ package marytts.cart;
 
 
 /**
- * A node for the CART. All node types inherit from this class
+ * A node for the CART or DirectedGraph. All node types inherit from this class
  */
-public abstract class Node {
-
+public abstract class Node
+{
     // isRoot should be set to true if this node is the root node
     protected boolean isRoot;
 
@@ -48,13 +48,14 @@ public abstract class Node {
 
  
     /**
-     * set the mother node of this node
+     * set the mother node of this node, and remember this node's index in mother.
      * 
-     * @param node
-     *            the mother node
+     * @param node  the mother node
+     * @param nodeIndex the index of this node in the mother node's list of daughters
      */
-    public void setMother(Node node) {
+    public void setMother(Node node, int nodeIndex) {
         this.mother = node;
+        this.nodeIndex = nodeIndex;
     }
 
     /**
@@ -65,6 +66,16 @@ public abstract class Node {
     public Node getMother() {
         return mother;
     }
+    
+    /**
+     * Get the index of this node in the mother's array of daughters
+     * 
+     * @return the index
+     */
+    public int getNodeIndex() {
+        return nodeIndex;
+    }
+
 
     /**
      * Set isRoot to the given value
@@ -85,24 +96,21 @@ public abstract class Node {
         return isRoot;
     }
 
-    /**
-     * Set the index of this node
-     * 
-     * @param index
-     *            the index
-     */
-    public void setNodeIndex(int index) {
-        this.nodeIndex = index;
+    public boolean isDecisionNode()
+    {
+        return false;
+    }
+    
+    public boolean isLeafNode()
+    {
+        return false;
+    }
+    
+    public boolean isDirectedGraphNode()
+    {
+        return false;
     }
 
-    /**
-     * Get the index of this node
-     * 
-     * @return the index
-     */
-    public int getNodeIndex() {
-        return nodeIndex;
-    }
     
     
     public Node getRootNode()
@@ -116,6 +124,19 @@ public abstract class Node {
         }
     }
     
+    
+    public String getDecisionPath()
+    {
+        String ancestorInfo;
+        if (mother == null) ancestorInfo = "null";
+        else if (mother.isDecisionNode()) {
+            ancestorInfo = ((DecisionNode)mother).getDecisionPath(getNodeIndex());
+        } else {
+            ancestorInfo = mother.getDecisionPath();
+        }
+        return ancestorInfo + " - " + toString();
+    }
+
     /**
      * Count all the nodes at and below this node.
      * A leaf will return 1; the root node will 

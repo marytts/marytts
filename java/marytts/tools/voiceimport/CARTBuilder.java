@@ -294,7 +294,7 @@ public class CARTBuilder extends VoiceImportComponent {
          int nTooSmall = 0;
          int nTooBig = 0;
          int nLeaves = 0;
-         for (LeafNode leaf = topLevelCART.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
+         for (LeafNode leaf : topLevelCART.getLeafNodes()) {
              if (leaf.getNumberOfData() < minSize) {
                  // Ignore a few meaningless combinations:
                  String path = leaf.getDecisionPath();
@@ -317,7 +317,7 @@ public class CARTBuilder extends VoiceImportComponent {
          if (nTooSmall > 0 || nTooBig > 0) {
              System.out.println("Bad top-level cart: "+nTooSmall+"/"+nLeaves+" leaves are too small, "+nTooBig+"/"+nLeaves+" are too big");
              System.out.println("Cutting down the big leaves to size "+maxSize);
-             for (LeafNode leaf = topLevelCART.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
+             for (LeafNode leaf : topLevelCART.getLeafNodes()) {
                  if (leaf.getNumberOfData() > maxSize) {
                      FeatureVectorLeafNode fvleaf = (FeatureVectorLeafNode)leaf;
                      FeatureVector[] fv = fvleaf.getFeatureVectors();
@@ -442,7 +442,7 @@ public class CARTBuilder extends VoiceImportComponent {
             
             int stop = 50; // do not want leaves smaller than this
             List<LeafNode> leaves = new ArrayList<LeafNode>();
-            for (LeafNode leaf = cart.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
+            for (LeafNode leaf : cart.getLeafNodes()) {
                 leaves.add(leaf);
             }
             int nLeaves = leaves.size();
@@ -957,7 +957,7 @@ public class CARTBuilder extends VoiceImportComponent {
                     // Fix the new cart's leaves:
                     // They are currently the index numbers in featureVectors;
                     // but what we need is the unit index numbers!
-                    for (LeafNode leaf = newCART.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
+                    for (LeafNode leaf : newCART.getLeafNodes()) {
                         int[] data = (int[])leaf.getAllData();
                         for (int i=0; i<data.length; i++) {
                             data[i] = featureVectors[data[i]].getUnitIndex();
@@ -1051,7 +1051,7 @@ public class CARTBuilder extends VoiceImportComponent {
         PrintWriter pw = new PrintWriter(new FileWriter(new File(pwFile)));
         System.out.println("Number of nodes loaded: " + cart.getNumNodes());       
         int i=0;
-        for (LeafNode leaf = cart.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()){
+        for (LeafNode leaf : cart.getLeafNodes()) {
             if(leaf.getNumberOfData() > 0){
               i++;
               pw.println(i + ": " + leaf.getDecisionPath());

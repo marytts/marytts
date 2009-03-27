@@ -40,23 +40,30 @@ import marytts.unitselection.select.Target;
 
 import org.apache.log4j.Logger;
 
-
-public class CART 
+/**
+ * A tree is a specific kind of directed graph in which 
+ * each node can have only a single parent node.
+ * It consists exclusively of DecisionNode and LeafNode nodes.
+ * @author marc
+ *
+ */
+public class CART extends DirectedGraph
 {
 
-    protected Logger logger = Logger.getLogger(this.getClass().getName());
-
-    protected Node rootNode;
-
-    // knows the index numbers and types of the features used in DecisionNodes
-    protected FeatureDefinition featDef;
-
-    protected Properties properties;
     /**
      * Build a new empty cart
      * 
      */
     public CART() {
+    }
+    
+    /**
+     * Build a new empty cart with the given feature definition.
+     * @param featDef
+     */
+    public CART(FeatureDefinition featDef)
+    {
+        super(featDef);
     }
 
     /**
@@ -67,9 +74,7 @@ public class CART
      */
     public CART(Node rootNode, FeatureDefinition featDef)
     {
-        this.rootNode = rootNode;
-        this.featDef = featDef;
-        this.properties = null;
+        super(rootNode, featDef);
     }
     
     /**
@@ -83,30 +88,10 @@ public class CART
      */
     public CART(Node rootNode, FeatureDefinition featDef, Properties properties)
     {
-        this.rootNode = rootNode;
-        this.featDef = featDef;
-        this.properties = properties;
+        super(rootNode, featDef, properties);
     }
     
-    /**
-     * Get the properties object associated with this tree, or null 
-     * if there is no such object.
-     * @return
-     */
-    public Properties getProperties()
-    {
-        return properties;
-    }
     
-    /**
-     * Load the cart from the given file
-     * @param fileName the file to load the cart from
-     * @param featDefinition the feature definition
-     * @param setFeatureSequence a sequence of features for indexing the feature vectors. Used to
-     * initialise a FeatureFileIndexer but unused in the case of an actual CART tree.
-     * @throws IOException if a problem occurs while loading
-     */
-     //public abstract void load(String fileName, FeatureDefinition featDefinition, String[] setFeatureSequence ) throws IOException;
 
     /**
      * Passes the given item through this CART and returns the
@@ -180,18 +165,6 @@ public class CART
 
     }
 
-    /**
-     * Get the first leaf node in this tree. Subsequent leaf nodes can be called
-     * via leafNode.getNextLeafNode().
-     * @return the first leaf node, or null if the tree has no leaves.
-     */
-    public LeafNode getFirstLeafNode()
-    {
-        if (rootNode instanceof LeafNode) return (LeafNode) rootNode;
-        assert rootNode instanceof DecisionNode;
-        return ((DecisionNode)rootNode).getNextLeafNode(0);
-    }
-    
    
     /**
      * In this tree, replace the given leaf with the given CART
@@ -203,48 +176,9 @@ public class CART
         DecisionNode mother = (DecisionNode) leaf.getMother();
         Node newNode = cart.getRootNode();
         mother.replaceDaughter(newNode, leaf.getNodeIndex());
-        newNode.setMother(mother);
         newNode.setIsRoot(false);
         return newNode;
     }
     
  
-    
-    /**
-     * Get the root node of this CART
-     * 
-     * @return the root node
-     */
-    public Node getRootNode() {
-        return rootNode;
-    }
-
-    /**
-     * Set the root node of this CART
-     * 
-     * @param the root node
-     */
-    public void setRootNode(Node rNode) {
-        rootNode = rNode;
-    }
-    
-    public FeatureDefinition getFeatureDefinition()
-    {
-        return featDef;
-    }
-    
-    /**
-     * Get the number of nodes in this CART
-     * 
-     * @return the number of nodes
-     */
-    public int getNumNodes() {
-        if (rootNode == null) return 0;
-        return rootNode.getNumberOfNodes();
-    }
-   
-    
-    public String toString(){
-        return this.rootNode.toString("");
-    }
 }

@@ -286,7 +286,6 @@ public class WagonCARTReader {
 
             if (lastNode != null) {
                 // this node is the daughter of the last node
-                nextNode.setMother(lastNode);
                 ((DecisionNode) lastNode).addDaughter(nextNode);
             } else {
                 // this is the rootNode
@@ -306,7 +305,6 @@ public class WagonCARTReader {
                 rootNode = nextNode;
                 nextNode.setIsRoot(true);
             } else { // this node is a daughter of lastNode
-                nextNode.setMother(lastNode);
                 ((DecisionNode) lastNode).addDaughter(nextNode);
             }
 

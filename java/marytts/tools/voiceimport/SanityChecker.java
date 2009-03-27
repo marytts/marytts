@@ -164,7 +164,7 @@ public class SanityChecker extends VoiceImportComponent {
        int lrIdx = feaDef.getFeatureIndex("halfphone_lr");
        
        ArrayList<Integer> listHalfUnits = new ArrayList<Integer>();
-       for (LeafNode leaf = cart.getFirstLeafNode(); leaf != null; leaf = leaf.getNextLeafNode()) {
+       for (LeafNode leaf : cart.getLeafNodes()) {
            int[] data = (int[])leaf.getAllData();
            //System.out.println("Data SIZE : "+data.length);
            for (int i=0; i<data.length; i++) {

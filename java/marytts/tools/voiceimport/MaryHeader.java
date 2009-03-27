@@ -54,6 +54,7 @@ public class MaryHeader
     /* List of authorized file type identifier constants */
     public final static int UNKNOWN = 0;
     public final static int CARTS = 100;
+    public final static int DIRECTED_GRAPH = 110;
     public final static int UNITS = 200;
     public final static int UNITFEATS = 300;
     public final static int HALFPHONE_UNITFEATS = 301; 
