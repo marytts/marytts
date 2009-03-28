@@ -25,6 +25,7 @@ import java.io.FileReader;
 import java.util.Locale;
 
 import marytts.cart.CART;
+import marytts.cart.DirectedGraph;
 import marytts.cart.StringPredictionTree;
 import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.MaryCARTReader;
@@ -61,8 +62,7 @@ import org.w3c.dom.traversal.TreeWalker;
 
 public class CARTDurationModeller extends InternalModule
 {
-    // old: protected CART cart;
-    protected CART cart = new CART();
+    protected DirectedGraph cart = new CART();
     // TODO: use a simple regression tree, with FloatLeafNode, for pausetree:
     protected StringPredictionTree pausetree;
     protected TargetFeatureComputer featureComputer;
@@ -148,11 +148,11 @@ public class CARTDurationModeller extends InternalModule
                 maryVoice = Voice.getDefaultVoice(locale);
             }
 
-            CART currentCart = cart;
+            DirectedGraph currentCart = cart;
             TargetFeatureComputer currentFeatureComputer = featureComputer;
             // TODO: cleanup: shouldn't all voices have the option of including their own CART?
             if (maryVoice != null && maryVoice instanceof UnitSelectionVoice) {
-                CART voiceCart = ((UnitSelectionVoice)maryVoice).getDurationTree();
+                DirectedGraph voiceCart = ((UnitSelectionVoice)maryVoice).getDurationTree();
                 if (voiceCart != null) {
                     currentCart  = voiceCart;
                     logger.debug("Using voice cart");
@@ -180,7 +180,7 @@ public class CARTDurationModeller extends InternalModule
                 if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) { // a pause
                     durInSeconds = enterPauseDuration(segmentOrBoundary, previous, maryVoice);
                 } else {
-                    float[] dur = (float[])currentCart.interpret(t, 0);
+                    float[] dur = (float[])currentCart.interpret(t);
                     assert dur != null : "Null duration";
                     assert dur.length == 2 : "Unexpected duration length: "+dur.length;
                     durInSeconds = dur[1];

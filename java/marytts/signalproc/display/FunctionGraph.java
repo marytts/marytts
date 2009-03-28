@@ -544,7 +544,9 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
 
     protected int imageX2indexX(int imageX)
     {
+        if (dataseries.isEmpty()) return 0;
         double[] data = dataseries.get(0);
+        if (data == null) return 0;
         double xScaleFactor = ((double) getWidth()-paddingLeft-paddingRight)/data.length;
         return (int) (imageX / xScaleFactor);
     }
@@ -558,7 +560,9 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
 
     protected int indexX2imageX(int indexX)
     {
+        if (dataseries.isEmpty()) return 0;
         double[] data = dataseries.get(0);
+        if (data == null) return 0;
         double xScaleFactor = ((double)getWidth()-paddingLeft-paddingRight)/data.length;
         return (int) (indexX * xScaleFactor);
     }

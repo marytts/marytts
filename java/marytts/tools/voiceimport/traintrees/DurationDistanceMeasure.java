@@ -23,22 +23,24 @@ package marytts.tools.voiceimport.traintrees;
 import java.io.File;
 import java.io.IOException;
 
+import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.data.FeatureFileReader;
+import marytts.unitselection.data.UnitFileReader;
 import marytts.util.math.Polynomial;
 
 /**
  * @author marc
  *
  */
-public class F0ContourPolynomialDistanceMeasure implements DistanceMeasure
+public class DurationDistanceMeasure implements DistanceMeasure
 {
-    private FeatureFileReader contours;
+    private UnitFileReader units;
     
-    public F0ContourPolynomialDistanceMeasure(FeatureFileReader contours)
+    public DurationDistanceMeasure(UnitFileReader units)
     throws IOException
     {
-        this.contours = contours;
+        this.units = units;
     }
     
     /**
@@ -48,14 +50,9 @@ public class F0ContourPolynomialDistanceMeasure implements DistanceMeasure
      */
     public float distance(FeatureVector fv1, FeatureVector fv2)
     {
-        int i1 = fv1.getUnitIndex();
-        int i2 = fv2.getUnitIndex();
-        FeatureVector contour1 = contours.getFeatureVector(i1);
-        float[] coeffs1 = contour1.getContinuousFeatures();
-        FeatureVector contour2 = contours.getFeatureVector(i2);
-        float[] coeffs2 = contour2.getContinuousFeatures();
-        float dist = (float) Polynomial.polynomialDistance(coeffs1, coeffs2);
-        return dist;
+        float d1 = units.getUnit(fv1.getUnitIndex()).getDuration() / (float)units.getSampleRate();
+        float d2 = units.getUnit(fv2.getUnitIndex()).getDuration() / (float)units.getSampleRate();
+        return Math.abs(d1-d2);
     }
 
     /**
@@ -65,13 +62,9 @@ public class F0ContourPolynomialDistanceMeasure implements DistanceMeasure
      */
     public float squaredDistance(FeatureVector fv1, FeatureVector fv2)
     {
-        int i1 = fv1.getUnitIndex();
-        int i2 = fv2.getUnitIndex();
-        FeatureVector contour1 = contours.getFeatureVector(i1);
-        float[] coeffs1 = contour1.getContinuousFeatures();
-        FeatureVector contour2 = contours.getFeatureVector(i2);
-        float[] coeffs2 = contour2.getContinuousFeatures();
-        float dist = (float) Polynomial.polynomialSquaredDistance(coeffs1, coeffs2);
-        return dist;
+        float d1 = units.getUnit(fv1.getUnitIndex()).getDuration() / (float)units.getSampleRate();
+        float d2 = units.getUnit(fv2.getUnitIndex()).getDuration() / (float)units.getSampleRate();
+        float diff = d1-d2;
+        return diff*diff;
     }
 }

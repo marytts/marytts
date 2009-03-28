@@ -93,8 +93,8 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
     }
    
     
-   public SortedMap<String, String> getDefaultProps(DatabaseLayout db){
-       this.db = db;
+   public SortedMap<String, String> getDefaultProps(DatabaseLayout theDb){
+       this.db = theDb;
        if (props == null) {
            props = new TreeMap<String, String>();
            String fileDir = db.getProp(db.FILEDIR);
@@ -152,7 +152,7 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
             if (!isZero) {
                 relevantFVList.add(features.getFeatureVector(i));
                 // TODO: remove cutoff here:
-                if (relevantFVList.size() >= 2000) break;
+                if (relevantFVList.size() >= 8000) break;
             }
         }
         FeatureVector[] relevantFV = relevantFVList.toArray(new FeatureVector[0]);
@@ -166,7 +166,6 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
         if (graph != null) {
             DirectedGraphWriter writer = new DirectedGraphWriter();
             writer.saveGraph(graph, getProp(F0TREE));
-            writer.toTextOut(graph, new PrintWriter(System.out));
             return true;
         }
         return false;
@@ -196,8 +195,25 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
     private DirectedGraph trainAgglomerativeCluster(FeatureVector[] relevantFV)
     throws IOException
     {
+        List<String> featuresToUse = new ArrayList<String>();
+        for (int i=0, numByteFeatures = featureDefinition.getNumberOfByteFeatures(); i<numByteFeatures; i++) {
+            String f = featureDefinition.getFeatureName(i);
+            if (!f.contains("phoneme") && !f.contains("halfphone") &&
+                    !f.contains("vc") && !f.contains("ctype")
+                    && !f.contains("cvox") && !f.contains("edge")
+                    && !f.contains("vfront") && !f.contains("vlng")
+                    && !f.contains("vheight") && !f.contains("cplace")
+                    && !f.contains("vrnd") && !f.contains("selection_next_phone_class")) {
+                featuresToUse.add(f);
+                //System.out.println("adding feature "+f);
+            } else {
+                //System.err.println("ignoring feature "+f);
+            }
+        }
+
         AgglomerativeClusterer clusterer = new AgglomerativeClusterer(relevantFV,
                 featureDefinition,
+                featuresToUse,
                 new F0ContourPolynomialDistanceMeasure(contours));
         return clusterer.cluster();
     }

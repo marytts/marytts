@@ -162,7 +162,7 @@ public class CARTF0Modeller extends InternalModule
                     logger.debug("Using voice carts");
                 }
                 FeatureDefinition voiceFeatDef = 
-                    ((UnitSelectionVoice)maryVoice).getDurationCartFeatDef();
+                    ((UnitSelectionVoice)maryVoice).getF0CartsFeatDef();
                 if (voiceFeatDef != null){
                     currentFeatureComputer = 
                         new TargetFeatureComputer(featureProcessorManager, voiceFeatDef.getFeatureNames());
