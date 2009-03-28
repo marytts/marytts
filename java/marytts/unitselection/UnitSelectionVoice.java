@@ -40,6 +40,8 @@ import java.util.Locale;
 import javax.sound.sampled.AudioFormat;
 
 import marytts.cart.CART;
+import marytts.cart.DirectedGraph;
+import marytts.cart.io.DirectedGraphReader;
 import marytts.cart.io.MaryCARTReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
@@ -69,7 +71,7 @@ public class UnitSelectionVoice extends Voice {
     protected UnitConcatenator concatenator;
     protected String domain;
     protected String name;
-    protected CART durationCart;
+    protected DirectedGraph durationCart;
     protected CART[] f0Carts;
     protected String exampleText;
 
@@ -184,7 +186,7 @@ public class UnitSelectionVoice extends Voice {
             String durationCartFile = MaryProperties.getFilename(header+".duration.cart");
             if (durationCartFile != null) {
                 logger.debug("...loading duration tree...");
-                durationCart = (new MaryCARTReader()).load(durationCartFile);
+                durationCart = (new DirectedGraphReader()).load(durationCartFile);
             }
             f0Carts = null;
             String leftF0CartFile = MaryProperties.getFilename(header+".f0.cart.left");
@@ -273,7 +275,7 @@ public class UnitSelectionVoice extends Voice {
         }
     }
     
-    public CART getDurationTree()
+    public DirectedGraph getDurationTree()
     {
         return durationCart;
     }

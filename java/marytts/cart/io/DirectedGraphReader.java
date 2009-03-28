@@ -79,7 +79,11 @@ public class DirectedGraphReader
             throw new IOException("Wrong version of database file");
         }
         if (maryHeader.getType() != MaryHeader.DIRECTED_GRAPH) {
-            throw new IOException("Not a directed graph file");
+            if (maryHeader.getType() == MaryHeader.CARTS) {
+                return new MaryCARTReader().load(fileName);
+            } else {
+                throw new IOException("Not a directed graph file");
+            }
         }
         
         // Read properties
@@ -212,13 +216,13 @@ public class DirectedGraphReader
         
         // Now, link up the decision nodes with their daughters
         for (int i=0; i<numDecNodes; i++) {
-            System.out.print(dns[i]+" "+dns[i].getFeatureName()+" ");
+            //System.out.print(dns[i]+" "+dns[i].getFeatureName()+" ");
             for (int k=0; k<childIndexes[i].length; k++) {
                 Node child = childIndexToNode(childIndexes[i][k], dns, lns, graphNodes);
                 dns[i].addDaughter(child);
-                System.out.print(" "+dns[i].getDaughter(k));
+                //System.out.print(" "+dns[i].getDaughter(k));
             }
-            System.out.println();
+            //System.out.println();
         }
         // And link up directed graph nodes
         for (int g=0; g<numDirectedGraphNodes; g++) {

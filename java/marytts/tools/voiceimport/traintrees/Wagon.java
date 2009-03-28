@@ -197,7 +197,7 @@ public class Wagon implements Runnable
         PrintWriter out = new PrintWriter(new BufferedOutputStream(new FileOutputStream(distFile)));
         for ( int i = 0; i < fv.length; i++ ) {
             for ( int j = 0; j < fv.length; j++ ) {
-                float distance = (i==j ? 0f : distMeasure.distance(fv[i], fv[j]));
+                float distance = (i==j ? 0f : distMeasure.squaredDistance(fv[i], fv[j]));
                 out.printf(Locale.US, "%.1f ", distance);
             }
             out.print("\n");
@@ -220,7 +220,7 @@ public class Wagon implements Runnable
         out.writeBytes("EST_Header_End\n");
         for ( int i = 0; i < fv.length; i++ ) {
             for ( int j = 0; j < fv.length; j++ ) {
-                float distance = (i==j ? 0f : distMeasure.distance(fv[i], fv[j]));
+                float distance = (i==j ? 0f : distMeasure.squaredDistance(fv[i], fv[j]));
                 out.writeFloat(distance);
             }
         }

@@ -36,4 +36,11 @@ public interface DistanceMeasure
      */
     public float distance(FeatureVector fv1, FeatureVector fv2);
 
+    /**
+     * Compute the squared distance between two feature vectors.
+     * @param fv1 
+     * @param fv2
+     * @return a non-negative float
+     */
+    public float squaredDistance(FeatureVector fv1, FeatureVector fv2);
 }
