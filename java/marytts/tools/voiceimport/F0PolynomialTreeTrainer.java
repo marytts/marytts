@@ -152,7 +152,7 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
             if (!isZero) {
                 relevantFVList.add(features.getFeatureVector(i));
                 // TODO: remove cutoff here:
-                if (relevantFVList.size() >= 8000) break;
+                if (relevantFVList.size() >= 4000) break;
             }
         }
         FeatureVector[] relevantFV = relevantFVList.toArray(new FeatureVector[0]);
