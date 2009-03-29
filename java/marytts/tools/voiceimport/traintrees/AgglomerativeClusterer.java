@@ -56,12 +56,16 @@ public class AgglomerativeClusterer
     private FeatureDefinition featureDefinition;
     private int numByteFeatures;
     private int[] availableFeatures;
+    private double globalMean;
+    private double globalStddev;
     
     public AgglomerativeClusterer(FeatureVector[] features, FeatureDefinition featureDefinition, List<String> featuresToUse, DistanceMeasure dist)
     {
         float proportionTestData = 0.1f;
         int nSkip = (int)(1/proportionTestData); // we use every nSkip'th feature vector as test data
-        this.testFeatures = new FeatureVector[features.length / nSkip];
+        int numTestFeatures = features.length / nSkip;
+        if (numTestFeatures * nSkip < features.length) numTestFeatures++;
+        this.testFeatures = new FeatureVector[numTestFeatures];
         this.trainingFeatures = new FeatureVector[features.length - testFeatures.length];
         int iTest = 0, iTrain = 0;
         for (int i=0; i<features.length; i++) {
@@ -91,6 +95,7 @@ public class AgglomerativeClusterer
     
     public DirectedGraph cluster()
     {
+        computeGlobalMeanStddev();
         DirectedGraph graph = new DirectedGraph(featureDefinition);
         graph.setRootNode(new DirectedGraphNode(null, null));
         return cluster(graph, new int[0]);
@@ -132,10 +137,17 @@ public class AgglomerativeClusterer
             CART testCART = new FeatureVectorCART(fai.getTree(), fai);
             assert testCART.getRootNode().getNumberOfData() == trainingFeatures.length;
             List<LeafNode> leaves = new ArrayList<LeafNode>();
+            int nLeaves = 0;
             for (LeafNode leaf : testCART.getLeafNodes()) {
                 leaves.add(leaf);
+                nLeaves++;
             }
             double gi = computeGlobalImpurity(leaves);
+            // More leaves cost a bit:
+            double sizeBias = 0.03*Math.log(nLeaves/prevNLeaves); 
+            //System.out.printf("%30s: GI=%.3f bias=%.3f sum=%.3f\n", featureDefinition.getFeatureName(fi),gi,sizeBias,gi+sizeBias);
+            gi += sizeBias;
+
             //System.out.println("Feature "+featureList.length+" using "+featureDefinition.getFeatureName(fi)+" yields GI "+gi);
             if (gi < minGI) {
                 minGI = gi;
@@ -250,6 +262,40 @@ public class AgglomerativeClusterer
         return cluster(graphSoFar, newFeatureList);
         
     }
+    
+    
+    /**
+     * Compute the mean and stddev across all *distances* in the training set.
+     * This will allow us to express all distances in terms of z-score distances later on.
+     */
+    private void computeGlobalMeanStddev()
+    {
+        System.out.println("Computing global mean and standard deviation");
+        long startTime = System.currentTimeMillis();
+        // Compute mean and stddev using recurrence relation, attributed by Donald Knuth
+        // (The Art of Computer Programming, Volume 2: Seminumerical Algorithms, Section 4.2.2)
+        // to B.P. Welford, Technometrics, 4, (1962), 419-420.
+        // M(1) = x(1), M(k) = M(k-1) + (x(k) - M(k-1))/k
+        // S(1) = 0, S(k) = S(k-1) + (x(k) - M(k-1))*(x(k)-M(k))
+        // for 2 <= k <= n, then sigma = sqrt(S(n)/(n-1))
+        //
+        globalMean = 0;
+        globalStddev = 0;
+        int k=0;
+        for (int i=0; i<trainingFeatures.length-1; i++) {
+            for (int j=i+1; j<trainingFeatures.length; j++) {
+                k++;
+                double xk = dist.distance(trainingFeatures[i], trainingFeatures[j]);
+                double mk = globalMean + (xk - globalMean) / k;
+                globalStddev += (xk - globalMean) * (xk - mk);
+                globalMean = mk;
+            }
+        }
+        globalStddev = Math.sqrt(globalStddev/(k-1));
+        long endTime = System.currentTimeMillis();
+        System.out.println("Computation of "+k+" distances took "+(endTime-startTime)+" ms");
+        System.out.println("Global mean distance = "+globalMean+", stddev = "+globalStddev);
+    }
 
     private double computeGlobalImpurity(List<LeafNode> leaves) {
         double gi = 0;
@@ -260,26 +306,12 @@ public class AgglomerativeClusterer
         // N = total number of instances (feature vectors);
         // |l| = the number of instances in a leaf;
         // I(l) = the impurity of the leaf.
-        int variant = 3;
-        if (variant == 1) {
-            for (LeafNode leaf : leaves) {
-                gi += leaf.getNumberOfData() * computeImpurity(leaf);
-            }
-            gi /= trainingFeatures.length;
-        } else if (variant == 2) {
-            for (LeafNode leaf : leaves) {
-                gi += computeImpurity(leaf); // more leaves is bad
-            }
-        } else if (variant == 3) {
-            int numLeaves = 0;
-            for (LeafNode leaf : leaves) {
-                gi += leaf.getNumberOfData() * computeImpurity(leaf);
-                numLeaves++;
-            }
-            gi /= trainingFeatures.length;
-            //System.out.println("GI="+gi+", log="+Math.log(numLeaves));
-            gi += Math.log(numLeaves); // each leaf adds one
+        int numLeaves = 0;
+        for (LeafNode leaf : leaves) {
+            gi += leaf.getNumberOfData() * computeImpurity(leaf);
+            numLeaves++;
         }
+        gi /= trainingFeatures.length;
         return gi;
     }
     
@@ -309,6 +341,10 @@ public class AgglomerativeClusterer
         impurity *= 2./(len*(len-1));
         impurity = Math.sqrt(impurity);
         
+        // Normalise impurity:
+        impurity -= globalMean;
+        impurity /= globalStddev;
+        
         // Penalty for small leaves:
         //impurity += (float)SINGLE_ITEM_IMPURITY/(len*len);
         
@@ -336,51 +372,31 @@ public class AgglomerativeClusterer
         FeatureVector[] fv1 = l1.getFeatureVectors();
         FeatureVector[] fv2 = l2.getFeatureVectors();
         double deltaGI = 0;
-        int variant = 2;
-        if (variant == 1) {
-            // Sum of all distances across leaf boundaries:
-            for (int i=0; i<fv1.length; i++) {
-                for (int j=0; j<fv2.length; j++) {
-                    deltaGI += dist.squaredDistance(fv1[i], fv2[j]);
-                }
+        int len1 = l1.getNumberOfData();
+        int len2 = l2.getNumberOfData();
+        double imp1 = computeImpurity(l1);
+        double imp2 = computeImpurity(l2);
+
+        // Un-normalise impurities:
+        double unImp1 = imp1 * globalStddev + globalMean;
+        double unImp2 = imp2 * globalStddev + globalMean;
+        double unImp12 = len1*(len1-1)/2*unImp1*unImp1 + len2*(len2-1)/2*unImp2*unImp2;
+        // Sum of all distances across leaf boundaries:
+        for (int i=0; i<fv1.length; i++) {
+            for (int j=0; j<fv2.length; j++) {
+                unImp12 += dist.squaredDistance(fv1[i], fv2[j]);
             }
-            deltaGI -= l2.getNumberOfData() * computeImpurity(l1);
-            deltaGI -= l1.getNumberOfData() * computeImpurity(l2);
-            deltaGI /= l1.getNumberOfData()+l2.getNumberOfData()-1;
-            deltaGI /= trainingFeatures.length;
-        } else if (variant == 2) {
-            int len1 = l1.getNumberOfData();
-            int len2 = l2.getNumberOfData();
-            double imp1 = computeImpurity(l1);
-            double imp2 = computeImpurity(l2);
-            
-            double imp12 = len1*(len1-1)/2*imp1*imp1 + len2*(len2-1)/2*imp2*imp2;
-            // Sum of all distances across leaf boundaries:
-            for (int i=0; i<fv1.length; i++) {
-                for (int j=0; j<fv2.length; j++) {
-                    imp12 += dist.squaredDistance(fv1[i], fv2[j]);
-                }
-            }
-            imp12 *= 2./((len1+len2)*(len1+len2-1));
-            imp12 = Math.sqrt(imp12);
-            deltaGI = 1./trainingFeatures.length * ((len1+len2)*imp12 - len1*imp1 - len2*imp2);
-            // Encourage small leaves to merge:
-            double sizeEffect = 1 * (1./((len1+len2)*(len1+len2)) - 1./(len1*len1) - 1./(len2*len2));
-            //System.out.println("len1="+len1+", len2="+len2+", sizeEffect="+sizeEffect+", deltaGI="+deltaGI);
-            deltaGI += sizeEffect;
-        } else if (variant == 3) {
-            // Sum of all distances across leaf boundaries:
-            for (int i=0; i<fv1.length; i++) {
-                for (int j=0; j<fv2.length; j++) {
-                    deltaGI += dist.squaredDistance(fv1[i], fv2[j]);
-                }
-            }
-            deltaGI -= l2.getNumberOfData() * computeImpurity(l1);
-            deltaGI -= l1.getNumberOfData() * computeImpurity(l2);
-            deltaGI /= l1.getNumberOfData()+l2.getNumberOfData()-1;
-            deltaGI /= trainingFeatures.length;
-            deltaGI -= 1; // one leaf less
         }
+        unImp12 *= 2./((len1+len2)*(len1+len2-1));
+        unImp12 = Math.sqrt(unImp12);
+        // And re-normalise:
+        double imp12 = (unImp12 - globalMean) / globalStddev;
+
+        deltaGI = 1./trainingFeatures.length * ((len1+len2)*imp12 - len1*imp1 - len2*imp2);
+        // Encourage small leaves to merge:
+        double sizeEffect = 0.01 * (1./((len1+len2)*(len1+len2)) - 1./(len1*len1) - 1./(len2*len2));
+        //System.out.println("len1="+len1+", len2="+len2+", sizeEffect="+sizeEffect+", deltaGI="+deltaGI);
+        deltaGI += sizeEffect;
         return deltaGI;
     }
     
@@ -490,6 +506,10 @@ public class AgglomerativeClusterer
             avgDist += oneDist;
         }
         avgDist /= testFeatures.length;
+        
+        // Normalise:
+        avgDist -= globalMean;
+        avgDist /= globalStddev;
         return avgDist;
     }
     
