@@ -474,6 +474,39 @@ public class MaryGenericFeatureProcessors
         }
     }
     
+    public static class PrevWordNavigator implements TargetElementNavigator
+    {
+        public Element getElement(Target target)
+        {
+            Element segment = target.getMaryxmlElement();
+            if (segment == null) return null;
+            Element current;
+            if (segment.getTagName().equals(MaryXML.PHONE)) {
+                Element word = (Element) MaryDomUtils.getAncestor(segment, MaryXML.TOKEN);
+                if (word == null) return null;
+                current = word;
+            } else { // boundary
+                current = segment;
+            }
+            Element sentence = (Element) MaryDomUtils.getAncestor(segment, MaryXML.SENTENCE);
+            if (sentence == null) return null;
+            TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.TOKEN);
+            tw.setCurrentNode(current);
+            // The next word is the next token with a "ph" attribute:
+            Element prevWord = null;
+            Element prevToken;
+            while ((prevToken = (Element)tw.previousNode()) != null) {
+                if (prevToken.hasAttribute("ph")) {
+                    prevWord = prevToken;
+                    break;
+                }
+            }
+            if (prevWord != null) {
+                assert prevWord.getTagName().equals(MaryXML.TOKEN) : "Unexpected tag name: expected "+MaryXML.TOKEN+", got "+prevWord.getTagName();
+            }
+            return prevWord;
+        }
+    }
 
     
     public static class FirstSegmentNextWordNavigator implements TargetElementNavigator
