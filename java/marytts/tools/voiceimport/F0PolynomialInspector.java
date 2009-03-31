@@ -61,28 +61,23 @@ import marytts.util.math.Polynomial;
 import marytts.util.signal.SignalProcUtils;
 
 
-public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
+public class F0PolynomialInspector extends VoiceImportComponent
 {
-    protected File maryDir;
     protected FeatureFileReader features;
     protected FeatureDefinition inFeatureDefinition;
-    protected File outFeatureFile;
-    protected FeatureDefinition outFeatureDefinition;
     protected UnitFileReader units;
+    protected FeatureFileReader contours;
     protected TimelineReader audio;
     protected DatabaseLayout db = null;
     protected int percent = 0;
     
-    public final String UNITFILE = "F0PolynomialFeatureFileWriter.unitFile";
-    public final String WAVETIMELINE = "F0PolynomialFeatureFileWriter.waveTimeLine";
-    public final String FEATUREFILE = "F0PolynomialFeatureFileWriter.featureFile";
-    public final String F0FEATUREFILE = "F0PolynomialFeatureFileWriter.f0FeatureFile";  
-    public final String POLYNOMORDER = "F0PolynomialFeatureFileWriter.polynomOrder";
-    public final String SHOWGRAPH = "F0PolynomialFeatureFileWriter.showGraph";
-    public final String INTERPOLATE = "F0PolynomialFeatureFileWriter.interpolate";
+    public final String UNITFILE = "F0PolynomialInspector.unitFile";
+    public final String WAVETIMELINE = "F0PolynomialInspector.waveTimeLine";
+    public final String FEATUREFILE = "F0PolynomialInspector.featureFile";
+    public final String F0FEATUREFILE = "F0PolynomialInspector.f0FeatureFile";  
     
     public String getName(){
-        return "F0PolynomialFeatureFileWriter";
+        return "F0PolynomialInspector";
     }
    
     
@@ -94,11 +89,8 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
            String maryExt = db.getProp(db.MARYEXT);
            props.put(UNITFILE,fileDir+"halfphoneUnits"+maryExt);
            props.put(WAVETIMELINE,fileDir+"timeline_waveforms"+maryExt);
-           props.put(FEATUREFILE,fileDir+"halfphoneFeatures"+maryExt);
+           props.put(FEATUREFILE,fileDir+"halfphoneFeatures_ac"+maryExt);
            props.put(F0FEATUREFILE,fileDir+"syllableF0Polynomials"+maryExt);
-           props.put(POLYNOMORDER, "3");
-           props.put(SHOWGRAPH, "false");
-           props.put(INTERPOLATE, "false");
        }
        return props;
    }
@@ -111,9 +103,6 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
            props2Help.put(WAVETIMELINE,"file containing all wave files");
            props2Help.put(FEATUREFILE,"file containing all halfphone units and their target cost features");
            props2Help.put(F0FEATUREFILE,"file containing syllable-based polynom coefficients on vowels");
-           props2Help.put(POLYNOMORDER, "order of the polynoms used to approximate syllable F0 curves");
-           props2Help.put(SHOWGRAPH, "whether to show a graph with f0 aproximations for each sentence");
-           props2Help.put(INTERPOLATE, "whether to interpolate F0 across unvoiced regions");
        }
    }
   
@@ -122,11 +111,6 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
     {
         logger.info("F0 polynomial feature file writer started.");
 
-        maryDir = new File( db.getProp(db.FILEDIR));
-        if (!maryDir.exists()) {
-            maryDir.mkdir();
-            System.out.println("Created the output directory [" + ( db.getProp(db.FILEDIR)) + "] to store the feature file." );
-        }
         units = new UnitFileReader(getProp(UNITFILE));
         audio = new TimelineReader(getProp(WAVETIMELINE));
         
@@ -137,34 +121,11 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
         pw.println(FeatureDefinition.BYTEFEATURES); // no byte features
         pw.println(FeatureDefinition.SHORTFEATURES); // no short features
         pw.println(FeatureDefinition.CONTINUOUSFEATURES);
-        int polynomOrder = Integer.parseInt(getProp(POLYNOMORDER));
-        for (int i=polynomOrder; i >= 0; i--) {
-            pw.println("0 linear | f0contour_a"+i);
-        }
-        pw.close();
-        String fd = sw.toString();
-        logger.debug("Generated the following feature definition:");
-        logger.debug(fd);
-        StringReader sr = new StringReader(fd);
-        BufferedReader br = new BufferedReader(sr);
-        outFeatureDefinition = new FeatureDefinition(br, true);
 
-        outFeatureFile = new File(getProp(F0FEATUREFILE));
-        DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outFeatureFile)));
-        writeHeaderTo(out);
-        writeUnitFeaturesTo(out);
-        out.close();
-        logger.debug("Number of processed units: " + units.getNumberOfUnits() );
+        contours = new FeatureFileReader(getProp(F0FEATUREFILE));
 
-        FeatureFileReader tester = FeatureFileReader.getFeatureFileReader(getProp(F0FEATUREFILE));
-        int unitsOnDisk = tester.getNumberOfUnits();
-        if (unitsOnDisk == units.getNumberOfUnits()) {
-            System.out.println("Can read right number of units");
-            return true;
-        } else {
-            System.out.println("Read wrong number of units: "+unitsOnDisk);
-            return false;
-        }
+        displaySentences();
+        return true;
     }
 
 
@@ -175,17 +136,13 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
      * @throws UnsupportedEncodingException
      * @throws FileNotFoundException
      */
-    protected void writeUnitFeaturesTo(DataOutput out) throws IOException, UnsupportedEncodingException, FileNotFoundException {
+    protected void displaySentences() throws IOException
+    {
         int numUnits = units.getNumberOfUnits();
         int unitSampleRate = units.getSampleRate();
         int audioSampleRate = audio.getSampleRate();
-        boolean showGraph = Boolean.parseBoolean(getProp(SHOWGRAPH));
-        boolean interpolate = Boolean.parseBoolean(getProp(INTERPOLATE));
-        int polynomOrder = Integer.parseInt(getProp(POLYNOMORDER));
-        float[] zeros = new float[polynomOrder+1];
         int unitIndex = 0;
 
-        out.writeInt( numUnits );
         logger.debug("Number of units : "+numUnits);
 
         FeatureDefinition featureDefinition = features.getFeatureDefinition();
@@ -220,12 +177,10 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
         List<Integer> iSylStarts = new ArrayList<Integer>(); 
         List<Integer> iSylEnds = new ArrayList<Integer>();
         List<Integer> iSylVowels = new ArrayList<Integer>();
-        if (showGraph) {
-            f0Graph = new FunctionGraph(0, 1, new double[1]);
-            f0Graph.setYMinMax(50, 300);
-            f0Graph.setPrimaryDataSeriesStyle(Color.BLUE, FunctionGraph.DRAW_DOTS, FunctionGraph.DOT_FULLCIRCLE);
-            jf = f0Graph.showInJFrame("Sentence", false, true);
-        }
+        f0Graph = new FunctionGraph(0, 1, new double[1]);
+        f0Graph.setYMinMax(50, 300);
+        f0Graph.setPrimaryDataSeriesStyle(Color.BLUE, FunctionGraph.DRAW_DOTS, FunctionGraph.DOT_FULLCIRCLE);
+        jf = f0Graph.showInJFrame("Sentence", false, true);
 
         for (int i=0; i<numUnits; i++) {
             percent = 100*i/numUnits;
@@ -280,20 +235,19 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
                 long tsSentenceStart = units.getUnit(iSentenceStart).getStart();
                 long tsSentenceEnd = units.getUnit(iSentenceEnd).getStart() + units.getUnit(iSentenceEnd).getDuration();
                 long tsSentenceDuration = tsSentenceEnd - tsSentenceStart;
+                System.out.print("Sentence:"+tsSentenceStart+"-"+tsSentenceEnd);
                 Datagram[] sentenceData = audio.getDatagrams(tsSentenceStart, tsSentenceDuration);
                 DatagramDoubleDataSource ddds = new DatagramDoubleDataSource(sentenceData);
                 double[] sentenceAudio = ddds.getAllData();
                 AudioPlayer ap = null;
-                if (showGraph) {
-                    ap = new AudioPlayer(new DDSAudioInputStream(new BufferedDoubleDataSource(sentenceAudio), new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                            audioSampleRate, // samples per second
-                            16, // bits per sample
-                            1, // mono
-                            2, // nr. of bytes per frame
-                            audioSampleRate, // nr. of frames per second
-                            true))); // big-endian;))
-                    ap.start();
-                }
+                ap = new AudioPlayer(new DDSAudioInputStream(new BufferedDoubleDataSource(sentenceAudio), new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+                        audioSampleRate, // samples per second
+                        16, // bits per sample
+                        1, // mono
+                        2, // nr. of bytes per frame
+                        audioSampleRate, // nr. of frames per second
+                        true))); // big-endian;))
+                ap.start();
                 PitchFileHeader params = new PitchFileHeader();
                 params.fs = audioSampleRate;
                 F0TrackerAutocorrelationHeuristic tracker = new F0TrackerAutocorrelationHeuristic(params);
@@ -309,53 +263,46 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
                     if (f0Array.length >= 3) {
                         f0Array = SignalProcUtils.medianFilter(f0Array, 5);
                     }
-                    if (showGraph) {
-                        f0Graph.updateData(0, tsSentenceDuration / (double) audioSampleRate /f0Array.length, f0Array);
-                        jf.repaint();
-                    }
+                    f0Graph.updateData(0, tsSentenceDuration / (double) audioSampleRate /f0Array.length, f0Array);
+                    jf.repaint();
 
                     double[] f0AndInterpol;
-                    if (interpolate) {
-                        double[] interpol = new double[f0Array.length];
-                        Arrays.fill(interpol, Double.NaN);
-                        f0AndInterpol = new double[f0Array.length];
-                        int iLastValid = -1;
-                        for (int j=0; j<f0Array.length; j++) {
-                            if (!Double.isNaN(f0Array[j])) { // a valid value
-                                if (iLastValid == j-1) {
-                                    // no need to interpolate
-                                    f0AndInterpol[j] = f0Array[j];
+                    double[] interpol = new double[f0Array.length];
+                    Arrays.fill(interpol, Double.NaN);
+                    f0AndInterpol = new double[f0Array.length];
+                    int iLastValid = -1;
+                    for (int j=0; j<f0Array.length; j++) {
+                        if (!Double.isNaN(f0Array[j])) { // a valid value
+                            if (iLastValid == j-1) {
+                                // no need to interpolate
+                                f0AndInterpol[j] = f0Array[j];
+                            } else {
+                                // need to interpolate
+                                double prevF0;
+                                if (iLastValid < 0) { // we don't have a previous value -- use current one
+                                    prevF0 = f0Array[j];
                                 } else {
-                                    // need to interpolate
-                                    double prevF0;
-                                    if (iLastValid < 0) { // we don't have a previous value -- use current one
-                                        prevF0 = f0Array[j];
-                                    } else {
-                                        prevF0 = f0Array[iLastValid];
-                                    }
-                                    double delta = (f0Array[j]-prevF0)/(j-iLastValid);
-                                    double f0 = prevF0;
-                                    for (int k = iLastValid+1; k<j; k++) {
-                                        f0 += delta;
-                                        interpol[k] = f0;
-                                        f0AndInterpol[k] = f0;
-                                    }
+                                    prevF0 = f0Array[iLastValid];
                                 }
-                                iLastValid = j;
+                                double delta = (f0Array[j]-prevF0)/(j-iLastValid);
+                                double f0 = prevF0;
+                                for (int k = iLastValid+1; k<j; k++) {
+                                    f0 += delta;
+                                    interpol[k] = f0;
+                                    f0AndInterpol[k] = f0;
+                                }
                             }
+                            iLastValid = j;
                         }
-                        if (showGraph) {
-                            f0Graph.addDataSeries(interpol, Color.GREEN, FunctionGraph.DRAW_DOTS, FunctionGraph.DOT_EMPTYCIRCLE);
-                            jf.repaint();
-                        }
-                    } else {
-                        f0AndInterpol = f0Array;
                     }
+                    f0Graph.addDataSeries(interpol, Color.GREEN, FunctionGraph.DRAW_DOTS, FunctionGraph.DOT_EMPTYCIRCLE);
+                    jf.repaint();
 
                     double[] approx = new double[f0Array.length]; 
                     for (int s=0; s<iSylStarts.size(); s++) {
                         long tsSylStart = units.getUnit(iSylStarts.get(s)).getStart();
                         long tsSylEnd = units.getUnit(iSylEnds.get(s)).getStart() + units.getUnit(iSylEnds.get(s)).getDuration();
+                        System.out.print(" ("+tsSylStart+"-"+tsSylEnd+")");
                         long tsSylDuration = tsSylEnd - tsSylStart;
                         int iSylVowel = iSylVowels.get(s);
                         // now map time to position in f0AndInterpol array:
@@ -363,48 +310,24 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
                         int iSylEnd = iSylStart + (int) ((double) tsSylDuration / tsSentenceDuration * f0AndInterpol.length) + 1;
                         //System.out.println("Syl "+s+" from "+iSylStart+" to "+iSylEnd+" out of "+f0AndInterpol.length);
                         double[] sylF0 = new double[iSylEnd-iSylStart];
-                        System.arraycopy(f0AndInterpol, iSylStart, sylF0, 0, sylF0.length);
-                        double[] coeffs = Polynomial.fitPolynomial(sylF0, polynomOrder);
-                        if (coeffs != null) {
-                            if (showGraph) {
-                                double[] sylPred = Polynomial.generatePolynomialValues(coeffs, sylF0.length, 0, 1);
-                                System.arraycopy(sylPred, 0, approx, iSylStart, sylPred.length);
-                            }
-                            // Write coefficients to file
-                            while (unitIndex < iSylVowel) {
-                                FeatureVector outFV = outFeatureDefinition.toFeatureVector(unitIndex, null, null, zeros);
-                                outFV.writeTo(out);
-                                unitIndex++;
-                            }
-                            float[] fcoeffs = MathUtils.toFloat(coeffs);
-                            //System.out.print("Polynomial values (unit "+unitIndex+") ");
-                            //for (int p=0; p<fcoeffs.length; p++) {
-                            //    System.out.print(", "+fcoeffs[p]);
-                            //}
-                            //System.out.println();
-                            FeatureVector outFV = outFeatureDefinition.toFeatureVector(unitIndex, null, null, fcoeffs);
-                            outFV.writeTo(out);
-                            unitIndex++;
-                        }
+                        float[] coeffs = contours.getFeatureVector(iSylVowel).getContinuousFeatures();
+                        double[] sylPred = Polynomial.generatePolynomialValues(MathUtils.toDouble(coeffs), sylF0.length, 0, 1);
+                        System.arraycopy(sylPred, 0, approx, iSylStart, sylPred.length);
                     }
-                    /*System.out.print("Approximation values that are zero: ");
-                    for (int j=0; j<approx.length; j++) {
-                        if (approx[j] == 0) System.out.print(j+" ");
-                    }
+                    f0Graph.addDataSeries(approx, Color.RED, FunctionGraph.DRAW_LINE, -1);
                     System.out.println();
-                    */
-                    if (showGraph) {
-                        f0Graph.addDataSeries(approx, Color.RED, FunctionGraph.DRAW_LINE, -1);
-                    }
+
                     
-                    if (showGraph && haveUnitLogF0) {
+                    if (haveUnitLogF0) {
                         double[] unitF0 = new double[f0Array.length];
-                        int iUnitStartInArray = 0;
+                        Arrays.fill(unitF0, Double.NaN);
                         for (int u=0; u+iSentenceStart<=iSentenceEnd; u++) {
-                            FeatureVector localFV = features.getFeatureVector(iSentenceStart+u);
-                            long tsUnitDuration = units.getUnit(u).getDuration();
+                            FeatureVector localFV = features.getFeatureVector(u+iSentenceStart);
+                            long tsUnitStart = units.getUnit(u+iSentenceStart).getStart();
+                            long tsUnitDuration = units.getUnit(u+iSentenceStart).getDuration();
+                            int iUnitStartInArray = (int) (unitF0.length * (tsUnitStart-tsSentenceStart) / tsSentenceDuration);
                             int iUnitDurationInArray = (int)(unitF0.length * tsUnitDuration / tsSentenceDuration);
-                            while (iUnitDurationInArray+iUnitStartInArray>unitF0.length) iUnitDurationInArray--;
+                            //while (iUnitDurationInArray+iUnitStartInArray>unitF0.length) iUnitDurationInArray--;
                             if (iUnitDurationInArray > 0) {
                                 float logF0 = localFV.getContinuousFeature(fiUnitLogF0);
                                 float logF0delta = localFV.getContinuousFeature(fiUnitLogF0delta);
@@ -422,12 +345,10 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
 
                     }
                 }
-                if (showGraph) {
-                    try {
-                        ap.join();
-                        Thread.sleep(2000);
-                    } catch (InterruptedException ie) {}
-                }
+                try {
+                    ap.join();
+                    Thread.sleep(10000);
+                } catch (InterruptedException ie) {}
                 iSentenceStart = -1;
                 iSentenceEnd = -1;
                 iSylStarts.clear();
@@ -435,28 +356,9 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
                 iSylVowels.clear();
             }
         }
-        while (unitIndex < numUnits) {
-            FeatureVector outFV = outFeatureDefinition.toFeatureVector(unitIndex, null, null, zeros);
-            outFV.writeTo(out);
-            unitIndex++;
-        }
-
-    
-    
-    
-    
     
     }
 
-    /**
-     * Write the header of this feature file to the given DataOutput
-     * @param out
-     * @throws IOException
-     */
-    protected void writeHeaderTo(DataOutput out) throws IOException {
-        new MaryHeader(MaryHeader.UNITFEATS).writeTo(out);
-        outFeatureDefinition.writeBinaryTo(out);
-    }
 
     /**
      * Provide the progress of computation, in percent, or -1 if
@@ -473,8 +375,8 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
      */
     public static void main(String[] args) throws Exception
     {
-        F0PolynomialFeatureFileWriter acfeatsWriter = 
-            new F0PolynomialFeatureFileWriter();
+        F0PolynomialInspector acfeatsWriter = 
+            new F0PolynomialInspector();
         DatabaseLayout db = new DatabaseLayout(acfeatsWriter);
         acfeatsWriter.compute();
     }
