@@ -100,7 +100,7 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
            String fileDir = db.getProp(db.FILEDIR);
            String maryExt = db.getProp(db.MARYEXT);
            props.put(FEATUREFILE,fileDir+"halfphoneFeatures"+maryExt);
-           props.put(F0FEATUREFILE,fileDir+"syllableF0Polynoms"+maryExt);
+           props.put(F0FEATUREFILE,fileDir+"syllableF0Polynomials"+maryExt);
            props.put(WAGONDIR, "f0contours");
            props.put(WAGONEXECUTABLE, System.getenv("ESTDIR")+"/main/wagon");
            props.put(F0TREE, fileDir+"f0contourtree.mry");
