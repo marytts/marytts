@@ -267,7 +267,7 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
                 //System.out.print(", is syl end");
                 assert iSylStarts.size() == iSylEnds.size();
                 if (iSylVowels.size() < iSylEnds.size()) {
-                    System.err.println("Syllable contains no vowel -- skipping");
+                    //System.err.println("Syllable contains no vowel -- skipping");
                     iSylStarts.remove(iSylStarts.size() - 1);
                     iSylEnds.remove(iSylEnds.size() - 1);
                 }
@@ -362,10 +362,17 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
                             jf.repaint();
                         }
                     } else {
-                        f0AndInterpol = f0Array;
+                        f0AndInterpol = f0Array.clone();
                     }
 
-                    double[] approx = new double[f0Array.length]; 
+                    for (int j=0; j<f0AndInterpol.length; j++) {
+                        if (f0AndInterpol[j] == 0)
+                            f0AndInterpol[j] = Double.NaN;
+                        else
+                            f0AndInterpol[j] = Math.log(f0AndInterpol[j]);
+                    }
+                    double[] approx = new double[f0Array.length];
+                    Arrays.fill(approx, Double.NaN);
                     for (int s=0; s<iSylStarts.size(); s++) {
                         long tsSylStart = units.getUnit(iSylStarts.get(s)).getStart();
                         long tsSylEnd = units.getUnit(iSylEnds.get(s)).getStart() + units.getUnit(iSylEnds.get(s)).getDuration();
@@ -407,33 +414,12 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
                     System.out.println();
                     */
                     if (showGraph) {
+                        for (int j=0; j<approx.length; j++) {
+                            approx[j] = Math.exp(approx[j]);
+                        }
                         f0Graph.addDataSeries(approx, Color.RED, FunctionGraph.DRAW_LINE, -1);
                     }
                     
-                    if (showGraph && haveUnitLogF0) {
-                        double[] unitF0 = new double[f0Array.length];
-                        int iUnitStartInArray = 0;
-                        for (int u=0; u+iSentenceStart<=iSentenceEnd; u++) {
-                            FeatureVector localFV = features.getFeatureVector(iSentenceStart+u);
-                            long tsUnitDuration = units.getUnit(u).getDuration();
-                            int iUnitDurationInArray = (int)(unitF0.length * tsUnitDuration / tsSentenceDuration);
-                            while (iUnitDurationInArray+iUnitStartInArray>unitF0.length) iUnitDurationInArray--;
-                            if (iUnitDurationInArray > 0) {
-                                float logF0 = localFV.getContinuousFeature(fiUnitLogF0);
-                                float logF0delta = localFV.getContinuousFeature(fiUnitLogF0delta);
-                                double[] coeffs = new double[2];
-                                // logF0 is value at 0.5, logF0delta is slope
-                                // coeffs[0] is slope, coeffs[1] is value at 0  => coeffs[1] + 0.5*slope = logF0
-                                coeffs[0] = logF0delta;
-                                coeffs[1] = logF0 - 0.5*logF0delta;
-                                double[] pred = Polynomial.generatePolynomialValues(coeffs, iUnitDurationInArray, 0, 1);
-                                System.arraycopy(pred, 0, unitF0, iUnitStartInArray, iUnitDurationInArray);
-                                iUnitStartInArray += iUnitDurationInArray;
-                            }
-                        }
-                        f0Graph.addDataSeries(unitF0, Color.BLACK, FunctionGraph.DRAW_LINE, -1);
-
-                    }
                 }
                 if (showGraph) {
                     try {

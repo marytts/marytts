@@ -211,7 +211,7 @@ public class F0PolynomialInspector extends VoiceImportComponent
                 //System.out.print(", is syl end");
                 assert iSylStarts.size() == iSylEnds.size();
                 if (iSylVowels.size() < iSylEnds.size()) {
-                    System.err.println("Syllable contains no vowel -- skipping");
+                    //System.err.println("Syllable contains no vowel -- skipping");
                     iSylStarts.remove(iSylStarts.size() - 1);
                     iSylEnds.remove(iSylEnds.size() - 1);
                 }
@@ -235,7 +235,6 @@ public class F0PolynomialInspector extends VoiceImportComponent
                 long tsSentenceStart = units.getUnit(iSentenceStart).getStart();
                 long tsSentenceEnd = units.getUnit(iSentenceEnd).getStart() + units.getUnit(iSentenceEnd).getDuration();
                 long tsSentenceDuration = tsSentenceEnd - tsSentenceStart;
-                System.out.print("Sentence:"+tsSentenceStart+"-"+tsSentenceEnd);
                 Datagram[] sentenceData = audio.getDatagrams(tsSentenceStart, tsSentenceDuration);
                 DatagramDoubleDataSource ddds = new DatagramDoubleDataSource(sentenceData);
                 double[] sentenceAudio = ddds.getAllData();
@@ -298,11 +297,11 @@ public class F0PolynomialInspector extends VoiceImportComponent
                     f0Graph.addDataSeries(interpol, Color.GREEN, FunctionGraph.DRAW_DOTS, FunctionGraph.DOT_EMPTYCIRCLE);
                     jf.repaint();
 
-                    double[] approx = new double[f0Array.length]; 
+                    double[] approx = new double[f0Array.length];
+                    Arrays.fill(approx, Double.NaN);
                     for (int s=0; s<iSylStarts.size(); s++) {
                         long tsSylStart = units.getUnit(iSylStarts.get(s)).getStart();
                         long tsSylEnd = units.getUnit(iSylEnds.get(s)).getStart() + units.getUnit(iSylEnds.get(s)).getDuration();
-                        System.out.print(" ("+tsSylStart+"-"+tsSylEnd+")");
                         long tsSylDuration = tsSylEnd - tsSylStart;
                         int iSylVowel = iSylVowels.get(s);
                         // now map time to position in f0AndInterpol array:
@@ -313,6 +312,9 @@ public class F0PolynomialInspector extends VoiceImportComponent
                         float[] coeffs = contours.getFeatureVector(iSylVowel).getContinuousFeatures();
                         double[] sylPred = Polynomial.generatePolynomialValues(MathUtils.toDouble(coeffs), sylF0.length, 0, 1);
                         System.arraycopy(sylPred, 0, approx, iSylStart, sylPred.length);
+                    }
+                    for (int j=0; j<approx.length; j++) {
+                        approx[j] = Math.exp(approx[j]);
                     }
                     f0Graph.addDataSeries(approx, Color.RED, FunctionGraph.DRAW_LINE, -1);
                     System.out.println();
@@ -341,13 +343,16 @@ public class F0PolynomialInspector extends VoiceImportComponent
                                 iUnitStartInArray += iUnitDurationInArray;
                             }
                         }
+                        for (int j=0; j<unitF0.length; j++) {
+                            unitF0[j] = Math.exp(unitF0[j]);
+                        }
                         f0Graph.addDataSeries(unitF0, Color.BLACK, FunctionGraph.DRAW_LINE, -1);
 
                     }
                 }
                 try {
                     ap.join();
-                    Thread.sleep(10000);
+                    Thread.sleep(4000);
                 } catch (InterruptedException ie) {}
                 iSentenceStart = -1;
                 iSentenceEnd = -1;
