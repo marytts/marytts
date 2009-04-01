@@ -82,9 +82,11 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
     
     public final String FEATUREFILE = "F0PolynomialTreeTrainer.featureFile";
     public final String F0FEATUREFILE = "F0PolynomialTreeTrainer.f0FeatureFile";  
+    public final String F0TREE = "F0PolynomialTreeTrainer.treeFile";
+    public final String MAXDATA = "F0PolynomialTreeTrainer.maxData";
+    
     public final String WAGONDIR = "F0PolynomialTreeTrainer.wagonDir";
     public final String WAGONEXECUTABLE = "F0PolynomialTreeTrainer.wagonExecutable";
-    public final String F0TREE = "F0PolynomialTreeTrainer.treeFile";
     public final String BALANCE = "F0PolynomialTreeTrainer.wagonBalance";
     public final String STOP = "F0PolynomialTreeTrainer.wagonStop";
 
@@ -101,9 +103,11 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
            String maryExt = db.getProp(db.MARYEXT);
            props.put(FEATUREFILE,fileDir+"halfphoneFeatures"+maryExt);
            props.put(F0FEATUREFILE,fileDir+"syllableF0Polynomials"+maryExt);
+           props.put(F0TREE, fileDir+"f0contourtree.mry");
+           props.put(MAXDATA, "0");
+           
            props.put(WAGONDIR, "f0contours");
            props.put(WAGONEXECUTABLE, System.getenv("ESTDIR")+"/main/wagon");
-           props.put(F0TREE, fileDir+"f0contourtree.mry");
            props.put(BALANCE, "0");
            props.put(STOP, "50");
        }
@@ -116,9 +120,11 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
            props2Help = new TreeMap<String, String>();
            props2Help.put(FEATUREFILE,"file containing all halfphone units and their target cost features");
            props2Help.put(F0FEATUREFILE,"file containing syllable-based polynom coefficients on vowels");
+           props2Help.put(F0TREE, "the path for saving the resulting f0 contour tree");
+           props2Help.put(MAXDATA, "if >0, gives the maximum number of syllables to use for training the tree");
+           
            props2Help.put(WAGONDIR, "directory in which to store the wagon files");
            props2Help.put(WAGONEXECUTABLE, "full path of the wagon executable from the Edinburgh speech tools");
-           props2Help.put(F0TREE, "the path for saving the resulting f0 contour tree");
            props2Help.put(BALANCE, "the wagon balance value");
            props2Help.put(STOP, "the wagon stop criterion (min number of items in leaf)");
        }
@@ -136,6 +142,7 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
             throw new IllegalArgumentException("Number of units differs between feature file and contour file -- they are out of sync");
         }
         
+        int maxData = Integer.parseInt(getProp(MAXDATA));
         
         // 1. Extract the feature vectors for which there are contours
         List<FeatureVector> relevantFVList = new ArrayList<FeatureVector>();
@@ -151,8 +158,7 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
             }
             if (!isZero) {
                 relevantFVList.add(features.getFeatureVector(i));
-                // TODO: remove cutoff here:
-                if (relevantFVList.size() >= 4000) break;
+                if (maxData > 0 && relevantFVList.size() >= maxData) break;
             }
         }
         FeatureVector[] relevantFV = relevantFVList.toArray(new FeatureVector[0]);
