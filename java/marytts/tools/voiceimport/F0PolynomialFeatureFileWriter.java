@@ -80,6 +80,8 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
     public final String POLYNOMORDER = "F0PolynomialFeatureFileWriter.polynomOrder";
     public final String SHOWGRAPH = "F0PolynomialFeatureFileWriter.showGraph";
     public final String INTERPOLATE = "F0PolynomialFeatureFileWriter.interpolate";
+    public final String MINPITCH = "F0PolynomialFeatureFileWriter.minPitch";
+    public final String MAXPITCH = "F0PolynomialFeatureFileWriter.maxPitch";
     
     public String getName(){
         return "F0PolynomialFeatureFileWriter";
@@ -98,7 +100,14 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
            props.put(F0FEATUREFILE,fileDir+"syllableF0Polynomials"+maryExt);
            props.put(POLYNOMORDER, "3");
            props.put(SHOWGRAPH, "false");
-           props.put(INTERPOLATE, "false");
+           props.put(INTERPOLATE, "true");
+           if (db.getProp(db.GENDER).equals("female")){
+               props.put(MINPITCH,"100");
+               props.put(MAXPITCH,"500");
+           } else {
+               props.put(MINPITCH,"75");
+               props.put(MAXPITCH,"300");
+           }
        }
        return props;
    }
@@ -114,6 +123,8 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
            props2Help.put(POLYNOMORDER, "order of the polynoms used to approximate syllable F0 curves");
            props2Help.put(SHOWGRAPH, "whether to show a graph with f0 aproximations for each sentence");
            props2Help.put(INTERPOLATE, "whether to interpolate F0 across unvoiced regions");
+           props2Help.put(MINPITCH,"minimum value for the pitch (in Hz). Default: female 100, male 75");
+           props2Help.put(MAXPITCH,"maximum value for the pitch (in Hz). Default: female 500, male 300");            
        }
    }
   
@@ -296,6 +307,8 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
                 }
                 PitchFileHeader params = new PitchFileHeader();
                 params.fs = audioSampleRate;
+                params.minimumF0 = Double.parseDouble(getProp(MINPITCH));
+                params.maximumF0 = Double.parseDouble(getProp(MAXPITCH));
                 F0TrackerAutocorrelationHeuristic tracker = new F0TrackerAutocorrelationHeuristic(params);
                 tracker.pitchAnalyze(new BufferedDoubleDataSource(sentenceAudio));
                 double frameShiftTime = tracker.getFrameShiftTime();
