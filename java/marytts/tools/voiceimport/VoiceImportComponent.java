@@ -54,7 +54,9 @@ public abstract class VoiceImportComponent
         this.props = props;
         this.bnl = bnl;
         initialiseComp();
-        BasicConfigurator.configure();
+        if (!Logger.getRootLogger().getAllAppenders().hasMoreElements()) {
+            BasicConfigurator.configure();
+        }
         logger = Logger.getLogger(getName());
     }
     
