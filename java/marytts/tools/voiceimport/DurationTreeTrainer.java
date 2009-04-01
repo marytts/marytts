@@ -67,6 +67,7 @@ public class DurationTreeTrainer extends VoiceImportComponent
     public final String DURTREE = name+".durTree";
     public final String FEATUREFILE = name+".featureFile";
     public final String UNITFILE = name+".unitFile";
+    public final String MAXDATA = name+".maxData";
 
     public String getName(){
         return name;
@@ -87,7 +88,8 @@ public class DurationTreeTrainer extends VoiceImportComponent
             props.put(UNITFILE, db.getProp(db.FILEDIR)
                     +"phoneUnits"+db.getProp(db.MARYEXT));
             props.put(DURTREE,db.getProp(db.FILEDIR)
-                    +"dur.tree");                    
+                    +"dur.graph.mry");
+            props.put(MAXDATA, "0");
         }
        return props;
     }
@@ -97,6 +99,7 @@ public class DurationTreeTrainer extends VoiceImportComponent
          props2Help.put(FEATUREFILE, "file containing all phone units and their target cost features");
          props2Help.put(UNITFILE, "file containing all phone units");
          props2Help.put(DURTREE,"file containing the duration tree. Will be created by this module");
+         props2Help.put(MAXDATA, "if >0, gives the maximum number of syllables to use for training the tree");
      }
 
 
@@ -108,8 +111,8 @@ public class DurationTreeTrainer extends VoiceImportComponent
         UnitFileReader unitFile = new UnitFileReader(getProp(UNITFILE));
 
         FeatureVector[] allFeatureVectors = featureFile.getFeatureVectors();
-        int max = 5000;
-        FeatureVector[] featureVectors = new FeatureVector[Math.min(max, allFeatureVectors.length)];
+        int maxData = Integer.parseInt(getProp(MAXDATA));
+        FeatureVector[] featureVectors = new FeatureVector[Math.min(maxData, allFeatureVectors.length)];
         System.arraycopy(allFeatureVectors, 0, featureVectors, 0, featureVectors.length);
         logger.debug("Total of "+allFeatureVectors.length+" feature vectors -- will use "+featureVectors.length);
         
