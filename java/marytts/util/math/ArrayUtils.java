@@ -199,5 +199,32 @@ public class ArrayUtils
         
         return z;
     }
+
+    public static boolean isZero(float[] array)
+    {
+        boolean isZero = true;
+        for (int j=0; j<array.length; j++) {
+            if (array[j] != 0) {
+                isZero = false;
+                break;
+            }
+        }
+        return isZero;
+    }
+
+    public static boolean isZero(double[] array)
+    {
+        boolean isZero = true;
+        for (int j=0; j<array.length; j++) {
+            if (array[j] != 0) {
+                isZero = false;
+                break;
+            }
+        }
+        return isZero;
+    }
+
 }
+
+
 

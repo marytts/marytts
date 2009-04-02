@@ -269,18 +269,21 @@ public class Voice
             preferredModules = new Vector<MaryModule>();
             StringTokenizer st = new StringTokenizer(preferredModulesClasses, ", \t\n\r\f");
             while (st.hasMoreTokens()) {
-                String className = st.nextToken();
+                String moduleInfo = st.nextToken();
                 try {
-                    MaryModule mm = ModuleRegistry.getModule(Class.forName(className));
+                    MaryModule mm = null;
+                    if (!moduleInfo.contains("(")) { // no constructor info
+                        mm = ModuleRegistry.getModule(Class.forName(moduleInfo));
+                    }
                     if (mm == null) {
                         // need to create our own:
-                        logger.warn("Module "+className+" is not in the standard list of modules -- will start our own, but will not be able to shut it down at the end.");
-                        mm = (MaryModule) Class.forName(className).newInstance();
+                        logger.warn("Module "+moduleInfo+" is not in the standard list of modules -- will start our own, but will not be able to shut it down at the end.");
+                        mm = ModuleRegistry.instantiateModule(moduleInfo);
                         mm.startup();
                     }
                     preferredModules.add(mm);
                 } catch (Exception e) {
-                    logger.warn("Cannot initialise preferred module "+className+" for voice "+getName()+" -- skipping.");
+                    logger.warn("Cannot initialise preferred module "+moduleInfo+" for voice "+getName()+" -- skipping.");
                 }
             }
         }

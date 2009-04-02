@@ -56,6 +56,7 @@ import marytts.unitselection.data.UnitFileReader;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.audio.AudioPlayer;
 import marytts.util.data.audio.DDSAudioInputStream;
+import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 import marytts.util.signal.SignalProcUtils;
@@ -310,7 +311,7 @@ public class F0PolynomialInspector extends VoiceImportComponent
                         //System.out.println("Syl "+s+" from "+iSylStart+" to "+iSylEnd+" out of "+f0AndInterpol.length);
                         double[] sylF0 = new double[iSylEnd-iSylStart];
                         float[] coeffs = contours.getFeatureVector(iSylVowel).getContinuousFeatures();
-                        double[] sylPred = Polynomial.generatePolynomialValues(MathUtils.toDouble(coeffs), sylF0.length, 0, 1);
+                        double[] sylPred = Polynomial.generatePolynomialValues(ArrayUtils.toDoubleArray(coeffs), sylF0.length, 0, 1);
                         System.arraycopy(sylPred, 0, approx, iSylStart, sylPred.length);
                     }
                     for (int j=0; j<approx.length; j++) {

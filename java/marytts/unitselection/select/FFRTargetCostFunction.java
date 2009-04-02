@@ -108,11 +108,13 @@ public class FFRTargetCostFunction implements TargetCostFunction
                 float weight = weights.getWeight(i);
                 float a = targetFeatures.getContinuousFeature(i);
                 float b = unitFeatures.getContinuousFeature(i);
-                double myCost = weightFunctions[i-nBytes-nShorts].cost(a, b); 
-                cost += weight * myCost;
-                if (debugShowCostGraph) {
-                    cumulWeightedCosts[i] += weight * myCost;
-                }
+                if (!Float.isNaN(a) && !Float.isNaN(b)) {
+                    double myCost = weightFunctions[i-nBytes-nShorts].cost(a, b); 
+                    cost += weight * myCost;
+                    if (debugShowCostGraph) {
+                        cumulWeightedCosts[i] += weight * myCost;
+                    }
+                } // and if it is NaN, simply compute no cost
             }
         }
         return cost;

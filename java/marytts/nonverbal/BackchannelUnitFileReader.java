@@ -103,13 +103,13 @@ public class BackchannelUnitFileReader
             }
             /* Read the number of units */
             numberOfUnits = dis.readInt();
-            System.out.println("No. of units : "+ numberOfUnits);
+            //System.out.println("No. of units : "+ numberOfUnits);
             if ( numberOfUnits < 0 ) {
                 throw new RuntimeException( "File [" + fileName + "] has a negative number of units. Aborting." );
             }
             /* Read the sample rate */
             sampleRate = dis.readInt();
-            System.out.println("Samplerate : "+ sampleRate);
+            //System.out.println("Samplerate : "+ sampleRate);
             if ( sampleRate < 0 ) {
                 throw new RuntimeException( "File [" + fileName + "] has a negative number sample rate. Aborting." );
             }
