@@ -22,6 +22,7 @@ package marytts.modules.synthesis;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -41,6 +42,8 @@ import java.util.Vector;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
+import marytts.cart.DirectedGraph;
+import marytts.cart.io.DirectedGraphReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
@@ -56,6 +59,7 @@ import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.nonverbal.BackchannelSynthesizer;
 import marytts.server.MaryProperties;
+import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.interpolation.InterpolatingSynthesizer;
 import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.MaryUtils;
@@ -144,6 +148,9 @@ public class Voice
     private Lexicon lexicon;
     private boolean backchannelSupport;
     private BackchannelSynthesizer backchannelSynthesizer;
+    protected DirectedGraph durationGraph;
+    protected DirectedGraph f0Graph;
+    protected FeatureFileReader f0ContourFeatures;
     
     public Voice(String[] nameArray, Locale locale, 
                  AudioFormat dbAudioFormat,
@@ -185,6 +192,33 @@ public class Voice
         if(backchannelSupport) {
             backchannelSynthesizer = new BackchannelSynthesizer(this);
         }
+        
+        // see if there are any voice-specific duration and f0 models to load
+        durationGraph = null;
+        String durationGraphFile = MaryProperties.getFilename(header+".duration.graph");
+        if (durationGraphFile != null) {
+            logger.debug("...loading duration graph...");
+            try {
+                durationGraph = (new DirectedGraphReader()).load(durationGraphFile);
+            } catch (IOException e) {
+                throw new MaryConfigurationException("Cannot load duration graph file '"+durationGraphFile+"'", e);
+            }
+        }
+
+        f0Graph = null;
+        String f0GraphFile = MaryProperties.getFilename(header+".f0.graph");
+        if (f0GraphFile != null) {
+            logger.debug("...loading f0 contour graph...");
+            try {
+                f0Graph = (new DirectedGraphReader()).load(f0GraphFile);
+                // If we have the graph, we need the contour:
+                String f0ContourFile = MaryProperties.needFilename(header+".f0.contours");
+                f0ContourFeatures = new FeatureFileReader(f0ContourFile);
+            } catch (IOException e) {
+                throw new MaryConfigurationException("Cannot load f0 contour graph file '"+f0GraphFile+"'", e);
+            }
+        }
+        
     }
 
     /**
@@ -252,7 +286,7 @@ public class Voice
         }
         if (preferredModules != null) {
             Vector<MaryModule> v = new Vector<MaryModule>();
-            for (Iterator it = preferredModules.iterator(); it.hasNext(); ) {
+            for (Iterator<MaryModule> it = preferredModules.iterator(); it.hasNext(); ) {
                 MaryModule m = (MaryModule) it.next();
                 if (m.inputType().equals(type)) {
                     v.add(m);
@@ -299,8 +333,20 @@ public class Voice
         return lexicon;
     }
 
+    public DirectedGraph getDurationGraph()
+    {
+        return durationGraph;
+    }
 
+    public DirectedGraph getF0Graph()
+    {
+        return f0Graph;
+    }
 
+    public FeatureFileReader getF0ContourFeatures()
+    {
+        return f0ContourFeatures;
+    }
 
     ////////// static stuff //////////
 
