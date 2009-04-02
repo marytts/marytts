@@ -243,8 +243,8 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
             percent = 100*i/numUnits;
             FeatureVector fv = features.getFeatureVector(i);
             //System.out.print(featureDefinition.getFeatureValueAsString("phoneme", fv));
-            if (fv.getByteFeature(fiPhoneme) == fvPhoneme_0
-                    || fv.getByteFeature(fiPhoneme) == fvPhoneme_Silence) continue;
+            //if (fv.getByteFeature(fiPhoneme) == fvPhoneme_0
+            //        || fv.getByteFeature(fiPhoneme) == fvPhoneme_Silence) continue;
             if (iSentenceStart == -1
                     && fv.getByteFeature(fiSentenceStart) == 0
                     && fv.getByteFeature(fiWordStart) == 0
