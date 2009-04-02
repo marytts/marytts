@@ -252,25 +252,30 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
                 iSentenceStart = i;
                 //System.out.print(", is sentence start");
             }
-            if (fv.getByteFeature(fiSylStart) == 0 && fv.getByteFeature(fiLR) == fvLR_L) { // first segment in syllable
-                if (iSylStarts.size() > iSylEnds.size()) {
-                    System.err.println("Syllable ends before other syllable starts!");
+            // Silence and edge units cannot be part of syllables, but they can 
+            // mark start/end of sentence:
+            if (fv.getByteFeature(fiPhoneme) != fvPhoneme_0
+                    && fv.getByteFeature(fiPhoneme) != fvPhoneme_Silence) {
+                if (fv.getByteFeature(fiSylStart) == 0 && fv.getByteFeature(fiLR) == fvLR_L) { // first segment in syllable
+                    if (iSylStarts.size() > iSylEnds.size()) {
+                        System.err.println("Syllable ends before other syllable starts!");
+                    }
+                    iSylStarts.add(i);
+                    //System.out.print(", is syl start");
                 }
-                iSylStarts.add(i);
-                //System.out.print(", is syl start");
-            }
-            if (fv.getByteFeature(fiVowel) == fvVowel_Plus && iSylVowels.size() < iSylStarts.size()) { // first vowel unit in syllable
-                iSylVowels.add(i);
-                //System.out.print(", is vowel");
-            }
-            if (fv.getByteFeature(fiSylEnd) == 0 && fv.getByteFeature(fiLR) == fvLR_R) { // last segment in syllable
-                iSylEnds.add(i);
-                //System.out.print(", is syl end");
-                assert iSylStarts.size() == iSylEnds.size();
-                if (iSylVowels.size() < iSylEnds.size()) {
-                    //System.err.println("Syllable contains no vowel -- skipping");
-                    iSylStarts.remove(iSylStarts.size() - 1);
-                    iSylEnds.remove(iSylEnds.size() - 1);
+                if (fv.getByteFeature(fiVowel) == fvVowel_Plus && iSylVowels.size() < iSylStarts.size()) { // first vowel unit in syllable
+                    iSylVowels.add(i);
+                    //System.out.print(", is vowel");
+                }
+                if (fv.getByteFeature(fiSylEnd) == 0 && fv.getByteFeature(fiLR) == fvLR_R) { // last segment in syllable
+                    iSylEnds.add(i);
+                    //System.out.print(", is syl end");
+                    assert iSylStarts.size() == iSylEnds.size();
+                    if (iSylVowels.size() < iSylEnds.size()) {
+                        //System.err.println("Syllable contains no vowel -- skipping");
+                        iSylStarts.remove(iSylStarts.size() - 1);
+                        iSylEnds.remove(iSylEnds.size() - 1);
+                    }
                 }
             }
             if (iSentenceStart != -1
