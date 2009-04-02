@@ -56,6 +56,7 @@ import marytts.unitselection.data.UnitFileReader;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.audio.AudioPlayer;
 import marytts.util.data.audio.DDSAudioInputStream;
+import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 import marytts.util.signal.SignalProcUtils;
@@ -396,7 +397,7 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
                                 outFV.writeTo(out);
                                 unitIndex++;
                             }
-                            float[] fcoeffs = MathUtils.toFloat(coeffs);
+                            float[] fcoeffs = ArrayUtils.toFloatArray(coeffs);
                             //System.out.print("Polynomial values (unit "+unitIndex+") ");
                             //for (int p=0; p<fcoeffs.length; p++) {
                             //    System.out.print(", "+fcoeffs[p]);
