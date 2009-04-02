@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import marytts.cart.CART;
@@ -97,7 +98,7 @@ public class AgglomerativeClusterer
     
     public DirectedGraph cluster()
     {
-        computeGlobalMeanStddev();
+        estimateGlobalMean();
         DirectedGraph graph = new DirectedGraph(featureDefinition);
         graph.setRootNode(new DirectedGraphNode(null, null));
         return cluster(graph, new int[0], Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
@@ -282,12 +283,12 @@ public class AgglomerativeClusterer
     
     
     /**
-     * Compute the mean and stddev across all *distances* in the training set.
-     * This will allow us to express all distances in terms of z-score distances later on.
+     * Estimate the mean of all *distances* in the training set.
      */
-    private void computeGlobalMeanStddev()
+    private void estimateGlobalMean()
     {
-        System.out.println("Computing global mean");
+        int sampleSize = 100000;
+        System.out.println("Estimating global mean by random sampling "+sampleSize+" distances");
         long startTime = System.currentTimeMillis();
         // Compute mean and stddev using recurrence relation, attributed by Donald Knuth
         // (The Art of Computer Programming, Volume 2: Seminumerical Algorithms, Section 4.2.2)
@@ -297,18 +298,17 @@ public class AgglomerativeClusterer
         // for 2 <= k <= n, then sigma = sqrt(S(n)/(n-1))
         //
         globalMean = 0;
-        int k=0;
-        for (int i=0; i<trainingFeatures.length-1; i++) {
-            for (int j=i+1; j<trainingFeatures.length; j++) {
-                k++;
-                double xk = dist.distance(trainingFeatures[i], trainingFeatures[j]);
-                double mk = globalMean + (xk - globalMean) / k;
-                globalMean = mk;
-            }
+        Random random = new Random();
+        for (int k=1; k<sampleSize; k++) {
+            int i = random.nextInt(trainingFeatures.length);
+            int j = random.nextInt(trainingFeatures.length);
+            double xk = dist.distance(trainingFeatures[i], trainingFeatures[j]);
+            double mk = globalMean + (xk - globalMean) / k;
+            globalMean = mk;
         }
         //globalMean = Math.sqrt(globalMean);
         long endTime = System.currentTimeMillis();
-        System.out.println("Computation of "+k+" distances took "+(endTime-startTime)+" ms");
+        System.out.println("Computation of "+sampleSize+" distances took "+(endTime-startTime)+" ms");
         System.out.println("Global mean distance = "+globalMean);
     }
 
