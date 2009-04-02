@@ -60,7 +60,10 @@ public class AgglomerativeClusterer
     
     public AgglomerativeClusterer(FeatureVector[] features, FeatureDefinition featureDefinition, List<String> featuresToUse, DistanceMeasure dist)
     {
-        float proportionTestData = 0.1f;
+        this(features, featureDefinition, featuresToUse, dist, 0.1f);
+    }
+    public AgglomerativeClusterer(FeatureVector[] features, FeatureDefinition featureDefinition, List<String> featuresToUse, DistanceMeasure dist, float proportionTestData)
+    {
         int nSkip = (int)(1/proportionTestData); // we use every nSkip'th feature vector as test data
         int numTestFeatures = features.length / nSkip;
         if (numTestFeatures * nSkip < features.length) numTestFeatures++;
