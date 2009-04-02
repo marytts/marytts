@@ -250,6 +250,9 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
                     && fv.getByteFeature(fiWordStart) == 0
                     && fv.getByteFeature(fiLR) == fvLR_L) { // first unit in sentence
                 iSentenceStart = i;
+                iSylStarts.clear();
+                iSylEnds.clear();
+                iSylVowels.clear();
                 //System.out.print(", is sentence start");
             }
             // Silence and edge units cannot be part of syllables, but they can 
@@ -386,7 +389,9 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
                         int iSylVowel = iSylVowels.get(s);
                         // now map time to position in f0AndInterpol array:
                         int iSylStart = (int) (((double)(tsSylStart-tsSentenceStart)/tsSentenceDuration)*f0AndInterpol.length);
+                        assert iSylStart >= 0;
                         int iSylEnd = iSylStart + (int) ((double) tsSylDuration / tsSentenceDuration * f0AndInterpol.length) + 1;
+                        if (iSylEnd > f0AndInterpol.length) iSylEnd = f0AndInterpol.length;
                         //System.out.println("Syl "+s+" from "+iSylStart+" to "+iSylEnd+" out of "+f0AndInterpol.length);
                         double[] sylF0 = new double[iSylEnd-iSylStart];
                         System.arraycopy(f0AndInterpol, iSylStart, sylF0, 0, sylF0.length);
