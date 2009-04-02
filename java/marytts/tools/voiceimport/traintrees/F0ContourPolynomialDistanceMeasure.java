@@ -33,12 +33,15 @@ import marytts.util.math.Polynomial;
  */
 public class F0ContourPolynomialDistanceMeasure implements DistanceMeasure
 {
-    private FeatureFileReader contours;
+    private float[][] contourCoeffs;
     
     public F0ContourPolynomialDistanceMeasure(FeatureFileReader contours)
     throws IOException
     {
-        this.contours = contours;
+        this.contourCoeffs = new float[contours.getNumberOfUnits()][];
+        for (int i=0; i<contourCoeffs.length; i++) {
+            contourCoeffs[i] = contours.getFeatureVector(i).getContinuousFeatures();
+        }
     }
     
     /**
@@ -50,11 +53,7 @@ public class F0ContourPolynomialDistanceMeasure implements DistanceMeasure
     {
         int i1 = fv1.getUnitIndex();
         int i2 = fv2.getUnitIndex();
-        FeatureVector contour1 = contours.getFeatureVector(i1);
-        float[] coeffs1 = contour1.getContinuousFeatures();
-        FeatureVector contour2 = contours.getFeatureVector(i2);
-        float[] coeffs2 = contour2.getContinuousFeatures();
-        float dist = (float) Polynomial.polynomialDistance(coeffs1, coeffs2);
+        float dist = (float) Polynomial.polynomialDistance(contourCoeffs[i1], contourCoeffs[i2]);
         return dist;
     }
 
@@ -67,11 +66,7 @@ public class F0ContourPolynomialDistanceMeasure implements DistanceMeasure
     {
         int i1 = fv1.getUnitIndex();
         int i2 = fv2.getUnitIndex();
-        FeatureVector contour1 = contours.getFeatureVector(i1);
-        float[] coeffs1 = contour1.getContinuousFeatures();
-        FeatureVector contour2 = contours.getFeatureVector(i2);
-        float[] coeffs2 = contour2.getContinuousFeatures();
-        float dist = (float) Polynomial.polynomialSquaredDistance(coeffs1, coeffs2);
+        float dist = (float) Polynomial.polynomialSquaredDistance(contourCoeffs[i1], contourCoeffs[i2]);
         return dist;
     }
 }
