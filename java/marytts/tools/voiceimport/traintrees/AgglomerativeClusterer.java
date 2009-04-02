@@ -287,7 +287,7 @@ public class AgglomerativeClusterer
      */
     private void computeGlobalMeanStddev()
     {
-        System.out.println("Computing global mean and standard deviation");
+        System.out.println("Computing global mean");
         long startTime = System.currentTimeMillis();
         // Compute mean and stddev using recurrence relation, attributed by Donald Knuth
         // (The Art of Computer Programming, Volume 2: Seminumerical Algorithms, Section 4.2.2)
@@ -301,12 +301,12 @@ public class AgglomerativeClusterer
         for (int i=0; i<trainingFeatures.length-1; i++) {
             for (int j=i+1; j<trainingFeatures.length; j++) {
                 k++;
-                double xk = dist.squaredDistance(trainingFeatures[i], trainingFeatures[j]);
+                double xk = dist.distance(trainingFeatures[i], trainingFeatures[j]);
                 double mk = globalMean + (xk - globalMean) / k;
                 globalMean = mk;
             }
         }
-        globalMean = Math.sqrt(globalMean);
+        //globalMean = Math.sqrt(globalMean);
         long endTime = System.currentTimeMillis();
         System.out.println("Computation of "+k+" distances took "+(endTime-startTime)+" ms");
         System.out.println("Global mean distance = "+globalMean);
