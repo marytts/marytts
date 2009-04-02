@@ -2625,7 +2625,6 @@ public class MaryGenericFeatureProcessors
                 // calculate the pitch
                 f0 = lastF0 + slope * (-lastPos);
             }
-            System.out.println("Target "+target+": f0="+f0+", slope="+slope+", lastF0="+lastF0+", nextF0="+nextF0);
             assert !Float.isNaN(f0) : "f0 is not a number";
             assert lastF0 <= f0 && nextF0 >= f0 || lastF0 >= f0 && nextF0 <= f0 : "f0 should be between last and next values";
 

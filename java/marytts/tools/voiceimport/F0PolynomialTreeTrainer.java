@@ -67,6 +67,7 @@ import marytts.unitselection.data.UnitFileReader;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.audio.AudioPlayer;
 import marytts.util.data.audio.DDSAudioInputStream;
+import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 import marytts.util.signal.SignalProcUtils;
@@ -84,6 +85,7 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
     public final String F0FEATUREFILE = "F0PolynomialTreeTrainer.f0FeatureFile";  
     public final String F0TREE = "F0PolynomialTreeTrainer.treeFile";
     public final String MAXDATA = "F0PolynomialTreeTrainer.maxData";
+    public final String PROPORTIONTESTDATA = "F0PolynomialTreeTrainer.propTestData";
     
     public final String WAGONDIR = "F0PolynomialTreeTrainer.wagonDir";
     public final String WAGONEXECUTABLE = "F0PolynomialTreeTrainer.wagonExecutable";
@@ -105,6 +107,7 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
            props.put(F0FEATUREFILE,fileDir+"syllableF0Polynomials"+maryExt);
            props.put(F0TREE, fileDir+"f0contourtree.mry");
            props.put(MAXDATA, "0");
+           props.put(PROPORTIONTESTDATA, "0.1");
            
            props.put(WAGONDIR, "f0contours");
            props.put(WAGONEXECUTABLE, System.getenv("ESTDIR")+"/main/wagon");
@@ -122,6 +125,7 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
            props2Help.put(F0FEATUREFILE,"file containing syllable-based polynom coefficients on vowels");
            props2Help.put(F0TREE, "the path for saving the resulting f0 contour tree");
            props2Help.put(MAXDATA, "if >0, gives the maximum number of syllables to use for training the tree");
+           props2Help.put(PROPORTIONTESTDATA, "the proportion of the data to use as test data (choose so that 1/value is an integer)");
            
            props2Help.put(WAGONDIR, "directory in which to store the wagon files");
            props2Help.put(WAGONEXECUTABLE, "full path of the wagon executable from the Edinburgh speech tools");
@@ -149,13 +153,7 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
         for (int i=0, numUnits=contours.getNumberOfUnits(); i<numUnits; i++) {
             FeatureVector fv = contours.getFeatureVector(i);
             float[] floats = fv.getContinuousFeatures();
-            boolean isZero = true;
-            for (int j=0; j<floats.length; j++) {
-                if (floats[j] != 0) {
-                    isZero = false;
-                    break;
-                }
-            }
+            boolean isZero = ArrayUtils.isZero(floats);
             if (!isZero) {
                 relevantFVList.add(features.getFeatureVector(i));
                 if (maxData > 0 && relevantFVList.size() >= maxData) break;

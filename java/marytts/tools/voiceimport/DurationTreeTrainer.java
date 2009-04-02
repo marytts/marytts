@@ -68,7 +68,7 @@ public class DurationTreeTrainer extends VoiceImportComponent
     public final String FEATUREFILE = name+".featureFile";
     public final String UNITFILE = name+".unitFile";
     public final String MAXDATA = name+".maxData";
-
+    public final String PROPORTIONTESTDATA = name+".propTestData";
     public String getName(){
         return name;
     }
@@ -90,6 +90,7 @@ public class DurationTreeTrainer extends VoiceImportComponent
             props.put(DURTREE,db.getProp(db.FILEDIR)
                     +"dur.graph.mry");
             props.put(MAXDATA, "0");
+            props.put(PROPORTIONTESTDATA, "0.1");
         }
        return props;
     }
@@ -100,6 +101,7 @@ public class DurationTreeTrainer extends VoiceImportComponent
          props2Help.put(UNITFILE, "file containing all phone units");
          props2Help.put(DURTREE,"file containing the duration tree. Will be created by this module");
          props2Help.put(MAXDATA, "if >0, gives the maximum number of syllables to use for training the tree");
+         props2Help.put(PROPORTIONTESTDATA, "the proportion of the data to use as test data (choose so that 1/value is an integer)");
      }
 
 
@@ -119,8 +121,13 @@ public class DurationTreeTrainer extends VoiceImportComponent
         AgglomerativeClusterer clusterer = new AgglomerativeClusterer(featureVectors,
                 featureFile.getFeatureDefinition(),
                 null,
-                new DurationDistanceMeasure(unitFile));
+                new DurationDistanceMeasure(unitFile),
+                Float.parseFloat(getProp(PROPORTIONTESTDATA)));
         DirectedGraph graph = clusterer.cluster();
+
+        if (graph == null) {
+            return false;
+        }
 
         // Now replace each leaf with a FloatLeafNode containing mean and stddev
         for (LeafNode leaf : graph.getLeafNodes()) {
@@ -143,13 +150,10 @@ public class DurationTreeTrainer extends VoiceImportComponent
                 ((DirectedGraphNode)mother).setLeafNode(floatLeaf);
             }
         }
+        DirectedGraphWriter writer = new DirectedGraphWriter();
+        writer.saveGraph(graph, getProp(DURTREE));
+        return true;
         
-        if (graph != null) {
-            DirectedGraphWriter writer = new DirectedGraphWriter();
-            writer.saveGraph(graph, getProp(DURTREE));
-            return true;
-        }
-        return false;
 
     }
     
