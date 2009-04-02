@@ -43,7 +43,9 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import marytts.features.FeatureVector;
 import marytts.unitselection.data.Datagram;
+import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.unitselection.select.JoinCostFeatures;
@@ -62,6 +64,7 @@ public class JoinCostFileMaker extends VoiceImportComponent {
     public final String JOINCOSTFILE = "JoinCostFileMaker.joinCostFile";
     public final String MCEPTIMELINE = "JoinCostFileMaker.mcepTimeline";
     public final String UNITFILE = "JoinCostFileMaker.unitFile";
+    public final String FEATUREFILE = "JoinCostFileMaker.acfeatureFile";
     public final String WEIGHTSFILE = "JoinCostFileMaker.weightsFile";
     public final String MCEPDIR = "JoinCostFileMaker.mcepDir";
     
@@ -93,18 +96,12 @@ public class JoinCostFileMaker extends VoiceImportComponent {
        if (props == null){
            props = new TreeMap<String,String>();
            String filedir = db.getProp(db.FILEDIR);
-           props.put(JOINCOSTFILE, filedir
-                        +"joinCostFeatures"+db.getProp(db.MARYEXT));
-           props.put(MCEPTIMELINE, filedir
-                        +"timeline_mcep"+db.getProp(db.MARYEXT));
-           props.put(UNITFILE, filedir
-                        +"halfphoneUnits"+db.getProp(db.MARYEXT));
-           props.put(WEIGHTSFILE, db.getProp(db.CONFIGDIR)
-                        +"joinCostWeights.txt");
-           props.put(MCEPDIR, db.getProp(db.ROOTDIR)
-                        +"mcep"
-                        +System.getProperty("file.separator"));
-                  
+           props.put(JOINCOSTFILE, filedir + "joinCostFeatures"+db.getProp(db.MARYEXT));
+           props.put(MCEPTIMELINE, filedir + "timeline_mcep"+db.getProp(db.MARYEXT));
+           props.put(UNITFILE, filedir + "halfphoneUnits"+db.getProp(db.MARYEXT));
+           props.put(FEATUREFILE, filedir + "halfphoneFeatures_ac"+db.getProp(db.MARYEXT));
+           props.put(WEIGHTSFILE, db.getProp(db.CONFIGDIR) + "joinCostWeights.txt");
+           props.put(MCEPDIR, db.getProp(db.ROOTDIR) + "mcep" + System.getProperty("file.separator"));
        }
        return props;
     }
@@ -115,6 +112,7 @@ public class JoinCostFileMaker extends VoiceImportComponent {
                 +" Will be created by this module");
         props2Help.put(MCEPTIMELINE, "file containing all mcep files");
         props2Help.put(UNITFILE, "file containing all halfphone units");
+        props2Help.put(FEATUREFILE, "file containing all halfphone features including acoustic features");
         props2Help.put(WEIGHTSFILE, "file containing the list of join cost weights and their weights");
         props2Help.put(MCEPDIR, "directory containing the mcep files");
         
@@ -161,11 +159,12 @@ public class JoinCostFileMaker extends VoiceImportComponent {
         /* WEIGHTING FUNCTION SPECS */
         /****************************/
         /* Load the weight vectors */
-        Object[] weightData = 
-            JoinCostFeatures.readJoinCostWeightsFile(getProp(WEIGHTSFILE));
+        Object[] weightData = JoinCostFeatures.readJoinCostWeightsFile(getProp(WEIGHTSFILE));
         fw = (float[]) weightData[0];
         wfun = (String[]) weightData[1];
         numberOfFeatures = fw.length;
+        int numberOfProsodyFeatures = 2; 
+        
         /* Output those vectors */
         try {
             jcf.writeInt( fw.length );
@@ -191,42 +190,47 @@ public class JoinCostFileMaker extends VoiceImportComponent {
         /* Open the unit file */
         UnitFileReader ufr = new UnitFileReader(getProp(UNITFILE));
         
+        // And the feature file
+        FeatureFileReader features = new FeatureFileReader(getProp(FEATUREFILE));
+        
         /* Start writing the features: */
         try {
             /* - write the number of features: */
             jcf.writeInt( ufr.getNumberOfUnits() );
-            /* - for each unit, write the left and right features: */
-            Vector<Datagram> buff = new Vector<Datagram>( 0, 5 );
-            // final int F0_HORIZON = 5;
-            final int F0_HORIZON = 1;
-            boolean averageF0AcrossUnitBoundary = false;
-            long median = 0;
-            double leftF0 = 0.0d;
-            double prevRightF0 = 0.0d;
-            double F0 = 0.0d;
             int unitSampleFreq = ufr.getSampleRate();
+            if (unitSampleFreq != mcep.getSampleRate()) {
+                throw new IllegalArgumentException("Cannot currently deal with different sample rates in unit and mcep files.");
+            }
             long unitPosition = 0l;
             int unitDuration = 0;
-            long endPoint = 0l;
-            long targetEndPoint = 0l;
-            Datagram dat = null;
             
             /* Check the consistency between the number of join cost features
              * and the number of Mel-cepstrum coefficients */
-            dat = mcep.getDatagram( 0, unitSampleFreq );
-            if ( dat.getData().length != (4*(numberOfFeatures-1)) ) {
+            Datagram dat = mcep.getDatagram( 0 );
+            if ( dat.getData().length != (4*(numberOfFeatures-numberOfProsodyFeatures)) ) {
                 throw new RuntimeException( "The number of join cost features [" + numberOfFeatures
                         + "] read from the join cost weight config file [" + getProp(WEIGHTSFILE)
                         + "] does not match the number of Mel Cepstra [" + (dat.getData().length / 4)
                         + "] found in the Mel-Cepstrum timeline file [" + getProp(MCEPTIMELINE)
-                        + "], plus [1] for the F0 feature." );
+                        + "], plus ["+numberOfProsodyFeatures+"] for the prosody features." );
             }
             
             /* Loop through the units */
-
+            int fiLogF0 = features.getFeatureDefinition().getFeatureIndex("unit_logf0");
+            int fiLogF0Delta = features.getFeatureDefinition().getFeatureIndex("unit_logf0delta");
             for ( int i = 0; i < ufr.getNumberOfUnits(); i++ ) {
                 percent = 100*i/ufr.getNumberOfUnits();
 
+                FeatureVector fv = features.getFeatureVector(i);
+                float logf0 = fv.getContinuousFeature(fiLogF0);
+                float logf0Delta = fv.getContinuousFeature(fiLogF0Delta);
+                
+                // logf0 is the value in the middle, i.e.
+                // leftF0 + 0.5 * logf0Delta == logf0, and
+                // logf0 + 0.5 * logf0Delta == rightF0
+                float leftLogF0 = logf0 - 0.5f * logf0Delta;
+                float rightLogF0 = logf0 + 0.5f * logf0Delta;
+                
                 /* Read the unit */
                 unitPosition = ufr.getUnit(i).getStart();
                 unitDuration = ufr.getUnit(i).getDuration();
@@ -235,127 +239,41 @@ public class JoinCostFileMaker extends VoiceImportComponent {
                  * and has length > 0: */
                 if ( unitDuration != -1 && unitDuration > 0 ) {
                     
-                    /* Reset the datagram buffer */
-                    buff.removeAllElements();
-                    
-                    /* -- COMPUTE the LEFT join cost features: */
-                    /* Grow the datagram vector to F0_HORIZON datagram, but stop if it trespasses the unit boundary: */
-                    targetEndPoint = unitPosition + unitDuration;
-                    endPoint = unitPosition;
-                    for ( int j = 0; j < F0_HORIZON; j++ ) {
-                        if ( endPoint >= targetEndPoint ) break;
-                        dat = mcep.getDatagram( endPoint, unitSampleFreq );
-                        buff.add( dat );
-                        endPoint += dat.getDuration();
-                    }
-                    /* Compute the left F0 from the datagram durations: */
-                    assert buff.size() > 0 : "Unit seems to be shorter than one pitch period?!";
-                    // number of periods is <= F0_HORIZON --
-                    // usually ==, but < if unit is too short
-                    long[] periods = new long[buff.size()];
-                    for ( int j = 0; j < buff.size(); j++ ) {
-                        dat = (Datagram) buff.elementAt( j );
-                        periods[j] = dat.getDuration();
-                    }
-                    median = MaryUtils.median( periods );
-                    leftF0 = (double)(unitSampleFreq) / (double)(median);
-                    /* Compute the F0 joining this unit to the preceding one: */
-                    F0 = (prevRightF0 + leftF0) / 2.0d;
-                    
-                    
-                    /* -- WRITE: */
-                    /* Complete the unfinished preceding unit by writing the join F0: */
-                    if (averageF0AcrossUnitBoundary)
-                        jcf.writeFloat( (float)( F0 ) );
-                    else 
-                        jcf.writeFloat( (float)( prevRightF0 ) );
-                    // System.out.println( " and Right F0 is [" + F0 + "]Hz." );
-                    /* Get the datagram corresponding to the left mel cepstra and pipe it out: */
-                    dat = (Datagram) buff.elementAt( 0 );
-                    jcf.write( dat.getData(), 0, dat.getData().length );
-                    /* Write the left join F0, which is the same than at the end of the preceding unit: */
-                    if (averageF0AcrossUnitBoundary)
-                        jcf.writeFloat( (float)( F0 ) );
-                    else
-                        jcf.writeFloat( (float)( leftF0 ) );
-                    // System.out.print( "At unit [" + i + "] :  (Buffsize " + buff.size() + ") Left F0 is [" + F0 + "]Hz" );
-                    
+                    Datagram leftMCEP = mcep.getDatagram(unitPosition);
+                    jcf.write(leftMCEP.getData());
+                    jcf.writeFloat(leftLogF0);
+                    jcf.writeFloat(logf0Delta);
                     
                     /* -- COMPUTE the RIGHT JCFs: */
-                    /* Crawl along the datagrams until we trespass the end of the unit: */
-                    if ( buff.size() == F0_HORIZON ) { /* => If the buffer is F0_HORIZON frames long,
-                                                        *    it means we have not trespassed the unit yet,
-                                                        *    so we can crawl further. */
-                        dat = mcep.getDatagram( endPoint, unitSampleFreq );
-                        while ( dat != null && (endPoint+dat.getDuration()) < targetEndPoint ) {
-                            buff.removeElementAt( 0 );
-                            buff.add( dat );
+                    Datagram rightMCEP;
+                    boolean useRightContext = false;
+
+                    if (useRightContext) {
+                        // the right context datagram:
+                        rightMCEP = mcep.getDatagram(unitPosition+unitDuration);
+                    } else {
+                        /* Crawl along the datagrams until we trespass the end of the unit: */
+                        long endPoint = unitPosition;
+                        dat = mcep.getDatagram(endPoint);
+                        while (endPoint + dat.getDuration() < unitPosition+unitDuration) {
                             endPoint += dat.getDuration();
-                            dat = mcep.getDatagram( endPoint, unitSampleFreq );
+                            dat = mcep.getDatagram(endPoint);
                         }
-                        /* Compute the right F0 from the datagram durations: */
-                        for ( int j = 0; j < buff.size(); j++ ) {
-                            dat = (Datagram) buff.elementAt( j );
-                            assert dat != null;
-                            periods[j] = dat.getDuration();
-                        }
-                        median = MaryUtils.median( periods );
-                        prevRightF0 = (double)(unitSampleFreq) / (double)(median);
+                        rightMCEP = dat;
                     }
-                    /* Else, if we can't crawl any further, keep the same value for the left F0: */
-                    else prevRightF0 = leftF0;
-                    
-                    
-                    /* -- WRITE: */
-                    /* Get the datagram corresponding to the right join cost feature and pipe it out: */
-                    dat = (Datagram) buff.lastElement();
-                    assert dat != null;
-                    jcf.write( dat.getData(), 0, dat.getData().length );
-                    /* But DO NOT WRITE the trailing join F0, because we don't know it yet. */
+                    jcf.write(rightMCEP.getData());
+                    jcf.writeFloat(rightLogF0);
+                    jcf.writeFloat(logf0Delta);
                 }
                 
-                /* If the unit is a START or END marker, output dummy zeros
-                 * for the left and right Join Cost Features, and assume F0= 0.0 across the unit: */
+                /* If the unit is a START or END marker, output NaN for all features */
                 else {
-                    /* Compute the F0 joining this unit to the preceding one: */
-                    F0 = prevRightF0 / 2.0d; // (Assuming that leftF0 is 0 for a null unit.)
-                    
-                    /* Write the preceding right F0 join, except if
-                     * this is the very first unit in the file: */
-                    if ( i != 0 ) {
-                        if (averageF0AcrossUnitBoundary)
-                            jcf.writeFloat( (float)(F0) );
-                        else
-                            jcf.writeFloat( (float)( prevRightF0 ) );
-                        // System.out.println( " and Right F0 is [" + F0 + "]Hz." );
+                    for (int j=0; j<2*numberOfFeatures; j++) {
+                        jcf.writeFloat(Float.NaN);
                     }
-                    /* Write the left mel cepstra for the current unit: */
-                    for ( int j = 0; j < numberOfMelcep; j++ ) {
-                        jcf.writeFloat( 0.0f );
-                    }
-                    /* Write the left F0 join: */
-                    if (averageF0AcrossUnitBoundary)
-                        jcf.writeFloat( (float)(F0) ); // (Assuming that leftF0 is 0.0 here.)
-                    else
-                        jcf.writeFloat( 0.0f );
-                    // System.out.print( "At unit [" + i + "] : START/END unit. (Buffsize 0) Left F0 is [" + F0 + "]Hz" );
-                    /* Write the right mel cepstra for the current unit: */
-                    for ( int j = 0; j < numberOfMelcep; j++ ) {
-                        jcf.writeFloat( 0.0f );
-                    }
-                    /* DO NOT write the right F0 join, but do register the right F0 value: */
-                    prevRightF0 = 0.0d;
-                }
-                
+                }                
             }
             
-            /* Complete the very last unit by flushing the right join F0: */
-            F0 = prevRightF0 / 2.0d; // (Assuming that leftF0 is 0 for a null unit.)
-            if (averageF0AcrossUnitBoundary)
-                jcf.writeFloat( (float)( F0 ) );
-            else
-                jcf.writeFloat( (float)( prevRightF0 ) );
-            // System.out.println( " and Right F0 is [" + F0 + "]Hz." );
             jcf.close();
         }
         catch ( IOException e ) {
@@ -429,8 +347,9 @@ public class JoinCostFileMaker extends VoiceImportComponent {
                 +"10 : 1.0 linear\n"
                 +"11 : 1.0 linear\n"
                 +"\n"
-                +"# Weight applied to the F0 parameter:\n"
-                +"12 : 1.0 linear");
+                +"# Weight applied to the log F0 and log F0 delta parameters:\n"
+                +"12 : 1.0 linear\n"
+                +"13 : 0.5 linear");
         weightsOut.flush();
         weightsOut.close();
     }
