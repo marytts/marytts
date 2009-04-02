@@ -334,11 +334,13 @@ public class JoinCostFeatures implements JoinCostFunction
         float[] v1 = rightJCF[u1];
         float[] v2 = leftJCF[u2];
         for ( int i = 0; i < v1.length; i++ ) {
-            double c = featureWeight[i] * weightFunction[i].cost( v1[i], v2[i] ); 
-            res += c;
-            if (debugShowCostGraph) {
-                cumulWeightedSignalCosts[i] += wSignal * c;
-            }
+            if (!Float.isNaN(v1[i]) && !Float.isNaN(v2[i])) {
+                double c = featureWeight[i] * weightFunction[i].cost( v1[i], v2[i] ); 
+                res += c;
+                if (debugShowCostGraph) {
+                    cumulWeightedSignalCosts[i] += wSignal * c;
+                }
+            } // if anything is NaN, count the cost as 0.
         }
         return( res );
     }
