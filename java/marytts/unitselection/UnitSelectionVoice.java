@@ -71,7 +71,6 @@ public class UnitSelectionVoice extends Voice {
     protected UnitConcatenator concatenator;
     protected String domain;
     protected String name;
-    protected DirectedGraph durationCart;
     protected CART[] f0Carts;
     protected String exampleText;
 
@@ -182,12 +181,6 @@ public class UnitSelectionVoice extends Voice {
             
             
             // see if there are any voice-specific duration and f0 models to load
-            durationCart = null;
-            String durationCartFile = MaryProperties.getFilename(header+".duration.cart");
-            if (durationCartFile != null) {
-                logger.debug("...loading duration tree...");
-                durationCart = (new DirectedGraphReader()).load(durationCartFile);
-            }
             f0Carts = null;
             String leftF0CartFile = MaryProperties.getFilename(header+".f0.cart.left");
             if (leftF0CartFile != null) {
@@ -275,20 +268,13 @@ public class UnitSelectionVoice extends Voice {
         }
     }
     
-    public DirectedGraph getDurationTree()
-    {
-        return durationCart;
-    }
+    
     
     public CART[] getF0Trees()
     {
         return f0Carts;
     }
     
-    public FeatureDefinition getDurationCartFeatDef()
-    {
-        return durationCart.getFeatureDefinition();
-    }
     
     public FeatureDefinition getF0CartsFeatDef()
     {

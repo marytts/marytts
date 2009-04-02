@@ -90,26 +90,47 @@ public class Polynomial
      * @param b upper bound (exclusive)
      * @return the predicted samples.
      * @throws NullPointerException if coeffs is null
+     * @throws IllegalArgumentException if coeffs has length 0
      * @throws IllegalArgumentException if numSamples is <= 0
      * @throws IllegalArgumentException if a is not less than b.
      */
     public static double[] generatePolynomialValues(double[] coeffs, int numSamples, double a, double b)
     {
-        if (coeffs == null) throw new NullPointerException("Received null coeffs");
         if (numSamples <= 0) throw new IllegalArgumentException("Need positive number of samples");
         if (a >= b) throw new IllegalArgumentException("Not a valid interval: ["+a+","+b+"[");
         
-        int order = coeffs.length-1;
         double[] pred = new double[numSamples];
         double step = (b-a)/numSamples;
         double t = a;
         for (int i=0; i<numSamples; i++) {
-            for (int j=0; j<=order; j++) {
-                pred[i] += coeffs[j] * Math.pow(t, order-j);
-            }
+            pred[i] = getValueAt(coeffs, t);
             t += step;
         }
         return pred;
+    }
+    
+    /**
+     * For a polynomial with the given coefficients, compute the value at the given position.
+     * @param coeffs the polynomial coefficients. The code assumes that the polynomial is 
+     * <code>a_order t^order + a_(order-1) t^(order-1) + ... + a_1 t + a_0</code>,
+     * and will interpret coeffs as <code>a_order, a_(order-1), ..., a_1, a_0</code>,
+     * where <code>order</code> is <code>coeffs.length-1</code>.
+     * @param x the position where to compute the value
+     * @return the predicted value
+     * @throws NullPointerException if coeffs is null
+     * @throws IllegalArgumentException if coeffs has length 0
+     */
+
+    public static double getValueAt(double[] coeffs, double x)
+    {
+        if (coeffs == null) throw new NullPointerException("Received null coeffs");
+        if (coeffs.length == 0) throw new IllegalArgumentException("Received empty coeffs");
+        double val = 0;
+        int order = coeffs.length - 1;
+        for (int j=0; j<=order; j++) {
+            val += coeffs[j] * Math.pow(x, order-j);
+        }
+        return val;
     }
 
     /**

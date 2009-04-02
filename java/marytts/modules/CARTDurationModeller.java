@@ -28,6 +28,7 @@ import marytts.cart.CART;
 import marytts.cart.DirectedGraph;
 import marytts.cart.StringPredictionTree;
 import marytts.cart.LeafNode.LeafType;
+import marytts.cart.io.DirectedGraphReader;
 import marytts.cart.io.MaryCARTReader;
 import marytts.cart.io.WagonCARTReader;
 import marytts.datatypes.MaryData;
@@ -106,10 +107,8 @@ public class CARTDurationModeller extends InternalModule
     public void startup() throws Exception
     {
         super.startup();
-        File fdFile = new File(MaryProperties.needFilename(propertyPrefix+"featuredefinition"));
-        FeatureDefinition featureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);
         File cartFile = new File(MaryProperties.needFilename(propertyPrefix+"cart"));
-        cart = (new MaryCARTReader()).load(cartFile.getAbsolutePath());
+        cart = new DirectedGraphReader().load(cartFile.getAbsolutePath());
         if ( null != MaryProperties.getFilename(propertyPrefix+"pausetree")){
             String pausefileName = MaryProperties.needFilename(propertyPrefix+"pausetree");
 
@@ -124,7 +123,7 @@ public class CARTDurationModeller extends InternalModule
         } else {
             this.pausetree = null;
         }
-        featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, featureDefinition.getFeatureNames());
+        featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, cart.getFeatureDefinition().getFeatureNames());
     }
 
     public MaryData process(MaryData d)
@@ -151,17 +150,13 @@ public class CARTDurationModeller extends InternalModule
             DirectedGraph currentCart = cart;
             TargetFeatureComputer currentFeatureComputer = featureComputer;
             // TODO: cleanup: shouldn't all voices have the option of including their own CART?
-            if (maryVoice != null && maryVoice instanceof UnitSelectionVoice) {
-                DirectedGraph voiceCart = ((UnitSelectionVoice)maryVoice).getDurationTree();
+            if (maryVoice != null) {
+                DirectedGraph voiceCart = maryVoice.getDurationGraph();
                 if (voiceCart != null) {
                     currentCart  = voiceCart;
-                    logger.debug("Using voice cart");
-                }
-                FeatureDefinition voiceFeatDef = 
-                    ((UnitSelectionVoice)maryVoice).getDurationCartFeatDef();
-                if (voiceFeatDef != null){
+                    logger.debug("Using voice duration graph");
+                    FeatureDefinition voiceFeatDef = voiceCart.getFeatureDefinition();
                     currentFeatureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, voiceFeatDef.getFeatureNames());
-                    logger.debug("Using voice feature definition");
                 }
             }
             
