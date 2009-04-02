@@ -114,6 +114,7 @@ public class DurationTreeTrainer extends VoiceImportComponent
 
         FeatureVector[] allFeatureVectors = featureFile.getFeatureVectors();
         int maxData = Integer.parseInt(getProp(MAXDATA));
+        if (maxData == 0) maxData = allFeatureVectors.length;
         FeatureVector[] featureVectors = new FeatureVector[Math.min(maxData, allFeatureVectors.length)];
         System.arraycopy(allFeatureVectors, 0, featureVectors, 0, featureVectors.length);
         logger.debug("Total of "+allFeatureVectors.length+" feature vectors -- will use "+featureVectors.length);
