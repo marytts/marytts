@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import marytts.cart.CART;
 import marytts.cart.DecisionNode;
@@ -53,11 +56,21 @@ public class AgglomerativeClusterer
     private FeatureVector[] trainingFeatures;
     private FeatureVector[] testFeatures;
     private Map<LeafNode, Double> impurities = new HashMap<LeafNode, Double>();
-    private DistanceMeasure dist;
     private FeatureDefinition featureDefinition;
     private int numByteFeatures;
     private int[] availableFeatures;
     private double globalMean;
+    
+    private double minFSGI, minCriterion;
+    private int iBestFeature;
+
+    private float[][]squaredDistances;
+    
+    private DirectedGraph graph;
+    private int[] prevFeatureList;
+    private double prevFSGI;
+    private double prevTestDataDistance;
+    private boolean canClusterMore = true;
     
     public AgglomerativeClusterer(FeatureVector[] features, FeatureDefinition featureDefinition, List<String> featuresToUse, DistanceMeasure dist)
     {
@@ -65,6 +78,30 @@ public class AgglomerativeClusterer
     }
     public AgglomerativeClusterer(FeatureVector[] features, FeatureDefinition featureDefinition, List<String> featuresToUse, DistanceMeasure dist, float proportionTestData)
     {
+        // Get an estimate of the global mean by sampling:
+        estimateGlobalMean(features, dist);
+
+        // Precompute distances and set unit index features accordingly
+        System.out.println("Precomputing distances...");
+        long startTime = System.currentTimeMillis();
+        squaredDistances = new float[features.length-1][];
+        for (int i=0; i<features.length-1; i++) {
+            squaredDistances[i] = new float[features.length - i -1];
+            for (int j=i+1; j<features.length; j++) {
+                squaredDistances[i][j-i-1] = dist.squaredDistance(features[i], features[j]);
+            }
+        }
+        // Now replace all feature vectors with feature vectors whose unit index
+        // corresponds to the distance matrix in squaredDistance:
+        for (int i=0; i<features.length; i++) {
+            features[i] = new FeatureVector(features[i].getByteValuedDiscreteFeatures(),
+                    features[i].getShortValuedDiscreteFeatures(), 
+                    features[i].getContinuousFeatures(), i);
+        }
+        
+        long endTime = System.currentTimeMillis();
+        System.out.println("Computed distances between "+features.length+" items in "+(endTime-startTime)+" ms");
+        
         int nSkip = (int)(1/proportionTestData); // we use every nSkip'th feature vector as test data
         int numTestFeatures = features.length / nSkip;
         if (numTestFeatures * nSkip < features.length) numTestFeatures++;
@@ -79,7 +116,6 @@ public class AgglomerativeClusterer
             }
         }
         
-        this.dist = dist;
         this.featureDefinition = featureDefinition;
         this.numByteFeatures = featureDefinition.getNumberOfByteFeatures();
         if (featuresToUse != null) {
@@ -93,19 +129,28 @@ public class AgglomerativeClusterer
                 availableFeatures[i] = i;
             }
         }
-        
+
+        graph = new DirectedGraph(featureDefinition);
+        graph.setRootNode(new DirectedGraphNode(null, null));
+        prevFeatureList = new int[0];
+        prevFSGI = Double.POSITIVE_INFINITY;
+        prevTestDataDistance = Double.POSITIVE_INFINITY;
+        canClusterMore = true;
+    }
+    
+    public DirectedGraph getGraph()
+    {
+        return graph;
+    }
+    
+    public boolean canClusterMore()
+    {
+        return canClusterMore;
     }
     
     public DirectedGraph cluster()
     {
-        estimateGlobalMean();
-        DirectedGraph graph = new DirectedGraph(featureDefinition);
-        graph.setRootNode(new DirectedGraphNode(null, null));
-        return cluster(graph, new int[0], Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY);
-    }
-    
-    private DirectedGraph cluster(DirectedGraph graphSoFar, int[] prevFeatureList, double prevFSGI, double prevTestDataDistance)
-    {
+        if (!canClusterMore) return null;
         long startTime = System.currentTimeMillis();
         int[] newFeatureList = new int[prevFeatureList.length+1];
         System.arraycopy(prevFeatureList, 0, newFeatureList, 0, prevFeatureList.length);
@@ -122,9 +167,10 @@ public class AgglomerativeClusterer
             if (leaf != null && leaf.getNumberOfData() > 0)
                 prevNLeaves++;
         }
-        int iBestFeature = -1;
-        double minFSGI = Double.POSITIVE_INFINITY;
-        double minCriterion = Double.POSITIVE_INFINITY;
+        iBestFeature = -1;
+        minFSGI = Double.POSITIVE_INFINITY;
+        minCriterion = Double.POSITIVE_INFINITY;
+        Set<Future<?>> openJobs = new HashSet<Future<?>>();
         // Loop over all unused discrete features, and compute their Global Impurity
         for (int f=0; f<availableFeatures.length; f++) {
             int fi = availableFeatures[f];
@@ -140,36 +186,7 @@ public class AgglomerativeClusterer
             fai.deepSort(newFeatureList);
             CART testCART = new FeatureVectorCART(fai.getTree(), fai);
             assert testCART.getRootNode().getNumberOfData() == trainingFeatures.length;
-            List<LeafNode> leaves = new ArrayList<LeafNode>();
-            int nLeaves = 0;
-            for (LeafNode leaf : testCART.getLeafNodes()) {
-                if (leaf.isEmpty()) continue;
-                leaves.add(leaf);
-                nLeaves++;
-            }
-            if (nLeaves <= prevNLeaves) { // this feature adds no leaf
-                continue; // will not consider this further
-            }
-            double gi = computeGlobalImpurity(leaves);
-            // More leaves cost a bit:
-            double sizeBias = Math.log((float)nLeaves/prevNLeaves); 
-            assert sizeBias > 0;
-            //double sizeBias = (float)nLeaves/prevNLeaves; 
-            //assert sizeBias > 1;
-                
-            //System.out.printf("%30s: GI=%.3f bias=%.7f\n", featureDefinition.getFeatureName(fi),gi,sizeBias);
-            double criterion = gi;
-            if (gi > globalMean) {
-                // The best one is the one that can reach a small gi with a small increase in number of leaves
-                criterion = globalMean + (gi-globalMean) * (1+sizeBias);
-            } else {
-                // leave as is, no size bias
-            }
-            if (criterion < minCriterion) {
-                minCriterion = criterion;
-                minFSGI = gi;
-                iBestFeature = fi;
-            }
+            verifyFeatureQuality(fi, testCART, prevNLeaves);
         }
                 
         newFeatureList[newFeatureList.length-1] = iBestFeature;
@@ -186,7 +203,7 @@ public class AgglomerativeClusterer
         // and add the leaves of bestFeatureCart into graphSoFar in order
         // to enable clustering:
         Node fNode = bestFeatureCart.getRootNode();
-        Node gNode = graphSoFar.getRootNode();
+        Node gNode = graph.getRootNode();
         
         List<DirectedGraphNode> newLeavesList = new ArrayList<DirectedGraphNode>();
         updateGraphFromTree((DecisionNode)fNode, (DirectedGraphNode) gNode, newLeavesList);
@@ -264,7 +281,7 @@ public class AgglomerativeClusterer
         deltaGI = null;
         impurities.clear();
         
-        float testDist = rmsDistanceTestData(graphSoFar);
+        float testDist = rmsDistanceTestData(graph);
         System.out.printf(" Distance test data: %5.3f",testDist);
         
         System.out.printf(" | fs %5dms, cl %5dms", (featSelectedTime-startTime), (clusteredTime-featSelectedTime));
@@ -274,18 +291,57 @@ public class AgglomerativeClusterer
         // Stop criterion: stop if feature selection does not succeed in reducing global impurity further,
         // and at the same time, the test data approximation is getting worse.
         if (minFSGI > prevFSGI && testDist > prevTestDataDistance) {
-            return graphSoFar;
+            canClusterMore = false;
         }
         // Iteration step:
-        return cluster(graphSoFar, newFeatureList, minFSGI, testDist);
+        prevFeatureList = newFeatureList;
+        prevFSGI = minFSGI;
+        prevTestDataDistance = testDist;
         
+        return graph;
+    }
+
+    
+    private void verifyFeatureQuality(int fi, CART testCART, int prevNLeaves)
+    {
+        List<LeafNode> leaves = new ArrayList<LeafNode>();
+        int nLeaves = 0;
+        for (LeafNode leaf : testCART.getLeafNodes()) {
+            if (leaf.isEmpty()) continue;
+            leaves.add(leaf);
+            nLeaves++;
+        }
+        if (nLeaves <= prevNLeaves) { // this feature adds no leaf
+            return; // will not consider this further
+        }
+        double gi = computeGlobalImpurity(leaves, minCriterion);
+        // More leaves cost a bit:
+        double sizeBias = Math.log((float)nLeaves/prevNLeaves); 
+        assert sizeBias > 0;
+        //double sizeBias = (float)nLeaves/prevNLeaves; 
+        //assert sizeBias > 1;
+            
+        //System.out.printf("%30s: GI=%.3f bias=%.7f\n", featureDefinition.getFeatureName(fi),gi,sizeBias);
+        double criterion = gi;
+        if (gi > globalMean) {
+            // The best one is the one that can reach a small gi with a small increase in number of leaves
+            criterion = globalMean + (gi-globalMean) * (1+sizeBias);
+        } else {
+            // leave as is, no size bias
+        }
+        if (criterion < minCriterion) {
+            setMinCriterion(criterion);
+            setMinFSGI(gi);
+            setBestFeature(fi);
+        }
+
     }
     
     
     /**
      * Estimate the mean of all *distances* in the training set.
      */
-    private void estimateGlobalMean()
+    private void estimateGlobalMean(FeatureVector[] data, DistanceMeasure dist)
     {
         int sampleSize = 100000;
         System.out.println("Estimating global mean by random sampling "+sampleSize+" distances");
@@ -300,9 +356,9 @@ public class AgglomerativeClusterer
         globalMean = 0;
         Random random = new Random();
         for (int k=1; k<sampleSize; k++) {
-            int i = random.nextInt(trainingFeatures.length);
-            int j = random.nextInt(trainingFeatures.length);
-            double xk = dist.distance(trainingFeatures[i], trainingFeatures[j]);
+            int i = random.nextInt(data.length);
+            int j = random.nextInt(data.length);
+            double xk = dist.distance(data[i], data[j]);
             double mk = globalMean + (xk - globalMean) / k;
             globalMean = mk;
         }
@@ -312,7 +368,21 @@ public class AgglomerativeClusterer
         System.out.println("Global mean distance = "+globalMean);
     }
 
-    private double computeGlobalImpurity(List<LeafNode> leaves) {
+    private double computeGlobalImpurity(List<LeafNode> leaves) 
+    {
+        return computeGlobalImpurity(leaves, Double.POSITIVE_INFINITY);
+    }
+    
+    /**
+     * Compute global impurity as the weighted sum of leaf impurities.
+     * stop when cutoff value is reached or surpassed.
+     * @param leaves
+     * @param cutoff
+     * @return
+     */
+    private double computeGlobalImpurity(List<LeafNode> leaves, double cutoff) 
+    {
+        cutoff *= trainingFeatures.length;
         double gi = 0;
         // Global Impurity measures the average distance of an instance
         // to the other instances in the same leaf.
@@ -326,6 +396,10 @@ public class AgglomerativeClusterer
             if (leaf.isEmpty()) continue;
             gi += leaf.getNumberOfData() * computeImpurity(leaf);
             numLeaves++;
+            if (gi >= cutoff) { // too high, stop it
+                //System.out.println("Cutoff exceeded, breaking");
+                break;
+            }
         }
         gi /= trainingFeatures.length;
         return gi;
@@ -345,14 +419,24 @@ public class AgglomerativeClusterer
         if (impurities.containsKey(leaf)) return impurities.get(leaf);
         FeatureVectorLeafNode l = (FeatureVectorLeafNode) leaf;
         FeatureVector[] fvs = l.getFeatureVectors();
+        int[] leafIndices = new int[fvs.length];
+        for (int i=0; i<fvs.length; i++) {
+            leafIndices[i] = fvs[i].getUnitIndex();
+        }
         int len = fvs.length;
         double impurity = globalMean * Math.exp(-(len-1));
         if (len < 2) return impurity;
         double rmsDistance = 0;
         //System.out.println("Leaf has "+n+" items, computing "+(n*(n-1)/2)+" distances");
         for (int i=0; i<len; i++) {
+            int li = leafIndices[i];
             for (int j=i+1; j<len; j++) {
-                rmsDistance += dist.squaredDistance(fvs[i], fvs[j]);
+                int lj = leafIndices[j];
+                if (li < lj) {
+                    rmsDistance += squaredDistances[li][lj-li-1];
+                } else if (lj < li) {
+                    rmsDistance += squaredDistances[lj][li-lj-1];
+                }
             }
         }
         rmsDistance *= 2./(len*(len-1));
@@ -391,24 +475,39 @@ public class AgglomerativeClusterer
         FeatureVectorLeafNode l1 = (FeatureVectorLeafNode) dgn1.getLeafNode();
         FeatureVectorLeafNode l2 = (FeatureVectorLeafNode) dgn2.getLeafNode();
         FeatureVector[] fv1 = l1.getFeatureVectors();
+        int[] indices1 = new int[fv1.length];
+        for (int i=0; i<fv1.length; i++) {
+            indices1[i] = fv1[i].getUnitIndex();
+        }
         FeatureVector[] fv2 = l2.getFeatureVectors();
+        int[] indices2 = new int[fv2.length];
+        for (int j=0; j<fv2.length; j++) {
+            indices2[j] = fv2[j].getUnitIndex();
+        }
         double deltaGI = 0;
         int len1 = l1.getNumberOfData();
         int len2 = l2.getNumberOfData();
+        int len12 = len1 + len2;
         double imp1 = computeImpurity(l1);
         double imp2 = computeImpurity(l2);
 
         double imp12 = len1*(len1-1)/2*imp1*imp1 + len2*(len2-1)/2*imp2*imp2;
         // Sum of all distances across leaf boundaries:
         for (int i=0; i<fv1.length; i++) {
+            int li = indices1[i];
             for (int j=0; j<fv2.length; j++) {
-                imp12 += dist.squaredDistance(fv1[i], fv2[j]);
+                int lj = indices2[j];
+                if (li < lj) {
+                    imp12 += squaredDistances[li][lj-li-1];
+                } else if (lj < li) {
+                    imp12 += squaredDistances[lj][li-lj-1];
+                }
             }
         }
-        imp12 *= 2./((len1+len2)*(len1+len2-1));
+        imp12 *= 2./(len12*(len12-1));
         imp12 = Math.sqrt(imp12);
 
-        deltaGI = 1./trainingFeatures.length * ((len1+len2)*imp12 - len1*imp1 - len2*imp2);
+        deltaGI = 1./trainingFeatures.length * (len12*imp12 - len1*imp1 - len2*imp2);
         // Encourage small leaves to merge:
         //double sizeEffect = 0.01 * (1./((len1+len2)*(len1+len2)) - 1./(len1*len1) - 1./(len2*len2));
         //System.out.println("len1="+len1+", len2="+len2+", sizeEffect="+sizeEffect+", deltaGI="+deltaGI);
@@ -512,10 +611,16 @@ public class AgglomerativeClusterer
     {
         float avgDist = 0;
         for (int i=0; i<testFeatures.length; i++) {
+            int ti = testFeatures[i].getUnitIndex();
             FeatureVector[] leafData = (FeatureVector[]) graph.interpret(testFeatures[i]);
             float oneDist = 0;
             for (int j=0; j<leafData.length; j++) {
-                oneDist += dist.squaredDistance(testFeatures[i], leafData[j]);
+                int lj = leafData[j].getUnitIndex();
+                if (ti < lj) {
+                    oneDist += squaredDistances[ti][lj-ti-1];
+                } else if (lj < ti) {
+                    oneDist += squaredDistances[lj][ti-lj-1];
+                }
             }
             oneDist /= leafData.length;
             oneDist = (float) Math.sqrt(oneDist);
@@ -526,6 +631,21 @@ public class AgglomerativeClusterer
         return avgDist;
     }
     
+    
+    private void setMinCriterion(double value)
+    {
+        minCriterion = value;
+    }
+    
+    private void setMinFSGI(double value)
+    {
+        minFSGI = value;
+    }
+    
+    private void setBestFeature(int featureIndex)
+    {
+        iBestFeature = featureIndex;
+    }
     
     
     

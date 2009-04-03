@@ -124,7 +124,16 @@ public class DurationTreeTrainer extends VoiceImportComponent
                 null,
                 new DurationDistanceMeasure(unitFile),
                 Float.parseFloat(getProp(PROPORTIONTESTDATA)));
-        DirectedGraph graph = clusterer.cluster();
+        DirectedGraphWriter writer = new DirectedGraphWriter();
+        DirectedGraph graph;
+        int iteration = 0;
+        do {
+            graph = clusterer.cluster();
+            iteration++;
+            if (graph != null) {
+                writer.saveGraph(graph, getProp(DURTREE)+".level"+iteration);
+            }            
+        } while (clusterer.canClusterMore());
 
         if (graph == null) {
             return false;
@@ -151,7 +160,6 @@ public class DurationTreeTrainer extends VoiceImportComponent
                 ((DirectedGraphNode)mother).setLeafNode(floatLeaf);
             }
         }
-        DirectedGraphWriter writer = new DirectedGraphWriter();
         writer.saveGraph(graph, getProp(DURTREE));
         return true;
         

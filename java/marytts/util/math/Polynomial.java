@@ -247,16 +247,16 @@ public class Polynomial
         dist += a[0]*a[0];
         if (order == 0) return dist;
         // Order 1 terms: a0 a1 + 1/3 a1^2
-        dist += a[0]*a[1] + 1./3 * a[1]*a[1];
+        dist += a[0]*a[1] + a[1]*a[1]/3;
         if (order == 1) return dist;
         // Order 2 terms: 2/3 a0 a2 + 1/2 a1 a2 + 1/5 a2^2
-        dist += 2./3*a[0]*a[2] + 1./2*a[1]*a[2] + 1./5*a[2]*a[2];
+        dist += 2./3*a[0]*a[2] + a[1]*a[2]/2 + a[2]*a[2]/5;
         if (order == 2) return dist;
         // Order 3 terms: 1/2 a0 a3 + 2/5 a1 a3 + 1/3 a2 a3 + 1/7 a3^2
-        dist += 1./2*a[0]*a[3] + 2./5*a[1]*a[3] + 1./3*a[2]*a[3] + 1./7 * a[3]*a[3];
+        dist += a[0]*a[3]/2 + 2./5*a[1]*a[3] + a[2]*a[3]/3 + a[3]*a[3]/7;
         if (order == 3) return dist;
         // Order 4 terms: 2/5 a0 a4 + 1/3 a1 a4 + 2/7 a2 a4 + 1/4 a3 a4 + 1/9 a4^2
-        dist += 2./5*a[0]*a[4] + 1./3*a[1]*a[4] + 2./7*a[2]*a[4] + 1./4*a[3]*a[4] + 1./9*a[4]*a[4];
+        dist += 2./5*a[0]*a[4] + a[1]*a[4]/3 + 2./7*a[2]*a[4] + a[3]*a[4]/4 + a[4]*a[4]/9;
         if (order == 4) return dist;
         throw new IllegalArgumentException("Order greater than 4 not supported");
     }
