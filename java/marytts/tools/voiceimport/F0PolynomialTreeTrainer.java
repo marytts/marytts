@@ -219,7 +219,17 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
                 featureDefinition,
                 featuresToUse,
                 new F0ContourPolynomialDistanceMeasure(contours));
-        return clusterer.cluster();
+        DirectedGraphWriter writer = new DirectedGraphWriter();
+        DirectedGraph graph;
+        int iteration = 0;
+        do {
+            graph = clusterer.cluster();
+            iteration++;
+            if (graph != null) {
+                writer.saveGraph(graph, getProp(F0TREE)+".level"+iteration);
+            }            
+        } while (clusterer.canClusterMore());
+        return graph;
     }
 
     
