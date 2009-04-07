@@ -24,6 +24,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.util.StringTokenizer;
 
+import marytts.client.http.MaryHttpClient;
+
 
 
 
@@ -69,7 +71,7 @@ public class BatchSynth
     public static void main(String[] args) throws Exception
     {
         File globalOutputDir = new File(args[0]);
-        MaryClient mary = new MaryClient();
+        MaryHttpClient mary = new MaryHttpClient();
         String voice = System.getProperty("voice", "us1");
         String inputFormat = "TEXT";
         String locale = System.getProperty("locale", "en_US");
