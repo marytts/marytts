@@ -195,7 +195,7 @@ public class Voice
         
         // see if there are any voice-specific duration and f0 models to load
         durationGraph = null;
-        String durationGraphFile = MaryProperties.getFilename(header+".duration.graph");
+        String durationGraphFile = MaryProperties.getFilename(header+".duration.cart");
         if (durationGraphFile != null) {
             logger.debug("...loading duration graph...");
             try {
