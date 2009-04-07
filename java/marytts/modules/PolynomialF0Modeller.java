@@ -79,11 +79,11 @@ public class PolynomialF0Modeller extends InternalModule
      * @param featprocClass a package name for an instance of FeatureProcessorManager, e.g. "marytts.language.en.FeatureProcessorManager"
      * @throws Exception
      */
-    public PolynomialF0Modeller(String locale, String propertyPrefix, String featprocClass)
+    public PolynomialF0Modeller(String locale, String propertyPrefix, String featprocClassInfo)
     throws Exception
     {
         this(MaryUtils.string2locale(locale), propertyPrefix,
-                (FeatureProcessorManager)Class.forName(featprocClass).newInstance());
+                (FeatureProcessorManager)MaryUtils.instantiateObject(featprocClassInfo));
     }
 
     /**
