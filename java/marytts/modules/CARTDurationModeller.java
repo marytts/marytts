@@ -76,14 +76,14 @@ public class CARTDurationModeller extends InternalModule
      * Different languages can call this code with different settings.
      * @param locale a locale string, e.g. "en"
      * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.duration"
-     * @param featprocClass a package name for an instance of FeatureProcessorManager, e.g. "marytts.language.en.FeatureProcessorManager"
+     * @param featprocClassInfo a package name for an instance of FeatureProcessorManager, e.g. "marytts.language.en.FeatureProcessorManager"
      * @throws Exception
      */
-    public CARTDurationModeller(String locale, String propertyPrefix, String featprocClass)
+    public CARTDurationModeller(String locale, String propertyPrefix, String featprocClassInfo)
     throws Exception
     {
         this(MaryUtils.string2locale(locale), propertyPrefix,
-                (FeatureProcessorManager)Class.forName(featprocClass).newInstance());
+                (FeatureProcessorManager)MaryUtils.instantiateObject(featprocClassInfo));
     }
     
     /**

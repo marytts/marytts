@@ -93,13 +93,16 @@ public class MaryUtils {
         String[] args = null;
         String className = null;
         if (objectInitInfo.contains("(")) { // arguments
-            className = objectInitInfo.substring(0, objectInitInfo.indexOf('('));
-            args = objectInitInfo.substring(objectInitInfo.indexOf('(')+1, objectInitInfo.indexOf(')')).split(",");
+            int firstOpenBracket = objectInitInfo.indexOf('(');
+            className = objectInitInfo.substring(0, firstOpenBracket);
+            int lastCloseBracket = objectInitInfo.lastIndexOf(')');
+            args = objectInitInfo.substring(firstOpenBracket+1, lastCloseBracket).split(",");
             for (int i=0; i<args.length; i++) {
                 if (args[i].startsWith("$")) {
                     // replace value with content of property named after the $
                     args[i] = MaryProperties.getProperty(args[i].substring(1));
                 }
+                args[i] = args[i].trim();
             }
         } else { // no arguments
             className = objectInitInfo;
