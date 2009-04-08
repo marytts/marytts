@@ -161,7 +161,8 @@ public class UnitDatabase
            float time = (float)offset[0]/basenameTimeline.getSampleRate();
            String filename = new String(filenameData.getData(), "UTF-8");
            return filename + " " + time;
-       } catch (IOException ioe) {
+       } catch (Exception e) {
+           logger.warn("Problem getting filename and time for unit "+unit.getIndex()+" at time "+unit.getStart(), e);
            return "unknown origin";
        }
     }
