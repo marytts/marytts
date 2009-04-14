@@ -39,6 +39,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Vector;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+import marytts.util.string.StringUtils;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -279,7 +283,8 @@ public class FileUtils {
         delete(files, false);
     }
 
-    public static void copy(String sourceFile, String destinationFile) throws IOException {
+    public static void copy(String sourceFile, String destinationFile) throws IOException 
+    {
         File fromFile = new File(sourceFile);
         File toFile = new File(destinationFile);
 
@@ -334,6 +339,40 @@ public class FileUtils {
         }
     }
 
+    public static void copyFolder(String sourceFolder, String targetFolder) throws IOException
+    {
+        copyFolder(sourceFolder, targetFolder, false);
+    }
+    
+    public static void copyFolder(String sourceFolder, String targetFolder, boolean bForceDeleteTarget) throws IOException
+    {
+        if (exists(sourceFolder))
+        {
+            if (exists(targetFolder) && bForceDeleteTarget)
+                delete(targetFolder);
+        
+            createDirectory(targetFolder);
+            
+            if (exists(targetFolder))
+            {
+                String[] fileList = FileUtils.getFileList(sourceFolder, "*.*");
+                if (fileList!=null)
+                { 
+                    for (int i=0; i<fileList.length; i++)
+                    {
+                        String targetFile = StringUtils.checkLastSlash(targetFolder) + StringUtils.getFileName(fileList[i], false);
+                        copy(fileList[i], targetFile);
+                    }
+                }
+            }
+            else
+                System.out.println("Could not create target folder!");
+        }
+        else
+            System.out.println("Source folder does not exist!");
+        
+    }
+    
     public static void createDirectory(String trainingBaseFolder) {
         File f = new File(trainingBaseFolder);
         if (!f.exists()) {
@@ -350,6 +389,26 @@ public class FileUtils {
         if (exists(existingFile)) {
             File oldFile = new File(existingFile);
             oldFile.renameTo(new File(newFilename));
+        }
+    }
+    
+    //Renames all files
+    public static void changeFileExtensions(String folder, String oldExt, String newExt)
+    {
+        String[] files = getFileNameList(folder, oldExt);
+        
+        folder = StringUtils.checkLastSlash(folder);
+        newExt = StringUtils.checkFirstDot(newExt);
+        
+        if (files!=null)
+        {
+            for (int i=0; i<files.length; i++)
+            {
+                int ind = files[i].lastIndexOf(oldExt);
+                String newFile = folder + files[i].substring(0, ind) + newExt;
+                FileUtils.rename(files[i], newFile);
+                System.out.println("Changed extension " + String.valueOf(i+1) + " of " + String.valueOf(files.length));
+            }
         }
     }
 
@@ -373,7 +432,8 @@ public class FileUtils {
     }
 
     //Gets filenames with full path
-    public static String[] getFileList(String directory, String extension) {
+    public static String[] getFileList(String directory, String extension) 
+    {
         return getFileList(directory, extension, true);
     }
 
@@ -422,6 +482,11 @@ public class FileUtils {
 
         // Return collection of files
         return files;
+    }
+    
+    public static void main(String[] args) throws UnsupportedAudioFileException, IOException
+    {
+        FileUtils.changeFileExtensions("D:\\blizzard09\\dfki\\test2", ".wav.tel.wav", ".wav");
     }
 }
 

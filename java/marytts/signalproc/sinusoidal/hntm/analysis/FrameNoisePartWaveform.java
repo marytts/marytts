@@ -27,21 +27,42 @@
  * THIS SOFTWARE.
  */
 
-package marytts.util.signal;
+package marytts.signalproc.sinusoidal.hntm.analysis;
+
+import marytts.util.math.ArrayUtils;
 
 /**
  * @author oytun.turk
  *
  */
-public class FrequencyDomainFilterOutput {
+
+public class FrameNoisePartWaveform extends FrameNoisePart {
     
-    public double[] y;
-    public float passBandToTotalEnergyRatio;
+    public double[] waveform;
+
     
-    public FrequencyDomainFilterOutput()
+    public FrameNoisePartWaveform()
     {
-       y = null;
-       passBandToTotalEnergyRatio = -1.0f;
+        super();
+    }
+    
+    public FrameNoisePartWaveform(FrameNoisePartWaveform existing)
+    {
+        super();
+        
+        waveform = ArrayUtils.copy(existing.waveform);
+    }
+    
+    public FrameNoisePartWaveform(double[] x)
+    {
+        super();
+        
+        if (x!=null)
+        {
+            waveform = ArrayUtils.copy(x);
+        }
+        else
+            waveform = null;
     }
 
 }

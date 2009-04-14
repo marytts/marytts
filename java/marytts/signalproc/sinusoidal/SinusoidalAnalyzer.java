@@ -34,6 +34,7 @@ import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.RegularizedCepstralEnvelopeEstimator;
 import marytts.signalproc.analysis.SeevocAnalyser;
 import marytts.signalproc.analysis.SpectrumWithPeakIndices;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.pitch.HnmPitchVoicingAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.pitch.VoicingAnalysisOutputData;
 import marytts.signalproc.window.Window;
@@ -413,6 +414,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         int midPoint = (int) Math.floor(0.5*windowedFrm.length+0.5);
         System.arraycopy(windowedFrm, midPoint, frameDft.real, 0, windowedFrm.length-midPoint);
         System.arraycopy(windowedFrm, 0, frameDft.real, params.fftSize-midPoint, midPoint);
+        //System.arraycopy(windowedFrm, 0, frameDft.real, 0, windowedFrm.length); //No circular buffer
         //
 
         //Take windowed frame derivative´s FFT for spectral reassignment
@@ -560,39 +562,22 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
             if (initialPeakLocationsInHz!=null) //Some initial peak locations given, search peaks around them
             {
                 /*
-                startIndLow = SignalProcUtils.freq2index(initialPeakLocationsInHz[0], params.fs, maxFreqInd);
-                endIndLow = SignalProcUtils.freq2index(initialPeakLocationsInHz[initialPeakLocationsInHz.length-1], params.fs, maxFreqInd);
-                int[] tmpFreqInds = MathUtils.getExtrema(frameDftDB, freqSampNeighs, freqSampNeighs, true, startIndLow, endIndHigh, SinusoidalAnalysisParams.MIN_PEAK_IN_DB_LOW);
-                //Now check if inds are in close proximity of initialPeakLocationsInHz
-                if (tmpFreqInds!=null)
+                freqInds = new int[initialPeakLocationsInHz.length];
+                for (i=0; i<initialPeakLocationsInHz.length; i++)
                 {
-                    float[] tmpFreqLocations = new float[tmpFreqInds.length];
-                    int closestInd;
-                    Vector<Integer> v = new Vector<Integer>();
-                    for (i=0; i<tmpFreqInds.length; i++)
-                    {
-                        tmpFreqLocations[i] = (float)SignalProcUtils.index2freq(tmpFreqInds[i], params.fs, maxFreqInd);
-                        closestInd = MathUtils.findClosest(initialPeakLocationsInHz, tmpFreqLocations[i]);
-                        if (initialPeakLocationsInHz[closestInd]>0.0)
-                        {
-                            if (Math.abs(tmpFreqLocations[i]-initialPeakLocationsInHz[closestInd])/initialPeakLocationsInHz[closestInd]*100.0f<HnmPitchVoicingAnalyzer.HARMONIC_DEVIATION_PERCENT)
-                                v.add(tmpFreqInds[i]);
-                        }
-                        else if (Math.abs(tmpFreqLocations[i]-initialPeakLocationsInHz[closestInd])<20.0)
-                            v.add(tmpFreqInds[i]);
-                    }
-                    
-                    if (v.size()>0)
-                    {
-                        freqInds = new int[v.size()];
-                        for (i=0; i<v.size(); i++)
-                            freqInds[i] = v.get(i);
-                    }
+                    int startInd = SignalProcUtils.freq2index(initialPeakLocationsInHz[i]*(1.0-HntmAnalyzer.HARMONIC_DEVIATION_PERCENT/100.0), params.fs, maxFreqInd);
+                    int endInd = SignalProcUtils.freq2index(initialPeakLocationsInHz[i]*(1.0+HntmAnalyzer.HARMONIC_DEVIATION_PERCENT/100.0), params.fs, maxFreqInd);
+                    freqInds[i] = MathUtils.getAbsMaxInd(frameDftDB, startInd, endInd);
+                    if (freqInds[i]<0)
+                        freqInds[i] = SignalProcUtils.freq2index(initialPeakLocationsInHz[i], params.fs, maxFreqInd);
                 }
                 */
+                
+                //Return directly at specified locations without peak search
                 freqInds = new int[initialPeakLocationsInHz.length];
                 for (i=0; i<initialPeakLocationsInHz.length; i++)
                     freqInds[i] = SignalProcUtils.freq2index(initialPeakLocationsInHz[i], params.fs, maxFreqInd);
+                //
             }
             else if (!bManualPeakPickingTest)
             {
@@ -739,10 +724,10 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                 {
                     for (i=0; i<numFrameSinusoids; i++)
                     {
-                        frameSins.sinusoids[i] = new Sinusoid((float)frameDft.real[freqInds[i]], //amp in linear scale
+                        frameSins.sinusoids[i] = new Sinusoid((float)frameDftAbs[freqInds[i]], //amp in linear scale
                                 (float)((0.5*MathUtils.TWOPI*fiwa.freqIndsRefined[i])/maxFreqInd),  //freq in radians
                                 //(float)((0.5*fs*freqIndsRefined[i])/maxFreqInd), //freq in Hz
-                                (float)frameDft.imag[freqInds[i]]); //phase in radians
+                                (float) (Math.atan2(frameDft.imag[freqInds[i]], frameDft.real[freqInds[i]]))); //phase in radians
                     }
                 }
                     

@@ -35,6 +35,7 @@ package marytts.signalproc.process;
  */
 public class TDPSOLAInstants {
     public float[] synthesisInstantsInSeconds;
+    public float[] analysisInstantsInSeconds;
     public int[] repeatSkipCounts;
     
     public TDPSOLAInstants(int totalSynthesisFrames)
@@ -42,11 +43,13 @@ public class TDPSOLAInstants {
         if (totalSynthesisFrames>0)
         {
             synthesisInstantsInSeconds = new float[totalSynthesisFrames];
+            analysisInstantsInSeconds = new float[totalSynthesisFrames];
             repeatSkipCounts = new int[totalSynthesisFrames];
         }
         else
         {
             synthesisInstantsInSeconds = null;
+            analysisInstantsInSeconds = null;
             repeatSkipCounts = null;
         }
     }

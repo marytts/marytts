@@ -40,6 +40,7 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
     public static final int HANNING = 3;
     public static final int GAUSS = 4;
     public static final int BARTLETT = 5;
+    public static final int FLATTOP = 6;
     
     protected double prescalingFactor;
     protected boolean evenLength;
@@ -262,6 +263,7 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
         else if (this instanceof HanningWindow) return HANNING;
         else if (this instanceof GaussWindow) return GAUSS;
         else if (this instanceof BartlettWindow) return BARTLETT;
+        else if (this instanceof FlattopWindow) return FLATTOP;
         else return -1;
     }
 
@@ -302,6 +304,8 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
             return new GaussWindow(length, prescale);
         case BARTLETT:
             return new BartlettWindow(length, prescale);
+        case FLATTOP:
+            return new FlattopWindow(length, prescale);
         default:
             throw new IllegalArgumentException("Unknown window type requested.");
         }
@@ -313,7 +317,7 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
      */
     public static int[] getAvailableTypes()
     {
-        return new int[] { RECT, HAMMING, BLACKMAN, HANNING, GAUSS, BARTLETT }; 
+        return new int[] { RECT, HAMMING, BLACKMAN, HANNING, GAUSS, BARTLETT, FLATTOP }; 
     }
     
     /**
@@ -331,6 +335,7 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
         else if (tomatch.startsWith("HANNING")) return HANNING;
         else if (tomatch.startsWith("GAUSS")) return GAUSS;
         else if (tomatch.startsWith("BARTLETT")) return BARTLETT;
+        else if (tomatch.startsWith("FLATTOP")) return FLATTOP;
         else return -1;
     }
     
@@ -389,6 +394,11 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
 
         for (i=0; i<window.length; i++)
             window[i] *= scale;
+    }
+    
+    public void normalizeRange(float minVal, float maxVal)
+    {
+        MathUtils.adjustRange(window, minVal, maxVal);
     }
     
     public double[] getCoeffs()

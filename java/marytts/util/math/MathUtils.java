@@ -213,6 +213,21 @@ public class MathUtils {
         }
         return sum;
     }
+    
+    public static double sumSquared(double[] data, int startInd, int endInd)
+    {
+        return sumSquared(data, startInd, endInd, 0.0);
+    }
+    
+    //Computes sum_i=0^data.length-1 (data[i]+term)^2
+    public static double sumSquared(double[] data, int startInd, int endInd, double term)
+    {
+        double sum = 0.0;
+        for (int i=startInd; i<=endInd; i++) 
+            sum += (data[i]+term)*(data[i]+term);
+        
+        return sum;
+    }
 
     /**
      * Find the maximum of all elements in the array, ignoring elements that are NaN.
@@ -787,6 +802,11 @@ public class MathUtils {
         
         return x;
     }
+    
+    public static ComplexNumber ampPhase2ComplexNumber(double amp, double phaseInRadians)
+    {
+        return new ComplexNumber(amp*Math.cos(phaseInRadians), amp*Math.sin(phaseInRadians));
+    }
 
     public static double[] add(double[] x, double[] y)
     {
@@ -845,6 +865,15 @@ public class MathUtils {
         double[] c = new double[a.length];
         for (int i=0; i<a.length; i++) {
             c[i] = a[i] * b;
+        }
+        return c;        
+    }
+    
+    public static ComplexNumber[] multiplyComplex(ComplexNumber[] a, double b)
+    {
+        ComplexNumber[] c = new ComplexNumber[a.length];
+        for (int i=0; i<a.length; i++) {
+            c[i] = MathUtils.multiply(b, a[i]);
         }
         return c;        
     }
@@ -1006,6 +1035,33 @@ public class MathUtils {
     public static double phaseInRadians(ComplexNumber x)
     {
         return Math.atan2(x.imag, x.real);
+    }
+    
+    public static double phaseInRadians(double xReal, double xImag)
+    {
+        return phaseInRadians(new ComplexNumber(xReal, xImag));
+    }
+    
+    public static double[] phaseInRadians(ComplexNumber[] xs)
+    {
+        double[] phases = new double[xs.length];
+        
+        for (int i=0; i<xs.length; i++)
+            phases[i] = phaseInRadians(xs[i]);
+        
+        return phases;
+    }
+    
+    public static double[] phaseInRadians(ComplexArray x)
+    {
+        assert x.real.length==x.imag.length;
+        
+        double[] phases = new double[x.real.length];
+        
+        for (int i=0; i<x.real.length; i++)
+            phases[i] = phaseInRadians(x.real[i], x.imag[i]);
+        
+        return phases;
     }
     
     //Returns a+jb such that a+jb=r.exp(j.theta) where theta is in radians
@@ -1893,6 +1949,27 @@ public class MathUtils {
         return h;
     }
     
+    public static float [] interpolate(float [] x, int newLength)
+    {
+        if (x!=null)
+        {
+            int i;
+            double[] xDouble = new double[x.length];
+            for (i=0; i<x.length; i++)
+                xDouble[i] = x[i];
+
+            double[] yDouble = interpolate(xDouble, newLength);
+
+            float[] y = new float[yDouble.length];
+            for (i=0; i<yDouble.length; i++)
+                y[i] = (float)yDouble[i];
+            
+            return y;
+        }
+        else
+            return null;
+    }
+    
     //Performs linear interpolation to increase or decrease the size of array x to newLength
     public static double [] interpolate(double [] x, int newLength)
     {
@@ -1918,24 +1995,20 @@ public class MathUtils {
             else
             {
                 y = new double[newLength];
-                double Beta = ((double)newLength)/N;
-                double newBeta = 1.0;
-
-                if (newLength>2)
-                    newBeta=(N-2.0)/(newLength-2.0);
-
-                y[0] = x[0];
-                y[1] = x[1];
-                y[newLength-1] = x[N-1];
-
-                double tmp, alpha;
-                int i, j;
-                for (i=2; i<=newLength-2; i++) 
+                int leftInd;
+                double ratio = ((double)newLength)/x.length;
+                for (int i=0; i<newLength; i++)
                 {
-                    tmp = 1.0+(i-1)*newBeta;
-                    j = (int)Math.floor(tmp);
-                    alpha = tmp-j;
-                    y[i] = (1.0-alpha)*x[Math.max(0,j)] + alpha*x[Math.min(N-1,j+1)];
+                    leftInd = (int)Math.floor(i/ratio);
+                    if (leftInd<x.length-1)
+                        y[i] = interpolatedSample(leftInd, i*ratio, leftInd+1, x[leftInd], x[leftInd+1]);
+                    else
+                    {
+                        if (leftInd>0)
+                            y[i] = interpolatedSample(leftInd, i*ratio, leftInd+1, x[leftInd], 2*x[leftInd]-x[leftInd-1]);
+                        else
+                            y[i] = x[leftInd];
+                    }
                 }
             }
         }
@@ -2287,6 +2360,8 @@ public class MathUtils {
     public static int getAbsMaxInd(double[] x, int startInd, int endInd)
     {
         int index = -1;
+        startInd = Math.max(startInd, 0);
+        endInd = Math.min(endInd, x.length-1);
         double max = x[startInd];
 
         for (int i=startInd+1; i<endInd-1; i++)
@@ -3567,6 +3642,26 @@ public class MathUtils {
             x[i] = ((x[i]-currentMean)*newStandardDeviation/currentStdDev) + newMean;
     }
     //
+    
+    //Adjusts range so that the minimum value equals minVal and maximum equals maxVal
+    public static void adjustRange(double[] x, double minVal, double maxVal)
+    {
+        double minOrig = MathUtils.min(x);
+        double maxOrig = MathUtils.max(x);
+        double diffOrig = maxOrig-minOrig;
+        
+        if (diffOrig>0.0)
+        {
+            for (int i=0; i<x.length; i++)
+                x[i] = (x[i]-minOrig)/diffOrig*(maxVal-minVal)+minVal;
+        }
+        else
+        {
+            for (int i=0; i<x.length; i++)
+                x[i] = 0.5*(maxVal+minVal);
+        }
+    }
+    //
 
     public static double median(double[] x)
     {
@@ -4289,6 +4384,17 @@ public class MathUtils {
         return R;
     }
     
+    
+    public static boolean isAnyNaN(double[] x)
+    {
+        for (int i=0; i<x.length; i++)
+        {
+            if (Double.isNaN(x[i]))
+                return true;
+        }
+        
+        return false;
+    }
     
     public static void main(String[] args)
     {

@@ -399,7 +399,7 @@ public class JointGMMTransformer extends BaselineTransformer {
                 currentWctParams.smoothedVocalTractFile = "";
 
                 adapter = new FdpsolaAdapter(inputItem, outputItem.audioFile, currentWctParams,
-                        pscales, tscales, escales, vscales);
+                                             pscales, tscales, escales, vscales);
 
                 adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
                 adapter.fdpsolaOnline(jgMapper, jgSet, pMap); //Call voice conversion version
@@ -765,6 +765,7 @@ public class JointGMMTransformer extends BaselineTransformer {
         pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_HERTZ;
         //pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_LOGHERTZ;
         
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
         pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_MEAN;
         //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_STDDEV;
         //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_RANGE;

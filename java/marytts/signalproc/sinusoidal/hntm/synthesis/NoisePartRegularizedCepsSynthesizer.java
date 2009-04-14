@@ -68,10 +68,6 @@ public class NoisePartRegularizedCepsSynthesizer {
         }
 
         float noiseWindowDurationInSeconds;
-        float[] targetContour = new float[hnmSignal.frames.length];
-        Arrays.fill(targetContour, 0.0f);
-        float[] times = new float[hnmSignal.frames.length];
-        Arrays.fill(times, -1.0f);
         
         if (isNoised) //At least one noisy frame with LP coefficients exist
         {
@@ -218,21 +214,16 @@ public class NoisePartRegularizedCepsSynthesizer {
                         */
                         
                     //SignalProcUtils.displayDFTSpectrumInDB(x);
-                    MaryUtils.plot(MathUtils.amp2db(envelope));
+                    //MaryUtils.plot(MathUtils.amp2db(envelope));
                     y = SignalProcUtils.fdFilter(x, envelope);
+                    double newAvEn = SignalProcUtils.getAverageSampleEnergy(y);
+                    y = MathUtils.multiply(y, Math.sqrt(hnmSignal.frames[i].origAverageSampleEnergy/(1e-20+newAvEn)));
+                    
                     //y = SignalProcUtils.arFilterFreqDomain(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, 1.0, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz);
                     
                     //SignalProcUtils.displayDFTSpectrumInDB(y);
                     
-                    if (hnmSignal.preCoefNoise>0.0f)
-                        y = SignalProcUtils.removePreemphasis(y, hnmSignal.preCoefNoise);
-                    
-                    y = SignalProcUtils.normalizeAverageSampleEnergy(y, hnmSignal.frames[i].noiseTotalEnergyRatio*hnmSignal.frames[i].totalSampleEnergy);
-
                     y = winNoise.apply(y, 0);
-                    
-                    times[i] = hnmSignal.frames[i].tAnalysisInSeconds;
-                    targetContour[i] = hnmSignal.frames[i].noiseTotalEnergyRatio*hnmSignal.frames[i].totalSampleEnergy;
 
                     //Overlap-add
                     for (n=startIndex; n<Math.min(startIndex+wsNoise, noisePart.length); n++)
@@ -253,70 +244,65 @@ public class NoisePartRegularizedCepsSynthesizer {
             }
         }
         
-        //Energy contour normalization
-        float[] currentContour = SignalProcUtils.getAverageSampleEnergyContour(noisePart, times, hnmSignal.samplingRateInHz, HntmSynthesizer.NOISE_SYNTHESIS_WINDOW_DURATION_IN_SECONDS);
-        //MaryUtils.plot(currentContour);
-        //MaryUtils.plot(noisePart);
-        //MaryUtils.plot(targetContour);
-        
-        noisePart = SignalProcUtils.normalizeAverageSampleEnergyContour(noisePart, times, currentContour, targetContour, hnmSignal.samplingRateInHz, HntmSynthesizer.NOISE_SYNTHESIS_WINDOW_DURATION_IN_SECONDS);
-        float[] currentContour2 = SignalProcUtils.getAverageSampleEnergyContour(noisePart, times, hnmSignal.samplingRateInHz, HntmSynthesizer.NOISE_SYNTHESIS_WINDOW_DURATION_IN_SECONDS);
-        //MaryUtils.plot(currentContour2);
-        //
-
-        /*
-        //Now, apply the triangular noise envelope for voiced parts
-        double[] enEnv;
-        int enEnvLen;
-        tsiNext = 0;
-        int l1, lMid, l2;
-        for (i=0; i<hnmSignal.frames.length; i++)
+      //Now, apply the triangular noise envelope for voiced parts
+        if (HntmSynthesizer.APPLY_TRIANGULAR_NOISE_ENVELOPE_FOR_VOICED_PARTS)
         {
-            isVoiced = ((hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0f) ? true : false);
-            if (isVoiced)
+            double[] enEnv;
+            int enEnvLen;
+            tsiNext = 0;
+            int l1, lMid, l2;
+            for (i=0; i<hnmSignal.frames.length; i++)
             {
-                if (i==0)
-                    tsi = 0.0f; 
-                else
-                    tsi = hnmSignal.frames[i].tAnalysisInSeconds;
-
-                startIndex = SignalProcUtils.time2sample(tsi, hnmSignal.samplingRateInHz);
-
-                if (i<hnmSignal.frames.length-1)
+                isVoiced = ((hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0f) ? true : false);
+                if (isVoiced)
                 {
-                    tsiNext = Math.max(0.0f, hnmSignal.frames[i+1].tAnalysisInSeconds);
-                    startIndexNext = SignalProcUtils.time2sample(tsiNext, hnmSignal.samplingRateInHz);
-                }
-                else
-                {
-                    startIndexNext = outputLen-1;
-                    tsiNext = SignalProcUtils.sample2time(startIndexNext, hnmSignal.samplingRateInHz);
-                }
-                
-                enEnvLen = startIndexNext-startIndex+1;
-                if (enEnvLen>0)
-                {
-                    enEnv = new double[enEnvLen];
+                    if (i==0)
+                        tsi = 0.0f; 
+                    else
+                        tsi = hnmSignal.frames[i].tAnalysisInSeconds;
 
-                    int n;
-                    l1 = SignalProcUtils.time2sample(0.15*(tsiNext-tsi), hnmSignal.samplingRateInHz);
-                    l2 = SignalProcUtils.time2sample(0.85*(tsiNext-tsi), hnmSignal.samplingRateInHz);
-                    lMid = (int)Math.floor(0.5*(l1+l2)+0.5);
-                    for (n=0; n<l1; n++)
-                        enEnv[n] = ENERGY_TRIANGLE_LOWER_VALUE;
-                    for (n=l1; n<lMid; n++)
-                        enEnv[n] = (n-l1)*(ENERGY_TRIANGLE_UPPER_VALUE-ENERGY_TRIANGLE_LOWER_VALUE)/(lMid-l1)+ENERGY_TRIANGLE_LOWER_VALUE;
-                    for (n=lMid; n<l2; n++)
-                        enEnv[n] = (n-lMid)*(ENERGY_TRIANGLE_LOWER_VALUE-ENERGY_TRIANGLE_UPPER_VALUE)/(l2-lMid)+ENERGY_TRIANGLE_UPPER_VALUE;
-                    for (n=l2; n<enEnvLen; n++)
-                        enEnv[n] = ENERGY_TRIANGLE_LOWER_VALUE;
+                    startIndex = SignalProcUtils.time2sample(tsi, hnmSignal.samplingRateInHz);
 
-                    for (n=startIndex; n<=Math.min(noisePart.length-1, startIndexNext); n++)
-                        noisePart[n] *= enEnv[n-startIndex];
+                    if (i<hnmSignal.frames.length-1)
+                    {
+                        tsiNext = Math.max(0.0f, hnmSignal.frames[i+1].tAnalysisInSeconds);
+                        startIndexNext = SignalProcUtils.time2sample(tsiNext, hnmSignal.samplingRateInHz);
+                    }
+                    else
+                    {
+                        startIndexNext = outputLen-1;
+                        tsiNext = SignalProcUtils.sample2time(startIndexNext, hnmSignal.samplingRateInHz);
+                    }
+
+                    enEnvLen = startIndexNext-startIndex+1;
+                    if (enEnvLen>0)
+                    {
+                        enEnv = new double[enEnvLen];
+
+                        int n;
+                        l1 = SignalProcUtils.time2sample(0.15*(tsiNext-tsi), hnmSignal.samplingRateInHz);
+                        l2 = SignalProcUtils.time2sample(0.85*(tsiNext-tsi), hnmSignal.samplingRateInHz);
+                        lMid = (int)Math.floor(0.5*(l1+l2)+0.5);
+                        for (n=0; n<l1; n++)
+                            enEnv[n] = HntmSynthesizer.ENERGY_TRIANGLE_LOWER_VALUE;
+                        for (n=l1; n<lMid; n++)
+                            enEnv[n] = (n-l1)*(HntmSynthesizer.ENERGY_TRIANGLE_UPPER_VALUE-HntmSynthesizer.ENERGY_TRIANGLE_LOWER_VALUE)/(lMid-l1)+HntmSynthesizer.ENERGY_TRIANGLE_LOWER_VALUE;
+                        for (n=lMid; n<l2; n++)
+                            enEnv[n] = (n-lMid)*(HntmSynthesizer.ENERGY_TRIANGLE_LOWER_VALUE-HntmSynthesizer.ENERGY_TRIANGLE_UPPER_VALUE)/(l2-lMid)+HntmSynthesizer.ENERGY_TRIANGLE_UPPER_VALUE;
+                        for (n=l2; n<enEnvLen; n++)
+                            enEnv[n] = HntmSynthesizer.ENERGY_TRIANGLE_LOWER_VALUE;
+
+                        for (n=startIndex; n<=Math.min(noisePart.length-1, startIndexNext); n++)
+                            noisePart[n] *= enEnv[n-startIndex];
+                    }
                 }
             }
         }
-        */
+        
+        if (hnmSignal.preCoefNoise>0.0f)
+            noisePart = SignalProcUtils.removePreemphasis(noisePart, hnmSignal.preCoefNoise);
+        
+        MathUtils.adjustMean(noisePart, 0.0);
 
         return noisePart;
     }

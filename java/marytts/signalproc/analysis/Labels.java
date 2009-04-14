@@ -49,17 +49,42 @@ public class Labels {
     //Create ESTLabels from existing ones
     public Labels(Labels e)
     {
-        this(e, 0);
+        initFromLabels(e);
     }
     
   //Create ESTLabels from existing ones
     public Labels(Labels e, int startPos)
     {
-        this(e, startPos, e.items.length-1);
+        initFromLabels(e, startPos);
     }
     
     //Create ESTLabels using labels between [startPos,endPos] 
     public Labels(Labels e, int startPos, int endPos)
+    {
+        initFromLabels(e, startPos, endPos);
+    }
+    
+    public Labels(String labelFile)
+    {
+        initFromFile(labelFile, false);
+    }
+    
+    public Labels(String labelFile, boolean isRealisedDurationsFile)
+    {
+        initFromFile(labelFile, isRealisedDurationsFile);
+    }
+    
+    public void initFromLabels(Labels e)
+    {
+        initFromLabels(e, 0);
+    }
+    
+    public void initFromLabels(Labels e, int startPos)
+    {
+        initFromLabels(e, startPos, (e==null) ? 0 : e.items.length-1);
+    }
+    
+    public void initFromLabels(Labels e, int startPos, int endPos)
     {
         items = null;
         if (e!=null && e.items!=null)
@@ -79,28 +104,49 @@ public class Labels {
         }
     }
     
-    public Labels(String labelFile)
+    public void initFromFile(String file, boolean isRealisedDurationsFile)
     {
-        this(readESTLabelFile(labelFile));
+        if (!isRealisedDurationsFile)
+            initFromLabels(readESTLabelFile(file));
+        else
+            initFromLabels(readRealisedDurationsFile(file));
     }
     
     public static Labels readESTLabelFile(String labelFile)
     {
         Labels labelsRet = null;
         String allText = null;
-        try {
-            allText = FileUtils.getFileAsString(new File(labelFile), "ASCII");
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        
+        if (FileUtils.exists(labelFile))
+        {
+            try {
+                allText = FileUtils.getFileAsString(new File(labelFile), "ASCII");
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            if (allText!=null)
+            {
+                String[] lines = allText.split("\n");
+
+                labelsRet = parseFromLines(lines, 0, lines.length-1);
+            }
         }
         
-        if (allText!=null)
-        {
-            String[] lines = allText.split("\n");
-
-            labelsRet = parseFromLines(lines, 0, lines.length-1);
-        }
+        return labelsRet;
+    }
+    
+    //Realised durations file contain duration of each label instead of its end time
+    public static Labels readRealisedDurationsFile(String labelFile)
+    {
+        Labels labelsRet = readESTLabelFile(labelFile);
+        
+        /*
+        //Conversion only required if label file contains phoneme durations instead of end times
+        for (int i=1; i<labelsRet.items.length; i++)
+            labelsRet.items[i].time += labelsRet.items[i-1].time;
+            */
         
         return labelsRet;
     }

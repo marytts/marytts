@@ -39,6 +39,7 @@ import marytts.util.string.StringUtils;
  * @author Oytun T&uumlrk
  */
 public class BaseTester {
+    public static double DEFAULT_ABS_MAX_VAL = 26000.0;
     public static float DEFAULT_AMP = 0.8f;
     public static float DEFAULT_DUR = 1.0f;
     public static int DEFAULT_FS = 16000;
@@ -59,11 +60,22 @@ public class BaseTester {
     
     public void write(String outWavFile) throws IOException
     {
-        String outPtcFile = StringUtils.modifyExtension(outWavFile, ".ptc");
-        write(outWavFile, outPtcFile);
+        write(outWavFile, DEFAULT_ABS_MAX_VAL);
     }
     
+    public void write(String outWavFile, double defaultAbsMaxVal) throws IOException
+    {
+        String outPtcFile = StringUtils.modifyExtension(outWavFile, ".ptc");
+        write(outWavFile, outPtcFile, defaultAbsMaxVal);
+    }
+    
+    
     public void write(String outWavFile, String outPtcFile) throws IOException
+    {
+        write(outWavFile, outPtcFile, DEFAULT_ABS_MAX_VAL);
+    }
+    
+    public void write(String outWavFile, String outPtcFile, double defaultAbsMaxVal) throws IOException
     {
         if (signal != null)
         {
@@ -71,7 +83,7 @@ public class BaseTester {
             {
                 double maxVal = MathUtils.getAbsMax(signal);
                 for (int i=0; i<signal.length; i++)
-                    signal[i] *= 0.8/maxVal;
+                    signal[i] *= (defaultAbsMaxVal/32767.0)/maxVal;
 
                 AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
                         fs, // samples per second

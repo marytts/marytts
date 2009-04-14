@@ -132,19 +132,26 @@ public class HarmonicsTester extends SinusoidsTester {
         HarmonicsTester s = null;
         
         //Single sinusoid, time-invariant
-        float f1 = 400.0f;
-        int numHarmonics = 8;
+        float f1 = 500.0f;
+        int numHarmonics = 2;
+        double defaultAbsMaxVal = 32000.0;
         //s = new HarmonicsTester(f1, numHarmonics);
         float[] amps = new float[numHarmonics];
         for (int i=0; i<numHarmonics; i++)
-            amps[i] = (float)Math.pow(2.0, -1.0*i);
+            amps[i] = 0.5f/numHarmonics; //(float)Math.pow(2.0, -1.0*i);
         s = new HarmonicsTester(f1, numHarmonics, amps);
         //
-        
+       
         if (args.length>1)
-            s.write(args[0], args[1]);
+            s.write(args[0], args[1], defaultAbsMaxVal);
+        else if (args.length==1)
+            s.write(args[0], defaultAbsMaxVal);
         else
-            s.write(args[0]);
+        {
+            String outWavFile = "d:\\h" + String.valueOf(numHarmonics) + "_" + String.valueOf(f1) + "_" + String.valueOf(defaultAbsMaxVal) + ".wav";
+            s.write(outWavFile, defaultAbsMaxVal);
+        }
+            
     }
 }
 
