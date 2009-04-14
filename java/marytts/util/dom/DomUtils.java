@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,12 +36,18 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import marytts.server.MaryProperties;
 
+import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.DOMException;
+import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
@@ -543,6 +550,28 @@ public class DomUtils
         return baos.toString();
     }
     
+    public static String document2String(Document document)
+    {
+        LSSerializer serializer;
+        DOMImplementationLS domImplLS;
+        try {
+            DOMImplementation implementation = DOMImplementationRegistry.newInstance().getDOMImplementation("XML 3.0");
+            domImplLS = (DOMImplementationLS) implementation.getFeature("LS", "3.0");
+            serializer = domImplLS.createLSSerializer();
+            DOMConfiguration config = serializer.getDomConfig();
+            config.setParameter("format-pretty-print", Boolean.TRUE);
+            //config.setParameter("canonical-form", Boolean.TRUE);
+        } catch (Exception e) {
+            throw new RuntimeException("Problem instantiating XML serializer code", e);
+        }
+        LSOutput output = domImplLS.createLSOutput();
+        output.setEncoding("UTF-8");
+        StringWriter buf = new StringWriter();
+        output.setCharacterStream(buf);
+        serializer.write(document, output);
+        return buf.toString();
+    }
+
     /**
      * Verify whether a given document is valid in the sense of Schema
      * XML validation.

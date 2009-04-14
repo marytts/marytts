@@ -77,7 +77,7 @@ public class MaryHttpClient
      * @throws IOException if communication with the server fails
      * @throws UnknownHostException if the host could not be found
      */
-    public MaryHttpClient() throws IOException, InterruptedException
+    public MaryHttpClient() throws IOException
     {
         super();
         
@@ -87,7 +87,7 @@ public class MaryHttpClient
         initialise(profile, quiet);
     }
     
-    public MaryHttpClient(boolean quiet) throws IOException, InterruptedException
+    public MaryHttpClient(boolean quiet) throws IOException
     {
         super();
         
