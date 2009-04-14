@@ -159,7 +159,10 @@ public class TDPSOLAProcessor {
                 {
                     for (j=1; j<=repeatSkipCounts[i]+1; j++)
                     {
-                        synthesisInstants.synthesisInstantsInSeconds[synthesisFrameCounter++] = synthSt;
+                        synthesisInstants.analysisInstantsInSeconds[synthesisFrameCounter] = analysisInstants[i];
+                        synthesisInstants.synthesisInstantsInSeconds[synthesisFrameCounter] = synthSt;
+                        synthesisFrameCounter++;
+                        
                         bLastFrame = false;
                         if (i==numfrm-1)
                         {

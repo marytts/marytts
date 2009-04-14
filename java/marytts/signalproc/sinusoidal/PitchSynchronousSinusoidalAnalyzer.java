@@ -30,6 +30,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.window.Window;
+import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
@@ -76,6 +77,11 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
         return analyzePitchSynchronous(x, pm, numPeriods, skipSizeInSeconds, deltaInHz, SinusoidalAnalysisParams.LP_SPEC); 
     }
     
+    public SinusoidalTracks analyzePitchSynchronous(double[] x, PitchMarks pm, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
+    {
+        return analyzePitchSynchronous(x, pm, numPeriods, skipSizeInSeconds, deltaInHz, spectralEnvelopeType, null);
+    }
+    
     /* 
      * Pitch synchronous analysis
      * 
@@ -91,9 +97,9 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
      *                       SEEVOC_SPEC (Spectral Envelope Estimation Vocoder based envelope)
      *                       REGULARIZED_CEPS (Regularized cepstrum based envelope)
      */
-    public SinusoidalTracks analyzePitchSynchronous(double[] x, PitchMarks pm, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
+    public SinusoidalTracks analyzePitchSynchronous(double[] x, PitchMarks pm, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType, float[] initialPeakLocationsInHz)
     {
-        NonharmonicSinusoidalSpeechSignal sinSignal = extracSinusoidsPitchSynchronous(x, pm, numPeriods, skipSizeInSeconds, deltaInHz, spectralEnvelopeType);
+        NonharmonicSinusoidalSpeechSignal sinSignal = extracSinusoidsPitchSynchronous(x, pm, numPeriods, skipSizeInSeconds, deltaInHz, spectralEnvelopeType, initialPeakLocationsInHz);
         
         //Extract sinusoidal tracks
         TrackGenerator tg = new TrackGenerator();
@@ -119,6 +125,11 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
     }
     
     public NonharmonicSinusoidalSpeechSignal extracSinusoidsPitchSynchronous(double[] x, PitchMarks pm, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType)
+    {
+        return extracSinusoidsPitchSynchronous(x, pm, numPeriods, skipSizeInSeconds, deltaInHz, SinusoidalAnalysisParams.LP_SPEC, null);
+    }
+    
+    public NonharmonicSinusoidalSpeechSignal extracSinusoidsPitchSynchronous(double[] x, PitchMarks pm, float numPeriods, float skipSizeInSeconds, float deltaInHz, int spectralEnvelopeType, float[] initialPeakLocationsInHz)
     {
         params.absMax = MathUtils.getAbsMax(x);
         params.totalEnergy = SignalProcUtils.energy(x);
@@ -215,7 +226,6 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
             }
             
             params.win = Window.get(params.windowType, params.ws);
-            params.win.normalize(1.0f); //Normalize to sum up to unity
             params.win.applyInline(frm, 0, params.ws);
             
             if (!bFixedSkipRate)
@@ -237,7 +247,10 @@ public class PitchSynchronousSinusoidalAnalyzer extends SinusoidalAnalyzer {
                 isOutputToTextFile = false;
             */
             
-            sinSignal.framesSins[i] = (NonharmonicSinusoidalSpeechFrame)analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, isVoiced, f0, params);
+            if (initialPeakLocationsInHz==null)
+                sinSignal.framesSins[i] = (NonharmonicSinusoidalSpeechFrame)analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, isVoiced, f0, params);
+            else
+                sinSignal.framesSins[i] = (NonharmonicSinusoidalSpeechFrame)analyze_frame(frm, isOutputToTextFile, spectralEnvelopeType, isVoiced, f0, initialPeakLocationsInHz[initialPeakLocationsInHz.length-1]+50.0f, false, params, initialPeakLocationsInHz);
             
             if (sinSignal.framesSins[i]!=null)
             {

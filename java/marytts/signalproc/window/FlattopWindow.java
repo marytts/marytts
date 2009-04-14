@@ -27,34 +27,39 @@
  * THIS SOFTWARE.
  */
 
-package marytts.util.io;
-
-import java.io.File;
-import java.io.FilenameFilter;
-
+package marytts.signalproc.window;
 
 /**
  * @author oytun.turk
  *
  */
-public class FileFilter implements FilenameFilter 
-{
-    private String extension;
-    
-    public FileFilter(String ext)
+public class FlattopWindow extends Window {
+
+    public FlattopWindow(int length)
     {
-        if (ext.startsWith(".") || ext.compareTo("*.*")==0)
-            extension = ext;
-        else
-            extension = "." + ext;
+        super(length);
     }
     
-    public boolean accept(File dir, String name) 
+    public FlattopWindow(int length, double prescalingFactor)
     {
-        if (extension.compareTo("*.*")==0)
-            return true;
-        else
-            return name.endsWith(extension); 
+        super(length, prescalingFactor);
+    }
+    
+    protected void initialise()
+    {
+        boolean prescale = (prescalingFactor != 1.);
+        
+        for (int i=0; i<window.length;i++)
+        {
+            window[i] = 1.0-1.93*Math.cos((2*Math.PI*i)/(window.length-1))+1.29*Math.cos((4*Math.PI*i)/(window.length-1))-0.388*Math.cos((6*Math.PI*i)/(window.length-1))+0.032*Math.cos((8*Math.PI*i)/(window.length-1));
+            if (prescale) 
+                window[i] *= prescalingFactor;
+        }
+    }
+    
+    public String toString()
+    {
+        return "Bartlett window";
     }
 
 }

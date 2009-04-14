@@ -200,12 +200,7 @@ public class PeakMatchedSinusoidalSynthesizer extends BaseSinusoidalSynthesizer{
                 System.out.println("Synthesized track " + String.valueOf(i+1) + " of " + String.valueOf(st.totalTracks));
         }   
        
-        /*
-        double scale = SignalProcUtils.energy(y);
-        scale = Math.sqrt(st.totalEnergy)/Math.sqrt(scale);
-        for (i=0; i<y.length; i++)
-            y[i] = scale*y[i];
-            */
+        y = MathUtils.multiply(y, st.absMaxOriginal/MathUtils.getAbsMax(y));
         
         return y;
     }
@@ -237,7 +232,12 @@ public class PeakMatchedSinusoidalSynthesizer extends BaseSinusoidalSynthesizer{
         boolean bSpectralReassignment = false;
         boolean bAdjustNeighFreqDependent = false;
         
+        //int spectralEnvelopeType = SinusoidalAnalysisParams.LP_SPEC;
         int spectralEnvelopeType = SinusoidalAnalysisParams.SEEVOC_SPEC;
+        float[] initialPeakLocationsInHz = null;
+        initialPeakLocationsInHz = new float[1];
+        for (int i=0; i<1; i++)
+            initialPeakLocationsInHz[i] = (i+1)*350.0f;
         
         boolean isFixedRateAnalysis = false;
         boolean isRealSpeech = true;
@@ -279,7 +279,7 @@ public class PeakMatchedSinusoidalSynthesizer extends BaseSinusoidalSynthesizer{
             PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true, pitchMarkOffset);
             pa = new PitchSynchronousSinusoidalAnalyzer(params);
             
-            st = pa.analyzePitchSynchronous(x, pm, numPeriods, -1.0f, deltaInHz);
+            st = pa.analyzePitchSynchronous(x, pm, numPeriods, -1.0f, deltaInHz, spectralEnvelopeType, initialPeakLocationsInHz);
             isSilentSynthesis = false;
         }
         //
@@ -287,12 +287,6 @@ public class PeakMatchedSinusoidalSynthesizer extends BaseSinusoidalSynthesizer{
         //Resynthesis
         PeakMatchedSinusoidalSynthesizer ss = new PeakMatchedSinusoidalSynthesizer(samplingRate);
         x = ss.synthesize(st, isSilentSynthesis);
-        //
-        
-        //This scaling is only for comparison among different parameter sets, different synthesizer outputs etc
-        double maxNew = MathUtils.getAbsMax(x);
-        for (int i=0; i<x.length; i++)
-            x[i] = x[i]*(maxOrig/maxNew);
         //
         
         //File output

@@ -31,6 +31,7 @@ package marytts.signalproc.sinusoidal.hntm.synthesis;
 
 import java.util.Arrays;
 
+import marytts.signalproc.adaptation.prosody.BasicProsodyModifierParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmPlusTransientsSpeechSignal;
 import marytts.signalproc.window.HammingWindow;
@@ -43,8 +44,7 @@ import marytts.util.signal.SignalProcUtils;
  */
 public class TransientPartSynthesizer {
     
-    public static double[] synthesize(HntmPlusTransientsSpeechSignal hnmSignal, 
-                                      float[] tScales, float[] tScalesTimes, float[] pScales, float[] pScalesTimes)
+    public static double[] synthesize(HntmPlusTransientsSpeechSignal hnmSignal)
     {
         int outputLen = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
         

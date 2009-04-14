@@ -169,7 +169,7 @@ public class HnmPitchVoicingAnalyzer {
         double[] xNorm = MathUtils.add(x, -1.0*MathUtils.mean(x));
         double xEn = SignalProcUtils.energy(x);
         xNorm = MathUtils.multiply(x, 500.0/Math.sqrt(xEn/x.length));
-        MaryUtils.plot(xNorm);
+        //MaryUtils.plot(xNorm);
         //
         
         double durationInSeconds = SignalProcUtils.sample2time(x.length, samplingRate);
@@ -186,7 +186,7 @@ public class HnmPitchVoicingAnalyzer {
         float[] maxFrequencyOfVoicings = new float[numfrm];
         float currentTime;
         double[] frm = new double[ws];
-        Window w = Window.get(Window.HAMMING, ws);
+        Window w = Window.get(Window.HANNING, ws);
         int currentF0Index;
         int i;
         
@@ -234,6 +234,8 @@ public class HnmPitchVoicingAnalyzer {
             allDBSpectra[i] = ArrayUtils.copy(YAbsDB);
             //
             
+            //MaryUtils.plot(YAbsDB);
+            
             isVoiced = (mappedF0s[i]>10.0f) ? true : false;
             /*
             isVoiced = false;
@@ -277,7 +279,7 @@ public class HnmPitchVoicingAnalyzer {
 
         maxFrequencyOfVoicings = smoothUsingFilters(maxFrequencyOfVoicings);
         //MaryUtils.plot(maxFrequencyOfVoicings);
-        
+
         maxFrequencyOfVoicings = applyConstraints(maxFrequencyOfVoicings, mappedF0s, samplingRate);
         //MaryUtils.plot(maxFrequencyOfVoicings);
         
@@ -297,14 +299,14 @@ public class HnmPitchVoicingAnalyzer {
             if (HntmAnalyzer.MEDIAN_FILTER_LENGTH>1)
             {
                 maxFrequencyOfVoicings = SignalProcUtils.medianFilter(maxFrequencyOfVoicings, HntmAnalyzer.MEDIAN_FILTER_LENGTH);
-                maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, -1*(int)Math.floor(0.5*HntmAnalyzer.MEDIAN_FILTER_LENGTH+0.5));
+                //maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, -1*(int)Math.floor(0.5*HntmAnalyzer.MEDIAN_FILTER_LENGTH+0.5));
             }
 
             //Smooth with moving average filters
             if (HntmAnalyzer.MOVING_AVERAGE_FILTER_LENGTH>1)
             {
                 maxFrequencyOfVoicings = SignalProcUtils.meanFilter(maxFrequencyOfVoicings, HntmAnalyzer.MOVING_AVERAGE_FILTER_LENGTH);
-                maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, -1*(int)Math.floor(0.5*HntmAnalyzer.MOVING_AVERAGE_FILTER_LENGTH+0.5));
+                //maxFrequencyOfVoicings = SignalProcUtils.shift(maxFrequencyOfVoicings, -1*(int)Math.floor(0.5*HntmAnalyzer.MOVING_AVERAGE_FILTER_LENGTH+0.5));
             }
         }
         
@@ -469,7 +471,7 @@ public class HnmPitchVoicingAnalyzer {
                 maxFrequencyOfVoicings[i] = 0.0f;
             else
             {
-                maxFrequencyOfVoicings[i] = MathUtils.CheckLimits(maxFrequencyOfVoicings[i], HntmAnalyzer.MINIMUM_TOTAL_HARMONICS*mappedF0s[i], HntmAnalyzer.MAXIMUM_TOTAL_HARMONICS*mappedF0s[i]);
+                maxFrequencyOfVoicings[i] = MathUtils.CheckLimits(maxFrequencyOfVoicings[i], HntmAnalyzer.MINIMUM_TOTAL_HARMONICS*mappedF0s[i]-0.3f*mappedF0s[i], HntmAnalyzer.MAXIMUM_TOTAL_HARMONICS*mappedF0s[i]+0.3f*mappedF0s[i]);
                 maxFrequencyOfVoicings[i] = MathUtils.CheckLimits(maxFrequencyOfVoicings[i], HntmAnalyzer.MINIMUM_VOICED_FREQUENCY_OF_VOICING, HntmAnalyzer.MAXIMUM_VOICED_FREQUENCY_OF_VOICING);   
             }
         }
@@ -496,7 +498,7 @@ public class HnmPitchVoicingAnalyzer {
                 maxFrequencyOfVoicings[i] = 0.0f;
         }
         
-        MaryUtils.plot(maxFrequencyOfVoicings);
+        //MaryUtils.plot(maxFrequencyOfVoicings);
         
         return maxFrequencyOfVoicings;
     }
@@ -543,7 +545,7 @@ public class HnmPitchVoicingAnalyzer {
             int neigh = (int)(Math.floor(HntmAnalyzer.NEIGHS_PERCENT/100.0*0.5*(bandInds[i+1]-bandInds[i])+0.5));
             if (neigh<1)
                 neigh=1;
-            int[] fcIndices = MathUtils.getExtrema(absDBSpec, 2, 2, true, bandInds[i], bandInds[i+1]);
+            int[] fcIndices = MathUtils.getExtrema(absDBSpec, 1, 1, true, bandInds[i], bandInds[i+1]);
             if (fcIndices!=null)
             {
                 fcIndex = fcIndices[0];
@@ -652,8 +654,8 @@ public class HnmPitchVoicingAnalyzer {
                 */
             }
             
-            //if (voiceds[i]!=1.0)
-            if (voiceds[i]==1.0)
+            if (voiceds[i]!=1.0)
+            //if (voiceds[i]==1.0)
             {
                 if (Ams!=null)
                 {

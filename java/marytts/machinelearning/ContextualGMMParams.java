@@ -401,7 +401,10 @@ public class ContextualGMMParams {
                 }
                 
                 phonemeClasses = new String[total][];
-                classTrainerParams = new GMMTrainerParams[total];
+                if (params!=null)
+                    classTrainerParams = new GMMTrainerParams[total];
+                else
+                    classTrainerParams = null;
                 
                 count = 0;
                 for (i=0; i<total; i++)
@@ -412,17 +415,20 @@ public class ContextualGMMParams {
                         for (j=0; j<inds[i].length; j++)
                             phonemeClasses[count][j] = phns[inds[i][j]].name();
                         
-                        if (i<params.length)
-                            classTrainerParams[count] = new GMMTrainerParams(params[i]);
-                        else
-                            classTrainerParams[count] = new GMMTrainerParams(params[0]);
-                        
-                        if (i==0)
-                            classTrainerParams[count].totalComponents *= VOWEL_MULTIPLIER;
-                        else if (i==1)
-                            classTrainerParams[count].totalComponents *= SILENCE_MULTIPLIER;
-                        else if (i==2)
-                            classTrainerParams[count].totalComponents *= CONSONANT_MULTIPLIER;
+                        if (params!=null)
+                        {
+                            if (i<params.length)
+                                classTrainerParams[count] = new GMMTrainerParams(params[i]);
+                            else
+                                classTrainerParams[count] = new GMMTrainerParams(params[0]);
+
+                            if (i==0)
+                                classTrainerParams[count].totalComponents *= VOWEL_MULTIPLIER;
+                            else if (i==1)
+                                classTrainerParams[count].totalComponents *= SILENCE_MULTIPLIER;
+                            else if (i==2)
+                                classTrainerParams[count].totalComponents *= CONSONANT_MULTIPLIER;
+                        }
                         
                         count++;
                     }

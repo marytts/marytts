@@ -78,17 +78,56 @@ public class HntmSpeechSignal {
         return times;
     }
     
-    public float[] getTargetEnergyContour()
+    public float[] getOriginalAverageSampleEnergyContour()
     {
-        float[] targetEnergyContour = null;
+        float[] originalAverageSampleEnergyContour = null;
         
         if (frames!=null)
         {
-            targetEnergyContour = new float[frames.length];
+            originalAverageSampleEnergyContour = new float[frames.length];
             for (int i=0; i<frames.length; i++)
-                targetEnergyContour[i] = (1.0f-frames[i].noiseTotalEnergyRatio)*frames[i].totalSampleEnergy;
+                originalAverageSampleEnergyContour[i] = frames[i].origAverageSampleEnergy;
         }
         
-        return targetEnergyContour;
+        return originalAverageSampleEnergyContour;
+    }
+    
+    //Returns track segments for a given harmonic. Each segment corresponds to a voiced segment
+    public float[][] getPhaseTrack(int harmonicNo)
+    {
+        /*
+        int i;
+        int numSegments = 0;
+        boolean bSegmentStarted = false;
+        int segmentStartInd = -1;
+        int segmentEndInd = -1;
+        for (i=0; i<frames.length; i++)
+        {
+            if (!bSegmentStarted) 
+            {
+                if (frames[i].h!=null && frames[i].h.phases!=null && frames[i].h.phases.length>harmonicNo)
+                {
+                    bSegmentStarted = true;
+                    numSegments++;
+                    
+                    segmentStartInd = i;
+                    segmentEndInd = -1;
+                }  
+            }
+            else
+            {
+                if (frames[i].h!=null && frames[i].h.phases!=null && frames[i].h.phases.length>harmonicNo)
+                    segmentEndInd = i;
+                else
+                {
+                    bSegmentStarted = false;
+                }
+            }
+        }
+        
+        double[][] phases = new double[numSegments][];
+        */
+        return null;
+        
     }
 }

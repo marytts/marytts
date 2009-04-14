@@ -187,7 +187,7 @@ public class SignalProcUtils {
     
     public static double[] normalizeAverageSampleEnergy(double[] x, double newAverageSampleEnergy)
     {
-        double gain = newAverageSampleEnergy/getAverageSampleEnergy(x);
+        double gain = newAverageSampleEnergy/(1e-20+getAverageSampleEnergy(x));
         
         return MathUtils.multiply(x, gain);
     }
@@ -756,7 +756,7 @@ public class SignalProcUtils {
     }
     
     //maxFreqIndex: Actually we have indices from 0,...,maxFreqIndex-1
-    public static int freq2index(double freqInHz, int samplingRateInHz, int maxFreqIndex)
+    public static int freq2index(double freqInHz, double samplingRateInHz, int maxFreqIndex)
     {
         int index = (int)Math.floor(freqInHz/(0.5*samplingRateInHz)*(maxFreqIndex-1)+0.5);
         index = (int)Math.max(0, index);
@@ -767,7 +767,7 @@ public class SignalProcUtils {
     
     //Convert frequency in Hz to frequency sample index
     // maxFreq corresponds to half sampling rate, i.e. sample no: fftSize/2+1 where freq sample indices are 0,1,...,maxFreq-1
-    public static double[] freq2indexDouble(double [] freqsInHz, int samplingRateInHz, int maxFreq)
+    public static double[] freq2indexDouble(double [] freqsInHz, double samplingRateInHz, int maxFreq)
     {
         double [] inds = null;
         
@@ -782,7 +782,7 @@ public class SignalProcUtils {
         return inds;
     }
     
-    public static double freq2indexDouble(double freqInHz, int samplingRateInHz, int maxFreqIndex)
+    public static double freq2indexDouble(double freqInHz, double samplingRateInHz, int maxFreqIndex)
     {
         double index = freqInHz/(0.5*samplingRateInHz)*(maxFreqIndex-1);
         index = Math.max(0, index);
@@ -819,6 +819,11 @@ public class SignalProcUtils {
     public static int time2sample(double time, int samplingRate)
     {
         return (int)Math.floor(time*samplingRate+0.5);
+    }
+    
+    public static double time2sampleDouble(double time, int samplingRate)
+    {
+        return time*samplingRate;
     }
     
     //Convert sample indices to time values in seconds
@@ -2197,7 +2202,7 @@ public class SignalProcUtils {
         return y;
     }
     
-    public static FrequencyDomainFilterOutput fdFilter(double[] x, float startFreqInHz, float endFreqInHz, int samplingRateInHz, int fftSize)
+    public static double[] fdFilter(double[] x, float startFreqInHz, float endFreqInHz, int samplingRateInHz, int fftSize)
     {  
         while (fftSize<x.length)
             fftSize *= 2;
@@ -2207,18 +2212,19 @@ public class SignalProcUtils {
         return fdFilter(frameDft, startFreqInHz, endFreqInHz, samplingRateInHz, x.length);
     }
     
-    public static FrequencyDomainFilterOutput fdFilter(ComplexArray frameDft, float startFreqInHz, float endFreqInHz, int samplingRateInHz, int origLen)
+    public static double[] fdFilter(ComplexArray frameDft, float startFreqInHz, float endFreqInHz, int samplingRateInHz, int origLen)
     {
         int fftSize = frameDft.real.length;
         int maxFreqInd = fftSize/2;
         int startFreqInd = SignalProcUtils.freq2index(startFreqInHz, samplingRateInHz, maxFreqInd);
         int endFreqInd = SignalProcUtils.freq2index(endFreqInHz, samplingRateInHz, maxFreqInd);
 
-        FrequencyDomainFilterOutput fdfo = new FrequencyDomainFilterOutput();
+        double[] y = null;
         
         float totalRmsEnergy = 0.0f;
         float passbandRmsEnergy = 0.0f;
-        
+        int totalPassbandSamples = 0;
+
         int i;
 
         for (i=0; i<=startFreqInd; i++)
@@ -2232,6 +2238,7 @@ public class SignalProcUtils {
         {
             totalRmsEnergy += frameDft.real[i]*frameDft.real[i] + frameDft.imag[i]*frameDft.imag[i];
             passbandRmsEnergy += frameDft.real[i]*frameDft.real[i] + frameDft.imag[i]*frameDft.imag[i];
+            totalPassbandSamples++;
         }
 
         for (i=endFreqInd; i<=maxFreqInd; i++)
@@ -2252,13 +2259,11 @@ public class SignalProcUtils {
         else
             frameDft = FFTMixedRadix.ifft(frameDft);
 
-        fdfo.y = new double[Math.min(origLen, frameDft.real.length)];
+        y = new double[Math.min(origLen, frameDft.real.length)];
         for (i=0; i<origLen; i++)
-            fdfo.y[i] = frameDft.real[i];
+            y[i] = frameDft.real[i];
 
-        fdfo.passBandToTotalEnergyRatio = (float)Math.sqrt(passbandRmsEnergy/totalRmsEnergy);
-
-        return fdfo;
+        return y;
     }
     
     public static void displayDFTSpectrumLinearNoWindowing(double[] frame)
@@ -2354,9 +2359,30 @@ public class SignalProcUtils {
     {
         ComplexArray frameDft = getFrameDft(frame, fftSize, wgt);
         
-        MaryUtils.plot(MathUtils.amp2db(MathUtils.magnitudeComplex(frameDft)));
+        int maxFreqInd = (int)Math.floor(0.5*fftSize+0.5);
+        
+        MaryUtils.plot(MathUtils.amp2db(MathUtils.magnitudeComplex(frameDft)), 0, maxFreqInd);
     }
 
+    public static double[] getFrameMagnitudeSpectrum(double[] frame, int fftSize)
+    {
+        return getFrameMagnitudeSpectrum(frame, fftSize, Window.RECT);
+    }
+    
+    public static double[] getFrameMagnitudeSpectrum(double[] frame, int fftSize, int windowType)
+    {
+        Window win = Window.get(windowType, frame.length);
+        if (windowType==Window.RECT)
+            win.normalizePeakValue(1.0f);
+        
+        return getFrameMagnitudeSpectrum(frame, fftSize, win.getCoeffs());
+    }
+    
+    public static double[] getFrameMagnitudeSpectrum(double[] frame, int fftSize, double[] wgt)
+    {
+        return MathUtils.magnitudeComplex(getFrameDft(frame, fftSize, wgt));
+    }
+    
     //No windowing, i.e. rectangular window
     public static ComplexArray getFrameDft(double[] frame, int fftSize)
     {
@@ -2463,6 +2489,42 @@ public class SignalProcUtils {
         }
 
         return y;
+    }
+    
+    public static double[] getPeakAmplitudes(double[] sDft, double f0InHz, int numHarmonics, int fftSize, double samplingRateInHz, boolean bIncludeZerothHarmonic)
+    {
+        int startHarmonicIndex;
+        if (bIncludeZerothHarmonic)
+            startHarmonicIndex = 0;
+        else
+            startHarmonicIndex = 1;
+        
+        int endHarmonicIndex = numHarmonics;
+        
+        return getPeakAmplitudes(sDft, f0InHz, startHarmonicIndex, endHarmonicIndex, fftSize, samplingRateInHz);
+    }
+    
+    public static double[] getPeakAmplitudes(double[] sDft, double f0InHz, int startHarmonicIndex, int endHarmonicIndex, int fftSize, double samplingRateInHz)
+    {
+        int maxFreqIndex = (int)Math.floor(0.5*fftSize+0.5);
+
+        int numHarmonics = endHarmonicIndex-startHarmonicIndex+1;
+        int numAmps = numHarmonics;
+        
+        double[] amps = new double[numAmps];
+
+        int freqStartInd, freqEndInd;
+        int i, k;
+
+        for (i=startHarmonicIndex; i<=endHarmonicIndex; i++)
+        {
+            freqStartInd = SignalProcUtils.freq2index(i*f0InHz-0.3*f0InHz, (int)samplingRateInHz, maxFreqIndex);
+            freqEndInd = SignalProcUtils.freq2index(i*f0InHz+0.3*f0InHz, (int)samplingRateInHz, maxFreqIndex);
+            k = MathUtils.getMaxIndex(sDft, freqStartInd, freqEndInd);
+            amps[i-startHarmonicIndex] = sDft[k];
+        }
+        
+        return amps;
     }
     
     public static void main(String[] args)

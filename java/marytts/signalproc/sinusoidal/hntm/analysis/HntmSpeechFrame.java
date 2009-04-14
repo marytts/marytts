@@ -33,10 +33,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
     public float f0InHz;
     public float maximumFrequencyOfVoicingInHz; //If 0.0, then the frame is unvoiced
     public float tAnalysisInSeconds; //Middle of analysis frame in seconds
-    
-    public float totalSampleEnergy;
-    public float noiseTotalEnergyRatio;
-    //public float harmonicTotalEnergyRatio;
+    public float origAverageSampleEnergy;
     
     public HntmSpeechFrame()
     {
@@ -50,9 +47,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         f0InHz = f0InHzIn;
         maximumFrequencyOfVoicingInHz = 0.0f;
         tAnalysisInSeconds = -1.0f;
-        totalSampleEnergy = 0.0f;
-        noiseTotalEnergyRatio = 0.0f;
-        //harmonicTotalEnergyRatio = 0.0f;
+        origAverageSampleEnergy = 0.0f;
     }
     
     public HntmSpeechFrame(HntmSpeechFrame existing)
@@ -64,13 +59,13 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
             n = new FrameNoisePartRegularizedCeps((FrameNoisePartRegularizedCeps)existing.n);
         else if (existing.n instanceof FrameNoisePartPseudoHarmonic)
             n = new FrameNoisePartPseudoHarmonic((FrameNoisePartPseudoHarmonic)existing.n);
+        else if (existing.n instanceof FrameNoisePartWaveform)
+            n = new FrameNoisePartWaveform((FrameNoisePartWaveform)existing.n);
         
         f0InHz = existing.f0InHz;
         maximumFrequencyOfVoicingInHz = existing.maximumFrequencyOfVoicingInHz;
-        tAnalysisInSeconds = existing.tAnalysisInSeconds;
-        totalSampleEnergy  = existing.totalSampleEnergy;
-        noiseTotalEnergyRatio = existing.noiseTotalEnergyRatio;
-        //harmonicTotalEnergyRatio = existing.harmonicTotalEnergyRatio;
+        tAnalysisInSeconds = existing.tAnalysisInSeconds;   
+        origAverageSampleEnergy = existing.origAverageSampleEnergy;
     }
 }
 
