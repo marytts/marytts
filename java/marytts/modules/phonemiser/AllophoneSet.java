@@ -240,9 +240,10 @@ public class AllophoneSet
      * This returns the names of all allophones contained in this AllophoneSet,
      * as a Set of Strings
      */
-    public Set<String> getAllophoneNames(){
+    public Set<String> getAllophoneNames()
+    {
         Iterator<String> it = allophones.keySet().iterator();
-        Set<String> allophoneKeySet = new HashSet<String>();
+        Set<String> allophoneKeySet = new TreeSet<String>();
         while(it.hasNext()){
             String keyString = it.next();
             if(!allophones.get(keyString).isTone()){
