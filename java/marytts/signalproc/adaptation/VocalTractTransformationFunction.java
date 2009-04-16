@@ -19,12 +19,14 @@
  */
 package marytts.signalproc.adaptation;
 
+import marytts.util.math.ArrayUtils;
+
 /**
  * Baseline class for vocal tract transformation functions for voice conversion
  *
  * @author Oytun T&uumlrk
  */
 public class VocalTractTransformationFunction {
-
+    
 }
 

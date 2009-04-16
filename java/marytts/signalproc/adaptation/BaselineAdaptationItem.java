@@ -57,6 +57,7 @@ public class BaselineAdaptationItem {
                                           // obtain required prosody modification factors
     
     public String targetLabelFile;        //Target labels for mapping
+    public String targetPitchFile;        //Target pitch file, to be used in transplantations
     public String targetEnergyFile;       //Target energy file, to be used in transplantations
     public String targetWavFile;          //Target waveform file
     //
@@ -89,8 +90,8 @@ public class BaselineAdaptationItem {
         eggFile = existing.eggFile;
         
         targetFestivalUttFile = existing.targetFestivalUttFile;
-        
         targetLabelFile = existing.targetLabelFile;
+        targetPitchFile = existing.targetPitchFile;
         targetEnergyFile = existing.targetEnergyFile;
         targetWavFile = existing.targetWavFile;
         
@@ -121,6 +122,7 @@ public class BaselineAdaptationItem {
         
         targetFestivalUttFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TARGETFESTIVALUTT_EXTENSION_DEFAULT); //FESTIVAL_UTT file
         targetLabelFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TARGETLABEL_EXTENSION_DEFAULT);  //Target labels for mapping
+        targetPitchFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TARGETPITCH_EXTENSION_DEFAULT);  //Target pitch for copy synthesis
         targetEnergyFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TARGETENERGY_EXTENSION_DEFAULT); //Target energy file, to be used in transplantations
         targetWavFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TARGETWAV_EXTENSION_DEFAULT); //Target waveform file
     }

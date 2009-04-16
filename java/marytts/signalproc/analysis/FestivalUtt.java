@@ -31,7 +31,7 @@ import marytts.util.io.FileUtils;
  * 
  * @author Oytun T&uumlrk
  */
-public class FestivalUtt {
+public class FestivalUtt extends AlignmentData {
     public Labels[] labels;
     public String[] keys;
     

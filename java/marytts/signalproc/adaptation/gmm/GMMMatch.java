@@ -19,12 +19,14 @@
  */
 package marytts.signalproc.adaptation.gmm;
 
+import marytts.signalproc.adaptation.VocalTractMatch;
+
 /**
  * GMM output for voice conversion transformation
  *
  * @author Oytun T&uumlrk
  */
-public class GMMMatch {
+public class GMMMatch extends VocalTractMatch {
 
 }
 

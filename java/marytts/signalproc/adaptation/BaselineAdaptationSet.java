@@ -47,6 +47,7 @@ public class BaselineAdaptationSet {
     public static final String EGG_EXTENSION_DEFAULT = ".egg";
     public static final String TARGETFESTIVALUTT_EXTENSION_DEFAULT = ".tutt";
     public static final String TARGETLABEL_EXTENSION_DEFAULT = ".tlab";
+    public static final String TARGETPITCH_EXTENSION_DEFAULT = ".tptc";
     public static final String TARGETENERGY_EXTENSION_DEFAULT = ".tene";
     public static final String TARGETWAV_EXTENSION_DEFAULT = ".twav";
 

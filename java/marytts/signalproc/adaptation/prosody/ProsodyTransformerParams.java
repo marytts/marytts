@@ -27,11 +27,17 @@ import marytts.signalproc.adaptation.BaselineParams;
  */
 public class ProsodyTransformerParams extends BaselineParams {
     
+    public static final int CUSTOM_TRANSFORMATION = -10; 
+    public static final int NO_TRANSFORMATION = 0; 
+    
+    ////DURATION
+    public int durationTransformationMethod;
+    
     ////PITCH
     public int pitchTransformationMethod;
-    public static final int USE_ONLY_PSCALES = -1;
-    public static final int NO_TRANSFORMATION = 0;    
     
+    public static final int USE_ONLY_PSCALES = -1;
+
     //Global transformations
     public static final int GLOBAL_MEAN = 1;
     public static final int GLOBAL_STDDEV = 2;
@@ -57,24 +63,26 @@ public class ProsodyTransformerParams extends BaselineParams {
     //
     
     //These are for GLOBAL_XXX cases of pitchTransformationMethod only
-    public boolean isUseInputMean; //For GLOBAL tfms: Estimate mean from input f0s? Otherwise from codebook
-    public boolean isUseInputStdDev; //For GLOBAL tfms: Estimate std. dev. from input f0s? Otherwise from codebook
-    public boolean isUseInputRange; //For GLOBAL tfms: Estimate range from input f0s? Otherwise from codebook
-    public boolean isUseInputIntercept; //For GLOBAL tfms: Estimate intercept from input f0s? Otherwise from codebook
-    public boolean isUseInputSlope; //For GLOBAL tfms: Estimate slope from input f0s? Otherwise from codebook
+    public boolean isUseInputMeanPitch; //For GLOBAL tfms: Estimate mean from input f0s? Otherwise from codebook
+    public boolean isUseInputStdDevPitch; //For GLOBAL tfms: Estimate std. dev. from input f0s? Otherwise from codebook
+    public boolean isUseInputRangePitch; //For GLOBAL tfms: Estimate range from input f0s? Otherwise from codebook
+    public boolean isUseInputInterceptPitch; //For GLOBAL tfms: Estimate intercept from input f0s? Otherwise from codebook
+    public boolean isUseInputSlopePitch; //For GLOBAL tfms: Estimate slope from input f0s? Otherwise from codebook
     ////
 
     public int pitchStatisticsType;
+    /////
     
     public ProsodyTransformerParams()
     {
         pitchTransformationMethod = NO_TRANSFORMATION;
+        durationTransformationMethod = NO_TRANSFORMATION;
   
-        isUseInputMean = false;
-        isUseInputStdDev = false;
-        isUseInputRange = false;
-        isUseInputIntercept = false;
-        isUseInputSlope = false;
+        isUseInputMeanPitch = false;
+        isUseInputStdDevPitch = false;
+        isUseInputRangePitch = false;
+        isUseInputInterceptPitch = false;
+        isUseInputSlopePitch = false;
         
         pitchStatisticsType = PitchStatistics.DEFAULT_STATISTICS;
     }
@@ -82,12 +90,13 @@ public class ProsodyTransformerParams extends BaselineParams {
     public ProsodyTransformerParams(ProsodyTransformerParams existing)
     {
         pitchTransformationMethod = existing.pitchTransformationMethod;
+        durationTransformationMethod = existing.durationTransformationMethod;
   
-        isUseInputMean = existing.isUseInputMean;
-        isUseInputStdDev = existing.isUseInputStdDev;
-        isUseInputRange = existing.isUseInputRange;
-        isUseInputIntercept = existing.isUseInputIntercept;
-        isUseInputSlope = existing.isUseInputSlope;
+        isUseInputMeanPitch = existing.isUseInputMeanPitch;
+        isUseInputStdDevPitch = existing.isUseInputStdDevPitch;
+        isUseInputRangePitch = existing.isUseInputRangePitch;
+        isUseInputInterceptPitch = existing.isUseInputInterceptPitch;
+        isUseInputSlopePitch = existing.isUseInputSlopePitch;
         
         pitchStatisticsType = existing.pitchStatisticsType;
     }
