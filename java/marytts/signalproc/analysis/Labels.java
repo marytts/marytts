@@ -31,7 +31,7 @@ import marytts.util.string.StringUtils;
  * 
  * @author Oytun T&uumlrk
  */
-public class Labels {
+public class Labels extends AlignmentData {
     public Label[] items;
     
     public Labels(int count)

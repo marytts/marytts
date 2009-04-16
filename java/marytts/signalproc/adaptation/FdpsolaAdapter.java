@@ -65,6 +65,7 @@ import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.io.FileUtils;
 import marytts.util.io.LEDataInputStream;
 import marytts.util.io.LEDataOutputStream;
+import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.FFTMixedRadix;
 import marytts.util.math.MathUtils;
@@ -173,7 +174,9 @@ public class FdpsolaAdapter {
     private int[] preselectedIndices;
     private int[] allIndices;
     private Labels labels;
+    private Labels targetLabels;
     private int currentLabelIndex;
+    private double[][] targetLsfs;
     
     private BaselineTransformerParams baseParams;
     
@@ -307,9 +310,9 @@ public class FdpsolaAdapter {
             //Estimation of time varying pitch, duration, energy, and vocal tract scaling amounts using either:
             // - pscales, tscales, escales, vscales
             // - or FESTIVAL_UTT(for pitch and duration) and target wav file(for energy)
-            if (!baseParams.isPscaleFromFestivalUttFile 
-                    && !baseParams.isTscaleFromFestivalUttFile 
-                    && !baseParams.isEscaleFromTargetWavFile)
+            if (!baseParams.isPitchFromTargetFile 
+                    && !baseParams.isDurationFromTargetFile 
+                    && !baseParams.isEnergyFromTargetFile)
             {
                 modParams = new VoiceModificationParametersPreprocessor(fs, lpOrder,
                                                                         pscales, tscales, escales, vscales,
@@ -323,14 +326,22 @@ public class FdpsolaAdapter {
                 //inputItem.targetEnergyFile should be computed from inputItem.targetWavFile at this point
                 //inputItem.energyFile should be computed from inputItem.audioFile at this point
                 
-                modParams = new VoiceModificationParametersPreprocessor(inputItem.targetFestivalUttFile, inputItem.f0File,
+                String targetAlignmentFile = null;
+                if (baseParams.targetAlignmentFileType==BaselineTransformerParams.LABELS)
+                    targetAlignmentFile = inputItem.targetLabelFile;
+                else if (baseParams.targetAlignmentFileType==BaselineTransformerParams.FESTIVAL_UTT)
+                    targetAlignmentFile = inputItem.targetFestivalUttFile;
+                
+                modParams = new VoiceModificationParametersPreprocessor(inputItem.f0File,
                                                                         inputItem.labelFile,
                                                                         inputItem.energyFile,
-                                                                        inputItem.targetLabelFile,
+                                                                        inputItem.targetPitchFile,
                                                                         inputItem.targetEnergyFile,
-                                                                        baseParams.isPscaleFromFestivalUttFile, 
-                                                                        baseParams.isTscaleFromFestivalUttFile, 
-                                                                        baseParams.isEscaleFromTargetWavFile,
+                                                                        baseParams.isPitchFromTargetFile, 
+                                                                        baseParams.isDurationFromTargetFile, 
+                                                                        baseParams.isEnergyFromTargetFile,
+                                                                        baseParams.targetAlignmentFileType,
+                                                                        targetAlignmentFile,
                                                                         pm.pitchMarks, wsFixedInSeconds, ssFixedInSeconds,
                                                                         numfrm, numfrmFixed, numPeriods, 
                                                                         baseParams.isFixedRateVocalTractConversion);
@@ -352,6 +363,26 @@ public class FdpsolaAdapter {
                 labels = new Labels(inputItem.labelFile);
             else
                 labels = null;
+            
+            if (inputItem.targetLabelFile!="" && FileUtils.exists(inputItem.targetLabelFile))
+                targetLabels = new Labels(inputItem.targetLabelFile);
+            else
+                targetLabels = null;
+            
+            if (inputItem.targetWavFile!="" && FileUtils.exists(inputItem.targetWavFile))
+            {
+                try {
+                    targetLsfs = LsfAnalyser.lsfAnalyzeWavFile(inputItem.targetWavFile, baseParams.lsfParams);
+                } catch (UnsupportedAudioFileException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+            else
+                targetLsfs = null;
         }
 
         if (bContinue)
@@ -435,9 +466,9 @@ public class FdpsolaAdapter {
 
         double[] targetF0s = null;
 
-        if (!baseParams.isPscaleFromFestivalUttFile 
-                && !baseParams.isTscaleFromFestivalUttFile 
-                && !baseParams.isEscaleFromTargetWavFile)
+        if (!baseParams.isPitchFromTargetFile 
+                && !baseParams.isDurationFromTargetFile 
+                && !baseParams.isEnergyFromTargetFile)
         {
             if (ptData instanceof PitchMapping)
             {
@@ -452,12 +483,11 @@ public class FdpsolaAdapter {
         {
             baseParams.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.USE_ONLY_PSCALES;
             targetF0s = pitchTransformer.transform(baseParams.prosodyParams,  
-                    ((PitchMapping)ptData).f0StatisticsMapping,
-                    inputF0Statistics, 
-                    f0s,
-                    modParams.pscalesVar);
-        }
-                                                        
+                                                   ((PitchMapping)ptData).f0StatisticsMapping,
+                                                   inputF0Statistics, 
+                                                   f0s,
+                                                   modParams.pscalesVar);
+        }                                        
 
         preselectedIndices = null;
         allIndices = null;
@@ -531,7 +561,7 @@ public class FdpsolaAdapter {
                          currentF0, targetF0s[index], modParams.tscalesVar[i], modParams.escalesVar[i], modParams.vscalesVar[i], 
                          isLastInputFrame, currentPeriod, inputFrameSize, vtMapper, vtData);
 
-            if (baseParams.smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT &&
+            if (baseParams.isVocalTractTransformation && baseParams.smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT &&
                     baseParams.smoothingMethod!=SmoothingDefinitions.NO_SMOOTHING)
             {
                 smoothedInd++;
@@ -549,24 +579,27 @@ public class FdpsolaAdapter {
         //Perform smoothing on the vocal tract parameter file
         if (baseParams.smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)
         {
-            System.out.println("Temporal smoothing started using " + String.valueOf(baseParams.smoothingNumNeighbours) + " neighbours...");
-            smoothingFile.close();
-            smoothingFile = new SmoothingFile(baseParams.smoothedVocalTractFile, SmoothingFile.OPEN_FOR_READ);
-            double[][] vts = smoothingFile.readAll();
+            if (baseParams.isVocalTractTransformation)
+            {
+                System.out.println("Temporal smoothing started using " + String.valueOf(baseParams.smoothingNumNeighbours) + " neighbours...");
+                smoothingFile.close();
+                smoothingFile = new SmoothingFile(baseParams.smoothedVocalTractFile, SmoothingFile.OPEN_FOR_READ);
+                double[][] vts = smoothingFile.readAll();
 
-            double[] tmp1 = new double[vts.length];
-            for (i=0; i<vts.length; i++)
-                tmp1[i] = vts[i][20];
+                double[] tmp1 = new double[vts.length];
+                for (i=0; i<vts.length; i++)
+                    tmp1[i] = vts[i][20];
 
-            vts = TemporalSmoother.smooth(vts, baseParams.smoothingNumNeighbours);
+                vts = TemporalSmoother.smooth(vts, baseParams.smoothingNumNeighbours);
 
-            double[] tmp2 = new double[vts.length];
-            for (i=0; i<vts.length; i++)
-                tmp2[i] = vts[i][20];
+                double[] tmp2 = new double[vts.length];
+                for (i=0; i<vts.length; i++)
+                    tmp2[i] = vts[i][20];
 
-            smoothingFile = new SmoothingFile(baseParams.smoothedVocalTractFile, SmoothingFile.OPEN_FOR_WRITE, baseParams.smoothingMethod);
-            smoothingFile.writeAll(vts);
-            System.out.println("Temporal smoothing completed...");
+                smoothingFile = new SmoothingFile(baseParams.smoothedVocalTractFile, SmoothingFile.OPEN_FOR_WRITE, baseParams.smoothingMethod);
+                smoothingFile.writeAll(vts);
+                System.out.println("Temporal smoothing completed...");
+            }
         }
         else if (baseParams.smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)
             FileUtils.delete(baseParams.smoothedVocalTractFile);  
@@ -574,7 +607,7 @@ public class FdpsolaAdapter {
     }
 
     //Voice conversion version
-    public double[] processFrame(double [] frmIn, boolean isVoiced, 
+    public double[] processFrame(double[] frmIn, boolean isVoiced, 
                                  double currentF0, double targetF0, double tscale, double escale, double vscale, 
                                  boolean isLastInputFrame, int currentPeriod, int inputFrameSize,
                                  VocalTractTransformationFunction mapper,
@@ -603,8 +636,7 @@ public class FdpsolaAdapter {
         int tmpFix, tmpAdd, tmpMul;
         int remain;
         int kInd;
-        WeightedCodebookLsfMatch codebookMatch = null;
-        GMMMatch gmmMatch = null;
+        VocalTractMatch match = null;
 
         windowIn = new DynamicWindow(baseParams.lsfParams.windowType);
         windowOut = new DynamicWindow(baseParams.lsfParams.windowType);
@@ -770,9 +802,9 @@ public class FdpsolaAdapter {
                         }
 
                         if (preselectedIndices!=null)
-                            codebookMatch = ((WeightedCodebookMapper)mapper).transform(inputLsfs, (WeightedCodebook)data, baseParams.isVocalTractMatchUsingTargetModel, preselectedIndices);
+                            match = ((WeightedCodebookMapper)mapper).transform(inputLsfs, (WeightedCodebook)data, baseParams.isVocalTractMatchUsingTargetModel, preselectedIndices);
                         else
-                            codebookMatch = ((WeightedCodebookMapper)mapper).transform(inputLsfs, (WeightedCodebook)data, baseParams.isVocalTractMatchUsingTargetModel, allIndices);
+                            match = ((WeightedCodebookMapper)mapper).transform(inputLsfs, (WeightedCodebook)data, baseParams.isVocalTractMatchUsingTargetModel, allIndices);
 
                         //Use source for testing things. Don´t forget to set isSourceVocalTractFromCodeook=false
                         //codebookMatch = new WeightedCodebookMatch(inputLsfs, inputLsfs); 
@@ -790,7 +822,11 @@ public class FdpsolaAdapter {
 
                         gmmWeights = MathUtils.normalizeToSumUpTo(gmmWeights, 1.0);
                         
-                        gmmMatch = ((JointGMMMapper)mapper).transform(inputLsfs, (JointGMMSet)data, gmmWeights, baseParams.isVocalTractMatchUsingTargetModel);
+                        match = ((JointGMMMapper)mapper).transform(inputLsfs, (JointGMMSet)data, gmmWeights, baseParams.isVocalTractMatchUsingTargetModel);
+                    }
+                    else if (mapper instanceof TargetLsfCopyMapper)
+                    {
+                        match = ((TargetLsfCopyMapper)mapper).transform(psFrm.getCurrentTime(), labels, targetLabels, targetLsfs, baseParams.lsfParams.winsize, baseParams.lsfParams.skipsize);
                     }
                 }
 
@@ -825,17 +861,19 @@ public class FdpsolaAdapter {
                     if (mapper instanceof WeightedCodebookMapper)
                     {
                         if (!baseParams.isResynthesizeVocalTractFromSourceModel)
-                            interpolatedInputLpcs = LsfAnalyser.lsfInHz2lpc(codebookMatch.entry.sourceItem.lsfs, fs);
+                            interpolatedInputLpcs = LsfAnalyser.lsfInHz2lpc(((WeightedCodebookLsfMatch)match).entry.sourceItem.lsfs, fs);
                         else
-                            interpolatedInputLpcs = LsfAnalyser.lsfInHz2lpc(codebookMatch.entry.targetItem.lsfs, fs);
+                            interpolatedInputLpcs = LsfAnalyser.lsfInHz2lpc(((WeightedCodebookLsfMatch)match).entry.targetItem.lsfs, fs);
                     }
                     else if (mapper instanceof JointGMMMapper)
                     {
                         if (!baseParams.isResynthesizeVocalTractFromSourceModel)
-                            interpolatedInputLpcs = LsfAnalyser.lsfInHz2lpc(((JointGMMMatch)gmmMatch).mappedSourceFeatures, fs);
+                            interpolatedInputLpcs = LsfAnalyser.lsfInHz2lpc(((JointGMMMatch)match).mappedSourceFeatures, fs);
                         else
-                            interpolatedInputLpcs = LsfAnalyser.lsfInHz2lpc(((JointGMMMatch)gmmMatch).outputFeatures, fs);  
+                            interpolatedInputLpcs = LsfAnalyser.lsfInHz2lpc(((JointGMMMatch)match).outputFeatures, fs);  
                     }
+                    else if (mapper instanceof TargetLsfCopyMapper)
+                        interpolatedInputLpcs = ArrayUtils.copy(inputLpcs);
 
                     sourceVocalTractSpectrumEstimate = LpcAnalyser.calcSpecLinearFromOneMinusA(interpolatedInputLpcs, 1.0f, newFftSize, outputExpTerm);
                 }
@@ -888,34 +926,36 @@ public class FdpsolaAdapter {
                         if (baseParams.smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)
                         {
                             if (!baseParams.isResynthesizeVocalTractFromSourceModel)
-                                smoothingFile.writeSingle(codebookMatch.entry.targetItem.lsfs);
+                                smoothingFile.writeSingle(((WeightedCodebookLsfMatch)match).entry.targetItem.lsfs);
                             else
-                                smoothingFile.writeSingle(codebookMatch.entry.sourceItem.lsfs);    
+                                smoothingFile.writeSingle(((WeightedCodebookLsfMatch)match).entry.sourceItem.lsfs);    
                         }
                         else if (baseParams.smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)
                         {
                             if (!baseParams.isResynthesizeVocalTractFromSourceModel)
-                                codebookMatch.entry.targetItem.setLsfs(smoothedVocalTract[smoothedInd]);
+                                ((WeightedCodebookLsfMatch)match).entry.targetItem.setLsfs(smoothedVocalTract[smoothedInd]);
                             else
-                                codebookMatch.entry.sourceItem.setLsfs(smoothedVocalTract[smoothedInd]);  
+                                ((WeightedCodebookLsfMatch)match).entry.sourceItem.setLsfs(smoothedVocalTract[smoothedInd]);  
                         }
                     }
                     //
 
-                    if (mapper instanceof WeightedCodebookMapper)
+                    if (match instanceof WeightedCodebookLsfMatch)
                     {
                         if (!baseParams.isResynthesizeVocalTractFromSourceModel)
-                            targetLpcs = LsfAnalyser.lsfInHz2lpc(codebookMatch.entry.targetItem.lsfs, fs);
+                            targetLpcs = LsfAnalyser.lsfInHz2lpc(((WeightedCodebookLsfMatch)match).entry.targetItem.lsfs, fs);
                         else
-                            targetLpcs = LsfAnalyser.lsfInHz2lpc(codebookMatch.entry.sourceItem.lsfs, fs);
+                            targetLpcs = LsfAnalyser.lsfInHz2lpc(((WeightedCodebookLsfMatch)match).entry.sourceItem.lsfs, fs);
                     }
-                    else if (mapper instanceof JointGMMMapper)
+                    else if (match instanceof JointGMMMatch)
                     {
                         if (!baseParams.isResynthesizeVocalTractFromSourceModel)
-                            targetLpcs = LsfAnalyser.lsfInHz2lpc(((JointGMMMatch)gmmMatch).outputFeatures, fs);
+                            targetLpcs = LsfAnalyser.lsfInHz2lpc(((JointGMMMatch)match).outputFeatures, fs);
                         else
-                            targetLpcs = LsfAnalyser.lsfInHz2lpc(((JointGMMMatch)gmmMatch).mappedSourceFeatures, fs);
+                            targetLpcs = LsfAnalyser.lsfInHz2lpc(((JointGMMMatch)match).mappedSourceFeatures, fs);
                     }
+                    else if (match instanceof LsfMatch)
+                        targetLpcs = LsfAnalyser.lsfInHz2lpc(((LsfMatch)match).lsfs, fs);
 
                     if (fftSize!=newFftSize)
                     {
@@ -963,57 +1003,71 @@ public class FdpsolaAdapter {
                         outputVocalTractSpectrum[k] = interpolatedInputVocalTractSpectrum[k];
                 }
 
-                //Estimate transfor mation filter
-                transformationFilter = new double[newMaxFreq];
+                //Estimate transformation filter
+                if (baseParams.isVocalTractTransformation)
+                {
+                    transformationFilter = new double[newMaxFreq];
 
-                if (baseParams.isSourceVocalTractSpectrumFromModel)
-                {
-                    for (k=0; k<newMaxFreq; k++)
-                        transformationFilter[k] = targetVocalTractSpectrumEstimate[k]/sourceVocalTractSpectrumEstimate[k];
-                }
-                else
-                {
-                    for (k=0; k<newMaxFreq; k++)
-                        transformationFilter[k] = targetVocalTractSpectrumEstimate[k]/interpolatedInputVocalTractSpectrum[k];
-                }
-                //
-                
-                //Smoothing
-                if (baseParams.smoothingMethod==SmoothingDefinitions.TRANSFORMATION_FILTER_SMOOTHING)
-                {
-                    if (baseParams.smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)    
+                    if (baseParams.isSourceVocalTractSpectrumFromModel)
                     {
-                        smoothingFile.writeSingle(transformationFilter);   
-
-                        //For checking
-                        if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
-                        {
-                            tmpSpec = new double[newMaxFreq];
-                            System.arraycopy(transformationFilter, 0, tmpSpec, 0, tmpSpec.length);
-                            tmpSpec = MathUtils.amp2db(tmpSpec);
-                            MaryUtils.plot(tmpSpec, "6.Transformation filter");
-                        }
+                        for (k=0; k<newMaxFreq; k++)
+                            transformationFilter[k] = targetVocalTractSpectrumEstimate[k]/sourceVocalTractSpectrumEstimate[k];
                     }
-                    else if (baseParams.smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)  
+                    else
                     {
-                        if (baseParams.isSourceVocalTractSpectrumFromModel)
+                        for (k=0; k<newMaxFreq; k++)
+                            transformationFilter[k] = targetVocalTractSpectrumEstimate[k]/interpolatedInputVocalTractSpectrum[k];
+                    }
+                    //
+
+                    //Smoothing
+                    if (baseParams.smoothingMethod==SmoothingDefinitions.TRANSFORMATION_FILTER_SMOOTHING)
+                    {
+                        if (baseParams.smoothingState==SmoothingDefinitions.ESTIMATING_SMOOTHED_VOCAL_TRACT)    
                         {
-                            for (k=0; k<newMaxFreq; k++)
-                                outputVocalTractSpectrum[k] = smoothedVocalTract[smoothedInd][k]*sourceVocalTractSpectrumEstimate[k];
+                            smoothingFile.writeSingle(transformationFilter);   
+
+                            //For checking
+                            if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
+                            {
+                                tmpSpec = new double[newMaxFreq];
+                                System.arraycopy(transformationFilter, 0, tmpSpec, 0, tmpSpec.length);
+                                tmpSpec = MathUtils.amp2db(tmpSpec);
+                                MaryUtils.plot(tmpSpec, "6.Transformation filter");
+                            }
+                        }
+                        else if (baseParams.smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)  
+                        {
+                            if (baseParams.isSourceVocalTractSpectrumFromModel)
+                            {
+                                for (k=0; k<newMaxFreq; k++)
+                                    outputVocalTractSpectrum[k] = smoothedVocalTract[smoothedInd][k]*sourceVocalTractSpectrumEstimate[k];
+                            }
+                            else
+                            {
+                                for (k=0; k<newMaxFreq; k++)
+                                    outputVocalTractSpectrum[k] = smoothedVocalTract[smoothedInd][k]*interpolatedInputVocalTractSpectrum[k];
+                            }
+
+                            //For checking
+                            if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
+                            {
+                                tmpSpec = new double[newMaxFreq];
+                                System.arraycopy(smoothedVocalTract[smoothedInd], 0, tmpSpec, 0, tmpSpec.length);
+                                tmpSpec = MathUtils.amp2db(tmpSpec);
+                                MaryUtils.plot(tmpSpec, "6.Smoothed transformation filter");
+                            }
                         }
                         else
                         {
-                            for (k=0; k<newMaxFreq; k++)
-                                outputVocalTractSpectrum[k] = smoothedVocalTract[smoothedInd][k]*interpolatedInputVocalTractSpectrum[k];
-                        }
-
-                        //For checking
-                        if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
-                        {
-                            tmpSpec = new double[newMaxFreq];
-                            System.arraycopy(smoothedVocalTract[smoothedInd], 0, tmpSpec, 0, tmpSpec.length);
-                            tmpSpec = MathUtils.amp2db(tmpSpec);
-                            MaryUtils.plot(tmpSpec, "6.Smoothed transformation filter");
+                            //For checking
+                            if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
+                            {
+                                tmpSpec = new double[newMaxFreq];
+                                System.arraycopy(transformationFilter, 0, tmpSpec, 0, tmpSpec.length);
+                                tmpSpec = MathUtils.amp2db(tmpSpec);
+                                MaryUtils.plot(tmpSpec, "6.Transformation filter");
+                            }
                         }
                     }
                     else
@@ -1026,17 +1080,6 @@ public class FdpsolaAdapter {
                             tmpSpec = MathUtils.amp2db(tmpSpec);
                             MaryUtils.plot(tmpSpec, "6.Transformation filter");
                         }
-                    }
-                }
-                else
-                {
-                    //For checking
-                    if (bShowSpectralPlots && psFrm.getCurrentTime()>=desiredFrameTime)
-                    {
-                        tmpSpec = new double[newMaxFreq];
-                        System.arraycopy(transformationFilter, 0, tmpSpec, 0, tmpSpec.length);
-                        tmpSpec = MathUtils.amp2db(tmpSpec);
-                        MaryUtils.plot(tmpSpec, "6.Transformation filter");
                     }
                 }
                 //

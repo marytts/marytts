@@ -30,8 +30,10 @@ import marytts.signalproc.adaptation.BaselineFeatureExtractor;
 import marytts.signalproc.adaptation.BaselinePostprocessor;
 import marytts.signalproc.adaptation.BaselinePreprocessor;
 import marytts.signalproc.adaptation.BaselineTransformer;
+import marytts.signalproc.adaptation.BaselineTransformerParams;
 import marytts.signalproc.adaptation.FdpsolaAdapter;
 import marytts.signalproc.adaptation.MfccAdapter;
+import marytts.signalproc.adaptation.TargetLsfCopyMapper;
 import marytts.signalproc.adaptation.prosody.PitchMapping;
 import marytts.signalproc.adaptation.prosody.PitchMappingFile;
 import marytts.signalproc.adaptation.prosody.PitchStatistics;
@@ -146,13 +148,17 @@ public class JointGMMTransformer extends BaselineTransformer {
         {
             params.outputFolder = params.outputBaseFolder + params.outputFolderInfoString + 
                                   "_mixes" + String.valueOf(nonNullGmm.source.totalComponents) + 
-                                  "_prosody" + String.valueOf(params.prosodyParams.pitchStatisticsType) + "x" + String.valueOf(params.prosodyParams.pitchTransformationMethod); 
+                                  "_prosody" + String.valueOf(params.prosodyParams.pitchStatisticsType) + 
+                                  "x" + String.valueOf(params.prosodyParams.pitchTransformationMethod) +
+                                  "x" + String.valueOf(params.prosodyParams.durationTransformationMethod); 
         }
         else
         {
             params.outputFolder = params.outputBaseFolder + 
                                   "_mixes" + String.valueOf(nonNullGmm.source.totalComponents) + 
-                                  "_prosody" + String.valueOf(params.prosodyParams.pitchStatisticsType) + "x" + String.valueOf(params.prosodyParams.pitchTransformationMethod);
+                                  "_prosody" + String.valueOf(params.prosodyParams.pitchStatisticsType) + 
+                                  "x" + String.valueOf(params.prosodyParams.pitchTransformationMethod) +
+                                  "x" + String.valueOf(params.prosodyParams.durationTransformationMethod);
         }
             
         if (!FileUtils.isDirectory(params.outputFolder))
@@ -163,6 +169,12 @@ public class JointGMMTransformer extends BaselineTransformer {
         
         if (!params.isSeparateProsody)
             params.isSaveVocalTractOnlyVersion = false;
+        
+        if (params.isPitchFromTargetFile)
+            params.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.CUSTOM_TRANSFORMATION;
+        
+        if (params.isDurationFromTargetFile)
+            params.prosodyParams.durationTransformationMethod = ProsodyTransformerParams.CUSTOM_TRANSFORMATION;
         
         return true;
     }
@@ -276,11 +288,18 @@ public class JointGMMTransformer extends BaselineTransformer {
                                         PitchTransformationData pMap
                                        ) throws UnsupportedAudioFileException, IOException
     {  
+        TargetLsfCopyMapper tcMapper = new TargetLsfCopyMapper();
+        
         //LSF transformation is done fully from audio to audio
         if (jgSet.gmms[0].featureType==BaselineFeatureExtractor.LSF_FEATURES)
         {
-            if (wctParams.isFixedRateVocalTractConversion && wctParams.prosodyParams.pitchTransformationMethod!=ProsodyTransformerParams.NO_TRANSFORMATION)
-                wctParams.isSeparateProsody = true;
+            if (wctParams.isFixedRateVocalTractConversion)
+            {
+                if (wctParams.prosodyParams.pitchTransformationMethod!=ProsodyTransformerParams.NO_TRANSFORMATION 
+                        || wctParams.prosodyParams.pitchTransformationMethod!=ProsodyTransformerParams.CUSTOM_TRANSFORMATION
+                        || wctParams.prosodyParams.durationTransformationMethod!=ProsodyTransformerParams.CUSTOM_TRANSFORMATION)
+                    wctParams.isSeparateProsody = true;
+            }
 
             //Desired values should be specified in the following four parameters
             double[] pscales = {1.0};
@@ -293,9 +312,6 @@ public class JointGMMTransformer extends BaselineTransformer {
             double[] tscalesNone = {1.0};
             double[] escalesNone = {1.0};
             double[] vscalesNone = {1.0};
-            boolean noPscaleFromFestivalUttFile = false;
-            boolean noTscaleFromFestivalUttFile = false;
-            boolean noEscaleFromTargetWavFile = false;
             //
 
             FdpsolaAdapter adapter = null;
@@ -312,14 +328,16 @@ public class JointGMMTransformer extends BaselineTransformer {
                 firstPassOutputWavFile = StringUtils.getFolderName(outputItem.audioFile) + StringUtils.getFileName(outputItem.audioFile) + "_vt.wav";
                 smoothedVocalTractFile = StringUtils.getFolderName(outputItem.audioFile) + StringUtils.getFileName(outputItem.audioFile) + "_vt.vtf";
                 int tmpPitchTransformationMethod = currentWctParams.prosodyParams.pitchTransformationMethod;
+                int tmpDurationTransformationMethod = currentWctParams.prosodyParams.durationTransformationMethod;
                 currentWctParams.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
-
-                boolean tmpPscaleFromFestivalUttFile = currentWctParams.isPscaleFromFestivalUttFile;
-                boolean tmpTscaleFromFestivalUttFile = currentWctParams.isTscaleFromFestivalUttFile;
-                boolean tmpEscaleFromTargetWavFile = currentWctParams.isEscaleFromTargetWavFile;
-                currentWctParams.isPscaleFromFestivalUttFile = noPscaleFromFestivalUttFile;
-                currentWctParams.isTscaleFromFestivalUttFile = noTscaleFromFestivalUttFile;
-                currentWctParams.isEscaleFromTargetWavFile = noEscaleFromTargetWavFile;
+                currentWctParams.prosodyParams.durationTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
+                
+                boolean tmpPitchFromTargetFile = currentWctParams.isPitchFromTargetFile;
+                boolean tmpDurationFromTargetFile = currentWctParams.isDurationFromTargetFile;
+                boolean tmpEnergyFromTargetFile = currentWctParams.isEnergyFromTargetFile;
+                currentWctParams.isPitchFromTargetFile = false;
+                currentWctParams.isDurationFromTargetFile = false;
+                currentWctParams.isEnergyFromTargetFile = false;
 
                 if (currentWctParams.isTemporalSmoothing) //This estimates the vocal tract filter but performs no prosody and vocal tract transformations
                 {
@@ -330,13 +348,17 @@ public class JointGMMTransformer extends BaselineTransformer {
                                                  pscalesNone, tscalesNone, escalesNone, vscalesNone);
 
                     adapter.bSilent = !currentWctParams.isDisplayProcessingFrameCount;
-                    adapter.fdpsolaOnline(jgMapper, jgSet, pMap); //Call voice conversion version
+                    
+                    if (!currentWctParams.isLsfsFromTargetFile)
+                        adapter.fdpsolaOnline(jgMapper, jgSet, pMap);
+                    else
+                        adapter.fdpsolaOnline(tcMapper, jgSet, pMap);
 
                     currentWctParams.smoothingState = SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT;
                     currentWctParams.smoothedVocalTractFile = smoothedVocalTractFile; //Now it is an input
 
                     adapter = new FdpsolaAdapter(inputItem, firstPassOutputWavFile, currentWctParams,
-                            pscalesNone, tscalesNone, escalesNone, vscalesNone);
+                                                 pscalesNone, tscalesNone, escalesNone, vscalesNone);
                 }
                 else
                 {
@@ -348,16 +370,20 @@ public class JointGMMTransformer extends BaselineTransformer {
                                                  pscalesNone, tscalesNone, escalesNone, vscalesNone);
                 }
 
-                currentWctParams.isPscaleFromFestivalUttFile = tmpPscaleFromFestivalUttFile;
-                currentWctParams.isTscaleFromFestivalUttFile = tmpTscaleFromFestivalUttFile;
-                currentWctParams.isEscaleFromTargetWavFile = tmpEscaleFromTargetWavFile;
+                currentWctParams.isPitchFromTargetFile = tmpPitchFromTargetFile;
+                currentWctParams.isDurationFromTargetFile = tmpDurationFromTargetFile;
+                currentWctParams.isEnergyFromTargetFile = tmpEnergyFromTargetFile;
 
-                //Then second step: prosody modification (with possible additional vocal tract scaling)
                 if (adapter!=null)
                 {
                     adapter.bSilent = !currentWctParams.isDisplayProcessingFrameCount;
-                    adapter.fdpsolaOnline(jgMapper, jgSet, pMap); //Call voice conversion version
-
+                    
+                    if (!currentWctParams.isLsfsFromTargetFile)
+                        adapter.fdpsolaOnline(jgMapper, jgSet, pMap);
+                    else
+                        adapter.fdpsolaOnline(tcMapper, jgSet, pMap);
+                    
+                    //Then second step: prosody modification (with possible additional vocal tract scaling)
                     if (isScalingsRequired(pscales, tscales, escales, vscales) || tmpPitchTransformationMethod!=ProsodyTransformerParams.NO_TRANSFORMATION)
                     {
                         System.out.println("Performing prosody modifications...");
@@ -367,6 +393,7 @@ public class JointGMMTransformer extends BaselineTransformer {
                         currentWctParams.isResynthesizeVocalTractFromSourceModel = false; //isResynthesizeVocalTractFromSourceCodebook should be false
                         currentWctParams.isVocalTractMatchUsingTargetModel = false; //isVocalTractMatchUsingTargetCodebook should be false
                         currentWctParams.prosodyParams.pitchTransformationMethod = tmpPitchTransformationMethod;
+                        currentWctParams.prosodyParams.durationTransformationMethod = tmpDurationTransformationMethod;
                         currentWctParams.smoothingMethod = SmoothingDefinitions.NO_SMOOTHING;
                         currentWctParams.smoothingState = SmoothingDefinitions.NONE;
                         currentWctParams.smoothedVocalTractFile = "";
@@ -402,7 +429,11 @@ public class JointGMMTransformer extends BaselineTransformer {
                                              pscales, tscales, escales, vscales);
 
                 adapter.bSilent = !wctParams.isDisplayProcessingFrameCount;
-                adapter.fdpsolaOnline(jgMapper, jgSet, pMap); //Call voice conversion version
+
+                if (!currentWctParams.isLsfsFromTargetFile)
+                    adapter.fdpsolaOnline(jgMapper, jgSet, pMap);
+                else
+                    adapter.fdpsolaOnline(tcMapper, jgSet, pMap);
             }
         }
         else if (jgSet.gmms[0].featureType==BaselineFeatureExtractor.MFCC_FEATURES_FROM_FILES)
@@ -426,7 +457,9 @@ public class JointGMMTransformer extends BaselineTransformer {
 
     public static void main(String[] args) throws IOException, UnsupportedAudioFileException 
     {
-        mainInterspeech2008(args);
+        mainIeeeTaslp2009(args);
+        
+        //mainInterspeech2008(args);
         
         //mainHmmVoiceConversion(args);
         
@@ -529,82 +562,29 @@ public class JointGMMTransformer extends BaselineTransformer {
         pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_HERTZ;
         //pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_LOGHERTZ;
         
+        pa.prosodyParams.durationTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
+        //pa.prosodyParams.durationTransformationMethod = ProsodyTransformerParams.CUSTOM_TRANSFORMATION;
+        
         //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
         //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_MEAN;
         //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_STDDEV;
         
-        pa.prosodyParams.isUseInputMean = false;
-        pa.prosodyParams.isUseInputStdDev = false;
-        pa.prosodyParams.isUseInputRange = false;
-        pa.prosodyParams.isUseInputIntercept = false;
-        pa.prosodyParams.isUseInputSlope = false;
+        pa.prosodyParams.isUseInputMeanPitch = false;
+        pa.prosodyParams.isUseInputStdDevPitch = false;
+        pa.prosodyParams.isUseInputRangePitch = false;
+        pa.prosodyParams.isUseInputInterceptPitch = false;
+        pa.prosodyParams.isUseInputSlopePitch = false;
         //
         
         //TTS tests
-        pa.isPscaleFromFestivalUttFile = false;
-        pa.isTscaleFromFestivalUttFile = false;
-        pa.isEscaleFromTargetWavFile = false;
+        pa.isPitchFromTargetFile = false;
+        pa.isDurationFromTargetFile = false;
+        pa.isEnergyFromTargetFile = false;
+        pa.targetAlignmentFileType = BaselineTransformerParams.LABELS;
         //
         
         JointGMMTransformer t = new JointGMMTransformer(pp, fe, po, pa);
         t.run();
-    }
-    
-    public static void mainInterspeech2008(String[] args) throws IOException, UnsupportedAudioFileException 
-    {
-        String emotion = "angry";
-        String method = "F";
-        int numTrainingFiles = 200; //2, 20, 200, 350
-        int i;
-        
-        boolean isContextualGMMs = false;
-        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {40};
-        //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
-        //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
-        //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
-        //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER; int[] numComponents = {128, 128, 128, 128, 128, 16};
-        //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY; int[] numComponents = {128}; 
-        
-        String inputFolder = "D:/Oytun/DFKI/voices/Interspeech08/neutral/test_tts_" + emotion;
-        String outputBaseFolder;
-        if (!isContextualGMMs)
-        {
-            outputBaseFolder = "D:/Oytun/DFKI/voices/Interspeech08_out2/neutral2" + emotion + "/neutral2" + emotion + 
-                               "Out_gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_" + 
-                               String.valueOf(numComponents[0]);
-        }
-        else
-        {
-
-            outputBaseFolder = "D:/Oytun/DFKI/voices/Interspeech08_out2/neutral2" + emotion + "/neutral2" + emotion + 
-                               "Out_gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_" + 
-                               "context" + String.valueOf(contextClassificationType);
-            
-            for (i=0; i<numComponents.length; i++)
-                outputBaseFolder += "_" + String.valueOf(numComponents[i]);
-        }
-        
-        String baseFile = "D:/Oytun/DFKI/voices/Interspeech08_out2/neutral2"+ emotion + "/neutral" + method + "_X_" + emotion + method + "_" + String.valueOf(numTrainingFiles);
-        
-        boolean isSourceVocalTractSpectrumFromModel = false;
-        boolean isTemporalSmoothing = true;
-        int smoothingNumNeighbours = 10;
-        
-        //Note that these two can be true or false together, not yet implemented separate processing
-        boolean isPscaleFromFestivalUttFile = true; //false=>mean std dev tfm of pitch, true=>from target CART
-        boolean isTscaleFromFestivalUttFile = true;
-        //
-        
-        String outputFolderInfoString = "isSrc" + String.valueOf(isSourceVocalTractSpectrumFromModel ? 1:0) +
-                                        "_smooth" + String.valueOf(isTemporalSmoothing ? 1:0) + "_" + String.valueOf(smoothingNumNeighbours) +
-                                        "_psUtt" + String.valueOf(isPscaleFromFestivalUttFile ? 1:0)+
-                                        "_tsUtt" + String.valueOf(isTscaleFromFestivalUttFile ? 1:0);
-        
-        mainParametric(inputFolder, outputBaseFolder, baseFile, outputFolderInfoString,
-                       isSourceVocalTractSpectrumFromModel,
-                       isTemporalSmoothing, smoothingNumNeighbours, 
-                       isPscaleFromFestivalUttFile, isTscaleFromFestivalUttFile,
-                       isContextualGMMs, contextClassificationType, numComponents);
     }
     
     public static void mainQuickTest(String[] args) throws UnsupportedAudioFileException, IOException
@@ -698,31 +678,155 @@ public class JointGMMTransformer extends BaselineTransformer {
         pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_HERTZ;
         //pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_LOGHERTZ;
         
+        pa.prosodyParams.durationTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
+        //pa.prosodyParams.durationTransformationMethod = ProsodyTransformerParams.CUSTOM_TRANSFORMATION;
+        
         //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
         //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_MEAN;
         //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_STDDEV;
         
-        pa.prosodyParams.isUseInputMean = false;
-        pa.prosodyParams.isUseInputStdDev = false;
-        pa.prosodyParams.isUseInputRange = false;
-        pa.prosodyParams.isUseInputIntercept = false;
-        pa.prosodyParams.isUseInputSlope = false;
+        pa.prosodyParams.isUseInputMeanPitch = false;
+        pa.prosodyParams.isUseInputStdDevPitch = false;
+        pa.prosodyParams.isUseInputRangePitch = false;
+        pa.prosodyParams.isUseInputInterceptPitch = false;
+        pa.prosodyParams.isUseInputSlopePitch = false;
         //
         
         //TTS tests
-        pa.isPscaleFromFestivalUttFile = false;
-        pa.isTscaleFromFestivalUttFile = false;
-        pa.isEscaleFromTargetWavFile = false;
+        pa.isPitchFromTargetFile = false;
+        pa.isDurationFromTargetFile = false;
+        pa.isEnergyFromTargetFile = false;
+        pa.targetAlignmentFileType = BaselineTransformerParams.LABELS;
         //
         
         JointGMMTransformer t = new JointGMMTransformer(pp, fe, po, pa);
         t.run();
     }
     
+    public static void mainInterspeech2008(String[] args) throws IOException, UnsupportedAudioFileException 
+    {
+        String emotion = "angry";
+        String method = "F";
+        int numTrainingFiles = 200; //2, 20, 200, 350
+        int i;
+        
+        boolean isContextualGMMs = false;
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {40};
+        //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
+        //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
+        //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
+        //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER; int[] numComponents = {128, 128, 128, 128, 128, 16};
+        //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY; int[] numComponents = {128}; 
+        
+        String inputFolder = "D:/Oytun/DFKI/voices/Interspeech08/neutral/test_tts_" + emotion;
+        String outputBaseFolder;
+        if (!isContextualGMMs)
+        {
+            outputBaseFolder = "D:/Oytun/DFKI/voices/Interspeech08_out2/neutral2" + emotion + "/neutral2" + emotion + 
+                               "Out_gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_" + 
+                               String.valueOf(numComponents[0]);
+        }
+        else
+        {
+            outputBaseFolder = "D:/Oytun/DFKI/voices/Interspeech08_out2/neutral2" + emotion + "/neutral2" + emotion + 
+                               "Out_gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_" + 
+                               "context" + String.valueOf(contextClassificationType);
+            
+            for (i=0; i<numComponents.length; i++)
+                outputBaseFolder += "_" + String.valueOf(numComponents[i]);
+        }
+        
+        String baseFile = "D:/Oytun/DFKI/voices/Interspeech08_out2/neutral2"+ emotion + "/neutral" + method + "_X_" + emotion + method + "_" + String.valueOf(numTrainingFiles);
+        
+        boolean isSourceVocalTractSpectrumFromModel = false;
+        boolean isTemporalSmoothing = true;
+        int smoothingNumNeighbours = 10;
+        
+        //Note that these two can be true or false together, not yet implemented separate processing
+        boolean isPitchFromTargetFile = true;
+        boolean isDurationFromTargetFile = true;
+        boolean isEnergyFromTargetFile = false;
+        boolean isLsfsFromTargetFile = false;
+        int targetAlignmentFileType = BaselineTransformerParams.FESTIVAL_UTT;
+        //
+        
+        String outputFolderInfoString = "isSrc" + String.valueOf(isSourceVocalTractSpectrumFromModel ? 1:0) +
+                                        "_smooth" + String.valueOf(isTemporalSmoothing ? 1:0) + "_" + String.valueOf(smoothingNumNeighbours) +
+                                        "_psUtt" + String.valueOf(isPitchFromTargetFile ? 1:0)+
+                                        "_tsUtt" + String.valueOf(isDurationFromTargetFile ? 1:0);
+        
+        mainParametric(inputFolder, outputBaseFolder, baseFile, outputFolderInfoString,
+                       isSourceVocalTractSpectrumFromModel,
+                       isTemporalSmoothing, smoothingNumNeighbours, 
+                       isPitchFromTargetFile, isDurationFromTargetFile, isEnergyFromTargetFile, isLsfsFromTargetFile, targetAlignmentFileType,
+                       isContextualGMMs, contextClassificationType, numComponents);
+    }
+    
+    public static void mainIeeeTaslp2009(String[] args) throws IOException, UnsupportedAudioFileException 
+    {
+        String emotion = "angry";
+        //String emotion = "happy";
+        //String emotion = "sad";
+        String method = "F";
+        int numTrainingFiles = 200; //2, 20, 200, 350
+        int i;
+        
+        boolean isContextualGMMs = false;
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {40};
+        //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
+        //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
+        //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
+        //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER; int[] numComponents = {128, 128, 128, 128, 128, 16};
+        //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY; int[] numComponents = {128}; 
+        
+        String inputFolder = "D:/publications/IEEE_TASLP/2009/expressiveVC/voice_conversion/test_neutral2" + emotion;
+        //String inputFolder = "D:/publications/IEEE_TASLP/2009/expressiveVC/voice_conversion/test_neutral_short";
+        
+        String outputBaseString = "D:/publications/IEEE_TASLP/2009/expressiveVC/voice_conversion/out_neutral2";
+        //String outputBaseString = "D:/publications/IEEE_TASLP/2009/expressiveVC/voice_conversion/out_short_neutral2";
+        
+        String outputBaseFolder = outputBaseString + emotion + 
+                                  "/neutral2" + emotion + "Out_gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_";
+        if (!isContextualGMMs)
+            outputBaseFolder += String.valueOf(numComponents[0]);
+        else
+        {
+            outputBaseFolder += "context" + String.valueOf(contextClassificationType);
+            
+            for (i=0; i<numComponents.length; i++)
+                outputBaseFolder += "_" + String.valueOf(numComponents[i]);
+        }
+        
+        String baseFile = outputBaseString + emotion + "/neutral" + method + "_X_" + emotion + method + "_" + String.valueOf(numTrainingFiles);
+        
+        boolean isSourceVocalTractSpectrumFromModel = false;
+        boolean isTemporalSmoothing = false;
+        int smoothingNumNeighbours = 5;
+        
+        //Note that pitch and duration can be true or false together, not yet implemented separate processing
+        boolean isPitchFromTargetFile = true;
+        boolean isDurationFromTargetFile = true;
+        boolean isEnergyFromTargetFile = false;
+        boolean isLsfsFromTargetFile = true;
+        int targetAlignmentFileType = BaselineTransformerParams.LABELS;
+        //
+        
+        String outputFolderInfoString = "isSrc" + String.valueOf(isSourceVocalTractSpectrumFromModel ? 1:0) +
+                                        "_smooth" + String.valueOf(isTemporalSmoothing ? 1:0) + "_" + String.valueOf(smoothingNumNeighbours) +
+                                        "_psUtt" + String.valueOf(isPitchFromTargetFile ? 1:0)+
+                                        "_tsUtt" + String.valueOf(isDurationFromTargetFile ? 1:0);
+        
+        mainParametric(inputFolder, outputBaseFolder, baseFile, outputFolderInfoString,
+                       isSourceVocalTractSpectrumFromModel,
+                       isTemporalSmoothing, smoothingNumNeighbours, 
+                       isPitchFromTargetFile, isDurationFromTargetFile, isEnergyFromTargetFile, isLsfsFromTargetFile, targetAlignmentFileType,
+                       isContextualGMMs, contextClassificationType, numComponents);
+    }
+    
     public static void mainParametric(String inputFolder, String outputBaseFolder, String baseFile, String outputFolderInfoString,
                                       boolean isSourceVocalTractSpectrumFromModel,
                                       boolean isTemporalSmoothing, int smoothingNumNeighbours, 
-                                      boolean isPscaleFromFestivalUttFile, boolean isTscaleFromFestivalUttFile,
+                                      boolean isPitchFromTargetFile, boolean isDurationFromTargetFile, boolean isEnergyFromTargetFile, boolean isLsfsFromTargetFile, int targetAlignmentFileType,
                                       boolean isContextualGMMs, int contextClassificationType, int[] numComponents) throws IOException, UnsupportedAudioFileException
     {
         BaselinePreprocessor pp = new BaselinePreprocessor();
@@ -765,8 +869,10 @@ public class JointGMMTransformer extends BaselineTransformer {
         pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_HERTZ;
         //pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_LOGHERTZ;
         
-        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
-        pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_MEAN;
+        pa.prosodyParams.durationTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
+
+        pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
+        //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_MEAN;
         //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_STDDEV;
         //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_RANGE;
         //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.GLOBAL_SLOPE;
@@ -785,11 +891,11 @@ public class JointGMMTransformer extends BaselineTransformer {
         //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.SENTENCE_INTERCEPT_STDDEV;
         //pa.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.SENTENCE_INTERCEPT_SLOPE;
         
-        pa.prosodyParams.isUseInputMean = false;
-        pa.prosodyParams.isUseInputStdDev = false;
-        pa.prosodyParams.isUseInputRange = false;
-        pa.prosodyParams.isUseInputIntercept = false;
-        pa.prosodyParams.isUseInputSlope = false;
+        pa.prosodyParams.isUseInputMeanPitch = false;
+        pa.prosodyParams.isUseInputStdDevPitch = false;
+        pa.prosodyParams.isUseInputRangePitch = false;
+        pa.prosodyParams.isUseInputInterceptPitch = false;
+        pa.prosodyParams.isUseInputSlopePitch = false;
         //
         
         //Smoothing
@@ -801,9 +907,11 @@ public class JointGMMTransformer extends BaselineTransformer {
         //
         
         //TTS tests
-        pa.isPscaleFromFestivalUttFile = isPscaleFromFestivalUttFile;
-        pa.isTscaleFromFestivalUttFile = isTscaleFromFestivalUttFile;
-        pa.isEscaleFromTargetWavFile = true;
+        pa.isPitchFromTargetFile = isPitchFromTargetFile;    
+        pa.isDurationFromTargetFile = isDurationFromTargetFile;
+        pa.isEnergyFromTargetFile = isEnergyFromTargetFile;
+        pa.isLsfsFromTargetFile = isLsfsFromTargetFile;
+        pa.targetAlignmentFileType = targetAlignmentFileType;
         //
         
         JointGMMTransformer t = new JointGMMTransformer(pp, fe, po, pa);

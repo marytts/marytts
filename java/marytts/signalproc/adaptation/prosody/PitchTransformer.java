@@ -102,19 +102,19 @@ public class PitchTransformer {
                     assert outputStatistics!=null;
                 }
 
-                if (param.isUseInputMean)
+                if (param.isUseInputMeanPitch)
                     inputStatistics.mean = inputLocalStatistics.mean;
 
-                if (param.isUseInputStdDev)
+                if (param.isUseInputStdDevPitch)
                     inputStatistics.standardDeviation = inputLocalStatistics.standardDeviation;
 
-                if (param.isUseInputRange)
+                if (param.isUseInputRangePitch)
                     inputStatistics.range = inputLocalStatistics.range;
 
-                if (param.isUseInputIntercept)
+                if (param.isUseInputInterceptPitch)
                     inputStatistics.intercept = inputLocalStatistics.intercept;
 
-                if (param.isUseInputSlope)
+                if (param.isUseInputSlopePitch)
                     inputStatistics.slope = inputLocalStatistics.slope;
 
                 System.arraycopy(f0s, 0, targetF0s, 0, f0s.length);

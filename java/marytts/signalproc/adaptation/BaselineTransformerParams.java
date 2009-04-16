@@ -64,12 +64,24 @@ public class BaselineTransformerParams extends BaselineParams {
     public boolean isSourceVocalTractSpectrumFromModel;
     public boolean isResynthesizeVocalTractFromSourceModel;
     public boolean isVocalTractMatchUsingTargetModel;
+    public boolean isLsfsFromTargetFile;
     
     public String pitchMappingFile;
     
-    public boolean isPscaleFromFestivalUttFile;
-    public boolean isTscaleFromFestivalUttFile;
-    public boolean isEscaleFromTargetWavFile;
+    //For copy-paste prosody
+    public boolean isPitchFromTargetFile;
+    public boolean isDurationFromTargetFile;
+    public boolean isEnergyFromTargetFile;
+    
+    public int targetAlignmentFileType;
+    public static final int LABELS = 1;
+    public static final int FESTIVAL_UTT = 2;
+    //
+    
+    public static final double MINIMUM_ALLOWED_PITCH_SCALE = 0.7;
+    public static final double MAXIMUM_ALLOWED_PITCH_SCALE = 1.5;
+    public static final double MINIMUM_ALLOWED_TIME_SCALE = 0.7;
+    public static final double MAXIMUM_ALLOWED_TIME_SCALE = 1.5;
 
     public BaselineTransformerParams()
     {
@@ -109,9 +121,12 @@ public class BaselineTransformerParams extends BaselineParams {
         
         pitchMappingFile = "";
         
-        isPscaleFromFestivalUttFile = false;
-        isTscaleFromFestivalUttFile = false;
-        isEscaleFromTargetWavFile = false;
+        isPitchFromTargetFile = false;
+        isDurationFromTargetFile = false;
+        isEnergyFromTargetFile = false;
+        isLsfsFromTargetFile = false;
+        
+        targetAlignmentFileType = BaselineTransformerParams.LABELS;
     }
     
     public BaselineTransformerParams(BaselineTransformerParams existing)
@@ -148,9 +163,12 @@ public class BaselineTransformerParams extends BaselineParams {
         
         pitchMappingFile = existing.pitchMappingFile;
         
-        isPscaleFromFestivalUttFile = existing.isPscaleFromFestivalUttFile;
-        isTscaleFromFestivalUttFile = existing.isTscaleFromFestivalUttFile;
-        isEscaleFromTargetWavFile = existing.isEscaleFromTargetWavFile;
+        isPitchFromTargetFile = existing.isPitchFromTargetFile;
+        isDurationFromTargetFile = existing.isDurationFromTargetFile;
+        isEnergyFromTargetFile = existing.isEnergyFromTargetFile;
+        isLsfsFromTargetFile = existing.isLsfsFromTargetFile;
+        
+        targetAlignmentFileType = existing.targetAlignmentFileType;
     }
 }
 

@@ -19,13 +19,15 @@
  */
 package marytts.signalproc.adaptation.codebook;
 
+import marytts.signalproc.adaptation.VocalTractMatch;
+
 /**
  * 
  * Wrapper class for a single weighted codebook entry LSF match
  *
  * @author Oytun T&uumlrk
  */
-public class WeightedCodebookLsfMatch {
+public class WeightedCodebookLsfMatch extends VocalTractMatch {
     public WeightedCodebookEntry entry;
     public int[] indices;
     public double[] weights;

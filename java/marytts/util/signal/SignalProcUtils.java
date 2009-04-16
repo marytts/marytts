@@ -40,6 +40,7 @@ import marytts.util.math.ComplexArray;
 import marytts.util.math.FFT;
 import marytts.util.math.FFTMixedRadix;
 import marytts.util.math.MathUtils;
+import marytts.util.string.StringUtils;
 
 
 public class SignalProcUtils {
@@ -1311,6 +1312,45 @@ public class SignalProcUtils {
         return (int)Math.max(0, Math.floor((time-0.5*windowSizeInSeconds)/skipSizeInSeconds+0.5));
     }
     
+    public static double sourceTime2targetTime(double sourceTime, Labels sourceLabels, Labels targetLabels)
+    {
+        int[][] map = StringUtils.alignLabels(sourceLabels.items, targetLabels.items);
+        
+        return sourceTime2targetTime(sourceTime, sourceLabels, targetLabels, map);
+    }
+    
+    public static double sourceTime2targetTime(double sourceTime, Labels sourceLabels, Labels targetLabels, int[][] map)
+    {
+        int sourceLabInd = SignalProcUtils.time2LabelIndex(sourceTime, sourceLabels);
+        double sourceDuration, targetDuration;
+        double locationInLabelPercent;
+
+        if (sourceLabInd>0)
+        {
+            sourceDuration = sourceLabels.items[sourceLabInd].time-sourceLabels.items[sourceLabInd-1].time;
+            locationInLabelPercent = (sourceTime-sourceLabels.items[sourceLabInd-1].time)/sourceDuration;
+        }
+        else
+        {
+            sourceDuration = sourceLabels.items[sourceLabInd].time;
+            locationInLabelPercent = sourceTime/sourceLabels.items[sourceLabInd].time;
+        }
+
+        int targetLabInd = StringUtils.findInMap(map, sourceLabInd);
+        if (targetLabInd>0)
+            targetDuration = targetLabels.items[targetLabInd].time-targetLabels.items[targetLabInd-1].time;
+        else
+            targetDuration = targetLabels.items[targetLabInd].time;
+        
+        double targetTime;
+        if (targetLabInd>0)
+            targetTime = targetLabels.items[targetLabInd-1].time+locationInLabelPercent*targetDuration;
+        else
+            targetTime = locationInLabelPercent*targetDuration;
+        
+        return targetTime;
+    }
+    
     //Center-clipping using the amount <ratio>
     //Valid values of ratio are in the range [0.0,1.0]
     // greater values result in  more clipping (i.e. with 1.0 you will get all zeros at the output)
@@ -1439,14 +1479,15 @@ public class SignalProcUtils {
     
     public static int time2LabelIndex(double time, Labels labels)
     {
-        int index = -1;
+        int index = 0;
         
         for (int i=0; i<labels.items.length; i++)
         {
-            if (labels.items[i].time<=time)
-                index++;
-            else
+            if (labels.items[i].time>time)
+            {
+                index = i;
                 break;
+            }
         }
         
         if (index<0)
