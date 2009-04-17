@@ -764,63 +764,66 @@ public class JointGMMTransformer extends BaselineTransformer {
     
     public static void mainIeeeTaslp2009(String[] args) throws IOException, UnsupportedAudioFileException 
     {
-        String emotion = "angry";
-        //String emotion = "happy";
-        //String emotion = "sad";
-        String method = "F";
-        int numTrainingFiles = 200; //2, 20, 200, 350
-        int i;
+        String[] emotions = {"angry", "happy", "sad"};
         
-        boolean isContextualGMMs = false;
-        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {40};
-        //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
-        //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
-        //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
-        //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER; int[] numComponents = {128, 128, 128, 128, 128, 16};
-        //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY; int[] numComponents = {128}; 
-        
-        String inputFolder = "D:/publications/IEEE_TASLP/2009/expressiveVC/voice_conversion/test_neutral2" + emotion;
-        //String inputFolder = "D:/publications/IEEE_TASLP/2009/expressiveVC/voice_conversion/test_neutral_short";
-        
-        String outputBaseString = "D:/publications/IEEE_TASLP/2009/expressiveVC/voice_conversion/out_neutral2";
-        //String outputBaseString = "D:/publications/IEEE_TASLP/2009/expressiveVC/voice_conversion/out_short_neutral2";
-        
-        String outputBaseFolder = outputBaseString + emotion + 
-                                  "/neutral2" + emotion + "Out_gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_";
-        if (!isContextualGMMs)
-            outputBaseFolder += String.valueOf(numComponents[0]);
-        else
-        {
-            outputBaseFolder += "context" + String.valueOf(contextClassificationType);
-            
-            for (i=0; i<numComponents.length; i++)
-                outputBaseFolder += "_" + String.valueOf(numComponents[i]);
+        for (int emCount=0; emCount<emotions.length; emCount++)
+        { 
+            String emotion = emotions[emCount];
+            String method = "F";
+            int numTrainingFiles = 200; //2, 20, 200, 350
+            int i;
+
+            boolean isContextualGMMs = false;
+            int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {40};
+            //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
+            //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
+            //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
+            //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER; int[] numComponents = {128, 128, 128, 128, 128, 16};
+            //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY; int[] numComponents = {128}; 
+
+            String inputFolder = "D:/publications/IEEE_TASLP/2009/expressiveVC/voice_conversion/test_neutral2" + emotion;
+            //String inputFolder = "D:/publications/IEEE_TASLP/2009/expressiveVC/voice_conversion/test_neutral_short";
+
+            String outputBaseString = "D:/publications/IEEE_TASLP/2009/expressiveVC/voice_conversion/out_neutral2";
+            //String outputBaseString = "D:/publications/IEEE_TASLP/2009/expressiveVC/voice_conversion/out_short_neutral2";
+
+            String outputBaseFolder = outputBaseString + emotion + 
+            "/neutral2" + emotion + "Out_gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_";
+            if (!isContextualGMMs)
+                outputBaseFolder += String.valueOf(numComponents[0]);
+            else
+            {
+                outputBaseFolder += "context" + String.valueOf(contextClassificationType);
+
+                for (i=0; i<numComponents.length; i++)
+                    outputBaseFolder += "_" + String.valueOf(numComponents[i]);
+            }
+
+            String baseFile = outputBaseString + emotion + "/neutral" + method + "_X_" + emotion + method + "_" + String.valueOf(numTrainingFiles);
+
+            boolean isSourceVocalTractSpectrumFromModel = false;
+            boolean isTemporalSmoothing = true;
+            int smoothingNumNeighbours = 5;
+
+            //Note that pitch and duration can be true or false together, not yet implemented separate processing
+            boolean isPitchFromTargetFile = true;
+            boolean isDurationFromTargetFile = true;
+            boolean isEnergyFromTargetFile = false;
+            boolean isLsfsFromTargetFile = false;
+            int targetAlignmentFileType = BaselineTransformerParams.LABELS;
+            //
+
+            String outputFolderInfoString = "isSrc" + String.valueOf(isSourceVocalTractSpectrumFromModel ? 1:0) +
+            "_smooth" + String.valueOf(isTemporalSmoothing ? 1:0) + "_" + String.valueOf(smoothingNumNeighbours) +
+            "_psUtt" + String.valueOf(isPitchFromTargetFile ? 1:0)+
+            "_tsUtt" + String.valueOf(isDurationFromTargetFile ? 1:0);
+
+            mainParametric(inputFolder, outputBaseFolder, baseFile, outputFolderInfoString,
+                    isSourceVocalTractSpectrumFromModel,
+                    isTemporalSmoothing, smoothingNumNeighbours, 
+                    isPitchFromTargetFile, isDurationFromTargetFile, isEnergyFromTargetFile, isLsfsFromTargetFile, targetAlignmentFileType,
+                    isContextualGMMs, contextClassificationType, numComponents);
         }
-        
-        String baseFile = outputBaseString + emotion + "/neutral" + method + "_X_" + emotion + method + "_" + String.valueOf(numTrainingFiles);
-        
-        boolean isSourceVocalTractSpectrumFromModel = false;
-        boolean isTemporalSmoothing = false;
-        int smoothingNumNeighbours = 5;
-        
-        //Note that pitch and duration can be true or false together, not yet implemented separate processing
-        boolean isPitchFromTargetFile = true;
-        boolean isDurationFromTargetFile = true;
-        boolean isEnergyFromTargetFile = false;
-        boolean isLsfsFromTargetFile = true;
-        int targetAlignmentFileType = BaselineTransformerParams.LABELS;
-        //
-        
-        String outputFolderInfoString = "isSrc" + String.valueOf(isSourceVocalTractSpectrumFromModel ? 1:0) +
-                                        "_smooth" + String.valueOf(isTemporalSmoothing ? 1:0) + "_" + String.valueOf(smoothingNumNeighbours) +
-                                        "_psUtt" + String.valueOf(isPitchFromTargetFile ? 1:0)+
-                                        "_tsUtt" + String.valueOf(isDurationFromTargetFile ? 1:0);
-        
-        mainParametric(inputFolder, outputBaseFolder, baseFile, outputFolderInfoString,
-                       isSourceVocalTractSpectrumFromModel,
-                       isTemporalSmoothing, smoothingNumNeighbours, 
-                       isPitchFromTargetFile, isDurationFromTargetFile, isEnergyFromTargetFile, isLsfsFromTargetFile, targetAlignmentFileType,
-                       isContextualGMMs, contextClassificationType, numComponents);
     }
     
     public static void mainParametric(String inputFolder, String outputBaseFolder, String baseFile, String outputFolderInfoString,

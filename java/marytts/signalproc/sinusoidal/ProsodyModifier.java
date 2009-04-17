@@ -27,7 +27,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.filter.FilterBankAnalyserBase;
 import marytts.signalproc.process.OverlapAddEnergyNormalizer;
@@ -261,9 +261,9 @@ public class ProsodyModifier {
             double [] x = signal.getAllData();
 
             //Read pitch contour (real speech or create it from pm file
-            F0ReaderWriter f0 = null;
+            PitchReaderWriter f0 = null;
             String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
-            f0 = new F0ReaderWriter(strPitchFile);
+            f0 = new PitchReaderWriter(strPitchFile);
             //
 
             //Analysis
@@ -354,9 +354,9 @@ public class ProsodyModifier {
         
 
         //Read pitch contour (real speech or create it from pm file
-        F0ReaderWriter f0 = null;
+        PitchReaderWriter f0 = null;
         String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
-        f0 = new F0ReaderWriter(strPitchFile);
+        f0 = new PitchReaderWriter(strPitchFile);
         //
 
         //Analysis

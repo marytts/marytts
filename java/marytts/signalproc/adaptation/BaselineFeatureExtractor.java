@@ -173,17 +173,17 @@ public class BaselineFeatureExtractor {
         {
             bAnalyze = true;
             
-            if (!isForcedAnalysis && FileUtils.exists(fileSet.items[i].f0File)) //No f0 detection if ptc file already exists
+            if (!isForcedAnalysis && FileUtils.exists(fileSet.items[i].pitchFile)) //No f0 detection if ptc file already exists
                 bAnalyze = false;
                 
             if (bAnalyze)
             { 
-                p.pitchAnalyzeWavFile(fileSet.items[i].audioFile, fileSet.items[i].f0File);
+                p.pitchAnalyzeWavFile(fileSet.items[i].audioFile, fileSet.items[i].pitchFile);
                 
-                System.out.println("Extracted f0 contour: " + fileSet.items[i].f0File);
+                System.out.println("Extracted f0 contour: " + fileSet.items[i].pitchFile);
             }
             else
-                System.out.println("F0 file found with identical analysis parameters: " + fileSet.items[i].f0File);
+                System.out.println("F0 file found with identical analysis parameters: " + fileSet.items[i].pitchFile);
         }
         
         System.out.println("f0 analysis completed...");

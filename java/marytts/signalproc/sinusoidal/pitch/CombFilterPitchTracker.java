@@ -26,7 +26,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.sinusoidal.PitchSynchronousSinusoidalAnalyzer;
 import marytts.signalproc.sinusoidal.SinusoidalAnalysisParams;
@@ -101,7 +101,7 @@ public class CombFilterPitchTracker extends BaseSinusoidalPitchTracker {
                                                                        bAdjustNeighFreqDependent);
         
         String strPitchFileIn = args[0].substring(0, args[0].length()-4) + ".ptc";
-        F0ReaderWriter f0 = new F0ReaderWriter(strPitchFileIn);
+        PitchReaderWriter f0 = new PitchReaderWriter(strPitchFileIn);
         int pitchMarkOffset = 0;
         PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true, pitchMarkOffset);
         PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(params);
@@ -114,7 +114,7 @@ public class CombFilterPitchTracker extends BaseSinusoidalPitchTracker {
         
         String strPitchFileOut = args[0].substring(0, args[0].length()-4) + ".ptcSin";
         
-        F0ReaderWriter.write_pitch_file(strPitchFileOut, f0s, windowSizeInSeconds, skipSizeInSeconds, samplingRate);
+        PitchReaderWriter.write_pitch_file(strPitchFileOut, f0s, windowSizeInSeconds, skipSizeInSeconds, samplingRate);
         
         for (int i=0; i<f0s.length; i++)
             System.out.println(String.valueOf(i*skipSizeInSeconds+0.5f*windowSizeInSeconds) + " sec. = " + String.valueOf(f0s[i]));

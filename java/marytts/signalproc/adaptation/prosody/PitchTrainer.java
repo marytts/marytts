@@ -25,7 +25,7 @@ import marytts.signalproc.adaptation.BaselineAdaptationSet;
 import marytts.signalproc.adaptation.IndexMap;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookFeatureCollection;
 import marytts.signalproc.adaptation.codebook.WeightedCodebookTrainerParams;
-import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
@@ -77,7 +77,7 @@ public class PitchTrainer {
 
         PitchEntry pitchEntry = null;
         
-        F0ReaderWriter f0s = null;
+        PitchReaderWriter f0s = null;
         
         double[] voiceds = null;
         
@@ -109,9 +109,9 @@ public class PitchTrainer {
                 local.init();
                 
                 if (isSource)
-                    f0s = new F0ReaderWriter(trainingSet.items[i].f0File);
+                    f0s = new PitchReaderWriter(trainingSet.items[i].pitchFile);
                 else  
-                    f0s = new F0ReaderWriter(trainingSet.items[map[i]].f0File);
+                    f0s = new PitchReaderWriter(trainingSet.items[map[i]].pitchFile);
                 
                 voiceds = f0s.getVoiceds();
                 
@@ -177,9 +177,9 @@ public class PitchTrainer {
             if (imap.files!=null && trainingSet.items.length>i)
             {
                 if (isSource)
-                    f0s = new F0ReaderWriter(trainingSet.items[i].f0File);
+                    f0s = new PitchReaderWriter(trainingSet.items[i].pitchFile);
                 else
-                    f0s = new F0ReaderWriter(trainingSet.items[map[i]].f0File);
+                    f0s = new PitchReaderWriter(trainingSet.items[map[i]].pitchFile);
                 
                 voiceds = f0s.getVoiceds();
 

@@ -120,7 +120,7 @@ public class F0TrackerAutocorrelationHeuristic {
         if (f0s!=null)
         {
             params.numfrm = f0s.length;
-            F0ReaderWriter.write_pitch_file(ptcFileOut, f0s, (float)(params.ws), (float)(params.ss), params.fs);
+            PitchReaderWriter.write_pitch_file(ptcFileOut, f0s, (float)(params.ws), (float)(params.ss), params.fs);
         }
         else
             params.numfrm = 0;

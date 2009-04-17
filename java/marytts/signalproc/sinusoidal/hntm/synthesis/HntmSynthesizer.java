@@ -29,7 +29,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.adaptation.prosody.BasicProsodyModifierParams;
-import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.analysis.RegularizedCepstralEnvelopeEstimator;
@@ -208,11 +208,11 @@ public class HntmSynthesizer {
         //int noisePartRepresentation = HntmAnalyzer.PSEUDO_HARMONIC;
         int noisePartRepresentation = HntmAnalyzer.HIGHPASS_WAVEFORM;
         
-        F0ReaderWriter f0 = null;
+        PitchReaderWriter f0 = null;
         String strPitchFile = StringUtils.modifyExtension(wavFile, ".ptc");
         if (FileUtils.exists(strPitchFile))
         {
-            f0 = new F0ReaderWriter(strPitchFile);
+            f0 = new PitchReaderWriter(strPitchFile);
             //Arrays.fill(f0.contour, 100.0);
         }
         

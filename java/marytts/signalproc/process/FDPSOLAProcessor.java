@@ -34,7 +34,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
@@ -234,7 +234,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 origLen = (int)input.getDataLength();
                 fs = (int)inputAudio.getFormat().getSampleRate();
 
-                F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
+                PitchReaderWriter f0 = new PitchReaderWriter(strPitchFile);
                 pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, origLen, f0.header.ws, f0.header.ss, true, 0);
 
                 numfrmFixed = (int)(Math.floor(((double)(origLen + pm.totalZerosToPadd)/fs-0.5*wsFixedInSeconds)/ssFixedInSeconds+0.5)+2); //Total frames if the analysis was fixed skip-rate

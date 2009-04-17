@@ -29,7 +29,7 @@
 
 package marytts.signalproc.adaptation.prosody;
 
-import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.util.io.FileUtils;
@@ -88,9 +88,9 @@ public class BasicProsodyModifierParams {
     //This version assumes identical source and target labels
     public BasicProsodyModifierParams(String sourcePtcFile, String sourceLabelFile, String targetPtcFile, String targetLabelFile, boolean isPitchScale, boolean isTimeScale)
     {
-        F0ReaderWriter f0Src = new F0ReaderWriter(sourcePtcFile);
+        PitchReaderWriter f0Src = new PitchReaderWriter(sourcePtcFile);
         Labels labSrc = new Labels(sourceLabelFile);
-        F0ReaderWriter f0Tgt = new F0ReaderWriter(targetPtcFile);
+        PitchReaderWriter f0Tgt = new PitchReaderWriter(targetPtcFile);
         Labels labTgt = new Labels(targetLabelFile);
 
         init(f0Src,  labSrc,  f0Tgt,  labTgt,  isPitchScale, isTimeScale);
@@ -98,12 +98,12 @@ public class BasicProsodyModifierParams {
     
     //Estimate time and duration scaling factors from source and target labels and pitch contours
     //This version assumes identical source and target labels
-    public BasicProsodyModifierParams(F0ReaderWriter f0Src, Labels labSrc, F0ReaderWriter f0Tgt, Labels labTgt, boolean isPitchScale, boolean isTimeScale)
+    public BasicProsodyModifierParams(PitchReaderWriter f0Src, Labels labSrc, PitchReaderWriter f0Tgt, Labels labTgt, boolean isPitchScale, boolean isTimeScale)
     {     
         init(f0Src,  labSrc,  f0Tgt,  labTgt,  isPitchScale, isTimeScale);
     }
     
-    public void init(F0ReaderWriter f0Src, Labels labSrc, F0ReaderWriter f0Tgt, Labels labTgt, boolean isPitchScale, boolean isTimeScale)
+    public void init(PitchReaderWriter f0Src, Labels labSrc, PitchReaderWriter f0Tgt, Labels labTgt, boolean isPitchScale, boolean isTimeScale)
     {
         int numLabels = 0;
         if (labSrc!=null && labTgt!=null && labSrc.items!=null && labTgt.items!=null)

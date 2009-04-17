@@ -40,7 +40,7 @@ import org.w3c.dom.traversal.NodeIterator;
 
 import marytts.client.http.MaryHttpClient;
 import marytts.datatypes.MaryXML;
-import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.util.data.BufferedDoubleDataSource;
@@ -101,7 +101,7 @@ public class CopySynthesis
             frameShiftTime = tracker.getFrameShiftTime();
             contour = tracker.getF0Contour();
         } else { // have a pitch file -- ignore any wav file
-            F0ReaderWriter f0rw = new F0ReaderWriter(pitchFilename);
+            PitchReaderWriter f0rw = new PitchReaderWriter(pitchFilename);
             if (f0rw.contour == null) {
                 throw new NullPointerException("Cannot read f0 contour from "+pitchFilename);
             }

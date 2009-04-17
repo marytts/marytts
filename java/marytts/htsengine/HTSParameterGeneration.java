@@ -53,7 +53,7 @@ import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Mfccs;
 
 import org.apache.log4j.Logger;
@@ -320,7 +320,7 @@ public class HTSParameterGeneration {
              
           }
           /* i am using this function but it changes the values of sw, and ss  *samplingrate+0.5??? for the HTS values ss=0.005 and sw=0.025 is not a problem though */
-         F0ReaderWriter.write_pitch_file(fileName, f0s, (float)(ws), (float)(ss), fs);
+         PitchReaderWriter.write_pitch_file(fileName, f0s, (float)(ws), (float)(ss), fs);
           
           
       } else if(type == HMMData.MCP ){

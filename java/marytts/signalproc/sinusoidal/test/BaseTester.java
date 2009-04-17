@@ -26,7 +26,7 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.MathUtils;
@@ -99,7 +99,7 @@ public class BaseTester {
             
             if (pitchMarks != null && (outPtcFile!=null || outPtcFile!=""))
             {
-                F0ReaderWriter.write_pitch_file(outPtcFile, f0s, ws, ss, fs);
+                PitchReaderWriter.write_pitch_file(outPtcFile, f0s, ws, ss, fs);
                 //FileUtils.writeToBinaryFile(pitchMarks, outPtcFile); //Pitch mark file
             }
  

@@ -80,7 +80,7 @@ import marytts.htsengine.HTSVocoder;
 import marytts.htsengine.PhoneTranslator;
 import marytts.htsengine.HTSEngineTest.PhonemeDuration;
 import marytts.modules.synthesis.Voice;
-import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.util.data.audio.AudioPlayer;
 
 import org.apache.log4j.Logger;

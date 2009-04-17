@@ -35,6 +35,7 @@ public class BaselineAdaptationSet {
     public static final String RESIDUAL_EXTENSION_DEFAULT = ".res";
     public static final String LABEL_EXTENSION_DEFAULT = ".lab";
     public static final String PITCH_EXTENSION_DEFAULT = ".ptc";
+    public static final String F0_EXTENSION_DEFAULT = ".f0";
     public static final String PITCHMARK_EXTENSION_DEFAULT = ".pm";
     public static final String ENERGY_EXTENSION_DEFAULT = ".ene";
     public static final String TEXT_EXTENSION_DEFAULT= ".txt";
@@ -48,6 +49,7 @@ public class BaselineAdaptationSet {
     public static final String TARGETFESTIVALUTT_EXTENSION_DEFAULT = ".tutt";
     public static final String TARGETLABEL_EXTENSION_DEFAULT = ".tlab";
     public static final String TARGETPITCH_EXTENSION_DEFAULT = ".tptc";
+    public static final String TARGETF0_EXTENSION_DEFAULT = ".tf0";
     public static final String TARGETENERGY_EXTENSION_DEFAULT = ".tene";
     public static final String TARGETWAV_EXTENSION_DEFAULT = ".twav";
 
@@ -153,14 +155,14 @@ public class BaselineAdaptationSet {
         return fileList;
     }
     
-    public String [] getF0Files()
+    public String [] getPitchFiles()
     {
         String [] fileList = null;
         if (items!=null && items.length>0)
         {
             fileList = new String[items.length];
             for (int i=0; i<items.length; i++)
-                fileList[i] = items[i].f0File;
+                fileList[i] = items[i].pitchFile;
         }
         
         return fileList;    

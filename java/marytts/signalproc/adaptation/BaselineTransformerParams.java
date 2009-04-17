@@ -78,10 +78,10 @@ public class BaselineTransformerParams extends BaselineParams {
     public static final int FESTIVAL_UTT = 2;
     //
     
-    public static final double MINIMUM_ALLOWED_PITCH_SCALE = 0.7;
-    public static final double MAXIMUM_ALLOWED_PITCH_SCALE = 1.5;
-    public static final double MINIMUM_ALLOWED_TIME_SCALE = 0.7;
-    public static final double MAXIMUM_ALLOWED_TIME_SCALE = 1.5;
+    public static final double MINIMUM_ALLOWED_PITCH_SCALE = 0.8;
+    public static final double MAXIMUM_ALLOWED_PITCH_SCALE = 1.3;
+    public static final double MINIMUM_ALLOWED_TIME_SCALE = 0.8;
+    public static final double MAXIMUM_ALLOWED_TIME_SCALE = 1.3;
 
     public BaselineTransformerParams()
     {
