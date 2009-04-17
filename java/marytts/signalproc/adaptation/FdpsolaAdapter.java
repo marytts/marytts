@@ -48,6 +48,7 @@ import marytts.signalproc.adaptation.smoothing.SmoothingDefinitions;
 import marytts.signalproc.adaptation.smoothing.SmoothingFile;
 import marytts.signalproc.adaptation.smoothing.TemporalSmoother;
 import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.LsfAnalyser;
@@ -265,9 +266,9 @@ public class FdpsolaAdapter {
             bContinue = false;
         }
 
-        if (!FileUtils.exists( inputItem.f0File))
+        if (!FileUtils.exists(inputItem.f0File) && !FileUtils.exists(inputItem.pitchFile))
         {
-            System.out.println("Error! Pitch file " +  inputItem.f0File + " not found.");
+            System.out.println("Error! No F0 or pitch file found: " +  inputItem.f0File + " " + inputItem.pitchFile);
             bContinue = false;
         }
 
@@ -279,6 +280,10 @@ public class FdpsolaAdapter {
 
         if (bContinue)
         {
+            boolean isF0File = false;
+            if (FileUtils.exists(inputItem.f0File))
+                isF0File = true;
+            
             try {
                 inputAudio = AudioSystem.getAudioInputStream(new File(inputItem.audioFile));
             } catch (UnsupportedAudioFileException e) {
@@ -294,7 +299,12 @@ public class FdpsolaAdapter {
             origLen = (int)input.getDataLength();
             fs = (int)inputAudio.getFormat().getSampleRate();
 
-            F0ReaderWriter f0 = new F0ReaderWriter(inputItem.f0File);
+            PitchReaderWriter f0 = null;
+            if (FileUtils.exists(inputItem.f0File))
+                f0 = new F0ReaderWriter(inputItem.f0File);
+            else
+                f0 = new PitchReaderWriter(inputItem.pitchFile);
+            
             pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, origLen, f0.header.ws, f0.header.ss, true, 0);
 
             numfrmFixed = (int)(Math.floor(((double)(origLen + pm.totalZerosToPadd)/fs-0.5*wsFixedInSeconds)/ssFixedInSeconds+0.5)+2); //Total frames if the analysis was fixed skip-rate
@@ -332,10 +342,23 @@ public class FdpsolaAdapter {
                 else if (baseParams.targetAlignmentFileType==BaselineTransformerParams.FESTIVAL_UTT)
                     targetAlignmentFile = inputItem.targetFestivalUttFile;
                 
-                modParams = new VoiceModificationParametersPreprocessor(inputItem.f0File,
+                String sourcePitchContourFile;
+                if (isF0File)
+                    sourcePitchContourFile = inputItem.f0File;
+                else
+                    sourcePitchContourFile = inputItem.pitchFile;
+                
+                String targetPitchContourFile;
+                if (isF0File)
+                    targetPitchContourFile = inputItem.targetF0File;
+                else
+                    targetPitchContourFile = inputItem.targetPitchFile;
+                
+                modParams = new VoiceModificationParametersPreprocessor(sourcePitchContourFile,
+                                                                        isF0File,
                                                                         inputItem.labelFile,
                                                                         inputItem.energyFile,
-                                                                        inputItem.targetPitchFile,
+                                                                        targetPitchContourFile,
                                                                         inputItem.targetEnergyFile,
                                                                         baseParams.isPitchFromTargetFile, 
                                                                         baseParams.isDurationFromTargetFile, 
@@ -466,9 +489,7 @@ public class FdpsolaAdapter {
 
         double[] targetF0s = null;
 
-        if (!baseParams.isPitchFromTargetFile 
-                && !baseParams.isDurationFromTargetFile 
-                && !baseParams.isEnergyFromTargetFile)
+        if (!baseParams.isPitchFromTargetFile)
         {
             if (ptData instanceof PitchMapping)
             {
@@ -478,16 +499,20 @@ public class FdpsolaAdapter {
                                                        f0s,
                                                        modParams.pscalesVar);
             }
+            else
+            {
+                baseParams.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.USE_ONLY_PSCALES;
+                targetF0s = pitchTransformer.transform(baseParams.prosodyParams,  
+                                                       ((PitchMapping)ptData).f0StatisticsMapping,
+                                                       inputF0Statistics, 
+                                                       f0s,
+                                                       modParams.pscalesVar);
+            }   
         }
         else
         {
-            baseParams.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.USE_ONLY_PSCALES;
-            targetF0s = pitchTransformer.transform(baseParams.prosodyParams,  
-                                                   ((PitchMapping)ptData).f0StatisticsMapping,
-                                                   inputF0Statistics, 
-                                                   f0s,
-                                                   modParams.pscalesVar);
-        }                                        
+            targetF0s = new double[numfrm];  
+        }
 
         preselectedIndices = null;
         allIndices = null;
@@ -524,12 +549,24 @@ public class FdpsolaAdapter {
                 inputFrameSize = frmIn.length;
             }
 
+            double targetF0Value = 0.0;
+            double currentF0Value;
             int index = (int)(Math.floor((psFrm.getCurrentTime()-0.5*wsFixedInSeconds)/ssFixedInSeconds+0.5));
-            if (index<0)
-                index=0;
-            if (index>targetF0s.length-1)
-                index=targetF0s.length-1;
-
+            
+            if (!baseParams.isPitchFromTargetFile)
+            {
+                index = MathUtils.CheckLimits(index, 0, targetF0s.length-1);
+                targetF0Value = targetF0s[index]; 
+            }
+            
+            currentF0Value = f0s[index];
+            
+            if (baseParams.isPitchFromTargetFile)
+            {
+                targetF0Value = currentF0Value*modParams.pscalesVar[i];
+                targetF0s[i] = targetF0Value;
+            }
+            
             boolean isVoiced;
             if (!baseParams.isFixedRateVocalTractConversion)
             {
@@ -540,7 +577,7 @@ public class FdpsolaAdapter {
             }
             else
             {
-                if (f0s[index]>10.0)
+                if (currentF0Value>10.0)
                     isVoiced=true;
                 else
                     isVoiced=false;
@@ -558,7 +595,7 @@ public class FdpsolaAdapter {
                 currentLabelIndex = -1; 
 
             processFrame(frmIn, isVoiced, 
-                         currentF0, targetF0s[index], modParams.tscalesVar[i], modParams.escalesVar[i], modParams.vscalesVar[i], 
+                         currentF0, targetF0Value, modParams.tscalesVar[i], modParams.escalesVar[i], modParams.vscalesVar[i], 
                          isLastInputFrame, currentPeriod, inputFrameSize, vtMapper, vtData);
 
             if (baseParams.isVocalTractTransformation && baseParams.smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT &&
@@ -604,6 +641,10 @@ public class FdpsolaAdapter {
         else if (baseParams.smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)
             FileUtils.delete(baseParams.smoothedVocalTractFile);  
         //
+        /*
+        MaryUtils.plot(f0s);
+        MaryUtils.plot(targetF0s);
+        */
     }
 
     //Voice conversion version

@@ -28,7 +28,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.window.Window;
 import marytts.util.MaryUtils;
@@ -261,7 +261,7 @@ public class PeakMatchedSinusoidalSynthesizer extends BaseSinusoidalSynthesizer{
             if (spectralEnvelopeType == SinusoidalAnalysisParams.SEEVOC_SPEC) //Pitch info needed
             {
                 String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
-                F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
+                PitchReaderWriter f0 = new PitchReaderWriter(strPitchFile);
                 f0s = f0.contour;
                 ws_f0 = (float) f0.header.ws;
                 ss_f0 = (float) f0.header.ss;
@@ -274,7 +274,7 @@ public class PeakMatchedSinusoidalSynthesizer extends BaseSinusoidalSynthesizer{
         {
             //Pitch synchronous analysis
             String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
-            F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
+            PitchReaderWriter f0 = new PitchReaderWriter(strPitchFile);
             int pitchMarkOffset = 0;
             PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true, pitchMarkOffset);
             pa = new PitchSynchronousSinusoidalAnalyzer(params);

@@ -29,7 +29,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.CepstrumSpeechAnalyser;
-import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.RegularizedCepstralEnvelopeEstimator;
 import marytts.signalproc.analysis.SeevocAnalyser;
@@ -969,7 +969,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         int spectralEnvelopeType = SinusoidalAnalysisParams.SEEVOC_SPEC;
         
         String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
-        F0ReaderWriter f0 = new F0ReaderWriter(strPitchFile);
+        PitchReaderWriter f0 = new PitchReaderWriter(strPitchFile);
         float ws_f0 = (float)f0.header.ws;
         float ss_f0 = (float)f0.header.ss;
         

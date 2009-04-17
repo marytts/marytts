@@ -34,7 +34,7 @@ import marytts.machinelearning.ContextualGMMParams;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.signalproc.analysis.CepstrumSpeechAnalyser;
-import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.PitchMarks;
@@ -171,7 +171,7 @@ public class HntmAnalyzer {
 
     }
 
-    public HntmSpeechSignal analyze(double[] x, int fs, F0ReaderWriter f0, Labels labels, int fftSize,
+    public HntmSpeechSignal analyze(double[] x, int fs, PitchReaderWriter f0, Labels labels, int fftSize,
             int model, int noisePartRepresentation,
             int harmonicPartAnalysisMethod)
     {

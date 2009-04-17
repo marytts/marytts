@@ -24,6 +24,7 @@ import java.util.Arrays;
 import marytts.signalproc.adaptation.BaselineTransformerParams;
 import marytts.signalproc.analysis.AlignmentData;
 import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.FestivalUtt;
 import marytts.signalproc.analysis.Labels;
 import marytts.util.io.FileUtils;
@@ -71,6 +72,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
     //       i.e. pscale as in the utt file with some additional scaling or shifting, 
     //       escale using only scale values provided by the user, etc
     public VoiceModificationParametersPreprocessor(String sourcePitchFile,
+                                                   boolean isF0File,
                                                    String sourceLabelFile, 
                                                    String sourceEnergyFile, //only required for escales
                                                    String targetPitchFile, //only required for copy pitch synthesis
@@ -106,12 +108,22 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
             }
         }
         
-        F0ReaderWriter sourceF0s = new F0ReaderWriter(sourcePitchFile);
+        PitchReaderWriter sourceF0s = null;
+        if (isF0File)
+            sourceF0s = new F0ReaderWriter(sourcePitchFile);
+        else
+            sourceF0s = new PitchReaderWriter(sourcePitchFile);
+        
         Labels sourceLabels = new Labels(sourceLabelFile);
         
-        F0ReaderWriter targetF0s = null;
+        PitchReaderWriter targetF0s = null;
         if (targetPitchFile!=null && FileUtils.exists(targetPitchFile))
-            targetF0s =  new F0ReaderWriter(targetPitchFile);
+        {
+            if (isF0File)
+                targetF0s = new F0ReaderWriter(targetPitchFile);
+            else
+                targetF0s = new PitchReaderWriter(targetPitchFile);
+        }
         
         //MaryUtils.plot(sourceF0s.contour);
         //MaryUtils.plot(targetF0s.contour);
@@ -162,6 +174,8 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
         }
         //
         
+        double[] modifiedContour = new double[numfrmIn];
+        
         if (durationMap!=null && targetDurationLabels!=null && targetPitchLabels!=null)
         {
             for (i=0; i<numfrmIn; i++)
@@ -190,16 +204,13 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                     targetDuration = targetDurationLabels.items[targetDurationLabInd].time;
                 
                 if (isDurationFromTargetFile && targetDurationLabInd>=0)
-                {
                     tscalesVar[i] = targetDuration/sourceDuration;
-                    tscalesVar[i] = Math.max(tscalesVar[i], 0.5);
-                    tscalesVar[i] = Math.min(tscalesVar[i], 2.0);
-                }
                 else
                     tscalesVar[i] = 1.0;
-                
-                //System.out.println(sourceLabels.items[sourceLabInd].phn + " " + targetDurationLabels.items[targetDurationLabInd].phn);
-                
+
+                tTarget = -1.0;
+                targetPitch = 0.0;
+                sourcePitch = 0.0;
                 pscalesVar[i] = 1.0;
                 if (isPitchFromTargetFile)
                 {
@@ -210,8 +221,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                     if (sourcePitch>10.0)
                         voiceds[i] = true;
 
-                    targetPitch = 0.0;
-                    tTarget = -1.0;
+                    
                     if (ad instanceof FestivalUtt)
                     {
                         tTarget = tSource;
@@ -248,13 +258,24 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                     if (targetPitch>10.0 && sourcePitch>10.0)
                     {
                         pscalesVar[i] = targetPitch/sourcePitch;
-                        //System.out.println("Source time=" + String.valueOf(tSource) + " Target time=" + String.valueOf(tTarget) + " ps=" + String.valueOf(pscalesVar[i]));
                     }
+
                 }
+
+                System.out.println("SLab=" + sourceLabels.items[sourceLabInd].phn + " TLab=" + targetDurationLabels.items[targetDurationLabInd].phn + " STime=" + String.valueOf(tSource) + " TTime=" + String.valueOf(tTarget) + " SPtich=" + sourcePitch + " TPitch=" + targetPitch + " ps=" + String.valueOf(pscalesVar[i])+ " ts=" + String.valueOf(tscalesVar[i]));
+                
+                modifiedContour[i] = sourcePitch*pscalesVar[i];
             }
             
-            pscalesVar = SignalProcUtils.medianFilter(pscalesVar, 6);
-            pscalesVar = SignalProcUtils.shift(pscalesVar, 3);
+            /*
+            MaryUtils.plot(sourceF0s.contour);
+            MaryUtils.plot(modifiedContour);
+            MaryUtils.plot(targetF0s.contour);
+            */
+            
+            int smootherLen = 4;
+            pscalesVar = SignalProcUtils.meanFilter(pscalesVar, smootherLen);
+            pscalesVar = SignalProcUtils.shift(pscalesVar, (int)Math.floor(0.5*smootherLen));
             for (i=0; i<numfrmIn; i++)
             {
                 if (!voiceds[i])
@@ -262,15 +283,41 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                 
                 pscalesVar[i] = Math.max(pscalesVar[i], BaselineTransformerParams.MINIMUM_ALLOWED_PITCH_SCALE);
                 pscalesVar[i] = Math.min(pscalesVar[i], BaselineTransformerParams.MAXIMUM_ALLOWED_PITCH_SCALE);
+                
             }
 
-            tscalesVar = SignalProcUtils.medianFilter(tscalesVar, 6);
-            tscalesVar = SignalProcUtils.shift(tscalesVar, 3);
+            tscalesVar = SignalProcUtils.meanFilter(tscalesVar, smootherLen);
+            tscalesVar = SignalProcUtils.shift(tscalesVar, (int)Math.floor(0.5*smootherLen));
             for (i=0; i<numfrmIn; i++)
             {                
                 tscalesVar[i] = Math.max(tscalesVar[i], BaselineTransformerParams.MINIMUM_ALLOWED_TIME_SCALE);
                 tscalesVar[i] = Math.min(tscalesVar[i], BaselineTransformerParams.MAXIMUM_ALLOWED_TIME_SCALE);
             }
+
+            double mean_pscale = 0.0;
+            int numVoiceds = 0;
+            for (i=0; i<numfrmIn; i++)
+            {
+                if (voiceds[i])
+                {
+                    mean_pscale += pscalesVar[i];
+                    numVoiceds++;
+                }
+            }
+            if (numVoiceds>0)
+                mean_pscale /= numVoiceds;
+            else
+                mean_pscale = 1.0;
+            //mean_pscale = 1.2;
+            Arrays.fill(pscalesVar, mean_pscale);
+            for (i=0; i<numfrmIn; i++)
+            {
+                if (!voiceds[i])
+                    pscalesVar[i] = 1.0;
+            }
+            
+            double mean_tscale = MathUtils.mean(tscalesVar);
+            Arrays.fill(tscalesVar, mean_tscale);
             
             //MaryUtils.plot(pscalesVar);
             //MaryUtils.plot(tscalesVar);

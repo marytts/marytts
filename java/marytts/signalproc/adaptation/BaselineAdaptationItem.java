@@ -39,7 +39,8 @@ public class BaselineAdaptationItem {
     //
     
     public String labelFile;        //Labels
-    public String f0File;           //f0 contour
+    public String pitchFile;        //f0 contour in binary format (.ptc)
+    public String f0File;           //f0 contour in ESPS format (.f0)
     public String pitchMarkFile;    //Pitch marks
     public String energyFile;       //Energy contour
     public String textFile;         //Text
@@ -58,6 +59,7 @@ public class BaselineAdaptationItem {
     
     public String targetLabelFile;        //Target labels for mapping
     public String targetPitchFile;        //Target pitch file, to be used in transplantations
+    public String targetF0File;        //Target pitch file, to be used in transplantations
     public String targetEnergyFile;       //Target energy file, to be used in transplantations
     public String targetWavFile;          //Target waveform file
     //
@@ -77,6 +79,7 @@ public class BaselineAdaptationItem {
         residualFile = existing.residualFile;
         
         labelFile = existing.labelFile;
+        pitchFile = existing.pitchFile;
         f0File = existing.f0File;
         pitchMarkFile = existing.pitchMarkFile;
         energyFile = existing.energyFile;
@@ -92,6 +95,7 @@ public class BaselineAdaptationItem {
         targetFestivalUttFile = existing.targetFestivalUttFile;
         targetLabelFile = existing.targetLabelFile;
         targetPitchFile = existing.targetPitchFile;
+        targetF0File = existing.targetF0File;
         targetEnergyFile = existing.targetEnergyFile;
         targetWavFile = existing.targetWavFile;
         
@@ -108,7 +112,8 @@ public class BaselineAdaptationItem {
         residualFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.RESIDUAL_EXTENSION_DEFAULT); //Residual (what remains after all model based decomposition)
         
         labelFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.LABEL_EXTENSION_DEFAULT);   //Labels
-        f0File = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.PITCH_EXTENSION_DEFAULT);      //f0 contour
+        pitchFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.PITCH_EXTENSION_DEFAULT);      //f0 contour
+        f0File = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.F0_EXTENSION_DEFAULT);      //f0 contour
         pitchMarkFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.PITCHMARK_EXTENSION_DEFAULT);   //Pitch marks
         energyFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.ENERGY_EXTENSION_DEFAULT); //Energy contour
         textFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TEXT_EXTENSION_DEFAULT);    //Text
@@ -123,6 +128,7 @@ public class BaselineAdaptationItem {
         targetFestivalUttFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TARGETFESTIVALUTT_EXTENSION_DEFAULT); //FESTIVAL_UTT file
         targetLabelFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TARGETLABEL_EXTENSION_DEFAULT);  //Target labels for mapping
         targetPitchFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TARGETPITCH_EXTENSION_DEFAULT);  //Target pitch for copy synthesis
+        targetF0File = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TARGETF0_EXTENSION_DEFAULT);  //Target pitch for copy synthesis
         targetEnergyFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TARGETENERGY_EXTENSION_DEFAULT); //Target energy file, to be used in transplantations
         targetWavFile = StringUtils.modifyExtension(audioFile, BaselineAdaptationSet.TARGETWAV_EXTENSION_DEFAULT); //Target waveform file
     }

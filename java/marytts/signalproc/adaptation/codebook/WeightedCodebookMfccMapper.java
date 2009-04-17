@@ -26,7 +26,7 @@ import marytts.signalproc.adaptation.BaselineAdaptationSet;
 import marytts.signalproc.adaptation.Context;
 import marytts.signalproc.adaptation.IndexMap;
 import marytts.signalproc.analysis.EnergyContourRms;
-import marytts.signalproc.analysis.F0ReaderWriter;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.MfccFileHeader;
 import marytts.signalproc.analysis.Mfccs;
@@ -77,8 +77,8 @@ public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
                 //
                 
                 //Pitch: for outlier elimination not prosody modeling!
-                F0ReaderWriter sourceF0s = new F0ReaderWriter(sourceTrainingSet.items[i].f0File);
-                F0ReaderWriter targetF0s = new F0ReaderWriter(targetTrainingSet.items[map[i]].f0File);
+                PitchReaderWriter sourceF0s = new PitchReaderWriter(sourceTrainingSet.items[i].pitchFile);
+                PitchReaderWriter targetF0s = new PitchReaderWriter(targetTrainingSet.items[map[i]].pitchFile);
                 //
                 
                 //Duration
@@ -208,8 +208,8 @@ public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
                 //
 
                 //Pitch: for outlier elimination not prosody modeling!
-                F0ReaderWriter sourceF0s = new F0ReaderWriter(sourceTrainingSet.items[i].f0File);
-                F0ReaderWriter targetF0s = new F0ReaderWriter(targetTrainingSet.items[map[i]].f0File);
+                PitchReaderWriter sourceF0s = new PitchReaderWriter(sourceTrainingSet.items[i].pitchFile);
+                PitchReaderWriter targetF0s = new PitchReaderWriter(targetTrainingSet.items[map[i]].pitchFile);
                 //
 
                 //Duration
@@ -481,8 +481,8 @@ public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
                 Mfccs tgtFeatures = new Mfccs(targetTrainingSet.items[map[i]].mfccFile);
                 
                 //Pitch: for outlier elimination not prosody modeling!
-                F0ReaderWriter sourceF0s = new F0ReaderWriter(sourceTrainingSet.items[i].f0File);
-                F0ReaderWriter targetF0s = new F0ReaderWriter(targetTrainingSet.items[map[i]].f0File);
+                PitchReaderWriter sourceF0s = new PitchReaderWriter(sourceTrainingSet.items[i].pitchFile);
+                PitchReaderWriter targetF0s = new PitchReaderWriter(targetTrainingSet.items[map[i]].pitchFile);
                 //
                 
                 //Duration

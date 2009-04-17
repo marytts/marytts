@@ -30,17 +30,26 @@ import marytts.util.io.LEDataInputStream;
 import marytts.util.io.LEDataOutputStream;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
+import marytts.util.string.StringUtils;
 
 /**
  * File I/O for binary pitch contour files
  * 
  * @author Oytun T&uumlrk
  */
-public class F0ReaderWriter {
-    public PitchFileHeader header;
-    public double [] contour; //f0 values in Hz (0.0 for unvoiced)
+public class F0ReaderWriter extends PitchReaderWriter {
     
-    public F0ReaderWriter(String ptcFile) {
+    public static final int DEFAULT_SAMPLING_RATE = 16000;
+    public static final double DEFAULT_WINDOW_SIZE_IN_SECONDS = 0.0075;
+    public static final double DEFAULT_SKIP_SIZE_IN_SECONDS = 0.01;
+
+    public F0ReaderWriter(String f0File) 
+    {
+        this(f0File, DEFAULT_SAMPLING_RATE, DEFAULT_WINDOW_SIZE_IN_SECONDS, DEFAULT_SKIP_SIZE_IN_SECONDS);
+    }
+
+    public F0ReaderWriter(String f0File, int samplingRate, double windowSizeInSeconds, double skipSizeInSeconds) 
+    {
         contour = null;
         
         header = new PitchFileHeader();
@@ -50,14 +59,15 @@ public class F0ReaderWriter {
         header.fs = 0;
         
         try {
-            read_pitch_file(ptcFile);
+            read_f0_file(f0File);  
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
     
-    public F0ReaderWriter() {
+    public F0ReaderWriter() 
+    {
         contour = null;
         
         header = new PitchFileHeader();
@@ -66,106 +76,33 @@ public class F0ReaderWriter {
         header.ss = 0.0;
         header.fs = 0;
     }
-    
-    //Create f0 contour from pitch marks
-    //Note that, as we do not have voicing information, an all-voiced pitch contour is generated
-    // using whatever pitch period is assigned to unvoiced segments in the pitch marks
-    public F0ReaderWriter(int [] pitchMarks, int samplingRate, float windowSizeInSeconds, float skipSizeInSeconds) 
+
+    public void read_f0_file(String f0File) throws IOException
     {
-        contour = null;
-     
-        header = new PitchFileHeader();
-        
-        header.ws = windowSizeInSeconds;
-        header.ss = skipSizeInSeconds;
-        header.fs = samplingRate;
-        float currentTime;
-        int currentInd;
-        
-        if (pitchMarks != null && pitchMarks.length>1)
-        {
-            int numfrm = (int)Math.floor(((float)pitchMarks[pitchMarks.length-2])/header.fs/header.ss+0.5);
-            
-            if (numfrm>0)
-            {
-                float [] onsets = SignalProcUtils.samples2times(pitchMarks, header.fs);
-                
-                contour = new double[numfrm];
-                for (int i=0; i<numfrm; i++)
-                {
-                    currentTime = (float) (i*header.ss+0.5*header.ws);
-                    currentInd = MathUtils.findClosest(onsets, currentTime);
-                    
-                    if (currentInd<onsets.length-1)
-                        contour[i] = header.fs/(pitchMarks[currentInd+1]-pitchMarks[currentInd]);
-                    else
-                        contour[i] = header.fs/(pitchMarks[currentInd]-pitchMarks[currentInd-1]);
-                }
-            }
-        }
+        read_f0_file(f0File, DEFAULT_SAMPLING_RATE, DEFAULT_WINDOW_SIZE_IN_SECONDS, DEFAULT_SKIP_SIZE_IN_SECONDS);
     }
     
-    public double [] getVoiceds()
+    //Reads from Snack/Wavesurfer generated .f0 files
+    public void read_f0_file(String f0File, int samplingRate, double windowSizeInSeconds, double skipSizeInSeconds) throws IOException
     {
-        return SignalProcUtils.getVoiceds(contour);
-    }
-    
-    public void read_pitch_file(String ptcFile) throws IOException
-    {
-        if (FileUtils.exists(ptcFile))
+        String[] lines = StringUtils.readTextFile(f0File);
+        if (lines!=null && lines[0]!=null)
         {
-            LEDataInputStream lr = new LEDataInputStream(new DataInputStream(new FileInputStream(ptcFile)));
-
-            if (lr!=null)
+            contour = new double[lines.length];
+            
+            int endIndex;
+            for (int i=0; i<lines.length; i++)
             {
-                int winsize = (int)lr.readFloat();
-                int skipsize = (int)lr.readFloat();
-                header.fs = (int)lr.readFloat();
-                header.numfrm = (int)lr.readFloat();
-
-                header.ws = ((double)winsize)/header.fs;
-                header.ss = ((double)skipsize)/header.fs;
-                contour = new double[header.numfrm];
-
-                for (int i=0; i<header.numfrm; i++)
-                    contour[i] = (double)lr.readFloat();
-
-                lr.close();
+                endIndex = lines[i].indexOf(" ");
+                contour[i] = Double.valueOf(lines[i].substring(0, endIndex));
             }
-        }
-        else
-            System.out.println("Pitch file not found: " + ptcFile);
-    } 
-    
-    public static void write_pitch_file(String ptcFile, double [] f0s, float windowSizeInSeconds, float skipSizeInSeconds, int samplingRate) throws IOException
-    {
-        float [] f0sFloat = new float[f0s.length];
-        for (int i=0; i<f0s.length; i++)
-            f0sFloat[i] = (float)f0s[i];
-        
-        write_pitch_file(ptcFile, f0sFloat, windowSizeInSeconds, skipSizeInSeconds, samplingRate);
-    } 
-    
-    public static void write_pitch_file(String ptcFile, float [] f0s, float windowSizeInSeconds, float skipSizeInSeconds, int samplingRate) throws IOException
-    {
-        LEDataOutputStream lw = new LEDataOutputStream(new DataOutputStream(new FileOutputStream(ptcFile)));
-        
-        if (lw!=null)
-        {
-            int winsize = (int)Math.floor(windowSizeInSeconds*samplingRate+0.5);
-            lw.writeFloat(winsize);
-            
-            int skipsize = (int)Math.floor(skipSizeInSeconds*samplingRate+0.5);
-            lw.writeFloat(skipsize);
-            
-            lw.writeFloat(samplingRate);
-            
-            lw.writeFloat(f0s.length);
-            
-            lw.writeFloat(f0s);
 
-            lw.close();
+            header.fs = samplingRate;
+            header.numfrm = contour.length;
+
+            header.ws = windowSizeInSeconds;
+            header.ss = skipSizeInSeconds;
         }
-    } 
+    }
 }
 
