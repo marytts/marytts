@@ -30,6 +30,9 @@ public class ProsodyTransformerParams extends BaselineParams {
     public static final int CUSTOM_TRANSFORMATION = -10; 
     public static final int NO_TRANSFORMATION = 0; 
     
+    ////ENERGY
+    public int energyTransformationMethod;
+    
     ////DURATION
     public int durationTransformationMethod;
     
@@ -78,6 +81,7 @@ public class ProsodyTransformerParams extends BaselineParams {
     {
         pitchTransformationMethod = NO_TRANSFORMATION;
         durationTransformationMethod = NO_TRANSFORMATION;
+        energyTransformationMethod = NO_TRANSFORMATION;
   
         isUseInputMeanPitch = false;
         isUseInputStdDevPitch = false;
@@ -92,6 +96,7 @@ public class ProsodyTransformerParams extends BaselineParams {
     {
         pitchTransformationMethod = existing.pitchTransformationMethod;
         durationTransformationMethod = existing.durationTransformationMethod;
+        energyTransformationMethod = existing.energyTransformationMethod;
   
         isUseInputMeanPitch = existing.isUseInputMeanPitch;
         isUseInputStdDevPitch = existing.isUseInputStdDevPitch;

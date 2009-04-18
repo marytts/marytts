@@ -176,6 +176,9 @@ public class JointGMMTransformer extends BaselineTransformer {
         if (params.isDurationFromTargetFile)
             params.prosodyParams.durationTransformationMethod = ProsodyTransformerParams.CUSTOM_TRANSFORMATION;
         
+        if (params.isEnergyFromTargetFile)
+            params.prosodyParams.energyTransformationMethod = ProsodyTransformerParams.CUSTOM_TRANSFORMATION;
+        
         if (!params.isVocalTractTransformation && !params.isLsfsFromTargetFile)
             params.isTemporalSmoothing = false;
         
@@ -300,7 +303,8 @@ public class JointGMMTransformer extends BaselineTransformer {
             {
                 if (wctParams.prosodyParams.pitchTransformationMethod!=ProsodyTransformerParams.NO_TRANSFORMATION 
                         || wctParams.prosodyParams.pitchTransformationMethod!=ProsodyTransformerParams.CUSTOM_TRANSFORMATION
-                        || wctParams.prosodyParams.durationTransformationMethod!=ProsodyTransformerParams.CUSTOM_TRANSFORMATION)
+                        || wctParams.prosodyParams.durationTransformationMethod!=ProsodyTransformerParams.CUSTOM_TRANSFORMATION
+                        || wctParams.prosodyParams.energyTransformationMethod!=ProsodyTransformerParams.CUSTOM_TRANSFORMATION)
                     wctParams.isSeparateProsody = true;
             }
 
@@ -332,8 +336,10 @@ public class JointGMMTransformer extends BaselineTransformer {
                 smoothedVocalTractFile = StringUtils.getFolderName(outputItem.audioFile) + StringUtils.getFileName(outputItem.audioFile) + "_vt.vtf";
                 int tmpPitchTransformationMethod = currentWctParams.prosodyParams.pitchTransformationMethod;
                 int tmpDurationTransformationMethod = currentWctParams.prosodyParams.durationTransformationMethod;
+                int tmpEnergyTransformationMethod = currentWctParams.prosodyParams.energyTransformationMethod;
                 currentWctParams.prosodyParams.pitchTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
                 currentWctParams.prosodyParams.durationTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
+                currentWctParams.prosodyParams.energyTransformationMethod = ProsodyTransformerParams.NO_TRANSFORMATION;
                 
                 boolean tmpPitchFromTargetFile = currentWctParams.isPitchFromTargetFile;
                 boolean tmpDurationFromTargetFile = currentWctParams.isDurationFromTargetFile;
@@ -397,6 +403,7 @@ public class JointGMMTransformer extends BaselineTransformer {
                         currentWctParams.isVocalTractMatchUsingTargetModel = false; //isVocalTractMatchUsingTargetCodebook should be false
                         currentWctParams.prosodyParams.pitchTransformationMethod = tmpPitchTransformationMethod;
                         currentWctParams.prosodyParams.durationTransformationMethod = tmpDurationTransformationMethod;
+                        currentWctParams.prosodyParams.energyTransformationMethod = tmpEnergyTransformationMethod;
                         currentWctParams.smoothingMethod = SmoothingDefinitions.NO_SMOOTHING;
                         currentWctParams.smoothingState = SmoothingDefinitions.NONE;
                         currentWctParams.smoothedVocalTractFile = "";
@@ -818,7 +825,7 @@ public class JointGMMTransformer extends BaselineTransformer {
             //int pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN;
             //int pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN_STDDEV;
             boolean isDurationFromTargetFile = true;
-            boolean isEnergyFromTargetFile = false;
+            boolean isEnergyFromTargetFile = true;
             boolean isLsfsFromTargetFile = false;
             int targetAlignmentFileType = BaselineTransformerParams.LABELS;
             //
