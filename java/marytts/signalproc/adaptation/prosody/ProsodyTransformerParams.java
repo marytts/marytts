@@ -60,6 +60,7 @@ public class ProsodyTransformerParams extends BaselineParams {
     public static final int SENTENCE_MEAN_SLOPE = 27;
     public static final int SENTENCE_INTERCEPT_STDDEV = 28;
     public static final int SENTENCE_INTERCEPT_SLOPE = 29;
+    public static final int FULL_CONTOUR = 30;
     //
     
     //These are for GLOBAL_XXX cases of pitchTransformationMethod only

@@ -126,8 +126,6 @@ public class FdpsolaAdapter {
     protected int synthFrameInd;
     protected boolean bLastFrame;
     protected boolean bBroke;
-    protected int newFftSize;
-    protected int newMaxFreq;
 
     protected int outBuffLen;
     protected double [] outBuff;
@@ -158,8 +156,6 @@ public class FdpsolaAdapter {
     protected static double MIN_TSCALE = 0.1;
     protected static double MAX_TSCALE = 5.0;
     protected int fs;
-    protected int fftSize;
-    protected int maxFreq;
 
     protected double tscaleSingle;
 
@@ -361,7 +357,8 @@ public class FdpsolaAdapter {
                                                                         targetPitchContourFile,
                                                                         inputItem.targetEnergyFile,
                                                                         baseParams.isPitchFromTargetFile, 
-                                                                        baseParams.isDurationFromTargetFile, 
+                                                                        baseParams.pitchFromTargetMethod,
+                                                                        baseParams.isDurationFromTargetFile,
                                                                         baseParams.isEnergyFromTargetFile,
                                                                         baseParams.targetAlignmentFileType,
                                                                         targetAlignmentFile,
@@ -392,7 +389,7 @@ public class FdpsolaAdapter {
             else
                 targetLabels = null;
             
-            if (inputItem.targetWavFile!="" && FileUtils.exists(inputItem.targetWavFile))
+            if (inputItem.targetWavFile!="" && FileUtils.exists(inputItem.targetWavFile) && baseParams.isLsfsFromTargetFile)
             {
                 try {
                     targetLsfs = LsfAnalyser.lsfAnalyzeWavFile(inputItem.targetWavFile, baseParams.lsfParams);
@@ -456,8 +453,6 @@ public class FdpsolaAdapter {
             synthFrameInd = 0;
             bLastFrame = false;
             bBroke = false;
-            fftSize = (int)Math.pow(2, (Math.ceil(Math.log((double)maxFrmSize)/Math.log(2.0))));
-            maxFreq = fftSize/2+1;
 
             outBuffLen = 500000;
             outBuff = MathUtils.zeros(outBuffLen);
@@ -798,22 +793,6 @@ public class FdpsolaAdapter {
 
             if ((isVoiced && pscale!=1.0) || bWarp || isTransformUnvoiced)
             {
-                if (fftSize<frmSize)
-                {
-                    fftSize = (int)Math.pow(2, (Math.ceil(Math.log((double)frmSize)/Math.log(2.0))));
-                    maxFreq = fftSize/2+1;
-                }
-
-                newMaxFreq = (int)Math.floor(maxFreq/pscale+0.5);
-
-                if (newMaxFreq<3)
-                    newMaxFreq=3;
-
-                if ((newMaxFreq % 2) !=1)
-                    newMaxFreq++;
-
-                newFftSize = 2*(newMaxFreq-1);
-
                 frmEn = SignalProcUtils.getEnergy(frm);
 
                 wgt = windowIn.values(frmSize);
@@ -871,7 +850,8 @@ public class FdpsolaAdapter {
                     }
                 }
 
-                inputDft = new ComplexArray(fftSize);
+                inputDft = new ComplexArray(frmSize);
+                int maxFreq = frmSize/2+1;
 
                 System.arraycopy(frm, 0, inputDft.real, 0, Math.min(frmSize, inputDft.real.length));
 
@@ -891,10 +871,10 @@ public class FdpsolaAdapter {
                 }
                 //
 
-                inputExpTerm = LpcAnalyser.calcExpTerm(fftSize, baseParams.lsfParams.dimension);
-                outputExpTerm = LpcAnalyser.calcExpTerm(newFftSize, baseParams.lsfParams.dimension);
+                inputExpTerm = LpcAnalyser.calcExpTerm(frmSize, baseParams.lsfParams.dimension);
+                outputExpTerm = LpcAnalyser.calcExpTerm(newFrmSize, baseParams.lsfParams.dimension);
 
-                inputVocalTractSpectrum = LpcAnalyser.calcSpecLinearFromOneMinusA(inputLPCoeffs.getOneMinusA(), (float)sqrtInputGain, fftSize, inputExpTerm);
+                inputVocalTractSpectrum = LpcAnalyser.calcSpecLinearFromOneMinusA(inputLPCoeffs.getOneMinusA(), (float)sqrtInputGain, frmSize, inputExpTerm);
 
                 //Use a weighted codebook estimate of the input vocal tract spectrum. This will result in a smoother transformation filter
                 if (baseParams.isSourceVocalTractSpectrumFromModel && baseParams.isVocalTractTransformation)
@@ -916,7 +896,7 @@ public class FdpsolaAdapter {
                     else if (mapper instanceof TargetLsfCopyMapper)
                         interpolatedInputLpcs = ArrayUtils.copy(inputLpcs);
 
-                    sourceVocalTractSpectrumEstimate = LpcAnalyser.calcSpecLinearFromOneMinusA(interpolatedInputLpcs, 1.0f, newFftSize, outputExpTerm);
+                    sourceVocalTractSpectrumEstimate = LpcAnalyser.calcSpecLinearFromOneMinusA(interpolatedInputLpcs, 1.0f, newFrmSize, outputExpTerm);
                 }
 
                 //For checking
@@ -941,7 +921,7 @@ public class FdpsolaAdapter {
                 }
                 //
 
-                inputResidual = new ComplexArray(fftSize);
+                inputResidual = new ComplexArray(frmSize);
 
                 // Filter out vocal tract to obtain the input residual spectrum (note that this is the real residual spectrum)
                 for (k=0; k<maxFreq; k++)
@@ -959,6 +939,7 @@ public class FdpsolaAdapter {
                 }
                 //
 
+                int newMaxFreq = newFrmSize/2+1;
                 if (baseParams.isVocalTractTransformation)
                 {
                     //Smoothing
@@ -998,15 +979,15 @@ public class FdpsolaAdapter {
                     else if (match instanceof LsfMatch)
                         targetLpcs = LsfAnalyser.lsfInHz2lpc(((LsfMatch)match).lsfs, fs);
 
-                    if (fftSize!=newFftSize)
+                    if (frmSize!=newFrmSize)
                     {
                         if (outputExpTerm==null || newMaxFreq*baseParams.lsfParams.dimension!=outputExpTerm.real.length)
-                            outputExpTerm = LpcAnalyser.calcExpTerm(newFftSize, baseParams.lsfParams.dimension);
+                            outputExpTerm = LpcAnalyser.calcExpTerm(newFrmSize, baseParams.lsfParams.dimension);
 
-                        targetVocalTractSpectrumEstimate = LpcAnalyser.calcSpecLinearFromOneMinusA(targetLpcs, 1.0f, newFftSize, outputExpTerm);
+                        targetVocalTractSpectrumEstimate = LpcAnalyser.calcSpecLinearFromOneMinusA(targetLpcs, 1.0f, newFrmSize, outputExpTerm);
                     }
                     else
-                        targetVocalTractSpectrumEstimate = LpcAnalyser.calcSpecLinearFromOneMinusA(targetLpcs, 1.0f, newFftSize, inputExpTerm);
+                        targetVocalTractSpectrumEstimate = LpcAnalyser.calcSpecLinearFromOneMinusA(targetLpcs, 1.0f, newFrmSize, inputExpTerm);
 
                     for (k=0; k<newMaxFreq; k++)
                         targetVocalTractSpectrumEstimate[k] *= sqrtInputGain;
@@ -1043,6 +1024,9 @@ public class FdpsolaAdapter {
                     for (k=0; k<newMaxFreq; k++)
                         outputVocalTractSpectrum[k] = interpolatedInputVocalTractSpectrum[k];
                 }
+                
+                //MaryUtils.plot(MathUtils.amp2db(inputVocalTractSpectrum));
+                //MaryUtils.plot(MathUtils.amp2db(interpolatedInputVocalTractSpectrum));
 
                 //Estimate transformation filter
                 if (baseParams.isVocalTractTransformation)
@@ -1154,12 +1138,12 @@ public class FdpsolaAdapter {
                 }
 
                 //Create output DFT spectrum
-                outputResidual = new ComplexArray(newFftSize);
-                outputResidual.real = MathUtils.zeros(newFftSize);
-                outputResidual.imag = MathUtils.zeros(newFftSize);
+                outputResidual = new ComplexArray(newFrmSize);
+                outputResidual.real = MathUtils.zeros(newFrmSize);
+                outputResidual.imag = MathUtils.zeros(newFrmSize);
 
-                System.arraycopy(inputResidual.real, 0, outputResidual.real, 0, Math.min(maxFreq, newFftSize));
-                System.arraycopy(inputResidual.imag, 0, outputResidual.imag, 0, Math.min(maxFreq, newFftSize));
+                System.arraycopy(inputResidual.real, 0, outputResidual.real, 0, Math.min(maxFreq, newFrmSize));
+                System.arraycopy(inputResidual.imag, 0, outputResidual.imag, 0, Math.min(maxFreq, newFrmSize));
 
                 //Copy & paste samples if required (COMPLEX VERSION TO SUPPORT PSCALE<=0.5)
                 // This version fills the spectrum by flipping and pasting the original freq bins as many times as required.
@@ -1201,7 +1185,7 @@ public class FdpsolaAdapter {
                 //
 
                 //Filter the output residual with the estimated target vocal tract spectrum
-                outputDft = new ComplexArray(newFftSize);
+                outputDft = new ComplexArray(newFrmSize);
 
                 //Smoothing
                 if (baseParams.smoothingMethod==SmoothingDefinitions.OUTPUT_VOCALTRACTSPECTRUM_SMOOTHING)
@@ -1234,7 +1218,7 @@ public class FdpsolaAdapter {
                     outputDft.imag[k-1] = outputResidual.imag[k-1]*outputVocalTractSpectrum[k-1];
                 }
 
-                for (k=newMaxFreq+1; k<=newFftSize; k++)
+                for (k=newMaxFreq+1; k<=newFrmSize; k++)
                 {
                     outputDft.real[k-1] = outputDft.real[2*newMaxFreq-1-k];
                     outputDft.imag[k-1] = -outputDft.imag[2*newMaxFreq-1-k];
