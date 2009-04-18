@@ -96,7 +96,7 @@ public class PsolaFrameProvider {
 
     public double[] getNextFrame()
     {
-        double [] y = null;
+        double[] y = null;
 
         if (!isFixedRate) //Return next pitch synchronous speech frame
         {
@@ -113,7 +113,6 @@ public class PsolaFrameProvider {
                     frmSize = 4;
 
                 y = new double[frmSize];
-
 
                 if (index==0) //Read all from the source
                     input.getData(y, 0, frmSize);

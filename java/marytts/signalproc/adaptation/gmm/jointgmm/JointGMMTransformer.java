@@ -176,6 +176,9 @@ public class JointGMMTransformer extends BaselineTransformer {
         if (params.isDurationFromTargetFile)
             params.prosodyParams.durationTransformationMethod = ProsodyTransformerParams.CUSTOM_TRANSFORMATION;
         
+        if (!params.isVocalTractTransformation && !params.isLsfsFromTargetFile)
+            params.isTemporalSmoothing = false;
+        
         return true;
     }
     
@@ -744,6 +747,9 @@ public class JointGMMTransformer extends BaselineTransformer {
         
         //Note that these two can be true or false together, not yet implemented separate processing
         boolean isPitchFromTargetFile = true;
+        int pitchFromTargetMethod = ProsodyTransformerParams.FULL_CONTOUR;
+        //int pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN;
+        //int pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN_STDDEV;
         boolean isDurationFromTargetFile = true;
         boolean isEnergyFromTargetFile = false;
         boolean isLsfsFromTargetFile = false;
@@ -758,7 +764,7 @@ public class JointGMMTransformer extends BaselineTransformer {
         mainParametric(inputFolder, outputBaseFolder, baseFile, outputFolderInfoString,
                        isSourceVocalTractSpectrumFromModel,
                        isTemporalSmoothing, smoothingNumNeighbours, 
-                       isPitchFromTargetFile, isDurationFromTargetFile, isEnergyFromTargetFile, isLsfsFromTargetFile, targetAlignmentFileType,
+                       isPitchFromTargetFile, pitchFromTargetMethod, isDurationFromTargetFile, isEnergyFromTargetFile, isLsfsFromTargetFile, targetAlignmentFileType,
                        isContextualGMMs, contextClassificationType, numComponents);
     }
     
@@ -767,6 +773,7 @@ public class JointGMMTransformer extends BaselineTransformer {
         String[] emotions = {"angry", "happy", "sad"};
         
         for (int emCount=0; emCount<emotions.length; emCount++)
+        //for (int emCount=0; emCount<1; emCount++)
         { 
             String emotion = emotions[emCount];
             String method = "F";
@@ -784,11 +791,11 @@ public class JointGMMTransformer extends BaselineTransformer {
             String inputFolder = "D:/publications/IEEE_TASLP/2009/expressiveVC/voice_conversion/test_neutral2" + emotion;
             //String inputFolder = "D:/publications/IEEE_TASLP/2009/expressiveVC/voice_conversion/test_neutral_short";
 
-            String outputBaseString = "D:/publications/IEEE_TASLP/2009/expressiveVC/voice_conversion/out_neutral2";
+            String outputBaseString = "D:/publications/IEEE_TASLP/2009/expressiveVC/voice_conversion/out2_neutral2";
             //String outputBaseString = "D:/publications/IEEE_TASLP/2009/expressiveVC/voice_conversion/out_short_neutral2";
 
             String outputBaseFolder = outputBaseString + emotion + 
-            "/neutral2" + emotion + "Out_gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_";
+                                      "/neutral2" + emotion + "Out_gmm" + method + "_" + String.valueOf(numTrainingFiles) + "_";
             if (!isContextualGMMs)
                 outputBaseFolder += String.valueOf(numComponents[0]);
             else
@@ -807,6 +814,9 @@ public class JointGMMTransformer extends BaselineTransformer {
 
             //Note that pitch and duration can be true or false together, not yet implemented separate processing
             boolean isPitchFromTargetFile = true;
+            int pitchFromTargetMethod = ProsodyTransformerParams.FULL_CONTOUR;
+            //int pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN;
+            //int pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN_STDDEV;
             boolean isDurationFromTargetFile = true;
             boolean isEnergyFromTargetFile = false;
             boolean isLsfsFromTargetFile = false;
@@ -821,7 +831,7 @@ public class JointGMMTransformer extends BaselineTransformer {
             mainParametric(inputFolder, outputBaseFolder, baseFile, outputFolderInfoString,
                     isSourceVocalTractSpectrumFromModel,
                     isTemporalSmoothing, smoothingNumNeighbours, 
-                    isPitchFromTargetFile, isDurationFromTargetFile, isEnergyFromTargetFile, isLsfsFromTargetFile, targetAlignmentFileType,
+                    isPitchFromTargetFile, pitchFromTargetMethod, isDurationFromTargetFile, isEnergyFromTargetFile, isLsfsFromTargetFile, targetAlignmentFileType,
                     isContextualGMMs, contextClassificationType, numComponents);
         }
     }
@@ -829,7 +839,7 @@ public class JointGMMTransformer extends BaselineTransformer {
     public static void mainParametric(String inputFolder, String outputBaseFolder, String baseFile, String outputFolderInfoString,
                                       boolean isSourceVocalTractSpectrumFromModel,
                                       boolean isTemporalSmoothing, int smoothingNumNeighbours, 
-                                      boolean isPitchFromTargetFile, boolean isDurationFromTargetFile, boolean isEnergyFromTargetFile, boolean isLsfsFromTargetFile, int targetAlignmentFileType,
+                                      boolean isPitchFromTargetFile, int pitchFromTargetMethod, boolean isDurationFromTargetFile, boolean isEnergyFromTargetFile, boolean isLsfsFromTargetFile, int targetAlignmentFileType,
                                       boolean isContextualGMMs, int contextClassificationType, int[] numComponents) throws IOException, UnsupportedAudioFileException
     {
         BaselinePreprocessor pp = new BaselinePreprocessor();
@@ -865,7 +875,7 @@ public class JointGMMTransformer extends BaselineTransformer {
         pa.isVocalTractMatchUsingTargetModel= false;
         
         pa.isSeparateProsody = true;
-        pa.isSaveVocalTractOnlyVersion = true;
+        pa.isSaveVocalTractOnlyVersion = false;
         pa.isFixedRateVocalTractConversion = true;
         
         //Prosody transformation
@@ -910,7 +920,8 @@ public class JointGMMTransformer extends BaselineTransformer {
         //
         
         //TTS tests
-        pa.isPitchFromTargetFile = isPitchFromTargetFile;    
+        pa.isPitchFromTargetFile = isPitchFromTargetFile;  
+        pa.pitchFromTargetMethod = pitchFromTargetMethod;
         pa.isDurationFromTargetFile = isDurationFromTargetFile;
         pa.isEnergyFromTargetFile = isEnergyFromTargetFile;
         pa.isLsfsFromTargetFile = isLsfsFromTargetFile;

@@ -1971,7 +1971,7 @@ public class MathUtils {
     }
     
     //Performs linear interpolation to increase or decrease the size of array x to newLength
-    public static double [] interpolate(double [] x, int newLength)
+    public static double[] interpolate(double [] x, int newLength)
     {
         double [] y = null;
         if (newLength>0)
@@ -1996,10 +1996,10 @@ public class MathUtils {
             {
                 y = new double[newLength];
                 int leftInd;
-                double ratio = ((double)newLength)/x.length;
+                double ratio = ((double)x.length)/newLength;
                 for (int i=0; i<newLength; i++)
                 {
-                    leftInd = (int)Math.floor(i/ratio);
+                    leftInd = (int)Math.floor(i*ratio);
                     if (leftInd<x.length-1)
                         y[i] = interpolatedSample(leftInd, i*ratio, leftInd+1, x[leftInd], x[leftInd+1]);
                     else
@@ -2559,6 +2559,21 @@ public class MathUtils {
         }
         
         return indices;
+    }
+    
+    public static double [] findValues(double[] x, int comparator, double val)
+    {
+        int[] inds = find(x, comparator, val);
+        double[] vals = null;
+        
+        if (inds!=null)
+        {
+            vals = new double[inds.length];
+            for (int i=0; i<inds.length; i++)
+                vals[i] = x[inds[i]];
+        }
+        
+        return vals;
     }
     
     //Returns the indices satisying the condition specificed by the comparator and val

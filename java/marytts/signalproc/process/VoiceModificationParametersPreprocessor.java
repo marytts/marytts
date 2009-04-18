@@ -22,6 +22,7 @@ package marytts.signalproc.process;
 import java.util.Arrays;
 
 import marytts.signalproc.adaptation.BaselineTransformerParams;
+import marytts.signalproc.adaptation.prosody.ProsodyTransformerParams;
 import marytts.signalproc.analysis.AlignmentData;
 import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.PitchReaderWriter;
@@ -78,7 +79,8 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                                                    String targetPitchFile, //only required for copy pitch synthesis
                                                    String targetEnergyFile, //only required for escales
                                                    boolean isPitchFromTargetFile, 
-                                                   boolean isDurationFromTargetFile, 
+                                                   int pitchFromTargetMethod,
+                                                   boolean isDurationFromTargetFile,
                                                    boolean isEnergyFromTargetFile,
                                                    int targetAlignmentFileType,
                                                    String targetAlignmentFile, 
@@ -133,6 +135,8 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
 
         //Determine the pitch and time scaling factors corresponding to each pitch synchronous frame
         pscalesVar = MathUtils.ones(numfrmIn);
+        double[] sourceMappedF0s = MathUtils.zeros(numfrmIn);
+        double[] targetMappedF0s = MathUtils.zeros(numfrmIn);
         tscalesVar = MathUtils.ones(numfrmIn);
         escalesVar = MathUtils.ones(numfrmIn);
         vscalesVar = MathUtils.ones(numfrmIn);
@@ -221,7 +225,6 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                     if (sourcePitch>10.0)
                         voiceds[i] = true;
 
-                    
                     if (ad instanceof FestivalUtt)
                     {
                         tTarget = tSource;
@@ -254,77 +257,87 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                         else
                             targetPitch = sourcePitch;
                     }
+                    
+                    sourceMappedF0s[i] = sourcePitch;
+                    targetMappedF0s[i] = targetPitch;
 
-                    if (targetPitch>10.0 && sourcePitch>10.0)
+                    if (pitchFromTargetMethod==ProsodyTransformerParams.FULL_CONTOUR)
                     {
-                        pscalesVar[i] = targetPitch/sourcePitch;
+                        if (targetPitch>10.0 && sourcePitch>10.0)
+                            pscalesVar[i] = targetPitch/sourcePitch;
+                        else
+                            pscalesVar[i] = 1.0;
                     }
-
                 }
 
                 System.out.println("SLab=" + sourceLabels.items[sourceLabInd].phn + " TLab=" + targetDurationLabels.items[targetDurationLabInd].phn + " STime=" + String.valueOf(tSource) + " TTime=" + String.valueOf(tTarget) + " SPtich=" + sourcePitch + " TPitch=" + targetPitch + " ps=" + String.valueOf(pscalesVar[i])+ " ts=" + String.valueOf(tscalesVar[i]));
-                
-                modifiedContour[i] = sourcePitch*pscalesVar[i];
             }
             
-            /*
-            MaryUtils.plot(sourceF0s.contour);
-            MaryUtils.plot(modifiedContour);
-            MaryUtils.plot(targetF0s.contour);
-            */
-            
-            int smootherLen = 4;
-            pscalesVar = SignalProcUtils.meanFilter(pscalesVar, smootherLen);
-            pscalesVar = SignalProcUtils.shift(pscalesVar, (int)Math.floor(0.5*smootherLen));
-            for (i=0; i<numfrmIn; i++)
+            if (pitchFromTargetMethod==ProsodyTransformerParams.FULL_CONTOUR)
             {
-                if (!voiceds[i])
-                    pscalesVar[i] = 1.0;
-                
-                pscalesVar[i] = Math.max(pscalesVar[i], BaselineTransformerParams.MINIMUM_ALLOWED_PITCH_SCALE);
-                pscalesVar[i] = Math.min(pscalesVar[i], BaselineTransformerParams.MAXIMUM_ALLOWED_PITCH_SCALE);
-                
-            }
-
-            tscalesVar = SignalProcUtils.meanFilter(tscalesVar, smootherLen);
-            tscalesVar = SignalProcUtils.shift(tscalesVar, (int)Math.floor(0.5*smootherLen));
-            for (i=0; i<numfrmIn; i++)
-            {                
-                tscalesVar[i] = Math.max(tscalesVar[i], BaselineTransformerParams.MINIMUM_ALLOWED_TIME_SCALE);
-                tscalesVar[i] = Math.min(tscalesVar[i], BaselineTransformerParams.MAXIMUM_ALLOWED_TIME_SCALE);
-            }
-
-            double mean_pscale = 0.0;
-            int numVoiceds = 0;
-            for (i=0; i<numfrmIn; i++)
-            {
-                if (voiceds[i])
+                int smootherLen = 4;
+                //pscalesVar = SignalProcUtils.meanFilter(pscalesVar, smootherLen);
+                //pscalesVar = SignalProcUtils.shift(pscalesVar, (int)Math.floor(0.5*smootherLen));
+                for (i=0; i<numfrmIn; i++)
                 {
-                    mean_pscale += pscalesVar[i];
-                    numVoiceds++;
+                    if (!voiceds[i])
+                        pscalesVar[i] = 1.0;
+
+                    pscalesVar[i] = Math.max(pscalesVar[i], BaselineTransformerParams.MINIMUM_ALLOWED_PITCH_SCALE);
+                    pscalesVar[i] = Math.min(pscalesVar[i], BaselineTransformerParams.MAXIMUM_ALLOWED_PITCH_SCALE);
+
+                }
+
+                //tscalesVar = SignalProcUtils.meanFilter(tscalesVar, smootherLen);
+                //tscalesVar = SignalProcUtils.shift(tscalesVar, (int)Math.floor(0.5*smootherLen));
+                for (i=0; i<numfrmIn; i++)
+                {                
+                    tscalesVar[i] = Math.max(tscalesVar[i], BaselineTransformerParams.MINIMUM_ALLOWED_TIME_SCALE);
+                    tscalesVar[i] = Math.min(tscalesVar[i], BaselineTransformerParams.MAXIMUM_ALLOWED_TIME_SCALE);
                 }
             }
-            if (numVoiceds>0)
-                mean_pscale /= numVoiceds;
-            else
-                mean_pscale = 1.0;
-            //mean_pscale = 1.2;
-            Arrays.fill(pscalesVar, mean_pscale);
-            for (i=0; i<numfrmIn; i++)
+            else if (pitchFromTargetMethod==ProsodyTransformerParams.SENTENCE_MEAN || pitchFromTargetMethod==ProsodyTransformerParams.SENTENCE_MEAN_STDDEV)
             {
-                if (!voiceds[i])
-                    pscalesVar[i] = 1.0;
+                double[] sourceVoicedF0s = MathUtils.findValues(sourceF0s.contour, MathUtils.GREATER_THAN, 10.0);
+                double[] targetVoicedF0s = MathUtils.findValues(targetF0s.contour, MathUtils.GREATER_THAN, 10.0);
+                
+                double sourceF0Mean = MathUtils.mean(sourceVoicedF0s);
+                double targetF0Mean = MathUtils.mean(targetVoicedF0s);
+                
+                if (pitchFromTargetMethod==ProsodyTransformerParams.SENTENCE_MEAN_STDDEV)
+                {
+                    double sourceF0Std = MathUtils.standardDeviation(sourceVoicedF0s, sourceF0Mean);
+                    double targetF0Std = MathUtils.standardDeviation(targetVoicedF0s, targetF0Mean);
+                    
+                    for (i=0; i<numfrmIn; i++)
+                    {
+                        pscalesVar[i] = 1.0;
+                        if (sourceMappedF0s[i]>10.0 && targetMappedF0s[i]>10.0)
+                        {
+                            double tF0 = ((sourceMappedF0s[i]-sourceF0Mean)/sourceF0Std)*targetF0Std+targetF0Mean;
+                            pscalesVar[i] = tF0/sourceMappedF0s[i];
+                        }  
+                    }     
+                }
+                else
+                {
+                    for (i=0; i<numfrmIn; i++)
+                    {
+                        pscalesVar[i] = 1.0;
+                        if (sourceMappedF0s[i]>10.0 && targetMappedF0s[i]>10.0)
+                            pscalesVar[i] = targetF0Mean/sourceF0Mean;
+                    }    
+                }
             }
             
-            double mean_tscale = MathUtils.mean(tscalesVar);
-            Arrays.fill(tscalesVar, mean_tscale);
-            
+            //Arrays.fill(pscalesVar, 0.8);
+
             //MaryUtils.plot(pscalesVar);
             //MaryUtils.plot(tscalesVar);
         }
     }
 
-    private void initialise(int [] pitchMarksIn, double wsFixedIn, double ssFixedIn, int numfrm, int numfrmFixed, int numPeriodsIn, boolean isFixedRate)
+    private void initialise(int[] pitchMarksIn, double wsFixedIn, double ssFixedIn, int numfrm, int numfrmFixed, int numPeriodsIn, boolean isFixedRate)
     {
         numPeriods = numPeriodsIn;
 

@@ -70,6 +70,7 @@ public class BaselineTransformerParams extends BaselineParams {
     
     //For copy-paste prosody
     public boolean isPitchFromTargetFile;
+    public int pitchFromTargetMethod;
     public boolean isDurationFromTargetFile;
     public boolean isEnergyFromTargetFile;
     
@@ -78,10 +79,10 @@ public class BaselineTransformerParams extends BaselineParams {
     public static final int FESTIVAL_UTT = 2;
     //
     
-    public static final double MINIMUM_ALLOWED_PITCH_SCALE = 0.8;
-    public static final double MAXIMUM_ALLOWED_PITCH_SCALE = 1.3;
-    public static final double MINIMUM_ALLOWED_TIME_SCALE = 0.8;
-    public static final double MAXIMUM_ALLOWED_TIME_SCALE = 1.3;
+    public static final double MINIMUM_ALLOWED_PITCH_SCALE = 0.6;
+    public static final double MAXIMUM_ALLOWED_PITCH_SCALE = 2.5;
+    public static final double MINIMUM_ALLOWED_TIME_SCALE = 0.6;
+    public static final double MAXIMUM_ALLOWED_TIME_SCALE = 2.5;
 
     public BaselineTransformerParams()
     {
@@ -122,6 +123,7 @@ public class BaselineTransformerParams extends BaselineParams {
         pitchMappingFile = "";
         
         isPitchFromTargetFile = false;
+        pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN_STDDEV;
         isDurationFromTargetFile = false;
         isEnergyFromTargetFile = false;
         isLsfsFromTargetFile = false;
@@ -164,6 +166,7 @@ public class BaselineTransformerParams extends BaselineParams {
         pitchMappingFile = existing.pitchMappingFile;
         
         isPitchFromTargetFile = existing.isPitchFromTargetFile;
+        pitchFromTargetMethod = existing.pitchFromTargetMethod;
         isDurationFromTargetFile = existing.isDurationFromTargetFile;
         isEnergyFromTargetFile = existing.isEnergyFromTargetFile;
         isLsfsFromTargetFile = existing.isLsfsFromTargetFile;
