@@ -19,7 +19,13 @@
  */
 package marytts.signalproc.process;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.adaptation.BaselineTransformerParams;
 import marytts.signalproc.adaptation.prosody.ProsodyTransformerParams;
@@ -28,6 +34,8 @@ import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.FestivalUtt;
 import marytts.signalproc.analysis.Labels;
+import marytts.util.data.DoubleDataSource;
+import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
@@ -75,9 +83,9 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
     public VoiceModificationParametersPreprocessor(String sourcePitchFile,
                                                    boolean isF0File,
                                                    String sourceLabelFile, 
-                                                   String sourceEnergyFile, //only required for escales
+                                                   String sourceWavFile, //only required for escales
                                                    String targetPitchFile, //only required for copy pitch synthesis
-                                                   String targetEnergyFile, //only required for escales
+                                                   String targetWavFile, //only required for escales
                                                    boolean isPitchFromTargetFile, 
                                                    int pitchFromTargetMethod,
                                                    boolean isDurationFromTargetFile,
@@ -93,13 +101,65 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
         
         numPeriods = numPeriodsIn;
         
-        //These are not implemented!!! To do later after Interspeech 2008 paper
-        //escalesVar from sourceLabelFile, sourceEnergyFile, targetLabelFile, targetEnergyFile
-        //vscalesVar from vscalesIn
+        double[] sourceEns = null;
+        double[] targetEns = null;
+        if (isEnergyFromTargetFile)
+        {
+            AudioInputStream inputAudioSrc = null;
+            try {
+                inputAudioSrc = AudioSystem.getAudioInputStream(new File(sourceWavFile));
+            } catch (UnsupportedAudioFileException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+            AudioInputStream inputAudioTgt = null;
+            try {
+                FileUtils.copy(targetWavFile, targetWavFile+".wav");
+                inputAudioTgt = AudioSystem.getAudioInputStream(new File(targetWavFile+".wav")); 
+            } catch (UnsupportedAudioFileException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            if (inputAudioSrc!=null && inputAudioTgt!=null)
+            {
+                DoubleDataSource inputSrc = new AudioDoubleDataSource(inputAudioSrc);
+                double[] sourceSignal = inputSrc.getAllData();
+                int fsSource = (int)inputAudioSrc.getFormat().getSampleRate();
+
+                DoubleDataSource inputTgt = new AudioDoubleDataSource(inputAudioTgt);
+                double[] targetSignal = inputTgt.getAllData();
+                int fsTarget = (int)inputAudioTgt.getFormat().getSampleRate();
+                
+                try {
+                    inputAudioSrc.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                try {
+                    inputAudioTgt.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+                FileUtils.delete(targetWavFile + ".wav");
+
+                sourceEns = SignalProcUtils.getEnergyContourRms(sourceSignal, wsFixed, ssFixed, fsSource);
+                targetEns = SignalProcUtils.getEnergyContourRms(targetSignal, wsFixed, ssFixed, fsTarget);
+            }
+        }
         
         //Read from files (only necessary ones, you will need to read more when implementing escales etc)
         AlignmentData ad = null;
-        if (isPitchFromTargetFile || isDurationFromTargetFile)
+        if (isPitchFromTargetFile || isDurationFromTargetFile || isEnergyFromTargetFile)
         {
             if (FileUtils.exists(targetAlignmentFile))
             {
@@ -145,7 +205,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
         
         int i;
         double tSource, tTarget;
-        int sourceLabInd, targetDurationLabInd, targetPitchLabInd, sourcePitchInd, targetPitchInd;
+        int sourceLabInd, targetDurationLabInd, targetPitchLabInd, sourcePitchInd, targetPitchInd, sourceEnergyInd, targetEnergyInd;
         double sourceDuration, targetDuration, sourcePitch, targetPitch;
         double sourceLocationInLabelPercent;
         
@@ -269,6 +329,18 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                             pscalesVar[i] = 1.0;
                     }
                 }
+                
+                if (isEnergyFromTargetFile && sourceEns!=null && targetEns!=null)
+                {
+                    sourceEnergyInd = SignalProcUtils.time2frameIndex(tSource, wsFixed, ssFixed);
+                    sourceEnergyInd = MathUtils.CheckLimits(sourceEnergyInd, 0, sourceEns.length-1);
+                    
+                    targetEnergyInd = SignalProcUtils.time2frameIndex(tTarget, wsFixed, ssFixed);
+                    targetEnergyInd = MathUtils.CheckLimits(targetEnergyInd, 0, targetEns.length-1);
+                    
+                    escalesVar[i] = targetEns[targetEnergyInd]/sourceEns[sourceEnergyInd];
+                    //escalesVar[i] = ((double)i)/numfrmIn; //To test if this works
+                }
 
                 System.out.println("SLab=" + sourceLabels.items[sourceLabInd].phn + " TLab=" + targetDurationLabels.items[targetDurationLabInd].phn + " STime=" + String.valueOf(tSource) + " TTime=" + String.valueOf(tTarget) + " SPtich=" + sourcePitch + " TPitch=" + targetPitch + " ps=" + String.valueOf(pscalesVar[i])+ " ts=" + String.valueOf(tscalesVar[i]));
             }
@@ -334,6 +406,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
 
             //MaryUtils.plot(pscalesVar);
             //MaryUtils.plot(tscalesVar);
+            //MaryUtils.plot(escalesVar);
         }
     }
 

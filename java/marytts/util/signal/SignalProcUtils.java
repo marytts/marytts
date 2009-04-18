@@ -222,6 +222,30 @@ public class SignalProcUtils {
         return energies;
     }
     
+    public static float[] getAverageSampleEnergyContour(double[] x, double windowSizeInSeconds, double skipSizeInSeconds, int samplingRate)
+    {
+        int ws = (int)Math.floor(windowSizeInSeconds*samplingRate+0.5);
+        int ss = (int)Math.floor(skipSizeInSeconds*samplingRate+0.5);
+        int numfrm = (int)Math.floor((x.length-(double)ws)/ss+0.5);
+        
+        float[] averageSampleEnergies = null;
+        
+        if (numfrm>0)
+        {
+            averageSampleEnergies = new float[numfrm];
+            double[] frm = new double[ws];
+            int i, j;
+            for (i=0; i<numfrm; i++)
+            {
+                Arrays.fill(frm, 0.0);
+                System.arraycopy(x, i*ss, frm, 0, Math.min(ws, x.length-i*ss));
+                
+                averageSampleEnergies[i] = (float)SignalProcUtils.getAverageSampleEnergy(frm);
+            }
+        }
+        
+        return averageSampleEnergies;
+    }
     
     //Returns the average sample energy contour around times using analysis windows of site windowDurationInSeconds
     public static float[] getAverageSampleEnergyContour(double[] x, float[] times, int samplingRateInHz, float windowDurationInSeconds)
