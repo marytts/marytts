@@ -821,11 +821,11 @@ public class JointGMMTransformer extends BaselineTransformer {
 
             //Note that pitch and duration can be true or false together, not yet implemented separate processing
             boolean isPitchFromTargetFile = true;
-            int pitchFromTargetMethod = ProsodyTransformerParams.FULL_CONTOUR;
-            //int pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN;
+            //int pitchFromTargetMethod = ProsodyTransformerParams.FULL_CONTOUR;
+            int pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN;
             //int pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN_STDDEV;
-            boolean isDurationFromTargetFile = true;
-            boolean isEnergyFromTargetFile = true;
+            boolean isDurationFromTargetFile = false;
+            boolean isEnergyFromTargetFile = false;
             boolean isLsfsFromTargetFile = false;
             int targetAlignmentFileType = BaselineTransformerParams.LABELS;
             //
@@ -877,13 +877,13 @@ public class JointGMMTransformer extends BaselineTransformer {
         
         pa.isForcedAnalysis = false;
         pa.isSourceVocalTractSpectrumFromModel = isSourceVocalTractSpectrumFromModel;
-        pa.isVocalTractTransformation = true;
+        pa.isVocalTractTransformation = false;
         pa.isResynthesizeVocalTractFromSourceModel = false;
         pa.isVocalTractMatchUsingTargetModel= false;
         
-        pa.isSeparateProsody = true;
+        pa.isSeparateProsody = false;
         pa.isSaveVocalTractOnlyVersion = false;
-        pa.isFixedRateVocalTractConversion = true;
+        pa.isFixedRateVocalTractConversion = false;
         
         //Prosody transformation
         pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_HERTZ;
