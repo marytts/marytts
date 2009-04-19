@@ -74,14 +74,13 @@ import marytts.util.signal.SignalProcUtils;
 
 
 /**
- * A class that supports voice conversion through weighted codebook mapping and FDPSOLA based
- * prosody and vocal tract modifications
+ * A class that supports voice conversion through weighted codebook mapping or joint-GMMs 
+ * and FDPSOLA based prosody and vocal tract modifications
  * 
  * @author Oytun T&uumlrk
  * 
  */
 public class FdpsolaAdapter {
-    
     protected DoubleDataSource input;
     protected AudioInputStream inputAudio;
     protected DDSAudioInputStream outputAudio;

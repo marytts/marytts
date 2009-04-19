@@ -299,13 +299,21 @@ public class JointGMMTransformer extends BaselineTransformer {
         //LSF transformation is done fully from audio to audio
         if (jgSet.gmms[0].featureType==BaselineFeatureExtractor.LSF_FEATURES)
         {
+            if (wctParams.isTemporalSmoothing) //Need to do two pass for smoothing
+            {
+                wctParams.isSeparateProsody = true;
+                wctParams.isFixedRateVocalTractConversion = true;
+            }
+            
             if (wctParams.isFixedRateVocalTractConversion)
             {
                 if (wctParams.prosodyParams.pitchTransformationMethod!=ProsodyTransformerParams.NO_TRANSFORMATION 
                         || wctParams.prosodyParams.pitchTransformationMethod!=ProsodyTransformerParams.CUSTOM_TRANSFORMATION
                         || wctParams.prosodyParams.durationTransformationMethod!=ProsodyTransformerParams.CUSTOM_TRANSFORMATION
                         || wctParams.prosodyParams.energyTransformationMethod!=ProsodyTransformerParams.CUSTOM_TRANSFORMATION)
+                {
                     wctParams.isSeparateProsody = true;
+                }
             }
 
             //Desired values should be specified in the following four parameters
@@ -326,9 +334,6 @@ public class JointGMMTransformer extends BaselineTransformer {
 
             String firstPassOutputWavFile = "";
             String smoothedVocalTractFile = "";
-
-            if (currentWctParams.isTemporalSmoothing) //Need to do two pass for smoothing
-                currentWctParams.isSeparateProsody = true;
 
             if (currentWctParams.isSeparateProsody) //First pass with no prosody modifications
             {
@@ -821,8 +826,8 @@ public class JointGMMTransformer extends BaselineTransformer {
 
             //Note that pitch and duration can be true or false together, not yet implemented separate processing
             boolean isPitchFromTargetFile = true;
-            //int pitchFromTargetMethod = ProsodyTransformerParams.FULL_CONTOUR;
-            int pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN;
+            int pitchFromTargetMethod = ProsodyTransformerParams.FULL_CONTOUR;
+            //int pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN;
             //int pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN_STDDEV;
             boolean isDurationFromTargetFile = false;
             boolean isEnergyFromTargetFile = false;
@@ -877,13 +882,13 @@ public class JointGMMTransformer extends BaselineTransformer {
         
         pa.isForcedAnalysis = false;
         pa.isSourceVocalTractSpectrumFromModel = isSourceVocalTractSpectrumFromModel;
-        pa.isVocalTractTransformation = false;
+        pa.isVocalTractTransformation = true;
         pa.isResynthesizeVocalTractFromSourceModel = false;
         pa.isVocalTractMatchUsingTargetModel= false;
         
-        pa.isSeparateProsody = false;
+        pa.isSeparateProsody = true;
         pa.isSaveVocalTractOnlyVersion = false;
-        pa.isFixedRateVocalTractConversion = false;
+        pa.isFixedRateVocalTractConversion = true;
         
         //Prosody transformation
         pa.prosodyParams.pitchStatisticsType = PitchStatistics.STATISTICS_IN_HERTZ;
