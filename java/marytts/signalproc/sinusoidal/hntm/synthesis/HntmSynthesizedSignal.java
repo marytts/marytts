@@ -27,12 +27,14 @@ public class HntmSynthesizedSignal {
     public double[] harmonicPart;
     public double[] noisePart;
     public double[] transientPart;
+    public double[] output;
     
     public HntmSynthesizedSignal()
     {
         harmonicPart = null;
         noisePart = null;
         transientPart = null;
+        output = null;
     }
 }
 

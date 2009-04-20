@@ -89,6 +89,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                                                    boolean isPitchFromTargetFile, 
                                                    int pitchFromTargetMethod,
                                                    boolean isDurationFromTargetFile,
+                                                   int durationFromTargetMethod,
                                                    boolean isEnergyFromTargetFile,
                                                    int targetAlignmentFileType,
                                                    String targetAlignmentFile, 
@@ -207,6 +208,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
         double tSource, tTarget;
         int sourceLabInd, targetDurationLabInd, targetPitchLabInd, sourcePitchInd, targetPitchInd, sourceEnergyInd, targetEnergyInd;
         double sourceDuration, targetDuration, sourcePitch, targetPitch;
+        double sourceDurationNeigh, targetDurationNeigh;
         double sourceLocationInLabelPercent;
         
         //Find the optimum alignment between the source and the target labels since the phoneme sequences may not be identical due to silence periods etc.
@@ -241,7 +243,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
         double[] modifiedContour = new double[numfrmIn];
         
         if (durationMap!=null && targetDurationLabels!=null && targetPitchLabels!=null)
-        {
+        {            
             for (i=0; i<numfrmIn; i++)
             {
                 if (!isFixedRate)
@@ -267,10 +269,25 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                 else
                     targetDuration = targetDurationLabels.items[targetDurationLabInd].time;
                 
-                if (isDurationFromTargetFile && targetDurationLabInd>=0)
+                tscalesVar[i] = 1.0;
+                if (durationFromTargetMethod==ProsodyTransformerParams.TRIPHONE_DURATIONS)
+                {
+                    sourceDurationNeigh = sourceDuration;
+                    if (sourceLabInd>1)
+                        sourceDurationNeigh += sourceLabels.items[sourceLabInd-1].time-sourceLabels.items[sourceLabInd-2].time;
+                    if (sourceLabInd<sourceLabels.items.length-1)
+                        sourceDurationNeigh += sourceLabels.items[sourceLabInd+1].time-sourceLabels.items[sourceLabInd].time;
+
+                    targetDurationNeigh = targetDuration;
+                    if (targetDurationLabInd>1)
+                        targetDurationNeigh += targetDurationLabels.items[targetDurationLabInd-1].time-targetDurationLabels.items[targetDurationLabInd-2].time;
+                    if (targetDurationLabInd<targetDurationLabels.items.length-1)
+                        targetDurationNeigh += targetDurationLabels.items[targetDurationLabInd+1].time-targetDurationLabels.items[targetDurationLabInd].time;
+                    
+                    tscalesVar[i] = targetDurationNeigh/sourceDurationNeigh;
+                }
+                else if (durationFromTargetMethod==ProsodyTransformerParams.PHONEME_DURATIONS && targetDurationLabInd>=0)
                     tscalesVar[i] = targetDuration/sourceDuration;
-                else
-                    tscalesVar[i] = 1.0;
 
                 tTarget = -1.0;
                 targetPitch = 0.0;
@@ -400,6 +417,37 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                             pscalesVar[i] = targetF0Mean/sourceF0Mean;
                     }    
                 }
+            }
+            
+            //Average duration scale estimation
+            //This matches average duration of source sentence with the target excluding silence (Silence labels should be appropriately listed below)
+            if (isDurationFromTargetFile && durationFromTargetMethod==ProsodyTransformerParams.SENTENCE_DURATION)
+            {
+                String[] silenceLabels = {"H#", "_"};
+                double totalSourceDur = 0.0;
+                double totalTargetDur = 0.0;
+                for (i=0; i<sourceLabels.items.length; i++)
+                {
+                    if (!StringUtils.isOneOf(sourceLabels.items[i].phn, silenceLabels))
+                    {
+                        if (i>0)
+                            sourceDuration = sourceLabels.items[i].time-sourceLabels.items[i-1].time;
+                        else
+                            sourceDuration = sourceLabels.items[i].time;
+
+                        targetDurationLabInd = StringUtils.findInMap(durationMap, i);
+                        if (targetDurationLabInd>0)
+                            targetDuration = targetDurationLabels.items[targetDurationLabInd].time-targetDurationLabels.items[targetDurationLabInd-1].time;
+                        else
+                            targetDuration = targetDurationLabels.items[targetDurationLabInd].time;
+
+                        totalSourceDur += sourceDuration;
+                        totalTargetDur += targetDuration;
+                    }
+                }
+                
+                Arrays.fill(tscalesVar, totalTargetDur/totalSourceDur);
+                System.out.println("Average duration scale=" + String.valueOf(totalTargetDur/totalSourceDur));
             }
             
             //Arrays.fill(pscalesVar, 0.8);

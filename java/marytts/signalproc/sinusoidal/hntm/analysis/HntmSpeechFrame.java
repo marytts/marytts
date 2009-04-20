@@ -19,7 +19,10 @@
  */
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
+import java.util.Arrays;
+
 import marytts.signalproc.sinusoidal.BaseSinusoidalSpeechFrame;
+import marytts.util.math.ArrayUtils;
 
 /**
  * @author oytun.turk
@@ -34,6 +37,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
     public float maximumFrequencyOfVoicingInHz; //If 0.0, then the frame is unvoiced
     public float tAnalysisInSeconds; //Middle of analysis frame in seconds
     public float origAverageSampleEnergy;
+    public double[] lpcs;
     
     public HntmSpeechFrame()
     {
@@ -48,6 +52,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         maximumFrequencyOfVoicingInHz = 0.0f;
         tAnalysisInSeconds = -1.0f;
         origAverageSampleEnergy = 0.0f;
+        lpcs = null;
     }
     
     public HntmSpeechFrame(HntmSpeechFrame existing)
@@ -66,6 +71,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         maximumFrequencyOfVoicingInHz = existing.maximumFrequencyOfVoicingInHz;
         tAnalysisInSeconds = existing.tAnalysisInSeconds;   
         origAverageSampleEnergy = existing.origAverageSampleEnergy;
+        lpcs = ArrayUtils.copy(existing.lpcs);
     }
 }
 

@@ -72,6 +72,7 @@ public class BaselineTransformerParams extends BaselineParams {
     public boolean isPitchFromTargetFile;
     public int pitchFromTargetMethod;
     public boolean isDurationFromTargetFile;
+    public int durationFromTargetMethod;
     public boolean isEnergyFromTargetFile;
     
     public int targetAlignmentFileType;
@@ -125,6 +126,7 @@ public class BaselineTransformerParams extends BaselineParams {
         isPitchFromTargetFile = false;
         pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN_STDDEV;
         isDurationFromTargetFile = false;
+        durationFromTargetMethod = ProsodyTransformerParams.SENTENCE_DURATION;
         isEnergyFromTargetFile = false;
         isLsfsFromTargetFile = false;
         
@@ -168,6 +170,7 @@ public class BaselineTransformerParams extends BaselineParams {
         isPitchFromTargetFile = existing.isPitchFromTargetFile;
         pitchFromTargetMethod = existing.pitchFromTargetMethod;
         isDurationFromTargetFile = existing.isDurationFromTargetFile;
+        durationFromTargetMethod = existing.durationFromTargetMethod;
         isEnergyFromTargetFile = existing.isEnergyFromTargetFile;
         isLsfsFromTargetFile = existing.isLsfsFromTargetFile;
         

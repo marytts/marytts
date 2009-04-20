@@ -35,6 +35,10 @@ public class ProsodyTransformerParams extends BaselineParams {
     
     ////DURATION
     public int durationTransformationMethod;
+    public static final int PHONEME_DURATIONS = 1;
+    public static final int TRIPHONE_DURATIONS = 2;
+    public static final int SENTENCE_DURATION = 3;
+    public static final int GLOBAL_AVERAGE = 4;
     
     ////PITCH
     public int pitchTransformationMethod;

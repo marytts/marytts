@@ -40,7 +40,6 @@ public class FrameNoisePartWaveform extends FrameNoisePart {
     
     public double[] waveform;
 
-    
     public FrameNoisePartWaveform()
     {
         super();
@@ -57,12 +56,14 @@ public class FrameNoisePartWaveform extends FrameNoisePart {
     {
         super();
         
+        setWaveform(x);
+    }
+    
+    public void setWaveform(double[] x)
+    {
         if (x!=null)
-        {
             waveform = ArrayUtils.copy(x);
-        }
         else
             waveform = null;
     }
-
 }

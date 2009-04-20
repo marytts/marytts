@@ -29,6 +29,8 @@
 
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
+import marytts.util.math.ArrayUtils;
+
 
 /**
  * @author oytun.turk
@@ -127,7 +129,21 @@ public class HntmSpeechSignal {
         
         double[][] phases = new double[numSegments][];
         */
-        return null;
+        return null; 
+    }
+    
+    public double[][] getLpcsAll()
+    {
+        double[][] lpcsAll = null;
         
+        if (frames!=null && frames.length>0)
+        {
+            int lpOrder = frames[0].lpcs.length;
+            lpcsAll = new double[frames.length][];
+            for (int i=0; i<frames.length; i++)
+                lpcsAll[i] = ArrayUtils.copy(frames[i].lpcs);
+        }
+        
+        return lpcsAll;
     }
 }

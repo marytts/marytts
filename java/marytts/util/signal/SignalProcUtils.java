@@ -27,11 +27,14 @@ import marytts.signalproc.analysis.CepstrumSpeechAnalyser;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.PitchMarks;
+import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.signalproc.filter.BandPassFilter;
 import marytts.signalproc.filter.FIRFilter;
 import marytts.signalproc.filter.HighPassFilter;
 import marytts.signalproc.filter.LowPassFilter;
 import marytts.signalproc.filter.RecursiveFilter;
+import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartLpc;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.window.HammingWindow;
 import marytts.signalproc.window.Window;
 import marytts.util.MaryUtils;
@@ -2590,6 +2593,148 @@ public class SignalProcUtils {
         }
         
         return amps;
+    }
+    
+    public static double[] normalizeVocalTract(double[] x, float[] tAnalysisInSeconds, double[][] lpcs, double windowSizeInSeconds, int samplingRateInHz, double preCoef)
+    {
+        double[] y = null;
+        
+        assert tAnalysisInSeconds.length == lpcs.length;
+        
+        int lpOrder = lpcs[0].length;
+        int numfrm = tAnalysisInSeconds.length;
+        int ws = SignalProcUtils.time2sample(windowSizeInSeconds, samplingRateInHz);
+        int halfWs = (int)Math.floor(0.5*ws+0.5);
+        Window wgt = new HammingWindow(ws);
+        double[] winWgt = wgt.getCoeffs();
+        double[] frm = new double[ws];
+        int frmStartIndex;
+        int frmEndIndex;
+        ComplexArray expTerm = LpcAnalyser.calcExpTerm(ws, lpOrder);
+        
+        int fftSize = SignalProcUtils.getDFTSize(samplingRateInHz);
+        while (fftSize<ws)
+            fftSize *= 2;
+        
+        y = new double[x.length];
+        double[] w = new double[x.length];
+        Arrays.fill(y, 0.0);
+        Arrays.fill(w, 0.0);
+        
+        int i, k;
+        for (i=0; i<numfrm; i++)
+        {
+            if (i==0)
+                frmStartIndex = 0;
+            else
+                frmStartIndex = Math.max(0, SignalProcUtils.time2sample(tAnalysisInSeconds[i]-0.5*windowSizeInSeconds, samplingRateInHz));
+            
+            frmEndIndex = Math.min(frmStartIndex+ws-1, x.length-1);
+            Arrays.fill(frm, 0.0);
+            System.arraycopy(x, frmStartIndex, frm, 0, frmEndIndex-frmStartIndex+1);
+            frm = wgt.apply(frm, 0);
+            double origEn = SignalProcUtils.energy(frm);
+
+            LpCoeffs frmLpcs = LpcAnalyser.calcLPC(frm, lpOrder, (float)preCoef);
+            double[] inputVocalTractSpectrum = LpcAnalyser.calcSpecLinearFromOneMinusA(frmLpcs.getOneMinusA(), 1.0f, fftSize, expTerm);
+            double[] outputVocalTractSpectrum = LpcAnalyser.calcSpecLinear(lpcs[i], 1.0f, fftSize, expTerm);
+            
+            //MaryUtils.plot(MathUtils.amp2db(inputVocalTractSpectrum));
+            //MaryUtils.plot(MathUtils.amp2db(outputVocalTractSpectrum));
+                        
+            ComplexArray inputDft = new ComplexArray(fftSize);
+            int maxFreq = fftSize/2+1;
+
+            System.arraycopy(frm, 0, inputDft.real, 0, Math.min(ws, inputDft.real.length));
+
+            if (inputDft.real.length > ws)
+                Arrays.fill(inputDft.real, inputDft.real.length-ws, inputDft.real.length-1, 0.0);
+
+            Arrays.fill(inputDft.imag, 0, inputDft.imag.length-1, 0);
+
+            inputDft = FFTMixedRadix.fftComplex(inputDft);
+            
+            //MaryUtils.plot(MathUtils.amp2db(MathUtils.abs(inputDft)));
+            
+            for (k=1; k<=maxFreq; k++)
+            {
+                inputDft.real[k-1] = inputDft.real[k-1]*outputVocalTractSpectrum[k-1]/inputVocalTractSpectrum[k-1];
+                inputDft.imag[k-1] = inputDft.imag[k-1]*outputVocalTractSpectrum[k-1]/inputVocalTractSpectrum[k-1];
+            }
+
+            for (k=maxFreq+1; k<=fftSize; k++)
+            {
+                inputDft.real[k-1] = inputDft.real[2*maxFreq-1-k];
+                inputDft.imag[k-1] = -inputDft.imag[2*maxFreq-1-k];
+            }
+            
+            //MaryUtils.plot(MathUtils.amp2db(MathUtils.abs(inputDft)));
+            
+            inputDft = FFTMixedRadix.ifft(inputDft);
+
+            //MaryUtils.plot(frm);
+            
+            System.arraycopy(inputDft.real, 0, frm, 0, ws);
+            
+            double newEn = SignalProcUtils.energy(frm);
+
+            frm = MathUtils.multiply(frm, Math.sqrt(origEn)/Math.sqrt(newEn));
+
+            //MaryUtils.plot(frm);
+            
+            for (k=0; k<ws; k++)
+            {
+                if (frmStartIndex+k>y.length-1)
+                    break;
+                
+                if (i==0)
+                {
+                    if (k<halfWs)
+                    {    
+                        y[frmStartIndex+k] += frm[k]*winWgt[k];
+                        w[frmStartIndex+k] += 1.0;
+                    }
+                    else
+                    {
+                        y[frmStartIndex+k] += frm[k]*winWgt[k];
+                        w[frmStartIndex+k] += winWgt[k]*winWgt[k];
+                    }
+                }
+                else if (i==numfrm-1)
+                {
+                    if (k>halfWs)
+                    {    
+                        y[frmStartIndex+k] += frm[k]*winWgt[k];
+                        w[frmStartIndex+k] = 1.0;
+                    }
+                    else
+                    {
+                        y[frmStartIndex+k] += frm[k]*winWgt[k];
+                        w[frmStartIndex+k] += winWgt[k]*winWgt[k];
+                    }
+                }
+                else
+                {
+                    y[frmStartIndex+k] += frm[k]*winWgt[k];
+                    w[frmStartIndex+k] += winWgt[k]*winWgt[k];
+                }
+            }
+            
+            System.out.println(String.valueOf(frmStartIndex) + "-" + String.valueOf(frmEndIndex) + " Normalized vocal tract spectrum for frame " + String.valueOf(i+1) + " of " + String.valueOf(numfrm));
+        }
+        
+        for (k=0; k<y.length; k++)
+        {
+            if (w[k]>0.0)
+                y[k] /= w[k];
+        }
+        
+        y = SignalProcUtils.removePreemphasis(y, preCoef);
+        
+        MaryUtils.plot(x);
+        MaryUtils.plot(y);
+        
+        return y;
     }
     
     public static void main(String[] args)

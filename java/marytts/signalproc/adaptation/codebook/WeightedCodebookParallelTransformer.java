@@ -394,6 +394,9 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
         //int pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN;
         //int pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN_STDDEV;
         boolean isDurationFromTargetFile = true;
+        int durationFromTargetMethod = ProsodyTransformerParams.PHONEME_DURATIONS;
+        //int durationFromTargetMethod = ProsodyTransformerParams.TRIPHONE_DURATIONS;
+        //int durationFromTargetMethod = ProsodyTransformerParams.SENTENCE_DURATION;
         boolean isEnergyFromTargetFile = false;
         boolean isLsfsFromTargetFile = false;
         int targetAlignmentFileType = BaselineTransformerParams.FESTIVAL_UTT;
@@ -411,7 +414,9 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
                        numBestMatches,
                        isTemporalSmoothing, smoothingNumNeighbours, 
                        isContextBasedPreselection, totalContextNeighbours,
-                       isPitchFromTargetFile, pitchFromTargetMethod, isDurationFromTargetFile, isEnergyFromTargetFile, isLsfsFromTargetFile, targetAlignmentFileType);
+                       isPitchFromTargetFile, pitchFromTargetMethod, 
+                       isDurationFromTargetFile, durationFromTargetMethod,
+                       isEnergyFromTargetFile, isLsfsFromTargetFile, targetAlignmentFileType);
     }
     
     public static void mainParametric(String inputFolder, String outputBaseFolder, String baseFile, String outputFolderInfoString,
@@ -419,7 +424,9 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
                                       int numBestMatches,
                                       boolean isTemporalSmoothing, int smoothingNumNeighbours, 
                                       boolean isContextBasedPreselection, int totalContextNeighbours,
-                                      boolean isPitchFromTargetFile, int pitchFromTargetMethod, boolean isDurationFromTargetFile, boolean isEnergyFromTargetFile,  boolean isLsfsFromTargetFile, int targetAlignmentFileType) throws IOException, UnsupportedAudioFileException
+                                      boolean isPitchFromTargetFile, int pitchFromTargetMethod, 
+                                      boolean isDurationFromTargetFile, int durationFromTargetMethod,
+                                      boolean isEnergyFromTargetFile,  boolean isLsfsFromTargetFile, int targetAlignmentFileType) throws IOException, UnsupportedAudioFileException
     {
         BaselinePreprocessor pp = new BaselinePreprocessor();
         BaselineFeatureExtractor fe = new BaselineFeatureExtractor();
@@ -515,6 +522,7 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
         pa.isPitchFromTargetFile = isPitchFromTargetFile;
         pa.pitchFromTargetMethod = pitchFromTargetMethod;
         pa.isDurationFromTargetFile = isDurationFromTargetFile;
+        pa.durationFromTargetMethod = durationFromTargetMethod;
         pa.isEnergyFromTargetFile = isEnergyFromTargetFile;
         pa.isLsfsFromTargetFile = isLsfsFromTargetFile;
         pa.targetAlignmentFileType = targetAlignmentFileType;
