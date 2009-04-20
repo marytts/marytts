@@ -38,6 +38,7 @@ import marytts.signalproc.sinusoidal.BaseSinusoidalSpeechSignal;
 import marytts.signalproc.sinusoidal.PeakMatchedSinusoidalSynthesizer;
 import marytts.signalproc.sinusoidal.SinusoidalTrack;
 import marytts.signalproc.sinusoidal.SinusoidalTracks;
+import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePart;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartLpc;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartPseudoHarmonic;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartRegularizedCeps;
@@ -90,6 +91,8 @@ public class HntmSynthesizer {
     public static boolean ADJUST_PHASES_AFTER_TIME_SCALING = false;
     public static boolean ADJUST_PHASES_AFTER_PITCH_SCALING = false;
     
+    public static boolean APPLY_VOCAL_TRACT_NORMALIZATION_POST_PROCESSOR = false; 
+    
     public HntmSynthesizer()
     {
 
@@ -118,27 +121,42 @@ public class HntmSynthesizer {
         }
 
         //Synthesize noise part
-        if (hntmSignalMod.frames[0].n instanceof FrameNoisePartLpc)
-            s.noisePart = NoisePartLpcSynthesizer.synthesize(hntmSignalMod, null); //"d:\\asaisa.wav");
-        else if (hntmSignalMod.frames[0].n instanceof FrameNoisePartRegularizedCeps)
-            s.noisePart = NoisePartRegularizedCepsSynthesizer.synthesize(hntmSignalMod);
-        else if (hntmSignalMod.frames[0].n instanceof FrameNoisePartPseudoHarmonic)
-            s.noisePart = NoisePartPseudoHarmonicSynthesizer.synthesize(hntmSignalMod, pmodParams.pScales, pmodParams.pScalesTimes);
-        else if (hntmSignalMod.frames[0].n instanceof FrameNoisePartWaveform)
+        //Search which type of noise part we have
+        FrameNoisePart p = null;
+        for (int i=0; i<hntmSignalMod.frames.length; i++)
         {
-            s.noisePart = NoisePartWaveformSynthesizer.synthesize(hntmSignalMod);
-            
-            //Harmonic part energy contour normalization
-            if (NORMALIZE_HARMONIC_ENERGY_CONTOUR)
+            if (hntmSignalMod.frames[i].n != null)
             {
-                float[] times = hntmSignalMod.getAnalysisTimes();
-                float[] originalContour = hntmSignalMod.getOriginalAverageSampleEnergyContour();
-                float[] noiseContour = SignalProcUtils.getAverageSampleEnergyContour(s.noisePart, times, hntmSignalMod.samplingRateInHz, NOISE_SYNTHESIS_WINDOW_DURATION_IN_SECONDS);
-                float[] currentHarmonicContour = SignalProcUtils.getAverageSampleEnergyContour(s.harmonicPart, times, hntmSignalMod.samplingRateInHz, NOISE_SYNTHESIS_WINDOW_DURATION_IN_SECONDS);
-                float[] targetHarmonicContour = MathUtils.subtract(originalContour, noiseContour);
-                s.harmonicPart = SignalProcUtils.normalizeAverageSampleEnergyContour(s.harmonicPart, times, currentHarmonicContour, targetHarmonicContour, hntmSignalMod.samplingRateInHz, NOISE_SYNTHESIS_WINDOW_DURATION_IN_SECONDS);
+                p = hntmSignalMod.frames[i].n;
+                break;
             }
-            //
+        }
+        //
+        
+        if (p!=null)
+        {
+            if (p instanceof FrameNoisePartLpc)
+                s.noisePart = NoisePartLpcSynthesizer.synthesize(hntmSignalMod, null); //"d:\\asaisa.wav");
+            else if (p instanceof FrameNoisePartRegularizedCeps)
+                s.noisePart = NoisePartRegularizedCepsSynthesizer.synthesize(hntmSignalMod);
+            else if (p instanceof FrameNoisePartPseudoHarmonic)
+                s.noisePart = NoisePartPseudoHarmonicSynthesizer.synthesize(hntmSignalMod, pmodParams.pScales, pmodParams.pScalesTimes);
+            else if (p instanceof FrameNoisePartWaveform)
+            {
+                s.noisePart = NoisePartWaveformSynthesizer.synthesize(hntmSignalMod);
+
+                //Harmonic part energy contour normalization
+                if (NORMALIZE_HARMONIC_ENERGY_CONTOUR)
+                {
+                    float[] times = hntmSignalMod.getAnalysisTimes();
+                    float[] originalContour = hntmSignalMod.getOriginalAverageSampleEnergyContour();
+                    float[] noiseContour = SignalProcUtils.getAverageSampleEnergyContour(s.noisePart, times, hntmSignalMod.samplingRateInHz, NOISE_SYNTHESIS_WINDOW_DURATION_IN_SECONDS);
+                    float[] currentHarmonicContour = SignalProcUtils.getAverageSampleEnergyContour(s.harmonicPart, times, hntmSignalMod.samplingRateInHz, NOISE_SYNTHESIS_WINDOW_DURATION_IN_SECONDS);
+                    float[] targetHarmonicContour = MathUtils.subtract(originalContour, noiseContour);
+                    s.harmonicPart = SignalProcUtils.normalizeAverageSampleEnergyContour(s.harmonicPart, times, currentHarmonicContour, targetHarmonicContour, hntmSignalMod.samplingRateInHz, NOISE_SYNTHESIS_WINDOW_DURATION_IN_SECONDS);
+                }
+                //
+            }
         }
         //
         
@@ -146,6 +164,12 @@ public class HntmSynthesizer {
         if (hntmSignalMod instanceof HntmPlusTransientsSpeechSignal && ((HntmPlusTransientsSpeechSignal)hntmSignalMod).transients!=null)
             s.transientPart = TransientPartSynthesizer.synthesize((HntmPlusTransientsSpeechSignal)hntmSignalMod);
         //
+        
+        s.output = SignalProcUtils.addSignals(s.harmonicPart, s.noisePart);
+        s.output = SignalProcUtils.addSignals(s.output, s.transientPart);
+        
+        if (APPLY_VOCAL_TRACT_NORMALIZATION_POST_PROCESSOR)
+            s.output = SignalProcUtils.normalizeVocalTract(s.output, hntmSignalMod.getAnalysisTimes(), hntmSignalMod.getLpcsAll(), HntmAnalyzer.NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, hntmSignalMod.samplingRateInHz, HntmAnalyzer.PREEMPHASIS_COEF_NOISE);
         
         return s;
     }
@@ -176,7 +200,7 @@ public class HntmSynthesizer {
         
         float[][] pScalesArray = new float[1][1];
         float[][] tScalesArray = new float[1][1];
-        pScalesArray[0][0] = 0.5f; tScalesArray[0][0] = 1.0f;
+        pScalesArray[0][0] = 1.5f; tScalesArray[0][0] = 1.0f;
         
         //float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f, 2.5f};
         float[] tScalesTimes = null;
@@ -234,8 +258,8 @@ public class HntmSynthesizer {
         //
         
         int fftSize = 4096;
-        //int harmonicPartAnalysisMethod = HntmAnalyzer.TIME_DOMAIN_CORRELATION_HARMONICS_ANALYSIS;
-        int harmonicPartAnalysisMethod = HntmAnalyzer.FREQUENCY_DOMAIN_PEAK_PICKING_HARMONICS_ANALYSIS;
+        int harmonicPartAnalysisMethod = HntmAnalyzer.TIME_DOMAIN_CORRELATION_HARMONICS_ANALYSIS;
+        //int harmonicPartAnalysisMethod = HntmAnalyzer.FREQUENCY_DOMAIN_PEAK_PICKING_HARMONICS_ANALYSIS;
         
         HntmSpeechSignal hnmSignal = ha.analyze(x, samplingRate, f0, labels, fftSize, model, noisePartRepresentation, harmonicPartAnalysisMethod);
         //
@@ -272,14 +296,12 @@ public class HntmSynthesizer {
                     xhat.transientPart = MathUtils.multiply(xhat.transientPart, tGain);
                     //MaryUtils.plot(xhat.transientPart);
                 }
-
-                double[] y = SignalProcUtils.addSignals(xhat.harmonicPart, xhat.noisePart);
-                y = SignalProcUtils.addSignals(y, xhat.transientPart);
-                double absMaxY = MathUtils.absMax(y);
-                if (absMaxY>32767)
+                
+                double absMaxOutput = MathUtils.absMax(xhat.output);
+                if (absMaxOutput>32767)
                 {
-                    System.out.println("Final output clipped re-scaling (abs max=" + String.valueOf(absMaxY) + ")");
-                    y = MathUtils.multiply(y, 32767.0/absMaxY);
+                    System.out.println("Final output clipped re-scaling (abs max=" + String.valueOf(absMaxOutput) + ")");
+                    xhat.output = MathUtils.multiply(xhat.output, 32767.0/absMaxOutput);
                 }
 
                 //y = MathUtils.multiply(y, MathUtils.absMax(x)/MathUtils.absMax(y));
@@ -337,7 +359,7 @@ public class HntmSynthesizer {
                     modelName += "_ts" + String.valueOf(tScalesArray[n][0]);
 
                 //y = MathUtils.multiply(y, MathUtils.absMax(x)/MathUtils.absMax(y));
-                outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(MathUtils.divide(y,32768.0)), inputAudio.getFormat());
+                outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(MathUtils.divide(xhat.output,32768.0)), inputAudio.getFormat());
                 outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + strExt + ".wav";
                 AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
 

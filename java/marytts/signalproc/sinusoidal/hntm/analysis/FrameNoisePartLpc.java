@@ -49,6 +49,11 @@ public class FrameNoisePartLpc extends FrameNoisePart {
     {
         super();
         
+        setLpCoeffs(lpCoeffsIn);
+    }
+
+    public void setLpCoeffs(double[] lpCoeffsIn)
+    {
         if (lpCoeffsIn!=null)
         {
             lpCoeffs = new double[lpCoeffsIn.length];
@@ -57,6 +62,5 @@ public class FrameNoisePartLpc extends FrameNoisePart {
         else
             lpCoeffs = null;
     }
-
 }
 

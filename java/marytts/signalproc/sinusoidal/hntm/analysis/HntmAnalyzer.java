@@ -93,7 +93,7 @@ public class HntmAnalyzer {
     public static final int PSEUDO_HARMONIC = 3; //Noise part model based on pseude harmonics for f0=NOISE_F0_IN_HZ
     public static final int HIGHPASS_WAVEFORM = 4; //Noise part model based on frame waveform (i.e. no model, overlap-add noise part generation)
 
-    public static final boolean USE_AMPLITUDES_DIRECTLY = true; //Use amplitudes directly (for testing only, 
+    public static final boolean USE_AMPLITUDES_DIRECTLY = false; //Use amplitudes directly (for testing only, 
         
     public static final double NOISE_F0_IN_HZ = 200.0; //Pseudo-pitch for unvoiced portions (will be used for pseudo harmonic modelling of the noise part)
     public static float FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST = 3500.0f;
@@ -135,10 +135,10 @@ public class HntmAnalyzer {
     public static double MAXIMUM_AMP_THRESHOLD_IN_DB = 13.0; //Decreased ==> Voicing increases (Orig: 13.0)
     public static double HARMONIC_DEVIATION_PERCENT = 20.0; //Increased ==> Voicing increases (Orig: 20.0)
     public static double SHARP_PEAK_AMP_DIFF_IN_DB = 12.0; //Decreased ==> Voicing increases
-    public static int MINIMUM_TOTAL_HARMONICS = 10; //Minimum number of total harmonics to be included in voiced region (effective only when f0>10.0)
-    public static int MAXIMUM_TOTAL_HARMONICS = 10; //Maximum number of total harmonics to be included in voiced region (effective only when f0>10.0)
+    public static int MINIMUM_TOTAL_HARMONICS = 0; //Minimum number of total harmonics to be included in voiced region (effective only when f0>10.0)
+    public static int MAXIMUM_TOTAL_HARMONICS = 100; //Maximum number of total harmonics to be included in voiced region (effective only when f0>10.0)
     public static float MINIMUM_VOICED_FREQUENCY_OF_VOICING = 0.0f; //All voiced sections will have at least this freq. of voicing
-    public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 3600.0f; //All voiced sections will have at least this freq. of voicing
+    public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 6000.0f; //All voiced sections will have at least this freq. of voicing
     public static float MAXIMUM_FREQUENCY_OF_VOICING_FINAL_SHIFT = 0.0f; //The max freq. of voicing contour is shifted by this amount finally
     public static float RUNNING_MEAN_VOICING_THRESHOLD = 0.5f; //Between 0.0 and 1.0, decrease ==> Max. voicing freq increases
 
@@ -151,7 +151,7 @@ public class HntmAnalyzer {
     public static boolean NORMALIZE_HARMONIC_AMPLITUDES = false;
     
     public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_ANALYSIS = true;
-    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_TIME_SCALING = false;
+    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_TIME_SCALING = true;
     public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_PITCH_SCALING = false;
     
     public static int NUM_FILTERING_STAGES = 1;
@@ -422,15 +422,18 @@ public class HntmAnalyzer {
                         ws++;
 
                     frm = new double[ws];
-                    int frmStartIndex = SignalProcUtils.time2sample(hnmSignal.frames[i].tAnalysisInSeconds-0.5*numPeriods/f0InHz, fs);
+                    Arrays.fill(frm, 0.0);
+                    int frmStartIndex;
+                    if (i==0)
+                        frmStartIndex = 0;
+                    else
+                        frmStartIndex = SignalProcUtils.time2sample(hnmSignal.frames[i].tAnalysisInSeconds-0.5*numPeriods/f0InHz, fs);
                     int frmEndIndex = frmStartIndex+ws-1;
+                    System.out.println(String.valueOf(frmStartIndex) + " " + String.valueOf(frmEndIndex));
                     int count = 0;
-                    for (j=frmStartIndex; j<0; j++)
-                        frm[count++] = 0.0;
                     for (j=Math.max(0, frmStartIndex); j<Math.min(frmEndIndex, x.length-1); j++)
                         frm[count++] = x[j];
-                    for (j=x.length; j<=frmEndIndex; j++)
-                        frm[count++] = 0.0;
+
 
                     /*
                     for (j=pm.pitchMarks[i]; j<Math.min(pm.pitchMarks[i]+ws-1, x.length); j++)
@@ -552,6 +555,10 @@ public class HntmAnalyzer {
 
                     for (j=noiseFrmStartInd; j<Math.min(noiseFrmStartInd+wsNoise, x.length); j++)
                         frmNoise[j-noiseFrmStartInd] = xPreemphasized[j];
+                    
+                    double[] frmLpc = winNoise.apply(frmNoise, 0);
+                    LpCoeffs lpcsAll = LpcAnalyser.calcLPC(frmLpc, lpOrder, 0.0f);
+                    hnmSignal.frames[i].lpcs = ArrayUtils.copy(lpcsAll.getA());
 
                     //hnmSignal.frames[i].harmonicTotalEnergyRatio = 1.0f;
 
@@ -690,7 +697,6 @@ public class HntmAnalyzer {
                             //We have support for preemphasis - this needs to be handled during synthesis of the noisy part with preemphasis removal
                             //frmNoise = winNoise.apply(frmNoise, 0);
 
-
                             if (hnmSignal.frames[i].maximumFrequencyOfVoicingInHz-OVERLAP_BETWEEN_HARMONIC_AND_NOISE_REGIONS_IN_HZ>0.0f)
                                 y = SignalProcUtils.fdFilter(frmNoise, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz-OVERLAP_BETWEEN_HARMONIC_AND_NOISE_REGIONS_IN_HZ, 0.5f*fs, fs, fftSizeNoise);
                             else
@@ -701,7 +707,7 @@ public class HntmAnalyzer {
                             }
 
                             //SignalProcUtils.displayDFTSpectrumInDBNoWindowing(frmNoise, fftSizeNoise);
-
+                            
                             hnmSignal.frames[i].n = new FrameNoisePartWaveform(y); //Lp coefficients, AR filter required for synthesis!
                             //hnmSignal.frames[i].n = new FrameNoisePartLpc(lpcs.getLPRefc()); //Reflection coefficients (Lattice filter required for synthesis!
                             //hnmSignal.frames[i].noiseTotalEnergyRatio = fdfo.passBandToTotalEnergyRatio;

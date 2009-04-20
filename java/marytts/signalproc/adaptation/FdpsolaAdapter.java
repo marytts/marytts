@@ -358,6 +358,7 @@ public class FdpsolaAdapter {
                                                                         baseParams.isPitchFromTargetFile, 
                                                                         baseParams.pitchFromTargetMethod,
                                                                         baseParams.isDurationFromTargetFile,
+                                                                        baseParams.durationFromTargetMethod,
                                                                         baseParams.isEnergyFromTargetFile,
                                                                         baseParams.targetAlignmentFileType,
                                                                         targetAlignmentFile,
