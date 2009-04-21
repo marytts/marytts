@@ -19,11 +19,19 @@
  */
 package marytts.util.signal;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Vector;
 
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import marytts.signalproc.analysis.CepstrumSpeechAnalyser;
+import marytts.signalproc.analysis.FestivalUtt;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.PitchMarks;
@@ -35,9 +43,10 @@ import marytts.signalproc.filter.LowPassFilter;
 import marytts.signalproc.filter.RecursiveFilter;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartLpc;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
-import marytts.signalproc.window.HammingWindow;
-import marytts.signalproc.window.Window;
+import marytts.signalproc.window.*;
 import marytts.util.MaryUtils;
+import marytts.util.data.audio.AudioDoubleDataSource;
+import marytts.util.io.FileUtils;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.FFT;
@@ -2595,13 +2604,55 @@ public class SignalProcUtils {
         return amps;
     }
     
-    public static double[] normalizeVocalTract(double[] x, float[] tAnalysisInSeconds, double[][] lpcs, double windowSizeInSeconds, int samplingRateInHz, double preCoef)
+    //This version does linear mapping between the whole source and target signals
+    public static double[] normalizeVocalTract(double[] srcSignal, double[] tgtSignal, int windowType, double windowSizeInSeconds, double frameShiftInSeconds, int lpcOrder, int samplingRateInHz, float preCoef)
+    {
+        double[][] sourceLpcs = LpcAnalyser.signal2lpCoeffs(srcSignal, windowType, windowSizeInSeconds, frameShiftInSeconds, samplingRateInHz, lpcOrder, preCoef);
+        float[] sAnalysisInSeconds = SignalProcUtils.getAnalysisTimes(sourceLpcs.length, windowSizeInSeconds, frameShiftInSeconds);
+        
+        double[][] targetLpcs = LpcAnalyser.signal2lpCoeffs(tgtSignal, windowType, windowSizeInSeconds, frameShiftInSeconds, samplingRateInHz, lpcOrder, preCoef);
+        
+        //Mapping
+        int[] mappedInds = new int[sourceLpcs.length];
+        for (int i=0; i<sourceLpcs.length; i++)
+            mappedInds[i] = MathUtils.linearMap(i, 0, sourceLpcs.length-1, 0, targetLpcs.length-1);
+        
+        double[][] mappedTargetLpcs = SignalProcUtils.getMapped(targetLpcs, mappedInds);
+        
+        return normalizeVocalTract(srcSignal, sAnalysisInSeconds, mappedTargetLpcs, windowType, windowSizeInSeconds, lpcOrder, samplingRateInHz,  preCoef);
+    }
+    
+    //This version uses source and target labels to align speech frames
+    public static double[] normalizeVocalTract(double[] srcSignal, double[] tgtSignal, Labels sourceLabels, Labels targetLabels, int windowType, double windowSizeInSeconds, double frameShiftInSeconds, int lpcOrder, int samplingRateInHz, float preCoef)
+    {
+        double[][] sourceLpcs = LpcAnalyser.signal2lpCoeffs(srcSignal, windowType, windowSizeInSeconds, frameShiftInSeconds, samplingRateInHz, lpcOrder, preCoef);
+        float[] sAnalysisInSeconds = SignalProcUtils.getAnalysisTimes(sourceLpcs.length, windowSizeInSeconds, frameShiftInSeconds);
+        
+        double[][] targetLpcs = LpcAnalyser.signal2lpCoeffs(tgtSignal, windowType, windowSizeInSeconds, frameShiftInSeconds, samplingRateInHz, lpcOrder, preCoef);
+        
+        //Mapping
+        int[] mappedInds = SignalProcUtils.mapFrameIndices(sourceLpcs.length, sourceLabels, windowSizeInSeconds, frameShiftInSeconds,
+                                                           targetLpcs.length, targetLabels, windowSizeInSeconds, frameShiftInSeconds);
+        double[][] mappedTargetLpcs = SignalProcUtils.getMapped(targetLpcs, mappedInds);
+ 
+        return normalizeVocalTract(srcSignal, sAnalysisInSeconds, mappedTargetLpcs, windowType, windowSizeInSeconds, lpcOrder, samplingRateInHz,  preCoef);
+    }
+    
+    public static double[] normalizeVocalTract(double[] s, float[] sAnalysisInSeconds, double[][] mappedTgtLpcs, int windowType, double windowSizeInSeconds, int lpcOrderSrc, int samplingRateInHz, float preCoef)
+    {
+        double[][] srcLpcs = LpcAnalyser.signal2lpCoeffs(s, windowType, sAnalysisInSeconds, windowSizeInSeconds, samplingRateInHz, lpcOrderSrc, preCoef);
+        
+        return normalizeVocalTract(s, sAnalysisInSeconds, srcLpcs, mappedTgtLpcs, windowSizeInSeconds, samplingRateInHz, preCoef);
+    }
+    
+    public static double[] normalizeVocalTract(double[] x, float[] tAnalysisInSeconds, double[][] srcLpcs, double[][] mappedTgtLpcs, double windowSizeInSeconds, int samplingRateInHz, float preCoef)
     {
         double[] y = null;
         
-        assert tAnalysisInSeconds.length == lpcs.length;
+        assert tAnalysisInSeconds.length == srcLpcs.length;
+        assert tAnalysisInSeconds.length == mappedTgtLpcs.length;
         
-        int lpOrder = lpcs[0].length;
+        int lpOrder = srcLpcs[0].length;
         int numfrm = tAnalysisInSeconds.length;
         int ws = SignalProcUtils.time2sample(windowSizeInSeconds, samplingRateInHz);
         int halfWs = (int)Math.floor(0.5*ws+0.5);
@@ -2610,16 +2661,19 @@ public class SignalProcUtils {
         double[] frm = new double[ws];
         int frmStartIndex;
         int frmEndIndex;
-        ComplexArray expTerm = LpcAnalyser.calcExpTerm(ws, lpOrder);
         
         int fftSize = SignalProcUtils.getDFTSize(samplingRateInHz);
         while (fftSize<ws)
             fftSize *= 2;
         
+        ComplexArray expTerm = LpcAnalyser.calcExpTerm(fftSize, lpOrder);
+        
         y = new double[x.length];
         double[] w = new double[x.length];
         Arrays.fill(y, 0.0);
         Arrays.fill(w, 0.0);
+        
+        double[] xPreemp = SignalProcUtils.applyPreemphasis(x, preCoef);
         
         int i, k;
         for (i=0; i<numfrm; i++)
@@ -2629,32 +2683,29 @@ public class SignalProcUtils {
             else
                 frmStartIndex = Math.max(0, SignalProcUtils.time2sample(tAnalysisInSeconds[i]-0.5*windowSizeInSeconds, samplingRateInHz));
             
-            frmEndIndex = Math.min(frmStartIndex+ws-1, x.length-1);
+            frmEndIndex = Math.min(frmStartIndex+ws-1, xPreemp.length-1);
             Arrays.fill(frm, 0.0);
-            System.arraycopy(x, frmStartIndex, frm, 0, frmEndIndex-frmStartIndex+1);
+            System.arraycopy(xPreemp, frmStartIndex, frm, 0, frmEndIndex-frmStartIndex+1);
+            
             frm = wgt.apply(frm, 0);
             double origEn = SignalProcUtils.energy(frm);
-
-            LpCoeffs frmLpcs = LpcAnalyser.calcLPC(frm, lpOrder, (float)preCoef);
-            double[] inputVocalTractSpectrum = LpcAnalyser.calcSpecLinearFromOneMinusA(frmLpcs.getOneMinusA(), 1.0f, fftSize, expTerm);
-            double[] outputVocalTractSpectrum = LpcAnalyser.calcSpecLinear(lpcs[i], 1.0f, fftSize, expTerm);
             
-            //MaryUtils.plot(MathUtils.amp2db(inputVocalTractSpectrum));
-            //MaryUtils.plot(MathUtils.amp2db(outputVocalTractSpectrum));
+            double[] inputVocalTractSpectrum = LpcAnalyser.calcSpecLinear(srcLpcs[i], 1.0f, fftSize, expTerm);
+            double[] outputVocalTractSpectrum = LpcAnalyser.calcSpecLinear(mappedTgtLpcs[i], 1.0f, fftSize, expTerm);
                         
             ComplexArray inputDft = new ComplexArray(fftSize);
             int maxFreq = fftSize/2+1;
 
-            System.arraycopy(frm, 0, inputDft.real, 0, Math.min(ws, inputDft.real.length));
-
-            if (inputDft.real.length > ws)
-                Arrays.fill(inputDft.real, inputDft.real.length-ws, inputDft.real.length-1, 0.0);
-
-            Arrays.fill(inputDft.imag, 0, inputDft.imag.length-1, 0);
+            Arrays.fill(inputDft.real, 0.0);
+            Arrays.fill(inputDft.imag, 0.0);
+            
+            System.arraycopy(frm, 0, inputDft.real, 0, ws);
 
             inputDft = FFTMixedRadix.fftComplex(inputDft);
             
             //MaryUtils.plot(MathUtils.amp2db(MathUtils.abs(inputDft)));
+            //MaryUtils.plot(MathUtils.amp2db(inputVocalTractSpectrum));
+            //MaryUtils.plot(MathUtils.amp2db(outputVocalTractSpectrum));
             
             for (k=1; k<=maxFreq; k++)
             {
@@ -2731,14 +2782,200 @@ public class SignalProcUtils {
         
         y = SignalProcUtils.removePreemphasis(y, preCoef);
         
-        MaryUtils.plot(x);
-        MaryUtils.plot(y);
+        //MaryUtils.plot(x);
+        //MaryUtils.plot(y);
         
         return y;
     }
     
-    public static void main(String[] args)
+    public static void test_normalizeVocalTract() throws UnsupportedAudioFileException, IOException
+    {
+        String sourceWavFile = "d:\\src.wav";
+        String sourceLabFile = "d:\\src.lab";
+        String targetWavFile = "d:\\tgt.wav";
+        String targetLabFile = "d:\\tgt.lab";
+        String outputWavFile = "d:\\srcResidual_tgtVocalTract.wav";
+        
+        int windowType = Window.HAMMING;
+        double windowSizeInSeconds = 0.020;
+        double frameShiftInSeconds = 0.010;
+        float preCoef = 0.97f;
+        
+        //File input source and LPC analysis
+        AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(sourceWavFile));
+        AudioFormat format = inputAudio.getFormat();
+        int fsSrc = (int)inputAudio.getFormat().getSampleRate();
+        int lpcOrderSrc = SignalProcUtils.getLPOrder(fsSrc);
+        AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
+        double[] s = signal.getAllData();
+        Labels sourceLabels = Labels.readESTLabelFile(sourceLabFile);
+        //
+        
+        //File input target and LPC analysis
+        inputAudio = AudioSystem.getAudioInputStream(new File(targetWavFile));
+        int fsTgt = (int)inputAudio.getFormat().getSampleRate();
+        int lpcOrderTgt = SignalProcUtils.getLPOrder(fsTgt);
+        signal = new AudioDoubleDataSource(inputAudio);
+        double[] t = signal.getAllData();
+        Labels targetLabels = Labels.readESTLabelFile(targetLabFile);
+        //
+
+        double[] sNorm = SignalProcUtils.normalizeVocalTract(s, t, sourceLabels, targetLabels, windowType, windowSizeInSeconds, frameShiftInSeconds, lpcOrderSrc, fsSrc, preCoef);
+
+        FileUtils.writeWavFile(sNorm, outputWavFile, format);
+    }
+    
+    public static float[] getAnalysisTimes(int numfrm, double windowSizeInSeconds, double frameShiftInSeconds)
+    {
+        float[] analysisTimesInSeconds = null;
+        if (numfrm>0)
+        {
+            analysisTimesInSeconds = new float[numfrm];
+            for (int i=0; i<numfrm; i++)
+                analysisTimesInSeconds[i] = (float)(i*frameShiftInSeconds+0.5*windowSizeInSeconds);
+        }
+        
+        return analysisTimesInSeconds;
+    }
+    
+    public static int[] mapFrameIndices(int numfrmSource, Labels srcLabs, double srcWindowSizeInSeconds, double srcSkipSizeInSeconds,
+                                        int numFrmTarget, Labels tgtLabs, double tgtWindowSizeInSeconds, double tgtSkipSizeInSeconds)
+    {
+        int[] mappedInds = null;
+        int[][] mappedLabelInds = StringUtils.alignLabels(srcLabs.items, tgtLabs.items);
+        
+        if (numfrmSource>0)
+        {
+            mappedInds = new int[numfrmSource];
+            double tSource, tTarget, tFrameInd, sourceDuration, sourceLocationInLabelPercent;
+            double sMapStart, tMapStart, sMapEnd, tMapEnd;
+            int sourceLabInd, targetLabInd;
+            int targetFrmInd;
+            for (int i=0; i<numfrmSource; i++)
+            {
+                tSource = i*srcSkipSizeInSeconds+0.5*srcWindowSizeInSeconds;
+                sourceLabInd = SignalProcUtils.time2LabelIndex(tSource, srcLabs);
+                targetLabInd = StringUtils.findInMap(mappedLabelInds, sourceLabInd);
+
+                if (targetLabInd<0)
+                {
+                    sMapStart = 0.0;
+                    tMapStart = 0.0;
+                    sMapEnd = srcLabs.items[srcLabs.items.length-1].time;
+                    tMapEnd = tgtLabs.items[tgtLabs.items.length-1].time;
+                    
+                    for (int j=targetLabInd-1; j>=0; j--)
+                    {
+                        int prevSourceLabInd = StringUtils.findInMapReverse(mappedLabelInds, j);
+                        if (prevSourceLabInd>-1)
+                        {
+                            sMapStart = srcLabs.items[prevSourceLabInd].time;
+                            tMapStart = tgtLabs.items[j].time;
+                            break;
+                        }
+                    }
+                    
+                    for (int j=targetLabInd+1; j<tgtLabs.items.length; j++)
+                    {
+                        int nextSourceLabInd = StringUtils.findInMapReverse(mappedLabelInds, j);
+                        if (nextSourceLabInd>-1)
+                        {
+                            sMapEnd = srcLabs.items[nextSourceLabInd].time;
+                            tMapEnd = tgtLabs.items[j].time;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    sMapStart = 0.0;
+                    if (sourceLabInd>0)
+                        sMapStart = srcLabs.items[sourceLabInd-1].time;
+                    
+                    tMapStart = 0.0;
+                    if (targetLabInd>0)
+                        tMapStart = tgtLabs.items[targetLabInd-1].time;
+                    
+                    sMapEnd = srcLabs.items[sourceLabInd].time;
+                    tMapEnd = tgtLabs.items[targetLabInd].time;
+                }  
+                
+                tTarget = MathUtils.linearMap(tSource, sMapStart, sMapEnd, tMapStart, tMapEnd);
+                targetFrmInd = SignalProcUtils.time2frameIndex(tTarget, tgtWindowSizeInSeconds, tgtSkipSizeInSeconds);
+                targetFrmInd = MathUtils.CheckLimits(targetFrmInd, 0, numFrmTarget-1);
+                mappedInds[i] = targetFrmInd;
+            }
+        }
+        
+        return mappedInds;
+    }
+    
+    public static double[][] getMapped(double[][] x, int[] mapInds)
+    {
+        double[][] y = null;
+        
+        if (mapInds!=null && x!=null)
+        {
+            y = new double[mapInds.length][];
+        
+            for (int i=0; i<mapInds.length; i++)
+                y[i] = ArrayUtils.copy(x[mapInds[i]]);
+        }
+        
+        return y;
+    }
+    
+    public static Window getWindow(int windowType, int windowSizeInSamples)
+    {
+        if (windowType==Window.BARTLETT)
+            return new BartlettWindow(windowSizeInSamples);
+        else if (windowType==Window.BLACKMAN)
+            return new BlackmanWindow(windowSizeInSamples);
+        else if (windowType==Window.FLATTOP)
+            return new FlattopWindow(windowSizeInSamples);
+        else if (windowType==Window.GAUSS)
+            return new GaussWindow(windowSizeInSamples);
+        else if (windowType==Window.HAMMING)
+            return new HammingWindow(windowSizeInSamples);
+        else if (windowType==Window.HANNING)
+            return new HanningWindow(windowSizeInSamples);
+        else if (windowType==Window.RECT)
+            return new RectWindow(windowSizeInSamples);
+        else
+        {
+            System.out.println("Undefined window type!");
+            return null;
+        }  
+    }
+    
+    public static int getTotalFrames(int totalSamples, int windowLengthInSamples, int skipSizeInSamples)
+    {
+        int samplingRate = 16000; //Dummy sampling rate which will be cancelled out in calculations anyway
+        return getTotalFrames(sample2time(totalSamples, samplingRate), sample2time(windowLengthInSamples, samplingRate), sample2time(skipSizeInSamples, samplingRate));
+    }
+    
+    public static int getTotalFrames(int totalSamples, double windowSizeInSeconds, double skipSizeInSeconds)
+    {
+        int samplingRate = 16000; //Dummy sampling rate which will be cancelled out in calculations anyway
+        return getTotalFrames(sample2time(totalSamples, samplingRate), windowSizeInSeconds, skipSizeInSeconds);
+    }
+    
+    public static int getTotalFrames(double totalTimeInSeconds, double windowSizeInSeconds, double skipSizeInSeconds)
+    {
+        int numfrm = 0;
+        if (skipSizeInSeconds>0.0)
+        {
+            numfrm = (int)Math.floor((totalTimeInSeconds-windowSizeInSeconds)/skipSizeInSeconds + 0.5);
+            if ((numfrm-1)*skipSizeInSeconds+windowSizeInSeconds<totalTimeInSeconds)
+                numfrm++;
+        }
+        
+        return numfrm;
+    }
+    
+    public static void main(String[] args) throws UnsupportedAudioFileException, IOException
     {  
+        /*
         LowPassFilter f = new LowPassFilter(0.25, 11);
         
         double[] b = f.getDenumeratorCoefficients();
@@ -2772,6 +3009,9 @@ public class SignalProcUtils {
         for (i=0; i<y.length; i++)
             str += String.valueOf(y[i]) + " ";
         System.out.println(str);
+        */
+        
+        test_normalizeVocalTract();
     }
 }
 

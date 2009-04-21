@@ -91,7 +91,7 @@ public class HntmSynthesizer {
     public static boolean ADJUST_PHASES_AFTER_TIME_SCALING = false;
     public static boolean ADJUST_PHASES_AFTER_PITCH_SCALING = false;
     
-    public static boolean APPLY_VOCAL_TRACT_NORMALIZATION_POST_PROCESSOR = false; 
+    public static boolean APPLY_VOCAL_TRACT_NORMALIZATION_POST_PROCESSOR = true; 
     
     public HntmSynthesizer()
     {
@@ -169,7 +169,10 @@ public class HntmSynthesizer {
         s.output = SignalProcUtils.addSignals(s.output, s.transientPart);
         
         if (APPLY_VOCAL_TRACT_NORMALIZATION_POST_PROCESSOR)
-            s.output = SignalProcUtils.normalizeVocalTract(s.output, hntmSignalMod.getAnalysisTimes(), hntmSignalMod.getLpcsAll(), HntmAnalyzer.NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, hntmSignalMod.samplingRateInHz, HntmAnalyzer.PREEMPHASIS_COEF_NOISE);
+        {
+            double[][] mappedTgtLpcs = hntmSignalMod.getLpcsAll();
+            s.output = SignalProcUtils.normalizeVocalTract(s.output, hntmSignalMod.getAnalysisTimes(), mappedTgtLpcs, HntmAnalyzer.NOISE_ANALYSIS_WINDOW_TYPE, HntmAnalyzer.NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, mappedTgtLpcs[0].length, hntmSignalMod.samplingRateInHz, HntmAnalyzer.PREEMPHASIS_COEF_NOISE);
+        }
         
         return s;
     }
@@ -359,37 +362,32 @@ public class HntmSynthesizer {
                     modelName += "_ts" + String.valueOf(tScalesArray[n][0]);
 
                 //y = MathUtils.multiply(y, MathUtils.absMax(x)/MathUtils.absMax(y));
-                outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(MathUtils.divide(xhat.output,32768.0)), inputAudio.getFormat());
                 outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + strExt + ".wav";
-                AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+                FileUtils.writeWavFile(MathUtils.divide(xhat.output,32768.0), outFileName, inputAudio.getFormat());
 
                 if (xhat.harmonicPart!=null)
                 {
-                    xhat.harmonicPart = MathUtils.multiply(xhat.harmonicPart, 32768.0/MathUtils.getAbsMax(xhat.harmonicPart));
-                    outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(MathUtils.divide(xhat.harmonicPart, 32768.0)), inputAudio.getFormat());
                     outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + "Harmonic" + strExt + ".wav";
-                    AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+                    xhat.harmonicPart = MathUtils.multiply(xhat.harmonicPart, 32768.0/MathUtils.getAbsMax(xhat.harmonicPart));
+                    FileUtils.writeWavFile(MathUtils.divide(xhat.harmonicPart, 32768.0), outFileName, inputAudio.getFormat());
                 }
 
                 if (xhat.noisePart!=null)
                 {
-                    outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(MathUtils.divide(xhat.noisePart, 32768.0)), inputAudio.getFormat());
                     outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + "Noise" + strExt + ".wav";
-                    AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+                    FileUtils.writeWavFile(MathUtils.divide(xhat.noisePart, 32768.0), outFileName, inputAudio.getFormat());
                 }
 
                 if (xhat.transientPart!=null)
                 {
-                    outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(MathUtils.divide(xhat.transientPart, 32768.0)), inputAudio.getFormat());
                     outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + "Transient" + strExt + ".wav";
-                    AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+                    FileUtils.writeWavFile(MathUtils.divide(xhat.transientPart, 32768.0), outFileName, inputAudio.getFormat());
                 }
 
                 if (xhat.harmonicPart!=null)
                 {
-                    outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(MathUtils.divide(SignalProcUtils.addSignals(x, 1.0, xhat.harmonicPart, -1.0), 32768.0)), inputAudio.getFormat());
                     outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + "OrigMinusHarmonic" + strExt + ".wav";
-                    //AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+                    //FileUtils.writeWavFile(MathUtils.divide(SignalProcUtils.addSignals(x, 1.0, xhat.harmonicPart, -1.0), 32768.0), outFileName, inputAudio.getFormat());
                 }
 
                 //MaryUtils.plot(xhat.harmonicPart);
@@ -398,9 +396,8 @@ public class HntmSynthesizer {
 
                 //if (nEstimate!=null)
                 //{
-                //    outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(nEstimate), inputAudio.getFormat());
                 //    outFileName = args[0].substring(0, args[0].length()-4) + "_" + modelName + "Diff.wav";
-                //    AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+                //    FileUtils.writeWavFile(new BufferedDoubleDataSource(nEstimate), outFileName, inputAudio.getFormat());
                 //}
                 //
             }
