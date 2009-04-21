@@ -20,15 +20,20 @@
 package marytts.signalproc.analysis;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.Defaults;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.display.SignalGraph;
 import marytts.signalproc.filter.FIRFilter;
+import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
+import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.math.ArrayUtils;
@@ -248,7 +253,97 @@ public class LpcAnalyser extends FrameBasedAnalyser
      
         return expTerm;
     }
+    
+    public static double[][] wavFile2lpCoeffs(String wavFile, int windowType, double windowSizeInSeconds, double frameShiftInSeconds, int lpcOrder, float preCoef) throws UnsupportedAudioFileException, IOException
+    {
+        AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(wavFile));
+        int samplingRate = (int)inputAudio.getFormat().getSampleRate();
+        AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
+        double[] x = signal.getAllData();
+        
+        return signal2lpCoeffs(x, windowType, windowSizeInSeconds, frameShiftInSeconds, samplingRate, lpcOrder, preCoef);
+    }
+    
+    public static LpCoeffs[] wavFile2lpCoeffsWithGain(String wavFile, int windowType, double windowSizeInSeconds, double frameShiftInSeconds, int lpcOrder, float preCoef) throws UnsupportedAudioFileException, IOException
+    {
+        AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(wavFile));
+        int samplingRate = (int)inputAudio.getFormat().getSampleRate();
+        AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
+        double[] x = signal.getAllData();
+        
+        return signal2lpCoeffsWithGain(x, windowType, windowSizeInSeconds, frameShiftInSeconds, samplingRate, lpcOrder, preCoef);
+    }
+    
+    public static double[][] signal2lpCoeffs(double[] x, int windowType, double windowSizeInSeconds, double frameShiftInSeconds, int samplingRateInHz, int lpcOrder, float preCoef)
+    {
+        LpCoeffs[] lpAnaResults = signal2lpCoeffsWithGain(x, windowType, windowSizeInSeconds, frameShiftInSeconds, samplingRateInHz, lpcOrder, preCoef);
+        
+        double[][] lpCoeffs = null;
+        if (lpAnaResults!=null)
+        {
+            lpCoeffs = new double[lpAnaResults.length][];
+            for (int i=0; i<lpAnaResults.length; i++)
+                lpCoeffs[i] = ArrayUtils.copy(((LpCoeffs)lpAnaResults[i]).getA());
+        }
+        
+        return lpCoeffs;
+    }
+    
+    public static double[][] signal2lpCoeffs(double[] x, int windowType, float[] tAnalysisInSeconds, double windowSizeInSeconds, int samplingRateInHz, int lpcOrder, float preCoef)
+    {
+        LpCoeffs[] lpAnaResults = signal2lpCoeffsWithGain(x, windowType, tAnalysisInSeconds, windowSizeInSeconds, samplingRateInHz, lpcOrder, preCoef);
+        
+        double[][] lpCoeffs = null;
+        if (lpAnaResults!=null)
+        {
+            lpCoeffs = new double[lpAnaResults.length][];
+            for (int i=0; i<lpAnaResults.length; i++)
+                lpCoeffs[i] = ArrayUtils.copy(((LpCoeffs)lpAnaResults[i]).getA());
+        }
+        
+        return lpCoeffs;
+    }
+    
+    public static LpCoeffs[] signal2lpCoeffsWithGain(double[] x, int windowType, double windowSizeInSeconds, double frameShiftInSeconds, int samplingRateInHz, int lpcOrder, float preCoef)
+    {
+        int ws = SignalProcUtils.time2sample(windowSizeInSeconds, samplingRateInHz);
+        int ss = SignalProcUtils.time2sample(frameShiftInSeconds, samplingRateInHz);
+        
+        int numfrm = SignalProcUtils.getTotalFrames(SignalProcUtils.sample2time(x.length, samplingRateInHz), windowSizeInSeconds, frameShiftInSeconds);
+        float[] tAnalysisInSeconds = SignalProcUtils.getAnalysisTimes(numfrm, windowSizeInSeconds, frameShiftInSeconds);
 
+        return signal2lpCoeffsWithGain(x, windowType, tAnalysisInSeconds, windowSizeInSeconds, samplingRateInHz, lpcOrder, preCoef);
+    }
+
+    public static LpCoeffs[] signal2lpCoeffsWithGain(double[] x, int windowType, float[] tAnalysisInSeconds, double windowSizeInSeconds, int samplingRateInHz, int lpcOrder, float preCoef)
+    {
+        int ws = SignalProcUtils.time2sample(windowSizeInSeconds, samplingRateInHz);
+        int numfrm = tAnalysisInSeconds.length;
+        LpCoeffs[] lpCoeffs = null;
+        
+        if (numfrm>0)
+        {
+            Window w = SignalProcUtils.getWindow(windowType, ws);
+            double[] frm = new double[ws];
+            lpCoeffs = new LpCoeffs[numfrm];
+            
+            double[] xPreemp = SignalProcUtils.applyPreemphasis(x, preCoef);
+            int frmStartInd;
+            for (int i=0; i<numfrm; i++)
+            {
+                Arrays.fill(frm, 0.0);
+                
+                frmStartInd = SignalProcUtils.time2sample(tAnalysisInSeconds[i]-0.5*windowSizeInSeconds, samplingRateInHz);
+                frmStartInd = MathUtils.CheckLimits(frmStartInd, 0, xPreemp.length-1);
+                System.arraycopy(xPreemp, frmStartInd, frm, 0, Math.min(ws, xPreemp.length-frmStartInd));
+                
+                lpCoeffs[i] = LpcAnalyser.calcLPC(frm, lpcOrder);
+            }
+        }
+        
+        return lpCoeffs;
+    }
+    
     public static void main(String[] args) throws Exception
     {
         int windowSize = Defaults.getWindowSize();
@@ -328,6 +423,16 @@ public class LpcAnalyser extends FrameBasedAnalyser
             this.lsf = null;
             this.lpcc = null;
             this.lprefc = null;
+        }
+        
+        public LpCoeffs(LpCoeffs existing)
+        {
+            oneMinusA = ArrayUtils.copy(existing.oneMinusA);
+            gain = existing.gain;
+            
+            lsf = ArrayUtils.copy(existing.lsf);
+            lpcc = ArrayUtils.copy(existing.lpcc);
+            lprefc = ArrayUtils.copy(existing.lprefc);
         }
         
         /**
@@ -492,8 +597,7 @@ public class LpcAnalyser extends FrameBasedAnalyser
                 if (  ( this.lprefc[i] > 1.0 ) || ( this.lprefc[i] < -1.0 )  ) return( false );
             }
             return( true );
-        }
-        
+        } 
     }
 }
 

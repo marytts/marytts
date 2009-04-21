@@ -413,12 +413,23 @@ public class StringUtils {
         return labelMap;
     }
     
-    public static int findInMap(int[][] map, int ind1)
+    public static int findInMap(int[][] map, int ind0)
     {
         for (int i=0; i<map.length; i++)
         {
-            if (map[i][0]==ind1)
+            if (map[i][0]==ind0)
                 return map[i][1];
+        }
+        
+        return -1;
+    }
+    
+    public static int findInMapReverse(int[][] map, int ind1)
+    {
+        for (int i=0; i<map.length; i++)
+        {
+            if (map[i][1]==ind1)
+                return map[i][0];
         }
         
         return -1;

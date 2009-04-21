@@ -39,8 +39,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Vector;
 
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.audio.DDSAudioInputStream;
+import marytts.util.math.MathUtils;
 import marytts.util.string.StringUtils;
 
 import org.apache.log4j.Level;
@@ -482,6 +488,13 @@ public class FileUtils {
 
         // Return collection of files
         return files;
+    }
+    
+    public static void writeWavFile(double[] x, String outputFile, AudioFormat format) throws IOException
+    {
+        DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(x), format);
+
+        AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outputFile));
     }
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
