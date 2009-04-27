@@ -283,7 +283,7 @@ public class Voice
                     }
                     preferredModules.add(mm);
                 } catch (Exception e) {
-                    logger.warn("Cannot initialise preferred module "+moduleInfo+" for voice "+getName()+" -- skipping.");
+                    logger.warn("Cannot initialise preferred module "+moduleInfo+" for voice "+getName()+" -- skipping.", e);
                 }
             }
         }
