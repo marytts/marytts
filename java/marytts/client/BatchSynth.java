@@ -20,8 +20,10 @@
 package marytts.client;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 import marytts.client.http.MaryHttpClient;
@@ -75,6 +77,8 @@ public class BatchSynth
         String voice = System.getProperty("voice", "us1");
         String inputFormat = "TEXT";
         String locale = System.getProperty("locale", "en_US");
+        String outputFormat = System.getProperty("output.type", "AUDIO");
+        String extension = outputFormat.equals("AUDIO") ? ".wav" : "." + outputFormat.toLowerCase();
         long globalStartTime = System.currentTimeMillis();
         int globalCounter = 0;
         for (int i=1; i<args.length; i++) {
@@ -84,7 +88,7 @@ public class BatchSynth
            String genre = texts.getName().substring(0, texts.getName().lastIndexOf('.'));
            File outputDir = new File(globalOutputDir.getPath()+"/"+genre);
            outputDir.mkdir();
-           BufferedReader textReader = new BufferedReader(new FileReader(texts));
+           BufferedReader textReader = new BufferedReader(new InputStreamReader(new FileInputStream(texts), "utf-8"));
            String line;
            while ((line = textReader.readLine()) != null) {
                line = line.trim();
@@ -98,8 +102,8 @@ public class BatchSynth
                String sentence = line.substring(line.indexOf(basename)+basename.length()+1).trim();
                //remove all backslashes
                sentence = sentence.replaceAll("\\\\","");
-               FileOutputStream audio = new FileOutputStream(outputDir+"/"+basename+".wav");
-               mary.process(sentence, inputFormat, "AUDIO", locale, "WAVE", voice, audio);
+               FileOutputStream audio = new FileOutputStream(outputDir+"/"+basename+extension);
+               mary.process(sentence, inputFormat, outputFormat, locale, "WAVE", voice, audio);
                audio.close();
                long endTime = System.currentTimeMillis();
                System.out.println(basename+" synthesized in "+ ((float)(endTime-startTime)/1000.) + " s");
