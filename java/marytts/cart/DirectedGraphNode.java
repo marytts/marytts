@@ -20,6 +20,7 @@
 
 package marytts.cart;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,7 +45,7 @@ public class DirectedGraphNode extends Node
     private Node leafNode;
 
     private Map<Node, Integer> motherToIndex = new HashMap<Node, Integer>();
-    private List<Node> mothers = new LinkedList<Node>();
+    private List<Node> mothers = new ArrayList<Node>();
     private int uniqueID;
     
     /**
