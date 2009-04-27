@@ -76,6 +76,7 @@ public class AgglomerativeClusterer
     {
         this(features, featureDefinition, featuresToUse, dist, 0.1f);
     }
+
     public AgglomerativeClusterer(FeatureVector[] features, FeatureDefinition featureDefinition, List<String> featuresToUse, DistanceMeasure dist, float proportionTestData)
     {
         // Get an estimate of the global mean by sampling:
