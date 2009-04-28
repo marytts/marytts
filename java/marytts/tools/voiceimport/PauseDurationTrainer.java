@@ -181,7 +181,7 @@ public class PauseDurationTrainer extends VoiceImportComponent {
                
             }
             
-            int symbolFeature = fd.getFeatureIndex("phoneme");
+            int symbolFeature = fd.getFeatureIndex("phone");
             int breakindexFeature = fd.getFeatureIndex("breakindex");
             
             int currLabelNr = 0;
@@ -317,8 +317,8 @@ public class PauseDurationTrainer extends VoiceImportComponent {
             
             String attName = fd.getFeatureName(attribute);
 
-            // skip phoneme
-            if (attName.equals("phoneme")){
+            // skip phone
+            if (attName.equals("phone")){
                 continue;
             }
 
@@ -352,10 +352,10 @@ public class PauseDurationTrainer extends VoiceImportComponent {
 
         try{
             // for later checks, get index of phone identity feature
-            fd.getFeatureIndex("phoneme");
+            fd.getFeatureIndex("phone");
             fd.getFeatureIndex("breakindex");
         } catch ( IllegalArgumentException e ) {
-            throw new IOException("Unexpected FeatureDefinition: Does not contain the features 'phoneme' and 'breakindex'.");
+            throw new IOException("Unexpected FeatureDefinition: Does not contain the features 'phone' and 'breakindex'.");
         }
         
         // skip section with string representation

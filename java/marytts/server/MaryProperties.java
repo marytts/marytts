@@ -72,8 +72,6 @@ public class MaryProperties
     private static Vector<String> audioEffectSampleParams = new Vector<String>();
     private static Vector<String> audioEffectHelpTexts = new Vector<String>();
     
-    private static Map<Locale,String> locale2prefix = new HashMap<Locale,String>();
-    
     private static Object[] localSchemas;
 
     /** The mary base directory, e.g. /usr/local/mary */
@@ -264,10 +262,6 @@ public class MaryProperties
             localSchemas = v.toArray();
         }
 
-        // Setup locale translation table:
-        locale2prefix.put(Locale.US, "english");
-        locale2prefix.put(Locale.GERMAN, "german");
-        locale2prefix.put(new Locale("tib"), "tibetan");
     }
 
     /**
@@ -808,10 +802,8 @@ public class MaryProperties
     
     /**
      * Provide the config file prefix used for different locales in the
-     * config files. Will return "german" for Locale.GERMAN, "english" for
-     * Locale.US and Locale.ENGLISH, and "tibetan" for Locale("tib").
-     * For all other locales, return the string representation of the locale
-     * as produced by locale.toString(), e.g. "en_UK";
+     * config files. Will return the string representation of the locale
+     * as produced by locale.toString(), e.g. "en_GB";
      * if locale is null, return null.
      * @param locale
      * @return
@@ -819,14 +811,6 @@ public class MaryProperties
     public static String localePrefix(Locale locale)
     {
         if (locale == null) return null;
-        if (locale2prefix.containsKey(locale)) {
-            return locale2prefix.get(locale);
-        }
-        for (Locale l : locale2prefix.keySet()) {
-            if (MaryUtils.subsumes(l, locale)) {
-                return locale2prefix.get(l);
-            }
-        }
         return locale.toString();
     }
 

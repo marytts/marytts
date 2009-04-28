@@ -55,7 +55,7 @@ public class AlignerTrainer {
     protected List<String> optInfo;
     // input side (eg. graphemes) of string pairs, split into symbols
     protected List<String[]> inSplit;
-    // output side (eg. phonemes) of string pairs, split into symbols
+    // output side (eg. phones) of string pairs, split into symbols
     protected List<String[]> outSplit;
 
     protected Set<String> graphemeSet;
@@ -189,8 +189,8 @@ public class AlignerTrainer {
 
      /**
      * One iteration of alignment, using adapted Levenshtein distance.
-     * After the iteration, the costs between a grapheme and a phoneme are
-     * set by the log probability of the phoneme given the grapheme. Analogously,
+     * After the iteration, the costs between a grapheme and a phone are
+     * set by the log probability of the phone given the grapheme. Analogously,
      * The deletion cost is set by the log of deletion probability.
      * In the first iteration, all operations cost maxCost.
      *
@@ -283,9 +283,9 @@ public class AlignerTrainer {
 
      /**
      *
-     * gets an alignment of the graphemes to the phonemes of an entry.
+     * gets an alignment of the graphemes to the phones of an entry.
      * a StringPair array is returned, where every entry contains a grapheme
-     * together with the phoneme sequence it is mapped to. The phoneme String is
+     * together with the phone sequence it is mapped to. The phone String is
       * just the concatenation of the symbols in the aligned sequence.
      *
      * @param entryNr nr of the lexicon entry
@@ -341,9 +341,9 @@ public class AlignerTrainer {
 
      /**
      *
-     * gets an alignment of the graphemes to the phonemes of an entry.
+     * gets an alignment of the graphemes to the phones of an entry.
      * a StringPair array is returned, where every entry contains a grapheme
-     * together with the phoneme sequence it is mapped to. The phoneme String is
+     * together with the phone sequence it is mapped to. The phone String is
       * just the concatenation of the symbols in the aligned sequence.
       * In addition, the extra info (eg. POS) is appended as one symbol on the
       * input side.

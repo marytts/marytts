@@ -251,7 +251,7 @@ public class CoverageDefinition{
                     if (key.equals("missingPhones")){
                         
                         phonesToIgnore = new ArrayList();
-                   //     phoneFeatIndex = featDef.getFeatureIndex("phoneme");
+                   //     phoneFeatIndex = featDef.getFeatureIndex("phone");
                    //     phonesToIgnore.add(
                    //             new Integer(featDef.getFeatureValueAsByte(phoneFeatIndex,value)));
                         while(tok.hasMoreTokens()){
@@ -297,13 +297,13 @@ public class CoverageDefinition{
         System.out.println("TARGETFEATURES to initialise coverage:");
         numTargetFeaturesUsed=0;
         for(int i=0; i<featDef.getNumberOfFeatures(); i++){
-          if(featDef.getFeatureName(i).contentEquals("phoneme")){
-            phoneFeatIndex = featDef.getFeatureIndex("phoneme");
+          if(featDef.getFeatureName(i).contentEquals("phone")){
+            phoneFeatIndex = featDef.getFeatureIndex("phone");
             numTargetFeaturesUsed++;
             System.out.println("  feature(" + i + ")=" + featDef.getFeatureName(i));
           }
-          else if(featDef.getFeatureName(i).contentEquals("next_phoneme")){  
-            diphoneFeatIndex = featDef.getFeatureIndex("next_phoneme");
+          else if(featDef.getFeatureName(i).contentEquals("next_phone")){  
+            diphoneFeatIndex = featDef.getFeatureIndex("next_phone");
             numTargetFeaturesUsed++;
             System.out.println("  feature(" + i + ")=" + featDef.getFeatureName(i));
           }
@@ -320,9 +320,9 @@ public class CoverageDefinition{
         
         // DE original
         /*
-        phoneFeatIndex = featDef.getFeatureIndex("phoneme");
+        phoneFeatIndex = featDef.getFeatureIndex("phone");
         phoneClassesIndex = featDef.getFeatureIndex("selection_next_phone_class");
-        diphoneFeatIndex = featDef.getFeatureIndex("next_phoneme");
+        diphoneFeatIndex = featDef.getFeatureIndex("next_phone");
         prosodyIndex = featDef.getFeatureIndex("selection_prosody");
         */
         
@@ -386,7 +386,7 @@ public class CoverageDefinition{
              
               trueNumSentences--;
               vectorBuf = wikiToDB.getFeatures(id);  //
-              //numFeatVects = (vectorBuf.length)/3;   // 3 because phone, next_phoneme and selection_prosody
+              //numFeatVects = (vectorBuf.length)/3;   // 3 because phone, next_phone and selection_prosody
               if(vectorBuf != null)
                 numFeatVects = (vectorBuf.length)/numTargetFeaturesUsed;
               else
@@ -408,7 +408,7 @@ public class CoverageDefinition{
                 minSentLength=numFeatVects;
             
             
-            int myphoneFeatIndex = featDef.getFeatureIndex("phoneme");
+            int myphoneFeatIndex = featDef.getFeatureIndex("phone");
             
 
             /* loop over the feature vectors of size[4] NEW: size[3] */
@@ -1310,22 +1310,22 @@ public class CoverageDefinition{
         
         // DE
         /*
-        phoneFeatIndex = featDef.getFeatureIndex("phoneme");        
+        phoneFeatIndex = featDef.getFeatureIndex("phone");        
         phoneClassesIndex = featDef.getFeatureIndex("selection_next_phone_class");                
-        diphoneFeatIndex = featDef.getFeatureIndex("next_phoneme");        
+        diphoneFeatIndex = featDef.getFeatureIndex("next_phone");        
         prosodyIndex = featDef.getFeatureIndex("selection_prosody");
         */
         
         System.out.println("TARGETFEATURES used in the cover sets:");
         numTargetFeaturesUsed=0;
         for(int i=0; i<fDef.getNumberOfFeatures(); i++){
-          if(fDef.getFeatureName(i).contentEquals("phoneme")){
-            phoneFeatIndex = fDef.getFeatureIndex("phoneme");
+          if(fDef.getFeatureName(i).contentEquals("phone")){
+            phoneFeatIndex = fDef.getFeatureIndex("phone");
             numTargetFeaturesUsed++;
             System.out.println("  feature(" + i + ")=" + fDef.getFeatureName(i));
           }
-          else if(fDef.getFeatureName(i).contentEquals("next_phoneme")){  
-            diphoneFeatIndex = fDef.getFeatureIndex("next_phoneme");
+          else if(fDef.getFeatureName(i).contentEquals("next_phone")){  
+            diphoneFeatIndex = fDef.getFeatureIndex("next_phone");
             numTargetFeaturesUsed++;
             System.out.println("  feature(" + i + ")=" + fDef.getFeatureName(i));
           }

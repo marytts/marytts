@@ -228,7 +228,7 @@ public class BaselineLPSpectralEnvelopeDistortionComputer extends BaselineDistor
 
             if (labs1.items!=null && labs2.items!=null)
             {
-                //Find the optimum alignment between the source and the target labels since the phoneme sequences may not be identical due to silence periods etc.
+                //Find the optimum alignment between the source and the target labels since the phone sequences may not be identical due to silence periods etc.
                 int[][] labelMap = StringUtils.alignLabels(labs1.items, labs2.items);
                 //
 

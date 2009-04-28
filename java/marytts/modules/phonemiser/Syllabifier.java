@@ -36,7 +36,7 @@ public class Syllabifier
      * Syllabify a phonetic string, marking syllable boundaries with dash characters in the output.
      * If the input marks stressed vowels with a suffix "1", these marks are removed, and
      * single quotes (') are inserted at the beginning of the corresponding syllable. 
-     * @param phoneString the phoneme string to syllabify.
+     * @param phoneString the phone string to syllabify.
      * @return a syllabified phone string, with space characters inserted between individual phone symbols
      */
     public String syllabify(String phoneString)
@@ -52,9 +52,9 @@ public class Syllabifier
     }
 
     /**
-     * Syllabify a linked list of phonemes. This is an implementation of the
+     * Syllabify a linked list of phones. This is an implementation of the
      * syllabification rules by J&uml;rgen Trouvain.
-     * @return a linked list of phoneme strings with inserted "-" strings at
+     * @return a linked list of phone strings with inserted "-" strings at
      * syllable boundaries.
      */
     public void syllabify(LinkedList<String> phoneList)
@@ -88,7 +88,7 @@ public class Syllabifier
             boolean nextIsVowel = (next != null && next.sonority() >= 4);
 
             // Regel(5)
-            // Wenn zwischen zwei Vokalen keine weiteren Phoneme sind,
+            // Wenn zwischen zwei Vokalen keine weiteren Phone sind,
             // dann setze die Silbengrenze vor den zweiten Vokal.
             if (previousIsVowel && nextIsVowel &&
                 !next.name().equals("6")) {
@@ -169,7 +169,7 @@ public class Syllabifier
                 Allophone ph = getAllophone(it.previous());
                 it.next(); it.next(); // skip ph and . forwards
                 if (ph != null && ph.sonority() == 5) {
-                    // The phoneme just after the marker:
+                    // The phone just after the marker:
                     ph = getAllophone(it.next());
                     if (ph != null && ph.sonority() <= 3) {
                         // Now the big question: another consonant or not?
@@ -318,7 +318,7 @@ public class Syllabifier
                     String candidate = phoneString.substring(i, i+j);
                     if (getAllophone(candidate) != null) { // found
                         name = candidate;
-                        i+=j-1; // so that the next i++ goes beyond current phoneme
+                        i+=j-1; // so that the next i++ goes beyond current phone
                         break;
                     }
                 }

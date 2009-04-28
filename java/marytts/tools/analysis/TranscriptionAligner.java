@@ -165,7 +165,7 @@ public class TranscriptionAligner
 
     /**
      * This sets the distance by using the phone set of the aligner object.
-     * Phoneme set must already be specified.
+     * Phone set must already be specified.
      */
     private void setDistance()
     {

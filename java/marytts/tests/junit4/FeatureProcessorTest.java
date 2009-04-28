@@ -285,12 +285,12 @@ public class FeatureProcessorTest
     }
     
     @Test
-    public void phoneme()
+    public void phone()
     {
-        ByteValuedFeatureProcessor phonemeFP = (ByteValuedFeatureProcessor) mgr.getFeatureProcessor("phoneme");
+        ByteValuedFeatureProcessor phoneFP = (ByteValuedFeatureProcessor) mgr.getFeatureProcessor("phone");
         for (Target t : halfphoneTargets) {
             String phone = getPhoneName(t.getMaryxmlElement());
-            String predicted = phonemeFP.getValues()[phonemeFP.process(t)];
+            String predicted = phoneFP.getValues()[phoneFP.process(t)];
             assertEquals(phone, predicted);
         }
     }

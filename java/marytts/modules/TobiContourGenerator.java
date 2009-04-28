@@ -81,17 +81,17 @@ public class TobiContourGenerator extends InternalModule {
     private WeakHashMap<Document, Voice> defaultVoiceMap;
     /** The allophoneSet used for this language */
     private AllophoneSet allophoneSet;
-    private String phonemeSetPropertyName;
+    private String phoneSetPropertyName;
     /** The tobi realisation rules for this language */
     private Map<String, Element> tobiMap;
     private String tobirulefilePropertyName;
 
     public TobiContourGenerator(MaryDataType inputType, MaryDataType outputType, 
             Locale locale,
-            String phonemeSetPropertyName, String tobirulefilePropertyName)
+            String phoneSetPropertyName, String tobirulefilePropertyName)
     {
         super("ContourGenerator", inputType, outputType, locale);
-        this.phonemeSetPropertyName = phonemeSetPropertyName;
+        this.phoneSetPropertyName = phoneSetPropertyName;
         this.tobirulefilePropertyName = tobirulefilePropertyName;
     }
 
@@ -107,8 +107,8 @@ public class TobiContourGenerator extends InternalModule {
          assert synthesis != null;
          if (synthesis.getState() == MaryModule.MODULE_OFFLINE)
              synthesis.startup();
-        // load phoneme list
-        allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename(phonemeSetPropertyName));
+        // load phone list
+        allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename(phoneSetPropertyName));
         // load tobi rules
         tobiMap = new HashMap<String, Element>();
         loadTobiRules();

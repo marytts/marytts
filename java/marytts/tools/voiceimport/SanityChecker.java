@@ -114,7 +114,7 @@ public class SanityChecker extends VoiceImportComponent {
         //int cUnitIdx; // current unit index
         System.out.println("Features used to build voice : ");
         System.out.println(feaDef.getFeatureNames());
-        int pIdx = feaDef.getFeatureIndex("phoneme");
+        int pIdx = feaDef.getFeatureIndex("phone");
         int hpIdx = feaDef.getFeatureIndex("halfphone_unitname");
         int lrIdx = feaDef.getFeatureIndex("halfphone_lr");
         diPhoneSet = new HashMap<String, Set<Integer>>();
@@ -159,7 +159,7 @@ public class SanityChecker extends VoiceImportComponent {
        FeatureFileReader ffr = FeatureFileReader.getFeatureFileReader(halfPhones);
        FeatureDefinition feaDef = ffr.getFeatureDefinition();
        cartdiPhoneSet = new HashMap<String, Set<Integer>>();
-       int pIdx = feaDef.getFeatureIndex("phoneme");
+       int pIdx = feaDef.getFeatureIndex("phone");
        int hpIdx = feaDef.getFeatureIndex("halfphone_unitname");
        int lrIdx = feaDef.getFeatureIndex("halfphone_lr");
        

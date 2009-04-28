@@ -392,7 +392,7 @@ public  class Viterbi
                     length = 1;
                     line = new StringBuffer();
                 }
-                line.append(database.getTargetCostFunction().getFeature(u.getUnit(), "phoneme") + "("+ u.getUnit().getIndex()+ ")");
+                line.append(database.getTargetCostFunction().getFeature(u.getUnit(), "phone") + "("+ u.getUnit().getIndex()+ ")");
                 prevIndex = index;
             }
             if (lengthHistogram.length <= length) {

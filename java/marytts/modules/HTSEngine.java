@@ -100,19 +100,19 @@ public class HTSEngine extends InternalModule
 {
     private Logger logger = Logger.getLogger("HTSEngine");
     private String realisedDurations;  // HMM realised duration to be save in a file
-    private boolean phonemeAlignmentForDurations;
+    private boolean phoneAlignmentForDurations;
     private boolean stateAlignmentForDurations=false;   
-    private Vector<PhonemeDuration> alignDur=null;  // list of external duration per phoneme for alignment
+    private Vector<PhonemeDuration> alignDur=null;  // list of external duration per phone for alignment
      
     
     public String getRealisedDurations(){ return realisedDurations; }
-    public boolean getPhonemeAlignmentForDurations(){ return phonemeAlignmentForDurations; }
+    public boolean getPhonemeAlignmentForDurations(){ return phoneAlignmentForDurations; }
     public boolean getStateAlignmentForDurations(){ return stateAlignmentForDurations;}    
     public Vector<PhonemeDuration> getAlignDurations(){ return alignDur; }
   
     public void setRealisedDurations(String str){ realisedDurations=str; }
     public void setStateAlignmentForDurations(boolean bval){ stateAlignmentForDurations=bval; }
-    public void setPhonemeAlignmentForDurations(boolean bval){ phonemeAlignmentForDurations=bval; }    
+    public void setPhonemeAlignmentForDurations(boolean bval){ phoneAlignmentForDurations=bval; }    
     public void setAlignDurations(Vector<PhonemeDuration> val){ alignDur = val; }
      
     public HTSEngine()
@@ -121,7 +121,7 @@ public class HTSEngine extends InternalModule
               MaryDataType.TARGETFEATURES,
               MaryDataType.AUDIO,
               null);
-        phonemeAlignmentForDurations=false;
+        phoneAlignmentForDurations=false;
         stateAlignmentForDurations=false;
         alignDur = null;       
     }
@@ -294,8 +294,7 @@ public class HTSEngine extends InternalModule
         Float durSec;
         Integer numLab=0;
         FeatureVector fv;
-        FeatureDefinition feaDef;
-        feaDef = htsData.getFeatureDefinition();
+        FeatureDefinition feaDef = htsData.getFeatureDefinition();
         
         
        /* Skip mary context features definition */
@@ -312,13 +311,13 @@ public class HTSEngine extends InternalModule
         }
            
         
-        if( phonemeAlignmentForDurations || htsData.getUseUnitDurationContinuousFeature()){
-          if( alignDur != null ){ 
+        if( phoneAlignmentForDurations || htsData.getUseUnitDurationContinuousFeature()) {
+          if( alignDur != null ) { 
             alignDurSize = alignDur.size();
-            logger.info("Using external prosody for duration: using phoneme alignment for duration from external file.");  
+            logger.info("Using external prosody for duration: using phone alignment for duration from external file.");  
           } else {
-            logger.info("Using external prosody for duration: using phoneme alignment for duration from ContinuousFeatureProcessors.");  
-            //throw new Exception("No vector of durations for phoneme alignment.");
+            logger.info("Using external prosody for duration: using phone alignment for duration from ContinuousFeatureProcessors.");  
+            //throw new Exception("No vector of durations for phone alignment.");
           }
         } else
             logger.info("Estimating state durations from (Gaussian) state duration model.");
@@ -332,25 +331,27 @@ public class HTSEngine extends InternalModule
             fv = feaDef.toFeatureVector(0, nextLine);
             um.addUttModel(new HTSModel(cart.getNumStates()));            
             m = um.getUttModel(i);
-            /* this function also sets the phoneme name, the phoneme between - and + */
-            m.setName(fv.toString(), fv.getFeatureAsString(feaDef.getFeatureIndex("phoneme"), feaDef));
+            /* this function also sets the phone name, the phone between - and + */
+            m.setName(fv.toString(), fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));
             
-            /*System.out.println("context: " + fv.getFeatureAsString(feaDef.getFeatureIndex("prev_prev_phoneme"), feaDef) + 
-                                     " " + fv.getFeatureAsString(feaDef.getFeatureIndex("prev_phoneme"), feaDef) +
-                                     " " + fv.getFeatureAsString(feaDef.getFeatureIndex("phoneme"), feaDef) + 
-                                     " " + fv.getFeatureAsString(feaDef.getFeatureIndex("next_phoneme"), feaDef) +
-                                     " " + fv.getFeatureAsString(feaDef.getFeatureIndex("next_next_phoneme"), feaDef) +
+            /*System.out.println("context: " + fv.getFeatureAsString(feaDef.getFeatureIndex("prev_prev_phone"), feaDef) + 
+                                     " " + fv.getFeatureAsString(feaDef.getFeatureIndex("prev_phone"), feaDef) +
+                                     " " + fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef) + 
+                                     " " + fv.getFeatureAsString(feaDef.getFeatureIndex("next_phone"), feaDef) +
+                                     " " + fv.getFeatureAsString(feaDef.getFeatureIndex("next_next_phone"), feaDef) +
                                      "  DUR= " + fv.getContinuousFeature(feaDef.getFeatureIndex("unit_duration")) +
                                      "  LF0= " + fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0")) );
-            */                         
-            m.setUnit_logF0(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0")));
-            m.setUnit_logF0delta(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0delta")));
+            */
+            if (htsData.getUseUnitDurationContinuousFeature()) {
+                m.setUnit_logF0(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0")));
+                m.setUnit_logF0delta(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0delta")));
+            }
             
             if(!(s.hasNext()) )
               lastPh = true;
 
             // Determine state-level duration                      
-            if( phonemeAlignmentForDurations || htsData.getUseUnitDurationContinuousFeature() ) {  // use phoneme alignment for duration 
+            if( phoneAlignmentForDurations || htsData.getUseUnitDurationContinuousFeature() ) {  // use phone alignment for duration 
               diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, lastPh, diffdurOld);
               nf=0;
               // get the sum of state durations
@@ -359,16 +360,16 @@ public class HTSEngine extends InternalModule
                 
               // get the external duration
               if( alignDur != null) { 
-                // check if the external phoneme corresponds to the current  
+                // check if the external phone corresponds to the current  
                 if( alignDur.get(i).getPhoneme().contentEquals(m.getPhoneName()) ){
                   if(i < alignDurSize )
                     f = alignDur.get(i).getDuration()/(fperiodsec*nf);
                   else
-                    throw new Exception("The number of durations provided for phoneme alignment (" + alignDurSize +
+                    throw new Exception("The number of durations provided for phone alignment (" + alignDurSize +
                         ") is less than the number of feature vectors, so far (" + um.getNumUttModel() + ").");
                 } else {
-                  throw new Exception("External phoneme: " + alignDur.get(i).getPhoneme() +
-                         " does not correspond to current feature vector phoneme: " + m.getPhoneName() );
+                  throw new Exception("External phone: " + alignDur.get(i).getPhoneme() +
+                         " does not correspond to current feature vector phone: " + m.getPhoneName() );
                 }
               } else {  // if no alignDur use ContinuousFeatureProcessors unit_duration float
                  f = fv.getContinuousFeature(feaDef.getFeatureIndex("unit_duration"))/(fperiodsec*nf);; 
@@ -402,7 +403,7 @@ public class HTSEngine extends InternalModule
             numLab++;
             dur = m.getTotalDurMillisec();
             um.concatRealisedAcoustParams(m.getPhoneName() + " " + dur.toString() + "\n");
-            //System.out.println("phoneme=" + m.getPhoneName() + " dur=" + m.getTotalDur() +" durTotal=" + um.getTotalFrame() );
+            //System.out.println("phone=" + m.getPhoneName() + " dur=" + m.getTotalDur() +" durTotal=" + um.getTotalFrame() );
             
             /* Find pdf for LF0, this function sets the pdf for each state. */ 
             cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
@@ -428,9 +429,9 @@ public class HTSEngine extends InternalModule
               firstPh = false;
         }
         
-        if(phonemeAlignmentForDurations && alignDur != null)
+        if(phoneAlignmentForDurations && alignDur != null)
           if( um.getNumUttModel() != alignDurSize )
-              throw new Exception("The number of durations provided for phoneme alignment (" + alignDurSize +
+              throw new Exception("The number of durations provided for phone alignment (" + alignDurSize +
                       ") is greater than the number of feature vectors (" + um.getNumUttModel() + ")."); 
 
         for(i=0; i<um.getNumUttModel(); i++){

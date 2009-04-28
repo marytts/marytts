@@ -103,7 +103,7 @@ public class BMLSpeechPsydule extends MarySpeechPsydule
         String acoustparams = ssml2acoustparams(ssml);
         System.out.println(new Time().printTime()+" - created ACOUSTPARAMS");
         String enrichedBML = mergeBmlAndAcoustparams(bml, acoustparams);
-        System.out.println(new Time().printTime()+" - merged phoneme times into BML");
+        System.out.println(new Time().printTime()+" - merged phone times into BML");
         // post enriched BML to whiteboard
         plug.postMessage(WHITEBOARD, BMLOUTPUTTYPE, enrichedBML, "", "");
         System.out.println(new Time().printTime()+" - posted enriched BML");

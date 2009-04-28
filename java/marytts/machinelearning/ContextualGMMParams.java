@@ -33,7 +33,7 @@ import marytts.util.string.StringUtils;
 
 /**
  * 
- * Wrapper for contextual parameters for GMM training - includes various phoneme identity or class
+ * Wrapper for contextual parameters for GMM training - includes various phone identity or class
  * based groups
  * 
  * @author Oytun T&uumlrk
@@ -69,7 +69,7 @@ public class ContextualGMMParams {
     public static final int SILENCE_MULTIPLIER     = 1;
     public static final int SPEECH_MULTIPLIER      = 8;
     
-    public String[][] phonemeClasses; //Each row corresponds to a String array of phonemes that are grouped in the same class
+    public String[][] phoneClasses; //Each row corresponds to a String array of phones that are grouped in the same class
     public GMMTrainerParams[] classTrainerParams; //Training parameters for each context class
     
     public ContextualGMMParams()
@@ -157,11 +157,11 @@ public class ContextualGMMParams {
     {
        if (existing!=null)
        {
-           if (existing.phonemeClasses!=null && existing.classTrainerParams!=null && 
-                   existing.phonemeClasses.length==existing.classTrainerParams.length)
+           if (existing.phoneClasses!=null && existing.classTrainerParams!=null && 
+                   existing.phoneClasses.length==existing.classTrainerParams.length)
            {
-               allocate(existing.phonemeClasses.length);
-               setClasses(existing.phonemeClasses, existing.classTrainerParams);
+               allocate(existing.phoneClasses.length);
+               setClasses(existing.phoneClasses, existing.classTrainerParams);
            }
            else
                allocate(0);
@@ -176,46 +176,46 @@ public class ContextualGMMParams {
     {
         if (numPhonemeClasses>0)
         {
-            phonemeClasses = new String[numPhonemeClasses][];
+            phoneClasses = new String[numPhonemeClasses][];
             classTrainerParams = new GMMTrainerParams[numPhonemeClasses];
             for (int i=0; i<numPhonemeClasses; i++)
                 classTrainerParams[i] = new GMMTrainerParams();
         }
         else
         {
-            phonemeClasses = null;
+            phoneClasses = null;
             classTrainerParams = null;
         }
     }
     
-    public void setClassFromSinglePhoneme(int classIndex, String phoneme)
+    public void setClassFromSinglePhoneme(int classIndex, String phone)
     {
-        setClassFromSinglePhoneme(classIndex, phoneme, null);
+        setClassFromSinglePhoneme(classIndex, phone, null);
     }
     
-    public void setClassFromSinglePhoneme(int classIndex, String phoneme, GMMTrainerParams currentClassTrainerParams)
+    public void setClassFromSinglePhoneme(int classIndex, String phone, GMMTrainerParams currentClassTrainerParams)
     {
-        String[] phonemes = new String[1];
-        phonemes[0] = phoneme;
+        String[] phones = new String[1];
+        phones[0] = phone;
         
-        setClass(classIndex, phonemes, currentClassTrainerParams);
+        setClass(classIndex, phones, currentClassTrainerParams);
     }
     
-    public void setClasses(String[][] phonemeClassesIn)
+    public void setClasses(String[][] phoneClassesIn)
     {
-        if (phonemeClassesIn!=null)
+        if (phoneClassesIn!=null)
         {
-            for (int i=0; i<phonemeClassesIn.length; i++)
-                setClass(i, phonemeClassesIn[i], null);
+            for (int i=0; i<phoneClassesIn.length; i++)
+                setClass(i, phoneClassesIn[i], null);
         }
     }
     
-    public void setClasses(String[][] phonemeClassesIn, GMMTrainerParams[] classTrainerParamsIn)
+    public void setClasses(String[][] phoneClassesIn, GMMTrainerParams[] classTrainerParamsIn)
     {
-        if (phonemeClassesIn!=null && classTrainerParamsIn!=null)
+        if (phoneClassesIn!=null && classTrainerParamsIn!=null)
         {
-            for (int i=0; i<Math.min(phonemeClassesIn.length, classTrainerParamsIn.length); i++)
-                setClass(i, phonemeClassesIn[i], classTrainerParamsIn[i]);
+            for (int i=0; i<Math.min(phoneClassesIn.length, classTrainerParamsIn.length); i++)
+                setClass(i, phoneClassesIn[i], classTrainerParamsIn[i]);
         }
     }
     
@@ -237,14 +237,14 @@ public class ContextualGMMParams {
             //StringUtils.writeTextFile(phns, "d:/phns.txt");
             //
             
-            if (contextClassificationType==NO_PHONEME_CLASS) //All phonemes go to the same class, this is identical to non-contextual GMM training
+            if (contextClassificationType==NO_PHONEME_CLASS) //All phones go to the same class, this is identical to non-contextual GMM training
             {
-                phonemeClasses = new String[1][phns.length];
+                phoneClasses = new String[1][phns.length];
                 classTrainerParams = new GMMTrainerParams[1];
                 classTrainerParams[0] = new GMMTrainerParams(params[0]);
                 
                 for (i=0; i<phns.length; i++)
-                    phonemeClasses[0][i] = phns[i].name();
+                    phoneClasses[0][i] = phns[i].name();
             }
             else if (contextClassificationType==SILENCE_SPEECH)
             {
@@ -309,7 +309,7 @@ public class ContextualGMMParams {
                         total++;
                 }
                 
-                phonemeClasses = new String[total][];
+                phoneClasses = new String[total][];
                 classTrainerParams = new GMMTrainerParams[total];
                 
                 count = 0;
@@ -317,9 +317,9 @@ public class ContextualGMMParams {
                 {
                     if (inds[i]!=null)
                     {
-                        phonemeClasses[count] = new String[inds[i].length];
+                        phoneClasses[count] = new String[inds[i].length];
                         for (j=0; j<inds[i].length; j++)
-                            phonemeClasses[count][j] = phns[inds[i][j]].name();
+                            phoneClasses[count][j] = phns[inds[i][j]].name();
                         
                         if (i<params.length)
                             classTrainerParams[count] = new GMMTrainerParams(params[i]);
@@ -400,7 +400,7 @@ public class ContextualGMMParams {
                         total++;
                 }
                 
-                phonemeClasses = new String[total][];
+                phoneClasses = new String[total][];
                 if (params!=null)
                     classTrainerParams = new GMMTrainerParams[total];
                 else
@@ -411,9 +411,9 @@ public class ContextualGMMParams {
                 {
                     if (inds[i]!=null)
                     {
-                        phonemeClasses[count] = new String[inds[i].length];
+                        phoneClasses[count] = new String[inds[i].length];
                         for (j=0; j<inds[i].length; j++)
-                            phonemeClasses[count][j] = phns[inds[i][j]].name();
+                            phoneClasses[count][j] = phns[inds[i][j]].name();
                         
                         if (params!=null)
                         {
@@ -434,26 +434,26 @@ public class ContextualGMMParams {
                     }
                 } 
             }
-            else if (contextClassificationType==PHONOLOGY_CLASS) //Each phonology class goes into a separate class, however this cannot handle phoneme replications since labels do not have phonology information that could be used in transformation phase
+            else if (contextClassificationType==PHONOLOGY_CLASS) //Each phonology class goes into a separate class, however this cannot handle phone replications since labels do not have phonology information that could be used in transformation phase
             {
                 int[] phonologyClasses = getPhonologyClasses(phns);
                 int[] differentPhonologyClasses = StringUtils.getDifferentItemsList(phonologyClasses);
 
-                phonemeClasses = new String[differentPhonologyClasses.length][];
+                phoneClasses = new String[differentPhonologyClasses.length][];
                 classTrainerParams = new GMMTrainerParams[differentPhonologyClasses.length];
 
                 int j;
                 for (i=0; i<differentPhonologyClasses.length; i++)
                 {
                     int[] indices = MathUtils.find(phonologyClasses, MathUtils.EQUALS, differentPhonologyClasses[i]);
-                    phonemeClasses[i] = new String[indices.length];
+                    phoneClasses[i] = new String[indices.length];
                     if (i<params.length)
                         classTrainerParams[i] = new GMMTrainerParams(params[i]);
                     else
                         classTrainerParams[i] = new GMMTrainerParams(params[0]);
                     
                     for (j=0; j<indices.length; j++)
-                        phonemeClasses[i][j] = phns[indices[j]].name();
+                        phoneClasses[i][j] = phns[indices[j]].name();
                 }
             }
             else if(contextClassificationType==FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER)
@@ -532,7 +532,7 @@ public class ContextualGMMParams {
                         total++;
                 }
                 
-                phonemeClasses = new String[total][];
+                phoneClasses = new String[total][];
                 classTrainerParams = new GMMTrainerParams[total];
                 
                 count = 0;
@@ -540,9 +540,9 @@ public class ContextualGMMParams {
                 {
                     if (inds[i]!=null)
                     {
-                        phonemeClasses[count] = new String[inds[i].length];
+                        phoneClasses[count] = new String[inds[i].length];
                         for (j=0; j<inds[i].length; j++)
-                            phonemeClasses[count][j] = phns[inds[i][j]].name();
+                            phoneClasses[count][j] = phns[inds[i][j]].name();
                         
                         if (i<params.length)
                             classTrainerParams[count] = new GMMTrainerParams(params[i]);
@@ -566,7 +566,7 @@ public class ContextualGMMParams {
                     }
                 }
             }
-            else if (contextClassificationType==PHONEME_IDENTITY) //Each phoneme goes into a separate class, phoneme replications are taken care of
+            else if (contextClassificationType==PHONEME_IDENTITY) //Each phone goes into a separate class, phone replications are taken care of
             {
                 String[] allPhonemes = new String[phns.length];
                 for (i=0; i<phns.length; i++)
@@ -574,12 +574,12 @@ public class ContextualGMMParams {
                 
                 String[] differentPhonemes = StringUtils.getDifferentItemsList(allPhonemes);
                 
-                phonemeClasses = new String[differentPhonemes.length][1];
+                phoneClasses = new String[differentPhonemes.length][1];
                 classTrainerParams = new GMMTrainerParams[differentPhonemes.length];
                 
                 for (i=0; i<differentPhonemes.length; i++)
                 {
-                    phonemeClasses[i][0] = differentPhonemes[i];
+                    phoneClasses[i][0] = differentPhonemes[i];
                     if (i<params.length)
                         classTrainerParams[i] = new GMMTrainerParams(params[i]);
                     else
@@ -588,7 +588,7 @@ public class ContextualGMMParams {
             }
             else
             {
-                phonemeClasses = null;
+                phoneClasses = null;
                 classTrainerParams = null;
             }
         }
@@ -674,47 +674,47 @@ public class ContextualGMMParams {
         return indices;
     }
     
-    public void setClass(int classIndex, String[] phonemes)
+    public void setClass(int classIndex, String[] phones)
     {
-        setClass(classIndex, phonemes, null);
+        setClass(classIndex, phones, null);
     }
 
-    public void setClass(int classIndex, String[] phonemes, GMMTrainerParams currentClassTrainerParams)
+    public void setClass(int classIndex, String[] phones, GMMTrainerParams currentClassTrainerParams)
     {
-        if (phonemeClasses!=null && classTrainerParams!=null && 
-                classIndex>=0 && classIndex<phonemeClasses.length &&
-                phonemeClasses.length==classTrainerParams.length)
+        if (phoneClasses!=null && classTrainerParams!=null && 
+                classIndex>=0 && classIndex<phoneClasses.length &&
+                phoneClasses.length==classTrainerParams.length)
         {
-            phonemeClasses[classIndex] = null;
+            phoneClasses[classIndex] = null;
             
-            if (phonemes!=null)
+            if (phones!=null)
             {
-                phonemeClasses[classIndex] = new String[phonemes.length];
-                for (int i=0; i<phonemes.length; i++)
-                    phonemeClasses[classIndex][i] = phonemes[i];
+                phoneClasses[classIndex] = new String[phones.length];
+                for (int i=0; i<phones.length; i++)
+                    phoneClasses[classIndex][i] = phones[i];
             }
             
             classTrainerParams[classIndex] = new GMMTrainerParams(currentClassTrainerParams);
         }
     }
     
-    //Returns the zero based index of the class the phoneme belongs to
+    //Returns the zero based index of the class the phone belongs to
     //If it is not an element of any of the existing classes, -1 is returned
-    public int getClassIndex(String phoneme)
+    public int getClassIndex(String phone)
     {
         int classInd = -1;
         
-        if (phonemeClasses!=null)
+        if (phoneClasses!=null)
         {
             int i, j;
 
-            for (i=0; i<phonemeClasses.length; i++)
+            for (i=0; i<phoneClasses.length; i++)
             {
-                if (phonemeClasses[i]!=null)
+                if (phoneClasses[i]!=null)
                 {
-                    for (j=0; j<phonemeClasses[i].length; j++)
+                    for (j=0; j<phoneClasses[i].length; j++)
                     {
-                        if (phoneme.compareTo(phonemeClasses[i][j])==0)
+                        if (phone.compareTo(phoneClasses[i][j])==0)
                             return i;
                     }
                 }
@@ -728,40 +728,40 @@ public class ContextualGMMParams {
     {
         if (stream!=null)
         {
-            if (phonemeClasses!=null)
+            if (phoneClasses!=null)
             {
                 int i, j;
                 try {
-                    stream.writeInt(phonemeClasses.length);
+                    stream.writeInt(phoneClasses.length);
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 
-                for (i=0; i<phonemeClasses.length; i++)
+                for (i=0; i<phoneClasses.length; i++)
                 {   
-                    if (phonemeClasses[i].length>0)
+                    if (phoneClasses[i].length>0)
                     {
                         try {
-                            stream.writeInt(phonemeClasses[i].length);
+                            stream.writeInt(phoneClasses[i].length);
                         } catch (IOException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
                         
-                        for (j=0; j<phonemeClasses[i].length; j++)
+                        for (j=0; j<phoneClasses[i].length; j++)
                         {
-                            if (phonemeClasses[i][j].length()>0)
+                            if (phoneClasses[i][j].length()>0)
                             {
                                 try {
-                                    stream.writeInt(phonemeClasses[i][j].length());
+                                    stream.writeInt(phoneClasses[i][j].length());
                                 } catch (IOException e) {
                                     // TODO Auto-generated catch block
                                     e.printStackTrace();
                                 }
                                 
                                 try {
-                                    stream.writeChar(phonemeClasses[i][j].toCharArray());
+                                    stream.writeChar(phoneClasses[i][j].toCharArray());
                                 } catch (IOException e) {
                                     // TODO Auto-generated catch block
                                     e.printStackTrace();
@@ -848,13 +848,13 @@ public class ContextualGMMParams {
             }
 
             if (tmpLen>0)
-                phonemeClasses = new String[tmpLen][];
+                phoneClasses = new String[tmpLen][];
 
-            if (phonemeClasses!=null)
+            if (phoneClasses!=null)
             {
                 int i, j;
 
-                for (i=0; i<phonemeClasses.length; i++)
+                for (i=0; i<phoneClasses.length; i++)
                 {   
                     tmpLen = 0;
                     try {
@@ -865,11 +865,11 @@ public class ContextualGMMParams {
                     }
 
                     if (tmpLen>0)
-                        phonemeClasses[i] = new String[tmpLen];
+                        phoneClasses[i] = new String[tmpLen];
 
-                    if (phonemeClasses[i].length>0)
+                    if (phoneClasses[i].length>0)
                     {
-                        for (j=0; j<phonemeClasses[i].length; j++)
+                        for (j=0; j<phoneClasses[i].length; j++)
                         {
                             try {
                                 tmpLen = stream.readInt();
@@ -881,7 +881,7 @@ public class ContextualGMMParams {
                             if (tmpLen>0)
                             { 
                                 try {
-                                    phonemeClasses[i][j] = String.copyValueOf(stream.readChar(tmpLen));
+                                    phoneClasses[i][j] = String.copyValueOf(stream.readChar(tmpLen));
                                 } catch (IOException e) {
                                     // TODO Auto-generated catch block
                                     e.printStackTrace();

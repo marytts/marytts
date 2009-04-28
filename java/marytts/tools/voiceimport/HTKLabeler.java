@@ -89,7 +89,7 @@ public class HTKLabeler extends VoiceImportComponent {
         public final String OUTLABDIR = "HTKLabeler.outputLabDir";
         public final String MAXITER = "HTKLabeler.maxNoOfIterations";
         public String INTONISEDDIR =  "HTKLabeler.intonisedXMLDir";
-        public String PHONEMEXML = "HTKLabeler.phonemeXMLFile";
+        public String PHONEMEXML = "HTKLabeler.phoneXMLFile";
         public String SPITER  = "HTKLabeler.shortPauseIteration";
         
         
@@ -102,7 +102,7 @@ public class HTKLabeler extends VoiceImportComponent {
            if (props == null){
                props = new TreeMap();
                String htkdir = System.getProperty("HTKDIR");
-               String phonemeXml;
+               String phoneXml;
                locale = db.getProp(db.LOCALE);
                if ( htkdir == null ) {
                    htkdir = "/project/mary/htk/";
@@ -119,16 +119,16 @@ public class HTKLabeler extends VoiceImportComponent {
                        +System.getProperty("file.separator"));
                
                if(locale.startsWith("de")){
-                   phonemeXml = db.getProp(db.MARYBASE)
+                   phoneXml = db.getProp(db.MARYBASE)
                            +File.separator+"lib"+File.separator+"modules"
-                           +File.separator+"de"+File.separator+"cap"+File.separator+"phoneme-list-de.xml";
+                           +File.separator+"de"+File.separator+"cap"+File.separator+"phone-list-de.xml";
                }
                else{
-                   phonemeXml = db.getProp(db.MARYBASE)
+                   phoneXml = db.getProp(db.MARYBASE)
                            +File.separator+"lib"+File.separator+"modules"
-                           +File.separator+"en"+File.separator+"cap"+File.separator+"phoneme-list-en.xml";
+                           +File.separator+"en"+File.separator+"cap"+File.separator+"phone-list-en.xml";
                }
-               props.put(PHONEMEXML, phonemeXml);
+               props.put(PHONEMEXML, phoneXml);
                
                props.put(OUTLABDIR, db.getProp(db.ROOTDIR)
                        +"lab"
@@ -146,7 +146,7 @@ public class HTKLabeler extends VoiceImportComponent {
            props2Help.put(HTKDIR,"directory containing the local installation of HTK Labeller"); 
            props2Help.put(HTDIR,"directory containing all files used for training and labeling. Will be created if it does not exist.");
            props2Help.put(INTONISEDDIR, "directory containing the acoustic params.");
-           props2Help.put(PHONEMEXML, "Phoneme XML file for given language.");
+           props2Help.put(PHONEMEXML, "Phone XML file for given language.");
            props2Help.put(OUTLABDIR, "Directory to store generated lebels from HTK.");
            //props2Help.put(INITHTKDIR,"If you provide a path to previous HTK Directory, Models will intialize with those models. other wise HTK Models will build with Flat-Start Initialization");
            //props2Help.put(RETRAIN,"true - Do re-training by initializing with given models. false - Do just Decoding");
@@ -989,7 +989,7 @@ public class HTKLabeler extends VoiceImportComponent {
         
         
         /**
-         * Get phoneme sequence from a single feature file
+         * Get phone sequence from a single feature file
          * @param basename
          * @return String
          * @throws Exception
@@ -1046,7 +1046,7 @@ public class HTKLabeler extends VoiceImportComponent {
         /**
          * 
          * This computes a string of phonetic symbols out of an intonised mary xml:
-         * - standard phonemes are taken from "ph" attribute
+         * - standard phones are taken from "ph" attribute
          * @param tokens
          * @return
          */
@@ -1060,7 +1060,7 @@ public class HTKLabeler extends VoiceImportComponent {
             // String storing the original transcription begins with a pause
             String orig =  " pau " ;
             
-            // get original phoneme String
+            // get original phone String
             for (int tNr = 0; tNr < tokens.getLength() ; tNr++ ){
                 
                 Element token = (Element) tokens.item(tNr);
@@ -1082,7 +1082,7 @@ public class HTKLabeler extends VoiceImportComponent {
                                 // orig += ph.name() + " ";
                                 if(ph.name().trim().equals("_")) continue;
                                 orig += replaceTrickyPhones(ph.name().trim()) + " "; 
-                            }// ... for each phoneme
+                            }// ... for each phone
                         }// ... if no delimiter
                     }// ... while there are more tokens    
                 }
@@ -1255,9 +1255,9 @@ public class HTKLabeler extends VoiceImportComponent {
         public String replaceTrickyPhones(String lab){
           String s = lab;
           
-          /** the replace is done for the labels: phoneme, prev_phoneme and next_phoneme */
+          /** the replace is done for the labels: phone, prev_phone and next_phone */
           
-          /** DE (replacements in German phoneme set) */     
+          /** DE (replacements in German phone set) */     
           if(lab.contentEquals("6") )
             s = "ER6";
           else if (lab.contentEquals("=6") )
@@ -1278,7 +1278,7 @@ public class HTKLabeler extends VoiceImportComponent {
               s = "ONo";
           else if (lab.contentEquals("?") )
               s = "gstop";
-          /** EN (replacements in English phoneme set) */
+          /** EN (replacements in English phone set) */
           else if (lab.contentEquals("r=") )
               s = "rr"; 
           
@@ -1289,7 +1289,7 @@ public class HTKLabeler extends VoiceImportComponent {
         
         /** Translation table for labels which are incompatible with HTK or shell filenames
          * See common_routines.pl in HTS training.
-         * In this function the phonemes as used internally in HTSEngine are changed
+         * In this function the phones as used internally in HTSEngine are changed
          * back to the Mary TTS set, this function is necessary when correcting the 
          * actual durations of AcousticPhonemes.
          * @param lab
@@ -1297,7 +1297,7 @@ public class HTKLabeler extends VoiceImportComponent {
          */
         public String replaceBackTrickyPhones(String lab){
           String s = lab;
-          /** DE (replacements in German phoneme set) */     
+          /** DE (replacements in German phone set) */     
           if(lab.contentEquals("ER6") )
             s = "6";
           else if (lab.contentEquals("ER66") )   /* CHECK ??? */
@@ -1318,7 +1318,7 @@ public class HTKLabeler extends VoiceImportComponent {
               s = "o~";
           else if (lab.contentEquals("gstop") )
               s = "?";
-          /** EN (replacements in English phoneme set) */
+          /** EN (replacements in English phone set) */
           else if (lab.contentEquals("rr") )
               s = "r="; 
           

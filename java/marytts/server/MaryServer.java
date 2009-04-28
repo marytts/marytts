@@ -88,7 +88,7 @@ import org.apache.log4j.Logger;
  *   <li>  TOKENS_EN     tokenized text </li>
  *   <li>  WORDS_EN      numbers and abbreviations expanded </li>
  *   <li>  POS_EN        parts of speech tags added </li>
- *   <li>  SEGMENTS_EN   phoneme symbols </li>
+ *   <li>  SEGMENTS_EN   phone symbols </li>
  *   <li>  INTONATION_EN ToBI intonation symbols </li>
  *   <li>  POSTPROCESSED_EN post-lexical phonological rules </li>
  *   <li>  ACOUSTPARAMS  acoustic parameters in MaryXML structure </li>

@@ -270,8 +270,8 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     
     //We can try different things in this function
     //1) Duration modification factors can be estimated using neighbouring selected and target unit durations
-    //2) Duration modification factors can be limited or even set to 1.0 for different phoneme classes
-    //3) Duration modification factors can be limited depending on the previous/next phoneme class
+    //2) Duration modification factors can be limited or even set to 1.0 for different phone classes
+    //3) Duration modification factors can be limited depending on the previous/next phone class
     private void getDurationScales(List<SelectedUnit> units)
     {
         int len = units.size();

@@ -152,7 +152,7 @@ public class UnitLabel {
         unitData.add(st.nextToken()); 
         //the second token is the unit index
         unitData.add(st.nextToken());
-        //the third token is the phoneme
+        //the third token is the phone
         unitData.add(st.nextToken());
        //the fourth token is sCost
         if(st.hasMoreTokens())

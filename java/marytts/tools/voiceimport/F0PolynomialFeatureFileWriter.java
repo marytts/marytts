@@ -201,7 +201,7 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
         logger.debug("Number of units : "+numUnits);
 
         FeatureDefinition featureDefinition = features.getFeatureDefinition();
-        int fiPhoneme = featureDefinition.getFeatureIndex("phoneme");
+        int fiPhoneme = featureDefinition.getFeatureIndex("phone");
         byte fvPhoneme_0 = featureDefinition.getFeatureValueAsByte(fiPhoneme, "0");
         byte fvPhoneme_Silence = featureDefinition.getFeatureValueAsByte(fiPhoneme, "_");
         int fiLR = featureDefinition.getFeatureIndex("halfphone_lr");
@@ -242,7 +242,7 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
         for (int i=0; i<numUnits; i++) {
             percent = 100*i/numUnits;
             FeatureVector fv = features.getFeatureVector(i);
-            //System.out.print(featureDefinition.getFeatureValueAsString("phoneme", fv));
+            //System.out.print(featureDefinition.getFeatureValueAsString("phone", fv));
             //if (fv.getByteFeature(fiPhoneme) == fvPhoneme_0
             //        || fv.getByteFeature(fiPhoneme) == fvPhoneme_Silence) continue;
             if (iSentenceStart == -1

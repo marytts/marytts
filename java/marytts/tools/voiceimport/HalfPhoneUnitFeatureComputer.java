@@ -68,28 +68,29 @@ public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer
         }
         File featureFile = new File(getProp(FEATURELIST));
         if (!featureFile.exists()) {
-            throw new Error("No feature file: '"+getProp(FEATURELIST)+"'");
-        }
-        System.out.println("Loading features from file "+getProp(FEATURELIST));
-        try {
-            featureList = FileUtils.getFileAsString(featureFile, "UTF-8");
-            featureList = featureList.replaceAll("\\s+", " ");
-            // Make sure specific halfphone features are included:
-            for (String f : HALFPHONE_FEATURES) {
-                if (!featureList.contains(f)) {
-                    featureList = f + " " + featureList;
+            System.out.println("No feature file: '"+getProp(FEATURELIST)+"'");
+        } else {
+            System.out.println("Loading features from file "+getProp(FEATURELIST));
+            try {
+                featureList = FileUtils.getFileAsString(featureFile, "UTF-8");
+                featureList = featureList.replaceAll("\\s+", " ");
+                // Make sure specific halfphone features are included:
+                for (String f : HALFPHONE_FEATURES) {
+                    if (!featureList.contains(f)) {
+                        featureList = f + " " + featureList;
+                    }
                 }
-            }
-            if (!featureList.startsWith(HALFPHONE_UNITNAME)) {
-                // HALFPHONE_UNITNAME must be the first one in the list
-                featureList = featureList.replaceFirst("\\s+"+HALFPHONE_UNITNAME+"\\s+", " ");
-                featureList = HALFPHONE_UNITNAME + " " + featureList;
+                if (!featureList.startsWith(HALFPHONE_UNITNAME)) {
+                    // HALFPHONE_UNITNAME must be the first one in the list
+                    featureList = featureList.replaceFirst("\\s+"+HALFPHONE_UNITNAME+"\\s+", " ");
+                    featureList = HALFPHONE_UNITNAME + " " + featureList;
 
+                }
+            } catch (IOException e) {
+                IOException ioe = new IOException("Cannot read feature list");
+                ioe.initCause(e);
+                throw ioe;
             }
-        } catch (IOException e) {
-            IOException ioe = new IOException("Cannot read feature list");
-            ioe.initCause(e);
-            throw ioe;
         }
         maryInputType  = "ALLOPHONES";
         maryOutputType = "HALFPHONE_TARGETFEATURES";

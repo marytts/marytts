@@ -84,7 +84,7 @@ public class EHMMLabeler extends VoiceImportComponent {
         
         public SortedMap getDefaultProps(DatabaseLayout db){
            this.db = db;
-           String phonemeXml;
+           String phoneXml;
            locale = db.getProp(db.LOCALE);
            if (props == null){
                props = new TreeMap();
@@ -535,7 +535,7 @@ public class EHMMLabeler extends VoiceImportComponent {
         
         
         /**
-         * Get phoneme sequence from a single feature file
+         * Get phone sequence from a single feature file
          * @param basename
          * @return String
          * @throws Exception
@@ -564,7 +564,7 @@ public class EHMMLabeler extends VoiceImportComponent {
         /**
          * 
          * This computes a string of phonetic symbols out of an allophones xml:
-         * - standard phonemes are taken from "ph" attribute
+         * - standard phones are taken from "ph" attribute
          * @param tokens
          * @return
          */
@@ -572,7 +572,7 @@ public class EHMMLabeler extends VoiceImportComponent {
 
             // String storing the original transcription begins with a pause
             String transcription =  " pau " ;
-            // get original phoneme String
+            // get original phone String
             for (int i = 0; i < tokens.getLength() ; i++ ){
                 Element token = (Element) tokens.item(i);
                 

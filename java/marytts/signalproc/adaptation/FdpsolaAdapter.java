@@ -831,7 +831,7 @@ public class FdpsolaAdapter {
                     }
                     else if (mapper instanceof JointGMMMapper)
                     {
-                        //Different weighting strategies can be tested here, i.e. doing a fuzzy phoneme classification
+                        //Different weighting strategies can be tested here, i.e. doing a fuzzy phone classification
                         double[] gmmWeights = new double[((JointGMMSet)data).gmms.length];
                         Arrays.fill(gmmWeights, 0.0);
                         int currentGmmIndex = -1;

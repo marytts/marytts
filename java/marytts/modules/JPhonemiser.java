@@ -215,8 +215,8 @@ public class JPhonemiser extends InternalModule
         // Cannot find it in the lexicon -- apply letter-to-sound rules
         // to the normalised form
 
-        String phonemes = lts.predictPronunciation(text);
-        result = lts.syllabify(phonemes);
+        String phones = lts.predictPronunciation(text);
+        result = lts.syllabify(phones);
         if (result != null) {
             g2pMethod.append("rules");
             return result;
@@ -316,7 +316,7 @@ public class JPhonemiser extends InternalModule
     /**
      * Read a lexicon. Lines must have the format
      * 
-     * graphemestring | phonemestring | optional-parts-of-speech
+     * graphemestring | phonestring | optional-parts-of-speech
      * 
      * The pos-item is optional. Different pos's belonging to one grapheme
      * chain may be separated by whitespace

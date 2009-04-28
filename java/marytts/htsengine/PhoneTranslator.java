@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
 
 
 /**
- * Translates phoneme names used in HTS-HTK
+ * Translates phone names used in HTS-HTK
  */
 public class PhoneTranslator  {
     private Logger logger = Logger.getLogger("PhoneTranslator");
@@ -60,51 +60,51 @@ public class PhoneTranslator  {
     {
          
         int feaAsInt;
-        String mary_phoneme, mary_prev_phoneme, mary_prev_prev_phoneme, mary_next_phoneme, mary_next_next_phoneme;
+        String mary_phone, mary_prev_phone, mary_prev_prev_phone, mary_next_phone, mary_next_next_phone;
         
         if (featureList == null) {
             featureList = new Vector<String>(Arrays.asList(def.getFeatureNames().split("\\s+")));
         }
             
         feaAsInt = featureVector.getFeatureAsInt(iPhoneme);
-        mary_phoneme = replaceTrickyPhones(def.getFeatureValueAsString(iPhoneme, feaAsInt));
+        mary_phone = replaceTrickyPhones(def.getFeatureValueAsString(iPhoneme, feaAsInt));
               
         feaAsInt = featureVector.getFeatureAsInt(iPrevPhoneme);        
         if(feaAsInt > 0)
-          mary_prev_phoneme = replaceTrickyPhones(def.getFeatureValueAsString(iPrevPhoneme, feaAsInt));
+          mary_prev_phone = replaceTrickyPhones(def.getFeatureValueAsString(iPrevPhoneme, feaAsInt));
         else
-          mary_prev_phoneme = mary_phoneme;
+          mary_prev_phone = mary_phone;
         //System.out.println("iPrevPhoneme=" + iPrevPhoneme +  "  val=" + feaAsInt);
         
         feaAsInt = featureVector.getFeatureAsInt(iPrevPrevPhoneme);    
         if ( feaAsInt > 0 )
-          mary_prev_prev_phoneme = replaceTrickyPhones(def.getFeatureValueAsString(iPrevPrevPhoneme, feaAsInt));
+          mary_prev_prev_phone = replaceTrickyPhones(def.getFeatureValueAsString(iPrevPrevPhoneme, feaAsInt));
         else
-          mary_prev_prev_phoneme = mary_prev_phoneme;
+          mary_prev_prev_phone = mary_prev_phone;
         //System.out.println("iPrevPrevPhoneme=" + iPrevPrevPhoneme + "  val=" + feaAsInt);
         
         
         feaAsInt = featureVector.getFeatureAsInt(iNextPhoneme);
         if(feaAsInt > 0)
-          mary_next_phoneme = replaceTrickyPhones(def.getFeatureValueAsString(iNextPhoneme, feaAsInt));
+          mary_next_phone = replaceTrickyPhones(def.getFeatureValueAsString(iNextPhoneme, feaAsInt));
         else
-          mary_next_phoneme = mary_phoneme;  
+          mary_next_phone = mary_phone;  
         //System.out.println("iNextPhoneme=" + iNextPhoneme + "  val=" + feaAsInt);
       
         feaAsInt = featureVector.getFeatureAsInt(iNextNextPhoneme);
         if (feaAsInt > 0) 
-          mary_next_next_phoneme = replaceTrickyPhones(def.getFeatureValueAsString(iNextNextPhoneme, feaAsInt));         
+          mary_next_next_phone = replaceTrickyPhones(def.getFeatureValueAsString(iNextNextPhoneme, feaAsInt));         
         else
-          mary_next_next_phoneme = mary_next_phoneme;
+          mary_next_next_phone = mary_next_phone;
         //System.out.println("iNextNextPhoneme=" + iNextNextPhoneme + "  val=" + feaAsInt + "\n");
       
    
         StringBuffer contextName = new StringBuffer();
-        contextName.append("prev_prev_phoneme=" + mary_prev_prev_phoneme);
-        contextName.append("|prev_phoneme=" + mary_prev_phoneme);
-        contextName.append("|phoneme=" + mary_phoneme);
-        contextName.append("|next_phoneme=" + mary_next_phoneme);
-        contextName.append("|next_next_phoneme=" + mary_next_next_phoneme);
+        contextName.append("prev_prev_phone=" + mary_prev_prev_phone);
+        contextName.append("|prev_phone=" + mary_prev_phone);
+        contextName.append("|phone=" + mary_phone);
+        contextName.append("|next_phone=" + mary_next_phone);
+        contextName.append("|next_next_phone=" + mary_next_next_phone);
         contextName.append("||");
         /* append the other context features included in the featureList */
         for (String f : featureList) {
@@ -148,7 +148,7 @@ public class PhoneTranslator  {
             contextName.append(f);
             contextName.append("=");
             String value = def.getFeatureValueAsString(f, featureVector);
-            if (f.endsWith("phoneme")) 
+            if (f.endsWith("phone")) 
                 value = replaceTrickyPhones(value);
             else if (f.contains("sentence_punc") || f.contains("punctuation"))
                 value = replacePunc(value);
@@ -170,9 +170,9 @@ public class PhoneTranslator  {
     public static String replaceTrickyPhones(String lab){
       String s = lab;
       
-      /** the replace is done for the labels: phoneme, prev_phoneme and next_phoneme */
+      /** the replace is done for the labels: phone, prev_phone and next_phone */
       
-      /** DE (replacements in German phoneme set) */     
+      /** DE (replacements in German phone set) */     
       if(lab.contentEquals("6") )
         s = "ER6";
       else if (lab.contentEquals("=6") )
@@ -191,7 +191,7 @@ public class PhoneTranslator  {
           s = "ONo";
       else if (lab.contentEquals("?") )
           s = "gstop";
-      /** EN (replacements in English phoneme set) */
+      /** EN (replacements in English phone set) */
       else if (lab.contentEquals("r=") )
           s = "rr"; 
       
@@ -204,7 +204,7 @@ public class PhoneTranslator  {
     
     /** Translation table for labels which are incompatible with HTK or shell filenames
      * See common_routines.pl in HTS training.
-     * In this function the phonemes as used internally in HTSEngine are changed
+     * In this function the phones as used internally in HTSEngine are changed
      * back to the Mary TTS set, this function is necessary when correcting the 
      * actual durations of AcousticPhonemes.
      * @param lab
@@ -212,7 +212,7 @@ public class PhoneTranslator  {
      */
     public static String replaceBackTrickyPhones(String lab){
       String s = lab;
-      /** DE (replacements in German phoneme set) */     
+      /** DE (replacements in German phone set) */     
       if(lab.contentEquals("ER6") )
         s = "6";
       //else if (lab.contentEquals("ER6") )   /* CHECK ??? */
@@ -231,7 +231,7 @@ public class PhoneTranslator  {
           s = "o~";
       else if (lab.contentEquals("gstop") )
           s = "?";
-      /** EN (replacements in English phoneme set) */
+      /** EN (replacements in English phone set) */
       else if (lab.contentEquals("rr") )
           s = "r="; 
       
@@ -254,7 +254,7 @@ public class PhoneTranslator  {
       
      // s = s.replace("^pos$/POS/g;  /* ??? */
       s = fea.replace("mary_", "");
-      s = s.replace("phoneme","phn");
+      s = s.replace("phone","phn");
       s = s.replace("prev","p");
       s = s.replace("next","n");
       s = s.replace("sentence","snt");

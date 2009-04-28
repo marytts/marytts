@@ -449,7 +449,7 @@ public class FeatureDefinition
     
     /**
      * Indicate whether the feature definition contains the feature with the given name
-     * @param name the feature name in question, e.g. "next_next_phoneme"
+     * @param name the feature name in question, e.g. "next_next_phone"
      * @return 
      */
     public boolean hasFeature(String name)
@@ -1112,10 +1112,10 @@ public class FeatureDefinition
         out.println();
         out.println("ByteValuedFeatureProcessors");
         List<String> getValuesOf10 = new ArrayList<String>();
-        getValuesOf10.add("phoneme");
+        getValuesOf10.add("phone");
         getValuesOf10.add("ph_vc");
-        getValuesOf10.add("prev_phoneme");
-        getValuesOf10.add("next_phoneme");
+        getValuesOf10.add("prev_phone");
+        getValuesOf10.add("next_phone");
         getValuesOf10.add("stressed");
         getValuesOf10.add("syl_break");
         getValuesOf10.add("prev_syl_break");

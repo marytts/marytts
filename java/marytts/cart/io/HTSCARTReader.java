@@ -240,7 +240,7 @@ private Node loadStateTree(BufferedReader s, double pdf[][][]) throws Exception 
           /* what about tricky phones, if using halfphones it would not be necessary */
           if(fea_val[0].contains("sentence_punc") || fea_val[0].contains("prev_punctuation") || fea_val[0].contains("next_punctuation"))
               fea_val[1] = PhoneTranslator.replaceBackPunc(fea_val[1]);
-          else if(fea_val[0].contains("phoneme") )
+          else if(fea_val[0].contains("phone") )
               fea_val[1] = PhoneTranslator.replaceBackTrickyPhones(fea_val[1]);
           
           // add featureName and featureValue to the decision nod

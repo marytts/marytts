@@ -186,7 +186,7 @@ public class Segmenter implements UtteranceProcessor {
     }
 
     /**
-     * Determines if the given phonemene is stressed.
+     * Determines if the given phonene is stressed.
      * To determine stress, this method relies upon
      * a phone ending in the number "1".  Subclasses should override this
      * method if stresses are determined in other ways.
@@ -200,7 +200,7 @@ public class Segmenter implements UtteranceProcessor {
     }
 
     /**
-     * Converts stressed phoneme to regular phoneme.  This method
+     * Converts stressed phone to regular phone.  This method
      * merely removes the last character of the phone.  Subclasses
      * should override this if another method is to be used.
      *

@@ -35,60 +35,18 @@ public class HalfPhoneLabelFeatureAligner extends PhoneLabelFeatureAligner {
     }
     
     public HalfPhoneLabelFeatureAligner(){
-        featsExt = ".hpfeats";
-        labExt = ".hplab";
-        FEATUREDIR = "HalfPhoneLabelFeatureAligner.featureDir";
-        LABELDIR = "HalfPhoneLabelFeatureAligner.labelDir";
     }
     
     @Override
-    public void initialiseComp()
-    throws Exception
+    protected void customInitialisation()
     {
-        this.featureComputer = new HalfPhoneUnitFeatureComputer();
-        db.initialiseComponent(featureComputer); 
-        
-        this.pauseSymbol = System.getProperty("pause.symbol", "_");
-        File unitfeatureDir = new File(getProp(FEATUREDIR));
-        if (!unitfeatureDir.exists()){
-            System.out.print(FEATUREDIR+" "+getProp(FEATUREDIR)
-                    +" does not exist; ");
-            if (!unitfeatureDir.mkdir()){
-                throw new Error("Could not create FEATUREDIR");
-            }
-            System.out.print("Created successfully.\n");
-        }
-        File unitlabelDir = new File(getProp(LABELDIR));
-        if (!unitlabelDir.exists()){
-            System.out.print(LABELDIR+" "+getProp(LABELDIR)
-                    +" does not exist; ");
-            if (!unitlabelDir.mkdir()){
-                throw new Error("Could not create LABELDIR");
-            }
-            System.out.print("Created successfully.\n");
-        }  
-    }
-    
-    public SortedMap<String,String> getDefaultProps(DatabaseLayout theDb){
-        this.db = theDb;
-       if (props == null){
-           props = new TreeMap<String, String>();
-           props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
-                        +"halfphonefeatures"
-                        +System.getProperty("file.separator"));
-           props.put(LABELDIR, db.getProp(db.ROOTDIR)
-                        +"halfphonelab"
-                        +System.getProperty("file.separator"));
-       }
-       return props;
+        featureComputer = new HalfPhoneUnitFeatureComputer();
+        featsExt = ".hpfeats";
+        labExt = ".hplab";
+        featsDir = db.getProp(db.HALFPHONEFEATUREDIR);
+        labDir = db.getProp(db.HALFPHONELABDIR);
     }
 
-    protected void setupHelp(){
-        props2Help = new TreeMap<String, String>();
-        props2Help.put(FEATUREDIR, "directory containing the phone features.");
-        props2Help.put(LABELDIR, "directory containing the phone labels");
-    }
-    
 
 }
 

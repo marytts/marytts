@@ -70,6 +70,7 @@ public class CARTBuilder extends VoiceImportComponent {
     private String wagonCartFile;
     private String wagonDisTabsFile;
     private int numProcesses;
+    private boolean callWagon;
     
     private DatabaseLayout db;
     private int percent = 0;
@@ -82,6 +83,7 @@ public class CARTBuilder extends VoiceImportComponent {
     public final String UNITFILE = "CARTBuilder.unitFile";
     public final String READFEATURESEQUENCE = "CARTBuilder.readFeatureSequence";
     public final String MAXLEAFSIZE = "CARTBuilder.maxLeafSize";
+    public final String CALLWAGON = "CARTBuilder.callWagon";
     public final String ESTDIR = "CARTBuilder.estDir";
     
     public final String NUMPROCESSES = "CARTBuilder.numProcesses";
@@ -92,7 +94,8 @@ public class CARTBuilder extends VoiceImportComponent {
     }
     
      public void initialiseComp()
-    {       
+     {
+         callWagon = Boolean.parseBoolean(db.getProp(CALLWAGON));
          wagonDirName = db.getProp(db.TEMPDIR);
          wagonDescFile = wagonDirName+"wagon.desc";
          wagonFeatsFile = wagonDirName+"wagon.feats";
@@ -109,9 +112,9 @@ public class CARTBuilder extends VoiceImportComponent {
                             new OutputStreamWriter(
                                     new FileOutputStream(featSeqFile),"UTF-8"));
                     featSeqOut.println("# Automatically generated feature sequence file for CARTBuilder\n"
-                            +"# Add features to refine\n"
+                            +"# Add features (one per line) to refine\n"
                             +"# Defines the feature sequence used to build the top-level CART\n"
-                            +"phoneme\nstressed\nnext_phoneme");
+                            +"phone");
                     featSeqOut.flush();
                     featSeqOut.close();
                 } catch (Exception e){
@@ -136,9 +139,9 @@ public class CARTBuilder extends VoiceImportComponent {
         if (numProcesses < 1) numProcesses = 1;
     }
     
-     public SortedMap<String, String> getDefaultProps(DatabaseLayout db){
-         this.db = db;
-       if (props == null){
+     public SortedMap<String, String> getDefaultProps(DatabaseLayout theDb){
+         this.db = theDb;
+       if (props == null) {
            props = new TreeMap<String, String>();
            String filedir = db.getProp(db.FILEDIR);
            String maryext = db.getProp(db.MARYEXT);
@@ -156,7 +159,8 @@ public class CARTBuilder extends VoiceImportComponent {
            props.put(UNITFILE,filedir
                         +"halfphoneUnits"+maryext);
            props.put(READFEATURESEQUENCE,"true");
-           props.put(MAXLEAFSIZE,"3300");
+           props.put(MAXLEAFSIZE,"10000000");
+           props.put(CALLWAGON, "false");
            String estdir = System.getProperty("ESTDIR");
            if ( estdir == null ) {
                estdir = "/project/mary/Festival/speech_tools/";
@@ -183,6 +187,7 @@ public class CARTBuilder extends VoiceImportComponent {
          props2Help.put(MAXLEAFSIZE,"the maximum number of units in a leaf of the basic tree");
          props2Help.put(ESTDIR,"directory containing the local installation of the Edinburgh Speech Tools");
          props2Help.put(NUMPROCESSES, "number of wagon processes to run in parallel - bewteen 1 and the number of CPUs");
+         props2Help.put(CALLWAGON, "whether to call wagon to build an acoustics-based pre-selection sub-tree for each top-level leaf");
      }
      
      public boolean compute() throws Exception{
@@ -215,7 +220,7 @@ public class CARTBuilder extends VoiceImportComponent {
          CART topLevelCART;
          boolean fromFeatureSequence = 
              Boolean.valueOf(getProp(READFEATURESEQUENCE)).booleanValue();
-         if (fromFeatureSequence){
+         if (fromFeatureSequence) {
              /* Build the top level tree from a feature sequence */
              FeatureArrayIndexer fai = new FeatureArrayIndexer(featureVectors, featureDefinition);
              System.out.println(" ... done!");         
@@ -229,9 +234,9 @@ public class CARTBuilder extends VoiceImportComponent {
              String line = buf.readLine();
              //collect features in a list
              List<String> features = new ArrayList<String>();
-             while (line != null){
+             while (line != null) {
                  // Skip empty lines and lines starting with #:
-                 if (!(line.trim().equals("") || line.startsWith("#"))){
+                 if (!(line.trim().equals("") || line.startsWith("#"))) {
                      features.add(line.trim());
                  }
                  line = buf.readLine();
@@ -254,25 +259,14 @@ public class CARTBuilder extends VoiceImportComponent {
              //convert the top-level CART to Wagon Format
              System.out.println("Building CART from tree ...");
              topLevelCART = new FeatureVectorCART(topLevelTree, fai);
-             PrintWriter pw = 
-                 new PrintWriter(
-                         new FileWriter(
-                                 new File("./test.txt")));
-             //topLevelCART.toTextOut(pw);
+             PrintWriter pw = new PrintWriter(new FileWriter(new File("./test.txt")));
              wr.toTextOut(topLevelCART, pw);
              System.out.println(" ... done!");
-             
-         }else {
+         } else {
              /* read in the top-level tree from file */
              String filename = getProp(TOPLEVELTREEFILE);
              System.out.println("Reading empty top-level tree from file "+filename+" ...");
-             BufferedReader reader = 
-                 new BufferedReader(
-                         new InputStreamReader(
-                                 new FileInputStream(
-                                         new File(filename)),"UTF-8"));
-             
-             // old: topLevelCART = new TopLevelTree(reader, featureDefinition);
+             BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(filename)), "UTF-8"));
              topLevelCART = new CART();
              WagonCARTReader wagonReader = new WagonCARTReader(LeafType.FeatureVectorLeafNode);
              topLevelCART.setRootNode(wagonReader.load(reader, featureDefinition));
@@ -282,7 +276,6 @@ public class CARTBuilder extends VoiceImportComponent {
              //fill in the leafs of the tree
              System.out.println("Filling leafs of top-level tree ...");
              
-             // old: ((TopLevelTree)topLevelCART).fillLeafs(featureVectors);
              wagonReader.fillLeafs(topLevelCART.getRootNode(), featureVectors);
              
              System.out.println(" ... done!");
@@ -298,7 +291,7 @@ public class CARTBuilder extends VoiceImportComponent {
              if (leaf.getNumberOfData() < minSize) {
                  // Ignore a few meaningless combinations:
                  String path = leaf.getDecisionPath();
-                 if (path.indexOf("phoneme==0") == -1
+                 if (path.indexOf("phone==0") == -1
                          && path.indexOf("vc==0") == -1
                          && !(path.indexOf("prev_vc==+") != -1 && path.indexOf("prev_c") != -1)
                          && !(path.indexOf("prev_vc==-") != -1 && path.indexOf("prev_vheight") != -1)
@@ -316,23 +309,10 @@ public class CARTBuilder extends VoiceImportComponent {
          }
          if (nTooSmall > 0 || nTooBig > 0) {
              System.out.println("Bad top-level cart: "+nTooSmall+"/"+nLeaves+" leaves are too small, "+nTooBig+"/"+nLeaves+" are too big");
-             System.out.println("Cutting down the big leaves to size "+maxSize);
-             for (LeafNode leaf : topLevelCART.getLeafNodes()) {
-                 if (leaf.getNumberOfData() > maxSize) {
-                     FeatureVectorLeafNode fvleaf = (FeatureVectorLeafNode)leaf;
-                     FeatureVector[] fv = fvleaf.getFeatureVectors();
-                     FeatureVector[] newfv = new FeatureVector[maxSize];
-                     System.arraycopy(fv, 0, newfv, 0, maxSize);
-                     fvleaf.setFeatureVectors(newfv);
-                 }
-             }
-             
          } else {
              System.out.println("... OK!");
          }
- 
-         boolean callWagon = System.getProperty("db.cartbuilder.callwagon", "true").equals("true");
-        
+
          if (callWagon) {
              boolean ok = replaceLeaves(topLevelCART,featureDefinition);
              if(!ok) {
@@ -346,15 +326,6 @@ public class CARTBuilder extends VoiceImportComponent {
          String destinationFile = getProp(CARTFILE);
          MaryCARTWriter ww = new MaryCARTWriter();
          ww.dumpMaryCART(topLevelCART, destinationFile);         
-             
-         //Dump the resulting Cart to a text file
-         /*
-         PrintWriter pw = 
-             new PrintWriter(
-             new FileWriter(
-             new File("cartTextDump.txt")));
-         ww.toTextOut(topLevelCART, pw);
-         */
       
          //say how long you took
          long timeDiff = System.currentTimeMillis() - time;

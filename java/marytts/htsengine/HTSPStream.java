@@ -55,7 +55,7 @@ import org.apache.log4j.Logger;
 /**
  * Data type and procedures used in parameter generation.
  * Contains means and variances of a particular model, 
- * mcep pdfs for a particular phoneme for example.
+ * mcep pdfs for a particular phone for example.
  * It also contains auxiliar matrices used in maximum likelihood 
  * parameter generation.
  * 

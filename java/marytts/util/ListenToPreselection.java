@@ -57,24 +57,24 @@ public class ListenToPreselection {
         FeatureDefinition feaDef = ffi.getFeatureDefinition();
         WavWriter ww = new WavWriter();
         
-        System.out.println( "Indexing the phonemes..." );
-        String[] feaSeq = { "phoneme" }; // Sort by phoneme name
+        System.out.println( "Indexing the phones..." );
+        String[] feaSeq = { "phone" }; // Sort by phone name
         ffi.deepSort( feaSeq );
         
-        /* Loop across possible phonemes */
+        /* Loop across possible phones */
         long tic = System.currentTimeMillis();
-        int mary_phonemeIndex = feaDef.getFeatureIndex("phoneme");
-        int nbPhonVal = feaDef.getNumberOfValues( feaDef.getFeatureIndex( "phoneme" ) );
+        int mary_phoneIndex = feaDef.getFeatureIndex("phone");
+        int nbPhonVal = feaDef.getNumberOfValues( feaDef.getFeatureIndex( "phone" ) );
         for ( int phon = 1; phon < nbPhonVal; phon++ ) {
         // for ( int phon = 14; phon < nbPhonVal; phon++ ) {
             String phonID = feaDef.getFeatureValueAsString( 0, phon );
             /* Loop across all instances */
-            byte[] phonFeature = new byte[mary_phonemeIndex+1];
-            phonFeature[mary_phonemeIndex] = (byte)( phon );
+            byte[] phonFeature = new byte[mary_phoneIndex+1];
+            phonFeature[mary_phoneIndex] = (byte)( phon );
             FeatureVector target = new FeatureVector( phonFeature, new short[0], new float[0], 0 );
             FeatureFileIndexingResult instances = ffi.retrieve( target );
             int[] ui = instances.getUnitIndexes();
-            System.out.println( "Concatenating the phoneme [" + phonID + "] which has [" + ui.length + "] instances..." );
+            System.out.println( "Concatenating the phone [" + phonID + "] which has [" + ui.length + "] instances..." );
             ByteArrayOutputStream bbis = new ByteArrayOutputStream();
             /* Concatenate the instances */
             for ( int i = 0; i < ui.length; i++ ) {
@@ -96,7 +96,7 @@ public class ListenToPreselection {
                     + "] has [" + wr.getNumSamples() + "] samples." ); */
         }
         long toc = System.currentTimeMillis();
-        System.out.println( "Copying the phonemes took [" + (toc-tic) + "] milliseconds." );
+        System.out.println( "Copying the phones took [" + (toc-tic) + "] milliseconds." );
     }
 
 }

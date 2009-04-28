@@ -111,7 +111,7 @@ public class MbrolaVoice extends Voice
     
     private void fillSampaMap()
     {
-        // Any phoneme inventory mappings?
+        // Any phone inventory mappings?
         String sampamapFilename = MaryProperties.getFilename("voice."+getName()+".sampamapfile");
         if (sampamapFilename != null) {
             logger.debug("For voice "+getName()+", filling sampa map from file "+sampamapFilename);
@@ -152,7 +152,7 @@ public class MbrolaVoice extends Voice
         boolean s2v = false;
         boolean v2s = false;
         String[] parts = null;
-        // For one-to-many mappings, '+' can be used to group phoneme symbols.
+        // For one-to-many mappings, '+' can be used to group phone symbols.
         // E.g., the line "EI->E:+I" would map "EI" to "E:" and "I" 
         entry = entry.replace('+', ' ');
         if (entry.indexOf("<->") != -1) {
@@ -181,7 +181,7 @@ public class MbrolaVoice extends Voice
 
     /** Converts a single phonetic symbol in the voice phonetic alphabet representation
      * representation into its equivalent in MARY sampa representation.
-     * @return the converted phoneme, or the input string if no known conversion exists.
+     * @return the converted phone, or the input string if no known conversion exists.
      */
     public String voice2sampa(String voicePhoneme)
     {
@@ -193,7 +193,7 @@ public class MbrolaVoice extends Voice
 
     /** Converts a single phonetic symbol in MARY sampa representation into its
      * equivalent in voice-specific phonetic alphabet representation.
-     * @return the converted phoneme, or the input string if no known conversion exists.
+     * @return the converted phone, or the input string if no known conversion exists.
      */
     public String sampa2voice(String sampaPhoneme)
     {
@@ -208,38 +208,38 @@ public class MbrolaVoice extends Voice
     /** Convert the SAMPA dialect used in MARY into the SAMPA version
      * used in this voice. Allow for one-to-many translations,
      * taking care of duration and f0 target adjustments.
-     * @return a vector of MBROLAPhoneme objects realising this phoneme
+     * @return a vector of MBROLAPhoneme objects realising this phone
      * for this voice.
      */
     public Vector<MBROLAPhoneme> convertSampa(MBROLAPhoneme maryPhoneme)
     {
-        Vector<MBROLAPhoneme> phonemes = new Vector<MBROLAPhoneme>();
+        Vector<MBROLAPhoneme> phones = new Vector<MBROLAPhoneme>();
         String marySampa = maryPhoneme.getSymbol();
         if (sampa2voiceMap != null && sampa2voiceMap.containsKey(marySampa)) {
             String newSampa = (String) sampa2voiceMap.get(marySampa);
-            // Check if more than one phoneme:
+            // Check if more than one phone:
             Vector<String> newSampas = new Vector<String>();
             StringTokenizer st = new StringTokenizer(newSampa);
             while (st.hasMoreTokens()) {
                 newSampas.add(st.nextToken());
             }
-            // Now, how many new phonemes do we have:
+            // Now, how many new phones do we have:
             int n = newSampas.size();
             int totalDur = maryPhoneme.getDuration();
             Vector<int []> allTargets = maryPhoneme.getTargets();
-            // Distribute total duration evenly across the phonemes
+            // Distribute total duration evenly across the phones
             // and put the targets where they belong:
             for (int i=0; i<newSampas.size(); i++) {
                 String sampa = (String) newSampas.get(i);
                 int dur = totalDur / n;
                 Vector<int []> newTargets = null;
-                // Percentage limit belonging to this phoneme
+                // Percentage limit belonging to this phone
                 int maxP = 100 * (i+1) / n;
                 boolean ok = true;
                 while (allTargets != null && allTargets.size() > 0 && ok) {
                     int[] oldTarget = (int[]) allTargets.get(0);
                     if (oldTarget[0] <= maxP) {
-                        // this target falls into this phoneme
+                        // this target falls into this phone
                         int[] newTarget = new int[2];
                         newTarget[0] = oldTarget[0] * n; // percentage
                         newTarget[1] = oldTarget[1]; // f0
@@ -253,12 +253,12 @@ public class MbrolaVoice extends Voice
                 }
                 MBROLAPhoneme mp = new MBROLAPhoneme
                     (sampa, dur, newTargets, maryPhoneme.getVoiceQuality());
-                phonemes.add(mp);
+                phones.add(mp);
             }
         } else { // just return the thing itself
-            phonemes.add(maryPhoneme);
+            phones.add(maryPhoneme);
         }
-        return phonemes;
+        return phones;
     }
 
 
@@ -281,15 +281,15 @@ public class MbrolaVoice extends Voice
 
     public Vector<MBROLAPhoneme> replaceDiphone(MBROLAPhoneme p1, MBROLAPhoneme p2)
     {
-        Vector<MBROLAPhoneme> phonemes = new Vector<MBROLAPhoneme>();
+        Vector<MBROLAPhoneme> phones = new Vector<MBROLAPhoneme>();
         String s1 = p1.getSymbol();
         String s2 = p2.getSymbol();
         boolean solved = false;
         // Would inserting a short silence help?
         if (hasDiphone(s1 + "-_") && hasDiphone("_-" + s2)) {
-            phonemes.add(p1);
-            phonemes.add(new MBROLAPhoneme("_", 10, null, null));
-            phonemes.add(p2);
+            phones.add(p1);
+            phones.add(new MBROLAPhoneme("_", 10, null, null));
+            phones.add(p2);
             solved = true;
         }
         // Would denasalising one of them help?
@@ -303,15 +303,15 @@ public class MbrolaVoice extends Voice
             if (s1a != null) {
                 if (hasDiphone(s1a + "-" + s2)) {
                     p1.setSymbol(s1a);
-                    phonemes.add(p1);
-                    phonemes.add(p2);
+                    phones.add(p1);
+                    phones.add(p2);
                     solved = true;
                 } else if (hasDiphone(s1a + "-N") && hasDiphone("N-" + s2)) {
                     p1.setSymbol(s1a);
                     p1.setDuration(p1.getDuration()-30);
-                    phonemes.add(p1);
-                    phonemes.add(new MBROLAPhoneme("N", 30, null, null));
-                    phonemes.add(p2);
+                    phones.add(p1);
+                    phones.add(new MBROLAPhoneme("N", 30, null, null));
+                    phones.add(p2);
                     solved = true;
                 }                    
             } else {
@@ -321,15 +321,15 @@ public class MbrolaVoice extends Voice
                 else if (s2.equals("o~")) s2a = "o:";
                 if (s2a != null && hasDiphone(s1 + "-" + s2a)) {
                     p2.setSymbol(s2a);
-                    phonemes.add(p1);
-                    phonemes.add(p2);
+                    phones.add(p1);
+                    phones.add(p2);
                     solved = true;
                 } else if (s1a != null && s2a != null &&
                            hasDiphone(s1a + "-" + s2a)) {
                     p1.setSymbol(s1a);
                     p2.setSymbol(s2a);
-                    phonemes.add(p1);
-                    phonemes.add(p2);
+                    phones.add(p1);
+                    phones.add(p2);
                     solved = true;
                 }
             }
@@ -337,60 +337,60 @@ public class MbrolaVoice extends Voice
         // replace first a: with a?
         if (!solved && s1.equals("a:") && hasDiphone("a-" + s2)) {
             p1.setSymbol("a");
-            phonemes.add(p1);
-            phonemes.add(p2);
+            phones.add(p1);
+            phones.add(p2);
             solved = true;
         }
         // replace second a: with a?
         if (!solved && s2.equals("a:") && hasDiphone(s1 + "-a")) {
             p2.setSymbol("a");
-            phonemes.add(p1);
-            phonemes.add(p2);
+            phones.add(p1);
+            phones.add(p2);
             solved = true;
         }
         // replace first j with i:?
         if (!solved && s1.equals("j") && hasDiphone("i:-" + s2)) {
             p1.setSymbol("i:");
-            phonemes.add(p1);
-            phonemes.add(p2);
+            phones.add(p1);
+            phones.add(p2);
             solved = true;
         }
         // replace second j with i:?
         if (!solved && s2.equals("j") && hasDiphone(s1 + "-i:")) {
             p2.setSymbol("i:");
-            phonemes.add(p1);
-            phonemes.add(p2);
+            phones.add(p1);
+            phones.add(p2);
             solved = true;
         }
         // insert g before N?
         if (!solved && s2.equals("N") &&
             hasDiphone(s1 + "-g") && hasDiphone("g-N")) {
-            phonemes.add(p1);
-            phonemes.add(new MBROLAPhoneme("g", 10, null, null));
-            phonemes.add(p2);
+            phones.add(p1);
+            phones.add(new MBROLAPhoneme("g", 10, null, null));
+            phones.add(p2);
             solved = true;
         }
         // insert 6 after 9 or after O?
         if (!solved && (s1.equals("9") || s1.equals("O")) &&
             hasDiphone(s1 + "-6") && hasDiphone("6-" + s2)) {
-            phonemes.add(p1);
-            phonemes.add(new MBROLAPhoneme("6", 10, null, null));
-            phonemes.add(p2);
+            phones.add(p1);
+            phones.add(new MBROLAPhoneme("6", 10, null, null));
+            phones.add(p2);
             solved = true;
         }
         // insert @?
         if (!solved && hasDiphone(s1 + "-@") && hasDiphone("@-" + s2)) {
-            phonemes.add(p1);
-            phonemes.add(new MBROLAPhoneme("@", 10, null, null));
-            phonemes.add(p2);
+            phones.add(p1);
+            phones.add(new MBROLAPhoneme("@", 10, null, null));
+            phones.add(p2);
             solved = true;
         }
         // No remedy... :-(
         if (!solved) {
-            phonemes.add(p1);
-            phonemes.add(p2);
+            phones.add(p1);
+            phones.add(p2);
         }
-        return phonemes;
+        return phones;
     }
     
 }

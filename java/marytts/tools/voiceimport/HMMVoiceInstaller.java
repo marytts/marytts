@@ -478,7 +478,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
                   configOut.println("# Only set the lexicon for English\n"+
                           voiceHeader+".lexiconClass = com.sun.speech.freetts.en.us.CMULexicon\n"+
                           voiceHeader+".lexicon = cmudict04\n\n"+
-                          "# Phoneme conversion for English voices \n"+
+                          "# Phone conversion for English voices \n"+
                           voiceHeader+".sampamapfile = MARY_BASE/lib/modules/en/synthesis/sampa2mrpa_en.map\n");                                            
               } else {
                   //cutLocale.equals("de")

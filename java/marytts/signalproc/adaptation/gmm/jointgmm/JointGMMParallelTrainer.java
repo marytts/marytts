@@ -105,7 +105,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         //
         
         //Get codebook entries in suitable format for GMM training and train joint GMMs
-        if (cgParams==null || cgParams.phonemeClasses==null) //No context
+        if (cgParams==null || cgParams.phoneClasses==null) //No context
         {
             JointGMMSet gmmSet = null;
             GMM gmm = null;
@@ -153,10 +153,10 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
             if (gmmSet!=null)
                 gmmSet.write(jgParams.jointGMMFile);
         }
-        else //Train contextual GMMs - a separate GMM will be trained for each phoneme class, all GMMs will be written to the same GMM file
+        else //Train contextual GMMs - a separate GMM will be trained for each phone class, all GMMs will be written to the same GMM file
         {
             double[][] xy = null;
-            int[] totals = new int[cgParams.phonemeClasses.length+1];
+            int[] totals = new int[cgParams.phoneClasses.length+1];
             int[] classIndices = new int[codebook.entries.length];
             Arrays.fill(totals, 0);
             int i, n;
@@ -220,10 +220,10 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
                     if (n<totals.length-1)
                     {
                         gmm.info = "";
-                        for (i=0; i<cgParams.phonemeClasses[n].length-1; i++)
-                            gmm.info += cgParams.phonemeClasses[n][i] + " ";
+                        for (i=0; i<cgParams.phoneClasses[n].length-1; i++)
+                            gmm.info += cgParams.phoneClasses[n][i] + " ";
                         
-                        gmm.info += cgParams.phonemeClasses[n][cgParams.phonemeClasses[n].length-1];
+                        gmm.info += cgParams.phoneClasses[n][cgParams.phoneClasses[n].length-1];
                     }
                     else
                         gmm.info = "other";
@@ -340,8 +340,8 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
                 gmmParams[i] = new GMMTrainerParams(gp.gmmEMTrainerParams);
                 gmmParams[i].totalComponents = numComponents[i];
             }
-            String phonemeSetFile = "D:/Mary TTS New/lib/modules/de/cap/phoneme-list-de.xml";
-            cg = getContextualGMMParams(phonemeSetFile, gmmParams, contextClassificationType);
+            String phoneSetFile = "D:/Mary TTS New/lib/modules/de/cap/phone-list-de.xml";
+            cg = getContextualGMMParams(phoneSetFile, gmmParams, contextClassificationType);
         }
         
         String baseFile = StringUtils.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag;
@@ -513,8 +513,8 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
                 gmmParams[i] = new GMMTrainerParams(gp.gmmEMTrainerParams);
                 gmmParams[i].totalComponents = numComponents[i];
             }
-            String phonemeSetFile = "D:/Mary TTS New/lib/modules/de/cap/phoneme-list-de.xml";
-            cg = getContextualGMMParams(phonemeSetFile, gmmParams, contextClassificationType);
+            String phoneSetFile = "D:/Mary TTS New/lib/modules/de/cap/phone-list-de.xml";
+            cg = getContextualGMMParams(phoneSetFile, gmmParams, contextClassificationType);
         }
         
         String baseFile = StringUtils.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag;
@@ -686,8 +686,8 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
                 gmmParams[i] = new GMMTrainerParams(gp.gmmEMTrainerParams);
                 gmmParams[i].totalComponents = numComponents[i];
             }
-            String phonemeSetFile = "D:/Mary TTS New/lib/modules/de/cap/phoneme-list-de.xml";
-            cg = getContextualGMMParams(phonemeSetFile, gmmParams, contextClassificationType);
+            String phoneSetFile = "D:/Mary TTS New/lib/modules/de/cap/phone-list-de.xml";
+            cg = getContextualGMMParams(phoneSetFile, gmmParams, contextClassificationType);
         }
         
         String baseFile = StringUtils.checkLastSlash(pa.trainingBaseFolder) + pa.codebookHeader.sourceTag + "_X_" + pa.codebookHeader.targetTag;
@@ -785,14 +785,14 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         t.run();
     }
     
-    public static ContextualGMMParams getContextualGMMParams(String phonemeSetFile, GMMTrainerParams[] params, int contextClassificationType)
+    public static ContextualGMMParams getContextualGMMParams(String phoneSetFile, GMMTrainerParams[] params, int contextClassificationType)
     {
         ContextualGMMParams cg = null;
         AllophoneSet allophoneSet = null;
         
         try {
             try {
-                allophoneSet = AllophoneSet.getAllophoneSet(phonemeSetFile);
+                allophoneSet = AllophoneSet.getAllophoneSet(phoneSetFile);
             } catch (NoSuchPropertyException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

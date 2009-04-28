@@ -40,7 +40,7 @@ import org.w3c.dom.Element;
 
 
 /**
- * Read a simple phoneme string and generate default acoustic parameters.
+ * Read a simple phone string and generate default acoustic parameters.
  *
  * @author Marc Schr&ouml;der
  */
@@ -77,7 +77,7 @@ public class SimplePhoneme2AP extends InternalModule
     public MaryData process(MaryData d)
     throws Exception
     {
-        String phonemeString = d.getPlainText();
+        String phoneString = d.getPlainText();
         MaryData result = new MaryData(outputType(), d.getLocale(), true);
         Document doc = result.getDocument();
         Element root = doc.getDocumentElement();
@@ -92,7 +92,7 @@ public class SimplePhoneme2AP extends InternalModule
         }
         int cumulDur = 0;
         boolean isFirst = true;
-        StringTokenizer stTokens = new StringTokenizer(phonemeString);
+        StringTokenizer stTokens = new StringTokenizer(phoneString);
         while (stTokens.hasMoreTokens()) {
             Element token = MaryXML.createElement(doc, MaryXML.TOKEN);
             insertHere.appendChild(token);
@@ -112,12 +112,12 @@ public class SimplePhoneme2AP extends InternalModule
                     syllable.setAttribute("accent", "*");
                     token.setAttribute("accent", "*");
                 }
-                Allophone[] phonemes = allophoneSet.splitIntoAllophones(syllablePhonemes);
-                for (int i=0; i<phonemes.length; i++) {
+                Allophone[] phones = allophoneSet.splitIntoAllophones(syllablePhonemes);
+                for (int i=0; i<phones.length; i++) {
                     Element ph = MaryXML.createElement(doc, MaryXML.PHONE);
-                    ph.setAttribute("p", phonemes[i].name());
+                    ph.setAttribute("p", phones[i].name());
                     int dur = 70;
-                    if (phonemes[i].isVowel()) {
+                    if (phones[i].isVowel()) {
                         dur = 100;
                         if (stress == 1) dur *= 1.5;
                         else if (stress == 2) dur *= 1.2;
@@ -130,7 +130,7 @@ public class SimplePhoneme2AP extends InternalModule
                         if (isFirst) {
                             isFirst = false;
                             ph.setAttribute("f0", "(0," + ((MbrolaVoice)defaultVoice).topStart() + ")");
-                        } else if (i == phonemes.length - 1 &&
+                        } else if (i == phones.length - 1 &&
                                    !stTokens.hasMoreTokens() &&
                                    !stSyllables.hasMoreTokens()) {
                             ph.setAttribute("f0", "(100," + ((MbrolaVoice)defaultVoice).baseEnd() + ")");

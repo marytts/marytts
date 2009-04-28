@@ -67,7 +67,7 @@ import marytts.client.MaryClient;
  *   <li>  TOKENISED_DE     tokenized text </li>
  *   <li>  PREPROCESSED_DE  numbers and abbreviations expanded </li>
  *   <li>  CHUNKED_DE       parts of speech and chunk tags added </li>
- *   <li>  PHONEMISED_DE    phoneme symbols </li>
+ *   <li>  PHONEMISED_DE    phone symbols </li>
  *   <li>  INTONISED_DE     GToBI intonation symbols </li>
  *   <li>  POSTPROCESSED_DE post-lexical phonological rules </li>
  *   <li>  ACOUSTPARAMS  acoustic parameters in MaryXML structure </li>

@@ -343,7 +343,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         }
         feaList.close();
          
-        // Get possible values of phonological features, and initialise a set of phonemes
+        // Get possible values of phonological features, and initialise a set of phones
         // that have that value (new HashSet<String>)
         // mary_vc
         String val_vc[]      = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vc"));
@@ -394,26 +394,26 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           mary_cvox.put(val_cvox[i], new HashSet<String>());  
         
         AllophoneSet allophoneSet;
-        String phonemeXML = "/project/mary/marcela/openmary/lib/modules/en/us/lexicon/allophones.en_US.xml";
-        allophoneSet = AllophoneSet.getAllophoneSet(phonemeXML);
+        String phoneXML = "/project/mary/marcela/openmary/lib/modules/en/us/lexicon/allophones.en_US.xml";
+        allophoneSet = AllophoneSet.getAllophoneSet(phoneXML);
         
         
         String phoneSeq;         
         Set<String> phonesList = allophoneSet.getAllophoneNames();
-        // Left-righ phoneme ID context questions
+        // Left-righ phone ID context questions
         Iterator<String> it = phonesList.iterator();
         while(it.hasNext()){
             phon = it.next();
             out.write(""); 
-            out.write("QS \"prev_prev_phoneme=" + phon + "\"\t{"   + phon + "^*}\n");
-            out.write("QS \"prev_phoneme=" + phon    + "\"\t\t{*^" + phon + "-*}\n");
-            out.write("QS \"phoneme=" + phon       + "\"\t\t\t{*-" + phon + "+*}\n");
-            out.write("QS \"next_phoneme=" + phon    + "\"\t\t{*+" + phon + "=*}\n");
-            out.write("QS \"next_next_phoneme=" + phon + "\"\t{*=" + phon + "||*}\n");
+            out.write("QS \"prev_prev_phone=" + phon + "\"\t{"   + phon + "^*}\n");
+            out.write("QS \"prev_phone=" + phon    + "\"\t\t{*^" + phon + "-*}\n");
+            out.write("QS \"phone=" + phon       + "\"\t\t\t{*-" + phon + "+*}\n");
+            out.write("QS \"next_phone=" + phon    + "\"\t\t{*+" + phon + "=*}\n");
+            out.write("QS \"next_next_phone=" + phon + "\"\t{*=" + phon + "||*}\n");
             out.write("\n");
             
-            // Get the phonological value of each phoneme, and add it to the corresponding
-            // set of phonemes that have that value.
+            // Get the phonological value of each phone, and add it to the corresponding
+            // set of phones that have that value.
             //System.out.println(phon + " vc = " + allophoneSet.getPhoneFeature(phon, "vc"));
             mary_vc.get(allophoneSet.getPhoneFeature(phon, "vc")).add(PhoneTranslator.replaceTrickyPhones(phon));
             

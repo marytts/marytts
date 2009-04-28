@@ -105,8 +105,8 @@ public class ContourGenerator extends InternalModule {
          assert synthesis != null;
          if (synthesis.getState() == MaryModule.MODULE_OFFLINE)
              synthesis.startup();
-        // load phoneme list
-        allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename("tibetan.cap.phonemelistfile"));
+        // load phone list
+        allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename("tibetan.cap.phonelistfile"));
         // load tone rules
         toneMap = new HashMap();
         loadToneRules();

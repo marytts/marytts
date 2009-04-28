@@ -202,7 +202,7 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
         List<String> featuresToUse = new ArrayList<String>();
         for (int i=0, numByteFeatures = featureDefinition.getNumberOfByteFeatures(); i<numByteFeatures; i++) {
             String f = featureDefinition.getFeatureName(i);
-            if (!f.contains("phoneme") && !f.contains("halfphone") &&
+            if (!f.contains("phone") && !f.contains("halfphone") &&
                     !f.contains("vc") && !f.contains("ctype")
                     && !f.contains("cvox") && !f.contains("edge")
                     && !f.contains("vfront") && !f.contains("vlng")

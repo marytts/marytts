@@ -69,7 +69,7 @@ public class HTSUttModel {
   private int totalFrame;           /* # of frames for current utterance       */
   private int lf0Frame;             /* # of frames that are voiced or non-zero */
   private Vector<HTSModel> modelList;  /* This will be a list of Model objects for current utterance */
-  private String realisedAcoustParams;  /* list of phonemes and actual realised durations for each one */
+  private String realisedAcoustParams;  /* list of phones and actual realised durations for each one */
   
   public HTSUttModel() {
 	numModel = 0;

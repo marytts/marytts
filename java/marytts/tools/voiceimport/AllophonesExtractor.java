@@ -45,7 +45,7 @@ import marytts.util.io.FileUtils;
 public class AllophonesExtractor extends VoiceImportComponent
 {
     protected File textDir;
-    protected File unitfeatureDir;
+    protected File promptAllophonesDir;
     protected String featsExt = ".xml";
     protected String locale;
     protected MaryHttpClient mary;
@@ -55,13 +55,11 @@ public class AllophonesExtractor extends VoiceImportComponent
     protected DatabaseLayout db = null;
     protected int percent = 0;
     
-    public String ALLOPHONES = "AllophonesExtractor.promptallophonesDir";
-    public String MARYSERVERHOST = "AllophonesExtractor.maryServerHost";
-    public String MARYSERVERPORT = "AllophonesExtractor.maryServerPort";
        
    
     
-   public String getName(){
+   public String getName()
+   {
         return "AllophonesExtractor";
     }
      
@@ -69,16 +67,14 @@ public class AllophonesExtractor extends VoiceImportComponent
     {      
         locale = db.getProp(db.LOCALE);   
         mary = null; // initialised only if needed   
-        unitfeatureDir = new File(getProp(ALLOPHONES));
-        if (!unitfeatureDir.exists()){
-            System.out.print(ALLOPHONES+" "+getProp(ALLOPHONES)
-                    +" does not exist; ");
-            if (!unitfeatureDir.mkdir()){
+        promptAllophonesDir = new File(db.getProp(db.PROMPTALLOPHONESDIR));
+        if (!promptAllophonesDir.exists()){
+            System.out.println("Allophones directory does not exist; ");
+            if (!promptAllophonesDir.mkdir()){
                 throw new Error("Could not create ALLOPHONES");
             }
-            System.out.print("Created successfully.\n");
-        }    
-        
+            System.out.println("Created successfully.\n");
+        }
         maryInputType = "RAWMARYXML";
         maryOutputType = "ALLOPHONES";
     }
@@ -88,11 +84,6 @@ public class AllophonesExtractor extends VoiceImportComponent
          this.db = theDb;
          if (props == null) {
              props = new TreeMap<String, String>();
-             props.put(ALLOPHONES, db.getProp(db.ROOTDIR)
-                     +"prompt_allophones"
-                     +System.getProperty("file.separator"));
-             props.put(MARYSERVERHOST,"localhost");
-             props.put(MARYSERVERPORT,"59125");
          } 
          return props;
      }
@@ -100,21 +91,19 @@ public class AllophonesExtractor extends VoiceImportComponent
      protected void setupHelp()
      {
          props2Help = new TreeMap<String, String>();
-         props2Help.put(ALLOPHONES, "directory to store allophonesXML files." 
-                 +"Will be created if it does not exist");
-         props2Help.put(MARYSERVERHOST,"the host were the Mary server is running, default: \"localhost\"");
-         props2Help.put(MARYSERVERPORT,"the port were the Mary server is listening, default: \"59125\"");
      }
      
      public MaryHttpClient getMaryClient() throws IOException
      {
         if (mary == null) {
-            try{
-                Address server = new Address(getProp(MARYSERVERHOST), Integer.parseInt(getProp(MARYSERVERPORT)));
+            try {
+                Address server = new Address(db.getProp(db.MARYSERVERHOST), Integer.parseInt(db.getProp(db.MARYSERVERPORT)));
                 mary = new MaryHttpClient(server);
-            } catch (IOException e){
-                throw new IOException("Could not connect to Maryserver at "
-                        +getProp(MARYSERVERHOST)+" "+getProp(MARYSERVERPORT));
+            } catch (IOException e) {
+                IOException myIOE = new IOException("Could not connect to Maryserver at "
+                        +db.getProp(db.MARYSERVERHOST)+" "+db.getProp(db.MARYSERVERPORT));
+                myIOE.initCause(e);
+                throw myIOE;
             }
         }
         return mary;
@@ -123,18 +112,18 @@ public class AllophonesExtractor extends VoiceImportComponent
     public boolean compute() throws IOException
     {
         String inputDir = db.getProp(db.TEXTDIR);
-        textDir = new File(db.getProp(db.TEXTDIR));
-        System.out.println( "Computing IntonisedXML files for "+ bnl.getLength() + " files" );
+        textDir = new File(inputDir);
+        System.out.println( "Computing ALLOPHONES files for "+ bnl.getLength() + " files" );
         for (int i=0; i<bnl.getLength(); i++) {
             percent = 100*i/bnl.getLength();
-            computeFeaturesFor( bnl.getName(i), inputDir, unitfeatureDir.getAbsolutePath());
+            generateAllophonesFile( bnl.getName(i), inputDir, promptAllophonesDir.getAbsolutePath());
             System.out.println( "    " + bnl.getName(i) );
         }
         System.out.println("...Done.");
         return true;
     }
 
-    public void computeFeaturesFor(String basename, String inputDir, String outputDir)
+    public void generateAllophonesFile(String basename, String inputDir, String outputDir)
     throws IOException
     {
         String text;

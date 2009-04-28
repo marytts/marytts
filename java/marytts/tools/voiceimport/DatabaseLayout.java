@@ -38,6 +38,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import marytts.util.MaryUtils;
+
 /**
  * The DatabaseLayout class registers the base directory of a voice database,
  * as well as the various subdirectories where the various voice database
@@ -103,7 +105,19 @@ public class DatabaseLayout
     public final String MARYXMLDIR = "db.maryxmlDir";
     //maryxml extentsion
     public final String MARYXMLEXT = "db.maryxmlExtension";
-    
+    // Prompt allophones dir
+    public final String PROMPTALLOPHONESDIR = "db.promptAllophonesDir";
+    // Allophones aligned with labels
+    public final String ALLOPHONESDIR = "db.allophonesDir";
+    // Allophone set definition file
+    public final String ALLOPHONESET = "db.allophoneSet";
+    public String MARYSERVERHOST = "db.maryServerHost";
+    public String MARYSERVERPORT = "db.maryServerPort";
+    public String PHONELABDIR = "db.phoneLabDir";
+    public String PHONEFEATUREDIR = "db.phoneFeatureDir";
+    public String HALFPHONELABDIR = "db.halfphoneLabDir";
+    public String HALFPHONEFEATUREDIR = "db.halfphoneFeatureDir";
+
     public DatabaseLayout()
     throws Exception
     {
@@ -127,7 +141,8 @@ public class DatabaseLayout
         initialize(comps);        
     }
     
-    private void setupHelp(){
+    private void setupHelp()
+    {
         props2Help = new TreeMap<String, String>();
         props2Help.put(BASENAMEFILE,"file containing the list of files that are used to build the voice");
         props2Help.put(DOMAIN,"general or limited");
@@ -145,7 +160,16 @@ public class DatabaseLayout
         props2Help.put(TEXTEXT,"extension of the transcript files, default: \".txt\"");
         props2Help.put(VOICENAME,"the name of the voice, one word, for example: \"my_voice\"");
         props2Help.put(WAVDIR,"directory containing the wave files. If it does not exist, an Error is thrown.");
-        for (int i=0;i<components.length;i++){
+        props2Help.put(PROMPTALLOPHONESDIR, "directory containing the allophones files predicted by mary");
+        props2Help.put(ALLOPHONESDIR, "directory containing allophones files aligned with (possibly manually corrected) labels");
+        props2Help.put(MARYSERVERHOST, "hostname of the MARY TTS server running NLP components for this language");
+        props2Help.put(MARYSERVERPORT, "port of the MARY TTS server running NLP components for this language");
+        props2Help.put(PHONEFEATUREDIR, "directory containing the phone features.");
+        props2Help.put(PHONELABDIR, "directory containing the phone unit labels");
+        props2Help.put(HALFPHONEFEATUREDIR, "directory containing the half-phone features.");
+        props2Help.put(HALFPHONELABDIR, "directory containing the half-phone unit labels");
+
+        for (int i=0;i<components.length;i++) {
             components[i].setupHelp();
         }
     }
@@ -173,7 +197,7 @@ public class DatabaseLayout
         /* check if there is a config file */
         configFileName = System.getProperty("user.dir")+System.getProperty("file.separator")+"database.config";
         File configFile = new File(configFileName);
-        if (configFile.exists()){
+        if (configFile.exists()) {
             
             System.out.println("Reading config file "+configFileName);
             readConfigFile(configFile);  
@@ -183,7 +207,7 @@ public class DatabaseLayout
             //get the local default props from the components
             SortedMap<String,SortedMap<String,String>> defaultLocalProps = getDefaultPropsFromComps();
             //try to get all props and values from config file
-            if (!checkProps(defaultGlobalProps,defaultLocalProps)){
+            if (!checkProps(defaultGlobalProps, defaultLocalProps)) {
                 //some props are missing                
                 //prompt the user for the missing props
                 //(user input updates the props via the GUI)
@@ -222,7 +246,8 @@ public class DatabaseLayout
      * Get the names of the components
      * and store them in array
      */
-    private void getCompNames(){
+    private void getCompNames()
+    {
         compnames2comps = new HashMap<String, VoiceImportComponent>();
         compNames = new String[components.length];
         for (int i=0;i<components.length;i++){
@@ -235,31 +260,30 @@ public class DatabaseLayout
      * Read the props in the config file
      * @param configFile the config file
      */
-    private void readConfigFile(File configFile){
+    private void readConfigFile(File configFile)
+    throws IOException
+    {
         props = new TreeMap<String, String>();
         localProps = new TreeMap<String, SortedMap<String,String>>();
         try{
             //open the file
-            BufferedReader in =
-                new BufferedReader(
-                        new InputStreamReader(
-                                new FileInputStream(configFile),"UTF-8"));
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                                  new FileInputStream(configFile),"UTF-8"));
             String line;
-            while ((line=in.readLine())!= null){
-                if (line.startsWith("#")
-                        || line.equals(""))
+            while ((line=in.readLine())!= null) {
+                if (line.startsWith("#") || line.trim().equals(""))
                     continue;
                 //System.out.println(line);
                 //line looks like "<propName> <value>"
                 //<propname> looks like "<compName>.<prop>"
-                String[] lineSplit = line.split(" ",2);
-                if (lineSplit[0].startsWith("db.")){
+                String[] lineSplit = line.split(" ", 2);
+                if (lineSplit[0].startsWith("db.")) {
                    //global prop
                     props.put(lineSplit[0],lineSplit[1]);                    
                 } else {
                     //local prop
                     String compName = lineSplit[0].substring(0,lineSplit[0].indexOf('.'));
-                    if (localProps.containsKey(compName)){
+                    if (localProps.containsKey(compName)) {
                         SortedMap<String,String> localPropMap = localProps.get(compName);
                         localPropMap.put(lineSplit[0],lineSplit[1]);
                     } else {
@@ -273,20 +297,21 @@ public class DatabaseLayout
             //add the props that are not editable
             SortedMap<String,String> defaultGlobalProps = new TreeMap<String, String>();
             //get the default values for the global props
-            defaultGlobalProps = initDefaultProps(defaultGlobalProps,false);
-            for (Iterator<String> it=uneditableProps.iterator();it.hasNext();){
+            defaultGlobalProps = initDefaultProps(defaultGlobalProps, false);
+            for (Iterator<String> it=uneditableProps.iterator(); it.hasNext();) {
                 String key = it.next();
-                if (defaultGlobalProps.containsKey(key)){
+                if (defaultGlobalProps.containsKey(key)) {
                     props.put(key, defaultGlobalProps.get(key));
                 } else {
-                    //this case should never happen -> Error
-                    throw new Error("Not editable global prop "+key
+                    //this case should never happen
+                    throw new IllegalStateException("Uneditable global prop "+key
                             +" not defined in default props.");
                 }
             }
-        }catch (Exception e){
-            e.printStackTrace();
-            throw new Error("Error reading config file");
+        } catch (IOException e) {
+            IOException myIOE = new IOException("Error reading config file");
+            myIOE.initCause(e);
+            throw myIOE;
         }   
     }
     
@@ -466,19 +491,22 @@ public class DatabaseLayout
             marybase = "/path/to/marybase/";
         }
         basicprops.put(MARYBASE,marybase);
-        basicprops.put(MARYBASEVERSION, "3.6.0");
+        basicprops.put(MARYBASEVERSION, "4.0.0");
         basicprops.put(VOICENAME,"my_voice");
         basicprops.put(GENDER,"female");
         basicprops.put(DOMAIN,"general");
-        basicprops.put(LOCALE,"de");
+        basicprops.put(LOCALE,"en_US");
         basicprops.put(SAMPLINGRATE,"16000");
         String rootDir = new File(".").getAbsolutePath();
         basicprops.put(ROOTDIR,rootDir.substring(0,rootDir.length()-1));
-        basicprops.put(WAVDIR,"wav/");
-        basicprops.put(LABDIR,"lab/");
+        basicprops.put(WAVDIR, rootDir+"wav"+fileSeparator);
+        basicprops.put(LABDIR, rootDir+"lab"+fileSeparator);
         basicprops.put(LABEXT,".lab");        
-        basicprops.put(TEXTDIR,"text/");
+        basicprops.put(TEXTDIR, rootDir+"text"+fileSeparator);
         basicprops.put(TEXTEXT,".txt");
+        basicprops.put(MARYSERVERHOST, "localhost");
+        basicprops.put(MARYSERVERPORT, "59125");
+        
         
         StringBuffer helpText = new StringBuffer();
         helpText.append("<html>\n<head>\n<title>SETTINGS HELP</title>\n"
@@ -507,40 +535,60 @@ public class DatabaseLayout
      * @param someProps the map of props to be filled
      * @return the map of default props
      */
-    private SortedMap<String,String> initDefaultProps(SortedMap<String,String> someProps,boolean withBasicProps){
-        if (withBasicProps){
+    private SortedMap<String,String> initDefaultProps(SortedMap<String,String> someProps,boolean withBasicProps)
+    {
+        if (withBasicProps) {
             String marybase = System.getProperty("MARYBASE");
             if ( marybase == null ) {
                 marybase = "/path/to/marybase/";
             }
-            someProps.put(MARYBASE,marybase);
-            someProps.put(VOICENAME,"my_voice");
-            someProps.put(GENDER,"female");
-            someProps.put(DOMAIN,"general");
-            someProps.put(LOCALE,"de");
-            someProps.put(SAMPLINGRATE,"16000");
+            someProps.put(MARYBASE, marybase);
+            someProps.put(VOICENAME, "my_voice");
+            someProps.put(GENDER, "female");
+            someProps.put(DOMAIN, "general");
+            someProps.put(LOCALE, "en_US");
+            someProps.put(SAMPLINGRATE, "16000");
             String rootDir = new File(".").getAbsolutePath();
-            someProps.put(ROOTDIR,rootDir.substring(0,rootDir.length()-1));
-            someProps.put(WAVDIR,"wav/");
-            someProps.put(LABDIR,"lab/");
+            someProps.put(ROOTDIR, rootDir.substring(0,rootDir.length()-1));
+            someProps.put(WAVDIR, rootDir+"wav"+fileSeparator);
+            someProps.put(LABDIR, rootDir+"lab"+fileSeparator);
             someProps.put(LABEXT,".lab");        
-            someProps.put(TEXTDIR,"text/");
+            someProps.put(TEXTDIR, rootDir+"text"+fileSeparator);
             someProps.put(TEXTEXT,".txt");
+            someProps.put(MARYSERVERHOST, "localhost");
+            someProps.put(MARYSERVERPORT, "59125");
         }        
         String rootDir = getProp(ROOTDIR);
         char lastChar = rootDir.charAt(rootDir.length()-1);
-        if (Character.isLetterOrDigit(lastChar)){
-            someProps.put(ROOTDIR,rootDir+fileSeparator);
+        if (Character.isLetterOrDigit(lastChar)) {
+            rootDir = rootDir+fileSeparator;
+            someProps.put(ROOTDIR, rootDir);
         }
         
-        someProps.put(CONFIGDIR,rootDir+"mary"+fileSeparator);
-        someProps.put(FILEDIR,rootDir+"mary"+fileSeparator);
-        someProps.put(MARYEXT,".mry");
-        someProps.put(BASENAMEFILE,rootDir+"basenames.lst");        
-        someProps.put(TEMPDIR,rootDir+"temp"+fileSeparator);
-        someProps.put(MARYXMLDIR,rootDir+"rawmaryxml"+fileSeparator);
-        someProps.put(MARYXMLEXT,".xml"); 
-        someProps.put(WAVEXT,".wav");
+        someProps.put(CONFIGDIR, rootDir+"mary"+fileSeparator);
+        someProps.put(FILEDIR, rootDir+"mary"+fileSeparator);
+        someProps.put(MARYEXT, ".mry");
+        someProps.put(BASENAMEFILE, rootDir+"basenames.lst");        
+        someProps.put(TEMPDIR, rootDir+"temp"+fileSeparator);
+        someProps.put(MARYXMLDIR, rootDir+"rawmaryxml"+fileSeparator);
+        someProps.put(MARYXMLEXT, ".xml"); 
+        someProps.put(PROMPTALLOPHONESDIR, rootDir+"prompt_allophones"+fileSeparator);
+        someProps.put(ALLOPHONESDIR, rootDir+"allophones"+fileSeparator);
+        // generate file location of allophone definition file from locale as:
+        // MARYBASE/lib/modules/en/us/lexicon/allophones.en_US.xml
+        // First normalise locale string (e.g., convert en-US to en_US)
+        String locale = MaryUtils.string2locale(getProp(LOCALE)).toString();
+        String[] localeParts = locale.split("_");
+        String allophoneSetXml = getProp(MARYBASE)+"/lib/modules/"
+            + localeParts[0].toLowerCase()
+            + ((localeParts.length > 1) ? "/"+localeParts[1].toLowerCase() : "")
+            + "/lexicon/allophones."+locale+".xml";
+        someProps.put(ALLOPHONESET, allophoneSetXml);
+        someProps.put(WAVEXT, ".wav");
+        someProps.put(PHONELABDIR, rootDir+"phonelab"+fileSeparator);
+        someProps.put(PHONEFEATUREDIR, rootDir+"phonefeatures"+fileSeparator);
+        someProps.put(HALFPHONELABDIR, rootDir+"halfphonelab"+fileSeparator);
+        someProps.put(HALFPHONEFEATUREDIR, rootDir+"halfphonefeatures"+fileSeparator);
         return someProps;
     }
     
@@ -550,7 +598,8 @@ public class DatabaseLayout
      * Get the default props+values from the components
      * @return the default props of the components
      */
-    private SortedMap<String,SortedMap<String,String>> getDefaultPropsFromComps(){
+    private SortedMap<String,SortedMap<String,String>> getDefaultPropsFromComps()
+    {
         SortedMap<String,SortedMap<String,String>> myLocalProps = new TreeMap<String, SortedMap<String,String>>();
         for (int i=0;i<components.length;i++){
             VoiceImportComponent nextComp = components[i];
@@ -566,7 +615,8 @@ public class DatabaseLayout
      * Make sure that we have all files and dirs
      * that we will need
      */
-    private void assureFileIntegrity(){
+    private void assureFileIntegrity()
+    {
         /* check root dir */
         checkDir(ROOTDIR);
         /* check file dir */
@@ -577,6 +627,10 @@ public class DatabaseLayout
         checkDir(TEMPDIR);
         /* check maryxml dir */
         checkDir(MARYXMLDIR);
+        
+        checkDir(PROMPTALLOPHONESDIR);
+        checkDir(ALLOPHONESDIR);
+        
         /* check text dir */  
         //checkDir(TEXTDIR);
         checkDirinCurrentDir(TEXTDIR);
@@ -603,9 +657,10 @@ public class DatabaseLayout
      * can not be created
      * @param propname the prop containing the name of the dir
      */
-    private void checkDir(String propname){
+    private void checkDir(String propname)
+    {
         File dir = new File(getProp(propname));
-        if (!dir.exists()){
+        if (!dir.exists()) {
             System.out.print(propname+" "+getProp(propname)
                     +" does not exist; ");
             if (!dir.mkdir()){
@@ -613,7 +668,7 @@ public class DatabaseLayout
             }
             System.out.print("Created successfully.\n");
         }  
-        if (!dir.isDirectory()){
+        if (!dir.isDirectory()) {
             throw new Error(propname+" "+getProp(propname)+" is not a directory!");
         }        
     }
@@ -625,17 +680,18 @@ public class DatabaseLayout
      * can not be created
      * @param propname the prop containing the name of the dir
      */
-    private void checkDirinCurrentDir(String propname){
+    private void checkDirinCurrentDir(String propname)
+    {
         File dir = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+getProp(propname));
-        if (!dir.exists()){
+        if (!dir.exists()) {
             System.out.print(propname+" "+getProp(propname)
                     +" does not exist; ");
-            if (!dir.mkdir()){
+            if (!dir.mkdir()) {
                 throw new Error("Could not create "+propname);
             }
             System.out.print("Created successfully.\n");
         }  
-        if (!dir.isDirectory()){
+        if (!dir.isDirectory()) {
             throw new Error(propname+" "+getProp(propname)+" is not a directory!");
         }        
     }
@@ -643,20 +699,21 @@ public class DatabaseLayout
     /**
      * Load the basenamelist
      */
-    private void loadBasenameList(){
+    private void loadBasenameList()
+    {
         //test if basenamelist file exists
         File basenameFile = new File(getProp(BASENAMEFILE));
-        if (!basenameFile.exists()){
+        if (!basenameFile.exists()) {
             //make basename list from wav files 
             System.out.println("Loading basename list from wav files");
             bnl = new BasenameList(System.getProperty("user.dir")+System.getProperty("file.separator")+getProp(WAVDIR),getProp(WAVEXT));
         } else {
             //load basename list from file
-            try{
+            try {
                 System.out.println("Loading basename list from file "
                         +getProp(BASENAMEFILE));
                 bnl = new BasenameList(getProp(BASENAMEFILE));
-            }catch (IOException ioe){
+            } catch (IOException ioe) {
                 throw new Error("Error loading basenames from file "
                         +getProp(BASENAMEFILE)+": "+ioe.getMessage());            
             }
@@ -670,25 +727,29 @@ public class DatabaseLayout
     private void initializeComps()
     throws Exception
     {
-        for (int i=0;i<components.length;i++){
+        for (int i=0; i<components.length; i++) {
             SortedMap<String,String> nextProps = localProps.get(compNames[i]);
             components[i].initialise(bnl,nextProps);
         }
     }
     
-    public String getProp(String prop){
-        return (String)props.get(prop);
+    public String getProp(String prop)
+    {
+        return props.get(prop);
     }
     
-    public void setProp(String prop, String val){
+    public void setProp(String prop, String val)
+    {
         props.put(prop,val);
     }
     
-    public boolean isEditable(String propname){
+    public boolean isEditable(String propname)
+    {
         return !uneditableProps.contains(propname);
     }
     
-    public boolean isInitialized(){
+    public boolean isInitialized()
+    {
         return initialized;
     }
     
@@ -698,17 +759,18 @@ public class DatabaseLayout
      * for displaying with the SettingsGUI.
      * Does not include uneditable props.
      */
-    public String[][] getAllPropsForDisplay(){
+    public String[][] getAllPropsForDisplay()
+    {
         List<String> keys = new ArrayList<String>();
         List<String> values = new ArrayList<String>();
-        for (Iterator<String> it = props.keySet().iterator();it.hasNext();){
+        for (Iterator<String> it = props.keySet().iterator();it.hasNext();) {
             String key = it.next();
             if (isEditable(key)){
                 keys.add(key);
                 values.add(props.get(key));
             }
         }
-        for (int i=0;i<compNames.length;i++){
+        for (int i=0;i<compNames.length;i++) {
             SortedMap<String,String> nextProps = localProps.get(compNames[i]);
             for (Iterator<String> it = nextProps.keySet().iterator();it.hasNext();){
                 String key = (String) it.next();
@@ -717,7 +779,7 @@ public class DatabaseLayout
             }
         }
         String[][] result = new String[keys.size()][];
-        for (int i=0;i<result.length;i++){
+        for (int i=0;i<result.length;i++) {
             String[] keyAndValue = new String[2];
             keyAndValue[0]=(String)keys.get(i);
             keyAndValue[1]=(String)values.get(i);
@@ -730,13 +792,14 @@ public class DatabaseLayout
      * Update the old props with the given props
      * @param newprops the new props 
      */
-    public void updateProps(String[][] newprops){
-        for (int i=0;i<newprops.length;i++){
+    public void updateProps(String[][] newprops)
+    {
+        for (int i=0;i<newprops.length;i++) {
             String[] keyAndValue = newprops[i];
             String key = keyAndValue[0];
             String value = keyAndValue[1];
             //find out if this is a global or a local prop
-            if (key.startsWith("db.")){
+            if (key.startsWith("db.")) {
                 //global prop
                 if (isEditable(key))
                     setProp(key,value);
@@ -745,7 +808,7 @@ public class DatabaseLayout
                 String compName = key.substring(0,key.indexOf('.'));
                 
                 //update our representation of local props for this component
-                if (localProps.containsKey(compName)){
+                if (localProps.containsKey(compName)) {
                     localProps.get(compName).put(key,value);
                 } else {
                     SortedMap<String,String> keys2values = new TreeMap<String, String>();
@@ -754,12 +817,11 @@ public class DatabaseLayout
                     
                 }
                 //update the representation of props in the component
-                ((VoiceImportComponent) 
-                        compnames2comps.get(compName)).setProp(key,value);
+                compnames2comps.get(compName).setProp(key,value);
             }           
         }       
         //finally, save everything in config file
-        if (initialized){
+        if (initialized) {
             saveProps(new File(configFileName));
         }
     }
@@ -769,7 +831,7 @@ public class DatabaseLayout
     {
         String name = vic.getName();
         SortedMap<String,String> defaultProps = vic.getDefaultProps(this);
-        if (!compnames2comps.containsKey(name)){
+        if (!compnames2comps.containsKey(name)) {
             System.out.println("comp "+name+" not in db");
             vic.setupHelp();
             if (!displayProps(defaultProps,vic.getHelpText(),"The following properties are missing:"))
@@ -779,33 +841,34 @@ public class DatabaseLayout
         vic.initialise(bnl, localProps.get(name));
      }
     
-    public BasenameList getBasenames(){
+    public BasenameList getBasenames()
+    {
         return bnl;
     }
     
-    public String[] getCompNamesForDisplay(){
+    public String[] getCompNamesForDisplay()
+    {
         String[] names = new String[compNames.length+1];
         names[0] = "Global properties";
         String[] sortedCompNames = new String[compNames.length];
         System.arraycopy(compNames,0,sortedCompNames,0,compNames.length);
         Arrays.sort(sortedCompNames);
-        for (int i=1;i<names.length;i++){
+        for (int i=1;i<names.length;i++) {
              names[i] = sortedCompNames[i-1];
         }
         return names;
     }
     
     private boolean displayProps(SortedMap/*<String,String-or-SortedMap<String,String>>*/ someProps, String helpText, String guiText){
-        try{
+        try {
             SettingsGUI gui = 
                 new SettingsGUI(this, someProps,helpText,guiText);
             return gui.wasSaved();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Can not display props");
             return false;
         }
-        
     }
     
     public Map<String,String> getComps2HelpText()
@@ -815,7 +878,7 @@ public class DatabaseLayout
         helpText.append("<html>\n<head>\n<title>SETTINGS HELP</title>\n"
                 +"</head>\n<body>\n<dl>\n");
         
-        for (Iterator<String> it=props2Help.keySet().iterator();it.hasNext();){
+        for (Iterator<String> it=props2Help.keySet().iterator();it.hasNext();) {
             String key = it.next();
             String value = (String) props2Help.get(key);
             helpText.append("<dt><strong>"+key+"</strong></dt>\n"
@@ -824,7 +887,7 @@ public class DatabaseLayout
         
         helpText.append("</dl>\n</body>\n</html>");
         comps2HelpText.put("Global properties",helpText.toString());
-        for (int i=0;i<components.length;i++){
+        for (int i=0;i<components.length;i++) {
             comps2HelpText.put(compNames[i],components[i].getHelpText());
         }
         return comps2HelpText;

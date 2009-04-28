@@ -99,7 +99,7 @@ public class FreeTTSSegmenter extends InternalModule
     
     private void fillSampaMap() throws Exception
     {
-        // Any phoneme inventory mappings?
+        // Any phone inventory mappings?
         String sampamapFilename = MaryProperties.needFilename("english.freetts.lexicon.sampamapfile");
         if (sampamapFilename != null) {
             logger.debug("For FreeTTSSegmenter, filling sampa map from file "+sampamapFilename);
@@ -129,7 +129,7 @@ public class FreeTTSSegmenter extends InternalModule
         boolean s2v = false;
         boolean v2s = false;
         String[] parts = null;
-        // For one-to-many mappings, '+' can be used to group phoneme symbols.
+        // For one-to-many mappings, '+' can be used to group phone symbols.
         // E.g., the line "EI->E:+I" would map "EI" to "E:" and "I" 
         entry = entry.replace('+', ' ');
         if (entry.indexOf("<->") != -1) {
@@ -153,7 +153,7 @@ public class FreeTTSSegmenter extends InternalModule
 
     /** Converts a single phonetic symbol in MRPA representation
      * representation into its equivalent in MARY sampa representation.
-     * @return the converted phoneme, or the input string if no known conversion exists.
+     * @return the converted phone, or the input string if no known conversion exists.
      */
     public static String mrpa2sampa(String voicePhoneme)
     {

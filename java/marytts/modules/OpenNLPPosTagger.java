@@ -67,7 +67,7 @@ import org.w3c.dom.traversal.TreeWalker;
 
 
 /**
- * Predict phoneme durations using a CART.
+ * Predict phone durations using a CART.
  *
  * @author Marc Schr&ouml;der
  */

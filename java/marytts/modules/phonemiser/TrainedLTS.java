@@ -144,24 +144,24 @@ public class TrainedLTS {
     }
 
     /**
-     * Phoneme chain is syllabified. After that, no white spaces are
+     * Phone chain is syllabified. After that, no white spaces are
      * included, stress is on syllable of first stress bearing vowal,
      * or assigned rule-based if there is no stress predicted by the tree.
      * 
-     * @param phonemes input phoneme chain, unsyllabified, stress marking attached to vowals
-     * @return phoneme chain, with syllable sepeators "-" and stress symbols "'"
+     * @param phones input phone chain, unsyllabified, stress marking attached to vowals
+     * @return phone chain, with syllable sepeators "-" and stress symbols "'"
      */
-    public String syllabify(String phonemes){
+    public String syllabify(String phones){
         
         Syllabifier sfr = new Syllabifier(this.allophoneSet);
         
-        return sfr.syllabify(phonemes);
+        return sfr.syllabify(phones);
     }
     
     public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException {
 
-        //String  phFileLoc = "/home/sathish/Work/blizzard2008/lts/phoneme-list-en_gb.xml";
-        String  phFileLoc = "/Users/benjaminroth/Desktop/mary/english/phoneme-list-engba.xml";
+        //String  phFileLoc = "/home/sathish/Work/blizzard2008/lts/phone-list-en_gb.xml";
+        String  phFileLoc = "/Users/benjaminroth/Desktop/mary/english/phone-list-engba.xml";
         
         TrainedLTS lts = new TrainedLTS(AllophoneSet.getAllophoneSet(phFileLoc), "/Users/benjaminroth/Desktop/mary/english/cmudict.lts");
         
