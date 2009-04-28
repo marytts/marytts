@@ -882,16 +882,36 @@ public class FdpsolaAdapter {
                     if (mapper instanceof WeightedCodebookMapper)
                     {
                         if (!baseParams.isResynthesizeVocalTractFromSourceModel)
-                            interpolatedInputLpcs = LsfAnalyser.lsfInHz2lpc(((WeightedCodebookLsfMatch)match).entry.sourceItem.lsfs, fs);
+                        {
+                            if (!baseParams.lsfParams.isBarkScaled)
+                                interpolatedInputLpcs = LsfAnalyser.lsfInHz2lpc(((WeightedCodebookLsfMatch)match).entry.sourceItem.lsfs, fs);
+                            else
+                                interpolatedInputLpcs = LsfAnalyser.lsfInBark2lpc(((WeightedCodebookLsfMatch)match).entry.sourceItem.lsfs, fs);
+                        }
                         else
-                            interpolatedInputLpcs = LsfAnalyser.lsfInHz2lpc(((WeightedCodebookLsfMatch)match).entry.targetItem.lsfs, fs);
+                        {
+                            if (!baseParams.lsfParams.isBarkScaled)
+                                interpolatedInputLpcs = LsfAnalyser.lsfInHz2lpc(((WeightedCodebookLsfMatch)match).entry.targetItem.lsfs, fs);
+                            else
+                                interpolatedInputLpcs = LsfAnalyser.lsfInBark2lpc(((WeightedCodebookLsfMatch)match).entry.targetItem.lsfs, fs);
+                        }
                     }
                     else if (mapper instanceof JointGMMMapper)
                     {
                         if (!baseParams.isResynthesizeVocalTractFromSourceModel)
-                            interpolatedInputLpcs = LsfAnalyser.lsfInHz2lpc(((JointGMMMatch)match).mappedSourceFeatures, fs);
+                        {
+                            if (!baseParams.lsfParams.isBarkScaled)
+                                interpolatedInputLpcs = LsfAnalyser.lsfInHz2lpc(((JointGMMMatch)match).mappedSourceFeatures, fs);
+                            else
+                                interpolatedInputLpcs = LsfAnalyser.lsfInBark2lpc(((JointGMMMatch)match).mappedSourceFeatures, fs);
+                        }
                         else
-                            interpolatedInputLpcs = LsfAnalyser.lsfInHz2lpc(((JointGMMMatch)match).outputFeatures, fs);  
+                        {
+                            if (!baseParams.lsfParams.isBarkScaled)
+                                interpolatedInputLpcs = LsfAnalyser.lsfInHz2lpc(((JointGMMMatch)match).outputFeatures, fs);  
+                            else
+                                interpolatedInputLpcs = LsfAnalyser.lsfInBark2lpc(((JointGMMMatch)match).outputFeatures, fs); 
+                        }
                     }
                     else if (mapper instanceof TargetLsfCopyMapper)
                         interpolatedInputLpcs = ArrayUtils.copy(inputLpcs);
