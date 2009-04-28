@@ -72,6 +72,16 @@ public class LsfAnalyser
         return lsp;
     }
     
+    public static double[] lpc2lsfInBark(double[] oneMinusA, int samplingRate)
+    {
+        return SignalProcUtils.freq2bark(lpc2lsfInHz(oneMinusA, samplingRate));
+    }
+    
+    public static double[] lpc2lsfInBark(double[] oneMinusA, int samplingRate, int type)
+    {
+        return SignalProcUtils.freq2bark(lpc2lsfInHz(oneMinusA, samplingRate, type));
+    }
+    
     /**
      * Convert filter coefficients to lsp coefficients.
      * @param oneMinusA A(z) = a0 - sum { ai * z^-i } . a0 = 1.
