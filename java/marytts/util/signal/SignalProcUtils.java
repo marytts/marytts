@@ -751,6 +751,15 @@ public class SignalProcUtils {
             return 1000.0*Math.pow(10.0, (barkNew-8.7)/14.2);
     }
     
+    public static double[] bark2freq(double[] barks, int samplingRateInHz)
+    {
+        double[] freqsInHz = new double[barks.length];
+        for (int i=0; i<barks.length; i++)
+            freqsInHz[i] = bark2freq(barks[i], samplingRateInHz);
+        
+        return freqsInHz;
+    }
+    
     public static double bark2freq(double bark, int samplingRateInHz)
     {
         double midFreqInHz = 0.25*samplingRateInHz;

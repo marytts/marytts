@@ -356,7 +356,11 @@ public class LsfAnalyser
         }
         return lsf2lpc(normalised_lsf);
     }
-
+    
+    public static double[] lsfInBark2lpc(double[] lsfsInBark, int samplingRate)
+    {
+        return lsfInHz2lpc(SignalProcUtils.bark2freq(lsfsInBark, samplingRate), samplingRate);
+    }
 
     /**
      * Convert LSF frequencies into LPC coefficients.
@@ -456,8 +460,11 @@ public class LsfAnalyser
             System.arraycopy(x, i*ss, frm, 0, Math.min(ws, x.length-i*ss));
            
             lsfs[i] = nonPreemphasizedFrame2LsfsInHz(frm, params.dimension, params.samplingRate, params.windowType, params.preCoef);
+            
+            if (params.isBarkScaled)
+                lsfs[i] = SignalProcUtils.freq2bark(lsfs[i]);
         }
-       
+ 
         return lsfs;
     }
     

@@ -33,12 +33,14 @@ import marytts.util.io.MaryRandomAccessFile;
 public class LsfFileHeader extends FeatureFileHeader {
     public float preCoef; //Preemphasis coefficient
     public int windowType; //Type of analysis window (See class marytts.signalproc.window.Window for details
+    public boolean isBarkScaled; //Bark-scaled or not
     
     public LsfFileHeader()
     {
         super();
         preCoef = 0.0f;
         windowType = Window.HAMMING;
+        isBarkScaled = false;
     }
     
     public LsfFileHeader(LsfFileHeader existingHeader)
@@ -46,6 +48,7 @@ public class LsfFileHeader extends FeatureFileHeader {
         super(existingHeader);
         preCoef = existingHeader.preCoef;
         windowType = existingHeader.windowType;
+        isBarkScaled = existingHeader.isBarkScaled;
     }
     
     public LsfFileHeader(String lsfFile)
@@ -62,7 +65,6 @@ public class LsfFileHeader extends FeatureFileHeader {
     
     public boolean isIdenticalAnalysisParams(LsfFileHeader hdr)
     {
-
         boolean bRet = super.isIdenticalAnalysisParams(hdr);
        
         if (bRet==false)
@@ -71,6 +73,8 @@ public class LsfFileHeader extends FeatureFileHeader {
         if (this.preCoef!= hdr.preCoef)
             return false;
         if (this.windowType!= hdr.windowType)
+            return false;
+        if (this.isBarkScaled!= hdr.isBarkScaled)
             return false;
         
         return bRet;
@@ -84,6 +88,7 @@ public class LsfFileHeader extends FeatureFileHeader {
             
             preCoef = stream.readFloat();
             windowType = stream.readInt();
+            isBarkScaled = stream.readBoolean();
             
             if (!bLeaveStreamOpen)
             {
@@ -98,6 +103,7 @@ public class LsfFileHeader extends FeatureFileHeader {
         super.writeHeader(ler);
         ler.writeFloat(preCoef);
         ler.writeInt(windowType);
+        ler.writeBoolean(isBarkScaled);
     }
 }
 

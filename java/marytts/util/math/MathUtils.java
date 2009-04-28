@@ -3852,9 +3852,10 @@ public class MathUtils {
     }
 
     //Computes the determinant of a square matrix
+    //Note that if the matrix contains large values and of a large size, one may get overflow
     public static double determinant(double[][] matrix) 
-    { 
-        double result = 0;
+    {         
+        double result = 0.0;
         
         if (matrix.length==1)
             return determinant(matrix[0]);
