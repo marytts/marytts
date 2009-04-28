@@ -79,10 +79,9 @@ public class TranscriptionAligner
     public TranscriptionAligner(AllophoneSet allophoneSet, String entrySeparator)
     {
         this.aligncost = new HashMap<String, Integer>();
-        this.defaultcost = 1;
-        this.skipcost = 1;
+        this.defaultcost = 10;
     
-        // phoneme set is used for splitting the sampa strings and setting the costs
+        // phone set is used for splitting the sampa strings and setting the costs
         this.allophoneSet = allophoneSet;
         if (allophoneSet != null) {
             possibleBnd = allophoneSet.getSilence().name();
@@ -103,7 +102,7 @@ public class TranscriptionAligner
         // distance between pauses is zero, with slight conservative bias
         aligncost.put(possibleBnd + " " + possibleBnd, 0);
         
-        skipcost = defaultcost * 3 / 10; // 0.25 / 0.3 /0.33 seem all fine
+        skipcost = defaultcost * 1 / 10; // 0.25 / 0.3 /0.33 seem all fine
     }
 
     public void SetEnsureInitialBoundary(boolean value)
@@ -165,7 +164,7 @@ public class TranscriptionAligner
     }
 
     /**
-     * This sets the distance by using the phoneme set of the aligner object.
+     * This sets the distance by using the phone set of the aligner object.
      * Phoneme set must already be specified.
      */
     private void setDistance()
@@ -371,7 +370,7 @@ public class TranscriptionAligner
     /**
      * 
      * This computes a string of phonetic symbols out of an allophones xml:
-     * - standard phonemes are taken from "ph" elements in the document
+     * - standard phones are taken from "ph" elements in the document
      * - after each token-element (except those followed by a "boundary"-element), 
      *   a "bnd" symbol is inserted (standing for a possible pause).
      * Entries are separated by the entrySeparator character.
