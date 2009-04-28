@@ -807,7 +807,12 @@ public class FdpsolaAdapter {
                 // Compute LPC coefficients
                 inputLPCoeffs = LpcAnalyser.calcLPC(frm, baseParams.lsfParams.dimension);
                 inputLpcs = inputLPCoeffs.getOneMinusA();
-                inputLsfs = LsfAnalyser.lpc2lsfInHz(inputLpcs, fs); 
+                
+                if (!baseParams.lsfParams.isBarkScaled)
+                    inputLsfs = LsfAnalyser.lpc2lsfInHz(inputLpcs, fs); 
+                else
+                    inputLsfs = LsfAnalyser.lpc2lsfInBark(inputLpcs, fs); 
+                
                 sqrtInputGain = inputLPCoeffs.getGain();
 
                 //Find target estimate from codebook
