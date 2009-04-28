@@ -196,15 +196,15 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
         }
         logger.info("Synthesizing one sentence.");
         // 1. Convert into MBROLA .pho format.
-        List<Element> phonemesAndBoundaries = new ArrayList<Element>();
+        List<Element> phonesAndBoundaries = new ArrayList<Element>();
         for (Element element : tokensAndBoundaries) {
             if (element.getTagName().equals(MaryXML.TOKEN)) {
                 NodeList nl = element.getElementsByTagName(MaryXML.PHONE);
                 for (int i = 0; i < nl.getLength(); i++) {
-                    phonemesAndBoundaries.add((Element)nl.item(i));
+                    phonesAndBoundaries.add((Element)nl.item(i));
                 }
             } else if (element.getTagName().equals(MaryXML.BOUNDARY)) {
-                phonemesAndBoundaries.add(element);
+                phonesAndBoundaries.add(element);
             } else {
                 throw new IllegalArgumentException(
                     "Expected only <t> and <boundary> elements, got <"
@@ -213,7 +213,7 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
             }
         }
         String pho =
-            maryxmlToMbrola.convertToMbrola(phonemesAndBoundaries, voice);
+            maryxmlToMbrola.convertToMbrola(phonesAndBoundaries, voice);
 
         if (Boolean.getBoolean("democenter.workaround")) {
             pho = pho + "_ 300\n";

@@ -143,7 +143,7 @@ public class Labels extends AlignmentData {
         Labels labelsRet = readESTLabelFile(labelFile);
         
         /*
-        //Conversion only required if label file contains phoneme durations instead of end times
+        //Conversion only required if label file contains phone durations instead of end times
         for (int i=1; i<labelsRet.items.length; i++)
             labelsRet.items[i].time += labelsRet.items[i-1].time;
             */

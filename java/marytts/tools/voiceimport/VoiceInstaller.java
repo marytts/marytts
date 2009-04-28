@@ -33,6 +33,8 @@ import java.nio.channels.FileChannel;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import marytts.util.MaryUtils;
+
 /**
  * Install a voice by copying the voice data to marybase/lib/voices/voicename/
  * and creating a config file marybase/conf/locale-voicename.config
@@ -70,32 +72,34 @@ public class VoiceInstaller extends VoiceImportComponent{
      * containing the default values
      * @return map of props2values
      */
-    public SortedMap getDefaultProps(DatabaseLayout db){
-        this.db = db;
-       if (props == null){
-           props = new TreeMap();
-           String maryext = db.getProp(db.MARYEXT);
-           props.put(CARTFILE, "cart"+maryext);
-           props.put(DURTREE, "dur.tree");
-           props.put(F0LEFTTREE, "f0.left.tree");
-           props.put(F0MIDTREE, "f0.mid.tree");
-           props.put(F0RIGHTTREE, "f0.right.tree");
-           props.put(HALFPHONEFEATSAC, "halfphoneFeatures_ac"+maryext);
-           props.put(HALFPHONEFEATDEFAC, "halfphoneUnitFeatureDefinition_ac.txt");
-           props.put(HALFPHONEUNITS, "halfphoneUnits"+maryext);
-           props.put(JOINCOSTFEATS, "joinCostFeatures"+maryext);
-           props.put(JOINCOSTFEATDEF, "joinCostWeights.txt");
-           props.put(PHONEFEATDEF, "phoneUnitFeatureDefinition.txt");
-           props.put(EXAMPLETEXT, "examples.text");
-           props.put(WAVETIMELINE, "timeline_waveforms"+maryext);
-           props.put(BASETIMELINE, "timeline_basenames"+maryext);
-           
-       }
-       return props;
-       }
+    public SortedMap<String, String> getDefaultProps(DatabaseLayout theDb)
+    {
+        this.db = theDb;
+        if (props == null){
+            props = new TreeMap<String, String>();
+            String maryext = db.getProp(db.MARYEXT);
+            props.put(CARTFILE, "cart"+maryext);
+            props.put(DURTREE, "dur.tree");
+            props.put(F0LEFTTREE, "f0.left.tree");
+            props.put(F0MIDTREE, "f0.mid.tree");
+            props.put(F0RIGHTTREE, "f0.right.tree");
+            props.put(HALFPHONEFEATSAC, "halfphoneFeatures_ac"+maryext);
+            props.put(HALFPHONEFEATDEFAC, "halfphoneUnitFeatureDefinition_ac.txt");
+            props.put(HALFPHONEUNITS, "halfphoneUnits"+maryext);
+            props.put(JOINCOSTFEATS, "joinCostFeatures"+maryext);
+            props.put(JOINCOSTFEATDEF, "joinCostWeights.txt");
+            props.put(PHONEFEATDEF, "phoneUnitFeatureDefinition.txt");
+            props.put(EXAMPLETEXT, "examples.text");
+            props.put(WAVETIMELINE, "timeline_waveforms"+maryext);
+            props.put(BASETIMELINE, "timeline_basenames"+maryext);
+
+        }
+        return props;
+    }
     
-    protected void setupHelp(){
-        props2Help = new TreeMap();
+    protected void setupHelp()
+    {
+        props2Help = new TreeMap<String, String>();
         props2Help.put(CARTFILE, "file containing the preselection CART");
         props2Help.put(DURTREE, "file containing the duration CART");
         props2Help.put(F0LEFTTREE, "file containing the left f0 CART");
@@ -128,7 +132,9 @@ public class VoiceInstaller extends VoiceImportComponent{
         String fileSeparator = System.getProperty("file.separator");
         String filedir = db.getProp(db.FILEDIR);
         String configdir = db.getProp(db.CONFIGDIR);
-        String newVoiceDir = db.getProp(db.MARYBASE)
+        String maryBase = db.getProp(db.MARYBASE);
+        if (!maryBase.endsWith("/")) maryBase = maryBase + "/";
+        String newVoiceDir = maryBase
         					+"lib"+fileSeparator
         					+"voices"+fileSeparator
         					+db.getProp(db.VOICENAME).toLowerCase()
@@ -192,26 +198,15 @@ public class VoiceInstaller extends VoiceImportComponent{
         
         /* create the config file */
         System.out.println("Creating config file ... ");
-        String cutLocale = db.getProp(db.LOCALE).toLowerCase();
-        String longLocale;
-        if (cutLocale.equals("en_us") || cutLocale.equals("en")){ 
-            cutLocale = "en";
-            longLocale = "english";
-        } else {
-            if (cutLocale.equals("de")){
-                longLocale = "german";
-            } else {
-                //unsupported locale
-                longLocale = "unsupported";
-            }
-        }
+        // Normalise locale: (e.g., if user set en-US, change it to en_US)
+        String locale = MaryUtils.string2locale(db.getProp(db.LOCALE)).toString();
         
         String configFileName = db.getProp(db.MARYBASE)
         					+"conf"+fileSeparator
-        					+longLocale
+        					+locale
         					+"-"+db.getProp(db.VOICENAME).toLowerCase()
         					+".config";
-        createConfigFile(configFileName, newVoiceDir, cutLocale, longLocale);
+        createConfigFile(configFileName, newVoiceDir, locale);
         System.out.println("... done! ");
         System.out.println("To run the voice, restart your Mary server");
         return true;
@@ -234,45 +229,37 @@ public class VoiceInstaller extends VoiceImportComponent{
     }
     
     
-    private void createExampleText(File exampleTextFile) throws IOException{
+    private void createExampleText(File exampleTextFile) throws IOException
+    {
         try{
             //just take the first three transcript files as example text
-            PrintWriter exampleTextOut =
-                new PrintWriter(
-                        new FileWriter(exampleTextFile),true);
-            for (int i=0;i<3;i++){
+            PrintWriter exampleTextOut = new PrintWriter(new FileWriter(exampleTextFile),true);
+            for (int i=0;i<3;i++) {
                 String basename = bnl.getName(i);
-                BufferedReader transIn = 
-                    new BufferedReader(
-                            new InputStreamReader(
-                                    new FileInputStream(
-                                            new File(db.getProp(db.TEXTDIR)
-                                                    +basename+db.getProp(db.TEXTEXT)))));
+                BufferedReader transIn = new BufferedReader(new InputStreamReader(
+                   new FileInputStream(new File(db.getProp(db.TEXTDIR)+basename+db.getProp(db.TEXTEXT)))));
                 String text = transIn.readLine();
                 transIn.close();            
                 exampleTextOut.println(text);
             }
             exampleTextOut.close();
             
-        } catch (Exception e){
-            System.out.println("Error creating example text file "
+        } catch (IOException e) {
+            IOException myIOE = new IOException("Problem creating example text file "
                     +exampleTextFile.getName());
-            throw new IOException();
+            myIOE.initCause(e);
+            throw myIOE;
         }
         
     }
     
     
-    private void createConfigFile(String filename, 
-            					String newVoiceDir,
-            					String cutLocale,
-            					String longLocale){
-        try{
-            PrintWriter configOut = 
-                new PrintWriter(
-                        new OutputStreamWriter(
-                                new FileOutputStream(
-                                        new File(filename)),"UTF-8"),true);
+    private void createConfigFile(String filename, String newVoiceDir, String locale)
+    throws IOException
+    {
+        try {
+            PrintWriter configOut = new PrintWriter(new OutputStreamWriter(new FileOutputStream(
+                                        new File(filename)),"UTF-8"), true);
             String voicename = db.getProp(db.VOICENAME).toLowerCase();
             //print the header
             configOut.println("#Auto-generated config file for voice "+voicename+"\n");
@@ -281,18 +268,18 @@ public class VoiceInstaller extends VoiceImportComponent{
              //print providing info
              configOut.println("# Declare \"group names\" as component that other components can require.\n"+
                      	"# These correspond to abstract \"groups\" of which this component is an instance.\n"+
-                     	"provides = \\\n"+longLocale+"-voice\n");
-             configOut.println(longLocale+"-voice.version = "+db.getProp(db.MARYBASEVERSION)+"\n");
+                     	"provides = \\\n"+locale+"-voice\n");
+             configOut.println(locale+"-voice.version = "+db.getProp(db.MARYBASEVERSION)+"\n");
              configOut.println("voice.version = "+db.getProp(db.MARYBASEVERSION)+"\n");
              configOut.println("# List the dependencies, as a whitespace-separated list.\n"+
                      "# For each required component, an optional minimum version and an optional\n"+
                      "# download url can be given.\n"+
                      "# We can require a component by name or by an abstract \"group name\"\n"+ 
                      "# as listed under the \"provides\" element.\n"+
-             		 "requires = \\\n"+longLocale+" \\\nmarybase\n\n"+
+             		 "requires = \\\n"+locale+" \\\nmarybase\n\n"+
              		 "requires.marybase.version = 4.0.0\n"+
-             		 "requires."+longLocale+".version = 4.0.0\n"+
-             		 "requires."+longLocale+".download = http://mary.dfki.de/download/mary-install-4.x.x.jar\n");
+             		 "requires."+locale+".version = 4.0.0\n"+
+             		 "requires."+locale+".download = http://mary.dfki.de/download/mary-install-4.x.x.jar\n");
              
              //now follow the module settings
               configOut.println("####################################################################\n"+
@@ -325,7 +312,7 @@ public class VoiceInstaller extends VoiceImportComponent{
                       voiceHeader+".viterbi.wTargetCosts = "+"0.95"+"\n");
               
               //language specific settings 
-              if (cutLocale.equals("de")) {
+              if (locale.equals("de")) {
                   configOut.println("# Sampa mapping for German voices \n"+
                           voiceHeader+".sampamap = \\\n"+
                           "=6->6 \\\n"+"=n->n \\\n"+"=m->m \\\n"+
@@ -333,7 +320,7 @@ public class VoiceInstaller extends VoiceImportComponent{
                           "e->e: \\\n"+"u->u: \\\n"+"o->o: \n\n");       
               }
               configOut.println("# Language-specific feature processor manager:\n"+
-                      "featuremanager.classes.list = marytts.language."+cutLocale+".features.FeatureProcessorManager\n");
+                      "featuremanager.classes.list = marytts.features.FeatureProcessorManager("+locale+")\n");
               
               //unit selection classes
               configOut.println("# Java classes to use for the various unit selection components\n"+
@@ -342,8 +329,8 @@ public class VoiceInstaller extends VoiceImportComponent{
                       voiceHeader+".concatenatorClass        = marytts.unitselection.concat.OverlapUnitConcatenator\n"+
                       voiceHeader+".targetCostClass          = marytts.unitselection.select.DiphoneFFRTargetCostFunction\n"+
                       voiceHeader+".joinCostClass            = marytts.unitselection.select.JoinCostFeatures\n"+
-                      voiceHeader+".unitReaderClass          = marytts.unitselection.UnitFileReader\n"+
-                      voiceHeader+".cartReaderClass          = marytts.cart.ClassificationTree\n"+
+                      voiceHeader+".unitReaderClass          = marytts.unitselection.data.UnitFileReader\n"+
+                      voiceHeader+".cartReaderClass          = marytts.cart.io.MARYCartReader\n"+
               		  voiceHeader+".audioTimelineReaderClass = marytts.unitselection.data.TimelineReader\n");
              
               //voice data
@@ -370,11 +357,20 @@ public class VoiceInstaller extends VoiceImportComponent{
                       voiceHeader+".f0.cart.mid = MARY_BASE/lib/voices/"+voicename+"/"+getProp(F0MIDTREE)+"\n"+
                       voiceHeader+".f0.cart.right = MARY_BASE/lib/voices/"+voicename+"/"+getProp(F0RIGHTTREE)+"\n"+
               		  voiceHeader+".f0.featuredefinition = MARY_BASE/lib/voices/"+voicename+"/"+getProp(PHONEFEATDEF)+"\n");
+
+              configOut.println();
               
+              // And finally, determine how to predict acoustic features for this voice:
+              configOut.println("# Modules to use for predicting acoustic target features for this voice:\n"+
+                      voiceHeader+".preferredModules =  \\\n"+
+                      "    marytts.modules.CARTDurationModeller("+locale+","+locale+".duration.,marytts.features.FeatureProcessorManager("+locale+")) \\\n"+
+                      "    marytts.modules.CARTF0Modeller("+locale+","+locale+".f0.,marytts.features.FeatureProcessorManager("+locale+"))\n");
+
               
-        } catch (Exception e){
-            throw new Error("Error writing config file : "
-                    +e.getMessage());
+        } catch (IOException e) {
+            IOException myIOE = new IOException("Problem writing config file:");
+            myIOE.initCause(e);
+            throw myIOE;
         }
     }
     

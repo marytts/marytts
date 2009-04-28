@@ -171,7 +171,7 @@ public class Voice
         this.wantToBeDefault = MaryProperties.getInteger(header+".wants.to.be.default", 0);
         String allphonesetFilename = MaryProperties.getFilename(header+".allophoneset");
         if (allphonesetFilename == null && getLocale() != null) {
-            // No specific phoneme set for voice, use locale default
+            // No specific phone set for voice, use locale default
             allphonesetFilename = MaryProperties.getFilename(MaryProperties.localePrefix(getLocale())+".allophoneset");
         }
         if (allphonesetFilename == null) {

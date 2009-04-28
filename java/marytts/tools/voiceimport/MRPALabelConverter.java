@@ -76,8 +76,8 @@ public class MRPALabelConverter extends VoiceImportComponent{
                 sampamap = new HashMap();
                 while ((line=sampamapFileReader.readLine())!= null){
                     if (!line.startsWith("#")){
-                        String[] phonemes = line.split("<->");
-                        sampamap.put(phonemes[1],phonemes[0]);
+                        String[] phones = line.split("<->");
+                        sampamap.put(phones[1],phones[0]);
                     }
                 }
             }

@@ -240,11 +240,11 @@ public class FeatureMakerMaryServer{
 				"java FeatureMakerMaryServer -locale language -mysqlHost host -mysqlUser user\n" +
                 "                 -mysqlPasswd passwd -mysqlDB wikiDB\n" +
                 "                 [-maryHost localhost -maryPort 59125 -strictCredibility strict]\n" +
-                "                 [-featuresForSelection phoneme,next_phoneme,selection_prosody]\n\n" +
+                "                 [-featuresForSelection phone,next_phone,selection_prosody]\n\n" +
                 "  required: This program requires a MARY server running and an already created cleanText table in the DB. \n" +
                 "            The cleanText table can be created with the WikipediaProcess program. \n" +
                 "  default/optional: [-maryHost localhost -maryPort 59125]\n" +
-                "  default/optional: [-featuresForSelection phoneme,next_phoneme,selection_prosody] (features separated by ,) \n" +
+                "  default/optional: [-featuresForSelection phone,next_phone,selection_prosody] (features separated by ,) \n" +
                 "  optional: [-strictCredibility [strict|lax]]\n\n" +
             	"  -strictCredibility: setting that determines what kind of sentences \n" +
 				"  are regarded as credible. There are two settings: strict and lax. With \n" +
@@ -293,8 +293,8 @@ public class FeatureMakerMaryServer{
 		strictCredibility = true;
         featDef = null;
         selectionFeature = new Vector<String>();
-        selectionFeature.add("phoneme");
-        selectionFeature.add("next_phoneme");
+        selectionFeature.add("phone");
+        selectionFeature.add("next_phone");
         selectionFeature.add("selection_prosody");
         
 		//now parse the args
@@ -374,7 +374,7 @@ public class FeatureMakerMaryServer{
 	 * 
 	 * @param nextSentence the sentence
 	 * @param filename the file containing the sentence
-     * @param feas target features names separated by space (ex. "phoneme next_phoneme selection_prosody")
+     * @param feas target features names separated by space (ex. "phone next_phone selection_prosody")
 	 * @return the result of the processing as MaryData object
 	 */
 	protected static MaryData processSentence(String nextSentence, int textId, String feas){

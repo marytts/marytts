@@ -40,7 +40,7 @@ import marytts.util.signal.SignalProcUtils;
  * to keep the overall spectral shape unchanged under pitch sclae modifications.
  * For example, Quatieri uses SEEVOC approach (linear interpolation) to find amplitude values at modified frequencies.
  * Failing to estimate the modified amplitudes successfully will result in changes in overal spectral envelope
- * which may affect voice quality, presence, or even the identity of phonemes after pitch scaling.
+ * which may affect voice quality, presence, or even the identity of phones after pitch scaling.
  * 
  * @author Oytun T&uumlrk
  */

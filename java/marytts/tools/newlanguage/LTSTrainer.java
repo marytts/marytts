@@ -63,11 +63,11 @@ import weka.core.Instances;
 
 /**
  * 
- * This class is a generic approach to predict a phoneme sequence from a 
+ * This class is a generic approach to predict a phone sequence from a 
  * grapheme sequence. 
  * 
  * the normal sequence of steps is:
- * 1) initialize the trainer with a phoneme set and a locale
+ * 1) initialize the trainer with a phone set and a locale
  * 
  * 2) read in the lexicon, preserve stress if you like
  * 
@@ -310,7 +310,7 @@ public class LTSTrainer extends AlignerTrainer
      * 
      * reads in a lexicon in text format, lines are of the kind:
      * 
-     * graphemechain | phonemechain | otherinformation
+     * graphemechain | phonechain | otherinformation
      * 
      * Stress is optionally preserved, marking the first vowel of a stressed
      * syllable with "1".
@@ -364,7 +364,7 @@ public class LTSTrainer extends AlignerTrainer
     /**
      * reads in a lexicon in text format, lines are of the kind:
      * 
-     * graphemechain | phonemechain | otherinformation
+     * graphemechain | phonechain | otherinformation
      * 
      * Stress is optionally preserved, marking the first vowel of a stressed
      * syllable with "1".
@@ -417,7 +417,7 @@ public class LTSTrainer extends AlignerTrainer
     public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
 
         
-        String  phFileLoc = "/Users/benjaminroth/Desktop/mary/english/phoneme-list-engba.xml";
+        String  phFileLoc = "/Users/benjaminroth/Desktop/mary/english/phone-list-engba.xml";
 
         
         // initialize trainer 

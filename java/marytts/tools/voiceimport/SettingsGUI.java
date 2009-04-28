@@ -32,6 +32,7 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -60,23 +61,22 @@ public class SettingsGUI {
     private String[] compNames;
     private JScrollPane scrollPane;
     private JComboBox componentsComboBox;
-    private final Map comps2HelpText;
+    private final Map<String,String> comps2HelpText;
     private String simpleModeHelpText;
     private String guiText; 
     private boolean wasSaved;
     
-    public SettingsGUI(DatabaseLayout db, SortedMap props,String simpleModeHelpText,String guiText)
+    public SettingsGUI(DatabaseLayout db, SortedMap<String,String> props, String simpleModeHelpText, String guiText)
     {
         this.db = db;
         this.simpleModeHelpText = simpleModeHelpText;
         this.guiText = guiText;
         comps2HelpText = null;
-         Set propSet = props.keySet();
-         java.util.List propList = new ArrayList();
-        for (Iterator it = propSet.iterator();it.hasNext();){
-            String key = (String)it.next();            
+         Set<String> propSet = props.keySet();
+         List<String[]> propList = new ArrayList<String[]>();
+        for (String key : props.keySet()) {
             Object value = props.get(key);
-            if (value instanceof String){
+            if (value instanceof String) {
                 //this is a global prop
                 if (db.isEditable((String)value)){
                     String[] keyAndValue = new String[2];
@@ -87,11 +87,10 @@ public class SettingsGUI {
             } else {
                 //these are props for a component
                 if (value instanceof SortedMap){
-                    SortedMap newLocalProps = new TreeMap();
-                    Set keys = ((SortedMap)value).keySet();
-                    for (Iterator it2 = keys.iterator();it2.hasNext();){
-                        String nextKey = (String)it2.next();
-                        String nextValue = (String)((SortedMap)value).get(nextKey);
+                    SortedMap<String,String> newLocalProps = new TreeMap<String, String>();
+                    SortedMap<String, String> mapValue = (SortedMap) value;
+                    for (String nextKey : mapValue.keySet()) {
+                        String nextValue = mapValue.get(nextKey);
                         String[] keyAndValue = new String[2];
                         keyAndValue[0] = nextKey;
                         keyAndValue[1] = nextValue;
@@ -111,7 +110,7 @@ public class SettingsGUI {
     public SettingsGUI(DatabaseLayout db, 
             			String[][] props,
             			String selectedComp,
-            			Map comps2HelpText)
+            			Map<String,String> comps2HelpText)
     {
         this.db = db;        
         this.tableProps = props;
@@ -125,21 +124,20 @@ public class SettingsGUI {
      * @param props the properties and values to be displayed
      * @return true, if no error occurred
      */
-    public void display(String selectedComp,boolean simpleMode)
+    public void display(String selectedComp, boolean simpleMode)
     {
         wasSaved = false;
         //final JFrame frame = new JFrame("Settings Editor");
         GridBagLayout gridBagLayout = new GridBagLayout();
         GridBagConstraints gridC = new GridBagConstraints();
         frame.getContentPane().setLayout( gridBagLayout );
-        if (simpleMode){
+        if (simpleMode) {
             JLabel guiTextLabel = new JLabel(guiText);
             gridC.gridx = 0;
             gridC.gridy = 0;
             gridBagLayout.setConstraints(guiTextLabel, gridC );
             frame.getContentPane().add(guiTextLabel);
-            String[] columnNames = {"Property",
-            "Value"};
+            String[] columnNames = {"Property", "Value"};
             tableModel = new PropTableModel(columnNames,tableProps);
         } else {
             compNames = db.getCompNamesForDisplay();        
@@ -158,17 +156,16 @@ public class SettingsGUI {
             frame.getContentPane().add(componentsComboBox);
             
             //build a new JTable        
-            String[] columnNames = {"Property",
-            "Value"};
+            String[] columnNames = {"Property", "Value"};
             String[][] currentProps = getPropsForCompName(selectedComp);
             tableModel = new PropTableModel(columnNames,currentProps);
         }
         table = new JTable(tableModel); 
         //set the focus traversal keys for the table
-        Set forwardKeys = new HashSet();
+        Set<KeyStroke> forwardKeys = new HashSet<KeyStroke>();
         forwardKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0, false));
         table.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,forwardKeys);
-        Set backwardKeys = new HashSet();
+        Set<KeyStroke> backwardKeys = new HashSet<KeyStroke>();
         backwardKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_TAB,KeyEvent.SHIFT_MASK+KeyEvent.SHIFT_DOWN_MASK, false));
         table.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS,backwardKeys);
         //table.setPreferredScrollableViewportSize(new Dimension(600, 500));
@@ -261,7 +258,7 @@ public class SettingsGUI {
     private String[][] getPropsForCompName(String name){
         if (name.equals("Global properties"))
             name = "db";
-        java.util.List propList = new ArrayList();
+        List<String[]> propList = new ArrayList<String[]>();
         for (int i=0;i<tableProps.length;i++){
             String[] keyAndValue = tableProps[i];
             //System.err.println(keyAndValue[0]+" --- "+name);
@@ -271,7 +268,7 @@ public class SettingsGUI {
         }
         String[][] result = new String[propList.size()][];
         for (int i=0;i<propList.size();i++){
-            result[i] = (String[]) propList.get(i);
+            result[i] = propList.get(i);
         }
         return result;        
     }
@@ -289,9 +286,8 @@ public class SettingsGUI {
         //frame.pack();
     }
     
-    private class PropTableModel extends AbstractTableModel {
-        
-        
+    private class PropTableModel extends AbstractTableModel
+    {
         private String[] columnNames;
         private boolean DEBUG = false;
         private String[][] props;
@@ -366,17 +362,15 @@ public class SettingsGUI {
         }
     }
     
-    class HelpButtonActionListener implements ActionListener{
-        
-        
-        
-            public void actionPerformed(ActionEvent e) {
-                    new Thread("DisplayHelpGUIThread") {
-                        public void run() {
-                                                     
-                        }}.start();
-            }
+    class HelpButtonActionListener implements ActionListener
+    {
+        public void actionPerformed(ActionEvent e) {
+            new Thread("DisplayHelpGUIThread") {
+                public void run() {
+
+                }}.start();
         }
+    }
     
 }
 

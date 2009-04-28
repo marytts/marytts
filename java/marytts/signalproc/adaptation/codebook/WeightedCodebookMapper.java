@@ -61,7 +61,7 @@ public class WeightedCodebookMapper extends VocalTractTransformationFunction {
         returnedMatch = null;
     }
     
-    //Simple phoneme based selection
+    //Simple phone based selection
     public int[] preselect(Context currentContext, WeightedCodebook codebook, boolean isMatchUsingTargetCodebook, int minimumCandidates)
     {
         double[] scores = new double[codebook.header.totalEntries];

@@ -177,9 +177,9 @@ public class TranscriptionTable extends JPanel implements ActionListener {
         for(int i=0;i<tableData.length; i++){
             if(hasManualVerify[i] && hasCorrectSyntax[i]){
                 String grapheme = (String) tableData[i][1];
-                String phoneme = (String) tableData[i][2];
-                if(!phoneme.equals("")){
-                    map.put(grapheme, phoneme);
+                String phone = (String) tableData[i][2];
+                if(!phone.equals("")){
+                    map.put(grapheme, phone);
                     transcriptionModel.setAsCorrectSyntax(i, true);
                 }
             }
@@ -224,16 +224,16 @@ public class TranscriptionTable extends JPanel implements ActionListener {
             for(int i=0;i<tableData.length; i++){
                 if(!(hasManualVerify[i] && hasCorrectSyntax[i])){
                     String grapheme = (String) tableData[i][1];
-                    String phoneme = trainedLTS.syllabify(trainedLTS.predictPronunciation(grapheme));
-                    transcriptionModel.setValueAt(phoneme.replaceAll("\\s+", ""), i, 2);
+                    String phone = trainedLTS.syllabify(trainedLTS.predictPronunciation(grapheme));
+                    transcriptionModel.setValueAt(phone.replaceAll("\\s+", ""), i, 2);
                     transcriptionModel.setAsCorrectSyntax(i, true);
                     transcriptionModel.setAsManualVerify(i, false);
                 }
             }
             if(((String) transcriptionModel.getDataAt(itsRow, 2)).equals("")){
                 String grapheme = (String) tableData[itsRow][1];
-                String phoneme = trainedLTS.syllabify(trainedLTS.predictPronunciation(grapheme));
-                transcriptionModel.setValueAt(phoneme.replaceAll("\\s+", ""), itsRow, 2);
+                String phone = trainedLTS.syllabify(trainedLTS.predictPronunciation(grapheme));
+                transcriptionModel.setValueAt(phone.replaceAll("\\s+", ""), itsRow, 2);
                 transcriptionModel.setAsCorrectSyntax(itsRow, true);
                 transcriptionModel.setAsManualVerify(itsRow, false);
             }

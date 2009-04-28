@@ -56,7 +56,7 @@ import org.w3c.dom.traversal.TreeWalker;
 
 
 /**
- * Predict phoneme durations using a CART.
+ * Predict phone durations using a CART.
  *
  * @author Marc Schr&ouml;der
  */
@@ -92,8 +92,7 @@ public class CARTDurationModeller extends InternalModule
      * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.duration"
      * @praam featureProcessorManager the manager to use when looking up feature processors.
      */
-    protected CARTDurationModeller(
-            Locale locale,
+    protected CARTDurationModeller(Locale locale,
                String propertyPrefix, FeatureProcessorManager featureProcessorManager)
     {
         super("CARTDurationModeller",
@@ -107,32 +106,33 @@ public class CARTDurationModeller extends InternalModule
     public void startup() throws Exception
     {
         super.startup();
-        File cartFile = new File(MaryProperties.needFilename(propertyPrefix+"cart"));
-        cart = new DirectedGraphReader().load(cartFile.getAbsolutePath());
-        if ( null != MaryProperties.getFilename(propertyPrefix+"pausetree")){
-            String pausefileName = MaryProperties.needFilename(propertyPrefix+"pausetree");
+        String cartFilename = MaryProperties.getFilename(propertyPrefix+"cart");
+        if (cartFilename != null) { // there is a default model for the language
+            File cartFile = new File(cartFilename);
+            cart = new DirectedGraphReader().load(cartFile.getAbsolutePath());
+            featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, cart.getFeatureDefinition().getFeatureNames());
+        } else {
+            cart = null;
+        }
+        
+        String pauseFilename = MaryProperties.getFilename(propertyPrefix+"pausetree");
+        if (pauseFilename != null) {
+            File pauseFile = new File(pauseFilename);
 
             File pauseFdFile = new File(MaryProperties.needFilename(propertyPrefix+"pausefeatures"));
-            
             FeatureDefinition pauseFeatureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(pauseFdFile)), false);
             pauseFeatureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, pauseFeatureDefinition.getFeatureNames());
-            
-            File pauseFile = new File(pausefileName);
-            
-            this.pausetree = new StringPredictionTree(new BufferedReader(new FileReader(pauseFile)), pauseFeatureDefinition );
+            pausetree = new StringPredictionTree(new BufferedReader(new FileReader(pauseFile)), pauseFeatureDefinition);
         } else {
             this.pausetree = null;
         }
-        featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, cart.getFeatureDefinition().getFeatureNames());
     }
 
     public MaryData process(MaryData d)
     throws Exception
     {
         Document doc = d.getDocument(); 
-        NodeIterator sentenceIt = ((DocumentTraversal)doc).
-            createNodeIterator(doc, NodeFilter.SHOW_ELEMENT,
-                           new NameNodeFilter(MaryXML.SENTENCE), false);
+        NodeIterator sentenceIt = MaryDomUtils.createNodeIterator(doc, MaryXML.SENTENCE);
         Element sentence = null;
         while ((sentence = (Element) sentenceIt.nextNode()) != null) {
             // Make sure we have the correct voice:
@@ -149,7 +149,6 @@ public class CARTDurationModeller extends InternalModule
 
             DirectedGraph currentCart = cart;
             TargetFeatureComputer currentFeatureComputer = featureComputer;
-            // TODO: cleanup: shouldn't all voices have the option of including their own CART?
             if (maryVoice != null) {
                 DirectedGraph voiceCart = maryVoice.getDurationGraph();
                 if (voiceCart != null) {
@@ -160,11 +159,14 @@ public class CARTDurationModeller extends InternalModule
                 }
             }
             
+            if (currentCart == null) {
+                throw new NullPointerException("No cart for predicting duration");
+            }
+            
             // cumulative duration from beginning of sentence, in seconds:
             float end = 0;
 
-            TreeWalker tw = ((DocumentTraversal)doc).createTreeWalker(sentence, 
-                    NodeFilter.SHOW_ELEMENT, new NameNodeFilter(MaryXML.PHONE, MaryXML.BOUNDARY), false);
+            TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.PHONE, MaryXML.BOUNDARY);
             Element segmentOrBoundary;
             Element previous = null;
             while ((segmentOrBoundary = (Element)tw.nextNode()) != null) {
@@ -173,7 +175,7 @@ public class CARTDurationModeller extends InternalModule
                 t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
                 float durInSeconds;
                 if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) { // a pause
-                    durInSeconds = enterPauseDuration(segmentOrBoundary, previous, maryVoice);
+                    durInSeconds = enterPauseDuration(segmentOrBoundary, previous, pausetree, pauseFeatureComputer);
                 } else {
                     float[] dur = (float[])currentCart.interpret(t);
                     assert dur != null : "Null duration";
@@ -205,7 +207,8 @@ public class CARTDurationModeller extends InternalModule
      * @param maryVoice 
      * @return pause duration, in seconds
      */
-    private float enterPauseDuration(Element boundary, Element previous, Voice maryVoice)
+    private float enterPauseDuration(Element boundary, Element previous, 
+            StringPredictionTree currentPauseTree, TargetFeatureComputer currentPauseFeatureComputer)
     {
         if (!boundary.getTagName().equals(MaryXML.BOUNDARY))
             throw new IllegalArgumentException("cannot call enterPauseDuration for non-pause element");
@@ -222,23 +225,24 @@ public class CARTDurationModeller extends InternalModule
         if (previous == null || !previous.getTagName().equals(MaryXML.PHONE))
             return duration;
         
-        if (null == this.pausetree)
+        if (currentPauseTree == null)
             return duration;
         
+        assert currentPauseFeatureComputer != null;
         String phone = previous.getAttribute("p");
         Target t = new Target(phone, previous);
-        t.setFeatureVector(this.pauseFeatureComputer.computeFeatureVector(t));
+        t.setFeatureVector(currentPauseFeatureComputer.computeFeatureVector(t));
                 
-        String durationString = this.pausetree.getMostProbableString(t);
+        String durationString = currentPauseTree.getMostProbableString(t);
         // strip off "ms"
         durationString = durationString.substring(0, durationString.length() - 2);
         try {
             duration = Float.parseFloat(durationString);
         } catch (NumberFormatException nfe) {}
         
-        if (duration > 2000) {
-            logger.debug("Cutting long duration to 2000 ms -- was " + duration);
-            duration = 2000;
+        if (duration > 2) {
+            logger.debug("Cutting long duration to 2 s -- was " + duration);
+            duration = 2;
         }
         return duration;
     }

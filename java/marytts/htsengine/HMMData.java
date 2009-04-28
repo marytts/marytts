@@ -101,7 +101,7 @@ public class HMMData {
     
 	private double uv             = 0.5;   /* variable for U/V threshold                 */
 	private boolean algnst        = false; /* use state level alignment for duration     */
-	private boolean algnph        = false; /* use phoneme level alignment for duration   */
+	private boolean algnph        = false; /* use phone level alignment for duration   */
     private boolean useMixExc     = true;  /* use Mixed Excitation */
     private boolean useFourierMag = false;   /* use Fourier magnitudes for pulse generation */
     private boolean useGV         = false; /* use global variance in parameter generation */
@@ -245,7 +245,7 @@ public class HMMData {
     public void setTreeMcpFile(String str) { treeMcpFile = str; }  
     public void setTreeStrFile(String str) { treeStrFile = str; } 
     public void setTreeMagFile(String str) { treeMagFile = str; }  
-    public void setFeatureDefinition(String contextFile) /* this file should include next, next_next, prev, prev_prev phoneme features */
+    public void setFeatureDefinition(String contextFile) /* this file should include next, next_next, prev, prev_prev phone features */
     throws Exception                                     
     { 
         Scanner context = new Scanner(new BufferedReader(new FileReader(contextFile)));

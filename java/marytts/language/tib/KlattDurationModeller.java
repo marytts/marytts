@@ -97,7 +97,7 @@ public class KlattDurationModeller extends InternalModule {
             synthesis.startup();
         // load klatt rules
         klattRuleParams = new Properties();
-        klattRuleParams.load(new FileInputStream(MaryProperties.needFilename("tibetan.cap.klattrulefile")));        // load phoneme list
+        klattRuleParams.load(new FileInputStream(MaryProperties.needFilename("tibetan.cap.klattrulefile")));        // load phone list
         allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename("tibetan.allophoneset"));
         klattDurationParams = new KlattDurationParams(MaryProperties.needFilename("tibetan.cap.klattdurfile"));
         // instantiate the Map in which settings are associated with elements:
@@ -443,24 +443,24 @@ public class KlattDurationModeller extends InternalModule {
     }
 
     /**
-     * Create phoneme elements within a syllable, from its sampa attribute.
-     * @param syllable The syllable for which to create phoneme elements.
+     * Create phone elements within a syllable, from its sampa attribute.
+     * @param syllable The syllable for which to create phone elements.
      * @param vq if not null, the voice quality suffix appended to the sampa
-     * symbol for each phoneme, e.g. if vq is 'loud', 'a:' becomes 'a:_loud'.
+     * symbol for each phone, e.g. if vq is 'loud', 'a:' becomes 'a:_loud'.
      */
     private void createPhonemes(Element syllable, String vq)
     {
         if (syllable == null)
             throw new NullPointerException("Received null syllable");
         if (!syllable.hasAttribute("ph"))
-            throw new IllegalArgumentException("Cannot create phonemes if syllable has no sampa attribute");
+            throw new IllegalArgumentException("Cannot create phones if syllable has no sampa attribute");
         Document document = syllable.getOwnerDocument();
-        Allophone[] phonemes = allophoneSet.splitIntoAllophones(syllable.getAttribute("ph"));
-        for (int i = 0; i < phonemes.length; i++) {
+        Allophone[] phones = allophoneSet.splitIntoAllophones(syllable.getAttribute("ph"));
+        for (int i = 0; i < phones.length; i++) {
             Element segment = MaryXML.createElement(document, MaryXML.PHONE);
             syllable.appendChild(segment);
-            segment.setAttribute("p", phonemes[i].name());
-            if (vq != null && !(phonemes[i].name().equals("_") || phonemes[i].name().equals("?")))
+            segment.setAttribute("p", phones[i].name());
+            if (vq != null && !(phones[i].name().equals("_") || phones[i].name().equals("?")))
                 segment.setAttribute("vq", vq);
         }
     }

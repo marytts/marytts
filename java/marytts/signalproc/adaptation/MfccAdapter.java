@@ -107,7 +107,7 @@ public class MfccAdapter {
         {
             if (mapper instanceof JointGMMMapper)
             {
-                //Different weighting strategies can be tested here, i.e. doing a fuzzy phoneme classification
+                //Different weighting strategies can be tested here, i.e. doing a fuzzy phone classification
                 double[] gmmWeights = new double[1];
                 Arrays.fill(gmmWeights, 1.0);
 

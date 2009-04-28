@@ -329,7 +329,7 @@ public class AllophoneSet
                 }
             }
             if (ph != null) {
-                // have found a valid phoneme
+                // have found a valid phone
                 phones.add(ph.name());
             } else {
                 throw new IllegalArgumentException("Found unknown symbol `" + 

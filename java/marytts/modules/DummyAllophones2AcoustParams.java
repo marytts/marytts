@@ -53,7 +53,7 @@ import org.w3c.dom.traversal.TreeWalker;
 
 
 /**
- * Dummy modules to support new language (for phoneme durations and phoneme f0) 
+ * Dummy modules to support new language (for phone durations and phone f0) 
  *
  * @author Sathish Pammi
  */
@@ -74,7 +74,7 @@ public class DummyAllophones2AcoustParams extends InternalModule
         super("DummyAllophones2AcoustParams",
                 MaryDataType.ALLOPHONES,
                 MaryDataType.ACOUSTPARAMS,
-                new Locale(locale));
+                MaryUtils.string2locale(locale));
     }
     
     /**

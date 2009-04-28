@@ -175,7 +175,7 @@ public class JoinModeller extends VoiceImportComponent
         int numUnits = unitFeatures.getNumberOfUnits();
         FeatureDefinition def = unitFeatures.getFeatureDefinition();
 
-        int iPhoneme = def.getFeatureIndex("phoneme");
+        int iPhoneme = def.getFeatureIndex("phone");
         int nPhonemes = def.getNumberOfValues(iPhoneme);
         int iLeftRight = def.getFeatureIndex("halfphone_lr");
         byte vLeft = def.getFeatureValueAsByte(iLeftRight, "L");
@@ -200,15 +200,15 @@ public class JoinModeller extends VoiceImportComponent
 
             if (edge == vNoEdge && edgeNext == vNoEdge) {
                 // TODO: do we need this?
-                int phoneme = fv.getFeatureAsInt(iPhoneme);
-                assert 0 <= phoneme && phoneme < nPhonemes;
+                int phone = fv.getFeatureAsInt(iPhoneme);
+                assert 0 <= phone && phone < nPhonemes;
                 byte lr = fv.getByteFeature(iLeftRight);
-                int phonemeNext = fvNext.getFeatureAsInt(iPhoneme);
+                int phoneNext = fvNext.getFeatureAsInt(iPhoneme);
                 byte lrNext = fvNext.getByteFeature(iLeftRight);
-                String pair = def.getFeatureValueAsString(iPhoneme, phoneme) +
+                String pair = def.getFeatureValueAsString(iPhoneme, phone) +
                     "_" + def.getFeatureValueAsString(iLeftRight, lr) +
                     "-" +
-                    def.getFeatureValueAsString(iPhoneme, phonemeNext) +
+                    def.getFeatureValueAsString(iPhoneme, phoneNext) +
                     "_" + def.getFeatureValueAsString(iLeftRight, lrNext);
 
                 // Compute the difference vector
@@ -301,7 +301,7 @@ public class JoinModeller extends VoiceImportComponent
             int featureIndex = def.getFeatureIndex(f);
             String[] values = def.getPossibleValues(featureIndex);
             for (String v : values) {
-                if (f.endsWith("phoneme")) {
+                if (f.endsWith("phone")) {
                     v = contextTranslator.replaceTrickyPhones(v);
                 } else if (f.endsWith("sentence_punc") || f.endsWith("punctuation")) {
                     v = PhoneTranslator.replacePunc(v);

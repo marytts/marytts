@@ -547,17 +547,17 @@ public class Blizzard09PostProcessor {
         if (args.length<3)
         {
             System.out.println("Missing parameters:");
-            System.out.println("<input wav file or directory> <output wav file or directory> <full path of phoneme set file>");
-            System.out.println("Example phoneme set file: .../lib/modules/en/us/lexicon/allophones.en_US.xml");
+            System.out.println("<input wav file or directory> <output wav file or directory> <full path of phone set file>");
+            System.out.println("Example phone set file: .../lib/modules/en/us/lexicon/allophones.en_US.xml");
         }
         else
         {
-            String phonemeSetFile = args[2];
+            String phoneSetFile = args[2];
             AllophoneSet allophoneSet = null;
             
             try {
                 try {
-                    allophoneSet = AllophoneSet.getAllophoneSet(phonemeSetFile);
+                    allophoneSet = AllophoneSet.getAllophoneSet(phoneSetFile);
                 } catch (NoSuchPropertyException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();

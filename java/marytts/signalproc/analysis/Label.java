@@ -27,7 +27,7 @@ package marytts.signalproc.analysis;
 public class Label {
     public double time; //Ending time of phonetic label
     public int status; //Status
-    public String phn; //Phoneme
+    public String phn; //Phone
     public double ll; //log likelihood
     public String[] rest; //If the label contains more fields, get them as text
     public double[] valuesRest; //If some of the <rest> are numbers, convert them to doubles and keep
@@ -108,7 +108,7 @@ public class Label {
     {
         System.out.println("Time=" + String.valueOf(time) + " s. " + 
                            "Stat=" + String.valueOf(status) + " " +
-                           "Phoneme=" + phn + " " +
+                           "Phone=" + phn + " " +
                            "Log-likelihood=" + String.valueOf(ll));
     }
 }

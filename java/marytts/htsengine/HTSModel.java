@@ -50,9 +50,9 @@
 package marytts.htsengine;
 
 /**
- * HMM model for a particular phoneme (or line in context feature file)
+ * HMM model for a particular phone (or line in context feature file)
  * This model is the unit when building a utterance model sequence.
- * For every phoneme (or line)in the context feature file, one of these
+ * For every phone (or line)in the context feature file, one of these
  * models is created.
  * 
  * Java port and extension of HTS engine version 2.0
@@ -88,9 +88,10 @@ public class HTSModel {
   private Float unit_logF0delta;    /* external lf0 delta value from ContinuousFeatureProcessors */
   
   /** This function also sets the phoneName */
-  public void setName(String var, String phonemeName){ 
+  public void setName(String var, String aPhoneName)
+  { 
       name = var;
-      phoneName = phonemeName;
+      phoneName = aPhoneName;
   }
   public String getName(){return name;}
   

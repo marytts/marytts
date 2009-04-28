@@ -1031,7 +1031,7 @@ public class MaryGenericFeatureProcessors
     
 
     /**
-     * Finds the position of the phoneme in the syllable.
+     * Finds the position of the phone in the syllable.
      */
     public static class SegsFromSylStart implements ByteValuedFeatureProcessor
     {
@@ -1041,7 +1041,7 @@ public class MaryGenericFeatureProcessors
 
         /**
          * @param target the target to process
-         * @return the position of the phoneme in the syllable
+         * @return the position of the phone in the syllable
          */
         public byte process(Target target)
         {
@@ -1059,7 +1059,7 @@ public class MaryGenericFeatureProcessors
 
 
     /**
-     * Finds the position of the phoneme from the end of the syllable.
+     * Finds the position of the phone from the end of the syllable.
      */
     public static class SegsFromSylEnd implements ByteValuedFeatureProcessor
     {
@@ -1069,7 +1069,7 @@ public class MaryGenericFeatureProcessors
 
         /**
          * @param target the target to process
-         * @return the position of the phoneme in the syllable
+         * @return the position of the phone in the syllable
          */
         public byte process(Target target)
         {
@@ -1096,7 +1096,7 @@ public class MaryGenericFeatureProcessors
 
         /**
          * @param target the target to process
-         * @return the position of the phoneme in the syllable
+         * @return the position of the phone in the syllable
          */
         public byte process(Target target)
         {
@@ -1127,7 +1127,7 @@ public class MaryGenericFeatureProcessors
         /**
          * Performs some processing on the given item.
          * @param target the target to process
-         * @return the position of the phoneme in the syllable
+         * @return the position of the phone in the syllable
          */
         public byte process(Target target)
         {
@@ -1186,7 +1186,7 @@ public class MaryGenericFeatureProcessors
 
         /**
          * @param target the target to process
-         * @return the position of the phoneme in the syllable
+         * @return the position of the phone in the syllable
          */
         public byte process(Target target)
         {

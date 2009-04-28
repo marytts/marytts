@@ -117,7 +117,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                             entry.targetItem.f0 = targetF0s.contour[index];
                             //
 
-                            //Duration & Phoneme
+                            //Duration & Phone
                             index = SignalProcUtils.frameIndex2LabelIndex(imap.files[0].indicesMap[j][0], sourceLabels, ((LsfFileHeader)(srcFeatures.params)).winsize, ((LsfFileHeader)(srcFeatures.params)).skipsize);
                             if (index>0)
                                 entry.sourceItem.duration = sourceLabels.items[index].time-sourceLabels.items[index-1].time;
@@ -300,7 +300,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                     sourceAverageDuration += sourceLabels.items[index].time;
                                 //
 
-                                //Phoneme: Middle frames phonetic identity
+                                //Phone: Middle frames phonetic identity
                                 if (k==middle)
                                 {
                                     sourcePhn = sourceLabels.items[index].phn;
@@ -353,7 +353,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                         targetAverageDuration += targetLabels.items[index].time;
                                     //
 
-                                    //Phoneme: Middle frames phonetic identity
+                                    //Phone: Middle frames phonetic identity
                                     if (k==middle)
                                     {
                                         targetPhn = targetLabels.items[index].phn;
@@ -398,7 +398,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                 entry.targetItem.duration = targetAverageDuration;
                                 //
 
-                                //Phoneme
+                                //Phone
                                 entry.sourceItem.phn = sourcePhn;
                                 entry.targetItem.phn = targetPhn;
                                 entry.sourceItem.context = new Context(sourceContext);
@@ -462,9 +462,9 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
         //Take an average of LSF vectors within each label pair and write the resulting vector as the state
         // average for source and target
         // To do: Weighting of vectors within each label according to some criteria
-        //        on how typical they represent the current phoneme.
+        //        on how typical they represent the current phone.
         //        This can be implemented by looking at some distance measure (eucledian, mahalonoibis, LSF, etc) 
-        //        to the cluster mean (i.e. mean of all LSF vectors for this phoneme), for example.
+        //        to the cluster mean (i.e. mean of all LSF vectors for this phone), for example.
         for (i=0; i<fcol.indexMapFiles.length; i++)
         {
             System.out.println("LSF mapping for pair " + String.valueOf(i+1) + " of " + String.valueOf(fcol.indexMapFiles.length) + ":");
@@ -573,7 +573,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                     sourceAverageDuration += sourceLabels.items[index].time;
                                 //
                                 
-                                //Phoneme: Middle frames phonetic identity
+                                //Phone: Middle frames phonetic identity
                                 if (k==middle)
                                 {
                                     sourcePhn = sourceLabels.items[index].phn;
@@ -626,7 +626,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                         targetAverageDuration += targetLabels.items[index].time;
                                     //
                                     
-                                    //Phoneme: Middle frames phonetic identity
+                                    //Phone: Middle frames phonetic identity
                                     if (k==middle)
                                     {
                                         targetPhn = targetLabels.items[index].phn;
@@ -671,7 +671,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
                                 entry.targetItem.duration = targetAverageDuration;
                                 //
 
-                                //Phoneme
+                                //Phone
                                 entry.sourceItem.phn = sourcePhn;
                                 entry.targetItem.phn = targetPhn;
                                 entry.sourceItem.context = new Context(sourceContext);
@@ -722,9 +722,9 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
         //Take an average of LSF vectors within each label pair and write the resulting vector as the state
         // average for source and target
         // To do: Weighting of vectors within each label according to some criteria
-        //        on how typical they represent the current phoneme.
+        //        on how typical they represent the current phone.
         //        This can be implemented by looking at some distance measure (eucledian, mahalonoibis, LSF, etc) 
-        //        to the cluster mean (i.e. mean of all LSF vectors for this phoneme), for example.
+        //        to the cluster mean (i.e. mean of all LSF vectors for this phone), for example.
         int totalFramesSrc = 0;
         boolean bSourceOK = false;
         int totalFramesTgt = 0;

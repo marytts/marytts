@@ -72,11 +72,6 @@ public class TranscriptionAligner extends VoiceImportComponent {
     
     private DatabaseLayout db;
     private String locale;
-    // properties
-    public final String ORIGTRANS = "TranscriptionAligner.original";
-    public final String CORRTRANS = "TranscriptionAligner.corrected";
-    public final String RESULTTRANS = "TranscriptionAligner.results";
-    public final String ALLOPHONEXML = "TranscriptionAligner.allophoneSetXML";
     private int progress;
     
     private marytts.tools.analysis.TranscriptionAligner aligner;
@@ -95,69 +90,29 @@ public class TranscriptionAligner extends VoiceImportComponent {
     public void initialiseComp()
     throws ParserConfigurationException, IOException, SAXException
     {
-        aligner = new marytts.tools.analysis.TranscriptionAligner(AllophoneSet.getAllophoneSet(props.get(this.ALLOPHONEXML)));
+        aligner = new marytts.tools.analysis.TranscriptionAligner(AllophoneSet.getAllophoneSet(db.getProp(db.ALLOPHONESET)));
         aligner.SetEnsureInitialBoundary(true);
     }
     
-    public SortedMap<String,String> getDefaultProps(DatabaseLayout theDb) {
+    public SortedMap<String,String> getDefaultProps(DatabaseLayout theDb)
+    {
         this.db = theDb;
-        String allophoneSetXml;
         locale = db.getProp(db.LOCALE);
         if (props == null){
             props = new TreeMap<String, String>();
-            
-            // original transcriptions (?LABDIR / TEXTDIR)
-            String origTrans = System.getProperty(ORIGTRANS);
-            if ( origTrans == null ) {
-                origTrans = db.getProp(db.ROOTDIR)
-                +"prompt_allophones"
-                +System.getProperty("file.separator");
-            }
-            props.put(ORIGTRANS,origTrans);
-            
-            // corrected transcriptions
-            String corrTrans = System.getProperty(CORRTRANS);
-            if ( corrTrans == null ) {
-                corrTrans = db.getProp(db.ROOTDIR)
-                +"lab"
-                +System.getProperty("file.separator");
-            }
-            props.put(CORRTRANS,corrTrans);
-            
-            // aligned corrected transcriptions
-            String resultTrans = System.getProperty(RESULTTRANS);
-            if ( resultTrans == null ) {
-                resultTrans = db.getProp(db.ROOTDIR)
-                +"allophones"
-                +System.getProperty("file.separator");
-            }
-            props.put(RESULTTRANS,resultTrans);
-                        
-            // alignment costs
-            // generate file location of allophone definition file from locale as:
-            // MARYBASE/lib/modules/en/us/lexicon/allophones.en_US.xml
-            String[] localeParts = locale.split("_");
-            allophoneSetXml = db.getProp(db.MARYBASE)+"/lib/modules/"
-                + localeParts[0].toLowerCase()
-                + ((localeParts.length > 1) ? "/"+localeParts[1].toLowerCase() : "")
-                + "/lexicon/allophones."+locale+".xml";
-            props.put(ALLOPHONEXML, allophoneSetXml);
-
         }
         return props;
     }
     
-    protected void setupHelp(){
+    protected void setupHelp()
+    {
         props2Help = new TreeMap<String, String>();
-        props2Help.put(ORIGTRANS,"directory containing the files with text and automatic phonemization");
-        props2Help.put(CORRTRANS,"directory containing manually corrected transcriptions");
-        props2Help.put(RESULTTRANS,"directory for the texts with aligned corrected transcriptions");
-       // props2Help.put(SYMCOSTS,"file with the distance that is to be used for alignment");
     }
     
  
     
-    public int getProgress() {
+    public int getProgress()
+    {
         return progress;
     }
     /**
@@ -170,14 +125,13 @@ public class TranscriptionAligner extends VoiceImportComponent {
      * @throws SAXException 
      * @throws XPathExpressionException 
      */
-    public boolean compute() throws IOException, TransformerException, ParserConfigurationException, SAXException, XPathExpressionException{
-        
-
-        
-        File xmlOutDir = new File((String) props.get(this.RESULTTRANS));
+    public boolean compute()
+    throws IOException, TransformerException, ParserConfigurationException, SAXException
+    {
+        File xmlOutDir = new File((String) db.getProp(db.ALLOPHONESDIR));
         if (!xmlOutDir.exists())
             xmlOutDir.mkdir();
-            
+
         // for parsing xml files
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
@@ -189,9 +143,10 @@ public class TranscriptionAligner extends VoiceImportComponent {
 
         System.out.println("traversing through " + bnl.getLength() + " files");
        
-        for (int i=0;i<bnl.getLength();i++){
+        String promptAllophonesDir = db.getProp(db.PROMPTALLOPHONESDIR);
+        for (int i=0; i<bnl.getLength(); i++) {
             progress = 100*i/bnl.getLength();
-            File nextFile = new File(props.get(this.ORIGTRANS)
+            File nextFile = new File(promptAllophonesDir
                     +System.getProperty("file.separator")
                     +bnl.getName(i)+".xml");
 
@@ -201,16 +156,13 @@ public class TranscriptionAligner extends VoiceImportComponent {
             Document doc = docBuilder.parse(nextFile);
 
             // open destination xml file
-            Writer docDest  = new OutputStreamWriter(new FileOutputStream(props.get(this.RESULTTRANS) + nextFile.getName()), "UTF-8");
-            
+            Writer docDest  = new OutputStreamWriter(new FileOutputStream(xmlOutDir.getAbsolutePath() + nextFile.getName()), "UTF-8");
+
             // open file with manual transcription that is to be aligned
-            
-            //BufferedReader manTrans;
-            
             String manTransString;
             try{
 
-                String trfdir = (String) props.get(this.CORRTRANS);
+                String trfdir = db.getProp(db.LABDIR);
                 
                 String trfname = trfdir + 
                 nextFile.getName().substring(0, nextFile.getName().length() - 4) + ".lab";

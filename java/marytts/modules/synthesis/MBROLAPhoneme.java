@@ -23,7 +23,7 @@ import java.util.Vector;
 
 public class MBROLAPhoneme
 {
-    /** The phoneme symbol, e.g. "a:". */
+    /** The phone symbol, e.g. "a:". */
     private String symbol;
     /** The duration in ms. */
     private int duration;

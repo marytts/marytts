@@ -44,7 +44,7 @@ import marytts.util.io.FileUtils;
  */
 public class PhoneUnitFeatureComputer extends VoiceImportComponent
 {
-    public static final String PHONEFEATURE = "phoneme";
+    public static final String PHONEFEATURE = "phone";
     
     protected File textDir;
     protected File unitfeatureDir;
@@ -99,30 +99,31 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
         }
         File featureFile = new File(getProp(FEATURELIST));
         if (!featureFile.exists()) {
-            throw new Error("No feature file: '"+getProp(FEATURELIST)+"'");
-        }
-        System.out.println("Loading features from file "+getProp(FEATURELIST));
-        try {
-            featureList = FileUtils.getFileAsString(featureFile, "UTF-8");
-            featureList = featureList.replaceAll("\\s+", " ");
-            // Exclude specific halfphone features if present:
-            for (String f : HalfPhoneUnitFeatureComputer.HALFPHONE_FEATURES) {
-                if (featureList.contains(f)) {
-                    featureList = featureList.replaceAll(f, "");
+            System.out.println("No feature file: '"+getProp(FEATURELIST)+"'");
+        } else {
+            System.out.println("Loading features from file "+getProp(FEATURELIST));
+            try {
+                featureList = FileUtils.getFileAsString(featureFile, "UTF-8");
+                featureList = featureList.replaceAll("\\s+", " ");
+                // Exclude specific halfphone features if present:
+                for (String f : HalfPhoneUnitFeatureComputer.HALFPHONE_FEATURES) {
+                    if (featureList.contains(f)) {
+                        featureList = featureList.replaceAll(f, "");
+                    }
                 }
+                if (!featureList.contains(PHONEFEATURE)) {
+                    throw new Exception("Feature list does not contain feature '"+PHONEFEATURE+"'. It makes no sense to continue.");
+                }
+                if (!featureList.startsWith(PHONEFEATURE)) {
+                    // PHONEFEATURE must be the first one in the list
+                    featureList = featureList.replaceFirst("\\s+"+PHONEFEATURE+"\\s*", " ");
+                    featureList = PHONEFEATURE + " " + featureList;
+                }
+            } catch (IOException e) {
+                IOException ioe = new IOException("Cannot read list of features");
+                ioe.initCause(e);
+                throw ioe;
             }
-            if (!featureList.contains(PHONEFEATURE)) {
-                throw new Exception("Feature list does not contain feature '"+PHONEFEATURE+"'. It makes no sense to continue.");
-            }
-            if (!featureList.startsWith(PHONEFEATURE)) {
-                // PHONEFEATURE must be the first one in the list
-                featureList = featureList.replaceFirst("\\s+"+PHONEFEATURE+"\\s+", " ");
-                featureList = PHONEFEATURE + " " + featureList;
-            }
-        } catch (IOException e) {
-            IOException ioe = new IOException("Cannot read list of features");
-            ioe.initCause(e);
-            throw ioe;
         }
 
         maryInputType = "ALLOPHONES";
@@ -186,25 +187,11 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
 
     public void computeFeaturesFor(String basename) throws IOException
     {
-        String text;
-        Locale localVoice = MaryClient.string2locale(locale);
-        
-        // First, test if there is a corresponding .rawmaryxml file in textdir:
-        File rawmaryxmlFile = new File(db.getProp(db.MARYXMLDIR)
-                				+ basename + db.getProp(db.MARYXMLEXT));
-        if (rawmaryxmlFile.exists()) {
-            text = FileUtils.getFileAsString(rawmaryxmlFile, "UTF-8");
-        } else {
-            text = getMaryXMLHeaderWithInitialBoundary(locale)
-                + FileUtils.getFileAsString(new File(db.getProp(db.TEXTDIR) 
-                        		+ basename + db.getProp(db.TEXTEXT)), "UTF-8")
-                + "</maryxml>";
-        }
         File allophoneFile = new File(getProp(ALLOPHONES)
                 + basename + xmlExt);
-        text = FileUtils.getFileAsString(allophoneFile, "UTF-8");
+        String text = FileUtils.getFileAsString(allophoneFile, "UTF-8");
         
-        OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( unitfeatureDir, basename + featsExt )));
+        OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( unitfeatureDir, basename + featsExt)));
         MaryHttpClient maryClient = getMaryClient();
         
         maryClient.process(text, maryInputType, maryOutputType, locale, null, null, "", null, featureList, os);

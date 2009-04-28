@@ -55,7 +55,7 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         HalfPhoneTarget right = diphoneTarget.getRight();
         String leftName = left.getName().substring(0, left.getName().lastIndexOf("_"));
         String rightName = right.getName().substring(0, right.getName().lastIndexOf("_"));
-        int iPhoneme = targetCostFunction.getFeatureDefinition().getFeatureIndex("phoneme");
+        int iPhoneme = targetCostFunction.getFeatureDefinition().getFeatureIndex("phone");
         byte bleftName = targetCostFunction.getFeatureDefinition().getFeatureValueAsByte(iPhoneme, leftName);
         byte brightName = targetCostFunction.getFeatureDefinition().getFeatureValueAsByte(iPhoneme, rightName);
 
@@ -69,7 +69,7 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         for (int i = 0; i < clist.length; i++) {
             Unit unit = unitReader.getUnit(clist[i]);
             byte bunitName = targetCostFunction.getFeatureVector(unit).getByteFeature(iPhoneme);
-            // force correct phoneme symbol:
+            // force correct phone symbol:
             if (bunitName != bleftName) continue;
             int iRightNeighbour = clist[i]+1;
             if (iRightNeighbour < unitReader.getNumberOfUnits()) {
@@ -93,13 +93,13 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         // Now, clist is an array of halfphone unit indexes.
         for (int i = 0; i < clist.length; i++) {
             Unit unit = unitReader.getUnit(clist[i]);
-            String unitName = targetCostFunction.getFeature(unit, "phoneme");
-            // force correct phoneme symbol:
+            String unitName = targetCostFunction.getFeature(unit, "phone");
+            // force correct phone symbol:
             if (!unitName.equals(rightName)) continue;
             int iLeftNeighbour = clist[i]-1;
             if (iLeftNeighbour >= 0) {
                 Unit leftNeighbour = unitReader.getUnit(iLeftNeighbour);
-                String leftUnitName = targetCostFunction.getFeature(leftNeighbour, "phoneme");
+                String leftUnitName = targetCostFunction.getFeature(leftNeighbour, "phone");
                 if (leftUnitName.equals(leftName)) {
                     // Found a diphone -- add it to candidates
                     DiphoneUnit diphoneUnit = new DiphoneUnit(leftNeighbour, unit);

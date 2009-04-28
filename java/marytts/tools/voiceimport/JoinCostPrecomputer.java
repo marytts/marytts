@@ -98,7 +98,7 @@ public class JoinCostPrecomputer extends VoiceImportComponent
         System.out.println("---- Precomputing join costs");
         int retainPercent = Integer.getInteger("joincostprecomputer.retainpercent", 10).intValue();
         int retainMin = Integer.getInteger("joincostprecomputer.retainmin", 20).intValue();
-        System.out.println("Will retain the top "+retainPercent+"% (but at least "+retainMin+") of all joins within a phoneme");
+        System.out.println("Will retain the top "+retainPercent+"% (but at least "+retainMin+") of all joins within a phone");
         
         /* Make a new join cost file to write to */
         DataOutputStream jc = null;
@@ -131,10 +131,10 @@ public class JoinCostPrecomputer extends VoiceImportComponent
             throw new IllegalStateException("Number of units in unit file and unit feature file does not match!");
         int numUnits = unitFeatures.getNumberOfUnits();
         FeatureDefinition def = unitFeatures.getFeatureDefinition();
-        int iPhoneme = def.getFeatureIndex("phoneme");
+        int iPhoneme = def.getFeatureIndex("phone");
         int nPhonemes = def.getNumberOfValues(iPhoneme);
-        List[] left = new List[nPhonemes]; // left half phones grouped by phoneme
-        List[] right = new List[nPhonemes]; // right half phones grouped by phoneme
+        List[] left = new List[nPhonemes]; // left half phones grouped by phone
+        List[] right = new List[nPhonemes]; // right half phones grouped by phone
         for (int i=0; i<nPhonemes; i++) {
             left[i] = new ArrayList();
             right[i] = new ArrayList();
@@ -144,18 +144,18 @@ public class JoinCostPrecomputer extends VoiceImportComponent
         byte vRight = def.getFeatureValueAsByte(iLeftRight, "R");
         for (int i=0; i<numUnits; i++) {
             FeatureVector fv = unitFeatures.getFeatureVector(i); 
-            int phoneme = fv.getFeatureAsInt(iPhoneme);
-            assert 0 <= phoneme && phoneme < nPhonemes;
+            int phone = fv.getFeatureAsInt(iPhoneme);
+            assert 0 <= phone && phone < nPhonemes;
             byte lr = fv.getByteFeature(iLeftRight);
             Unit u = units.getUnit(i);
             if (lr == vLeft) {
-                left[phoneme].add(u);
+                left[phone].add(u);
             } else if (lr == vRight) {
-                right[phoneme].add(u);
+                right[phone].add(u);
             }
         }
         
-        System.out.println("Sorted units by phoneme and halfphone. Now computing costs.");
+        System.out.println("Sorted units by phone and halfphone. Now computing costs.");
         int totalLeftUnits = 0;
         for (int i=0; i<nPhonemes; i++) {
             totalLeftUnits += left[i].size();
@@ -173,7 +173,7 @@ public class JoinCostPrecomputer extends VoiceImportComponent
                 //System.out.println("Left unit "+j+" (index "+ileft+")");
                 jc.writeInt(ileft);
                 // Now for this left halfphone, compute the cost of joining to each
-                // right halfphones of the same phoneme, and remember only the best.
+                // right halfphones of the same phone, and remember only the best.
                 for (int k=0; k<nRightPhoneme; k++) {
                     Unit uright = (Unit) right[i].get(k);
                     int iright = uright.getIndex();

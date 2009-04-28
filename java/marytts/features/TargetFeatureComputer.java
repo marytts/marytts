@@ -287,15 +287,15 @@ public class TargetFeatureComputer
     }
     
     /**
-     * Get the pause symbol as associated with the "phoneme" feature processor used.
+     * Get the pause symbol as associated with the "phone" feature processor used.
      * @return
      */
     public String getPauseSymbol()
     {
         if (pauseSymbol == null) {
             for (MaryFeatureProcessor fp : byteValuedDiscreteFeatureProcessors) {
-                if (fp instanceof MaryLanguageFeatureProcessors.Phoneme) {
-                    pauseSymbol = ((MaryLanguageFeatureProcessors.Phoneme) fp).getPauseSymbol();
+                if (fp instanceof MaryLanguageFeatureProcessors.Phone) {
+                    pauseSymbol = ((MaryLanguageFeatureProcessors.Phone) fp).getPauseSymbol();
                     break;
                 }
             }

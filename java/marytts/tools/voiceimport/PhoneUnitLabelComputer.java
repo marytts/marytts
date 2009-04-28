@@ -33,6 +33,12 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
+
+import marytts.modules.phonemiser.AllophoneSet;
+
 /**
  * Compute unit labels from phone labels.
  * @author schroed
@@ -57,7 +63,12 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
     
      public void initialiseComp()
     {
-         pauseSymbol = System.getProperty( "pause.symbol", "pau" );
+         try {
+            pauseSymbol = AllophoneSet.getAllophoneSet(db.getProp(db.ALLOPHONESET)).getSilence().name();
+        } catch (Exception e) {
+            System.err.println("Cannot get pause symbol from allophone set -- will assume default '_'");
+            pauseSymbol = "_";
+        }
 
         this.unitlabelDir = new File(getProp(LABELDIR));
         if (!unitlabelDir.exists()){

@@ -59,24 +59,24 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
 
     
     /**
-     * The phoneme symbol for the given target.
+     * The phone symbol for the given target.
      * @author Marc Schr&ouml;der
      *
      */
-    public static class Phoneme implements ByteValuedFeatureProcessor
+    public static class Phone implements ByteValuedFeatureProcessor
     {
         protected String name;
         protected ByteStringTranslator values;
         protected String pauseSymbol;
         protected TargetElementNavigator navigator;
         /**
-         * Initialise a phoneme feature processor. 
+         * Initialise a phone feature processor. 
          * @param name the name of the feature
-         * @param possibleValues the list of possible phoneme values for the phonetic alphabet used,
+         * @param possibleValues the list of possible phone values for the phonetic alphabet used,
          * plus the value "0"=n/a.
          * @param segmentNavigator a navigator returning a segment with respect to the target.
          */
-        public Phoneme(String name, String[] possibleValues, String pauseSymbol, TargetElementNavigator segmentNavigator)
+        public Phone(String name, String[] possibleValues, String pauseSymbol, TargetElementNavigator segmentNavigator)
         {
             this.name = name;
             this.values = new ByteStringTranslator(possibleValues);

@@ -121,7 +121,7 @@ public class MaryXMLToMbrola extends InternalModule
      * @throws IllegalArgumentException if one of the Elements in the List is
      * not a <ph> or <boundary> element or if the voice is not an MBROLA voice.
      */
-    public String convertToMbrola(List<Element> phonemesAndBoundaries, Voice voice)
+    public String convertToMbrola(List<Element> phonesAndBoundaries, Voice voice)
     {
         if (!(voice instanceof MbrolaVoice))
             throw new IllegalArgumentException("Expected an MBROLA voice, but "+voice.getName()+" is a "+voice.getClass());
@@ -129,10 +129,10 @@ public class MaryXMLToMbrola extends InternalModule
         MbrolaVoice mbrolaVoice = (MbrolaVoice) voice;
         StringBuffer buf = new StringBuffer();
         // In order to test for missing diphones, we need to
-        // look at two subsequent phonemes. General case:
-        // A list of phonemes "in the cue":
+        // look at two subsequent phones. General case:
+        // A list of phones "in the cue":
         LinkedList<MBROLAPhoneme> mbrolaPhonemes = new LinkedList<MBROLAPhoneme>();
-        for (Element element : phonemesAndBoundaries) {
+        for (Element element : phonesAndBoundaries) {
             if (element.getTagName().equals(MaryXML.PHONE)) {
                 // Assemble an MBROLAPhoneme object:
                 String s = element.getAttribute("p");
@@ -168,9 +168,9 @@ public class MaryXMLToMbrola extends InternalModule
                 Vector<MBROLAPhoneme> p2vect = mbrolaVoice.convertSampa(newP);
                 mbrolaPhonemes.addAll(p2vect);
                 // Verify if diphone exists:
-                while (mbrolaPhonemes.size() > 1) { // at least 2 phonemes
+                while (mbrolaPhonemes.size() > 1) { // at least 2 phones
                     if (!mbrolaVoice.hasDiphone(mbrolaPhonemes.get(0), mbrolaPhonemes.get(1))) {
-                        // Replace the first two phonemes:
+                        // Replace the first two phones:
                         MBROLAPhoneme p1 = mbrolaPhonemes.removeFirst();
                         MBROLAPhoneme p2 = mbrolaPhonemes.removeFirst();
                         Vector<MBROLAPhoneme> newPhones = mbrolaVoice.replaceDiphone(p1, p2);

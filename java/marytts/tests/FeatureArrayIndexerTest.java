@@ -92,7 +92,7 @@ public class FeatureArrayIndexerTest extends TestCase {
         
         // CHEATS
         
-        // feaFinalSeq[0] = 0; // Cheat this value to force phoneme ID
+        // feaFinalSeq[0] = 0; // Cheat this value to force phone ID
         
         // ALL features
 //      feaFinalSeq = new int[42];
@@ -102,21 +102,21 @@ public class FeatureArrayIndexerTest extends TestCase {
         
         // CART top level
 //      feaFinalSeq = new int[3];
-//      feaFinalSeq[0] = 0; // Cheat this value to force phoneme ID
+//      feaFinalSeq[0] = 0; // Cheat this value to force phone ID
 //      feaFinalSeq[1] = 3; // ph_cplace
 //      feaFinalSeq[2] = 28;
         
 //      feaFinalSeq = new int[2];
-//      feaFinalSeq[0] = 0; // Cheat this value to force phoneme ID
+//      feaFinalSeq[0] = 0; // Cheat this value to force phone ID
 //      feaFinalSeq[1] = 3; // c_place
         
-        //String[] feaList = { "phoneme", "ph_cplace" };
-        String[] feaList = { "ph_cplace", "phoneme" };
+        //String[] feaList = { "phone", "ph_cplace" };
+        String[] feaList = { "ph_cplace", "phone" };
         feaFinalSeq = ffi.getFeatureDefinition().getFeatureIndexArray( feaList );
         
         // Phonemes in context
 //      feaFinalSeq = new int[3];
-//      feaFinalSeq[0] = 0; // Cheat this value to force phoneme ID
+//      feaFinalSeq[0] = 0; // Cheat this value to force phone ID
 //      feaFinalSeq[1] = 10; // c_place
 //      feaFinalSeq[2] = 19;
         

@@ -187,7 +187,7 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
         int numUnits = unitFileReader.getNumberOfUnits();
         int unitSampleRate = unitFileReader.getSampleRate();
         FeatureDefinition featureDefinition = feats.getFeatureDefinition();
-        int fiPhoneme = featureDefinition.getFeatureIndex("phoneme");
+        int fiPhoneme = featureDefinition.getFeatureIndex("phone");
         byte fvPhoneme_0 = featureDefinition.getFeatureValueAsByte(fiPhoneme, "0");
         byte fvPhoneme_Silence = featureDefinition.getFeatureValueAsByte(fiPhoneme, "_");
         int fiVowel = featureDefinition.getFeatureIndex("ph_vc");

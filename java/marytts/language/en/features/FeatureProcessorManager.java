@@ -55,9 +55,9 @@ public class FeatureProcessorManager extends
             // Phonetic features of the current segment:
             
             
-            // List of SAMPA phoneme values, this will be the result of calling
+            // List of SAMPA phone values, this will be the result of calling
             // voice.voice2sampa(String mrpaSymbol).
-            String[] phonemeValues = new String[] {
+            String[] phoneValues = new String[] {
                 "0", "V", "i", "I", "U", "{", "@", "r=", "A", "O", "u",
                 "E", "EI", "AI", "OI", "aU", "@U", "j", "h", "N", "S",
                 "T", "Z", "D", "tS", "dZ", "_", "p", "t", "k", "b", "d",
@@ -65,20 +65,20 @@ public class FeatureProcessorManager extends
             };
             
             /**TODO: 
-             *      Remove hardcoded phoneme values and automatically load values as below commented code.
+             *      Remove hardcoded phone values and automatically load values as below commented code.
              *      At present, automatic loading not working because all voices built with
-             *      hardcoded phoneme sequence.  
+             *      hardcoded phone sequence.  
              */
             
-            /*String[] phonemes = phoneSet.listPhonemes();
-            String[] phonemeValues = new String[phonemes.length+1];
-            phonemeValues[0] = "0";
-            System.arraycopy(phonemes, 0, phonemeValues, 1, phonemes.length);*/
+            /*String[] phones = phoneSet.listPhonemes();
+            String[] phoneValues = new String[phones.length+1];
+            phoneValues[0] = "0";
+            System.arraycopy(phones, 0, phoneValues, 1, phones.length);*/
 
             setupHardcodedPhoneFeatureValues();
             
             String pauseSymbol = allophoneSet.getSilence().name();
-            setupPhoneFeatureProcessors(allophoneSet, phonemeValues, pauseSymbol, phonefeatures2values);
+            setupPhoneFeatureProcessors(allophoneSet, phoneValues, pauseSymbol, phonefeatures2values);
 
             String wordFrequencyFilename = MaryProperties.getFilename("english.wordFrequency.fst");
             String wordFrequencyEncoding = MaryProperties.getProperty("english.wordFrequency.encoding");

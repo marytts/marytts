@@ -68,7 +68,7 @@ import org.w3c.dom.traversal.TreeWalker;
 public class PronunciationModel extends InternalModule
 {
 
-	// for prediction, core of the model - maps phonemes to decision trees
+	// for prediction, core of the model - maps phones to decision trees
 	private Map<String, StringPredictionTree> treeMap;
 	  
     // used in startup() and later for convenience
@@ -129,17 +129,17 @@ public class PronunciationModel extends InternalModule
                 Matcher filePatternMatcher = treeFilePattern.matcher(f.getName());
 
                 if ( filePatternMatcher.matches() ){
-                    // phoneme of file name is a group in the regex
-                    String phonemeId = filePatternMatcher.group(1);
+                    // phone of file name is a group in the regex
+                    String phoneId = filePatternMatcher.group(1);
 
-                    // construct tree from file and map phoneme to it
+                    // construct tree from file and map phone to it
                     StringPredictionTree predictionTree = 
                         new StringPredictionTree( new BufferedReader( new FileReader( f ) ), featDef );
 
                     // back mapping from short id
-                    int index = this.featDef.getFeatureIndex("phoneme");
-                    this.treeMap.put( this.featDef.getFeatureValueAsString(index, Short.parseShort(phonemeId)), predictionTree);
-                    //logger.debug("Read in tree for " + PhoneNameConverter.normForm2phone(phoneme));
+                    int index = this.featDef.getFeatureIndex("phone");
+                    this.treeMap.put( this.featDef.getFeatureValueAsString(index, Short.parseShort(phoneId)), predictionTree);
+                    //logger.debug("Read in tree for " + PhoneNameConverter.normForm2phone(phone));
                 }
             }
             logger.debug("Reading in feature definition and decision trees finished.");
@@ -221,17 +221,17 @@ public class PronunciationModel extends InternalModule
                     originalSegments.add(seg);
                 }
                 for (Element s : originalSegments) {
-                    String phonemeString = s.getAttribute("p");
+                    String phoneString = s.getAttribute("p");
                     String[] predicted;
-                    // in case we have a decision tree for phoneme, predict - otherwise leave unchanged
-                    if ( treeMap.containsKey( phonemeString ) ) {
-                        Target tgt = new Target(phonemeString, s);
+                    // in case we have a decision tree for phone, predict - otherwise leave unchanged
+                    if ( treeMap.containsKey( phoneString ) ) {
+                        Target tgt = new Target(phoneString, s);
                         tgt.setFeatureVector(featureComputer.computeFeatureVector(tgt));
-                        StringPredictionTree tree = ( StringPredictionTree ) treeMap.get(phonemeString);            
+                        StringPredictionTree tree = ( StringPredictionTree ) treeMap.get(phoneString);            
                         String predictStr = tree.getMostProbableString(tgt);
                         if (sylPh.length() > 0) sylPh.append(" ");
                         sylPh.append(predictStr);
-                         // if phoneme is deleted:
+                         // if phone is deleted:
                          if ( predictStr.equals("") ){
                              predicted = null;
                          } else {
@@ -239,10 +239,10 @@ public class PronunciationModel extends InternalModule
                              predicted = predictStr.split(" ");                     
                          }
                     } else {
-                        logger.debug("didn't find decision tree for phoneme ("+ phonemeString + "). Just keeping it.");
-                        predicted = new String[]{phonemeString};
+                        logger.debug("didn't find decision tree for phone ("+ phoneString + "). Just keeping it.");
+                        predicted = new String[]{phoneString};
                     }
-                    logger.debug("  Predicted phoneme in sequence of " + predicted.length + " phones." );
+                    logger.debug("  Predicted phone in sequence of " + predicted.length + " phones." );
                     // deletions:
                     if (predicted == null || predicted.length == 0) {
                         syllable.removeChild(s);
@@ -256,7 +256,7 @@ public class PronunciationModel extends InternalModule
                         syllable.insertBefore(newPh, s);
                     }
                     // for the last (or only) predicted segment, just update the phone label
-                    if (!phonemeString.equals(predicted[predicted.length - 1])) {
+                    if (!phoneString.equals(predicted[predicted.length - 1])) {
                         s.setAttribute("p", predicted[predicted.length - 1]);
                     }
                 } // for each segment in syllable

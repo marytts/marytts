@@ -53,7 +53,7 @@ import org.w3c.dom.traversal.TreeWalker;
 
 
 /**
- * Predict phoneme durations using a CART.
+ * Predict phone durations using a CART.
  *
  * @author Marc Schr&ouml;der
  */
@@ -103,38 +103,39 @@ public class CARTF0Modeller extends InternalModule
     public void startup() throws Exception
     {
         super.startup();
-        WagonCARTReader wagonReader = new WagonCARTReader(LeafType.FloatLeafNode);
         
-        File fdFile = new File(MaryProperties.needFilename(propertyPrefix+"featuredefinition"));
-        FeatureDefinition featureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);
-        
-        File leftCartFile = new File(MaryProperties.needFilename(propertyPrefix+"cart.left"));
-        // old: leftCart = new RegressionTree(new BufferedReader(new FileReader(leftCartFile)), featureDefinition);
-        //leftCart = new CART();
-        //leftCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(leftCartFile)), featureDefinition));
-        leftCart = (new MaryCARTReader()).load(leftCartFile.getAbsolutePath());
-        
-        File midCartFile = new File(MaryProperties.needFilename(propertyPrefix+"cart.mid"));
-        // old: midCart = new RegressionTree(new BufferedReader(new FileReader(midCartFile)), featureDefinition);
-        //midCart = new CART();
-        //midCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(midCartFile)), featureDefinition));
-        midCart = (new MaryCARTReader()).load(midCartFile.getAbsolutePath());
-        
-        File rightCartFile = new File(MaryProperties.needFilename(propertyPrefix+"cart.right"));
-        // old: rightCart = new RegressionTree(new BufferedReader(new FileReader(rightCartFile)), featureDefinition);
-        //rightCart = new CART();
-        //rightCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(rightCartFile)), featureDefinition));
-        rightCart = (new MaryCARTReader()).load(rightCartFile.getAbsolutePath());
-        featureComputer = new TargetFeatureComputer(featureProcessorManager, featureDefinition.getFeatureNames());
+        String leftCartFilename = MaryProperties.getFilename(propertyPrefix+"cart.left");
+        if (leftCartFilename != null) { // if we have this, we *need* all the rest
+            File leftCartFile = new File(leftCartFilename);
+
+            File fdFile = new File(MaryProperties.needFilename(propertyPrefix+"featuredefinition"));
+            FeatureDefinition featureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);
+            
+            // old: leftCart = new RegressionTree(new BufferedReader(new FileReader(leftCartFile)), featureDefinition);
+            //leftCart = new CART();
+            //leftCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(leftCartFile)), featureDefinition));
+            leftCart = (new MaryCARTReader()).load(leftCartFile.getAbsolutePath());
+            
+            File midCartFile = new File(MaryProperties.needFilename(propertyPrefix+"cart.mid"));
+            // old: midCart = new RegressionTree(new BufferedReader(new FileReader(midCartFile)), featureDefinition);
+            //midCart = new CART();
+            //midCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(midCartFile)), featureDefinition));
+            midCart = (new MaryCARTReader()).load(midCartFile.getAbsolutePath());
+            
+            File rightCartFile = new File(MaryProperties.needFilename(propertyPrefix+"cart.right"));
+            // old: rightCart = new RegressionTree(new BufferedReader(new FileReader(rightCartFile)), featureDefinition);
+            //rightCart = new CART();
+            //rightCart.setRootNode(wagonReader.load(new BufferedReader(new FileReader(rightCartFile)), featureDefinition));
+            rightCart = (new MaryCARTReader()).load(rightCartFile.getAbsolutePath());
+            featureComputer = new TargetFeatureComputer(featureProcessorManager, featureDefinition.getFeatureNames());
+        }
     }
 
     public MaryData process(MaryData d)
     throws Exception
     {
         Document doc = d.getDocument(); 
-        NodeIterator sentenceIt = ((DocumentTraversal)doc).
-            createNodeIterator(doc, NodeFilter.SHOW_ELEMENT,
-                           new NameNodeFilter(MaryXML.SENTENCE), false);
+        NodeIterator sentenceIt = MaryDomUtils.createNodeIterator(doc, MaryXML.SENTENCE);
         Element sentence = null;
         AllophoneSet allophoneSet = null;
         while ((sentence = (Element) sentenceIt.nextNode()) != null) {
@@ -161,17 +162,18 @@ public class CARTF0Modeller extends InternalModule
                     currentRightCart = voiceTrees[2];
                     logger.debug("Using voice carts");
                 }
-                FeatureDefinition voiceFeatDef = 
-                    ((UnitSelectionVoice)maryVoice).getF0CartsFeatDef();
-                if (voiceFeatDef != null){
-                    currentFeatureComputer = 
-                        new TargetFeatureComputer(featureProcessorManager, voiceFeatDef.getFeatureNames());
+                FeatureDefinition voiceFeatDef = ((UnitSelectionVoice)maryVoice).getF0CartsFeatDef();
+                if (voiceFeatDef != null) {
+                    currentFeatureComputer =  new TargetFeatureComputer(featureProcessorManager, voiceFeatDef.getFeatureNames());
                     logger.debug("Using voice feature definition");
                 }
             }
             
-            TreeWalker tw = ((DocumentTraversal)doc).createTreeWalker(sentence, 
-                    NodeFilter.SHOW_ELEMENT, new NameNodeFilter(MaryXML.SYLLABLE), false);
+            if (currentLeftCart == null) {
+                throw new NullPointerException("Do not have f0 prediction tree");
+            }
+            
+            TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.SYLLABLE);
             Element syllable;
             Element previous = null;
             while ((syllable = (Element)tw.nextNode()) != null) {

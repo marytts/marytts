@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.language.en;
+package marytts.language.en_US;
 
 import java.util.Locale;
 
@@ -27,7 +27,7 @@ import marytts.server.MaryProperties;
 
 
 /**
- * Read a simple phoneme string and generate default acoustic parameters.
+ * Read a simple phone string and generate default acoustic parameters.
  *
  * @author Marc Schr&ouml;der
  */
@@ -38,13 +38,13 @@ public class SimplePhoneme2AP extends marytts.modules.SimplePhoneme2AP
     {
         super(MaryDataType.SIMPLEPHONEMES,
               MaryDataType.ACOUSTPARAMS,
-              Locale.ENGLISH
+              Locale.US
               );
     }
 
     public void startup() throws Exception
     {
-        allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename("english.allophoneset"));
+        allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename(MaryProperties.localePrefix(Locale.US)+".allophoneset"));
         super.startup();
     }
 }

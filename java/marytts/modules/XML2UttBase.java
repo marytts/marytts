@@ -460,9 +460,9 @@ public abstract class XML2UttBase extends InternalModule
             }
         }
         if (phoneList != null) {
-            String[] phonemeArray = (String[]) phoneList.toArray(new String[]{});
+            String[] phoneArray = (String[]) phoneList.toArray(new String[]{});
             tokenRelation.getTail().getFeatures().setObject
-                ("phones", phonemeArray);
+                ("phones", phoneArray);
             phoneList = null;
         }
         return sentenceBuf.toString();

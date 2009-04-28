@@ -135,17 +135,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         }
         
         // Register HMM voices:
-        String basePath =
-            System.getProperty("mary.base")
-                + File.separator
-                + "lib"
-                + File.separator
-                + "voices"
-                + File.separator;
-
         logger.debug("Register HMM voices:");
-        
-        
         String voiceNames = MaryProperties.needProperty("hmm.voices.list");
         for (StringTokenizer st = new StringTokenizer(voiceNames); st.hasMoreTokens(); ) {
             String voiceName = st.nextToken();
@@ -297,7 +287,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
  
     public void setActualDurations(List<Element> tokensAndBoundaries, String durations) 
       throws SynthesisException {
-      int i,j,index;
+      int i,j, index;
       NodeList no1, no2;
       NamedNodeMap att;
       Scanner s = null;
@@ -305,17 +295,15 @@ public class HMMSynthesizer implements WaveformSynthesizer {
       Vector<Integer> dur = new Vector<Integer>();
       String line, str[];
       Integer totalDur = 0;
-      Integer auxDur = 0;
-    
+
       s = new Scanner(durations).useDelimiter("\n");
       while(s.hasNext()) {
          line = s.next();
          str = line.split(" ");
          ph.add(PhoneTranslator.replaceBackTrickyPhones(str[0]));
          dur.add(Integer.valueOf(str[1]));
-         
       }
-      /* the duration of the first phoneme includes de duration of of the initial pause */
+      /* the duration of the first phone includes de duration of of the initial pause */
       if(ph.get(0).contentEquals("_")) {
          dur.set(1, (dur.get(1) + dur.get(0)) );
          ph.set(0, "");
@@ -325,47 +313,24 @@ public class HMMSynthesizer implements WaveformSynthesizer {
       
       for (Element e : tokensAndBoundaries) {
          //System.out.println("TAG: " + e.getTagName());
-         if( e.getTagName().contentEquals(MaryXML.TOKEN) ) {
-          no1 = e.getChildNodes();
-          for(i=0; i< no1.getLength(); i++) {
-            //System.out.println("NodeName1=" + no1.item(i).getNodeName());  
-            if(no1.item(i).getNodeName().contentEquals(MaryXML.SYLLABLE)) {
-           
-              no2 = no1.item(i).getChildNodes();
-              for(j=0; j<no2.getLength(); j++){
-                if (no2.item(j).getNodeType() == Node.TEXT_NODE) continue;
-                
-                if( no2.item(j).getNodeName().contentEquals(MaryXML.PHONE) ) {
-                   //System.out.println("NodeName2=" + no2.item(j).getNodeName());  
-                   att = no2.item(j).getAttributes(); 
-                   
-                   //System.out.println(att.getNamedItem("p").getNodeValue());
-                   if( ( index = ph.indexOf(att.getNamedItem("p").getNodeValue()) ) >= 0 ){ 
-                     totalDur = totalDur + dur.elementAt(index);
-                     att.getNamedItem("d").setNodeValue(dur.elementAt(index).toString());
-                     att.getNamedItem("end").setNodeValue(totalDur.toString());                  
-                     
-                     /* remove this element of the vector otherwise next time it will return the same */
-                     ph.set(index, "");
-                   } else
-                       throw new SynthesisException("setActualDurations: problems phoneme " + att.getNamedItem("p") + " NOT found in HTSEngine phoneme set");
-                   
-                } else if ( no2.item(j).getNodeName().contentEquals(MaryXML.BOUNDARY) ){
-                    // don't do anything
-                    //System.out.println("NodeName2=" + no2.item(j).getNodeName());   
-                } else
-                    throw new SynthesisException("setActualDurations: problem parsing PHONE in List<Element> tokensAndBoundaries.");               
-              }              
-            } 
-          }
+         if( e.getTagName().equals(MaryXML.TOKEN) ) {
+             NodeIterator nIt = MaryDomUtils.createNodeIterator(e, MaryXML.PHONE);
+             Element phone;
+             while ((phone = (Element) nIt.nextNode()) != null) {
+                 String p = phone.getAttribute("p");
+                 index = ph.indexOf(p);
+                 phone.setAttribute("d", dur.elementAt(index).toString());
+                 phone.setAttribute("end", totalDur.toString());
+                 // remove this element of the vector otherwise next time it will return the same
+                 ph.set(index, "");
+             }
          } else if( e.getTagName().contentEquals(MaryXML.BOUNDARY) ) {
              if(e.hasAttribute("duration")) {
                index = ph.indexOf("_");  
                totalDur = totalDur + dur.elementAt(index);
                e.setAttribute("duration", dur.elementAt(index).toString());   
-               /* remove this element of the vector otherwise next time it will return the same */
+               // remove this element of the vector otherwise next time it will return the same
                ph.set(index, "");
-             
              }
          } // else ignore whatever other label...
             

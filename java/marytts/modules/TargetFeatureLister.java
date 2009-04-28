@@ -41,7 +41,7 @@ import org.w3c.dom.traversal.TreeWalker;
 
 
 /**
- * Read a simple phoneme string and generate default acoustic parameters.
+ * Read a simple phone string and generate default acoustic parameters.
  *
  * @author Marc Schr&ouml;der
  */

@@ -53,7 +53,7 @@ import org.w3c.dom.traversal.TreeWalker;
 
 
 /**
- * Dummy modules to support new language (for phoneme durations and phoneme f0) 
+ * Dummy modules to support new language (for phone durations and phone f0) 
  *
  * @author Sathish Pammi
  */

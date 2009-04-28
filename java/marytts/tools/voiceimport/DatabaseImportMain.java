@@ -238,15 +238,16 @@ public class DatabaseImportMain extends JFrame
                 helpGUIThread.start();
     }
     
-    protected void displaySettingsGUI(){
-            new Thread("DisplaySettingsGUIThread") {
-                public void run() {
-                    Map comps2HelpText = db.getComps2HelpText();
-                   new SettingsGUI(db, 
-                            	db.getAllPropsForDisplay(),
-                            	currentComponent,
-                            	comps2HelpText);
-                }}.start();
+    protected void displaySettingsGUI()
+    {
+        new Thread("DisplaySettingsGUIThread") {
+            public void run() {
+                Map<String, String> comps2HelpText = db.getComps2HelpText();
+                new SettingsGUI(db, 
+                        db.getAllPropsForDisplay(),
+                        currentComponent,
+                        comps2HelpText);
+            }}.start();
     }
     
     /**
@@ -263,8 +264,8 @@ public class DatabaseImportMain extends JFrame
                         boolean success = false;
                         Container parent = checkboxes[i].getParent();
                         final JProgressBar progress = new JProgressBar();
-                        final VoiceImportComponent currentComponent = components[i];
-                        if (currentComponent.getProgress() != -1) {
+                        final VoiceImportComponent oneComponent = components[i];
+                        if (oneComponent.getProgress() != -1) {
                             progress.setStringPainted(true);
                             new Thread("ProgressThread") {
                                 public void run() {
@@ -273,7 +274,7 @@ public class DatabaseImportMain extends JFrame
                                         progress.setValue(percent);
                                         try { Thread.sleep(500); }
                                         catch (InterruptedException ie) {}
-                                        percent = currentComponent.getProgress();
+                                        percent = oneComponent.getProgress();
                                     }
                                 }
                             }.start();
@@ -284,7 +285,7 @@ public class DatabaseImportMain extends JFrame
                         progress.setVisible(true);
                         parent.validate();
                         try {
-                            success = currentComponent.compute();
+                            success = oneComponent.compute();
                         } catch (Exception exc) {
                             checkboxes[i].setBackground(Color.RED);
                             checkboxes[i].setSelected(false);
@@ -332,28 +333,27 @@ public class DatabaseImportMain extends JFrame
     
     
    
-    public static String[][] readComponentList(InputStream fileIn){
-        List groups = new ArrayList();
-        Map groups2Names = new HashMap();
-        Map groups2Components = new HashMap();
+    public static String[][] readComponentList(InputStream fileIn)
+    throws IOException
+    {
+        List<String> groups = new ArrayList<String>();
+        Map<String, String> groups2Names = new HashMap<String, String>();
+        Map<String, List<String>> groups2Components = new HashMap<String, List<String>>();
         try{            
-            BufferedReader in = 
-                new BufferedReader(
-                        new InputStreamReader(fileIn, "UTF-8"));
+            BufferedReader in = new BufferedReader(new InputStreamReader(fileIn, "UTF-8"));
             String line;
-            while ((line=in.readLine())!=null){
+            while ((line=in.readLine())!=null) {
                 line = line.trim();
-                if (line.startsWith("#")
-                        ||line.equals(""))
+                if (line.startsWith("#") || line.equals(""))
                     continue;
                 //System.out.println(line);
                 String[] lineSplit = line.split(" ");
-                if (lineSplit[0].equals("group")){
+                if (lineSplit[0].equals("group")) {
                     //we have a group
                     //line looks like "group basic_data basic data files"
                     groups.add(lineSplit[1]);
                     StringBuffer nameBuf = new StringBuffer();
-                    for (int i=2;i<lineSplit.length;i++){
+                    for (int i=2; i<lineSplit.length; i++) {
                         nameBuf.append(lineSplit[i]+" ");
                     }
                     groups2Names.put(lineSplit[1],nameBuf.toString().trim());
@@ -362,31 +362,32 @@ public class DatabaseImportMain extends JFrame
                     //line looks like 
                     //"marytts.tools.voiceimport.WaveformTimelineMaker basic_data"
                     if (groups2Components.containsKey(lineSplit[1])){
-                        List comps = (List) groups2Components.get(lineSplit[1]);
+                        List<String> comps = groups2Components.get(lineSplit[1]);
                         comps.add(lineSplit[0]);
                     } else {
-                        List comps = new ArrayList();
+                        List<String> comps = new ArrayList<String>();
                         comps.add(lineSplit[0]);
                         groups2Components.put(lineSplit[1],comps);
                     }
                 }
             }
             in.close();
-        } catch (Exception e){
-            e.printStackTrace();
-            throw new Error("Error reading list of modules");
+        } catch (IOException e) {
+            IOException myIOE = new IOException("Problem reading list of modules");
+            myIOE.initCause(e);
+            throw myIOE;
         }
         String[][] result = new String[groups.size()][];
-        for (int i=0;i<groups.size();i++){
-            String groupKey = (String) groups.get(i);
-            String groupName = (String) groups2Names.get(groupKey);
-            List components = (List) groups2Components.get(groupKey);
+        for (int i=0;i<groups.size();i++) {
+            String groupKey = groups.get(i);
+            String groupName = groups2Names.get(groupKey);
+            List<String> components = groups2Components.get(groupKey);
             if (components == null) //group is empty
                 continue;
             String[] group = new String[components.size()+1];
             group[0] = groupName;
-            for(int j=0;j<components.size();j++){
-                group[j+1]=(String) components.get(j);                
+            for(int j=0; j<components.size(); j++) {
+                group[j+1] = components.get(j);                
             }    
             result[i] = group;
         }
@@ -455,15 +456,11 @@ public class DatabaseImportMain extends JFrame
         /* Read the list of components */
         String[][] groups2comps;
         File importMainConfigFile = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+"./importMain.config");
-        if (!importMainConfigFile.exists()){
+        if (!importMainConfigFile.exists()) {
             //create config file
-            BufferedReader configIn = 
-                new BufferedReader(
-                        new InputStreamReader(
+            BufferedReader configIn = new BufferedReader(new InputStreamReader(
                                 DatabaseImportMain.class.getResourceAsStream("importMain.config"),"UTF-8"));
-            PrintWriter configOut = 
-                new PrintWriter(
-                        new OutputStreamWriter(
+            PrintWriter configOut = new PrintWriter(new OutputStreamWriter(
                                 new FileOutputStream(importMainConfigFile),"UTF-8"),true);
             String line;
             while((line=configIn.readLine())!= null){
@@ -472,16 +469,13 @@ public class DatabaseImportMain extends JFrame
             configIn.close();
             configOut.close();
             //read the config file
-            groups2comps = 
-                readComponentList(
-                        DatabaseImportMain.class.getResourceAsStream("importMain.config"));
+            groups2comps = readComponentList(DatabaseImportMain.class.getResourceAsStream("importMain.config"));
         } else {
-            groups2comps = 
-                readComponentList(new FileInputStream(importMainConfigFile));
+            groups2comps = readComponentList(new FileInputStream(importMainConfigFile));
         }
         /* Create component classes */
         
-        List compsList = new ArrayList();
+        List<VoiceImportComponent> compsList = new ArrayList<VoiceImportComponent>();
         //loop over the groups
         for (int i=0;i<groups2comps.length;i++){
             //get the components for this group
@@ -497,9 +491,8 @@ public class DatabaseImportMain extends JFrame
                 nextComps[j] = className.substring(className.lastIndexOf('.')+1);
             }
         }
-        VoiceImportComponent[] components = 
-            new VoiceImportComponent[compsList.size()]; 
-        components = (VoiceImportComponent[])compsList.toArray(components);
+        VoiceImportComponent[] components = new VoiceImportComponent[compsList.size()]; 
+        components = compsList.toArray(components);
         /* Load DatabaseLayout */
         DatabaseLayout db = new DatabaseLayout(components);
         if (!db.isInitialized())
@@ -515,13 +508,17 @@ public class DatabaseImportMain extends JFrame
     }
     
    
-    class ConfigButtonActionListener implements ActionListener{
+    class ConfigButtonActionListener implements ActionListener
+    {
         private String comp;
         
-        public ConfigButtonActionListener(String comp){
+        public ConfigButtonActionListener(String comp)
+        {
             this.comp = comp;
         }
-        public void actionPerformed(ActionEvent ae) {
+        
+        public void actionPerformed(ActionEvent ae)
+        {
             currentComponent = comp;
             displaySettingsGUI();
         }        

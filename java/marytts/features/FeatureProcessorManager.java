@@ -258,25 +258,25 @@ public class FeatureProcessorManager
     /**
      * Set up phone feature processors based on phoneset.
      * @param phoneset the AllophoneSet used for the current locale.
-     * @param phonemeValues optional. If null, will query phoneset.
+     * @param phoneValues optional. If null, will query phoneset.
      * @param pauseSymbol optional. If null, will query phoneset.
      * @param featuresToValues map listing the possible values for each feature. Optional. If null, will query phoneset.
      */
-    protected void setupPhoneFeatureProcessors(AllophoneSet phoneset, String[] phonemeValues, String pauseSymbol, Map<String, String[]> featuresToValues)
+    protected void setupPhoneFeatureProcessors(AllophoneSet phoneset, String[] phoneValues, String pauseSymbol, Map<String, String[]> featuresToValues)
     {
         MaryGenericFeatureProcessors.TargetElementNavigator segment = new MaryGenericFeatureProcessors.SegmentNavigator();
 
-        if (phonemeValues == null) {
+        if (phoneValues == null) {
             String[] pValues = (String[]) phoneset.getAllophoneNames().toArray(new String[0]);
-            phonemeValues = new String[pValues.length+1];
-            phonemeValues[0] = "0";
-            System.arraycopy(pValues, 0, phonemeValues, 1, pValues.length);
+            phoneValues = new String[pValues.length+1];
+            phoneValues[0] = "0";
+            System.arraycopy(pValues, 0, phoneValues, 1, pValues.length);
         }
         if (pauseSymbol == null) {
             pauseSymbol = phoneset.getSilence().name();
         }
-        addFeatureProcessor(new MaryLanguageFeatureProcessors.Phoneme("phoneme", phonemeValues, pauseSymbol, segment));
-        addFeatureProcessor(new MaryLanguageFeatureProcessors.HalfPhoneUnitName(phonemeValues, pauseSymbol));
+        addFeatureProcessor(new MaryLanguageFeatureProcessors.Phone("phone", phoneValues, pauseSymbol, segment));
+        addFeatureProcessor(new MaryLanguageFeatureProcessors.HalfPhoneUnitName(phoneValues, pauseSymbol));
         addFeatureProcessor(new MaryLanguageFeatureProcessors.SegOnsetCoda(phoneset));
         // Phone features:
         Set<String> featureNames;
@@ -300,7 +300,7 @@ public class FeatureProcessorManager
 
         for (String position : segments.keySet()) {
             MaryGenericFeatureProcessors.TargetElementNavigator navi = segments.get(position);
-            addFeatureProcessor(new MaryLanguageFeatureProcessors.Phoneme(position+"_phoneme", phonemeValues, pauseSymbol, navi));
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.Phone(position+"_phone", phoneValues, pauseSymbol, navi));
             // Phone features:
             for (String feature : featureNames) {
                 String[] values;
