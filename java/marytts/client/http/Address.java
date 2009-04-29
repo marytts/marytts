@@ -25,7 +25,8 @@ package marytts.client.http;
  * 
  * @author Oytun T&uumlrk
  */
-public class Address {
+public class Address
+{
     private String host;
     private int port;
     private String fullAddress; // --> host:port

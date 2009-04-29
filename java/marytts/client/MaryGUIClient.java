@@ -1,5 +1,5 @@
 /**
- * Copyright 2000-2006 DFKI GmbH.
+ * Copyright 2000-2009 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
  *
  * This file is part of MARY TTS.
@@ -78,6 +78,8 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import marytts.client.http.Address;
+import marytts.client.http.MaryHttpClient;
 import marytts.util.MaryUtils;
 
 import org.incava.util.diff.Diff;
@@ -89,8 +91,8 @@ import org.incava.util.diff.Difference;
 /**
  * A GUI Interface to the Mary Client, allowing to access and modify
  * intermediate processing results.
- * @author Marc Schr&ouml;der
- * @see MaryClient The client implementation
+ * @author Marc.Schroeder, oytun.turk
+ * @see MaryHttpClient The client implementation
  */
 
 public class MaryGUIClient extends JPanel
@@ -150,25 +152,17 @@ public class MaryGUIClient extends JPanel
     private MaryClient processor;
 
     private marytts.util.data.audio.AudioPlayer audioPlayer = null;
-    private Vector<MaryClient.Voice> availableVoices = null;
-    private Vector<MaryClient.DataType> inputTypes = null;
-    private Vector<MaryClient.DataType> outputTypes = null;
     private boolean allowSave;
     private boolean streamMp3 = false;
     private MaryClient.Voice prevVoice = null;
 
     //Map of limited Domain Voices and their example Texts
-    private Map limDomVoices = new HashMap();
-    
-    //Map of voices and their audio effects
-    private Map voices = new HashMap();
+    private Map<String, Vector<String>> limDomVoices = new HashMap<String, Vector<String>>();
     
     private GridBagLayout gridBagLayout;
     private GridBagConstraints gridC;
     
     static FocusTraversalPolicy maryGUITraversal;
-    
-    private String serverVersion;
 
     /**
      * Create a MaryGUIClient instance that connects to the server host
@@ -177,13 +171,13 @@ public class MaryGUIClient extends JPanel
      * @throws IOException
      * @throws UnknownHostException
      */
-    public MaryGUIClient() throws IOException, UnknownHostException
+    public MaryGUIClient() throws Exception
     {
         super();
-        // First the MaryClient processor class, because it may provide
+        // First the MaryHttpClient processor class, because it may provide
         // information needed in the GUI creation.
         try {
-            processor = new MaryClient();
+            processor = MaryClient.getMaryClient();
             streamMp3 = Boolean.getBoolean("stream.mp3");
         } catch (Exception e) {
             e.printStackTrace();
@@ -205,13 +199,13 @@ public class MaryGUIClient extends JPanel
      * @throws IOException
      * @throws UnknownHostException
      */
-    public MaryGUIClient(String host, int port, JApplet applet) throws IOException, UnknownHostException
+    public MaryGUIClient(Address hostAddress, JApplet applet) throws IOException
     {
         super();
-        // First the MaryClient processor class, because it may provide
+        // First the MaryHttpClient processor class, because it may provide
         // information needed in the GUI creation.
         try {
-            processor = new MaryClient(host, port, false, false);
+            processor = new MaryHttpClient(hostAddress, false, false);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
@@ -225,61 +219,15 @@ public class MaryGUIClient extends JPanel
         init();
     }
     
-    public void getServerVersion()
-    {
-        String[] serverInfo = null;
-        try {
-            serverInfo = processor.getServerVersionInfo();
-        } catch (UnknownHostException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        } catch (IOException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        
-        if (serverInfo!=null)
-        {
-            int startIndex = 0;
-            int endIndex = serverInfo[0].length();
-            int dotIndex = serverInfo[0].indexOf('.');
-            if (dotIndex>-1)
-            {
-                int spaceIndex1 = serverInfo[0].lastIndexOf(' ', dotIndex);
-                if (spaceIndex1<0)
-                    spaceIndex1=-1;
-                int spaceIndex2 = serverInfo[0].indexOf(' ', dotIndex);
-                if (spaceIndex2<0)
-                    spaceIndex2=serverInfo[0].length();
-                
-                startIndex = spaceIndex1+1;
-                endIndex = spaceIndex2;
-            }
-            
-            serverVersion = serverInfo[0].substring(startIndex, endIndex);
-        }
-        else
-            serverVersion = "";
-    }
-    
-    public boolean isServerNotOlderThan(String currentServer, String serverVersionToCompare)
-    {
-        int tmp = currentServer.compareToIgnoreCase(serverVersionToCompare);
-        
-        if (tmp>=0)
-            return true;
-        else
-            return false;
-    }
-
     /**
-     * Create an instance of the MaryClient class which does the processing,
+     * Create an instance of the MaryHttpClient class which does the processing,
      * and initialise the GUI.
+     * @throws InterruptedException 
+     * @throws IOException 
+     * @throws Exception 
      */
-    public void init() throws IOException, UnknownHostException {
-
-        getServerVersion();
-        
+    public void init() throws IOException 
+    {
         maryGUITraversal = new MaryGUIFocusTraversalPolicy();
         //if this is a normal gui
         if (mainFrame != null){
@@ -311,11 +259,9 @@ public class MaryGUIClient extends JPanel
         gridC.gridwidth = 1;
         JLabel inputTypeLabel = new JLabel( "Input Type: " );
         inputTypePanel.add(inputTypeLabel);
-        inputTypes = processor.getInputDataTypes();
-        outputTypes = processor.getOutputDataTypes();
-        assert inputTypes.size() > 0;
-        assert outputTypes.size() > 0;
-        cbInputType = new JComboBox( inputTypes );
+        assert processor.getInputDataTypes().size() > 0;
+        assert processor.getOutputDataTypes().size() > 0;
+        cbInputType = new JComboBox( processor.getInputDataTypes() );
         cbInputType.setName("Input Type");
         cbInputType.getAccessibleContext().setAccessibleName("Input Type selection");
         cbInputType.setToolTipText( "Specify the type of data contained " +
@@ -364,10 +310,10 @@ public class MaryGUIClient extends JPanel
         inputText.getAccessibleContext().setAccessibleName("Input Text Area");
 
         //Set Tab and Shift-Tab for Keyboard movement
-        Set forwardKeys = new HashSet();
+        Set<KeyStroke> forwardKeys = new HashSet<KeyStroke>();
         forwardKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_TAB, 0, false));
         inputText.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS,forwardKeys);
-        Set backwardKeys = new HashSet();
+        Set<KeyStroke> backwardKeys = new HashSet<KeyStroke>();
         backwardKeys.add(KeyStroke.getKeyStroke(KeyEvent.VK_TAB,KeyEvent.SHIFT_MASK+KeyEvent.SHIFT_DOWN_MASK, false));
         inputText.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS,backwardKeys);
 
@@ -427,16 +373,16 @@ public class MaryGUIClient extends JPanel
             }
         });
         
-        // For the limited domain voices, get example texts: 
-        availableVoices = processor.getVoices();
-        Iterator it = availableVoices.iterator();
-        while (it.hasNext()) {
-            MaryClient.Voice v = (MaryClient.Voice) it.next();
-            if (v.isLimitedDomain()){
-                String exampleText = processor.getVoiceExampleText(v.name());
-                limDomVoices.put(v.name(), processVoiceExampleText(exampleText));
+        // For the limited domain voices, get example texts:
+        Vector<MaryClient.Voice> voices = processor.getVoices();
+        if (voices != null) {
+            for (MaryClient.Voice v : voices) {
+                if (v.isLimitedDomain()){
+                    limDomVoices.put(v.name(), processor.getVoiceExampleTextsLimitedDomain(v.name()));
+                }
             }
         }
+
         verifyDefaultVoices();
         fillExampleTexts();
         verifyExamplesVisible();
@@ -722,7 +668,15 @@ public class MaryGUIClient extends JPanel
             bSaveOutput.setMnemonic('S');
             bSaveOutput.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    saveOutput();
+                    try {
+                        saveOutput();
+                    } catch (IOException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    } catch (InterruptedException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
                 }
             });
             savePanel.add( bSaveOutput );
@@ -743,15 +697,24 @@ public class MaryGUIClient extends JPanel
         
         try {
             availableAudioEffects = processor.getAudioEffects();
-        } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
         
         effectsBox = new AudioEffectsBoxGUI(availableAudioEffects);
+        // TODO: this is overkill, we could load a help text when the
+        // user presses a help button, but it would require re-engineering the code a bit.
+        // fill help through separate queries:
+        for (int i=0; i< effectsBox.getData().getTotalEffects(); i++) {
+            AudioEffectControlData eff = effectsBox.getData().getControlData(i);
+            try {
+                eff.setHelpText(processor.requestEffectHelpText(eff.getEffectName()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
     
     private void showHideEffectAction()
@@ -791,10 +754,11 @@ public class MaryGUIClient extends JPanel
             if (effectsBox.hasEffects() && effectsBox.getData().getTotalEffects()>0)
             {
                 MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
+                if (voice == null) return;
                 
                 for (int i=0; i<effectsBox.getData().getTotalEffects(); i++)
                 {
-                    String effectName = effectsBox.effectControls[i].getData().getEffectName();
+                    String effectName = effectsBox.getData().getControlData(i).getEffectName();
                     
                     effectsBox.effectControls[i].setVisible(true);
                     //Do not display audio effects that are only available for the HMM voice
@@ -804,10 +768,7 @@ public class MaryGUIClient extends JPanel
                             if (processor.isHMMEffect(effectName))  
                                 effectsBox.effectControls[i].setVisible(false);  
                                 
-                        } catch (UnknownHostException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (IOException e) {
+                        } catch (Exception e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
                         }
@@ -820,53 +781,42 @@ public class MaryGUIClient extends JPanel
         //
     }
 
-    //Create a single String parameter by reading the selected effect parameters in the interface
-    //If no effect is selected or the effects are not being shown, an empty String is returned
-    private String getAudioEffectsAsString()
+    
+    /**
+     * Create a single String parameter by reading the selected effect parameters in the interface
+     * If no effect is selected or the effects are not being shown, an empty String is returned.
+     * @return a String of the form
+     * "Effect1Name(Effect1Parameter1=Effect1Value1; Effect1Parameter2=Effect1Value2)+Effect2Name(Effect2Parameter1=Effect2Value1)"
+     * For example, "Robot(amount=100)+Whisper(amount=50)" will convert the output into
+     * a whispered robotic voice with the specified amounts.
+     */
+    private String getAudioEffectsString()
     {
-        String strParams = "";
-        String strTmpParam;
-
-        if (effectsBox!=null)
-        {
-            if (isButtonHide)
-            {         
-                boolean bFirst = true;
-                for (int i=0; i<effectsBox.getData().getTotalEffects(); i++)
-                {
-                    if (effectsBox.effectControls[i].chkEnabled.isSelected())
-                    {   
-                        strTmpParam = "";
-                        try {
-                            strTmpParam = processor.requestFullEffect(effectsBox.getData().getControlData(i).getEffectName(), effectsBox.effectControls[i].txtParams.getText());
-                        } catch (UnknownHostException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-
-                        strTmpParam = strTmpParam.trim();
-                        
-                        if (!bFirst)
-                            strParams += "+" + strTmpParam;
-                        else
-                        {
-                            strParams += strTmpParam;
-                            bFirst = false;
-                        }
+        StringBuilder effects = new StringBuilder();
+        String key, value;
+        if (effectsBox!=null && isButtonHide) {        
+            for (int i=0; i<effectsBox.getData().getTotalEffects(); i++) {
+                if (effectsBox.effectControls[i].chkEnabled.isSelected()) {
+                    String name = effectsBox.getData().getControlData(i).getEffectName();
+                    String params = effectsBox.effectControls[i].txtParams.getText().trim();
+                    if (effects.length() > 0) effects.append("+");
+                    effects.append(name);
+                    if (params != null && params.length()>0) {
+                        effects.append("(").append(params).append(")");
                     }
                 }
             }
         }
-        
-        return strParams;
+        return effects.toString();
     }
+
+    
+    
     
     private void setExampleInputText()
     {
         MaryClient.Voice defaultVoice = (MaryClient.Voice) cbDefaultVoice.getSelectedItem();
+        if (defaultVoice == null) return;
         MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
         if (defaultVoice.isLimitedDomain() && inputType.name().startsWith("TEXT")) {
             setInputText((String) cbVoiceExampleText.getSelectedItem());
@@ -874,7 +824,7 @@ public class MaryGUIClient extends JPanel
             try {
                 String exampleText = processor.getServerExampleText(inputType.name(), defaultVoice.getLocale().toString());
                 setInputText(exampleText);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -883,8 +833,8 @@ public class MaryGUIClient extends JPanel
     private void fillExampleTexts()
     {
         MaryClient.Voice defaultVoice = (MaryClient.Voice) cbDefaultVoice.getSelectedItem();
-        if (!defaultVoice.isLimitedDomain()) return;
-        Vector sentences = (Vector)limDomVoices.get(defaultVoice.name());
+        if (defaultVoice == null || !defaultVoice.isLimitedDomain()) return;
+        Vector<String> sentences = (Vector<String>)limDomVoices.get(defaultVoice.name());
         assert sentences != null;
         cbVoiceExampleText.removeAllItems();
         for (int i = 0; i<sentences.size(); i++) {
@@ -898,7 +848,7 @@ public class MaryGUIClient extends JPanel
         MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
         MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
 
-        if (defaultVoice.isLimitedDomain() && inputType.name().startsWith("TEXT")) {
+        if (defaultVoice != null && defaultVoice.isLimitedDomain() && inputType.name().startsWith("TEXT")) {
             cbVoiceExampleText.setVisible(true);
         } else {
             cbVoiceExampleText.setVisible(false);
@@ -938,45 +888,37 @@ public class MaryGUIClient extends JPanel
     
     /**
      * Verify that the list of voices in cbDefaultVoices matches the language of the input format.
+     * @throws InterruptedException 
+     * @throws IOException 
      */
-    private void verifyDefaultVoices() 
+    private void verifyDefaultVoices() throws IOException 
     {
         MaryClient.DataType inputType = (MaryClient.DataType)cbInputType.getSelectedItem();
         // Is the default voice still suitable for the input locale?
         MaryClient.Voice defaultVoice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
         // Reset the list, just in case
         cbDefaultVoice.removeAllItems();
-        for (MaryClient.Voice v : availableVoices) {
-            cbDefaultVoice.addItem(v);
-        }
-        if (defaultVoice != null) {
-            cbDefaultVoice.setSelectedItem(defaultVoice);
-        } else { // First in list is default voice:
-            cbDefaultVoice.setSelectedIndex(0);
+        Vector<MaryClient.Voice> voices = processor.getVoices();
+        if (voices != null) {
+            for (MaryClient.Voice v : processor.getVoices()) {
+                cbDefaultVoice.addItem(v);
+            }
+            if (defaultVoice != null) {
+                cbDefaultVoice.setSelectedItem(defaultVoice);
+            } else { // First in list is default voice:
+                cbDefaultVoice.setSelectedIndex(0);
+            }
         }
     }
 
 
-    /**
-     * Divides the example text of a voice into
-     * sentences in a vector
-     * @param text the example text
-     * @return vector of example sentences
-     */
-    private Vector processVoiceExampleText(String text){
-        StringTokenizer st = new StringTokenizer(text,"#");
-        Vector sentences = new Vector();
-        while (st.hasMoreTokens()){
-            sentences.add(st.nextToken());}
-        return sentences;
-    }
 
-    private void setOutputTypeItems()
+    private void setOutputTypeItems() throws IOException
     {
         MaryClient.DataType inputType = (MaryClient.DataType) cbInputType.getSelectedItem();
         MaryClient.DataType selectedItem = (MaryClient.DataType) cbOutputType.getSelectedItem();
         cbOutputType.removeAllItems();
-        for (MaryClient.DataType d : outputTypes) {
+        for (MaryClient.DataType d : processor.getOutputDataTypes()) {
             cbOutputType.addItem(d);
         }
         cbOutputType.setSelectedItem(selectedItem);
@@ -1034,9 +976,9 @@ public class MaryGUIClient extends JPanel
     /* -------------------- Processing callers -------------------- */
     private File lastDirectory = null;
     private String lastExtension = null;
-    private void saveOutput()
+    private void saveOutput() throws IOException, InterruptedException
     {   
-        if (isServerNotOlderThan(serverVersion, "3.5.0"))
+        if (processor.isServerVersionAtLeast("3.5.0"))
             saveOutputNew();
         else
             saveOutputOld();
@@ -1064,14 +1006,14 @@ public class MaryGUIClient extends JPanel
                 if (lastDirectory != null) {
                     fc.setCurrentDirectory(lastDirectory);
                 }
-                String[] knownAudioTypes = processor.getAudioFileFormatTypes();
-                String[] extensions = new String[knownAudioTypes.length];
-                String[] typeNames = new String[knownAudioTypes.length];
+                Vector<String> knownAudioTypes = processor.getAudioFileFormatTypes();
+                String[] extensions = new String[knownAudioTypes.size()];
+                String[] typeNames = new String[knownAudioTypes.size()];
                 FileFilter defaultFilter = null;
-                for (int i=0; i<knownAudioTypes.length; i++) {
-                    int iSpace = knownAudioTypes[i].indexOf(' ');
-                    extensions[i] = knownAudioTypes[i].substring(0, iSpace);
-                    typeNames[i] = knownAudioTypes[i].substring(iSpace+1);
+                for (int i=0; i<knownAudioTypes.size(); i++) {
+                    int iSpace = knownAudioTypes.get(i).indexOf(' ');
+                    extensions[i] = knownAudioTypes.get(i).substring(0, iSpace);
+                    typeNames[i] = knownAudioTypes.get(i).substring(iSpace+1);
                     FileFilter ff = new SimpleFileFilter(extensions[i],
                             typeNames[i] + " (." + extensions[i] + ")");
                     fc.addChoosableFileFilter(ff);
@@ -1093,7 +1035,7 @@ public class MaryGUIClient extends JPanel
                     lastDirectory = saveFile.getParentFile();
                     lastExtension = ext;
                     String audioType = null;
-                    for (int i=0; i<knownAudioTypes.length; i++) {
+                    for (int i=0; i<knownAudioTypes.size(); i++) {
                         if (extensions[i].equals(ext)) {
                             audioType = typeNames[i];
                             break;
@@ -1110,7 +1052,8 @@ public class MaryGUIClient extends JPanel
                                 audioType,
                                 ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                                 "",
-                                getAudioEffectsAsString(),
+                                getAudioEffectsString(),
+                                null,
                                 new FileOutputStream(saveFile));
                     }
                 }
@@ -1118,6 +1061,9 @@ public class MaryGUIClient extends JPanel
         } catch (IOException e) {
             e.printStackTrace();
             showErrorMessage("IOException",e.getMessage());
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
     
@@ -1190,6 +1136,9 @@ public class MaryGUIClient extends JPanel
         } catch (IOException e) {
             e.printStackTrace();
             showErrorMessage("IOException",e.getMessage());
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 
@@ -1252,12 +1201,12 @@ public class MaryGUIClient extends JPanel
                 processor.streamAudio(inputText.getText(), 
                         ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
                         ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
-                        streamMp3 ? "MP3":"WAVE",
+                        streamMp3 ? "MP3":"AU",
                                 ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
                                 "",
-                                getAudioEffectsAsString(),
+                                getAudioEffectsString(),
                                 audioPlayer,
-                                new MaryClient.AudioPlayerListener() {
+                                new MaryHttpClient.AudioPlayerListener() {
                     public void playerFinished()
                     {
                         resetPlayButton();
@@ -1279,14 +1228,18 @@ public class MaryGUIClient extends JPanel
             try {
                 // Write to a byte array (to be converted to a string later)
                 os = new ByteArrayOutputStream();
+                MaryClient.Voice voice = (MaryClient.Voice)cbDefaultVoice.getSelectedItem();
+                String voiceName = voice != null ? voice.name() : null;
+                String locale = voice != null ? voice.getLocale().toString() : null;
                 processor.process(inputText.getText(),
                         ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
                         outputType.name(),
-                        ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
+                        locale,
                         null,
-                        ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
+                        voiceName,
                         "",
-                        getAudioEffectsAsString(),
+                        getAudioEffectsString(),
+                        null,
                         os);
 
                 try {
@@ -1366,10 +1319,8 @@ public class MaryGUIClient extends JPanel
                 //System.err.println("Output Word nr. " + i + ": [" + outputWords[i] + "], indexes " + outputIndex[i] + "-" + (outputIndex[i]+outputWords[i].length()) + "[" + output.substring(outputIndex[i], outputIndex[i]+outputWords[i].length()) + "]");
             }
             outputIndex[outputWords.length] = total;
-            List diffs = new Diff(inputWords, outputWords).diff();
-            Iterator it = diffs.iterator();
-            while (it.hasNext()) {
-                Difference diff = (Difference)it.next();
+            List<Difference> diffs = new Diff(inputWords, outputWords).diff();
+            for (Difference diff : diffs) {
                 int delStart = diff.getDeletedStart();
                 int delEnd = diff.getDeletedEnd();
                 int addStart = diff.getAddedStart();

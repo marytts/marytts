@@ -24,6 +24,8 @@ import java.io.IOException;
 
 import javax.swing.JApplet;
 
+import marytts.client.http.Address;
+
 /**
  * @author Marc Schr&ouml;der
  *
@@ -40,7 +42,7 @@ public class MaryInterfaceApplet extends JApplet
         }
         int port = 59125;
         try {
-            maryExpertInterface = new MaryGUIClient(host, port, this);
+            maryExpertInterface = new MaryGUIClient(new Address(host, port), this);
             getContentPane().setLayout(new FlowLayout());
             getContentPane().add(maryExpertInterface);
         } catch (IOException ioe) {

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.client.http;
+package marytts.client;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,8 +33,7 @@ import java.util.Vector;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.AudioFileFormat.Type;
 
-import marytts.client.AudioEffectsBoxData;
-import marytts.client.MaryClient;
+import marytts.client.http.Address;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.string.StringUtils;
@@ -45,19 +44,20 @@ import marytts.util.string.StringUtils;
  * to receive/send data from/to server.
  * To be able to use the functionality provided by this class, all Mary clients should either:
  * (i) extend this class (Example: MaryHttpClient, MaryWebHttpClient)
- * (ii) use an object of type MaryHttpForm or of a derived class (Example: MaryGUIHttpClient)
+ * (ii) use an object of type MaryHttpForm or of a derived class (Example: MaryGUIClient)
  * 
  * @author Oytun T&uuml;rk
  */
-public class MaryFormData {
+public class MaryFormData 
+{
     // Default values which can be overridden from the command line.
-    private final String DEFAULT_HOST = "cling.dfki.uni-sb.de";
+    private final String DEFAULT_HOST = "localhost";
     private final int DEFAULT_PORT = 59125;
     
     public Address hostAddress = null;
-    protected String serverVersionInfo = null;
-    protected String serverVersionNo = "unknown";
-    protected boolean serverCanStream = false;
+    public String serverVersionInfo = null;
+    public String serverVersionNo = "unknown";
+    public boolean serverCanStream = false;
     
     public Vector<MaryClient.Voice> allVoices;
     public Map<Locale, Vector<MaryClient.Voice>> voicesByLocaleMap;
@@ -67,7 +67,7 @@ public class MaryFormData {
     public Vector<MaryClient.DataType> outputDataTypes;
     public Map<String, String> serverExampleTexts;
     public String currentExampleText;
-    public Map<String, String> voiceExampleTextsLimitedDomain;
+    public Map<String, Vector<String>> voiceExampleTextsLimitedDomain;
     public Map<String, String> voiceExampleTextsGeneralDomain;
     public Map<String, String> audioEffectHelpTextsMap;
     public Vector<String> audioFileFormatTypes;
@@ -169,7 +169,7 @@ public class MaryFormData {
         outputDataTypes = null;
         serverExampleTexts = new HashMap<String, String>();
         currentExampleText = "";
-        voiceExampleTextsLimitedDomain = new HashMap<String, String>();
+        voiceExampleTextsLimitedDomain = new HashMap<String, Vector<String>>();
         voiceExampleTextsGeneralDomain = new HashMap<String, String>();
         audioEffectHelpTextsMap = new HashMap<String, String>();
         audioFileFormatTypes = null;
@@ -241,8 +241,7 @@ public class MaryFormData {
             limitedDomainVoices = new HashMap<String, Vector<String>>();
             String[] voiceStrings = info.split("\n");
 
-            for (int i=0; i<voiceStrings.length; i++) 
-            {
+            for (int i=0; i<voiceStrings.length; i++) {
                 StringTokenizer st = new StringTokenizer(voiceStrings[i]);
                 if (!st.hasMoreTokens()) continue; // ignore entry
                 String name = st.nextToken();
@@ -254,37 +253,28 @@ public class MaryFormData {
                 String gender = st.nextToken();
 
                 MaryClient.Voice voice = null;
-                if (isServerVersionAtLeast("3.5.0"))
-                {
+                if (isServerVersionAtLeast("3.5.0")) {
                     String synthesizerType;
                     if (!st.hasMoreTokens())
                         synthesizerType = "non-specified";
                     else
                         synthesizerType = st.nextToken();
 
-                    if (!st.hasMoreTokens())
-                    { 
+                    if (!st.hasMoreTokens()) { 
                         //assume domain is general
                         voice = new MaryClient.Voice(name, locale, gender, "general");
-                    }
-                    else
-                    { 
+                    } else {
                         //read in the domain
                         String domain = st.nextToken();
                         voice = new MaryClient.Voice(name, locale, gender, domain);
                     }
 
                     voice.setSynthesizerType(synthesizerType);
-                }
-                else
-                {
-                    if (!st.hasMoreTokens())
-                    { 
+                } else {
+                    if (!st.hasMoreTokens()) { 
                         //assume domain is general
                         voice = new MaryClient.Voice(name, locale, gender, "general");
-                    }
-                    else
-                    { 
+                    } else { 
                         //read in the domain
                         String domain = st.nextToken();
                         voice = new MaryClient.Voice(name, locale, gender, domain);
@@ -293,10 +283,9 @@ public class MaryFormData {
 
                 allVoices.add(voice);
                 Vector<MaryClient.Voice> localeVoices = null;
-                if (voicesByLocaleMap.containsKey(locale))
+                if (voicesByLocaleMap.containsKey(locale)) { 
                     localeVoices = voicesByLocaleMap.get(locale);
-                else 
-                {
+                } else {
                     localeVoices = new Vector<MaryClient.Voice>();
                     voicesByLocaleMap.put(locale, localeVoices);
                 }
@@ -439,8 +428,7 @@ public class MaryFormData {
         voiceSelected = 0;
         limitedDomainExampleTextSelected = 0;
         
-        if (effectsBoxData==null)
-        {
+        if (effectsBoxData==null) {
             /*if (audioEffectsHelpTextLineBreak==null)
                 getAudioEffectHelpTextLineBreak();
             if (audioEffects==null)
@@ -448,35 +436,26 @@ public class MaryFormData {
             */
             effectsBoxData = new AudioEffectsBoxData(audioEffects);
         }
-        
-        
 
         int i;
         String selected;
         
         //Input type selected
         selected = keyValuePairs.get("INPUT_TYPE");
-        if (selected!=null)
-        {
-            for (i=0; i<inputDataTypes.size(); i++)
-            {
-                if (inputDataTypes.get(i).name().compareTo(selected)==0)
-                {
+        if (selected!=null) {
+            for (i=0; i<inputDataTypes.size(); i++) {
+                if (inputDataTypes.get(i).name().compareTo(selected)==0) {
                     inputTypeSelected = i;
                     break;
                 }
             }
         }
-        //
     
         //Output type selected
         selected = keyValuePairs.get("OUTPUT_TYPE");
-        if (selected!=null)
-        {
-            for (i=0; i<outputDataTypes.size(); i++)
-            {
-                if (outputDataTypes.get(i).name().compareTo(selected)==0)
-                {
+        if (selected!=null) {
+            for (i=0; i<outputDataTypes.size(); i++) {
+                if (outputDataTypes.get(i).name().compareTo(selected)==0) {
                     outputTypeSelected = i;
                     break;
                 }
@@ -492,12 +471,9 @@ public class MaryFormData {
         
         //Voice selected
         selected = keyValuePairs.get("VOICE");
-        if (selected!=null)
-        {
-            for (i=0; i<allVoices.size(); i++)
-            {
-                if (allVoices.get(i).name().compareTo(selected)==0)
-                {
+        if (selected!=null) {
+            for (i=0; i<allVoices.size(); i++) {
+                if (allVoices.get(i).name().compareTo(selected)==0) {
                     voiceSelected = i;
                     break;
                 }
@@ -506,19 +482,14 @@ public class MaryFormData {
         //
     
         //Limited domain example texts
-        if (allVoices!=null && allVoices.size()>0)
-        {
-            if (allVoices.elementAt(voiceSelected).isLimitedDomain())
-            {
+        if (allVoices!=null && allVoices.size()>0) {
+            if (allVoices.elementAt(voiceSelected).isLimitedDomain()) {
                 limitedDomainExampleTexts = defaultVoiceExampleTexts;
 
                 selected = keyValuePairs.get("exampletext");
-                if (limitedDomainExampleTexts != null && selected!=null)
-                {
-                    for (i=0; i<limitedDomainExampleTexts.size(); i++)
-                    {
-                        if (limitedDomainExampleTexts.get(i).compareTo(selected)==0)
-                        {
+                if (limitedDomainExampleTexts != null && selected!=null) {
+                    for (i=0; i<limitedDomainExampleTexts.size(); i++) {
+                        if (limitedDomainExampleTexts.get(i).compareTo(selected)==0) {
                             limitedDomainExampleTextSelected = i;
                             break;
                         }
@@ -528,7 +499,6 @@ public class MaryFormData {
                 }
             }
         }
-        //
 
         //Input text
         selected = keyValuePairs.get("INPUT_TEXT");
