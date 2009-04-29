@@ -60,7 +60,7 @@ public class MarySpeechPsydule
     public MarySpeechPsydule(String airhost, int airport) throws Exception
     {
         initialize();
-        mary = new MaryClient();
+        mary = MaryClient.getMaryClient();
         plug = new JavaAIRPlug(name, airhost, airport);
         if (!plug.init()) {
             System.out.println("Could not connect to the Server on " + airhost +
