@@ -271,7 +271,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         String method;
         
         boolean isContextualGMMs = false;
-        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {64};
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {16};
         //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
         //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
         //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
@@ -323,7 +323,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         gp.gmmEMTrainerParams.isUpdateCovariances = true;
         gp.gmmEMTrainerParams.tinyLogLikelihoodChangePercent = 1e-5;
         gp.gmmEMTrainerParams.minCovarianceAllowed = 1e-4;
-        gp.gmmEMTrainerParams.useNativeCLibTrainer = false;
+        gp.gmmEMTrainerParams.useNativeCLibTrainer = true;
         
         if (gp.isContextualGMMs)
         {

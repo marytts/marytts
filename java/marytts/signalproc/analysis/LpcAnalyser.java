@@ -129,10 +129,12 @@ public class LpcAnalyser extends FrameBasedAnalyser
             x = SignalProcUtils.applyPreemphasis(x, preCoef);
         
         int i;
-        /*
-        for (i=0; i<x.length; i++)
-            x[i] += Math.random()*1e-50;
-            */
+
+        if (MathUtils.allZeros(x))
+        {
+            for (i=0; i<x.length; i++)
+                x[i] += Math.random()*1e-100;
+        }
         
         double[] r;
  
