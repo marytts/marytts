@@ -990,19 +990,44 @@ public class FdpsolaAdapter {
                     if (match instanceof WeightedCodebookLsfMatch)
                     {
                         if (!baseParams.isResynthesizeVocalTractFromSourceModel)
-                            targetLpcs = LsfAnalyser.lsfInHz2lpc(((WeightedCodebookLsfMatch)match).entry.targetItem.lsfs, fs);
+                        {
+                            if (!baseParams.lsfParams.isBarkScaled)
+                                targetLpcs = LsfAnalyser.lsfInHz2lpc(((WeightedCodebookLsfMatch)match).entry.targetItem.lsfs, fs);
+                            else
+                                targetLpcs = LsfAnalyser.lsfInBark2lpc(((WeightedCodebookLsfMatch)match).entry.targetItem.lsfs, fs);
+                        }
                         else
-                            targetLpcs = LsfAnalyser.lsfInHz2lpc(((WeightedCodebookLsfMatch)match).entry.sourceItem.lsfs, fs);
+                        {
+                            if (!baseParams.lsfParams.isBarkScaled)
+                                targetLpcs = LsfAnalyser.lsfInHz2lpc(((WeightedCodebookLsfMatch)match).entry.sourceItem.lsfs, fs);
+                            else
+                                targetLpcs = LsfAnalyser.lsfInBark2lpc(((WeightedCodebookLsfMatch)match).entry.sourceItem.lsfs, fs);
+                        }
                     }
                     else if (match instanceof JointGMMMatch)
                     {
                         if (!baseParams.isResynthesizeVocalTractFromSourceModel)
-                            targetLpcs = LsfAnalyser.lsfInHz2lpc(((JointGMMMatch)match).outputFeatures, fs);
+                        {
+                            if (!baseParams.lsfParams.isBarkScaled)
+                                targetLpcs = LsfAnalyser.lsfInHz2lpc(((JointGMMMatch)match).outputFeatures, fs);
+                            else
+                                targetLpcs = LsfAnalyser.lsfInBark2lpc(((JointGMMMatch)match).outputFeatures, fs);
+                        }
                         else
-                            targetLpcs = LsfAnalyser.lsfInHz2lpc(((JointGMMMatch)match).mappedSourceFeatures, fs);
+                        {
+                            if (!baseParams.lsfParams.isBarkScaled)
+                                targetLpcs = LsfAnalyser.lsfInHz2lpc(((JointGMMMatch)match).mappedSourceFeatures, fs);
+                            else
+                                targetLpcs = LsfAnalyser.lsfInBark2lpc(((JointGMMMatch)match).mappedSourceFeatures, fs);
+                        }
                     }
                     else if (match instanceof LsfMatch)
-                        targetLpcs = LsfAnalyser.lsfInHz2lpc(((LsfMatch)match).lsfs, fs);
+                    {
+                        if (!baseParams.lsfParams.isBarkScaled)
+                            targetLpcs = LsfAnalyser.lsfInHz2lpc(((LsfMatch)match).lsfs, fs);
+                        else
+                            targetLpcs = LsfAnalyser.lsfInBark2lpc(((LsfMatch)match).lsfs, fs);
+                    }
 
                     if (frmSize!=newFrmSize)
                     {

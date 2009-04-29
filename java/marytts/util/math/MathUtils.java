@@ -4412,6 +4412,22 @@ public class MathUtils {
         return false;
     }
     
+    public static boolean allZeros(double[] x)
+    {
+        boolean bRet = true;
+        
+        for (int i=0; i<x.length; i++)
+        {
+            if (Math.abs(x[i])>1e-100)
+            {
+                bRet=false;
+                break;
+            }
+        }
+        
+        return bRet;
+    }
+    
     public static void main(String[] args)
     {
         ComplexNumber[][] x1 = new ComplexNumber[2][2];
