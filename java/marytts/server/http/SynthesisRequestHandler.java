@@ -51,7 +51,6 @@ import org.apache.http.nio.entity.NStringEntity;
 import org.apache.log4j.Logger;
 
 import marytts.client.http.Address;
-import marytts.client.http.MaryFormData;
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
 import marytts.server.Request;

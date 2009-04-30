@@ -128,7 +128,7 @@ public class AllophonesExtractor extends VoiceImportComponent
     {
         String text;
         Locale localVoice;
-        localVoice = MaryClient.string2locale(locale);
+        localVoice = MaryUtils.string2locale(locale);
         String xmlLocale = MaryUtils.locale2xmllang(localVoice);
         
         String fullFileName;

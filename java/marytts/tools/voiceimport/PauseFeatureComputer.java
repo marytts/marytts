@@ -30,7 +30,10 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import marytts.client.MaryClient;
+import marytts.client.http.Address;
 import marytts.util.io.FileUtils;
+import marytts.util.MaryUtils;
+
 
 /**
  * For the given texts, compute unit features and align them
@@ -123,7 +126,7 @@ public class PauseFeatureComputer extends VoiceImportComponent
      {
         if (mary == null) {
             try{
-                mary = new MaryClient(getProp(MARYSERVERHOST), Integer.parseInt(getProp(MARYSERVERPORT)));        
+                mary = MaryClient.getMaryClient(new Address(getProp(MARYSERVERHOST), Integer.parseInt(getProp(MARYSERVERPORT))));        
             } catch (IOException e){
                 throw new IOException("Could not connect to Maryserver at "
                         +getProp(MARYSERVERHOST)+" "+getProp(MARYSERVERPORT));
@@ -149,7 +152,7 @@ public class PauseFeatureComputer extends VoiceImportComponent
     public void computeFeaturesFor(String basename) throws IOException
     {
         String text;
-        Locale localVoice = MaryClient.string2locale(locale);
+        Locale localVoice = MaryUtils.string2locale(locale);
         
         // First, test if there is a corresponding .rawmaryxml file in textdir:
         File rawmaryxmlFile = new File(db.getProp(db.MARYXMLDIR)
@@ -173,7 +176,7 @@ public class PauseFeatureComputer extends VoiceImportComponent
         if (voices == null) {
             if(locale.equals("en")) {
                locale  =  "en_US";
-               localVoice = MaryClient.string2locale(locale);
+               localVoice = MaryUtils.string2locale(locale);
                voices = maryClient.getVoices(localVoice);
             } 
         }

@@ -49,7 +49,6 @@ import org.apache.log4j.Logger;
 
 import marytts.Version;
 import marytts.client.http.Address;
-import marytts.client.http.MaryFormData;
 import marytts.datatypes.MaryDataType;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
