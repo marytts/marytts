@@ -35,6 +35,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -222,7 +223,8 @@ public class MaryServer {
                     clientOut.println(e.getMessage());
                 }
             } finally {
-                FileUtils.close(client, clientOut);
+                // info Sockets must not be closed before the corresponding data socket is here and the request parsed: 
+                //FileUtils.close(client, clientOut);
             }
         }
 
@@ -660,7 +662,9 @@ public class MaryServer {
             return true;
         }
 
-        private boolean voiceGetDefaultAudioEffects(String inputLine) {
+        private boolean voiceGetDefaultAudioEffects(String inputLine)
+        {
+            /*
             // <EffectSeparator>charEffectSeparator</EffectSeparator>
             // <Effect>
             //   <Name>effectÂ´s name</Name>
@@ -688,8 +692,17 @@ public class MaryServer {
                 audioEffectClass += "<HelpText>" + MaryProperties.effectHelpTexts().elementAt(i) + "</HelpText>";
                 audioEffectClass += "</Effect>";
             }
+*/
 
-            clientOut.println(audioEffectClass);
+            // Marc, 8.1.09: Simplified format
+            // name params
+            StringBuilder sb = new StringBuilder();
+            Vector<String> names = MaryProperties.effectNames();
+            Vector<String> params = MaryProperties.effectSampleParams();
+            for (int i=0; i<MaryProperties.effectClasses().size(); i++) {
+                sb.append(names.elementAt(i)).append(" ").append(params.elementAt(i)).append("\n");
+            }
+            clientOut.println(sb.toString());
             // upon failure, simply return nothing
             clientOut.println();
             return true;

@@ -285,7 +285,7 @@ public class Synthesis extends InternalModule
             }
         }
         // Apply effect if present
-        if (!currentEffect.equals("")) {
+        if (currentEffect != null && !currentEffect.equals("")) {
             ais = ef.apply(ais, currentEffect); 
         }
         return ais;

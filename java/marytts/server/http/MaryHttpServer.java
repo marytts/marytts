@@ -53,7 +53,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.Version;
 import marytts.client.http.Address;
-import marytts.client.http.MaryFormData;
 import marytts.datatypes.MaryDataType;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.htsengine.HMMVoice;

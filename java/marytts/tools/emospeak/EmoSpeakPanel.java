@@ -45,6 +45,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
 
 import marytts.client.MaryClient;
+import marytts.client.http.Address;
 
 
 /**
@@ -488,9 +489,9 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
             asynchronousSynthesiser.start();
         } else {
             if (maryServerHost == null) {
-                synchronousSynthesiser = new MaryClient();
+                synchronousSynthesiser = MaryClient.getMaryClient();
             } else {
-                synchronousSynthesiser = new MaryClient(maryServerHost, maryServerPort, false, false);
+                synchronousSynthesiser = MaryClient.getMaryClient(new Address(maryServerHost, maryServerPort), false, false);
             }
         }
         

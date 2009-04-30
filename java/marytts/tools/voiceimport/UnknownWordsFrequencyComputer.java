@@ -30,11 +30,13 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import marytts.client.MaryClient;
+import marytts.client.http.Address;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.util.dom.NameNodeFilter;
 import marytts.util.io.FileUtils;
+import marytts.util.MaryUtils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -126,7 +128,7 @@ public class UnknownWordsFrequencyComputer extends VoiceImportComponent
      {
         if (mary == null) {
             try{
-                mary = new MaryClient(getProp(MARYSERVERHOST), Integer.parseInt(getProp(MARYSERVERPORT)));        
+                mary = MaryClient.getMaryClient(new Address(getProp(MARYSERVERHOST), Integer.parseInt(getProp(MARYSERVERPORT))));        
             } catch (IOException e){
                 throw new IOException("Could not connect to Maryserver at "
                         +getProp(MARYSERVERHOST)+" "+getProp(MARYSERVERPORT));
@@ -153,7 +155,7 @@ public class UnknownWordsFrequencyComputer extends VoiceImportComponent
     {
         String text;
         Locale localVoice;
-        localVoice = MaryClient.string2locale(locale);
+        localVoice = MaryUtils.string2locale(locale);
         
         // First, test if there is a corresponding .rawmaryxml file in textdir:
         File rawmaryxmlFile = new File(db.getProp(db.MARYXMLDIR)

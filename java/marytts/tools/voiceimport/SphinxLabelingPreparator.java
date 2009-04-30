@@ -43,6 +43,7 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import marytts.client.MaryClient;
+import marytts.client.http.Address;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
@@ -516,7 +517,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
     {
         if (mary == null) {
             try{
-                mary = new MaryClient(getProp(MARYSERVERHOST), Integer.parseInt(getProp(MARYSERVERPORT)));        
+                mary = MaryClient.getMaryClient(new Address(getProp(MARYSERVERHOST), Integer.parseInt(getProp(MARYSERVERPORT))));
             } catch (IOException e){
                 throw new IOException("Could not connect to Maryserver at "
                         +getProp(MARYSERVERHOST)+" "+getProp(MARYSERVERPORT));

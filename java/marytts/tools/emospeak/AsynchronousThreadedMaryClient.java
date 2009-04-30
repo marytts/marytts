@@ -31,6 +31,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.client.MaryClient;
+import marytts.client.http.Address;
 
 
 /**
@@ -54,7 +55,7 @@ public class AsynchronousThreadedMaryClient extends Thread {
     public AsynchronousThreadedMaryClient(AudioFileReceiver emoSpeak) 
     throws IOException, UnknownHostException {
         this.emoSpeak = emoSpeak;
-        processor = new MaryClient();
+        processor = MaryClient.getMaryClient();
     }
 
     /** Constructor to be used by applets */
@@ -62,7 +63,7 @@ public class AsynchronousThreadedMaryClient extends Thread {
        String serverHost, int serverPort, boolean printProfilingInfo, boolean beQuiet)
     throws IOException, UnknownHostException {
         this.emoSpeak = emoSpeak;
-        processor = new MaryClient(serverHost, serverPort, printProfilingInfo, beQuiet);
+        processor = MaryClient.getMaryClient(new Address(serverHost, serverPort), printProfilingInfo, beQuiet);
     }
 
     /**

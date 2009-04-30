@@ -33,7 +33,6 @@ import java.util.StringTokenizer;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioFileFormat;
 
-import marytts.client.http.MaryFormData;
 import marytts.util.ConversionUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.MaryAudioUtils;

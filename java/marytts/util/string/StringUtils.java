@@ -44,12 +44,12 @@ public class StringUtils {
     public static String deblank(String str) 
     {
           StringTokenizer s = new StringTokenizer(str," ",false);
-          String strRet = "";
+          StringBuilder strRet = new StringBuilder();
           
           while (s.hasMoreElements()) 
-              strRet += s.nextElement();
+              strRet.append(s.nextElement());
           
-          return strRet;
+          return strRet.toString();
     }
     
     //Converts a String to a float

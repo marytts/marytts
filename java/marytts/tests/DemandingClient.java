@@ -67,7 +67,7 @@ public class DemandingClient {
     public void run() throws IOException, UnknownHostException {
         // Do one first call for creating a reference file, all others will then
         // be compared to its size.
-        MaryClient mc = new MaryClient();
+        MaryClient mc = MaryClient.getMaryClient();
         String inputType = System.getProperty("input.type", "TEXT");
         String outputType = System.getProperty("output.type", "AUDIO");
         String locale = System.getProperty("locale", "en_US");
