@@ -36,8 +36,6 @@ import marytts.modules.synthesis.Voice;
 
 import org.jsresources.AudioRecorder;
 import org.jsresources.SequenceAudioInputStream;
-import org.tritonus.share.sampled.AudioFileTypes;
-import org.tritonus.share.sampled.Encodings;
 
 /**
  * @author Marc Schr&ouml;der
@@ -86,7 +84,7 @@ public class MaryAudioUtils {
         if (name.equals("MP3")) 
         {
             // Supported by tritonus plugin
-            at = AudioFileTypes.getType("MP3", "mp3");
+            at = new AudioFileFormat.Type("MP3", "mp3");
         } 
         else if (name.equals("Vorbis")) 
         {
@@ -117,7 +115,7 @@ public class MaryAudioUtils {
     public static AudioFormat getMP3AudioFormat()
     {
         return new AudioFormat(
-            Encodings.getEncoding("MPEG1L3"),
+            new AudioFormat.Encoding("MPEG1L3"),
             AudioSystem.NOT_SPECIFIED,
             AudioSystem.NOT_SPECIFIED,
             1,
