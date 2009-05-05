@@ -28,7 +28,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import junit.framework.TestCase;
 import marytts.datatypes.MaryXML;
 
-import org.tritonus.share.sampled.Encodings;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.DocumentTraversal;
@@ -68,7 +67,7 @@ public class EnvironmentTests extends TestCase {
 
     public void testMP3Available() throws Exception {
         AudioFormat mp3af = new AudioFormat(
-                Encodings.getEncoding("MPEG1L3"),
+                new AudioFormat.Encoding("MPEG1L3"),
                 AudioSystem.NOT_SPECIFIED,
                 AudioSystem.NOT_SPECIFIED,
                 1,
