@@ -21,12 +21,14 @@ package marytts.signalproc.filter;
 
 import java.io.File;
 
+import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.display.MultiDisplay;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
+import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.FFT;
 import marytts.util.math.MathUtils;
 
@@ -174,28 +176,33 @@ public class BandRejectFilter extends FIRFilter {
         int samplingRate = source.getSamplingRate();
         double lowerNormalisedCutoffFrequency = (double) lowerCutoffFreq / samplingRate;
         double upperNormalisedCutoffFrequency = (double) upperCutoffFreq / samplingRate;
-        BandRejectFilter filter = new BandRejectFilter(lowerNormalisedCutoffFrequency, upperNormalisedCutoffFrequency);
+        BandRejectFilter filter = new BandRejectFilter(lowerNormalisedCutoffFrequency, upperNormalisedCutoffFrequency, 40/(double)samplingRate);
         System.err.println("Created " + filter.toString() + " with reject band from " + lowerCutoffFreq + " Hz to " + upperCutoffFreq + " Hz and transition band width " + ((int)filter.getTransitionBandWidth(samplingRate)) + " Hz");
-
-        // Display the filter kernel and log frequency response:
-        double[] fftSignal = new double[filter.transformedIR.length];
-        System.arraycopy(filter.transformedIR, 0, fftSignal, 0, filter.transformedIR.length);
-        // inverse transform:
-        FFT.realTransform(fftSignal, true);
-        double[] kernel = new double[filter.impulseResponseLength];
-        System.arraycopy(fftSignal, 0, kernel, 0, kernel.length);
-        FunctionGraph timeGraph = new FunctionGraph(0, 1, kernel);
-        timeGraph.showInJFrame(filter.toString() + " in time domain", true, false);
-
-        double[] powerSpectrum = FFT.computePowerSpectrum_FD(filter.transformedIR);
-        for (int i=0; i<powerSpectrum.length; i++) powerSpectrum[i] = MathUtils.db(powerSpectrum[i]);
-        FunctionGraph freqGraph = new FunctionGraph(0, (double)samplingRate/filter.transformedIR.length, powerSpectrum);
-        freqGraph.showInJFrame(filter.toString() + " log frequency response", true, false);
-
-        // Filter the test signal and display it:
+        // Filter the test signal
         DoubleDataSource filteredSignal = filter.apply(source);
-        MultiDisplay display = new MultiDisplay(filteredSignal.getAllData(), samplingRate, filter.toString() + " (" + lowerCutoffFreq + "->" + upperCutoffFreq + "Hz) applied to " + args[2],
-                MultiDisplay.DEFAULT_WIDTH, MultiDisplay.DEFAULT_HEIGHT);
+
+        if (args.length >= 4) { // write to audio file given
+            File outputFile = new File(args[3]);
+            AudioSystem.write(new DDSAudioInputStream(filteredSignal, source.getAudioFormat()), AudioFileFormat.Type.WAVE, outputFile);
+        } else { // show in gui
+            // Display the filter kernel and log frequency response:
+            double[] fftSignal = new double[filter.transformedIR.length];
+            System.arraycopy(filter.transformedIR, 0, fftSignal, 0, filter.transformedIR.length);
+            // inverse transform:
+            FFT.realTransform(fftSignal, true);
+            double[] kernel = new double[filter.impulseResponseLength];
+            System.arraycopy(fftSignal, 0, kernel, 0, kernel.length);
+            FunctionGraph timeGraph = new FunctionGraph(0, 1, kernel);
+            timeGraph.showInJFrame(filter.toString() + " in time domain", true, false);
+
+            double[] powerSpectrum = FFT.computePowerSpectrum_FD(filter.transformedIR);
+            for (int i=0; i<powerSpectrum.length; i++) powerSpectrum[i] = MathUtils.db(powerSpectrum[i]);
+            FunctionGraph freqGraph = new FunctionGraph(0, (double)samplingRate/filter.transformedIR.length, powerSpectrum);
+            freqGraph.showInJFrame(filter.toString() + " log frequency response", true, false);
+
+            MultiDisplay display = new MultiDisplay(filteredSignal.getAllData(), samplingRate, filter.toString() + " (" + lowerCutoffFreq + "->" + upperCutoffFreq + "Hz) applied to " + args[2],
+                    MultiDisplay.DEFAULT_WIDTH, MultiDisplay.DEFAULT_HEIGHT);
+        }
     }
 }
 
