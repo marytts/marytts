@@ -428,6 +428,7 @@ public class MaryHttpClient extends MaryClient
     
     private Map<String,String> effectsString2EffectsMap(String effectsString)
     {
+        if (effectsString == null) return null;
         Map<String, String> effectsMap = new HashMap<String, String>();
         
         StringTokenizer st = new StringTokenizer(effectsString, ",");
@@ -656,89 +657,6 @@ public class MaryHttpClient extends MaryClient
         }
     }
     
-    public static void usage() 
-    {
-        System.err.println("usage:");
-        System.err.println("java [properties] " + MaryHttpClient.class.getName() + " [inputfile]");
-        System.err.println();
-        System.err.println("Properties are: -Dinput.type=INPUTTYPE");
-        System.err.println("                -Doutput.type=OUTPUTTYPE");
-        System.err.println("                -Dlocale=LOCALE");
-        System.err.println("                -Daudio.type=AUDIOTYPE");
-        System.err.println("                -Dvoice.default=male|female|de1|de2|de3|...");
-        System.err.println("                -Dserver.host=HOSTNAME");
-        System.err.println("                -Dserver.port=PORTNUMBER");
-        System.err.println(
-            "where INPUTTYPE is one of TEXT, RAWMARYXML, TOKENS, WORDS, POS,");
-        System.err.println(
-            "                          PHONEMES, INTONATION, ALLOPHONES, ACOUSTPARAMS or MBROLA,");
-        System.err.println("     OUTPUTTYPE is one of TOKENS, WORDS, POS, PHONEMES,");
-        System.err.println("                          INTONATION, ALLOPHONES, ACOUSTPARAMS, MBROLA, or AUDIO,");
-        System.err.println("     LOCALE is the language and/or the country (e.g., de, en_US);");
-        System.err.println("and AUDIOTYPE is one of AIFF, AU, WAVE, MP3, and Vorbis.");
-        System.err.println("The default values for input.type and output.type are TEXT and AUDIO,");
-        System.err.println("respectively; default locale is en_US; the default audio.type is WAVE.");
-        System.err.println();
-        System.err.println("inputfile must be of type input.type.");
-        System.err.println("If no inputfile is given, the program will read from standard input.");
-        System.err.println();
-        System.err.println("The output is written to standard output, so redirect or pipe as appropriate.");
-    }
-
-    public static void main(String[] args) throws IOException, InterruptedException
-    {
-        if (args.length > 0 && args[0].equals("-h")) 
-        {
-            usage();
-            System.exit(1);
-        }
-        
-        MaryHttpClient mc = new MaryHttpClient();
-        BufferedReader inputReader = null;
-        // read requested input/output type from properties:
-        String inputType = System.getProperty("input.type", "TEXT");
-        String outputType = System.getProperty("output.type", "AUDIO");
-        String locale = System.getProperty("locale", "en_US");
-        String audioType = System.getProperty("audio.type", "WAVE");
-        if (!(audioType.equals("AIFC")
-            || audioType.equals("AIFF")
-            || audioType.equals("AU")
-            || audioType.equals("SND")
-            || audioType.equals("WAVE")
-            || audioType.equals("MP3")
-            || audioType.equals("Vorbis"))) {
-                System.err.println("Invalid value '" + audioType + "' for property 'audio.type'");
-                System.err.println();
-                usage();
-                System.exit(1);
-        }
-        String defaultVoiceName = System.getProperty("voice.default");
-        String defaultStyle = "";
-        String defaultEffects = null;
-        String outputTypeParams = System.getProperty("output.type.params"); // null if not present
-        
-        if (args.length > 0) {
-            File file = new File(args[0]);
-            inputReader = new BufferedReader(new FileReader(file));
-        } else { // no Filename, read from stdin:
-            inputReader = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
-        }
-
-        // Read input into a string:
-        StringBuffer sb = new StringBuffer(1024);
-        char[] buf = new char[1024];
-        int nr;
-        while ((nr = inputReader.read(buf)) != -1) {
-            sb.append(buf, 0, nr);
-        }
-
-        try {
-            mc.process(sb.toString(), inputType, outputType, locale, audioType, defaultVoiceName, defaultStyle, defaultEffects, outputTypeParams, System.out);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
 
 }
 
