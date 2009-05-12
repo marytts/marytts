@@ -264,14 +264,14 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
     
     public static void mainIEEE_TASLP_2009_rap(String[] args) throws UnsupportedAudioFileException, IOException
     {   
-        String wavBaseFolder = "D:/Oytun/Papers/IEEE_Transaction_VT/musicVC/osman_test_28.04.2009/uch2kymani/";
+        String wavBaseFolder = "D:/Oytun/Papers/IEEE_Transaction_VT/musicVC/final_gmm/";
         
         String sourceTag = "uch";
         String targetTag = "target";
         String method;
         
         boolean isContextualGMMs = false;
-        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {16};
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {32};
         //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
         //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
         //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
