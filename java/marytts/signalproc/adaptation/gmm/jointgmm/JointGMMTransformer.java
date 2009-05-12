@@ -868,23 +868,23 @@ public class JointGMMTransformer extends BaselineTransformer {
         String target = "target";
         String method = "F";
         boolean isContextualGMMs = false;
-        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {64};
+        int contextClassificationType = ContextualGMMParams.NO_PHONEME_CLASS; int[] numComponents = {32};
         //int contextClassificationType = ContextualGMMParams.SILENCE_SPEECH; int[] numComponents = {16, 128};
         //int contextClassificationType = ContextualGMMParams.VOWEL_SILENCE_CONSONANT; int[] numComponents = {128, 16, 128};
         //int contextClassificationType = ContextualGMMParams.PHONOLOGY_CLASS; int[] numComponents = {numMixes};
         //int contextClassificationType = ContextualGMMParams.FRICATIVE_GLIDELIQUID_NASAL_PLOSIVE_VOWEL_OTHER; int[] numComponents = {128, 128, 128, 128, 128, 16};
         //int contextClassificationType = ContextualGMMParams.PHONEME_IDENTITY; int[] numComponents = {128}; 
         
-        String inputFolder = "D:/Oytun/Papers/IEEE_Transaction_VT/musicVC/osman_test_28.04.2009/uch2kymani/uch_test";
+        String inputFolder = "D:/Oytun/Papers/IEEE_Transaction_VT/musicVC/final_gmm/uch_test";
         String outputBaseFolder;
         if (!isContextualGMMs)
         {
-            outputBaseFolder = "D:/Oytun/Papers/IEEE_Transaction_VT/musicVC/osman_test_28.04.2009/uch2kymani/out_gmm" + method + "_" +
+            outputBaseFolder = "D:/Oytun/Papers/IEEE_Transaction_VT/musicVC/final_gmm/out_gmm" + method + "_" +
                                String.valueOf(numComponents[0]);
         }
         else
         {
-            outputBaseFolder = "D:/Oytun/Papers/IEEE_Transaction_VT/musicVC/osman_test_28.04.2009/uch2kymani/out_gmm" + method + "_" +
+            outputBaseFolder = "D:/Oytun/Papers/IEEE_Transaction_VT/musicVC/final_gmm/out_gmm" + method + "_" +
                                String.valueOf(numComponents[0]) + "_" + 
                                "context" + String.valueOf(contextClassificationType);
             
@@ -892,11 +892,11 @@ public class JointGMMTransformer extends BaselineTransformer {
                 outputBaseFolder += "_" + String.valueOf(numComponents[i]);
         }
         
-        String baseFile = "D:/Oytun/Papers/IEEE_Transaction_VT/musicVC/osman_test_28.04.2009/uch2kymani/" + source + method + "_X_" + target + method;
+        String baseFile = "D:/Oytun/Papers/IEEE_Transaction_VT/musicVC/final_gmm/" + source + method + "_X_" + target + method;
         
         boolean isSourceVocalTractSpectrumFromModel = false;
         boolean isTemporalSmoothing = true;
-        int smoothingNumNeighbours = 4;
+        int smoothingNumNeighbours = 20; //2 4 10 20
         
         //Note that these two can be true or false together, not yet implemented separate processing
         boolean isPitchFromTargetFile = false;

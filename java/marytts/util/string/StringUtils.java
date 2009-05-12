@@ -735,99 +735,6 @@ public class StringUtils {
         return bRet;
     }
     
-    public static void writeTextFile(Allophone[] phns, String textFile)
-    {
-        String[] tmps = new String[phns.length];
-        int i;
-        int maxPhnLen = 0;
-        int maxIndLen = (int)Math.floor(Math.log10(phns.length)+1.5)+1;
-        for (i=0; i<phns.length; i++)
-        {
-            if (maxPhnLen<phns[i].name().length()+maxIndLen)
-                maxPhnLen=phns[i].name().length()+maxIndLen;
-        }
-        
-        for (i=0; i<phns.length; i++)
-        {
-            tmps[i] = String.valueOf(i) + " " + phns[i].name();
-            while (tmps[i].length()<maxPhnLen+1)
-                tmps[i] += " ";
-            
-            if (phns[i].isFricative())
-                tmps[i] += "+Fric" + " ";
-            else
-                tmps[i] += "-Fric" + " ";
-            
-            if (phns[i].isGlide())
-                tmps[i] += "+Glid" + " ";
-            else
-                tmps[i] += "-Glid" + " ";
-            
-            if (phns[i].isLiquid())
-                tmps[i] += "+Liqd" + " ";
-            else
-                tmps[i] += "-Liqd" + " ";
-            
-            if (phns[i].isNasal())
-                tmps[i] += "+Nasl" + " ";
-            else
-                tmps[i] += "-Nasl" + " ";
-            
-            if (phns[i].isPause())
-                tmps[i] += "+Paus" + " ";
-            else
-                tmps[i] += "-Paus" + " ";
-            
-            if (phns[i].isPlosive())
-                tmps[i] += "+Plos" + " ";
-            else
-                tmps[i] += "-Plos" + " ";
-            
-            if (phns[i].isSonorant())
-                tmps[i] += "+Sono" + " ";
-            else
-                tmps[i] += "-Sono" + " ";
-            
-            if (phns[i].isSyllabic())
-                tmps[i] += "+Syll" + " ";
-            else
-                tmps[i] += "-Syll" + " ";
-            
-            if (phns[i].isVoiced())
-                tmps[i] += "+Voic" + " ";
-            else
-                tmps[i] += "-Voic" + " ";
-            
-            if (phns[i].isVowel())
-                tmps[i] += "+Vowl";
-            else
-                tmps[i] += "-Vowl";
-        }
-        
-        writeTextFile(tmps, "d:\\phns.txt");
-    }
-    
-    public static void writeTextFile(String[] textInRows, String textFile)
-    {
-        PrintWriter out = null;
-        try {
-            out = new PrintWriter(new FileWriter(textFile));
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        if (out!=null)
-        {
-            for (int i=0; i<textInRows.length; i++)
-                out.println(textInRows[i]);
-        
-            out.close();
-        }
-        else
-            System.out.println("Error! Cannot create file: " + textFile);
-    }
-    
     public static String getRandomName(int randomNameLength)
     {
         return getRandomName(null, randomNameLength);
@@ -1180,27 +1087,7 @@ public class StringUtils {
         
         return y;
     }
-    
-    public static void toTextFile(double[] x, String filename)
-    {
-        writeTextFile(toStringLines(x), filename);
-    }
-    
-    public static void toTextFile(ComplexNumber[] x, String filename)
-    {
-        writeTextFile(toStringLines(x), filename);
-    }
-    
-    public static void toTextFile(int[] x, String filename)
-    {
-        writeTextFile(toStringLines(x), filename);
-    }
-    
-    public static void toTextFile(ComplexArray x, String filename)
-    {
-        writeTextFile(toStringLines(x), filename);
-    }
-    
+
     public static void main(String[] args)
     {
         String[] items1 = readTextFile("D:\\items.txt");
