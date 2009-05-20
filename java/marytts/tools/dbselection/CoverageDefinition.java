@@ -92,6 +92,9 @@ public class CoverageDefinition{
     // number of target features used, (phone, next_phone, selection_prosody = 3 ) 
     private int numTargetFeaturesUsed;
     
+    /* the number of possible prosody feature values */
+    private int numProsodyValues;
+    
     /* the number of possible phone classes */
     private int numPhoneClasses;
     /* the number of possible phones */
@@ -330,6 +333,8 @@ public class CoverageDefinition{
         numPhoneValues = featDef.getNumberOfValues(phoneFeatIndex);
         numPhoneValuesMinusIgnored = numPhoneValues-phonesToIgnore.size()-1;
 
+        numProsodyValues = featDef.getNumberOfValues(prosodyIndex);
+        
         int numPhoneTypes = 0;
         int numPhoneClassesTypes = 0;
         numSimpleDiphoneTypes = 0; numClusteredDiphoneTypes = 0;
@@ -438,15 +443,15 @@ public class CoverageDefinition{
 
                 //deal with current diphone
                 byte nextnextPhonebyte = getVectorValue(vectorBuf,i,diphoneFeatIndex);
-                /**
-				 String simpleDiphone = possiblePhoneArray[nextPhonebyte]+"_"
-				 +possibleNextPhoneArray[nextnextPhonebyte];
-                 **/
-                StringBuffer buf = new StringBuffer(5);
+				String simpleDiphone = possiblePhoneArray[nextPhonebyte]+"_"
+				    +possibleNextPhoneArray[nextnextPhonebyte];
+				 /**
+                StringBuilder buf = new StringBuilder(5);
                 buf.append(possiblePhoneArray[nextPhonebyte]);
                 buf.append("_");
                 buf.append(possibleNextPhoneArray[nextnextPhonebyte]);  
                 String simpleDiphone = buf.toString();
+                 **/
 
 //                nextnextPhonebyte = getVectorValue(vectorBuf,i,phoneClassesIndex);
 
@@ -486,16 +491,15 @@ public class CoverageDefinition{
 */
                 //deal with current diphone
                 byte prosodyValue = getVectorValue(vectorBuf,i,prosodyIndex);
-                /**
-				 simpleFeatVectTypes.add(simpleDiphone+"_"
-				 +possibleProsodyArray[prosodyValue]);
-                 */
-                buf = new StringBuffer(7);
+                simpleFeatVectTypes.add(simpleDiphone+"_"+possibleProsodyArray[prosodyValue]);
+                 /**
+                buf = new StringBuilder(7);
                 buf.append(simpleDiphone);
                 buf.append("_");
                 buf.append(prosodyValue);
                 //add feature vector type if not already added
                 simpleFeatVectTypes.add(buf.toString());
+                 */
 
                 /**
 				 clusteredFeatVectTypes.add(clusteredDiphone+"_"
@@ -503,11 +507,11 @@ public class CoverageDefinition{
                  **/
  //               buf = new StringBuffer(7);
  //               buf.append(clusteredDiphone);
-                
+                /*
                 buf.append("_");
                 buf.append(prosodyValue); 
                 clusteredFeatVectTypes.add(buf.toString());
-                buf = null;
+                */
                 simpleDiphone = null;
 //                clusteredDiphone = null;
 
@@ -520,8 +524,8 @@ public class CoverageDefinition{
         //calculate cover size
         numPossibleSimpleDiphones = numPhoneValuesMinusIgnored*(numPhoneValuesMinusIgnored+1);
         numPossibleClusteredDiphones = numPhoneClasses*numPhoneValuesMinusIgnored;
-        numSimpleLeaves = numPossibleSimpleDiphones*6;
-        numClusteredLeaves = numPossibleClusteredDiphones*6;
+        numSimpleLeaves = numPossibleSimpleDiphones*numProsodyValues;
+        numClusteredLeaves = numPossibleClusteredDiphones*numProsodyValues;
 
         //number of feature vector types
         numSimpleFeatVectTypes = simpleFeatVectTypes.size();
@@ -596,14 +600,14 @@ public class CoverageDefinition{
             //go through the grandchildren of simpleCover
             for (byte i=0;i<numGrandChildren;i++){
                 //each grandchild is a prosody node
-                CoverNode prosodyNode = new CoverNode((byte)6,wantedWeightDecrease);
+                CoverNode prosodyNode = new CoverNode((byte)numProsodyValues, wantedWeightDecrease);
 
                 //set the weight that determines how many instances 
                 //are wanted of this diphone
                 prosodyNode.setWantedWeight(diphoneLevelWeight);
                 nextSimpleChild.addChild(prosodyNode,i);   
                 //go through the children of the prosody node
-                for (byte j=0;j<6;j++){
+                for (byte j=0;j<numProsodyValues;j++){
                     //each child is a leaf
                     CoverLeaf prosodyChild = 
                         new CoverLeaf(wantedWeightDecrease);
@@ -618,14 +622,14 @@ public class CoverageDefinition{
             //go through the grandchildren of clusteredCover
             for (byte i=0;i<numGrandChildren;i++){
                 //each grandchild is a prosody node
-                CoverNode prosodyNode = new CoverNode((byte)6,wantedWeightDecrease);
+                CoverNode prosodyNode = new CoverNode((byte)numProsodyValues,wantedWeightDecrease);
 
                 //set the weight that determines how many instances 
                 //are wanted of this diphone
                 prosodyNode.setWantedWeight(diphoneLevelWeight);
                 nextClusteredChild.addChild(prosodyNode,i);   
                 //go through the children of the prosody node
-                for (byte j=0;j<6;j++){
+                for (byte j=0;j<numProsodyValues;j++){
                     //each child is a leaf
                     CoverLeaf prosodyChild = 
                         new CoverLeaf(wantedWeightDecrease);
@@ -1164,40 +1168,48 @@ public class CoverageDefinition{
         }
         //loop over the feature vectors
         //System.out.print("Usefulness = ");
-        for (int i=0;i<numFeatureVectors;i++){
+        // we cannot trust that all bytes in the feature vector are meaningful -- therefore,
+        // it is not guaranteed that numFeatureVectors * numTargetFeaturesUsed == featureVectors.length!!
+        for (int pos=0, max=numFeatureVectors*numTargetFeaturesUsed; pos<max; pos+=numTargetFeaturesUsed) {
 
             double u = 0;
             //get the associated leaf
             //go down to phone level
-            byte nextIndex = getVectorValue(featureVectors,i,phoneFeatIndex); 
+            //byte nextIndex = getVectorValue(featureVectors,i,phoneFeatIndex);
+            byte nextIndex = featureVectors[pos+phoneFeatIndex];
             CoverNode nextNode;
             if (simpleDiphones){
-                nextNode = simpleCover.getChild(nextIndex); 
+                nextNode = simpleCover.children[nextIndex]; 
             }else{
-                nextNode = clusteredCover.getChild(nextIndex); 
+                nextNode = clusteredCover.children[nextIndex]; 
             }
-            double relFreq = nextNode.getFrequencyWeight();
-            double wantedWeight = nextNode.getWantedWeight();
+            //double relFreq = nextNode.getFrequencyWeight();
+            //double wantedWeight = nextNode.getWantedWeight();
             //System.out.print(" +"+relFreq+"*"+wantedWeight);
-            u += relFreq*wantedWeight;
+            //u += nextNode.frequencyWeight * nextNode.wantedWeight;
+            u += nextNode.usefulness;
             //go down to diphone level
             if (simpleDiphones){
-                nextIndex = getVectorValue(featureVectors,i,diphoneFeatIndex);
+                //nextIndex = getVectorValue(featureVectors,i,diphoneFeatIndex);
+                nextIndex = featureVectors[pos+diphoneFeatIndex];
             } else {
 //                nextIndex = getVectorValue(featureVectors,i,phoneClassesIndex);
             }        
-            nextNode = nextNode.getChild(nextIndex);
-            relFreq = nextNode.getFrequencyWeight();
-            wantedWeight = nextNode.getWantedWeight();
+            nextNode = nextNode.children[nextIndex];
+            //relFreq = nextNode.getFrequencyWeight();
+            //wantedWeight = nextNode.getWantedWeight();
             //System.out.print(" +"+relFreq+"*"+wantedWeight);
-            u += relFreq*wantedWeight;
+            //u += nextNode.frequencyWeight * nextNode.wantedWeight;
+            u += nextNode.usefulness;
             //go down to prosody level
-            nextIndex = getVectorValue(featureVectors,i,prosodyIndex);
-            nextNode = nextNode.getChild(nextIndex);            
-            relFreq = nextNode.getFrequencyWeight();
-            wantedWeight = nextNode.getWantedWeight();
+            //nextIndex = getVectorValue(featureVectors,i,prosodyIndex);
+            nextIndex = featureVectors[pos+prosodyIndex];
+            nextNode = nextNode.children[nextIndex];            
+            //relFreq = nextNode.getFrequencyWeight();
+            //wantedWeight = nextNode.getWantedWeight();
             //System.out.print(" +"+relFreq+"*"+wantedWeight+"\n");
-            u += relFreq*wantedWeight;
+            //u += nextNode.frequencyWeight * nextNode.wantedWeight;
+            u += nextNode.usefulness;
             usefulness += u;
         }
         //System.out.print(" = "+usefulness+"\n");
@@ -1487,7 +1499,7 @@ public class CoverageDefinition{
     class CoverNode{
 
         /* children of this node */
-        private CoverNode[] children;
+        protected CoverNode[] children;
         /* number of children of this node */
         private byte numChildren; 
         /* how much is this node and its children
@@ -1498,6 +1510,9 @@ public class CoverageDefinition{
         protected double frequencyWeight;
         /* number by which the wantedWeight is divided */
         protected double wantedWeightDecrease;
+        
+        /* usefulness is the product of wantedWeight and frequencyWeight. It is here purely for efficiency reasons. */
+        protected double usefulness;
 
         /**
          * Build a new CoverNode
@@ -1505,6 +1520,7 @@ public class CoverageDefinition{
          */
         public CoverNode(){
             frequencyWeight = 1;
+            usefulness = 0;
         }
 
         /**
@@ -1522,6 +1538,7 @@ public class CoverageDefinition{
             this.wantedWeightDecrease = wantedWeightDecrease;
             this.wantedWeight = wantedWeight;
             frequencyWeight = 1;
+            usefulness = frequencyWeight * this.wantedWeight;
         }
 
 
@@ -1539,6 +1556,7 @@ public class CoverageDefinition{
             numChildren = (byte)children.length;
             frequencyWeight = 1;
             this.wantedWeightDecrease = wantedWeightDecrease;
+            usefulness = 0;
         }
 
         /**
@@ -1577,6 +1595,7 @@ public class CoverageDefinition{
          */
         public void setWantedWeight(double wantedWeight){
             this.wantedWeight = wantedWeight;
+            usefulness = this.wantedWeight * frequencyWeight;
         }
 
         /**
@@ -1604,6 +1623,7 @@ public class CoverageDefinition{
          */
         public void decreaseWantedWeight(){
             wantedWeight = wantedWeight/wantedWeightDecrease;
+            usefulness = frequencyWeight * wantedWeight;
         }
 
         /**
@@ -1613,6 +1633,7 @@ public class CoverageDefinition{
          */
         public void setFrequencyWeight(double frequencyWeight){
             this.frequencyWeight = frequencyWeight;
+            usefulness = this.frequencyWeight * wantedWeight;
         }
 
         /**
