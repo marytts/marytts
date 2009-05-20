@@ -33,7 +33,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import marytts.features.FeatureDefinition;
 
@@ -72,8 +75,8 @@ public class DatabaseSelector{
     //development over time
     private static boolean logCovDevelopment;
     //private static List of selected sentences ids;
-    private static List<Integer> selectedIdSents;
-    private static List<Integer> unwantedIdSents;
+    private static Set<Integer> selectedIdSents;
+    private static Set<Integer> unwantedIdSents;
     
     private static String selectedSentencesTableName;
     private static String tableDescription;
@@ -216,12 +219,12 @@ public class DatabaseSelector{
         
         /* add already selected sentences to cover */
         System.out.println("\nAdd to cover already selected sentences marked as unwanted=false.");
-        selectedIdSents = new ArrayList<Integer>();
+        selectedIdSents = new LinkedHashSet<Integer>();
         addSelectedSents(selectedSentencesTableName, covDef);
        
         /* remove unwanted sentences from basename list */
         System.out.println("\nRemoving selected sentences marked as unwanted=true.");
-        unwantedIdSents = new ArrayList<Integer>();
+        unwantedIdSents = new LinkedHashSet<Integer>();
         removeUnwantedSentences(selectedSentencesTableName);    
        
         long startDuration = System.currentTimeMillis() -startTime;
@@ -766,7 +769,7 @@ public class DatabaseSelector{
      * @param filename the file to print to
      * @param selected the list of files
      */
-    private static void storeResult(String filename, List selected){
+    private static void storeResult(String filename, Set<Integer> selected){
 
         PrintWriter out;
         try{
@@ -775,11 +778,9 @@ public class DatabaseSelector{
             e.printStackTrace();
             throw new Error("Error storing result");
         }
-        StringBuffer resultBuf = new StringBuffer();
-        for (int i=0;i<selected.size();i++){
-            resultBuf.append(selected.get(i)+"\n");
+        for (int sel : selected) {
+            out.println(sel);
         }
-        out.print(resultBuf.toString());
         out.flush();
         out.close();
     }

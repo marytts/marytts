@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Selects sentences from a given set using the greedy algorithm.
@@ -154,8 +155,8 @@ public class SelectionFunction{
     * @return the list of selected filenames
     * @throws IOException
     */ 
-    public void select(List <Integer>selectedIdSents,
-                List <Integer>unwantedIdSents,
+    public void select(Set<Integer>selectedIdSents,
+                Set<Integer>unwantedIdSents,
                 CoverageDefinition coverageDefinition,
                 PrintWriter logFile,
                 int[] idSentenceList,
@@ -247,8 +248,8 @@ public class SelectionFunction{
      *                    if the vectors are on disk
      * @throws IOException
      */
-    private void selectNext(List <Integer>selectedIdSents,
-                List <Integer>unwantedIdSents,
+    private void selectNext(Set<Integer>selectedIdSents,
+                Set<Integer>unwantedIdSents,
                 CoverageDefinition coverageDefinition,
                 PrintWriter logFile,
                 int sentenceIndex,
@@ -383,7 +384,7 @@ public class SelectionFunction{
      * @param covDef the coverageDefinition
      * @return true, if stop criterion is reached, false otherwise
      */
-    private boolean stopCriterionIsReached(List sentences,
+    private boolean stopCriterionIsReached(Set<Integer> sentences,
             CoverageDefinition covDef){
 
         if (stopNumSentences && sentences.size()>=maxNumSents)
