@@ -43,7 +43,7 @@ if [ $cygwin = 1 ] ; then
   MARY_BASE=`cygpath "$MARY_BASE"`
 fi
 
-export CLASSPATH=$MARY_BASE/java/maryclient.jar:$MARY_BASE/java/java-diff.jar
+export CLASSPATH=$MARY_BASE/java/maryclient.jar:$MARY_BASE/java/java-diff.jar:$MARY_BASE/java/log4j-1.2.15.jar
 
 if [ $cygwin = 1 ] ; then
   CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
