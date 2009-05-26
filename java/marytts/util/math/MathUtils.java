@@ -1034,7 +1034,23 @@ public class MathUtils {
     
     public static double phaseInRadians(ComplexNumber x)
     {
-        return Math.atan2(x.imag, x.real);
+        /*
+        double modul = MathUtils.magnitudeComplex(x); // modulus
+        double phase = Math.atan2(x.imag, x.real); // use atan2: theta ranges from [-pi,pi]
+
+        if (x.imag<0.0) // lower half plane (Im<0), needs shifting
+        {
+            phase += MathUtils.TWOPI; // shift by adding 2pi to lower half plane
+            
+            // fix the discontinuity between phase = 0 and phase = 2pi
+            if (x.real>0.0 && x.imag<0.0 && Math.abs(x.imag)<1e-10)
+                phase = 0.0;
+        }
+        
+        return phase;
+        */
+        
+        return Math.atan2(x.imag, x.real); 
     }
     
     public static double phaseInRadians(double xReal, double xImag)

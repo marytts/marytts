@@ -572,6 +572,33 @@ public class FileUtils {
         writeTextFile(tmps, "d:\\phns.txt");
     }
     
+    public static void writeTextFile(String[][] textInRows, String textFile)
+    {
+        PrintWriter out = null;
+        try {
+            out = new PrintWriter(new FileWriter(textFile));
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        if (out!=null)
+        {
+            for (int n=0; n<textInRows.length; n++)
+            {
+                String line = "";
+                for (int i=0; i<textInRows[n].length; i++)
+                    line += textInRows[n][i] + " ";
+                
+                out.println(line);
+            }
+        
+            out.close();
+        }
+        else
+            System.out.println("Error! Cannot create file: " + textFile);
+    }
+    
     public static void writeTextFile(String[] textInRows, String textFile)
     {
         PrintWriter out = null;
@@ -617,6 +644,15 @@ public class FileUtils {
     public static void toTextFile(double[] x, String filename)
     {
         writeTextFile(StringUtils.toStringLines(x), filename);
+    }
+    
+    public static void toTextFile(ComplexNumber[][] x, String filename)
+    {
+        String[][] lines = new String[x.length][];
+        for (int i=0; i<x.length; i++)
+            lines[i] = StringUtils.toStringLines(x[i]);
+
+        writeTextFile(lines, filename);
     }
     
     public static void toTextFile(ComplexNumber[] x, String filename)
