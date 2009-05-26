@@ -83,7 +83,7 @@ public class HntmSynthesizer {
     public static final float HARMONIC_SYNTHESIS_TRANSITION_OVERLAP_IN_SECONDS = 0.002f;
     public static final float UNVOICED_VOICED_TRACK_TRANSITION_IN_SECONDS = 0.005f;
     
-    public static final boolean WRITE_SEPARATE_TRACKS_TO_OUTPUT = true;
+    public static final boolean WRITE_SEPARATE_TRACKS_TO_OUTPUT = false;
     
     public static final int LINEAR_PHASE_INTERPOLATION = 1;
     public static final int QUADRATIC_PHASE_INTERPOLATION = 2;
@@ -91,7 +91,7 @@ public class HntmSynthesizer {
     public static boolean ADJUST_PHASES_AFTER_TIME_SCALING = false;
     public static boolean ADJUST_PHASES_AFTER_PITCH_SCALING = false;
     
-    public static boolean APPLY_VOCAL_TRACT_NORMALIZATION_POST_PROCESSOR = true; 
+    public static boolean APPLY_VOCAL_TRACT_NORMALIZATION_POST_PROCESSOR = false; 
     
     public HntmSynthesizer()
     {
@@ -203,7 +203,7 @@ public class HntmSynthesizer {
         
         float[][] pScalesArray = new float[1][1];
         float[][] tScalesArray = new float[1][1];
-        pScalesArray[0][0] = 1.5f; tScalesArray[0][0] = 1.0f;
+        pScalesArray[0][0] = 0.60f; tScalesArray[0][0] = 1.0f;
         
         //float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f, 2.5f};
         float[] tScalesTimes = null;

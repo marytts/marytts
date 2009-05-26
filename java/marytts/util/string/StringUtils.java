@@ -1059,9 +1059,9 @@ public class StringUtils {
             for (int i=0; i<x.length; i++)
             {
                 if (x[i].imag>=0)
-                    y[i] = String.valueOf(x[i].real) + "+i" + String.valueOf(x[i].imag);
+                    y[i] = String.valueOf(x[i].real) + "+i*" + String.valueOf(x[i].imag);
                 else
-                    y[i] = String.valueOf(x[i].real) + "-i" + String.valueOf(Math.abs(x[i].imag)); 
+                    y[i] = String.valueOf(x[i].real) + "-i*" + String.valueOf(Math.abs(x[i].imag)); 
             }
         }
         
@@ -1079,9 +1079,9 @@ public class StringUtils {
             for (int i=0; i<x.real.length; i++)
             {
                 if (x.imag[i]>=0)
-                    y[i] = String.valueOf(x.real[i]) + "+i" + String.valueOf(x.imag[i]);
+                    y[i] = String.valueOf(x.real[i]) + "+i*" + String.valueOf(x.imag[i]);
                 else
-                    y[i] = String.valueOf(x.real[i]) + "-i" + String.valueOf(Math.abs(x.imag[i])); 
+                    y[i] = String.valueOf(x.real[i]) + "-i*" + String.valueOf(Math.abs(x.imag[i])); 
             }
         }
         

@@ -131,14 +131,14 @@ public class HntmAnalyzer {
 
     ////The following parameters are used by HnmPitchVoicingAnalyzer
     //They are included here so that all fixed analysis parameters are in the same class within the code
-    public static double CUMULATIVE_AMP_THRESHOLD = 2.0; //Decreased ==> Voicing increases (Orig: 2.0)
-    public static double MAXIMUM_AMP_THRESHOLD_IN_DB = 13.0; //Decreased ==> Voicing increases (Orig: 13.0)
-    public static double HARMONIC_DEVIATION_PERCENT = 20.0; //Increased ==> Voicing increases (Orig: 20.0)
-    public static double SHARP_PEAK_AMP_DIFF_IN_DB = 12.0; //Decreased ==> Voicing increases
+    public static double CUMULATIVE_AMP_THRESHOLD = 5.0; //Decreased ==> Voicing increases (Orig: 2.0)
+    public static double MAXIMUM_AMP_THRESHOLD_IN_DB = 25.0; //Decreased ==> Voicing increases (Orig: 13.0)
+    public static double HARMONIC_DEVIATION_PERCENT = 15.0; //Increased ==> Voicing increases (Orig: 20.0)
+    public static double SHARP_PEAK_AMP_DIFF_IN_DB = 25.0; //Decreased ==> Voicing increases (Orig: 12.0)
     public static int MINIMUM_TOTAL_HARMONICS = 0; //Minimum number of total harmonics to be included in voiced region (effective only when f0>10.0)
     public static int MAXIMUM_TOTAL_HARMONICS = 100; //Maximum number of total harmonics to be included in voiced region (effective only when f0>10.0)
     public static float MINIMUM_VOICED_FREQUENCY_OF_VOICING = 0.0f; //All voiced sections will have at least this freq. of voicing
-    public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 6000.0f; //All voiced sections will have at least this freq. of voicing
+    public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 3000.0f; //All voiced sections will have at least this freq. of voicing
     public static float MAXIMUM_FREQUENCY_OF_VOICING_FINAL_SHIFT = 0.0f; //The max freq. of voicing contour is shifted by this amount finally
     public static float RUNNING_MEAN_VOICING_THRESHOLD = 0.5f; //Between 0.0 and 1.0, decrease ==> Max. voicing freq increases
 
@@ -482,6 +482,7 @@ public class HntmAnalyzer {
                             double windowedEn = SignalProcUtils.energy(MathUtils.multiply(frmPeakMatcher, wgtPeakMatcher));
                             frmPeakMatcherDft = MathUtils.multiply(frmPeakMatcherDft, Math.sqrt(origEn)/(1e-20+Math.sqrt(windowedEn)));
                             harmonics = estimateComplexAmplitudes(frm, frmPeakMatcherDft, wgt, f0InHz, numHarmonics, fs, hnmSignal.frames[i].tAnalysisInSeconds);
+                            //harmonics = estimateComplexAmplitudesTD(frm, f0InHz, numHarmonics,fs);
                             //
 
                             /*
@@ -1031,7 +1032,14 @@ public class HntmAnalyzer {
             ComplexNumber[] r = new ComplexNumber[R.length];
             for (i=0; i<R.length; i++)
                 r[i] = new ComplexNumber(R[i][0]);
+            
+            //FileUtils.toTextFile(R, "d:/string_Rall.txt");
+            //FileUtils.toTextFile(r, "d:/string_r.txt");
+            //FileUtils.toTextFile(b, "d:/string_b.txt");
+            
             ComplexNumber[] x = MathUtils.levinson(r, MathUtils.multiplyComplex(b, 1.0));
+            
+            //FileUtils.toTextFile(x, "d:/string_x.txt");
             //
 
             /*
@@ -1180,6 +1188,33 @@ public class HntmAnalyzer {
         return xpart;
     }
 
+    public ComplexNumber[] estimateComplexAmplitudesTD(double[] x, double f0InHz, int L, double samplingRateInHz)
+    {
+        int N = x.length;
+        double[][] Q = new double[N][2*L];
+        
+        double w0InRadians = SignalProcUtils.hz2radian(f0InHz, (int)samplingRateInHz);
+        int i, j;
+        for (i=0; i<N; i++)
+        {
+            for (j=1; j<=L; j++)
+                Q[i][j-1] = Math.cos(i*j*w0InRadians);
+            
+            for (j=L+1; j<=2*L; j++)
+                Q[i][j-1] = Math.sin(i*(j-L)*w0InRadians);
+        }
+        
+        double[][] QT = MathUtils.transpoze(Q);
+        double[][] QTQInv = MathUtils.inverse(MathUtils.matrixProduct(QT, Q));
+        double[] hopt = MathUtils.matrixProduct(MathUtils.matrixProduct(QTQInv, QT), x);
+        
+        ComplexNumber[] xpart = new ComplexNumber[L];
+        for (i=0; i<L; i++)
+            xpart[i] = new ComplexNumber(hopt[i], hopt[i+L]);
+        
+        return xpart;
+    }
+    
     /*
     public ComplexNumber[] estimateComplexAmplitudesJampack(double[] s, double[] wgt, double f0InHz, int L, double samplingRateInHz, float tAnalysis) throws JampackException
     {
