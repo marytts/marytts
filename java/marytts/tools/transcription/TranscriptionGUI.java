@@ -622,7 +622,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
 
     private void loadPhoneSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadPhoneSetActionPerformed
         if(!checkNecessaryEvents("phoneset")) return;
-        JFileChooser fc = new JFileChooser();
+        JFileChooser fc = new JFileChooser(new File("."));
         fc.setDialogTitle("Load phoneset file");
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int returnVal = fc.showOpenDialog(TranscriptionGUI.this);
@@ -674,7 +674,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
 
     private void loadFromFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromFileActionPerformed
         if(!checkNecessaryEvents("load")) return;
-        JFileChooser fc = new JFileChooser();
+        JFileChooser fc = new JFileChooser(new File("."));
         fc.setDialogTitle("Open transcription file");
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int returnVal = fc.showOpenDialog(TranscriptionGUI.this);
