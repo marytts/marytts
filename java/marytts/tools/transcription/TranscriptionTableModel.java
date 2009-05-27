@@ -29,6 +29,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -125,7 +126,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
      */
     public void saveTranscription(String fileName) throws Exception {
         
-        PrintWriter out = new PrintWriter(new FileWriter(fileName));
+        PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8"));
         for(int i=0; i < data.length; i++){
             
             String line =  (String) data[i][1];

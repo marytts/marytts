@@ -92,7 +92,7 @@ THIS SOFTWARE.
     <property name="javadocdir" value="doc/javadoc"/>
     <mkdir dir="${javadocdir}"/>
     <javadoc packagenames="marytts.*"
-             classpath="java/tritonus_share-0.3.6.jar;java/freetts-en_us.jar;java/log4j-1.2.8.jar;java/freetts-mbrola.jar;java/tritonus_mp3-0.3.6.jar;java/junit.jar;java/freetts-de.jar;java/jtok.jar;build/standalone-compiler.jar;java/tritonus_remaining-0.3.6.jar;java/jl1.0.jar;java/jsresources.jar;java/java-diff.jar;java/freetts-cmudict04.jar;java/freetts-germanlex.jar;java/freetts.jar;java/JavaOpenAIR.jar;java/Jama-1.0.2.jar;java/jl1.0.jar;java/fast-md5.jar"
+             classpath="java/freetts-en_us.jar;java/log4j-1.2.15.jar;java/freetts-mbrola.jar;java/tritonus_mp3-0.3.6.jar;java/junit.jar;java/freetts-de.jar;java/jtok.jar;build/standalone-compiler.jar;java/tritonus_remaining-0.3.6.jar;java/jl1.0.jar;java/jsresources.jar;java/java-diff.jar;java/freetts-cmudict04.jar;java/freetts-germanlex.jar;java/freetts.jar;java/JavaOpenAIR.jar;java/Jama-1.0.2.jar;java/jl1.0.jar;java/fast-md5.jar"
              sourcepath="${src}"
              destdir="${javadocdir}"
              author="true"
@@ -316,7 +316,7 @@ THIS SOFTWARE.
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Main-Class"
          value="marytts.tools.voiceimport.DatabaseImportMain"/>
-        <attribute name="Class-Path" value="mary-common.jar signalproc.jar jsresources.jar log4j-1.2.8.jar"/>
+        <attribute name="Class-Path" value="mary-common.jar signalproc.jar jsresources.jar log4j-1.2.15.jar"/>
         </manifest>
         </jar>
   </target>
@@ -334,8 +334,24 @@ THIS SOFTWARE.
         </jar>
   </target>
 
+	 <target name="transcription-tool.jar" depends="compile">
+	        <jar destfile="${dest}/transcription-tool.jar"
+	             basedir="${src}"
+	             includes="marytts/tools/newlanguage/**/*.class
+	        	           marytts/tools/transcription/*.class
+	        	           marytts/tools/transcription/*.html
+	        	           weka/**/*.class">
+	        <manifest>
+	        <attribute name="Built-By" value="${user.name}"/>
+	        <attribute name="Main-Class"
+	         value="marytts.tools.transcription.TranscriptionGUI"/>
+	        <attribute name="Class-Path" value="swing-layout-1.0.jar mary-common.jar log4j-1.2.15.jar weka.jar voiceimport.jar"/>
+	        </manifest>
+	        </jar>
+	  </target>
 
-  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,mary-english.jar,mary-tibetan.jar,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar,voiceimport.jar,installvoices.jar"/>
+
+  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,mary-english.jar,mary-tibetan.jar,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar,voiceimport.jar,installvoices.jar,transcription-tool.jar"/>
 
 	
 	
