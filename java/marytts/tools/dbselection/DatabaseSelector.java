@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Set;
 
 import marytts.features.FeatureDefinition;
+import marytts.util.Pair;
 
 
 
@@ -48,7 +49,8 @@ import marytts.features.FeatureDefinition;
  * @author Anna Hunecke
  *
  */
-public class DatabaseSelector{
+public class DatabaseSelector
+{
     
     private static String locale;
     //the feature definition for the feature vectors
@@ -63,8 +65,6 @@ public class DatabaseSelector{
     private static String covDefConfigFileName;
     //the stop criterion (as string)
     private static String stopCriterion;
-    //the list of sentences from which to select
-    private static int[] idSentenceList;
     //the log file to log the result to
     private static String overallLogFile;
     //if true, feature vectors are kept in memory
@@ -86,7 +86,7 @@ public class DatabaseSelector{
     private static String mysqlDB;
     private static String mysqlUser;
     private static String mysqlPasswd;
-    
+    private static boolean considerOnlyReliableSentences;
     /**
      * Main method to be run from the directory where the data is.
      * Expects already computed unit features in directory unitfeatures
@@ -116,7 +116,9 @@ public class DatabaseSelector{
      * 
      * @return the array of feature vectors used in the current pass
      */
-    public static byte[][] main2(String[] args,byte[][] vectorArray)throws Exception{
+    public static byte[][] main2(String[] args,byte[][] vectorArray)
+    throws Exception
+    {
         /* Sort out the filenames and dirs for the logfiles */
         System.out.println("Starting Database Selection...");
         
@@ -188,9 +190,30 @@ public class DatabaseSelector{
           throw new Exception("Error opening featureDefinition file");
         }
         
+        /* Load the feature vectors from the database */
+        boolean loadFeatureVectors = (vectorArray == null && holdVectorsInMemory);
+        
+        System.out.println("Getting a list of ids for all the sentences in the DB...");
+        if (loadFeatureVectors) System.out.println("Will also load feature vectors into memory (increase memory if this fails)");
+        System.out.println("(if the number of sentences is large, this can take a while)");
+        System.out.println();
+        String condition = null;
+        if (considerOnlyReliableSentences) {
+            condition = "reliable=true";
+        }
+        int sentenceIDs[] = null;
+        if (loadFeatureVectors) {
+            Pair<int[], byte[][]> pair = wikiToDB.getIdsAndFeatureVectors("dbselection", condition);
+            sentenceIDs = pair.getFirst();
+            vectorArray = pair.getSecond();
+        } else {
+            sentenceIDs = wikiToDB.getIdListOfType("dbselection", condition);
+        }
+        
+        
         /* Initialise the coverage definition */
         System.out.println("\nInitiating coverage...");
-        CoverageDefinition covDef = new CoverageDefinition(featDef,covDefConfigFileName,holdVectorsInMemory,vectorArray);
+        CoverageDefinition covDef = new CoverageDefinition(featDef,covDefConfigFileName,sentenceIDs,vectorArray);
         
         // If the selectedSentencesTable is new, (does not exist) then a new table
         // will be created, the selected field in the dbselection table will be initialised to selected=false. 
@@ -207,11 +230,15 @@ public class DatabaseSelector{
         if (!covSetFile.exists()){
             //coverage has to be initialised
             readCovFromFile = false;
-            idSentenceList = covDef.initialiseCoverage(wikiToDB, verbose); 
+            covDef.initialiseCoverage(wikiToDB, verbose, considerOnlyReliableSentences); 
             System.out.println("\nWriting coverage to file "+initFileName);
             covDef.writeCoverageBin(initFileName);
-        } else {                
-            idSentenceList = wikiToDB.getIdListOfType("dbselection", "reliable=true");
+        } else {
+            condition = null;
+            if (considerOnlyReliableSentences) {
+                condition = "reliable=true";
+            }
+            int[] idSentenceList = wikiToDB.getIdListOfType("dbselection", condition);
             covDef.readCoverageBin(wikiToDB, initFileName,featDef,idSentenceList);
         }
         
@@ -252,7 +279,7 @@ public class DatabaseSelector{
         System.out.println("\nSelecting sentences...");
        
         //selFunc.select(selectedSents,covDef,logOut,basenameList,holdVectorsInMemory,verbose);
-        selFunc.select(selectedIdSents,unwantedIdSents,covDef,logOut,idSentenceList,holdVectorsInMemory,verbose,wikiToDB);
+        selFunc.select(selectedIdSents,unwantedIdSents,covDef,logOut,sentenceIDs,holdVectorsInMemory,verbose,wikiToDB);
 
         /* Store list of selected files */
         filename = selectionDirName+dateDir + "/selectionResult_" + dateString + ".txt";
@@ -277,7 +304,7 @@ public class DatabaseSelector{
             overallLogOut.println("*******************************\n" + "Results for "+dateString+":");
             
             //overallLogOut.println("number of basenames "+basenameList.length);
-            overallLogOut.println("number of basenames "+idSentenceList.length);
+            overallLogOut.println("number of basenames "+sentenceIDs.length);
             
             overallLogOut.println("Stop criterion "+stopCriterion);
             covDef.printResultToLog(overallLogOut);
@@ -327,6 +354,7 @@ public class DatabaseSelector{
         mysqlPasswd = null;
         selectedSentencesTableName = null;
         tableDescription = "";
+        considerOnlyReliableSentences = false;
         
         int i=0;
         int numEssentialArgs = 0;
@@ -550,6 +578,13 @@ public class DatabaseSelector{
                 i++;
                 continue;
             }
+            if (args[i].equals("-reliableOnly")) { // optionally, request that only "reliable" sentences be used in selection
+                considerOnlyReliableSentences = true;
+                log.append("using only reliable sentences\n");
+                System.out.println("using only reliable sentences");
+                i++;
+                continue;
+            }
             i++;
         }
         System.out.println();
@@ -616,7 +651,8 @@ public class DatabaseSelector{
                 +"-logCoverageDevelopment : If this option is given, the coverage development over time \n"
                 +" is stored.\n"
                 +"-verbose : If this option is given, there will be more output on the command line\n"
-                +" during the run of the program.\n");       
+                +" during the run of the program.\n"
+                +"-reliableOnly : Use only sentences in dbselection table that are marked as reliable.\n");       
     }
 
     /***
