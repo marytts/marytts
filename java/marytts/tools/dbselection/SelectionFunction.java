@@ -396,21 +396,6 @@ public class SelectionFunction{
         boolean result = false;
         if (stopSimpleDiphones && covDef.reachedMaxSimpleDiphones())
             result = true;
-        if (stopClusteredDiphones){
-            if (covDef.reachedMaxClusteredDiphones()){
-                if (!stopSimpleDiphones){
-                    //set result to true only if we do not have to consider 
-                    //the simpleDiphones stop criterion 
-                    result = true;
-                }
-                //else result remains false/true, depending on what the 
-                //test result for simpleDiphones was
-            } else {
-                //set the result to false, no matter what the result for
-                //simpleDiphones was
-                result = false;
-            }
-        }
         if (stopSimpleProsody){
             if (covDef.reachedMaxSimpleProsody()){
                 if (!stopSimpleDiphones && !stopClusteredDiphones){
@@ -423,25 +408,6 @@ public class SelectionFunction{
             } else {
                 //set the result to false, no matter what the result for
                 //simpleDiphones/clusteredDiphones was
-                result = false;
-            }
-        }
-        if (stopClusteredProsody){
-            if (covDef.reachedMaxClusteredProsody()){
-                if (!stopSimpleDiphones 
-                        && !stopClusteredDiphones
-                        && !stopSimpleProsody){
-                    //set result to true only if we do not have to consider 
-                    //the simpleDiphones, clusteredDiphones or simpleProsody 
-                    //stop criterion 
-                    result = true;
-                }
-                //else result remains false/true, depending on what the 
-                //test result for 
-                //simpleDiphones/clusteredDiphones/simpleProsody was
-            } else {
-                //set the result to false, no matter what the result for
-                //simpleDiphones/clusteredDiphones/simpleProsody was
                 result = false;
             }
         }

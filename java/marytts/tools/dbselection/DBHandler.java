@@ -46,6 +46,7 @@ import java.lang.ClassLoader;
 
 
 import marytts.tools.dbselection.WikipediaMarkupCleaner;
+import marytts.util.Pair;
 
 /**
  * Various functions for handling connection, inserting and querying a mysql database.
@@ -1161,6 +1162,75 @@ public class DBHandler {
       //System.out.println("idSet.length=" + idSet.length);
       return idSet;
   }
+
+  /**
+   * For the set of sentences identified by table and condition, retrieve from Mysql both
+   * the sentence ids and the corresponding features.
+   * @param table
+   * @param condition
+   * @return
+   */
+  public Pair<int[], byte[][]> getIdsAndFeatureVectors(String table, String condition)
+  {
+      int num, i, j;
+      int idSet[] = null;
+      byte features[][] = null;
+      int maxNum=500000;
+      String getNum, getIds, getIdsShort;
+      
+      if(condition!=null){
+        getNum =  "SELECT count(id) FROM " + locale + "_" + table + " where " + condition + ";";
+        getIds =  "SELECT id,features FROM " + locale + "_" + table +  " where " + condition;
+      } else {
+        getNum =  "SELECT count(id) FROM " + locale + "_" + table + ";";
+        getIds =  "SELECT id,features FROM " + locale + "_" + table;
+      }
+      
+      String str = queryTable(getNum);
+      num = Integer.parseInt(str);
+      System.out.println(num+" sentences to retrieve...");
+      //System.out.println("num = " + num);
+      if(num>0) { 
+        idSet = new int[num];
+        features = new byte[num][];
+        i=0;
+        if(num > maxNum) {
+          for(j=0; j<num; j+=maxNum){
+            try {
+              getIdsShort = getIds + " limit " + j + "," + maxNum;
+              
+              rs = st.executeQuery(getIdsShort); 
+              while( rs.next() ) {
+                idSet[i] = rs.getInt(1);
+                features[i] = rs.getBytes(2);
+                i++;
+              }
+              System.out.println("  Num of ids+features retrieved = " + i);
+              rs.close();
+              
+            } catch (SQLException e) {
+              e.printStackTrace();
+            }
+          }
+        } else { // if num < maxNum
+            try {                
+                rs = st.executeQuery(getIds);                
+                while( rs.next() ) {
+                  idSet[i] = rs.getInt(1);
+                  features[i] = rs.getBytes(2);
+                  i++;
+                }
+              } catch (SQLException e) {
+                e.printStackTrace();
+              }  
+        }
+        
+      } else
+        System.out.println("WARNING empty list for: " + getIds);  
+      //System.out.println("idSet.length=" + idSet.length);
+      return new Pair<int[], byte[][]>(idSet, features);
+  }
+
   
   /***
    * Get a list of id's from a selected sentences table.<br>
@@ -1641,12 +1711,7 @@ public class DBHandler {
               
   }
   
-  
-  public String getFeaturesFromTable(int id, String table) {
-      String dbQuery = "Select features FROM " + table + " WHERE id=" + id;
-      return queryTable(dbQuery);
-      
-  }
+
   
   private boolean updateTable(String sql)
   {
