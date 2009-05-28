@@ -122,7 +122,7 @@ public class CopySynthesis
         aligner.SetEnsureInitialBoundary(false);
         String labels = aligner.readLabelFile(labFilename);
         MaryHttpClient mary = new MaryHttpClient();
-        String text = StringUtils.readTextFileIntoString(textFilename);
+        String text = StringUtils.readTextFileIntoString(textFilename, "ASCII");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         mary.process(text, "TEXT", "ALLOPHONES", locale, null, null, baos);
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());

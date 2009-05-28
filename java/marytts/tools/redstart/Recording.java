@@ -140,14 +140,17 @@ public class Recording extends Speech {
     public void checkForTempClipping() {
         File f = getFile();
         if (!f.exists()) return;
+        
+        this.isTempClipped = false;
+
         try {
             AudioInputStream ais = AudioSystem.getAudioInputStream(f);
             double[] audio = new AudioDoubleDataSource(ais).getAllData();
             int samplingRate = (int) ais.getFormat().getSampleRate();
             int frameLength = (int) (0.005 * samplingRate); // each frame is 5 ms long
-            EnergyAnalyser silenceFinder = new EnergyAnalyser_dB(new BufferedDoubleDataSource(audio), frameLength, samplingRate);
+            EnergyAnalyser silenceFinder = new EnergyAnalyser(new BufferedDoubleDataSource(audio), frameLength, samplingRate);
             FrameAnalysisResult[] energies = silenceFinder.analyseAllFrames();
-            double silenceCutoff = silenceFinder.getSilenceCutoff();
+            double silenceCutoff = silenceFinder.getSilenceCutoffFromKMeansClustering(0.1, 0.1, 0.0, 4);
             // Need at least 100 ms of silence at the beginning and at the end:
             for (int i=0; i<20; i++) {
                 double energy = ((Double)energies[i].get()).doubleValue();
@@ -167,7 +170,6 @@ public class Recording extends Speech {
             return;
         }
         
-        this.isTempClipped = false;
         
         return;
     }

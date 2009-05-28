@@ -332,6 +332,48 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
         return (double[][])stretches.toArray(new double[0][0]);
     }
     
+    
+    
+    public double getSilenceCutoffFromKMeansClustering(double speechStartLikelihood, 
+            double speechEndLikelihood, 
+            double shiftFromMinimumEnergyCenter,
+            int numClusters)
+    {
+        int i, j;
+
+        FrameAnalysisResult[] far = analyseAllFrames();
+
+        double[][] energies = new double[far.length][1];
+        for (i=0; i<far.length; i++)
+            energies[i][0] = ((Double)far[i].get()).doubleValue();
+        
+        double[] isSpeechsAll = new double[far.length];
+        Arrays.fill(isSpeechsAll, 0.0);
+        
+        KMeansClusteringTrainerParams p = new KMeansClusteringTrainerParams();
+        p.numClusters = numClusters;
+        p.maxIterations = 40;
+        KMeansClusteringTrainer t = new KMeansClusteringTrainer();
+        t.train(energies, p);
+        
+        double[] meanEns = new double[p.numClusters];
+        for (i=0; i<p.numClusters; i++)
+        {
+            meanEns[i] = 10*Math.log10(t.clusters[i].meanVector[0]);
+            System.out.println(String.valueOf(meanEns[i])); 
+        }
+        
+        double minEnCenter = MathUtils.getMin(meanEns);
+        double maxEnCenter = MathUtils.getMax(meanEns);
+        
+        double energyTh = minEnCenter + shiftFromMinimumEnergyCenter*(maxEnCenter-minEnCenter);
+        System.out.println(String.valueOf(energyTh)); 
+        
+        return energyTh;
+    }
+    
+    
+    
     /**
      * 
      * The latest version uses K-Means clustering to cluster energy values into 3 separate clusters.

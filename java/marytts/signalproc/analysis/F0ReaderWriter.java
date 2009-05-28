@@ -85,7 +85,7 @@ public class F0ReaderWriter extends PitchReaderWriter {
     //Reads from Snack/Wavesurfer generated .f0 files
     public void read_f0_file(String f0File, int samplingRate, double windowSizeInSeconds, double skipSizeInSeconds) throws IOException
     {
-        String[] lines = StringUtils.readTextFile(f0File);
+        String[] lines = StringUtils.readTextFile(f0File, "ASCII");
         if (lines!=null && lines[0]!=null)
         {
             contour = new double[lines.length];

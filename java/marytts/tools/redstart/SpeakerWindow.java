@@ -29,7 +29,6 @@ import javax.swing.ImageIcon;
  */
 public class SpeakerWindow extends javax.swing.JFrame {
     
-    private String promptText;
     private boolean showPromptCount;
     private Font defaultPromptFont;
     
@@ -53,19 +52,12 @@ public class SpeakerWindow extends javax.swing.JFrame {
     /** Updates the prompt display with the current prompt text
      *  @param promptText The current prompt text for the speaker to read
      */
-    public void updatePromptDisplay(String text) {
-        this.promptText = text;  // Store for later use during resize events
+    public void updatePromptDisplay(String text, String nextSentence) {
         jTextPane_PromptDisplay.setFont(defaultPromptFont);
-        if (this.isVisible())
-            LookAndFeel.centerPromptText(this.jTextPane_PromptDisplay, text);
+        LookAndFeel.centerPromptText(this.jTextPane_PromptDisplay, text);
+        LookAndFeel.centerPromptText(this.jTextPane_nextSentence, nextSentence);
     }
 
-    /** Updates instructions in Speaker window
-     *  @param text The instructions to the speaker for the current recording session
-     */
-    public void updateInstructions(String text) {
-        jEditorPane_Instructions.setText(text);
-    }
     
     /** Updates status icon in Speaker window
      *  @param statusIcon The icon to use (play, record, stop)
@@ -117,12 +109,12 @@ public class SpeakerWindow extends javax.swing.JFrame {
     private void initComponents() {
         jPanel_SpeakerWindow = new javax.swing.JPanel();
         jTextPane_PromptDisplay = new javax.swing.JTextPane();
-        jScrollPane_Instructions = new javax.swing.JScrollPane();
-        jEditorPane_Instructions = new javax.swing.JEditorPane();
         jLabel_SessionStatus = new javax.swing.JLabel();
         jProgressBar_SpeakerProgress = new javax.swing.JProgressBar();
         jLabel_PromptCount = new javax.swing.JLabel();
         jLabel_PromptTotal = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextPane_nextSentence = new javax.swing.JTextPane();
 
         setTitle("Redstart - Speaker Window");
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -136,16 +128,11 @@ public class SpeakerWindow extends javax.swing.JFrame {
             }
         });
 
+        jTextPane_PromptDisplay.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         jTextPane_PromptDisplay.setEditable(false);
-        jTextPane_PromptDisplay.setFont(new java.awt.Font("Tahoma", 1, 36));
+        jTextPane_PromptDisplay.setFont(new java.awt.Font("Tahoma", 0, 36));
+        jTextPane_PromptDisplay.setText("This is a long and boring test sentence, the only purpose of which is to see how to break between lines without making any difference across the windows.");
         jTextPane_PromptDisplay.setAutoscrolls(false);
-
-        jScrollPane_Instructions.setBorder(null);
-        jEditorPane_Instructions.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
-        jEditorPane_Instructions.setBorder(null);
-        jEditorPane_Instructions.setEditable(false);
-        jEditorPane_Instructions.setFont(new java.awt.Font("Tahoma", 0, 18));
-        jScrollPane_Instructions.setViewportView(jEditorPane_Instructions);
 
         jLabel_SessionStatus.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/stopped_64x64.png")));
 
@@ -164,31 +151,41 @@ public class SpeakerWindow extends javax.swing.JFrame {
         jLabel_PromptTotal.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
         jLabel_PromptTotal.setPreferredSize(new java.awt.Dimension(64, 64));
 
+        jScrollPane1.setBorder(null);
+        jTextPane_nextSentence.setBackground(new java.awt.Color(245, 245, 245));
+        jTextPane_nextSentence.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jTextPane_nextSentence.setFont(new java.awt.Font("Tahoma", 0, 24));
+        jTextPane_nextSentence.setForeground(new java.awt.Color(50, 50, 50));
+        jTextPane_nextSentence.setText("This is a long and boring test sentence, the only purpose of which is to see how to break between lines without making any difference across the windows.");
+        jScrollPane1.setViewportView(jTextPane_nextSentence);
+
         org.jdesktop.layout.GroupLayout jPanel_SpeakerWindowLayout = new org.jdesktop.layout.GroupLayout(jPanel_SpeakerWindow);
         jPanel_SpeakerWindow.setLayout(jPanel_SpeakerWindowLayout);
         jPanel_SpeakerWindowLayout.setHorizontalGroup(
             jPanel_SpeakerWindowLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jTextPane_PromptDisplay, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 933, Short.MAX_VALUE)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel_SpeakerWindowLayout.createSequentialGroup()
                 .add(jPanel_SpeakerWindowLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel_SpeakerWindowLayout.createSequentialGroup()
                         .add(jProgressBar_SpeakerProgress, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 622, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 68, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 77, Short.MAX_VALUE)
                         .add(jLabel_PromptCount, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jLabel_PromptTotal, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 86, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(jScrollPane_Instructions, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 848, Short.MAX_VALUE))
-                .add(21, 21, 21)
+                        .add(jLabel_PromptTotal, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 86, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(21, 21, 21))
+                    .add(jPanel_SpeakerWindowLayout.createSequentialGroup()
+                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 645, Short.MAX_VALUE)
+                        .add(233, 233, 233)))
                 .add(jLabel_SessionStatus))
+            .add(jTextPane_PromptDisplay, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 942, Short.MAX_VALUE)
         );
         jPanel_SpeakerWindowLayout.setVerticalGroup(
             jPanel_SpeakerWindowLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel_SpeakerWindowLayout.createSequentialGroup()
-                .add(jTextPane_PromptDisplay, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 286, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(jPanel_SpeakerWindowLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(jLabel_SessionStatus)
-                    .add(jScrollPane_Instructions, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 181, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(jTextPane_PromptDisplay, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel_SpeakerWindowLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel_SessionStatus)
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 181, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel_SpeakerWindowLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jPanel_SpeakerWindowLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -204,8 +201,8 @@ public class SpeakerWindow extends javax.swing.JFrame {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jPanel_SpeakerWindow, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(29, Short.MAX_VALUE))
+                .add(jPanel_SpeakerWindow, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -218,17 +215,8 @@ public class SpeakerWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void formComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentResized
-        this.updatePromptDisplay(this.promptText);
+        //this.updatePromptDisplay(this.promptText);
     }//GEN-LAST:event_formComponentResized
-
-    public void setVisible(boolean visible) 
-    {
-        super.setVisible(visible);
-        if (visible) {
-            jTextPane_PromptDisplay.setFont(defaultPromptFont);
-            LookAndFeel.centerPromptText(this.jTextPane_PromptDisplay, promptText);
-        }
-    }
 
     
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
@@ -250,14 +238,14 @@ public class SpeakerWindow extends javax.swing.JFrame {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JEditorPane jEditorPane_Instructions;
     private javax.swing.JLabel jLabel_PromptCount;
     private javax.swing.JLabel jLabel_PromptTotal;
     private javax.swing.JLabel jLabel_SessionStatus;
     private javax.swing.JPanel jPanel_SpeakerWindow;
     private javax.swing.JProgressBar jProgressBar_SpeakerProgress;
-    private javax.swing.JScrollPane jScrollPane_Instructions;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextPane jTextPane_PromptDisplay;
+    private javax.swing.JTextPane jTextPane_nextSentence;
     // End of variables declaration//GEN-END:variables
     
 }

@@ -30,7 +30,10 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.Properties;
 
@@ -38,6 +41,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.SourceDataLine;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
@@ -50,6 +54,7 @@ import javax.swing.table.TableColumn;
 
 import marytts.signalproc.display.MultiDisplay;
 import marytts.util.data.audio.MonoAudioInputStream;
+import marytts.util.string.StringUtils;
 
 
 /**
@@ -77,8 +82,7 @@ public class AdminWindow extends javax.swing.JFrame {
     private static final String PROMPT_FOLDER_NAME = "/text/";
     private static final String REC_FOLDER_NAME = "/wav/";
     private static final String SYNTH_FOLDER_NAME = "/prompt_wav/";
-    private static final String INSTRUCTIONS_FOLDER_NAME = "/instructions/";
-      
+
     private static boolean beepDemoOn = true;                // Flag for toggling beep demo (clicking on status icon)
     
     // Forms and related fields
@@ -117,6 +121,8 @@ public class AdminWindow extends javax.swing.JFrame {
         initMoreComponents();       // Initialize some components further (editable)
 
         setupVoice();
+        
+        jTable_PromptSet.requestFocusInWindow();
                 
         Test.output("|AdminWindow| Ready for testing.");  // TESTCODE
     }
@@ -125,7 +131,6 @@ public class AdminWindow extends javax.swing.JFrame {
         this.currentSession = createRecSession();  // Create new recording session
         System.out.println("Components initialized."); 
         buildPromptTable();    // Set up and fill the prompt table
-        updateInstructions();  // Update instructions panel with instructions for current prompt set
         
         // PRI4 - Encapsulate this better; poor design but functional
         this.speakerWin.setupProgressBar(this.promptArray.length);
@@ -245,31 +250,6 @@ public class AdminWindow extends javax.swing.JFrame {
         return combinedStatus;
     } 
     
-    /** Public method to allow updating of instructions pane 
-     *  @param session The current recording session, which has access to the instructions
-     */
-    public void updateInstructions() {
-        
-        // Get instructions and display them in instructions pane in Admin window
-        try {
-            
-            String instructionsText = this.currentSession.getInstructions().getText();
-            if (instructionsText != null) {
-                jEditorPane_Instructions.setText(instructionsText);
-
-                // Also update in Speaker window
-                speakerWin.updateInstructions(instructionsText);
-            }
-        
-        }
-        catch (Exception ex) {
-         
-            String message = "No instructions, but you may continue.";
-            showMessage(message, true); // true = warning
-            
-        }
-        
-    }    
     
     // Specifically for SpeakerWindow.java to determine if it should show prompt count
     public Options getOptions() {
@@ -286,17 +266,23 @@ public class AdminWindow extends javax.swing.JFrame {
     
     /** Displays the prompt text in the prompt display pane */
     private void displayPromptText() {
-        
-        Prompt prompt = promptArray[getCurrentRow()];  // Current prompt
+        int currentRow = getCurrentRow();
+        Prompt prompt = promptArray[currentRow];  // Current prompt
         String promptText = prompt.getPromptText();
         Recording rec = prompt.getRecording();  // Most recent recording for selected prompt
+        String nextPromptText = "";
+        if (currentRow+1 < promptArray.length) {
+            nextPromptText = promptArray[currentRow+1].getPromptText();
+        }
         
         jTextPane_PromptDisplay.setFont(defaultPromptFont);
-        if (this.isVisible())
+        if (this.isVisible()) {
             LookAndFeel.centerPromptText(jTextPane_PromptDisplay, promptText);
-      
+            LookAndFeel.centerPromptText(jTextPane_nextSentence, nextPromptText);
+        }
+        
         // Also update in Speaker window
-        this.speakerWin.updatePromptDisplay(promptText);
+        this.speakerWin.updatePromptDisplay(promptText, nextPromptText);
         int promptNumber = getCurrentRow() + 1;
         this.speakerWin.updateProgressBar(promptNumber);
         this.speakerWin.updatePromptCount(promptNumber);
@@ -413,8 +399,10 @@ public class AdminWindow extends javax.swing.JFrame {
         // Display table in the appropriate component pane
         jScrollPane_PromptSet.setViewportView(table);
     
-        table.setRowSelectionInterval(0, 0);  // Show first row of prompt table as selected               
-        displayPromptText();  // Display the prompt text for the first prompt in the prompt display pane 
+        if (promptArray.length > 0) {
+            table.setRowSelectionInterval(0, 0);  // Show first row of prompt table as selected               
+            displayPromptText();  // Display the prompt text for the first prompt in the prompt display pane 
+        }
         setColumnWidths();
 
         System.out.println("Total " + table.getRowCount() + " prompts loaded.");
@@ -771,11 +759,9 @@ public class AdminWindow extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
         jPanel_SpeakerView = new javax.swing.JPanel();
-        jScrollPane_Instructions = new javax.swing.JScrollPane();
-        jEditorPane_Instructions = new javax.swing.JEditorPane();
-        jLabel_SessionStatus = new javax.swing.JLabel();
-        jPanel1 = new javax.swing.JPanel();
         jTextPane_PromptDisplay = new javax.swing.JTextPane();
+        jTextPane_nextSentence = new javax.swing.JTextPane();
+        jLabel_SessionStatus = new javax.swing.JLabel();
         jPanel_AdminControls = new javax.swing.JPanel();
         jScrollPane_PromptSet = new javax.swing.JScrollPane();
         jCheckBox_PlaySynthesis = new javax.swing.JCheckBox();
@@ -791,6 +777,7 @@ public class AdminWindow extends javax.swing.JFrame {
         jMenuBar_AdminWindow = new javax.swing.JMenuBar();
         jMenu_File = new javax.swing.JMenu();
         jMenuItem_Open = new javax.swing.JMenuItem();
+        jMenuItem_ImportText = new javax.swing.JMenuItem();
         jSeparator_File = new javax.swing.JSeparator();
         jMenuItem_Exit = new javax.swing.JMenuItem();
         jMenu_Tools = new javax.swing.JMenu();
@@ -803,31 +790,40 @@ public class AdminWindow extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Redstart - Admin Window");
-        addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosing(java.awt.event.WindowEvent evt) {
-                formWindowClosing(evt);
-            }
-        });
         addComponentListener(new java.awt.event.ComponentAdapter() {
             public void componentResized(java.awt.event.ComponentEvent evt) {
                 formComponentResized(evt);
             }
         });
-
-        jPanel_SpeakerView.setBorder(javax.swing.BorderFactory.createTitledBorder("Speaker View"));
-        jScrollPane_Instructions.setBorder(null);
-        jEditorPane_Instructions.setBackground(javax.swing.UIManager.getDefaults().getColor("Panel.background"));
-        jEditorPane_Instructions.setBorder(null);
-        jEditorPane_Instructions.setEditable(false);
-        jEditorPane_Instructions.setFont(new java.awt.Font("Tahoma", 0, 14));
-        jEditorPane_Instructions.setAutoscrolls(false);
-        jEditorPane_Instructions.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentResized(java.awt.event.ComponentEvent evt) {
-                jEditorPane_InstructionsComponentResized(evt);
+        addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                formFocusGained(evt);
+            }
+        });
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
             }
         });
 
-        jScrollPane_Instructions.setViewportView(jEditorPane_Instructions);
+        jPanel_SpeakerView.setBorder(javax.swing.BorderFactory.createTitledBorder("Speaker View"));
+        jTextPane_PromptDisplay.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jTextPane_PromptDisplay.setEditable(false);
+        jTextPane_PromptDisplay.setFont(new java.awt.Font("Tahoma", 0, 30));
+        jTextPane_PromptDisplay.setText("This is a long and boring test sentence, the only purpose of which is to see how to break between lines without making any difference across the windows.");
+        jTextPane_PromptDisplay.setAutoscrolls(false);
+        jTextPane_PromptDisplay.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentResized(java.awt.event.ComponentEvent evt) {
+                jTextPane_PromptDisplayComponentResized(evt);
+            }
+        });
+
+        jTextPane_nextSentence.setBackground(new java.awt.Color(245, 245, 245));
+        jTextPane_nextSentence.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jTextPane_nextSentence.setEditable(false);
+        jTextPane_nextSentence.setFont(new java.awt.Font("Tahoma", 0, 24));
+        jTextPane_nextSentence.setForeground(new java.awt.Color(50, 50, 50));
+        jTextPane_nextSentence.setText("This is a long and boring test sentence, the only purpose of which is to see how to break between lines without making any difference across the windows.");
 
         jLabel_SessionStatus.setIcon(new javax.swing.ImageIcon(getClass().getResource("/marytts/tools/redstart/stopped_48x48.png")));
         jLabel_SessionStatus.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -836,52 +832,34 @@ public class AdminWindow extends javax.swing.JFrame {
             }
         });
 
-        jTextPane_PromptDisplay.setEditable(false);
-        jTextPane_PromptDisplay.setFont(new java.awt.Font("Tahoma", 0, 48));
-        jTextPane_PromptDisplay.setAutoscrolls(false);
-        jTextPane_PromptDisplay.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentResized(java.awt.event.ComponentEvent evt) {
-                jTextPane_PromptDisplayComponentResized(evt);
-            }
-        });
-
-        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jTextPane_PromptDisplay, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 810, Short.MAX_VALUE)
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jTextPane_PromptDisplay, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 113, Short.MAX_VALUE)
-        );
-
         org.jdesktop.layout.GroupLayout jPanel_SpeakerViewLayout = new org.jdesktop.layout.GroupLayout(jPanel_SpeakerView);
         jPanel_SpeakerView.setLayout(jPanel_SpeakerViewLayout);
         jPanel_SpeakerViewLayout.setHorizontalGroup(
             jPanel_SpeakerViewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel_SpeakerViewLayout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel_SpeakerViewLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel_SpeakerViewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jTextPane_PromptDisplay, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 773, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel_SpeakerViewLayout.createSequentialGroup()
-                        .add(jScrollPane_Instructions, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 738, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 24, Short.MAX_VALUE)
+                        .add(jTextPane_nextSentence, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 624, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(101, 101, 101)
                         .add(jLabel_SessionStatus)))
                 .addContainerGap())
         );
         jPanel_SpeakerViewLayout.setVerticalGroup(
             jPanel_SpeakerViewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel_SpeakerViewLayout.createSequentialGroup()
-                .add(jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel_SpeakerViewLayout.createSequentialGroup()
+                .add(jTextPane_PromptDisplay, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 131, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel_SpeakerViewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jLabel_SessionStatus)
-                    .add(jScrollPane_Instructions, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 109, Short.MAX_VALUE))
+                .add(jPanel_SpeakerViewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(jLabel_SessionStatus)
+                    .add(jTextPane_nextSentence, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
         jPanel_AdminControls.setBorder(javax.swing.BorderFactory.createTitledBorder("Admin Controls"));
+        jScrollPane_PromptSet.setFocusCycleRoot(true);
+        jScrollPane_PromptSet.setNextFocusableComponent(jButton_Record);
 
         jCheckBox_PlaySynthesis.setText("Play synthesized prompt");
         jCheckBox_PlaySynthesis.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
@@ -891,6 +869,7 @@ public class AdminWindow extends javax.swing.JFrame {
         jCheckBox_PlayBackRec.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jCheckBox_PlayBackRec.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
+        jCheckBox_ContinueWithNext.setSelected(true);
         jCheckBox_ContinueWithNext.setText("Continue with next prompt");
         jCheckBox_ContinueWithNext.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jCheckBox_ContinueWithNext.setMargin(new java.awt.Insets(0, 0, 0, 0));
@@ -928,6 +907,7 @@ public class AdminWindow extends javax.swing.JFrame {
 
         jLabel_MessageBar.setText("Ready.");
 
+        jCheckBox_PlayClosingBeep.setSelected(true);
         jCheckBox_PlayClosingBeep.setText("Play beep when microphone is closed");
         jCheckBox_PlayClosingBeep.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         jCheckBox_PlayClosingBeep.setMargin(new java.awt.Insets(0, 0, 0, 0));
@@ -948,8 +928,8 @@ public class AdminWindow extends javax.swing.JFrame {
             .add(jPanel_AdminControlsLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel_AdminControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane_PromptSet, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 810, Short.MAX_VALUE)
-                    .add(jSeparator_MessageBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 810, Short.MAX_VALUE)
+                    .add(jScrollPane_PromptSet, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 773, Short.MAX_VALUE)
+                    .add(jSeparator_MessageBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 773, Short.MAX_VALUE)
                     .add(jPanel_AdminControlsLayout.createSequentialGroup()
                         .add(jLabel_MessageBarIcon)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -960,7 +940,7 @@ public class AdminWindow extends javax.swing.JFrame {
                             .add(jCheckBox_PlayBackRec)
                             .add(jCheckBox_PlayClosingBeep)
                             .add(jCheckBox_ContinueWithNext))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 455, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 410, Short.MAX_VALUE)
                         .add(jPanel_AdminControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jButton_Display, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 98, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton_Record, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -969,8 +949,8 @@ public class AdminWindow extends javax.swing.JFrame {
         );
         jPanel_AdminControlsLayout.setVerticalGroup(
             jPanel_AdminControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel_AdminControlsLayout.createSequentialGroup()
-                .add(jScrollPane_PromptSet, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 118, Short.MAX_VALUE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel_AdminControlsLayout.createSequentialGroup()
+                .add(jScrollPane_PromptSet, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 95, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel_AdminControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                     .add(jPanel_AdminControlsLayout.createSequentialGroup()
@@ -1008,6 +988,15 @@ public class AdminWindow extends javax.swing.JFrame {
         });
 
         jMenu_File.add(jMenuItem_Open);
+
+        jMenuItem_ImportText.setText("Import text file...");
+        jMenuItem_ImportText.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem_ImportTextActionPerformed(evt);
+            }
+        });
+
+        jMenu_File.add(jMenuItem_ImportText);
 
         jMenu_File.add(jSeparator_File);
 
@@ -1074,21 +1063,76 @@ public class AdminWindow extends javax.swing.JFrame {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel_AdminControls, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel_SpeakerView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel_AdminControls, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel_SpeakerView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                 .add(jPanel_SpeakerView, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel_AdminControls, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(jPanel_AdminControls, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_formFocusGained
+        jTable_PromptSet.requestFocusInWindow();
+    }//GEN-LAST:event_formFocusGained
+
+    private void jMenuItem_ImportTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem_ImportTextActionPerformed
+        JFileChooser fc = new JFileChooser(new File(voiceFolderPathString));
+        fc.setDialogTitle("Choose text file to import");
+        //fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int returnVal = fc.showOpenDialog(this);
+        if (returnVal != JFileChooser.APPROVE_OPTION)
+            return;
+        File file = fc.getSelectedFile();
+        if (file == null)
+            return;
+        String[] lines = StringUtils.readTextFile(file.getAbsolutePath(), "UTF-8");
+        if (lines == null || lines.length == 0) return;
+        
+        String prefix = (String)JOptionPane.showInputDialog(
+                this,
+                "File contains "+lines.length+" sentences.\n"
+                +"Prefix to use for individual sentence filenames:",
+                "Choose filename prefix",
+                JOptionPane.PLAIN_MESSAGE,
+                null,
+                null,
+                "s");
+        int numDigits = (int) Math.log10(lines.length) + 1;
+        String pattern = prefix+"%0"+numDigits+"d.txt";
+        File textFolder = getPromptFolderPath();
+        for (int i=0; i<lines.length; i++) {
+            String line = lines[i].substring(lines[i].indexOf(' ')+1);
+            String filename = String.format(pattern, i+1);
+            System.out.println(filename + " " + line);
+            File textFile = new File(textFolder, filename);
+            if (textFile.exists()) {
+                JOptionPane.showMessageDialog(this, "Cannot writing file "+filename+":\n"
+                        +"File exists!\n"
+                        +"Aborting text file import.");
+                return;
+            }
+            PrintWriter pw = null;
+            try {
+                pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(textFile), "UTF-8"));
+                pw.println(line);
+            } catch (IOException ioe) {
+                JOptionPane.showMessageDialog(this, "Error writing file "+filename+":\n"+ioe.getMessage());
+                ioe.printStackTrace();
+                return;
+            } finally {
+                if (pw != null) pw.close();
+            }
+        }
+        setupVoice();
+    }//GEN-LAST:event_jMenuItem_ImportTextActionPerformed
 
     private void jButton_DisplayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_DisplayActionPerformed
         Prompt selectedPrompt = promptArray[getCurrentRow()];
@@ -1134,11 +1178,6 @@ public class AdminWindow extends javax.swing.JFrame {
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
         System.out.println("Exiting Recording Session Manager... Done.");
     }//GEN-LAST:event_formWindowClosing
-
-    private void jEditorPane_InstructionsComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_jEditorPane_InstructionsComponentResized
-        // PRI4 Ensure horizontal scrollbar isn't enabled
-        // TODO
-    }//GEN-LAST:event_jEditorPane_InstructionsComponentResized
 
     private void jMenuItem_OpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem_OpenActionPerformed
         
@@ -1380,21 +1419,6 @@ public class AdminWindow extends javax.swing.JFrame {
         
     }
     
-    /** Returns file path for folder containing the synthesized recordings
-     *  @return File path for folder containing the synthesized recordings (e.g., /project/mary/mat/voices/bundesliga/prompt_wav)
-     */
-    public File getInstructionsFolderPath() {
-        
-        // Create the recordings folder path from the voice folder path
-        String pathString = voiceFolderPathString + AdminWindow.INSTRUCTIONS_FOLDER_NAME; 
-        File instructionsFolderPath = new File(pathString);
-        
-        // TESTCODE
-        Test.output("|AdminWindow.getInstructionsFolderPath()| Instructions Path = " + instructionsFolderPath.getPath());
-        
-        return instructionsFolderPath;        
-        
-    }
     
     /** Returns file path for folder containing the voice
      *  @return File path for folder containing the voice (e.g., /project/mary/mat/voices/bundesliga)
@@ -1594,12 +1618,12 @@ public class AdminWindow extends javax.swing.JFrame {
     private javax.swing.JCheckBox jCheckBox_PlayBackRec;
     private javax.swing.JCheckBox jCheckBox_PlayClosingBeep;
     private javax.swing.JCheckBox jCheckBox_PlaySynthesis;
-    private javax.swing.JEditorPane jEditorPane_Instructions;
     private javax.swing.JLabel jLabel_MessageBar;
     private javax.swing.JLabel jLabel_MessageBarIcon;
     private javax.swing.JLabel jLabel_SessionStatus;
     private javax.swing.JMenuBar jMenuBar_AdminWindow;
     private javax.swing.JMenuItem jMenuItem_Exit;
+    private javax.swing.JMenuItem jMenuItem_ImportText;
     private javax.swing.JMenuItem jMenuItem_Open;
     private javax.swing.JMenuItem jMenuItem_Options;
     private javax.swing.JMenuItem jMenu_About;
@@ -1607,14 +1631,13 @@ public class AdminWindow extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu_Help;
     private javax.swing.JMenu jMenu_Tools;
     private javax.swing.JMenu jMenu_Window;
-    private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel_AdminControls;
     private javax.swing.JPanel jPanel_SpeakerView;
-    private javax.swing.JScrollPane jScrollPane_Instructions;
     private javax.swing.JScrollPane jScrollPane_PromptSet;
     private javax.swing.JSeparator jSeparator_File;
     private javax.swing.JSeparator jSeparator_MessageBar;
     private javax.swing.JTextPane jTextPane_PromptDisplay;
+    private javax.swing.JTextPane jTextPane_nextSentence;
     // End of variables declaration//GEN-END:variables
     
 }

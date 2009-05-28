@@ -33,7 +33,6 @@ public class RecSession {
     // Instance fields
        
     private Prompt[] promptArray;           // Set of prompts
-    private Instructions instructions;      // Set of instructions for the prompt set
     
     // ______________________________________________________________________
     // Class fields
@@ -41,12 +40,6 @@ public class RecSession {
     // ______________________________________________________________________
     // Instance methods
         
-    /** Gets a set of text instructions associated with a prompt set
-     *  @return The instructions for the prompt set (as Instructions object)
-     */
-    public Instructions getInstructions() {       
-       return instructions;    
-    }
     
     /** Gets the array of prompts for the current recording session
      *  @return The array of prompts for the current recording session
@@ -68,7 +61,6 @@ public class RecSession {
         PromptSet sessionPrompts = new PromptSet(adminWindow);
         
         this.promptArray = sessionPrompts.promptArray;
-        this.instructions = sessionPrompts.instructions;
     }
     
 }

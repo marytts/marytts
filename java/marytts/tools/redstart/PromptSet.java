@@ -39,7 +39,6 @@ public class PromptSet {
     int promptCount = 0;        // Number of prompts in the set
     File promptFolderPath;      // Path containing prompt set structure
     Prompt[] promptArray;       // Array of prompts
-    Instructions instructions;  // Instructions for the prompt set
     AdminWindow adminWindow;
     
     // ______________________________________________________________________
@@ -54,7 +53,6 @@ public class PromptSet {
         this.promptFolderPath = adminWindow.getPromptFolderPath();     // Set object's folder path containing the prompt set
         this.promptCount = countPrompts();      // Determine the number of prompts
         this.promptArray = getPromptData();     // Load the prompt set
-        this.instructions = getInstructions();  // Load the instructions for the prompt set
                 
         // TESTCODE
         for (int index = 0; index < this.promptCount; index++) {
@@ -79,16 +77,7 @@ public class PromptSet {
         return promptFolderPath;
     }
         
-    /** Gets a set of text instructions associated with a prompt set
-     *  @param filePath The path to the instructions
-     *  @return An Instructions object
-     */
-    public Instructions getInstructions() throws FileNotFoundException, IOException {
-      
-       Instructions instructions = new Instructions(adminWindow.getInstructionsFolderPath()); 
-       return instructions;
-       
-    }
+
     
     /** Fills an array of Prompts with basename and prompt text data from a list of prompt text files, where each
      *  file contains a single prompt sentence.

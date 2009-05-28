@@ -130,13 +130,14 @@ public class LookAndFeel {
         int left = 10;
         int right = 10;
         SimpleAttributeSet set=new SimpleAttributeSet();
-        StyleConstants.setAlignment(set,StyleConstants.ALIGN_CENTER);
+        StyleConstants.setAlignment(set,StyleConstants.ALIGN_LEFT);
         StyleConstants.setSpaceAbove(set, top);
         StyleConstants.setSpaceBelow(set, bottom);
         StyleConstants.setLeftIndent(set, left);
         StyleConstants.setRightIndent(set, right);
         pane.setParagraphAttributes(set,false);
-        
+   
+        /*
         boolean ok = false;
         while (!ok) {
             // Get font metrics for the display pane
@@ -178,6 +179,7 @@ public class LookAndFeel {
             }
            
         }
+        */
         
          
         //pane.updateUI();  // Refresh or we'll see artefact from the previous prompt
