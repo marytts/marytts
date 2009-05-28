@@ -58,7 +58,7 @@ public class IeeeTaslp2009MaryResultsPreprocessor {
             
             for (int j=0; j<resultFiles.length; j++)
             {
-                String[] currentResults = StringUtils.readTextFile(resultFiles[j]);
+                String[] currentResults = StringUtils.readTextFile(resultFiles[j], "ASCII");
                 double currentTotalTimeInMiliseconds = 0.0;
                 
                 for (int k=0; k<currentResults.length; k++)

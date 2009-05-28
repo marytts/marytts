@@ -64,7 +64,7 @@ public class FileCopier {
                      String sourceTrainingBaseDir, //Output
                      String targetTrainingBaseDir) //Output
     {
-        String[][] stNameMap = StringUtils.readTextFileInRows(sourceTargetFile, 2);
+        String[][] stNameMap = StringUtils.readTextFileInRows(sourceTargetFile, "UTF-8", 2);
         int i;
         
         //Determine source and target input sub directories

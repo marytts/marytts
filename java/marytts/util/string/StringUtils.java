@@ -494,9 +494,9 @@ public class StringUtils {
     }
     
     //Reads all rows as one String
-    public static String[] readTextFile(String textFile)
+    public static String[] readTextFile(String textFile, String encoding)
     {
-        String[][] tmp = readTextFileInRows(textFile, 1);
+        String[][] tmp = readTextFileInRows(textFile, encoding, 1);
         
         String[] strRet = new String[tmp.length];
         for (int i=0; i<tmp.length; i++)
@@ -505,10 +505,10 @@ public class StringUtils {
         return strRet;
     }
     
-    public static String[][] readTextFileInRows(String textFile, int minimumItemsInOneLine)
+    public static String[][] readTextFileInRows(String textFile, String encoding, int minimumItemsInOneLine)
     {
         String[][] entries = null;
-        String allText = readTextFileIntoString(textFile);
+        String allText = readTextFileIntoString(textFile, encoding);
         
         if (allText!=null)
         {
@@ -521,11 +521,11 @@ public class StringUtils {
     }
     
     //Read text file as a single concatenated string
-    public static String readTextFileIntoString(String textFile)
+    public static String readTextFileIntoString(String textFile, String encoding)
     {
         String allText = null;
         try {
-            allText = FileUtils.getFileAsString(new File(textFile), "ASCII");
+            allText = FileUtils.getFileAsString(new File(textFile), encoding);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -1090,7 +1090,7 @@ public class StringUtils {
 
     public static void main(String[] args)
     {
-        String[] items1 = readTextFile("D:\\items.txt");
+        String[] items1 = readTextFile("D:\\items.txt", "ASCII");
         int[] inds1 = StringUtils.getDifferentItemsIndices(items1);
         String[] diffItems1 = StringUtils.getDifferentItemsList(items1);
         

@@ -55,7 +55,7 @@ public class Redstart {
         }
         if (voiceBuildingDir == null) { // need to ask user
             JFrame window = new JFrame("This is the Frames's Title Bar!");
-            JFileChooser fc = new JFileChooser();
+            JFileChooser fc = new JFileChooser(new File("."));
             fc.setDialogTitle("Choose Voice Building Directory");
             fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             System.out.println("Opening GUI....... ");

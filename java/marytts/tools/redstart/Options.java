@@ -325,13 +325,13 @@ public class Options extends javax.swing.JFrame {
                 optionsStream.close();
             }
             
-            bufferToAdd = Integer.valueOf(options.getProperty("bufferAdded", "1000"));
+            bufferToAdd = Integer.valueOf(options.getProperty("bufferAdded", "2000"));
             pauseAfterSynth = Integer.valueOf(options.getProperty("pauseAfterSynth", "0"));
-            timePerChar = Integer.valueOf(options.getProperty("timePerChar", "60"));
+            timePerChar = Integer.valueOf(options.getProperty("timePerChar", "70"));
             int audioSourceIndex = Integer.parseInt(options.getProperty("audioSourceIndex", "1"));
             int expertOutputIndex = Integer.parseInt(options.getProperty("expertOutputIndex", "0"));
             int speakerOutputIndex = Integer.parseInt(options.getProperty("speakerOutputIndex", "0"));
-            silenceDuration = Integer.valueOf(options.getProperty("silenceDuration", "0"));
+            silenceDuration = Integer.valueOf(options.getProperty("silenceDuration", "2000"));
             boolean showPromptCount = Boolean.valueOf(options.getProperty("showPromptCount", "true")).booleanValue();
                         
             // Set values in the GUI to match what's in the options file

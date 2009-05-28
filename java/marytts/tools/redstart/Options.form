@@ -56,7 +56,7 @@
     <Component class="javax.swing.JButton" name="jButton_SaveOptions">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/de/dfki/lt/mary/recsessionmgr/gui/icons/ok_16x16.png"/>
+          <Image iconType="3" name="/marytts/tools/redstart/ok_16x16.png"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Save"/>
       </Properties>
@@ -67,7 +67,7 @@
     <Component class="javax.swing.JButton" name="jButton_CancelOptions">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/de/dfki/lt/mary/recsessionmgr/gui/icons/cancel_16x16.png"/>
+          <Image iconType="3" name="/marytts/tools/redstart/cancel_16x16.png"/>
         </Property>
         <Property name="text" type="java.lang.String" value="Cancel"/>
       </Properties>
@@ -282,7 +282,7 @@
             <Component class="javax.swing.JButton" name="jButton_Record">
               <Properties>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/de/dfki/lt/mary/recsessionmgr/gui/icons/recording_16x16.png"/>
+                  <Image iconType="3" name="/marytts/tools/redstart/recording_16x16.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Record"/>
                 <Property name="horizontalAlignment" type="int" value="2"/>
@@ -304,7 +304,7 @@
             <Component class="javax.swing.JButton" name="jButton_Play">
               <Properties>
                 <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-                  <Image iconType="3" name="/de/dfki/lt/mary/recsessionmgr/gui/icons/playing_16x16.png"/>
+                  <Image iconType="3" name="/marytts/tools/redstart/playing_16x16.png"/>
                 </Property>
                 <Property name="text" type="java.lang.String" value="Play"/>
                 <Property name="horizontalAlignment" type="int" value="2"/>
