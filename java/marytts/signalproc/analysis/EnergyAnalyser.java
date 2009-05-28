@@ -334,9 +334,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
     
     
     
-    public double getSilenceCutoffFromKMeansClustering(double speechStartLikelihood, 
-            double speechEndLikelihood, 
-            double shiftFromMinimumEnergyCenter,
+    public double getSilenceCutoffFromKMeansClustering(double shiftFromMinimumEnergyCenter,
             int numClusters)
     {
         int i, j;
@@ -346,10 +344,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
         double[][] energies = new double[far.length][1];
         for (i=0; i<far.length; i++)
             energies[i][0] = ((Double)far[i].get()).doubleValue();
-        
-        double[] isSpeechsAll = new double[far.length];
-        Arrays.fill(isSpeechsAll, 0.0);
-        
+                
         KMeansClusteringTrainerParams p = new KMeansClusteringTrainerParams();
         p.numClusters = numClusters;
         p.maxIterations = 40;
@@ -359,7 +354,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
         double[] meanEns = new double[p.numClusters];
         for (i=0; i<p.numClusters; i++)
         {
-            meanEns[i] = 10*Math.log10(t.clusters[i].meanVector[0]);
+            meanEns[i] = t.clusters[i].meanVector[0];
             System.out.println(String.valueOf(meanEns[i])); 
         }
         
@@ -367,7 +362,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
         double maxEnCenter = MathUtils.getMax(meanEns);
         
         double energyTh = minEnCenter + shiftFromMinimumEnergyCenter*(maxEnCenter-minEnCenter);
-        System.out.println(String.valueOf(energyTh)); 
+        //System.out.println(String.valueOf(energyTh)); 
         
         return energyTh;
     }
