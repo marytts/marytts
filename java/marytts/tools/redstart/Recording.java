@@ -148,22 +148,35 @@ public class Recording extends Speech {
             double[] audio = new AudioDoubleDataSource(ais).getAllData();
             int samplingRate = (int) ais.getFormat().getSampleRate();
             int frameLength = (int) (0.005 * samplingRate); // each frame is 5 ms long
-            EnergyAnalyser silenceFinder = new EnergyAnalyser(new BufferedDoubleDataSource(audio), frameLength, samplingRate);
+            EnergyAnalyser silenceFinder = new EnergyAnalyser_dB(new BufferedDoubleDataSource(audio), frameLength, samplingRate);
             FrameAnalysisResult[] energies = silenceFinder.analyseAllFrames();
-            double silenceCutoff = silenceFinder.getSilenceCutoffFromKMeansClustering(0.1, 0.1, 0.0, 4);
+            if (energies.length < 20) { // too short anyway
+                this.isTempClipped = true;
+                return; // temporal clipping
+            }
+            
+            double silenceCutoff = silenceFinder.getSilenceCutoffFromKMeansClustering(0.5, 4);
+            System.out.println("Silence cutoff: "+silenceCutoff);
             // Need at least 100 ms of silence at the beginning and at the end:
+            
+            double energy = 0;
             for (int i=0; i<20; i++) {
-                double energy = ((Double)energies[i].get()).doubleValue();
-                if (energy >= silenceCutoff) {
-                    this.isTempClipped = true;
-                }
+                energy += ((Double)energies[i].get()).doubleValue();
+            }
+            energy /= 20;
+            if (energy >= silenceCutoff) {
+                System.out.println("Initial clipping");
+                this.isTempClipped = true;
             }
 
+            energy = 0;
             for (int i=1, len=energies.length; i<=20; i++) {
-                double energy = ((Double)energies[len-i].get()).doubleValue();
-                if (energy >= silenceCutoff) {
-                    this.isTempClipped = true;
-                }
+                energy += ((Double)energies[len-i].get()).doubleValue();
+            }
+            energy /= 20;
+            if (energy >= silenceCutoff) {
+                System.out.println("Final clipping");
+                this.isTempClipped = true;
             }
         } catch (Exception e) {
             e.printStackTrace();
