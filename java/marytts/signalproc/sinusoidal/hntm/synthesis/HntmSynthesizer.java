@@ -75,7 +75,7 @@ public class HntmSynthesizer {
     public static final double ENERGY_TRIANGLE_UPPER_VALUE = 0.5;
     //
     
-    public static final boolean NORMALIZE_HARMONIC_ENERGY_CONTOUR = true;
+    public static final boolean NORMALIZE_HARMONIC_ENERGY_CONTOUR = false;
     
     public static final double NUM_PERIODS_NOISE = 2.0;
     public static final float NOISE_SYNTHESIS_WINDOW_DURATION_IN_SECONDS = 0.050f;
@@ -84,6 +84,7 @@ public class HntmSynthesizer {
     public static final float UNVOICED_VOICED_TRACK_TRANSITION_IN_SECONDS = 0.005f;
     
     public static final boolean WRITE_SEPARATE_TRACKS_TO_OUTPUT = false;
+    public static final boolean IS_NORMALIZE_HARMONIC_PART_OUTPUT_WAV = false;
     
     public static final int LINEAR_PHASE_INTERPOLATION = 1;
     public static final int QUADRATIC_PHASE_INTERPOLATION = 2;
@@ -98,7 +99,7 @@ public class HntmSynthesizer {
 
     }
 
-    public HntmSynthesizedSignal synthesize(HntmSpeechSignal hntmSignal, BasicProsodyModifierParams pmodParams, int harmonicPartSynthesisMethod)
+    public HntmSynthesizedSignal synthesize(HntmSpeechSignal hntmSignal, BasicProsodyModifierParams pmodParams, int harmonicPartSynthesisMethod, String referenceFile)
     {
         BasicProsodyModifierParams pmodParamsOrig = new BasicProsodyModifierParams(pmodParams);
         
@@ -109,7 +110,7 @@ public class HntmSynthesizer {
         HntmSynthesizedSignal s = new HntmSynthesizedSignal();
         
         if (harmonicPartSynthesisMethod==LINEAR_PHASE_INTERPOLATION)
-            s.harmonicPart = HarmonicPartLinearPhaseInterpolatorSynthesizer.synthesize(hntmSignalMod, pmodParams.pScales, pmodParams.pScalesTimes);
+            s.harmonicPart = HarmonicPartLinearPhaseInterpolatorSynthesizer.synthesize(hntmSignalMod, pmodParams.pScales, pmodParams.pScalesTimes, referenceFile);
         else if (harmonicPartSynthesisMethod==QUADRATIC_PHASE_INTERPOLATION)
         {
             //Convert to pure sinusoidal tracks
@@ -203,7 +204,7 @@ public class HntmSynthesizer {
         
         float[][] pScalesArray = new float[1][1];
         float[][] tScalesArray = new float[1][1];
-        pScalesArray[0][0] = 0.60f; tScalesArray[0][0] = 1.0f;
+        pScalesArray[0][0] = 2.3f; tScalesArray[0][0] = 1.0f;
         
         //float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f, 2.5f};
         float[] tScalesTimes = null;
@@ -223,6 +224,7 @@ public class HntmSynthesizer {
         
         //String strComment = null;
         String strComment = "autoMWF";
+        //strComment = "4500MWF";
         
         int model = HntmAnalyzer.HARMONICS_PLUS_NOISE;
         //int model = HntmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE;
@@ -264,7 +266,7 @@ public class HntmSynthesizer {
         int harmonicPartAnalysisMethod = HntmAnalyzer.TIME_DOMAIN_CORRELATION_HARMONICS_ANALYSIS;
         //int harmonicPartAnalysisMethod = HntmAnalyzer.FREQUENCY_DOMAIN_PEAK_PICKING_HARMONICS_ANALYSIS;
         
-        HntmSpeechSignal hnmSignal = ha.analyze(x, samplingRate, f0, labels, fftSize, model, noisePartRepresentation, harmonicPartAnalysisMethod);
+        HntmSpeechSignal hnmSignal = ha.analyze(x, samplingRate, f0, labels, fftSize, model, noisePartRepresentation, harmonicPartAnalysisMethod, harmonicPartSynthesisMethod);
         //
         
         for (int n=0; n<pScalesArray.length; n++)
@@ -276,7 +278,7 @@ public class HntmSynthesizer {
                 
                 //Synthesis
                 HntmSynthesizer hs = new HntmSynthesizer();
-                HntmSynthesizedSignal xhat = hs.synthesize(hnmSignal, pmodParams, harmonicPartSynthesisMethod);
+                HntmSynthesizedSignal xhat = hs.synthesize(hnmSignal, pmodParams, harmonicPartSynthesisMethod, wavFile);
 
                 double hGain = 1.0;
                 double nGain = 1.0;
@@ -368,7 +370,9 @@ public class HntmSynthesizer {
                 if (xhat.harmonicPart!=null)
                 {
                     outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + "Harmonic" + strExt + ".wav";
-                    xhat.harmonicPart = MathUtils.multiply(xhat.harmonicPart, 32768.0/MathUtils.getAbsMax(xhat.harmonicPart));
+                    if (IS_NORMALIZE_HARMONIC_PART_OUTPUT_WAV)
+                        xhat.harmonicPart = MathUtils.multiply(xhat.harmonicPart, 32768.0/MathUtils.getAbsMax(xhat.harmonicPart));
+                        
                     FileUtils.writeWavFile(MathUtils.divide(xhat.harmonicPart, 32768.0), outFileName, inputAudio.getFormat());
                 }
 
@@ -387,7 +391,7 @@ public class HntmSynthesizer {
                 if (xhat.harmonicPart!=null)
                 {
                     outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + "OrigMinusHarmonic" + strExt + ".wav";
-                    //FileUtils.writeWavFile(MathUtils.divide(SignalProcUtils.addSignals(x, 1.0, xhat.harmonicPart, -1.0), 32768.0), outFileName, inputAudio.getFormat());
+                    FileUtils.writeWavFile(MathUtils.divide(SignalProcUtils.addSignals(x, 1.0, xhat.harmonicPart, -1.0), 32768.0), outFileName, inputAudio.getFormat());
                 }
 
                 //MaryUtils.plot(xhat.harmonicPart);

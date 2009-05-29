@@ -132,9 +132,9 @@ public class HarmonicsTester extends SinusoidsTester {
         HarmonicsTester s = null;
         
         //Single sinusoid, time-invariant
-        float f1 = 500.0f;
-        int numHarmonics = 2;
-        double defaultAbsMaxVal = 32000.0;
+        float f1 = 400.0f;
+        int numHarmonics = 1;
+        double defaultAbsMaxVal = 16000.0;
         //s = new HarmonicsTester(f1, numHarmonics);
         float[] amps = new float[numHarmonics];
         for (int i=0; i<numHarmonics; i++)

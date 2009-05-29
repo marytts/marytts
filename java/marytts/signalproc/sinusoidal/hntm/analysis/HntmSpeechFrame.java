@@ -38,6 +38,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
     public float tAnalysisInSeconds; //Middle of analysis frame in seconds
     public float origAverageSampleEnergy;
     public double[] lpcs;
+    public boolean isInTransientSegment;
     
     public HntmSpeechFrame()
     {
@@ -53,6 +54,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         tAnalysisInSeconds = -1.0f;
         origAverageSampleEnergy = 0.0f;
         lpcs = null;
+        isInTransientSegment = false;
     }
     
     public HntmSpeechFrame(HntmSpeechFrame existing)
@@ -72,6 +74,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         tAnalysisInSeconds = existing.tAnalysisInSeconds;   
         origAverageSampleEnergy = existing.origAverageSampleEnergy;
         lpcs = ArrayUtils.copy(existing.lpcs);
+        isInTransientSegment = existing.isInTransientSegment;
     }
 }
 

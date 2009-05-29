@@ -44,6 +44,7 @@ import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
+import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 import marytts.util.MaryUtils;
@@ -53,7 +54,13 @@ import marytts.util.MaryUtils;
  *
  */
 public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
-    public static double[] synthesize(HntmSpeechSignal hnmSignal, float[] pScales, float[] pScalesTimes)
+    
+    public static double[] synthesize(HntmSpeechSignal hnmSignal)
+    {
+        return synthesize(hnmSignal, null, null, null);
+    }
+    
+    public static double[] synthesize(HntmSpeechSignal hnmSignal, float[] pScales, float[] pScalesTimes, String referenceFile)
     {
         double[] harmonicPart = null;
         int trackNoToExamine = 1;
@@ -107,6 +114,8 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
         
         double[] dphasek = null;
 
+        double[][] allSynthAmps = null;
+        double[][] allSynthPhases = null;
         if (maxNumHarmonics>0)
         {
             harmonicTracks = new double[maxNumHarmonics][];
@@ -115,6 +124,9 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                 harmonicTracks[k] = new double[outputLen];
                 Arrays.fill(harmonicTracks[k], 0.0);
             }
+            
+            allSynthAmps = new double[maxNumHarmonics][hnmSignal.frames.length];
+            allSynthPhases = new double[maxNumHarmonics][hnmSignal.frames.length];
         }
         //
         
@@ -122,7 +134,8 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
         Window transitionWin = Window.get(Window.HAMMING, transitionLen*2);
         transitionWin.normalizePeakValue(1.0f);
         double[] halfTransitionWinLeft = transitionWin.getCoeffsLeftHalf();
-
+        double[] halfTransitionWinRight = transitionWin.getCoeffsRightHalf();
+        
         int currentHarmonicNo;
         float pScaleCurrent, pScaleNext, pScaleAverage;
         int pScaleInd, pScaleIndNext;
@@ -294,14 +307,21 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                         {
                             //Amplitude estimate
                             akt = MathUtils.interpolatedSample(tsik, t, tsikPlusOne, aksi, aksiPlusOne);
+                            //akt = 1.0;
                             //
 
                             //Phase estimate
                             phasekt = (float)( phaseki + (phasekiPlusOne+MathUtils.TWOPI*Mk-phaseki)*(t-tsik)/(tsikPlusOne-tsik) );
                             //
 
+                            allSynthAmps[k][i] = akt;
+                            allSynthPhases[k][i] = phasekt;
+                            
+
                             if (!isPrevTrackVoiced && n-trackStartIndex<transitionLen)
                                 harmonicTracks[k][n] = halfTransitionWinLeft[n-trackStartIndex]*akt*Math.cos(phasekt);
+                            else if (!isNextTrackVoiced && trackEndIndex-n<transitionLen)
+                                harmonicTracks[k][n] = halfTransitionWinRight[halfTransitionWinRight.length-1-(trackEndIndex-n)]*akt*Math.cos(phasekt);
                             else
                                 harmonicTracks[k][n] = akt*Math.cos(phasekt);
                         }
@@ -309,6 +329,9 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                 }
             }
         }
+        
+        //MaryUtils.plot(allSynthAmps[1]);
+        //MaryUtils.plot(allSynthPhases[1]);
         
         if (harmonicTracks!=null)
         {
@@ -318,12 +341,13 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                     harmonicPart[n] += harmonicTracks[k][n];
             }
 
-            if (HntmSynthesizer.WRITE_SEPARATE_TRACKS_TO_OUTPUT)
+   
+            if (referenceFile!=null && FileUtils.exists(referenceFile) && HntmSynthesizer.WRITE_SEPARATE_TRACKS_TO_OUTPUT)
             {
                 //Write separate tracks to output
                 AudioInputStream inputAudio = null;
                 try {
-                    inputAudio = AudioSystem.getAudioInputStream(new File("d:\\i.wav"));
+                    inputAudio = AudioSystem.getAudioInputStream(new File(referenceFile));
                 } catch (UnsupportedAudioFileException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
