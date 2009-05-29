@@ -803,6 +803,28 @@ public class MathUtils {
         return x;
     }
     
+    public static double[][] diagonalMatrix(double[] diag)
+    {
+        double[][] x = null;
+        int N = diag.length;
+        if (N>0)
+        {
+            x = new double[N][N];
+            for (int i=0; i<N; i++)
+            {
+                for (int j=0; j<N; j++)
+                {
+                    if (i==j)
+                        x[i][j] = diag[i];
+                    else
+                        x[i][j] = 0.0;
+                }
+            }
+        }
+        
+        return x;
+    }
+    
     public static ComplexNumber ampPhase2ComplexNumber(double amp, double phaseInRadians)
     {
         return new ComplexNumber(amp*Math.cos(phaseInRadians), amp*Math.sin(phaseInRadians));
