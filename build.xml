@@ -345,13 +345,25 @@ THIS SOFTWARE.
 	        <attribute name="Built-By" value="${user.name}"/>
 	        <attribute name="Main-Class"
 	         value="marytts.tools.transcription.TranscriptionGUI"/>
-	        <attribute name="Class-Path" value="swing-layout-1.0.jar mary-common.jar log4j-1.2.15.jar weka.jar voiceimport.jar"/>
+	        <attribute name="Class-Path" value="swing-layout-1.0.jar mary-common.jar log4j-1.2.15.jar weka.jar voiceimport.jar mysql-connector-java-5.1.7-bin.jar dbselection-tool.jar mwdumper-2008-04-13.jar"/>
 	        </manifest>
 	        </jar>
 	  </target>
 
 
-  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,mary-english.jar,mary-tibetan.jar,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar,voiceimport.jar,installvoices.jar,transcription-tool.jar"/>
+	<target name="dbselection-tool.jar" depends="compile">
+		<jar destfile="${dest}/dbselection-tool.jar"
+			basedir="${src}"
+			includes="marytts/tools/dbselection/**/*.class">
+		    <manifest>
+			<attribute name="Built-By" value="${user.name}"/>
+			<!--attribute name="Main-Class" value="..."-->
+			<attribute name="Class-Path" value="mysql-connector-java-5.1.7-bin.jar mwdumper-2008-04-13.jar"/>
+		    </manifest>
+		</jar>
+	</target>
+
+  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,mary-english.jar,mary-tibetan.jar,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar,voiceimport.jar,installvoices.jar,transcription-tool.jar,dbselection-tool.jar"/>
 
 	
 	
