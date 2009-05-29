@@ -20,9 +20,17 @@
 package marytts.tools.dbselection;
 
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -43,6 +51,15 @@ import java.util.ArrayList;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.ClassLoader;
+
+import org.mediawiki.importer.DumpWriter;
+import org.mediawiki.importer.MultiWriter;
+import org.mediawiki.importer.SqlServerStream;
+import org.mediawiki.importer.SqlStream;
+import org.mediawiki.importer.SqlWriter;
+import org.mediawiki.importer.SqlWriter15;
+import org.mediawiki.importer.XmlDumpReader;
+import org.mediawiki.importer.XmlDumpWriter;
 
 
 import marytts.tools.dbselection.WikipediaMarkupCleaner;
@@ -188,6 +205,7 @@ public class DBHandler {
        // the program will stop. If no other user/program is using these tables the user has the option of deleting them.
        if( wikiDB.createEmptyWikipediaTables()) {
            
+           // Very old: dump into sql file:
            // Run the mwdumper jar file xml -> sql
            //  Use these parameters for saving the output in a dump.sql source file
            /*
@@ -198,7 +216,8 @@ public class DBHandler {
            argsDump[2] = xmlFile;
            */
            
-           /* Use these parameters for loading the pages direclty in the DB */
+           /* Old: run Dumper as if it was called from the command line:
+           // Use these parameters for loading the pages direclty in the DB
            String[] argsDump = new String[3];
            argsDump[0] = "--output=mysql://" + host + "/" + db 
                          + "?user=" + user + "&password=" + passwd 
@@ -223,6 +242,28 @@ public class DBHandler {
          
            } catch (IllegalAccessException e) {
                // This should not happen, as we have disabled access checks
+           }
+           */
+           
+           // Call mwdumper code directly:
+           SqlStream sqlStream = new SqlServerStream(wikiDB.cn);
+           DumpWriter sqlWriter = new SqlWriter15(new SqlWriter.MySQLTraits(), sqlStream);
+           File tmpFile = new File(xmlFile+"_filtered");
+           BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(xmlFile), "UTF-8"));
+           BufferedWriter out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tmpFile), "UTF-8"));
+           int read = -1;
+           char[] buf = new char[4096];
+           while ((read = in.read(buf)) > 0) {
+               out.write(buf, 0, read);
+           }
+           in.close();
+           out.close();
+           InputStream filteredInput = new BufferedInputStream(new FileInputStream(tmpFile));
+           XmlDumpReader xmlReader = new XmlDumpReader(filteredInput, sqlWriter);
+           xmlReader.readDump(); // this will close wikiDB.cn, so that it will have to be opened again:
+           tmpFile.delete();
+           if (wikiDB.cn.isClosed()) {
+               wikiDB.createDBConnection(host,db,user,passwd);
            }
            
            // Now I need to add/change the prefix locale to the table names
