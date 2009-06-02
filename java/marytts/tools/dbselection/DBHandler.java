@@ -149,7 +149,7 @@ public class DBHandler {
    */
   public boolean createDBConnection(String host, String db, String user, String passwd){
     boolean result = false;  
-    String url = "jdbc:mysql://" + host + "/" + db;
+    String url = "jdbc:mysql://" + host + "/" + db + "?jdbcCompliantTruncation=false";
     try {
       Properties p = new Properties();
       p.put("user",user);
