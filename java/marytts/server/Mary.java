@@ -290,6 +290,7 @@ public class Mary {
      * @param voiceName
      * @param style
      * @param effects
+     * @param outputTypeParams
      * @param output the output stream into which the processing result will be
      * written.
      * @throws IllegalStateException if the MARY system is not running.
@@ -297,7 +298,7 @@ public class Mary {
      */
     public static void process(String input, String inputTypeName, String outputTypeName,
             String localeString, String audioTypeName, String voiceName, 
-            String style, String effects, OutputStream output)
+            String style, String effects, String outputTypeParams, OutputStream output)
     throws Exception
     {
         if (currentState != STATE_RUNNING) throw new IllegalStateException("MARY system is not running");
@@ -325,10 +326,10 @@ public class Mary {
             audioFileFormat = new AudioFileFormat(audioType, audioFormat, AudioSystem.NOT_SPECIFIED);
         }
         
-        Request request = new Request(inputType, outputType, locale, voice, effects, style, 1, audioFileFormat);
+        Request request = new Request(inputType, outputType, locale, voice, effects, style, 1, audioFileFormat, false, outputTypeParams);
         request.readInputData(new StringReader(input));
         request.process();
-        request.writeOutputData(System.out);
+        request.writeOutputData(output);
 
         
         
@@ -394,6 +395,7 @@ public class Mary {
                     MaryProperties.getProperty("voice", null),
                     MaryProperties.getProperty("style", null),
                     MaryProperties.getProperty("effect", null),
+                    MaryProperties.getProperty("output.type.params", null),
                     System.out);
         }
         shutdown();
