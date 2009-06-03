@@ -131,7 +131,7 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
         //
         
         int transitionLen = SignalProcUtils.time2sample(HntmSynthesizer.UNVOICED_VOICED_TRACK_TRANSITION_IN_SECONDS, hnmSignal.samplingRateInHz);
-        Window transitionWin = Window.get(Window.HAMMING, transitionLen*2);
+        Window transitionWin = Window.get(Window.HANNING, transitionLen*2);
         transitionWin.normalizePeakValue(1.0f);
         double[] halfTransitionWinLeft = transitionWin.getCoeffsLeftHalf();
         double[] halfTransitionWinRight = transitionWin.getCoeffsRightHalf();
@@ -316,8 +316,7 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
 
                             allSynthAmps[k][i] = akt;
                             allSynthPhases[k][i] = phasekt;
-                            
-
+   
                             if (!isPrevTrackVoiced && n-trackStartIndex<transitionLen)
                                 harmonicTracks[k][n] = halfTransitionWinLeft[n-trackStartIndex]*akt*Math.cos(phasekt);
                             else if (!isNextTrackVoiced && trackEndIndex-n<transitionLen)

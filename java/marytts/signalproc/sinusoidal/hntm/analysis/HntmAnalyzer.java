@@ -132,8 +132,8 @@ public class HntmAnalyzer {
     public static float MVF_ANALYSIS_WINDOW_SIZE_IN_SECONDS = 0.040f;
     public static float MVF_ANALYSIS_SKIP_SIZE_IN_SECONDS = 0.010f;
 
-    public static float PREEMPHASIS_COEF_NOISE = 0.0f;
-    public static boolean HIGHPASS_FILTER_PRIOR_TO_NOISE_ANALYSIS = false;
+    public static float PREEMPHASIS_COEF_NOISE = 0.97f;
+    public static boolean HIGHPASS_FILTER_PRIOR_TO_NOISE_ANALYSIS = true;
 
     ////The following parameters are used by HnmPitchVoicingAnalyzer
     //They are included here so that all fixed analysis parameters are in the same class within the code
@@ -143,7 +143,7 @@ public class HntmAnalyzer {
     public static double SHARP_PEAK_AMP_DIFF_IN_DB = 12.0; //Decreased ==> Voicing increases (Orig: 12.0)
     public static int MINIMUM_TOTAL_HARMONICS = 0; //Minimum number of total harmonics to be included in voiced region (effective only when f0>10.0)
     public static int MAXIMUM_TOTAL_HARMONICS = 100; //Maximum number of total harmonics to be included in voiced region (effective only when f0>10.0)
-    public static float MINIMUM_VOICED_FREQUENCY_OF_VOICING = 0.0f; //All voiced sections will have at least this freq. of voicing
+    public static float MINIMUM_VOICED_FREQUENCY_OF_VOICING = 5000.0f; //All voiced sections will have at least this freq. of voicing
     public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 5000.0f; //All voiced sections will have at least this freq. of voicing
     public static float MAXIMUM_FREQUENCY_OF_VOICING_FINAL_SHIFT = 0.0f; //The max freq. of voicing contour is shifted by this amount finally
     public static float RUNNING_MEAN_VOICING_THRESHOLD = 0.5f; //Between 0.0 and 1.0, decrease ==> Max. voicing freq increases
@@ -157,8 +157,8 @@ public class HntmAnalyzer {
     public static boolean NORMALIZE_HARMONIC_AMPLITUDES = false;
     
     public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_ANALYSIS = true;
-    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_TIME_SCALING = true;
-    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_PITCH_SCALING = true;
+    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_TIME_SCALING = false;
+    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_PITCH_SCALING = false;
     
     public static int NUM_FILTERING_STAGES = 2;
     public static int MEDIAN_FILTER_LENGTH = 12; //12; //Length of median filter for smoothing the max. freq. of voicing contour

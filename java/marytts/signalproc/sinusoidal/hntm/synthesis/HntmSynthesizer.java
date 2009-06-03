@@ -70,7 +70,7 @@ import marytts.util.string.StringUtils;
  */
 public class HntmSynthesizer {
     //Triangular noise envelope window for voiced segments
-    public static final boolean APPLY_TRIANGULAR_NOISE_ENVELOPE_FOR_VOICED_PARTS = false;
+    public static final boolean APPLY_TRIANGULAR_NOISE_ENVELOPE_FOR_VOICED_PARTS = true;
     public static final double ENERGY_TRIANGLE_LOWER_VALUE = 1.0;
     public static final double ENERGY_TRIANGLE_UPPER_VALUE = 0.5;
     //
@@ -81,16 +81,16 @@ public class HntmSynthesizer {
     public static final float NOISE_SYNTHESIS_WINDOW_DURATION_IN_SECONDS = 0.050f;
     public static final float NOISE_SYNTHESIS_TRANSITION_OVERLAP_IN_SECONDS = 0.010f;
     public static final float HARMONIC_SYNTHESIS_TRANSITION_OVERLAP_IN_SECONDS = 0.002f;
-    public static final float UNVOICED_VOICED_TRACK_TRANSITION_IN_SECONDS = 0.005f;
+    public static final float UNVOICED_VOICED_TRACK_TRANSITION_IN_SECONDS = 0.040f;
     
-    public static final boolean WRITE_SEPARATE_TRACKS_TO_OUTPUT = false;
+    public static final boolean WRITE_SEPARATE_TRACKS_TO_OUTPUT = true;
     public static final boolean IS_NORMALIZE_HARMONIC_PART_OUTPUT_WAV = false;
     
     public static final int LINEAR_PHASE_INTERPOLATION = 1;
     public static final int QUADRATIC_PHASE_INTERPOLATION = 2;
     
-    public static boolean ADJUST_PHASES_AFTER_TIME_SCALING = false;
-    public static boolean ADJUST_PHASES_AFTER_PITCH_SCALING = false;
+    public static boolean ADJUST_PHASES_AFTER_TIME_SCALING = true;
+    public static boolean ADJUST_PHASES_AFTER_PITCH_SCALING = true;
     
     public static boolean APPLY_VOCAL_TRACT_NORMALIZATION_POST_PROCESSOR = false; 
     
@@ -204,7 +204,7 @@ public class HntmSynthesizer {
         
         float[][] pScalesArray = new float[1][1];
         float[][] tScalesArray = new float[1][1];
-        pScalesArray[0][0] = 2.3f; tScalesArray[0][0] = 1.0f;
+        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
         
         //float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f, 2.5f};
         float[] tScalesTimes = null;
