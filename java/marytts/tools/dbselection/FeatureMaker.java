@@ -29,6 +29,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -46,8 +47,19 @@ import marytts.client.MaryClient;
 import marytts.client.http.MaryHttpClient;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
+import marytts.datatypes.MaryXML;
 import marytts.features.FeatureDefinition;
+import marytts.features.FeatureProcessorManager;
+import marytts.features.FeatureRegistry;
+import marytts.features.FeatureVector;
+import marytts.features.MaryFeatureProcessor;
+import marytts.features.TargetFeatureComputer;
 import marytts.htsengine.HTSModel;
+import marytts.modules.TargetFeatureLister;
+import marytts.server.Mary;
+import marytts.server.Request;
+import marytts.unitselection.select.Target;
+import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Document;
@@ -55,6 +67,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.traversal.TreeWalker;
 
 import com.sun.speech.freetts.Utterance;
 
@@ -67,12 +80,9 @@ import com.sun.speech.freetts.Utterance;
  * @author Anna Hunecke
  *
  */
-public class FeatureMakerMaryServer{
+public class FeatureMaker{
     // locale
     private static String locale;    // using locale we should be able to get the default voice. 
-	//the Mary Client connected to the server
-    protected static MaryHttpClient mary;
-    //protected static MaryClient mary;
     
 	//stores result of credibility check for current sentence
 	protected static boolean usefulSentence;
@@ -84,10 +94,6 @@ public class FeatureMakerMaryServer{
     protected static Vector<String> selectionFeature;
     protected static int[] selectionFeatureIndex;
     
-    //host of the Mary server
-	protected static String maryHost;
-	//port of the Mary server
-	protected static String maryPort;
 
     //if true, credibility is strict, else crebibility is lax
 	protected static boolean strictCredibility;
@@ -103,133 +109,157 @@ public class FeatureMakerMaryServer{
     private static String mysqlPasswd=null;
    
     
-	public static void main(String[] args)throws Exception{
-		boolean test=false;	
+    public static void main(String[] args)throws Exception{
+        boolean test=false;	
         String dateStringIni="";
         String dateStringEnd="";
         DateFormat fullDate = new SimpleDateFormat("dd_MM_yyyy_HH:mm:ss");
         Date dateIni = new Date();
         dateStringIni = fullDate.format(dateIni);
-        
-		/* check the arguments */
-		if (!readArgs(args)){
-			printUsage();
-			return;
-		}
-  
+
+        /* check the arguments */
+        if (!readArgs(args)){
+            printUsage();
+            return;
+        }
+
         System.out.println("\nFeatureMaker started...");
-		/* Start the Mary client */
-		System.setProperty("server.host", maryHost);
-		System.setProperty("server.port", maryPort);
-		mary = new MaryHttpClient(true);
-        //mary = new MaryClient();
-		
+
         /* Here the DB connection is open */
         wikiToDB = new DBHandler(locale);
         wikiToDB.createDBConnection(mysqlHost,mysqlDB,mysqlUser,mysqlPasswd);
-        
+
         // check if table exists, if exists already ask user if delete or re-use
         char c;
         boolean result=false, processCleanTextRecords=true;
         InputStreamReader isr = new InputStreamReader(System.in);
         BufferedReader br = new BufferedReader(isr);
-    
+
         String table = wikiToDB.getDBselectionTableName();
         if(wikiToDB.tableExist(table)) {
-          System.out.print("    TABLE = \"" + table + "\" already exists, should it be deleted (y/n)?"); 
-          try{
-            String s = br.readLine();  
-            if( s.contentEquals("y")){
-              wikiToDB.createDataBaseSelectionTable();
-            } else {                
-              System.out.print("    ADDING sentences TO EXISTING dbselection TABLE \"" + table + "\" (y/n)?");
-              s = br.readLine();
-              if( s.contentEquals("y"))
-                processCleanTextRecords=true;
-              else{
-                processCleanTextRecords=false;
-                System.out.print("    please check the \"locale\" prefix of the dbselection TABLE you want to create or add to.");
-              }
-            }        
-        } catch(Exception e){
-            System.out.println(e); 
-        }
+            System.out.print("    TABLE = \"" + table + "\" already exists, should it be deleted (y/n)?"); 
+            try{
+                String s = br.readLine();  
+                if( s.contentEquals("y")){
+                    wikiToDB.createDataBaseSelectionTable();
+                } else {                
+                    System.out.print("    ADDING sentences TO EXISTING dbselection TABLE \"" + table + "\" (y/n)?");
+                    s = br.readLine();
+                    if( s.contentEquals("y"))
+                        processCleanTextRecords=true;
+                    else{
+                        processCleanTextRecords=false;
+                        System.out.print("    please check the \"locale\" prefix of the dbselection TABLE you want to create or add to.");
+                    }
+                }        
+            } catch(Exception e){
+                System.out.println(e); 
+            }
         } else {
-          System.out.print("    TABLE = \"" + table + "\" does not exist, it will be created.");
-          wikiToDB.createDataBaseSelectionTable();
+            System.out.print("    TABLE = \"" + table + "\" does not exist, it will be created.");
+            wikiToDB.createDataBaseSelectionTable();
         }
         
-        if(processCleanTextRecords){     
-        // Get the set of id for unprocessed records in clean_text
-        // this will be useful when the process is stoped and then resumed
-        System.out.println("\nGetting list of unprocessed clean_text records from " + wikiToDB.getCleanTextTableName());
-        int textId[];
-        textId = wikiToDB.getUnprocessedTextIds();
-        System.out.println("Number of unprocessed clean_text records to process --> [" + textId.length + "]");
-        String text;
-         
-        Vector<String> sentenceList;  // this will be the list of sentences in each clean_text
-        String targetFeatures = "";
-        int i, j;
-		
-        // get a list separated by spaces of the target features to extract
-        for(i=0; i<selectionFeature.size(); i++)
-          targetFeatures += selectionFeature.elementAt(i) + " ";
-        /* loop over the text records in clean_text table of wiki */
-        // once procesed the clean_text records are marked as processed=true, so here retrieve
-        // the next clean_text record untill all are processed.
-        System.out.println("Looping over unprocessed clean_text records from wikipedia...");
-        System.out.println("TARGETFEATURES to extract: " + targetFeatures);
-        System.out.println("Starting time:" + dateStringIni + "\n");
-        
-        
-        for(i=0; i<textId.length; i++){
-          // get next unprocessed text  
-          text = wikiToDB.getCleanText(textId[i]);
-          System.out.println("Processing(" + i + ") text id=" + textId[i] + " text length=" + text.length());
-          sentenceList = splitIntoSentences(text, textId[i], test);
-        
-          if( sentenceList != null ) {
-            int index=0;			
-            // loop over the sentences
-            int numSentencesInText=0;
-            String newSentence;
-            byte feas[];  // for directly saving a vector of bytes as BLOB in mysql DB
-            for(j=0; j<sentenceList.size(); j++) {
-			  newSentence = sentenceList.elementAt(j);
-              MaryData d = processSentence(newSentence,textId[i],targetFeatures);
-		      if (d!=null){
-			    // get the features of the sentence  
-			    feas = getFeatures(d);     
-                // Insert in the database the new sentence and its features.
-                numSentencesInText++;
-                if(!test)
-                  wikiToDB.insertSentence(newSentence,feas, true, false, false, textId[i]);
-                feas = null;
-              }        		
-	        }//end of loop over list of sentences
-            sentenceList.clear();
-            sentenceList=null;
+        System.out.print("Starting builtin MARY TTS...");
+        Mary.startup();
+        System.out.println(" MARY TTS started.");
 
-            numSentences += numSentencesInText;
-            System.out.println("Inserted " + numSentencesInText + " sentences from text id=" 
-                             + textId[i] + " (Total reliable = "+ numSentences+") \n"); 
-          }  // if sentenceList is not null
-		} //end of loop over articles  
-        wikiToDB.closeDBConnection();
-        
-        Date dateEnd = new Date();
-        dateStringEnd = fullDate.format(dateEnd);
-        System.out.println("numSentencesInText;=" + numSentences);
-        System.out.println("Start time:" + dateStringIni + "  End time:" + dateStringEnd);   
-		System.out.println("Done");
-        
+        if(processCleanTextRecords) {     
+            // Get the set of id for unprocessed records in clean_text
+            // this will be useful when the process is stoped and then resumed
+            System.out.println("\nGetting list of unprocessed clean_text records from " + wikiToDB.getCleanTextTableName());
+            int textId[];
+            textId = wikiToDB.getUnprocessedTextIds();
+            System.out.println("Number of unprocessed clean_text records to process --> [" + textId.length + "]");
+            String text;
+
+            Vector<String> sentenceList;  // this will be the list of sentences in each clean_text
+            String targetFeatures = "";
+            int i, j;
+
+            // get a list separated by spaces of the target features to extract
+            for(i=0; i<selectionFeature.size(); i++)
+                targetFeatures += selectionFeature.elementAt(i) + " ";
+            /* loop over the text records in clean_text table of wiki */
+            // once procesed the clean_text records are marked as processed=true, so here retrieve
+            // the next clean_text record untill all are processed.
+            System.out.println("Looping over unprocessed clean_text records from wikipedia...");
+            System.out.println("TARGETFEATURES to extract: " + targetFeatures);
+            System.out.println("Starting time:" + dateStringIni + "\n");
+
+
+            for(i=0; i<textId.length; i++) {
+                // get next unprocessed text  
+                text = wikiToDB.getCleanText(textId[i]);
+                System.out.println("Processing(" + i + ") text id=" + textId[i] + " text length=" + text.length());
+                sentenceList = splitIntoSentences(text, textId[i], test);
+
+                if( sentenceList != null ) {
+                    int index=0;			
+                    // loop over the sentences
+                    int numSentencesInText=0;
+                    /*
+                    String newSentence;
+                    byte feas[];  // for directly saving a vector of bytes as BLOB in mysql DB
+                    for(j=0; j<sentenceList.size(); j++) {
+                        newSentence = sentenceList.elementAt(j);
+                        MaryData d = processSentence(newSentence,textId[i],targetFeatures);
+                        if (d!=null){
+                            // get the features of the sentence  
+                            feas = getFeatures(d);     
+                            // Insert in the database the new sentence and its features.
+                            numSentencesInText++;
+                            if(!test)
+                                wikiToDB.insertSentence(newSentence,feas, true, false, false, textId[i]);
+                            feas = null;
+                        }        		
+                    }//end of loop over list of sentences
+                    */
+                    TargetFeatureComputer featureComputer = FeatureRegistry.getTargetFeatureComputer(MaryUtils.string2locale(locale), targetFeatures);
+                    for (String sentence : sentenceList) {
+                        byte[] feas = processSentenceToFeatures(sentence, textId[i], featureComputer);
+                        if (feas == null) continue;
+                        if (false) { // turn on for debugging, to check the features computed make sense
+                            FeatureDefinition fdef = featureComputer.getFeatureDefinition();
+                            int numFeatures = selectionFeature.size();
+                            System.out.println(sentence);
+                            for (int t=0; t<feas.length; t+=numFeatures) {
+                                for (int f=0; f<numFeatures; f++) {
+                                    int featureIndex = fdef.getFeatureIndex(selectionFeature.get(f));
+                                    byte val = feas[t+f];
+                                    String sVal = fdef.getFeatureValueAsString(featureIndex, val);
+                                    System.out.print(sVal+" ");
+                                }
+                                System.out.println();
+                            }
+                        }
+                        // Insert in the database the new sentence and its features.
+                        numSentencesInText++;
+                        if(!test)
+                            wikiToDB.insertSentence(sentence,feas, true, false, false, textId[i]);
+                    }
+                    sentenceList.clear();
+                    sentenceList=null;
+
+                    numSentences += numSentencesInText;
+                    System.out.println("Inserted " + numSentencesInText + " sentences from text id=" 
+                            + textId[i] + " (Total reliable = "+ numSentences+") \n"); 
+                }  // if sentenceList is not null
+            } //end of loop over articles  
+            wikiToDB.closeDBConnection();
+
+            Date dateEnd = new Date();
+            dateStringEnd = fullDate.format(dateEnd);
+            System.out.println("numSentencesInText;=" + numSentences);
+            System.out.println("Start time:" + dateStringIni + "  End time:" + dateStringEnd);   
+            System.out.println("Done");
+
         } else {
-           wikiToDB.closeDBConnection(); 
-           System.out.println("FeatureMakerMaryServer terminated.");   
+            wikiToDB.closeDBConnection(); 
+            System.out.println("FeatureMakerMaryServer terminated.");   
         }
-        
-	}//end of main method
+
+    }//end of main method
 	
 	/**
 	 * Print usage of this program 
@@ -258,8 +288,6 @@ public class FeatureMakerMaryServer{
    private static void printParameters(){
         System.out.println("FeatureMakerMaryServer parameters:" +
               
-        "\n  -maryHost " + maryHost +
-        "\n  -maryPort " + maryPort +
         "\n  -locale " + locale +  
         "\n  -mysqlHost " + mysqlHost +
         "\n  -mysqlUser " + mysqlUser +
@@ -287,8 +315,6 @@ public class FeatureMakerMaryServer{
 	 */
 	protected static boolean readArgs(String[] args){
 		//initialise default values	
-		maryHost = "localhost";
-		maryPort = "59125";
         locale = null;
 		strictCredibility = true;
         featDef = null;
@@ -304,12 +330,6 @@ public class FeatureMakerMaryServer{
             if (args[i].equals("-locale") && args.length>=i+1 )
               locale = args[++i];  
 		    
-            else if (args[i].equals("-maryHost") && args.length>=i+1 )
-              maryHost = args[++i];
-            
-            else if (args[i].equals("-maryPort") && args.length>=i+1 )
-              maryPort = args[++i];
-			
             else if (args[i].equals("-reliability") && args.length>=i+1){
 			  String credibilitySetting = args[++i];
 			  if (credibilitySetting.equals("strict"))
@@ -377,7 +397,8 @@ public class FeatureMakerMaryServer{
      * @param feas target features names separated by space (ex. "phone next_phone selection_prosody")
 	 * @return the result of the processing as MaryData object
 	 */
-	protected static MaryData processSentence(String nextSentence, int textId, String feas){
+	protected static MaryData processSentence(String nextSentence, int textId, String feas)
+	{
 		//do a bit of normalization
         StringBuffer docBuf = null;
 		nextSentence = nextSentence.replaceAll("\\\\","").trim();
@@ -387,7 +408,7 @@ public class FeatureMakerMaryServer{
 		try{                    
 			ByteArrayOutputStream os = new ByteArrayOutputStream();
 			//process and dump
-		    mary.process(nextSentence, "TEXT","TARGETFEATURES", locale, null, null, null, null, feas, os);
+			Mary.process(nextSentence, "TEXT","TARGETFEATURES", locale, null, null, null, null, feas, os);
         
             d = new MaryData(MaryDataType.TARGETFEATURES, null);
            
@@ -442,6 +463,63 @@ public class FeatureMakerMaryServer{
 		
 	}
 	
+	   /**
+     * Process one sentences from text to target features
+     * 
+     * @param nextSentence the sentence
+     * @param filename the file containing the sentence
+     * @param feas target features names separated by space (ex. "phone next_phone selection_prosody")
+     * @return a byte array representing the feature vectors for the entire sentence
+     */
+    protected static byte[] processSentenceToFeatures(String nextSentence, int textId, TargetFeatureComputer featureComputer)
+    {
+        //do a bit of normalization
+        StringBuffer docBuf = null;
+        nextSentence = nextSentence.replaceAll("\\\\","").trim();
+        nextSentence = nextSentence.replaceAll("\\s/\\s","").trim();
+        nextSentence = nextSentence.replaceAll("^/\\s","").trim();
+
+        if (Mary.currentState() != Mary.STATE_RUNNING) throw new IllegalStateException("MARY system is not running");
+        
+        MaryDataType inputType = MaryDataType.get("TEXT");
+        MaryDataType outputType = MaryDataType.get("ALLOPHONES");
+        Locale localeObj = MaryUtils.string2locale(locale);
+        try {
+            Request request = new Request(inputType, outputType, localeObj, null, null, null, textId, null);
+            request.readInputData(new StringReader(nextSentence));
+            request.process();
+            MaryData result = request.getOutputData();
+            Document doc = result.getDocument();
+            // Now we skip the prediction of acoustic parameters, and apply only the required feature processors
+            // directly to the ALLOPHONES data 
+            // (this assumes that "feas" only contains features that do not require acoustic parameters, which seems reasonable here)
+            // First, get the list of segments and boundaries in the current document
+            TreeWalker tw = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.PHONE, MaryXML.BOUNDARY);
+            List<Element> segmentsAndBoundaries = new ArrayList<Element>();
+            Element e;
+            while ((e = (Element) tw.nextNode()) != null) {
+                segmentsAndBoundaries.add(e);
+            }
+            String silenceSymbol = featureComputer.getPauseSymbol();
+            int numFeatures = featureComputer.getByteValuedFeatureProcessors().length;
+            List<Target> targets = TargetFeatureLister.createTargetsWithPauses(segmentsAndBoundaries, silenceSymbol);
+            byte[] featureData = new byte[targets.size()*numFeatures];
+            int off = 0;
+            for (Target target : targets) {
+                FeatureVector features = featureComputer.computeFeatureVector(target);
+                System.arraycopy(features.getByteValuedDiscreteFeatures(), 0, featureData, off, numFeatures);
+                off += numFeatures;
+            }
+            return featureData;
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+        
+    }
+    
+	
 	
     /**
      * Process the given text with the MaryClient
@@ -453,16 +531,28 @@ public class FeatureMakerMaryServer{
      */
     protected static Document phonemiseText(String textString, int id) throws Exception{
         try{
+            /*
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             //process and dump
-            mary.process(textString, "TEXT","PHONEMES", locale, null, null, os);
-            
+            Mary.process(textString, "TEXT","PHONEMES", locale, null, null, null, null, null, os);
+                        
             //read into mary data object                
             MaryData maryData = new MaryData(MaryDataType.PHONEMES, null); 
             
             maryData.readFrom(new ByteArrayInputStream(os.toByteArray()));
            
             return maryData.getDocument();
+            */
+            if (Mary.currentState() != Mary.STATE_RUNNING) throw new IllegalStateException("MARY system is not running");
+            
+            MaryDataType inputType = MaryDataType.get("TEXT");
+            MaryDataType outputType = MaryDataType.get("PHONEMES");
+            Locale localeObj = MaryUtils.string2locale(locale);
+            Request request = new Request(inputType, outputType, localeObj, null, null, null, id, null);
+            request.readInputData(new StringReader(textString));
+            request.process();
+            MaryData result = request.getOutputData();
+            return result.getDocument();
         } catch (Exception e){
             e.printStackTrace();
             System.out.println("PhonemiseText: problem processing text id=" + id);
