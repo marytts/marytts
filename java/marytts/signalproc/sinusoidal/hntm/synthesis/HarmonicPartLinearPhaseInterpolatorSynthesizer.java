@@ -137,8 +137,6 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
         double[] halfTransitionWinRight = transitionWin.getCoeffsRightHalf();
         
         int currentHarmonicNo;
-        float pScaleCurrent, pScaleNext, pScaleAverage;
-        int pScaleInd, pScaleIndNext;
         
         for (i=0; i<hnmSignal.frames.length; i++)
         {
@@ -175,30 +173,6 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                 f0InHzNext = f0InHz;
 
             f0Average = 0.5f*(f0InHz+f0InHzNext);
-            if (pScalesTimes!=null)
-            {
-                pScaleInd = MathUtils.findClosest(pScalesTimes, hnmSignal.frames[i].tAnalysisInSeconds);
-                pScaleCurrent = pScales[pScaleInd];
-                if (isNextVoiced)
-                {
-                    pScaleIndNext = MathUtils.findClosest(pScalesTimes, hnmSignal.frames[i+1].tAnalysisInSeconds);
-                    pScaleNext = pScales[pScaleIndNext];
-                }
-                else
-                    pScaleNext = pScaleCurrent;
-            }
-            else if (pScales!=null && pScales.length>0)
-            {
-                pScaleCurrent = pScales[0];
-                pScaleNext = pScales[0];
-            }
-            else
-            {
-                pScaleCurrent = 1.0f;
-                pScaleNext = 1.0f;
-            }
-            
-            pScaleAverage = 0.5f*(pScaleCurrent+pScaleNext);
             
             for (k=0; k<numHarmonicsCurrentFrame; k++)
             {
@@ -285,6 +259,9 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                             phasekiPlusOne = hnmSignal.frames[i+1].h.phases[k];
                     }
                     
+                    //phaseki += MathUtils.degrees2radian(-4.0);
+                    //phasekiPlusOne += MathUtils.degrees2radian(-4.0);
+                    
                     if (!isTrackVoiced && isNextTrackVoiced)   
                         phaseki = (float)( phasekiPlusOne - currentHarmonicNo*MathUtils.TWOPI*f0InHzNext*(tsikPlusOne-tsik)); //Equation (3.54)
                     else if (isTrackVoiced && !isNextTrackVoiced)
@@ -292,6 +269,8 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                     
                     phasekiPlusOneEstimate = (float)( phaseki + currentHarmonicNo*MathUtils.TWOPI*f0Average*(tsikPlusOne-tsik));
                     //phasekiPlusOneEstimate = (float) (MathUtils.TWOPI*(Math.random()-0.5)); //Random phase
+                    
+                    //System.out.println(String.valueOf(f0Average) + " - " + String.valueOf(f0InHz) + " - " + String.valueOf(f0InHzNext));
                     
                     Mk = (int)Math.floor((phasekiPlusOneEstimate-phasekiPlusOne)/MathUtils.TWOPI + 0.5);
                     //
@@ -306,7 +285,10 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                         //if (t>=tsik && t<tsikPlusOne)
                         {
                             //Amplitude estimate
-                            akt = MathUtils.interpolatedSample(tsik, t, tsikPlusOne, aksi, aksiPlusOne);
+                            if (t<tsik)
+                                akt = MathUtils.interpolatedSample(0.0, t, tsik, 0.0, aksi);
+                            else
+                                akt = MathUtils.interpolatedSample(tsik, t, tsikPlusOne, aksi, aksiPlusOne);
                             //akt = 1.0;
                             //
 

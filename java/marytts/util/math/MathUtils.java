@@ -1633,6 +1633,16 @@ public class MathUtils {
     {
         return (rad/MathUtils.TWOPI)*360.0;
     }
+    
+    public static float degrees2radian(float deg)
+    {
+        return (float)((deg/360.0)*MathUtils.TWOPI);
+    }
+
+    public static double degrees2radian(double deg)
+    {
+        return ((deg/360.0)*MathUtils.TWOPI);
+    }
 
     /**
      * Build the sum of the squared difference of all elements 

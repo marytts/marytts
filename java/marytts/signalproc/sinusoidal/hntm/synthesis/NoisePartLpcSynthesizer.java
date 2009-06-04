@@ -258,13 +258,14 @@ public class NoisePartLpcSynthesizer {
                     }
                     else
                     {
-                        y = SignalProcUtils.arFilter(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, 1.0);
+                        y = SignalProcUtils.arFilter(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, ((FrameNoisePartLpc)hnmSignal.frames[i].n).gain);
                         double newAvEn = SignalProcUtils.getAverageSampleEnergy(y);
                         y = MathUtils.multiply(y, Math.sqrt(hnmSignal.frames[i].origAverageSampleEnergy/(1e-20+newAvEn)));
+                        
                         //y = ReflectionCoefficients.latticeSynthesisFilter(((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, x);
                         //y = SignalProcUtils.arFilterFreqDomain(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, 1.0, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz);
                         
-                        if (!HntmAnalyzer.HIGHPASS_FILTER_PRIOR_TO_NOISE_ANALYSIS)
+                        if (HntmAnalyzer.HIGHPASS_FILTER_PRIOR_TO_NOISE_ANALYSIS)
                             y = SignalProcUtils.fdFilter(y, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5f*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz, fftSizeNoise);
 
                         y = winNoise.apply(y, 0);

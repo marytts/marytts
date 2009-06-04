@@ -286,7 +286,7 @@ public class HnmPitchVoicingAnalyzer {
         //Arrays.fill(maxFrequencyOfVoicings, samplingRate*0.5f);
 
         //MaryUtils.plot(voicingErrors);
-        MaryUtils.plot(maxFrequencyOfVoicings);
+        //MaryUtils.plot(maxFrequencyOfVoicings);
         
         return maxFrequencyOfVoicings;
     }

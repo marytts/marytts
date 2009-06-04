@@ -73,7 +73,7 @@ public class Pair<X,Y>
         if (oth == null || !(getClass().isInstance(oth))) {
             return false;
         }
-        Pair other = getClass().cast( oth );
+        Pair other = (Pair)getClass().cast( oth );
         return (first == null ? other.first == null : first.equals(other.first))
             && (second == null ? other.second == null : second.equals(other.second));
     } 
