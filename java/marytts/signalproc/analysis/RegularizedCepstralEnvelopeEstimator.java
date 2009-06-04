@@ -47,7 +47,7 @@ import marytts.util.signal.SignalProcUtils;
 public class RegularizedCepstralEnvelopeEstimator 
 {
     public static final double DEFAULT_LAMBDA = 5e-4;
-   
+    
     public static double[] spectralEnvelopeDB(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrder, int fftSize)
     {
         double[] ceps = freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrder);

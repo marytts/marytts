@@ -35,6 +35,7 @@ import marytts.util.signal.SignalProcUtils;
  */
 public class NoiseTester extends BaseTester{
     public static final float DEFAULT_TRANSITION_BANDWIDTH_IN_HZ = 50.0f;
+    public static final double FIXED_F0_NOISE = 100.0;
     
     public NoiseTester()
     {
@@ -231,14 +232,18 @@ public class NoiseTester extends BaseTester{
             int maxEndSampleIndex = MathUtils.getMax(endSampleIndices);
             
             //Create pitch marks by finding the longest period
-            int maxT0 = (int)Math.floor(0.010f*fs+0.5);
+            
+            int maxT0 = SignalProcUtils.time2sample(1.0/FIXED_F0_NOISE, fs);
             int numPitchMarks = (int)(Math.floor(((double)(maxEndSampleIndex-minStartSampleIndex+1))/maxT0+0.5)) + 1; 
             pitchMarks = new int[numPitchMarks];
             for (i=0; i<numPitchMarks; i++)
                 pitchMarks[i] = Math.min(i*maxT0+minStartSampleIndex, maxEndSampleIndex);
             //
             
-            f0s = SignalProcUtils.pitchMarks2PitchContour(pitchMarks, ws, ss, fs);
+            float lastTime = SignalProcUtils.sample2time(pitchMarks[pitchMarks.length-1], fs);
+            int numfrm = (int)Math.floor((lastTime-0.5*ws)/ss+0.5);
+            f0s = new double[numfrm];
+            Arrays.fill(f0s, FIXED_F0_NOISE);
             
             if (maxEndSampleIndex>0)
             {

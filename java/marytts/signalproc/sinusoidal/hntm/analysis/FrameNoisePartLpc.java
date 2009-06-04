@@ -32,6 +32,7 @@ import marytts.util.math.ArrayUtils;
 public class FrameNoisePartLpc extends FrameNoisePart {
     
     public double[] lpCoeffs;
+    public double gain;
 
     
     public FrameNoisePartLpc()
@@ -43,16 +44,17 @@ public class FrameNoisePartLpc extends FrameNoisePart {
     {
         super();
         lpCoeffs = ArrayUtils.copy(existing.lpCoeffs);
+        gain = existing.gain;
     }
     
-    public FrameNoisePartLpc(double[] lpCoeffsIn)
+    public FrameNoisePartLpc(double[] lpCoeffsIn, double gainIn)
     {
         super();
         
-        setLpCoeffs(lpCoeffsIn);
+        setLpCoeffs(lpCoeffsIn, gainIn);
     }
 
-    public void setLpCoeffs(double[] lpCoeffsIn)
+    public void setLpCoeffs(double[] lpCoeffsIn, double gainIn)
     {
         if (lpCoeffsIn!=null)
         {
@@ -61,6 +63,8 @@ public class FrameNoisePartLpc extends FrameNoisePart {
         }
         else
             lpCoeffs = null;
+        
+        gain = gainIn;
     }
 }
 

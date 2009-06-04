@@ -434,7 +434,9 @@ public class SignalProcUtils {
     }
     
     //Convert pitch marks to pitch contour values in Hz using a fixed analysis rate
-    public static double [] pitchMarks2PitchContour(int [] pitchMarks, float ws, float ss, int samplingRate)
+    //Note that this function might result in inaccurate f0 values if the pitch marks are created from an f0 contour
+    //The inaccuracy is due to conversion from float/double f0 values to integer pitch marks
+    public static double[] pitchMarks2PitchContour(int [] pitchMarks, float ws, float ss, int samplingRate)
     {
         double[] f0s = null;
         float[] times = samples2times(pitchMarks, samplingRate);

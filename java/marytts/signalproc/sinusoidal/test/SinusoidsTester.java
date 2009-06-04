@@ -208,7 +208,10 @@ public class SinusoidsTester extends BaseTester{
                 pitchMarks[i] = Math.min(i*maxT0+minStartSampleIndex, maxEndSampleIndex);
             //
             
-            f0s = SignalProcUtils.pitchMarks2PitchContour(pitchMarks, ws, ss, fs);
+            float lastTime = SignalProcUtils.sample2time(pitchMarks[pitchMarks.length-1], fs);
+            int numfrm = (int)Math.floor((lastTime-0.5*ws)/ss+0.5);
+            f0s = new double[numfrm];
+            Arrays.fill(f0s, minFreq);
             
             if (maxEndSampleIndex>0)
             {
