@@ -31,10 +31,13 @@ public class FrameHarmonicPart
     public double[] ceps; //Cepstral coefficients for amplitude envelope
     public float[] phases; //To keep harmonic phases
     
+    public ComplexNumber[] complexAmps; //Alternatively, keep complex amplitudes. No need to keep ceps and phases as these can be derived from complexAmps
+    
     public FrameHarmonicPart()
     {        
         ceps = null;
         phases = null;
+        complexAmps = null;
     }
     
     public FrameHarmonicPart(FrameHarmonicPart existing)
@@ -45,6 +48,7 @@ public class FrameHarmonicPart
         {
             ceps = ArrayUtils.copy(existing.ceps);
             phases = ArrayUtils.copy(existing.phases);
+            complexAmps = ArrayUtils.copy(existing.complexAmps);
         }
     }
 }

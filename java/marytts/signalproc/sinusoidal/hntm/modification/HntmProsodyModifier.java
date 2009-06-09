@@ -45,6 +45,7 @@ import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizedSignal;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizer;
 import marytts.util.MaryUtils;
 import marytts.util.math.ArrayUtils;
+import marytts.util.math.ComplexNumber;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
@@ -373,7 +374,7 @@ public class HntmProsodyModifier {
                 float harmonicEnergyOrig;
                 float harmonicEnergyMod;
                 int k;
-                double amp;
+                int leftHarmonicInd, rightHarmonicInd;
                 for (i=0; i<hntmSignalMod.frames.length; i++)
                 {
                     isVoiced = false;
@@ -393,6 +394,8 @@ public class HntmProsodyModifier {
                         if (newTotalHarmonics>0)
                         { 
                             harmonicEnergyOrig = 0.0f;
+                            double[] amps = new double[hntmSignalMod.frames[i].h.phases.length];
+                            
                             for (k=0; k<hntmSignalMod.frames[i].h.phases.length; k++)
                             {
                                 if (HntmAnalyzer.INCLUDE_ZEROTH_HARMONIC)
@@ -401,17 +404,41 @@ public class HntmProsodyModifier {
                                     currentHarmonicNo = (k+1);
 
                                 if (!HntmAnalyzer.USE_AMPLITUDES_DIRECTLY)
-                                    amp = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(hntmSignalMod.frames[i].h.ceps, currentHarmonicNo*hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz);
+                                    amps[k] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(hntmSignalMod.frames[i].h.ceps, currentHarmonicNo*hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz);
                                 else
-                                    amp = hntmSignalMod.frames[i].h.ceps[k];
+                                {
+                                    //amps[k] = hntmSignalMod.frames[i].h.ceps[k];
+                                    
+                                    //Linear interpolation using neighbouring harmonic amplitudes
+                                    leftHarmonicInd = (int)Math.floor(currentHarmonicNo*pScale)-1;
+                                    if (leftHarmonicInd<0)
+                                        amps[k] = hntmSignalMod.frames[i].h.ceps[0];
+                                    else
+                                    {
+                                        rightHarmonicInd = leftHarmonicInd+1;
+                                        if (rightHarmonicInd>hntmSignalMod.frames[i].h.ceps.length-1)
+                                            amps[k] = hntmSignalMod.frames[i].h.ceps[hntmSignalMod.frames[i].h.ceps.length-1];
+                                        else
+                                            amps[k] = MathUtils.interpolatedSample((leftHarmonicInd+1)*hntmSignalMod.frames[i].f0InHz, 
+                                                    currentHarmonicNo*pScale*hntmSignalMod.frames[i].f0InHz, 
+                                                    (rightHarmonicInd+1)*hntmSignalMod.frames[i].f0InHz, 
+                                                    hntmSignalMod.frames[i].h.ceps[leftHarmonicInd], 
+                                                    hntmSignalMod.frames[i].h.ceps[rightHarmonicInd]);
+                                    }
+                                }
                                 
-                                harmonicEnergyOrig += amp*amp;
+                                harmonicEnergyOrig += amps[k]*amps[k];
                             }
 
                             //1. Resample phase envelopes
-                            newPhases = MathUtils.interpolate(hntmSignalMod.frames[i].h.phases, newTotalHarmonics);
+                            //This should be linear interpolation of complex values!!!
+                            //newPhases = interpolatePhases(amps, hntmSignalMod.frames[i].h.phases, newTotalHarmonics);
+                            newPhases = interpolatePhases(hntmSignalMod.frames[i].h.complexAmps, newTotalHarmonics);
+                            //newPhases = MathUtils.interpolate(hntmSignalMod.frames[i].h.phases, newTotalHarmonics);
+                            
                             //MaryUtils.plot(hntmSignalMod.frames[i].h.phases);
                             //MaryUtils.plot(newPhases);
+                            //MaryUtils.plot(newPhases2);
 
                             //2. Change number of harmonics (only harmonics up to the original frequency of voicing will be kept)
                             hntmSignalMod.frames[i].h.phases = ArrayUtils.copy(newPhases);
@@ -421,6 +448,7 @@ public class HntmProsodyModifier {
                             double[] linearAmps = new double[newTotalHarmonics];
                             double[] freqsInHz = new double [newTotalHarmonics];
                             harmonicEnergyMod = 0.0f;
+                            double[] ampsMod = new double[newTotalHarmonics];
                             for (k=0; k<newTotalHarmonics; k++)
                             {
                                 if (HntmAnalyzer.INCLUDE_ZEROTH_HARMONIC)
@@ -429,16 +457,29 @@ public class HntmProsodyModifier {
                                     currentHarmonicNo = (k+1);
 
                                 if (!HntmAnalyzer.USE_AMPLITUDES_DIRECTLY)
-                                    amp = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(hntmSignalMod.frames[i].h.ceps, currentHarmonicNo*hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz);
+                                    ampsMod[k] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(hntmSignalMod.frames[i].h.ceps, currentHarmonicNo*hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz);
                                 else
                                 {
-                                    int closestHarmonicInd = (int)Math.floor(k/pScale+0.5);
-                                    closestHarmonicInd = MathUtils.CheckLimits(closestHarmonicInd, 0, hntmSignalMod.frames[i].h.ceps.length-1);
-                                    amp = hntmSignalMod.frames[i].h.ceps[closestHarmonicInd];
+                                    //Linear interpolation using neighbouring harmonic amplitudes
+                                    leftHarmonicInd = (int)Math.floor(currentHarmonicNo*pScale)-1;
+                                    if (leftHarmonicInd<0)
+                                        ampsMod[k] = hntmSignalMod.frames[i].h.ceps[0];
+                                    else
+                                    {
+                                        rightHarmonicInd = leftHarmonicInd+1;
+                                        if (rightHarmonicInd>hntmSignalMod.frames[i].h.ceps.length-1)
+                                            ampsMod[k] = hntmSignalMod.frames[i].h.ceps[hntmSignalMod.frames[i].h.ceps.length-1];
+                                        else
+                                            ampsMod[k] = MathUtils.interpolatedSample((leftHarmonicInd+1)*hntmSignalMod.frames[i].f0InHz, 
+                                                    currentHarmonicNo*pScale*hntmSignalMod.frames[i].f0InHz, 
+                                                    (rightHarmonicInd+1)*hntmSignalMod.frames[i].f0InHz, 
+                                                    hntmSignalMod.frames[i].h.ceps[leftHarmonicInd], 
+                                                    hntmSignalMod.frames[i].h.ceps[rightHarmonicInd]);
+                                    }
                                 }
                                 
-                                harmonicEnergyMod += amp*amp;
-                                linearAmps[k] = amp; //Not energy scaled yet
+                                harmonicEnergyMod += ampsMod[k]*ampsMod[k];
+                                linearAmps[k] = ampsMod[k]; //Not energy scaled yet
                                 freqsInHz[k] = currentHarmonicNo*hntmSignalMod.frames[i].f0InHz;
                             }
                             
@@ -499,5 +540,19 @@ public class HntmProsodyModifier {
 
             return hntmSignalMod;
         }
+    }
+    
+    public static float[] interpolatePhases(double[] amps, float[] phasesInRadian, int newLen)
+    {
+        ComplexNumber[] complexAmps = MathUtils.polar2complex(amps, phasesInRadian);
+        
+        return interpolatePhases(complexAmps, newLen);
+    }
+    
+    public static float[] interpolatePhases(ComplexNumber[] complexAmps, int newLen)
+    {
+        ComplexNumber[] interpolatedAmps = MathUtils.interpolate(complexAmps, newLen);
+        
+        return MathUtils.phaseInRadiansFloat(interpolatedAmps);
     }
 }

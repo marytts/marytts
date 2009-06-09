@@ -56,28 +56,7 @@ public class NoisePartLpcSynthesizer {
     
     //LPC based noise model + OLA approach + Gain normalization according to generated harmonic part gain
     public static double[] synthesize(HntmSpeechSignal hnmSignal, String noiseWavFile)
-    { 
-        double[] noiseFromFile = null;
-        if (noiseWavFile!=null)
-        {
-            AudioInputStream inputAudio = null;
-            try {
-                inputAudio = AudioSystem.getAudioInputStream(new File(noiseWavFile));
-            } catch (UnsupportedAudioFileException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            if (inputAudio!=null)
-            {
-                AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
-                noiseFromFile = signal.getAllData();
-                noiseFromFile = MathUtils.multiply(noiseFromFile, 32768.0);
-            }
-        }
-        
+    {    
         double[] noisePart = null;
         int i;
         boolean isPrevNoised, isNoised, isNextNoised;
@@ -239,36 +218,15 @@ public class NoisePartLpcSynthesizer {
                     //x = SignalProcUtils.getNoise(hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5*hnmSignal.samplingRateInHz, 100.0, hnmSignal.samplingRateInHz, wsNoise); //Pink noise
                     //x = SignalProcUtils.getWhiteNoise(wsNoise, 1.0f);
                     
-                    if (isVoiced && noiseFromFile!=null)
+                    if (isNoised)
                     {
-                        y = new double[wsNoise];
-                        Arrays.fill(y, 0.0);
-                        System.arraycopy(noiseFromFile, startIndex, y, 0, Math.min(wsNoise, noiseFromFile.length-startIndex));
-                        y = winNoise.apply(y, 0);
-                        y = SignalProcUtils.fdFilter(y, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5f*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz, fftSizeNoise);
-                        y = winNoise.apply(y, 0);
-                        
-                        //Overlap-add
-                        for (n=startIndex; n<Math.min(startIndex+wsNoise, noisePart.length); n++)
-                        {
-                            noisePart[n] += y[n-startIndex]*wgt[n-startIndex]; 
-                            winWgtSum[n] += wgt[n-startIndex]*wgt[n-startIndex]; 
-                        }
-                        //
-                    }
-                    else
-                    {
-                        y = SignalProcUtils.arFilter(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, ((FrameNoisePartLpc)hnmSignal.frames[i].n).gain);
-                        double newAvEn = SignalProcUtils.getAverageSampleEnergy(y);
-                        y = MathUtils.multiply(y, Math.sqrt(hnmSignal.frames[i].origAverageSampleEnergy/(1e-20+newAvEn)));
-                        
-                        //y = ReflectionCoefficients.latticeSynthesisFilter(((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, x);
-                        //y = SignalProcUtils.arFilterFreqDomain(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, 1.0, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz);
-                        
+                        //y = SignalProcUtils.arFilter(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, ((FrameNoisePartLpc)hnmSignal.frames[i].n).gain);
+                        y = SignalProcUtils.arFilter(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, 1.0);
+ 
                         if (HntmAnalyzer.HIGHPASS_FILTER_PRIOR_TO_NOISE_ANALYSIS)
                             y = SignalProcUtils.fdFilter(y, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5f*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz, fftSizeNoise);
-
-                        y = winNoise.apply(y, 0);
+ 
+                        MathUtils.adjustStandardDeviation(y, hnmSignal.frames[i].origStd);
                         
                         //Overlap-add
                         for (n=startIndex; n<Math.min(startIndex+wsNoise, noisePart.length); n++)
@@ -276,7 +234,6 @@ public class NoisePartLpcSynthesizer {
                             noisePart[n] += y[n-startIndex]*wgt[n-startIndex]; 
                             winWgtSum[n] += wgt[n-startIndex]*wgt[n-startIndex];
                         }
-                        //
                     }
                 }
 

@@ -58,6 +58,20 @@ public class ArrayUtils
             return null;
     }
     
+    public static ComplexNumber[] copy(ComplexNumber[] orig)
+    {
+        ComplexNumber[] out = null;
+        
+        if (orig!=null)
+        {
+            out = new ComplexNumber[orig.length];
+            for (int i=0; i<orig.length; i++)
+                out[i] = new ComplexNumber(orig[i]);
+        }
+        
+        return out;
+    }
+    
     public static double[] subarray(double[] orig, int off, int len)
     {
         if (off+len>orig.length) throw new IllegalArgumentException("requested subarray exceeds array length");

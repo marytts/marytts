@@ -858,6 +858,11 @@ public class SignalProcUtils {
         return ((float)sample)/samplingRate;
     }
     
+    public static float sample2time(float sample, int samplingRate)
+    {
+        return sample/samplingRate;
+    }
+    
     //Convert time value in seconds to sample index
     public static int time2sample(float time, int samplingRate)
     {

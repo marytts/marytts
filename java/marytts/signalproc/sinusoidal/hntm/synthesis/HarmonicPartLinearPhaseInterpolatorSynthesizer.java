@@ -39,6 +39,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.RegularizedCepstralEnvelopeEstimator;
+import marytts.signalproc.sinusoidal.PitchSynchronousSinusoidalAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.window.Window;
@@ -131,7 +132,7 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
         //
         
         int transitionLen = SignalProcUtils.time2sample(HntmSynthesizer.UNVOICED_VOICED_TRACK_TRANSITION_IN_SECONDS, hnmSignal.samplingRateInHz);
-        Window transitionWin = Window.get(Window.HANNING, transitionLen*2);
+        Window transitionWin = Window.get(Window.HAMMING, transitionLen*2);
         transitionWin.normalizePeakValue(1.0f);
         double[] halfTransitionWinLeft = transitionWin.getCoeffsLeftHalf();
         double[] halfTransitionWinRight = transitionWin.getCoeffsRightHalf();
@@ -230,6 +231,8 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                                 aksi = hnmSignal.frames[i].h.ceps[k]; //Use amplitudes directly without cepstrum method
                         }
                     }
+                    else
+                        aksi = 0.0;
                     
                     if (isNextTrackVoiced)
                     {
@@ -241,6 +244,8 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                                 aksiPlusOne = hnmSignal.frames[i+1].h.ceps[k]; //Use amplitudes directly without cepstrum method
                         }
                     }
+                    else
+                        aksiPlusOne = 0.0;
                     //
 
                     //Phases
@@ -258,14 +263,21 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                         else
                             phasekiPlusOne = hnmSignal.frames[i+1].h.phases[k];
                     }
+                        
                     
                     //phaseki += MathUtils.degrees2radian(-4.0);
                     //phasekiPlusOne += MathUtils.degrees2radian(-4.0);
                     
                     if (!isTrackVoiced && isNextTrackVoiced)   
+                    {
                         phaseki = (float)( phasekiPlusOne - currentHarmonicNo*MathUtils.TWOPI*f0InHzNext*(tsikPlusOne-tsik)); //Equation (3.54)
+                        aksi = 0.0;
+                    }
                     else if (isTrackVoiced && !isNextTrackVoiced)
+                    {
                         phasekiPlusOne = (float)( phaseki + currentHarmonicNo*MathUtils.TWOPI*f0InHz*(tsikPlusOne-tsik)); //Equation (3.55)
+                        aksiPlusOne = 0.0;
+                    }
                     
                     phasekiPlusOneEstimate = (float)( phaseki + currentHarmonicNo*MathUtils.TWOPI*f0Average*(tsikPlusOne-tsik));
                     //phasekiPlusOneEstimate = (float) (MathUtils.TWOPI*(Math.random()-0.5)); //Random phase
@@ -276,17 +288,21 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                     //
                     
                     if (!isPrevTrackVoiced)
-                        trackStartIndex = Math.max(0, trackStartIndex-transitionLen);
+                        trackStartIndex -= transitionLen;
+                    if (!isNextTrackVoiced)
+                        trackEndIndex += transitionLen;
 
-                    for (n=trackStartIndex; n<=Math.min(trackEndIndex, outputLen-1); n++)
+                    for (n=Math.max(0, trackStartIndex); n<=Math.min(trackEndIndex, outputLen-1); n++)
                     {
                         t = SignalProcUtils.sample2time(n, hnmSignal.samplingRateInHz);
-
+                        
                         //if (t>=tsik && t<tsikPlusOne)
                         {
                             //Amplitude estimate
                             if (t<tsik)
-                                akt = MathUtils.interpolatedSample(0.0, t, tsik, 0.0, aksi);
+                                akt = MathUtils.interpolatedSample(tsik-HntmSynthesizer.UNVOICED_VOICED_TRACK_TRANSITION_IN_SECONDS, t, tsik, 0.0, aksi);
+                            else if (t>tsikPlusOne)
+                                akt = MathUtils.interpolatedSample(tsikPlusOne, t, tsikPlusOne+HntmSynthesizer.UNVOICED_VOICED_TRACK_TRANSITION_IN_SECONDS, aksiPlusOne, 0.0);
                             else
                                 akt = MathUtils.interpolatedSample(tsik, t, tsikPlusOne, aksi, aksiPlusOne);
                             //akt = 1.0;
@@ -302,7 +318,7 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                             if (!isPrevTrackVoiced && n-trackStartIndex<transitionLen)
                                 harmonicTracks[k][n] = halfTransitionWinLeft[n-trackStartIndex]*akt*Math.cos(phasekt);
                             else if (!isNextTrackVoiced && trackEndIndex-n<transitionLen)
-                                harmonicTracks[k][n] = halfTransitionWinRight[halfTransitionWinRight.length-1-(trackEndIndex-n)]*akt*Math.cos(phasekt);
+                                harmonicTracks[k][n] = halfTransitionWinRight[transitionLen-(trackEndIndex-n)-1]*akt*Math.cos(phasekt);
                             else
                                 harmonicTracks[k][n] = akt*Math.cos(phasekt);
                         }
@@ -342,7 +358,7 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                     //k=1;
                     for (k=0; k<harmonicTracks.length; k++)
                     {
-                        harmonicTracks[k] = MathUtils.multiply(harmonicTracks[k], 1.0/MathUtils.getAbsMax(harmonicTracks[k]));
+                        harmonicTracks[k] = MathUtils.divide(harmonicTracks[k], 32767.0);
 
                         DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(harmonicTracks[k]), inputAudio.getFormat());
                         String outFileName = "d:\\harmonicTrack" + String.valueOf(k+1) + ".wav";

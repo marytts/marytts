@@ -829,6 +829,17 @@ public class MathUtils {
     {
         return new ComplexNumber(amp*Math.cos(phaseInRadians), amp*Math.sin(phaseInRadians));
     }
+    
+    public static ComplexNumber[] polar2complex(double[] amps, float[] phasesInRadian)
+    {
+        assert amps.length==phasesInRadian.length;
+        
+        ComplexNumber[] comps = new ComplexNumber[amps.length];
+        for (int i=0; i<amps.length; i++)
+            comps[i] = ampPhase2ComplexNumber(amps[i], phasesInRadian[i]);
+        
+        return comps;
+    }
 
     public static double[] add(double[] x, double[] y)
     {
@@ -881,10 +892,31 @@ public class MathUtils {
         }
         return c;        
     }
+    
+    public static float[] multiply(float[] a, float[] b)
+    {
+        if (a.length != b.length) {
+            throw new IllegalArgumentException("Arrays must be equal length");
+        }
+        float[] c = new float[a.length];
+        for (int i=0; i<a.length; i++) {
+            c[i] = a[i] * b[i];
+        }
+        return c;        
+    }
 
     public static double[] multiply(double[] a, double b)
     {
         double[] c = new double[a.length];
+        for (int i=0; i<a.length; i++) {
+            c[i] = a[i] * b;
+        }
+        return c;        
+    }
+    
+    public static float[] multiply(float[] a, float b)
+    {
+        float[] c = new float[a.length];
         for (int i=0; i<a.length; i++) {
             c[i] = a[i] * b;
         }
@@ -1075,6 +1107,11 @@ public class MathUtils {
         return Math.atan2(x.imag, x.real); 
     }
     
+    public static float phaseInRadiansFloat(ComplexNumber x)
+    {
+        return (float)phaseInRadians(x); 
+    }
+    
     public static double phaseInRadians(double xReal, double xImag)
     {
         return phaseInRadians(new ComplexNumber(xReal, xImag));
@@ -1086,6 +1123,16 @@ public class MathUtils {
         
         for (int i=0; i<xs.length; i++)
             phases[i] = phaseInRadians(xs[i]);
+        
+        return phases;
+    }
+    
+    public static float[] phaseInRadiansFloat(ComplexNumber[] xs)
+    {
+        float[] phases = new float[xs.length];
+        
+        for (int i=0; i<xs.length; i++)
+            phases[i] = phaseInRadiansFloat(xs[i]);
         
         return phases;
     }
@@ -1997,7 +2044,7 @@ public class MathUtils {
         return h;
     }
     
-    public static float [] interpolate(float [] x, int newLength)
+    public static float[] interpolate(float [] x, int newLength)
     {
         if (x!=null)
         {
@@ -2056,6 +2103,61 @@ public class MathUtils {
                             y[i] = interpolatedSample(leftInd, i*ratio, leftInd+1, x[leftInd], 2*x[leftInd]-x[leftInd-1]);
                         else
                             y[i] = x[leftInd];
+                    }
+                }
+            }
+        }
+
+        return y;
+    }
+    
+    //Performs linear interpolation to increase or decrease the size of array x to newLength
+    public static ComplexNumber[] interpolate(ComplexNumber [] x, int newLength)
+    {
+        ComplexNumber[] y = null;
+        if (newLength>0)
+        {
+            int N = x.length;
+            if (N==1)
+            {
+                y = new ComplexNumber[1];
+                y[0] = new ComplexNumber(x[0]);
+                return y;
+            }
+            else if (newLength==1)
+            {
+                y = new ComplexNumber[1];
+                int ind = (int)Math.floor(N*0.5+0.5);
+                ind = Math.max(1, ind);
+                ind = Math.min(ind, N);
+                y[0]= new ComplexNumber(x[ind-1]);
+                return y;
+            }
+            else
+            {
+                y = new ComplexNumber[newLength];
+                int leftInd;
+                double ratio = ((double)x.length)/newLength;
+                double yReal, yImag;
+                for (int i=0; i<newLength; i++)
+                {
+                    leftInd = (int)Math.floor(i*ratio);
+                    if (leftInd<x.length-1)
+                    {
+                        yReal = interpolatedSample(leftInd, i*ratio, leftInd+1, x[leftInd].real, x[leftInd+1].real);
+                        yImag = interpolatedSample(leftInd, i*ratio, leftInd+1, x[leftInd].imag, x[leftInd+1].imag);
+                        y[i] = new ComplexNumber(yReal, yImag);
+                    }
+                    else
+                    {
+                        if (leftInd>0)
+                        {
+                            yReal = interpolatedSample(leftInd, i*ratio, leftInd+1, x[leftInd].real, 2*x[leftInd].real-x[leftInd-1].real);
+                            yImag = interpolatedSample(leftInd, i*ratio, leftInd+1, x[leftInd].imag, 2*x[leftInd].imag-x[leftInd-1].imag);
+                            y[i] = new ComplexNumber(yReal, yImag);
+                        }
+                        else
+                            y[i] = new ComplexNumber(x[leftInd]);
                     }
                 }
             }
