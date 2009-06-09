@@ -37,6 +37,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
     public float maximumFrequencyOfVoicingInHz; //If 0.0, then the frame is unvoiced
     public float tAnalysisInSeconds; //Middle of analysis frame in seconds
     public float origAverageSampleEnergy;
+    public float origStd;
     public double[] lpcs;
     public boolean isInTransientSegment;
     
@@ -53,6 +54,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         maximumFrequencyOfVoicingInHz = 0.0f;
         tAnalysisInSeconds = -1.0f;
         origAverageSampleEnergy = 0.0f;
+        origStd = 1.0f;
         lpcs = null;
         isInTransientSegment = false;
     }
@@ -73,6 +75,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         maximumFrequencyOfVoicingInHz = existing.maximumFrequencyOfVoicingInHz;
         tAnalysisInSeconds = existing.tAnalysisInSeconds;   
         origAverageSampleEnergy = existing.origAverageSampleEnergy;
+        origStd = existing.origStd;
         lpcs = ArrayUtils.copy(existing.lpcs);
         isInTransientSegment = existing.isInTransientSegment;
     }

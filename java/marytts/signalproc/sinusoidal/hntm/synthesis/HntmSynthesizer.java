@@ -70,7 +70,7 @@ import marytts.util.string.StringUtils;
  */
 public class HntmSynthesizer {
     //Triangular noise envelope window for voiced segments
-    public static final boolean APPLY_TRIANGULAR_NOISE_ENVELOPE_FOR_VOICED_PARTS = true;
+    public static final boolean APPLY_TRIANGULAR_NOISE_ENVELOPE_FOR_VOICED_PARTS = false;
     public static final double ENERGY_TRIANGLE_LOWER_VALUE = 1.0;
     public static final double ENERGY_TRIANGLE_UPPER_VALUE = 0.5;
     //
@@ -89,8 +89,8 @@ public class HntmSynthesizer {
     public static final int LINEAR_PHASE_INTERPOLATION = 1;
     public static final int QUADRATIC_PHASE_INTERPOLATION = 2;
     
-    public static boolean ADJUST_PHASES_AFTER_TIME_SCALING = true;
-    public static boolean ADJUST_PHASES_AFTER_PITCH_SCALING = true;
+    public static boolean ADJUST_PHASES_AFTER_TIME_SCALING = false;
+    public static boolean ADJUST_PHASES_AFTER_PITCH_SCALING = false;
     
     public static boolean APPLY_VOCAL_TRACT_NORMALIZATION_POST_PROCESSOR = false; 
     
@@ -166,7 +166,6 @@ public class HntmSynthesizer {
             s.transientPart = TransientPartSynthesizer.synthesize((HntmPlusTransientsSpeechSignal)hntmSignalMod);
         //
         
-        s.noisePart = MathUtils.multiply(s.noisePart, 0.3);
         s.output = SignalProcUtils.addSignals(s.harmonicPart, s.noisePart);
         s.output = SignalProcUtils.addSignals(s.output, s.transientPart);
         
@@ -192,20 +191,22 @@ public class HntmSynthesizer {
         float[] pScalesTimes = null;
         */
         
-        /*
-        float[][] pScalesArray = new float[6][1];
-        float[][] tScalesArray = new float[6][1];
-        pScalesArray[0][0] = 0.6f; tScalesArray[0][0] = 1.0f;
-        pScalesArray[1][0] = 1.0f; tScalesArray[1][0] = 1.0f;
-        pScalesArray[2][0] = 1.5f; tScalesArray[2][0] = 1.0f;
-        pScalesArray[3][0] = 2.3f; tScalesArray[3][0] = 1.0f;
-        pScalesArray[4][0] = 1.0f; tScalesArray[4][0] = 0.6f;
+        float[][] pScalesArray = new float[8][1];
+        float[][] tScalesArray = new float[8][1];
+        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
+        pScalesArray[1][0] = 0.8f; tScalesArray[1][0] = 1.0f;
+        pScalesArray[2][0] = 1.6f; tScalesArray[2][0] = 1.0f;
+        pScalesArray[3][0] = 1.0f; tScalesArray[3][0] = 0.7f;
+        pScalesArray[4][0] = 1.0f; tScalesArray[4][0] = 1.6f;
         pScalesArray[5][0] = 1.0f; tScalesArray[5][0] = 2.3f;
-        */
+        pScalesArray[6][0] = 2.3f; tScalesArray[6][0] = 1.0f;
+        pScalesArray[7][0] = 0.6f; tScalesArray[7][0] = 1.0f;
         
+        /*
         float[][] pScalesArray = new float[1][1];
         float[][] tScalesArray = new float[1][1];
-        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
+        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 2.3f;
+        */
         
         //float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f, 2.5f};
         float[] tScalesTimes = null;
@@ -233,10 +234,10 @@ public class HntmSynthesizer {
         int harmonicPartSynthesisMethod = HntmSynthesizer.LINEAR_PHASE_INTERPOLATION;
         //int harmonicPartSynthesisMethod = HntmSynthesizer.QUADRATIC_PHASE_INTERPOLATION;
         
-        int noisePartRepresentation = HntmAnalyzer.LPC;
+        //int noisePartRepresentation = HntmAnalyzer.LPC;
         //int noisePartRepresentation = HntmAnalyzer.REGULARIZED_CEPS;
         //int noisePartRepresentation = HntmAnalyzer.PSEUDO_HARMONIC;
-        //int noisePartRepresentation = HntmAnalyzer.HIGHPASS_WAVEFORM;
+        int noisePartRepresentation = HntmAnalyzer.HIGHPASS_WAVEFORM;
         
         PitchReaderWriter f0 = null;
         String strPitchFile = StringUtils.modifyExtension(wavFile, ".ptc");
@@ -280,61 +281,6 @@ public class HntmSynthesizer {
                 //Synthesis
                 HntmSynthesizer hs = new HntmSynthesizer();
                 HntmSynthesizedSignal xhat = hs.synthesize(hnmSignal, pmodParams, harmonicPartSynthesisMethod, wavFile);
-
-                double hGain = 1.0;
-                double nGain = 1.0;
-                double tGain = 1.0;
-                if (xhat.harmonicPart!=null)
-                {
-                    xhat.harmonicPart = MathUtils.multiply(xhat.harmonicPart, hGain);
-                    //xhat.harmonicPart = MathUtils.multiply(xhat.harmonicPart, MathUtils.absMax(x)/MathUtils.absMax(xhat.harmonicPart));
-                    //MaryUtils.plot(xhat.harmonicPart);
-                }
-
-                if (xhat.noisePart!=null)
-                {
-                    xhat.noisePart = MathUtils.multiply(xhat.noisePart, nGain);
-                    //MaryUtils.plot(xhat.noisePart);
-                }
-
-                if (xhat.transientPart!=null)
-                {
-                    xhat.transientPart = MathUtils.multiply(xhat.transientPart, tGain);
-                    //MaryUtils.plot(xhat.transientPart);
-                }
-                
-                double absMaxOutput = MathUtils.absMax(xhat.output);
-                if (absMaxOutput>32767)
-                {
-                    System.out.println("Final output clipped re-scaling (abs max=" + String.valueOf(absMaxOutput) + ")");
-                    xhat.output = MathUtils.multiply(xhat.output, 32767.0/absMaxOutput);
-                }
-
-                //y = MathUtils.multiply(y, MathUtils.absMax(x)/MathUtils.absMax(y));
-                //MaryUtils.plot(x);
-                //MaryUtils.plot(xhat.harmonicPart);
-                //MaryUtils.plot(xhat.noisePart);
-                //MaryUtils.plot(xhat.transientPart);
-                //MaryUtils.plot(y);
-
-                //double[] d = SignalProcUtils.addSignals(x, 1.0f, xhat.harmonicPart, -1.0f);
-
-                /*
-                for (int i=0; i<300; i+=100)
-                {
-                    int startIndex = i;
-                    int len = 100;
-                    double[] xPart = ArrayUtils.subarray(x, startIndex, len);
-                    double[] hPart = ArrayUtils.subarray(xhat.harmonicPart, startIndex, len);
-                    double[] dPart = SignalProcUtils.addSignals(xPart, 1.0f, hPart, -1.0f);
-                    MaryUtils.plot(xPart);
-                    MaryUtils.plot(hPart);
-                    MaryUtils.plot(dPart);
-                }
-                */
-
-                //xhat.noisePart = ArrayUtils.subarray(hpf, 0, hpf.length);
-                //
 
                 //File output
                 DDSAudioInputStream outputAudio = null;
