@@ -70,21 +70,29 @@ import marytts.util.string.StringUtils;
  */
 public class HntmSynthesizer {
     //Triangular noise envelope window for voiced segments
-    public static final boolean APPLY_TRIANGULAR_NOISE_ENVELOPE_FOR_VOICED_PARTS = false;
+    public static final boolean APPLY_TRIANGULAR_NOISE_ENVELOPE_FOR_VOICED_PARTS = true;
     public static final double ENERGY_TRIANGLE_LOWER_VALUE = 1.0;
     public static final double ENERGY_TRIANGLE_UPPER_VALUE = 0.5;
     //
     
     public static final boolean NORMALIZE_HARMONIC_ENERGY_CONTOUR = false;
     
-    public static final double NUM_PERIODS_NOISE = 2.0;
     public static final float NOISE_SYNTHESIS_WINDOW_DURATION_IN_SECONDS = 0.050f;
     public static final float NOISE_SYNTHESIS_TRANSITION_OVERLAP_IN_SECONDS = 0.010f;
     public static final float HARMONIC_SYNTHESIS_TRANSITION_OVERLAP_IN_SECONDS = 0.002f;
-    public static final float UNVOICED_VOICED_TRACK_TRANSITION_IN_SECONDS = 0.040f;
+    public static final float UNVOICED_VOICED_TRACK_TRANSITION_IN_SECONDS = 0.005f;
+    
+    public static float PREEMPHASIS_COEF_NOISE = 0.97f;
+    public static boolean HIGHPASS_FILTER_BEFORE_NOISE_ANALYSIS = true; //False means the noise part will be full-band
+    public static boolean HIGHPASS_FILTER_AFTER_NOISE_SYNTHESIS = true;
     
     public static final boolean WRITE_SEPARATE_TRACKS_TO_OUTPUT = false;
     public static final boolean IS_NORMALIZE_HARMONIC_PART_OUTPUT_WAV = false;
+    
+    public static final boolean WRITE_HARMONIC_PART_TO_SEPARATE_FILE = false;
+    public static final boolean WRITE_NOISE_PART_TO_SEPARATE_FILE = false;
+    public static final boolean WRITE_TRANSIENT_PART_TO_SEPARATE_FILE = false;
+    public static final boolean WRITE_ORIGINAL_MINUS_HARMONIC_PART_TO_SEPARATE_FILE = false;
     
     public static final int LINEAR_PHASE_INTERPOLATION = 1;
     public static final int QUADRATIC_PHASE_INTERPOLATION = 2;
@@ -165,14 +173,14 @@ public class HntmSynthesizer {
         if (hntmSignalMod instanceof HntmPlusTransientsSpeechSignal && ((HntmPlusTransientsSpeechSignal)hntmSignalMod).transients!=null)
             s.transientPart = TransientPartSynthesizer.synthesize((HntmPlusTransientsSpeechSignal)hntmSignalMod);
         //
-        
+ 
         s.output = SignalProcUtils.addSignals(s.harmonicPart, s.noisePart);
         s.output = SignalProcUtils.addSignals(s.output, s.transientPart);
         
         if (APPLY_VOCAL_TRACT_NORMALIZATION_POST_PROCESSOR)
         {
             double[][] mappedTgtLpcs = hntmSignalMod.getLpcsAll();
-            s.output = SignalProcUtils.normalizeVocalTract(s.output, hntmSignalMod.getAnalysisTimes(), mappedTgtLpcs, HntmAnalyzer.NOISE_ANALYSIS_WINDOW_TYPE, HntmAnalyzer.NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, mappedTgtLpcs[0].length, hntmSignalMod.samplingRateInHz, HntmAnalyzer.PREEMPHASIS_COEF_NOISE);
+            s.output = SignalProcUtils.normalizeVocalTract(s.output, hntmSignalMod.getAnalysisTimes(), mappedTgtLpcs, HntmAnalyzer.NOISE_ANALYSIS_WINDOW_TYPE, HntmAnalyzer.NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, mappedTgtLpcs[0].length, hntmSignalMod.samplingRateInHz, HntmSynthesizer.PREEMPHASIS_COEF_NOISE);
         }
         
         return s;
@@ -203,10 +211,19 @@ public class HntmSynthesizer {
         pScalesArray[7][0] = 0.6f; tScalesArray[7][0] = 1.0f;
         
         /*
+        float[][] pScalesArray = new float[3][1];
+        float[][] tScalesArray = new float[3][1];
+        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
+        pScalesArray[1][0] = 1.6f; tScalesArray[1][0] = 1.0f;
+        pScalesArray[2][0] = 1.0f; tScalesArray[2][0] = 1.6f;
+        */
+        
+        /*
         float[][] pScalesArray = new float[1][1];
         float[][] tScalesArray = new float[1][1];
-        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 2.3f;
+        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
         */
+        
         
         //float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f, 2.5f};
         float[] tScalesTimes = null;
@@ -234,10 +251,10 @@ public class HntmSynthesizer {
         int harmonicPartSynthesisMethod = HntmSynthesizer.LINEAR_PHASE_INTERPOLATION;
         //int harmonicPartSynthesisMethod = HntmSynthesizer.QUADRATIC_PHASE_INTERPOLATION;
         
-        //int noisePartRepresentation = HntmAnalyzer.LPC;
+        int noisePartRepresentation = HntmAnalyzer.LPC;
         //int noisePartRepresentation = HntmAnalyzer.REGULARIZED_CEPS;
         //int noisePartRepresentation = HntmAnalyzer.PSEUDO_HARMONIC;
-        int noisePartRepresentation = HntmAnalyzer.HIGHPASS_WAVEFORM;
+        //int noisePartRepresentation = HntmAnalyzer.HIGHPASS_WAVEFORM;
         
         PitchReaderWriter f0 = null;
         String strPitchFile = StringUtils.modifyExtension(wavFile, ".ptc");
@@ -314,7 +331,7 @@ public class HntmSynthesizer {
                 outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + strExt + ".wav";
                 FileUtils.writeWavFile(MathUtils.divide(xhat.output,32768.0), outFileName, inputAudio.getFormat());
 
-                if (xhat.harmonicPart!=null)
+                if (xhat.harmonicPart!=null && WRITE_HARMONIC_PART_TO_SEPARATE_FILE)
                 {
                     outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + "Harmonic" + strExt + ".wav";
                     if (IS_NORMALIZE_HARMONIC_PART_OUTPUT_WAV)
@@ -323,22 +340,22 @@ public class HntmSynthesizer {
                     FileUtils.writeWavFile(MathUtils.divide(xhat.harmonicPart, 32768.0), outFileName, inputAudio.getFormat());
                 }
 
-                if (xhat.noisePart!=null)
+                if (xhat.noisePart!=null && WRITE_NOISE_PART_TO_SEPARATE_FILE)
                 {
                     outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + "Noise" + strExt + ".wav";
                     FileUtils.writeWavFile(MathUtils.divide(xhat.noisePart, 32768.0), outFileName, inputAudio.getFormat());
                 }
 
-                if (xhat.transientPart!=null)
+                if (xhat.transientPart!=null && WRITE_TRANSIENT_PART_TO_SEPARATE_FILE)
                 {
                     outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + "Transient" + strExt + ".wav";
                     FileUtils.writeWavFile(MathUtils.divide(xhat.transientPart, 32768.0), outFileName, inputAudio.getFormat());
                 }
 
-                if (xhat.harmonicPart!=null)
+                if (xhat.harmonicPart!=null && WRITE_ORIGINAL_MINUS_HARMONIC_PART_TO_SEPARATE_FILE)
                 {
                     outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + "OrigMinusHarmonic" + strExt + ".wav";
-                    //FileUtils.writeWavFile(MathUtils.divide(SignalProcUtils.addSignals(x, 1.0, xhat.harmonicPart, -1.0), 32768.0), outFileName, inputAudio.getFormat());
+                    FileUtils.writeWavFile(MathUtils.divide(SignalProcUtils.addSignals(x, 1.0, xhat.harmonicPart, -1.0), 32768.0), outFileName, inputAudio.getFormat());
                 }
 
                 //MaryUtils.plot(xhat.harmonicPart);

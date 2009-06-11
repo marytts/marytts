@@ -641,6 +641,11 @@ public class FileUtils {
             System.out.println("Error! Cannot create file: " + textFile);
     }
     
+    public static void toTextFile(float[] x, String filename)
+    {
+        writeTextFile(StringUtils.toStringLines(x), filename);
+    }
+    
     public static void toTextFile(double[] x, String filename)
     {
         writeTextFile(StringUtils.toStringLines(x), filename);

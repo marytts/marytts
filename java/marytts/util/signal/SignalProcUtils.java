@@ -742,7 +742,7 @@ public class SignalProcUtils {
         if (freqInHz>=605.0)
             return 13.0*Math.atan(0.00076*freqInHz); //5.60265754
         else
-            return 8.7+14.2*Math.log10((freqInHz+1e-20)/1000.0); //5.60092632
+            return 8.7+14.2*Math.log10(freqInHz/1000.0); //5.60092632
     }
     
     public static double barkNew2freq(double barkNew)
