@@ -220,10 +220,11 @@ public class NoisePartLpcSynthesizer {
                     
                     if (isNoised)
                     {
+                        winNoise.apply(x, 0);
                         //y = SignalProcUtils.arFilter(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, ((FrameNoisePartLpc)hnmSignal.frames[i].n).gain);
                         y = SignalProcUtils.arFilter(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, 1.0);
  
-                        if (HntmAnalyzer.HIGHPASS_FILTER_PRIOR_TO_NOISE_ANALYSIS)
+                        if (HntmSynthesizer.HIGHPASS_FILTER_AFTER_NOISE_SYNTHESIS)
                             y = SignalProcUtils.fdFilter(y, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5f*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz, fftSizeNoise);
  
                         MathUtils.adjustStandardDeviation(y, hnmSignal.frames[i].origStd);
@@ -231,8 +232,8 @@ public class NoisePartLpcSynthesizer {
                         //Overlap-add
                         for (n=startIndex; n<Math.min(startIndex+wsNoise, noisePart.length); n++)
                         {
-                            noisePart[n] += y[n-startIndex]*wgt[n-startIndex]; 
-                            winWgtSum[n] += wgt[n-startIndex]*wgt[n-startIndex];
+                            noisePart[n] += y[n-startIndex]*wgt[n-startIndex]*wgt[n-startIndex]; 
+                            winWgtSum[n] += wgt[n-startIndex]*wgt[n-startIndex]*wgt[n-startIndex];
                         }
                     }
                 }

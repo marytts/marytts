@@ -100,13 +100,14 @@ public class HntmAnalyzer {
     public static final int PSEUDO_HARMONIC = 3; //Noise part model based on pseude harmonics for f0=NOISE_F0_IN_HZ
     public static final int HIGHPASS_WAVEFORM = 4; //Noise part model based on frame waveform (i.e. no model, overlap-add noise part generation)
 
-    public static final boolean USE_AMPLITUDES_DIRECTLY = true; //Use amplitudes directly
-    public static final double REGULARIZED_CEPSTRUM_ESTIMATION_LAMBDA = 1e-6; //Reducing this may increase harmonic amplitude estimation accuracy    
+    public static final boolean USE_AMPLITUDES_DIRECTLY = true; //Use amplitudes directly, the following are only effective if this is false
+    public static final double REGULARIZED_CEPSTRUM_ESTIMATION_LAMBDA = 1.0e-6; //Reducing this may increase harmonic amplitude estimation accuracy    
     public static final boolean USE_WEIGHTING_IN_REGULARIZED_CEPSTRUM_ESTIMATION = true;
+    public static final int HARMONIC_PART_CEPSTRUM_ORDER = 20; //Cepstrum order to represent harmonic amplitudes
     
-    public static final double NOISE_F0_IN_HZ = 200.0; //Pseudo-pitch for unvoiced portions (will be used for pseudo harmonic modelling of the noise part)
-    public static float HPF_TRANSITION_BANDWIDTH_IN_HZ = 100.0f;
-    public static float NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS = 0.050f; //Fixed window size for noise analysis, should be generally large (>=0.040 seconds)
+    public static final double NOISE_F0_IN_HZ = 100.0; //Pseudo-pitch for unvoiced portions (will be used for pseudo harmonic modelling of the noise part)
+    public static float HPF_TRANSITION_BANDWIDTH_IN_HZ = 0.0f;
+    public static float NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS = 0.060f; //Fixed window size for noise analysis, should be generally large (>=0.040 seconds)
     public static float OVERLAP_BETWEEN_HARMONIC_AND_NOISE_REGIONS_IN_HZ = 0.0f;
     public static float OVERLAP_BETWEEN_TRANSIENT_AND_NONTRANSIENT_REGIONS_IN_SECONDS = 0.005f;
 
@@ -133,9 +134,6 @@ public class HntmAnalyzer {
     public static float MVF_ANALYSIS_WINDOW_SIZE_IN_SECONDS = 0.040f;
     public static float MVF_ANALYSIS_SKIP_SIZE_IN_SECONDS = 0.010f;
 
-    public static float PREEMPHASIS_COEF_NOISE = 0.0f;
-    public static boolean HIGHPASS_FILTER_PRIOR_TO_NOISE_ANALYSIS = false; //False means the noise part will be full-band
-
     ////The following parameters are used by HnmPitchVoicingAnalyzer
     //They are included here so that all fixed analysis parameters are in the same class within the code
     public static double CUMULATIVE_AMP_THRESHOLD = 2.0; //Decreased ==> Voicing increases (Orig: 2.0)
@@ -145,8 +143,8 @@ public class HntmAnalyzer {
     public static int MINIMUM_TOTAL_HARMONICS = 0; //Minimum number of total harmonics to be included in voiced region (effective only when f0>10.0)
     public static int MAXIMUM_TOTAL_HARMONICS = 100; //Maximum number of total harmonics to be included in voiced region (effective only when f0>10.0)
     public static float MINIMUM_VOICED_FREQUENCY_OF_VOICING = 0.0f; //All voiced sections will have at least this freq. of voicing
-    public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 6000.0f; //All voiced sections will have at least this freq. of voicing
-    public static float MAXIMUM_FREQUENCY_OF_VOICING_FINAL_SHIFT = 0.0f; //The max freq. of voicing contour is shifted by this amount finally
+    public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 5000.0f; //All voiced sections will have at least this freq. of voicing
+    public static float MAXIMUM_FREQUENCY_OF_VOICING_FINAL_SHIFT = 1500.0f; //The max freq. of voicing contour is shifted by this amount finally
     public static float RUNNING_MEAN_VOICING_THRESHOLD = 0.5f; //Between 0.0 and 1.0, decrease ==> Max. voicing freq increases
 
     public static final int LAST_CORRELATED_HARMONIC_NEIGHBOUR = -1; //Assume correlation between at most among this many harmonics (-1 ==> full correlation approach) 
@@ -202,8 +200,8 @@ public class HntmAnalyzer {
         int i, j, k;
 
         double[] xPreemphasized = null;
-        if (PREEMPHASIS_COEF_NOISE>0.0)
-            xPreemphasized = SignalProcUtils.applyPreemphasis(x, PREEMPHASIS_COEF_NOISE);
+        if (HntmSynthesizer.PREEMPHASIS_COEF_NOISE>0.0)
+            xPreemphasized = SignalProcUtils.applyPreemphasis(x, HntmSynthesizer.PREEMPHASIS_COEF_NOISE);
         else
             xPreemphasized = ArrayUtils.copy(x);
 
@@ -232,6 +230,8 @@ public class HntmAnalyzer {
             //float[] f0s = HnmPitchVoicingAnalyzer.estimateRefinedPitch(fftSize, fs, leftNeighInHz, rightNeighInHz, searchStepInHz, initialF0s, maxFrequencyOfVoicings);
             ////
 
+            FileUtils.toTextFile(f0s, "d:\\f0s.txt");
+            FileUtils.toTextFile(maxFrequencyOfVoicings, "d:\\mwf.txt");
 
             //Step3. Determine analysis time instants based on refined pitch values.
             //       (Pitch synchronous if voiced, 10 ms skip if unvoiced)
@@ -273,9 +273,9 @@ public class HntmAnalyzer {
             String[] transientPhonemesList = {"p", "t", "k", "pf", "ts", "tS"};
 
             if (model == HntmAnalyzer.HARMONICS_PLUS_NOISE)
-                hnmSignal = new HntmSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.ws, (float)f0.header.ss, NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, PREEMPHASIS_COEF_NOISE);
+                hnmSignal = new HntmSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.ws, (float)f0.header.ss, NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, HntmSynthesizer.PREEMPHASIS_COEF_NOISE);
             else if (model == HntmAnalyzer.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE && labels!=null)
-                hnmSignal = new HntmPlusTransientsSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.ws, (float)f0.header.ss, NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, PREEMPHASIS_COEF_NOISE, labels.items.length);
+                hnmSignal = new HntmPlusTransientsSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.ws, (float)f0.header.ss, NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS, HntmSynthesizer.PREEMPHASIS_COEF_NOISE, labels.items.length);
 
             boolean isPrevVoiced = false;
 
@@ -288,8 +288,6 @@ public class HntmAnalyzer {
             double[] dPhases;
             double[] dPhasesPrev = null;
             int MValue;
-
-            int cepsOrderHarmonic = 16;
 
             int maxVoicingIndex;
             int currentLabInd = 0;
@@ -577,7 +575,7 @@ public class HntmAnalyzer {
                                     harmonicWeights = g.getCoeffsRightHalf();
                                 }
                                     
-                                hnmSignal.frames[i].h.ceps = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, fs, cepsOrderHarmonic, harmonicWeights, REGULARIZED_CEPSTRUM_ESTIMATION_LAMBDA);
+                                hnmSignal.frames[i].h.ceps = RegularizedCepstralEnvelopeEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, fs, HARMONIC_PART_CEPSTRUM_ORDER, harmonicWeights, REGULARIZED_CEPSTRUM_ESTIMATION_LAMBDA);
                             }
                             else
                                 hnmSignal.frames[i].h.ceps = ArrayUtils.subarray(linearAmps, 0, linearAmps.length); //Use amplitudes directly
@@ -685,24 +683,6 @@ public class HntmAnalyzer {
         double[] xHarmTransResynth = SignalProcUtils.addSignals(s.harmonicPart, s.transientPart);
         double[] xDiff = SignalProcUtils.addSignals(originalSignal, 1.0, xHarmTransResynth, -1.0);
         
-        AudioInputStream inputAudio = null;
-        try {
-            inputAudio = AudioSystem.getAudioInputStream(new File("d:\\i.wav"));
-        } catch (UnsupportedAudioFileException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        try {
-            FileUtils.writeWavFile(MathUtils.divide(xDiff, 32768.0), "d:\\diff.wav", inputAudio.getFormat());
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        //
-        
         float originalDurationInSeconds = SignalProcUtils.sample2time(xDiff.length, fs);
         int lpOrder = SignalProcUtils.getLPOrder(fs);
 
@@ -717,8 +697,8 @@ public class HntmAnalyzer {
         int i, j, k;
 
         double[] xPreemphasized = null;
-        if (PREEMPHASIS_COEF_NOISE>0.0)
-            xPreemphasized = SignalProcUtils.applyPreemphasis(xDiff, PREEMPHASIS_COEF_NOISE);
+        if (HntmSynthesizer.PREEMPHASIS_COEF_NOISE>0.0)
+            xPreemphasized = SignalProcUtils.applyPreemphasis(xDiff, HntmSynthesizer.PREEMPHASIS_COEF_NOISE);
         else
             xPreemphasized = ArrayUtils.copy(xDiff);
 
@@ -847,7 +827,7 @@ public class HntmAnalyzer {
                         if (hnmSignal.frames[i].maximumFrequencyOfVoicingInHz-OVERLAP_BETWEEN_HARMONIC_AND_NOISE_REGIONS_IN_HZ>0.0f)
                             y = SignalProcUtils.fdFilter(frmNoise, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz-OVERLAP_BETWEEN_HARMONIC_AND_NOISE_REGIONS_IN_HZ, 0.5f*fs, fs, fftSizeNoise);
 
-                        if (HIGHPASS_FILTER_PRIOR_TO_NOISE_ANALYSIS && y!=null)
+                        if (HntmSynthesizer.HIGHPASS_FILTER_BEFORE_NOISE_ANALYSIS && y!=null)
                             frmNoise = ArrayUtils.copy(y); //Use fdfo only for computing energy ratio between noise and speech (if we get this working, we can remove filtering from above and include only gain ratio computation)          
                         
                         hnmSignal.frames[i].origStd = (float)MathUtils.standardDeviation(frmNoise);
