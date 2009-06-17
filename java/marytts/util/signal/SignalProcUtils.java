@@ -742,7 +742,7 @@ public class SignalProcUtils {
         if (freqInHz>=605.0)
             return 13.0*Math.atan(0.00076*freqInHz); //5.60265754
         else
-            return 8.7+14.2*Math.log10(freqInHz/1000.0); //5.60092632
+            return 8.7+14.2*Math.log10(1e-20+freqInHz/1000.0); //5.60092632
     }
     
     public static double barkNew2freq(double barkNew)
@@ -1103,12 +1103,12 @@ public class SignalProcUtils {
     }
     
     
-    public static float radian2Hz(float rad, int samplingRate)
+    public static float radian2hz(float rad, int samplingRate)
     {
         return (float)((rad/MathUtils.TWOPI)*samplingRate);
     }
     
-    public static double radian2Hz(double rad, int samplingRate)
+    public static double radian2hz(double rad, int samplingRate)
     {
         return (rad/MathUtils.TWOPI)*samplingRate;
     }
@@ -2987,6 +2987,31 @@ public class SignalProcUtils {
         }
         
         return numfrm;
+    }
+    
+    public static double melNonMultiplied(double freqInRadian, int samplingRateInHz)
+    {
+        return Math.log(1.0+freqInRadian*samplingRateInHz/(MathUtils.TWOPI*700));
+    }
+    
+    public static double radian2mel(double freqInRadian, int samplingRateInHz)
+    {
+        return Math.PI*melNonMultiplied(freqInRadian, samplingRateInHz)/melNonMultiplied(Math.PI, samplingRateInHz);
+    }
+    
+    public static double hz2mel(double freqInHz, int samplingRateInHz)
+    {
+        return radian2mel(SignalProcUtils.hz2radian(freqInHz, samplingRateInHz), samplingRateInHz);
+    }
+
+    public static double mel2radian(double mel, int samplingRateInHz)
+    {
+        return MathUtils.TWOPI*700.0/samplingRateInHz*(-1.0+Math.exp(mel*melNonMultiplied(Math.PI, samplingRateInHz)/Math.PI));
+    }
+    
+    public static double mel2hz(double mel, int samplingRateInHz)
+    {
+        return SignalProcUtils.radian2hz(mel2radian(mel, samplingRateInHz), samplingRateInHz);
     }
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException

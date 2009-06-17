@@ -192,7 +192,7 @@ public class TrackModifier {
             n0ModPrev = 0;
             
             trackMeanFreqInRadians = MathUtils.mean(trIn.tracks[i].freqs);
-            trackMeanFreqInHz = SignalProcUtils.radian2Hz(trackMeanFreqInRadians, trIn.fs);
+            trackMeanFreqInHz = SignalProcUtils.radian2hz(trackMeanFreqInRadians, trIn.fs);
 
             for (j=0; j<trIn.tracks[i].totalSins; j++)
             {   
@@ -208,12 +208,12 @@ public class TrackModifier {
                     closestInd = MathUtils.findClosest(pitchMarks, middleAnalysisSample);
 
                     sysTimeInd = MathUtils.findClosest(trIn.times, trIn.tracks[i].times[j]);
-                    freqInHz = SignalProcUtils.radian2Hz(trIn.tracks[i].freqs[j], trIn.fs);
+                    freqInHz = SignalProcUtils.radian2hz(trIn.tracks[i].freqs[j], trIn.fs);
                     
                     int pScaleInd = MathUtils.findClosest(pScalesTimes, trIn.tracks[i].times[j]);
                     pScaleCurrent = pScales[pScaleInd];
                     
-                    maxFreqOfVoicingInHz = SignalProcUtils.radian2Hz(trIn.tracks[i].maxFreqOfVoicings[j], trIn.fs); //Max freq. of voicing from hnm analysis  
+                    maxFreqOfVoicingInHz = SignalProcUtils.radian2hz(trIn.tracks[i].maxFreqOfVoicings[j], trIn.fs); //Max freq. of voicing from hnm analysis  
                     //maxFreqOfVoicingInHz = 3600.0f; //Manual
                     float newGain = 1.0f;
                     if (pScaleCurrent>1.0f)
@@ -308,7 +308,7 @@ public class TrackModifier {
                     //excAmpMod = 1.0f; //This should hold whenever an envelope that passes from spectral peaks is used, i.e. SEEVOC
                     
                     freqMod = (float)(freq+(pScaleCurrent-1.0)*trackMeanFreqInRadians);
-                    if (freqMod>0.5*MathUtils.TWOPI)
+                    if (freqMod>Math.PI)
                         excAmpMod=0.0f;
                     while (freqMod>MathUtils.TWOPI)
                         freqMod -= MathUtils.TWOPI;

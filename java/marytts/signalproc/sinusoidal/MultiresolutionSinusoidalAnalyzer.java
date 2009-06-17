@@ -218,7 +218,7 @@ public class MultiresolutionSinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         {
             for (j=0; j<sinTracks.tracks[i].totalSins; j++)
             { 
-                k = SignalProcUtils.freq2index(SignalProcUtils.radian2Hz(sinTracks.tracks[i].freqs[j], sinTracks.fs), samplingRateIn, maxFreq);
+                k = SignalProcUtils.freq2index(SignalProcUtils.radian2hz(sinTracks.tracks[i].freqs[j], sinTracks.fs), samplingRateIn, maxFreq);
                 sinTracks.tracks[i].amps[j] *= normalizationFilterTransformedIR[k];
             }
         }

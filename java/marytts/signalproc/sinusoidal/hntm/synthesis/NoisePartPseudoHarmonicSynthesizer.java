@@ -38,15 +38,19 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.analysis.RegularizedCepstralEnvelopeEstimator;
+import marytts.signalproc.analysis.RegularizedCepstrumEstimator;
+import marytts.signalproc.analysis.RegularizedPostWarpedCepstrumEstimator;
+import marytts.signalproc.analysis.RegularizedPreWarpedCepstrumEstimator;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartPseudoHarmonic;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
+import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
+import marytts.util.string.StringUtils;
 
 /**
  * @author oytun.turk
@@ -55,7 +59,7 @@ import marytts.util.signal.SignalProcUtils;
 public class NoisePartPseudoHarmonicSynthesizer {
 
     //Pseudo harmonics based noise generation for pseudo periods
-    public static double[] synthesize(HntmSpeechSignal hnmSignal, float[] pScales, float[] pScalesTimes)
+    public static double[] synthesize(HntmSpeechSignal hnmSignal, int regularizedCepstrumWarpingMethod, String referenceFile)
     {
         double[] noisePart = null;
         int trackNoToExamine = 1;
@@ -77,7 +81,7 @@ public class NoisePartPseudoHarmonicSynthesizer {
         {
             if (hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0f && hnmSignal.frames[i].n!=null)
             {
-                numHarmonicsCurrentFrame = (int)Math.floor((hnmSignal.samplingRateInHz-hnmSignal.frames[i].maximumFrequencyOfVoicingInHz)/HntmAnalyzer.NOISE_F0_IN_HZ+0.5);
+                numHarmonicsCurrentFrame = (int)Math.floor(hnmSignal.samplingRateInHz/HntmAnalyzer.NOISE_F0_IN_HZ+0.5);
                 numHarmonicsCurrentFrame = Math.max(0, numHarmonicsCurrentFrame);
                 if (numHarmonicsCurrentFrame>maxNumHarmonics)
                     maxNumHarmonics = numHarmonicsCurrentFrame;
@@ -222,21 +226,47 @@ public class NoisePartPseudoHarmonicSynthesizer {
                     //Amplitudes     
                     if (isTrackNoised)
                     {
-                        aksi = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, (k+harmonicIndexShiftCurrent)*HntmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);
-                        //aksi = ((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps[k]; //Use amplitudes directly without cepstrum method
+                        if (!HntmAnalyzer.USE_NOISE_AMPLITUDES_DIRECTLY)
+                        {
+                            if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
+                                aksi = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, (k+harmonicIndexShiftCurrent)*HntmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);
+                            else  if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)                           
+                                aksi = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, (k+harmonicIndexShiftCurrent)*HntmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);
+                        }
+                        else
+                        {
+                            if (k<((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps.length)
+                                aksi = ((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps[k]; //Use amplitudes directly without cepstrum method
+                            else
+                                aksi = 0.0;
+                        }
                     }
+                    else
+                        aksi = 0.0;
                     
                     if (isNextTrackNoised)
                     {
-                        aksiPlusOne = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps , (k+harmonicIndexShiftNext)*HntmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);
-                        //aksiPlusOne = ((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps[k]; //Use amplitudes directly without cepstrum method
+                        if (!HntmAnalyzer.USE_NOISE_AMPLITUDES_DIRECTLY)
+                        {
+                            if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
+                                aksiPlusOne = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps , (k+harmonicIndexShiftNext)*HntmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);   
+                            else if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
+                                aksiPlusOne = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps , (k+harmonicIndexShiftNext)*HntmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);   
+                        }
+                        else
+                        {
+                            if (k<((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps.length)
+                                aksiPlusOne = ((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps[k]; //Use amplitudes directly without cepstrum method
+                            else
+                                aksiPlusOne = 0.0;
+                        }
                     }
+                    else
+                        aksiPlusOne = 0.0;
                     //
 
                     //Phases
-                    if (!isPrevTrackNoised && isTrackNoised)
-                        phasekis[k] = (float) (MathUtils.TWOPI*(Math.random()-0.5));
-                    
+                    phasekis[k] = (float) (MathUtils.TWOPI*(Math.random()-0.5));
                     phasekiPlusOne = (float)( phasekis[k] + (k+harmonicIndexShiftCurrent)*MathUtils.TWOPI*HntmAnalyzer.NOISE_F0_IN_HZ*(tsikPlusOne-tsik)); //Equation (3.55)
                     //
                     
@@ -276,35 +306,49 @@ public class NoisePartPseudoHarmonicSynthesizer {
         }
         
         //Write separate tracks to output
-        AudioInputStream inputAudio = null;
-        try {
-            inputAudio = AudioSystem.getAudioInputStream(new File("d:\\i.wav"));
-        } catch (UnsupportedAudioFileException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        if (inputAudio!=null)
+        if (noiseTracks!=null)
         {
-            //k=1;
             for (k=0; k<noiseTracks.length; k++)
             {
-                noiseTracks[k] = MathUtils.divide(noiseTracks[k], 32768.0);
+                for (n=0; n<noisePart.length; n++)
+                    noisePart[n] += noiseTracks[k][n];
+            }
 
-                DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(noiseTracks[k]), inputAudio.getFormat());
-                String outFileName = "d:\\harmonicTrack" + String.valueOf(k+1) + ".wav";
+   
+            if (referenceFile!=null && FileUtils.exists(referenceFile) && HntmSynthesizer.WRITE_SEPARATE_TRACKS_TO_OUTPUT)
+            {
+                //Write separate tracks to output
+                AudioInputStream inputAudio = null;
                 try {
-                    AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+                    inputAudio = AudioSystem.getAudioInputStream(new File(referenceFile));
+                } catch (UnsupportedAudioFileException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
+
+                if (inputAudio!=null)
+                {
+                    //k=1;
+                    for (k=0; k<noiseTracks.length; k++)
+                    {
+                        noiseTracks[k] = MathUtils.divide(noiseTracks[k], 32767.0);
+
+                        DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(noiseTracks[k]), inputAudio.getFormat());
+                        String outFileName = StringUtils.getFolderName(referenceFile) + "noiseTrack" + String.valueOf(k+1) + ".wav";
+                        try {
+                            AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
+            //
         }
-        //
 
         return noisePart;
     }

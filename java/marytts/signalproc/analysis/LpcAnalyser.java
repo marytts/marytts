@@ -38,6 +38,7 @@ import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexArray;
+import marytts.util.math.ComplexNumber;
 import marytts.util.math.FFT;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
@@ -180,7 +181,7 @@ public class LpcAnalyser extends FrameBasedAnalyser
             return calcSpecLinear(c.getA(), c.getGain(), fftSize, expTerm);
     }
     
-    public static double [] calcSpecLinearFromOneMinusA(double[] oneMinusA,  float gain, int fftSize, ComplexArray expTerm)
+    public static double[] calcSpecLinearFromOneMinusA(double[] oneMinusA,  float gain, int fftSize, ComplexArray expTerm)
     {  
         double[] alpha = new double[oneMinusA.length-1];
         for (int i=1; i<oneMinusA.length; i++)
@@ -194,7 +195,7 @@ public class LpcAnalyser extends FrameBasedAnalyser
         return calcSpecLinear(alpha, 1.0f, fftSize, null);
     }
     
-    public static double [] calcSpec(double [] alpha, int fftSize, ComplexArray expTerm)
+    public static double [] calcSpec(double[] alpha, int fftSize, ComplexArray expTerm)
     {  
         return calcSpecLinear(alpha, 1.0f, fftSize, expTerm);
     }
@@ -206,7 +207,7 @@ public class LpcAnalyser extends FrameBasedAnalyser
     }
     
     //Computes LP smoothed spectrum from LP coefficients
-    public static double [] calcSpecLinear(double[] alpha, double sqrtGain, int fftSize, ComplexArray expTerm)
+    public static double[] calcSpecLinear(double[] alpha, double sqrtGain, int fftSize, ComplexArray expTerm)
     {
         int p = alpha.length;
         int maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
@@ -235,6 +236,22 @@ public class LpcAnalyser extends FrameBasedAnalyser
         return vtSpectrum;
     }
   
+    public static double calcSpecValLinear(double[] alpha, double sqrtGain, double freqInHz, int samplingRateInHz)
+    {
+        ComplexNumber denum = new ComplexNumber(1.0, 0.0);
+        double w;
+        
+        for (int k=1; k<=alpha.length; k++)
+        {
+            w = SignalProcUtils.hz2radian(freqInHz, samplingRateInHz);
+            denum = MathUtils.subtractComplex(denum, alpha[k-1]*Math.cos(w*k), -1.0*alpha[k-1]*Math.sin(w*k));
+        }
+        
+        double specValLinear = sqrtGain/MathUtils.magnitudeComplex(denum);
+        
+        return specValLinear;
+    }
+    
     public static ComplexArray calcExpTerm(int fftSize, int p)
     {
         int maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);

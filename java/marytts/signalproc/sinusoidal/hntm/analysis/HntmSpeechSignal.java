@@ -138,10 +138,10 @@ public class HntmSpeechSignal {
         
         if (frames!=null && frames.length>0)
         {
-            int lpOrder = frames[0].lpcs.length;
+            int lpOrder = frames[0].lpCoeffs.length;
             lpcsAll = new double[frames.length][];
             for (int i=0; i<frames.length; i++)
-                lpcsAll[i] = ArrayUtils.copy(frames[i].lpcs);
+                lpcsAll[i] = ArrayUtils.copy(frames[i].lpCoeffs);
         }
         
         return lpcsAll;

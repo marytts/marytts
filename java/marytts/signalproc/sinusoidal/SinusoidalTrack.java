@@ -100,18 +100,18 @@ public class SinusoidalTrack {
             avgPhaseInDegrees /= totalSins;
             
             if (isFreqRadian)
-                avgFreqInHz = SignalProcUtils.radian2Hz(avgFreqInHz, fs);
+                avgFreqInHz = SignalProcUtils.radian2hz(avgFreqInHz, fs);
             
             if (isPhaseRadian)
                 avgPhaseInDegrees = MathUtils.radian2degrees(avgPhaseInDegrees);
             
             minFreqInHz = MathUtils.getMin(freqs);
             if (isFreqRadian)
-                minFreqInHz = SignalProcUtils.radian2Hz(minFreqInHz, fs);
+                minFreqInHz = SignalProcUtils.radian2hz(minFreqInHz, fs);
             
             maxFreqInHz = MathUtils.getMax(freqs);
             if (isFreqRadian)
-                maxFreqInHz = SignalProcUtils.radian2Hz(maxFreqInHz, fs);
+                maxFreqInHz = SignalProcUtils.radian2hz(maxFreqInHz, fs);
             
             minAmpLinear = MathUtils.getMin(amps);
             maxAmpLinear = MathUtils.getMax(amps);
