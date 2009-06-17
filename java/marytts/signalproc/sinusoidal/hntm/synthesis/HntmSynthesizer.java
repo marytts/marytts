@@ -202,7 +202,6 @@ public class HntmSynthesizer {
         float[] pScalesTimes = null;
         */
         
-        /*
         float[][] pScalesArray = new float[8][1];
         float[][] tScalesArray = new float[8][1];
         pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
@@ -213,7 +212,6 @@ public class HntmSynthesizer {
         pScalesArray[5][0] = 1.0f; tScalesArray[5][0] = 2.3f;
         pScalesArray[6][0] = 2.3f; tScalesArray[6][0] = 1.0f;
         pScalesArray[7][0] = 0.6f; tScalesArray[7][0] = 1.0f;
-        */
         
         /*
         float[][] pScalesArray = new float[3][1];
@@ -222,10 +220,12 @@ public class HntmSynthesizer {
         pScalesArray[1][0] = 1.6f; tScalesArray[1][0] = 1.0f;
         pScalesArray[2][0] = 1.0f; tScalesArray[2][0] = 1.6f;
         */
-        
+
+        /*
         float[][] pScalesArray = new float[1][1];
         float[][] tScalesArray = new float[1][1];
         pScalesArray[0][0] = 4.6f; tScalesArray[0][0] = 1.0f;
+        */
         
         //float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f, 2.5f};
         float[] tScalesTimes = null;
@@ -257,8 +257,8 @@ public class HntmSynthesizer {
         //int noisePartRepresentation = HntmAnalyzer.PSEUDO_HARMONIC;
         //int noisePartRepresentation = HntmAnalyzer.HIGHPASS_WAVEFORM;
         
-        int regularizedCepstrumWarpingMethod = RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING;
-        //int regularizedCepstrumWarpingMethod = RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING;
+        //int regularizedCepstrumWarpingMethod = RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING;
+        int regularizedCepstrumWarpingMethod = RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING;
         
         PitchReaderWriter f0 = null;
         String strPitchFile = StringUtils.modifyExtension(wavFile, ".ptc");

@@ -106,7 +106,7 @@ public class HntmAnalyzer {
     public static final boolean USE_WEIGHTING_IN_REGULARIZED_CEPSTRUM_ESTIMATION_HARMONIC = false;
     public static final int HARMONIC_PART_CEPSTRUM_ORDER_PRE_BARK = 24;  //Cepstrum order to represent harmonic amplitudes
 
-    public static final int HARMONIC_PART_CEPSTRUM_ORDER_PRE_MEL = 40; //Pre-cepstrum order to compute linear cepstral coefficients
+    public static final int HARMONIC_PART_CEPSTRUM_ORDER_PRE_MEL = 64; //Pre-cepstrum order to compute linear cepstral coefficients
                                                                    //0 means auto computation from number of harmonics (See RegularizedPostWarpedCepstrumEstimator.getAutoCepsOrderPre()).
     public static final int HARMONIC_PART_CEPSTRUM_ORDER_POST_MEL = 24;  //Cepstrum order to represent harmonic amplitudes
     
