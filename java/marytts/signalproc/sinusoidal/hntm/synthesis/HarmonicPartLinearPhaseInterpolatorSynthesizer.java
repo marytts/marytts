@@ -135,8 +135,7 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
         double[] halfTransitionWinRight = transitionWin.getCoeffsRightHalf();
         
         int currentHarmonicNo;
-        double lpSpecVal;
-        
+
         for (i=0; i<hnmSignal.frames.length; i++)
         {
             isPrevVoiced = false;
@@ -230,12 +229,6 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                             if (k<hnmSignal.frames[i].h.ceps.length)
                                 aksi = hnmSignal.frames[i].h.ceps[k]; //Use amplitudes directly without cepstrum method
                         }
-                        
-                        if (HntmAnalyzer.DIVIDE_HARMONIC_AMPLITUDES_WITH_LP_ENVELOPE)
-                        {
-                            lpSpecVal = LpcAnalyser.calcSpecValLinear(hnmSignal.frames[i].lpCoeffs, hnmSignal.frames[i].lpGain, currentHarmonicNo*hnmSignal.frames[i].f0InHz, hnmSignal.samplingRateInHz);
-                            aksi *= lpSpecVal;
-                        }
                     }
                     else
                         aksi = 0.0;
@@ -253,12 +246,6 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                         {
                             if (k<hnmSignal.frames[i+1].h.ceps.length)
                                 aksiPlusOne = hnmSignal.frames[i+1].h.ceps[k]; //Use amplitudes directly without cepstrum method
-                        }
-                        
-                        if (HntmAnalyzer.DIVIDE_HARMONIC_AMPLITUDES_WITH_LP_ENVELOPE)
-                        {
-                            lpSpecVal = LpcAnalyser.calcSpecValLinear(hnmSignal.frames[i].lpCoeffs, hnmSignal.frames[i].lpGain, currentHarmonicNo*hnmSignal.frames[i].f0InHz, hnmSignal.samplingRateInHz);
-                            aksi *= lpSpecVal;
                         }
                     }
                     else

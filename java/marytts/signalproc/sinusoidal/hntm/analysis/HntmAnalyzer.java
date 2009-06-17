@@ -102,19 +102,21 @@ public class HntmAnalyzer {
     public static final int HIGHPASS_WAVEFORM = 3; //Noise part model based on frame waveform (i.e. no model, overlap-add noise part generation)
 
     public static final boolean USE_HARMONIC_AMPLITUDES_DIRECTLY = false; //Use amplitudes directly, the following are only effective if this is false
-    public static final boolean DIVIDE_HARMONIC_AMPLITUDES_WITH_LP_ENVELOPE = false; //If true, actual amplitude = LP envelope value at a given harmonic frequency + harmonic amplitude
-    public static final double REGULARIZED_CEPSTRUM_ESTIMATION_LAMBDA_HARMONIC = 1e-5; //Reducing this may increase harmonic amplitude estimation accuracy    
+    public static final double REGULARIZED_CEPSTRUM_ESTIMATION_LAMBDA_HARMONIC = 1.0e-3; //Reducing this may increase harmonic amplitude estimation accuracy    
     public static final boolean USE_WEIGHTING_IN_REGULARIZED_CEPSTRUM_ESTIMATION_HARMONIC = false;
-    public static final int HARMONIC_PART_CEPSTRUM_ORDER_PRE = 40; //Pre-cepstrum order to compute linear cepstral coefficients
+    public static final int HARMONIC_PART_CEPSTRUM_ORDER_PRE_BARK = 24;  //Cepstrum order to represent harmonic amplitudes
+
+    public static final int HARMONIC_PART_CEPSTRUM_ORDER_PRE_MEL = 40; //Pre-cepstrum order to compute linear cepstral coefficients
                                                                    //0 means auto computation from number of harmonics (See RegularizedPostWarpedCepstrumEstimator.getAutoCepsOrderPre()).
-    public static final int HARMONIC_PART_CEPSTRUM_ORDER = 16;  //Cepstrum order to represent harmonic amplitudes
+    public static final int HARMONIC_PART_CEPSTRUM_ORDER_POST_MEL = 24;  //Cepstrum order to represent harmonic amplitudes
+    
     
     public static final boolean COMPUTE_NOISE_PART_LP_ORDER_FROM_SAMPLING_RATE = false; //If true, noise LP order is determined using sampling rate (might be high)
     public static final int NOISE_PART_LP_ORDER = 12; //Effective only if the above parameter is false
     
     public static final boolean USE_NOISE_AMPLITUDES_DIRECTLY = false; //If noise part is PSEUDE_HARMONICU and if this is true, use amplitudes directly. The following are only effective if this is false
     public static final double REGULARIZED_CEPSTRUM_ESTIMATION_LAMBDA_NOISE = 2e-4; //Reducing this may increase harmonic amplitude estimation accuracy    
-    public static final boolean USE_WEIGHTING_IN_REGULARIZED_CEPSTRUM_ESTIMATION_NOISE = true;
+    public static final boolean USE_WEIGHTING_IN_REGULARIZED_CEPSTRUM_ESTIMATION_NOISE = false;
     public static final int NOISE_PART_CEPSTRUM_ORDER_PRE = 12; //Effective only for REGULARIZED_CEPS and PSEUDO_HARMONIC noise part types
     public static final int NOISE_PART_CEPSTRUM_ORDER = 20; //Effective only for REGULARIZED_CEPS and PSEUDO_HARMONIC noise part types
     public static final boolean USE_POSTERIOR_MEL_WARPING_NOISE = true; //If true, post-warping using Mel-scale is used, otherwise prior warping using Bark-scale is employed
@@ -152,8 +154,8 @@ public class HntmAnalyzer {
     public static int MINIMUM_TOTAL_HARMONICS = 0; //Minimum number of total harmonics to be included in voiced region (effective only when f0>10.0)
     public static int MAXIMUM_TOTAL_HARMONICS = 100; //Maximum number of total harmonics to be included in voiced region (effective only when f0>10.0)
     public static float MINIMUM_VOICED_FREQUENCY_OF_VOICING = 0.0f; //All voiced sections will have at least this freq. of voicing
-    public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 6000.0f; //All voiced sections will have at least this freq. of voicing
-    public static float MAXIMUM_FREQUENCY_OF_VOICING_FINAL_SHIFT = 0.0f; //The max freq. of voicing contour is shifted by this amount finally
+    public static float MAXIMUM_VOICED_FREQUENCY_OF_VOICING = 5000.0f; //All voiced sections will have at least this freq. of voicing
+    public static float MAXIMUM_FREQUENCY_OF_VOICING_FINAL_SHIFT = 1500.0f; //The max freq. of voicing contour is shifted by this amount finally
     public static float RUNNING_MEAN_VOICING_THRESHOLD = 0.5f; //Between 0.0 and 1.0, decrease ==> Max. voicing freq increases
 
     public static final int LAST_CORRELATED_HARMONIC_NEIGHBOUR = -1; //Assume correlation between at most among this many harmonics (-1 ==> full correlation approach) 
@@ -278,7 +280,6 @@ public class HntmAnalyzer {
             int currentLabInd = 0;
             boolean isInTransientSegment = false;
             int transientSegmentInd = 0;
-            double lpSpecVal;
 
             for (i=0; i<totalFrm; i++)
             {  
@@ -396,14 +397,13 @@ public class HntmAnalyzer {
                     for (j=Math.max(0, frmStartIndex); j<Math.min(frmEndIndex, x.length-1); j++)
                         frm[count++] = x[j];
 
-
                     /*
                     for (j=pm.pitchMarks[i]; j<Math.min(pm.pitchMarks[i]+ws-1, x.length); j++)
                         frm[j-pm.pitchMarks[i]] = x[j];
                      */
 
                     win = Window.get(HARMONICS_ANALYSIS_WINDOW_TYPE, ws);
-                    //win.normalizePeakValue(1.0f);
+                    win.normalizePeakValue(1.0f);
                     double[] wgt = win.getCoeffs();
                     //double[] wgtSquared = new double[wgt.length];
                     //for (j=0; j<wgt.length; j++)
@@ -456,13 +456,6 @@ public class HntmAnalyzer {
                             for (j=0; j<numHarmonics; j++)
                             {
                                 freqsInHz[j] = (j+1)*f0InHz;
-
-                                if (DIVIDE_HARMONIC_AMPLITUDES_WITH_LP_ENVELOPE)
-                                {
-                                    lpSpecVal = LpcAnalyser.calcSpecValLinear(hnmSignal.frames[i].lpCoeffs, hnmSignal.frames[i].lpGain, freqsInHz[j], fs);
-                                    harmonics[j] = MathUtils.divide(harmonics[j], lpSpecVal);
-                                }
-
                                 linearAmps[j] = MathUtils.magnitudeComplex(harmonics[j]);
                             }
                             //
@@ -480,8 +473,6 @@ public class HntmAnalyzer {
                             //
                             */
 
-                            double[] ceps1 = null;
-                            double[] ceps2 = null;
                             if (!HntmAnalyzer.USE_HARMONIC_AMPLITUDES_DIRECTLY)
                             {
                                 double[] harmonicWeights = null;
@@ -493,25 +484,25 @@ public class HntmAnalyzer {
                                 } 
                                 
                                 if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
-                                    hnmSignal.frames[i].h.ceps = RegularizedPreWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, fs, HntmAnalyzer.HARMONIC_PART_CEPSTRUM_ORDER, harmonicWeights, HntmAnalyzer.REGULARIZED_CEPSTRUM_ESTIMATION_LAMBDA_HARMONIC);
+                                    hnmSignal.frames[i].h.ceps = RegularizedPreWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, fs, HntmAnalyzer.HARMONIC_PART_CEPSTRUM_ORDER_PRE_BARK, harmonicWeights, HntmAnalyzer.REGULARIZED_CEPSTRUM_ESTIMATION_LAMBDA_HARMONIC);
                                 else if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
-                                    hnmSignal.frames[i].h.ceps = RegularizedPostWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, fs, HntmAnalyzer.HARMONIC_PART_CEPSTRUM_ORDER_PRE, HntmAnalyzer.HARMONIC_PART_CEPSTRUM_ORDER, harmonicWeights, HntmAnalyzer.REGULARIZED_CEPSTRUM_ESTIMATION_LAMBDA_HARMONIC);
+                                    hnmSignal.frames[i].h.ceps = RegularizedPostWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, fs, HntmAnalyzer.HARMONIC_PART_CEPSTRUM_ORDER_PRE_MEL, HntmAnalyzer.HARMONIC_PART_CEPSTRUM_ORDER_POST_MEL, harmonicWeights, HntmAnalyzer.REGULARIZED_CEPSTRUM_ESTIMATION_LAMBDA_HARMONIC);
                             }
                             else
                                 hnmSignal.frames[i].h.ceps = ArrayUtils.subarray(linearAmps, 0, linearAmps.length); //Use amplitudes directly
 
                             hnmSignal.frames[i].h.complexAmps = ArrayUtils.copy(harmonics);
                             
-                            if(false && i%10==0)
+                            if(i==10)
                             {
                                 //The following is only for visualization
-                                double[] frameDftDB = MathUtils.amp2db(SignalProcUtils.getFrameMagnitudeSpectrum(frm, fftSize));
-                                MaryUtils.plot(frameDftDB, 0, fftSize/2);
+                                double[] frameDftDB = MathUtils.amp2db(SignalProcUtils.getFrameHalfMagnitudeSpectrum(frm, fftSize));
                                 double[] dbAmps = MathUtils.amp2db(linearAmps);
-                                MaryUtils.plot(dbAmps);
-
                                 double[] vocalTractDB = RegularizedPreWarpedCepstrumEstimator.cepstrum2dbSpectrumValues(hnmSignal.frames[i].h.ceps, SignalProcUtils.halfSpectrumSize(fftSize)-1, fs);
-                                MaryUtils.plot(vocalTractDB);
+                                //FileUtils.toTextFile(freqsInHz, "d:\\freqsInHz.txt");
+                                //FileUtils.toTextFile(frameDftDB, "d:\\frameDftDB.txt");
+                                //FileUtils.toTextFile(dbAmps, "d:\\dbAmps.txt");
+                                //FileUtils.toTextFile(vocalTractDB, "d:\\vocalTractDB.txt");
                             }
                             //
                         }
@@ -818,10 +809,10 @@ public class HntmAnalyzer {
                             /*
                             //The following is only for visualization
                             //int fftSize = 4096;
-                            //double[] vocalTractDB = RegularizedCepstralEnvelopeEstimator.cepstrum2logAmpHalfSpectrum(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, fftSize, fs);
+                            //double[] vocalTractDB = RegularizedPreWarpedCepstrumEstimator.cepstrum2logAmpHalfSpectrum(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, fftSize, fs);
                             double[] vocalTractDB = new double[numNoiseHarmonics];
                             for (j=0; j<numNoiseHarmonics; j++)
-                                vocalTractDB[j] = RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, (j+1)*HnmAnalyzer.NOISE_F0_IN_HZ, fs);
+                                vocalTractDB[j] = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, (j+1)*HnmAnalyzer.NOISE_F0_IN_HZ, fs);
                             vocalTractDB = MathUtils.amp2db(vocalTractDB);
                             MaryUtils.plot(vocalTractDB);
                             //
