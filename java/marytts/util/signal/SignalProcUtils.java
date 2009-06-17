@@ -742,7 +742,7 @@ public class SignalProcUtils {
         if (freqInHz>=605.0)
             return 13.0*Math.atan(0.00076*freqInHz); //5.60265754
         else
-            return 8.7+14.2*Math.log10(1e-20+freqInHz/1000.0); //5.60092632
+            return 8.7+14.2*Math.log10(1e-50+freqInHz/1000.0); //5.60092632
     }
     
     public static double barkNew2freq(double barkNew)
@@ -2457,11 +2457,29 @@ public class SignalProcUtils {
         MaryUtils.plot(MathUtils.amp2db(MathUtils.magnitudeComplex(frameDft)), 0, maxFreqInd);
     }
 
+    public static double[] getFrameHalfMagnitudeSpectrum(double[] frame, int fftSize)
+    {
+        double[] fullSpec = getFrameMagnitudeSpectrum(frame, fftSize, Window.RECT);
+        int maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
+        double[] halfSpec = ArrayUtils.subarray(fullSpec, 0, maxFreq);
+        
+        return halfSpec;
+    }
+    
     public static double[] getFrameMagnitudeSpectrum(double[] frame, int fftSize)
     {
         return getFrameMagnitudeSpectrum(frame, fftSize, Window.RECT);
     }
     
+    public static double[] getFrameHalfMagnitudeSpectrum(double[] frame, int fftSize, int windowType)
+    {
+        double[] fullSpec = getFrameMagnitudeSpectrum(frame, fftSize, windowType);
+        int maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
+        double[] halfSpec = ArrayUtils.subarray(fullSpec, 0, maxFreq);
+        
+        return halfSpec;
+    }
+
     public static double[] getFrameMagnitudeSpectrum(double[] frame, int fftSize, int windowType)
     {
         Window win = Window.get(windowType, frame.length);
@@ -2469,6 +2487,15 @@ public class SignalProcUtils {
             win.normalizePeakValue(1.0f);
         
         return getFrameMagnitudeSpectrum(frame, fftSize, win.getCoeffs());
+    }
+    
+    public static double[] getFrameHalfMagnitudeSpectrum(double[] frame, int fftSize, double[] wgt)
+    {
+        double[] fullSpec = getFrameMagnitudeSpectrum(frame, fftSize, wgt);
+        int maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
+        double[] halfSpec = ArrayUtils.subarray(fullSpec, 0, maxFreq);
+        
+        return halfSpec;
     }
     
     public static double[] getFrameMagnitudeSpectrum(double[] frame, int fftSize, double[] wgt)

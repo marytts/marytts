@@ -433,10 +433,6 @@ public class HntmProsodyModifier {
                             //newPhases = interpolatePhases(amps, hntmSignalMod.frames[i].h.phases, newTotalHarmonics);
                             newPhases = interpolatePhases(hntmSignalMod.frames[i].h.complexAmps, newTotalHarmonics);
                             //newPhases = MathUtils.interpolate(hntmSignalMod.frames[i].h.phases, newTotalHarmonics);
-                            
-                            //MaryUtils.plot(hntmSignalMod.frames[i].h.phases);
-                            //MaryUtils.plot(newPhases);
-                            //MaryUtils.plot(newPhases2);
 
                             //2. Change number of harmonics (only harmonics up to the original frequency of voicing will be kept)
                             hntmSignalMod.frames[i].h.phases = ArrayUtils.copy(newPhases);
@@ -483,19 +479,19 @@ public class HntmProsodyModifier {
                                 freqsInHz[k] = currentHarmonicNo*hntmSignalMod.frames[i].f0InHz;
                             }
                             
+                            //double[] vocalTractDBOrig = RegularizedPreWarpedCepstrumEstimator.cepstrum2dbSpectrumValues(hntmSignalMod.frames[i].h.ceps, SignalProcUtils.halfSpectrumSize(4096)-1, hntmSignalMod.samplingRateInHz);
+                            //MaryUtils.plot(vocalTractDBOrig);
+                            
                             //Now, estimate modified cepstral envelope
                             for (j=0; j<newTotalHarmonics; j++)
-                                linearAmps[j] *= Math.sqrt(harmonicEnergyOrig)/(1e-20+Math.sqrt(harmonicEnergyMod));
+                                linearAmps[j] *= Math.sqrt(harmonicEnergyOrig)/(1e-50+Math.sqrt(harmonicEnergyMod));
 
                             if (!HntmAnalyzer.USE_HARMONIC_AMPLITUDES_DIRECTLY)
                             {
                                 if (regularizedCepstrumWarpingMethod == RegularizedPreWarpedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
                                     hntmSignalMod.frames[i].h.ceps = RegularizedPreWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, hntmSignalMod.samplingRateInHz, hntmSignalMod.frames[i].h.ceps.length);
                                 else if (regularizedCepstrumWarpingMethod == RegularizedPostWarpedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
-                                {
-                                    hntmSignalMod.frames[i].h.ceps = RegularizedPostWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, hntmSignalMod.samplingRateInHz, HntmAnalyzer.HARMONIC_PART_CEPSTRUM_ORDER_PRE, hntmSignalMod.frames[i].h.ceps.length);
-                                    //hntmSignalMod.frames[i].h.ceps = RegularizedPostWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, hntmSignalMod.samplingRateInHz, linearAmps.length, hntmSignalMod.frames[i].h.ceps.length);
-                                }
+                                    hntmSignalMod.frames[i].h.ceps = RegularizedPostWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, hntmSignalMod.samplingRateInHz, HntmAnalyzer.HARMONIC_PART_CEPSTRUM_ORDER_PRE_MEL, hntmSignalMod.frames[i].h.ceps.length);    
                             }
                             else
                             {
@@ -504,6 +500,9 @@ public class HntmProsodyModifier {
                                     hntmSignalMod.frames[i].h.ceps[j] = linearAmps[j];
                             }
                             //
+                            
+                            //double[] vocalTractDBMod = RegularizedPreWarpedCepstrumEstimator.cepstrum2dbSpectrumValues(hntmSignalMod.frames[i].h.ceps, SignalProcUtils.halfSpectrumSize(4096)-1, hntmSignalMod.samplingRateInHz);
+                            //MaryUtils.plot(vocalTractDBMod);
                         }
                         else
                             hntmSignalMod.frames[i].h.phases = null;
