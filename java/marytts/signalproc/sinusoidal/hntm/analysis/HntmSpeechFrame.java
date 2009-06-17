@@ -38,9 +38,10 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
     public float tAnalysisInSeconds; //Middle of analysis frame in seconds
     public float origAverageSampleEnergy;
     public float origStd;
-    public double[] lpcs;
+    public double[] lpCoeffs;
+    public float lpGain;
     public boolean isInTransientSegment;
-    
+       
     public HntmSpeechFrame()
     {
         this(0.0f);
@@ -55,7 +56,8 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         tAnalysisInSeconds = -1.0f;
         origAverageSampleEnergy = 0.0f;
         origStd = 1.0f;
-        lpcs = null;
+        lpCoeffs = null;
+        lpGain = 0.0f;
         isInTransientSegment = false;
     }
     
@@ -64,8 +66,6 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         h = new FrameHarmonicPart(existing.h);
         if (existing.n instanceof FrameNoisePartLpc)
             n = new FrameNoisePartLpc((FrameNoisePartLpc)existing.n);
-        else if (existing.n instanceof FrameNoisePartRegularizedCeps)
-            n = new FrameNoisePartRegularizedCeps((FrameNoisePartRegularizedCeps)existing.n);
         else if (existing.n instanceof FrameNoisePartPseudoHarmonic)
             n = new FrameNoisePartPseudoHarmonic((FrameNoisePartPseudoHarmonic)existing.n);
         else if (existing.n instanceof FrameNoisePartWaveform)
@@ -76,8 +76,14 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         tAnalysisInSeconds = existing.tAnalysisInSeconds;   
         origAverageSampleEnergy = existing.origAverageSampleEnergy;
         origStd = existing.origStd;
-        lpcs = ArrayUtils.copy(existing.lpcs);
+        setLpCoeffs(existing.lpCoeffs, existing.lpGain);
         isInTransientSegment = existing.isInTransientSegment;
+    }
+    
+    public void setLpCoeffs(double[] lpCoeffsIn, float gainIn)
+    {
+        lpCoeffs = ArrayUtils.copy(lpCoeffsIn);
+        lpGain = gainIn;
     }
 }
 

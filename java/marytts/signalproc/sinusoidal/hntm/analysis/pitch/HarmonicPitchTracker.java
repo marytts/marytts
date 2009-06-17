@@ -88,7 +88,7 @@ public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
             {
                 tempSum = 0.0;
 
-                freqHz = SignalProcUtils.radian2Hz(sinFrame.sinusoids[l-1].freq, samplingRate);
+                freqHz = SignalProcUtils.radian2hz(sinFrame.sinusoids[l-1].freq, samplingRate);
                 
                 for (k=1; k<=K; k++)
                 {

@@ -55,7 +55,7 @@ import marytts.util.signal.SignalProcUtils;
 public class NoisePartLpcSynthesizer {
     
     //LPC based noise model + OLA approach + Gain normalization according to generated harmonic part gain
-    public static double[] synthesize(HntmSpeechSignal hnmSignal, String noiseWavFile)
+    public static double[] synthesize(HntmSpeechSignal hnmSignal)
     {    
         double[] noisePart = null;
         int i;
@@ -74,7 +74,7 @@ public class NoisePartLpcSynthesizer {
             isNoised = ((hnmSignal.frames[i].maximumFrequencyOfVoicingInHz<0.5f*hnmSignal.samplingRateInHz) ? true : false);
             if (isNoised)
             {
-                lpOrder = ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs.length;
+                lpOrder = hnmSignal.frames[i].lpCoeffs.length;
                 break;
             }
         }
@@ -222,7 +222,7 @@ public class NoisePartLpcSynthesizer {
                     {
                         winNoise.apply(x, 0);
                         //y = SignalProcUtils.arFilter(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, ((FrameNoisePartLpc)hnmSignal.frames[i].n).gain);
-                        y = SignalProcUtils.arFilter(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, 1.0);
+                        y = SignalProcUtils.arFilter(x, hnmSignal.frames[i].lpCoeffs, 1.0);
  
                         if (HntmSynthesizer.HIGHPASS_FILTER_AFTER_NOISE_SYNTHESIS)
                             y = SignalProcUtils.fdFilter(y, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5f*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz, fftSizeNoise);

@@ -29,12 +29,15 @@
 
 package marytts.signalproc.sinusoidal.hntm.synthesis.hybrid;
 
-import marytts.signalproc.analysis.RegularizedCepstralEnvelopeEstimator;
+import marytts.signalproc.analysis.RegularizedCepstrumEstimator;
+import marytts.signalproc.analysis.RegularizedPostWarpedCepstrumEstimator;
+import marytts.signalproc.analysis.RegularizedPreWarpedCepstrumEstimator;
 import marytts.signalproc.sinusoidal.Sinusoid;
 import marytts.signalproc.sinusoidal.SinusoidalAnalysisParams;
 import marytts.signalproc.sinusoidal.SinusoidalTrack;
 import marytts.signalproc.sinusoidal.SinusoidalTracks;
 import marytts.signalproc.sinusoidal.TrackGenerator;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.sinusoidal.hntm.modification.HntmProsodyModifier;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizedSignal;
@@ -57,7 +60,7 @@ import marytts.util.signal.SignalProcUtils;
  */
 public class HarmonicsToTrackConverter {
     
-    public static SinusoidalTracks convert(HntmSpeechSignal hntmSignal)
+    public static SinusoidalTracks convert(HntmSpeechSignal hntmSignal, int regularizedCepstrumWarpingMethod)
     {        
         int numFrames = hntmSignal.frames.length;
         float deltaInRadians = SignalProcUtils.hz2radian(SinusoidalAnalysisParams.DEFAULT_DELTA_IN_HZ, hntmSignal.samplingRateInHz);
@@ -91,7 +94,12 @@ public class HarmonicsToTrackConverter {
                             tr.add(new SinusoidalTrack(hntmSignal.frames[i].tAnalysisInSeconds-TrackGenerator.ZERO_AMP_SHIFT_IN_SECONDS, zeroAmpSin,  hntmSignal.frames[i].maximumFrequencyOfVoicingInHz, SinusoidalTrack.TURNED_ON));
                             //
 
-                            amp = (float)RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(hntmSignal.frames[i].h.ceps , j*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz);
+                            amp = 0.0f;
+                            if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING) 
+                                amp = (float)RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(hntmSignal.frames[i].h.ceps , j*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz);
+                            else if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING) 
+                                amp = (float)RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(hntmSignal.frames[i].h.ceps , j*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz);
+                            
                             sin = new Sinusoid(amp, SignalProcUtils.hz2radian(j*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz), hntmSignal.frames[i].h.phases[j], i);
                             tr.tracks[tr.currentIndex].add(hntmSignal.frames[i].tAnalysisInSeconds, sin, hntmSignal.frames[i].maximumFrequencyOfVoicingInHz, SinusoidalTrack.ACTIVE);
                         }
@@ -133,7 +141,12 @@ public class HarmonicsToTrackConverter {
                                 if (tr.tracks[trackInd].newCandidateInd>-1)
                                     bSinAssigneds[tr.tracks[trackInd].newCandidateInd] = false;
 
-                                amp = (float)RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(hntmSignal.frames[i].h.ceps , k*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz);
+                                amp = 0.0f;
+                                if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
+                                    amp = (float)RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(hntmSignal.frames[i].h.ceps , k*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz);
+                                else  if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
+                                    amp = (float)RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(hntmSignal.frames[i].h.ceps , k*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz);
+                                
                                 sin = new Sinusoid(amp, SignalProcUtils.hz2radian(k*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz), hntmSignal.frames[i].h.phases[k], i);
                                 tr.tracks[trackInd].newCandidate = new Sinusoid(sin);
                                 tr.tracks[trackInd].newCandidateInd = k;
@@ -179,7 +192,12 @@ public class HarmonicsToTrackConverter {
                                 tr.add(new SinusoidalTrack(hntmSignal.frames[i].tAnalysisInSeconds-TrackGenerator.ZERO_AMP_SHIFT_IN_SECONDS, zeroAmpSin, hntmSignal.frames[i].maximumFrequencyOfVoicingInHz, SinusoidalTrack.TURNED_ON));
                                 //
 
-                                amp = (float)RegularizedCepstralEnvelopeEstimator.cepstrum2linearSpectrumValue(hntmSignal.frames[i].h.ceps , k*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz);
+                                amp = 0.0f;
+                                if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
+                                    amp = (float)RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(hntmSignal.frames[i].h.ceps , k*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz);
+                                else if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
+                                    amp = (float)RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(hntmSignal.frames[i].h.ceps , k*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz);
+                                
                                 sin = new Sinusoid(amp, SignalProcUtils.hz2radian(k*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz), hntmSignal.frames[i].h.phases[k], i);
                                 tr.tracks[tr.currentIndex].add(hntmSignal.frames[i].tAnalysisInSeconds, sin, hntmSignal.frames[i].maximumFrequencyOfVoicingInHz, SinusoidalTrack.ACTIVE);
                             }

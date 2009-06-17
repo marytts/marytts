@@ -66,7 +66,7 @@ public class CombFilterPitchTracker extends BaseSinusoidalPitchTracker {
         }
         
         for (int k=0; k<=endIndex; k++)
-            Q += sinFrame.sinusoids[k].amp*sinFrame.sinusoids[k].amp*Math.cos(MathUtils.TWOPI*SignalProcUtils.radian2Hz(sinFrame.sinusoids[k].freq, samplingRate)/f0Candidate);
+            Q += sinFrame.sinusoids[k].amp*sinFrame.sinusoids[k].amp*Math.cos(MathUtils.TWOPI*SignalProcUtils.radian2hz(sinFrame.sinusoids[k].freq, samplingRate)/f0Candidate);
         
         return Q;
     }

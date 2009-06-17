@@ -30,8 +30,10 @@ import marytts.util.math.ArrayUtils;
  * @author Oytun T&uumlrk
  *
  */
-public class FrameNoisePartPseudoHarmonic extends FrameNoisePartRegularizedCeps {
+public class FrameNoisePartPseudoHarmonic extends FrameNoisePart {
 
+    public double[] ceps; //To keep harmonic amplitudes
+    
     public FrameNoisePartPseudoHarmonic()
     {
         super();
@@ -39,7 +41,8 @@ public class FrameNoisePartPseudoHarmonic extends FrameNoisePartRegularizedCeps 
     
     public FrameNoisePartPseudoHarmonic(FrameNoisePartPseudoHarmonic existing)
     {
-        super(existing);
+        super();
+        ceps = ArrayUtils.copy(existing.ceps);
     }
 }
 

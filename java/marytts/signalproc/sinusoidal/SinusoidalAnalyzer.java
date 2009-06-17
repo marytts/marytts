@@ -31,7 +31,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.signalproc.analysis.CepstrumSpeechAnalyser;
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.LpcAnalyser;
-import marytts.signalproc.analysis.RegularizedCepstralEnvelopeEstimator;
+import marytts.signalproc.analysis.RegularizedCepstrumEstimator;
+import marytts.signalproc.analysis.RegularizedPostWarpedCepstrumEstimator;
+import marytts.signalproc.analysis.RegularizedPreWarpedCepstrumEstimator;
 import marytts.signalproc.analysis.SeevocAnalyser;
 import marytts.signalproc.analysis.SpectrumWithPeakIndices;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
@@ -514,6 +516,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
             else if (spectralEnvelopeType==SinusoidalAnalysisParams.REGULARIZED_CEPS)
             {
                 SpectrumWithPeakIndices swpi = SeevocAnalyser.calcSpecEnvelopeLinear(frameDftDB, params.fs, f0); //Note that frameDftDB is in dB but the computed envelope is returned as linear
+                int cepsOrderPre = 13;
                 int cepsOrder = 19;
                 int numPeaks = swpi.indices.length;
                 double[] linearAmps = new double[numPeaks];
@@ -523,7 +526,11 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                     linearAmps[i] = frameDftAbs[swpi.indices[i]];
                     freqsInHz[i] = SignalProcUtils.index2freq(swpi.indices[i], params.fs, maxFreqInd);
                 }
-                vocalTractSpec = RegularizedCepstralEnvelopeEstimator.spectralEnvelopeLinear(linearAmps, freqsInHz, params.fs, cepsOrder, params.fftSize);
+                
+                if (params.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
+                    vocalTractSpec = RegularizedPreWarpedCepstrumEstimator.spectralEnvelopeLinear(linearAmps, freqsInHz, params.fs, cepsOrder, params.fftSize);
+                else if (params.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
+                    vocalTractSpec = RegularizedPostWarpedCepstrumEstimator.spectralEnvelopeLinear(linearAmps, freqsInHz, params.fs, cepsOrderPre, cepsOrder, params.fftSize);
             }
             
             /*
@@ -712,7 +719,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                     for (i=0; i<numFrameSinusoids; i++)
                     {
                         frameSins.sinusoids[i] = new Sinusoid((float)(MathUtils.db2amp(fiwa.ampsRefined[i])), //amp in linear scale
-                                (float)((0.5*MathUtils.TWOPI*fiwa.freqIndsRefined[i])/maxFreqInd),  //freq in radians
+                                (float)((Math.PI*fiwa.freqIndsRefined[i])/maxFreqInd),  //freq in radians
                                 //(float)((0.5*fs*freqIndsRefined[i])/maxFreqInd), //freq in Hz
                                 (float) (Math.atan2(frameDft.imag[freqInds[i]], frameDft.real[freqInds[i]]))); //phase in radians
 
@@ -725,7 +732,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                     for (i=0; i<numFrameSinusoids; i++)
                     {
                         frameSins.sinusoids[i] = new Sinusoid((float)frameDftAbs[freqInds[i]], //amp in linear scale
-                                (float)((0.5*MathUtils.TWOPI*fiwa.freqIndsRefined[i])/maxFreqInd),  //freq in radians
+                                (float)((Math.PI*fiwa.freqIndsRefined[i])/maxFreqInd),  //freq in radians
                                 //(float)((0.5*fs*freqIndsRefined[i])/maxFreqInd), //freq in Hz
                                 (float) (Math.atan2(frameDft.imag[freqInds[i]], frameDft.real[freqInds[i]]))); //phase in radians
                     }
@@ -924,7 +931,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                     km = (int)Math.floor(freqInds[i]+0.5);
                     f0InRadians = SignalProcUtils.hz2radian(SignalProcUtils.index2freq(km, fs, maxFreqInd), fs);
                     f0RefinedInRadians = f0InRadians - (windowedFrameFFT.real[km]*windowedFrameDerivativeFFT.imag[km]-windowedFrameFFT.imag[km]*windowedFrameDerivativeFFT.real[km])/(windowedFrameFFT.real[km]*windowedFrameFFT.real[km]+windowedFrameFFT.imag[km]*windowedFrameFFT.imag[km])/MathUtils.TWOPI;
-                    f0RefinedInHz = SignalProcUtils.radian2Hz(f0RefinedInRadians, fs);
+                    f0RefinedInHz = SignalProcUtils.radian2hz(f0RefinedInRadians, fs);
                     freqIndsRefined[i] = (float)SignalProcUtils.freq2indexDouble(f0RefinedInHz, fs, maxFreqInd);
                 }
             }

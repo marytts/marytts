@@ -32,7 +32,7 @@ import marytts.signalproc.adaptation.prosody.BasicProsodyModifierParams;
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.PitchMarks;
-import marytts.signalproc.analysis.RegularizedCepstralEnvelopeEstimator;
+import marytts.signalproc.analysis.RegularizedCepstrumEstimator;
 import marytts.signalproc.filter.HighPassFilter;
 import marytts.signalproc.sinusoidal.BaseSinusoidalSpeechSignal;
 import marytts.signalproc.sinusoidal.PeakMatchedSinusoidalSynthesizer;
@@ -41,7 +41,6 @@ import marytts.signalproc.sinusoidal.SinusoidalTracks;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePart;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartLpc;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartPseudoHarmonic;
-import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartRegularizedCeps;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartWaveform;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmPlusTransientsSpeechSignal;
@@ -88,11 +87,13 @@ public class HntmSynthesizer {
     
     public static final boolean WRITE_SEPARATE_TRACKS_TO_OUTPUT = false;
     public static final boolean IS_NORMALIZE_HARMONIC_PART_OUTPUT_WAV = false;
+    public static final boolean IS_NORMALIZE_NOISE_PART_OUTPUT_WAV = false;
+    public static final boolean IS_NORMALIZE_OUTPUT_WAV = false;
     
-    public static final boolean WRITE_HARMONIC_PART_TO_SEPARATE_FILE = false;
-    public static final boolean WRITE_NOISE_PART_TO_SEPARATE_FILE = false;
+    public static final boolean WRITE_HARMONIC_PART_TO_SEPARATE_FILE = true;
+    public static final boolean WRITE_NOISE_PART_TO_SEPARATE_FILE = true;
     public static final boolean WRITE_TRANSIENT_PART_TO_SEPARATE_FILE = false;
-    public static final boolean WRITE_ORIGINAL_MINUS_HARMONIC_PART_TO_SEPARATE_FILE = false;
+    public static final boolean WRITE_ORIGINAL_MINUS_HARMONIC_PART_TO_SEPARATE_FILE = true;
     
     public static final int LINEAR_PHASE_INTERPOLATION = 1;
     public static final int QUADRATIC_PHASE_INTERPOLATION = 2;
@@ -107,22 +108,26 @@ public class HntmSynthesizer {
 
     }
 
-    public HntmSynthesizedSignal synthesize(HntmSpeechSignal hntmSignal, BasicProsodyModifierParams pmodParams, int harmonicPartSynthesisMethod, String referenceFile)
+    public HntmSynthesizedSignal synthesize(HntmSpeechSignal hntmSignal, 
+                                            BasicProsodyModifierParams pmodParams, 
+                                            int regularizedCepstrumWarpingMethod, 
+                                            int harmonicPartSynthesisMethod, 
+                                            String referenceFile)
     {
         BasicProsodyModifierParams pmodParamsOrig = new BasicProsodyModifierParams(pmodParams);
         
         //Handle time and pitch scaling by adjusting synthesis times
-        HntmSpeechSignal hntmSignalMod = HntmProsodyModifier.modify(hntmSignal, pmodParams);
+        HntmSpeechSignal hntmSignalMod = HntmProsodyModifier.modify(hntmSignal, pmodParams, regularizedCepstrumWarpingMethod);
         //
         
         HntmSynthesizedSignal s = new HntmSynthesizedSignal();
         
         if (harmonicPartSynthesisMethod==LINEAR_PHASE_INTERPOLATION)
-            s.harmonicPart = HarmonicPartLinearPhaseInterpolatorSynthesizer.synthesize(hntmSignalMod, pmodParams.pScales, pmodParams.pScalesTimes, referenceFile);
+            s.harmonicPart = HarmonicPartLinearPhaseInterpolatorSynthesizer.synthesize(hntmSignalMod, regularizedCepstrumWarpingMethod, referenceFile);
         else if (harmonicPartSynthesisMethod==QUADRATIC_PHASE_INTERPOLATION)
         {
             //Convert to pure sinusoidal tracks
-            SinusoidalTracks st = HarmonicsToTrackConverter.convert(hntmSignalMod);
+            SinusoidalTracks st = HarmonicsToTrackConverter.convert(hntmSignalMod, regularizedCepstrumWarpingMethod);
             //
             
             PeakMatchedSinusoidalSynthesizer ss = new PeakMatchedSinusoidalSynthesizer(hntmSignalMod.samplingRateInHz);
@@ -145,11 +150,9 @@ public class HntmSynthesizer {
         if (p!=null)
         {
             if (p instanceof FrameNoisePartLpc)
-                s.noisePart = NoisePartLpcSynthesizer.synthesize(hntmSignalMod, null); //"d:\\asaisa.wav");
-            else if (p instanceof FrameNoisePartRegularizedCeps)
-                s.noisePart = NoisePartRegularizedCepsSynthesizer.synthesize(hntmSignalMod);
+                s.noisePart = NoisePartLpcSynthesizer.synthesize(hntmSignalMod);
             else if (p instanceof FrameNoisePartPseudoHarmonic)
-                s.noisePart = NoisePartPseudoHarmonicSynthesizer.synthesize(hntmSignalMod, pmodParams.pScales, pmodParams.pScalesTimes);
+                s.noisePart = NoisePartPseudoHarmonicSynthesizer.synthesize(hntmSignalMod, regularizedCepstrumWarpingMethod, referenceFile);
             else if (p instanceof FrameNoisePartWaveform)
             {
                 s.noisePart = NoisePartWaveformSynthesizer.synthesize(hntmSignalMod);
@@ -224,7 +227,6 @@ public class HntmSynthesizer {
         pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
         */
         
-        
         //float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f, 2.5f};
         float[] tScalesTimes = null;
         //float[] pScalesTimes = {0.05f, 1.0f, 2.0f};
@@ -252,9 +254,11 @@ public class HntmSynthesizer {
         //int harmonicPartSynthesisMethod = HntmSynthesizer.QUADRATIC_PHASE_INTERPOLATION;
         
         int noisePartRepresentation = HntmAnalyzer.LPC;
-        //int noisePartRepresentation = HntmAnalyzer.REGULARIZED_CEPS;
         //int noisePartRepresentation = HntmAnalyzer.PSEUDO_HARMONIC;
         //int noisePartRepresentation = HntmAnalyzer.HIGHPASS_WAVEFORM;
+        
+        //int regularizedCepstrumWarpingMethod = RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING;
+        int regularizedCepstrumWarpingMethod = RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING;
         
         PitchReaderWriter f0 = null;
         String strPitchFile = StringUtils.modifyExtension(wavFile, ".ptc");
@@ -282,10 +286,8 @@ public class HntmSynthesizer {
         //
         
         int fftSize = 4096;
-        int harmonicPartAnalysisMethod = HntmAnalyzer.TIME_DOMAIN_CORRELATION_HARMONICS_ANALYSIS;
-        //int harmonicPartAnalysisMethod = HntmAnalyzer.FREQUENCY_DOMAIN_PEAK_PICKING_HARMONICS_ANALYSIS;
         
-        HntmSpeechSignal hnmSignal = ha.analyze(x, samplingRate, f0, labels, fftSize, model, noisePartRepresentation, harmonicPartAnalysisMethod, harmonicPartSynthesisMethod);
+        HntmSpeechSignal hnmSignal = ha.analyze(x, samplingRate, f0, labels, fftSize, model, noisePartRepresentation, regularizedCepstrumWarpingMethod, harmonicPartSynthesisMethod);
         //
         
         for (int n=0; n<pScalesArray.length; n++)
@@ -297,8 +299,12 @@ public class HntmSynthesizer {
                 
                 //Synthesis
                 HntmSynthesizer hs = new HntmSynthesizer();
-                HntmSynthesizedSignal xhat = hs.synthesize(hnmSignal, pmodParams, harmonicPartSynthesisMethod, wavFile);
-
+                HntmSynthesizedSignal xhat = hs.synthesize(hnmSignal, 
+                                                           pmodParams, 
+                                                           regularizedCepstrumWarpingMethod,  
+                                                           harmonicPartSynthesisMethod, 
+                                                           wavFile);
+                
                 //File output
                 DDSAudioInputStream outputAudio = null;
                 String outFileName = null;
@@ -327,7 +333,8 @@ public class HntmSynthesizer {
                 if (tScalesArray[n][0]!=1.0f)
                     modelName += "_ts" + String.valueOf(tScalesArray[n][0]);
 
-                //y = MathUtils.multiply(y, MathUtils.absMax(x)/MathUtils.absMax(y));
+                if (IS_NORMALIZE_OUTPUT_WAV)
+                    xhat.output = MathUtils.multiply(xhat.output, MathUtils.absMax(x)/MathUtils.absMax(xhat.output));
                 outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + strExt + ".wav";
                 FileUtils.writeWavFile(MathUtils.divide(xhat.output,32768.0), outFileName, inputAudio.getFormat());
 
@@ -343,6 +350,9 @@ public class HntmSynthesizer {
                 if (xhat.noisePart!=null && WRITE_NOISE_PART_TO_SEPARATE_FILE)
                 {
                     outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + "Noise" + strExt + ".wav";
+                    if (IS_NORMALIZE_NOISE_PART_OUTPUT_WAV)
+                        xhat.noisePart = MathUtils.multiply(xhat.noisePart, 32768.0/MathUtils.getAbsMax(xhat.noisePart));
+                    
                     FileUtils.writeWavFile(MathUtils.divide(xhat.noisePart, 32768.0), outFileName, inputAudio.getFormat());
                 }
 

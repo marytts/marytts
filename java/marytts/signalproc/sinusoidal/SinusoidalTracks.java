@@ -321,7 +321,7 @@ public class SinusoidalTracks {
             for (int j=0; j<tracks[i].totalSins; j++)
             {
                 str = String.format("%1$f",tracks[i].amps[j]) + "\t" +
-                      String.format("%1$f",SignalProcUtils.radian2Hz(tracks[i].freqs[j], fs)) + "\t" +
+                      String.format("%1$f",SignalProcUtils.radian2hz(tracks[i].freqs[j], fs)) + "\t" +
                       String.format("%1$f",tracks[i].phases[j]) + "\t" +
                       String.format("%1$f",MathUtils.unwrapToRange(MathUtils.radian2degrees(tracks[i].phases[j]), -180.0f)) + "\t" +
                       String.format("%1$f",tracks[i].times[j]) + "\r\n";

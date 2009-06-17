@@ -63,7 +63,7 @@ public class SinusoidalAnalysisParams {
     public static final int SEEVOC_SPEC = 1; //Spectral Envelope Estimation Vocoder (SEEVOC) based envelope (Paul, 1981)
     public static final int REGULARIZED_CEPS = 2; //Regularized cepstrum based envelope (Cappe, et. al. 1995, Stylianou, et. al. 1995)
     //
-    
+   
     public int fs; //Sampling rate in Hz
     public int windowType; //Type of window (See class Window for details)
     public int fftSize; //FFT size in points
@@ -88,6 +88,8 @@ public class SinusoidalAnalysisParams {
 
     public double absMax; //Keep absolute max of the input signal for normalization after resynthesis
     public double totalEnergy; //Keep total energy for normalization after resynthesis
+    
+    public int regularizedCepstrumWarpingMethod;
     
     public SinusoidalAnalysisParams(SinusoidalAnalysisParams paramsIn)
     {
@@ -115,6 +117,7 @@ public class SinusoidalAnalysisParams {
         
         absMax = paramsIn.absMax;
         totalEnergy = paramsIn.totalEnergy;
+        regularizedCepstrumWarpingMethod = paramsIn.regularizedCepstrumWarpingMethod;
     }
     
     public SinusoidalAnalysisParams(int samplingRate, 

@@ -2166,6 +2166,46 @@ public class MathUtils {
         return y;
     }
     
+    //Linear interpolation of values in xVals at indices xInds to give values at indices xInds2
+    public static double[] interpolate(int[] xInds, double[] xVals, int[] xInds2)
+    {
+        double[] xVals2 = new double[xInds2.length];
+        assert xInds.length==xVals.length;
+        
+        for (int i=0; i<xInds2.length; i++)
+        {
+            int closestInd = MathUtils.findClosest(xInds, xInds2[i]);
+            if (closestInd==xInds2[i])
+                xVals2[i] = xVals[closestInd];
+            else if (closestInd>xInds2[i])
+            {
+                if (closestInd>0)
+                    xVals2[i] = MathUtils.interpolatedSample(xInds[closestInd-1], xInds2[i], xInds[closestInd], xVals[closestInd-1], xVals[closestInd]);
+                else
+                {
+                    if (closestInd+1<xVals.length)
+                        xVals2[i] = MathUtils.interpolatedSample(xInds[closestInd]-1, xInds2[i], xInds[closestInd], 2*xVals[closestInd]-xVals[closestInd+1], xVals[closestInd]);
+                    else
+                        xVals2[i] = xVals[closestInd];
+                }
+            }
+            else
+            {
+                if (closestInd+1<xVals.length)
+                    xVals2[i] = MathUtils.interpolatedSample(xInds[closestInd], xInds2[i], xInds[closestInd+1], xVals[closestInd], xVals[closestInd+1]);
+                else
+                {
+                    if (closestInd-1>=0)
+                        xVals2[i] = MathUtils.interpolatedSample(xInds[closestInd], xInds2[i], xInds[closestInd]+1, xVals[closestInd], 2*xVals[closestInd]-xVals[closestInd-1]);
+                    else
+                        xVals2[i] = xVals[closestInd];
+                }
+            }
+        }
+        
+        return xVals2;
+    }
+    
     public static double interpolatedSample(double xStart, double xVal, double xEnd, double yStart, double yEnd)
     {
         return (xVal-xStart)*(yEnd-yStart)/(xEnd-xStart)+yStart;
@@ -3310,7 +3350,7 @@ public class MathUtils {
         {
             y = new float[x.length];
             for (int i=0; i<y.length; i++)
-                y[i] = sinc(2*x[i], (float)(0.5*MathUtils.TWOPI));
+                y[i] = sinc(2*x[i], (float)(Math.PI));
         }
 
         return y;
@@ -3324,7 +3364,7 @@ public class MathUtils {
         {
             y = new double[x.length];
             for (int i=0; i<y.length; i++)
-                y[i] = sinc(2*x[i], 0.5*MathUtils.TWOPI);
+                y[i] = sinc(2*x[i], Math.PI);
         }
 
         return y;
@@ -3332,12 +3372,12 @@ public class MathUtils {
 
     public static float sinc(float x)
     {
-        return sinc(2*x, (float)(0.5*MathUtils.TWOPI));
+        return sinc(2*x, (float)(Math.PI));
     }
 
     public static double sinc(double x)
     {
-        return sinc(2*x, 0.5*MathUtils.TWOPI);
+        return sinc(2*x, Math.PI);
     }
 
     //Returns the index of the smallest element that is larger than %percentSmallerThan of the data in x
