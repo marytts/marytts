@@ -98,9 +98,6 @@ public class HntmSynthesizer {
     public static final int LINEAR_PHASE_INTERPOLATION = 1;
     public static final int QUADRATIC_PHASE_INTERPOLATION = 2;
     
-    public static boolean ADJUST_PHASES_AFTER_TIME_SCALING = false;
-    public static boolean ADJUST_PHASES_AFTER_PITCH_SCALING = false;
-    
     public static boolean APPLY_VOCAL_TRACT_NORMALIZATION_POST_PROCESSOR = false; 
     
     public HntmSynthesizer()
@@ -202,6 +199,7 @@ public class HntmSynthesizer {
         float[] pScalesTimes = null;
         */
         
+        /*
         float[][] pScalesArray = new float[8][1];
         float[][] tScalesArray = new float[8][1];
         pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
@@ -212,6 +210,7 @@ public class HntmSynthesizer {
         pScalesArray[5][0] = 1.0f; tScalesArray[5][0] = 2.3f;
         pScalesArray[6][0] = 2.3f; tScalesArray[6][0] = 1.0f;
         pScalesArray[7][0] = 0.6f; tScalesArray[7][0] = 1.0f;
+        */
         
         /*
         float[][] pScalesArray = new float[3][1];
@@ -221,11 +220,9 @@ public class HntmSynthesizer {
         pScalesArray[2][0] = 1.0f; tScalesArray[2][0] = 1.6f;
         */
 
-        /*
         float[][] pScalesArray = new float[1][1];
         float[][] tScalesArray = new float[1][1];
-        pScalesArray[0][0] = 4.6f; tScalesArray[0][0] = 1.0f;
-        */
+        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
         
         //float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f, 2.5f};
         float[] tScalesTimes = null;
@@ -253,9 +250,9 @@ public class HntmSynthesizer {
         int harmonicPartSynthesisMethod = HntmSynthesizer.LINEAR_PHASE_INTERPOLATION;
         //int harmonicPartSynthesisMethod = HntmSynthesizer.QUADRATIC_PHASE_INTERPOLATION;
         
-        int noisePartRepresentation = HntmAnalyzer.LPC;
+        //int noisePartRepresentation = HntmAnalyzer.LPC;
         //int noisePartRepresentation = HntmAnalyzer.PSEUDO_HARMONIC;
-        //int noisePartRepresentation = HntmAnalyzer.HIGHPASS_WAVEFORM;
+        int noisePartRepresentation = HntmAnalyzer.HIGHPASS_WAVEFORM;
         
         //int regularizedCepstrumWarpingMethod = RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING;
         int regularizedCepstrumWarpingMethod = RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING;

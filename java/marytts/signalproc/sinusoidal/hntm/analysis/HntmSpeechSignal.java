@@ -95,41 +95,22 @@ public class HntmSpeechSignal {
     }
     
     //Returns track segments for a given harmonic. Each segment corresponds to a voiced segment
-    public float[][] getPhaseTrack(int harmonicNo)
+    public double[][] getPhasesInRadians()
     {
-        /*
-        int i;
-        int numSegments = 0;
-        boolean bSegmentStarted = false;
-        int segmentStartInd = -1;
-        int segmentEndInd = -1;
-        for (i=0; i<frames.length; i++)
+        double[][] phases = null;
+        
+        if (frames!=null && frames.length>0)
         {
-            if (!bSegmentStarted) 
+            phases = new double[frames.length][];
+            
+            for (int i=0; i<frames.length; i++)
             {
-                if (frames[i].h!=null && frames[i].h.phases!=null && frames[i].h.phases.length>harmonicNo)
-                {
-                    bSegmentStarted = true;
-                    numSegments++;
-                    
-                    segmentStartInd = i;
-                    segmentEndInd = -1;
-                }  
-            }
-            else
-            {
-                if (frames[i].h!=null && frames[i].h.phases!=null && frames[i].h.phases.length>harmonicNo)
-                    segmentEndInd = i;
-                else
-                {
-                    bSegmentStarted = false;
-                }
+                if (frames[i].h!=null) 
+                    phases[i] = frames[i].h.getPhasesInRadians();
             }
         }
         
-        double[][] phases = new double[numSegments][];
-        */
-        return null; 
+        return phases;
     }
     
     public double[][] getLpcsAll()
@@ -145,5 +126,20 @@ public class HntmSpeechSignal {
         }
         
         return lpcsAll;
+    }
+    
+    public double[] getMaximumFrequencyOfVoicings()
+    {
+        double[] maximumFrequencyOfVoicings = null;
+        
+        if (frames!=null && frames.length>0)
+        {
+            maximumFrequencyOfVoicings = new double[frames.length];
+            
+            for (int i=0; i<frames.length; i++)
+                maximumFrequencyOfVoicings[i] = frames[i].maximumFrequencyOfVoicingInHz;
+        }
+        
+        return maximumFrequencyOfVoicings;
     }
 }

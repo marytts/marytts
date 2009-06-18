@@ -101,7 +101,7 @@ public class HntmAnalyzer {
     public static final int PSEUDO_HARMONIC = 2; //Noise part model based on pseude harmonics for f0=NOISE_F0_IN_HZ
     public static final int HIGHPASS_WAVEFORM = 3; //Noise part model based on frame waveform (i.e. no model, overlap-add noise part generation)
 
-    public static final boolean USE_HARMONIC_AMPLITUDES_DIRECTLY = false; //Use amplitudes directly, the following are only effective if this is false
+    public static final boolean USE_HARMONIC_AMPLITUDES_DIRECTLY = true; //Use amplitudes directly, the following are only effective if this is false
     public static final double REGULARIZED_CEPSTRUM_ESTIMATION_LAMBDA_HARMONIC = 1.0e-3; //Reducing this may increase harmonic amplitude estimation accuracy    
     public static final boolean USE_WEIGHTING_IN_REGULARIZED_CEPSTRUM_ESTIMATION_HARMONIC = false;
     public static final int HARMONIC_PART_CEPSTRUM_ORDER_PRE_BARK = 24;  //Cepstrum order to represent harmonic amplitudes
@@ -114,7 +114,7 @@ public class HntmAnalyzer {
     public static final boolean COMPUTE_NOISE_PART_LP_ORDER_FROM_SAMPLING_RATE = false; //If true, noise LP order is determined using sampling rate (might be high)
     public static final int NOISE_PART_LP_ORDER = 12; //Effective only if the above parameter is false
     
-    public static final boolean USE_NOISE_AMPLITUDES_DIRECTLY = false; //If noise part is PSEUDE_HARMONICU and if this is true, use amplitudes directly. The following are only effective if this is false
+    public static final boolean USE_NOISE_AMPLITUDES_DIRECTLY = true; //If noise part is PSEUDE_HARMONICU and if this is true, use amplitudes directly. The following are only effective if this is false
     public static final double REGULARIZED_CEPSTRUM_ESTIMATION_LAMBDA_NOISE = 2e-4; //Reducing this may increase harmonic amplitude estimation accuracy    
     public static final boolean USE_WEIGHTING_IN_REGULARIZED_CEPSTRUM_ESTIMATION_NOISE = false;
     public static final int NOISE_PART_CEPSTRUM_ORDER_PRE = 12; //Effective only for REGULARIZED_CEPS and PSEUDO_HARMONIC noise part types
@@ -160,9 +160,11 @@ public class HntmAnalyzer {
 
     public static final int LAST_CORRELATED_HARMONIC_NEIGHBOUR = -1; //Assume correlation between at most among this many harmonics (-1 ==> full correlation approach) 
     
-    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_ANALYSIS = true;
-    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_TIME_SCALING = true;
-    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_PITCH_SCALING = true;
+    //These are not effective, nothing changes if you make any of them true
+    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_ANALYSIS = false;
+    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_TIME_SCALING = false;
+    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_PITCH_SCALING = false;
+    //
     
     public static int NUM_FILTERING_STAGES = 2; //2;
     public static int MEDIAN_FILTER_LENGTH = 12; //12; //Length of median filter for smoothing the max. freq. of voicing contour
@@ -449,16 +451,8 @@ public class HntmAnalyzer {
                             hnmSignal.frames[i].n = new FrameNoisePartLpc();
                             hnmSignal.frames[i].setLpCoeffs(lpcs.getA(), (float)lpcs.getGain());
      
-                            //estimateComplexAmplitudes and estimateComplexAmplitudesJampack versions
-                            double[] linearAmps = new double[numHarmonics];
-                            double[] freqsInHz = new double [numHarmonics];
-                            
-                            for (j=0; j<numHarmonics; j++)
-                            {
-                                freqsInHz[j] = (j+1)*f0InHz;
-                                linearAmps[j] = MathUtils.magnitudeComplex(harmonics[j]);
-                            }
-                            //
+
+                           
                             
                             /*
                             //Only for display purposes
@@ -473,32 +467,15 @@ public class HntmAnalyzer {
                             //
                             */
 
-                            if (!HntmAnalyzer.USE_HARMONIC_AMPLITUDES_DIRECTLY)
-                            {
-                                double[] harmonicWeights = null;
-                                if (HntmAnalyzer.USE_WEIGHTING_IN_REGULARIZED_CEPSTRUM_ESTIMATION_HARMONIC)
-                                {
-                                    GaussWindow g = new GaussWindow(2*linearAmps.length);
-                                    g.normalizeRange(0.1f, 1.0f);
-                                    harmonicWeights = g.getCoeffsRightHalf();
-                                } 
-                                
-                                if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
-                                    hnmSignal.frames[i].h.ceps = RegularizedPreWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, fs, HntmAnalyzer.HARMONIC_PART_CEPSTRUM_ORDER_PRE_BARK, harmonicWeights, HntmAnalyzer.REGULARIZED_CEPSTRUM_ESTIMATION_LAMBDA_HARMONIC);
-                                else if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
-                                    hnmSignal.frames[i].h.ceps = RegularizedPostWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, fs, HntmAnalyzer.HARMONIC_PART_CEPSTRUM_ORDER_PRE_MEL, HntmAnalyzer.HARMONIC_PART_CEPSTRUM_ORDER_POST_MEL, harmonicWeights, HntmAnalyzer.REGULARIZED_CEPSTRUM_ESTIMATION_LAMBDA_HARMONIC);
-                            }
-                            else
-                                hnmSignal.frames[i].h.ceps = ArrayUtils.subarray(linearAmps, 0, linearAmps.length); //Use amplitudes directly
-
+                           
                             hnmSignal.frames[i].h.complexAmps = ArrayUtils.copy(harmonics);
                             
                             if(i==10)
                             {
                                 //The following is only for visualization
                                 double[] frameDftDB = MathUtils.amp2db(SignalProcUtils.getFrameHalfMagnitudeSpectrum(frm, fftSize));
-                                double[] dbAmps = MathUtils.amp2db(linearAmps);
-                                double[] vocalTractDB = RegularizedPreWarpedCepstrumEstimator.cepstrum2dbSpectrumValues(hnmSignal.frames[i].h.ceps, SignalProcUtils.halfSpectrumSize(fftSize)-1, fs);
+                                double[] dbAmps = hnmSignal.frames[i].h.getDBAmps();
+                                double[] vocalTractDB = RegularizedPreWarpedCepstrumEstimator.cepstrum2dbSpectrumValues(hnmSignal.frames[i].h.getCeps(hnmSignal.frames[i].f0InHz, regularizedCepstrumWarpingMethod, fs), SignalProcUtils.halfSpectrumSize(fftSize)-1, fs);
                                 //FileUtils.toTextFile(freqsInHz, "d:\\freqsInHz.txt");
                                 //FileUtils.toTextFile(frameDftDB, "d:\\frameDftDB.txt");
                                 //FileUtils.toTextFile(dbAmps, "d:\\dbAmps.txt");
@@ -506,20 +483,6 @@ public class HntmAnalyzer {
                             }
                             //
                         }
-                        //
-
-                        /*
-                        //estimateComplexAmplitudesJampack2 version
-                        hnmSignal.frames[i].h.phases = new float[numHarmonics];
-                        for (k=1; k<=numHarmonics; k++)
-                            hnmSignal.frames[i].h.phases[k-1] = (float)MathUtils.phaseInRadians(harmonicAmps[k]);
-                        //
-                         */
-
-                        //estimateComplexAmplitudes and estimateComplexAmplitudesJampack versions
-                        hnmSignal.frames[i].h.phases = new float[numHarmonics];
-                        for (k=0; k<numHarmonics; k++)
-                            hnmSignal.frames[i].h.phases[k] = (float)MathUtils.phaseInRadians(harmonics[k]); 
                         //
                     }
                 }
@@ -567,9 +530,12 @@ public class HntmAnalyzer {
                 ((HntmPlusTransientsSpeechSignal)hnmSignal).transients = null;
         }
 
+        //NOT EFFECTIVE SINCE we do not use the newPhases!
+        //Synthesis uses complexAmps only!
         //Phase envelope estimation and unwrapping to ensure phase continuity in frequency domain
+        double[][] modifiedPhases = null;
         if (UNWRAP_PHASES_ALONG_HARMONICS_AFTER_ANALYSIS)
-            unwrapPhasesAlongHarmonics(hnmSignal);
+            modifiedPhases = unwrapPhasesAlongHarmonics(hnmSignal);
         //
 
         return hnmSignal;
@@ -1128,65 +1094,70 @@ public class HntmAnalyzer {
     
     
     //Phase envelope estimation and unwrapping to ensure phase continuity in frequency domain
-    public static void unwrapPhasesAlongHarmonics(HntmSpeechSignal hnmSignal)
+    public static double[][] unwrapPhasesAlongHarmonics(HntmSpeechSignal hntmSignal)
     {
-        int i, k;
-        int maxNumHarmonics = 0;
-        int numHarmonicsCurrentFrame;
-        for (i=0; i<hnmSignal.frames.length; i++)
+        
+        double[] maximumFrequencyOfVoicingsInHz = hntmSignal.getMaximumFrequencyOfVoicings();
+        double[][] phases = hntmSignal.getPhasesInRadians();
+        
+        double[][] newPhases = null;
+        
+        if (phases!=null)
         {
-            if (hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0f && hnmSignal.frames[i].h!=null && hnmSignal.frames[i].h.phases!=null)
+            int i, k;
+            int maxNumHarmonics = 0;
+            int numHarmonicsCurrentFrame;
+            int totalFrames = maximumFrequencyOfVoicingsInHz.length;
+            assert phases.length == totalFrames;
+
+            for (i=0; i<totalFrames; i++)
             {
-                numHarmonicsCurrentFrame = hnmSignal.frames[i].h.phases.length;
-                if (numHarmonicsCurrentFrame>maxNumHarmonics)
-                    maxNumHarmonics = numHarmonicsCurrentFrame;
-            }  
-        }
-
-        float[] dphaseks = new float[maxNumHarmonics];
-        Arrays.fill(dphaseks, 0.0f);
-
-        float[] origPhases = new float[maxNumHarmonics];
-        float[] newPhases = new float[maxNumHarmonics];
-
-        boolean isPrevTrackVoiced;
-        int Mk;
-        for (i=0; i<hnmSignal.frames.length; i++)
-        {
-            if (hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0f && hnmSignal.frames[i].h!=null && hnmSignal.frames[i].h.phases!=null)
-            { 
-                Arrays.fill(origPhases, 0.0f);
-                Arrays.fill(newPhases, 0.0f);
-                System.arraycopy(hnmSignal.frames[i].h.phases, 0, origPhases, 0, hnmSignal.frames[i].h.phases.length);
-                System.arraycopy(hnmSignal.frames[i].h.phases, 0, newPhases, 0, hnmSignal.frames[i].h.phases.length);
-
-                for (k=1; k<hnmSignal.frames[i].h.phases.length-1; k++)
-                {     
-                    isPrevTrackVoiced = false;
-
-                    if (i>0 && hnmSignal.frames[i-1].h!=null && hnmSignal.frames[i-1].h.phases!=null && hnmSignal.frames[i-1].h.phases.length>k)
-                        isPrevTrackVoiced = true;
-
-                    if (!isPrevTrackVoiced) //First voiced frame of a voiced segment
-                        dphaseks[k-1] = hnmSignal.frames[i].h.phases[k]-hnmSignal.frames[i].h.phases[k-1];
-
-                    Mk = (int)(Math.floor((dphaseks[k-1] + hnmSignal.frames[i].h.phases[k] - hnmSignal.frames[i].h.phases[k+1])/(MathUtils.TWOPI)+0.5));
-                    hnmSignal.frames[i].h.phases[k+1] += Mk*MathUtils.TWOPI;
-
-                    dphaseks[k] = hnmSignal.frames[i].h.phases[k+1]-hnmSignal.frames[i].h.phases[k];
-
-                    newPhases[k+1] = hnmSignal.frames[i].h.phases[k+1];
-                }
-
-                if (hnmSignal.frames[i].tAnalysisInSeconds>=0.060 && hnmSignal.frames[i].tAnalysisInSeconds<=0.070)
+                if (maximumFrequencyOfVoicingsInHz[i]>0.0f && phases[i]!=null)
                 {
-                    //MaryUtils.plot(origPhases);
-                    //MaryUtils.plot(newPhases);
+                    numHarmonicsCurrentFrame = phases.length;
+                    if (numHarmonicsCurrentFrame>maxNumHarmonics)
+                        maxNumHarmonics = numHarmonicsCurrentFrame;
+                }  
+            }
+
+            double[] dphaseks = new double[maxNumHarmonics];
+            Arrays.fill(dphaseks, 0.0f);
+
+            newPhases = new double[phases.length][];
+            for (i=0; i<phases.length; i++)
+            {
+                if (phases[i]!=null)
+                    newPhases[i] = new double[phases[i].length];
+            }
+
+            boolean isPrevTrackVoiced;
+            int Mk;
+            for (i=0; i<totalFrames; i++)
+            {
+                if (maximumFrequencyOfVoicingsInHz[i]>0.0f && phases[i]!=null)
+                { 
+                    System.arraycopy(phases[i], 0, newPhases[i], 0, phases[i].length);
+
+                    for (k=1; k<phases[i].length-1; k++)
+                    {     
+                        isPrevTrackVoiced = false;
+
+                        if (i>0 && phases[i-1]!=null && phases[i-1].length>k)
+                            isPrevTrackVoiced = true;
+
+                        if (!isPrevTrackVoiced) //First voiced frame of a voiced segment
+                            dphaseks[k-1] = phases[i][k]-phases[i][k-1];
+
+                        Mk = (int)(Math.floor((dphaseks[k-1] + phases[i][k] - phases[i][k+1])/(MathUtils.TWOPI)+0.5));
+                        newPhases[i][k+1] += Mk*MathUtils.TWOPI;
+
+                        dphaseks[k] = newPhases[i][k+1]-phases[i][k];
+                    }
                 }
             }
-            //else
-            //    Arrays.fill(dphaseks, 0.0f);
         }
+        
+        return newPhases;
     }
 }
 
