@@ -547,7 +547,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
             if (maxFreqOfVoicing<0.0f)
             {
                 //Use abs dft in db for maximum frequency of voicing estimation
-                vo = HnmPitchVoicingAnalyzer.estimateMaxFrequencyOfVoicingsFrame(frameDftDB, params.fs, (float)f0, isVoiced);
+                vo = HnmPitchVoicingAnalyzer.estimateMaxFrequencyOfVoicingsFrame(frameDftDB, params.fs, (float)f0, isVoiced, params.hnmPitchVoicingAnalyzerParams);
 
                 maxVoicingFreqInHz = (float)Math.min(vo.maxFreqOfVoicing, SinusoidalAnalysisParams.MAX_VOICED_FREQ_IN_HZ); //From hnm, not working very properly yet
                 if (maxVoicingFreqInHz>0.0f)

@@ -33,6 +33,7 @@ import java.util.Arrays;
 
 import marytts.signalproc.adaptation.prosody.BasicProsodyModifierParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmPlusTransientsSpeechSignal;
 import marytts.signalproc.window.HammingWindow;
 import marytts.signalproc.window.Window;
@@ -44,7 +45,7 @@ import marytts.util.signal.SignalProcUtils;
  */
 public class TransientPartSynthesizer {
     
-    public static double[] synthesize(HntmPlusTransientsSpeechSignal hnmSignal)
+    public static double[] synthesize(HntmPlusTransientsSpeechSignal hnmSignal, HntmAnalyzerParams analysisParams)
     {
         int outputLen = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
         
@@ -56,7 +57,7 @@ public class TransientPartSynthesizer {
             int i, j;
             int startInd, endInd;
             int windowLeftEndInd, windowRightStartInd;
-            int ws = SignalProcUtils.time2sample(2*HntmAnalyzer.OVERLAP_BETWEEN_TRANSIENT_AND_NONTRANSIENT_REGIONS_IN_SECONDS, hnmSignal.samplingRateInHz);
+            int ws = SignalProcUtils.time2sample(2*analysisParams.overlapBetweenTransientAndNontransientSectionsInSeconds, hnmSignal.samplingRateInHz);
             if (ws%2==0)
                 ws++;
             Window win = new HammingWindow(ws);

@@ -39,6 +39,7 @@ import marytts.signalproc.analysis.RegularizedPreWarpedCepstrumEstimator;
 import marytts.signalproc.process.TDPSOLAInstants;
 import marytts.signalproc.process.TDPSOLAProcessor;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmPlusTransientsSpeechSignal;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
@@ -58,7 +59,9 @@ import marytts.util.signal.SignalProcUtils;
 public class HntmProsodyModifier {
     
     //Note that pmodParams are changed as well
-    public static HntmSpeechSignal modify(HntmSpeechSignal hntmSignal, BasicProsodyModifierParams pmodParams, int regularizedCepstrumWarpingMethod)
+    public static HntmSpeechSignal modify(HntmSpeechSignal hntmSignal, BasicProsodyModifierParams pmodParams, 
+                                          int regularizedCepstrumWarpingMethod,
+                                          HntmAnalyzerParams params)
     {
         int i, j;    
         int currentHarmonicNo;
@@ -328,7 +331,7 @@ public class HntmProsodyModifier {
             //Synthesis uses complexAmps only!
             //Phase envelope estimation and unwrapping to ensure phase continuity in frequency domain
             double[][] modifiedPhases = null;
-            if (HntmAnalyzer.UNWRAP_PHASES_ALONG_HARMONICS_AFTER_TIME_SCALING)
+            if (HntmAnalyzerParams.UNWRAP_PHASES_ALONG_HARMONICS_AFTER_TIME_SCALING)
                 modifiedPhases = HntmAnalyzer.unwrapPhasesAlongHarmonics(hntmSignalMod);
             //
             
@@ -354,7 +357,7 @@ public class HntmProsodyModifier {
                 float harmonicEnergyMod;
                 int k;
                 int leftHarmonicInd, rightHarmonicInd;
-                double[] currentCeps;
+                double[] currentCeps = null;
                 for (i=0; i<hntmSignalMod.frames.length; i++)
                 {
                     isVoiced = false;
@@ -363,8 +366,8 @@ public class HntmProsodyModifier {
 
                     if (isVoiced)
                     {
-                        if (!HntmAnalyzer.USE_HARMONIC_AMPLITUDES_DIRECTLY)
-                            currentCeps = hntmSignalMod.frames[i].h.getCeps(hntmSignalMod.frames[i].f0InHz, regularizedCepstrumWarpingMethod, hntmSignalMod.samplingRateInHz);
+                        if (!params.useHarmonicAmplitudesDirectly)
+                            currentCeps = hntmSignalMod.frames[i].h.getCeps(hntmSignalMod.frames[i].f0InHz, regularizedCepstrumWarpingMethod, hntmSignalMod.samplingRateInHz, params);
                         
                         pScaleInd = MathUtils.findClosest(allScalesTimes, hntmSignalMod.frames[i].tAnalysisInSeconds);
                         pScale = pScalesMod[pScaleInd];
@@ -380,7 +383,7 @@ public class HntmProsodyModifier {
                             {
                                 currentHarmonicNo = (k+1);
 
-                                if (!HntmAnalyzer.USE_HARMONIC_AMPLITUDES_DIRECTLY)
+                                if (!params.useHarmonicAmplitudesDirectly)
                                 {
                                     if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
                                         amps[k] = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz);
@@ -421,14 +424,14 @@ public class HntmProsodyModifier {
                             harmonicEnergyMod = 0.0f;
                             double[] ampsMod = new double[newTotalHarmonics];
                             
-                            if (!HntmAnalyzer.USE_HARMONIC_AMPLITUDES_DIRECTLY)
-                                currentCeps = hntmSignalMod.frames[i].h.getCeps(hntmSignalMod.frames[i].f0InHz, regularizedCepstrumWarpingMethod, hntmSignalMod.samplingRateInHz);
+                            if (!params.useHarmonicAmplitudesDirectly)
+                                currentCeps = hntmSignalMod.frames[i].h.getCeps(hntmSignalMod.frames[i].f0InHz, regularizedCepstrumWarpingMethod, hntmSignalMod.samplingRateInHz, params);
                             
                             for (k=0; k<newTotalHarmonics; k++)
                             {
                                 currentHarmonicNo = (k+1);
 
-                                if (!HntmAnalyzer.USE_HARMONIC_AMPLITUDES_DIRECTLY)
+                                if (!params.useHarmonicAmplitudesDirectly)
                                 {
                                     if (regularizedCepstrumWarpingMethod == RegularizedPreWarpedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
                                         ampsMod[k] = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz);
@@ -473,7 +476,7 @@ public class HntmProsodyModifier {
                 // 
 
                 //Phase envelope estimation and unwrapping to ensure phase continuity in frequency domain
-                if (HntmAnalyzer.UNWRAP_PHASES_ALONG_HARMONICS_AFTER_PITCH_SCALING)
+                if (HntmAnalyzerParams.UNWRAP_PHASES_ALONG_HARMONICS_AFTER_PITCH_SCALING)
                     HntmAnalyzer.unwrapPhasesAlongHarmonics(hntmSignalMod);
                 //
             }

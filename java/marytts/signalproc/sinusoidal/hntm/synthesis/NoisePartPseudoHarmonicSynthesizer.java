@@ -43,6 +43,7 @@ import marytts.signalproc.analysis.RegularizedPostWarpedCepstrumEstimator;
 import marytts.signalproc.analysis.RegularizedPreWarpedCepstrumEstimator;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartPseudoHarmonic;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
@@ -59,7 +60,7 @@ import marytts.util.string.StringUtils;
 public class NoisePartPseudoHarmonicSynthesizer {
 
     //Pseudo harmonics based noise generation for pseudo periods
-    public static double[] synthesize(HntmSpeechSignal hnmSignal, int regularizedCepstrumWarpingMethod, String referenceFile)
+    public static double[] synthesize(HntmSpeechSignal hnmSignal, int regularizedCepstrumWarpingMethod, HntmAnalyzerParams analysisParams, String referenceFile)
     {
         double[] noisePart = null;
         int trackNoToExamine = 1;
@@ -81,7 +82,7 @@ public class NoisePartPseudoHarmonicSynthesizer {
         {
             if (hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0f && hnmSignal.frames[i].n!=null)
             {
-                numHarmonicsCurrentFrame = (int)Math.floor(hnmSignal.samplingRateInHz/HntmAnalyzer.NOISE_F0_IN_HZ+0.5);
+                numHarmonicsCurrentFrame = (int)Math.floor(hnmSignal.samplingRateInHz/analysisParams.noiseF0InHz+0.5);
                 numHarmonicsCurrentFrame = Math.max(0, numHarmonicsCurrentFrame);
                 if (numHarmonicsCurrentFrame>maxNumHarmonics)
                     maxNumHarmonics = numHarmonicsCurrentFrame;
@@ -155,32 +156,32 @@ public class NoisePartPseudoHarmonicSynthesizer {
             
             if (isPrevNoised)
             {
-                numHarmonicsPrevFrame = (int)Math.floor((hnmSignal.samplingRateInHz-hnmSignal.frames[i-1].maximumFrequencyOfVoicingInHz)/HntmAnalyzer.NOISE_F0_IN_HZ+0.5);
+                numHarmonicsPrevFrame = (int)Math.floor((hnmSignal.samplingRateInHz-hnmSignal.frames[i-1].maximumFrequencyOfVoicingInHz)/analysisParams.noiseF0InHz+0.5);
                 numHarmonicsPrevFrame = Math.max(0, numHarmonicsPrevFrame);
-                harmonicIndexShiftPrev = (int)Math.floor(hnmSignal.frames[i-1].maximumFrequencyOfVoicingInHz/HntmAnalyzer.NOISE_F0_IN_HZ+0.5);
+                harmonicIndexShiftPrev = (int)Math.floor(hnmSignal.frames[i-1].maximumFrequencyOfVoicingInHz/analysisParams.noiseF0InHz+0.5);
                 harmonicIndexShiftPrev = Math.max(1, harmonicIndexShiftPrev);
             }
             
             if (isNoised)
             {
-                numHarmonicsCurrentFrame = (int)Math.floor((hnmSignal.samplingRateInHz-hnmSignal.frames[i].maximumFrequencyOfVoicingInHz)/HntmAnalyzer.NOISE_F0_IN_HZ+0.5);
+                numHarmonicsCurrentFrame = (int)Math.floor((hnmSignal.samplingRateInHz-hnmSignal.frames[i].maximumFrequencyOfVoicingInHz)/analysisParams.noiseF0InHz+0.5);
                 numHarmonicsCurrentFrame = Math.max(0, numHarmonicsCurrentFrame);
-                harmonicIndexShiftCurrent = (int)Math.floor(hnmSignal.frames[i].maximumFrequencyOfVoicingInHz/HntmAnalyzer.NOISE_F0_IN_HZ+0.5);
+                harmonicIndexShiftCurrent = (int)Math.floor(hnmSignal.frames[i].maximumFrequencyOfVoicingInHz/analysisParams.noiseF0InHz+0.5);
                 harmonicIndexShiftCurrent = Math.max(1, harmonicIndexShiftCurrent);
             }
             else if (!isNoised && isNextNoised)
             {
-                numHarmonicsCurrentFrame = (int)Math.floor((hnmSignal.samplingRateInHz-hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz)/HntmAnalyzer.NOISE_F0_IN_HZ+0.5);
+                numHarmonicsCurrentFrame = (int)Math.floor((hnmSignal.samplingRateInHz-hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz)/analysisParams.noiseF0InHz+0.5);
                 numHarmonicsCurrentFrame = Math.max(0, numHarmonicsCurrentFrame);
-                harmonicIndexShiftCurrent = (int)Math.floor(hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz/HntmAnalyzer.NOISE_F0_IN_HZ+0.5);
+                harmonicIndexShiftCurrent = (int)Math.floor(hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz/analysisParams.noiseF0InHz+0.5);
                 harmonicIndexShiftCurrent = Math.max(1, harmonicIndexShiftCurrent);
             }
               
             if (isNextNoised)
             {
-                numHarmonicsNextFrame = (int)Math.floor((hnmSignal.samplingRateInHz-hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz)/HntmAnalyzer.NOISE_F0_IN_HZ+0.5);
+                numHarmonicsNextFrame = (int)Math.floor((hnmSignal.samplingRateInHz-hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz)/analysisParams.noiseF0InHz+0.5);
                 numHarmonicsNextFrame = Math.max(0, numHarmonicsNextFrame);
-                harmonicIndexShiftNext = (int)Math.floor(hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz/HntmAnalyzer.NOISE_F0_IN_HZ+0.5);
+                harmonicIndexShiftNext = (int)Math.floor(hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz/analysisParams.noiseF0InHz+0.5);
                 harmonicIndexShiftNext = Math.max(1, harmonicIndexShiftNext);
             }
 
@@ -226,12 +227,12 @@ public class NoisePartPseudoHarmonicSynthesizer {
                     //Amplitudes     
                     if (isTrackNoised)
                     {
-                        if (!HntmAnalyzer.USE_NOISE_AMPLITUDES_DIRECTLY)
+                        if (!analysisParams.useNoiseAmplitudesDirectly)
                         {
                             if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
-                                aksi = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, (k+harmonicIndexShiftCurrent)*HntmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);
+                                aksi = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, (k+harmonicIndexShiftCurrent)*analysisParams.noiseF0InHz, hnmSignal.samplingRateInHz);
                             else  if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)                           
-                                aksi = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, (k+harmonicIndexShiftCurrent)*HntmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);
+                                aksi = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, (k+harmonicIndexShiftCurrent)*analysisParams.noiseF0InHz, hnmSignal.samplingRateInHz);
                         }
                         else
                         {
@@ -246,12 +247,12 @@ public class NoisePartPseudoHarmonicSynthesizer {
                     
                     if (isNextTrackNoised)
                     {
-                        if (!HntmAnalyzer.USE_NOISE_AMPLITUDES_DIRECTLY)
+                        if (!analysisParams.useNoiseAmplitudesDirectly)
                         {
                             if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
-                                aksiPlusOne = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps , (k+harmonicIndexShiftNext)*HntmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);   
+                                aksiPlusOne = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps , (k+harmonicIndexShiftNext)*analysisParams.noiseF0InHz, hnmSignal.samplingRateInHz);   
                             else if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
-                                aksiPlusOne = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps , (k+harmonicIndexShiftNext)*HntmAnalyzer.NOISE_F0_IN_HZ, hnmSignal.samplingRateInHz);   
+                                aksiPlusOne = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps , (k+harmonicIndexShiftNext)*analysisParams.noiseF0InHz, hnmSignal.samplingRateInHz);   
                         }
                         else
                         {
@@ -267,7 +268,7 @@ public class NoisePartPseudoHarmonicSynthesizer {
 
                     //Phases
                     phasekis[k] = (float) (MathUtils.TWOPI*(Math.random()-0.5));
-                    phasekiPlusOne = (float)( phasekis[k] + (k+harmonicIndexShiftCurrent)*MathUtils.TWOPI*HntmAnalyzer.NOISE_F0_IN_HZ*(tsikPlusOne-tsik)); //Equation (3.55)
+                    phasekiPlusOne = (float)( phasekis[k] + (k+harmonicIndexShiftCurrent)*MathUtils.TWOPI*analysisParams.noiseF0InHz*(tsikPlusOne-tsik)); //Equation (3.55)
                     //
                     
                     if (!isPrevTrackNoised)

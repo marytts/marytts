@@ -29,6 +29,7 @@
 
 package marytts.signalproc.sinusoidal;
 
+import marytts.signalproc.sinusoidal.hntm.analysis.pitch.HnmPitchVoicingAnalyzerParams;
 import marytts.signalproc.window.Window;
 import marytts.util.signal.SignalProcUtils;
 
@@ -64,6 +65,7 @@ public class SinusoidalAnalysisParams {
     public static final int REGULARIZED_CEPS = 2; //Regularized cepstrum based envelope (Cappe, et. al. 1995, Stylianou, et. al. 1995)
     //
    
+    HnmPitchVoicingAnalyzerParams hnmPitchVoicingAnalyzerParams;
     public int fs; //Sampling rate in Hz
     public int windowType; //Type of window (See class Window for details)
     public int fftSize; //FFT size in points
@@ -93,6 +95,7 @@ public class SinusoidalAnalysisParams {
     
     public SinusoidalAnalysisParams(SinusoidalAnalysisParams paramsIn)
     {
+        hnmPitchVoicingAnalyzerParams = new HnmPitchVoicingAnalyzerParams(paramsIn.hnmPitchVoicingAnalyzerParams);
         fs = paramsIn.fs;
         windowType = paramsIn.windowType;
         fftSize = paramsIn.fftSize;
@@ -128,6 +131,7 @@ public class SinusoidalAnalysisParams {
                                     boolean bSpectralReassignmentIn,
                                     boolean bAdjustNeighFreqDependentIn)
     {
+        hnmPitchVoicingAnalyzerParams = new HnmPitchVoicingAnalyzerParams();
         fs = samplingRate;
         startFreq = startFreqInHz;
         if (startFreq<0.0)

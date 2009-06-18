@@ -44,6 +44,7 @@ import marytts.signalproc.analysis.RegularizedPostWarpedCepstrumEstimator;
 import marytts.signalproc.analysis.RegularizedPreWarpedCepstrumEstimator;
 import marytts.signalproc.sinusoidal.PitchSynchronousSinusoidalAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
@@ -60,12 +61,12 @@ import marytts.util.MaryUtils;
  */
 public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
     
-    public static double[] synthesize(HntmSpeechSignal hnmSignal, int regularizedCepstrumWarpingMethod)
+    public static double[] synthesize(HntmSpeechSignal hnmSignal, int regularizedCepstrumWarpingMethod, HntmAnalyzerParams params)
     {
-        return synthesize(hnmSignal, regularizedCepstrumWarpingMethod, null);
+        return synthesize(hnmSignal, regularizedCepstrumWarpingMethod, params, null);
     }
     
-    public static double[] synthesize(HntmSpeechSignal hnmSignal, int regularizedCepstrumWarpingMethod, String referenceFile)
+    public static double[] synthesize(HntmSpeechSignal hnmSignal, int regularizedCepstrumWarpingMethod, HntmAnalyzerParams params, String referenceFile)
     {
         double[] harmonicPart = null;
         int trackNoToExamine = 1;
@@ -175,10 +176,13 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
 
             f0Average = 0.5f*(f0InHz+f0InHzNext);
             
-            if (!HntmAnalyzer.USE_HARMONIC_AMPLITUDES_DIRECTLY)
+            if (!params.useHarmonicAmplitudesDirectly)
             {
-                currentCeps = hnmSignal.frames[i].h.getCeps(f0InHz, regularizedCepstrumWarpingMethod, hnmSignal.samplingRateInHz);
-                nextCeps = hnmSignal.frames[i+1].h.getCeps(f0InHzNext, regularizedCepstrumWarpingMethod, hnmSignal.samplingRateInHz);
+                currentCeps = hnmSignal.frames[i].h.getCeps(f0InHz, regularizedCepstrumWarpingMethod, hnmSignal.samplingRateInHz, params);
+                if (i+1<hnmSignal.frames.length)
+                    nextCeps = hnmSignal.frames[i+1].h.getCeps(f0InHzNext, regularizedCepstrumWarpingMethod, hnmSignal.samplingRateInHz, params);
+                else
+                    nextCeps = null;
             }
             
             for (k=0; k<numHarmonicsCurrentFrame; k++)
@@ -226,7 +230,7 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                     //Amplitudes     
                     if (isTrackVoiced)
                     {
-                        if (!HntmAnalyzer.USE_HARMONIC_AMPLITUDES_DIRECTLY)
+                        if (!params.useHarmonicAmplitudesDirectly)
                         {
                             if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
                                 aksi = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*f0InHz, hnmSignal.samplingRateInHz);   
@@ -244,7 +248,7 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                     
                     if (isNextTrackVoiced)
                     {
-                        if (!HntmAnalyzer.USE_HARMONIC_AMPLITUDES_DIRECTLY)
+                        if (!params.useHarmonicAmplitudesDirectly)
                         {
                             if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)  
                                 aksiPlusOne = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(nextCeps, currentHarmonicNo*f0InHzNext, hnmSignal.samplingRateInHz);
