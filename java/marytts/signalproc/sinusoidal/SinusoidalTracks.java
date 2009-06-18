@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.Vector;
 
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameHarmonicPart;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.MathUtils;
@@ -365,7 +366,7 @@ public class SinusoidalTracks {
         }
     }
     
-    public void setSysAmpsAndTimes(HntmSpeechSignal hntmSignal, int regularizedCepstrumWarpingMethod)
+    public void setSysAmpsAndTimes(HntmSpeechSignal hntmSignal, int regularizedCepstrumWarpingMethod, HntmAnalyzerParams params)
     {
         sysAmps = null;
         sysPhases = null;
@@ -383,7 +384,7 @@ public class SinusoidalTracks {
             
             for (int i=0; i<hntmSignal.frames.length; i++)
             {
-                sysCeps.add(hntmSignal.frames[i].h.getCeps(hntmSignal.frames[i].f0InHz, regularizedCepstrumWarpingMethod, hntmSignal.samplingRateInHz));
+                sysCeps.add(hntmSignal.frames[i].h.getCeps(hntmSignal.frames[i].f0InHz, regularizedCepstrumWarpingMethod, hntmSignal.samplingRateInHz, params));
                 times[i] = hntmSignal.frames[i].tAnalysisInSeconds;
             }
         }

@@ -69,6 +69,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.signalproc.analysis.ReflectionCoefficients;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartWaveform;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.window.Window;
 import marytts.util.MaryUtils;
@@ -84,7 +85,7 @@ import marytts.util.signal.SignalProcUtils;
 public class NoisePartWaveformSynthesizer {
     
     //LPC based noise model + OLA approach + Gain normalization according to generated harmonic part gain
-    public static double[] synthesize(HntmSpeechSignal hnmSignal)
+    public static double[] synthesize(HntmSpeechSignal hnmSignal, HntmAnalyzerParams analysisParams)
     {  
         double[] noisePart = null;
         int i;
@@ -158,7 +159,7 @@ public class NoisePartWaveformSynthesizer {
                 if (i==0)
                     tsi = 0.0f;
                 else
-                    tsi = Math.max(0.0f, hnmSignal.frames[i].tAnalysisInSeconds-0.5f*HntmAnalyzer.NOISE_ANALYSIS_WINDOW_DURATION_IN_SECONDS);
+                    tsi = Math.max(0.0f, hnmSignal.frames[i].tAnalysisInSeconds-0.5f*analysisParams.noiseAnalysisWindowDurationInSeconds);
 
                 startIndex = SignalProcUtils.time2sample(tsi, hnmSignal.samplingRateInHz);
 

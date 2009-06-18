@@ -50,7 +50,7 @@ public class FrameHarmonicPart
         }
     }
     
-    public double[] getCeps(double f0InHz, int regularizedCepstrumWarpingMethod, int samplingRateInHz)
+    public double[] getCeps(double f0InHz, int regularizedCepstrumWarpingMethod, int samplingRateInHz, HntmAnalyzerParams params)
     {
         double[] ceps = null;
 
@@ -68,7 +68,7 @@ public class FrameHarmonicPart
             //
 
             double[] harmonicWeights = null;
-            if (HntmAnalyzer.USE_WEIGHTING_IN_REGULARIZED_CEPSTRUM_ESTIMATION_HARMONIC)
+            if (params.useWeightingInRegularizedCepstrumEstimationHarmonic)
             {
                 GaussWindow g = new GaussWindow(2*linearAmps.length);
                 g.normalizeRange(0.1f, 1.0f);
@@ -76,9 +76,9 @@ public class FrameHarmonicPart
             } 
 
             if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
-                ceps = RegularizedPreWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, HntmAnalyzer.HARMONIC_PART_CEPSTRUM_ORDER_PRE_BARK, harmonicWeights, HntmAnalyzer.REGULARIZED_CEPSTRUM_ESTIMATION_LAMBDA_HARMONIC);
+                ceps = RegularizedPreWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, params.harmonicPartCesptrumOrderPreBark, harmonicWeights, params.regularizedCepstrumLambdaHarmonic);
             else if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
-                ceps = RegularizedPostWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, HntmAnalyzer.HARMONIC_PART_CEPSTRUM_ORDER_PRE_MEL, HntmAnalyzer.HARMONIC_PART_CEPSTRUM_ORDER_POST_MEL, harmonicWeights, HntmAnalyzer.REGULARIZED_CEPSTRUM_ESTIMATION_LAMBDA_HARMONIC);
+                ceps = RegularizedPostWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, params.harmonicPartCesptrumOrderPreMel, params.harmonicPartCesptrumOrderPostMel, harmonicWeights, params.regularizedCepstrumLambdaHarmonic);
         }
 
         return ceps;
