@@ -1744,10 +1744,16 @@ public class MathUtils {
 
     public static double[] log10(double[] a)
     {
-        double[] c = new double[a.length];
-        for (int i=0; i<a.length; i++) {
-            c[i] = log10(a[i]);
+        double[] c = null;
+        
+        if (a!=null)
+        {
+            c = new double[a.length];
+            
+            for (int i=0; i<a.length; i++)
+                c[i] = log10(a[i]);
         }
+        
         return c;
     }
 
