@@ -55,7 +55,7 @@ import marytts.util.signal.SignalProcUtils;
 public class NoisePartLpcSynthesizer {
     
     //LPC based noise model + OLA approach + Gain normalization according to generated harmonic part gain
-    public static double[] synthesize(HntmSpeechSignal hnmSignal)
+    public static double[] synthesize(HntmSpeechSignal hnmSignal, HntmSynthesizerParams synthesisParams)
     {    
         double[] noisePart = null;
         int i;
@@ -139,7 +139,7 @@ public class NoisePartLpcSynthesizer {
              */
             //
 
-            int transitionOverlapLen = SignalProcUtils.time2sample(HntmSynthesizer.NOISE_SYNTHESIS_TRANSITION_OVERLAP_IN_SECONDS, hnmSignal.samplingRateInHz);
+            int transitionOverlapLen = SignalProcUtils.time2sample(synthesisParams.noiseSynthesisTransitionOverlapInSeconds, hnmSignal.samplingRateInHz);
             
             for (i=0; i<hnmSignal.frames.length; i++)
             {
@@ -167,9 +167,9 @@ public class NoisePartLpcSynthesizer {
                     isPrevNoised = false;
 
                 if (i<hnmSignal.frames.length-1 && isNextNoised)
-                    noiseWindowDurationInSeconds = Math.max(HntmSynthesizer.NOISE_SYNTHESIS_WINDOW_DURATION_IN_SECONDS, 2*(hnmSignal.frames[i+1].tAnalysisInSeconds-hnmSignal.frames[i].tAnalysisInSeconds));
+                    noiseWindowDurationInSeconds = Math.max(synthesisParams.noiseSynthesisWindowDurationInSeconds, 2*(hnmSignal.frames[i+1].tAnalysisInSeconds-hnmSignal.frames[i].tAnalysisInSeconds));
                 else
-                    noiseWindowDurationInSeconds = HntmSynthesizer.NOISE_SYNTHESIS_WINDOW_DURATION_IN_SECONDS;
+                    noiseWindowDurationInSeconds = synthesisParams.noiseSynthesisWindowDurationInSeconds;
                 wsNoise = SignalProcUtils.time2sample(noiseWindowDurationInSeconds, hnmSignal.samplingRateInHz);
                 if (!isNextNoised)
                     wsNoise += transitionOverlapLen;
@@ -224,10 +224,10 @@ public class NoisePartLpcSynthesizer {
                         //y = SignalProcUtils.arFilter(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, ((FrameNoisePartLpc)hnmSignal.frames[i].n).gain);
                         y = SignalProcUtils.arFilter(x, hnmSignal.frames[i].lpCoeffs, 1.0);
  
-                        if (HntmSynthesizer.HIGHPASS_FILTER_AFTER_NOISE_SYNTHESIS)
+                        if (synthesisParams.highpassFilterAfterNoiseSynthesis)
                             y = SignalProcUtils.fdFilter(y, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5f*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz, fftSizeNoise);
  
-                        MathUtils.adjustStandardDeviation(y, hnmSignal.frames[i].origStd);
+                        MathUtils.adjustStandardDeviation(y, hnmSignal.frames[i].origNoiseStd);
                         
                         //Overlap-add
                         for (n=startIndex; n<Math.min(startIndex+wsNoise, noisePart.length); n++)
@@ -253,7 +253,7 @@ public class NoisePartLpcSynthesizer {
         }
 
         //Now, apply the triangular noise envelope for voiced parts
-        if (HntmSynthesizer.APPLY_TRIANGULAR_NOISE_ENVELOPE_FOR_VOICED_PARTS)
+        if (synthesisParams.applyTriangularNoiseEnvelopeForVoicedParts)
         {
             double[] enEnv;
             int enEnvLen;
@@ -292,13 +292,13 @@ public class NoisePartLpcSynthesizer {
                         l2 = SignalProcUtils.time2sample(0.85*(tsiNext-tsi), hnmSignal.samplingRateInHz);
                         lMid = (int)Math.floor(0.5*(l1+l2)+0.5);
                         for (n=0; n<l1; n++)
-                            enEnv[n] = HntmSynthesizer.ENERGY_TRIANGLE_LOWER_VALUE;
+                            enEnv[n] = synthesisParams.energyTriangleLowerValue;
                         for (n=l1; n<lMid; n++)
-                            enEnv[n] = (n-l1)*(HntmSynthesizer.ENERGY_TRIANGLE_UPPER_VALUE-HntmSynthesizer.ENERGY_TRIANGLE_LOWER_VALUE)/(lMid-l1)+HntmSynthesizer.ENERGY_TRIANGLE_LOWER_VALUE;
+                            enEnv[n] = (n-l1)*(synthesisParams.energyTriangleUpperValue-synthesisParams.energyTriangleLowerValue)/(lMid-l1)+synthesisParams.energyTriangleLowerValue;
                         for (n=lMid; n<l2; n++)
-                            enEnv[n] = (n-lMid)*(HntmSynthesizer.ENERGY_TRIANGLE_LOWER_VALUE-HntmSynthesizer.ENERGY_TRIANGLE_UPPER_VALUE)/(l2-lMid)+HntmSynthesizer.ENERGY_TRIANGLE_UPPER_VALUE;
+                            enEnv[n] = (n-lMid)*(synthesisParams.energyTriangleLowerValue-synthesisParams.energyTriangleUpperValue)/(l2-lMid)+synthesisParams.energyTriangleUpperValue;
                         for (n=l2; n<enEnvLen; n++)
-                            enEnv[n] = HntmSynthesizer.ENERGY_TRIANGLE_LOWER_VALUE;
+                            enEnv[n] = synthesisParams.energyTriangleLowerValue;
 
                         for (n=startIndex; n<=Math.min(noisePart.length-1, startIndexNext); n++)
                             noisePart[n] *= enEnv[n-startIndex];

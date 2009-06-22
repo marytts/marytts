@@ -660,6 +660,15 @@ public class FileUtils {
         writeTextFile(lines, filename);
     }
     
+    public static void toTextFile(double[][] x, String filename)
+    {
+        String[][] lines = new String[x.length][];
+        for (int i=0; i<x.length; i++)
+            lines[i] = StringUtils.toStringLines(x[i]);
+
+        writeTextFile(lines, filename);
+    }
+    
     public static void toTextFile(ComplexNumber[] x, String filename)
     {
         writeTextFile(StringUtils.toStringLines(x), filename);

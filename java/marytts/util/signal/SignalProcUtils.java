@@ -868,10 +868,36 @@ public class SignalProcUtils {
     {
         return (int)Math.floor(time*samplingRate+0.5f);
     }
+   
+    public static int[] time2sample(float[] times, int samplingRate)
+    {
+        int[] samples = null;
+        if (times!=null && times.length>0)
+        {
+            samples = new int[times.length];
+            for (int i=0; i<times.length; i++)
+                samples[i] = time2sample(times[i], samplingRate);
+        }
+        
+        return samples;
+    }
     
     public static int time2sample(double time, int samplingRate)
     {
         return (int)Math.floor(time*samplingRate+0.5);
+    }
+    
+    public static int[] time2sample(double[] times, int samplingRate)
+    {
+        int[] samples = null;
+        if (times!=null && times.length>0)
+        {
+            samples = new int[times.length];
+            for (int i=0; i<times.length; i++)
+                samples[i] = time2sample(times[i], samplingRate);
+        }
+        
+        return samples;
     }
     
     public static double time2sampleDouble(double time, int samplingRate)

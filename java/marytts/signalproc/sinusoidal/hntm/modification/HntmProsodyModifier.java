@@ -59,8 +59,8 @@ import marytts.util.signal.SignalProcUtils;
 public class HntmProsodyModifier {
     
     //Note that pmodParams are changed as well
-    public static HntmSpeechSignal modify(HntmSpeechSignal hntmSignal, BasicProsodyModifierParams pmodParams, 
-                                          int regularizedCepstrumWarpingMethod,
+    public static HntmSpeechSignal modify(HntmSpeechSignal hntmSignal, 
+                                          BasicProsodyModifierParams pmodParams, 
                                           HntmAnalyzerParams params)
     {
         int i, j;    
@@ -367,7 +367,7 @@ public class HntmProsodyModifier {
                     if (isVoiced)
                     {
                         if (!params.useHarmonicAmplitudesDirectly)
-                            currentCeps = hntmSignalMod.frames[i].h.getCeps(hntmSignalMod.frames[i].f0InHz, regularizedCepstrumWarpingMethod, hntmSignalMod.samplingRateInHz, params);
+                            currentCeps = hntmSignalMod.frames[i].h.getCeps(hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz, params);
                         
                         pScaleInd = MathUtils.findClosest(allScalesTimes, hntmSignalMod.frames[i].tAnalysisInSeconds);
                         pScale = pScalesMod[pScaleInd];
@@ -385,9 +385,9 @@ public class HntmProsodyModifier {
 
                                 if (!params.useHarmonicAmplitudesDirectly)
                                 {
-                                    if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
+                                    if (params.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
                                         amps[k] = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz);
-                                    else if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
+                                    else if (params.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
                                         amps[k] = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz);
                                 }
                                 else
@@ -425,7 +425,7 @@ public class HntmProsodyModifier {
                             double[] ampsMod = new double[newTotalHarmonics];
                             
                             if (!params.useHarmonicAmplitudesDirectly)
-                                currentCeps = hntmSignalMod.frames[i].h.getCeps(hntmSignalMod.frames[i].f0InHz, regularizedCepstrumWarpingMethod, hntmSignalMod.samplingRateInHz, params);
+                                currentCeps = hntmSignalMod.frames[i].h.getCeps(hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz, params);
                             
                             for (k=0; k<newTotalHarmonics; k++)
                             {
@@ -433,9 +433,9 @@ public class HntmProsodyModifier {
 
                                 if (!params.useHarmonicAmplitudesDirectly)
                                 {
-                                    if (regularizedCepstrumWarpingMethod == RegularizedPreWarpedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
+                                    if (params.regularizedCepstrumWarpingMethod == RegularizedPreWarpedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
                                         ampsMod[k] = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz);
-                                    else if (regularizedCepstrumWarpingMethod == RegularizedPostWarpedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
+                                    else if (params.regularizedCepstrumWarpingMethod == RegularizedPostWarpedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
                                         ampsMod[k] = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz);
                                 }
                                 else

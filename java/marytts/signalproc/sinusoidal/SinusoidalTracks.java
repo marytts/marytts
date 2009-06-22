@@ -366,7 +366,7 @@ public class SinusoidalTracks {
         }
     }
     
-    public void setSysAmpsAndTimes(HntmSpeechSignal hntmSignal, int regularizedCepstrumWarpingMethod, HntmAnalyzerParams params)
+    public void setSysAmpsAndTimes(HntmSpeechSignal hntmSignal, HntmAnalyzerParams params)
     {
         sysAmps = null;
         sysPhases = null;
@@ -384,7 +384,7 @@ public class SinusoidalTracks {
             
             for (int i=0; i<hntmSignal.frames.length; i++)
             {
-                sysCeps.add(hntmSignal.frames[i].h.getCeps(hntmSignal.frames[i].f0InHz, regularizedCepstrumWarpingMethod, hntmSignal.samplingRateInHz, params));
+                sysCeps.add(hntmSignal.frames[i].h.getCeps(hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz, params));
                 times[i] = hntmSignal.frames[i].tAnalysisInSeconds;
             }
         }
