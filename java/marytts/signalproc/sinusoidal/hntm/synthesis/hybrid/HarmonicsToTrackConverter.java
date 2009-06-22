@@ -62,7 +62,7 @@ import marytts.util.signal.SignalProcUtils;
  */
 public class HarmonicsToTrackConverter {
     
-    public static SinusoidalTracks convert(HntmSpeechSignal hntmSignal, int regularizedCepstrumWarpingMethod, HntmAnalyzerParams analysisParams)
+    public static SinusoidalTracks convert(HntmSpeechSignal hntmSignal, HntmAnalyzerParams analysisParams)
     {        
         int numFrames = hntmSignal.frames.length;
         float deltaInRadians = SignalProcUtils.hz2radian(SinusoidalAnalysisParams.DEFAULT_DELTA_IN_HZ, hntmSignal.samplingRateInHz);
@@ -87,12 +87,12 @@ public class HarmonicsToTrackConverter {
                 if (hntmSignal.frames[i].h.complexAmps!=null && hntmSignal.frames[i].h.complexAmps.length>0)
                 {
                     if (!analysisParams.useHarmonicAmplitudesDirectly)
-                        currentCeps = hntmSignal.frames[i].h.getCeps(hntmSignal.frames[i].f0InHz, regularizedCepstrumWarpingMethod, hntmSignal.samplingRateInHz, analysisParams); 
+                        currentCeps = hntmSignal.frames[i].h.getCeps(hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz, analysisParams); 
                                       
                     if (tr==null) //If no tracks yet, assign the current sinusoids to new tracks
                     {
                         tr = new SinusoidalTracks(hntmSignal.frames[i].h.complexAmps.length, hntmSignal.samplingRateInHz);
-                        tr.setSysAmpsAndTimes(hntmSignal, regularizedCepstrumWarpingMethod, analysisParams);
+                        tr.setSysAmpsAndTimes(hntmSignal, analysisParams);
 
                         for (j=0; j<hntmSignal.frames[i].h.complexAmps.length; j++)
                         {
@@ -104,9 +104,9 @@ public class HarmonicsToTrackConverter {
                             amp = 0.0f;
                             if (!analysisParams.useHarmonicAmplitudesDirectly)
                             {
-                                if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING) 
+                                if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING) 
                                     amp = (float)RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, j*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz);
-                                else if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING) 
+                                else if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING) 
                                     amp = (float)RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, j*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz);
                             }
                             else
@@ -156,9 +156,9 @@ public class HarmonicsToTrackConverter {
                                 amp = 0.0f;
                                 if (!analysisParams.useHarmonicAmplitudesDirectly)
                                 {
-                                    if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
+                                    if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
                                         amp = (float)RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, k*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz);
-                                    else  if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
+                                    else  if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
                                         amp = (float)RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, k*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz);
                                 }
                                 else
@@ -212,9 +212,9 @@ public class HarmonicsToTrackConverter {
                                 amp = 0.0f;
                                 if (!analysisParams.useHarmonicAmplitudesDirectly)
                                 {
-                                    if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
+                                    if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
                                         amp = (float)RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, k*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz);
-                                    else if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
+                                    else if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
                                         amp = (float)RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, k*hntmSignal.frames[i].f0InHz, hntmSignal.samplingRateInHz);
                                 }
                                 else

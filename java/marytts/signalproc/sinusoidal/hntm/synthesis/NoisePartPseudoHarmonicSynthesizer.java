@@ -60,7 +60,7 @@ import marytts.util.string.StringUtils;
 public class NoisePartPseudoHarmonicSynthesizer {
 
     //Pseudo harmonics based noise generation for pseudo periods
-    public static double[] synthesize(HntmSpeechSignal hnmSignal, int regularizedCepstrumWarpingMethod, HntmAnalyzerParams analysisParams, String referenceFile)
+    public static double[] synthesize(HntmSpeechSignal hnmSignal, HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParams, String referenceFile)
     {
         double[] noisePart = null;
         int trackNoToExamine = 1;
@@ -126,7 +126,7 @@ public class NoisePartPseudoHarmonicSynthesizer {
         }
         //
         
-        int transitionLen = SignalProcUtils.time2sample(HntmSynthesizer.UNVOICED_VOICED_TRACK_TRANSITION_IN_SECONDS, hnmSignal.samplingRateInHz);
+        int transitionLen = SignalProcUtils.time2sample(synthesisParams.unvoicedVoicedTrackTransitionInSeconds, hnmSignal.samplingRateInHz);
         Window transitionWin = Window.get(Window.HAMMING, transitionLen*2);
         transitionWin.normalizePeakValue(1.0f);
         double[] halfTransitionWinLeft = transitionWin.getCoeffsLeftHalf();
@@ -229,9 +229,9 @@ public class NoisePartPseudoHarmonicSynthesizer {
                     {
                         if (!analysisParams.useNoiseAmplitudesDirectly)
                         {
-                            if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
+                            if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
                                 aksi = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, (k+harmonicIndexShiftCurrent)*analysisParams.noiseF0InHz, hnmSignal.samplingRateInHz);
-                            else  if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)                           
+                            else  if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)                           
                                 aksi = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps, (k+harmonicIndexShiftCurrent)*analysisParams.noiseF0InHz, hnmSignal.samplingRateInHz);
                         }
                         else
@@ -249,9 +249,9 @@ public class NoisePartPseudoHarmonicSynthesizer {
                     {
                         if (!analysisParams.useNoiseAmplitudesDirectly)
                         {
-                            if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
+                            if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
                                 aksiPlusOne = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps , (k+harmonicIndexShiftNext)*analysisParams.noiseF0InHz, hnmSignal.samplingRateInHz);   
-                            else if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
+                            else if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
                                 aksiPlusOne = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i+1].n).ceps , (k+harmonicIndexShiftNext)*analysisParams.noiseF0InHz, hnmSignal.samplingRateInHz);   
                         }
                         else
@@ -316,7 +316,7 @@ public class NoisePartPseudoHarmonicSynthesizer {
             }
 
    
-            if (referenceFile!=null && FileUtils.exists(referenceFile) && HntmSynthesizer.WRITE_SEPARATE_TRACKS_TO_OUTPUT)
+            if (referenceFile!=null && FileUtils.exists(referenceFile) && synthesisParams.writeSeparateHarmonicTracksToOutputs)
             {
                 //Write separate tracks to output
                 AudioInputStream inputAudio = null;

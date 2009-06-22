@@ -128,6 +128,34 @@ public class HntmSpeechSignal {
         return lpcsAll;
     }
     
+    public double[] getLpcGainsAll()
+    {
+        double[] gainsAll = null;
+        
+        if (frames!=null && frames.length>0)
+        {
+            gainsAll = new double[frames.length];
+            for (int i=0; i<frames.length; i++)
+                gainsAll[i] = frames[i].lpGain;
+        }
+        
+        return gainsAll;
+    }
+    
+    public float[] getOrigNoiseStds()
+    {
+        float[] origNoiseStdsAll = null;
+        
+        if (frames!=null && frames.length>0)
+        {
+            origNoiseStdsAll = new float[frames.length];
+            for (int i=0; i<frames.length; i++)
+                origNoiseStdsAll[i] = frames[i].origNoiseStd;
+        }
+        
+        return origNoiseStdsAll;
+    }
+    
     public double[] getMaximumFrequencyOfVoicings()
     {
         double[] maximumFrequencyOfVoicings = null;

@@ -37,6 +37,9 @@ public class HnmPitchVoicingAnalyzerParams
 {
     public float mvfAnalysisWindowSizeInSeconds;
     public float mvfAnalysisSkipSizeInSeconds;
+    public float f0AnalysisWindowSizeInSeconds;
+    public float f0AnalysisSkipSizeInSeconds;
+    public int fftSize;
     public int numFilteringStages;
     public int medianFilterLength;
     public int movingAverageFilterLength;
@@ -60,6 +63,9 @@ public class HnmPitchVoicingAnalyzerParams
     {
         mvfAnalysisWindowSizeInSeconds = existing.mvfAnalysisWindowSizeInSeconds;
         mvfAnalysisSkipSizeInSeconds = existing.mvfAnalysisSkipSizeInSeconds;
+        f0AnalysisWindowSizeInSeconds = existing.f0AnalysisWindowSizeInSeconds;
+        f0AnalysisSkipSizeInSeconds = existing.f0AnalysisSkipSizeInSeconds;
+        fftSize = existing.fftSize;
         numFilteringStages = existing.numFilteringStages;
         medianFilterLength = existing.medianFilterLength;
         movingAverageFilterLength = existing.movingAverageFilterLength;
@@ -84,6 +90,9 @@ public class HnmPitchVoicingAnalyzerParams
     {
         mvfAnalysisWindowSizeInSeconds = 0.040f;
         mvfAnalysisSkipSizeInSeconds = 0.010f;
+        f0AnalysisWindowSizeInSeconds = 0.040f;
+        f0AnalysisSkipSizeInSeconds = 0.005f;
+        fftSize = 4096;
         
         numFilteringStages = 2; //2;
         medianFilterLength = 12; //12; //Length of median filter for smoothing the max. freq. of voicing contour
@@ -98,8 +107,8 @@ public class HnmPitchVoicingAnalyzerParams
         minimumTotalHarmonics = 0; //Minimum number of total harmonics to be included in voiced region (effective only when f0>10.0)
         maximumTotalHarmonics = 100; //Maximum number of total harmonics to be included in voiced region (effective only when f0>10.0)
         minimumVoicedFrequencyOfVoicing = 0.0f; //All voiced sections will have at least this freq. of voicing
-        maximumVoicedFrequencyOfVoicing = 5000.0f; //All voiced sections will have at least this freq. of voicing
-        maximumFrequencyOfVoicingFinalShift = 1500.0f; //The max freq. of voicing contour is shifted by this amount finally
+        maximumVoicedFrequencyOfVoicing = 6000.0f; //All voiced sections will have at least this freq. of voicing
+        maximumFrequencyOfVoicingFinalShift = 1000.0f; //The max freq. of voicing contour is shifted by this amount finally
         runningMeanVoicingThreshold = 0.5f; //Between 0.0 and 1.0, decrease ==> Max. voicing freq increases
 
         lastCorrelatedHarmonicNeighbour = -1; //Assume correlation between at most among this many harmonics (-1 ==> full correlation approach) 

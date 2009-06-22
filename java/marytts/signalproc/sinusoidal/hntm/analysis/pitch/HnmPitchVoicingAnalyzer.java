@@ -161,15 +161,7 @@ public class HnmPitchVoicingAnalyzer {
         return initialF0s;
     }
     
-    public static  float[] analyzeVoicings(double[] x, int samplingRate, int fftSize, float[] initialF0s,
-                                           HnmPitchVoicingAnalyzerParams params) 
-    {
-        return analyzeVoicings(x, samplingRate, fftSize, initialF0s, params.mvfAnalysisWindowSizeInSeconds, params.mvfAnalysisSkipSizeInSeconds, params);
-    }
-    
-    public static  float[] analyzeVoicings(double[] x, int samplingRate,
-                                           int fftSize, float[] initialF0s, float windowSizeInSecondsF0Analysis, float skipSizeInSecondsF0Analysis,
-                                           HnmPitchVoicingAnalyzerParams params) 
+    public static  float[] analyzeVoicings(double[] x, int samplingRate, float[] initialF0s, HnmPitchVoicingAnalyzerParams params) 
     {
         //First remove dc-bias and normalize signal energy
         //MaryUtils.plot(x);
@@ -197,11 +189,11 @@ public class HnmPitchVoicingAnalyzer {
         int currentF0Index;
         int i;
         
-        while (fftSize<ws)
-            fftSize *= 2;
+        while (params.fftSize<ws)
+            params.fftSize *= 2;
 
-        int maxFreq = (int) (Math.floor(0.5*fftSize+0.5)+1);
-        ComplexArray Y = new ComplexArray(fftSize);
+        int maxFreq = (int) (Math.floor(0.5*params.fftSize+0.5)+1);
+        ComplexArray Y = new ComplexArray(params.fftSize);
         double[][] allDBSpectra = new double[numfrm][maxFreq];
         float prevMaxFreqVoicing, prevPrevMaxFreqVoicing;
         
@@ -219,7 +211,7 @@ public class HnmPitchVoicingAnalyzer {
             endIndex = startIndex+Math.min(ws, x.length-i*ss)-1;
             
             currentTime = i*params.mvfAnalysisSkipSizeInSeconds+0.5f*params.mvfAnalysisWindowSizeInSeconds;
-            currentF0Index = SignalProcUtils.time2frameIndex(currentTime, windowSizeInSecondsF0Analysis, skipSizeInSecondsF0Analysis);
+            currentF0Index = SignalProcUtils.time2frameIndex(currentTime, params.f0AnalysisWindowSizeInSeconds, params.f0AnalysisSkipSizeInSeconds);
             currentF0Index = MathUtils.CheckLimits(currentF0Index, 0, initialF0s.length-1);
             mappedF0s[i] = initialF0s[currentF0Index];
 
@@ -229,7 +221,7 @@ public class HnmPitchVoicingAnalyzer {
             //
 
             //Compute DFT
-            if (MathUtils.isPowerOfTwo(fftSize))
+            if (MathUtils.isPowerOfTwo(params.fftSize))
                 FFT.transform(Y.real, Y.imag, false);
             else
                 Y = FFTMixedRadix.fftComplex(Y);
@@ -920,12 +912,11 @@ public class HnmPitchVoicingAnalyzer {
         float searchStepInHz = 0.01f;
         //
         
-        int fftSize = getDefaultFFTSize(samplingRate);
-       
+        params.fftSize = getDefaultFFTSize(samplingRate);
 
         float[] initialF0s = HnmPitchVoicingAnalyzer.estimateInitialPitch(x, samplingRate, f0MinInHz, f0MaxInHz, windowType, params);
-        float[] maxFrequencyOfVoicings = HnmPitchVoicingAnalyzer.analyzeVoicings(x, samplingRate, fftSize, initialF0s, params);
-        float[] f0s = HnmPitchVoicingAnalyzer.estimateRefinedPitch(fftSize, samplingRate, leftNeighInHz, rightNeighInHz, searchStepInHz, initialF0s, maxFrequencyOfVoicings);
+        float[] maxFrequencyOfVoicings = HnmPitchVoicingAnalyzer.analyzeVoicings(x, samplingRate, initialF0s, params);
+        float[] f0s = HnmPitchVoicingAnalyzer.estimateRefinedPitch(params.fftSize, samplingRate, leftNeighInHz, rightNeighInHz, searchStepInHz, initialF0s, maxFrequencyOfVoicings);
         
         for (int i=0; i<f0s.length; i++)
             System.out.println(String.valueOf(i*params.mvfAnalysisSkipSizeInSeconds+0.5f*params.mvfAnalysisWindowSizeInSeconds) + " sec. InitialF0=" + String.valueOf(initialF0s[i]) + " RefinedF0="+ String.valueOf(f0s[i]));

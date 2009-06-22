@@ -82,10 +82,10 @@ import marytts.util.signal.SignalProcUtils;
  * @author oytun.turk
  *
  */
-public class NoisePartWaveformSynthesizer {
-    
+public class NoisePartWaveformSynthesizer 
+{    
     //LPC based noise model + OLA approach + Gain normalization according to generated harmonic part gain
-    public static double[] synthesize(HntmSpeechSignal hnmSignal, HntmAnalyzerParams analysisParams)
+    public static double[] synthesize(HntmSpeechSignal hnmSignal, HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParams)
     {  
         double[] noisePart = null;
         int i;
@@ -129,7 +129,7 @@ public class NoisePartWaveformSynthesizer {
             //Noise source of full length
             double[] noiseSourceHpf = null;
 
-            int transitionOverlapLen = SignalProcUtils.time2sample(HntmSynthesizer.NOISE_SYNTHESIS_TRANSITION_OVERLAP_IN_SECONDS, hnmSignal.samplingRateInHz);
+            int transitionOverlapLen = SignalProcUtils.time2sample(synthesisParams.noiseSynthesisTransitionOverlapInSeconds, hnmSignal.samplingRateInHz);
             
             for (i=0; i<hnmSignal.frames.length; i++)
             {
@@ -175,7 +175,7 @@ public class NoisePartWaveformSynthesizer {
                         wgt = winNoise.getCoeffs();
                         //
                         
-                        if (!HntmSynthesizer.HIGHPASS_FILTER_AFTER_NOISE_SYNTHESIS)
+                        if (!synthesisParams.highpassFilterAfterNoiseSynthesis)
                             y = SignalProcUtils.fdFilter(y, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5f*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz, fftSizeNoise);
 
                         //Overlap-add

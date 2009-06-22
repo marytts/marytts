@@ -29,7 +29,10 @@
 
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
+import marytts.signalproc.analysis.RegularizedCepstrumEstimator;
 import marytts.signalproc.sinusoidal.hntm.analysis.pitch.HnmPitchVoicingAnalyzerParams;
+import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizer;
+import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizerParams;
 import marytts.signalproc.window.Window;
 
 /**
@@ -37,15 +40,20 @@ import marytts.signalproc.window.Window;
  *
  */
 public class HntmAnalyzerParams {
+
+    HnmPitchVoicingAnalyzerParams hnmPitchVoicingAnalyzerParams;
     
+    public int harmonicModel;
     public static final int HARMONICS_PLUS_NOISE = 1;
     public static final int HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE = 2;
-
+    
+    public int noiseModel;
     public static final int LPC = 1; //Noise part model based on LPC
     public static final int PSEUDO_HARMONIC = 2; //Noise part model based on pseude harmonics for f0=NOISE_F0_IN_HZ
     public static final int HIGHPASS_WAVEFORM = 3; //Noise part model based on frame waveform (i.e. no model, overlap-add noise part generation)
-
-    HnmPitchVoicingAnalyzerParams hnmPitchVoicingAnalyzerParams;
+    
+    public int regularizedCepstrumWarpingMethod;
+    public int harmonicSynthesisMethodBeforeNoiseAnalysis;
     
     public boolean useHarmonicAmplitudesDirectly; 
     public double regularizedCepstrumLambdaHarmonic;   
@@ -56,6 +64,8 @@ public class HntmAnalyzerParams {
     
     public boolean computeNoisePartLpOrderFromSamplingRate;
     public int noisePartLpOrder;
+    public float preemphasisCoefNoise;
+    public boolean hpfBeforeNoiseAnalysis;
     
     public boolean useNoiseAmplitudesDirectly;
     public double regularizedCepstrumEstimationLambdaNoise;  
@@ -90,16 +100,24 @@ public class HntmAnalyzerParams {
     {
         hnmPitchVoicingAnalyzerParams = new HnmPitchVoicingAnalyzerParams();
         
+        harmonicModel = HARMONICS_PLUS_NOISE;
+        noiseModel = HIGHPASS_WAVEFORM;
+        
+        regularizedCepstrumWarpingMethod = RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING;
+        harmonicSynthesisMethodBeforeNoiseAnalysis = HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION;
+        
         useHarmonicAmplitudesDirectly = false; //Use amplitudes directly, the following are only effective if this is false
-        regularizedCepstrumLambdaHarmonic = 1.0e-3;  //Reducing this may increase harmonic amplitude estimation accuracy 
+        regularizedCepstrumLambdaHarmonic = 1.0e-5;  //Reducing this may increase harmonic amplitude estimation accuracy 
         useWeightingInRegularizedCepstrumEstimationHarmonic = false;
         harmonicPartCesptrumOrderPreBark = 24;  //Cepstrum order to represent harmonic amplitudes
-        harmonicPartCesptrumOrderPreMel = 64; //Pre-cepstrum order to compute linear cepstral coefficients
+        harmonicPartCesptrumOrderPreMel = 128; //Pre-cepstrum order to compute linear cepstral coefficients
                                               //0 means auto computation from number of harmonics (See RegularizedPostWarpedCepstrumEstimator.getAutoCepsOrderPre()).
-        harmonicPartCesptrumOrderPostMel = 24; //Cepstrum order to represent harmonic amplitudes
+        harmonicPartCesptrumOrderPostMel = 32; //Cepstrum order to represent harmonic amplitudes
         
         computeNoisePartLpOrderFromSamplingRate = false; //If true, noise LP order is determined using sampling rate (might be high)
-        noisePartLpOrder = 12; //Effective only if the above parameter is false
+        noisePartLpOrder = 24; //Effective only if the above parameter is false
+        preemphasisCoefNoise = 0.97f;
+        hpfBeforeNoiseAnalysis = true; //False means the noise part will be full-band
         
         useNoiseAmplitudesDirectly = true; //If noise part is PSEUDE_HARMONICU and if this is true, use amplitudes directly. The following are only effective if this is false
         regularizedCepstrumEstimationLambdaNoise = 2e-4; //Reducing this may increase harmonic amplitude estimation accuracy    
@@ -131,6 +149,11 @@ public class HntmAnalyzerParams {
     {
         hnmPitchVoicingAnalyzerParams = new HnmPitchVoicingAnalyzerParams(existing.hnmPitchVoicingAnalyzerParams);
         
+        harmonicModel = existing.harmonicModel;
+        noiseModel = existing.noiseModel;
+        regularizedCepstrumWarpingMethod = existing.regularizedCepstrumWarpingMethod;
+        harmonicSynthesisMethodBeforeNoiseAnalysis = existing.harmonicSynthesisMethodBeforeNoiseAnalysis;
+        
         useHarmonicAmplitudesDirectly = existing.useHarmonicAmplitudesDirectly;
         regularizedCepstrumLambdaHarmonic = existing.regularizedCepstrumLambdaHarmonic; 
         useWeightingInRegularizedCepstrumEstimationHarmonic = existing.useWeightingInRegularizedCepstrumEstimationHarmonic;
@@ -141,6 +164,8 @@ public class HntmAnalyzerParams {
         
         computeNoisePartLpOrderFromSamplingRate = existing.computeNoisePartLpOrderFromSamplingRate;
         noisePartLpOrder = existing.noisePartLpOrder;
+        preemphasisCoefNoise = existing.preemphasisCoefNoise;
+        hpfBeforeNoiseAnalysis = existing.hpfBeforeNoiseAnalysis;
         
         useNoiseAmplitudesDirectly = existing.useNoiseAmplitudesDirectly;
         regularizedCepstrumEstimationLambdaNoise = existing.regularizedCepstrumEstimationLambdaNoise;

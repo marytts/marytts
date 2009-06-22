@@ -50,7 +50,7 @@ public class FrameHarmonicPart
         }
     }
     
-    public double[] getCeps(double f0InHz, int regularizedCepstrumWarpingMethod, int samplingRateInHz, HntmAnalyzerParams params)
+    public double[] getCeps(double f0InHz, int samplingRateInHz, HntmAnalyzerParams params)
     {
         double[] ceps = null;
 
@@ -75,9 +75,9 @@ public class FrameHarmonicPart
                 harmonicWeights = g.getCoeffsRightHalf();
             } 
 
-            if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
+            if (params.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
                 ceps = RegularizedPreWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, params.harmonicPartCesptrumOrderPreBark, harmonicWeights, params.regularizedCepstrumLambdaHarmonic);
-            else if (regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
+            else if (params.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
                 ceps = RegularizedPostWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, params.harmonicPartCesptrumOrderPreMel, params.harmonicPartCesptrumOrderPostMel, harmonicWeights, params.regularizedCepstrumLambdaHarmonic);
         }
 
