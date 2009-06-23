@@ -61,10 +61,10 @@ public class MCepTimelineMaker extends VoiceImportComponent
     }
     
     
-    public SortedMap getDefaultProps(DatabaseLayout db){
-        this.db = db;
+    public SortedMap<String,String> getDefaultProps(DatabaseLayout theDb){
+        this.db = theDb;
         if (props == null){
-            props = new TreeMap();
+            props = new TreeMap<String, String>();
             props.put(MCEPDIR, db.getProp(db.ROOTDIR)
                     +"mcep"
                     +System.getProperty("file.separator"));
@@ -75,7 +75,7 @@ public class MCepTimelineMaker extends VoiceImportComponent
     }
     
     protected void setupHelp(){         
-        props2Help = new TreeMap();
+        props2Help = new TreeMap<String, String>();
         props2Help.put(MCEPDIR, "directory containing the mcep files");
         props2Help.put(MCEPTIMELINE,"file containing all mcep files. Will be created by this module");  
     }
