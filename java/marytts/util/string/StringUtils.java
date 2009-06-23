@@ -53,21 +53,60 @@ public class StringUtils {
     }
     
     //Converts a String to a float
-    public static float String2Float(String str)
+    public static float string2float(String str)
     {
         return Float.valueOf(str).floatValue();
     }
     
     //Converts a String to a double
-    public static double String2Double(String str)
+    public static double string2double(String str)
     {
         return Double.valueOf(str).doubleValue();
     }
     
     //Converts a String to an int
-    public static int String2Int(String str)
+    public static int string2int(String str)
     {
         return Integer.valueOf(str).intValue();
+    }
+    
+    public static float[] string2float(String[] strs)
+    {
+        float[] values = null;
+        if (strs!=null && strs.length>0)
+        {
+            values = new float[strs.length];
+            for (int i=0; i<strs.length; i++)
+                values[i] = string2float(strs[i]);
+        }
+        
+        return values;
+    }
+    
+    public static double[] string2double(String[] strs)
+    {
+        double[] values = null;
+        if (strs!=null && strs.length>0)
+        {
+            values = new double[strs.length];
+            for (int i=0; i<strs.length; i++)
+                values[i] = string2double(strs[i]);
+        }
+        
+        return values;
+    }
+    
+    public static int[] string2int(String[] strs)
+    {
+        int[] values = null;
+        if (strs!=null && strs.length>0)
+        {
+            values = new int[strs.length];
+            for (int i=0; i<strs.length; i++)
+                values[i] = string2int(strs[i]);
+        }
+        
+        return values;
     }
       
     //Find indices of multiple occurrences of a character in a String
@@ -494,6 +533,17 @@ public class StringUtils {
     }
     
     //Reads all rows as one String
+    public static String[] readTextFile(String textFile)
+    {
+        String[][] tmp = readTextFileInRows(textFile, "ASCII", 1);
+        
+        String[] strRet = new String[tmp.length];
+        for (int i=0; i<tmp.length; i++)
+            strRet[i] = tmp[i][0];
+        
+        return strRet;
+    }
+    
     public static String[] readTextFile(String textFile, String encoding)
     {
         String[][] tmp = readTextFileInRows(textFile, encoding, 1);

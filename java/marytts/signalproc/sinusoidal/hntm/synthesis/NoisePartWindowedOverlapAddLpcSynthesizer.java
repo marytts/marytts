@@ -52,7 +52,7 @@ import marytts.util.signal.SignalProcUtils;
  * @author oytun.turk
  *
  */
-public class NoisePartLpcSynthesizer {
+public class NoisePartWindowedOverlapAddLpcSynthesizer {
     
     //LPC based noise model + OLA approach + Gain normalization according to generated harmonic part gain
     public static double[] synthesize(HntmSpeechSignal hnmSignal, HntmSynthesizerParams synthesisParams)

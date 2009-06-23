@@ -38,6 +38,10 @@ public class HntmSynthesizerParams {
     public static final int LINEAR_PHASE_INTERPOLATION = 1;
     public static final int QUADRATIC_PHASE_INTERPOLATION = 2;
     
+    public int noisePartLpcSynthesisMethod;
+    public static final int OVERLAP_ADD_WITH_WINDOWING = 1;
+    public static final int LP_FILTER_WITH_POST_HPF_AND_WINDOWING = 2;
+    
     //Triangular noise envelope window for voiced segments
     public boolean applyTriangularNoiseEnvelopeForVoicedParts;
     public double energyTriangleLowerValue;
@@ -67,7 +71,11 @@ public class HntmSynthesizerParams {
     
     public HntmSynthesizerParams()
     {
-        harmonicPartSynthesisMethod=LINEAR_PHASE_INTERPOLATION;
+        harmonicPartSynthesisMethod = LINEAR_PHASE_INTERPOLATION; 
+        //harmonicPartSynthesisMethod = QUADRATIC_PHASE_INTERPOLATION
+        
+        noisePartLpcSynthesisMethod = OVERLAP_ADD_WITH_WINDOWING;
+        //noisePartLpcSynthesisMethod = LP_FILTER_WITH_POST_HPF_AND_WINDOWING;
         
         //Triangular noise envelope window for voiced segments
         applyTriangularNoiseEnvelopeForVoicedParts = true;
@@ -82,7 +90,7 @@ public class HntmSynthesizerParams {
         harmonicSynthesisTransitionOverlapInSeconds = 0.002f;
         unvoicedVoicedTrackTransitionInSeconds = 0.005f;
         
-        highpassFilterAfterNoiseSynthesis = false;
+        highpassFilterAfterNoiseSynthesis = true;
         
         writeSeparateHarmonicTracksToOutputs = false;
         normalizeHarmonicPartOutputWav = false;
@@ -100,6 +108,7 @@ public class HntmSynthesizerParams {
     public HntmSynthesizerParams(HntmSynthesizerParams existing)
     {
         harmonicPartSynthesisMethod = existing.harmonicPartSynthesisMethod;
+        noisePartLpcSynthesisMethod = existing.noisePartLpcSynthesisMethod;
         
         applyTriangularNoiseEnvelopeForVoicedParts = existing.applyTriangularNoiseEnvelopeForVoicedParts;
         energyTriangleLowerValue = existing.energyTriangleLowerValue;

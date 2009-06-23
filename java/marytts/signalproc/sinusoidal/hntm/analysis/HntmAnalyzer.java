@@ -639,6 +639,7 @@ public class HntmAnalyzer {
                         if (analysisParams.hpfBeforeNoiseAnalysis && y!=null)
                             frmNoise = ArrayUtils.copy(y); //Use fdfo only for computing energy ratio between noise and speech (if we get this working, we can remove filtering from above and include only gain ratio computation)          
                         
+                        hnmSignal.frames[i].origAverageSampleEnergy = (float)SignalProcUtils.getAverageSampleEnergy(frmNoise);
                         hnmSignal.frames[i].origNoiseStd = (float)MathUtils.standardDeviation(frmNoise);
                         
                         if (analysisParams.noiseModel==HntmAnalyzerParams.LPC)
