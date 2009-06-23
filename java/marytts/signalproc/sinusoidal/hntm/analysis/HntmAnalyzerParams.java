@@ -109,13 +109,15 @@ public class HntmAnalyzerParams {
         useHarmonicAmplitudesDirectly = false; //Use amplitudes directly, the following are only effective if this is false
         regularizedCepstrumLambdaHarmonic = 1.0e-5;  //Reducing this may increase harmonic amplitude estimation accuracy 
         useWeightingInRegularizedCepstrumEstimationHarmonic = false;
+        
         harmonicPartCesptrumOrderPreBark = 24;  //Cepstrum order to represent harmonic amplitudes
-        harmonicPartCesptrumOrderPreMel = 128; //Pre-cepstrum order to compute linear cepstral coefficients
-                                              //0 means auto computation from number of harmonics (See RegularizedPostWarpedCepstrumEstimator.getAutoCepsOrderPre()).
+        
         harmonicPartCesptrumOrderPostMel = 32; //Cepstrum order to represent harmonic amplitudes
+        harmonicPartCesptrumOrderPreMel = 40; //Pre-cepstrum order to compute linear cepstral coefficients
+                                              //0 means auto computation from number of harmonics (See RegularizedPostWarpedCepstrumEstimator.getAutoCepsOrderPre()).
         
         computeNoisePartLpOrderFromSamplingRate = false; //If true, noise LP order is determined using sampling rate (might be high)
-        noisePartLpOrder = 24; //Effective only if the above parameter is false
+        noisePartLpOrder = 12; //Effective only if the above parameter is false
         preemphasisCoefNoise = 0.97f;
         hpfBeforeNoiseAnalysis = true; //False means the noise part will be full-band
         

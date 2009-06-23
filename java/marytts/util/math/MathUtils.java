@@ -4098,6 +4098,14 @@ public class MathUtils {
 
         return x;
     }
+    
+    public static double[] random(int numSamples, double minVal, double maxVal)
+    {
+        double[] x = random(numSamples);
+        MathUtils.adjustRange(x, minVal, maxVal);
+
+        return x;
+    }
 
     //Returns inverse of diagonal vector
     public static double[] inverse(double[] x)

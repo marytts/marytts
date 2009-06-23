@@ -194,7 +194,7 @@ public class BaseAudioEffect implements AudioEffect{
                         
                         try
                         {
-                            paramVals[i] = StringUtils.String2Float(strTmp);
+                            paramVals[i] = StringUtils.string2float(strTmp);
                         }
                         catch(NumberFormatException e)
                         {

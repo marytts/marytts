@@ -117,8 +117,12 @@ public class HntmSynthesizer {
         if (p!=null)
         {
             if (p instanceof FrameNoisePartLpc)
-                //s.noisePart = NoisePartLpcSynthesizer.synthesize(hntmSignalMod, synthesisParams);
-                s.noisePart = NoisePartLpcSynthesizer2.synthesize(hntmSignalMod, synthesisParams);
+            {
+                if (synthesisParams.noisePartLpcSynthesisMethod == HntmSynthesizerParams.OVERLAP_ADD_WITH_WINDOWING)
+                    s.noisePart = NoisePartWindowedOverlapAddLpcSynthesizer.synthesize(hntmSignalMod, synthesisParams);
+                else if (synthesisParams.noisePartLpcSynthesisMethod == HntmSynthesizerParams.LP_FILTER_WITH_POST_HPF_AND_WINDOWING)
+                    s.noisePart = NoisePartLpFilterPostHpfLpcSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
+            }
             else if (p instanceof FrameNoisePartPseudoHarmonic)
                 s.noisePart = NoisePartPseudoHarmonicSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams, referenceFile);
             else if (p instanceof FrameNoisePartWaveform)
@@ -170,7 +174,6 @@ public class HntmSynthesizer {
         float[] pScalesTimes = null;
         */
         
-        /*
         float[][] pScalesArray = new float[8][1];
         float[][] tScalesArray = new float[8][1];
         pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
@@ -181,7 +184,6 @@ public class HntmSynthesizer {
         pScalesArray[5][0] = 1.0f; tScalesArray[5][0] = 2.3f;
         pScalesArray[6][0] = 2.3f; tScalesArray[6][0] = 1.0f;
         pScalesArray[7][0] = 0.6f; tScalesArray[7][0] = 1.0f;
-        */
         
         /*
         float[][] pScalesArray = new float[3][1];
@@ -191,9 +193,11 @@ public class HntmSynthesizer {
         pScalesArray[2][0] = 1.0f; tScalesArray[2][0] = 1.6f;
         */
 
+        /*
         float[][] pScalesArray = new float[1][1];
         float[][] tScalesArray = new float[1][1];
         pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
+        */
         
         //float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f, 2.5f};
         float[] tScalesTimes = null;
@@ -241,7 +245,6 @@ public class HntmSynthesizer {
         synthesisParams.harmonicPartSynthesisMethod = HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION;
         //synthesisParams.harmonicPartSynthesisMethod = HntmSynthesizerParams.QUADRATIC_PHASE_INTERPOLATION;
         //
-        
         
         PitchReaderWriter f0 = null;
         String strPitchFile = StringUtils.modifyExtension(wavFile, ".ptc");
