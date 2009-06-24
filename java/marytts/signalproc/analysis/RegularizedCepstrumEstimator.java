@@ -19,6 +19,7 @@
  */
 package marytts.signalproc.analysis;
 
+import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
@@ -36,7 +37,7 @@ public class RegularizedCepstrumEstimator
 
     //lambda: regularization term (typically on the order of 0.0001
     //Note that cepstrum is always computed using log amps, therefore the fitted spectrum computed from these cepstrum coeffs will be in log amp domain
-    protected static double[] freqsLinearAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrder, boolean isPreWarping, double[] weights, double lambda)
+    protected static float[] freqsLinearAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrder, boolean isPreWarping, double[] weights, double lambda)
     { 
         assert linearAmps.length==freqsInHz.length;
         
@@ -74,7 +75,7 @@ public class RegularizedCepstrumEstimator
             diagR[i] = tmp*i*i;
         double[][] R = MathUtils.toDiagonalMatrix(diagR);
         
-        double[] ceps = null;
+        double[] cepsDouble = null;
         if (weights!=null)
         {
             double[][] W = MathUtils.toDiagonalMatrix(weights);
@@ -84,7 +85,7 @@ public class RegularizedCepstrumEstimator
             double[][] lambdaR = MathUtils.multiply(lambda, R);
             double[] MTransWa = MathUtils.matrixProduct(MTransW, a);
             double[][] inverted = MathUtils.inverse(MathUtils.add(MTransWM, lambdaR));
-            ceps = MathUtils.matrixProduct(inverted, MTransWa);
+            cepsDouble = MathUtils.matrixProduct(inverted, MTransWa);
         }
         else //No weights given
         {
@@ -93,8 +94,10 @@ public class RegularizedCepstrumEstimator
             double[][] lambdaR = MathUtils.multiply(lambda, R);
             double[] MTransa = MathUtils.matrixProduct(MTrans, a);
             double[][] inverted = MathUtils.inverse(MathUtils.add(MTransM, lambdaR));
-            ceps = MathUtils.matrixProduct(inverted, MTransa);
+            cepsDouble = MathUtils.matrixProduct(inverted, MTransa);
         }
+        
+        float[] ceps = ArrayUtils.copyDouble2Float(cepsDouble);
         
         return ceps;
     }
@@ -176,20 +179,22 @@ public class RegularizedCepstrumEstimator
     
     //Another version when frequencies are fixed and all precomputations were done by calling precomputeForCepstrum with these fixed values
     //Note that cepstrum is always computed using log amps, therefore the fitted spectrum computed from these cepstrum coeffs will be in log amp domain
-    public static double[] freqsLinearAmps2cepstrum(double[] linearAmps, double[][] MTransW, double[][] inverted)
+    public static float[] freqsLinearAmps2cepstrum(double[] linearAmps, double[][] MTransW, double[][] inverted)
     {  
         double[] logAmps = MathUtils.log10(linearAmps);
         double[] a = MathUtils.multiply(logAmps, 20.0);
         
-        double[] ceps = null;
+        double[] cepsDouble = null;
         
         double[] MTransWa = MathUtils.matrixProduct(MTransW, a);
-        ceps = MathUtils.matrixProduct(inverted, MTransWa);
+        cepsDouble = MathUtils.matrixProduct(inverted, MTransWa);
+        
+        float[] ceps = ArrayUtils.copyDouble2Float(cepsDouble);
 
         return ceps;
     }
     
-    protected static double[] cepstrum2logAmpHalfSpectrum(double[] ceps, int fftSize, int samplingRateInHz, boolean isPreWarping)
+    protected static double[] cepstrum2logAmpHalfSpectrum(float[] ceps, int fftSize, int samplingRateInHz, boolean isPreWarping)
     {
         int maxFreq = SignalProcUtils.halfSpectrumSize(fftSize);
         double[] halfAbsSpectrum = new double[maxFreq];

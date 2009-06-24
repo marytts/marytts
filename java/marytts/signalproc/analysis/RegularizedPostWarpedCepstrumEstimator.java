@@ -29,6 +29,7 @@
 
 package marytts.signalproc.analysis;
 
+import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
@@ -46,23 +47,23 @@ public class RegularizedPostWarpedCepstrumEstimator extends RegularizedCepstrumE
             return numSpectralLines*2;
     }
     
-    public static double[] freqsLinearAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrderPre, int cepsOrder)
+    public static float[] freqsLinearAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrderPre, int cepsOrder)
     { 
         return freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrderPre, cepsOrder, null);
     }
     
-    public static double[] freqsLinearAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrderPre, int cepsOrder, double[] weights)
+    public static float[] freqsLinearAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrderPre, int cepsOrder, double[] weights)
     { 
         return freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrderPre, cepsOrder, weights, DEFAULT_LAMBDA);
     }
     
     //Post warping as described in W. D'Haes and X. Rodet, "Discrete Cepstrum Coefficients as Perceptual Features"
-    public static double[] freqsLinearAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrderPre, int cepsOrder, double[] weights, double lambda)
+    public static float[] freqsLinearAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrderPre, int cepsOrder, double[] weights, double lambda)
     { 
         if (cepsOrderPre<1)
             cepsOrderPre = getAutoCepsOrderPre(linearAmps.length);
         
-        double[] ceps = freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrderPre, false, weights, lambda);
+        float[] ceps = freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrderPre, false, weights, lambda);
 
         //Post warping as described in W. D'Haes and X. Rodet, "Discrete Cepstrum Coefficients as Perceptual Features"
         double[][] A = new double[cepsOrder][cepsOrderPre];
@@ -87,34 +88,36 @@ public class RegularizedPostWarpedCepstrumEstimator extends RegularizedCepstrumE
                     A[k][l] *= 2.0/N;
             }
         }
-        ceps = MathUtils.matrixProduct(A, ceps);
+        
+        double[] cepsDouble = MathUtils.matrixProduct(A, ceps);
+        ceps = ArrayUtils.copyDouble2Float(cepsDouble);
 
         return ceps;
     }
 
-    public static double[] freqsLinearAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrder, double[] weights, double lambda)
+    public static float[] freqsLinearAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrder, double[] weights, double lambda)
     {
         return freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrder, false, weights, lambda);
     }
     
     public static double[] spectralEnvelopeDB(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrder, int fftSize)
     {
-        double[] ceps = freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrder);
+        float[] ceps = freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrder);
 
         return cepstrum2logAmpHalfSpectrum(ceps, fftSize, samplingRateInHz);
     }
     
-    public static double[] freqsLinearAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrder)
+    public static float[] freqsLinearAmps2cepstrum(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrder)
     {
         return freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrder, false, null, DEFAULT_LAMBDA);
     }
     
-    public static double[] cepstrum2logAmpHalfSpectrum(double[] ceps, int fftSize, int samplingRateInHz)
+    public static double[] cepstrum2logAmpHalfSpectrum(float[] ceps, int fftSize, int samplingRateInHz)
     {
         return cepstrum2logAmpHalfSpectrum(ceps, fftSize, samplingRateInHz, false);
     }
     
-    public static double[] cepstrum2linearSpectrumValues(double[] ceps, int maxFreqIndex, int samplingRateInHz)
+    public static double[] cepstrum2linearSpectrumValues(float[] ceps, int maxFreqIndex, int samplingRateInHz)
     {
         double[] freqsInHz = new double[maxFreqIndex];
         for (int i=0; i<=maxFreqIndex; i++)
@@ -123,12 +126,12 @@ public class RegularizedPostWarpedCepstrumEstimator extends RegularizedCepstrumE
         return cepstrum2linearSpectrumValues(ceps, freqsInHz, samplingRateInHz);
     }
     
-    public static double[] cepstrum2linearSpectrumValues(double[] ceps, double[] freqsInHz, int samplingRateInHz)
+    public static double[] cepstrum2linearSpectrumValues(float[] ceps, double[] freqsInHz, int samplingRateInHz)
     {
         return MathUtils.db2amp(cepstrum2dbSpectrumValues(ceps, freqsInHz, samplingRateInHz));
     }
     
-    public static double[] cepstrum2dbSpectrumValues(double[] ceps, int maxFreqIndex, int samplingRateInHz)
+    public static double[] cepstrum2dbSpectrumValues(float[] ceps, int maxFreqIndex, int samplingRateInHz)
     {
         double[] freqsInHz = new double[maxFreqIndex+1];
         for (int i=0; i<=maxFreqIndex; i++)
@@ -137,7 +140,7 @@ public class RegularizedPostWarpedCepstrumEstimator extends RegularizedCepstrumE
         return cepstrum2dbSpectrumValues(ceps, freqsInHz, samplingRateInHz);
     }
     
-    public static double[] cepstrum2dbSpectrumValues(double[] ceps, double[] freqsInHz, int samplingRateInHz)
+    public static double[] cepstrum2dbSpectrumValues(float[] ceps, double[] freqsInHz, int samplingRateInHz)
     {
         double[] vals = new double[freqsInHz.length];
         for (int i=0; i<freqsInHz.length; i++)
@@ -151,7 +154,7 @@ public class RegularizedPostWarpedCepstrumEstimator extends RegularizedCepstrumE
         return precomputeM(freqsInHz, samplingRateInHz, cepsOrder, false);
     }
 
-    public static double cepstrum2dbSpectrumValue(double[] ceps, double freqInHz, int samplingRateInHz)
+    public static double cepstrum2dbSpectrumValue(float[] ceps, double freqInHz, int samplingRateInHz)
     {
         int p = ceps.length-1;
 
@@ -176,12 +179,12 @@ public class RegularizedPostWarpedCepstrumEstimator extends RegularizedCepstrumE
     
     public static double[] spectralEnvelopeDB(double[] linearAmps, double[] freqsInHz, int samplingRateInHz, int cepsOrderPre, int cepsOrder, int fftSize)
     {
-        double[] ceps = freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrderPre, cepsOrder);
+        float[] ceps = freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, cepsOrderPre, cepsOrder);
 
         return cepstrum2logAmpHalfSpectrum(ceps, fftSize, samplingRateInHz);
     }
     
-    public static double cepstrum2linearSpectrumValue(double[] ceps, double freqInHz, int samplingRateInHz)
+    public static double cepstrum2linearSpectrumValue(float[] ceps, double freqInHz, int samplingRateInHz)
     {
         return MathUtils.db2amp(cepstrum2dbSpectrumValue(ceps, freqInHz, samplingRateInHz));
     }

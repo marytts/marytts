@@ -31,7 +31,7 @@ public class NonharmonicSinusoidalSpeechFrame extends BaseSinusoidalSpeechFrame 
     public Sinusoid [] sinusoids;
     public double[] systemAmps;
     public double [] systemPhases;
-    public double[] systemCeps; 
+    public float[] systemCeps; 
     public ComplexArray frameDfts;
     public float time;
     public float voicing;
@@ -91,11 +91,11 @@ public class NonharmonicSinusoidalSpeechFrame extends BaseSinusoidalSpeechFrame 
             systemPhases = null;
     }
     
-    public void setSystemCeps(double[] newCeps)
+    public void setSystemCeps(float[] newCeps)
     {
         if (newCeps!=null && newCeps.length>0)
         {
-            systemCeps = new double[newCeps.length];
+            systemCeps = new float[newCeps.length];
             System.arraycopy(newCeps, 0, systemCeps, 0, newCeps.length);
         }
         else

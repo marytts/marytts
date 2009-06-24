@@ -357,7 +357,7 @@ public class HntmProsodyModifier {
                 float harmonicEnergyMod;
                 int k;
                 int leftHarmonicInd, rightHarmonicInd;
-                double[] currentCeps = null;
+                float[] currentCeps = null;
                 for (i=0; i<hntmSignalMod.frames.length; i++)
                 {
                     isVoiced = false;

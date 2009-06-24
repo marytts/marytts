@@ -137,8 +137,8 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
         
         int currentHarmonicNo;
 
-        double[] currentCeps = null;
-        double[] nextCeps = null;
+        float[] currentCeps = null;
+        float[] nextCeps = null;
         
         for (i=0; i<hnmSignal.frames.length; i++)
         {

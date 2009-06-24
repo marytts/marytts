@@ -38,7 +38,7 @@ import marytts.util.math.ArrayUtils;
 
 public class FrameNoisePartWaveform extends FrameNoisePart {
     
-    public double[] waveform;
+    public float[] waveform;
 
     public FrameNoisePartWaveform()
     {
@@ -52,6 +52,13 @@ public class FrameNoisePartWaveform extends FrameNoisePart {
         waveform = ArrayUtils.copy(existing.waveform);
     }
     
+    public FrameNoisePartWaveform(float[] x)
+    {
+        super();
+        
+        setWaveform(x);
+    }
+    
     public FrameNoisePartWaveform(double[] x)
     {
         super();
@@ -59,11 +66,20 @@ public class FrameNoisePartWaveform extends FrameNoisePart {
         setWaveform(x);
     }
     
-    public void setWaveform(double[] x)
+    public void setWaveform(float[] x)
     {
         if (x!=null)
             waveform = ArrayUtils.copy(x);
         else
             waveform = null;
     }
+    
+    public void setWaveform(double[] x)
+    {
+        if (x!=null)
+            waveform = ArrayUtils.copyf(x);
+        else
+            waveform = null;
+    }
+    
 }

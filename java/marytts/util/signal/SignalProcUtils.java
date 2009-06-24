@@ -2073,7 +2073,7 @@ public class SignalProcUtils {
     
     //These functions implement cepstrum computations asdescribed in van Santen et. al.´s book - Chapter 5
     //(van Santen, et. al., Progress in Speech Synthesis)
-    public static double[] specLinear2cepstrum(double[] specLinear, int cepsOrder)
+    public static float[] specLinear2cepstrum(double[] specLinear, int cepsOrder)
     {
         int fftSizeFromLen = 2*(specLinear.length-1);
         int fftSize = 2;
@@ -2090,13 +2090,14 @@ public class SignalProcUtils {
         
         FFT.transform(real, imag, true);
         
-        double[] nceps = new double[cepsOrder+1];
-        System.arraycopy(real, 0, nceps, 0, cepsOrder+1);
+        float[] nceps = new float[cepsOrder+1];
+        for (int i=0; i<cepsOrder+1; i++)
+            nceps[i] = (float)real[i];
         
         return nceps;
     }
     
-    public static double cepstrum2linearSpecAmp(double[] ceps, float freqInRadians)
+    public static double cepstrum2linearSpecAmp(float[] ceps, float freqInRadians)
     {
         double logM = ceps[0];
         for (int m=1; m<ceps.length; m++)
@@ -2106,7 +2107,7 @@ public class SignalProcUtils {
         return Math.exp(logM);
     }
     
-    public static double cepstrum2minimumPhase(double[] ceps, float freqInRadians)
+    public static double cepstrum2minimumPhase(float[] ceps, float freqInRadians)
     {
         double minPhase = 0.0;
         for (int m=1; m<ceps.length; m++)

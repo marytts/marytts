@@ -777,7 +777,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
                     
                     //This is from Van Santen´s et.al.´s book - Chapter 5 
                     //(van Santen, et. al., Progress in Speech Synthesis)
-                    double[] ceps = SignalProcUtils.specLinear2cepstrum(vocalTractSpec, 32);
+                    float[] ceps = SignalProcUtils.specLinear2cepstrum(vocalTractSpec, 32);
                     frameSins.setSystemCeps(ceps);
                     //
                 }

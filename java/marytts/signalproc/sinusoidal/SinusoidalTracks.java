@@ -47,7 +47,7 @@ public class SinusoidalTracks {
     
     public Vector<double[]> sysAmps; //System amplitudes for each speech frame
     public Vector<double[]> sysPhases; //System phases for each speech frame
-    public Vector<double[]> sysCeps; //System cepstral coeffs for each speech frame
+    public Vector<float[]> sysCeps; //System cepstral coeffs for each speech frame
     public Vector<ComplexArray> frameDfts; //System phases for each speech frame
     public float [] times; //Analysis time instants for each speech frame
     
@@ -298,7 +298,7 @@ public class SinusoidalTracks {
         sysPhases = sysPhasesIn;
     }
     
-    public void setSystemCeps(Vector<double[]> sysCepsIn)
+    public void setSystemCeps(Vector<float[]> sysCepsIn)
     {
         sysCeps = sysCepsIn;
     }
@@ -351,7 +351,7 @@ public class SinusoidalTracks {
         {
             sysAmps = new Vector<double[]>();
             sysPhases = new Vector<double[]>();
-            sysCeps = new Vector<double[]>();
+            sysCeps = new Vector<float[]>();
             frameDfts = new Vector<ComplexArray>();
             times = new float[framesSins.length];
             
@@ -379,7 +379,7 @@ public class SinusoidalTracks {
         }
         else
         {
-            sysCeps = new Vector<double[]>();
+            sysCeps = new Vector<float[]>();
             times = new float[hntmSignal.frames.length];
             
             for (int i=0; i<hntmSignal.frames.length; i++)

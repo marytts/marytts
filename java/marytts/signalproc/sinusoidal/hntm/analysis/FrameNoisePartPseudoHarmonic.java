@@ -32,7 +32,7 @@ import marytts.util.math.ArrayUtils;
  */
 public class FrameNoisePartPseudoHarmonic extends FrameNoisePart {
 
-    public double[] ceps; //To keep harmonic amplitudes
+    public float[] ceps; //To keep harmonic amplitudes
     
     public FrameNoisePartPseudoHarmonic()
     {

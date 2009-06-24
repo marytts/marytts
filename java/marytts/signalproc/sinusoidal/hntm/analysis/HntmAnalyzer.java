@@ -705,7 +705,7 @@ public class HntmAnalyzer {
                                 }
                             }
                             else
-                                ((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps = ArrayUtils.subarray(linearAmpsNoise, 0, linearAmpsNoise.length); //Use amplitudes directly
+                                ((FrameNoisePartPseudoHarmonic)hnmSignal.frames[i].n).ceps = ArrayUtils.subarrayf(linearAmpsNoise, 0, linearAmpsNoise.length); //Use amplitudes directly
                         
                             /*
                             //The following is only for visualization

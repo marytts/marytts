@@ -167,7 +167,7 @@ public class NoisePartWaveformSynthesizer
                 {       
                     if (((FrameNoisePartWaveform)hnmSignal.frames[i].n).waveform!=null)
                     {
-                        y = ArrayUtils.copy(((FrameNoisePartWaveform)hnmSignal.frames[i].n).waveform);
+                        y = ArrayUtils.copyFloat2Double(((FrameNoisePartWaveform)hnmSignal.frames[i].n).waveform);
                         
                         //Compute window
                         winNoise = Window.get(windowType, y.length);
