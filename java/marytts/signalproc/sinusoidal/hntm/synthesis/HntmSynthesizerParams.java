@@ -48,8 +48,6 @@ public class HntmSynthesizerParams {
     public double energyTriangleUpperValue;
     //
     
-    public boolean normalizeHarmonicEnergyContour;
-    
     public float noiseSynthesisWindowDurationInSeconds;
     public float noiseSynthesisTransitionOverlapInSeconds;
     public float harmonicSynthesisTransitionOverlapInSeconds;
@@ -74,16 +72,14 @@ public class HntmSynthesizerParams {
         harmonicPartSynthesisMethod = LINEAR_PHASE_INTERPOLATION; 
         //harmonicPartSynthesisMethod = QUADRATIC_PHASE_INTERPOLATION
         
-        noisePartLpcSynthesisMethod = OVERLAP_ADD_WITH_WINDOWING;
-        //noisePartLpcSynthesisMethod = LP_FILTER_WITH_POST_HPF_AND_WINDOWING;
+        //noisePartLpcSynthesisMethod = OVERLAP_ADD_WITH_WINDOWING;
+        noisePartLpcSynthesisMethod = LP_FILTER_WITH_POST_HPF_AND_WINDOWING;
         
         //Triangular noise envelope window for voiced segments
         applyTriangularNoiseEnvelopeForVoicedParts = true;
         energyTriangleLowerValue = 1.0;
         energyTriangleUpperValue = 0.5;
         //
-        
-        normalizeHarmonicEnergyContour = false;
         
         noiseSynthesisWindowDurationInSeconds = 0.050f;
         noiseSynthesisTransitionOverlapInSeconds = 0.010f;
@@ -99,7 +95,7 @@ public class HntmSynthesizerParams {
         
         writeHarmonicPartToSeparateFile = true;
         writeNoisePartToSeparateFile = true;
-        writeTransientPartToSeparateFile = false;
+        writeTransientPartToSeparateFile = true;
         writeOriginalMinusHarmonicPartToSeparateFile = true;
         
         applyVocalTractPostNormalizationProcessor = false; 
@@ -113,8 +109,6 @@ public class HntmSynthesizerParams {
         applyTriangularNoiseEnvelopeForVoicedParts = existing.applyTriangularNoiseEnvelopeForVoicedParts;
         energyTriangleLowerValue = existing.energyTriangleLowerValue;
         energyTriangleUpperValue = existing.energyTriangleUpperValue;
-        
-        normalizeHarmonicEnergyContour = existing.normalizeHarmonicEnergyContour;
         
         noiseSynthesisWindowDurationInSeconds = existing.noiseSynthesisWindowDurationInSeconds;
         noiseSynthesisTransitionOverlapInSeconds = existing.noiseSynthesisTransitionOverlapInSeconds;

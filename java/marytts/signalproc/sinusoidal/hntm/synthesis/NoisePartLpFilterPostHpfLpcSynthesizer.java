@@ -31,6 +31,7 @@ package marytts.signalproc.sinusoidal.hntm.synthesis;
 
 import java.util.Arrays;
 
+import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartLpc;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.window.Window;
@@ -62,33 +63,16 @@ public class NoisePartLpFilterPostHpfLpcSynthesizer {
         int outputLen = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
         int lpOrder = 0;
 
-        double[][] allLpcs = hnmSignal.getLpcsAll();
-        FileUtils.toTextFile(allLpcs, "d:\\lpcs.txt");
-        double[] allGains = hnmSignal.getLpcGainsAll();
-        FileUtils.toTextFile(allGains, "d:\\gains.txt");
-        float[] analysisTimes = hnmSignal.getAnalysisTimes();
-        int[] pitchMarks = SignalProcUtils.time2sample(analysisTimes, hnmSignal.samplingRateInHz);
-        FileUtils.toTextFile(pitchMarks, "d:\\pitchMarks.txt");
-        float[] stds = hnmSignal.getOrigNoiseStds();
-        FileUtils.toTextFile(stds, "d:\\origNoiseStds.txt");
-        double[] maxFreqOfVoicings = hnmSignal.getMaximumFrequencyOfVoicings();
-        FileUtils.toTextFile(maxFreqOfVoicings, "d:\\maxFreqVoicings.txt");
-        
         double[] excitation = MathUtils.random(outputLen, -0.5, 0.5);
-        FileUtils.toTextFile(excitation, "d:\\excitation.txt");
-        //double[] excitation = StringUtils.string2double(StringUtils.readTextFile("d:\\excitation.txt"));
-        
-        float[] avgSampEns = hnmSignal.getOriginalAverageSampleEnergyContour();
-        FileUtils.toTextFile(avgSampEns, "d:\\avgSampEns.txt");
         
         int fftSizeNoise = SignalProcUtils.getDFTSize(hnmSignal.samplingRateInHz);
 
         for (i=0; i<hnmSignal.frames.length; i++)
         {
             isNoised = ((hnmSignal.frames[i].maximumFrequencyOfVoicingInHz<0.5f*hnmSignal.samplingRateInHz) ? true : false);
-            if (isNoised)
+            if (isNoised && hnmSignal.frames[i].n!=null && (hnmSignal.frames[i].n instanceof FrameNoisePartLpc) && ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs!=null)
             {
-                lpOrder = hnmSignal.frames[i].lpCoeffs.length;
+                lpOrder = ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs.length;
                 break;
             }
         }
@@ -126,7 +110,7 @@ public class NoisePartLpFilterPostHpfLpcSynthesizer {
 
                 isNoised = ((hnmSignal.frames[i].maximumFrequencyOfVoicingInHz<0.5f*hnmSignal.samplingRateInHz) ? true : false);
 
-                if (isNoised && hnmSignal.frames[i].lpCoeffs!=null)
+                if (isNoised && hnmSignal.frames[i].n!=null && (hnmSignal.frames[i].n instanceof FrameNoisePartLpc) && ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs!=null)
                 {
                     if (i<hnmSignal.frames.length-1)
                     {
@@ -139,7 +123,7 @@ public class NoisePartLpFilterPostHpfLpcSynthesizer {
 
                             tmpalpha = new double[tmpy.length];
                             for (j=0; j<tmpy.length; j++)
-                                tmpalpha[j] = hnmSignal.frames[i].lpCoeffs[j];
+                                tmpalpha[j] = ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs[j];
 
                             tmp = 0.0;
                             for (j=0; j<tmpalpha.length; j++)
@@ -148,7 +132,7 @@ public class NoisePartLpFilterPostHpfLpcSynthesizer {
                             if (start>=outputLen)
                                 break;
                             
-                            noisePart[start] = hnmSignal.frames[i].lpGain*excitation[start] + tmp;
+                            noisePart[start] = ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpGain*excitation[start] + tmp;
                             start++;
                         }  
                     }
@@ -163,7 +147,7 @@ public class NoisePartLpFilterPostHpfLpcSynthesizer {
 
                             tmpalpha = new double[tmpy.length];
                             for (j=0; j<tmpy.length; j++)
-                                tmpalpha[j] = hnmSignal.frames[i].lpCoeffs[j];
+                                tmpalpha[j] = ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs[j];
 
                             tmp = 0.0;
                             for (j=0; j<tmpalpha.length; j++)
@@ -172,7 +156,7 @@ public class NoisePartLpFilterPostHpfLpcSynthesizer {
                             if (start>=outputLen)
                                 break;
                             
-                            noisePart[start] = hnmSignal.frames[i].lpGain*excitation[start] + tmp;
+                            noisePart[start] = ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpGain*excitation[start] + tmp;
                             start++;
                         }  
                     }
@@ -211,7 +195,7 @@ public class NoisePartLpFilterPostHpfLpcSynthesizer {
                 if (i<hnmSignal.frames.length-1)
                     isNextNoised = ((hnmSignal.frames[i+1].maximumFrequencyOfVoicingInHz<0.5f*hnmSignal.samplingRateInHz) ? true : false);
 
-                if (isNoised && hnmSignal.frames[i].lpCoeffs!=null)
+                if (isNoised && hnmSignal.frames[i].n!=null && (hnmSignal.frames[i].n instanceof FrameNoisePartLpc) && ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs!=null)
                 {
                     endInd = Math.min(pmIndNext, outputLen-1);
                     double[] tmpFrm = ArrayUtils.subarray(noisePart, startInd, endInd-startInd+1);
@@ -219,7 +203,7 @@ public class NoisePartLpFilterPostHpfLpcSynthesizer {
                     if (synthesisParams.highpassFilterAfterNoiseSynthesis && hnmSignal.frames[i].maximumFrequencyOfVoicingInHz-analysisParams.overlapBetweenHarmonicAndNoiseRegionsInHz>0.0f)
                         tmpFrm = SignalProcUtils.fdFilter(tmpFrm, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz-analysisParams.overlapBetweenHarmonicAndNoiseRegionsInHz, 0.5f*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz, fftSizeNoise);
  
-                    tmpFrm = SignalProcUtils.normalizeAverageSampleEnergy(tmpFrm, hnmSignal.frames[i].origAverageSampleEnergy);
+                    tmpFrm = SignalProcUtils.normalizeAverageSampleEnergy(tmpFrm, ((FrameNoisePartLpc)hnmSignal.frames[i].n).origAverageSampleEnergy);
                     
                     Window winNoise = Window.get(analysisParams.noiseAnalysisWindowType, endInd-startInd+1);
                     winNoise.normalizePeakValue(1.0f);

@@ -99,7 +99,7 @@ public class NoisePartWaveformSynthesizer
         isNoised = false;
         for (i=0; i<hnmSignal.frames.length; i++)
         {
-            if (hnmSignal.frames[i].maximumFrequencyOfVoicingInHz<0.5f*hnmSignal.samplingRateInHz && ((FrameNoisePartWaveform)hnmSignal.frames[i].n).waveform!=null)
+            if (hnmSignal.frames[i].maximumFrequencyOfVoicingInHz<0.5f*hnmSignal.samplingRateInHz && (hnmSignal.frames[i].n instanceof FrameNoisePartWaveform) && ((FrameNoisePartWaveform)hnmSignal.frames[i].n).waveform!=null)
             {
                 isNoised = true;
                 break;
@@ -163,7 +163,7 @@ public class NoisePartWaveformSynthesizer
 
                 startIndex = SignalProcUtils.time2sample(tsi, hnmSignal.samplingRateInHz);
 
-                if (isNoised && hnmSignal.frames[i].n!=null)
+                if (isNoised && hnmSignal.frames[i].n!=null && (hnmSignal.frames[i].n instanceof FrameNoisePartWaveform))
                 {       
                     if (((FrameNoisePartWaveform)hnmSignal.frames[i].n).waveform!=null)
                     {

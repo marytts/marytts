@@ -699,20 +699,25 @@ public class SignalProcUtils {
     }
     
     //Remove preemphasis from preemphasized frame frm (i.e. 1st order lowspass filtering)
-    public static double[] removePreemphasis(double [] frm, double preCoef)
+    public static double[] removePreemphasis(double[] frm, double preCoef)
     {
-        double[] frmOut = new double[frm.length];
-        System.arraycopy(frm, 0, frmOut, 0, frm.length);
-
-        if (preCoef>0.0)
+        double[] frmOut = null;
+        
+        if (frm!=null && frm.length>0)
         {
-            double [] coeffs = new double[2];
-            coeffs[0] = 1.0;
-            coeffs[1] = preCoef;
+            frmOut = new double[frm.length];
+            System.arraycopy(frm, 0, frmOut, 0, frm.length);
 
-            RecursiveFilter r = new RecursiveFilter(coeffs);
+            if (preCoef>0.0)
+            {
+                double [] coeffs = new double[2];
+                coeffs[0] = 1.0;
+                coeffs[1] = preCoef;
 
-            r.apply(frmOut);
+                RecursiveFilter r = new RecursiveFilter(coeffs);
+
+                r.apply(frmOut);
+            }
         }
         
         return frmOut;
@@ -2217,6 +2222,17 @@ public class SignalProcUtils {
         return arFilter(x, a, lpGain, null);
     }
 
+    public static double[] arFilter(double[] x, float[] a, double lpGain)
+    {
+        return arFilter(x, a, lpGain, null);
+    }
+    public static double[] arFilter(double[] x, float[] a, double lpGain, double[] yInitial)
+    {
+        double[] aDouble = ArrayUtils.copyFloat2Double(a);
+        
+        return arFilter(x, aDouble, lpGain, yInitial);
+    }
+    
     public static double[] arFilter(double[] x, double[] a, double lpGain, double[] yInitial)
     {
         double[] y = new double[x.length];
@@ -2676,17 +2692,17 @@ public class SignalProcUtils {
     //This version does linear mapping between the whole source and target signals
     public static double[] normalizeVocalTract(double[] srcSignal, double[] tgtSignal, int windowType, double windowSizeInSeconds, double frameShiftInSeconds, int lpcOrder, int samplingRateInHz, float preCoef)
     {
-        double[][] sourceLpcs = LpcAnalyser.signal2lpCoeffs(srcSignal, windowType, windowSizeInSeconds, frameShiftInSeconds, samplingRateInHz, lpcOrder, preCoef);
+        float[][] sourceLpcs = LpcAnalyser.signal2lpCoeffsf(srcSignal, windowType, windowSizeInSeconds, frameShiftInSeconds, samplingRateInHz, lpcOrder, preCoef);
         float[] sAnalysisInSeconds = SignalProcUtils.getAnalysisTimes(sourceLpcs.length, windowSizeInSeconds, frameShiftInSeconds);
         
-        double[][] targetLpcs = LpcAnalyser.signal2lpCoeffs(tgtSignal, windowType, windowSizeInSeconds, frameShiftInSeconds, samplingRateInHz, lpcOrder, preCoef);
+        float[][] targetLpcs = LpcAnalyser.signal2lpCoeffsf(tgtSignal, windowType, windowSizeInSeconds, frameShiftInSeconds, samplingRateInHz, lpcOrder, preCoef);
         
         //Mapping
         int[] mappedInds = new int[sourceLpcs.length];
         for (int i=0; i<sourceLpcs.length; i++)
             mappedInds[i] = MathUtils.linearMap(i, 0, sourceLpcs.length-1, 0, targetLpcs.length-1);
         
-        double[][] mappedTargetLpcs = SignalProcUtils.getMapped(targetLpcs, mappedInds);
+        float[][] mappedTargetLpcs = SignalProcUtils.getMapped(targetLpcs, mappedInds);
         
         return normalizeVocalTract(srcSignal, sAnalysisInSeconds, mappedTargetLpcs, windowType, windowSizeInSeconds, lpcOrder, samplingRateInHz,  preCoef);
     }
@@ -2694,27 +2710,27 @@ public class SignalProcUtils {
     //This version uses source and target labels to align speech frames
     public static double[] normalizeVocalTract(double[] srcSignal, double[] tgtSignal, Labels sourceLabels, Labels targetLabels, int windowType, double windowSizeInSeconds, double frameShiftInSeconds, int lpcOrder, int samplingRateInHz, float preCoef)
     {
-        double[][] sourceLpcs = LpcAnalyser.signal2lpCoeffs(srcSignal, windowType, windowSizeInSeconds, frameShiftInSeconds, samplingRateInHz, lpcOrder, preCoef);
+        float[][] sourceLpcs = LpcAnalyser.signal2lpCoeffsf(srcSignal, windowType, windowSizeInSeconds, frameShiftInSeconds, samplingRateInHz, lpcOrder, preCoef);
         float[] sAnalysisInSeconds = SignalProcUtils.getAnalysisTimes(sourceLpcs.length, windowSizeInSeconds, frameShiftInSeconds);
         
-        double[][] targetLpcs = LpcAnalyser.signal2lpCoeffs(tgtSignal, windowType, windowSizeInSeconds, frameShiftInSeconds, samplingRateInHz, lpcOrder, preCoef);
+        float[][] targetLpcs = LpcAnalyser.signal2lpCoeffsf(tgtSignal, windowType, windowSizeInSeconds, frameShiftInSeconds, samplingRateInHz, lpcOrder, preCoef);
         
         //Mapping
         int[] mappedInds = SignalProcUtils.mapFrameIndices(sourceLpcs.length, sourceLabels, windowSizeInSeconds, frameShiftInSeconds,
                                                            targetLpcs.length, targetLabels, windowSizeInSeconds, frameShiftInSeconds);
-        double[][] mappedTargetLpcs = SignalProcUtils.getMapped(targetLpcs, mappedInds);
+        float[][] mappedTargetLpcs = SignalProcUtils.getMapped(targetLpcs, mappedInds);
  
         return normalizeVocalTract(srcSignal, sAnalysisInSeconds, mappedTargetLpcs, windowType, windowSizeInSeconds, lpcOrder, samplingRateInHz,  preCoef);
     }
     
-    public static double[] normalizeVocalTract(double[] s, float[] sAnalysisInSeconds, double[][] mappedTgtLpcs, int windowType, double windowSizeInSeconds, int lpcOrderSrc, int samplingRateInHz, float preCoef)
+    public static double[] normalizeVocalTract(double[] s, float[] sAnalysisInSeconds, float[][] mappedTgtLpcs, int windowType, double windowSizeInSeconds, int lpcOrderSrc, int samplingRateInHz, float preCoef)
     {
-        double[][] srcLpcs = LpcAnalyser.signal2lpCoeffs(s, windowType, sAnalysisInSeconds, windowSizeInSeconds, samplingRateInHz, lpcOrderSrc, preCoef);
+        float[][] srcLpcs = LpcAnalyser.signal2lpCoeffsf(s, windowType, sAnalysisInSeconds, windowSizeInSeconds, samplingRateInHz, lpcOrderSrc, preCoef);
         
         return normalizeVocalTract(s, sAnalysisInSeconds, srcLpcs, mappedTgtLpcs, windowSizeInSeconds, samplingRateInHz, preCoef);
     }
     
-    public static double[] normalizeVocalTract(double[] x, float[] tAnalysisInSeconds, double[][] srcLpcs, double[][] mappedTgtLpcs, double windowSizeInSeconds, int samplingRateInHz, float preCoef)
+    public static double[] normalizeVocalTract(double[] x, float[] tAnalysisInSeconds, float[][] srcLpcs, float[][] mappedTgtLpcs, double windowSizeInSeconds, int samplingRateInHz, float preCoef)
     {
         double[] y = null;
         
@@ -2759,8 +2775,8 @@ public class SignalProcUtils {
             frm = wgt.apply(frm, 0);
             double origEn = SignalProcUtils.energy(frm);
             
-            double[] inputVocalTractSpectrum = LpcAnalyser.calcSpecLinear(srcLpcs[i], 1.0f, fftSize, expTerm);
-            double[] outputVocalTractSpectrum = LpcAnalyser.calcSpecLinear(mappedTgtLpcs[i], 1.0f, fftSize, expTerm);
+            double[] inputVocalTractSpectrum = LpcAnalyser.calcSpecLinearf(srcLpcs[i], 1.0f, fftSize, expTerm);
+            double[] outputVocalTractSpectrum = LpcAnalyser.calcSpecLinearf(mappedTgtLpcs[i], 1.0f, fftSize, expTerm);
                         
             ComplexArray inputDft = new ComplexArray(fftSize);
             int maxFreq = fftSize/2+1;
@@ -2986,6 +3002,21 @@ public class SignalProcUtils {
         if (mapInds!=null && x!=null)
         {
             y = new double[mapInds.length][];
+        
+            for (int i=0; i<mapInds.length; i++)
+                y[i] = ArrayUtils.copy(x[mapInds[i]]);
+        }
+        
+        return y;
+    }
+    
+    public static float[][] getMapped(float[][] x, int[] mapInds)
+    {
+        float[][] y = null;
+        
+        if (mapInds!=null && x!=null)
+        {
+            y = new float[mapInds.length][];
         
             for (int i=0; i<mapInds.length; i++)
                 y[i] = ArrayUtils.copy(x[mapInds[i]]);

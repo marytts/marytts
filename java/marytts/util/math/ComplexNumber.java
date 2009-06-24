@@ -27,8 +27,8 @@ package marytts.util.math;
  */
 public class ComplexNumber {
     
-    public double real;
-    public double imag;
+    public float real;
+    public float imag;
     
     public ComplexNumber()
     {
@@ -40,10 +40,16 @@ public class ComplexNumber {
         this.imag = c.imag;
     }
     
-    public ComplexNumber(double realIn, double imagIn)
+    public ComplexNumber(float realIn, float imagIn)
     {
         this.real = realIn;
         this.imag = imagIn;
+    }
+    
+    public ComplexNumber(double realIn, double imagIn)
+    {
+        this.real = (float)realIn;
+        this.imag = (float)imagIn;
     }
     
     public String toString()
