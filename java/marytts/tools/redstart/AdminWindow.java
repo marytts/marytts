@@ -267,6 +267,7 @@ public class AdminWindow extends javax.swing.JFrame {
     /** Displays the prompt text in the prompt display pane */
     private void displayPromptText() {
         int currentRow = getCurrentRow();
+        if (currentRow == -1) return;
         Prompt prompt = promptArray[currentRow];  // Current prompt
         String promptText = prompt.getPromptText();
         Recording rec = prompt.getRecording();  // Most recent recording for selected prompt
@@ -841,7 +842,7 @@ public class AdminWindow extends javax.swing.JFrame {
                 .add(jPanel_SpeakerViewLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jTextPane_PromptDisplay, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 773, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel_SpeakerViewLayout.createSequentialGroup()
-                        .add(jTextPane_nextSentence, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 624, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(jTextPane_nextSentence, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 624, Short.MAX_VALUE)
                         .add(101, 101, 101)
                         .add(jLabel_SessionStatus)))
                 .addContainerGap())
@@ -925,16 +926,16 @@ public class AdminWindow extends javax.swing.JFrame {
         jPanel_AdminControls.setLayout(jPanel_AdminControlsLayout);
         jPanel_AdminControlsLayout.setHorizontalGroup(
             jPanel_AdminControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel_AdminControlsLayout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel_AdminControlsLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(jPanel_AdminControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(jPanel_AdminControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jScrollPane_PromptSet, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 773, Short.MAX_VALUE)
-                    .add(jSeparator_MessageBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 773, Short.MAX_VALUE)
-                    .add(jPanel_AdminControlsLayout.createSequentialGroup()
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jSeparator_MessageBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 773, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel_AdminControlsLayout.createSequentialGroup()
                         .add(jLabel_MessageBarIcon)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jLabel_MessageBar))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel_AdminControlsLayout.createSequentialGroup()
+                    .add(jPanel_AdminControlsLayout.createSequentialGroup()
                         .add(jPanel_AdminControlsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jCheckBox_PlaySynthesis)
                             .add(jCheckBox_PlayBackRec)
@@ -1095,11 +1096,23 @@ public class AdminWindow extends javax.swing.JFrame {
             return;
         String[] lines = StringUtils.readTextFile(file.getAbsolutePath(), "UTF-8");
         if (lines == null || lines.length == 0) return;
+        Object[] options = new Object[] {"Keep first column", "Discard first column"};
+        int answer = JOptionPane.showOptionDialog(this, 
+                "File contains "+lines.length+" sentences.\n"
+                +"Sample line:\n"
+                +lines[0]+"\n"
+                +"Keep or discard first column?",
+                "Import details",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE, 
+                null,
+                options,
+                options[1]);
+        boolean discardFirstColumn = (answer == JOptionPane.NO_OPTION);
         
         String prefix = (String)JOptionPane.showInputDialog(
                 this,
-                "File contains "+lines.length+" sentences.\n"
-                +"Prefix to use for individual sentence filenames:",
+                "Prefix to use for individual sentence filenames:",
                 "Choose filename prefix",
                 JOptionPane.PLAIN_MESSAGE,
                 null,
@@ -1107,9 +1120,19 @@ public class AdminWindow extends javax.swing.JFrame {
                 "s");
         int numDigits = (int) Math.log10(lines.length) + 1;
         String pattern = prefix+"%0"+numDigits+"d.txt";
+        File scriptFile = new File(voiceFolderPathString+"/"+file.getName()+".script.txt");
+        PrintWriter scriptWriter = null;
+        try {
+            scriptWriter = new PrintWriter(new OutputStreamWriter(new FileOutputStream(scriptFile), "UTF-8"));
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Cannot write to script file "+scriptFile.getAbsolutePath()+":\n"+e.getMessage());
+            if (scriptWriter != null) scriptWriter.close();
+            return;
+        }
         File textFolder = getPromptFolderPath();
         for (int i=0; i<lines.length; i++) {
-            String line = lines[i].substring(lines[i].indexOf(' ')+1);
+            String line = lines[i];
+            if (discardFirstColumn) line = line.substring(line.indexOf(' ')+1);
             String filename = String.format(pattern, i+1);
             System.out.println(filename + " " + line);
             File textFile = new File(textFolder, filename);
@@ -1123,6 +1146,7 @@ public class AdminWindow extends javax.swing.JFrame {
             try {
                 pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(textFile), "UTF-8"));
                 pw.println(line);
+                scriptWriter.println(filename.substring(0, filename.lastIndexOf('.'))+" "+line);
             } catch (IOException ioe) {
                 JOptionPane.showMessageDialog(this, "Error writing file "+filename+":\n"+ioe.getMessage());
                 ioe.printStackTrace();
@@ -1131,6 +1155,7 @@ public class AdminWindow extends javax.swing.JFrame {
                 if (pw != null) pw.close();
             }
         }
+        scriptWriter.close();
         setupVoice();
     }//GEN-LAST:event_jMenuItem_ImportTextActionPerformed
 
