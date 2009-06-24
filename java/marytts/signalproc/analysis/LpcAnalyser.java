@@ -206,6 +206,13 @@ public class LpcAnalyser extends FrameBasedAnalyser
         return calcSpecLinear(alpha, sqrtGain, fftSize, null);
     }
     
+    public static double[] calcSpecLinearf(float[] alpha, double sqrtGain, int fftSize, ComplexArray expTerm)
+    {
+        double[] alphaDouble = ArrayUtils.copyFloat2Double(alpha);
+        
+        return calcSpecLinear(alphaDouble, sqrtGain, fftSize, expTerm);
+    }
+    
     //Computes LP smoothed spectrum from LP coefficients
     public static double[] calcSpecLinear(double[] alpha, double sqrtGain, int fftSize, ComplexArray expTerm)
     {
@@ -238,7 +245,7 @@ public class LpcAnalyser extends FrameBasedAnalyser
   
     public static double calcSpecValLinear(double[] alpha, double sqrtGain, double freqInHz, int samplingRateInHz)
     {
-        ComplexNumber denum = new ComplexNumber(1.0, 0.0);
+        ComplexNumber denum = new ComplexNumber(1.0f, 0.0f);
         double w;
         
         for (int k=1; k<=alpha.length; k++)
@@ -308,6 +315,21 @@ public class LpcAnalyser extends FrameBasedAnalyser
         return lpCoeffs;
     }
     
+    public static float[][] signal2lpCoeffsf(double[] x, int windowType, double windowSizeInSeconds, double frameShiftInSeconds, int samplingRateInHz, int lpcOrder, float preCoef)
+    {
+        LpCoeffs[] lpAnaResults = signal2lpCoeffsWithGain(x, windowType, windowSizeInSeconds, frameShiftInSeconds, samplingRateInHz, lpcOrder, preCoef);
+        
+        float[][] lpCoeffs = null;
+        if (lpAnaResults!=null)
+        {
+            lpCoeffs = new float[lpAnaResults.length][];
+            for (int i=0; i<lpAnaResults.length; i++)
+                lpCoeffs[i] = ArrayUtils.copyf(((LpCoeffs)lpAnaResults[i]).getA());
+        }
+        
+        return lpCoeffs;
+    }
+    
     public static double[][] signal2lpCoeffs(double[] x, int windowType, float[] tAnalysisInSeconds, double windowSizeInSeconds, int samplingRateInHz, int lpcOrder, float preCoef)
     {
         LpCoeffs[] lpAnaResults = signal2lpCoeffsWithGain(x, windowType, tAnalysisInSeconds, windowSizeInSeconds, samplingRateInHz, lpcOrder, preCoef);
@@ -318,6 +340,21 @@ public class LpcAnalyser extends FrameBasedAnalyser
             lpCoeffs = new double[lpAnaResults.length][];
             for (int i=0; i<lpAnaResults.length; i++)
                 lpCoeffs[i] = ArrayUtils.copy(((LpCoeffs)lpAnaResults[i]).getA());
+        }
+        
+        return lpCoeffs;
+    }
+    
+    public static float[][] signal2lpCoeffsf(double[] x, int windowType, float[] tAnalysisInSeconds, double windowSizeInSeconds, int samplingRateInHz, int lpcOrder, float preCoef)
+    {
+        LpCoeffs[] lpAnaResults = signal2lpCoeffsWithGain(x, windowType, tAnalysisInSeconds, windowSizeInSeconds, samplingRateInHz, lpcOrder, preCoef);
+        
+        float[][] lpCoeffs = null;
+        if (lpAnaResults!=null)
+        {
+            lpCoeffs = new float[lpAnaResults.length][];
+            for (int i=0; i<lpAnaResults.length; i++)
+                lpCoeffs[i] = ArrayUtils.copyf(((LpCoeffs)lpAnaResults[i]).getA());
         }
         
         return lpCoeffs;

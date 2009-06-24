@@ -72,7 +72,7 @@ public class ComplexArray
     
     public ComplexNumber get(int index)
     {
-        return new ComplexNumber(real[index], imag[index]);
+        return new ComplexNumber((float)real[index], (float)imag[index]);
     }
 }
 

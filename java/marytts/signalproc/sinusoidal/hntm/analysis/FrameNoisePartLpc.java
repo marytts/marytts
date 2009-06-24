@@ -31,14 +31,41 @@ import marytts.util.math.ArrayUtils;
  */
 public class FrameNoisePartLpc extends FrameNoisePart {
     
+    public float[] lpCoeffs;
+    public float lpGain;
+    public float origAverageSampleEnergy;
+    public float origNoiseStd;
+    
     public FrameNoisePartLpc()
     {
         super();
+        
+        lpCoeffs = null;
+        lpGain = 0.0f;
+        origAverageSampleEnergy = 0.0f;
+        origNoiseStd = 1.0f;
     }
     
     public FrameNoisePartLpc(FrameNoisePartLpc existing)
     {
         super();
+        
+        origAverageSampleEnergy = existing.origAverageSampleEnergy;
+        origNoiseStd = existing.origNoiseStd;
+        
+        setLpCoeffs(existing.lpCoeffs, existing.lpGain);
+    }
+    
+    public void setLpCoeffs(float[] lpCoeffsIn, float gainIn)
+    {
+        lpCoeffs = ArrayUtils.copy(lpCoeffsIn);
+        lpGain = gainIn;
+    }
+    
+    public void setLpCoeffs(double[] lpCoeffsIn, float gainIn)
+    {
+        lpCoeffs = ArrayUtils.copyDouble2Float(lpCoeffsIn);
+        lpGain = gainIn;
     }
 }
 

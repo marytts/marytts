@@ -80,20 +80,7 @@ public class HntmSpeechSignal {
         return times;
     }
     
-    public float[] getOriginalAverageSampleEnergyContour()
-    {
-        float[] originalAverageSampleEnergyContour = null;
-        
-        if (frames!=null)
-        {
-            originalAverageSampleEnergyContour = new float[frames.length];
-            for (int i=0; i<frames.length; i++)
-                originalAverageSampleEnergyContour[i] = frames[i].origAverageSampleEnergy;
-        }
-        
-        return originalAverageSampleEnergyContour;
-    }
-    
+   
     //Returns track segments for a given harmonic. Each segment corresponds to a voiced segment
     public double[][] getPhasesInRadians()
     {
@@ -113,30 +100,37 @@ public class HntmSpeechSignal {
         return phases;
     }
     
-    public double[][] getLpcsAll()
+    public float[][] getLpcsAll()
     {
-        double[][] lpcsAll = null;
+        float[][] lpcsAll = null;
         
         if (frames!=null && frames.length>0)
         {
-            int lpOrder = frames[0].lpCoeffs.length;
-            lpcsAll = new double[frames.length][];
+            lpcsAll = new float[frames.length][];
             for (int i=0; i<frames.length; i++)
-                lpcsAll[i] = ArrayUtils.copy(frames[i].lpCoeffs);
+            {
+                if (frames[i].n instanceof FrameNoisePartLpc)
+                    lpcsAll[i] = ArrayUtils.copy(((FrameNoisePartLpc)frames[i].n).lpCoeffs);
+            }
         }
         
         return lpcsAll;
     }
     
-    public double[] getLpcGainsAll()
+    public float[] getLpcGainsAll()
     {
-        double[] gainsAll = null;
+        float[] gainsAll = null;
         
         if (frames!=null && frames.length>0)
         {
-            gainsAll = new double[frames.length];
+            gainsAll = new float[frames.length];
             for (int i=0; i<frames.length; i++)
-                gainsAll[i] = frames[i].lpGain;
+            {
+                if (frames[i].n instanceof FrameNoisePartLpc)
+                    gainsAll[i] = ((FrameNoisePartLpc)frames[i].n).lpGain;
+                else
+                    gainsAll[i] = -1.0f;
+            }
         }
         
         return gainsAll;
@@ -150,7 +144,10 @@ public class HntmSpeechSignal {
         {
             origNoiseStdsAll = new float[frames.length];
             for (int i=0; i<frames.length; i++)
-                origNoiseStdsAll[i] = frames[i].origNoiseStd;
+            {
+                if (frames[i].n!=null && (frames[i].n instanceof FrameNoisePartLpc))
+                    origNoiseStdsAll[i] = ((FrameNoisePartLpc)frames[i].n).origNoiseStd;
+            }
         }
         
         return origNoiseStdsAll;

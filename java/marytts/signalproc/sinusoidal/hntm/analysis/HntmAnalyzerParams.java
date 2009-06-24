@@ -51,6 +51,8 @@ public class HntmAnalyzerParams {
     public static final int LPC = 1; //Noise part model based on LPC
     public static final int PSEUDO_HARMONIC = 2; //Noise part model based on pseude harmonics for f0=NOISE_F0_IN_HZ
     public static final int HIGHPASS_WAVEFORM = 3; //Noise part model based on frame waveform (i.e. no model, overlap-add noise part generation)
+    public static final int VOICEDNOISE_LPC_UNVOICEDNOISE_WAVEFORM = 4; //noise part model based on LPC for voiced parts and waveform for unvoiced parts
+    public static final int UNVOICEDNOISE_LPC_VOICEDNOISE_WAVEFORM = 5; //noise part model based on LPC for unvoiced parts and waveform for voiced parts
     
     public int regularizedCepstrumWarpingMethod;
     public int harmonicSynthesisMethodBeforeNoiseAnalysis;
@@ -117,7 +119,7 @@ public class HntmAnalyzerParams {
                                               //0 means auto computation from number of harmonics (See RegularizedPostWarpedCepstrumEstimator.getAutoCepsOrderPre()).
         
         computeNoisePartLpOrderFromSamplingRate = false; //If true, noise LP order is determined using sampling rate (might be high)
-        noisePartLpOrder = 12; //Effective only if the above parameter is false
+        noisePartLpOrder = 18; //Effective only if the above parameter is false
         preemphasisCoefNoise = 0.97f;
         hpfBeforeNoiseAnalysis = true; //False means the noise part will be full-band
         

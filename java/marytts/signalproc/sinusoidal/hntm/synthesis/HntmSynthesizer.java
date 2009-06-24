@@ -102,45 +102,30 @@ public class HntmSynthesizer {
         }
 
         //Synthesize noise part
-        //Search which type of noise part we have
-        FrameNoisePart p = null;
-        for (int i=0; i<hntmSignalMod.frames.length; i++)
+        if (analysisParams.noiseModel == HntmAnalyzerParams.LPC)
         {
-            if (hntmSignalMod.frames[i].n != null)
-            {
-                p = hntmSignalMod.frames[i].n;
-                break;
-            }
+            if (synthesisParams.noisePartLpcSynthesisMethod == HntmSynthesizerParams.OVERLAP_ADD_WITH_WINDOWING)
+                s.noisePart = NoisePartWindowedOverlapAddLpcSynthesizer.synthesize(hntmSignalMod, synthesisParams);
+            else if (synthesisParams.noisePartLpcSynthesisMethod == HntmSynthesizerParams.LP_FILTER_WITH_POST_HPF_AND_WINDOWING)
+                s.noisePart = NoisePartLpFilterPostHpfLpcSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
         }
-        //
-        
-        if (p!=null)
+        else if (analysisParams.noiseModel == HntmAnalyzerParams.PSEUDO_HARMONIC)
+            s.noisePart = NoisePartPseudoHarmonicSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams, referenceFile);
+        else if (analysisParams.noiseModel == HntmAnalyzerParams.HIGHPASS_WAVEFORM)
+            s.noisePart = NoisePartWaveformSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
+        else if (analysisParams.noiseModel == HntmAnalyzerParams.VOICEDNOISE_LPC_UNVOICEDNOISE_WAVEFORM ||
+                 analysisParams.noiseModel == HntmAnalyzerParams.UNVOICEDNOISE_LPC_VOICEDNOISE_WAVEFORM 
+                )
         {
-            if (p instanceof FrameNoisePartLpc)
-            {
-                if (synthesisParams.noisePartLpcSynthesisMethod == HntmSynthesizerParams.OVERLAP_ADD_WITH_WINDOWING)
-                    s.noisePart = NoisePartWindowedOverlapAddLpcSynthesizer.synthesize(hntmSignalMod, synthesisParams);
-                else if (synthesisParams.noisePartLpcSynthesisMethod == HntmSynthesizerParams.LP_FILTER_WITH_POST_HPF_AND_WINDOWING)
-                    s.noisePart = NoisePartLpFilterPostHpfLpcSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
-            }
-            else if (p instanceof FrameNoisePartPseudoHarmonic)
-                s.noisePart = NoisePartPseudoHarmonicSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams, referenceFile);
-            else if (p instanceof FrameNoisePartWaveform)
-            {
-                s.noisePart = NoisePartWaveformSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
-
-                //Harmonic part energy contour normalization
-                if (synthesisParams.normalizeHarmonicEnergyContour)
-                {
-                    float[] times = hntmSignalMod.getAnalysisTimes();
-                    float[] originalContour = hntmSignalMod.getOriginalAverageSampleEnergyContour();
-                    float[] noiseContour = SignalProcUtils.getAverageSampleEnergyContour(s.noisePart, times, hntmSignalMod.samplingRateInHz, synthesisParams.noiseSynthesisWindowDurationInSeconds);
-                    float[] currentHarmonicContour = SignalProcUtils.getAverageSampleEnergyContour(s.harmonicPart, times, hntmSignalMod.samplingRateInHz, synthesisParams.noiseSynthesisWindowDurationInSeconds);
-                    float[] targetHarmonicContour = MathUtils.subtract(originalContour, noiseContour);
-                    s.harmonicPart = SignalProcUtils.normalizeAverageSampleEnergyContour(s.harmonicPart, times, currentHarmonicContour, targetHarmonicContour, hntmSignalMod.samplingRateInHz, synthesisParams.noiseSynthesisWindowDurationInSeconds);
-                }
-                //
-            }
+            //First synthesize LPC part (voiced regions)
+            if (synthesisParams.noisePartLpcSynthesisMethod == HntmSynthesizerParams.OVERLAP_ADD_WITH_WINDOWING)
+                s.noisePart = NoisePartWindowedOverlapAddLpcSynthesizer.synthesize(hntmSignalMod, synthesisParams);
+            else if (synthesisParams.noisePartLpcSynthesisMethod == HntmSynthesizerParams.LP_FILTER_WITH_POST_HPF_AND_WINDOWING)
+                s.noisePart = NoisePartLpFilterPostHpfLpcSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
+            
+            //Then synthesize waveform part (unvoiced regions)
+            double[] waveformNoisePart = NoisePartWaveformSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
+            s.noisePart = SignalProcUtils.addSignals(s.noisePart, waveformNoisePart);
         }
         //
         
@@ -154,7 +139,7 @@ public class HntmSynthesizer {
         
         if (synthesisParams.applyVocalTractPostNormalizationProcessor)
         {
-            double[][] mappedTgtLpcs = hntmSignalMod.getLpcsAll();
+            float[][] mappedTgtLpcs = hntmSignalMod.getLpcsAll();
             s.output = SignalProcUtils.normalizeVocalTract(s.output, hntmSignalMod.getAnalysisTimes(), mappedTgtLpcs, analysisParams.noiseAnalysisWindowType, analysisParams.noiseAnalysisWindowDurationInSeconds, mappedTgtLpcs[0].length, hntmSignalMod.samplingRateInHz, analysisParams.preemphasisCoefNoise);
         }
         
@@ -196,7 +181,7 @@ public class HntmSynthesizer {
         /*
         float[][] pScalesArray = new float[1][1];
         float[][] tScalesArray = new float[1][1];
-        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
+        pScalesArray[0][0] = 1.5f; tScalesArray[0][0] = 1.5f;
         */
         
         //float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f, 2.5f};
@@ -224,9 +209,11 @@ public class HntmSynthesizer {
         analysisParams.harmonicModel = HntmAnalyzerParams.HARMONICS_PLUS_NOISE;
         //analysisParams.harmonicModel = HntmAnalyzerParams.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE;
         
-        analysisParams.noiseModel = HntmAnalyzerParams.LPC;
+        //analysisParams.noiseModel = HntmAnalyzerParams.LPC;
         //analysisParams.noiseModel = HntmAnalyzerParams.PSEUDO_HARMONIC;
         //analysisParams.noiseModel = HntmAnalyzerParams.HIGHPASS_WAVEFORM;
+        analysisParams.noiseModel = HntmAnalyzerParams.VOICEDNOISE_LPC_UNVOICEDNOISE_WAVEFORM;
+        //analysisParams.noiseModel = HntmAnalyzerParams.UNVOICEDNOISE_LPC_VOICEDNOISE_WAVEFORM;
         
         analysisParams.harmonicSynthesisMethodBeforeNoiseAnalysis = HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION;
         //analysisParams.harmonicSynthesisMethodBeforeNoiseAnalysis= HntmSynthesizerParams.QUADRATIC_PHASE_INTERPOLATION;

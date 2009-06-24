@@ -72,9 +72,9 @@ public class NoisePartWindowedOverlapAddLpcSynthesizer {
         for (i=0; i<hnmSignal.frames.length; i++)
         {
             isNoised = ((hnmSignal.frames[i].maximumFrequencyOfVoicingInHz<0.5f*hnmSignal.samplingRateInHz) ? true : false);
-            if (isNoised)
+            if (isNoised && hnmSignal.frames[i].n!=null && (hnmSignal.frames[i].n instanceof FrameNoisePartLpc) && ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs!=null)
             {
-                lpOrder = hnmSignal.frames[i].lpCoeffs.length;
+                lpOrder = ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs.length;
                 break;
             }
         }
@@ -200,7 +200,7 @@ public class NoisePartWindowedOverlapAddLpcSynthesizer {
                     tsiNext = SignalProcUtils.sample2time(startIndexNext, hnmSignal.samplingRateInHz); 
                 }
 
-                if (isNoised && hnmSignal.frames[i].n!=null)
+                if (isNoised && hnmSignal.frames[i].n!=null && (hnmSignal.frames[i].n instanceof FrameNoisePartLpc))
                 {       
                     //Compute window
                     winNoise = Window.get(windowType, wsNoise);
@@ -218,16 +218,16 @@ public class NoisePartWindowedOverlapAddLpcSynthesizer {
                     //x = SignalProcUtils.getNoise(hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5*hnmSignal.samplingRateInHz, 100.0, hnmSignal.samplingRateInHz, wsNoise); //Pink noise
                     //x = SignalProcUtils.getWhiteNoise(wsNoise, 1.0f);
                     
-                    if (isNoised)
+                    if (isNoised && hnmSignal.frames[i].n!=null && (hnmSignal.frames[i].n instanceof FrameNoisePartLpc) && ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs!=null)
                     {
                         winNoise.apply(x, 0);
                         //y = SignalProcUtils.arFilter(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, ((FrameNoisePartLpc)hnmSignal.frames[i].n).gain);
-                        y = SignalProcUtils.arFilter(x, hnmSignal.frames[i].lpCoeffs, 1.0);
+                        y = SignalProcUtils.arFilter(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, 1.0);
  
                         if (synthesisParams.highpassFilterAfterNoiseSynthesis)
                             y = SignalProcUtils.fdFilter(y, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5f*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz, fftSizeNoise);
  
-                        MathUtils.adjustStandardDeviation(y, hnmSignal.frames[i].origNoiseStd);
+                        MathUtils.adjustStandardDeviation(y, ((FrameNoisePartLpc)hnmSignal.frames[i].n).origNoiseStd);
                         
                         //Overlap-add
                         for (n=startIndex; n<Math.min(startIndex+wsNoise, noisePart.length); n++)

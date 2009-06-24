@@ -26,6 +26,22 @@ package marytts.util.math;
  */
 public class ArrayUtils
 {
+    public static double[] copyFloat2Double(float[] orig)
+    {
+        if (orig!=null)
+            return subarrayd(orig, 0, orig.length);
+        else
+            return null;
+    }
+    
+    public static float[] copyDouble2Float(double[] orig)
+    {
+        if (orig!=null)
+            return subarrayf(orig, 0, orig.length);
+        else
+            return null;
+    }
+    
     public static double[] copy(double[] orig)
     {
         if (orig!=null)
@@ -70,6 +86,16 @@ public class ArrayUtils
         }
         
         return out;
+    }
+    
+    public static double[] subarrayd(float[] orig, int off, int len)
+    {
+        if (off+len>orig.length) throw new IllegalArgumentException("requested subarray exceeds array length");
+        double[] sub = new double[len];
+        for (int i=0; i<len; i++)
+            sub[i] = orig[i+off];
+        
+        return sub;
     }
     
     public static double[] subarray(double[] orig, int off, int len)
