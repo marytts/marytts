@@ -50,9 +50,9 @@ public class FrameHarmonicPart
         }
     }
     
-    public double[] getCeps(double f0InHz, int samplingRateInHz, HntmAnalyzerParams params)
+    public float[] getCeps(double f0InHz, int samplingRateInHz, HntmAnalyzerParams params)
     {
-        double[] ceps = null;
+        float[] ceps = null;
 
         if (complexAmps!=null)
         {

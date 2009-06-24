@@ -80,7 +80,7 @@ public class HarmonicsToTrackConverter {
             boolean [] bSinAssigneds = null;
             float amp;
     
-            double[] currentCeps = null;
+            float[] currentCeps = null;
             
             for (i=0; i<numFrames; i++)
             {   

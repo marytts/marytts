@@ -1282,6 +1282,22 @@ public class MathUtils {
         return y3;
     }
     
+    public static double[] matrixProduct(double[][] x, float[] y)
+    {
+        double[][] y2 = new double[y.length][1];
+        int i;
+        for (i=0; i<y.length; i++)
+            y2[i][0] = y[i];
+        
+        y2 = matrixProduct(x, y2);
+        
+        double[] y3 = new double[y2.length];
+        for (i=0; i<y2.length; i++)
+            y3[i] = y2[i][0];
+        
+        return y3;
+    }
+    
     public static ComplexNumber[] matrixProduct(ComplexNumber[][] x, ComplexNumber[] y)
     {
         ComplexNumber[][] y2 = new ComplexNumber[y.length][1];
