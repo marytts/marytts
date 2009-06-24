@@ -84,7 +84,7 @@ public class Recording extends Speech {
     public boolean stopRecording()
     {
         if (recorder != null) {
-            recorder.stopRecording();
+            recorder.stopRecordingNOW();
             return true;
         }
         return false;

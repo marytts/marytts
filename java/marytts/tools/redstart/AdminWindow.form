@@ -167,7 +167,7 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Component id="jTextPane_PromptDisplay" alignment="1" pref="773" max="32767" attributes="0"/>
                       <Group type="102" alignment="1" attributes="0">
-                          <Component id="jTextPane_nextSentence" min="-2" pref="624" max="-2" attributes="2"/>
+                          <Component id="jTextPane_nextSentence" pref="624" max="32767" attributes="2"/>
                           <EmptySpace min="-2" pref="101" max="-2" attributes="0"/>
                           <Component id="jLabel_SessionStatus" min="-2" max="-2" attributes="0"/>
                       </Group>
@@ -253,10 +253,10 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="0" attributes="0">
+              <Group type="102" alignment="1" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jScrollPane_PromptSet" alignment="0" pref="773" max="32767" attributes="0"/>
+                  <Group type="103" groupAlignment="1" attributes="0">
+                      <Component id="jScrollPane_PromptSet" alignment="1" pref="773" max="32767" attributes="0"/>
                       <Component id="jSeparator_MessageBar" alignment="0" pref="773" max="32767" attributes="0"/>
                       <Group type="102" alignment="0" attributes="0">
                           <Component id="jLabel_MessageBarIcon" min="-2" max="-2" attributes="0"/>
