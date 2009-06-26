@@ -263,8 +263,8 @@ public class PeakMatchedSinusoidalSynthesizer extends BaseSinusoidalSynthesizer{
                 String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
                 PitchReaderWriter f0 = new PitchReaderWriter(strPitchFile);
                 f0s = f0.contour;
-                ws_f0 = (float) f0.header.ws;
-                ss_f0 = (float) f0.header.ss;
+                ws_f0 = (float) f0.header.windowSizeInSeconds;
+                ss_f0 = (float) f0.header.skipSizeInSeconds;
             }
                 
             st = sa.analyzeFixedRate(x, 0.020f, 0.010f, deltaInHz, spectralEnvelopeType, f0s, ws_f0, ss_f0);
@@ -276,7 +276,7 @@ public class PeakMatchedSinusoidalSynthesizer extends BaseSinusoidalSynthesizer{
             String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
             PitchReaderWriter f0 = new PitchReaderWriter(strPitchFile);
             int pitchMarkOffset = 0;
-            PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true, pitchMarkOffset);
+            PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, true, pitchMarkOffset);
             pa = new PitchSynchronousSinusoidalAnalyzer(params);
             
             st = pa.analyzePitchSynchronous(x, pm, numPeriods, -1.0f, deltaInHz, spectralEnvelopeType, initialPeakLocationsInHz);

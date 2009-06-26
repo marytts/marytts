@@ -47,8 +47,8 @@ public class PitchReaderWriter {
         
         header = new PitchFileHeader();
         
-        header.ws = 0.0;
-        header.ss = 0.0;
+        header.windowSizeInSeconds = 0.0;
+        header.skipSizeInSeconds = 0.0;
         header.fs = 0;
         
         try {
@@ -64,8 +64,8 @@ public class PitchReaderWriter {
         
         header = new PitchFileHeader();
         
-        header.ws = 0.0;
-        header.ss = 0.0;
+        header.windowSizeInSeconds = 0.0;
+        header.skipSizeInSeconds = 0.0;
         header.fs = 0;
     }
     
@@ -78,15 +78,15 @@ public class PitchReaderWriter {
      
         header = new PitchFileHeader();
         
-        header.ws = windowSizeInSeconds;
-        header.ss = skipSizeInSeconds;
+        header.windowSizeInSeconds = windowSizeInSeconds;
+        header.skipSizeInSeconds = skipSizeInSeconds;
         header.fs = samplingRate;
         float currentTime;
         int currentInd;
         
         if (pitchMarks != null && pitchMarks.length>1)
         {
-            int numfrm = (int)Math.floor(((float)pitchMarks[pitchMarks.length-2])/header.fs/header.ss+0.5);
+            int numfrm = (int)Math.floor(((float)pitchMarks[pitchMarks.length-2])/header.fs/header.skipSizeInSeconds+0.5);
             
             if (numfrm>0)
             {
@@ -95,7 +95,7 @@ public class PitchReaderWriter {
                 contour = new double[numfrm];
                 for (int i=0; i<numfrm; i++)
                 {
-                    currentTime = (float) (i*header.ss+0.5*header.ws);
+                    currentTime = (float) (i*header.skipSizeInSeconds+0.5*header.windowSizeInSeconds);
                     currentInd = MathUtils.findClosest(onsets, currentTime);
                     
                     if (currentInd<onsets.length-1)
@@ -125,8 +125,8 @@ public class PitchReaderWriter {
                 header.fs = (int)lr.readFloat();
                 header.numfrm = (int)lr.readFloat();
 
-                header.ws = ((double)winsize)/header.fs;
-                header.ss = ((double)skipsize)/header.fs;
+                header.windowSizeInSeconds = ((double)winsize)/header.fs;
+                header.skipSizeInSeconds = ((double)skipsize)/header.fs;
                 contour = new double[header.numfrm];
 
                 for (int i=0; i<header.numfrm; i++)

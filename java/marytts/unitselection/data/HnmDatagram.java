@@ -28,19 +28,26 @@ import java.io.RandomAccessFile;
 
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
 
+/**
+ * 
+ * 
+ * @author Oytun T&uumlrk
+ *
+ */
 public class HnmDatagram extends Datagram {
     
     protected HntmSpeechFrame frame; //Hnm parameters for a speech frame
     
     /**
-     * Construct a MCep datagram from a float vector.
+     * Construct a HNM datagram.
      * 
      * @param duration the duration, in samples, of the data represented by this datagram 
-     * @param coeffs the array of Mel-Cepstrum coefficients.
+     * @param frame the parameters of HNM for a speech frame.
      */
     public HnmDatagram(long setDuration, HntmSpeechFrame frame)
     {
         super(setDuration);
+        
         this.frame = new HntmSpeechFrame(frame);
     }
 

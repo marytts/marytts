@@ -54,8 +54,8 @@ public class F0ReaderWriter extends PitchReaderWriter {
         
         header = new PitchFileHeader();
         
-        header.ws = 0.0;
-        header.ss = 0.0;
+        header.windowSizeInSeconds = 0.0;
+        header.skipSizeInSeconds = 0.0;
         header.fs = 0;
         
         try {
@@ -72,8 +72,8 @@ public class F0ReaderWriter extends PitchReaderWriter {
         
         header = new PitchFileHeader();
         
-        header.ws = 0.0;
-        header.ss = 0.0;
+        header.windowSizeInSeconds = 0.0;
+        header.skipSizeInSeconds = 0.0;
         header.fs = 0;
     }
 
@@ -100,8 +100,8 @@ public class F0ReaderWriter extends PitchReaderWriter {
             header.fs = samplingRate;
             header.numfrm = contour.length;
 
-            header.ws = windowSizeInSeconds;
-            header.ss = skipSizeInSeconds;
+            header.windowSizeInSeconds = windowSizeInSeconds;
+            header.skipSizeInSeconds = skipSizeInSeconds;
         }
     }
 }

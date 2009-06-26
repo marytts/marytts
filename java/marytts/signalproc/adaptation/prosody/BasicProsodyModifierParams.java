@@ -142,11 +142,11 @@ public class BasicProsodyModifierParams {
             
             for (int i=0; i<f0Src.header.numfrm; i++)
             {
-                sourceTime = (i*f0Src.header.ss + 0.5*f0Src.header.ws);
+                sourceTime = (i*f0Src.header.skipSizeInSeconds + 0.5*f0Src.header.windowSizeInSeconds);
                 
                 if (labSrc!=null && labTgt!=null && labSrc.items!=null && labTgt.items!=null)
                 {
-                    labInd = SignalProcUtils.frameIndex2LabelIndex(i, labSrc, f0Src.header.ws, f0Src.header.ss);
+                    labInd = SignalProcUtils.frameIndex2LabelIndex(i, labSrc, f0Src.header.windowSizeInSeconds, f0Src.header.skipSizeInSeconds);
                     if (labInd>1)
                     {
                         tStartTgt = (float)labTgt.items[labInd-1].time;
@@ -160,7 +160,7 @@ public class BasicProsodyModifierParams {
 
 
                     targetTime = MathUtils.linearMap(sourceTime, tStartSrc, labSrc.items[labInd].time, tStartTgt, labTgt.items[labInd].time);
-                    tgtF0Ind = SignalProcUtils.time2frameIndex(targetTime, f0Tgt.header.ws, f0Tgt.header.ss);
+                    tgtF0Ind = SignalProcUtils.time2frameIndex(targetTime, f0Tgt.header.windowSizeInSeconds, f0Tgt.header.skipSizeInSeconds);
                     
                 }
                 else //No labels given, just do a linear mapping between given source and target contours

@@ -977,8 +977,8 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         
         String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
         PitchReaderWriter f0 = new PitchReaderWriter(strPitchFile);
-        float ws_f0 = (float)f0.header.ws;
-        float ss_f0 = (float)f0.header.ss;
+        float ws_f0 = (float)f0.header.windowSizeInSeconds;
+        float ss_f0 = (float)f0.header.skipSizeInSeconds;
         
         SinusoidalTracks st = sa.analyzeFixedRate(x, winSizeInSeconds, skipSizeInSeconds, deltaInHz,
                                                   spectralEnvelopeType, f0.contour , ws_f0, ss_f0);        

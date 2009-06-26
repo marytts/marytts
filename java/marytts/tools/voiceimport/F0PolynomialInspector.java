@@ -260,7 +260,7 @@ public class F0PolynomialInspector extends VoiceImportComponent
                 params.fs = audioSampleRate;
                 F0TrackerAutocorrelationHeuristic tracker = new F0TrackerAutocorrelationHeuristic(params);
                 tracker.pitchAnalyze(new BufferedDoubleDataSource(sentenceAudio));
-                double frameShiftTime = tracker.getFrameShiftTime();
+                double frameShiftTime = tracker.getSkipSizeInSeconds();
                 double[] f0Array = tracker.getF0Contour();
                 if (f0Array != null) {
                     for (int j=0; j<f0Array.length; j++) {

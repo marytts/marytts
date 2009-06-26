@@ -149,7 +149,7 @@ public class HntmAnalyzer {
         if (f0!=null)
         {
             int pitchMarkOffset = 0;
-            PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.ws, f0.header.ss, true, pitchMarkOffset);
+            PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, true, pitchMarkOffset);
 
             float[] initialF0s = ArrayUtils.subarrayf(f0.contour, 0, f0.header.numfrm);
             //float[] initialF0s = HnmPitchVoicingAnalyzer.estimateInitialPitch(x, samplingRate, windowSizeInSeconds, skipSizeInSeconds, f0MinInHz, f0MaxInHz, windowType);
@@ -160,8 +160,8 @@ public class HntmAnalyzer {
 
             //2.b. If voiced, maximum frequency of voicing estimation
             //     Otherwise, maximum frequency of voicing is set to 0.0
-            analysisParams.hnmPitchVoicingAnalyzerParams.f0AnalysisWindowSizeInSeconds = (float)f0.header.ws;
-            analysisParams.hnmPitchVoicingAnalyzerParams.f0AnalysisSkipSizeInSeconds = (float)f0.header.ss;
+            analysisParams.hnmPitchVoicingAnalyzerParams.f0AnalysisWindowSizeInSeconds = (float)f0.header.windowSizeInSeconds;
+            analysisParams.hnmPitchVoicingAnalyzerParams.f0AnalysisSkipSizeInSeconds = (float)f0.header.skipSizeInSeconds;
             float[] maxFrequencyOfVoicings = HnmPitchVoicingAnalyzer.analyzeVoicings(x, fs, initialF0s, analysisParams.hnmPitchVoicingAnalyzerParams);
             float maxFreqOfVoicingInHz;
             //maxFreqOfVoicingInHz = HnmAnalyzer.FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST; //This should come from the above automatic analysis
@@ -206,9 +206,9 @@ public class HntmAnalyzer {
             String[] transientPhonemesList = {"p", "t", "k", "pf", "ts", "tS"};
 
             if (analysisParams.harmonicModel == HntmAnalyzerParams.HARMONICS_PLUS_NOISE)
-                output.hnmSignal = new HntmSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.ws, (float)f0.header.ss, analysisParams.noiseAnalysisWindowDurationInSeconds, analysisParams.preemphasisCoefNoise);
+                output.hnmSignal = new HntmSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.windowSizeInSeconds, (float)f0.header.skipSizeInSeconds, analysisParams.noiseAnalysisWindowDurationInSeconds, analysisParams.preemphasisCoefNoise);
             else if (analysisParams.harmonicModel == HntmAnalyzerParams.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE && labels!=null)
-                output.hnmSignal = new HntmPlusTransientsSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.ws, (float)f0.header.ss, analysisParams.noiseAnalysisWindowDurationInSeconds, analysisParams.preemphasisCoefNoise, labels.items.length);
+                output.hnmSignal = new HntmPlusTransientsSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.windowSizeInSeconds, (float)f0.header.skipSizeInSeconds, analysisParams.noiseAnalysisWindowDurationInSeconds, analysisParams.preemphasisCoefNoise, labels.items.length);
 
             boolean isPrevVoiced = false;
 
@@ -242,8 +242,8 @@ public class HntmAnalyzer {
                 //if (ws%2==0) //Always use an odd window size to have a zero-phase analysis window
                 //    ws++;
                 
-                output.hnmSignal.frames[i].tAnalysisInSeconds = (float)((pm.pitchMarks[i]+0.5*ws)/fs);  //Middle of analysis frame 
-
+                output.hnmSignal.frames[i].tAnalysisInSeconds = (float)((pm.pitchMarks[i])/fs);  //Middle of analysis frame 
+                
                 if (analysisParams.harmonicModel == HntmAnalyzerParams.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE && labels!=null)
                 {
                     while(labels.items[currentLabInd].time<output.hnmSignal.frames[i].tAnalysisInSeconds)
@@ -329,7 +329,7 @@ public class HntmAnalyzer {
                         //if (ws%2==0) //Always use an odd window size to have a zero-phase analysis window
                         //    ws++;
                         
-                        output.hnmSignal.frames[i].tAnalysisInSeconds = (float)((pm.pitchMarks[i]+0.5*ws)/fs);  //Middle of analysis frame  
+                        //output.hnmSignal.frames[i].tAnalysisInSeconds = (float)((pm.pitchMarks[i]+0.5*ws)/fs);  //Middle of analysis frame  
                     }
                     
                     frm = new double[ws];
@@ -440,7 +440,10 @@ public class HntmAnalyzer {
                 
                 output.isInTransientSegments[i] = isInTransientSegment;
 
-                System.out.println("Harmonic (and transient) analysis completed at " + String.valueOf(output.hnmSignal.frames[i].tAnalysisInSeconds) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm)); 
+                if (analysisParams.harmonicModel==HntmAnalyzerParams.HARMONICS_PLUS_NOISE)
+                    System.out.println("Harmonic analysis completed at " + String.valueOf(output.hnmSignal.frames[i].tAnalysisInSeconds) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm)); 
+                else if (analysisParams.harmonicModel==HntmAnalyzerParams.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE)
+                    System.out.println("Harmonic and transient analysis completed at " + String.valueOf(output.hnmSignal.frames[i].tAnalysisInSeconds) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm)); 
             }
         }
 
@@ -663,6 +666,9 @@ public class HntmAnalyzer {
 
                         if (analysisParams.hpfBeforeNoiseAnalysis && y!=null)
                             frmNoise = ArrayUtils.copy(y); //Use fdfo only for computing energy ratio between noise and speech (if we get this working, we can remove filtering from above and include only gain ratio computation)          
+                        
+                        frmNoise = SignalProcUtils.replaceNaNsWith(frmNoise, 0.0);
+                        frmNoise = MathUtils.add(frmNoise, MathUtils.random(frmNoise.length, -1.0e-20, 1.0e-20));
                         
                         float origAverageSampleEnergy = (float)SignalProcUtils.getAverageSampleEnergy(frmNoise);
                         float origNoiseStd = (float)MathUtils.standardDeviation(frmNoise);

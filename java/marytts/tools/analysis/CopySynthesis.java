@@ -98,7 +98,7 @@ public class CopySynthesis
             params.fs = (int) ais.getFormat().getSampleRate();
             F0TrackerAutocorrelationHeuristic tracker = new F0TrackerAutocorrelationHeuristic(params);
             tracker.pitchAnalyze(audio);
-            frameShiftTime = tracker.getFrameShiftTime();
+            frameShiftTime = tracker.getSkipSizeInSeconds();
             contour = tracker.getF0Contour();
         } else { // have a pitch file -- ignore any wav file
             PitchReaderWriter f0rw = new PitchReaderWriter(pitchFilename);
@@ -106,7 +106,7 @@ public class CopySynthesis
                 throw new NullPointerException("Cannot read f0 contour from "+pitchFilename);
             }
             contour = f0rw.contour;
-            frameShiftTime = f0rw.header.ss;
+            frameShiftTime = f0rw.header.skipSizeInSeconds;
         }
         assert contour != null;
         assert frameShiftTime > 0;
