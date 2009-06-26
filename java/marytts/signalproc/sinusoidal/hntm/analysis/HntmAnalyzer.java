@@ -101,6 +101,29 @@ public class HntmAnalyzer {
 
     }
     
+    public HntmSpeechSignal analyze(short[] x, int fs, PitchReaderWriter f0)
+    {
+        double[] xDouble = ArrayUtils.copyShort2Double(x);
+        
+        return analyze(xDouble, fs, f0);
+    }
+
+    public HntmSpeechSignal analyze(double[] x, int fs, PitchReaderWriter f0)
+    {
+        HntmAnalyzerParams analysisParams = new HntmAnalyzerParams(); //Using default analysis parameters
+        HntmSynthesizerParams synthesisParamsBeforeNoiseAnalysis = new HntmSynthesizerParams(); //Using defaulot synthesis parameters before noise analysis
+        
+        return analyze(x, fs, f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis);
+    }
+    
+    public HntmSpeechSignal analyze(short[] x, int fs, PitchReaderWriter f0, Labels labels,
+                                    HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParamsBeforeNoiseAnalysis)
+    {
+        double[] xDouble = ArrayUtils.copyShort2Double(x);
+        
+        return analyze(xDouble, fs, f0, labels, analysisParams, synthesisParamsBeforeNoiseAnalysis);
+    }
+    
     public HntmSpeechSignal analyze(double[] x, int fs, PitchReaderWriter f0, Labels labels,
                                     HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParamsBeforeNoiseAnalysis)
     {
@@ -719,7 +742,7 @@ public class HntmAnalyzer {
                             //
                              */    
                         }
-                        else if (analysisParams.noiseModel==HntmAnalyzerParams.HIGHPASS_WAVEFORM ||
+                        else if (analysisParams.noiseModel==HntmAnalyzerParams.WAVEFORM ||
                                  (analysisParams.noiseModel==HntmAnalyzerParams.VOICEDNOISE_LPC_UNVOICEDNOISE_WAVEFORM && !isVoiced) ||
                                  (analysisParams.noiseModel==HntmAnalyzerParams.UNVOICEDNOISE_LPC_VOICEDNOISE_WAVEFORM && isVoiced)
                                 )

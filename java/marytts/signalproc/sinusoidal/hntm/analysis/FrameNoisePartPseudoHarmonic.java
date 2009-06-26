@@ -19,6 +19,11 @@
  */
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
+import java.io.DataOutput;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
 import marytts.util.math.ArrayUtils;
 
 /**
@@ -30,7 +35,7 @@ import marytts.util.math.ArrayUtils;
  * @author Oytun T&uumlrk
  *
  */
-public class FrameNoisePartPseudoHarmonic extends FrameNoisePart {
+public class FrameNoisePartPseudoHarmonic implements FrameNoisePart {
 
     public float[] ceps; //To keep harmonic amplitudes
     
@@ -43,6 +48,58 @@ public class FrameNoisePartPseudoHarmonic extends FrameNoisePart {
     {
         super();
         ceps = ArrayUtils.copy(existing.ceps);
+    }
+    
+    public FrameNoisePartPseudoHarmonic( RandomAccessFile raf ) throws IOException, EOFException
+    {        
+        int cepsLen = raf.readInt();
+
+        if (cepsLen>0)
+        {
+            ceps = new float[cepsLen];
+            for (int i=0; i<cepsLen; i++) 
+                ceps[i] = raf.readFloat();
+        }
+        else 
+            ceps = null;
+    }
+
+    public boolean equals(FrameNoisePartPseudoHarmonic other)
+    {
+        if (ceps!=null || other.ceps!=null)
+        {
+            if (ceps!=null && other.ceps==null) return false;
+            if (ceps==null && other.ceps!=null) return false;
+            if (ceps.length!=other.ceps.length) return false;
+            for (int i=0; i<ceps.length; i++)
+                if (ceps[i]!=other.ceps[i]) return false;
+        }
+        
+        return true;
+    }
+    
+    public int getLength()
+    {
+        int cepsLen = 0;
+        if (ceps!=null && ceps.length>0)
+            cepsLen = ceps.length;
+        
+        return 4*cepsLen;
+    }
+    
+    public void write(DataOutput out) throws IOException 
+    {
+        int cepsLen = 0;
+        if (ceps!=null && ceps.length>0)
+            cepsLen = ceps.length;
+
+        out.writeInt(cepsLen);
+
+        if (cepsLen>0)
+        {
+            for (int i=0; i<ceps.length; i++) 
+                out.writeFloat(ceps[i]);
+        }
     }
 }
 

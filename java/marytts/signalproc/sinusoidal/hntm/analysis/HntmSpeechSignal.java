@@ -167,4 +167,12 @@ public class HntmSpeechSignal {
         
         return maximumFrequencyOfVoicings;
     }
+    
+    public int getTotalFrames()
+    {
+        if (frames!=null && frames.length>0)
+            return frames.length;
+        else
+            return 0;
+    }
 }

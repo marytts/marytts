@@ -106,8 +106,8 @@ public class HnmPitchVoicingAnalyzerParams
         sharpPeakAmpDiffInDB = 12.0; //Decreased ==> Voicing increases (Orig: 12.0)
         minimumTotalHarmonics = 0; //Minimum number of total harmonics to be included in voiced region (effective only when f0>10.0)
         maximumTotalHarmonics = 100; //Maximum number of total harmonics to be included in voiced region (effective only when f0>10.0)
-        minimumVoicedFrequencyOfVoicing = 3500.0f; //All voiced sections will have at least this freq. of voicing
-        maximumVoicedFrequencyOfVoicing = 4500.0f; //All voiced sections will have at least this freq. of voicing
+        minimumVoicedFrequencyOfVoicing = 0.0f; //All voiced sections will have at least this freq. of voicing
+        maximumVoicedFrequencyOfVoicing = 5000.0f; //All voiced sections will have at least this freq. of voicing
         maximumFrequencyOfVoicingFinalShift = 0.0f; //The max freq. of voicing contour is shifted by this amount finally
         runningMeanVoicingThreshold = 0.5f; //Between 0.0 and 1.0, decrease ==> Max. voicing freq increases
 

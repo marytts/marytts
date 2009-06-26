@@ -19,6 +19,10 @@
  */
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
+import java.io.DataOutput;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Arrays;
 
 import marytts.signalproc.sinusoidal.BaseSinusoidalSpeechFrame;
@@ -45,7 +49,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
     public HntmSpeechFrame(float f0InHzIn)
     {
         h = new FrameHarmonicPart();
-        n = new FrameNoisePart();
+        n = null;
         f0InHz = f0InHzIn;
         maximumFrequencyOfVoicingInHz = 0.0f;
         tAnalysisInSeconds = -1.0f;
@@ -64,6 +68,47 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         f0InHz = existing.f0InHz;
         maximumFrequencyOfVoicingInHz = existing.maximumFrequencyOfVoicingInHz;
         tAnalysisInSeconds = existing.tAnalysisInSeconds;   
+    }
+    
+    public HntmSpeechFrame(RandomAccessFile raf, int noiseModel ) throws IOException, EOFException
+    {
+        f0InHz = raf.readFloat();
+        maximumFrequencyOfVoicingInHz = raf.readFloat();
+        tAnalysisInSeconds = raf.readFloat();
+        h = new FrameHarmonicPart(raf);
+        
+        if (noiseModel==HntmAnalyzerParams.LPC)
+            n = new FrameNoisePartLpc(raf);
+        else if (noiseModel==HntmAnalyzerParams.PSEUDO_HARMONIC)
+            n = new FrameNoisePartPseudoHarmonic(raf);
+        else if (noiseModel==HntmAnalyzerParams.WAVEFORM)
+            n = new FrameNoisePartWaveform(raf); 
+    }
+    
+    public boolean equals(HntmSpeechFrame other)
+    {
+        if (!h.equals(other.h)) return false;
+        if (!n.equals(other.n)) return false;
+        if (f0InHz!=other.f0InHz) return false;
+        if (maximumFrequencyOfVoicingInHz!=other.maximumFrequencyOfVoicingInHz) return false;
+        if (tAnalysisInSeconds!=other.tAnalysisInSeconds) return false;
+        
+        return true;
+    }
+    
+    //Returns the size of this object in bytes
+    public int getLength()
+    {
+        return 4*3 + h.getLength() + n.getLength();
+    }
+    
+    public void write( DataOutput out ) throws IOException 
+    {
+        out.writeFloat(f0InHz);
+        out.writeFloat(maximumFrequencyOfVoicingInHz);
+        out.writeFloat(tAnalysisInSeconds);
+        h.write(out);
+        n.write(out);
     }
 }
 

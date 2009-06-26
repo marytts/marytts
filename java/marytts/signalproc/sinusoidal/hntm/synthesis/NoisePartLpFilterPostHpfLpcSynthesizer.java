@@ -200,7 +200,7 @@ public class NoisePartLpFilterPostHpfLpcSynthesizer {
                     endInd = Math.min(pmIndNext, outputLen-1);
                     double[] tmpFrm = ArrayUtils.subarray(noisePart, startInd, endInd-startInd+1);
 
-                    if (synthesisParams.highpassFilterAfterNoiseSynthesis && hnmSignal.frames[i].maximumFrequencyOfVoicingInHz-analysisParams.overlapBetweenHarmonicAndNoiseRegionsInHz>0.0f)
+                    if (synthesisParams.hpfAfterNoiseSynthesis && hnmSignal.frames[i].maximumFrequencyOfVoicingInHz-analysisParams.overlapBetweenHarmonicAndNoiseRegionsInHz>0.0f)
                         tmpFrm = SignalProcUtils.fdFilter(tmpFrm, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz-analysisParams.overlapBetweenHarmonicAndNoiseRegionsInHz, 0.5f*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz, fftSizeNoise);
  
                     tmpFrm = SignalProcUtils.normalizeAverageSampleEnergy(tmpFrm, ((FrameNoisePartLpc)hnmSignal.frames[i].n).origAverageSampleEnergy);

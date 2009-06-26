@@ -1,0 +1,116 @@
+/**
+ * Copyright 2006 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+package marytts.unitselection.data;
+
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
+
+public class HnmDatagram extends Datagram {
+    
+    protected HntmSpeechFrame frame; //Hnm parameters for a speech frame
+    
+    /**
+     * Construct a MCep datagram from a float vector.
+     * 
+     * @param duration the duration, in samples, of the data represented by this datagram 
+     * @param coeffs the array of Mel-Cepstrum coefficients.
+     */
+    public HnmDatagram(long setDuration, HntmSpeechFrame frame)
+    {
+        super(setDuration);
+        this.frame = new HntmSpeechFrame(frame);
+    }
+
+    /**
+     * Constructor which pops a datagram from a random access file.
+     * 
+     * @param raf the random access file to pop the datagram from.
+     * 
+     * @throws IOException
+     * @throws EOFException
+     */
+    public HnmDatagram( RandomAccessFile raf, int noiseModel ) throws IOException, EOFException
+    {
+        super(raf.readLong()); // duration
+        int len = raf.readInt();
+        if ( len < 0 ) {
+            throw new IOException( "Can't create a datagram with a negative data size [" + len + "]." );
+        }
+        if (len < 4*3) {
+            throw new IOException("Hnm with waveform noise datagram too short (len="+len
+                    +"): cannot be shorter than the space needed for first three Hnm parameters (4*3)");
+        }
+        
+        // For speed concerns, read into a byte[] first:
+        byte[] buf = new byte[len];
+        raf.readFully(buf);
+        DataInputStream dis = new DataInputStream(new ByteArrayInputStream(buf));
+        
+        frame = new HntmSpeechFrame(raf, noiseModel);
+    }
+
+    /**
+     * Get the length, in bytes, of the datagram's data field.
+     */
+    public int getLength()
+    {
+        return frame.getLength();
+    }
+    
+    /**
+     * Get the speech frame in Hz
+     * @return f0
+     */
+    public HntmSpeechFrame getFrame()
+    {
+        return frame;
+    }
+    
+    /**
+     * Write this datagram to a random access file or data output stream.
+     */
+    public void write( DataOutput out ) throws IOException 
+    {
+        out.writeLong( duration );
+        out.writeInt( getLength() );
+        
+        frame.write(out);
+    }
+
+    /**
+     * Tests if this datagram is equal to another datagram.
+     */
+    public boolean equals( Datagram other ) {
+        if (! (other instanceof HnmDatagram)) return false;
+        HnmDatagram otherHnm = (HnmDatagram) other;
+        if ( this.duration != otherHnm.duration ) return false;
+        if ( !this.frame.equals(otherHnm.frame) ) return false;
+        
+        return true;
+    }
+
+}
+
