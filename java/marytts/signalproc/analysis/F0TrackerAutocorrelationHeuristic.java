@@ -96,8 +96,8 @@ public class F0TrackerAutocorrelationHeuristic {
         
         frameIndex = 0;
         
-        ws =  (int)Math.floor(params.ws*params.fs+0.5);
-        ss = (int)Math.floor(params.ss*params.fs+0.5);
+        ws =  (int)Math.floor(params.windowSizeInSeconds*params.fs+0.5);
+        ss = (int)Math.floor(params.skipSizeInSeconds*params.fs+0.5);
         
         pitchFrm = new double[ws];
         minT0Index = (int)Math.floor(params.fs/params.maximumF0+0.5);
@@ -120,7 +120,7 @@ public class F0TrackerAutocorrelationHeuristic {
         if (f0s!=null)
         {
             params.numfrm = f0s.length;
-            PitchReaderWriter.write_pitch_file(ptcFileOut, f0s, (float)(params.ws), (float)(params.ss), params.fs);
+            PitchReaderWriter.write_pitch_file(ptcFileOut, f0s, (float)(params.windowSizeInSeconds), (float)(params.skipSizeInSeconds), params.fs);
         }
         else
             params.numfrm = 0;
@@ -339,9 +339,9 @@ public class F0TrackerAutocorrelationHeuristic {
      * The frame shift time, in seconds.
      * @return
      */
-    public double getFrameShiftTime()
+    public double getSkipSizeInSeconds()
     { 
-        return params.ss;
+        return params.skipSizeInSeconds;
     }
     
     /**
@@ -350,7 +350,7 @@ public class F0TrackerAutocorrelationHeuristic {
      */
     public double getWindowSizeInSeconds()
     {
-        return params.ws;
+        return params.windowSizeInSeconds;
     }
     
     public double[] getF0Contour()
@@ -363,7 +363,7 @@ public class F0TrackerAutocorrelationHeuristic {
     {
         F0TrackerAutocorrelationHeuristic tracker = new F0TrackerAutocorrelationHeuristic(new PitchFileHeader());
         tracker.pitchAnalyzeWavFile(args[0]);
-        FunctionGraph f0Graph = new FunctionGraph(0, tracker.params.ss, tracker.f0s);
+        FunctionGraph f0Graph = new FunctionGraph(0, tracker.params.skipSizeInSeconds, tracker.f0s);
         f0Graph.showInJFrame("F0 curve for "+args[0], false, true);
     }
     

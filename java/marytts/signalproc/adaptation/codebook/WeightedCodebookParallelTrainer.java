@@ -121,8 +121,8 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         
         pa.isForcedAnalysis = false;
         
-        pa.codebookHeader.ptcParams.ws = 0.040;
-        pa.codebookHeader.ptcParams.ss = 0.005;
+        pa.codebookHeader.ptcParams.windowSizeInSeconds = 0.040;
+        pa.codebookHeader.ptcParams.skipSizeInSeconds = 0.005;
         pa.codebookHeader.ptcParams.voicingThreshold = 0.30;
         pa.codebookHeader.ptcParams.isDoublingCheck = false;
         pa.codebookHeader.ptcParams.isHalvingCheck = false;
@@ -231,8 +231,8 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         
         pa.isForcedAnalysis = false;
         
-        pa.codebookHeader.ptcParams.ws = 0.040;
-        pa.codebookHeader.ptcParams.ss = 0.005;
+        pa.codebookHeader.ptcParams.windowSizeInSeconds = 0.040;
+        pa.codebookHeader.ptcParams.skipSizeInSeconds = 0.005;
         pa.codebookHeader.ptcParams.voicingThreshold = 0.30;
         pa.codebookHeader.ptcParams.isDoublingCheck = false;
         pa.codebookHeader.ptcParams.isHalvingCheck = false;
@@ -341,8 +341,8 @@ public class WeightedCodebookParallelTrainer extends WeightedCodebookTrainer {
         
         pa.isForcedAnalysis = false;
         
-        pa.codebookHeader.ptcParams.ws = 0.040;
-        pa.codebookHeader.ptcParams.ss = 0.005;
+        pa.codebookHeader.ptcParams.windowSizeInSeconds = 0.040;
+        pa.codebookHeader.ptcParams.skipSizeInSeconds = 0.005;
         pa.codebookHeader.ptcParams.voicingThreshold = 0.30;
         pa.codebookHeader.ptcParams.isDoublingCheck = false;
         pa.codebookHeader.ptcParams.isHalvingCheck = false;

@@ -33,8 +33,8 @@ import marytts.util.io.MaryRandomAccessFile;
  * @author Oytun T&uumlrk
  */
 public class PitchFileHeader {
-    public double ws; //Window size in seconds
-    public double ss; //Skip size in seconds
+    public double windowSizeInSeconds; //Window size in seconds
+    public double skipSizeInSeconds; //Skip size in seconds
     public int fs; //Rate in Hz
     public int numfrm; //Number of frames
     public double voicingThreshold; //Voicing threshold
@@ -60,8 +60,8 @@ public class PitchFileHeader {
         
     public PitchFileHeader()
     {
-        ws = 0.040;
-        ss = 0.005;
+        windowSizeInSeconds = 0.040;
+        skipSizeInSeconds = 0.005;
         fs = 0;
         numfrm = 0;
         voicingThreshold = DEFAULT_VOICING_THRESHOLD;
@@ -76,8 +76,8 @@ public class PitchFileHeader {
     
     public PitchFileHeader(PitchFileHeader existingHeader)
     {
-        ws = existingHeader.ws;
-        ss = existingHeader.ss;
+        windowSizeInSeconds = existingHeader.windowSizeInSeconds;
+        skipSizeInSeconds = existingHeader.skipSizeInSeconds;
         fs = existingHeader.fs;
         numfrm = existingHeader.numfrm;
         voicingThreshold = existingHeader.voicingThreshold;
@@ -99,8 +99,8 @@ public class PitchFileHeader {
     {
         if (stream!=null)
         {
-            ws = stream.readDouble();
-            ss = stream.readDouble();
+            windowSizeInSeconds = stream.readDouble();
+            skipSizeInSeconds = stream.readDouble();
             fs = stream.readInt();
             numfrm = stream.readInt();
             voicingThreshold = stream.readDouble();
@@ -130,8 +130,8 @@ public class PitchFileHeader {
     {
         if (stream!=null)
         {
-            ws = stream.readFloat();
-            ss = stream.readFloat();
+            windowSizeInSeconds = stream.readFloat();
+            skipSizeInSeconds = stream.readFloat();
             fs = stream.readInt();
             numfrm = stream.readInt();
             voicingThreshold = DEFAULT_VOICING_THRESHOLD;
@@ -143,8 +143,8 @@ public class PitchFileHeader {
             cutOff1 = DEFAULT_CUTOFF1;
             cutOff2 = DEFAULT_CUTOFF2;
             
-            ws = ws/fs;
-            ss = ss/fs;
+            windowSizeInSeconds = windowSizeInSeconds/fs;
+            skipSizeInSeconds = skipSizeInSeconds/fs;
             
             if (!bLeaveStreamOpen)
             {
@@ -181,8 +181,8 @@ public class PitchFileHeader {
     
     public void writePitchHeader(MaryRandomAccessFile ler) throws IOException
     {   
-        ler.writeDouble(ws);
-        ler.writeDouble(ss);
+        ler.writeDouble(windowSizeInSeconds);
+        ler.writeDouble(skipSizeInSeconds);
         ler.writeInt(fs);
         ler.writeInt(numfrm);
         ler.writeDouble(voicingThreshold);
@@ -222,8 +222,8 @@ public class PitchFileHeader {
     
     public void writePitchHeaderOld(LEDataOutputStream ler) throws IOException
     {   
-        ler.writeDouble(ws);
-        ler.writeDouble(ss);
+        ler.writeDouble(windowSizeInSeconds);
+        ler.writeDouble(skipSizeInSeconds);
         ler.writeInt(fs);
         ler.writeInt(numfrm);
     }

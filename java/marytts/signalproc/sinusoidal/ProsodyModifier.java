@@ -314,7 +314,7 @@ public class ProsodyModifier {
             {
                 float timeScale = 1.0f;
                 float pitchScale = 1.05f;
-                y = pm.process(x, f0.contour, (float)f0.header.ws, (float)f0.header.ss, 
+                y = pm.process(x, f0.contour, (float)f0.header.windowSizeInSeconds, (float)f0.header.skipSizeInSeconds, 
                         isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                         timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods, 
                         bRefinePeakEstimatesParabola,  bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
@@ -327,7 +327,7 @@ public class ProsodyModifier {
                 float [] pitchScales = {2.0f, 1.5f, 0.8f, 0.6f};
                 float [] pitchScalesTimes = {0.5f, 1.25f, 2.0f, 2.5f};
 
-                y = pm.process(x, f0.contour, (float)f0.header.ws, (float)f0.header.ss,
+                y = pm.process(x, f0.contour, (float)f0.header.windowSizeInSeconds, (float)f0.header.skipSizeInSeconds,
                         isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                         timeScales, timeScalesTimes, pitchScales, pitchScalesTimes, skipSizeInSeconds, deltaInHz, numPeriods,
                         bRefinePeakEstimatesParabola, bRefinePeakEstimatesBias, bSpectralReassignment, bAdjustNeighFreqDependent, isSilentSynthesis, 
@@ -427,7 +427,7 @@ public class ProsodyModifier {
             pitchScale = 4.0f;
             //for (int i=0; i<pitchScales.length; i++)
             {
-                y = pm.process(x, f0.contour, (float)f0.header.ws, (float)f0.header.ss, 
+                y = pm.process(x, f0.contour, (float)f0.header.windowSizeInSeconds, (float)f0.header.skipSizeInSeconds, 
                         isVoicingAdaptiveTimeScaling, timeScalingVoicingThreshold, isVoicingAdaptivePitchScaling,
                         //timeScale, Float.valueOf(pitchScales[i]), skipSizeInSeconds, deltaInHz, numPeriods, 
                         timeScale, pitchScale, skipSizeInSeconds, deltaInHz, numPeriods,

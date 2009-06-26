@@ -407,10 +407,10 @@ public class SignalProcUtils {
             if (i==1 || i-T0>=prevInd) //Insert new pitch mark
             {
                 count++;
-                
+
                 tmpPitchMarks[count-1] = i-1+offset;
                 prevInd = i;
-                
+
                 if (i>1)
                     tmpF0s[count-2] = (float)f0s[ind-1];
             }
@@ -3097,6 +3097,25 @@ public class SignalProcUtils {
     public static double mel2hz(double mel, int samplingRateInHz)
     {
         return SignalProcUtils.radian2hz(mel2radian(mel, samplingRateInHz), samplingRateInHz);
+    }
+    
+    public static double[] replaceNaNsWith(double[] x, double val)
+    {
+        double[] y = null;
+        
+        if (x!=null && x.length>0)
+        {
+            y = new double[x.length];
+            for (int i=0; i<x.length; i++)
+            {
+                if (Double.isNaN(x[i]))
+                    y[i] = 0.0;
+                else
+                    y[i] = x[i];
+            }
+        }
+        
+        return y;
     }
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException

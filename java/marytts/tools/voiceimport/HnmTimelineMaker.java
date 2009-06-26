@@ -44,31 +44,27 @@ import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizerParams;
 import marytts.unitselection.data.HnmDatagram;
 import marytts.unitselection.data.MCepDatagram;
+import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
 
 
 /**
  * The mcepTimelineMaker class takes a database root directory and a list of basenames,
- * and converts the related wav files into a mcep timeline in Mary format.
+ * and converts the related wav files into a hnm timeline in Mary format.
  * 
- * @author sacha
+ * @author Oytun T&uumlrk
  */
 public class HnmTimelineMaker extends VoiceImportComponent
 { 
     protected DatabaseLayout db = null;
     protected int percent = 0;
     
-    protected String ptcExt = ".ptc";
-    
     public final String HNMTIMELINE = "HnmTimelineMaker.hnmTimeline";
-    public final String PTCDIR = "HnmTimelineMaker.ptcDir";
-    
     
     public String getName(){
         return "HnmTimelineMaker";
     }
-    
     
     public SortedMap<String,String> getDefaultProps(DatabaseLayout theDb){
         this.db = theDb;
@@ -79,11 +75,8 @@ public class HnmTimelineMaker extends VoiceImportComponent
             
             props = new TreeMap<String, String>();
 
-            props.put(PTCDIR, db.getProp(db.ROOTDIR) 
-                    +"ptc"
-                    +System.getProperty("file.separator"));
             props.put(HNMTIMELINE, db.getProp(db.FILEDIR)
-                    +"timeline_hnmnw"+db.getProp(db.MARYEXT));
+                    +"timeline_hnm"+db.getProp(db.MARYEXT));
     
             props.put("HnmTimelineMaker.noiseModel", String.valueOf(analysisParams.noiseModel));
             props.put("HnmTimelineMaker.numFiltStages", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.numFilteringStages));
@@ -108,13 +101,13 @@ public class HnmTimelineMaker extends VoiceImportComponent
             props.put("HnmTimelineMaker.harmNumPer", String.valueOf(analysisParams.numPeriodsHarmonicsExtraction));
             props.put("HnmTimelineMaker.hpfAfterNoiseSynth", String.valueOf(synthesisParams.hpfAfterNoiseSynthesis));
         }
+        
         return props;
     }
     
     protected void setupHelp(){         
         props2Help = new TreeMap<String, String>();
         
-        props2Help.put(PTCDIR,"directory containing the binary pitch files");
         props2Help.put(HNMTIMELINE,"file containing all hnm noise waveform files. Will be created by this module");  
         
         props2Help.put("HnmTimelineMaker.noiseModel", "Noise model: 1=WAVEFORM, 2=LPC, Default=1");
@@ -142,7 +135,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
     }
     
     /**
-     *  Reads and concatenates a list of mcep EST tracks into one single timeline file.
+     *  Performs HNM analysis and writes the results to a single timeline file
      *
      */
     public boolean compute()
@@ -160,7 +153,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
         try{
             /* 1) Determine the reference sampling rate as being the sample rate of the first encountered
              *    wav file */
-            WavReader wav = new WavReader(db.getProp(db.WAVDIR) 
+            WavReader wav = new WavReader(db.getProp(db.ROOTDIR) + db.getProp(db.WAVDIR) 
                     + baseNameArray[0] + db.getProp(db.WAVEXT));
             int globSampleRate = wav.getSampleRate();
             System.out.println("---- Detected a global sample rate of: [" + globSampleRate + "] Hz." );
@@ -168,7 +161,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
             System.out.println("---- Performing HNM analysis..." );
             
             /* Make the file name */
-            System.out.println( "Will create the mcep timeline in file [" 
+            System.out.println( "Will create the hnm timeline in file [" 
                     + getProp(HNMTIMELINE) + "]." );
             
             /* An example of processing header: */
@@ -235,7 +228,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
             /* 2) Write the datagrams and feed the index */
             
             long totalTime = 0l;
-            long numDatagrams = 0l; // Total number of mcep datagrams in the timeline file
+            long numDatagrams = 0l; // Total number of hnm datagrams in the timeline file
             
             /* For each wav file: */
             for ( int i = 0; i < baseNameArray.length; i++ ) 
@@ -243,15 +236,15 @@ public class HnmTimelineMaker extends VoiceImportComponent
                 percent = 100*i/baseNameArray.length;
                 /* - open+load */
                 System.out.println( baseNameArray[i] );
-                wav = new WavReader(db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT));
+                wav = new WavReader(db.getProp(db.ROOTDIR) + db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT));
                 short[] wave = wav.getSamples();
                 
-                PitchReaderWriter f0 = new PitchReaderWriter(db.getProp(PTCDIR) + baseNameArray[i] + db.getProp(ptcExt));
+                PitchReaderWriter f0 = new PitchReaderWriter(db.getProp(db.ROOTDIR) + db.getProp(db.PTCDIR) + baseNameArray[i] + db.getProp(db.PTCEXT));
 
                 HntmAnalyzer ha = new HntmAnalyzer();
                 HntmSpeechSignal hnmSignal = ha.analyze(wave, wav.getSampleRate(), f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis); 
                 
-                /* - For each frame in the mcep file: */
+                /* - For each frame in the hnm modeled speech signal: */
                 int frameStart = 0;
                 int frameEnd = 0;
                 int duration = 0;
@@ -279,7 +272,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
             System.out.println("---- Done." );
             
             /* 7) Print some stats and close the file */
-            System.out.println( "---- mcep timeline result:");
+            System.out.println( "---- hnm timeline result:");
             System.out.println( "Number of files scanned: " + baseNameArray.length );
             System.out.println( "Total duration: [" + totalTime + "] samples / [" + ((double)(totalTime) / (double)(globSampleRate)) + "] seconds." );
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
@@ -310,5 +303,12 @@ public class HnmTimelineMaker extends VoiceImportComponent
     {
         return percent;
     }
-
+    
+    public static void main(String[] args) throws Exception
+    {
+        System.setProperty("user.dir", "D:\\hnmTimelineTest");
+        VoiceImportComponent vic  =  new HnmTimelineMaker();
+        DatabaseLayout db = new DatabaseLayout(vic);
+        vic.compute();
+    }
 }

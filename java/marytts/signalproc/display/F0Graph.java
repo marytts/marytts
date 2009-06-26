@@ -80,7 +80,7 @@ public class F0Graph extends FunctionGraph
         params.fs = samplingRate;
         F0TrackerAutocorrelationHeuristic tracker = new F0TrackerAutocorrelationHeuristic(params);
         tracker.pitchAnalyze(signal);
-        double frameShiftTime = tracker.getFrameShiftTime();
+        double frameShiftTime = tracker.getSkipSizeInSeconds();
         double[] f0Array = tracker.getF0Contour();
         double xOffset = tracker.getWindowSizeInSeconds() / 2;
         super.initialise(width, height, xOffset, frameShiftTime, f0Array);

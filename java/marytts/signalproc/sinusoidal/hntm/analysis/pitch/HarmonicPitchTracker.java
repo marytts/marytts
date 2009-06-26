@@ -151,10 +151,10 @@ public class HarmonicPitchTracker extends BaseSinusoidalPitchTracker {
         String strPitchFileIn = args[0].substring(0, args[0].length()-4) + ".ptc";
         PitchReaderWriter f0 = new PitchReaderWriter(strPitchFileIn);
         int pitchMarkOffset = 0;
-        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true, 0);
+        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, true, 0);
         PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(params);
         
-        NonharmonicSinusoidalSpeechSignal ss = sa.extractSinusoidsFixedRate(x, windowSizeInSeconds, skipSizeInSeconds, deltaInHz, spectralEnvelopeType, f0.contour, (float)f0.header.ws, (float)f0.header.ss);
+        NonharmonicSinusoidalSpeechSignal ss = sa.extractSinusoidsFixedRate(x, windowSizeInSeconds, skipSizeInSeconds, deltaInHz, spectralEnvelopeType, f0.contour, (float)f0.header.windowSizeInSeconds, (float)f0.header.skipSizeInSeconds);
         
         HarmonicPitchTracker p = new HarmonicPitchTracker();
         float [] f0s = p.pitchTrack(ss, samplingRate, searchStepInHz, minFreqInHz, maxFreqInHz);    

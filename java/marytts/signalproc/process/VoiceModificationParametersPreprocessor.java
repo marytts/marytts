@@ -295,7 +295,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                 pscalesVar[i] = 1.0;
                 if (isPitchFromTargetFile)
                 {
-                    sourcePitchInd = SignalProcUtils.time2frameIndex(tSource, sourceF0s.header.ws, sourceF0s.header.ss);
+                    sourcePitchInd = SignalProcUtils.time2frameIndex(tSource, sourceF0s.header.windowSizeInSeconds, sourceF0s.header.skipSizeInSeconds);
                     if (sourcePitchInd>sourceF0s.header.numfrm-1)
                         sourcePitchInd=sourceF0s.header.numfrm-1;
                     sourcePitch = sourceF0s.contour[sourcePitchInd];
@@ -327,7 +327,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                             else
                                 tTarget = sourceLocationInLabelPercent*targetDuration;
 
-                            targetPitchInd = SignalProcUtils.time2frameIndex(tTarget, targetF0s.header.ws, targetF0s.header.ss);
+                            targetPitchInd = SignalProcUtils.time2frameIndex(tTarget, targetF0s.header.windowSizeInSeconds, targetF0s.header.skipSizeInSeconds);
                             targetPitchInd = MathUtils.CheckLimits(targetPitchInd, 0, targetF0s.contour.length-1);
                             targetPitch = targetF0s.contour[targetPitchInd];
                         }

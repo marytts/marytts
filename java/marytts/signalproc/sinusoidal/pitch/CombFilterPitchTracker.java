@@ -103,7 +103,7 @@ public class CombFilterPitchTracker extends BaseSinusoidalPitchTracker {
         String strPitchFileIn = args[0].substring(0, args[0].length()-4) + ".ptc";
         PitchReaderWriter f0 = new PitchReaderWriter(strPitchFileIn);
         int pitchMarkOffset = 0;
-        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.ws, f0.header.ss, true, pitchMarkOffset);
+        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, true, pitchMarkOffset);
         PitchSynchronousSinusoidalAnalyzer sa = new PitchSynchronousSinusoidalAnalyzer(params);
         
         //sa.setSinAnaFFTSize(4096);
