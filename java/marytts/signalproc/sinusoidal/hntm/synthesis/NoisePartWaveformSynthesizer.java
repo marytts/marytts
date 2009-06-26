@@ -175,7 +175,7 @@ public class NoisePartWaveformSynthesizer
                         wgt = winNoise.getCoeffs();
                         //
                         
-                        if (!synthesisParams.highpassFilterAfterNoiseSynthesis)
+                        if (!synthesisParams.hpfAfterNoiseSynthesis)
                             y = SignalProcUtils.fdFilter(y, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5f*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz, fftSizeNoise);
 
                         //Overlap-add

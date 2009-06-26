@@ -41,16 +41,16 @@ import marytts.signalproc.window.Window;
  */
 public class HntmAnalyzerParams {
 
-    HnmPitchVoicingAnalyzerParams hnmPitchVoicingAnalyzerParams;
+    public HnmPitchVoicingAnalyzerParams hnmPitchVoicingAnalyzerParams;
     
     public int harmonicModel;
     public static final int HARMONICS_PLUS_NOISE = 1;
     public static final int HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE = 2;
     
     public int noiseModel;
-    public static final int LPC = 1; //Noise part model based on LPC
-    public static final int PSEUDO_HARMONIC = 2; //Noise part model based on pseude harmonics for f0=NOISE_F0_IN_HZ
-    public static final int HIGHPASS_WAVEFORM = 3; //Noise part model based on frame waveform (i.e. no model, overlap-add noise part generation)
+    public static final int WAVEFORM = 1; //Noise part model based on frame waveform (i.e. no model, overlap-add noise part generation)
+    public static final int LPC = 2; //Noise part model based on LPC
+    public static final int PSEUDO_HARMONIC = 3; //Noise part model based on pseude harmonics for f0=NOISE_F0_IN_HZ
     public static final int VOICEDNOISE_LPC_UNVOICEDNOISE_WAVEFORM = 4; //noise part model based on LPC for voiced parts and waveform for unvoiced parts
     public static final int UNVOICEDNOISE_LPC_VOICEDNOISE_WAVEFORM = 5; //noise part model based on LPC for unvoiced parts and waveform for voiced parts
     
@@ -60,9 +60,8 @@ public class HntmAnalyzerParams {
     public boolean useHarmonicAmplitudesDirectly; 
     public double regularizedCepstrumLambdaHarmonic;   
     public boolean useWeightingInRegularizedCepstrumEstimationHarmonic;
-    public int harmonicPartCesptrumOrderPreBark; 
-    public int harmonicPartCesptrumOrderPreMel; 
-    public int harmonicPartCesptrumOrderPostMel;
+    public int harmonicPartCepstrumOrderPreMel; 
+    public int harmonicPartCepstrumOrder;
     
     public boolean computeNoisePartLpOrderFromSamplingRate;
     public int noisePartLpOrder;
@@ -103,7 +102,7 @@ public class HntmAnalyzerParams {
         hnmPitchVoicingAnalyzerParams = new HnmPitchVoicingAnalyzerParams();
         
         harmonicModel = HARMONICS_PLUS_NOISE;
-        noiseModel = HIGHPASS_WAVEFORM;
+        noiseModel = WAVEFORM;
         
         regularizedCepstrumWarpingMethod = RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING;
         harmonicSynthesisMethodBeforeNoiseAnalysis = HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION;
@@ -112,14 +111,12 @@ public class HntmAnalyzerParams {
         regularizedCepstrumLambdaHarmonic = 1.0e-5;  //Reducing this may increase harmonic amplitude estimation accuracy 
         useWeightingInRegularizedCepstrumEstimationHarmonic = false;
         
-        harmonicPartCesptrumOrderPreBark = 24;  //Cepstrum order to represent harmonic amplitudes
-        
-        harmonicPartCesptrumOrderPostMel = 32; //Cepstrum order to represent harmonic amplitudes
-        harmonicPartCesptrumOrderPreMel = 40; //Pre-cepstrum order to compute linear cepstral coefficients
+        harmonicPartCepstrumOrder = 24;  //Cepstrum order to represent harmonic amplitudes
+        harmonicPartCepstrumOrderPreMel = 40; //Pre-cepstrum order to compute linear cepstral coefficients
                                               //0 means auto computation from number of harmonics (See RegularizedPostWarpedCepstrumEstimator.getAutoCepsOrderPre()).
         
         computeNoisePartLpOrderFromSamplingRate = false; //If true, noise LP order is determined using sampling rate (might be high)
-        noisePartLpOrder = 18; //Effective only if the above parameter is false
+        noisePartLpOrder = 12; //Effective only if the above parameter is false
         preemphasisCoefNoise = 0.97f;
         hpfBeforeNoiseAnalysis = true; //False means the noise part will be full-band
         
@@ -161,10 +158,8 @@ public class HntmAnalyzerParams {
         useHarmonicAmplitudesDirectly = existing.useHarmonicAmplitudesDirectly;
         regularizedCepstrumLambdaHarmonic = existing.regularizedCepstrumLambdaHarmonic; 
         useWeightingInRegularizedCepstrumEstimationHarmonic = existing.useWeightingInRegularizedCepstrumEstimationHarmonic;
-        harmonicPartCesptrumOrderPreBark = existing.harmonicPartCesptrumOrderPreBark;  
-        harmonicPartCesptrumOrderPreMel = existing.harmonicPartCesptrumOrderPreMel;
-        
-        harmonicPartCesptrumOrderPostMel = existing.harmonicPartCesptrumOrderPostMel;
+        harmonicPartCepstrumOrderPreMel = existing.harmonicPartCepstrumOrderPreMel;
+        harmonicPartCepstrumOrder = existing.harmonicPartCepstrumOrder;
         
         computeNoisePartLpOrderFromSamplingRate = existing.computeNoisePartLpOrderFromSamplingRate;
         noisePartLpOrder = existing.noisePartLpOrder;

@@ -224,7 +224,7 @@ public class NoisePartWindowedOverlapAddLpcSynthesizer {
                         //y = SignalProcUtils.arFilter(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, ((FrameNoisePartLpc)hnmSignal.frames[i].n).gain);
                         y = SignalProcUtils.arFilter(x, ((FrameNoisePartLpc)hnmSignal.frames[i].n).lpCoeffs, 1.0);
  
-                        if (synthesisParams.highpassFilterAfterNoiseSynthesis)
+                        if (synthesisParams.hpfAfterNoiseSynthesis)
                             y = SignalProcUtils.fdFilter(y, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5f*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz, fftSizeNoise);
  
                         MathUtils.adjustStandardDeviation(y, ((FrameNoisePartLpc)hnmSignal.frames[i].n).origNoiseStd);

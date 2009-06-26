@@ -52,6 +52,14 @@ public class ComplexNumber {
         this.imag = (float)imagIn;
     }
     
+    public boolean equals(ComplexNumber other)
+    {
+        if (real!=other.real) return false;
+        if (imag!=other.imag) return false;
+        
+        return true;
+    }
+    
     public String toString()
     {
         String str;

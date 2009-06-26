@@ -53,7 +53,7 @@ public class HntmSynthesizerParams {
     public float harmonicSynthesisTransitionOverlapInSeconds;
     public float unvoicedVoicedTrackTransitionInSeconds;
     
-    public boolean highpassFilterAfterNoiseSynthesis;
+    public boolean hpfAfterNoiseSynthesis;
     
     public boolean writeSeparateHarmonicTracksToOutputs;
     public boolean normalizeHarmonicPartOutputWav;
@@ -86,7 +86,7 @@ public class HntmSynthesizerParams {
         harmonicSynthesisTransitionOverlapInSeconds = 0.002f;
         unvoicedVoicedTrackTransitionInSeconds = 0.005f;
         
-        highpassFilterAfterNoiseSynthesis = true;
+        hpfAfterNoiseSynthesis = true;
         
         writeSeparateHarmonicTracksToOutputs = false;
         normalizeHarmonicPartOutputWav = false;
@@ -115,7 +115,7 @@ public class HntmSynthesizerParams {
         harmonicSynthesisTransitionOverlapInSeconds = existing.harmonicSynthesisTransitionOverlapInSeconds;
         unvoicedVoicedTrackTransitionInSeconds = existing.unvoicedVoicedTrackTransitionInSeconds;
         
-        highpassFilterAfterNoiseSynthesis = existing.highpassFilterAfterNoiseSynthesis;
+        hpfAfterNoiseSynthesis = existing.hpfAfterNoiseSynthesis;
         
         writeSeparateHarmonicTracksToOutputs = existing.writeSeparateHarmonicTracksToOutputs;
         normalizeHarmonicPartOutputWav = existing.normalizeHarmonicPartOutputWav;

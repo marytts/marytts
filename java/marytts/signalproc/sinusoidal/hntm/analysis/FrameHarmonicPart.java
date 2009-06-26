@@ -19,6 +19,11 @@
  */
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
+import java.io.DataOutput;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
 import marytts.signalproc.analysis.RegularizedCepstrumEstimator;
 import marytts.signalproc.analysis.RegularizedPostWarpedCepstrumEstimator;
 import marytts.signalproc.analysis.RegularizedPreWarpedCepstrumEstimator;
@@ -50,6 +55,62 @@ public class FrameHarmonicPart
         }
     }
     
+    public FrameHarmonicPart( RandomAccessFile raf ) throws IOException, EOFException
+    {
+        int numHarmonics = raf.readInt();
+
+        if (numHarmonics>0)
+        {
+            complexAmps = new ComplexNumber[numHarmonics];
+            for (int i=0; i<complexAmps.length; i++) 
+            {
+                complexAmps[i].real = raf.readFloat();
+                complexAmps[i].imag = raf.readFloat();
+            }
+        }
+    }
+    
+    public boolean equals(FrameHarmonicPart other)
+    {
+        if (complexAmps!=null || other.complexAmps!=null)
+        {
+            if (complexAmps!=null && other.complexAmps==null) return false;
+            if (complexAmps==null && other.complexAmps!=null) return false;
+            if (complexAmps.length!=other.complexAmps.length) return false;
+            for (int i=0; i<complexAmps.length; i++)
+                if (!complexAmps[i].equals(other.complexAmps[i])) return false;
+        }
+        
+        return true;
+    }
+    
+    public int getLength()
+    {
+        int len = 0;
+        if (complexAmps!=null && complexAmps.length>0)
+            len = complexAmps.length;
+        
+        return 4*2*len;    
+    }
+    
+    public void write(DataOutput out) throws IOException 
+    {
+        int numHarmonics = 0;
+        if (complexAmps!=null && complexAmps.length>0)
+            numHarmonics = complexAmps.length;
+
+        out.writeInt(numHarmonics);
+
+        if (numHarmonics>0)
+        {
+            for (int i=0; i<complexAmps.length; i++) 
+            {
+                out.writeFloat(complexAmps[i].real);
+                out.writeFloat(complexAmps[i].imag);
+            }
+        }
+    }
+    
     public float[] getCeps(double f0InHz, int samplingRateInHz, HntmAnalyzerParams params)
     {
         float[] ceps = null;
@@ -76,9 +137,9 @@ public class FrameHarmonicPart
             } 
 
             if (params.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
-                ceps = RegularizedPreWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, params.harmonicPartCesptrumOrderPreBark, harmonicWeights, params.regularizedCepstrumLambdaHarmonic);
+                ceps = RegularizedPreWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, params.harmonicPartCepstrumOrder, harmonicWeights, params.regularizedCepstrumLambdaHarmonic);
             else if (params.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
-                ceps = RegularizedPostWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, params.harmonicPartCesptrumOrderPreMel, params.harmonicPartCesptrumOrderPostMel, harmonicWeights, params.regularizedCepstrumLambdaHarmonic);
+                ceps = RegularizedPostWarpedCepstrumEstimator.freqsLinearAmps2cepstrum(linearAmps, freqsInHz, samplingRateInHz, params.harmonicPartCepstrumOrderPreMel, params.harmonicPartCepstrumOrder, harmonicWeights, params.regularizedCepstrumLambdaHarmonic);
         }
 
         return ceps;

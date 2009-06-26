@@ -29,14 +29,20 @@
 
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
+import java.io.DataOutput;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
 import marytts.util.math.ArrayUtils;
+import marytts.util.math.ComplexNumber;
 
 /**
  * @author oytun.turk
  *
  */
 
-public class FrameNoisePartWaveform extends FrameNoisePart {
+public class FrameNoisePartWaveform implements FrameNoisePart {
     
     public float[] waveform;
 
@@ -50,6 +56,20 @@ public class FrameNoisePartWaveform extends FrameNoisePart {
         super();
         
         waveform = ArrayUtils.copy(existing.waveform);
+    }
+    
+    public FrameNoisePartWaveform( RandomAccessFile raf ) throws IOException, EOFException
+    {
+        int waveLen = raf.readInt();
+
+        if (waveLen>0)
+        {
+            waveform = new float[waveLen];
+            for (int i=0; i<waveLen; i++) 
+                waveform[i] = raf.readFloat();
+        }
+        else
+            waveform = null;
     }
     
     public FrameNoisePartWaveform(float[] x)
@@ -66,6 +86,44 @@ public class FrameNoisePartWaveform extends FrameNoisePart {
         setWaveform(x);
     }
     
+    public boolean equals(FrameNoisePartWaveform other)
+    {
+        if (waveform!=null || other.waveform!=null)
+        {
+            if (waveform!=null && other.waveform==null) return false;
+            if (waveform==null && other.waveform!=null) return false;
+            if (waveform.length!=other.waveform.length) return false;
+            for (int i=0; i<waveform.length; i++)
+                if (waveform[i]!=other.waveform[i]) return false;
+        }
+        
+        return true;
+    }
+    
+    public int getLength()
+    {
+        int waveLen = 0;
+        if (waveform!=null && waveform.length>0)
+            waveLen = waveform.length;
+        
+        return 4*waveLen;
+    }
+    
+    public void write(DataOutput out) throws IOException 
+    {
+        int waveLen = 0;
+        if (waveform!=null && waveform.length>0)
+            waveLen = waveform.length;
+
+        out.writeInt(waveLen);
+
+        if (waveLen>0)
+        {
+            for (int i=0; i<waveform.length; i++) 
+                out.writeFloat(waveform[i]);
+        }
+    }
+    
     public void setWaveform(float[] x)
     {
         if (x!=null)
@@ -80,6 +138,5 @@ public class FrameNoisePartWaveform extends FrameNoisePart {
             waveform = ArrayUtils.copyf(x);
         else
             waveform = null;
-    }
-    
+    }   
 }

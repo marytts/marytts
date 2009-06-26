@@ -19,13 +19,22 @@
  */
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
+import java.io.DataOutput;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+
+import marytts.util.math.ComplexNumber;
+
 /**
  * Baseline class to represent noise part of a speech frame
  * 
  * @author Oytun T&uumlrk
  *
  */
-public class FrameNoisePart {
-
+public interface FrameNoisePart {   
+   
+    public int getLength();
+    public void write(DataOutput out) throws IOException;
 }
 

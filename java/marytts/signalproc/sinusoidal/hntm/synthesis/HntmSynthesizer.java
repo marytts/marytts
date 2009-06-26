@@ -111,7 +111,7 @@ public class HntmSynthesizer {
         }
         else if (analysisParams.noiseModel == HntmAnalyzerParams.PSEUDO_HARMONIC)
             s.noisePart = NoisePartPseudoHarmonicSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams, referenceFile);
-        else if (analysisParams.noiseModel == HntmAnalyzerParams.HIGHPASS_WAVEFORM)
+        else if (analysisParams.noiseModel == HntmAnalyzerParams.WAVEFORM)
             s.noisePart = NoisePartWaveformSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
         else if (analysisParams.noiseModel == HntmAnalyzerParams.VOICEDNOISE_LPC_UNVOICEDNOISE_WAVEFORM ||
                  analysisParams.noiseModel == HntmAnalyzerParams.UNVOICEDNOISE_LPC_VOICEDNOISE_WAVEFORM 
@@ -283,14 +283,14 @@ public class HntmSynthesizer {
                 String modelName = "";
                 if (analysisParams.harmonicModel==HntmAnalyzerParams.HARMONICS_PLUS_NOISE)
                 {
-                    if (analysisParams.noiseModel==HntmAnalyzerParams.HIGHPASS_WAVEFORM)
+                    if (analysisParams.noiseModel==HntmAnalyzerParams.WAVEFORM)
                         modelName = "hwm";
                     else
                         modelName = "hnm";
                 }
                 else if (analysisParams.harmonicModel==HntmAnalyzerParams.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE)
                 {
-                    if (analysisParams.noiseModel==HntmAnalyzerParams.HIGHPASS_WAVEFORM)
+                    if (analysisParams.noiseModel==HntmAnalyzerParams.WAVEFORM)
                         modelName = "hwtm";
                     else
                         modelName = "hwtm";
