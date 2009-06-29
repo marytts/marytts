@@ -211,8 +211,8 @@ public class HntmSynthesizer {
         
         //analysisParams.noiseModel = HntmAnalyzerParams.LPC;
         //analysisParams.noiseModel = HntmAnalyzerParams.PSEUDO_HARMONIC;
-        //analysisParams.noiseModel = HntmAnalyzerParams.HIGHPASS_WAVEFORM;
-        analysisParams.noiseModel = HntmAnalyzerParams.VOICEDNOISE_LPC_UNVOICEDNOISE_WAVEFORM;
+        analysisParams.noiseModel = HntmAnalyzerParams.WAVEFORM;
+        //analysisParams.noiseModel = HntmAnalyzerParams.VOICEDNOISE_LPC_UNVOICEDNOISE_WAVEFORM;
         //analysisParams.noiseModel = HntmAnalyzerParams.UNVOICEDNOISE_LPC_VOICEDNOISE_WAVEFORM;
         
         analysisParams.harmonicSynthesisMethodBeforeNoiseAnalysis = HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION;

@@ -324,7 +324,7 @@ public class LpcAnalyser extends FrameBasedAnalyser
         {
             lpCoeffs = new float[lpAnaResults.length][];
             for (int i=0; i<lpAnaResults.length; i++)
-                lpCoeffs[i] = ArrayUtils.copyf(((LpCoeffs)lpAnaResults[i]).getA());
+                lpCoeffs[i] = ArrayUtils.copyDouble2Float(((LpCoeffs)lpAnaResults[i]).getA());
         }
         
         return lpCoeffs;
@@ -354,7 +354,7 @@ public class LpcAnalyser extends FrameBasedAnalyser
         {
             lpCoeffs = new float[lpAnaResults.length][];
             for (int i=0; i<lpAnaResults.length; i++)
-                lpCoeffs[i] = ArrayUtils.copyf(((LpCoeffs)lpAnaResults[i]).getA());
+                lpCoeffs[i] = ArrayUtils.copyDouble2Float(((LpCoeffs)lpAnaResults[i]).getA());
         }
         
         return lpCoeffs;

@@ -131,6 +131,18 @@ public class NoisePartWaveformSynthesizer
 
             int transitionOverlapLen = SignalProcUtils.time2sample(synthesisParams.noiseSynthesisTransitionOverlapInSeconds, hnmSignal.samplingRateInHz);
             
+            int wsNoise = SignalProcUtils.time2sample(analysisParams.noiseAnalysisWindowDurationInSeconds, hnmSignal.samplingRateInHz);
+            if (wsNoise%2==1)
+                wsNoise++;
+            int halfWsNoise = wsNoise/2;
+            y = new double[wsNoise];
+            
+            //Compute window
+            winNoise = Window.get(windowType, wsNoise);
+            winNoise.normalizePeakValue(1.0f);
+            wgt = winNoise.getCoeffs();
+            //
+            
             for (i=0; i<hnmSignal.frames.length; i++)
             {
                 if (hnmSignal.frames[i].h!=null && hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0f)
@@ -167,22 +179,103 @@ public class NoisePartWaveformSynthesizer
                 {       
                     if (((FrameNoisePartWaveform)hnmSignal.frames[i].n).waveform!=null)
                     {
-                        y = ArrayUtils.copyFloat2Double(((FrameNoisePartWaveform)hnmSignal.frames[i].n).waveform);
-                        
-                        //Compute window
-                        winNoise = Window.get(windowType, y.length);
-                        winNoise.normalizePeakValue(1.0f);
-                        wgt = winNoise.getCoeffs();
+                        if (analysisParams.overlapNoiseWaveformModel)
+                        {
+                            y = ArrayUtils.copyShort2Double(((FrameNoisePartWaveform)hnmSignal.frames[i].n).waveform);
+                       
+                            if (isVoiced  && analysisParams.hpfBeforeNoiseAnalysis && analysisParams.decimateNoiseWaveform)
+                                y = SignalProcUtils.interpolate(y, (0.5*hnmSignal.samplingRateInHz)/(0.5*hnmSignal.samplingRateInHz-hnmSignal.frames[i].maximumFrequencyOfVoicingInHz));
+                        }
+                        else
+                        {
+
+                            //Fill left half
+                            boolean isTmpVoiced;
+                            int currentFrameInd=i;
+                            int count=0;
+                            Arrays.fill(y, 0.0);
+                            double[] temp = ArrayUtils.copyShort2Double(((FrameNoisePartWaveform)hnmSignal.frames[currentFrameInd].n).waveform);
+                            if (isVoiced && analysisParams.hpfBeforeNoiseAnalysis && analysisParams.decimateNoiseWaveform)
+                                temp = SignalProcUtils.interpolate(temp, (0.5*hnmSignal.samplingRateInHz)/(0.5*hnmSignal.samplingRateInHz-hnmSignal.frames[currentFrameInd].maximumFrequencyOfVoicingInHz));
+
+                            int count2 = temp.length-1;
+                            while (count<halfWsNoise)
+                            {
+                                if (count2<0)
+                                {
+                                    currentFrameInd--;
+                                    if (currentFrameInd<0 || hnmSignal.frames[currentFrameInd].n==null)
+                                        break;
+                                    
+                                    temp = ArrayUtils.copyShort2Double(((FrameNoisePartWaveform)hnmSignal.frames[currentFrameInd].n).waveform);
+                                    isTmpVoiced = false;
+                                    if (hnmSignal.frames[currentFrameInd].h!=null && hnmSignal.frames[currentFrameInd].maximumFrequencyOfVoicingInHz>0.0f)
+                                        isTmpVoiced = true;
+
+                                    if (isTmpVoiced && analysisParams.hpfBeforeNoiseAnalysis && analysisParams.decimateNoiseWaveform)
+                                        temp = SignalProcUtils.interpolate(temp, (0.5*hnmSignal.samplingRateInHz)/(0.5*hnmSignal.samplingRateInHz-hnmSignal.frames[currentFrameInd].maximumFrequencyOfVoicingInHz));
+
+                                    count2=temp.length-1;
+                                }
+
+                                y[halfWsNoise-count-1] = temp[count2];
+                                count++;
+                                count2--;
+                            }
+                            //
+
+                            //Fill right half
+                            currentFrameInd=i+1;
+                            count = halfWsNoise;
+                            if (currentFrameInd<hnmSignal.frames.length && hnmSignal.frames[currentFrameInd].n!=null)
+                            {
+                                temp = ArrayUtils.copyShort2Double(((FrameNoisePartWaveform)hnmSignal.frames[currentFrameInd].n).waveform);
+                                isTmpVoiced = false;
+                                if (hnmSignal.frames[currentFrameInd].h!=null && hnmSignal.frames[currentFrameInd].maximumFrequencyOfVoicingInHz>0.0f)
+                                    isTmpVoiced = true;
+                                if (isTmpVoiced && analysisParams.hpfBeforeNoiseAnalysis && analysisParams.decimateNoiseWaveform)
+                                    temp = SignalProcUtils.interpolate(temp, (0.5*hnmSignal.samplingRateInHz)/(0.5*hnmSignal.samplingRateInHz-hnmSignal.frames[currentFrameInd].maximumFrequencyOfVoicingInHz));
+
+                                count2 = 0;
+                                while (count<wsNoise)
+                                {
+                                    if (count2>=temp.length)
+                                    {
+                                        currentFrameInd++;
+                                        if (currentFrameInd>hnmSignal.frames.length-1 || hnmSignal.frames[currentFrameInd].n==null)
+                                            break;
+
+                                        temp = ArrayUtils.copyShort2Double(((FrameNoisePartWaveform)hnmSignal.frames[currentFrameInd].n).waveform);
+                                        isTmpVoiced = false;
+                                        if (hnmSignal.frames[currentFrameInd].h!=null && hnmSignal.frames[currentFrameInd].maximumFrequencyOfVoicingInHz>0.0f)
+                                            isTmpVoiced = true;
+
+                                        if (isTmpVoiced && analysisParams.hpfBeforeNoiseAnalysis && analysisParams.decimateNoiseWaveform)
+                                            temp = SignalProcUtils.interpolate(temp, (0.5*hnmSignal.samplingRateInHz)/(0.5*hnmSignal.samplingRateInHz-hnmSignal.frames[currentFrameInd].maximumFrequencyOfVoicingInHz));
+
+                                        count2=0;
+                                    }
+
+                                    y[count] = temp[count2];
+                                    count++;
+                                    count2++;
+                                }
+                            }
+                        }
                         //
-                        
+
                         if (!synthesisParams.hpfAfterNoiseSynthesis)
                             y = SignalProcUtils.fdFilter(y, hnmSignal.frames[i].maximumFrequencyOfVoicingInHz, 0.5f*hnmSignal.samplingRateInHz, hnmSignal.samplingRateInHz, fftSizeNoise);
 
+                        winNoise = Window.get(windowType, y.length);
+                        winNoise.normalizePeakValue(1.0f);
+                        wgt = winNoise.getCoeffs();
+                        
                         //Overlap-add
                         for (n=startIndex; n<Math.min(startIndex+y.length, noisePart.length); n++)
                         {
                             noisePart[n] += y[n-startIndex]*wgt[n-startIndex]; 
-                            winWgtSum[n] += wgt[n-startIndex];
+                            winWgtSum[n] += wgt[n-startIndex]*wgt[n-startIndex];
                         }
                     }
                     //

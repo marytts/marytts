@@ -278,7 +278,7 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
             if (coeffs != null && unitDurs.get(i) > 0) {
                 float relUStart = uStart / sylDur; // in [0, 1[
                 float relUEnd = (uStart+unitDurs.get(i)) / sylDur; // in [0, 1[
-                double[] predUnitContour = Polynomial.generatePolynomialValues(ArrayUtils.toDoubleArray(coeffs), 10, relUStart, relUEnd);
+                double[] predUnitContour = Polynomial.generatePolynomialValues(ArrayUtils.copyFloat2Double(coeffs), 10, relUStart, relUEnd);
                 //System.out.printf("From %.2f to %.2f:", relUStart, relUEnd);
                 //for (int k=0; k<predUnitContour.length; k++) System.out.printf(" %.2f", predUnitContour[k]);
                 // And fit a linear curve to this:

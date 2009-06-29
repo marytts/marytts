@@ -67,6 +67,8 @@ public class HntmAnalyzerParams {
     public int noisePartLpOrder;
     public float preemphasisCoefNoise;
     public boolean hpfBeforeNoiseAnalysis;
+    public boolean decimateNoiseWaveform;
+    public boolean overlapNoiseWaveformModel;
     
     public boolean useNoiseAmplitudesDirectly;
     public double regularizedCepstrumEstimationLambdaNoise;  
@@ -107,18 +109,20 @@ public class HntmAnalyzerParams {
         regularizedCepstrumWarpingMethod = RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING;
         harmonicSynthesisMethodBeforeNoiseAnalysis = HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION;
         
-        useHarmonicAmplitudesDirectly = false; //Use amplitudes directly, the following are only effective if this is false
+        useHarmonicAmplitudesDirectly = true; //Use amplitudes directly, the following are only effective if this is false
         regularizedCepstrumLambdaHarmonic = 1.0e-5;  //Reducing this may increase harmonic amplitude estimation accuracy 
         useWeightingInRegularizedCepstrumEstimationHarmonic = false;
         
-        harmonicPartCepstrumOrder = 24;  //Cepstrum order to represent harmonic amplitudes
-        harmonicPartCepstrumOrderPreMel = 40; //Pre-cepstrum order to compute linear cepstral coefficients
+        harmonicPartCepstrumOrder = 32;  //Cepstrum order to represent harmonic amplitudes
+        harmonicPartCepstrumOrderPreMel = 50; //Pre-cepstrum order to compute linear cepstral coefficients
                                               //0 means auto computation from number of harmonics (See RegularizedPostWarpedCepstrumEstimator.getAutoCepsOrderPre()).
         
         computeNoisePartLpOrderFromSamplingRate = false; //If true, noise LP order is determined using sampling rate (might be high)
         noisePartLpOrder = 12; //Effective only if the above parameter is false
         preemphasisCoefNoise = 0.97f;
         hpfBeforeNoiseAnalysis = true; //False means the noise part will be full-band
+        decimateNoiseWaveform = false; //Apply decimation when noise part is waveform (only in voiced parts)
+        overlapNoiseWaveformModel = false; //Keep overlapping chunks of noise waveform for synthesis
         
         useNoiseAmplitudesDirectly = true; //If noise part is PSEUDE_HARMONICU and if this is true, use amplitudes directly. The following are only effective if this is false
         regularizedCepstrumEstimationLambdaNoise = 2e-4; //Reducing this may increase harmonic amplitude estimation accuracy    
@@ -165,6 +169,8 @@ public class HntmAnalyzerParams {
         noisePartLpOrder = existing.noisePartLpOrder;
         preemphasisCoefNoise = existing.preemphasisCoefNoise;
         hpfBeforeNoiseAnalysis = existing.hpfBeforeNoiseAnalysis;
+        decimateNoiseWaveform = existing.decimateNoiseWaveform;
+        overlapNoiseWaveformModel = existing.overlapNoiseWaveformModel;
         
         useNoiseAmplitudesDirectly = existing.useNoiseAmplitudesDirectly;
         regularizedCepstrumEstimationLambdaNoise = existing.regularizedCepstrumEstimationLambdaNoise;
