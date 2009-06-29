@@ -48,7 +48,7 @@ import marytts.util.string.PrintfFormat;
  * in the linear energy domain.
  *
  */
-public class EnergyAnalyser extends FrameBasedAnalyser {
+public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
     protected final int DEFAULT_MAXSIZE = Integer.MAX_VALUE/2;
     /** array of frame energies, for further analysis */
     protected double[] frameEnergies = new double[16384];
@@ -90,7 +90,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
      * @return a Double representing the total energy in the frame.
      * @throws IllegalArgumentException if frame does not have the prescribed length 
      */
-    public Object analyse(double[] frame)
+    public Double analyse(double[] frame)
     {
         if (frame.length != getFrameLengthSamples())
             throw new IllegalArgumentException("Expected frame of length " + getFrameLengthSamples()
@@ -385,11 +385,11 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
         double minSilenceDur = Double.parseDouble(System.getProperty("signalproc.minsilenceduration", "0.3"));
         double minSpeechDur = Double.parseDouble(System.getProperty("signalproc.minspeechduration", "0.3"));
 
-        FrameAnalysisResult[] far = analyseAllFrames();
+        FrameAnalysisResult<Double>[] far = analyseAllFrames();
         
         double[][] energies = new double[far.length][1];
         for (i=0; i<far.length; i++)
-            energies[i][0] = ((Double)far[i].get()).doubleValue();
+            energies[i][0] = far[i].get();
         
         double[] isSpeechsAll = new double[far.length];
         Arrays.fill(isSpeechsAll, 0.0);
@@ -401,17 +401,23 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
         t.train(energies, p);
         
         double[] meanEns = new double[p.numClusters];
+        // TODO: stop mixing log and non-log code -- either use log energy by using EnergyAnalyser_dB, or linear energy by using EnergyAnalyser
+        boolean takeLog = true;
+        if (this instanceof EnergyAnalyser_dB) takeLog = false;
         for (i=0; i<p.numClusters; i++)
         {
-            meanEns[i] = 10*Math.log10(t.clusters[i].meanVector[0]);
-            System.out.println(String.valueOf(meanEns[i])); 
+            meanEns[i] = t.clusters[i].meanVector[0];
+            if (takeLog) {
+                meanEns[i] = 10*Math.log10(meanEns[i]);
+            }
+            //System.out.println(String.valueOf(meanEns[i])); 
         }
         
         double minEnCenter = MathUtils.getMin(meanEns);
         double maxEnCenter = MathUtils.getMax(meanEns);
         
         double energyTh = minEnCenter + shiftFromMinimumEnergyCenter*(maxEnCenter-minEnCenter);
-        System.out.println(String.valueOf(energyTh)); 
+        //System.out.println(String.valueOf(energyTh)); 
         
         LinkedList stretches = new LinkedList();
         
@@ -428,8 +434,13 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
         int speechCount;
         
         int bufferInd = 0;
-        for (i=0; i<energyBufferLength-1; i++)
-            energyBuffer[bufferInd++] = 10*Math.log10(energies[i][0]);
+        for (i=0; i<energyBufferLength-1; i++) {
+            energyBuffer[bufferInd] = energies[i][0];
+            if (takeLog) {
+                energyBuffer[bufferInd] = 10*Math.log10(energyBuffer[bufferInd]);
+            }
+            bufferInd++;
+        }
         
         boolean isSpeechStarted = false;
         int tmpSpeechStartIndex = -1;
@@ -444,8 +455,11 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
             if (bufferInd>energyBufferLength-1)
                 bufferInd=0;
             
-            energyBuffer[bufferInd] = 10*Math.log10(energies[i][0]);
-        
+            energyBuffer[bufferInd] = energies[i][0];
+            if (takeLog) {
+                energyBuffer[bufferInd] = 10*Math.log10(energyBuffer[bufferInd]);
+            }
+            
             if (energyBuffer[bufferInd]>energyTh)
             {
                 isSpeechs[bufferInd] = 1;
@@ -476,7 +490,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
                 isSpeechStarted = false;
                 tmpSpeechEndIndex = i;
                 
-                System.out.println(String.valueOf(tmpSpeechStartIndex*0.01) + " " + String.valueOf(tmpSpeechEndIndex*0.01));
+                //System.out.println(String.valueOf(tmpSpeechStartIndex*0.01) + " " + String.valueOf(tmpSpeechEndIndex*0.01));
                 
                 speechEnd = Math.max(0.0, i*getFrameShiftTime()+0.5*getFrameLengthTime());
                 
@@ -489,6 +503,10 @@ public class EnergyAnalyser extends FrameBasedAnalyser {
             }
             
             bufferInd++;
+        }
+        if (isSpeechStarted) { // unfinished speech stretch
+            speechEnd = (energies.length-1)*getFrameShiftTime()+0.5*getFrameLengthTime();
+            stretches.add(new double[] {speechStart, speechEnd});
         }
         
         double[][] speechStretches = (double[][])stretches.toArray(new double[0][0]);

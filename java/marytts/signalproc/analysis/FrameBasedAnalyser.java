@@ -34,13 +34,13 @@ import marytts.util.data.DoubleDataSource;
  * The base class for all frame-based signal analysis algorithms
  * 
  */
-public abstract class FrameBasedAnalyser extends FrameProvider
+public abstract class FrameBasedAnalyser<T> extends FrameProvider
 {
     /**
      * Array containing the analysis results, filled by analyseAllFrames().
      * Can be used for future reference to the results.
      */
-    protected FrameAnalysisResult[] analysisResults;
+    protected FrameAnalysisResult<T>[] analysisResults;
     
     /**
      * Initialise a FrameBasedAnalyser.
@@ -60,11 +60,11 @@ public abstract class FrameBasedAnalyser extends FrameProvider
      * The public method to call in order to trigger the analysis of the next frame.
      * @return the analysis result, or null if no part of the signal is left to analyse.
      */
-    public FrameAnalysisResult analyseNextFrame()
+    public FrameAnalysisResult<T> analyseNextFrame()
     {
         double[] frame = getNextFrame();
         if (frame == null) return null;
-        Object analysisResult = analyse(frame);
+        T analysisResult = analyse(frame);
         return constructAnalysisResult(analysisResult);
     }
     
@@ -74,7 +74,7 @@ public abstract class FrameBasedAnalyser extends FrameProvider
      * a stored version of the results.
      * @return an array containing all frame analysis results.
      */
-    public FrameAnalysisResult[] analyseAllFrames()
+    public FrameAnalysisResult<T>[] analyseAllFrames()
     {
         if (analysisResults == null) {
             ArrayList results = new ArrayList();
@@ -82,7 +82,8 @@ public abstract class FrameBasedAnalyser extends FrameProvider
             while ((oneResult = analyseNextFrame()) != null) {
                 results.add(oneResult);
             }
-            analysisResults = (FrameAnalysisResult[]) results.toArray(new FrameAnalysisResult[0]);
+            FrameAnalysisResult<T>[] arr = new FrameAnalysisResult[results.size()];
+            analysisResults = (FrameAnalysisResult<T>[]) results.toArray(arr);
         }        
         return analysisResults;
     }
@@ -97,16 +98,17 @@ public abstract class FrameBasedAnalyser extends FrameProvider
      * @return an array containing the frame analysis results for the data
      * that is currently available, or an empty array if no new data is available.
      */
-    public FrameAnalysisResult[] analyseAvailableFrames()
+    public FrameAnalysisResult<T>[] analyseAvailableFrames()
     {
-        List results = new ArrayList();
-        FrameAnalysisResult oneResult;
+        List results = new ArrayList<FrameAnalysisResult<T>>();
+        FrameAnalysisResult<T> oneResult;
         while (signal.available() >= frameLength) {
             oneResult = analyseNextFrame();
             assert oneResult != null;
             results.add(oneResult);
         }
-        return (FrameAnalysisResult[]) results.toArray(new FrameAnalysisResult[0]);
+        FrameAnalysisResult<T>[] arr = new FrameAnalysisResult[results.size()];
+        return (FrameAnalysisResult<T>[]) results.toArray(arr);
     }
     
     /**
@@ -116,20 +118,20 @@ public abstract class FrameBasedAnalyser extends FrameProvider
      * @return An analysis result. The data type depends on the concrete analyser.
      * @throws IllegalArgumentException if frame does not have the prescribed length 
      */
-    public abstract Object analyse(double[] frame);
+    public abstract T analyse(double[] frame);
     
-    protected FrameAnalysisResult constructAnalysisResult(Object analysisResult)
+    protected FrameAnalysisResult<T> constructAnalysisResult(T analysisResult)
     {
-        return new FrameAnalysisResult(frame, getFrameStartTime(), analysisResult);
+        return new FrameAnalysisResult<T>(frame, getFrameStartTime(), analysisResult);
     }
     
-    public static class FrameAnalysisResult
+    public static class FrameAnalysisResult<T>
     {
         protected double[] windowedSignal;
         protected double startTime;
-        protected Object analysisResult;
+        protected T analysisResult;
         
-        protected FrameAnalysisResult(double[] windowedSignal, double startTime, Object analysisResult)
+        protected FrameAnalysisResult(double[] windowedSignal, double startTime, T analysisResult)
         {
             this.windowedSignal = new double[windowedSignal.length];
             System.arraycopy(windowedSignal, 0, this.windowedSignal, 0, windowedSignal.length);
@@ -138,8 +140,11 @@ public abstract class FrameBasedAnalyser extends FrameProvider
         }
         
         public double[] getWindowedSignal() { return windowedSignal; }
+        /**
+         * @return the start time of the frame, in seconds
+         */
         public double getStartTime() { return startTime; }
-        public Object get() { return analysisResult; }
+        public T get() { return analysisResult; }
         
     }
 }

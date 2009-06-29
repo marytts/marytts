@@ -57,7 +57,7 @@ public class AudioDoubleDataSource extends BaseDoubleDataSource {
         int bitsPerSample = ais.getFormat().getSampleSizeInBits();
         if (bitsPerSample != 8 && bitsPerSample != 16 && bitsPerSample != 24) {
             throw new IllegalArgumentException("Can deal with sample size 8, 16 or 24, but not " + bitsPerSample);
-        }
+        }   
         this.bytesPerSample = bitsPerSample / 8;
         this.bigEndian = ais.getFormat().isBigEndian();
         this.samplingRate = (int) ais.getFormat().getSampleRate();
