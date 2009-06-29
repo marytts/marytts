@@ -316,7 +316,7 @@ THIS SOFTWARE.
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Main-Class"
          value="marytts.tools.voiceimport.DatabaseImportMain"/>
-        <attribute name="Class-Path" value="mary-common.jar signalproc.jar jsresources.jar log4j-1.2.15.jar"/>
+        <attribute name="Class-Path" value="mary-common.jar signalproc.jar jsresources.jar log4j-1.2.15.jar swing-layout-1.0.jar"/>
         </manifest>
         </jar>
   </target>
