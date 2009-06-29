@@ -1287,11 +1287,11 @@ public class SignalProcUtils {
     
     public static float[] meanFilter(float[] x, int N, float leftOutOfBound, float rightOutOfBound)
     {
-        double[] xd = ArrayUtils.toDoubleArray(x);
+        double[] xd = ArrayUtils.copyFloat2Double(x);
         
         xd = meanFilter(xd, N, (double)leftOutOfBound, (double)rightOutOfBound);
         
-        return ArrayUtils.toFloatArray(xd);
+        return ArrayUtils.copyDouble2Float(xd);
     }
     
     //Mean filtering: All values in x are replaced by the mean of the N closest context neighbours and the value itself

@@ -407,7 +407,7 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
                                 outFV.writeTo(out);
                                 unitIndex++;
                             }
-                            float[] fcoeffs = ArrayUtils.toFloatArray(coeffs);
+                            float[] fcoeffs = ArrayUtils.copyDouble2Float(coeffs);
                             //System.out.print("Polynomial values (unit "+unitIndex+") ");
                             //for (int p=0; p<fcoeffs.length; p++) {
                             //    System.out.print(", "+fcoeffs[p]);

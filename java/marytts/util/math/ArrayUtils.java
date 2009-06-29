@@ -26,31 +26,15 @@ package marytts.util.math;
  */
 public class ArrayUtils
 {
-    public static double[] copyFloat2Double(float[] orig)
-    {
-        if (orig!=null)
-            return subarrayd(orig, 0, orig.length);
-        else
-            return null;
-    }
-    
-    public static float[] copyDouble2Float(double[] orig)
-    {
-        if (orig!=null)
-            return subarrayf(orig, 0, orig.length);
-        else
-            return null;
-    }
-    
-    public static double[] copyShort2Double(short[] orig)
-    {
-        if (orig!=null)
-            return subarrays(orig, 0, orig.length);
-        else
-            return null;
-    }
-    
     public static double[] copy(double[] orig)
+    {
+        if (orig!=null)
+            return subarray(orig, 0, orig.length);
+        else
+            return null;
+    }
+    
+    public static short[] copy(short[] orig)
     {
         if (orig!=null)
             return subarray(orig, 0, orig.length);
@@ -73,11 +57,43 @@ public class ArrayUtils
         else
             return null;
     }
-    
-    public static float[] copyf(double[] orig)
+
+    public static double[] copyFloat2Double(float[] orig)
     {
         if (orig!=null)
-            return subarrayf(orig, 0, orig.length);
+            return subarrayFloat2Double(orig, 0, orig.length);
+        else
+            return null;
+    }
+    
+    public static short[] copyFloat2Short(float[] orig)
+    {
+        if (orig!=null)
+            return subarrayFloat2Short(orig, 0, orig.length);
+        else
+            return null;
+    }
+    
+    public static double[] copyShort2Double(short[] orig)
+    {
+        if (orig!=null)
+            return subarrayShort2Double(orig, 0, orig.length);
+        else
+            return null;
+    }
+
+    public static float[] copyDouble2Float(double[] orig)
+    {
+        if (orig!=null)
+            return subarrayDouble2Float(orig, 0, orig.length);
+        else
+            return null;
+    }
+    
+    public static short[] copyDouble2Short(double[] orig)
+    {
+        if (orig!=null)
+            return subarrayDouble2Short(orig, 0, orig.length);
         else
             return null;
     }
@@ -96,41 +112,11 @@ public class ArrayUtils
         return out;
     }
     
-    public static double[] subarrays(short[] orig, int off, int len)
-    {
-        if (off+len>orig.length) throw new IllegalArgumentException("requested subarray exceeds array length");
-        double[] sub = new double[len];
-        for (int i=0; i<len; i++)
-            sub[i] = orig[i+off];
-        
-        return sub;
-    }
-    
-    public static double[] subarrayd(float[] orig, int off, int len)
-    {
-        if (off+len>orig.length) throw new IllegalArgumentException("requested subarray exceeds array length");
-        double[] sub = new double[len];
-        for (int i=0; i<len; i++)
-            sub[i] = orig[i+off];
-        
-        return sub;
-    }
-    
     public static double[] subarray(double[] orig, int off, int len)
     {
         if (off+len>orig.length) throw new IllegalArgumentException("requested subarray exceeds array length");
         double[] sub = new double[len];
         System.arraycopy(orig, off, sub, 0, len);
-        return sub;
-    }
-    
-    public static float[] subarrayf(double[] orig, int off, int len)
-    {
-        if (off+len>orig.length) throw new IllegalArgumentException("requested subarray exceeds array length");
-        float[] sub = new float[len];
-        for (int i=0; i<len; i++)
-            sub[i] = (float)orig[i+off];
-
         return sub;
     }
     
@@ -144,12 +130,70 @@ public class ArrayUtils
         return sub;
     }
     
+    public static short[] subarray(short[] orig, int off, int len)
+    {
+        if (off+len>orig.length) throw new IllegalArgumentException("requested subarray exceeds array length");
+        short[] sub = new short[len];
+        System.arraycopy(orig, off, sub, 0, len);
+        return sub;
+    }
+    
     public static int[] subarray(int[] orig, int off, int len)
     {
         if (off+len>orig.length) throw new IllegalArgumentException("requested subarray exceeds array length");
         int[] sub = new int[len];
         for (int i=0; i<len; i++)
             sub[i] = orig[i+off];
+
+        return sub;
+    }
+    
+    public static double[] subarrayShort2Double(short[] orig, int off, int len)
+    {
+        if (off+len>orig.length) throw new IllegalArgumentException("requested subarray exceeds array length");
+        double[] sub = new double[len];
+        for (int i=0; i<len; i++)
+            sub[i] = orig[i+off];
+        
+        return sub;
+    }
+   
+    public static short[] subarrayDouble2Short(double[] orig, int off, int len)
+    {
+        if (off+len>orig.length) throw new IllegalArgumentException("requested subarray exceeds array length");
+        short[] sub = new short[len];
+        for (int i=0; i<len; i++)
+            sub[i] = (short)orig[i+off];
+        
+        return sub;
+    }
+    
+    public static double[] subarrayFloat2Double(float[] orig, int off, int len)
+    {
+        if (off+len>orig.length) throw new IllegalArgumentException("requested subarray exceeds array length");
+        double[] sub = new double[len];
+        for (int i=0; i<len; i++)
+            sub[i] = orig[i+off];
+        
+        return sub;
+    }
+    
+    public static short[] subarrayFloat2Short(float[] orig, int off, int len)
+    {
+        if (off+len>orig.length) throw new IllegalArgumentException("requested subarray exceeds array length");
+        short[] sub = new short[len];
+        for (int i=0; i<len; i++)
+            sub[i] = (short)orig[i+off];
+        
+        return sub;
+    }
+
+    public static float[] subarrayDouble2Float(double[] orig, int off, int len)
+    {
+        if (off+len>orig.length) throw new IllegalArgumentException("requested subarray exceeds array length");
+        float[] sub = new float[len];
+        for (int i=0; i<len; i++)
+            sub[i] = (float)orig[i+off];
 
         return sub;
     }
@@ -199,34 +243,6 @@ public class ArrayUtils
             System.arraycopy(array, 0, arrayOut, 0, array.length);
         
         return arrayOut;
-    }
-    
-    public static double[] toDoubleArray(float[] x)
-    {
-        double[] xd = null;
-
-        if (x!=null && x.length>0)
-        {
-            xd = new double[x.length];
-            for (int i=0; i<x.length; i++)
-                xd[i] = x[i];
-        }
-        
-        return xd;
-    }
-    
-    public static float[] toFloatArray(double[] x)
-    {
-        float[] xf = null;
-
-        if (x!=null && x.length>0)
-        {
-            xf = new float[x.length];
-            for (int i=0; i<x.length; i++)
-                xf[i] = (float)x[i];
-        }
-        
-        return xf;
     }
     
     //Returns the vector [x y]

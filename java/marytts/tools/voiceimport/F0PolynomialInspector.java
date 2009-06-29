@@ -321,7 +321,7 @@ public class F0PolynomialInspector extends VoiceImportComponent
                         //System.out.println("Syl "+s+" from "+iSylStart+" to "+iSylEnd+" out of "+f0AndInterpol.length);
                         double[] sylF0 = new double[iSylEnd-iSylStart];
                         float[] coeffs = contours.getFeatureVector(iSylVowel).getContinuousFeatures();
-                        double[] sylPred = Polynomial.generatePolynomialValues(ArrayUtils.toDoubleArray(coeffs), sylF0.length, 0, 1);
+                        double[] sylPred = Polynomial.generatePolynomialValues(ArrayUtils.copyFloat2Double(coeffs), sylF0.length, 0, 1);
                         System.arraycopy(sylPred, 0, approx, iSylStart, sylPred.length);
                     }
                     for (int j=0; j<approx.length; j++) {

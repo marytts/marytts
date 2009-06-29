@@ -44,7 +44,7 @@ import marytts.util.math.ComplexNumber;
 
 public class FrameNoisePartWaveform implements FrameNoisePart {
     
-    public float[] waveform;
+    public short[] waveform;
 
     public FrameNoisePartWaveform()
     {
@@ -64,9 +64,9 @@ public class FrameNoisePartWaveform implements FrameNoisePart {
 
         if (waveLen>0)
         {
-            waveform = new float[waveLen];
+            waveform = new short[waveLen];
             for (int i=0; i<waveLen; i++) 
-                waveform[i] = raf.readFloat();
+                waveform[i] = raf.readShort();
         }
         else
             waveform = null;
@@ -106,7 +106,7 @@ public class FrameNoisePartWaveform implements FrameNoisePart {
         if (waveform!=null && waveform.length>0)
             waveLen = waveform.length;
         
-        return 4*waveLen;
+        return 2*waveLen;
     }
     
     public void write(DataOutput out) throws IOException 
@@ -120,14 +120,14 @@ public class FrameNoisePartWaveform implements FrameNoisePart {
         if (waveLen>0)
         {
             for (int i=0; i<waveform.length; i++) 
-                out.writeFloat(waveform[i]);
+                out.writeShort(waveform[i]);
         }
     }
     
     public void setWaveform(float[] x)
     {
         if (x!=null)
-            waveform = ArrayUtils.copy(x);
+            waveform = ArrayUtils.copyFloat2Short(x);
         else
             waveform = null;
     }
@@ -135,7 +135,7 @@ public class FrameNoisePartWaveform implements FrameNoisePart {
     public void setWaveform(double[] x)
     {
         if (x!=null)
-            waveform = ArrayUtils.copyf(x);
+            waveform = ArrayUtils.copyDouble2Short(x);
         else
             waveform = null;
     }   

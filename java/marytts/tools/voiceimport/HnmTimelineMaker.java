@@ -231,15 +231,15 @@ public class HnmTimelineMaker extends VoiceImportComponent
             long numDatagrams = 0l; // Total number of hnm datagrams in the timeline file
             
             /* For each wav file: */
-            for ( int i = 0; i < baseNameArray.length; i++ ) 
+            for ( int n = 0; n < baseNameArray.length; n++ ) 
             {
-                percent = 100*i/baseNameArray.length;
+                percent = 100*n/baseNameArray.length;
                 /* - open+load */
-                System.out.println( baseNameArray[i] );
-                wav = new WavReader(db.getProp(db.ROOTDIR) + db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT));
+                System.out.println( baseNameArray[n] );
+                wav = new WavReader(db.getProp(db.ROOTDIR) + db.getProp(db.WAVDIR) + baseNameArray[n] + db.getProp(db.WAVEXT));
                 short[] wave = wav.getSamples();
                 
-                PitchReaderWriter f0 = new PitchReaderWriter(db.getProp(db.ROOTDIR) + db.getProp(db.PTCDIR) + baseNameArray[i] + db.getProp(db.PTCEXT));
+                PitchReaderWriter f0 = new PitchReaderWriter(db.getProp(db.ROOTDIR) + db.getProp(db.PTCDIR) + baseNameArray[n] + db.getProp(db.PTCEXT));
 
                 HntmAnalyzer ha = new HntmAnalyzer();
                 HntmSpeechSignal hnmSignal = ha.analyze(wave, wav.getSampleRate(), f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis); 
@@ -249,12 +249,12 @@ public class HnmTimelineMaker extends VoiceImportComponent
                 int frameEnd = 0;
                 int duration = 0;
                 long localTime = 0l;
-                for ( int f = 0; f < hnmSignal.frames.length; f++ ) 
+                for ( int i = 0; i < hnmSignal.frames.length; i++ ) 
                 {
                     /* Get the datagram duration */
                     frameStart = frameEnd;
-                    if (f<hnmSignal.frames.length-1)
-                        frameEnd = (int)( (double)hnmSignal.frames[f+1].tAnalysisInSeconds * (double)(globSampleRate) );
+                    if (i<hnmSignal.frames.length-1)
+                        frameEnd = (int)( (double)hnmSignal.frames[i+1].tAnalysisInSeconds * (double)(globSampleRate) );
                     else
                         frameEnd = (int)( (double)hnmSignal.originalDurationInSeconds * (double)(globSampleRate) );
                     
