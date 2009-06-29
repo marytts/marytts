@@ -54,7 +54,7 @@ public class EnergyAnalyser_dB extends EnergyAnalyser {
      * @return a Double representing the total energy in the frame.
      * @throws IllegalArgumentException if frame does not have the prescribed length 
      */
-    public Object analyse(double[] frame)
+    public Double analyse(double[] frame)
     {
         if (frame.length != getFrameLengthSamples())
             throw new IllegalArgumentException("Expected frame of length " + getFrameLengthSamples()

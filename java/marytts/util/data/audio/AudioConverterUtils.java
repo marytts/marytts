@@ -330,12 +330,15 @@ public class AudioConverterUtils {
   * @return
   * @throws Exception
   */
- public static AudioInputStream removeLowFrequencyNoise(AudioInputStream ais) throws Exception{
+ public static AudioInputStream removeLowFrequencyNoise(AudioInputStream ais, double cutoffFrequency, double transitionBandwidth)
+ throws Exception
+ {
         
         double[] samples = new AudioDoubleDataSource(ais).getAllData();
         float samplingRate = ais.getFormat().getSampleRate();
-        double cutOff = (double)(50.0 / samplingRate);
-        HighPassFilter hFilter = new HighPassFilter(cutOff);
+        double cutOff = cutoffFrequency / samplingRate;
+        double transition = transitionBandwidth / samplingRate;
+        HighPassFilter hFilter = new HighPassFilter(cutOff, transition);
         double[] fsamples = hFilter.apply(samples);
         DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(fsamples), ais.getFormat()); 
         return outputAudio; 
