@@ -85,6 +85,7 @@ public class DatabaseImportMain extends JFrame
     protected String[][] groups2Comps;
     protected JCheckBox[] checkboxes;
     protected JButton runButton;
+    protected JButton closeGUIButton;
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected String currentComponent;
@@ -193,6 +194,16 @@ public class DatabaseImportMain extends JFrame
                 System.exit(0);
             }
         });
+        
+        closeGUIButton = new JButton("Continue without GUI");
+        closeGUIButton.setMnemonic(KeyEvent.VK_C);
+        closeGUIButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent ae) {
+                closeGUI();
+            }
+        });
+        closeGUIButton.setEnabled(false);
+        
         gridC.gridy = 1;
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout());
@@ -206,6 +217,7 @@ public class DatabaseImportMain extends JFrame
         //buttonPanel.add(Box.createHorizontalGlue());
         //quitAndSaveButton.setAlignmentX(JButton.RIGHT_ALIGNMENT);
         buttonPanel.add(quitAndSaveButton);
+        buttonPanel.add(closeGUIButton);
         gridBagLayout.setConstraints( buttonPanel, gridC );
         getContentPane().add(buttonPanel);
         
@@ -258,51 +270,61 @@ public class DatabaseImportMain extends JFrame
     {
         new Thread("RunSelectedComponentsThread") {
             public void run() {
-                runButton.setEnabled(false);
-                for (int i=0; i<components.length; i++) {
-                    if (checkboxes[i].isSelected()) {
-                        boolean success = false;
-                        Container parent = checkboxes[i].getParent();
-                        final JProgressBar progress = new JProgressBar();
-                        final VoiceImportComponent oneComponent = components[i];
-                        if (oneComponent.getProgress() != -1) {
-                            progress.setStringPainted(true);
-                            new Thread("ProgressThread") {
-                                public void run() {
-                                    int percent = 0;
-                                    while (progress.isVisible()) {
-                                        progress.setValue(percent);
-                                        try { Thread.sleep(500); }
-                                        catch (InterruptedException ie) {}
-                                        percent = oneComponent.getProgress();
+                try {
+                    runButton.setEnabled(false);
+                    closeGUIButton.setEnabled(true);
+                    for (int i=0; i<components.length; i++) {
+                        if (checkboxes[i].isSelected()) {
+                            boolean success = false;
+                            Container parent = checkboxes[i].getParent();
+                            final JProgressBar progress = new JProgressBar();
+                            final VoiceImportComponent oneComponent = components[i];
+                            if (oneComponent.getProgress() != -1) {
+                                progress.setStringPainted(true);
+                                new Thread("ProgressThread") {
+                                    public void run() {
+                                        int percent = 0;
+                                        while (progress.isVisible()) {
+                                            progress.setValue(percent);
+                                            try { Thread.sleep(500); }
+                                            catch (InterruptedException ie) {}
+                                            percent = oneComponent.getProgress();
+                                        }
                                     }
-                                }
-                            }.start();
-                        } else {
-                            progress.setIndeterminate(true);
+                                }.start();
+                            } else {
+                                progress.setIndeterminate(true);
+                            }
+                            parent.add(progress, BorderLayout.EAST);
+                            progress.setVisible(true);
+                            parent.validate();
+                            try {
+                                success = oneComponent.compute();
+                            } catch (Exception exc) {
+                                checkboxes[i].setBackground(Color.RED);
+                                throw new Exception( "The component " + checkboxes[i].getText() + " produced the following exception: ", exc );
+                            } finally {
+                                checkboxes[i].setSelected(false);
+                                progress.setVisible(false);
+                            }
+                            if (success) {
+                                checkboxes[i].setBackground(Color.GREEN);
+                            } else {
+                                checkboxes[i].setBackground(Color.RED);
+                            }
                         }
-                        parent.add(progress, BorderLayout.EAST);
-                        progress.setVisible(true);
-                        parent.validate();
-                        try {
-                            success = oneComponent.compute();
-                        } catch (Exception exc) {
-                            checkboxes[i].setBackground(Color.RED);
-                            checkboxes[i].setSelected(false);
-                            runButton.setEnabled(true);
-                            progress.setVisible(false);
-                            throw new RuntimeException( "The component " + checkboxes[i].getText() + " produced the following exception: ", exc );
-                        }
-                        if (success) {
-                            checkboxes[i].setBackground(Color.GREEN);
-                        } else {
-                            checkboxes[i].setBackground(Color.RED);
-                        }
-                        checkboxes[i].setSelected(false);
-                        progress.setVisible(false);
+                    }
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                } finally {
+                    if (runButton.getTopLevelAncestor().isVisible()) {
+                        runButton.setEnabled(true);
+                        closeGUIButton.setEnabled(false);
+                    } else { // close GUI button was pressed -- exit
+                        System.exit(0);
                     }
                 }
-                runButton.setEnabled(true);
+
             }
         }.start();
     }
@@ -328,6 +350,24 @@ public class DatabaseImportMain extends JFrame
             }
         } else {
             System.exit(0);
+        }
+    }
+    
+    protected void closeGUI()
+    {
+        int answer = JOptionPane.showOptionDialog(this,
+                "Do you want to close this GUI?\n\n"
+                +"The components that are currently running will continue to run,\n"
+                +"but you will not be able to save settings or select/deselect\n"
+                +"components to run.\n"
+                +"This may be useful when running this tool using 'nohup' on a server\n"
+                +"because it allows you to log off without stopping the process.",
+                "Really close GUI?",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null, null, null);
+        if (answer == JOptionPane.YES_OPTION) {
+            this.setVisible(false);
         }
     }
     
