@@ -502,7 +502,7 @@ public class DatabaseLayout
         basicprops.put(DOMAIN,"general");
         basicprops.put(LOCALE,"en_US");
         basicprops.put(SAMPLINGRATE,"16000");
-        String rootDir = new File(".").getAbsolutePath();
+        String rootDir = new File(System.getProperty("user.dir")).getAbsolutePath()+fileSeparator;
         basicprops.put(ROOTDIR,rootDir.substring(0,rootDir.length()-1));
         basicprops.put(WAVDIR, rootDir+"wav"+fileSeparator);
         basicprops.put(LABDIR, rootDir+"lab"+fileSeparator);
@@ -691,7 +691,7 @@ public class DatabaseLayout
      */
     private void checkDirinCurrentDir(String propname)
     {
-        File dir = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+getProp(propname));
+        File dir = new File(getProp(propname));
         if (!dir.exists()) {
             System.out.print(propname+" "+getProp(propname)
                     +" does not exist; ");
