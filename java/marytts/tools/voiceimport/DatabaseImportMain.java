@@ -36,6 +36,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -85,7 +86,6 @@ public class DatabaseImportMain extends JFrame
     protected String[][] groups2Comps;
     protected JCheckBox[] checkboxes;
     protected JButton runButton;
-    protected JButton closeGUIButton;
     protected DatabaseLayout db = null;
     protected BasenameList bnl = null;
     protected String currentComponent;
@@ -195,15 +195,6 @@ public class DatabaseImportMain extends JFrame
             }
         });
         
-        closeGUIButton = new JButton("Continue without GUI");
-        closeGUIButton.setMnemonic(KeyEvent.VK_C);
-        closeGUIButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent ae) {
-                closeGUI();
-            }
-        });
-        closeGUIButton.setEnabled(false);
-        
         gridC.gridy = 1;
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout());
@@ -217,7 +208,6 @@ public class DatabaseImportMain extends JFrame
         //buttonPanel.add(Box.createHorizontalGlue());
         //quitAndSaveButton.setAlignmentX(JButton.RIGHT_ALIGNMENT);
         buttonPanel.add(quitAndSaveButton);
-        buttonPanel.add(closeGUIButton);
         gridBagLayout.setConstraints( buttonPanel, gridC );
         getContentPane().add(buttonPanel);
         
@@ -272,7 +262,6 @@ public class DatabaseImportMain extends JFrame
             public void run() {
                 try {
                     runButton.setEnabled(false);
-                    closeGUIButton.setEnabled(true);
                     for (int i=0; i<components.length; i++) {
                         if (checkboxes[i].isSelected()) {
                             boolean success = false;
@@ -317,12 +306,7 @@ public class DatabaseImportMain extends JFrame
                 } catch (Throwable e) {
                     e.printStackTrace();
                 } finally {
-                    if (runButton.getTopLevelAncestor().isVisible()) {
-                        runButton.setEnabled(true);
-                        closeGUIButton.setEnabled(false);
-                    } else { // close GUI button was pressed -- exit
-                        System.exit(0);
-                    }
+                    runButton.setEnabled(true);
                 }
 
             }
@@ -355,6 +339,8 @@ public class DatabaseImportMain extends JFrame
     
     protected void closeGUI()
     {
+        // This doesn't work because Java cannot close the X11 connection, see
+        // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4420885
         int answer = JOptionPane.showOptionDialog(this,
                 "Do you want to close this GUI?\n\n"
                 +"The components that are currently running will continue to run,\n"
@@ -368,6 +354,7 @@ public class DatabaseImportMain extends JFrame
                 null, null, null);
         if (answer == JOptionPane.YES_OPTION) {
             this.setVisible(false);
+            this.dispose();
         }
     }
     
