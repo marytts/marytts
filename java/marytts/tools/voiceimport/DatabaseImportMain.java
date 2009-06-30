@@ -504,11 +504,11 @@ public class DatabaseImportMain extends JFrame
         
         List<VoiceImportComponent> compsList = new ArrayList<VoiceImportComponent>();
         //loop over the groups
-        for (int i=0;i<groups2comps.length;i++){
+        for (int i=0;i<groups2comps.length;i++) {
             //get the components for this group
             String[] nextComps = groups2comps[i];
             //loop over the components (first element is group name; ignore)
-            for (int j=1;j<nextComps.length;j++){
+            for (int j=1;j<nextComps.length;j++) {
                 //get the class name of this component  
                 String className = nextComps[j];
                 //System.out.println(className);
@@ -524,14 +524,27 @@ public class DatabaseImportMain extends JFrame
         DatabaseLayout db = new DatabaseLayout(components);
         if (!db.isInitialized())
             return;
-        /* Display GUI */       
-        String voicename = db.getProp(db.VOICENAME);
-        DatabaseImportMain importer = 
-            new DatabaseImportMain("Database import: "+voicename, components, db,groups2comps);
-        importer.pack();
-        // Center window on screen:
-        importer.setLocationRelativeTo(null); 
-        importer.setVisible(true);
+        
+        if (args.length > 0) { // non-gui mode: arguments are expected to be component names, in order or application
+            for (String compName : args) {
+                for (VoiceImportComponent comp : compsList) {
+                    if (comp.getName().equals(compName)) {
+                        System.out.println("Starting "+compName);
+                        comp.compute();
+                    }
+                }
+            }
+        } else {
+            /* Display GUI */       
+            String voicename = db.getProp(db.VOICENAME);
+            DatabaseImportMain importer = 
+                new DatabaseImportMain("Database import: "+voicename, components, db,groups2comps);
+            importer.pack();
+            // Center window on screen:
+            importer.setLocationRelativeTo(null); 
+            importer.setVisible(true);
+        }
+        
     }
     
    
