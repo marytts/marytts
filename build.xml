@@ -117,7 +117,11 @@ THIS SOFTWARE.
                    marytts/modules/apml-to-mary.xsl
                    marytts/modules/emotion-to-mary.xsl
                    marytts/specification-version.txt
-                   marytts/implementation-version.txt"
+                   marytts/implementation-version.txt
+                   marytts/server/http/index.html
+                   marytts/server/http/documentation.html
+                   marytts/server/http/mary.js
+                   marytts/server/http/favicon.ico"
         excludes="marytts/modules/synthesis/FreeTTSSynthesizer.class
 		   	  marytts/modules/synthesis/FreeTTSVoices.class
 			  marytts/modules/DummyFreeTTSVoice.class
@@ -317,7 +321,7 @@ THIS SOFTWARE.
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Main-Class"
          value="marytts.tools.voiceimport.DatabaseImportMain"/>
-        <attribute name="Class-Path" value="mary-common.jar signalproc.jar jsresources.jar log4j-1.2.15.jar swing-layout-1.0.jar"/>
+        <attribute name="Class-Path" value="maryclient.jar mary-common.jar signalproc.jar jsresources.jar log4j-1.2.15.jar swing-layout-1.0.jar"/>
         </manifest>
         </jar>
   </target>
