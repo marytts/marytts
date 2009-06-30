@@ -341,13 +341,15 @@ public class DatabaseLayout
             if (!localProps.containsKey(key)){
                 VoiceImportComponent comp = (VoiceImportComponent) compnames2comps.get(key);
                 SortedMap<String,String> nextLocalPropMap = defaultLocalProps.get(key);
-                missingProps.put(key,nextLocalPropMap);
-                for (Iterator<String> it2=nextLocalPropMap.keySet().iterator();it2.hasNext();){
-                    String nextKey = it2.next();                    
-                    helpTextBuf.append("<dt><strong>"+nextKey+"</strong></dt>\n"
-                            +"<dd>"+comp.getHelpTextForProp(nextKey)+"</dd>\n");
+                if (nextLocalPropMap != null && !nextLocalPropMap.isEmpty()) {
+                    missingProps.put(key,nextLocalPropMap);
+                    for (Iterator<String> it2=nextLocalPropMap.keySet().iterator();it2.hasNext();){
+                        String nextKey = it2.next();                    
+                        helpTextBuf.append("<dt><strong>"+nextKey+"</strong></dt>\n"
+                                +"<dd>"+comp.getHelpTextForProp(nextKey)+"</dd>\n");
+                    }
+                    allFine = false;
                 }
-                allFine = false;
             } else {
                 VoiceImportComponent comp = compnames2comps.get(key);
                 SortedMap<String,String> nextLocalPropMap = localProps.get(key);
@@ -767,19 +769,17 @@ public class DatabaseLayout
     {
         List<String> keys = new ArrayList<String>();
         List<String> values = new ArrayList<String>();
-        for (Iterator<String> it = props.keySet().iterator();it.hasNext();) {
-            String key = it.next();
-            if (isEditable(key)){
-                keys.add(key);
-                values.add(props.get(key));
-            }
+        for (String key : props.keySet()) {
+            keys.add(key);
+            values.add(props.get(key));
         }
         for (int i=0;i<compNames.length;i++) {
             SortedMap<String,String> nextProps = localProps.get(compNames[i]);
-            for (Iterator<String> it = nextProps.keySet().iterator();it.hasNext();){
-                String key = (String) it.next();
-                keys.add(key);
-                values.add(nextProps.get(key));
+            if (nextProps != null) { // some components don't have any properties
+                for (String key : nextProps.keySet()) {
+                    keys.add(key);
+                    values.add(nextProps.get(key));
+                }
             }
         }
         String[][] result = new String[keys.size()][];
