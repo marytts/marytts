@@ -67,17 +67,18 @@ import org.w3c.dom.traversal.TreeWalker;
 
 
 /**
- * Part-of-speech tagger using OpenNLP.
+ * Minimalistic part-of-speech tagger, using only function word tags as marked in the
+ * Transcription GUI.
  *
+ * @author Sathish Pammi
  * @author Marc Schr&ouml;der
  */
 
-public class OpenNLPPosTagger extends InternalModule
+public class MinimalisticPosTagger extends InternalModule
 {
     private String propertyPrefix;
-    private POSTaggerME tagger;
-    private Map<String,String> posMapper = null;
-
+    private FSTLookup posFST = null;
+    private String punctuationList;
     /**
      * Constructor which can be directly called from init info in the config file.
      * Different languages can call this code with different settings.
@@ -85,7 +86,7 @@ public class OpenNLPPosTagger extends InternalModule
 
      * @throws Exception
      */
-    public OpenNLPPosTagger(String locale, String propertyPrefix)
+    public MinimalisticPosTagger(String locale, String propertyPrefix)
     throws Exception
     {
         super("OpenNLPPosTagger",
@@ -93,74 +94,44 @@ public class OpenNLPPosTagger extends InternalModule
                 MaryDataType.PARTSOFSPEECH,
                 MaryUtils.string2locale(locale));
         if (!propertyPrefix.endsWith(".")) propertyPrefix = propertyPrefix + ".";
-        this.propertyPrefix = propertyPrefix;
+        this.propertyPrefix = propertyPrefix+"partsofspeech.";
     }
-
+    
+    
     public void startup() throws Exception
     {
         super.startup();
-        
-        String modelFile = MaryProperties.needFilename(propertyPrefix+"model");
-        String tagdict = MaryProperties.getFilename(propertyPrefix+"tagdict");
-        boolean caseSensitive = MaryProperties.getBoolean(propertyPrefix+"tagdict.isCaseSensitive", true);
-        String posMapperFile = MaryProperties.getFilename(propertyPrefix+"posMap");
-
-        MaxentModel model = new SuffixSensitiveGISModelReader(new File(modelFile)).getModel();
-        if (tagdict != null) {
-            TagDictionary dict = new POSDictionary(tagdict,caseSensitive);
-            tagger = new POSTaggerME(model, new DefaultPOSContextGenerator(null),dict);
-        } else {
-            tagger = new POSTaggerME(model, new DefaultPOSContextGenerator(null));
-        }
-        if (posMapperFile != null) {
-            posMapper = new HashMap<String, String>();
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(posMapperFile), "UTF-8"));
-            String line;
-            while ((line = br.readLine()) != null) {
-                // skip comments and empty lines
-                if (line.startsWith("#") || line.trim().equals("")) continue;
-                // Entry format: POS GPOS, i.e. two space-separated entries per line
-                StringTokenizer st = new StringTokenizer(line);
-                String pos = st.nextToken();
-                String gpos = st.nextToken();
-                posMapper.put(pos, gpos);
-            }
-        }
+        posFST = new FSTLookup(MaryProperties.needFilename(propertyPrefix+"fst"));
+        punctuationList = MaryProperties.getProperty(propertyPrefix+"punctuation", ",.?!;");
     }
 
     public MaryData process(MaryData d)
     throws Exception
     {
-        
         Document doc = d.getDocument(); 
         NodeIterator sentenceIt = MaryDomUtils.createNodeIterator(doc, doc, MaryXML.SENTENCE);
         Element sentence;
         while ((sentence = (Element) sentenceIt.nextNode()) != null) {
             TreeWalker tokenIt = MaryDomUtils.createTreeWalker(sentence, MaryXML.TOKEN);
-            List<String> tokens = new ArrayList<String>();
             Element t;
             while ((t = (Element) tokenIt.nextNode()) != null) {
-                tokens.add(MaryDomUtils.tokenText(t));
-            }
-            List<String> partsOfSpeech = tagger.tag(tokens);
-            tokenIt.setCurrentNode(sentence); // reset treewalker so we can walk through once again
-            Iterator<String> posIt = partsOfSpeech.iterator();
-            while ((t = (Element) tokenIt.nextNode()) != null) {
-                assert posIt.hasNext();
-                String pos = posIt.next();
-                if (posMapper != null) {
-                    String gpos = posMapper.get(pos);
-                    if (gpos == null) logger.warn("POS map file incomplete: do not know how to map '"+pos+"'");
-                    else pos = gpos;
+                String pos = "content";
+                String tokenText = MaryDomUtils.tokenText(t);
+                if (punctuationList.contains(tokenText)) {
+                    pos = "$PUNCT";
+                } else if (posFST != null) {
+                    String[] result = posFST.lookup(tokenText);
+                    if(result.length != 0)
+                        pos = "function";
                 }
                 t.setAttribute("pos", pos);
             }
         }
-        
         MaryData output = new MaryData(outputType(), d.getLocale());
         output.setDocument(doc);
         return output;
     }
+    
     
 
 }

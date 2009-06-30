@@ -71,7 +71,7 @@ public class DummyTokens2Words extends InternalModule
      */
     public DummyTokens2Words(String locale)
     {
-        super("DummyAllophones2AcoustParams",
+        super("DummyTokens2Words",
                 MaryDataType.TOKENS,
                 MaryDataType.WORDS,
                 new Locale(locale));
@@ -83,7 +83,7 @@ public class DummyTokens2Words extends InternalModule
      */
     public DummyTokens2Words(Locale locale)
     {
-        super("DummyAllophones2AcoustParams",
+        super("DummyTokens2Words",
                 MaryDataType.TOKENS,
                 MaryDataType.WORDS,
                 locale);
