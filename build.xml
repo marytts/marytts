@@ -299,7 +299,7 @@ THIS SOFTWARE.
 	        <attribute name="Main-Class"
 	                   value="marytts.tools.redstart.Redstart"/>
 	        <attribute name="Class-Path"
-	                   value="signalproc.jar swing-layout-1.0.jar jsresources.jar mary-common.jar"/>
+	                   value="signalproc.jar swing-layout-1.0.jar jsresources.jar mary-common.jar log4j-1.2.15.jar"/>
 
 	      </manifest>
 	    </jar>
