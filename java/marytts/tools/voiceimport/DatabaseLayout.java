@@ -710,7 +710,7 @@ public class DatabaseLayout
         if (!basenameFile.exists()) {
             //make basename list from wav files 
             System.out.println("Loading basename list from wav files");
-            bnl = new BasenameList(System.getProperty("user.dir")+System.getProperty("file.separator")+getProp(WAVDIR),getProp(WAVEXT));
+            bnl = new BasenameList(getProp(WAVDIR),getProp(WAVEXT));
         } else {
             //load basename list from file
             try {
