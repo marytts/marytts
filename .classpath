@@ -27,6 +27,6 @@
 	<classpathentry kind="lib" path="java/sgt_v30.jar"/>
 	<classpathentry kind="lib" path="java/swing-layout-1.0.jar"/>
 	<classpathentry kind="lib" path="java/weka.jar"/>
-	<classpathentry kind="lib" path="D:/Oytun/DFKI/java/workspace/OpenMary/trunk/java/trove-2.0.4.jar"/>
+	<classpathentry kind="lib" path="java/trove-2.0.4.jar"/>
 	<classpathentry kind="output" path="java"/>
 </classpath>
