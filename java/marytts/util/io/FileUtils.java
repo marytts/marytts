@@ -139,7 +139,12 @@ public class FileUtils {
      * @return
      */
     public static String getFileAsString(File file, String encoding) throws IOException {
-        return getStreamAsString(new FileInputStream(file), encoding);
+        FileInputStream fis = new FileInputStream(file);
+        try {
+            return getStreamAsString(fis, encoding);
+        } finally {
+            fis.close();
+        }
     }
 
     public static String getStreamAsString(InputStream inputStream, String encoding) throws IOException {

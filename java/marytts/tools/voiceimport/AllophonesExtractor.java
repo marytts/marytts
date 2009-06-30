@@ -131,16 +131,7 @@ public class AllophonesExtractor extends VoiceImportComponent
         localVoice = MaryUtils.string2locale(locale);
         String xmlLocale = MaryUtils.locale2xmllang(localVoice);
         
-        String fullFileName;
-        
-        if (db.getProp(db.TEXTEXT).startsWith(System.getProperty("file.separator"))){
-            // absolute path
-            fullFileName = inputDir + File.separator + basename + db.getProp(db.TEXTEXT);
-        } else {
-            // relative path
-            fullFileName = db.getProp(db.ROOTDIR) + System.getProperty("file.separator") + inputDir
-            +File.separator+ basename + db.getProp(db.TEXTEXT);
-        }
+        String fullFileName = inputDir +File.separator+ basename + db.getProp(db.TEXTEXT);
         
         File textFile = new File(fullFileName);
         text = FileUtils.getFileAsString(textFile, "UTF-8");
