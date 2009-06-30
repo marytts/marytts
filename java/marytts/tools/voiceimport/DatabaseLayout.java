@@ -446,13 +446,11 @@ public class DatabaseLayout
      * Save the props and their values in config file
      * @param configFile the config file
      */
-    private void saveProps(File configFile){
-        try{
-            PrintWriter out = 
-                new PrintWriter(
-                    new OutputStreamWriter(
-                            new FileOutputStream(configFile),"UTF-8"),true);
-           
+    private void saveProps(File configFile)
+    {
+        try {
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(
+                            new FileOutputStream(configFile),"UTF-8"), true);
             out.println("# GlobalProperties:");
             Set<String> globalPropSet = props.keySet();
             for (Iterator<String> it=globalPropSet.iterator();it.hasNext();){
@@ -461,24 +459,21 @@ public class DatabaseLayout
                     out.println(key+" "+props.get(key));      
                 }
             }
-            out.println();     
-             StringBuffer outBuf = new StringBuffer();
+            out.println();
             for (int i=0;i<compNames.length;i++){
                 String key = compNames[i];
-                SortedMap<String,String> nextProps = localProps.get(key);                
-                outBuf.append("# Properties for module "+key+":\n");
-                Set<String> propSet = nextProps.keySet();
-                for (Iterator<String> it2=propSet.iterator();it2.hasNext();){
-                    String localKey = it2.next();
-                    outBuf.append(localKey+" "+nextProps.get(localKey)+"\n");                
+                SortedMap<String,String> nextProps = localProps.get(key);
+                if (nextProps != null) {
+                    out.println("# Properties for module "+key+":");
+                    for (String localKey : nextProps.keySet()) {
+                        out.println(localKey+" "+nextProps.get(localKey));                
+                    }
+                    out.println();
                 }
-                outBuf.append("\n");
             }
-            out.print(outBuf.toString());
             out.close();
-        } catch(Exception e){
-            e.printStackTrace();
-            throw new Error("Error writing config file");
+        } catch(Exception e) {
+            throw new Error("Error writing config file", e);
         }
     
     
@@ -555,7 +550,7 @@ public class DatabaseLayout
             someProps.put(DOMAIN, "general");
             someProps.put(LOCALE, "en_US");
             someProps.put(SAMPLINGRATE, "16000");
-            String rootDir = new File(".").getAbsolutePath();
+            String rootDir = new File(System.getProperty("user.dir")).getAbsolutePath();
             someProps.put(ROOTDIR, rootDir.substring(0,rootDir.length()-1));
             someProps.put(WAVDIR, rootDir+"wav"+fileSeparator);
             someProps.put(LABDIR, rootDir+"lab"+fileSeparator);
