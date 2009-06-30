@@ -311,7 +311,8 @@ THIS SOFTWARE.
              includes="marytts/tools/voiceimport/*.class
                        marytts/tools/voiceimport/*.config
                        marytts/tools/voiceimport/*.png
-                       marytts/tools/voiceimport/*.html">
+                       marytts/tools/voiceimport/*.html
+                       marytts/tools/analysis/TranscriptionAligner.class">
         <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Main-Class"
