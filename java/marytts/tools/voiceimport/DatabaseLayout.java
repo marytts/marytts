@@ -639,12 +639,12 @@ public class DatabaseLayout
         //checkDir(TEXTDIR);
         checkDirinCurrentDir(TEXTDIR);
         /* check wav dir */
-        File dir = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+getProp(WAVDIR));
+        File dir = new File(getProp(WAVDIR));
         //System.out.println(System.getProperty("user.dir")+System.getProperty("file.separator")+getProp(WAVDIR));
-        if (!dir.exists()){
+        if (!dir.exists()) {
             throw new Error("WAVDIR "+getProp(WAVDIR)+" does not exist!");
         }
-        if (!dir.isDirectory()){
+        if (!dir.isDirectory()) {
             throw new Error("WAVDIR "+getProp(WAVDIR)+" is not a directory!");
         }
         /* check lab dir */
