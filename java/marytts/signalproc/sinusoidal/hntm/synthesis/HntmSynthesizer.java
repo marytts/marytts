@@ -157,8 +157,7 @@ public class HntmSynthesizer {
             s.transientPart = TransientPartSynthesizer.synthesize((HntmPlusTransientsSpeechSignal)hntmSignalMod, analysisParams);
         //
  
-        s.output = SignalProcUtils.addSignals(s.harmonicPart, s.noisePart);
-        s.output = SignalProcUtils.addSignals(s.output, s.transientPart);
+        s.generateOutput();
         
         if (synthesisParams.applyVocalTractPostNormalizationProcessor)
         {
