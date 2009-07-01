@@ -249,12 +249,18 @@ public class HnmTimelineMaker extends VoiceImportComponent
                 int frameEnd = 0;
                 int duration = 0;
                 long localTime = 0l;
+                //float tAnalysisInSeconds = 0.0f;
                 for ( int i = 0; i < hnmSignal.frames.length; i++ ) 
                 {
+                    //tAnalysisInSeconds += hnmSignal.frames[i].deltaAnalysisTimeInSeconds;
+                    
                     /* Get the datagram duration */
                     frameStart = frameEnd;
                     if (i<hnmSignal.frames.length-1)
-                        frameEnd = (int)( (double)hnmSignal.frames[i+1].tAnalysisInSeconds * (double)(globSampleRate) );
+                    {
+                        //frameEnd = (int)( (double)(tAnalysisInSeconds+hnmSignal.frames[i+1].deltaAnalysisTimeInSeconds) * (double)(globSampleRate) );
+                        frameEnd = (int)( (double)(hnmSignal.frames[i+1].tAnalysisInSeconds) * (double)(globSampleRate) );
+                    }
                     else
                         frameEnd = (int)( (double)hnmSignal.originalDurationInSeconds * (double)(globSampleRate) );
                     

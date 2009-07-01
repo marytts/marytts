@@ -45,6 +45,7 @@ import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartWaveform;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmPlusTransientsSpeechSignal;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.sinusoidal.hntm.analysis.pitch.HnmPitchVoicingAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.modification.HntmProsodyModifier;
@@ -75,6 +76,28 @@ public class HntmSynthesizer {
 
     }
 
+    public double[] synthesizeFrameIntoDoubleBuffer(HntmSpeechFrame prevFrame, HntmSpeechFrame currentFrame, HntmSpeechFrame nextFrame, 
+                                                    BasicProsodyModifierParams pmodParams, 
+                                                    HntmAnalyzerParams analysisParams, 
+                                                    HntmSynthesizerParams synthesisParams)
+    {
+        HntmSynthesizedSignal frameOut = synthesizeFrame(prevFrame, currentFrame,  nextFrame, pmodParams, analysisParams, synthesisParams);
+
+        frameOut.generateOutput();
+
+        return frameOut.output;
+    }
+
+    public HntmSynthesizedSignal synthesizeFrame(HntmSpeechFrame prevFrame, HntmSpeechFrame currentFrame, HntmSpeechFrame nextFrame, 
+                                                 BasicProsodyModifierParams pmodParams, 
+                                                 HntmAnalyzerParams analysisParams, 
+                                                 HntmSynthesizerParams synthesisParams)
+    {
+        HntmSynthesizedSignal frameOut = new HntmSynthesizedSignal();
+        
+        return frameOut;
+    }
+    
     public HntmSynthesizedSignal synthesize(HntmSpeechSignal hntmSignal, 
                                             BasicProsodyModifierParams pmodParams, 
                                             String referenceFile,

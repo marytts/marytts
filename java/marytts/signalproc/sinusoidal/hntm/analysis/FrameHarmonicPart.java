@@ -19,6 +19,7 @@
  */
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
+import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.EOFException;
 import java.io.IOException;
@@ -55,17 +56,17 @@ public class FrameHarmonicPart
         }
     }
     
-    public FrameHarmonicPart( RandomAccessFile raf ) throws IOException, EOFException
+    public FrameHarmonicPart( DataInputStream dis ) throws IOException, EOFException
     {
-        int numHarmonics = raf.readInt();
+        int numHarmonics = dis.readInt();
 
         if (numHarmonics>0)
         {
             complexAmps = new ComplexNumber[numHarmonics];
             for (int i=0; i<complexAmps.length; i++) 
             {
-                complexAmps[i].real = raf.readFloat();
-                complexAmps[i].imag = raf.readFloat();
+                complexAmps[i].real = dis.readFloat();
+                complexAmps[i].imag = dis.readFloat();
             }
         }
     }

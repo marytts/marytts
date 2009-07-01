@@ -19,6 +19,9 @@
  */
 package marytts.signalproc.sinusoidal.hntm.synthesis;
 
+import marytts.util.math.ArrayUtils;
+import marytts.util.signal.SignalProcUtils;
+
 /**
  * @author oytun.turk
  *
@@ -35,6 +38,34 @@ public class HntmSynthesizedSignal {
         noisePart = null;
         transientPart = null;
         output = null;
+    }
+    
+    public void concatToHarmonicPart(double[] newData)
+    {
+        harmonicPart = ArrayUtils.combine(harmonicPart, newData);
+    }
+    
+    public void concatToNoisePart(double[] newData)
+    {
+        noisePart = ArrayUtils.combine(noisePart, newData);
+    }
+    
+    public void concatToTransientPart(double[] newData)
+    {
+        transientPart = ArrayUtils.combine(transientPart, newData);
+    }
+    
+    public void concat(HntmSynthesizedSignal newSignal)
+    {
+        concatToHarmonicPart(newSignal.harmonicPart);
+        concatToNoisePart(newSignal.noisePart);
+        concatToTransientPart(newSignal.transientPart);
+    }
+    
+    public void generateOutput()
+    {
+        output = SignalProcUtils.addSignals(harmonicPart, noisePart);
+        output = SignalProcUtils.addSignals(output, transientPart);
     }
 }
 

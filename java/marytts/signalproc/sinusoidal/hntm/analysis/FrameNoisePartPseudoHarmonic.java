@@ -19,6 +19,7 @@
  */
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
+import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.EOFException;
 import java.io.IOException;
@@ -50,15 +51,15 @@ public class FrameNoisePartPseudoHarmonic implements FrameNoisePart {
         ceps = ArrayUtils.copy(existing.ceps);
     }
     
-    public FrameNoisePartPseudoHarmonic( RandomAccessFile raf ) throws IOException, EOFException
+    public FrameNoisePartPseudoHarmonic( DataInputStream dis ) throws IOException, EOFException
     {        
-        int cepsLen = raf.readInt();
+        int cepsLen = dis.readInt();
 
         if (cepsLen>0)
         {
             ceps = new float[cepsLen];
             for (int i=0; i<cepsLen; i++) 
-                ceps[i] = raf.readFloat();
+                ceps[i] = dis.readFloat();
         }
         else 
             ceps = null;
