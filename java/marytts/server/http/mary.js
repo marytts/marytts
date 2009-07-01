@@ -41,10 +41,10 @@ function initForm()
     document.getElementById('AUDIO_OUT').selectedIndex = 0;
     document.getElementById('INPUT_TEXT').value = '';
     document.getElementById('OUTPUT_TEXT').value = '';
-    document.getElementById('LOCALE').value = 'en_US';
-    document.getElementById('VOICE').value = 'cmu-slt-arctic';
+    document.getElementById('LOCALE').value = 'fill-me';
+    document.getElementById('VOICE').value = 'fill-me';
     fillVoices();
-    fillTypes();
+	fillTypes();
     fillAudioFormats();
     fillEffects();
 	setInputText("TEXT");
@@ -66,10 +66,18 @@ function fillVoices()
         	if (xmlHttp.status == 200) {
 	            var response = xmlHttp.responseText;
 	            var lines = response.split('\n');
+	            var localeElt = document.getElementById('LOCALE');
+	            var voiceElt = document.getElementById('VOICE');
 	            for (l in lines) {
 	            	var line = lines[l];
-	            	if (line.length > 0)
+	            	if (line.length > 0) {
 		            	addOption("VOICE_SELECTIONS", line);
+		            	if (localeElt.value == 'fill-me') {
+							var items = line.split(' ', 2);
+							voiceElt.value = items[0];
+							localeElt.value = items[1];
+		            	}
+	            	}
 	            }
         	} else {
         		alert(xmlHttp.responseText);
@@ -137,8 +145,12 @@ function fillAudioFormats()
 	            var lines = response.split('\n');
 	            for (l in lines) {
 	            	var line = lines[l];
-	            	if (line.length > 0)
+	            	if (line.length > 0) {
 		            	addOption("AUDIO_OUT", line);
+	            		if (line.indexOf("WAVE_FILE") != -1) {
+	            			document.getElementById("AUDIO_OUT").selectedIndex = document.getElementById("AUDIO_OUT").length - 1;
+	            		}
+	            	}
 	            }
         	} else {
         		alert(xmlHttp.responseText);
@@ -333,7 +345,7 @@ function voiceChanged()
 	var items = voice.split(' ', 2);
 	document.getElementById('VOICE').value = items[0];
 	document.getElementById('LOCALE').value = items[1];
-    doSubmit();
+    requestSynthesis();
 };
 
 function audioOutChanged()
@@ -384,7 +396,8 @@ function requestSynthesis()
         while (audioDestination.childNodes.length > 0) {
         	audioDestination.removeChild(audioDestination.firstChild);
         }
-        audioDestination.innerHTML = '<object classid="clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B" '
+        audioDestination.innerHTML = '<audio src="' + url + '" autoplay controls>'
+          + '<object classid="clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B" '
           + ' codebase="http://www.apple.com/qtactivex/qtplugin.cab" width="200" height="16">'
           + '<param name="src" value="' + url + '" />'
 		  + '<param name="controller" value="true" />'
@@ -401,7 +414,8 @@ function requestSynthesis()
 		  + '<param name="pluginurl" value="http://www.apple.com/quicktime/download/" />'
 	      + '</object>\n'
 		  + '<!--> <![endif]-->\n'
-		  +'</object>';
+		  + '</object>'
+		  + '</audio>';
 	    // alert(audioDestination.innerHTML);
         var fallback = document.createElement("a");
         fallback.setAttribute("href", url);
