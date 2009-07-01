@@ -273,6 +273,35 @@ public class ArrayUtils
         
         return z;
     }
+    
+    //Returns the vector [x y]
+    public static double[] combine(double[] x, double[] y)
+    {
+        int len = 0;
+        if (x!=null)
+            len += x.length;
+        if (y!=null)
+            len += y.length;
+        
+        double[] z = null;
+        
+        if (len>0)
+        {
+            z = new double[len];
+
+            int currentPos = 0;
+            if (x!=null)
+            {
+                System.arraycopy(x, 0, z, currentPos, x.length);
+                currentPos = x.length;
+            }
+
+            if (y!=null)
+                System.arraycopy(y, 0, z, currentPos, y.length);
+        }
+        
+        return z;
+    }
 
     public static boolean isZero(float[] array)
     {

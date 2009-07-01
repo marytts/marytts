@@ -19,6 +19,7 @@
  */
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
+import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.EOFException;
 import java.io.IOException;
@@ -62,19 +63,19 @@ public class FrameNoisePartLpc implements FrameNoisePart {
         setLpCoeffs(existing.lpCoeffs, existing.lpGain);
     }
     
-    public FrameNoisePartLpc( RandomAccessFile raf ) throws IOException, EOFException
+    public FrameNoisePartLpc( DataInputStream dis ) throws IOException, EOFException
     {
-        lpGain = raf.readFloat();
-        origAverageSampleEnergy = raf.readFloat();
-        origNoiseStd = raf.readFloat();
+        lpGain = dis.readFloat();
+        origAverageSampleEnergy = dis.readFloat();
+        origNoiseStd = dis.readFloat();
         
-        int lpLen = raf.readInt();
+        int lpLen = dis.readInt();
 
         if (lpLen>0)
         {
             lpCoeffs = new float[lpLen];
             for (int i=0; i<lpLen; i++) 
-                lpCoeffs[i] = raf.readFloat();
+                lpCoeffs[i] = dis.readFloat();
         }
         else
             lpCoeffs = null;

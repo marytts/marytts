@@ -29,6 +29,7 @@
 
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
+import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.EOFException;
 import java.io.IOException;
@@ -58,15 +59,15 @@ public class FrameNoisePartWaveform implements FrameNoisePart {
         waveform = ArrayUtils.copy(existing.waveform);
     }
     
-    public FrameNoisePartWaveform( RandomAccessFile raf ) throws IOException, EOFException
+    public FrameNoisePartWaveform( DataInputStream dis ) throws IOException, EOFException
     {
-        int waveLen = raf.readInt();
+        int waveLen = dis.readInt();
 
         if (waveLen>0)
         {
             waveform = new short[waveLen];
             for (int i=0; i<waveLen; i++) 
-                waveform[i] = raf.readShort();
+                waveform[i] = dis.readShort();
         }
         else
             waveform = null;
