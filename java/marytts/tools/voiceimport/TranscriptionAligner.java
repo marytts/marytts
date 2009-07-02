@@ -156,7 +156,7 @@ public class TranscriptionAligner extends VoiceImportComponent {
             Document doc = docBuilder.parse(nextFile);
 
             // open destination xml file
-            Writer docDest  = new OutputStreamWriter(new FileOutputStream(xmlOutDir.getAbsolutePath() + nextFile.getName()), "UTF-8");
+            Writer docDest  = new OutputStreamWriter(new FileOutputStream(xmlOutDir.getAbsolutePath() + System.getProperty("file.separator")+nextFile.getName()), "UTF-8");
 
             // open file with manual transcription that is to be aligned
             String manTransString;
