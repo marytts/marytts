@@ -268,9 +268,9 @@ public class FeatureMaker
 	 */
     protected static void printUsage(){
         System.out.println("\nUsage: " +
-                "java FeatureMakerMaryServer -locale language -mysqlHost host -mysqlUser user\n" +
+                "java FeatureMaker -locale language -mysqlHost host -mysqlUser user\n" +
                 "                 -mysqlPasswd passwd -mysqlDB wikiDB\n" +
-                "                 [-maryHost localhost -maryPort 59125 -reliability strict]\n" +
+                "                 [-reliability strict]\n" +
                 "                 [-featuresForSelection phone,next_phone,selection_prosody]\n\n" +
                 "  required: This program requires a MARY server running and an already created cleanText table in the DB. \n" +
                 "            The cleanText table can be created with the WikipediaProcess program. \n" +
@@ -287,7 +287,7 @@ public class FeatureMaker
     }
 	
    private static void printParameters(){
-        System.out.println("FeatureMakerMaryServer parameters:" +
+        System.out.println("FeatureMaker parameters:" +
               
         "\n  -locale " + locale +  
         "\n  -mysqlHost " + mysqlHost +
@@ -762,7 +762,7 @@ public class FeatureMaker
             String tokenText, word;
             String name = nextToken.getLocalName();
             if (name.equals("t")){
-                if ( ( credibility = checkCredibility((Element) nextToken) ) > 0 ){
+                if ( ( credibility = checkReliability((Element) nextToken) ) > 0 ){
                     //memorize that we found unreliable sentence
                     usefulSentence = false;
                     if(credibility == 1)
@@ -822,7 +822,7 @@ public class FeatureMaker
          *         1 if the sentence contains unknownWords
          *         2 if the sentence contains strangeSymbols
          */
-        protected static int checkCredibility(Element t){
+        protected static int checkReliability(Element t){
             
             //boolean newUsefulSentence = true;
             int newUsefulSentence = 0;
