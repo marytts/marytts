@@ -244,12 +244,12 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
                     //int oldEnd = Integer.parseInt(maryxmlElement.getAttribute("end"));
                     double doubleEnd = Double.parseDouble(maryxmlElement.getAttribute("end"));
                     int oldEnd = (int)(doubleEnd * 1000);
+                    maryxmlElement.setAttribute("d", String.valueOf(unitDurationInMillis));
+                    maryxmlElement.setAttribute("end", String.valueOf(endInSeconds));
                     if (oldEnd == oldD) {
                         // start new end computation
                         endInSeconds = unitDurationInSeconds;
                     }
-                    maryxmlElement.setAttribute("d", String.valueOf(unitDurationInMillis));
-                    maryxmlElement.setAttribute("end", String.valueOf(endInMillis));
                 } else { // not a PHONE
                     assert maryxmlElement.getNodeName().equals(MaryXML.BOUNDARY);
                     maryxmlElement.setAttribute("duration", String.valueOf(unitDurationInMillis));

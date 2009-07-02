@@ -62,18 +62,27 @@ public class RealisedDurationsExtractor extends InternalModule
         float end = 0.f;
         while ((element = (Element) ni.nextNode()) != null) {
             String sampa;
-            String durString;
+            String durString = null;
+            String endString = null;
             if (element.getTagName().equals(MaryXML.PHONE)) {
                 sampa = element.getAttribute("p");
-                durString = element.getAttribute("d");
+                //durString = element.getAttribute("d"); // less accurate than end
+                endString = element.getAttribute("end");
             } else {
                 assert element.getTagName().equals(MaryXML.BOUNDARY);
                 sampa = "_";
                 durString = element.getAttribute("duration");
             }
-            if (durString != null && !durString.equals("")) {
-                float dur = Float.valueOf(durString) * 0.001f;
+            boolean printme = false;
+            if (endString != null && !endString.equals("")) {
+                end = Float.parseFloat(endString);
+                printme = true;
+            } else if (durString != null && !durString.equals("")) {
+                float dur = Float.parseFloat(durString) * 0.001f;
                 end += dur;
+                printme = true;
+            }
+            if (printme) {
                 buf.append(end + " 125 "+sampa+"\n");
             }
         }
