@@ -671,7 +671,7 @@ public class FeatureMakerMaryServer{
             String tokenText, word;
             String name = nextToken.getLocalName();
             if (name.equals("t")){
-                if ( ( credibility = checkCredibility((Element) nextToken) ) > 0 ){
+                if ( ( credibility = checkReliability((Element) nextToken) ) > 0 ){
                     //memorize that we found unreliable sentence
                     usefulSentence = false;
                     if(credibility == 1)
@@ -731,7 +731,7 @@ public class FeatureMakerMaryServer{
          *         1 if the sentence contains unknownWords
          *         2 if the sentence contains strangeSymbols
          */
-        protected static int checkCredibility(Element t){
+        protected static int checkReliability(Element t){
             
             //boolean newUsefulSentence = true;
             int newUsefulSentence = 0;
