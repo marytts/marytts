@@ -197,7 +197,15 @@ public class InfoRequestHandler extends BaseHttpRequestHandler
                         mgr = FeatureRegistry.getFeatureProcessorManager(new Locale(locale.getLanguage()));
                     }
                     if (mgr == null) {
-                        mgr = FeatureRegistry.getFallbackFeatureProcessorManager();
+                        StringBuilder localeList = new StringBuilder();
+                        for (Locale l : FeatureRegistry.getSupportedLocales()) {
+                            if (localeList.length() > 0) localeList.append(",");
+                            localeList.append(l.toString());
+                        }
+                        MaryHttpServerUtils.errorWrongQueryParameterValue(response, "locale", localeName,
+                                "The locale is not supported.<br />"
+                                +"Supported locales: <code>"+localeList+"</code>");
+                        return null;
                     }
                 }
                 if (mgr != null)
