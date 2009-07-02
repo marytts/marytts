@@ -20,10 +20,14 @@
 
 package marytts.features;
 
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 
 import marytts.modules.synthesis.Voice;
 
@@ -110,6 +114,25 @@ public class FeatureRegistry
     public static FeatureProcessorManager getFallbackFeatureProcessorManager()
     {
         return fallbackManager;
+    }
+    
+    
+    public static Collection<Locale> getSupportedLocales()
+    {
+        Collection<Locale> locales = new TreeSet<Locale>(new Comparator<Locale>() {
+            public int compare(Locale o1, Locale o2) {
+                if (o1 == null) {
+                    if (o2 == null) return 0;
+                    return -1;
+                }
+                if (o2 == null) {
+                    return 1;
+                }
+                return o1.toString().compareTo(o2.toString());
+            }
+        });
+        locales.addAll(managersByLocale.keySet());
+        return locales;
     }
 
     /**
