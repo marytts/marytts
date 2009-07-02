@@ -80,7 +80,8 @@ import com.sun.speech.freetts.Utterance;
  * @author Anna Hunecke
  *
  */
-public class FeatureMaker{
+public class FeatureMaker
+{
     // locale
     private static String locale;    // using locale we should be able to get the default voice. 
     
@@ -96,7 +97,7 @@ public class FeatureMaker{
     
 
     //if true, credibility is strict, else crebibility is lax
-	protected static boolean strictCredibility;
+	protected static boolean strictReliability;
 
     protected static int numSentences = 0;
     protected static int numUnreliableSentences = 0;
@@ -265,25 +266,25 @@ public class FeatureMaker{
 	 * Print usage of this program 
 	 *
 	 */
-	protected static void printUsage(){
-		System.out.println("\nUsage: " +
-				"java FeatureMakerMaryServer -locale language -mysqlHost host -mysqlUser user\n" +
+    protected static void printUsage(){
+        System.out.println("\nUsage: " +
+                "java FeatureMakerMaryServer -locale language -mysqlHost host -mysqlUser user\n" +
                 "                 -mysqlPasswd passwd -mysqlDB wikiDB\n" +
-                "                 [-maryHost localhost -maryPort 59125 -strictCredibility strict]\n" +
+                "                 [-maryHost localhost -maryPort 59125 -reliability strict]\n" +
                 "                 [-featuresForSelection phone,next_phone,selection_prosody]\n\n" +
                 "  required: This program requires a MARY server running and an already created cleanText table in the DB. \n" +
                 "            The cleanText table can be created with the WikipediaProcess program. \n" +
                 "  default/optional: [-maryHost localhost -maryPort 59125]\n" +
                 "  default/optional: [-featuresForSelection phone,next_phone,selection_prosody] (features separated by ,) \n" +
                 "  optional: [-reliability [strict|lax]]\n\n" +
-            	"  -strictCredibility: setting that determines what kind of sentences \n" +
-				"  are regarded as credible. There are two settings: strict and lax. With \n" +
-				"  setting strict (default), only those sentences that contain words in the lexicon \n" +
-				"  or words that were transcribed by the preprocessor are regarded as credible; \n" +
-				"  the other sentences as unreliable. With setting lax, also those words that \n" +
-				"  are transcribed with the Denglish and the compound module are regarded as credible. \n\n");
+                "  -reliability: setting that determines what kind of sentences \n" +
+                "  are regarded as credible. There are two settings: strict and lax. With \n" +
+                "  setting strict, only those sentences that contain words in the lexicon \n" +
+                "  or words that were transcribed by the preprocessor can be selected for the synthesis script; \n" +
+                "  the other sentences as unreliable. With setting lax (default), also those words that \n" +
+                "  are transcribed with the letter to sound component can be selected. \n\n");
                 
-	}
+    }
 	
    private static void printParameters(){
         System.out.println("FeatureMakerMaryServer parameters:" +
@@ -294,10 +295,10 @@ public class FeatureMaker{
         "\n  -mysqlPasswd " + mysqlPasswd +
         "\n  -mysqlDB " + mysqlDB);
         
-        if( strictCredibility )
-          System.out.println("  -strictCredibility true");
+        if( strictReliability )
+          System.out.println("  -reliability strict");
         else
-          System.out.println("  -strictCredibility false");  
+          System.out.println("  -reliability lax");  
        
         System.out.print("  -featuresForselection ");
         int i=0;
@@ -316,7 +317,7 @@ public class FeatureMaker{
 	protected static boolean readArgs(String[] args){
 		//initialise default values	
         locale = null;
-		strictCredibility = true;
+		strictReliability = false; // per default, allow system to select sentences with unknown words
         featDef = null;
         selectionFeature = new Vector<String>();
         selectionFeature.add("phone");
@@ -333,12 +334,12 @@ public class FeatureMaker{
             else if (args[i].equals("-reliability") && args.length>=i+1){
 			  String credibilitySetting = args[++i];
 			  if (credibilitySetting.equals("strict"))
-				strictCredibility = true;
+				strictReliability = true;
 			  else {
 				if (credibilitySetting.equals("lax"))
-					strictCredibility = false;
+					strictReliability = false;
 			    else 
-				  System.out.println("Unknown argument for credibility " +credibilitySetting);
+				  System.out.println("Unknown argument for reliability " +credibilitySetting);
 			  }
             }
             
@@ -832,7 +833,7 @@ public class FeatureMaker{
                     //check method of transcription
                     String method = t.getAttribute("g2p_method");
                     if (!method.equals("lexicon") && !method.equals("userdict") ){ 
-                        if (strictCredibility){
+                        if (strictReliability){
                             //method other than lexicon or userdict -> unreliable
                             newUsefulSentence = 1;
                             //System.out.println("  unknownwords: method other than lexicon or userdict -> unreliable");

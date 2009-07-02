@@ -354,7 +354,7 @@ public class DatabaseSelector
         mysqlPasswd = null;
         selectedSentencesTableName = null;
         tableDescription = "";
-        considerOnlyReliableSentences = false;
+        considerOnlyReliableSentences = true;
         
         int i=0;
         int numEssentialArgs = 0;
@@ -578,6 +578,9 @@ public class DatabaseSelector
                 i++;
                 continue;
             }
+            /* It is currently not possible to use unreliable sentences.
+             * The place where this can be influenced is the FeatureMaker,
+             * in its setting ""
             if (args[i].equals("-reliableOnly")) { // optionally, request that only "reliable" sentences be used in selection
                 considerOnlyReliableSentences = true;
                 log.append("using only reliable sentences\n");
@@ -585,6 +588,7 @@ public class DatabaseSelector
                 i++;
                 continue;
             }
+            */
             i++;
         }
         System.out.println();
