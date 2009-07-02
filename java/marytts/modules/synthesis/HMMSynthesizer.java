@@ -292,9 +292,9 @@ public class HMMSynthesizer implements WaveformSynthesizer {
       NamedNodeMap att;
       Scanner s = null;
       Vector<String> ph = new Vector<String>();
-      Vector<Integer> dur = new Vector<Integer>();
+      Vector<Integer> dur = new Vector<Integer>(); // individual durations, in millis
       String line, str[];
-      Integer totalDur = 0;
+      float totalDur = 0f; // total duration, in seconds 
 
       s = new Scanner(durations).useDelimiter("\n");
       while(s.hasNext()) {
@@ -319,16 +319,23 @@ public class HMMSynthesizer implements WaveformSynthesizer {
              while ((phone = (Element) nIt.nextNode()) != null) {
                  String p = phone.getAttribute("p");
                  index = ph.indexOf(p);
-                 phone.setAttribute("d", dur.elementAt(index).toString());
-                 phone.setAttribute("end", totalDur.toString());
+                 int currentDur = dur.elementAt(index);
+                 totalDur += currentDur * 0.001f;
+                 phone.setAttribute("d", String.valueOf(currentDur));
+                 phone.setAttribute("end", String.valueOf(totalDur));
                  // remove this element of the vector otherwise next time it will return the same
                  ph.set(index, "");
              }
          } else if( e.getTagName().contentEquals(MaryXML.BOUNDARY) ) {
-             if(e.hasAttribute("duration")) {
+             int breakindex = 0;
+             try {
+                 breakindex = Integer.parseInt(e.getAttribute("breakindex"));
+             } catch (NumberFormatException nfe) {}
+             if(e.hasAttribute("duration") || breakindex >= 3) {
                index = ph.indexOf("_");  
-               totalDur = totalDur + dur.elementAt(index);
-               e.setAttribute("duration", dur.elementAt(index).toString());   
+               int currentDur = dur.elementAt(index);
+               totalDur += currentDur * 0.001f;
+               e.setAttribute("duration", String.valueOf(currentDur));   
                // remove this element of the vector otherwise next time it will return the same
                ph.set(index, "");
              }
