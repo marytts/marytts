@@ -29,6 +29,14 @@
 
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import marytts.util.math.ArrayUtils;
 
 
@@ -38,8 +46,10 @@ import marytts.util.math.ArrayUtils;
  */
 public class HntmSpeechSignal {
     public HntmSpeechFrame[] frames;
-    public float originalDurationInSeconds;
+    
     public int samplingRateInHz;
+    
+    public float originalDurationInSeconds;
     public float windowDurationInSecondsNoise;
     public float preCoefNoise;
     public float f0WindowDurationInSeconds;
@@ -52,18 +62,85 @@ public class HntmSpeechSignal {
         if (totalFrm>0)
         {
             frames =  new HntmSpeechFrame[totalFrm];
-            for (int i=00; i<totalFrm; i++)
+            for (int i=0; i<totalFrm; i++)
                 frames[i] = new HntmSpeechFrame();
         }
         else
             frames = null;
         
         this.samplingRateInHz = samplingRateInHz;
+        
         this.originalDurationInSeconds = originalDurationInSeconds;
         this.windowDurationInSecondsNoise = windowDurationInSecondsNoise;
         this.preCoefNoise = preCoefNoise;
         this.f0WindowDurationInSeconds = f0WindowDurationInSeconds;
         this.f0SkipSizeInSeconds = f0SkipSizeInSeconds;
+    }
+    
+    public HntmSpeechSignal(String binaryFile, int noiseModel)
+    {
+        try {
+            read(binaryFile, noiseModel);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+    
+    public void write(String binaryFile) throws IOException
+    {
+        DataOutputStream d = new DataOutputStream(new FileOutputStream(new File(binaryFile)));
+        
+        write(d);
+    }
+    
+    public void write(DataOutputStream d) throws IOException
+    {
+        int totalFrm = 0;
+        if (frames!=null && frames.length>0)
+            totalFrm = frames.length;
+        
+        d.writeInt(totalFrm);
+        
+        if (totalFrm>0)
+        {
+            for (int i=0; i<totalFrm; i++)
+                frames[i].write(d);
+        }
+        
+        d.writeInt(samplingRateInHz);
+        
+        d.writeFloat(originalDurationInSeconds);
+        d.writeFloat(windowDurationInSecondsNoise);
+        d.writeFloat(preCoefNoise);
+        d.writeFloat(f0WindowDurationInSeconds);
+        d.writeFloat(f0SkipSizeInSeconds);
+    }
+    
+    public void read(String binaryFile, int noiseModel) throws IOException
+    {
+        DataInputStream d = new DataInputStream(new FileInputStream(new File(binaryFile)));
+        
+        read(d, noiseModel);
+    }
+    
+    public void read(DataInputStream d, int noiseModel) throws IOException
+    {
+        int totalFrm = d.readInt();
+        
+        if (totalFrm>0)
+        {
+            for (int i=0; i<totalFrm; i++)
+                frames[i] = new HntmSpeechFrame(d, noiseModel);
+        }
+        
+        samplingRateInHz = d.readInt();
+        
+        originalDurationInSeconds = d.readFloat();
+        windowDurationInSecondsNoise = d.readFloat();
+        preCoefNoise = d.readFloat();
+        f0WindowDurationInSeconds = d.readFloat();
+        f0SkipSizeInSeconds = d.readFloat();
     }
     
     public float[] getAnalysisTimes()

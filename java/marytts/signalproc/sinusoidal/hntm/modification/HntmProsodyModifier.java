@@ -39,6 +39,7 @@ import marytts.signalproc.analysis.RegularizedPreWarpedCepstrumEstimator;
 import marytts.signalproc.process.TDPSOLAInstants;
 import marytts.signalproc.process.TDPSOLAProcessor;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerNoisePartWaveformSynthesizer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmPlusTransientsSpeechSignal;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
@@ -46,6 +47,8 @@ import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.sinusoidal.hntm.analysis.TransientSegment;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizedSignal;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizer;
+import marytts.signalproc.sinusoidal.hntm.synthesis.NoisePartWaveformSynthesizer;
+import marytts.signalproc.window.Window;
 import marytts.util.MaryUtils;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexNumber;
@@ -61,7 +64,7 @@ public class HntmProsodyModifier {
     //Note that pmodParams are changed as well
     public static HntmSpeechSignal modify(HntmSpeechSignal hntmSignal, 
                                           BasicProsodyModifierParams pmodParams, 
-                                          HntmAnalyzerParams params)
+                                          HntmAnalyzerParams analysisParams)
     {
         int i, j;    
         int currentHarmonicNo;
@@ -267,8 +270,8 @@ public class HntmProsodyModifier {
             else
             {
                 hntmSignalMod = new HntmSpeechSignal(hntmSignal.frames.length, hntmSignal.samplingRateInHz, hntmSignal.originalDurationInSeconds, 
-                        hntmSignal.f0WindowDurationInSeconds, hntmSignal.f0SkipSizeInSeconds,
-                        hntmSignal.windowDurationInSecondsNoise, hntmSignal.preCoefNoise);
+                                                     hntmSignal.f0WindowDurationInSeconds, hntmSignal.f0SkipSizeInSeconds,
+                                                     hntmSignal.windowDurationInSecondsNoise, hntmSignal.preCoefNoise);
             }
             //
 
@@ -280,7 +283,7 @@ public class HntmProsodyModifier {
             }
 
             hntmSignalMod.originalDurationInSeconds = SignalProcUtils.timeScaledTime(hntmSignal.originalDurationInSeconds, tScalesMod, tScalesTimesMod);
-             */
+            */
 
             float[] tAnalysis = new float[hntmSignal.frames.length+1];
             for (i=0; i<hntmSignal.frames.length; i++)
@@ -297,7 +300,7 @@ public class HntmProsodyModifier {
             vuvs[hntmSignal.frames.length] = vuvs[hntmSignal.frames.length-1];
 
             TDPSOLAInstants synthesisInstants = TDPSOLAProcessor.transformAnalysisInstants(tAnalysis, hntmSignal.samplingRateInHz, vuvs, tScalesMod, pScalesMod);
-
+            
             //Time scaling
             hntmSignalMod.frames = new HntmSpeechFrame[synthesisInstants.synthesisInstantsInSeconds.length];
             int currentSynthesisIndex = 0;
@@ -326,6 +329,97 @@ public class HntmProsodyModifier {
             }
 
             hntmSignalMod.originalDurationInSeconds = hntmSignalMod.frames[hntmSignalMod.frames.length-1].tAnalysisInSeconds;
+            
+            //Time scale noise part if it is based on any waveform representation
+            if (analysisParams.noiseModel==HntmAnalyzerParams.WAVEFORM ||
+                analysisParams.noiseModel==HntmAnalyzerParams.VOICEDNOISE_LPC_UNVOICEDNOISE_WAVEFORM ||
+                analysisParams.noiseModel==HntmAnalyzerParams.UNVOICEDNOISE_LPC_VOICEDNOISE_WAVEFORM)
+            {   
+                //Synthesize original noise waveform
+                double[] noisePartWaveform = NoisePartWaveformSynthesizer.synthesize(hntmSignal);
+                
+                //Time scale noise waveform using TD-PSOLA
+                int noiseWaveformLenMod = SignalProcUtils.time2sample(hntmSignalMod.originalDurationInSeconds, hntmSignalMod.samplingRateInHz);
+                double[] noisePartWaveformMod = new double[noiseWaveformLenMod];
+                double[] winWgtSum = new double[noiseWaveformLenMod];
+                Arrays.fill(noisePartWaveformMod, 0.0);
+                Arrays.fill(winWgtSum, 0.0);
+                Window winNoise = null;
+                double[] wgt = null;
+                int wsNoise, halfWsNoise;
+                int analysisStartInd, analysisEndInd;
+                int synthesisMidInd, synthesisStartInd, synthesisEndInd;
+                currentSynthesisIndex = 0;
+                bBroke = false;                
+
+                int k, kStart;
+                boolean invert = false;
+                for (i=1; i<synthesisInstants.repeatSkipCounts.length-1; i++) //TO DO: handle first and last noise wwaform frames
+                {
+                    for (j=0; j<=synthesisInstants.repeatSkipCounts[i]; j++)
+                    {
+                        analysisStartInd = SignalProcUtils.time2sample(hntmSignal.frames[i-1].tAnalysisInSeconds, hntmSignal.samplingRateInHz);
+                        if (i<hntmSignal.frames.length-1)
+                            analysisEndInd = SignalProcUtils.time2sample(hntmSignal.frames[i+1].tAnalysisInSeconds, hntmSignal.samplingRateInHz);
+                        else
+                            analysisEndInd = noisePartWaveform.length-1;
+
+                        wsNoise = analysisEndInd-analysisStartInd+1;
+                        if (wsNoise>0)
+                        {
+                            halfWsNoise = (int)Math.floor(0.5*wsNoise+0.5);
+
+                            winNoise = Window.get(analysisParams.harmonicAnalysisWindowType, wsNoise);
+                            wgt = winNoise.getCoeffs(); 
+
+                            synthesisMidInd = SignalProcUtils.time2sample(hntmSignalMod.frames[currentSynthesisIndex].tAnalysisInSeconds, hntmSignalMod.samplingRateInHz);
+                            synthesisStartInd = synthesisMidInd - halfWsNoise;
+                            synthesisEndInd = synthesisStartInd + wsNoise - 1;
+
+                            kStart = Math.max(0, synthesisStartInd);
+                            
+                            if (!invert)
+                            {
+                                for (k=kStart; k<=Math.min(synthesisEndInd, noiseWaveformLenMod-1); k++)
+                                {
+                                    noisePartWaveformMod[k] += noisePartWaveform[k-kStart+analysisStartInd]*wgt[k-kStart];
+                                    winWgtSum[k] += wgt[k-kStart];
+                                }
+                            }
+                            else
+                            {
+                                for (k=kStart; k<=Math.min(synthesisEndInd, noiseWaveformLenMod-1); k++)
+                                {
+                                    noisePartWaveformMod[k] += noisePartWaveform[analysisEndInd-(k-kStart)]*wgt[k-kStart];
+                                    winWgtSum[k] += wgt[k-kStart];
+                                }
+                            }
+                        }
+                        
+                        currentSynthesisIndex++;
+                        invert = !invert;
+
+                        if (currentSynthesisIndex>=hntmSignalMod.frames.length)
+                        {
+                            bBroke = true;
+                            break;
+                        }
+                    }
+
+                    if (bBroke)
+                        break;
+                }
+                
+                for (i=0; i<winWgtSum.length; i++)
+                {
+                    if (winWgtSum[i]>0.0)
+                        noisePartWaveformMod[i] /= winWgtSum[i];
+                }
+                
+                HntmAnalyzer.packNoisePartWaveforms(hntmSignalMod, noisePartWaveformMod);
+            }
+            //
+            
             
             //NOT EFFECTIVE SINCE we do not use the newPhases!
             //Synthesis uses complexAmps only!
@@ -366,8 +460,8 @@ public class HntmProsodyModifier {
 
                     if (isVoiced)
                     {
-                        if (!params.useHarmonicAmplitudesDirectly)
-                            currentCeps = hntmSignalMod.frames[i].h.getCeps(hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz, params);
+                        if (!analysisParams.useHarmonicAmplitudesDirectly)
+                            currentCeps = hntmSignalMod.frames[i].h.getCeps(hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz, analysisParams);
                         
                         pScaleInd = MathUtils.findClosest(allScalesTimes, hntmSignalMod.frames[i].tAnalysisInSeconds);
                         pScale = pScalesMod[pScaleInd];
@@ -383,11 +477,11 @@ public class HntmProsodyModifier {
                             {
                                 currentHarmonicNo = (k+1);
 
-                                if (!params.useHarmonicAmplitudesDirectly)
+                                if (!analysisParams.useHarmonicAmplitudesDirectly)
                                 {
-                                    if (params.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
+                                    if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
                                         amps[k] = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz);
-                                    else if (params.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
+                                    else if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
                                         amps[k] = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz);
                                 }
                                 else
@@ -424,18 +518,18 @@ public class HntmProsodyModifier {
                             harmonicEnergyMod = 0.0f;
                             double[] ampsMod = new double[newTotalHarmonics];
                             
-                            if (!params.useHarmonicAmplitudesDirectly)
-                                currentCeps = hntmSignalMod.frames[i].h.getCeps(hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz, params);
+                            if (!analysisParams.useHarmonicAmplitudesDirectly)
+                                currentCeps = hntmSignalMod.frames[i].h.getCeps(hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz, analysisParams);
                             
                             for (k=0; k<newTotalHarmonics; k++)
                             {
                                 currentHarmonicNo = (k+1);
 
-                                if (!params.useHarmonicAmplitudesDirectly)
+                                if (!analysisParams.useHarmonicAmplitudesDirectly)
                                 {
-                                    if (params.regularizedCepstrumWarpingMethod == RegularizedPreWarpedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
+                                    if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedPreWarpedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
                                         ampsMod[k] = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz);
-                                    else if (params.regularizedCepstrumWarpingMethod == RegularizedPostWarpedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
+                                    else if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedPostWarpedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
                                         ampsMod[k] = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*hntmSignalMod.frames[i].f0InHz, hntmSignalMod.samplingRateInHz);
                                 }
                                 else

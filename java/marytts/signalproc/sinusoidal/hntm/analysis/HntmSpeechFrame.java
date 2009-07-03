@@ -41,7 +41,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
     public float f0InHz;
     public float maximumFrequencyOfVoicingInHz; //If 0.0, then the frame is unvoiced
     public float tAnalysisInSeconds; //Difference between middle of analysis current frame and previous analysis frame in seconds
-
+    
     public HntmSpeechFrame()
     {
         this(0.0f);
@@ -59,6 +59,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
     public HntmSpeechFrame(HntmSpeechFrame existing)
     {
         h = new FrameHarmonicPart(existing.h);
+        
         if (existing.n instanceof FrameNoisePartLpc)
             n = new FrameNoisePartLpc((FrameNoisePartLpc)existing.n);
         else if (existing.n instanceof FrameNoisePartPseudoHarmonic)
@@ -71,13 +72,13 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         tAnalysisInSeconds = existing.tAnalysisInSeconds;   
     }
     
-    public HntmSpeechFrame(DataInputStream dis, int noiseModel ) throws IOException, EOFException
+    public HntmSpeechFrame(DataInputStream dis, int noiseModel) throws IOException, EOFException
     {
         f0InHz = dis.readFloat();
         maximumFrequencyOfVoicingInHz = dis.readFloat();
         tAnalysisInSeconds = dis.readFloat();
         h = new FrameHarmonicPart(dis);
-        
+
         if (noiseModel==HntmAnalyzerParams.LPC)
             n = new FrameNoisePartLpc(dis);
         else if (noiseModel==HntmAnalyzerParams.PSEUDO_HARMONIC)

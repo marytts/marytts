@@ -4648,6 +4648,46 @@ public class MathUtils {
         return bRet;
     }
     
+    public static double[] doubleRange2ByteRange(double[] x)
+    {
+        return doubleRange2ByteRange(x, -32768.0, 32767.0);
+    }
+    
+    public static double[] doubleRange2ByteRange(double[] x, double doubleMin, double doubleMax)
+    {
+        return MathUtils.multiply(x, 256.0/(doubleMax-doubleMin));
+    }
+    
+    public static double[] byteRange2DoubleRange(double[] x)
+    {
+        return byteRange2DoubleRange(x, -32768.0, 32767.0);
+    }
+    
+    public static double[] byteRange2DoubleRange(double[] x, double doubleMin, double doubleMax)
+    {
+        return MathUtils.multiply(x, (doubleMax-doubleMin)/256.0);
+    }
+    
+    public static float[] floatRange2ByteRange(float[] x)
+    {
+        return floatRange2ByteRange(x, -32768.0f, 32767.0f);
+    }
+    
+    public static float[] floatRange2ByteRange(float[] x, float floatMin, float floatMax)
+    {
+        return MathUtils.multiply(x, 256.0f/(floatMax-floatMin));
+    }
+    
+    public static float[] byteRange2FloatRange(float[] x)
+    {
+        return byteRange2FloatRange(x, -32768.0f, 32767.0f);
+    }
+    
+    public static float[] byteRange2FloatRange(float[] x, float floatMin, float floatMax)
+    {
+        return MathUtils.multiply(x, (floatMax-floatMin)/256.0f);
+    }
+    
     public static void main(String[] args)
     {
         ComplexNumber[][] x1 = new ComplexNumber[2][2];

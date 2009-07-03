@@ -161,7 +161,7 @@ public class HnmPitchVoicingAnalyzer {
         return initialF0s;
     }
     
-    public static  float[] analyzeVoicings(double[] x, int samplingRate, float[] initialF0s, HnmPitchVoicingAnalyzerParams params) 
+    public static  float[] analyzeVoicings(double[] x, int samplingRate, float[] initialF0s, HnmPitchVoicingAnalyzerParams params, boolean isSilentAnalysis) 
     {
         //First remove dc-bias and normalize signal energy
         //MaryUtils.plot(x);
@@ -260,16 +260,19 @@ public class HnmPitchVoicingAnalyzer {
                 if (i>=2)
                     prevPrevMaxFreqVoicing = maxFrequencyOfVoicings[i-2];
                                                                         
-                vo = estimateMaxFrequencyOfVoicingsFrame(YAbsDB, samplingRate, mappedF0s[i], isVoiced, prevMaxFreqVoicing, prevPrevMaxFreqVoicing, params);
+                vo = estimateMaxFrequencyOfVoicingsFrame(YAbsDB, samplingRate, mappedF0s[i], isVoiced, prevMaxFreqVoicing, prevPrevMaxFreqVoicing, params, isSilentAnalysis);
                 maxFrequencyOfVoicings[i] = vo.maxFreqOfVoicing;
             }
             else
                 maxFrequencyOfVoicings[i] = 0.0f;
             
-            if (isVoiced)
-                System.out.println("Time=" + String.valueOf(currentTime)+ " sec." + " f0=" + String.valueOf(mappedF0s[i]) + " Hz." + " Voiced" + " MaxVFreq=" + String.valueOf(maxFrequencyOfVoicings[i]));
-            else
-                System.out.println("Time=" + String.valueOf(currentTime)+ " sec." + " f0=" + String.valueOf(mappedF0s[i]) + " Hz." + " Unvoiced" + " MaxVFreq=" + String.valueOf(maxFrequencyOfVoicings[i]));
+            if (!isSilentAnalysis)
+            {
+                if (isVoiced)
+                    System.out.println("Time=" + String.valueOf(currentTime)+ " sec." + " f0=" + String.valueOf(mappedF0s[i]) + " Hz." + " Voiced" + " MaxVFreq=" + String.valueOf(maxFrequencyOfVoicings[i]));
+                else
+                    System.out.println("Time=" + String.valueOf(currentTime)+ " sec." + " f0=" + String.valueOf(mappedF0s[i]) + " Hz." + " Unvoiced" + " MaxVFreq=" + String.valueOf(maxFrequencyOfVoicings[i]));
+            }
         }
         
         //MaryUtils.plot(maxFrequencyOfVoicings);
@@ -505,12 +508,12 @@ public class HnmPitchVoicingAnalyzer {
     
     public static VoicingAnalysisOutputData estimateMaxFrequencyOfVoicingsFrame(double[] absDBSpec, int samplingRate, float f0, boolean isVoiced, HnmPitchVoicingAnalyzerParams params)
     {
-        return estimateMaxFrequencyOfVoicingsFrame(absDBSpec, samplingRate, f0, isVoiced, -1.0f, -1.0f, params);
+        return estimateMaxFrequencyOfVoicingsFrame(absDBSpec, samplingRate, f0, isVoiced, -1.0f, -1.0f, params, false);
     }
     
     public static VoicingAnalysisOutputData estimateMaxFrequencyOfVoicingsFrame(double[] absDBSpec, int samplingRate, float f0, boolean isVoiced,
                                                                                 float prevMaxFreqVoicing, float prevPrevMaxFreqVoicing,
-                                                                                HnmPitchVoicingAnalyzerParams params)
+                                                                                HnmPitchVoicingAnalyzerParams params, boolean isSilentAnalysis)
     {  
         //double[] ampSpec = MathUtils.db2amp(absDBSpec);
         VoicingAnalysisOutputData output = new VoicingAnalysisOutputData();
@@ -747,7 +750,8 @@ public class HnmPitchVoicingAnalyzer {
         //for (i=0; i<voiceds.length; i++)
         //    System.out.println(String.valueOf(voiceds[i]) + " " + String.valueOf(vals1[i]) + " " + String.valueOf(vals2[i]) + " " + String.valueOf(vals3[i]) + " ");
         
-        System.out.println("Max req of voicing=" + String.valueOf(output.maxFreqOfVoicing));
+        if (!isSilentAnalysis)
+            System.out.println("Max freq of voicing=" + String.valueOf(output.maxFreqOfVoicing));
         
         //MaryUtils.plot(absDBSpec);
         //MaryUtils.plot(runningMeans);
@@ -915,7 +919,7 @@ public class HnmPitchVoicingAnalyzer {
         params.fftSize = getDefaultFFTSize(samplingRate);
 
         float[] initialF0s = HnmPitchVoicingAnalyzer.estimateInitialPitch(x, samplingRate, f0MinInHz, f0MaxInHz, windowType, params);
-        float[] maxFrequencyOfVoicings = HnmPitchVoicingAnalyzer.analyzeVoicings(x, samplingRate, initialF0s, params);
+        float[] maxFrequencyOfVoicings = HnmPitchVoicingAnalyzer.analyzeVoicings(x, samplingRate, initialF0s, params, false);
         float[] f0s = HnmPitchVoicingAnalyzer.estimateRefinedPitch(params.fftSize, samplingRate, leftNeighInHz, rightNeighInHz, searchStepInHz, initialF0s, maxFrequencyOfVoicings);
         
         for (int i=0; i<f0s.length; i++)

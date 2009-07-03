@@ -99,9 +99,8 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
         double phaseki;
         double phasekiPlusOne;
 
-        float f0InHzPrev, f0InHz, f0InHzNext;
+        float f0InHz, f0InHzNext;
         float f0Average, f0AverageNext;
-        f0InHzPrev = 0.0f;
         double ht;
         double phasekt = 0.0;
 
@@ -117,14 +116,22 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
         
         //Write separate tracks to output
         double[][] harmonicTracks = null;
+        double[][] winOverlapWgt = null;
 
         if (maxNumHarmonics>0)
         {
             harmonicTracks = new double[maxNumHarmonics][];
+            winOverlapWgt = new double[maxNumHarmonics][];
             for (k=0; k<maxNumHarmonics; k++)
             {
                 harmonicTracks[k] = new double[outputLen];
                 Arrays.fill(harmonicTracks[k], 0.0);
+                
+                if (synthesisParams.overlappingHarmonicPartSynthesis)
+                {
+                    winOverlapWgt[k] = new double[outputLen];
+                    Arrays.fill(winOverlapWgt[k], 0.0);
+                }
             }
         }
         //
@@ -139,6 +146,8 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
 
         float[] currentCeps = null;
         float[] nextCeps = null;
+        
+        double currentOverlapWinWgt;
         
         for (i=0; i<hnmSignal.frames.length; i++)
         {
@@ -163,11 +172,6 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                 numHarmonicsCurrentFrame = 0;
             
             f0InHz = hnmSignal.frames[i].f0InHz;
-            
-            if (i>0)
-                f0InHzPrev = hnmSignal.frames[i-1].f0InHz;
-            else
-                f0InHzPrev = f0InHz;
             
             if (isNextVoiced)
                 f0InHzNext = hnmSignal.frames[i+1].f0InHz;
@@ -221,13 +225,36 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                     tsikPlusOne = hnmSignal.frames[i+1].tAnalysisInSeconds;
 
                 trackEndInSeconds = tsikPlusOne;
+                
+                if (synthesisParams.overlappingHarmonicPartSynthesis)
+                {
+                    trackStartInSeconds -= synthesisParams.harmonicSynthesisOverlapInSeconds;
+                    trackEndInSeconds += synthesisParams.harmonicSynthesisOverlapInSeconds;
+                }
 
                 trackStartIndex = SignalProcUtils.time2sample(trackStartInSeconds, hnmSignal.samplingRateInHz);
                 trackEndIndex = SignalProcUtils.time2sample(trackEndInSeconds, hnmSignal.samplingRateInHz);
 
+                if (!synthesisParams.overlappingHarmonicPartSynthesis)
+                {
+                    if (!isPrevTrackVoiced)
+                        trackStartIndex -= transitionLen;
+                    if (!isNextTrackVoiced)
+                        trackEndIndex += transitionLen;
+                }
+                
+                Window overlapWin = null;
+                double[] overlapWinWgt = null;
+                if (synthesisParams.overlappingHarmonicPartSynthesis)
+                {
+                    overlapWin = Window.get(Window.HAMMING, trackEndIndex-trackStartIndex+1);
+                    overlapWin.normalizePeakValue(1.0f);
+                    overlapWinWgt = overlapWin.getCoeffs();
+                }
+                
                 if (isTrackVoiced && trackEndIndex-trackStartIndex+1>0)
                 {
-                    //Amplitudes     
+                    //Amplitudes                       
                     if (isTrackVoiced)
                     {
                         if (!analysisParams.useHarmonicAmplitudesDirectly)
@@ -302,11 +329,6 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                     
                     Mk = (int)Math.floor((phasekiPlusOneEstimate-phasekiPlusOne)/MathUtils.TWOPI + 0.5);
                     //
-                    
-                    if (!isPrevTrackVoiced)
-                        trackStartIndex -= transitionLen;
-                    if (!isNextTrackVoiced)
-                        trackEndIndex += transitionLen;
 
                     for (n=Math.max(0, trackStartIndex); n<=Math.min(trackEndIndex, outputLen-1); n++)
                     {
@@ -321,19 +343,26 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                                 akt = MathUtils.interpolatedSample(tsikPlusOne, t, tsikPlusOne+synthesisParams.unvoicedVoicedTrackTransitionInSeconds, aksiPlusOne, 0.0);
                             else
                                 akt = MathUtils.interpolatedSample(tsik, t, tsikPlusOne, aksi, aksiPlusOne);
-                            //akt = 1.0;
                             //
 
                             //Phase estimate
                             phasekt = phaseki + (phasekiPlusOne+MathUtils.TWOPI*Mk-phaseki)*(t-tsik)/(tsikPlusOne-tsik);
                             //
    
-                            if (!isPrevTrackVoiced && n-trackStartIndex<transitionLen)
-                                harmonicTracks[k][n] = halfTransitionWinLeft[n-trackStartIndex]*akt*Math.cos(phasekt);
-                            else if (!isNextTrackVoiced && trackEndIndex-n<transitionLen)
-                                harmonicTracks[k][n] = halfTransitionWinRight[transitionLen-(trackEndIndex-n)-1]*akt*Math.cos(phasekt);
+                            if (synthesisParams.overlappingHarmonicPartSynthesis)
+                            {
+                                currentOverlapWinWgt = overlapWinWgt[n-Math.max(0, trackStartIndex)];
+                                winOverlapWgt[k][n] += currentOverlapWinWgt;
+                            }
                             else
-                                harmonicTracks[k][n] = akt*Math.cos(phasekt);
+                                currentOverlapWinWgt = 1.0;
+                            
+                            if (!isPrevTrackVoiced && n-trackStartIndex<transitionLen)
+                                harmonicTracks[k][n] = currentOverlapWinWgt*halfTransitionWinLeft[n-trackStartIndex]*akt*Math.cos(phasekt);
+                            else if (!isNextTrackVoiced && trackEndIndex-n<transitionLen)
+                                harmonicTracks[k][n] = currentOverlapWinWgt*halfTransitionWinRight[transitionLen-(trackEndIndex-n)-1]*akt*Math.cos(phasekt);
+                            else
+                                harmonicTracks[k][n] = currentOverlapWinWgt*akt*Math.cos(phasekt);
                         }
                     } 
                 }
@@ -342,13 +371,28 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
         
         if (harmonicTracks!=null)
         {
-            for (k=0; k<harmonicTracks.length; k++)
+            if (!synthesisParams.overlappingHarmonicPartSynthesis)
             {
-                for (n=0; n<harmonicPart.length; n++)
-                    harmonicPart[n] += harmonicTracks[k][n];
+                for (k=0; k<harmonicTracks.length; k++)
+                {
+                    for (n=0; n<harmonicPart.length; n++)
+                        harmonicPart[n] += harmonicTracks[k][n];
+                }
             }
-
-   
+            else
+            {
+                for (k=0; k<harmonicTracks.length; k++)
+                {
+                    for (n=0; n<harmonicPart.length; n++)
+                    {
+                        if (winOverlapWgt[k][n]>0.0f)
+                            harmonicPart[n] += harmonicTracks[k][n]/winOverlapWgt[k][n];
+                        else
+                            harmonicPart[n] += harmonicTracks[k][n];
+                    }
+                }
+            }
+            
             if (referenceFile!=null && FileUtils.exists(referenceFile) && synthesisParams.writeSeparateHarmonicTracksToOutputs)
             {
                 //Write separate tracks to output

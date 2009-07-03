@@ -67,6 +67,9 @@ public class HntmSynthesizerParams {
     
     public boolean applyVocalTractPostNormalizationProcessor; 
     
+    public boolean overlappingHarmonicPartSynthesis;
+    public float harmonicSynthesisOverlapInSeconds;
+    
     public HntmSynthesizerParams()
     {
         harmonicPartSynthesisMethod = LINEAR_PHASE_INTERPOLATION; 
@@ -99,6 +102,9 @@ public class HntmSynthesizerParams {
         writeOriginalMinusHarmonicPartToSeparateFile = true;
         
         applyVocalTractPostNormalizationProcessor = false; 
+        
+        overlappingHarmonicPartSynthesis = false;
+        harmonicSynthesisOverlapInSeconds = 0.020f;
     }
     
     public HntmSynthesizerParams(HntmSynthesizerParams existing)
@@ -128,6 +134,9 @@ public class HntmSynthesizerParams {
         writeOriginalMinusHarmonicPartToSeparateFile = existing.writeOriginalMinusHarmonicPartToSeparateFile;
         
         applyVocalTractPostNormalizationProcessor = existing.applyVocalTractPostNormalizationProcessor; 
+        
+        overlappingHarmonicPartSynthesis = existing.overlappingHarmonicPartSynthesis;
+        harmonicSynthesisOverlapInSeconds = existing.harmonicSynthesisOverlapInSeconds;
     }
 
 }
