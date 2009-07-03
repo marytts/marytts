@@ -150,6 +150,10 @@ public class HnmTimelineMaker extends VoiceImportComponent
         /* Prepare the output directory for the timelines if it does not exist */
         File timelineDir = new File(db.getProp(db.FILEDIR));
         
+        File ptcDir = new File(db.getProp(db.PTCDIR));
+        if (!ptcDir.exists()) {
+            ptcDir.mkdir();
+        }
         
         try{
             /* 1) Determine the reference sampling rate as being the sample rate of the first encountered
