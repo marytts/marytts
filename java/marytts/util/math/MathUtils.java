@@ -1426,6 +1426,11 @@ public class MathUtils {
                 assert colSizex==rowSizey;
 
                 z = new ComplexNumber[rowSizex][colSizey];
+               
+                /** Marc Schröder, 3 July 2009: The following implementation used up
+                 * about 93% of total processing time. Replacing it with a less elegant
+                 * but more efficient implementation:
+                
                 ComplexNumber tmpSum;
                 for (i=0; i<rowSizex; i++)
                 {
@@ -1436,6 +1441,23 @@ public class MathUtils {
                             tmpSum = addComplex(tmpSum, multiplyComplex(x[i][m],y[m][j]));
 
                         z[i][j] = new ComplexNumber(tmpSum);
+                    }
+                }
+                 */
+                
+                for (i=0; i<rowSizex; i++)
+                {
+                    for (j=0; j<colSizey; j++)
+                    {
+                        float real = 0f, imag = 0f;
+                        for (m=0; m<x[i].length; m++) {
+                            ComplexNumber x1 = x[i][m];
+                            ComplexNumber x2 = y[m][j];
+                            real += x1.real*x2.real-x1.imag*x2.imag;
+                            imag += x1.real*x2.imag+x1.imag*x2.real;
+                        }
+
+                        z[i][j] = new ComplexNumber(real, imag);
                     }
                 }
             }
