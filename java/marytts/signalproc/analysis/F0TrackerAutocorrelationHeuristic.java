@@ -113,22 +113,34 @@ public class F0TrackerAutocorrelationHeuristic {
             maxT0Index=ws-1;
     }
     
-    public PitchFileHeader pitchAnalyzeWavFile(String wavFileIn, String ptcFileOut) throws UnsupportedAudioFileException, IOException
+    public PitchReaderWriter pitchAnalyzeWavFile(String wavFileIn) throws UnsupportedAudioFileException, IOException
+    { 
+        return pitchAnalyzeWavFile(wavFileIn, null);
+    }
+    
+    public PitchReaderWriter pitchAnalyzeWavFile(String wavFileIn, String ptcFileOut) throws UnsupportedAudioFileException, IOException
     {   
-        pitchAnalyzeWavFile(wavFileIn);
+        PitchReaderWriter f0 = new PitchReaderWriter();
+        
+        pitchAnalyzeWav(wavFileIn);
  
         if (f0s!=null)
         {
             params.numfrm = f0s.length;
-            PitchReaderWriter.write_pitch_file(ptcFileOut, f0s, (float)(params.windowSizeInSeconds), (float)(params.skipSizeInSeconds), params.fs);
+            
+            if (ptcFileOut!=null)
+                PitchReaderWriter.write_pitch_file(ptcFileOut, f0s, (float)(params.windowSizeInSeconds), (float)(params.skipSizeInSeconds), params.fs);
         }
         else
             params.numfrm = 0;
         
-        return params;
+        f0.header = new PitchFileHeader(params);
+        f0.setContour(f0s);
+        
+        return f0;
     }
     
-    public void pitchAnalyzeWavFile(String wavFile) throws UnsupportedAudioFileException, IOException
+    public void pitchAnalyzeWav(String wavFile) throws UnsupportedAudioFileException, IOException
     {   
         AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(wavFile));
         params.fs = (int)inputAudio.getFormat().getSampleRate();

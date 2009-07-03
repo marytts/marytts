@@ -37,6 +37,8 @@ import java.util.Properties;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
+import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
@@ -46,6 +48,7 @@ import marytts.unitselection.data.HnmDatagram;
 import marytts.unitselection.data.MCepDatagram;
 import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;
+import marytts.util.math.ArrayUtils;
 import marytts.util.string.StringUtils;
 
 
@@ -219,7 +222,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
             analysisParams.hpfBeforeNoiseAnalysis = Boolean.valueOf(props.get("HnmTimelineMaker.hpfBeforeNoiseAnalysis"));
             analysisParams.numPeriodsHarmonicsExtraction = Float.valueOf(props.get("HnmTimelineMaker.harmNumPer"));
             
-            analysisParams.isSilentAnalysis = true;
+            analysisParams.isSilentAnalysis = false;
             //
             
             /* 2) Write the datagrams and feed the index */
@@ -233,10 +236,20 @@ public class HnmTimelineMaker extends VoiceImportComponent
                 percent = 100*n/baseNameArray.length;
                 /* - open+load */
                 System.out.println( baseNameArray[n] );
-                wav = new WavReader(db.getProp(db.WAVDIR) + baseNameArray[n] + db.getProp(db.WAVEXT));
+                String wavFile = db.getProp(db.WAVDIR) + baseNameArray[n] + db.getProp(db.WAVEXT); 
+                wav = new WavReader(wavFile);
                 short[] wave = wav.getSamples();
                 
-                PitchReaderWriter f0 = new PitchReaderWriter(db.getProp(db.PTCDIR) + baseNameArray[n] + db.getProp(db.PTCEXT));
+                String ptcFile = db.getProp(db.PTCDIR) + baseNameArray[n] + db.getProp(db.PTCEXT);
+                PitchReaderWriter f0 = null;
+                if (FileUtils.exists(ptcFile))
+                    f0 = new PitchReaderWriter(ptcFile);
+                else
+                {
+                    PitchFileHeader pitchDetectorParams = new PitchFileHeader();
+                    F0TrackerAutocorrelationHeuristic pitchDetector = new F0TrackerAutocorrelationHeuristic(pitchDetectorParams);
+                    f0 = pitchDetector.pitchAnalyzeWavFile(wavFile, ptcFile);
+                }
 
                 HntmAnalyzer ha = new HntmAnalyzer();
                 HntmSpeechSignal hnmSignal = ha.analyze(wave, wav.getSampleRate(), f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis); 

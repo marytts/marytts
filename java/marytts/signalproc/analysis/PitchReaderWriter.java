@@ -28,6 +28,7 @@ import java.io.IOException;
 import marytts.util.io.FileUtils;
 import marytts.util.io.LEDataInputStream;
 import marytts.util.io.LEDataOutputStream;
+import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
@@ -169,5 +170,16 @@ public class PitchReaderWriter {
             lw.close();
         }
     } 
+    
+    public void setContour(double[] newContour)
+    {
+        contour = null;
+        header.numfrm = 0;
+        if (newContour!=null && newContour.length>0)
+        {
+            contour = ArrayUtils.copy(newContour);
+            header.numfrm = contour.length;
+        }
+    }
 }
 
