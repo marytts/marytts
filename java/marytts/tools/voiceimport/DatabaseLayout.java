@@ -641,7 +641,7 @@ public class DatabaseLayout
         //checkDir(TEXTDIR);
         checkDirinCurrentDir(TEXTDIR);
         /* check wav dir */
-        File dir = new File(getProp(WAVDIR));
+        File dir = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+getProp(WAVDIR));
         //System.out.println(System.getProperty("user.dir")+System.getProperty("file.separator")+getProp(WAVDIR));
         if (!dir.exists()) {
             throw new Error("WAVDIR "+getProp(WAVDIR)+" does not exist!");
@@ -712,7 +712,8 @@ public class DatabaseLayout
         if (!basenameFile.exists()) {
             //make basename list from wav files 
             System.out.println("Loading basename list from wav files");
-            bnl = new BasenameList(getProp(WAVDIR),getProp(WAVEXT));
+            //bnl = new BasenameList(getProp(WAVDIR),getProp(WAVEXT));
+            bnl = new BasenameList(System.getProperty("user.dir")+System.getProperty("file.separator")+getProp(WAVDIR),getProp(WAVEXT));
         } else {
             //load basename list from file
             try {

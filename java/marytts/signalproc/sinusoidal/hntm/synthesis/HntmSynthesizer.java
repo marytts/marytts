@@ -135,7 +135,7 @@ public class HntmSynthesizer {
         else if (analysisParams.noiseModel == HntmAnalyzerParams.PSEUDO_HARMONIC)
             s.noisePart = NoisePartPseudoHarmonicSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams, referenceFile);
         else if (analysisParams.noiseModel == HntmAnalyzerParams.WAVEFORM)
-            s.noisePart = NoisePartWaveformSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
+            s.noisePart = NoisePartWaveformSynthesizer.synthesize(hntmSignalMod);
         else if (analysisParams.noiseModel == HntmAnalyzerParams.VOICEDNOISE_LPC_UNVOICEDNOISE_WAVEFORM ||
                  analysisParams.noiseModel == HntmAnalyzerParams.UNVOICEDNOISE_LPC_VOICEDNOISE_WAVEFORM 
                 )
@@ -147,7 +147,7 @@ public class HntmSynthesizer {
                 s.noisePart = NoisePartLpFilterPostHpfLpcSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
             
             //Then synthesize waveform part (unvoiced regions)
-            double[] waveformNoisePart = NoisePartWaveformSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
+            double[] waveformNoisePart = NoisePartWaveformSynthesizer.synthesize(hntmSignalMod);
             s.noisePart = SignalProcUtils.addSignals(s.noisePart, waveformNoisePart);
         }
         //
@@ -203,7 +203,7 @@ public class HntmSynthesizer {
         /*
         float[][] pScalesArray = new float[1][1];
         float[][] tScalesArray = new float[1][1];
-        pScalesArray[0][0] = 1.5f; tScalesArray[0][0] = 1.5f;
+        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
         */
         
         //float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f, 2.5f};
@@ -255,6 +255,9 @@ public class HntmSynthesizer {
         //synthesisParams.harmonicPartSynthesisMethod = HntmSynthesizerParams.QUADRATIC_PHASE_INTERPOLATION;
         //
         
+        synthesisParams.overlappingHarmonicPartSynthesis = false;
+        synthesisParams.harmonicSynthesisOverlapInSeconds = 0.010f;
+        
         PitchReaderWriter f0 = null;
         String strPitchFile = StringUtils.modifyExtension(wavFile, ".ptc");
         if (FileUtils.exists(strPitchFile))
@@ -274,13 +277,15 @@ public class HntmSynthesizer {
             }
             labels = new Labels(strLabFile);
         }
+        
+        String analysisResultsFile = StringUtils.modifyExtension(wavFile, ".ana"); 
          
         //boolean isCopyPitch = true;
         //boolean isCopyDuration = true;
         //BasicProsodyModifierParams pmodParams = new BasicProsodyModifierParams(strPitchFile, strLabFile, "d:\\m0318_happy.ptc", "d:\\d:\\m0318_happy.lab", isCopyPitch, isCopyDuration); //Prosody from a target file
         //
 
-        HntmSpeechSignal hnmSignal = ha.analyze(x, samplingRate, f0, labels, analysisParams, synthesisParamsBeforeNoiseAnalysis);
+        HntmSpeechSignal hnmSignal = ha.analyze(x, samplingRate, f0, labels, analysisParams, synthesisParamsBeforeNoiseAnalysis, analysisResultsFile);
         //
         
         for (int n=0; n<pScalesArray.length; n++)

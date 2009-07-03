@@ -78,28 +78,27 @@ public class HnmTimelineMaker extends VoiceImportComponent
             props.put(HNMTIMELINE, db.getProp(db.FILEDIR)
                     +"timeline_hnm"+db.getProp(db.MARYEXT));
     
-            props.put("HnmTimelineMaker.noiseModel", String.valueOf(analysisParams.noiseModel));
-            props.put("HnmTimelineMaker.numFiltStages", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.numFilteringStages));
-            props.put("HnmTimelineMaker.medianFiltLen", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.medianFilterLength));
-            props.put("HnmTimelineMaker.maFiltLen", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.movingAverageFilterLength));
-            props.put("HnmTimelineMaker.cumAmpTh", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.cumulativeAmpThreshold));
-            props.put("HnmTimelineMaker.maxAmpTh", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.maximumAmpThresholdInDB));
-            props.put("HnmTimelineMaker.harmDevPercent", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.harmonicDeviationPercent));
-            props.put("HnmTimelineMaker.sharpPeakAmpDiff", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.sharpPeakAmpDiffInDB));
-            props.put("HnmTimelineMaker.minHarmonics", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.minimumTotalHarmonics));
-            props.put("HnmTimelineMaker.maxHarmonics", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics));
-            props.put("HnmTimelineMaker.minVoicedFreq", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.minimumVoicedFrequencyOfVoicing));
-            props.put("HnmTimelineMaker.maxVoicedFreq", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.maximumVoicedFrequencyOfVoicing));
-            props.put("HnmTimelineMaker.maxFreqVoicingFinalShift", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.maximumFrequencyOfVoicingFinalShift));
-            props.put("HnmTimelineMaker.neighsPercent", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.neighsPercent));
-            props.put("HnmTimelineMaker.harmCepsOrder", String.valueOf(analysisParams.harmonicPartCepstrumOrder));
-            props.put("HnmTimelineMaker.regCepWarpMethod", String.valueOf(analysisParams.regularizedCepstrumWarpingMethod));
-            props.put("HnmTimelineMaker.regCepsLambda", String.valueOf(analysisParams.regularizedCepstrumLambdaHarmonic));
-            props.put("HnmTimelineMaker.noiseLpOrder", String.valueOf(analysisParams.noisePartLpOrder));
-            props.put("HnmTimelineMaker.preCoefNoise", String.valueOf(analysisParams.preemphasisCoefNoise));
-            props.put("HnmTimelineMaker.hpfBeforeNoiseAnalysis", String.valueOf(analysisParams.hpfBeforeNoiseAnalysis));
-            props.put("HnmTimelineMaker.harmNumPer", String.valueOf(analysisParams.numPeriodsHarmonicsExtraction));
-            props.put("HnmTimelineMaker.hpfAfterNoiseSynth", String.valueOf(synthesisParams.hpfAfterNoiseSynthesis));
+            props.put("hnm.noiseModel", String.valueOf(analysisParams.noiseModel));
+            props.put("hnm.numFiltStages", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.numFilteringStages));
+            props.put("hnm.medianFiltLen", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.medianFilterLength));
+            props.put("hnm.maFiltLen", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.movingAverageFilterLength));
+            props.put("hnm.cumAmpTh", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.cumulativeAmpThreshold));
+            props.put("hnm.maxAmpTh", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.maximumAmpThresholdInDB));
+            props.put("hnm.harmDevPercent", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.harmonicDeviationPercent));
+            props.put("hnm.sharpPeakAmpDiff", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.sharpPeakAmpDiffInDB));
+            props.put("hnm.minHarmonics", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.minimumTotalHarmonics));
+            props.put("hnm.maxHarmonics", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics));
+            props.put("hnm.minVoicedFreq", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.minimumVoicedFrequencyOfVoicing));
+            props.put("hnm.maxVoicedFreq", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.maximumVoicedFrequencyOfVoicing));
+            props.put("hnm.maxFreqVoicingFinalShift", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.maximumFrequencyOfVoicingFinalShift));
+            props.put("hnm.neighsPercent", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.neighsPercent));
+            props.put("hnm.harmCepsOrder", String.valueOf(analysisParams.harmonicPartCepstrumOrder));
+            props.put("hnm.regCepWarpMethod", String.valueOf(analysisParams.regularizedCepstrumWarpingMethod));
+            props.put("hnm.regCepsLambda", String.valueOf(analysisParams.regularizedCepstrumLambdaHarmonic));
+            props.put("hnm.noiseLpOrder", String.valueOf(analysisParams.noisePartLpOrder));
+            props.put("hnm.preCoefNoise", String.valueOf(analysisParams.preemphasisCoefNoise));
+            props.put("hnm.hpfBeforeNoiseAnalysis", String.valueOf(analysisParams.hpfBeforeNoiseAnalysis));
+            props.put("hnm.harmNumPer", String.valueOf(analysisParams.numPeriodsHarmonicsExtraction));
         }
         
         return props;
@@ -110,28 +109,27 @@ public class HnmTimelineMaker extends VoiceImportComponent
         
         props2Help.put(HNMTIMELINE,"file containing all hnm noise waveform files. Will be created by this module");  
         
-        props2Help.put("HnmTimelineMaker.noiseModel", "Noise model: 1=WAVEFORM, 2=LPC, Default=1");
-        props2Help.put("HnmTimelineMaker.numFiltStages", "Number of filtering stages to smooth out maximum frequency of voicing curve: Range={0, 1, 2, 3, 4, 5}. 0 means no smoothing. Default=2");
-        props2Help.put("HnmTimelineMaker.medianFiltLen", "Length of median filter for smoothing the maximum frequency of voicing  curve: Range={4, 8, 12, 16, 20}, Default=12");
-        props2Help.put("HnmTimelineMaker.maFiltLen", "Length of moving average filter for smoothing the maximum frequency of voicing  curve: Range={4, 8, 12, 16, 20}, Default=12");
-        props2Help.put("HnmTimelineMaker.cumAmpTh", "Cumulative amplitude threshold [linear scale] for harmonic band voicing detection; decrease to increase max. freq. of voicing values. Range=[0.1, 10.0], Default=2.0");
-        props2Help.put("HnmTimelineMaker.maxAmpTh", "Maximum amplitude threshold [in DB] for harmonic band voicing detection. Decrease to increase max. freq. of voicing values. Range=[0.0, 20.0], Default=13.0");
-        props2Help.put("HnmTimelineMaker.harmDevPercent", "Percent deviation allowed for harmonic peak. Increase to increase max. freq. of voicing values. Range=[0.0, 100.0], Default=20.0");
-        props2Help.put("HnmTimelineMaker.sharpPeakAmpDiff", "Minimum amplitude difference [in DB] to declare an isolated peak as harmonic. Decrease to increase max. freq. of voicing values. range=[0.0, 20.0], Default=12.0");
-        props2Help.put("HnmTimelineMaker.minHarmonics", "Minimum total harmonics allowed in voiced regions. Range=[0, 100], Default=0");
-        props2Help.put("HnmTimelineMaker.maxHarmonics", "Maximum total harmonics allowed in voiced regions. Range=[minHarmonics, 100], Default=100");
-        props2Help.put("HnmTimelineMaker.minVoicedFreq", "Minimum voiced frequency for voiced regions [in Hz]. Range=[0.0, 0.5*samplingRate], Default=0");
-        props2Help.put("HnmTimelineMaker.maxVoicedFreq", "Maximum voiced frequency for voiced regions [in Hz]. Range=Default=[minVoicedFreq, 0.5*samplingRate], Default=5000");
-        props2Help.put("HnmTimelineMaker.maxFreqVoicingFinalShift", "Final amount of shift to be applied to the MWF curve [in Hz]. Range=[0.0, 0.5*samplingRate-maxVoicedFreq], Default=0");
-        props2Help.put("HnmTimelineMaker.neighsPercent", "Percentage of samples that the harmonic peak needs to be larger than within a band. Decrease to increase max. freq. of voicing values. Range=[0.0, 100.0], Default=50");
-        props2Help.put("HnmTimelineMaker.harmCepsOrder", "Cepstrum order to represent harmonic amplitudes. Increase to obtain better match with actual harmonic values. Range=[8, 40], Default=24");
-        props2Help.put("HnmTimelineMaker.regCepWarpMethod", "Warping method for regularized cepstrum estimation. 1=POST_MEL, 2=PRE_BARK, Default=1");
-        props2Help.put("HnmTimelineMaker.regCepsLambda", "Regularization term for cepstrum estimation. Increase to obtain smoother spectral match for harmonic amplitudes. However, this reduces the match with the actual amplitudes. Range=[0.0, 0.1], Default=1.0e-5");
-        props2Help.put("HnmTimelineMaker.noiseLpOrder", "Linear prediction order for LPC noise part. Range=[8, 50], Default=12");
-        props2Help.put("HnmTimelineMaker.preCoefNoise", "Pre-emphasis coefficient for linear prediction analysis of noise part. Range=[0.0, 0.99], Default=0.97");
-        props2Help.put("HnmTimelineMaker.hpfBeforeNoiseAnalysis", "Remove lowpass frequency residual after harmonic subtraction? 0=NO, 1=YES, Default=1");
-        props2Help.put("HnmTimelineMaker.harmNumPer", "Total periods for harmonic analysis. Range=[2.0, 4.0], Default=2");
-        props2Help.put("HnmTimelineMaker.hpfAfterNoiseSynth", "Remove lowpass noise components after synthesis. 0=NO, 1=YES, Default=1");
+        props2Help.put("hnm.noiseModel", "Noise model: 1=WAVEFORM, 2=LPC, Default=1");
+        props2Help.put("hnm.numFiltStages", "Number of filtering stages to smooth out maximum frequency of voicing curve: Range={0, 1, 2, 3, 4, 5}. 0 means no smoothing. Default=2");
+        props2Help.put("hnm.medianFiltLen", "Length of median filter for smoothing the maximum frequency of voicing  curve: Range={4, 8, 12, 16, 20}, Default=12");
+        props2Help.put("hnm.maFiltLen", "Length of moving average filter for smoothing the maximum frequency of voicing  curve: Range={4, 8, 12, 16, 20}, Default=12");
+        props2Help.put("hnm.cumAmpTh", "Cumulative amplitude threshold [linear scale] for harmonic band voicing detection; decrease to increase max. freq. of voicing values. Range=[0.1, 10.0], Default=2.0");
+        props2Help.put("hnm.maxAmpTh", "Maximum amplitude threshold [in DB] for harmonic band voicing detection. Decrease to increase max. freq. of voicing values. Range=[0.0, 20.0], Default=13.0");
+        props2Help.put("hnm.harmDevPercent", "Percent deviation allowed for harmonic peak. Increase to increase max. freq. of voicing values. Range=[0.0, 100.0], Default=20.0");
+        props2Help.put("hnm.sharpPeakAmpDiff", "Minimum amplitude difference [in DB] to declare an isolated peak as harmonic. Decrease to increase max. freq. of voicing values. range=[0.0, 20.0], Default=12.0");
+        props2Help.put("hnm.minHarmonics", "Minimum total harmonics allowed in voiced regions. Range=[0, 100], Default=0");
+        props2Help.put("hnm.maxHarmonics", "Maximum total harmonics allowed in voiced regions. Range=[minHarmonics, 100], Default=100");
+        props2Help.put("hnm.minVoicedFreq", "Minimum voiced frequency for voiced regions [in Hz]. Range=[0.0, 0.5*samplingRate], Default=0");
+        props2Help.put("hnm.maxVoicedFreq", "Maximum voiced frequency for voiced regions [in Hz]. Range=Default=[minVoicedFreq, 0.5*samplingRate], Default=5000");
+        props2Help.put("hnm.maxFreqVoicingFinalShift", "Final amount of shift to be applied to the MWF curve [in Hz]. Range=[0.0, 0.5*samplingRate-maxVoicedFreq], Default=0");
+        props2Help.put("hnm.neighsPercent", "Percentage of samples that the harmonic peak needs to be larger than within a band. Decrease to increase max. freq. of voicing values. Range=[0.0, 100.0], Default=50");
+        props2Help.put("hnm.harmCepsOrder", "Cepstrum order to represent harmonic amplitudes. Increase to obtain better match with actual harmonic values. Range=[8, 40], Default=24");
+        props2Help.put("hnm.regCepWarpMethod", "Warping method for regularized cepstrum estimation. 1=POST_MEL, 2=PRE_BARK, Default=1");
+        props2Help.put("hnm.regCepsLambda", "Regularization term for cepstrum estimation. Increase to obtain smoother spectral match for harmonic amplitudes. However, this reduces the match with the actual amplitudes. Range=[0.0, 0.1], Default=1.0e-5");
+        props2Help.put("hnm.noiseLpOrder", "Linear prediction order for LPC noise part. Range=[8, 50], Default=12");
+        props2Help.put("hnm.preCoefNoise", "Pre-emphasis coefficient for linear prediction analysis of noise part. Range=[0.0, 0.99], Default=0.97");
+        props2Help.put("hnm.hpfBeforeNoiseAnalysis", "Remove lowpass frequency residual after harmonic subtraction? 0=NO, 1=YES, Default=1");
+        props2Help.put("hnm.harmNumPer", "Total periods for harmonic analysis. Range=[2.0, 4.0], Default=2");
     }
     
     /**
@@ -167,28 +165,27 @@ public class HnmTimelineMaker extends VoiceImportComponent
             /* An example of processing header: */
             Properties headerProps = new Properties();
 
-            headerProps.setProperty("HnmTimelineMaker.noiseModel", props.get("HnmTimelineMaker.noiseModel"));
-            headerProps.setProperty("HnmTimelineMaker.numFiltStages", props.get("HnmTimelineMaker.numFiltStages"));
-            headerProps.setProperty("HnmTimelineMaker.medianFiltLen", props.get("HnmTimelineMaker.medianFiltLen"));
-            headerProps.setProperty("HnmTimelineMaker.maFiltLen", props.get("HnmTimelineMaker.maFiltLen"));
-            headerProps.setProperty("HnmTimelineMaker.cumAmpTh", props.get("HnmTimelineMaker.cumAmpTh"));
-            headerProps.setProperty("HnmTimelineMaker.maxAmpTh", props.get("HnmTimelineMaker.maxAmpTh"));
-            headerProps.setProperty("HnmTimelineMaker.harmDevPercent", props.get("HnmTimelineMaker.harmDevPercent"));
-            headerProps.setProperty("HnmTimelineMaker.sharpPeakAmpDiff", props.get("HnmTimelineMaker.sharpPeakAmpDiff"));
-            headerProps.setProperty("HnmTimelineMaker.minHarmonics", props.get("HnmTimelineMaker.minHarmonics"));
-            headerProps.setProperty("HnmTimelineMaker.maxHarmonics", props.get("HnmTimelineMaker.maxHarmonics"));
-            headerProps.setProperty("HnmTimelineMaker.minVoicedFreq", props.get("HnmTimelineMaker.minVoicedFreq"));
-            headerProps.setProperty("HnmTimelineMaker.maxVoicedFreq", props.get("HnmTimelineMaker.maxVoicedFreq"));
-            headerProps.setProperty("HnmTimelineMaker.maxFreqVoicingFinalShift", props.get("HnmTimelineMaker.maxFreqVoicingFinalShift"));
-            headerProps.setProperty("HnmTimelineMaker.neighsPercent", props.get("HnmTimelineMaker.neighsPercent"));
-            headerProps.setProperty("HnmTimelineMaker.harmCepsOrder", props.get("HnmTimelineMaker.harmCepsOrder"));
-            headerProps.setProperty("HnmTimelineMaker.regCepWarpMethod", props.get("HnmTimelineMaker.regCepWarpMethod"));
-            headerProps.setProperty("HnmTimelineMaker.regCepsLambda", props.get("HnmTimelineMaker.regCepsLambda"));
-            headerProps.setProperty("HnmTimelineMaker.noiseLpOrder", props.get("HnmTimelineMaker.noiseLpOrder"));
-            headerProps.setProperty("HnmTimelineMaker.preCoefNoise", props.get("HnmTimelineMaker.preCoefNoise"));
-            headerProps.setProperty("HnmTimelineMaker.hpfBeforeNoiseAnalysis", props.get("HnmTimelineMaker.hpfBeforeNoiseAnalysis"));
-            headerProps.setProperty("HnmTimelineMaker.harmNumPer", props.get("HnmTimelineMaker.harmNumPer"));
-            headerProps.setProperty("HnmTimelineMaker.hpfAfterNoiseSynth", props.get("HnmTimelineMaker.hpfAfterNoiseSynth"));
+            headerProps.setProperty("hnm.noiseModel", props.get("hnm.noiseModel"));
+            headerProps.setProperty("hnm.numFiltStages", props.get("hnm.numFiltStages"));
+            headerProps.setProperty("hnm.medianFiltLen", props.get("hnm.medianFiltLen"));
+            headerProps.setProperty("hnm.maFiltLen", props.get("hnm.maFiltLen"));
+            headerProps.setProperty("hnm.cumAmpTh", props.get("hnm.cumAmpTh"));
+            headerProps.setProperty("hnm.maxAmpTh", props.get("hnm.maxAmpTh"));
+            headerProps.setProperty("hnm.harmDevPercent", props.get("hnm.harmDevPercent"));
+            headerProps.setProperty("hnm.sharpPeakAmpDiff", props.get("hnm.sharpPeakAmpDiff"));
+            headerProps.setProperty("hnm.minHarmonics", props.get("hnm.minHarmonics"));
+            headerProps.setProperty("hnm.maxHarmonics", props.get("hnm.maxHarmonics"));
+            headerProps.setProperty("hnm.minVoicedFreq", props.get("hnm.minVoicedFreq"));
+            headerProps.setProperty("hnm.maxVoicedFreq", props.get("hnm.maxVoicedFreq"));
+            headerProps.setProperty("hnm.maxFreqVoicingFinalShift", props.get("hnm.maxFreqVoicingFinalShift"));
+            headerProps.setProperty("hnm.neighsPercent", props.get("hnm.neighsPercent"));
+            headerProps.setProperty("hnm.harmCepsOrder", props.get("hnm.harmCepsOrder"));
+            headerProps.setProperty("hnm.regCepWarpMethod", props.get("hnm.regCepWarpMethod"));
+            headerProps.setProperty("hnm.regCepsLambda", props.get("hnm.regCepsLambda"));
+            headerProps.setProperty("hnm.noiseLpOrder", props.get("hnm.noiseLpOrder"));
+            headerProps.setProperty("hnm.preCoefNoise", props.get("hnm.preCoefNoise"));
+            headerProps.setProperty("hnm.hpfBeforeNoiseAnalysis", props.get("hnm.hpfBeforeNoiseAnalysis"));
+            headerProps.setProperty("hnm.harmNumPer", props.get("hnm.harmNumPer"));
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             headerProps.store(baos, null);
@@ -201,28 +198,29 @@ public class HnmTimelineMaker extends VoiceImportComponent
             HntmAnalyzerParams analysisParams = new HntmAnalyzerParams();
             HntmSynthesizerParams synthesisParamsBeforeNoiseAnalysis = new HntmSynthesizerParams();
             
-            analysisParams.noiseModel = Integer.valueOf(props.get("HnmTimelineMaker.noiseModel"));
-            analysisParams.hnmPitchVoicingAnalyzerParams.numFilteringStages = Integer.valueOf(props.get("HnmTimelineMaker.numFiltStages"));
-            analysisParams.hnmPitchVoicingAnalyzerParams.medianFilterLength = Integer.valueOf(props.get("HnmTimelineMaker.medianFiltLen"));
-            analysisParams.hnmPitchVoicingAnalyzerParams.movingAverageFilterLength = Integer.valueOf(props.get("HnmTimelineMaker.maFiltLen"));
-            analysisParams.hnmPitchVoicingAnalyzerParams.cumulativeAmpThreshold = Double.valueOf(props.get("HnmTimelineMaker.cumAmpTh"));
-            analysisParams.hnmPitchVoicingAnalyzerParams.maximumAmpThresholdInDB = Double.valueOf(props.get("HnmTimelineMaker.maxAmpTh"));
-            analysisParams.hnmPitchVoicingAnalyzerParams.harmonicDeviationPercent = Double.valueOf(props.get("HnmTimelineMaker.harmDevPercent"));
-            analysisParams.hnmPitchVoicingAnalyzerParams.sharpPeakAmpDiffInDB = Double.valueOf(props.get("HnmTimelineMaker.sharpPeakAmpDiff"));
-            analysisParams.hnmPitchVoicingAnalyzerParams.minimumTotalHarmonics = Integer.valueOf(props.get("HnmTimelineMaker.minHarmonics"));
-            analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics = Integer.valueOf(props.get("HnmTimelineMaker.maxHarmonics"));
-            analysisParams.hnmPitchVoicingAnalyzerParams.minimumVoicedFrequencyOfVoicing = Float.valueOf(props.get("HnmTimelineMaker.minVoicedFreq"));
-            analysisParams.hnmPitchVoicingAnalyzerParams.maximumVoicedFrequencyOfVoicing = Float.valueOf(props.get("HnmTimelineMaker.maxVoicedFreq"));
-            analysisParams.hnmPitchVoicingAnalyzerParams.maximumFrequencyOfVoicingFinalShift = Float.valueOf(props.get("HnmTimelineMaker.maxFreqVoicingFinalShift"));
-            analysisParams.hnmPitchVoicingAnalyzerParams.neighsPercent = Double.valueOf(props.get("HnmTimelineMaker.neighsPercent"));
-            analysisParams.harmonicPartCepstrumOrder = Integer.valueOf(props.get("HnmTimelineMaker.harmCepsOrder"));
-            analysisParams.regularizedCepstrumWarpingMethod = Integer.valueOf(props.get("HnmTimelineMaker.regCepWarpMethod"));
-            analysisParams.regularizedCepstrumLambdaHarmonic = Double.valueOf(props.get("HnmTimelineMaker.regCepsLambda"));
-            analysisParams.noisePartLpOrder = Integer.valueOf(props.get("HnmTimelineMaker.noiseLpOrder"));
-            analysisParams.preemphasisCoefNoise = Float.valueOf(props.get("HnmTimelineMaker.preCoefNoise"));
-            analysisParams.hpfBeforeNoiseAnalysis = Boolean.valueOf(props.get("HnmTimelineMaker.hpfBeforeNoiseAnalysis"));
-            analysisParams.numPeriodsHarmonicsExtraction = Float.valueOf(props.get("HnmTimelineMaker.harmNumPer"));
-            synthesisParamsBeforeNoiseAnalysis.hpfAfterNoiseSynthesis = Boolean.valueOf(props.get("HnmTimelineMaker.hpfAfterNoiseSynth"));
+            analysisParams.noiseModel = Integer.valueOf(props.get("hnm.noiseModel"));
+            analysisParams.hnmPitchVoicingAnalyzerParams.numFilteringStages = Integer.valueOf(props.get("hnm.numFiltStages"));
+            analysisParams.hnmPitchVoicingAnalyzerParams.medianFilterLength = Integer.valueOf(props.get("hnm.medianFiltLen"));
+            analysisParams.hnmPitchVoicingAnalyzerParams.movingAverageFilterLength = Integer.valueOf(props.get("hnm.maFiltLen"));
+            analysisParams.hnmPitchVoicingAnalyzerParams.cumulativeAmpThreshold = Float.valueOf(props.get("hnm.cumAmpTh"));
+            analysisParams.hnmPitchVoicingAnalyzerParams.maximumAmpThresholdInDB = Float.valueOf(props.get("hnm.maxAmpTh"));
+            analysisParams.hnmPitchVoicingAnalyzerParams.harmonicDeviationPercent = Float.valueOf(props.get("hnm.harmDevPercent"));
+            analysisParams.hnmPitchVoicingAnalyzerParams.sharpPeakAmpDiffInDB = Float.valueOf(props.get("hnm.sharpPeakAmpDiff"));
+            analysisParams.hnmPitchVoicingAnalyzerParams.minimumTotalHarmonics = Integer.valueOf(props.get("hnm.minHarmonics"));
+            analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics = Integer.valueOf(props.get("hnm.maxHarmonics"));
+            analysisParams.hnmPitchVoicingAnalyzerParams.minimumVoicedFrequencyOfVoicing = Float.valueOf(props.get("hnm.minVoicedFreq"));
+            analysisParams.hnmPitchVoicingAnalyzerParams.maximumVoicedFrequencyOfVoicing = Float.valueOf(props.get("hnm.maxVoicedFreq"));
+            analysisParams.hnmPitchVoicingAnalyzerParams.maximumFrequencyOfVoicingFinalShift = Float.valueOf(props.get("hnm.maxFreqVoicingFinalShift"));
+            analysisParams.hnmPitchVoicingAnalyzerParams.neighsPercent = Float.valueOf(props.get("hnm.neighsPercent"));
+            analysisParams.harmonicPartCepstrumOrder = Integer.valueOf(props.get("hnm.harmCepsOrder"));
+            analysisParams.regularizedCepstrumWarpingMethod = Integer.valueOf(props.get("hnm.regCepWarpMethod"));
+            analysisParams.regularizedCepstrumLambdaHarmonic = Float.valueOf(props.get("hnm.regCepsLambda"));
+            analysisParams.noisePartLpOrder = Integer.valueOf(props.get("hnm.noiseLpOrder"));
+            analysisParams.preemphasisCoefNoise = Float.valueOf(props.get("hnm.preCoefNoise"));
+            analysisParams.hpfBeforeNoiseAnalysis = Boolean.valueOf(props.get("hnm.hpfBeforeNoiseAnalysis"));
+            analysisParams.numPeriodsHarmonicsExtraction = Float.valueOf(props.get("hnm.harmNumPer"));
+            
+            analysisParams.isSilentAnalysis = true;
             //
             
             /* 2) Write the datagrams and feed the index */
@@ -272,6 +270,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
                     localTime += duration;
                 }
                 
+                System.out.println(String.valueOf(n+1) + " of " + String.valueOf(baseNameArray.length) + " done...");
                 numDatagrams += hnmSignal.frames.length;
             }
             
@@ -312,7 +311,10 @@ public class HnmTimelineMaker extends VoiceImportComponent
     
     public static void main(String[] args) throws Exception
     {
-        System.setProperty("user.dir", "D:\\hnmTimelineTest");
+        //System.setProperty("user.dir", "D:\\hnmTimelineTest");
+        //System.setProperty("user.dir", "D:\\Oytun\\DFKI\\voices\\cmu_slt_arctic");
+        System.setProperty("user.dir", "D:\\Oytun\\DFKI\\voices\\cmu_time_awb");
+        
         VoiceImportComponent vic  =  new HnmTimelineMaker();
         DatabaseLayout db = new DatabaseLayout(vic);
         vic.compute();

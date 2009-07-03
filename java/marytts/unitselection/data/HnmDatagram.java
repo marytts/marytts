@@ -59,10 +59,10 @@ public class HnmDatagram extends Datagram {
      * @throws IOException
      * @throws EOFException
      */
-    public HnmDatagram(DataInputStream inputStream, int noiseModel) throws IOException, EOFException
+    public HnmDatagram(RandomAccessFile raf, int noiseModel) throws IOException, EOFException
     {
-        super(inputStream.readLong()); // duration
-        int len = inputStream.readInt();
+        super(raf.readLong()); // duration
+        int len = raf.readInt();
         if ( len < 0 ) {
             throw new IOException( "Can't create a datagram with a negative data size [" + len + "]." );
         }
@@ -73,7 +73,7 @@ public class HnmDatagram extends Datagram {
         
         // For speed concerns, read into a byte[] first:
         byte[] buf = new byte[len];
-        inputStream.readFully(buf);
+        raf.readFully(buf);
         DataInputStream dis = new DataInputStream(new ByteArrayInputStream(buf));
         
         frame = new HntmSpeechFrame(dis, noiseModel);

@@ -75,15 +75,6 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
-/*
-import marytts.util.math.jampack.H;
-import marytts.util.math.jampack.Inv;
-import marytts.util.math.jampack.JampackException;
-import marytts.util.math.jampack.Parameters;
-import marytts.util.math.jampack.Times;
-import marytts.util.math.jampack.Z;
-import marytts.util.math.jampack.Zmat;
- */
 
 /**
  * This class implements a harmonic+noise model for speech as described in
@@ -113,7 +104,7 @@ public class HntmAnalyzer {
         HntmAnalyzerParams analysisParams = new HntmAnalyzerParams(); //Using default analysis parameters
         HntmSynthesizerParams synthesisParamsBeforeNoiseAnalysis = new HntmSynthesizerParams(); //Using defaulot synthesis parameters before noise analysis
         
-        return analyze(x, fs, f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis);
+        return analyze(x, fs, f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, null);
     }
     
     public HntmSpeechSignal analyze(short[] x, int fs, PitchReaderWriter f0, Labels labels,
@@ -121,14 +112,25 @@ public class HntmAnalyzer {
     {
         double[] xDouble = ArrayUtils.copyShort2Double(x);
         
-        return analyze(xDouble, fs, f0, labels, analysisParams, synthesisParamsBeforeNoiseAnalysis);
+        return analyze(xDouble, fs, f0, labels, analysisParams, synthesisParamsBeforeNoiseAnalysis, null);
     }
     
     public HntmSpeechSignal analyze(double[] x, int fs, PitchReaderWriter f0, Labels labels,
-                                    HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParamsBeforeNoiseAnalysis)
+                                    HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParamsBeforeNoiseAnalysis,
+                                    String analysisResultsFile)
     {
         HarmonicAndTransientAnalysisOutput output = analyzeHarmonicAndTransientParts(x, fs, f0, labels, analysisParams);
         analyzeNoisePart(x, output.hnmSignal, analysisParams, synthesisParamsBeforeNoiseAnalysis, output.isInTransientSegments);
+        
+        if (analysisResultsFile!=null)
+        {
+            try {
+                output.hnmSignal.write(analysisResultsFile);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
         
         return output.hnmSignal;
     }
@@ -162,7 +164,7 @@ public class HntmAnalyzer {
             //     Otherwise, maximum frequency of voicing is set to 0.0
             analysisParams.hnmPitchVoicingAnalyzerParams.f0AnalysisWindowSizeInSeconds = (float)f0.header.windowSizeInSeconds;
             analysisParams.hnmPitchVoicingAnalyzerParams.f0AnalysisSkipSizeInSeconds = (float)f0.header.skipSizeInSeconds;
-            float[] maxFrequencyOfVoicings = HnmPitchVoicingAnalyzer.analyzeVoicings(x, fs, initialF0s, analysisParams.hnmPitchVoicingAnalyzerParams);
+            float[] maxFrequencyOfVoicings = HnmPitchVoicingAnalyzer.analyzeVoicings(x, fs, initialF0s, analysisParams.hnmPitchVoicingAnalyzerParams, analysisParams.isSilentAnalysis);
             float maxFreqOfVoicingInHz;
             //maxFreqOfVoicingInHz = HnmAnalyzer.FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST; //This should come from the above automatic analysis
 
@@ -440,10 +442,13 @@ public class HntmAnalyzer {
                 
                 output.isInTransientSegments[i] = isInTransientSegment;
 
-                if (analysisParams.harmonicModel==HntmAnalyzerParams.HARMONICS_PLUS_NOISE)
-                    System.out.println("Harmonic analysis completed at " + String.valueOf(output.hnmSignal.frames[i].tAnalysisInSeconds) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm)); 
-                else if (analysisParams.harmonicModel==HntmAnalyzerParams.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE)
-                    System.out.println("Harmonic and transient analysis completed at " + String.valueOf(output.hnmSignal.frames[i].tAnalysisInSeconds) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm)); 
+                if (!analysisParams.isSilentAnalysis)
+                {
+                    if (analysisParams.harmonicModel==HntmAnalyzerParams.HARMONICS_PLUS_NOISE)
+                        System.out.println("Harmonic analysis completed at " + String.valueOf(output.hnmSignal.frames[i].tAnalysisInSeconds) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm)); 
+                    else if (analysisParams.harmonicModel==HntmAnalyzerParams.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE)
+                        System.out.println("Harmonic and transient analysis completed at " + String.valueOf(output.hnmSignal.frames[i].tAnalysisInSeconds) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm)); 
+                }
             }
         }
 
@@ -488,7 +493,7 @@ public class HntmAnalyzer {
     }
     
     public void analyzeNoisePart(double[] originalSignal, HntmSpeechSignal hnmSignal, 
-                                 HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParamsBeforeNoiseAnalysis,
+                                 HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParamsForNoiseAnalysis,
                                  boolean[] isInTransientSegments)
     {
         //Re-synthesize harmonic and transient parts, obtain noise waveform by simple subtraction
@@ -502,7 +507,7 @@ public class HntmAnalyzer {
         //
         
         if (analysisParams.harmonicSynthesisMethodBeforeNoiseAnalysis==HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION)
-            s.harmonicPart = HarmonicPartLinearPhaseInterpolatorSynthesizer.synthesize(hnmSignal, analysisParams, synthesisParamsBeforeNoiseAnalysis);
+            s.harmonicPart = HarmonicPartLinearPhaseInterpolatorSynthesizer.synthesize(hnmSignal, analysisParams, synthesisParamsForNoiseAnalysis);
         else if (analysisParams.harmonicSynthesisMethodBeforeNoiseAnalysis==HntmSynthesizerParams.QUADRATIC_PHASE_INTERPOLATION)
         {
             //Convert to pure sinusoidal tracks
@@ -614,6 +619,17 @@ public class HntmAnalyzer {
 
             int waveformNoiseStartInd = 0;
             int waveformNoiseEndInd = 0;
+            
+            double[][] frameWaveforms = null;
+            if (analysisParams.noiseModel==HntmAnalyzerParams.WAVEFORM ||
+                analysisParams.noiseModel==HntmAnalyzerParams.VOICEDNOISE_LPC_UNVOICEDNOISE_WAVEFORM ||
+                analysisParams.noiseModel==HntmAnalyzerParams.UNVOICEDNOISE_LPC_VOICEDNOISE_WAVEFORM)
+            {
+                frameWaveforms = new double[totalFrm][];
+                for (i=0; i<totalFrm; i++)
+                    frameWaveforms[i] = null;
+            }
+            
             for (i=0; i<totalFrm; i++)
             {  
                 f0InHz = hnmSignal.frames[i].f0InHz;
@@ -750,16 +766,13 @@ public class HntmAnalyzer {
                             else
                                 waveformNoiseEndInd = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
                             
-                            double[] waveform = null;
-                            waveform = ArrayUtils.copy(frmNoise);
+                            frameWaveforms[i] = ArrayUtils.copy(frmNoise);   
                             
                             if (!analysisParams.overlapNoiseWaveformModel)
-                                waveform = ArrayUtils.subarray(waveform, 0, waveformNoiseEndInd-waveformNoiseStartInd+1);
+                                frameWaveforms[i]  = ArrayUtils.subarray(frameWaveforms[i] , 0, waveformNoiseEndInd-waveformNoiseStartInd+1);
                             
                             if (isVoiced && analysisParams.hpfBeforeNoiseAnalysis && analysisParams.decimateNoiseWaveform)
-                                waveform = SignalProcUtils.decimate(waveform, 0.5*hnmSignal.samplingRateInHz/(0.5*hnmSignal.samplingRateInHz-hnmSignal.frames[i].maximumFrequencyOfVoicingInHz));
-                                
-                            hnmSignal.frames[i].n = new FrameNoisePartWaveform(waveform);
+                                frameWaveforms[i]  = SignalProcUtils.decimate(frameWaveforms[i] , 0.5*hnmSignal.samplingRateInHz/(0.5*hnmSignal.samplingRateInHz-hnmSignal.frames[i].maximumFrequencyOfVoicingInHz));
                             
                             waveformNoiseStartInd = waveformNoiseEndInd+1;
                         }
@@ -769,11 +782,42 @@ public class HntmAnalyzer {
                     //
                 }
 
-                System.out.println("Noise analysis completed at " + String.valueOf(hnmSignal.frames[i].tAnalysisInSeconds) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm)); 
+                if (!analysisParams.isSilentAnalysis)
+                    System.out.println("Noise analysis completed at " + String.valueOf(hnmSignal.frames[i].tAnalysisInSeconds) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm)); 
+            }
+            
+            if (analysisParams.noiseModel==HntmAnalyzerParams.WAVEFORM ||
+                analysisParams.noiseModel==HntmAnalyzerParams.VOICEDNOISE_LPC_UNVOICEDNOISE_WAVEFORM ||
+                analysisParams.noiseModel==HntmAnalyzerParams.UNVOICEDNOISE_LPC_VOICEDNOISE_WAVEFORM)
+            {
+                //Synthesize the noise waveform from overlapping waveform frames
+                double[] noisePartWaveform = HntmAnalyzerNoisePartWaveformSynthesizer.synthesize(hnmSignal, frameWaveforms, analysisParams, synthesisParamsForNoiseAnalysis);
+                packNoisePartWaveforms(hnmSignal, noisePartWaveform); 
             }
         }
     }
+    
+    //Pack the noise part waveform in non-overlapping chunks in hnmSignal
+    public static void packNoisePartWaveforms(HntmSpeechSignal hnmSignal, double[] noisePartWaveform)
+    {
+        int frameStartInd = 0;
+        int frameEndInd;
+        double[] frameWaveform = null;
+        for (int i=0; i<hnmSignal.frames.length; i++)
+        {
+            if (i<hnmSignal.frames.length-1)
+                frameEndInd = SignalProcUtils.time2sample(hnmSignal.frames[i].tAnalysisInSeconds, hnmSignal.samplingRateInHz);
+            else
+                frameEndInd = noisePartWaveform.length-1;
 
+            frameWaveform = ArrayUtils.subarray(noisePartWaveform, frameStartInd, frameEndInd-frameStartInd+1);
+
+            hnmSignal.frames[i].n = new FrameNoisePartWaveform(frameWaveform);
+
+            frameStartInd = frameEndInd+1;
+        }
+    }
+    
     public ComplexNumber[] estimateComplexAmplitudes(double[] s, double[] wgt, double f0InHz, int L, double samplingRateInHz, int lastCorrelatedHarmonicNeighbour)
     {
         int t, i, k;

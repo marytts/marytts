@@ -37,6 +37,7 @@ import java.io.RandomAccessFile;
 
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexNumber;
+import marytts.util.math.MathUtils;
 
 /**
  * @author oytun.turk
@@ -45,11 +46,14 @@ import marytts.util.math.ComplexNumber;
 
 public class FrameNoisePartWaveform implements FrameNoisePart {
     
-    public short[] waveform;
+    //protected byte[] waveform;
+    protected short[] waveform;
 
     public FrameNoisePartWaveform()
     {
         super();
+        
+        waveform = null;
     }
     
     public FrameNoisePartWaveform(FrameNoisePartWaveform existing)
@@ -65,9 +69,10 @@ public class FrameNoisePartWaveform implements FrameNoisePart {
 
         if (waveLen>0)
         {
+            //waveform = new byte[waveLen];
             waveform = new short[waveLen];
             for (int i=0; i<waveLen; i++) 
-                waveform[i] = dis.readShort();
+                waveform[i] = dis.readByte();
         }
         else
             waveform = null;
@@ -81,6 +86,13 @@ public class FrameNoisePartWaveform implements FrameNoisePart {
     }
     
     public FrameNoisePartWaveform(double[] x)
+    {
+        super();
+        
+        setWaveform(x);
+    }
+    
+    public FrameNoisePartWaveform(short[] x)
     {
         super();
         
@@ -121,14 +133,17 @@ public class FrameNoisePartWaveform implements FrameNoisePart {
         if (waveLen>0)
         {
             for (int i=0; i<waveform.length; i++) 
-                out.writeShort(waveform[i]);
+                out.writeByte(waveform[i]);
         }
     }
     
     public void setWaveform(float[] x)
     {
         if (x!=null)
+        {
+            //waveform = ArrayUtils.copyFloat2Byte(MathUtils.floatRange2ByteRange(x));
             waveform = ArrayUtils.copyFloat2Short(x);
+        }
         else
             waveform = null;
     }
@@ -136,8 +151,54 @@ public class FrameNoisePartWaveform implements FrameNoisePart {
     public void setWaveform(double[] x)
     {
         if (x!=null)
+        {
+            //waveform = ArrayUtils.copyDouble2Byte(MathUtils.doubleRange2ByteRange(x));
             waveform = ArrayUtils.copyDouble2Short(x);
+        }
         else
             waveform = null;
     }   
+    
+    public void setWaveform(short[] x)
+    {
+        if (x!=null)
+            waveform = ArrayUtils.copy(x);
+        else
+            waveform = null;
+    }
+    
+    public double[] waveform2Doubles()
+    {
+        if (waveform!=null)
+        {
+            /*
+            double[] y = ArrayUtils.copyByte2Double(waveform);
+            return MathUtils.byteRange2DoubleRange(y);
+            */
+            
+            return ArrayUtils.copyShort2Double(waveform);
+        }
+        else
+            return null;
+    }
+    
+    public float[] waveform2Floats()
+    {
+        if (waveform!=null)
+        {
+            /*
+            float[] y = ArrayUtils.copyByte2Float(waveform);
+            return MathUtils.byteRange2FloatRange(y);
+            */
+            
+            return ArrayUtils.copyShort2Float(waveform);
+        }
+        else
+            return null;
+    }
+    
+    public short[] waveform()
+    {
+        return waveform;
+    }
 }

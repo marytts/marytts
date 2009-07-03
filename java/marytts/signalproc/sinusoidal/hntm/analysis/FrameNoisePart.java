@@ -32,8 +32,8 @@ import marytts.util.math.ComplexNumber;
  * @author Oytun T&uumlrk
  *
  */
-public interface FrameNoisePart {   
-   
+public interface FrameNoisePart 
+{      
     public int getLength();
     public void write(DataOutput out) throws IOException;
 }
