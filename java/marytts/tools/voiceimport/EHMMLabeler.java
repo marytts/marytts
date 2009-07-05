@@ -226,7 +226,7 @@ public class EHMMLabeler extends VoiceImportComponent {
             
             
             // Feature Settings required for EHMM Training
-            settings.println("WaveDir: "+db.getProp(db.ROOTDIR)+"/"+db.getProp(db.WAVDIR)+" \n"
+            settings.println("WaveDir: "+db.getProp(db.WAVDIR)+" \n"
                     +"HeaderBytes: 44 \n"
                     +"SamplingFreq: 16000 \n"
                     +"FrameSize: 160 \n"
