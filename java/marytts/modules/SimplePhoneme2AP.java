@@ -32,6 +32,7 @@ import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.MbrolaVoice;
 import marytts.modules.synthesis.Voice;
+import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 
 import org.w3c.dom.Document;
@@ -51,6 +52,13 @@ public class SimplePhoneme2AP extends InternalModule
     private DocumentBuilder docBuilder = null;
     protected AllophoneSet allophoneSet;
 
+    public SimplePhoneme2AP(String localeString)
+    {
+        this(MaryDataType.SIMPLEPHONEMES,
+             MaryDataType.ACOUSTPARAMS,
+             MaryUtils.string2locale(localeString));
+    }
+    
     public SimplePhoneme2AP(MaryDataType inputType, MaryDataType outputType, Locale locale)
     {
         super("SimplePhoneme2AP",
@@ -61,9 +69,7 @@ public class SimplePhoneme2AP extends InternalModule
 
     public void startup() throws Exception
     {
-        if (allophoneSet == null) {
-            throw new NullPointerException("Subclass needs to instantiate allophoneSet");
-        }
+        allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename(MaryProperties.localePrefix(getLocale())+".allophoneset"));
         if (factory == null) {
             factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
