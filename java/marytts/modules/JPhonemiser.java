@@ -39,6 +39,8 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
@@ -57,6 +59,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
+import org.xml.sax.SAXException;
 
 
 /**
@@ -68,16 +71,17 @@ import org.w3c.dom.traversal.NodeIterator;
 public class JPhonemiser extends InternalModule
 {
 
-    public Map<String, List<String>> userdict;
-    public FSTLookup lexicon;
+    protected Map<String, List<String>> userdict;
+    protected FSTLookup lexicon;
     protected TrainedLTS lts;
 
     protected AllophoneSet allophoneSet;
 
     public JPhonemiser(String propertyPrefix)
-    throws Exception
+    throws IOException,  SAXException, ParserConfigurationException
     {
-        this(MaryProperties.needFilename(propertyPrefix+"allophoneset"),
+        this("JPhonemiser", MaryDataType.PARTSOFSPEECH, MaryDataType.PHONEMES,
+                MaryProperties.needFilename(propertyPrefix+"allophoneset"),
                 MaryProperties.getFilename(propertyPrefix+"userdict"),
                 MaryProperties.needFilename(propertyPrefix+"lexicon"),
                 MaryProperties.needFilename(propertyPrefix+"lettertosound"));
@@ -92,10 +96,12 @@ public class JPhonemiser extends InternalModule
      * @param ltsFilename
      * @throws Exception
      */
-    public JPhonemiser(String allophonesFilename, String userdictFilename, String lexiconFilename, String ltsFilename)
-    throws Exception
+    public JPhonemiser(String componentName, 
+            MaryDataType inputType, MaryDataType outputType,
+            String allophonesFilename, String userdictFilename, String lexiconFilename, String ltsFilename)
+    throws IOException,  SAXException, ParserConfigurationException
     {
-        super("JPhonemiser", MaryDataType.PARTSOFSPEECH, MaryDataType.PHONEMES,
+        super(componentName, inputType, outputType,
                 AllophoneSet.getAllophoneSet(allophonesFilename).getLocale());
         allophoneSet = AllophoneSet.getAllophoneSet(allophonesFilename);
         // userdict is optional
@@ -235,7 +241,7 @@ public class JPhonemiser extends InternalModule
      * @param pos
      * @return
      */
-    protected String lexiconLookup(String text, String pos)
+    public String lexiconLookup(String text, String pos)
     {
         if (text == null || text.length() == 0) return null;
         String[] entries;
@@ -277,7 +283,7 @@ public class JPhonemiser extends InternalModule
      * @param pos
      * @return
      */
-    protected String userdictLookup(String text, String pos)
+    public String userdictLookup(String text, String pos)
     {
         if (userdict == null || text == null || text.length() == 0) return null;
         List<String> entries = userdict.get(text);
@@ -299,7 +305,7 @@ public class JPhonemiser extends InternalModule
          for (String entry : entries) {
              String[] parts = entry.split("\\|");
              transcr = parts[0];
-             if (parts.length > 1) {
+             if (parts.length > 1 && pos != null) {
                  StringTokenizer tokenizer = new StringTokenizer(entry);
                  while (tokenizer.hasMoreTokens()) {
                      String onePos = tokenizer.nextToken();

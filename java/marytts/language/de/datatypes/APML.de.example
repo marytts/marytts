@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<!DOCTYPE apml SYSTEM "http://mary.dfki.de/lib/apml.dtd" []>
+<apml xml:lang="de">
+<performative  type="announce">
+<theme affect="joy">
+Willkommen<boundary type="H"/>in der <emphasis level="strong">wunderbaren</emphasis> Welt der
+<emphasis x-pitchaccent="Hstar">Sprachsynthese</emphasis>
+<boundary type="LL"/>!
+</theme>
+</performative>
+</apml>
