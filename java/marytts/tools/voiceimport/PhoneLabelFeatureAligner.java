@@ -818,71 +818,75 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
      */
     protected String verifyAlignment(String basename) throws IOException
     {
-        BufferedReader labels;
-        try{
-            labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File(labDir+ basename + labExt )), "UTF-8"));
-        } catch (FileNotFoundException fnfe) {
-            return "No label file "+labDir+ basename + labExt;
-        }
-            BufferedReader features; 
+        BufferedReader labels = null;
+        BufferedReader features = null;
         try {
-            features = new BufferedReader(new InputStreamReader(new FileInputStream(new File(featsDir+ basename + featsExt )), "UTF-8"));
-        } catch (FileNotFoundException fnfe) {
-            return "No feature file "+featsDir+ basename + featsExt;
-        }
-        
-        String line;
-        // Skip label file header:
-        while ((line = labels.readLine()) != null) {
-            if (line.startsWith("#")) break; // line starting with "#" marks end of header
-        }
-        // Skip features file header:
-        while ((line = features.readLine()) != null) {
-            if (line.trim().equals("")) break; // empty line marks end of header
-        }
-        
-        // Now go through all feature file units
-        boolean correct = true;
-        int unitIndex= 0;
-        while (correct) {
-            line = labels.readLine();
-            String labelUnit = null;
-            if (line != null){
-                List<String> labelUnitData = getLabelUnitData(line);
-                labelUnit = (String)labelUnitData.get(2);
-                unitIndex = Integer.parseInt((String)labelUnitData.get(1));
+            try{
+                labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File(labDir+ basename + labExt )), "UTF-8"));
+            } catch (FileNotFoundException fnfe) {
+                return "No label file "+labDir+ basename + labExt;
             }
-                
-            String featureUnit = getFeatureUnit(features);
-            if (featureUnit == null) throw new IOException("Incomplete feature file: "+basename);
-            // when featureUnit is the empty string, we have found an empty line == end of feature section
-            if ("".equals(featureUnit)) {
-               if (labelUnit == null) {
-                   //we have reached the end in both labels and features
-                   break;
-               } else {
-                   //label file is longer than feature file
-                   return "Label file is longer than feature file: "
-                   +" unit "+unitIndex
-                   +" and greater do not exist in feature file";  
-               }
+            try {
+                features = new BufferedReader(new InputStreamReader(new FileInputStream(new File(featsDir+ basename + featsExt )), "UTF-8"));
+            } catch (FileNotFoundException fnfe) {
+                return "No feature file "+featsDir+ basename + featsExt;
             }
-            if (labelUnit == null) {
-                //feature file is longer than label file
-                unitIndex++;
-                return "Feature file is longer than label file: "
-                   +" unit "+unitIndex
-                   +" and greater do not exist in label file";  
+            
+            String line;
+            // Skip label file header:
+            while ((line = labels.readLine()) != null) {
+                if (line.startsWith("#")) break; // line starting with "#" marks end of header
             }
-            if (!featureUnit.equals(labelUnit)) {
-                //label and feature unit do not match
-                return "Non-matching units found: feature file '"
-                +featureUnit+"' vs. label file '"+labelUnit
-                +"' (Unit "+unitIndex+")";
+            // Skip features file header:
+            while ((line = features.readLine()) != null) {
+                if (line.trim().equals("")) break; // empty line marks end of header
             }
+            
+            // Now go through all feature file units
+            boolean correct = true;
+            int unitIndex= 0;
+            while (correct) {
+                line = labels.readLine();
+                String labelUnit = null;
+                if (line != null){
+                    List<String> labelUnitData = getLabelUnitData(line);
+                    labelUnit = (String)labelUnitData.get(2);
+                    unitIndex = Integer.parseInt((String)labelUnitData.get(1));
+                }
+                    
+                String featureUnit = getFeatureUnit(features);
+                if (featureUnit == null) throw new IOException("Incomplete feature file: "+basename);
+                // when featureUnit is the empty string, we have found an empty line == end of feature section
+                if ("".equals(featureUnit)) {
+                   if (labelUnit == null) {
+                       //we have reached the end in both labels and features
+                       break;
+                   } else {
+                       //label file is longer than feature file
+                       return "Label file is longer than feature file: "
+                       +" unit "+unitIndex
+                       +" and greater do not exist in feature file";  
+                   }
+                }
+                if (labelUnit == null) {
+                    //feature file is longer than label file
+                    unitIndex++;
+                    return "Feature file is longer than label file: "
+                       +" unit "+unitIndex
+                       +" and greater do not exist in label file";  
+                }
+                if (!featureUnit.equals(labelUnit)) {
+                    //label and feature unit do not match
+                    return "Non-matching units found: feature file '"
+                    +featureUnit+"' vs. label file '"+labelUnit
+                    +"' (Unit "+unitIndex+")";
+                }
+            }
+        } finally {
+            if (labels != null) labels.close();
+            if (features != null) features.close();
+            
         }
-        labels.close();
-        features.close();
         return null; // success
     }
     
