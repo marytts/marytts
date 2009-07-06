@@ -35,7 +35,9 @@ import marytts.tools.transcription.TranscriptionGUI;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
 
@@ -345,7 +347,7 @@ public class SynthesisScriptGUI extends JPanel implements TableModelListener{
             if( sel != null){
               // saving sentences in a file
               try{              
-                PrintWriter selectedLog = new PrintWriter(new FileWriter(new File(saveFile)));                
+                PrintWriter selectedLog = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(saveFile)), "UTF-8"));
                 String str;
                 for(int i=0; i<sel.length; i++){
                   str = wikiToDB.getSelectedSentence(actualTableName, sel[i]);  
