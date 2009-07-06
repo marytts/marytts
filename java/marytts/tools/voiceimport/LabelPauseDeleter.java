@@ -110,12 +110,23 @@ public class LabelPauseDeleter extends VoiceImportComponent {
          */        
         private void getProperLabelFormat() throws Exception {
             
-            
+            List<String> problems = new ArrayList<String>();
             for (int i=0; i<bnl.getLength(); i++) {
                 progress = 100*i/bnl.getLength();
-                convertSingleLabelFile(bnl.getName(i));               
-                System.out.println( "    " + bnl.getName(i) );
-                
+                String basename = bnl.getName(i);
+                boolean ok = convertSingleLabelFile(basename);
+                if (ok) {
+                    System.out.println( "    " + basename);
+                } else {
+                    System.out.println("     cannot read " + basename);
+                    problems.add(basename);
+                }
+            }
+            if (problems.size() > 0) {
+                System.out.println(problems.size() + " out of " + bnl.getLength() + " could not be read:");
+                for (String b : problems) {
+                    System.out.println("    "+b);
+                }
             }
         }
         
@@ -125,8 +136,9 @@ public class LabelPauseDeleter extends VoiceImportComponent {
          * Post Processing single Label file
          * @param basename
          * @throws Exception
+         * @return true on success, false on failure
          */
-        private void convertSingleLabelFile(String basename) throws Exception {
+        private boolean convertSingleLabelFile(String basename) throws Exception {
             
             String line;
             String previous, current;
@@ -139,47 +151,56 @@ public class LabelPauseDeleter extends VoiceImportComponent {
             }
             
             // READ LABEL FILE
-            UnitLabel[] ulab = UnitLabel.readLabFile(getProp(EDIR)+"/lab/"+basename+labExt);
-            
-            // Remove multiple consecutive pauses
-            ArrayList<UnitLabel> arrayLabel = new ArrayList<UnitLabel>();
-            for(int i=0; i<ulab.length; i++){
-                boolean iscPause = ulab[i].getUnitName().matches(regexp1) || ulab[i].getUnitName().matches(regexp2);
-                if((i+1)<ulab.length){
-                    boolean isnPause = ulab[i+1].getUnitName().matches(regexp1) || ulab[i+1].getUnitName().matches(regexp2);
-                    if(iscPause && isnPause){
-                        ulab[i+1].setStartTime(ulab[i].getStartTime());
-                        //System.out.println(ulab[i].getEndTime()+" "+ulab[i].getUnitIndex()+" "+ulab[i].getUnitName());
-                        continue;
+            String filename = getProp(EDIR)+"/lab/"+basename+labExt;
+            if (!new File(filename).exists()) return false;
+            try {
+                UnitLabel[] ulab = UnitLabel.readLabFile(filename);
+                
+                // Remove multiple consecutive pauses
+                ArrayList<UnitLabel> arrayLabel = new ArrayList<UnitLabel>();
+                for(int i=0; i<ulab.length; i++){
+                    boolean iscPause = ulab[i].getUnitName().matches(regexp1) || ulab[i].getUnitName().matches(regexp2);
+                    if((i+1)<ulab.length){
+                        boolean isnPause = ulab[i+1].getUnitName().matches(regexp1) || ulab[i+1].getUnitName().matches(regexp2);
+                        if(iscPause && isnPause){
+                            ulab[i+1].setStartTime(ulab[i].getStartTime());
+                            //System.out.println(ulab[i].getEndTime()+" "+ulab[i].getUnitIndex()+" "+ulab[i].getUnitName());
+                            continue;
+                        }
                     }
+                    if(iscPause){
+                        ulab[i].setUnitName(pauseSymbol);
+                    }
+                    arrayLabel.add(ulab[i]);
                 }
-                if(iscPause){
-                    ulab[i].setUnitName(pauseSymbol);
-                }
-                arrayLabel.add(ulab[i]);
-            }
-            
-            // Remove pauses below given threshold 
-            for(int i=0; i<arrayLabel.size(); i++){
-                UnitLabel ul = arrayLabel.get(i);
-                if(i>0 && (i+1)<arrayLabel.size()){
-                    if(ul.getUnitName().equals(pauseSymbol)){
-                        double duration = ul.endTime - ul.startTime;
-                        if(!isRealPause(duration)){
-                            //System.out.println(ul.startTime + " "+ ul.endTime + " "+ul.unitName);
-                            UnitLabel pul = arrayLabel.get(i-1);
-                            UnitLabel nul = arrayLabel.get(i+1);
-                            pul.setEndTime(pul.getEndTime()+((double)duration / 2.0));
-                            nul.setStartTime(nul.getStartTime()-((double)duration / 2.0));
-                            arrayLabel.remove(i--);
+                
+                // Remove pauses below given threshold 
+                for(int i=0; i<arrayLabel.size(); i++){
+                    UnitLabel ul = arrayLabel.get(i);
+                    if(i>0 && (i+1)<arrayLabel.size()){
+                        if(ul.getUnitName().equals(pauseSymbol)){
+                            double duration = ul.endTime - ul.startTime;
+                            if(!isRealPause(duration)){
+                                //System.out.println(ul.startTime + " "+ ul.endTime + " "+ul.unitName);
+                                UnitLabel pul = arrayLabel.get(i-1);
+                                UnitLabel nul = arrayLabel.get(i+1);
+                                pul.setEndTime(pul.getEndTime()+((double)duration / 2.0));
+                                nul.setStartTime(nul.getStartTime()-((double)duration / 2.0));
+                                arrayLabel.remove(i--);
+                            }
                         }
                     }
                 }
+                ulab = arrayLabel.toArray(new UnitLabel[0]);
+                
+                // write labels into given file
+                UnitLabel.writeLabFile(ulab, labDir+"/"+basename+labExt);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
             }
-            ulab = arrayLabel.toArray(new UnitLabel[0]);
-            
-            // write labels into given file
-            UnitLabel.writeLabFile(ulab, labDir+"/"+basename+labExt);
+            return true; // success
+
         }
       
       private boolean isRealPause(double phoneDuration){
