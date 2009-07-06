@@ -1458,7 +1458,7 @@ public class DBHandler {
           e.printStackTrace();
       }
       try { 
-          pw = new PrintWriter(new FileWriter(new File(fileName)));
+          pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(fileName)), "UTF-8"));
           wordBytes=null;
           while( rs.next() ) {
             wordBytes=rs.getBytes(1);
