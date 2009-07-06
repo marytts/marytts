@@ -176,20 +176,15 @@ public class FeatureSelection extends VoiceImportComponent
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(new ActionListener() {
            public void actionPerformed(ActionEvent e) {                
-                frame.setVisible(false);
-                try{
-                    saveFeatures(editPane.getText());                
-                } catch (Exception ex){
-                    ex.printStackTrace();
-                    throw new Error("Error defining replacements");
-                }
+               setSuccess(true);
+               frame.setVisible(false);
             }
         });
         JButton cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                frame.setVisible(false);
                 setSuccess(false);
+                frame.setVisible(false);
             }
         });
         
@@ -222,6 +217,15 @@ public class FeatureSelection extends VoiceImportComponent
             } catch (InterruptedException e) {}
         } while (frame.isVisible());
         frame.dispose();
+
+        if (success) {
+            try{
+                saveFeatures(editPane.getText());                
+            } catch (Exception ex){
+                ex.printStackTrace();
+                throw new Error("Error defining replacements");
+            }
+        }
 
         return success;
     }
