@@ -97,34 +97,6 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
             }
             System.out.print("Created successfully.\n");
         }
-        File featureFile = new File(getProp(FEATURELIST));
-        if (!featureFile.exists()) {
-            System.out.println("No feature file: '"+getProp(FEATURELIST)+"'");
-        } else {
-            System.out.println("Loading features from file "+getProp(FEATURELIST));
-            try {
-                featureList = FileUtils.getFileAsString(featureFile, "UTF-8");
-                featureList = featureList.replaceAll("\\s+", " ");
-                // Exclude specific halfphone features if present:
-                for (String f : HalfPhoneUnitFeatureComputer.HALFPHONE_FEATURES) {
-                    if (featureList.contains(f)) {
-                        featureList = featureList.replaceAll(f, "");
-                    }
-                }
-                if (!featureList.contains(PHONEFEATURE)) {
-                    throw new Exception("Feature list does not contain feature '"+PHONEFEATURE+"'. It makes no sense to continue.");
-                }
-                if (!featureList.startsWith(PHONEFEATURE)) {
-                    // PHONEFEATURE must be the first one in the list
-                    featureList = featureList.replaceFirst("\\s+"+PHONEFEATURE+"\\s*", " ");
-                    featureList = PHONEFEATURE + " " + featureList;
-                }
-            } catch (IOException e) {
-                IOException ioe = new IOException("Cannot read list of features");
-                ioe.initCause(e);
-                throw ioe;
-            }
-        }
 
         maryInputType = "ALLOPHONES";
         maryOutputType = "TARGETFEATURES";
@@ -171,8 +143,44 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
         return mary;
     }
 
+     protected void loadFeatureList()
+     throws IOException
+     {
+         File featureFile = new File(getProp(FEATURELIST));
+         if (!featureFile.exists()) {
+             System.out.println("No feature file: '"+getProp(FEATURELIST)+"'");
+         } else {
+             System.out.println("Loading features from file "+getProp(FEATURELIST));
+             try {
+                 featureList = FileUtils.getFileAsString(featureFile, "UTF-8");
+                 featureList = featureList.replaceAll("\\s+", " ");
+                 // Exclude specific halfphone features if present:
+                 for (String f : HalfPhoneUnitFeatureComputer.HALFPHONE_FEATURES) {
+                     if (featureList.contains(f)) {
+                         featureList = featureList.replaceAll(f, "");
+                     }
+                 }
+                 if (!featureList.contains(PHONEFEATURE)) {
+                     throw new RuntimeException("Feature list does not contain feature '"+PHONEFEATURE+"'. It makes no sense to continue.");
+                 }
+                 if (!featureList.startsWith(PHONEFEATURE)) {
+                     // PHONEFEATURE must be the first one in the list
+                     featureList = featureList.replaceFirst("\\s+"+PHONEFEATURE+"\\s*", " ");
+                     featureList = PHONEFEATURE + " " + featureList;
+                 }
+             } catch (IOException e) {
+                 IOException ioe = new IOException("Cannot read list of features");
+                 ioe.initCause(e);
+                 throw ioe;
+             }
+         }
+
+     }
+     
     public boolean compute() throws IOException
     {
+        
+        loadFeatureList();
         
         textDir = new File(db.getProp(db.TEXTDIR));
         System.out.println( "Computing unit features for " + bnl.getLength() + " files" );

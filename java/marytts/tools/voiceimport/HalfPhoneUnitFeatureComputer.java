@@ -66,32 +66,6 @@ public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer
             }
             System.out.print("Created successfully.\n");
         }
-        File featureFile = new File(getProp(FEATURELIST));
-        if (!featureFile.exists()) {
-            System.out.println("No feature file: '"+getProp(FEATURELIST)+"'");
-        } else {
-            System.out.println("Loading features from file "+getProp(FEATURELIST));
-            try {
-                featureList = FileUtils.getFileAsString(featureFile, "UTF-8");
-                featureList = featureList.replaceAll("\\s+", " ");
-                // Make sure specific halfphone features are included:
-                for (String f : HALFPHONE_FEATURES) {
-                    if (!featureList.contains(f)) {
-                        featureList = f + " " + featureList;
-                    }
-                }
-                if (!featureList.startsWith(HALFPHONE_UNITNAME)) {
-                    // HALFPHONE_UNITNAME must be the first one in the list
-                    featureList = featureList.replaceFirst("\\s+"+HALFPHONE_UNITNAME+"\\s+", " ");
-                    featureList = HALFPHONE_UNITNAME + " " + featureList;
-
-                }
-            } catch (IOException e) {
-                IOException ioe = new IOException("Cannot read feature list");
-                ioe.initCause(e);
-                throw ioe;
-            }
-        }
         maryInputType  = "ALLOPHONES";
         maryOutputType = "HALFPHONE_TARGETFEATURES";
     }
@@ -122,5 +96,39 @@ public class HalfPhoneUnitFeatureComputer extends PhoneUnitFeatureComputer
          props2Help.put(MARYSERVERHOST,"the host were the Mary server is running, default: \"localhost\"");
          props2Help.put(MARYSERVERPORT,"the port were the Mary server is listening, default: \"59125\"");
      }
+      
+      
+      @Override
+      protected void loadFeatureList()
+      throws IOException
+      {
+          File featureFile = new File(getProp(FEATURELIST));
+          if (!featureFile.exists()) {
+              System.out.println("No feature file: '"+getProp(FEATURELIST)+"'");
+          } else {
+              System.out.println("Loading features from file "+getProp(FEATURELIST));
+              try {
+                  featureList = FileUtils.getFileAsString(featureFile, "UTF-8");
+                  featureList = featureList.replaceAll("\\s+", " ");
+                  // Make sure specific halfphone features are included:
+                  for (String f : HALFPHONE_FEATURES) {
+                      if (!featureList.contains(f)) {
+                          featureList = f + " " + featureList;
+                      }
+                  }
+                  if (!featureList.startsWith(HALFPHONE_UNITNAME)) {
+                      // HALFPHONE_UNITNAME must be the first one in the list
+                      featureList = featureList.replaceFirst("\\s+"+HALFPHONE_UNITNAME+"\\s+", " ");
+                      featureList = HALFPHONE_UNITNAME + " " + featureList;
+
+                  }
+              } catch (IOException e) {
+                  IOException ioe = new IOException("Cannot read feature list");
+                  ioe.initCause(e);
+                  throw ioe;
+              }
+          }
+
+      }
 }
 
