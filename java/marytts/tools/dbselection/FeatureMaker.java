@@ -188,6 +188,13 @@ public class FeatureMaker
             System.out.println("TARGETFEATURES to extract: " + targetFeatures);
             System.out.println("Starting time:" + dateStringIni + "\n");
 
+            TargetFeatureComputer featureComputer = FeatureRegistry.getTargetFeatureComputer(MaryUtils.string2locale(locale), targetFeatures);
+            FeatureDefinition fdef = featureComputer.getFeatureDefinition();
+            PrintWriter pw = new PrintWriter(new FileWriter(new File(locale + "_featureDefinition.txt")));
+            fdef.writeTo(pw, false);
+            pw.close();
+            System.out.println("\nCreated featureDefinition file:" + locale + "_featureDefinition.txt");
+
 
             for(i=0; i<textId.length; i++) {
                 // get next unprocessed text  
@@ -216,12 +223,11 @@ public class FeatureMaker
                         }        		
                     }//end of loop over list of sentences
                     */
-                    TargetFeatureComputer featureComputer = FeatureRegistry.getTargetFeatureComputer(MaryUtils.string2locale(locale), targetFeatures);
+                    
                     for (String sentence : sentenceList) {
                         byte[] feas = processSentenceToFeatures(sentence, textId[i], featureComputer);
                         if (feas == null) continue;
                         if (false) { // turn on for debugging, to check the features computed make sense
-                            FeatureDefinition fdef = featureComputer.getFeatureDefinition();
                             int numFeatures = selectionFeature.size();
                             System.out.println(sentence);
                             for (int t=0; t<feas.length; t+=numFeatures) {
@@ -564,95 +570,6 @@ public class FeatureMaker
     
 
 	
-		
-		/**
-		 * Process the target features
-		 * and print them to the given file 
-		 * 
-		 * @param filename the file to print the features to
-		 * @param d the target features as Mary Data object
-		 * @throws Exception
-		 */
-		protected static byte[] getFeatures(MaryData d)throws Exception{
-            
-            BufferedReader featsDis = new BufferedReader(new InputStreamReader(
-                    new ByteArrayInputStream(d.getPlainText().getBytes())));  
-            
-            
-			String line;
-            // The first time the feaDef is null, so then load the featureDefinition and the indexes of the features
-            // used for selection. 
-			if (featDef == null){  
- 			  featDef = new FeatureDefinition(featsDis,false);
-              // find the indexes of the features for selection
-              // here we need to generate a featureDefinition file with the selectionFeatures
-              selectionFeatureIndex = new int[selectionFeature.size()];
-              PrintWriter pw = new PrintWriter(new FileWriter(new File("./" + locale + "_featureDefinition.txt")));
-              System.out.println("\nCreated featureDefinition file:" + "./" + locale + "_featureDefinition.txt");
-              pw.write("# This file lists the features to be used for the selection algorithm. \n" +
-                       "#\n" +
-                       "# Note that the feature definitions must be identical between this file\n" +
-                       "# and the feature files used for selection. Use the corresponding file\n" +
-                       "# [locale]-targetfeatures.config for feature computation.\n" +
-                       "# \n" +
-                       "\n" +
-                       "ByteValuedFeatureProcessors\n");
-              
-              for(int i=0; i<selectionFeature.size(); i++){
-                 selectionFeatureIndex[i] = featDef.getFeatureIndex(selectionFeature.elementAt(i));
-                 
-                 String[] feas = featDef.getPossibleValues(selectionFeatureIndex[i]);
-                 pw.print(selectionFeature.elementAt(i) + " ");
-                 for(int j=0; j<feas.length; j++)
-                   pw.print(feas[j] + " ");  
-                 pw.println();
-              }
-              pw.println("ShortValuedFeatureProcessors\nContinuousFeatureProcessors\n");
-              pw.close();
-              
-            }  else { // once the featDef has been load just skip the first part of the featDis
-				//read until an empty line occurs
-				while ((line = featsDis.readLine()) != null){
-					if (line.equals("")) break;
-				}
-			}
-			
-			// loop over the feature vectors 
-			List<String> featureLines = new ArrayList<String>();
-			while ((line = featsDis.readLine()) != null){
-				if (line.equals("")) break;
-				featureLines.add(line);
-			}
-			int numLines = featureLines.size();
-			//System.out.println("num vectors = "+numLines);
-			byte[][] featVects = new byte[numLines][];
-			for (int i=0;i<numLines;i++){
-				line = (String) featureLines.get(i);
-				String[] fv = line.split(" ");
-				byte[] nextVector = new byte[4];
-                for(int j=0; j<selectionFeature.size(); j++)
-                  nextVector[j] =  featDef.getFeatureValueAsByte(selectionFeature.elementAt(j),fv[selectionFeatureIndex[j]]);
-                featVects[i] = nextVector;
-				
-			} //end of while-loop over the feature vectors
-              
-            // create a byte vector with the reults
-            //System.out.println("number of lines=" + numLines);
-            byte feasVector[] = new byte[(numLines*4)];
-            
-			for (int n=0,i=0;i<featVects.length;i++){
-				byte[] nextFeatVects = featVects[i];
-				if (nextFeatVects == null){
-					System.out.println("nextFeatVects are null at index "+i);
-				}
-               for(int m=0; m<selectionFeature.size(); m++)
-                   feasVector[n++] = nextFeatVects[m];
-    		}
-            
-	        return feasVector;
-		}
-		
-		
 	
         
 		/**
