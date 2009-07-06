@@ -133,7 +133,7 @@ public class VoiceInstaller extends VoiceImportComponent{
         String filedir = db.getProp(db.FILEDIR);
         String configdir = db.getProp(db.CONFIGDIR);
         String maryBase = db.getProp(db.MARYBASE);
-        if (!maryBase.endsWith("/")) maryBase = maryBase + "/";
+        if (!maryBase.endsWith(fileSeparator)) maryBase = maryBase + fileSeparator;
         String newVoiceDir = maryBase
         					+"lib"+fileSeparator
         					+"voices"+fileSeparator
@@ -201,7 +201,7 @@ public class VoiceInstaller extends VoiceImportComponent{
         // Normalise locale: (e.g., if user set en-US, change it to en_US)
         String locale = MaryUtils.string2locale(db.getProp(db.LOCALE)).toString();
         
-        String configFileName = db.getProp(db.MARYBASE)
+        String configFileName = maryBase
         					+"conf"+fileSeparator
         					+locale
         					+"-"+db.getProp(db.VOICENAME).toLowerCase()

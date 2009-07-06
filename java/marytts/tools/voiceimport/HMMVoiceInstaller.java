@@ -32,6 +32,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 
 /**
@@ -199,7 +200,9 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
         String fileSeparator = System.getProperty("file.separator");
         String filedir = db.getProp(db.FILEDIR);
         String configdir = db.getProp(db.CONFIGDIR);
-        String newVoiceDir = db.getProp(db.MARYBASE)
+        String maryBase = db.getProp(db.MARYBASE);
+        if (!maryBase.endsWith(fileSeparator)) maryBase = maryBase + fileSeparator;
+        String newVoiceDir = maryBase
         					+"lib"+fileSeparator
         					+"voices"+fileSeparator
         					+db.getProp(db.VOICENAME).toLowerCase()
@@ -324,7 +327,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
             }
         }
         
-        String configFileName = db.getProp(db.MARYBASE)
+        String configFileName = maryBase
         					+"conf"+fileSeparator
         					+longLocale
         					+"-"+db.getProp(db.VOICENAME).toLowerCase()
@@ -338,11 +341,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
         if( getProp(createZipFile).contentEquals("true") ) {
           System.out.println("\nCreating voice installation file: " + db.getProp(db.MARYBASE)+longLocale 
                                + "-"+db.getProp(db.VOICENAME).toLowerCase() + ".zip\n");  
-          String maryBase = db.getProp(db.MARYBASE);
-          if(maryBase.contains(" ") ){  
-            int i = maryBase.indexOf(" ");
-            maryBase = maryBase.substring(0, i) + "\\ " + maryBase.substring(i+1);
-          }
+          String maryBaseForShell = maryBase.replaceAll(" ", Pattern.quote("\\ "));
           String installZipFile = longLocale
                                + "-"+db.getProp(db.VOICENAME).toLowerCase()
                                + ".zip";
@@ -350,7 +349,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
                          + longLocale
                          + "-"+db.getProp(db.VOICENAME).toLowerCase()
                          + ".config";
-          String cmdLine = "cd "+ maryBase + "\n" + getProp(zipCommand) + " " 
+          String cmdLine = "cd "+ maryBaseForShell + "\n" + getProp(zipCommand) + " " 
                          + installZipFile + " " 
                          + configFileName + " "
                          + "lib/voices/" + db.getProp(db.VOICENAME).toLowerCase() + fileSeparator + "*";  
