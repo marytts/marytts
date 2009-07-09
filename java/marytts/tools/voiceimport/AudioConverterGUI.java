@@ -80,6 +80,10 @@ public class AudioConverterGUI extends javax.swing.JFrame {
         cbGlobalAmplitude = new javax.swing.JCheckBox();
         jLabel5 = new javax.swing.JLabel();
         comboMaxAmplitude = new javax.swing.JComboBox();
+        jLabel6 = new javax.swing.JLabel();
+        tfSoxPath = new javax.swing.JTextField();
+        bBrowseSoxPath = new javax.swing.JButton();
+        cbTrimSilences = new javax.swing.JCheckBox();
         progressBar = new javax.swing.JProgressBar();
         bRun = new javax.swing.JButton();
         bQuit = new javax.swing.JButton();
@@ -165,6 +169,20 @@ public class AudioConverterGUI extends javax.swing.JFrame {
         comboMaxAmplitude.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "0.5", "0.6", "0.7", "0.8", "0.9", "1.0 (maximum)", "1.1 (causes clipping)", "1.2 (causes clipping)", "1.3 (causes clipping)", "1.4 (causes clipping)", "1.5 (causes clipping)" }));
         comboMaxAmplitude.setSelectedIndex(4);
 
+        jLabel6.setText("Location of sox binary:");
+
+        bBrowseSoxPath.setText("Browse");
+        bBrowseSoxPath.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                browseSoxActionPerformed(evt);
+            }
+        });
+
+        cbTrimSilences.setSelected(true);
+        cbTrimSilences.setText("Trim initial and final silences");
+        cbTrimSilences.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        cbTrimSilences.setMargin(new java.awt.Insets(0, 0, 0, 0));
+
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -182,21 +200,30 @@ public class AudioConverterGUI extends javax.swing.JFrame {
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(rbBoth, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 67, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(cbStereoMono, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 322, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(26, 26, 26)
-                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(jPanel1Layout.createSequentialGroup()
-                                .add(jLabel4)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .add(comboSampleRate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 103, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(jPanel1Layout.createSequentialGroup()
-                                .add(jLabel5)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .add(comboMaxAmplitude, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                     .add(cbDownsample, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 312, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(cbHighPassFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 312, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(cbPowerNormalise, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)
-                    .add(cbGlobalAmplitude, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 276, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(cbPowerNormalise, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 467, Short.MAX_VALUE)
+                    .add(cbGlobalAmplitude, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 276, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jPanel1Layout.createSequentialGroup()
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, cbTrimSilences, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1Layout.createSequentialGroup()
+                                .add(26, 26, 26)
+                                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1Layout.createSequentialGroup()
+                                        .add(jLabel4)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(comboSampleRate, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1Layout.createSequentialGroup()
+                                        .add(jLabel5)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(comboMaxAmplitude, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .add(jPanel1Layout.createSequentialGroup()
+                                        .add(jLabel6)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .add(tfSoxPath, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 189, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(bBrowseSoxPath)))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -224,9 +251,16 @@ public class AudioConverterGUI extends javax.swing.JFrame {
                 .add(14, 14, 14)
                 .add(cbDownsample, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel4)
                     .add(comboSampleRate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(tfSoxPath, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(bBrowseSoxPath)
+                    .add(jLabel6))
+                .add(14, 14, 14)
+                .add(cbTrimSilences, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -249,30 +283,31 @@ public class AudioConverterGUI extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(92, 92, 92)
-                .add(bRun)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 168, Short.MAX_VALUE)
-                .add(bQuit)
-                .add(98, 98, 98))
-            .add(layout.createSequentialGroup()
-                .add(20, 20, 20)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, progressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 468, Short.MAX_VALUE)
-                    .add(jPanel1, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(layout.createSequentialGroup()
+                        .addContainerGap()
                         .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jLabel1)
-                            .add(jLabel2))
-                        .add(20, 20, 20)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 477, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(layout.createSequentialGroup()
-                                .add(tfInputDir, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 205, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(jLabel2)
+                                    .add(jLabel1))
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(bBrowseInputDir))
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, tfInputDir, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE)
+                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, tfOutputDir, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE))
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, bBrowseOutputDir)
+                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, bBrowseInputDir)))))
+                    .add(layout.createSequentialGroup()
+                        .add(112, 112, 112)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                             .add(layout.createSequentialGroup()
-                                .add(tfOutputDir, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 205, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(bBrowseOutputDir)))))
+                                .add(bRun)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .add(bQuit))
+                            .add(progressBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 307, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -281,25 +316,37 @@ public class AudioConverterGUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel1)
-                    .add(tfInputDir, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(bBrowseInputDir))
+                    .add(bBrowseInputDir)
+                    .add(tfInputDir, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(tfOutputDir, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel2)
                     .add(bBrowseOutputDir)
-                    .add(jLabel2))
+                    .add(tfOutputDir, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 314, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(progressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 21, Short.MAX_VALUE)
+                .add(progressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(bQuit)
-                    .add(bRun))
+                    .add(bRun)
+                    .add(bQuit))
                 .addContainerGap())
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void browseSoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseSoxActionPerformed
+        JFileChooser fc = new JFileChooser();
+        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+
+        int returnVal = fc.showOpenDialog(this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            // System.out.println("Opening: " + file.getAbsolutePath());
+            tfSoxPath.setText(file.getAbsolutePath());
+        }
+    }//GEN-LAST:event_browseSoxActionPerformed
 
     private void bQuitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bQuitActionPerformed
         System.exit(0);
@@ -353,6 +400,13 @@ public class AudioConverterGUI extends javax.swing.JFrame {
         
         boolean downSample = cbDownsample.isSelected();
         int targetSampleRate = Integer.parseInt((String)comboSampleRate.getSelectedItem());
+        String soxPath = tfSoxPath.getText();
+        if (downSample && !new File(soxPath).exists()) {
+            JOptionPane.showConfirmDialog(this, "Please indicate location of 'sox' tool\n"
+                    +"or deactivate sample rate conversion.",
+                    "Info missing", JOptionPane.OK_OPTION);
+            return;
+        }
         
         boolean highPassFilter = cbHighPassFilter.isSelected();
         
@@ -361,7 +415,9 @@ public class AudioConverterGUI extends javax.swing.JFrame {
         boolean maximiseAmplitude = cbGlobalAmplitude.isSelected();
         double targetMaxAmplitude = Double.parseDouble(((String)comboMaxAmplitude.getSelectedItem()).substring(0, 3));
         
-        if (!(stereoMono || downSample || highPassFilter || powerNormalise)) {
+        boolean trimSilences = cbTrimSilences.isSelected();
+        
+        if (!(stereoMono || downSample || highPassFilter || powerNormalise || trimSilences)) {
             JOptionPane.showConfirmDialog(this, "Nothing to do!", "Info missing", JOptionPane.OK_OPTION, JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -370,7 +426,8 @@ public class AudioConverterGUI extends javax.swing.JFrame {
         progressBar.setStringPainted(true);
         try {
             new Converter(inDirPath, outDirPath, bestOnly, stereoMono, whichChannel, downSample, targetSampleRate,
-                    highPassFilter, powerNormalise, maximiseAmplitude, targetMaxAmplitude).start();
+                    soxPath,
+                    highPassFilter, powerNormalise, maximiseAmplitude, targetMaxAmplitude, trimSilences).start();
         } catch (IOException ioe) {
             ioe.printStackTrace();
             progressBar.setStringPainted(false);
@@ -391,6 +448,7 @@ public class AudioConverterGUI extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bBrowseInputDir;
     private javax.swing.JButton bBrowseOutputDir;
+    private javax.swing.JButton bBrowseSoxPath;
     private javax.swing.JButton bQuit;
     private javax.swing.JButton bRun;
     private javax.swing.ButtonGroup buttonGroup1;
@@ -400,6 +458,7 @@ public class AudioConverterGUI extends javax.swing.JFrame {
     private javax.swing.JCheckBox cbHighPassFilter;
     private javax.swing.JCheckBox cbPowerNormalise;
     private javax.swing.JCheckBox cbStereoMono;
+    private javax.swing.JCheckBox cbTrimSilences;
     private javax.swing.JComboBox comboMaxAmplitude;
     private javax.swing.JComboBox comboSampleRate;
     private javax.swing.JLabel jLabel1;
@@ -407,6 +466,7 @@ public class AudioConverterGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JRadioButton rbBoth;
@@ -414,6 +474,7 @@ public class AudioConverterGUI extends javax.swing.JFrame {
     private javax.swing.JRadioButton rbRight;
     private javax.swing.JTextField tfInputDir;
     private javax.swing.JTextField tfOutputDir;
+    private javax.swing.JTextField tfSoxPath;
     // End of variables declaration//GEN-END:variables
     
     public class Converter extends Thread
@@ -426,13 +487,17 @@ public class AudioConverterGUI extends javax.swing.JFrame {
         private int channel;
         private boolean downSample;
         private int targetSampleRate;
+        private String soxPath;
         private boolean highPassFilter;
         private boolean powerNormalise;
         private boolean maximiseAmplitude;
         private double targetMaxAmplitude;
+        private boolean trimSilences;
         
         public Converter(String inDirPath, String outDirPath, final boolean bestOnly, boolean stereoMono, int channel,
-                boolean downSample, int targetSampleRate, boolean highPassFilter, boolean powerNormalise, boolean maximiseAmplitude, double targetMaxAmplitude)
+                boolean downSample, int targetSampleRate, String soxPath,
+                boolean highPassFilter, boolean powerNormalise, boolean maximiseAmplitude, double targetMaxAmplitude,
+                boolean trimSilences)
         throws IOException
         {
                 inDir = new File(inDirPath);
@@ -453,10 +518,12 @@ public class AudioConverterGUI extends javax.swing.JFrame {
                 this.channel = channel;
                 this.downSample = downSample;
                 this.targetSampleRate = targetSampleRate;
+                this.soxPath = soxPath;
                 this.highPassFilter = highPassFilter;
                 this.powerNormalise = powerNormalise;
                 this.maximiseAmplitude = maximiseAmplitude;
                 this.targetMaxAmplitude = targetMaxAmplitude;
+                this.trimSilences = trimSilences;
             
         }
         
@@ -608,15 +675,18 @@ public class AudioConverterGUI extends javax.swing.JFrame {
                     ais.close();
 
                     if (downSample) {
-                        samplingRateConverter(outFile.getAbsolutePath(), targetSampleRate);
+                        samplingRateConverter(soxPath, outFile.getAbsolutePath(), targetSampleRate);
                     }
                 }
                 
                 progressBar.setValue(100);
-                progressBar.setStringPainted(false);
                 System.out.println("Completed Audio Conversion successfully... Done.");
             } catch (Exception e) {
                 e.printStackTrace();
+                progressBar.setValue(0);
+                System.err.println("Audio conversion failed.");
+            } finally {
+                progressBar.setStringPainted(false);
             }
 
         }
@@ -691,26 +761,20 @@ public class AudioConverterGUI extends javax.swing.JFrame {
          * @param targetSamplingRate
          * @throws IOException
          */
-        private void samplingRateConverter(String waveFile, int targetSamplingRate)
+        private void samplingRateConverter(String soxPath, String waveFile, int targetSamplingRate)
         throws IOException
         {
             
+            Runtime rtime = Runtime.getRuntime();
+            String soxCommandLine = soxPath + " " + waveFile + " -r " + targetSamplingRate + " tempOut.wav";
+            Process process = rtime.exec(soxCommandLine);
             try {
-                Runtime rtime = Runtime.getRuntime();
-                Process process = rtime.exec("/bin/bash");
-                
-                PrintWriter pw = new PrintWriter(new OutputStreamWriter(process.getOutputStream()));
-                pw.print("( sox " + waveFile + " -r " + targetSamplingRate
-                        + " tempOut.wav" + " ; mv tempOut.wav " + waveFile
-                        + " ; exit )\n");
-                pw.flush();
-                pw.close();
                 process.waitFor();
-                process.exitValue();
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            return;
+            File outFile = new File("tempOut.wav");
+            outFile.renameTo(new File(waveFile));
         }
 
     
