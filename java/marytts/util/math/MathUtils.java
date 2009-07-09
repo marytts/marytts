@@ -3914,7 +3914,10 @@ public class MathUtils {
 
     public static double median(double[] x)
     {
-        return median(x, 0, x.length-1);
+        if (x!=null && x.length>0)
+            return median(x, 0, x.length-1);
+        else
+            return 0.0;
     }
     
     public static double median(double[] xin, int firstIndex, int lastIndex)
@@ -3926,7 +3929,7 @@ public class MathUtils {
         if (lastIndex<firstIndex)
             lastIndex=firstIndex;
         
-        double[] x = new double[lastIndex-firstIndex];
+        double[] x = new double[lastIndex-firstIndex+1];
         System.arraycopy(xin, firstIndex, x, 0, x.length);
         quickSort(x);
 
@@ -3935,7 +3938,7 @@ public class MathUtils {
             index=0;
         if (index>x.length-1)
             index=x.length-1;
-
+        
         return x[index];
     }
 

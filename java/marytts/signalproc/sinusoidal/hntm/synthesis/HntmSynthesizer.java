@@ -20,7 +20,9 @@
 package marytts.signalproc.sinusoidal.hntm.synthesis;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -383,7 +385,7 @@ public class HntmSynthesizer {
     }
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
-    {
+    {   
         if (FileUtils.isDirectory(args[0])) //Process folder
         {
             String[] fileList = FileUtils.getFileList(args[0], "wav");

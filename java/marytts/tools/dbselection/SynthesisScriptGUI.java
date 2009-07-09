@@ -64,7 +64,7 @@ public class SynthesisScriptGUI extends JPanel implements TableModelListener{
     private static String mysqlPasswd = "wiki123";
     private static String mysqlDB     = "wiki";
     private static String tableName   = "test";
-    private static String actualTableName   = locale + "_test_selectedSentences";
+    private static String actualTableName   = locale + "_test_selectedsentences";
     // Additonal for databaseSelector
     private static String tableDesc = "add here a table description";
     private static String feaDefFile = "/project/mary/marcela/anna_wikipedia/en_US_featureDefinition.txt";
@@ -378,7 +378,7 @@ public class SynthesisScriptGUI extends JPanel implements TableModelListener{
                 mysqlPasswd = fields[3].getText();
                 mysqlDB = fields[4].getText();
                 tableName = fields[5].getText();
-                actualTableName   = locale + "_" + tableName + "_selectedSentences";
+                actualTableName   = locale + "_" + tableName + "_selectedsentences";
                
                 if(locale.length()>0 && mysqlHost.length()>0 && mysqlDB.length()>0 && 
                         mysqlUser.length()>0 && mysqlPasswd.length()>0 )
@@ -425,7 +425,7 @@ public class SynthesisScriptGUI extends JPanel implements TableModelListener{
                 "mysql user",
                 "mysql password",
                 "Name of mysql data base",
-                "Name of the selected sentences table (without \"locale\" and without sufix \"_selectedSentences\"). " +
+                "Name of the selected sentences table (without \"locale\" and without sufix \"_selectedsentences\"). " +
                 "\nCheck available tables with options --> \"Show list of tables for this local\"."
                 };
     
@@ -473,7 +473,7 @@ public class SynthesisScriptGUI extends JPanel implements TableModelListener{
                 mysqlPasswd = fields[3].getText(); argsSelector[6] = "-mysqlPasswd"; argsSelector[7] = mysqlPasswd;
                 mysqlDB = fields[4].getText();     argsSelector[8] = "-mysqlDB";     argsSelector[9] = mysqlDB;
                 tableName = fields[5].getText();   argsSelector[10] = "-tableName";   argsSelector[11] = tableName;
-                actualTableName   = locale + "_" + tableName + "_selectedSentences";
+                actualTableName   = locale + "_" + tableName + "_selectedsentences";
                 
                 tableDesc = fields[6].getText();   argsSelector[12] = "-tableDescription"; argsSelector[13] = tableDesc;
                 feaDefFile = fields[7].getText();  argsSelector[14] = "-featDef";          argsSelector[15] = feaDefFile;
@@ -552,7 +552,7 @@ public class SynthesisScriptGUI extends JPanel implements TableModelListener{
                          "mysql user",
                          "mysql password",
                          "Name of mysql data base",
-                         "Name of the selected sentences table (without \"locale\" and without sufix \"_selectedSentences\"). The table will be created if it does not exist.",
+                         "Name of the selected sentences table (without \"locale\" and without sufix \"_selectedsentences\"). The table will be created if it does not exist.",
                          "Short description/characteristics of the selected sentences table",
                          "The feature definition for the features, the FeatureMakerMaryServer should have created one for this locale.",
                          "Which of three stop criterion to use (individually or combined): numSentences n simpleDiphones simpleProsody",
