@@ -38,6 +38,7 @@ import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioConverterUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.AudioPlayer;
+import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 
 /**
@@ -777,16 +778,19 @@ public class AudioConverterGUI extends javax.swing.JFrame {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            
             File outFile = new File("tempOut.wav");
-            outFile.renameTo(new File(waveFile));
+            
+            if (!outFile.renameTo(new File(waveFile)))
+                FileUtils.copy(outFile.getAbsolutePath(), waveFile);
         }
 
-    
         private double computeAverageEnergy(File[] wavFiles, int pos, int end,
                 int progressFrom, int progressTo)
         throws UnsupportedAudioFileException, IOException
         {
             int len = end - pos;
+            
             double[] energies = new double[len];
             for (int i=0; i<len; i++) {
                 int progress = progressFrom + i*(progressTo-progressFrom)/len;
@@ -794,6 +798,7 @@ public class AudioConverterGUI extends javax.swing.JFrame {
 
                 energies[i] = computeAverageEnergy(wavFiles[pos+i]);
             }
+
             return MathUtils.median(energies);
         }
     
@@ -889,7 +894,8 @@ public class AudioConverterGUI extends javax.swing.JFrame {
                     energyBufferLength, speechStartLikelihood, speechEndLikelihood, shiftFromMinimumEnergyCenter, numClusters,
                     minimumStartSilenceInSeconds, minimumEndSilenceInSeconds);
 
-            tmpFile.renameTo(wavFile);
+            if (!tmpFile.renameTo(wavFile))
+                FileUtils.copy(tmpFile.getAbsolutePath(), wavFile.getAbsolutePath());
         }
     }
             
