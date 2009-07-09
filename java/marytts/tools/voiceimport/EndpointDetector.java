@@ -33,6 +33,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.signalproc.analysis.EnergyAnalyser;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
+import marytts.util.data.audio.AudioConverterUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.MathUtils;
@@ -131,7 +132,7 @@ public class EndpointDetector extends VoiceImportComponent
     }
 
 
-    public boolean compute() throws IOException
+    public boolean compute() throws IOException, UnsupportedAudioFileException
     {
         //      Check existance of input directory  
         inputWavDir = new File(getProp(INPUTWAVDIR));
@@ -185,7 +186,7 @@ public class EndpointDetector extends VoiceImportComponent
             String inputFile = inputWavDir + File.separator + bnlist.getName(i) + waveExt;
             String outputFile = outputWavDir + File.separator + bnlist.getName(i) + waveExt;
 
-            removeEndpoints(inputFile, outputFile,
+            AudioConverterUtils.removeEndpoints(inputFile, outputFile,
                     energyBufferLength, speechStartLikelihood, speechEndLikelihood, shiftFromMinimumEnergyCenter, numClusters,
                     minimumStartSilenceInSeconds, minimumEndSilenceInSeconds);
 
@@ -198,143 +199,7 @@ public class EndpointDetector extends VoiceImportComponent
     }
 
 
-    /**
-     * Removes endpoints from given file
-     * @param inputFile 
-     * @param outputFile
-     * @throws IOException
-     * @throws  
-     */
-    public void removeEndpoints(String inputFile, String outputFile,
-            int energyBufferLength,
-            double speechStartLikelihood,
-            double speechEndLikelihood,
-            double shiftFromMinimumEnergyCenter,
-            int numClusters,
-            double minimumStartSilenceInSeconds,
-            double minimumEndSilenceInSeconds) throws IOException
-            {
-        /*
-         * Add corresponding module to remove endpoints
-         * 1. identify and remove end points
-         * 2. make sure at least some desired amount of silence in the beginning and at the end
-         * 3. store as output wavefile 
-         */
 
-        AudioInputStream ais = null;
-        try {
-            ais = AudioSystem.getAudioInputStream(new File(inputFile));
-        } catch (UnsupportedAudioFileException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        if (ais!=null)
-        {
-            if (!ais.getFormat().getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
-                ais = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, ais);
-            }
-            if (ais.getFormat().getChannels() > 1) {
-                throw new IllegalArgumentException("Can only deal with mono audio signals");
-            }
-            int samplingRate = (int) ais.getFormat().getSampleRate();
-            DoubleDataSource signal = new AudioDoubleDataSource(ais);
-
-            int framelength = (int)(0.01 /*seconds*/ * samplingRate);
-            EnergyAnalyser ea = new EnergyAnalyser(signal, framelength, framelength, samplingRate);
-            //double[][] speechStretches = ea.getSpeechStretches();
-
-            double[][] speechStretches = ea.getSpeechStretchesUsingEnergyHistory(energyBufferLength, speechStartLikelihood, speechEndLikelihood, 
-                    shiftFromMinimumEnergyCenter, numClusters);
-
-            ais.close();
-
-            try {
-                ais = AudioSystem.getAudioInputStream(new File(inputFile));
-            } catch (UnsupportedAudioFileException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            signal = new AudioDoubleDataSource(ais);
-            double[] x = signal.getAllData();
-
-            ais.close();
-
-            if (speechStretches.length==0)
-            {
-                System.out.println("No segments detected in " + inputFile + " copying whole file...");
-
-                DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(x), ais.getFormat());
-                AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outputFile));
-            }
-            else
-            {
-                int numStretches = speechStretches.length;
-                int speechStartIndex = (int)(samplingRate*speechStretches[0][0]);
-                int speechEndIndex = (int)(samplingRate*speechStretches[numStretches-1][1]);
-
-                //Check if sufficient silence exists in the input waveform, if not generate as required
-                int silStartRequired = Math.max(0, (int)(samplingRate*minimumStartSilenceInSeconds));
-                int silStartLen = 0;
-                if (speechStartIndex<silStartRequired)
-                {
-                    silStartLen = silStartRequired-speechStartIndex;
-                    speechStartIndex = 0;
-                }
-                else
-                    speechStartIndex -= silStartRequired;
-
-                double[] silStart = null;
-                if (silStartLen>0)
-                    silStart = SignalProcUtils.getWhiteNoise(silStartLen, 1e-20);
-
-                int silEndRequired = Math.max(0, (int)(samplingRate*minimumEndSilenceInSeconds));
-                int silEndLen = 0;
-                if (x.length-speechEndIndex<silEndRequired)
-                {
-                    silEndLen = silEndRequired-(x.length-speechEndIndex);
-                    speechEndIndex = x.length-1;
-                }
-                else
-                    speechEndIndex += silEndRequired;
-
-                double[] silEnd = null;
-                if (silEndLen>0)
-                    silEnd = SignalProcUtils.getWhiteNoise(silEndLen, 1e-20);
-                //
-
-                double[] y = null;
-                if (speechEndIndex-speechStartIndex+silStartLen+silEndLen>0)
-                    y = new double[speechEndIndex-speechStartIndex+silStartLen+silEndLen];
-                else
-                    throw new Error("No output samples to write for " + inputFile);
-
-                int start = 0;
-                if (silStartLen>0)
-                {
-                    System.arraycopy(silStart, 0, y, start, silStartLen);
-                    start += silStartLen;
-                }
-
-                if (speechEndIndex-speechStartIndex>0)
-                {
-                    System.arraycopy(x, speechStartIndex, y, start, speechEndIndex-speechStartIndex);
-                    start += (speechEndIndex-speechStartIndex);
-                }
-
-                if (silEndLen>0)
-                {
-                    System.arraycopy(silEnd, 0, y, start, silEndLen);
-                    start += silEndLen;
-                }
-
-                DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(y), ais.getFormat());
-                AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outputFile));
-            }
-        }
-        else
-            throw new Error("Cannot open input file " + inputFile);
-            }
 
     /**
      * Provide the progress of computation, in percent, or -1 if

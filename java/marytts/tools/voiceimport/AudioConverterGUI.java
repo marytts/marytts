@@ -673,9 +673,13 @@ public class AudioConverterGUI extends javax.swing.JFrame {
                     
                     AudioSystem.write(ais, AudioFileFormat.Type.WAVE, outFile);
                     ais.close();
+                    
+                    if (trimSilences) {
+                        trimSilences(outFile);
+                    }
 
                     if (downSample) {
-                        samplingRateConverter(soxPath, outFile.getAbsolutePath(), targetSampleRate);
+                        samplingRateConverter(outFile.getAbsolutePath(), targetSampleRate);
                     }
                 }
                 
@@ -761,7 +765,7 @@ public class AudioConverterGUI extends javax.swing.JFrame {
          * @param targetSamplingRate
          * @throws IOException
          */
-        private void samplingRateConverter(String soxPath, String waveFile, int targetSamplingRate)
+        private void samplingRateConverter(String waveFile, int targetSamplingRate)
         throws IOException
         {
             
@@ -865,6 +869,27 @@ public class AudioConverterGUI extends javax.swing.JFrame {
             }
             ais.close();
             return maxAmplitude;
+        }
+        
+        private void trimSilences(File wavFile)
+        throws UnsupportedAudioFileException, IOException
+        {
+            // We hard-code the values here. Use marytts.tools.voiceimport.EndpointDetector if you want to tune them.
+            int energyBufferLength = 20;
+            double speechStartLikelihood = 0.1;
+            double speechEndLikelihood = 0.1;
+            double shiftFromMinimumEnergyCenter = 0.0;
+            int numClusters = 4;
+            double minimumStartSilenceInSeconds = 0.5;
+            double minimumEndSilenceInSeconds = 0.5;
+            
+            File tmpFile = new File("tmpAudio.wav");
+
+            AudioConverterUtils.removeEndpoints(wavFile.getAbsolutePath(), tmpFile.getAbsolutePath(),
+                    energyBufferLength, speechStartLikelihood, speechEndLikelihood, shiftFromMinimumEnergyCenter, numClusters,
+                    minimumStartSilenceInSeconds, minimumEndSilenceInSeconds);
+
+            tmpFile.renameTo(wavFile);
         }
     }
             
