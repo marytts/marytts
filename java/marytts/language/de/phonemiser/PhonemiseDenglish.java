@@ -354,7 +354,7 @@ public class PhonemiseDenglish
 					if (restPhon == null) {
 						//System.out.println("1) new word is : "+rest+". processFlection is called from here. var is : "+currentResult.isUsedOtherLanguageToPhonemise());
 						
-						restPhon = processFlection(new Word(rest), currentResult);
+						restPhon = processFlection(new Word(rest), currentResult, allowOtherLanguage);
 						//System.out.println("2) new word was : "+rest+". processFlection is called from here. var is : "+currentResult.isUsedOtherLanguageToPhonemise());
 					} 
                 	// Or can the rest be analysed as a compound?
