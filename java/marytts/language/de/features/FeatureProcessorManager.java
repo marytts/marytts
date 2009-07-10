@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.language.de.feature;
+package marytts.language.de.features;
 
 import java.util.HashMap;
 import java.util.Locale;
