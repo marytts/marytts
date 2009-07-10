@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- flection endings for language: german -->
+<!-- xml File for MorphologyReader.java -->
+<!-- key/value pairs as data for Hashtable -->
+
+<!-- Some temporarily removed endings: tet/ten/test new: eten/ete Test: n-->
+<entries>
+<entry>
+ <key>
+flections
+ </key>
+ <value>
+etest/estem/esten/ester/estes/etet/erem/eren/erer/eres/stem/sten/ster/stes/este/est/ere/ste/en/em/er/es/et/st/te/e/t/ete/
+ </value>
+</entry>
+
+<entry>
+ <key>
+superlative_short
+ </key>
+ <value>
+stem/sten/ster/stes/ste
+ </value>
+</entry>
+
+<entry>
+ <key>
+compound_fuge
+ </key>
+ <value>
+es/en/n/s/e
+ </value>
+</entry>
+
+<entry>
+ <key>
+flection_fuge
+ </key>
+ <value>
+e
+ </value>
+</entry>
+
+<entry>
+ <key>
+noun_genitive_accusative_and_plural_endings
+ </key>
+ <value>
+s/n
+ </value>
+</entry>
+
+<entry>
+ <key>
+gerund_ending
+ </key>
+ <value>
+end
+ </value>
+</entry>
+
+<entry>
+ <key>
+participle_base_long
+ </key>
+ <value>
+et
+ </value>
+</entry>
+
+<entry>
+ <key><!-- for flections only missing n-->
+participle_base_short
+ </key>
+ <value>
+t
+ </value>
+</entry>
+
+</entries>
