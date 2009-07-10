@@ -52,16 +52,12 @@ import org.w3c.dom.traversal.TreeWalker;
  *
  *
  */
-public class Inflection {
-    private final FSTLookup mmorph;
+public class Inflection
+{
     private final Map<String,String> endingTable;
     private Logger logger;
 
     public Inflection() throws IOException {
-        mmorph =
-            new FSTLookup(MaryProperties.maryBase() 
-                    + "/lib/modules/de/lexicon/mmorph-adjend.fst",
-                    "ISO-8859-1");
         endingTable = Collections.synchronizedMap(new HashMap<String,String>());
         // Ending class applicable to:
         // masc singular nom
@@ -162,10 +158,6 @@ public class Inflection {
                         foundStart = true;
                     }
                     if (!synAttach.equals("2")) {
-                        Set<String> ec = getEndingClasses(t);
-                        // Unification: only keep the intersection of the two sets:
-                        if (ec != null && !ec.isEmpty())
-                            endingClasses.retainAll(ec);
                         // And try to find the determiner type:
                         if (detType == null) {
                             detType = getDeterminerType(t);
@@ -187,10 +179,6 @@ public class Inflection {
                     (t.getAttribute("syn_phrase").equals("CNP") || t.getAttribute("syn_phrase").equals("CPP"))
                         && haveSeenNoun)) {
                 if (!t.getAttribute("syn_attach").equals("2")) {
-                    Set<String> ec = getEndingClasses(t);
-                    // Unification: only keep the intersection of the two sets:
-                    if (ec != null && !ec.isEmpty())
-                        endingClasses.retainAll(ec);
                     if (t.getAttribute("pos").equals("NN"))
                         haveSeenNoun = true;
                 }
@@ -241,67 +229,8 @@ public class Inflection {
         // (not correctly treated in mmorph).
         if (t.getAttribute("pos").equals("APPRART"))
             return "d";
-        String text = MaryDomUtils.tokenText(t);
-        String[] entries = mmorph.lookup(text);
-        if (entries.length == 0 && Character.isUpperCase(text.charAt(0))) {
-            // Try lowercasing first character:
-            entries = mmorph.lookup(text.toLowerCase());
-        }
-        if (entries.length == 0)
-            return null;
-        for (int i = 0; i < entries.length; i++) {
-            StringTokenizer st = new StringTokenizer(entries[i], "§");
-            String pos = st.nextToken();
-            // ignore part of speech if only one entry
-            if (entries.length > 1 && !pos.equals(t.getAttribute("pos")))
-                continue;
-            st.nextToken(); // stem
-            String detType = st.nextToken(); // determiner subtype
-            if (detType.equals("d") || detType.equals("i"))
-                return detType;
-        }
         return null;
     }
 
-    /**
-     * Look up the ending classes for element t in the mmorph FST.
-     * If more than one entry is found for the graphemic form of t,
-     * the part-of-speech is taken into account.
-     * @param t the token to look up.
-     * @return a non-empty set of ending classes, or null if no matching entry was found.
-     */
-    private Set<String> getEndingClasses(Element t) {
-        String text = MaryDomUtils.tokenText(t);
-        String[] entries = mmorph.lookup(text);
-        if (entries.length == 0 && Character.isUpperCase(text.charAt(0))) {
-            // Try lowercasing first character:
-            entries = mmorph.lookup(text.toLowerCase());
-        }
-        if (entries.length == 0)
-            return null;
-        Set<String> endingClasses = new HashSet<String>();
-        // Approach: All entries with the right part-of-speech contribute
-        // to the set of endingClasses. However, if only one entry is found,
-        // part-of-speech is ignored.
-        for (int i = 0; i < entries.length; i++) {
-            StringTokenizer st = new StringTokenizer(entries[i], "§");
-            if (!st.hasMoreTokens()) continue;
-            String pos = st.nextToken();
-            // ignore part of speech if only one entry
-            if (entries.length > 1 && !pos.equals(t.getAttribute("pos")))
-                continue;
-            if (!st.hasMoreTokens()) continue;
-            st.nextToken(); // stem
-            if (!st.hasMoreTokens()) continue;
-            st.nextToken(); // determiner subtype
-            while (st.hasMoreTokens()) {
-                endingClasses.add(st.nextToken());
-            }
-        }
-        if (endingClasses.size() > 0)
-            return endingClasses;
-        else
-            return null;
-    }
 
 }
