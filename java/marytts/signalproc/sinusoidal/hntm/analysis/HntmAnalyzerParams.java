@@ -50,6 +50,8 @@ public class HntmAnalyzerParams {
 
     public HnmPitchVoicingAnalyzerParams hnmPitchVoicingAnalyzerParams;
     
+    public boolean useJampackInAnalysis;
+    
     public boolean isSilentAnalysis; //If false, displays a single line of message per frame during analysis
     public boolean readAnalysisResultsFromFile; //If true, analysis results are read from an existing binary file
     
@@ -112,6 +114,8 @@ public class HntmAnalyzerParams {
     public HntmAnalyzerParams()
     {
         hnmPitchVoicingAnalyzerParams = new HnmPitchVoicingAnalyzerParams();
+        
+        useJampackInAnalysis = true;
         
         isSilentAnalysis = false;
         
@@ -186,6 +190,8 @@ public class HntmAnalyzerParams {
     {
         hnmPitchVoicingAnalyzerParams = new HnmPitchVoicingAnalyzerParams(existing.hnmPitchVoicingAnalyzerParams);
         
+        useJampackInAnalysis = existing.useJampackInAnalysis;
+        
         isSilentAnalysis = existing.isSilentAnalysis;
         
         harmonicModel = existing.harmonicModel;
@@ -232,6 +238,8 @@ public class HntmAnalyzerParams {
     public boolean equals(HntmAnalyzerParams existing)
     {
         if (!hnmPitchVoicingAnalyzerParams.equals(existing.hnmPitchVoicingAnalyzerParams)) return false;
+        
+        if (useJampackInAnalysis != existing.useJampackInAnalysis) return false;
         
         if (isSilentAnalysis != existing.isSilentAnalysis) return false;
         
@@ -289,6 +297,8 @@ public class HntmAnalyzerParams {
     {
         hnmPitchVoicingAnalyzerParams.write(dos);
         
+        dos.writeBoolean(useJampackInAnalysis);
+        
         dos.writeBoolean(isSilentAnalysis);
         
         dos.writeInt(harmonicModel);
@@ -344,6 +354,8 @@ public class HntmAnalyzerParams {
     public void read(DataInputStream dis) throws IOException
     {
         hnmPitchVoicingAnalyzerParams = new HnmPitchVoicingAnalyzerParams(dis);
+        
+        useJampackInAnalysis = dis.readBoolean();
         
         isSilentAnalysis = dis.readBoolean();
         

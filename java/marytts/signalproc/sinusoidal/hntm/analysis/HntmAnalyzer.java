@@ -75,6 +75,15 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
+import marytts.util.math.jampack.H;
+import marytts.util.math.jampack.Inv;
+import marytts.util.math.jampack.JampackException;
+import marytts.util.math.jampack.Parameters;
+import marytts.util.math.jampack.Times;
+import marytts.util.math.jampack.Z;
+import marytts.util.math.jampack.Zdiagmat;
+import marytts.util.math.jampack.Zmat;
+
 
 /**
  * This class implements a harmonic+noise model for speech as described in
@@ -364,7 +373,18 @@ public class HntmAnalyzer {
                     if (isVoiced)
                     {
                         //Time-domain full cross-correlation, i.e. harmonics are correlated  
-                        harmonics = estimateComplexAmplitudes(frm, wgt, f0InHz, numHarmonics, fs, analysisParams.hnmPitchVoicingAnalyzerParams.lastCorrelatedHarmonicNeighbour); 
+                        if (!analysisParams.useJampackInAnalysis)
+                            harmonics = estimateComplexAmplitudes(frm, wgt, f0InHz, numHarmonics, fs, analysisParams.hnmPitchVoicingAnalyzerParams.lastCorrelatedHarmonicNeighbour); 
+                        else
+                        {   
+                            try {
+                                harmonics = estimateComplexAmplitudesJampack(frm, wgt, f0InHz, numHarmonics, fs, analysisParams.hnmPitchVoicingAnalyzerParams.lastCorrelatedHarmonicNeighbour);
+                            } catch (JampackException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            } 
+                        }
+                        
                         //harmonics = estimateComplexAmplitudesTD(frm, f0InHz, numHarmonics,fs);
                         //harmonics = estimateComplexAmplitudesSplitOptimization(frm, wgt, f0InHz, numHarmonics, fs);
                         //harmonicAmps = estimateComplexAmplitudesUncorrelated(frm, wgtSquared, numHarmonics, f0InHz, fs);
@@ -844,7 +864,6 @@ public class HntmAnalyzer {
         }
 
         ComplexNumber[][] B = new ComplexNumber[M][2*L+1];
-        ComplexNumber tmp;
 
         double omega;
 
@@ -916,6 +935,87 @@ public class HntmAnalyzer {
         return xpart;
     }
 
+    public ComplexNumber[] estimateComplexAmplitudesJampack(double[] frm, double[] wgt, double f0InHz, int L, double samplingRateInHz, int lastCorrelatedHarmonicNeighbour) throws JampackException
+    {
+        if (Parameters.getBaseIndex()!=0)
+            Parameters.setBaseIndex(0);
+        
+        int t, i, k;
+
+        ComplexNumber[] xpart = null;
+
+        double harmonicSample;
+        double noiseSample;
+
+        int M = frm.length;
+        //assert M % 2==1; //Frame length should be odd
+        int N;
+        
+        double tShift;
+        if (M%2==1)
+        {
+            N = (M-1)/2;
+            tShift = 0.0;
+        }
+        else
+        {
+            N = M/2;
+            tShift = 0.5/samplingRateInHz;
+        }
+
+        Zmat B = new Zmat(M, 2*L+1);
+
+        double omega;
+
+        Zdiagmat W = new Zdiagmat(wgt.length);
+        for (i=0; i<wgt.length; i++)
+            W.put(i, new Z(wgt[i], 0.0));
+
+        for (k=-L; k<=L; k++)
+        {
+            for (t=0; t<M; t++)
+            {
+                omega = MathUtils.TWOPI*k*f0InHz*((t+tShift)/samplingRateInHz);
+                B.put(t, k+L, new Z(Math.cos(omega), Math.sin(omega))); 
+            }
+        }
+        
+        Zmat s = new Zmat(frm.length, 1);
+        for (i=0; i<frm.length; i++)
+            s.put(i, 0, new Z(frm[i], 0.0));
+        
+        Zmat BT = H.o(B);
+        Zmat BTWTW = Times.o(BT, W);
+        BTWTW = Times.o(BTWTW, W);
+        Zmat b = Times.o(BTWTW, s);
+        Zmat R = Times.o(BTWTW, B);
+
+        //Set some R entries equal to zero to neglect interaction between far harmonics
+        if (lastCorrelatedHarmonicNeighbour>-1 && lastCorrelatedHarmonicNeighbour<L)
+        {
+            for (i=0; i<2*L+1; i++)
+            {
+                for (k=0; k<2*L+1; k++)
+                {
+                    if (i>k+lastCorrelatedHarmonicNeighbour || k>i+lastCorrelatedHarmonicNeighbour)
+                        R.put(i, k, new Z(0.0, 0.0));
+                }
+            }
+        }
+        //
+
+        //Use matrix inversion
+        Zmat invR = Inv.o(R);
+        Zmat x = Times.o(invR, b);
+
+        xpart = new ComplexNumber[L];
+
+        for (k=L+1; k<=2*L; k++)
+            xpart[k-(L+1)] = new ComplexNumber(2.0f*x.get(k, 0).re, 2.0f*x.get(k, 0).im);
+
+        return xpart;
+    }
+    
     public ComplexNumber[] estimateComplexAmplitudesTD(double[] x, double f0InHz, int L, double samplingRateInHz)
     {
         int N = x.length;

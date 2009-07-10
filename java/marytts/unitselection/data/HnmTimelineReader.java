@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
+import marytts.util.math.ComplexNumber;
+import marytts.util.string.StringUtils;
 
 
 public class HnmTimelineReader extends TimelineReader
@@ -108,6 +110,28 @@ public class HnmTimelineReader extends TimelineReader
         timePtr += d.getDuration();
         
         return( d );
+    }
+    
+    public static void main(String[] args)
+    {
+        HnmTimelineReader h = new HnmTimelineReader();
+        try {
+            h.load("timeline_hnm.mry");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        Datagram d = null;
+        try {
+            d = h.getNextDatagram();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        if (d!=null)
+            System.out.println(((HnmDatagram)d).frame.f0InHz);
     }
 }
 
