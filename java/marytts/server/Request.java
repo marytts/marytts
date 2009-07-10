@@ -641,7 +641,7 @@ public class Request {
                 String name = voice.getAttribute("name");
                 Voice v = Voice.getVoice(name);
                 if (v != null && v.getLocale() != null)
-                    language = v.getLocale().getLanguage();
+                    language = MaryUtils.locale2xmllang(v.getLocale());
             }
         }
         newRoot.setAttribute("xml:lang", language);
