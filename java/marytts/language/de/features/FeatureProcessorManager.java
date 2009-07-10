@@ -62,7 +62,7 @@ public class FeatureProcessorManager extends
             addFeatureProcessor(new MaryLanguageFeatureProcessors.Gpos(posConverter));
 
             //property is set in german.config
-            AllophoneSet allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename("german.allophoneset"));
+            AllophoneSet allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename("de.allophoneset"));
             
             // Phonetic features of the current segment:
             String[] phones = allophoneSet.getAllophoneNames().toArray(new String[0]);
