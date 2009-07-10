@@ -29,6 +29,8 @@ import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.language.de.postlex.PhonologicalRules;
 import marytts.modules.InternalModule;
+import marytts.modules.PronunciationModel;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
@@ -47,15 +49,12 @@ import org.w3c.dom.traversal.TreeWalker;
  * @author Marc Schr&ouml;der
  */
 
-public class Postlex extends InternalModule
+public class Postlex extends PronunciationModel
 {
 
     public Postlex()
     {
-        super("Postlex",
-              MaryDataType.INTONATION,
-              MaryDataType.ALLOPHONES,
-              Locale.GERMAN);
+        super(Locale.GERMAN);
     }
 
     public MaryData process(MaryData d)
@@ -64,9 +63,7 @@ public class Postlex extends InternalModule
         Document doc = d.getDocument();
         mtuPostlex(doc);
         phonologicalRules(doc);
-        MaryData result = new MaryData(outputType(), d.getLocale());
-        result.setDocument(doc);
-        return result;
+        return super.process(d);
     }
 
     private void mtuPostlex(Document doc)
@@ -103,6 +100,7 @@ public class Postlex extends InternalModule
             }
         } // for all highest-level mtu elements
     }
+
 
     private void phonologicalRules(Document doc)
     {
