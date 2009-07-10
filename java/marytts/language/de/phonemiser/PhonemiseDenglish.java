@@ -114,7 +114,7 @@ public class PhonemiseDenglish
                 return currentResult;
             }
             // try cutting off inflection ending and/or prefix:
-            transcription = processFlection(currentWord, currentResult);
+            transcription = processFlection(currentWord, currentResult, allowOtherLanguage);
             if (transcription != null) {
                 long time2 = System.currentTimeMillis();
                 long end = time2 - time1;
@@ -154,7 +154,7 @@ public class PhonemiseDenglish
 		* @param toBePhonemised the input word
 		* @return the transcription of the word, or null if the word could not be transcribed
 		*/
-		private String processFlection(Word word, Result currentResult) {
+		private String processFlection(Word word, Result currentResult, boolean allowOtherLanguage) {
             String toBePhonemised = word.getToBePhonemised();
 			logger.debug("processFlection is starting with: "+toBePhonemised);
 			// First of all, make sure there is no userdict/lexicon entry:
@@ -167,7 +167,9 @@ public class PhonemiseDenglish
 				return transcription;
 			}
 			// Try to process by cutting off endings only, without cutting off prefix:
-			transcription = processFlectionEnding(word, currentResult);
+			if (allowOtherLanguage) {
+			    transcription = processFlectionEnding(word, currentResult);
+			}
 			if (transcription != null) {
 				return transcription;
 			}
@@ -180,7 +182,7 @@ public class PhonemiseDenglish
 					logger.debug("Prefix found: "+prefix + " ["+prefixPhon+"]");
 					Word partialWord = new Word(word.getToBePhonemised().substring(i));
 					// recursively call this method, i.e. allow multiple prefixes:
-					String restTranscription = processFlection(partialWord, currentResult);
+					String restTranscription = processFlection(partialWord, currentResult, allowOtherLanguage);
 					if (restTranscription != null) { // yes, found valid analysis
 						if (prefixPhon.indexOf("'") != -1) {
 							restTranscription = restTranscription.replaceAll("'", "");
