@@ -251,7 +251,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser
                         String graph = st.nextToken();
                         StringBuffer helper = new StringBuffer();
                         String phon = null;
-                        if (isEnglish) {
+                        if (isEnglish && usEnglishLexicon != null) {
                             phon = phonemiseEn(graph);
                             if (phon != null)
                                 helper.append("foreign:en");
@@ -364,7 +364,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser
         }
        
        
-		Result resultingWord = phonemiseDenglish.processWord(text);
+		Result resultingWord = phonemiseDenglish.processWord(text, usEnglishLexicon != null);
 		result = resultingWord.getTranscription();
 		boolean usedOtherLanguageToPhonemise = resultingWord.isUsedOtherLanguageToPhonemise();
 		
