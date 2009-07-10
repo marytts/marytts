@@ -53,14 +53,14 @@ public class PAConverter
         sampa = new HashMap<Locale, AllophoneSet>();
         try {
             AllophoneSet usenSampa = AllophoneSet.getAllophoneSet
-                (MaryProperties.needFilename("english.allophoneset"));
+                (MaryProperties.needFilename("en_US.allophoneset"));
             sampa.put(Locale.US, usenSampa);
         } catch (Exception e) {
             logger.warn("Cannot load US English allophone set", e);
         }
         try {
             AllophoneSet deSampa = AllophoneSet.getAllophoneSet
-                (MaryProperties.needFilename("german.allophoneset"));
+                (MaryProperties.needFilename("de.allophoneset"));
             sampa.put(Locale.GERMAN, deSampa);
         } catch (Exception e) {
             logger.warn("Cannot load German allophone set", e);

@@ -94,7 +94,7 @@ public class PhonemiseDenglish
 		 * @param toBePhonemised The input word
 		 * @return Transcription of input word if one can be built - null otherwise
 		 */
-		public Result processWord (String toBePhonemised) {
+		public Result processWord (String toBePhonemised, boolean allowOtherLanguage) {
 		    //cleanAllInstanceVariables();
             Word currentWord = new Word(toBePhonemised);
             //Vector result = new Vector();
@@ -135,7 +135,7 @@ public class PhonemiseDenglish
                 //System.out.println("2) var is "+currentResult.isUsedOtherLanguageToPhonemise());
                 return currentResult;
             }
-            transcription = compoundAnalysis(currentWord, currentResult, true);
+            transcription = compoundAnalysis(currentWord, currentResult, allowOtherLanguage);
             if (transcription != null) {
                 long time3 = System.currentTimeMillis();
                 long end = time3 - time1;
