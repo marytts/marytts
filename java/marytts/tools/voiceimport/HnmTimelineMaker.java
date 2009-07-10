@@ -141,6 +141,8 @@ public class HnmTimelineMaker extends VoiceImportComponent
      */
     public boolean compute()
     {
+        long start = System.currentTimeMillis(); // start timing
+        
         System.out.println("---- Importing Harmonics plus noise parameters\n\n");
         System.out.println("Base directory: " + db.getProp(db.ROOTDIR) + "\n");
         
@@ -226,7 +228,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
             analysisParams.hpfBeforeNoiseAnalysis = Boolean.valueOf(props.get("HnmTimelineMaker.hpfBeforeNoiseAnalysis"));
             analysisParams.numPeriodsHarmonicsExtraction = Float.valueOf(props.get("HnmTimelineMaker.harmNumPer"));
             
-            analysisParams.isSilentAnalysis = false;
+            analysisParams.isSilentAnalysis = true;
             //
             
             /* 2) Write the datagrams and feed the index */
@@ -300,6 +302,10 @@ public class HnmTimelineMaker extends VoiceImportComponent
             System.out.println( "Size of the index: [" + hnmTimeline.idx.getNumIdx() + "] ("
                     + (hnmTimeline.idx.getNumIdx() * 16) + " bytes, i.e. "
                     + ( (double)(hnmTimeline.idx.getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
+            
+            long stop = System.currentTimeMillis(); // stop timing
+            System.out.println("The process took " + (stop - start)/(1000.0*60) + " minutes to complete..."); // print execution time
+            
             System.out.println( "---- hnm timeline done.");
             
             hnmTimeline.close();

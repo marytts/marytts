@@ -280,7 +280,8 @@ public class HntmSynthesizer {
             labels = new Labels(strLabFile);
         }
         
-        String analysisResultsFile = StringUtils.modifyExtension(wavFile, ".ana"); 
+        //String analysisResultsFile = StringUtils.modifyExtension(wavFile, ".ana"); 
+        String analysisResultsFile  = null;
          
         //boolean isCopyPitch = true;
         //boolean isCopyDuration = true;
