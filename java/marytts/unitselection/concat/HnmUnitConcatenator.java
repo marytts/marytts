@@ -58,6 +58,26 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
     }
     
     /**
+     * Get the raw audio material for each unit from the timeline.
+     * @param units
+     */
+    protected void getDatagramsFromTimeline(List<SelectedUnit> units) throws IOException
+    {
+        for (SelectedUnit unit : units) 
+        {
+            assert !unit.getUnit().isEdgeUnit() : "We should never have selected any edge units!";
+            UnitData unitData = new UnitData();
+            unit.setConcatenationData(unitData);
+            int nSamples = 0;
+            int unitSize = unitToTimeline(unit.getUnit().getDuration()); // convert to timeline samples
+            long unitStart = unitToTimeline(unit.getUnit().getStart()); // convert to timeline samples
+            //System.out.println("Unit size "+unitSize+", pitchmarksInUnit "+pitchmarksInUnit);
+            Datagram[] datagrams = timeline.getDatagrams(unitStart,(long)unitSize);
+            unitData.setFrames(datagrams);
+        }
+    }
+    
+    /**
      * Generate audio to match the target pitchmarks as closely as possible.
      * @param units
      * @return
@@ -75,13 +95,13 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
             assert unitData != null : "Should not have null unitdata here";
             Datagram[] frames = unitData.getFrames();            
             assert frames != null : "Cannot generate audio from null frames";
-            
-            // Generate audio from frames
+
             datagrams[i] = new Datagram[frames.length];
             for (j=0; j<frames.length; j++)
                 datagrams[i][j] = frames[j];
         }
         
+         // Generate audio from frames
         DoubleDataSource audioSource = new DatagramHnmDoubleDataSource(datagrams);
         return new DDSAudioInputStream(new BufferedDoubleDataSource(audioSource), audioformat);
     }
