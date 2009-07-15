@@ -115,14 +115,14 @@ public class DatagramHnmDoubleDataSource extends DatagramOverlapDoubleDataSource
                     {
                         if (datagrams[i][j] instanceof HnmDatagram)
                         {
+                            tAnalysisInSeconds += SignalProcUtils.sample2time(((HnmDatagram)datagrams[i][j]).getDuration(), samplingRateInHz);
+                            
                             if  (frameCount<totalFrm)
                             {
                                 hnmSignal.frames[frameCount] = new HntmSpeechFrame(((HnmDatagram)datagrams[i][j]).getFrame());
                                 hnmSignal.frames[frameCount].tAnalysisInSeconds = tAnalysisInSeconds;
                                 frameCount++;
                             }
-                            
-                            tAnalysisInSeconds += SignalProcUtils.sample2time(((HnmDatagram)datagrams[i][j]).getDuration(), samplingRateInHz);
                         }
                         else
                             tAnalysisInSeconds += SignalProcUtils.sample2time(datagrams[i][j].getDuration(), samplingRateInHz);
