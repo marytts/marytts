@@ -45,6 +45,9 @@ import marytts.signalproc.window.DynamicTwoHalvesWindow;
 import marytts.signalproc.window.Window;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.HnmDatagram;
+import marytts.util.MaryUtils;
+import marytts.util.io.FileUtils;
+import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
@@ -53,10 +56,89 @@ import marytts.util.signal.SignalProcUtils;
  */
 public class DatagramHnmDoubleDataSource extends DatagramOverlapDoubleDataSource {
 
-    public DatagramHnmDoubleDataSource(Datagram[][] datagrams, Datagram[] rightContexts) 
+    private HntmSynthesizedSignal ss;
+    private int outputCounter;
+    
+    public DatagramHnmDoubleDataSource(Datagram[][] datagrams) 
     {
-        super(datagrams, rightContexts);
+        super(datagrams, null);
         // TODO Auto-generated constructor stub
+        
+        HntmSynthesizer s = new HntmSynthesizer();
+        //TO DO: These should come from timeline and user choices...
+        HntmAnalyzerParams analysisParams = new HntmAnalyzerParams();
+        HntmSynthesizerParams synthesisParams = new HntmSynthesizerParams();
+        BasicProsodyModifierParams pmodParams = new BasicProsodyModifierParams();
+        int samplingRateInHz = 16000;
+        PitchReaderWriter f0 = new PitchReaderWriter("D:\\hnmTimelineTest\\ptc\\arctic_a0001.ptc");
+        
+        int totalFrm = 0;
+        int i, j;
+        float originalDurationInSeconds = 0.0f;
+        float deltaTimeInSeconds;
+        
+        for (i=0; i<datagrams.length; i++)
+        {
+            if (datagrams[i]!=null)
+            {
+                for (j=0; j<datagrams[i].length; j++)
+                {
+                    if (datagrams[i][j]!=null)
+                    {
+                        if (datagrams[i][j] instanceof HnmDatagram)
+                        {
+                            totalFrm++;
+                            deltaTimeInSeconds = SignalProcUtils.sample2time(((HnmDatagram)datagrams[i][j]).getDuration(), samplingRateInHz);
+                        }
+                        else
+                            deltaTimeInSeconds = SignalProcUtils.sample2time(datagrams[i][j].getDuration(), samplingRateInHz);
+
+                        originalDurationInSeconds += deltaTimeInSeconds;
+                    }
+                }
+            } 
+        }
+        
+        HntmSpeechSignal hnmSignal = null;
+        hnmSignal = new HntmSpeechSignal(totalFrm, samplingRateInHz, originalDurationInSeconds, (float)f0.header.windowSizeInSeconds, (float)f0.header.skipSizeInSeconds, analysisParams.noiseAnalysisWindowDurationInSeconds, analysisParams.preemphasisCoefNoise);
+        //
+        
+        int frameCount = 0;
+        float tAnalysisInSeconds = 0.0f;
+        for (i=0; i<datagrams.length; i++)
+        {
+            if (datagrams[i]!=null)
+            {
+                for (j=0; j<datagrams[i].length; j++)
+                {
+                    if (datagrams[i][j]!=null)
+                    {
+                        if (datagrams[i][j] instanceof HnmDatagram)
+                        {
+                            if  (frameCount<totalFrm)
+                            {
+                                hnmSignal.frames[frameCount] = new HntmSpeechFrame(((HnmDatagram)datagrams[i][j]).getFrame());
+                                hnmSignal.frames[frameCount].tAnalysisInSeconds = tAnalysisInSeconds;
+                                frameCount++;
+                            }
+                            
+                            tAnalysisInSeconds += SignalProcUtils.sample2time(((HnmDatagram)datagrams[i][j]).getDuration(), samplingRateInHz);
+                        }
+                        else
+                            tAnalysisInSeconds += SignalProcUtils.sample2time(datagrams[i][j].getDuration(), samplingRateInHz);
+                    }
+                }
+            }    
+        }
+
+        ss = null;
+        outputCounter = 0;
+        if (totalFrm>0)
+        {    
+            ss = s.synthesize(hnmSignal, pmodParams, null, analysisParams, synthesisParams);
+            //FileUtils.writeTextFile(hnmSignal.getAnalysisTimes(), "d:\\hnmAnalysisTimes1.txt");
+            ss.output = MathUtils.multiply(ss.output, 1.0/32768.0);
+        }
     }
 
     /**
@@ -76,6 +158,52 @@ public class DatagramHnmDoubleDataSource extends DatagramOverlapDoubleDataSource
         }
         // Now we have a buffer that can hold at least minLength new data points
         int readSum = 0;
+        // read blocks:
+        
+        while (readSum < minLength && p < datagrams.length) {
+            if (q >= datagrams[p].length) {
+                p++;
+                q = 0;
+            } else {
+                Datagram next = datagrams[p][q];
+                int length = (int) next.getDuration();
+                if (buf.length < writePos + length) {
+                    increaseBufferSize(writePos+length);
+                }
+                
+                int read = (int) next.getDuration();
+                
+                if (outputCounter+read>ss.output.length)
+                    read = ss.output.length-outputCounter;
+
+                for (int i=0; i<read; i++) 
+                    buf[writePos+i] += ss.output[outputCounter++];
+               
+                writePos += read;
+                readSum += read;
+                totalRead += read;
+                q++;
+            }
+        }
+        if (dataProcessor != null) {
+            dataProcessor.applyInline(buf, writePos-readSum, readSum);
+        }
+        return readSum >= minLength;
+    }
+    
+    /*
+    protected boolean readIntoBuffer(int minLength)
+    {
+        if (bufferSpaceLeft()<minLength) {
+            // current buffer cannot hold the data requested;
+            // need to make it larger
+            increaseBufferSize(minLength+currentlyInBuffer());
+        } else if (buf.length-writePos<minLength) {
+            compact(); // create a contiguous space for the new data
+        }
+        // Now we have a buffer that can hold at least minLength new data points
+        int readSum = 0;
+        
         // read blocks:
         HntmSynthesizer s = new HntmSynthesizer();
         //TO DO: These should come from timeline and user choices...
@@ -135,7 +263,9 @@ public class DatagramHnmDoubleDataSource extends DatagramOverlapDoubleDataSource
         if (totalFrm>0)
         {    
             ss = s.synthesize(hnmSignal, pmodParams, null, analysisParams, synthesisParams);
-
+            FileUtils.writeToTextFile(ss.output, "d:\\ttsOut.txt");
+            ss.output = MathUtils.multiply(ss.output, 1.0/32768.0);
+            
             if (buf.length < writePos + ss.output.length)
                 increaseBufferSize(writePos+ss.output.length);
 
@@ -153,4 +283,5 @@ public class DatagramHnmDoubleDataSource extends DatagramOverlapDoubleDataSource
         
         return readSum >= minLength;
     }
+    */
 }

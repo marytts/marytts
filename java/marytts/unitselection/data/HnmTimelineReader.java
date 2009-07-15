@@ -24,6 +24,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.util.Properties;
 
+import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartWaveform;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.util.math.ComplexNumber;
 import marytts.util.string.StringUtils;
@@ -122,16 +123,21 @@ public class HnmTimelineReader extends TimelineReader
             e.printStackTrace();
         }
         
-        Datagram d = null;
-        try {
-            d = h.getNextDatagram();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+
+        int count = 0;
+        while (true)
+        {
+            Datagram d = null;
+            try {
+                d = h.getNextDatagram();
+                count++;
+                System.out.println("Datagram " + String.valueOf(count) + "Noise waveform size=" + ((FrameNoisePartWaveform)(((HnmDatagram)d).frame.n)).waveform().length);
+                
+                if (count>=h.numDatagrams)
+                    break;
+            } catch (IOException e) {
+            } 
         }
-        
-        if (d!=null)
-            System.out.println(((HnmDatagram)d).frame.f0InHz);
     }
 }
 

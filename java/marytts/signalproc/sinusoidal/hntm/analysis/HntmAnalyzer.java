@@ -119,9 +119,16 @@ public class HntmAnalyzer {
     public HntmSpeechSignal analyze(short[] x, int fs, PitchReaderWriter f0, Labels labels,
                                     HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParamsBeforeNoiseAnalysis)
     {
+        return analyze(x, fs, f0, labels, analysisParams, synthesisParamsBeforeNoiseAnalysis, null);
+    }
+    
+    public HntmSpeechSignal analyze(short[] x, int fs, PitchReaderWriter f0, Labels labels,
+                                    HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParamsBeforeNoiseAnalysis,
+                                    String analysisResultsFile)
+    {
         double[] xDouble = ArrayUtils.copyShort2Double(x);
         
-        return analyze(xDouble, fs, f0, labels, analysisParams, synthesisParamsBeforeNoiseAnalysis, null);
+        return analyze(xDouble, fs, f0, labels, analysisParams, synthesisParamsBeforeNoiseAnalysis, analysisResultsFile);
     }
     
     public HntmSpeechSignal analyze(double[] x, int fs, PitchReaderWriter f0, Labels labels,

@@ -44,9 +44,8 @@ import marytts.util.math.MathUtils;
  *
  */
 
-public class FrameNoisePartWaveform implements FrameNoisePart {
-    
-    //protected byte[] waveform;
+public class FrameNoisePartWaveform implements FrameNoisePart 
+{
     protected short[] waveform;
 
     public FrameNoisePartWaveform()
@@ -58,43 +57,59 @@ public class FrameNoisePartWaveform implements FrameNoisePart {
     
     public FrameNoisePartWaveform(FrameNoisePartWaveform existing)
     {
-        super();
+        this();
         
         waveform = ArrayUtils.copy(existing.waveform);
     }
     
-    public FrameNoisePartWaveform( DataInputStream dis ) throws IOException, EOFException
+    public FrameNoisePartWaveform( DataInputStream dis, int waveLen )
     {
-        int waveLen = dis.readInt();
+        this();
+        
+        if (waveLen>0)
+        {
+            waveform = new short[waveLen];
+            for (int i=0; i<waveLen; i++) 
+            {
+                try {
+                    waveform[i] = dis.readShort();
+                } catch (IOException e) {
+                    System.out.println("Error! At least " + String.valueOf(waveLen) + " samples required!");
+                }
+             }
+        }
+    }
+    
+    public void write(DataOutput out) throws IOException 
+    {
+        int waveLen = 0;
+        if (waveform!=null && waveform.length>0)
+            waveLen = waveform.length;
 
         if (waveLen>0)
         {
-            //waveform = new byte[waveLen];
-            waveform = new short[waveLen];
-            for (int i=0; i<waveLen; i++) 
-                waveform[i] = dis.readByte();
+            for (int i=0; i<waveform.length; i++) 
+                out.writeShort(waveform[i]);
         }
-        else
-            waveform = null;
     }
     
     public FrameNoisePartWaveform(float[] x)
     {
-        super();
+        this();
         
         setWaveform(x);
     }
     
     public FrameNoisePartWaveform(double[] x)
     {
-        super();
+        this();
         
         setWaveform(x);
     }
     
     public FrameNoisePartWaveform(short[] x)
     {
-        super();
+        this();
         
         setWaveform(x);
     }
@@ -106,44 +121,35 @@ public class FrameNoisePartWaveform implements FrameNoisePart {
             if (waveform!=null && other.waveform==null) return false;
             if (waveform==null && other.waveform!=null) return false;
             if (waveform.length!=other.waveform.length) return false;
-            for (int i=0; i<waveform.length; i++)
-                if (waveform[i]!=other.waveform[i]) return false;
+            
+            if (waveform!=null)
+            {
+                for (int i=0; i<waveform.length; i++)
+                    if (waveform[i]!=other.waveform[i]) return false;
+            }
         }
         
         return true;
     }
     
-    public int getLength()
+    public int getVectorSize()
     {
         int waveLen = 0;
         if (waveform!=null && waveform.length>0)
             waveLen = waveform.length;
         
-        return 2*waveLen;
+        return waveLen;
     }
     
-    public void write(DataOutput out) throws IOException 
+    public int getLength()
     {
-        int waveLen = 0;
-        if (waveform!=null && waveform.length>0)
-            waveLen = waveform.length;
-
-        out.writeInt(waveLen);
-
-        if (waveLen>0)
-        {
-            for (int i=0; i<waveform.length; i++) 
-                out.writeByte(waveform[i]);
-        }
+        return 2*getVectorSize();
     }
     
     public void setWaveform(float[] x)
     {
         if (x!=null)
-        {
-            //waveform = ArrayUtils.copyFloat2Byte(MathUtils.floatRange2ByteRange(x));
             waveform = ArrayUtils.copyFloat2Short(x);
-        }
         else
             waveform = null;
     }
@@ -151,10 +157,7 @@ public class FrameNoisePartWaveform implements FrameNoisePart {
     public void setWaveform(double[] x)
     {
         if (x!=null)
-        {
-            //waveform = ArrayUtils.copyDouble2Byte(MathUtils.doubleRange2ByteRange(x));
             waveform = ArrayUtils.copyDouble2Short(x);
-        }
         else
             waveform = null;
     }   
@@ -171,11 +174,6 @@ public class FrameNoisePartWaveform implements FrameNoisePart {
     {
         if (waveform!=null)
         {
-            /*
-            double[] y = ArrayUtils.copyByte2Double(waveform);
-            return MathUtils.byteRange2DoubleRange(y);
-            */
-            
             return ArrayUtils.copyShort2Double(waveform);
         }
         else
@@ -185,14 +183,7 @@ public class FrameNoisePartWaveform implements FrameNoisePart {
     public float[] waveform2Floats()
     {
         if (waveform!=null)
-        {
-            /*
-            float[] y = ArrayUtils.copyByte2Float(waveform);
-            return MathUtils.byteRange2FloatRange(y);
-            */
-            
             return ArrayUtils.copyShort2Float(waveform);
-        }
         else
             return null;
     }

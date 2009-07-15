@@ -43,26 +43,46 @@ public class FrameNoisePartPseudoHarmonic implements FrameNoisePart {
     public FrameNoisePartPseudoHarmonic()
     {
         super();
+        
+        ceps = null;
     }
     
     public FrameNoisePartPseudoHarmonic(FrameNoisePartPseudoHarmonic existing)
     {
-        super();
+        this();
+        
         ceps = ArrayUtils.copy(existing.ceps);
     }
     
-    public FrameNoisePartPseudoHarmonic( DataInputStream dis ) throws IOException, EOFException
-    {        
-        int cepsLen = dis.readInt();
-
+    public FrameNoisePartPseudoHarmonic( DataInputStream dis, int cepsLen )
+    {     
+        this();
+        
         if (cepsLen>0)
         {
             ceps = new float[cepsLen];
-            for (int i=0; i<cepsLen; i++) 
-                ceps[i] = dis.readFloat();
+            for (int i=0; i<cepsLen; i++)
+            {
+                try {
+                    ceps[i] = dis.readFloat();
+                } catch (IOException e) {
+                    System.out.println("Error! At least " + String.valueOf(cepsLen) + " cepstrum coefficients required!");
+                }
+            }
         }
-        else 
-            ceps = null;
+    }
+    
+    public void write(DataOutput out) throws IOException 
+    {
+        int cepsLen = 0;
+        if (ceps!=null && ceps.length>0)
+            cepsLen = ceps.length;
+
+        if (cepsLen>0)
+        {
+            for (int i=0; i<ceps.length; i++) 
+                out.writeFloat(ceps[i]);
+        }
     }
 
     public boolean equals(FrameNoisePartPseudoHarmonic other)
@@ -79,28 +99,18 @@ public class FrameNoisePartPseudoHarmonic implements FrameNoisePart {
         return true;
     }
     
-    public int getLength()
+    public int getVectorSize()
     {
         int cepsLen = 0;
         if (ceps!=null && ceps.length>0)
             cepsLen = ceps.length;
         
-        return 4*cepsLen;
+        return cepsLen;
     }
-    
-    public void write(DataOutput out) throws IOException 
+        
+    public int getLength()
     {
-        int cepsLen = 0;
-        if (ceps!=null && ceps.length>0)
-            cepsLen = ceps.length;
-
-        out.writeInt(cepsLen);
-
-        if (cepsLen>0)
-        {
-            for (int i=0; i<ceps.length; i++) 
-                out.writeFloat(ceps[i]);
-        }
+        return 4*getVectorSize();
     }
 }
 

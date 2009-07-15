@@ -25,7 +25,6 @@ import java.io.DataOutput;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
 
 /**

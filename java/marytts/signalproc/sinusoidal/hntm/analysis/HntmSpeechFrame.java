@@ -49,7 +49,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
     
     public HntmSpeechFrame(float f0InHzIn)
     {
-        h = new FrameHarmonicPart();
+        h = null;
         n = null;
         f0InHz = f0InHzIn;
         maximumFrequencyOfVoicingInHz = 0.0f;
@@ -58,33 +58,82 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
     
     public HntmSpeechFrame(HntmSpeechFrame existing)
     {
-        h = new FrameHarmonicPart(existing.h);
+        this();
         
-        if (existing.n instanceof FrameNoisePartLpc)
-            n = new FrameNoisePartLpc((FrameNoisePartLpc)existing.n);
-        else if (existing.n instanceof FrameNoisePartPseudoHarmonic)
-            n = new FrameNoisePartPseudoHarmonic((FrameNoisePartPseudoHarmonic)existing.n);
-        else if (existing.n instanceof FrameNoisePartWaveform)
-            n = new FrameNoisePartWaveform((FrameNoisePartWaveform)existing.n);
-        
-        f0InHz = existing.f0InHz;
-        maximumFrequencyOfVoicingInHz = existing.maximumFrequencyOfVoicingInHz;
-        tAnalysisInSeconds = existing.tAnalysisInSeconds;   
+        if (existing.h!=null)
+            h = new FrameHarmonicPart(existing.h);
+
+        if (existing.n!=null)
+        {
+            if (existing.n instanceof FrameNoisePartLpc)
+                n = new FrameNoisePartLpc((FrameNoisePartLpc)existing.n);
+            else if (existing.n instanceof FrameNoisePartPseudoHarmonic)
+                n = new FrameNoisePartPseudoHarmonic((FrameNoisePartPseudoHarmonic)existing.n);
+            else if (existing.n instanceof FrameNoisePartWaveform)
+                n = new FrameNoisePartWaveform((FrameNoisePartWaveform)existing.n);
+            
+            f0InHz = existing.f0InHz;
+            maximumFrequencyOfVoicingInHz = existing.maximumFrequencyOfVoicingInHz;
+            tAnalysisInSeconds = existing.tAnalysisInSeconds;  
+        } 
     }
     
     public HntmSpeechFrame(DataInputStream dis, int noiseModel) throws IOException, EOFException
     {
+        this();
+        
         f0InHz = dis.readFloat();
         maximumFrequencyOfVoicingInHz = dis.readFloat();
         tAnalysisInSeconds = dis.readFloat();
-        h = new FrameHarmonicPart(dis);
+        
+        int numHarmonics = dis.readInt();
+        if (numHarmonics>0)
+            h = new FrameHarmonicPart(dis, numHarmonics);
 
+        int vectorSize = dis.readInt();
         if (noiseModel==HntmAnalyzerParams.LPC)
-            n = new FrameNoisePartLpc(dis);
+        {
+            n = new FrameNoisePartLpc(dis, vectorSize);
+            if (((FrameNoisePartLpc)n).lpCoeffs==null)
+                n = null;
+        }
         else if (noiseModel==HntmAnalyzerParams.PSEUDO_HARMONIC)
-            n = new FrameNoisePartPseudoHarmonic(dis);
+        {
+            n = new FrameNoisePartPseudoHarmonic(dis, vectorSize);
+            if (((FrameNoisePartPseudoHarmonic)n).ceps==null)
+                n = null;
+        }
         else if (noiseModel==HntmAnalyzerParams.WAVEFORM)
-            n = new FrameNoisePartWaveform(dis); 
+        {
+            n = new FrameNoisePartWaveform(dis, vectorSize); 
+            if (((FrameNoisePartWaveform)n).waveform==null)
+                n = null;
+        }
+    }
+    
+    public void write( DataOutput out ) throws IOException 
+    {
+        out.writeFloat(f0InHz);
+        out.writeFloat(maximumFrequencyOfVoicingInHz);
+        out.writeFloat(tAnalysisInSeconds);
+        
+        int numHarmonics = 0;
+        if (h!=null && h.complexAmps!=null)
+            numHarmonics = h.complexAmps.length;
+
+        out.writeInt(numHarmonics);
+        
+        if (h!=null)
+            h.write(out);
+        
+        int vectorSize = 0;
+        if (n!=null)
+            vectorSize = n.getVectorSize();
+        
+        out.writeInt(vectorSize);
+        
+        if (n!=null)
+            n.write(out);
     }
     
     public boolean equals(HntmSpeechFrame other)
@@ -101,16 +150,12 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
     //Returns the size of this object in bytes
     public int getLength()
     {
-        return 4*3 + h.getLength() + n.getLength();
-    }
-    
-    public void write( DataOutput out ) throws IOException 
-    {
-        out.writeFloat(f0InHz);
-        out.writeFloat(maximumFrequencyOfVoicingInHz);
-        out.writeFloat(tAnalysisInSeconds);
-        h.write(out);
-        n.write(out);
+        int len = 4*(3+1+1);
+        if (h!=null)
+            len += h.getLength();
+        if (n!=null)
+            len += n.getLength();
+            
+        return len;
     }
 }
-
