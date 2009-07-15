@@ -63,22 +63,60 @@ public class FrameNoisePartLpc implements FrameNoisePart {
         setLpCoeffs(existing.lpCoeffs, existing.lpGain);
     }
     
-    public FrameNoisePartLpc( DataInputStream dis ) throws IOException, EOFException
+    public FrameNoisePartLpc( DataInputStream dis, int numLpcs )
     {
-        lpGain = dis.readFloat();
-        origAverageSampleEnergy = dis.readFloat();
-        origNoiseStd = dis.readFloat();
-        
-        int lpLen = dis.readInt();
+        this();
 
-        if (lpLen>0)
+        if (numLpcs>0)
         {
-            lpCoeffs = new float[lpLen];
-            for (int i=0; i<lpLen; i++) 
-                lpCoeffs[i] = dis.readFloat();
+            lpCoeffs = new float[numLpcs];
+            for (int i=0; i<numLpcs; i++) 
+            {
+                try {
+                    lpCoeffs[i] = dis.readFloat();
+                } catch (IOException e) {
+                    System.out.println("Error! At least " + String.valueOf(numLpcs) + " LP coefficients required!");
+                }
+            }
+
+            try {
+                lpGain = dis.readFloat();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            try {
+                origAverageSampleEnergy = dis.readFloat();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            try {
+                origNoiseStd = dis.readFloat();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
-        else
-            lpCoeffs = null;
+    }
+    
+    public void write(DataOutput out) throws IOException 
+    {        
+        int numLpcs = 0;
+        if (lpCoeffs!=null && lpCoeffs.length>0)
+            numLpcs = lpCoeffs.length;
+
+        out.writeInt(numLpcs);
+
+        if (numLpcs>0)
+        {
+            for (int i=0; i<lpCoeffs.length; i++) 
+                out.writeFloat(lpCoeffs[i]);
+            
+            out.writeFloat(lpGain);
+            out.writeFloat(origAverageSampleEnergy);
+            out.writeFloat(origNoiseStd);
+        }
     }
     
     public boolean equals(FrameNoisePartLpc other)
@@ -99,32 +137,18 @@ public class FrameNoisePartLpc implements FrameNoisePart {
         return true;
     }
     
-    public int getLength() 
+    public int getVectorSize() 
     {
         int lpLen = 0;
         if (lpCoeffs!=null && lpCoeffs.length>0)
             lpLen = lpCoeffs.length;
         
-        return 4*(3+lpLen);
+        return lpLen;
     }
     
-    public void write(DataOutput out) throws IOException 
+    public int getLength() 
     {
-        out.writeFloat(lpGain);
-        out.writeFloat(origAverageSampleEnergy);
-        out.writeFloat(origNoiseStd);
-        
-        int numLpcs = 0;
-        if (lpCoeffs!=null && lpCoeffs.length>0)
-            numLpcs = lpCoeffs.length;
-
-        out.writeInt(numLpcs);
-
-        if (numLpcs>0)
-        {
-            for (int i=0; i<lpCoeffs.length; i++) 
-                out.writeFloat(lpCoeffs[i]);
-        }
+        return 4*(getVectorSize()+3);
     }
     
     public void setLpCoeffs(float[] lpCoeffsIn, float gainIn)

@@ -29,12 +29,17 @@
 
 package marytts.unitselection.concat;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.sound.sampled.AudioInputStream;
 
+import marytts.unitselection.concat.BaseUnitConcatenator.UnitData;
 import marytts.unitselection.concat.OverlapUnitConcatenator.OverlapUnitData;
 import marytts.unitselection.data.Datagram;
+import marytts.unitselection.data.HnmDatagram;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.util.data.BufferedDoubleDataSource;
@@ -51,7 +56,7 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
     {
         super();
     }
-
+    
     /**
      * Generate audio to match the target pitchmarks as closely as possible.
      * @param units
@@ -61,27 +66,23 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
     {
         int len = units.size();
         Datagram[][] datagrams = new Datagram[len][];
-        Datagram[] rightContexts = new Datagram[len];
-        for (int i=0; i<len; i++) {
+        
+        int i, j;
+        for (i=0; i<len; i++) 
+        {
             SelectedUnit unit = units.get(i);
-            OverlapUnitData unitData = (OverlapUnitData)unit.getConcatenationData();
+            UnitData unitData = (UnitData)unit.getConcatenationData();
             assert unitData != null : "Should not have null unitdata here";
-            Datagram[] frames = unitData.getFrames();
+            Datagram[] frames = unitData.getFrames();            
             assert frames != null : "Cannot generate audio from null frames";
+            
             // Generate audio from frames
-            datagrams[i] = frames;
-            Unit nextInDB = database.getUnitFileReader().getNextUnit(unit.getUnit());
-            Unit nextSelected;
-            if (i+1==len) nextSelected = null;
-            else nextSelected = units.get(i+1).getUnit();
-            if (nextInDB != null && !nextInDB.equals(nextSelected)) {
-                // Only use right context if we have a next unit in the DB is not the
-                // same as the next selected unit.
-                rightContexts[i] = unitData.getRightContextFrame(); // may be null
-            }
+            datagrams[i] = new Datagram[frames.length];
+            for (j=0; j<frames.length; j++)
+                datagrams[i][j] = frames[j];
         }
         
-        DoubleDataSource audioSource = new DatagramHnmDoubleDataSource(datagrams, rightContexts);
+        DoubleDataSource audioSource = new DatagramHnmDoubleDataSource(datagrams);
         return new DDSAudioInputStream(new BufferedDoubleDataSource(audioSource), audioformat);
     }
 }

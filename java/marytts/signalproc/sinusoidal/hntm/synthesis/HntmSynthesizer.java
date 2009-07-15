@@ -183,6 +183,7 @@ public class HntmSynthesizer {
         float[] pScalesTimes = null;
         */
         
+        /*
         float[][] pScalesArray = new float[8][1];
         float[][] tScalesArray = new float[8][1];
         pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
@@ -193,6 +194,7 @@ public class HntmSynthesizer {
         pScalesArray[5][0] = 1.0f; tScalesArray[5][0] = 2.3f;
         pScalesArray[6][0] = 2.3f; tScalesArray[6][0] = 1.0f;
         pScalesArray[7][0] = 0.6f; tScalesArray[7][0] = 1.0f;
+        */
         
         /*
         float[][] pScalesArray = new float[3][1];
@@ -202,11 +204,9 @@ public class HntmSynthesizer {
         pScalesArray[2][0] = 1.0f; tScalesArray[2][0] = 1.6f;
         */
 
-        /*
         float[][] pScalesArray = new float[1][1];
         float[][] tScalesArray = new float[1][1];
         pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
-        */
         
         //float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f, 2.5f};
         float[] tScalesTimes = null;
@@ -305,6 +305,8 @@ public class HntmSynthesizer {
                                                            wavFile,
                                                            analysisParams,
                                                            synthesisParams);
+                
+                //FileUtils.writeTextFile(hnmSignal.getAnalysisTimes(), "d:\\hnmAnalysisTimes2.txt");
                 
                 //File output
                 DDSAudioInputStream outputAudio = null;

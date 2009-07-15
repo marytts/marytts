@@ -35,6 +35,7 @@ import marytts.util.math.ComplexNumber;
 public interface FrameNoisePart 
 {      
     public int getLength();
+    public int getVectorSize();
     public void write(DataOutput out) throws IOException;
 }
 

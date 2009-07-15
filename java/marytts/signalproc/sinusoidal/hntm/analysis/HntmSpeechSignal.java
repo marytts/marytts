@@ -127,9 +127,11 @@ public class HntmSpeechSignal {
     public void read(DataInputStream d, int noiseModel) throws IOException
     {
         int totalFrm = d.readInt();
+        frames = null;
         
         if (totalFrm>0)
         {
+            frames = new HntmSpeechFrame[totalFrm];
             for (int i=0; i<totalFrm; i++)
                 frames[i] = new HntmSpeechFrame(d, noiseModel);
         }

@@ -646,17 +646,17 @@ public class FileUtils {
             System.out.println("Error! Cannot create file: " + textFile);
     }
     
-    public static void toTextFile(float[] x, String filename)
+    public static void writeTextFile(float[] x, String filename)
     {
         writeTextFile(StringUtils.toStringLines(x), filename);
     }
     
-    public static void toTextFile(double[] x, String filename)
+    public static void writeTextFile(double[] x, String filename)
     {
         writeTextFile(StringUtils.toStringLines(x), filename);
     }
     
-    public static void toTextFile(ComplexNumber[][] x, String filename)
+    public static void writeTextFile(ComplexNumber[][] x, String filename)
     {
         String[][] lines = new String[x.length][];
         for (int i=0; i<x.length; i++)
@@ -665,7 +665,7 @@ public class FileUtils {
         writeTextFile(lines, filename);
     }
     
-    public static void toTextFile(double[][] x, String filename)
+    public static void writeTextFile(double[][] x, String filename)
     {
         String[][] lines = new String[x.length][];
         for (int i=0; i<x.length; i++)
@@ -674,17 +674,17 @@ public class FileUtils {
         writeTextFile(lines, filename);
     }
     
-    public static void toTextFile(ComplexNumber[] x, String filename)
+    public static void writeTextFile(ComplexNumber[] x, String filename)
     {
         writeTextFile(StringUtils.toStringLines(x), filename);
     }
     
-    public static void toTextFile(int[] x, String filename)
+    public static void writeTextFile(int[] x, String filename)
     {
         writeTextFile(StringUtils.toStringLines(x), filename);
     }
     
-    public static void toTextFile(ComplexArray x, String filename)
+    public static void writeTextFile(ComplexArray x, String filename)
     {
         writeTextFile(StringUtils.toStringLines(x), filename);
     }

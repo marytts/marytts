@@ -56,17 +56,20 @@ public class FrameHarmonicPart
         }
     }
     
-    public FrameHarmonicPart( DataInputStream dis ) throws IOException, EOFException
+    public FrameHarmonicPart( DataInputStream dis, int numHarmonics )
     {
-        int numHarmonics = dis.readInt();
-
+        complexAmps = null;
+        
         if (numHarmonics>0)
         {
             complexAmps = new ComplexNumber[numHarmonics];
             for (int i=0; i<complexAmps.length; i++) 
             {
-                complexAmps[i].real = dis.readFloat();
-                complexAmps[i].imag = dis.readFloat();
+                try {
+                    complexAmps[i] = new ComplexNumber(dis.readFloat(), dis.readFloat());
+                } catch (IOException e) {
+                    complexAmps[i] = null;
+                }
             }
         }
     }
@@ -99,8 +102,6 @@ public class FrameHarmonicPart
         int numHarmonics = 0;
         if (complexAmps!=null && complexAmps.length>0)
             numHarmonics = complexAmps.length;
-
-        out.writeInt(numHarmonics);
 
         if (numHarmonics>0)
         {

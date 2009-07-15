@@ -243,22 +243,31 @@ public class HnmTimelineMaker extends VoiceImportComponent
                 /* - open+load */
                 System.out.println( baseNameArray[n] );
                 String wavFile = db.getProp(db.WAVDIR) + baseNameArray[n] + db.getProp(db.WAVEXT); 
-                wav = new WavReader(wavFile);
-                short[] wave = wav.getSamples();
                 
-                String ptcFile = db.getProp(db.PTCDIR) + baseNameArray[n] + db.getProp(db.PTCEXT);
-                PitchReaderWriter f0 = null;
-                if (FileUtils.exists(ptcFile))
-                    f0 = new PitchReaderWriter(ptcFile);
+                HntmAnalyzer ha = new HntmAnalyzer();
+                String hnmAnalysisFile = StringUtils.modifyExtension(wavFile, "ana");
+                
+                HntmSpeechSignal hnmSignal = null;
+                if (FileUtils.exists(hnmAnalysisFile))
+                    hnmSignal = new HntmSpeechSignal(hnmAnalysisFile, analysisParams.noiseModel);
                 else
                 {
-                    PitchFileHeader pitchDetectorParams = new PitchFileHeader();
-                    F0TrackerAutocorrelationHeuristic pitchDetector = new F0TrackerAutocorrelationHeuristic(pitchDetectorParams);
-                    f0 = pitchDetector.pitchAnalyzeWavFile(wavFile, ptcFile);
+                    wav = new WavReader(wavFile);
+                    short[] wave = wav.getSamples();
+                    
+                    String ptcFile = db.getProp(db.PTCDIR) + baseNameArray[n] + db.getProp(db.PTCEXT);
+                    PitchReaderWriter f0 = null;
+                    if (FileUtils.exists(ptcFile))
+                        f0 = new PitchReaderWriter(ptcFile);
+                    else
+                    {
+                        PitchFileHeader pitchDetectorParams = new PitchFileHeader();
+                        F0TrackerAutocorrelationHeuristic pitchDetector = new F0TrackerAutocorrelationHeuristic(pitchDetectorParams);
+                        f0 = pitchDetector.pitchAnalyzeWavFile(wavFile, ptcFile);
+                    }
+                    
+                    hnmSignal = ha.analyze(wave, wav.getSampleRate(), f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
                 }
-
-                HntmAnalyzer ha = new HntmAnalyzer();
-                HntmSpeechSignal hnmSignal = ha.analyze(wave, wav.getSampleRate(), f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis); 
                 
                 /* - For each frame in the hnm modeled speech signal: */
                 int frameStart = 0;
