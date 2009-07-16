@@ -38,6 +38,7 @@ import javax.sound.sampled.AudioInputStream;
 
 import marytts.signalproc.adaptation.prosody.BasicProsodyModifierParams;
 import marytts.signalproc.analysis.PitchReaderWriter;
+import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartWaveform;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
@@ -48,6 +49,7 @@ import marytts.unitselection.concat.BaseUnitConcatenator.UnitData;
 import marytts.unitselection.concat.OverlapUnitConcatenator.OverlapUnitData;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.HnmDatagram;
+import marytts.unitselection.data.HnmTimelineReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.util.data.BufferedDoubleDataSource;
@@ -77,6 +79,7 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
         {
             assert !unit.getUnit().isEdgeUnit() : "We should never have selected any edge units!";
             UnitData unitData = new UnitData();
+            unit.setConcatenationData(unitData);
             int nSamples = 0;
             int unitSize = unitToTimeline(unit.getUnit().getDuration()); // convert to timeline samples
             long unitStart = unitToTimeline(unit.getUnit().getStart()); // convert to timeline samples
@@ -85,7 +88,6 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
             Datagram[] datagrams = timeline.getDatagrams(unitStart,(long)unitSize);
           
             unitData.setFrames(datagrams);
-            unit.setConcatenationData(unitData);
         }
     }
     
@@ -96,24 +98,53 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
      */
     protected AudioInputStream generateAudioStream(List<SelectedUnit> units)
     {
-        int len = units.size();
         LinkedList<Datagram> datagrams = new LinkedList<Datagram>();
         
-        int i, j;
-        for (i=0; i<len; i++) 
+        if (true)
         {
-            SelectedUnit unit = units.get(i);
-            UnitData unitData = (UnitData)unit.getConcatenationData();
-            assert unitData != null : "Should not have null unitdata here";
-            Datagram[] frames = unitData.getFrames();            
-            assert frames != null : "Cannot generate audio from null frames";
+            int len = units.size();
+            int i, j;
+            for (i=0; i<len; i++) 
+            {
+                SelectedUnit unit = units.get(i);
+                UnitData unitData = (UnitData)unit.getConcatenationData();
+                assert unitData != null : "Should not have null unitdata here";
+                Datagram[] frames = unitData.getFrames();   
+                assert frames != null : "Cannot generate audio from null frames";
 
-            for (j=0; j<frames.length; j++)
-                datagrams.add(frames[j]);
+                for (j=0; j<frames.length; j++)
+                    datagrams.add(frames[j]);
+            }
         }
-        
+        else
+        {
+            //This code is for testing: we just read from a fixed range from the timeline 
+            // and synthesize this segment instead of using the selected units.
+            //Once synthesis of selected units works properly, this "else" clause should be removed.
+            int count = 0;
+            while(count<timeline.getNumDatagrams())
+            {
+                Datagram d = null;
+
+                try {
+                    d = ((HnmTimelineReader)timeline).getNextDatagram();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                if (count>=2000 && count<=2700)
+                {
+                    if (d!=null)
+                        datagrams.add(d);
+                }
+
+                count++;
+            }
+        }
+
         BufferedDoubleDataSource audioSource = synthesize(datagrams);
-        return new DDSAudioInputStream(audioSource, audioformat);
+        return new DDSAudioInputStream(audioSource, audioformat);  
     }
     
     protected BufferedDoubleDataSource synthesize(LinkedList<Datagram> datagrams)
