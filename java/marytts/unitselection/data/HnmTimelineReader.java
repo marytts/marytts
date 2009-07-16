@@ -102,7 +102,7 @@ public class HnmTimelineReader extends TimelineReader
      * 
      * @throws IOException
      */
-    protected Datagram getNextDatagram() throws IOException {
+    public Datagram getNextDatagram() throws IOException {
         
         Datagram d = null;
         
