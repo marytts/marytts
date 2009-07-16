@@ -36,6 +36,14 @@ import java.util.List;
 
 import javax.sound.sampled.AudioInputStream;
 
+import marytts.signalproc.adaptation.prosody.BasicProsodyModifierParams;
+import marytts.signalproc.analysis.PitchReaderWriter;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
+import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizedSignal;
+import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizer;
+import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizerParams;
 import marytts.unitselection.concat.BaseUnitConcatenator.UnitData;
 import marytts.unitselection.concat.OverlapUnitConcatenator.OverlapUnitData;
 import marytts.unitselection.data.Datagram;
@@ -45,13 +53,15 @@ import marytts.unitselection.select.SelectedUnit;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
+import marytts.util.math.MathUtils;
+import marytts.util.signal.SignalProcUtils;
 
 /**
  * @author oytun.turk
  *
  */
 public class HnmUnitConcatenator extends OverlapUnitConcatenator {
-    
+
     public HnmUnitConcatenator()
     {
         super();
@@ -85,7 +95,7 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
     protected AudioInputStream generateAudioStream(List<SelectedUnit> units)
     {
         int len = units.size();
-        Datagram[][] datagrams = new Datagram[len][];
+        LinkedList<Datagram> datagrams = new LinkedList<Datagram>();
         
         int i, j;
         for (i=0; i<len; i++) 
@@ -96,13 +106,88 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
             Datagram[] frames = unitData.getFrames();            
             assert frames != null : "Cannot generate audio from null frames";
 
-            datagrams[i] = new Datagram[frames.length];
             for (j=0; j<frames.length; j++)
-                datagrams[i][j] = frames[j];
+                datagrams.add(frames[j]);
         }
         
          // Generate audio from frames
-        DoubleDataSource audioSource = new DatagramHnmDoubleDataSource(datagrams);
-        return new DDSAudioInputStream(new BufferedDoubleDataSource(audioSource), audioformat);
+        //DoubleDataSource audioSource = new DatagramHnmDoubleDataSource(datagrams);
+        //return new DDSAudioInputStream(new BufferedDoubleDataSource(audioSource), audioformat);
+        
+        BufferedDoubleDataSource audioSource = synthesize(datagrams);
+        return new DDSAudioInputStream(audioSource, audioformat);
+    }
+    
+    protected BufferedDoubleDataSource synthesize(LinkedList<Datagram> datagrams)
+    {
+        HntmSynthesizer s = new HntmSynthesizer();
+        //TO DO: These should come from timeline and user choices...
+        HntmAnalyzerParams analysisParams = new HntmAnalyzerParams();
+        HntmSynthesizerParams synthesisParams = new HntmSynthesizerParams();
+        BasicProsodyModifierParams pmodParams = new BasicProsodyModifierParams();
+        int samplingRateInHz = 16000;
+        PitchReaderWriter f0 = new PitchReaderWriter("D:\\hnmTimelineTest\\ptc\\arctic_a0001.ptc");
+        
+        int totalFrm = 0;
+        int i, j;
+        float originalDurationInSeconds = 0.0f;
+        float deltaTimeInSeconds;
+        
+        for (i=0; i<datagrams.size(); i++)
+        {
+            if (datagrams.get(i)!=null)
+            {
+                if (datagrams.get(i) instanceof HnmDatagram)
+                {
+                    totalFrm++;
+                    deltaTimeInSeconds = SignalProcUtils.sample2time(((HnmDatagram)datagrams.get(i)).getDuration(), samplingRateInHz);
+                }
+                else
+                    deltaTimeInSeconds = SignalProcUtils.sample2time(datagrams.get(i).getDuration(), samplingRateInHz);
+
+                originalDurationInSeconds += deltaTimeInSeconds;
+            } 
+        }
+        
+        HntmSpeechSignal hnmSignal = null;
+        hnmSignal = new HntmSpeechSignal(totalFrm, samplingRateInHz, originalDurationInSeconds, (float)f0.header.windowSizeInSeconds, (float)f0.header.skipSizeInSeconds, analysisParams.noiseAnalysisWindowDurationInSeconds, analysisParams.preemphasisCoefNoise);
+        //
+        
+        int frameCount = 0;
+        float tAnalysisInSeconds = 0.0f;
+        for (i=0; i<datagrams.size(); i++)
+        {
+            if (datagrams.get(i)!=null)
+            {
+                if (datagrams.get(i) instanceof HnmDatagram)
+                {
+                    tAnalysisInSeconds += SignalProcUtils.sample2time(((HnmDatagram)datagrams.get(i)).getDuration(), samplingRateInHz);
+
+                    if  (frameCount<totalFrm)
+                    {
+                        hnmSignal.frames[frameCount] = new HntmSpeechFrame(((HnmDatagram)datagrams.get(i)).getFrame());
+                        hnmSignal.frames[frameCount].tAnalysisInSeconds = tAnalysisInSeconds;
+                        frameCount++;
+                    }
+                }
+                else
+                    tAnalysisInSeconds += SignalProcUtils.sample2time(datagrams.get(i).getDuration(), samplingRateInHz);
+            }    
+        }
+
+        HntmSynthesizedSignal ss = null;
+        if (totalFrm>0)
+        {    
+            ss = s.synthesize(hnmSignal, pmodParams, null, analysisParams, synthesisParams);
+            //FileUtils.writeTextFile(hnmSignal.getAnalysisTimes(), "d:\\hnmAnalysisTimes1.txt");
+            //FileUtils.writeTextFile(ss.output, "d:\\output.txt");
+            if (ss.output!=null)
+                ss.output = MathUtils.multiply(ss.output, 1.0/32768.0);
+        }
+        
+        if (ss!=null && ss.output!=null)
+            return new BufferedDoubleDataSource(ss.output);
+        else
+            return null;
     }
 }
