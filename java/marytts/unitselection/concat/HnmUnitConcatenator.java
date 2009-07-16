@@ -77,13 +77,15 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
         {
             assert !unit.getUnit().isEdgeUnit() : "We should never have selected any edge units!";
             UnitData unitData = new UnitData();
-            unit.setConcatenationData(unitData);
             int nSamples = 0;
             int unitSize = unitToTimeline(unit.getUnit().getDuration()); // convert to timeline samples
             long unitStart = unitToTimeline(unit.getUnit().getStart()); // convert to timeline samples
+            System.out.println(unitStart/((float)timeline.getSampleRate()));
             //System.out.println("Unit size "+unitSize+", pitchmarksInUnit "+pitchmarksInUnit);
             Datagram[] datagrams = timeline.getDatagrams(unitStart,(long)unitSize);
+          
             unitData.setFrames(datagrams);
+            unit.setConcatenationData(unitData);
         }
     }
     
@@ -126,7 +128,6 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
         HntmSynthesizerParams synthesisParams = new HntmSynthesizerParams();
         BasicProsodyModifierParams pmodParams = new BasicProsodyModifierParams();
         int samplingRateInHz = 16000;
-        PitchReaderWriter f0 = new PitchReaderWriter("D:\\hnmTimelineTest\\ptc\\arctic_a0001.ptc");
         
         int totalFrm = 0;
         int i, j;
@@ -150,7 +151,7 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
         }
         
         HntmSpeechSignal hnmSignal = null;
-        hnmSignal = new HntmSpeechSignal(totalFrm, samplingRateInHz, originalDurationInSeconds, (float)f0.header.windowSizeInSeconds, (float)f0.header.skipSizeInSeconds, analysisParams.noiseAnalysisWindowDurationInSeconds, analysisParams.preemphasisCoefNoise);
+        hnmSignal = new HntmSpeechSignal(totalFrm, samplingRateInHz, originalDurationInSeconds);
         //
         
         int frameCount = 0;

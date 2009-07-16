@@ -40,6 +40,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.signalproc.analysis.ReflectionCoefficients;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartLpc;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.window.Window;
 import marytts.util.MaryUtils;
@@ -55,7 +56,7 @@ import marytts.util.signal.SignalProcUtils;
 public class NoisePartWindowedOverlapAddLpcSynthesizer {
     
     //LPC based noise model + OLA approach + Gain normalization according to generated harmonic part gain
-    public static double[] synthesize(HntmSpeechSignal hnmSignal, HntmSynthesizerParams synthesisParams)
+    public static double[] synthesize(HntmSpeechSignal hnmSignal, HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParams)
     {    
         double[] noisePart = null;
         int i;
@@ -307,8 +308,8 @@ public class NoisePartWindowedOverlapAddLpcSynthesizer {
             }
         }
         
-        if (hnmSignal.preCoefNoise>0.0f)
-            noisePart = SignalProcUtils.removePreemphasis(noisePart, hnmSignal.preCoefNoise);
+        if (analysisParams.preemphasisCoefNoise>0.0f)
+            noisePart = SignalProcUtils.removePreemphasis(noisePart, analysisParams.preemphasisCoefNoise);
         
         MathUtils.adjustMean(noisePart, 0.0);
         
