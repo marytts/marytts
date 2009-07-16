@@ -86,6 +86,7 @@ import marytts.util.signal.SignalProcUtils;
  */
 public class NoisePartWaveformSynthesizer 
 {    
+    //TO DO: This should use overlap add since the noise waveform will not be a continuous waveform in TTS
     public static double[] synthesize(HntmSpeechSignal hnmSignal)
     {
         int outputLen = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
@@ -94,24 +95,31 @@ public class NoisePartWaveformSynthesizer
         int count = 0;
         int i, j;
         double[] frameWaveform = null;
+        int shiftSamples = 0;
         for (i=0; i<hnmSignal.frames.length; i++)
         {
             if (hnmSignal.frames[i].n!=null && (hnmSignal.frames[i].n instanceof FrameNoisePartWaveform))
             {
                 frameWaveform = ((FrameNoisePartWaveform)hnmSignal.frames[i].n).waveform2Doubles();
+                shiftSamples = SignalProcUtils.time2sample(hnmSignal.frames[i].tAnalysisInSeconds, hnmSignal.samplingRateInHz);
+                shiftSamples -= (int)Math.floor(0.5*frameWaveform.length+0.5); //Analysis instant is the middle of frame
+                if (shiftSamples<0)
+                    shiftSamples=0;
+                
                 if (frameWaveform!=null)
                 {
                     for (j=0; j<frameWaveform.length; j++)
                     {
-                        noisePartWaveform[count] = frameWaveform[j];
-                        count++;
-                        if (count>=outputLen)
+                        if (shiftSamples+count>=outputLen)
                             break;
+                        
+                        noisePartWaveform[shiftSamples+count] = frameWaveform[j];
+                        count++;
                     }
                 }
             }
             
-            if (count>=outputLen)
+            if (shiftSamples+count>=outputLen)
                 break;
         }
         

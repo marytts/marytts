@@ -55,6 +55,7 @@ import marytts.unitselection.select.SelectedUnit;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
+import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
@@ -83,11 +84,13 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
             int nSamples = 0;
             int unitSize = unitToTimeline(unit.getUnit().getDuration()); // convert to timeline samples
             long unitStart = unitToTimeline(unit.getUnit().getStart()); // convert to timeline samples
-            System.out.println(unitStart/((float)timeline.getSampleRate()));
+            //System.out.println(unitStart/((float)timeline.getSampleRate()));
             //System.out.println("Unit size "+unitSize+", pitchmarksInUnit "+pitchmarksInUnit);
             Datagram[] datagrams = timeline.getDatagrams(unitStart,(long)unitSize);
           
             unitData.setFrames(datagrams);
+            
+            System.out.println("Unit selected = " + unit.getUnit().getIndex());
         }
     }
     
@@ -158,7 +161,7 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
         
         int totalFrm = 0;
         int i, j;
-        float originalDurationInSeconds = 0.0f;
+        float originalDurationInSeconds = 10.0f;
         float deltaTimeInSeconds;
         
         for (i=0; i<datagrams.size(); i++)
@@ -179,7 +182,7 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
         //
         
         int frameCount = 0;
-        float tAnalysisInSeconds = 0.0f;
+        float tAnalysisInSeconds = 10.0f;
         for (i=0; i<datagrams.size(); i++)
         {
             if (datagrams.get(i)!=null)
@@ -203,7 +206,7 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
         {    
             ss = s.synthesize(hnmSignal, pmodParams, null, analysisParams, synthesisParams);
             //FileUtils.writeTextFile(hnmSignal.getAnalysisTimes(), "d:\\hnmAnalysisTimes1.txt");
-            //FileUtils.writeTextFile(ss.output, "d:\\output.txt");
+            FileUtils.writeTextFile(ss.output, "d:\\output.txt");
             if (ss.output!=null)
                 ss.output = MathUtils.multiply(ss.output, 1.0/32768.0);
         }
