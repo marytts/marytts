@@ -44,20 +44,13 @@ import marytts.util.math.ArrayUtils;
  * @author oytun.turk
  *
  */
-public class HntmSpeechSignal {
-    public HntmSpeechFrame[] frames;
-    
+public class HntmSpeechSignal 
+{    
+    public HntmSpeechFrame[] frames;   
     public int samplingRateInHz;
-    
     public float originalDurationInSeconds;
-    public float windowDurationInSecondsNoise;
-    public float preCoefNoise;
-    public float f0WindowDurationInSeconds;
-    public float f0SkipSizeInSeconds;
     
-    public HntmSpeechSignal(int totalFrm, int samplingRateInHz, float originalDurationInSeconds, 
-                           float f0WindowDurationInSeconds, float f0SkipSizeInSeconds,
-                           float windowDurationInSecondsNoise, float preCoefNoise)
+    public HntmSpeechSignal(int totalFrm, int samplingRateInHz, float originalDurationInSeconds)
     {
         if (totalFrm>0)
         {
@@ -69,12 +62,8 @@ public class HntmSpeechSignal {
             frames = null;
         
         this.samplingRateInHz = samplingRateInHz;
-        
+    
         this.originalDurationInSeconds = originalDurationInSeconds;
-        this.windowDurationInSecondsNoise = windowDurationInSecondsNoise;
-        this.preCoefNoise = preCoefNoise;
-        this.f0WindowDurationInSeconds = f0WindowDurationInSeconds;
-        this.f0SkipSizeInSeconds = f0SkipSizeInSeconds;
     }
     
     public HntmSpeechSignal(String binaryFile, int noiseModel)
@@ -109,12 +98,7 @@ public class HntmSpeechSignal {
         }
         
         d.writeInt(samplingRateInHz);
-        
         d.writeFloat(originalDurationInSeconds);
-        d.writeFloat(windowDurationInSecondsNoise);
-        d.writeFloat(preCoefNoise);
-        d.writeFloat(f0WindowDurationInSeconds);
-        d.writeFloat(f0SkipSizeInSeconds);
     }
     
     public void read(String binaryFile, int noiseModel) throws IOException
@@ -139,10 +123,6 @@ public class HntmSpeechSignal {
         samplingRateInHz = d.readInt();
         
         originalDurationInSeconds = d.readFloat();
-        windowDurationInSecondsNoise = d.readFloat();
-        preCoefNoise = d.readFloat();
-        f0WindowDurationInSeconds = d.readFloat();
-        f0SkipSizeInSeconds = d.readFloat();
     }
     
     public float[] getAnalysisTimes()

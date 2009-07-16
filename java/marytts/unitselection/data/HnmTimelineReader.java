@@ -22,11 +22,22 @@ package marytts.unitselection.data;
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.Properties;
 
+import marytts.signalproc.adaptation.prosody.BasicProsodyModifierParams;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartWaveform;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
+import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizedSignal;
+import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizer;
+import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizerParams;
+import marytts.util.io.FileUtils;
 import marytts.util.math.ComplexNumber;
+import marytts.util.math.MathUtils;
+import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
 
@@ -113,8 +124,76 @@ public class HnmTimelineReader extends TimelineReader
         return( d );
     }
     
+    private static void testSynthesizeFromDatagrams(LinkedList<HnmDatagram> datagrams, int startIndex, int endIndex, String outputFile)
+    {
+        HntmSynthesizer s = new HntmSynthesizer();
+        //TO DO: These should come from timeline and user choices...
+        HntmAnalyzerParams analysisParams = new HntmAnalyzerParams();
+        HntmSynthesizerParams synthesisParams = new HntmSynthesizerParams();
+        BasicProsodyModifierParams pmodParams = new BasicProsodyModifierParams();
+        int samplingRateInHz = 16000;
+        
+        int totalFrm = 0;
+        int i;
+        float originalDurationInSeconds = 0.0f;
+        float deltaTimeInSeconds;
+        
+        for (i=startIndex; i<=endIndex; i++)
+        {
+            if (datagrams.get(i)!=null)
+            {
+                if (datagrams.get(i) instanceof HnmDatagram)
+                {
+                    totalFrm++;
+                    deltaTimeInSeconds = SignalProcUtils.sample2time(((HnmDatagram)datagrams.get(i)).getDuration(), samplingRateInHz);
+                }
+                else
+                    deltaTimeInSeconds = SignalProcUtils.sample2time(datagrams.get(i).getDuration(), samplingRateInHz);
+
+                originalDurationInSeconds += deltaTimeInSeconds;
+            } 
+        }
+        
+        HntmSpeechSignal hnmSignal = null;
+        hnmSignal = new HntmSpeechSignal(totalFrm, samplingRateInHz, originalDurationInSeconds);
+        //
+        
+        int frameCount = 0;
+        float tAnalysisInSeconds = 0.0f;
+        for (i=startIndex; i<=endIndex; i++)
+        {
+            if (datagrams.get(i)!=null)
+            {
+                if (datagrams.get(i) instanceof HnmDatagram)
+                {
+                    tAnalysisInSeconds += SignalProcUtils.sample2time(((HnmDatagram)datagrams.get(i)).getDuration(), samplingRateInHz);
+
+                    if  (frameCount<totalFrm)
+                    {
+                        hnmSignal.frames[frameCount] = new HntmSpeechFrame(((HnmDatagram)datagrams.get(i)).getFrame());
+                        hnmSignal.frames[frameCount].tAnalysisInSeconds = tAnalysisInSeconds;
+                        frameCount++;
+                    }
+                }
+                else
+                    tAnalysisInSeconds += SignalProcUtils.sample2time(datagrams.get(i).getDuration(), samplingRateInHz);
+            }    
+        }
+
+        HntmSynthesizedSignal ss = null;
+        if (totalFrm>0)
+        {    
+            ss = s.synthesize(hnmSignal, pmodParams, null, analysisParams, synthesisParams);
+            //FileUtils.writeTextFile(hnmSignal.getAnalysisTimes(), "d:\\hnmAnalysisTimes1.txt");
+            FileUtils.writeTextFile(ss.output, outputFile);
+            if (ss.output!=null)
+                ss.output = MathUtils.multiply(ss.output, 1.0/32768.0);
+        }
+    }
+    
     public static void main(String[] args)
     {
+        int i;
         HnmTimelineReader h = new HnmTimelineReader();
         try {
             h.load("timeline_hnm.mry");
@@ -122,21 +201,37 @@ public class HnmTimelineReader extends TimelineReader
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
 
+        LinkedList<HnmDatagram> datagrams = new LinkedList<HnmDatagram>();
         int count = 0;
-        while (true)
+        for (i=0; i<h.numDatagrams; i++)
         {
-            Datagram d = null;
+            HnmDatagram d = null;
             try {
-                d = h.getNextDatagram();
+                d = (HnmDatagram)h.getNextDatagram();
+                datagrams.add(d);
+                
                 count++;
                 System.out.println("Datagram " + String.valueOf(count) + "Noise waveform size=" + ((FrameNoisePartWaveform)(((HnmDatagram)d).frame.n)).waveform().length);
-                
+
                 if (count>=h.numDatagrams)
                     break;
-            } catch (IOException e) {
             } 
+            catch (IOException e) {
+            } 
+        }
+        
+        int clusterSize = 1000;
+        int numClusters = (int)Math.floor(h.numDatagrams/((double)clusterSize)+0.5);
+        int startIndex, endIndex;
+        String outputFile;
+        for (i=0; i<numClusters; i++)
+        {
+            startIndex = i*clusterSize;
+            endIndex = (int)Math.min((i+1)*clusterSize-1, h.numDatagrams-1);
+            outputFile = "d:\\output" + String.valueOf(i+1) + ".txt";
+            testSynthesizeFromDatagrams(datagrams, startIndex, endIndex, outputFile);
+            System.out.println("Timeline cluster " + String.valueOf(i+1) + " of " + String.valueOf(numClusters) + " synthesized...");
         }
     }
 }

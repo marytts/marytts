@@ -254,8 +254,8 @@ public class HntmAnalyzerNoisePartWaveformSynthesizer {
             }
         }
         
-        if (hnmSignal.preCoefNoise>0.0f)
-            noisePart = SignalProcUtils.removePreemphasis(noisePart, hnmSignal.preCoefNoise);
+        if (analysisParams.preemphasisCoefNoise>0.0f)
+            noisePart = SignalProcUtils.removePreemphasis(noisePart, analysisParams.preemphasisCoefNoise);
         
         //MathUtils.adjustMean(noisePart, 0.0);
         

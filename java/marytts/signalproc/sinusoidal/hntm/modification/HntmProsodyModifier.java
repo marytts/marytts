@@ -201,8 +201,7 @@ public class HntmProsodyModifier {
                 int numTransientSegments = ((HntmPlusTransientsSpeechSignal)hntmSignal).transients.segments.length;
 
                 hntmSignalMod = new HntmPlusTransientsSpeechSignal(hntmSignal.frames.length, hntmSignal.samplingRateInHz, hntmSignal.originalDurationInSeconds, 
-                        hntmSignal.f0WindowDurationInSeconds, hntmSignal.f0SkipSizeInSeconds,
-                        hntmSignal.windowDurationInSecondsNoise, hntmSignal.preCoefNoise, numTransientSegments);
+                                                                   numTransientSegments);
 
                 if (numTransientSegments>0)
                 {
@@ -269,9 +268,7 @@ public class HntmProsodyModifier {
             }
             else
             {
-                hntmSignalMod = new HntmSpeechSignal(hntmSignal.frames.length, hntmSignal.samplingRateInHz, hntmSignal.originalDurationInSeconds, 
-                                                     hntmSignal.f0WindowDurationInSeconds, hntmSignal.f0SkipSizeInSeconds,
-                                                     hntmSignal.windowDurationInSecondsNoise, hntmSignal.preCoefNoise);
+                hntmSignalMod = new HntmSpeechSignal(hntmSignal.frames.length, hntmSignal.samplingRateInHz, hntmSignal.originalDurationInSeconds);
             }
             //
 

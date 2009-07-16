@@ -224,9 +224,9 @@ public class HntmAnalyzer {
             String[] transientPhonemesList = {"p", "t", "k", "pf", "ts", "tS"};
 
             if (analysisParams.harmonicModel == HntmAnalyzerParams.HARMONICS_PLUS_NOISE)
-                output.hnmSignal = new HntmSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.windowSizeInSeconds, (float)f0.header.skipSizeInSeconds, analysisParams.noiseAnalysisWindowDurationInSeconds, analysisParams.preemphasisCoefNoise);
+                output.hnmSignal = new HntmSpeechSignal(totalFrm, fs, originalDurationInSeconds);
             else if (analysisParams.harmonicModel == HntmAnalyzerParams.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE && labels!=null)
-                output.hnmSignal = new HntmPlusTransientsSpeechSignal(totalFrm, fs, originalDurationInSeconds, (float)f0.header.windowSizeInSeconds, (float)f0.header.skipSizeInSeconds, analysisParams.noiseAnalysisWindowDurationInSeconds, analysisParams.preemphasisCoefNoise, labels.items.length);
+                output.hnmSignal = new HntmPlusTransientsSpeechSignal(totalFrm, fs, originalDurationInSeconds, labels.items.length);
 
             boolean isPrevVoiced = false;
 

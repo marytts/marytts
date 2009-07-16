@@ -130,7 +130,7 @@ public class HntmSynthesizer {
         if (analysisParams.noiseModel == HntmAnalyzerParams.LPC)
         {
             if (synthesisParams.noisePartLpcSynthesisMethod == HntmSynthesizerParams.OVERLAP_ADD_WITH_WINDOWING)
-                s.noisePart = NoisePartWindowedOverlapAddLpcSynthesizer.synthesize(hntmSignalMod, synthesisParams);
+                s.noisePart = NoisePartWindowedOverlapAddLpcSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
             else if (synthesisParams.noisePartLpcSynthesisMethod == HntmSynthesizerParams.LP_FILTER_WITH_POST_HPF_AND_WINDOWING)
                 s.noisePart = NoisePartLpFilterPostHpfLpcSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
         }
@@ -144,7 +144,7 @@ public class HntmSynthesizer {
         {
             //First synthesize LPC part (voiced regions)
             if (synthesisParams.noisePartLpcSynthesisMethod == HntmSynthesizerParams.OVERLAP_ADD_WITH_WINDOWING)
-                s.noisePart = NoisePartWindowedOverlapAddLpcSynthesizer.synthesize(hntmSignalMod, synthesisParams);
+                s.noisePart = NoisePartWindowedOverlapAddLpcSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
             else if (synthesisParams.noisePartLpcSynthesisMethod == HntmSynthesizerParams.LP_FILTER_WITH_POST_HPF_AND_WINDOWING)
                 s.noisePart = NoisePartLpFilterPostHpfLpcSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
             

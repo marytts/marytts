@@ -39,12 +39,9 @@ public class HntmPlusTransientsSpeechSignal extends HntmSpeechSignal {
     public TransientPart transients;
     
     public HntmPlusTransientsSpeechSignal(int totalFrm, int samplingRateInHz, float originalDurationInSeconds,
-                                         float f0WindowDurationInSeconds, float f0SkipSizeInSeconds,
-                                         float windowDurationInSecondsNoise, float preCoefNoise, int numMaxTransients) 
+                                          int numMaxTransients) 
     {
-        super(totalFrm, samplingRateInHz, originalDurationInSeconds, 
-              f0WindowDurationInSeconds, f0SkipSizeInSeconds, 
-              windowDurationInSecondsNoise, preCoefNoise);
+        super(totalFrm, samplingRateInHz, originalDurationInSeconds);
 
         transients = new TransientPart(numMaxTransients);
     }
