@@ -112,10 +112,6 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
                 datagrams.add(frames[j]);
         }
         
-         // Generate audio from frames
-        //DoubleDataSource audioSource = new DatagramHnmDoubleDataSource(datagrams);
-        //return new DDSAudioInputStream(new BufferedDoubleDataSource(audioSource), audioformat);
-        
         BufferedDoubleDataSource audioSource = synthesize(datagrams);
         return new DDSAudioInputStream(audioSource, audioformat);
     }
@@ -142,11 +138,8 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
                 {
                     totalFrm++;
                     deltaTimeInSeconds = SignalProcUtils.sample2time(((HnmDatagram)datagrams.get(i)).getDuration(), samplingRateInHz);
+                    originalDurationInSeconds += deltaTimeInSeconds;
                 }
-                else
-                    deltaTimeInSeconds = SignalProcUtils.sample2time(datagrams.get(i).getDuration(), samplingRateInHz);
-
-                originalDurationInSeconds += deltaTimeInSeconds;
             } 
         }
         
@@ -162,17 +155,15 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
             {
                 if (datagrams.get(i) instanceof HnmDatagram)
                 {
-                    tAnalysisInSeconds += SignalProcUtils.sample2time(((HnmDatagram)datagrams.get(i)).getDuration(), samplingRateInHz);
-
                     if  (frameCount<totalFrm)
                     {
-                        hnmSignal.frames[frameCount] = new HntmSpeechFrame(((HnmDatagram)datagrams.get(i)).getFrame());
+                        hnmSignal.frames[frameCount] = ((HnmDatagram)datagrams.get(i)).getFrame();
                         hnmSignal.frames[frameCount].tAnalysisInSeconds = tAnalysisInSeconds;
                         frameCount++;
+                        
+                        tAnalysisInSeconds += SignalProcUtils.sample2time(((HnmDatagram)datagrams.get(i)).getDuration(), samplingRateInHz);
                     }
                 }
-                else
-                    tAnalysisInSeconds += SignalProcUtils.sample2time(datagrams.get(i).getDuration(), samplingRateInHz);
             }    
         }
 
