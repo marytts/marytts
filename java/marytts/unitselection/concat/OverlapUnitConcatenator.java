@@ -53,7 +53,7 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
             int unitSize = unitToTimeline(unit.getUnit().getDuration()); // convert to timeline samples
             long unitStart = unitToTimeline(unit.getUnit().getStart()); // convert to timeline samples
             //System.out.println("Unit size "+unitSize+", pitchmarksInUnit "+pitchmarksInUnit);
-            System.out.println(unitStart/((float)timeline.getSampleRate()));
+            //System.out.println(unitStart/((float)timeline.getSampleRate()));
             Datagram[] datagrams = timeline.getDatagrams(unitStart,(long)unitSize);
             unitData.setFrames(datagrams);
             // one right context period for windowing:
@@ -63,6 +63,8 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
                 rightContextFrame = timeline.getDatagram(unitStart+unitSize);
                 unitData.setRightContextFrame(rightContextFrame);
             }
+            
+            System.out.println("Unit selected = " + unit.getUnit().getIndex());
         }
     }
     
