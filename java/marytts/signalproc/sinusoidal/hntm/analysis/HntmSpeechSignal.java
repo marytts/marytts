@@ -50,6 +50,23 @@ public class HntmSpeechSignal
     public int samplingRateInHz;
     public float originalDurationInSeconds;
     
+    public HntmSpeechSignal(HntmSpeechSignal existing)
+    {
+        frames = null;
+        if (existing!=null)
+        {
+            if (existing.frames!=null)
+            {
+                frames = new HntmSpeechFrame[existing.frames.length];
+                for (int i=0; i<existing.frames.length; i++)
+                    frames[i] = new HntmSpeechFrame(existing.frames[i]);
+            }
+            
+            this.samplingRateInHz = existing.samplingRateInHz;
+            this.originalDurationInSeconds = existing.originalDurationInSeconds;
+        }
+    }
+    
     public HntmSpeechSignal(int totalFrm, int samplingRateInHz, float originalDurationInSeconds)
     {
         if (totalFrm>0)

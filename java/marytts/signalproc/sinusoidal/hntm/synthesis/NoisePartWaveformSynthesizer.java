@@ -70,7 +70,9 @@ import marytts.signalproc.analysis.ReflectionCoefficients;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartWaveform;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
+import marytts.signalproc.window.HammingWindow;
 import marytts.signalproc.window.Window;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
@@ -87,40 +89,114 @@ import marytts.util.signal.SignalProcUtils;
 public class NoisePartWaveformSynthesizer 
 {    
     //TO DO: This should use overlap add since the noise waveform will not be a continuous waveform in TTS
-    public static double[] synthesize(HntmSpeechSignal hnmSignal)
+    public static double[] synthesize(HntmSpeechSignal hnmSignal, HntmSpeechFrame[] leftContexts, HntmSpeechFrame[] rightContexts, HntmAnalyzerParams analysisParams)
     {
-        int outputLen = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
-        double[] noisePartWaveform = new double[outputLen];
-        Arrays.fill(noisePartWaveform, 0.0);
-        int count = 0;
-        int i, j;
-        double[] frameWaveform = null;
-        int shiftSamples = 0;
-        for (i=0; i<hnmSignal.frames.length; i++)
+        double[] noisePartWaveform = null;
+        
+        if (hnmSignal!=null && hnmSignal.frames!=null)
         {
-            if (hnmSignal.frames[i].n!=null && (hnmSignal.frames[i].n instanceof FrameNoisePartWaveform))
+            int outputLen = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
+
+            noisePartWaveform = new double[outputLen];
+            double[] wgts = new double[outputLen];
+            Arrays.fill(noisePartWaveform, 0.0);
+            Arrays.fill(wgts, 0.0);
+            int i, j;
+            double[] frameWaveform = null;
+            double[] leftContextWaveform = null;
+            double[] rightContextWaveform = null;
+
+            int waveformNoiseStartInd;
+            int numHarmonics;
+            boolean isVoiced;
+            
+            //TO DO: Overlap waveform noise case! See analysis code!
+            for (i=0; i<hnmSignal.frames.length; i++)
             {
-                frameWaveform = ((FrameNoisePartWaveform)hnmSignal.frames[i].n).waveform2Doubles();
-                shiftSamples = SignalProcUtils.time2sample(hnmSignal.frames[i].tAnalysisInSeconds, hnmSignal.samplingRateInHz);
-                shiftSamples -= (int)Math.floor(0.5*frameWaveform.length+0.5); //Analysis instant is the middle of frame
-                if (shiftSamples<0)
-                    shiftSamples=0;
-                
-                if (frameWaveform!=null)
+                if (hnmSignal.frames[i].n!=null && (hnmSignal.frames[i].n instanceof FrameNoisePartWaveform))
                 {
-                    for (j=0; j<frameWaveform.length; j++)
+                    frameWaveform = ((FrameNoisePartWaveform)hnmSignal.frames[i].n).waveform2Doubles();
+                    
+                    if (hnmSignal.frames[i].f0InHz>10.0)
+                        numHarmonics = (int)Math.floor(hnmSignal.frames[i].maximumFrequencyOfVoicingInHz/hnmSignal.frames[i].f0InHz+0.5);
+                    else
+                        numHarmonics = 0;
+                    isVoiced = numHarmonics>0 ? true:false;
+                    if (isVoiced && analysisParams.hpfBeforeNoiseAnalysis && analysisParams.decimateNoiseWaveform)
+                        frameWaveform = SignalProcUtils.interpolate(frameWaveform, 0.5*hnmSignal.samplingRateInHz/(0.5*hnmSignal.samplingRateInHz-hnmSignal.frames[i].maximumFrequencyOfVoicingInHz));
+                    
+                    if (leftContexts==null) //Take the previous frame parameters as left context (i.e. the HNM signal is a continuous one, not concatenated one
                     {
-                        if (shiftSamples+count>=outputLen)
-                            break;
-                        
-                        noisePartWaveform[shiftSamples+count] = frameWaveform[j];
-                        count++;
+                        if (i>0)
+                            leftContextWaveform = ((FrameNoisePartWaveform)hnmSignal.frames[i-1].n).waveform2Doubles();
+                        else
+                        {
+                            leftContextWaveform = new double[frameWaveform.length];
+                            Arrays.fill(leftContextWaveform, 0.0);
+                        }
+                    }
+                    else
+                    {
+                        if (leftContexts[i]!=null)
+                            leftContextWaveform = ArrayUtils.copy(((FrameNoisePartWaveform)leftContexts[i].n).waveform2Doubles());
+                        else
+                        {
+                            leftContextWaveform = new double[frameWaveform.length];
+                            Arrays.fill(leftContextWaveform, 0.0);
+                        }   
+                    }
+
+                    waveformNoiseStartInd = SignalProcUtils.time2sample(hnmSignal.frames[i].tAnalysisInSeconds, hnmSignal.samplingRateInHz);
+                    waveformNoiseStartInd -= leftContextWaveform.length;
+                    
+                    if (rightContexts==null) //Take the next frame parameters as right context (i.e. the HNM signal is a continuous one, not concatenated one
+                    {
+                        if (i<hnmSignal.frames.length-1)
+                            rightContextWaveform = ((FrameNoisePartWaveform)hnmSignal.frames[i+1].n).waveform2Doubles();
+                        else
+                        {
+                            rightContextWaveform = new double[frameWaveform.length];
+                            Arrays.fill(rightContextWaveform, 0.0);
+                        }
+                    }
+                    else
+                    {
+                        if (rightContexts[i]!=null)
+                            rightContextWaveform = ArrayUtils.copy(((FrameNoisePartWaveform)rightContexts[i].n).waveform2Doubles());
+                        else
+                        {
+                            rightContextWaveform = new double[frameWaveform.length];
+                            Arrays.fill(rightContextWaveform, 0.0);
+                        }
+                    }
+
+                    frameWaveform = ArrayUtils.combine(leftContextWaveform, frameWaveform);
+                    frameWaveform = ArrayUtils.combine(frameWaveform, rightContextWaveform);
+                    
+                    if (analysisParams.preemphasisCoefNoise>0.0)
+                        frameWaveform = SignalProcUtils.removePreemphasis(frameWaveform, analysisParams.preemphasisCoefNoise);
+
+                    if (frameWaveform!=null)
+                    {
+                        Window w = new HammingWindow(frameWaveform.length);
+                        double[] wgt = w.getCoeffs();
+                        for (j=waveformNoiseStartInd; j<Math.min(waveformNoiseStartInd+frameWaveform.length, outputLen); j++)
+                        {
+                            if (waveformNoiseStartInd+j>=0)
+                            {
+                                noisePartWaveform[j] += frameWaveform[j-waveformNoiseStartInd]*wgt[j-waveformNoiseStartInd];
+                                wgts[j] += wgt[j-waveformNoiseStartInd];
+                            }
+                        }
                     }
                 }
             }
-            
-            if (shiftSamples+count>=outputLen)
-                break;
+
+            for (i=0; i<outputLen; i++)
+            {
+                if (wgts[i]>1.0e-10)
+                    noisePartWaveform[i] /= wgts[i];
+            }
         }
         
         return noisePartWaveform;

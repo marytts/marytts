@@ -60,22 +60,25 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
     {
         this();
         
-        if (existing.h!=null)
-            h = new FrameHarmonicPart(existing.h);
-
-        if (existing.n!=null)
+        if (existing!=null)
         {
-            if (existing.n instanceof FrameNoisePartLpc)
-                n = new FrameNoisePartLpc((FrameNoisePartLpc)existing.n);
-            else if (existing.n instanceof FrameNoisePartPseudoHarmonic)
-                n = new FrameNoisePartPseudoHarmonic((FrameNoisePartPseudoHarmonic)existing.n);
-            else if (existing.n instanceof FrameNoisePartWaveform)
-                n = new FrameNoisePartWaveform((FrameNoisePartWaveform)existing.n);
-            
-            f0InHz = existing.f0InHz;
-            maximumFrequencyOfVoicingInHz = existing.maximumFrequencyOfVoicingInHz;
-            tAnalysisInSeconds = existing.tAnalysisInSeconds;  
-        } 
+            if (existing.h!=null)
+                h = new FrameHarmonicPart(existing.h);
+
+            if (existing.n!=null)
+            {
+                if (existing.n instanceof FrameNoisePartLpc)
+                    n = new FrameNoisePartLpc((FrameNoisePartLpc)existing.n);
+                else if (existing.n instanceof FrameNoisePartPseudoHarmonic)
+                    n = new FrameNoisePartPseudoHarmonic((FrameNoisePartPseudoHarmonic)existing.n);
+                else if (existing.n instanceof FrameNoisePartWaveform)
+                    n = new FrameNoisePartWaveform((FrameNoisePartWaveform)existing.n);
+
+                f0InHz = existing.f0InHz;
+                maximumFrequencyOfVoicingInHz = existing.maximumFrequencyOfVoicingInHz;
+                tAnalysisInSeconds = existing.tAnalysisInSeconds;  
+            } 
+        }
     }
     
     public HntmSpeechFrame(DataInputStream dis, int noiseModel) throws IOException, EOFException

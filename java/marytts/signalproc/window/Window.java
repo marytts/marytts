@@ -115,6 +115,11 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
         return target;
     }
 
+    public double[] apply(final double[] src)
+    {
+        return apply(src, 0);
+    }
+    
     /**
      * Apply the window function in-line, i.e. by modifying the original data.
      * @param data
@@ -126,6 +131,16 @@ public abstract class Window implements CopyingDataProcessor, InlineDataProcesso
     public void applyInline(double[] data, int pos, int len)
     {
         apply(data, pos, data, pos, len);
+    }
+    
+    public void applyInline(double[] data, int pos)
+    {
+        applyInline(data, pos, window.length);
+    }
+    
+    public void applyInline(double[] data)
+    {
+        applyInline(data, 0, window.length);
     }
     
     /**
