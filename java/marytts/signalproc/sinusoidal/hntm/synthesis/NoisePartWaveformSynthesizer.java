@@ -107,8 +107,6 @@ public class NoisePartWaveformSynthesizer
             double[] rightContextWaveform = null;
 
             int waveformNoiseStartInd;
-            int numHarmonics;
-            boolean isVoiced;
             
             //TO DO: Overlap waveform noise case! See analysis code!
             for (i=0; i<hnmSignal.frames.length; i++)
@@ -116,14 +114,6 @@ public class NoisePartWaveformSynthesizer
                 if (hnmSignal.frames[i].n!=null && (hnmSignal.frames[i].n instanceof FrameNoisePartWaveform))
                 {
                     frameWaveform = ((FrameNoisePartWaveform)hnmSignal.frames[i].n).waveform2Doubles();
-                    
-                    if (hnmSignal.frames[i].f0InHz>10.0)
-                        numHarmonics = (int)Math.floor(hnmSignal.frames[i].maximumFrequencyOfVoicingInHz/hnmSignal.frames[i].f0InHz+0.5);
-                    else
-                        numHarmonics = 0;
-                    isVoiced = numHarmonics>0 ? true:false;
-                    if (isVoiced && analysisParams.hpfBeforeNoiseAnalysis && analysisParams.decimateNoiseWaveform)
-                        frameWaveform = SignalProcUtils.interpolate(frameWaveform, 0.5*hnmSignal.samplingRateInHz/(0.5*hnmSignal.samplingRateInHz-hnmSignal.frames[i].maximumFrequencyOfVoicingInHz));
                     
                     if (leftContexts==null) //Take the previous frame parameters as left context (i.e. the HNM signal is a continuous one, not concatenated one
                     {
@@ -173,9 +163,6 @@ public class NoisePartWaveformSynthesizer
                     frameWaveform = ArrayUtils.combine(leftContextWaveform, frameWaveform);
                     frameWaveform = ArrayUtils.combine(frameWaveform, rightContextWaveform);
                     
-                    if (analysisParams.preemphasisCoefNoise>0.0)
-                        frameWaveform = SignalProcUtils.removePreemphasis(frameWaveform, analysisParams.preemphasisCoefNoise);
-
                     if (frameWaveform!=null)
                     {
                         Window w = new HammingWindow(frameWaveform.length);
