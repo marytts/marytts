@@ -662,11 +662,17 @@ public class HntmAnalyzer {
                 f0InHz = hnmSignal.frames[i].f0InHz;
 
                 if (f0InHz>10.0)
+                {
                     T0Double = SignalProcUtils.time2sampleDouble(1.0/f0InHz, hnmSignal.samplingRateInHz);
+                    numHarmonics = (int)Math.floor(hnmSignal.frames[i].maximumFrequencyOfVoicingInHz/f0InHz+0.5);
+                }
                 else 
+                {
                     T0Double = SignalProcUtils.time2sampleDouble(1.0/assumedF0ForUnvoicedInHz, hnmSignal.samplingRateInHz);
+                    numHarmonics = 0;
+                }
 
-                numHarmonics = (int)Math.floor(hnmSignal.frames[i].maximumFrequencyOfVoicingInHz/f0InHz+0.5);
+                
                 isVoiced = numHarmonics>0 ? true:false;
                 isNoised = hnmSignal.frames[i].maximumFrequencyOfVoicingInHz<0.5*hnmSignal.samplingRateInHz ? true:false;
 

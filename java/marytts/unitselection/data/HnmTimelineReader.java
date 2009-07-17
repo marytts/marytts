@@ -183,7 +183,7 @@ public class HnmTimelineReader extends TimelineReader
         HntmSynthesizedSignal ss = null;
         if (totalFrm>0)
         {    
-            ss = s.synthesize(hnmSignal, pmodParams, null, analysisParams, synthesisParams);
+            ss = s.synthesize(hnmSignal, null, null, pmodParams, null, analysisParams, synthesisParams);
             //FileUtils.writeTextFile(hnmSignal.getAnalysisTimes(), "d:\\hnmAnalysisTimes1.txt");
             FileUtils.writeTextFile(ss.output, outputFile);
             if (ss.output!=null)

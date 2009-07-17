@@ -69,26 +69,31 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
     {
         super();
     }
-    
+
     /**
      * Get the raw audio material for each unit from the timeline.
      * @param units
      */
     protected void getDatagramsFromTimeline(List<SelectedUnit> units) throws IOException
     {
-        for (SelectedUnit unit : units) 
-        {
+        for (SelectedUnit unit : units) {
             assert !unit.getUnit().isEdgeUnit() : "We should never have selected any edge units!";
-            UnitData unitData = new UnitData();
+            HnmUnitData unitData = new HnmUnitData();
             unit.setConcatenationData(unitData);
             int nSamples = 0;
             int unitSize = unitToTimeline(unit.getUnit().getDuration()); // convert to timeline samples
             long unitStart = unitToTimeline(unit.getUnit().getStart()); // convert to timeline samples
-            //System.out.println(unitStart/((float)timeline.getSampleRate()));
             //System.out.println("Unit size "+unitSize+", pitchmarksInUnit "+pitchmarksInUnit);
+            //System.out.println(unitStart/((float)timeline.getSampleRate()));
             Datagram[] datagrams = timeline.getDatagrams(unitStart,(long)unitSize);
-          
             unitData.setFrames(datagrams);
+            // one right context period for windowing:
+            Datagram rightContextFrame = null;
+            Unit nextInDB = database.getUnitFileReader().getNextUnit(unit.getUnit());
+            if (nextInDB != null && !nextInDB.isEdgeUnit()) {
+                rightContextFrame = timeline.getDatagram(unitStart+unitSize);
+                unitData.setRightContextFrame(rightContextFrame);
+            }
             
             System.out.println("Unit selected = " + unit.getUnit().getIndex());
         }
@@ -101,56 +106,50 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
      */
     protected AudioInputStream generateAudioStream(List<SelectedUnit> units)
     {
-        LinkedList<Datagram> datagrams = new LinkedList<Datagram>();
-        
-        if (true)
+        int len = units.size();
+        Datagram[][] datagrams = new Datagram[len][];
+        Datagram[] leftContexts = new Datagram[len];
+        Datagram[] rightContexts = new Datagram[len];
+        for (int i=0; i<len; i++) 
         {
-            int len = units.size();
-            int i, j;
-            for (i=0; i<len; i++) 
-            {
-                SelectedUnit unit = units.get(i);
-                UnitData unitData = (UnitData)unit.getConcatenationData();
-                assert unitData != null : "Should not have null unitdata here";
-                Datagram[] frames = unitData.getFrames();   
-                assert frames != null : "Cannot generate audio from null frames";
-
-                for (j=0; j<frames.length; j++)
-                    datagrams.add(frames[j]);
+            SelectedUnit unit = units.get(i);
+            HnmUnitData unitData = (HnmUnitData)unit.getConcatenationData();
+            assert unitData != null : "Should not have null unitdata here";
+            Datagram[] frames = unitData.getFrames();
+            assert frames != null : "Cannot generate audio from null frames";
+            // Generate audio from frames
+            datagrams[i] = frames;
+            
+            Unit prevInDB = database.getUnitFileReader().getPreviousUnit(unit.getUnit());
+            Unit prevSelected;
+            if (i==0) 
+                prevSelected = null;
+            else 
+                prevSelected = units.get(i-1).getUnit();
+            if (prevInDB != null && !prevInDB.equals(prevSelected)) {
+                // Only use left context if we have a previous unit in the DB is not the
+                // same as the previous selected unit.
+                leftContexts[i] = (HnmDatagram)unitData.getLeftContextFrame(); // may be null
             }
-        }
-        else
-        {
-            //This code is for testing: we just read from a fixed range from the timeline 
-            // and synthesize this segment instead of using the selected units.
-            //Once synthesis of selected units works properly, this "else" clause should be removed.
-            int count = 0;
-            while(count<timeline.getNumDatagrams())
-            {
-                Datagram d = null;
-
-                try {
-                    d = ((HnmTimelineReader)timeline).getNextDatagram();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-                if (count>=2000 && count<=2700)
-                {
-                    if (d!=null)
-                        datagrams.add(d);
-                }
-
-                count++;
+            
+            Unit nextInDB = database.getUnitFileReader().getNextUnit(unit.getUnit());
+            Unit nextSelected;
+            if (i+1==len) 
+                nextSelected = null;
+            else 
+                nextSelected = units.get(i+1).getUnit();
+            if (nextInDB != null && !nextInDB.equals(nextSelected)) {
+                // Only use right context if we have a next unit in the DB is not the
+                // same as the next selected unit.
+                rightContexts[i] = unitData.getRightContextFrame(); // may be null
             }
         }
 
-        BufferedDoubleDataSource audioSource = synthesize(datagrams);
+        BufferedDoubleDataSource audioSource = synthesize(datagrams, leftContexts, rightContexts);
         return new DDSAudioInputStream(audioSource, audioformat);  
     }
     
-    protected BufferedDoubleDataSource synthesize(LinkedList<Datagram> datagrams)
+    protected BufferedDoubleDataSource synthesize(Datagram[][] datagrams, Datagram[] leftContexts, Datagram[] rightContexts)
     {
         HntmSynthesizer s = new HntmSynthesizer();
         //TO DO: These should come from timeline and user choices...
@@ -164,49 +163,71 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
         float originalDurationInSeconds = 10.0f;
         float deltaTimeInSeconds;
         
-        for (i=0; i<datagrams.size(); i++)
+        for (i=0; i<datagrams.length; i++)
         {
-            if (datagrams.get(i)!=null)
+            for (j=0; j<datagrams[i].length; j++)
             {
-                if (datagrams.get(i) instanceof HnmDatagram)
+                if (datagrams[i][j]!=null && (datagrams[i][j] instanceof HnmDatagram))
                 {
                     totalFrm++;
-                    deltaTimeInSeconds = SignalProcUtils.sample2time(((HnmDatagram)datagrams.get(i)).getDuration(), samplingRateInHz);
+                    deltaTimeInSeconds = SignalProcUtils.sample2time(((HnmDatagram)datagrams[i][j]).getDuration(), samplingRateInHz);
                     originalDurationInSeconds += deltaTimeInSeconds;
-                }
-            } 
+                } 
+            }
         }
         
         HntmSpeechSignal hnmSignal = null;
         hnmSignal = new HntmSpeechSignal(totalFrm, samplingRateInHz, originalDurationInSeconds);
+        HntmSpeechFrame[] leftContextFrames = new HntmSpeechFrame[totalFrm];
+        HntmSpeechFrame[] rightContextFrames = new HntmSpeechFrame[totalFrm];
         //
         
         int frameCount = 0;
-        float tAnalysisInSeconds = 10.0f;
-        for (i=0; i<datagrams.size(); i++)
+        float tAnalysisInSeconds = 0.0f;
+        for (i=0; i<datagrams.length; i++)
         {
-            if (datagrams.get(i)!=null)
+            for (j=0; j<datagrams[i].length; j++)
             {
-                if (datagrams.get(i) instanceof HnmDatagram)
+                if (datagrams[i][j]!=null && (datagrams[i][j] instanceof HnmDatagram) && frameCount<totalFrm)
                 {
-                    if  (frameCount<totalFrm)
+                    hnmSignal.frames[frameCount] = ((HnmDatagram)datagrams[i][j]).getFrame();
+                    hnmSignal.frames[frameCount].tAnalysisInSeconds = tAnalysisInSeconds;
+
+                    if (j==0)
                     {
-                        hnmSignal.frames[frameCount] = ((HnmDatagram)datagrams.get(i)).getFrame();
-                        hnmSignal.frames[frameCount].tAnalysisInSeconds = tAnalysisInSeconds;
-                        frameCount++;
-                        
-                        tAnalysisInSeconds += SignalProcUtils.sample2time(((HnmDatagram)datagrams.get(i)).getDuration(), samplingRateInHz);
+                        if (leftContexts[i]!=null && (leftContexts[i] instanceof HnmDatagram))
+                            leftContextFrames[frameCount] = ((HnmDatagram)leftContexts[i]).getFrame();
                     }
-                }
-            }    
+                    else
+                    {
+                        if (datagrams[i][j-1]!=null && (datagrams[i][j-1] instanceof HnmDatagram))
+                            leftContextFrames[frameCount] = ((HnmDatagram)datagrams[i][j-1]).getFrame();
+                    }
+                    
+                    if (j==datagrams[i].length-1)
+                    {
+                        if (rightContexts[i]!=null && (rightContexts[i] instanceof HnmDatagram))
+                            rightContextFrames[frameCount] = ((HnmDatagram)rightContexts[i]).getFrame();
+                    }
+                    else
+                    {
+                        if (datagrams[i][j+1]!=null && (datagrams[i][j+1] instanceof HnmDatagram))
+                            rightContextFrames[frameCount] = ((HnmDatagram)datagrams[i][j+1]).getFrame();
+                    }
+                    
+                    frameCount++;
+
+                    tAnalysisInSeconds += SignalProcUtils.sample2time(((HnmDatagram)datagrams[i][j]).getDuration(), samplingRateInHz);
+                }   
+            }
         }
 
         HntmSynthesizedSignal ss = null;
         if (totalFrm>0)
         {    
-            ss = s.synthesize(hnmSignal, pmodParams, null, analysisParams, synthesisParams);
+            ss = s.synthesize(hnmSignal, leftContextFrames, rightContextFrames, pmodParams, null, analysisParams, synthesisParams);
             //FileUtils.writeTextFile(hnmSignal.getAnalysisTimes(), "d:\\hnmAnalysisTimes1.txt");
-            FileUtils.writeTextFile(ss.output, "d:\\output.txt");
+            //FileUtils.writeTextFile(ss.output, "d:\\output.txt");
             if (ss.output!=null)
                 ss.output = MathUtils.multiply(ss.output, 1.0/32768.0);
         }
@@ -215,5 +236,20 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
             return new BufferedDoubleDataSource(ss.output);
         else
             return null;
+    }
+    
+    public static class HnmUnitData extends OverlapUnitConcatenator.OverlapUnitData
+    {
+        protected Datagram leftContextFrame;
+        
+        public void setLeftContextFrame(Datagram aLeftContextFrame)
+        {
+            this.leftContextFrame = aLeftContextFrame;
+        }
+        
+        public Datagram getLeftContextFrame()
+        {
+            return leftContextFrame;
+        }
     }
 }

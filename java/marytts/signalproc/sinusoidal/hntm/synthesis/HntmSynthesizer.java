@@ -49,6 +49,7 @@ import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmPlusTransientsSpeechSignal;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignalWithContext;
 import marytts.signalproc.sinusoidal.hntm.analysis.pitch.HnmPitchVoicingAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.modification.HntmProsodyModifier;
 import marytts.signalproc.sinusoidal.hntm.synthesis.hybrid.HarmonicsToTrackConverter;
@@ -101,6 +102,8 @@ public class HntmSynthesizer {
     }
     
     public HntmSynthesizedSignal synthesize(HntmSpeechSignal hntmSignal, 
+                                            HntmSpeechFrame[] leftContexts,
+                                            HntmSpeechFrame[] rightContexts,
                                             BasicProsodyModifierParams pmodParams, 
                                             String referenceFile,
                                             HntmAnalyzerParams analysisParams,
@@ -109,20 +112,20 @@ public class HntmSynthesizer {
         BasicProsodyModifierParams pmodParamsOrig = new BasicProsodyModifierParams(pmodParams);
         
         //Handle time and pitch scaling by adjusting synthesis times
-        HntmSpeechSignal hntmSignalMod = HntmProsodyModifier.modify(hntmSignal, pmodParams, analysisParams);
+        HntmSpeechSignalWithContext prosodyModified = HntmProsodyModifier.modify(hntmSignal, leftContexts, rightContexts, pmodParams, analysisParams);
         //
         
         HntmSynthesizedSignal s = new HntmSynthesizedSignal();
         
         if (synthesisParams.harmonicPartSynthesisMethod==HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION)
-            s.harmonicPart = HarmonicPartLinearPhaseInterpolatorSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams, referenceFile);
+            s.harmonicPart = HarmonicPartLinearPhaseInterpolatorSynthesizer.synthesize(prosodyModified.hntmSignal, analysisParams, synthesisParams, referenceFile);
         else if (synthesisParams.harmonicPartSynthesisMethod==HntmSynthesizerParams.QUADRATIC_PHASE_INTERPOLATION)
         {
             //Convert to pure sinusoidal tracks
-            SinusoidalTracks st = HarmonicsToTrackConverter.convert(hntmSignalMod, analysisParams);
+            SinusoidalTracks st = HarmonicsToTrackConverter.convert(prosodyModified.hntmSignal, analysisParams);
             //
             
-            PeakMatchedSinusoidalSynthesizer ss = new PeakMatchedSinusoidalSynthesizer(hntmSignalMod.samplingRateInHz);
+            PeakMatchedSinusoidalSynthesizer ss = new PeakMatchedSinusoidalSynthesizer(prosodyModified.hntmSignal.samplingRateInHz);
             s.harmonicPart = ss.synthesize(st, false); 
         }
 
@@ -130,41 +133,41 @@ public class HntmSynthesizer {
         if (analysisParams.noiseModel == HntmAnalyzerParams.LPC)
         {
             if (synthesisParams.noisePartLpcSynthesisMethod == HntmSynthesizerParams.OVERLAP_ADD_WITH_WINDOWING)
-                s.noisePart = NoisePartWindowedOverlapAddLpcSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
+                s.noisePart = NoisePartWindowedOverlapAddLpcSynthesizer.synthesize(prosodyModified.hntmSignal, analysisParams, synthesisParams);
             else if (synthesisParams.noisePartLpcSynthesisMethod == HntmSynthesizerParams.LP_FILTER_WITH_POST_HPF_AND_WINDOWING)
-                s.noisePart = NoisePartLpFilterPostHpfLpcSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
+                s.noisePart = NoisePartLpFilterPostHpfLpcSynthesizer.synthesize(prosodyModified.hntmSignal, analysisParams, synthesisParams);
         }
         else if (analysisParams.noiseModel == HntmAnalyzerParams.PSEUDO_HARMONIC)
-            s.noisePart = NoisePartPseudoHarmonicSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams, referenceFile);
+            s.noisePart = NoisePartPseudoHarmonicSynthesizer.synthesize(prosodyModified.hntmSignal, analysisParams, synthesisParams, referenceFile);
         else if (analysisParams.noiseModel == HntmAnalyzerParams.WAVEFORM)
-            s.noisePart = NoisePartWaveformSynthesizer.synthesize(hntmSignalMod);
+            s.noisePart = NoisePartWaveformSynthesizer.synthesize(prosodyModified.hntmSignal, leftContexts, rightContexts, analysisParams);
         else if (analysisParams.noiseModel == HntmAnalyzerParams.VOICEDNOISE_LPC_UNVOICEDNOISE_WAVEFORM ||
                  analysisParams.noiseModel == HntmAnalyzerParams.UNVOICEDNOISE_LPC_VOICEDNOISE_WAVEFORM 
                 )
         {
             //First synthesize LPC part (voiced regions)
             if (synthesisParams.noisePartLpcSynthesisMethod == HntmSynthesizerParams.OVERLAP_ADD_WITH_WINDOWING)
-                s.noisePart = NoisePartWindowedOverlapAddLpcSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
+                s.noisePart = NoisePartWindowedOverlapAddLpcSynthesizer.synthesize(prosodyModified.hntmSignal, analysisParams, synthesisParams);
             else if (synthesisParams.noisePartLpcSynthesisMethod == HntmSynthesizerParams.LP_FILTER_WITH_POST_HPF_AND_WINDOWING)
-                s.noisePart = NoisePartLpFilterPostHpfLpcSynthesizer.synthesize(hntmSignalMod, analysisParams, synthesisParams);
+                s.noisePart = NoisePartLpFilterPostHpfLpcSynthesizer.synthesize(prosodyModified.hntmSignal, analysisParams, synthesisParams);
             
             //Then synthesize waveform part (unvoiced regions)
-            double[] waveformNoisePart = NoisePartWaveformSynthesizer.synthesize(hntmSignalMod);
+            double[] waveformNoisePart = NoisePartWaveformSynthesizer.synthesize(prosodyModified.hntmSignal, leftContexts, rightContexts, analysisParams);
             s.noisePart = SignalProcUtils.addSignals(s.noisePart, waveformNoisePart);
         }
         //
         
         //Synthesize transients
-        if (hntmSignalMod instanceof HntmPlusTransientsSpeechSignal && ((HntmPlusTransientsSpeechSignal)hntmSignalMod).transients!=null)
-            s.transientPart = TransientPartSynthesizer.synthesize((HntmPlusTransientsSpeechSignal)hntmSignalMod, analysisParams);
+        if (prosodyModified.hntmSignal instanceof HntmPlusTransientsSpeechSignal && ((HntmPlusTransientsSpeechSignal)prosodyModified.hntmSignal).transients!=null)
+            s.transientPart = TransientPartSynthesizer.synthesize((HntmPlusTransientsSpeechSignal)prosodyModified.hntmSignal, analysisParams);
         //
  
         s.generateOutput();
         
         if (synthesisParams.applyVocalTractPostNormalizationProcessor)
         {
-            float[][] mappedTgtLpcs = hntmSignalMod.getLpcsAll();
-            s.output = SignalProcUtils.normalizeVocalTract(s.output, hntmSignalMod.getAnalysisTimes(), mappedTgtLpcs, analysisParams.noiseAnalysisWindowType, analysisParams.noiseAnalysisWindowDurationInSeconds, mappedTgtLpcs[0].length, hntmSignalMod.samplingRateInHz, analysisParams.preemphasisCoefNoise);
+            float[][] mappedTgtLpcs = prosodyModified.hntmSignal.getLpcsAll();
+            s.output = SignalProcUtils.normalizeVocalTract(s.output, prosodyModified.hntmSignal.getAnalysisTimes(), mappedTgtLpcs, analysisParams.noiseAnalysisWindowType, analysisParams.noiseAnalysisWindowDurationInSeconds, mappedTgtLpcs[0].length, prosodyModified.hntmSignal.samplingRateInHz, analysisParams.preemphasisCoefNoise);
         }
         
         return s;
@@ -280,15 +283,23 @@ public class HntmSynthesizer {
             labels = new Labels(strLabFile);
         }
         
-        //String analysisResultsFile = StringUtils.modifyExtension(wavFile, ".ana"); 
-        String analysisResultsFile  = null;
+        String analysisResultsFile = StringUtils.modifyExtension(wavFile, ".ana"); 
+        //String analysisResultsFile  = null;
          
         //boolean isCopyPitch = true;
         //boolean isCopyDuration = true;
         //BasicProsodyModifierParams pmodParams = new BasicProsodyModifierParams(strPitchFile, strLabFile, "d:\\m0318_happy.ptc", "d:\\d:\\m0318_happy.lab", isCopyPitch, isCopyDuration); //Prosody from a target file
         //
 
-        HntmSpeechSignal hnmSignal = ha.analyze(x, samplingRate, f0, labels, analysisParams, synthesisParamsBeforeNoiseAnalysis, analysisResultsFile);
+        HntmSpeechSignal hnmSignal = null;
+        if (FileUtils.exists(analysisResultsFile))
+        {
+            System.out.println("Warning! Analysis file found, skipping actual HNM analysis and reading from file."); 
+            System.out.println("If analysis parameters have changed, delete this file and run the program again!");
+            hnmSignal = new HntmSpeechSignal(analysisResultsFile, analysisParams.noiseModel);
+        }
+        else
+            hnmSignal = ha.analyze(x, samplingRate, f0, labels, analysisParams, synthesisParamsBeforeNoiseAnalysis, analysisResultsFile);
         //
         
         for (int n=0; n<pScalesArray.length; n++)
@@ -301,6 +312,8 @@ public class HntmSynthesizer {
                 //Synthesis
                 HntmSynthesizer hs = new HntmSynthesizer();
                 HntmSynthesizedSignal xhat = hs.synthesize(hnmSignal, 
+                                                           null,
+                                                           null,
                                                            pmodParams, 
                                                            wavFile,
                                                            analysisParams,
