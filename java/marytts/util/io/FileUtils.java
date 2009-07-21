@@ -215,18 +215,64 @@ public class FileUtils {
         }
     }
 
-    public static void writeToBinaryFile(int[] pitchMarks, String filename) throws IOException {
-        DataOutputStream d = null;
-        try {
-            d = new DataOutputStream(new FileOutputStream(new File(filename)));
-            d.writeInt(pitchMarks.length);
+    public static void writeBinaryFile(short[] x, String filename) throws IOException 
+    {
+        DataOutputStream d = new DataOutputStream(new FileOutputStream(new File(filename)));
 
-            for (int i = 0; i < pitchMarks.length; i++) {
-                d.writeInt(pitchMarks[i]);
-            }
-        } finally {
-            close(d);
-        }
+        d.writeInt(x.length);
+        
+        writeBinaryFile(x, d);
+    }
+
+    public static void writeBinaryFile(short[] x, DataOutputStream d) throws IOException 
+    {
+        for (int i = 0; i < x.length; i++)
+            d.writeShort(x[i]);
+    }
+    
+    public static void writeBinaryFile(float[] x, String filename) throws IOException 
+    {
+        DataOutputStream d = new DataOutputStream(new FileOutputStream(new File(filename)));
+
+        d.writeInt(x.length);
+        
+        writeBinaryFile(x, d);
+    }
+
+    public static void writeBinaryFile(float[] x, DataOutputStream d) throws IOException 
+    {
+        for (int i = 0; i < x.length; i++)
+            d.writeFloat(x[i]);
+    }
+    
+    public static void writeBinaryFile(double[] x, String filename) throws IOException 
+    {
+        DataOutputStream d = new DataOutputStream(new FileOutputStream(new File(filename)));
+
+        d.writeInt(x.length);
+        
+        writeBinaryFile(x, d);
+    }
+
+    public static void writeBinaryFile(double[] x, DataOutputStream d) throws IOException 
+    {
+        for (int i = 0; i < x.length; i++)
+            d.writeDouble(x[i]);
+    }
+    
+    public static void writeBinaryFile(int[] x, String filename) throws IOException 
+    {
+        DataOutputStream d = new DataOutputStream(new FileOutputStream(new File(filename)));
+
+        d.writeInt(x.length);
+        
+        writeBinaryFile(x, d);
+    }
+
+    public static void writeBinaryFile(int[] x, DataOutputStream d) throws IOException 
+    {
+        for (int i = 0; i < x.length; i++)
+            d.writeInt(x[i]);
     }
 
     public static int[] readFromBinaryFile(String filename) throws IOException {

@@ -63,8 +63,6 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
                 rightContextFrame = timeline.getDatagram(unitStart+unitSize);
                 unitData.setRightContextFrame(rightContextFrame);
             }
-            
-            System.out.println("Unit selected = " + unit.getUnit().getIndex());
         }
     }
     

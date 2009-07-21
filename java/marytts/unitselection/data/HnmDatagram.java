@@ -87,8 +87,8 @@ public class HnmDatagram extends Datagram {
     }
     
     /**
-     * Get the speech frame in Hz
-     * @return f0
+     * Get the sinusoidal speech frame
+     * @return frame
      */
     public HntmSpeechFrame getFrame()
     {

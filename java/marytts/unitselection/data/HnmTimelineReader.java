@@ -20,10 +20,18 @@
 package marytts.unitselection.data;
 
 import java.io.ByteArrayInputStream;
+import java.io.DataOutputStream;
 import java.io.EOFException;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Properties;
+
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.adaptation.prosody.BasicProsodyModifierParams;
 import marytts.signalproc.analysis.PitchReaderWriter;
@@ -34,7 +42,11 @@ import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizedSignal;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizer;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizerParams;
+import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.audio.AudioDoubleDataSource;
+import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.io.FileUtils;
+import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexNumber;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
@@ -124,7 +136,7 @@ public class HnmTimelineReader extends TimelineReader
         return( d );
     }
     
-    private static void testSynthesizeFromDatagrams(LinkedList<HnmDatagram> datagrams, int startIndex, int endIndex, String outputFile)
+    private static void testSynthesizeFromDatagrams(LinkedList<HnmDatagram> datagrams, int startIndex, int endIndex, DataOutputStream output) throws IOException
     {
         HntmSynthesizer s = new HntmSynthesizer();
         //TO DO: These should come from timeline and user choices...
@@ -184,15 +196,14 @@ public class HnmTimelineReader extends TimelineReader
         if (totalFrm>0)
         {    
             ss = s.synthesize(hnmSignal, null, null, pmodParams, null, analysisParams, synthesisParams);
-            //FileUtils.writeTextFile(hnmSignal.getAnalysisTimes(), "d:\\hnmAnalysisTimes1.txt");
-            FileUtils.writeTextFile(ss.output, outputFile);
+            FileUtils.writeBinaryFile(ArrayUtils.copyDouble2Short(ss.output), output);
             if (ss.output!=null)
                 ss.output = MathUtils.multiply(ss.output, 1.0/32768.0);
         }
     }
     
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) throws UnsupportedAudioFileException, IOException
+    {        
         int i;
         HnmTimelineReader h = new HnmTimelineReader();
         try {
@@ -224,13 +235,12 @@ public class HnmTimelineReader extends TimelineReader
         int clusterSize = 1000;
         int numClusters = (int)Math.floor(h.numDatagrams/((double)clusterSize)+0.5);
         int startIndex, endIndex;
-        String outputFile;
+        DataOutputStream output = new DataOutputStream(new FileOutputStream(new File("d:\\output.bin")));
         for (i=0; i<numClusters; i++)
         {
             startIndex = i*clusterSize;
             endIndex = (int)Math.min((i+1)*clusterSize-1, h.numDatagrams-1);
-            outputFile = "d:\\output" + String.valueOf(i+1) + ".txt";
-            testSynthesizeFromDatagrams(datagrams, startIndex, endIndex, outputFile);
+            testSynthesizeFromDatagrams(datagrams, startIndex, endIndex, output);
             System.out.println("Timeline cluster " + String.valueOf(i+1) + " of " + String.valueOf(numClusters) + " synthesized...");
         }
     }
