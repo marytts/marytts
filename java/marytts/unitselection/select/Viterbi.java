@@ -138,7 +138,7 @@ public  class Viterbi
             } else { // firstPoint is the start of the queue
                 firstPoint = nextPoint;
                 // dummy start path:
-                firstPoint.getPaths().add(new ViterbiPath());
+                firstPoint.getPaths().add(new ViterbiPath(null, null, 0));
             }
             last = nextPoint;
         }
@@ -181,7 +181,7 @@ public  class Viterbi
             } else { // firstPoint is the start of the queue
                 firstPoint = nextPoint;
                 // dummy start path:
-                firstPoint.getPaths().add(new ViterbiPath());
+                firstPoint.getPaths().add(new ViterbiPath(null, null, 0));
             }
             last = nextPoint;
         }
@@ -473,13 +473,10 @@ public  class Viterbi
     private ViterbiPath getPath(ViterbiPath path, 
 				ViterbiCandidate candidate) {
         double cost;
-        ViterbiPath newPath = new ViterbiPath();
 
         Target candidateTarget = candidate.getTarget();
         Unit candidateUnit = candidate.getUnit();
         
-        newPath.setCandidate(candidate);
-        newPath.setPrevious(path);
         double joinCost;
         double sCost = 0;
         double targetCost;
@@ -510,12 +507,11 @@ public  class Viterbi
         nTargetCosts++;
         //logger.debug(candidateUnit+": target cost "+targetCost+", join cost "+joinCost);
 
-        if (path == null) {
-            newPath.setScore(cost);
-        } else {
-            newPath.setScore(cost + path.getScore());
+        if (path != null) {
+            cost += path.getScore();
         }	
-	
+
+        ViterbiPath newPath = new ViterbiPath(candidate, path, cost);
         return newPath;
     }
     

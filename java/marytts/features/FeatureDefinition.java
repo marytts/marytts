@@ -388,6 +388,11 @@ public class FeatureDefinition
         return featureWeights[featureIndex];
     }
     
+    public float[] getFeatureWeights()
+    {
+        return featureWeights.clone();
+    }
+    
     /**
      * Get the name of any weighting function associated with the
      * given feature index. For byte-valued and short-valued features,

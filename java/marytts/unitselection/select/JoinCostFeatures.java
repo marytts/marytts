@@ -66,7 +66,8 @@ public class JoinCostFeatures implements JoinCostFunction
     private MaryHeader hdr = null;
     
     private float[] featureWeight = null;
-    private WeightFunc[] weightFunction = null;    
+    private WeightFunc[] weightFunction = null;
+    private boolean[] isLinear = null; // wether the i'th weight function is a linear function
     
     private float[][] leftJCF = null;
     private float[][] rightJCF = null;
@@ -141,6 +142,7 @@ public class JoinCostFeatures implements JoinCostFunction
             int numberOfFeatures = raf.readInt();
             featureWeight = new float[numberOfFeatures];
             weightFunction = new WeightFunc[numberOfFeatures];
+            isLinear = new boolean[numberOfFeatures];
             WeightFunctionManager wfm = new WeightFunctionManager();
             String wfStr = null;
             for ( int i = 0; i < numberOfFeatures; i++ ) {
@@ -160,6 +162,9 @@ public class JoinCostFeatures implements JoinCostFunction
                 for (int i=0; i<numberOfFeatures; i++) {
                     weightFunction[i] = wfm.getWeightFunction(wf[i]);
                 }
+            }
+            for (int i=0; i<numberOfFeatures; i++) {
+                isLinear[i] = weightFunction[i].whoAmI().equals("linear");
             }
             
             
@@ -334,8 +339,15 @@ public class JoinCostFeatures implements JoinCostFunction
         float[] v1 = rightJCF[u1];
         float[] v2 = leftJCF[u2];
         for ( int i = 0; i < v1.length; i++ ) {
-            if (!Float.isNaN(v1[i]) && !Float.isNaN(v2[i])) {
-                double c = featureWeight[i] * weightFunction[i].cost( v1[i], v2[i] ); 
+            //if (!Float.isNaN(v1[i]) && !Float.isNaN(v2[i])) {
+            if (!(v1[i]!=v1[i]) && !(v2[i]!=v2[i])) {
+                double c;
+                if (isLinear[i]) {
+                    //c = featureWeight[i] * ( a > b ? (a-b) : (b-a) )
+                    c = featureWeight[i] * (v1[i] > v2[i] ? (v1[i]-v2[i]) : (v2[i]-v1[i]));
+                } else {
+                    c = featureWeight[i] * weightFunction[i].cost( v1[i], v2[i] );
+                }
                 res += c;
                 if (debugShowCostGraph) {
                     cumulWeightedSignalCosts[i] += wSignal * c;
@@ -373,13 +385,15 @@ public class JoinCostFeatures implements JoinCostFunction
             bothDiphones = false;
         }
         
-        if (u1.getIndex()+1 == u2.getIndex()) return 0;
+        int u1index = u1.getIndex();
+        int u2index = u2.getIndex();
+        if (u1index+1 == u2index) return 0;
         // Either not half phone synthesis, or at a diphone boundary
         double cost = 1; // basic penalty for joins of non-contiguous units. 
         if (bothDiphones && precompiledCosts != null) {
             cost += precompiledCosts.cost(t1, u1, t2, u2);
         } else { // need to actually compute the cost
-            cost += cost( u1.getIndex(), u2.getIndex() );
+            cost += cost( u1index, u2index );
         }
         return cost;
     }
