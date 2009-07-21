@@ -396,26 +396,37 @@ function requestSynthesis()
         while (audioDestination.childNodes.length > 0) {
         	audioDestination.removeChild(audioDestination.firstChild);
         }
-        audioDestination.innerHTML = '<audio src="' + url + '" autoplay controls>'
-          + '<object classid="clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B" '
-          + ' codebase="http://www.apple.com/qtactivex/qtplugin.cab" width="200" height="16">'
-          + '<param name="src" value="' + url + '" />'
-		  + '<param name="controller" value="true" />'
-		  + '<param name="qtsrcdontusebrowser" value="true" />'
-		  + '<param name="autoplay" value="true" />'
-		  + '<param name="autostart" value="1" />'
-		  + '<param name="pluginspage" value="http://www.apple.com/quicktime/download/" />\n'
-		  + '<!--[if !IE]> <-->\n'
-		  + '<object data="'+url+'" width="200" height="16">'
-		  + '<param name="src" value="' + url + '" />'
-		  + '<param name="controller" value="true" />'
-		  + '<param name="autoplay" value="true" />'
-		  + '<param name="autostart" value="1" />'
-		  + '<param name="pluginurl" value="http://www.apple.com/quicktime/download/" />'
-	      + '</object>\n'
-		  + '<!--> <![endif]-->\n'
-		  + '</object>'
-		  + '</audio>';
+        
+        // Check whether <audio> tag is supported:
+        var audioType = document.getElementById('AUDIO').value;
+        var mimeType = 'audio/'+audioType.substring(0, audioType.indexOf('_')).toLowerCase();
+        var audioTag = document.createElement('audio');
+		if(! audioTag.canPlayType || audioTag.canPlayType(mimeType)=="no") {
+			//alert("cannot use audio tag for "+mimeType);
+	        audioDestination.innerHTML = '<object classid="clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B" '
+	          + ' codebase="http://www.apple.com/qtactivex/qtplugin.cab" width="200" height="16">'
+	          + '<param name="src" value="' + url + '" />'
+			  + '<param name="controller" value="true" />'
+			  + '<param name="qtsrcdontusebrowser" value="true" />'
+			  + '<param name="autoplay" value="true" />'
+			  + '<param name="autostart" value="1" />'
+			  + '<param name="pluginspage" value="http://www.apple.com/quicktime/download/" />\n'
+			  + '<!--[if !IE]> <-->\n'
+			  + '<object data="'+url+'" width="200" height="16">'
+			  + '<param name="src" value="' + url + '" />'
+			  + '<param name="controller" value="true" />'
+			  + '<param name="autoplay" value="true" />'
+			  + '<param name="autostart" value="1" />'
+			  + '<param name="pluginurl" value="http://www.apple.com/quicktime/download/" />'
+		      + '</object>\n'
+			  + '<!--> <![endif]-->\n'
+			  + '</object>';
+		} else {
+			//alert("audio tag should be ok for "+mimeType);
+	        audioDestination.innerHTML = '<audio src="' + url + '" autoplay controls>'
+			  + '</audio>';
+		}
+
 	    // alert(audioDestination.innerHTML);
         var fallback = document.createElement("a");
         fallback.setAttribute("href", url);
