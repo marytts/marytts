@@ -59,7 +59,7 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         byte bleftName = targetCostFunction.getFeatureDefinition().getFeatureValueAsByte(iPhoneme, leftName);
         byte brightName = targetCostFunction.getFeatureDefinition().getFeatureValueAsByte(iPhoneme, rightName);
 
-        List candidates = new ArrayList();
+        List<ViterbiCandidate> candidates = new ArrayList<ViterbiCandidate>();
         // Pre-select candidates for the left half, but retain only
         // those that belong to appropriate diphones:
         int[] clist = (int[]) preselectionCART.interpret(left,backtrace);
@@ -93,14 +93,14 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         // Now, clist is an array of halfphone unit indexes.
         for (int i = 0; i < clist.length; i++) {
             Unit unit = unitReader.getUnit(clist[i]);
-            String unitName = targetCostFunction.getFeature(unit, "phone");
+            byte bunitName = targetCostFunction.getFeatureVector(unit).getByteFeature(iPhoneme);
             // force correct phone symbol:
-            if (!unitName.equals(rightName)) continue;
+            if (bunitName != brightName) continue;
             int iLeftNeighbour = clist[i]-1;
             if (iLeftNeighbour >= 0) {
                 Unit leftNeighbour = unitReader.getUnit(iLeftNeighbour);
-                String leftUnitName = targetCostFunction.getFeature(leftNeighbour, "phone");
-                if (leftUnitName.equals(leftName)) {
+                byte bleftUnitName = targetCostFunction.getFeatureVector(leftNeighbour).getByteFeature(iPhoneme);
+                if (bleftUnitName == bleftName) {
                     // Found a diphone -- add it to candidates
                     DiphoneUnit diphoneUnit = new DiphoneUnit(leftNeighbour, unit);
                     ViterbiCandidate c = new ViterbiCandidate();

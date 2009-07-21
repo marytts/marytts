@@ -80,41 +80,50 @@ public class FFRTargetCostFunction implements TargetCostFunction
         assert nBytes == unitFeatures.getNumberOfByteFeatures();
         assert nShorts == unitFeatures.getNumberOfShortFeatures();
         assert nFloats == unitFeatures.getNumberOfContinuousFeatures();
+        float[] weightVector = weights.getFeatureWeights();
         // Now the actual computation
         double cost = 0;
         // byte-valued features:
-        for (int i=0; i<nBytes; i++) {
-            if (weightsNonZero[i]) {
-                float weight = weights.getWeight(i);
-                if (targetFeatures.getByteFeature(i) != unitFeatures.getByteFeature(i)) {
-                    cost += weight;
-                    if (debugShowCostGraph) cumulWeightedCosts[i] += weight;
+        if (nBytes > 0) {
+            byte[] targetBytes = targetFeatures.getByteValuedDiscreteFeatures();
+            byte[] unitBytes = unitFeatures.getByteValuedDiscreteFeatures();
+            for (int i=0; i<nBytes; i++) {
+                if (weightsNonZero[i]) {
+                    float weight = weightVector[i];
+                    if (targetBytes[i] != unitBytes[i]) {
+                        cost += weight;
+                        if (debugShowCostGraph) cumulWeightedCosts[i] += weight;
+                    }
                 }
             }
         }
         // short-valued features:
-        for (int i=nBytes, n=nBytes+nShorts; i<n; i++) {
-            if (weightsNonZero[i]) {
-                float weight = weights.getWeight(i);
-                if (targetFeatures.getShortFeature(i) != unitFeatures.getShortFeature(i)) {
-                    cost += weight;
-                    if (debugShowCostGraph) cumulWeightedCosts[i] += weight;
+        if (nShorts > 0) {
+            for (int i=nBytes, n=nBytes+nShorts; i<n; i++) {
+                if (weightsNonZero[i]) {
+                    float weight = weightVector[i];
+                    if (targetFeatures.getShortFeature(i) != unitFeatures.getShortFeature(i)) {
+                        cost += weight;
+                        if (debugShowCostGraph) cumulWeightedCosts[i] += weight;
+                    }
                 }
             }
         }
         // continuous features:
-        for (int i=nBytes+nShorts, n=nBytes+nShorts+nFloats; i<n; i++) {
-            if (weightsNonZero[i]) {
-                float weight = weights.getWeight(i);
-                float a = targetFeatures.getContinuousFeature(i);
-                float b = unitFeatures.getContinuousFeature(i);
-                if (!Float.isNaN(a) && !Float.isNaN(b)) {
-                    double myCost = weightFunctions[i-nBytes-nShorts].cost(a, b); 
-                    cost += weight * myCost;
-                    if (debugShowCostGraph) {
-                        cumulWeightedCosts[i] += weight * myCost;
-                    }
-                } // and if it is NaN, simply compute no cost
+        if (nFloats > 0) {
+            for (int i=nBytes+nShorts, n=nBytes+nShorts+nFloats; i<n; i++) {
+                if (weightsNonZero[i]) {
+                    float weight = weightVector[i];
+                    float a = targetFeatures.getContinuousFeature(i);
+                    float b = unitFeatures.getContinuousFeature(i);
+                    if (!Float.isNaN(a) && !Float.isNaN(b)) {
+                        double myCost = weightFunctions[i-nBytes-nShorts].cost(a, b); 
+                        cost += weight * myCost;
+                        if (debugShowCostGraph) {
+                            cumulWeightedCosts[i] += weight * myCost;
+                        }
+                    } // and if it is NaN, simply compute no cost
+                }
             }
         }
         return cost;

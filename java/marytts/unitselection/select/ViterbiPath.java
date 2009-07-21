@@ -36,12 +36,17 @@ import java.util.LinkedHashMap;
   * Describes a Viterbi path.
   */
  public class ViterbiPath {
-	private double score = 0;
-	private ViterbiCandidate candidate = null;
-	private LinkedHashMap f = null;
-	private ViterbiPath previous = null;
+	private double score;
+	private ViterbiCandidate candidate;
+    private ViterbiPath previous;
 	private ViterbiPath next = null;
 	
+	public ViterbiPath(ViterbiCandidate candidate, ViterbiPath previousPath, double score)
+	{
+	    this.candidate = candidate;
+	    this.previous = previousPath;
+	    this.score = score;
+	}
 	/**
 	 * Get the score of this path
 	 * @return the score
@@ -50,13 +55,7 @@ import java.util.LinkedHashMap;
 	    return score;
 	}
 	
-	/**
-	 * Set the score of this path
-	 * @param score the new score
-	 */
-	public void setScore(double score){
-	    this.score = score;
-	}
+
 	
 	/**
 	 * Get the candidate of this path.
@@ -67,15 +66,7 @@ import java.util.LinkedHashMap;
 	    return candidate;
 	}
 	
-	/**
-	 * Set the candidate of this path.
-     * Each path leads to exactly one candidate.
-	 * @param candidate the new candidate
-	 */
-	public void setCandidate(ViterbiCandidate candidate){
-	    this.candidate = candidate;
-	}
-	
+
 	/**
 	 * Get the next path
 	 * @return the next path
@@ -100,58 +91,9 @@ import java.util.LinkedHashMap;
 	    return previous;
 	}
 	
-	/**
-	 * Set the previous path
-	 * @param previous the previous path
-	 */
-	public void setPrevious(ViterbiPath previous){
-	    this.previous = previous;
-	}
-	
-	/**
-	 * Sets a feature with the given name to the given value.
-	 *
-	 * @param name the name of the feature
-	 * @param value the new value for the feature
-	 */
-	public void setFeature(String name, Object value) {
-	    if (f == null) {
-		f = new LinkedHashMap();
-	    }
-	    f.put(name, value);
-	}
-	
-	/**
-	 * Retrieves a feature.
-	 *
-	 * @param name the name of the feature
-	 * 
-	 * @return the feature
-	 */
-	public Object getFeature(String name) {
-	    Object value = null;
-	    if (f != null) {
-		value = f.get(name);
-	    }
-	    return value;
-	}
-	
-	/**
-	 * Determines if the feature with the given name
-	 * exists.
-	 *
-	 * @param name the feature to look for
-	 *
-	 * @return <code>true</code> if the feature is present;
-	 * 	otherwise <code>false</code>.
-	 */
-	public boolean isPresent(String name) {
-	    if (f == null) {
-		return false;
-	    } else {
-		return getFeature(name) != null;
-	    }
-	}
+
+
+
 	
 	/**
 	 * Converts this object to a string.

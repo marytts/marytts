@@ -168,7 +168,7 @@ public class FeatureVector
      * @see #getNumberOfByteFeatures()
      * @see #isByteFeature()
      */
-    public byte getByteFeature(int index)
+    public final byte getByteFeature(int index)
     {
         if (index < 0 || index >= byteValuedDiscreteFeatures.length) {
             throw new IndexOutOfBoundsException(index+" is not between 0 and "+byteValuedDiscreteFeatures.length);
@@ -185,7 +185,7 @@ public class FeatureVector
      * @see #getNumberOfShortFeatures()
      * @see #isShortFeature()
      */
-    public short getShortFeature(int index)
+    public final short getShortFeature(int index)
     {
         return shortValuedDiscreteFeatures[index-byteValuedDiscreteFeatures.length];
     }
@@ -201,7 +201,7 @@ public class FeatureVector
      * @see #getLength()
      * @see #isContinuousFeature()
      */
-    public float getContinuousFeature(int index)
+    public final float getContinuousFeature(int index)
     {
         return continuousFeatures[index-byteValuedDiscreteFeatures.length-shortValuedDiscreteFeatures.length];
     }
@@ -242,7 +242,6 @@ public class FeatureVector
         return byteValuedDiscreteFeatures.length+shortValuedDiscreteFeatures.length <= index && index < byteValuedDiscreteFeatures.length+shortValuedDiscreteFeatures.length+continuousFeatures.length;
     }
 
-    // TODO: Not sure if these are needed?
     public byte[] getByteValuedDiscreteFeatures()
     {
         return byteValuedDiscreteFeatures;
