@@ -69,7 +69,7 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
     {
         super();
     }
-
+    
     /**
      * Get the raw audio material for each unit from the timeline.
      * @param units
@@ -87,6 +87,16 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
             //System.out.println(unitStart/((float)timeline.getSampleRate()));
             Datagram[] datagrams = timeline.getDatagrams(unitStart,(long)unitSize);
             unitData.setFrames(datagrams);
+            
+            // one left context period for windowing:
+            Datagram leftContextFrame = null;
+            Unit prevInDB = database.getUnitFileReader().getPreviousUnit(unit.getUnit());
+            long unitPrevStart = unitToTimeline(prevInDB.getStart()); // convert to timeline samples
+            if (prevInDB != null && !prevInDB.isEdgeUnit()) {
+                leftContextFrame = timeline.getDatagram(unitPrevStart);
+                unitData.setLeftContextFrame(leftContextFrame);
+            }
+            
             // one right context period for windowing:
             Datagram rightContextFrame = null;
             Unit nextInDB = database.getUnitFileReader().getNextUnit(unit.getUnit());
@@ -94,8 +104,6 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
                 rightContextFrame = timeline.getDatagram(unitStart+unitSize);
                 unitData.setRightContextFrame(rightContextFrame);
             }
-            
-            System.out.println("Unit selected = " + unit.getUnit().getIndex());
         }
     }
     
@@ -160,8 +168,9 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
         
         int totalFrm = 0;
         int i, j;
-        float originalDurationInSeconds = 10.0f;
+        float originalDurationInSeconds = 0.0f;
         float deltaTimeInSeconds;
+        long length;
         
         for (i=0; i<datagrams.length; i++)
         {
@@ -170,8 +179,11 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
                 if (datagrams[i][j]!=null && (datagrams[i][j] instanceof HnmDatagram))
                 {
                     totalFrm++;
-                    deltaTimeInSeconds = SignalProcUtils.sample2time(((HnmDatagram)datagrams[i][j]).getDuration(), samplingRateInHz);
+                    length = ((HnmDatagram)datagrams[i][j]).getDuration();
+                    deltaTimeInSeconds = SignalProcUtils.sample2time(length, samplingRateInHz);
                     originalDurationInSeconds += deltaTimeInSeconds;
+                    
+                    System.out.println("Unit duration = " + String.valueOf(length));
                 } 
             }
         }

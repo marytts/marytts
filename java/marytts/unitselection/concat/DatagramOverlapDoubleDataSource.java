@@ -101,6 +101,7 @@ public class DatagramOverlapDoubleDataSource extends BufferedDoubleDataSource
             } else {
                 Datagram next = datagrams[p][q];
                 int length = (int) next.getDuration();
+                System.out.println("Unit duration = " + String.valueOf(length));
                 if (buf.length < writePos + length) {
                     increaseBufferSize(writePos+length);
                 }
