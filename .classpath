@@ -9,6 +9,7 @@
 	<classpathentry kind="lib" path="java/freetts-de.jar"/>
 	<classpathentry kind="lib" path="java/freetts-mbrola.jar"/>
 	<classpathentry kind="lib" path="java/opennlp-tools-1.4.1.jar"/>
+	<classpathentry kind="lib" path="java/Jampack.jar" sourcepath="java/Jampack.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="build/standalone-compiler.jar" sourcepath="/Users/marc/src/IzPack-3.10.2/src/lib"/>
 	<classpathentry kind="lib" path="java/commons-collections-3.2.1.jar"/>
@@ -28,6 +29,5 @@
 	<classpathentry kind="lib" path="java/swing-layout-1.0.jar"/>
 	<classpathentry kind="lib" path="java/weka.jar"/>
 	<classpathentry kind="lib" path="java/trove-2.0.4.jar"/>
-	<classpathentry kind="lib" path="java/jampack.jar"/>
 	<classpathentry kind="output" path="java"/>
 </classpath>
