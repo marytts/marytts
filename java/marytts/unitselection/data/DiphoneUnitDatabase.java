@@ -72,15 +72,13 @@ public class DiphoneUnitDatabase extends UnitDatabase {
             // force correct phone symbol:
             if (bunitName != bleftName) continue;
             int iRightNeighbour = clist[i]+1;
-            if (iRightNeighbour < unitReader.getNumberOfUnits()) {
+            if (iRightNeighbour < numUnits) {
                 Unit rightNeighbour = unitReader.getUnit(iRightNeighbour);
                 byte brightUnitName = targetCostFunction.getFeatureVector(rightNeighbour).getByteFeature(iPhoneme);
                 if (brightUnitName == brightName) {
                     // Found a diphone -- add it to candidates
                     DiphoneUnit diphoneUnit = new DiphoneUnit(unit, rightNeighbour);
-                    ViterbiCandidate c = new ViterbiCandidate();
-                    c.setTarget(diphoneTarget);
-                    c.setUnit(diphoneUnit);
+                    ViterbiCandidate c = new ViterbiCandidate(diphoneTarget, diphoneUnit);
                     candidates.add(c);
                 }
             }
@@ -103,9 +101,7 @@ public class DiphoneUnitDatabase extends UnitDatabase {
                 if (bleftUnitName == bleftName) {
                     // Found a diphone -- add it to candidates
                     DiphoneUnit diphoneUnit = new DiphoneUnit(leftNeighbour, unit);
-                    ViterbiCandidate c = new ViterbiCandidate();
-                    c.setTarget(diphoneTarget);
-                    c.setUnit(diphoneUnit);
+                    ViterbiCandidate c = new ViterbiCandidate(diphoneTarget, diphoneUnit);
                     candidates.add(c);
                 }
             }

@@ -45,6 +45,7 @@ public class UnitDatabase
     protected JoinCostFunction joinCostFunction;
     protected StatisticalCostFunction sCostFunction = null;
     protected UnitFileReader unitReader;
+    protected int numUnits;
     protected CART preselectionCART;
     protected TimelineReader audioTimeline;
     protected TimelineReader basenameTimeline;
@@ -67,6 +68,7 @@ public class UnitDatabase
          this.targetCostFunction = aTargetCostFunction;
          this.joinCostFunction = aJoinCostFunction;
          this.unitReader = aUnitReader;
+         this.numUnits = (unitReader != null ? unitReader.getNumberOfUnits() : 0);
          this.preselectionCART = aPreselectionCART;
          this.audioTimeline = anAudioTimeline;
          this.basenameTimeline = aBasenameTimeline;
@@ -86,6 +88,7 @@ public class UnitDatabase
          this.joinCostFunction = aJoinCostFunction;
          this.sCostFunction = asCostFunction;
          this.unitReader = aUnitReader;
+         this.numUnits = (unitReader != null ? unitReader.getNumberOfUnits() : 0);
          this.preselectionCART = aPreselectionCART;
          this.audioTimeline = anAudioTimeline;
          this.basenameTimeline = aBasenameTimeline;
@@ -133,11 +136,10 @@ public class UnitDatabase
         // Now, clist is an array of unit indexes.
         ViterbiCandidate[] candidates = new ViterbiCandidate[clist.length];
         for (int i = 0; i < clist.length; i++) {
-            candidates[i] = new ViterbiCandidate();
-            candidates[i].setTarget(target); // The target is the same for all these candidates in the queue
+            // The target is the same for all these candidates in the queue
             // remember the actual unit:
             Unit unit = unitReader.getUnit(clist[i]);
-            candidates[i].setUnit(unit);
+            candidates[i] = new ViterbiCandidate(target, unit);
         }
         return candidates;
     }

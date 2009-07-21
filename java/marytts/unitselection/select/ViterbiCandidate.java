@@ -40,9 +40,15 @@ import marytts.unitselection.data.Unit;
 public class ViterbiCandidate {
 	private Unit unit;
     private ViterbiPath bestPath = null;
-	private Target target = null;
+	private Target target;
 	private ViterbiCandidate next = null;
 	private double targetCost = -1;
+	
+	public ViterbiCandidate(Target target, Unit unit)
+	{
+	    this.target = target;
+	    this.unit = unit;
+	}
 	
 	/**
 	 * Calculates and returns the target cost for this candidate
@@ -81,14 +87,7 @@ public class ViterbiCandidate {
 	    return target;
 	}
 	
-	/**
-	 * Sets the target of this candidate
-	 * @param target the new target
-	 */
-	public void setTarget(Target target){
-	    this.target = target;
-	}
-	
+
 	/**
 	 * Gets the index of this 
 	 * @return the unit index
@@ -115,14 +114,7 @@ public class ViterbiCandidate {
 	    return bestPath;
 	}
 	
-	/**
-	 * Sets the candidate unit represented by this candidate.
-	 * 
-	 * @param unit the unit
-	 */
-	public void setUnit(Unit unit) {
-	    this.unit = unit;
-	}
+
 	
 	/**
 	 * Converts this object to a string.
