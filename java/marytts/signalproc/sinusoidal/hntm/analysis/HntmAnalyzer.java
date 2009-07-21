@@ -75,14 +75,14 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
-import marytts.util.math.jampack.H;
-import marytts.util.math.jampack.Inv;
-import marytts.util.math.jampack.JampackException;
-import marytts.util.math.jampack.Parameters;
-import marytts.util.math.jampack.Times;
-import marytts.util.math.jampack.Z;
-import marytts.util.math.jampack.Zdiagmat;
-import marytts.util.math.jampack.Zmat;
+import Jampack.H;
+import Jampack.Inv;
+import Jampack.JampackException;
+import Jampack.Parameters;
+import Jampack.Times;
+import Jampack.Z;
+import Jampack.Zdiagmat;
+import Jampack.Zmat;
 
 
 /**
