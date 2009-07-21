@@ -390,7 +390,7 @@ public class FeatureDefinition
     
     public float[] getFeatureWeights()
     {
-        return featureWeights.clone();
+        return featureWeights;
     }
     
     /**

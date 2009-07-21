@@ -319,7 +319,8 @@ public class JoinCostFeatures implements JoinCostFunction
             throw new RuntimeException( "The left unit index [" + u1 +
                     "] is out of range: a unit index can't be negative." );
         }
-        if ( u1 > getNumberOfUnits() ) {
+//        if ( u1 > getNumberOfUnits() ) {
+        if (u1 > leftJCF.length) {
             throw new RuntimeException( "The left unit index [" + u1 +
                     "] is out of range: this file contains [" + getNumberOfUnits() + "] units." );
         }
@@ -327,7 +328,8 @@ public class JoinCostFeatures implements JoinCostFunction
             throw new RuntimeException( "The right unit index [" + u2 +
                     "] is out of range: a unit index can't be negative." );
         }
-        if ( u2 > getNumberOfUnits() ) {
+//        if ( u2 > getNumberOfUnits() ) {
+        if ( u2 > leftJCF.length ) {
             throw new RuntimeException( "The right unit index [" + u2 +
                     "] is out of range: this file contains [" + getNumberOfUnits() + "] units." );
         }
@@ -339,14 +341,15 @@ public class JoinCostFeatures implements JoinCostFunction
         float[] v1 = rightJCF[u1];
         float[] v2 = leftJCF[u2];
         for ( int i = 0; i < v1.length; i++ ) {
+            float a = v1[i];
+            float b = v2[i];
             //if (!Float.isNaN(v1[i]) && !Float.isNaN(v2[i])) {
-            if (!(v1[i]!=v1[i]) && !(v2[i]!=v2[i])) {
+            if (! (a!=a) && !(b!=b)) {
                 double c;
                 if (isLinear[i]) {
-                    //c = featureWeight[i] * ( a > b ? (a-b) : (b-a) )
-                    c = featureWeight[i] * (v1[i] > v2[i] ? (v1[i]-v2[i]) : (v2[i]-v1[i]));
+                    c = featureWeight[i] * ( a > b ? (a-b) : (b-a) );
                 } else {
-                    c = featureWeight[i] * weightFunction[i].cost( v1[i], v2[i] );
+                    c = featureWeight[i] * weightFunction[i].cost( a, b );
                 }
                 res += c;
                 if (debugShowCostGraph) {
