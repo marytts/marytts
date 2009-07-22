@@ -125,8 +125,8 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
         PrintWriter pw = new PrintWriter(sw);
         inFeatureDefinition.writeTo(pw, true);
         // And now, append the two float features for duration and f0:
-        pw.println("0 linear | unit_duration");
-        pw.println("0 linear | unit_logf0");
+        pw.println("100 linear | unit_duration");
+        pw.println("100 linear | unit_logf0");
         pw.println("0 linear | unit_logf0delta");
         pw.close();
         String fd = sw.toString();

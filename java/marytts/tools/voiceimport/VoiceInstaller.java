@@ -309,7 +309,7 @@ public class VoiceInstaller extends VoiceImportComponent{
               
               //Weight of the target cost function vs. the join cost function
               configOut.println("# Relative weight of the target cost function vs. the join cost function\n"+
-                      voiceHeader+".viterbi.wTargetCosts = "+"0.95"+"\n");
+                      voiceHeader+".viterbi.wTargetCosts = "+"0.7"+"\n");
               
               //language specific settings 
               if (locale.equals("de")) {
