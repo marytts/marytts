@@ -348,7 +348,7 @@ public class JoinCostFileMaker extends VoiceImportComponent {
                 +"11 : 1.0 linear\n"
                 +"\n"
                 +"# Weight applied to the log F0 and log F0 delta parameters:\n"
-                +"12 : 1.0 linear\n"
+                +"12 : 10.0 linear\n"
                 +"13 : 0.5 linear");
         weightsOut.flush();
         weightsOut.close();
