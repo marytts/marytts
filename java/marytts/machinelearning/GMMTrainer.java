@@ -32,6 +32,11 @@ import marytts.util.string.StringUtils;
  * 
  * Expectation-Maximization (EM) based GMM training
  * 
+ * Reference:
+ * A. P. Dempster, N. M. Laird, and D. B. Rubin. Maximum likelihood from in-
+ *       complete data via the em algorithm. Journal of the Royal Statistical Society:
+ *       Series B, 39(1):1–38, November 1977.
+ * 
  * @author Oytun T&uumlrk
  */
 public class GMMTrainer {
@@ -157,16 +162,24 @@ public class GMMTrainer {
         return gmm;
     }
 
-    // EM algorithm to fit a GMM to multi-dimensional data
-    // x: Data matrix (Each row is another observation vector)
-    // initialGMM: Initial GMM model (can be initialized using K-Means clustering (See function train)
-    // emMinimumIterations: Minimum number of EM iterations for which the algorithm will not quit 
-    //                      even when the total likelihood does not change much with additional iterations)
-    // emMaximumIterations: Maximum number of EM iterations for which the algorithm will quit even when total likelihood
-    //                      has not settled yet
-    // isUpdateCovariances: Update covariance matrices in EM iterations?
-    // tinyLogLikelihoodChangePercent: Threshold to compare percent decrease in total log-likelihood to stop iterations automatically
-    // minimumCovarianceAllowed: Minimum covariance value allowed - should be a small positive number to avoid ill-conditioned training
+    /* EM algorithm to fit a GMM to multi-dimensional data
+     * x: Data matrix (Each row is another observation vector)
+     * initialGMM: Initial GMM model (can be initialized using K-Means clustering (See function train)
+     * emMinimumIterations: Minimum number of EM iterations for which the algorithm will not quit 
+     *                      even when the total likelihood does not change much with additional iterations)
+     * emMaximumIterations: Maximum number of EM iterations for which the algorithm will quit even when total likelihood
+     *                      has not settled yet
+     * isUpdateCovariances: Update covariance matrices in EM iterations?
+     * tinyLogLikelihoodChangePercent: Threshold to compare percent decrease in total log-likelihood to stop iterations automatically
+     * minimumCovarianceAllowed: Minimum covariance value allowed - should be a small positive number to avoid ill-conditioned training
+     *
+     * Reference:
+     * A. P. Dempster, N. M. Laird, and D. B. Rubin. Maximum likelihood from incomplete data via the em algorithm. 
+     *         Journal of the Royal Statistical Society: Series B, 39(1):1–38, November 1977.
+     *         
+     * Many practical tutorials for EM training of GMMs exist on the web, i.e.:
+     * http://bengio.abracadoudou.com/lectures/old/tex_gmm.pdf
+
     public GMM expectationMaximization(double[][] x, 
                                        GMM initialGmm, 
                                        int emMinimumIterations,
