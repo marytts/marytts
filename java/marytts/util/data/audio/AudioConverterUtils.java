@@ -43,29 +43,64 @@ import marytts.util.signal.SignalProcUtils;
  *
  */
 
-public class AudioConverterUtils {
-
+public class AudioConverterUtils
+{
+    
+    public static class Stereo2Mono implements AudioProcessor
+    {
+        private int mode;
+        /**
+         * Convert a stereo audio input stream to a mono audio input stream,
+         * using both channels.
+         */
+        public Stereo2Mono()
+        {
+            this(AudioPlayer.STEREO);
+        }
+        
+        /**
+         * Convert a stereo audio input stream, using the channels as indicated by mode.
+         * @param mode AudioPlayer.LEFT_ONLY, AudioPlayer.RIGHT_ONLY or AudioPlayer.STEREO.
+         */
+        public Stereo2Mono(int mode)
+        {
+            this.mode = mode;
+        }
+        public AudioInputStream apply(AudioInputStream ais)
+        {
+            return new MonoAudioInputStream(ais, mode);
+        }
+    }
     
     /**
-     * Default Stereo to Mono Converter
-     * @param AudioInputStream 
-     * @return AudioInputStream
+     * A high-pass filter with flexible cutoff frequency and transition bandwidth.
+     * @author marc
+     *
      */
-    public static AudioInputStream convertStereoToMono(AudioInputStream ais){
+    public static class HighPassFilter implements AudioProcessor
+    {
+        private double cutoffFrequency;
+        private double transitionBandwidth;
         
-        return convertStereoToMono(ais, AudioPlayer.STEREO);
+        public HighPassFilter(double cutoffFrequency, double transitionBandwidth)
+        {
+            this.cutoffFrequency = cutoffFrequency;
+            this.transitionBandwidth = transitionBandwidth;
+        }
         
+        public AudioInputStream apply(AudioInputStream ais)
+        {
+            float samplingRate = ais.getFormat().getSampleRate();
+            double cutOff = cutoffFrequency / samplingRate;
+            double transition = transitionBandwidth / samplingRate;
+            marytts.signalproc.filter.HighPassFilter hFilter = new marytts.signalproc.filter.HighPassFilter(cutOff, transition);
+            DoubleDataSource audio = new AudioDoubleDataSource(ais);
+            DoubleDataSource filtered = hFilter.apply(audio);
+            return new DDSAudioInputStream(filtered, ais.getFormat());
+        }
     }
-    /**
-     * Stereo to Mono Converter, flexibility to choose Left or Right channel 
-     * @param AudioInputStream 
-     * @param Channel ( Ex: AudioPlayer.LEFT_ONLY, AudioPlayer.RIGHT_ONLY )
-     * @return AudioInputStream
-     */
-    public static AudioInputStream convertStereoToMono(AudioInputStream ais, int mode){
-        return new MonoAudioInputStream(ais, mode);
-    }
- 
+    
+
     
     /**
      * 24-Bit Audio to  16-bit Audio converter 
@@ -332,26 +367,6 @@ public class AudioConverterUtils {
         return samples; 
     }
 
- /**
-  * Remove Low Frequency Noise (It will Remove Signal Content which is less than 50Hz)
-  * @param ais
-  * @return
-  * @throws Exception
-  */
- public static AudioInputStream removeLowFrequencyNoise(AudioInputStream ais, double cutoffFrequency, double transitionBandwidth)
- throws Exception
- {
-        
-        double[] samples = new AudioDoubleDataSource(ais).getAllData();
-        float samplingRate = ais.getFormat().getSampleRate();
-        double cutOff = cutoffFrequency / samplingRate;
-        double transition = transitionBandwidth / samplingRate;
-        HighPassFilter hFilter = new HighPassFilter(cutOff, transition);
-        double[] fsamples = hFilter.apply(samples);
-        DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(fsamples), ais.getFormat()); 
-        return outputAudio; 
-    }
- 
  
  /**
   * DownSampling given Audio Input Stream 

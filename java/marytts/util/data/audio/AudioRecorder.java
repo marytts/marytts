@@ -553,6 +553,12 @@ public class AudioRecorder
 
 	public static interface Recorder
 	{
+        /**
+         * Optionally, set an audio processor to apply to the recording before saving it.
+         * @param proc
+         */
+        public void setAudioProcessor(AudioProcessor proc);
+        
 		public void start();
 
 		public void stopRecording();
@@ -569,6 +575,7 @@ public class AudioRecorder
 		protected File			m_file;
 		protected boolean		m_bRecording;
 
+		protected AudioProcessor audioProcessor;
 
 
 		public AbstractRecorder(TargetDataLine line,
@@ -581,6 +588,14 @@ public class AudioRecorder
 		}
 
 
+		/**
+		 * Optionally, set an audio processor to apply to the recording before saving it.
+		 * @param proc
+		 */
+		public void setAudioProcessor(AudioProcessor proc)
+		{
+		    this.audioProcessor = proc;
+		}
 
 		/**	Starts the recording.
 		 *	To accomplish this, (i) the line is started and (ii) the
@@ -636,6 +651,9 @@ public class AudioRecorder
 		{
 			try
 			{
+			    if (audioProcessor != null) {
+			        m_audioInputStream = audioProcessor.apply(m_audioInputStream);
+			    }
 				if (sm_bDebug) { out("before AudioSystem.write"); }
 				AudioSystem.write(
 					m_audioInputStream,
@@ -723,6 +741,9 @@ public class AudioRecorder
 			ByteArrayInputStream	byteArrayInputStream = new ByteArrayInputStream(abData);
 
 			AudioInputStream	audioInputStream = new AudioInputStream(byteArrayInputStream, format, abData.length / format.getFrameSize());
+			if (audioProcessor != null) {
+			    audioInputStream = audioProcessor.apply(audioInputStream);
+			}
 			try
 			{
 				AudioSystem.write(audioInputStream,  m_targetType, m_file);

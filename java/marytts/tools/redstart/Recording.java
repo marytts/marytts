@@ -32,6 +32,7 @@ import marytts.signalproc.analysis.EnergyAnalyser;
 import marytts.signalproc.analysis.EnergyAnalyser_dB;
 import marytts.signalproc.analysis.FrameBasedAnalyser.FrameAnalysisResult;
 import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.audio.AudioConverterUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.AudioRecorder;
 import marytts.util.math.MathUtils;
@@ -67,6 +68,7 @@ public class Recording extends Speech {
     public void timedRecord(TargetDataLine line, int millis) {
         AudioFileFormat.Type targetType = AudioFileFormat.Type.WAVE;
         recorder = new AudioRecorder.BufferingRecorder(line, targetType, getFile(), millis);
+        recorder.setAudioProcessor(new AudioConverterUtils.HighPassFilter(20, 20));
 
     	recorder.start();
     	try {
