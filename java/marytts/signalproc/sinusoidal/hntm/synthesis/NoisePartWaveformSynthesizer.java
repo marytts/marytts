@@ -81,7 +81,8 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
- * Synthesize noise part waveform from non-overlapping chunks of data
+ * Synthesizes noise part waveform from non-overlapping chunks of data.
+ * This model is the most natural one since it involves no noise models.
  * 
  * @author oytun.turk
  *

@@ -40,6 +40,14 @@ import marytts.util.signal.SignalProcUtils;
 
 
 /**
+ * A basic multi-resolution version of the sinusoidal analyzer.
+ * The idea is to adjust time-frequency resolution to resolve sinusoids better
+ * using a wavelet transform like approach.
+ * For this purpose, the original signal is subband filtered and sinusoidal parameters are extracted
+ * from the subbands using different window and skip sizes.
+ * This class has not been tested sufficiently and the subband decomposition procedure does not seem to be 
+ * appropriate for this kind of analysis.
+ * 
  * @author Oytun T&uumlrk
  *
  */

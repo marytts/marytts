@@ -42,6 +42,10 @@ import marytts.util.signal.SignalProcUtils;
 
 
 /**
+ * A basic multi-resolution version of the sinusoidal synthesizer.
+ * This class has not been tested sufficiently and the subband reconstruction procedure does not seem to be 
+ * appropriate for this kind of synthesis.
+ * 
  * @author Oytun T&uumlrk
  *
  */

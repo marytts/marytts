@@ -52,6 +52,10 @@ import org.xml.sax.SAXException;
 /**
  * Joint-GMM voice conversion training using parallel source and target databases
  * 
+ * Reference:
+ * A. Kain and M. Macon, “Spectral voice conversion for text-to-speech synthesis,” in Proc. of the 
+ *         IEEE ICASSP 1998, vol. 1, pp. 285-288.
+ * 
  * @author Oytun T&uumlrk
  */
 public class JointGMMParallelTrainer extends JointGMMTrainer {

@@ -22,6 +22,9 @@ package marytts.signalproc.sinusoidal;
 import java.util.Arrays;
 
 /**
+ * A basic implementation of overlap-add sinusoidal synthesis.
+ * Phase interpolation seems problematic, so we are not yet able to use this class in applications.
+ * 
  *  @author Oytun T&uumlrk
  *
  */

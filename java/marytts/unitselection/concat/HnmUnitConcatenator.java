@@ -185,7 +185,8 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
                 {
                     totalFrm++;
                     length = ((HnmDatagram)datagrams[i][j]).getDuration();
-                    deltaTimeInSeconds = SignalProcUtils.sample2time(length, samplingRateInHz);
+                    //deltaTimeInSeconds = SignalProcUtils.sample2time(length, samplingRateInHz);
+                    deltaTimeInSeconds = ((HntmSpeechFrame)((HnmDatagram)datagrams[i][j]).getFrame()).deltaAnalysisTimeInSeconds;
                     originalDurationInSeconds += deltaTimeInSeconds;
                     
                     System.out.println("Unit duration = " + String.valueOf(length));
@@ -207,9 +208,13 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
             {
                 if (datagrams[i][j]!=null && (datagrams[i][j] instanceof HnmDatagram) && frameCount<totalFrm)
                 {
+                    tAnalysisInSeconds += ((HntmSpeechFrame)((HnmDatagram)datagrams[i][j]).getFrame()).deltaAnalysisTimeInSeconds;
+                    
                     hnmSignal.frames[frameCount] = ((HnmDatagram)datagrams[i][j]).getFrame();
                     hnmSignal.frames[frameCount].tAnalysisInSeconds = tAnalysisInSeconds;
 
+                    //tAnalysisInSeconds += SignalProcUtils.sample2time(((HnmDatagram)datagrams[i][j]).getDuration(), samplingRateInHz);
+                    
                     if (j==0)
                     {
                         if (leftContexts[i]!=null && (leftContexts[i] instanceof HnmDatagram))
@@ -232,9 +237,7 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
                             rightContextFrames[frameCount] = ((HnmDatagram)datagrams[i][j+1]).getFrame();
                     }
                     
-                    frameCount++;
-
-                    tAnalysisInSeconds += SignalProcUtils.sample2time(((HnmDatagram)datagrams[i][j]).getDuration(), samplingRateInHz);
+                    frameCount++;  
                 }   
             }
         }

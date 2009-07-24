@@ -35,7 +35,7 @@ import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
  */
 public class HnmDatagram extends Datagram {
     
-    protected HntmSpeechFrame frame; //Hnm parameters for a speech frame
+    public HntmSpeechFrame frame; //Hnm parameters for a speech frame
     
     /**
      * Construct a HNM datagram.

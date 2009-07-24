@@ -50,12 +50,22 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
+ *     
+ * LPC based noise model for HNM using the overlap-add approach, 
+ * gain normalization according to generated harmonic part gain, and
+ * optional triangular energy envelope weighting.
+ * 
+ * Reference:
+ * Stylianou, Y., 1996, "Harmonic plus Noise Models for Speech, combined with Statistical Methods, 
+ *            for Speech and Speaker Modification", Ph.D. thesis, 
+ *            Ecole Nationale Supérieure des Télécommunications.
+ * (Chapter 3, A Harmonic plus Noise Model, HNM)
+ * 
  * @author oytun.turk
  *
  */
 public class NoisePartWindowedOverlapAddLpcSynthesizer {
-    
-    //LPC based noise model + OLA approach + Gain normalization according to generated harmonic part gain
+
     public static double[] synthesize(HntmSpeechSignal hnmSignal, HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParams)
     {    
         double[] noisePart = null;

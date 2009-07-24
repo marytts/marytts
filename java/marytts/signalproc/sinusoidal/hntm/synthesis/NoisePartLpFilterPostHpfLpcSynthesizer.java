@@ -43,6 +43,17 @@ import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
 /**
+ * A time-domain LP synthesis filter based version of the HNM noise part synthesis algorithm
+ * described in:
+ * 
+ * Reference:
+ * Stylianou, Y., 1996, "Harmonic plus Noise Models for Speech, combined with Statistical Methods, 
+ *            for Speech and Speaker Modification", Ph.D. thesis, 
+ *            Ecole Nationale Supérieure des Télécommunications.
+ * (Chapter 3, A Harmonic plus Noise Model, HNM)
+ * 
+ * Supports optional triangular energy envelope weighting.
+ * 
  * @author oytun.turk
  *
  */
