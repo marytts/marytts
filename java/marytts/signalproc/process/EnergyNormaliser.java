@@ -25,10 +25,10 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.filter.AudioFilterBase;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
+import marytts.util.data.audio.AudioProcessor;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.MathUtils;
 
@@ -37,7 +37,7 @@ import marytts.util.math.MathUtils;
  * @author Marc Schr&ouml;der
  *
  */
-public class EnergyNormaliser extends AudioFilterBase
+public class EnergyNormaliser implements AudioProcessor
 {
     protected double amplitudeFactor;
     protected double referencePower;

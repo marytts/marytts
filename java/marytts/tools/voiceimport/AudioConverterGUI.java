@@ -657,12 +657,12 @@ public class AudioConverterGUI extends javax.swing.JFrame {
 
                     
                     if (stereoMono) {
-                        ais = AudioConverterUtils.convertStereoToMono(ais, channel);
+                        ais = new AudioConverterUtils.Stereo2Mono(channel).apply(ais);
                     }
 
                     // If Audio is Mono then only remove Low Frequency Noise
                     if (highPassFilter && ais.getFormat().getChannels() == 1) {
-                        ais = AudioConverterUtils.removeLowFrequencyNoise(ais, 50, 40);
+                        ais = new AudioConverterUtils.HighPassFilter(50, 40).apply(ais);
                     }
 
                     if (powerNormalise || maximiseAmplitude) {
@@ -724,12 +724,12 @@ public class AudioConverterGUI extends javax.swing.JFrame {
                     ais = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, ais);
                 }
                 if (stereoMono) {
-                    ais = AudioConverterUtils.convertStereoToMono(ais, channel);
+                    ais = new AudioConverterUtils.Stereo2Mono(channel).apply(ais);
                 }
                 
                 // If Audio is Mono then only remove Low Frequency Noise
                 if (highPassFilter && ais.getFormat().getChannels() == 1) {
-                    ais = AudioConverterUtils.removeLowFrequencyNoise(ais, 50, 40);
+                    ais = new AudioConverterUtils.HighPassFilter(50, 40).apply(ais);
                 }
                 
                 int[] samples = AudioConverterUtils.getSamples(ais);
