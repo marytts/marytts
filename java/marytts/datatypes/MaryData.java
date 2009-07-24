@@ -49,6 +49,8 @@ import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.server.http.MaryHttpServerUtils;
 import marytts.util.MaryUtils;
+import marytts.util.data.audio.AppendableSequenceAudioInputStream;
+import marytts.util.data.audio.SequenceAudioInputStream;
 import marytts.util.data.text.UncloseableBufferedReader;
 import marytts.util.dom.MaryNormalisedWriter;
 import marytts.util.io.LoggingErrorHandler;
@@ -58,8 +60,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jsresources.AppendableSequenceAudioInputStream;
-import org.jsresources.SequenceAudioInputStream;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;

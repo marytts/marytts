@@ -37,10 +37,10 @@ import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
 import marytts.server.MaryProperties;
 import marytts.signalproc.effects.EffectsApplier;
+import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
-import org.jsresources.AppendableSequenceAudioInputStream;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.DocumentTraversal;

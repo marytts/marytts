@@ -37,8 +37,8 @@ import marytts.modules.synthesis.MbrolaVoiceSectioner;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.VoiceSection;
 import marytts.modules.synthesis.VoiceSectioner;
+import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 
-import org.jsresources.AppendableSequenceAudioInputStream;
 import org.xml.sax.SAXException;
 
 

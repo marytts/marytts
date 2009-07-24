@@ -34,8 +34,6 @@ import javax.sound.sampled.TargetDataLine;
 
 import marytts.modules.synthesis.Voice;
 
-import org.jsresources.AudioRecorder;
-import org.jsresources.SequenceAudioInputStream;
 
 /**
  * @author Marc Schr&ouml;der
