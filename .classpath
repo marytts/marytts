@@ -19,7 +19,6 @@
 	<classpathentry kind="lib" path="java/Jama-1.0.2.jar"/>
 	<classpathentry kind="lib" path="java/java-diff.jar"/>
 	<classpathentry kind="lib" path="java/JavaOpenAIR.jar"/>
-	<classpathentry kind="lib" path="java/jsresources.jar"/>
 	<classpathentry kind="lib" path="java/jtok.jar"/>
 	<classpathentry kind="lib" path="java/junit-4.5.jar"/>
 	<classpathentry kind="lib" path="java/maxent-2.5.1.jar"/>

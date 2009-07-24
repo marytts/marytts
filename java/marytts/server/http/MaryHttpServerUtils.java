@@ -46,7 +46,6 @@ import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.entity.NFileEntity;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.log4j.Logger;
-import org.jsresources.AppendableSequenceAudioInputStream;
 
 /**
  * Utility functions for Mary http server

@@ -92,7 +92,7 @@ THIS SOFTWARE.
     <property name="javadocdir" value="doc/javadoc"/>
     <mkdir dir="${javadocdir}"/>
     <javadoc packagenames="marytts.*"
-             classpath="java/freetts-en_us.jar;java/log4j-1.2.15.jar;java/freetts-mbrola.jar;java/tritonus_mp3-0.3.6.jar;java/junit.jar;java/freetts-de.jar;java/jtok.jar;build/standalone-compiler.jar;java/tritonus_remaining-0.3.6.jar;java/jl1.0.jar;java/jsresources.jar;java/java-diff.jar;java/freetts-cmudict04.jar;java/freetts-germanlex.jar;java/freetts.jar;java/JavaOpenAIR.jar;java/Jama-1.0.2.jar;java/jl1.0.jar;java/fast-md5.jar"
+             classpath="java/freetts-en_us.jar;java/log4j-1.2.15.jar;java/freetts-mbrola.jar;java/tritonus_mp3-0.3.6.jar;java/junit.jar;java/freetts-de.jar;java/jtok.jar;build/standalone-compiler.jar;java/tritonus_remaining-0.3.6.jar;java/jl1.0.jar;java/java-diff.jar;java/freetts-cmudict04.jar;java/freetts-germanlex.jar;java/freetts.jar;java/JavaOpenAIR.jar;java/Jama-1.0.2.jar;java/jl1.0.jar;java/fast-md5.jar"
              sourcepath="${src}"
              destdir="${javadocdir}"
              author="true"
@@ -303,7 +303,7 @@ THIS SOFTWARE.
 	        <attribute name="Main-Class"
 	                   value="marytts.tools.redstart.Redstart"/>
 	        <attribute name="Class-Path"
-	                   value="signalproc.jar swing-layout-1.0.jar jsresources.jar mary-common.jar log4j-1.2.15.jar"/>
+	                   value="signalproc.jar swing-layout-1.0.jar mary-common.jar log4j-1.2.15.jar"/>
 
 	      </manifest>
 	    </jar>
@@ -321,7 +321,7 @@ THIS SOFTWARE.
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Main-Class"
          value="marytts.tools.voiceimport.DatabaseImportMain"/>
-        <attribute name="Class-Path" value="maryclient.jar mary-common.jar signalproc.jar jsresources.jar log4j-1.2.15.jar swing-layout-1.0.jar"/>
+        <attribute name="Class-Path" value="maryclient.jar mary-common.jar signalproc.jar log4j-1.2.15.jar swing-layout-1.0.jar"/>
         </manifest>
         </jar>
   </target>

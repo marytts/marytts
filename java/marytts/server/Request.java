@@ -50,13 +50,13 @@ import marytts.modules.ModuleRegistry;
 import marytts.modules.synthesis.Voice;
 import marytts.server.http.MaryHttpServerUtils;
 import marytts.util.MaryUtils;
+import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.jsresources.AppendableSequenceAudioInputStream;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

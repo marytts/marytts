@@ -58,10 +58,10 @@ import marytts.signalproc.process.Robotiser;
 import marytts.signalproc.process.VocalTractScalingProcessor;
 import marytts.signalproc.process.VocalTractScalingSimpleProcessor;
 import marytts.signalproc.process.VoiceModificationParameters;
+import marytts.util.data.audio.AudioRecorder.BufferingRecorder;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
-import org.jsresources.AudioRecorder.BufferingRecorder;
 
 /**
  *

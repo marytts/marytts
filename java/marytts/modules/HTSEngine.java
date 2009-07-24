@@ -81,10 +81,10 @@ import marytts.htsengine.PhoneTranslator;
 import marytts.htsengine.HTSEngineTest.PhonemeDuration;
 import marytts.modules.synthesis.Voice;
 import marytts.signalproc.analysis.PitchReaderWriter;
+import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.data.audio.AudioPlayer;
 
 import org.apache.log4j.Logger;
-import org.jsresources.AppendableSequenceAudioInputStream;
 
 import marytts.signalproc.analysis.*;
 

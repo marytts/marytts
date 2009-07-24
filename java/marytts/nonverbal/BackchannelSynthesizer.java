@@ -55,7 +55,6 @@ import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
-import org.jsresources.AppendableSequenceAudioInputStream;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.DocumentTraversal;
