@@ -33,7 +33,10 @@ import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.util.math.MathUtils;
 
 /**
- * K-Means clustering and mapping based outlier elimination
+ * K-Means clustering and mapping based outlier elimination.
+ * Clusters the source and target LSF, f0, energy, and duration features either jointly or separately.
+ * Uses cluster assignments of matched source-target pairs to detect and eliminate pairs which 
+ * reside in outlier clusters.
  * 
  * @author Oytun T&uumlrk
  */

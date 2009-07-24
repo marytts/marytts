@@ -33,9 +33,20 @@ import marytts.util.math.MathUtils;
 
 /**
  * 
- * Single Gaussian based outlier elimination
+ * Single Gaussian based outlier elimination. 
+ * Looks at the difference distributions of aligned source-target LSF, f0, energy, and duration features.
+ * Eliminates outliers that fall outside user specified ranges.
+ * The ranges can be specified using GaussianOutlierEliminatorParams in the form of total standard deviations for
+ * each feature.
+ * It is also possible to eliminate too similar feature pairs to enforce a certain amount of dissimilarity in the
+ * training data.
+ * 
+ * Reference:
+ * T&uumlrk, O., and Arslan, L. M., 2006, "Robust Processing Techniques for Voice Conversion", 
+ *               Computer Speech and Language 20 (2006), pp. 441-467.
  *
  * @author Oytun T&uumlrk
+ * 
  */
 public class GaussianOutlierEliminator {
     public void eliminate(GaussianOutlierEliminatorParams params,

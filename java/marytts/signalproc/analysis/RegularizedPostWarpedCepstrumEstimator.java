@@ -34,6 +34,11 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
+ * Implements a cepstral envelope estimation algorithm for fitting an envelope to discrete frequency amplitudes.
+ * 
+ * Reference:
+ * W. D'haes, X. Rodet: Discrete Cepstrum Coefficients as Perceptual Features, International Computer Music Conference (ICMC), Singapore, 2003. 
+ * 
  * @author oytun.turk
  *
  */

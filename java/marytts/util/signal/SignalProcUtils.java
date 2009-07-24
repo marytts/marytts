@@ -863,6 +863,12 @@ public class SignalProcUtils {
         return ((float)sample)/samplingRate;
     }
     
+    public static float sampleFloat2time(float sample, int samplingRate)
+    {
+        return sample/samplingRate;
+    }
+    
+    
     public static float sample2time(long sample, int samplingRate)
     {
         return (float)(((double)sample)/((double)samplingRate));

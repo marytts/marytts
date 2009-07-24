@@ -57,6 +57,13 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
+ * Prosody modification for HNM as described in:
+ * 
+ * Stylianou, Y., 1996, "Harmonic plus Noise Models for Speech, combined with Statistical Methods, 
+ *            for Speech and Speaker Modification", Ph.D. thesis, 
+ *            Ecole Nationale Supérieure des Télécommunications.
+ * (Chapter 3, A Harmonic plus Noise Model, HNM)
+ * 
  * @author oytun.turk
  *
  */

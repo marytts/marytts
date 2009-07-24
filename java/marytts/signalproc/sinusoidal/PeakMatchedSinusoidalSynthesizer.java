@@ -44,6 +44,12 @@ import marytts.util.signal.SignalProcUtils;
  * Given tracks of sinusoids estimated during analysis and after possible modifications,
  * output speech is synthesized.
  * 
+ * References:
+ * Quatieri, T. F. Discrete-Time Speech Signal Processing: Principles and Practice. Prentice-Hall Inc. 2001. (Chapter 9 – Sinusoidal Analysis/Synthesis)
+ * 
+ * R.J. McAulay and T.F. Quatieri, "Speech Analysis/Synthesis Based on a Sinusoidal Representation," 
+ *              IEEE Transactions on Acoustics, Speech and Signal Processing, vol. ASSP-34, no. 4, August 1986.
+ * 
  * @author Oytun T&uumlrk
  */
 public class PeakMatchedSinusoidalSynthesizer extends BaseSinusoidalSynthesizer{

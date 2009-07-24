@@ -24,7 +24,13 @@ import marytts.signalproc.window.Window;
 
 /**
  *
- * Temporal smoother can be used to smooth LSF contours, spectral envelope, etc
+ * Temporal smoother can be used to smooth acoustic feature vectors along a desired axis.
+ * This class is used in voice conversion to smooth the frequency bins of the vocal tract transformation filter
+ * as described in:
+ * 
+ * T&uumlrk, O., B&uumly&uumlk, O., Haznedaroglu, A., and Arslan, L. M., “Application of Voice Conversion for
+ *           Cross-Language Rap Singing Transformation”, “Application of voice conversion for crosslanguage
+ *           rap singing transformation,” in Proc. of the IEEE ICASSP 2009, Taipei, Taiwan, April 2009.
  * 
  * @author Oytun T&uumlrk
  */

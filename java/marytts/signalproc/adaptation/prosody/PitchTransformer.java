@@ -23,6 +23,12 @@ import marytts.util.MaryUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
+/* This class implements a number of basic pitch value transformation methods
+ * The most common is the mean and standard deviation transformation in which
+ * a given f0 contour is modified to match target mean and standard deviation values.
+ * 
+ * @author Oytun T&uumlrk
+ */
 public class PitchTransformer {    
     public PitchTransformer()
     {

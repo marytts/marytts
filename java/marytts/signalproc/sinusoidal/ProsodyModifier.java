@@ -40,6 +40,12 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
+ * Prosody modification using pure sinusoidal models.
+ * 
+ * Reference:
+ * Quatieri, T. F. and R. J. McAula y, 1992, “Shape Invariant Timescale and Pitch Modification of
+ *           Speech”, IEEE Transactions On Signal Processing, vol. 40, no. 3, pp. 497-510.
+ *
  * @author Oytun T&uumlrk
  *
  */

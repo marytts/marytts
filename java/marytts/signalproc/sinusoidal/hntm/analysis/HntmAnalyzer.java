@@ -34,6 +34,7 @@ import marytts.machinelearning.ContextualGMMParams;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.signalproc.analysis.CepstrumSpeechAnalyser;
+import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.LpcAnalyser;
@@ -87,9 +88,11 @@ import Jampack.Zmat;
 
 /**
  * This class implements a harmonic+noise model for speech as described in
+ * 
  * Stylianou, Y., 1996, "Harmonic plus Noise Models for Speech, combined with Statistical Methods, 
- *                       for Speech and Speaker Modification", Ph.D. thesis, 
- *                       Ecole Nationale Supérieure des Télécommunications.
+ *            for Speech and Speaker Modification", Ph.D. thesis, 
+ *            Ecole Nationale Supérieure des Télécommunications.
+ * (Chapter 3, A Harmonic plus Noise Model, HNM)
  * 
  * @author Oytun T&uumlrk
  *
@@ -126,16 +129,39 @@ public class HntmAnalyzer {
                                     HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParamsBeforeNoiseAnalysis,
                                     String analysisResultsFile)
     {
+        int pitchMarkOffset = 0;
+        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, true, pitchMarkOffset);
+
+        return analyze(x, fs, pm, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, ArrayUtils.copyDouble2Float(f0.contour), labels,
+                       analysisParams, synthesisParamsBeforeNoiseAnalysis,
+                       analysisResultsFile);
+    }
+    
+    public HntmSpeechSignal analyze(short[] x, int fs, PitchMarks pm, double f0WindowSizeInSeconds, double f0SkipSizeInSeconds, float[] f0Contour, Labels labels,
+            HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParamsBeforeNoiseAnalysis,
+            String analysisResultsFile)
+    {
         double[] xDouble = ArrayUtils.copyShort2Double(x);
         
-        return analyze(xDouble, fs, f0, labels, analysisParams, synthesisParamsBeforeNoiseAnalysis, analysisResultsFile);
+        return analyze(xDouble, fs, pm, f0WindowSizeInSeconds, f0SkipSizeInSeconds, f0Contour, labels, analysisParams, synthesisParamsBeforeNoiseAnalysis, analysisResultsFile);
     }
     
     public HntmSpeechSignal analyze(double[] x, int fs, PitchReaderWriter f0, Labels labels,
+            HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParamsBeforeNoiseAnalysis,
+            String analysisResultsFile)
+    {
+        int pitchMarkOffset = 0;
+        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, true, pitchMarkOffset);
+
+        return analyze(x, fs, pm, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, ArrayUtils.copyDouble2Float(f0.contour), labels, analysisParams,  synthesisParamsBeforeNoiseAnalysis, analysisResultsFile);
+    }
+    
+    public HntmSpeechSignal analyze(double[] x, int fs, PitchMarks pm, double f0WindowSizeInSeconds, double f0SkipSizeInSeconds, float[] f0Contour, 
+                                    Labels labels,
                                     HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParamsBeforeNoiseAnalysis,
                                     String analysisResultsFile)
     {
-        HarmonicAndTransientAnalysisOutput output = analyzeHarmonicAndTransientParts(x, fs, f0, labels, analysisParams);
+        HarmonicAndTransientAnalysisOutput output = analyzeHarmonicAndTransientParts(x, fs, pm, f0WindowSizeInSeconds, f0SkipSizeInSeconds, f0Contour, labels, analysisParams);
         analyzeNoisePart(x, output.hnmSignal, analysisParams, synthesisParamsBeforeNoiseAnalysis, output.isInTransientSegments);
         
         if (analysisResultsFile!=null)
@@ -150,8 +176,18 @@ public class HntmAnalyzer {
         
         return output.hnmSignal;
     }
+    
+    public HarmonicAndTransientAnalysisOutput analyzeHarmonicAndTransientParts(double[] x, int fs, PitchReaderWriter f0, Labels labels, HntmAnalyzerParams analysisParams)
+    {
+        int pitchMarkOffset = 0;
+        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, true, pitchMarkOffset);
 
-    public HarmonicAndTransientAnalysisOutput analyzeHarmonicAndTransientParts(double[] x, int fs, PitchReaderWriter f0, Labels labels,
+        return analyzeHarmonicAndTransientParts(x, fs, pm, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, ArrayUtils.copyDouble2Float(f0.contour), labels, analysisParams);
+    }
+
+    public HarmonicAndTransientAnalysisOutput analyzeHarmonicAndTransientParts(double[] x, int fs, 
+                                                                               PitchMarks pm, double f0WindowSizeInSeconds, double f0SkipSizeInSeconds, float[] f0Contour, 
+                                                                               Labels labels,
                                                                                HntmAnalyzerParams analysisParams)
     {
         HarmonicAndTransientAnalysisOutput output = new HarmonicAndTransientAnalysisOutput();
@@ -164,12 +200,9 @@ public class HntmAnalyzer {
 
         //// TO DO
         //Step1. Initial pitch estimation: Current version just reads from a file
-        if (f0!=null)
+        if (pm!=null)
         {
-            int pitchMarkOffset = 0;
-            PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, true, pitchMarkOffset);
-
-            float[] initialF0s = ArrayUtils.subarrayDouble2Float(f0.contour, 0, f0.header.numfrm);
+            float[] initialF0s = ArrayUtils.subarray(f0Contour, 0, f0Contour.length);
             //float[] initialF0s = HnmPitchVoicingAnalyzer.estimateInitialPitch(x, samplingRate, windowSizeInSeconds, skipSizeInSeconds, f0MinInHz, f0MaxInHz, windowType);
             //
 
@@ -178,14 +211,14 @@ public class HntmAnalyzer {
 
             //2.b. If voiced, maximum frequency of voicing estimation
             //     Otherwise, maximum frequency of voicing is set to 0.0
-            analysisParams.hnmPitchVoicingAnalyzerParams.f0AnalysisWindowSizeInSeconds = (float)f0.header.windowSizeInSeconds;
-            analysisParams.hnmPitchVoicingAnalyzerParams.f0AnalysisSkipSizeInSeconds = (float)f0.header.skipSizeInSeconds;
+            analysisParams.hnmPitchVoicingAnalyzerParams.f0AnalysisWindowSizeInSeconds = (float)f0WindowSizeInSeconds;
+            analysisParams.hnmPitchVoicingAnalyzerParams.f0AnalysisSkipSizeInSeconds = (float)f0SkipSizeInSeconds;
             float[] maxFrequencyOfVoicings = HnmPitchVoicingAnalyzer.analyzeVoicings(x, fs, initialF0s, analysisParams.hnmPitchVoicingAnalyzerParams, analysisParams.isSilentAnalysis);
             float maxFreqOfVoicingInHz;
             //maxFreqOfVoicingInHz = HnmAnalyzer.FIXED_MAX_FREQ_OF_VOICING_FOR_QUICK_TEST; //This should come from the above automatic analysis
 
             //2.c. Refined pitch estimation
-            float[] f0s = ArrayUtils.subarrayDouble2Float(f0.contour, 0, f0.header.numfrm);
+            float[] f0s = ArrayUtils.subarray(f0Contour, 0, f0Contour.length);
             //float[] f0s = HnmPitchVoicingAnalyzer.estimateRefinedPitch(fftSize, fs, leftNeighInHz, rightNeighInHz, searchStepInHz, initialF0s, maxFrequencyOfVoicings);
             ////
 
@@ -261,6 +294,10 @@ public class HntmAnalyzer {
                 //    ws++;
                 
                 output.hnmSignal.frames[i].tAnalysisInSeconds = (((float)pm.pitchMarks[i])/fs);  //Middle of analysis frame 
+                if (i>0)
+                    output.hnmSignal.frames[i].deltaAnalysisTimeInSeconds = output.hnmSignal.frames[i].tAnalysisInSeconds-output.hnmSignal.frames[i-1].tAnalysisInSeconds;
+                else
+                    output.hnmSignal.frames[i].deltaAnalysisTimeInSeconds = output.hnmSignal.frames[i].tAnalysisInSeconds;
                 
                 if (analysisParams.harmonicModel == HntmAnalyzerParams.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE && labels!=null)
                 {

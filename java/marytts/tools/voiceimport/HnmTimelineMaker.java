@@ -39,6 +39,7 @@ import java.util.TreeMap;
 
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchFileHeader;
+import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
@@ -49,6 +50,8 @@ import marytts.unitselection.data.MCepDatagram;
 import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;
 import marytts.util.math.ArrayUtils;
+import marytts.util.math.MathUtils;
+import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
 
@@ -63,6 +66,8 @@ public class HnmTimelineMaker extends VoiceImportComponent
     protected DatabaseLayout db = null;
     protected int percent = 0;
     
+    protected String corrPmExt = ".pm.corrected";
+    public final String CORRPMDIR = "HnmTimelineMaker.corrPmDir";
     public final String HNMTIMELINE = "HnmTimelineMaker.hnmTimeline";
     
     public String getName(){
@@ -78,6 +83,10 @@ public class HnmTimelineMaker extends VoiceImportComponent
             
             props = new TreeMap<String, String>();
 
+            props.put(CORRPMDIR, db.getProp(db.ROOTDIR)
+                    +"pm"
+                    +System.getProperty("file.separator"));
+            
             props.put(HNMTIMELINE, db.getProp(db.FILEDIR)
                     +"timeline_hnm"+db.getProp(db.MARYEXT));
     
@@ -110,6 +119,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
     protected void setupHelp(){         
         props2Help = new TreeMap<String, String>();
         
+        props2Help.put(CORRPMDIR,"directory containing the corrected pitchmarks");
         props2Help.put(HNMTIMELINE,"file containing all hnm noise waveform files. Will be created by this module");  
         
         props2Help.put("HnmTimelineMaker.noiseModel", "Noise model: 1=WAVEFORM, 2=LPC, Default=1");
@@ -232,18 +242,26 @@ public class HnmTimelineMaker extends VoiceImportComponent
             //
             
             /* 2) Write the datagrams and feed the index */
-            
+            float totalDuration = 0.0f;  // Accumulator for the total timeline duration
             long totalTime = 0l;
             long numDatagrams = 0l; // Total number of hnm datagrams in the timeline file
             
+            ESTTrackReader pmFile = null;
             /* For each wav file: */
-            for ( int n = 0; n < baseNameArray.length; n++ ) 
+            int n, i;
+            double f0WindowSizeInSeconds = 0;
+            double f0SkipSizeInSeconds = 0;
+            
+            for (n=0; n<baseNameArray.length; n++) 
             {
                 percent = 100*n/baseNameArray.length;
                 /* - open+load */
                 System.out.println( baseNameArray[n] );
                 String wavFile = db.getProp(db.ROOTDIR) + db.getProp(db.WAVDIR) + baseNameArray[n] + db.getProp(db.WAVEXT); 
                 
+                pmFile = new ESTTrackReader( getProp(CORRPMDIR) + baseNameArray[n] + corrPmExt);
+                totalDuration += pmFile.getTimeSpan();
+        
                 HntmAnalyzer ha = new HntmAnalyzer();
                 String hnmAnalysisFile = StringUtils.modifyExtension(wavFile, "ana");
                 
@@ -266,6 +284,32 @@ public class HnmTimelineMaker extends VoiceImportComponent
                         f0 = pitchDetector.pitchAnalyzeWavFile(wavFile, ptcFile);
                     }
                     
+                    int frameStart = 0;
+                    int frameEnd = 0;
+                    long duration;
+
+                    for (i=0; i<pmFile.getNumFrames(); i++ ) 
+                    {
+                        frameStart = frameEnd;
+                        frameEnd = (int)( (double)pmFile.getTime(i) * (double)(globSampleRate) );
+                        assert frameEnd <= wave.length : "Frame ends after end of wave data: " + frameEnd + " > " + wave.length;
+                        duration = frameEnd - frameStart;
+                    }
+                    
+                    PitchMarks pm = new PitchMarks(pmFile, globSampleRate);
+                    pm.findAndSetUnvoicedF0s(f0.contour, f0.header, globSampleRate);
+                    //hnmSignal = ha.analyze(wave, wav.getSampleRate(), f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
+                    if (n==0)
+                    {
+                        f0WindowSizeInSeconds = f0.header.windowSizeInSeconds;
+                        if (pmFile.getNumFrames()>1.0)
+                            f0SkipSizeInSeconds = SignalProcUtils.sampleFloat2time(((float)wave.length-SignalProcUtils.time2sample(f0WindowSizeInSeconds, globSampleRate))/(pmFile.getNumFrames()-1.0f), globSampleRate);
+                        else
+                            f0SkipSizeInSeconds = f0.header.skipSizeInSeconds;
+                    }
+                    
+                    //hnmSignal = ha.analyze(wave, wav.getSampleRate(), pm, f0WindowSizeInSeconds, f0SkipSizeInSeconds, pm.f0s, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
+                    
                     hnmSignal = ha.analyze(wave, wav.getSampleRate(), f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
                 }
                 
@@ -274,27 +318,28 @@ public class HnmTimelineMaker extends VoiceImportComponent
                 int frameEnd = 0;
                 int duration = 0;
                 long localTime = 0l;
-                //float tAnalysisInSeconds = 0.0f;
-                for ( int i = 0; i < hnmSignal.frames.length; i++ ) 
+                int currentIndex;
+                float[] analysisTimes = hnmSignal.getAnalysisTimes();
+                float tAnalysisInSeconds = 0.0f;
+                for (i=0; i<pmFile.getNumFrames(); i++ )
                 {
-                    //tAnalysisInSeconds += hnmSignal.frames[i].deltaAnalysisTimeInSeconds;
-                    
-                    /* Get the datagram duration */
-                    frameStart = frameEnd;
-                    if (i<hnmSignal.frames.length-1)
+                    if (i<hnmSignal.frames.length)
                     {
-                        //frameEnd = (int)( (double)(tAnalysisInSeconds+hnmSignal.frames[i+1].deltaAnalysisTimeInSeconds) * (double)(globSampleRate) );
-                        frameEnd = (int)( (double)(hnmSignal.frames[i+1].tAnalysisInSeconds) * (double)(globSampleRate) );
+                        frameStart = frameEnd;
+                        frameEnd = (int)( (double)pmFile.getTime(i) * (double)(globSampleRate) );
+                        duration = frameEnd - frameStart;
+                        
+                        currentIndex = MathUtils.findClosest(analysisTimes, pmFile.getTime(i));
+
+                        tAnalysisInSeconds += hnmSignal.frames[currentIndex].deltaAnalysisTimeInSeconds;
+                        
+                        hnmSignal.frames[currentIndex].tAnalysisInSeconds = tAnalysisInSeconds;
+                        
+                        // Feed the datagram to the timeline
+                        hnmTimeline.feed( new HnmDatagram(duration, hnmSignal.frames[currentIndex]) , globSampleRate );
+                        totalTime += duration;
+                        localTime += duration;
                     }
-                    else
-                        frameEnd = (int)( (double)hnmSignal.originalDurationInSeconds * (double)(globSampleRate) );
-                    
-                    duration = frameEnd - frameStart;
-                    
-                    /* Feed the datagram to the timeline */
-                    hnmTimeline.feed( new HnmDatagram(duration, hnmSignal.frames[i]) , globSampleRate );
-                    totalTime += duration;
-                    localTime += duration;
                 }
                 
                 System.out.println(String.valueOf(n+1) + " of " + String.valueOf(baseNameArray.length) + " done...");

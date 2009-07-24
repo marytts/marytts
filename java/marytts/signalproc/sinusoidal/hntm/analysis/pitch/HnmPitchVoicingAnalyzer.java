@@ -46,7 +46,9 @@ import marytts.util.signal.SignalProcUtils;
 /**
  * Initial pitch, voicing, maximum frequency of voicing, and refined pitch estimation
  * as described in:
- * Stylianou, Y., "A Pitch and Maximum Voiced Frequency Estimation Technique adapted to Harmonic Models of Speech".
+ * 
+ * Y. Stylianou (1996) “A pitch and maximum voiced frequency estimation technique adapted to harmonic models of speech,”
+ *        IEEE Nordic Signal Processing Symposium, Helsinki, Finland, Sept. 1996.
  *
  * @author Oytun T&uumlrk
  */

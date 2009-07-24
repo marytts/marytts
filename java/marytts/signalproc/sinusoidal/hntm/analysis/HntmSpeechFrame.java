@@ -40,7 +40,8 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
     
     public float f0InHz;
     public float maximumFrequencyOfVoicingInHz; //If 0.0, then the frame is unvoiced
-    public float tAnalysisInSeconds; //Difference between middle of analysis current frame and previous analysis frame in seconds
+    public float tAnalysisInSeconds; //Current analysis instant (middle of window) in seconds
+    public float deltaAnalysisTimeInSeconds; //Difference between middle of analysis current frame and previous analysis frame in seconds
     
     public HntmSpeechFrame()
     {
@@ -54,6 +55,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         f0InHz = f0InHzIn;
         maximumFrequencyOfVoicingInHz = 0.0f;
         tAnalysisInSeconds = -1.0f;
+        deltaAnalysisTimeInSeconds = 0.0f;
     }
     
     public HntmSpeechFrame(HntmSpeechFrame existing)
@@ -76,7 +78,8 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
 
                 f0InHz = existing.f0InHz;
                 maximumFrequencyOfVoicingInHz = existing.maximumFrequencyOfVoicingInHz;
-                tAnalysisInSeconds = existing.tAnalysisInSeconds;  
+                tAnalysisInSeconds = existing.tAnalysisInSeconds; 
+                deltaAnalysisTimeInSeconds = existing.deltaAnalysisTimeInSeconds;
             } 
         }
     }
@@ -88,6 +91,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         f0InHz = dis.readFloat();
         maximumFrequencyOfVoicingInHz = dis.readFloat();
         tAnalysisInSeconds = dis.readFloat();
+        deltaAnalysisTimeInSeconds = dis.readFloat();
         
         int numHarmonics = dis.readInt();
         if (numHarmonics>0)
@@ -119,6 +123,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         out.writeFloat(f0InHz);
         out.writeFloat(maximumFrequencyOfVoicingInHz);
         out.writeFloat(tAnalysisInSeconds);
+        out.writeFloat(deltaAnalysisTimeInSeconds);
         
         int numHarmonics = 0;
         if (h!=null && h.complexAmps!=null)
@@ -146,6 +151,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
         if (f0InHz!=other.f0InHz) return false;
         if (maximumFrequencyOfVoicingInHz!=other.maximumFrequencyOfVoicingInHz) return false;
         if (tAnalysisInSeconds!=other.tAnalysisInSeconds) return false;
+        if (deltaAnalysisTimeInSeconds!=other.deltaAnalysisTimeInSeconds) return false;
         
         return true;
     }
@@ -153,7 +159,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
     //Returns the size of this object in bytes
     public int getLength()
     {
-        int len = 4*(3+1+1);
+        int len = 4*(4+1+1);
         if (h!=null)
             len += h.getLength();
         if (n!=null)

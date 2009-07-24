@@ -47,6 +47,13 @@ import marytts.util.string.StringUtils;
  * This class implements transformation for weighted codebook mapping based voice conversion
  * using parallel training data (i.e. source and target data in pairs of audio recordings which have identical content)
  *
+ * Reference for weighted codebook mapping:
+ * Arslan, L. M., 1999, “Speaker Transformation Algorithm using Segmental Codebooks”,
+ *              Speech Communication, 28, pp. 211-226.
+ *              
+ * Reference for weighted frame mapping:
+ * T&uumlrk, O., 2007 “Cross-Lingual Voice Conversion”, PhD Thesis, Bogazici University.
+ * 
  * @author Oytun T&uumlrk
  */
 public class WeightedCodebookParallelTransformer extends WeightedCodebookTransformer {

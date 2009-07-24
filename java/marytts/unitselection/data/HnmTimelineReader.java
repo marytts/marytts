@@ -157,12 +157,11 @@ public class HnmTimelineReader extends TimelineReader
                 if (datagrams.get(i) instanceof HnmDatagram)
                 {
                     totalFrm++;
-                    deltaTimeInSeconds = SignalProcUtils.sample2time(((HnmDatagram)datagrams.get(i)).getDuration(), samplingRateInHz);
-                }
-                else
-                    deltaTimeInSeconds = SignalProcUtils.sample2time(datagrams.get(i).getDuration(), samplingRateInHz);
-
-                originalDurationInSeconds += deltaTimeInSeconds;
+                    //deltaTimeInSeconds = SignalProcUtils.sample2time(((HnmDatagram)datagrams.get(i)).getDuration(), samplingRateInHz);
+                    deltaTimeInSeconds = ((HnmDatagram)datagrams.get(i)).frame.deltaAnalysisTimeInSeconds;
+                    
+                    originalDurationInSeconds += deltaTimeInSeconds;
+                }  
             } 
         }
         
@@ -178,8 +177,9 @@ public class HnmTimelineReader extends TimelineReader
             {
                 if (datagrams.get(i) instanceof HnmDatagram)
                 {
-                    tAnalysisInSeconds += SignalProcUtils.sample2time(((HnmDatagram)datagrams.get(i)).getDuration(), samplingRateInHz);
-
+                    //tAnalysisInSeconds += SignalProcUtils.sample2time(((HnmDatagram)datagrams.get(i)).getDuration(), samplingRateInHz);
+                    tAnalysisInSeconds += ((HnmDatagram)datagrams.get(i)).getFrame().deltaAnalysisTimeInSeconds;
+                    
                     if  (frameCount<totalFrm)
                     {
                         hnmSignal.frames[frameCount] = new HntmSpeechFrame(((HnmDatagram)datagrams.get(i)).getFrame());
@@ -187,8 +187,6 @@ public class HnmTimelineReader extends TimelineReader
                         frameCount++;
                     }
                 }
-                else
-                    tAnalysisInSeconds += SignalProcUtils.sample2time(datagrams.get(i).getDuration(), samplingRateInHz);
             }    
         }
 

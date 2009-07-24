@@ -76,9 +76,15 @@ public class DistanceComputer {
         return dist;
     }
     
-  //Note that the function requires the lsfWeights array to be created outside of this function
-    // for efficiency purposes as this function is called many times during transformation.
-    //The length of the array should be equal to the length of the lsf vectors
+    /* Inverse LSF harmonic distance which is used to find closest LSF matches for a given source LSF vector in the source codebook:
+     *   
+     *  R. Laroia, N. Phamdo, and N. Farvardin, “Robust and efficient quantization of speech lsp parameters using
+     *             structured vector quantizers,” in Proc. of the IEEE ICASSP 1991, pp. 641–644.
+     * 
+     * Note that the function requires the lsfWeights array to be created outside of this function
+     *   for efficiency purposes as this function is called many times during transformation.
+     *   The length of the array should be equal to the length of the lsf vectors
+     */
     public static double getLsfInverseHarmonicDistance(double[] lsfs1, double[] lsfs2, double freqRange)
     {
         assert lsfs1.length==lsfs2.length;

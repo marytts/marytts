@@ -77,6 +77,11 @@ import marytts.util.signal.SignalProcUtils;
  * A class that supports voice conversion through weighted codebook mapping or joint-GMMs 
  * and FDPSOLA based prosody and vocal tract modifications
  * 
+ * Reference:
+ * Moulines, E. and W. Verhelst, 1995, “Time-Domain and Frequency-Domain Techniques for
+ *       Prosodic Modification of Speech” in Kleijn and Paliwal (eds.), Speech Coding And
+ *       Synthesis, pp. 519-555, Elsevier Science B.V., Netherlands.
+ * 
  * @author Oytun T&uumlrk
  * 
  */
@@ -642,7 +647,17 @@ public class FdpsolaAdapter {
         */
     }
 
-    //Voice conversion version
+    /* Voice conversion version of FD-PSOLA algorithm. The original FD-PSOLA is described in:
+     * 
+     * Moulines, E. and W. Verhelst, 1995, “Time-Domain and Frequency-Domain Techniques for
+     *       Prosodic Modification of Speech” in Kleijn and Paliwal (eds.), Speech Coding And
+     *       Synthesis, pp. 519-555, Elsevier Science B.V., Netherlands.
+     * 
+     * and the spectral conversion using codebook mapping in:
+     * 
+     * Arslan, L. M., 1999, “Speaker Transformation Algorithm using Segmental Codebooks”,
+     *         Speech Communication, 28, pp. 211-226.
+     */
     public double[] processFrame(double[] frmIn, boolean isVoiced, 
                                  double currentF0, double targetF0, double tscale, double escale, double vscale, 
                                  boolean isLastInputFrame, int currentPeriod, int inputFrameSize,

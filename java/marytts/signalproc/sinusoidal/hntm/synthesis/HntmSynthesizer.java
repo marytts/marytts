@@ -67,7 +67,13 @@ import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
 /**
- * Synthesis using harmonics plus noise (and possibly plus transients) model
+ * Synthesis using harmonics plus noise (and possibly plus transients) model.
+ * 
+ * Reference:
+ * Stylianou, Y., 1996, "Harmonic plus Noise Models for Speech, combined with Statistical Methods, 
+ *            for Speech and Speaker Modification", Ph.D. thesis, 
+ *            Ecole Nationale Supérieure des Télécommunications.
+ * (Chapter 3, A Harmonic plus Noise Model, HNM)
  * 
  * @author Oytun T&uumlrk
  *

@@ -24,7 +24,11 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
- * This class generates the sinusoidal tracks given individual peak amplitudes measured from the DFT spectrum
+ * This class generates the sinusoidal tracks given individual peak amplitudes measured from the DFT spectrum.
+ * 
+ * Reference:
+ * R.J. McAulay and T.F. Quatieri, "Speech Analysis/Synthesis Based on a Sinusoidal Representation," 
+ *              IEEE Transactions on Acoustics, Speech and Signal Processing, vol. ASSP-34, no. 4, August 1986.
  * 
  * @author Oytun T&uumlrk
  */

@@ -57,6 +57,12 @@ import marytts.util.signal.SignalProcUtils;
  * Then, sinusoids that are close in frequency are grouped together to form sinusoidal tracks
  * Optional amplitude and phase continuity constraints can be employed during track generation
  * The implementation consists of ideas and algorithms from various papers as described in function headers
+ * 
+ * References:
+ * Quatieri, T. F. Discrete-Time Speech Signal Processing: Principles and Practice. Prentice-Hall Inc. 2001. (Chapter 9 – Sinusoidal Analysis/Synthesis)
+ * 
+ * R.J. McAulay and T.F. Quatieri, "Speech Analysis/Synthesis Based on a Sinusoidal Representation," 
+ *              IEEE Transactions on Acoustics, Speech and Signal Processing, vol. ASSP-34, no. 4, August 1986.
  *
  * @author Oytun T&uumlrk
  */
