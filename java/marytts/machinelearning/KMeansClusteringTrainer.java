@@ -25,6 +25,10 @@ import marytts.util.math.MathUtils;
 
 /**
  * K-Means clustering training algorithm
+ * 
+ * Reference:
+ * J. MacQueen, 1967, "Some methods for classification and analysis of multivariate observations", 
+ *        Proc. Fifth Berkeley Symp. on Math. Statist. and Prob., Vol. 1 (Univ. of Calif. Press, 1967), pp. 281-297. 
  *
  * @author Oytun T&uumlrk
  */
