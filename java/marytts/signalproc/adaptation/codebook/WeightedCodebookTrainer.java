@@ -112,9 +112,11 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
     {
         if (sourceTrainingSet.items!=null && targetTrainingSet.items!=null && map!=null)
         {
-            int numItems = Math.min(sourceTrainingSet.items.length, sourceTrainingSet.items.length);
-            numItems = Math.min(numItems, map.length);
-            
+            if (sourceTrainingSet.items.length != targetTrainingSet.items.length || sourceTrainingSet.items.length != map.length) {
+                throw new RuntimeException("Lengths of source, target and map must be the same");
+            }
+            int numItems = sourceTrainingSet.items.length;
+
             if (numItems>0)
             {
                 preprocessor.run(sourceTrainingSet);

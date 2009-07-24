@@ -375,7 +375,7 @@ public class GMMTrainer {
 
             end = System.currentTimeMillis();
             
-            System.out.println("For " + String.valueOf(gmm.totalComponents) + " mixes - EM iteration no: " + String.valueOf(numIterations) + " with error " + String.valueOf(error) + " log-likelihood=" + String.valueOf(logLikelihoods[numIterations-1]) + " in " +  String.valueOf((end-start)/1000.0) + " sec");
+            System.out.println("For " + String.valueOf(gmm.totalComponents) + " mixes - EM iteration no: " + String.valueOf(numIterations) + " with avg. difference in means " + String.valueOf(error) + " log-likelihood=" + String.valueOf(logLikelihoods[numIterations-1]) + " in " +  String.valueOf((end-start)/1000.0) + " sec");
 
             //Force iterations to stop if maximum number of iterations has been reached
             if (numIterations+1>emMaximumIterations)
@@ -522,7 +522,7 @@ public class GMMTrainer {
         if (gmm!=null)
         {
             for (i=0; i<gmm.totalComponents; i++)
-                System.out.println("Gaussian #" + String.valueOf(i+1) + " mean=" + String.valueOf(gmm.components[i].meanVector[0]) + " variance=" + String.valueOf(gmm.components[i].covMatrix[0][0]));
+                System.out.println("Gaussian #" + String.valueOf(i+1) + " mean=" + String.valueOf(gmm.components[i].meanVector[0]) + " variance=" + String.valueOf(gmm.components[i].covMatrix[0][0])+" prior=" + gmm.weights[i]);
         }
         
         /*

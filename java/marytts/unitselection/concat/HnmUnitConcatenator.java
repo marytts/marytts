@@ -93,7 +93,12 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
             Unit prevInDB = database.getUnitFileReader().getPreviousUnit(unit.getUnit());
             long unitPrevStart = unitToTimeline(prevInDB.getStart()); // convert to timeline samples
             if (prevInDB != null && !prevInDB.isEdgeUnit()) {
-                leftContextFrame = timeline.getDatagram(unitPrevStart);
+                long unitPrevSize = unitToTimeline(prevInDB.getDuration());
+                Datagram[] unitPrevDatagrams = timeline.getDatagrams(unitPrevStart, (long)unitPrevSize);
+                //leftContextFrame = timeline.getDatagram(unitPrevStart);
+                if (unitPrevDatagrams != null && unitPrevDatagrams.length > 0) {
+                    leftContextFrame = unitPrevDatagrams[unitPrevDatagrams.length-1];
+                }
                 unitData.setLeftContextFrame(leftContextFrame);
             }
             
