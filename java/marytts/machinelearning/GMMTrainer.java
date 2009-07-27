@@ -179,7 +179,7 @@ public class GMMTrainer {
      *         
      * Many practical tutorials for EM training of GMMs exist on the web, i.e.:
      * http://bengio.abracadoudou.com/lectures/old/tex_gmm.pdf
-
+     */
     public GMM expectationMaximization(double[][] x, 
                                        GMM initialGmm, 
                                        int emMinimumIterations,
