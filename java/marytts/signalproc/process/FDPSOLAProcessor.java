@@ -34,6 +34,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.window.DynamicWindow;
@@ -205,12 +206,6 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 bContinue = false;
             }
 
-            if (!FileUtils.exists(strPitchFile))
-            {
-                System.out.println("Error! Pitch file " + strPitchFile + " not found.");
-                bContinue = false;
-            }
-
             if (strOutputFile==null || strOutputFile=="")
             {
                 System.out.println("Invalid output file...");
@@ -234,6 +229,17 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 origLen = (int)input.getDataLength();
                 fs = (int)inputAudio.getFormat().getSampleRate();
 
+                if (!FileUtils.exists(strPitchFile))
+                {
+                    System.out.println("Pitch file cannot be found, computing... " + strPitchFile);
+                    try {
+                        F0TrackerAutocorrelationHeuristic f0Tracker = new F0TrackerAutocorrelationHeuristic(strInputFile, strPitchFile);
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+                
                 PitchReaderWriter f0 = new PitchReaderWriter(strPitchFile);
                 pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, origLen, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, true, 0);
 
@@ -1761,8 +1767,8 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         {
             //double [] pscales = {0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95, 1.05, 1.10, 1.15, 1.20, 1.25, 1.30, 1.35, 1.40, 1.45, 1.50};
             //double [] tscales = {1.50, 1.45, 1.40, 1.35, 1.30, 1.25, 1.20, 1.15, 1.10, 1.05, 0.95, 0.90, 0.85, 0.80, 0.75, 0.70, 0.65, 0.60};
-            double [] pscales = {1.5};
-            double [] tscales = {1.5};
+            double [] pscales = {1.0};
+            double [] tscales = {1.2};
             double [] escales = {1.0};
             double [] vscales = {1.0};
             mainParametric(args[0], pscales, tscales, escales, vscales);

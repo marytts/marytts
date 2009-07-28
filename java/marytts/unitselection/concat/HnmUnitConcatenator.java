@@ -85,6 +85,8 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
             long unitStart = unitToTimeline(unit.getUnit().getStart()); // convert to timeline samples
             //System.out.println("Unit size "+unitSize+", pitchmarksInUnit "+pitchmarksInUnit);
             //System.out.println(unitStart/((float)timeline.getSampleRate()));
+            //System.out.println("Unit index = " + unit.getUnit().getIndex());
+            
             Datagram[] datagrams = timeline.getDatagrams(unitStart,(long)unitSize);
             unitData.setFrames(datagrams);
             
@@ -189,7 +191,7 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
                     deltaTimeInSeconds = ((HntmSpeechFrame)((HnmDatagram)datagrams[i][j]).getFrame()).deltaAnalysisTimeInSeconds;
                     originalDurationInSeconds += deltaTimeInSeconds;
                     
-                    System.out.println("Unit duration = " + String.valueOf(length));
+                    //System.out.println("Unit duration = " + String.valueOf(length));
                 } 
             }
         }
