@@ -298,7 +298,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
                     
                     PitchMarks pm = new PitchMarks(pmFile, globSampleRate);
                     pm.findAndSetUnvoicedF0s(f0.contour, f0.header, globSampleRate);
-                    //hnmSignal = ha.analyze(wave, wav.getSampleRate(), f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
+                   
                     if (n==0)
                     {
                         f0WindowSizeInSeconds = f0.header.windowSizeInSeconds;
@@ -308,9 +308,9 @@ public class HnmTimelineMaker extends VoiceImportComponent
                             f0SkipSizeInSeconds = f0.header.skipSizeInSeconds;
                     }
                     
-                    //hnmSignal = ha.analyze(wave, wav.getSampleRate(), pm, f0WindowSizeInSeconds, f0SkipSizeInSeconds, pm.f0s, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
+                    hnmSignal = ha.analyze(wave, wav.getSampleRate(), pm, f0WindowSizeInSeconds, f0SkipSizeInSeconds, pm.f0s, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
                     
-                    hnmSignal = ha.analyze(wave, wav.getSampleRate(), f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
+                    //hnmSignal = ha.analyze(wave, wav.getSampleRate(), f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
                 }
                 
                 /* - For each frame in the hnm modeled speech signal: */

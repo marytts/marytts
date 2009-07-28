@@ -54,6 +54,8 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
             long unitStart = unitToTimeline(unit.getUnit().getStart()); // convert to timeline samples
             //System.out.println("Unit size "+unitSize+", pitchmarksInUnit "+pitchmarksInUnit);
             //System.out.println(unitStart/((float)timeline.getSampleRate()));
+            //System.out.println("Unit index = " + unit.getUnit().getIndex());
+            
             Datagram[] datagrams = timeline.getDatagrams(unitStart,(long)unitSize);
             unitData.setFrames(datagrams);
             // one right context period for windowing:

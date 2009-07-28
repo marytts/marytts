@@ -33,8 +33,10 @@ import marytts.signalproc.filter.FIRFilter;
 import marytts.signalproc.filter.LowPassFilter;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
+import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
+import marytts.util.string.StringUtils;
 
 /**
  * Autocorrelation based F0 tracker with heuristic rules based on statistics for smoothing
@@ -65,6 +67,54 @@ public class F0TrackerAutocorrelationHeuristic {
     private int frameIndex;
     private int ws;
     private int ss;
+    
+    public F0TrackerAutocorrelationHeuristic(String wavFile) throws Exception
+    {
+        if (FileUtils.exists(wavFile))
+        {
+            String ptcFile = StringUtils.modifyExtension(wavFile, "ptc");
+
+            params = new PitchFileHeader();
+
+            init();
+
+            PitchReaderWriter f0 = null;
+            try {
+                f0 = pitchAnalyzeWavFile(wavFile, ptcFile);
+            } catch (UnsupportedAudioFileException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        else
+            throw new Exception("Wav file not found!");
+    }
+    
+    public F0TrackerAutocorrelationHeuristic(String wavFile, String ptcFile) throws Exception
+    {
+        if (FileUtils.exists(wavFile))
+        {
+            params = new PitchFileHeader();
+
+            init();
+
+            PitchReaderWriter f0 = null;
+            try {
+                f0 = pitchAnalyzeWavFile(wavFile, ptcFile);
+            } catch (UnsupportedAudioFileException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        else 
+            throw new Exception("Wav file not found!");
+    }
     
     public F0TrackerAutocorrelationHeuristic(PitchFileHeader paramsIn)
     {
