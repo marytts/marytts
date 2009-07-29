@@ -202,7 +202,7 @@ public class HnmTimelineReader extends TimelineReader
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
     {        
-        int i;
+        long i;
         HnmTimelineReader h = new HnmTimelineReader();
         try {
             h.load("timeline_hnm.mry");
@@ -213,7 +213,11 @@ public class HnmTimelineReader extends TimelineReader
 
         LinkedList<HnmDatagram> datagrams = new LinkedList<HnmDatagram>();
         int count = 0;
-        for (i=0; i<h.numDatagrams; i++)
+        long startDatagramIndex = 0;
+        //long endDatagramIndex = h.numDatagrams-1;
+        long endDatagramIndex = 2000;
+        
+        for (i=startDatagramIndex; i<=endDatagramIndex; i++)
         {
             HnmDatagram d = null;
             try {
@@ -231,13 +235,13 @@ public class HnmTimelineReader extends TimelineReader
         }
         
         int clusterSize = 1000;
-        int numClusters = (int)Math.floor(h.numDatagrams/((double)clusterSize)+0.5);
+        int numClusters = (int)Math.floor((endDatagramIndex-startDatagramIndex+1)/((double)clusterSize)+0.5);
         int startIndex, endIndex;
         DataOutputStream output = new DataOutputStream(new FileOutputStream(new File("d:\\output.bin")));
         for (i=0; i<numClusters; i++)
         {
-            startIndex = i*clusterSize;
-            endIndex = (int)Math.min((i+1)*clusterSize-1, h.numDatagrams-1);
+            startIndex = (int)(i*clusterSize);
+            endIndex = (int)Math.min((i+1)*clusterSize-1, endDatagramIndex);
             testSynthesizeFromDatagrams(datagrams, startIndex, endIndex, output);
             System.out.println("Timeline cluster " + String.valueOf(i+1) + " of " + String.valueOf(numClusters) + " synthesized...");
         }

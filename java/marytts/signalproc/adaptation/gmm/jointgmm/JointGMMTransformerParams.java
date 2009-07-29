@@ -26,8 +26,9 @@ import marytts.signalproc.adaptation.BaselineTransformerParams;
  *
  * @author Oytun T&uumlrk
  */
-public class JointGMMTransformerParams extends BaselineTransformerParams {
-    public String jointGmmFile; //Joint GMM file
+public class JointGMMTransformerParams extends BaselineTransformerParams 
+{
+    public String jointGmmFile; //Binary GMM file
     
     public JointGMMTransformerParams()
     {

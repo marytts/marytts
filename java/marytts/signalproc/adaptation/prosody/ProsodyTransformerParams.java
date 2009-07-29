@@ -22,6 +22,8 @@ package marytts.signalproc.adaptation.prosody;
 import marytts.signalproc.adaptation.BaselineParams;
 
 /**
+ * Parameters for prosody transformation.
+ * 
  * @author Oytun T&uumlrk
  *
  */
@@ -29,23 +31,26 @@ public class ProsodyTransformerParams extends BaselineParams {
     
     public static final int CUSTOM_TRANSFORMATION = -10; 
     public static final int NO_TRANSFORMATION = 0; 
+
+    public int energyTransformationMethod; //Energy contour transformation method
     
-    ////ENERGY
-    public int energyTransformationMethod;
-    
-    ////DURATION
-    public int durationTransformationMethod;
+    ////
+    public int durationTransformationMethod; //Duration transformation method
+   
+    //Duration transformation method types
     public static final int PHONEME_DURATIONS = 1;
     public static final int TRIPHONE_DURATIONS = 2;
     public static final int SENTENCE_DURATION = 3;
     public static final int GLOBAL_AVERAGE = 4;
+    //
     
-    ////PITCH
-    public int pitchTransformationMethod;
-    
+    ////
+    public int pitchTransformationMethod; //Pitch transformaiton method
+    //Pitch transformaiton method types
     public static final int USE_ONLY_PSCALES = -1;
+    //
 
-    //Global transformations
+    //Global transformation types
     public static final int GLOBAL_MEAN = 1;
     public static final int GLOBAL_STDDEV = 2;
     public static final int GLOBAL_RANGE = 3;
@@ -78,7 +83,7 @@ public class ProsodyTransformerParams extends BaselineParams {
     public boolean isUseInputSlopePitch; //For GLOBAL tfms: Estimate slope from input f0s? Otherwise from codebook
     ////
 
-    public int pitchStatisticsType;
+    public int pitchStatisticsType; //Type for pitch statistics to use
     /////
     
     public ProsodyTransformerParams()

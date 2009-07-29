@@ -21,10 +21,13 @@ package marytts.signalproc.adaptation.prosody;
 
 
 /**
+ * A class to support pitch transformation in voice conversion.
+ * 
  * @author Oytun T&uumlrk
  *
  */
-public class PitchMapping extends PitchTransformationData {
+public class PitchMapping extends PitchTransformationData 
+{
     //These are for feature requests from the codebook
     public static final int SOURCE = 1;
     public static final int TARGET = 2;
@@ -32,7 +35,7 @@ public class PitchMapping extends PitchTransformationData {
     public static final int TARGET_SOURCE = 4;
     //
     
-    public PitchMappingFileHeader header;
+    public PitchMappingFileHeader header; //Binary file header
     
     //These two contain identical information in different forms
     //f0Statistics is always read from the codebook first

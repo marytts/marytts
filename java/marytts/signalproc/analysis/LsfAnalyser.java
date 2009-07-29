@@ -36,11 +36,12 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
- * @author Marc Schr&ouml;der
- *
+ * 
  * Demonstration program to accompany the subroutines described in the     
  * articles by J. Rothweiler, on computing the Line Spectral Frequencies.
- * From http://mysite.verizon.net/vzenxj75/myown1/joe/lsf/a2lsp.c   
+ * From http://mysite.verizon.net/vzenxj75/myown1/joe/lsf/a2lsp.c  
+ * 
+ * @author Marc Schr&ouml;der
  *           
  */
 public class LsfAnalyser

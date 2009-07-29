@@ -25,13 +25,15 @@ package marytts.signalproc.adaptation.outlier;
  *
  * @author Oytun T&uumlrk
  */
-public class TotalStandardDeviations {
-    public double general;
-    public double lsf;
-    public double f0;
-    public double duration;
-    public double energy;
-    public static final double DEFAULT_TOTAL_STANDARD_DEVIATIONS = 1.5;
+public class TotalStandardDeviations 
+{
+    public double general; //Common total standard deviations to use unless the user does not want to specify the below parameters
+    public double lsf; //Standard deviation for LSFs
+    public double f0; //Standard deviation for f0
+    public double duration; //Standard deviation for duration
+    public double energy; //Standard deviation for energy
+    
+    public static final double DEFAULT_TOTAL_STANDARD_DEVIATIONS = 1.5; //Default value of standard deviations to use
     
     public TotalStandardDeviations()
     {

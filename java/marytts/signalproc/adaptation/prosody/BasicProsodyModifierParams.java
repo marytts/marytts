@@ -44,11 +44,15 @@ import marytts.util.string.StringUtils;
  * @author oytun.turk
  *
  */
-public class BasicProsodyModifierParams {
-    public float[] tScales;
-    public float[] tScalesTimes;
-    public float[] pScales;
-    public float[] pScalesTimes;
+public class BasicProsodyModifierParams 
+{
+    public float[] tScales; //Time scale factors
+    public float[] tScalesTimes; //Instants that the time scale factors are effective. 
+                                 //For the time instants in between, linear interpolation is used to estimate corresponding time scaling factor.
+    public float[] pScales; //Pitch scale factors
+    public float[] pScalesTimes; //Instants that the pitch scale factors are effective. 
+                                 //For the time instants in between, linear interpolation is used to estimate corresponding pitch scaling factor.
+    
     
     public BasicProsodyModifierParams()
     {

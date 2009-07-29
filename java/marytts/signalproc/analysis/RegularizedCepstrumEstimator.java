@@ -24,9 +24,10 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 
+//Note that RegularizedPreWarpedCepstrumEstimator or RegularizedPostWarpedCepstrumEstimator works much better
 public class RegularizedCepstrumEstimator 
 {
-    public static final double DEFAULT_LAMBDA = 5e-4;
+    public static final double DEFAULT_LAMBDA = 5e-4; //Regularization parameter
     
     //Warping for better estimation can be performed in two ways:
     // either pre-warping of linear frequency values in Bark-scale
