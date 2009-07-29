@@ -31,7 +31,7 @@ import marytts.signalproc.adaptation.outlier.KMeansMappingEliminatorParams;
 public class WeightedCodebookTrainerParams extends BaselineTrainerParams {
     public static final int MAXIMUM_CONTEXT = 10;
     
-    public WeightedCodebookFileHeader codebookHeader;
+    public WeightedCodebookFileHeader codebookHeader; //Header of codebook file
     
     public String trainingBaseFolder; //Training base directory
     public String sourceTrainingFolder; //Source training folder
@@ -46,8 +46,8 @@ public class WeightedCodebookTrainerParams extends BaselineTrainerParams {
     
     public boolean isForcedAnalysis; //Set this to true if you want all acoustic features to be extracted even if their files exist
     
-    public GaussianOutlierEliminatorParams gaussianEliminatorParams;
-    public KMeansMappingEliminatorParams kmeansEliminatorParams;
+    public GaussianOutlierEliminatorParams gaussianEliminatorParams; //Parameters of Gaussian based outlier eliminator
+    public KMeansMappingEliminatorParams kmeansEliminatorParams; //Parameters of K-Means clustering based outlier eliminator
     
     public String[] labelsToExcludeFromTraining; //These labels are excluded from training
     

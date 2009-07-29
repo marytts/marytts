@@ -323,7 +323,12 @@ public class HnmTimelineMaker extends VoiceImportComponent
                 int currentIndex;
                 float[] analysisTimes = hnmSignal.getAnalysisTimes();
                 float tAnalysisInSeconds = 0.0f;
-                for (i=0; i<pmFile.getNumFrames(); i++ )
+                float[] pmTimes = new float[pmFile.getNumFrames()];
+                
+                for (i=0; i<pmFile.getNumFrames(); i++)
+                    pmTimes[i] = pmFile.getTime(i);
+                   
+                for (i=0; i<pmFile.getNumFrames(); i++)
                 {
                     if (i<hnmSignal.frames.length)
                     {

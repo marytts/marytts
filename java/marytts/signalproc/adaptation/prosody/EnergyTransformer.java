@@ -20,6 +20,7 @@
 package marytts.signalproc.adaptation.prosody;
 
 /**
+ * 
  * @author Oytun T&uumlrk
  *
  */

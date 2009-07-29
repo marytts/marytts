@@ -38,7 +38,7 @@ import marytts.tools.voiceimport.ESTTrackWriter;
 
 /**
  * 
- * Internally does the conversion between reflection coefficients and LPCs.
+ * Internally performs conversion between reflection coefficients and LPCs.
  *
  */
 public class Lprefc2Lpc {

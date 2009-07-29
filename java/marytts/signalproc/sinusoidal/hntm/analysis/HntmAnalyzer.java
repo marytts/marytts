@@ -202,6 +202,7 @@ public class HntmAnalyzer {
         //Step1. Initial pitch estimation: Current version just reads from a file
         if (pm!=null)
         {
+            //FileUtils.writeTextFile(pm.pitchMarks, "d:\\pm.txt");
             float[] initialF0s = ArrayUtils.subarray(f0Contour, 0, f0Contour.length);
             //float[] initialF0s = HnmPitchVoicingAnalyzer.estimateInitialPitch(x, samplingRate, windowSizeInSeconds, skipSizeInSeconds, f0MinInHz, f0MaxInHz, windowType);
             //
