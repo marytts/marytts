@@ -37,11 +37,20 @@ import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
 
 /**
+ * This class implements the acoustic post-processor in an attempt to improve intelligibility 
+ * of TTS outputs passed from a telephone channel in Blizzard 2009. The algorithm is based on 
+ * some basic processing to enhance formants, to boost consonant gains as compared to vowels,
+ * and optional highpass filtering.
+ * 
+ * Reference:
+ * M. Schröder, S. Pammi, and O. Türk, "Multilingual MARY TTS participation in the Blizzard Challenge 2009",
+ *    in Proc. of the Blizzard Challenge 2009. 
+ * 
  * @author oytun.turk
  *
  */
-public class IeeeTaslp2009MaryResultsPreprocessor {
-    
+public class IeeeTaslp2009MaryResultsPreprocessor 
+{    
     //Search for all .txt files, read them, extract test results, and write all results to a separate, single file
     //Also compute total time it took for each .txt file to be completed by the subject
     public static void combineResults(String[] folders, String completeResultsFile, String totalDurationsFile)

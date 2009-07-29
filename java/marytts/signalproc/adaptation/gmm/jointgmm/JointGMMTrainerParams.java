@@ -31,13 +31,13 @@ import marytts.signalproc.adaptation.BaselineTrainerParams;
  * @author Oytun T&uumlrk
  */
 public class JointGMMTrainerParams extends BaselineTrainerParams {
-    public boolean isContextualGMMs;
-    public int contextClassificationType; //Only active when isContextualGMMs=true
+    public boolean isContextualGMMs; //Train separate GMMs for each context class
+    public int contextClassificationType; //Type of context classification to use. Only active when isContextualGMMs=true
     
-    public GMMTrainerParams gmmEMTrainerParams;
-    public String jointGMMFile;
+    public GMMTrainerParams gmmEMTrainerParams; //Expectation-maximization training parameters
+    public String jointGMMFile; //Binary file that keeps the GMMs
     
-    public int vocalTractFeature;
+    public int vocalTractFeature; //Type of vocal tract feature that the GMMs will be trained for.
 
     public JointGMMTrainerParams()
     {

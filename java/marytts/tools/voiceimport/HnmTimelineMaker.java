@@ -56,7 +56,7 @@ import marytts.util.string.StringUtils;
 
 
 /**
- * The mcepTimelineMaker class takes a database root directory and a list of basenames,
+ * HnmTimelineMaker class takes a database root directory and a list of basenames,
  * and converts the related wav files into a hnm timeline in Mary format.
  * 
  * @author Oytun T&uumlrk
@@ -308,9 +308,11 @@ public class HnmTimelineMaker extends VoiceImportComponent
                             f0SkipSizeInSeconds = f0.header.skipSizeInSeconds;
                     }
                     
-                    hnmSignal = ha.analyze(wave, wav.getSampleRate(), pm, f0WindowSizeInSeconds, f0SkipSizeInSeconds, pm.f0s, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
+                    //Use Praat based pitch marks
+                    //hnmSignal = ha.analyze(wave, wav.getSampleRate(), pm, f0WindowSizeInSeconds, f0SkipSizeInSeconds, pm.f0s, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
                     
-                    //hnmSignal = ha.analyze(wave, wav.getSampleRate(), f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
+                    //Use autocorrelation pitch detector based pitch marks
+                    hnmSignal = ha.analyze(wave, wav.getSampleRate(), f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
                 }
                 
                 /* - For each frame in the hnm modeled speech signal: */

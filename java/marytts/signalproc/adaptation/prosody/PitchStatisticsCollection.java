@@ -21,6 +21,8 @@ package marytts.signalproc.adaptation.prosody;
 
 
 /**
+ * A collection of PitchStatistics.
+ * 
  * @author Oytun T&uumlrk
  *
  */

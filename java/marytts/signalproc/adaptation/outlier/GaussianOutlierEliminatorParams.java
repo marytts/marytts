@@ -25,8 +25,9 @@ package marytts.signalproc.adaptation.outlier;
  * 
  *  @author Oytun T&uumlrk
  */
-public class GaussianOutlierEliminatorParams extends BaselineOutlierEliminatorParams {
-    public TotalStandardDeviations totalStandardDeviations;
+public class GaussianOutlierEliminatorParams extends BaselineOutlierEliminatorParams 
+{
+    public TotalStandardDeviations totalStandardDeviations; //Total standard deviations around the mean to select the entries to be eliminated as outlier from a source-target distance or difference distribution
    
     public boolean isEliminateTooSimilarLsf; //Also eliminate left tail - this forces some average vocal tract transformation for all frames
     

@@ -60,7 +60,7 @@ public class WeightedCodebookMapperParams {
     public double freqRange; //Frequency range to be considered around center freq when matching LSFs (note that center freq is estimated automatically as the middle of most closest LSFs)
     public static final double DEFAULT_FREQ_RANGE_FOR_LSF_MATCH = 5000.0;
     
-    public int lpOrder;
+    public int lpOrder; //Linear prediction oreder
     
     public WeightedCodebookMapperParams()
     {

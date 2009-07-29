@@ -35,10 +35,10 @@ import marytts.util.data.text.ESTTextfileDoubleDataSource;
 
 /**
  * 
+ * A Pitch-synchronous LPC analyser.
+ * 
  * @author Marc Schr&ouml;der
  * 
- *  A Pitch-synchronous LPC analyser.
- *
  */
 public class LpcPitchSynchronousAnalyser extends PitchFrameAnalyser
 {

@@ -27,13 +27,14 @@ import marytts.signalproc.adaptation.BaselineParams;
  * 
  * @author Oytun T&uumlrk
  */
-public class BaselineOutlierEliminatorParams extends BaselineParams {
-    public boolean isCheckLsfOutliers;
-    public boolean isCheckF0Outliers;
-    public boolean isCheckDurationOutliers;
-    public boolean isCheckEnergyOutliers;   
+public class BaselineOutlierEliminatorParams extends BaselineParams 
+{
+    public boolean isActive; //Is outlier elimination process being used? If false, the below parameters have no effect.
     
-    public boolean isActive;
+    public boolean isCheckLsfOutliers; //Use LSF distance distributions for finding outliers?
+    public boolean isCheckF0Outliers; //Use F0 difference distributions for finding outliers?
+    public boolean isCheckDurationOutliers; //Use duration difference distributions for finding outliers?
+    public boolean isCheckEnergyOutliers; //Use energy difference distributions for finding outliers?
     
     public BaselineOutlierEliminatorParams()
     {

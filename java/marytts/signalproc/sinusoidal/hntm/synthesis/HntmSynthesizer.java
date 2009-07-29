@@ -170,11 +170,13 @@ public class HntmSynthesizer {
  
         s.generateOutput();
         
+        //Should be removed, not being used now!
         if (synthesisParams.applyVocalTractPostNormalizationProcessor)
         {
             float[][] mappedTgtLpcs = prosodyModified.hntmSignal.getLpcsAll();
             s.output = SignalProcUtils.normalizeVocalTract(s.output, prosodyModified.hntmSignal.getAnalysisTimes(), mappedTgtLpcs, analysisParams.noiseAnalysisWindowType, analysisParams.noiseAnalysisWindowDurationInSeconds, mappedTgtLpcs[0].length, prosodyModified.hntmSignal.samplingRateInHz, analysisParams.preemphasisCoefNoise);
         }
+        //
         
         return s;
     }
@@ -199,6 +201,7 @@ public class HntmSynthesizer {
         pScalesArray[1][0] = 0.8f; tScalesArray[1][0] = 1.0f;
         pScalesArray[2][0] = 1.6f; tScalesArray[2][0] = 1.0f;
         pScalesArray[3][0] = 1.0f; tScalesArray[3][0] = 0.7f;
+        pScalesArray[3][0] = 1.0f; tScalesArray[3][0] = 0.7f;
         pScalesArray[4][0] = 1.0f; tScalesArray[4][0] = 1.6f;
         pScalesArray[5][0] = 1.0f; tScalesArray[5][0] = 2.3f;
         pScalesArray[6][0] = 2.3f; tScalesArray[6][0] = 1.0f;
@@ -213,14 +216,27 @@ public class HntmSynthesizer {
         pScalesArray[2][0] = 1.0f; tScalesArray[2][0] = 1.6f;
         */
 
+        /*
+        //Time invariant case, only one modification set
         float[][] pScalesArray = new float[1][1];
         float[][] tScalesArray = new float[1][1];
         pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
+        */
         
-        //float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f, 2.5f};
-        float[] tScalesTimes = null;
-        //float[] pScalesTimes = {0.05f, 1.0f, 2.0f};
-        float[] pScalesTimes = null;
+        //Time varying case, only one modification set
+        float[][] pScalesArray = new float[1][3];
+        float[][] tScalesArray = new float[1][3];
+        pScalesArray[0][0] = 2.0f; 
+        pScalesArray[0][1] = 1.5f;
+        pScalesArray[0][2] = 2.5f; 
+        tScalesArray[0][0] = 1.2f; 
+        tScalesArray[0][1] = 0.5f;
+        tScalesArray[0][2] = 1.5f; 
+        
+        float[] tScalesTimes = {0.5f, 1.5f, 1.5f};
+        //float[] tScalesTimes = null;
+        float[] pScalesTimes = {0.05f, 1.0f, 1.5f};
+        //float[] pScalesTimes = null;
         
         //File input
         AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(wavFile));
@@ -243,13 +259,15 @@ public class HntmSynthesizer {
         //analysisParams.harmonicModel = HntmAnalyzerParams.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE;
         
         //analysisParams.noiseModel = HntmAnalyzerParams.LPC;
-        //analysisParams.noiseModel = HntmAnalyzerParams.PSEUDO_HARMONIC;
+        //analysisParams.noiseModel = HntmAnalyzerParams.PSEUDO_HARMONIC; //does not work well
         analysisParams.noiseModel = HntmAnalyzerParams.WAVEFORM;
         //analysisParams.noiseModel = HntmAnalyzerParams.VOICEDNOISE_LPC_UNVOICEDNOISE_WAVEFORM;
         //analysisParams.noiseModel = HntmAnalyzerParams.UNVOICEDNOISE_LPC_VOICEDNOISE_WAVEFORM;
         
+        analysisParams.useHarmonicAmplitudesDirectly = true;
+        
         analysisParams.harmonicSynthesisMethodBeforeNoiseAnalysis = HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION;
-        //analysisParams.harmonicSynthesisMethodBeforeNoiseAnalysis= HntmSynthesizerParams.QUADRATIC_PHASE_INTERPOLATION;
+        //analysisParams.harmonicSynthesisMethodBeforeNoiseAnalysis= HntmSynthesizerParams.QUADRATIC_PHASE_INTERPOLATION; //does not work so well
         
         //analysisParams.regularizedCepstrumWarpingMethod = RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING;
         analysisParams.regularizedCepstrumWarpingMethod = RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING;
