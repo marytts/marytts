@@ -173,11 +173,12 @@ public class AutocorrelationPitchmarker extends VoiceImportComponent
         params.minimumF0 = Double.valueOf(getProp(MINF0));
         params.maximumF0 = Double.valueOf(getProp(MAXF0));
         
-        System.out.println("Running autocorrelation based pitch marker");
+        System.out.println("Running autocorrelation based pitch marker...");
         for ( int i = 0; i < baseNameArray.length; i++ ) {
             percent = 100*i/baseNameArray.length;
             extractPitchmarks(baseNameArray[i], params);
         }
+        System.out.println("Autocorrelation based pitch marking completed.");
         
         return true;
     }
