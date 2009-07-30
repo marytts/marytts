@@ -52,7 +52,12 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
-
+/**
+ * A reader class for the harmonics plus noise timeline file.
+ * 
+ * @author Oytun T&uumlrk
+ *
+ */
 public class HnmTimelineReader extends TimelineReader
 {
     public HntmAnalyzerParams analysisParams;

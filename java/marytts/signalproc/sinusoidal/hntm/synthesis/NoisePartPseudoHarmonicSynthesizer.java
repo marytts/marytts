@@ -54,6 +54,13 @@ import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
 /**
+ * A pseudo-harmonic representation based synthesizer for the noise part.
+ * 
+ * Reference:
+ * Stylianou, Y., 1996, "Harmonic plus Noise Models for Speech, combined with Statistical Methods, 
+ *            for Speech and Speaker Modification", Ph.D. thesis, 
+ *            Ecole Nationale Supérieure des Télécommunications.
+ *            
  * @author oytun.turk
  *
  */

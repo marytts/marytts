@@ -60,7 +60,9 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
- * @author oytun.turk
+ * A unit concatenator for harmonics plus noise based speech synthesis
+ * 
+ * @author Oytun T&uumlrk
  *
  */
 public class HnmUnitConcatenator extends OverlapUnitConcatenator {

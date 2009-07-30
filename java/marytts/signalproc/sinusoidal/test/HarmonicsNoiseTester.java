@@ -27,6 +27,8 @@ import marytts.util.math.MathUtils;
 import marytts.util.string.StringUtils;
 
 /**
+ * Generates test signals that consist of an artificially generated harmonic part and artificially generated noise part
+ * 
  * @author oytun.turk
  *
  */

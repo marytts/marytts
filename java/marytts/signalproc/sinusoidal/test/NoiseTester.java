@@ -28,8 +28,7 @@ import marytts.util.signal.SignalProcUtils;
 
 
 /**
- * This class can be used to generate various sinusoid signals and writing them to wav and ptc files
- * to be used in testing the analysis/synthesis algorithms
+ * Generates test signals that consist of artificially generated noise
  *  
  * @author Oytun T&uumlrk
  */
