@@ -257,7 +257,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
                 percent = 100*n/baseNameArray.length;
                 /* - open+load */
                 System.out.println( baseNameArray[n] );
-                String wavFile = db.getProp(db.ROOTDIR) + db.getProp(db.WAVDIR) + baseNameArray[n] + db.getProp(db.WAVEXT); 
+                String wavFile = db.getProp(db.WAVDIR) + baseNameArray[n] + db.getProp(db.WAVEXT); 
                 
                 pmFile = new ESTTrackReader( getProp(CORRPMDIR) + baseNameArray[n] + corrPmExt);
                 totalDuration += pmFile.getTimeSpan();
@@ -273,7 +273,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
                     wav = new WavReader(wavFile);
                     short[] wave = wav.getSamples();
                     
-                    String ptcFile = db.getProp(db.ROOTDIR) + db.getProp(db.PTCDIR) + baseNameArray[n] + db.getProp(db.PTCEXT);
+                    String ptcFile = db.getProp(db.PTCDIR) + baseNameArray[n] + db.getProp(db.PTCEXT);
                     PitchReaderWriter f0 = null;
                     if (FileUtils.exists(ptcFile))
                         f0 = new PitchReaderWriter(ptcFile);
