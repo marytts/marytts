@@ -38,7 +38,9 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
- * Implements a pitch tracker based on Quatieri´s book
+ * This class implements the comb-filter based pitch tracker in:
+ * 
+ * Quatieri, T. F. Discrete-Time Speech Signal Processing: Principles and Practice. Prentice-Hall Inc. 2001. (Chapter 9 – Sinusoidal Analysis/Synthesis)
  * 
  * @author Oytun T&uumlrk
  */

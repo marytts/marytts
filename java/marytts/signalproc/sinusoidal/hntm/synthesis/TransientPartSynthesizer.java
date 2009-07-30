@@ -40,6 +40,8 @@ import marytts.signalproc.window.Window;
 import marytts.util.signal.SignalProcUtils;
 
 /**
+ * Syntehsizer for the transient part waveform segments.
+ * 
  * @author oytun.turk
  *
  */

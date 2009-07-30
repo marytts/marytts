@@ -125,7 +125,7 @@ public class HntmSynthesizer {
         
         if (synthesisParams.harmonicPartSynthesisMethod==HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION)
             s.harmonicPart = HarmonicPartLinearPhaseInterpolatorSynthesizer.synthesize(prosodyModified.hntmSignal, analysisParams, synthesisParams, referenceFile);
-        else if (synthesisParams.harmonicPartSynthesisMethod==HntmSynthesizerParams.QUADRATIC_PHASE_INTERPOLATION)
+        else if (synthesisParams.harmonicPartSynthesisMethod==HntmSynthesizerParams.CUBIC_PHASE_INTERPOLATION)
         {
             //Convert to pure sinusoidal tracks
             SinusoidalTracks st = HarmonicsToTrackConverter.convert(prosodyModified.hntmSignal, analysisParams);
@@ -169,14 +169,6 @@ public class HntmSynthesizer {
         //
  
         s.generateOutput();
-        
-        //Should be removed, not being used now!
-        if (synthesisParams.applyVocalTractPostNormalizationProcessor)
-        {
-            float[][] mappedTgtLpcs = prosodyModified.hntmSignal.getLpcsAll();
-            s.output = SignalProcUtils.normalizeVocalTract(s.output, prosodyModified.hntmSignal.getAnalysisTimes(), mappedTgtLpcs, analysisParams.noiseAnalysisWindowType, analysisParams.noiseAnalysisWindowDurationInSeconds, mappedTgtLpcs[0].length, prosodyModified.hntmSignal.samplingRateInHz, analysisParams.preemphasisCoefNoise);
-        }
-        //
         
         return s;
     }

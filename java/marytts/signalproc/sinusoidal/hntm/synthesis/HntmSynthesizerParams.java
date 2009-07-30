@@ -34,41 +34,39 @@ package marytts.signalproc.sinusoidal.hntm.synthesis;
  *
  */
 public class HntmSynthesizerParams {
-    public int harmonicPartSynthesisMethod;
-    public static final int LINEAR_PHASE_INTERPOLATION = 1;
-    public static final int QUADRATIC_PHASE_INTERPOLATION = 2;
+    public int harmonicPartSynthesisMethod; //Synthesis algorithm for harmonic part
+    public static final int LINEAR_PHASE_INTERPOLATION = 1; //Linear interpolation of phases
+    public static final int CUBIC_PHASE_INTERPOLATION = 2; //Cubic interpolation of phases
     
-    public int noisePartLpcSynthesisMethod;
-    public static final int OVERLAP_ADD_WITH_WINDOWING = 1;
-    public static final int LP_FILTER_WITH_POST_HPF_AND_WINDOWING = 2;
+    public int noisePartLpcSynthesisMethod; //Synthesis algorithm for LPC based noise models
+    public static final int OVERLAP_ADD_WITH_WINDOWING = 1; //Windowed overlap add
+    public static final int LP_FILTER_WITH_POST_HPF_AND_WINDOWING = 2; //Linear prediction time domain generation filter followed by highpass filtering and windowing
     
     //Triangular noise envelope window for voiced segments
-    public boolean applyTriangularNoiseEnvelopeForVoicedParts;
-    public double energyTriangleLowerValue;
-    public double energyTriangleUpperValue;
+    public boolean applyTriangularNoiseEnvelopeForVoicedParts; //Apply triangular envelope?
+    public double energyTriangleLowerValue; //Minimum value of the triangular envelope
+    public double energyTriangleUpperValue; //Maximum value of the triangular envelope
     //
     
-    public float noiseSynthesisWindowDurationInSeconds;
-    public float noiseSynthesisTransitionOverlapInSeconds;
-    public float harmonicSynthesisTransitionOverlapInSeconds;
-    public float unvoicedVoicedTrackTransitionInSeconds;
+    public float noiseSynthesisWindowDurationInSeconds; //Noise part synthesis window duration in seconds
+    public float noiseSynthesisTransitionOverlapInSeconds; //Transition between noise and non-noise parts in time
+    public float harmonicSynthesisTransitionOverlapInSeconds; //Transition of harmonic and non-harmonic parts in time
+    public float unvoicedVoicedTrackTransitionInSeconds; //Voiced unvoiced transition length in seconds
     
-    public boolean hpfAfterNoiseSynthesis;
+    public boolean hpfAfterNoiseSynthesis; //Apply highpass filter after noise synthesis?
     
-    public boolean writeSeparateHarmonicTracksToOutputs;
-    public boolean normalizeHarmonicPartOutputWav;
-    public boolean normalizeNoisePartOutputWav;
-    public boolean normalizeOutputWav;
+    public boolean writeSeparateHarmonicTracksToOutputs; //If true, each harmonic track is written to a separate output file for debugging purposes
+    public boolean normalizeHarmonicPartOutputWav; //Normalize harmonic part output wave file peak amplitude?
+    public boolean normalizeNoisePartOutputWav; //Normalize noise part output wave file peak amplitude?
+    public boolean normalizeOutputWav; //Normalize output wave file peak amplitude?
     
-    public boolean writeHarmonicPartToSeparateFile;
-    public boolean writeNoisePartToSeparateFile;
-    public boolean writeTransientPartToSeparateFile;
-    public boolean writeOriginalMinusHarmonicPartToSeparateFile;
+    public boolean writeHarmonicPartToSeparateFile; //If true, writes the harmonic part to a separate wav file
+    public boolean writeNoisePartToSeparateFile; //If true, writes the noise part to a separate wav file 
+    public boolean writeTransientPartToSeparateFile; //If true, writes the transients part to a separate wav file
+    public boolean writeOriginalMinusHarmonicPartToSeparateFile; //If true, writes the difference signal obtained by subtracting the harmonic part from the original signal to a wav file
     
-    public boolean applyVocalTractPostNormalizationProcessor; 
-    
-    public boolean overlappingHarmonicPartSynthesis;
-    public float harmonicSynthesisOverlapInSeconds;
+    public boolean overlappingHarmonicPartSynthesis; //Use overlap in harmonic part synthesis across consecutive frames
+    public float harmonicSynthesisOverlapInSeconds; //Amount of overlap in harmonic part synthesis
     
     public HntmSynthesizerParams()
     {
@@ -101,8 +99,6 @@ public class HntmSynthesizerParams {
         writeTransientPartToSeparateFile = true;
         writeOriginalMinusHarmonicPartToSeparateFile = true;
         
-        applyVocalTractPostNormalizationProcessor = false; 
-        
         overlappingHarmonicPartSynthesis = false;
         harmonicSynthesisOverlapInSeconds = 0.020f;
     }
@@ -132,8 +128,6 @@ public class HntmSynthesizerParams {
         writeNoisePartToSeparateFile = existing.writeNoisePartToSeparateFile;
         writeTransientPartToSeparateFile = existing.writeTransientPartToSeparateFile;
         writeOriginalMinusHarmonicPartToSeparateFile = existing.writeOriginalMinusHarmonicPartToSeparateFile;
-        
-        applyVocalTractPostNormalizationProcessor = existing.applyVocalTractPostNormalizationProcessor; 
         
         overlappingHarmonicPartSynthesis = existing.overlappingHarmonicPartSynthesis;
         harmonicSynthesisOverlapInSeconds = existing.harmonicSynthesisOverlapInSeconds;

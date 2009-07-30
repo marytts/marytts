@@ -573,7 +573,7 @@ public class HntmAnalyzer {
         
         if (analysisParams.harmonicSynthesisMethodBeforeNoiseAnalysis==HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION)
             s.harmonicPart = HarmonicPartLinearPhaseInterpolatorSynthesizer.synthesize(hnmSignal, analysisParams, synthesisParamsForNoiseAnalysis);
-        else if (analysisParams.harmonicSynthesisMethodBeforeNoiseAnalysis==HntmSynthesizerParams.QUADRATIC_PHASE_INTERPOLATION)
+        else if (analysisParams.harmonicSynthesisMethodBeforeNoiseAnalysis==HntmSynthesizerParams.CUBIC_PHASE_INTERPOLATION)
         {
             //Convert to pure sinusoidal tracks
             SinusoidalTracks st = HarmonicsToTrackConverter.convert(hnmSignal, analysisParams);

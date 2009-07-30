@@ -24,6 +24,8 @@ import marytts.signalproc.sinusoidal.NonharmonicSinusoidalSpeechSignal;
 import marytts.util.math.MathUtils;
 
 /**
+ * Sinusoidal model based pitch tracker
+ * 
  * @author Oytun T&uumlrk
  *
  */

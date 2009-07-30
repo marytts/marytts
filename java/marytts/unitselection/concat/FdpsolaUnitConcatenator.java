@@ -32,7 +32,10 @@ import marytts.unitselection.select.SelectedUnit;
 
 
 /**
+ * A unit concatenator that supports FD-PSOLA based prosody modifications during speech synthesis
+ * 
  * @author Oytun T&uumlrk
+ *
  */
 public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     private boolean [][] voicings;

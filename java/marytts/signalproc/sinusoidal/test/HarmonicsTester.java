@@ -23,6 +23,12 @@ import java.io.IOException;
 
 import marytts.signalproc.sinusoidal.Sinusoid;
 
+/**
+ * Generates test signals that consist of artificially generated harmonics
+ * 
+ * @author oytun.turk
+ *
+ */
 public class HarmonicsTester extends SinusoidsTester {
 
     public HarmonicsTester(float freqInHz, int numHarmonics) 

@@ -28,7 +28,7 @@ import java.io.RandomAccessFile;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
 
 /**
- * 
+ * A datagram that encapsulates a harmonics plus noise modelled speech frame
  * 
  * @author Oytun T&uumlrk
  *
