@@ -35,7 +35,7 @@ import marytts.signalproc.window.Window;
  * @author Oytun T&uumlrk
  */
 public class TemporalSmoother {
-    public static final int DEFAULT_NUM_NEIGHBOURS = 4;
+    public static final int DEFAULT_NUM_NEIGHBOURS = 4; //Default neighbours to use on the left and on the right (separately)
     public static final int DEFAULT_SMOOTHING_WINDOW = Window.HAMMING;
     
     public static double[] smooth(double[]x, int neighbours)

@@ -34,25 +34,25 @@ import marytts.signalproc.window.Window;
 import marytts.util.signal.SignalProcUtils;
 
 /**
+ * Parameters of sinusoidal model based analysis
+ * 
  * @author oytun.turk
  *
  */
 public class SinusoidalAnalysisParams {
 
     //Static values
-    public static final float DEFAULT_DELTA_IN_HZ = 50.0f;
-    public static final float DEFAULT_ANALYSIS_WINDOW_SIZE = 0.020f;
-    public static final float DEFAULT_ANALYSIS_SKIP_SIZE = 0.010f;
+    public static final float DEFAULT_DELTA_IN_HZ = 50.0f; //
+    public static final float DEFAULT_ANALYSIS_WINDOW_SIZE = 0.020f; //Default fixed rate analysisi window size
+    public static final float DEFAULT_ANALYSIS_SKIP_SIZE = 0.010f; //
     public static final double MIN_ENERGY_TH = 1e-50; //Minimum energy threshold to analyze a frame
-    public static final double MIN_PEAK_IN_DB_LOW = -200.0f;
-    public static final double MIN_PEAK_IN_DB_HIGH = -200.0f;
+    public static final double MIN_PEAK_IN_DB_LOW = -200.0f; //Minimum allowed peak value in decibels for lower frequencies
+    public static final double MIN_PEAK_IN_DB_HIGH = -200.0f; //Minimum allowed peak value in decibels for higher frequencies
     public static final double MIN_VOICED_FREQ_IN_HZ = 4000.0f; //Minimum voiced freq allowed (for voiced regions only)
     public static final double MAX_VOICED_FREQ_IN_HZ = 5000.0f; //Maximum voiced freq allowed (for voiced regions only)
     
-    public static final boolean DEFAULT_REFINE_PEAK_ESTIMATES_PARABOLA = true;
-    public static final boolean DEFAULT_REFINE_PEAK_ESTIMATES_BIAS = true;
-    public static final boolean DEFAULT_SPECTRAL_REASSIGNMENT = true;
-    public static final boolean DEFAULT_ADJUST_NEIGH_FREQ_DEPENDENT = false;
+    public static final boolean DEFAULT_REFINE_PEAK_ESTIMATES_PARABOLA = true; //Parabola fitting based refinement of peak amplitude values to cope with windowing effects
+    public static final boolean DEFAULT_REFINE_PEAK_ESTIMATES_BIAS = true; //Bias removal based refinement of peak amplitude values to cope with windowing effects
     
     public static final int DEFAULT_FREQ_SAMP_NEIGHS_LOW = 2; //Default search range for low frequencies for spectral peak detection
     public static final int DEFAULT_FREQ_SAMP_NEIGHS_HIGH = 2; //Default search range for high frequencies for spectral peak detection
@@ -60,7 +60,7 @@ public class SinusoidalAnalysisParams {
     public static final float MIN_WINDOW_SIZE = 0.020f; 
     
     public static final int NO_SPEC = -1; //No spectral envelope information is extracted
-    public static final int LP_SPEC = 0; //Linear Prediction (LP) based envelope (Makhoul)
+    public static final int LP_SPEC = 0; //Linear Prediction (LP) based envelope (Makhoul, 1971)
     public static final int SEEVOC_SPEC = 1; //Spectral Envelope Estimation Vocoder (SEEVOC) based envelope (Paul, 1981)
     public static final int REGULARIZED_CEPS = 2; //Regularized cepstrum based envelope (Cappe, et. al. 1995, Stylianou, et. al. 1995)
     //

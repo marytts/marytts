@@ -31,6 +31,8 @@ package marytts.signalproc.sinusoidal.hntm.analysis;
 
 
 /**
+ * A HNM signal with its left and right context
+ * 
  * @author oytun.turk
  *
  */

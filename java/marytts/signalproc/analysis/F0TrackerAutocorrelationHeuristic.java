@@ -47,26 +47,28 @@ import marytts.util.string.StringUtils;
 public class F0TrackerAutocorrelationHeuristic { 
     public double[] f0s;
     
-    protected PitchFileHeader params;
-    protected int totalVoicedFrames;
-    protected double[] voicingProbabilities;
-    protected int minT0Index;
-    protected int maxT0Index;
+    protected PitchFileHeader params; //Pitch detection parameters
+    protected int totalVoicedFrames; //Total number of voiced frames
+    protected double[] voicingProbabilities; //Probability of voicing for each frame
+    protected int minT0Index; //Minimum period length in samples (i.e. corresponding to maximum f0)
+    protected int maxT0Index; //Maximum period length in samples (i.e. corresponding to minimum f0)
  
-    protected double[] prevF0s;
-    protected double[] voicedF0s;
-    protected double longTermAverageF0;
-    protected double shortTermAverageF0;
+    protected double[] prevF0s; 
+    protected double[] voicedF0s; //Voiced frame´s f0 values
+    protected double longTermAverageF0; //Long term average f0 in voiced frames
+    protected double shortTermAverageF0; //Short term average f0 in voiced frames
     
-    public static double MAX_SAMPLE = 32767.0;
-    public static double MINIMUM_SPEECH_ENERGY = 50.0;
-    protected double averageSampleEnergy;
+    public static double MAX_SAMPLE = 32767.0; //Max 16-bit absolute sample value
+    public static double MINIMUM_SPEECH_ENERGY = 50.0; //Minimum average sample energy for detecting unvoiced parts
+    protected double averageSampleEnergy; //Keeps average sample energy for the current analysis frame
     
-    private double[] pitchFrm;
+    //The following are used in internal computations only and are not accessible for the user
+    private double[] pitchFrm; //A buffer for analysis speech frames
     
-    private int frameIndex;
-    private int ws;
-    private int ss;
+    private int frameIndex; //Current frame index
+    private int ws; //Window size in samples
+    private int ss; //Skip size in samples
+    //
     
     public F0TrackerAutocorrelationHeuristic(String wavFile) throws Exception
     {

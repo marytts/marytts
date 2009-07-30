@@ -20,6 +20,8 @@
 package marytts.signalproc.sinusoidal;
 
 /**
+ * A baseline class for all sinusoidal speech signal representations
+ * 
  * @author oytun.turk
  *
  */
