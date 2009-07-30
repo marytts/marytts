@@ -43,73 +43,75 @@ import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizerParams;
 import marytts.signalproc.window.Window;
 
 /**
- * @author oytun.turk
+ * Analysis parameters for harmonics plus noise model (HNM)
+ * 
+ * @author Oytun T&uumlrk
  *
  */
 public class HntmAnalyzerParams {
 
-    public HnmPitchVoicingAnalyzerParams hnmPitchVoicingAnalyzerParams;
+    public HnmPitchVoicingAnalyzerParams hnmPitchVoicingAnalyzerParams; //Parameters of pitch and voicing analyzer
     
-    public boolean useJampackInAnalysis;
+    public boolean useJampackInAnalysis; //Use Jampack library for matrix operations (suggested for increased speed)
     
     public boolean isSilentAnalysis; //If false, displays a single line of message per frame during analysis
     public boolean readAnalysisResultsFromFile; //If true, analysis results are read from an existing binary file
     
-    public int harmonicModel;
+    public int harmonicModel; //Harmonic model type
     public static final int HARMONICS_PLUS_NOISE = 1;
     public static final int HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE = 2;
     
-    public int noiseModel;
+    public int noiseModel; //Noise model type
     public static final int WAVEFORM = 1; //Noise part model based on frame waveform (i.e. no model, overlap-add noise part generation)
     public static final int LPC = 2; //Noise part model based on LPC
     public static final int PSEUDO_HARMONIC = 3; //Noise part model based on pseude harmonics for f0=NOISE_F0_IN_HZ
     public static final int VOICEDNOISE_LPC_UNVOICEDNOISE_WAVEFORM = 4; //noise part model based on LPC for voiced parts and waveform for unvoiced parts
     public static final int UNVOICEDNOISE_LPC_VOICEDNOISE_WAVEFORM = 5; //noise part model based on LPC for unvoiced parts and waveform for voiced parts
     
-    public int regularizedCepstrumWarpingMethod;
-    public int harmonicSynthesisMethodBeforeNoiseAnalysis;
+    public int regularizedCepstrumWarpingMethod; //Warping method for regularized cepstral envelope to be fitted to harmonic amplitudes
+    public int harmonicSynthesisMethodBeforeNoiseAnalysis; //Synthesize harmonic part before noise analysis for subtraction?
     
-    public boolean useHarmonicAmplitudesDirectly; 
-    public float regularizedCepstrumLambdaHarmonic;   
-    public boolean useWeightingInRegularizedCepstrumEstimationHarmonic;
-    public int harmonicPartCepstrumOrderPreMel; 
-    public int harmonicPartCepstrumOrder;
+    public boolean useHarmonicAmplitudesDirectly; //If true, regularized cepstral envelope is not used
+    public float regularizedCepstrumLambdaHarmonic; //Regularization parameter 
+    public boolean useWeightingInRegularizedCepstrumEstimationHarmonic; //If true, lower freuqnecies are assigned relatively more weight in regularized cepstrum estimation
+    public int harmonicPartCepstrumOrderPreMel; //Cepstrum order prior to mel scaling
+    public int harmonicPartCepstrumOrder; //Cepstrum order in regularized cepstrum estimation
     
-    public boolean computeNoisePartLpOrderFromSamplingRate;
-    public int noisePartLpOrder;
-    public float preemphasisCoefNoise;
-    public boolean hpfBeforeNoiseAnalysis;
-    public boolean decimateNoiseWaveform;
-    public boolean overlapNoiseWaveformModel;
+    public boolean computeNoisePartLpOrderFromSamplingRate; //If true, noise part LP order is auto-detected from sampling rate
+    public int noisePartLpOrder; //Linear prediction order of noise part if it is not auto-detected from sampling rate
+    public float preemphasisCoefNoise; //Pre-emphasis coefficient for the noise part
+    public boolean hpfBeforeNoiseAnalysis; //Apply highpass filter before analyzing a noise frame?
+    public boolean decimateNoiseWaveform; //Decimate voiced segment noise parts?
+    public boolean overlapNoiseWaveformModel; //Perform overlap add processing for waveform based noise model
     
-    public boolean useNoiseAmplitudesDirectly;
-    public float regularizedCepstrumEstimationLambdaNoise;  
-    public boolean useWeightingInRegularizedCesptrumEstimationNoise;
-    public int noisePartCepstrumOderPre;
-    public int noisePartCepstrumOrder;
-    public boolean usePosteriorMelWarpingNoise;
+    //These parameters are effective only when the noise model is pseudo-harmonic
+    public boolean useNoiseAmplitudesDirectly; //If true, regularized cepstral envelope is not used 
+    public float regularizedCepstrumEstimationLambdaNoise; //Regularization parameter 
+    public boolean useWeightingInRegularizedCesptrumEstimationNoise; //If true, lower freuqnecies are assigned relatively more weight in regularized cepstrum estimation
+    public int noisePartCepstrumOderPre; //Cepstrum order prior to mel scaling
+    public int noisePartCepstrumOrder; //Cepstrum order in regularized cepstrum estimation
+    public boolean usePosteriorMelWarpingNoise; //Perform posteriro mel-scale warping?
     
-    public float noiseF0InHz; 
-    public float hpfTransitionBandwidthInHz;
-    public float noiseAnalysisWindowDurationInSeconds;
-    public float overlapBetweenHarmonicAndNoiseRegionsInHz;
-    public float overlapBetweenTransientAndNontransientSectionsInSeconds;
+    public float noiseF0InHz; //Fixed f0 for noise part (to determine analysis window size)
+    public float hpfTransitionBandwidthInHz; //Transition bandwidth of the highpass filter that separates noise part from harmonic part
+    public float noiseAnalysisWindowDurationInSeconds; //Fixed duration of noise analysis windows
+    public float overlapBetweenHarmonicAndNoiseRegionsInHz; //Overlap amount in frequency between harmonic and noise regions
+    public float overlapBetweenTransientAndNontransientSectionsInSeconds; //Overlap amount in time between transient and non-transient segments
 
-    public int harmonicAnalysisWindowType;
-    public int noiseAnalysisWindowType;
+    public int harmonicAnalysisWindowType; //Window type for harmonic analysis
+    public int noiseAnalysisWindowType; //Window type for noise analysis
 
-    public int numHarmonicsForVoicing;
-    public float harmonicsNeigh;
-
-    public float numPeriodsHarmonicsExtraction;
-    public float fftPeakPickerPeriods;
+    public int numHarmonicsForVoicing; //Number of lowest harmonics to use for voicing detection
+    public float harmonicsNeigh; //A parameter between 0.0 and 1.0: How much the search range for voicing detection will be extended beyond the first and the last harmonic
+                                 //0.3 means the region [0.7xf0, 4.3xf0] will be considered in voicing decision
 
 
-    //These are not effective, nothing changes if you make any of them true
-    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_ANALYSIS = false;
-    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_TIME_SCALING = false;
-    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_PITCH_SCALING = false;
-    //
+    public float numPeriodsHarmonicsExtraction; //Total periods for hamronic part extraction
+    public float fftPeakPickerPeriods; //Total periods for frequency domain peak picking
+
+    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_ANALYSIS = false; //Apply phase unwrapping along harmonic tracks after analysis?
+    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_TIME_SCALING = false;  //Apply phase unwrapping along harmonic tracks after time scaling?
+    public static boolean UNWRAP_PHASES_ALONG_HARMONICS_AFTER_PITCH_SCALING = false; //Apply phase unwrapping along harmonic tracks after pitch scaling?
     
     public HntmAnalyzerParams()
     {

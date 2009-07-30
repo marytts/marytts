@@ -40,7 +40,7 @@ import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**
- * Prosody modification using pure sinusoidal models.
+ * Prosody modification using sinusoidal model.
  * 
  * Reference:
  * Quatieri, T. F. and R. J. McAula y, 1992, “Shape Invariant Timescale and Pitch Modification of

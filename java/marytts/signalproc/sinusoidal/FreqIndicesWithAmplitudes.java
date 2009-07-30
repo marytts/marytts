@@ -30,6 +30,8 @@
 package marytts.signalproc.sinusoidal;
 
 /**
+ * A collection of frequency indices and corresponding amplitudes.
+ * 
  * @author oytun.turk
  *
  */

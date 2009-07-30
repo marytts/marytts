@@ -20,10 +20,10 @@
 package marytts.signalproc.sinusoidal;
 
 /**
+ * A baseline class for all sinusoidal synthesizers
+ * 
  * @author Oytun Tu&umlrk
  * 
- * Base class for sinusoidal synthesizers
- *
  */
 public class BaseSinusoidalSynthesizer {
     

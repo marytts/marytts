@@ -64,7 +64,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
     protected VoiceModificationParametersPreprocessor modParams;
     protected int numfrm;
     protected int numfrmFixed;
-    protected int lpOrder; //LP analysis order
+    protected int lpOrder; //Linear prediction analysis order
     protected String outputFile;
     protected String tempOutBinaryFile;
     protected int origLen;

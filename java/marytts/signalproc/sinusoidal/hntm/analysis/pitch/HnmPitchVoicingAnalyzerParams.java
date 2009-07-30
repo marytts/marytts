@@ -36,34 +36,37 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
+ * A class for maximum frequency of voicing, f0, and voicing analysis
+ * for HNMs
+ * 
  * @author oytun.turk
  *
  */
 public class HnmPitchVoicingAnalyzerParams 
 {
-    public float mvfAnalysisWindowSizeInSeconds;
-    public float mvfAnalysisSkipSizeInSeconds;
-    public float f0AnalysisWindowSizeInSeconds;
-    public float f0AnalysisSkipSizeInSeconds;
-    public int fftSize;
-    public int numFilteringStages;
-    public int medianFilterLength;
-    public int movingAverageFilterLength;
-    public float numPeriodsInitialPitchEstimation;
-    public float cumulativeAmpThreshold;
-    public float maximumAmpThresholdInDB;
-    public float harmonicDeviationPercent;
-    public float sharpPeakAmpDiffInDB;
-    public int minimumTotalHarmonics;
-    public int maximumTotalHarmonics;
-    public float minimumVoicedFrequencyOfVoicing;
-    public float maximumVoicedFrequencyOfVoicing;
-    public float maximumFrequencyOfVoicingFinalShift;
-    public float runningMeanVoicingThreshold;
-    public int lastCorrelatedHarmonicNeighbour;
-    public float vuvSearchMinHarmonicMultiplier;
-    public float vuvSearchMaxHarmonicMultiplier;
-    public float neighsPercent;
+    public float mvfAnalysisWindowSizeInSeconds; //Max. freq. of voicing analysis window size in seconds
+    public float mvfAnalysisSkipSizeInSeconds; //Max. freq. of voicing analysis skip size in seconds
+    public float f0AnalysisWindowSizeInSeconds; //F0 detection window size in seconds
+    public float f0AnalysisSkipSizeInSeconds; //F0 detection skip size in seconds
+    public int fftSize; //DFT length for frequency domain analyses
+    public int numFilteringStages; //Total consecutive median-moving average filtering steps to smooth out the max. freq. of voicing curve
+    public int medianFilterLength; //Length of median filter for smoothing the max. freq. of voicing contour
+    public int movingAverageFilterLength; //Length of first moving averaging filter for smoothing the max. freq. of voicing contour
+    public float numPeriodsInitialPitchEstimation; //Total number of periods to use for initial pitch estimation
+    public float cumulativeAmpThreshold; //Decreased ==> Voicing increases (Orig: 2.0f)
+    public float maximumAmpThresholdInDB; //Decreased ==> Voicing increases (Orig: 13.0f)
+    public float harmonicDeviationPercent; //Increased ==> Voicing increases (Orig: 20.0f)
+    public float sharpPeakAmpDiffInDB; //Decreased ==> Voicing increases (Orig: 12.0f)
+    public int minimumTotalHarmonics; //Minimum number of total harmonics to be included in voiced region (effective only when f0>10.0)
+    public int maximumTotalHarmonics; //Maximum number of total harmonics to be included in voiced region (effective only when f0>10.0)
+    public float minimumVoicedFrequencyOfVoicing; //All voiced sections will have at least this freq. of voicing
+    public float maximumVoicedFrequencyOfVoicing; //All voiced sections will have at most this freq. of voicing
+    public float maximumFrequencyOfVoicingFinalShift; //The max freq. of voicing contour is shifted by this amount finally
+    public float runningMeanVoicingThreshold; //Between 0.0 and 1.0, decrease ==> Max. voicing freq increases
+    public int lastCorrelatedHarmonicNeighbour; //Assume correlation between at most among this many harmonics (-1 ==> full correlation approach) 
+    public float vuvSearchMinHarmonicMultiplier; //Multiplied with f0, gives the minimum frequency above which voicing detection will be carried outv
+    public float vuvSearchMaxHarmonicMultiplier; //Multiplied with f0, gives the maximum frequency below which voicing detection will be carried out
+    public float neighsPercent; //Should be between 0.0f and 100.0f. 50.0f means the peak in the band should be greater than 50% of the half of the band samples
 
     public HnmPitchVoicingAnalyzerParams()
     {
@@ -73,7 +76,7 @@ public class HnmPitchVoicingAnalyzerParams
         f0AnalysisSkipSizeInSeconds = 0.005f;
         fftSize = 4096;
         
-        numFilteringStages = 2; //2;
+        numFilteringStages = 2; //2; //Total consecutive median-moving average filtering steps to smooth out the max. freq. of voicing curve
         medianFilterLength = 12; //12; //Length of median filter for smoothing the max. freq. of voicing contour
         movingAverageFilterLength = 12; //12; //Length of first moving averaging filter for smoothing the max. freq. of voicing contour
 
@@ -86,15 +89,15 @@ public class HnmPitchVoicingAnalyzerParams
         minimumTotalHarmonics = 0; //Minimum number of total harmonics to be included in voiced region (effective only when f0>10.0)
         maximumTotalHarmonics = 100; //Maximum number of total harmonics to be included in voiced region (effective only when f0>10.0)
         minimumVoicedFrequencyOfVoicing = 5000.0f; //All voiced sections will have at least this freq. of voicing
-        maximumVoicedFrequencyOfVoicing = 5000.0f; //All voiced sections will have at least this freq. of voicing
+        maximumVoicedFrequencyOfVoicing = 5000.0f; //All voiced sections will have at most this freq. of voicing
         maximumFrequencyOfVoicingFinalShift = 0.0f; //The max freq. of voicing contour is shifted by this amount finally
         runningMeanVoicingThreshold = 0.5f; //Between 0.0 and 1.0, decrease ==> Max. voicing freq increases
 
         lastCorrelatedHarmonicNeighbour = -1; //Assume correlation between at most among this many harmonics (-1 ==> full correlation approach) 
         
         //For voicing detection
-        vuvSearchMinHarmonicMultiplier = 0.7f;
-        vuvSearchMaxHarmonicMultiplier = 4.3f;
+        vuvSearchMinHarmonicMultiplier = 0.7f; //Multiplied with f0, gives the minimum frequency above which voicing detection will be carried out
+        vuvSearchMaxHarmonicMultiplier = 4.3f; //Multiplied with f0, gives the maximum frequency below which voicing detection will be carried out
         //
 
         neighsPercent = 50.0f; //Should be between 0.0f and 100.0f. 50.0f means the peak in the band should be greater than 50% of the half of the band samples
