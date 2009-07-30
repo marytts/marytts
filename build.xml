@@ -193,6 +193,20 @@ THIS SOFTWARE.
     </jar>
   </target>
 
+  <target name="mary-de.jar" depends="compile,version">
+    <jar destfile="${dest}/mary-de.jar"
+         basedir="${src}"
+         includes="marytts/language/de/**/*.class
+                   marytts/language/de/datatypes/*.example">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Specification-Version" value="${specification.version}"/>
+        <attribute name="Implementation-Version" value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target>
+
+
   <target name="mary-tibetan.jar" depends="compile,version">
     <jar destfile="${dest}/mary-tibetan.jar"
          basedir="${src}"
@@ -207,6 +221,13 @@ THIS SOFTWARE.
       </manifest>
     </jar>
   </target>
+
+  <target name="languagejars" depends="mary-english.jar,mary-de.jar"/>
+
+
+
+
+
 
   <target name="maryclient.jar" depends="compile,version">
     <jar destfile="${dest}/maryclient.jar"
@@ -281,6 +302,8 @@ THIS SOFTWARE.
                    marytts/util/data/audio/**/*.class
                    marytts/util/*.class">
       <manifest>
+        <attribute name="Main-Class" value="marytts.signalproc.display.MultiDisplay"/>
+        <attribute name="Class-Path" value="jsresources.jar mary-common.jar"/>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Specification-Version"
                    value="${specification.version}"/>
@@ -321,7 +344,7 @@ THIS SOFTWARE.
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Main-Class"
          value="marytts.tools.voiceimport.DatabaseImportMain"/>
-        <attribute name="Class-Path" value="maryclient.jar mary-common.jar signalproc.jar log4j-1.2.15.jar swing-layout-1.0.jar"/>
+        <attribute name="Class-Path" value="maryclient.jar mary-common.jar signalproc.jar log4j-1.2.15.jar swing-layout-1.0.jar Jama-1.0.2.jar"/>
         </manifest>
         </jar>
   </target>
@@ -368,7 +391,7 @@ THIS SOFTWARE.
 		</jar>
 	</target>
 
-  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,mary-english.jar,mary-tibetan.jar,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar,voiceimport.jar,installvoices.jar,transcription-tool.jar,dbselection-tool.jar"/>
+  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,languagejars,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar,voiceimport.jar,installvoices.jar,transcription-tool.jar,dbselection-tool.jar"/>
 
 	
 	
