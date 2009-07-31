@@ -144,13 +144,21 @@ public class WaveTimelineMaker extends VoiceImportComponent
                     /* Locate the corresponding segment in the wave file */
                     frameStart = frameEnd;
                     frameEnd = (int)( (double)pmFile.getTime( f ) * (double)(globSampleRate) );
-                    assert frameEnd <= wave.length : "Frame ends after end of wave data: " + frameEnd + " > " + wave.length;
+                    //assert frameEnd <= wave.length : "Frame ends after end of wave data: " + frameEnd + " > " + wave.length;
+                    
                     duration = frameEnd - frameStart;
                     ByteArrayOutputStream buff =  new ByteArrayOutputStream(2*duration);
                     DataOutputStream subWave = new DataOutputStream( buff );
-                    for (int k = 0; k < duration; k++) {
-                        subWave.writeShort( wave[frameStart+k] );
+                    for (int k = 0; k < duration; k++) 
+                    {
+                        if (frameStart+k<wave.length)
+                            subWave.writeShort( wave[frameStart+k] );
+                        else //Handle the case when the last pitch mark extends beyond the end of the signal
+                            subWave.writeShort( 0 );
                     }
+                    
+                    //Handle the case when the last pitch marks falls beyond the end of the signal
+                    
                     
                     /* Feed the datagram to the timeline */
                     waveTimeline.feed( new Datagram(duration, buff.toByteArray()), globSampleRate );
@@ -198,6 +206,13 @@ public class WaveTimelineMaker extends VoiceImportComponent
     public int getProgress()
     {
         return percent;
+    }
+    
+    public static void main(String[] args) throws Exception
+    {        
+        VoiceImportComponent vic  =  new HnmTimelineMaker();
+        DatabaseLayout db = new DatabaseLayout(vic);
+        vic.compute();
     }
 
 }
