@@ -298,7 +298,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
                     */
                     
                     PitchMarks pm = new PitchMarks(pmFile, globSampleRate);
-                    //pm.findAndSetUnvoicedF0s(f0.contour, f0.header, globSampleRate);
+                    pm.findAndSetUnvoicedF0s(f0.contour, f0.header, globSampleRate);
                    
                     if (n==0)
                     {
