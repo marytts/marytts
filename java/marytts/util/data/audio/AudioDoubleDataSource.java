@@ -54,6 +54,9 @@ public class AudioDoubleDataSource extends BaseDoubleDataSource {
      */
     public AudioDoubleDataSource(AudioInputStream ais, boolean isAutomaticClippingControl) {
         this.ais = ais;
+        if (ais.getFormat().getChannels() > 1) {
+            throw new IllegalArgumentException("Can only deal with mono signals");
+        }
         int bitsPerSample = ais.getFormat().getSampleSizeInBits();
         if (bitsPerSample != 8 && bitsPerSample != 16 && bitsPerSample != 24) {
             throw new IllegalArgumentException("Can deal with sample size 8, 16 or 24, but not " + bitsPerSample);

@@ -516,7 +516,7 @@ public class AdminWindow extends javax.swing.JFrame {
                 currentPrompt.getPromptText());
             
             // Open the microphone
-            currentRecording.timedRecord(optionsDialog.getTargetDataLine(), micOpenTime);
+            currentRecording.timedRecord(optionsDialog.getTargetDataLine(), optionsDialog.getInlineFilter(), micOpenTime);
                         
             // Update recording status for current prompt            
             currentRecording.updateFileCount();

@@ -519,7 +519,7 @@ public  class Viterbi
      * Find the best path. This requires apply() to have been run.
      * For this best path, we set the pointers to the *next* path elements correctly.
      *
-     * @return the best path.
+     * @return the best path, or null if no best path could be found.
      */
     private ViterbiPath findBestPath()
     {
@@ -529,6 +529,8 @@ public  class Viterbi
         // sufficient to find the best path from among the
         // paths for lastPoint.
         SortedSet paths = lastPoint.getPaths();
+        if (paths.isEmpty()) // no path, we failed
+            return null;
         ViterbiPath best = (ViterbiPath) paths.first();
         // Set *next* pointers correctly:
         ViterbiPath path = best;
