@@ -130,7 +130,7 @@ public class HntmAnalyzer {
                                     String analysisResultsFile)
     {
         int pitchMarkOffset = 0;
-        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, true, pitchMarkOffset);
+        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, false, pitchMarkOffset);
 
         return analyze(x, fs, pm, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, ArrayUtils.copyDouble2Float(f0.contour), labels,
                        analysisParams, synthesisParamsBeforeNoiseAnalysis,
@@ -151,7 +151,7 @@ public class HntmAnalyzer {
             String analysisResultsFile)
     {
         int pitchMarkOffset = 0;
-        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, true, pitchMarkOffset);
+        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, false, pitchMarkOffset);
 
         return analyze(x, fs, pm, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, ArrayUtils.copyDouble2Float(f0.contour), labels, analysisParams,  synthesisParamsBeforeNoiseAnalysis, analysisResultsFile);
     }
@@ -180,7 +180,7 @@ public class HntmAnalyzer {
     public HarmonicAndTransientAnalysisOutput analyzeHarmonicAndTransientParts(double[] x, int fs, PitchReaderWriter f0, Labels labels, HntmAnalyzerParams analysisParams)
     {
         int pitchMarkOffset = 0;
-        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, true, pitchMarkOffset);
+        PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, false, pitchMarkOffset);
 
         return analyzeHarmonicAndTransientParts(x, fs, pm, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, ArrayUtils.copyDouble2Float(f0.contour), labels, analysisParams);
     }
