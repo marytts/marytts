@@ -136,7 +136,7 @@ public class AutocorrelationPitchmarker extends VoiceImportComponent
 
         if (f0!=null)
         {
-            PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, true, 0);
+            PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, fs, x.length, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, false, 0);
 
             // Now convert to EST pm format
             float[] pitchmarks = new float[pm.pitchMarks.length];

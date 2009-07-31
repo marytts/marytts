@@ -310,10 +310,10 @@ public class HnmTimelineMaker extends VoiceImportComponent
                     }
                     
                     //Use pitch marks from pm folder
-                    //hnmSignal = ha.analyze(wave, wav.getSampleRate(), pm, f0WindowSizeInSeconds, f0SkipSizeInSeconds, pm.f0s, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
+                    hnmSignal = ha.analyze(wave, wav.getSampleRate(), pm, f0WindowSizeInSeconds, f0SkipSizeInSeconds, pm.f0s, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
                     
                     //Use autocorrelation pitch detector based pitch marks
-                    hnmSignal = ha.analyze(wave, wav.getSampleRate(), f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
+                    //hnmSignal = ha.analyze(wave, wav.getSampleRate(), f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
                     
                     float tAnalysisInSeconds = 0.0f;
                     for (i=0; i<hnmSignal.frames.length; i++ ) 
