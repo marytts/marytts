@@ -28,6 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Properties;
 
 import javax.sound.sampled.AudioFormat;
@@ -42,7 +43,9 @@ import javax.sound.sampled.TargetDataLine;
 import javax.swing.JOptionPane;
 
 import marytts.signalproc.display.MultiDisplay;
+import marytts.util.data.audio.AudioConverterUtils;
 import marytts.util.data.audio.AudioPlayer;
+import marytts.util.data.audio.AudioProcessor;
 import marytts.util.data.audio.MonoAudioInputStream;
 
 
@@ -190,6 +193,28 @@ public class Options extends javax.swing.JFrame {
                 ((String)cbMonoStereo.getSelectedItem()).equals("mono") ? 1 : 2,
                 true, // signed
                 false); // little-endian
+    }
+    
+    public AudioProcessor getInlineFilter()
+    {
+        AudioProcessor highPassFilter = new AudioConverterUtils.HighPassFilter(20, 20);
+        String monoStereo = (String)cbMonoStereo.getSelectedItem();
+        if (monoStereo.equals("mono")) {
+            return highPassFilter;
+        } else {
+            int mode = AudioPlayer.STEREO;
+            if (monoStereo.equals("left only")) {
+                mode = AudioPlayer.LEFT_ONLY;
+            } else if (monoStereo.equals("right only")) {
+                mode = AudioPlayer.RIGHT_ONLY;
+            }
+            AudioProcessor[] sequence = new AudioProcessor[] {
+                    new AudioConverterUtils.Stereo2Mono(mode),
+                    highPassFilter
+            };
+            return new AudioConverterUtils.SequenceAudioProcessor(Arrays.asList(sequence));
+        }
+        
     }
     
     /**
@@ -1090,7 +1115,7 @@ public class Options extends javax.swing.JFrame {
             
             // Get the recording
             int micOpenTime = 3000;
-            testRecording.timedRecord(getTargetDataLine(), micOpenTime);
+            testRecording.timedRecord(getTargetDataLine(), getInlineFilter(), micOpenTime);
             
             playClosedBeep(); // Mic closed
 

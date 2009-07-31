@@ -34,6 +34,7 @@ import marytts.signalproc.analysis.FrameBasedAnalyser.FrameAnalysisResult;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.audio.AudioConverterUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
+import marytts.util.data.audio.AudioProcessor;
 import marytts.util.data.audio.AudioRecorder;
 import marytts.util.math.MathUtils;
 
@@ -65,10 +66,12 @@ public class Recording extends Speech {
     // Class methods
         
     /** Record for a given number of milliseconds and save as a wav file */
-    public void timedRecord(TargetDataLine line, int millis) {
+    public void timedRecord(TargetDataLine line, AudioProcessor inlineFilter, int millis) {
         AudioFileFormat.Type targetType = AudioFileFormat.Type.WAVE;
         recorder = new AudioRecorder.BufferingRecorder(line, targetType, getFile(), millis);
-        recorder.setAudioProcessor(new AudioConverterUtils.HighPassFilter(20, 20));
+        if (inlineFilter != null) {
+            recorder.setAudioProcessor(inlineFilter);
+        }
 
     	recorder.start();
     	try {

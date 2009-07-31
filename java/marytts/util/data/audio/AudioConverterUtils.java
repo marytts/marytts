@@ -22,6 +22,7 @@ package marytts.util.data.audio;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -45,6 +46,23 @@ import marytts.util.signal.SignalProcUtils;
 
 public class AudioConverterUtils
 {
+    public static class SequenceAudioProcessor implements AudioProcessor
+    {
+        private List<AudioProcessor> procs;
+        public SequenceAudioProcessor(List<AudioProcessor> procs)
+        {
+            this.procs = procs;
+        }
+        
+        public AudioInputStream apply(AudioInputStream ais)
+        {
+            AudioInputStream soFar = ais;
+            for (AudioProcessor p : procs) {
+                soFar = p.apply(soFar);
+            }
+            return soFar;
+        }
+    }
     
     public static class Stereo2Mono implements AudioProcessor
     {
