@@ -210,7 +210,7 @@ public class WaveTimelineMaker extends VoiceImportComponent
     
     public static void main(String[] args) throws Exception
     {        
-        VoiceImportComponent vic  =  new HnmTimelineMaker();
+        VoiceImportComponent vic  =  new WaveTimelineMaker();
         DatabaseLayout db = new DatabaseLayout(vic);
         vic.compute();
     }
