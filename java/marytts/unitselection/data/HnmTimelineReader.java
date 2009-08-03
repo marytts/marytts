@@ -219,8 +219,8 @@ public class HnmTimelineReader extends TimelineReader
         LinkedList<HnmDatagram> datagrams = new LinkedList<HnmDatagram>();
         int count = 0;
         long startDatagramIndex = 0;
-        //long endDatagramIndex = h.numDatagrams-1;
-        long endDatagramIndex = 2000;
+        long endDatagramIndex = h.numDatagrams-1;
+        //long endDatagramIndex = 2000;
         
         for (i=startDatagramIndex; i<=endDatagramIndex; i++)
         {
