@@ -120,7 +120,7 @@ public class AutocorrelationPitchmarker extends VoiceImportComponent
     {
         String wavFilename = new File(db.getProp(db.WAVDIR) + basename + db.getProp(db.WAVEXT)).getAbsolutePath();
         String ptcFile = getProp(PTCDIR) + basename + ptcExt;
-        String correctedPmFilename = getProp(CORRPMDIR) + basename + corrPmExt;
+        String correctedPmFilename = getProp(CORRPMDIR)  + basename + corrPmExt;
 
         WavReader wav = new WavReader(wavFilename);
         int fs = wav.getSampleRate();

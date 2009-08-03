@@ -315,15 +315,16 @@ public class HnmTimelineMaker extends VoiceImportComponent
                     //Use autocorrelation pitch detector based pitch marks
                     //hnmSignal = ha.analyze(wave, wav.getSampleRate(), f0, null, analysisParams, synthesisParamsBeforeNoiseAnalysis, hnmAnalysisFile); 
                     
-                    float tAnalysisInSeconds = 0.0f;
+                    float tAnalysisInSeconds = hnmSignal.frames[0].deltaAnalysisTimeInSeconds;
                     for (i=0; i<hnmSignal.frames.length; i++ ) 
                     {
                         frameStart = frameEnd;
-                        tAnalysisInSeconds += hnmSignal.frames[i].deltaAnalysisTimeInSeconds;
                         frameEnd = SignalProcUtils.time2sample(tAnalysisInSeconds, hnmSignal.samplingRateInHz);
                         
                         assert frameEnd <= wave.length : "Frame ends after end of wave data: " + frameEnd + " > " + wave.length;
                         duration = frameEnd - frameStart;
+                        
+                        tAnalysisInSeconds += hnmSignal.frames[i].deltaAnalysisTimeInSeconds;
                     }
                 }
                 
@@ -333,14 +334,16 @@ public class HnmTimelineMaker extends VoiceImportComponent
                 int duration = 0;
                 long localTime = 0l;
                 int currentIndex;
+                int prevIndex = -1;
                 float[] analysisTimes = hnmSignal.getAnalysisTimes();
-                float tAnalysisInSeconds = 0.0f;
-                /*
+                float tAnalysisInSeconds;
+
                 float[] pmTimes = new float[pmFile.getNumFrames()];
 
                 for (i=0; i<pmFile.getNumFrames(); i++)
                     pmTimes[i] = pmFile.getTime(i);
 
+                tAnalysisInSeconds = hnmSignal.frames[0].deltaAnalysisTimeInSeconds;
                 for (i=0; i<pmFile.getNumFrames(); i++)
                 {
                     if (i<hnmSignal.frames.length)
@@ -349,25 +352,28 @@ public class HnmTimelineMaker extends VoiceImportComponent
                         frameEnd = (int)( (double)pmFile.getTime(i) * (double)(globSampleRate) );
                         duration = frameEnd - frameStart;
 
-                        currentIndex = MathUtils.findClosest(analysisTimes, pmFile.getTime(i));
+                        if (frameEnd>0)
+                        {
+                            currentIndex = MathUtils.findClosest(analysisTimes, pmFile.getTime(i));
 
-                        tAnalysisInSeconds += hnmSignal.frames[currentIndex].deltaAnalysisTimeInSeconds;
+                            //System.out.println(currentIndex + " " + i);
 
-                        hnmSignal.frames[currentIndex].tAnalysisInSeconds = tAnalysisInSeconds;
+                            hnmSignal.frames[currentIndex].tAnalysisInSeconds = tAnalysisInSeconds;
 
-                        // Feed the datagram to the timeline
-                        hnmTimeline.feed( new HnmDatagram(duration, hnmSignal.frames[currentIndex]) , globSampleRate );
-                        totalTime += duration;
-                        localTime += duration;
+                            // Feed the datagram to the timeline
+                            hnmTimeline.feed( new HnmDatagram(duration, hnmSignal.frames[currentIndex]) , globSampleRate );
+                            totalTime += duration;
+                            localTime += duration;
+                            tAnalysisInSeconds += hnmSignal.frames[currentIndex].deltaAnalysisTimeInSeconds;
+                        }
                     }
                 }
-                */
                 
-                tAnalysisInSeconds = 0.0f;
+                /*
+                tAnalysisInSeconds = hnmSignal.frames[0].deltaAnalysisTimeInSeconds;
                 for (i=0; i<hnmSignal.frames.length; i++)
                 {
-                    frameStart = frameEnd;
-                    tAnalysisInSeconds += hnmSignal.frames[i].deltaAnalysisTimeInSeconds;
+                    frameStart = frameEnd;   
                     frameEnd = SignalProcUtils.time2sample(tAnalysisInSeconds, hnmSignal.samplingRateInHz);
                     duration = frameEnd - frameStart;
 
@@ -375,7 +381,10 @@ public class HnmTimelineMaker extends VoiceImportComponent
                     hnmTimeline.feed( new HnmDatagram(duration, hnmSignal.frames[i]) , globSampleRate );
                     totalTime += duration;
                     localTime += duration;
+                    
+                    tAnalysisInSeconds += hnmSignal.frames[i].deltaAnalysisTimeInSeconds;
                 }
+                */
 
                 System.out.println(String.valueOf(n+1) + " of " + String.valueOf(baseNameArray.length) + " done...");
                 numDatagrams += hnmSignal.frames.length;

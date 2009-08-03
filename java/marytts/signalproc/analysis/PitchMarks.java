@@ -56,18 +56,41 @@ public class PitchMarks {
         int frameStart = 0;
         if (pmFile!=null && pmFile.getNumFrames()>0)
         {
-            pitchMarks = new int[pmFile.getNumFrames() + 1];
-            f0s = new float[pmFile.getNumFrames()];
-            pitchMarks[0] = 0;
-            for (int f=0;  f<pmFile.getNumFrames(); f++) 
+            frameEnd = (int)( (double)pmFile.getTime(0) * (double)(samplingRateInHz) );
+            if (frameEnd>0)
             {
-                frameEnd = (int)( (double)pmFile.getTime(f) * (double)(samplingRateInHz) );
-                pitchMarks[f+1] = frameEnd;
-                if (f>0)
-                    f0s[f] = 1.0f/(pmFile.getTime(f)-pmFile.getTime(f-1));
-                else
-                    f0s[f] = 1.0f/pmFile.getTime(f);
+                pitchMarks = new int[pmFile.getNumFrames() + 1];
+                f0s = new float[pmFile.getNumFrames()];
+                pitchMarks[0] = 0;
+                
+                for (int f=0;  f<pmFile.getNumFrames(); f++) 
+                {
+                    frameEnd = (int)( (double)pmFile.getTime(f) * (double)(samplingRateInHz) );
+                    pitchMarks[f+1] = frameEnd;
+                    if (f>0)
+                        f0s[f] = 1.0f/(pmFile.getTime(f)-pmFile.getTime(f-1));
+                    else
+                        f0s[f] = 1.0f/pmFile.getTime(f);
+                }
             }
+            else
+            {
+                pitchMarks = new int[pmFile.getNumFrames()];
+                f0s = new float[pmFile.getNumFrames()-1];
+                pitchMarks[0] = 0;
+                
+                for (int f=1;  f<pmFile.getNumFrames(); f++) 
+                {
+                    frameEnd = (int)( (double)pmFile.getTime(f) * (double)(samplingRateInHz) );
+                    pitchMarks[f] = frameEnd;
+                    if (f>0)
+                        f0s[f-1] = 1.0f/(pmFile.getTime(f)-pmFile.getTime(f-1));
+                    else
+                        f0s[f-1] = 1.0f/pmFile.getTime(f);
+                }
+            }
+            
+            
         }
     }
     

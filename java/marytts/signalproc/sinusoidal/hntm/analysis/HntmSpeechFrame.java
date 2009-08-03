@@ -41,7 +41,7 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
     public float f0InHz;
     public float maximumFrequencyOfVoicingInHz; //If 0.0, then the frame is unvoiced
     public float tAnalysisInSeconds; //Current analysis instant (middle of window) in seconds
-    public float deltaAnalysisTimeInSeconds; //Difference between middle of analysis current frame and previous analysis frame in seconds
+    public float deltaAnalysisTimeInSeconds; //Difference between middle of next analysis frame and current analysis frame in seconds
     
     public HntmSpeechFrame()
     {
