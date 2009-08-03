@@ -241,7 +241,8 @@ public class HntmAnalyzer {
 
             int ws;
             
-            int totalFrm = (int)Math.floor(pm.pitchMarks.length-numPeriods+0.5);
+            //int totalFrm = (int)Math.floor(pm.pitchMarks.length-numPeriods+0.5);
+            int totalFrm = pm.pitchMarks.length-1;
             if (totalFrm>pm.pitchMarks.length-1)
                 totalFrm = pm.pitchMarks.length-1;
 
@@ -294,12 +295,8 @@ public class HntmAnalyzer {
                 //if (ws%2==0) //Always use an odd window size to have a zero-phase analysis window
                 //    ws++;
                 
-                output.hnmSignal.frames[i].tAnalysisInSeconds = (((float)pm.pitchMarks[i])/fs);  //Middle of analysis frame 
-                if (i>0)
-                    output.hnmSignal.frames[i].deltaAnalysisTimeInSeconds = output.hnmSignal.frames[i].tAnalysisInSeconds-output.hnmSignal.frames[i-1].tAnalysisInSeconds;
-                else
-                    output.hnmSignal.frames[i].deltaAnalysisTimeInSeconds = output.hnmSignal.frames[i].tAnalysisInSeconds;
-                
+                output.hnmSignal.frames[i].tAnalysisInSeconds = (((float)pm.pitchMarks[i+1])/fs);  //Middle of analysis frame 
+
                 if (analysisParams.harmonicModel == HntmAnalyzerParams.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE && labels!=null)
                 {
                     while(labels.items[currentLabInd].time<output.hnmSignal.frames[i].tAnalysisInSeconds)
@@ -514,6 +511,17 @@ public class HntmAnalyzer {
                     else if (analysisParams.harmonicModel==HntmAnalyzerParams.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE)
                         System.out.println("Harmonic and transient analysis completed at " + String.valueOf(output.hnmSignal.frames[i].tAnalysisInSeconds) + "s. for frame " + String.valueOf(i+1) + " of " + String.valueOf(totalFrm)); 
                 }
+            }
+            
+            //Set delta times
+            for (i=0; i<output.hnmSignal.frames.length; i++)
+            {
+                if (i==0)
+                    output.hnmSignal.frames[i].deltaAnalysisTimeInSeconds = output.hnmSignal.frames[i].tAnalysisInSeconds;
+                else if (i==output.hnmSignal.frames.length-1)
+                    output.hnmSignal.frames[i].deltaAnalysisTimeInSeconds = output.hnmSignal.originalDurationInSeconds - output.hnmSignal.frames[i].tAnalysisInSeconds;
+                else
+                    output.hnmSignal.frames[i].deltaAnalysisTimeInSeconds = output.hnmSignal.frames[i+1].tAnalysisInSeconds - output.hnmSignal.frames[i].tAnalysisInSeconds;
             }
         }
 
