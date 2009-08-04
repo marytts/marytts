@@ -170,7 +170,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
         try{
             /* 1) Determine the reference sampling rate as being the sample rate of the first encountered
              *    wav file */
-            WavReader wav = new WavReader(db.getProp(db.ROOTDIR) + db.getProp(db.WAVDIR) + baseNameArray[0] + db.getProp(db.WAVEXT));
+            WavReader wav = new WavReader(db.getProp(db.WAVDIR) + baseNameArray[0] + db.getProp(db.WAVEXT));
             int globSampleRate = wav.getSampleRate();
             System.out.println("---- Detected a global sample rate of: [" + globSampleRate + "] Hz." );
 
