@@ -52,6 +52,7 @@ public class AutocorrelationPitchmarker extends VoiceImportComponent
     protected DatabaseLayout db = null;
 
     protected String ptcExt = ".ptc";
+    protected String pmExt = ".pm";
     protected String corrPmExt = ".pm.corrected";
     
     private int percent = 0;
@@ -121,6 +122,7 @@ public class AutocorrelationPitchmarker extends VoiceImportComponent
         String wavFilename = new File(db.getProp(db.WAVDIR) + basename + db.getProp(db.WAVEXT)).getAbsolutePath();
         String ptcFile = getProp(PTCDIR) + basename + ptcExt;
         String correctedPmFilename = getProp(CORRPMDIR)  + basename + corrPmExt;
+        String pmFilename = getProp(CORRPMDIR)  + basename + pmExt; //This is just a copy of the correctedPmFile
 
         WavReader wav = new WavReader(wavFilename);
         int fs = wav.getSampleRate();
@@ -144,6 +146,8 @@ public class AutocorrelationPitchmarker extends VoiceImportComponent
                 pitchmarks[i] = SignalProcUtils.sample2time(pm.pitchMarks[i], fs);
 
             new ESTTrackWriter(pitchmarks, null, "pitchmarks").doWriteAndClose(correctedPmFilename, false, false);
+            
+            FileUtils.copy(correctedPmFilename, pmFilename);
         }
 
         return true;
@@ -163,6 +167,12 @@ public class AutocorrelationPitchmarker extends VoiceImportComponent
         File dir = new File(getProp(CORRPMDIR));
         if (!dir.exists()) { 
             System.out.println( "Creating the directory [" + getProp(CORRPMDIR) + "]." );
+            dir.mkdir();
+        }
+        
+        dir = new File(getProp(PTCDIR));
+        if (!dir.exists()) { 
+            System.out.println( "Creating the directory [" + getProp(PTCDIR) + "]." );
             dir.mkdir();
         }
 
