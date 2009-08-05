@@ -42,7 +42,6 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.FeatureFileReader;
-import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.util.math.ArrayUtils;

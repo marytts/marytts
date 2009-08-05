@@ -45,6 +45,7 @@ import marytts.signalproc.analysis.RegularizedPreWarpedCepstrumEstimator;
 import marytts.signalproc.sinusoidal.PitchSynchronousSinusoidalAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
+import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
@@ -79,15 +80,9 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
         int trackNoToExamine = 1;
 
         int i, k, n;
-        double t; //Time in seconds
-        
-        double tsik = 0.0; //Synthesis time in seconds
-        double tsikPlusOne = 0.0; //Synthesis time in seconds
-        
-        double trackStartInSeconds, trackEndInSeconds;
+
         //double lastPeriodInSeconds = 0.0;
-        int trackStartIndex, trackEndIndex;
-        double akt;
+
         int numHarmonicsCurrentFrame;
         int maxNumHarmonics = 0;
         for (i=0; i<hnmSignal.frames.length; i++)
@@ -100,22 +95,6 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
             }  
         }
 
-        double aksi;
-        double aksiPlusOne;
-        
-        double phaseki;
-        double phasekiPlusOne;
-
-        float f0InHz, f0InHzNext;
-        float f0Average, f0AverageNext;
-        double ht;
-        double phasekt = 0.0;
-
-        double phasekiEstimate = 0.0;
-        double phasekiPlusOneEstimate = 0.0;
-        int Mk;
-        boolean isPrevVoiced, isVoiced, isNextVoiced;
-        boolean isTrackVoiced, isNextTrackVoiced, isPrevTrackVoiced;
         int outputLen = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
         
         harmonicPart = new double[outputLen]; //In fact, this should be prosody scaled length when you implement prosody modifications
@@ -149,231 +128,35 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
         double[] halfTransitionWinLeft = transitionWin.getCoeffsLeftHalf();
         double[] halfTransitionWinRight = transitionWin.getCoeffsRightHalf();
         
-        int currentHarmonicNo;
-
-        float[] currentCeps = null;
-        float[] nextCeps = null;
-        
-        double currentOverlapWinWgt;
+        HntmSpeechFrame prevFrame, nextFrame;
         
         for (i=0; i<hnmSignal.frames.length; i++)
         {
-            isPrevVoiced = false;
-            isVoiced = false;
-            isNextVoiced = false;
-            
-            if (i>0 && hnmSignal.frames[i-1].h!=null && hnmSignal.frames[i-1].h.complexAmps!=null && hnmSignal.frames[i-1].h.complexAmps.length>0)
-                isPrevVoiced =  true;
-            
-            if (hnmSignal.frames[i].h!=null && hnmSignal.frames[i].h.complexAmps!=null && hnmSignal.frames[i].h.complexAmps.length>0)
-                isVoiced = true;
-
-            if (i<hnmSignal.frames.length-1 && hnmSignal.frames[i+1].h!=null && hnmSignal.frames[i+1].h.complexAmps!=null && hnmSignal.frames[i+1].h.complexAmps.length>0)
-                isNextVoiced = true;
-            
-            if (isVoiced)
-                numHarmonicsCurrentFrame = hnmSignal.frames[i].h.complexAmps.length;
-            else if (!isVoiced && isNextVoiced)
-                numHarmonicsCurrentFrame = hnmSignal.frames[i+1].h.complexAmps.length;
+            if (i>0)
+                prevFrame = hnmSignal.frames[i-1];
             else
-                numHarmonicsCurrentFrame = 0;
-            
-            f0InHz = hnmSignal.frames[i].f0InHz;
-            
-            if (isNextVoiced)
-                f0InHzNext = hnmSignal.frames[i+1].f0InHz;
+                prevFrame = null;
+                
+            if (i<hnmSignal.frames.length-1)
+                nextFrame = hnmSignal.frames[i+1];
             else
-                f0InHzNext = f0InHz;
-
-            f0Average = 0.5f*(f0InHz+f0InHzNext);
+                nextFrame = null;
             
-            if (!analysisParams.useHarmonicAmplitudesDirectly)
-            {
-                currentCeps = hnmSignal.frames[i].h.getCeps(f0InHz, hnmSignal.samplingRateInHz, analysisParams);
-                if (i+1<hnmSignal.frames.length)
-                    nextCeps = hnmSignal.frames[i+1].h.getCeps(f0InHzNext, hnmSignal.samplingRateInHz, analysisParams);
-                else
-                    nextCeps = null;
-            }
+            boolean isFirstSynthesisFrame = false;
+            if (i==0)
+                isFirstSynthesisFrame = true;
             
-            for (k=0; k<numHarmonicsCurrentFrame; k++)
-            {
-                currentHarmonicNo = k+1;
-                
-                aksi = 0.0;
-                aksiPlusOne = 0.0;
-                
-                phaseki = 0.0f;
-                phasekiPlusOne = 0.0f;
-                
-                isPrevTrackVoiced = false;
-                isTrackVoiced = false;
-                isNextTrackVoiced = false;
-                
-                if (i>0 && hnmSignal.frames[i-1].h!=null && hnmSignal.frames[i-1].h.complexAmps!=null && hnmSignal.frames[i-1].h.complexAmps.length>k)
-                    isPrevTrackVoiced = true;
-                
-                if (hnmSignal.frames[i].h!=null && hnmSignal.frames[i].h.complexAmps!=null && hnmSignal.frames[i].h.complexAmps.length>k)
-                    isTrackVoiced = true;
-
-                if (i<hnmSignal.frames.length-1 && hnmSignal.frames[i+1].h!=null && hnmSignal.frames[i+1].h.complexAmps!=null && hnmSignal.frames[i+1].h.complexAmps.length>k)
-                    isNextTrackVoiced = true;
-
-                tsik = hnmSignal.frames[i].tAnalysisInSeconds;
-
-                if (i==0)
-                    trackStartInSeconds = 0.0;
-                else
-                    trackStartInSeconds = tsik;
-                
-                if (i==hnmSignal.frames.length-1)
-                    tsikPlusOne = hnmSignal.originalDurationInSeconds;
-                else
-                    tsikPlusOne = hnmSignal.frames[i+1].tAnalysisInSeconds;
-
-                trackEndInSeconds = tsikPlusOne;
-                
-                if (synthesisParams.overlappingHarmonicPartSynthesis)
-                {
-                    trackStartInSeconds -= synthesisParams.harmonicSynthesisOverlapInSeconds;
-                    trackEndInSeconds += synthesisParams.harmonicSynthesisOverlapInSeconds;
-                }
-
-                trackStartIndex = SignalProcUtils.time2sample(trackStartInSeconds, hnmSignal.samplingRateInHz);
-                trackEndIndex = SignalProcUtils.time2sample(trackEndInSeconds, hnmSignal.samplingRateInHz);
-
-                if (!synthesisParams.overlappingHarmonicPartSynthesis)
-                {
-                    if (!isPrevTrackVoiced)
-                        trackStartIndex -= transitionLen;
-                    if (!isNextTrackVoiced)
-                        trackEndIndex += transitionLen;
-                }
-                
-                Window overlapWin = null;
-                double[] overlapWinWgt = null;
-                if (synthesisParams.overlappingHarmonicPartSynthesis)
-                {
-                    overlapWin = Window.get(Window.HAMMING, trackEndIndex-trackStartIndex+1);
-                    overlapWin.normalizePeakValue(1.0f);
-                    overlapWinWgt = overlapWin.getCoeffs();
-                }
-                
-                if (isTrackVoiced && trackEndIndex-trackStartIndex+1>0)
-                {
-                    //Amplitudes                       
-                    if (isTrackVoiced)
-                    {
-                        if (!analysisParams.useHarmonicAmplitudesDirectly)
-                        {
-                            if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
-                                aksi = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*f0InHz, hnmSignal.samplingRateInHz);   
-                            else if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
-                                aksi = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*f0InHz, hnmSignal.samplingRateInHz);   
-                        }
-                        else
-                        {
-                            if (k<hnmSignal.frames[i].h.complexAmps.length)
-                                aksi = MathUtils.magnitudeComplex(hnmSignal.frames[i].h.complexAmps[k]); //Use amplitudes directly without cepstrum method
-                        }
-                    }
-                    else
-                        aksi = 0.0;
-                    
-                    if (isNextTrackVoiced)
-                    {
-                        if (!analysisParams.useHarmonicAmplitudesDirectly)
-                        {
-                            if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)  
-                                aksiPlusOne = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(nextCeps, currentHarmonicNo*f0InHzNext, hnmSignal.samplingRateInHz);
-                            else if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)  
-                                aksiPlusOne = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(nextCeps, currentHarmonicNo*f0InHzNext, hnmSignal.samplingRateInHz);
-                        }
-                        else
-                        {
-                            if (k<hnmSignal.frames[i+1].h.complexAmps.length)
-                                aksiPlusOne = MathUtils.magnitudeComplex(hnmSignal.frames[i+1].h.complexAmps[k]); //Use amplitudes directly without cepstrum method
-                        }
-                    }
-                    else
-                        aksiPlusOne = 0.0;
-                    //
-
-                    //Phases
-                    if (isTrackVoiced)
-                    {
-                        if (currentHarmonicNo==0)
-                            phaseki = 0.0f;
-                        else
-                            phaseki = MathUtils.phaseInRadians(hnmSignal.frames[i].h.complexAmps[k]);
-                    }
-                    if (isNextTrackVoiced)
-                    {
-                        if (currentHarmonicNo==0)
-                            phasekiPlusOne = 0.0f;
-                        else
-                            phasekiPlusOne = MathUtils.phaseInRadians(hnmSignal.frames[i+1].h.complexAmps[k]);
-                    }    
-                    
-                    //phaseki += MathUtils.degrees2radian(-4.0);
-                    //phasekiPlusOne += MathUtils.degrees2radian(-4.0);
-                    
-                    if (!isTrackVoiced && isNextTrackVoiced)   
-                    {
-                        phaseki = (float)( phasekiPlusOne - currentHarmonicNo*MathUtils.TWOPI*f0InHzNext*(tsikPlusOne-tsik)); //Equation (3.54)
-                        aksi = 0.0;
-                    }
-                    else if (isTrackVoiced && !isNextTrackVoiced)
-                    {
-                        phasekiPlusOne = phaseki + currentHarmonicNo*MathUtils.TWOPI*f0InHz*(tsikPlusOne-tsik); //Equation (3.55)
-                        aksiPlusOne = 0.0;
-                    }
-                    
-                    phasekiPlusOneEstimate = phaseki + currentHarmonicNo*MathUtils.TWOPI*f0Average*(tsikPlusOne-tsik);
-                    //phasekiPlusOneEstimate = MathUtils.TWOPI*(Math.random()-0.5); //Random phase
-                    
-                    //System.out.println(String.valueOf(f0Average) + " - " + String.valueOf(f0InHz) + " - " + String.valueOf(f0InHzNext));
-                    
-                    Mk = (int)Math.floor((phasekiPlusOneEstimate-phasekiPlusOne)/MathUtils.TWOPI + 0.5);
-                    //
-
-                    for (n=Math.max(0, trackStartIndex); n<=Math.min(trackEndIndex, outputLen-1); n++)
-                    {
-                        t = SignalProcUtils.sample2time(n, hnmSignal.samplingRateInHz);
-                        
-                        //if (t>=tsik && t<tsikPlusOne)
-                        {
-                            //Amplitude estimate
-                            if (t<tsik)
-                                akt = MathUtils.interpolatedSample(tsik-synthesisParams.unvoicedVoicedTrackTransitionInSeconds, t, tsik, 0.0, aksi);
-                            else if (t>tsikPlusOne)
-                                akt = MathUtils.interpolatedSample(tsikPlusOne, t, tsikPlusOne+synthesisParams.unvoicedVoicedTrackTransitionInSeconds, aksiPlusOne, 0.0);
-                            else
-                                akt = MathUtils.interpolatedSample(tsik, t, tsikPlusOne, aksi, aksiPlusOne);
-                            //
-
-                            //Phase estimate
-                            phasekt = phaseki + (phasekiPlusOne+MathUtils.TWOPI*Mk-phaseki)*(t-tsik)/(tsikPlusOne-tsik);
-                            //
-   
-                            if (synthesisParams.overlappingHarmonicPartSynthesis)
-                            {
-                                currentOverlapWinWgt = overlapWinWgt[n-Math.max(0, trackStartIndex)];
-                                winOverlapWgt[k][n] += currentOverlapWinWgt;
-                            }
-                            else
-                                currentOverlapWinWgt = 1.0;
-                            
-                            if (!isPrevTrackVoiced && n-trackStartIndex<transitionLen)
-                                harmonicTracks[k][n] = currentOverlapWinWgt*halfTransitionWinLeft[n-trackStartIndex]*akt*Math.cos(phasekt);
-                            else if (!isNextTrackVoiced && trackEndIndex-n<transitionLen)
-                                harmonicTracks[k][n] = currentOverlapWinWgt*halfTransitionWinRight[transitionLen-(trackEndIndex-n)-1]*akt*Math.cos(phasekt);
-                            else
-                                harmonicTracks[k][n] = currentOverlapWinWgt*akt*Math.cos(phasekt);
-                        }
-                    } 
-                }
-            }
+            boolean isLastSynthesisFrame = false;
+            if (i==hnmSignal.frames.length-1)
+                isLastSynthesisFrame = true;
+            
+            processFrame(prevFrame, hnmSignal.frames[i], nextFrame, 
+                         analysisParams, hnmSignal.samplingRateInHz, 
+                         isFirstSynthesisFrame, isLastSynthesisFrame,
+                         hnmSignal.originalDurationInSeconds, synthesisParams, 
+                         transitionLen,
+                         harmonicTracks, winOverlapWgt,
+                         halfTransitionWinLeft, halfTransitionWinRight, outputLen);
         }
         
         if (harmonicTracks!=null)
@@ -436,5 +219,266 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
         }
         
         return harmonicPart;
+    }
+    
+    public static void processFrame(HntmSpeechFrame prevFrame, HntmSpeechFrame currentFrame, HntmSpeechFrame nextFrame,
+                                    HntmAnalyzerParams analysisParams, int samplingRateInHz, 
+                                    boolean isFirstSynthesisFrame, boolean isLastSynthesisFrame,
+                                    float originalDurationInSeconds, HntmSynthesizerParams synthesisParams,
+                                    int transitionLen, 
+                                    double[][] harmonicTracks, double[][] winOverlapWgt,
+                                    double[] halfTransitionWinLeft, double[] halfTransitionWinRight, int outputLen)
+    {
+        int i, k, n;
+        int currentHarmonicNo;
+        int numHarmonicsCurrentFrame;
+        
+        float f0InHz, f0InHzNext;
+        float f0Average, f0AverageNext;
+
+        float[] currentCeps = null;
+        float[] nextCeps = null;
+        
+        boolean isPrevVoiced = false;
+        boolean isVoiced = false;
+        boolean isNextVoiced = false;
+        
+        double aksi;
+        double aksiPlusOne;
+        
+        double phaseki;
+        double phasekiPlusOne;
+
+        double ht;
+        double phasekt = 0.0;
+
+        double phasekiEstimate = 0.0;
+        double phasekiPlusOneEstimate = 0.0;
+        int Mk;
+        
+        boolean isTrackVoiced, isNextTrackVoiced, isPrevTrackVoiced;
+        
+        double tsik = 0.0; //Synthesis time in seconds
+        double tsikPlusOne = 0.0; //Synthesis time in seconds
+        
+        double trackStartInSeconds, trackEndInSeconds;
+        int trackStartIndex, trackEndIndex;
+        
+        double akt;
+        
+        double currentOverlapWinWgt;
+        
+        if (prevFrame!=null && prevFrame.h!=null && prevFrame.h.complexAmps!=null && prevFrame.h.complexAmps.length>0)
+            isPrevVoiced =  true;
+        
+        if (currentFrame.h!=null && currentFrame.h.complexAmps!=null && currentFrame.h.complexAmps.length>0)
+            isVoiced = true;
+
+        if (nextFrame!=null && nextFrame.h!=null && nextFrame.h.complexAmps!=null && nextFrame.h.complexAmps.length>0)
+            isNextVoiced = true;
+        
+        if (isVoiced)
+            numHarmonicsCurrentFrame = currentFrame.h.complexAmps.length;
+        else if (!isVoiced && isNextVoiced)
+            numHarmonicsCurrentFrame = nextFrame.h.complexAmps.length;
+        else
+            numHarmonicsCurrentFrame = 0;
+        
+        f0InHz = currentFrame.f0InHz;
+        
+        if (isNextVoiced)
+            f0InHzNext = nextFrame.f0InHz;
+        else
+            f0InHzNext = f0InHz;
+
+        f0Average = 0.5f*(f0InHz+f0InHzNext);
+        
+        if (!analysisParams.useHarmonicAmplitudesDirectly)
+        {
+            currentCeps = currentFrame.h.getCeps(f0InHz, samplingRateInHz, analysisParams);
+            if (nextFrame!=null)
+                nextCeps = nextFrame.h.getCeps(f0InHzNext, samplingRateInHz, analysisParams);
+            else
+                nextCeps = null;
+        }
+        
+        for (k=0; k<numHarmonicsCurrentFrame; k++)
+        {
+            currentHarmonicNo = k+1;
+            
+            aksi = 0.0;
+            aksiPlusOne = 0.0;
+            
+            phaseki = 0.0f;
+            phasekiPlusOne = 0.0f;
+            
+            isPrevTrackVoiced = false;
+            isTrackVoiced = false;
+            isNextTrackVoiced = false;
+            
+            if (prevFrame!=null && prevFrame.h!=null && prevFrame.h.complexAmps!=null && prevFrame.h.complexAmps.length>k)
+                isPrevTrackVoiced = true;
+            
+            if (currentFrame!=null && currentFrame.h!=null && currentFrame.h.complexAmps!=null && currentFrame.h.complexAmps.length>k)
+                isTrackVoiced = true;
+
+            if (nextFrame!=null && nextFrame.h!=null && nextFrame.h.complexAmps!=null && nextFrame.h.complexAmps.length>k)
+                isNextTrackVoiced = true;
+
+            tsik = currentFrame.tAnalysisInSeconds;
+
+            if (isFirstSynthesisFrame)
+                trackStartInSeconds = 0.0;
+            else
+                trackStartInSeconds = tsik;
+            
+            if (isLastSynthesisFrame || nextFrame==null)
+                tsikPlusOne = originalDurationInSeconds;
+            else
+                tsikPlusOne = nextFrame.tAnalysisInSeconds;
+
+            trackEndInSeconds = tsikPlusOne;
+            
+            if (synthesisParams.overlappingHarmonicPartSynthesis)
+            {
+                trackStartInSeconds -= synthesisParams.harmonicSynthesisOverlapInSeconds;
+                trackEndInSeconds += synthesisParams.harmonicSynthesisOverlapInSeconds;
+            }
+
+            trackStartIndex = SignalProcUtils.time2sample(trackStartInSeconds, samplingRateInHz);
+            trackEndIndex = SignalProcUtils.time2sample(trackEndInSeconds, samplingRateInHz);
+
+            if (!synthesisParams.overlappingHarmonicPartSynthesis)
+            {
+                if (!isPrevTrackVoiced)
+                    trackStartIndex -= transitionLen;
+                if (!isNextTrackVoiced)
+                    trackEndIndex += transitionLen;
+            }
+            
+            Window overlapWin = null;
+            double[] overlapWinWgt = null;
+            if (synthesisParams.overlappingHarmonicPartSynthesis)
+            {
+                overlapWin = Window.get(Window.HAMMING, trackEndIndex-trackStartIndex+1);
+                overlapWin.normalizePeakValue(1.0f);
+                overlapWinWgt = overlapWin.getCoeffs();
+            }
+            
+            if (isTrackVoiced && trackEndIndex-trackStartIndex+1>0)
+            {
+                //Amplitudes                       
+                if (isTrackVoiced)
+                {
+                    if (!analysisParams.useHarmonicAmplitudesDirectly)
+                    {
+                        if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
+                            aksi = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*f0InHz, samplingRateInHz);   
+                        else if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
+                            aksi = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*f0InHz, samplingRateInHz);   
+                    }
+                    else
+                    {
+                        if (k<currentFrame.h.complexAmps.length)
+                            aksi = MathUtils.magnitudeComplex(currentFrame.h.complexAmps[k]); //Use amplitudes directly without cepstrum method
+                    }
+                }
+                else
+                    aksi = 0.0;
+                
+                if (isNextTrackVoiced)
+                {
+                    if (!analysisParams.useHarmonicAmplitudesDirectly)
+                    {
+                        if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)  
+                            aksiPlusOne = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(nextCeps, currentHarmonicNo*f0InHzNext, samplingRateInHz);
+                        else if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)  
+                            aksiPlusOne = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(nextCeps, currentHarmonicNo*f0InHzNext, samplingRateInHz);
+                    }
+                    else
+                    {
+                        if (k<nextFrame.h.complexAmps.length)
+                            aksiPlusOne = MathUtils.magnitudeComplex(nextFrame.h.complexAmps[k]); //Use amplitudes directly without cepstrum method
+                    }
+                }
+                else
+                    aksiPlusOne = 0.0;
+                //
+
+                //Phases
+                if (isTrackVoiced)
+                {
+                    if (currentHarmonicNo==0)
+                        phaseki = 0.0f;
+                    else
+                        phaseki = MathUtils.phaseInRadians(currentFrame.h.complexAmps[k]);
+                }
+                if (isNextTrackVoiced)
+                {
+                    if (currentHarmonicNo==0)
+                        phasekiPlusOne = 0.0f;
+                    else
+                        phasekiPlusOne = MathUtils.phaseInRadians(nextFrame.h.complexAmps[k]);
+                }    
+                
+                //phaseki += MathUtils.degrees2radian(-4.0);
+                //phasekiPlusOne += MathUtils.degrees2radian(-4.0);
+                
+                if (!isTrackVoiced && isNextTrackVoiced)   
+                {
+                    phaseki = (float)( phasekiPlusOne - currentHarmonicNo*MathUtils.TWOPI*f0InHzNext*(tsikPlusOne-tsik)); //Equation (3.54)
+                    aksi = 0.0;
+                }
+                else if (isTrackVoiced && !isNextTrackVoiced)
+                {
+                    phasekiPlusOne = phaseki + currentHarmonicNo*MathUtils.TWOPI*f0InHz*(tsikPlusOne-tsik); //Equation (3.55)
+                    aksiPlusOne = 0.0;
+                }
+                
+                phasekiPlusOneEstimate = phaseki + currentHarmonicNo*MathUtils.TWOPI*f0Average*(tsikPlusOne-tsik);
+                //phasekiPlusOneEstimate = MathUtils.TWOPI*(Math.random()-0.5); //Random phase
+                
+                //System.out.println(String.valueOf(f0Average) + " - " + String.valueOf(f0InHz) + " - " + String.valueOf(f0InHzNext));
+                
+                Mk = (int)Math.floor((phasekiPlusOneEstimate-phasekiPlusOne)/MathUtils.TWOPI + 0.5);
+                //
+
+                for (n=Math.max(0, trackStartIndex); n<=Math.min(trackEndIndex, outputLen-1); n++)
+                {
+                    double t = SignalProcUtils.sample2time(n, samplingRateInHz);
+                    
+                    //if (t>=tsik && t<tsikPlusOne)
+                    {
+                        //Amplitude estimate
+                        if (t<tsik)
+                            akt = MathUtils.interpolatedSample(tsik-synthesisParams.unvoicedVoicedTrackTransitionInSeconds, t, tsik, 0.0, aksi);
+                        else if (t>tsikPlusOne)
+                            akt = MathUtils.interpolatedSample(tsikPlusOne, t, tsikPlusOne+synthesisParams.unvoicedVoicedTrackTransitionInSeconds, aksiPlusOne, 0.0);
+                        else
+                            akt = MathUtils.interpolatedSample(tsik, t, tsikPlusOne, aksi, aksiPlusOne);
+                        //
+
+                        //Phase estimate
+                        phasekt = phaseki + (phasekiPlusOne+MathUtils.TWOPI*Mk-phaseki)*(t-tsik)/(tsikPlusOne-tsik);
+                        //
+
+                        if (synthesisParams.overlappingHarmonicPartSynthesis)
+                        {
+                            currentOverlapWinWgt = overlapWinWgt[n-Math.max(0, trackStartIndex)];
+                            winOverlapWgt[k][n] += currentOverlapWinWgt;
+                        }
+                        else
+                            currentOverlapWinWgt = 1.0;
+                        
+                        if (!isPrevTrackVoiced && n-trackStartIndex<transitionLen)
+                            harmonicTracks[k][n] = currentOverlapWinWgt*halfTransitionWinLeft[n-trackStartIndex]*akt*Math.cos(phasekt);
+                        else if (!isNextTrackVoiced && trackEndIndex-n<transitionLen)
+                            harmonicTracks[k][n] = currentOverlapWinWgt*halfTransitionWinRight[transitionLen-(trackEndIndex-n)-1]*akt*Math.cos(phasekt);
+                        else
+                            harmonicTracks[k][n] = currentOverlapWinWgt*akt*Math.cos(phasekt);
+                    }
+                } 
+            }
+        }
     }
 }

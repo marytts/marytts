@@ -123,6 +123,7 @@ public class HntmSynthesizer {
         
         HntmSynthesizedSignal s = new HntmSynthesizedSignal();
         
+        
         if (synthesisParams.harmonicPartSynthesisMethod==HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION)
             s.harmonicPart = HarmonicPartLinearPhaseInterpolatorSynthesizer.synthesize(prosodyModified.hntmSignal, analysisParams, synthesisParams, referenceFile);
         else if (synthesisParams.harmonicPartSynthesisMethod==HntmSynthesizerParams.CUBIC_PHASE_INTERPOLATION)
@@ -208,13 +209,12 @@ public class HntmSynthesizer {
         pScalesArray[2][0] = 1.0f; tScalesArray[2][0] = 1.6f;
         */
 
-        /*
         //Time invariant case, only one modification set
         float[][] pScalesArray = new float[1][1];
         float[][] tScalesArray = new float[1][1];
         pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
-        */
         
+        /*
         //Time varying case, only one modification set
         float[][] pScalesArray = new float[1][3];
         float[][] tScalesArray = new float[1][3];
@@ -224,6 +224,7 @@ public class HntmSynthesizer {
         tScalesArray[0][0] = 1.2f; 
         tScalesArray[0][1] = 0.5f;
         tScalesArray[0][2] = 1.5f; 
+        */
         
         float[] tScalesTimes = {0.5f, 1.5f, 1.5f};
         //float[] tScalesTimes = null;
