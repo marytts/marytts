@@ -67,8 +67,10 @@ public class HnmTimelineMaker extends VoiceImportComponent
     protected int percent = 0;
     
     protected String corrPmExt = ".pm.corrected";
+    protected String hnmAnalysisFileExt = ".ana";
     public final String CORRPMDIR = "HnmTimelineMaker.corrPmDir";
     public final String HNMTIMELINE = "HnmTimelineMaker.hnmTimeline";
+    public final String HNMANADIR = "HnmTimelineMaker.hnmAnalysisDir";
     
     public String getName(){
         return "HnmTimelineMaker";
@@ -90,6 +92,10 @@ public class HnmTimelineMaker extends VoiceImportComponent
             props.put(HNMTIMELINE, db.getProp(db.FILEDIR)
                     +"timeline_hnm"+db.getProp(db.MARYEXT));
     
+            props.put(HNMANADIR, db.getProp(db.ROOTDIR)
+                    +"hna"
+                    +System.getProperty("file.separator"));
+            
             props.put("HnmTimelineMaker.noiseModel", String.valueOf(analysisParams.noiseModel));
             props.put("HnmTimelineMaker.numFiltStages", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.numFilteringStages));
             props.put("HnmTimelineMaker.medianFiltLen", String.valueOf(analysisParams.hnmPitchVoicingAnalyzerParams.medianFilterLength));
@@ -121,6 +127,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
         
         props2Help.put(CORRPMDIR,"directory containing the corrected pitchmarks");
         props2Help.put(HNMTIMELINE,"file containing all hnm noise waveform files. Will be created by this module");  
+        props2Help.put(HNMANADIR,"directory to write the harmnoics plus noise analysis results for each wav file");
         
         props2Help.put("HnmTimelineMaker.noiseModel", "Noise model: 1=WAVEFORM, 2=LPC, Default=1");
         props2Help.put("HnmTimelineMaker.numFiltStages", "Number of filtering stages to smooth out maximum frequency of voicing curve: Range={0, 1, 2, 3, 4, 5}. 0 means no smoothing. Default=2");
@@ -165,6 +172,11 @@ public class HnmTimelineMaker extends VoiceImportComponent
         File ptcDir = new File(db.getProp(db.PTCDIR));
         if (!ptcDir.exists()) {
             ptcDir.mkdir();
+        }
+        
+        File hnaDir = new File(getProp(HNMANADIR));
+        if (!hnaDir.exists()) {
+            hnaDir.mkdir();
         }
         
         try{
@@ -262,7 +274,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
                 totalDuration += pmFile.getTimeSpan();
         
                 HntmAnalyzer ha = new HntmAnalyzer();
-                String hnmAnalysisFile = StringUtils.modifyExtension(wavFile, "ana");
+                String hnmAnalysisFile = getProp(HNMANADIR) + baseNameArray[n] + hnmAnalysisFileExt; 
                 
                 HntmSpeechSignal hnmSignal = null;
                 if (FileUtils.exists(hnmAnalysisFile))
