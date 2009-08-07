@@ -809,11 +809,7 @@ public class DatabaseLayout
                 if (isEditable(key))
                     setProp(key,value);
             } else {
-                //local prop: get the name of the component
-                System.out.println(key);
-                if (key.compareToIgnoreCase("MCEPMaker")==0)
-                    System.out.println("Here...");
-                
+                //local prop: get the name of the component                
                 String compName = key.substring(0,key.indexOf('.'));
                 
                 //update our representation of local props for this component
