@@ -287,15 +287,15 @@ public class HnmTimelineMaker extends VoiceImportComponent
                     int frameEnd = 0;
                     long duration;
 
-                    /*
-                    for (i=0; i<pmFile.getNumFrames(); i++ ) 
+                    for (i=0; i<pmFile.getNumFrames()-1; i++ ) 
                     {
-                        frameStart = frameEnd;
-                        frameEnd = (int)( (double)pmFile.getTime(i) * (double)(globSampleRate) );
+                        frameStart = (int)( (double)pmFile.getTime(i) * (double)(globSampleRate) );
+                        frameEnd = (int)( (double)pmFile.getTime(i+1) * (double)(globSampleRate) );
                         assert frameEnd <= wave.length : "Frame ends after end of wave data: " + frameEnd + " > " + wave.length;
                         duration = frameEnd - frameStart;
-                    }
-                    */
+                        if (duration<5)
+                            System.out.println("Too short duration");
+                    }   
                     
                     PitchMarks pm = new PitchMarks(pmFile, globSampleRate);
                     pm.findAndSetUnvoicedF0s(f0.contour, f0.header, globSampleRate);
