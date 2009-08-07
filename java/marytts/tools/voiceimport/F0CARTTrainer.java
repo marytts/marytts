@@ -42,6 +42,7 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.FeatureFileReader;
+import marytts.unitselection.data.HnmTimelineReader;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.util.string.PrintfFormat;
@@ -71,6 +72,7 @@ public class F0CARTTrainer extends VoiceImportComponent
     public final String FEATUREFILE = name+".featureFile";
     public final String UNITFILE = name+".unitFile";
     public final String WAVETIMELINE = name+".waveTimeline";
+    public final String ISHNMTIMELINE = name+".isHnmTimeline";
     public final String LABELDIR = name+".labelDir";
     public final String FEATUREDIR = name+".featureDir";
     public final String F0LEFTTREEFILE = name+".f0LeftTreeFile";
@@ -124,7 +126,8 @@ public class F0CARTTrainer extends VoiceImportComponent
            props.put(UNITFILE, filedir
                         +"phoneUnits"+maryext);
            props.put(WAVETIMELINE, db.getProp(db.FILEDIR)
-                        +"timeline_waveforms"+db.getProp(db.MARYEXT));           
+                        +"timeline_waveforms"+db.getProp(db.MARYEXT));      
+           props.put(ISHNMTIMELINE, "false"); 
            props.put(F0LEFTTREEFILE,filedir
                    +"f0.left.tree");
            props.put(F0RIGHTTREEFILE,filedir
@@ -147,7 +150,8 @@ public class F0CARTTrainer extends VoiceImportComponent
          props2Help.put(STEPWISETRAINING,"\"false\" or \"true\" ????????????????????????");
          props2Help.put(FEATUREFILE, "file containing all phone units and their target cost features");
          props2Help.put(UNITFILE, "file containing all phone units");
-         props2Help.put(WAVETIMELINE, "file containing all wave files");           
+         props2Help.put(WAVETIMELINE, "file containing all waveforms or models that can genarate them"); 
+         props2Help.put(ISHNMTIMELINE, "file containing all wave files");         
          props2Help.put(F0LEFTTREEFILE,"file containing the left f0 CART. Will be created by this module");
          props2Help.put(F0RIGHTTREEFILE,"file containing the right f0 CART. Will be created by this module");
          props2Help.put(F0MIDTREEFILE,"file containing the middle f0 CART. Will be created by this module");
@@ -162,7 +166,11 @@ public class F0CARTTrainer extends VoiceImportComponent
         FeatureFileReader featureFile = 
             FeatureFileReader.getFeatureFileReader(getProp(FEATUREFILE));
         UnitFileReader unitFile = new UnitFileReader(getProp(UNITFILE));
-        TimelineReader waveTimeline = new TimelineReader(getProp(WAVETIMELINE));
+        TimelineReader waveTimeline = null;
+        if (getProp(ISHNMTIMELINE).compareToIgnoreCase("true")==0)
+            waveTimeline = new HnmTimelineReader(getProp(WAVETIMELINE));
+        else
+            waveTimeline = new TimelineReader(getProp(WAVETIMELINE));
         
         PrintWriter toLeftFeaturesFile = 
             new PrintWriter(new FileOutputStream(leftF0FeaturesFile));
@@ -236,6 +244,7 @@ public class F0CARTTrainer extends VoiceImportComponent
         toMidFeaturesFile.close();
         toRightFeaturesFile.close();
         System.out.println("F0 features extracted for "+nSyllables+" syllables");
+        
         if (useStepwiseTraining) percent = 1; // estimated
         else percent = 10; // estimated
         PrintWriter toDesc = new PrintWriter(new FileOutputStream(f0DescFile));
@@ -334,6 +343,7 @@ public class F0CARTTrainer extends VoiceImportComponent
         }
         
         percent = 100;
+
         return ok;
     }
     

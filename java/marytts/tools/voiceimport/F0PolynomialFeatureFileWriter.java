@@ -50,6 +50,7 @@ import marytts.signalproc.display.FunctionGraph;
 import marytts.unitselection.concat.DatagramDoubleDataSource;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.FeatureFileReader;
+import marytts.unitselection.data.HnmTimelineReader;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
@@ -74,18 +75,20 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
     protected DatabaseLayout db = null;
     protected int percent = 0;
     
-    public final String UNITFILE = "F0PolynomialFeatureFileWriter.unitFile";
-    public final String WAVETIMELINE = "F0PolynomialFeatureFileWriter.waveTimeLine";
-    public final String FEATUREFILE = "F0PolynomialFeatureFileWriter.featureFile";
-    public final String F0FEATUREFILE = "F0PolynomialFeatureFileWriter.f0FeatureFile";  
-    public final String POLYNOMORDER = "F0PolynomialFeatureFileWriter.polynomOrder";
-    public final String SHOWGRAPH = "F0PolynomialFeatureFileWriter.showGraph";
-    public final String INTERPOLATE = "F0PolynomialFeatureFileWriter.interpolate";
-    public final String MINPITCH = "F0PolynomialFeatureFileWriter.minPitch";
-    public final String MAXPITCH = "F0PolynomialFeatureFileWriter.maxPitch";
+    private final String name = "F0PolynomialFeatureFileWriter";
+    public final String UNITFILE = name + ".unitFile";
+    public final String WAVETIMELINE = name + ".waveTimeLine";
+    public final String ISHNMTIMELINE = name + ".isHnmTimeline";
+    public final String FEATUREFILE = name + ".featureFile";
+    public final String F0FEATUREFILE = name + ".f0FeatureFile";  
+    public final String POLYNOMORDER = name + ".polynomOrder";
+    public final String SHOWGRAPH = name + ".showGraph";
+    public final String INTERPOLATE = name + ".interpolate";
+    public final String MINPITCH = name + ".minPitch";
+    public final String MAXPITCH = name + ".maxPitch";
     
     public String getName(){
-        return "F0PolynomialFeatureFileWriter";
+        return name;
     }
    
     
@@ -97,6 +100,7 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
            String maryExt = db.getProp(db.MARYEXT);
            props.put(UNITFILE,fileDir+"halfphoneUnits"+maryExt);
            props.put(WAVETIMELINE,fileDir+"timeline_waveforms"+maryExt);
+           props.put(ISHNMTIMELINE, "false"); 
            props.put(FEATUREFILE,fileDir+"halfphoneFeatures"+maryExt);
            props.put(F0FEATUREFILE,fileDir+"syllableF0Polynomials"+maryExt);
            props.put(POLYNOMORDER, "3");
@@ -118,7 +122,8 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
        if (props2Help ==null) {
            props2Help = new TreeMap<String, String>();
            props2Help.put(UNITFILE,"file containing all halfphone units");
-           props2Help.put(WAVETIMELINE,"file containing all wave files");
+           props2Help.put(WAVETIMELINE, "file containing all waveforms or models that can genarate them"); 
+           props2Help.put(ISHNMTIMELINE, "file containing all wave files");    
            props2Help.put(FEATUREFILE,"file containing all halfphone units and their target cost features");
            props2Help.put(F0FEATUREFILE,"file containing syllable-based polynom coefficients on vowels");
            props2Help.put(POLYNOMORDER, "order of the polynoms used to approximate syllable F0 curves");
@@ -140,7 +145,11 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
             System.out.println("Created the output directory [" + ( db.getProp(db.FILEDIR)) + "] to store the feature file." );
         }
         units = new UnitFileReader(getProp(UNITFILE));
-        audio = new TimelineReader(getProp(WAVETIMELINE));
+        audio = null;
+        if (getProp(ISHNMTIMELINE).compareToIgnoreCase("true")==0)
+            audio = new HnmTimelineReader(getProp(WAVETIMELINE));
+        else
+            audio = new TimelineReader(getProp(WAVETIMELINE));
         
         features = new FeatureFileReader(getProp(FEATUREFILE));
         inFeatureDefinition = features.getFeatureDefinition();

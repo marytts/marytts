@@ -50,6 +50,7 @@ import marytts.signalproc.display.FunctionGraph;
 import marytts.unitselection.concat.DatagramDoubleDataSource;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.FeatureFileReader;
+import marytts.unitselection.data.HnmTimelineReader;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
@@ -72,13 +73,15 @@ public class F0PolynomialInspector extends VoiceImportComponent
     protected DatabaseLayout db = null;
     protected int percent = 0;
     
-    public final String UNITFILE = "F0PolynomialInspector.unitFile";
-    public final String WAVETIMELINE = "F0PolynomialInspector.waveTimeLine";
-    public final String FEATUREFILE = "F0PolynomialInspector.featureFile";
-    public final String F0FEATUREFILE = "F0PolynomialInspector.f0FeatureFile";  
+    private final String name = "F0PolynomialInspector";
+    public final String UNITFILE = name + ".unitFile";
+    public final String WAVETIMELINE = name + ".waveTimeLine";
+    public final String ISHNMTIMELINE = name+".isHnmTimeline";
+    public final String FEATUREFILE = name + ".featureFile";
+    public final String F0FEATUREFILE = name + ".f0FeatureFile";  
     
     public String getName(){
-        return "F0PolynomialInspector";
+        return name;
     }
    
     
@@ -90,6 +93,7 @@ public class F0PolynomialInspector extends VoiceImportComponent
            String maryExt = db.getProp(db.MARYEXT);
            props.put(UNITFILE,fileDir+"halfphoneUnits"+maryExt);
            props.put(WAVETIMELINE,fileDir+"timeline_waveforms"+maryExt);
+           props.put(ISHNMTIMELINE, "false"); 
            props.put(FEATUREFILE,fileDir+"halfphoneFeatures_ac"+maryExt);
            props.put(F0FEATUREFILE,fileDir+"syllableF0Polynomials"+maryExt);
        }
@@ -101,7 +105,8 @@ public class F0PolynomialInspector extends VoiceImportComponent
        if (props2Help ==null) {
            props2Help = new TreeMap<String, String>();
            props2Help.put(UNITFILE,"file containing all halfphone units");
-           props2Help.put(WAVETIMELINE,"file containing all wave files");
+           props2Help.put(WAVETIMELINE, "file containing all waveforms or models that can genarate them"); 
+           props2Help.put(ISHNMTIMELINE, "file containing all wave files");  
            props2Help.put(FEATUREFILE,"file containing all halfphone units and their target cost features");
            props2Help.put(F0FEATUREFILE,"file containing syllable-based polynom coefficients on vowels");
        }
@@ -113,7 +118,11 @@ public class F0PolynomialInspector extends VoiceImportComponent
         logger.info("F0 polynomial feature file writer started.");
 
         units = new UnitFileReader(getProp(UNITFILE));
-        audio = new TimelineReader(getProp(WAVETIMELINE));
+        audio = null;
+        if (getProp(ISHNMTIMELINE).compareToIgnoreCase("true")==0)
+            audio = new HnmTimelineReader(getProp(WAVETIMELINE));
+        else
+            audio = new TimelineReader(getProp(WAVETIMELINE));
         
         features = new FeatureFileReader(getProp(FEATUREFILE));
         inFeatureDefinition = features.getFeatureDefinition();
