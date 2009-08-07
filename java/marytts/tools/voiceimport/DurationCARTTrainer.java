@@ -36,6 +36,7 @@ import marytts.cart.io.MaryCARTWriter;
 import marytts.cart.io.WagonCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.unitselection.data.FeatureFileReader;
+import marytts.unitselection.data.HnmTimelineReader;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
@@ -66,13 +67,13 @@ public class DurationCARTTrainer extends VoiceImportComponent
     public final String FEATUREFILE = name+".featureFile";
     public final String UNITFILE = name+".unitFile";
     public final String WAVETIMELINE = name+".waveTimeline";
+    public final String ISHNMTIMELINE = name+".isHnmTimeline";
     public final String ESTDIR = name+".estDir";
 
     public String getName(){
         return name;
     }
     
- 
      public void initialiseComp()
     {       
         this.unitlabelDir = new File(getProp(LABELDIR));
@@ -111,7 +112,8 @@ public class DurationCARTTrainer extends VoiceImportComponent
             props.put(UNITFILE, db.getProp(db.FILEDIR)
                     +"phoneUnits"+db.getProp(db.MARYEXT));
             props.put(WAVETIMELINE, db.getProp(db.FILEDIR)
-                    +"timeline_waveforms"+db.getProp(db.MARYEXT));  
+                    +"timeline_waveforms"+db.getProp(db.MARYEXT)); 
+            props.put(ISHNMTIMELINE, "false"); 
             props.put(DURTREE,db.getProp(db.FILEDIR)
                     +"dur.tree");                    
            String estdir = System.getProperty("ESTDIR");
@@ -130,7 +132,8 @@ public class DurationCARTTrainer extends VoiceImportComponent
          props2Help.put(STEPWISETRAINING,"\"false\" or \"true\" ???????????????????????????????????????????????????????????");
          props2Help.put(FEATUREFILE, "file containing all phone units and their target cost features");
          props2Help.put(UNITFILE, "file containing all phone units");
-         props2Help.put(WAVETIMELINE, "file containing all wave files"); 
+         props2Help.put(WAVETIMELINE, "file containing all waveforms or models that can genarate them"); 
+         props2Help.put(ISHNMTIMELINE, "file containing all wave files"); 
          props2Help.put(ESTDIR,"directory containing the local installation of the Edinburgh Speech Tools");
          props2Help.put(DURTREE,"file containing the duration CART. Will be created by this module");
      }
@@ -141,7 +144,11 @@ public class DurationCARTTrainer extends VoiceImportComponent
         FeatureFileReader featureFile = 
             FeatureFileReader.getFeatureFileReader(getProp(FEATUREFILE));
         UnitFileReader unitFile = new UnitFileReader(getProp(UNITFILE));
-        TimelineReader waveTimeline = new TimelineReader(getProp(WAVETIMELINE));
+        TimelineReader waveTimeline = null;
+        if (getProp(ISHNMTIMELINE).compareToIgnoreCase("true")==0)
+            waveTimeline = new HnmTimelineReader(getProp(WAVETIMELINE));
+        else
+            waveTimeline = new TimelineReader(getProp(WAVETIMELINE));
 
         PrintWriter toFeaturesFile = new PrintWriter(new FileOutputStream(durationFeatsFile));
         System.out.println("Duration CART trainer: exporting duration features");

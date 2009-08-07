@@ -50,14 +50,15 @@ public class MCEPMaker extends VoiceImportComponent {
     protected String pmExt = ".pm";
     protected String corrPmExt = ".pm.corrected";
     
-    public final String CORRPMDIR = "MCEPMaker.corrPmDir";
-    public final String PMDIR = "MCEPMaker.pmDir";
-    public final String LPCDIR = "MCEPMaker.lpcDir";
-    public final String MCEPDIR = "MCEPMaker.mcepDir";
-    public final String ESTDIR = "MCEPMaker.estDir";
+    private final String name = "MCEPMaker";
+    public final String CORRPMDIR = name + ".corrPmDir";
+    public final String PMDIR = name + ".pmDir";
+    public final String LPCDIR = name + ".lpcDir";
+    public final String MCEPDIR = name + ".mcepDir";
+    public final String ESTDIR = name + ".estDir";
      
     public String getName(){
-        return "MCEPMaker";
+        return name;
     }
     
    public SortedMap getDefaultProps(DatabaseLayout db){
