@@ -15,7 +15,18 @@
 	</style>
 </head>
 <body dir="ltr" bgcolor="#ffffff" lang="en-US">
-<p>Outlier elimantion for voice conversion.<br>
+<p>Outlier elimantion algorithms for voice conversion.<br>
+The aim of outlier elimination is to detect source and target pairs
+that might result in reduced conversion performance or artefacts.<br>
+The best working method so far has been the GaussianOutlierEliminator.<br>
+This method fits a single Gaussian to the difference distributions of
+various source and target acoustic features (LSFs, duration, f0,
+energy).<br>
+Then, the pairs with significant difference as compared to distribution
+mean are eliminated.<br>
+The voice conversion training step can also be set to eliminate too
+close pairs, forcing an average amount of unlikeliness in the training
+data.<br>
 </p>
 </body>
 </html>
