@@ -84,28 +84,6 @@ public class HntmSynthesizer {
     {
 
     }
-
-    public double[] synthesizeFrameIntoDoubleBuffer(HntmSpeechFrame prevFrame, HntmSpeechFrame currentFrame, HntmSpeechFrame nextFrame, 
-                                                    BasicProsodyModifierParams pmodParams, 
-                                                    HntmAnalyzerParams analysisParams, 
-                                                    HntmSynthesizerParams synthesisParams)
-    {
-        HntmSynthesizedSignal frameOut = synthesizeFrame(prevFrame, currentFrame,  nextFrame, pmodParams, analysisParams, synthesisParams);
-
-        frameOut.generateOutput();
-
-        return frameOut.output;
-    }
-
-    public HntmSynthesizedSignal synthesizeFrame(HntmSpeechFrame prevFrame, HntmSpeechFrame currentFrame, HntmSpeechFrame nextFrame, 
-                                                 BasicProsodyModifierParams pmodParams, 
-                                                 HntmAnalyzerParams analysisParams, 
-                                                 HntmSynthesizerParams synthesisParams)
-    {
-        HntmSynthesizedSignal frameOut = new HntmSynthesizedSignal();
-        
-        return frameOut;
-    }
     
     public HntmSynthesizedSignal synthesize(HntmSpeechSignal hntmSignal, 
                                             HntmSpeechFrame[] leftContexts,
@@ -201,18 +179,19 @@ public class HntmSynthesizer {
         pScalesArray[7][0] = 0.6f; tScalesArray[7][0] = 1.0f;
         */
         
-        /*
-        float[][] pScalesArray = new float[3][1];
-        float[][] tScalesArray = new float[3][1];
-        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
-        pScalesArray[1][0] = 1.6f; tScalesArray[1][0] = 1.0f;
-        pScalesArray[2][0] = 1.0f; tScalesArray[2][0] = 1.6f;
-        */
+        float[][] pScalesArray = new float[1][3];
+        float[][] tScalesArray = new float[1][4];
+        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 0.5f;
+        pScalesArray[0][1] = 1.6f; tScalesArray[0][1] = 0.8f;
+        pScalesArray[0][2] = 1.0f; tScalesArray[0][2] = 1.6f;
+                                   tScalesArray[0][3] = 3.0f;
 
+        /*
         //Time invariant case, only one modification set
         float[][] pScalesArray = new float[1][1];
         float[][] tScalesArray = new float[1][1];
         pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
+        */
         
         /*
         //Time varying case, only one modification set
@@ -226,10 +205,11 @@ public class HntmSynthesizer {
         tScalesArray[0][2] = 1.5f; 
         */
         
-        float[] tScalesTimes = {0.5f, 1.5f, 1.5f};
-        //float[] tScalesTimes = null;
         float[] pScalesTimes = {0.05f, 1.0f, 1.5f};
         //float[] pScalesTimes = null;
+        float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f};
+        //float[] tScalesTimes = null;
+        
         
         //File input
         AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(wavFile));
