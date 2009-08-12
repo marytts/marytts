@@ -182,7 +182,6 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
                 // same as the next selected unit.
                 rightContexts[i] = unitData.getRightContextFrame(); // may be null
             }
-
         }
         
         DoubleDataSource audioSource = new DatagramOverlapDoubleDataSource(datagrams, rightContexts);

@@ -210,7 +210,9 @@ public class HntmProsodyModifier {
             {   
                 int numTransientSegments = ((HntmPlusTransientsSpeechSignal)hntmSignal).transients.segments.length;
 
-                output = new HntmSpeechSignalWithContext();
+                if (output==null)
+                    output = new HntmSpeechSignalWithContext();
+                
                 output.hntmSignal = new HntmPlusTransientsSpeechSignal(hntmSignal.frames.length, hntmSignal.samplingRateInHz, hntmSignal.originalDurationInSeconds, 
                                                                           numTransientSegments);
                 output.leftContexts = new HntmSpeechFrame[hntmSignal.frames.length];
@@ -281,6 +283,8 @@ public class HntmProsodyModifier {
             }
             else
             {
+                if (output==null)
+                    output = new HntmSpeechSignalWithContext();
                 output.hntmSignal = new HntmSpeechSignal(hntmSignal.frames.length, hntmSignal.samplingRateInHz, hntmSignal.originalDurationInSeconds);
                 output.leftContexts = new HntmSpeechFrame[hntmSignal.frames.length];
                 output.rightContexts = new HntmSpeechFrame[hntmSignal.frames.length];
@@ -288,6 +292,10 @@ public class HntmProsodyModifier {
             //
 
             /*
+            if (output==null)
+                output = new HntmSpeechSignalWithContext();
+                
+            output.hntmSignal = new HntmSpeechSignal(hntmSignal.frames.length, hntmSignal.samplingRateInHz, hntmSignal.originalDurationInSeconds);
             for (i=0; i<hntmSignal.frames.length; i++)
             {
                 output.hntmSignal.frames[i] = new HntmSpeechFrame(hntmSignal.frames[i]);
@@ -314,7 +322,10 @@ public class HntmProsodyModifier {
             TDPSOLAInstants synthesisInstants = TDPSOLAProcessor.transformAnalysisInstants(tAnalysis, hntmSignal.samplingRateInHz, vuvs, tScalesMod, pScalesMod);
             
             //Time scaling
-            output.hntmSignal.frames = new HntmSpeechFrame[synthesisInstants.synthesisInstantsInSeconds.length];
+            if (output==null)
+                output = new HntmSpeechSignalWithContext();
+            
+            output.hntmSignal = new HntmSpeechSignal(synthesisInstants.synthesisInstantsInSeconds.length, hntmSignal.samplingRateInHz, hntmSignal.originalDurationInSeconds);
             output.leftContexts = new HntmSpeechFrame[synthesisInstants.synthesisInstantsInSeconds.length];
             output.rightContexts = new HntmSpeechFrame[synthesisInstants.synthesisInstantsInSeconds.length];
             
@@ -327,14 +338,18 @@ public class HntmProsodyModifier {
                     if (i<hntmSignal.frames.length)
                     {
                         output.hntmSignal.frames[currentSynthesisIndex] = new HntmSpeechFrame(hntmSignal.frames[i]);
-                        output.leftContexts[currentSynthesisIndex] = new HntmSpeechFrame(leftContexts[i]);
-                        output.rightContexts[currentSynthesisIndex] = new HntmSpeechFrame(rightContexts[i]);
+                        if (leftContexts!=null)
+                            output.leftContexts[currentSynthesisIndex] = new HntmSpeechFrame(leftContexts[i]);
+                        if (rightContexts!=null)
+                            output.rightContexts[currentSynthesisIndex] = new HntmSpeechFrame(rightContexts[i]);
                     }
                     else
                     {
                         output.hntmSignal.frames[currentSynthesisIndex] = new HntmSpeechFrame(hntmSignal.frames[hntmSignal.frames.length-1]);
-                        output.leftContexts[currentSynthesisIndex] = new HntmSpeechFrame(leftContexts[hntmSignal.frames.length-1]);
-                        output.rightContexts[currentSynthesisIndex] = new HntmSpeechFrame(rightContexts[hntmSignal.frames.length-1]);
+                        if (leftContexts!=null)
+                            output.leftContexts[currentSynthesisIndex] = new HntmSpeechFrame(leftContexts[hntmSignal.frames.length-1]);
+                        if (rightContexts!=null)
+                            output.rightContexts[currentSynthesisIndex] = new HntmSpeechFrame(rightContexts[hntmSignal.frames.length-1]);
                     }
 
                     output.hntmSignal.frames[currentSynthesisIndex].tAnalysisInSeconds = synthesisInstants.synthesisInstantsInSeconds[currentSynthesisIndex];
