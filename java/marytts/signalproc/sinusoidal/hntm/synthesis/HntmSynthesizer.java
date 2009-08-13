@@ -103,7 +103,11 @@ public class HntmSynthesizer {
         
         
         if (synthesisParams.harmonicPartSynthesisMethod==HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION)
-            s.harmonicPart = HarmonicPartLinearPhaseInterpolatorSynthesizer.synthesize(prosodyModified.hntmSignal, analysisParams, synthesisParams, referenceFile);
+        {
+            //s.harmonicPart = HarmonicPartLinearPhaseInterpolatorSynthesizer.synthesize(prosodyModified.hntmSignal, analysisParams, synthesisParams, referenceFile);
+            HarmonicPartLinearPhaseInterpolatorSynthesizer hs = new HarmonicPartLinearPhaseInterpolatorSynthesizer(prosodyModified.hntmSignal.originalDurationInSeconds, prosodyModified.hntmSignal.samplingRateInHz, analysisParams, synthesisParams, referenceFile);
+            s.harmonicPart = hs.synthesize(prosodyModified.hntmSignal);
+        }
         else if (synthesisParams.harmonicPartSynthesisMethod==HntmSynthesizerParams.CUBIC_PHASE_INTERPOLATION)
         {
             //Convert to pure sinusoidal tracks
@@ -179,19 +183,19 @@ public class HntmSynthesizer {
         pScalesArray[7][0] = 0.6f; tScalesArray[7][0] = 1.0f;
         */
         
+        /*
         float[][] pScalesArray = new float[1][3];
         float[][] tScalesArray = new float[1][4];
         pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 0.5f;
         pScalesArray[0][1] = 1.6f; tScalesArray[0][1] = 0.8f;
         pScalesArray[0][2] = 1.0f; tScalesArray[0][2] = 1.6f;
                                    tScalesArray[0][3] = 3.0f;
+        */
 
-        /*
         //Time invariant case, only one modification set
         float[][] pScalesArray = new float[1][1];
         float[][] tScalesArray = new float[1][1];
         pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
-        */
         
         /*
         //Time varying case, only one modification set
@@ -204,12 +208,13 @@ public class HntmSynthesizer {
         tScalesArray[0][1] = 0.5f;
         tScalesArray[0][2] = 1.5f; 
         */
-        
+
+        float[] pScalesTimes = null;
+        float[] tScalesTimes = null;
+        /*
         float[] pScalesTimes = {0.05f, 1.0f, 1.5f};
-        //float[] pScalesTimes = null;
         float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f};
-        //float[] tScalesTimes = null;
-        
+        */
         
         //File input
         AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(wavFile));

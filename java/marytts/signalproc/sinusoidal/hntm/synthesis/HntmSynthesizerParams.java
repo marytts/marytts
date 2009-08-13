@@ -68,6 +68,9 @@ public class HntmSynthesizerParams {
     public boolean overlappingHarmonicPartSynthesis; //Use overlap in harmonic part synthesis across consecutive frames
     public float harmonicSynthesisOverlapInSeconds; //Amount of overlap in harmonic part synthesis
     
+    public int synthesisFramesToAccumulateBeforeAudioGeneration; //How many frames to accumulate before generating audio, make sure it does not conflict with and overlap-add procedures
+    public static final int SYNTHESIS_FRAMES_TO_ACCUMULATE_BEFORE_AUDIO_GENERATION = 5;
+    
     public HntmSynthesizerParams()
     {
         harmonicPartSynthesisMethod = LINEAR_PHASE_INTERPOLATION; 
@@ -101,6 +104,8 @@ public class HntmSynthesizerParams {
         
         overlappingHarmonicPartSynthesis = false;
         harmonicSynthesisOverlapInSeconds = 0.020f;
+        
+        synthesisFramesToAccumulateBeforeAudioGeneration = SYNTHESIS_FRAMES_TO_ACCUMULATE_BEFORE_AUDIO_GENERATION;
     }
     
     public HntmSynthesizerParams(HntmSynthesizerParams existing)
@@ -131,6 +136,8 @@ public class HntmSynthesizerParams {
         
         overlappingHarmonicPartSynthesis = existing.overlappingHarmonicPartSynthesis;
         harmonicSynthesisOverlapInSeconds = existing.harmonicSynthesisOverlapInSeconds;
+        
+        synthesisFramesToAccumulateBeforeAudioGeneration= existing.synthesisFramesToAccumulateBeforeAudioGeneration;
     }
 
 }
