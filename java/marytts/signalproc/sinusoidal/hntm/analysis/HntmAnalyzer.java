@@ -580,7 +580,11 @@ public class HntmAnalyzer {
         //
         
         if (analysisParams.harmonicSynthesisMethodBeforeNoiseAnalysis==HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION)
-             s.harmonicPart = HarmonicPartLinearPhaseInterpolatorSynthesizer.synthesize(hnmSignal, analysisParams, synthesisParamsForNoiseAnalysis);
+        {
+            //s.harmonicPart = HarmonicPartLinearPhaseInterpolatorSynthesizer.synthesize(hnmSignal, analysisParams, synthesisParamsForNoiseAnalysis);
+            HarmonicPartLinearPhaseInterpolatorSynthesizer hs = new HarmonicPartLinearPhaseInterpolatorSynthesizer(hnmSignal, analysisParams, synthesisParamsForNoiseAnalysis);
+            s.harmonicPart = hs.synthesizeAll();
+        }
         else if (analysisParams.harmonicSynthesisMethodBeforeNoiseAnalysis==HntmSynthesizerParams.CUBIC_PHASE_INTERPOLATION)
         {
             //Convert to pure sinusoidal tracks

@@ -69,9 +69,14 @@ import marytts.util.MaryUtils;
  */
 public class HarmonicPartLinearPhaseInterpolatorSynthesizer 
 {   
+    //TO DO: Decrease the buffer sizes since with the latest implementation, we do not have to keep all signal
+    //       When the user enters a reference file to write separate output tracks to files, set the buffer sizes as we do previously, i.e. sufficient to keep all signal
+    //       Note that, in normal operation mode, we do not write the harmonic tracks to separate files, i.e. reference file is null.
     private double[] harmonicPart = null;
     private double[][] harmonicTracks;
     private double[][] winOverlapWgt;
+    //
+    
     private HntmAnalyzerParams analysisParams;
     private HntmSynthesizerParams synthesisParams;
     
@@ -88,6 +93,13 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
     private HntmSpeechSignal hnmSignal;
     private boolean isReseted;
 
+    public HarmonicPartLinearPhaseInterpolatorSynthesizer(HntmSpeechSignal hnmSignalIn,
+                                                          HntmAnalyzerParams analysisParamsIn,
+                                                          HntmSynthesizerParams synthesisParamsIn)
+    {
+        this(hnmSignalIn, analysisParamsIn, synthesisParamsIn, null);
+    }
+    
     public HarmonicPartLinearPhaseInterpolatorSynthesizer(HntmSpeechSignal hnmSignalIn,
                                                           HntmAnalyzerParams analysisParamsIn,
                                                           HntmSynthesizerParams synthesisParamsIn,
@@ -172,19 +184,35 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
     {
         reset();
         
+        double[] output = null;
+        int harmonicPartIndex = 0;
         while (nextFrameAvailable())
-            synthesizeNext();
+        {
+            output = synthesizeNext();
+            if (output!=null)
+            {
+                System.arraycopy(output, 0, harmonicPart, harmonicPartIndex, output.length);
+                harmonicPartIndex += output.length;
+            }
+        }
 
         //Generate remaining output
-        generateOutput(true);
+        output = generateOutput(true);
+        if (output!=null)
+        {
+            System.arraycopy(output, 0, harmonicPart, harmonicPartIndex, output.length);
+            harmonicPartIndex += output.length;
+        }
         //
         
         return harmonicPart;
     }
     
-    public void synthesizeNext()
+    public double[] synthesizeNext()
     {
         assert currentFrameIndex<hnmSignal.frames.length;
+        
+        double[] output = null;
 
         HntmSpeechFrame prevFrame, nextFrame;
 
@@ -212,12 +240,14 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
         if (currentFrameIndex>synthesisParams.synthesisFramesToAccumulateBeforeAudioGeneration)
         {
             pipeOutEndIndex = SignalProcUtils.time2sample(hnmSignal.frames[currentFrameIndex-synthesisParams.synthesisFramesToAccumulateBeforeAudioGeneration].tAnalysisInSeconds, hnmSignal.samplingRateInHz);
-            generateOutput(false);
+            output = generateOutput(false);
         }
         //
 
         isReseted = false;
         currentFrameIndex++;
+        
+        return output;
     }
     
     private void processFrame(HntmSpeechFrame prevFrame, 
@@ -479,8 +509,10 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
         }
     }
     
-    public void generateOutput(boolean pipeOutAllOutput)
+    public double[] generateOutput(boolean pipeOutAllOutput)
     {
+        double[] output = null;
+        
         if (harmonicTracks!=null)
         {
             int k, n;
@@ -488,13 +520,17 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
             if (pipeOutAllOutput)
                 pipeOutEndIndex = harmonicPart.length;
             
+            output = new double[Math.min(pipeOutEndIndex, harmonicPart.length-1)-pipeOutStartIndex+1];
             if (!synthesisParams.overlappingHarmonicPartSynthesis)
             {
                 for (k=0; k<harmonicTracks.length; k++)
                 {
                     //for (n=0; n<harmonicPart.length; n++)
                     for (n=pipeOutStartIndex; n<=Math.min(pipeOutEndIndex, harmonicPart.length-1); n++)
-                        harmonicPart[n] += harmonicTracks[k][n];
+                    {
+                        //harmonicPart[n] += harmonicTracks[k][n];
+                        output[n-pipeOutStartIndex] += harmonicTracks[k][n];
+                    }
                 }
             }
             else
@@ -505,9 +541,15 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
                     for (n=pipeOutStartIndex; n<=Math.min(pipeOutEndIndex, harmonicPart.length-1); n++)
                     {
                         if (winOverlapWgt[k][n]>0.0f)
-                            harmonicPart[n] += harmonicTracks[k][n]/winOverlapWgt[k][n];
+                        {
+                            //harmonicPart[n] += harmonicTracks[k][n]/winOverlapWgt[k][n];
+                            output[n-pipeOutStartIndex] += harmonicTracks[k][n]/winOverlapWgt[k][n];
+                        }
                         else
-                            harmonicPart[n] += harmonicTracks[k][n];
+                        {
+                            //harmonicPart[n] += harmonicTracks[k][n];
+                            output[n-pipeOutStartIndex] += harmonicTracks[k][n];
+                        }
                     }
                 }
             }
@@ -547,5 +589,7 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
             }
             //
         }
+        
+        return output;
     }
 }
