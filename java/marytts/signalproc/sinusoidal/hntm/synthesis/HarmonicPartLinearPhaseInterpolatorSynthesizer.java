@@ -67,48 +67,55 @@ import marytts.util.MaryUtils;
  * @author oytun.turk
  *
  */
-public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
+public class HarmonicPartLinearPhaseInterpolatorSynthesizer 
+{   
+    private double[] harmonicPart = null;
+    private double[][] harmonicTracks;
+    private double[][] winOverlapWgt;
+    private HntmAnalyzerParams analysisParams;
+    private HntmSynthesizerParams synthesisParams;
     
-    public static double[] synthesize(HntmSpeechSignal hnmSignal, HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParams)
-    {
-        return synthesize(hnmSignal, analysisParams, synthesisParams, null);
-    }
+    private int samplingRateInHz;
+    private float totalDurationInSeconds;
     
-    public static double[] synthesize(HntmSpeechSignal hnmSignal, HntmAnalyzerParams analysisParams, HntmSynthesizerParams synthesisParams, String referenceFile)
+    private int transitionLen;
+    private double[] halfTransitionWinLeft;
+    private double[] halfTransitionWinRight;
+    
+    private String referenceFile; //Reference if the user wants to write the separate tracks to output
+    
+    private int pipeOutStartIndex;
+    private int pipeOutEndIndex;
+
+    public HarmonicPartLinearPhaseInterpolatorSynthesizer(float totalDurationInSecondsIn, 
+                                                          int samplingRateInHzIn,
+                                                          HntmAnalyzerParams analysisParamsIn,
+                                                          HntmSynthesizerParams synthesisParamsIn,
+                                                          String referenceFileIn
+                                                          )
     {
-        double[] harmonicPart = null;
-        int trackNoToExamine = 1;
-
-        int i, k, n;
-
-        //double lastPeriodInSeconds = 0.0;
-
-        int numHarmonicsCurrentFrame;
-        int maxNumHarmonics = 0;
-        for (i=0; i<hnmSignal.frames.length; i++)
-        {
-            if (hnmSignal.frames[i].maximumFrequencyOfVoicingInHz>0.0f && hnmSignal.frames[i].h!=null && hnmSignal.frames[i].h.complexAmps!=null)
-            {
-                numHarmonicsCurrentFrame = hnmSignal.frames[i].h.complexAmps.length;
-                if (numHarmonicsCurrentFrame>maxNumHarmonics)
-                    maxNumHarmonics = numHarmonicsCurrentFrame;
-            }  
-        }
-
-        int outputLen = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
+        harmonicPart = null;
+        harmonicTracks = null;
+        winOverlapWgt = null;
+        
+        analysisParams = analysisParamsIn;
+        synthesisParams = synthesisParamsIn;
+        referenceFile = referenceFileIn;
+        totalDurationInSeconds = totalDurationInSecondsIn;
+        samplingRateInHz = samplingRateInHzIn;
+        
+        int outputLen = SignalProcUtils.time2sample(totalDurationInSeconds, samplingRateInHz);
         
         harmonicPart = new double[outputLen]; //In fact, this should be prosody scaled length when you implement prosody modifications
         Arrays.fill(harmonicPart, 0.0);
         
-        //Write separate tracks to output
-        double[][] harmonicTracks = null;
-        double[][] winOverlapWgt = null;
-
-        if (maxNumHarmonics>0)
+        //Separate tracks
+        int k;
+        if (analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics>0)
         {
-            harmonicTracks = new double[maxNumHarmonics][];
-            winOverlapWgt = new double[maxNumHarmonics][];
-            for (k=0; k<maxNumHarmonics; k++)
+            harmonicTracks = new double[analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics][];
+            winOverlapWgt = new double[analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics][];
+            for (k=0; k<analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics; k++)
             {
                 harmonicTracks[k] = new double[outputLen];
                 Arrays.fill(harmonicTracks[k], 0.0);
@@ -122,11 +129,19 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
         }
         //
         
-        int transitionLen = SignalProcUtils.time2sample(synthesisParams.unvoicedVoicedTrackTransitionInSeconds, hnmSignal.samplingRateInHz);
+        transitionLen = SignalProcUtils.time2sample(synthesisParams.unvoicedVoicedTrackTransitionInSeconds, samplingRateInHz);
         Window transitionWin = Window.get(Window.HAMMING, transitionLen*2);
         transitionWin.normalizePeakValue(1.0f);
-        double[] halfTransitionWinLeft = transitionWin.getCoeffsLeftHalf();
-        double[] halfTransitionWinRight = transitionWin.getCoeffsRightHalf();
+        halfTransitionWinLeft = transitionWin.getCoeffsLeftHalf();
+        halfTransitionWinRight = transitionWin.getCoeffsRightHalf();
+        
+        pipeOutStartIndex = 0;
+        pipeOutEndIndex = -1; //You should increase this appropriately during frame based synthesis. Make sure it always precedes any overlap region
+    }
+    
+    public double[] synthesize(HntmSpeechSignal hnmSignal)
+    {
+        int i, k, n;
         
         HntmSpeechFrame prevFrame, nextFrame;
         
@@ -150,84 +165,29 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
             if (i==hnmSignal.frames.length-1)
                 isLastSynthesisFrame = true;
             
-            processFrame(prevFrame, hnmSignal.frames[i], nextFrame, 
-                         analysisParams, hnmSignal.samplingRateInHz, 
-                         isFirstSynthesisFrame, isLastSynthesisFrame,
-                         hnmSignal.originalDurationInSeconds, synthesisParams, 
-                         transitionLen,
-                         harmonicTracks, winOverlapWgt,
-                         halfTransitionWinLeft, halfTransitionWinRight, outputLen);
-        }
-        
-        if (harmonicTracks!=null)
-        {
-            if (!synthesisParams.overlappingHarmonicPartSynthesis)
-            {
-                for (k=0; k<harmonicTracks.length; k++)
-                {
-                    for (n=0; n<harmonicPart.length; n++)
-                        harmonicPart[n] += harmonicTracks[k][n];
-                }
-            }
-            else
-            {
-                for (k=0; k<harmonicTracks.length; k++)
-                {
-                    for (n=0; n<harmonicPart.length; n++)
-                    {
-                        if (winOverlapWgt[k][n]>0.0f)
-                            harmonicPart[n] += harmonicTracks[k][n]/winOverlapWgt[k][n];
-                        else
-                            harmonicPart[n] += harmonicTracks[k][n];
-                    }
-                }
-            }
+            processFrame(prevFrame, hnmSignal.frames[i], nextFrame, isFirstSynthesisFrame, isLastSynthesisFrame);
             
-            if (referenceFile!=null && FileUtils.exists(referenceFile) && synthesisParams.writeSeparateHarmonicTracksToOutputs)
+            //Start to generate output as soon as a few frames are processed
+            if (i>synthesisParams.synthesisFramesToAccumulateBeforeAudioGeneration)
             {
-                //Write separate tracks to output
-                AudioInputStream inputAudio = null;
-                try {
-                    inputAudio = AudioSystem.getAudioInputStream(new File(referenceFile));
-                } catch (UnsupportedAudioFileException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-                if (inputAudio!=null)
-                {
-                    //k=1;
-                    for (k=0; k<harmonicTracks.length; k++)
-                    {
-                        harmonicTracks[k] = MathUtils.divide(harmonicTracks[k], 32767.0);
-
-                        DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(harmonicTracks[k]), inputAudio.getFormat());
-                        String outFileName = StringUtils.getFolderName(referenceFile) + "harmonicTrack" + String.valueOf(k+1) + ".wav";
-                        try {
-                            AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
-                        } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                    }
-                }
+                pipeOutEndIndex = SignalProcUtils.time2sample(hnmSignal.frames[i-synthesisParams.synthesisFramesToAccumulateBeforeAudioGeneration].tAnalysisInSeconds, samplingRateInHz);
+                generateOutput(false);
             }
             //
         }
         
+        //Generate remaining output
+        generateOutput(true);
+        //
+        
         return harmonicPart;
     }
     
-    public static void processFrame(HntmSpeechFrame prevFrame, HntmSpeechFrame currentFrame, HntmSpeechFrame nextFrame,
-                                    HntmAnalyzerParams analysisParams, int samplingRateInHz, 
-                                    boolean isFirstSynthesisFrame, boolean isLastSynthesisFrame,
-                                    float originalDurationInSeconds, HntmSynthesizerParams synthesisParams,
-                                    int transitionLen, 
-                                    double[][] harmonicTracks, double[][] winOverlapWgt,
-                                    double[] halfTransitionWinLeft, double[] halfTransitionWinRight, int outputLen)
+    public void processFrame(HntmSpeechFrame prevFrame, 
+                             HntmSpeechFrame currentFrame, 
+                             HntmSpeechFrame nextFrame,
+                             boolean isFirstSynthesisFrame, 
+                             boolean isLastSynthesisFrame)
     {
         int i, k, n;
         int currentHarmonicNo;
@@ -333,7 +293,7 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                 trackStartInSeconds = tsik;
             
             if (isLastSynthesisFrame || nextFrame==null)
-                tsikPlusOne = originalDurationInSeconds;
+                tsikPlusOne = totalDurationInSeconds;
             else
                 tsikPlusOne = nextFrame.tAnalysisInSeconds;
 
@@ -443,7 +403,7 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                 Mk = (int)Math.floor((phasekiPlusOneEstimate-phasekiPlusOne)/MathUtils.TWOPI + 0.5);
                 //
 
-                for (n=Math.max(0, trackStartIndex); n<=Math.min(trackEndIndex, outputLen-1); n++)
+                for (n=Math.max(0, trackStartIndex); n<=Math.min(trackEndIndex, harmonicPart.length-1); n++)
                 {
                     double t = SignalProcUtils.sample2time(n, samplingRateInHz);
                     
@@ -479,6 +439,76 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer {
                     }
                 } 
             }
+        }
+    }
+    
+    public void generateOutput(boolean pipeOutAllOutput)
+    {
+        if (harmonicTracks!=null)
+        {
+            int k, n;
+            
+            if (pipeOutAllOutput)
+                pipeOutEndIndex = harmonicPart.length;
+            
+            if (!synthesisParams.overlappingHarmonicPartSynthesis)
+            {
+                for (k=0; k<harmonicTracks.length; k++)
+                {
+                    //for (n=0; n<harmonicPart.length; n++)
+                    for (n=pipeOutStartIndex; n<=Math.min(pipeOutEndIndex, harmonicPart.length-1); n++)
+                        harmonicPart[n] += harmonicTracks[k][n];
+                }
+            }
+            else
+            {
+                for (k=0; k<harmonicTracks.length; k++)
+                {
+                    //for (n=0; n<harmonicPart.length; n++)
+                    for (n=pipeOutStartIndex; n<=Math.min(pipeOutEndIndex, harmonicPart.length-1); n++)
+                    {
+                        if (winOverlapWgt[k][n]>0.0f)
+                            harmonicPart[n] += harmonicTracks[k][n]/winOverlapWgt[k][n];
+                        else
+                            harmonicPart[n] += harmonicTracks[k][n];
+                    }
+                }
+            }
+            
+            pipeOutStartIndex = pipeOutEndIndex+1;
+            
+            if (pipeOutAllOutput && referenceFile!=null && FileUtils.exists(referenceFile) && synthesisParams.writeSeparateHarmonicTracksToOutputs)
+            {
+                //Write separate tracks to output
+                AudioInputStream inputAudio = null;
+                try {
+                    inputAudio = AudioSystem.getAudioInputStream(new File(referenceFile));
+                } catch (UnsupportedAudioFileException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                if (inputAudio!=null)
+                {
+                    for (k=0; k<harmonicTracks.length; k++)
+                    {
+                        harmonicTracks[k] = MathUtils.divide(harmonicTracks[k], 32767.0);
+
+                        DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(harmonicTracks[k]), inputAudio.getFormat());
+                        String outFileName = StringUtils.getFolderName(referenceFile) + "harmonicTrack" + String.valueOf(k+1) + ".wav";
+                        try {
+                            AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outFileName));
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            //
         }
     }
 }
