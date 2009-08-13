@@ -64,7 +64,7 @@ import marytts.util.MaryUtils;
  *            Ecole Nationale Supérieure des Télécommunications.
  * (Chapter 3, A Harmonic plus Noise Model, HNM)
  * 
- * @author oytun.turk
+ * @author Oytun T&uumlrk
  *
  */
 public class HarmonicPartLinearPhaseInterpolatorSynthesizer 
@@ -75,9 +75,6 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
     private HntmAnalyzerParams analysisParams;
     private HntmSynthesizerParams synthesisParams;
     
-    private int samplingRateInHz;
-    private float totalDurationInSeconds;
-    
     private int transitionLen;
     private double[] halfTransitionWinLeft;
     private double[] halfTransitionWinRight;
@@ -86,14 +83,17 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
     
     private int pipeOutStartIndex;
     private int pipeOutEndIndex;
+    private int currentFrameIndex;
+    
+    private HntmSpeechSignal hnmSignal;
+    private boolean isReseted;
 
-    public HarmonicPartLinearPhaseInterpolatorSynthesizer(float totalDurationInSecondsIn, 
-                                                          int samplingRateInHzIn,
+    public HarmonicPartLinearPhaseInterpolatorSynthesizer(HntmSpeechSignal hnmSignalIn,
                                                           HntmAnalyzerParams analysisParamsIn,
                                                           HntmSynthesizerParams synthesisParamsIn,
-                                                          String referenceFileIn
-                                                          )
+                                                          String referenceFileIn)
     {
+        hnmSignal = hnmSignalIn;
         harmonicPart = null;
         harmonicTracks = null;
         winOverlapWgt = null;
@@ -101,81 +101,80 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
         analysisParams = analysisParamsIn;
         synthesisParams = synthesisParamsIn;
         referenceFile = referenceFileIn;
-        totalDurationInSeconds = totalDurationInSecondsIn;
-        samplingRateInHz = samplingRateInHzIn;
-        
-        int outputLen = SignalProcUtils.time2sample(totalDurationInSeconds, samplingRateInHz);
-        
-        harmonicPart = new double[outputLen]; //In fact, this should be prosody scaled length when you implement prosody modifications
-        Arrays.fill(harmonicPart, 0.0);
-        
-        //Separate tracks
-        int k;
-        if (analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics>0)
-        {
-            harmonicTracks = new double[analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics][];
-            winOverlapWgt = new double[analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics][];
-            for (k=0; k<analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics; k++)
-            {
-                harmonicTracks[k] = new double[outputLen];
-                Arrays.fill(harmonicTracks[k], 0.0);
-                
-                if (synthesisParams.overlappingHarmonicPartSynthesis)
-                {
-                    winOverlapWgt[k] = new double[outputLen];
-                    Arrays.fill(winOverlapWgt[k], 0.0);
-                }
-            }
-        }
-        //
-        
-        transitionLen = SignalProcUtils.time2sample(synthesisParams.unvoicedVoicedTrackTransitionInSeconds, samplingRateInHz);
+
+        transitionLen = SignalProcUtils.time2sample(synthesisParams.unvoicedVoicedTrackTransitionInSeconds, hnmSignal.samplingRateInHz);
         Window transitionWin = Window.get(Window.HAMMING, transitionLen*2);
         transitionWin.normalizePeakValue(1.0f);
         halfTransitionWinLeft = transitionWin.getCoeffsLeftHalf();
         halfTransitionWinRight = transitionWin.getCoeffsRightHalf();
         
-        pipeOutStartIndex = 0;
-        pipeOutEndIndex = -1; //You should increase this appropriately during frame based synthesis. Make sure it always precedes any overlap region
+        isReseted = false;
+        
+        reset();
     }
     
-    public double[] synthesize(HntmSpeechSignal hnmSignal)
+    //Reset synthesis variables to start synthesis from the beginning
+    public void reset()
     {
-        int i, k, n;
-        
-        HntmSpeechFrame prevFrame, nextFrame;
-        
-        for (i=0; i<hnmSignal.frames.length; i++)
+        if (!isReseted)
         {
-            if (i>0)
-                prevFrame = hnmSignal.frames[i-1];
-            else
-                prevFrame = null;
-                
-            if (i<hnmSignal.frames.length-1)
-                nextFrame = hnmSignal.frames[i+1];
-            else
-                nextFrame = null;
-            
-            boolean isFirstSynthesisFrame = false;
-            if (i==0)
-                isFirstSynthesisFrame = true;
-            
-            boolean isLastSynthesisFrame = false;
-            if (i==hnmSignal.frames.length-1)
-                isLastSynthesisFrame = true;
-            
-            processFrame(prevFrame, hnmSignal.frames[i], nextFrame, isFirstSynthesisFrame, isLastSynthesisFrame);
-            
-            //Start to generate output as soon as a few frames are processed
-            if (i>synthesisParams.synthesisFramesToAccumulateBeforeAudioGeneration)
+            isReseted = true;
+            int outputLen = SignalProcUtils.time2sample(hnmSignal.originalDurationInSeconds, hnmSignal.samplingRateInHz);
+
+            harmonicPart = new double[outputLen]; //In fact, this should be prosody scaled length when you implement prosody modifications
+            Arrays.fill(harmonicPart, 0.0);
+
+            //Separate tracks
+            int k;
+            if (analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics>0)
             {
-                pipeOutEndIndex = SignalProcUtils.time2sample(hnmSignal.frames[i-synthesisParams.synthesisFramesToAccumulateBeforeAudioGeneration].tAnalysisInSeconds, samplingRateInHz);
-                generateOutput(false);
+                harmonicTracks = new double[analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics][];
+                winOverlapWgt = new double[analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics][];
+                for (k=0; k<analysisParams.hnmPitchVoicingAnalyzerParams.maximumTotalHarmonics; k++)
+                {
+                    harmonicTracks[k] = new double[outputLen];
+                    Arrays.fill(harmonicTracks[k], 0.0);
+
+                    if (synthesisParams.overlappingHarmonicPartSynthesis)
+                    {
+                        winOverlapWgt[k] = new double[outputLen];
+                        Arrays.fill(winOverlapWgt[k], 0.0);
+                    }
+                }
             }
             //
+
+            pipeOutStartIndex = 0;
+            pipeOutEndIndex = -1; //You should increase this appropriately during frame based synthesis. Make sure it always precedes any overlap region
+
+            currentFrameIndex = 0;
+            //
         }
+    }
+    
+    //Is reseted for starting synthesis from the beginning?
+    public boolean isReseted()
+    {
+        return isReseted;
+    }
+    
+    public boolean nextFrameAvailable()
+    {
+        if (currentFrameIndex+1<hnmSignal.frames.length)
+            return true;
+        else
+            return false;
+    }
+    
+    //For frame based synthesis from outside, create the same loop as this function does
+    //Make sure to call reset() if you want to do synthesis with the identical object more than once
+    public double[] synthesizeAll()
+    {
+        reset();
         
+        while (nextFrameAvailable())
+            synthesizeNext();
+
         //Generate remaining output
         generateOutput(true);
         //
@@ -183,11 +182,49 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
         return harmonicPart;
     }
     
-    public void processFrame(HntmSpeechFrame prevFrame, 
-                             HntmSpeechFrame currentFrame, 
-                             HntmSpeechFrame nextFrame,
-                             boolean isFirstSynthesisFrame, 
-                             boolean isLastSynthesisFrame)
+    public void synthesizeNext()
+    {
+        assert currentFrameIndex<hnmSignal.frames.length;
+
+        HntmSpeechFrame prevFrame, nextFrame;
+
+        if (currentFrameIndex>0)
+            prevFrame = hnmSignal.frames[currentFrameIndex-1];
+        else
+            prevFrame = null;
+
+        if (currentFrameIndex<hnmSignal.frames.length-1)
+            nextFrame = hnmSignal.frames[currentFrameIndex+1];
+        else
+            nextFrame = null;
+
+        boolean isFirstSynthesisFrame = false;
+        if (currentFrameIndex==0)
+            isFirstSynthesisFrame = true;
+
+        boolean isLastSynthesisFrame = false;
+        if (currentFrameIndex==hnmSignal.frames.length-1)
+            isLastSynthesisFrame = true;
+
+        processFrame(prevFrame, hnmSignal.frames[currentFrameIndex], nextFrame, isFirstSynthesisFrame, isLastSynthesisFrame);
+
+        //Start to generate output as soon as a few frames are processed
+        if (currentFrameIndex>synthesisParams.synthesisFramesToAccumulateBeforeAudioGeneration)
+        {
+            pipeOutEndIndex = SignalProcUtils.time2sample(hnmSignal.frames[currentFrameIndex-synthesisParams.synthesisFramesToAccumulateBeforeAudioGeneration].tAnalysisInSeconds, hnmSignal.samplingRateInHz);
+            generateOutput(false);
+        }
+        //
+
+        isReseted = false;
+        currentFrameIndex++;
+    }
+    
+    private void processFrame(HntmSpeechFrame prevFrame, 
+                              HntmSpeechFrame currentFrame, 
+                              HntmSpeechFrame nextFrame,
+                              boolean isFirstSynthesisFrame, 
+                              boolean isLastSynthesisFrame)
     {
         int i, k, n;
         int currentHarmonicNo;
@@ -255,9 +292,9 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
         
         if (!analysisParams.useHarmonicAmplitudesDirectly)
         {
-            currentCeps = currentFrame.h.getCeps(f0InHz, samplingRateInHz, analysisParams);
+            currentCeps = currentFrame.h.getCeps(f0InHz, hnmSignal.samplingRateInHz, analysisParams);
             if (nextFrame!=null)
-                nextCeps = nextFrame.h.getCeps(f0InHzNext, samplingRateInHz, analysisParams);
+                nextCeps = nextFrame.h.getCeps(f0InHzNext, hnmSignal.samplingRateInHz, analysisParams);
             else
                 nextCeps = null;
         }
@@ -293,7 +330,7 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
                 trackStartInSeconds = tsik;
             
             if (isLastSynthesisFrame || nextFrame==null)
-                tsikPlusOne = totalDurationInSeconds;
+                tsikPlusOne = hnmSignal.originalDurationInSeconds;
             else
                 tsikPlusOne = nextFrame.tAnalysisInSeconds;
 
@@ -305,8 +342,8 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
                 trackEndInSeconds += synthesisParams.harmonicSynthesisOverlapInSeconds;
             }
 
-            trackStartIndex = SignalProcUtils.time2sample(trackStartInSeconds, samplingRateInHz);
-            trackEndIndex = SignalProcUtils.time2sample(trackEndInSeconds, samplingRateInHz);
+            trackStartIndex = SignalProcUtils.time2sample(trackStartInSeconds, hnmSignal.samplingRateInHz);
+            trackEndIndex = SignalProcUtils.time2sample(trackEndInSeconds, hnmSignal.samplingRateInHz);
 
             if (!synthesisParams.overlappingHarmonicPartSynthesis)
             {
@@ -333,9 +370,9 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
                     if (!analysisParams.useHarmonicAmplitudesDirectly)
                     {
                         if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)
-                            aksi = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*f0InHz, samplingRateInHz);   
+                            aksi = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*f0InHz, hnmSignal.samplingRateInHz);   
                         else if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)
-                            aksi = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*f0InHz, samplingRateInHz);   
+                            aksi = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(currentCeps, currentHarmonicNo*f0InHz, hnmSignal.samplingRateInHz);   
                     }
                     else
                     {
@@ -351,9 +388,9 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
                     if (!analysisParams.useHarmonicAmplitudesDirectly)
                     {
                         if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_PRE_BARK_WARPING)  
-                            aksiPlusOne = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(nextCeps, currentHarmonicNo*f0InHzNext, samplingRateInHz);
+                            aksiPlusOne = RegularizedPreWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(nextCeps, currentHarmonicNo*f0InHzNext, hnmSignal.samplingRateInHz);
                         else if (analysisParams.regularizedCepstrumWarpingMethod == RegularizedCepstrumEstimator.REGULARIZED_CEPSTRUM_WITH_POST_MEL_WARPING)  
-                            aksiPlusOne = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(nextCeps, currentHarmonicNo*f0InHzNext, samplingRateInHz);
+                            aksiPlusOne = RegularizedPostWarpedCepstrumEstimator.cepstrum2linearSpectrumValue(nextCeps, currentHarmonicNo*f0InHzNext, hnmSignal.samplingRateInHz);
                     }
                     else
                     {
@@ -405,7 +442,7 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
 
                 for (n=Math.max(0, trackStartIndex); n<=Math.min(trackEndIndex, harmonicPart.length-1); n++)
                 {
-                    double t = SignalProcUtils.sample2time(n, samplingRateInHz);
+                    double t = SignalProcUtils.sample2time(n, hnmSignal.samplingRateInHz);
                     
                     //if (t>=tsik && t<tsikPlusOne)
                     {

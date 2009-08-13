@@ -105,8 +105,8 @@ public class HntmSynthesizer {
         if (synthesisParams.harmonicPartSynthesisMethod==HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION)
         {
             //s.harmonicPart = HarmonicPartLinearPhaseInterpolatorSynthesizer.synthesize(prosodyModified.hntmSignal, analysisParams, synthesisParams, referenceFile);
-            HarmonicPartLinearPhaseInterpolatorSynthesizer hs = new HarmonicPartLinearPhaseInterpolatorSynthesizer(prosodyModified.hntmSignal.originalDurationInSeconds, prosodyModified.hntmSignal.samplingRateInHz, analysisParams, synthesisParams, referenceFile);
-            s.harmonicPart = hs.synthesize(prosodyModified.hntmSignal);
+            HarmonicPartLinearPhaseInterpolatorSynthesizer hs = new HarmonicPartLinearPhaseInterpolatorSynthesizer(prosodyModified.hntmSignal, analysisParams, synthesisParams, referenceFile);
+            s.harmonicPart = hs.synthesizeAll();
         }
         else if (synthesisParams.harmonicPartSynthesisMethod==HntmSynthesizerParams.CUBIC_PHASE_INTERPOLATION)
         {
