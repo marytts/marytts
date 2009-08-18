@@ -20,6 +20,7 @@
 package marytts.htsengine;
 
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -194,6 +195,9 @@ public class PhoneTranslator  {
       /** EN (replacements in English phone set) */
       else if (lab.contentEquals("r=") )
           s = "rr"; 
+      /** TR (replacements in Turkish phone set) */
+      else if (lab.contentEquals("@\'") )
+          s = "@o"; 
       
       //System.out.println("LAB=" + s);
       
@@ -234,6 +238,9 @@ public class PhoneTranslator  {
       /** EN (replacements in English phone set) */
       else if (lab.contentEquals("rr") )
           s = "r="; 
+      /** TR (replacements in Turkish phone set) */
+      else if (lab.contentEquals("@o") )
+          s = "@\'";
       
       //System.out.println("LAB=" + s);
       
@@ -244,16 +251,16 @@ public class PhoneTranslator  {
     /** Shorten the key name (to make the full context names shorter)
      * See common_routines.pl in HTS training.
      */
-    private String shortenPfeat(String fea) {
+    public static String shortenPfeat(String fea) {
       
       // look up the feature in a table:
-      String s = feat2shortFeat.get(fea);
-      if (s!=null) return s;
+      //String s = feat2shortFeat.get(fea);
+      //if (s!=null) return s;
       
       // First time: need to do the shortening:
-      
+      String s = fea;
      // s = s.replace("^pos$/POS/g;  /* ??? */
-      s = fea.replace("mary_", "");
+     // s = fea.replace("mary_", "");
       s = s.replace("phone","phn");
       s = s.replace("prev","p");
       s = s.replace("next","n");
@@ -274,7 +281,7 @@ public class PhoneTranslator  {
       s = s.replace("position","pos");
       s = s.replace("halfphone_lr", "lr");
       
-      feat2shortFeat.put(fea, s);
+     //feat2shortFeat.put(fea, s);
       return s;
     }
     
@@ -320,7 +327,7 @@ public class PhoneTranslator  {
       }
    
     
-    private String replaceToBI(String lab){
+    public static  String replaceToBI(String lab){
         String s = lab;
         
         if(lab.contains("*") )  
@@ -336,5 +343,29 @@ public class PhoneTranslator  {
           
       }
     
+    public static String replaceBackToBI(String lab){
+        String s = lab;
+        
+        if(lab.contains("st") )  
+          s = s.replace("st", "*");
+        
+        if(lab.contains("pc") )
+          s = s.replace("pc", "%");
+        
+        if(lab.contains("ht") )    
+          s = s.replace("ht", "^");
+        
+        return s;
+          
+      }
+    
+    public static void main(String[] args){
+        
+      String oriLab = "@'";
+      String lab = replaceTrickyPhones(oriLab);     
+      String ori = replaceBackTrickyPhones(lab);
+      System.out.println("oriLab=" + oriLab + "  lab=" + lab + "  ori=" + ori);
+             
+    }
 
 } /* class StringTranslator*/
