@@ -50,6 +50,7 @@ package marytts.tools.voiceimport;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -66,8 +67,10 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import marytts.features.FeatureDefinition;
+import marytts.features.FeatureVector;
 import marytts.htsengine.PhoneTranslator;
 import marytts.modules.phonemiser.AllophoneSet;
+import marytts.util.string.*;
 
 public class HMMVoiceMakeData extends VoiceImportComponent{
     
@@ -82,14 +85,14 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     public final String CMPMARY       = name+".makeCMPMARY";
     public final String GVMARY        = name+".makeGV";
     public final String LABELMARY     = name+".makeLABELMARY";
-    public final String COUNTMARY     = name+".makeCOUNTMARY";
     public final String QUESTIONSMARY = name+".makeQUESTIONSMARY";
-    public final String MLF           = name+".makeMLF";
     public final String LIST          = name+".makeLIST";
     public final String SCP           = name+".makeSCP";
     public final String questionsFile   = name+".questionsFile";
     public final String contextFile     = name+".contextFile";
+    public final String allophonesFile = name+".allophonesFile";
     public final String featureListFile = name+".featureListFile";
+    
     
     public String getName(){
         return name;
@@ -112,14 +115,13 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
            props.put(CMPMARY, "1");
            props.put(GVMARY, "1");
            props.put(LABELMARY, "1");
-           props.put(COUNTMARY, "1");
            props.put(QUESTIONSMARY, "1");
-           props.put(MLF, "1");
            props.put(LIST, "1");
            props.put(SCP, "1");
            props.put(questionsFile, "data/questions/questions_qst001.hed");
-           props.put(contextFile, "data/phonefeatures/cmu_us_arctic_slt_a0001.pfeats");
-           props.put(featureListFile, "data/feature_list_en.pl");
+           props.put(contextFile, "phonefeatures/cmu_us_arctic_slt_a0001.pfeats");           
+           props.put(allophonesFile, "/project/mary/marcela/openmary/lib/modules/en/us/lexicon/allophones.en_US.xml");
+           props.put(featureListFile, "mary/featuresHmmVoice.txt");
            
        }
        return props;
@@ -135,16 +137,15 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         props2Help.put(CMPMARY, "Composing training data files from mgc, lf0 and str files.");
         props2Help.put(GVMARY, "Calculating GV and saving in Mary format.");
         props2Help.put(LABELMARY, "Extracting monophone and fullcontext labels from phonelab and phonefeature files.");
-        props2Help.put(COUNTMARY, "Counting the phone occurrences and extracting the phonesets.");
         props2Help.put(QUESTIONSMARY, "Creating questions .hed file.");
-        props2Help.put(MLF, "Generating monophone and fullcontext Master Label Files (MLF).");
-        props2Help.put(LIST, "Generating a fullcntext model list occurred in the training data.");
+        props2Help.put(LIST, "Generating a fullcontext model list occurred in the training data.");
         props2Help.put(SCP, "Generating a trainig data script.");
         props2Help.put(questionsFile, "Name of the file that will contain the questions.");
         props2Help.put(contextFile, "An example of context feature file used for training, this file will be used to extract" +
                 " the FeatureDefinition.");
-        props2Help.put(featureListFile, "A (perl) file that contains the aditional context features used for training, normally it" +
-                " should be in data/ for example data/feature_list_en.pl (language dependent)");
+        props2Help.put(allophonesFile, "allophones set (language dependent, an example can be found in ../openmary/lib/modules/language/...)");
+        props2Help.put(featureListFile, "A file that contains aditional context features used for training HMMs, normally it" +
+        " should be a subset of mary/features.txt --> mary/featuresHmmVoice.txt");
 
     }
 
@@ -159,65 +160,58 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
 
       
       String cmdLine;
-      String filedir = db.getProp(db.ROOTDIR);
+      String voiceDir = db.getProp(db.ROOTDIR);
         
       if( Integer.parseInt(getProp(MGC)) == 1 ){
         cmdLine = "cd data\nmake mgc\n";
-        launchBatchProc(cmdLine, "", filedir);
+        launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(LF0)) == 1 ){
           cmdLine = "cd data\nmake lf0\n";
-          launchBatchProc(cmdLine, "", filedir);
+          launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(MAG)) == 1 ){
           cmdLine = "cd data\nmake mag\n";
-          launchBatchProc(cmdLine, "", filedir);
+          launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(STR)) == 1 ){
           cmdLine = "cd data\nmake str\n";
-          launchBatchProc(cmdLine, "", filedir);
+          launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(CMPMARY)) == 1 ){
           cmdLine = "cd data\nmake cmp-mary\n";
-          launchBatchProc(cmdLine, "", filedir);
+          launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(GVMARY)) == 1 ){
           cmdLine = "cd data\nmake gv-mary\n";
-          launchBatchProc(cmdLine, "", filedir);
+          launchBatchProc(cmdLine, "", voiceDir);
           // also execute HTS gv to avoid problems when running the training script
           cmdLine = "cd data\nmake gv\n";
-          launchBatchProc(cmdLine, "", filedir);
+          launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(LABELMARY)) == 1 ){
-          cmdLine = "cd data\nmake label-mary\n";
-          launchBatchProc(cmdLine, "", filedir);
-      }
-      if( Integer.parseInt(getProp(COUNTMARY)) == 1 ){
-          cmdLine = "cd data\nmake count-mary\n";
-          launchBatchProc(cmdLine, "", filedir);
+          //uses:  contextFile (example)
+          //       featureListFile
+          makeLabels(voiceDir);   
       }
       if( Integer.parseInt(getProp(QUESTIONSMARY)) == 1 ){
           // uses: questionsFile
-          //       contextFile 
+          //       contextFile (example)
           //       featureListFile
-          makeQuestions();          
-      }
-      if( Integer.parseInt(getProp(MLF)) == 1 ){
-          cmdLine = "cd data\nmake mlf\n";
-          launchBatchProc(cmdLine, "", filedir);
+          makeQuestions(voiceDir);          
       }
       if( Integer.parseInt(getProp(LIST)) == 1 ){
           cmdLine = "cd data\nmake list\n";
-          launchBatchProc(cmdLine, "", filedir);
+          launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(SCP)) == 1 ){
           cmdLine = "cd data\nmake scp\n";
-          launchBatchProc(cmdLine, "", filedir);
+          launchBatchProc(cmdLine, "", voiceDir);
       }
 
     
       /* delete the temporary file*/
-      File tmpBatch = new File(filedir+"tmp.bat");
+      File tmpBatch = new File(voiceDir+"tmp.bat");
       tmpBatch.delete();
  
       return true;
@@ -294,22 +288,18 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
      *       featureListFile
      * @throws Exception
      */
-    private void makeQuestions() throws Exception {
+    private void makeQuestions(String voiceDir) throws Exception {
         
-        // check if questions directory exis, if not create it
-        File dirQuestions  = new File("data/questions");
-        if( !(dirQuestions.exists()) )
-          dirQuestions.mkdir();
-                
-        FileWriter out = new FileWriter(getProp(questionsFile));
+        String hmmFeatureListFile = voiceDir + getProp(featureListFile);
+        FileWriter out = new FileWriter(voiceDir + getProp(questionsFile));
         int i;
         String phon;
-        System.out.println("Generating questions file: " + getProp(questionsFile));
+        System.out.println("Generating questions file: " + voiceDir + getProp(questionsFile));
                 
         // Get feature definition, whatever context feature file used for training can be passed here.       
-        Scanner context = new Scanner(new BufferedReader(new FileReader(getProp(contextFile))));
+        Scanner context = new Scanner(new BufferedReader(new FileReader(voiceDir + getProp(contextFile))));
         String strContext="";
-        System.out.println("FeatureDefinition extracted from context file example: " + getProp(contextFile));
+        System.out.println("FeatureDefinition extracted from context file example: " + voiceDir + getProp(contextFile));
         while (context.hasNext()) {
           strContext += context.nextLine(); 
           strContext += "\n";
@@ -321,25 +311,19 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         // The features indicated in: data/feature_list.pl (The modes indicated in this list are not used)
         // Since the features are provided by the user, it should be checked that the feature exist
         Set <String> featureList = new HashSet<String>();        
-        Scanner feaList = new Scanner(new BufferedReader(new FileReader(getProp(featureListFile))));
+        Scanner feaList = new Scanner(new BufferedReader(new FileReader(hmmFeatureListFile)));
         String line;
-        System.out.println("The following are other context features used for training, they were extracted from file: " + getProp(featureListFile));
+        System.out.println("The following are other context features used for training HMMs, they are extracted from file: " + hmmFeatureListFile);
         while (feaList.hasNext()) {
           line = feaList.nextLine();
-          if( !line.startsWith("#") && !line.startsWith("%") && !line.contentEquals("") && !line.contains(");") && !line.contains("1;")){
-            String elem[] = line.split(",");
-            if( !elem[0].contains("#") ){
-              elem[0] = elem[0].substring(elem[0].indexOf("\"")+1, elem[0].lastIndexOf("\""));
               // Check if the feature exist
-              if(feaDef.hasFeature(elem[0]) ){
-                featureList.add(elem[0]);
-                System.out.println("  Added to featureList = " + elem[0]);
+              if(feaDef.hasFeature(line) ){
+                featureList.add(line);
+                System.out.println("  Added to featureList = " + line);
               }
               else{
-                throw new Exception("Error: feature \"" + elem[0] + "\" in feature list file: " + getProp(featureListFile) + " does not exist in FeatureDefinition.");
+                throw new Exception("Error: feature \"" + line + "\" in feature list file: " + hmmFeatureListFile + " does not exist in FeatureDefinition.");
               }
-            }
-          }
         }
         feaList.close();
          
@@ -352,10 +336,12 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           mary_vc.put(val_vc[i], new HashSet<String>());   
 
         // mary_vlng
+        /*
         String val_vlng[]    = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vlng"));
         HashMap<String, Set<String>> mary_vlng = new HashMap<String, Set<String>>();
         for(i=0; i<val_vlng.length; i++)
-          mary_vlng.put(val_vlng[i], new HashSet<String>());          
+          mary_vlng.put(val_vlng[i], new HashSet<String>());
+          */          
 
         // mary_vheight
         String val_vheight[] = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vheight"));
@@ -394,16 +380,19 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           mary_cvox.put(val_cvox[i], new HashSet<String>());  
         
         AllophoneSet allophoneSet;
-        String phoneXML = "/project/mary/marcela/openmary/lib/modules/en/us/lexicon/allophones.en_US.xml";
+        //String phoneXML = "/project/mary/marcela/openmary/lib/modules/en/us/lexicon/allophones.en_US.xml";
+        String phoneXML = getProp(allophonesFile);
+        System.out.println("Reading allophones set from file: " + phoneXML);
         allophoneSet = AllophoneSet.getAllophoneSet(phoneXML);
         
         
-        String phoneSeq;         
+        String phoneSeq, phonOri;         
         Set<String> phonesList = allophoneSet.getAllophoneNames();
         // Left-righ phone ID context questions
         Iterator<String> it = phonesList.iterator();
         while(it.hasNext()){
-            phon = it.next();
+            phonOri = it.next();
+            phon = PhoneTranslator.replaceTrickyPhones(phonOri);
             out.write(""); 
             out.write("QS \"prev_prev_phone=" + phon + "\"\t{"   + phon + "^*}\n");
             out.write("QS \"prev_phone=" + phon    + "\"\t\t{*^" + phon + "-*}\n");
@@ -414,29 +403,29 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
             
             // Get the phonological value of each phone, and add it to the corresponding
             // set of phones that have that value.
-            //System.out.println(phon + " vc = " + allophoneSet.getPhoneFeature(phon, "vc"));
-            mary_vc.get(allophoneSet.getPhoneFeature(phon, "vc")).add(PhoneTranslator.replaceTrickyPhones(phon));
+            //System.out.println(phon + " vc = " + allophoneSet.getPhoneFeature(phonOri, "vc"));
+            mary_vc.get(allophoneSet.getPhoneFeature(phonOri, "vc")).add(phon);
             
-            //System.out.println(phon + " vlng = " + allophoneSet.getPhoneFeature(phon, "vlng"));
-            mary_vlng.get(allophoneSet.getPhoneFeature(phon, "vlng")).add(PhoneTranslator.replaceTrickyPhones(phon));
+            //System.out.println(phon + " vlng = " + allophoneSet.getPhoneFeature(phonOri, "vlng"));
+           // mary_vlng.get(allophoneSet.getPhoneFeature(phonOri, "vlng")).add(phon);
             
-            //System.out.println(phon + " vheight = " + allophoneSet.getPhoneFeature(phon, "vheight"));  
-            mary_vheight.get(allophoneSet.getPhoneFeature(phon, "vheight")).add(PhoneTranslator.replaceTrickyPhones(phon));
+            //System.out.println(phon + " vheight = " + allophoneSet.getPhoneFeature(phonOri, "vheight"));  
+            mary_vheight.get(allophoneSet.getPhoneFeature(phonOri, "vheight")).add(phon);
             
-            //System.out.println(phon + " vfront = " + allophoneSet.getPhoneFeature(phon, "vfront"));
-            mary_vfront.get(allophoneSet.getPhoneFeature(phon, "vfront")).add(PhoneTranslator.replaceTrickyPhones(phon));
+            //System.out.println(phon + " vfront = " + allophoneSet.getPhoneFeature(phonOri, "vfront"));
+            mary_vfront.get(allophoneSet.getPhoneFeature(phonOri, "vfront")).add(phon);
             
-            //System.out.println(phon + " vrnd = " + allophoneSet.getPhoneFeature(phon, "vrnd"));
-            mary_vrnd.get(allophoneSet.getPhoneFeature(phon, "vrnd")).add(PhoneTranslator.replaceTrickyPhones(phon));
+            //System.out.println(phon + " vrnd = " + allophoneSet.getPhoneFeature(phonOri, "vrnd"));
+            mary_vrnd.get(allophoneSet.getPhoneFeature(phonOri, "vrnd")).add(phon);
             
-            //System.out.println(phon + " ctype = " + allophoneSet.getPhoneFeature(phon, "ctype"));
-            mary_ctype.get(allophoneSet.getPhoneFeature(phon, "ctype")).add(PhoneTranslator.replaceTrickyPhones(phon));
+            //System.out.println(phon + " ctype = " + allophoneSet.getPhoneFeature(phonOri, "ctype"));
+            mary_ctype.get(allophoneSet.getPhoneFeature(phonOri, "ctype")).add(phon);
             
-            //System.out.println(phon + " cplace = " + allophoneSet.getPhoneFeature(phon, "cplace"));
-            mary_cplace.get(allophoneSet.getPhoneFeature(phon, "cplace")).add(PhoneTranslator.replaceTrickyPhones(phon));
+            //System.out.println(phon + " cplace = " + allophoneSet.getPhoneFeature(phonOri, "cplace"));
+            mary_cplace.get(allophoneSet.getPhoneFeature(phonOri, "cplace")).add(phon);
             
-            //System.out.println(phon + " cvox = " + allophoneSet.getPhoneFeature(phon, "cvox"));
-            mary_cvox.get(allophoneSet.getPhoneFeature(phon, "cvox")).add(PhoneTranslator.replaceTrickyPhones(phon));
+            //System.out.println(phon + " cvox = " + allophoneSet.getPhoneFeature(phonOri, "cvox"));
+            mary_cvox.get(allophoneSet.getPhoneFeature(phonOri, "cvox")).add(phon);
              
         }
 
@@ -444,7 +433,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         //String val, prev_prev, prev, ph, next, next_next;
         out.write("\n"); 
         writePhonologicalFeatures("vc", val_vc, mary_vc, out);
-        writePhonologicalFeatures("vlng", val_vlng, mary_vlng, out);
+       // writePhonologicalFeatures("vlng", val_vlng, mary_vlng, out);
         writePhonologicalFeatures("vheight", val_vheight, mary_vheight, out);
         writePhonologicalFeatures("vfront", val_vfront, mary_vfront, out);
         writePhonologicalFeatures("vrnd", val_vrnd, mary_vrnd, out);
@@ -454,19 +443,30 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
        
         // Questions for other features, the additional features used for trainning.
         it = featureList.iterator();
-        String fea, mode;
+        String fea;
         while (it.hasNext() ){
             fea = it.next();
-            String val_fea[] = feaDef.getPossibleValues(feaDef.getFeatureIndex(fea)); 
-            for(i=0; i<val_fea.length; i++)
-                out.write("QS \"" + fea + "=" + val_fea[i] + "\" \t{*|" + fea + "=" + val_fea[i] + "|*}\n");
+            String val_fea[] = feaDef.getPossibleValues(feaDef.getFeatureIndex(fea));
+            // write the feature value as string
+            for(i=0; i<val_fea.length; i++){
+              if(fea.contains("sentence_punc") || fea.contains("prev_punctuation") || fea.contains("next_punctuation"))
+                  out.write("QS \"" + fea + "=" + PhoneTranslator.replacePunc(val_fea[i]) + 
+                         "\" \t{*|" + fea + "=" + PhoneTranslator.replacePunc(val_fea[i]) + "|*}\n");
+              else if(fea.contains("tobi_"))
+                  out.write("QS \"" + fea + "=" + PhoneTranslator.replaceToBI(val_fea[i]) + 
+                         "\" \t{*|" + fea + "=" + PhoneTranslator.replaceToBI(val_fea[i]) + "|*}\n");  
+              else
+                  out.write("QS \"" + fea + "=" + val_fea[i] + "\" \t{*|" + fea + "=" + val_fea[i] + "|*}\n");
+            }            
             out.write("\n");            
         }
         
         out.close();
+        System.out.println("Created question file: " + voiceDir + getProp(questionsFile) + "\n");
     }
     
-    public void writePhonologicalFeatures(String fea, String fval[], HashMap<String, Set<String>> mary_fea, FileWriter out)
+    
+    private void writePhonologicalFeatures(String fea, String fval[], HashMap<String, Set<String>> mary_fea, FileWriter out)
     throws Exception{
         String val, prev_prev, prev, ph, next, next_next;
         for(int i=0; i<fval.length; i++){    
@@ -496,6 +496,266 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     }
     
     
+    /***
+     * Java version of the make labels script (data/scripts/make_labels.pl)
+     * uses: 
+     * @throws Exception
+     */
+    private void makeLabels(String voiceDir) throws Exception {
+        
+        String hmmFeatureListFile = voiceDir + getProp(featureListFile);
+        File dirFea = new File(voiceDir + "/phonefeatures");
+        File dirLab = new File(voiceDir + "/phonelab");
+        
+        String[] feaFiles;
+        if(dirFea.exists() && dirFea.list().length > 0 && dirLab.exists() && dirLab.list().length > 0 ){ 
+          feaFiles = dirFea.list();
+        } else {            
+            throw new Exception("Error: directories " + voiceDir + "phonefeatures and/or " + voiceDir + "phonelab do not contain files." );  
+        }
+                
+        // Get feature definition, whatever context feature file used for training can be passed here.
+        // here we take the first in the feaFiles list.
+        Scanner context = new Scanner(new BufferedReader(new FileReader(voiceDir + "/phonefeatures/" + feaFiles[0])));
+        String strContext="";
+        System.out.println("FeatureDefinition extracted from context file: " + voiceDir + "/phonefeatures/" + feaFiles[0]);
+        while (context.hasNext()) {
+          strContext += context.nextLine(); 
+          strContext += "\n";
+        }
+        context.close();
+        FeatureDefinition feaDef = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false);
+        
+        // list of context features used for creating HTS context features --> features used for training HMMs
+        // Since the features are provided by the user, it should be checked that the features exist
+        Set <String> hmmFeatureList = new HashSet<String>();        
+        Scanner feaList = new Scanner(new BufferedReader(new FileReader(hmmFeatureListFile)));
+        String fea;
+        System.out.println("The following are other context features used for training Hmms: ");
+        while (feaList.hasNext()) {
+          fea = feaList.nextLine();
+          // Check if the feature exist
+          if( feaDef.hasFeature(fea)){
+            hmmFeatureList.add(fea);
+            System.out.println("  " + fea);
+          }
+          else
+            throw new Exception("Error: feature \"" + fea + "\" in feature list file: " + hmmFeatureListFile + " does not exist in FeatureDefinition.");
+        }
+        feaList.close();
+        System.out.println("The previous context features were extracted from file: " + hmmFeatureListFile);
+        
+        
+        // Process all the files in phonefeatures and phonelab and create the directories:
+        // data/labels/full
+        // data/labels/mono
+        // data/labels/gen  (contain some examples from full, here we copy 10 examples)
+        // Create also the HTK master label files: full.mlf and mono.mlf
+        File labelsDir = new File(voiceDir + "/data/labels");
+        if(!labelsDir.exists())  
+            labelsDir.mkdir();
+        File monoDir = new File(voiceDir + "/data/labels/mono");
+        if(!monoDir.exists()){
+            System.out.println("\nCreating a /data/labels/mono directory");  
+            monoDir.mkdir();
+        }        
+        File fullDir = new File(voiceDir + "/data/labels/full");
+        if(!fullDir.exists()){
+            System.out.println("\nCreating a /data/labels/full directory");  
+            fullDir.mkdir();
+        }        
+        File genDir = new File(voiceDir + "/data/labels/gen");
+        if(!genDir.exists()){
+          System.out.println("\nCreating a /data/labels/gen directory, copying some HTS-HTK full context examples for testing");  
+          genDir.mkdir();
+        }
+        
+        // Process all the files in phonefeatures and phonelab and create HTS-HTK full context feature files and label files.
+        String basename;
+        for (int i=0; (i<feaFiles.length); i++) {
+          basename = StringUtils.getFileName(feaFiles[i]);      
+          System.out.println("Extracting monophone and context features (" + (i+1) + "): " + feaFiles[i] + " and " + basename + ".lab");
+          extractMonophoneAndFullContextLabels( 
+                  voiceDir + "/phonefeatures/" + feaFiles[i], 
+                  voiceDir + "/phonelab/" + basename + ".lab",
+                  voiceDir + "/data/labels/full/" + basename + ".lab",
+                  voiceDir + "/data/labels/mono/" + basename + ".lab",
+                  feaDef, 
+                  hmmFeatureList);          
+        }
+        System.out.println("Processed " + feaFiles.length + " files.");     
+        System.out.println("Created directories: \n  " + voiceDir + "data/labels/full/" + "\n  " + voiceDir + "data/labels/mono/");
+
+        // creating Master label files:
+        FileWriter fullMlf = new FileWriter(voiceDir + "/data/labels/full.mlf");        
+        fullMlf.write("#!MLF!#\n");
+        fullMlf.write("\"*/*.lab\" -> \"" + voiceDir + "data/labels/full\"\n");
+        fullMlf.close();
+        
+        FileWriter monoMlf = new FileWriter(voiceDir + "/data/labels/mono.mlf");
+        monoMlf.write("#!MLF!#\n");
+        monoMlf.write("\"*/*.lab\" -> \"" + voiceDir + "data/labels/mono\"\n");
+        monoMlf.close();
+        
+        System.out.println("Created Master Label Files: \n  " + voiceDir + "data/labels/full.mlf" + "\n  " + voiceDir + "data/labels/mono.mlf");
+        
+        // Copy 10 files in gen directory to test with htsengine
+        System.out.println("Copying 10 context feature files in gen directory for testing with the HTS htsengine.");
+        String cmdLine;
+        for (int i=0; i<10; i++) {
+            basename = StringUtils.getFileName(feaFiles[i]);
+            cmdLine = "cp " + voiceDir + "/data/labels/full/" + basename + ".lab " + voiceDir + "/data/labels/gen/gen_" + basename + ".lab";
+            launchProc(cmdLine, "file copy", voiceDir);
+        }
+        
+    }
+    
+    
+    /***
+     * Java version of the make labels script (data/scripts/make_labels.pl)
+     * uses: 
+     * @throws Exception
+     */
+    private void extractMonophoneAndFullContextLabels(String feaFileName, String labFileName, 
+            String outFeaFileName, String outLabFileName, 
+            FeatureDefinition feaDef, Set <String> hmmFeatureList) throws Exception {
+      
+      FileWriter outFea = new FileWriter(outFeaFileName);
+      FileWriter outLab = new FileWriter(outLabFileName);
+      
+      //Read label file     
+      UnitLabel ulab[] = UnitLabel.readLabFile(labFileName);
+      //for(int i=0; i<ulab.length; i++){
+      //    System.out.println("start=" + ulab[i].getStartTime() + " end=" + ulab[i].getEndTime() + " " + ulab[i].unitName);
+      //}
+      
+      
+      // Read context features
+      String nextLine;
+      FeatureVector fv;
+      
+      Scanner sFea = null;
+      sFea = new Scanner(new BufferedReader(new FileReader(feaFileName)));
+      
+      /* Skip mary context features definition */
+      while (sFea.hasNext()) {
+        nextLine = sFea.nextLine(); 
+        if (nextLine.trim().equals("")) break;
+      }
+      /* skip until byte values */
+      int numFeaVectors = 0;
+      while (sFea.hasNext()) {
+        nextLine = sFea.nextLine();        
+        if (nextLine.trim().equals("")) break;
+        numFeaVectors++;
+      }
+      
+      if(numFeaVectors != ulab.length) 
+        throw new Exception("Error: Number of context features in: " + feaFileName + " is not the same as the number of labels in: " + labFileName);
+      else {
+        /* Parse byte values  */
+        int i=0;  
+        while (sFea.hasNext()) {
+           nextLine = sFea.nextLine();
+           fv = feaDef.toFeatureVector(0, nextLine);
+           
+           //System.out.println("STR: " + nextLine);
+           // check if phone name in feature file is the same as in the lab file
+           if(ulab[i].unitName.contentEquals(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef))){
+              // We need here HTK time units, which are measured in hundreds of nanoseconds.  
+              // write in label file HTK-HTS format 
+              outLab.write(ulab[i].startTime*1E7 + "  " + ulab[i].endTime*1E7 + " " +
+                PhoneTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef)) + "\n");
+              
+              // write in features file HTK-HTS format
+              outFea.write(ulab[i].startTime*1E7 + "  " + ulab[i].endTime*1E7 + " " +
+                PhoneTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("prev_prev_phone"), feaDef)) + "^" +
+                PhoneTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("prev_phone"), feaDef))      + "-" +
+                PhoneTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef))           + "+" +
+                PhoneTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("next_phone"), feaDef))      + "=" +
+                PhoneTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("next_next_phone"), feaDef)) + "|");         
+          
+              String hmmfea, hmmfeaVal;
+              int hmmfeaValInt;
+              Iterator<String> it = hmmFeatureList.iterator();
+              while (it.hasNext() ){
+                hmmfea = it.next();
+                hmmfeaVal = fv.getFeatureAsString(feaDef.getFeatureIndex(hmmfea), feaDef);
+                // If the string is longer than 2048 chars then the feature names need to be shorten (PhoneTranslator.shortenPfeat
+                // can be used, but then when reading the HMMs the names have to be lengthen back in the HTSCARTReader).
+                // if using punctuation features like: sentence_punc, next_punctuation or prev_punctuation or tobi features
+                // the values need to be mapped otherwise HTK-HHEd complains.
+                if(hmmfea.contains("sentence_punc") || hmmfea.contains("prev_punctuation") || hmmfea.contains("next_punctuation"))
+                  outFea.write("|" + hmmfea + "=" + PhoneTranslator.replacePunc(hmmfeaVal));
+                else if(hmmfea.contains("tobi_"))
+                  outFea.write("|" + hmmfea + "=" + PhoneTranslator.replaceToBI(hmmfeaVal));
+                else
+                  outFea.write("|" + hmmfea + "=" + hmmfeaVal);
+              }
+              outFea.write("||\n");    
+              i++; // next label
+           } else {
+             throw new Exception("Phone name mismatch: feature File:" + fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef) 
+                                                      + " lab file: " + ulab[i].unitName);
+           }           
+        }
+      }
+      outLab.close();
+      outFea.close();
+      
+    }
+    
+    /**
+     * A general process launcher for the various tasks
+     * (copied from ESTCaller.java)
+     * @param cmdLine the command line to be launched.
+     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
+     * @param the basename of the file currently processed, for error messages.
+     */
+    private void launchProc( String cmdLine, String task, String baseName ) {
+        
+        Process proc = null;
+        BufferedReader procStdout = null;
+        String line = null;
+        System.out.println("Running: "+ cmdLine);
+        // String[] cmd = null; // Java 5.0 compliant code
+        
+        try {
+            /* Java 5.0 compliant code below. */
+            /* Hook the command line to the process builder: */
+            /* cmd = cmdLine.split( " " );
+            pb.command( cmd ); /*
+            /* Launch the process: */
+            /*proc = pb.start(); */
+            
+            /* Java 1.0 equivalent: */
+            proc = Runtime.getRuntime().exec( cmdLine );
+            
+            /* Collect stdout and send it to System.out: */
+            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
+            while( true ) {
+                line = procStdout.readLine();
+                if ( line == null ) break;
+                System.out.println( line );
+            }
+            /* Wait and check the exit value */
+            proc.waitFor();
+            if ( proc.exitValue() != 0 ) {
+                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
+                        + "Command line was: [" + cmdLine + "]." );
+            }
+        }
+        catch ( IOException e ) {
+            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
+        }
+        catch ( InterruptedException e ) {
+            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
+        }
+        
+    }    
+
+    
+    
     /**
      * Provide the progress of computation, in percent, or -1 if
      * that feature is not implemented.
@@ -505,5 +765,13 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         return -1;
     }
     
+    
+    public static void main(String[] args)throws Exception {
+        
+        HMMVoiceMakeData data = new HMMVoiceMakeData();
+        String voiceDir = "/project/mary/marcela/HMM-voices/turkish/";
+        String featuresHmmVoice = "/project/mary/marcela/HMM-voices/turkish/mary/featuresHmmVoice.txt";
+        data.makeLabels(voiceDir);
+    }
     
 }

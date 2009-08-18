@@ -256,40 +256,6 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
         /* Create a phonefeatures/gen directory and copy there some examples of .pfeats
            files for testing the synthesis procedure once the models have been trained.*/
        
-       File dirGen = new File("phonefeatures/gen");
-       if(!dirGen.exists()){
-         System.out.println("\nCreating a phonefeatures/gen directory, copying some .pfeats examples for testing");  
-         dirGen.mkdir();
-       }
-       if(dirGen.list().length == 0){
-         int numFiles = Integer.parseInt(getProp(NUMTESTFILES));
-      
-         String[] feaFiles = dirFea.list();
-         if (feaFiles.length > 0 ) {
-           for (int i=0; (i<numFiles); i++) {
-             cmdLine = "cp phonefeatures/" + feaFiles[i] + " phonefeatures/gen/";  
-             launchProc(cmdLine, "file copy", filedir);
-           }
-         }
-       } else
-         System.out.println("\nDirectory phonefeatures/gen already exist and has some files");   
-        
-       /* Create symbolic links for the phonefeatures and phonelab */
-       File link = new File("data/phonefeatures");
-       if (!link.exists()){
-         System.out.println("\nCreating symbolic link for phonefeatures in data/: ");
-         cmdLine = "ln -s " + filedir + "phonefeatures " + filedir + "data/phonefeatures";
-         launchProc(cmdLine, "creating symbolic links", filedir);
-       } else
-         System.out.println("\nSymbolic link data/phonefeatures already exist."); 
-       link = new File("data/phonelab");
-       if (!link.exists()){
-         System.out.println("\nCreating symbolic link for phonelab in data/: ");
-         cmdLine = "ln -s " + filedir + "phonelab " + filedir + "data/phonelab";        
-         launchProc(cmdLine, "creating symbolic links", filedir);
-       } else
-          System.out.println("\nSymbolic link data/phonelab already exist.\n");
-       
        
        /* if previous files and directories exist then run configure */
        System.out.println("Running make configure: ");
