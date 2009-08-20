@@ -65,6 +65,7 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.Scanner;
 
+
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -78,6 +79,7 @@ import marytts.util.math.ComplexArray;
 import marytts.util.math.FFT;
 import marytts.util.math.FFTMixedRadix;
 import marytts.util.math.MathUtils;
+import marytts.util.io.LEDataInputStream;
 
 import org.apache.log4j.Logger;
 
@@ -1481,9 +1483,9 @@ public class HTSVocoder {
     } /* method htsMLSAVocoder_residual() */
     
   
-    
+ 
     /** 
-     * Stand alone testing reading parameters from files in SPTK format and little-endian. */
+     * Stand alone testing reading parameters from files in SPTK format */
     public static void main(String[] args) throws IOException, InterruptedException, Exception{
        /* configure log info */
        org.apache.log4j.BasicConfigurator.configure();
@@ -1491,90 +1493,50 @@ public class HTSVocoder {
        HMMData htsData = new HMMData(); 
        HTSPStream lf0Pst, mcepPst, strPst, magPst;
        boolean [] voiced = null;
-       DataInputStream lf0Data, mcepData, strData, magData;
-       String lf0File, mcepFile, strFile, magFile, resFile;
-       String voiceExample, outFile="tmp";
-       String voiceHMM, voiceName, parDir="", outDir="";
+       LEDataInputStream lf0Data, mcepData, strData, magData;
        
-       int ex = 4;
-       //Author of the danger trail, Philip Steels, etc.
+       String lf0File, mcepFile, strFile, magFile, outFile, residualFile;
+       String voiceName, voiceConfig, outDir, voiceExample, hmmTrainDir;
+       
        String MaryBase = "/project/mary/marcela/openmary/";
-         // bits1, german
-       if(ex == 1){
-           voiceHMM = "bits1";
-           voiceName = "hmm-"+voiceHMM;
-           voiceExample = "US10010003_0";
-           htsData.initHMMData(voiceName, MaryBase, "german-hmm-"+voiceHMM+".config");    
-       lf0File = "/project/mary/marcela/hmm-gen-experiment/lf0/US10010003_0-littend.lf0";
-       mcepFile = "/project/mary/marcela/hmm-gen-experiment/mgc/US10010003_0-littend.mgc";
-       strFile = "/project/mary/marcela/hmm-gen-experiment/str/US10010003_0-littend.str";
-       magFile = "/project/mary/marcela/hmm-gen-experiment/mag/US10010003_0-littend.mag";
-       resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/US10010003_0_res.wav";
-       //resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/US10010003_0_res_sinResynth.wav";
-       } else if (ex == 2){
-       // bits2, german
-           voiceHMM = "bits2";
-           voiceName = "hmm-"+voiceHMM;
-           voiceExample = "US10020003_0";
-           htsData.initHMMData(voiceName, MaryBase, "german-hmm-"+voiceHMM+".config");    
-           
-       lf0File = "/project/mary/marcela/hmm-gen-experiment/lf0/US10020003_0-littend.lf0";
-       mcepFile = "/project/mary/marcela/hmm-gen-experiment/mgc/US10020003_0-littend.mgc";
-       strFile = "/project/mary/marcela/hmm-gen-experiment/str/US10020003_0-littend.str";
-       magFile = "/project/mary/marcela/hmm-gen-experiment/mag/US10020003_0-littend.mag";
-       resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/US10020003_0_res.wav";
-       //resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/US10020003_0_res_sinResynth.wav";
-       } else if (ex == 3){       
-       // neutral, german
-           voiceHMM = "neutral";
-           voiceName = "hmm-"+voiceHMM;
-           voiceExample = "a0093";
-           htsData.initHMMData(voiceName, MaryBase, "german-hmm-"+voiceHMM+".config");    
+       outDir = "/project/mary/marcela/openmary/tmp/";
+       outFile = outDir + "tmp.wav";
+       
+       // Voice
+       /*
+       voiceName = "hsmm-slt";
+       voiceConfig = "en_US-hsmm-slt.config";
+       voiceExample = "cmu_us_arctic_slt_a0001";
+       hmmTrainDir = "/project/mary/marcela/HMM-voices/HTS-demo_CMU-ARCTIC-SLT/"; // The directory where the voice was trained 
+       */
+       voiceName = "hsmm-ot";
+       voiceConfig = "tr-hsmm-ot.config";
+       voiceExample = "ot0010";
+       hmmTrainDir = "/project/mary/marcela/HMM-voices/turkish/"; // The directory where the voice was trained
+       
+       
+       htsData.initHMMData(voiceName, MaryBase, voiceConfig);   
+       htsData.setUseMixExc(true);
+       htsData.setUseFourierMag(true);  /* use Fourier magnitudes for pulse generation */
+       
 
-       lf0File = "/project/mary/marcela/hmm-gen-experiment/lf0/a0093-littend.lf0";
-       mcepFile = "/project/mary/marcela/hmm-gen-experiment/mgc/a0093-littend.mgc";
-       strFile = "/project/mary/marcela/hmm-gen-experiment/str/a0093-littend.str";
-       magFile = "/project/mary/marcela/hmm-gen-experiment/mag/a0093-littend.mag";
-       //resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/a0093_res.wav";
-       resFile = "/project/mary/marcela/hmm-gen-experiment/residual_sinResynth/a0093_res_sinResynth.wav";
-       } else {       
-       // slt, english
-                      
-           //voiceHMM = "20-lsp";
-           //voiceHMM = "20-mel-lsp";
-           //voiceHMM = "20-mgc-lsp";
-           voiceHMM = "24-mel-cepstrum";
-           voiceName = "hsmm-slt";
-           parDir = "/project/mary/marcela/hmm-mag-experiment/gen-par/";
-           //outDir = "/project/mary/marcela/hmm-gen-experiment/MLSA-MGLSA/" + voiceName + "/";
-           outDir = "/project/mary/marcela/openmary/tmp/";
-           voiceExample = "cmu_us_arctic_slt_a0001";
-           htsData.initHMMData(voiceName, MaryBase, "english-hsmm-slt.config");    
-
-       /* parameters extracted from real data */              
-       lf0File  = parDir + "cmu_us_arctic_slt_a0001-littend.lf0";
-       mcepFile = parDir + "cmu_us_arctic_slt_a0001-littend.mgc";
-       strFile  = parDir + "cmu_us_arctic_slt_a0001-littend.str";
-       magFile  = parDir + "cmu_us_arctic_slt_a0001-littend.mag";
+       /* parameters extracted from real data with SPTK and snack */              
+       lf0File  = hmmTrainDir + "data/lf0/" + voiceExample + ".lf0";
+       mcepFile = hmmTrainDir + "data/mgc/" + voiceExample + ".mgc";
+       strFile  = hmmTrainDir + "data/str/" + voiceExample + ".str";
+       magFile  = hmmTrainDir + "data/mag/" + voiceExample + ".mag";
          
-       resFile = "/project/mary/marcela/hmm-mag-experiment/tmp.wav";
-       }
-       
         
-       int i, j;
-       int mcepVsize;
-       if(voiceHMM.contentEquals("24-mel-cepstrum") )
-         mcepVsize = 75;  /* here the sizes include mcep + delta + delta^2, but just mcep will be loaded */
-       else
-         mcepVsize = 63;  /* normally 20 coeff for lsp parameters */
+       int mcepVsize = htsData.getCartTreeSet().getMcepVsize();
+       int strVsize  = htsData.getCartTreeSet().getStrVsize();
+       int lf0Vsize  = htsData.getCartTreeSet().getLf0Stream();
+       int magVsize  = htsData.getCartTreeSet().getMagVsize();
        
-       int strVsize = 15;
-       int lf0Vsize = 3;
-       int magVsize = 30;
        int totalFrame = 0;
        int lf0VoicedFrame = 0;
        float fval;
-       lf0Data = new DataInputStream (new BufferedInputStream(new FileInputStream(lf0File)));
+       int i, j;
+       lf0Data = new LEDataInputStream (new BufferedInputStream(new FileInputStream(lf0File)));
        
        /* First i need to know the size of the vectors */
        try { 
@@ -1593,7 +1555,6 @@ public class HTSVocoder {
        voiced = new boolean[totalFrame];
        
        /* Initialise HTSPStream-s */
-       //--lf0Pst = new HTSPStream(lf0Vsize, lf0VoicedFrame, HMMData.LF0);
        lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0);
        mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.MCP);
        strPst = new HTSPStream(strVsize, totalFrame, HMMData.STR);
@@ -1602,9 +1563,10 @@ public class HTSVocoder {
        /* load lf0 data */
        /* for lf0 i just need to load the voiced values */
        lf0VoicedFrame = 0;
-       lf0Data = new DataInputStream (new BufferedInputStream(new FileInputStream(lf0File)));
+       lf0Data = new LEDataInputStream (new BufferedInputStream(new FileInputStream(lf0File)));
        for(i=0; i<totalFrame; i++){
-         fval = lf0Data.readFloat();  
+         fval = lf0Data.readFloat();
+         
          //lf0Pst.setPar(i, 0, fval);
          if(fval < 0)
            voiced[i] = false;
@@ -1617,7 +1579,7 @@ public class HTSVocoder {
        lf0Data.close();
       
        /* load mgc data */
-       mcepData = new DataInputStream (new BufferedInputStream(new FileInputStream(mcepFile)));
+       mcepData = new LEDataInputStream (new BufferedInputStream(new FileInputStream(mcepFile)));
        for(i=0; i<totalFrame; i++){
          for(j=0; j<mcepPst.getOrder(); j++)
            mcepPst.setPar(i, j, mcepData.readFloat());
@@ -1625,7 +1587,7 @@ public class HTSVocoder {
        mcepData.close();
        
        /* load str data */
-       strData = new DataInputStream (new BufferedInputStream(new FileInputStream(strFile))); 
+       strData = new LEDataInputStream (new BufferedInputStream(new FileInputStream(strFile))); 
        for(i=0; i<totalFrame; i++){
          for(j=0; j<strPst.getOrder(); j++)
            strPst.setPar(i, j, strData.readFloat());
@@ -1633,15 +1595,13 @@ public class HTSVocoder {
        strData.close();
        
        /* load mag data */
-       magData = new DataInputStream (new BufferedInputStream(new FileInputStream(magFile)));
-       System.out.println("Mag ori ");
+       magData = new LEDataInputStream (new BufferedInputStream(new FileInputStream(magFile)));
        for(i=0; i<totalFrame; i++){
          for(j=0; j<magPst.getOrder(); j++)
            magPst.setPar(i, j, magData.readFloat());
          //System.out.println("i:" + i + "  f0=" + Math.exp(lf0Pst.getPar(i, 0)) + "  mag(1)=" + magPst.getPar(i, 0) + "  str(1)=" + strPst.getPar(i, 0) );
        }
        magData.close();
-   
              
        
        float sampleRate = 16000.0F;  //8000,11025,16000,22050,44100
@@ -1661,9 +1621,7 @@ public class HTSVocoder {
        HTSVocoder par2speech = new HTSVocoder();
        
        //par2speech.setUseLpcVocoder(true);
-       htsData.setUseMixExc(true);
-       htsData.setUseFourierMag(true);  /* use Fourier magnitudes for pulse generation */
-          
+               
        audio_double = par2speech.htsMLSAVocoder(lf0Pst, mcepPst, strPst, magPst, voiced, htsData);
        //audio_double = par2speech.htsMLSAVocoder_residual(htsData, mcepPst, resFile);
       
@@ -1679,12 +1637,8 @@ public class HTSVocoder {
        DDSAudioInputStream oais = new DDSAudioInputStream(new BufferedDoubleDataSource(audio_double), af);
        
        
-       String fileOutName;         
-       //fileOutName = "/project/mary/marcela/hmm-mag-experiment/gen-par/" + voiceExample + ".wav";
-       //fileOutName = parDir + voiceExample + ".wav";
-       fileOutName = outDir + outFile + ".wav";
-       File fileOut = new File(fileOutName);
-       System.out.println("saving to file: " + fileOutName);
+       File fileOut = new File(outFile);
+       System.out.println("saving to file: " + outFile);
            
          
        if (AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE,oais)) {
@@ -1698,6 +1652,8 @@ public class HTSVocoder {
        System.out.println("audioplayer finished...");
     
   }
+  
+    
     
 }  /* class HTSVocoder */
 

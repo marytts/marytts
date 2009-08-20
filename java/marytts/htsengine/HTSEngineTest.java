@@ -280,7 +280,7 @@ public class HTSEngineTest {
      * @param args file.pfeats and hmm voice
      * @throws IOException
      */
-    public void generateParameters() throws IOException, InterruptedException{
+    public void generateParameters() throws IOException, InterruptedException, Exception{
        
       int i, j;  
       /* For initialise provide the name of the hmm voice and the name of its configuration file,
