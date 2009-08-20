@@ -287,7 +287,8 @@ public class HMMData {
 	
 	/** Reads from configuration file all the data files in this class 
      * this method is used when running HTSengine stand alone. */
-	public void initHMMData(String voice, String MaryBase, String ConfigFile) {		
+	public void initHMMData(String voice, String MaryBase, String ConfigFile) throws Exception{		
+        
       Properties props = new Properties();
       
       try {
@@ -364,6 +365,7 @@ public class HMMData {
           logger.debug("Caught IOException: " +  e.getMessage());
 	  }	catch (Exception e) {
           logger.debug(e.getMessage()); 
+          throw new Exception("Error on configuration file, missing files or components...");
       }
       
       try {
@@ -381,6 +383,7 @@ public class HMMData {
       }
       catch (Exception e) {
           logger.debug(e.getMessage()); 
+          throw new Exception("Error loading TreeSet and ModelSet, problem on configuration file, missing files or components...");
       }
    		
 	}

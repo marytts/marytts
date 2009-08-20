@@ -326,7 +326,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
         					+"-"+db.getProp(db.VOICENAME).toLowerCase()
         					+".config";
         System.out.println("\nCreating config file: " + configFileName);
-        createConfigFile(configFileName, newVoiceDir, locale);
+        createConfigFile(configFileName, locale);
         System.out.println("... done! ");        
         System.out.println("To run the voice, restart your Mary server");
         
@@ -402,12 +402,12 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
     
     
     private void createConfigFile(String filename, 
-            					String newVoiceDir,
             					String locale){
         try{
             PrintWriter configOut = new PrintWriter(new OutputStreamWriter(new FileOutputStream(
                                         new File(filename)),"UTF-8"),true);
             File in;
+            String rootDir = db.getProp(db.ROOTDIR);
             String voicename = db.getProp(db.VOICENAME).toLowerCase();
             //print the header
             configOut.println("#Auto-generated config file for voice "+voicename+"\n");
@@ -477,17 +477,17 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
                       voiceHeader+".Ftd = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(treeDurFile))+"\n"+
                       voiceHeader+".Ftf = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(treeLf0File))+"\n"+
                       voiceHeader+".Ftm = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(treeMcpFile)));
-              if( new File(getProp(treeStrFile)).exists())
+              if( new File(rootDir + getProp(treeStrFile)).exists())
                 configOut.println(voiceHeader+".Fts = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(treeStrFile)));
-              if( new File(getProp(treeMagFile)).exists())
+              if( new File(rootDir + getProp(treeMagFile)).exists())
                 configOut.println(voiceHeader+".Fta = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(treeMagFile)));
               configOut.println("\n# Information about means and variances PDFs \n"+
                       voiceHeader+".Fmd = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfDurFile))+"\n"+
                       voiceHeader+".Fmf = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfLf0File))+"\n"+
                       voiceHeader+".Fmm = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfMcpFile)));
-              if( new File(getProp(pdfStrFile)).exists())
+              if( new File(rootDir + getProp(pdfStrFile)).exists())
                configOut.println(voiceHeader+".Fms = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfStrFile)));
-              if( new File(getProp(pdfMagFile)).exists())
+              if( new File(rootDir + getProp(pdfMagFile)).exists())
                configOut.println(voiceHeader+".Fma = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfMagFile)));
               
               configOut.println("\n# Information about Global Mean and Variance PDFs \n" +
@@ -495,13 +495,13 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
                     "# although the gv pdf for these are generated during training. \n" +
                     "# Uncomment the lines corresponding to gv-str and gv-mag for using them.");
               configOut.println(voiceHeader+".useGV = "+ getProp(useGV));
-              if( new File(getProp(pdfLf0GVFile)).exists())
+              if( new File(rootDir + getProp(pdfLf0GVFile)).exists())
                   configOut.println(voiceHeader+".Fgvf = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfLf0GVFile)));
-              if( new File(getProp(pdfMcpGVFile)).exists())
+              if( new File(rootDir + getProp(pdfMcpGVFile)).exists())
                   configOut.println(voiceHeader+".Fgvm = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfMcpGVFile)));
-              if( new File(getProp(pdfStrGVFile)).exists())
+              if( new File(rootDir + getProp(pdfStrGVFile)).exists())
                   configOut.println("#" + voiceHeader+".Fgvs = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfStrGVFile)));
-              if( new File(getProp(pdfMagGVFile)).exists())
+              if( new File(rootDir + getProp(pdfMagGVFile)).exists())
                   configOut.println("#" + voiceHeader+".Fgva = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfMagGVFile)));
               
               configOut.println("\n# File for testing the HMMSynthesiser, a context features file example.\n" +
@@ -522,7 +522,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
               configOut.println(voiceHeader+".useExtLogF0 = "+ getProp(useExtLogF0));
               configOut.println();
               
-              if( new File(getProp(treeStrFile)).exists()) {
+              if( new File(rootDir + getProp(treeStrFile)).exists()) {
                 configOut.println("# Filter taps of bandpass filters for mixed excitation \n" +
                                 "# File format: for example if we have 5 filters each with 48 taps \n" +
                                 "# then the taps are in a vector \n" +

@@ -334,14 +334,16 @@ public class HTSEngine extends InternalModule
             /* this function also sets the phone name, the phone between - and + */
             m.setName(fv.toString(), fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));
             
-            /*System.out.println("context: " + fv.getFeatureAsString(feaDef.getFeatureIndex("prev_prev_phone"), feaDef) + 
+            /*
+            System.out.println("context: " + fv.getFeatureAsString(feaDef.getFeatureIndex("prev_prev_phone"), feaDef) + 
                                      " " + fv.getFeatureAsString(feaDef.getFeatureIndex("prev_phone"), feaDef) +
                                      " " + fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef) + 
                                      " " + fv.getFeatureAsString(feaDef.getFeatureIndex("next_phone"), feaDef) +
-                                     " " + fv.getFeatureAsString(feaDef.getFeatureIndex("next_next_phone"), feaDef) +
+                                     " " + fv.getFeatureAsString(feaDef.getFeatureIndex("next_next_phone"), feaDef)
                                      "  DUR= " + fv.getContinuousFeature(feaDef.getFeatureIndex("unit_duration")) +
                                      "  LF0= " + fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0")) );
             */
+            
             if (htsData.getUseUnitDurationContinuousFeature()) {
                 m.setUnit_logF0(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0")));
                 m.setUnit_logF0delta(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0delta")));
@@ -453,7 +455,7 @@ public class HTSEngine extends InternalModule
      * @param args
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException, InterruptedException{
+    public static void main(String[] args) throws IOException, InterruptedException, Exception{
        
       int i, j; 
       /* configure log info */
@@ -481,7 +483,7 @@ public class HTSEngine extends InternalModule
        
       String MaryBase    = "/project/mary/marcela/openmary/"; /* MARY_BASE directory.*/
       String voiceName   = "hsmm-slt";                        /* voice name */
-      String voiceConfig = "english-hsmm-slt.config";         /* voice configuration file name. */        
+      String voiceConfig = "en_US-hsmm-slt.config";         /* voice configuration file name. */
       String durFile     = MaryBase + "tmp/tmp.lab";          /* to save realised durations in .lab format */
       String parFile     = MaryBase + "tmp/tmp";              /* to save generated parameters tmp.mfc and tmp.f0 in Mary format */
       String outWavFile  = MaryBase + "tmp/tmp.wav";          /* to save generated audio file */
