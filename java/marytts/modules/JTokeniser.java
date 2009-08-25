@@ -100,6 +100,7 @@ public class JTokeniser extends InternalModule
         // Keep this loop in sync with the second loop, below:
         while ((textNode = (Text)ni.nextNode()) != null) {
             String text = textNode.getData().trim();
+            text = text.replaceAll("\\.", " \\.");
             if (text.length() == 0) continue;
             // Insert a space character between non-punctuation characters:
             if (inputText.length() > 0 &&
@@ -118,6 +119,7 @@ public class JTokeniser extends InternalModule
         // Keep this loop in sync with the first loop, above:
         while ((textNode = (Text)ni.nextNode()) != null) {
             String text = textNode.getData().trim();
+            text = text.replaceAll("\\.", " \\.");
             int len = text.length();
             if (len == 0) continue;
             // Skip the space character between non-punctuation characters:
