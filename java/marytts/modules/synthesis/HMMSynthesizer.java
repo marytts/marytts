@@ -69,7 +69,6 @@ import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
 import marytts.htsengine.HMMVoice;
-import marytts.htsengine.PhoneTranslator;
 import marytts.modules.HTSEngine;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
@@ -185,6 +184,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                 MaryProperties.getFilename("voice."+voiceName+".Fgmmgvf"),  /* GMM GV Model LF0 */
                 MaryProperties.getFilename("voice."+voiceName+".Fgmmgvm"),  /* GMM GV Model MCP */
                 MaryProperties.getFilename("voice."+voiceName+".FeaFile"),  /* targetfeatures file, for testing*/
+                MaryProperties.getFilename("voice."+voiceName+".trickyPhonesFile"),  /* tricky phones file, if any*/
                 MaryProperties.getFilename("voice."+voiceName+".Fif"),      /* Filter coefficients file for mixed excitation*/
                 MaryProperties.getInteger("voice."+voiceName+".in"),        /* Number of filters */
                 MaryProperties.getInteger("voice."+voiceName+".io"));       /* Number of taps per filter or filters order */
@@ -300,7 +300,8 @@ public class HMMSynthesizer implements WaveformSynthesizer {
       while(s.hasNext()) {
          line = s.next();
          str = line.split(" ");
-         ph.add(PhoneTranslator.replaceBackTrickyPhones(str[0]));
+         //--- not needed ph.add(PhoneTranslator.replaceBackTrickyPhones(str[0]));
+         ph.add(str[0]);
          dur.add(Integer.valueOf(str[1]));
       }
       /* the duration of the first phone includes de duration of of the initial pause */
