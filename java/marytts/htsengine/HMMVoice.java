@@ -76,7 +76,7 @@ public class HMMVoice extends Voice {
             String Fmd, String Fmf, String Fmm, String Fms, String Fma,
             String useExtDur, String useExtLogF0,
             String useMixExc, String useFourierMag, boolean useGV, boolean useGmmGV, String Fgvf, String Fgvm, 
-            String Fgvs, String Fgva, String Fgmmgvf, String Fgmmgvm, String FeaFile, 
+            String Fgvs, String Fgva, String Fgmmgvf, String Fgmmgvm, String FeaFile, String trickyPhonesFile,
             String Fif, int nFilters, int norderFilters) throws Exception {
         super(nameArray, locale, dbAudioFormat, synthesizer, gender);
         
@@ -128,6 +128,9 @@ public class HMMVoice extends Voice {
             
        /* Example context feature file in TARGETFEATURES format */
        this.htsData.setFeaFile(FeaFile);
+       
+       /* trickyPhones file if any*/
+       this.htsData.setTrickyPhonesFile(trickyPhonesFile);
 
        /* Configuration for mixed excitation */
        if(Fif != null){

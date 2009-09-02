@@ -156,6 +156,9 @@ public class HMMData {
 	 
     /* Example CONTEXTFEATURE file in MARY format */
     private String feaFile;
+    
+    /* tricky phones file if generated during training of HMMs. */
+    private String trickyPhonesFile;
 	
 	public int getRate() { return rate; }
 	public int getFperiod() { return fperiod; } 
@@ -200,12 +203,16 @@ public class HMMData {
     public String getPdfStrGVFile() { return pdfStrGVFile; } 
     public String getPdfMagGVFile() { return pdfMagGVFile; }
     public String getFeaFile() { return feaFile; }
+    public String getTrickyPhonesFile() { return trickyPhonesFile; }
 	
 	public String getMixFiltersFile() { return mixFiltersFile; } 
 	public int getNumFilters(){ return numFilters; }
 	public int getOrderFilters(){ return orderFilters; }
     public double [][] getMixFilters(){ return mixFilters; }
     
+    
+    public void setRate(int ival) { rate = ival; }
+    public void setFperiod(int ival) { fperiod = ival; } 
     public void setAlpha(double dval){ alpha = dval; }
     public void setBeta(double dval){ beta = dval; }
     public void setStage(int ival){ stage = ival; }
@@ -276,12 +283,13 @@ public class HMMData {
     public void setPdfStrGVFile(String str) { pdfStrGVFile = str; } 
     public void setPdfMagGVFile(String str) { pdfMagGVFile = str; } 
     public void setFeaFile(String str) { feaFile = str; }
+    public void setTrickyPhonesFile(String str) { trickyPhonesFile = str; }
     
     public void setMixFiltersFile(String str) { mixFiltersFile = str; } 
     public void setNumFilters(int val){ numFilters = val; }
     public void setOrderFilters(int val){ orderFilters = val; }
      
-    public void loadCartTreeSet() throws Exception { cart.loadTreeSet(this, feaDef); } 
+    public void loadCartTreeSet() throws Exception { cart.loadTreeSet(this, feaDef, trickyPhonesFile); } 
       
     public void loadGVModelSet() throws Exception { gv.loadGVModelSet(this); } 
 	
@@ -346,8 +354,16 @@ public class HMMData {
               pdfMcpGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgmmgvm" ).substring(10);
           }
  
-          /* Example context feature file in HTSCONTEXT_EN format */
+          /* Example context feature file in MARY format */
           feaFile = MaryBase + props.getProperty( "voice." + voice + ".FeaFile" ).substring(10);
+          
+          /* trickyPhones file, if any. If aliases for tricky phones were used during the training of HMMs
+           * then these aliases are in this file, if no aliases were used then the string is empty.
+           * This file will be used during the loading of HMM trees, so aliases of tricky phone are aplied back. */
+          if( props.getProperty( "voice." + voice + ".trickyPhonesFile" ) != null)
+            trickyPhonesFile = MaryBase + props.getProperty( "voice." + voice + ".trickyPhonesFile" ).substring(10);
+          else
+            trickyPhonesFile = "";
           
           /* Configuration for mixed excitation */
           if( treeStrFile != null ) {
@@ -372,7 +388,7 @@ public class HMMData {
         /* Load TreeSet ts and ModelSet ms for current voice*/
         logger.info("Loading Tree Set in CARTs:");
         setFeatureDefinition(feaFile); /* first set the feature definition with one example of context feature file */ 
-        cart.loadTreeSet(this, feaDef); 
+        cart.loadTreeSet(this, feaDef, trickyPhonesFile); 
         
         logger.info("Loading GV Model Set:");
         gv.loadGVModelSet(this);

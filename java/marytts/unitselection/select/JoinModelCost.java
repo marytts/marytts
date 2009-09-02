@@ -23,6 +23,7 @@ import java.io.IOException;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
+import marytts.htsengine.PhoneTranslator;
 import marytts.cart.CART;
 import marytts.cart.Node;
 import marytts.cart.LeafNode.PdfLeafNode;
@@ -75,7 +76,9 @@ public class JoinModelCost implements JoinCostFunction
         String joinFileName = MaryProperties.needFilename(configPrefix+".joinCostFile");
         String joinPdfFileName = MaryProperties.needFilename(configPrefix + ".joinPdfFile");
         String joinTreeFileName = MaryProperties.needFilename(configPrefix + ".joinTreeFile");
-        load(joinFileName, joinPdfFileName, joinTreeFileName);
+        //CHECK not tested the trickyPhonesFile needs to be added into the configuration file
+        String trickyPhonesFileName = MaryProperties.needFilename(configPrefix + ".trickyPhonesFile");
+        load(joinFileName, joinPdfFileName, joinTreeFileName, trickyPhonesFileName);
     }
     
     @Deprecated
@@ -91,7 +94,7 @@ public class JoinModelCost implements JoinCostFunction
      * @param joinPdfFileName the file from which to read the Gaussian models in the leaves of the tree
      * @param joinTreeFileName the file from which to read the Tree, in HTS format.
      */
-    public void load(String joinFileName, String joinPdfFileName, String joinTreeFileName)
+    public void load(String joinFileName, String joinPdfFileName, String joinTreeFileName, String trickyPhonesFile)
     throws IOException
     {
         jcf = new JoinCostFeatures(joinFileName);
@@ -102,9 +105,12 @@ public class JoinModelCost implements JoinCostFunction
         HTSCARTReader htsReader = new HTSCARTReader();
         int numStates = 1;  // just one state in the joinModeller
         
+        // Check if there are tricky phones, and create a PhoneTranslator object
+        PhoneTranslator phTranslator = new PhoneTranslator(trickyPhonesFile);
+        
         try {
             //joinTree.loadTreeSetGeneral(joinTreeFileName, 0, featureDef);
-            joinTree = htsReader.load(numStates, joinTreeFileName, joinPdfFileName, featureDef);
+            joinTree = htsReader.load(numStates, joinTreeFileName, joinPdfFileName, featureDef, phTranslator);
             
         } catch (Exception e) {
             IOException ioe = new IOException("Cannot load join model trees from "+joinTreeFileName);

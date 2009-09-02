@@ -96,28 +96,31 @@ public class CartTreeSet {
     
     
     /** Loads all the CART trees */
-    public void loadTreeSet(HMMData htsData, FeatureDefinition featureDef) throws Exception {
+    public void loadTreeSet(HMMData htsData, FeatureDefinition featureDef, String trickyPhones) throws Exception {
       try {
+        
+        // Check if there are tricky phones, and create a PhoneTranslator object
+        PhoneTranslator phTranslator = new PhoneTranslator(trickyPhones);
              
         /* DUR, LF0 and MCP are required as minimum for generating voice. 
         * The duration tree has only one state.
         * The size of the vector in duration is the number of states. */  
-        durTree = htsReader.load(1, htsData.getTreeDurFile(), htsData.getPdfDurFile(), featureDef);  
+        durTree = htsReader.load(1, htsData.getTreeDurFile(), htsData.getPdfDurFile(), featureDef, phTranslator);  
         numStates = htsReader.getVectorSize();
         
-        lf0Tree = htsReader.load(numStates, htsData.getTreeLf0File(), htsData.getPdfLf0File(), featureDef);
+        lf0Tree = htsReader.load(numStates, htsData.getTreeLf0File(), htsData.getPdfLf0File(), featureDef, phTranslator);
         lf0Stream = htsReader.getVectorSize();
         
-        mcpTree = htsReader.load(numStates, htsData.getTreeMcpFile(), htsData.getPdfMcpFile(), featureDef);
+        mcpTree = htsReader.load(numStates, htsData.getTreeMcpFile(), htsData.getPdfMcpFile(), featureDef, phTranslator);
         mcepVsize = htsReader.getVectorSize();
         
         /* STR and MAG are optional for generating mixed excitation */ 
         if( htsData.getTreeStrFile() != null){
-           strTree = htsReader.load(numStates, htsData.getTreeStrFile(), htsData.getPdfStrFile(), featureDef);
+           strTree = htsReader.load(numStates, htsData.getTreeStrFile(), htsData.getPdfStrFile(), featureDef, phTranslator);
            strVsize = htsReader.getVectorSize();
         }
         if( htsData.getTreeMagFile() != null){
-          magTree = htsReader.load(numStates, htsData.getTreeMagFile(), htsData.getPdfMagFile(), featureDef);
+          magTree = htsReader.load(numStates, htsData.getTreeMagFile(), htsData.getPdfMagFile(), featureDef, phTranslator);
           magVsize = htsReader.getVectorSize();
         }
         

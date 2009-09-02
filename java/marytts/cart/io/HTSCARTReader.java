@@ -84,6 +84,7 @@ public class HTSCARTReader
 {
     
     private FeatureDefinition featDef; 
+    private PhoneTranslator phTrans;
     private Logger logger = Logger.getLogger("HTSCARTReader");
     private int vectorSize;   // the vector size of the mean and variance on the leaves of the tree.
     
@@ -105,13 +106,16 @@ public class HTSCARTReader
  * @throws IOException
  *             if a problem occurs while loading
  */
-public CART[] load(int numStates, String treeFileName, String pdfFileName, FeatureDefinition featDefinition)
+public CART[] load(int numStates, String treeFileName, String pdfFileName, FeatureDefinition featDefinition, PhoneTranslator phTranslator)
        throws Exception {
         
         featDef = featDefinition;
+        //phTrans = phoneTranslator;
         int i, j, length, state;
         BufferedReader s = null;
         String line, aux;
+        
+        phTrans = phTranslator;
         
         // create the number of carts it is going to read
         CART treeSet[] = new CART[numStates];
@@ -240,17 +244,17 @@ private Node loadStateTree(BufferedReader s, double pdf[][][]) throws Exception 
           /* what about tricky phones, if using halfphones it would not be necessary */
           if(fea_val[0].contentEquals("sentence_punc") || fea_val[0].contentEquals("prev_punctuation") || fea_val[0].contentEquals("next_punctuation")){
               //System.out.print("CART replace punc: " + fea_val[0] + " = " + fea_val[1]);
-              fea_val[1] = PhoneTranslator.replaceBackPunc(fea_val[1]);
+              fea_val[1] = phTrans.replaceBackPunc(fea_val[1]);
               //System.out.println(" --> " + fea_val[0] + " = " + fea_val[1]);
           }
           else if(fea_val[0].contains("tobi_") ){
               //System.out.print("CART replace tobi: " + fea_val[0] + " = " + fea_val[1]);
-              fea_val[1] = PhoneTranslator.replaceBackToBI(fea_val[1]);
+              fea_val[1] = phTrans.replaceBackToBI(fea_val[1]);
               //System.out.println(" --> " + fea_val[0] + " = " + fea_val[1]);
           }
           else if(fea_val[0].contains("phone") ){
               //System.out.print("CART replace phone: " + fea_val[0] + " = " + fea_val[1]);
-              fea_val[1] = PhoneTranslator.replaceBackTrickyPhones(fea_val[1]);
+              fea_val[1] = phTrans.replaceBackTrickyPhones(fea_val[1]);
               //System.out.println(" --> " + fea_val[0] + " = " + fea_val[1]);
           }
           
@@ -534,13 +538,17 @@ public static void main(String[] args) throws IOException, InterruptedException{
       
     CART[] mgcTree = null;
     int numStates = 5;
+    String trickyPhones = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/trickyPhones.txt";
     String treefile = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/tree-dur.inf";
     String pdffile = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/dur.pdf";
     int vSize;
     
+    // Check if there are tricky phones, and create a PhoneTranslator object
+    PhoneTranslator phTranslator = new PhoneTranslator(trickyPhones);
+    
     HTSCARTReader htsReader = new HTSCARTReader(); 
     try {
-      mgcTree = htsReader.load(numStates, treefile, pdffile, feaDef);
+      mgcTree = htsReader.load(numStates, treefile, pdffile, feaDef, phTranslator);
       vSize = htsReader.getVectorSize();
       System.out.println("loaded " + pdffile + "  vector size=" + vSize);
     } catch (Exception e) {

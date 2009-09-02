@@ -69,9 +69,7 @@ public class JoinModeller extends VoiceImportComponent
     
     private DatabaseLayout db = null;
     private int percent = 0;
-    
-    private PhoneTranslator contextTranslator = null;  // CHECK this class, with the new version of HMM voices
-                                                       // will not be needed.
+      
     private HMMData htsData = null;  /* for using the function readFeatureList() */
     private Vector<String> featureList = null;
     private Map<String,String> feat2shortFeat = new HashMap<String, String>();
@@ -97,10 +95,12 @@ public class JoinModeller extends VoiceImportComponent
     public final String CNVCONFFILE = "JoinModeller.cnvFile"; 
     public final String HHEDCOMMAND = "JoinModeller.hhedCommand";
     public final String FEATURELISTFILE = "JoinModeller.featureListFile";
+    public final String ALLOPHONESFILE   = "JoinModeller.allophonesFile";
+    public final String TRICKYPHONESFILE = "JoinModeller.trickyPhonesFile";
     
     public JoinModeller()
     {
-        contextTranslator = new PhoneTranslator();
+        
     }
     
     public String getName(){
@@ -119,7 +119,9 @@ public class JoinModeller extends VoiceImportComponent
            props.put(STATSFILE,filedir+"stats"+maryExt);
            props.put(MMFFILE,filedir+"join_mmf"+maryExt);
            props.put(FULLFILE, filedir+"fullList"+maryExt);
-           props.put(FEATURELISTFILE, filedir+"featureListFile"+maryExt);
+           props.put(FEATURELISTFILE, filedir+"/mary/featureListFile.txt");
+           props.put(ALLOPHONESFILE, "/project/mary/marcela/openmary/lib/modules/en/us/lexicon/allophones.en_US.xml");
+           props.put(TRICKYPHONESFILE, filedir+"/mary/trickyPhones.txt");
            props.put(CXCHEDFILE, filedir+"cxc_join.hed");
            props.put(JOINTREEFILE, filedir+"join_tree.inf");
            props.put(CNVHEDFILE, filedir+"cnv_join.hed");
@@ -138,9 +140,11 @@ public class JoinModeller extends VoiceImportComponent
         props2Help.put(STATSFILE,"output file containing statistics of the models in HTK stats format");
         props2Help.put(MMFFILE,"output file containing one state HMM models, HTK format, representing join models (mean and variances are calculated in this class)");
         props2Help.put(FULLFILE,"output file containing the full list of HMM model names");
-        props2Help.put(FEATURELISTFILE,"feature list for making fullcontext names and questions");        
+        props2Help.put(FEATURELISTFILE,"feature list for making fullcontext names and questions");
+        props2Help.put(TRICKYPHONESFILE,"list of aliases for tricky phones, so HTK-HHEd command can handle them.");
         props2Help.put(CXCHEDFILE,"HTK hed file used by HHEd, load stats file, contains questions for decision tree-based context clustering and outputs result in join-tree.inf");
         props2Help.put(CNVHEDFILE,"HTK hed file used by HHEd to convert trees and mmf into hts_engine format");
+        props2Help.put(ALLOPHONESFILE, "allophones set (language dependent, an example can be found in ../openmary/lib/modules/language/...)");
         props2Help.put(TRNCONFFILE,"HTK configuration file for context clustering");
         props2Help.put(CNVCONFFILE,"HTK configuration file for converting to hts_engine format");
         props2Help.put(HHEDCOMMAND,"HTS-HTK HHEd command, HTS version minimum HTS_2.0.1");
@@ -153,9 +157,19 @@ public class JoinModeller extends VoiceImportComponent
         FeatureFileReader unitFeatures = FeatureFileReader.getFeatureFileReader(getProp(UNITFEATURESFILE));
         JoinCostFeatures joinFeatures = new JoinCostFeatures(getProp(JOINCOSTFEATURESFILE));
         UnitFileReader units = new UnitFileReader(getProp(UNITFILE));
+        FeatureDefinition def = unitFeatures.getFeatureDefinition();
+        
+        // for creating a contexttranslator object we need to check if there is 
+        PhoneTranslator contextTranslator = null;
+        // Check if there are tricky phones          
+        if( HMMVoiceMakeData.checkTrickyPhones(getProp(ALLOPHONESFILE), getProp(TRICKYPHONESFILE)) )        
+            contextTranslator = new PhoneTranslator(getProp(TRICKYPHONESFILE));
+        else
+            contextTranslator = new PhoneTranslator(""); 
+        
         
         featureList = new Vector<String>(); 
-        readFeatureList(getProp(FEATURELISTFILE));
+        readFeatureList(getProp(FEATURELISTFILE), def);
               
         statsStream = new FileWriter(getProp(STATSFILE));
         mmfStream   = new FileWriter(getProp(MMFFILE));
@@ -173,7 +187,7 @@ public class JoinModeller extends VoiceImportComponent
         if (unitFeatures.getNumberOfUnits() != units.getNumberOfUnits())
             throw new IllegalStateException("Number of units in unit file and unit feature file does not match!");
         int numUnits = unitFeatures.getNumberOfUnits();
-        FeatureDefinition def = unitFeatures.getFeatureDefinition();
+        //----FeatureDefinition def = unitFeatures.getFeatureDefinition();
 
         int iPhoneme = def.getFeatureIndex("phone");
         int nPhonemes = def.getNumberOfValues(iPhoneme);
@@ -304,7 +318,7 @@ public class JoinModeller extends VoiceImportComponent
                 if (f.endsWith("phone")) {
                     v = contextTranslator.replaceTrickyPhones(v);
                 } else if (f.endsWith("sentence_punc") || f.endsWith("punctuation")) {
-                    v = PhoneTranslator.replacePunc(v);
+                    v = contextTranslator.replacePunc(v);
                 }
                 pw.println("QS \""+f+"="+v+"\" {*|"+f+"="+v+"|*}");
             }
@@ -418,10 +432,12 @@ public class JoinModeller extends VoiceImportComponent
     }
     
     
-    /** This function reads the feature list file, for example feature_list_en_05.pl
-     * and fills in a vector the elements in that list that are un-commented 
+    /** This function reads a feature list file originally used to train the HMMs, in HMM voices.
+     * The file format is simple, one feature after another like in the ../mary/features.txt
+     * An example of feature list is in ../mary/featuresHmmVoice.txt
+     * Since the features are provided by the user, it should be checked that the features exist
      */
-    private void readFeatureList(String featureListFile) throws FileNotFoundException {
+    private void readFeatureList(String featureListFile, FeatureDefinition feaDef) throws Exception {
       String line;
       int i;
   
@@ -429,37 +445,24 @@ public class JoinModeller extends VoiceImportComponent
       Scanner s = null;
       try {
         s = new Scanner(new BufferedReader(new FileReader(featureListFile))).useDelimiter("\n");
-          
+        String fea;
+        System.out.println("The following are other context features used for training Hmms: ");
         while (s.hasNext()) {
-          line = s.next();
-          //System.out.println("fea: "+ line);
-          if(!line.contains("#") && line.length()>0){    /* if it is not commented */
-              // MS, 20 Oct 2008: as the feature names don't contain the prefix "mary_" anymore,
-              // we cannot identify feature names as before.
-              // However, it seems that, when there is a comma in the line, 
-              // the first element should be the right one in all examples I found.
-              if (line.contains(",")) { // it contains a comma
-                  String[] elem = line.split(",");
-                  String feaString = elem[0];
-                  assert feaString.contains("\"") : "Unlikely to contain a feature name: '"+feaString+"'!";
-                  featureList.addElement(feaString.substring(feaString.indexOf("\"")+1, feaString.lastIndexOf("\"")));
-                  //for(i=0; i<elem.length; i++)
-                  //  if(elem[i].contains("mary_")){  /* if starts with mary_ */                 
-                  //    feaList.addElement(elem[i].substring(elem[i].indexOf("\"")+1, elem[i].lastIndexOf("\"")));
-                  //    //System.out.println("  -->  "+ featureList.lastElement()); 
-                  //  }                  
-              }
+          fea = s.nextLine();
+          // Check if the feature exist
+          if( feaDef.hasFeature(fea)){
+            featureList.add(fea);
+            //System.out.println("  " + fea);
           }
+          else
+            throw new Exception("Error: feature \"" + fea + "\" in feature list file: " + featureListFile + " does not exist in FeatureDefinition.");
         }
-                
         if (s != null) { 
           s.close();
-        }
-        
+        }       
       } catch (FileNotFoundException e) {
           System.out.println("readFeatureList:  " + e.getMessage());
-      }
-      
+      }      
       System.out.println("readFeatureList: loaded " + featureList.size() + " context features from " + featureListFile);
       
     } /* method ReadFeatureList */
@@ -487,6 +490,15 @@ public class JoinModeller extends VoiceImportComponent
             context.close();
             //System.out.println(strContext);
             FeatureDefinition def = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false);
+            
+            String trickyPhonesFile = "/project/mary/marcela/HMM-voices/DFKI_German_Poker/mary_files_old/trickyPhones.txt";
+            String allophonesFile = "/project/mary/marcela/openmary/lib/modules/en/us/lexicon/allophones.en_US.xml";
+            // Check if there are tricky phones          
+            if( ! (HMMVoiceMakeData.checkTrickyPhones(allophonesFile, trickyPhonesFile) ) )
+                trickyPhonesFile = "";
+             
+            // Check if there are tricky phones, and create a PhoneTranslator object
+            PhoneTranslator phTranslator = new PhoneTranslator(trickyPhonesFile);
   
             CART[] joinTree = null;
             HTSCARTReader htsReader = new HTSCARTReader();
@@ -494,7 +506,7 @@ public class JoinModeller extends VoiceImportComponent
             int vectorSize = 0;
             
             try {
-                joinTree = htsReader.load(numStates, joinTreeFile, joinPdfFile, def);
+                joinTree = htsReader.load(numStates, joinTreeFile, joinPdfFile, def, phTranslator);
                 vectorSize = htsReader.getVectorSize();
                 
             } catch (Exception e) {

@@ -20,14 +20,22 @@
 package marytts.htsengine;
 
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.Vector;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
+import marytts.modules.phonemiser.AllophoneSet;
 
 import org.apache.log4j.Logger;
 
@@ -35,27 +43,32 @@ import org.apache.log4j.Logger;
 /**
  * Translates phone names used in HTS-HTK
  */
-public class PhoneTranslator  {
+public class PhoneTranslator {
+    
     private Logger logger = Logger.getLogger("PhoneTranslator");
-    private String contextFeatureFile;
+    private String contextFeatureFile, trickyPhonesFile;
     private int iPhoneme, iPrevPhoneme, iPrevPrevPhoneme, iNextPhoneme, iNextNextPhoneme;
-    private Map<String,String> feat2shortFeat = new HashMap<String, String>();
+    private Map<String,String> trickyPhones = new HashMap<String, String>();
+    private Map<String,String> actualPhones = new HashMap<String, String>();
  
-    public PhoneTranslator()
+    // When creating a phoneTranslator object a trickyPhonesFile can be provided
+    // so the phone aliases are loaded. 
+    public PhoneTranslator(String trickyPhonesFile) throws FileNotFoundException 
     {
-
+      if( !trickyPhonesFile.contentEquals("") )
+        loadTrickyPhones(trickyPhonesFile);
     }
     
-    
     public void setContextFeatureFile(String str){ contextFeatureFile = str; }
-
-       
+    
+           
     /**
      * Convert the feature vector into a context model name to be used by HTS/HTK.
      * @param def a feature definition
      * @param featureVector a feature vector which must be consistent with the Feature definition
      * @param featureList a list of features to use in constructing the context model name. If missing, all features in the feature definition are used.
      * @return the string representation of one context name.
+     * NOTE: is this function used somewhere? CHECK!
      */
     public String features2context(FeatureDefinition def, FeatureVector featureVector, Vector<String> featureList)
     {
@@ -163,46 +176,45 @@ public class PhoneTranslator  {
     } /* method features2context */
     
     
+    
+    private void loadTrickyPhones(String fileName) throws FileNotFoundException{
+        
+        Scanner aliasList = null;
+        try {
+          aliasList = new Scanner(new BufferedReader(new FileReader(fileName)));
+          String line;
+          logger.info("loading tricky phones from file: " + fileName);
+          while (aliasList.hasNext()) {
+            line = aliasList.nextLine();
+            String[] ph = line.split(" ");
+          
+            trickyPhones.put(ph[0], ph[1]);
+            actualPhones.put(ph[1], ph[0]);
+            logger.info("  " + ph[0] + " -->  " + ph[1]);  
+            
+          }
+          if (aliasList != null) { 
+            aliasList.close();
+          }       
+        } catch (FileNotFoundException e) {
+            logger.debug("loadTrickyPhones:  " + e.getMessage());
+             throw new FileNotFoundException();
+        }              
+    }
+    
     /** Translation table for labels which are incompatible with HTK or shell filenames
      * See common_routines.pl in HTS training.
      * @param lab
      * @return String
      */
-    public static String replaceTrickyPhones(String lab){
+    public String replaceTrickyPhones(String lab){
+        
       String s = lab;
       
-      /** the replace is done for the labels: phone, prev_phone and next_phone */
-      
-      /** DE (replacements in German phone set) */     
-      if(lab.contentEquals("6") )
-        s = "ER6";
-      else if (lab.contentEquals("=6") )
-        s = "ER6";
-      else if (lab.contentEquals("2:") )
-          s = "EU2";
-      else if (lab.contentEquals("9") )
-          s = "EU9";
-      else if (lab.contentEquals("9~") )
-          s = "UM9";
-      else if (lab.contentEquals("e~") )
-          s = "IMe";
-      else if (lab.contentEquals("a~") )
-          s = "ANa";
-      else if (lab.contentEquals("o~") )
-          s = "ONo";
-      else if (lab.contentEquals("?") )
-          s = "gstop";
-      /** EN (replacements in English phone set) */
-      else if (lab.contentEquals("r=") )
-          s = "rr"; 
-      /** TR (replacements in Turkish phone set) */
-      else if (lab.contentEquals("@\'") )
-          s = "@o"; 
-      
-      //System.out.println("LAB=" + s);
-      
+      if( trickyPhones.containsKey(lab)){
+         s = trickyPhones.get(lab); 
+      }    
       return s;
-        
     }
     
     
@@ -214,49 +226,22 @@ public class PhoneTranslator  {
      * @param lab
      * @return String
      */
-    public static String replaceBackTrickyPhones(String lab){
+    public String replaceBackTrickyPhones(String lab){
+      
       String s = lab;
-      /** DE (replacements in German phone set) */     
-      if(lab.contentEquals("ER6") )
-        s = "6";
-      //else if (lab.contentEquals("ER6") )   /* CHECK ??? */
-      //  s = "6";
-      else if (lab.contentEquals("EU2") )
-          s = "2:";
-      else if (lab.contentEquals("EU9") )
-          s = "9";
-      else if (lab.contentEquals("UM9") )
-          s = "9~";
-      else if (lab.contentEquals("IMe") )
-          s = "e~";
-      else if (lab.contentEquals("ANa") )
-          s = "a~";
-      else if (lab.contentEquals("ONo") )
-          s = "o~";
-      else if (lab.contentEquals("gstop") )
-          s = "?";
-      /** EN (replacements in English phone set) */
-      else if (lab.contentEquals("rr") )
-          s = "r="; 
-      /** TR (replacements in Turkish phone set) */
-      else if (lab.contentEquals("@o") )
-          s = "@\'";
-      
-      //System.out.println("LAB=" + s);
-      
-      return s;
         
+      if( actualPhones.containsKey(lab)){
+         s = actualPhones.get(lab); 
+      } 
+      return s;        
     }
     
     /** Shorten the key name (to make the full context names shorter)
      * See common_routines.pl in HTS training.
+     * not needed CHECK
      */
-    public static String shortenPfeat(String fea) {
-      
-      // look up the feature in a table:
-      //String s = feat2shortFeat.get(fea);
-      //if (s!=null) return s;
-      
+    public String shortenPfeat(String fea) {
+            
       // First time: need to do the shortening:
       String s = fea;
      // s = s.replace("^pos$/POS/g;  /* ??? */
@@ -286,7 +271,7 @@ public class PhoneTranslator  {
     }
     
     
-    public static String replacePunc(String lab){
+    public String replacePunc(String lab){
         String s = lab;
            
         if(lab.contentEquals(".") )
@@ -306,7 +291,7 @@ public class PhoneTranslator  {
           
       }
     
-    public static String replaceBackPunc(String lab){
+    public String replaceBackPunc(String lab){
         String s = lab;
            
         if(lab.contentEquals("pt") )
@@ -327,7 +312,7 @@ public class PhoneTranslator  {
       }
    
     
-    public static  String replaceToBI(String lab){
+    public String replaceToBI(String lab){
         String s = lab;
         
         if(lab.contains("*") )  
@@ -343,7 +328,7 @@ public class PhoneTranslator  {
           
       }
     
-    public static String replaceBackToBI(String lab){
+    public String replaceBackToBI(String lab){
         String s = lab;
         
         if(lab.contains("st") )  
@@ -359,12 +344,29 @@ public class PhoneTranslator  {
           
       }
     
-    public static void main(String[] args){
+    public static void main(String[] args) {
         
-      String oriLab = "@'";
-      String lab = replaceTrickyPhones(oriLab);     
-      String ori = replaceBackTrickyPhones(lab);
-      System.out.println("oriLab=" + oriLab + "  lab=" + lab + "  ori=" + ori);
+      PhoneTranslator phTrans;
+      String oriLab, alias, ori;
+      try {
+        phTrans = new PhoneTranslator("/project/mary/marcela/HMM-voices/turkish/mary/trickyPhones.txt");  
+        
+        oriLab = "@'";
+        alias = phTrans.replaceTrickyPhones(oriLab);  
+        ori = phTrans.replaceBackTrickyPhones(alias);
+        System.out.println("oriLab=" + oriLab + "  alias=" + alias + "  ori=" + ori);
+        
+        
+        oriLab = "e~";
+        alias = phTrans.replaceTrickyPhones(oriLab);  
+        ori = phTrans.replaceBackTrickyPhones(alias);
+        System.out.println("oriLab=" + oriLab + "  alias=" + alias + "  ori=" + ori);
+        
+        
+        
+      } catch (FileNotFoundException e) {
+          System.out.println("PhoneTranslator:  " + e.getMessage());
+      }  
              
     }
 
