@@ -124,10 +124,7 @@ public class Context {
         if (leftContextIn!=null)
         {
             leftContexts = new String[leftContextIn.length];
-            for (int i=0; i<leftContextIn.length; i++)
-            {
-                leftContexts[i] = leftContextIn[i];
-            }
+            System.arraycopy(leftContextIn, 0, leftContexts, 0, leftContexts.length);
         }
     }
     
@@ -137,10 +134,7 @@ public class Context {
         if (rightContextIn!=null)
         {
             rightContexts = new String[rightContextIn.length];
-            for (int i=0; i<rightContextIn.length; i++)
-            {
-                rightContexts[i] = rightContextIn[i];
-            }
+            System.arraycopy(rightContextIn, 0, rightContexts, 0, rightContexts.length);
         }
     }
     
