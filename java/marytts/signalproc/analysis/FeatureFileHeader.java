@@ -73,10 +73,7 @@ public class FeatureFileHeader {
             return false;
         if (this.skipsize!=hdr.skipsize)
             return false;
-        if (this.samplingRate!=hdr.samplingRate)
-            return false;
-        else
-            return true;
+        return this.samplingRate == hdr.samplingRate;
     }
     
     public void readHeader(String file) throws IOException
