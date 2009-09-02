@@ -154,7 +154,7 @@ public class CARTF0Modeller extends InternalModule
             CART currentMidCart   = midCart;
             CART currentRightCart = rightCart;
             TargetFeatureComputer currentFeatureComputer = featureComputer;
-            if (maryVoice != null && maryVoice instanceof UnitSelectionVoice) {
+            if (maryVoice instanceof UnitSelectionVoice) {
                 CART[] voiceTrees = ((UnitSelectionVoice)maryVoice).getF0Trees();
                 if (voiceTrees != null) {
                     currentLeftCart  = voiceTrees[0];

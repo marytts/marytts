@@ -44,7 +44,7 @@ public class FeatureVectorCART extends CART {
      public FeatureVectorCART(MaryNode tree, FeatureArrayIndexer ffi) {
         featDef = ffi.getFeatureDefinition();
         addDaughters(null, tree, ffi);
-        if (rootNode != null && rootNode instanceof DecisionNode) {
+        if (rootNode instanceof DecisionNode) {
             ((DecisionNode)rootNode).countData();
         }
     }
