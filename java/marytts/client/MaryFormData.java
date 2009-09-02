@@ -592,10 +592,7 @@ public class MaryFormData
             return false;
         
         int tmp = serverVersionNo.compareToIgnoreCase(serverVersionToCompare);
-        if (tmp>=0)
-            return true;
-        else
-            return false;
+        return tmp>=0;
     }
 
     

@@ -130,8 +130,7 @@ public class PhonologicalRules
 
     public boolean matches(String input)
     {
-        if (key.matcher(input).find()) return true;
-        else return false;
+        return key.matcher(input).find();
     }
 
     public String apply(String input, int precision)

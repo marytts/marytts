@@ -117,13 +117,7 @@ public class Target
                 isSilence = 0; //false
             }
         }
-        if (isSilence == 1) {
-            return true;
-        } else {
-            return false;
-        }
-       
-        
+        return isSilence == 1;
     }
     
     public Allophone getAllophone()

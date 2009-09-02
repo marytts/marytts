@@ -630,10 +630,7 @@ public class SignalProcUtils {
     {
         double Pvoiced = getVoicingProbability(windowedSpeechFrame, samplingRateInHz);
         
-        if (Pvoiced>=voicingThreshold)
-            return true;
-        else
-            return false;
+        return Pvoiced>=voicingThreshold;
     }
 
     public static double getVoicingProbability(double [] windowedSpeechFrame, int samplingRateInHz)

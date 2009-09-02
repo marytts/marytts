@@ -306,8 +306,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
                 countData++;
             }
         }
-        if(countData == 0) return false;
-        else return true;
+        return countData != 0;
     }
 
     public boolean hasLexiconData(){
@@ -317,8 +316,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
                 countData++;
             }
         }
-        if(countData == 0) return false;
-        else return true;
+        return countData != 0;
     }
     
     
@@ -450,11 +448,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
     public boolean isCellEditable(int row, int col) {
         //Note that the data/cell address is constant,
         //no matter where the cell appears onscreen.
-        if (col < editableColumns) {
-            return false;
-        } else {
-            return true;
-        }
+        return col >= editableColumns;
     }
 
     /*

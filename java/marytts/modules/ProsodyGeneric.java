@@ -1297,8 +1297,7 @@ public class ProsodyGeneric extends InternalModule {
         } else {
             throw new IllegalArgumentException("Unknown list representation: " + listObj);
         }
-        if (contains && negation || !contains && !negation) return false;
-        else return true;
+        return !(contains && negation || !contains && !negation);
     }
     
     /** determination of sentence type
@@ -1508,11 +1507,7 @@ public class ProsodyGeneric extends InternalModule {
      */
     protected boolean applyRules(Node n) {
         Element intonation = (Element) MaryDomUtils.getAncestor(n, MaryXML.PROSODY);
-        if (intonation != null && intonation.getAttribute("rules").equals("off")) {
-            return false;
-        } else {
-            return true;
-        }
+        return intonation == null || !intonation.getAttribute("rules").equals("off");
     }
 
     
@@ -1581,11 +1576,12 @@ public class ProsodyGeneric extends InternalModule {
         
         String tokenText = MaryDomUtils.tokenText(token);
         
-        if (tokenText.equals(",") || tokenText.equals(".") || tokenText.equals("?") || tokenText.equals("!") || tokenText.equals(":")
-        		|| tokenText.equals(";"))
-            return true;
-        else
-            return false;
+        return tokenText.equals(",") ||
+                tokenText.equals(".") ||
+                tokenText.equals("?") ||
+                tokenText.equals("!") ||
+                tokenText.equals(":") ||
+                tokenText.equals(";");
     }
 	
 }

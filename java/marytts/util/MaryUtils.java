@@ -268,10 +268,7 @@ public class MaryUtils {
          String s = string.trim();
          if (s.length() < 3)
              return false;
-         if (s.substring(s.length() - 1).equals("%") && isNumberDelta(s.substring(0, s.length() - 1)))
-             return true;
-         else
-             return false;
+         return s.substring(s.length() - 1).equals("%") && isNumberDelta(s.substring(0, s.length() - 1));
      }
 
      /**
@@ -297,10 +294,8 @@ public class MaryUtils {
          String s = string.trim();
          if (s.length() < 4)
              return false;
-         if (s.substring(s.length() - 2).equals("st") && isNumberDelta(s.substring(0, s.length() - 2)))
-             return true;
-         else
-             return false;
+
+         return s.substring(s.length() - 2).equals("st") && isNumberDelta(s.substring(0, s.length() - 2));
      }
 
      /**
@@ -332,10 +327,8 @@ public class MaryUtils {
          String s = string.trim();
          if (s.length() < 2)
              return false;
-         if ((s.charAt(0) == '+' || s.charAt(0) == '-') && isUnsignedNumber(s.substring(1)))
-             return true;
-         else
-             return false;
+
+         return (s.charAt(0) == '+' || s.charAt(0) == '-') && isUnsignedNumber(s.substring(1));
      }
 
      /**
@@ -367,10 +360,7 @@ public class MaryUtils {
          String s = string.trim();
          if (s.length() < 3)
              return false;
-         if (s.substring(s.length() - 2).equals("st") && isUnsignedNumber(s.substring(0, s.length() - 2)))
-             return true;
-         else
-             return false;
+         return s.substring(s.length() - 2).equals("st") && isUnsignedNumber(s.substring(0, s.length() - 2));
      }
 
      /**
@@ -898,11 +888,7 @@ public class MaryUtils {
     {
         String osName = System.getProperty("os.name");
         osName = osName.toLowerCase();
-        
-        if (osName.indexOf("windows")!=-1)
-            return true;
-        else
-            return false;
+        return osName.indexOf("windows")!=-1;
     }
 
     public static void plot(float [] x)
@@ -1073,10 +1059,7 @@ public class MaryUtils {
     public static boolean isLittleEndian()
     {
         ByteOrder b = ByteOrder.nativeOrder();
-        if (b.equals(ByteOrder.BIG_ENDIAN))
-            return false;
-        else
-            return true;
+        return b.equals(ByteOrder.LITTLE_ENDIAN);
     }
     
     public static int shellExecute(String strCommand)

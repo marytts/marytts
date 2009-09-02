@@ -486,8 +486,7 @@ public class FeatureDefinition
      */
     public boolean isByteFeature(int index)
     {
-        if (0<=index && index < numByteFeatures) return true;
-        else return false;
+        return 0<=index && index < numByteFeatures;
     }
 
     /**
@@ -515,8 +514,7 @@ public class FeatureDefinition
     public boolean isShortFeature(int index)
     {
         index -= numByteFeatures;
-        if (0<=index && index < numShortFeatures) return true;
-        else return false;
+        return 0<=index && index < numShortFeatures;
     }
 
     /**
@@ -545,8 +543,7 @@ public class FeatureDefinition
     {
         index -= numByteFeatures;
         index -= numShortFeatures;
-        if (0<=index && index < numContinuousFeatures) return true;
-        else return false;
+        return 0<=index && index < numContinuousFeatures;
     }
 
     /**

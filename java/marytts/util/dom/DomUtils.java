@@ -312,11 +312,8 @@ public class DomUtils
         tw.setCurrentNode(node);
         Node prev = tw.previousNode();
 
-        if (prev == null || // no node with same name before this one
-            !isAncestor(ancestor, prev)) // prev is not in the same ancestor
-            return true;
-        else
-            return false;
+        return prev == null || // no node with same name before this one
+            !isAncestor(ancestor, prev); // prev is not in the same ancestor
     }
 
     public static boolean isLastOfItsKindIn(Node node, String ancestorName)
@@ -338,11 +335,8 @@ public class DomUtils
         tw.setCurrentNode(node);
         Node next = tw.nextNode();
 
-        if (next == null || // no node with same name after this one
-            !isAncestor(ancestor, next)) // next is not in the same ancestor
-            return true;
-        else
-            return false;
+        return next == null || // no node with same name after this one
+            !isAncestor(ancestor, next); // next is not in the same ancestor
     }
 
 
@@ -526,8 +520,7 @@ public class DomUtils
      */
     public static boolean areEqual(Document a, Document b) {
         if (a == null || b == null) {
-            if (a == null && b == null) return true;
-            else return false;
+            return a == null && b == null;
         }
         return (serializeToString(a).equals(serializeToString(b)));
     }

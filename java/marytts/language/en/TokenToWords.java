@@ -1064,10 +1064,8 @@ public class TokenToWords implements UtteranceProcessor {
 
         if (isLetter(c0) && isLetter(c1)) {
             return false;
-        } else if (NumberExpander.isDigit(c0) && NumberExpander.isDigit(c1)) {
-            return false;
         } else {
-            return true;
+            return !NumberExpander.isDigit(c0) || !NumberExpander.isDigit(c1);
         }
     }
 

@@ -88,11 +88,7 @@ public class AbbrevEP extends ExpansionPattern
     protected boolean isCandidate(Element t)
     {
         String str = MaryDomUtils.tokenText(t);
-        if (isAbbrev(str) || REPattern.onlyDigits.matcher(str).find()) {
-            return true;
-        } else {
-            return false;
-        }
+        return isAbbrev(str) || REPattern.onlyDigits.matcher(str).find();
     }
 
     protected int canDealWith(String s, int type){
