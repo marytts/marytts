@@ -141,7 +141,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
                     bFeatureExisting = true;
                 }
 
-                assert bFeatureExisting == true;
+                assert bFeatureExisting;
                 
                 GMMTrainer g = new GMMTrainer();
                 gmmSet = new JointGMMSet(1, cgParams);

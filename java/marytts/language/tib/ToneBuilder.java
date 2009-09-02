@@ -710,7 +710,7 @@ public class ToneBuilder extends InternalModule {
     			for (int i=0; i < result.length;i++){
     				boolean res = comparePossibleContent(result[i], "tone", "action");
     				//throw an exception if there is neither a "-" nor a valid tone at 3rd position,
-    				if (!result[i].equals("-") && res==false){
+    				if (!result[i].equals("-") && !res){
     					throw new IllegalArgumentException ("Possible typo in lexicon at word: \""+key+"\" at tone: "+result[i]);
     				}
     			}	

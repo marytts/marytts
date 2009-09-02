@@ -765,12 +765,12 @@ public class HTKLabeler extends VoiceImportComponent {
                     continue;
                 }
                 
-                if (okprint==true && line.matches("^.*ENDHMM.*$")){ 
+                if (okprint && line.matches("^.*ENDHMM.*$")){
                     spHmmDef += line+"\n";
                     continue;
                 }
                 
-                if (okprint==true) {
+                if (okprint) {
                     spHmmDef += line+"\n";
                  }
             }
@@ -1027,7 +1027,7 @@ public class HTKLabeler extends VoiceImportComponent {
             phoneSeq = matcher.replaceAll(" ");
             
             // checking
-            if(spause != true){
+            if(!spause){
                 pattern = Pattern.compile("ssil");
                 matcher = pattern.matcher(phoneSeq);
                 phoneSeq = matcher.replaceAll("");

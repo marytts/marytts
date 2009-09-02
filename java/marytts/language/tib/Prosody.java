@@ -86,12 +86,12 @@ public class Prosody extends ProsodyGeneric
 
         // search for appropriate rules; the top rule has highest prority
         // if a rule fires (that is: all the conditions are fulfilled), the boundary is inserted and the loop stops
-        while (rule_fired == false && (rule = (Element) tw.nextNode()) != null) {
+        while (!rule_fired && (rule = (Element) tw.nextNode()) != null) {
             // rule = the whole rule
             // currentRulePart = part of the rule (condition or action)
             Element currentRulePart = DomUtils.getFirstChildElement(rule);
 
-            while (rule_fired == false && currentRulePart != null) {
+            while (!rule_fired && currentRulePart != null) {
                 boolean conditionSatisfied = false;
 
                 // if rule part with tag "action": boundary insertion
@@ -119,7 +119,7 @@ public class Prosody extends ProsodyGeneric
                 conditionSatisfied = checkRulePart(currentRulePart, token,
                         tokens, position, sentenceType, specialPositionType,
                         tokenText);
-                if (conditionSatisfied == false)
+                if (!conditionSatisfied)
                     break; // condition violated, try next rule
 
                 // the previous conditions are satisfied --> check the next rule part

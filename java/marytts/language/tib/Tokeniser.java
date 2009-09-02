@@ -420,8 +420,8 @@ public class Tokeniser extends InternalModule {
    				}else {break;}
    			}
    			// store Strings in an array according to their position in paragraph
-   			if (foundMatch==true && position==true) {regexpsParaEnd.put(new Integer(countPara),regionMatchPar);countPara++;}
-   			else if (foundMatch==true && position==false) {regexpsParaStart.put(new Integer(countPara),regionMatchPar);}
+   			if (foundMatch && position) {regexpsParaEnd.put(new Integer(countPara),regionMatchPar);countPara++;}
+   			else if (foundMatch && !position) {regexpsParaStart.put(new Integer(countPara),regionMatchPar);}
    			// move text window forward
    			if (copyText.length()>endPara) copyText = copyText.substring(endPara);
    			else break;
@@ -902,7 +902,7 @@ public class Tokeniser extends InternalModule {
 						else {wordLength = 1; found = false; break;}
 					}
 					// for now we're happy with the first word match 
-					if (found==true) break;
+					if (found) break;
 				} // end if word ends with syllable
 			}//end for whole lexicon
 			

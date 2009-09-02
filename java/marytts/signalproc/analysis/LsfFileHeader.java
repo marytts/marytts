@@ -67,7 +67,7 @@ public class LsfFileHeader extends FeatureFileHeader {
     {
         boolean bRet = super.isIdenticalAnalysisParams(hdr);
        
-        if (bRet==false)
+        if (!bRet)
             return false;
 
         if (this.preCoef!= hdr.preCoef)

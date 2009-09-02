@@ -526,7 +526,7 @@ public class Blizzard09PostProcessor {
         double absMaxOrig = MathUtils.absMax(x);
 
         String strLabFile = StringUtils.modifyExtension(inputWavFile, LABEL_FILE_EXTENSION); 
-        if (FileUtils.exists(strLabFile)!=true) //Labels required for transients analysis (unless we design an automatic algorithm)
+        if (!FileUtils.exists(strLabFile)) //Labels required for transients analysis (unless we design an automatic algorithm)
         {
             System.out.println("Label file not found: " + strLabFile + "...skipping...");
         }
