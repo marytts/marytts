@@ -27,6 +27,7 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.Vector;
 
+import java.util.logging.Level;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
@@ -61,11 +62,21 @@ public class GerNetQuery {
         stmt = con.createStatement();
     } //connect
 
+    private void closeResultSet(ResultSet rs){
+        if(rs != null)
+            try {
+            rs.close();
+        } catch (SQLException e) {
+            logger.warn("Cannot access Germanet:", e);
+        }
+    }
+
     public String getSynString(String lex, String pos) {
         String result = new String();
+        ResultSet rs = null;
         try {
             long startTime = System.currentTimeMillis();
-            ResultSet rs =
+            rs =
                 stmt.executeQuery(
                     "SELECT DISTINCT(sw2.Word) FROM SynsetWord sw1, SynsetWord sw2 WHERE sw1.Word='"
                         + lex
@@ -79,16 +90,21 @@ public class GerNetQuery {
             } //while
         } catch (SQLException e) {
             logger.warn("Cannot access Germanet:", e);        
+        } finally{
+            closeResultSet(rs);
         }
         return result;
 
     } //getSynString
 
+
+
     public Vector getSynVector(String lex, String pos) {
         Vector result = new Vector();
+        ResultSet rs = null;
         try {
             long startTime = System.currentTimeMillis();
-            ResultSet rs =
+            rs =
                 stmt.executeQuery(
                     "SELECT DISTINCT(sw2.Word) FROM SynsetWord sw1, SynsetWord sw2 WHERE sw1.Word='"
                         + lex
@@ -102,15 +118,18 @@ public class GerNetQuery {
             } //while
         } catch (SQLException e) {
             logger.warn("Cannot access Germanet:", e);        
+        } finally{
+            closeResultSet(rs);
         }
         return result;
     } //getSynVector
 
     public String getHyperString(String lex, String pos) {
         String result = new String();
+        ResultSet rs = null;
         try {
             long startTime = System.currentTimeMillis();
-            ResultSet rs =
+            rs =
                 stmt.executeQuery(
                     "SELECT DISTINCT(sw2.Word) FROM SynsetPtr ptr1, SynsetWord sw1, SynsetWord sw2 WHERE ptr1.Ptr='@' AND ptr1.SourcePos=sw1.Pos AND ptr1.SourceOffset=sw1.Offset AND sw2.Offset=ptr1.TargetOffSet AND sw1.Word='"
                         + lex
@@ -124,6 +143,8 @@ public class GerNetQuery {
             } //while
         } catch (SQLException e) {
             logger.warn("Cannot access Germanet:", e);        
+        } finally{
+            closeResultSet(rs);
         }
         return result;
 
@@ -131,9 +152,10 @@ public class GerNetQuery {
 
     public Vector getHyperVector(String lex, String pos) {
         Vector result = new Vector();
+        ResultSet rs = null;
         try {
             long startTime = System.currentTimeMillis();
-            ResultSet rs =
+            rs =
                 stmt.executeQuery(
                     "SELECT DISTINCT(sw2.Word) FROM SynsetPtr ptr1, SynsetWord sw1, SynsetWord sw2 WHERE ptr1.Ptr='@' AND ptr1.SourcePos=sw1.Pos AND ptr1.SourceOffset=sw1.Offset AND sw2.Offset=ptr1.TargetOffSet AND sw1.Word='"
                         + lex
@@ -147,15 +169,18 @@ public class GerNetQuery {
             } //while
         } catch (SQLException e) {
             logger.warn("Cannot access Germanet:", e);        
+        } finally{
+            closeResultSet(rs);
         }
         return result;
     } //getHyperVector
 
     public String getHypoString(String lex, String pos) {
         String result = new String();
+        ResultSet rs = null;
         try {
             long startTime = System.currentTimeMillis();
-            ResultSet rs =
+            rs =
                 stmt.executeQuery(
                     "SELECT DISTINCT(sw2.Word) FROM SynsetPtr ptr1, SynsetWord sw1, SynsetWord sw2 WHERE ptr1.Ptr='~' AND ptr1.SourcePos=sw1.Pos AND ptr1.SourceOffset=sw1.Offset AND sw2.Offset=ptr1.TargetOffSet AND sw1.Word='"
                         + lex
@@ -169,15 +194,18 @@ public class GerNetQuery {
             } //while
         } catch (SQLException e) {
             logger.warn("Cannot access Germanet:", e);        
+        } finally{
+            closeResultSet(rs);
         }
         return result;
     } //getHypoString
 
     public Vector getHypoVector(String lex, String pos) {
         Vector result = new Vector();
+        ResultSet rs = null;
         try {
             long startTime = System.currentTimeMillis();
-            ResultSet rs =
+            rs =
                 stmt.executeQuery(
                     "SELECT DISTINCT(sw2.Word) FROM SynsetPtr ptr1, SynsetWord sw1, SynsetWord sw2 WHERE ptr1.Ptr='~' AND ptr1.SourcePos=sw1.Pos AND ptr1.SourceOffset=sw1.Offset AND sw2.Offset=ptr1.TargetOffSet AND sw1.Word='"
                         + lex
@@ -191,15 +219,18 @@ public class GerNetQuery {
             } //while
         } catch (SQLException e) {
             logger.warn("Cannot access Germanet:", e);        
+        } finally{
+            closeResultSet(rs);
         }
         return result;
     } //getHypoVector
 
     public String getAntoString(String lex, String pos) {
         String result = new String();
+        ResultSet rs = null;
         try {
             long startTime = System.currentTimeMillis();
-            ResultSet rs =
+            rs =
                 stmt.executeQuery(
                     "SELECT DISTINCT(sw2.Word) FROM SynsetPtr ptr1, SynsetWord sw1, SynsetWord sw2 WHERE ptr1.Ptr='!' AND ptr1.SourcePos=sw1.Pos AND ptr1.SourceOffset=sw1.Offset AND sw2.Offset=ptr1.TargetOffSet AND sw1.Word='"
                         + lex
@@ -213,6 +244,8 @@ public class GerNetQuery {
             } //while
         } catch (SQLException e) {
             logger.warn("Cannot access Germanet:", e);        
+        } finally{
+            closeResultSet(rs);
         }
         return result;
 
@@ -220,9 +253,10 @@ public class GerNetQuery {
 
     public Vector getAntoVector(String lex, String pos) {
         Vector result = new Vector();
+        ResultSet rs = null;
         try {
             long startTime = System.currentTimeMillis();
-            ResultSet rs =
+            rs =
                 stmt.executeQuery(
                     "SELECT DISTINCT(sw2.Word) FROM SynsetPtr ptr1, SynsetWord sw1, SynsetWord sw2 WHERE ptr1.Ptr='!' AND ptr1.SourcePos=sw1.Pos AND ptr1.SourceOffset=sw1.Offset AND sw2.Offset=ptr1.TargetOffSet AND sw1.Word='"
                         + lex
@@ -236,6 +270,8 @@ public class GerNetQuery {
             } //while
         } catch (SQLException e) {
             logger.warn("Cannot access Germanet:", e);        
+        } finally{
+            closeResultSet(rs);
         }
         return result;
     } //getAntoVector
