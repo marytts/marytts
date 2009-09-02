@@ -77,6 +77,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     private DatabaseLayout db;
     private String name = "HMMVoiceMakeData";
     
+    
     /** Tree files and TreeSet object */
     public final String MGC           = name+".makeMGC";
     public final String LF0           = name+".makeLF0";
@@ -88,10 +89,11 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     public final String QUESTIONSMARY = name+".makeQUESTIONSMARY";
     public final String LIST          = name+".makeLIST";
     public final String SCP           = name+".makeSCP";
-    public final String questionsFile   = name+".questionsFile";
-    public final String contextFile     = name+".contextFile";
-    public final String allophonesFile = name+".allophonesFile";
-    public final String featureListFile = name+".featureListFile";
+    public final String questionsFile    = name+".questionsFile";
+    public final String contextFile      = name+".contextFile";
+    public final String allophonesFile   = name+".allophonesFile";
+    public final String featureListFile  = name+".featureListFile";
+    public final String trickyPhonesFile = name+".trickyPhonesFile";
     
     
     public String getName(){
@@ -122,7 +124,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
            props.put(contextFile, "phonefeatures/cmu_us_arctic_slt_a0001.pfeats");           
            props.put(allophonesFile, "/project/mary/marcela/openmary/lib/modules/en/us/lexicon/allophones.en_US.xml");
            props.put(featureListFile, "mary/featuresHmmVoice.txt");
-           
+           props.put(trickyPhonesFile, "mary/trickyPhones.txt");
        }
        return props;
        }
@@ -146,6 +148,8 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         props2Help.put(allophonesFile, "allophones set (language dependent, an example can be found in ../openmary/lib/modules/language/...)");
         props2Help.put(featureListFile, "A file that contains aditional context features used for training HMMs, normally it" +
         " should be a subset of mary/features.txt --> mary/featuresHmmVoice.txt");
+        props2Help.put(trickyPhonesFile, "list of aliases for tricky phones, so HTK-HHEd command can handle them. (This file" +
+                " will be created automatically if aliases are necessary, otherwise it will not be created.)");
 
     }
 
@@ -157,7 +161,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
      * @return true on success, false on failure
      */
     public boolean compute() throws Exception{
-
+    
       
       String cmdLine;
       String voiceDir = db.getProp(db.ROOTDIR);
@@ -192,12 +196,14 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
       if( Integer.parseInt(getProp(LABELMARY)) == 1 ){
           //uses:  contextFile (example)
           //       featureListFile
+          // make sure that checkTrickyPhones is run before
           makeLabels(voiceDir);   
       }
       if( Integer.parseInt(getProp(QUESTIONSMARY)) == 1 ){
           // uses: questionsFile
           //       contextFile (example)
           //       featureListFile
+          // make sure that checkTrickyPhones is run before
           makeQuestions(voiceDir);          
       }
       if( Integer.parseInt(getProp(LIST)) == 1 ){
@@ -219,68 +225,67 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     }
     
  
-    /**
-     * A general process launcher for the various tasks but using an intermediate batch file
-     * (copied from ESTCaller.java)
-     * @param cmdLine the command line to be launched.
-     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
-     * @param the basename of the file currently processed, for error messages.
+     /*** This function checks if replacements or aliases for tricky phones are necessary (so HTK-HHEd can
+     * handle the phone names), if so it will create a trickyFile containing the replacements. 
+     * This file should be used afterwards to create the PhoneTranslator object used in makeLabels, makeQuestions and 
+     * JoinModelller. Also it is necessary when loading the HTS trees to replace back the tricky phones.
+     * If a trickyFile is created when training a voice, the tricky file name will be included in the configuration
+     * file of the voice. 
+     * CHECK not sure how/where to keep this file for the JoinModeller?
+     * @param phoneXML allophonesFile for the voice or language (full path).
+     * @param trickyFile name of the file where the tricky phone replacements are saved (full path).
+     * @return true if trickyPhones.txt file is created, false otherwise.
      */
-    private void launchBatchProc( String cmdLine, String task, String baseName ) {
+    public static boolean checkTrickyPhones(String phoneXML, String trickyFile){
         
-        Process proc = null;
-        Process proctmp = null;
-        BufferedReader procStdout = null;
-        String line = null;
-        String filedir = db.getProp(db.ROOTDIR);
-        String tmpFile = filedir+"tmp.bat";
-
-        // String[] cmd = null; // Java 5.0 compliant code
-        
+        boolean trickyPhones = false;
         try {
-            FileWriter tmp = new FileWriter(tmpFile);
-            tmp.write(cmdLine);
-            tmp.close();
             
-            /* make it executable... */
-            proctmp = Runtime.getRuntime().exec( "chmod +x "+tmpFile );
-            proctmp.waitFor();
+            AllophoneSet allophoneSet;
+          
+            System.out.println("Reading allophones set from file: " + phoneXML);
+            allophoneSet = AllophoneSet.getAllophoneSet(phoneXML);
+            String lang = allophoneSet.getLocale().getLanguage();
             
-            /* Java 5.0 compliant code below. */
-            /* Hook the command line to the process builder: */
-            /* cmd = cmdLine.split( " " );
-            pb.command( cmd ); /*
-            /* Launch the process: */
-            /*proc = pb.start(); */
             
-            /* Java 1.0 equivalent: */
-            proc = Runtime.getRuntime().exec( tmpFile );
-            
-            /* Collect stdout and send it to System.out: */
-            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
-            while( true ) {
-                line = procStdout.readLine();
-                if ( line == null ) break;
-                System.out.println( line );
+            System.out.println("Checking if there are tricky phones (problematic phone names):");
+            FileWriter outputStream=null;
+            String phonOri;         
+            Set<String> phonesList = allophoneSet.getAllophoneNames();
+            // Left-righ phone ID context questions
+            Iterator<String> it = phonesList.iterator();
+            int numReplacements=0;
+            while(it.hasNext()){
+                phonOri = it.next();
+                System.out.println("  phon=" + phonOri);
+                for(int i=0; i<phonOri.length(); i++){
+                   if(! (marytts.util.string.StringUtils.isLetterOrModifier(phonOri.codePointAt(i))) ){
+                       if(numReplacements == 0 ){
+                           // just if there is replacements to make then create the trickyPhones.txt file
+                           outputStream = new FileWriter(trickyFile);
+                           trickyPhones = true;
+                       } 
+                       numReplacements++;
+                       System.out.println("     replace --> " + lang + numReplacements);
+                       if(outputStream != null)
+                         outputStream.write(phonOri + " " + lang + numReplacements + "\n");
+                       break;
+                   } 
+                }
+                
             }
-            /* Wait and check the exit value */
-            proc.waitFor();
-            if ( proc.exitValue() != 0 ) {
-                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
-                        + "Command line was: [" + cmdLine + "]." );
+            if(outputStream != null){
+               outputStream.close();
+               System.out.println("Created tricky phones file: " + trickyFile);
             }
-            
-            
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
-        }
-        catch ( InterruptedException e ) {
-            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
-        }
-        
-    }    
-
+            } catch (Exception e) {
+                System.out.println(e.getMessage()); 
+            }
+                    
+       return trickyPhones; 
+    }
+    
+    
     /***
      * Java version of the makeQuestions script (data/scripts/make_questions.pl)
      * uses: questionsFile
@@ -294,6 +299,14 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         FileWriter out = new FileWriter(voiceDir + getProp(questionsFile));
         int i;
         String phon;
+        
+        // Check if there are tricky phones
+        PhoneTranslator phTranslator;  
+        if( checkTrickyPhones(getProp(allophonesFile), voiceDir+getProp(trickyPhonesFile)) )        
+           phTranslator = new PhoneTranslator(voiceDir + getProp(trickyPhonesFile));
+        else
+           phTranslator = new PhoneTranslator(""); 
+        
         System.out.println("Generating questions file: " + voiceDir + getProp(questionsFile));
                 
         // Get feature definition, whatever context feature file used for training can be passed here.       
@@ -392,7 +405,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         Iterator<String> it = phonesList.iterator();
         while(it.hasNext()){
             phonOri = it.next();
-            phon = PhoneTranslator.replaceTrickyPhones(phonOri);
+            phon = phTranslator.replaceTrickyPhones(phonOri);
             out.write(""); 
             out.write("QS \"prev_prev_phone=" + phon + "\"\t{"   + phon + "^*}\n");
             out.write("QS \"prev_phone=" + phon    + "\"\t\t{*^" + phon + "-*}\n");
@@ -450,11 +463,11 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
             // write the feature value as string
             for(i=0; i<val_fea.length; i++){
               if(fea.contains("sentence_punc") || fea.contains("prev_punctuation") || fea.contains("next_punctuation"))
-                  out.write("QS \"" + fea + "=" + PhoneTranslator.replacePunc(val_fea[i]) + 
-                         "\" \t{*|" + fea + "=" + PhoneTranslator.replacePunc(val_fea[i]) + "|*}\n");
+                  out.write("QS \"" + fea + "=" + phTranslator.replacePunc(val_fea[i]) + 
+                         "\" \t{*|" + fea + "=" + phTranslator.replacePunc(val_fea[i]) + "|*}\n");
               else if(fea.contains("tobi_"))
-                  out.write("QS \"" + fea + "=" + PhoneTranslator.replaceToBI(val_fea[i]) + 
-                         "\" \t{*|" + fea + "=" + PhoneTranslator.replaceToBI(val_fea[i]) + "|*}\n");  
+                  out.write("QS \"" + fea + "=" + phTranslator.replaceToBI(val_fea[i]) + 
+                         "\" \t{*|" + fea + "=" + phTranslator.replaceToBI(val_fea[i]) + "|*}\n");  
               else
                   out.write("QS \"" + fea + "=" + val_fea[i] + "\" \t{*|" + fea + "=" + val_fea[i] + "|*}\n");
             }            
@@ -513,6 +526,13 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         } else {            
             throw new Exception("Error: directories " + voiceDir + "phonefeatures and/or " + voiceDir + "phonelab do not contain files." );  
         }
+        
+        // Check if there are tricky phones
+        PhoneTranslator phTranslator;  
+        if( checkTrickyPhones(getProp(allophonesFile), voiceDir+getProp(trickyPhonesFile)) )        
+           phTranslator = new PhoneTranslator(voiceDir + getProp(trickyPhonesFile));
+        else
+           phTranslator = new PhoneTranslator(""); 
                 
         // Get feature definition, whatever context feature file used for training can be passed here.
         // here we take the first in the feaFiles list.
@@ -580,7 +600,8 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
                   voiceDir + "/phonelab/" + basename + ".lab",
                   voiceDir + "/data/labels/full/" + basename + ".lab",
                   voiceDir + "/data/labels/mono/" + basename + ".lab",
-                  feaDef, 
+                  feaDef,
+                  phTranslator,
                   hmmFeatureList);          
         }
         System.out.println("Processed " + feaFiles.length + " files.");     
@@ -617,8 +638,8 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
      * @throws Exception
      */
     private void extractMonophoneAndFullContextLabels(String feaFileName, String labFileName, 
-            String outFeaFileName, String outLabFileName, 
-            FeatureDefinition feaDef, Set <String> hmmFeatureList) throws Exception {
+            String outFeaFileName, String outLabFileName,  
+            FeatureDefinition feaDef, PhoneTranslator phTranslator, Set <String> hmmFeatureList ) throws Exception {
       
       FileWriter outFea = new FileWriter(outFeaFileName);
       FileWriter outLab = new FileWriter(outLabFileName);
@@ -665,15 +686,15 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
               // We need here HTK time units, which are measured in hundreds of nanoseconds.  
               // write in label file HTK-HTS format 
               outLab.write(ulab[i].startTime*1E7 + "  " + ulab[i].endTime*1E7 + " " +
-                PhoneTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef)) + "\n");
+                phTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef)) + "\n");
               
               // write in features file HTK-HTS format
               outFea.write(ulab[i].startTime*1E7 + "  " + ulab[i].endTime*1E7 + " " +
-                PhoneTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("prev_prev_phone"), feaDef)) + "^" +
-                PhoneTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("prev_phone"), feaDef))      + "-" +
-                PhoneTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef))           + "+" +
-                PhoneTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("next_phone"), feaDef))      + "=" +
-                PhoneTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("next_next_phone"), feaDef)) + "|");         
+                phTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("prev_prev_phone"), feaDef)) + "^" +
+                phTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("prev_phone"), feaDef))      + "-" +
+                phTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef))           + "+" +
+                phTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("next_phone"), feaDef))      + "=" +
+                phTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("next_next_phone"), feaDef)) + "|");         
           
               String hmmfea, hmmfeaVal;
               int hmmfeaValInt;
@@ -681,14 +702,14 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
               while (it.hasNext() ){
                 hmmfea = it.next();
                 hmmfeaVal = fv.getFeatureAsString(feaDef.getFeatureIndex(hmmfea), feaDef);
-                // If the string is longer than 2048 chars then the feature names need to be shorten (PhoneTranslator.shortenPfeat
+                // If the string is longer than 2048 chars then the feature names need to be shorten (phTranslator.shortenPfeat
                 // can be used, but then when reading the HMMs the names have to be lengthen back in the HTSCARTReader).
                 // if using punctuation features like: sentence_punc, next_punctuation or prev_punctuation or tobi features
                 // the values need to be mapped otherwise HTK-HHEd complains.
                 if(hmmfea.contains("sentence_punc") || hmmfea.contains("prev_punctuation") || hmmfea.contains("next_punctuation"))
-                  outFea.write("|" + hmmfea + "=" + PhoneTranslator.replacePunc(hmmfeaVal));
+                  outFea.write("|" + hmmfea + "=" + phTranslator.replacePunc(hmmfeaVal));
                 else if(hmmfea.contains("tobi_"))
-                  outFea.write("|" + hmmfea + "=" + PhoneTranslator.replaceToBI(hmmfeaVal));
+                  outFea.write("|" + hmmfea + "=" + phTranslator.replaceToBI(hmmfeaVal));
                 else
                   outFea.write("|" + hmmfea + "=" + hmmfeaVal);
               }
@@ -704,6 +725,71 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
       outFea.close();
       
     }
+    
+    
+    /**
+     * A general process launcher for the various tasks but using an intermediate batch file
+     * (copied from ESTCaller.java)
+     * @param cmdLine the command line to be launched.
+     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
+     * @param the basename of the file currently processed, for error messages.
+     */
+    private void launchBatchProc( String cmdLine, String task, String baseName ) {
+        
+        Process proc = null;
+        Process proctmp = null;
+        BufferedReader procStdout = null;
+        String line = null;
+        String filedir = db.getProp(db.ROOTDIR);
+        String tmpFile = filedir+"tmp.bat";
+
+        // String[] cmd = null; // Java 5.0 compliant code
+        
+        try {
+            FileWriter tmp = new FileWriter(tmpFile);
+            tmp.write(cmdLine);
+            tmp.close();
+            
+            /* make it executable... */
+            proctmp = Runtime.getRuntime().exec( "chmod +x "+tmpFile );
+            proctmp.waitFor();
+            
+            /* Java 5.0 compliant code below. */
+            /* Hook the command line to the process builder: */
+            /* cmd = cmdLine.split( " " );
+            pb.command( cmd ); /*
+            /* Launch the process: */
+            /*proc = pb.start(); */
+            
+            /* Java 1.0 equivalent: */
+            proc = Runtime.getRuntime().exec( tmpFile );
+            
+            /* Collect stdout and send it to System.out: */
+            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
+            while( true ) {
+                line = procStdout.readLine();
+                if ( line == null ) break;
+                System.out.println( line );
+            }
+            /* Wait and check the exit value */
+            proc.waitFor();
+            if ( proc.exitValue() != 0 ) {
+                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
+                        + "Command line was: [" + cmdLine + "]." );
+            }
+            
+            
+        }
+        catch ( IOException e ) {
+            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
+        }
+        catch ( InterruptedException e ) {
+            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
+        }
+        
+    }    
+
+
     
     /**
      * A general process launcher for the various tasks

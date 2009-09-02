@@ -77,7 +77,6 @@ import marytts.htsengine.HTSParameterGeneration;
 import marytts.htsengine.CartTreeSet;
 import marytts.htsengine.HTSUttModel;
 import marytts.htsengine.HTSVocoder;
-import marytts.htsengine.PhoneTranslator;
 import marytts.htsengine.HTSEngineTest.PhonemeDuration;
 import marytts.modules.synthesis.Voice;
 import marytts.signalproc.analysis.PitchReaderWriter;
@@ -400,8 +399,7 @@ public class HTSEngine extends InternalModule
             m.setTotalDurMillisec((int)(fperiodmillisec * m.getTotalDur()));               
             diffdurOld = diffdurNew;            
             durSec = um.getTotalFrame() * fperiodsec;
-            //realisedDurations += durSec.toString() +  " 125 " + HTSContextTranslator.replaceBackTrickyPhones(m.getPhoneName()) + "\n";
-            realisedDurations += durSec.toString() +  " " + numLab.toString() + " " + PhoneTranslator.replaceBackTrickyPhones(m.getPhoneName()) + "\n";
+            realisedDurations += durSec.toString() +  " " + numLab.toString() + " " + m.getPhoneName() + "\n";
             numLab++;
             dur = m.getTotalDurMillisec();
             um.concatRealisedAcoustParams(m.getPhoneName() + " " + dur.toString() + "\n");
@@ -484,6 +482,8 @@ public class HTSEngine extends InternalModule
       String MaryBase    = "/project/mary/marcela/openmary/"; /* MARY_BASE directory.*/
       String voiceName   = "hsmm-slt";                        /* voice name */
       String voiceConfig = "en_US-hsmm-slt.config";         /* voice configuration file name. */
+      //String voiceName   = "hsmm-ot";                        /* voice name */
+      //String voiceConfig = "tr-hsmm-ot.config";         /* voice configuration file name. */
       String durFile     = MaryBase + "tmp/tmp.lab";          /* to save realised durations in .lab format */
       String parFile     = MaryBase + "tmp/tmp";              /* to save generated parameters tmp.mfc and tmp.f0 in Mary format */
       String outWavFile  = MaryBase + "tmp/tmp.wav";          /* to save generated audio file */
