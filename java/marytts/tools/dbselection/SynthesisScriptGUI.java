@@ -116,7 +116,7 @@ public class SynthesisScriptGUI extends JPanel implements TableModelListener{
         
         if(selIds==null || !mysqlInfo || connectionProblems) {
             for(int i=0; i<30; i++){
-                dtm.addRow(new Object[]{new Boolean(false), "", "" });  
+                dtm.addRow(new Object[]{Boolean.FALSE, "", "" });
             }
         }
         if(!mysqlInfo)
