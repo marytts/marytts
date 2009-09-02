@@ -308,7 +308,6 @@ public class QualityControl extends VoiceImportComponent {
      }
         labels.close();
         features.close();
-        return;
     }
     
     /**

@@ -141,7 +141,6 @@ public class ESTCaller
         /* TODO: check for ALL the individual EST binaries that we use ?
          * (i.e. pitchmark, sig2fv, etc.) */
        
-        return;
     }
     
     /**
