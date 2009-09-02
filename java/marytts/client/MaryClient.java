@@ -731,10 +731,7 @@ public abstract class MaryClient
             + (isLimitedDomain ? ", " + domain : "") +")";}
         public boolean isLimitedDomain() { return isLimitedDomain; }
         public boolean isHMMVoice() {
-            if (synthesizerType.compareToIgnoreCase("hmm")==0)
-                return true;
-            else
-                return false;
+            return synthesizerType.compareToIgnoreCase("hmm")==0;
         }
     }
 

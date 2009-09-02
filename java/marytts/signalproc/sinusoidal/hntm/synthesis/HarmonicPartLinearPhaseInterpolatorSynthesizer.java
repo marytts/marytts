@@ -172,10 +172,7 @@ public class HarmonicPartLinearPhaseInterpolatorSynthesizer
     
     public boolean nextFrameAvailable()
     {
-        if (currentFrameIndex+1<hnmSignal.frames.length)
-            return true;
-        else
-            return false;
+        return currentFrameIndex+1<hnmSignal.frames.length;
     }
     
     //For frame based synthesis from outside, create the same loop as this function does

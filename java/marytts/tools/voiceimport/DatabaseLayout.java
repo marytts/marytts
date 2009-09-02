@@ -524,13 +524,7 @@ public class DatabaseLayout
         
         helpText.append("</dl>\n</body>\n</html>");
         
-        if (!displayProps(basicprops,
-                helpText.toString(),
-                "Please adjust the following settings:")){
-        	return false;
-        } else {
-            return true;
-        }
+        return displayProps(basicprops, helpText.toString(), "Please adjust the following settings:");
     }
     
     /**

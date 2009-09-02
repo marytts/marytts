@@ -46,11 +46,7 @@ public class SimpleFileFilter extends FileFilter
         }
         String ext = MaryUtils.getExtension(f);
         if (ext != null) {
-            if (ext.equals(extension)) {
-                return true;
-            } else {
-                return false;
-            }
+            return ext.equals(extension);
         }
         return false;
     }

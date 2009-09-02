@@ -620,20 +620,12 @@ public class ToneBuilder extends InternalModule {
     	
     	if(currentVal.indexOf("INLIST")!=-1){
 			String[]st = currentVal.split(":");
-			if(((HashSet) listRuleContentsMap.get(st[1])).contains(letter)){
-				return true;
-			}
-			else {
-				return false;
-			}
+                        HashSet set = (HashSet) listRuleContentsMap.get(st[1]);
+			return set.contains(letter);
     	}
     	else {
-    		if(((HashSet) listRuleContentsMap.get(currentVal)).contains(letter)){
-  				return true;
-			}
-			else {
-				return false;
-			}
+            HashSet set = (HashSet) listRuleContentsMap.get(currentVal);
+            return set.contains(letter);
     	}
     }
     
@@ -659,20 +651,11 @@ public class ToneBuilder extends InternalModule {
     	
     	if(currentVal.indexOf("INLIST")!=-1){
 			String[]st = currentVal.split(":");
-			if(((HashSet) listPossibleContentsMap.get(st[1])).contains(letter)){
-				return true;
-			}
-			else {
-				return false;
-			}
-    	}
+                        HashSet set = (HashSet) listPossibleContentsMap.get(st[1]);
+			return set.contains(letter);    	}
     	else {
-    		if(((HashSet) listPossibleContentsMap.get(currentVal)).contains(letter)){
-  				return true;
-			}
-			else {
-				return false;
-			}
+                HashSet set = (HashSet) listPossibleContentsMap.get(currentVal);
+    		return set.contains(letter);
     	}	
     
     }

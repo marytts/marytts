@@ -67,10 +67,7 @@ public class AudioEffectsBoxData {
         
     public boolean hasEffects()
     {
-        if (effectControlsData!=null)
-            return true;
-        else
-            return false;
+        return effectControlsData!=null;
     }
     
   //Parse the XML-like full effect set string from the server

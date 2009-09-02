@@ -80,8 +80,7 @@ public class Unit
      */
     public boolean isEdgeUnit()
     {
-        if (duration == -1) return true;
-        else return false;
+        return duration == -1;
     }
 
     public String toString()

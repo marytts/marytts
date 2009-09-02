@@ -813,11 +813,7 @@ public class DBHandler {
           e.printStackTrace();
       } 
       
-      if(resText && resPage && resRevision)
-        return true;
-      else
-        return false;
-      
+      return resText && resPage && resRevision;
   }
 
   

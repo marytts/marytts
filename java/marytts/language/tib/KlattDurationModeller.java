@@ -1196,10 +1196,7 @@ public class KlattDurationModeller extends InternalModule {
         String s = string.trim();
         if (s.length() < 3)
             return false;
-        if (s.substring(s.length() - 1).equals("%") && isNumberDelta(s.substring(0, s.length() - 1)))
-            return true;
-        else
-            return false;
+        return s.substring(s.length() - 1).equals("%") && isNumberDelta(s.substring(0, s.length() - 1));
     }
 
     /**
@@ -1225,10 +1222,7 @@ public class KlattDurationModeller extends InternalModule {
         String s = string.trim();
         if (s.length() < 4)
             return false;
-        if (s.substring(s.length() - 2).equals("st") && isNumberDelta(s.substring(0, s.length() - 2)))
-            return true;
-        else
-            return false;
+        return s.substring(s.length() - 2).equals("st") && isNumberDelta(s.substring(0, s.length() - 2));
     }
 
     /**
@@ -1260,10 +1254,7 @@ public class KlattDurationModeller extends InternalModule {
         String s = string.trim();
         if (s.length() < 2)
             return false;
-        if ((s.charAt(0) == '+' || s.charAt(0) == '-') && isUnsignedNumber(s.substring(1)))
-            return true;
-        else
-            return false;
+        return (s.charAt(0) == '+' || s.charAt(0) == '-') && isUnsignedNumber(s.substring(1));
     }
 
     /**
@@ -1295,10 +1286,7 @@ public class KlattDurationModeller extends InternalModule {
         String s = string.trim();
         if (s.length() < 3)
             return false;
-        if (s.substring(s.length() - 2).equals("st") && isUnsignedNumber(s.substring(0, s.length() - 2)))
-            return true;
-        else
-            return false;
+        return s.substring(s.length() - 2).equals("st") && isUnsignedNumber(s.substring(0, s.length() - 2));
     }
 
     /**
