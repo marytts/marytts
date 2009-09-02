@@ -65,8 +65,7 @@ public class POSAccentPriorities
         String value = priorities.getProperty(pos);
         if (value != null) {
             try {
-                int p = Integer.parseInt(value);
-                return p;
+                return Integer.parseInt(value);
             } catch (NumberFormatException e) {}
             // Invalid entries are treated as missing entries
         }

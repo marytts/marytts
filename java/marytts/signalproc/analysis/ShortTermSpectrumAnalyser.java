@@ -77,8 +77,7 @@ public class ShortTermSpectrumAnalyser extends FrameBasedAnalyser
         if (real.length > frame.length)
             Arrays.fill(real, frame.length, real.length, 0);
         FFT.realTransform(real, false);
-        double[] analysisResult = FFT.computePowerSpectrum_FD(real);
-        return analysisResult;
+        return FFT.computePowerSpectrum_FD(real);
     }
 
     /**

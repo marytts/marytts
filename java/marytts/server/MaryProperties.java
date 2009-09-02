@@ -594,8 +594,7 @@ public class MaryProperties
         if (value == null)
             return defaultValue;
         try {
-            boolean b = Boolean.valueOf(value).booleanValue();
-            return b;
+            return Boolean.valueOf(value).booleanValue();
         } catch (NumberFormatException e) {
             return defaultValue;
         }
@@ -635,8 +634,7 @@ public class MaryProperties
         if (value == null)
             return defaultValue;
         try {
-            int i = Integer.decode(value).intValue();
-            return i;
+            return Integer.decode(value).intValue();
         } catch (NumberFormatException e) {
             return defaultValue;
         }
@@ -708,8 +706,7 @@ public class MaryProperties
         if (value == null)
             throw new NoSuchPropertyException("Missing property `" + property + "' in configuration files");
         try {
-            boolean b = Boolean.valueOf(value).booleanValue();
-            return b;
+            return Boolean.valueOf(value).booleanValue();
         } catch (NumberFormatException e) {
             throw new NoSuchPropertyException("Boolean property `" + property + "' in configuration files has wrong value `" + value + "'");
         }
@@ -751,8 +748,7 @@ public class MaryProperties
         if (value == null)
             throw new NoSuchPropertyException("Missing property `" + property + "' in configuration files");
         try {
-            int i = Integer.decode(value).intValue();
-            return i;
+            return Integer.decode(value).intValue();
         } catch (NumberFormatException e) {
             throw new NoSuchPropertyException("Integer property `" + property + "' in configuration files has wrong value `" + value + "'");
         }

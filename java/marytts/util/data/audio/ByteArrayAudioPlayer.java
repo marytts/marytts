@@ -272,7 +272,6 @@ public class ByteArrayAudioPlayer implements AudioPlayer {
         if (samplesize == AudioSystem.NOT_SPECIFIED)
             samplesize = 16; // usually 16 bit data
         long lengthInSamples = bytes.length / (samplesize/8);
-        AudioInputStream ais = new AudioInputStream(bais, af, lengthInSamples);
-        return ais;
+        return new AudioInputStream(bais, af, lengthInSamples);
     }
 }

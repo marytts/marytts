@@ -914,9 +914,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         if (line.trim().equals("")) return ""; // empty line -- signal end of section
         StringTokenizer st = new StringTokenizer(line.trim());
         // The expect that the first token in each line is the label
-        String unit = st.nextToken();
-        return unit;
-        
+        return st.nextToken();
     }
     
     private String getLabelUnit(BufferedReader labelReader)
@@ -927,8 +925,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         StringTokenizer st = new StringTokenizer(line.trim());
         // The third token in each line is the label
         st.nextToken(); st.nextToken();
-        String unit = st.nextToken();
-        return unit;
+        return st.nextToken();
     }
     
     private String getFeatureUnit(BufferedReader featureReader)
@@ -939,9 +936,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         if (line.trim().equals("")) return ""; // empty line -- signal end of section
         StringTokenizer st = new StringTokenizer(line.trim());
         // The expect that the first token in each line is the label
-        String unit = st.nextToken();
-        return unit;
-        
+        return st.nextToken();
     }
     
     protected int letUserCorrect(String basename, String errorMessage) throws IOException
