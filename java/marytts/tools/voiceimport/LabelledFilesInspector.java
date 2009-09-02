@@ -364,8 +364,7 @@ public class LabelledFilesInspector extends VoiceImportComponent
         assert sEnd <= audioSignal.length;
         double[] playSignal = new double[sEnd-sStart];
         System.arraycopy(audioSignal, sStart, playSignal, 0, sEnd-sStart);
-        AudioInputStream playAIS = new DDSAudioInputStream(new BufferedDoubleDataSource(playSignal), audioFormat);
-        return playAIS;
+        return new DDSAudioInputStream(new BufferedDoubleDataSource(playSignal), audioFormat);
     }
     
     private void requestQuit()

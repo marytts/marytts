@@ -73,8 +73,7 @@ public class ShortTermPhaseSpectrumAnalyser extends ShortTermSpectrumAnalyser {
         if (real.length > frame.length)
             Arrays.fill(real, len-middle, real.length-middle, 0);
         FFT.realTransform(real, false);
-        double[] analysisResult = FFT.computePhaseSpectrum_FD(real);
-        return analysisResult;
+        return FFT.computePhaseSpectrum_FD(real);
     }
 
 }

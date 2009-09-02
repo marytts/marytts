@@ -335,10 +335,7 @@ public class HTSVocoder {
         for (int i=0; i<audio_double.length; i++)        
            audio_double[i] = 0.3 * ( audio_double[i] / MaxSample );
                 
-        DDSAudioInputStream oais = new DDSAudioInputStream(new BufferedDoubleDataSource(audio_double), af);
-        return oais;
-        
-        
+        return new DDSAudioInputStream(new BufferedDoubleDataSource(audio_double), af);
     } /* method htsMLSAVocoder() */
     
     

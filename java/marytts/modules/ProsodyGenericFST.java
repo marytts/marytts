@@ -47,8 +47,8 @@ public class ProsodyGenericFST extends ProsodyGeneric
              while (st.hasMoreTokens()) {
                  fstPath = fstPath + File.separator + st.nextToken();
              }
-             FSTLookup fst = new FSTLookup(fstPath, "ISO-8859-1");
-             return fst; // put the external FST on the map
+             // put the external FST on the map
+             return new FSTLookup(fstPath, "ISO-8859-1");
          } else {
              return super.readListFromFile(fileName);
          }

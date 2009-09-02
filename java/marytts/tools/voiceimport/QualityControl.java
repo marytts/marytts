@@ -755,9 +755,7 @@ private double getSilenceThreshold(){
         if (line.trim().equals("")) return ""; // empty line -- signal end of section
         StringTokenizer st = new StringTokenizer(line.trim());
         // The expect that the first token in each line is the label
-        String unit = st.nextToken();
-        return unit;
-        
+        return st.nextToken();
     }
     
     

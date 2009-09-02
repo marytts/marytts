@@ -146,8 +146,7 @@ public class HighPassFilter extends FIRFilter {
      */
     protected static double kernelLength2bandwidth(int kernelLength)
     {
-        double bw = (double) 4/kernelLength;
-        return bw;
+        return (double) 4/kernelLength;
     }
     
     public String toString() { return "Highpass filter"; }

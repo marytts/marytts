@@ -62,8 +62,7 @@ public class ShortTermAutocorrelationAnalyser extends FrameBasedAnalyser {
                     + ", got " + frame.length);
         System.arraycopy(frame, 0, correlationInput, 0, frame.length);
         Arrays.fill(correlationInput, frame.length, correlationInput.length, 0);
-        double[] analysisResult = FFT.autoCorrelate(correlationInput);
-        return analysisResult;
+        return FFT.autoCorrelate(correlationInput);
     }
 
 }

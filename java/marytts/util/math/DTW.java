@@ -312,8 +312,7 @@ public class DTW {
         RecurssiveDTW rdp = new RecurssiveDTW(signal.length, reference.length);
         //Node nd = new Node(signal.length - 1 , reference.length - 1); 
         // double cost = rdp.dpNormalizedCost;
-        double cost = rdp.dpCost;
-        return cost;    
+        return rdp.dpCost;
     }
 
 

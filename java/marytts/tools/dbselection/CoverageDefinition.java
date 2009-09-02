@@ -956,8 +956,7 @@ public class CoverageDefinition
      * @return true if cover has maximum simple prosody coverage
      */
     public boolean reachedMaxSimpleProsody(){
-        boolean result = numSimpleFeatVectsInCover == numSimpleFeatVectTypes;
-        return result;
+        return numSimpleFeatVectsInCover == numSimpleFeatVectTypes;
     }
 
 
@@ -1030,8 +1029,7 @@ public class CoverageDefinition
             usefulness += u;
         }
         //System.out.print(" = "+usefulness+"\n");
-        double result = usefulness/(double)numFeatureVectors;
-        return result;
+        return usefulness/(double)numFeatureVectors;
     }
 
 
@@ -1041,8 +1039,7 @@ public class CoverageDefinition
 
     public byte getVectorValue(byte[] vectors,int vectorIndex, int valueIndex){
         //byte result = vectors[vectorIndex*4+valueIndex];
-        byte result = vectors[vectorIndex*numTargetFeaturesUsed+valueIndex];
-        return result;
+        return vectors[vectorIndex*numTargetFeaturesUsed+valueIndex];
     }
 
     /**

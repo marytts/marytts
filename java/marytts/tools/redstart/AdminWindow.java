@@ -1449,10 +1449,7 @@ public class AdminWindow extends javax.swing.JFrame {
      *  @return File path for folder containing the voice (e.g., /project/mary/mat/voices/bundesliga)
      */
     public File getVoiceFolderPath() {
-        
-        File voiceFolderPath = new File(voiceFolderPathString);        
-        return voiceFolderPath;        
-        
+        return new File(voiceFolderPathString);      
     }
 
     protected void setVoiceFolderPath(File newPath) {

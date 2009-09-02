@@ -511,8 +511,7 @@ public  class Viterbi
             cost += path.getScore();
         }	
 
-        ViterbiPath newPath = new ViterbiPath(candidate, path, cost);
-        return newPath;
+        return new ViterbiPath(candidate, path, cost);
     }
     
     /**

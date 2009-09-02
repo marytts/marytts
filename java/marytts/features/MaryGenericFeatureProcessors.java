@@ -84,8 +84,7 @@ public class MaryGenericFeatureProcessors
     {
         public Element getElement(Target target)
         {
-            Element segment = target.getMaryxmlElement();
-            return segment;
+            return target.getMaryxmlElement();
         }
     }
 
