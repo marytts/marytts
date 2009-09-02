@@ -141,7 +141,6 @@ public class General
         } else {
             dos.writeFloat( val );
         }
-        return;
     }
 
     /**
@@ -208,7 +207,6 @@ public class General
         } else {
             dis.writeInt(val);
         }
-        return;
     }
 
     /**
@@ -242,7 +240,6 @@ public class General
         for (int shift = 0; shift < 32; shift += 8) {
             dataStream.writeByte( mask & (val >> shift) );
         }
-        return;
     }
 
     /**

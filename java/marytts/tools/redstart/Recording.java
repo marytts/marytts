@@ -186,9 +186,6 @@ public class Recording extends Speech {
             e.printStackTrace();
             return;
         }
-        
-        
-        return;
     }
 
     public double getPeakAmplitude() {
