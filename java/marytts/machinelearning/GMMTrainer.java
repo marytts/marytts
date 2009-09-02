@@ -130,13 +130,13 @@ public class GMMTrainer {
                                     "\"" + gmmFile + "\" " +
                                     String.valueOf(gmmParams.totalComponents) + " " +
                                     strIsBigEndian + " " +
-                                    String.valueOf(gmmParams.isDiagonalCovariance==true ? 1 : 0) + " " +
+                                    String.valueOf(gmmParams.isDiagonalCovariance ? 1 : 0) + " " +
                                     String.valueOf(gmmParams.kmeansMaxIterations) + " " + 
                                     String.valueOf(gmmParams.kmeansMinClusterChangePercent) + " " +
                                     String.valueOf(gmmParams.kmeansMinSamplesInOneCluster) + " " +
                                     String.valueOf(gmmParams.emMinIterations) + " " +
                                     String.valueOf(gmmParams.emMaxIterations) + " " +
-                                    String.valueOf(gmmParams.isUpdateCovariances==true ? 1 : 0) + " " +
+                                    String.valueOf(gmmParams.isUpdateCovariances ? 1 : 0) + " " +
                                     String.valueOf(gmmParams.tinyLogLikelihoodChangePercent) + " " +
                                     String.valueOf(gmmParams.minCovarianceAllowed) + " " +
                                     "\"" + logFile + "\"";

@@ -277,7 +277,7 @@ public class HntmSynthesizer {
         String strLabFile = StringUtils.modifyExtension(wavFile, ".lab"); 
         if (analysisParams.harmonicModel == HntmAnalyzerParams.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE)
         {
-            if (FileUtils.exists(strLabFile)!=true) //Labels required for transients analysis (unless we design an automatic algorithm)
+            if (!FileUtils.exists(strLabFile)) //Labels required for transients analysis (unless we design an automatic algorithm)
             {
                 System.out.println("Error! Labels required for transient analysis...");
                 System.exit(1);

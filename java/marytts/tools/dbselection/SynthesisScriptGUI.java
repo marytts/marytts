@@ -114,7 +114,7 @@ public class SynthesisScriptGUI extends JPanel implements TableModelListener{
             output.append("\nERROR TABLE = " + actualTableName + " does not exist\n");    
         } 
         
-        if(selIds==null || mysqlInfo==false || connectionProblems) {
+        if(selIds==null || !mysqlInfo || connectionProblems) {
             for(int i=0; i<30; i++){
                 dtm.addRow(new Object[]{new Boolean(false), "", "" });  
             }
@@ -156,7 +156,7 @@ public class SynthesisScriptGUI extends JPanel implements TableModelListener{
         if( selIds != null){
           boolean res = (Boolean)dtm.getValueAt(row, 0);
           // Marc the sentence as unwanted in both the dbselection table and selectedSentences table
-          if(res==true) {
+          if(res) {
             numUnwanted++;
             numWanted--;
             output.append("id=" + selIds[row] + " set as unwanted (No. wanted=" + numWanted + " No. unwanted=" + numUnwanted + ")\n");

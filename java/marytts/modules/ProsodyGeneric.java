@@ -259,7 +259,7 @@ public class ProsodyGeneric extends InternalModule {
             logger.debug("Processing next sentence");
             processSentence(sentence);
         }
-        if(accentedSyllables == true) {
+        if(accentedSyllables) {
         	copyAccentsToSyllables(doc); // ToBI accents on syllables or words?
         }
         if (applyParagraphDeclination) {
@@ -346,7 +346,7 @@ public class ProsodyGeneric extends InternalModule {
             }
             
             // determine if token is at end of vorfeld
-            if(inVorfeld != false) { // only if vorfeld exists and if token's position is not after vorfeld
+            if(inVorfeld) { // only if vorfeld exists and if token's position is not after vorfeld
                	if(i<tokens.getLength()-1) {
                		Element nextToken = (Element) tokens.item(i+1);
                		String posNextToken = nextToken.getAttribute("pos");
@@ -402,7 +402,7 @@ public class ProsodyGeneric extends InternalModule {
                     hasAccent = true;
                 }
                 // if not, check if current token is the best candidate
-                if(hasAccent == false &&
+                if(!hasAccent &&
                         !(token.getAttribute("accent").equals("none") || forceAccent.equals("none")) &&
                         !token.getAttribute("ph").equals("")) {
                     if(bestCandidate == null) { // no candidate yet
@@ -469,7 +469,7 @@ public class ProsodyGeneric extends InternalModule {
                         bi = Integer.parseInt(boundary.getAttribute("breakindex"));
                     } catch (NumberFormatException nfe) {}
                     if(bi>=3) { // is it an intermediate or an intoantion phrase?
-                    	if(hasAccent == false && bestCandidate != null) { // no accent!
+                    	if(!hasAccent && bestCandidate != null) { // no accent!
                     		setAccent(bestCandidate, "tone"); // best candidate receives accent
                     	}
                     	hasAccent=false;
@@ -594,7 +594,7 @@ public class ProsodyGeneric extends InternalModule {
             				if(it.hasNext()) tone = (String)it.next();
             			}
             			token.setAttribute("accent",tone);
-                		if(nucleusAssigned == false) nucleusAssigned = true;
+                		if(!nucleusAssigned) nucleusAssigned = true;
             		}
             	} else if(!(token.getAttribute("accent").equals("force") || token.getAttribute("accent").equals("tone")||
 				    token.getAttribute("accent").equals(""))) {
@@ -654,12 +654,12 @@ public class ProsodyGeneric extends InternalModule {
     	// the accent value("tone","force" or "") is assigned and the loop stops
     	// if no rule is found, the accent value is ""
     	                	
-        while (rule_fired == false && (rule = (Element) tw.nextNode()) != null) {
+        while (!rule_fired && (rule = (Element) tw.nextNode()) != null) {
         	// rule = the whole rule
     		// currentRulePart = part of the rule (type of condition (f.e. attributes pos="NN") or action)
     		Element currentRulePart = DomUtils.getFirstChildElement(rule);
     		
-			while(rule_fired == false && currentRulePart != null) {
+			while(!rule_fired && currentRulePart != null) {
 				
 				boolean conditionSatisfied=false;
 				
@@ -672,7 +672,7 @@ public class ProsodyGeneric extends InternalModule {
 				}
 				// check if the condition is satisfied
 				conditionSatisfied = checkRulePart(currentRulePart,token,tokens,position,sentenceType,specialPositionType,tokenText);
-				if(conditionSatisfied == false) break; // condition violated, try next rule
+				if(!conditionSatisfied) break; // condition violated, try next rule
 				
 				// the previous conditions are satisfied --> check the next rule part
 				currentRulePart = DomUtils.getNextSiblingElement(currentRulePart);
@@ -700,7 +700,7 @@ public class ProsodyGeneric extends InternalModule {
           
         // prosodic position (prenuclear, nuclear, postnuclear)
         String prosodicPositionType = null;
-        if(nucleusAssigned == false){ // no nucleus assigned
+        if(!nucleusAssigned){ // no nucleus assigned
         	if(token.getAttribute("accent").equals("tone")) { // current token will become the nucleus 
         		if(specialPositionType.equals("endofpar")) {
         			prosodicPositionType= "nuclearParagraphFinal";
@@ -729,12 +729,12 @@ public class ProsodyGeneric extends InternalModule {
         // search for appropriate rules; the top rule has highest prority
         // if a rule fires (that is: all the conditions are fulfilled), the accent type (f.e. "L+H*") is assigned and the loop stops
         // if no rule is found, the accent value is "" 	                	
-        while (rule_fired == false && (rule = (Element) tw.nextNode()) != null) {
+        while (!rule_fired && (rule = (Element) tw.nextNode()) != null) {
            	// rule = the whole rule
         	// currentRulePart = part of the rule (type of condition (f.e. attributes pos="NN") or action)
         	Element currentRulePart = DomUtils.getFirstChildElement(rule);
         	
-			while(rule_fired == false && currentRulePart != null) {
+			while(!rule_fired && currentRulePart != null) {
 				boolean conditionSatisfied=false;
 				
 				// if rule part with tag "action": accent type assignment
@@ -742,7 +742,7 @@ public class ProsodyGeneric extends InternalModule {
 					accent = currentRulePart.getAttribute("accent");
 					token.setAttribute("accent",accent);
 					rule_fired = true;
-					if(nucleusAssigned == false && !accent.equals("*")) {
+					if(!nucleusAssigned && !accent.equals("*")) {
 						nucleusAssigned = true;
 					}
 					break;
@@ -757,7 +757,7 @@ public class ProsodyGeneric extends InternalModule {
 				}
 				// the usual check
 				conditionSatisfied = checkRulePart(currentRulePart,token,tokens,position,sentenceType,specialPositionType,tokenText);
-				if(conditionSatisfied == false) break; // condition violated, try next rule
+				if(!conditionSatisfied) break; // condition violated, try next rule
 				
 				// the previous conditions are satisfied --> check the next rule part
 				currentRulePart = DomUtils.getNextSiblingElement(currentRulePart);
@@ -800,12 +800,12 @@ public class ProsodyGeneric extends InternalModule {
     	
     	// search for appropriate rules; the top rule has highest prority
     	// if a rule fires (that is: all the conditions are fulfilled), the boundary is inserted and the loop stops
-        while (rule_fired == false && (rule = (Element) tw.nextNode()) != null) {
+        while (!rule_fired && (rule = (Element) tw.nextNode()) != null) {
         	// rule = the whole rule
     		// currentRulePart = part of the rule (condition or action)
     		Element currentRulePart = DomUtils.getFirstChildElement(rule);
     		
-			while(rule_fired == false && currentRulePart != null) {
+			while(!rule_fired && currentRulePart != null) {
 				boolean conditionSatisfied = false;
 				
 				// if rule part with tag "action": boundary insertion
@@ -830,7 +830,7 @@ public class ProsodyGeneric extends InternalModule {
 				
 				// check if the condition is satisfied
 				conditionSatisfied = checkRulePart(currentRulePart,token,tokens,position,sentenceType,specialPositionType,tokenText);
-				if(conditionSatisfied == false) break; // condition violated, try next rule
+				if(!conditionSatisfied) break; // condition violated, try next rule
 				
 				// the previous conditions are satisfied --> check the next rule part
 				currentRulePart = DomUtils.getNextSiblingElement(currentRulePart);

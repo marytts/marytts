@@ -795,7 +795,7 @@ public class SinusoidalAnalyzer extends BaseSinusoidalAnalyzer {
         if (frameSins!=null)
         {
             //frameSins.voicing = (float)SignalProcUtils.getVoicingProbability(windowedFrm, params.fs);
-            frameSins.voicing = (isVoiced==true) ? 1.0f : 0.0f;
+            frameSins.voicing = isVoiced ? 1.0f : 0.0f;
             frameSins.maxFreqOfVoicing = SignalProcUtils.hz2radian(maxVoicingFreqInHz, params.fs);
         }
 

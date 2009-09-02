@@ -519,15 +519,15 @@ public class DBHandler {
                resRevision=true;
             
           } 
-          if(resText==true){
+          if(resText){
             System.out.println("TABLE = " + locale + "_text already exist deleting.");  
             boolean res0 = st.execute( "DROP TABLE " + locale + "_text;" );  
           }
-          if(resPage==true){
+          if(resPage){
               System.out.println("TABLE = " + locale + "_page already exist deleting.");  
               boolean res0 = st.execute( "DROP TABLE " + locale + "_page;" );  
           }
-          if(resRevision==true){
+          if(resRevision){
               System.out.println("TABLE = " + locale + "_revision already exist deleting.");  
               boolean res0 = st.execute( "DROP TABLE " + locale + "_revision;" );  
           }
@@ -699,28 +699,28 @@ public class DBHandler {
            else if( str.contentEquals(locale + "_revision") )
                resLocaleRevision=true;
          } 
-         if(resLocaleText==true){
+         if(resLocaleText){
              System.out.println("  Deleting TABLE = " + locale + "_text.");  
              boolean res0 = st.execute( "DROP TABLE " + locale + "_text;" );  
            }
-           if(resLocalePage==true){
+           if(resLocalePage){
                System.out.println("  Deleting TABLE = " + locale + "_page.");  
                boolean res0 = st.execute( "DROP TABLE " + locale + "_page;" );  
            }
-           if(resLocaleRevision==true){
+           if(resLocaleRevision){
                System.out.println("  Deleting TABLE = " + locale + "_revision.");  
                boolean res0 = st.execute( "DROP TABLE " + locale + "_revision;" );  
            }   
            
-         if(resText==true){
+         if(resText){
            System.out.println("  RENAME TABLE = text TO " + locale + "_text.");  
            boolean res0 = st.execute( "RENAME TABLE text TO " + locale + "_text;" );  
          }
-         if(resPage==true){
+         if(resPage){
              System.out.println("  RENAME TABLE = page TO " + locale + "_page.");  
              boolean res0 = st.execute( "RENAME TABLE page TO " + locale + "_page;" );  
          }
-         if(resRevision==true){
+         if(resRevision){
              System.out.println("  RENAME TABLE = revision TO " + locale + "_revision.");  
              boolean res0 = st.execute( "RENAME TABLE revision TO " + locale + "_revision;" );  
          }       
@@ -756,15 +756,15 @@ public class DBHandler {
                resRevision=true;
             
           } 
-          if(resText==true){
+          if(resText){
             System.out.println("  Deleting TABLE = " + locale + "_text.");  
             boolean res0 = st.execute( "DROP TABLE " + locale + "_text;" );  
           }
-          if(resPage==true){
+          if(resPage){
               System.out.println("  Deleting TABLE = " + locale + "_page.");  
               boolean res0 = st.execute( "DROP TABLE " + locale + "_page;" );  
           }
-          if(resRevision==true){
+          if(resRevision){
               System.out.println("  Deleting TABLE = " + locale + "_revision.");  
               boolean res0 = st.execute( "DROP TABLE " + locale + "_revision;" );  
           }       
@@ -844,7 +844,7 @@ public class DBHandler {
             if( str.contentEquals(cleanTextTableName) )
                resText=true;
           } 
-          if(resText==true){
+          if(resText){
             System.out.println("TABLE = " + cleanTextTableName + " already exist deleting.");  
             boolean res0 = st.execute( "DROP TABLE " + cleanTextTableName + ";" );  
           }

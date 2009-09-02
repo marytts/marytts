@@ -157,7 +157,7 @@ public class LabelledFilesInspector extends VoiceImportComponent
         fileList.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e)
             {
-                if (e.getValueIsAdjusting() == false) {
+                if (!e.getValueIsAdjusting()) {
                      String basename = (String) fileList.getSelectedValue();
                     if (basename != null) {
                         loadFile(basename);
