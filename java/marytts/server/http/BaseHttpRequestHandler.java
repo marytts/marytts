@@ -330,7 +330,7 @@ public abstract class BaseHttpRequestHandler extends SimpleNHttpRequestHandler i
     public String getVoiceExampleText(String voiceName)
     {
         Voice v = Voice.getVoice(voiceName);
-        if (v != null && v instanceof marytts.unitselection.UnitSelectionVoice)
+        if (v instanceof marytts.unitselection.UnitSelectionVoice)
             return ((marytts.unitselection.UnitSelectionVoice)v).getExampleText();
         return "";
     }

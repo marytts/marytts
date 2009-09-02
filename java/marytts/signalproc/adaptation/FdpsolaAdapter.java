@@ -516,7 +516,7 @@ public class FdpsolaAdapter {
 
         preselectedIndices = null;
         allIndices = null;
-        if (vtData instanceof WeightedCodebook && vtData!=null && 
+        if (vtData instanceof WeightedCodebook && 
             baseParams instanceof WeightedCodebookTransformerParams && !((WeightedCodebookTransformerParams)baseParams).isContextBasedPreselection)
         {
             //Whole codebook

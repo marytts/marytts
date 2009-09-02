@@ -132,7 +132,7 @@ public class SimplePhoneme2AP extends InternalModule
                     cumulDur += dur;
                     ph.setAttribute("end", String.valueOf(cumulDur));
                     // Set top start for first and base end for last segment:
-                    if (defaultVoice != null && defaultVoice instanceof MbrolaVoice) {
+                    if (defaultVoice instanceof MbrolaVoice) {
                         if (isFirst) {
                             isFirst = false;
                             ph.setAttribute("f0", "(0," + ((MbrolaVoice)defaultVoice).topStart() + ")");
