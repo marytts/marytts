@@ -202,7 +202,7 @@ public class DrawHistogram extends javax.swing.JFrame {
 // TODO add your handling code here:
      try{
         int bwSlide = bandwidth.getValue();
-        this.jLabel2.setText(""+bwSlide);
+        this.jLabel2.setText(Integer.toString(bwSlide));
         this.rePlotHistogram(bwSlide);
         this.getHistogram().resize(histogram.size());
         histogram.add(this.getHistogram());

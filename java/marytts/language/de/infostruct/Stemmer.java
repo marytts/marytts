@@ -68,7 +68,7 @@ public class Stemmer {
     } //findStemm
 
     private String prepareWord(String word) {
-        String result = "" + word.charAt(0);
+        String result = Character.toString(word.charAt(0));
         for (int i = 1; i < word.length(); i++) {
             switch (word.charAt(i)) {
                 case 'u' :
@@ -212,7 +212,7 @@ public class Stemmer {
 
     private String finalAdjust(String word) {
 
-        String result = "" + word.charAt(0);
+        String result = Character.toString(word.charAt(0));
 
         for (int i = 1; i < word.length(); i++) {
 
