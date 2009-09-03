@@ -347,7 +347,7 @@ public class TeluguLTS {
     private String getAsciiChar(String utf8Char) {
         int intValue = Integer.parseInt(utf8Char, 16);
         char dec = (char)intValue;
-        return dec+"";  
+        return Character.toString(dec);
     }
 
 

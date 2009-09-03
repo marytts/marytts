@@ -113,8 +113,8 @@ public class BackchannelSynthesizer {
             int unitDuration = units[i].getDuration() * 1000 / samplingRate;
             endTime += unitDuration;
             Element element = MaryXML.createElement(domElement.getOwnerDocument(), MaryXML.PHONE);
-            element.setAttribute("d", ""+unitDuration);
-            element.setAttribute("end", ""+endTime);
+            element.setAttribute("d", Integer.toString(unitDuration));
+            element.setAttribute("end", Long.toString(endTime));
             element.setAttribute("p", unitNames[i]);
             domElement.appendChild(element);
         }
