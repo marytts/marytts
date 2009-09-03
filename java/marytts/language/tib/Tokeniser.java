@@ -492,7 +492,7 @@ public class Tokeniser extends InternalModule {
 		// if split produces a last empty sentence remove it
         if (sentenceArray[limit-1].length()<1) {
         	trimmedSentArray = new String[limit-1];
-        	for (int c=0;c<limit-1;c++) {trimmedSentArray[c]=sentenceArray[c];}
+                System.arraycopy(sentenceArray, 0, trimmedSentArray, 0, limit - 1);
         } else {trimmedSentArray = sentenceArray;}
 		
         // for each sentence...
