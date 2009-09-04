@@ -50,6 +50,7 @@ package marytts.tools.voiceimport;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.SortedMap;
@@ -115,10 +116,11 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
         String cmdLine;
         System.out.println("adaptScripts = " + adaptScripts);
        
-       File dirWav  = new File("wav");
-       File dirText = new File("text");
-       File dirRaw  = new File("data/raw");
-       File dirUtt  = new File("data/utts");
+       File dirWav  = new File(filedir + "wav");
+       File dirText = new File(filedir + "text");
+       File dirRaw  = new File(filedir + "data/raw");
+       File dirUtt  = new File(filedir + "data/utts");
+       
        
        /* Check if the wav directory exist and have files */
        /* if wav/* does not exist but data/raw/* exist then can be converted and copied from raw */
@@ -245,6 +247,17 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
                      System.out.println("\ntext directory exists and contains directories.");
               }
        }
+       
+       // create a simple hmmFeatures.txt file:
+       /*
+       FileWriter hmmFeatures = new FileWriter(filedir + "/mary/hmmFeatures.txt");        
+       hmmFeatures.write("pos_in_syl\n" +
+                         "syl_break\n" +
+                         "prev_syl_break\n" +
+                         "position_type");
+       hmmFeatures.close();
+       System.out.println("\nCreated a simple hmmFeatures.txt file.");
+       */
         
        return true;
        
