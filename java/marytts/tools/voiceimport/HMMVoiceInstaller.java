@@ -304,7 +304,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
             // if there is a trickyPhones file
             in = new File(rootDir + getProp(trickyPhonesFile));
             if(in.exists()){
-              out = new File(newVoiceDir + getFileName(getProp(mixFiltersFile)));
+              out = new File(newVoiceDir + getFileName(getProp(trickyPhonesFile)));
               copy(in,out);
               trickyPhones = true;
             }

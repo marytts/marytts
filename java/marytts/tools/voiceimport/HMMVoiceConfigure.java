@@ -71,8 +71,8 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
     public final String SPTKPATH      = name+".sptkPath";
     public final String TCLPATH       = name+".tclPath";
     public final String SOXPATH       = name+".soxPath";
-    public final String FEATURELIST   = name+".featureList";
-    public final String VOICELANG     = name+".voiceLang";
+    //public final String FEATURELIST   = name+".featureList";
+    //public final String VOICELANG     = name+".voiceLang";
     public final String SPEAKER       = name+".speaker";
     public final String DATASET       = name+".dataSet";
     public final String LOWERF0       = name+".lowerF0";
@@ -124,11 +124,9 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
            props.put(SPTKPATH,      "/project/mary/marcela/sw/SPTK-3.2/bin");
            props.put(TCLPATH,       "/project/mary/marcela/sw/ActiveTcl-8.6/bin");           
            props.put(SOXPATH,       "/usr/bin");
-           props.put(FEATURELIST,   rootdir+"data/feature_list_en.pl");
-           props.put(VOICELANG,     "en");
            props.put(SPEAKER,       "slt");
            props.put(DATASET,       "cmu_us_arctic");
-           props.put(LOWERF0,       "80");
+           props.put(LOWERF0,       "40");
            props.put(UPPERF0,       "350");
            props.put(NUMTESTFILES,  "10");
            
@@ -168,8 +166,6 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
         props2Help.put(SPTKPATH,      "Path to SPTK-3.1 bin directory.");
         props2Help.put(TCLPATH,       "Path to Tcl bin, it should support snack.");
         props2Help.put(SOXPATH,       "Path to sox bin.");
-        props2Help.put(FEATURELIST,   "Mary context features file (default English=data/feature_list_en.pl, for German=data/feature_list_de.pl), this file can be modified according to the number of context features used.");
-        props2Help.put(VOICELANG,     "voice language (default='en')");
         props2Help.put(SPEAKER,       "speaker name (default=slt)");
         props2Help.put(DATASET,       "dataset (default=cmu_us_arctic)");
         props2Help.put(LOWERF0,       "Lower limit for F0 extraction in Hz (default slt=80 female=80, male=40)");
@@ -267,8 +263,6 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
        " --with-sox-search-path=" + getProp(SOXPATH) +
        " SPEAKER=" + getProp(SPEAKER) +
        " DATASET=" + getProp(DATASET) +
-       " VOICELANG=" + getProp(VOICELANG) +
-       " FEATURELIST=" + getProp(FEATURELIST) +      
        " VER=" + getProp(VER) +
        " QNUM=" + getProp(QNUM) +
        " FRAMELEN=" + getProp(FRAMELEN) +

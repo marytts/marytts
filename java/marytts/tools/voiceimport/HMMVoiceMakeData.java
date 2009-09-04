@@ -123,7 +123,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
            props.put(questionsFile, "data/questions/questions_qst001.hed");
            props.put(contextFile, "phonefeatures/cmu_us_arctic_slt_a0001.pfeats");           
            props.put(allophonesFile, "/project/mary/marcela/openmary/lib/modules/en/us/lexicon/allophones.en_US.xml");
-           props.put(featureListFile, "mary/featuresHmmVoice.txt");
+           props.put(featureListFile, "mary/hmmFeatures.txt");
            props.put(trickyPhonesFile, "mary/trickyPhones.txt");
        }
        return props;
@@ -146,10 +146,10 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         props2Help.put(contextFile, "An example of context feature file used for training, this file will be used to extract" +
                 " the FeatureDefinition.");
         props2Help.put(allophonesFile, "allophones set (language dependent, an example can be found in ../openmary/lib/modules/language/...)");
-        props2Help.put(featureListFile, "A file that contains aditional context features used for training HMMs, normally it" +
-        " should be a subset of mary/features.txt --> mary/featuresHmmVoice.txt");
-        props2Help.put(trickyPhonesFile, "list of aliases for tricky phones, so HTK-HHEd command can handle them. (This file" +
-                " will be created automatically if aliases are necessary, otherwise it will not be created.)");
+        props2Help.put(featureListFile, "A file that contains additional context features used for training HMMs, normally it" +
+        " should be a subset of mary/features.txt --> mary/hmmFeatures.txt");
+        props2Help.put(trickyPhonesFile, "list of aliases for tricky phones, so the HTK-HHEd command can handle them. (This file" +
+                " will be created automatically if aliases are necessary.)");
 
     }
 
@@ -167,51 +167,49 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
       String voiceDir = db.getProp(db.ROOTDIR);
         
       if( Integer.parseInt(getProp(MGC)) == 1 ){
-        cmdLine = "cd data\nmake mgc\n";
+        cmdLine = "cd " + voiceDir + "data\nmake mgc\n";
         launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(LF0)) == 1 ){
-          cmdLine = "cd data\nmake lf0\n";
+          cmdLine = "cd " + voiceDir + "data\nmake lf0\n";
           launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(MAG)) == 1 ){
-          cmdLine = "cd data\nmake mag\n";
+          cmdLine = "cd " + voiceDir + "data\nmake mag\n";
           launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(STR)) == 1 ){
-          cmdLine = "cd data\nmake str\n";
+          cmdLine = "cd " + voiceDir + "data\nmake str\n";
           launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(CMPMARY)) == 1 ){
-          cmdLine = "cd data\nmake cmp-mary\n";
+          cmdLine = "cd " + voiceDir + "data\nmake cmp-mary\n";
           launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(GVMARY)) == 1 ){
-          cmdLine = "cd data\nmake gv-mary\n";
+          cmdLine = "cd " + voiceDir + "data\nmake gv-mary\n";
           launchBatchProc(cmdLine, "", voiceDir);
           // also execute HTS gv to avoid problems when running the training script
-          cmdLine = "cd data\nmake gv\n";
+          cmdLine = "cd " + voiceDir + "data\nmake gv\n";
           launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(LABELMARY)) == 1 ){
           //uses:  contextFile (example)
           //       featureListFile
-          // make sure that checkTrickyPhones is run before
           makeLabels(voiceDir);   
       }
       if( Integer.parseInt(getProp(QUESTIONSMARY)) == 1 ){
           // uses: questionsFile
           //       contextFile (example)
           //       featureListFile
-          // make sure that checkTrickyPhones is run before
           makeQuestions(voiceDir);          
       }
       if( Integer.parseInt(getProp(LIST)) == 1 ){
-          cmdLine = "cd data\nmake list\n";
+          cmdLine = "cd " + voiceDir + "data\nmake list\n";
           launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(SCP)) == 1 ){
-          cmdLine = "cd data\nmake scp\n";
+          cmdLine = "cd " + voiceDir + "data\nmake scp\n";
           launchBatchProc(cmdLine, "", voiceDir);
       }
 
@@ -296,6 +294,13 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     private void makeQuestions(String voiceDir) throws Exception {
         
         String hmmFeatureListFile = voiceDir + getProp(featureListFile);
+        
+        // check first if questions directory exists
+        String dirNameQuestions = marytts.util.string.StringUtils.getFolderName(voiceDir + getProp(questionsFile));
+        File dirQuestions  = new File(dirNameQuestions);
+        if(!dirQuestions.exists())
+            dirQuestions.mkdir();  
+
         FileWriter out = new FileWriter(voiceDir + getProp(questionsFile));
         int i;
         String phon;
@@ -342,58 +347,81 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
          
         // Get possible values of phonological features, and initialise a set of phones
         // that have that value (new HashSet<String>)
+        HashMap<String, Set<String>> mary_vc      = new HashMap<String, Set<String>>();
+        HashMap<String, Set<String>> mary_vlng    = new HashMap<String, Set<String>>();
+        HashMap<String, Set<String>> mary_vheight = new HashMap<String, Set<String>>();
+        HashMap<String, Set<String>> mary_vfront  = new HashMap<String, Set<String>>();
+        HashMap<String, Set<String>> mary_vrnd    = new HashMap<String, Set<String>>();
+        HashMap<String, Set<String>> mary_ctype   = new HashMap<String, Set<String>>();
+        HashMap<String, Set<String>> mary_cplace  = new HashMap<String, Set<String>>();
+        HashMap<String, Set<String>> mary_cvox    = new HashMap<String, Set<String>>();
+        String val_vc[]      = null;
+        String val_vlng[]    = null;
+        String val_vheight[] = null;
+        String val_vfront[]  = null;
+        String val_vrnd[]    = null;
+        String val_ctype[]   = null;
+        String val_cplace[]  = null;
+        String val_cvox[]    = null;
+        
+        
         // mary_vc
-        String val_vc[]      = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vc"));
-        HashMap<String, Set<String>> mary_vc = new HashMap<String, Set<String>>();
+        if(feaDef.hasFeature("ph_vc")){
+        val_vc = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vc"));        
         for(i=0; i<val_vc.length; i++)
           mary_vc.put(val_vc[i], new HashSet<String>());   
-
+        }
         // mary_vlng
-        /*
-        String val_vlng[]    = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vlng"));
-        HashMap<String, Set<String>> mary_vlng = new HashMap<String, Set<String>>();
+        if(feaDef.hasFeature("ph_vlng")){
+        val_vlng = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vlng"));        
         for(i=0; i<val_vlng.length; i++)
           mary_vlng.put(val_vlng[i], new HashSet<String>());
-          */          
+        }
 
         // mary_vheight
-        String val_vheight[] = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vheight"));
-        HashMap<String, Set<String>> mary_vheight = new HashMap<String, Set<String>>();
+        if(feaDef.hasFeature("ph_vheight")){
+        val_vheight = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vheight"));        
         for(i=0; i<val_vheight.length; i++)
-          mary_vheight.put(val_vheight[i], new HashSet<String>());  
+          mary_vheight.put(val_vheight[i], new HashSet<String>());
+        }
 
-        // mary_vfront      
-        String val_vfront[]  = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vfront"));
-        HashMap<String, Set<String>> mary_vfront = new HashMap<String, Set<String>>();
+        // mary_vfront
+        if(feaDef.hasFeature("ph_vfront")){
+        val_vfront = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vfront"));        
         for(i=0; i<val_vfront.length; i++)
-          mary_vfront.put(val_vfront[i], new HashSet<String>());  
+          mary_vfront.put(val_vfront[i], new HashSet<String>());
+        }
 
         // mary_vrnd
-        String val_vrnd[]    = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vrnd"));
-        HashMap<String, Set<String>> mary_vrnd = new HashMap<String, Set<String>>();
+        if(feaDef.hasFeature("ph_vrnd")){
+        val_vrnd = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_vrnd"));        
         for(i=0; i<val_vrnd.length; i++)
-          mary_vrnd.put(val_vrnd[i], new HashSet<String>());  
+          mary_vrnd.put(val_vrnd[i], new HashSet<String>());
+        }
 
         // mary_ctype
-        String val_ctype[]   = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_ctype"));
-        HashMap<String, Set<String>> mary_ctype = new HashMap<String, Set<String>>();
+        if(feaDef.hasFeature("ph_ctype")){
+        val_ctype = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_ctype"));       
         for(i=0; i<val_ctype.length; i++)
-          mary_ctype.put(val_ctype[i], new HashSet<String>());  
+          mary_ctype.put(val_ctype[i], new HashSet<String>());
+        }
         
         // mary_cplace
-        String val_cplace[]  = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_cplace"));
-        HashMap<String, Set<String>> mary_cplace = new HashMap<String, Set<String>>();
+        if(feaDef.hasFeature("ph_cplace")){
+        val_cplace = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_cplace"));       
         for(i=0; i<val_cplace.length; i++)
-          mary_cplace.put(val_cplace[i], new HashSet<String>());  
+          mary_cplace.put(val_cplace[i], new HashSet<String>());
+        }
         
         // mary_cvox
-        String val_cvox[]    = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_cvox"));
-        HashMap<String, Set<String>> mary_cvox = new HashMap<String, Set<String>>();
+        if(feaDef.hasFeature("ph_cvox")){
+        val_cvox = feaDef.getPossibleValues(feaDef.getFeatureIndex("ph_cvox"));        
         for(i=0; i<val_cvox.length; i++)
-          mary_cvox.put(val_cvox[i], new HashSet<String>());  
+          mary_cvox.put(val_cvox[i], new HashSet<String>());
+        }
+        
         
         AllophoneSet allophoneSet;
-        //String phoneXML = "/project/mary/marcela/openmary/lib/modules/en/us/lexicon/allophones.en_US.xml";
         String phoneXML = getProp(allophonesFile);
         System.out.println("Reading allophones set from file: " + phoneXML);
         allophoneSet = AllophoneSet.getAllophoneSet(phoneXML);
@@ -417,42 +445,58 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
             // Get the phonological value of each phone, and add it to the corresponding
             // set of phones that have that value.
             //System.out.println(phon + " vc = " + allophoneSet.getPhoneFeature(phonOri, "vc"));
-            mary_vc.get(allophoneSet.getPhoneFeature(phonOri, "vc")).add(phon);
+            if( allophoneSet.getPhoneFeature(phonOri, "vc") != null )
+              mary_vc.get(allophoneSet.getPhoneFeature(phonOri, "vc")).add(phon);
             
             //System.out.println(phon + " vlng = " + allophoneSet.getPhoneFeature(phonOri, "vlng"));
-           // mary_vlng.get(allophoneSet.getPhoneFeature(phonOri, "vlng")).add(phon);
+            if( allophoneSet.getPhoneFeature(phonOri, "vlng") != null )
+              mary_vlng.get(allophoneSet.getPhoneFeature(phonOri, "vlng")).add(phon);
             
-            //System.out.println(phon + " vheight = " + allophoneSet.getPhoneFeature(phonOri, "vheight"));  
-            mary_vheight.get(allophoneSet.getPhoneFeature(phonOri, "vheight")).add(phon);
+            //System.out.println(phon + " vheight = " + allophoneSet.getPhoneFeature(phonOri, "vheight"));
+            if( allophoneSet.getPhoneFeature(phonOri, "vheight") != null )
+              mary_vheight.get(allophoneSet.getPhoneFeature(phonOri, "vheight")).add(phon);
             
             //System.out.println(phon + " vfront = " + allophoneSet.getPhoneFeature(phonOri, "vfront"));
-            mary_vfront.get(allophoneSet.getPhoneFeature(phonOri, "vfront")).add(phon);
+            if( allophoneSet.getPhoneFeature(phonOri, "vfront") != null )
+              mary_vfront.get(allophoneSet.getPhoneFeature(phonOri, "vfront")).add(phon);
             
             //System.out.println(phon + " vrnd = " + allophoneSet.getPhoneFeature(phonOri, "vrnd"));
-            mary_vrnd.get(allophoneSet.getPhoneFeature(phonOri, "vrnd")).add(phon);
+            if( allophoneSet.getPhoneFeature(phonOri, "vrnd") != null )
+              mary_vrnd.get(allophoneSet.getPhoneFeature(phonOri, "vrnd")).add(phon);
             
             //System.out.println(phon + " ctype = " + allophoneSet.getPhoneFeature(phonOri, "ctype"));
-            mary_ctype.get(allophoneSet.getPhoneFeature(phonOri, "ctype")).add(phon);
+            if( allophoneSet.getPhoneFeature(phonOri, "ctype") != null )
+              mary_ctype.get(allophoneSet.getPhoneFeature(phonOri, "ctype")).add(phon);
             
             //System.out.println(phon + " cplace = " + allophoneSet.getPhoneFeature(phonOri, "cplace"));
-            mary_cplace.get(allophoneSet.getPhoneFeature(phonOri, "cplace")).add(phon);
+            if( allophoneSet.getPhoneFeature(phonOri, "cplace") != null )
+              mary_cplace.get(allophoneSet.getPhoneFeature(phonOri, "cplace")).add(phon);
             
             //System.out.println(phon + " cvox = " + allophoneSet.getPhoneFeature(phonOri, "cvox"));
-            mary_cvox.get(allophoneSet.getPhoneFeature(phonOri, "cvox")).add(phon);
+            if( allophoneSet.getPhoneFeature(phonOri, "cvox") != null )
+              mary_cvox.get(allophoneSet.getPhoneFeature(phonOri, "cvox")).add(phon);
              
         }
 
-        // phonological questions
+        // phonological features questions
         //String val, prev_prev, prev, ph, next, next_next;
         out.write("\n"); 
-        writePhonologicalFeatures("vc", val_vc, mary_vc, out);
-       // writePhonologicalFeatures("vlng", val_vlng, mary_vlng, out);
-        writePhonologicalFeatures("vheight", val_vheight, mary_vheight, out);
-        writePhonologicalFeatures("vfront", val_vfront, mary_vfront, out);
-        writePhonologicalFeatures("vrnd", val_vrnd, mary_vrnd, out);
-        writePhonologicalFeatures("ctype", val_ctype, mary_ctype, out);
-        writePhonologicalFeatures("cplace", val_cplace, mary_cplace, out);
-        writePhonologicalFeatures("cvox", val_cvox, mary_cvox, out);
+        if(feaDef.hasFeature("ph_vc"))
+          writePhonologicalFeatures("vc", val_vc, mary_vc, out);
+        if(feaDef.hasFeature("ph_vlng"))  
+          writePhonologicalFeatures("vlng", val_vlng, mary_vlng, out);
+        if(feaDef.hasFeature("ph_vheight"))  
+          writePhonologicalFeatures("vheight", val_vheight, mary_vheight, out);
+        if(feaDef.hasFeature("ph_vfront"))
+          writePhonologicalFeatures("vfront", val_vfront, mary_vfront, out);
+        if(feaDef.hasFeature("ph_vrnd"))
+          writePhonologicalFeatures("vrnd", val_vrnd, mary_vrnd, out);
+        if(feaDef.hasFeature("ph_ctype"))
+          writePhonologicalFeatures("ctype", val_ctype, mary_ctype, out);
+        if(feaDef.hasFeature("ph_cplace"))
+          writePhonologicalFeatures("cplace", val_cplace, mary_cplace, out);
+        if(feaDef.hasFeature("ph_cvox"))
+          writePhonologicalFeatures("cvox", val_cvox, mary_cvox, out);
        
         // Questions for other features, the additional features used for trainning.
         it = featureList.iterator();
@@ -856,8 +900,9 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         
         HMMVoiceMakeData data = new HMMVoiceMakeData();
         String voiceDir = "/project/mary/marcela/HMM-voices/turkish/";
-        String featuresHmmVoice = "/project/mary/marcela/HMM-voices/turkish/mary/featuresHmmVoice.txt";
-        data.makeLabels(voiceDir);
+        String featuresHmmVoice = "/project/mary/marcela/HMM-voices/turkish/mary/hmmFeatures.txt";
+        //data.makeLabels(voiceDir);
+        data.makeQuestions(voiceDir);
     }
     
 }
