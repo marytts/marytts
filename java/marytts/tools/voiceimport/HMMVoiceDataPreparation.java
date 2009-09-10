@@ -248,17 +248,6 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
               }
        }
        
-       // create a simple hmmFeatures.txt file:
-       /*
-       FileWriter hmmFeatures = new FileWriter(filedir + "/mary/hmmFeatures.txt");        
-       hmmFeatures.write("pos_in_syl\n" +
-                         "syl_break\n" +
-                         "prev_syl_break\n" +
-                         "position_type");
-       hmmFeatures.close();
-       System.out.println("\nCreated a simple hmmFeatures.txt file.");
-       */
-        
        return true;
        
     }

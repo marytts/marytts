@@ -95,10 +95,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
     public final String numFilters     = name+".in";
     public final String orderFilters   = name+".io";
     
-    /** Feature list file and Vector which will contain the loaded features from this file */
-    //public final String featureListFile = name+".FeaList";
-       
-    /** Example context feature file (TARGETFEATURES in MARY) */
+   /** Example context feature file (TARGETFEATURES in MARY) */
     public final String featuresFile = name+".FeaFile";
     
     /** trickyPhones file if any, this file could have been created durin makeQuestions and makeLabels
@@ -189,7 +186,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
         props2Help.put(mixFiltersFile, "Filter taps of bandpass filters for mixed excitation (optional: used for mixed excitation)"); 
         props2Help.put(numFilters, "Number of filters in bandpass bank, default 5 filters (optional: used for mixed excitation)");
         props2Help.put(orderFilters, "Number of taps in bandpass filters, default 48 taps (optional: used for mixed excitation)");
-        props2Help.put(featuresFile, "File for testing the HMMSynthesiser, example of a file in context features file in MARY format. If the " +
+        props2Help.put(featuresFile, "File for testing the HMMSynthesiser, example of a context features file in MARY format. If the " +
                        "file is not provided or does not exist a file from phonefeatures/ will be used.");
         props2Help.put(trickyPhonesFile, "list of aliases for tricky phones, so HTK-HHEd command can handle them. (This file" +
                       " is created automatically by HMMVoiceMakeData if aliases are necessary, otherwise it will not be created.)");
