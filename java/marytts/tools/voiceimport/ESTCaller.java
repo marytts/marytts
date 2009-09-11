@@ -143,53 +143,6 @@ public class ESTCaller
        
     }
     
-    /**
-     * A general process launcher for the various tasks
-     * 
-     * @param cmdLine the command line to be launched.
-     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
-     * @param the basename of the file currently processed, for error messages.
-     */
-    private void launchProc( String cmdLine, String task, String baseName ) {
-        
-        Process proc = null;
-        BufferedReader procStdout = null;
-        String line = null;
-        // String[] cmd = null; // Java 5.0 compliant code
-        
-        try {
-            /* Java 5.0 compliant code below. */
-            /* Hook the command line to the process builder: */
-            /* cmd = cmdLine.split( " " );
-            pb.command( cmd ); /*
-            /* Launch the process: */
-            /*proc = pb.start(); */
-            
-            /* Java 1.0 equivalent: */
-            proc = Runtime.getRuntime().exec( cmdLine );
-            
-            /* Collect stdout and send it to System.out: */
-            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
-            while( true ) {
-                line = procStdout.readLine();
-                if ( line == null ) break;
-                System.out.println( line );
-            }
-            /* Wait and check the exit value */
-            proc.waitFor();
-            if ( proc.exitValue() != 0 ) {
-                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
-                        + "Command line was: [" + cmdLine + "]." );
-            }
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
-        }
-        catch ( InterruptedException e ) {
-            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
-        }
-        
-    }
     
     /**
      * An equivalent to the make_pm_wave shell script
@@ -214,7 +167,7 @@ public class ESTCaller
             cmdLine = ESTDIR + "/main/ch_wave -scaleN 0.9 -F 16000 "
             + "-o tmp" + baseNameArray[i] + db.getProp(db.WAVEXT) + " "
             + db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT);
-            launchProc( cmdLine, "Pitchmarks ", baseNameArray[i] );
+            General.launchProc( cmdLine, "Pitchmarks ", baseNameArray[i] );
             
             /* Ensure the existence of the target pitchmark directory */
             File dir = new File( pitchmarksDirName );
@@ -227,11 +180,11 @@ public class ESTCaller
             cmdLine = ESTDIR + "/main/pitchmark -min 0.0057 -max 0.012 -def 0.01 -wave_end -lx_lf 140 -lx_lo 111 -lx_hf 80 -lx_ho 51 -med_o 0 -fill -otype est "
             + "-o " + pitchmarksDirName + baseNameArray[i] + pitchmarksExt
             + " tmp" + baseNameArray[i] + db.getProp(db.WAVEXT);
-            launchProc( cmdLine, "Pitchmarks ", baseNameArray[i] );
+            General.launchProc( cmdLine, "Pitchmarks ", baseNameArray[i] );
             
             /* - Cleanup the temporary file: */
             cmdLine = "rm -f tmp" + baseNameArray[i] + db.getProp(db.WAVEXT);
-            launchProc( cmdLine, "Pitchmarks ", baseNameArray[i] );
+            General.launchProc( cmdLine, "Pitchmarks ", baseNameArray[i] );
             
         }
         System.out.println("---- Pitchmarks done." );
@@ -273,7 +226,7 @@ public class ESTCaller
             // System.out.println( cmdLine );
             
             /* Launch the relevant process */
-            launchProc( cmdLine, "LPC ", baseNameArray[i] );
+            General.launchProc( cmdLine, "LPC ", baseNameArray[i] );
         }
         System.out.println("---- LPC coefficients done." );
     }
@@ -317,7 +270,7 @@ public class ESTCaller
              * for the meaning of the command line parameters. */
             
             /* Launch the relevant process */
-            launchProc( cmdLine, "Mel-Cepstrum ", baseNameArray[i] );
+            General.launchProc( cmdLine, "Mel-Cepstrum ", baseNameArray[i] );
         }
         System.out.println("---- Mel-Cepstrum coefficients done." );
     }

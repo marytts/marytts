@@ -32,6 +32,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import marytts.util.MaryUtils;
 
@@ -61,6 +62,9 @@ public class HnmVoiceInstaller extends VoiceImportComponent{
     public final String EXAMPLETEXT = name+".exampleText";
     public final String WAVETIMELINE = name+".waveTimeline";
     public final String BASETIMELINE = name+".basenameTimeline";
+    public final String CREATEZIPFILE = name+".createZipFile";
+    public final String ZIPCOMMAND = name+".zipCommand";
+
 
     public String getName(){
         return name;
@@ -92,6 +96,8 @@ public class HnmVoiceInstaller extends VoiceImportComponent{
             props.put(EXAMPLETEXT, "examples.text");
             props.put(WAVETIMELINE, "timeline_hnm"+maryext);
             props.put(BASETIMELINE, "timeline_basenames"+maryext);
+            props.put(CREATEZIPFILE, "false");
+            props.put(ZIPCOMMAND, "/usr/bin/zip");
 
         }
         return props;
@@ -115,6 +121,9 @@ public class HnmVoiceInstaller extends VoiceImportComponent{
         props2Help.put(EXAMPLETEXT, "file containing example text (for limited domain voices only)");
         props2Help.put(WAVETIMELINE, "file containing all harmonics plus noise features for synthesis");
         props2Help.put(BASETIMELINE, "file containing all basenames");
+        props2Help.put(CREATEZIPFILE, "create zip file for Mary voices installation (used by Mary voices administrator only).");
+        props2Help.put(ZIPCOMMAND, "zip command to create a voice.zip file for voice installation.");
+        
         
     }
 
@@ -207,6 +216,32 @@ public class HnmVoiceInstaller extends VoiceImportComponent{
         					+"-"+db.getProp(db.VOICENAME).toLowerCase()
         					+".config";
         createConfigFile(configFileName, newVoiceDir, locale);
+        
+        /* create a zip file for installation */        
+        if( getProp(CREATEZIPFILE).contentEquals("true") ) {
+          System.out.println("\nCreating voice installation file: ");  
+          String maryBaseForShell = maryBase.replaceAll(" ", Pattern.quote("\\ "));
+          String installZipFile = locale
+                               + "-"+db.getProp(db.VOICENAME).toLowerCase()
+                               + ".zip";
+          configFileName = "conf"+fileSeparator
+                         + locale
+                         + "-"+db.getProp(db.VOICENAME).toLowerCase()
+                         + ".config";
+          
+          
+          String cmdLine = "cd "+ maryBaseForShell + "\n" + getProp(ZIPCOMMAND) + " " 
+                         + installZipFile + " " 
+                         + configFileName + " "
+                         + "lib/voices/" + db.getProp(db.VOICENAME).toLowerCase() + fileSeparator + "*";  
+                          
+          General.launchBatchProc(cmdLine, "zip", filedir);
+          
+          System.out.println();
+          System.out.println("Created voice installation file: " + db.getProp(db.MARYBASE)+locale
+                  + "-"+db.getProp(db.VOICENAME).toLowerCase() + ".zip\n");  
+        }
+                
         System.out.println("... done! ");
         System.out.println("To run the voice, restart your Mary server");
         return true;

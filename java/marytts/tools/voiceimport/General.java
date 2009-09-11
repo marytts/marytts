@@ -31,9 +31,13 @@
  */
 package marytts.tools.voiceimport;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileWriter;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 /**
  * This class is for general purpose functions such as reading and
@@ -470,6 +474,129 @@ public class General
         
         return( ret );
     }
+    
+    
+    
+    /**
+     * A general process launcher for the various tasks
+     * 
+     * @param cmdLine the command line to be launched.
+     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
+     * @param the basename of the file currently processed, for error messages.
+     */
+    public static void launchProc( String cmdLine, String task, String baseName ) {
+        
+        Process proc = null;
+        BufferedReader procStdout = null;
+        String line = null;
+        // String[] cmd = null; // Java 5.0 compliant code
+        
+        try {
+            /* Java 5.0 compliant code below. */
+            /* Hook the command line to the process builder: */
+            /* cmd = cmdLine.split( " " );
+            pb.command( cmd ); /*
+            /* Launch the process: */
+            /*proc = pb.start(); */
+            
+            /* Java 1.0 equivalent: */
+            proc = Runtime.getRuntime().exec( cmdLine );
+            
+            /* Collect stdout and send it to System.out: */
+            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
+            while( true ) {
+                line = procStdout.readLine();
+                if ( line == null ) break;
+                System.out.println( line );
+            }
+            /* Wait and check the exit value */
+            proc.waitFor();
+            if ( proc.exitValue() != 0 ) {
+                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
+                        + "Command line was: [" + cmdLine + "]." );
+            }
+        }
+        catch ( IOException e ) {
+            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
+        }
+        catch ( InterruptedException e ) {
+            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
+        }
+        
+    }
+    
+    /**
+     * A general process launcher for the various tasks but using an intermediate batch file
+     * @param cmdLine the command line to be launched.
+     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
+     * @param the filedir of the file currently processed, for error messages and for creating a 
+     *        temporal batch file.
+     */
+    public static void launchBatchProc( String cmdLine, String task, String filedir ) {
+        
+        Process proc = null;
+        Process proctmp = null;
+        BufferedReader procStdout = null;
+        String line = null;
+        String tmpFile = filedir + "tmp.bat";
+        System.out.println("Running: "+ cmdLine);
+        // String[] cmd = null; // Java 5.0 compliant code
+        
+        try {
+            FileWriter tmp = new FileWriter(tmpFile);
+            tmp.write(cmdLine);
+            tmp.close();
+            
+            /* make it executable... */
+            proctmp = Runtime.getRuntime().exec( "chmod +x "+tmpFile );
+            proctmp.waitFor();
+            if ( proctmp.exitValue() != 0 ) {
+                throw new RuntimeException( task + " computation failed on file [" + filedir + "]!\n"
+                        + "Command line was: [chmod +x " + tmpFile + "]." );
+            }
+            
+            /* Java 5.0 compliant code below. */
+            /* Hook the command line to the process builder: */
+            /* cmd = cmdLine.split( " " );
+            pb.command( cmd ); /*
+            /* Launch the process: */
+            /*proc = pb.start(); */
+            
+            /* Java 1.0 equivalent: */
+            proc = Runtime.getRuntime().exec( tmpFile );
+            
+            /* Collect stdout and send it to System.out: */
+            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
+            while( true ) {
+                line = procStdout.readLine();
+                if ( line == null ) break;
+                System.out.println( line );
+            }
+            /* Wait and check the exit value */
+            proc.waitFor();
+            if ( proc.exitValue() != 0 ) {
+                throw new RuntimeException( task + " computation failed on file [" + filedir + "]!\n"
+                        + "Command line was: [" + cmdLine + "]." );
+            }
+           
+            // Delete tmp.bat if created
+            File batchFile = new File(tmpFile);
+            if(batchFile.exists()){
+                batchFile.delete();
+            }
+            
+            
+        }
+        catch ( IOException e ) {
+            throw new RuntimeException( task + " computation provoked an IOException on file [" + filedir + "].", e );
+        }
+        catch ( InterruptedException e ) {
+            throw new RuntimeException( task + " computation interrupted on file [" + filedir + "].", e );
+        }
+        
+    }    
+
+    
     
 }
 

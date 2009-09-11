@@ -286,7 +286,7 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
        " NITER=" + getProp(NITER) +
        " WFLOOR=" + getProp(WFLOOR);
        
-       launchProc(cmdLine, "Configure", filedir);
+       General.launchProc(cmdLine, "Configure", filedir);
        
         
        } else
@@ -308,58 +308,5 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
     public int getProgress(){
         return -1;
     }
-    
-
-   
-    /**
-     * A general process launcher for the various tasks
-     * (copied from ESTCaller.java)
-     * @param cmdLine the command line to be launched.
-     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
-     * @param the basename of the file currently processed, for error messages.
-     */
-    private void launchProc( String cmdLine, String task, String baseName ) {
-        
-        Process proc = null;
-        BufferedReader procStdout = null;
-        String line = null;
-        System.out.println("Running: "+ cmdLine);
-        // String[] cmd = null; // Java 5.0 compliant code
-        
-        try {
-            /* Java 5.0 compliant code below. */
-            /* Hook the command line to the process builder: */
-            /* cmd = cmdLine.split( " " );
-            pb.command( cmd ); /*
-            /* Launch the process: */
-            /*proc = pb.start(); */
-            
-            /* Java 1.0 equivalent: */
-            proc = Runtime.getRuntime().exec( cmdLine );
-            
-            /* Collect stdout and send it to System.out: */
-            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
-            while( true ) {
-                line = procStdout.readLine();
-                if ( line == null ) break;
-                System.out.println( line );
-            }
-            /* Wait and check the exit value */
-            proc.waitFor();
-            if ( proc.exitValue() != 0 ) {
-                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
-                        + "Command line was: [" + cmdLine + "]." );
-            }
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
-        }
-        catch ( InterruptedException e ) {
-            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
-        }
-        
-    }    
-
-
     
 }

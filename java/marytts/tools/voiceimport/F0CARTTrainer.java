@@ -235,9 +235,9 @@ public class F0CARTTrainer extends VoiceImportComponent
                     toRightFeaturesFile.println(rightF0 + " "+ featureDefinition.toFeatureString(fvMid));
                     nSyllables++;
                     
-                }
+                }                 
                 // Skip the part we just covered:
-                i = last;
+                i = last;               
             }
         }
         toLeftFeaturesFile.close();

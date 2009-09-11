@@ -338,7 +338,7 @@ public class JoinModeller extends VoiceImportComponent
         System.out.println("\n---- Tree-based context clustering for joinModeller\n");
         // here the input file is join_mmf.mry and the output is  join_mmf.mry.clustered    
         cmdLine = getProp(HHEDCOMMAND) + " -A -C " + getProp(TRNCONFFILE) + " -D -T 2 -p -i -H " + getProp(MMFFILE) + " -m -a 1.0 -w " + getProp(MMFFILE)+".clustered"  + " " + getProp(CXCHEDFILE) + " " + getProp(FULLFILE);
-        launchProc(cmdLine, "HHEd", filedir);
+        General.launchProc(cmdLine, "HHEd", filedir);
 
         System.out.println("\n---- Creating conversion-to-hts command file for HHEd\n");
         pw = new PrintWriter(new File(getProp(CNVHEDFILE)));
@@ -358,14 +358,14 @@ public class JoinModeller extends VoiceImportComponent
         System.out.println("\n---- Converting mmfs to the hts_engine file format\n");
         // the input of this command are: join_mmf.mry and join_tree.inf and the output: trees.1 and pdf.1
         cmdLine = getProp(HHEDCOMMAND) + " -A -C " + getProp(CNVCONFFILE) + " -D -T 1 -p -i -H " + getProp(MMFFILE)+".clustered" + " " + getProp(CNVHEDFILE) + " " + getProp(FULLFILE);
-        launchProc(cmdLine, "HHEd", filedir);
+        General.launchProc(cmdLine, "HHEd", filedir);
         
         // the files trees.1 and pdf.1 produced by the previous command are renamed as tree-joinModeller.inf and joinModeller.pdf
         cmdLine = "mv " + filedir + "trees.1 " + filedir + "tree-joinModeller.inf";
-        launchProc(cmdLine, "mv", filedir);
+        General.launchProc(cmdLine, "mv", filedir);
         
         cmdLine = "mv " + filedir + "pdf.1 " + filedir + "joinModeller.pdf";
-        launchProc(cmdLine, "mv", filedir);
+        General.launchProc(cmdLine, "mv", filedir);
         
         System.out.println("\n---- Created files: tree-joinModeller.inf, joinModeller.pdf");
         
@@ -383,54 +383,7 @@ public class JoinModeller extends VoiceImportComponent
     }
 
 
-    /**
-     * A general process launcher for the various tasks
-     * (copied from ESTCaller.java)
-     * @param cmdLine the command line to be launched.
-     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
-     * @param the basename of the file currently processed, for error messages.
-     */
-    private void launchProc( String cmdLine, String task, String baseName ) {
-        
-        Process proc = null;
-        BufferedReader procStdout = null;
-        String line = null;
-        // String[] cmd = null; // Java 5.0 compliant code
-        
-        try {
-            /* Java 5.0 compliant code below. */
-            /* Hook the command line to the process builder: */
-            /* cmd = cmdLine.split( " " );
-            pb.command( cmd ); /*
-            /* Launch the process: */
-            /*proc = pb.start(); */
-            
-            /* Java 1.0 equivalent: */
-            proc = Runtime.getRuntime().exec( cmdLine );
-            
-            /* Collect stdout and send it to System.out: */
-            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
-            while( true ) {
-                line = procStdout.readLine();
-                if ( line == null ) break;
-                System.out.println( line );
-            }
-            /* Wait and check the exit value */
-            proc.waitFor();
-            if ( proc.exitValue() != 0 ) {
-                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
-                        + "Command line was: [" + cmdLine + "]." );
-            }
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
-        }
-        catch ( InterruptedException e ) {
-            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
-        }
-        
-    }
-    
+
     
     /** This function reads a feature list file originally used to train the HMMs, in HMM voices.
      * The file format is simple, one feature after another like in the ../mary/features.txt

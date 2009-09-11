@@ -333,87 +333,12 @@ public class HMMVoiceMakeVoiceAdapt extends VoiceImportComponent{
       
       /* Run: perl scripts/Training.pl scripts/Config.pm (It can take several hours...)*/     
       cmdLine = getProp(PERLCOMMAND) + " scripts/Training.pl scripts/Config.pm";      
-      launchProc(cmdLine, "", filedir);
+      General.launchProc(cmdLine, "", filedir);
         
       return true;
     }
     
   
-    /**
-     * A general process launcher for the various tasks
-     * (copied from ESTCaller.java)
-     * @param cmdLine the command line to be launched.
-     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
-     * @param the basename of the file currently processed, for error messages.
-     */
-    private void launchProc( String cmdLine, String task, String baseName ) {
-        int i;
-        String filedir = db.getProp(db.ROOTDIR);
-        Process proc = null;
-        BufferedReader procStdout = null;
-        String line = null;
-        
-        Date today;
-        String output;
-        SimpleDateFormat formatter;
-        formatter = new SimpleDateFormat("yyyy.MM.dd-H:mm:ss", new Locale("en","US"));
-        today = new Date();
-        output = formatter.format(today);           
-        String logFile = filedir+"log-"+output;
-        
-        System.out.println("\nRunning: "+ cmdLine);
-        System.out.println("\nThe training procedure can take several hours...");
-        System.out.println("Detailed information about the training status can be found in the logfile:\n  " + logFile);
-        System.out.println("\nTraining voice: " + db.getProp(db.VOICENAME));
-        System.out.println("The following is general information about execution of training steps:");
-        // String[] cmd = null; // Java 5.0 compliant code
-        
-        try {
-            FileWriter log = new FileWriter(logFile);
-            int numSteps = 1;
-            /* Java 5.0 compliant code below. */
-            /* Hook the command line to the process builder: */
-            /* cmd = cmdLine.split( " " );
-            pb.command( cmd ); /*
-            /* Launch the process: */
-            /*proc = pb.start(); */
-            
-            /* Java 1.0 equivalent: */
-            proc = Runtime.getRuntime().exec( cmdLine );
-            
-            /* Collect stdout and send it to System.out: */
-            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
-            while( true ) {
-                line = procStdout.readLine();                 
-                if ( line == null ) break;
-                if(line.contains("Start ")){
-                  for( String stepLine : stepsAdapt){
-                    if( line.contains(stepLine) ){
-                      //System.out.println("STEP: " + stepsAdapt.indexOf(stepLine));
-                      numSteps = stepsAdapt.indexOf(stepLine);
-                      break;
-                    }
-                  }  
-                  System.out.println( "\nStep (" + (numSteps+1) + "): " + line );
-                }
-                log.write(line+"\n");
-            }
-            /* Wait and check the exit value */
-            proc.waitFor();
-            if ( proc.exitValue() != 0 ) {
-                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
-                        + "Command line was: [" + cmdLine + "]." );
-            }
-            log.close();
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
-        }
-        catch ( InterruptedException e ) {
-            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
-        }
-        
-    }    
 
     
     /**

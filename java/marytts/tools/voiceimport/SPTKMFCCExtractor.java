@@ -152,7 +152,7 @@ public class SPTKMFCCExtractor extends VoiceImportComponent {
       
        // convert the wav file to raw file with sox
        cmd = sox + " " + inFile + " " +  tmpRawFile;
-       launchProc( cmd, "sox", inFile);
+       General.launchProc( cmd, "sox", inFile);
        
        System.out.println("Extracting MGC coefficients from " + inFile);
        
@@ -163,7 +163,7 @@ public class SPTKMFCCExtractor extends VoiceImportComponent {
                     swab + " +f > " + tmpFile;
        
        System.out.println("cmd=" + cmd);
-       launchBatchProc( cmd, "getSptkMfcc", inFile );
+       General.launchBatchProc( cmd, "getSptkMfcc", inFile );
        
        // Now get the data and add the Mary header
        int numFrames;
@@ -209,94 +209,5 @@ public class SPTKMFCCExtractor extends VoiceImportComponent {
        }
     }
     
-    
-    /**
-     * A general process launcher for the various tasks
-     * (copied from ESTCaller.java)
-     * @param cmdLine the command line to be launched.
-     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
-     * @param the basename of the file currently processed, for error messages.
-     */
-    private void launchProc( String cmdLine, String task, String baseName ) {
-        
-        Process proc = null;
-        BufferedReader procStdout = null;
-        String line = null;
-        try {
-           proc = Runtime.getRuntime().exec( cmdLine );
-            
-            /* Collect stdout and send it to System.out: */
-            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
-            while( true ) {
-                line = procStdout.readLine();
-                if ( line == null ) break;
-                System.out.println( line );
-            }
-            /* Wait and check the exit value */
-            proc.waitFor();
-            if ( proc.exitValue() != 0 ) {
-                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
-                        + "Command line was: [" + cmdLine + "]." );
-            }
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
-        }
-        catch ( InterruptedException e ) {
-            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
-        }
-        
-    }    
-
-    
-    /**
-     * A general process launcher for the various tasks but using an intermediate batch file
-     * (copied from ESTCaller.java)
-     * @param cmdLine the command line to be launched.
-     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
-     * @param the basename of the file currently processed, for error messages.
-     */
-    private void launchBatchProc( String cmdLine, String task, String baseName ) {
-        
-        Process proc = null;
-        Process proctmp = null;
-        BufferedReader procStdout = null;
-        String line = null;
-        String tmpFile = "./tmp.bat";
-       
-        try {
-            FileWriter tmp = new FileWriter(tmpFile);
-            tmp.write(cmdLine);
-            tmp.close();
-            
-            /* make it executable... */
-            proctmp = Runtime.getRuntime().exec( "chmod +x "+tmpFile );
-            proctmp.waitFor();
-            proc = Runtime.getRuntime().exec( tmpFile );
-            
-            /* Collect stdout and send it to System.out: */
-            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
-            while( true ) {
-                line = procStdout.readLine();
-                if ( line == null ) break;
-                System.out.println( line );
-            }
-            /* Wait and check the exit value */
-            proc.waitFor();
-            if ( proc.exitValue() != 0 ) {
-                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
-                        + "Command line was: [" + cmdLine + "]." );
-            }
-                       
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
-        }
-        catch ( InterruptedException e ) {
-            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
-        }
-        
-    }     
-
 }
 
