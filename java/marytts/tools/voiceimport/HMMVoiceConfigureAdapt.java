@@ -344,7 +344,7 @@ public class HMMVoiceConfigureAdapt extends VoiceImportComponent{
              String[] feaFiles = dirAdapt.list();  
              for (int j=0; j<numFiles; j ++){
                cmdLine = "cp phonefeatures/" + spkrDir[i] + "/" + feaFiles[j] + " phonefeatures/gen/";
-               launchProc(cmdLine, "file copy", filedir);
+               General.launchProc(cmdLine, "file copy", filedir);
              }
            }
          }
@@ -356,14 +356,14 @@ public class HMMVoiceConfigureAdapt extends VoiceImportComponent{
        if (!link.exists()){
          System.out.println("\nCreating symbolic link for phonefeatures in data/: ");
          cmdLine = "ln -s " + filedir + "phonefeatures " + filedir + "data/phonefeatures";
-         launchProc(cmdLine, "creating symbolic links", filedir);
+         General.launchProc(cmdLine, "creating symbolic links", filedir);
        } else
          System.out.println("\nSymbolic link data/phonefeatures already exist."); 
        link = new File("data/phonelab");
        if (!link.exists()){
          System.out.println("\nCreating symbolic link for phonelab in data/: ");
          cmdLine = "ln -s " + filedir + "phonelab " + filedir + "data/phonelab";        
-         launchProc(cmdLine, "creating symbolic links", filedir);
+         General.launchProc(cmdLine, "creating symbolic links", filedir);
        } else
           System.out.println("\nSymbolic link data/phonelab already exist.\n");
             
@@ -422,7 +422,7 @@ public class HMMVoiceConfigureAdapt extends VoiceImportComponent{
        " SATLF0OCCTHRESH=" + getProp(SATLF0OCCTHRESH) +
        " PGTYPE=" + getProp(PGTYPE);
      
-       launchBatchProc(cmdLine, "Configure", filedir);
+       General.launchBatchProc(cmdLine, "Configure", filedir);
         
        } else
          System.out.println("Problems with directories phonefeatures or phonelab, they do not exist or they are empty.");  
@@ -448,116 +448,5 @@ public class HMMVoiceConfigureAdapt extends VoiceImportComponent{
         return -1;
     }
     
-    /**
-     * A general process launcher for the various tasks but using an intermediate batch file
-     * (copied from ESTCaller.java)
-     * @param cmdLine the command line to be launched.
-     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
-     * @param the basename of the file currently processed, for error messages.
-     */
-    private void launchBatchProc( String cmdLine, String task, String baseName ) {
-        
-        Process proc = null;
-        Process proctmp = null;
-        BufferedReader procStdout = null;
-        String line = null;
-        String filedir = db.getProp(db.ROOTDIR);
-        String tmpFile = filedir+"tmp-configure.bat";
-        System.out.println("Running: "+ cmdLine);
-        // String[] cmd = null; // Java 5.0 compliant code
-        
-        try {
-            FileWriter tmp = new FileWriter(tmpFile);
-            tmp.write(cmdLine);
-            tmp.close();
-            
-            /* make it executable... */
-            proctmp = Runtime.getRuntime().exec( "chmod +x "+tmpFile );
-            proctmp.waitFor();
-            /* Java 5.0 compliant code below. */
-            /* Hook the command line to the process builder: */
-            /* cmd = cmdLine.split( " " );
-            pb.command( cmd ); /*
-            /* Launch the process: */
-            /*proc = pb.start(); */
-            
-            /* Java 1.0 equivalent: */
-            proc = Runtime.getRuntime().exec( tmpFile );
-            
-            /* Collect stdout and send it to System.out: */
-            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
-            while( true ) {
-                line = procStdout.readLine();
-                if ( line == null ) break;
-                System.out.println( line );
-            }
-            /* Wait and check the exit value */
-            proc.waitFor();
-            if ( proc.exitValue() != 0 ) {
-                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
-                        + "Command line was: [" + cmdLine + "]." );
-            }
-            
-            
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
-        }
-        catch ( InterruptedException e ) {
-            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
-        }
-        
-    }    
-   
-    /**
-     * A general process launcher for the various tasks
-     * (copied from ESTCaller.java)
-     * @param cmdLine the command line to be launched.
-     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
-     * @param the basename of the file currently processed, for error messages.
-     */
-    private void launchProc( String cmdLine, String task, String baseName ) {
-        
-        Process proc = null;
-        BufferedReader procStdout = null;
-        String line = null;
-        System.out.println("Running: "+ cmdLine);
-        // String[] cmd = null; // Java 5.0 compliant code
-        
-        try {
-            /* Java 5.0 compliant code below. */
-            /* Hook the command line to the process builder: */
-            /* cmd = cmdLine.split( " " );
-            pb.command( cmd ); /*
-            /* Launch the process: */
-            /*proc = pb.start(); */
-            
-            /* Java 1.0 equivalent: */
-            proc = Runtime.getRuntime().exec( cmdLine );
-            
-            /* Collect stdout and send it to System.out: */
-            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
-            while( true ) {
-                line = procStdout.readLine();
-                if ( line == null ) break;
-                System.out.println( line );
-            }
-            /* Wait and check the exit value */
-            proc.waitFor();
-            if ( proc.exitValue() != 0 ) {
-                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
-                        + "Command line was: [" + cmdLine + "]." );
-            }
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
-        }
-        catch ( InterruptedException e ) {
-            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
-        }
-        
-    }    
-
-
     
 }

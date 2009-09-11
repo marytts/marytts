@@ -130,9 +130,9 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
            dirWav.mkdir();
          /* set the script as executable */
          cmdLine = "chmod +x " + getProp(RAW2WAVCOMMAND);
-         launchProc(cmdLine, "raw2wav", filedir);
+         General.launchProc(cmdLine, "raw2wav", filedir);
          cmdLine = getProp(RAW2WAVCOMMAND) + " data/raw wav" ;
-         launchProc(cmdLine, "raw2wav", filedir);
+         General.launchProc(cmdLine, "raw2wav", filedir);
        } else {
            if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){ 
             System.out.println("Problem with wav and data/raw directories: wav files and raw files do not exist.");
@@ -145,7 +145,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
                dirWav.mkdir();
              /* set the script as executable */
              cmdLine = "chmod +x " + getProp(RAW2WAVCOMMAND);
-             launchProc(cmdLine, "raw2wav", filedir);
+             General.launchProc(cmdLine, "raw2wav", filedir);
              
              String[] dirRawList = dirRaw.list();
              for (int i=0; (i<dirRawList.length); i++) {
@@ -153,7 +153,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
                File tmp = new File("wav/" + dirRawList[i]);
                tmp.mkdir();
                cmdLine = getProp(RAW2WAVCOMMAND) + " data/raw/" + dirRawList[i] + " wav/" + dirRawList[i];
-               launchProc(cmdLine, "raw2wav", filedir);
+               General.launchProc(cmdLine, "raw2wav", filedir);
              }             
            } else {
                if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){ 
@@ -171,9 +171,9 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
            dirRaw.mkdir();
          /* set the script as executable */
          cmdLine = "chmod +x " + getProp(WAV2RAWCOMMAND);
-         launchProc(cmdLine, "wav2raw", filedir);
+         General.launchProc(cmdLine, "wav2raw", filedir);
          cmdLine = getProp(WAV2RAWCOMMAND) + " wav data/raw" ;
-         launchProc(cmdLine, "wav2raw", filedir);
+         General.launchProc(cmdLine, "wav2raw", filedir);
        } else {
            if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){
              System.out.println("Problem with wav and data/raw directories: wav files and raw files do not exist.");
@@ -186,7 +186,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
                dirRaw.mkdir();
              /* set the script as executable */
              cmdLine = "chmod +x " + getProp(WAV2RAWCOMMAND);
-             launchProc(cmdLine, "wav2raw", filedir);
+             General.launchProc(cmdLine, "wav2raw", filedir);
                         
              String[] dirWavList = dirWav.list();
              for (int i=0; (i<dirWavList.length); i++) {
@@ -194,7 +194,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
              File tmp = new File("data/raw/" + dirWavList[i]);
              tmp.mkdir();
              cmdLine = getProp(WAV2RAWCOMMAND) + " wav/" + dirWavList[i] + " data/raw/" + dirWavList[i];
-             launchProc(cmdLine, "raw2wav", filedir);
+             General.launchProc(cmdLine, "raw2wav", filedir);
            }
          } else {
              if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){
@@ -211,9 +211,9 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
            dirText.mkdir();
          /* set the script as executable */
          cmdLine = "chmod +x " + getProp(UTT2TRANSCOMMAND);
-         launchProc(cmdLine, "utt2trans", filedir);
+         General.launchProc(cmdLine, "utt2trans", filedir);
          cmdLine = getProp(UTT2TRANSCOMMAND) + " data/utts text" ;
-         launchProc(cmdLine, "utt2trans", filedir);      
+         General.launchProc(cmdLine, "utt2trans", filedir);      
        } else {
            if( (!dirText.exists() || dirText.list().length == 0) && ( !dirUtt.exists() || dirUtt.list().length == 0 ) ){
              System.out.println("Problem with transcription directories text or data/utts (Festival format): utts files and text files do not exist.");
@@ -228,7 +228,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
                  dirText.mkdir();
                /* set the script as executable */
                cmdLine = "chmod +x " + getProp(UTT2TRANSCOMMAND);
-               launchProc(cmdLine, "utt2trans", filedir);
+               General.launchProc(cmdLine, "utt2trans", filedir);
                
                String[] dirUttList = dirUtt.list();
                for (int i=0; (i<dirUttList.length); i++) {
@@ -236,7 +236,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
                  File tmp = new File("text/" + dirUttList[i]);
                  tmp.mkdir();
                  cmdLine = getProp(UTT2TRANSCOMMAND) + " data/utts/" + dirUttList[i] + " text/" + dirUttList[i];
-                 launchProc(cmdLine, "utt2trans", filedir);
+                 General.launchProc(cmdLine, "utt2trans", filedir);
                }
            } else {
                if( (!dirText.exists() || dirText.list().length == 0) && ( !dirUtt.exists() || dirUtt.list().length == 0 ) ){
@@ -262,58 +262,6 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
         return -1;
     }
     
-
-   
-    /**
-     * A general process launcher for the various tasks
-     * (copied from ESTCaller.java)
-     * @param cmdLine the command line to be launched.
-     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
-     * @param the basename of the file currently processed, for error messages.
-     */
-    private void launchProc( String cmdLine, String task, String baseName ) {
-        
-        Process proc = null;
-        BufferedReader procStdout = null;
-        String line = null;
-        System.out.println("Running: "+ cmdLine);
-        // String[] cmd = null; // Java 5.0 compliant code
-        
-        try {
-            /* Java 5.0 compliant code below. */
-            /* Hook the command line to the process builder: */
-            /* cmd = cmdLine.split( " " );
-            pb.command( cmd ); /*
-            /* Launch the process: */
-            /*proc = pb.start(); */
-            
-            /* Java 1.0 equivalent: */
-            proc = Runtime.getRuntime().exec( cmdLine );
-            
-            /* Collect stdout and send it to System.out: */
-            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
-            while( true ) {
-                line = procStdout.readLine();
-                if ( line == null ) break;
-                System.out.println( line );
-            }
-            /* Wait and check the exit value */
-            proc.waitFor();
-            if ( proc.exitValue() != 0 ) {
-                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
-                        + "Command line was: [" + cmdLine + "]." );
-            }
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
-        }
-        catch ( InterruptedException e ) {
-            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
-        }
-        
-    }    
-
-
     
 }
 

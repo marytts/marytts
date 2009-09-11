@@ -330,7 +330,8 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
             return false;
         }
         
-
+        /* create the config file */
+        System.out.println("Creating config file ... ");
         // Normalise locale: (e.g., if user set en-US, change it to en_US)
         String locale = MaryUtils.string2locale(db.getProp(db.LOCALE)).toString();
         
@@ -341,13 +342,10 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
         					+".config";
         System.out.println("\nCreating config file: " + configFileName);
         createConfigFile(configFileName, locale);
-        System.out.println("... done! ");        
-        System.out.println("To run the voice, restart your Mary server");
         
-        /* create a zip file for installation */
+        /* create a zip file for installation */        
         if( getProp(createZipFile).contentEquals("true") ) {
-          System.out.println("\nCreating voice installation file: " + db.getProp(db.MARYBASE)+locale 
-                               + "-"+db.getProp(db.VOICENAME).toLowerCase() + ".zip\n");  
+          System.out.println("\nCreating voice installation file: ");             
           String maryBaseForShell = maryBase.replaceAll(" ", Pattern.quote("\\ "));
           String installZipFile = locale
                                + "-"+db.getProp(db.VOICENAME).toLowerCase()
@@ -360,11 +358,15 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
                          + installZipFile + " " 
                          + configFileName + " "
                          + "lib/voices/" + db.getProp(db.VOICENAME).toLowerCase() + fileSeparator + "*";  
-          System.out.println("CommandLine:" + cmdLine);
-          launchBatchProc(cmdLine, "zip", filedir);
+          
+          General.launchBatchProc(cmdLine, "zip", filedir);
           System.out.println();
+          System.out.println("Created voice installation file: " + db.getProp(db.MARYBASE)+locale 
+                  + "-"+db.getProp(db.VOICENAME).toLowerCase() + ".zip\n");
         }
         
+        System.out.println("... done! ");
+        System.out.println("To run the voice, restart your Mary server");
         return true;
         }
  
@@ -588,67 +590,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
         
     }
     
-    /**
-     * A general process launcher for the various tasks but using an intermediate batch file
-     * (copied from ESTCaller.java)
-     * @param cmdLine the command line to be launched.
-     * @param task a task tag for error messages, such as "Pitchmarks" or "LPC".
-     * @param the basename of the file currently processed, for error messages.
-     */
-    private void launchBatchProc( String cmdLine, String task, String baseName ) {
-        
-        Process proc = null;
-        Process proctmp = null;
-        BufferedReader procStdout = null;
-        String line = null;
-        String filedir = db.getProp(db.ROOTDIR);
-        String tmpFile = filedir+"tmp.bat";
-
-        // String[] cmd = null; // Java 5.0 compliant code
-        
-        try {
-            FileWriter tmp = new FileWriter(tmpFile);
-            tmp.write(cmdLine);
-            tmp.close();
-            
-            /* make it executable... */
-            proctmp = Runtime.getRuntime().exec( "chmod +x "+tmpFile );
-            
-            /* Java 5.0 compliant code below. */
-            /* Hook the command line to the process builder: */
-            /* cmd = cmdLine.split( " " );
-            pb.command( cmd ); /*
-            /* Launch the process: */
-            /*proc = pb.start(); */
-            
-            /* Java 1.0 equivalent: */
-            proc = Runtime.getRuntime().exec( tmpFile );
-            
-            /* Collect stdout and send it to System.out: */
-            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
-            while( true ) {
-                line = procStdout.readLine();
-                if ( line == null ) break;
-                System.out.println( line );
-            }
-            /* Wait and check the exit value */
-            proc.waitFor();
-            if ( proc.exitValue() != 0 ) {
-                throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
-                        + "Command line was: [" + cmdLine + "]." );
-            }
-            
-            
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( task + " computation provoked an IOException on file [" + baseName + "].", e );
-        }
-        catch ( InterruptedException e ) {
-            throw new RuntimeException( task + " computation interrupted on file [" + baseName + "].", e );
-        }
-        
-    }    
-    
+ 
     /**
      * Provide the progress of computation, in percent, or -1 if
      * that feature is not implemented.
