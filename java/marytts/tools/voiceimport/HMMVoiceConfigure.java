@@ -71,8 +71,6 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
     public final String SPTKPATH      = name+".sptkPath";
     public final String TCLPATH       = name+".tclPath";
     public final String SOXPATH       = name+".soxPath";
-    //public final String FEATURELIST   = name+".featureList";
-    //public final String VOICELANG     = name+".voiceLang";
     public final String SPEAKER       = name+".speaker";
     public final String DATASET       = name+".dataSet";
     public final String LOWERF0       = name+".lowerF0";
