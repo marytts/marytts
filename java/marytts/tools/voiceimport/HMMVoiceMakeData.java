@@ -77,9 +77,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     
     private DatabaseLayout db;
     private String name = "HMMVoiceMakeData";
-    private boolean phonefeaturesExist=true;
-    
-    
+  
     /** Tree files and TreeSet object */
     public final String MGC           = name+".makeMGC";
     public final String LF0           = name+".makeLF0";
@@ -92,10 +90,10 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     public final String LIST          = name+".makeLIST";
     public final String SCP           = name+".makeSCP";
     public final String questionsFile    = name+".questionsFile";
-    public String contextFile            = name+".contextFile";
     public String allophonesFile         = name+".allophonesFile";
     public final String featureListFile  = name+".featureListFile";
     public final String trickyPhonesFile = name+".trickyPhonesFile";
+    public final String ADAPTSCRIPTS     = name+".adaptScripts";
     
     
     public String getName(){
@@ -123,18 +121,11 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
            props.put(LIST, "1");
            props.put(SCP, "1");
            props.put(questionsFile, "data/questions/questions_qst001.hed");
-           // select a featureListFile from phonefeatures, it will be used to get the feature definition
-           File dirFea = new File(db.getProp(db.PHONEFEATUREDIR));
-           String[] dirFeaList;
-           if(dirFea.exists() && (dirFeaList = dirFea.list()).length > 0){               
-               props.put(contextFile, db.getProp(db.PHONEFEATUREDIR) + dirFeaList[0]);
-           } else {
-               props.put(contextFile,"");
-               phonefeaturesExist = false;
-          }
+           
            props.put(allophonesFile, db.getProp(db.ALLOPHONESET));
            props.put(featureListFile, "mary/hmmFeatures.txt");
            props.put(trickyPhonesFile, "mary/trickyPhones.txt");
+           props.put(ADAPTSCRIPTS, "false");
        }
        return props;
        }
@@ -153,13 +144,13 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         props2Help.put(LIST, "Generating a fullcontext model list occurred in the training data.");
         props2Help.put(SCP, "Generating a trainig data script.");
         props2Help.put(questionsFile, "Name of the file that will contain the questions (This file will be created).");
-        props2Help.put(contextFile, "An example of context feature file used for training, this file will be used to extract" +
-                " the FeatureDefinition. It will be taken from the phonefeatures directory.");
         props2Help.put(allophonesFile, "allophones set file (XML format) it will be taken from ../openmary/lib/modules/language/...)");
         props2Help.put(featureListFile, "A file that contains additional context features used for training HMMs, normally it" +
         " should be a subset of mary/features.txt. This file is automatically created by the HMMVoiceFeatureSelection component.");
         props2Help.put(trickyPhonesFile, "list of aliases for tricky phones, so the HTK-HHEd command can handle them. (This file" +
                 " will be created automatically if aliases are necessary.)");
+        props2Help.put(ADAPTSCRIPTS, "ADAPTSCRIPTS=false: speaker dependent scripts, ADAPTSCRIPTS=true: " +
+                " speaker adaptation/adaptive scripts.  ");
 
     }
 
@@ -172,15 +163,10 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
      */
     public boolean compute() throws Exception{
     
-      if(!phonefeaturesExist) {
-          // trow exception if there is no phonefeature files
-          // at this point it should be a phonefeatures directory with *.pfeats files
-          throw new IOException("HMMVoiceMakeData: can't continue without phonefeature files, check phonefeatures directory, it seems empty!");
-      }
          
       String cmdLine;
       String voiceDir = db.getProp(db.ROOTDIR);
-        
+     
       if( Integer.parseInt(getProp(MGC)) == 1 ){
         cmdLine = "cd " + voiceDir + "data\nmake mgc\n";
         General.launchBatchProc(cmdLine, "", voiceDir);
@@ -211,7 +197,10 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
       if( Integer.parseInt(getProp(LABELMARY)) == 1 ){
           //uses:  contextFile (example)
           //       featureListFile
-          makeLabels(voiceDir);   
+          if(getProp(ADAPTSCRIPTS).contentEquals("false"))
+            makeLabels(voiceDir);
+          else
+            makeLabelsAdapt(voiceDir);  
       }
       if( Integer.parseInt(getProp(QUESTIONSMARY)) == 1 ){
           // uses: questionsFile
@@ -329,17 +318,44 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         
         System.out.println("Generating questions file: " + voiceDir + getProp(questionsFile));
                 
-        // Get feature definition, whatever context feature file used for training can be passed here.       
-        Scanner context = new Scanner(new BufferedReader(new FileReader(getProp(contextFile))));
-        String strContext="";
-        System.out.println("FeatureDefinition extracted from context file example: " + getProp(contextFile));
-        while (context.hasNext()) {
-          strContext += context.nextLine(); 
-          strContext += "\n";
-        }
-        context.close();
-        FeatureDefinition feaDef = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false);
-       
+        // Get feature definition, whatever context feature file used for training can be used here. 
+        // select a featureListFile from phonefeatures, it will be used to get the feature definition
+        
+        FeatureDefinition feaDef;
+        String[] dirFeaList;
+        String feaExample;
+        File dirFea = new File(db.getProp(db.PHONEFEATUREDIR));
+        if(dirFea.exists() && (dirFeaList = dirFea.list()).length > 0){
+            if(getProp(ADAPTSCRIPTS).contentEquals("false")){
+              feaExample = db.getProp(db.PHONEFEATUREDIR) + "/" + dirFeaList[0];
+              System.out.println("phonefeatures file example for getting featureDefition = " + feaExample);
+            } else {
+              File dirFeaSpeaker = new File(db.getProp(db.PHONEFEATUREDIR) + "/" + dirFeaList[0]);
+              if(dirFeaSpeaker.exists() && (dirFeaList = dirFeaSpeaker.list()).length > 0){
+                feaExample = db.getProp(db.PHONEFEATUREDIR) + "/" + dirFeaList[0];
+                System.out.println("phonefeatures file example for getting featureDefition = " + feaExample);  
+              } else {
+                  throw new IOException("HMMVoiceMakeData: problem getting phonefeatures file example for extracting featureDefition," +
+                  " check phonefeatures directory, it seems empty!"); 
+              }
+            }
+            Scanner context = new Scanner(new BufferedReader(new FileReader(feaExample)));
+            String strContext="";
+            System.out.println("FeatureDefinition extracted from context file example: " + feaExample);
+            while (context.hasNext()) {
+              strContext += context.nextLine(); 
+              strContext += "\n";
+            }
+            context.close();
+            feaDef = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false); 
+        } else {
+           // trow exception if there is no phonefeature files
+           // at this point it should be a phonefeatures directory with *.pfeats files
+           throw new IOException("HMMVoiceMakeData: problem getting phonefeatures file example for extracting featureDefition," +
+                                  " check phonefeatures directory, it seems empty!");           
+       }     
+        
+        
         // list of additional context features used for training
         // The features indicated in: data/feature_list.pl (The modes indicated in this list are not used)
         // Since the features are provided by the user, it should be checked that the feature exist
@@ -584,7 +600,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         if(dirFea.exists() && dirFea.list().length > 0 && dirLab.exists() && dirLab.list().length > 0 ){ 
           feaFiles = dirFea.list();
         } else {            
-            throw new Exception("Error: directories " + voiceDir + "phonefeatures and/or " + voiceDir + "phonelab do not contain files." );  
+            throw new Exception("Error: directories " + voiceDir + "/phonefeatures and/or " + voiceDir + "/phonelab do not contain files." );  
         }
         
         // Check if there are tricky phones
@@ -629,7 +645,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         // Process all the files in phonefeatures and phonelab and create the directories:
         // data/labels/full
         // data/labels/mono
-        // data/labels/gen  (contain some examples from full, here we copy 10 examples)
+        // data/labels/gen  (contains some examples from full, here we copy 10 examples)
         // Create also the HTK master label files: full.mlf and mono.mlf
         File labelsDir = new File(voiceDir + "/data/labels");
         if(!labelsDir.exists())  
@@ -689,11 +705,187 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         }
         
     }
-    
+
     
     /***
      * Java version of the make labels script (data/scripts/make_labels.pl)
      * uses: 
+     * @throws Exception
+     */
+    private void makeLabelsAdapt(String voiceDir) throws Exception {
+        
+        System.out.println("\n Making labels:");
+        String hmmFeatureListFile = voiceDir + getProp(featureListFile);
+        
+        // Check if there are tricky phones
+        PhoneTranslator phTranslator;  
+        if( checkTrickyPhones(getProp(allophonesFile), voiceDir+getProp(trickyPhonesFile)) )        
+           phTranslator = new PhoneTranslator(voiceDir + getProp(trickyPhonesFile));
+        else
+           phTranslator = new PhoneTranslator(""); 
+        
+        // Get the speakers directories
+        File dirSpeakersFea = new File(voiceDir + "/phonefeatures");
+        File dirSpeakersLab = new File(voiceDir + "/phonelab");
+        
+        String[] speakers;
+        if(dirSpeakersFea.exists() && dirSpeakersFea.list().length > 0 && dirSpeakersLab.exists() && dirSpeakersLab.list().length > 0 ){ 
+            speakers = dirSpeakersFea.list();
+        } else {            
+            throw new Exception("Error: directories " + voiceDir + "phonefeatures and/or " + voiceDir + "phonelab do not contain files." );  
+        }
+        
+        // Get feature definition, whatever context feature file used for training can be passed here.
+        // here we take the first in the first speaker feaFiles list.
+        File dirFeaSpeaker = new File(voiceDir + "/phonefeatures/" + speakers[0]);
+        String[] feaFilesSpeaker;
+        if(dirFeaSpeaker.exists() && dirFeaSpeaker.list().length > 0){ 
+            feaFilesSpeaker = dirFeaSpeaker.list();
+        } else {            
+            throw new Exception("Error: directory " + voiceDir + "/phonefeatures/" + speakers[0] + " does not contain files." );  
+        }
+        
+        Scanner context = new Scanner(new BufferedReader(new FileReader(voiceDir + "/phonefeatures/" + feaFilesSpeaker[0])));
+        String strContext="";
+        System.out.println("FeatureDefinition extracted from context file: " + voiceDir + "/phonefeatures/" + feaFilesSpeaker[0]);
+        while (context.hasNext()) {
+          strContext += context.nextLine(); 
+          strContext += "\n";
+        }
+        context.close();
+        FeatureDefinition feaDef = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false);
+        
+        // list of context features used for creating HTS context features --> features used for training HMMs
+        // Since the features are provided by the user, it should be checked that the features exist
+        Set <String> hmmFeatureList = new HashSet<String>();        
+        Scanner feaList = new Scanner(new BufferedReader(new FileReader(hmmFeatureListFile)));
+        String fea;
+        System.out.println("The following are other context features used for training Hmms: ");
+        while (feaList.hasNext()) {
+          fea = feaList.nextLine();
+          // Check if the feature exist
+          if( feaDef.hasFeature(fea)){
+            hmmFeatureList.add(fea);
+            System.out.println("  " + fea);
+          }
+          else
+            throw new Exception("Error: feature \"" + fea + "\" in feature list file: " + hmmFeatureListFile + " does not exist in FeatureDefinition.");
+        }
+        feaList.close();
+        System.out.println("The previous context features were extracted from file: " + hmmFeatureListFile);
+        
+        
+        // With feature definition and HMM feature list, process now all the speakers directories
+        // Process all the files in phonefeatures and phonelab for all the speakers and create the directories:
+        // data/labels/full
+        // data/labels/mono
+        // data/labels/gen  (contains some examples from full, here we copy 10 examples)
+        // Create also the HTK master label files: full.mlf and mono.mlf
+        File labelsDir = new File(voiceDir + "/data/labels");
+        if(!labelsDir.exists())  
+            labelsDir.mkdir();
+        File monoDir = new File(voiceDir + "/data/labels/mono");
+        if(!monoDir.exists()){
+            System.out.println("\nCreating a /data/labels/mono directory");  
+            monoDir.mkdir();
+        }        
+        File fullDir = new File(voiceDir + "/data/labels/full");
+        if(!fullDir.exists()){
+            System.out.println("\nCreating a /data/labels/full directory");  
+            fullDir.mkdir();
+        }      
+        // CHECK: Not sure if gen directory should contain voices subdirectories or is just one for all???
+        File genDir = new File(voiceDir + "/data/labels/gen");
+        if(!genDir.exists()){
+          System.out.println("\nCreating a /data/labels/gen directory, copying some HTS-HTK full context examples for testing");  
+          genDir.mkdir();
+        }
+        
+        // Create Master label files:
+        FileWriter fullMlf = new FileWriter(voiceDir + "/data/labels/full.mlf");        
+        fullMlf.write("#!MLF!#\n");        
+        FileWriter monoMlf = new FileWriter(voiceDir + "/data/labels/mono.mlf");
+        monoMlf.write("#!MLF!#\n");
+        
+        // Process each speaker
+        for(int j=0; j<speakers.length; j++) {
+                
+          File dirFea = new File(voiceDir + "/phonefeatures/" + speakers[j]);
+          File dirLab = new File(voiceDir + "/phonelab/" + speakers[j]);        
+        
+          if(dirFea.exists() && dirFea.list().length > 0 && dirLab.exists() && dirLab.list().length > 0 ){ 
+              feaFilesSpeaker = dirFea.list();
+          } else {            
+            throw new Exception("Error: directories " + voiceDir + "/phonefeatures/" + speakers[j] + 
+                    " and/or " + voiceDir + "/phonelab/" + speakers[j] + " do not contain files." );  
+          }
+        
+          // Create directories in full, mono and gen for each seaker
+          File monoDirSpeaker = new File(voiceDir + "/data/labels/mono/" + speakers[j]);
+          if(!monoDirSpeaker.exists()){
+            System.out.println("\nCreating a /data/labels/mono/" + speakers[j] + " directory");  
+            monoDirSpeaker.mkdir();
+          }        
+          File fullDirSpeaker = new File(voiceDir + "/data/labels/full/" + speakers[j]);
+          if(!fullDirSpeaker.exists()){
+            System.out.println("\nCreating a /data/labels/full/" + speakers[j] + " directory");  
+            fullDirSpeaker.mkdir();
+          }        
+          File genDirSpeaker = new File(voiceDir + "/data/labels/gen/" + speakers[j]);
+          if(!genDirSpeaker.exists()){
+            System.out.println("\nCreating a /data/labels/gen" + speakers[j] + " directory, copying some HTS-HTK full context examples for testing");  
+            genDirSpeaker.mkdir();
+          }
+        
+          // Process all the files in phonefeatures and phonelab and create HTS-HTK full context feature files and label files.
+          String basename;
+          for (int i=0; (i<feaFilesSpeaker.length); i++) {
+            basename = StringUtils.getFileName(feaFilesSpeaker[i]);      
+            System.out.println("Extracting monophone and context features (" + (i+1) + "): " + feaFilesSpeaker[i] + " and " + basename + ".lab");
+            extractMonophoneAndFullContextLabels( 
+                  voiceDir + "/phonefeatures/" + speakers[j] + "/" + feaFilesSpeaker[i], 
+                  voiceDir + "/phonelab/" + speakers[j] + "/" + basename + ".lab",
+                  voiceDir + "/data/labels/full/" + speakers[j] + "/" + basename + ".lab",
+                  voiceDir + "/data/labels/mono/" + speakers[j] + "/" + basename + ".lab",
+                  feaDef,
+                  phTranslator,
+                  hmmFeatureList);          
+          }
+          System.out.println("Processed " + feaFilesSpeaker.length + " files.");     
+          System.out.println("Created directories: \n  " + voiceDir + "data/labels/full/" + speakers[j] + "\n  " 
+                                                       + voiceDir + "data/labels/mono/" + speakers[j]);
+
+          // Add speaker directory to Master label files:          
+          fullMlf.write("\"*/*.lab\" -> \"" + voiceDir + "data/labels/full/" + speakers[j] + "\"\n");        
+          monoMlf.write("\"*/*.lab\" -> \"" + voiceDir + "data/labels/mono/" + speakers[j] + "\"\n");
+        
+          // Copy 10 files in gen directory to test with htsengine
+          // CHECK: Not sure if gen directory should contain voices subdirectories or is just one for all???
+          System.out.println("Copying 10 context feature files in gen directory for testing with the HTS htsengine.");
+          String cmdLine;
+          for (int i=0; i<10; i++) {
+            basename = StringUtils.getFileName(feaFilesSpeaker[i]);
+            FileUtils.copy(voiceDir + "data/labels/full/" + speakers[j] + "/" + basename + ".lab" , 
+                           voiceDir + "data/labels/gen/"  + speakers[j] + "/" + "gen_" + basename + ".lab");
+          }
+        }
+        
+        fullMlf.close();
+        monoMlf.close();
+        System.out.println("Created Master Label Files: \n  " + voiceDir + "data/labels/full.mlf" 
+                                                     + "\n  " + voiceDir + "data/labels/mono.mlf");        
+    }
+
+
+    
+    /** Java version of the make labels script (data/scripts/make_labels.pl)
+     * @param feaFileName MARY phonefeatures file name
+     * @param labFileName label file name
+     * @param outFeaFileName output context features file name in HTS format
+     * @param outLabFileName output label file name in HTK format
+     * @param feaDef MARY feature definition
+     * @param phTranslator phone translator object, including tricky phones if any (file mary/trickyphones.txt).
+     * @param hmmFeatureList extra features to train HMMs (file mary/hmmFeatures.txt)
      * @throws Exception
      */
     private void extractMonophoneAndFullContextLabels(String feaFileName, String labFileName, 
