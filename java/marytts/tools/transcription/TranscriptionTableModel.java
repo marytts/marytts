@@ -57,7 +57,8 @@ public class TranscriptionTableModel extends AbstractTableModel {
                                     "Word",
                                     "Transcription",
                                     "Functional"};
-    private Object[][] data; 
+    private Object[][] data;
+    private Object[][] lastSavedData; // Data at the time of loading
     private boolean[] hasManualVerification; 
     private boolean[] hasCorrectSyntax;
     private int editableColumns = 2;
@@ -74,6 +75,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
             setAsManualVerify(i, false);
             setAsCorrectSyntax(i, true);
         }
+        lastSavedData = storeLastSavedData();
     }
 
     public Object getDataAt(int x, int y) {
@@ -96,6 +98,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
             setAsManualVerify(i, false);
             setAsCorrectSyntax(i, true);
         }
+        lastSavedData = storeLastSavedData();
     }
     
     
@@ -140,6 +143,10 @@ public class TranscriptionTableModel extends AbstractTableModel {
         }
         out.flush();
         out.close();
+        
+        // Saved the data - so, stored data have to modify 
+        lastSavedData = storeLastSavedData();
+        
     }
     
     /**
@@ -193,6 +200,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
                 }
             }
        }
+       lastSavedData = storeLastSavedData(); 
     }
     
     /**
@@ -216,7 +224,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
             setAsCorrectSyntax(i, true);
                        
         }
-        
+        lastSavedData = storeLastSavedData();
     }
     
 
@@ -234,8 +242,8 @@ public class TranscriptionTableModel extends AbstractTableModel {
             data[i][3] = Boolean.FALSE;
             setAsManualVerify(i, false);
             setAsCorrectSyntax(i, true);
-                       
         }
+        lastSavedData = storeLastSavedData();
     }
     
     /**
@@ -258,6 +266,10 @@ public class TranscriptionTableModel extends AbstractTableModel {
         }
         out.flush();
         out.close();
+        
+        // Saved the data - so, stored data have to modify 
+        lastSavedData = storeLastSavedData();
+        
     }
     
     /**
@@ -279,6 +291,10 @@ public class TranscriptionTableModel extends AbstractTableModel {
         }
         out.flush();
         out.close();
+        
+        // Saved the data - so, stored data have to modify 
+        lastSavedData = storeLastSavedData();
+
     }
     
     /**
@@ -297,6 +313,9 @@ public class TranscriptionTableModel extends AbstractTableModel {
         out.flush();
         out.close();
         
+        // Saved the data - so, stored data have to modify 
+        lastSavedData = storeLastSavedData();
+
     }
     
     public boolean hasFunctionalData(){
@@ -460,5 +479,31 @@ public class TranscriptionTableModel extends AbstractTableModel {
         fireTableCellUpdated(row, col);
     }
 
+    public boolean isDataModified(){
+        for ( int i=0; i < data.length; i++ ) {
+            for ( int j=0; j < data[0].length; j++ ) {
+                Object k1 = data[i][j];
+                Object k2 = lastSavedData[i][j];
+                if(!data[i][j].equals(lastSavedData[i][j])){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Store last saved data
+     * @return
+     */
+    private Object[][] storeLastSavedData(){
+        Object[][] newData = new Object[data.length][data[0].length];
+        for ( int i=0; i < data.length; i++ ) {
+            for ( int j=0; j < data[0].length; j++ ) {
+                newData[i][j] = data[i][j]; 
+            }
+        }
+        return newData;
+    }
 
 }
