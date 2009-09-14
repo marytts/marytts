@@ -31,6 +31,7 @@ import java.io.StringReader;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.sql.SQLException;
 import java.util.Locale;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
@@ -54,6 +55,7 @@ import marytts.modules.ModuleRegistry;
 import marytts.modules.Synthesis;
 import marytts.modules.synthesis.Voice;
 import marytts.server.http.MaryHttpServer;
+import marytts.util.MaryCache;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.io.FileUtils;
@@ -249,6 +251,13 @@ public class Mary {
 
         // Essential environment checks:
         EnvironmentChecks.check();
+        
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                shutdown();
+            }
+        });
+
 
         setupFeatureProcessors();
         
@@ -272,6 +281,15 @@ public class Mary {
         for (MaryModule m : ModuleRegistry.getAllModules()) {
             if (m.getState() == MaryModule.MODULE_RUNNING)
                 m.shutdown();
+        }
+        
+        MaryCache cache = MaryCache.getCache();
+        if (cache != null) {
+            try {
+                cache.shutdown();
+            } catch (SQLException e) {
+                logger.warn("Cannot shutdown cache: ", e);
+            }
         }
         logger.info("Shutdown complete.");
         currentState = STATE_OFF;
@@ -369,11 +387,6 @@ public class Mary {
         else if (server.equals("http")) System.err.print("HTTP server...");
         else System.err.print("command-line application...");
         startup();
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                shutdown();
-            }
-        });
         System.err.println(" started in " + (System.currentTimeMillis()-startTime)/1000. + " s");
         
         if (server.equals("socket")) //socket server mode

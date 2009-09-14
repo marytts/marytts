@@ -52,21 +52,21 @@ public class SequenceAudioInputStream
 	extends		AudioInputStream
 {
 
-	protected List			m_audioInputStreamList;
+	protected List<AudioInputStream>			m_audioInputStreamList;
 	protected int			m_nCurrentStream;
 
 
 
-	public SequenceAudioInputStream(AudioFormat audioFormat, Collection audioInputStreams)
+	public SequenceAudioInputStream(AudioFormat audioFormat, Collection<AudioInputStream> audioInputStreams)
 	{
 		super(new ByteArrayInputStream(new byte[0]), audioFormat, AudioSystem.NOT_SPECIFIED);
-		m_audioInputStreamList = new ArrayList(audioInputStreams);
+		m_audioInputStreamList = new ArrayList<AudioInputStream>(audioInputStreams);
 		m_nCurrentStream = 0;
         // correct frameLength if possible:
-        Iterator streamIterator = m_audioInputStreamList.iterator();
+        Iterator<AudioInputStream> streamIterator = m_audioInputStreamList.iterator();
         frameLength = 0;
         while (streamIterator.hasNext()) {
-            AudioInputStream stream = (AudioInputStream) streamIterator.next();
+            AudioInputStream stream = streamIterator.next();
             long lLength = stream.getFrameLength();
             if (lLength == AudioSystem.NOT_SPECIFIED) {
                 frameLength = AudioSystem.NOT_SPECIFIED;
@@ -81,7 +81,7 @@ public class SequenceAudioInputStream
 
 	private AudioInputStream getCurrentStream()
 	{
-		return (AudioInputStream) m_audioInputStreamList.get(m_nCurrentStream);
+		return m_audioInputStreamList.get(m_nCurrentStream);
 	}
 
 

@@ -19,12 +19,15 @@
  */
 package marytts.server;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.StringWriter;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,6 +41,8 @@ import java.util.TimerTask;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 
@@ -49,6 +54,7 @@ import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.synthesis.Voice;
 import marytts.server.http.MaryHttpServerUtils;
+import marytts.util.MaryCache;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.dom.DomUtils;
@@ -130,7 +136,7 @@ public class Request {
         if (outputType == MaryDataType.get("AUDIO")) {
             if (audioFileFormat == null)
                 throw new NullPointerException("audio file format is needed for output type AUDIO");
-            this.appendableAudioStream = new AppendableSequenceAudioInputStream(audioFileFormat.getFormat(), new ArrayList<AudioInputStream>());
+            this.appendableAudioStream = new AppendableSequenceAudioInputStream(audioFileFormat.getFormat(), null);
         } else {
             this.appendableAudioStream = null;
         }
@@ -280,7 +286,7 @@ public class Request {
         if (inputType.isTextType() && inputType.name().startsWith("TEXT")
             || inputType.isXMLType() && !inputType.isMaryXML()) {
             // Convert to RAWMARYXML
-            rawmaryxml = processOneChunk(inputData, MaryDataType.get("RAWMARYXML"), null);
+            rawmaryxml = processOrLookupOneChunk(inputData, MaryDataType.get("RAWMARYXML"), null);
             
             //assert rawmaryxml.getDefaultVoice() != null;
             inputDataList = splitIntoChunks(rawmaryxml);
@@ -289,7 +295,7 @@ public class Request {
             inputDataList = splitIntoChunks(inputData);
         } else {
             // other input data types are processed as a whole
-            outputData = processOneChunk(inputData, outputType, outputTypeParams);
+            outputData = processOrLookupOneChunk(inputData, outputType, outputTypeParams);
             //assert outputData.getDefaultVoice() != null;
             if (appendableAudioStream != null) appendableAudioStream.doneAppending();
             return;
@@ -299,15 +305,18 @@ public class Request {
         moveBoundariesIntoParagraphs(rawmaryxml.getDocument()); 
         
         // Now the beyond-RAWMARYXML processing:
+        outputData = new MaryData(outputType, defaultLocale);
+        outputData.setDefaultVoice(defaultVoice);
+        outputData.setDefaultStyle(defaultStyle);
+        outputData.setDefaultEffects(defaultEffects);
         if (outputType.isMaryXML()) {
-            outputData = new MaryData(outputType, defaultLocale);
             // use the input or intermediate MaryXML document
             // as the starting point for MaryXML output types,
             // in order to gradually enrich them:
             outputData.setDocument(rawmaryxml.getDocument());
-            outputData.setDefaultVoice(defaultVoice);
-            outputData.setDefaultStyle(defaultStyle);
-            outputData.setDefaultEffects(defaultEffects);
+        } else if (outputType.equals(MaryDataType.get("AUDIO"))) {
+            outputData.setAudio(appendableAudioStream);
+            outputData.setAudioFileFormat(audioFileFormat);
         }
         int len = inputDataList.getLength();
         for (int i=0; i<len && !abortRequested; i++) {
@@ -320,7 +329,7 @@ public class Request {
             } else { // process "real" data:
                 MaryData oneInputData = extractParagraphAsMaryData(rawmaryxml, currentInputParagraph);
                 //assert oneInputData.getDefaultVoice() != null;
-                MaryData oneOutputData = processOneChunk(oneInputData, outputType, outputTypeParams);
+                MaryData oneOutputData = processOrLookupOneChunk(oneInputData, outputType, outputTypeParams);
                 //assert oneOutputData.getDefaultVoice() != null;
                 if (outputType.isMaryXML()) {
                     NodeList outParagraphList = oneOutputData.getDocument().getDocumentElement().getElementsByTagName(MaryXML.PARAGRAPH);
@@ -328,12 +337,8 @@ public class Request {
                     //assert outParagraphList.getLength() == 1;
                     outputNodeList = outParagraphList;
                 } else { // output is not MaryXML, e.g. text or audio
-                    if (outputData == null || outputData.getType().equals(MaryDataType.get("AUDIO"))) {
-                        // Appending is done elsewhere for audio
-                        outputData = oneOutputData;
-                    } else {
-                        outputData.append(oneOutputData);
-                    }
+                    assert outputData != null;
+                    outputData.append(oneOutputData);
                 }
             }
             if (outputType.isMaryXML()) {
@@ -351,15 +356,17 @@ public class Request {
     }
 
     /**
+     * Convert the given data into the requested output type, either by looking it up in the cache
+     * or by actually processing it.
      * @param oneInputData the input data to convert
      * @param oneOuputType the output type to convert to
      * @param usedModules for the record, the modules used (will be added to)
      * @param timingInfo for the record, the processing time used for each module (will be added to)
      */
-    private MaryData processOneChunk(MaryData oneInputData, MaryDataType oneOutputType, String outputParams) 
+    private MaryData processOrLookupOneChunk(MaryData oneInputData, MaryDataType oneOutputType, String outputParams) 
     throws TransformerConfigurationException, FileNotFoundException, TransformerException, IOException, Exception {
         if (logger.getEffectiveLevel().equals(Level.DEBUG)
-            && (oneInputData.getType().isTextType() || oneInputData.getType().isXMLType())) {
+                && (oneInputData.getType().isTextType() || oneInputData.getType().isXMLType())) {
             logger.debug("Now converting the following input data from "
                     + oneInputData.getType() + " to " + oneOutputType + ":");
             ByteArrayOutputStream dummy = new ByteArrayOutputStream();
@@ -368,6 +375,124 @@ public class Request {
         }
         Locale locale = determineLocale(oneInputData);
         assert locale != null;
+        
+        MaryCache cache = null;
+        if (MaryProperties.getBoolean("cache")) {
+            cache = MaryCache.getCache();
+        }
+        
+        if (cache == null) {
+            return processOneChunk(oneInputData, oneOutputType, outputParams, locale);
+        }
+        
+        String inputtype = null;
+        String outputtype = null;
+        String localeString = null;
+        String voice = null;
+        String inputtext = null;
+
+        // try to look up the requested result in the cache:
+        inputtype = oneInputData.getType().name();
+        outputtype = oneOutputType.name();
+        ByteArrayOutputStream sw = new ByteArrayOutputStream();
+        oneInputData.writeTo(sw);
+        inputtext = new String(sw.toByteArray(), "UTF-8");
+        voice = oneInputData.getDefaultVoice().getName();
+        localeString = locale.toString();
+        
+        if (oneOutputType.isTextType()) {
+            try {
+                String outputtext = cache.lookupText(inputtype, outputtype, localeString, voice, outputParams, defaultStyle, defaultEffects, inputtext);
+                if (outputtext != null) {
+                    MaryData outData = new MaryData(oneOutputType, locale);
+                    ByteArrayInputStream sr = new ByteArrayInputStream(outputtext.getBytes());
+                    outData.readFrom(sr);
+                    sr.close();
+                    outData.setDefaultVoice(defaultVoice);
+                    outData.setDefaultStyle(defaultStyle);
+                    outData.setDefaultEffects(defaultEffects);
+                    return outData;
+                }
+            } catch (Exception e) {
+                logger.warn("Problem looking up text in cache", e);
+            }
+        } else if (outputtype.equals("AUDIO")) {
+            try {
+                byte[] wavFileData = cache.lookupAudio(inputtype, localeString, voice, outputParams, defaultStyle, defaultEffects, inputtext);
+                if (wavFileData != null) {
+                    AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(wavFileData));
+                    MaryData outData = new MaryData(oneOutputType, locale);
+                    outData.setAudio(ais);
+                    outData.setAudioFileFormat(audioFileFormat);
+                    return outData;
+                }
+            } catch (Exception e) {
+                logger.warn("Problem looking up audio in cache", e);
+            }
+        } else {
+            //logger.debug("Don't know how to cache data of type '"+outputtype+"'");
+        }
+
+        // Couldn't get it from cache, need to process
+        if (oneOutputType.equals(MaryDataType.AUDIO)
+                || oneOutputType.equals(MaryDataType.REALISED_ACOUSTPARAMS)
+                || oneOutputType.equals(MaryDataType.REALISED_DURATIONS)) {
+            // Special case: when we generate AUDIO, we also remember REALISED_ACOUSTPARAMS and REALISED_DURATIONS formats and vice versa
+            MaryData audioData = processOneChunk(oneInputData, MaryDataType.AUDIO, outputParams, locale);
+            MaryData realisedAcoustparams = processOneChunk(audioData, MaryDataType.REALISED_ACOUSTPARAMS, outputParams, locale);
+            MaryData realisedDurations = processOneChunk(audioData, MaryDataType.REALISED_DURATIONS, outputParams, locale);
+            insertAudioIntoCache(cache, inputtype, localeString, voice, outputParams, inputtext, audioData);
+            insertTextIntoCache(cache, inputtype, MaryDataType.REALISED_ACOUSTPARAMS.name(), localeString, voice, outputParams, inputtext, realisedAcoustparams);
+            insertTextIntoCache(cache, inputtype, MaryDataType.REALISED_DURATIONS.name(), localeString, voice, outputParams, inputtext, realisedDurations);
+            if (oneOutputType.equals(MaryDataType.AUDIO)) return audioData;
+            else if (oneOutputType.equals(MaryDataType.REALISED_ACOUSTPARAMS)) return realisedAcoustparams;
+            return realisedDurations;
+        } else { // simple, straightforward processing of output
+            MaryData oneOutputData = processOneChunk(oneInputData, oneOutputType, outputParams, locale);
+            // Remember the processing result in the cache
+            if (oneOutputType.isTextType()) {
+                insertTextIntoCache(cache, inputtype, outputtype, localeString,
+                        voice, outputParams, inputtext, oneOutputData);
+            } else {
+                logger.debug("Don't know how to cache data of type '"+outputtype+"'");
+            }
+            return oneOutputData;
+        }
+    }
+
+    private void insertAudioIntoCache(MaryCache cache, String inputtype,
+            String localeString, String voice, String outputParams,
+            String inputtext, MaryData currentData) throws IOException,
+            SQLException, UnsupportedAudioFileException {
+        AppendableSequenceAudioInputStream as = (AppendableSequenceAudioInputStream) currentData.getAudio();
+        assert as != appendableAudioStream;
+        as.doneAppending();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream(2*(int) as.getFrameLength() + 100);
+        AudioSystem.write(as, AudioFileFormat.Type.WAVE, baos);
+        byte[] wavFileData = baos.toByteArray();
+        cache.insertAudio(inputtype, localeString, voice, outputParams, defaultStyle, defaultEffects, inputtext, wavFileData);
+        AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(wavFileData));
+        currentData.setAudio(ais);
+    }
+
+    private void insertTextIntoCache(MaryCache cache, String inputtype,
+            String outputtype, String localeString, String voice,
+            String outputParams, String inputtext, MaryData currentData) {
+        try {
+            ByteArrayOutputStream sw = new ByteArrayOutputStream();
+            currentData.writeTo(sw);
+            String outputtext = new String(sw.toByteArray(), "UTF-8");
+            cache.insertText(inputtype, outputtype, localeString, voice, outputParams, defaultStyle, defaultEffects, inputtext, outputtext);
+        } catch (Exception e) {
+            logger.warn("Problem inserting text into cache", e);
+        }
+    }
+
+    private MaryData processOneChunk(MaryData oneInputData,
+            MaryDataType oneOutputType, String outputParams, Locale locale)
+    throws Exception, TransformerConfigurationException,
+            FileNotFoundException, TransformerException, IOException 
+    {
         logger.debug("Determining which modules to use");
         List<MaryModule> neededModules = ModuleRegistry.modulesRequiredForProcessing(oneInputData.getType(), oneOutputType, locale, oneInputData.getDefaultVoice());
         // Now neededModules contains references to the needed modules,
@@ -401,7 +526,7 @@ public class Request {
             // from where it is required.)
             if (m.outputType() == MaryDataType.get("AUDIO")) {
                 currentData.setAudioFileFormat(audioFileFormat);
-                currentData.setAudio(appendableAudioStream);
+                currentData.setAudio(new AppendableSequenceAudioInputStream(audioFileFormat.getFormat(), null));
             }
             if (m.outputType() == oneOutputType) {
                 currentData.setOutputParams(outputParams);
