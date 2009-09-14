@@ -45,12 +45,12 @@ public class TranscriptionGUI extends javax.swing.JFrame {
     TranscriptionTable simplePanel;
     String fileNametoSave = null; 
     String phoneSetFile = null;
-    boolean loadTranscription = false;  
     String treeAbsolutePath = null;
     String dirName = null;
     String baseName = null;
     String suffix = null;
     String locale = null;
+    boolean loadTranscription = false;  
     
     /** Creates new form TranscriptionGUI */
     public TranscriptionGUI() {
@@ -523,7 +523,25 @@ public class TranscriptionGUI extends javax.swing.JFrame {
     }
             
     private void closeTranscriptionTool(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeTranscriptionTool
-        System.exit(0);
+        
+        if ( simplePanel.isDataModified() ) {
+            int response = JOptionPane.showConfirmDialog(this, "Do you want to save your modifications?", "Confirm",
+                           JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            if (response == JOptionPane.NO_OPTION) {
+                System.exit(0);
+            } else if (response == JOptionPane.YES_OPTION) {
+                saveToFileActionPerformed(evt);
+                if ( fileNametoSave != null ) {
+                    System.exit(0);
+                }
+            } else if (response == JOptionPane.CLOSED_OPTION) {
+                //System.out.println("JOptionPane closed");
+            }
+        }
+        else {
+            System.exit(0);
+        }
+    
     }//GEN-LAST:event_closeTranscriptionTool
 
     private void saveToFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveToFileActionPerformed

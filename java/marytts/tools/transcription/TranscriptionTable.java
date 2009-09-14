@@ -167,6 +167,10 @@ public class TranscriptionTable extends JPanel implements ActionListener {
         }
     }
     
+    public boolean isDataModified() {
+        return this.transcriptionModel.isDataModified();
+    }
+    
     private LTSTrainer trainLTS(String treeAbsolutePath) throws IOException{
         
         Object[][] tableData = transcriptionModel.getData();
