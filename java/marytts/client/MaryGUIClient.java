@@ -1012,8 +1012,8 @@ public class MaryGUIClient extends JPanel
                 FileFilter defaultFilter = null;
                 for (int i=0; i<knownAudioTypes.size(); i++) {
                     int iSpace = knownAudioTypes.get(i).indexOf(' ');
-                    extensions[i] = knownAudioTypes.get(i).substring(0, iSpace);
-                    typeNames[i] = knownAudioTypes.get(i).substring(iSpace+1);
+                    typeNames[i] = knownAudioTypes.get(i).substring(0, iSpace);
+                    extensions[i] = knownAudioTypes.get(i).substring(iSpace+1);
                     FileFilter ff = new SimpleFileFilter(extensions[i],
                             typeNames[i] + " (." + extensions[i] + ")");
                     fc.addChoosableFileFilter(ff);

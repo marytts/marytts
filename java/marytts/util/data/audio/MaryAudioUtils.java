@@ -103,6 +103,37 @@ public class MaryAudioUtils {
     }
 
     /**
+     * List the available audio file format types, as a multi-line string.
+     * Each line consists of the name of an Audio file format type, followed by a suffix
+     * "_FILE" if the format can be produced as a file, and "_STREAM" if the format can be streamed.
+     * @return a multi-line string, or an empty string if no audio file types are available.
+     */
+    public static String getAudioFileFormatTypes()
+    {
+        StringBuilder output = new StringBuilder();
+        AudioFileFormat.Type[] audioTypes = AudioSystem.getAudioFileTypes();
+        for (int t=0; t<audioTypes.length; t++) {
+            AudioFileFormat.Type audioType = audioTypes[t];
+            String typeName = audioType.toString();
+            boolean isSupported = true;
+            if (typeName.equals("MP3")) isSupported = canCreateMP3();
+            else if (typeName.equals("Vorbis")) isSupported = canCreateOgg();
+            audioType = getAudioFileFormatType(typeName);
+            if (audioType == null) {
+                isSupported = false;
+            }
+
+            if (isSupported && AudioSystem.isFileTypeSupported(audioType))
+            {
+                output.append(typeName).append("_FILE\n");
+                
+                if (typeName.equals("MP3") || typeName.equals("Vorbis"))
+                    output.append(typeName).append("_STREAM\n");
+            }
+        }
+        return output.toString();
+    }
+    /**
      * Determine whether conversion to mp3 is possible.
      *
      */

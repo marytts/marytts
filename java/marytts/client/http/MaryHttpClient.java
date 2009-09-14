@@ -179,7 +179,7 @@ public class MaryHttpClient extends MaryClient
         if (info.length() == 0)
             throw new IOException("Could not get example text from Mary server");
 
-        StringTokenizer st = new StringTokenizer(info,"#");
+        StringTokenizer st = new StringTokenizer(info,"\n");
         Vector<String> sentences = new Vector<String>();
         while (st.hasMoreTokens()) {
             sentences.add(st.nextToken());
