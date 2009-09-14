@@ -1,4 +1,5 @@
 @echo off
-
-java -ea -Dmary.base="$INSTALL_PATH" -jar "$INSTALL_PATH"\java\installvoices.jar
+set BINDIR=%~dp0%
+set MARY_BASE=%BINDIR%\..
+java -ea -Dmary.base="%MARY_BASE%" -jar "%MARY_BASE%"\java\installvoices.jar
 

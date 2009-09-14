@@ -1,4 +1,5 @@
 #!/bin/sh
-
-java -ea -jar "$INSTALL_PATH"/java/redstart.jar
+BINDIR=`dirname "$0"`
+export MARY_BASE=`(cd $BINDIR/.. ; pwd)`
+java -ea -jar "$MARY_BASE"/java/redstart.jar
 

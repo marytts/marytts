@@ -134,62 +134,66 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         }
         
         // Register HMM voices:
-        logger.debug("Register HMM voices:");
-        String voiceNames = MaryProperties.needProperty("hmm.voices.list");
-        for (StringTokenizer st = new StringTokenizer(voiceNames); st.hasMoreTokens(); ) {
-            String voiceName = st.nextToken();
-            logger.debug("Voice '" + voiceName + "'");
-            Locale locale = MaryUtils.string2locale(MaryProperties.needProperty("voice."+voiceName+".locale"));
-            int samplingRate = MaryProperties.getInteger("voice."+voiceName+".samplingRate", 16000);
-            
-            Gender gender = new Gender(MaryProperties.needProperty("voice."+voiceName+".gender"));
-            AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                    samplingRate, // samples per second
-                    16, // bits per sample
-                    1, // mono
-                    2, // nr. of bytes per frame
-                    samplingRate, // nr. of frames per second
-                    false);
-            
-            
-           /** When creating a HMMVoice object it should create and initialise a 
-            * TreeSet ts, a ModelSet ms and load the context feature list used in this voice. */
-            
-            HMMVoice v = new HMMVoice (new String[] { voiceName },
-                locale, format, this, gender,
-                MaryProperties.getProperty("voice."+voiceName+".alpha"),
-                MaryProperties.getProperty("voice."+voiceName+".gamma"),
-                MaryProperties.getProperty("voice."+voiceName+".logGain"),
-                MaryProperties.getProperty("voice."+voiceName+".beta"),
-                MaryProperties.getFilename("voice."+voiceName+".Ftd"),     /* Tree DUR */
-                MaryProperties.getFilename("voice."+voiceName+".Ftf"),     /* Tree LF0 */
-                MaryProperties.getFilename("voice."+voiceName+".Ftm"),     /* Tree MCP */
-                MaryProperties.getFilename("voice."+voiceName+".Fts"),     /* Tree STR */
-                MaryProperties.getFilename("voice."+voiceName+".Fta"),     /* Tree MAG */
-                MaryProperties.getFilename("voice."+voiceName+".Fmd"),     /* Model DUR */
-                MaryProperties.getFilename("voice."+voiceName+".Fmf"),     /* Model LF0 */
-                MaryProperties.getFilename("voice."+voiceName+".Fmm"),     /* Model MCP */
-                MaryProperties.getFilename("voice."+voiceName+".Fms"),     /* Model STR */
-                MaryProperties.getFilename("voice."+voiceName+".Fma"),     /* Model MAG */        
-                MaryProperties.getFilename("voice."+voiceName+".useExtDur"),     /* use external prosody: unit_duration targetfeature */
-                MaryProperties.getFilename("voice."+voiceName+".useExtLogF0"),   /* use external prosody: unit_logf0 and unit_logf0delta targetfeatures */
-                MaryProperties.getProperty("voice."+voiceName+".useMixExc"),     /* Use Mixed excitation */
-                MaryProperties.getProperty("voice."+voiceName+".useFourierMag"), /* Use Fourier magnitudes for pulse generation */
-                MaryProperties.getBoolean("voice."+voiceName+".useGV"),     /* Use Global Variance in parameter generation */
-                MaryProperties.getBoolean("voice."+voiceName+".useGmmGV"),  /* Use Global Variance as Gausian Mixture model */
-                MaryProperties.getFilename("voice."+voiceName+".Fgvf"),     /* GV Model LF0 */
-                MaryProperties.getFilename("voice."+voiceName+".Fgvm"),     /* GV Model MCP */
-                MaryProperties.getFilename("voice."+voiceName+".Fgvs"),     /* GV Model STR */
-                MaryProperties.getFilename("voice."+voiceName+".Fgva"),     /* GV Model MAG */
-                MaryProperties.getFilename("voice."+voiceName+".Fgmmgvf"),  /* GMM GV Model LF0 */
-                MaryProperties.getFilename("voice."+voiceName+".Fgmmgvm"),  /* GMM GV Model MCP */
-                MaryProperties.getFilename("voice."+voiceName+".FeaFile"),  /* targetfeatures file, for testing*/
-                MaryProperties.getFilename("voice."+voiceName+".trickyPhonesFile"),  /* tricky phones file, if any*/
-                MaryProperties.getFilename("voice."+voiceName+".Fif"),      /* Filter coefficients file for mixed excitation*/
-                MaryProperties.getInteger("voice."+voiceName+".in"),        /* Number of filters */
-                MaryProperties.getInteger("voice."+voiceName+".io"));       /* Number of taps per filter or filters order */
-            Voice.registerVoice(v);
-           
+        String voiceNames = MaryProperties.getProperty("hmm.voices.list");
+        if (voiceNames == null) {
+            logger.debug("No HMM voices listed in config files.");
+        } else {
+            logger.debug("Register HMM voices:");
+            for (StringTokenizer st = new StringTokenizer(voiceNames); st.hasMoreTokens(); ) {
+                String voiceName = st.nextToken();
+                logger.debug("Voice '" + voiceName + "'");
+                Locale locale = MaryUtils.string2locale(MaryProperties.needProperty("voice."+voiceName+".locale"));
+                int samplingRate = MaryProperties.getInteger("voice."+voiceName+".samplingRate", 16000);
+                
+                Gender gender = new Gender(MaryProperties.needProperty("voice."+voiceName+".gender"));
+                AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+                        samplingRate, // samples per second
+                        16, // bits per sample
+                        1, // mono
+                        2, // nr. of bytes per frame
+                        samplingRate, // nr. of frames per second
+                        false);
+                
+                
+               /** When creating a HMMVoice object it should create and initialise a 
+                * TreeSet ts, a ModelSet ms and load the context feature list used in this voice. */
+                
+                HMMVoice v = new HMMVoice (new String[] { voiceName },
+                    locale, format, this, gender,
+                    MaryProperties.getProperty("voice."+voiceName+".alpha"),
+                    MaryProperties.getProperty("voice."+voiceName+".gamma"),
+                    MaryProperties.getProperty("voice."+voiceName+".logGain"),
+                    MaryProperties.getProperty("voice."+voiceName+".beta"),
+                    MaryProperties.getFilename("voice."+voiceName+".Ftd"),     /* Tree DUR */
+                    MaryProperties.getFilename("voice."+voiceName+".Ftf"),     /* Tree LF0 */
+                    MaryProperties.getFilename("voice."+voiceName+".Ftm"),     /* Tree MCP */
+                    MaryProperties.getFilename("voice."+voiceName+".Fts"),     /* Tree STR */
+                    MaryProperties.getFilename("voice."+voiceName+".Fta"),     /* Tree MAG */
+                    MaryProperties.getFilename("voice."+voiceName+".Fmd"),     /* Model DUR */
+                    MaryProperties.getFilename("voice."+voiceName+".Fmf"),     /* Model LF0 */
+                    MaryProperties.getFilename("voice."+voiceName+".Fmm"),     /* Model MCP */
+                    MaryProperties.getFilename("voice."+voiceName+".Fms"),     /* Model STR */
+                    MaryProperties.getFilename("voice."+voiceName+".Fma"),     /* Model MAG */        
+                    MaryProperties.getFilename("voice."+voiceName+".useExtDur"),     /* use external prosody: unit_duration targetfeature */
+                    MaryProperties.getFilename("voice."+voiceName+".useExtLogF0"),   /* use external prosody: unit_logf0 and unit_logf0delta targetfeatures */
+                    MaryProperties.getProperty("voice."+voiceName+".useMixExc"),     /* Use Mixed excitation */
+                    MaryProperties.getProperty("voice."+voiceName+".useFourierMag"), /* Use Fourier magnitudes for pulse generation */
+                    MaryProperties.getBoolean("voice."+voiceName+".useGV"),     /* Use Global Variance in parameter generation */
+                    MaryProperties.getBoolean("voice."+voiceName+".useGmmGV"),  /* Use Global Variance as Gausian Mixture model */
+                    MaryProperties.getFilename("voice."+voiceName+".Fgvf"),     /* GV Model LF0 */
+                    MaryProperties.getFilename("voice."+voiceName+".Fgvm"),     /* GV Model MCP */
+                    MaryProperties.getFilename("voice."+voiceName+".Fgvs"),     /* GV Model STR */
+                    MaryProperties.getFilename("voice."+voiceName+".Fgva"),     /* GV Model MAG */
+                    MaryProperties.getFilename("voice."+voiceName+".Fgmmgvf"),  /* GMM GV Model LF0 */
+                    MaryProperties.getFilename("voice."+voiceName+".Fgmmgvm"),  /* GMM GV Model MCP */
+                    MaryProperties.getFilename("voice."+voiceName+".FeaFile"),  /* targetfeatures file, for testing*/
+                    MaryProperties.getFilename("voice."+voiceName+".trickyPhonesFile"),  /* tricky phones file, if any*/
+                    MaryProperties.getFilename("voice."+voiceName+".Fif"),      /* Filter coefficients file for mixed excitation*/
+                    MaryProperties.getInteger("voice."+voiceName+".in"),        /* Number of filters */
+                    MaryProperties.getInteger("voice."+voiceName+".io"));       /* Number of taps per filter or filters order */
+                Voice.registerVoice(v);
+               
+            }
         }
         logger.info("started.");
                

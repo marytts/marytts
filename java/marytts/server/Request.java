@@ -397,7 +397,7 @@ public class Request {
         ByteArrayOutputStream sw = new ByteArrayOutputStream();
         oneInputData.writeTo(sw);
         inputtext = new String(sw.toByteArray(), "UTF-8");
-        voice = oneInputData.getDefaultVoice().getName();
+        voice = defaultVoice != null ? defaultVoice.getName() : null;
         localeString = locale.toString();
         
         if (oneOutputType.isTextType()) {

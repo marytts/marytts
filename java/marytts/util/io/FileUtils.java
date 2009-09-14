@@ -45,11 +45,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.modules.phonemiser.Allophone;
-import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.audio.DDSAudioInputStream;
-import marytts.util.math.ComplexArray;
-import marytts.util.math.ComplexNumber;
-import marytts.util.math.MathUtils;
 import marytts.util.string.StringUtils;
 
 import org.apache.log4j.Level;
@@ -544,12 +539,7 @@ public class FileUtils {
         return files;
     }
     
-    public static void writeWavFile(double[] x, String outputFile, AudioFormat format) throws IOException
-    {
-        DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(x), format);
 
-        AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outputFile));
-    }
     
     public static void writeTextFile(Allophone[] phns, String textFile)
     {
@@ -702,14 +692,7 @@ public class FileUtils {
         writeTextFile(StringUtils.toStringLines(x), filename);
     }
     
-    public static void writeTextFile(ComplexNumber[][] x, String filename)
-    {
-        String[][] lines = new String[x.length][];
-        for (int i=0; i<x.length; i++)
-            lines[i] = StringUtils.toStringLines(x[i]);
 
-        writeTextFile(lines, filename);
-    }
     
     public static void writeTextFile(double[][] x, String filename)
     {
@@ -720,20 +703,13 @@ public class FileUtils {
         writeTextFile(lines, filename);
     }
     
-    public static void writeTextFile(ComplexNumber[] x, String filename)
-    {
-        writeTextFile(StringUtils.toStringLines(x), filename);
-    }
     
     public static void writeTextFile(int[] x, String filename)
     {
         writeTextFile(StringUtils.toStringLines(x), filename);
     }
     
-    public static void writeTextFile(ComplexArray x, String filename)
-    {
-        writeTextFile(StringUtils.toStringLines(x), filename);
-    }
+
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
     {

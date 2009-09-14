@@ -46,6 +46,7 @@ import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.window.*;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
+import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.io.FileUtils;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexArray;
@@ -2916,7 +2917,7 @@ public class SignalProcUtils {
 
         double[] sNorm = SignalProcUtils.normalizeVocalTract(s, t, sourceLabels, targetLabels, windowType, windowSizeInSeconds, frameShiftInSeconds, lpcOrderSrc, fsSrc, preCoef);
 
-        FileUtils.writeWavFile(sNorm, outputWavFile, format);
+        MaryAudioUtils.writeWavFile(sNorm, outputWavFile, format);
     }
     
     public static float[] getAnalysisTimes(int numfrm, double windowSizeInSeconds, double frameShiftInSeconds)

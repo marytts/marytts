@@ -1,3 +1,5 @@
 #!/bin/sh
-java -ea -Xmx1024m -jar "$INSTALL_PATH"/java/voiceimport.jar
+BINDIR=`dirname "$0"`
+export MARY_BASE=`(cd $BINDIR/.. ; pwd)`
+java -ea -Xmx1024m -jar "$MARY_BASE"/java/voiceimport.jar
 

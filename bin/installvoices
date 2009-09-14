@@ -1,4 +1,5 @@
 #!/bin/sh
-
-java -ea -Dmary.base="$INSTALL_PATH" -jar "$INSTALL_PATH"/java/installvoices.jar
+BINDIR=`dirname "$0"`
+export MARY_BASE=`(cd $BINDIR/.. ; pwd)`
+java -ea -Dmary.base="$MARY_BASE" -jar "$MARY_BASE"/java/installvoices.jar
 

@@ -1,4 +1,5 @@
 @echo off
-
-java -ea -Dserver.host=localhost -jar "$INSTALL_PATH"\java\emospeak.jar
+set BINDIR=%~dp0%
+set MARY_BASE=%BINDIR%\..
+java -ea -Dserver.host=localhost -jar "%MARY_BASE%"\java\emospeak.jar
 

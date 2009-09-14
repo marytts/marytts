@@ -31,7 +31,8 @@
 ##########################################################################
 
 # Set the Mary base installation directory in an environment variable:
-export MARY_BASE="$INSTALL_PATH"
+BINDIR=`dirname "$0"`
+export MARY_BASE=`(cd $BINDIR/.. ; pwd)`
 
 # CYGWIN support:
 cygwin=0;
@@ -45,13 +46,11 @@ if [ $cygwin = 1 ] ; then
   MARY_BASE=`cygpath "$MARY_BASE"`
 fi
 
-export SHPROT_BASE="$MARY_BASE/lib/modules/shprot"
 CLASSPATH="$MARY_BASE/java/mary-common.jar:$MARY_BASE/java/log4j-1.2.15.jar"
 
 if [ $cygwin = 1 ] ; then
   CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
   MARY_BASE=`cygpath --windows "$MARY_BASE"`
-  SHPROT_BASE=`cygpath --windows "$SHPROT_BASE"`
 elif [ $darwin = 1 ] ; then
   export DYLD_LIBRARY_PATH="$MARY_BASE/lib/native:$DYLD_LIBRARY_PATH"
 else
