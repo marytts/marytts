@@ -122,9 +122,13 @@ public class Synthesis extends InternalModule
         Voice defaultVoice = d.getDefaultVoice();
         String defaultStyle = d.getDefaultStyle();
         String defaultEffects = d.getDefaultEffects();
+        Locale locale = d.getLocale();
         
         if (defaultVoice == null) {
-            defaultVoice = Voice.getDefaultVoice(Locale.GERMAN);
+            defaultVoice = Voice.getDefaultVoice(locale);
+            if (defaultVoice == null) {
+                throw new SynthesisException("No voice available for locale '"+locale+"'");
+            }
             logger.info("No default voice associated with data. Assuming global default " +
                          defaultVoice.getName());
         }

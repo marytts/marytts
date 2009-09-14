@@ -290,22 +290,24 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler
                     MaryHttpServerUtils.errorInternalServerError(response, message, e);
                     ok = false;
                 }
-                // Write output data to client
-                try {
-                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                    maryRequest.writeOutputData(outputStream);
-                    String contentType;
-                    if (maryRequest.getOutputType().isXMLType() || maryRequest.getOutputType().isTextType()) //text output
-                        contentType = "text/plain; charset=UTF-8";
-                    else //audio output
-                        contentType = MaryHttpServerUtils.getMimeType(maryRequest.getAudioFileFormat().getType());
-                    MaryHttpServerUtils.toHttpResponse(outputStream.toByteArray(), response, contentType);
-                } catch (Exception e) {
-                    String message = "Cannot write output";
-                    logger.warn(message, e);
-                    MaryHttpServerUtils.errorInternalServerError(response, message, e);
-                    ok = false;
-                } 
+                if (ok) {
+                    // Write output data to client
+                    try {
+                        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                        maryRequest.writeOutputData(outputStream);
+                        String contentType;
+                        if (maryRequest.getOutputType().isXMLType() || maryRequest.getOutputType().isTextType()) //text output
+                            contentType = "text/plain; charset=UTF-8";
+                        else //audio output
+                            contentType = MaryHttpServerUtils.getMimeType(maryRequest.getAudioFileFormat().getType());
+                        MaryHttpServerUtils.toHttpResponse(outputStream.toByteArray(), response, contentType);
+                    } catch (Exception e) {
+                        String message = "Cannot write output";
+                        logger.warn(message, e);
+                        MaryHttpServerUtils.errorInternalServerError(response, message, e);
+                        ok = false;
+                    } 
+                }
             }
         }
 
