@@ -178,8 +178,9 @@ THIS SOFTWARE.
     </jar>
   </target>
 
-  <target name="mary-english.jar" depends="compile,version">
-    <jar destfile="${dest}/mary-english.jar"
+  <!-- English language modules --> 
+  <target name="mary-en.jar" depends="compile,version">
+    <jar destfile="${dest}/mary-en.jar"
          basedir="${src}"
          includes="marytts/language/en/**/*.class
                    marytts/language/en_US/**/*.class
@@ -193,6 +194,7 @@ THIS SOFTWARE.
     </jar>
   </target>
 
+  <!-- German language modules -->
   <target name="mary-de.jar" depends="compile,version">
     <jar destfile="${dest}/mary-de.jar"
          basedir="${src}"
@@ -206,8 +208,37 @@ THIS SOFTWARE.
     </jar>
   </target>
 
+	  <!-- Turkish language modules -->
+	  <target name="mary-tr.jar" depends="compile,version">
+	    <jar destfile="${dest}/mary-tr.jar"
+	         basedir="${src}"
+	         includes="marytts/language/tr/**/*.class
+	                   marytts/language/tr/datatypes/*.example">
+	      <manifest>
+	        <attribute name="Built-By" value="${user.name}"/>
+	        <attribute name="Specification-Version" value="${specification.version}"/>
+	        <attribute name="Implementation-Version" value="${implementation.version}"/>
+	      </manifest>
+	    </jar>
+	  </target>
 
-  <target name="mary-tibetan.jar" depends="compile,version">
+	  <!-- Telugu language modules -->
+	  <target name="mary-te.jar" depends="compile,version">
+	    <jar destfile="${dest}/mary-te.jar"
+	         basedir="${src}"
+	         includes="marytts/language/te/**/*.class
+	                   marytts/language/te/datatypes/*.example">
+	      <manifest>
+	        <attribute name="Built-By" value="${user.name}"/>
+	        <attribute name="Specification-Version" value="${specification.version}"/>
+	        <attribute name="Implementation-Version" value="${implementation.version}"/>
+	      </manifest>
+	    </jar>
+	  </target>
+
+
+  <!-- Commenting out the Tibetan component until we have a voice for it --> 
+  <!--target name="mary-tibetan.jar" depends="compile,version">
     <jar destfile="${dest}/mary-tibetan.jar"
          basedir="${src}"
          includes="marytts/datatypes/*_TIB_Definer.class
@@ -220,9 +251,9 @@ THIS SOFTWARE.
         <attribute name="Implementation-Version" value="${implementation.version}"/>
       </manifest>
     </jar>
-  </target>
+  </target-->
 
-  <target name="languagejars" depends="mary-english.jar,mary-de.jar"/>
+  <target name="languagejars" depends="mary-en.jar,mary-de.jar,mary-tr.jar,mary-te.jar"/>
 
 
 
@@ -233,8 +264,10 @@ THIS SOFTWARE.
     <jar destfile="${dest}/maryclient.jar"
          basedir="${src}"
          includes="marytts/client/*.class
+                   marytts/client/http/*.class
                    marytts/util/MaryUtils*.class
                    marytts/util/io/FileUtils.class
+                   marytts/util/string/StringUtils.class
     	           marytts/util/data/audio/AudioPlayer*.class
                    marytts/util/data/audio/MonoAudioInputStream.class
                    marytts/util/data/audio/StereoAudioInputStream.class

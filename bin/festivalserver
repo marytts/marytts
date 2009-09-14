@@ -1,1 +1,0 @@
- festival --server "(begin (set! server_log_file t)(set! server_access_list '(\"clando\" \"localhost\"))(voice_cmu_us_jmk_arctic_clunits))"

@@ -1,3 +1,5 @@
 @echo off
-java -ea -Xmx1024m -jar "$INSTALL_PATH"\java\voiceimport.jar
+set BINDIR=%~dp0%
+set MARY_BASE=%BINDIR%\..
+java -ea -Xmx1024m -jar "%MARY_BASE%"\java\voiceimport.jar
 

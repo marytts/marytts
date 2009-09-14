@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Vector;
 
 import marytts.signalproc.analysis.ComplexLinearPredictor;
+import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
 
 
@@ -4711,6 +4712,27 @@ public class MathUtils {
     public static float[] byteRange2FloatRange(float[] x, float floatMin, float floatMax)
     {
         return MathUtils.multiply(x, (floatMax-floatMin)/256.0f);
+    }
+    
+    
+    
+    public static void writeTextFile(ComplexNumber[][] x, String filename)
+    {
+        String[][] lines = new String[x.length][];
+        for (int i=0; i<x.length; i++)
+            lines[i] = StringUtils.toStringLines(x[i]);
+
+        FileUtils.writeTextFile(lines, filename);
+    }
+    
+    public static void writeTextFile(ComplexNumber[] x, String filename)
+    {
+        FileUtils.writeTextFile(StringUtils.toStringLines(x), filename);
+    }
+
+    public static void writeTextFile(ComplexArray x, String filename)
+    {
+        FileUtils.writeTextFile(StringUtils.toStringLines(x), filename);
     }
     
     public static void main(String[] args)

@@ -403,7 +403,7 @@ public class Mary {
             process(input,
                     MaryProperties.getProperty("input.type", "TEXT"),
                     MaryProperties.getProperty("output.type", "AUDIO"),
-                    MaryProperties.getProperty("locale", "en"),
+                    MaryProperties.getProperty("locale", "en_US"),
                     MaryProperties.getProperty("audio.type", "WAVE"),
                     MaryProperties.getProperty("voice", null),
                     MaryProperties.getProperty("style", null),
@@ -411,7 +411,7 @@ public class Mary {
                     MaryProperties.getProperty("output.type.params", null),
                     System.out);
         }
-        shutdown();
+        //shutdown();
     }
 }
 

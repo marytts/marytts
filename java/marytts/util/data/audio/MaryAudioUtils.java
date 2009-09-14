@@ -33,6 +33,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
 import marytts.modules.synthesis.Voice;
+import marytts.util.data.BufferedDoubleDataSource;
 
 
 /**
@@ -296,6 +297,13 @@ public class MaryAudioUtils {
 
     public static double[] getSamplesAsDoubleArray(AudioInputStream ais) {
         return new AudioDoubleDataSource(ais).getAllData();
+    }
+    
+    public static void writeWavFile(double[] x, String outputFile, AudioFormat format) throws IOException
+    {
+        DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(x), format);
+
+        AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outputFile));
     }
 }
 

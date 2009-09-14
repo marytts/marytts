@@ -60,6 +60,7 @@ import marytts.util.MaryUtils;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
+import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.io.FileUtils;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
@@ -354,7 +355,7 @@ public class HntmSynthesizer {
                 if (synthesisParams.normalizeOutputWav)
                     xhat.output = MathUtils.multiply(xhat.output, MathUtils.absMax(x)/MathUtils.absMax(xhat.output));
                 outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + strExt + ".wav";
-                FileUtils.writeWavFile(MathUtils.divide(xhat.output,32768.0), outFileName, inputAudio.getFormat());
+                MaryAudioUtils.writeWavFile(MathUtils.divide(xhat.output,32768.0), outFileName, inputAudio.getFormat());
 
                 if (xhat.harmonicPart!=null && synthesisParams.writeHarmonicPartToSeparateFile)
                 {
@@ -362,7 +363,7 @@ public class HntmSynthesizer {
                     if (synthesisParams.normalizeHarmonicPartOutputWav)
                         xhat.harmonicPart = MathUtils.multiply(xhat.harmonicPart, 32768.0/MathUtils.getAbsMax(xhat.harmonicPart));
                         
-                    FileUtils.writeWavFile(MathUtils.divide(xhat.harmonicPart, 32768.0), outFileName, inputAudio.getFormat());
+                    MaryAudioUtils.writeWavFile(MathUtils.divide(xhat.harmonicPart, 32768.0), outFileName, inputAudio.getFormat());
                 }
 
                 if (xhat.noisePart!=null && synthesisParams.writeNoisePartToSeparateFile)
@@ -371,19 +372,19 @@ public class HntmSynthesizer {
                     if (synthesisParams.normalizeNoisePartOutputWav)
                         xhat.noisePart = MathUtils.multiply(xhat.noisePart, 32768.0/MathUtils.getAbsMax(xhat.noisePart));
                     
-                    FileUtils.writeWavFile(MathUtils.divide(xhat.noisePart, 32768.0), outFileName, inputAudio.getFormat());
+                    MaryAudioUtils.writeWavFile(MathUtils.divide(xhat.noisePart, 32768.0), outFileName, inputAudio.getFormat());
                 }
 
                 if (xhat.transientPart!=null && synthesisParams.writeTransientPartToSeparateFile)
                 {
                     outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + "Transient" + strExt + ".wav";
-                    FileUtils.writeWavFile(MathUtils.divide(xhat.transientPart, 32768.0), outFileName, inputAudio.getFormat());
+                    MaryAudioUtils.writeWavFile(MathUtils.divide(xhat.transientPart, 32768.0), outFileName, inputAudio.getFormat());
                 }
 
                 if (xhat.harmonicPart!=null && synthesisParams.writeOriginalMinusHarmonicPartToSeparateFile)
                 {
                     outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + "OrigMinusHarmonic" + strExt + ".wav";
-                    FileUtils.writeWavFile(MathUtils.divide(SignalProcUtils.addSignals(x, 1.0, xhat.harmonicPart, -1.0), 32768.0), outFileName, inputAudio.getFormat());
+                    MaryAudioUtils.writeWavFile(MathUtils.divide(SignalProcUtils.addSignals(x, 1.0, xhat.harmonicPart, -1.0), 32768.0), outFileName, inputAudio.getFormat());
                 }
 
                 //MaryUtils.plot(xhat.harmonicPart);
