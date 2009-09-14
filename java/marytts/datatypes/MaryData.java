@@ -592,7 +592,11 @@ public class MaryData
             }
         } else if (getType().isTextType()) {
             // Attention: XML type is a text type!
-            this.plainText = this.plainText + "\n\n" + md.getPlainText();
+            if (this.plainText == null) {
+                this.plainText = md.getPlainText();
+            } else {
+                this.plainText = this.plainText + "\n\n" + md.getPlainText();
+            }
         } else if (getType().equals(MaryDataType.get("AUDIO"))) {
             appendAudio(md.getAudio());
         } else {

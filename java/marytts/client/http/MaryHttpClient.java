@@ -309,7 +309,10 @@ public class MaryHttpClient extends MaryClient
         http.connect();
 
         if(http.getResponseCode() != HttpURLConnection.HTTP_OK) {
-            String errorData = FileUtils.getStreamAsString(http.getErrorStream(), "UTF-8");
+            String errorData = "";
+            try {
+                errorData = FileUtils.getStreamAsString(http.getErrorStream(), "UTF-8");
+            } catch (Exception e) {}
             throw new IOException(http.getResponseCode() + ":" + http.getResponseMessage()
                     +"\n"+errorData);
         }

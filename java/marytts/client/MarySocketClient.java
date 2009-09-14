@@ -153,15 +153,15 @@ public class MarySocketClient extends MaryClient
         		toServerInfo.print(" AUDIO=" + audioType);
         	}
         }
-        if (!defaultVoiceName.equals("")) {
+        if (defaultVoiceName != null && !defaultVoiceName.equals("")) {
             toServerInfo.print(" VOICE=" + defaultVoiceName);
         }
         
-        if (!defaultStyle.equals("")) {
+        if (defaultStyle != null && !defaultStyle.equals("")) {
             toServerInfo.print(" STYLE=" + defaultStyle);
         }
         
-        if (!defaultEffects.equals("")) {
+        if (defaultEffects != null && !defaultEffects.equals("")) {
             toServerInfo.print(" EFFECTS=" + defaultEffects);
         }
         toServerInfo.println();

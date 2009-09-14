@@ -5,6 +5,7 @@
 package marytts.util.data.audio;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 
 import javax.sound.sampled.AudioFormat;
@@ -26,12 +27,12 @@ public class AppendableSequenceAudioInputStream extends
      * new audio data is appended or doneAppending() is called. After doneAppending() is called, read()
      * will return -1 when running out of data.
      * @param audioFormat
-     * @param audioInputStreams
+     * @param audioInputStreams the list of initial audio input streams, or null if initially the stream is empty.
      */
     public AppendableSequenceAudioInputStream(AudioFormat audioFormat,
-            Collection audioInputStreams)
+            Collection<AudioInputStream> audioInputStreams)
     {
-        super(audioFormat, audioInputStreams);
+        super(audioFormat, audioInputStreams != null ? audioInputStreams : Arrays.asList(new AudioInputStream[0]));
     }
 
     /**
