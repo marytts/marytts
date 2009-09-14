@@ -275,29 +275,7 @@ public abstract class BaseHttpRequestHandler extends SimpleNHttpRequestHandler i
 
     public String getAudioFileFormatTypes()
     {
-        StringBuilder output = new StringBuilder();
-        AudioFileFormat.Type[] audioTypes = AudioSystem.getAudioFileTypes();
-        for (int t=0; t<audioTypes.length; t++) {
-            AudioFileFormat.Type audioType = audioTypes[t];
-            String typeName = audioType.toString();
-            boolean isSupported = true;
-            if (typeName.equals("MP3")) isSupported = MaryAudioUtils.canCreateMP3();
-            else if (typeName.equals("Vorbis")) isSupported = MaryAudioUtils.canCreateOgg();
-            try {
-                audioType = MaryAudioUtils.getAudioFileFormatType(typeName);
-            } catch (Exception e) {
-                isSupported = false;
-            }
-
-            if (isSupported && audioType!=null && AudioSystem.isFileTypeSupported(audioType))
-            {
-                output.append(typeName).append("_FILE\n");
-                
-                if (typeName.equals("MP3") || typeName.equals("Vorbis"))
-                    output.append(typeName).append("_STREAM\n");
-            }
-        }
-        return output.toString();
+        return MaryAudioUtils.getAudioFileFormatTypes();
     }
 
     public String getExampleText(String datatype, Locale locale)

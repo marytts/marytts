@@ -562,10 +562,10 @@ public class MaryServer {
             return false;
         }
 
-        private boolean listAudioFileFormatTypes() {
-            for (AudioFileFormat.Type t : AudioSystem.getAudioFileTypes()) {
-                clientOut.println(t.getExtension() + " " + t.toString());
-            }
+        private boolean listAudioFileFormatTypes()
+        {
+            String info = MaryAudioUtils.getAudioFileFormatTypes();
+            clientOut.println(info);
             // Empty line marks end of info:
             clientOut.println();
             return true;

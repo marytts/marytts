@@ -243,7 +243,7 @@ public class UnitSelectionVoice extends Voice {
     public String getExampleText()
     {
         if (exampleText == null){
-            return ("Sorry, no example text here#"+
+            return ("Sorry, no example text here\n"+
             		"Hier gibt es leider keine Beispiele");}
         else {return exampleText;}
     }
@@ -257,7 +257,7 @@ public class UnitSelectionVoice extends Voice {
         	String line = reader.readLine();
         	while (line != null){
         	    if (!line.startsWith("***")){
-        	        sb.append(line+"#");
+        	        sb.append(line+"\n");
         	    }
         	    line = reader.readLine();
         	}
