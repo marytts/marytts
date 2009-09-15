@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteOrder;
@@ -1110,6 +1111,29 @@ public class MaryUtils {
         }
         
         return -1;
+    }
+    
+    public static void writeCopyrightNotice(PrintWriter out, String commentChar)
+    {
+        out.println(" #########################################################################");
+        out.println(commentChar+" Copyright 2009 DFKI GmbH.");
+        out.println(commentChar+" All Rights Reserved.  Use is subject to license terms.");
+        out.println(commentChar);
+        out.println(commentChar+" This file is part of MARY TTS.");
+        out.println(commentChar);
+        out.println(commentChar+" MARY TTS is free software: you can redistribute it and/or modify");
+        out.println(commentChar+" it under the terms of the GNU Lesser General Public License as published by");
+        out.println(commentChar+" the Free Software Foundation, version 3 of the License.");
+        out.println(commentChar);
+        out.println(commentChar+" This program is distributed in the hope that it will be useful,");
+        out.println(commentChar+" but WITHOUT ANY WARRANTY; without even the implied warranty of");
+        out.println(commentChar+" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the");
+        out.println(commentChar+" GNU Lesser General Public License for more details.");
+        out.println(commentChar);
+        out.println(commentChar+" You should have received a copy of the GNU Lesser General Public License");
+        out.println(commentChar+" along with this program.  If not, see <http://www.gnu.org/licenses/>.");
+        out.println(commentChar);
+        out.println(commentChar+" #########################################################################");
     }
 }
 

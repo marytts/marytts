@@ -27,6 +27,9 @@ import java.util.Iterator;
 import java.util.Locale;
 
 import marytts.fst.FSTLookup;
+import marytts.modules.phonemiser.Allophone;
+import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.phonemiser.Syllabifier;
 import marytts.modules.synthesis.PAConverter;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
@@ -526,7 +529,7 @@ public class PhonemiseDenglish
 				if (knowEnBaseForm(word.substring(0, word.length()-3))) {//download>end<
 					enBaseForm = word.substring(0, word.length()-3);//item without 'end' is base
 					logger.debug("gerund case 1");
-				} else if (knowEnBaseForm(word.substring(0, word.length()-4))) {//scan>n< end
+				} else if (knowEnBaseForm(word.substring(0, word.length()-4)) && word.charAt(word.length()-4) == word.charAt(word.length()-5)) {//scan>n< end
 					enBaseForm = word.substring(0, word.length()-4);
 					logger.debug("gerund case 2");
 				}
@@ -727,23 +730,23 @@ public class PhonemiseDenglish
 		}
 		
 		/**
-		* Reset syllable boundaries.
+		* If the given string ends with a consonant, insert a syllable boundary before that consonant. Otherwise, append a syllable boundary.
 		* @param s input syllable
 		* @return syllable with boundaries reset
 		*/
 		private String rebuildTrans (String s) {
-			String newResult = null;
-			try 
-			{
-				String main = s.substring(0, s.length()-1);
-				String end = s.substring(s.length()-1, s.length());
-				newResult = main+"-"+end;
-			}
-			catch (Exception e)
-			{
-				newResult = null;
-			}
-			return newResult;
+		    AllophoneSet set = jphon.getAllophoneSet();
+		    if (set != null) {
+	            Allophone[] allophones = set.splitIntoAllophones(s);
+	            if (allophones != null && allophones.length > 0) {
+	                Allophone last = allophones[allophones.length-1]; 
+	                if (last.isConsonant()) { // insert a syllable boundary before final consonant
+	                    String lastPh = last.name();
+	                    return s.substring(0, s.length()-lastPh.length())+"-"+lastPh;
+	                }
+	            }
+		    }
+		    return s+"-";
 		}
 		
 		/**
