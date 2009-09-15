@@ -1,5 +1,5 @@
-##########################################################################
-# Copyright 2000-2009 DFKI GmbH.
+ #########################################################################
+# Copyright 2009 DFKI GmbH.
 # All Rights Reserved.  Use is subject to license terms.
 #
 # This file is part of MARY TTS.
@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-##########################################################################
+# #########################################################################
 AG '?a:-ge:
 ASEAN '?a-ze:-a:n
 Aa '?a:-?a:
@@ -31,13 +31,9 @@ Abbau '?ap-baU
 Abbildung '?ap-bIl-dUN
 Abbot '?E-b@t
 Abbreviation ?a-bRe:-vi:-a-'tsjo:n
-Abbreviation ?a-bRe:-vi:a-'tsjo:n
 Abbreviationen ?a-bRe:-vi:-a-'tsjo:-n@n
-Abbreviationen ?a-bRe:-vi:a-'tsjo:-n@n
 Abbreviatur ?a-bRe:-vi:-a-'tu:6
-Abbreviatur ?a-bRe:-vi:a-'tu:6
 Abbreviaturen ?a-bRe:-vi:-a-'tu:-R@n
-Abbreviaturen ?a-bRe:-vi:a-'tu:-R@n
 Abbruch '?ap-bRUx
 Abdel '?ap-dEl
 Abdelkadr '?ap-dEl-ka-d6
@@ -171,9 +167,7 @@ Aerodynamik ?E:-Ro:-dy:-'na:-mi:k
 Aeugchen '?OYg-C@n
 Affen '?a-f@n
 Affiliation ?a-fi:-li:-a-'tsjo:n
-Affiliation ?a-fi:-li:a-'tsjo:n
 Affiliationen ?a-fi:-li:-a-'tsjo:-n@n
-Affiliationen ?a-fi:-li:a-'tsjo:-n@n
 Affront ?af-'Ro~
 Affäre ?a-'fE:-R@
 Affären ?a-'fE:-R@n
@@ -257,9 +251,7 @@ Aktuars ?ak-tu:-'a:6s
 Aktueller ?ak-tu:-'?E-l6
 Akzent ?ak-'tsEnt
 Akzentuation ?ak-tsEn-tu:-a-'tsjo:n
-Akzentuation ?ak-tsEn-tu:a-'tsjo:n
 Akzentuationen ?ak-tsEn-tu:-a-'tsjo:-n@n
-Akzentuationen ?ak-tsEn-tu:a-'tsjo:-n@n
 Akzentuierung ?ak-tsEn-tu:-'i:-RUN
 Akzentuierungen ?ak-tsEn-tu:-'i:-RU-N@n
 Akzeptor ?ak-'tsEp-to:6
@@ -340,7 +332,6 @@ Alpha '?al-fa:
 Alphabets ?al-fa:-'be:ts
 Alpträume '?alp-tROY-m@
 Als '?als
-Also '?al-so:
 Also '?al-zo:
 Alt '?alt
 Alte '?al-t@
@@ -606,11 +597,8 @@ Apartments ?a-'pa6t-m@nts
 Apfel '?a-pf@l
 Apfelwein '?a_pf@l-vaIn
 Aphrodisiaka ?af-Ro:-di:-'zi:-a-ka:
-Aphrodisiaka ?af-Ro:-di:-'zi:a-ka:
 Aphrodisiakum ?af-Ro:-di:-'zi:-a-kUm
-Aphrodisiakum ?af-Ro:-di:-'zi:a-kUm
 Aphrodisiakums ?af-Ro:-di:-'zi:-a-kUms
-Aphrodisiakums ?af-Ro:-di:-'zi:a-kUms
 Apnoesyndrome '?a-pno:-@-zy:n-dRo:-m@
 Apo '?a:-pO
 Aposteriori ?a:-pOs-te:-Ri:-'o:-Ri:
@@ -696,7 +684,6 @@ Arianer ?a-Ri:-'a:-n6
 Arianern ?a-Ri:-'a:-n6n
 Arianers ?a-Ri:-'a:-n6s
 Arianismus ?a-Ri:-a-'nIs-mUs
-Arianismus ?a-Ri:a-'nIs-mUs
 Arier '?a:-Ri:-6
 Aries '?a:-Ri:-Es
 Ariola ?a:-Ri:-'o:-la:
@@ -762,9 +749,7 @@ Ass '?as
 Assemblée ?a-sa~-'ble:
 Association ?E_so:s-'jE-S@n
 Assoziation ?a-so:-tsi:-a-'tsjo:n
-Assoziation ?a-so:-tsi:a-'tsjo:n
 Assoziationen ?a-so:-tsi:-a-'tsjo:-n@n
-Assoziationen ?a-so:-tsi:a-'tsjo:-n@n
 Assumptionist ?a-sUmp-tsjo:-'nIst
 Assumptionisten ?a-sUmp-tsjo:-'nIs-t@n
 Assyrer ?a-'sy:-R6
@@ -1011,7 +996,6 @@ Autosuggestionen ?aU-to:-zU-gEs-ti:-'jo:-n@n
 Autounfall '?aU-to:-?Un-fal
 Außenbereich '?aU-s@n-b@-RaIC
 Außenhandelsfreigabe '?aU-s@n-han-d@ls-fRaI-ga:-b@
-Außenminister '?aU-s@n-mI-nIs-t6
 Außenminister '?aU-s@n-mi:-nIs-t6
 Außenministerin '?aU-s@n-mi:-nIs-t6-RIn
 Außenministerium '?aU-s@n-mi:-nIs-te:-RI-Um
@@ -1902,7 +1886,6 @@ Bundeslandwirtschaftsministerium bUn-d@s-'lant-vI6t-Safts-mi:-nIs-te-RI-Um
 Bundesliga 'bUn-d@s-li:-ga:
 Bundesligisten 'bUn-d@s-li:-gIs-t@n
 Bundesländern 'bUn-d@s-lEn-d6n
-Bundesländern 'bUn-dEs-lEn-d6n
 Bundesminister 'bUn-d@s-mi:-'nIs-t6
 Bundesministerium 'bUn-d@s-mi:-nIs-te:-RI-Um
 Bundesnachrichtendienst bUn-d@s-'na:x-RIC-t@n-di:nst
@@ -2169,7 +2152,6 @@ Christentums 'kRIs-t@n-tu:ms
 Christian 'kRIs-tja:n
 Christiane 'kRIs-tja:-n@
 Christianisierung kRIs-ti:-a-ni:-'zi:-RUN
-Christianisierung kRIs-ti:a-ni:-'zi:-RUN
 Christians 'kRIs-tjans
 Christina kRIs-'ti:-na:
 Christine 'kRIs-ti:-n@
@@ -2224,13 +2206,9 @@ Codes 'kOUds
 Cognomen 'ko:-gno:-m@n
 Cohabitation ko:-ha-bi:-ta:-'tsjo:n
 Coiffeur ko:-a-'f2:6
-Coiffeur ko:a-'f2:6
 Coiffeure ko:-a-'f2:-R@
-Coiffeure ko:a-'f2:-R@
 Coiffeuren ko:-a-'f2:-R@n
-Coiffeuren ko:a-'f2:-R@n
 Coiffeurs ko:-a-'f2:6s
-Coiffeurs ko:a-'f2:6s
 Coitus 'ko:-i:-tUs
 Coitusse 'ko:-i:-tU-s@
 Coitussen 'ko:-i:-tU-s@n
@@ -2484,9 +2462,7 @@ Dennoch 'dE-nOC
 Denunziant de:-nUn-'tsjant
 Denunzianten de:-nUn-'tsjan-t@n
 Denunziation de:-nUn-tsi:-a-'tsjo:n
-Denunziation de:-nUn-tsi:a-'tsjo:n
 Denunziationen de:-nUn-tsi:-a-'tsjo:-n@n
-Denunziationen de:-nUn-tsi:a-'tsjo:-n@n
 Denver 'dEn-v6
 Departement de:-pa6t-'ma~
 Deponien de:-po:-'ni:-@n
@@ -3783,9 +3759,7 @@ Flugzeug 'flu:k-tsOYk
 Flugzeuge 'flu:k-tsOY-g@
 Flugzeugs 'flu:k-tsOYks
 Fluktuation flUk-tu:-a-'tsjo:n
-Fluktuation flUk-tu:a-'tsjo:n
 Fluktuationen flUk-tu:-a-'tsjo:-n@n
-Fluktuationen flUk-tu:a-'tsjo:-n@n
 Fluor 'flu:-O6
 Fluoreszenz flu:-o:-REs-'tsEnts
 Fluors 'flu:-O6s
@@ -4651,7 +4625,6 @@ Großsporthalle 'gRo:s-SpO6t-ha_l@
 Großstädten 'gRo:s-StE:-t@n
 Großteil 'gRo:s-taIl
 Großunternehmens 'gRo:s-?Un-t6-ne:-m@ns
-Großvater 'gROo:s-va:-t6
 Großvater 'gRo:s-fa:-t6
 Gruau 'gRu:-aU
 Grube 'gRu:-b@
@@ -6362,7 +6335,6 @@ Kongopfau 'kON-go:-pfaU
 Kongregationist kOn-gRe:-ga-tsjo:-'nIst
 Kongregationisten kOn-gRe:-ga-tsjo:-'nIs-t@n
 Kongress kON-'gREs
-Kongress kOn-'gREs
 Kongruenz kOn-gRu:-'Ents
 Konklusion kOn-klu:-'zjo:n
 Konklusionen kOn-klu:-'zjo:-n@n
@@ -7707,7 +7679,6 @@ Mitteldeutschland 'mI-t@l-dOYtS-lant
 Mittelfeldspieler 'mI_t@l-fElt-Spi:-l6
 Mittelgewicht 'mI-t@l-g@-vICt
 Mittelmaß 'mI-t@l-ma:s
-Mittelmaß 'mI_t@l-ma:s
 Mittelmeer 'mI_t@l-me:6
 Mitteln 'mI-t@ln
 Mittelpunkt 'mI_t@l-pUNkt
@@ -10125,7 +10096,7 @@ Römern 'R2:-m6n
 Römerstraße 'R2:-m6-StRa:-s@
 Römisches 'R2:-mI-S@s
 Rönsch 'R9nS
-Röntgendiagnostik 'R9nt-gEn-di:-a-gnOs-tIk
+Röntgen 'R9nt-gEn
 Röntgendiagnostik 'R9nt-gEn-di:a-gnOs-tIk
 Rösch 'R9S
 Röslein 'R2:s-laIn
@@ -14251,7 +14222,6 @@ angedacht '?an-g@-daxt
 angeflogen '?an-g@-flo:-g@n
 angegeben '?an-g@-ge:-b@n
 angehen '?an-ge:-@n
-angehängt '?an-g@-hENkt
 angehängt '?an-g@-hENt
 angehören '?an-g@-h2:-R@n
 angekündigt '?an-g@-kYn-dICt
@@ -15783,7 +15753,6 @@ dürfen 'dYR-f@n
 dürfte 'dYRf-t@
 dürften 'dYRf-t@n
 e '?e:
-easy '?i:-si:
 easy '?i:-zi:
 eben '?e:-b@n
 ebenbürtig '?e:-b@n-bY6-tIC
@@ -18553,13 +18522,11 @@ mischen 'mI-S@n
 mischt 'mISt
 mischte 'mIS-t@
 misshandelt mIs-'han-d@lt
-misshandelt mIs-'han-dElt
 missionarisch mIs-jo-'na:-RIS
 missionieren mIs-jo-'ni:-R@n
-misslang 'mIs-laN
 misslang mIs-'laN
-misslungen 'mIs-lUN-@n
-misslungenen 'mIs-lUN-@-n@n
+misslungen mIs-'lUN-@n
+misslungenen mIs-'lUN-@-n@n
 misst 'mIst
 misstrauisch 'mIs-tRaU-IS
 missvergnügt 'mIs-fE6-gny:kt

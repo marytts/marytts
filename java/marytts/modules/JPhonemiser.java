@@ -315,7 +315,16 @@ public class JPhonemiser extends InternalModule
          }
          // no match of POS: return last entry
          return transcr;
-    }    
+    }
+    
+    /**
+     * Access the allophone set underlying this phonemiser.
+     * @return
+     */
+    public AllophoneSet getAllophoneSet()
+    {
+        return allophoneSet;
+    }
     
 
     

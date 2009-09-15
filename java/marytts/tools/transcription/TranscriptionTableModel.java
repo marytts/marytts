@@ -34,6 +34,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -44,6 +45,7 @@ import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.tools.dbselection.DBHandler;
 import marytts.tools.newlanguage.LexiconCreator;
+import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;
 
 /**
@@ -130,6 +132,8 @@ public class TranscriptionTableModel extends AbstractTableModel {
     public void saveTranscription(String fileName) throws Exception {
         
         PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8"));
+        // Save copyright notice first
+        MaryUtils.writeCopyrightNotice(out, "#");
         for(int i=0; i < data.length; i++){
             
             String line =  (String) data[i][1];
@@ -156,26 +160,23 @@ public class TranscriptionTableModel extends AbstractTableModel {
      * @throws Exception
      */
     public void loadTranscription(String fileName) throws Exception{    
-        String fileData   =  FileUtils.getFileAsString(new File(fileName), "UTF-8");
-        fileData = fileData.replaceAll("\n\\s*\n", "\n");
-        String[] lines    =  fileData.split("\n");
-        this.data         =  new Object[lines.length][4];
-        this.hasManualVerification  =  new boolean[lines.length];
-        this.hasCorrectSyntax  =  new boolean[lines.length];
+        List<String> lines = new ArrayList<String>();
+        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"));
+        String line;
+        while ((line = br.readLine()) != null) {
+            line = line.trim();
+            if (line.equals("") || line.startsWith("#")) continue;
+            lines.add(line);
+        }
+        this.data         =  new Object[lines.size()][4];
+        this.hasManualVerification  =  new boolean[lines.size()];
+        this.hasCorrectSyntax  =  new boolean[lines.size()];
         
-        for(int i=0; i < lines.length; i++){
-            if(lines[i].trim().equals("")){
-                data[i][0] = "";
-                data[i][1] = "";
-                data[i][2] = "";
-                data[i][3] = Boolean.FALSE;
-                setAsManualVerify(i, false);
-                continue; 
-            }
-            String[]  words = lines[i].trim().split("\\s+");
+        for(int i=0; i < lines.size(); i++){
+            String[]  words = lines.get(i).split("\\s+");
             data[i][0] = Integer.toString(i);
             data[i][1] = words[0];
-            if(lines[i].trim().endsWith("functional")){
+            if(lines.get(i).endsWith("functional")){
                 data[i][3] = new Boolean(true);
                 if(words.length == 3){
                     data[i][2] = words[1];
@@ -338,28 +339,46 @@ public class TranscriptionTableModel extends AbstractTableModel {
         return countData != 0;
     }
     
-    
-    public void testFST(String fstFilename) throws IOException{
+    /**
+     * For all words in lexicon, verify if they can be looked up in fst file.
+     * @param lexiconFilename
+     * @param fstFilename
+     * @throws IOException
+     */
+    public void testFST(String lexiconFilename, String fstFilename) throws IOException
+    {
+        System.err.println("Testing FST...");
         FSTLookup fst = new FSTLookup(fstFilename);
-        String key = "Item";
-        String[] result = fst.lookup(key);
-        if(result == null) System.out.println("Not available");
-        System.out.println("Result Len: " + result.length);
-        for(int i=0;i<result.length;i++){
-            System.out.print("Available: ");
-            System.out.print(result[i]);
-            System.out.println();
+        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(lexiconFilename), "UTF-8"));
+        String line;
+        int nCorrect = 0;
+        int nFailed = 0;
+        while ((line = br.readLine()) != null) {
+            String[] parts = line.split("\\s*\\|\\s*");
+            String key = parts[0];
+            String value = parts[1];
+            String[] lookupResult = fst.lookup(key);
+            assert lookupResult != null;
+            if (lookupResult.length == 1 && value.equals(lookupResult[0])) {
+                nCorrect++;
+            } else {
+                nFailed++;
+                System.err.print("Problem looking up key '"+key+"': Expected value '"+value+"', but got ");
+                if (lookupResult.length == 0) {
+                    System.err.println("no result");
+                } else if (lookupResult.length == 1) {
+                    System.err.println("result '"+lookupResult[0]+"'");
+                } else {
+                    System.err.print(+lookupResult.length+" results:");
+                    for (String res : lookupResult) {
+                        System.err.print(" '"+res+"'");
+                    }
+                    System.err.println();
+                }
+            }
         }
-        //System.out.println(" ************** ");
-        key = "Spieltags";
-        result = fst.lookup(key);
-        if(result == null) System.out.println("Not available");
-        System.out.println("Result Len: " + result.length);
-        for(int i=0;i<result.length;i++){
-            System.out.print("Available: ");
-            System.out.print(result[i]);
-            System.out.println();
-        }
+        br.close();
+        System.err.println("Testing complete. "+(nCorrect+nFailed)+" entries ("+nCorrect+" correct, "+nFailed+" failed)");
     }
     
     public void createPOSFst(String posFilename, String fstFilename) throws Exception{
@@ -419,7 +438,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
         t.writeFST(os,"UTF-8");
         os.flush();
         os.close();
-        //testFST(fstFilename);
+        testFST(lexiconFilename, fstFilename);
     }
     
     /**
