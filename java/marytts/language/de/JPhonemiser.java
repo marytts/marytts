@@ -366,11 +366,11 @@ public class JPhonemiser extends marytts.modules.JPhonemiser
        
 		Result resultingWord = phonemiseDenglish.processWord(text, usEnglishLexicon != null);
 		result = resultingWord.getTranscription();
-		result = allophoneSet.splitAllophoneString(result);
 		boolean usedOtherLanguageToPhonemise = resultingWord.isUsedOtherLanguageToPhonemise();
 		
         //logger.debug("input for PD: "+text);
         if (result != null) {
+            result = allophoneSet.splitAllophoneString(result);
 			if (usedOtherLanguageToPhonemise) {
 				g2pMethod.append("phonemiseDenglish");
 				return result;
