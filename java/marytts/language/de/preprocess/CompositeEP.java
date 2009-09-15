@@ -182,6 +182,10 @@ public class CompositeEP extends ExpansionPattern
                 expanded.add(t);
                 isFirst = false;
             }
+        } else if (s.equals("'s")) {
+            // a standalone 's: simply pronounce it as [s].
+            t.setAttribute("ph", "s");
+            expanded.add(t);
         } else if (s.endsWith("'s")) {
             // Cases like "geht's": Simply have it pronounced like "gehts".
             // No iteration.
