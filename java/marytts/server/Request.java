@@ -567,6 +567,12 @@ public class Request {
                 logger.info("After garbage collection: " + MaryUtils.availableMemory() + " bytes available.");
             }
         }
+        if (currentData.getType() == MaryDataType.AUDIO) {
+            AudioInputStream ais = currentData.getAudio();
+            assert ais != null;
+            assert ais instanceof AppendableSequenceAudioInputStream;
+            ((AppendableSequenceAudioInputStream)ais).doneAppending();
+        }
         return currentData;
     }
 
