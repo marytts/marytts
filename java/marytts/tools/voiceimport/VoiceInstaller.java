@@ -345,7 +345,11 @@ public class VoiceInstaller extends VoiceImportComponent{
               
               //Weight of the target cost function vs. the join cost function
               configOut.println("# Relative weight of the target cost function vs. the join cost function\n"+
-                      voiceHeader+".viterbi.wTargetCosts = "+"0.7"+"\n");
+                      voiceHeader+".viterbi.wTargetCosts = 0.7\n");
+              // Viterbit beam size
+              configOut.println("# Beam size in dynamic programming: smaller => faster but worse quality.\n"
+                      +"# (set to -1 to disable beam search; very slow but best available quality)\n"
+                      +voiceHeader+".viterbi.beamsize = 100\n");
               
               //language specific settings 
               if (locale.equals("de")) {
