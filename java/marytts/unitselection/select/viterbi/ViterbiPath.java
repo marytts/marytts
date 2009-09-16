@@ -29,17 +29,18 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package marytts.unitselection.select;
+package marytts.unitselection.select.viterbi;
 
 import java.util.LinkedHashMap;
  /**
   * Describes a Viterbi path.
   */
- public class ViterbiPath {
-	private double score;
-	private ViterbiCandidate candidate;
-    private ViterbiPath previous;
-	private ViterbiPath next = null;
+ public class ViterbiPath implements Comparable<ViterbiPath>
+ {
+	final double score;
+	final ViterbiCandidate candidate;
+    final ViterbiPath previous;
+	ViterbiPath next = null;
 	
 	public ViterbiPath(ViterbiCandidate candidate, ViterbiPath previousPath, double score)
 	{
@@ -103,5 +104,13 @@ import java.util.LinkedHashMap;
 	public String toString() {
 	    return "ViterbiPath score " + score + " leads to candidate unit " + candidate.getUnit();
 	}
+	
+	/**
+	 * Compare two viterbi paths such that the one with the lower score is considered smaller.
+	 */
+    public int compareTo(ViterbiPath o)
+    {
+        return Double.compare(score, o.score);
+    }
  }
    

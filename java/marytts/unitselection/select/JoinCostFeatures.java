@@ -374,29 +374,27 @@ public class JoinCostFeatures implements JoinCostFunction
      */
     public double cost(Target t1, Unit u1, Target t2, Unit u2 ) {
         // Units of length 0 cannot be joined:
-        if (u1.getDuration() == 0 || u2.getDuration() == 0) return Double.POSITIVE_INFINITY;
+        if (u1.duration == 0 || u2.duration == 0) return Double.POSITIVE_INFINITY;
         // In the case of diphones, replace them with the relevant part:
         boolean bothDiphones = true;
         if (u1 instanceof DiphoneUnit) {
-            u1 = ((DiphoneUnit)u1).getRight();
+            u1 = ((DiphoneUnit)u1).right;
         } else {
             bothDiphones = false;
         }
         if (u2 instanceof DiphoneUnit) {
-            u2 = ((DiphoneUnit)u2).getLeft();
+            u2 = ((DiphoneUnit)u2).left;
         } else {
             bothDiphones = false;
         }
         
-        int u1index = u1.getIndex();
-        int u2index = u2.getIndex();
-        if (u1index+1 == u2index) return 0;
+        if (u1.index+1 == u2.index) return 0;
         // Either not half phone synthesis, or at a diphone boundary
         double cost = 1; // basic penalty for joins of non-contiguous units. 
         if (bothDiphones && precompiledCosts != null) {
             cost += precompiledCosts.cost(t1, u1, t2, u2);
         } else { // need to actually compute the cost
-            cost += cost( u1index, u2index );
+            cost += cost( u1.index, u2.index );
         }
         return cost;
     }

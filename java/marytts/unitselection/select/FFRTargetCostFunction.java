@@ -73,24 +73,23 @@ public class FFRTargetCostFunction implements TargetCostFunction
         nCostComputations++; // for debug
         FeatureVector targetFeatures = target.getFeatureVector(); 
         assert targetFeatures != null: "Target "+target+" does not have pre-computed feature vector";
-        FeatureVector unitFeatures = featureVectors[unit.getIndex()];
-        int nBytes = targetFeatures.getNumberOfByteFeatures();
-        int nShorts = targetFeatures.getNumberOfShortFeatures();
-        int nFloats = targetFeatures.getNumberOfContinuousFeatures();
-        assert nBytes == unitFeatures.getNumberOfByteFeatures();
-        assert nShorts == unitFeatures.getNumberOfShortFeatures();
-        assert nFloats == unitFeatures.getNumberOfContinuousFeatures();
+        FeatureVector unitFeatures = featureVectors[unit.index];
+        int nBytes = targetFeatures.byteValuedDiscreteFeatures.length;
+        int nShorts = targetFeatures.shortValuedDiscreteFeatures.length;
+        int nFloats = targetFeatures.continuousFeatures.length;
+        assert nBytes == unitFeatures.byteValuedDiscreteFeatures.length;
+        assert nShorts == unitFeatures.shortValuedDiscreteFeatures.length;
+        assert nFloats == unitFeatures.continuousFeatures.length;
+
         float[] weightVector = weights.getFeatureWeights();
         // Now the actual computation
         double cost = 0;
         // byte-valued features:
         if (nBytes > 0) {
-            byte[] targetBytes = targetFeatures.getByteValuedDiscreteFeatures();
-            byte[] unitBytes = unitFeatures.getByteValuedDiscreteFeatures();
             for (int i=0; i<nBytes; i++) {
                 if (weightsNonZero[i]) {
                     float weight = weightVector[i];
-                    if (targetBytes[i] != unitBytes[i]) {
+                    if (targetFeatures.byteValuedDiscreteFeatures[i] != unitFeatures.byteValuedDiscreteFeatures[i]) {
                         cost += weight;
                         if (debugShowCostGraph) cumulWeightedCosts[i] += weight;
                     }
@@ -102,7 +101,8 @@ public class FFRTargetCostFunction implements TargetCostFunction
             for (int i=nBytes, n=nBytes+nShorts; i<n; i++) {
                 if (weightsNonZero[i]) {
                     float weight = weightVector[i];
-                    if (targetFeatures.getShortFeature(i) != unitFeatures.getShortFeature(i)) {
+                    //if (targetFeatures.getShortFeature(i) != unitFeatures.getShortFeature(i)) {
+                    if (targetFeatures.shortValuedDiscreteFeatures[i-nBytes] != unitFeatures.shortValuedDiscreteFeatures[i-nBytes]) {
                         cost += weight;
                         if (debugShowCostGraph) cumulWeightedCosts[i] += weight;
                     }
@@ -111,13 +111,18 @@ public class FFRTargetCostFunction implements TargetCostFunction
         }
         // continuous features:
         if (nFloats > 0) {
-            for (int i=nBytes+nShorts, n=nBytes+nShorts+nFloats; i<n; i++) {
+            int nDiscrete = nBytes+nShorts;
+            for (int i=nDiscrete, n=nDiscrete+nFloats; i<n; i++) {
                 if (weightsNonZero[i]) {
                     float weight = weightVector[i];
-                    float a = targetFeatures.getContinuousFeature(i);
-                    float b = unitFeatures.getContinuousFeature(i);
-                    if (!Float.isNaN(a) && !Float.isNaN(b)) {
-                        double myCost = weightFunctions[i-nBytes-nShorts].cost(a, b); 
+                    //float a = targetFeatures.getContinuousFeature(i);
+                    float a = targetFeatures.continuousFeatures[i-nDiscrete];
+                    //float b = unitFeatures.getContinuousFeature(i);
+                    float b = unitFeatures.continuousFeatures[i-nDiscrete];
+                    //if (!Float.isNaN(a) && !Float.isNaN(b)) {
+                    // Implementation of isNaN() is: (v != v).
+                    if (!(a != a) && !(b != b)) {
+                        double myCost = weightFunctions[i-nDiscrete].cost(a, b); 
                         cost += weight * myCost;
                         if (debugShowCostGraph) {
                             cumulWeightedCosts[i] += weight * myCost;
@@ -212,7 +217,7 @@ public class FFRTargetCostFunction implements TargetCostFunction
      */
     public FeatureVector getFeatureVector(Unit unit)
     {
-        return featureVectors[unit.getIndex()];
+        return featureVectors[unit.index];
     }
     
     /**
@@ -227,13 +232,13 @@ public class FFRTargetCostFunction implements TargetCostFunction
     {
         int featureIndex = featureDefinition.getFeatureIndex(featureName);
         if (featureDefinition.isByteFeature(featureIndex)) {
-            byte value = featureVectors[unit.getIndex()].getByteFeature(featureIndex);
+            byte value = featureVectors[unit.index].getByteFeature(featureIndex);
             return featureDefinition.getFeatureValueAsString(featureIndex, value);
         } else if (featureDefinition.isShortFeature(featureIndex)) {
-            short value = featureVectors[unit.getIndex()].getShortFeature(featureIndex);
+            short value = featureVectors[unit.index].getShortFeature(featureIndex);
             return featureDefinition.getFeatureValueAsString(featureIndex, value);
         } else { // continuous -- return float as string
-            float value = featureVectors[unit.getIndex()].getContinuousFeature(featureIndex);
+            float value = featureVectors[unit.index].getContinuousFeature(featureIndex);
             return String.valueOf(value);
         }
     }
@@ -278,6 +283,11 @@ public class FFRTargetCostFunction implements TargetCostFunction
             updateData(0, 1, newCosts);
             repaint();
         }
+    }
+
+    public FeatureVector[] getFeatureVectors()
+    {
+        return featureVectors;
     }
 
 }

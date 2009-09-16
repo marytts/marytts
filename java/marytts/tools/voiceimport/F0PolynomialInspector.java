@@ -250,8 +250,8 @@ public class F0PolynomialInspector extends VoiceImportComponent
             if (iSentenceStart >= 0 && iSentenceEnd >= iSentenceStart && iSylVowels.size() > 0) {
                 assert iSylStarts.size() == iSylEnds.size() : "Have "+iSylStarts.size()+" syllable starts, but "+iSylEnds.size()+" syllable ends!";
                 assert iSylStarts.size() == iSylVowels.size();
-                long tsSentenceStart = units.getUnit(iSentenceStart).getStart();
-                long tsSentenceEnd = units.getUnit(iSentenceEnd).getStart() + units.getUnit(iSentenceEnd).getDuration();
+                long tsSentenceStart = units.getUnit(iSentenceStart).startTime;
+                long tsSentenceEnd = units.getUnit(iSentenceEnd).startTime + units.getUnit(iSentenceEnd).duration;
                 long tsSentenceDuration = tsSentenceEnd - tsSentenceStart;
                 Datagram[] sentenceData = audio.getDatagrams(tsSentenceStart, tsSentenceDuration);
                 DatagramDoubleDataSource ddds = new DatagramDoubleDataSource(sentenceData);
@@ -318,8 +318,8 @@ public class F0PolynomialInspector extends VoiceImportComponent
                     double[] approx = new double[f0Array.length];
                     Arrays.fill(approx, Double.NaN);
                     for (int s=0; s<iSylStarts.size(); s++) {
-                        long tsSylStart = units.getUnit(iSylStarts.get(s)).getStart();
-                        long tsSylEnd = units.getUnit(iSylEnds.get(s)).getStart() + units.getUnit(iSylEnds.get(s)).getDuration();
+                        long tsSylStart = units.getUnit(iSylStarts.get(s)).startTime;
+                        long tsSylEnd = units.getUnit(iSylEnds.get(s)).startTime + units.getUnit(iSylEnds.get(s)).duration;
                         long tsSylDuration = tsSylEnd - tsSylStart;
                         int iSylVowel = iSylVowels.get(s);
                         // now map time to position in f0AndInterpol array:
@@ -345,8 +345,8 @@ public class F0PolynomialInspector extends VoiceImportComponent
                         Arrays.fill(unitF0, Double.NaN);
                         for (int u=0; u+iSentenceStart<=iSentenceEnd; u++) {
                             FeatureVector localFV = features.getFeatureVector(u+iSentenceStart);
-                            long tsUnitStart = units.getUnit(u+iSentenceStart).getStart();
-                            long tsUnitDuration = units.getUnit(u+iSentenceStart).getDuration();
+                            long tsUnitStart = units.getUnit(u+iSentenceStart).startTime;
+                            long tsUnitDuration = units.getUnit(u+iSentenceStart).duration;
                             int iUnitStartInArray = (int) (unitF0.length * (tsUnitStart-tsSentenceStart) / tsSentenceDuration);
                             int iUnitDurationInArray = (int)(unitF0.length * tsUnitDuration / tsSentenceDuration);
                             //while (iUnitDurationInArray+iUnitStartInArray>unitF0.length) iUnitDurationInArray--;

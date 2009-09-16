@@ -176,7 +176,7 @@ public class HalfPhoneFFRTargetCostFunction extends FFRTargetCostFunction
      */
     public FeatureVector getUnitFeatures(Unit unit)
     {
-        return featureVectors[unit.getIndex()];
+        return featureVectors[unit.index];
     }
     
     /**
@@ -191,13 +191,13 @@ public class HalfPhoneFFRTargetCostFunction extends FFRTargetCostFunction
     {
         int featureIndex = featureDefinition.getFeatureIndex(featureName);
         if (featureDefinition.isByteFeature(featureIndex)) {
-            byte value = featureVectors[unit.getIndex()].getByteFeature(featureIndex);
+            byte value = featureVectors[unit.index].getByteFeature(featureIndex);
             return featureDefinition.getFeatureValueAsString(featureIndex, value);
         } else if (featureDefinition.isShortFeature(featureIndex)) {
-            short value = featureVectors[unit.getIndex()].getShortFeature(featureIndex);
+            short value = featureVectors[unit.index].getShortFeature(featureIndex);
             return featureDefinition.getFeatureValueAsString(featureIndex, value);
         } else { // continuous -- return float as string
-            float value = featureVectors[unit.getIndex()].getContinuousFeature(featureIndex);
+            float value = featureVectors[unit.index].getContinuousFeature(featureIndex);
             return String.valueOf(value);
         }
     }

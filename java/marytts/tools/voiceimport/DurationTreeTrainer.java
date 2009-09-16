@@ -145,7 +145,7 @@ public class DurationTreeTrainer extends VoiceImportComponent
             FeatureVector[] fvs = fvLeaf.getFeatureVectors();
             double[] dur = new double[fvs.length];
             for (int i=0; i<fvs.length; i++) {
-                dur[i] = unitFile.getUnit(fvs[i].getUnitIndex()).getDuration() / (float)unitFile.getSampleRate();
+                dur[i] = unitFile.getUnit(fvs[i].getUnitIndex()).duration / (float)unitFile.getSampleRate();
             }
             double mean = MathUtils.mean(dur);
             double stddev = MathUtils.standardDeviation(dur, mean);

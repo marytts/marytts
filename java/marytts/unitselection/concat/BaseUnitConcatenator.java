@@ -132,8 +132,8 @@ public class BaseUnitConcatenator implements UnitConcatenator
             UnitData unitData = new UnitData();
             unit.setConcatenationData(unitData);
             int nSamples = 0;
-            int unitSize = unitToTimeline(unit.getUnit().getDuration()); // convert to timeline samples
-            long unitStart = unitToTimeline(unit.getUnit().getStart()); // convert to timeline samples
+            int unitSize = unitToTimeline(unit.getUnit().duration); // convert to timeline samples
+            long unitStart = unitToTimeline(unit.getUnit().startTime); // convert to timeline samples
             //System.out.println("Unit size "+unitSize+", pitchmarksInUnit "+pitchmarksInUnit);
             Datagram[] datagrams = timeline.getDatagrams(unitStart,(long)unitSize);
             unitData.setFrames(datagrams);

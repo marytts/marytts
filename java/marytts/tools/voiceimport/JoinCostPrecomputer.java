@@ -169,14 +169,14 @@ public class JoinCostPrecomputer extends VoiceImportComponent
             for (int j=0; j<nLeftPhoneme; j++) {
                 Unit uleft = (Unit) left[i].get(j);
                 SortedMap sortedCosts = new TreeMap();
-                int ileft = uleft.getIndex();
+                int ileft = uleft.index;
                 //System.out.println("Left unit "+j+" (index "+ileft+")");
                 jc.writeInt(ileft);
                 // Now for this left halfphone, compute the cost of joining to each
                 // right halfphones of the same phone, and remember only the best.
                 for (int k=0; k<nRightPhoneme; k++) {
                     Unit uright = (Unit) right[i].get(k);
-                    int iright = uright.getIndex();
+                    int iright = uright.index;
                     //System.out.println("right unit "+k+" (index "+iright+")");
                     double cost = joinFeatures.cost(ileft, iright);
                     Double dCost = new Double(cost);
@@ -206,7 +206,7 @@ public class JoinCostPrecomputer extends VoiceImportComponent
                     Object ob = sortedCosts.get(cost);
                     if (ob instanceof Unit) {
                         Unit u = (Unit) ob;
-                        int iright = u.getIndex();
+                        int iright = u.index;
                         jc.writeInt(iright);
                         jc.writeFloat(fcost);
                         k++;
@@ -215,7 +215,7 @@ public class JoinCostPrecomputer extends VoiceImportComponent
                         List l = (List) ob;
                         for (Iterator li = l.iterator(); k<nRetain && li.hasNext(); ) {
                             Unit u = (Unit) li.next();
-                            int iright = u.getIndex();
+                            int iright = u.index;
                             jc.writeInt(iright);
                             jc.writeFloat(fcost);
                             k++;

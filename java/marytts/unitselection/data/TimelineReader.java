@@ -451,7 +451,7 @@ public class TimelineReader extends TimelineIO
      * @return an array of datagrams
      */
     public synchronized Datagram[] getDatagrams( Unit unit, int reqSampleRate, long[] returnOffset ) throws IOException {
-        return( getDatagrams( unit.getStart(), (long)(unit.getDuration()), reqSampleRate, returnOffset ) );
+        return( getDatagrams( unit.startTime, (long)(unit.duration), reqSampleRate, returnOffset ) );
     }
 
     /**

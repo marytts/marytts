@@ -25,6 +25,7 @@ import java.util.List;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.SynthesisException;
 import marytts.unitselection.data.UnitDatabase;
+import marytts.unitselection.select.viterbi.Viterbi;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
@@ -43,6 +44,7 @@ public class UnitSelector
     protected Logger logger;
     protected float targetCostWeight;
     protected float sCostWeight = -1;
+    protected int beamSize;
     
     /**
      * Initialise the unit selector. Need to call load() separately.
@@ -53,17 +55,19 @@ public class UnitSelector
         logger = Logger.getLogger(this.getClass());
     }
     
-    public void load(UnitDatabase unitDatabase, float targetCostWeight)
+    public void load(UnitDatabase unitDatabase, float targetCostWeight, int beamSize)
     {
         this.database = unitDatabase;
         this.targetCostWeight = targetCostWeight;
+        this.beamSize = beamSize;
     }
     
-    public void load(UnitDatabase unitDatabase, float targetCostWeight, float sCostWeight)
+    public void load(UnitDatabase unitDatabase, float targetCostWeight, float sCostWeight, int beamSize)
     {
         this.database = unitDatabase;
         this.targetCostWeight = targetCostWeight;
         this.sCostWeight = sCostWeight;
+        this.beamSize = beamSize;
     }
     
     /**
@@ -108,9 +112,9 @@ public class UnitSelector
         Viterbi viterbi;
         //Select the best candidates using Viterbi and the join cost function.
         if(sCostWeight < 0){
-            viterbi = new Viterbi(targets, database, targetCostWeight);
+            viterbi = new Viterbi(targets, database, targetCostWeight, beamSize);
         }else{
-            viterbi = new Viterbi(targets, database, targetCostWeight, sCostWeight);
+            viterbi = new Viterbi(targets, database, targetCostWeight, sCostWeight, beamSize);
         }
         
         viterbi.apply();

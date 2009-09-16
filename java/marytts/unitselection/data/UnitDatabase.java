@@ -22,13 +22,15 @@ package marytts.unitselection.data;
 
 
 import java.io.IOException;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import marytts.cart.CART;
 import marytts.unitselection.select.JoinCostFunction;
 import marytts.unitselection.select.StatisticalCostFunction;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.TargetCostFunction;
-import marytts.unitselection.select.ViterbiCandidate;
+import marytts.unitselection.select.viterbi.ViterbiCandidate;
 
 import org.apache.log4j.Logger;
 
@@ -126,7 +128,7 @@ public class UnitDatabase
      * @param target a Target object representing an optimal unit
      * @return an array of ViterbiCandidates, each containing the (same) target and a (different) Unit object
      */
-    public ViterbiCandidate[] getCandidates(Target target)
+    public SortedSet<ViterbiCandidate> getCandidates(Target target)
     {
         //logger.debug("Looking for candidates in cart "+target.getName());
         //get the cart tree and extract the candidates
@@ -134,12 +136,12 @@ public class UnitDatabase
         logger.debug("For target "+target+", selected " + clist.length + " units");
 
         // Now, clist is an array of unit indexes.
-        ViterbiCandidate[] candidates = new ViterbiCandidate[clist.length];
+        SortedSet<ViterbiCandidate> candidates = new TreeSet<ViterbiCandidate>();
         for (int i = 0; i < clist.length; i++) {
             // The target is the same for all these candidates in the queue
             // remember the actual unit:
             Unit unit = unitReader.getUnit(clist[i]);
-            candidates[i] = new ViterbiCandidate(target, unit);
+            candidates.add(new ViterbiCandidate(target, unit, targetCostFunction));
         }
         return candidates;
     }
@@ -158,13 +160,13 @@ public class UnitDatabase
        if (basenameTimeline == null) return "unknown origin";
        long[] offset = new long[1];
        try {
-           Datagram[] datagrams = basenameTimeline.getDatagrams(unit.getStart(), 1, unitReader.getSampleRate(), offset);
+           Datagram[] datagrams = basenameTimeline.getDatagrams(unit.startTime, 1, unitReader.getSampleRate(), offset);
            Datagram filenameData = datagrams[0];
            float time = (float)offset[0]/basenameTimeline.getSampleRate();
            String filename = new String(filenameData.getData(), "UTF-8");
            return filename + " " + time;
        } catch (Exception e) {
-           logger.warn("Problem getting filename and time for unit "+unit.getIndex()+" at time "+unit.getStart(), e);
+           logger.warn("Problem getting filename and time for unit "+unit.index+" at time "+unit.startTime, e);
            return "unknown origin";
        }
     }

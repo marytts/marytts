@@ -147,10 +147,10 @@ public class PrecompiledJoinCostReader implements JoinCostFunction
      */
     public double cost(Target t1, Unit uleft, Target t2, Unit uright)
     {
-        Integer leftIndex = new Integer(uleft.getIndex());
+        Integer leftIndex = new Integer(uleft.index);
         Map rightUnitsMap = (Map)left.get(leftIndex);
         if (rightUnitsMap == null) return Double.POSITIVE_INFINITY;
-        Integer rightIndex = new Integer(uright.getIndex());
+        Integer rightIndex = new Integer(uright.index);
         Float cost = (Float) rightUnitsMap.get(rightIndex);
         if (cost == null) return Double.POSITIVE_INFINITY;
         return cost.doubleValue();

@@ -21,8 +21,8 @@ package marytts.unitselection.data;
 
 public class DiphoneUnit extends Unit
 {
-    protected Unit left;
-    protected Unit right;
+    public final Unit left;
+    public final Unit right;
     
     public DiphoneUnit(Unit left, Unit right)
     {
@@ -31,15 +31,6 @@ public class DiphoneUnit extends Unit
         this.right = right;
     }
     
-    public Unit getLeft()
-    {
-        return left;
-    }
-    
-    public Unit getRight()
-    {
-        return right;
-    }
 
     public int getIndex()
     {

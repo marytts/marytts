@@ -165,11 +165,12 @@ public class UnitSelectionVoice extends Voice {
             String selectorClass = MaryProperties.needProperty(header+".selectorClass");
             unitSelector = (UnitSelector) Class.forName(selectorClass).newInstance();
             float targetCostWeights = Float.parseFloat(MaryProperties.getProperty(header+".viterbi.wTargetCosts", "0.33"));
+            int beamSize = MaryProperties.getInteger(header+".viterbi.beamsize", 100);
             if (!useSCost) {
-                unitSelector.load(database, targetCostWeights);
+                unitSelector.load(database, targetCostWeights, beamSize);
             } else {
                 float sCostWeights = Float.parseFloat(MaryProperties.getProperty(header+".viterbi.wSCosts", "0.33"));
-                unitSelector.load(database, targetCostWeights, sCostWeights);
+                unitSelector.load(database, targetCostWeights, sCostWeights, beamSize);
             }
             
             //samplingRate -> bin, audioformat -> concatenator

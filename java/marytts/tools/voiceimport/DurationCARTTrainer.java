@@ -160,7 +160,7 @@ public class DurationCARTTrainer extends VoiceImportComponent
             // (that's probably wrong, but never mind)
             percent = 10*i/len;
             Unit u = unitFile.getUnit(i);
-            float dur = u.getDuration() / (float) unitFile.getSampleRate();
+            float dur = u.duration / (float) unitFile.getSampleRate();
             if (dur >= 0.01) { // enforce a minimum duration for training data
                 toFeaturesFile.println(dur + " " + featureDefinition.toFeatureString(featureFile.getFeatureVector(i)));
                 nUnits++;

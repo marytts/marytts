@@ -29,11 +29,13 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package marytts.unitselection.select;
+package marytts.unitselection.select.viterbi;
 
 import java.util.Comparator;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import marytts.unitselection.select.Target;
 
  /**
   * Represents a point in the Viterbi path. A point corresponds to an item,
@@ -42,22 +44,27 @@ import java.util.TreeSet;
   * about its next ViterbiPoint, i.e. they can form a queue.
   */
  public class ViterbiPoint {
-     private Target target = null;
-     private ViterbiCandidate[] candidates = null;
-     private SortedSet<ViterbiPath> paths = new TreeSet<ViterbiPath>(new Comparator<ViterbiPath>() {
-         public int compare(ViterbiPath p1, ViterbiPath p2)
-         {
-             // big is bad:
-             return Double.compare(p1.getScore(), p2.getScore());
-         }
-     });
-     private ViterbiPoint next = null;
+     Target target = null;
+     SortedSet<ViterbiCandidate> candidates = null;
+     SortedSet<ViterbiPath> paths = new TreeSet<ViterbiPath>();
+     ViterbiPoint next = null;
 	
+     /**
+      * Creates a ViterbiPoint for the given target.
+      *
+      * @param target the target of interest
+      */
+     public ViterbiPoint(Target target)
+     {
+         this.target = target;
+     }
+     
      /**
  	 * Gets the target of this point
  	 * @return the target
  	 */
- 	public Target getTarget(){
+ 	public Target getTarget()
+ 	{
  	    return target;
  	}
  	
@@ -65,7 +72,8 @@ import java.util.TreeSet;
  	 * Sets the target of this point
  	 * @param target the new target
  	 */
- 	public void setTarget(Target target){
+ 	public void setTarget(Target target)
+ 	{
  	    this.target = target;
  	}
      
@@ -73,7 +81,7 @@ import java.util.TreeSet;
  	 * Gets the candidates of this point
  	 * @return the candidates
  	 */
-     public ViterbiCandidate[] getCandidates()
+     public SortedSet<ViterbiCandidate> getCandidates()
      {
  	    return candidates;
  	}
@@ -82,7 +90,8 @@ import java.util.TreeSet;
       * Sets the candidates of this point
       * @param cands the candidates
       */
- 	public void setCandidates(ViterbiCandidate[] candidates){
+ 	public void setCandidates(SortedSet<ViterbiCandidate> candidates)
+ 	{
  	    this.candidates = candidates;
  	}
     
@@ -92,7 +101,8 @@ import java.util.TreeSet;
      * score, i.e. the best path.
  	 * @return a sorted set.
  	 */
-	public SortedSet getPaths(){
+	public SortedSet<ViterbiPath> getPaths()
+	{
 	    return paths;
 	}
 	
@@ -100,7 +110,8 @@ import java.util.TreeSet;
 	 * Gets the next point in the queue
 	 * @return the next point
 	 */
-	public ViterbiPoint getNext(){
+	public ViterbiPoint getNext()
+	{
 	    return next;
 	}
 	
@@ -108,19 +119,12 @@ import java.util.TreeSet;
 	 * Sets the next point in the queue
 	 * @param next the next point
 	 */
-	public void setNext(ViterbiPoint next){
+	public void setNext(ViterbiPoint next)
+	{
 	    this.next = next;
 	}
 	
-	/**
-	 * Creates a ViterbiPoint for the given target. A typical 
-	 * target may represent a phone, i.e. an Item in the Segment relation.
-	 *
-	 * @param target the target of interest
-	 */
-	public ViterbiPoint(Target target) {
-	    this.target = target;
-	}
+
 	
 	
 	

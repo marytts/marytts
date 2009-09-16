@@ -232,8 +232,8 @@ public class JoinCostFileMaker extends VoiceImportComponent {
                 float rightLogF0 = logf0 + 0.5f * logf0Delta;
                 
                 /* Read the unit */
-                unitPosition = ufr.getUnit(i).getStart();
-                unitDuration = ufr.getUnit(i).getDuration();
+                unitPosition = ufr.getUnit(i).startTime;
+                unitDuration = ufr.getUnit(i).duration;
                 
                 /* If the unit is not a START or END marker
                  * and has length > 0: */

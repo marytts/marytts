@@ -108,13 +108,13 @@ public class StatisticalModelCost implements StatisticalCostFunction
     public double cost(Unit u1, Unit u2) {
       
      // Units of length 0 cannot be joined:
-        if (u1.getDuration() == 0 || u2.getDuration() == 0) return Double.POSITIVE_INFINITY;
+        if (u1.duration == 0 || u2.duration == 0) return Double.POSITIVE_INFINITY;
         // In the case of diphones, replace them with the relevant part:
         if (u1 instanceof DiphoneUnit) {
-            u1 = ((DiphoneUnit)u1).getRight();
+            u1 = ((DiphoneUnit)u1).right;
         }
         if (u2 instanceof DiphoneUnit) {
-            u2 = ((DiphoneUnit)u2).getLeft();
+            u2 = ((DiphoneUnit)u2).left;
         }
         
         /**
@@ -123,8 +123,8 @@ public class StatisticalModelCost implements StatisticalCostFunction
          */
         //if (u1.getIndex()+1 == u2.getIndex()) return 0;
         
-        double sCost1 =  sCostReader.getSCost(u1.getIndex());
-        double sCost2 =  sCostReader.getSCost(u2.getIndex());
+        double sCost1 =  sCostReader.getSCost(u1.index);
+        double sCost2 =  sCostReader.getSCost(u2.index);
         
         return ((sCost1+sCost2) / 2.0);
     }
@@ -140,20 +140,20 @@ public class StatisticalModelCost implements StatisticalCostFunction
     public double cost(Unit u1, Unit u2, boolean consecutive) {
         
         // Units of length 0 cannot be joined:
-           if (u1.getDuration() == 0 || u2.getDuration() == 0) return Double.POSITIVE_INFINITY;
+           if (u1.duration == 0 || u2.duration == 0) return Double.POSITIVE_INFINITY;
            // In the case of diphones, replace them with the relevant part:
            if (u1 instanceof DiphoneUnit) {
-               u1 = ((DiphoneUnit)u1).getRight();
+               u1 = ((DiphoneUnit)u1).right;
            }
            if (u2 instanceof DiphoneUnit) {
-               u2 = ((DiphoneUnit)u2).getLeft();
+               u2 = ((DiphoneUnit)u2).left;
            }
            
            // if consecutive == true, and if they are consecutive units make cost = 0 
-           if (consecutive && (u1.getIndex()+1 == u2.getIndex())) return 0;
+           if (consecutive && (u1.index+1 == u2.index)) return 0;
            
-           double sCost1 =  sCostReader.getSCost(u1.getIndex());
-           double sCost2 =  sCostReader.getSCost(u2.getIndex());
+           double sCost1 =  sCostReader.getSCost(u1.index);
+           double sCost2 =  sCostReader.getSCost(u2.index);
            
            return ((sCost1+sCost2) / 2.0);
        }

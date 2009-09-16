@@ -41,10 +41,10 @@ import java.io.IOException;
  */
 public class FeatureVector
 {
-    int unitIndex;
-    protected byte[] byteValuedDiscreteFeatures;
-    protected short[] shortValuedDiscreteFeatures;
-    protected float[] continuousFeatures;
+    public final int unitIndex;
+    public final byte[] byteValuedDiscreteFeatures;
+    public final short[] shortValuedDiscreteFeatures;
+    public final float[] continuousFeatures;
     
     public FeatureVector(byte[] byteValuedDiscreteFeatures, short[] shortValuedDiscreteFeatures, float[] continuousFeatures,
             int setUnitIndex )

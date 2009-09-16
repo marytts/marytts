@@ -97,6 +97,12 @@ public interface TargetCostFunction
      * @return
      */
     public FeatureVector getFeatureVector(Unit unit);
+    
+    /**
+     * Get all feature vectors. This is useful for more efficient access.
+     * @return the full array of feature vectors, or null if this method is not supported.
+     */
+    public FeatureVector[] getFeatureVectors();
  
 }
 

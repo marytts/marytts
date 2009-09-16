@@ -83,8 +83,8 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
             HnmUnitData unitData = new HnmUnitData();
             unit.setConcatenationData(unitData);
             int nSamples = 0;
-            int unitSize = unitToTimeline(unit.getUnit().getDuration()); // convert to timeline samples
-            long unitStart = unitToTimeline(unit.getUnit().getStart()); // convert to timeline samples
+            int unitSize = unitToTimeline(unit.getUnit().duration); // convert to timeline samples
+            long unitStart = unitToTimeline(unit.getUnit().startTime); // convert to timeline samples
             //System.out.println("Unit size "+unitSize+", pitchmarksInUnit "+pitchmarksInUnit);
             //System.out.println(unitStart/((float)timeline.getSampleRate()));
             //System.out.println("Unit index = " + unit.getUnit().getIndex());
@@ -95,9 +95,9 @@ public class HnmUnitConcatenator extends OverlapUnitConcatenator {
             // one left context period for windowing:
             Datagram leftContextFrame = null;
             Unit prevInDB = database.getUnitFileReader().getPreviousUnit(unit.getUnit());
-            long unitPrevStart = unitToTimeline(prevInDB.getStart()); // convert to timeline samples
+            long unitPrevStart = unitToTimeline(prevInDB.startTime); // convert to timeline samples
             if (prevInDB != null && !prevInDB.isEdgeUnit()) {
-                long unitPrevSize = unitToTimeline(prevInDB.getDuration());
+                long unitPrevSize = unitToTimeline(prevInDB.duration);
                 Datagram[] unitPrevDatagrams = timeline.getDatagrams(unitPrevStart, (long)unitPrevSize);
                 //leftContextFrame = timeline.getDatagram(unitPrevStart);
                 if (unitPrevDatagrams != null && unitPrevDatagrams.length > 0) {

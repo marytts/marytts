@@ -52,7 +52,7 @@ public class UnitFileReader
     private MaryHeader hdr = null;
     private int numberOfUnits = 0;
     private int sampleRate = 0;
-    private Unit[] units;
+    Unit[] units; // this has visibility "default" rather than private so that other classes in the same package can access it directly, for efficiency reasons
     
     /****************/
     /* CONSTRUCTORS */
@@ -175,8 +175,8 @@ public class UnitFileReader
      */
     public Unit getNextUnit(Unit u)
     {
-        if (u == null || u.getIndex() >= units.length-1 || u.getIndex() < 0) return null;
-        return units[u.getIndex()+1];
+        if (u == null || u.index >= units.length-1 || u.index < 0) return null;
+        return units[u.index+1];
     }
     
     /**
@@ -186,8 +186,8 @@ public class UnitFileReader
      */
     public Unit getPreviousUnit(Unit u)
     {
-        if (u == null || u.getIndex()>=units.length || u.getIndex() <= 0) return null;
-        return units[u.getIndex()-1];
+        if (u == null || u.index >= units.length || u.index <= 0) return null;
+        return units[u.index-1];
     }
 
     /**
