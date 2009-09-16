@@ -134,6 +134,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
         int size = transcriptionModel.getData().length;
         for(int row=0; row<size; row++){
             String transcription =  (String) transcriptionModel.getDataAt(row, 2);
+            if (transcription == null) continue;
             if (transcription.matches("\\s+")) {
                 transcription = transcription.replaceAll("\\s+", "");
                 this.transcriptionModel.setValueAt(transcription , row, 2);
@@ -228,6 +229,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
             for(int i=0;i<tableData.length; i++){
                 if(!(hasManualVerify[i] && hasCorrectSyntax[i])){
                     String grapheme = (String) tableData[i][1];
+                    if (grapheme == null) continue;
                     String phone = trainedLTS.syllabify(trainedLTS.predictPronunciation(grapheme));
                     transcriptionModel.setValueAt(phone.replaceAll("\\s+", ""), i, 2);
                     transcriptionModel.setAsCorrectSyntax(i, true);
@@ -291,7 +293,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
      */
     public void loadTranscription(String fileName) {
         try {
-            this.transcriptionModel.loadTranscription(fileName);
+            this.transcriptionModel.loadTranscription(fileName, false);
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -304,10 +306,31 @@ public class TranscriptionTable extends JPanel implements ActionListener {
     }
     
     /**
+     * Add words from file
+     * @param fileName
+     */
+    public void addWordsToTranscription(String fileName) {
+        try {
+            this.transcriptionModel.loadTranscription(fileName, true);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        checkTranscription();
+        scrollpane.updateUI();
+        table.repaint();
+        this.repaint();
+        this.updateUI();
+    }
+    
+        
+    
+    /**
      * Load transcription from a hashmap
      * @param map
      * @throws Exception
      */
+    @Deprecated //doesn't seem to get used -- remove?
     public void loadTranscription(HashMap<String, Integer> map) throws Exception {
             this.transcriptionModel.loadTranscription(map);
             checkTranscription();
