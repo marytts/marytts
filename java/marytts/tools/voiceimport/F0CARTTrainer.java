@@ -101,10 +101,10 @@ public class F0CARTTrainer extends VoiceImportComponent
             }
             System.out.print("Created successfully.\n");
         }  
-        this.leftF0FeaturesFile = new File(f0Dir+"f0.left.feats");
-        this.midF0FeaturesFile = new File(f0Dir+"f0.mid.feats");
-        this.rightF0FeaturesFile = new File(f0Dir+"f0.right.feats");
-        this.f0DescFile = new File(f0Dir+"f0.desc");
+        this.leftF0FeaturesFile = new File(f0Dir, "f0.left.feats");
+        this.midF0FeaturesFile = new File(f0Dir, "f0.mid.feats");
+        this.rightF0FeaturesFile = new File(f0Dir, "f0.right.feats");
+        this.f0DescFile = new File(f0Dir, "f0.desc");
         this.useStepwiseTraining = Boolean.valueOf(getProp(STEPWISETRAINING)).booleanValue();
     }
      
