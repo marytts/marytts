@@ -33,8 +33,10 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -154,12 +156,13 @@ public class TranscriptionTableModel extends AbstractTableModel {
     }
     
     /**
-     * Load transcription from file 
+     * Load transcription from file, either replacing or adding to any existing data.
+     * If adding, only words not contained in the existing data will be added.
      * @param fileName
-     * @param phoneSet
+     * @param whether to keep any current data and add, or use only the loaded data.
      * @throws Exception
      */
-    public void loadTranscription(String fileName) throws Exception{    
+    public void loadTranscription(String fileName, boolean keepCurrentData) throws Exception{    
         List<String> lines = new ArrayList<String>();
         BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(fileName), "UTF-8"));
         String line;
@@ -168,38 +171,59 @@ public class TranscriptionTableModel extends AbstractTableModel {
             if (line.equals("") || line.startsWith("#")) continue;
             lines.add(line);
         }
-        this.data         =  new Object[lines.size()][4];
-        this.hasManualVerification  =  new boolean[lines.size()];
-        this.hasCorrectSyntax  =  new boolean[lines.size()];
+        int offset;
+        Set<String> currentWords = new HashSet<String>();
+        if (keepCurrentData && this.data != null) {
+            Object[][] oldData = this.data;
+            boolean[] oldHasManualVerification = this.hasManualVerification;
+            boolean[] oldHasCorrectSyntax = this.hasCorrectSyntax;
+            this.data = new Object[oldData.length+lines.size()][4];
+            for (int i=0; i<oldData.length; i++) {
+                System.arraycopy(oldData[i], 0, this.data[i], 0, 4);
+                currentWords.add((String)oldData[i][1]);
+            }
+            this.hasManualVerification = new boolean[this.data.length];
+            System.arraycopy(oldHasManualVerification, 0, this.hasManualVerification, 0, oldData.length);
+            this.hasCorrectSyntax = new boolean[this.data.length];
+            System.arraycopy(oldHasCorrectSyntax, 0, this.hasCorrectSyntax, 0, oldData.length);
+            offset = oldData.length;
+        } else {
+            this.data = new Object[lines.size()][4];
+            this.hasManualVerification  =  new boolean[data.length];
+            this.hasCorrectSyntax  =  new boolean[data.length];
+            offset = 0;
+        }
         
+        int pos = offset;
         for(int i=0; i < lines.size(); i++){
             String[]  words = lines.get(i).split("\\s+");
-            data[i][0] = Integer.toString(i);
-            data[i][1] = words[0];
+            String word = words[0];
+            if (currentWords.contains(word)) continue; // do not add new words already contained in old list
+            data[pos][0] = Integer.toString(pos);
+            data[pos][1] = words[0];
             if(lines.get(i).endsWith("functional")){
-                data[i][3] = new Boolean(true);
+                data[pos][3] = Boolean.TRUE;
                 if(words.length == 3){
-                    data[i][2] = words[1];
-                    setAsManualVerify(i, true);
-                    setAsCorrectSyntax(i, true);
+                    data[pos][2] = words[1];
+                    setAsManualVerify(pos, true);
+                    setAsCorrectSyntax(pos, true);
                 }
                 else{
-                    data[i][2] = "";
-                    setAsManualVerify(i, false);
+                    data[pos][2] = "";
+                    setAsManualVerify(pos, false);
                 }
-            }
-            else{
-                data[i][3] = new Boolean(false);
+            } else {
+                data[pos][3] = Boolean.FALSE;
                 if(words.length >= 2){
-                    data[i][2] = words[1];
-                    setAsManualVerify(i, true);
-                    setAsCorrectSyntax(i, true);
-                }
-                else{
-                    data[i][2] = "";
-                    setAsManualVerify(i, false);
+                    data[pos][2] = words[1];
+                    setAsManualVerify(pos, true);
+                    setAsCorrectSyntax(pos, true);
+                } else {
+                    data[pos][2] = "";
+                    setAsManualVerify(pos, false);
                 }
             }
+            pos++;
        }
        lastSavedData = storeLastSavedData(); 
     }
@@ -209,6 +233,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
      * @param wordList
      * @throws Exception
      */
+    @Deprecated //doesn't seem to get used -- remove?
     public void loadTranscription(HashMap<String, Integer> wordList) throws Exception{
         
         int length = wordList.size();

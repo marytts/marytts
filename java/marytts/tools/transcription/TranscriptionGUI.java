@@ -122,6 +122,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         saveToFile = new javax.swing.JMenuItem();
         saveAsToFile = new javax.swing.JMenuItem();
         loadFromMySql = new javax.swing.JMenuItem();
+        addWordsFromFile = new javax.swing.JMenuItem();
         loadPhoneSet = new javax.swing.JMenuItem();
         quitTool = new javax.swing.JMenuItem();
         helpMenu = new javax.swing.JMenu();
@@ -327,12 +328,17 @@ public class TranscriptionGUI extends javax.swing.JFrame {
                 ancestorFrameResized(evt);
             }
         });
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout tablePanelLayout = new org.jdesktop.layout.GroupLayout(tablePanel);
         tablePanel.setLayout(tablePanelLayout);
         tablePanelLayout.setHorizontalGroup(
             tablePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 477, Short.MAX_VALUE)
+            .add(0, 503, Short.MAX_VALUE)
         );
         tablePanelLayout.setVerticalGroup(
             tablePanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -351,7 +357,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         buttonPanelLayout.setHorizontalGroup(
             buttonPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, buttonPanelLayout.createSequentialGroup()
-                .addContainerGap(314, Short.MAX_VALUE)
+                .addContainerGap(332, Short.MAX_VALUE)
                 .add(trainPredictButton)
                 .addContainerGap())
         );
@@ -457,6 +463,16 @@ public class TranscriptionGUI extends javax.swing.JFrame {
 
         fileMenu.add(loadFromMySql);
 
+        addWordsFromFile.setText("Add words from file...");
+        addWordsFromFile.setToolTipText("Load words from a file, and add those to the end of the current file that are not yet in the current file.");
+        addWordsFromFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addWordsFromFileActionPerformed(evt);
+            }
+        });
+
+        fileMenu.add(addWordsFromFile);
+
         loadPhoneSet.setText("Specify Phone Set");
         loadPhoneSet.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -509,6 +525,23 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        closeTranscriptionTool(null);
+    }//GEN-LAST:event_formWindowClosing
+
+    private void addWordsFromFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addWordsFromFileActionPerformed
+        if(!checkNecessaryEvents("load")) return;
+        JFileChooser fc = new JFileChooser(new File("."));
+        fc.setDialogTitle("Open word list to append to current transcription file");
+        fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        int returnVal = fc.showOpenDialog(TranscriptionGUI.this);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            simplePanel.addWordsToTranscription(file.getAbsolutePath());
+        }
+
+    }//GEN-LAST:event_addWordsFromFileActionPerformed
 
     private void fontSelectionChanged(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fontSelectionChanged
         simplePanel.changeTableFont((String)jComboBox1.getSelectedItem());        
@@ -567,14 +600,14 @@ public class TranscriptionGUI extends javax.swing.JFrame {
     }
     
     private void closeHelpDialog(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeHelpDialog
-        startUpHelpDialog.show(false);
+        startUpHelpDialog.setVisible(false);
         if (phoneSetFile == null) {
             loadPhoneSetActionPerformed(null);
         }
     }//GEN-LAST:event_closeHelpDialog
 
     private void cancelMySqlDetails(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelMySqlDetails
-        mySqlDetailsDialog.show(false);
+        mySqlDetailsDialog.setVisible(false);
     }//GEN-LAST:event_cancelMySqlDetails
 
     private void loadFromSqlDatabase(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromSqlDatabase
@@ -607,7 +640,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         baseName = null;
         suffix = null;
         
-        mySqlDetailsDialog.show(false);
+        mySqlDetailsDialog.setVisible(false);
         loadTranscription = true;
         saveToFile.setEnabled(true);
         saveAsToFile.setEnabled(true);
@@ -662,7 +695,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         if(!checkNecessaryEvents("load")) return;
         Dimension d = new Dimension(500, 250);
         mySqlDetailsDialog.setSize(d);
-        mySqlDetailsDialog.show(true);
+        mySqlDetailsDialog.setVisible(true);
         checkNecessaryEvents("load");
     }//GEN-LAST:event_loadFromMySqlActionPerformed
 
@@ -728,7 +761,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
             startUpHelpDialog.setSize(new Dimension(700, 500));
             startUpHelpDialog.repaint();
             closeHelp.grabFocus(); 
-            startUpHelpDialog.show(true);
+            startUpHelpDialog.setVisible(true);
             startUpHelpDialog.repaint();
         } catch (IOException e) {
             e.printStackTrace();
@@ -815,6 +848,7 @@ public class TranscriptionGUI extends javax.swing.JFrame {
     }
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem addWordsFromFile;
     private javax.swing.JPanel buttonPanel;
     private javax.swing.JButton cancelButton;
     private javax.swing.JButton closeHelp;
