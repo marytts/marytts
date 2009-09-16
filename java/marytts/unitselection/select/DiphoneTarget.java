@@ -26,8 +26,8 @@ import org.w3c.dom.Element;
 
 
 public class DiphoneTarget extends Target {
-    protected HalfPhoneTarget left;
-    protected HalfPhoneTarget right;
+    public final HalfPhoneTarget left;
+    public final HalfPhoneTarget right;
     
     public DiphoneTarget(HalfPhoneTarget left, HalfPhoneTarget right)
     {
@@ -40,16 +40,6 @@ public class DiphoneTarget extends Target {
         this.right = right;
     }
     
-    public HalfPhoneTarget getLeft()
-    {
-        return left;
-    }
-
-    public HalfPhoneTarget getRight()
-    {
-        return right;
-    }
-
     @Override
     public Element getMaryxmlElement()
     {

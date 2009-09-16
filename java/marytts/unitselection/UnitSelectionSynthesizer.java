@@ -240,6 +240,11 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
             Element maryxmlElement = su.getTarget().getMaryxmlElement();
             if (maryxmlElement != null) {
                 if (maryxmlElement.getNodeName().equals(MaryXML.PHONE)) {
+                    if (!maryxmlElement.hasAttribute("d") || !maryxmlElement.hasAttribute("end")) {
+                        throw new IllegalStateException("No duration information in MaryXML -- check log file"
+                                +" to see if you are using DummyAllophones2Acoustparams"
+                                +" instead of voice-specific acoustic feature predictors");
+                    }
                     int oldD = Integer.parseInt(maryxmlElement.getAttribute("d"));
                     //int oldEnd = Integer.parseInt(maryxmlElement.getAttribute("end"));
                     double doubleEnd = Double.parseDouble(maryxmlElement.getAttribute("end"));

@@ -29,9 +29,23 @@ package marytts.unitselection.data;
  */
 public class Unit
 {
-    protected long startTime;
-    protected int duration;
-    protected int index;
+
+    /**
+     * Unit start time, expressed in samples. To convert into time,
+     * divide by UnitFileReader.getSampleRate().
+     */
+    public final long startTime;
+
+    /**
+     * Unit duration, expressed in samples. To convert into time,
+     * divide by UnitFileReader.getSampleRate().
+     */
+    public final int duration;
+    
+    /**
+     * Index position of this unit in the unit file.
+     */
+    public final int index;
     
     
     public Unit(long startTime, int duration, int index)
@@ -41,34 +55,6 @@ public class Unit
         this.index = index;
     }
     
-    /**
-     * Index position of this unit in the unit file.
-     * @return
-     */
-    public int getIndex()
-    {
-        return index;
-    }
-    
-    /**
-     * Unit start time, expressed in samples. To convert into time,
-     * divide by UnitFileReader.getSampleRate().
-     * @return
-     */
-    public long getStart()
-    {
-        return startTime;
-    }
-    
-    /**
-     * Unit duration, expressed in samples. To convert into time,
-     * divide by UnitFileReader.getSampleRate().
-     * @return
-     */
-    public int getDuration()
-    {
-        return duration;
-    }
     
     
     /**

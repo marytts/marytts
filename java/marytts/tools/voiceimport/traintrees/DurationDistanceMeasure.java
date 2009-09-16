@@ -50,8 +50,8 @@ public class DurationDistanceMeasure implements DistanceMeasure
      */
     public float distance(FeatureVector fv1, FeatureVector fv2)
     {
-        float d1 = units.getUnit(fv1.getUnitIndex()).getDuration() / (float)units.getSampleRate();
-        float d2 = units.getUnit(fv2.getUnitIndex()).getDuration() / (float)units.getSampleRate();
+        float d1 = units.getUnit(fv1.getUnitIndex()).duration / (float)units.getSampleRate();
+        float d2 = units.getUnit(fv2.getUnitIndex()).duration / (float)units.getSampleRate();
         return Math.abs(d1-d2);
     }
 
@@ -62,8 +62,8 @@ public class DurationDistanceMeasure implements DistanceMeasure
      */
     public float squaredDistance(FeatureVector fv1, FeatureVector fv2)
     {
-        float d1 = units.getUnit(fv1.getUnitIndex()).getDuration() / (float)units.getSampleRate();
-        float d2 = units.getUnit(fv2.getUnitIndex()).getDuration() / (float)units.getSampleRate();
+        float d1 = units.getUnit(fv1.getUnitIndex()).duration / (float)units.getSampleRate();
+        float d2 = units.getUnit(fv2.getUnitIndex()).duration / (float)units.getSampleRate();
         float diff = d1-d2;
         return diff*diff;
     }

@@ -2469,7 +2469,7 @@ public class MaryGenericFeatureProcessors
         {
             if (target instanceof DiphoneTarget) {
                 DiphoneTarget diphone = (DiphoneTarget) target;
-                return process(diphone.getLeft()) + process(diphone.getRight());
+                return process(diphone.left) + process(diphone.right);
             }
             Element seg = target.getMaryxmlElement();
             if (seg == null) {
@@ -2523,7 +2523,7 @@ public class MaryGenericFeatureProcessors
             // actually represent log f0 values.
             if (target instanceof DiphoneTarget) {
                 DiphoneTarget diphone = (DiphoneTarget) target;
-                return (process(diphone.getLeft()) + process(diphone.getRight())) / 2;
+                return (process(diphone.left) + process(diphone.right)) / 2;
             }
             // Idea: find the closest f0 targets in the current syllable, left and right of our middle;
             // linearly interpolate between them to find the value in the middle of this unit.

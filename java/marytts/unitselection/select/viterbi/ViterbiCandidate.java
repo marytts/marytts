@@ -29,25 +29,29 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package marytts.unitselection.select;
+package marytts.unitselection.select.viterbi;
 
 import marytts.unitselection.data.Unit;
+import marytts.unitselection.select.Target;
+import marytts.unitselection.select.TargetCostFunction;
  /**
   * Represents a candidate for the Viterbi algorthm.
   * Each candidate knows about its next candidate, i.e. they can form
   * a queue.
   */
-public class ViterbiCandidate {
-	private Unit unit;
-    private ViterbiPath bestPath = null;
-	private Target target;
-	private ViterbiCandidate next = null;
-	private double targetCost = -1;
+public class ViterbiCandidate implements Comparable<ViterbiCandidate>
+{
+    final Target target;
+	final Unit unit;
+    final double targetCost;
+    ViterbiPath bestPath = null;
+	ViterbiCandidate next = null;
 	
-	public ViterbiCandidate(Target target, Unit unit)
+	public ViterbiCandidate(Target target, Unit unit, TargetCostFunction tcf)
 	{
 	    this.target = target;
 	    this.unit = unit;
+	    this.targetCost = tcf.cost(target, unit);
 	}
 	
 	/**
@@ -55,14 +59,11 @@ public class ViterbiCandidate {
 	 * @param tcf the target cost function 
 	 * @return the target cost
 	 */
-	public double getTargetCost(TargetCostFunction tcf){
-	    if (targetCost == -1){
-	        targetCost = tcf.cost(target,unit);
-	        //System.out.println("Candidate with target "+target.getName()
-	          //      	+": Set target cost to "+targetCost);
-	    }
+	public double getTargetCost()
+	{
 	    return targetCost;
 	}
+	
 	/**
 	 * Gets the next candidate in the queue
 	 * @return the next candidate
@@ -122,7 +123,20 @@ public class ViterbiCandidate {
 	 * @return the string form of this object
 	 */
 	public String toString() {
-	    return "ViterbiCandidate: target "+ target + ", unit " + unit + (bestPath != null ? ", best path score "+bestPath.getScore() : ", no best path");
+	    return "ViterbiCandidate: target "+ target + ", unit " + unit + (bestPath != null ? ", best path score "+bestPath.score : ", no best path");
 	}
+
+	/**
+	 * Compare two candidates so that the one with the smaller target cost is considered smaller.
+	 */
+    public int compareTo(ViterbiCandidate o)
+    {
+        if (targetCost < o.targetCost) {
+            return -1;
+        } else if (targetCost > o.targetCost) {
+            return 1;
+        }
+        return 0;
+    }
  }
  

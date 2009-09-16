@@ -148,20 +148,20 @@ public class JoinModelCost implements JoinCostFunction
      */
     public double cost(Target t1, Unit u1, Target t2, Unit u2 ) {
         // Units of length 0 cannot be joined:
-        if (u1.getDuration() == 0 || u2.getDuration() == 0) return Double.POSITIVE_INFINITY;
+        if (u1.duration == 0 || u2.duration == 0) return Double.POSITIVE_INFINITY;
         // In the case of diphones, replace them with the relevant part:
         if (u1 instanceof DiphoneUnit) {
-            u1 = ((DiphoneUnit)u1).getRight();
+            u1 = ((DiphoneUnit)u1).right;
         }
         if (u2 instanceof DiphoneUnit) {
-            u2 = ((DiphoneUnit)u2).getLeft();
+            u2 = ((DiphoneUnit)u2).left;
         }
         
-        if (u1.getIndex()+1 == u2.getIndex()) return 0;
+        if (u1.index+1 == u2.index) return 0;
         double cost = 1; // basic penalty for joins of non-contiguous units. 
         
-        float[] v1 = jcf.getRightJCF(u1.getIndex());
-        float[] v2 = jcf.getLeftJCF(u2.getIndex());
+        float[] v1 = jcf.getRightJCF(u1.index);
+        float[] v2 = jcf.getLeftJCF(u2.index);
         //double[] diff = new double[v1.length];
         //for ( int i = 0; i < v1.length; i++ ) {
         //    diff[i] = (double)v1[i] - v2[i];
@@ -176,7 +176,7 @@ public class JoinModelCost implements JoinCostFunction
         assert featureDef != null : "Feature Definition was not set";
         FeatureVector fv1 = null;
         if (t1 instanceof DiphoneTarget) {
-            HalfPhoneTarget hpt1 = ((DiphoneTarget)t1).getRight();
+            HalfPhoneTarget hpt1 = ((DiphoneTarget)t1).right;
             assert hpt1 != null;
             fv1 = hpt1.getFeatureVector();
         } else {

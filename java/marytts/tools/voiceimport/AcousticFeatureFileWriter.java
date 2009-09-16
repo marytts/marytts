@@ -206,7 +206,7 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
             percent = 100*i/numUnits;
             FeatureVector inFV = feats.getFeatureVector(i);
             Unit u = unitFileReader.getUnit(i);
-            float dur = u.getDuration() / (float) unitSampleRate;
+            float dur = u.duration / (float) unitSampleRate;
 
             // No syllable structure for edge and silence phone entries:
             if (inFV.getByteFeature(fiPhoneme) == fvPhoneme_0

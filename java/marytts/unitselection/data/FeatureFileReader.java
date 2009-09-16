@@ -146,7 +146,7 @@ public class FeatureFileReader
      */
     public FeatureVector getFeatureVector(Unit unit)
     {
-        return featureVectors[unit.getIndex()];
+        return featureVectors[unit.index];
     }
 
     public FeatureDefinition getFeatureDefinition()

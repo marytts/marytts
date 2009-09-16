@@ -135,8 +135,8 @@ public class BackchannelUnitFileReader
                     }
                     unitNames[j] = new String(phoneChar);
                 }
-                long startBCTime = units[0].getStart();
-                int bcDuration = (((int) units[noOfUnits - 1].getStart() + units[noOfUnits - 1].getDuration()) - (int)units[0].getStart());
+                long startBCTime = units[0].startTime;
+                int bcDuration = (((int) units[noOfUnits - 1].startTime + units[noOfUnits - 1].duration) - (int)units[0].startTime);
                 backchannelUnits[i] = new BackchannelUnit(startBCTime,bcDuration,i);
                 backchannelUnits[i].setUnits(units);
                 backchannelUnits[i].setUnitNames(unitNames);
@@ -201,8 +201,8 @@ public class BackchannelUnitFileReader
      */
     public BackchannelUnit getNextUnit(BackchannelUnit u)
     {
-        if (u == null || u.getIndex() >= backchannelUnits.length-1 || u.getIndex() < 0) return null;
-        return backchannelUnits[u.getIndex()+1];
+        if (u == null || u.index >= backchannelUnits.length-1 || u.index < 0) return null;
+        return backchannelUnits[u.index+1];
     }
     
     /**
@@ -212,8 +212,8 @@ public class BackchannelUnitFileReader
      */
     public BackchannelUnit getPreviousUnit(BackchannelUnit u)
     {
-        if (u == null || u.getIndex()>=backchannelUnits.length || u.getIndex() <= 0) return null;
-        return backchannelUnits[u.getIndex()-1];
+        if (u == null || u.index>=backchannelUnits.length || u.index <= 0) return null;
+        return backchannelUnits[u.index-1];
     }
 
     /**

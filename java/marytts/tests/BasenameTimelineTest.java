@@ -72,11 +72,11 @@ public class BasenameTimelineTest {
             Datagram[] dat = tlr.getDatagrams( unit[i], ufr.getSampleRate(), offset );
             /* Assert that there is only one filename: */
             if ( dat.length == 0 ) {
-                String str = "For unit [" + unit[i].getIndex() + "], the returned basename datagram has [0] elements!";
+                String str = "For unit [" + unit[i].index + "], the returned basename datagram has [0] elements!";
                 System.out.println( str );
             }
             else if ( dat.length != 1 ) {
-                String str = "For unit [" + unit[i].getIndex() + "], the returned basename datagram has [" + dat.length + "] elements:\n";
+                String str = "For unit [" + unit[i].index + "], the returned basename datagram has [" + dat.length + "] elements:\n";
                 for ( int k = 0; k < dat.length; k++ ) {
                     str += (new String( dat[k].getData(), "UTF-8" ) ) + "\n";
                 }
@@ -84,8 +84,8 @@ public class BasenameTimelineTest {
             }
             /* Output the results */
             basename = new String( dat[0].getData(), "UTF-8" );
-            System.out.println( "Unit [" + unit[i].getIndex() + "] starts at sample [" + unit[i].getStart()
-                    + "] and has a duration of [" + unit[i].getDuration() + "] samples." );
+            System.out.println( "Unit [" + unit[i].index + "] starts at sample [" + unit[i].startTime
+                    + "] and has a duration of [" + unit[i].duration + "] samples." );
             System.out.println( "Unit [" + testUnits[i] + "] is found to come from file [" + basename + "] "
                     + "(with offset[" + offset[0] + "])." );
             String ph_name = feaDef.getFeatureValueAsString( 0, ffr.getFeatureVector( unit[i] ).getFeatureAsInt( 0 ) );
@@ -94,11 +94,11 @@ public class BasenameTimelineTest {
             System.out.flush();
         }
         
-        System.out.println( "Pre-final unit starts at: " + unit[unit.length-2].getStart() + " and has duration " + unit[unit.length-2].getDuration() );
-        System.out.println( "Pre-final unit ends at: " + (unit[unit.length-2].getStart() + unit[unit.length-2].getDuration()) );
+        System.out.println( "Pre-final unit starts at: " + unit[unit.length-2].startTime + " and has duration " + unit[unit.length-2].duration );
+        System.out.println( "Pre-final unit ends at: " + (unit[unit.length-2].startTime + unit[unit.length-2].duration) );
         System.out.println( "" );
-        System.out.println( "Final unit starts at: " + unit[unit.length-1].getStart() + " and has duration " + unit[unit.length-1].getDuration() );
-        System.out.println( "Final unit ends at: " + unit[unit.length-1].getStart() );
+        System.out.println( "Final unit starts at: " + unit[unit.length-1].startTime + " and has duration " + unit[unit.length-1].duration );
+        System.out.println( "Final unit ends at: " + unit[unit.length-1].startTime );
         System.out.println( "" );
         
         final int OVERFLOWTIME = 27079952;

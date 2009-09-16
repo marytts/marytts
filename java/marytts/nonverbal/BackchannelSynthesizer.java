@@ -101,8 +101,8 @@ public class BackchannelSynthesizer {
         }
        
         BackchannelUnit bUnit = unitFileReader.getUnit(backchannelNumber);
-        long start = bUnit.getStart();
-        int duration  = bUnit.getDuration();
+        long start = bUnit.startTime;
+        int duration  = bUnit.duration;
         Datagram[] frames = audioTimeline.getDatagrams(start, duration); 
         assert frames != null : "Cannot generate audio from null frames";
         
@@ -110,7 +110,7 @@ public class BackchannelSynthesizer {
         String[] unitNames = bUnit.getUnitNames();
         long endTime = 0l;
         for(int i=0;i<units.length;i++){
-            int unitDuration = units[i].getDuration() * 1000 / samplingRate;
+            int unitDuration = units[i].duration * 1000 / samplingRate;
             endTime += unitDuration;
             Element element = MaryXML.createElement(domElement.getOwnerDocument(), MaryXML.PHONE);
             element.setAttribute("d", Integer.toString(unitDuration));

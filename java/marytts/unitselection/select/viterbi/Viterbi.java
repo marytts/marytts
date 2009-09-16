@@ -29,7 +29,7 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package marytts.unitselection.select;
+package marytts.unitselection.select.viterbi;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -43,9 +43,16 @@ import java.util.Map;
 import java.util.SortedSet;
 
 import marytts.exceptions.SynthesisException;
+import marytts.server.MaryProperties;
 import marytts.unitselection.data.DiphoneUnit;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitDatabase;
+import marytts.unitselection.select.DiphoneTarget;
+import marytts.unitselection.select.JoinCostFunction;
+import marytts.unitselection.select.SelectedUnit;
+import marytts.unitselection.select.StatisticalCostFunction;
+import marytts.unitselection.select.Target;
+import marytts.unitselection.select.TargetCostFunction;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -84,14 +91,13 @@ public  class Viterbi
 	//to use:
     //-1: unlimited search
     // n>0: beam search, retain only the n best paths at each step.
-    protected int searchStrategy = 25;
+    protected int beamSize;
     protected final float wTargetCosts;
     protected final float wJoinCosts;
     protected final float wSCosts;
     
     protected ViterbiPoint firstPoint = null;
     protected ViterbiPoint lastPoint = null;
-    protected LinkedHashMap f = null;
     private UnitDatabase database;
     protected TargetCostFunction targetCostFunction;
     protected JoinCostFunction joinCostFunction;
@@ -113,7 +119,7 @@ public  class Viterbi
      * is built up.
      * 
      */
-	public Viterbi(List<Target> targets, UnitDatabase database, float wTargetCosts)
+	public Viterbi(List<Target> targets, UnitDatabase database, float wTargetCosts, int beamSize)
     {
 	    this.database = database;
 	    this.targetCostFunction = database.getTargetCostFunction();
@@ -123,12 +129,12 @@ public  class Viterbi
         this.wTargetCosts = wTargetCosts;
         wJoinCosts = 1 - wTargetCosts;
         wSCosts = 0;
+        this.beamSize = beamSize;
         this.cumulJoinCosts = 0;
         this.nJoinCosts = 0;
         this.cumulTargetCosts = 0;
         this.nTargetCosts = 0;
         ViterbiPoint last = null;
-        f = new LinkedHashMap();
         //for each segment, build a ViterbiPoint
         for (Target target : targets) {
             ViterbiPoint nextPoint = new ViterbiPoint(target);
@@ -145,7 +151,7 @@ public  class Viterbi
         // And add one point where the paths from the last candidate can end:
         lastPoint = new ViterbiPoint(null);
         last.setNext(lastPoint);
-        if (searchStrategy == 0) {
+        if (beamSize == 0) {
             throw new IllegalStateException("General beam search not implemented");
     	}
     }
@@ -156,7 +162,7 @@ public  class Viterbi
      * is built up.
      * 
      */
-    public Viterbi(List<Target> targets, UnitDatabase database, float wTargetCosts, float wSCosts)
+    public Viterbi(List<Target> targets, UnitDatabase database, float wTargetCosts, float wSCosts, int beamSize)
     {
         this.database = database;
         this.targetCostFunction = database.getTargetCostFunction();
@@ -166,12 +172,12 @@ public  class Viterbi
         this.wTargetCosts = wTargetCosts;
         this.wSCosts = wSCosts;
         wJoinCosts = 1 - (wTargetCosts + wSCosts);
+        this.beamSize = beamSize;
         this.cumulJoinCosts = 0;
         this.nJoinCosts = 0;
         this.cumulTargetCosts = 0;
         this.nTargetCosts = 0;
         ViterbiPoint last = null;
-        f = new LinkedHashMap();
         //for each segment, build a ViterbiPoint
         for (Target target : targets) {
             ViterbiPoint nextPoint = new ViterbiPoint(target);
@@ -188,32 +194,12 @@ public  class Viterbi
         // And add one point where the paths from the last candidate can end:
         lastPoint = new ViterbiPoint(null);
         last.setNext(lastPoint);
-        if (searchStrategy == 0) {
+        if (beamSize == 0) {
             throw new IllegalStateException("General beam search not implemented");
         }
     }
 	
-    /**
-     * Sets the given feature to the given value.
-     *
-     * @param name the name of the feature
-     * @param obj the new value.
-     */
-    public void setFeature(String name, Object obj) {
-        f.put(name, obj);
-    }
-    
-    /**
-     * Gets the value for the given feature.
-     *
-     * @param name the name of the feature
-     *
-     * @return the value of the feature
-     */
-    public Object getFeature(String name) {
-        return f.get(name);
-    }
-    
+
     /**
      * Carry out a Viterbi search in for a prepared queue of ViterbiPoints.
      * In a nutshell, each Point represents a target item (a target segment);
@@ -232,64 +218,71 @@ public  class Viterbi
      */
     public void apply() throws SynthesisException 
     {
+        logger.debug("Viterbi running with beam size " + beamSize);
         //go through all but the last point
         //(since last point has no item)
-        for (ViterbiPoint point = firstPoint; point.getNext() != null; point = point.getNext()) {
+        for (ViterbiPoint point = firstPoint; point.next != null; point = point.next) {
             // The candidates for the current item:
             // candidate selection is carried out by UnitSelector
-            Target target = point.getTarget();
-            ViterbiCandidate[] candidates = database.getCandidates(target);
-            if (candidates.length == 0) {
+            Target target = point.target;
+            SortedSet<ViterbiCandidate> candidates = database.getCandidates(target);
+            if (candidates.size() == 0) {
                 if (target instanceof DiphoneTarget) {
                     logger.debug("No diphone '"+target.getName()+"' -- will build from halfphones");
                     DiphoneTarget dt = (DiphoneTarget) target;
                     // replace diphone viterbi point with two half-phone viterbi points
-                    Target left = dt.getLeft();
-                    Target right = dt.getRight();
+                    Target left = dt.left;
+                    Target right = dt.right;
                     point.setTarget(left);
                     ViterbiPoint newP = new ViterbiPoint(right);
-                    newP.setNext(point.getNext());
-                    point.setNext(newP);
+                    newP.next = point.next;
+                    point.next = newP;
                     candidates = database.getCandidates(left);
-                    if (candidates.length == 0) 
+                    if (candidates.size() == 0) 
                         throw new SynthesisException("Cannot even find any halfphone unit for target "+left);
                 } else {
                     throw new SynthesisException("Cannot find any units for target "+target);
                 }
             }
-            assert candidates.length > 0;
-            point.setCandidates(candidates);
-            assert searchStrategy != 0; // general beam search not implemented
+            assert candidates.size() > 0;
+            point.candidates = candidates;
+            assert beamSize != 0; // general beam search not implemented
     
             // Now go through all existing paths and all candidates 
             // for the current item;
             // tentatively extend each existing path to each of 
             // the candidates, but only retain the best one
-            SortedSet paths = point.getPaths();
+            SortedSet<ViterbiPath> paths = point.paths;
             int nPaths = paths.size();
-            if (searchStrategy != -1 && searchStrategy < nPaths) {
+            if (beamSize != -1 && beamSize < nPaths) {
                 // beam search, look only at the best n paths:
-                nPaths = searchStrategy;
+                nPaths = beamSize;
             }
             // for searchStrategy == -1, no beam -- look at all candidates.
-            Iterator pathIt = paths.iterator();
-            for (int i = 0; i < nPaths; i++) {
-                ViterbiPath pp = (ViterbiPath) pathIt.next();
+            int i = 0;
+            int iMax = nPaths;
+            for (ViterbiPath pp : paths) {
                 assert pp != null;
                 // We are at the very beginning of the search, 
                 // or have a usable path to extend
-                candidates = point.getCandidates();
+                candidates = point.candidates;
                 assert candidates != null;
-                for (int c=0, cMax = candidates.length; c<cMax ; c++) {
+                int j = 0;
+                int jMax = beamSize;
+                // Go through the candidates as returned by the iterator of the sorted set,
+                // i.e. sorted according to increasing target cost.
+                for (ViterbiCandidate c : candidates) { 
                     // For the candidate c, create a path extending the 
                     // previous path pp to that candidate, taking into
                     // account the target and join costs:
-                    ViterbiPath np = getPath(pp, candidates[c]);
+                    ViterbiPath np = getPath(pp, c);
                     // Compare this path to the existing best path 
                     // (if any) leading to candidate c; only retain 
                     // the one with the better score.
-                    addPath(point.getNext(), np);
+                    addPath(point.next, np);
+                    if (++j == jMax) break;
                 }
+                if (++i == iMax) break;
             }
         }
     }
@@ -310,15 +303,15 @@ public  class Viterbi
     void addPath(ViterbiPoint point, ViterbiPath newPath) {
         //get the position of newPath's candidate 
         //in path array statePath of point
-        ViterbiCandidate candidate = newPath.getCandidate();
+        ViterbiCandidate candidate = newPath.candidate;
         assert candidate != null;
-        ViterbiPath bestPathSoFar = candidate.getBestPath();
-        SortedSet paths = point.getPaths();
+        ViterbiPath bestPathSoFar = candidate.bestPath;
+        SortedSet<ViterbiPath> paths = point.getPaths();
         if (bestPathSoFar == null) {
             // we don't have a path for the candidate yet, so this is best
             paths.add(newPath);
             candidate.setBestPath(newPath);
-        } else if (newPath.getScore() < bestPathSoFar.getScore()) {
+        } else if (newPath.score < bestPathSoFar.score) {
             // newPath is a better path for the candidate
             paths.remove(bestPathSoFar);
             paths.add(newPath);
@@ -343,15 +336,15 @@ public  class Viterbi
             return null;
         }
         for (ViterbiPath path = best; path != null; path = path.getPrevious()) {
-            if (path.getCandidate() != null) {
-                Unit u = path.getCandidate().getUnit();
-                Target t = path.getCandidate().getTarget();
+            if (path.candidate != null) {
+                Unit u = path.candidate.unit;
+                Target t = path.candidate.target;
                 if (u instanceof DiphoneUnit) {
                     assert t instanceof DiphoneTarget;
                     DiphoneUnit du = (DiphoneUnit) u;
                     DiphoneTarget dt = (DiphoneTarget) t;
-                    selectedUnits.addFirst(new SelectedUnit(du.getRight(), dt.getRight()));
-                    selectedUnits.addFirst(new SelectedUnit(du.getLeft(), dt.getLeft()));
+                    selectedUnits.addFirst(new SelectedUnit(du.right, dt.right));
+                    selectedUnits.addFirst(new SelectedUnit(du.left, dt.left));
                 } else {
                     selectedUnits.addFirst(new SelectedUnit(u, t));
                 }
@@ -367,7 +360,7 @@ public  class Viterbi
             StringBuffer line = new StringBuffer();
             for (int i=0; i<numUnits; i++) {
                 SelectedUnit u = (SelectedUnit) selectedUnits.get(i);
-                int index = u.getUnit().getIndex();
+                int index = u.getUnit().index;
                 if (prevIndex+1==index) { // adjacent units
                     length++;
                 } else {
@@ -392,7 +385,7 @@ public  class Viterbi
                     length = 1;
                     line = new StringBuffer();
                 }
-                line.append(database.getTargetCostFunction().getFeature(u.getUnit(), "phone") + "("+ u.getUnit().getIndex()+ ")");
+                line.append(database.getTargetCostFunction().getFeature(u.getUnit(), "phone") + "("+ u.getUnit().index+ ")");
                 prevIndex = index;
             }
             if (lengthHistogram.length <= length) {
@@ -423,7 +416,7 @@ public  class Viterbi
             DecimalFormat df = new DecimalFormat("0.000");
             logger.debug("Avg. consecutive length: "+df.format(avgLength)+" units");
             // Cost of best path
-            double totalCost = best.getScore();
+            double totalCost = best.score;
             int elements = selectedUnits.size();
             double avgCostBestPath = totalCost/(elements-1);
             double avgTargetCost = cumulTargetCosts/nTargetCosts;
@@ -470,26 +463,25 @@ public  class Viterbi
      * @return a new path, consisting of this candidate appended to the previous path, and
      * with the cumulative (penalty) score calculated. 
      */
-    private ViterbiPath getPath(ViterbiPath path, 
-				ViterbiCandidate candidate) {
+    private ViterbiPath getPath(ViterbiPath path, ViterbiCandidate candidate) {
         double cost;
 
-        Target candidateTarget = candidate.getTarget();
-        Unit candidateUnit = candidate.getUnit();
+        Target candidateTarget = candidate.target;
+        Unit candidateUnit = candidate.unit;
         
         double joinCost;
         double sCost = 0;
         double targetCost;
         // Target costs:
-        targetCost = candidate.getTargetCost(targetCostFunction);
+        targetCost = candidate.targetCost;
         
-        if (path == null || path.getCandidate() == null) {
+        if (path == null || path.candidate == null) {
             joinCost = 0;
         } else {
             // Join costs:
-            ViterbiCandidate prevCandidate = path.getCandidate();
-            Target prevTarget = prevCandidate.getTarget();
-            Unit prevUnit = prevCandidate.getUnit();
+            ViterbiCandidate prevCandidate = path.candidate;
+            Target prevTarget = prevCandidate.target;
+            Unit prevUnit = prevCandidate.unit;
             joinCost = joinCostFunction.cost(prevTarget, prevUnit, candidateTarget, candidateUnit);
             if(sCostFunction != null) sCost = sCostFunction.cost(prevUnit, candidateUnit);
         }
@@ -508,7 +500,7 @@ public  class Viterbi
         //logger.debug(candidateUnit+": target cost "+targetCost+", join cost "+joinCost);
 
         if (path != null) {
-            cost += path.getScore();
+            cost += path.score;
         }	
 
         return new ViterbiPath(candidate, path, cost);
@@ -522,22 +514,22 @@ public  class Viterbi
      */
     private ViterbiPath findBestPath()
     {
-        assert searchStrategy != 0;
+        assert beamSize != 0;
         // All paths end in lastPoint, and take into account
         // previous path segment's scores. Therefore, it is
         // sufficient to find the best path from among the
         // paths for lastPoint.
-        SortedSet paths = lastPoint.getPaths();
+        SortedSet<ViterbiPath> paths = lastPoint.getPaths();
         if (paths.isEmpty()) // no path, we failed
             return null;
-        ViterbiPath best = (ViterbiPath) paths.first();
+        ViterbiPath best = paths.first();
         // Set *next* pointers correctly:
         ViterbiPath path = best;
-        double totalCost = best.getScore();
+        double totalCost = best.score;
         int elements = 0;
         while (path != null) {
             elements++;
-            ViterbiPath prev = path.getPrevious();
+            ViterbiPath prev = path.previous;
             if (prev != null) prev.setNext(path);
             path = prev;
         }

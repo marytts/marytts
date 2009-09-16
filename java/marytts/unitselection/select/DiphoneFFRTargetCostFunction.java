@@ -32,7 +32,7 @@ import marytts.unitselection.data.Unit;
 
 public class DiphoneFFRTargetCostFunction implements TargetCostFunction 
 {
-    protected TargetCostFunction tcfForHalfphones;
+    protected FFRTargetCostFunction tcfForHalfphones;
     
     public DiphoneFFRTargetCostFunction()
     {
@@ -91,7 +91,7 @@ public class DiphoneFFRTargetCostFunction implements TargetCostFunction
 
     public FeatureVector getFeatureVector(Unit unit)
     {
-        return tcfForHalfphones.getFeatureVector(unit);
+        return tcfForHalfphones.featureVectors[unit.index];
     }
 
     /**
@@ -110,7 +110,7 @@ public class DiphoneFFRTargetCostFunction implements TargetCostFunction
             throw new IllegalArgumentException("Diphone targets need diphone units!");
         DiphoneTarget dt = (DiphoneTarget) target;
         DiphoneUnit du = (DiphoneUnit) unit;
-        return tcfForHalfphones.cost(dt.getLeft(), du.getLeft()) + tcfForHalfphones.cost(dt.getRight(), du.getRight());
+        return tcfForHalfphones.cost(dt.left, du.left) + tcfForHalfphones.cost(dt.right, du.right);
     }
 
 
@@ -125,10 +125,18 @@ public class DiphoneFFRTargetCostFunction implements TargetCostFunction
             tcfForHalfphones.computeTargetFeatures(target);
         } else {
             DiphoneTarget dt = (DiphoneTarget) target;
-            tcfForHalfphones.computeTargetFeatures(dt.getLeft());
-            tcfForHalfphones.computeTargetFeatures(dt.getRight());
+            tcfForHalfphones.computeTargetFeatures(dt.left);
+            tcfForHalfphones.computeTargetFeatures(dt.right);
             
         }
+    }
+
+
+    public FeatureVector[] getFeatureVectors() {
+        if (tcfForHalfphones != null) {
+            return tcfForHalfphones.getFeatureVectors();
+        }
+        return null;
     }
     
     

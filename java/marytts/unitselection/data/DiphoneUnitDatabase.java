@@ -21,11 +21,14 @@ package marytts.unitselection.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
+import marytts.features.FeatureVector;
 import marytts.unitselection.select.DiphoneTarget;
 import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.Target;
-import marytts.unitselection.select.ViterbiCandidate;
+import marytts.unitselection.select.viterbi.ViterbiCandidate;
 
 import org.apache.log4j.Logger;
 
@@ -44,22 +47,24 @@ public class DiphoneUnitDatabase extends UnitDatabase {
      * @param target a Target object representing an optimal unit
      * @return an array of ViterbiCandidates, each containing the (same) target and a (different) Unit object
      */
-    public ViterbiCandidate[] getCandidates(Target target)
+    @Override
+    public SortedSet<ViterbiCandidate> getCandidates(Target target)
     {
         if (!(target instanceof DiphoneTarget))
             return super.getCandidates(target);
         // Basic idea: get the candidates for each half phone separately,
         // but retain only those that are part of a suitable diphone
         DiphoneTarget diphoneTarget = (DiphoneTarget) target;
-        HalfPhoneTarget left = diphoneTarget.getLeft();
-        HalfPhoneTarget right = diphoneTarget.getRight();
+        HalfPhoneTarget left = diphoneTarget.left;
+        HalfPhoneTarget right = diphoneTarget.right;
         String leftName = left.getName().substring(0, left.getName().lastIndexOf("_"));
         String rightName = right.getName().substring(0, right.getName().lastIndexOf("_"));
         int iPhoneme = targetCostFunction.getFeatureDefinition().getFeatureIndex("phone");
         byte bleftName = targetCostFunction.getFeatureDefinition().getFeatureValueAsByte(iPhoneme, leftName);
         byte brightName = targetCostFunction.getFeatureDefinition().getFeatureValueAsByte(iPhoneme, rightName);
+        FeatureVector[] fvs = targetCostFunction.getFeatureVectors();
 
-        List<ViterbiCandidate> candidates = new ArrayList<ViterbiCandidate>();
+        SortedSet<ViterbiCandidate> candidates = new TreeSet<ViterbiCandidate>();
         // Pre-select candidates for the left half, but retain only
         // those that belong to appropriate diphones:
         int[] clist = (int[]) preselectionCART.interpret(left,backtrace);
@@ -67,18 +72,20 @@ public class DiphoneUnitDatabase extends UnitDatabase {
 
         // Now, clist is an array of halfphone unit indexes.
         for (int i = 0; i < clist.length; i++) {
-            Unit unit = unitReader.getUnit(clist[i]);
-            byte bunitName = targetCostFunction.getFeatureVector(unit).getByteFeature(iPhoneme);
+            Unit unit = unitReader.units[clist[i]];
+            FeatureVector fv = fvs != null ? fvs[unit.index] : targetCostFunction.getFeatureVector(unit);
+            byte bunitName = fv.byteValuedDiscreteFeatures[iPhoneme];
             // force correct phone symbol:
             if (bunitName != bleftName) continue;
             int iRightNeighbour = clist[i]+1;
             if (iRightNeighbour < numUnits) {
-                Unit rightNeighbour = unitReader.getUnit(iRightNeighbour);
-                byte brightUnitName = targetCostFunction.getFeatureVector(rightNeighbour).getByteFeature(iPhoneme);
+                Unit rightNeighbour = unitReader.units[iRightNeighbour];
+                FeatureVector rfv = fvs != null ? fvs[iRightNeighbour] : targetCostFunction.getFeatureVector(rightNeighbour); 
+                byte brightUnitName = rfv.byteValuedDiscreteFeatures[iPhoneme];
                 if (brightUnitName == brightName) {
                     // Found a diphone -- add it to candidates
                     DiphoneUnit diphoneUnit = new DiphoneUnit(unit, rightNeighbour);
-                    ViterbiCandidate c = new ViterbiCandidate(diphoneTarget, diphoneUnit);
+                    ViterbiCandidate c = new ViterbiCandidate(diphoneTarget, diphoneUnit, targetCostFunction);
                     candidates.add(c);
                 }
             }
@@ -90,24 +97,26 @@ public class DiphoneUnitDatabase extends UnitDatabase {
 
         // Now, clist is an array of halfphone unit indexes.
         for (int i = 0; i < clist.length; i++) {
-            Unit unit = unitReader.getUnit(clist[i]);
-            byte bunitName = targetCostFunction.getFeatureVector(unit).getByteFeature(iPhoneme);
+            Unit unit = unitReader.units[clist[i]];
+            FeatureVector fv = fvs != null ? fvs[unit.index] : targetCostFunction.getFeatureVector(unit);
+            byte bunitName = fv.byteValuedDiscreteFeatures[iPhoneme];
             // force correct phone symbol:
             if (bunitName != brightName) continue;
             int iLeftNeighbour = clist[i]-1;
             if (iLeftNeighbour >= 0) {
-                Unit leftNeighbour = unitReader.getUnit(iLeftNeighbour);
-                byte bleftUnitName = targetCostFunction.getFeatureVector(leftNeighbour).getByteFeature(iPhoneme);
+                Unit leftNeighbour = unitReader.units[iLeftNeighbour];
+                FeatureVector lfv = fvs != null ? fvs[iLeftNeighbour] : targetCostFunction.getFeatureVector(leftNeighbour);
+                byte bleftUnitName = lfv.byteValuedDiscreteFeatures[iPhoneme];
                 if (bleftUnitName == bleftName) {
                     // Found a diphone -- add it to candidates
                     DiphoneUnit diphoneUnit = new DiphoneUnit(leftNeighbour, unit);
-                    ViterbiCandidate c = new ViterbiCandidate(diphoneTarget, diphoneUnit);
+                    ViterbiCandidate c = new ViterbiCandidate(diphoneTarget, diphoneUnit, targetCostFunction);
                     candidates.add(c);
                 }
             }
         }
         logger.debug("Preselected "+candidates.size()+" diphone candidates for target "+target);
-        return (ViterbiCandidate[]) candidates.toArray(new ViterbiCandidate[0]);
+        return candidates;
     }
 
 }
