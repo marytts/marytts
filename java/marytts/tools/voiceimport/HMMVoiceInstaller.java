@@ -442,8 +442,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
                      "# download url can be given.\n"+
                      "# We can require a component by name or by an abstract \"group name\"\n"+ 
                      "# as listed under the \"provides\" element.\n"+
-             		 "requires = \\\n   "+locale+" \\\n   marybase \\");
-             configOut.println("   hmm \n\n");
+             		 "requires = \\\n   "+locale+" \\\n   marybase \n");
              configOut.println("requires.marybase.version = 4.0.0\n"+
              		 "requires."+locale+".version = 4.0.0\n"+
              		 "requires."+locale+".download = http://mary.dfki.de/download/mary-install-4.x.x.jar\n"+
