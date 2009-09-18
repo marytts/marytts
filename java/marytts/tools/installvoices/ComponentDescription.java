@@ -46,6 +46,7 @@ public class ComponentDescription
     private int packageSize;
     private String packageMD5;
     private boolean isSelected = false;
+    private String status = "not yet implemented";
     
     protected ComponentDescription(Element xmlDescription)
     throws NullPointerException, MalformedURLException
@@ -102,6 +103,17 @@ public class ComponentDescription
     {
         return packageSize;
     }
+    
+    public String getDisplayPackageSize()
+    {
+        if (packageSize >= 10*1024*1024) {
+            return (packageSize/(1024*1024))+"MB";
+        } else if (packageSize >= 10*1024) {
+            return (packageSize/1024)+"kB";
+        } else {
+            return Integer.toString(packageSize);
+        }
+    }
 
     public String getPackageMD5Sum()
     {
@@ -116,6 +128,11 @@ public class ComponentDescription
     public void setSelected(boolean value)
     {
         isSelected = value;
+    }
+    
+    public String getStatus()
+    {
+        return status;
     }
     
     public String toString()

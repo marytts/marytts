@@ -6,14 +6,19 @@
 
 package marytts.tools.installvoices;
 
+import java.util.Locale;
+
 /**
  *
  * @author  marc
  */
 public class VoicePanel extends javax.swing.JPanel {
     
+    private VoiceComponentDescription desc;
+    
     /** Creates new form VoicePanel */
-    public VoicePanel() {
+    public VoicePanel(VoiceComponentDescription desc) {
+        this.desc = desc;
         initComponents();
     }
     
@@ -39,14 +44,15 @@ public class VoicePanel extends javax.swing.JPanel {
         lNameValue4 = new javax.swing.JLabel();
         jProgressBar1 = new javax.swing.JProgressBar();
 
-        setBorder(javax.swing.BorderFactory.createTitledBorder("Voice"));
+        setBorder(javax.swing.BorderFactory.createTitledBorder(desc.getLocale().getDisplayName(Locale.ENGLISH)+" voice "+desc.getName()));
+        cbSelect.setSelected(desc.isSelected());
         cbSelect.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         cbSelect.setMargin(new java.awt.Insets(0, 0, 0, 0));
 
         lName.setFont(new java.awt.Font("Lucida Grande", 1, 13));
         lName.setText("Name:");
 
-        lNameValue.setText("pavoque-neutral");
+        lNameValue.setText(desc.getName());
 
         lName1.setFont(new java.awt.Font("Lucida Grande", 1, 13));
         lName1.setText("Type:");
@@ -93,7 +99,7 @@ public class VoicePanel extends javax.swing.JPanel {
                         .add(lName1)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(lNameValue1)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 12, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 33, Short.MAX_VALUE)
                         .add(lName2)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(lNameValue3)
@@ -122,7 +128,7 @@ public class VoicePanel extends javax.swing.JPanel {
                     .add(lNameValue3)
                     .add(lName2)
                     .add(cbSelect, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 38, Short.MAX_VALUE)
                 .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
