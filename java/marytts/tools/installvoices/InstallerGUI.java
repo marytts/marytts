@@ -18,6 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
@@ -67,8 +68,14 @@ public class InstallerGUI extends javax.swing.JFrame
         pVoices = new javax.swing.JPanel();
         tVoices = new javax.swing.JTable();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("MARY TTS Installer");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                InstallerGUI.this.windowClosing(evt);
+            }
+        });
+
         spLanguages.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         tLanguages.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -120,6 +127,11 @@ public class InstallerGUI extends javax.swing.JFrame
         bUninstall.setText("Uninstall selected");
 
         bUninstall1.setText("Quit");
+        bUninstall1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                quitActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout pInstallButtonsLayout = new org.jdesktop.layout.GroupLayout(pInstallButtons);
         pInstallButtons.setLayout(pInstallButtonsLayout);
@@ -199,6 +211,14 @@ public class InstallerGUI extends javax.swing.JFrame
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void windowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_windowClosing
+        confirmExit();
+    }//GEN-LAST:event_windowClosing
+
+    private void quitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_quitActionPerformed
+        confirmExit();
+    }//GEN-LAST:event_quitActionPerformed
     
     
     private void customInitComponents()
@@ -255,6 +275,16 @@ public class InstallerGUI extends javax.swing.JFrame
         }
         return lVoices;
     }
+    
+    private void confirmExit()
+    {
+        int choice = JOptionPane.showConfirmDialog(this, "Really quit?", "Exit program", JOptionPane.YES_NO_OPTION);
+        if (choice == JOptionPane.YES_OPTION) {
+            this.setVisible(false);
+            System.exit(0);
+        }
+    }
+    
     
     /**
      * @param args the command line arguments
@@ -436,7 +466,7 @@ public class InstallerGUI extends javax.swing.JFrame
 
       public Object getCellEditorValue() {
         if (isPushed) {
-            System.out.println("Button pressed for component "+componentDescription.getName());
+            showComponentDetails(componentDescription);
         }
         isPushed = false;
         return new String(label);
@@ -449,6 +479,18 @@ public class InstallerGUI extends javax.swing.JFrame
 
       protected void fireEditingStopped() {
         super.fireEditingStopped();
+      }
+      
+      
+      private void showComponentDetails(ComponentDescription desc)
+      {
+          JPanel p;
+          if (desc instanceof LanguageComponentDescription) {
+              p = new LanguagePanel((LanguageComponentDescription) desc);
+          } else {
+              p = new VoicePanel((VoiceComponentDescription)desc);
+          }
+          JOptionPane.showMessageDialog(null, p, "Component details", JOptionPane.PLAIN_MESSAGE);
       }
     }
 
