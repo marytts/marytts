@@ -31,8 +31,10 @@ import org.w3c.dom.Element;
 public class VoiceComponentDescription extends ComponentDescription
 {
     private String gender;
+    private String type;
     private String dependsLanguage;
     private String dependsVersion;
+    
 
     /**
      * @param xmlDescription
@@ -44,6 +46,7 @@ public class VoiceComponentDescription extends ComponentDescription
     {
         super(xmlDescription);
         this.gender = xmlDescription.getAttribute("gender");
+        this.type = xmlDescription.getAttribute("type");
         Element dependsElement = (Element) xmlDescription.getElementsByTagName("depends").item(0);
         this.dependsLanguage = dependsElement.getAttribute("language");
         this.dependsVersion = dependsElement.getAttribute("version");
@@ -52,6 +55,11 @@ public class VoiceComponentDescription extends ComponentDescription
     public String getGender()
     {
         return gender;
+    }
+    
+    public String getType()
+    {
+        return type;
     }
 
     public String getDependsLanguage()

@@ -7,12 +7,14 @@
 package marytts.tools.installvoices;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.Box;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -28,15 +30,18 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
+import marytts.Version;
 
 /**
  *
  * @author  marc
  */
-public class InstallerGUI extends javax.swing.JFrame
+public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListener
 {
-    List<LanguageComponentDescription> languages;
-    List<VoiceComponentDescription> voices;
+    private List<LanguageComponentDescription> languages;
+    private List<VoiceComponentDescription> voices;
+    private LanguageComponentDescription currentLanguage = null;
+    private String version = Version.specificationVersion();
     
     /** Creates new form InstallerGUI */
     public InstallerGUI(List<LanguageComponentDescription> initialLanguages, List<VoiceComponentDescription> initialVoices) {
@@ -56,7 +61,6 @@ public class InstallerGUI extends javax.swing.JFrame
     private void initComponents() {
         spLanguages = new javax.swing.JScrollPane();
         pLanguages = new javax.swing.JPanel();
-        tLanguages = new javax.swing.JTable();
         pDownload = new javax.swing.JPanel();
         tfComponentListURL = new javax.swing.JTextField();
         bUpdate = new javax.swing.JButton();
@@ -66,7 +70,6 @@ public class InstallerGUI extends javax.swing.JFrame
         bUninstall1 = new javax.swing.JButton();
         spVoices = new javax.swing.JScrollPane();
         pVoices = new javax.swing.JPanel();
-        tVoices = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("MARY TTS Installer");
@@ -77,31 +80,12 @@ public class InstallerGUI extends javax.swing.JFrame
         });
 
         spLanguages.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        tLanguages.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
+        pLanguages.setLayout(new javax.swing.BoxLayout(pLanguages, javax.swing.BoxLayout.Y_AXIS));
 
-            },
-            new String [] {
-
-            }
-        ));
-        tLanguages.setSelectionBackground(new java.awt.Color(51, 102, 255));
-        tLanguages.setSelectionForeground(new java.awt.Color(0, 0, 0));
-
-        org.jdesktop.layout.GroupLayout pLanguagesLayout = new org.jdesktop.layout.GroupLayout(pLanguages);
-        pLanguages.setLayout(pLanguagesLayout);
-        pLanguagesLayout.setHorizontalGroup(
-            pLanguagesLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(tLanguages, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 356, Short.MAX_VALUE)
-        );
-        pLanguagesLayout.setVerticalGroup(
-            pLanguagesLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(tLanguages, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 314, Short.MAX_VALUE)
-        );
         spLanguages.setViewportView(pLanguages);
 
         pDownload.setBorder(javax.swing.BorderFactory.createTitledBorder("Download languages and voices from:"));
-        tfComponentListURL.setText("http://mary.dfki.de/download/4.0/mary-components.xml");
+        tfComponentListURL.setText("http://mary.dfki.de/download/"+version+"/mary-components.xml");
 
         bUpdate.setText("Update");
 
@@ -111,9 +95,9 @@ public class InstallerGUI extends javax.swing.JFrame
             pDownloadLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(pDownloadLayout.createSequentialGroup()
                 .add(tfComponentListURL, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 540, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 53, Short.MAX_VALUE)
                 .add(bUpdate)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         pDownloadLayout.setVerticalGroup(
             pDownloadLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -144,7 +128,7 @@ public class InstallerGUI extends javax.swing.JFrame
                 .add(bUninstall)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(bUninstall1)
-                .add(291, 291, 291))
+                .add(194, 194, 194))
         );
         pInstallButtonsLayout.setVerticalGroup(
             pInstallButtonsLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -157,27 +141,8 @@ public class InstallerGUI extends javax.swing.JFrame
         );
 
         spVoices.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        tVoices.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
+        pVoices.setLayout(new javax.swing.BoxLayout(pVoices, javax.swing.BoxLayout.Y_AXIS));
 
-            },
-            new String [] {
-                "", "Language", ""
-            }
-        ));
-        tVoices.setSelectionBackground(new java.awt.Color(51, 102, 255));
-        tVoices.setSelectionForeground(new java.awt.Color(0, 0, 0));
-
-        org.jdesktop.layout.GroupLayout pVoicesLayout = new org.jdesktop.layout.GroupLayout(pVoices);
-        pVoices.setLayout(pVoicesLayout);
-        pVoicesLayout.setHorizontalGroup(
-            pVoicesLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(tVoices, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 453, Short.MAX_VALUE)
-        );
-        pVoicesLayout.setVerticalGroup(
-            pVoicesLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(tVoices, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 314, Short.MAX_VALUE)
-        );
         spVoices.setViewportView(pVoices);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
@@ -185,7 +150,7 @@ public class InstallerGUI extends javax.swing.JFrame
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
                     .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
                         .addContainerGap()
                         .add(spLanguages, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 340, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
@@ -194,8 +159,8 @@ public class InstallerGUI extends javax.swing.JFrame
                     .add(org.jdesktop.layout.GroupLayout.LEADING, pInstallButtons, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
                         .addContainerGap()
-                        .add(pDownload, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
+                        .add(pDownload, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -203,8 +168,8 @@ public class InstallerGUI extends javax.swing.JFrame
                 .add(pDownload, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(spLanguages)
-                    .add(spVoices))
+                    .add(spLanguages, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE)
+                    .add(spVoices, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 318, Short.MAX_VALUE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(pInstallButtons, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -223,6 +188,7 @@ public class InstallerGUI extends javax.swing.JFrame
     
     private void customInitComponents()
     {
+        /*
         DescriptionTableModel m = new DescriptionTableModel("Language");
         tLanguages.setModel(m);
         tLanguages.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -235,32 +201,60 @@ public class InstallerGUI extends javax.swing.JFrame
                 }
             }
         });
+        int tLangWidth = tLanguages.getWidth();
         TableColumnModel cm = tLanguages.getColumnModel();
-        cm.getColumn(0).setPreferredWidth(20);
-        cm.getColumn(2).setPreferredWidth(60);
-        tLanguages.getColumnModel().getColumn(2).setCellRenderer(new ButtonRenderer());
-        tLanguages.getColumnModel().getColumn(2).setCellEditor(new ButtonEditor());
+        cm.getColumn(0).setPreferredWidth(tLangWidth*10/100);
+        cm.getColumn(1).setPreferredWidth(tLangWidth*50/100);
+        cm.getColumn(2).setPreferredWidth(tLangWidth*40/100);
+        cm.getColumn(2).setMaxWidth(tLangWidth*40/100);
+        tLanguages.getColumnModel().getColumn(2).setCellRenderer(new ButtonRenderer(cm.getColumn(2).getPreferredWidth()));
+        tLanguages.getColumnModel().getColumn(2).setCellEditor(new ButtonEditor(cm.getColumn(2).getPreferredWidth()));
         
         m = new DescriptionTableModel("Voice");
         tVoices.setModel(m);
-        tVoices.getColumnModel().getColumn(2).setCellRenderer(new ButtonRenderer());
-        tVoices.getColumnModel().getColumn(2).setCellEditor(new ButtonEditor());
-        
+        cm = tVoices.getColumnModel();
+        cm.getColumn(0).setPreferredWidth(20);
+        cm.getColumn(2).setPreferredWidth(60);
+        tVoices.getColumnModel().getColumn(2).setCellRenderer(new ButtonRenderer(cm.getColumn(2).getPreferredWidth()));
+        tVoices.getColumnModel().getColumn(2).setCellEditor(new ButtonEditor(cm.getColumn(2).getPreferredWidth()));
+        this.pack();
+        */
     }
 
     private void updateLanguagesTable()
     {
-        TableModel model = tLanguages.getModel();
+/*        TableModel model = tLanguages.getModel();
         assert model instanceof DescriptionTableModel;
         ((DescriptionTableModel)model).setData(languages);
+*/
+        pLanguages.removeAll();
+        for (ComponentDescription desc : languages) {
+            pLanguages.add(new ShortDescriptionPanel(desc, this));
+        }
+        pLanguages.add(Box.createVerticalGlue());
+        pLanguages.getComponent(0).requestFocusInWindow();
     }
     
-    private void updateVoicesTable(LanguageComponentDescription currentLanguage)
+    public void updateVoices(LanguageComponentDescription newLanguage)
     {
+        if (currentLanguage != null && currentLanguage.equals(newLanguage)) {
+            return;
+        }
+        currentLanguage = newLanguage;
+        System.out.println("Now updating voices for "+currentLanguage);
         List<VoiceComponentDescription> lVoices = getVoicesForLanguage(currentLanguage);
-        TableModel model = tVoices.getModel();
+/*        TableModel model = tVoices.getModel();
         assert model instanceof DescriptionTableModel;
         ((DescriptionTableModel)model).setData(lVoices);
+  */
+        pVoices.removeAll();
+        for (ComponentDescription desc : lVoices) {
+            pVoices.add(new ShortDescriptionPanel(desc, null));
+            System.out.println("  adding "+desc);
+        }
+        pVoices.add(Box.createVerticalGlue());
+        pVoices.repaint();
+        this.pack();
         
     }
     
@@ -311,11 +305,10 @@ public class InstallerGUI extends javax.swing.JFrame
     private javax.swing.JPanel pVoices;
     private javax.swing.JScrollPane spLanguages;
     private javax.swing.JScrollPane spVoices;
-    private javax.swing.JTable tLanguages;
-    private javax.swing.JTable tVoices;
     private javax.swing.JTextField tfComponentListURL;
     // End of variables declaration//GEN-END:variables
     
+    /*
     public static class DescriptionTableModel extends AbstractTableModel
     {
         private String contentColumnHeader;
@@ -389,6 +382,7 @@ public class InstallerGUI extends javax.swing.JFrame
         }
         
     }
+    */
     
     /*
     public static class ButtonRenderer implements TableCellRenderer
@@ -408,10 +402,13 @@ public class InstallerGUI extends javax.swing.JFrame
     }
     */
 
+    /*
     // From http://www.java2s.com/Code/Java/Swing-Components/ButtonTableExample.htm
     class ButtonRenderer extends JButton implements TableCellRenderer {
 
-      public ButtonRenderer() {
+      public ButtonRenderer(int buttonWidth) {
+        this.setPreferredSize(new Dimension(buttonWidth, 20));
+        this.setMaximumSize(new Dimension(buttonWidth, 20));
         setOpaque(true);
       }
 
@@ -437,9 +434,11 @@ public class InstallerGUI extends javax.swing.JFrame
       private ComponentDescription componentDescription;
       
 
-      public ButtonEditor() {
+      public ButtonEditor(int buttonWidth) {
         super(new JCheckBox());
         button = new JButton();
+        button.setPreferredSize(new Dimension(buttonWidth, 20));
+        button.setMaximumSize(new Dimension(buttonWidth, 20));
         button.setOpaque(true);
         button.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e) {
@@ -493,5 +492,5 @@ public class InstallerGUI extends javax.swing.JFrame
           JOptionPane.showMessageDialog(null, p, "Component details", JOptionPane.PLAIN_MESSAGE);
       }
     }
-
+*/
 }
