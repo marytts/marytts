@@ -51,7 +51,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 
-import marytts.tools.install.InstallableVoice.Status;
 import marytts.util.MaryUtils;
 
 import org.w3c.dom.Element;
