@@ -409,9 +409,9 @@ public class HnmTimelineMaker extends VoiceImportComponent
             System.out.println( "Number of files scanned: " + baseNameArray.length );
             System.out.println( "Total duration: [" + totalTime + "] samples / [" + ((double)(totalTime) / (double)(globSampleRate)) + "] seconds." );
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
-            System.out.println( "Size of the index: [" + hnmTimeline.idx.getNumIdx() + "] ("
-                    + (hnmTimeline.idx.getNumIdx() * 16) + " bytes, i.e. "
-                    + ( (double)(hnmTimeline.idx.getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
+            System.out.println( "Size of the index: [" + hnmTimeline.getIndex().getNumIdx() + "] ("
+                    + (hnmTimeline.getIndex().getNumIdx() * 16) + " bytes, i.e. "
+                    + ( (double)(hnmTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
             
             long stop = System.currentTimeMillis(); // stop timing
             System.out.println("The process took " + (stop - start)/(1000.0*60) + " minutes to complete..."); // print execution time

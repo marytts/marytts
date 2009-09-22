@@ -174,9 +174,9 @@ public class WaveTimelineMaker extends VoiceImportComponent
             System.out.println( "Total speech duration: [" + totalTime + "] samples / [" + ((float)(totalTime) / (float)(globSampleRate)) + "] seconds." );
             System.out.println( "(Speech duration approximated from EST Track float times: [" + totalDuration + "] seconds.)" );
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
-            System.out.println( "Size of the index: [" + waveTimeline.idx.getNumIdx() + "] ("
-                    + (waveTimeline.idx.getNumIdx() * 16) + " bytes, i.e. "
-                    + ( (double)(waveTimeline.idx.getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
+            System.out.println( "Size of the index: [" + waveTimeline.getIndex().getNumIdx() + "] ("
+                    + (waveTimeline.getIndex().getNumIdx() * 16) + " bytes, i.e. "
+                    + ( (double)(waveTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
             System.out.println( "---- Waveform timeline done.");
             
             waveTimeline.close();

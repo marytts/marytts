@@ -232,9 +232,9 @@ public class MCepTimelineMaker extends VoiceImportComponent
             System.out.println( "Total speech duration: [" + totalTime + "] samples / [" + ((double)(totalTime) / (double)(globSampleRate)) + "] seconds." );
             System.out.println( "(Speech duration approximated from EST Track float times: [" + totalDuration + "] seconds.)" );
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
-            System.out.println( "Size of the index: [" + mcepTimeline.idx.getNumIdx() + "] ("
-                    + (mcepTimeline.idx.getNumIdx() * 16) + " bytes, i.e. "
-                    + ( (double)(mcepTimeline.idx.getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
+            System.out.println( "Size of the index: [" + mcepTimeline.getIndex().getNumIdx() + "] ("
+                    + (mcepTimeline.getIndex().getNumIdx() * 16) + " bytes, i.e. "
+                    + ( (double)(mcepTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
             System.out.println( "---- mcep timeline done.");
             
             mcepTimeline.close();

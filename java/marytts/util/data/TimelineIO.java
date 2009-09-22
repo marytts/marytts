@@ -29,7 +29,7 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package marytts.tools.voiceimport;
+package marytts.util.data;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Vector;
 
-import marytts.util.data.MaryHeader;
 
 /**
  * Base class for the TimelineReader and TimelineWriter classes.
@@ -140,6 +139,10 @@ public class TimelineIO
     }
     
 
+    public synchronized Index getIndex()
+    {
+        return idx;
+    }
     
     /**
      * Prints the index to System.out. (For testing purposes.))

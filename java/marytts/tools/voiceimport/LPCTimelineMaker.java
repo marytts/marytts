@@ -263,9 +263,9 @@ public class LPCTimelineMaker extends VoiceImportComponent
             System.out.println( "Total speech duration: [" + totalTime + "] samples / [" + ((float)(totalTime) / (float)(globSampleRate)) + "] seconds." );
             System.out.println( "(Speech duration approximated from EST Track float times: [" + totalDuration + "] seconds.)" );
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
-            System.out.println( "Size of the index: [" + lpcTimeline.idx.getNumIdx() + "] ("
-                    + (lpcTimeline.idx.getNumIdx() * 16) + " bytes, i.e. "
-                    + ( (double)(lpcTimeline.idx.getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
+            System.out.println( "Size of the index: [" + lpcTimeline.getIndex().getNumIdx() + "] ("
+                    + (lpcTimeline.getIndex().getNumIdx() * 16) + " bytes, i.e. "
+                    + ( (double)(lpcTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
             System.out.println( "---- LPC timeline done.");
             
             lpcTimeline.close();

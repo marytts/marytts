@@ -368,31 +368,16 @@ public class Voice
             logger.info("Registering voice `" + voice.getName() + "': " +
                          voice.gender() + ", locale " + voice.getLocale());
             allVoices.add(voice);
-            FreeTTSVoices.load(voice);
+            try {
+                FreeTTSVoices.load(voice);
+            } catch (NoClassDefFoundError err) {
+                // do nothing
+            }
         }
         checkIfDefaultVoice(voice);
     }
 
 
-    /**
-     * Register the given voice along with the corresponding freetts voice. It will be contained in the list of available voices returned
-     * by any subsequent calls to getAvailableVoices(). If the voice has the highest value of
-     * <code>wantToBeDefault</code> for its locale it will be registered as the default voice for
-     * its locale.
-     * This value is set in the config file setting <code>voice.(name).want.to.be.default.voice</code>.
-     */    
-    public static void registerVoice(Voice maryVoice, com.sun.speech.freetts.Voice freettsVoice)
-    {
-        if (maryVoice == null || freettsVoice == null)
-            throw new NullPointerException("Cannot register null voice.");
-        if (!allVoices.contains(maryVoice)) {
-            logger.info("Registering voice `" + maryVoice.getName() + "': " +
-                         maryVoice.gender() + ", locale " + maryVoice.getLocale());
-            allVoices.add(maryVoice);
-            FreeTTSVoices.load(maryVoice, freettsVoice);
-        }
-        checkIfDefaultVoice(maryVoice);
-    }
 
     /**
      * Check if this voice should be registered as default.
