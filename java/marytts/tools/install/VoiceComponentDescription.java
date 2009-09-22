@@ -22,7 +22,11 @@ package marytts.tools.install;
 
 import java.net.MalformedURLException;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * @author marc
@@ -77,5 +81,21 @@ public class VoiceComponentDescription extends ComponentDescription
     public String getDependsVersion()
     {
         return dependsVersion;
+    }
+    
+    @Override
+    protected Document createComponentXML()
+    throws ParserConfigurationException
+    {
+        Document doc = super.createComponentXML();
+        NodeList nodes = doc.getElementsByTagName(getComponentTypeString());
+        assert nodes.getLength() == 1;
+        Element voiceElt = (Element) nodes.item(0);
+        voiceElt.setAttribute("type", type);
+        voiceElt.setAttribute("gender", gender);
+        Element dependsElt = (Element) voiceElt.appendChild(doc.createElementNS(ComponentDescription.installerNamespaceURI, "depends"));
+        dependsElt.setAttribute("language", dependsLanguage);
+        dependsElt.setAttribute("version", dependsVersion);
+        return doc;
     }
 }

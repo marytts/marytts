@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
+import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -50,11 +51,20 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import marytts.util.MaryUtils;
 
+import org.w3c.dom.DOMConfiguration;
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 
 import com.twmacinta.util.MD5;
 
@@ -66,6 +76,7 @@ public class ComponentDescription extends Observable
 {
     public enum Status {AVAILABLE, DOWNLOADING, PAUSED, VERIFYING, DOWNLOADED, INSTALLING, CANCELLED, ERROR, INSTALLED};
 
+    public static final String installerNamespaceURI = "http://mary.dfki.de/installer";
     // Max size of download buffer.
     private static final int MAX_BUFFER_SIZE = 1024;
 
@@ -377,6 +388,50 @@ public class ComponentDescription extends Observable
         return 100;
     }
     
+    private void writeComponentXML()
+    throws Exception
+    {
+        File archiveFolder = archiveFile.getParentFile();
+        String archiveFilename = archiveFile.getName();
+        String compdescFilename = archiveFilename.substring(0, archiveFilename.lastIndexOf('.')) + "-component.xml";
+        Document doc = createComponentXML();
+        DOMImplementation implementation = DOMImplementationRegistry.newInstance().getDOMImplementation("XML 3.0");
+        DOMImplementationLS domImplLS = (DOMImplementationLS) implementation.getFeature("LS", "3.0");
+        LSSerializer serializer = domImplLS.createLSSerializer();
+        DOMConfiguration config = serializer.getDomConfig();
+        config.setParameter("format-pretty-print", Boolean.TRUE);
+        LSOutput output = domImplLS.createLSOutput();
+        output.setEncoding("UTF-8");
+        FileOutputStream fos = new FileOutputStream(compdescFilename);
+        output.setByteStream(fos);
+        serializer.write(doc, output);
+        fos.close();
+    }
+
+    protected Document createComponentXML()
+    throws ParserConfigurationException 
+    {
+        DocumentBuilderFactory fact = DocumentBuilderFactory.newInstance();
+        fact.setNamespaceAware(true);
+        Document doc = fact.newDocumentBuilder().newDocument();
+        Element root = (Element) doc.appendChild(doc.createElementNS(installerNamespaceURI, "marytts-install"));
+        Element desc = (Element) root.appendChild(doc.createElementNS(installerNamespaceURI, getComponentTypeString()));
+        desc.setAttribute("locale", MaryUtils.locale2xmllang(locale));
+        desc.setAttribute("name", name);
+        desc.setAttribute("version", version);
+        Element descriptionElt = (Element) desc.appendChild(doc.createElementNS(installerNamespaceURI, "description"));
+        descriptionElt.setTextContent(description);
+        Element licenseElt = (Element) desc.appendChild(doc.createElementNS(installerNamespaceURI, "license"));
+        licenseElt.setAttribute("href", license.toString());
+        Element packageElt = (Element) desc.appendChild(doc.createElementNS(installerNamespaceURI, "package"));
+        packageElt.setAttribute("size", Integer.toString(packageSize));
+        packageElt.setAttribute("md5sum", packageMD5);
+        for (URL l : locations) {
+            Element lElt = (Element) packageElt.appendChild(doc.createElementNS(installerNamespaceURI, "location"));
+            lElt.setAttribute("href", l.toString());
+        }
+        return doc;
+    }
     
     public static final void copyInputStream(InputStream in, OutputStream out)
     throws IOException
@@ -476,6 +531,7 @@ public class ComponentDescription extends Observable
                     String hash = MD5.asHex(MD5.getHash(archiveFile));
                     if (hash.equals(packageMD5)) {
                         System.err.println("ok!");
+                        writeComponentXML();
                         status = Status.DOWNLOADED;
                     } else {
                         System.err.println("failed!");
@@ -505,6 +561,7 @@ public class ComponentDescription extends Observable
             }
 
         }
+        
     }
     
     class Installer implements Runnable
