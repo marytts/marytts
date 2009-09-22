@@ -39,6 +39,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Vector;
 
+import marytts.util.data.MaryHeader;
+
 /**
  * Base class for the TimelineReader and TimelineWriter classes.
  * 

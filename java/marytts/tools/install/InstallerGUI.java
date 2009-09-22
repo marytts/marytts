@@ -28,6 +28,7 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -482,13 +483,29 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
 
         InstallerGUI g = new InstallerGUI();
 
-        File installedInfo = new File(infoDir, "mary-components.xml");
-        if (installedInfo.exists()) {
-            g.addLanguagesAndVoices(new InstallFileParser(installedInfo.toURL()));
+        File[] componentDescriptionFiles = infoDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".xml");
+            }
+        });
+        for (File cd : componentDescriptionFiles) {
+            try {
+                g.addLanguagesAndVoices(new InstallFileParser(cd.toURL()));
+            } catch (Exception exc) {
+                // silently ignore
+            }
         }
-        File downloadedInfo = new File(archiveDir, "mary-components.xml");
-        if (downloadedInfo.exists()) {
-            g.addLanguagesAndVoices(new InstallFileParser(downloadedInfo.toURL()));
+        componentDescriptionFiles = archiveDir.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".xml");
+            }
+        });
+        for (File cd : componentDescriptionFiles) {
+            try {
+                g.addLanguagesAndVoices(new InstallFileParser(cd.toURL()));
+            } catch (Exception exc) {
+                // silently ignore
+            }
         }
         
         g.setVisible(true);

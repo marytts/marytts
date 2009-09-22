@@ -37,6 +37,7 @@ import java.util.Iterator;
 
 import marytts.unitselection.data.SCostFileReader;
 import marytts.unitselection.data.UnitFileReader;
+import marytts.util.data.MaryHeader;
 
 public class SCostUnitFileWriter extends VoiceImportComponent
 {

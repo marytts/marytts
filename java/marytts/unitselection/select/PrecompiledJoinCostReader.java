@@ -40,8 +40,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import marytts.server.MaryProperties;
-import marytts.tools.voiceimport.MaryHeader;
 import marytts.unitselection.data.Unit;
+import marytts.util.data.MaryHeader;
 
 
 /**

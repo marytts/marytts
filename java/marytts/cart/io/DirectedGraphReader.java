@@ -37,7 +37,7 @@ import marytts.cart.LeafNode;
 import marytts.cart.Node;
 import marytts.cart.LeafNode.IntAndFloatArrayLeafNode;
 import marytts.features.FeatureDefinition;
-import marytts.tools.voiceimport.MaryHeader;
+import marytts.util.data.MaryHeader;
 
 /**
  * IO functions for Directed graphs in Mary format

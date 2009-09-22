@@ -26,7 +26,7 @@ import java.io.IOException;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.tools.voiceimport.MaryHeader;
+import marytts.util.data.MaryHeader;
 
 
 public class FeatureFileReader

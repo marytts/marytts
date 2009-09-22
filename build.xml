@@ -313,7 +313,7 @@ THIS SOFTWARE.
         <attribute name="Built-By" value="${user.name}"/>
 	<attribute name="Main-Class"
          value="marytts.tools.emospeak.EmoSpeak"/>
-	 <attribute name="Class-Path" value="maryclient.jar java-diff.jar"/>
+	 <attribute name="Class-Path" value="maryclient.jar java-diff.jar log4j-1.2.15.jar"/>
       </manifest>
     </jar>
   </target>
@@ -461,7 +461,9 @@ THIS SOFTWARE.
 
 	<target name="en_US-package" depends="jars">
 	  <zip destfile="dist/mary-en_US-${specification.version.nospace}.zip">
-	    <zipfileset dir="." includes="java/mary-en_US.jar
+	    <zipfileset dir="." includes="java/mary-en.jar
+	    	java/freetts-en_us.jar
+	    	java/mary-freetts.jar
 	    	conf/en_US.config
 	    	lib/modules/en/**/*"/>
 	  </zip>
@@ -571,12 +573,12 @@ THIS SOFTWARE.
             </jar>
         </target>
 	
-    <target name="installer" depends="jars,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
+    <target name="installer" depends="packages,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
     	<java dir="build" jar="build/standalone-compiler.jar" fork="true">
 			<arg line="openmary-install.xml -b .. -k webdir -o ../dist/openmary-install-${specification.version.nospace}.jar"/>
         </java>
     </target>
-    <target name="standalone-installer" depends="jars,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
+    <target name="standalone-installer" depends="packages,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
     	<java dir="build" jar="build/standalone-compiler.jar" fork="true">
 			<arg line="openmary-install.xml -b .. -k standard -o ../dist/openmary-standalone-install-${specification.version.nospace}.jar"/>
         </java>

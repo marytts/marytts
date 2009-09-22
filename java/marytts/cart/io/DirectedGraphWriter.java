@@ -46,7 +46,7 @@ import marytts.cart.LeafNode.LeafType;
 import marytts.cart.LeafNode.StringAndFloatLeafNode;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.tools.voiceimport.MaryHeader;
+import marytts.util.data.MaryHeader;
 
 import org.apache.log4j.Logger;
 
