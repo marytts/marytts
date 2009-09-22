@@ -42,7 +42,6 @@ import javax.swing.JOptionPane;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.modules.ModuleRegistry;
 import marytts.signalproc.effects.BaseAudioEffect;
-import marytts.tools.installvoices.VoiceInstaller;
 import marytts.util.InstallationUtils;
 import marytts.util.MaryUtils;
 
@@ -440,7 +439,8 @@ public class MaryProperties
             if (answer == JOptionPane.YES_OPTION) {
                 // Try to install it via the voice installer
                 // run(), not start(), so that the code is executed in the current thread
-                new VoiceInstaller(component, false).run(); 
+                //new VoiceInstaller(component, false).run();
+                JOptionPane.showMessageDialog(null, "Not yet implemented. See ticket at http://mary.opendfki.de/ticket/234.");
             }
         } else if (download != null) {
             int answer = JOptionPane.showConfirmDialog(null,
