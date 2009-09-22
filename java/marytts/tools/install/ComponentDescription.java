@@ -97,7 +97,7 @@ public class ComponentDescription extends Observable
     private int size = -1;
     
     protected ComponentDescription(Element xmlDescription)
-    throws NullPointerException, MalformedURLException
+    throws NullPointerException
     {
         this.name = xmlDescription.getAttribute("name");
         this.locale = MaryUtils.string2locale(xmlDescription.getAttribute("locale"));
@@ -105,7 +105,12 @@ public class ComponentDescription extends Observable
         Element descriptionElement = (Element) xmlDescription.getElementsByTagName("description").item(0);
         this.description = descriptionElement.getTextContent().trim();
         Element licenseElement = (Element) xmlDescription.getElementsByTagName("license").item(0);
-        this.license = new URL(licenseElement.getAttribute("href"));
+        try {
+            this.license = new URL(licenseElement.getAttribute("href"));
+        } catch (MalformedURLException mue) {
+            new Exception("Invalid license URL -- ignoring", mue).printStackTrace();
+            this.license = null;
+        }
         Element packageElement = (Element) xmlDescription.getElementsByTagName("package").item(0);
         packageFilename = packageElement.getAttribute("filename");
         packageSize = Integer.parseInt(packageElement.getAttribute("size"));
@@ -114,7 +119,11 @@ public class ComponentDescription extends Observable
         locations = new ArrayList<URL>(locationElements.getLength());
         for (int i=0, max = locationElements.getLength(); i<max; i++) {
             Element aLocationElement = (Element) locationElements.item(i);
-            locations.add(new URL(aLocationElement.getAttribute("href")+"/"+packageFilename));
+            try {
+                locations.add(new URL(aLocationElement.getAttribute("href")+"/"+packageFilename));
+            } catch (MalformedURLException mue) {
+                new Exception("Invalid location -- ignoring", mue).printStackTrace();
+            }
         }
         archiveFile = new File(System.getProperty("mary.downloadDir"), packageFilename);
         infoFile = new File(System.getProperty("mary.installedDir"), getInfoFilename());

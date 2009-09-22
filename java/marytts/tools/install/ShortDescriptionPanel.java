@@ -46,6 +46,7 @@ public class ShortDescriptionPanel extends javax.swing.JPanel implements Observe
     private void initComponents() {
         cbSelected = new javax.swing.JCheckBox();
         bDetails = new javax.swing.JButton();
+        lStatus = new javax.swing.JLabel();
 
         setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         addFocusListener(new java.awt.event.FocusAdapter() {
@@ -94,21 +95,30 @@ public class ShortDescriptionPanel extends javax.swing.JPanel implements Observe
             }
         });
 
+        lStatus.setFont(new java.awt.Font("Lucida Grande", 0, 10));
+        lStatus.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lStatus.setText(desc.getStatus().toString());
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(cbSelected, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 206, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
+                .add(cbSelected, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 166, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(bDetails)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, lStatus, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, bDetails, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(19, 19, 19)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                .addContainerGap()
+                .add(lStatus)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(cbSelected, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(bDetails))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -169,6 +179,7 @@ public class ShortDescriptionPanel extends javax.swing.JPanel implements Observe
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bDetails;
     private javax.swing.JCheckBox cbSelected;
+    private javax.swing.JLabel lStatus;
     // End of variables declaration//GEN-END:variables
 
     public void update(Observable o, Object arg) {
@@ -178,5 +189,6 @@ public class ShortDescriptionPanel extends javax.swing.JPanel implements Observe
     private void verifyDisplay()
     {
         cbSelected.setSelected(desc.isSelected());
+        lStatus.setText(desc.getStatus().toString());
     }
 }

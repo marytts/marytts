@@ -492,7 +492,7 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
             try {
                 g.addLanguagesAndVoices(new InstallFileParser(cd.toURL()));
             } catch (Exception exc) {
-                // silently ignore
+                exc.printStackTrace();
             }
         }
         componentDescriptionFiles = archiveDir.listFiles(new FilenameFilter() {
@@ -504,7 +504,7 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
             try {
                 g.addLanguagesAndVoices(new InstallFileParser(cd.toURL()));
             } catch (Exception exc) {
-                // silently ignore
+                exc.printStackTrace();
             }
         }
         
