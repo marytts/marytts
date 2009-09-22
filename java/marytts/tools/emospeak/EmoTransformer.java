@@ -24,6 +24,8 @@ import java.util.Locale;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 
+import marytts.util.MaryUtils;
+
 
 /**
  *
@@ -107,7 +109,7 @@ public class EmoTransformer extends Thread {
         emotionDocument = docBuilder.getDOMImplementation().
             createDocument(null, "emotion", null);
         org.w3c.dom.Element e = emotionDocument.getDocumentElement();
-        e.setAttributeNS("http://www.w3.org/XML/1998/namespace", "lang", locale.getLanguage());
+        e.setAttributeNS("http://www.w3.org/XML/1998/namespace", "lang", MaryUtils.locale2xmllang(locale));
         e.setAttribute("activation", String.valueOf(activation));
         e.setAttribute("evaluation", String.valueOf(evaluation));
         e.setAttribute("power", String.valueOf(power));

@@ -410,6 +410,9 @@ implements AudioFileReceiver, ProsodyXMLDisplayer
         cbInputText.removeAllItems();
         Vector texts = (Vector) sampleTextsByLocale.get(locale);
         assert texts != null;
+        if (texts.size() == 0) {
+            return;
+        }
         for (Iterator it = texts.iterator(); it.hasNext(); ) {
             String s = (String) it.next();
             cbInputText.addItem(s);
