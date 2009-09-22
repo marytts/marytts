@@ -55,7 +55,7 @@ public class PhoneTranslator {
     // so the phone aliases are loaded. 
     public PhoneTranslator(String trickyPhonesFile) throws FileNotFoundException 
     {
-      if( !trickyPhonesFile.contentEquals("") )
+      if(trickyPhonesFile != null && !trickyPhonesFile.contentEquals("") )
         loadTrickyPhones(trickyPhonesFile);
     }
     

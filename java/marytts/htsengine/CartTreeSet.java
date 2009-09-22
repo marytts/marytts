@@ -125,8 +125,7 @@ public class CartTreeSet {
         }
         
       } catch (Exception e) {
-        logger.debug("Exception: " + e.getMessage());
-        throw new Exception("LoadTreeSet: " + e.getMessage());
+        throw new Exception("LoadTreeSet failed: ", e);
       
       }
         
