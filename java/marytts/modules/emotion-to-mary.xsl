@@ -119,25 +119,27 @@ THIS SOFTWARE.
     <xsl:variable name="volume"
     select="round(50 + 0.33*$activation)"/>
 
-    <prosody pitch="{$pitch}%" pitch-dynamics="{$pitch-dynamics}%"
-        range="{$range}st" range-dynamics="{$range-dynamics}%"
-        preferred-accent-shape="{$preferred-accent-shape}"
-        accent-slope="{$accent-slope}%"
-        accent-prominence="{$accent-prominence}%"
-        preferred-boundary-type="{$preferred-boundary-type}"
-        rate="{$rate}%" number-of-pauses="{$number-of-pauses}%"
-        pause-duration="{$pause-duration}%"
-        vowel-duration="{$vowel-duration}%"
-        nasal-duration="{$nasal-duration}%"
-        liquid-duration="{$liquid-duration}%"
-        plosive-duration="{$plosive-duration}%"
-        fricative-duration="{$fricative-duration}%"
-        volume="{$volume}">
+    <prosody>
+        <xsl:attribute name="pitch"><xsl:value-of select="$pitch"/>%</xsl:attribute>
+        <xsl:attribute name="pitch-dynamics"><xsl:value-of select="$pitch-dynamics"/>%</xsl:attribute>
+        <xsl:attribute name="range"><xsl:value-of select="$range"/>st</xsl:attribute>
+        <xsl:attribute name="range-dynamics"><xsl:value-of select="$range-dynamics"/>%</xsl:attribute>
+        <xsl:attribute name="preferred-accent-shape"><xsl:value-of select="$preferred-accent-shape"/></xsl:attribute>
+        <xsl:attribute name="accent-slope"><xsl:value-of select="$accent-slope"/>%</xsl:attribute>
+        <xsl:attribute name="accent-prominence"><xsl:value-of select="$accent-prominence"/>%</xsl:attribute>
+        <xsl:attribute name="preferred-boundary-type"><xsl:value-of select="$preferred-boundary-type"/></xsl:attribute>
+        <xsl:attribute name="rate"><xsl:value-of select="$rate"/>%</xsl:attribute>
+        <xsl:attribute name="number-of-pauses"><xsl:value-of select="$number-of-pauses"/>%</xsl:attribute>
+        <xsl:attribute name="pause-duration"><xsl:value-of select="$pause-duration"/>%</xsl:attribute>
+        <xsl:attribute name="vowel-duration"><xsl:value-of select="$vowel-duration"/>%</xsl:attribute>
+        <xsl:attribute name="nasal-duration"><xsl:value-of select="$nasal-duration"/>%</xsl:attribute>
+        <xsl:attribute name="liquid-duration"><xsl:value-of select="$liquid-duration"/>%</xsl:attribute>
+        <xsl:attribute name="plosive-duration"><xsl:value-of select="$plosive-duration"/>%</xsl:attribute>
+        <xsl:attribute name="fricative-duration"><xsl:value-of select="$fricative-duration"/>%</xsl:attribute>
+        <xsl:attribute name="volume"><xsl:value-of select="$volume"/></xsl:attribute>
       <xsl:apply-templates/>
     </prosody>
 
-<!--
--->
 
   </xsl:template>
 
