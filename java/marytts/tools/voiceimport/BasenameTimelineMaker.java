@@ -157,9 +157,9 @@ public class BasenameTimelineMaker extends VoiceImportComponent
             System.out.println( "Total speech duration: [" + totalTime + "] samples / [" + ((float)(totalTime) / (float)(globSampleRate)) + "] seconds." );
             System.out.println( "(Speech duration approximated from EST Track float times: [" + totalDuration + "] seconds.)" );
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
-            System.out.println( "Size of the index: [" + bnTimeline.idx.getNumIdx() + "] ("
-                    + (bnTimeline.idx.getNumIdx() * 16) + " bytes, i.e. "
-                    + ( (double)(bnTimeline.idx.getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
+            System.out.println( "Size of the index: [" + bnTimeline.getIndex().getNumIdx() + "] ("
+                    + (bnTimeline.getIndex().getNumIdx() * 16) + " bytes, i.e. "
+                    + ( (double)(bnTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
             System.out.println( "---- Basename timeline done.");
             
             bnTimeline.close();
