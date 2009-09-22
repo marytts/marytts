@@ -382,14 +382,14 @@ THIS SOFTWARE.
         </jar>
   </target>
 
- <target name="installvoices.jar" depends="compile">
-        <jar destfile="${dest}/installvoices.jar"
+ <target name="mary-component-installer.jar" depends="compile">
+        <jar destfile="${dest}/mary-component-installer.jar"
              basedir="${src}"
-             includes="marytts/tools/installvoices/*.class">
+             includes="marytts/tools/install/*.class">
         <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Main-Class"
-         value="marytts.tools.installvoices.VoiceInstaller"/>
+         value="marytts.tools.install.InstallerGUI"/>
         <attribute name="Class-Path" value="fast-md5.jar"/>
         </manifest>
         </jar>
@@ -424,7 +424,7 @@ THIS SOFTWARE.
 		</jar>
 	</target>
 
-  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,languagejars,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar,voiceimport.jar,installvoices.jar,transcription-tool.jar,dbselection-tool.jar"/>
+  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,languagejars,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar,voiceimport.jar,mary-component-installer.jar,transcription-tool.jar,dbselection-tool.jar"/>
 
 	
 	
