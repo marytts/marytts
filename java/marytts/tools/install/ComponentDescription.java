@@ -94,7 +94,7 @@ public class ComponentDescription extends Observable
         Element descriptionElement = (Element) xmlDescription.getElementsByTagName("description").item(0);
         this.description = descriptionElement.getTextContent().trim();
         Element licenseElement = (Element) xmlDescription.getElementsByTagName("license").item(0);
-        this.license = new URL(licenseElement.getAttribute("xlink:href"));
+        this.license = new URL(licenseElement.getAttribute("href"));
         Element packageElement = (Element) xmlDescription.getElementsByTagName("package").item(0);
         packageFilename = packageElement.getAttribute("filename");
         packageSize = Integer.parseInt(packageElement.getAttribute("size"));
@@ -103,7 +103,7 @@ public class ComponentDescription extends Observable
         locations = new ArrayList<URL>(locationElements.getLength());
         for (int i=0, max = locationElements.getLength(); i<max; i++) {
             Element aLocationElement = (Element) locationElements.item(i);
-            locations.add(new URL(aLocationElement.getAttribute("xlink:href")+"/"+packageFilename));
+            locations.add(new URL(aLocationElement.getAttribute("href")+"/"+packageFilename));
         }
         archiveFile = new File(System.getProperty("mary.downloadDir"), packageFilename);
         infoFile = new File(System.getProperty("mary.installedDir"), getInfoFilename());
