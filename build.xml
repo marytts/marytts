@@ -59,6 +59,13 @@ THIS SOFTWARE.
         <striplinebreaks/>
       </filterchain>
     </loadfile>
+    <loadfile property="specification.version.nospace"
+              srcFile="${src}/marytts/specification-version.txt">
+      <filterchain>
+        <striplinebreaks/>
+      	<deletecharacters chars=" "/>
+      </filterchain>
+    </loadfile>
     <property name="implementation.version"
               value="${DSTAMP}"/>
     <echo file="${src}/marytts/implementation-version.txt"
@@ -92,7 +99,7 @@ THIS SOFTWARE.
     <property name="javadocdir" value="doc/javadoc"/>
     <mkdir dir="${javadocdir}"/>
     <javadoc packagenames="marytts.*"
-             classpath="java/freetts-en_us.jar;java/log4j-1.2.15.jar;java/freetts-mbrola.jar;java/tritonus_mp3-0.3.6.jar;java/junit.jar;java/freetts-de.jar;java/jtok.jar;build/standalone-compiler.jar;java/tritonus_remaining-0.3.6.jar;java/jl1.0.jar;java/java-diff.jar;java/freetts-cmudict04.jar;java/freetts-germanlex.jar;java/freetts.jar;java/JavaOpenAIR.jar;java/Jama-1.0.2.jar;java/jl1.0.jar;java/fast-md5.jar"
+             classpath="${project.classpath}"
              sourcepath="${src}"
              destdir="${javadocdir}"
              author="true"
@@ -104,6 +111,7 @@ THIS SOFTWARE.
              overview="${src}/marytts/overview.html"
              doctitle="The Mary Text-to-Speech Synthesis system, version ${specification.version}"
              windowtitle="Mary Java API"
+    		 maxmemory="256m"
      />
   </target>
 
@@ -390,7 +398,7 @@ THIS SOFTWARE.
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Main-Class"
          value="marytts.tools.install.InstallerGUI"/>
-        <attribute name="Class-Path" value="fast-md5.jar"/>
+        <attribute name="Class-Path" value="fast-md5.jar swing-layout-1.0.jar mary-common.jar log4j-1.2.15.jar"/>
         </manifest>
         </jar>
   </target>
@@ -427,8 +435,76 @@ THIS SOFTWARE.
   <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,languagejars,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar,voiceimport.jar,mary-component-installer.jar,transcription-tool.jar,dbselection-tool.jar"/>
 
 	
-	
+	<!-- Installable language zip files for the component installer -->
+    <target name="default-language-package" depends="jars">
+  	  <zip destfile="dist/mary-${lang}-${specification.version.nospace}.zip">
+  	    <zipfileset dir="." includes="java/mary-${lang}.jar
+  	    	conf/${lang}.config
+  	    	lib/modules/${lang}/**/*"/>
+  	  </zip>
+      <length file="dist/mary-${lang}-${specification.version.nospace}.zip" property="package.filesize"/>
+      <checksum file="dist/mary-${lang}-${specification.version.nospace}.zip" format="MD5SUM" property="package.md5"/>
+      <echoxml file="dist/mary-${lang}-${specification.version.nospace}-component.xml">
+      	<marytts-install xmlns="http://mary.dfki.de/installer">
+	      	<language locale="${lang}" name="${lang}" version="${specification.version}">
+	      	  <description>
+	      	  ${lang} language component
+	      	  </description>
+	      	  <license href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"/>
+	      	  <package size="${package.filesize}" md5sum="${package.md5}" filename="mary-${lang}-${specification.version.nospace}.zip">
+	      	    <location href="http://mary.dfki.de/download/${specification.version}/"/>
+	      	  </package>
+	      	</language>
+      	</marytts-install>
+      </echoxml>
+    </target>
 
+	<target name="en_US-package" depends="jars">
+	  <zip destfile="dist/mary-en_US-${specification.version.nospace}.zip">
+	    <zipfileset dir="." includes="java/mary-en_US.jar
+	    	conf/en_US.config
+	    	lib/modules/en/**/*"/>
+	  </zip>
+	      <length file="dist/mary-en_US-${specification.version.nospace}.zip" property="package.filesize.en_US"/>
+	      <checksum file="dist/mary-en_US-${specification.version.nospace}.zip" format="MD5SUM" property="package.md5.en_US"/>
+	      <echoxml file="dist/mary-en_US-${specification.version.nospace}-component.xml">
+	      	<marytts-install xmlns="http://mary.dfki.de/installer">
+		      	<language locale="en-US" name="en-US" version="${specification.version}">
+		      	  <description>
+		      	  US English language component
+		      	  </description>
+		      	  <license href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"/>
+		      	  <package size="${package.filesize.en_US}" md5sum="${package.md5.en_US}" filename="mary-en_US-${specification.version.nospace}.zip">
+		      	    <location href="http://mary.dfki.de/download/${specification.version}/"/>
+		      	  </package>
+		      	</language>
+	      	</marytts-install>
+	      </echoxml>
+	</target>
+	
+    <target name="de-package">
+      <antcall target="default-language-package">
+        <param name="lang" value="de"/>
+      </antcall>
+    </target>
+
+    <target name="te-package">
+      <antcall target="default-language-package">
+        <param name="lang" value="te"/>
+      </antcall>
+    </target>
+
+    <target name="tr-package">
+      <antcall target="default-language-package">
+        <param name="lang" value="tr"/>
+      </antcall>
+    </target>
+
+	
+	<target name="packages" depends="en_US-package,
+		de-package,
+		te-package,
+		tr-package" />
 	
 	 
 	<target name="SpeechSynthesisTool"> 
@@ -497,12 +573,12 @@ THIS SOFTWARE.
 	
     <target name="installer" depends="jars,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
     	<java dir="build" jar="build/standalone-compiler.jar" fork="true">
-			<arg line="openmary-install.xml -b .. -k webdir -o ../dist/openmary-install-${specification.version}.jar"/>
+			<arg line="openmary-install.xml -b .. -k webdir -o ../dist/openmary-install-${specification.version.nospace}.jar"/>
         </java>
     </target>
     <target name="standalone-installer" depends="jars,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
     	<java dir="build" jar="build/standalone-compiler.jar" fork="true">
-			<arg line="openmary-install.xml -b .. -k standard -o ../dist/openmary-standalone-install-${specification.version}.jar"/>
+			<arg line="openmary-install.xml -b .. -k standard -o ../dist/openmary-standalone-install-${specification.version.nospace}.jar"/>
         </java>
     </target>
 		
