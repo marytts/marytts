@@ -106,13 +106,13 @@ public class ComponentDescription extends Observable
         this.description = descriptionElement.getTextContent().trim();
         Element licenseElement = (Element) xmlDescription.getElementsByTagName("license").item(0);
         try {
-            this.license = new URL(licenseElement.getAttribute("href"));
+            this.license = new URL(licenseElement.getAttribute("href").trim().replaceAll(" ", "%20"));
         } catch (MalformedURLException mue) {
             new Exception("Invalid license URL -- ignoring", mue).printStackTrace();
             this.license = null;
         }
         Element packageElement = (Element) xmlDescription.getElementsByTagName("package").item(0);
-        packageFilename = packageElement.getAttribute("filename");
+        packageFilename = packageElement.getAttribute("filename").trim();
         packageSize = Integer.parseInt(packageElement.getAttribute("size"));
         packageMD5 = packageElement.getAttribute("md5sum");
         NodeList locationElements = packageElement.getElementsByTagName("location");
@@ -120,7 +120,7 @@ public class ComponentDescription extends Observable
         for (int i=0, max = locationElements.getLength(); i<max; i++) {
             Element aLocationElement = (Element) locationElements.item(i);
             try {
-                locations.add(new URL(aLocationElement.getAttribute("href")+"/"+packageFilename));
+                locations.add(new URL(aLocationElement.getAttribute("href").trim().replaceAll(" ", "%20")+"/"+packageFilename));
             } catch (MalformedURLException mue) {
                 new Exception("Invalid location -- ignoring", mue).printStackTrace();
             }
@@ -134,11 +134,15 @@ public class ComponentDescription extends Observable
     {
         File installedDir = new File(System.getProperty("mary.installedDir"));
         File downloadDir = new File(System.getProperty("mary.downloadDir"));
-        
-        if (new File(installedDir, getInfoFilename()).exists()) {
+                
+        if (infoFile.exists()) {
             status = Status.INSTALLED;
-        } else if (new File(downloadDir, packageFilename).exists()) {
-            status = Status.DOWNLOADED;
+        } else if (archiveFile.exists()) {
+            if (archiveFile.length() == packageSize) {
+                status = Status.DOWNLOADED;
+            } else {
+                status = Status.AVAILABLE;
+            }
         } else if (locations.size() > 0) {
             status = Status.AVAILABLE;
         } else {
@@ -198,13 +202,7 @@ public class ComponentDescription extends Observable
     
     public String getDisplayPackageSize()
     {
-        if (packageSize >= 10*1024*1024) {
-            return (packageSize/(1024*1024))+"MB";
-        } else if (packageSize >= 10*1024) {
-            return (packageSize/1024)+"kB";
-        } else {
-            return Integer.toString(packageSize);
-        }
+        return MaryUtils.toHumanReadableSize(packageSize);
     }
 
     public String getPackageMD5Sum()
@@ -390,7 +388,7 @@ public class ComponentDescription extends Observable
     public int getProgress()
     {
         if (status == Status.DOWNLOADING) {
-            return 100*downloaded/size;
+            return (int) (100L*downloaded/size);
         } else if (status == Status.INSTALLING) {
             return -1;
         }

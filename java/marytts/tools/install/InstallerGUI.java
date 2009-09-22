@@ -60,6 +60,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import marytts.Version;
 import marytts.tools.install.ComponentDescription.Status;
+import marytts.util.MaryUtils;
 
 /**
  *
@@ -455,7 +456,8 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
             JOptionPane.showMessageDialog(this, "You have not selected any installable components");
             return;
         }
-        int returnValue = JOptionPane.showConfirmDialog(this, "Install "+toInstall.size()+" components?\n("+downloadSize+" bytes to download)", "Proceed with installation?", JOptionPane.YES_NO_OPTION);
+        int returnValue = JOptionPane.showConfirmDialog(this, "Install "+toInstall.size()+" components?\n("
+                +MaryUtils.toHumanReadableSize(downloadSize)+" to download)", "Proceed with installation?", JOptionPane.YES_NO_OPTION);
         if (returnValue != JOptionPane.YES_OPTION) {
             System.err.println("Aborting installation.");
             return;
@@ -511,8 +513,8 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
                         if (dialog.isVisible() 
                                 && (e.getSource() == optionPane)
                                 && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
-                            dialog.setVisible(false);
                             pp.requestExit();
+                            dialog.setVisible(false);
                         }
                     }
                 });

@@ -1135,5 +1135,15 @@ public class MaryUtils {
         out.println(commentChar);
         out.println(commentChar+" #########################################################################");
     }
+
+    public static String toHumanReadableSize(int byteCount) {
+        if (byteCount >= 10*1024*1024) {
+            return (byteCount/(1024*1024))+"MB";
+        } else if (byteCount >= 10*1024) {
+            return (byteCount/1024)+"kB";
+        } else {
+            return Integer.toString(byteCount);
+        }
+    }
 }
 

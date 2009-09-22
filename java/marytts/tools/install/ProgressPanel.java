@@ -35,6 +35,9 @@ public class ProgressPanel extends javax.swing.JPanel implements Runnable, Obser
     public synchronized void requestExit()
     {
         this.exitRequested = true;
+        if (currentComponent != null) {
+            currentComponent.cancel();
+        }
     }
     
     private synchronized boolean isExitRequested()
@@ -169,7 +172,7 @@ public class ProgressPanel extends javax.swing.JPanel implements Runnable, Obser
             pbOverall.setString(i+" / "+max);
             setCurrentComponent(comp);
             if (install) {
-                if (comp.getStatus() == Status.AVAILABLE) {
+                if (comp.getStatus() == Status.AVAILABLE || comp.getStatus() == Status.CANCELLED) {
                     comp.download(true);
                     if (comp.getStatus() == Status.ERROR) {
                         error = true;
@@ -207,7 +210,7 @@ public class ProgressPanel extends javax.swing.JPanel implements Runnable, Obser
             JOptionPane.showMessageDialog(this, "Could not "+action+" "+problematic.getName());
         } else {
             pbOverall.setString(max + " / " + max);
-            JOptionPane.showMessageDialog(this, max + " components "+action+"ed successfully.");
+            //JOptionPane.showMessageDialog(this, max + " components "+action+"ed successfully.");
         }
         this.setCurrentComponent(null);
         this.getTopLevelAncestor().setVisible(false);
