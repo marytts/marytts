@@ -32,7 +32,9 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.Authenticator;
 import java.net.MalformedURLException;
+import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -115,6 +117,9 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
         pVoices = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        menuBar1 = new javax.swing.JMenuBar();
+        menuTools1 = new javax.swing.JMenu();
+        miProxy1 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setTitle("MARY TTS Installer");
@@ -233,9 +238,23 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
                     .add(jLabel2))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(spVoices, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)
-                    .add(spLanguages, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 325, Short.MAX_VALUE)))
+                    .add(spVoices, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
+                    .add(spLanguages, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)))
         );
+
+        menuTools1.setText("Tools");
+        miProxy1.setText("Proxy settings...");
+        miProxy1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miProxy1ActionPerformed(evt);
+            }
+        });
+
+        menuTools1.add(miProxy1);
+
+        menuBar1.add(menuTools1);
+
+        setJMenuBar(menuBar1);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -260,6 +279,33 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void miProxy1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miProxy1ActionPerformed
+        ProxyPanel prp = new ProxyPanel(System.getProperty("http.proxyHost"), System.getProperty("http.proxyPort"));
+        final JOptionPane optionPane = new JOptionPane(prp, JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null, new String[] {"OK", "Cancel"}, "OK");
+        final JDialog dialog = new JDialog((Frame)null, "", true);
+        dialog.setContentPane(optionPane);
+        optionPane.addPropertyChangeListener(
+                new PropertyChangeListener() {
+                    public void propertyChange(PropertyChangeEvent e) {
+                        String prop = e.getPropertyName();
+
+                        if (dialog.isVisible() 
+                         && (e.getSource() == optionPane)
+                         && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                            dialog.setVisible(false);
+                        }
+                    }
+                });
+        dialog.pack();
+        dialog.setVisible(true);
+
+        if ("OK".equals(optionPane.getValue())) {
+            System.setProperty("http.proxyHost",prp.getProxyHost());
+            System.setProperty("http.proxyPort",prp.getProxyPort());
+        }
+
+    }//GEN-LAST:event_miProxy1ActionPerformed
 
     private void bUninstallActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bUninstallActionPerformed
         uninstallSelectedLanguagesAndVoices();
@@ -297,6 +343,36 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
     private void customInitComponents()
     {
         bUpdate.requestFocusInWindow();
+        
+        // Set up the authentication dialog in case it will be used:
+        Authenticator.setDefault(new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication()
+            {
+                PasswordPanel passP = new PasswordPanel();
+                final JOptionPane optionPane = new JOptionPane(passP, JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION, null, new String[] {"OK", "Cancel"}, "OK");
+                final JDialog dialog = new JDialog((Frame)null, "", true);
+                dialog.setContentPane(optionPane);
+                optionPane.addPropertyChangeListener(
+                    new PropertyChangeListener() {
+                        public void propertyChange(PropertyChangeEvent e) {
+                            String prop = e.getPropertyName();
+
+                            if (dialog.isVisible() 
+                                && (e.getSource() == optionPane)
+                                && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                            dialog.setVisible(false);
+                        }
+                    }
+                });
+                dialog.pack();
+                dialog.setVisible(true);
+                if ("OK".equals(optionPane.getValue())) {
+                    return new PasswordAuthentication(passP.getUser(), passP.getPassword());
+                }
+                return null;
+            }
+        });
     }
 
     private void updateLanguagesTable()
@@ -318,12 +394,10 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
             return;
         }
         currentLanguage = newLanguage;
-        System.out.println("Now updating voices for "+currentLanguage);
         List<VoiceComponentDescription> lVoices = getVoicesForLanguage(currentLanguage);
         pVoices.removeAll();
         for (ComponentDescription desc : lVoices) {
             pVoices.add(new ShortDescriptionPanel(desc, null));
-            System.out.println("  adding "+desc);
         }
         pVoices.add(Box.createVerticalGlue());
         pVoices.repaint();
@@ -522,6 +596,9 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JMenuBar menuBar1;
+    private javax.swing.JMenu menuTools1;
+    private javax.swing.JMenuItem miProxy1;
     private javax.swing.JPanel pDownload;
     private javax.swing.JPanel pInstallButtons;
     private javax.swing.JPanel pLanguages;
