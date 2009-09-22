@@ -64,6 +64,12 @@
         <pack name="marybase" required="yes" preselected="yes">
 <description>OpenMary Base: The base files for the OpenMary Text-to-speech server and client.
 </description>
+			<fileset dir="dist" targetdir="$INSTALL_PATH/download"
+				includes="mary-en_US-4.0beta.zip,
+					mary-en_US-4.0beta-component.xml,
+					mary-hsmm-slt-4.0beta.zip,
+					mary-hsmm-slt-4.0beta-component.xml"
+			/>
             <fileset dir="." targetdir="$INSTALL_PATH"
 				includes="MARY_software_user_agreement.txt,
 				    lgpl-3.0.txt,
@@ -93,6 +99,8 @@
 					lib/modules/tokeniser/en/en_nbabbrev.txt,
 					lib/modules/tokeniser/en/en_numbers.xml,
 					lib/modules/tokeniser/en/en_punct.xml,
+					lib/modules/fallback/prosody/POSAccentPriorities.properties,
+					lib/modules/fallback/prosody/tobipredparams.xml,
 					java/Jama-1.0.2.jar,
 					java/Jampack.jar,
 					java/JavaOpenAIR.jar,
@@ -131,9 +139,6 @@
 					examples/emospeak-applet.html,
 					log/README.txt,
 					tmp/README.txt,
-					download/en_US-$APP_VER.zip,
-					download/mary-hsmm-slt-$APP_VER.zip,
-					download/mary-components.xml,
 					lib/icons/mary.ico,
 					lib/icons/maryicon.png,
 					README.txt"/>

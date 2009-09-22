@@ -36,7 +36,7 @@ import marytts.cart.LeafNode.IntArrayLeafNode;
 import marytts.cart.LeafNode.StringAndFloatLeafNode;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.tools.voiceimport.MaryHeader;
+import marytts.util.data.MaryHeader;
 
 /**
  * IO functions for CARTs in WagonCART format

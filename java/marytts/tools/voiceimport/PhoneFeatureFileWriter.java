@@ -39,6 +39,7 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.UnitFileReader;
+import marytts.util.data.MaryHeader;
 
 
 public class PhoneFeatureFileWriter extends VoiceImportComponent

@@ -72,7 +72,7 @@ import marytts.cart.LeafNode.PdfLeafNode;
 import marytts.cart.Node;
 import marytts.features.FeatureDefinition;
 import marytts.htsengine.PhoneTranslator;
-import marytts.tools.voiceimport.MaryHeader;
+import marytts.util.data.MaryHeader;
 
 
 /**

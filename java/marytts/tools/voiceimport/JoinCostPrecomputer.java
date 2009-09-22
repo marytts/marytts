@@ -49,6 +49,7 @@ import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.unitselection.select.JoinCostFeatures;
 import marytts.unitselection.select.PrecompiledJoinCostReader;
+import marytts.util.data.MaryHeader;
 
 
 public class JoinCostPrecomputer extends VoiceImportComponent

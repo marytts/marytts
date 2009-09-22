@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 import marytts.unitselection.data.Datagram;
+import marytts.util.data.MaryHeader;
 
 
 /**

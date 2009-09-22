@@ -50,6 +50,7 @@ import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.WagonCARTReader;
 import marytts.cart.io.WagonCARTWriter;
 import marytts.features.FeatureDefinition;
+import marytts.util.data.MaryHeader;
 
 
 /**
