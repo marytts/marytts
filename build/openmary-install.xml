@@ -35,7 +35,7 @@
         <res id="LicensePanel.license.0" src="MARY_software_user_agreement.txt" encoding="UTF-8"/>
         <res id="LicensePanel.license.1" src="gpl-3.0.txt" encoding="UTF-8"/>
         <res id="InfoPanel.info" src="build/installer-info.txt"/>
-        <res id="XInfoPanel.info" src="build/getstarted-info.txt"/>
+        <!--res id="XInfoPanel.info" src="build/getstarted-info.txt"/-->
 		<res id="shortcutSpec.xml" src="build/shortcuts-windows.xml"/>
 		<res id="Unix_shortcutSpec.xml" src="build/shortcuts-linux.xml"/>
 		<res id="ProcessPanel.Spec.xml" src="build/processpanelspec.xml"/>
@@ -68,8 +68,8 @@
 			<fileset dir="dist" targetdir="$INSTALL_PATH/download"
 				includes="mary-en_US-4.0beta.zip,
 					mary-en_US-4.0beta-component.xml,
-					mary-slt-hsmm-4.0beta.zip,
-					mary-slt-hsmm-4.0beta-component.xml"
+					mary-cmu-slt-hsmm-4.0beta.zip,
+					mary-cmu-slt-hsmm-4.0beta-component.xml"
 			/>
             <fileset dir="." targetdir="$INSTALL_PATH"
 				includes="MARY_software_user_agreement.txt,
@@ -81,6 +81,8 @@
 					doc/licenses/freetts-license.txt,
 					doc/licenses/jsresources-license.txt,
 					doc/licenses/LGPL.txt,
+					doc/licenses/by-nd-3.0.txt,
+					doc/licenses/by-nc-sa-3.0.txt,
 					doc/licenses/README.txt,
 					lib/MaryXML.xsd,
 					lib/Sable.v0_2.mary.dtd,
@@ -222,7 +224,8 @@ This component includes GPL'ed code and is thus shipped under the GPL 3.
 						java/dbselection-tool.jar,
 						java/transcription-tool.jar,
                         java/redstart.jar,
-                        java/voiceimport.jar"/>
+                        java/voiceimport.jar,
+                        lib/hts/HTS-demo_for_MARY-4.0-beta.tar.gz"/>
             <fileset os="windows" dir="." targetdir="$INSTALL_PATH"
             	 includes="bin/redstart.bat,
             	 	voiceimport.bat"/>

@@ -1,19 +1,12 @@
-Welcome to the MARY TTS (text-to-speech) installer.
+MARY TTS is an open-source Text-To-Speech platform written in Pure Java.
 
-MARY is a program that can convert written text into audible speech.
-It is written in Java and will work under Microsoft Windows, Linux,
-Solaris and MacOSX.
+Requires Java 1.5 or newer.
 
-This integrated installer will install the MARY TTS system on your computer.
-As MARY is a very modular system (MARY stands for "Modular Architecture for
-Research on speech sYnthesis), you can select the MARY components that you
-wish to install. Different components are distributed under various licenses.
-You will have to accept the licenses for the selected components before the
-installer will download these components from the internet and install them.
+Getting started:
+	- start MARY server
+	- then start either the MARY client, the web interface, or your custom client.
 
-IMPORTANT: Do spend some time selecting the right components, to get
-the optimal system for your needs! You have the choice between
-different languages, voices, or enhancement packs that improve synthesis,
-but which are distributed under a more restricted license than the basic
-OpenMary system.
+MARY also provides tools for building support for new languages and voices.
+
+For more details, see http://mary.dfki.de 
 
