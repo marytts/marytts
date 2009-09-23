@@ -293,7 +293,7 @@ THIS SOFTWARE.
         <attribute name="Main-Class"
                    value="marytts.client.MaryGUIClient"/>
         <attribute name="Class-Path"
-                   value="java-diff.jar"/>
+                   value="java-diff.jar log4j-1.2.15.jar"/>
         <attribute name="Specification-Version"
                    value="${specification.version}"/>
         <attribute name="Implementation-Version"

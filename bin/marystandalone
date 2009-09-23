@@ -48,8 +48,8 @@
 # echo "Hello world" | marystandalone -Doutput.type=ALLOPHONES -Dinput.type=TEXT -Dlocale=en_US > hello-allophones.xml
 
 # Set the Mary base installation directory in an environment variable:
-BINDIR=`dirname "$0"`
-export MARY_BASE=`(cd $BINDIR/.. ; pwd)`
+BINDIR="`dirname "$0"`"
+export MARY_BASE="`(cd "$BINDIR"/.. ; pwd)`"
 
 # CYGWIN support:
 cygwin=0;
