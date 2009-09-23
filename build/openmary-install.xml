@@ -50,6 +50,7 @@
         <panel classname="TargetPanel"/> 
         <panel classname="PacksPanel"/>
         <panel classname="de.dfki.lt.izpack.LicensePanel"/>
+        <panel classname="de.dfki.lt.izpack.LicensePanel"/>
         <panel classname="InstallPanel"/>
         <panel classname="ShortcutPanel"/>
         <!--panel classname="XInfoPanel"/-->
