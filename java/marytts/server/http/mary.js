@@ -47,7 +47,6 @@ function initForm()
 	fillTypes();
     fillAudioFormats();
     fillEffects();
-	setInputText("TEXT");
 	setVisibilities("AUDIO");
 	setAudio("WAVE_FILE");
 };
@@ -76,6 +75,7 @@ function fillVoices()
 							var items = line.split(' ', 2);
 							voiceElt.value = items[0];
 							localeElt.value = items[1];
+							updateInputText();
 		            	}
 	            	}
 	            }
@@ -110,6 +110,7 @@ function fillTypes()
 			            	if (fields[0]=="TEXT") {
 			            		var sel = document.getElementById("INPUT_TYPE");
 			            		sel.selectedIndex = sel.length - 1;
+			            		updateInputText();
 			            	}
 		            	}
 		            	if (line.indexOf('OUTPUT') != -1) {
@@ -283,13 +284,18 @@ function helpEffect(button)
 
 function inputTypeChanged()
 {
-    var inputTypeSelect = document.getElementById('INPUT_TYPE');
-    var inputType = inputTypeSelect.options[inputTypeSelect.selectedIndex].text;
-	setInputText(inputType);
+	updateInputText()
 }
 
-function setInputText(inputType)
+function updateInputText()
 {
+    var inputTypeSelect = document.getElementById('INPUT_TYPE');
+    var locale = document.getElementById('LOCALE').value;
+    if (inputTypeSelect.options.length == 0 || locale == 'fill-me') { // nothing to do yet
+	    return;
+    }
+   	var inputType = inputTypeSelect.options[inputTypeSelect.selectedIndex].text;
+
     var xmlHttp = GetXmlHttpObject();
     if (xmlHttp==null) {
         alert ("Your browser does not support AJAX!");
@@ -297,7 +303,7 @@ function setInputText(inputType)
     }
     url = "exampletext?datatype=";
     url = url + inputType;
-    url = url + "&locale=en_US";
+    url = url + "&locale=" + locale;
     xmlHttp.onreadystatechange = function() {
         if (xmlHttp.readyState==4) {
         	if (xmlHttp.status == 200) {
@@ -310,6 +316,7 @@ function setInputText(inputType)
     xmlHttp.open("GET", url, true);
     xmlHttp.send(null);
 }
+
 
 function outputTypeChanged()
 {
@@ -344,7 +351,12 @@ function voiceChanged()
 	var voice = select.options[select.selectedIndex].text;
 	var items = voice.split(' ', 2);
 	document.getElementById('VOICE').value = items[0];
-	document.getElementById('LOCALE').value = items[1];
+	var newLocale = items[1];
+	var prevLocale = document.getElementById('LOCALE').value;
+	if (prevLocale != newLocale) {
+		document.getElementById('LOCALE').value = newLocale;
+		updateInputText();
+	}
     requestSynthesis();
 };
 
