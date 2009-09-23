@@ -169,6 +169,7 @@ public class ProgressPanel extends javax.swing.JPanel implements Runnable, Obser
         for (ComponentDescription comp : allComponents) {
             if (isExitRequested()) return;
             System.out.println("Now "+action+"ing "+comp.getName()+"...");
+            pbOverall.setValue(i);
             pbOverall.setString(i+" / "+max);
             setCurrentComponent(comp);
             if (install) {
@@ -209,6 +210,7 @@ public class ProgressPanel extends javax.swing.JPanel implements Runnable, Obser
             assert problematic != null;
             JOptionPane.showMessageDialog(this, "Could not "+action+" "+problematic.getName());
         } else {
+            pbOverall.setValue(max);
             pbOverall.setString(max + " / " + max);
             //JOptionPane.showMessageDialog(this, max + " components "+action+"ed successfully.");
         }

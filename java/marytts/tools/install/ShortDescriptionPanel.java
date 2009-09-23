@@ -35,6 +35,7 @@ public class ShortDescriptionPanel extends javax.swing.JPanel implements Observe
         initComponents();
         this.unselectedColor = this.getBackground();
         this.setMaximumSize(new Dimension(32767, (int)this.getPreferredSize().getHeight()));
+        verifyDisplay();
     }
     
     /** This method is called from within the constructor to
