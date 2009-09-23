@@ -24,8 +24,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,9 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import marytts.server.MaryProperties;
 
@@ -545,24 +550,54 @@ public class DomUtils
     
     public static String document2String(Document document)
     {
-        LSSerializer serializer;
-        DOMImplementationLS domImplLS;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            DOMImplementation implementation = DOMImplementationRegistry.newInstance().getDOMImplementation("XML 3.0");
+            document2Stream(document, baos);
+            return new String(baos.toByteArray(), "UTF-8");
+        } catch (Exception e) {
+            // silently ignore
+        }
+        return "";
+    }
+
+    public static void document2File(Document document, File file)
+    throws IOException, TransformerFactoryConfigurationError, TransformerException, ClassCastException, ClassNotFoundException, InstantiationException, IllegalAccessException
+    {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file);
+            document2Stream(document, fos);
+        } finally {
+            if (fos != null) {
+                fos.close();
+            }
+        }
+    }
+    
+    public static void document2Stream(Document document, OutputStream target)
+    throws TransformerFactoryConfigurationError, TransformerException, ClassCastException, ClassNotFoundException, InstantiationException, IllegalAccessException
+    {
+        LSSerializer serializer = null;
+        DOMImplementationLS domImplLS = null;
+        DOMImplementation implementation = DOMImplementationRegistry.newInstance().getDOMImplementation("XML 3.0");
+        if (implementation != null) {
             domImplLS = (DOMImplementationLS) implementation.getFeature("LS", "3.0");
+        }
+        if (domImplLS != null) {
             serializer = domImplLS.createLSSerializer();
             DOMConfiguration config = serializer.getDomConfig();
             config.setParameter("format-pretty-print", Boolean.TRUE);
             //config.setParameter("canonical-form", Boolean.TRUE);
-        } catch (Exception e) {
-            throw new RuntimeException("Problem instantiating XML serializer code", e);
         }
-        LSOutput output = domImplLS.createLSOutput();
-        output.setEncoding("UTF-8");
-        StringWriter buf = new StringWriter();
-        output.setCharacterStream(buf);
-        serializer.write(document, output);
-        return buf.toString();
+        if (domImplLS != null) { // have new DOM 3 code available
+            LSOutput output = domImplLS.createLSOutput();
+            output.setEncoding("UTF-8");
+            output.setByteStream(target);
+            serializer.write(document, output);
+        } else { // revert to older serialisation code
+            MaryNormalisedWriter mnw = new MaryNormalisedWriter();
+            mnw.output(document, target);
+        }
     }
 
     /**

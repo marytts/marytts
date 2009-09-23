@@ -55,6 +55,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import marytts.util.MaryUtils;
+import marytts.util.dom.DomUtils;
 
 import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.DOMImplementation;
@@ -134,7 +135,7 @@ public class ComponentDescription extends Observable
     {
         File installedDir = new File(System.getProperty("mary.installedDir"));
         File downloadDir = new File(System.getProperty("mary.downloadDir"));
-                
+
         if (infoFile.exists()) {
             status = Status.INSTALLED;
         } else if (archiveFile.exists()) {
@@ -401,18 +402,10 @@ public class ComponentDescription extends Observable
         File archiveFolder = archiveFile.getParentFile();
         String archiveFilename = archiveFile.getName();
         String compdescFilename = archiveFilename.substring(0, archiveFilename.lastIndexOf('.')) + "-component.xml";
+        File compdescFile = new File(archiveFolder, compdescFilename);
         Document doc = createComponentXML();
-        DOMImplementation implementation = DOMImplementationRegistry.newInstance().getDOMImplementation("XML 3.0");
-        DOMImplementationLS domImplLS = (DOMImplementationLS) implementation.getFeature("LS", "3.0");
-        LSSerializer serializer = domImplLS.createLSSerializer();
-        DOMConfiguration config = serializer.getDomConfig();
-        config.setParameter("format-pretty-print", Boolean.TRUE);
-        LSOutput output = domImplLS.createLSOutput();
-        output.setEncoding("UTF-8");
-        FileOutputStream fos = new FileOutputStream(compdescFilename);
-        output.setByteStream(fos);
-        serializer.write(doc, output);
-        fos.close();
+
+        DomUtils.document2File(doc, compdescFile);
     }
 
     protected Document createComponentXML()
@@ -433,6 +426,7 @@ public class ComponentDescription extends Observable
         Element packageElt = (Element) desc.appendChild(doc.createElementNS(installerNamespaceURI, "package"));
         packageElt.setAttribute("size", Integer.toString(packageSize));
         packageElt.setAttribute("md5sum", packageMD5);
+        packageElt.setAttribute("filename", packageFilename);
         for (URL l : locations) {
             Element lElt = (Element) packageElt.appendChild(doc.createElementNS(installerNamespaceURI, "location"));
             lElt.setAttribute("href", l.toString());
@@ -550,6 +544,7 @@ public class ComponentDescription extends Observable
                     stateChanged();
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 error();
             } finally {
                 // Close file.
