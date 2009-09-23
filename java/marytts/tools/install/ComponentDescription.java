@@ -529,6 +529,7 @@ public class ComponentDescription extends Observable
                     System.err.println("Download of "+packageFilename+" has finished.");
                     System.err.print("Computing checksum...");
                     status = Status.VERIFYING;
+                    stateChanged();
                     String hash = MD5.asHex(MD5.getHash(archiveFile));
                     if (hash.equals(packageMD5)) {
                         System.err.println("ok!");
