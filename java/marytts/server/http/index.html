@@ -31,12 +31,6 @@
       </tr>
     </table>
 
-    <table>
-      <tr>
-        <td><input type="button" value="Default" STYLE="font-size:11pt;" onClick="window.location.reload();"></td>
-        <td>Click to load default client settings from server</td>
-      </tr>
-    </table>
 
     <form id="maryWebClient" action="process" method="post">
     <table>
@@ -64,23 +58,30 @@
               <textarea id="OUTPUT_TEXT" name="OUTPUT_TEXT" rows="30" cols="45" readonly="true"></textarea>
             </span>
 			<span id="audioEffectsSection">
-	            <table id="effectsTable">
-	              <tr>
-	                <td> </td>
-	                <td><div id="hideEffects">Effects</div></td> 
-	                <td><div id="hideParameters">Parameters</div></td>
-	              </tr>
-	
-	            </table>
-            </span>
-          </td>
-          <td>
-	          <span id="helpSection">
-	            <table>
-	              <tr><td><div id="hideHelpTextTitle">Help Text:</div></td></tr>
-	              <tr><td><textarea name="HELP_TEXT" id="HELP_TEXT" rows="15" cols="50" readonly="true"></textarea></td></tr>
-	            </table>
+			  <span id="innerAudioEffectsSection" style="display:none;">
+			  <table>
+			   <tr>
+			    <td>
+	              <table id="effectsTable">
+	                <tr>
+	                  <td> </td>
+	                  <td><div id="hideEffects">Effects</div></td> 
+	                  <td><div id="hideParameters">Parameters</div></td>
+	                </tr>
+	              </table>
+	            </td>
+	            <td>
+	              <span id="helpSection">
+	                <table>
+	                  <tr><td><div id="hideHelpTextTitle">Help Text:</div></td></tr>
+	                  <tr><td><textarea name="HELP_TEXT" id="HELP_TEXT" rows="15" cols="50" readonly="true"></textarea></td></tr>
+	                </table>
+	              </span>
+	            </td>
+	           </tr>
+	          </table>
 	          </span>
+            </span>
           </td>
 
         </tr>
@@ -91,6 +92,14 @@
           <td>
             <select id="VOICE_SELECTIONS" name="VOICE_SELECTIONS" size="1" onChange="voiceChanged();">
             </select>
+          </td>
+          <td width="50">
+          </td>
+          <td>
+          	  <div id="showHideEffectsButton">
+                <input type="button" value="Show Audio Effects" id="TOGGLE_EFFECTS" onClick="toggleEffectsVisibility();">
+			  </div>
+          
           </td>
         </tr>
 
@@ -104,7 +113,8 @@
         <tr>
           <td>
              <input type="button" value="PROCESS" id="PROCESS" STYLE="font-size:11pt; font-weight:bold;" onClick="requestSynthesis();">
-             <input type="button" value="SPEAK" id="SPEAK" STYLE="font-size:11pt; font-weight:bold;" onClick="requestSynthesis();"></td>
+             <input type="button" value="SPEAK" id="SPEAK" STYLE="font-size:11pt; font-weight:bold;" onClick="requestSynthesis();">
+          </td>
           <td></td>
 
         </tr>
@@ -120,6 +130,7 @@
   <div id="audioDestination"></div>
 
 
+<small><a href="documentation.html">Interactive documentation of the HTTP interface to MARY TTS</a></small> 
 
   </font>
 </body>

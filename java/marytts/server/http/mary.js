@@ -330,19 +330,33 @@ function setVisibilities(outputType)
     if (outputType == "AUDIO") {
     	document.getElementById("outputSection").style.display = 'none';
     	document.getElementById("audioEffectsSection").style.display = 'inline';
-    	document.getElementById("helpSection").style.display = 'inline';
+    	document.getElementById("showHideEffectsButton").style.display = 'inline';
+    	//document.getElementById("helpSection").style.display = 'inline';
     	document.getElementById("PROCESS").style.display = 'none';
     	document.getElementById("SPEAK").style.display = 'inline';
     	document.getElementById("audioDestination").style.display = 'inline';
     } else {
     	document.getElementById("outputSection").style.display = 'inline';
     	document.getElementById("audioEffectsSection").style.display = 'none';
-    	document.getElementById("helpSection").style.display = 'none';
+    	document.getElementById("showHideEffectsButton").style.display = 'none';
+    	//document.getElementById("helpSection").style.display = 'none';
     	document.getElementById("PROCESS").style.display = 'inline';
     	document.getElementById("SPEAK").style.display = 'none';
     	document.getElementById("audioDestination").style.display = 'none';
     }
 };
+
+function toggleEffectsVisibility()
+{
+	var currentVisibility = document.getElementById("innerAudioEffectsSection").style.display;
+	if (currentVisibility == 'none') {
+		document.getElementById("innerAudioEffectsSection").style.display = 'inline';
+		document.getElementById("TOGGLE_EFFECTS").value = 'Hide Audio Effects';
+	} else {
+		document.getElementById("innerAudioEffectsSection").style.display = 'none';
+		document.getElementById("TOGGLE_EFFECTS").value = 'Show Audio Effects';
+	}
+}
 
 
 function voiceChanged()
