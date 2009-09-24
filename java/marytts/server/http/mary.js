@@ -284,7 +284,7 @@ function helpEffect(button)
 
 function inputTypeChanged()
 {
-	updateInputText()
+	updateInputText();
 }
 
 function updateInputText()
@@ -371,7 +371,6 @@ function voiceChanged()
 		document.getElementById('LOCALE').value = newLocale;
 		updateInputText();
 	}
-    requestSynthesis();
 };
 
 function audioOutChanged()
