@@ -76,7 +76,7 @@ THIS SOFTWARE.
   <target name="compile" depends="version">
     <!-- Compile the java code from ${src} -->
     <javac srcdir="${src}" classpathref="project.classpath" source="1.5"
-           target="1.5" encoding="UTF-8" debug="on"/>
+           target="1.5" encoding="UTF-8" debug="on" fork="true" memoryInitialSize="64m" memoryMaximumSize="256m"/>
   </target>
 
 
