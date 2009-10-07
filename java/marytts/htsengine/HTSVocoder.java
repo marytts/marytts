@@ -1483,9 +1483,9 @@ public class HTSVocoder {
  
     /** 
      * Stand alone testing reading parameters from files in SPTK format */
-    public static void main(String[] args) throws IOException, InterruptedException, Exception{
+    public static void main1(String[] args) throws IOException, InterruptedException, Exception{
        /* configure log info */
-       org.apache.log4j.BasicConfigurator.configure();
+       //org.apache.log4j.BasicConfigurator.configure();
         
        HMMData htsData = new HMMData(); 
        HTSPStream lf0Pst, mcepPst, strPst, magPst;
@@ -1650,6 +1650,255 @@ public class HTSVocoder {
     
   }
   
+    
+    
+    /** 
+     * Stand alone vocoder reading parameters from files in SPTK format, parameters in args[] array in the following order: <p>
+     * The type of spectrum parameters is set through the parameters gamma and alpha <p>
+     * @param gamma: 0
+     * @param alpha: 0.45 <p>
+     *    MGC: stage=gamma=0 alpha=0.42 linear gain  <p>
+     *    LSP: gamma>0 <p>
+     *         LSP    : gamma=1 alpha=0.0 <p>
+     *         Mel-LSP: gamma=1 alpha=0.42 <p>
+     *         MGC-LSP: gamma=3 alpha=0.42 <p>
+     * @param useLoggain: 0  (1:true 0:false)
+     * @param rate: 16000
+     * @param fperiod: 80 (5 milisec) 
+     * @param mcepFile: filename
+     * @param mcepVsize: vector size (75 if using a file from amain2 hmm voice training data, otherwise specify) 
+     * @param lf0File: filename
+     * @param lf0Vsize: vector size (3 if using a file from a hmm voice training data, otherwise specify)
+     * @param outputfile: filename
+     * 
+     * The following are optional:<p>
+     *     if using mixed excitation:<p> 
+     *     @param strFile: filename
+     *     @param strVsize: vector size (15 if using a file from a hmm voice training data, it can be found in data/filters/mix_excitation_filters.txt, otherwise specify)
+     *     @param filtersFile: filename 
+     *     @param numFilters: 5 (if using the filters file used in the HTS-MARY demo, otherwise specify)
+     *     @param orderFilters: 48 (if using the filters file used in the HTS-MARY demo, otherwise specify)
+     * 
+     *     <p>if using Fourier magnitudes: <p>
+     *     @param magFile: filename
+     *     @param magVsize: vector size (30 if using a file from a hmm voice training data, otherwise specify)
+     *      
+     * <p>example iput parameters: <p>
+     *    0 0.45 0 16000 80 
+     *    cmu_us_arctic_slt_a0001.mgc 75 
+     *    cmu_us_arctic_slt_a0001.lf0 3
+     *    vocoder_out.wav
+     *    cmu_us_arctic_slt_a0001.str 15
+     *    mix_excitation_filters.txt 5 48
+     *    cmu_us_arctic_slt_a0001.mag 30         
+     * <p>example input parameters without mixed excitation:<p>
+     *    0 0.45 0 16000 80 
+     *    cmu_us_arctic_slt_a0001.mgc 75 
+     *    cmu_us_arctic_slt_a0001.lf0 3
+     *    vocoder_out.wav 
+     * */   
+    public void htsMLSAVocoderCommand(String[] args) throws IOException, InterruptedException, Exception{
+        
+       HMMData htsData = new HMMData(); 
+       HTSPStream lf0Pst, mcepPst, strPst=null, magPst=null;
+       boolean [] voiced = null;
+       LEDataInputStream lf0Data, mcepData, strData, magData;
+       
+       String lf0File, mcepFile, strFile="", magFile="", outDir, outFile;
+       int mcepVsize, lf0Vsize, strVsize=0, magVsize=0;
+              
+        
+       // set values that the vocoder needs      
+       // Type of features:
+       int ind=0;
+       htsData.setStage(Integer.parseInt(args[ind++]));  // sets gamma
+       htsData.setAlpha(Float.parseFloat(args[ind++]));
+       if( args[ind++].contentEquals("1") )
+           htsData.setUseLogGain(true);
+       else
+           htsData.setUseLogGain(false);  
+       htsData.setRate(Integer.parseInt(args[ind++]));
+       htsData.setFperiod(Integer.parseInt(args[ind++]));
+       
+       /* parameters extracted from real data with SPTK and snack */
+       mcepFile = args[ind++];
+       mcepVsize = Integer.parseInt(args[ind++]);
+       
+       lf0File  = args[ind++];
+       lf0Vsize  = Integer.parseInt(args[ind++]);    
+
+       // output wav file
+       outFile = args[ind++];
+       
+       // Optional:
+       // if using mixed excitation
+       if( args.length > ind ){
+           htsData.setUseMixExc(true);
+           strFile  = args[ind++];
+           strVsize  = Integer.parseInt(args[ind++]);
+           htsData.setMixFiltersFile(args[ind++]);
+           htsData.setNumFilters(Integer.parseInt(args[ind++]));
+           htsData.setOrderFilters(Integer.parseInt(args[ind++]));
+           htsData.readMixedExcitationFiltersFile();
+           htsData.setPdfStrFile("");
+       } else {
+           htsData.setUseMixExc(false);
+       }
+       
+       // Optional:
+       // if using Fourier magnitudes in mixed excitation
+       if( args.length > ind ){
+           htsData.setUseFourierMag(true);
+           magFile  = args[ind++];
+           magVsize  = Integer.parseInt(args[ind++]);
+           htsData.setPdfMagFile("");
+       } else {
+           htsData.setUseFourierMag(false);
+       }
+      
+       
+       //Change these for voice effects:
+       //                                                                   [min][max]
+       htsData.setF0Std(1.0);  // variable for f0 control, multiply f0      [1.0][0.0--5.0]
+       htsData.setF0Mean(0.0); // variable for f0 control, add f0           [0.0][0.0--100.0]
+       
+       
+       int totalFrame = 0;
+       int lf0VoicedFrame = 0;
+       float fval;
+       int i, j;
+       lf0Data = new LEDataInputStream (new BufferedInputStream(new FileInputStream(lf0File)));
+       
+       /* First i need to know the size of the vectors */
+       try { 
+         while (true) {
+           fval = lf0Data.readFloat();
+           totalFrame++;  
+           if(fval>0)
+            lf0VoicedFrame++;
+         } 
+       } catch (EOFException e) { }
+       lf0Data.close();
+       
+       /* CHECK: I do not know why mcep has totalframe-2 frames less than lf0 and str ???*/
+       totalFrame = totalFrame - 2;
+       System.out.println("Total number of Frames = " + totalFrame);
+       voiced = new boolean[totalFrame];
+       
+       /* Initialise HTSPStream-s */
+       lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0);
+       mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.MCP);
+       
+       /* load lf0 data */
+       /* for lf0 i just need to load the voiced values */
+       lf0VoicedFrame = 0;
+       lf0Data = new LEDataInputStream (new BufferedInputStream(new FileInputStream(lf0File)));
+       for(i=0; i<totalFrame; i++){
+         fval = lf0Data.readFloat();
+         
+         //lf0Pst.setPar(i, 0, fval);
+         if(fval < 0)
+           voiced[i] = false;
+         else{
+           voiced[i] = true;
+           lf0Pst.setPar(lf0VoicedFrame, 0, fval);
+           lf0VoicedFrame++;
+         }
+       }
+       lf0Data.close();
+      
+       /* load mgc data */
+       mcepData = new LEDataInputStream (new BufferedInputStream(new FileInputStream(mcepFile)));
+       for(i=0; i<totalFrame; i++){
+         for(j=0; j<mcepPst.getOrder(); j++)
+           mcepPst.setPar(i, j, mcepData.readFloat());
+       }
+       mcepData.close();
+       
+       /* load str data */
+       if(htsData.getUseMixExc()){
+           strPst = new HTSPStream(strVsize, totalFrame, HMMData.STR);
+           strData = new LEDataInputStream (new BufferedInputStream(new FileInputStream(strFile))); 
+           for(i=0; i<totalFrame; i++){
+              for(j=0; j<strPst.getOrder(); j++)
+              strPst.setPar(i, j, strData.readFloat());
+           }
+           strData.close();
+       }
+       
+       /* load mag data */
+       if(htsData.getUseFourierMag()){
+           magPst = new HTSPStream(magVsize, totalFrame, HMMData.MAG);     
+           magData = new LEDataInputStream (new BufferedInputStream(new FileInputStream(magFile)));
+           for(i=0; i<totalFrame; i++){
+             for(j=0; j<magPst.getOrder(); j++)
+               magPst.setPar(i, j, magData.readFloat());
+               //System.out.println("i:" + i + "  f0=" + Math.exp(lf0Pst.getPar(i, 0)) + "  mag(1)=" + magPst.getPar(i, 0) + "  str(1)=" + strPst.getPar(i, 0) );
+           }
+           magData.close();
+       }
+             
+       
+       float sampleRate = 16000.0F;  //8000,11025,16000,22050,44100
+       int sampleSizeInBits = 16;  //8,16
+       int channels = 1;     //1,2
+       boolean signed = true;    //true,false
+       boolean bigEndian = false;  //true,false
+       AudioFormat af = new AudioFormat(
+             sampleRate,
+             sampleSizeInBits,
+             channels,
+             signed,
+             bigEndian);
+       double [] audio_double = null;
+
+      
+       HTSVocoder par2speech = new HTSVocoder();
+       
+       //par2speech.setUseLpcVocoder(true);
+       //audio_double = par2speech.htsMLSAVocoder_residual(htsData, mcepPst, resFile);
+       
+       audio_double = par2speech.htsMLSAVocoder(lf0Pst, mcepPst, strPst, magPst, voiced, htsData);
+      
+       long lengthInSamples = (audio_double.length * 2 ) / (sampleSizeInBits/8);
+       par2speech.logger.info("length in samples=" + lengthInSamples );
+       
+       /* Normalise the signal before return, this will normalise between 1 and -1 */
+       double MaxSample = MathUtils.getAbsMax(audio_double);
+       for (i=0; i<audio_double.length; i++)
+          audio_double[i] = 0.3 * ( audio_double[i] / MaxSample );
+       
+       DDSAudioInputStream oais = new DDSAudioInputStream(new BufferedDoubleDataSource(audio_double), af);
+       
+       
+       File fileOut = new File(outFile);
+       System.out.println("saving to file: " + outFile);
+           
+         
+       if (AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE,oais)) {
+         AudioSystem.write(oais, AudioFileFormat.Type.WAVE, fileOut);
+       }
+
+       System.out.println("Calling audioplayer:");
+       AudioPlayer player = new AudioPlayer(fileOut);
+       player.start();  
+       player.join();
+       System.out.println("audioplayer finished...");
+    
+    }  
+   
+    public static void main(String[] args) throws IOException, InterruptedException, Exception{
+        /* configure log info */
+        org.apache.log4j.BasicConfigurator.configure();
+        
+        // copy synthesis: requires a hmm voice
+        //main1(args);
+        
+        // copy synthesis: requires parameters, see description
+        HTSVocoder vocoder = new HTSVocoder();
+        vocoder.htsMLSAVocoderCommand(args);
+        
+    }
     
     
 }  /* class HTSVocoder */
