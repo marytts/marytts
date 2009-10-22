@@ -28,6 +28,109 @@ import Jama.Matrix;
  */
 public class Polynomial
 {
+    
+    /////////////// Polynomial object /////////////
+    
+    public final double[] coeffs;
+    /**
+     * Create a new polynomial of the requested order with all coefficients set to 0.
+     * @param order the polynomial order.
+     */
+    public Polynomial(int order) {
+        this.coeffs = new double[order+1];
+    }
+    
+    /**
+     * Create a new polynomial with the given coefficients.
+     * @param coeffs the polynomial coefficients. The code assumes that the polynomial is 
+     * <code>a_order t^order + a_(order-1) t^(order-1) + ... + a_1 t + a_0</code>,
+     * and will interpret coeffs as <code>a_order, a_(order-1), ..., a_1, a_0</code>,
+     * where <code>order</code> is <code>coeffs.length-1</code>.
+     */
+    public Polynomial(double[] coeffs) {
+        this.coeffs = coeffs;
+    }
+    
+    public int getOrder() {
+        return coeffs.length - 1;
+    }
+    
+    public void copyCoeffs(Polynomial other) {
+        if (other.coeffs.length != coeffs.length) {
+            throw new IllegalArgumentException("Polynomial orders differ: I have "+getOrder()+", other has "+other.getOrder());
+        }
+        System.arraycopy(other.coeffs, 0, coeffs, 0, coeffs.length);
+    }
+    
+    /**
+     * For a polynomial with the given coefficients, compute <code>numSamples</code>
+     * values, equally spaced in the interval [a, b[.
+     * @param numSamples
+     * @param a lower bound (inclusive)
+     * @param b upper bound (exclusive)
+     * @return the predicted samples.
+     * @throws NullPointerException if coeffs is null
+     * @throws IllegalArgumentException if coeffs has length 0
+     * @throws IllegalArgumentException if numSamples is <= 0
+     * @throws IllegalArgumentException if a is not less than b.
+     */
+    public double[] generatePolynomialValues(int numSamples, double a, double b) {
+        return generatePolynomialValues(coeffs, numSamples, a, b);
+    }
+    
+    /**
+     * For a polynomial with the given coefficients, compute the value at the given position.
+     * @param coeffs the polynomial coefficients. The code assumes that the polynomial is 
+     * <code>a_order t^order + a_(order-1) t^(order-1) + ... + a_1 t + a_0</code>,
+     * and will interpret coeffs as <code>a_order, a_(order-1), ..., a_1, a_0</code>,
+     * where <code>order</code> is <code>coeffs.length-1</code>.
+     * @param x the position where to compute the value
+     * @return the predicted value
+     * @throws NullPointerException if coeffs is null
+     * @throws IllegalArgumentException if coeffs has length 0
+     */
+    public double getValueAt(double x) {
+        return getValueAt(coeffs, x);
+    }
+    
+    /**
+     * Compute the integrated distance between two polynomials of same order.
+     * More precisely, this will return the absolute value of 
+     * the integral from 0 to 1 of 
+     * the difference between the two functions. 
+     * 
+     * @param a polynomial with the same order as this polynomial.
+     * @return
+     */
+    public double polynomialDistance(Polynomial other) {
+        return polynomialDistance(this.coeffs, other.coeffs);
+    }
+ 
+    
+    /**
+     * Compute the integral of the squared difference between two polynomials of same order.
+     * More precisely, this will return the  
+     * the integral from 0 to 1 of 
+     * the square of
+     * the difference between the two functions.
+     * <p>
+     * This implements the algebraic solution proposed by Maxima from
+     * the following command:
+     * <code>expand(integrate((sum(a[i]*x**i, i, 0, order))**2, x, 0, 1));</code>,
+     * with order varied from 0 to 4. Increasing order by 1 adds (order+1) summands.
+     * 
+     * @param a polynomial with the same order as this polynomial.
+     * @return
+     */
+    public double polynomialSquaredDistance(Polynomial other) {
+        return polynomialSquaredDistance(this.coeffs, other.coeffs);
+    }
+  
+    
+    
+    ////////////// Static methods //////////////////
+    
+    
     /**
      * Fit a polynomial of the given order to the given data.
      * @param data the data points, assumed to be in the interval [0, 1[
@@ -120,7 +223,6 @@ public class Polynomial
      * @throws NullPointerException if coeffs is null
      * @throws IllegalArgumentException if coeffs has length 0
      */
-
     public static double getValueAt(double[] coeffs, double x)
     {
         if (coeffs == null) throw new NullPointerException("Received null coeffs");
@@ -132,6 +234,25 @@ public class Polynomial
         }
         return val;
     }
+    
+    /**
+     * Compute the mean polynomial from the given polynomials,
+     * by building a polynomial of the averaged coefficients.
+     * @param p the polynomials from which to compute the mean. they must all have the same order
+     * @return the mean polynomial, of the same order.
+     */
+    public static Polynomial mean(Polynomial[] p) {
+        int order = p[0].getOrder();
+        double[] meanCoeffs = new double[order + 1];
+        for (int k=0; k<=order; k++) {
+            for (int i=0; i<p.length; i++) {
+                meanCoeffs[k] += p[i].coeffs[k];
+            }
+            meanCoeffs[k] /= p.length;
+        }
+        return new Polynomial(meanCoeffs);
+    }
+    
 
     /**
      * Compute the integrated distance between two polynomials of same order.
