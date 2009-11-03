@@ -372,7 +372,24 @@ THIS SOFTWARE.
 	      </manifest>
 	    </jar>
   </target>
- 
+
+	<target name="perceptiontest.jar" depends="compile">
+		<jar destfile="${dest}/perceptiontest.jar"
+			basedir="${src}"
+			includes="marytts/tools/perceptiontest/**/*.class
+		                   marytts/tools/perceptiontest/**/*.html
+		                   marytts/tools/perceptiontest/**/*.js">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}"/>
+		        <attribute name="Main-Class"
+		                   value="marytts.tools.perceptiontest.PerceptionTest"/>
+		        <attribute name="Class-Path"
+		                   value="signalproc.jar swing-layout-1.0.jar mary-common.jar log4j-1.2.15.jar httpcore-4.0.jar httpcore-nio-4.0.jar"/>
+		      </manifest>
+		    </jar>
+	  </target>
+
+	
  <target name="voiceimport.jar" depends="compile">
 	<jar destfile="${dest}/voiceimport.jar"
              basedir="${src}"
@@ -432,7 +449,7 @@ THIS SOFTWARE.
 		</jar>
 	</target>
 
-  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,languagejars,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar,voiceimport.jar,mary-component-installer.jar,transcription-tool.jar,dbselection-tool.jar"/>
+  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,languagejars,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar,perceptiontest.jar,voiceimport.jar,mary-component-installer.jar,transcription-tool.jar,dbselection-tool.jar"/>
 
 	
 	<!-- Installable language zip files for the component installer -->
