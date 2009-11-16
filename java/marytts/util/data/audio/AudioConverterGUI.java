@@ -4,7 +4,7 @@
  * Created on 24. Juni 2009, 10:04
  */
 
-package marytts.tools.voiceimport;
+package marytts.util.data.audio;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -35,9 +35,6 @@ import marytts.signalproc.process.EnergyNormaliser;
 import marytts.util.Pair;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
-import marytts.util.data.audio.AudioConverterUtils;
-import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.data.audio.AudioPlayer;
 import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 
@@ -59,6 +56,8 @@ public class AudioConverterGUI extends javax.swing.JFrame {
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
         buttonGroup1 = new javax.swing.ButtonGroup();
         jLabel1 = new javax.swing.JLabel();
         tfInputDir = new javax.swing.JTextField();
@@ -69,11 +68,7 @@ public class AudioConverterGUI extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         cbStereoMono = new javax.swing.JCheckBox();
         jLabel3 = new javax.swing.JLabel();
-        rbLeft = new javax.swing.JRadioButton();
-        rbRight = new javax.swing.JRadioButton();
-        rbBoth = new javax.swing.JRadioButton();
         cbDownsample = new javax.swing.JCheckBox();
-        jLabel4 = new javax.swing.JLabel();
         comboSampleRate = new javax.swing.JComboBox();
         cbPowerNormalise = new javax.swing.JCheckBox();
         cbBestOnly = new javax.swing.JCheckBox();
@@ -85,6 +80,11 @@ public class AudioConverterGUI extends javax.swing.JFrame {
         tfSoxPath = new javax.swing.JTextField();
         bBrowseSoxPath = new javax.swing.JButton();
         cbTrimSilences = new javax.swing.JCheckBox();
+        jPanel2 = new javax.swing.JPanel();
+        rbLeft = new javax.swing.JRadioButton();
+        rbRight = new javax.swing.JRadioButton();
+        rbBoth = new javax.swing.JRadioButton();
+        jLabel4 = new javax.swing.JLabel();
         progressBar = new javax.swing.JProgressBar();
         bRun = new javax.swing.JButton();
         bQuit = new javax.swing.JButton();
@@ -109,68 +109,131 @@ public class AudioConverterGUI extends javax.swing.JFrame {
 
         jLabel2.setText("Output Wave directory:");
 
+        jPanel1.setLayout(new java.awt.GridBagLayout());
+
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Processing options"));
         cbStereoMono.setText("Stereo to Mono conversion");
         cbStereoMono.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         cbStereoMono.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        jPanel1.add(cbStereoMono, gridBagConstraints);
 
         jLabel3.setText("Input source channel:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 25, 10, 5);
+        jPanel1.add(jLabel3, gridBagConstraints);
 
-        buttonGroup1.add(rbLeft);
-        rbLeft.setSelected(true);
-        rbLeft.setText("left");
-        rbLeft.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        rbLeft.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        buttonGroup1.add(rbRight);
-        rbRight.setText("right");
-        rbRight.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        rbRight.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        buttonGroup1.add(rbBoth);
-        rbBoth.setText("both");
-        rbBoth.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        rbBoth.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        cbDownsample.setSelected(true);
         cbDownsample.setText("Sampling rate conversion (down-sampling)");
         cbDownsample.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         cbDownsample.setMargin(new java.awt.Insets(0, 0, 0, 0));
-
-        jLabel4.setText("Target sample rate (in Hz):");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 8;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        jPanel1.add(cbDownsample, gridBagConstraints);
 
         comboSampleRate.setEditable(true);
         comboSampleRate.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "16000", "22050" }));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 9;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        jPanel1.add(comboSampleRate, gridBagConstraints);
 
-        cbPowerNormalise.setSelected(true);
         cbPowerNormalise.setText("Power normalisation across recording sessions");
         cbPowerNormalise.setToolTipText("Cluster wav files by timestamp, and normalise cluster averages.\n\nWav files recorded with less than 10 minutes gap between them are treated like a single recording session. Only clusters as a whole are normalised, in order to even out different recording volumes in different recording sessions.\n");
         cbPowerNormalise.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         cbPowerNormalise.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 25, 10, 0);
+        jPanel1.add(cbPowerNormalise, gridBagConstraints);
 
         cbBestOnly.setSelected(true);
         cbBestOnly.setText("Process only the best take of each sentence");
         cbBestOnly.setToolTipText("Process a001.wav, but not a001a.wav, a001b.wav etc.");
         cbBestOnly.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         cbBestOnly.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 10, 0);
+        jPanel1.add(cbBestOnly, gridBagConstraints);
 
         cbHighPassFilter.setSelected(true);
         cbHighPassFilter.setText("Remove low-frequency noise below 50 Hz");
         cbHighPassFilter.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         cbHighPassFilter.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 6;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        jPanel1.add(cbHighPassFilter, gridBagConstraints);
 
         cbGlobalAmplitude.setSelected(true);
         cbGlobalAmplitude.setText("Global amplitude scaling");
         cbGlobalAmplitude.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         cbGlobalAmplitude.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 0, 0);
+        jPanel1.add(cbGlobalAmplitude, gridBagConstraints);
 
         jLabel5.setText("Target max. amplitude:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 25, 0, 5);
+        jPanel1.add(jLabel5, gridBagConstraints);
 
         comboMaxAmplitude.setEditable(true);
         comboMaxAmplitude.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "0.5", "0.6", "0.7", "0.8", "0.9", "1.0 (maximum)", "1.1 (causes clipping)", "1.2 (causes clipping)", "1.3 (causes clipping)", "1.4 (causes clipping)", "1.5 (causes clipping)" }));
         comboMaxAmplitude.setSelectedIndex(4);
+        comboMaxAmplitude.setMinimumSize(new java.awt.Dimension(70, 28));
+        comboMaxAmplitude.setPreferredSize(new java.awt.Dimension(70, 28));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        jPanel1.add(comboMaxAmplitude, gridBagConstraints);
 
         jLabel6.setText("Location of sox binary:");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 25, 10, 5);
+        jPanel1.add(jLabel6, gridBagConstraints);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 10, 0);
+        jPanel1.add(tfSoxPath, gridBagConstraints);
 
         bBrowseSoxPath.setText("Browse");
         bBrowseSoxPath.addActionListener(new java.awt.event.ActionListener() {
@@ -179,91 +242,59 @@ public class AudioConverterGUI extends javax.swing.JFrame {
             }
         });
 
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 10;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 10, 0);
+        jPanel1.add(bBrowseSoxPath, gridBagConstraints);
+
         cbTrimSilences.setSelected(true);
         cbTrimSilences.setText("Trim initial and final silences");
         cbTrimSilences.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         cbTrimSilences.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 7;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.insets = new java.awt.Insets(10, 0, 10, 0);
+        jPanel1.add(cbTrimSilences, gridBagConstraints);
 
-        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel1Layout.createSequentialGroup()
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(cbBestOnly, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 368, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(26, 26, 26)
-                        .add(jLabel3)
-                        .add(12, 12, 12)
-                        .add(rbLeft, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 67, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(rbRight, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 67, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(rbBoth, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 67, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(cbStereoMono, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 322, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(cbDownsample, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 312, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(cbHighPassFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 312, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(cbPowerNormalise, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 467, Short.MAX_VALUE)
-                    .add(cbGlobalAmplitude, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 276, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, cbTrimSilences, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1Layout.createSequentialGroup()
-                                .add(26, 26, 26)
-                                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1Layout.createSequentialGroup()
-                                        .add(jLabel4)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(comboSampleRate, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel1Layout.createSequentialGroup()
-                                        .add(jLabel5)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(comboMaxAmplitude, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .add(jPanel1Layout.createSequentialGroup()
-                                        .add(jLabel6)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .add(tfSoxPath, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 189, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(bBrowseSoxPath)))
-                .addContainerGap())
-        );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel1Layout.createSequentialGroup()
-                .add(cbBestOnly)
-                .add(23, 23, 23)
-                .add(cbStereoMono, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel3)
-                    .add(rbLeft, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(rbRight, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(rbBoth, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(14, 14, 14)
-                .add(cbHighPassFilter, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(11, 11, 11)
-                .add(cbPowerNormalise, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(11, 11, 11)
-                .add(cbGlobalAmplitude, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel5)
-                    .add(comboMaxAmplitude, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(14, 14, 14)
-                .add(cbDownsample, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel4)
-                    .add(comboSampleRate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(tfSoxPath, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(bBrowseSoxPath)
-                    .add(jLabel6))
-                .add(14, 14, 14)
-                .add(cbTrimSilences, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
+        buttonGroup1.add(rbLeft);
+        rbLeft.setSelected(true);
+        rbLeft.setText("left");
+        rbLeft.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        rbLeft.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jPanel2.add(rbLeft);
+
+        buttonGroup1.add(rbRight);
+        rbRight.setText("right");
+        rbRight.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        rbRight.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jPanel2.add(rbRight);
+
+        buttonGroup1.add(rbBoth);
+        rbBoth.setText("both");
+        rbBoth.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        rbBoth.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jPanel2.add(rbBoth);
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 10, 0);
+        jPanel1.add(jPanel2, gridBagConstraints);
+
+        jLabel4.setText("Target sample rate (in Hz):");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 9;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.insets = new java.awt.Insets(0, 25, 0, 5);
+        jPanel1.add(jLabel4, gridBagConstraints);
 
         bRun.setText("Run");
         bRun.addActionListener(new java.awt.event.ActionListener() {
@@ -283,56 +314,60 @@ public class AudioConverterGUI extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 477, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(layout.createSequentialGroup()
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(jLabel2)
-                                    .add(jLabel1))
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, tfInputDir, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE)
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, tfOutputDir, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 232, Short.MAX_VALUE))
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, bBrowseOutputDir)
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, bBrowseInputDir)))))
-                    .add(layout.createSequentialGroup()
-                        .add(112, 112, 112)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                            .add(layout.createSequentialGroup()
-                                .add(bRun)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .add(bQuit))
-                            .add(progressBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 307, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                    .add(jLabel1)
+                    .add(jLabel2))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(tfOutputDir, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
+                    .add(tfInputDir, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, bBrowseOutputDir)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, bBrowseInputDir))
                 .addContainerGap())
+            .add(layout.createSequentialGroup()
+                .addContainerGap()
+                .add(jPanel1, 0, 465, Short.MAX_VALUE)
+                .addContainerGap())
+            .add(layout.createSequentialGroup()
+                .add(80, 80, 80)
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, progressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)
+                    .add(layout.createSequentialGroup()
+                        .add(bRun)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 208, Short.MAX_VALUE)
+                        .add(bQuit)))
+                .add(67, 67, 67))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
-                    .add(bBrowseInputDir)
-                    .add(tfInputDir, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel2)
-                    .add(bBrowseOutputDir)
-                    .add(tfOutputDir, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(layout.createSequentialGroup()
+                        .add(bBrowseInputDir)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(bBrowseOutputDir))
+                    .add(layout.createSequentialGroup()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(jLabel1)
+                            .add(tfInputDir, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(jLabel2)
+                            .add(tfOutputDir, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(progressBar, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(progressBar, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(bRun)
                     .add(bQuit))
-                .addContainerGap())
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -469,6 +504,7 @@ public class AudioConverterGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JRadioButton rbBoth;
     private javax.swing.JRadioButton rbLeft;
