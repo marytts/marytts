@@ -45,9 +45,13 @@ public class ShortDescriptionPanel extends javax.swing.JPanel implements Observe
      */
     // <editor-fold defaultstate="collapsed" desc=" Generated Code ">//GEN-BEGIN:initComponents
     private void initComponents() {
+        java.awt.GridBagConstraints gridBagConstraints;
+
         cbSelected = new javax.swing.JCheckBox();
         bDetails = new javax.swing.JButton();
         lStatus = new javax.swing.JLabel();
+
+        setLayout(new java.awt.GridBagLayout());
 
         setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         addFocusListener(new java.awt.event.FocusAdapter() {
@@ -67,6 +71,7 @@ public class ShortDescriptionPanel extends javax.swing.JPanel implements Observe
         cbSelected.setText(desc.getName());
         cbSelected.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         cbSelected.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        cbSelected.setPreferredSize(new java.awt.Dimension(200, 18));
         cbSelected.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 cbSelectedItemStateChanged(evt);
@@ -80,6 +85,15 @@ public class ShortDescriptionPanel extends javax.swing.JPanel implements Observe
                 formFocusLost(evt);
             }
         });
+
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridheight = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        gridBagConstraints.weightx = 1.0;
+        gridBagConstraints.weighty = 0.5;
+        gridBagConstraints.insets = new java.awt.Insets(0, 5, 0, 0);
+        add(cbSelected, gridBagConstraints);
 
         bDetails.setText("Details");
         bDetails.addActionListener(new java.awt.event.ActionListener() {
@@ -96,34 +110,22 @@ public class ShortDescriptionPanel extends javax.swing.JPanel implements Observe
             }
         });
 
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.weighty = 0.2;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 5, 5);
+        add(bDetails, gridBagConstraints);
+
         lStatus.setFont(new java.awt.Font("Lucida Grande", 0, 10));
         lStatus.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         lStatus.setText(desc.getStatus().toString());
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        gridBagConstraints.weighty = 0.2;
+        gridBagConstraints.insets = new java.awt.Insets(5, 0, 0, 5);
+        add(lStatus, gridBagConstraints);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .add(cbSelected, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 166, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, lStatus, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, bDetails, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(lStatus)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(cbSelected, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 18, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(bDetails))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
     }// </editor-fold>//GEN-END:initComponents
 
     private void cbSelectedItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbSelectedItemStateChanged
