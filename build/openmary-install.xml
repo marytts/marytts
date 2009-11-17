@@ -71,6 +71,11 @@
 					mary-cmu-slt-hsmm-4.0beta.zip,
 					mary-cmu-slt-hsmm-4.0beta-component.xml"
 			/>
+			<fileset dir="download" targetdir="$INSTALL_PATH/download"
+			    includes="license-index.txt,
+			    	http___mary.dfki.de_download_voices_arctic-license.html,
+			    	http___www.gnu.org_licenses_lgpl-3.0-standalone.html"
+			/>
             <fileset dir="." targetdir="$INSTALL_PATH"
 				includes="MARY_software_user_agreement.txt,
 				    lgpl-3.0.txt,
