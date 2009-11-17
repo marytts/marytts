@@ -73,7 +73,7 @@ import com.twmacinta.util.MD5;
  * @author marc
  *
  */
-public class ComponentDescription extends Observable
+public class ComponentDescription extends Observable implements Comparable<ComponentDescription>
 {
     public enum Status {AVAILABLE, DOWNLOADING, PAUSED, VERIFYING, DOWNLOADED, INSTALLING, CANCELLED, ERROR, INSTALLED};
 
@@ -297,39 +297,6 @@ public class ComponentDescription extends Observable
     {
         status = Status.INSTALLING;
         stateChanged();
-        JTextPane licensePane = new JTextPane();
-        if (license != null) {
-            licensePane.setPage(license);
-        } else {
-            licensePane.setText("Unknown license for "+getComponentTypeString()+" component '"+this.getName()+"' -- only proceed if you are certain you have the right to install this component!");
-        }
-        JScrollPane scroll = new JScrollPane(licensePane);
-        final JOptionPane optionPane = new JOptionPane(scroll, JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null, new String[] {"Reject", "Accept"}, "Reject");
-        optionPane.setPreferredSize(new Dimension(640,480));
-        final JDialog dialog = new JDialog((Frame)null, "Do you accept the following license?", true);
-        dialog.setContentPane(optionPane);
-        optionPane.addPropertyChangeListener(
-                new PropertyChangeListener() {
-                    public void propertyChange(PropertyChangeEvent e) {
-                        String prop = e.getPropertyName();
-
-                        if (dialog.isVisible() 
-                         && (e.getSource() == optionPane)
-                         && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
-                            dialog.setVisible(false);
-                        }
-                    }
-                });
-        dialog.pack();
-        dialog.setVisible(true);
-        
-        if (!"Accept".equals(optionPane.getValue())) {
-            System.out.println("License not accepted. Installation of component cannot proceed.");
-            status = Status.DOWNLOADED;
-            stateChanged();
-            return;
-        }
-        System.out.println("License accepted.");
         Installer inst = new Installer();
         if (synchronous) {
             inst.run();
@@ -433,6 +400,33 @@ public class ComponentDescription extends Observable
         }
         return doc;
     }
+    
+    /**
+     * Define a natural ordering for component descriptions. Languages first, in alphabetic order, then voices, in alphabetic order.
+     */
+    public int compareTo(ComponentDescription o) {
+        int myPos = 0;
+        int oPos = 0;
+        if (this instanceof LanguageComponentDescription) {
+            myPos = 5;
+        } else if (this instanceof VoiceComponentDescription) {
+            myPos = 10;
+        }
+        if (o instanceof LanguageComponentDescription) {
+            oPos = 5;
+        } else if (o instanceof VoiceComponentDescription) {
+            oPos = 10;
+        }
+
+        if (oPos - myPos != 0) {
+            return (oPos - myPos);
+        }
+        
+        // Same type, sort by name
+        return name.compareTo(o.name);
+    }
+
+    
     
     public static final void copyInputStream(InputStream in, OutputStream out)
     throws IOException
@@ -610,5 +604,6 @@ public class ComponentDescription extends Observable
         }
 
     }
+
     
 }
