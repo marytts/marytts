@@ -37,7 +37,11 @@ import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.swing.Box;
 import javax.swing.DefaultCellEditor;
@@ -49,7 +53,9 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
@@ -462,9 +468,68 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
             System.err.println("Aborting installation.");
             return;
         }
-        System.out.println("Starting installation");
-        showProgressPanel(toInstall, true);
+        System.out.println("Check license(s)");
+        boolean accepted = showLicenses(toInstall);
+        if (accepted) {
+            System.out.println("Starting installation");
+            showProgressPanel(toInstall, true);
+        }
     }
+    
+    
+    /**
+     * Show the licenses for the components in toInstall
+     * @param toInstall the components to install
+     * @return true if all licenses were accepted, false otherwise
+     */
+    private boolean showLicenses(List<ComponentDescription> toInstall) {
+        Map<URL, SortedSet<ComponentDescription>> licenseGroups = new HashMap<URL, SortedSet<ComponentDescription>>();
+        // Group components by their license:
+        for (ComponentDescription cd : toInstall) {
+            URL licenseURL = cd.getLicenseURL(); // may be null
+            // null is an acceptable key for HashMaps, so it's OK.
+            SortedSet<ComponentDescription> compsUnderLicense = licenseGroups.get(licenseURL);
+            if (compsUnderLicense == null) {
+                compsUnderLicense = new TreeSet<ComponentDescription>();
+                licenseGroups.put(licenseURL, compsUnderLicense);
+            }
+            assert compsUnderLicense != null;
+            compsUnderLicense.add(cd);
+        }
+        // Now show license for each group
+        for (URL licenseURL : licenseGroups.keySet()) {
+            URL localURL = LicenseRegistry.getLicense(licenseURL);
+            SortedSet<ComponentDescription> comps = licenseGroups.get(licenseURL);
+            System.out.println("Showing license "+licenseURL+ " for "+comps.size()+" components");
+            LicensePanel licensePanel = new LicensePanel(localURL, comps);
+            final JOptionPane optionPane = new JOptionPane(licensePanel, JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null, new String[] {"Reject", "Accept"}, "Reject");
+            optionPane.setPreferredSize(new Dimension(800,600));
+            final JDialog dialog = new JDialog((Frame)null, "Do you accept the following license?", true);
+            dialog.setContentPane(optionPane);
+            optionPane.addPropertyChangeListener(
+                    new PropertyChangeListener() {
+                        public void propertyChange(PropertyChangeEvent e) {
+                            String prop = e.getPropertyName();
+
+                            if (dialog.isVisible() 
+                             && (e.getSource() == optionPane)
+                             && (prop.equals(JOptionPane.VALUE_PROPERTY))) {
+                                dialog.setVisible(false);
+                            }
+                        }
+                    });
+            dialog.pack();
+            dialog.setVisible(true);
+            
+            if (!"Accept".equals(optionPane.getValue())) {
+                System.out.println("License not accepted. Installation of component cannot proceed.");
+                return false;
+            }
+            System.out.println("License accepted.");
+        }
+        return true;
+    }
+    
     
     public void uninstallSelectedLanguagesAndVoices()
     {
