@@ -243,10 +243,11 @@ public class UnitSelectionVoice extends Voice {
     
     public String getExampleText()
     {
-        if (exampleText == null){
-            return ("Sorry, no example text here\n"+
-            		"Hier gibt es leider keine Beispiele");}
-        else {return exampleText;}
+        if (exampleText == null) {
+            return "";
+        } else {
+            return exampleText;
+        }
     }
     
     public void readExampleText(String file)

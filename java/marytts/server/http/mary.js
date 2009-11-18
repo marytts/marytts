@@ -1,3 +1,5 @@
+
+
 function GetXmlHttpObject()
 {
     var xmlHttp=null;
@@ -75,7 +77,7 @@ function fillVoices()
 							var items = line.split(' ', 2);
 							voiceElt.value = items[0];
 							localeElt.value = items[1];
-							updateInputText();
+							updateInputText(true);
 		            	}
 	            	}
 	            }
@@ -110,7 +112,7 @@ function fillTypes()
 			            	if (fields[0]=="TEXT") {
 			            		var sel = document.getElementById("INPUT_TYPE");
 			            		sel.selectedIndex = sel.length - 1;
-			            		updateInputText();
+			            		updateInputText(true);
 			            	}
 		            	}
 		            	if (line.indexOf('OUTPUT') != -1) {
@@ -284,10 +286,18 @@ function helpEffect(button)
 
 function inputTypeChanged()
 {
-	updateInputText();
+	updateInputText(true); // replace input
 }
 
-function updateInputText()
+/**
+ * Update the current input text.
+ * Retrieves 
+ * (1) the example text for the given input type and locale, as well as
+ * (2) the example texts for the current voice, if any.
+ * If there is a voice-specific example text and the input type is TEXT, use the voice-specific example; else, use the type example.
+ * Replace the content of input text only if replaceInput is true.
+ */
+function updateInputText(replaceInput)
 {
     var inputTypeSelect = document.getElementById('INPUT_TYPE');
     var locale = document.getElementById('LOCALE').value;
@@ -296,26 +306,89 @@ function updateInputText()
     }
    	var inputType = inputTypeSelect.options[inputTypeSelect.selectedIndex].text;
 
-    var xmlHttp = GetXmlHttpObject();
-    if (xmlHttp==null) {
-        alert ("Your browser does not support AJAX!");
-        return;
+	// Keep track of AJAX concurrency across the two requests:
+	var retrievingVoiceExample = false;
+	var haveVoiceExample = false;
+	var retrievingTypeExample = false;
+	var typeExample = "";
+	
+	// Only worth requesting type example if replaceInput is true:
+	if (replaceInput) {
+	    var xmlHttp = GetXmlHttpObject();
+	    if (xmlHttp==null) {
+	        alert ("Your browser does not support AJAX!");
+	        return;
+	    }
+	    var url = "exampletext?datatype=" + inputType + "&locale=" + locale;
+	    xmlHttp.onreadystatechange = function() {
+	        if (xmlHttp.readyState==4) {
+	        	if (xmlHttp.status == 200) {
+		            typeExample = xmlHttp.responseText;
+	        	} else {
+	        		alert(xmlHttp.responseText);
+	        	}
+	        	retrievingTypeExample = false;
+	        	if (replaceInput && !retrievingTypeExample && !retrievingVoiceExample) {
+	        		if (haveVoiceExample) {
+	        			exampleChanged();
+	        		} else {
+	        			document.getElementById('INPUT_TEXT').value = typeExample;
+	        		}
+	        	}
+	        }
+	    };
+	    retrievingTypeExample = true;
+	    xmlHttp.open("GET", url, true);
+	    xmlHttp.send(null);
+	}
+    
+    // Only worth requesting voice example if input type is TEXT:
+    if (inputType == "TEXT") {
+	    var xmlHttp2 = GetXmlHttpObject();
+	    var voice = document.getElementById('VOICE').value;
+	    var url2 = "exampletext?voice=" + voice;
+    	xmlHttp2.onreadystatechange = function() {
+	        if (xmlHttp2.readyState==4) {
+	        	if (xmlHttp2.status == 200) {
+	        		var examples = xmlHttp2.responseText;
+	        		if (examples != "") {
+		            	haveVoiceExample = true;
+	   					document.getElementById("exampleTexts").style.display = 'inline';
+						document.getElementById("exampleTexts").length = 0;
+	   			        var lines = examples.split('\n');
+			            for (l in lines) {
+		    	        	var line = lines[l];
+		        	    	if (line.length > 0) {
+			        	    	addOption("exampleTexts", line);
+			            	}
+		            	}
+	        		} else {
+		            	haveVoiceExample = false;
+	   					document.getElementById("exampleTexts").style.display = 'none';
+		            }
+	        	} else {
+	        		alert(xmlHttp.responseText);
+	        	}
+	        	retrievingVoiceExample = false;
+	        	if (replaceInput && !retrievingTypeExample && !retrievingVoiceExample) {
+	        		if (haveVoiceExample) {
+	        			exampleChanged();
+	        		} else {
+	        			document.getElementById('INPUT_TEXT').value = typeExample;
+	        		}
+	        	}
+	        }
+	    };
+	    retrievingVoiceExample = true;
+	    xmlHttp2.open("GET", url2, true);
+	    xmlHttp2.send(null);
+    	
+    } else { // input type not text, hide examples, don't send request
+    	document.getElementById("exampleTexts").style.display = 'none';
     }
-    url = "exampletext?datatype=";
-    url = url + inputType;
-    url = url + "&locale=" + locale;
-    xmlHttp.onreadystatechange = function() {
-        if (xmlHttp.readyState==4) {
-        	if (xmlHttp.status == 200) {
-	            document.getElementById('INPUT_TEXT').value = xmlHttp.responseText;
-        	} else {
-        		alert(xmlHttp.responseText);
-        	}
-        }
-    };
-    xmlHttp.open("GET", url, true);
-    xmlHttp.send(null);
 }
+
+
 
 
 function outputTypeChanged()
@@ -369,9 +442,19 @@ function voiceChanged()
 	var prevLocale = document.getElementById('LOCALE').value;
 	if (prevLocale != newLocale) {
 		document.getElementById('LOCALE').value = newLocale;
-		updateInputText();
+		updateInputText(true); // replace input
+	} else {
+		updateInputText(false); // do not replace input
 	}
 };
+
+function exampleChanged()
+{
+	var select = document.getElementById('exampleTexts');
+	var example = select.options[select.selectedIndex].text;
+	document.getElementById('INPUT_TEXT').value = example;
+}
+
 
 function audioOutChanged()
 {
