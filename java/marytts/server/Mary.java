@@ -236,17 +236,20 @@ public class Mary {
             logger.debug(key + " = " + System.getProperties().get(key));
         }
         logger.debug("XML libraries used:");
+        logger.debug("DocumentBuilderFactory: " + DocumentBuilderFactory.newInstance().getClass());
         try {
             Class xercesVersion = Class.forName("org.apache.xerces.impl.Version");
             logger.debug(xercesVersion.getMethod("getVersion").invoke(null));
         } catch (Exception e) {
-            logger.debug("XML parser is not Xerces: " + DocumentBuilderFactory.newInstance().getClass());
+            // Not xerces, no version number
         }
+        logger.debug("TransformerFactory:     " + TransformerFactory.newInstance().getClass());
         try {
-            Class xalanVersion = Class.forName("org.apache.xalan.Version");
-            logger.debug(xalanVersion.getMethod("getVersion").invoke(null));
+            // Nov 2009, Marc: This causes "[Deprecated] Xalan: org.apache.xalan.Version" to be written to the console.
+            //Class xalanVersion = Class.forName("org.apache.xalan.Version");
+            //logger.debug(xalanVersion.getMethod("getVersion").invoke(null));
         } catch (Exception e) {
-            logger.debug("XML transformer is not Xalan: " + TransformerFactory.newInstance().getClass());
+            // Not xalan, no version number
         }
 
         // Essential environment checks:
