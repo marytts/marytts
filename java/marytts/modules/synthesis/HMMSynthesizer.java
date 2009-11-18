@@ -308,8 +308,8 @@ public class HMMSynthesizer implements WaveformSynthesizer {
          ph.add(str[0]);
          dur.add(Integer.valueOf(str[1]));
       }
-      /* the duration of the first phone includes de duration of of the initial pause */
-      if(ph.get(0).contentEquals("_")) {
+      /* the duration of the first phone includes the duration of the initial pause */
+      if(dur.size() > 1 && ph.get(0).contentEquals("_")) {
          dur.set(1, (dur.get(1) + dur.get(0)) );
          ph.set(0, "");
          /* remove this element of the vector otherwise next time it will return the same */
