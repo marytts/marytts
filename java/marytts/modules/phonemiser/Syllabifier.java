@@ -192,6 +192,7 @@ public class Syllabifier
                         }
                     } else {
                         // unlikely case: no consonant after a 5
+                        it.previous(); it.previous();
                         it.set("-");
                     }
                 } else {
