@@ -96,7 +96,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
     public final String orderFilters   = name+".io";
     
    /** Example context feature file (TARGETFEATURES in MARY) */
-    public final String featuresFile = name+".FeaFile";
+    public String featuresFileExample = "";
     
     /** trickyPhones file if any, this file could have been created durin makeQuestions and makeLabels
      * if it was created, because there are tricky phones in the allophones set, then it should be in
@@ -127,29 +127,28 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
            props.put(beta, "0.0");
            props.put(gamma, "0");
            props.put(logGain, "false");
-           props.put(treeDurFile, "voices/qst001/ver1/tree-dur.inf"); 
-           props.put(treeLf0File, "voices/qst001/ver1/tree-lf0.inf");
-           props.put(treeMcpFile, "voices/qst001/ver1/tree-mgc.inf");
-           props.put(treeStrFile, "voices/qst001/ver1/tree-str.inf");
-           props.put(treeMagFile, "voices/qst001/ver1/tree-mag.inf");
-           props.put(pdfDurFile, "voices/qst001/ver1/dur.pdf"); 
-           props.put(pdfLf0File, "voices/qst001/ver1/lf0.pdf"); 
-           props.put(pdfMcpFile, "voices/qst001/ver1/mgc.pdf"); 
-           props.put(pdfStrFile, "voices/qst001/ver1/str.pdf");
-           props.put(pdfMagFile, "voices/qst001/ver1/mag.pdf");
+           props.put(treeDurFile, "hts/voices/qst001/ver1/tree-dur.inf"); 
+           props.put(treeLf0File, "hts/voices/qst001/ver1/tree-lf0.inf");
+           props.put(treeMcpFile, "hts/voices/qst001/ver1/tree-mgc.inf");
+           props.put(treeStrFile, "hts/voices/qst001/ver1/tree-str.inf");
+           props.put(treeMagFile, "hts/voices/qst001/ver1/tree-mag.inf");
+           props.put(pdfDurFile, "hts/voices/qst001/ver1/dur.pdf"); 
+           props.put(pdfLf0File, "hts/voices/qst001/ver1/lf0.pdf"); 
+           props.put(pdfMcpFile, "hts/voices/qst001/ver1/mgc.pdf"); 
+           props.put(pdfStrFile, "hts/voices/qst001/ver1/str.pdf");
+           props.put(pdfMagFile, "hts/voices/qst001/ver1/mag.pdf");
            props.put(useGV, "true");
-           props.put(pdfLf0GVFile, "data/gv/gv-lf0-littend.pdf"); 
-           props.put(pdfMcpGVFile, "data/gv/gv-mgc-littend.pdf"); 
-           props.put(pdfStrGVFile, "data/gv/gv-str-littend.pdf");
-           props.put(pdfMagGVFile, "data/gv/gv-mag-littend.pdf");
+           props.put(pdfLf0GVFile, "hts/data/gv/gv-lf0-littend.pdf"); 
+           props.put(pdfMcpGVFile, "hts/data/gv/gv-mgc-littend.pdf"); 
+           props.put(pdfStrGVFile, "hts/data/gv/gv-str-littend.pdf");
+           props.put(pdfMagGVFile, "hts/data/gv/gv-mag-littend.pdf");
            props.put(useExtDur, "false");
            props.put(useExtLogF0, "false");
            props.put(useMixExc, "true");
            props.put(useFourierMag, "true");
-           props.put(mixFiltersFile, "data/filters/mix_excitation_filters.txt"); 
+           props.put(mixFiltersFile, "hts/data/filters/mix_excitation_filters.txt"); 
            props.put(numFilters, "5");
            props.put(orderFilters, "48");           
-           props.put(featuresFile, "phonefeatures/cmu_us_arctic_slt_a0001.pfeats");
            props.put(trickyPhonesFile, "mary/trickyPhones.txt");
            props.put(createZipFile, "false");
            props.put(zipCommand, "/usr/bin/zip");
@@ -186,8 +185,6 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
         props2Help.put(mixFiltersFile, "Filter taps of bandpass filters for mixed excitation (optional: used for mixed excitation)"); 
         props2Help.put(numFilters, "Number of filters in bandpass bank, default 5 filters (optional: used for mixed excitation)");
         props2Help.put(orderFilters, "Number of taps in bandpass filters, default 48 taps (optional: used for mixed excitation)");
-        props2Help.put(featuresFile, "File for testing the HMMSynthesiser, example of a context features file in MARY format. If the " +
-                       "file is not provided or does not exist a file from phonefeatures/ will be used.");
         props2Help.put(trickyPhonesFile, "list of aliases for tricky phones, so HTK-HHEd command can handle them. (This file" +
                       " is created automatically by HMMVoiceMakeData if aliases are necessary, otherwise it will not be created.)");
         props2Help.put(createZipFile, "Create zip file for Mary voices installation (used by Mary voices administrator only).");
@@ -306,25 +303,19 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
               trickyPhones = true;
             }
             
-            in = new File(rootDir + getProp(featuresFile));
-            if(in.exists()){
-              out = new File(newVoiceDir + getFileName(getProp(featuresFile)));
-              copy(in,out); 
-            } else {
-              /* copy one example of MARY context features file, it can be one of the 
-               * files used for testing in phonefeatures/*.pfeats*/
-              File dirPhonefeatures  = new File(rootDir + "phonefeatures/");
-              if( dirPhonefeatures.exists() && dirPhonefeatures.list().length > 0 ){ 
-                String[] feaFiles = dirPhonefeatures.list();
-                in = new File(rootDir + "phonefeatures/"+feaFiles[0]);
-                out = new File(newVoiceDir + getFileName(feaFiles[0]));
-                copy(in,out);
-                props.put(featuresFile, rootDir+"phonefeatures/"+feaFiles[0]);
-              } else{
-                System.out.println("Problem copying one example of context features, the directory phonefeatures/ is empty or directory does not exist.");
-                throw new IOException();
-              }
-            }   
+            /* copy one example of MARY context features file, it can be one of the 
+             * files used for testing in phonefeatures/*.pfeats*/
+            File dirPhonefeatures  = new File(rootDir + "phonefeatures/");
+            if( dirPhonefeatures.exists() && dirPhonefeatures.list().length > 0 ){ 
+              String[] feaFiles = dirPhonefeatures.list();
+              in = new File(rootDir + "phonefeatures/"+feaFiles[0]);
+              out = new File(newVoiceDir + getFileName(feaFiles[0]));
+              copy(in,out);
+              featuresFileExample = rootDir+"phonefeatures/"+feaFiles[0];
+            } else{
+              System.out.println("Problem copying one example of context features, the directory phonefeatures/ is empty or directory does not exist.");
+              throw new IOException();
+            }
                
         }catch (IOException ioe){
             return false;
@@ -520,7 +511,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
                   configOut.println("#" + voiceHeader+".Fgva = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfMagGVFile)));
               
               configOut.println("\n# File for testing the HMMSynthesiser, a context features file example.\n" +
-                      voiceHeader+".FeaFile = MARY_BASE/lib/voices/"+voicename+"/"+getFileName(getProp(featuresFile)));
+                      voiceHeader+".FeaFile = MARY_BASE/lib/voices/"+voicename+"/"+getFileName(featuresFileExample));
               
               configOut.println("\n# Tricky phones file in case there were problematic phones during training, empty otherwise.");
               if(trickyPhones) {                 
