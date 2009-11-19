@@ -116,7 +116,7 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
            props = new TreeMap<String,String>();
            String rootdir = db.getProp(db.ROOTDIR);
            
-           props.put(CONFIGUREFILE, rootdir+"configure");
+           props.put(CONFIGUREFILE, rootdir+"hts/configure");
            props.put(HTSPATH,       "/project/mary/marcela/sw/htk/bin");
            props.put(HTSENGINEPATH, "/project/mary/marcela/sw/htk/hts_engine_API-1.01/bin");
            props.put(SPTKPATH,      "/project/mary/marcela/sw/SPTK-3.2/bin");
@@ -159,8 +159,8 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
         props2Help = new TreeMap<String,String>();
         
         props2Help.put(CONFIGUREFILE, "Path and name of configure file.");
-        props2Help.put(HTSPATH,       "Path to HTS_2.0.1 - HTK bin directory.");
-        props2Help.put(HTSENGINEPATH, "Path to HTS_2.0.1 Engine path  - in Mary it is used for testing during training.");
+        props2Help.put(HTSPATH,       "Path to HTS_2.1 - HTK bin directory.");
+        props2Help.put(HTSENGINEPATH, "Path to HTS_Engine_API-1.01 path  - in Mary it is used for testing during training.");
         props2Help.put(SPTKPATH,      "Path to SPTK-3.1 bin directory.");
         props2Help.put(TCLPATH,       "Path to Tcl bin, it should support snack.");
         props2Help.put(SOXPATH,       "Path to sox bin.");
@@ -212,28 +212,31 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
         boolean speech_transcriptions = true;
  
        
-       File dirWav  = new File("wav");
-       File dirText = new File("text");
-       File dirRaw  = new File("data/raw");
-       File dirUtt  = new File("data/utts");
+       File dirWav  = new File(filedir + "wav");
+       File dirText = new File(filedir + "text");
+       File dirRaw  = new File(filedir + "hts/data/raw");
+       File dirUtt  = new File(filedir + "hts/data/utts");
        
        /* Check if wav directory exist and have files */
 
        if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){ 
-         System.out.println("Problem with wav and data/raw directories: wav files and raw files do not exist.");
+         System.out.println("Problem with wav and hts/data/raw directories: wav files and raw files do not exist" +
+                " in current directory: " + filedir);
          speech_transcriptions = false;
        }  
        
-       /* check if data/raw directory exist and have files */
+       /* check if hts/data/raw directory exist and have files */
        if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){
-          System.out.println("Problem with wav and data/raw directories: wav files and raw files do not exist.");
+          System.out.println("Problem with wav and hts/data/raw directories: wav files and raw files do not exist" +
+                " in current directory: " + filedir);
           speech_transcriptions = false;
        } 
        
        /* Check if text directory exist and have files */
        if( ( !dirText.exists() || dirText.list().length == 0 ) && ( !dirUtt.exists() || dirUtt.list().length == 0 ) ){
-         System.out.println("Problem with transcription directories text or data/utts (Festival format): utts files and text files do not exist.");
-         System.out.println(" the transcriptions in the directory text will be used to generate the phonelab directory, if there are no data/utts files" +
+         System.out.println("Problem with transcription directories text or hts/data/utts (Festival format): utts files and text files do not exist" +
+                " in current directory: " + filedir);
+         System.out.println(" the transcriptions in the directory text will be used to generate the phonelab directory, if there are no hts/data/utts files" +
                    "(in Festival format), please provide the transcriptions of the files you are going to use for trainning.");
          speech_transcriptions = false;
        } 
@@ -241,8 +244,8 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
        
        if(speech_transcriptions){
            
-       File dirFea = new File("phonefeatures");
-       File dirLab = new File("phonelab");
+       File dirFea = new File(filedir + "phonefeatures");
+       File dirLab = new File(filedir + "phonelab");
        if(dirFea.exists() && dirFea.list().length > 0 && dirLab.exists() && dirLab.list().length > 0 ){ 
         System.out.println("\nphonefeatures directory exists and contains files.");  
            
@@ -252,8 +255,10 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
        
        
        /* if previous files and directories exist then run configure */
+       /* first it should go to the hts directory and there run ./configure*/
        System.out.println("Running make configure: ");
-       cmdLine = getProp(CONFIGUREFILE) +
+       cmdLine = "cd " + filedir + "hts\n" + 
+       getProp(CONFIGUREFILE) +
        " --with-tcl-search-path=" + getProp(TCLPATH) +
        " --with-sptk-search-path=" + getProp(SPTKPATH) +
        " --with-hts-search-path=" + getProp(HTSPATH) +
@@ -284,14 +289,14 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
        " NITER=" + getProp(NITER) +
        " WFLOOR=" + getProp(WFLOOR);
        
-       General.launchProc(cmdLine, "Configure", filedir);
+       General.launchBatchProc(cmdLine, "Configure", filedir);
        
         
        } else
          System.out.println("Problems with directories phonefeatures or phonelab, they do not exist or they are empty.");  
        
        } else /* if speech and transcriptions exist */
-         System.out.println("Problems with directories wav, text or data/raw, they do not exist or they are empty.");
+         System.out.println("Problems with directories wav, text or hts/data/raw, they do not exist or they are empty.");
        
        return true;
        

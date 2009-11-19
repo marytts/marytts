@@ -120,7 +120,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
            props.put(QUESTIONSMARY, "1");
            props.put(LIST, "1");
            props.put(SCP, "1");
-           props.put(questionsFile, "data/questions/questions_qst001.hed");
+           props.put(questionsFile, "hts/data/questions/questions_qst001.hed");
            
            props.put(allophonesFile, db.getProp(db.ALLOPHONESET));
            props.put(featureListFile, "mary/hmmFeatures.txt");
@@ -168,30 +168,30 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
       String voiceDir = db.getProp(db.ROOTDIR);
      
       if( Integer.parseInt(getProp(MGC)) == 1 ){
-        cmdLine = "cd " + voiceDir + "data\nmake mgc\n";
+        cmdLine = "cd " + voiceDir + "hts/data\nmake mgc\n";
         General.launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(LF0)) == 1 ){
-          cmdLine = "cd " + voiceDir + "data\nmake lf0\n";
+          cmdLine = "cd " + voiceDir + "hts/data\nmake lf0\n";
           General.launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(MAG)) == 1 ){
-          cmdLine = "cd " + voiceDir + "data\nmake mag\n";
+          cmdLine = "cd " + voiceDir + "hts/data\nmake mag\n";
           General.launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(STR)) == 1 ){
-          cmdLine = "cd " + voiceDir + "data\nmake str\n";
+          cmdLine = "cd " + voiceDir + "hts/data\nmake str\n";
           General.launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(CMPMARY)) == 1 ){
-          cmdLine = "cd " + voiceDir + "data\nmake cmp-mary\n";
+          cmdLine = "cd " + voiceDir + "hts/data\nmake cmp-mary\n";
           General.launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(GVMARY)) == 1 ){
-          cmdLine = "cd " + voiceDir + "data\nmake gv-mary\n";
+          cmdLine = "cd " + voiceDir + "hts/data\nmake gv-mary\n";
           General.launchBatchProc(cmdLine, "", voiceDir);
           // also execute HTS gv to avoid problems when running the training script
-          cmdLine = "cd " + voiceDir + "data\nmake gv\n";
+          cmdLine = "cd " + voiceDir + "hts/data\nmake gv\n";
           General.launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(LABELMARY)) == 1 ){
@@ -209,11 +209,11 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           makeQuestions(voiceDir);          
       }
       if( Integer.parseInt(getProp(LIST)) == 1 ){
-          cmdLine = "cd " + voiceDir + "data\nmake list\n";
+          cmdLine = "cd " + voiceDir + "hts/data\nmake list\n";
           General.launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(SCP)) == 1 ){
-          cmdLine = "cd " + voiceDir + "data\nmake scp\n";
+          cmdLine = "cd " + voiceDir + "hts/data\nmake scp\n";
           General.launchBatchProc(cmdLine, "", voiceDir);
       }
 
@@ -288,7 +288,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     
     
     /***
-     * Java version of the makeQuestions script (data/scripts/make_questions.pl)
+     * Java version of the makeQuestions script (hts/data/scripts/make_questions.pl)
      * uses: questionsFile
      *       contextFile 
      *       featureListFile
@@ -357,7 +357,6 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         
         
         // list of additional context features used for training
-        // The features indicated in: data/feature_list.pl (The modes indicated in this list are not used)
         // Since the features are provided by the user, it should be checked that the feature exist
         Set <String> featureList = new HashSet<String>();        
         Scanner feaList = new Scanner(new BufferedReader(new FileReader(hmmFeatureListFile)));
@@ -585,7 +584,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     
     
     /***
-     * Java version of the make labels script (data/scripts/make_labels.pl)
+     * Java version of the make labels script (hts/data/scripts/make_labels.pl)
      * uses: 
      * @throws Exception
      */
@@ -643,26 +642,26 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         
         
         // Process all the files in phonefeatures and phonelab and create the directories:
-        // data/labels/full
-        // data/labels/mono
-        // data/labels/gen  (contains some examples from full, here we copy 10 examples)
+        // hts/data/labels/full
+        // hts/data/labels/mono
+        // hts/data/labels/gen  (contains some examples from full, here we copy 10 examples)
         // Create also the HTK master label files: full.mlf and mono.mlf
-        File labelsDir = new File(voiceDir + "/data/labels");
+        File labelsDir = new File(voiceDir + "/hts/data/labels");
         if(!labelsDir.exists())  
             labelsDir.mkdir();
-        File monoDir = new File(voiceDir + "/data/labels/mono");
+        File monoDir = new File(voiceDir + "/hts/data/labels/mono");
         if(!monoDir.exists()){
-            System.out.println("\nCreating a /data/labels/mono directory");  
+            System.out.println("\nCreating a /hts/data/labels/mono directory");  
             monoDir.mkdir();
         }        
-        File fullDir = new File(voiceDir + "/data/labels/full");
+        File fullDir = new File(voiceDir + "/hts/data/labels/full");
         if(!fullDir.exists()){
-            System.out.println("\nCreating a /data/labels/full directory");  
+            System.out.println("\nCreating a /hts/data/labels/full directory");  
             fullDir.mkdir();
         }        
-        File genDir = new File(voiceDir + "/data/labels/gen");
+        File genDir = new File(voiceDir + "/hts/data/labels/gen");
         if(!genDir.exists()){
-          System.out.println("\nCreating a /data/labels/gen directory, copying some HTS-HTK full context examples for testing");  
+          System.out.println("\nCreating a /hts/data/labels/gen directory, copying some HTS-HTK full context examples for testing");  
           genDir.mkdir();
         }
         
@@ -674,41 +673,41 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           extractMonophoneAndFullContextLabels( 
                   voiceDir + "/phonefeatures/" + feaFiles[i], 
                   voiceDir + "/phonelab/" + basename + ".lab",
-                  voiceDir + "/data/labels/full/" + basename + ".lab",
-                  voiceDir + "/data/labels/mono/" + basename + ".lab",
+                  voiceDir + "/hts/data/labels/full/" + basename + ".lab",
+                  voiceDir + "/hts/data/labels/mono/" + basename + ".lab",
                   feaDef,
                   phTranslator,
                   hmmFeatureList);          
         }
         System.out.println("Processed " + feaFiles.length + " files.");     
-        System.out.println("Created directories: \n  " + voiceDir + "data/labels/full/" + "\n  " + voiceDir + "data/labels/mono/");
+        System.out.println("Created directories: \n  " + voiceDir + "hts/data/labels/full/" + "\n  " + voiceDir + "hts/data/labels/mono/");
 
         // creating Master label files:
-        FileWriter fullMlf = new FileWriter(voiceDir + "/data/labels/full.mlf");        
+        FileWriter fullMlf = new FileWriter(voiceDir + "/hts/data/labels/full.mlf");        
         fullMlf.write("#!MLF!#\n");
-        fullMlf.write("\"*/*.lab\" -> \"" + voiceDir + "data/labels/full\"\n");
+        fullMlf.write("\"*/*.lab\" -> \"" + voiceDir + "hts/data/labels/full\"\n");
         fullMlf.close();
         
-        FileWriter monoMlf = new FileWriter(voiceDir + "/data/labels/mono.mlf");
+        FileWriter monoMlf = new FileWriter(voiceDir + "/hts/data/labels/mono.mlf");
         monoMlf.write("#!MLF!#\n");
-        monoMlf.write("\"*/*.lab\" -> \"" + voiceDir + "data/labels/mono\"\n");
+        monoMlf.write("\"*/*.lab\" -> \"" + voiceDir + "hts/data/labels/mono\"\n");
         monoMlf.close();
         
-        System.out.println("Created Master Label Files: \n  " + voiceDir + "data/labels/full.mlf" + "\n  " + voiceDir + "data/labels/mono.mlf");
+        System.out.println("Created Master Label Files: \n  " + voiceDir + "hts/data/labels/full.mlf" + "\n  " + voiceDir + "hts/data/labels/mono.mlf");
         
         // Copy 10 files in gen directory to test with htsengine
         System.out.println("Copying 10 context feature files in gen directory for testing with the HTS htsengine.");
         String cmdLine;
         for (int i=0; i<10; i++) {
             basename = StringUtils.getFileName(feaFiles[i]);
-            FileUtils.copy(voiceDir + "data/labels/full/" + basename + ".lab" , voiceDir + "data/labels/gen/gen_" + basename + ".lab");
+            FileUtils.copy(voiceDir + "hts/data/labels/full/" + basename + ".lab" , voiceDir + "hts/data/labels/gen/gen_" + basename + ".lab");
         }
         
     }
 
     
     /***
-     * Java version of the make labels script (data/scripts/make_labels.pl)
+     * Java version of the make labels script (hts/data/scripts/make_labels.pl)
      * uses: 
      * @throws Exception
      */
@@ -777,34 +776,34 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         
         // With feature definition and HMM feature list, process now all the speakers directories
         // Process all the files in phonefeatures and phonelab for all the speakers and create the directories:
-        // data/labels/full
-        // data/labels/mono
-        // data/labels/gen  (contains some examples from full, here we copy 10 examples)
+        // hts/data/labels/full
+        // hts/data/labels/mono
+        // hts/data/labels/gen  (contains some examples from full, here we copy 10 examples)
         // Create also the HTK master label files: full.mlf and mono.mlf
-        File labelsDir = new File(voiceDir + "/data/labels");
+        File labelsDir = new File(voiceDir + "/hts/data/labels");
         if(!labelsDir.exists())  
             labelsDir.mkdir();
-        File monoDir = new File(voiceDir + "/data/labels/mono");
+        File monoDir = new File(voiceDir + "/hts/data/labels/mono");
         if(!monoDir.exists()){
-            System.out.println("\nCreating a /data/labels/mono directory");  
+            System.out.println("\nCreating a /hts/data/labels/mono directory");  
             monoDir.mkdir();
         }        
-        File fullDir = new File(voiceDir + "/data/labels/full");
+        File fullDir = new File(voiceDir + "/hts/data/labels/full");
         if(!fullDir.exists()){
-            System.out.println("\nCreating a /data/labels/full directory");  
+            System.out.println("\nCreating a /hts/data/labels/full directory");  
             fullDir.mkdir();
         }      
         // CHECK: Not sure if gen directory should contain voices subdirectories or is just one for all???
-        File genDir = new File(voiceDir + "/data/labels/gen");
+        File genDir = new File(voiceDir + "/hts/data/labels/gen");
         if(!genDir.exists()){
-          System.out.println("\nCreating a /data/labels/gen directory, copying some HTS-HTK full context examples for testing");  
+          System.out.println("\nCreating a /hts/data/labels/gen directory, copying some HTS-HTK full context examples for testing");  
           genDir.mkdir();
         }
         
         // Create Master label files:
-        FileWriter fullMlf = new FileWriter(voiceDir + "/data/labels/full.mlf");        
+        FileWriter fullMlf = new FileWriter(voiceDir + "/hts/data/labels/full.mlf");        
         fullMlf.write("#!MLF!#\n");        
-        FileWriter monoMlf = new FileWriter(voiceDir + "/data/labels/mono.mlf");
+        FileWriter monoMlf = new FileWriter(voiceDir + "/hts/data/labels/mono.mlf");
         monoMlf.write("#!MLF!#\n");
         
         // Process each speaker
@@ -821,19 +820,19 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           }
         
           // Create directories in full, mono and gen for each seaker
-          File monoDirSpeaker = new File(voiceDir + "/data/labels/mono/" + speakers[j]);
+          File monoDirSpeaker = new File(voiceDir + "/hts/data/labels/mono/" + speakers[j]);
           if(!monoDirSpeaker.exists()){
-            System.out.println("\nCreating a /data/labels/mono/" + speakers[j] + " directory");  
+            System.out.println("\nCreating a /hts/data/labels/mono/" + speakers[j] + " directory");  
             monoDirSpeaker.mkdir();
           }        
-          File fullDirSpeaker = new File(voiceDir + "/data/labels/full/" + speakers[j]);
+          File fullDirSpeaker = new File(voiceDir + "/hts/data/labels/full/" + speakers[j]);
           if(!fullDirSpeaker.exists()){
-            System.out.println("\nCreating a /data/labels/full/" + speakers[j] + " directory");  
+            System.out.println("\nCreating a /hts/data/labels/full/" + speakers[j] + " directory");  
             fullDirSpeaker.mkdir();
           }        
-          File genDirSpeaker = new File(voiceDir + "/data/labels/gen/" + speakers[j]);
+          File genDirSpeaker = new File(voiceDir + "/hts/data/labels/gen/" + speakers[j]);
           if(!genDirSpeaker.exists()){
-            System.out.println("\nCreating a /data/labels/gen" + speakers[j] + " directory, copying some HTS-HTK full context examples for testing");  
+            System.out.println("\nCreating a /hts/data/labels/gen" + speakers[j] + " directory, copying some HTS-HTK full context examples for testing");  
             genDirSpeaker.mkdir();
           }
         
@@ -845,19 +844,19 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
             extractMonophoneAndFullContextLabels( 
                   voiceDir + "/phonefeatures/" + speakers[j] + "/" + feaFilesSpeaker[i], 
                   voiceDir + "/phonelab/" + speakers[j] + "/" + basename + ".lab",
-                  voiceDir + "/data/labels/full/" + speakers[j] + "/" + basename + ".lab",
-                  voiceDir + "/data/labels/mono/" + speakers[j] + "/" + basename + ".lab",
+                  voiceDir + "/hts/data/labels/full/" + speakers[j] + "/" + basename + ".lab",
+                  voiceDir + "/hts/data/labels/mono/" + speakers[j] + "/" + basename + ".lab",
                   feaDef,
                   phTranslator,
                   hmmFeatureList);          
           }
           System.out.println("Processed " + feaFilesSpeaker.length + " files.");     
-          System.out.println("Created directories: \n  " + voiceDir + "data/labels/full/" + speakers[j] + "\n  " 
-                                                       + voiceDir + "data/labels/mono/" + speakers[j]);
+          System.out.println("Created directories: \n  " + voiceDir + "hts/data/labels/full/" + speakers[j] + "\n  " 
+                                                       + voiceDir + "hts/data/labels/mono/" + speakers[j]);
 
           // Add speaker directory to Master label files:          
-          fullMlf.write("\"*/*.lab\" -> \"" + voiceDir + "data/labels/full/" + speakers[j] + "\"\n");        
-          monoMlf.write("\"*/*.lab\" -> \"" + voiceDir + "data/labels/mono/" + speakers[j] + "\"\n");
+          fullMlf.write("\"*/*.lab\" -> \"" + voiceDir + "hts/data/labels/full/" + speakers[j] + "\"\n");        
+          monoMlf.write("\"*/*.lab\" -> \"" + voiceDir + "hts/data/labels/mono/" + speakers[j] + "\"\n");
         
           // Copy 10 files in gen directory to test with htsengine
           // CHECK: Not sure if gen directory should contain voices subdirectories or is just one for all???
@@ -865,20 +864,20 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           String cmdLine;
           for (int i=0; i<10; i++) {
             basename = StringUtils.getFileName(feaFilesSpeaker[i]);
-            FileUtils.copy(voiceDir + "data/labels/full/" + speakers[j] + "/" + basename + ".lab" , 
-                           voiceDir + "data/labels/gen/"  + speakers[j] + "/" + "gen_" + basename + ".lab");
+            FileUtils.copy(voiceDir + "hts/data/labels/full/" + speakers[j] + "/" + basename + ".lab" , 
+                           voiceDir + "hts/data/labels/gen/"  + speakers[j] + "/" + "gen_" + basename + ".lab");
           }
         }
         
         fullMlf.close();
         monoMlf.close();
-        System.out.println("Created Master Label Files: \n  " + voiceDir + "data/labels/full.mlf" 
-                                                     + "\n  " + voiceDir + "data/labels/mono.mlf");        
+        System.out.println("Created Master Label Files: \n  " + voiceDir + "hts/data/labels/full.mlf" 
+                                                     + "\n  " + voiceDir + "hts/data/labels/mono.mlf");        
     }
 
 
     
-    /** Java version of the make labels script (data/scripts/make_labels.pl)
+    /** Java version of the make labels script (hts/data/scripts/make_labels.pl)
      * @param feaFileName MARY phonefeatures file name
      * @param labFileName label file name
      * @param outFeaFileName output context features file name in HTS format
