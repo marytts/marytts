@@ -31,8 +31,14 @@ import java.util.Map;
  */
 public class ByteStringTranslator
 {
-    ArrayList<String> list;
-    Map<String,Byte> map;
+    /**
+     * The maximum number of values that this translator can handle. This is the highest possible number that we can still
+     * represent as an unsigned byte.
+     */
+    public static final int MAXNUM = 255;
+    
+    private ArrayList<String> list;
+    private Map<String,Byte> map;
 
     
     /**
@@ -45,9 +51,16 @@ public class ByteStringTranslator
         map = new HashMap<String, Byte>();
     }
 
-    public ByteStringTranslator(byte initialRange)
+    /**
+     * Prepare a ByteStringTranslator to hold the given amount of data.
+     * After calling this the {@link #getNumberOfValues()} will still return 0, since there is no actual data yet.
+     * @param initialRange the number of values to expect
+     * @throws IllegalArgumentException if initialRange is larger than the maximum number of values, {@link #MAXNUM}.
+     */
+    public ByteStringTranslator(int initialRange)
     {
-        list = new ArrayList<String>(initialRange);
+        int range = initialRange & 0xFF;
+        list = new ArrayList<String>(range);
         map = new HashMap<String, Byte>();
     }
 
@@ -55,11 +68,12 @@ public class ByteStringTranslator
      * Initialize a byte-string two-way translator,
      * setting byte values according to the position of strings
      * in the array.
-     * @param strings
+     * @param strings a list of up to {@link #MAXNUM} strings to be represented by unique byte values.
+     * @throws IllegalArgumentException if list of strings is longer than the maximum number of values, {@link #MAXNUM}.
      */
     public ByteStringTranslator(String[] strings)
     {
-        if (strings.length > Byte.MAX_VALUE) {
+        if (strings.length > MAXNUM) {
             StringBuffer buf = new StringBuffer();
             for (int i=0; i<strings.length; i++) {
                 buf.append("\""+strings[i]+"\" ");
@@ -74,25 +88,49 @@ public class ByteStringTranslator
 
     }
     
+    /**
+     * Associate the given (unsigned) byte with the given String. Values greater than 127 can be used simply by casting an int to a byte:
+     * <code>set((byte)129, "mystring")</code>
+     * @param b
+     * @param s
+     */
     public void set(byte b, String s)
     {
-        list.add(b, s);
+        int index = b & 0xFF; // make sure we treat the byte as an unsigned byte for position
+        list.add(index , s);
         map.put(s, b);
     }
     
+    /**
+     * Verify if the given string can be translated into a byte by this translator.
+     * @param s
+     * @return
+     */
     public boolean contains(String s)
     {
         return map.containsKey(s);
     }
     
+    /**
+     * Check if the given (unsigned) byte value is contained in the list. 
+     * This supports values between 0 and {@link #MAXNUM},
+     * cast to byte: <code>contains((byte)129)</code> will indicate if there is a String for the 129'th byte value.
+     * @param b
+     * @return
+     */
     public boolean contains(byte b)
     {
-        int index = (int) b;
+        int index = b & 0xFF;
         if (index < 0 || index >= list.size()) return false;
         return true;
     }
     
-    
+    /**
+     * Get the (unsigned) byte value associated to the given string.
+     * @param s
+     * @return the (unsigned) byte value associated to the given string. To cast this into an integer, use <code>value & 0xFF</code>.
+     * @throws IllegalArgumentException if the string is unknown to the translator.
+     */
     public byte get(String s)
     {
         Byte b = map.get(s);
@@ -101,9 +139,15 @@ public class ByteStringTranslator
         return b.byteValue();
     }
     
+    /**
+     * Look up the (unsigned) byte in this translator. This supports values between 0 and {@link #MAXNUM},
+     * cast to byte: <code>get((byte)129)</code> will get you the 129'th item in the string list. 
+     * @param b
+     * @return
+     */
     public String get(byte b)
     {
-        int index = (int) b;
+        int index = b & 0xFF;
         if (index < 0 || index >= list.size())
             throw new IndexOutOfBoundsException("Byte value out of range: "+index);
         return list.get(index);
@@ -114,9 +158,13 @@ public class ByteStringTranslator
         return list.toArray(new String[0]);
     }
     
-    public byte getNumberOfValues()
+    /**
+     * Give the number of different values in this translator.
+     * @return
+     */
+    public int getNumberOfValues()
     {
-        return (byte) list.size();
+        return list.size();
     }
 
 }

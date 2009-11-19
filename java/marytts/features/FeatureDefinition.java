@@ -240,11 +240,12 @@ public class FeatureDefinition
             featureWeights[i] = input.readFloat();
             String featureName = input.readUTF();
             featureNames.set(i, featureName);
-            byte numberOfValues = input.readByte();
+            byte numberOfValuesEncoded = input.readByte(); // attention: this is an unsigned byte
+            int numberOfValues = numberOfValuesEncoded & 0xFF;
             byteFeatureValues[i] = new ByteStringTranslator(numberOfValues);
-            for (byte b=0; b<numberOfValues; b++) {
+            for (int b=0; b<numberOfValues; b++) {
                 String value = input.readUTF();
-                byteFeatureValues[i].set(b, value);
+                byteFeatureValues[i].set((byte)b, value);
             }
         }
         // Section SHORTFEATURES
@@ -303,9 +304,11 @@ public class FeatureDefinition
                 out.writeFloat(0);
             }
             out.writeUTF(getFeatureName(i));
-            byte numValues = (byte) getNumberOfValues(i);
-            out.writeByte(numValues);
-            for (byte b=0; b<numValues; b++) {
+            
+            int numValues = getNumberOfValues(i);
+            byte numValuesEncoded = (byte) numValues; // an unsigned byte
+            out.writeByte(numValuesEncoded);
+            for (int b=0; b<numValues; b++) {
                 String value = getFeatureValueAsString(i, b);
                 out.writeUTF(value);
             }
