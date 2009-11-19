@@ -95,11 +95,11 @@ public class TimelineReader extends TimelineIO
     /**
      * Skip the upcoming datagram.
      * 
-     * @return true if the end of the datagram zone was encountered; false otherwise.
      * 
      * @throws IOException
+     * @throws IndexOutOfBoundsException if reached end of datagram zone
      */
-    protected boolean skipNextDatagram() throws IOException {
+    protected void skipNextDatagram() throws IOException {
         
         long datagramDuration = 0;
         int datagramSize = 0;
@@ -132,8 +132,6 @@ public class TimelineReader extends TimelineIO
         /* If the read was successful, update the time pointer */
         timePtr += datagramDuration;
         
-        /* Return the number of skipped bytes; in the VARIABLE case, this includes skipping the size&duration fields. */
-        return( false );
     }
     
     /**
@@ -417,7 +415,7 @@ public class TimelineReader extends TimelineIO
             Datagram dat = getNextDatagram();
             if (dat == null) readMore = false;
             else {
-                if ( reqSampleRate != sampleRate ) dat.setDuration(unScaleTime( reqSampleRate, dat.getDuration() )); // => Don't forget to stay time-consistent!
+                //if ( reqSampleRate != sampleRate ) dat.setDuration(unScaleTime( reqSampleRate, dat.getDuration() )); // => Don't forget to stay time-consistent!
                 v.add( dat );
             }
         }
