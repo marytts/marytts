@@ -605,7 +605,7 @@ public class DomUtils
             serializer = domImplLS.createLSSerializer();
             DOMConfiguration config = serializer.getDomConfig();
             config.setParameter("format-pretty-print", Boolean.TRUE);
-            //config.setParameter("canonical-form", Boolean.TRUE);
+            config.setParameter("canonical-form", Boolean.TRUE);
         }
         if (domImplLS != null) { // have new DOM 3 code available
             LSOutput output = domImplLS.createLSOutput();
