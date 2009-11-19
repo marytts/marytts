@@ -414,7 +414,7 @@ public class DomUtils
 
 
     /** Create a new Element placed in the document tree such that it encloses
-     *  two existing Nodes.<p>
+     *  two existing Nodes. The new element will have the same namespace as the document element.<p>
      *  Algorithm:<p>
      *  <ol>
      *  <li> Find closest common ancestor <code>a</code> </li>
@@ -447,10 +447,9 @@ public class DomUtils
         while (childZ.getParentNode() != a) childZ = childZ.getParentNode();
 
         // 3. Insert a new Element node before the first of these children
-        Document doc = (a.getNodeType() == Node.DOCUMENT_NODE) ?
-            (Document) a : a.getOwnerDocument();
-        Element newElement = doc.createElementNS
-            (doc.getNamespaceURI(), newElementName);
+        Document doc = (a.getNodeType() == Node.DOCUMENT_NODE) ? (Document) a : a.getOwnerDocument();
+        System.out.println("Creating element '"+newElementName+"' in namespace '"+doc.getNamespaceURI()+"'");
+        Element newElement = doc.createElementNS(doc.getDocumentElement().getNamespaceURI(), newElementName);
         a.insertBefore(newElement, childA); // throws DOMException
 
         // 4. Move all children between childA and childZ into the new Element.
@@ -514,6 +513,21 @@ public class DomUtils
             parent.insertBefore(newNode, next);
         }
     }
+    
+    /**
+     * Go through all text nodes below this node, and replace their text with a trimmed version of their text.
+     * This changes the DOM document.
+     * @param subtree
+     */
+    public static void trimAllTextNodes(Node root) {
+        Document doc = root.getNodeType() == Node.DOCUMENT_NODE ? (Document) root : root.getOwnerDocument();
+        NodeIterator it = ((DocumentTraversal)doc).createNodeIterator(root, NodeFilter.SHOW_TEXT, null, false);
+        Text t = null;
+        while ((t = (Text) it.nextNode()) != null) {
+            String s = t.getData();
+            t.setData(s.trim());
+        }
+    }
 
     /**
      * Compare two DOM XML documents. This method simply converts both
@@ -527,7 +541,11 @@ public class DomUtils
         if (a == null || b == null) {
             return a == null && b == null;
         }
-        return (serializeToString(a).equals(serializeToString(b)));
+        Document a1 = (Document) a.cloneNode(true);
+        Document b1 = (Document) b.cloneNode(true);
+        trimAllTextNodes(a1);
+        trimAllTextNodes(b1);
+        return (document2String(a1).equals(document2String(b1)));
     }
 
     /**
