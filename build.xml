@@ -81,16 +81,25 @@ THIS SOFTWARE.
 
 
   <target name="tests" depends="compile">
-    <junit printsummary="yes" showoutput="yes" haltonfailure="no">
+    <junit printsummary="on" haltonfailure="no" fork="on" forkmode="once">
+    	<classpath>
+  	        <pathelement location="${dest}"/>
+    		<fileset dir="${dest}" includes="*.jar"/>
+        </classpath>
+    	<jvmarg value="-Xmx1g"/>
       <sysproperty key="mary.base" value="${mary.base}"/>
       <sysproperty key="modules.poweronselftest" value="false"/>
       <sysproperty key="log.tofile" value="true"/>
       <sysproperty key="log.filename" value="log/junittest.mary.log"/>
       <formatter type="plain"/>
-      <test name="de.dfki.lt.mary.tests.AllTests" todir="log"/>
+    	<batchtest todir="log">
+    		<fileset dir="${src}">
+    		      <include name="marytts/tests/junit4/*.java"/>
+	  		      <include name="marytts/tests/junit4/language/**/*.java"/>			
+    		</fileset>
+    	</batchtest>
     </junit>
-    <echo>See log/TEST-marytts.tests.AllTests.txt and
-    log/junittest.mary.log for details.</echo>
+    <echo>See log/TEST-*.txt and log/junittest.mary.log for details.</echo>
   </target>
 
   <target name="javadoc" depends="compile">

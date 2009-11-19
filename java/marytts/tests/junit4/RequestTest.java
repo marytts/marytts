@@ -17,20 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.tests;
+package marytts.tests.junit4;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.Locale;
+
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 
-import junit.framework.Assert;
-import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
@@ -41,21 +40,41 @@ import marytts.util.dom.DomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import static org.junit.Assert.*;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * @author Marc Schr&ouml;der
  *
  *
  */
-public class RequestTest extends TestCase {
-    public void setUp() throws Exception {
+public class RequestTest {
+    @BeforeClass
+    public static void setUp() throws Exception {
+        BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.DEBUG);
+        if (System.getProperty("mary.base") == null) {
+            System.setProperty("mary.base", ".");
+            Logger.getRootLogger().warn("System property 'mary.base' is not defined -- trying "+new File(".").getAbsolutePath()
+                    +" -- if this fails, please start this using VM property \"-Dmary.base=/path/to/mary/runtime\"!");
+        }
+
         if (Mary.currentState() == Mary.STATE_OFF)
             Mary.startup();
     }
 
+    @Test
     public void testSetInputData() {
-        Request r = new Request(MaryDataType.get("TEXT_DE"), MaryDataType.get("ACOUSTPARAMS"), Locale.GERMAN, null, "", "", 1, null);
-        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), null);
+        Request r = new Request(MaryDataType.TEXT, MaryDataType.ACOUSTPARAMS, Locale.GERMAN, null, "", "", 1, null);
+        MaryData md = new MaryData(MaryDataType.RAWMARYXML, null);
         try {
             r.setInputData(md);
         } catch (IllegalArgumentException e) {
@@ -64,8 +83,9 @@ public class RequestTest extends TestCase {
         fail("should have thrown an IllegalArgumentException");
     }
 
+    @Test
     public void testProcess1() throws Exception {
-        Request r = new Request(MaryDataType.get("TEXT_EN"), MaryDataType.get("ACOUSTPARAMS"), Locale.US, null, "", "", 1, null);
+        Request r = new Request(MaryDataType.TEXT, MaryDataType.ACOUSTPARAMS, Locale.US, null, "", "", 1, null);
         try {
             r.process();
         } catch (NullPointerException e) {
@@ -74,9 +94,10 @@ public class RequestTest extends TestCase {
         fail("should have thrown a NullPointerException");
     }
 
+    @Test
     public void testProcess2() throws Exception {
-        Request r = new Request(MaryDataType.get("RAWMARYXML"), MaryDataType.get("ACOUSTPARAMS"), null, null, "", "", 1, null);
-        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), null, true);
+        Request r = new Request(MaryDataType.RAWMARYXML, MaryDataType.ACOUSTPARAMS, null, null, "", "", 1, null);
+        MaryData md = new MaryData(MaryDataType.RAWMARYXML, null, true);
         Document d = md.getDocument();
         Element elt = d.getDocumentElement();
         if (elt.hasAttribute("xml:lang"))
@@ -90,11 +111,12 @@ public class RequestTest extends TestCase {
         fail("should have thrown an IllegalArgumentException");
     }
 
+    @Test
     public void testProcess3() throws Exception {
         // ask for an impossible conversion:
-        Request r = new Request(MaryDataType.get("INTONATION"), MaryDataType.get("TOKENS"), Locale.US, null, "", "", 1, null);
-        MaryData md = new MaryData(MaryDataType.get("INTONATION"), Locale.US);
-        md.readFrom(new StringReader(MaryDataType.get("INTONATION").exampleText(Locale.US)), null);
+        Request r = new Request(MaryDataType.INTONATION, MaryDataType.TOKENS, Locale.US, null, "", "", 1, null);
+        MaryData md = new MaryData(MaryDataType.INTONATION, Locale.US);
+        md.readFrom(new StringReader(MaryDataType.INTONATION.exampleText(Locale.US)), null);
         r.setInputData(md);
         try {
             r.process();
@@ -103,28 +125,31 @@ public class RequestTest extends TestCase {
         }
         fail("should have thrown an UnsupportedOperationException");
     }
-        
+
+    @Test
     public void testProcess4() throws Exception {
         Voice voice = Voice.getDefaultVoice(Locale.ENGLISH);
         AudioFormat af = voice.dbAudioFormat();
         AudioFileFormat aff = new AudioFileFormat(AudioFileFormat.Type.WAVE,
             af, AudioSystem.NOT_SPECIFIED);
-        Request r = new Request(MaryDataType.get("TEXT_EN"), MaryDataType.get("AUDIO"), Locale.US, 
+        Request r = new Request(MaryDataType.TEXT, MaryDataType.AUDIO, Locale.US, 
             voice, "", "", 1, aff);
-        MaryData md = new MaryData(MaryDataType.get("TEXT_EN"), Locale.US);
+        MaryData md = new MaryData(MaryDataType.TEXT, Locale.US);
         md.setPlainText("This is a test.");
         r.setInputData(md);
         r.process();
         assertNotNull(r.getOutputData());
     }
 
+    @Test
     public void testProcess5() throws Exception {
         // Convert from RAWMARYXML to RAWMARYXML, and see if we lose nodes:
         InputStream maryxml = this.getClass().getResourceAsStream("test2.maryxml");
-        Assert.assertTrue(maryxml != null);
-        MaryDataType rawmaryxml = MaryDataType.get("RAWMARYXML");
+        assertTrue(maryxml != null);
+        MaryDataType rawmaryxml = MaryDataType.RAWMARYXML;
         MaryData inputData = new MaryData(rawmaryxml, null);
         inputData.readFrom(maryxml, null);
+        System.out.println("Input document namespace: "+inputData.getDocument().getNamespaceURI());
         Request r = new Request(rawmaryxml, rawmaryxml, null, null, "", "", 1, null);
         r.setInputData(inputData);
         r.process();
@@ -133,21 +158,25 @@ public class RequestTest extends TestCase {
         targetOut.readFrom(this.getClass().getResourceAsStream("test2_result.maryxml"), null);
         try {
             assertTrue(DomUtils.areEqual(targetOut.getDocument(), processedOut.getDocument()));
-        } catch (AssertionFailedError afe) {
+        } catch (AssertionError afe) {
             System.err.println("==========target:=============");
-            System.err.println(DomUtils.serializeToString(targetOut.getDocument()));
+            Document target = (Document) targetOut.getDocument().cloneNode(true);
+            DomUtils.trimAllTextNodes(target);
+            System.err.println(DomUtils.document2String(target));
             System.err.println();
             System.err.println("==========processed:============");
-            System.err.println(DomUtils.serializeToString(processedOut.getDocument()));
+            Document processed = (Document) processedOut.getDocument().cloneNode(true);
+            DomUtils.trimAllTextNodes(processed);
+            System.err.println(DomUtils.document2String(processed));
             throw afe;
         }
 
     }
     
     public void testWriteOutputData1() throws Exception {
-        Request r = new Request(MaryDataType.get("RAWMARYXML"), MaryDataType.get("RAWMARYXML"), null, null, "", "", 1, null);
-        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML"), null);
-        md.readFrom(new StringReader(MaryDataType.get("RAWMARYXML").exampleText(Locale.US)), null);
+        Request r = new Request(MaryDataType.RAWMARYXML, MaryDataType.RAWMARYXML, null, null, "", "", 1, null);
+        MaryData md = new MaryData(MaryDataType.RAWMARYXML, null);
+        md.readFrom(new StringReader(MaryDataType.RAWMARYXML.exampleText(Locale.US)), null);
         r.setInputData(md);
         r.process();
         try {

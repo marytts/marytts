@@ -1,7 +1,11 @@
 /**
  *Copyright (C) 2003 DFKI GmbH. All rights reserved.
  */
-package marytts.tests.language.de;
+package marytts.tests.junit4.language.de;
+
+import java.util.Locale;
+
+import org.junit.Test;
 
 import marytts.modules.ModuleRegistry;
 import marytts.tests.modules.MaryModuleTestCase;
@@ -27,36 +31,44 @@ public class PreprocessorTest extends MaryModuleTestCase {
         return "preprocessed"; 
     }
 
+    @Test
     public void testSpellout() throws Exception {
-        processAndCompare("SPD");
+        processAndCompare("SPD", Locale.GERMAN);
     }
 
+    @Test
 	public void testAbbrev9() throws Exception {
-		processAndCompare("abbrev9");
+		processAndCompare("abbrev9", Locale.GERMAN);
 	}
 
+    @Test
 	public void testAbbrev10() throws Exception {
-		processAndCompare("abbrev10");
+		processAndCompare("abbrev10", Locale.GERMAN);
 	}
 
+    @Test
 	public void testAbbrev11() throws Exception {
-		processAndCompare("abbrev11");
+		processAndCompare("abbrev11", Locale.GERMAN);
 	}
 
+    @Test
 	public void testAbbrev12() throws Exception {
-		processAndCompare("abbrev12");
+		processAndCompare("abbrev12", Locale.GERMAN);
 	}
 
+    @Test
 	public void testNet1() throws Exception {
-		processAndCompare("net1");
+		processAndCompare("net1", Locale.GERMAN);
 	}
 
+    @Test
 	public void testSpecialChar1() throws Exception {
-		processAndCompare("specialchar1");
+		processAndCompare("specialchar1", Locale.GERMAN);
 	}
 
+    @Test
     public void testUnicode1() throws Exception {
-        processAndCompare("unicode1");
+        processAndCompare("unicode1", Locale.GERMAN);
     }
 
 

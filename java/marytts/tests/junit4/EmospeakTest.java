@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.tests;
+package marytts.tests.junit4;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -25,10 +25,12 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 
-import junit.framework.TestCase;
 import marytts.tools.emospeak.EmoTransformer;
 
 import org.w3c.dom.Document;
+
+
+import org.junit.Test;
 
 
 /**
@@ -36,8 +38,9 @@ import org.w3c.dom.Document;
  *
  *
  */
-public class EmospeakTest extends TestCase {
+public class EmospeakTest {
 
+    @Test
     public void testTransform() throws Exception 
     {
         TransformerFactory tFactory = javax.xml.transform.TransformerFactory.newInstance();
