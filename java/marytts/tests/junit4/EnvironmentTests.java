@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.tests;
+package marytts.tests.junit4;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -25,8 +25,17 @@ import javax.sound.sampled.AudioSystem;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
+
+import org.apache.log4j.BasicConfigurator;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import marytts.datatypes.MaryXML;
+import marytts.util.data.audio.MaryAudioUtils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -38,13 +47,15 @@ import org.w3c.dom.traversal.DocumentTraversal;
  *
  *
  */
-public class EnvironmentTests extends TestCase {
+public class EnvironmentTests {
 
+    @Test
     public void testJavaVersion() {
         String version = System.getProperty("java.version");
-        assertTrue(version.startsWith("1.4") || version.startsWith("1.5"));
+        assertTrue(version.startsWith("1.5") || version.startsWith("1.6"));
     }
 
+    @Test
     public void testXMLParserSupportsNamespaces() throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);
@@ -60,11 +71,13 @@ public class EnvironmentTests extends TestCase {
         assertTrue(nl.item(0).getNodeName().equals("ssml:emphasis"));
     }
 
+    @Test
     public void testDocumentTraversalAvailable() {
         Document doc = MaryXML.newDocument();
         assertTrue(doc instanceof DocumentTraversal);
     }
 
+    @Test
     public void testMP3Available() throws Exception {
         AudioFormat mp3af = new AudioFormat(
                 new AudioFormat.Encoding("MPEG1L3"),
@@ -76,8 +89,12 @@ public class EnvironmentTests extends TestCase {
                 false);
         AudioInputStream waveStream = AudioSystem.getAudioInputStream(this.getClass().getResourceAsStream("test.wav"));
         // Now attempt conversion:
-        assertTrue(AudioSystem.isConversionSupported(mp3af, waveStream.getFormat()));
-        AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(mp3af, waveStream);
+        if (MaryAudioUtils.canCreateMP3()) {
+            assertTrue(AudioSystem.isConversionSupported(mp3af, waveStream.getFormat()));
+            AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(mp3af, waveStream);
+        } else {
+            assertFalse(AudioSystem.isConversionSupported(mp3af, waveStream.getFormat()));
+        }
     }
 }
 

@@ -22,7 +22,7 @@ package marytts.tests;
 import java.io.IOException;
 import java.util.Random;
 
-import junit.framework.TestCase;
+
 import marytts.cart.impose.FeatureArrayIndexer;
 import marytts.features.FeatureDefinition;
 import marytts.unitselection.data.FeatureFileReader;
@@ -33,7 +33,7 @@ import marytts.unitselection.data.FeatureFileReader;
  * @author sacha
  *
  */
-public class FeatureArrayIndexerTest extends TestCase {
+public class FeatureArrayIndexerTest {
 
     /**
      * MAIN!

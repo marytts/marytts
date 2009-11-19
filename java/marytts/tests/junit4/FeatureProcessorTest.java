@@ -24,9 +24,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Logger;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -63,9 +65,7 @@ public class FeatureProcessorTest
     @BeforeClass
     public static void setupClass() throws Exception
     {
-        // set up log4j, in case some class uses it:
-        PatternLayout layout = new PatternLayout("%d [%t] %-5p %-10c %m\n");
-        BasicConfigurator.configure(new WriterAppender(layout, System.err));
+        BasicConfigurator.configure();
 
         acoustparams = new MaryData(MaryDataType.ACOUSTPARAMS, Locale.ENGLISH);
         acoustparams.readFrom(FeatureProcessorTest.class.getResourceAsStream("test1.acoustparams"));
@@ -85,10 +85,12 @@ public class FeatureProcessorTest
         
         try {
             if (System.getProperty("mary.base") == null) {
-                System.out.println("System property 'mary.base' is not defined. Please start this using VM property \"-Dmary.base=/path/to/mary/runtime\"!");
+                System.setProperty("mary.base", ".");
+                Logger.global.warning("System property 'mary.base' is not defined -- trying "+new File(".").getAbsolutePath()
+                        +" -- if this fails, please start this using VM property \"-Dmary.base=/path/to/mary/runtime\"!");
             }
             MaryProperties.readProperties();
-            mgr = new marytts.language.en.features.FeatureProcessorManager();
+            mgr = new marytts.features.FeatureProcessorManager("en_US");
         } catch (Exception e) {
             e.printStackTrace();
         }

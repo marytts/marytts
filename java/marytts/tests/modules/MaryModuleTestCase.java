@@ -20,21 +20,26 @@
 package marytts.tests.modules;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Locale;
 
-import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
+
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.modules.MaryModule;
 import marytts.server.Mary;
+import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+
+import static org.junit.Assert.*;
 
 
 /**
@@ -42,26 +47,31 @@ import org.w3c.dom.Document;
  *
  *
  */
-public class MaryModuleTestCase extends TestCase {
+public class MaryModuleTestCase {
 
     protected MaryModule module;
 
     public MaryModuleTestCase(boolean needMaryStarted) throws Exception
     {
+        BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.DEBUG);
+        if (System.getProperty("mary.base") == null) {
+            System.setProperty("mary.base", ".");
+            Logger.getRootLogger().warn("System property 'mary.base' is not defined -- trying "+new File(".").getAbsolutePath()
+                    +" -- if this fails, please start this using VM property \"-Dmary.base=/path/to/mary/runtime\"!");
+        }
+
         if (needMaryStarted) {
             if(Mary.currentState() == Mary.STATE_OFF)
                 Mary.startup();
-        } else {
-            // for log4j:
-            BasicConfigurator.configure();
         }
     }
 
-    protected MaryData createMaryDataFromText(String text) {
+    protected MaryData createMaryDataFromText(String text, Locale locale) {
         Document doc = MaryXML.newDocument();
-        doc.getDocumentElement().setAttribute("xml:lang", "en");
+        doc.getDocumentElement().setAttribute("xml:lang", MaryUtils.locale2xmllang(locale));
         doc.getDocumentElement().appendChild(doc.createTextNode(text));
-        MaryData md = new MaryData(MaryDataType.get("RAWMARYXML_EN"), Locale.ENGLISH);
+        MaryData md = new MaryData(MaryDataType.RAWMARYXML, locale);
         md.setDocument(doc);
         return md;
     }
@@ -79,15 +89,15 @@ public class MaryModuleTestCase extends TestCase {
         return buf.toString();
     }
 
-    protected void processAndCompare(String basename) throws Exception {
+    protected void processAndCompare(String basename, Locale locale) throws Exception {
         assert inputEnding() != null;
         assert outputEnding() != null;
         MaryData input = null;
         if (inputEnding().equals("txt")) {
             String in = loadResourceIntoString(basename + "." + inputEnding());
-            input = createMaryDataFromText(in);
+            input = createMaryDataFromText(in, locale);
         } else {
-            input = new MaryData(module.inputType(), input.getLocale());
+            input = new MaryData(module.inputType(), locale);
             input.readFrom(this.getClass().getResourceAsStream(basename + "." + inputEnding()), null);
         }
         MaryData targetOut = new MaryData(module.outputType(), input.getLocale());
@@ -95,12 +105,16 @@ public class MaryModuleTestCase extends TestCase {
         MaryData processedOut = module.process(input);
         try {
             assertTrue(DomUtils.areEqual(targetOut.getDocument(), processedOut.getDocument()));
-        } catch (AssertionFailedError afe) {
+        } catch (AssertionError afe) {
             System.err.println("==========target:=============");
-            System.err.println(DomUtils.serializeToString(targetOut.getDocument()));
+            Document target = (Document) targetOut.getDocument().cloneNode(true);
+            DomUtils.trimAllTextNodes(target);
+            System.err.println(DomUtils.document2String(target));
             System.err.println();
             System.err.println("==========processed:============");
-            System.err.println(DomUtils.serializeToString(processedOut.getDocument()));
+            Document processed = (Document) processedOut.getDocument().cloneNode(true);
+            DomUtils.trimAllTextNodes(processed);
+            System.err.println(DomUtils.document2String(processed));
             throw afe;
         }
     } 

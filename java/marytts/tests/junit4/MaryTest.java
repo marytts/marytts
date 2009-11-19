@@ -17,38 +17,65 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.tests;
+package marytts.tests.junit4;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+
+import static org.junit.Assert.*;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
+import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.synthesis.Voice;
 import marytts.server.Mary;
 import marytts.server.MaryProperties;
 import marytts.server.Request;
 
-public class MaryTest extends TestCase {
-    public void setUp() throws Exception {
+
+public class MaryTest {
+    @BeforeClass
+    public static void setUp() throws Exception {
+        BasicConfigurator.configure();
+        Logger.getRootLogger().setLevel(Level.DEBUG);
+        if (System.getProperty("mary.base") == null) {
+            System.setProperty("mary.base", ".");
+            Logger.getRootLogger().warn("System property 'mary.base' is not defined -- trying "+new File(".").getAbsolutePath()
+                    +" -- if this fails, please start this using VM property \"-Dmary.base=/path/to/mary/runtime\"!");
+        }
+
         if (Mary.currentState() == Mary.STATE_OFF)
             Mary.startup();
     }
 
+    @Test
     public void testMaryRunning() {
-        Assert.assertTrue(Mary.currentState() == Mary.STATE_RUNNING);
+        assertTrue(Mary.currentState() == Mary.STATE_RUNNING);
     }
 
+    @Test
     public void testDefaultVoicesAvailable() throws Exception {
-        Assert.assertTrue(Voice.getDefaultVoice(Locale.ENGLISH) != null);
+        assertTrue(Voice.getDefaultVoice(Locale.ENGLISH) != null);
     }
+    
+    
 
+    @Test
     public void testModulesRequired1() {
         try {
             ModuleRegistry.modulesRequiredForProcessing(null, MaryDataType.AUDIO, Locale.ENGLISH);
@@ -58,6 +85,7 @@ public class MaryTest extends TestCase {
         fail("should have thrown NullPointerException");
     }
 
+    @Test
     public void testModulesRequired2() {
         try {
             ModuleRegistry.modulesRequiredForProcessing(MaryDataType.TEXT, null, Locale.ENGLISH);
@@ -67,53 +95,87 @@ public class MaryTest extends TestCase {
         fail("should have thrown NullPointerException");
     }
 
+    @Test
     public void testModulesRequired3() {
-        try {
-            ModuleRegistry.modulesRequiredForProcessing(MaryDataType.TEXT, MaryDataType.AUDIO, null);
-        } catch (NullPointerException e) {
-            return;
-        }
-        fail("should have thrown NullPointerException");
+        List<MaryModule> mods = ModuleRegistry.modulesRequiredForProcessing(MaryDataType.TEXT, MaryDataType.AUDIO, null);
+        assertNull(mods);
     }
 
+    @Test
     public void testTextToSpeechPossibleEnglish() {
-        List modules =
+        List<MaryModule> modules =
             ModuleRegistry.modulesRequiredForProcessing(
                 MaryDataType.TEXT,
                 MaryDataType.AUDIO,
                 Locale.US);
-        Assert.assertTrue(modules != null && !modules.isEmpty());
+        assertTrue(modules != null && !modules.isEmpty());
     }
 
+    @Test
     public void testValidMaryXML1() throws Exception {
-        convertToAndValidate("test1.maryxml", MaryDataType.get("RAWMARYXML"), MaryDataType.get("TOKENS_EN"), Locale.ENGLISH);
+        convertToAndValidate("test1.maryxml", MaryDataType.RAWMARYXML, MaryDataType.TOKENS, Locale.ENGLISH);
     }
 
+    @Test
     public void testValidMaryXML2() throws Exception {
-        convertToAndValidate("test1.maryxml", MaryDataType.get("RAWMARYXML"), MaryDataType.get("INTONATION_EN"), Locale.US);
+        convertToAndValidate("test1.maryxml", MaryDataType.RAWMARYXML, MaryDataType.INTONATION, Locale.US);
     }
 
+    @Test
     public void testValidMaryXML3() throws Exception {
-        convertToAndValidate("test1.maryxml", MaryDataType.get("RAWMARYXML"), MaryDataType.get("ACOUSTPARAMS"), Locale.US);
+        convertToAndValidate("test1.maryxml", MaryDataType.RAWMARYXML, MaryDataType.ACOUSTPARAMS, Locale.US);
     }
 
+    @Test
     public void testValidMaryXML4() throws Exception {
-        convertToAndValidate("test1.ssml", MaryDataType.get("SSML"), MaryDataType.get("TOKENS_EN"), Locale.ENGLISH);
+        convertToAndValidate("test1.ssml", MaryDataType.SSML, MaryDataType.TOKENS, Locale.ENGLISH);
     }
 
+    @Test
     public void testValidMaryXML5() throws Exception {
-        convertToAndValidate("test1.ssml", MaryDataType.get("SSML"), MaryDataType.get("INTONATION_EN"), Locale.US);
+        convertToAndValidate("test1.ssml", MaryDataType.SSML, MaryDataType.INTONATION, Locale.US);
     }
 
+    @Test
     public void testValidMaryXML6() throws Exception {
-        convertToAndValidate("test1.ssml", MaryDataType.get("SSML"), MaryDataType.get("ACOUSTPARAMS"), Locale.US);
+        convertToAndValidate("test1.ssml", MaryDataType.SSML, MaryDataType.ACOUSTPARAMS, Locale.US);
     }
+    
+    
+
+    @Test
+    public void testDefaultGermanVoiceAvailable() throws Exception {
+        assertTrue(Voice.getDefaultVoice(Locale.GERMAN) != null);
+    }
+
+
+    @Test
+    public void testTextToSpeechPossibleGerman() {
+        List<MaryModule> modules =
+            ModuleRegistry.modulesRequiredForProcessing(
+                MaryDataType.TEXT,
+                MaryDataType.AUDIO,
+                Locale.GERMAN);
+        assertTrue(modules != null && !modules.isEmpty());
+    }
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     protected void convertToAndValidate(String resourceName, MaryDataType inputType, MaryDataType targetType, Locale locale)
     throws Exception {
-        Assert.assertTrue(MaryProperties.getBoolean("maryxml.validate.input"));
+        assertTrue(MaryProperties.getBoolean("maryxml.validate.input"));
         InputStream maryxml = this.getClass().getResourceAsStream(resourceName);
-        Assert.assertTrue(maryxml != null);
+        assertTrue(maryxml != null);
         MaryData inputData = new MaryData(inputType, locale);
         inputData.readFrom(maryxml, null);
         Request r = new Request(inputType, targetType, locale, null, "", "", 1, null);

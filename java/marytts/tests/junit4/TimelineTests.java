@@ -17,13 +17,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.tests;
+package marytts.tests.junit4;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
 
-import junit.framework.Assert;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import marytts.tools.voiceimport.TimelineWriter;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;
@@ -31,30 +35,35 @@ import marytts.unitselection.data.TimelineReader;
 /**
  * Provides the actual timeline test case for the timeline reading/writing symmetry.
  */
-public class TimelineTestRoutines extends TimelineReader {
+public class TimelineTests extends TimelineReader {
+    private static TimelineTests tlr;
+    private static String hdrContents;
+    private static int NUMDATAGRAMS;
+    private static int MAXDATAGRAMBYTESIZE;
+    private static int MAXDATAGRAMDURATION;
+    private static int sampleRate;
+    private static Datagram[] origDatagrams;
+    private static final String tlFileName = "timelineTest.bin";
     
-    public TimelineTestRoutines( String fileName ) throws IOException 
-    {
-        super( fileName );
+    public TimelineTests() throws Exception {
+        super(tlFileName);
     }
     
-    public static void testSymmetry() throws IOException {
-        
+    @BeforeClass
+    public static void setUp() throws Exception {
         Random rand = new Random(); // New random number generator
         
-        final int NUMDATAGRAMS = rand.nextInt( 87 ) + 4; // Number of datagrams to test with, between 4 and 100.
+        NUMDATAGRAMS = rand.nextInt( 87 ) + 4; // Number of datagrams to test with, between 4 and 100.
         System.out.println( "Testing with [" + NUMDATAGRAMS + "] random datagrams." );
-        final int MAXDATAGRAMBYTESIZE = 64; // Maximum datagram length in bytes
-        final int MAXDATAGRAMDURATION = 20; // Maximum datagram duration (in samples)
-        final String hdrContents = "Blah This is the procHeader Blah";
-        final int sampleRate = 1000;
+        MAXDATAGRAMBYTESIZE = 64; // Maximum datagram length in bytes
+        MAXDATAGRAMDURATION = 20; // Maximum datagram duration (in samples)
+        hdrContents = "Blah This is the procHeader Blah";
+        sampleRate = 1000;
         
-        Datagram[] origDatagrams = new Datagram[NUMDATAGRAMS]; // An array of datagrams with random length
+        origDatagrams = new Datagram[NUMDATAGRAMS]; // An array of datagrams with random length
         int len = 0;
         long dur = 0l;
         
-        final String tlFileName = "timelineTest.bin";
-        Datagram[] readDatagrams = null;
         
         /* Fill the array of random datagrams */
         long lenCumul = 74;
@@ -90,26 +99,45 @@ public class TimelineTestRoutines extends TimelineReader {
         System.out.println( "Datagram zone pos. = " + tlw.getDatagramsBytePos() );
         System.out.println( "WRITTEN INDEX:" );
         tlw.printIdx();
-        
         /* Testing the readonly file opening */
         System.out.println( "Testing the TimelineReader construction..." );
         /* Re-read the datagrams */
-        //TimelineReader tlr = new TimelineReader( tlFileName );
-        TimelineTestRoutines tlr = new TimelineTestRoutines( tlFileName );
+        tlr = new TimelineTests();
+    }
+    
+    
+    @Test
+    public void procHeader() throws IOException {
         /* Check the procHeader */
         Assert.assertEquals( "The procHeader is out of sync.", tlr.getProcHeaderContents(), hdrContents );
+    }
+
+    @Test
+    public void numDatagrams() throws IOException {
         /* Check the number of datagrams */
         Assert.assertEquals( "numDatagrams is out of sync.", tlr.getNumDatagrams(), NUMDATAGRAMS );
+    }
+
+    @Test
+    public void timePointer() throws IOException {
         /* Check if the time pointer is zero just after opening the timeline */
         Assert.assertEquals( "The time pointer is out of sync after opening.", tlr.getTimePointer(), 0l );
+    }
+    
+    @Test
+    public void bytePointer() throws IOException {
         /* Check if the byte pointer is at the beginning of the datagram zone */
         Assert.assertEquals( "The byte pointer is out of sync after opening.", tlr.getBytePointer(), tlr.getDatagramsBytePos() );
+    }
+
+    @Test
+    public void testSkip() throws IOException {
         System.out.println( "READ INDEX:" );
         tlr.printIdx();
         
         /* Testing skip */
         System.out.println( "Testing skip..." );
-        readDatagrams = new Datagram[NUMDATAGRAMS];
+        Datagram[] readDatagrams = new Datagram[NUMDATAGRAMS];
         long timeNow = tlr.getTimePointer();
         long timeBefore = 0l;
         long byteNow = tlr.getBytePointer();
@@ -123,19 +151,35 @@ public class TimelineTestRoutines extends TimelineReader {
             Assert.assertEquals( "Skipping fails on datagram [" + i + "].", (long)(origDatagrams[i].getLength()) + 12l, (byteNow - byteBefore) );
             Assert.assertEquals( "Time is out of sync after skipping datagram [" + i + "].", origDatagrams[i].getDuration(), (timeNow - timeBefore) );
         }
+        
         /* Testing the EOF trap for skip */
-        Assert.assertTrue( tlr.skipNextDatagram() );
+        try {
+            tlr.skipNextDatagram();
+            Assert.fail("should have thrown IndexOutOfBoundsException to indicate end of datagram zone");
+        } catch(IndexOutOfBoundsException e) {
+            // OK, expected
+        }
+
+    }
+
+    @Test
+    public void testRewind() throws IOException {
 
         /* Testing rewind() */
         System.out.println( "Testing rewind..." );
         tlr.rewind();
         Assert.assertEquals( "Rewind fails.", tlr.getBytePointer(), tlr.getDatagramsBytePos() );
         
+    }
+
+    @Test
+    public void testGet() throws IOException {
+
         /* Testing get */
         System.out.println( "Testing get..." );
-        readDatagrams = new Datagram[NUMDATAGRAMS];
-        timeNow = tlr.getTimePointer();
-        timeBefore = 0l;
+        Datagram[] readDatagrams = new Datagram[NUMDATAGRAMS];
+        long timeNow = tlr.getTimePointer();
+        long timeBefore = 0l;
         for ( int i = 0; i < NUMDATAGRAMS; i++ ) {
             timeBefore = timeNow;
             readDatagrams[i] = tlr.getNextDatagram();
@@ -145,7 +189,11 @@ public class TimelineTestRoutines extends TimelineReader {
         }
         /* Testing the EOF trap for get */
         Assert.assertEquals( null, tlr.getNextDatagram() );
-        
+    }
+    
+    @Test
+    public void timeDrivenAccess() throws IOException {
+
         /* Testing the time-driven access */
         final int testIdx = NUMDATAGRAMS / 2;
         long onTime = 0l;
@@ -175,8 +223,7 @@ public class TimelineTestRoutines extends TimelineReader {
         // System.out.println( "Position after gotoTime 3 : ( " + tlr.getBytePointer() + " , " + tlr.getTimePointer() + " )" );
          d = tlr.getNextDatagram();
         Assert.assertTrue( d.equals( origDatagrams[testIdx+1] ) );
-        
-        
+
         /* Testing time-spanned access */
         System.out.println( "Testing getDatagrams  1 ..." );
         Datagram[] D = null;
@@ -237,7 +284,6 @@ public class TimelineTestRoutines extends TimelineReader {
         Assert.assertTrue( D[1].equals( origDatagrams[testIdx+1] ) );
         Assert.assertEquals( ((afterTime - onTime) / 2), offset[0] );
         
-        
         /* Testing time-spanned access with alternate sample rate */
         System.out.println( "Testing getDatagrams with alternate sample rate ..." );
         span = origDatagrams[testIdx].getDuration();
@@ -246,7 +292,12 @@ public class TimelineTestRoutines extends TimelineReader {
         Assert.assertEquals( 1, D.length );
         Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
         
-        
+    }
+
+ 
+
+    @AfterClass
+    public static void tearDown() throws IOException {
         /* Delete the test file */
         File fid = new File( tlFileName );
         fid.delete();
@@ -254,6 +305,9 @@ public class TimelineTestRoutines extends TimelineReader {
         /* ----------- */
         System.out.println("End of the timeline symmetry test.");
    }
+    
+    
+    
     
     /**
      * Compare two arrays of long.
