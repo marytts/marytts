@@ -977,14 +977,6 @@ public class MaryGUIClient extends JPanel
     private File lastDirectory = null;
     private String lastExtension = null;
     private void saveOutput() throws IOException, InterruptedException
-    {   
-        if (processor.isServerVersionAtLeast("3.5.0"))
-            saveOutputNew();
-        else
-            saveOutputOld();
-    }
-    
-    private void saveOutputNew()
     {
         if (!allowSave) return;
         try {
@@ -1067,80 +1059,6 @@ public class MaryGUIClient extends JPanel
         }
     }
     
-    private void saveOutputOld()
-    {
-        if (!allowSave) return;
-        try {
-            if (showingTextOutput) {
-                JFileChooser fc = new JFileChooser();
-                if (lastDirectory != null) {
-                    fc.setCurrentDirectory(lastDirectory);
-                }
-                int returnVal = fc.showSaveDialog(this);
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File saveFile = fc.getSelectedFile();
-                    lastDirectory = saveFile.getParentFile();
-                    PrintWriter w = new PrintWriter(new FileWriter(saveFile));
-                    w.print(outputText.getText());
-                    w.close();
-                }
-            } else { // audio data
-                JFileChooser fc = new JFileChooser();
-                if (lastDirectory != null) {
-                    fc.setCurrentDirectory(lastDirectory);
-                }
-                AudioFileFormat.Type[] knownAudioTypes = AudioSystem.getAudioFileTypes();
-                FileFilter defaultFilter = null;
-                for (int i=0; i<knownAudioTypes.length; i++) {
-                    FileFilter ff = new SimpleFileFilter(knownAudioTypes[i].getExtension(),
-                            knownAudioTypes[i].toString() + "(." + knownAudioTypes[i].getExtension() + ")");
-                    fc.addChoosableFileFilter(ff);
-                    if (lastExtension != null && lastExtension.equals(knownAudioTypes[i].getExtension())) {
-                        defaultFilter = ff;
-                    }
-                    if (defaultFilter != null) {
-                        fc.setFileFilter(defaultFilter);
-                    }
-                }
-                int returnVal = fc.showSaveDialog(this);
-                if (returnVal == JFileChooser.APPROVE_OPTION) {
-                    File saveFile = fc.getSelectedFile();
-                    String ext = MaryUtils.getExtension(saveFile);
-                    if (ext == null) { // no extension in the file name, append from filefilter
-                        ext = ((SimpleFileFilter)fc.getFileFilter()).getExtension();
-                        saveFile = new File(saveFile.getAbsolutePath()+"."+ext);
-                    }
-                    lastDirectory = saveFile.getParentFile();
-                    lastExtension = ext;
-                    AudioFileFormat.Type audioType = null;
-                    for (int i=0; i<knownAudioTypes.length; i++) {
-                        if (knownAudioTypes[i].getExtension().equals(ext)) {
-                            audioType = knownAudioTypes[i];
-                            break;
-                        }
-                    }
-                    if (audioType == null) { // file has unknown extension
-                        showErrorMessage("Unknown audio type",
-                                "Cannot write file of type `." + ext + "'");
-                    } else { // OK, we know what to do
-                        processor.process(inputText.getText(),
-                                ((MaryClient.DataType)cbInputType.getSelectedItem()).name(),
-                                ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).getLocale().toString(),
-                                "AUDIO",
-                                audioType.toString(),
-                                ((MaryClient.Voice)cbDefaultVoice.getSelectedItem()).name(),
-                                new FileOutputStream(saveFile));
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            showErrorMessage("IOException",e.getMessage());
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
 
     private void makeTextPlain(StyledDocument doc) {
         SimpleAttributeSet emptyAttributes = new SimpleAttributeSet();

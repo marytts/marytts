@@ -31,6 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Locale;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -38,107 +39,26 @@ import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import de.dfki.lt.signalproc.util.AudioPlayer;
+import marytts.util.data.audio.AudioPlayer;
 import marytts.client.MaryClient;
-
+import marytts.client.http.Address;
 
 /**
-/**
- * MARY client <b>protocol</b>:
- * <p>
- * A client opens two socket connections to the server. The first,
- * <code>infoSocket</code>, serves for passing meta-information,
- * such as the requested input and output types or warnings.
- * The second, <code>dataSocket</code>, serves for passing the actual
- * input and output data.
- * The server expects the communication as follows.
- * <ol>
- * <li> The client opens an <code>infoSocket</code>,
- * optionally sends one line "MARY VERSION" to obtain
- * three lines of version information, and then sends one line
- * "MARY IN=INPUTTYPE OUT=OUTPUTTYPE [AUDIO=AUDIOTYPE]",
- * where INPUTTYPE and OUTPUTTYPE can have the following values:
- * <ul>
- *   <li>  TEXT_DE          plain ASCII text, German (input only) </li>
- *   <li>  TEXT_EN          plain ASCII text, English (input only) </li>
- *   <li>  SABLE         text annotated with SABLE markup (input only) </li>
- *   <li>  SSML          text annotated with SSML markup (input only) </li>
- *   <li>  RAWMARYXML    untokenised MaryXML </li>
- *   <li>  TOKENISED_DE     tokenized text </li>
- *   <li>  PREPROCESSED_DE  numbers and abbreviations expanded </li>
- *   <li>  CHUNKED_DE       parts of speech and chunk tags added </li>
- *   <li>  PHONEMISED_DE    phone symbols </li>
- *   <li>  INTONISED_DE     GToBI intonation symbols </li>
- *   <li>  POSTPROCESSED_DE post-lexical phonological rules </li>
- *   <li>  ACOUSTPARAMS  acoustic parameters in MaryXML structure </li>
- *   <li>  MBROLA        phone symbols, duration and frequency values </li>
- *   <li>  AUDIO         audio data (output only) </li>
- * </ul>
- * INPUTTYPE must be earlier in this list than OUTPUTTYPE.
- * <p>
- * The optional AUDIO=AUDIOTYPE specifies the type of audio file
- * to be sent for audio output. Possible values are:
- * <ul>
- *   <li> WAVE </li>
- *   <li> AU </li>
- *   <li> SND </li>
- *   <li> AIFF </li>
- *   <li> AIFC </li>
- *   <li> MP3 </li>
- * </ul>
- * <p>
- * The optional VOICE=VOICENAME specifies the default voice with which
- * the text is to be spoken. Possible values are currently:
- * <ul>
- *   <li> female </li>
- *   <li> male </li>
- *   <li> de1 </li>
- *   <li> de2 </li>
- *   <li> de3 </li>
- *   <li> de4 </li>
- *   <li> de5 </li>
- *   <li> de6 </li>
- *   <li> de7 </li>
- *   <li> us1 </li>
- *   <li> us2 </li>
- *   <li> us3 </li>
- * </ul>
- * <p>
- * Example: The line
- * <pre>
- *   MARY IN=TEXT_DE OUT=AUDIO AUDIO=WAVE VOICE=female
- * </pre>
- * will process normal ASCII text, and send back a WAV audio file
- * synthesised with a female voice.
- * </li>
+ * A demo class illustrating how to use the MaryClient class.
+ * This will connect to a MARY server, version 4.x.
+ * It requires maryclient.jar from MARY 4.0.
+ * This works transparently with MARY servers in both http and socket server mode.
+ * 
+ * Compile this as follows:
+ * <code>javac -cp maryclient.jar MaryClientUser.java</code>
+ * 
+ * And run as:
+ * <code>java -cp maryclient.jar MaryClientUser</code>
+ * 
+ * @author marc
  *
- * <li> The server reads and parses this input line. If its format is correct,
- * a line containing a single integer is sent back to the client
- * on <code>infoSocket</code>. This
- * integer is a unique identification number for this request.
- * </li>
- *
- * <li> The client opens a second socket connection to the server, on the same
- * port, the <code>dataSocket</code>. As a first line on this
- * <code>dataSocket</code>,
- * it sends the single integer it had just received via the
- * <code>infoSocket</code>.
- * </li>
- *
- * <li> The server groups dataSocket and infoSocket together based on this
- * identification number, and starts reading data of the requested input
- * type from <code>dataSocket</code>.
- * </li>
- *
- * <li> If any errors or warning messages are issued during input parsing or
- * consecutive processing, these are printed to <code>infoSocket</code>.
- * </li>
- *
- * <li> The processing result is output to <code>dataSocket</code>.
- * </li>
- * </ol>
- * @author Marc Schr&ouml;der
  */
+
 public class MaryClientUser {
 
     public static void main(String[] args)
@@ -147,15 +67,15 @@ public class MaryClientUser {
     {
         String serverHost = System.getProperty("server.host", "cling.dfki.uni-sb.de");
         int serverPort = Integer.getInteger("server.port", 59125).intValue();
-        MaryClient mary = new MaryClient(serverHost, serverPort);
+        MaryClient mary = MaryClient.getMaryClient(new Address(serverHost, serverPort));
         String text = "Willkommen in der Welt der Sprachsynthese!";
-        String inputType = "TEXT_DE";
+        String locale = "de"; // or US English (en-US), Telugu (te), Turkish (tr), ...
+        String inputType = "TEXT";
         String outputType = "AUDIO";
         String audioType = "WAVE";
         String defaultVoiceName = null;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        mary.process(text, inputType, outputType, audioType,
-            defaultVoiceName, baos);
+        mary.process(text, inputType, outputType, locale, audioType, defaultVoiceName, baos);
         // The byte array constitutes a full wave file, including the headers.
         // And now, play the audio data:
         AudioInputStream ais = AudioSystem.getAudioInputStream(
