@@ -152,10 +152,11 @@ function getEmailID() {
 		            //alert(httpResponse);
 		            var lines = httpResponse.split('\n');
 		            
-		            if(lines[1] <=  lines[2]) {
+		            /*if(lines[1] <=  lines[2]) {
+		            	alert("completed in getMail "+lines[1]+" "+lines[2]);
 		            	setVisibilities("COMPLETED");
 		            	return;
-		            }
+		            }*/
 		            
 		            document.getElementById('EMAIL_ID').value = lines[0];
 		            document.getElementById('NUMBER_OF_SAMPLES').value = lines[1];
@@ -222,10 +223,11 @@ function postSampleDetails() {
 		            var httpResponse = xmlHttp.responseText;
 		            var lines = httpResponse.split('\n');
 		            
-		            if(lines[1] <=  lines[2]) {
+		            /*if(lines[1] <=  lines[2]) {
+		            	alert("completed in postSamples "+lines[1]+" "+lines[2]);
 		            	setVisibilities("COMPLETED");
 		            	return;
-		            }
+		            }*/
 		            
 		            document.getElementById('EMAIL_ID').value = lines[0];
 		            document.getElementById('NUMBER_OF_SAMPLES').value = lines[1];
@@ -287,7 +289,7 @@ function searchKeyPress(e) {
 function showNextSample(){
 	
 	if(!checkSelections()){
-		alert("Please provide your rating for this sample!");
+		//alert("Please provide your rating for this sample!");
 		return;
 	}
 	sendResult();
@@ -308,6 +310,7 @@ function showNextSample(){
 	    playWave();
 	}
 	else if(presentSample == numberSamples) {
+		alert("completed in showNextSample "+numberSamples+" "+presentSample);
 		document.getElementById('NEXT').value = "COMPLETED";
 		setVisibilities("COMPLETED");
 	}
@@ -315,48 +318,64 @@ function showNextSample(){
 }
 
 function checkSelections() {
-	var optionsTable = document.getElementById('optionsTable');
-	var i = 0;
-	//alert(optionsTable.id);
-	var result = "";
-	var newElements = optionsTable.getElementsByTagName("input");
+	
 	var isSelected = false;
-	//.elements.length;
-	for (i=0; i<newElements.length; i++) {
-		if(newElements[i].className.indexOf("OPTIONSLIST") !=-1){
-			isSelected = isSelected || newElements[i].checked;
-			//if( newElements[i].checked ) {
-				//result = result+":"+newElements[i].name;
-			//}
-			//alert(newElements[i].name+" "+newElements[i].checked);
-		}
+	var optionType = document.getElementById('OPTIONS_TYPE').value;
+	if(optionType == "scale") { //isScaleResult
+	    //alert("checking.. scale selections..."); 
+		isSelected = checkScaleSelections();
+		//alert("isSelected: "+isSelected);
+	} else {
+		isSelected = checkOptionSelections();
 	}
 	
 	return isSelected;
 }
 
-/*
-function showPreviousSample(){
-	
-	sendResult();
-	//alert(" 1 ");
-	// increment the present value; 
-	var presentSample = document.getElementById('PRESENT_SAMPLE_NUMBER').value;
-	var numberSamples = document.getElementById('NUMBER_OF_SAMPLES').value;
-	
-	
-	if ( presentSample < (numberSamples-1) && presentSample > 0) {
-		document.getElementById('PRESENT_SAMPLE_NUMBER').value = --presentSample;
-		postSampleDetails();
-	    playWave();
+function checkOptionSelections() {
+	var optionsTable = document.getElementById('optionsTable');
+	var i = 0;
+	var newElements = optionsTable.getElementsByTagName("input");
+	var isSelected = false;
+	for (i=0; i<newElements.length; i++) {
+		if(newElements[i].className.indexOf("OPTIONSLIST") !=-1){
+			isSelected = isSelected || newElements[i].checked;
+		}
 	}
-	else if(presentSample == (numberSamples-1)){
-		document.getElementById('PRESENT_SAMPLE_NUMBER').value = --presentSample;
-		document.getElementById('NEXT').value = "NEXT";
-		postSampleDetails();
-	    playWave();
+	alert("Please provide your rating for this sample!");
+	return isSelected;
+}
+
+function checkScaleSelections() {
+	var params = document.getElementById('OPTIONS_LINE').value ;
+	//alert(params);
+	var items = params.split(' ');
+	var isSelected = false;
+	for (l in items) {
+		var word = items[l];
+		if(word == ""){
+			continue;
+		}
+		var optionsTable = document.getElementById('optionsTable');
+		var i = 0;
+		var newElements = optionsTable.getElementsByTagName("input");
+		//alert("Ele Len: "+newElements.length);
+		isSelected = false;
+		for (i=0; i<newElements.length; i++) {
+			if(newElements[i].getAttribute("name") == word){
+				if( newElements[i].checked ) {
+					isSelected = true;
+				}
+			}
+		}
+		if(!isSelected) {
+			alert("Please provide your rating for '"+ word +"'!");
+			return isSelected;
+		}
 	}
-}*/
+	return isSelected;
+}
+
 
 function sendResult() {
 	
@@ -370,18 +389,14 @@ function sendResult() {
 	var i = 0;
 	//alert(optionsTable.id);
 	var result = "";
-	var newElements = optionsTable.getElementsByTagName("input");
+	var optionType = document.getElementById('OPTIONS_TYPE').value;
 	
-	//.elements.length;
-	for (i=0; i<newElements.length; i++) {
-		if(newElements[i].className.indexOf("OPTIONSLIST") !=-1){
-			if( newElements[i].checked ) {
-				result = result+":"+newElements[i].name;
-			}
-			//alert(newElements[i].name+" "+newElements[i].checked);
-		}
+	if(optionType == "scale") { //isScaleResult
+		result = composeScaleResult(optionsTable);
+	} else {
+		result = composeOptionResult(optionsTable);
 	}
-	result = result.substring(1);
+	
 	//alert(result);
 	
 	var url = "userRating";
@@ -414,6 +429,45 @@ function sendResult() {
 	xmlHttp.send(param);
 	    //setVisibilities("PERCEPTION-TEST");
 	}
+}
+
+function composeOptionResult(optionsTable){
+	var result = "";
+	var newElements = optionsTable.getElementsByTagName("input");
+	//.elements.length;
+	for (i=0; i<newElements.length; i++) {
+		if(newElements[i].className.indexOf("OPTIONSLIST") !=-1){
+			if( newElements[i].checked ) {
+				result = result+":"+newElements[i].name;
+			}
+			//alert(newElements[i].name+" "+newElements[i].checked);
+		}
+	}
+	result = result.substring(1);
+	return result;
+}
+
+function composeScaleResult(optionsTable) {
+	
+	var params = document.getElementById('OPTIONS_LINE').value ;
+	var items = params.split(' ');
+	var result = "";
+	for (l in items) {
+		var word = items[l];
+		if(word == ""){
+			continue;
+		}
+		var newElements = optionsTable.getElementsByTagName("input");
+		for (i=0; i<newElements.length; i++) {
+			if(newElements[i].getAttribute("name") == word){
+				if( newElements[i].checked ) {
+					result = result+";"+word+":"+i%5;
+				}
+			}
+		}
+	}
+	result = result.substring(1);
+	return result;
 }
 
  
@@ -502,9 +556,27 @@ function setVisibilities(outputType)
 function addOptionsTable(line)
 {
 	var iSpace = line.indexOf(" ");
+	//var effect = line.substring(0, iSpace);
+	//var params = line.substring(iSpace+1);
+	
+	document.getElementById('OPTIONS_TYPE').value = line.substring(0, iSpace);
+	var optionType = document.getElementById('OPTIONS_TYPE').value;
+	if(optionType == "scale") {
+		addScaleOptions(line);
+	}
+	else { // default "checkbox"
+		addCheckBoxOptions(line);
+	}
+
+
+}  
+
+function addCheckBoxOptions(line) {
+
+	var iSpace = line.indexOf(" ");
 	var effect = line.substring(0, iSpace);
 	var params = line.substring(iSpace+1);
-	
+	document.getElementById('OPTIONS_LINE').value = params;
 	//var params = line;
 	var optionsTable = document.getElementById('optionsTable');
 	
@@ -540,7 +612,75 @@ function addOptionsTable(line)
 		
 	}
 
-}  
+	
+}
           
-   
+function addScaleOptions(line) {
+	var iSpace = line.indexOf(" ");
+	var effect = line.substring(0, iSpace);
+	var params = line.substring(iSpace+1);
+	
+	document.getElementById('OPTIONS_LINE').value = params;
+	//var params = line;
+	var optionsTable = document.getElementById('optionsTable');
+	
+	//var optionsTable = document.getElementById('showCheckBoxes');
+	while (optionsTable.childNodes.length > 0) {
+        	optionsTable.removeChild(optionsTable.firstChild);
+    }
+	var row = optionsTable.insertRow(optionsTable.rows.length);
+	row.setAttribute("id", "option");
+	var nameCell = row.insertCell(0);
+		nameCell.innerHTML = "";
+		nameCell = row.insertCell(1);
+		nameCell.innerHTML = "-2";
+		nameCell = row.insertCell(2);
+		nameCell.innerHTML = "-1";
+		nameCell = row.insertCell(3);
+		nameCell.innerHTML = "0";
+		nameCell = row.insertCell(4);
+		nameCell.innerHTML = "1";
+		nameCell = row.insertCell(5);
+		nameCell.innerHTML = "2";
+		nameCell = row.insertCell(6);
+		nameCell.innerHTML = "";
+	
+	var items = params.split(' ');
+	for (l in items) {
+		var word = items[l];
+		
+		
+		if(word == ""){
+			continue;
+		}
+		
+		row = optionsTable.insertRow(optionsTable.rows.length);
+		
+		row.setAttribute("id", "option_"+word);
+		nameCell = row.insertCell(0);
+		nameCell.innerHTML = "Absolutely Not " + word;
+		var numButtons; 
+		
+		for( numButtons = 1; numButtons < 6; numButtons++ ){
+			var checkboxCell = row.insertCell(numButtons);
+			var checkbox = document.createElement("input");
+			//checkbox.setAttribute("type", "checkbox"); // TODO: Now forced to checkbox (actually, it should be 'effect' variable )
+			checkbox.setAttribute("type", "radio"); // TODO: Now forced to checkbox (actually, it should be 'effect' variable )
+			checkbox.setAttribute("id", word);
+			checkbox.setAttribute("name", word); 
+			checkbox.setAttribute("class", "OPTIONSLIST");
+		
+			checkbox.checked = false;	
+			checkboxCell.appendChild(checkbox);
+			
+		} 
+		nameCell = row.insertCell(6);
+		nameCell.innerHTML = "Totally "+word;
+		//nameCell = row.insertCell(8);
+		//nameCell.innerHTML = " "+word;
+		
+		
+	}
+	
+}    
 

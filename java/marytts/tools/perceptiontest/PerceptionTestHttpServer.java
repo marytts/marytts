@@ -90,6 +90,7 @@ public class PerceptionTestHttpServer  extends Thread {
     private static Logger logger;
     private String testXmlName; 
     private String userRatingsDirectory;
+    private int serverPort = 44547; // default
     
     public PerceptionTestHttpServer(String testXmlName, String userRatingsDirectory) {
         logger = Logger.getLogger("server");
@@ -97,13 +98,19 @@ public class PerceptionTestHttpServer  extends Thread {
         this.userRatingsDirectory = userRatingsDirectory;
     }
 
+    public PerceptionTestHttpServer(String testXmlName, String userRatingsDirectory, int serverPort) {
+        logger = Logger.getLogger("server");
+        this.testXmlName =  testXmlName;
+        this.userRatingsDirectory = userRatingsDirectory;
+        this.serverPort = serverPort;
+    }
 
     public void run()
     {
         logger.info("Starting server.");
         System.out.println("Starting server....");
         //int localPort = MaryProperties.needInteger("socket.port");
-        int localPort = 44547;
+        int localPort = serverPort;
         
         HttpParams params = new BasicHttpParams();
         params
