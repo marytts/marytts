@@ -448,7 +448,6 @@ public class DomUtils
 
         // 3. Insert a new Element node before the first of these children
         Document doc = (a.getNodeType() == Node.DOCUMENT_NODE) ? (Document) a : a.getOwnerDocument();
-        System.out.println("Creating element '"+newElementName+"' in namespace '"+doc.getNamespaceURI()+"'");
         Element newElement = doc.createElementNS(doc.getDocumentElement().getNamespaceURI(), newElementName);
         a.insertBefore(newElement, childA); // throws DOMException
 
