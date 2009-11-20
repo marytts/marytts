@@ -484,7 +484,11 @@ function requestSynthesis()
 		var key = element.name;
 		var value;
 		if (element.nodeName == "SELECT") {
-			value = element.options[element.selectedIndex].text
+			if (element.options.length > 0) {
+				value = element.options[element.selectedIndex].text;
+			} else {
+				value = "";
+			}
 		}
 		else if (element.getAttribute("type") == "checkbox")
 		    value = element.checked ? "on" : "";
