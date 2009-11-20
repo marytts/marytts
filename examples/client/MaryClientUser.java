@@ -53,7 +53,7 @@ import marytts.client.http.Address;
  * <code>javac -cp maryclient.jar MaryClientUser.java</code>
  * 
  * And run as:
- * <code>java -cp maryclient.jar MaryClientUser</code>
+ * <code>java -cp .:maryclient.jar MaryClientUser</code>
  * 
  * @author marc
  *
