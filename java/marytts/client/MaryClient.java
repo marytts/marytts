@@ -108,7 +108,10 @@ public abstract class MaryClient
             try {
                 m = new MarySocketClient(serverAddress, profile, quiet);
             } catch (IOException ioe2) {
-                throw new IOException("Cannot connect either to a HTTP nor to a Socket MARY server at "+serverAddress);
+                IOException ioe3 = new IOException("Cannot connect either to a HTTP nor to a Socket MARY server at "
+                        +serverAddress.getFullAddress());
+                ioe3.initCause(ioe2);
+                throw ioe3;
             }
         }
         return m;
@@ -216,6 +219,10 @@ public abstract class MaryClient
         }
         if (data.serverVersionInfo == null || !data.serverVersionInfo.startsWith("Mary")) {
             throw new IOException("This does not seem to be the expected kind of MARY server at "+data.hostAddress.getFullAddress()+"...");
+        }
+        
+        if (!"unknown".equals(data.serverVersionNo) && !isServerVersionAtLeast("4.0")) {
+            throw new IOException("Found old MARY server (version "+data.serverVersionNo+") -- this client will only work with servers of version 4.0 or newer.");
         }
         
         if (!beQuiet) 
