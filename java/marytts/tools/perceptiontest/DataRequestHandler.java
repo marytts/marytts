@@ -149,9 +149,9 @@ public class DataRequestHandler extends BaseHttpRequestHandler
         String[] options = testData.getAnswerOptions();
         optionString += questionType+" ";
         for(String str : options){
-            optionString += str+" ";
+            optionString += str+"|";
         }
-        return optionString;
+        return optionString.substring(0, optionString.length()-1);
     }
 
     public String getQueryStatement() {
