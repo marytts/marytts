@@ -39,20 +39,21 @@
 </span>
 
 <span id="answerSpan">
+
+<!--table align="center" bgcolor="lightGray"-->
 <table width="700" cellspacing="10" border="0" cellpadding="50" align="center" bgcolor="#bebebe">
   <tbody valign="center" align="center">
-  
-  
     <tr>
-      <td> 
-      <!--input type="button" value="PLAY" id="PLAY" STYLE="font-size:11pt; font-weight:bold;" onClick="playWave();"-->
+      <td align="center">
       <input type="hidden" value="PLAY" id="PLAY" STYLE="font-size:11pt; font-weight:bold;" onClick="playWave();">
       <div id="sampleNumber"></div>
       <br>
       <div id="audioDestination"></div>
-      
+      <!--input type="button" value="REFRESH" id="REFRESH" STYLE="font-size:11pt; font-weight:bold;" onClick="reFreshData();"-->
       </td>
-      <td>
+    </tr>
+    <tr>
+      <td align="center">
       <table id="optionsTable" cellspacing="0" border="1" cellpadding="1" align="center" bgcolor="#bebebe">
 	                <tr>
 	                  <td> </td>
@@ -60,23 +61,15 @@
 	                  <!--td><div id="hideParameters">Parameters</div></td-->
 	                </tr>
 	  </table>
-      
-      <!--div id="optionSelections">
-      		<select type="hidden" id="OPTION_SELECTIONS" name="OPTION_SELECTIONS" size="1" onChange="optionChanged();">
-            </select>
-      </div-->
-      
       </td>
     </tr>
     <tr>
-      <td></td>
-      <td>
-      <!--input type="button" value="BACK" id="BACK" STYLE="font-size:11pt; font-weight:bold;" onClick="showPreviousSample();"-->
+      <td align="center">
       <input type="button" value="NEXT" id="NEXT" STYLE="font-size:11pt; font-weight:bold;" onClick="showNextSample();">
       </td>
     </tr>
   </tbody>
-</table>
+</table> 
 </span>
 
 <span id="completedSpan">

@@ -135,6 +135,7 @@ extends AbstractHttpEntity implements ProducingNHttpEntity, Runnable
             logger.info("Finished writing output");
         } catch (IOException ioe) {
             logger.info("Cannot write output, client seems to have disconnected. ", ioe);
+            System.err.println("Cannot write output, client seems to have disconnected."+ioe);
             maryRequest.abort();
         }
     }

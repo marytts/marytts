@@ -152,32 +152,13 @@ function getEmailID() {
 		            //alert(httpResponse);
 		            var lines = httpResponse.split('\n');
 		            
-		            /*if(lines[1] <=  lines[2]) {
-		            	alert("completed in getMail "+lines[1]+" "+lines[2]);
-		            	setVisibilities("COMPLETED");
-		            	return;
-		            }*/
-		            
 		            document.getElementById('EMAIL_ID').value = lines[0];
 		            document.getElementById('NUMBER_OF_SAMPLES').value = lines[1];
 		            document.getElementById('PRESENT_SAMPLE_NUMBER').value = lines[2];
 		            document.getElementById('PRESENT_SAMPLE_BASENAME').value = lines[3];
+		            showSampleNumbers();
 		            addOptionsTable(lines[4]);
-		            /*
-		            var optionElt = document.getElementById('OPTION_SELECTIONS');
-	                var items = lines[4].split(' ');
-	                //optionElt.value = items[0];
-	                //addFirstOption("OPTION_SELECTIONS", items[0]);
-	                for (l in items) {
-	            		var word = items[l];
-	            		if ( word ==  items[0] ) {
-	            			addFirstOption("OPTION_SELECTIONS", word);
-	            		} 
-	            		else if ( word != "") {
-	            			addOption("OPTION_SELECTIONS", word);
-	            		}
-	            	}
-		            */
+		            
 		            //document.getElementById('QUESTION_TEXT').value = lines[5];
 		            document.getElementById('QUESTION_TEXT').value = getQuestionText(httpResponse);
 		            playWave();
@@ -229,12 +210,14 @@ function postSampleDetails() {
 		            	return;
 		            }*/
 		            
-		            document.getElementById('EMAIL_ID').value = lines[0];
-		            document.getElementById('NUMBER_OF_SAMPLES').value = lines[1];
+		            //document.getElementById('EMAIL_ID').value = lines[0];
+		            //document.getElementById('NUMBER_OF_SAMPLES').value = lines[1];
 		            document.getElementById('PRESENT_SAMPLE_NUMBER').value = lines[2];
 		            document.getElementById('PRESENT_SAMPLE_BASENAME').value = lines[3];
+		            clearScaleSelections();
+		            showSampleNumbers();
+		            //addOptionsTable(lines[4]);
 		            
-		            addOptionsTable(lines[4]);
 		            /*
 		            var optionElt = document.getElementById('OPTION_SELECTIONS');
 	                var items = lines[4].split(' ');
@@ -251,7 +234,9 @@ function postSampleDetails() {
 	            	}
 		            */
 		            //document.getElementById('QUESTION_TEXT').value = lines[5];
-		            document.getElementById('QUESTION_TEXT').value = getQuestionText(httpResponse);
+		            //document.getElementById('QUESTION_TEXT').value = getQuestionText(httpResponse);
+		            
+		            playWave();
 		        
 		        } else {
 	        		alert(xmlHttp.responseText);
@@ -292,7 +277,14 @@ function showNextSample(){
 		//alert("Please provide your rating for this sample!");
 		return;
 	}
+	//delay(200);
+	
+	
 	sendResult();
+	
+	
+	//delay(200);
+	//sleep(200);
 	//alert(" 1 ");
 	// increment the present value; 
 	var presentSample = document.getElementById('PRESENT_SAMPLE_NUMBER').value;
@@ -301,20 +293,28 @@ function showNextSample(){
 	
 	
 	if ( presentSample < (numberSamples-1)) {
-		postSampleDetails();
-	    playWave();
+		
+	    //playWave();
+	    postSampleDetails();
 	}
 	else if(presentSample == (numberSamples-1)){
 		document.getElementById('NEXT').value = "FINISH";
-		postSampleDetails();
-	    playWave();
+		
+	    //playWave();
+	    postSampleDetails();
 	}
 	else if(presentSample == numberSamples) {
-		alert("completed in showNextSample "+numberSamples+" "+presentSample);
+		//alert("completed in showNextSample "+numberSamples+" "+presentSample);
 		document.getElementById('NEXT').value = "COMPLETED";
 		setVisibilities("COMPLETED");
 	}
+	//showSampleNumbers();
 	
+	/*document.getElementById('PRESENT_SAMPLE_NUMBER').value = --presentSample;
+	sendResult();
+	document.getElementById('PRESENT_SAMPLE_NUMBER').value = ++presentSample;
+	*/
+	//clearScaleSelections();
 }
 
 function checkSelections() {
@@ -342,14 +342,16 @@ function checkOptionSelections() {
 			isSelected = isSelected || newElements[i].checked;
 		}
 	}
-	alert("Please provide your rating for this sample!");
+	if(!isSelected) {
+		alert("Please provide your rating for this sample!");
+	}
 	return isSelected;
 }
 
 function checkScaleSelections() {
 	var params = document.getElementById('OPTIONS_LINE').value ;
 	//alert(params);
-	var items = params.split(' ');
+	var items = params.split('|');
 	var isSelected = false;
 	for (l in items) {
 		var word = items[l];
@@ -376,6 +378,17 @@ function checkScaleSelections() {
 	return isSelected;
 }
 
+function clearScaleSelections() {
+	
+		var optionsTable = document.getElementById('optionsTable');
+		var i = 0;
+		var newElements = optionsTable.getElementsByTagName("input");
+		//alert("Ele Len: "+newElements.length);
+		for (i=0; i<newElements.length; i++) {
+			newElements[i].checked = false;
+		}
+	
+}
 
 function sendResult() {
 	
@@ -393,6 +406,7 @@ function sendResult() {
 	
 	if(optionType == "scale") { //isScaleResult
 		result = composeScaleResult(optionsTable);
+		
 	} else {
 		result = composeOptionResult(optionsTable);
 	}
@@ -410,7 +424,7 @@ function sendResult() {
 	
 	url = url + "?" + param;
 	
-	
+
 	if(!isValidEmail(myEmailID.value)) {
 		alert("Would you please enter a valid E-Mail ID?");	
 	} else {
@@ -450,7 +464,7 @@ function composeOptionResult(optionsTable){
 function composeScaleResult(optionsTable) {
 	
 	var params = document.getElementById('OPTIONS_LINE').value ;
-	var items = params.split(' ');
+	var items = params.split('|');
 	var result = "";
 	for (l in items) {
 		var word = items[l];
@@ -477,7 +491,7 @@ function playWave()
     var url = "process";
     var param = "PRESENT_SAMPLE_NUMBER=" + document.getElementById("PRESENT_SAMPLE_NUMBER").value;
     url = url + "?" + param;  
-    showSampleNumbers();
+    
 	//alert(url);
 		var audioDestination = document.getElementById("audioDestination");
         while (audioDestination.childNodes.length > 0) {
@@ -586,7 +600,7 @@ function addCheckBoxOptions(line) {
     }
 	
 	
-	var items = params.split(' ');
+	var items = params.split('|');
 	for (l in items) {
 		var word = items[l];
 		
@@ -614,6 +628,13 @@ function addCheckBoxOptions(line) {
 
 	
 }
+
+
+ function sleep(delay)
+ {
+     var start = new Date().getTime();
+     while (new Date().getTime() < start + delay);
+ }
           
 function addScaleOptions(line) {
 	var iSpace = line.indexOf(" ");
@@ -645,7 +666,7 @@ function addScaleOptions(line) {
 		nameCell = row.insertCell(6);
 		nameCell.innerHTML = "";
 	
-	var items = params.split(' ');
+	var items = params.split('|');
 	for (l in items) {
 		var word = items[l];
 		
@@ -676,9 +697,6 @@ function addScaleOptions(line) {
 		} 
 		nameCell = row.insertCell(6);
 		nameCell.innerHTML = "Totally "+word;
-		//nameCell = row.insertCell(8);
-		//nameCell.innerHTML = " "+word;
-		
 		
 	}
 	
