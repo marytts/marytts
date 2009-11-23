@@ -266,6 +266,8 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
        " --with-sox-search-path=" + getProp(SOXPATH) +
        " SPEAKER=" + getProp(SPEAKER) +
        " DATASET=" + getProp(DATASET) +
+       " LOWERF0=" + getProp(LOWERF0) +
+       " UPPERF0=" + getProp(UPPERF0) +
        " VER=" + getProp(VER) +
        " QNUM=" + getProp(QNUM) +
        " FRAMELEN=" + getProp(FRAMELEN) +
