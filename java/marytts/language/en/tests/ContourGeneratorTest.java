@@ -24,6 +24,8 @@ import marytts.language.en.ContourGenerator;
 import marytts.tests.modules.MaryModuleTestCase;
 import marytts.util.dom.DomUtils;
 
+import static org.junit.Assert.*;
+
 /**
  * @author Marc Schr&ouml;der
  *
