@@ -603,8 +603,12 @@ public class DomUtils
         if (domImplLS != null) {
             serializer = domImplLS.createLSSerializer();
             DOMConfiguration config = serializer.getDomConfig();
-            config.setParameter("format-pretty-print", Boolean.TRUE);
-            config.setParameter("canonical-form", Boolean.TRUE);
+            if (config.canSetParameter("format-pretty-print", Boolean.TRUE)) {
+                config.setParameter("format-pretty-print", Boolean.TRUE);
+            }
+            if (config.canSetParameter("canonical-form", Boolean.TRUE)) {
+                config.setParameter("canonical-form", Boolean.TRUE);
+            }
         }
         if (domImplLS != null) { // have new DOM 3 code available
             LSOutput output = domImplLS.createLSOutput();
