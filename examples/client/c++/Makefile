@@ -30,24 +30,16 @@
 CC=g++
 CFLAGS=-Wall -w -O3 -g
 ICUDIR=/usr/local/icu
-ICULIBS=-Wl,-R,$(ICUDIR)/lib -L$(ICUDIR)/lib -licuuc -licui18n -lpthread -ldl
+ICULIBS=-Wl,-R,$(ICUDIR)/lib -L$(ICUDIR)/lib -licuuc -licui18n -ldl
 
+all: MaryDemo
 
-all: demo_mary_client
+MaryDemo: MaryClient.o MaryDemo.o
+	$(CC) $(CFLAGS) *.o -o MaryDemo $(LIBS)
 
-with_unicode: unicode.o
-	make "CFLAGS=$(CFLAGS) LIBS=$(ICULIBS) -DWITH_UNICODE" all
-
-demo_mary_client: mary_client.o demo_mary_client.o
-	$(CC) $(CFLAGS) *.o -o demo_mary_client $(LIBS)
-
-
-unicode.o: unicode.cc unicode.h
-	$(CC) $(CFLAGS) -I$(ICUDIR)/include -o unicode.o -c unicode.c
-
-%.o: %.cc %.h
+%.o: %.cc
 	$(CC) $(CFLAGS) $(RFLAGS) -o $@ -c $<
 
 clean:
-	rm -rf ./*.o ./demo_mary_client
+	rm -rf *.o ./MaryDemo
 

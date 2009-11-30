@@ -26,14 +26,24 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-#ifndef __UNICODE_H_
-#define __UNICODE_H_
+#ifndef __MARYCLIENT_H_
+#define __MARYCLIENT_H_
 
-#include <string>
+class MaryClient {
 
-std::string
-convert_encoding (const std::string&,
-                  const std::string&,
-                  const std::string&);
+public:
+// send query to the MaryServer
+int maryQuery( int server_port,
+               std::string server_host,
+               std::string& result, 
+               std::string inputText,
+               std::string maryInFormat,
+               std::string maryOutFormat,
+               std::string locale,
+               std::string audioType,
+               std::string voice,
+               std::string effects = "" );
+
+};
 
 #endif

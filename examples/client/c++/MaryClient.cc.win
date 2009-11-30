@@ -26,44 +26,68 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-#include <netinet/in.h>
-#include <sys/socket.h>
+
+#ifdef _WIN32
+// use compiler option -L/<path to>/libwsock32.a
+#include <winsock.h>
+#else
 #include <netdb.h>
+#endif
 
-#include <string>
+#include <stdlib.h>
 #include <iostream>
+#include <string.h>
 
-#include "unicode.h"
+#include "MaryClient.h"
 
+using namespace std;
 
 /**
  * A C++ implementation of a simple client to the MARY TTS system.
- * server_host: string representation of the host where the server is running
- * server_port: the TCP port where the server is running
- * inputText: the UTF-8 encoded text (or XML document) to send as a request
- * maryInFormat: the input type of the data in inputText, e.g. TEXT_DE
- * maryOutFormat: the output type to produce, e.g. MBROLA, AUDIO
- * audioType: for AUDIO output, the type of audio data to produce,
- *            e.g. WAVE or MP3
  * result: an empty string serving as the container for the output.
  *    It will return text or audio data; text data will be encoded as UTF-8.
+ * inputText: the UTF-8 encoded text (or XML document) to send as a request
+ * maryInFormat: the input type of the data in inputText, e.g. TEXT
+ * maryOutFormat: the output type to produce, e.g. MBROLA, AUDIO
+ * locale: the language of the input, e.g. EN-US, DE
+ * audioType: for AUDIO output, the type of audio data to produce,
+ *            e.g. WAVE or MP3.
+ * voice: the voice to be used, e.g. cmu-slt-hsmm, bits3.
+ * effects: the list of effects to be generated.
  * return value: 0 on success, negative on failure.
  */
 int
-mary_query (const std::string& server_host,
-            int server_port,
-            const std::string& inputText,
-            const std::string& maryInFormat,
-            const std::string& maryOutFormat,
-            const std::string& audioType,
-            std::string& result)
-{
-  // declare global connection stuff
+MaryClient::maryQuery( int server_port,
+                       string server_host,
+                       string& result, 
+                       string inputText,
+                       string maryInFormat,
+                       string maryOutFormat,
+                       string locale,
+                       string audioType,
+                       string voice,
+                       string effects ) {
+
+  // prepare the request
+  string query = "MARY";
+  query += " IN=" + maryInFormat;
+  query += " OUT=" + maryOutFormat;
+  query += " LOCALE=" + locale;	// remove this line, if using an older version than MARY 4.0
+  query += " AUDIO=" + audioType;
+  query += " VOICE=" + voice;
+  if (effects != "") {
+    query += " EFFECTS=" + effects;
+  }
+  query += "\012\015";
+
+  //cout << "Constructed query: " << query << endl;
+
+  // declare connection stuff
   struct sockaddr_in maryServer;
   struct sockaddr_in maryClient;
   struct hostent* hostInfo;
 
-  // declare global variables
+  // declare variables
   int maryInfoSocket;
   int maryDataSocket;
 
@@ -112,12 +136,6 @@ mary_query (const std::string& server_host,
     }
   }
 
-  // prepare the request
-  std::string query = "MARY IN=" + maryInFormat + " OUT=" + maryOutFormat;
-  if (maryOutFormat == "AUDIO") query += " AUDIO="+audioType;
-  query += "\012\015";
-
-  //std::cerr << "Constructed query: "<<query;
   // send request to the Mary server
   if (send (maryInfoSocket, query.c_str (), query.size (), 0) == -1)
   {
@@ -133,7 +151,7 @@ mary_query (const std::string& server_host,
     return -2;
   }
 
-  //std::cerr << "Read id: " << id;
+  //cout << "Read id: " << id << endl;
 
   // create a tcp connection to the mary server
   maryDataSocket = socket (AF_INET, SOCK_STREAM, 0);
@@ -176,7 +194,7 @@ mary_query (const std::string& server_host,
     return -2;
   }
 
-  //std::cerr << "Sending request:" << inputText;
+  //cout << "Sending request: " << inputText << endl;
 
   // send the query to the Mary server
   if (send (maryDataSocket, inputText.c_str (), inputText.size (), 0) == -1)
@@ -194,7 +212,7 @@ mary_query (const std::string& server_host,
   shutdown (maryDataSocket, 1);
 
 
-  //std::cerr << "Reading result" << std::endl;
+  //cout << "Reading result" << endl;
 
   unsigned int total_bytes = 0;
   int recv_bytes = 0;
@@ -215,7 +233,7 @@ mary_query (const std::string& server_host,
     }
     else if (recv_bytes > 0)
     {
-      //std::cerr << "("<<recv_bytes<<")";
+      //cout << "("<<recv_bytes<<")" << endl;
       total_bytes += recv_bytes;
       data [recv_bytes] = '\0';
 
@@ -235,9 +253,9 @@ mary_query (const std::string& server_host,
 
   if (result.size () != total_bytes)
   {
-    std::cerr << "error: total bytes received != result bytes!" << std::endl;
-    std::cerr << "       total bytes received = " << total_bytes << std::endl;
-    std::cerr << "       result bytes = " << result.size () << std::endl;
+    cerr << "error: total bytes received != result bytes!" << endl;
+    cerr << "       total bytes received = " << total_bytes << endl;
+    cerr << "       result bytes = " << result.size () << endl;
   }
 
   // receive the request error
@@ -253,16 +271,20 @@ mary_query (const std::string& server_host,
     }
     else if (recv_bytes > 0)
     {
-      std::cerr << std::endl << "Mary error code: " << data << std::endl;
+      cerr << endl << "Mary error code: " << data << endl;
       return -3;
     }
   } while (recv_bytes != 0);
 
-  // close all open sockets
+#ifdef _WIN32
+  // close all open sockets Windows
+  closesocket (maryInfoSocket);
+  closesocket (maryDataSocket);
+#else
+  // close all open sockets UNIX
   close (maryInfoSocket);
   close (maryDataSocket);
+#endif
 
   return 0;
 }
-
-
