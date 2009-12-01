@@ -1,0 +1,94 @@
+#!/bin/sh -e
+#
+# marytts		This init.d script is used to start a MARY TTS server.
+
+# Run process as same user as this script:
+SUDO=""
+# Run process as user 'mary':
+#SUDO="sudo -u mary"
+JAVA=/usr/bin/java
+MARY_BASE="/usr/local/MARY TTS"
+MARY_PIDFILE=/var/run/marytts.pid
+
+
+
+pidof_marytts() {
+	PIDOF=`which pidof` || true
+	if [ -x "$PIDOF" ]; then # command exists
+	    PIDS=`pidof java` || true
+	else # no pidof command
+		PIDS=`ps axc|awk "{if (\\$5==\\"java\\") print \\$1}"`
+	fi
+
+    [ -e $MARY_PIDFILE ] && PIDS2=`cat $MARY_PIDFILE`
+    
+    # if there is a pid we need to verify that belongs to MARY
+    # for real
+    for i in $PIDS; do
+    	if [ "$i" = "$PIDS2" ]; then
+            # in this case the pid stored in the
+            # pidfile matches one of the pidof java
+            # so a simple kill will make it
+            echo $i
+            return 0
+        fi
+    done
+    return 1
+}
+
+
+marytts_start() {
+	CLASSPATH="$MARY_BASE/java/mary-common.jar:$MARY_BASE/java/log4j-1.2.15.jar"
+	$SUDO $JAVA -ea -Xms40m -Xmx1g -cp "$CLASSPATH" -Dmary.base="$MARY_BASE" marytts.server.Mary &
+	PID="$!"
+	echo $PID > $MARY_PIDFILE
+}
+
+marytts_stop() {
+	PID=$(pidof_marytts)
+	if [ "${PID}" ]; then
+                kill $PID
+	fi
+}
+
+case $1 in
+	start)
+		echo "Starting TTS server"
+		if marytts_start; then
+                        exit 0
+                else
+                        exit 1
+                fi
+	;;
+	stop)
+		echo "Stopping TTS server"
+		if marytts_stop; then
+                        exit 0
+                else
+                        exit 1
+                fi
+	;;
+	restart)
+		echo "Restarting TTS server"
+		marytts_stop
+		sleep 10
+		if marytts_start; then
+                        exit 0
+                else
+                        exit 1
+                fi
+	;;
+	status)
+		PID=$(pidof_marytts) || true
+		if [ "${PID}" ]; then
+			echo "MARY TTS is running (pid $PID)"
+		else
+			echo "MARY TTS is not running"
+		fi
+		exit 0
+	;;
+	*)
+		echo "Usage: /etc/init.d/marytts {start|stop|restart|status}"
+		exit 1
+	;;
+esac
