@@ -44,6 +44,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Observable;
+import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -96,7 +97,48 @@ public class ComponentDescription extends Observable implements Comparable<Compo
     private File infoFile;
     private int downloaded = 0;
     private int size = -1;
+    private String installedFilesNames = null; // must be != null for installed components
     
+    /**
+     * An available update is non-null in the following circumstance:
+     * 1. the present component (this) has status INSTALLED;
+     * 2. a component is available that has the same name and type, but a higher version number.
+     * Only the newest update will be considered, i.e. if there are more than one newer version available,
+     * only the one with the highest version number will be remembered here.
+     */
+    private ComponentDescription availableUpdate = null;
+    
+    
+    /**
+     * Replace this component definition with its available update.
+     * The object will stay the same but all data will be overwritten with 
+     * the content of the update.
+     * After this method returns, isUpdateAvailable() will return false.
+     */
+    public void replaceWithUpdate() {
+        if (availableUpdate == null) {
+            return;
+        }
+        this.name = availableUpdate.name;
+        this.locale = availableUpdate.locale;
+        this.version = availableUpdate.version;
+        this.description = availableUpdate.description;
+        this.license = availableUpdate.license;
+        this.locations = availableUpdate.locations;
+        this.packageFilename = availableUpdate.packageFilename;
+        this.packageSize = availableUpdate.packageSize;
+        this.packageMD5 = availableUpdate.packageMD5;
+        this.isSelected = availableUpdate.isSelected;
+        this.status = availableUpdate.status;
+        this.archiveFile = availableUpdate.archiveFile;
+        this.infoFile = availableUpdate.infoFile;
+        this.downloaded = availableUpdate.downloaded;
+        this.size = availableUpdate.size;
+        this.installedFilesNames = availableUpdate.installedFilesNames;
+        this.availableUpdate = null;
+        stateChanged();
+    }
+
     protected ComponentDescription(Element xmlDescription)
     throws NullPointerException
     {
@@ -127,8 +169,14 @@ public class ComponentDescription extends Observable implements Comparable<Compo
             }
         }
         archiveFile = new File(System.getProperty("mary.downloadDir"), packageFilename);
-        infoFile = new File(System.getProperty("mary.installedDir"), getInfoFilename());
+        String infoFilename = packageFilename.substring(0, packageFilename.lastIndexOf('.')) + "-component.xml";
+        infoFile = new File(System.getProperty("mary.installedDir"), infoFilename);
         determineStatus();
+        NodeList filesElements = xmlDescription.getElementsByTagName("files");
+        if (filesElements.getLength() > 0) {
+            Element filesElement = (Element) filesElements.item(0);
+            installedFilesNames = filesElement.getTextContent();
+        }
     }
     
     private void determineStatus()
@@ -150,11 +198,7 @@ public class ComponentDescription extends Observable implements Comparable<Compo
             status = Status.ERROR;
         }
     }
-    
-    public String getInfoFilename()
-    {
-        return name+"-"+version+"."+getComponentTypeString();
-    }
+
     
     public String getComponentTypeString()
     {
@@ -306,11 +350,14 @@ public class ComponentDescription extends Observable implements Comparable<Compo
     }
     
     /**
-     * Uninstall this voice.
-     * @return true if voice was successfully uninstalled, false otherwise.
+     * Uninstall this component.
+     * @return true if component was successfully uninstalled, false otherwise.
      */
-    public boolean uninstall()
-    {
+    public boolean uninstall() {
+        if (status != Status.INSTALLED) {
+            throw new IllegalStateException("Can only uninstall installed components, but status is "+status.toString());
+        }
+        assert installedFilesNames != null; // when we have an installed component, we must also have this information
 /*        int answer = JOptionPane.showConfirmDialog(null, "Completely remove "+getComponentTypeString()+" '"+toString()+"' from the file system?", "Confirm component uninstall", JOptionPane.YES_NO_OPTION);
         if (answer != JOptionPane.YES_OPTION) {
             return false;
@@ -319,11 +366,13 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         try {
             String maryBase = System.getProperty("mary.base");
             System.out.println("Removing "+name+"-"+version+" from "+maryBase+"...");
-            BufferedReader br = new BufferedReader(new FileReader(infoFile));
             LinkedList<String> files = new LinkedList<String>();
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                files.addFirst(line); // i.e., reverse order
+            StringTokenizer st = new StringTokenizer(installedFilesNames, ",");
+            while (st.hasMoreTokens()) {
+                String next = st.nextToken().trim();
+                if (!"".equals(next)) {
+                    files.addFirst(next); // i.e., reverse order
+                }
             }
             for (String file: files) {
                 if (file.trim().equals("")) continue; // skip empty lines
@@ -363,7 +412,7 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         return 100;
     }
     
-    private void writeComponentXML()
+    private void writeDownloadedComponentXML()
     throws Exception
     {
         File archiveFolder = archiveFile.getParentFile();
@@ -374,6 +423,24 @@ public class ComponentDescription extends Observable implements Comparable<Compo
 
         DomUtils.document2File(doc, compdescFile);
     }
+
+    /**
+     * Write a component xml file to the installed/ folder, containing the given list of installed files.
+     * @param installedFilesList
+     * @throws Exception
+     */
+    private void writeInstalledComponentXML()
+    throws Exception
+    {
+        assert installedFilesNames != null;
+        File installedFolder = infoFile.getParentFile();
+        String archiveFilename = archiveFile.getName();
+        String compdescFilename = archiveFilename.substring(0, archiveFilename.lastIndexOf('.')) + "-component.xml";
+        File compdescFile = new File(installedFolder, compdescFilename);
+        Document doc = createComponentXML();
+        DomUtils.document2File(doc, compdescFile);
+    }
+
 
     protected Document createComponentXML()
     throws ParserConfigurationException 
@@ -398,8 +465,84 @@ public class ComponentDescription extends Observable implements Comparable<Compo
             Element lElt = (Element) packageElt.appendChild(doc.createElementNS(installerNamespaceURI, "location"));
             lElt.setAttribute("href", l.toString());
         }
+        if (installedFilesNames != null) {
+            Element filesElement = (Element) desc.appendChild(doc.createElementNS(installerNamespaceURI, "files"));
+            filesElement.setTextContent(installedFilesNames);
+        }
         return doc;
     }
+    
+    /**
+     * Inform whether an update is available for this component.
+     * @return
+     */
+    public boolean isUpdateAvailable() {
+        return availableUpdate != null;
+    }
+    
+    /**
+     * If this component has an available update, get that update. 
+     * @return null if no update is available.
+     */
+    public ComponentDescription getAvailableUpdate() {
+        return availableUpdate;
+    }
+    
+    /**
+     * Set the given component description as the available update of this component.
+     * If we already have an available update, then aDesc is only retained as the available update
+     * if it has a higher version number than the previously set update.
+     * @param aDesc an available update, or null to erase any previously set available updates.
+     * @throws IllegalStateException if aDesc is not null and our status is not "INSTALLED".
+     * @throws IllegalArgumentException if aDesc is not null and our name is not the same as aDesc's name, or if our version number
+     * is not smaller than aDesc's version number.
+     */
+    public void setAvailableUpdate(ComponentDescription aDesc) {
+        if (aDesc == null) {
+            this.availableUpdate = null;
+            stateChanged();
+            return;
+        }
+        if (this.status != Status.INSTALLED) {
+            throw new IllegalStateException("Can only set an available update if status is installed, but status is "+status.toString());
+        }
+        if (!aDesc.getName().equals(name)) {
+            throw new IllegalArgumentException("Only a component with the same name can be an update of this component; but this has name "
+                    +name+", and argument has name "+aDesc.getName());
+        }
+        if (!(version.compareTo(aDesc.getVersion()) < 0)) {
+            throw new IllegalArgumentException("Version "+aDesc.getVersion()+" is not higher than installed version "+version);
+        }
+        if (availableUpdate != null) { // already have an available update: we will replace it with aDesc only if aDesc has a higher version number
+            if (!(aDesc.getVersion().compareTo(availableUpdate.getVersion()) > 0)) {
+                return;
+            }
+        }
+        this.availableUpdate = aDesc;
+        stateChanged();
+    }
+
+    /**
+     * This is an update of other if and only if the following is true:
+     * <ol>
+     * <li>Both components have the same type (as identified by the class) and name;</li>
+     * <li>other has status INSTALLED;</li>
+     * <li>our version number is higher than other's version number.</li>
+     * </ol>
+     * @param other
+     * @return
+     */
+    public boolean isUpdateOf(ComponentDescription other) {
+        if (other == null
+            || !this.getClass().equals(other.getClass())
+            || !name.equals(other.getName())
+            || other.getStatus() != Status.INSTALLED
+            || !(version.compareTo(other.getVersion()) > 0)) {
+            return false;
+        }
+        return true;
+    }
+    
     
     /**
      * Define a natural ordering for component descriptions. Languages first, in alphabetic order, then voices, in alphabetic order.
@@ -527,7 +670,7 @@ public class ComponentDescription extends Observable implements Comparable<Compo
                     String hash = MD5.asHex(MD5.getHash(archiveFile));
                     if (hash.equals(packageMD5)) {
                         System.err.println("ok!");
-                        writeComponentXML();
+                        writeDownloadedComponentXML();
                         status = Status.DOWNLOADED;
                     } else {
                         System.err.println("failed!");
@@ -572,8 +715,10 @@ public class ComponentDescription extends Observable implements Comparable<Compo
                 Enumeration<? extends ZipEntry> entries = zipfile.entries();
                 while(entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
+                    if (files.length() > 0) {
+                        files.append(", ");
+                    }
                     files.append(entry.getName());
-                    files.append("\n");
                     if(entry.isDirectory()) {
                       System.err.println("Extracting directory: " + entry.getName());
                       (new File(maryBase+"/"+entry.getName())).mkdir();
@@ -589,9 +734,8 @@ public class ComponentDescription extends Observable implements Comparable<Compo
                     }
                   }
                   zipfile.close();
-                  PrintWriter pw = new PrintWriter(infoFile);
-                  pw.println(files);
-                  pw.close();
+                  installedFilesNames = files.toString();
+                  writeInstalledComponentXML();
             } catch (Exception e) {
                 System.err.println("... installation failed:");
                 e.printStackTrace();
@@ -602,6 +746,8 @@ public class ComponentDescription extends Observable implements Comparable<Compo
             status = Status.INSTALLED;
             stateChanged();
         }
+        
+
 
     }
 

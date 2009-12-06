@@ -119,7 +119,7 @@ public class ShortDescriptionPanel extends javax.swing.JPanel implements Observe
 
         lStatus.setFont(new java.awt.Font("Lucida Grande", 0, 10));
         lStatus.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        lStatus.setText(desc.getStatus().toString());
+        lStatus.setText((desc.isUpdateAvailable() ? "Update available" : desc.getStatus().toString()));
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weighty = 0.2;
@@ -158,22 +158,24 @@ public class ShortDescriptionPanel extends javax.swing.JPanel implements Observe
         if (!isSelected && newSelected) {
             isSelected = true;
             this.setBackground(selectedColor);
+            cbSelected.setBackground(selectedColor);
             if (voiceUpdate != null && desc instanceof LanguageComponentDescription) {
                 voiceUpdate.updateVoices((LanguageComponentDescription)desc, false);
             }
         } else if (isSelected && !newSelected) {
             isSelected = false;
             this.setBackground(unselectedColor);
+            cbSelected.setBackground(unselectedColor);
         }
     }
     
-    private void showComponentDetails(ComponentDescription desc)
+    private void showComponentDetails(ComponentDescription aDesc)
     {
           JPanel p;
-          if (desc instanceof LanguageComponentDescription) {
-              p = new LanguagePanel((LanguageComponentDescription) desc);
+          if (aDesc instanceof LanguageComponentDescription) {
+              p = new LanguagePanel((LanguageComponentDescription) aDesc);
           } else {
-              p = new VoicePanel((VoiceComponentDescription)desc);
+              p = new VoicePanel((VoiceComponentDescription)aDesc);
           }
           JOptionPane.showMessageDialog(null, p, "Component details", JOptionPane.PLAIN_MESSAGE);
     }
@@ -192,6 +194,6 @@ public class ShortDescriptionPanel extends javax.swing.JPanel implements Observe
     private void verifyDisplay()
     {
         cbSelected.setSelected(desc.isSelected());
-        lStatus.setText(desc.getStatus().toString());
+        lStatus.setText((desc.isUpdateAvailable() ? "Update available" : desc.getStatus().toString()));
     }
 }
