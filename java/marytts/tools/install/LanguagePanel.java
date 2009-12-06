@@ -80,7 +80,7 @@ public class LanguagePanel extends javax.swing.JPanel
         lStatus.setFont(new java.awt.Font("Lucida Grande", 1, 13));
         lStatus.setText("Status:");
 
-        lStatusValue.setText(desc.getStatus().toString());
+        lStatusValue.setText(desc.getStatus().toString() + (desc.isUpdateAvailable() ? " -- Update available to version " + desc.getAvailableUpdate().getVersion() : ""));
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);

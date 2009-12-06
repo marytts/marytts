@@ -173,7 +173,21 @@ public class ProgressPanel extends javax.swing.JPanel implements Runnable, Obser
             pbOverall.setString(i+" / "+max);
             setCurrentComponent(comp);
             if (install) {
-                if (comp.getStatus() == Status.AVAILABLE || comp.getStatus() == Status.CANCELLED) {
+                ComponentDescription orig = null;
+                if (comp.getStatus() == Status.INSTALLED) { // Installing an installed component really means replacing it with its updated version
+                    assert comp.isUpdateAvailable();
+                    // 1. uninstall current version; 2. install replacement
+                    comp.uninstall();
+                    if (comp.getStatus() == Status.ERROR) {
+                        error = true;
+                    } else {
+                        if (comp.isUpdateAvailable()) {
+                            comp.replaceWithUpdate();
+                        }
+                    }
+                    // And from here on, treat comp like any other component to install
+                }
+                if (!error && comp.getStatus() == Status.AVAILABLE || comp.getStatus() == Status.CANCELLED) {
                     comp.download(true);
                     if (comp.getStatus() == Status.ERROR) {
                         error = true;
@@ -195,6 +209,10 @@ public class ProgressPanel extends javax.swing.JPanel implements Runnable, Obser
                     comp.uninstall();
                     if (comp.getStatus() == Status.ERROR) {
                         error = true;
+                    } else {
+                        if (comp.isUpdateAvailable()) {
+                            comp.replaceWithUpdate();
+                        }
                     }
                 }
             }

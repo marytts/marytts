@@ -40,7 +40,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.swing.Box;
@@ -74,16 +76,16 @@ import marytts.util.MaryUtils;
  */
 public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListener
 {
-    private List<LanguageComponentDescription> languages;
-    private List<VoiceComponentDescription> voices;
+    private Map<String, LanguageComponentDescription> languages;
+    private Map<String, VoiceComponentDescription> voices;
     private LanguageComponentDescription currentLanguage = null;
     private String version = Version.specificationVersion();
     
     /** Creates new form InstallerGUI */
     public InstallerGUI()
     {
-        this.languages = new ArrayList<LanguageComponentDescription>();
-        this.voices = new ArrayList<VoiceComponentDescription>();
+        this.languages = new TreeMap<String, LanguageComponentDescription>();
+        this.voices = new TreeMap<String, VoiceComponentDescription>();
         initComponents();
         customInitComponents();
     }
@@ -91,13 +93,39 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
     public void addLanguagesAndVoices(InstallFileParser p)
     {
         for (LanguageComponentDescription desc : p.getLanguageDescriptions()) {
-            if (!languages.contains(desc)) {
-                languages.add(desc);
+            if (languages.containsKey(desc.getName())) {
+                LanguageComponentDescription existing = languages.get(desc.getName());
+                // Check if one is an update of the other
+                if (existing.getStatus() == Status.INSTALLED) {
+                    if (desc.isUpdateOf(existing)) {
+                        existing.setAvailableUpdate(desc);
+                    }
+                } else if (desc.getStatus() == Status.INSTALLED) {
+                    languages.put(desc.getName(), desc);
+                    if (existing.isUpdateOf(desc)) {
+                        desc.setAvailableUpdate(existing);
+                    }
+                } else { // both not installed: show only higher version number
+                    if (desc.getVersion().compareTo(existing.getVersion()) > 0) {
+                        languages.put(desc.getName(), desc);
+                    }
+                }
+            } else { // no such entry yet
+                languages.put(desc.getName(), desc);
             }
         }
         for (VoiceComponentDescription desc : p.getVoiceDescriptions()) {
-            if (!voices.contains(desc)) {
-                voices.add(desc);
+            if (voices.containsKey(desc.getName())) {
+                VoiceComponentDescription existing = voices.get(desc.getName());
+                // Check if one is an update of the other
+                if (desc.isUpdateOf(existing)) {
+                    existing.setAvailableUpdate(desc);
+                } else if (existing.isUpdateOf(desc)) {
+                    desc.setAvailableUpdate(existing);
+                    voices.put(desc.getName(), desc);
+                }
+            } else { // no such entry yet
+                voices.put(desc.getName(), desc);
             }
         }
         updateLanguagesTable();
@@ -385,13 +413,14 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
     private void updateLanguagesTable()
     {
         pLanguages.removeAll();
-        for (ComponentDescription desc : languages) {
+        for (String dName : languages.keySet()) {
+            ComponentDescription desc = languages.get(dName);
             pLanguages.add(new ShortDescriptionPanel(desc, this));
         }
         pLanguages.add(Box.createVerticalGlue());
         if (languages.size() > 0) {
             pLanguages.getComponent(0).requestFocusInWindow();
-            updateVoices(languages.get(0), true);
+            updateVoices(languages.get(languages.keySet().iterator().next()), true);
         }
     }
     
@@ -416,7 +445,8 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
     private List<VoiceComponentDescription> getVoicesForLanguage(LanguageComponentDescription language)
     {
         List<VoiceComponentDescription> lVoices = new ArrayList<VoiceComponentDescription>();
-        for (VoiceComponentDescription v : voices) {
+        for (String vName : voices.keySet()) {
+            VoiceComponentDescription v = voices.get(vName);
             if (v.getDependsLanguage().equals(language.getName())) {
                 lVoices.add(v);
             }
@@ -426,41 +456,100 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
     
     private void confirmExit()
     {
-        int choice = JOptionPane.showConfirmDialog(this, "Really quit?", "Exit program", JOptionPane.YES_NO_OPTION);
+        if (getComponentsSelectedForInstallation().size()+getComponentsSelectedForUninstall().size() == 0) {
+            // Exit without further ado
+            this.setVisible(false);
+            System.exit(0);
+        }
+        int choice = JOptionPane.showConfirmDialog(this, "Discard selection and exit?", "Exit program", JOptionPane.YES_NO_OPTION);
         if (choice == JOptionPane.YES_OPTION) {
             this.setVisible(false);
             System.exit(0);
         }
     }
     
-    
-    public void installSelectedLanguagesAndVoices()
-    {
-        int downloadSize = 0;
+    private List<ComponentDescription> getComponentsSelectedForInstallation() {
         List<ComponentDescription> toInstall = new ArrayList<ComponentDescription>();
-        for (LanguageComponentDescription lang : languages) {
-            if (lang.isSelected() && lang.getStatus() != Status.INSTALLED) {
+        for (String langName : languages.keySet()) {
+            LanguageComponentDescription lang = languages.get(langName);
+            if (lang.isSelected() && (lang.getStatus() != Status.INSTALLED || lang.isUpdateAvailable())) {
                 toInstall.add(lang);
-                if (lang.getStatus() == Status.AVAILABLE) {
-                    downloadSize += lang.getPackageSize();
-                }
                 System.out.println(lang.getName()+" selected for installation");
             }
             // Show voices with corresponding language:
             List<VoiceComponentDescription> lVoices = getVoicesForLanguage(lang);
             for (VoiceComponentDescription voice : lVoices) {
-                if (voice.isSelected() && voice.getStatus() != Status.INSTALLED) {
+                if (voice.isSelected() && (voice.getStatus() != Status.INSTALLED || voice.isUpdateAvailable())) {
                     toInstall.add(voice);
-                    if (lang.getStatus() == Status.AVAILABLE) {
-                        downloadSize += voice.getPackageSize();
-                    }
                     System.out.println(voice.getName()+" selected for installation");
                 }
             }
         }
+        return toInstall;
+    }
+    
+    public void installSelectedLanguagesAndVoices()
+    {
+        int downloadSize = 0;
+        List<ComponentDescription> toInstall = getComponentsSelectedForInstallation();
         if (toInstall.size() == 0) {
             JOptionPane.showMessageDialog(this, "You have not selected any installable components");
             return;
+        }
+        // Verify if all dependencies are met
+        // There are the following ways of meeting a dependency:
+        // - the component with the right name and version number is already installed;
+        // - the component with the right name and version number is selected for installation;
+        // - an update of the component with the right version number is selected for installation.
+        Map<String, String> unmetDependencies = new TreeMap<String, String>(); // map name to problem description
+        for (ComponentDescription cd : toInstall) {
+            if (cd instanceof VoiceComponentDescription) {
+                // Currently have dependencies only for voice components
+                VoiceComponentDescription vcd = (VoiceComponentDescription) cd;
+                String depLang = vcd.getDependsLanguage();
+                String depVersion = vcd.getDependsVersion();
+                // Two options for fulfilling the dependency: either it is already installed, or it is in toInstall
+                LanguageComponentDescription lcd = languages.get(depLang);
+                if (lcd == null) {
+                    unmetDependencies.put(depLang, "No such language component");
+                } else if (lcd.getStatus() == Status.INSTALLED) {
+                    if (lcd.getVersion().compareTo(depVersion) < 0) {
+                        ComponentDescription update = lcd.getAvailableUpdate();
+                        if (update == null) {
+                            unmetDependencies.put(depLang, "Version "+depVersion+" is required by "+vcd.getName()+",\nbut older version "+lcd.getVersion()+" is installed and no update is available");
+                        } else if (update.getVersion().compareTo(depVersion) < 0) {
+                            unmetDependencies.put(depLang, "Version "+depVersion+" is required by "+vcd.getName()+",\nbut only version "+update.getVersion()+" is available as an update");
+                        } else if (!toInstall.contains(lcd)) {
+                            unmetDependencies.put(depLang, "Version "+depVersion+" is required by "+vcd.getName()+",\nbut older version "+lcd.getVersion()+" is installed\nand update to version "+update.getVersion()+" is not selected for installation");
+                        }
+                    }
+                } else if (!toInstall.contains(lcd)) {
+                    if (lcd.getVersion().compareTo(depVersion) >= 0) {
+                        unmetDependencies.put(depLang, "Component is required  by "+vcd.getName()+"\nbut is not selected for installation");
+                    } else {
+                        unmetDependencies.put(depLang, "Version "+depVersion+" is required by "+vcd.getName()+",\nbut only older version "+lcd.getVersion()+" is available");
+                    }
+                }
+            }
+        }
+        // Any unmet dependencies?
+        if (unmetDependencies.size() > 0) {
+            StringBuilder buf = new StringBuilder();
+            for (String compName : unmetDependencies.keySet()) {
+                buf.append("Component ").append(compName).append(": ").append(unmetDependencies.get(compName)).append("\n");
+            }
+            JOptionPane.showMessageDialog(this, buf.toString(), "Dependency problem", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        for (ComponentDescription cd : toInstall) {
+            if (cd.getStatus() == Status.AVAILABLE) {
+                downloadSize += cd.getPackageSize();
+            } else if (cd.getStatus() == Status.INSTALLED && cd.isUpdateAvailable()) {
+                if (cd.getAvailableUpdate().getStatus() == Status.AVAILABLE) {
+                    downloadSize += cd.getAvailableUpdate().getPackageSize();
+                }
+            }
         }
         int returnValue = JOptionPane.showConfirmDialog(this, "Install "+toInstall.size()+" components?\n("
                 +MaryUtils.toHumanReadableSize(downloadSize)+" to download)", "Proceed with installation?", JOptionPane.YES_NO_OPTION);
@@ -530,11 +619,10 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
         return true;
     }
     
-    
-    public void uninstallSelectedLanguagesAndVoices()
-    {
+    private List<ComponentDescription> getComponentsSelectedForUninstall() {
         List<ComponentDescription> toUninstall = new ArrayList<ComponentDescription>();
-        for (LanguageComponentDescription lang : languages) {
+        for (String langName : languages.keySet()) {
+            LanguageComponentDescription lang = languages.get(langName);
             if (lang.isSelected() && lang.getStatus() == Status.INSTALLED) {
                 toUninstall.add(lang);
                 System.out.println(lang.getName()+" selected for uninstall");
@@ -548,6 +636,12 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
                 }
             }
         }
+        return toUninstall;
+    }
+    
+    public void uninstallSelectedLanguagesAndVoices()
+    {
+        List<ComponentDescription> toUninstall = getComponentsSelectedForUninstall();
         if (toUninstall.size() == 0) {
             JOptionPane.showMessageDialog(this, "You have not selected any uninstallable components");
             return;

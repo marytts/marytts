@@ -74,7 +74,7 @@
         </Property>
         <Property name="horizontalAlignment" type="int" value="0"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="desc.getStatus().toString()" type="code"/>
+          <Connection code="(desc.isUpdateAvailable() ? &quot;Update available&quot; : desc.getStatus().toString())" type="code"/>
         </Property>
       </Properties>
       <Constraints>
