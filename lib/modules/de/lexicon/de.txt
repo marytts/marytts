@@ -1,22 +1,3 @@
- #########################################################################
-# Copyright 2009 DFKI GmbH.
-# All Rights Reserved.  Use is subject to license terms.
-#
-# This file is part of MARY TTS.
-#
-# MARY TTS is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Lesser General Public License as published by
-# the Free Software Foundation, version 3 of the License.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Lesser General Public License for more details.
-#
-# You should have received a copy of the GNU Lesser General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# #########################################################################
 AG ?a:-'ge:
 ASEAN '?a-ze:-a:n
 Aa '?a:-?a:
@@ -22545,3869 +22526,3707 @@ zünftig 'tsYnf-tIC
 üppigst '?Y-pIkst
 üüiü 'y:-y:-i:-y:
 Weblinks 'vEb-lINks
-Gebiet
-Hauptartikel
-thumb
-Daten
-Wert
-frühen
-St
-Reiches
-europäischen
-genutzt
-III
-Einzelnachweise
-Gold
-DDR
-Aufgrund
-Definition
-Indien
-unterscheiden
-Anwendung
-EU
-lag
-Parteien
-eingeführt
-Herstellung
-Mengen
-größere
-CDU
-Teilen
-erreichen
-klassischen
-SPD
-engl
-DNA
-CD
-Antike
-Schmitt
-Bit
-Planeten
-Masse
-Marx
-Großen
-Landkreis
-Bedingungen
-Linux
-la
-Ausnahme
-IV
-vgl
-etc
-Mond
-Hitchcock
-GB
-Hrsg
-Oberfläche
-Programme
-höheren
-internationale
-Wissen
-Zuge
-Graz
-christlichen
-bedeutende
-al
-größer
-Vielzahl
-geringen
-natürlichen
-FDP
-mm
-Nutzung
-Logik
-übertragen
-Untersuchungen
-Architektur
-Anwendungen
-treten
-Studien
-sog
-Möglichkeiten
-MS
-DOS
-Folgen
-Neuseeland
-IBM
-usw
-Vereinigten
-Dean
-andererseits
-Altstadt
-höhere
-Mars
-Wörter
-GmbH
-chemischen
-Betriebssystem
-cm
-behandelt
-Entdeckung
-NSDAP
-Einwohnern
-Abstand
-Symbol
-Kalender
-Hitlers
-untersucht
-Unterscheidung
-Merkmale
-wirtschaftlichen
-arbeiten
-wichtigen
-bildete
-Untersuchung
-verschiedener
-festgelegt
-anerkannt
-Bielefeld
-verwenden
-Grundlagen
-Kölner
-University
-Adenauer
-geringe
-Staates
-begannen
-Maßnahmen
-Veränderungen
-Museen
-Coburg
-Vernunft
-dt
-antiken
-Niederlande
-verstehen
-technischen
-Chávez
-Gegenstand
-Informatik
-auftreten
-verwendeten
-Objekt
-Ebenso
-Habermas
-Arsen
-offiziellen
-Dr
-Mio
-Fläche
-sodass
-Viren
-Norwegen
-Jupiter
-nachgewiesen
-Grünen
-Peirce
-Nordsee
-nutzen
-möglichen
-Code
-weisen
-ermöglichen
-Analyse
-kg
-Niederlage
-offizielle
-Gesellschaften
-Römischen
-Nationalsozialismus
-Christen
-Erste
-aktuellen
-px
-May
-chemische
-Prozesse
-for
-religiösen
-Vorkommen
-Übergang
-wesentlichen
-weshalb
-komplexen
-Verständnis
-Gewerkschaften
-elektrische
-Auflage
-Wissenschaftler
-Autismus
-Zusammensetzung
-Nietzsche
-Franken
-Interpretation
-Brief
-Konflikt
-einfache
-Manga
-Nationalsozialisten
-Verhältnisse
-betrug
-Napoléon
-Eisenbahn
-erweitert
-Nachweis
-Fritz
-erzeugen
-zufolge
-Weimarer
-diskutiert
-extrem
-Jahrzehnten
-Preise
-wesentliche
-Auflösung
-Gewicht
-verboten
-Hochschule
-Athen
-Hesse
-gezeigt
-Systemen
-darstellt
-erfolgen
-Dichte
-Schnitt
-angelegt
-Aspekte
-Wesentlichen
-Netz
-bekannteste
-verfügen
-Patent
-Weltkrieges
-Kupfer
-Lüneburg
-kulturelle
-Stoffe
-Hersteller
-Esperanto
-Metaphysik
-Albert
-Tourismus
-Nr
-Leibniz
-schließen
-Frankreichs
-ausgeführt
-ernannt
-Berechnung
-gelegenen
-aufweisen
-Asien
-Cache
-elektrischen
-ausgebaut
-Hanse
-Produkt
-CSU
-christliche
-Dortmunder
-American
-Aminosäuren
-Gewinnung
-mittleren
-Kairo
-Zelle
-europäische
-äußeren
-Riefenstahl
-SS
-Angriff
-gesetzt
-Kriege
-Methan
-bewegen
-Bezeichnungen
-Zwar
-Jahrhunderte
-Mathematiker
-lat
-Dateien
-speziellen
-ern
-Sehenswürdigkeiten
-Wahrnehmung
-Bd
-absolute
-Newton
-infolge
-PC
-mg
-Helsinki
-ICQ
-Schwerpunkt
-einschließlich
-Datei
-Block
-Compiler
-Reformation
-griechische
-NT
-Dreharbeiten
-Nordosten
-Einteilung
-Elektronen
-Rote
-Erfindung
-Kohlenstoff
-Dauer
-vermeiden
-Mauer
-Popper
-Ereignisse
-Vitamin
-zentralen
-Nickel
-di
-Haltung
-private
-Arbeiter
-zusätzliche
-Aufstieg
-indischen
-Wiener
-Heer
-Wahrscheinlichkeit
-Völker
-Änderungen
-IKRK
-Fassung
-innere
-Rechner
-Karls
-Isotope
-Abhängigkeit
-Innerhalb
-OS
-on
-häufigsten
-besonderen
-ältere
-Base
-umgesetzt
-IP
-Testament
-Fantasy
-jene
-begründete
-Wege
-Ernährung
-Überlieferung
-Könige
-maßgeblich
-Kohl
-HTML
-Neutronen
-Südosten
-aktuelle
-ISO
-physikalischen
-Gericht
-Tieren
-umgekehrt
-normalerweise
-philosophischen
-bestehende
-Aldi
-Absinth
-Identität
-Schichten
-Nordwesten
-Pakistan
-mathematischen
-aufgeteilt
-Faktoren
-einfachen
-Goldenen
-gemessen
-Kriterien
-vollständige
-Graf
-Bauwerke
-Schopenhauer
-ROM
-bot
-Reichstag
-Wachstum
-größtenteils
-erforderlich
-mathematische
-Container
-seltener
-Jugoslawien
-Abgrenzung
-abgelehnt
-Zerstörung
-zugunsten
-Alphabet
-wiederholt
-verbindet
-Virus
-Konstantinopel
-Indiens
-entsprechen
-Beitrag
-Apollo
-Substanzen
-gefördert
-vergleichbar
-Greenpeace
-Minderheit
-Island
-ff
-mittlere
-sofern
-festen
-Körpers
-Ebenen
-demnach
-Mazedonien
-Angebot
-berücksichtigt
-Zone
-beziehen
-umfangreiche
-Hochschulen
-Mitteleuropa
-Ethik
-integriert
-Kalifornien
-Gaulle
-Neptun
-Bits
-besaß
-eingeteilt
-Cm
-Abs
-Freudenstadt
-DNS
-Wittgenstein
-Vereinten
-Inneren
-Konsonanten
-Mondes
-Breite
-Rezeption
-Wurzeln
-Förderung
-Fälle
-Verteilung
-Jh
-UN
-Schreibweise
-bedeutendste
-Vorgang
-Atome
-Epoche
-Krone
-errichtete
-Jahrzehnte
-Streitkräfte
-frühe
-Christi
-Bindung
-Bruno
-Übertragung
-dienten
-KDE
-gefolgt
-Handlungen
-Jahrhunderten
-Grönland
-Erforschung
-betrachten
-Organismen
-ehemals
-BASIC
-politischer
+Gebiet g@-'bi:t
+Hauptartikel 'haUpt-?a6-ti:-k@l
+thumb 'Tam
+Daten 'da:-t@n
+Wert 'vE6t
+frühen 'fRy:-@n
+Reiches 'RaI-C@s
+europäischen ?OY-Ro:-'pe:-I-S@n
+genutzt g@-'nUtst
+Einzelnachweise 'aIn-ts@l-nax-vaI-z@
+Gold 'gOlt
+Aufgrund ?aUf-'gRUnt
+Definition de:-fi:-ni:-'tsjo:n
+Indien '?In-di:-@n
+unterscheiden ?Un-t6-'SaI-d@n
+Anwendung '?an-vEn-dUN
+lag 'la:k
+Parteien pa6-'taI-@n
+eingeführt 'aIn-g@-fy:6t
+Herstellung 'hE6-StE-lUN
+Mengen 'mE-N@n
+größere 'gR2:-s@-R@
+Teilen 'taI-l@n
+erreichen ?E6-'RaI-C@n
+klassischen 'kla-sI-S@n
+Antike ?an-'ti:-k@
+Schmitt 'SmIt
+Bit 'bIt
+Planeten pla:-'ne:-t@n
+Masse 'ma-s@
+Marx 'ma6ks
+Großen 'gRo:-s@n
+Landkreis 'lant-kRaIs
+Bedingungen b@-'dI-NU-N@n
+Linux 'li:-nUks
+Ausnahme '?aUs-na:-m@
+Mond 'mo:nt
+Hitchcock 'hItS-kOk
+Oberfläche '?o:-b6-flE-C@
+Programme pRo:-'gRa-m@
+höheren 'h2:-6-R@n
+internationale ?In-t6-na-tsjo:-'na:-l@
+Wissen 'vI-s@n
+Zuge 'tsu:-g@
+Graz 'gRa:ts
+christlichen 'kRIs-tlI-C@n
+bedeutende b@-'dOY-t@n-d@
+al '?al
+größer 'gR2:-s6
+Vielzahl 'fi:l-tsa:l
+geringen g@-'RI-N@n
+natürlichen 'na:-tYR-lI-C@n
+Nutzung 'nU-tsUN
+Logik 'lo:-gIk
+übertragen '?y:-b6-tRa:-g@n
+Untersuchungen '?Un-t6-zU-xU-N@n
+Architektur '?a6-Ci:-tEk-tU6
+Anwendungen '?an-vEn-dU-N@n
+treten 'tRe:-t@n
+Studien 'Stu:-di:-@n
+Möglichkeiten 'm2:-glIC-kaI-t@n
+DOS 'dOs
+Folgen 'fOl-g@n
+Neuseeland nOY-'ze:-lant
+Vereinigten fE6-'?aI-nIC-t@n
+Dean 'di:n
+andererseits '?an-d6-R6-saIts
+Altstadt '?alt-Stat
+höhere 'h2:-6-R@
+Mars 'ma6s
+Wörter 'v96-t6
+chemischen 'Ce:-mI-S@n
+Betriebssystem b@-'tRi:ps-zYs-te:m
+behandelt b@-'han-d@lt
+Entdeckung ?Ent-'dE-kUN
+Einwohnern '?aIn-vo:-n6n
+Abstand '?ap-Stant
+Symbol 'zYm-bo:l
+Kalender 'ka:-lEn-d6
+Hitlers 'hIt-l6s
+untersucht ?Un-t6-'zu:xt
+Unterscheidung ?Un-t6-'SaI-dUN
+Merkmale 'mE6k-ma:-l@
+wirtschaftlichen 'vI6t-Saft-lI-C@n
+arbeiten '?a6-baI-t@n
+wichtigen 'vIC-tI-g@n
+bildete 'bIl-d@-t@
+Untersuchung ?Un-t6-'zu:-xUN
+verschiedener fE6-'Si:-d@-n6
+festgelegt 'fEst-g@-le:kt
+anerkannt '?an-?6-kant
+Bielefeld 'bi:-l@-fElt
+verwenden fE6-'vEn-d@n
+Grundlagen 'gRUnt-la:-g@n
+Kölner 'k9l-n6
+University jU-nI-'v96-sI-ti:
+Adenauer '?a:-d@-naU-6
+geringe g@-'RI-N@
+Staates 'Sta:-t@s
+begannen b@-'ga-n@n
+Maßnahmen 'ma:s-na:-m@n
+Veränderungen fE6-'?En-d@-RU-N@n
+Museen mu:-'ze:n
+Coburg 'ko:-bU6k
+Vernunft fE6-'nUnft
+antiken ?an-'ti:-k@n
+Niederlande 'ni:-d6-lan-d@
+verstehen 'fE6-Ste:-@n
+technischen 'tEC-nI-S@n
+Chávez Sa:-'ve:s
+Gegenstand 'ge:-g@n-Stant
+Informatik ?In-fO6-'ma:-tIk
+auftreten '?aUf-tRe:-t@n
+verwendeten fE6-'vEn-d@-t@n
+Objekt ?Ob-'jEkt
+Ebenso '?e:-b@n-zo:
+Habermas 'ha:-b6-ma:s
+Arsen ?a6-'ze:n
+offiziellen ?O-fi:-'tsjE-l@n
+Mio 'mi:-o:
+Fläche 'flE-C@
+sodass zo:-'das
+Viren 'vi:-R@n
+Norwegen 'nOR-ve:-g@n
+Jupiter 'ju:-pi:-t6
+nachgewiesen 'na:x-g@-vi:-z@n
+Grünen 'gRy:-n@n
+Peirce 'pi:6s
+Nordsee 'nO6t-ze:
+nutzen 'nU-ts@n
+möglichen 'm2:-glI-C@n
+Code 'ko:d
+weisen 'vaI-z@n
+ermöglichen ?E6-'m2:-glI-C@n
+Analyse ?a-na:-'ly:-z@
+Niederlage 'ni:-d6-la:-g@
+offizielle ?o:-fi:-'tsjE-l@
+Gesellschaften g@-'zEl-Saf-t@n
+Römischen 'R2:-mI-S@n
+Nationalsozialismus nats-jo:-'na:l-zo:-tsja-lIs-mUs
+Christen 'kRIs-t@n
+Erste '?E6s-t@
+aktuellen ?ak-tu:-'?E-l@n
+May 'maI
+chemische 'Ce:-mI-S@
+Prozesse pRo:-'tsE-s@
+for 'fo:6
+religiösen Re:-li:-gI-'2:-z@n
+Vorkommen 'fO6-kO-m@n
+Übergang '?y:-b6-gaN
+wesentlichen 've:-z@n-tlI-C@n
+weshalb vEs-'halp
+komplexen kOm-'plE-ks@n
+Verständnis fE6-'StEnt-nIs
+Gewerkschaften g@-'vE6k-Saf-t@n
+elektrische ?e:-'lEk-tRI-S@
+Auflage '?aUf-la:-g@
+Wissenschaftler 'vI-s@n-Saf-tl6
+Autismus ?aU-'tIs-mUs
+Zusammensetzung tsu:-'za-m@n-zE-tsUN
+Nietzsche 'ni:ts-S@
+Franken 'fRaN-k@n
+Interpretation ?In-t6-pR@-tats-'jo:n
+Brief 'bRi:f
+Konflikt kOn-'flIkt
+einfache '?aIn-fa-x@
+Manga 'maN-ga:
+Nationalsozialisten nats-jo:-'na:l-zo:-tsja-lIs-t@n
+Verhältnisse fE6-'hElt-nI-s@
+betrug b@-'tRu:k
+Napoléon na-'po:-le:-On
+Eisenbahn 'aI-z@n-ba:n
+erweitert ?E6-'vaI-t6t
+Nachweis 'na:x-vaIs
+Fritz 'fRIts
+erzeugen ?E6-'tsOY-g@n
+zufolge tsu:-'fOl-g@
+Weimarer 'vaI-ma:-R6
+diskutiert dIs-ku:-'ti:6t
+extrem ?Eks-'tRe:m
+Jahrzehnten ja:6-tse:n-t@n
+Preise 'pRaI-z@
+wesentliche 've:-z@n-tlI-C@
+Auflösung '?aUf-l2:-zUN
+Gewicht g@-'vICt
+verboten fE6-'bo:-t@n
+Hochschule 'ho:x-Su:-l@
+Athen ?a-'te:n
+Hesse 'hE-s@
+gezeigt g@-'tsaIkt
+Systemen zYs-'te:-m@n
+darstellt 'da6-StElt
+erfolgen ?E6-'fOl-g@n
+Dichte 'dIC-t@
+Schnitt 'SnIt
+angelegt '?an-g@-le:kt
+Aspekte ?as-'pEk-t@
+Wesentlichen 've:-z@n-tlI-C@n
+Netz 'nEts
+bekannteste b@-'kan-t@s-t@
+verfügen fE6-'fy:-g@n
+Patent pa-'tEnt
+Weltkrieges 'vElt-kRi:-g@s
+Kupfer 'kU-pf6
+Lüneburg 'ly:-n@-bU6k
+kulturelle kUl-tu:-'RE-l@
+Stoffe 'StO-f@
+Hersteller 'hE6-StE-l6
+Esperanto ?Es-pE-'Ran-to:
+Metaphysik 'me:-ta-fY-zi:k
+Albert '?al-b6t
+Tourismus tu:-'RIs-mUs
+Leibniz 'laIp-nIts
+schließen 'Sli:-s@n
+Frankreichs 'fRaNk-RaICs
+ausgeführt '?aUs-g@-fy:6t
+ernannt ?E6-'nant
+Berechnung b@-'REC-nUN
+gelegenen g@-'le:-g@-n@n
+aufweisen '?aUf-vaI-z@n
+Asien '?a-zi:-@n
+Cache 'kES
+elektrischen ?e:-'lEk-tRI-S@n
+ausgebaut '?aUs-g@-baUt
+Hanse 'han-z@
+Produkt pRo:-'dUkt
+christliche 'kRIs-tlI-C@
+Dortmunder 'dO6t-mUn-d6
+American ?@-'mE-rI-k@n
+Aminosäuren ?a-'mi:-no:-zOY-R@n
+Gewinnung g@-'vI-nUN
+mittleren 'mIt-l6-R@n
+Kairo 'kaI-Ro:
+Zelle 'tsE-l@
+europäische ?OY-Ro:-'pe:-I-S@
+äußeren 'OY-s6-R@n
+Riefenstahl 'Ri:-f@n-Sta:l
+Angriff '?an-gRIf
+gesetzt g@-'zEtst
+Kriege 'kRi:-g@
+Methan me:-'ta:n
+bewegen b@-'ve:-g@n
+Bezeichnungen b@-'tsaIC-nU-N@n
+Zwar 'tsva:6
+Jahrhunderte ja:6-'hUn-d6-t@
+Mathematiker ma-t@-'ma:-ti:-k6
+Dateien da:-'taI-@n
+speziellen Spe:-'tsjE-l@n
+Sehenswürdigkeiten 'ze:-@ns-vY6-dIC-kaI-t@n
+Wahrnehmung 'va:6-ne:-mUN
+absolute ?ap-zo:-'lu:-t@
+Newton 'nju:-t@n
+infolge ?In-'fOl-g@
+Helsinki 'hEl-zIN-ki:
+Schwerpunkt 'SvE6-pUNkt
+einschließlich 'aIn-Sli:s-lIC
+Datei da:-'taI
+Block 'blOk
+Compiler kOm-'paI-l6
+Reformation Re:-fO6-mats-'jo:n
+griechische 'gRi:-CI-S@
+Dreharbeiten 'dRe:-a6-baI-t@n
+Nordosten nO6t-'?Os-t@n
+Einteilung '?aIn-taI-lUN
+Elektronen ?e:-lEk-'tRo:-n@n
+Rote 'Ro:-t@
+Erfindung ?E6-'fIn-dUN
+Kohlenstoff 'ko:-l@n-StOf
+Dauer 'daU-6
+vermeiden fE6-'maI-d@n
+Mauer 'maU-6
+Popper 'pO-p6
+Ereignisse ?E6-'?aI-gnI-s@
+Vitamin vI-ta-'mi:n
+zentralen tsEn-'tRa:-l@n
+Nickel 'nI-k@l
+di 'dI
+Haltung 'hal-tUN
+private pRi:-'va:-t@
+Arbeiter '?a6-baI-t6
+zusätzliche 'tsu:-zEts-lI-C@
+Aufstieg '?aUf-Sti:k
+indischen '?In-dI-S@n
+Wiener 'vi:-n6
+Heer 'hE6
+Wahrscheinlichkeit va:6-'SaIn-lIC-kaIt
+Völker 'f9l-k6
+Änderungen '?En-d@-RU-N@n
+Fassung 'fa-sUN
+innere '?I-n6-R@
+Rechner 'REC-n6
+Karls 'ka6ls
+Isotope ?i:-zo:-'to:-p@
+Abhängigkeit '?ap-hE-NIC-kaIt
+Innerhalb '?I-n6-halp
+on '?On
+häufigsten 'hOY-fIC-st@n
+besonderen b@-'zOn-d6-R@n
+ältere 'El-t6-R@
+Base 'ba:-z@
+umgesetzt '?Um-g@-zEtst
+Testament tES-ta:-'mEnt
+Fantasy 'fEn-t@-si:
+jene 'je:-n@
+begründete b@-'gRYn-d@-t@
+Wege 've:-g@
+Ernährung ?E6-'nE:-RUN
+Überlieferung ?y:-b6-'li:-f@-RUN
+Könige 'k2:-nI-g@
+maßgeblich 'mas-ge:p-lIC
+Kohl 'ko:l
+Neutronen nOY-'tRo:-n@n
+Südosten zy:t-'?Os-t@n
+aktuelle ?ak-tu:-'?E-l@
+ISO '?i:-zo:
+physikalischen fY-zi:-'ka:-lI-S@n
+Gericht g@-'RICt
+Tieren 'ti:-R@n
+umgekehrt '?Um-g@-ke:6t
+normalerweise nO6-'ma:-l6-vaI-z@
+philosophischen fi:-lo:-'zo:-fI-S@n
+bestehende b@-'Ste:-@n-d@
+Aldi '?al-di:
+Absinth ?ap-zInt
+Identität ?I-dEn-ti:-'tE:t
+Schichten 'SIC-t@n
+Nordwesten nO6t-'vEs-t@n
+Pakistan 'pa-kIs-ta:n
+mathematischen ma-t@-'ma:-tI-S@n
+aufgeteilt '?aUf-g@-taIlt
+Faktoren fak-'to:-R@n
+einfachen '?aIn-fa-x@n
+Goldenen 'gOl-d@-n@n
+gemessen g@-'mE-s@n
+Kriterien kRi:-'te:-Ri:-@n
+vollständige 'fOl-StEn-dI-g@
+Graf 'gRa:f
+Bauwerke 'baU-vE6-k@
+Schopenhauer 'So:-p@n-haU-6
+ROM 'ROm
+bot 'bo:t
+Reichstag 'RaICs-ta:k
+Wachstum 'vaxs-tu:m
+größtenteils 'gR2:s-t@n-taIls
+erforderlich ?E6-'fO6-d6-lIC
+mathematische ma-t@-'ma:-tI-S@
+Container kOn-'tEI-n6
+seltener 'zEl-t@-n6
+Jugoslawien jU-go:-'sla:-vi:-@n
+Abgrenzung '?ap-gREn-tsUN
+abgelehnt '?ap-g@-le:nt
+Zerstörung tsE6-'St2:-RUN
+zugunsten tsu:-'gUns-t@n
+Alphabet ?al-fa-'be:t
+wiederholt vi:-d6-'ho:lt
+verbindet fE6-'bIn-d@t
+Virus 'vi:-RUs
+Konstantinopel kOns-tan-tI-'no:-p@l
+Indiens '?In-di:-Ens
+entsprechen ?Ent-'SpRE-C@n
+Beitrag 'baI-tRa:k
+Apollo ?a-'pO-lo:
+Substanzen zUp-'stan-ts@n
+gefördert g@-'f96-d6t
+vergleichbar fE6-'glaIC-ba:6
+Greenpeace 'gri:n-pi:s
+Minderheit 'mIn-d6-haIt
+Island '?Is-lant
+mittlere 'mIt-l6-R@
+sofern zo:-'f6n
+festen 'fEs-t@n
+Körpers 'k96-p6s
+Ebenen '?e:-b@-n@n
+demnach 'de:m-nax
+Mazedonien ma-ts@-'do:-ni:-@n
+Angebot '?an-g@-bo:t
+berücksichtigt b@-'RYk-zIC-tICt
+Zone 'tso:-n@
+beziehen b@-'tsi:-@n
+umfangreiche '?Um-faN-gRaI-C@
+Hochschulen 'ho:x-Su:-l@n
+Mitteleuropa 'mI-t@l-?OY-Ro:-pa:
+Ethik '?e:-tIk
+integriert ?In-te:-'gRi:6t
+Kalifornien ka-lI-'fO6-ni:-@n
+Gaulle 'go:l
+Neptun 'nEp-tu:n
+Bits 'bIts
+besaß b@-'za:s
+eingeteilt 'aIn-g@-taIlt
+Abs '?aps
+Freudenstadt 'fROY-d@n-Stat
+Wittgenstein 'vIt-g@n-StaIn
+Vereinten fE6-'?aIn-t@n
+Inneren '?I-n6-R@n
+Konsonanten kOn-zo:-'nan-t@n
+Mondes 'mo:n-d@s
+Breite 'bRaI-t@
+Rezeption Re:-tsEp-'tsjo:n
+Wurzeln 'vU6-ts@ln
+Förderung 'f96-d@-RUN
+Fälle 'fE-l@
+Verteilung fE6-'taI-lUN
+Schreibweise 'SRaIp-vaI-z@
+bedeutendste b@-'dOY-t@n-tst@
+Vorgang 'fO6-gaN
+Atome ?a-'to:-m@
+Epoche ?e:-'pO-x@
+Krone 'kRo:-n@
+errichtete ?E6-'RIC-t@-t@
+Jahrzehnte ja:6-'tse:n-t@
+Streitkräfte 'StRaIt-kREf-t@
+frühe 'fRy:-@
+Christi 'kRIs-ti:
+Bindung 'bIn-dUN
+Bruno 'bRu:-no:
+Übertragung ?Y-b6-'tRa:-gUN
+dienten 'di:n-t@n
+gefolgt g@-'fOlkt
+Handlungen 'han-tlU-N@n
+Jahrhunderten ja:6-'hUn-d6-t@n
+Grönland 'gR2:n-lant
+Erforschung ?E6-'fO6-SUN
+betrachten b@-'tRax-t@n
+Organismen ?O6-ga:-'nIs-m@n
+ehemals '?e:-@-ma:ls
+BASIC 'bEI-sIk
+politischer po:-'li:-tI-S6
 realisiert
-unterschiedlicher
-Cholesterin
-typischen
-Malerei
-Genua
-internationaler
-Erweiterung
-Entropie
-Muslime
-NS
-noir
-Tucholsky
-direkten
-Gene
-Verbesserung
-allmählich
-Bauten
-näher
-besetzten
-Aspekt
-Dienstleistungen
-durchschnittlich
-Reduktion
-berühmten
-brachten
-unteren
-ergänzt
-Logarithmus
-Kafka
-Summe
-komplexe
-literarischen
-bestehenden
-Klassen
-Null
-Spektrum
-Latein
-Bosnien
-LSD
-Kontext
-erfüllen
-Geschichten
-anlässlich
-entstandenen
-Definitionen
-Dresdner
-Zerfall
-DM
-weiten
-baute
-zahlreicher
-Jolie
-Ausbau
-Kopenhagen
-dauerte
-angewendet
-Konzentration
-Nil
-Wechsel
-Dritten
-ENIGMA
-technisch
-Banken
-Kreta
-clear
-Verbot
-ausreichend
-sämtliche
-einzelner
-Naturwissenschaften
-fielen
-vorgesehen
-Briefe
-SA
-führenden
-Ton
-Vermögen
-verbinden
-Sprachgebrauch
-Organismus
-theoretischen
-Typen
-Schätzungen
-vorgenommen
-Konzentrationslager
-Seen
-Cambridge
-Transformation
-Beobachtungen
-lebenden
-germanischen
-Fe
-erzielt
-Systematik
-Antikörper
-Versorgung
-versuchten
-Algerien
-Makedonien
-lokalen
-gelangte
-Himmler
-Comics
-Jesu
-Allgemeine
-Güter
-Prozessoren
-Beweis
-Kunden
-Bände
-Entscheidungen
-etabliert
-Konflikte
-bürgerlichen
-KZ
-gewöhnlich
-Herzegowina
-Mrd
-Frisch
-left
-Enzyme
-Bakterien
-Rechts
-Anlass
-Lippe
-Siedlung
-Erhard
-Projekte
-Experiment
-hinsichtlich
-Subjekt
-Mainz
-Grazer
-Diktatur
-Bell
-beschloss
-befasst
-Golden
-Zeppelin
-geblieben
-Galaxien
-Biografie
-Vordergrund
-Gambia
-Proteine
-angeblich
-Amtssprache
-Zugriff
-Reisen
-Stadtteilen
-Nobelpreis
-herausgegeben
-Bonaparte
-festgestellt
-erstellt
-nunmehr
-unterhalb
-Knoten
-Erkrankung
-Ziffern
-Gottfried
-Begriffs
-lateinische
-Regime
-Sätze
-Halbwertszeit
-Begründung
-Caligula
-Intelligenz
-Alternative
-Sowohl
-Landkreises
-veröffentlichten
-Aufmerksamkeit
-Wörtern
-reiste
-Anordnung
-Überlegungen
-gewissen
-Lösungen
-Nutzen
-Hauptbahnhof
-Kapazität
-Linné
-Adressen
-Norm
-berechnet
-Traditionen
-Iran
-womit
-Iod
-Cha
-Edition
-Behörden
-Braunschweig
-digitale
-Gibraltar
-Glaube
-Leber
-dänischen
-verfügte
-Erzeugung
-Hinweis
-Atlantik
-evangelischen
-Vorteile
-gesellschaftliche
-Gegenstände
-FAT
-Algebra
-benannte
-Geistes
-Andreas
-Gesteine
-Alexandria
-gezielt
-Julius
-Bosporus
-Neckar
-Verlust
-geregelt
-Koran
-kleinste
-Betrachtung
-Schäden
-Fichte
-Afrikas
-persönlichen
-verbessern
-insofern
-breiten
-Gestaltung
-Esoterik
-absoluten
-Vielfalt
-Karthago
-Miles
-protestantischen
-Chlor
-Eis
-Zeitalter
-traditionelle
-gewählten
-digitalen
-Medici
-vertrieben
-antike
-Effekte
-Stattdessen
-entstandene
-Aktivität
-Theodor
-Monde
-gespeichert
-Reformen
-zeigten
-gegliedert
-unternahm
-Enzym
-GSM
-Fourier
-bedeutender
-Gorillas
-durchschnittliche
-Mönchengladbach
-Mexiko
-right
-Auschwitz
-Städtepartnerschaften
-Manchester
-italienische
-Bologna
-Mary
-Sitze
-angepasst
-erfasst
-Verteidigung
-Vorgänger
-Isar
-Synthese
-Nachrichten
-Dönitz
-amerikanischer
-schwedischen
-Geburtstag
-gelangt
-Elektrolyse
-philosophische
-Erzählungen
-Territorien
-Anime
-unmöglich
-logischen
-Verschiedene
-Englischen
-Ortsteil
-Angabe
-ägyptischen
-Politische
-Kurfürsten
-Ausgangspunkt
-Widerspruch
-Neustadt
-Umlauf
-derselben
-Perspektive
-Rotkreuz
-Curium
-Methanol
-physikalische
-Produzent
-Flotte
-Physiker
-biologische
-Church
-Hitchcocks
-Aufstand
-Homburg
-bessere
-stärksten
-umfassen
-KG
-Zeitungen
-Flächen
-Metalle
-Darmstadt
-Kontinent
-gestaltet
-Company
-enge
-Society
-kurzer
-dortigen
-style
-Zustände
-Berichte
-Benutzer
-Ludwigshafen
-Konstruktion
-Weimar
-Turing
-Stickstoff
-KPD
-Kolonien
-Betriebssysteme
-Steuerung
-Freiberg
-Normen
-Durchbruch
-UNESCO
-Anstieg
-Premierminister
-demokratischen
-Santa
-Legende
-nationalsozialistischen
-orthodoxen
-Symptome
-Godzilla
-Männchen
-Bernhard
-VII
-Analog
-Leipziger
-Programmiersprache
-Lewis
-Schiffen
-Leonberg
-Erhebung
-Häufig
-aktiven
-NASA
-Dampfmaschine
-stieß
-aktive
-schnellen
-oberhalb
-eroberten
-Winkel
-Taunus
-Norrköping
-führende
-spätestens
-Technische
-Bezirke
-Richtungen
-erhältlich
-Böhmen
-Minerale
-Aufl
-Verschlüsselung
-Guevara
-Nero
-weitaus
-umfassende
-niedriger
-untergebracht
-Spätantike
-produzierte
-bewirkt
-Symbole
-definierte
-ermittelt
-Dagegen
-durchgesetzt
-Bucht
-Münchner
-Freunde
-neueren
-Banknoten
-biologischen
-Objekten
-verfasst
-wahrgenommen
-Bundesbank
-Erster
-beteiligten
-CO
-langer
-Fauna
-beliebige
-äußere
-mechanische
-Stamm
-Transkription
-entscheidende
-ausländische
-Standards
-Caesars
-Elfenbeinküste
-formale
-Warhol
-Bachs
-anzutreffen
-Umsetzer
-Menschenaffen
-regionalen
-dänische
-Generationen
-Eastwood
-benachbarten
-Zwerge
-Tolkien
-Umfeld
-Sprachraum
-geringeren
-VI
-Erwähnung
-verschieden
-Syndrom
-Hameln
-Attac
-Programmen
-Angehörige
-Föderation
-Festland
-benötigte
-Gauß
-Jünger
-Planet
-unabhängige
-betrifft
-beeinflussen
-Autobahnen
-elektronischen
-Mehrere
-Folgende
-unterstellt
-Architekten
-Zink
-Admiral
-Anmerkungen
-Kopernikus
-galten
-aufgestellt
-Express
-Mächte
-Rund
-errichten
-Brand
-Zentralbank
-zusätzlichen
-geprägten
-Comic
-Regierungen
-erhebliche
-Fibonacci
-Dokumente
-Gesetzes
-Militärs
-analog
-stabil
-GPL
-IWF
-Min
-literarische
-erhaltene
-Mehrzahl
-Calcium
-ferner
-Digital
-beliebig
-Index
-Wirkungen
-entsprach
-Henri
-Produzenten
-Umlaufbahn
-Ascorbinsäure
-Scharon
-Malta
-nördliche
-Dateisystem
-Südamerika
-Kenntnisse
-Gestein
-organischen
-Ringe
-fehlen
-Toten
-Erdoberfläche
-moderner
-SI
-Mündung
-Umwandlung
-herzustellen
-Adams
-Gemäß
-Argon
-kreisfreie
-erheblichen
-Programmiersprachen
-benötigen
-Weltmeisterschaft
-Folgezeit
-zunehmenden
-Gramm
-Cholesterinspiegel
-Ausbruch
-vergangenen
-Programmierung
-Verarbeitung
-Sonstiges
-formuliert
-transportiert
-erwiesen
-Flusses
-formulierte
-Anforderungen
-Palast
-Ausbreitung
-Betriebe
-Vorgänge
-fertiggestellt
-Merkmal
-Schriftsprache
-Beobachter
-geplanten
-stehenden
-Austausch
-Aufwand
-Moleküle
-Implikation
-Wirtschafts
-abgebaut
-Alexanders
-Disziplinen
-Dokument
-Ministerpräsidenten
-Ostsee
-explizit
-höherer
-Büchern
-Metallen
-regionale
-UA
-Demokratische
-IgE
-DRK
-LDL
-definieren
-Myanmar
-polnische
-Anthropologie
-Südafrika
-Mitgliedschaft
-Gliederung
-betrachtete
-Bedingung
-Concorde
-Mailand
-falls
-Regisseure
-vollständigen
-Parker
-einheitliche
-bevorzugt
-kroatischen
-befördert
-Thälmann
-BeOS
-finanzielle
-belegen
-enthielt
-genetische
-vorgestellt
-Niedergang
-liegende
-byzantinischen
-konservativen
-Großstadt
-leitete
-TEU
-bedroht
-Sektor
-Vorgehen
-Organe
-Berge
-Residenz
-medizinischen
-Algorithmen
-Inhalte
-Niederschlag
-Hegel
-Beschäftigung
-ausgerichtet
-Hawaii
-untersuchen
-geteilt
-Wechselwirkung
-dominiert
-vereinigt
-zugeschrieben
-Persönlichkeit
-Experimente
-JavaScript
-Kernel
-Arafat
-Erzbischof
-geplante
-Programms
-François
-Zuordnung
-positiven
-Phänomene
-Lübeck
-Ordnungszahl
-wirtschaftlicher
-gestartet
-vernichtet
-städtischen
-Freien
-verzichtet
-Fürstentum
-ändert
-Ereignis
-konkrete
-sowjetische
-genauso
-Regelung
-Darin
-Arbeitnehmer
-anstatt
-Gravitation
-kommerziellen
-Dienste
-NATO
-Frege
-by
-Debatte
-Nordafrika
-Vielmehr
-DVD
-Relativitätstheorie
-Ähnlichkeit
-Maßstab
-vorgeschlagen
-Gewebe
-Produkten
-übernahmen
-Coppola
-konkreten
-Platon
-Kleinasien
-unmittelbaren
-Julia
-gegenwärtig
-Arnold
-beigetragen
-British
-vermittelt
-Buchstabe
-künstlerische
-Chemische
-beinhaltet
-Giovanni
-schwarzen
-primär
-kommunistischen
-Strömungen
-Phasen
-Entsprechend
-Stufen
-dauerhaft
-Beitritt
-Vermittlung
-jährige
-Schnittstellen
-erfuhr
-Zweig
-Französische
-Anwesenheit
-Libyen
-Forschungen
-Prag
-bestehend
-Tempelhof
-Besondere
-Attentat
-Isotop
-Leni
-Londoner
-Brücken
-Organ
-identifiziert
-Everest
-berechnen
-CP
-KI
-Gerade
-Legierungen
-Coffein
-Einkommen
-Störungen
-theoretische
-Erreger
-Dreißigjährigen
-Unix
-zeitlich
-vermieden
-Ladung
-Lediglich
-restlichen
-Deutsches
-Belege
-Frequenz
-Adrenalin
-Reichsstände
-Schritte
-gehandelt
-erfordert
-Klöster
-Gladbach
-betroffenen
-Niveau
-Marlon
-kritisierte
-AE
-Hg
-Wahlrecht
-Botschaft
-Ausgang
-Wirken
-vorkommt
-norwegischen
-Einwohnerentwicklung
-Bürgern
-Differenz
-verdrängt
-Herzogtum
-BIP
-Lee
-Bundeskanzlers
-Benchmarking
-sozialer
-Besiedlung
-aufgefasst
-grundlegenden
-Verwandtschaft
-Mannheim
-Landtag
-Vorbereitung
-Indus
-Fiction
-Verknüpfung
-darzustellen
-Luftschiffe
-deutliche
-vorhandene
-Crowley
-Reform
-Gültigkeit
-voran
-stärkste
-nutzt
-Schatten
-notwendigen
-griech
-Angriffe
-umfangreichen
-Eingang
-Thesen
-Arabischen
-Stoffen
-Erdkruste
-Computern
-Sonnensystems
-Vokal
-Ginkgo
-gegenseitig
-CDs
-Konzerte
-entdeckten
-Lebensjahr
-beliebigen
-erhaltenen
-weitestgehend
-Anhängern
-seltenen
-Kapitel
-spezifischen
-Ruhr
-linke
-heutiger
-Zentren
-unabhängigen
-erhöhten
-Berlins
-bezog
-erobert
-Eingemeindungen
-Volksabstimmung
-Humboldt
-Befehle
-Universums
-mehrheitlich
-Antrag
-Cf
-ha
-dieselbe
-datiert
-endgültige
-indirekt
-Holland
-Anlehnung
-Walzen
-neuere
-historischer
-Belagerung
-Americium
-grundlegend
-ähnelt
-Anton
-empfangen
-volle
-facto
-ernannte
-Benzin
-Steigerung
-Kiwis
-Berechnungen
-XP
-dl
-Luftwaffe
-Historische
-systematisch
-HTTP
-Gilgamesch
-kaiserlichen
-EAN
-PDF
-wachsenden
-Autorität
-Letztere
-Anbieter
-formalen
-Gemeinschaften
-eingegliedert
-zunehmende
-Komplexität
-Gesteinen
-Bagdad
-Hindenburg
-Bundestages
-Araber
-aufmerksam
-Morpheme
-Commodore
-Menschenrechte
-betragen
-einheitlichen
-Bön
-CPU
-ETH
-Zusammenschluss
-kombiniert
-MHz
-Szenen
-doppelt
-erschienenen
-Labor
-weiblichen
-Röhm
-kommerzielle
-veränderten
-Einzug
-Publikationen
-finnischen
-Härte
-industriellen
-Besonderheiten
-Japans
-Press
-Periodensystem
-korrekt
-Vernichtung
-zunehmender
-Rumänien
-bulgarische
-folgendermaßen
-Himmelskörper
-Eiben
-Kommunisten
-Küsten
-besuchen
-Douglas
-Santiago
-Parameter
-Türken
-genügend
-eigenständigen
-Be
-Holly
-nm
-Verband
-müsste
-Nobel
-Stoiber
-byzantinische
-Popularität
-organische
-Elektrotechnik
-Kleine
-kritischen
-Bewertung
-Etymologie
-besseren
-AutoCAD
-annähernd
-Endung
-Fortschritt
-Freiburg
-betrieb
-Römische
-Regierungszeit
-ähnlicher
-Einnahme
-umgangssprachlich
-Madonnas
-Marken
-Kreuzzüge
-Autonomie
-Seitdem
-entstehende
-Groß
-Tumoren
-Schmitts
-Geschlecht
-unterzeichnet
-GNU
-abgeschafft
-Felix
-Kapitalismus
-Māori
-geeignete
-Immunsystem
-ehemaliger
-menschlicher
-entworfen
-litt
-Allein
-zeichnet
-Fraktion
-verband
-Nietzsches
-stehende
-Legierung
-Erinnerung
-Desktop
-repräsentiert
-geringere
-beruhen
-Feinde
-Davon
-Distributionen
-verlangt
-fördern
-Gleichungen
-bewiesen
-Computerspiele
-beschädigt
-besiedelten
-Induktivität
-Meißen
-Allgemeines
-österreichische
-Formulierung
-Gesetzen
-Pilze
-Zuse
-herrschte
-Mitarbeitern
-behandeln
-PCs
-Fahrzeuge
-nachfolgenden
-Gesamtheit
-Einzelnen
-arabische
-britischer
-Volkszählung
-Aufteilung
-Multiplikation
-Angehörigen
-Landeshauptstadt
-Ausgleich
-Münze
-politisches
-verringert
-Wassers
-chemisches
-Abstammung
-Schaden
-Machiavelli
-Deren
-Astronomen
-kontrolliert
-herangezogen
-Mengenlehre
-Gelehrten
-Zitate
-Milchstraße
-wirksam
-Live
-Sklaven
-Synagoge
-Konventionen
-stattfand
-Mesopotamien
-Typische
-Beachtung
-ad
-letztendlich
-Adler
-Anfänge
-Schaffen
-elektrischer
-wider
-Byron
-Ada
-erforscht
-täglichen
-bisherige
-Schifffahrt
-Signale
-Isaac
-letztere
-Institution
-Umland
-Vorlage
-tatsächlichen
-Gegenden
-Sklaverei
-Hubschrauber
-erreichbar
-Komitee
-Griechisch
-Barks
-individuelle
-Krater
-prägen
-übergeben
-Säuren
-Fachhochschule
-muslimischen
-Lord
-Dessen
-vielfältig
-Bestimmungen
-Abschaffung
-Folgenden
-Salzburg
-richtete
-Friedens
-Sonde
-Tiberius
-Graphit
-Gütern
-Entstanden
-Luftschiff
-ausgeprägt
-Gerichte
-leichte
-Göttern
-Propheten
-gliedert
-staatlich
-Alltag
-Herzen
-Sonstige
-niedrige
-Marburg
-Typs
-voller
-Flughafens
-Hinblick
-verlaufen
-Finnland
-unverändert
-wahre
-indogermanischen
-Kennzeichen
-Lizenz
-Finanzierung
-mechanischen
-Handbuch
-Kette
-zeitgenössischen
-auftritt
-Klammern
-vorliegen
-Bischöfe
-Messungen
-gewährt
-Morton
-Zahlungsmittel
-Group
-zeitliche
-Regelungen
-CH
-elektrisch
-erbaute
-Bedürfnisse
-Perutz
-angegriffen
-Abu
-Achse
-PCR
-Audio
-Reichskanzler
-abgebildet
-Sonnensystem
-Entwickler
-längste
-Kampagne
-gemäßigten
-stattfindet
-verstand
-bedeutend
-GPRS
-Stockholm
-Vegetation
-Germanium
-Kronach
-individuellen
-berichten
-Academy
-zweites
-Fortschritte
-Asperger
-Vertrauen
-Verwitterung
-Volumen
-Sätzen
-Schwefel
-Wikipedia
-Bisher
-Debian
-zählte
-Caracalla
-globalen
-regelmäßigen
-Mannschaften
-Stellenwert
-Vorschriften
-benutzten
-gültigen
-Konzentrationen
-Domitian
-Che
-wonach
-SED
-Kästner
-begründen
-gewordenen
-Engländer
-Verfolgung
-Investitionen
-interessierte
-Substrat
-eingesetzten
-enormen
-berühmtesten
-künstliche
-Engels
-Modellen
-goldenen
-gleichermaßen
-Neuseelands
-online
-Glasgow
-markiert
-Argumente
-Planck
-Michel
-Mythen
-Batter
-Früher
-beginnend
-intensive
-Protein
-arbeiteten
-Personal
-Atomen
-städtische
-Deutung
-Erfindungen
-Bald
-durchführen
-Fastenzeit
-Navy
-Verordnung
-vertritt
-Hirohito
-etablierten
-Umstand
-gefordert
-islamische
-sichtbaren
-On
-He
-Pb
-slawischen
-stabile
-Lexikon
-Königreichs
-lateinischer
-beschäftigen
-www
-verkehren
-echten
-Cadmium
-Glucose
-Offenbarung
-Geldmenge
-Paderborn
-Bronze
-reduzieren
-vorliegt
-naturwissenschaftlichen
-Zusammenbruch
-zerfällt
-Bindungen
-orientierten
-optischen
-Addition
-regelmäßige
-Bruttoinlandsprodukt
-sozialistischen
-geeigneten
-Gemeinsam
-Elektronik
-Geisteswissenschaften
-Ausmaß
-analogen
-Fragestellungen
-ähnliches
-Flugzeugen
-Straßenverkehr
-Black
-mathematisch
-Landkreise
-Kryptographie
-eigenem
-geöffnet
-Straßenbahn
-Außer
-asiatischen
-Gleichheit
-Kaisertum
-River
-Meeresspiegel
-normale
-Li
-OH
-Io
-WM
-Richtlinien
-revolutionären
-Wähler
-XVI
-Dramen
-LaTeX
-Walze
-Satelliten
-Maschinenbau
-Syntax
-Reichweite
-Bayerische
-Anpassung
-Mönche
-heilige
-Liestal
-Celsius
-verbliebenen
-Gewinn
-Nachteil
-Elbing
-relative
-Verfilmung
-basierte
-tiefen
-erzielte
-Annäherung
-Population
-Verben
-Versammlung
-erstellen
-exakte
-Tote
-Höhen
-betreffenden
-Ereignissen
-diversen
-deutlichen
-Hafnium
-gesucht
-nachweisbar
-schickte
-Zulassung
-Unternehmens
-Gegenüber
-verstärkte
-Argentiniens
-Berlinale
-jährlichen
-Balkan
-JPEG
-laufenden
-Einordnung
-erklärten
-Stadtmauer
-Petrus
-Arabisch
-Literaturwissenschaft
-Wagen
-regiert
-Tätigkeiten
-Protestanten
-Grundsätzlich
-Kohlenstoffdioxid
-organisierten
-Scheitern
-gegebenen
-gewählte
-Senkung
-darstellte
-rechtlich
-Magen
-festgehalten
-Jacob
-Mettmann
-Jungsteinzeit
-ökonomischen
-äußersten
-Octavian
-Magnetfeld
-Fragmente
-Programmierer
-enden
-künstlichen
-Fehlen
-Erscheinungen
-Antonius
-erlangt
-Gerechtigkeit
-Eschborn
-produzierten
-vereinzelt
-Maximilian
-Links
-vielfältige
-Gefahren
-Veranstaltung
-Eppstein
-Mikroorganismen
-Seither
-Induktion
-Kapitulation
-weitem
-Zawinul
-bewirken
-Klassiker
-Statue
-Sammlungen
-Kronberg
-stabilen
-ausgehend
-Leerzeichen
-RNA
-Wiederherstellung
-definierten
-umstrittenen
-kommenden
-Sportarten
-wendet
-History
-Handwerker
-Jordanien
-beitragen
-kubanischen
-hrsg
-Bevölkerungszahl
-Konvent
-umliegenden
-Buddy
-derartige
-Osmanen
-künstlerisch
-Warschau
-Begegnung
-alliierten
-Schwefelsäure
-Louvre
-Ging
-Chiles
-Steuern
-ohnehin
-Bertolucci
-problematisch
-empirischen
-beschleunigt
-Roma
-bedarf
-Godard
-Notation
-komplexer
-Baskenland
-Sokrates
-Erweiterungen
-unbekannten
-alternative
-Hubble
-Oskar
-erzeugten
-Leonardos
-Klage
-Moas
-Preisträger
-Konflikten
-Quecksilber
-Ganymed
-Donald
-Peru
-GG
-MD
-MB
-ns
-Niederschläge
-eroberte
-Horst
-Gysi
-langfristig
-Kaschmir
-sinkt
-Zonen
-konzentrierte
-denselben
-Fieber
-Papstes
-Arabische
-stammenden
-Abhandlung
-verbreiten
-Grundgesetzes
-Modifikation
-Instanz
-göttlichen
-Maxglan
-verwirklicht
-Kassel
-Insulin
-Aufhebung
-erhebt
-Besatzungszone
-Thailand
-half
-Dateisysteme
-bedienen
-beschriebenen
-Angelegenheiten
-Ausprägung
-ausgegangen
-Frequenzen
-metaphysischen
-fränkischen
-funktioniert
-Mittelmeerraum
-Buches
-Gefühl
-befindlichen
-Maßnahme
-Monte
-Atom
-Services
-erheben
-Nils
-Bevölkerungsdichte
-woraufhin
-zwangsläufig
-Halifax
-Serien
-IT
-Theatre
-Exemplare
-existierten
-Argument
-Anzeichen
-interne
-UdSSR
-Bäumen
-Reden
-weltlichen
-MBR
-NRW
-Artikeln
-drittgrößte
-Relation
-Behauptung
-Hofheim
-bereitete
-geistlichen
-Hauptmanns
-Dakar
-Färbung
-Kampfstoffe
-Rechten
-Schöneberg
-betrachteten
-Betriebssystems
-materiellen
-Raumsonde
-Abbildungen
-entspringt
-Erstellung
-Ältere
-moralische
-Meeres
-gelernt
-Sahara
-Alternativen
-Basic
-vollendet
-späterer
-genauen
-Zunahme
-statistisch
-Entstehen
-Grundgesetz
-Festlegung
-unseres
-gebildeten
-Stadtbezirke
-Geschehen
-unterhalten
-zustande
-siedelten
-fassen
-fasste
-Würzburg
-Kalten
-richtigen
-Einschränkung
-Mitochondrien
-unternommen
-Treptow
-Magazine
-Gesetzgebung
-Heutzutage
-bewohnt
-sprachlichen
-Regimes
-angegebenen
-unterschied
-Pu
-Wohnungen
-Mechanismus
-privat
-Regierungsbezirk
-Mineralen
-Luhmann
-Oxidation
-magnetischen
-Schmelze
-Populationen
-KHK
-Río
-Mandelbrot
-Lynch
-Uhrzeigersinn
-Kosmologie
-Kathedrale
-erzeugte
-Schottland
-Vorfeld
-globale
-Anwender
-Gegenzug
-Überwachung
-Cham
-Regensburg
-Ästhetik
-Liebig
-leistete
-Feng
-Israels
-bulgarischen
-verschiedensten
-Heide
-steigenden
-beschränkte
-anerkannte
-Säure
-Senatoren
-gültige
-Teiler
-Reichswehr
-Technischen
-Hansestadt
-realen
-Kammer
-Mutationen
-Zentrale
-Morphologie
-Braunen
-Klein
-Handelns
-optische
-angebracht
-herrschenden
-gerichtet
-kulturell
-Physikalische
-eingeweiht
-Stoffwechsel
-Legislative
-Arithmetik
-ausgehenden
-Edinburgh
-buddhistischen
-Weltkulturerbe
-liberalen
-forderten
-reelle
-starkes
-AT
-analoge
-Zinn
-verständlich
-Flüssen
-Rückseite
-derer
-CSS
-Regen
-Aktivierung
-gebundene
-Mir
-Griechischen
-Lagerstätten
-Stauffenberg
-ppm
-staatlicher
-Gebäuden
-Belastung
-rechtliche
-Gegnern
-zwingend
-Allergene
-verursachen
-wiedergegeben
-Dosis
-Lateinische
-Mikroprozessor
-Klassifizierung
-privater
-Felsen
-Zivilisation
-Willens
-Vorhandensein
-magnetische
-fasst
-Infolge
-hervorgerufen
-Auflagen
-Empfehlung
-Bamberg
-erwähnten
-that
-Onkel
-Währungen
-Rechnung
-Naturwissenschaft
-untersuchte
-Raumtemperatur
-Rekonstruktion
-Force
-Hauptwerk
-Konsequenzen
-Außerhalb
-Habsburger
-benannten
-Erdatmosphäre
-Hafer
-Molybdän
-Linken
-Nameserver
-sche
-gefangen
-deuten
-Cameron
-Niob
-Anatomie
-Verdienste
-Plätze
-Kameras
-Schmuck
-Odin
-einzuführen
-Abfolge
-Piloten
-Platons
-radikalen
-Elements
-Infektion
-Global
-Feldzug
-Hotel
-Dementsprechend
-Geltung
-Bearbeitung
-bürgerliche
-bestätigte
-Besuchern
-WTO
-Ray
-Kandidat
-Schmelzpunkt
-reines
-Verfügbarkeit
-Berührung
-Kohlenwasserstoffe
-besaßen
-körperliche
-Auszeichnung
-Darm
-Universal
-Kasus
-Romanen
-Kanon
-Einflüssen
-Terminologie
-Messe
-Vereinigte
-bearbeitet
-bemüht
-zugehörigen
-Flugzeugträger
-vergleichen
-gefährdet
-Delphi
-Grafschaft
-Verhaltensweisen
-fehlenden
-Watt
-Ware
-Fuge
-Primaten
-ersetzte
-Schwerkraft
-Böse
-symbolische
-Berücksichtigung
-entfernten
-verließen
-Rate
-Stationen
-Komponente
-zeitlichen
-Erhaltung
-Shui
-eindeutige
-Evangelischen
-liberale
-Wellington
-bloße
-Stephen
-Begriffes
-Reiche
-öffentlicher
-entfallen
-Grafikkarten
-Mikrocontroller
-Medikamente
-geographischen
-erobern
-Analysen
-Evangelische
-Saussure
-Todes
-Antimon
-Eigentums
-Straßennetz
-fliegen
-Merkmalen
-hiero
-it
-ableiten
-Westküste
-richten
-vereint
-Blutkörperchen
-zerstörten
-BGB
-ländlichen
-gescheitert
-Fußnoten
-Altertum
-Lehnwörter
-Kafkas
-Weißen
-Jahrzehnt
-Tumor
-Slowenien
-Südinsel
-Offizier
-möglicher
-Blöcke
-entscheidet
-Mineralien
-industrielle
-Sorten
-Kantons
-zeitgenössische
-Bundesstaaten
-Mieter
-orthodoxe
-Bethe
-betreffen
-präsentierte
-senkrecht
-göttliche
-Lesen
-Inuit
-konservative
-Verschwörung
-Demnach
-ägyptische
-Verbündeten
-Standardsprache
-landwirtschaftlichen
-Runner
-Aufkommen
-Aikidō
-landete
-Brauerei
-Edmund
-erfolgten
-Bernard
-Hadrian
-Winde
-Dynamik
-Unicode
-blaue
-zwang
-Schimpansen
-Saudi
-Akkad
-Coburger
-Nummern
-erschwert
-Versuchen
-ökonomische
-beenden
-Moll
-hinterlassen
-Motor
-Warner
-moralisch
-Björk
-Caches
-Freiheiten
-Anfangs
-Harmonie
-Durkheim
-Sohnes
-fehlende
-analysiert
-basierten
-Aspekten
-überführt
-Verwirklichung
-mazedonischen
-längsten
-Orthographie
-Enzyklopädie
-afrikanische
-DIN
-Kodierung
-charakterisiert
-berücksichtigen
-Newtons
-Akzeptanz
-kodiert
-inne
-gewisser
-ansässig
-Armut
-Urkunde
-Staub
-digitaler
-Bayerns
-kanadischen
-akzeptierte
-Ordens
-obigen
-Osteuropa
-Nutzer
-Ganzes
-Artkonzept
-Rothalbmond
-Absatz
-Reichsstadt
-Umgekehrt
-Bonsai
-geschichtlichen
-Anregung
-Kroatiens
-Gesteins
-verringern
-konstruierte
-Balearen
-Probe
-verhalten
-both
-Rechtsprechung
-Hopkins
-Mohammed
-Exekutive
-nationalsozialistische
-abgebrochen
-beigesetzt
-Staatsbürgerschaft
-niedrig
-Titan
-osmanischen
-folgendes
-brechen
-errang
-Bern
-Blau
-Bistum
-Skandinavien
-Blättern
-einher
-persischen
-gewährleisten
-Musikern
-Impuls
-diejenige
-Lebensdauer
-Generell
-Jupiters
-Pisa
-Betriebssystemen
-Substantive
-NN
-veraltet
-genügt
-Schmerzen
-chilenische
-ausgeliefert
-Dareios
-Himalaya
-Teilnehmern
-zugeführt
-Naturphilosophie
-Einwohnerzahlen
-ethischen
-Gebilde
-Eva
-Katastrophe
-Bor
-Jobs
-jenen
-ggf
-Gruppierungen
-out
-max
-min
-juristische
-Lorenz
-Meinungen
-zukünftige
-Wasserdampf
-sonstigen
-gleichsam
-Canada
-Resultat
-zeichnen
-religiöser
-Dosen
-Barbara
-nennenswerte
-bewertet
-Lunge
-finanziert
-bewahren
-eigens
-Euler
-eingeleitet
-Rates
-Konkurrenten
-gelangten
-Gelegentlich
-Thermodynamik
-Nationalmannschaft
-Lucius
-beauftragt
-Steiermark
-Optik
-Drehbuchautor
-begründeten
-Vermutung
-sonstige
-schriftliche
-Immanuel
-enorme
-Boote
-Erzbistum
-nachträglich
-Ries
-Indischen
-Kommunen
-befindliche
-Quadratkilometer
-fache
-Diktator
-Sure
-Meteorologie
-derjenigen
-Annahmen
-Wirksamkeit
-Betonung
-Wissens
-Spätmittelalter
-Angola
-kontrovers
-BUND
-wenngleich
-Lehrstuhl
-Mose
-Blutes
-Ihren
-isoliert
-überlieferten
-Metastasen
-Säugetiere
-landwirtschaftliche
-angelegten
-Neuere
-Abgesehen
-geringem
-Aussicht
-Client
-verzeichnen
-überaus
-Bundespräsident
-Ableitung
-Ar
-Horn
-pH
-th
-North
-ausgenommen
-beinhalten
-Betrag
-statistischen
-Völkern
-frühesten
-Passagiere
-Listen
-Alkohole
-IPA
-PDS
-nutzten
-MEW
-XII
-Durchsetzung
-dritter
-Atlas
-bit
-unzählige
-frz
-Vermehrung
-Trier
-Abständen
-äußert
-Fertigstellung
-Teils
-deutsches
-Voyager
-werdenden
-Urteile
-kaiserliche
-Grzimek
-gesteuert
-Romans
-massiven
-Columbia
-Zeugnisse
-dieselben
-Oberbefehlshaber
-Zweiter
-Wechselwirkungen
-gewünschte
-Verluste
-Griechenlands
-Zuvor
-Julianische
-verkürzt
-Gleichwohl
-Chirac
-annehmen
-grob
-Stadtgliederung
-Deflation
-Molekül
-Brandt
-steigender
-Magdeburger
-veranlasste
-gedeutet
-Textes
-Westminster
-Basen
-Allende
-Research
-Denker
-Abkühlung
-breiter
-Halbwertszeiten
-Kosmos
-herausragende
-Protest
-erweitern
-ästhetischen
-Akten
-Referendum
-unmittelbarer
-Reinigung
-Route
-Hormone
-systematischen
-angesprochen
-beginnenden
-Briefen
-Line
-Motiven
-niedergeschlagen
-überraschend
-Beurteilung
-Saline
-Arts
-günstige
-Quantenmechanik
-Evangelisch
-klassischer
-Kepler
-festgelegten
-astronomische
-Kombinationen
-Instituts
-Ober
-Vorsitz
-erfassen
-Präfixe
-Offiziere
-EG
-ST
-Neuordnung
-Kriegs
-jährliche
-basierend
-Milgram
-Prozesses
-Baumwolle
-fälschlicherweise
-Oberschicht
-Dorsten
-Konsens
-typischerweise
-außerordentlich
-ZDF
-bat
-kalten
-anerkannten
-durchzuführen
-Geschmack
-Zahlung
-massiv
-Koch
-jegliche
-harten
-günstigen
-protestantische
-Galaxie
-Kanadas
-Marxismus
-Persien
-Fermi
-Metro
-Poppers
-geordnet
-Aktuelle
-dunklen
-zirka
-erregte
-Privilegien
-Distanz
-heftige
-Wohl
-Kirchengemeinden
-Grammatiken
-Braune
-neuerer
-Herat
-Planungen
-Batterie
-Great
-Borges
-Hauptsitz
-töten
-beruhte
-Roberts
-konzipiert
-Schnee
-Fossilien
-archäologische
-Kerne
-Ausdrücke
-überlassen
-unendliche
-Julianischen
-Gesetzmäßigkeiten
-spiegelt
-automatische
-Filmindustrie
-Massage
-Siegel
-lineare
-Modifikationen
-Vereinen
-zusammengeschlossen
-beibehalten
-Herzens
-zurückgeht
-Versailles
-Linke
-Yorker
-Cluster
-anzusehen
-genetischen
-Gewerbe
-Noir
-umgebaut
-Autisten
-umgebenden
-Erbsen
-Enkel
-Gemeinsamkeiten
-geologischen
-Gregorianischen
-sp
-ausführen
-Slawen
-Descartes
-vorkommenden
-populären
-fünfte
-mächtigen
-ganzer
-Chinesischen
-Puerto
-Hochmittelalter
-Shyamalan
-Ludwigs
-Kompositionen
-Gerhart
-kbit
-Norddeutschen
-Hesses
-strikt
-Lebensmitteln
-internen
-Logarithmen
-Evolutionstheorie
-gewonnenen
-Allergien
-Trinkwasser
-Gemisch
-ausgerichteten
-Globe
-kreisfreien
-Glarus
-Verwaltungsgliederung
-Staatsausgaben
-Regelmäßige
-präsent
-ordnete
-Geschwindigkeiten
-anwendbar
-inhaltlich
-entsprechender
-kontrollieren
-Fidel
-Kohlenhydrate
-Montenegro
-Interpreter
-christlicher
-Verdacht
-übte
-physikalisch
-Foto
-Ackerbau
-Auslöser
-Cross
-Tibet
-Abendmahl
-Agricola
-beschriebene
-vorbereitet
-Sanskrit
-Apostel
-Anden
-Antigene
-korrekte
-Mails
-irdischen
-zivile
-endlichen
-vergleichbare
-spezifisch
-Containerschiffe
-Zielen
-Briefwechsel
-Booten
-thematisiert
-retten
-Gesamtbevölkerung
-CERN
-Beschlüsse
-unterteilen
-Agglomeration
-erweiterten
-Dicke
-Übereinstimmung
-Bundesländer
-Spanischen
-dominierte
-deutet
-Festigkeit
-Benutzeroberfläche
-verankert
-Bargeld
-Gebietes
-Pate
-Bühnen
-einfachsten
-Neapel
-Home
-Klerus
-prägten
-Kreisgebiet
-Weizen
-Tafel
-Gerste
-sprachliche
-stammten
-landwirtschaftlich
-mithilfe
-Clients
-Analogie
-Umstände
-Stadtgrenze
-Muskulatur
-Miller
-interessante
-Benennung
-Traditionell
-Stadtwappen
-zeitweilig
-Staats
-hinreichend
-Antworten
-Pfarrei
-IRC
-bestätigen
-sichere
-verbrannt
-Konstruktionen
-Kontinents
-org
-Nassau
-Archimedes
-Schleife
-befestigt
-Anderen
-Neptuns
-selbständigen
-Schaltungen
-Giordano
-einheimischen
-Vererbung
-Saturn
-VIII
-Mesonen
-Zentralbanken
-Abspaltung
-GATS
-Biotechnologie
-Stärkung
-klare
-Wissenschaftliche
-Geschäftsbanken
-Immunsystems
-Rebellen
-Abtrennung
-Deklination
-Erlass
-Verleger
-steigende
-Inhaber
-Systemtheorie
-Roboter
-formell
-Schätzung
-Frühling
-Sitzen
-einzusetzen
-Akustik
-beschränken
-Säugetieren
-verwandten
-Reiz
-FreeDOS
-Ansätzen
-Überwindung
-Unmittelbar
-Ähnlichkeiten
-ausführliche
-Bevölkerungswachstum
-Römisch
-Polymerase
-gesundheitlichen
-Hallein
-Sonderfall
-Kreuzes
-Erkenntnissen
-Stadtstaaten
-Lanzarote
-statistische
-radikal
-Saale
-Synonym
-Normandie
-Ledoux
-neuseeländischen
-Katholische
-gewertet
-Geheimnis
-belgischen
-obersten
-Pflichten
-Bielefelder
-Luftverkehr
-Uranus
-Nationalparks
-Bekanntheit
-Sinti
-verdoppelt
-stützt
-sammeln
-dahinter
-beschäftigten
-Debatten
-Söhnen
-Charaktere
-Helligkeit
-zuzuordnen
-Weiße
-Distribution
-schwache
-Kelkheim
-Beweise
-erneute
-einfaches
-färöische
-zerstörte
-Held
-Modems
-Graubünden
-Schwankungen
-Hilbert
-Symbolen
-Pfarrer
-Bandbreite
-BRD
-Bde
-Per
-Sekundärliteratur
-jüngsten
-verkündete
-Merkels
-Disketten
-Sachverhalt
-Loriot
-Erden
-neuem
-Gadolinium
-gesetzliche
-Vista
-hervorging
-Itzehoe
-elektromagnetischen
-Karthagos
-erlassen
-Sprechern
-Ernennung
-wiederholte
-fremden
-inszenierte
-unwahrscheinlich
-Normalfall
-widerlegt
-komponierte
-Rande
-Interpreten
-Siedler
-kyrillischen
-Resonanz
-Brustkrebs
-eignet
-Anbindung
-begriffen
-Hochwasser
-Demonstrationen
-erleichtern
-Breslau
-durchgehend
-Kaiserkrönung
-Ileus
-empirisch
-verbindlich
-Servern
-Source
-Semmelweis
-Zügen
-Typisch
-keltischen
-Stadtbezirk
-Compact
-Roll
-Mains
-portugiesischen
-enorm
-erlaubten
-demokratisch
-zugerechnet
-Umgangssprache
-Ausrüstung
-Schild
-zuweilen
-Rhythmus
-bindet
-geäußert
-biblischen
-Zuständen
-Staatspräsident
-eingemeindet
-Repräsentanten
-Last
-Byzantinische
-Haupt
-Gesichtspunkten
-Public
-Luftfahrt
-Herzogs
-Channel
-Stadtkreis
-Morphem
-BIOS
-Haushalt
-Raketen
-erneuert
-Tiefland
-Metropolregion
-informiert
-Eingabe
-Spekulationen
-Niue
-engsten
-hingerichtet
-klaren
-Tower
-Konzeption
-sorgten
-kultureller
-aufbauen
-Kriftel
-Beendigung
-beständig
-Bundesstraßen
-radioaktiven
-Größte
-un
-gesetzlichen
-Emulatoren
-Indonesien
-Darwins
-Resonator
-Sklerose
-warmen
-Mechanismen
-Sollte
-Schlechtester
-Reichspräsidenten
-wechselnden
-della
-Allergen
-JHWH
-bedingte
-eingegangen
-räumliche
-wofür
-Konstantinopels
-übertrug
-RAM
-selbständige
-Neuerungen
-basierende
-reinem
-schwieriger
-sur
-Abzug
-Maurice
-gescheiterten
-gesteigert
-überdies
-Asiens
-transportieren
-Kugel
-Teams
-Kredit
-Assembler
-Arafats
-Lagern
-Verfall
-Tests
-Messen
-auftretende
-momentan
-untergeordnete
-speichern
-Plinius
-Lothar
-kapitalistischen
-Umweltschutz
-gesprochene
-Zyklen
-Tragflächen
-Dokumentarfilm
-Zeichens
-Personennahverkehr
-ausreichende
-Erwachsenen
-Besitzungen
-Nostradamus
-Heeres
-Lüneburger
-stießen
-Plus
-Sozialwissenschaften
-Venus
-Krebserkrankungen
-Sequenz
-konventionellen
-Schauspielhaus
-Pazifik
-Hypertext
-abgetrennt
-Vorherrschaft
-Auskunft
-angeführt
-Jahreszeit
-messen
-Daran
-Beirut
-Angestellten
-Schein
-Zeichner
-Kronen
-spezialisiert
-Navarra
-Hellenismus
-tauchen
-Unterlagen
-Haushalte
-Senats
-Komplexe
-Datenträger
-verleihen
-zugehörige
-Kelvin
-verabschiedete
-erfordern
-Flexion
-einsetzt
-elektronischer
-Caligulas
-Lullys
-Luis
-Zeilen
-Antoine
-Ketten
-Lehnwörtern
-schen
-Kündigung
-geschriebene
-Hinterland
-qualitativ
-Potsdamer
-Skulpturen
-Analysis
-vollzogen
-Lehrbuch
-Lloyd
-Kolonialzeit
-Verringerung
-Harris
-verlegte
-Spenden
-Rücksicht
-Ca
-pm
-Pixel
-Denkmäler
-Biogas
-Nobelpreisträger
-typisches
-Bildungseinrichtungen
-landen
-South
-stationiert
-Teilmenge
-Lanthan
-Tacitus
-folgend
-Ethnien
-Mandat
-Wissenschaftstheorie
-ausländischer
-freilich
-serbischen
-Hat
-geometrische
-Rheins
-Rad
-Testaments
-Sun
-WDR
-Landschaften
-verwiesen
-befreit
-Unterschieden
-Brennnessel
-Bilanz
-Kontinente
-arabisch
-Treibstoff
-Dantes
-Batterien
-Kiel
-erstrecken
-Abwehr
-Header
-Wirkungsgrad
-Bundesstraße
-großteils
-zuordnen
-Dawn
-absolvierte
-Rechnen
-Fabriken
-Fortpflanzung
-Spaniens
-untersuchten
-fester
-Verpflichtung
-halbe
-Einwirkung
-Eisbrecher
-Benediktiner
-Blockade
-aufnahm
-Biografien
-Emmy
-gefärbt
-vielfältigen
-gewordene
-Indem
-lokal
-bewaffneten
-Paramount
-irakischen
-zurückgezogen
-chilenischen
-besiegte
-gelehrt
-Anthony
-Prof
-Opern
-Lernen
-Sonderstellung
-ausgenutzt
-Organen
-Prosa
-Kanäle
-auftretenden
-Wertes
-Hugenotten
-Noether
-Erfolgen
-genutzten
-Hindus
-Zugabe
-getestet
-württembergischen
-Völkerwanderung
-verborgen
-physische
-Kosovo
-Prager
-ausgeglichen
-dunkle
-juristischen
-Zensur
-Feiertage
-regionaler
-Codex
-hörte
-Parallelen
-Broglie
-Lichtgeschwindigkeit
-Quelltext
-Mumien
-Vororte
-griechischer
-Hafens
-Kelten
-Salzsäure
-Gottlieb
-Filter
-räumlich
-charakteristischen
-Molekülen
-erlangten
-Anfrage
-Diplom
-Ausweitung
-Manifest
-Unterhaltung
-Normannen
-Gehirns
-Eigennamen
-Chronik
-Ostern
-Freiherr
-Aussagenlogik
-ergänzen
-Landschaftsplanung
-Marktwirtschaft
-Gordon
-geschriebenen
-Chinesisch
-letzteren
-Murnau
-LZ
-PS
-eindeutigen
-Angriffen
-gefasst
-professionellen
-meinen
-Promotion
-Eiderente
-senken
-Gallen
-Passagen
-regelt
-Osmanischen
-Verunreinigungen
-Einsicht
-Taten
-bestellt
-Emanzipation
-Nicholson
-erfolgreicher
-elementaren
-Exemplaren
-ATA
-spezieller
-Erz
-HIV
-aufgegriffen
-Inc
-genannter
-Act
-Btx
-EZB
-Neo
-Atari
-PLO
-garantieren
-Arbeitsweise
-Vol
-dasselbe
-jahrelang
-Eisenbahnen
-hob
-Lagen
-Bildes
-com
-Berichten
-Klassische
-Quadrat
-verstärkten
-ermitteln
-Genen
-gewährte
-Erfassung
-autonomen
-Weltwirtschaftskrise
-Walras
-Teilgebiet
-schwanken
-flachen
-Satzes
-Meteoriten
-Freisetzung
-gebrochen
-Sorbus
-dauern
-beobachtete
-Dodo
-Statuten
-Russisch
-synonym
-Einerseits
-existierende
-Chopins
-Niger
-Rhetorik
-Wäldern
-getauft
-Bomben
-Babbage
-Oberflächen
-Dürrenmatt
-dichtesten
-Eugen
-Multimedia
-stattfanden
-Plattformen
-kommunalen
-eignen
-Imperator
-überwunden
-Österreichischen
-semitischen
-bezeugt
-Spätestens
-klären
-überwiegende
-Konstante
-Immunabwehr
-Ringen
-Proto
-Geschichtsschreibung
-weswegen
-Schwäche
-Herzöge
-dominierende
-Marat
-wozu
-zuständigen
-Erwartungen
-wertvolle
-Sitzung
-reserviert
-erfand
-Spin
-dunkel
-Baryonen
-Schlag
-mazedonische
-Terroristen
-Tageszeitung
-kompletten
-verzichtete
-Beeinflussung
-differenziert
-Unternehmer
-begleitete
-Anmerkung
-Neigung
-zentraler
-abseits
-begangen
-begab
-Benz
-sammelte
-Kaisertums
-Book
-Monarchen
-Regulation
-Abweichung
-vorausgesetzt
-Kirchner
-Pazifischen
-örtlichen
-strategische
-erschließen
-Gedenkstätte
-vorchristlichen
-dominieren
-Ulmer
-instabil
-verfügbaren
-Verehrung
-Entwürfe
-geführte
-symbolisch
-Volksfest
-Theory
-Gallien
-leere
-richteten
-treiben
-Philosophy
-verschaffen
-Sueton
-Angebote
-Klonen
-Kennzeichnung
-verleiht
-Bk
-IX
-op
-Südostasien
-Hypothesen
-Graphen
-sächsischen
-gestiegen
-Symbolik
-griffen
-abgelegt
-verstorbenen
-ablehnte
-natürlicher
-Brandos
-widmen
-AMD
-Vorstufe
-verdienen
-gewöhnlichen
-HDL
-Schiffsverkehr
-Plata
-beherrschte
-Entgegen
-aufgerufen
-Mittels
-Kontrast
-Via
-Makedonen
-entsprachen
-erlitten
-Krypton
-verweist
-anschaulich
-liefen
-net
-fordern
-hinnehmen
-Alchemie
-erläutert
-intensiven
-Enzyms
-Kabul
-palästinensischen
-Schriftzeichen
-Wiedergeburt
-Dramaturgie
-Karat
-Kammern
-Asche
-Schiller
-gekoppelt
-Hitze
-Ecken
-Kalenders
-verhinderte
-sexuellen
-Amtssprachen
-Atomkern
-erhoffte
-genießen
-gefährden
-Hainbuche
-Ergänzung
-bayerische
-grenzen
-Chronologie
-effektive
-persönlicher
-überarbeitet
-Walther
-Fund
-Córdoba
-problemlos
-Berufung
-Universitätsbibliothek
-geheim
-erschienene
-Ausbeutung
-bloßen
-Kleinstadt
-Militärregierung
-Streben
-gezielte
-Katalysator
-dynamische
-Kraftstoff
-norwegische
-birgt
-unterstützten
-Birkenau
-Sprachwissenschaft
-Fluorwasserstoff
-kontinuierliche
-Umstellung
-Méliès
-Rechtswissenschaft
-Zuständigkeit
-Rosa
-Austritt
-Scorsese
-evtl
-durchschnittlichen
-kleinerer
-Schale
-Membran
-Versuchspersonen
-eingestuft
-Erfüllung
-erstellte
-berühmteste
-Fructose
-anfänglich
-Chemnitz
-Juristen
-Heirat
-Handball
-Vorderseite
-Tabellen
-Problematik
-Auguste
-optisch
-Tunesien
-osmanische
-bemerkbar
-Projekten
-westlicher
-Casa
-Auckland
-archäologischen
-effektiv
-klassifiziert
-Fichtelgebirge
-Chemotherapie
-beteiligen
-Area
-deportiert
-fiktiven
-Modul
-gestützt
-abgewickelt
-Mobile
-Jugoslawiens
-Californium
-Alters
-Vulkane
-Kompetenzen
-beides
-autonome
-Apulien
-Richtlinie
-Terminus
-Staatsstreich
-Flöhe
-verkündet
-Außenhandel
-Dekanat
-Schritten
-eingetragen
-vorbehalten
-zerfiel
-verbot
-Ko
-Nolde
-kW
-Erkenntnistheorie
-meiste
-Fünftel
-Haft
-sauren
-Publikums
-Adligen
-verwechseln
-Messier
-Regiment
-weltliche
-Report
-Byzantinischen
-Kopie
-seinerzeit
-Christ
-Enzymen
-früherer
-früheste
-diplomatischen
-umgehen
-Differenzierung
-Eintrag
-Datenverarbeitung
-verbracht
-BBC
-Fahrten
-Non
-upright
-Berkeley
-reformierte
-Umkehrwalze
-jüngster
-abhängt
-Termin
-Großstädte
-flüssigen
-Aufstellung
-Studiengänge
-Korn
-Kein
-erweist
-Vielfaches
-Genom
-Huygens
-Kohlenstoffmonoxid
-kyrillische
-Frühgeschichte
-zusammenhängende
-vernichten
-Herder
-trennte
-überprüfen
-Reichsmark
-verweigerte
-durchlaufen
-Gläubigen
-Vereinbarung
-fungiert
-gängigen
-Erlaubnis
-Beagle
-Beschreibungen
-Sedimente
-weich
-Sammler
-Kalkstein
-Nordinsel
-materielle
-Levante
-erwähnen
-Rechtschreibung
-Fett
-GATT
-höchster
-Buchweizen
-Nadeln
-wahrnehmen
-symbolisiert
-Katalysatoren
-Oxidationsstufe
-Aktuell
-Löhne
-Bausteine
-from
-Haithabu
-ausgeprägten
-Will
-anschließende
-alleinige
-naturwissenschaftliche
-Eiszeit
-zunehmendem
-empirische
-Völkerrecht
-Energien
-Archäologische
-Nebenflüsse
-weitergegeben
-Färöer
-Anode
-wirkliche
-Bayer
-argumentiert
-Buslinien
-Beschränkungen
-Filmografie
-Markgrafen
-Technologien
-Ankara
-Problematisch
-vulkanischen
-Demonstration
-Präsenz
-Thessaloniki
-Gewinne
-Schreib
-Frederick
-integrierte
-fruchtbaren
-Ostküste
-Langobarden
-Brett
-dortige
-Kaisertitel
-ausgestrahlt
-Derartige
-Mariner
-Beseitigung
-Handschriften
-Attribute
-Schreibung
-Benjamin
-Nachhaltigkeit
-Tora
-entwarf
-reale
-Zeugnis
-entfalten
-unabhängiger
-Katharina
-Claudius
-uraufgeführt
-Untergrund
-CPUs
+unterschiedlicher '?Un-t6-Si:-tlI-C6
+Cholesterin kO-lEs-t@-'RIn
+typischen 'ty:-pI-S@n
+Malerei ma:-l6-'RaI
+Genua 'ge:-nu:-a:
+internationaler ?In-t6-nats-jo:-'na:-l6
+Erweiterung ?E6-'vaI-t@-RUN
+Entropie ?En-tRo:-'pi:
+Muslime mUs-'li:-m@
+noir 'nOaR
+Tucholsky tU-'xOls-ki:
+direkten di:-'REk-t@n
+Gene 'ge:-n@
+Verbesserung fE6-'bEs-@-RUN
+allmählich ?al-'mE:-lIC
+Bauten 'baU-t@n
+näher 'nE:-6
+besetzten b@-'zEts-t@n
+Aspekt ?as-'pEkt
+Dienstleistungen 'di:nst-laIs-tU-N@n
+durchschnittlich 'dU6C-SnIt-lIC
+Reduktion Re:-dUk-'tsjo:n
+berühmten b@-'Ry:m-t@n
+brachten 'bRax-t@n
+unteren '?Un-t6-R@n
+ergänzt ?E6-'gEntst
+Logarithmus lo:-ga-'RIt-mUs
+Kafka 'kaf-ka:
+Summe 'zU-m@
+komplexe kOm-'plE-ks@
+literarischen li:-t@-'Ra:-RI-S@n
+bestehenden b@-'Ste:-@n-d@n
+Klassen 'kla-s@n
+Null 'nUl
+Spektrum 'SpEk-tRUm
+Latein la-'taIn
+Bosnien 'bOs-ni:-@n
+Kontext 'kOn-tEkst
+erfüllen ?E6-'fY-l@n
+Geschichten g@-'SIC-t@n
+anlässlich '?an-lEs-lIC
+entstandenen ?Ent-'Stan-d@-n@n
+Definitionen de:-fi:-ni:-'tsjo:-n@n
+Dresdner 'dRe:s-dn6
+Zerfall tsE6-'fal
+weiten 'vaI-t@n
+baute 'baU-t@
+zahlreicher 'tsa:l-RaI-C6
+Jolie Zo:-'li:
+Ausbau '?aUs-baU
+Kopenhagen ko:-p@n-'ha:-g@n
+dauerte 'daU-6-t@
+angewendet '?an-g@-vEn-d@t
+Konzentration kOn-tsEn-tRats-'jo:n
+Nil 'ni:l
+Wechsel 'vEk-s@l
+Dritten 'dRI-t@n
+ENIGMA ?E-'nIg-ma:
+technisch 'tEC-nIS
+Banken 'baN-k@n
+Kreta 'kRe:-ta:
+clear 'klI6
+Verbot fE6-'bo:t
+ausreichend '?aUs-RaI-C@nt
+sämtliche 'zEmt-lI-C@
+einzelner '?aIn-ts@l-n6
+Naturwissenschaften na:-'tu:R-vI-s@n-Saf-t@n
+fielen 'fi:-l@n
+vorgesehen 'fO6-g@-ze:-@n
+Briefe 'bRi:-f@
+führenden 'fy:-R@n-d@n
+Ton 'to:n
+Vermögen fE6-'m2:-g@n
+verbinden fE6-'bIn-d@n
+Sprachgebrauch 'SpRa:x-g@-bRaUx
+Organismus ?O6-ga:-'nIs-mUs
+theoretischen te:-o:-'Re:-tI-S@n
+Typen 'ty:-p@n
+Schätzungen 'SE-tsU-N@n
+vorgenommen 'fO6-g@-nO-m@n
+Konzentrationslager kOn-tsEn-tRats-'jo:ns-la:-g6
+Seen 'ze:n
+Cambridge 'kEIm-brIdZ
+Transformation tRans-fO6-mats-'jo:n
+Beobachtungen b@-'?o:-bax-tU-N@n
+lebenden 'le:-b@n-d@n
+germanischen gE6-'ma:-nI-S@n
+Fe 'fE
+erzielt ?E6-'tsi:lt
+Systematik zYs-t@-'ma:-tIk
+Antikörper '?an-tI-k96-p6
+Versorgung fE6-'zO6-gUN
+versuchten fE6-'zu:x-t@n
+Algerien ?al-'ge:-Ri:-@n
+Makedonien ma:-k@-'do:-ni:-@n
+lokalen lo:-'ka:-l@n
+gelangte g@-'laN-t@
+Himmler 'hIm-l6
+Comics 'kO-mIks
+Jesu 'je:-zu:
+Allgemeine ?al-g@-'maI-n@
+Güter 'gy:-t6
+Prozessoren pRo:-tsE-'so:-R@n
+Beweis b@-'vaIs
+Kunden 'kUn-d@n
+Bände 'bEn-d@
+Entscheidungen ?Ent-'SaI-dU-N@n
+etabliert ?e:-ta:-'bli:6t
+Konflikte kOn-'flIk-t@
+bürgerlichen 'bY6-g6-lI-C@n
+gewöhnlich g@-'v2:n-lIC
+Herzegowina hE6-tse:-'gO-vi:-na:
+Frisch 'fRIS
+left 'lEft
+Enzyme ?En-'tsy:-m@
+Bakterien bak-'te:-Ri:-@n
+Rechts 'RECts
+Anlass '?an-las
+Lippe 'lI-p@
+Siedlung 'zi:-dlUN
+Erhard '?E6-ha6t
+Projekte pRo:-'jEk-t@
+Experiment ?Eks-pe:-Ri:-'mEnt
+hinsichtlich 'hIn-zIC-tlIC
+Subjekt zUb-'jEkt
+Mainz 'maInts
+Grazer 'gRa:-ts6
+Diktatur dIk-ta-'tU6
+Bell 'bEl
+beschloss b@-'SlOs
+befasst b@-'fast
+Golden 'gOl-d@n
+Zeppelin 'tsE-p@-li:n
+geblieben g@-'bli:-b@n
+Galaxien ga-lak-'si:n
+Biografie bi:-o:-gRa-'fi:
+Vordergrund 'fO6-d6-gRUnt
+Gambia 'gam-bi:-a:
+Proteine pRo:-te:-'?i:-n@
+angeblich '?an-ge:p-lIC
+Amtssprache '?amts-SpRa:-x@
+Zugriff 'tsu:-gRIf
+Reisen 'RaI-z@n
+Stadtteilen 'Stat-taI-l@n
+Nobelpreis no:-'bEl-pRaIs
+herausgegeben hE-'RaUs-ge:-ge:-b@n
+Bonaparte bo:-na-'pa6-t@
+festgestellt 'fEst-g@-StElt
+erstellt ?E6-'StElt
+nunmehr 'nu:n-me:6
+unterhalb '?Un-t6-halp
+Knoten 'kno:-t@n
+Erkrankung ?E6-'kRaN-kUN
+Ziffern 'tsI-f6n
+Gottfried 'gOt-fRi:t
+Begriffs b@-'gRIfs
+lateinische la:-'taI-nI-S@
+Regime Re:-'Zi:m
+Sätze 'zE-ts@
+Halbwertszeit 'halp-vE6ts-tsaIt
+Begründung b@-'gRYn-dUN
+Caligula ka:-'li:-gu:-la:
+Intelligenz ?In-tE-lI-'gEnts
+Alternative ?al-t6-na-'ti:-v@
+Sowohl zo:-'vo:l
+Landkreises 'lant-kRaI-z@s
+veröffentlichten fE6-'?2:-fEnt-lIC-t@n
+Aufmerksamkeit '?aUf-mE6k-zam-kaIt
+Wörtern 'v2:6-t6n
+reiste 'RaIs-t@
+Anordnung '?an-?O6-tnUN
+Überlegungen ?y:-b6-'le:-gU-N@n
+gewissen g@-'vI-s@n
+Lösungen 'l2:-zU-N@n
+Nutzen 'nU-ts@n
+Hauptbahnhof 'haUpt-ba:n-ho:f
+Kapazität ka-pa-tsi:-'tE:t
+Linné lI-'ne:
+Adressen ?a-'dRE-s@n
+Norm 'nO6m
+berechnet b@-'REC-n@t
+Traditionen tRa-di:-'tsjo:-n@n
+Iran ?i:-'Ra:n
+womit vo:-'mIt
+Iod 'jo:t
+Cha 'tSa:
+Edition ?e:-di:-'tsjo:n
+Behörden b@-'h96-d@n
+Braunschweig 'bRaUn-SvaIk
+digitale di:-gi:-'ta:-l@
+Gibraltar gIb-'Ral-ta:6
+Glaube 'glaU-b@
+Leber 'le:-b6
+dänischen 'dE:-nI-S@n
+verfügte fE6-'fy:k-t@
+Erzeugung ?E6-'tsOY-gUN
+Hinweis 'hIn-vaIs
+Atlantik ?at-'lan-tIk
+evangelischen ?e:-vaN-'ge:-lI-S@n
+Vorteile 'fO6-taI-l@
+gesellschaftliche g@-'zEl-Saf-tlI-C@
+Gegenstände 'ge-g@n-StEn-d@
+FAT 'fat
+Algebra '?al-g@-bRa:
+benannte b@-'nan-t@
+Geistes 'gaIs-t@s
+Andreas ?an-'dRe:-a:s
+Gesteine g@-'StaI-n@
+Alexandria ?a-lEk-'san-dRi:-a:
+gezielt g@-'tsi:lt
+Julius 'ju:-li:-Us
+Bosporus 'bOs-po:-RUs
+Neckar 'nE-ka:6
+Verlust fE6-'lUst
+geregelt g@-'Re:-g@lt
+Koran ko:-'Ra:n
+kleinste 'klaIns-t@
+Betrachtung b@-'tRax-tUN
+Schäden 'SE:-d@n
+Fichte 'fIC-t@
+Afrikas '?af-Ri:-ka:s
+persönlichen pE6-'s2:n-lI-C@n
+verbessern fE6-'bE-s6n
+insofern ?In-'zo:-fE6n
+breiten 'bRaI-t@n
+Gestaltung g@-'Stal-tUN
+Esoterik ?e:-zo:-'te:-RIk
+absoluten ?ap-zo:-'lu:-t@n
+Vielfalt 'fi:l-falt
+Karthago ka6-'ta:-go:
+Miles 'maIls
+protestantischen pRo:-tEs-'tan-tI-S@n
+Chlor 'klo:6
+Eis 'aIs
+Zeitalter 'tsaIt-?aI-t6
+traditionelle tRa-di:-tsjo:-'nE-l@
+gewählten g@-'vE:l-t@n
+digitalen di:-gi:-'ta:-l@n
+Medici 'me:-di:-tSi:
+vertrieben fE6-'tRi:-b@n
+antike ?an-'ti:-k@
+Effekte ?e:-'fEk-t@
+Stattdessen Stat-'dE-s@n
+entstandene ?Ent-'Stan-d@-n@
+Aktivität ?ak-ti:-vi:-'tE:t
+Theodor 'te:-o:-do:6
+Monde 'mo:n-d@
+gespeichert g@-'SpaI-C6t
+Reformen Re:-'fO6-m@n
+zeigten 'tsaIk-t@n
+gegliedert g@-'gli:-d6t
+unternahm ?Un-t6-'na:m
+Enzym ?En-'tsy:m
+Fourier fu:-Ri:-'e:
+bedeutender b@-'dOY-t@n-d6
+Gorillas go:-'RI-la:s
+durchschnittliche 'dU6C-SnIt-lI-C@
+Mönchengladbach 'm9n-C@n-glat-bax
+Mexiko 'mE-ksI-ko:
+right 'RaIt
+Auschwitz '?aU-SvIts
+Städtepartnerschaften 'StE-t@-pa6t-n6-Saf-t@n
+Manchester 'mEn-tSEs-t6
+italienische ?I-ta-li:-'e:-nI-S@
+Bologna bO-'lOn-ja:
+Mary 'mE-ri:
+Sitze 'zI-ts@
+angepasst '?an-g@-past
+erfasst ?E6-'fast
+Verteidigung fE6-'taI-di:-gUN
+Vorgänger 'fO6-gE-N6
+Isar '?i:-za:6
+Synthese zYn-'te:-z@
+Nachrichten 'na:x-RIC-t@n
+Dönitz 'd2:-nIts
+amerikanischer ?a-mE-Ri:-'ka:-nI-S6
+schwedischen 'Sve:-dI-S@n
+Geburtstag g@-'bU6ts-ta:k
+gelangt g@-'laNgt
+Elektrolyse ?e:-lEk-tRo:-'ly:-z@
+philosophische fI-lo:-'zo:-fI-S@
+Erzählungen ?E6-'tsE:-lU-N@n
+Territorien te:-RI-'to:-Ri:-@n
+Anime '?a:-ni:-me:
+unmöglich ?Un-m2:k-lIC
+logischen 'lo:-gI-S@n
+Verschiedene fE6-'Si:-d@-n@
+Englischen '?EN-lI-S@n
+Ortsteil '?o:6ts-taIl
+Angabe '?an-ga:-b@
+ägyptischen E-'gYp-tI-S@n
+Politische po:-'li:-tI-S@
+Kurfürsten 'ku:6-fY6s-t@n
+Ausgangspunkt '?aUs-gaNS-pUNkt
+Widerspruch 'vi:-d6-SpRUx
+Neustadt 'nOY-Stat
+Umlauf '?Um-laUf
+derselben dE6-'zEl-b@n
+Perspektive pE6s-pEk-'ti:-v@
+Rotkreuz Ro:t-'kROYts
+Curium 'ku:-Ri:-Um
+Methanol me:-ta-'no:l
+physikalische fy:-zi:-'ka:-lI-S@
+Produzent pRo:-du:-'tsEnt
+Flotte 'flO-t@
+Physiker 'fy:-zi:-k6
+biologische bi:-o:-'lo:-gI-S@
+Church 'tS96tS
+Hitchcocks 'hItS-kOks
+Aufstand '?aUf-Stant
+Homburg 'hOm-bU6k
+bessere 'bE-s6-R@
+stärksten 'StE6ks-t@n
+umfassen ?Um-'fa-s@n
+Zeitungen 'tsaI-tU-N@n
+Flächen 'flE-C@n
+Metalle me:-'ta-l@
+Darmstadt 'da6m-Stat
+Kontinent 'kOn-ti:-nEnt
+gestaltet g@-'Stal-t@t
+Company 'kOm-p@-ni:
+enge '?E-N@
+Society so:-'saI-@-ti:
+kurzer 'kUR-ts6
+dortigen 'dO6-tI-g@n
+style 'staIl
+Zustände 'tsu:-StEn-d@
+Berichte b@-'RIC-t@
+Benutzer b@-'nU-ts6
+Ludwigshafen lUt-vIks-'ha:-f@n
+Konstruktion kOns-tRUk-'tsjo:n
+Weimar 'vaI-ma:6
+Turing 'tjU-rIN
+Stickstoff 'StIk-stOf
+Kolonien ko:-lo:-'ni:-@n
+Betriebssysteme b@-'tRi:ps-zYs-te:-m@
+Steuerung 'StOY-@-RUN
+Freiberg 'fRaI-bE6k
+Normen 'nO6-m@n
+Durchbruch 'dU6C-bRUx
+UNESCO ?u:-'nEs-ko:
+Anstieg '?an-Sti:k
+Premierminister pRe:-mi:-'e:-mi:-nIs-t6
+demokratischen de:-mo:-'kRa:-tI-S@n
+Santa 'zan-ta:
+Legende le:-'gEn-d@
+nationalsozialistischen nats-jo:-'na:l-zo:-tsja-lIs-tI-S@n
+orthodoxen ?o:6-to:-'do:-ks@n
+Symptome zYmp-'to:-m@
+Godzilla go:-'dsI-la:
+Männchen 'mEn-C@n
+Bernhard bE6n-'ha6t
+Analog ?a-na:-'lo:k
+Leipziger 'laIp-tsI-g6
+Programmiersprache pRo:-gRa-'mi:6-SpRa-x@
+Lewis 'le:-vIs
+Schiffen 'SI-f@n
+Leonberg 'le:-On-bE6k
+Erhebung ?E6-'he:-bUN
+Häufig 'hOY-fIC
+aktiven ?ak-'ti:-v@n
+NASA 'na:-za:
+Dampfmaschine 'dampf-ma-Si:-n@
+stieß 'Sti:s
+aktive ?ak-'ti:-v@
+schnellen 'SnE-l@n
+oberhalb '?o:-b6-halp
+eroberten ?E6-'?o:-b6-t@n
+Winkel 'vIN-k@l
+Taunus 'taU-nUs
+Norrköping 'nO6-k2:-pIN
+führende 'fy:-R@n-d@
+spätestens 'SpE:-t@s-t@ns
+Technische 'tEC-nI-S@
+Bezirke b@-'tsI6-k@
+Richtungen 'RIC-tU-N@n
+erhältlich ?E6-'hElt-lIC
+Böhmen 'b2:-m@n
+Minerale mI-nE-'Ra:-l@
+Verschlüsselung fE6-SlY-s@-lUN
+Guevara ge:-'va:-Ra:
+Nero 'ne:-Ro:
+weitaus 'vaIt-?aUs
+umfassende '?Um-fa-s@n-d@
+niedriger 'ni:-dRI-g6
+untergebracht '?Un-t6-g@-bRaxt
+Spätantike 'SpE:t-?an-ti:-k@
+produzierte pRo:-du:-'tsi:6-t@
+bewirkt b@-'vI6kt
+Symbole zYm-'bo:-l@
+definierte de:-fi:-'ni:6-t@
+ermittelt ?E6-'mI-tElt
+Dagegen da:-'ge:-g@n
+durchgesetzt 'dU6C-g@-zEtst
+Bucht 'bUxt
+Münchner 'mYnC-n6
+Freunde 'fROYn-d@
+neueren 'nOY-6-R@n
+Banknoten 'baNk-no:-t@n
+biologischen bi:-o:-'lo:-gI-S@n
+Objekten ?o:-'bjEk-t@n
+verfasst fE6-'fast
+wahrgenommen 'va:6-g@-nO-m@n
+Bundesbank 'bUn-d@s-baNk
+Erster '?E6s-t6
+beteiligten b@-'taI-lIC-t@n
+langer 'laN-6
+Fauna 'faU-na:
+beliebige b@-'li:-bI-g@
+äußere 'OY-s6-R@
+mechanische me:-'Ca:-nI-S@
+Stamm 'Stam
+Transkription tRans-kRIp-'tsjo:n
+entscheidende ?Ent-'SaI-d@n-d@
+ausländische '?aUs-lEn-dI-S@
+Standards 'Stan-da6ts
+Caesars 'tsE:-za6s
+Elfenbeinküste '?El-f@n-baIN-kYs-t@
+formale fO6-'ma:-l@
+Warhol 'var-hOl
+Bachs 'baxs
+anzutreffen '?an-tsu:-tRE-f@n
+Umsetzer '?Um-zE-ts6
+Menschenaffen 'mEn-S@n-?a-f@n
+regionalen Re:-gi:-o:-'na:-l@n
+dänische 'dE:-nI-S@
+Generationen gE-nE-Rats-'jo:-n@n
+Eastwood '?i:st-wUd
+benachbarten b@-'nax-ba6-t@n
+Zwerge 'tsvE6-g@
+Tolkien 'tOl-ki:n
+Umfeld '?Um-fElt
+Sprachraum 'SpRa:x-RaUm
+geringeren g@-'RI-N6-R@n
+Erwähnung ?E6-'vE:-nUN
+verschieden fE6-'Si:-d@n
+Syndrom zYn-'dRo:m
+Hameln 'ha:-m@ln
+Attac ?a-'tak
+Programmen pRo:-'gRa-m@n
+Angehörige '?an-ge:-h2:-RI-g@
+Föderation f2:-d@-Rats-'jo:n
+Festland 'fEst-lant
+benötigte b@-'n2:-tIC-t@
+Gauß 'gaUs
+Jünger 'jY-N6
+Planet pla:-'ne:t
+unabhängige '?Un-?ap-hE-NI-g@
+betrifft b@-'tRIft
+beeinflussen b@-'?aIn-flU-s@n
+Autobahnen '?aU-to:-ba:-n@n
+elektronischen '?e:-lEk-'tRo:-nI-S@n
+Mehrere 'me:-R6-R@
+Folgende 'fOl-g@n-d@
+unterstellt '?Un-t6-'StElt
+Architekten ?a6-Ci:-'tEk-t@n
+Zink 'tsINk
+Admiral ?at-mi:-'Ra:l
+Anmerkungen '?an-m6-kU-N@n
+Kopernikus ko:-'pE6-ni:-kUs
+galten 'gal-t@n
+aufgestellt '?aUf-g@-StElt
+Express '?Eks-pREs
+Mächte 'mEC-t@
+Rund 'RUnt
+errichten ?E6-'RIC-t@n
+Brand 'bRant
+Zentralbank tsEn-'tRa:l-baNk
+zusätzlichen 'tsu:-sEts-lI-C@n
+geprägten g@-'pRE:k-t@n
+Comic 'kO-mIk
+Regierungen Re:-'gi:-RU-N@n
+erhebliche ?E6-'he:p-lI-C@
+Fibonacci fI-bo:-'na-ki:
+Dokumente do:-ku:-'mEn-t@
+Gesetzes g@-'zE-ts@s
+Militärs mi:-li:-'tE:6s
+analog ?a-na-'lo:k
+stabil Sta:-'bi:l
+literarische li:-t@-'Ra-RI-S@
+erhaltene ?E6-'hal-t@-n@
+Mehrzahl 'me:6-tsa:l
+Calcium 'kal-tsi:-Um
+ferner 'fE6-n6
+Digital di:-gi:-'ta:l
+beliebig b@-'li:-bIC
+Index '?In-dEks
+Wirkungen 'vI6-kU-N@n
+entsprach ?En-'tspRa:x
+Henri 'hEn-ri:
+Produzenten pRo:-du:-'tsEn-t@n
+Umlaufbahn '?Um-laUf-ba:n
+Ascorbinsäure ?as-kO6-'bi:n-sOY-R@
+Scharon Sa-'ROn
+Malta 'mal-ta:
+nördliche 'n96t-lI-C@
+Dateisystem da:-'taI-zYs-tEm
+Südamerika zy:t-?a-'me:-RI-ka:
+Kenntnisse 'kEnt-nI-s@
+Gestein g@-'StaIn
+organischen ?o:6-'ga:-nI-S@n
+Ringe 'RI-N@
+fehlen 'fe:-l@n
+Toten 'to:-t@n
+Erdoberfläche '?E6t-?o:-b6-flE-C@
+moderner mo:-'dE6-n6
+Mündung 'mYn-dUN
+Umwandlung '?Um-van-tlUN
+herzustellen 'hE6-tsu:-StE-l@n
+Adams '?a:-dams
+Gemäß g@-'mE:s
+Argon '?a6-gOn
+kreisfreie 'kRaIs-fRaI-@
+erheblichen ?E6-'he:p-lI-C@n
+Programmiersprachen pRo:-gRa-'mi:6-SpRa:-x@n
+benötigen b@-'n2:-tI-g@n
+Weltmeisterschaft 'vElt-maIs-t6-Saft
+Folgezeit 'fOl-g@-tsaIt
+zunehmenden 'tsu:-ne:-m@n-d@n
+Gramm 'gRam
+Cholesterinspiegel ko:-lEs-te:-'Ri:n-Spi:-g@l
+Ausbruch '?aUs-bRUx
+vergangenen fE6-'ga-N@-n@n
+Programmierung pRo:-gRa-'mi:-RUN
+Verarbeitung fE6-'?a6-baI-tUN
+Sonstiges 'zOns-tI-g@s
+formuliert fO6-mu:-'li:6t
+transportiert tRans-pO6-'ti:6t
+erwiesen ?E6-'vi:-z@n
+Flusses 'flU-s@s
+formulierte fO6-mu:-'li:6-t@
+Anforderungen '?an-fo:6-d@-RU-N@n
+Palast pa-'last
+Ausbreitung '?aUs-bRaI-tUN
+Betriebe b@-'tRi:-b@
+Vorgänge 'fO6-gE-N@
+fertiggestellt 'fE6-tIC-g@-StElt
+Merkmal 'mE6k-ma:l
+Schriftsprache 'SRIft-SpRa:-x@
+Beobachter b@-'?o:-bax-t6
+geplanten g@-'pla:n-t@n
+stehenden 'Ste:-@n-d@n
+Austausch '?aUs-taUS
+Aufwand '?aUf-vant
+Moleküle mo:-l@-'ky:-l@
+Implikation ?Im-pli:-kats-'jo:n
+Wirtschafts 'vI6t-Safts
+abgebaut '?ap-g@-baUt
+Alexanders ?a-lE-'ksan-d6s
+Disziplinen dIs-tsI-'pli:-n@n
+Dokument do:-ku:-'mEnt
+Ministerpräsidenten mi:-'nIs-t6-pRE-zi:-dEn-t@n
+Ostsee '?Ost-se:
+explizit ?Eks-pli:-'tsIt
+höherer 'h2:-6-R6
+Büchern 'by:-C6n
+Metallen me:-'ta-l@n
+regionale Re:-gi:-o:-'na:-l@
+Demokratische de:-mo:-'kRa:-tI-S@
+definieren de:-fi:-'ni:-R@n
+Myanmar my:-'an-ma:6
+polnische 'pOl-nI-S@
+Anthropologie ?an-tRo:-po:-lo:-'gi:
+Südafrika sy:t-?af-Ri:-ka:
+Mitgliedschaft 'mIt-gli:t-Saft
+Gliederung 'gli:-d@-RUN
+betrachtete b@-'tRax-t@-t@
+Bedingung b@-'dIN-UN
+Concorde kOn-'kO6d
+Mailand 'maI-lant
+falls 'fals
+Regisseure Re:-Zi:-'s2:-R@
+vollständigen 'fOl-StEn-dI-g@n
+Parker 'pa6-k6
+einheitliche 'aIn-haI-tlI-C@
+bevorzugt b@-'fo:6-tsu:kt
+kroatischen kRO-'?a:-tI-S@n
+befördert b@-'f2:6-d6t
+Thälmann 'tE:l-man
+finanzielle fI-nan-'tsjE-l@
+belegen b@-'le:-g@n
+enthielt ?Ent-'hi:lt
+genetische g@-'ne:-tI-S@
+vorgestellt 'fO6-g@-StElt
+Niedergang 'ni:-d6-gaN
+liegende 'li:-g@n-d@
+byzantinischen by:-tsan-'ti:-nI-S@n
+konservativen 'kOn-zE6-va-ti:-v@n
+Großstadt 'gRo:s-Stat
+leitete 'laI-t@-t@
+bedroht b@-'dRo:t
+Sektor 'zEk-to:6
+Vorgehen 'fO6-ge:-@n
+Organe ?O6-'ga:-n@
+Berge 'bE6-g@
+Residenz Re:-zi:-'dEnts
+medizinischen me:-di:-'tsi:-nI-S@n
+Algorithmen ?al-go:-'RIt-m@n
+Inhalte '?In-hal-t@
+Niederschlag 'ni:-d6-Sla:k
+Hegel 'he:-g@l
+Beschäftigung b@-'SEf-ti:-gUN
+ausgerichtet '?aUs-g@-RIC-t@t
+Hawaii ha-'vaI
+untersuchen ?Un-t6-'zu:-x@n
+geteilt g@-'taIlt
+Wechselwirkung 'vE-ks@l-vI6-kUN
+dominiert do:-mi:-'ni:6t
+vereinigt fE6-'?aI-nICt
+zugeschrieben 'tsu:-g@-SRi:-b@n
+Persönlichkeit pE6-'s2:n-lIC-kaIt
+Experimente ?Eks-pE-Ri:-'mEn-t@
+JavaScript ja-va-'skRIpt
+Kernel 'kE6-n@l
+Arafat '?a-Ra-fat
+Erzbischof '?E6ts-bI-So:f
+geplante g@-'plan-t@
+Programms pRo:-'gRams
+François fRa~-'sOa
+Zuordnung 'tsu:-O6t-nUN
+positiven 'po:-zi:-ti:-v@n
+Phänomene fE-no:-'me:-n@
+Lübeck 'ly:-bEk
+Ordnungszahl '?o:6t-nUNs-tsa:l
+wirtschaftlicher 'vI6t-Saft-lI-C6
+gestartet g@-'Sta6-t@t
+vernichtet fE6-'nIC-t@t
+städtischen 'StE-tI-S@n
+Freien 'fRaI-@n
+verzichtet fE6-'tsIC-t@t
+Fürstentum 'fY6s-t@n-tUm
+ändert '?En-d6t
+Ereignis ?E6-'?aI-gnIs
+konkrete kON-'kRe:-t@
+sowjetische zo:-'vje:-tI-S@
+genauso g@-'naU-zo:
+Regelung 'Re:-g@-lUN
+Darin 'da-RIn
+Arbeitnehmer ?a6-baIt-'ne:-m6
+anstatt ?an-'Stat
+Gravitation gRa-vi:-tats-'jo:n
+kommerziellen kO-mE6-'tsjE-l@n
+Dienste 'di:ns-t@
+NATO 'na:-to:
+Frege 'fRe:-g@
+by 'baI
+Debatte de:-'ba-t@
+Nordafrika nO6t-'?af-Ri:-ka:
+Vielmehr fi:l-'me:6
+Relativitätstheorie Re:-la-ti:-vi:-'tE:ts-te:-o:-Ri:
+Ähnlichkeit 'E:n-lIC-kaIt
+Maßstab 'ma:s-Sta:p
+vorgeschlagen 'fO6-g@-Sla:-g@n
+Gewebe g@-'ve:-b@
+Produkten pRo:-'dUk-t@n
+übernahmen ?y:-b6-'na:-m@n
+Coppola 'kO-po:-la:
+konkreten kON-'kRe:-t@n
+Platon 'pla:-tOn
+Kleinasien 'klaIn-?a-zi:-@n
+unmittelbaren '?Un-mI-t@l-ba:-R@n
+Julia 'ju:-li:-a:
+gegenwärtig g@-g@n-'vE:6-tIC
+Arnold '?a6-nOlt
+beigetragen 'baI-g@-tRa:-g@n
+British 'brI-tIS
+vermittelt fE6-'mI-tElt
+Buchstabe 'bu:x-Sta:-b@
+künstlerische 'kYns-tl@-RI-S@
+Chemische 'Ce:-mI-S@
+beinhaltet b@-'?In-hal-t@t
+Giovanni dZo:-'va-ni:
+schwarzen 'Sva6-ts@n
+primär pRi:-'mE:6
+kommunistischen kO-mu:-'nIs-tI-S@n
+Strömungen 'StR2:-mU-N@n
+Phasen 'fa:-z@n
+Entsprechend ?Ent-'SpRE-C@nt
+Stufen 'Stu:-f@n
+dauerhaft 'daU-6-haft
+Beitritt 'baI-tRIt
+Vermittlung fE6-'mIt-lUN
+jährige 'jE:-RI-g@
+Schnittstellen 'SnIt-StE-l@n
+erfuhr ?E6-'fu:6
+Zweig 'tsvaIk
+Französische fRan-'ts2:-zI-S@
+Anwesenheit '?an-ve:-z@n-haIt
+Libyen 'ly:-bi:-@n
+Forschungen 'fO6-SU-N@n
+Prag 'pRa:k
+bestehend b@-'Ste:-@nt
+Tempelhof 'tEm-p@l-ho:f
+Besondere b@-'zOn-d6-R@
+Attentat '?a-t@n-ta:t
+Isotop ?I-zo:-'to:p
+Leni 'le:-ni:
+Londoner 'lOn-dO-n6
+Brücken 'bRY-k@n
+Organ ?O6-'ga:n
+identifiziert ?I-dEn-ti:-fi:-'tsi:6t
+Everest '?E-vE-rEst
+berechnen b@-'REC-n@n
+Gerade g@-'Ra:-d@
+Legierungen le:-'gi:-RU-N@n
+Coffein kO-f@-'?i:n
+Einkommen 'aIN-kO-m@n
+Störungen 'St2:-RU-N@n
+theoretische te:-o:-'Re:-tI-S@
+Erreger ?E6-'Re:-g6
+Dreißigjährigen 'dRaI-sIC-jE:-RI-g@n
+Unix '?jU-nIks
+zeitlich 'tsaIt-lIC
+vermieden fE6-'mi:-d@n
+Ladung 'la:-dUN
+Lediglich 'le:-dIg-lIC
+restlichen 'REst-lI-C@n
+Deutsches 'dOY-tS@s
+Belege b@-'le:-g@
+Frequenz fRe:-'kvEnts
+Adrenalin ?ad-Re:-na:-'li:n
+Reichsstände 'RaICs-StEn-d@
+Schritte 'SRI-t@
+gehandelt g@-'han-d@lt
+erfordert ?E6-'fO6-d6t
+Klöster 'kl2:s-t6
+Gladbach 'glat-bax
+betroffenen b@-'tRO-f@-n@n
+Niveau ni:-'vo:
+Marlon 'ma6-lOn
+kritisierte kRi:-ti:-'zi:6-t@
+Wahlrecht 'va:l-RECt
+Botschaft 'bo:t-Saft
+Ausgang '?aUs-gaN
+Wirken 'vI6-k@n
+vorkommt 'fO6-kOmt
+norwegischen 'nO6-ve:-gI-S@n
+Einwohnerentwicklung '?aIn-vo:-n6-?Ent-vIk-lUN
+Bürgern 'bY6-g6n
+Differenz dI-f6-'REnts
+verdrängt fE6-'dRENt
+Herzogtum 'hE6-tso:k-tUm
+Lee 'li:
+Bundeskanzlers 'bUn-d@s-kants-l6s
+Benchmarking 'bEnS-ma6-kIN
+sozialer zo:-'tsja:-l6
+Besiedlung b@-'zi:-tlUN
+aufgefasst '?aUf-g@-fast
+grundlegenden 'gRUnt-le:-g@n-d@n
+Verwandtschaft fE6-'vant-Saft
+Mannheim 'man-haIm
+Landtag 'lan-ta:k
+Vorbereitung 'fo:6-b6-RaI-tUN
+Indus '?In-dUs
+Fiction 'fIk-S@n
+Verknüpfung fE6-'knY-pfUN
+darzustellen 'da6-tsu:-StE-l@n
+Luftschiffe 'lUft-SI-f@
+deutliche 'dOYt-lI-C@
+vorhandene fo:6-'han-d@-n@
+Crowley 'kRO-lEI
+Reform 'R@-fO6m
+Gültigkeit 'gYl-tIC-kaIt
+voran 'fo:-Ran
+stärkste 'StE:6ks-t@
+nutzt 'nUtst
+Schatten 'Sa-t@n
+notwendigen 'no:t-vEn-dI-g@n
+griech 'gRi:C
+Angriffe '?an-gRI-f@
+umfangreichen '?Um-faN-RaI-C@n
+Eingang 'aIn-gaN
+Thesen 'te:-z@n
+Arabischen ?a-'Ra:-bI-S@n
+Stoffen 'StO-f@n
+Erdkruste '?E6t-kRUs-t@
+Computern kOm-'pju:-t6n
+Sonnensystems 'zo:-n@n-zYs-te:ms
+Vokal vo:-'ka:l
+Ginkgo 'gIN-ko:
+gegenseitig 'ge:-g@n-saI-tIC
+Konzerte kOn-'tsE6-t@
+entdeckten ?Ent-'dEk-t@n
+Lebensjahr 'le:-b@ns-ja:6
+beliebigen b@-'li:-bI-g@n
+erhaltenen ?E6-'hal-t@-n@n
+weitestgehend 'vaI-t@st-ge:-@nt
+Anhängern '?an-hE-N6n
+seltenen 'zEl-t@-n@n
+Kapitel ka-'pi:-t@l
+spezifischen Spe:-'tsi:-fI-S@n
+Ruhr 'RU6
+linke 'lIN-k@
+heutiger 'hOY-tI-g6
+Zentren 'tsEn-tR@n
+unabhängigen '?Un-?ap-hE-NI-g@n
+erhöhten ?E6-'h2:-t@n
+Berlins bE6-'li:ns
+bezog b@-'tso:k
+erobert ?E6-'o:-b6t
+Eingemeindungen 'aIn-g@-maIn-dU-N@n
+Volksabstimmung 'fOlks-?ap-StI-mUN
+Humboldt 'hUm-bOlt
+Befehle b@-'fe:-l@
+Universums ?U-ni:-'vE6-zUms
+mehrheitlich 'me:6-haI-tlIC
+Antrag '?an-tRa:k
+ha 'ha:
+dieselbe di:-'zEl-b@
+datiert da-'ti:6t
+endgültige '?Ent-gYl-tI-g@
+indirekt '?In-di:-REkt
+Holland 'hO-lant
+Anlehnung '?an-le:-nUN
+Walzen 'val-ts@n
+neuere 'nOY-6-R@
+historischer hIs-'to:-RI-S6
+Belagerung b@-'la:-g@-RUN
+Americium ?a-m@-'Ri:-ki:-Um
+grundlegend 'gRUnt-le:-g@nt
+ähnelt 'E:-nElt
+Anton '?an-tOn
+empfangen ?Em-pfa-N@n
+volle 'fO-l@
+facto 'fak-to:
+ernannte ?E6-'nan-t@
+Benzin bEn-'tsi:n
+Steigerung 'StaI-g@-RUN
+Kiwis 'ki:-vIs
+Berechnungen b@-'REC-nU-N@n
+Luftwaffe 'lUft-va-f@
+Historische hIs-'to:-RI-S@
+systematisch zYs-t@-'ma-tIS
+Gilgamesch 'gIl-ga:-mES
+kaiserlichen 'kaI-z6-lI-C@n
+wachsenden 'va-ks@n-d@n
+Autorität ?aU-to:-Ri:-'tE:t
+Letztere 'le:ts-t6-R@
+Anbieter '?an-bi:-t6
+formalen fO6-'ma:-l@n
+Gemeinschaften g@-'maIn-Saf-t@n
+eingegliedert 'aIn-g@-gli:-d6t
+zunehmende 'tsu:-ne:-m@n-d@
+Komplexität kOm-plE-ksi:-'tE:t
+Gesteinen g@-'StaI-n@n
+Bagdad 'bak-da:t
+Hindenburg 'hIn-d@n-bU6k
+Bundestages 'bUn-d@s-ta:-g@s
+Araber '?a-Ra-b6
+aufmerksam '?aUf-mE6k-za:m
+Morpheme mO6-'fe:-m@
+Commodore kO-mo:-'do:-R@
+Menschenrechte 'mEn-S@n-REC-t@
+betragen b@-'tRa:-g@n
+einheitlichen 'aIn-haI-tlI-C@n
+Bön 'b2:n
+Zusammenschluss tsu:-'za-m@n-SlUs
+kombiniert kOm-bi:-'ni:6t
+Szenen 'stse:-n@n
+doppelt 'dO-pElt
+erschienenen ?E6-'Si:-n@-n@n
+Labor la-'bo:6
+weiblichen 'vaIp-lI-C@n
+Röhm 'R2:m
+kommerzielle kO-mE6-'tsjE-l@
+veränderten fE6-'?En-d6-t@n
+Einzug 'aIn-tsu:k
+Publikationen pUb-li:-kats-'jo:-n@n
+finnischen 'fI-nI-S@n
+Härte 'hE6-t@
+industriellen ?In-dUs-tRi:-'?E-l@n
+Besonderheiten b@-'zOn-d6-haI-t@n
+Japans 'ja:-pans
+Press 'prEs
+Periodensystem pE-Ri:-'o:-d@n-zYs-te:m
+korrekt ko:-'REkt
+Vernichtung fE6-'nIC-tUN
+zunehmender 'tsu:-ne:-m@n-d6
+Rumänien Ru:-'mE:-ni:-@n
+bulgarische bUl-'ga:-RI-S@
+folgendermaßen 'fOl-g@n-d6-ma:-s@n
+Himmelskörper 'hI-m@ls-k96-p6
+Eiben 'aI-b@n
+Kommunisten kO-mu:-'nIs-t@n
+Küsten 'kYs-t@n
+besuchen b@-'zu:-x@n
+Douglas 'da-gl@s
+Santiago zan-'tja:-go:
+Parameter 'pa-Ra:-me:-t6
+Türken 'tY6-k@n
+genügend g@-'ny:-g@nt
+eigenständigen '?aI-g@n-StEn-dI-g@n
+Be 'be:
+Holly 'hO-li:
+Verband fE6-'bant
+müsste 'mYs-t@
+Nobel 'no:-b@l
+Stoiber 'StOY-b6
+byzantinische by:-tsan-'ti:-nI-S@
+Popularität po:-pu:-la-Ri:-'tE:t
+organische ?O6-'ga:-nI-S@
+Elektrotechnik ?e:-lEk-tRo:-tEC-nIk
+Kleine 'klaI-n@
+kritischen 'kRi:-tI-S@n
+Bewertung b@-'vE6-tUN
+Etymologie ?e:-ty:-mo:-lo:-'gi:
+besseren 'bE-s6-R@n
+AutoCAD '?aU-to:-ka:t
+annähernd '?a-nE:-6nt
+Endung '?En-dUN
+Fortschritt 'fO6t-SRIt
+Freiburg 'fRaI-bU6k
+betrieb b@-'tRi:p
+Römische 'R2:-mI-S@
+Regierungszeit Re:-'gi:-RUNs-tsaIt
+ähnlicher '?E:n-lI-C6
+Einnahme 'aI-na:-m@
+umgangssprachlich '?Um-gaNs-SpRa:x-lIC
+Madonnas ma-'dO-na:s
+Marken 'ma6-k@n
+Kreuzzüge 'kROYts-tsy:-g@
+Autonomie ?aU-to:-no:-'mi:
+Seitdem 'saIt-de:m
+entstehende ?Ent-'Ste:-@n-d@
+Groß 'gRo:s
+Tumoren tU-'mo:-R@n
+Schmitts 'SmIts
+Geschlecht g@-'SlECt
+unterzeichnet ?Un-t6-'tsaIC-n@t
+GNU 'gnu:
+abgeschafft '?ap-g@-Saft
+Felix 'fe:-lIks
+Kapitalismus ka-pi:-ta-'lIs-mUs
+Māori ma-'?o:-Ri:
+geeignete g@-'aI-gn@-t@
+Immunsystem ?I-'mu:n-zYs-te:m
+ehemaliger ?'e:-@-ma-lI-g6
+menschlicher 'mEnS-lI-C6
+entworfen ?Ent-'vO6-f@n
+litt 'lIt
+Allein ?a-'laIn
+zeichnet 'tsaIC-n@t
+Fraktion fRak-'tsjo:n
+verband 'fE6-bant
+Nietzsches 'ni:ts-S@s
+stehende 'Ste:-@n-d@
+Legierung le:-'gi:-RUN
+Erinnerung ?E6-'?In-@-RUN
+Desktop 'dEsk-tOp
+repräsentiert Re:-'pRE:-zEn-ti:6t
+geringere g@-'RI-N6-R@
+beruhen b@-'Ru:-@n
+Feinde 'faIn-d@
+Davon 'da:-fOn
+Distributionen dIs-tRi:-bu:-'tsjo:-n@n
+verlangt fE6-'laNt
+fördern 'f96-d6n
+Gleichungen 'glaI-CU-N@n
+bewiesen b@-'vi:-z@n
+Computerspiele kOm-'pju:-t6-Spi:-l@
+beschädigt b@-'SE:-dICt
+besiedelten b@-'zi:-dEl-t@n
+Induktivität ?In-dUk-ti:-vi:-'tE:t
+Meißen 'maI-s@n
+Allgemeines ?al-g@-'maI-n@s
+österreichische '?2:s-t6-RaI-CI-S@
+Formulierung fO6-mu:-'li:-RUN
+Gesetzen g@-'zE-ts@n
+Pilze 'pIl-ts@
+Zuse 'tsu:-z@
+herrschte 'hE6S-t@
+Mitarbeitern 'mIt-?a6-baI-t6n
+behandeln b@-'han-d@ln
+Fahrzeuge 'fa:6-tsOY-g@
+nachfolgenden 'na:x-fOl-g@n-d@n
+Gesamtheit g@-'zamt-haIt
+Einzelnen '?aIn-ts@l-n@n
+arabische ?a-'Ra:-bI-S@
+britischer 'bRi:-tI-S6
+Volkszählung 'fOlks-tsE:-lUN
+Aufteilung '?aUf-taI-lUN
+Multiplikation mUl-tI-pli:-kats-'jo:n
+Angehörigen '?an-ge:-h2:-RI-g@n
+Landeshauptstadt 'lan-d@s-haUpt-Stat
+Ausgleich '?aUs-glaIC
+Münze 'mYn-ts@
+politisches po:-'li:-tI-S@s
+verringert fE6-'RI-N6t
+Wassers 'va-s6s
+chemisches 'Ce:-mI-S@s
+Abstammung '?ap-Sta-mUN
+Schaden 'Sa:-d@n
+Machiavelli ma-ki:-a:-'vE-li:
+Deren 'de:-R@n
+Astronomen ?as-tRo:-'no:-m@n
+kontrolliert kOn-tRO-'li:6t
+herangezogen h@-'RaN-g@-tso:-g@n
+Mengenlehre 'mE-N@n-le:-R@
+Gelehrten g@-'le:6-t@n
+Zitate tsI-'ta:-t@
+Milchstraße 'mIlC-StRa:-s@
+wirksam 'vI6k-za:m
+Live 'laIf
+Sklaven 'skla:-v@n
+Synagoge zy:-na-'go:-g@
+Konventionen kOn-vEn-'tsjo:-n@n
+stattfand 'Stat-fant
+Mesopotamien me:-zo:-po:-'ta:-mi:-@n
+Typische 'ty:-pI-S@
+Beachtung b@-'?ax-tUN
+letztendlich lEtst-'?Ent-lIC
+Adler '?a:-dl6
+Anfänge '?an-fE-N@
+Schaffen 'Sa-f@n
+elektrischer ?e:-'lEk-tRI-S6
+wider 'vi:-d6
+Byron 'baI-r@n
+Ada '?a-da:
+erforscht ?E6-'fO6St
+täglichen 'tE:k-lI-C@n
+bisherige bIs-'he:-RI-g@
+Schifffahrt 'SI-fa:6t
+Signale zIg-'na:-l@
+Isaac '?I-za:k
+letztere 'lEts-t@-R@
+Institution ?Ins-ti:-tu:-'tsjo:n
+Umland '?Um-lant
+Vorlage 'fo:6-la:-g@
+tatsächlichen tat-'zEC-lI-C@n
+Gegenden 'ge:-g@n-d@n
+Sklaverei skla:-v@-'RaI
+Hubschrauber 'hu:p-SRaU-b6
+erreichbar ?E6-'RaIC-ba:6
+Komitee kO-mi:-'te:
+Griechisch 'gRi:-CIS
+Barks 'ba6ks
+individuelle ?In-di:-vi:-du:-'?E-l@
+Krater 'kRa:-t6
+prägen 'pRE:-g@n
+übergeben ?y:-b6-'ge:-b@n
+Säuren 'zOY-R@n
+Fachhochschule 'fax-ho:x-Su:-l@
+muslimischen mUs-'li:-mI-S@n
+Lord 'lO6t
+Dessen 'dE-s@n
+vielfältig 'fi:l-fEl-tIC
+Bestimmungen b@-'StI-mU-N@n
+Abschaffung '?ap-Sa-fUN
+Folgenden 'fOl-g@n-d@n
+Salzburg 'zalts-bU6k
+richtete 'RIC-t@-t@
+Friedens 'fRi:-d@ns
+Sonde 'zOn-d@
+Tiberius ti:-'be:-Ri:-Us
+Graphit gRa-'fIt
+Gütern 'gy:-t6n
+Entstanden ?Ent-'Stan-d@n
+Luftschiff 'lUft-SIf
+ausgeprägt '?aUs-g@-pRE:kt
+Gerichte g@-'RIC-t@
+leichte 'laIC-t@
+Göttern 'g9-t6n
+Propheten pRo:-'fe:-t@n
+gliedert 'gli:-d6t
+staatlich 'Sta:t-lIC
+Alltag '?al-ta:k
+Herzen 'hE6-ts@n
+Sonstige 'zOns-tI-g@
+niedrige 'ni:-dRI-g@
+Marburg 'ma6-bU6k
+Typs 'ty:ps
+voller 'fO-l6
+Flughafens 'flu:k-ha:-f@ns
+Hinblick 'hIn-blIk
+verlaufen 'fE6-laU-f@n
+Finnland 'fIn-lant
+unverändert '?Un-fE6-?En-d6t
+wahre 'va:-R@
+indogermanischen '?In-do:-gE6-ma:-nI-S@n
+Kennzeichen 'kEn-tsaI-C@n
+Lizenz lI-'tsEnts
+Finanzierung fI-nan-'tsi:-RUN
+mechanischen me:-'Ca:-nI-S@n
+Handbuch 'hant-bu:x
+Kette 'kE-t@
+zeitgenössischen 'tsaIt-g@-n9-sI-S@n
+auftritt '?aUf-tRIt
+Klammern 'kla-m6n
+vorliegen 'fo:6-li:-g@n
+Bischöfe bI-'S2:-f@
+Messungen 'mE-sU-N@n
+gewährt g@-'vE:6t
+Morton 'mO6-t@n
+Zahlungsmittel 'tsa:-lUNs-mI-t@l
+Group 'gru:p
+zeitliche 'tsaIt-lI-C@
+Regelungen 'Re:-g@-lU-N@n
+elektrisch ?e:-'lEk-tRIS
+erbaute ?E6-'baU-t@
+Bedürfnisse b@-'dY6f-nI-s@
+Perutz 'pE-RUts
+angegriffen '?an-g@-gRI-f@n
+Abu '?a-bu:
+Achse '?a-ks@
+Audio '?aU-di:-o:
+Reichskanzler 'RaICs-kan-tsl6
+abgebildet '?ap-g@-bIl-d@t
+Sonnensystem 'zO-n@n-zYs-te:m
+Entwickler ?Ent-'vIk-l6
+längste 'lENs-t@
+Kampagne kam-'pan-j@
+gemäßigten g@-'mE:-sIC-t@n
+stattfindet 'Stat-fIn-d@t
+verstand fE6-'Stant
+bedeutend b@-'dOY-t@nt
+Stockholm 'StOk-hOlm
+Vegetation ve:-ge:-tats-'jo:n
+Germanium g@6-'ma:-ni:-Um
+Kronach 'kRo:-nax
+individuellen ?In-di:-vi:-du:-'?E-l@n
+berichten b@-'RIC-t@n
+Academy ?@-'kE-d@-mi:
+zweites 'tsvaI-t@s
+Fortschritte 'fO6t-SRI-t@
+Asperger '?as-pE6-g6
+Vertrauen fE6-'tRaU-@n
+Verwitterung fE6-'vI-t@-RUN
+Volumen vo:-'lu:-m@n
+Sätzen 'sE-ts@n
+Schwefel 'Sve:-f@l
+Wikipedia vi:-ki:-'pe:-di:-a:
+Bisher 'bIs-hE6
+Debian 'de:-bi:-a:n
+zählte 'tsE:l-t@
+Caracalla ka-Ra-'ka-la:
+globalen glo:-'ba:-l@n
+regelmäßigen 'Re:-g@l-mE-sI-g@n
+Mannschaften 'man-Saf-t@n
+Stellenwert 'StE-l@n-vE6t
+Vorschriften 'fo:6-SRIf-t@n
+benutzten b@-'nUts-t@n
+gültigen 'gYl-tI-g@n
+Konzentrationen kOn-tsEn-tRats-'jo:-n@n
+Domitian do:-'mi:-tsi:-a:n
+Che 'tSe:
+wonach vo:-'nax
+Kästner 'kEst-n6
+begründen b@-'gRYn-d@n
+gewordenen g@-'vO6-d@-n@n
+Engländer '?EN-lEn-d6
+Verfolgung fE6-'fOl-gUN
+Investitionen ?In-vEs-ti:-'tsjo:-n@n
+interessierte ?In-t6-RE-'si:6-t@
+Substrat zUp-'stRa:t
+eingesetzten 'aIn-g@-zEts-t@n
+enormen ?e:-'nO6-m@n
+berühmtesten b@-'Ry:m-t@s-t@n
+künstliche 'kYnst-lI-C@
+Engels '?E-NEls
+Modellen mo:-'dE-l@n
+goldenen 'gOl-d@-n@n
+gleichermaßen 'glaI-C6-ma:-s@n
+Neuseelands nOY-'ze:-lants
+online '?On-laIn
+Glasgow 'glas-go:
+markiert ma6-'ki:6t
+Argumente ?a6-gu:-'mEn-t@
+Planck 'plaNk
+Michel 'mI-C@l
+Mythen 'my:-t@n
+Batter 'ba-t6
+Früher 'fRy:-6
+beginnend b@-'gI-n@nt
+intensive ?In-tEn-'zi:-v@
+Protein pRo:-te:-'?i:n
+arbeiteten '?a6-baI-t@-t@n
+Personal pE6-zo:-'na:l
+Atomen ?a-'to:-m@n
+städtische 'StE-tI-S@
+Deutung 'dOY-tUN
+Erfindungen ?E6-'fIn-dU-N@n
+Bald 'balt
+durchführen 'dU6C-fy:-R@n
+Fastenzeit 'fas-t@n-tsaIt
+Navy 'nEI-vi:
+Verordnung fE6-'?O6t-nUN
+vertritt fE6-'tRIt
+Hirohito hI-Ro:-'hi:-to:
+etablierten ?e:-ta:-'bli:6-t@n
+Umstand '?Um-Stant
+gefordert g@-'fo:6-d6t
+islamische ?Is-'la:-mI-S@
+sichtbaren 'zICt-ba:-R@n
+On '?On
+He 'hE
+slawischen 'sla:-vI-S@n
+stabile 'Sta:-'bi:-l@
+Lexikon 'lEk-sI-kOn
+Königreichs 'k2:-nIk-RaICs
+lateinischer la:-'taI-nI-S6
+beschäftigen b@-'SEf-tI-g@n
+verkehren fE6-'ke:-R@n
+echten '?EC-t@n
+Cadmium 'kat-mi:-Um
+Glucose glU-'ko:-z@
+Offenbarung ?O-f@n-'ba:-RUN
+Geldmenge 'gElt-mE-N@
+Paderborn pa-d6-'bO6n
+Bronze 'bRo~-s@
+reduzieren Re:-du:-'tsi:-R@n
+vorliegt 'fO6-li:kt
+naturwissenschaftlichen na-'tu:6-vI-s@n-Saf-tlI-C@n
+Zusammenbruch tsu:-'za-m@n-bRUx
+zerfällt tsE6-'fElt
+Bindungen 'bIn-dU-N@n
+orientierten ?o:-Ri:-En-'ti:6-t@n
+optischen '?Op-tI-S@n
+Addition ?a-di:-'tsjo:n
+regelmäßige 'Re:-g@l-mE:-sI-g@
+Bruttoinlandsprodukt bRU-to:-'?In-lants-pRo:-dUkt
+sozialistischen zo:-tsja-'lIs-tI-S@n
+geeigneten g@-'?aI-gn@-t@n
+Gemeinsam g@-'maIn-za:m
+Elektronik ?e:-lEk-'tRo:-nIk
+Geisteswissenschaften 'gaIs-t@s-vI-s@n-Saf-t@n
+Ausmaß '?aUs-ma:s
+analogen ?a-na:-'lo:-g@n
+Fragestellungen 'fRa:-g@-StE-lU-N@n
+ähnliches '?E:n-lI-C@s
+Flugzeugen 'flu:k-tsOY-g@n
+Straßenverkehr 'StRa:-s@n-fE6-ke:6
+Black 'blEk
+mathematisch ma-t@-'ma:-tIS
+Landkreise 'lant-kRaI-z@
+Kryptographie kRYp-to:-gRa-'fi:
+eigenem '?aI-g@-n@m
+geöffnet g@-'?9f-n@t
+Straßenbahn 'StRa:-s@n-ba:n
+Außer '?aU-s6
+asiatischen ?a-zi:-'a-tI-S@n
+Gleichheit 'glaIC-haIt
+Kaisertum 'kaI-z6-tUm
+River 'rI-v6
+Meeresspiegel 'me:-REs-Spi:-g@l
+normale nO6-'ma:-l@
+Li 'li:
+Richtlinien 'RICt-li:-ni:-@n
+revolutionären Re:-vo:-lu:-tsjo:-'nE:-R@n
+Wähler 'vE:-l6
+Dramen 'dRa:-m@n
+LaTeX 'la:-tEC
+Walze 'val-ts@
+Satelliten za:-tE-'li:-t@n
+Maschinenbau ma-'Si:-n@n-baU
+Syntax 'zy:n-ta:ks
+Reichweite 'RaIC-vaI-t@
+Bayerische 'baI-RI-S@
+Anpassung '?an-pa-sUN
+Mönche 'm9n-C@
+heilige 'haI-lI-g@
+Liestal 'li:s-ta:l
+Celsius 'tsEl-zi:-Us
+verbliebenen fE6-'bli:-b@-n@n
+Gewinn g@-'vIn
+Nachteil 'na:x-taIl
+Elbing '?El-bIN
+relative 'Re:-la-ti:-v@
+Verfilmung fE6-'fIl-mUN
+basierte ba-'zi:6-t@
+tiefen 'ti:-f@n
+erzielte ?E6-'tsi:l-t@
+Annäherung '?a-nE:-@-RUN
+Population po:-pu:-lats-'jo:n
+Verben 'vE6-b@n
+Versammlung fE6-'zam-lUN
+erstellen '?E6-'StE-l@n
+exakte ?Ek-'sak-t@
+Tote 'to:-t@
+Höhen 'h2:-@n
+betreffenden b@-'tRE-f@n-d@n
+Ereignissen ?E6-'?aI-gnI-s@n
+diversen di:-'vE6-z@n
+deutlichen 'dOYt-lI-C@n
+Hafnium 'haf-ni:-Um
+gesucht g@-'zu:xt
+nachweisbar 'na:-x-vaIs-ba:6
+schickte 'SIk-t@
+Zulassung 'tsu:-la-sUN
+Unternehmens ?Un-t6-'ne:-m@ns
+Gegenüber ge:-g@n-'?y:-b6
+verstärkte fE6-'StE6k-t@
+Argentiniens ?a6-gEn-'ti:-ni:-Ens
+Berlinale bE6-li:-'na:-l@
+jährlichen 'jE:6-lI-C@n
+Balkan 'bal-ka:n
+laufenden 'laU-f@n-d@n
+Einordnung 'aIn-?O6-dnUN
+erklärten ?E6-'klE:6-t@n
+Stadtmauer 'Stat-maU-6
+Petrus 'pe:t-RUs
+Arabisch ?a-'Ra:-bIS
+Literaturwissenschaft li:-t@-Ra:-'tu:6-vI-s@n-Saft
+Wagen 'va:-g@n
+regiert Re:-'gi:6t
+Tätigkeiten 'tE:-tIC-kaI-t@n
+Protestanten pRo:-tEs-'tan-t@n
+Grundsätzlich 'gRUnt-sEts-lIC
+Kohlenstoffdioxid ko:-l@n-StOf-'di:-Ok-si:t
+organisierten ?O6-ga:-ni:-'zi:6-t@n
+Scheitern 'SaI-t6n
+gegebenen g@-'ge:-b@-n@n
+gewählte g@-'vE:l-t@
+Senkung 'zEN-kUN
+darstellte 'da6-StEl-t@
+rechtlich 'RECt-lIC
+Magen 'ma:-g@n
+festgehalten 'fEst-g@-hal-t@n
+Jacob 'ja:-kOp
+Mettmann 'mEt-man
+Jungsteinzeit 'jUN-StaIn-tsaIt
+ökonomischen '?2:-ko:-no:-mI-S@n
+äußersten '?OY-s6s-t@n
+Octavian ?Ok-ta-vi:-'a:n
+Magnetfeld ma-'gne:t-fElt
+Fragmente fRag-'mEn-t@
+Programmierer pRo:-gRa-'mi:-R6
+enden '?En-d@n
+künstlichen 'kYnst-lI-C@n
+Fehlen 'fe:-l@n
+Erscheinungen ?E6-'SaI-nU-N@n
+Antonius ?an-'to:-ni:-Us
+erlangt ?E6-'laNt
+Gerechtigkeit g@-'REC-tIC-kaIt
+Eschborn '?ES-bO6n
+produzierten pRo:-du:-'tsi:6-t@n
+vereinzelt fE6-'?aIn-ts@lt
+Maximilian mak-si:-'mi:-li:-a:n
+Links 'lINks
+vielfältige fi:l-'fEl-tI-g@
+Gefahren g@-'fa:-R@n
+Veranstaltung fE6-'?an-Stal-tUN
+Eppstein '?Ep-staIn
+Mikroorganismen 'mi:-kRo:-?O6-ga:-nIs-m@n
+Seither 'saIt-he:6
+Induktion ?In-dUk-'tsjo:n
+Kapitulation ka-pi:-tu:-lats-'jo:n
+weitem 'vaI-t@m
+Zawinul 'tsa-vi:-nu:l
+bewirken b@-'vI6-k@n
+Klassiker 'kla-sI-k6
+Statue 'Sta:-tu:-@
+Sammlungen 'zam-lU-N@n
+Kronberg 'kRo:n-bE6k
+stabilen 'Sta:-bi:-l@n
+ausgehend '?aUs-ge:-@nt
+Leerzeichen 'le:6-tsaI-C@n
+Wiederherstellung vi:-d6-'hE6-StE-lUN
+definierten de:-fi:-'ni:6-t@n
+umstrittenen ?Um-'StRI-t@-n@n
+kommenden 'kO-m@n-d@n
+Sportarten 'SpO6t-?a6-t@n
+wendet 'vEn-d@t
+History 'hIs-to:-ri:
+Handwerker 'hant-vE6-k6
+Jordanien jO6-'da:-ni:-@n
+beitragen 'baI-tRa:-g@n
+kubanischen kU-'ba:-nI-S@n
+Bevölkerungszahl b@-'v9l-k@-RUNs-tsa:l
+Konvent 'kOn-vEnt
+umliegenden '?Um-li:-g@n-d@n
+Buddy 'ba-di:
+derartige 'dE6-?a6-tI-g@
+Osmanen ?Os-'ma:-n@n
+künstlerisch 'kYns-tl@-RIS
+Warschau 'va6-SaU
+Begegnung b@-'ge:-gnUN
+alliierten ?a-li:-'?i:6-t@n
+Schwefelsäure 'Sve:-f@l-zOY-R@
+Louvre 'lu:-vR@
+Ging 'gIN
+Chiles 'tSi:-le:s
+Steuern 'StOY-6n
+ohnehin ?o:-n@-'hIn
+Bertolucci b@6-to:-'lu:-tSi:
+problematisch pRo:-bl@-'ma:-tIS
+empirischen ?Em-'pi:-RI-S@n
+beschleunigt b@-'SlOY-nICt
+Roma 'Ro:-ma:
+bedarf b@-'da6f
+Godard go:-'da6t
+Notation no:-tats-'jo:n
+komplexer kOm-'plE-ks6
+Baskenland 'bas-k@n-lant
+Sokrates 'zo:-kRa:-tEs
+Erweiterungen ?E6-'vaI-t@-RU-N@n
+unbekannten '?Un-b@-kan-t@n
+alternative ?al-t6-na-'ti:-v@
+Hubble 'ha-b@l
+Oskar '?Os-ka:6
+erzeugten ?E6-'tsOY-kt@n
+Leonardos le:-o:-'na6-do:s
+Klage 'kla:-g@
+Moas 'mo:-a:s
+Preisträger 'pRaIs-tRE:-g6
+Konflikten kOn-'flIk-t@n
+Quecksilber 'kvEk-zIl-b6
+Ganymed 'ga-ni:-me:t
+Donald 'do:-nalt
+Peru pE-'Ru:
+Niederschläge 'ni:-d6-SlE:-g@
+eroberte ?E6-'?o:-b6-t@
+Horst 'hO6st
+Gysi 'gi:-zi:
+langfristig 'laN-fRIs-tIC
+Kaschmir 'kaS-mI6
+sinkt 'zINkt
+Zonen 'tso:-n@n
+konzentrierte kOn-tsEn-'tRi:6-t@
+denselben de:n-'zEl-b@n
+Fieber 'fi:-b6
+Papstes 'paps-t@s
+Arabische ?a-'Ra:-bI-S@
+stammenden 'Sta-m@n-d@n
+Abhandlung '?ap-han-tlUN
+verbreiten fE6-'bRaI-t@n
+Grundgesetzes 'gRUnt-g@-zE-ts@s
+Modifikation mo:-di:-fi:-kats-'jo:n
+Instanz ?Ins-'tants
+göttlichen 'g9t-lI-C@n
+Maxglan 'mak-sgla:n
+verwirklicht fE6-'vI6k-lICt
+Kassel 'ka-s@l
+Insulin ?In-zu:-'li:n
+Aufhebung '?aUf-he:-bUN
+erhebt ?E6-'he:pt
+Besatzungszone b@-'za-tsUNs-tso:-n@
+Thailand 'taI-lant
+half 'half
+Dateisysteme da:-'taI-zYs-te:-m@
+bedienen b@-'di:-n@n
+beschriebenen b@-'SRi:-b@-n@n
+Angelegenheiten '?an-g@-le:-g@n-haI-t@n
+Ausprägung '?aUS-pRE:-gUN
+ausgegangen '?aUs-g@-ga-N@n
+Frequenzen fRe:-'kvEn-ts@n
+metaphysischen me:-ta-'fy:-zI-S@n
+fränkischen 'fREN-kI-S@n
+funktioniert fUN-ktsjo:-'ni:6t
+Mittelmeerraum 'mI-t@l-me:6-RaUm
+Buches 'bu:-x@s
+Gefühl g@-'fy:l
+befindlichen b@-'fInt-lI-C@n
+Maßnahme 'mas-na:-m@
+Monte 'mOn-t@
+Atom ?a-'to:m
+Services 'zE6-vi:-s@s
+erheben ?E6-'he:-b@n
+Nils 'nIls
+Bevölkerungsdichte b@-'v9l-k@-RUNs-dIC-t@
+woraufhin vo:-'RaUf-'hIn
+zwangsläufig 'tsvaNs-lOY-fIC
+Halifax 'ha-li:-faks
+Serien 'ze:-Ri:-@n
+Theatre te:-'at-R@
+Exemplare ?Ek-sEm-'pla:-R@
+existierten ?Ek-sIs-'ti:6-t@n
+Argument ?a6-gu:-'mEnt
+Anzeichen '?an-tsaI-C@n
+interne ?In-'tE6-n@
+Bäumen 'bOY-m@n
+Reden 'Re:-d@n
+weltlichen 'vElt-lI-C@n
+Artikeln ?a6-'ti:-k@ln
+drittgrößte 'dRIt-gR2:s-t@
+Relation Re:-lats-'jo:n
+Behauptung b@-'haUp-tUN
+Hofheim 'ho:f-haIm
+bereitete b@-'RaI-t@-t@
+geistlichen 'gaIst-lI-C@n
+Hauptmanns 'haUpt-mans
+Dakar da-'ka:6
+Färbung 'fE6-bUN
+Kampfstoffe 'kampf-stO-f@
+Rechten 'REC-t@n
+Schöneberg 'S2:-n@-bE6k
+betrachteten b@-'tRax-t@-t@n
+Betriebssystems b@-'tRi:p-zYs-te:ms
+materiellen ma:-te:-Ri:-'E-l@n
+Raumsonde 'RaUm-zOn-d@
+Abbildungen '?ap-bIl-dU-N@n
+entspringt ?Ent-'SpRINt
+Erstellung ?E6-'StE-lUN
+Ältere 'El-t6-R@
+moralische mo:-'Ra:-lI-S@
+Meeres 'me:-R@s
+gelernt g@-'lE6nt
+Sahara za-'ha:-Ra:
+Alternativen ?al-t6-na-'ti:-v@n
+Basic 'bEI-sIk
+vollendet vOl-'?En-d@t
+späterer 'SpE:-t6-R6
+genauen g@-'naU-@n
+Zunahme 'tsu:-na:-m@
+statistisch Sta-'tIs-tIS
+Entstehen ?Ent-'Ste:-@n
+Grundgesetz 'gRUnt-g@-zEts
+Festlegung 'fEst-le:-gUN
+unseres '?Un-z6-R@s
+gebildeten g@-'bIl-d@-t@n
+Stadtbezirke 'Stat-b@-tsI6-k@
+Geschehen g@-'Se:-@n
+unterhalten ?Un-t6-'hal-t@n
+zustande tsu:-'Stan-d@
+siedelten 'zi:-d@l-t@n
+fassen 'fa-s@n
+fasste 'fas-t@
+Würzburg 'vY6ts-bU6k
+Kalten 'kal-t@n
+richtigen 'RIC-tI-g@n
+Einschränkung '?aIn-SREN-kUN
+Mitochondrien mI-tO-'xOn-dRi:-@n
+unternommen ?Un-t6-'nO-m@n
+Treptow 'tRe:p-to:
+Magazine ma-ga-'tsi:-n@
+Gesetzgebung g@-'zEts-ge:-bUN
+Heutzutage 'hOY-tsu:-ta:-g@
+bewohnt b@-'vo:nt
+sprachlichen 'SpRa:x-lI-C@n
+Regimes Re:-'Zi:ms
+angegebenen '?an-g@-ge:-b@-n@n
+unterschied '?Un-t6-Si:t
+Wohnungen 'vo:-nU-N@n
+Mechanismus me:-Ca:-'nIs-mUs
+privat pRi:-'va:t
+Regierungsbezirk Re:-'gi:-RUNs-b@-tsI6k
+Mineralen mi:-nE-'Ra:-l@n
+Luhmann 'lu:-man
+Oxidation ?O-ksi:-dats-'jo:n
+magnetischen mag-'ne:-tI-S@n
+Schmelze 'SmEl-ts@
+Populationen po:-pu:-lats-'jo:-n@n
+Río 'Ri:-o:
+Mandelbrot 'man-d@l-bRo:t
+Lynch 'lYnS
+Uhrzeigersinn '?U6-tsaI-g6-zIn
+Kosmologie kOs-mo:-lo:-'gi:
+Kathedrale ka-te:-'dRa:-l@
+erzeugte ?E6-'tsOY-kt@
+Schottland 'SOt-lant
+Vorfeld 'fo:6-fElt
+globale glo:-'ba:-l@
+Anwender '?an-vEn-d6
+Gegenzug 'ge:-g@n-tsu:k
+Überwachung ?y:-b6-'va-xUN
+Cham 'tSam
+Regensburg 'Re:-g@ns-bU6k
+Ästhetik ?Es-'te:-tIk
+Liebig 'li:-bIC
+leistete 'laIs-t@-t@
+Feng 'fEN
+Israels '?i:s-Ra-?e:ls
+bulgarischen bUl-'ga:-RI-S@n
+verschiedensten fE6-'Si:-'d@ns-t@n
+Heide 'haI-d@
+steigenden 'StaI-g@n-d@n
+beschränkte b@-'SREN-kt@
+anerkannte '?a-n6-kan-t@
+Säure 'zOY-R@
+Senatoren zE-na-'to:-R@n
+gültige 'gYl-tI-g@
+Teiler 'taI-l6
+Reichswehr 'RaICs-ve:6
+Technischen 'tEC-nI-S@n
+Hansestadt 'han-z@-Stat
+realen Re:-'a:-l@n
+Kammer 'ka-m6
+Mutationen mU-tats-'jo:-n@n
+Zentrale tsEn-'tRa:-l@
+Morphologie mO6-fo:-lo:-'gi:
+Braunen 'bRaU-n@n
+Klein 'klaIn
+Handelns 'han-d@lns
+optische '?O-ptI-S@
+angebracht '?an-g@-bRaxt
+herrschenden 'hE6-S@n-d@n
+gerichtet g@-'RIC-t@t
+kulturell kUl-tu:-'REl
+Physikalische fy:-zi:-'ka:-lI-S@
+eingeweiht '?aIn-g@-vaIt
+Stoffwechsel 'StOf-vE-ks@l
+Legislative le:-gIs-la-'ti:-v@
+Arithmetik ?a-RIt-'me:-tIk
+ausgehenden '?aUs-ge:-@n-d@n
+Edinburgh '?E-dIn-b@-rOU
+buddhistischen bU-'dIs-tI-S@n
+Weltkulturerbe vElt-kUl-'tu:6-?E6-b@
+liberalen li:-b@-'Ra:-l@n
+forderten 'fO6-d6-t@n
+reelle Re:-'?E-l@
+starkes 'Sta6-k@s
+analoge ?a-na:-'lo:-g@
+Zinn 'tsIn
+verständlich fE6-'StEnt-lIC
+Flüssen 'flY-s@n
+Rückseite 'RYk-saI-t@
+derer 'de:-R6
+Regen 'Re:-g@n
+Aktivierung ?ak-ti:-'vi:-RUN
+gebundene g@-'bUn-d@-n@
+Mir 'mI6
+Griechischen 'gRi:-CI-S@n
+Lagerstätten 'la:-g6-StE-t@n
+Stauffenberg 'StaU-f@n-bE6k
+staatlicher 'Sta:t-lI-C6
+Gebäuden g@-'bOY-d@n
+Belastung b@-'las-tUN
+rechtliche 'RECt-lI-C@
+Gegnern 'ge:-gn6n
+zwingend 'tsvI-N@nt
+Allergene ?a-l6-'ge:-n@
+verursachen fE6-'?u:6-za-x@n
+wiedergegeben 'vi:-d6-g@-ge:-b@n
+Dosis 'do:-zIs
+Lateinische la:-'taI-nI-S@
+Mikroprozessor 'mi:k-Ro:-pRo:-tsE-sO6
+Klassifizierung kla-si:-fi:-'tsi:-RUN
+privater pRi:-'va:-t6
+Felsen 'fEl-z@n
+Zivilisation tsi:-vi:-li:-zats-'jo:n
+Willens 'vI-l@ns
+Vorhandensein fo:6-'han-d@n-zaIn
+magnetische ma-'gne:-tI-S@
+fasst 'fast
+Infolge ?In-'fOl-g@
+hervorgerufen hE6-'fO6-g@-Ru:-f@n
+Auflagen '?aUf-la:-g@n
+Empfehlung ?Em-'pfe:-lUN
+Bamberg 'bam-bE6k
+erwähnten ?E6-'vE:n-t@n
+that 'TEt
+Onkel '?ON-k@l
+Währungen 'vE:-RU-N@n
+Rechnung 'REC-nUN
+Naturwissenschaft na:-'tu:6-vI-s@n-Saft
+untersuchte ?Un-t6-'zu:x-t@
+Raumtemperatur 'RaUm-tEm-p@-Ra:-tU6
+Rekonstruktion Re:-kOns-tRUk-'tsjo:n
+Force 'fO6s
+Hauptwerk 'haUpt-vE6k
+Konsequenzen kOn-z@-'kvEn-ts@n
+Außerhalb '?aU-s6-halp
+Habsburger 'haps-bU6-g6
+benannten b@-'nan-t@n
+Erdatmosphäre '?E6t-?at-mOs-fE:-R@
+Hafer 'ha:-f6
+Molybdän mO-lYb-'dE:n
+Linken 'lIN-k@n
+Nameserver 'nEIm-s96-v6
+gefangen g@-'fa-N@n
+deuten 'dOY-t@n
+Cameron 'kE-m@-rOn
+Niob 'ni:-o:p
+Anatomie ?a-na-to:-'mi:
+Verdienste fE6-'di:ns-t@
+Plätze 'plE-ts@
+Kameras 'ka:-m@-Ra:s
+Schmuck 'SmUk
+Odin '?o:-dIn
+einzuführen 'aIn-tsu:-fy:-R@n
+Abfolge '?ap-fOl-g@
+Piloten pI-'lo:-t@n
+Platons 'pla:-tOns
+radikalen Ra-di:-'ka:-l@n
+Elements '?E-l@-m@nts
+Infektion ?In-fEk-'tsjo:n
+Global glo:-'ba:l
+Feldzug 'fElt-tsu:k
+Hotel ho:-'tEl
+Dementsprechend 'de:m-?Ent-SpRE-C@nt
+Geltung 'gEl-tUN
+Bearbeitung b@-'?a6-baI-tUN
+bürgerliche 'bY6-g6-lI-C@
+bestätigte b@-'StE:-tIC-t@
+Besuchern b@-'zu:-x6n
+Ray 'rEI
+Kandidat kan-di:-'da:t
+Schmelzpunkt 'SmElts-pUNkt
+reines 'RaI-n@s
+Verfügbarkeit fE6-'fy:k-ba6-kaIt
+Berührung b@-'Ry:-RUN
+Kohlenwasserstoffe ko:-l@n-'va-s6-StO-f@
+besaßen b@-'za:-s@n
+körperliche 'k96-p6-lI-C@
+Auszeichnung '?aUs-tsaIC-nUN
+Darm 'da6m
+Universal ?U-ni:-vE6-'za:l
+Kasus 'ka:-zUs
+Romanen Ro:-'ma:-n@n
+Kanon 'ka:-nOn
+Einflüssen '?aIn-flY-s@n
+Terminologie tE6-mI-no:-lo:-'gi:
+Messe 'mE-s@
+Vereinigte fE6-'?aI-nIC-t@
+bearbeitet b@-'a6-baI-t@t
+bemüht b@-'my:t
+zugehörigen 'tsu:-g@-h2:-RI-g@n
+Flugzeugträger 'flu:k-tsOYk-tRE:-g6
+vergleichen fE6-'glaI-C@n
+gefährdet g@-'fE:6-d@t
+Delphi 'dEl-fi:
+Grafschaft 'gRa:f-Saft
+Verhaltensweisen fE6-'hal-t@ns-vaI-z@n
+fehlenden 'fe:-l@n-d@n
+Watt 'vat
+Ware 'va:-R@
+Fuge 'fu:-g@
+Primaten pRi:-'ma:-t@n
+ersetzte ?E6-'zEts-t@
+Schwerkraft 'SvE6-kRaft
+Böse 'b2:-z@
+symbolische zYm-'bo:-lI-S@
+Berücksichtigung b@-'RYk-zIC-ti:-gUN
+entfernten ?Ent-'f6n-t@n
+verließen fE6-'li:-s@n
+Rate 'Ra:-t@
+Stationen 'Stats-'jo:-n@n
+Komponente kOm-po:-'nEn-t@
+zeitlichen 'tsaIt-lI-C@n
+Erhaltung ?E6-'hal-tUN
+Shui 'SUI
+eindeutige '?aIn-dOY-tI-g@
+Evangelischen ?E-vaN-'ge:-lI-S@n
+liberale li:-b@-'Ra:-l@
+Wellington 'vE-lIN-t@n
+bloße 'blo:-s@
+Stephen 'StE-f@n
+Begriffes b@-'gRI-f@s
+Reiche 'RaI-C@
+öffentlicher '?9-f@n-tlI-C6
+entfallen ?Ent-'fa-l@n
+Grafikkarten 'gRa-fIk-ka6-t@n
+Mikrocontroller 'mIk-RO-kOn-tro:-l6
+Medikamente me:-di:-ka:-'mEn-t@
+geographischen ge:-o:-'gRa:-fI-S@n
+erobern ?E6-'?o:-b6n
+Analysen ?a-na:-'ly:-z@n
+Evangelische ?E-vaN-'ge:-lI-S@
+Saussure so:-'sy:R
+Todes 'to:-d@s
+Antimon '?an-tI-mo:n
+Eigentums '?aI-g@n-tUms
+Straßennetz 'StRa:-s@-nEts
+fliegen 'fli:-g@n
+Merkmalen 'mE6k-ma:-l@n
+hiero 'hi:6-o:
+it '?It
+ableiten '?ap-laI-t@n
+Westküste 'vEst-kYs-t@
+richten 'RIC-t@n
+vereint fE6-'?aInt
+Blutkörperchen 'blu:t-k96-p6-C@n
+zerstörten tsE6-'St2:6-t@n
+ländlichen 'lEnt-lI-C@n
+gescheitert g@-'SaI-t6t
+Fußnoten 'fu:s-no:-t@n
+Altertum '?al-t6-tUm
+Lehnwörter 'le:n-v96-t6
+Kafkas 'kaf-ka:s
+Weißen 'vaI-s@n
+Jahrzehnt 'ja:6-tse:nt
+Tumor 'tu:-mo:6
+Slowenien slo:-'ve:-ni:-@n
+Südinsel 'sy:t-?In-z@l
+Offizier ?O-fi:-'tsi:6
+möglicher 'm2:-glI-C6
+Blöcke 'bl2:-k@
+entscheidet ?Ent-'SaI-d@t
+Mineralien mI-n@-'Ra:-li:-@n
+industrielle ?In-dUs-tRi:-'E-l@
+Sorten 'zO6-t@n
+Kantons 'kan-tOns
+zeitgenössische 'tsaIt-g@-n9-sI-S@
+Bundesstaaten 'bUn-dEs-Sta:-t@n
+Mieter 'mi:-t6
+orthodoxe ?O6-to:-'dO-ks@
+Bethe 'be:-t@
+betreffen b@-'tRE-f@n
+präsentierte pRE:-zEn-'ti:6-t@
+senkrecht 'zEN-kRECt
+göttliche 'g9t-lI-C@
+Lesen 'le:-z@n
+Inuit '?i:-nU-It
+konservative kOn-z6-va-'ti:-v@
+Verschwörung fE6-'Sv2:-RUN
+Demnach 'dEm-nax
+ägyptische ?E-'gYp-tI-S@
+Verbündeten fE6-'bYn-d@-t@n
+Standardsprache 'Stan-da6t-SpRa:-x@
+landwirtschaftlichen 'lant-vI6t-Saf-tlI-C@n
+Runner 'ra-n6
+Aufkommen '?aUf-kO-m@n
+Aikidō ?aI-'ki:-do:
+landete 'lan-d@-t@
+Brauerei bRaU-6-'RaI
+Edmund '?Et-mUnt
+erfolgten ?E6-'fOlk-t@n
+Bernard 'bE6-na6t
+Hadrian 'had-Ri:-a:n
+Winde 'vIn-d@
+Dynamik dy:-'na:-mIk
+Unicode '?jU-nI-k@Ud
+blaue 'blaU-@
+zwang 'tsvaN
+Schimpansen SIm-'pan-z@n
+Saudi 'zaU-di:
+Akkad '?ak-ka:t
+Coburger 'ko:-bU6-g6
+Nummern 'nU-m6n
+erschwert ?E6-'SvE6t
+Versuchen fE6-'zu:-x@n
+ökonomische ?2:-ko:-'no:-mI-S@
+beenden b@-'?En-d@n
+Moll 'mOl
+hinterlassen hIn-t6-'la-s@n
+Motor 'mo:-tO6
+Warner 'vaR-n6
+moralisch mo:-'Ra-lIS
+Björk 'bj96k
+Caches 'ka-x@s
+Freiheiten 'fRaI-haI-t@n
+Anfangs '?an-faNs
+Harmonie ha6-mo:-'ni:
+Durkheim 'dU6k-haIm
+Sohnes 'zo:-n@s
+fehlende 'fe:-l@n-d@
+analysiert ?a-na:-ly:-'zi:6t
+basierten ba-'zi:6-t@n
+Aspekten ?as-'pEk-t@n
+überführt ?y:-b6-'fy:6t
+Verwirklichung fE6-'vI6k-lI-CUN
+mazedonischen ma:-ts@-'do:-nI-S@n
+längsten 'lENs-t@n
+Orthographie ?O6-to:-gRa:-'fi:
+Enzyklopädie ?En-tsy:-klo:-pE-'di:
+afrikanische ?af-Ri:-'ka:-nI-S@
+DIN 'dIn
+Kodierung ko:-'di:-RUN
+charakterisiert ka-Rak-te:-Ri:-'zi:6t
+berücksichtigen b@-'RYk-zIC-tI-g@n
+Newtons 'nju:-t@ns
+Akzeptanz ?ak-tsEp-'tants
+kodiert ko:-'di:6t
+inne '?I-n@
+gewisser g@-'vI-s6
+ansässig ?an-'sE-sIC
+Armut '?a6-mu:t
+Urkunde '?U6-kUn-d@
+Staub 'StaUp
+digitaler di:-gi:-'ta:-l6
+Bayerns 'baI-6ns
+kanadischen ka-'na:-dI-S@n
+akzeptierte ?ak-tsEp-'ti:6-t@
+Ordens '?O6-d@ns
+obigen '?o:-bI-g@n
+Osteuropa '?Ost-?OY-Ro:-pa:
+Nutzer 'nU-ts6
+Ganzes 'gan-ts@s
+Artkonzept '?a6t-kOn-tsEpt
+Rothalbmond 'Ro:t-halp-mo:nt
+Absatz '?ap-zats
+Reichsstadt 'RaICs-stat
+Umgekehrt 'Um-g@-ke:6t
+Bonsai 'bOn-zaI
+geschichtlichen g@-'SIC-tlI-C@n
+Anregung '?an-Re:-gUN
+Kroatiens kRO-'a-tsi:-Ens
+Gesteins g@-'StaIns
+verringern fE6-'RI-N6n
+konstruierte kOns-tRu:-'?i:6-t@
+Balearen ba:-le:-'a:-R@n
+Probe 'pRo:-b@
+verhalten fE6-'hal-t@n
+both 'bo:t
+Rechtsprechung 'RECt-SpRE-CUN
+Hopkins 'hOp-kIns
+Mohammed 'mo:-ha-me:t
+Exekutive ?Ek-s@-ku:-'ti:-v@
+nationalsozialistische nats-jo:-'na:l-zo:-tsja-lIs-tI-S@
+abgebrochen '?ap-g@-bRO-x@n
+beigesetzt 'baI-g@-zEtst
+Staatsbürgerschaft 'Sta:ts-bY6-g6-Saft
+niedrig 'ni:-dRIC
+Titan tI-'ta:n
+osmanischen ?Os-'ma:-nI-S@n
+folgendes 'fOl-g@n-d@s
+brechen 'bRE-C@n
+errang ?E6-'RaN
+Bern 'bE6n
+Blau 'blaU
+Bistum 'bIs-tUm
+Skandinavien skan-di:-'na:-vi:-@n
+Blättern 'blE-t6n
+einher aIn-'hER
+persischen 'pE6-zI-S@n
+gewährleisten g@-'vE:6-laIs-t@n
+Musikern 'mu:-zi:-k6n
+Impuls ?Im-'pUls
+diejenige 'di:-je:-nI-g@
+Lebensdauer 'le:-b@ns-daU-6
+Generell g@-n6-'REl
+Jupiters 'ju:-pi:-t6s
+Pisa 'pi:-za:
+Betriebssystemen b@-'tRi:ps-zYs-te:-m@n
+Substantive 'zUps-tan-ti:-v@
+veraltet fE6-'?al-t@t
+genügt g@-'nYkt
+Schmerzen 'SmE6-ts@n
+chilenische tSI-'le:-nI-S@
+ausgeliefert '?aUs-g@-li:-f6t
+Dareios 'da:-RaI-o:s
+Himalaya hI-ma:-'laI-a:
+Teilnehmern 'taIl-ne:-m6n
+zugeführt 'tsu:-g@-fy:6t
+Naturphilosophie na:-'tU6-fI-lo:-zo:-fi:
+Einwohnerzahlen 'aIn-vo:-n6-tsa:-l@n
+ethischen '?e:-tI-S@n
+Gebilde g@-'bIl-d@
+Eva '?e:-fa:
+Katastrophe ka-tas-'tRo:-f@
+Bor 'bO6
+Jobs 'dZOps
+jenen 'je:-n@n
+Gruppierungen gRu:-'pi:-RU-N@n
+out '?aUt
+juristische ju:-'RIs-tI-S@
+Lorenz 'lo:-R@nts
+Meinungen 'maI-nU-N@n
+zukünftige 'tsu:-kYnf-tI-g@
+Wasserdampf 'va-s6-dampf
+sonstigen 'zOns-tI-g@n
+gleichsam 'glaIC-za:m
+Canada 'ka-na-da:
+Resultat Re:-zUl-'ta:t
+zeichnen 'tsaIC-n@n
+religiöser Re:-li:-gI-'2:-z6
+Dosen 'do:-z@n
+Barbara 'ba6-ba-Ra:
+nennenswerte 'nE-n@ns-vE6-t@
+bewertet b@-'vE6-t@t
+Lunge 'lU-N@
+finanziert fI-nan-'tsi:6t
+bewahren b@-'va:-R@n
+eigens 'aI-g@ns
+Euler '?OY-l6
+eingeleitet 'aIn-g@-laI-t@t
+Rates 'Ra:-t@s
+Konkurrenten kON-kU-'REn-t@n
+gelangten g@-'laN-t@n
+Gelegentlich g@-'le:-g@n-tlIC
+Thermodynamik 'tE6-mo:-dy:-na:-mIk
+Nationalmannschaft nats-jo:-'na:l-man-Saft
+Lucius 'lu:-SI-@s
+beauftragt b@-'?aUf-tRa:kt
+Steiermark 'StaI-6-ma6k
+Optik '?Op-tIk
+Drehbuchautor 'dRe:-bu:x-?aU-to:6
+begründeten b@-'gRYn-d@-t@n
+Vermutung fE6-'mu:-tUN
+sonstige 'zOns-tI-g@
+schriftliche 'SRIft-lI-C@
+Immanuel ?I-'ma:-nu:-@l
+enorme '?e:-nO6-m@
+Boote 'bo:-t@
+Erzbistum '?E6ts-bIs-tUm
+nachträglich 'na:x-tRE:k-lIC
+Ries 'Ri:s
+Indischen '?In-dI-S@n
+Kommunen kO-'mu:-n@n
+befindliche b@-'fInt-lI-C@
+Quadratkilometer kva-'dRa:t-kI-lo:-me:-t6
+fache 'fa-x@
+Diktator dIk-'ta:-to:6
+Sure 'zu:-R@
+Meteorologie me:-te:-o:-Ro:-lo:-'gi:
+derjenigen 'dE6-je:-nI-g@n
+Annahmen '?a-na:-m@n
+Wirksamkeit 'vI6k-zam-kaIt
+Betonung b@-'to:-nUN
+Wissens 'vI-s@ns
+Spätmittelalter 'SpE:t-mI-t@l-?al-t6
+Angola ?an-'go:-la:
+kontrovers kOn-tRo:-'vE6s
+BUND 'bUnt
+wenngleich vEn-'glaIC
+Lehrstuhl 'le:6-Stu:l
+Mose 'mo:-z@
+Blutes 'blu:-t@s
+Ihren '?i:-R@n
+isoliert ?I-zo:-'li:6t
+überlieferten ?Y-b6-'li:-f6-t@n
+Metastasen me:-tas-'ta:-z@n
+Säugetiere 'zOY-g@-ti:-R@
+landwirtschaftliche 'lant-vI6t-Saft-lI-C@
+angelegten '?an-g@-le:-kt@n
+Neuere 'nOY-6-R@
+Abgesehen '?ap-g@-ze:-@n
+geringem g@-'RI-N@m
+Aussicht '?aUs-zICt
+Client kli:-'Ent
+verzeichnen fE6-'tsaIC-n@n
+überaus '?y:-b6-?aUs
+Bundespräsident 'bUn-d@s-pRE-zi:-dEnt
+Ableitung '?ap-laI-tUN
+Ar '?a6
+Horn 'hO6n
+North 'nO6T
+ausgenommen '?aUs-g@-nO-m@n
+beinhalten b@-'?In-hal-t@n
+Betrag b@-'tRa:k
+statistischen Sta-'tIs-tI-S@n
+Völkern 'f9l-k6n
+frühesten 'fRy:-@s-t@n
+Passagiere pa-sa-'Zi:-R@
+Listen 'lIs-t@n
+Alkohole ?al-ko:-'ho:-l@
+IPA '?i:-pa:
+nutzten 'nUts-t@n
+Durchsetzung 'dU6C-zE-tsUN
+dritter 'dRI-t6
+Atlas '?at-las
+bit 'bIt
+unzählige '?Un-tsE:-lI-g@
+Vermehrung fE6-'me:-RUN
+Trier 'tRi:6
+Abständen '?ap-stEn-d@n
+äußert 'OY-s6t
+Fertigstellung 'fE6-tIC-stE-lUN
+Teils 'taIls
+deutsches 'dOY-tS@s
+Voyager 'vOY-@-dZ6
+werdenden 'vE6-d@n-d@n
+Urteile '?U6-taI-l@
+kaiserliche 'kaI-z6-lI-C@
+Grzimek 'dZI-mEk
+gesteuert g@-'StOY-6t
+Romans Ro:-'ma:ns
+massiven ma-'si:-v@n
+Columbia kO-'lam-bi:-a:
+Zeugnisse 'tsOY-gnI-s@
+dieselben di:-'zEl-b@n
+Oberbefehlshaber '?o:-b6-b@-fe:ls-ha:-b6
+Zweiter 'tsvaI-t6
+Wechselwirkungen 'vE-ks@l-vI6-kU-N@n
+gewünschte g@-'vYn-St@
+Verluste fE6-'lUs-t@
+Griechenlands 'gRi:-C@n-lants
+Zuvor tsu:-'fo:6
+Julianische ju:-li:-'a:-nI-S@
+verkürzt fE6-'kY6tst
+Gleichwohl 'glaIC-vo:l
+Chirac Si:-'Rak
+annehmen '?a-ne:-m@n
+grob 'gRo:p
+Stadtgliederung 'Stat-gli:-d@-RUN
+Deflation de:-flats-'jo:n
+Molekül mo:-l@-'ky:l
+Brandt 'bRant
+steigender 'StaI-g@n-d6
+Magdeburger 'mag-d@-bU6-g6
+veranlasste fE6-'?an-las-t@
+gedeutet g@-'dOY-t@t
+Textes 'tEks-t@s
+Westminster 'vEst-mIns-t6
+Basen 'ba:-z@n
+Allende ?a-'lEn-d@
+Research 'Ri:-s96tS
+Denker 'dEN-k6
+Abkühlung '?ap-ky:-lUN
+breiter 'bRaI-t6
+Halbwertszeiten 'halp-vE6ts-tsaI-t@n
+Kosmos 'kOs-mOs
+herausragende hE-'RaUs-Ra:-g@n-d@
+Protest pRo:-'tEst
+erweitern ?E6-'vaI-t6n
+ästhetischen Es-'te:-tI-S@n
+Akten '?ak-t@n
+Referendum Re:-f@-'REn-dUm
+unmittelbarer '?Un-mI-t@l-ba:-R6
+Reinigung 'RaI-ni:-gUN
+Route 'Ru:-t@
+Hormone hO6-'mo:-n@
+systematischen zYs-t@-'ma:-tI-S@n
+angesprochen '?an-g@-SpRO-x@n
+beginnenden b@-'gI-n@n-d@n
+Briefen 'bRi:-f@n
+Line 'laIn
+Motiven mo:-'ti:-v@n
+niedergeschlagen 'ni:-d6-g@-Sla:-g@n
+überraschend ?y:-b6-'Ra:-S@nt
+Beurteilung b@-'?u:6-taI-lUN
+Saline za-'li:-n@
+Arts '?a6ts
+günstige 'gYns-tI-g@
+Quantenmechanik 'kvan-t@n-mE-Ca:-nIk
+Evangelisch ?E-vaN-'ge:-lIS
+klassischer 'kla-sI-S6
+Kepler 'kEp-l6
+festgelegten 'fEst-g@-le:-kt@n
+astronomische ?as-tRo:-'no:-mI-S@
+Kombinationen kOm-bi:-nats-'jo:-n@n
+Instituts ?Ins-ti:-'tu:ts
+Ober '?o:-b6
+Vorsitz 'fo:6-zIts
+erfassen ?E6-'fa-s@n
+Präfixe 'pRE-fi:-ks@
+Offiziere ?O-fi:-'tsi:-R@
+Neuordnung 'nOY-?O6t-nUN
+Kriegs 'kRi:ks
+jährliche 'jE:6-lI-C@
+basierend ba-'zi:-R@nt
+Milgram 'mIl-gRa:m
+Prozesses pRo:-'tsE-s@s
+Baumwolle 'baUm-vO-l@
+fälschlicherweise fElS-lI-C6-'vaI-z@
+Oberschicht '?o:-b6-SICt
+Dorsten 'dO6s-t@n
+Konsens 'kOn-z@ns
+typischerweise ty:-pI-S6-'vaI-z@
+außerordentlich ?aU-s6-'?O6-dEnt-lIC
+bat 'bat
+kalten 'kal-t@n
+anerkannten '?an-?E6-kan-t@n
+durchzuführen 'dU6C-tsu:-fy:-R@n
+Geschmack g@-'Smak
+Zahlung 'tsa:-lUN
+massiv ma-'si:f
+Koch 'kOx
+jegliche 'je:k-lI-C@
+harten 'ha6-t@n
+günstigen 'gYns-tI-g@n
+protestantische pRo:-tEs-'tan-tI-S@
+Galaxie ga-lak-'si:
+Kanadas 'ka-na-da:s
+Marxismus ma6k-'sIs-mUs
+Persien 'pE6-zi:-@n
+Fermi 'fE6-mi:
+Metro 'me:-tRo:
+Poppers 'pO-p6s
+geordnet g@-'?O6t-n@t
+Aktuelle ?ak-tu:-'?E-l@
+dunklen 'dUN-kl@n
+zirka 'tsI6-ka:
+erregte ?E6-'Re:-kt@
+Privilegien pRi:-vi:-'le:-gi:-@n
+Distanz dIs-'tants
+heftige 'hEf-tI-g@
+Wohl 'vo:l
+Kirchengemeinden 'kI6-C@n-g@-maIn-d@n
+Grammatiken gRa-'ma-ti:-k@n
+Braune 'bRaU-n@
+neuerer 'nOY-6-R6
+Herat 'hE-Ra:t
+Planungen 'pla:-nU-N@n
+Batterie ba-te:-'Ri:
+Great 'grEIt
+Borges 'bO6-g@s
+Hauptsitz 'haUpt-zIts
+töten 't2:-t@n
+beruhte b@-'Ru:-t@
+Roberts 'Ro:-bE6ts
+konzipiert kOn-tsi:-'pi:6t
+Schnee 'Sne:
+Fossilien fo:-'si:-li:-@n
+archäologische ?a6-CE-o:-'lo:-gI-S@
+Kerne 'kE6-n@
+Ausdrücke '?aUs-dRY-k@
+überlassen ?y:-b6-'la-s@n
+unendliche ?Un-'?Ent-lI-C@
+Julianischen ju:-li:-'a:-nI-S@n
+Gesetzmäßigkeiten g@-'zEts-mE-sIC-kaI-t@n
+spiegelt 'Spi:-g@lt
+automatische ?aU-to:-'ma:-tI-S@
+Filmindustrie 'fIlm-?In-dUs-tRi:
+Massage ma-'sa:-Z@
+Siegel 'zi:-g@l
+lineare li:-ne:-'a:-R@
+Modifikationen mo:-di:-fi:-kats-'jo:-n@n
+Vereinen fE6-'?aI-n@n
+zusammengeschlossen tsu:-'za-m@n-g@-SlO-s@n
+beibehalten 'baI-b@-hal-t@n
+Herzens 'hE6-ts@ns
+zurückgeht tsu:-'RYk-ge:t
+Versailles vER-'saI
+Linke 'lIN-k@
+Yorker 'jO6-k6
+Cluster 'klas-t6
+anzusehen '?an-tsu:-ze:-@n
+genetischen g@-'ne:-tI-S@n
+Gewerbe g@-'vE6-b@
+Noir 'noaR
+umgebaut 'Um-g@-baUt
+Autisten ?aU-'tIs-t@n
+umgebenden Um-'ge:-b@n-d@n
+Erbsen '?E6p-z@n
+Enkel '?EN-k@l
+Gemeinsamkeiten g@-'maIn-zam-kaI-t@n
+geologischen ge:-o:-'lo:-gI-S@n
+Gregorianischen gRe:-go:-Ri:-'a:-nI-S@n
+ausführen '?aUs-fy:-R@n
+Slawen 'sla:-v@n
+Descartes de:-'kaRt
+vorkommenden 'fo:6-kO-m@n-d@n
+populären po:-pu:-'lE:-R@n
+fünfte 'fYnf-t@
+mächtigen 'mEC-tI-g@n
+ganzer 'gan-ts6
+Chinesischen Ci:-'ne:-zI-S@n
+Puerto pu:-E6-to:
+Hochmittelalter 'ho:x-mI-t@l-?al-t6
+Shyamalan sy:-a-'ma:-la:n
+Ludwigs 'lUt-vICs
+Kompositionen ko:m-po:-zi:-'tsjo:-n@n
+Gerhart 'g@6-ha6t
+Norddeutschen 'nO6t-dOYt-S@n
+Hesses 'hE-s@s
+strikt 'stRIkt
+Lebensmitteln 'le:-b@ns-mI-t@ln
+internen ?In-'tE6-n@n
+Logarithmen lo:-ga-'RIt-m@n
+Evolutionstheorie ?E-vo:-lu:-'tsjo:ns-te:-o:-Ri:
+gewonnenen g@-'vo:-n@-n@n
+Allergien ?a-l6-'gi:n
+Trinkwasser 'tRINk-va-s6
+Gemisch g@-'mIS
+ausgerichteten '?aUs-g@-RIC-t@-t@n
+Globe 'gl@Ub
+kreisfreien 'kRaIs-fRaI-@n
+Glarus 'gla-RUs
+Verwaltungsgliederung fE6-'val-tUNs-gli:-d@-RUN
+Staatsausgaben 'Sta:ts-?aUs-ga:-b@n
+Regelmäßige 'Re:-g@l-mE:-sI-g@
+präsent pRE-'zEnt
+ordnete '?O6-dn@-t@
+Geschwindigkeiten g@-'SvIn-dIC-kaI-t@n
+anwendbar '?an-vEnt-ba:6
+inhaltlich '?In-halt-lIC
+entsprechender '?Ent-spRE-C@n-d6
+kontrollieren kOn-tRo:-'li:-R@n
+Fidel 'fi:-d@l
+Kohlenhydrate 'ko:-l@n-hy:-dRa:-t@
+Montenegro mOn-t@-'ne:-gRo:
+Interpreter '?In-t6-pRe:-t6
+christlicher 'kRIst-lI-C6
+Verdacht fE6-'daxt
+übte '?y:p-t@
+physikalisch fy:-zi:-'ka:-lIS
+Foto 'fo:-to:
+Ackerbau '?a-k6-baU
+Auslöser '?aUs-l2:-z6
+Cross 'kROs
+Tibet 'ti:-b@t
+Abendmahl '?a-b@nt-ma:l
+Agricola ?a-'gRI-ko:-la:
+beschriebene b@-'SRi:-b@-n@
+vorbereitet 'fo:6-b@-RaI-t@t
+Sanskrit zans-'kRIt
+Apostel ?a-'pOs-t@l
+Anden '?an-d@n
+Antigene '?an-tI-ge:-n@
+korrekte ko:-'RE-kt@
+Mails 'mEIls
+irdischen '?I6-dI-S@n
+zivile tsi:-'vi:-l@
+endlichen '?Ent-lI-C@n
+vergleichbare fE6-'glaIC-ba:-R@
+spezifisch Spe:-'tsi:-fIS
+Containerschiffe kOn-'tEI-n6-SI-f@
+Zielen 'tsi:-l@n
+Briefwechsel 'bRi:f-vE-ks@l
+Booten 'bo:-t@n
+thematisiert te:-ma-ti:-'zi:6t
+retten 'Re:-t@n
+Gesamtbevölkerung g@-'zamt-b@-f9l-k@-RUN
+Beschlüsse b@-'SlY-s@
+unterteilen ?Un-t6-'taI-l@n
+Agglomeration ?a-glo:-m@-Rats-'jo:n
+erweiterten ?E6-'vaI-t6-t@n
+Dicke 'dI-k@
+Übereinstimmung ?y:-b6-'?aIn-StI-mUN
+Bundesländer 'bUn-d@s-lEn-d6
+Spanischen 'Spa:-nI-S@n
+dominierte do:-mi:-'ni:6-t@
+deutet 'dOY-t@t
+Festigkeit 'fEs-tIC-kaIt
+Benutzeroberfläche b@-'nu:-ts6-?o:-b6-flE-C@
+verankert fE6-'?aN-k6t
+Bargeld 'ba6-gElt
+Gebietes g@-'bi:-t@s
+Pate 'pa:-t@
+Bühnen 'by:-n@n
+einfachsten '?aIn-faxs-t@n
+Neapel nE-'a:-p@l
+Home 'h@Um
+Klerus 'kle:-RUs
+prägten 'pRE:k-t@n
+Kreisgebiet 'kRaIs-g@-bi:t
+Weizen 'vaI-ts@n
+Tafel 'ta:-f@l
+Gerste 'gE6s-t@
+sprachliche 'SpRa:x-lI-C@
+stammten 'Stam-t@n
+landwirtschaftlich 'lant-vI6t-Saft-lIC
+mithilfe 'mIt-hIl-f@
+Clients 'klaI-@nts
+Analogie ?a-na:-lo:-'gi:
+Umstände '?Um-StEn-d@
+Stadtgrenze 'Stat-gREn-ts@
+Muskulatur mUs-ku:-la-'tU6
+Miller 'mI-l6
+interessante ?In-t6-RE-'san-t@
+Benennung b@-'nE-nUN
+Traditionell tRa-di:-tsjo:-'nEl
+Stadtwappen 'Stat-va-p@n
+zeitweilig 'tsaIt-vaI-lIC
+Staats 'Sta:ts
+hinreichend 'hIn-RaI-C@nt
+Antworten '?ant-vO6-t@n
+Pfarrei pfa-'RaI
+bestätigen b@-'StE:-tI-g@n
+sichere 'zI-C6-R@
+verbrannt 'fE6-bRant
+Konstruktionen kOns-tRUk-'tsjo:-n@n
+Kontinents 'kOn-ti:-nEnts
+org ?O6k
+Nassau 'na:-saU
+Archimedes ?a6-Ci:-'me:-d@s
+Schleife 'SlaI-f@
+befestigt b@-'fEs-tICt
+Anderen '?an-d6-R@n
+Neptuns 'nEp-tUns
+selbständigen 'zElp-StEn-dI-g@n
+Schaltungen 'Sal-tU-N@n
+Giordano dZOr-'da:-no:
+einheimischen '?aIn-haI-mI-S@n
+Vererbung fE6-'?E6-bUN
+Saturn za-'tU6n
+Mesonen 'mE-zo:-n@n
+Zentralbanken tsEn-'tRa:l-baN-k@n
+Abspaltung '?ap-Spal-tUN
+GATS 'gats
+Biotechnologie 'bi:-o:-tEC-no:-lo:-gi:
+Stärkung 'StE:6-kUN
+klare 'kla:-R@
+Wissenschaftliche 'vI-s@n-Saf-tlI-C@
+Geschäftsbanken g@-'SEfts-baN-k@n
+Immunsystems ?I-'mu:n-zYs-te:ms
+Rebellen R@-'bE-l@n
+Abtrennung '?ap-tRE-nUN
+Deklination dEk-li:-nats-'jo:n
+Erlass ?E6-'las
+Verleger fE6-'le:-g6
+steigende 'StaI-g@n-d@
+Inhaber '?In-ha:-b6
+Systemtheorie zYs-'te:m-te:-o:-Ri:
+Roboter 'Ro:-bo:-t6
+formell fO6-'mEl
+Schätzung 'SE-tsUN
+Frühling 'fRy:-lIN
+Sitzen 'zI-ts@n
+einzusetzen '?aIn-tsu:-zE-ts@n
+Akustik ?a-'kUs-tIk
+beschränken b@-'SREN-k@n
+Säugetieren 'zOY-g@-ti:-R@n
+verwandten fE6-'van-t@n
+Reiz 'RaIts
+FreeDOS 'fRi:-do:s
+Ansätzen '?an-sE-ts@n
+Überwindung ?y:-b6-'vIn-dUN
+Unmittelbar '?Un-mI-t@l-ba:6
+Ähnlichkeiten '?E:n-lIC-kaI-t@n
+ausführliche '?aUs-fy:6-lI-C@
+Bevölkerungswachstum b@-'f9l-k@-RUNs-vaks-tUm
+Römisch 'R2:-mIS
+Polymerase pO-ly:-me:-'Ra:-z@
+gesundheitlichen g@-'zUnt-haIt-lI-C@n
+Hallein 'ha-laIn
+Sonderfall 'zOn-d6-fal
+Kreuzes 'kROY-ts@s
+Erkenntnissen ?E6-'kEnt-nI-s@n
+Stadtstaaten 'Stat-Sta:-t@n
+Lanzarote lan-tsa-'Ro:-t@
+statistische Sta-'tIs-tI-S@
+radikal Ra-di:-'ka:l
+Saale 'za:-l@
+Synonym 'zy:-no:-ny:m
+Normandie nO6-man-'di:
+Ledoux l@-'du:
+neuseeländischen nOY-'ze:-lEn-dI-S@n
+Katholische ka-'to:-lI-S@
+gewertet g@-'vE6-t@t
+Geheimnis g@-'haIm-nIs
+belgischen 'bEl-gI-S@n
+obersten '?o:-b6s-t@n
+Pflichten 'pflIC-t@n
+Bielefelder 'bi:-l@-fEl-d6
+Luftverkehr 'lUft-fE6-ke:6
+Uranus ?U-'Ra:-nUs
+Nationalparks nats-jo:-'na:l-pa6ks
+Bekanntheit b@-'kant-haIt
+Sinti 'zIn-ti:
+verdoppelt fE6-'dO-p@lt
+stützt 'StYtst
+sammeln 'za-m@ln
+dahinter da:-'hIn-t6
+beschäftigten b@-'SEf-tIC-t@n
+Debatten d@-'ba-t@n
+Söhnen 's2:-n@n
+Charaktere ka-Rak-'tE:-R@
+Helligkeit 'hE-lIC-kaIt
+zuzuordnen 'tsu:-tsu:-?o:6t-n@n
+Weiße 'vaI-s@
+Distribution dIs-tRi:-bu:-'tsjo:n
+schwache 'Sva-x@
+Kelkheim 'kElk-haIm
+Beweise b@-'vaI-z@
+erneute ?E6-'nOY-t@
+einfaches '?aIn-fa-x@s
+färöische 'fE-R2:-I-S@
+zerstörte tsE6-'St2:6-t@
+Held 'hElt
+Modems 'mo:-dEms
+Graubünden 'gRaU-bYn-d@n
+Schwankungen 'SvaN-kU-N@n
+Hilbert 'hIl-b6t
+Symbolen 'zYm-'bo:-l@n
+Pfarrer 'pfa-R6
+Bandbreite 'bant-bRaI-t@
+Per 'pE6
+Sekundärliteratur zE-kUn-'dE:6-li:-t@-Ra:-tU6
+jüngsten 'jYNs-t@n
+verkündete fE6-'kYn-d@-t@
+Merkels 'mE6-k@ls
+Disketten dIs-'kE-t@n
+Sachverhalt 'zax-fE6-halt
+Loriot lo:-Ri:-'o:
+Erden '?E6-d@n
+neuem 'nOY-@m
+Gadolinium ga-do:-'li:-ni:-Um
+gesetzliche g@-'zEts-lI-C@
+Vista 'vIs-ta:
+hervorging hE6-'fO6-gIN
+Itzehoe ?I-tse:-'ho:-@
+elektromagnetischen ?E-'lEk-tRo:-mag-ne:-tI-S@n
+Karthagos ka6-'ta:-go:s
+erlassen ?E6-'la-s@n
+Sprechern 'SpRE-C6n
+Ernennung ?E6-'nE-nUN
+wiederholte vi:-d6-'ho:l-t@
+fremden 'fREm-d@n
+inszenierte ?Ins-tse:-'ni:6-t@
+unwahrscheinlich '?Un-va:6-SaIn-lIC
+Normalfall nO6-'ma:l-fal
+widerlegt vi:-d6-'le:kt
+komponierte kOm-pO-'ni:6-t@
+Rande 'Ran-d@
+Interpreten ?In-t6-'pRe:-t@n
+Siedler 'zi:-dl6
+kyrillischen ky:-'RI-lI-S@n
+Resonanz Re:-zo:-'nants
+Brustkrebs 'bRUst-kRe:ps
+eignet 'aI-gn@t
+Anbindung '?an-bIn-dUN
+begriffen b@-'gRI-f@n
+Hochwasser 'ho:x-va-s6
+Demonstrationen dE-mOns-tRats-'jo:-n@n
+erleichtern ?E6-'laIC-t6n
+Breslau 'bREs-laU
+durchgehend 'dU6C-ge:-@nt
+Kaiserkrönung 'kaI-z6-kR2:-nUN
+Ileus ?I-'lOYs
+empirisch ?Em-'pi:-RIS
+verbindlich fE6-'bInt-lIC
+Servern 'zE6-v6n
+Source 'zO6s
+Semmelweis 'zE-m@l-vaIs
+Zügen 'tsy:-g@n
+Typisch 'ty:-pIS
+keltischen 'kEl-tI-S@n
+Stadtbezirk 'Stat-be:-tsI6k
+Compact kOm-'pakt
+Roll 'ROl
+Mains 'maIns
+portugiesischen pO6-tu:-'gi:-zI-S@n
+enorm ?E-'nO6m
+erlaubten ?E6-'laUp-t@n
+demokratisch dE-mo:-'kRa:-tIS
+zugerechnet 'tsu:-g6-REC-n@t
+Umgangssprache '?Um-gaNs-SpRa:-x@
+Ausrüstung '?aUs-RYs-tUN
+Schild 'SIlt
+zuweilen tsu:-'vaI-l@n
+Rhythmus 'RYt-mUs
+bindet 'bIn-d@t
+geäußert g@-'?OY-s6t
+biblischen 'bIb-lI-S@n
+Zuständen 'tsu:-StEn-d@n
+Staatspräsident 'Sta:ts-pRE-zi:-dEnt
+eingemeindet 'aIn-g@-maIn-d@t
+Repräsentanten Re:-pRE:-zEn-'tan-t@n
+Last 'last
+Byzantinische by:-tsan-'ti:-nI-S@
+Haupt 'haUpt
+Gesichtspunkten g@-'zICts-pUN-kt@n
+Public 'pab-lIk
+Luftfahrt 'lUft-fa:6t
+Herzogs 'hE6-tso:ks
+Channel 'tSE-n@l
+Stadtkreis 'Stat-kRaIs
+Morphem mO6-'fe:m
+BIOS 'bi:-Os
+Haushalt 'haUs-halt
+Raketen Ra:-'ke:-t@n
+erneuert ?E6-'nOY-6t
+Tiefland 'ti:f-lant
+Metropolregion 'me:-tRo:-po:l-Re:-gi:-o:n
+informiert ?In-fO6-'mi:6t
+Eingabe '?aIn-ga:-b@
+Spekulationen Spe:-ku:-lats-'jo:-n@n
+Niue 'ni:-u:-@
+engsten '?Ens-t@n
+hingerichtet 'hIN-g@-RIC-t@t
+klaren 'kla:-R@n
+Tower 'taU-6
+Konzeption kOn-tsEp-'tsjo:n
+sorgten 'zO6k-t@n
+kultureller kUl-tu:-'RE-l6
+aufbauen '?aUf-baU-@n
+Kriftel 'kRIf-t@l
+Beendigung b@-'?En-di:-gUN
+beständig b@-'StEn-dIC
+Bundesstraßen 'bUn-d@s-StRa:-s@n
+radioaktiven Ra-di:-o:-ak-'ti:-v@n
+Größte 'gR2:s-t@
+un '?Un
+gesetzlichen g@-'zEts-lI-C@n
+Emulatoren ?E-mu:-la-'to:-R@n
+Indonesien ?In-do:-'ne:-zi:-@n
+Darwins 'da6-vIns
+Resonator Re:-zo:-'na:-to:6
+Sklerose skl@-'Ro:-z@
+warmen 'va6-m@n
+Mechanismen mE-Ca:-'nIs-m@n
+Sollte 'zOl-t@
+Schlechtester 'SlEC-t@s-t6
+Reichspräsidenten 'RaICs-pRE-zi:-dEn-t@n
+wechselnden 'vEk-s@ln-d@n
+della 'dE-la:
+Allergen ?a-l6-'ge:n
+bedingte b@-'dIN-t@
+eingegangen '?aIn-g@-ga-N@n
+räumliche 'ROYm-lI-C@
+wofür vo:-'fY6
+Konstantinopels kOns-tan-tI-'no:-p@ls
+übertrug ?y:-b6-'tRu:k
+RAM 'Ram
+selbständige 'zElp-StEn-dI-g@
+Neuerungen 'nOY-6-RU-N@n
+basierende ba-'zi:-R@n-d@
+reinem 'RaI-n@m
+schwieriger 'Svi:-RI-g6
+sur 'zU6
+Abzug '?ap-tsu:k
+Maurice mo:-'Ri:s
+gescheiterten g@-'SaI-t6-t@n
+gesteigert g@-'StaI-g6t
+überdies ?y:-b6-'di:s
+Asiens '?a:-zi:-Ens
+transportieren tRans-pO6-'ti:-R@n
+Kugel 'ku:-g@l
+Teams 'ti:ms
+Kredit kRe:-'di:t
+Assembler ?a-sEm-bl6
+Arafats '?a-Ra-fats
+Lagern 'la:-g6n
+Verfall fE6-'fal
+Tests 'tEsts
+Messen 'mE-s@n
+auftretende '?aUf-tRe:-t@n-d@
+momentan mo:-mEn-'ta:n
+untergeordnete '?Un-t6-g@-?O6t-n@-t@
+speichern 'SpaI-C6n
+Plinius 'pli:-ni:-Us
+Lothar 'lo:-ta:6
+kapitalistischen ka-pi:-ta-'lIs-tI-S@n
+Umweltschutz '?Um-vElt-SUts
+gesprochene g@-'SpRO-x@-n@
+Zyklen 'tsy:-kl@n
+Tragflächen 'tRa:k-flE-C@n
+Dokumentarfilm do:-ku:-mEn-'ta:6-fIlm
+Zeichens 'tsaI-C@ns
+Personennahverkehr pE6-zo:-n@-'na:-fE6-ke:6
+ausreichende '?aUs-RaI-C@n-d@
+Erwachsenen ?E6-'va-ks@-n@n
+Besitzungen b@-'zI-tsU-N@n
+Nostradamus nOs-tRa:-'da:-mUs
+Heeres 'he:-R@s
+Lüneburger 'ly:-n@-bU6-g6
+stießen 'Sti:-s@n
+Plus 'plUs
+Sozialwissenschaften zo:-'tsja:l-vI-s@n-Saf-t@n
+Venus 've:-nUs
+Krebserkrankungen 'kRe:ps-?E6-kRaN-kU-N@n
+Sequenz 'zEk-vEnts
+konventionellen kOn-vEn-tsjo:-'nE-l@n
+Schauspielhaus 'SaU-Spi:l-haUs
+Pazifik pa-'tsi:-fIk
+Hypertext 'haI-p6-tEkst
+abgetrennt '?ap-g@-tREnt
+Vorherrschaft 'fo:6-hE6-Saft
+Auskunft '?aUs-kUnft
+angeführt '?an-g@-fy:6t
+Jahreszeit 'ja:-R@s-tsaIt
+messen 'mE-s@n
+Daran 'da-Ran
+Beirut baI-'Ru:t
+Angestellten '?an-g@-StEl-t@n
+Schein 'SaIn
+Zeichner 'tsaIC-n6
+Kronen 'kRo:-n@n
+spezialisiert Spe:-tsja-li:-'zi:6t
+Navarra na:-'va-Ra:
+Hellenismus hE-le:-'nIs-mUs
+tauchen 'taU-x@n
+Unterlagen '?Un-t6-la:-g@n
+Haushalte 'haUs-hal-t@
+Senats zE-'na:ts
+Komplexe kOm-'plE-ks@
+Datenträger 'da:-t@n-tRE:-g6
+verleihen fE6-'laI-@n
+zugehörige 'tsu:-g@-h2:-RI-g@
+Kelvin 'kEl-vIn
+verabschiedete fE6-'?a:p-Si:-d@-t@
+erfordern ?E6-'fo:6-d6n
+Flexion fle:-ksi:-'o:n
+einsetzt '?aIn-zEtst
+elektronischer ?E-lEk-'tRo:-nI-S6
+Caligulas ka-'li:-gu:-la:s
+Lullys 'lU-ly:s
+Luis 'lU-Is
+Zeilen 'tsaI-l@n
+Antoine ?an-'tOan
+Ketten 'kE-t@n
+Lehnwörtern 'le:n-v96-t6n
+Kündigung 'kYn-di:-gUN
+geschriebene g@-'SRi:-b@-n@
+Hinterland 'hIn-t6-lant
+qualitativ kva-li:-ta-'ti:v
+Potsdamer 'pOts-da-m6
+Skulpturen skUlp-'tu:-R@n
+Analysis ?a-'na:-ly:-zIs
+vollzogen fOl-'tso:-g@n
+Lehrbuch 'lE6-bu:x
+Lloyd 'lOYt
+Kolonialzeit ko:-lo:-ni:-'a:l-tsaIt
+Verringerung fE6-'RI-N6-RUN
+Harris 'hE-RIs
+verlegte fE6-'le:-kt@
+Spenden 'SpEn-d@n
+Rücksicht 'RYk-zICt
+Pixel 'pI-ks@l
+Denkmäler 'dENk-mE:-l6
+Biogas 'bi:-o:-ga:s
+Nobelpreisträger no:-'bEl-pRaIs-tRE:-g6
+typisches 'ty:-pI-S@s
+Bildungseinrichtungen 'bIl-dUNs-?aIn-RIC-tU-N@n
+landen 'lan-d@n
+South 'saUT
+stationiert Stats-jo:-'ni:6t
+Teilmenge 'taIl-mE-N@
+Lanthan 'lan-ta:n
+Tacitus 'ta-tsi:-tUs
+folgend 'fOl-g@nt
+Ethnien '?e:t-ni:-@n
+Mandat man-'da:t
+Wissenschaftstheorie vI-s@n-Safts-te:-o:-'Ri:
+ausländischer '?aUs-lEn-dI-S6
+freilich 'fRaI-lIC
+serbischen 'zE6-bI-S@n
+Hat 'ha:t
+geometrische ge:-o:-'me:-tRI-S@
+Rheins 'RaIns
+Rad 'Ra:t
+Testaments tEs-ta:-'mEnts
+Sun 'san
+Landschaften 'lant-Saf-t@n
+verwiesen fE6-'vi:-z@n
+befreit b@-'fRaIt
+Unterschieden ?Un-t6-'Si:-d@n
+Brennnessel 'bRE-nE-s@l
+Bilanz bI-'lants
+Kontinente kOn-ti:-'nEn-t@
+arabisch ?a-'Ra:-bIS
+Treibstoff 'tRaIp-StOf
+Dantes 'dan-t@s
+Batterien ba-t@-Ri:-@n
+Kiel 'ki:l
+erstrecken ?E6-StRE-k@n
+Abwehr '?ap-ve:6
+Header 'hE-d6
+Wirkungsgrad 'vI6-kUNs-gRa:t
+Bundesstraße 'bUn-d@s-StRa:-s@
+großteils 'gRo:s-taIls
+zuordnen 'tsu:-?O6-tn@n
+Dawn 'do:n
+absolvierte ?ap-zOl-'vi:6-t@
+Rechnen 'REC-n@n
+Fabriken fab-'Ri:-k@n
+Fortpflanzung 'fO6t-pflan-tsUN
+Spaniens 'Spa:-ni:-Ens
+untersuchten ?Un-t6-'zu:x-t@n
+fester 'fEs-t6
+Verpflichtung fE6-'pflIC-tUN
+halbe 'hal-b@
+Einwirkung '?aIn-vI6-kUN
+Eisbrecher '?aIs-bRE-C6
+Benediktiner be:-ne:-dIk-'ti:-n6
+Blockade blO-'ka:-d@
+aufnahm '?aUf-na:m
+Biografien bi:-o:-gRa-'fi:n
+Emmy '?E-mi:
+gefärbt g@-'fE:6pt
+vielfältigen 'fi:l-fEl-tI-g@n
+gewordene g@-'vO6-d@-n@
+Indem ?In-'dEm
+lokal lo:-'ka:l
+bewaffneten b@-'vaf-n@-t@n
+Paramount 'p@-r@-maUnt
+irakischen ?i:-'Ra:-kI-S@n
+zurückgezogen tsu:-'RYk-g@-tso:-g@n
+chilenischen tSi:-'le:-nI-S@n
+besiegte b@-'zi:k-t@
+gelehrt g@-'le:6t
+Anthony '?@n-T@-ni:
+Prof 'pROf
+Opern '?o:-p6n
+Lernen 'lE6-n@n
+Sonderstellung 'zOn-d6-StE-lUN
+ausgenutzt '?aUs-g@-nUtst
+Organen ?O6-'ga:-n@n
+Prosa 'pRo:-za:
+Kanäle ka-'nE:-l@
+auftretenden '?aUf-tRe:-t@n-d@n
+Wertes 'vE6-t@s
+Hugenotten hu:-g@-'nO-t@n
+Noether 'n2:-t6
+Erfolgen ?E6-'fOl-g@n
+genutzten g@-'nUts-t@n
+Hindus 'hIn-dUs
+Zugabe 'tsu:-ga:-b@
+getestet g@-'tEs-t@t
+württembergischen 'vY6-t@m-bE6-gI-S@n
+Völkerwanderung 'f9l-k6-van-d@-RUN
+verborgen fE6-'bO6-g@n
+physische 'fy:-zI-S@
+Kosovo 'kO-sO-vo:
+Prager 'pRa:-g6
+ausgeglichen '?aUs-g@-glI-C@n
+dunkle 'dUN-kl@
+juristischen ju:-'RIs-tI-S@n
+Zensur tsEn-'zU6
+Feiertage 'faI-6-ta:-g@
+regionaler Re:-gi:-o:-'na:-l6
+Codex 'ko:-dEks
+hörte 'h2:6-t@
+Parallelen pa-Ra-'le:-l@n
+Broglie bRo:-'gli:
+Lichtgeschwindigkeit 'lICt-g@-SvIn-dIC-kaIt
+Quelltext 'kvEl-tEkst
+Mumien 'mu:-mi:-@n
+Vororte 'fo:6-?O6-t@
+griechischer 'gRi:-CI-S6
+Hafens 'ha:-f@ns
+Kelten 'kEl-t@n
+Salzsäure 'zalts-zOY-R@
+Gottlieb 'gOt-li:p
+Filter 'fIl-t6
+räumlich 'ROYm-lIC
+charakteristischen ka-Rak-te:-'RIs-tI-S@n
+Molekülen mo:-l@-'ky:-l@n
+erlangten ?E6-'laN-gt@n
+Anfrage '?an-fRa:-g@
+Diplom dIp-'lo:m
+Ausweitung '?aUs-vaI-tUN
+Manifest ma-ni:-'fEst
+Unterhaltung ?Un-t6-'hal-tUN
+Normannen nO6-'ma-n@n
+Gehirns g@-'hI6ns
+Eigennamen '?aI-g@-na:-m@n
+Chronik 'kRo:-nIk
+Ostern '?o:s-t6n
+Freiherr 'fRaI-hE6
+Aussagenlogik '?aUs-za:-g@n-lo:-gIk
+ergänzen ?E6-'gEn-ts@n
+Landschaftsplanung 'lant-Safts-pla-nUN
+Marktwirtschaft 'ma6kt-vI6t-Saft
+Gordon 'gO6-d@n
+geschriebenen g@-'SRi:-b@-n@n
+Chinesisch Ci:-'ne:-zIS
+letzteren 'lEts-t6-R@n
+Murnau 'mU6-naU
+eindeutigen '?aIn-dOY-tI-g@n
+Angriffen '?an-gRI-f@n
+gefasst g@-'fast
+professionellen pRo:-f@s-jo:-'nE-l@n
+meinen 'maI-n@n
+Promotion pRo:-mo:-'tsjo:n
+Eiderente '?aI-d6-?En-t@
+senken 'zEN-k@n
+Gallen 'ga-l@n
+Passagen 'pa-sa:-g@n
+regelt 'Re:-g@lt
+Osmanischen ?Os-'ma:-nI-S@n
+Verunreinigungen fE6-'?Un-RaI-ni:-gU-N@n
+Einsicht 'aIn-zICt
+Taten 'ta:-t@n
+bestellt b@-'StElt
+Emanzipation ?E-man-tsi:-pats-'jo:n
+Nicholson 'nI-k@l-s@n
+erfolgreicher ?E6-'fOlk-RaI-C6
+elementaren ?E-l@-mEn-'ta:-R@n
+Exemplaren ?Ek-s@m-'pla:-R@n
+ATA '?a-ta:
+spezieller SpE-tsi:-'E-l6
+Erz '?E6ts
+aufgegriffen '?aUf-g@-gRI-f@n
+genannter g@-'nan-t6
+Act '?Ekt
+Neo 'ne:-o:
+Atari ?a-'ta:-Ri:
+garantieren ga-Ran-'ti:-R@n
+Arbeitsweise '?a6-baIts-vaI-z@
+dasselbe das-'zEl-b@
+jahrelang 'ja:-R@-laN
+Eisenbahnen 'aI-z@n-ba:-n@n
+hob 'ho:p
+Lagen 'la:-g@n
+Bildes 'bIl-d@s
+com 'kOm
+Berichten b@-'RIC-t@n
+Klassische 'kla-sI-S@
+Quadrat kva-'dRa:t
+verstärkten fE6-'StE:6-kt@n
+ermitteln ?E6-'mI-t@ln
+Genen 'ge:-n@n
+gewährte g@-'vE:6-t@
+Erfassung ?E6-'fa-sUN
+autonomen ?aU-to:-'no:-m@n
+Weltwirtschaftskrise 'vElt-vI6t-Safts-kRi:-z@
+Walras 'val-Ras
+Teilgebiet 'taIl-g@-bi:t
+schwanken 'SvaN-k@n
+flachen 'fla-x@n
+Satzes 'za-ts@s
+Meteoriten me:-te:-o:-'Ri:-t@n
+Freisetzung 'fRaI-zE-tsUN
+gebrochen g@-'bRO-x@n
+Sorbus 'zO6-bUs
+dauern 'daU-6n
+beobachtete b@-'?o:-bax-t@-t@
+Dodo 'do:-do:
+Statuten Sta-'tu:-t@n
+Russisch 'RU-sIS
+synonym 'zy:-no:-ny:m
+Einerseits '?aI-n6-saIts
+existierende ?Ek-sIs-'ti:-R@n-d@
+Chopins 'So:-pe~
+Niger 'ni:-g6
+Rhetorik Re:-'to:-RIk
+Wäldern 'vEl-d6n
+getauft g@-'taUft
+Bomben 'bOm-b@n
+Babbage 'bE-b@dZ
+Oberflächen '?o:-b6-flE-C@n
+Dürrenmatt 'dY-R@n-mat
+dichtesten 'dIC-t@s-t@n
+Eugen '?OY-g@n
+Multimedia mUl-ti:-'me:-di:-a:
+stattfanden 'Stat-fan-d@n
+Plattformen 'plat-fO6-m@n
+kommunalen kO-mU-'na:-l@n
+eignen '?aI-gn@n
+Imperator ?Im-p@-'Ra:-to:6
+überwunden ?y:-b6-'vUn-d@n
+Österreichischen '2:s-t6-RaI-CI-S@n
+semitischen ze:-'mi:-tI-S@n
+bezeugt b@-'tsOYkt
+Spätestens 'SpE:-t@s-t@ns
+klären 'klE:-R@n
+überwiegende '?y:-b6-vi:-g@n-d@
+Konstante kOns-'tan-t@
+Immunabwehr ?I-'mu:n-?a:p-ve:6
+Ringen 'RI-N@n
+Proto 'pRo:-to:
+Geschichtsschreibung g@-SICts-SRaI-bUN
+weswegen vEs-'ve:-g@n
+Schwäche 'SvE-C@
+Herzöge 'hE6-ts2:-g@
+dominierende do:-mi:-'ni:-R@n-d@
+Marat 'ma-Ra:t
+wozu vo:-'tsu:
+zuständigen 'tsu:-StEn-dI-g@n
+Erwartungen ?E6-'va6-tU-N@n
+wertvolle 'vE6t-fO-l@
+Sitzung 'zI-tsUN
+reserviert Re:-z6-'vi:6t
+erfand ?E6-'fant
+Spin 'spIn
+dunkel 'dUN-k@l
+Baryonen 'ba-Ry:-o:-n@n
+Schlag 'Sla:k
+mazedonische ma:-ts@-'do:-nI-S@
+Terroristen tE-Ro:-'RIs-t@n
+Tageszeitung 'ta:-g@s-tsaI-tUN
+kompletten kOm-'plE-t@n
+verzichtete fE6-'tsIC-t@-t@
+Beeinflussung b@-'?aIn-flU-sUN
+differenziert dI-f6-R@n-'tsi:6t
+Unternehmer ?Un-t6-'ne:-m6
+begleitete b@-'glaI-t@-t@
+Anmerkung '?an-mE6-kUN
+Neigung 'naI-gUN
+zentraler tsEn-'tRa:-l6
+abseits '?ap-zaIts
+begangen b@-'ga-N@n
+begab b@-'ga:p
+Benz 'bEnts
+sammelte 'za-m@l-t@
+Kaisertums 'kaI-z6-tUms
+Book 'bUk
+Monarchen mo:-'na6-C@n
+Regulation Re:-gu:-lats-'jo:n
+Abweichung '?ap-vaI-CUN
+vorausgesetzt fo:-'RaUs-g@-zEtst
+Kirchner 'kI6C-n6
+Pazifischen pa-'tsi:-fI-S@n
+örtlichen '96t-lI-C@n
+strategische StRa:-'te:-gI-S@
+erschließen ?E6-'Sli:-s@n
+Gedenkstätte g@-'dENk-StE-t@
+vorchristlichen 'fo:6-kRIs-tlI-C@n
+dominieren do:-mi:-'ni:-R@n
+Ulmer '?Ul-m6
+instabil ?In-'Sta:-bi:l
+verfügbaren fE6-'fy:k-ba:-R@n
+Verehrung fE6-'?e:-RUN
+Entwürfe ?Ent-'vY6-f@
+geführte g@-'fy:6-t@
+symbolisch zYm-'bo:-lIS
+Volksfest 'fOlks-fEst
+Theory 'Ti:-@-ri:
+Gallien 'ga-li:-@n
+leere 'le:-R@
+richteten 'RIC-t@-t@n
+treiben 'tRaI-b@n
+Philosophy fI-'lO-sO-fi:
+verschaffen fE6-'Sa-f@n
+Sueton 'zu:-@-to:n
+Angebote '?an-g@-bo:-t@
+Klonen 'klo:-n@n
+Kennzeichnung 'kEn-tsaIC-nUN
+verleiht fE6-'laIt
+Südostasien sy:t-?Ost-?a-zi:-@n
+Hypothesen hy:-po:-'te:-z@n
+Graphen 'gRa:-f@n
+sächsischen 'zEk-zI-S@n
+gestiegen g@-'Sti:-g@n
+Symbolik zYm-'bo:-lIk
+griffen 'gRI-f@n
+abgelegt '?ap-g@-le:kt
+verstorbenen fE6-'StO6-b@-n@n
+ablehnte '?ab-le:n-t@
+natürlicher na:-'tY6-lI-C6
+Brandos 'bRan-do:s
+widmen 'vIt-m@n
+Vorstufe 'fo:6-Stu:-f@
+verdienen fE6-'di:-n@n
+gewöhnlichen g@-'v2:n-lI-C@n
+Schiffsverkehr 'SIfs-fE6-ke:6
+Plata 'pla-ta:
+beherrschte b@-'hE6S-t@
+Entgegen ?Ent-'ge:-g@n
+aufgerufen '?aUf-g@-Ru:-f@n
+Mittels 'mI-t@ls
+Kontrast kOn-'tRast
+Via 'vi:-a:
+Makedonen ma:-k@-'do:-n@n
+entsprachen ?Ent-'SpRa:-x@n
+erlitten ?E6-'lI-t@n
+Krypton 'kRYp-to:n
+verweist fE6-'vaIst
+anschaulich '?an-SaU-lIC
+liefen 'li:-f@n
+net 'nEt
+fordern 'fO6-d6n
+hinnehmen 'hI-ne:-m@n
+Alchemie ?al-C@-'mi:
+erläutert ?E6-'lOY-t6t
+intensiven ?In-t@n-'zi:-v@n
+Enzyms ?En-'tsy:ms
+Kabul ka-'bu:l
+palästinensischen pa-lEs-ti:-'nEn-zI-S@n
+Schriftzeichen 'SRIft-tsaI-C@n
+Wiedergeburt 'vi:-d6-g@-bU6t
+Dramaturgie dRa:-ma-tU6-'gi:
+Karat ka-'Ra:t
+Kammern 'ka-m6n
+Asche '?a-S@
+Schiller 'SI-l6
+gekoppelt g@-'kO-p@lt
+Hitze 'hI-ts@
+Ecken '?E-k@n
+Kalenders ka:-'lEn-d6s
+verhinderte fE6-'hIn-d6-t@
+sexuellen sEk-su:-'?E-l@n
+Amtssprachen '?amts-SpRa:-x@n
+Atomkern ?a-'to:m-kE6n
+erhoffte ?E6-'hOf-t@
+genießen g@-'ni:-s@n
+gefährden g@-'fE:6-d@n
+Hainbuche 'haIn-bu:-x@
+Ergänzung ?E6-'gEn-tsUN
+bayerische 'baI-RI-S@
+grenzen 'gREn-ts@n
+Chronologie kRo:-no:-lo:-'gi:
+effektive ?E-fEk-'ti:-v@
+persönlicher pE6-'s2:n-lI-C6
+überarbeitet ?y:-b6-'?a:6-baI-t@t
+Walther 'val-t6
+Fund 'fUnt
+Córdoba 'kO6-do:-ba:
+problemlos pRo:-'ble:m-lo:s
+Berufung b@-'Ru:-fUN
+Universitätsbibliothek ?U-ni:-vE6-zi:-'tE:ts-bIb-li:-o:-te:k
+geheim g@-'haIm
+erschienene ?E6-'Si:-n@-n@
+Ausbeutung '?aUs-bOY-tUN
+bloßen 'blo:-s@n
+Kleinstadt 'klaIn-Stat
+Militärregierung mi:-li:-'tE:6-Re:-gi:-RUN
+Streben 'StRe:-b@n
+gezielte g@-'tsi:l-t@
+Katalysator ka-ta:-ly:-'za-to:6
+dynamische dy:-'na:-mI-S@
+Kraftstoff 'kRaft-StOf
+norwegische 'nO6-ve:-gI-S@
+birgt 'bI6kt
+unterstützten ?Un-t6-'StYts-t@n
+Birkenau bI6-k@-'naU
+Sprachwissenschaft 'SpRa:x-vI-s@n-Saft
+Fluorwasserstoff flu:6-'va-s6-StOf
+kontinuierliche kOn-ti:-nu:-'?i:6-lI-C@
+Umstellung '?Um-StE-lUN
+Méliès 'me:-lI-E:s
+Rechtswissenschaft 'RECts-vI-s@n-Saft
+Zuständigkeit 'tsu:-StEn-dIC-kaIt
+Rosa 'Ro:-za:
+Austritt '?aUs-tRIt
+Scorsese 'skO6-se:-z@
+durchschnittlichen 'dU6C-SnIt-lI-C@n
+kleinerer 'klaI-n6-R6
+Schale 'Sa:-l@
+Membran mEm-'bRa:n
+Versuchspersonen fE6-'zUxs-pE6-zo:-n@n
+eingestuft '?aIn-g@-Stu:ft
+Erfüllung ?E6-'fY-lUN
+erstellte ?E6-'StEl-t@
+berühmteste b@-'Ry:m-t@s-t@
+Fructose fRUk-'to:-z@
+anfänglich '?an-fEN-lIC
+Chemnitz 'kEm-nIts
+Juristen ju:-'RIs-t@n
+Heirat 'haI-Ra:t
+Handball 'hant-bal
+Vorderseite 'fO6-d6-saI-t@
+Tabellen ta:-'bE-l@n
+Problematik pRo:-bl@-'ma:-tIk
+Auguste ?aU-'gUs-t@
+optisch '?Op-tIS
+Tunesien tu:-'ne:-zi:-@n
+osmanische ?Os-'ma:-nI-S@
+bemerkbar b@-'mE6k-ba:6
+Projekten pRo:-'jEk-t@n
+westlicher 'vEst-lI-C6
+Casa 'ka:-za:
+Auckland '?o:k-l@nt
+archäologischen ?a6-Ce:-o:-'lo:-gI-S@n
+effektiv ?E-fEk-'ti:f
+klassifiziert kla-si:-fi:-'tsi:6t
+Fichtelgebirge 'fIC-t@l-g@-bI6-g@
+Chemotherapie Ce:-mo:-te:-Ra-'pi:
+beteiligen b@-'taI-lI-g@n
+Area '?a-Re:-a:
+deportiert de:-pO6-'ti:6t
+fiktiven fIk-'ti:-v@n
+Modul mo:-'du:l
+gestützt g@-'StYtst
+abgewickelt '?ap-g@-vI-k@lt
+Mobile mo:-'bi:-l@
+Jugoslawiens jU-go:s-'la:-vi:-Ens
+Californium ka-lI-'fO6-ni:-Um
+Alters '?al-t6s
+Vulkane vUl-'ka:-n@
+Kompetenzen kOm-p@-'tEn-ts@n
+beides 'baI-d@s
+autonome ?aU-to:-'no:-m@
+Apulien ?a-'pu:-li:-@n
+Richtlinie 'RICt-li:-ni:-@
+Terminus 'tE6-mi:-nUs
+Staatsstreich 'Sta:ts-StRaIC
+Flöhe 'fl2:-@
+verkündet fE6-'kYn-d@t
+Außenhandel '?aU-s@n-han-d@l
+Dekanat de:-ka-'na:t
+Schritten 'SRI-t@n
+eingetragen 'aIN-g@-tRa:-g@n
+vorbehalten 'fo:6-b@-hal-t@n
+zerfiel tsE6-'fi:l
+verbot fE6-'bo:t
+Nolde 'nOl-d@
+Erkenntnistheorie ?E6-'kEnt-nIs-te:-o:-Ri:
+meiste 'maIs-t@
+Fünftel 'fYnf-t@l
+Haft 'haft
+sauren 'zaU-R@n
+Publikums 'pUb-li:-kUms
+Adligen '?ad-lI-g@n
+verwechseln fE6-'vEk-z@ln
+Messier mE-'si:6
+Regiment Re:-gi:-'mEnt
+weltliche 'vElt-lI-C@
+Report Re:-'pO6t
+Byzantinischen by:-tsan-'ti:-nI-S@n
+Kopie ko:-'pi:
+seinerzeit 'saI-n6-tsaIt
+Christ 'kRIst
+Enzymen ?En-'tsy:-m@n
+früherer 'fRy:-6-R6
+früheste 'fRy:-@s-t@
+diplomatischen dIp-lo:-'ma:-tI-S@n
+umgehen Um-'ge:-@n
+Differenzierung dI-f6-REn-'tsi:-RUN
+Eintrag 'aIn-tRa:k
+Datenverarbeitung 'da:-t@n-fE6-?a:6-baI-tUN
+verbracht fE6-'bRa:xt
+Fahrten 'fa:6-t@n
+Non 'nOn
+upright '?ap-raIt
+Berkeley 'b96k-lEI
+reformierte Re:-fO6-'mi:6-t@
+Umkehrwalze '?Um-ke:6-val-ts@
+jüngster 'jYNs-t6
+abhängt '?ap-hENt
+Termin tE6-'mi:n
+Großstädte 'gRo:s-StE-t@
+flüssigen 'flY-sI-g@n
+Aufstellung '?aUf-StE-lUN
+Studiengänge 'Stu:-di:@n-gE-N@
+Korn 'kO6n
+Kein 'kaIn
+erweist ?E6-'vaIst
+Vielfaches 'fi:l-fa-x@s
+Genom ge:-'no:m
+Huygens 'hU-y:-g@ns
+Kohlenstoffmonoxid 'ko:-l@n-StOf-mo:-no:-ksi:t
+kyrillische ky:-'RI-lI-S@
+Frühgeschichte 'fRy:-g@-SIC-t@
+zusammenhängende tsu:-'za-m@n-hE-N@n-d@
+vernichten fE6-'nIC-t@n
+Herder 'hE6-d6
+trennte 'tREn-t@
+überprüfen ?y:-b6-'pRy:-f@n
+Reichsmark 'RaICs-ma6k
+verweigerte fE6-'vaI-g6-t@
+durchlaufen 'dU6C-laU-f@n
+Gläubigen 'glOY-bI-g@n
+Vereinbarung fE6-'?aIn-ba-RUN
+fungiert fUN-'gi:6t
+gängigen 'gE-NI-g@n
+Erlaubnis ?E6-'laUp-nIs
+Beagle 'bi:-g@l
+Beschreibungen b@-'SRaI-bU-N@n
+Sedimente zE-di:-'mEn-t@
+weich 'vaIC
+Sammler 'zam-l6
+Kalkstein 'kalk-StaIn
+Nordinsel 'nO6t-?In-z@l
+materielle ma:-te:-Ri:-'E-l@
+Levante lE-'van-t@
+erwähnen ?E6-'vE:-n@n
+Rechtschreibung 'RECt-SRaI-bUN
+Fett 'fEt
+GATT 'gat
+höchster 'h2:-kst6
+Buchweizen 'bu:x-vaI-ts@n
+Nadeln 'na:-d@ln
+wahrnehmen 'va:6-ne:-m@n
+symbolisiert zYm-bo:-li:-'zi:6t
+Katalysatoren ka-ta:-lY-za-'to:-R@n
+Oxidationsstufe ?Ok-si:-dats-'jo:ns-Stu:-f@
+Aktuell ?ak-tu:-'?El
+Löhne 'l2:-n@
+Bausteine 'baU-StaI-n@
+from 'frOm
+Haithabu 'haI-ta:-bu:
+ausgeprägten '?aUs-g@-pRE:k-t@n
+Will 'wIl
+anschließende '?an-Sli:-s@n-d@
+alleinige ?a-'laI-nI-g@
+naturwissenschaftliche na:-'tU6-vI-s@n-Saf-tlI-C@
+Eiszeit 'aIs-tsaIt
+zunehmendem 'tsu:-ne:-m@n-d@m
+empirische ?Em-'pi:-RI-S@
+Völkerrecht 'v9l-k6-RECt
+Energien ?E-n6-'gi:n
+Archäologische ?a6-Ce:-o:-'lo:-gI-S@
+Nebenflüsse 'ne:-b@n-flY-s@
+weitergegeben 'vaI-t6-ge:-ge:-b@n
+Färöer 'fE-R2:6
+Anode ?a-'no:-d@
+wirkliche 'vI6-klI-C@
+Bayer 'baI-6
+argumentiert ?a6-gu:-mEn-'ti:6t
+Buslinien 'bUs-li:-ni:-@n
+Beschränkungen b@-'SREN-kU-N@n
+Filmografie fIl-mo:-gRa-'fi:
+Markgrafen 'ma6k-gRa:-f@n
+Technologien tEC-no:-lo:-'gi:n
+Ankara '?aN-ka-Ra:
+Problematisch pRo:-bl@-'ma:-tIS
+vulkanischen vUl-'ka:-nI-S@n
+Demonstration de:-mOns-tRats-'jo:n
+Präsenz pRE:-'zEnts
+Thessaloniki te:-sa:-lo:-'ni:-ki:
+Gewinne g@-'vI-n@
+Schreib 'SRaIp
+Frederick 'fRE-d@-RIk
+integrierte ?In-te:-'gRi:6-t@
+fruchtbaren 'fRUxt-ba:-R@n
+Ostküste '?Ost-kYs-t@
+Langobarden laN-go:-'ba6-d@n
+Brett 'bREt
+dortige 'dO6-tI-g@
+Kaisertitel 'kaI-z6-ti:-t@l
+ausgestrahlt '?aUs-g@-StRa:lt
+Derartige 'de:6-?a6-tI-g@
+Mariner 'ma-Ri:-n6
+Beseitigung b@-'zaI-ti:-gUN
+Handschriften 'hant-SRIf-t@n
+Attribute ?at-Ri:-'bu:-t@
+Schreibung 'SRaI-bUN
+Benjamin 'bEn-ja-mi:n
+Nachhaltigkeit 'na:x-hal-tIC-kaIt
+Tora 'to:-Ra:
+entwarf ?Ent-'va6f
+reale Re:-'?a:-l@
+Zeugnis 'tsOYk-nIs
+entfalten ?Ent-'fal-t@n
+unabhängiger '?Un-?ap-hE-NI-g6
+Katharina ka-ta-'Ri:-na:
+Claudius 'klaU-di:-Us
+uraufgeführt '?U6-?aUf-g@-fy:6t
+Untergrund '?Un-t6-gRUnt
 Mays
 gegenwärtigen
 Südfrankreich
