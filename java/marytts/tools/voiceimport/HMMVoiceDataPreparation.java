@@ -51,6 +51,7 @@ package marytts.tools.voiceimport;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -337,7 +338,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
      * @param externalPaths
      * @return true if all the paths are found
      */
-    private boolean checkExternalPaths(String externalPaths){
+    private boolean checkExternalPaths(String externalPaths) throws Exception{
         
         boolean result = true;
         boolean awk=false, perl=false, bc=false, tclsh=false, sox=false, htk=false, hts_engine=false, sptk=false, ehmm=false;
@@ -388,7 +389,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
           }
           inputStream.close();
         } catch (Exception e) {
-            System.err.println("Exception: " + e.getMessage());
+            throw new FileNotFoundException("checkExternalPaths: " + e.getMessage());
         }  
         
         if (!awk){
