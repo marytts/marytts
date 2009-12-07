@@ -305,7 +305,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
      */
     public void saveSampaLexiconFormat(String fileName, AllophoneSet phoneSet) throws IOException{
         if(!hasLexiconData()) return;
-        PrintWriter out = new PrintWriter(new FileWriter(fileName));
+        PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8"));
         for(int i=0; i < data.length; i++){
             String line;
             if(!((String)data[i][2]).equals("") && this.hasManualVerification[i] && this.hasCorrectSyntax[i]){
@@ -330,7 +330,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
      */
     public void saveFunctionalWords(String fileName) throws IOException{
         if(!hasFunctionalData()) return;
-        PrintWriter out = new PrintWriter(new FileWriter(fileName));
+        PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8"));
         for(int i=0; i < data.length; i++){
             if((Boolean)data[i][3]){
                 out.println((String) data[i][1] + "|functional");
