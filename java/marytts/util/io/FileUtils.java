@@ -35,6 +35,8 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.net.Socket;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Vector;
@@ -394,6 +396,24 @@ public class FileUtils {
         }
     }
 
+    public static void copy(File source, File dest)throws IOException{
+        try { 
+            System.out.println("copying: " + source + "\n    --> " + dest);
+            FileChannel in = new FileInputStream(source).getChannel();
+            FileChannel out = new FileOutputStream(dest).getChannel();   
+            MappedByteBuffer buf = in.map(FileChannel.MapMode.READ_ONLY, 0, in.size());            
+            out.write(buf);
+            in.close();
+            out.close();
+        } catch (Exception e){
+            System.out.println("Error copying file "
+                    +source.getAbsolutePath()+" to "+dest.getAbsolutePath()
+                    +" : "+e.getMessage());
+            throw new IOException();
+        }
+    }
+    
+       
     public static void copyFolder(String sourceFolder, String targetFolder) throws IOException
     {
         copyFolder(sourceFolder, targetFolder, false);
@@ -466,6 +486,23 @@ public class FileUtils {
             }
         }
     }
+    
+    /**
+     * Given a file name with path it return the file name
+     * @param fileNameWithPath
+     * @return
+     */
+    public static String getFileName(String fileNameWithPath) {
+       String str;
+       int i;
+       
+       i = fileNameWithPath.lastIndexOf("/");
+       str = fileNameWithPath.substring(i+1); 
+       
+       return str;
+        
+    }
+    
 
     //Gets filenames only without paths!
     public static String[] getFileNameList(String directory, String extension) {

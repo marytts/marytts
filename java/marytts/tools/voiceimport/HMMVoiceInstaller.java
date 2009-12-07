@@ -35,7 +35,7 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import marytts.util.MaryUtils;
-
+import marytts.util.io.FileUtils;
 
 /**
  * Install a voice by copying the voice data to marybase/lib/voices/voicename/
@@ -225,81 +225,81 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
             File in, out;
             in = new File(rootDir + getProp(treeDurFile));
             out = new File(newVoiceDir + getFileName(getProp(treeDurFile)));
-            copy(in,out);   
+            FileUtils.copy(in,out);   
             in = new File(rootDir + getProp(treeLf0File));
             out = new File(newVoiceDir + getFileName(getProp(treeLf0File)));
-            copy(in,out);   
+            FileUtils.copy(in,out);   
             in = new File(rootDir + getProp(treeMcpFile));
             out = new File(newVoiceDir + getFileName(getProp(treeMcpFile)));
-            copy(in,out);
+            FileUtils.copy(in,out);
             
             /* optional file for mixed excitation */
             in = new File(rootDir + getProp(treeStrFile));
             if(in.exists()) {
               out = new File(newVoiceDir + getFileName(getProp(treeStrFile)));
-              copy(in,out);    
+              FileUtils.copy(in,out);    
             }
             /* optional file for using Fourier magnitudes in pulse generation */
             in = new File(rootDir + getProp(treeMagFile));
             if(in.exists()) {
               out = new File(newVoiceDir + getFileName(getProp(treeMagFile)));
-              copy(in,out);   
+              FileUtils.copy(in,out);   
             }
             
             in = new File(rootDir + getProp(pdfDurFile));
             out = new File(newVoiceDir + getFileName(getProp(pdfDurFile)));
-            copy(in,out);   
+            FileUtils.copy(in,out);   
             in = new File(rootDir + getProp(pdfLf0File));
             out = new File(newVoiceDir + getFileName(getProp(pdfLf0File)));
-            copy(in,out);   
+            FileUtils.copy(in,out);   
             in = new File(rootDir + getProp(pdfMcpFile));
             out = new File(newVoiceDir + getFileName(getProp(pdfMcpFile)));
-            copy(in,out);   
+            FileUtils.copy(in,out);   
             
             /* optional file for using Fourier magnitudes in pulse generation */
             in = new File(rootDir + getProp(pdfStrFile));
             if(in.exists()) {
               out = new File(newVoiceDir + getFileName(getProp(pdfStrFile)));
-              copy(in,out);
+              FileUtils.copy(in,out);
             }
             /* optional file for mixed excitation */
             in = new File(rootDir + getProp(pdfMagFile));
             if(in.exists()) {
               out = new File(newVoiceDir + getFileName(getProp(pdfMagFile)));
-              copy(in,out);   
+              FileUtils.copy(in,out);   
             }
             
             /* global variance files */
             in = new File(rootDir + getProp(pdfMcpGVFile));
             if(in.exists()) {
               out = new File(newVoiceDir + getFileName(getProp(pdfMcpGVFile)));
-              copy(in,out);   
+              FileUtils.copy(in,out);   
             }
             in = new File(rootDir + getProp(pdfLf0GVFile));
             if(in.exists()) {
               out = new File(newVoiceDir + getFileName(getProp(pdfLf0GVFile)));
-              copy(in,out);   
+              FileUtils.copy(in,out);   
             }
             in = new File(rootDir + getProp(pdfStrGVFile));
             if(in.exists()) {
               out = new File(newVoiceDir + getFileName(getProp(pdfStrGVFile)));
-              copy(in,out);   
+              FileUtils.copy(in,out);   
             }
             in = new File(rootDir + getProp(pdfMagGVFile));
             if(in.exists()) {
               out = new File(newVoiceDir + getFileName(getProp(pdfMagGVFile)));
-              copy(in,out);   
+              FileUtils.copy(in,out);   
             }
             
             in = new File(rootDir + getProp(mixFiltersFile));
             out = new File(newVoiceDir + getFileName(getProp(mixFiltersFile)));
-            copy(in,out);
+            FileUtils.copy(in,out);
             
             // if there is a trickyPhones file
             in = new File(rootDir + getProp(trickyPhonesFile));
             if(in.exists()){
               out = new File(newVoiceDir + getFileName(getProp(trickyPhonesFile)));
-              copy(in,out);
+              FileUtils.copy(in,out);
               trickyPhones = true;
             }
             
@@ -310,7 +310,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
               String[] feaFiles = dirPhonefeatures.list();
               in = new File(rootDir + "phonefeatures/"+feaFiles[0]);
               out = new File(newVoiceDir + getFileName(feaFiles[0]));
-              copy(in,out);
+              FileUtils.copy(in,out);
               featuresFileExample = rootDir+"phonefeatures/"+feaFiles[0];
             } else{
               System.out.println("Problem copying one example of context features, the directory phonefeatures/ is empty or directory does not exist.");
@@ -361,23 +361,6 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
         return true;
         }
  
-    private void copy(File source, File dest)throws IOException{
-        try { 
-            System.out.println("copying: " + source + "\n    --> " + dest);
-            FileChannel in = new FileInputStream(source).getChannel();
-            FileChannel out = new FileOutputStream(dest).getChannel();   
-            MappedByteBuffer buf = in.map(FileChannel.MapMode.READ_ONLY, 0, in.size());            
-            out.write(buf);
-            in.close();
-            out.close();
-        } catch (Exception e){
-            System.out.println("Error copying file "
-                    +source.getAbsolutePath()+" to "+dest.getAbsolutePath()
-                    +" : "+e.getMessage());
-            throw new IOException();
-        }
-    }
-    
     
     private void createExampleText(File exampleTextFile) throws IOException{
         try{
@@ -460,7 +443,8 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
               configOut.println("# Set your voice specifications\n"+
                       voiceHeader+".gender = "+db.getProp(db.GENDER).toLowerCase()+"\n"+
                       voiceHeader+".locale = "+ locale +"\n"+
-                      voiceHeader+".domain = "+db.getProp(db.DOMAIN).toLowerCase()+"\n"+
+                      voiceHeader+".domain = "+db
+                      .getProp(db.DOMAIN).toLowerCase()+"\n"+
                       voiceHeader+".samplingRate = "+db.getProp(db.SAMPLINGRATE)+"\n");
               
                      
