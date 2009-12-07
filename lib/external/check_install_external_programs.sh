@@ -12,25 +12,36 @@ function trap_exit_handler() {
     local exit_status=$?
     # Change value of $?
     true
-    echo $?
+    #echo $?
     #echo trap_handler $exit_status
 } # trap_exit_handler()
 
 
-#
+if [ $# -lt 1 ] ; then
   echo ""
   echo "check_programs.sh: check the neccessary programs (and versions) to run the HTS-HTK demo for MARY 4.0 beta"
-  echo "Usage: $0 [path-to-awk|path-to-perl|path-to-tclsh|path-to-bc|path-to-sox|path-to-htk|path-to-htsengine|path-to-sptk]"
+  echo "Usage: $0 [options:-check|-install][paths (if not in PATH): path-to-awk|path-to-perl|path-to-tclsh|path-to-bc|path-to-sox|path-to-htk|path-to-htsengine|path-to-sptk]"
+  echo "     options:"
+  echo "       -check  : just check programs in PATH or in the paths provided by the user"
+  echo "       -install: check programs in PATH or in the paths provided by the user and try to install the missing ones"
   echo ""
-
+  exit  
+fi
 
 
 
 # Add the paths provided to the general $PATH
 for p in $@ 
 do
-  PATH=$p:$PATH
+  if [ $p =  "-check" ] || [ $p =  "-install" ] ; then
+    option=$p
+    echo "option=$p"
+  else 
+    PATH=$p:$PATH
+  fi
 done
+echo "PATH=$PATH"
+echo "OPTION = $option"
 
 
 # The following programs will be checked:
@@ -40,6 +51,7 @@ done
 #################awk
 if which awk > /dev/null; then
    awkProg=`which awk`
+   awkPath=`dirname $awkProg`
    echo "awk: $awkProg"
    echo "ok"
    echo
@@ -53,6 +65,7 @@ fi
 ################## perl
 if which perl > /dev/null; then
    perlProg=`which perl`
+   perlPath=`dirname $perlProg`
    echo "perl: $perlProg"
    echo "ok"
    echo
@@ -66,13 +79,13 @@ fi
 
 ################# tclsh and snack
 if which tclsh > /dev/null; then
-    tclshProg=`which tclsh`
-    
+    tclshProg=`which tclsh`    
     echo "tclsh: $tclshProg"
     echo "package require snack" > tmp.tcl
     echo "snack::sound s" >> tmp.tcl
     if `$tclshProg tmp.tcl` > /dev/null; then
        rm tmp.tcl
+       tclshPath=`dirname $tclshProg`
        echo "tclsh and snack exist"
        echo "ok"
        echo
@@ -108,7 +121,8 @@ if which bc > /dev/null; then
    # also check the math lib
    count=`echo "0.005 * 1600" | bc -l`
    echo "bc: checking -l (mathlib)"
-   if [ $count = 8.000 ]; then     
+   if [ $count = 8.000 ]; then 
+     bcPath=`dirname $bcProg`    
      echo "ok"
      echo
    else
@@ -133,6 +147,7 @@ if which sox > /dev/null; then
     # check sox version
     soxVer=`sox --version | awk '{print substr($3,2,2)}'`
     if [ $soxVer -ge 13 ]; then
+      soxPath=`dirname $soxProg`
       echo "sox: $soxProg"
       echo "ok"
       echo
@@ -168,7 +183,8 @@ if which HHEd > /dev/null; then
     # CM directory         - Convert models to pdf for speech synthesizer
     htsCommands=`$hhedProg -Q | grep CM | awk '{print $1}'`
     # here it is used quotes for htsCommand because it can be empty ""
-    if [ "$htsCommands" == "CM" ]; then      
+    if [ "$htsCommands" == "CM" ]; then
+       htkPath=`dirname $hhedProg`      
        echo "HTK HHED contains HTS commands like CM "
        echo "HTK ok"
        echo
@@ -189,31 +205,33 @@ if which HHEd > /dev/null; then
        exit
     fi
 else
+    
     echo "HTK 3.4 does not exist"
     echo "HTK 3.4 can be downloaded from: http://htk.eng.cam.ac.uk/download.shtml "
     echo "once HTK has been downloaded, apply the HTS patch, compile and install:"
-    echo "suggested commands:"
+    if [ $option = "-install" ] ; then
+      echo "suggested commands:"
             root=`pwd`
-    echo "  mkdir -p sw"
-    echo "  cp HTK-3.4.tar.gz sw"
-    echo "  cd sw"
-    echo "  mkdir HTS-patch"
-    echo "  cd HTS-patch"
-    echo "  wget http://hts.sp.nitech.ac.jp/archives/2.1/HTS-2.1_for_HTK-3.4.tar.bz2"
-    echo "  tar -jxvf HTS-2.1_for_HTK-3.4.tar.bz2"
-    echo "  cd .."
-    echo "  tar -zxvf HTK-3.4.tar.gz"
-    echo "  cd htk"
-    echo "  cp $root/sw/HTS-patch/HTS-2.1_for_HTK-3.4.patch ."
-    echo "  patch -p1 -d . < HTS-2.1_for_HTK-3.4.patch"     
-    echo "  ./configure --prefix=$root/sw MAXSTRLEN=2048"
-    echo "  make"
-    echo "  make install"
-    echo "The previous commands will be executed, it assumes that the files HTK-3.4.tar.gz"
-    echo "and HDecode-3.4.tar.gz are in the current directory. continue (y/n)?"
-    read choice
-    if [ $choice = "y" ] ; then
-       if [ -f HTK-3.4.tar.gz ] && [ -f HDecode-3.4.tar.gz ] ; then 
+      echo "  mkdir -p sw"
+      echo "  cp HTK-3.4.tar.gz sw"
+      echo "  cd sw"
+      echo "  mkdir HTS-patch"
+      echo "  cd HTS-patch"
+      echo "  wget http://hts.sp.nitech.ac.jp/archives/2.1/HTS-2.1_for_HTK-3.4.tar.bz2"
+      echo "  tar -jxvf HTS-2.1_for_HTK-3.4.tar.bz2"
+      echo "  cd .."
+      echo "  tar -zxvf HTK-3.4.tar.gz"
+      echo "  cd htk"
+      echo "  cp $root/sw/HTS-patch/HTS-2.1_for_HTK-3.4.patch ."
+      echo "  patch -p1 -d . < HTS-2.1_for_HTK-3.4.patch"     
+      echo "  ./configure --prefix=$root/sw MAXSTRLEN=2048"
+      echo "  make"
+      echo "  make install"
+      echo "The previous commands will be executed, it assumes that the files HTK-3.4.tar.gz"
+      echo "and HDecode-3.4.tar.gz are in the current directory. continue (y/n)?"
+      read choice
+      if [ $choice = "y" ] ; then
+        if [ -f HTK-3.4.tar.gz ] && [ -f HDecode-3.4.tar.gz ] ; then 
           echo "Installing HTK..."
           echo "sources will be downloaded and compiled in: $root/sw"
           echo "binaries will be installed in $root/sw/bin"
@@ -254,6 +272,10 @@ else
        echo
        exit
     fi
+   else
+       echo "HTK is not installed"
+       echo
+    fi
 fi
 
 
@@ -261,34 +283,41 @@ fi
 if which hts_engine > /dev/null; then
     echo "hts_engine exists"
     hts_engineProg=`which hts_engine`
+    # CHECK: here it is missing to check the version!!!
+    hts_enginePath=`dirname $hts_engineProg`
     echo "hts_engine: $hts_engineProg" 
     echo "ok"
     echo
 else
     echo "hts_engine does not exist"
     echo "it can be download from: http://downloads.sourceforge.net/hts-engine/hts_engine_API-1.01.tar.gz "
-    echo "suggested commands:"
-    root=`pwd`
-    echo "Installing hts_engine..."
-    echo "sources will be downloaded and compiled in: $root/sw"
-    echo "binaries will be installed in $root/sw/bin"
-     echo "The previous commands will be executed. continue (y/n)?"
-    read choice
-    if [ $choice = "y" ] ; then
-       mkdir -p sw
-       cd sw 
-       wget http://downloads.sourceforge.net/hts-engine/hts_engine_API-1.01.tar.gz"
-       tar -zxf hts_engine_API-1.01.tar.gz"
-       cd hts_engine_API-1.01
-       ./configure --prefix=$root/sw
-       make
-       make install
-       echo "hts_engine installed in: $root/sw/bin"
-       echo
+    if [ $option = "-install" ] ; then
+      echo "suggested commands:"
+      root=`pwd`
+      echo "Installing hts_engine..."
+      echo "sources will be downloaded and compiled in: $root/sw"
+      echo "binaries will be installed in $root/sw/bin"
+      echo "The previous commands will be executed. continue (y/n)?"
+      read choice
+      if [ $choice = "y" ] ; then
+        mkdir -p sw
+        cd sw 
+        wget http://downloads.sourceforge.net/hts-engine/hts_engine_API-1.01.tar.gz"
+        tar -zxf hts_engine_API-1.01.tar.gz"
+        cd hts_engine_API-1.01
+        ./configure --prefix=$root/sw
+        make
+        make install
+        echo "hts_engine installed in: $root/sw/bin"
+        echo
+      else
+        echo "hts_engine not installed"
+        echo
+        exit
+      fi
     else
-       echo "hts_engine not installed"
-       echo
-       exit
+      echo "hts_engine not installed"
+      echo
     fi
 fi
 
@@ -301,6 +330,7 @@ if which mgcep > /dev/null; then
     #check SPTK version
     # we need SPTK 3.2 which support gmm (check if gmm exist)
     if which gmm > /dev/null; then
+      sptkPath=`dirname $mgcepProg`
       echo "SPTK gmm exist, SPTK version >= 3.2" 
       echo "ok"
       echo
@@ -308,17 +338,28 @@ if which mgcep > /dev/null; then
       echo "SPTK gmm does not exist, SPTK version < 3.2" 
       echo "SPTK installed but probably an older version, please install SPTK 3.2"
       echo "it can be download from: http://downloads.sourceforge.net/sp-tk/SPTK-3.2.tar.gz "
+      if [ $option = "-install" ] ; then
+        echo "suggested commands:"
+        echo "  wget http://downloads.sourceforge.net/sp-tk/SPTK-3.2.tar.gz"
+        echo "  tar -zxvf SPTK-3.2.tar.gz"
+        echo "and follow the instructions for compiling and installing."
+        echo
+      else
+       echo "SPTK not installed"      
+      fi
+    fi
+else
+    echo "SPTK does not exist" 
+    echo "it can be download from: http://downloads.sourceforge.net/sp-tk/SPTK-3.2.tar.gz "
+    if [ $option = "-install" ] ; then
       echo "suggested commands:"
       echo "  wget http://downloads.sourceforge.net/sp-tk/SPTK-3.2.tar.gz"
       echo "  tar -zxvf SPTK-3.2.tar.gz"
       echo "and follow the instructions for compiling and installing."
       echo
+    else
+     echo "SPTK not installed"      
     fi
-else
-    echo "SPTK does not exist"
-    echo
-HOW
-    exit
 fi
 
 
@@ -326,21 +367,85 @@ fi
 if which ehmm > /dev/null; then
     echo "festvox ehmm exists"
     ehmmProg=`which ehmm`
+    ehmmPath=`dirname $ehmmProg`
     echo "festvox ehmm: $ehmmProg" 
     echo "ehmm exist"
     echo "ok"
 else
-    echo "ehmm does not exist, so probably festvox is not installed or provide a path for that"
+    echo "ehmm not found"
+    echo "so probably festvox is not installed or provide a path for that,"
+    echo "normally it can be found in your Festival directory:"
+    echo "   ../Festival/festvox/src/ehmm/bin "
     echo "it can be download from: http://festvox.org/festvox-2.1/festvox-2.1-release.tar.gz "
-    echo "suggested commands:"
-    echo "  wget http://festvox.org/festvox-2.1/festvox-2.1-release.tar.gz"
-    echo "  tar -zxvf festvox-2.1-release.tar.gz"
-    echo "and follow the instructions for compiling and installing."
-    echo
-    exit
+    if [ $option = "-install" ] ; then
+      echo "suggested commands:"
+      echo "  wget http://festvox.org/festvox-2.1/festvox-2.1-release.tar.gz"
+      echo "  tar -zxvf festvox-2.1-release.tar.gz"
+      echo "and follow the instructions for compiling and installing."
+      echo
+    else
+     echo "ehmm not installed" 
+    fi
 fi
 
 
+
+############ paths
+cur_dir=`pwd`
+out_file=$cur_dir/mary/externalPaths.txt
+echo ""
+echo "________________________________________________________________"
+echo "Programs status (detailed information above):"
+echo "The following paths should be in the PATH variable"
+echo "  awk: $awkPath"
+echo "  perl: $perlPath"
+echo "  bc: $bcPath"
+echo
+echo "The following paths are used when running HMMVoiceConfigure"
+echo "  tclsh: $tclshPath"
+echo "  sox: $soxPath"
+echo "  htk: $htkPath"
+echo "  hts_engine: $hts_enginePath"
+echo "  sptk: $sptkPath"
+echo
+echo "This path is used when running the EHMMlabeler"  
+echo "  ehmm: $ehmmPath"
+echo
+
+
+rm -f $out_file
+
+if [ "$awkPath" != "" ] ; then 
+  echo "awk $awkPath" >> $out_file
+fi
+if [ "$perlPath" != "" ] ; then 
+  echo "perl $perlPath" >> $out_file
+fi
+if [ "$bcPath"  != "" ] ; then 
+echo "bc $bcPath" >> $out_file
+fi
+if [ "$tclshPath" != "" ] ; then 
+echo "tclsh $tclshPath" >> $out_file
+fi
+if [ "$soxPath" != "" ] ; then 
+echo "sox $soxPath" >> $out_file
+fi
+if [ "$htkPath" != "" ] ; then 
+echo "htk $htkPath" >> $out_file
+fi
+if [ "$hts_enginePath" != "" ] ; then 
+echo "hts_engine $hts_enginePath" >> $out_file
+fi
+if [ "$sptkPath" != "" ] ; then 
+echo "sptk $sptkPath" >> $out_file
+fi
+if [ "$ehmmPath" != "" ] ; then 
+echo "ehmm $ehmmPath" >> $out_file
+fi
+
+echo "List of paths in: $out_file"
+echo "" 
+
 # Disable exit trap
 trap - EXIT
-exit 0
+exit 1
