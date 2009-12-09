@@ -56,7 +56,9 @@ public class MaryHeader
     public final static int CARTS = 100;
     public final static int DIRECTED_GRAPH = 110;
     public final static int UNITS = 200;
+    public final static int LISTENERUNITS = 225;
     public final static int UNITFEATS = 300;
+    public final static int LISTENERFEATS = 325;
     public final static int HALFPHONE_UNITFEATS = 301; 
     public final static int JOINFEATS = 400;
     public final static int SCOST = 445;
