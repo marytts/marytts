@@ -601,9 +601,10 @@ else
         rm tmp
         ./configure
         make
-        ehmmPath=$root/sw/festvox/src/ehmm/bin
+        cp src/ehmm/bin/* $root/bin
+        ehmmPath=$root/bin
         echo
-        echo "SPTK successfully installed in: $root/bin"
+        echo "ehmm successfully installed in: $root/bin"
         echo
       else
         echo "ehmm not installed"
