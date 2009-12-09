@@ -98,7 +98,7 @@ public class BackchannelUnitFileReader
             if ( !hdr.isMaryHeader() ) {
                 throw new IOException( "File [" + fileName + "] is not a valid Mary format file." );
             }
-            if ( hdr.getType() != MaryHeader.UNITS ) {
+            if ( hdr.getType() != MaryHeader.LISTENERUNITS ) {
                 throw new RuntimeException( "File [" + fileName + "] is not a valid Mary Units file." );
             }
             /* Read the number of units */
