@@ -52,7 +52,8 @@ public class MaryXML
     public static final String TOKEN = "t";
     public static final String SYLLABLE = "syllable";
     public static final String PHONE = "ph";
-    public static final String NONVERBAL = "nvv";
+    //public static final String NONVERBAL = "nvv";
+    public static final String NONVERBAL = "vocalization";
     
     private static String version = "0.4";
     private static String namespace = "http://mary.dfki.de/2002/MaryXML";
