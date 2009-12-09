@@ -601,6 +601,7 @@ THIS SOFTWARE.
         <xsd:attribute name="voicequality" type="xsd:string"/>
         <xsd:attribute name="intonation" type="xsd:string"/>
         <xsd:attribute name="meaning" type="xsd:string"/>
+        <xsd:attribute name="variant" type="xsd:string"/> 
     </xsd:complexType>
 	
     <xsd:element name="t" substitutionGroup="awp" type="token"/>
