@@ -113,7 +113,7 @@ public class BackchannelUnitfileWriter extends VoiceImportComponent
         System.out.println("Back channel unitfile writer started...");
         backChannelUnits bcUnits = new backChannelUnits(unitlabelDir.getAbsolutePath(),bachChannelList);
         DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(unitFileName)));
-        long posNumUnits = new MaryHeader(MaryHeader.UNITS).writeTo(out);
+        long posNumUnits = new MaryHeader(MaryHeader.LISTENERUNITS).writeTo(out);
         int numberOfBCUnits = bcUnits.getNumberOfUnits();
         out.writeInt(numberOfBCUnits); 
         out.writeInt(samplingRate);
