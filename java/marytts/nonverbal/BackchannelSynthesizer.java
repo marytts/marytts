@@ -39,6 +39,8 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.SynthesisException;
+import marytts.features.FeatureDefinition;
+import marytts.features.FeatureVector;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
 import marytts.server.MaryProperties;
@@ -48,6 +50,8 @@ import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
+import marytts.unitselection.select.Target;
+import marytts.unitselection.select.VocalizationFFRTargetCostFunction;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioPlayer;
@@ -70,15 +74,19 @@ import org.w3c.dom.traversal.NodeIterator;
 
 public class BackchannelSynthesizer {
     
-    TimelineReader audioTimeline;
-    BackchannelUnitFileReader unitFileReader;
-    int samplingRate;
+    protected TimelineReader audioTimeline;
+    protected BackchannelUnitFileReader unitFileReader;
+    protected int samplingRate;
+    protected BackchannelFeatureFileReader featureFileReader;
+    final double INFINITE = 100000;
     
     public BackchannelSynthesizer(Voice voice){
         try{
             String unitFileName = MaryProperties.getFilename("voice."+voice.getName()+".backchannel.unitfile");
             String timelineFile = MaryProperties.getFilename("voice."+voice.getName()+".backchannel.timeline");
+            String featureFile  = MaryProperties.getFilename("voice."+voice.getName()+".backchannel.featurefile");
             this.unitFileReader = new BackchannelUnitFileReader(unitFileName);
+            this.featureFileReader = new BackchannelFeatureFileReader(featureFile);
             this.samplingRate   = unitFileReader.getSampleRate();
             this.audioTimeline  = new TimelineReader(timelineFile);
         }
@@ -96,10 +104,16 @@ public class BackchannelSynthesizer {
         if(domElement.hasAttribute("variant")){
             backchannelNumber  = Integer.parseInt(domElement.getAttribute("variant"));
         }
+        else {
+         // create target 
+            Target targetUnit = createTarget(domElement);
+            backchannelNumber = getBestMatchingCandidate(targetUnit);
+        }
+        
         if(backchannelNumber >= numberOfBackChannels){
             backchannelNumber = 0;
         }
-       
+        
         BackchannelUnit bUnit = unitFileReader.getUnit(backchannelNumber);
         long start = bUnit.startTime;
         int duration  = bUnit.duration;
@@ -124,6 +138,73 @@ public class BackchannelSynthesizer {
         datagrams.addAll(Arrays.asList(frames));
         DoubleDataSource audioSource = new DatagramDoubleDataSource(datagrams);
         return (new DDSAudioInputStream(new BufferedDoubleDataSource(audioSource), aft.getFormat()));
+    }
+
+    private int getBestMatchingCandidate(Target targetUnit) throws IOException {
+        FeatureDefinition featDef = this.featureFileReader.getFeatureDefinition();
+        VocalizationFFRTargetCostFunction vffrtCostFunction = new VocalizationFFRTargetCostFunction();
+        vffrtCostFunction.load(this.featureFileReader);
+        if(this.featureFileReader.getNumberOfUnits() != this.unitFileReader.getNumberOfUnits()) {
+            throw new RuntimeException("Feature file reader and unit file reader is not aligned properly");
+        }
+        
+        int numberUnits = this.unitFileReader.getNumberOfUnits();
+        double minCost = INFINITE;
+        int index = 0;
+        for( int i=0; i<numberUnits; i++ ) {
+            Unit singleUnit = this.unitFileReader.getUnit(i);
+            double cost = vffrtCostFunction.cost(targetUnit, singleUnit);
+            if( cost < minCost ) {
+                minCost = cost;
+                index = i;
+            }
+        }
+        
+        return index;
+    }
+
+    private Target createTarget(Element domElement) {
+        
+        FeatureDefinition featDef = this.featureFileReader.getFeatureDefinition();
+        int numFeatures = featDef.getNumberOfFeatures();
+        int numByteFeatures = featDef.getNumberOfByteFeatures();
+        int numShortFeatures = featDef.getNumberOfShortFeatures();
+        int numContiniousFeatures = featDef.getNumberOfContinuousFeatures();
+        byte[]  byteFeatures  = new byte[numByteFeatures];
+        short[] shortFeatures = new short[numShortFeatures];
+        float[] floatFeatures = new float[numContiniousFeatures];
+        int byteCount = 0;
+        int shortCount = 0;
+        int floatCount = 0;
+        
+        for( int i=0; i<numFeatures; i++ ) {
+            String featName  = featDef.getFeatureName(i);
+            String featValue = "0";
+            if( domElement.hasAttribute( featName ) ) {
+                featValue = domElement.getAttribute(featName);
+            }
+            
+            if ( featDef.isByteFeature(i) ) {
+                byteFeatures[byteCount++]   = featDef.getFeatureValueAsByte(i, featValue);
+            }
+            else if ( featDef.isShortFeature(i) ) {
+                shortFeatures[shortCount++] = featDef.getFeatureValueAsShort(i, featValue);
+            }
+            else {
+                floatFeatures[floatCount++] = (new Float(featValue)).floatValue();
+            }
+        }
+        FeatureVector newFV = featDef.toFeatureVector(0,byteFeatures, shortFeatures, floatFeatures);
+        
+        String name = "0";
+        if( domElement.hasAttribute( "name" ) ) {
+            name = domElement.getAttribute("name");
+        }
+        
+        Target newTarget = new Target(name, domElement);
+        newTarget.setFeatureVector(newFV);
+                 
+        return newTarget;
     }
 
 }
