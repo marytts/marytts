@@ -68,7 +68,7 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
     private String name = "HMMVoiceMakeVoice";
     
     /** Tree files and TreeSet object */
-    public final String PERLCOMMAND = name+".perlCommand";
+    //public final String PERLCOMMAND = name+".perlCommand";
     public final String step1_$MKEMV = name+".runStep1_$MKEMV";
     public final String step2_$HCMPV = name+".runStep2_$HCMPV";
     public final String step3_$IN_RE = name+".runStep3_$IN_RE";
@@ -113,7 +113,6 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
         this.db = db;
        if (props == null){
            props = new TreeMap<String,String>();
-           props.put(PERLCOMMAND, "/usr/bin/perl");
            props.put(step1_$MKEMV, "1"); 
            props.put(step2_$HCMPV, "1");
            props.put(step3_$IN_RE, "1");
@@ -148,7 +147,7 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
     protected void setupHelp(){
         props2Help = new TreeMap<String,String>();
         
-        props2Help.put(PERLCOMMAND, "perl command used for executing scripts/Training.pl scripts.");
+        //props2Help.put(PERLCOMMAND, "perl command used for executing scripts/Training.pl scripts.");
         
         steps.add("preparing environments"); 
         steps.add("computing a global variance");
@@ -281,7 +280,7 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
       }  
       
       /* Run: perl hts/scripts/Training.pl hts/scripts/Config.pm (It can take several hours...)*/     
-      cmdLine = getProp(PERLCOMMAND) + " " + voicedir +"hts/scripts/Training.pl " + voicedir + "hts/scripts/Config.pm";      
+      cmdLine = db.getExternal(db.PERLPATH) + "/perl " + voicedir +"hts/scripts/Training.pl " + voicedir + "hts/scripts/Config.pm";      
       launchProcWithLogFile(cmdLine, "", voicedir);
         
       return true;

@@ -54,6 +54,7 @@ public class DatabaseLayout
     private SortedMap<String,String> props;
     private BasenameList bnl;
     private SortedMap<String,SortedMap<String,String>> localProps;
+    private SortedMap<String,String> external;   /* paths for external binaries used in HMM voice creation */
     private String fileSeparator;
     private VoiceImportComponent[] components;
     private String[] compNames;
@@ -121,6 +122,16 @@ public class DatabaseLayout
     public String PHONEFEATUREDIR = "db.phoneFeatureDir";
     public String HALFPHONELABDIR = "db.halfphoneLabDir";
     public String HALFPHONEFEATUREDIR = "db.halfphoneFeatureDir";
+    // paths used in HMM voice creation
+    public String AWKPATH       = "external.awkPath";
+    public String PERLPATH      = "external.perlPath";
+    public String BCPATH        = "external.bcPath";
+    public String HTSPATH       = "external.htsPath";
+    public String HTSENGINEPATH = "external.htsEnginePath";
+    public String SPTKPATH      = "external.sptkPath";
+    public String TCLPATH       = "external.tclPath";
+    public String SOXPATH       = "external.soxPath";
+    public String EHMMPATH      = "external.ehmmPath";
 
     public DatabaseLayout()
     throws Exception
@@ -199,7 +210,7 @@ public class DatabaseLayout
         uneditableProps.add(TEMPDIR);
         uneditableProps.add(WAVEXT);
         
-        /* check if there is a config file */
+        /* check if there is a config file */ 
         configFileName = System.getProperty("user.dir")+System.getProperty("file.separator")+"database.config";
         File configFile = new File(configFileName);
         if (configFile.exists()) {
@@ -208,7 +219,18 @@ public class DatabaseLayout
             readConfigFile(configFile);  
             SortedMap<String,String> defaultGlobalProps = new TreeMap<String,String>();
             //get the default values for the global props
-            defaultGlobalProps = initDefaultProps(defaultGlobalProps,true);
+            defaultGlobalProps = initDefaultProps(defaultGlobalProps,true);   
+            
+            /* if there is a valid marybase, then check if there is an externalBinaries.config and load the paths 
+             * the paths will be loaded in external */
+            String externalConfigFileName = getProp(MARYBASE) + "/lib/external/externalBinaries.config";
+            File externalConfigFile = new File(externalConfigFileName);
+            if (externalConfigFile.exists()) {            
+                System.out.println("Reading external binaries config file " + externalConfigFile);
+                readExternalBinariesConfigFile(externalConfigFile); 
+            }
+            
+            
             //get the local default props from the components
             SortedMap<String,SortedMap<String,String>> defaultLocalProps = getDefaultPropsFromComps();
             //try to get all props and values from config file
@@ -225,6 +247,7 @@ public class DatabaseLayout
             } 
             //check if all dirs have a file separator at the end
             checkForFileSeparators();
+                        
         } else {
             //we have no values for our props
             props = new TreeMap<String, String>();
@@ -233,6 +256,17 @@ public class DatabaseLayout
                 return;
             //fill in the other props with default values
             props = initDefaultProps(props,false);
+            
+            /* if there is a valid marybase, then check if there is an externalBinaries.config and load the paths 
+             * the paths will be load in external */
+            String externalConfigFileName = getProp(MARYBASE) + "/lib/external/externalBinaries.config";
+            File externalConfigFile = new File(externalConfigFileName);
+            if (externalConfigFile.exists()) {            
+                System.out.println("Reading external binaries config file " + externalConfigFile);
+                readExternalBinariesConfigFile(externalConfigFile); 
+            }
+            
+            
             //get the local default props from the components
             localProps = getDefaultPropsFromComps();
             //check if all dirs have a file separator at the end
@@ -241,8 +275,9 @@ public class DatabaseLayout
             saveProps(configFile);
         }
         assureFileIntegrity();
-        loadBasenameList();
+        loadBasenameList();        
         initializeComps();
+        
         initialized = true;
     }
     
@@ -268,8 +303,9 @@ public class DatabaseLayout
     private void readConfigFile(File configFile)
     throws IOException
     {
-        props = new TreeMap<String, String>();
-        localProps = new TreeMap<String, SortedMap<String,String>>();
+          props = new TreeMap<String, String>();
+          localProps = new TreeMap<String, SortedMap<String,String>>();
+        
         try{
             //open the file
             BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -285,7 +321,8 @@ public class DatabaseLayout
                 if (lineSplit[0].startsWith("db.")) {
                    //global prop
                     props.put(lineSplit[0],lineSplit[1]);                    
-                } else {
+                } 
+                else {
                     //local prop
                     String compName = lineSplit[0].substring(0,lineSplit[0].indexOf('.'));
                     if (localProps.containsKey(compName)) {
@@ -304,15 +341,15 @@ public class DatabaseLayout
             //get the default values for the global props
             defaultGlobalProps = initDefaultProps(defaultGlobalProps, false);
             for (Iterator<String> it=uneditableProps.iterator(); it.hasNext();) {
-                String key = it.next();
-                if (defaultGlobalProps.containsKey(key)) {
-                    props.put(key, defaultGlobalProps.get(key));
-                } else {
-                    //this case should never happen
-                    throw new IllegalStateException("Uneditable global prop "+key
-                            +" not defined in default props.");
-                }
-            }
+              String key = it.next();
+              if (defaultGlobalProps.containsKey(key)) {
+                  props.put(key, defaultGlobalProps.get(key));
+              } else {
+                  //this case should never happen
+                  throw new IllegalStateException("Uneditable global prop "+key
+                          +" not defined in default props.");
+              }
+            }            
         } catch (IOException e) {
             IOException myIOE = new IOException("Error reading config file");
             myIOE.initCause(e);
@@ -321,6 +358,40 @@ public class DatabaseLayout
     }
     
    
+    /**
+     * Read the props in the config file
+     * @param configFile the config file
+     */
+    private void readExternalBinariesConfigFile(File configFile)
+    throws IOException
+    {
+        external = new TreeMap<String, String>();
+        
+        try{
+            //open the file
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                                  new FileInputStream(configFile),"UTF-8"));
+            String line;
+            while ((line=in.readLine())!= null) {
+                if (line.startsWith("#") || line.trim().equals(""))
+                    continue;
+                //System.out.println(line);
+                //line looks like "<propName> <value>"
+                //<propname> looks like "<compName>.<prop>"
+                String[] lineSplit = line.split(" ", 2);
+                if (lineSplit[0].startsWith("external.")) {
+                    //global external
+                     external.put(lineSplit[0],lineSplit[1]);                    
+                }
+            }
+            in.close();             
+        } catch (IOException e) {
+            IOException myIOE = new IOException("Error reading config file");
+            myIOE.initCause(e);
+            throw myIOE;
+        }   
+    }
+    
     
     /**
      * Check if all props are set
@@ -743,7 +814,13 @@ public class DatabaseLayout
     {
         props.put(prop,val);
     }
-    
+    public String getExternal(String prop)
+    {
+        if (external != null)
+          return external.get(prop);
+        else
+          return null;
+    }
     public boolean isEditable(String propname)
     {
         return !uneditableProps.contains(propname);

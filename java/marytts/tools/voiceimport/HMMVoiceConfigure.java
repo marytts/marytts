@@ -66,11 +66,11 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
     
     /** Tree files and TreeSet object */
     public final String CONFIGUREFILE = name+".configureFile";
-    public final String HTSPATH       = name+".htsPath";
-    public final String HTSENGINEPATH = name+".htsEnginePath";
-    public final String SPTKPATH      = name+".sptkPath";
-    public final String TCLPATH       = name+".tclPath";
-    public final String SOXPATH       = name+".soxPath";
+    //public final String HTSPATH       = name+".htsPath";
+    //public final String HTSENGINEPATH = name+".htsEnginePath";
+    //public final String SPTKPATH      = name+".sptkPath";
+    //public final String TCLPATH       = name+".tclPath";
+    //public final String SOXPATH       = name+".soxPath";
     public final String SPEAKER       = name+".speaker";
     public final String DATASET       = name+".dataSet";
     public final String LOWERF0       = name+".lowerF0";
@@ -116,12 +116,7 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
            props = new TreeMap<String,String>();
            String rootdir = db.getProp(db.ROOTDIR);
            
-           props.put(CONFIGUREFILE, rootdir+"hts/configure");
-           props.put(HTSPATH,       "/project/mary/marcela/sw/htk/bin");
-           props.put(HTSENGINEPATH, "/project/mary/marcela/sw/htk/hts_engine_API-1.01/bin");
-           props.put(SPTKPATH,      "/project/mary/marcela/sw/SPTK-3.2/bin");
-           props.put(TCLPATH,       "/project/mary/marcela/sw/ActiveTcl-8.6/bin");           
-           props.put(SOXPATH,       "/usr/bin");
+           props.put(CONFIGUREFILE, rootdir+"hts/configure");           
            props.put(SPEAKER,       "slt");
            props.put(DATASET,       "cmu_us_arctic");
            props.put(LOWERF0,       "40");
@@ -159,11 +154,11 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
         props2Help = new TreeMap<String,String>();
         
         props2Help.put(CONFIGUREFILE, "Path and name of configure file.");
-        props2Help.put(HTSPATH,       "Path to HTS_2.1 - HTK bin directory.");
-        props2Help.put(HTSENGINEPATH, "Path to HTS_Engine_API-1.01 path  - in Mary it is used for testing during training.");
-        props2Help.put(SPTKPATH,      "Path to SPTK-3.1 bin directory.");
-        props2Help.put(TCLPATH,       "Path to Tcl bin, it should support snack.");
-        props2Help.put(SOXPATH,       "Path to sox bin.");
+        //props2Help.put(HTSPATH,       "Path to HTS_2.1 - HTK bin directory.");
+        //props2Help.put(HTSENGINEPATH, "Path to HTS_Engine_API-1.01 path  - in Mary it is used for testing after training.");
+        //props2Help.put(SPTKPATH,      "Path to SPTK-3.1 bin directory.");
+        //props2Help.put(TCLPATH,       "Path to Tcl bin, it should support snack.");
+        //props2Help.put(SOXPATH,       "Path to sox bin.");
         props2Help.put(SPEAKER,       "speaker name (default=slt)");
         props2Help.put(DATASET,       "dataset (default=cmu_us_arctic)");
         props2Help.put(LOWERF0,       "Lower limit for F0 extraction in Hz (default slt=80 female=80, male=40)");
@@ -259,11 +254,11 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
        System.out.println("Running make configure: ");
        cmdLine = "cd " + filedir + "hts\n" + 
        getProp(CONFIGUREFILE) +
-       " --with-tcl-search-path=" + getProp(TCLPATH) +
-       " --with-sptk-search-path=" + getProp(SPTKPATH) +
-       " --with-hts-search-path=" + getProp(HTSPATH) +
-       " --with-hts-engine-search-path=" + getProp(HTSENGINEPATH) +
-       " --with-sox-search-path=" + getProp(SOXPATH) +
+       " --with-tcl-search-path="        + db.getExternal(db.TCLPATH) +
+       " --with-sptk-search-path="       + db.getExternal(db.SPTKPATH) +
+       " --with-hts-search-path="        + db.getExternal(db.HTSPATH) +
+       " --with-hts-engine-search-path=" + db.getExternal(db.HTSENGINEPATH) +
+       " --with-sox-search-path="        + db.getExternal(db.SOXPATH) +
        " SPEAKER=" + getProp(SPEAKER) +
        " DATASET=" + getProp(DATASET) +
        " LOWERF0=" + getProp(LOWERF0) +
@@ -294,11 +289,15 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
        General.launchBatchProc(cmdLine, "Configure", filedir);
        
         
-       } else
-         System.out.println("Problems with directories phonefeatures or phonelab, they do not exist or they are empty.");  
+       } else {
+         System.out.println("Problems with directories phonefeatures or phonelab, they do not exist or they are empty.");
+         return false;
+       }
        
-       } else /* if speech and transcriptions exist */
+       } else { /* if speech and transcriptions exist */
          System.out.println("Problems with directories wav, text or hts/data/raw, they do not exist or they are empty.");
+         return false;
+       }
        
        return true;
        
