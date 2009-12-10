@@ -190,6 +190,7 @@ public class DatabaseLayout
         }
     }
     
+    
     private void initialize(VoiceImportComponent[] theComponents)
     throws Exception
     {
@@ -295,6 +296,17 @@ public class DatabaseLayout
             compnames2comps.put(compNames[i],components[i]);
         }        
     }
+    
+    /**
+     * Obtain a voice import component by its name. This can be used to run invidivual functions of a given voice import component from another component.
+     * Handle with care -- only use this if you know what you are doing!
+     * @param componentName
+     * @return the named voice import component, or null if there is no such component.
+     */
+    public VoiceImportComponent getComponent(String componentName) {
+        return compnames2comps.get(componentName);
+    }
+
     
     /**
      * Read the props in the config file
