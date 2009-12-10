@@ -52,7 +52,7 @@ import javax.swing.JFrame;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.nonverbal.analysis.KMeansClusterer;
+import marytts.nonverbal.KMeansClusterer;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.signalproc.analysis.distance.DistanceComputer;
