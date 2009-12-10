@@ -1,4 +1,27 @@
-# HMMVoice creation for MARY 4.0 beta
+# Copyright 2007 DFKI GmbH.
+# All Rights Reserved.  Use is subject to license terms.
+#
+# This file is part of MARY TTS.
+#
+# MARY TTS is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# HMMVoice creation for MARY 4.0 - Checking and installing external programs
+# more information in: http://mary.opendfki.de/wiki/HMMVoiceCreationMary4.0
+# 
+# Created by Marcela Charfuelan (DFKI) Thu Dec 10 17:27:35 CET 2009
+# use:
+#   ./check_install_external_programs.sh [-check|-install][additional paths]
+
 
 # Exit on all errors
 set -e
@@ -32,6 +55,7 @@ fi
 external_dir="`dirname "$0"`"
 MARY_BASE="`(cd "$external_dir"/../.. ; pwd)`"
 echo "MARY_BASE=$MARY_BASE"
+echo
 
 PATH=$MARY_BASE/lib/external/bin:$PATH
 
@@ -45,8 +69,7 @@ do
     PATH=$p:$PATH
   fi
 done
-echo "PATH=$PATH"
-echo "OPTION = $option"
+
 
 
 # The following programs will be checked:
@@ -555,53 +578,29 @@ else
     echo "so probably festvox is not installed or provide a path for that,"
     echo "normally it can be found in your Festival directory:"
     echo "   ../Festival/festvox/src/ehmm/bin "
-    echo "it can be download from: http://festvox.org/festvox-2.1/festvox-2.1-release.tar.gz "
+    echo "A copy of ehmm that can be installed is included in $MARY_BASE/lib/external/ehmm.tar.gz "
     if [ $option = "-install" ] ; then
       echo "suggested commands:"
       root=$MARY_BASE/lib/external
       echo "  mkdir -p $root/sw"
       echo "  cd $root/sw"
-      echo "  The svn version compiles with gcc 4.3"
-      echo "  svn checkout http://svn.berlios.de/svnroot/repos/festlang/trunk/speech_tools"
-      echo "  wget http://festvox.org/festvox-2.1/festvox-2.1-release.tar.gz"
-      echo "  cd speech_tools"
-      echo "  ./configure"
+      echo "  cp ../ehmm.tar.gz ."
+      echo "  tar -zxf ehmm.tar.gz"
+      echo "  cd ehmm"
       echo "  make"
-      echo "  cd .."
-      echo "  tar -zxf festvox-2.1-release.tar.gz"
-      echo "  cd festvox"
-      echo "  We need the following to being able to compile in gcc 4.3"
-      echo "  echo \"#include<string.h>\" > tmp"
-      echo "  cat tmp src/ehmm/src/ehmm.cc > src/ehmm/src/ehmm.cc.tmp"
-      echo "  cat tmp src/ehmm/src/edec.cc > src/ehmm/src/edec.cc.tmp"
-      echo "  mv src/ehmm/src/ehmm.cc.tmp src/ehmm/src/ehmm.cc"
-      echo "  mv src/ehmm/src/edec.cc.tmp src/ehmm/src/edec.cc"
-      echo "  rm tmp"
-      echo "  ./configure"
-      echo "  make"
+      echo "  cp bin/* $root/bin"
       echo "The previous commands will be executed. continue (y/n)?"
       read choice
       if [ $choice = "y" ] ; then
         root=$MARY_BASE/lib/external
+        mkdir -p $root/bin
         mkdir -p $root/sw
         cd $root/sw
-        svn checkout http://svn.berlios.de/svnroot/repos/festlang/trunk/speech_tools
-        wget http://festvox.org/festvox-2.1/festvox-2.1-release.tar.gz
-        cd speech_tools
-        ./configure
+        cp ../ehmm.tar.gz .
+        tar -zxf ehmm.tar.gz
+        cd ehmm
         make
-        cd ..
-        tar -zxf festvox-2.1-release.tar.gz
-        cd festvox
-        echo "#include<string.h>" > tmp
-        cat tmp src/ehmm/src/ehmm.cc > src/ehmm/src/ehmm.cc.tmp
-        cat tmp src/ehmm/src/edec.cc > src/ehmm/src/edec.cc.tmp
-        mv src/ehmm/src/ehmm.cc.tmp src/ehmm/src/ehmm.cc
-        mv src/ehmm/src/edec.cc.tmp src/ehmm/src/edec.cc
-        rm tmp
-        ./configure
-        make
-        cp src/ehmm/bin/* $root/bin
+        cp bin/* $root/bin
         ehmmPath=$root/bin
         echo
         echo "ehmm successfully installed in: $root/bin"
@@ -615,11 +614,8 @@ else
 fi
 
 
-
 ############ paths
 out_file=$MARY_BASE/lib/external/externalBinaries.config
-
-
 
 
 echo "# Paths for external programs:" > $out_file
@@ -694,3 +690,5 @@ echo ""
 # Disable exit trap
 trap - EXIT
 exit 1
+
+
