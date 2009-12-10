@@ -28,8 +28,6 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureVector;
 import marytts.features.TargetFeatureComputer;
-import marytts.features.VocalizationFeatureProcessorManager;
-import marytts.features.VocalizationTargetFeatureComputer;
 import marytts.nonverbal.BackchannelFeatureFileReader;
 import marytts.server.MaryProperties;
 import marytts.signalproc.display.Histogram;
