@@ -116,26 +116,24 @@ public class AllophonesExtractor extends VoiceImportComponent
         System.out.println( "Computing ALLOPHONES files for "+ bnl.getLength() + " files" );
         for (int i=0; i<bnl.getLength(); i++) {
             percent = 100*i/bnl.getLength();
-            generateAllophonesFile( bnl.getName(i), inputDir, promptAllophonesDir.getAbsolutePath());
+            generateAllophonesFile( bnl.getName(i) );
             System.out.println( "    " + bnl.getName(i) );
         }
         System.out.println("...Done.");
         return true;
     }
 
-    public void generateAllophonesFile(String basename, String inputDir, String outputDir)
+    public void generateAllophonesFile(String basename)
     throws IOException
     {
-        String text;
-        Locale localVoice;
-        localVoice = MaryUtils.string2locale(locale);
+        Locale localVoice = MaryUtils.string2locale(locale);
         String xmlLocale = MaryUtils.locale2xmllang(localVoice);
-        
+        String inputDir = db.getProp(db.TEXTDIR);
+        String outputDir = promptAllophonesDir.getAbsolutePath();
         String fullFileName = inputDir +File.separator+ basename + db.getProp(db.TEXTEXT);
         
         File textFile = new File(fullFileName);
-        text = FileUtils.getFileAsString(textFile, "UTF-8");
-        
+        String text = FileUtils.getFileAsString(textFile, "UTF-8");
         
         // First, test if there is a corresponding .rawmaryxml file in textdir:
         File rawmaryxmlFile = new File(db.getProp(db.MARYXMLDIR) + File.separator
@@ -151,7 +149,6 @@ public class AllophonesExtractor extends VoiceImportComponent
         
         OutputStream os = new BufferedOutputStream(new FileOutputStream(new File( outputDir, basename + featsExt )));
         MaryHttpClient maryClient = getMaryClient();
-        
         maryClient.process(text, maryInputType, maryOutputType, db.getProp(db.LOCALE), null, null, os);
         os.flush();
         os.close();

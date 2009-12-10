@@ -112,67 +112,71 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
                 + getProp(LABELDIR) + "*" + unitlabelExt );
         for (int i=0; i<bnl.getLength(); i++) {
             percent = 100*i/bnl.getLength();
-            File labFile = 
-                new File( db.getProp(db.LABDIR) 
-                        + bnl.getName(i) + db.getProp(db.LABEXT) );
-            if ( !labFile.exists() ) {
-                System.out.println( "Utterance [" + bnl.getName(i) + "] does not have a phonetic label file." );
-                System.out.println( "Removing this utterance from the base utterance list." );
-                bnl.remove( bnl.getName(i) );
-            }
-            else {
-                BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream( labFile ), "UTF-8"));
-                String labelFile = getProp(LABELDIR)+ bnl.getName(i) + unitlabelExt;
-                PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(labelFile)), "UTF-8"));
-                // Merge adjacent pauses into one: In a sequence of pauses,
-                // only remember the last one.
-                String pauseLine = null;
-                String line;
-                List header = new ArrayList();
-                boolean readingHeader = true;
-                List phoneLabels = new ArrayList();
-                while ((line = in.readLine())!= null) {
-                    if (readingHeader) {
-                        if (line.trim().equals("#")) {
-                            // found end of header
-                            readingHeader = false;
-                        }
-                        header.add(line);                        
-                    } else {
-                        // Not reading header
-                        // Verify if this is a pause unit
-                        String phone = getPhone(line);
-                        if (pauseSymbol.equals(phone)) {
-                            pauseLine = line; // remember only the latest pause line
-                        } else { // a non-pause symbol
-                            if (pauseLine != null) {
-                                phoneLabels.add(pauseLine);
-                                pauseLine = null;
-                            }
-                            phoneLabels.add(line);
-                        }
-                    }
-                }
-                if (pauseLine != null) {
-                    phoneLabels.add(pauseLine);
-                }
-                String[] phoneLabelLines = (String[]) phoneLabels.toArray(new String[0]);
-                String[] unitLabelLines = toUnitLabels(phoneLabelLines);
-                out.println("format: end time, unit index, phone");
-                for (int h=0; h<header.size(); h++) {                
-                    out.println(header.get(h));
-                }
-                for (int u=0; u<unitLabelLines.length; u++) {
-                    out.println(unitLabelLines[u]);
-                }
-                out.flush();
-                out.close();
-                in.close();
-                System.out.println( "    " + bnl.getName(i) );
-            }
+            computePhoneLabel(bnl.getName(i));
         }
         System.out.println("Finished computing unit labels");
         return true;
+    }
+    
+    public void computePhoneLabel(String baseName) throws IOException{
+        File labFile = 
+            new File( db.getProp(db.LABDIR) 
+                    + baseName + db.getProp(db.LABEXT) );
+        if ( !labFile.exists() ) {
+            System.out.println( "Utterance [" + baseName + "] does not have a phonetic label file." );
+            System.out.println( "Removing this utterance from the base utterance list." );
+            bnl.remove( baseName );
+        }
+        else {
+            BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream( labFile ), "UTF-8"));
+            String labelFile = getProp(LABELDIR)+ baseName + unitlabelExt;
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(labelFile)), "UTF-8"));
+            // Merge adjacent pauses into one: In a sequence of pauses,
+            // only remember the last one.
+            String pauseLine = null;
+            String line;
+            List header = new ArrayList();
+            boolean readingHeader = true;
+            List phoneLabels = new ArrayList();
+            while ((line = in.readLine())!= null) {
+                if (readingHeader) {
+                    if (line.trim().equals("#")) {
+                        // found end of header
+                        readingHeader = false;
+                    }
+                    header.add(line);                        
+                } else {
+                    // Not reading header
+                    // Verify if this is a pause unit
+                    String phone = getPhone(line);
+                    if (pauseSymbol.equals(phone)) {
+                        pauseLine = line; // remember only the latest pause line
+                    } else { // a non-pause symbol
+                        if (pauseLine != null) {
+                            phoneLabels.add(pauseLine);
+                            pauseLine = null;
+                        }
+                        phoneLabels.add(line);
+                    }
+                }
+            }
+            if (pauseLine != null) {
+                phoneLabels.add(pauseLine);
+            }
+            String[] phoneLabelLines = (String[]) phoneLabels.toArray(new String[0]);
+            String[] unitLabelLines = toUnitLabels(phoneLabelLines);
+            out.println("format: end time, unit index, phone");
+            for (int h=0; h<header.size(); h++) {                
+                out.println(header.get(h));
+            }
+            for (int u=0; u<unitLabelLines.length; u++) {
+                out.println(unitLabelLines[u]);
+            }
+            out.flush();
+            out.close();
+            in.close();
+            System.out.println( "    " + baseName );
+        }
     }
     
     /**/

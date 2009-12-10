@@ -44,6 +44,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -73,6 +74,11 @@ public class TranscriptionAligner extends VoiceImportComponent {
     private DatabaseLayout db;
     private String locale;
     private int progress;
+    DocumentBuilderFactory dbf;
+    DocumentBuilder docBuilder;
+    TransformerFactory tFactory;
+    Transformer transformer;
+    File xmlOutDir;
     
     private marytts.tools.analysis.TranscriptionAligner aligner;
     
@@ -88,10 +94,21 @@ public class TranscriptionAligner extends VoiceImportComponent {
     }
     
     public void initialiseComp()
-    throws ParserConfigurationException, IOException, SAXException
+    throws ParserConfigurationException, IOException, SAXException, TransformerConfigurationException
     {
         aligner = new marytts.tools.analysis.TranscriptionAligner(AllophoneSet.getAllophoneSet(db.getProp(db.ALLOPHONESET)));
         aligner.SetEnsureInitialBoundary(true);
+        xmlOutDir = new File((String) db.getProp(db.ALLOPHONESDIR));
+        if (!xmlOutDir.exists())
+            xmlOutDir.mkdir();
+        // for parsing xml files
+        dbf = DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        docBuilder = dbf.newDocumentBuilder();
+        
+        // for writing xml files
+        tFactory = TransformerFactory.newInstance();
+        transformer = tFactory.newTransformer();
     }
     
     public SortedMap<String,String> getDefaultProps(DatabaseLayout theDb)
@@ -128,72 +145,62 @@ public class TranscriptionAligner extends VoiceImportComponent {
     public boolean compute()
     throws IOException, TransformerException, ParserConfigurationException, SAXException
     {
-        File xmlOutDir = new File((String) db.getProp(db.ALLOPHONESDIR));
-        if (!xmlOutDir.exists())
-            xmlOutDir.mkdir();
-
-        // for parsing xml files
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
-        DocumentBuilder docBuilder = dbf.newDocumentBuilder();
         
-        // for writing xml files
-        TransformerFactory tFactory = TransformerFactory.newInstance();
-        Transformer transformer = tFactory.newTransformer();
-
         System.out.println("traversing through " + bnl.getLength() + " files");
        
         String promptAllophonesDir = db.getProp(db.PROMPTALLOPHONESDIR);
         for (int i=0; i<bnl.getLength(); i++) {
             progress = 100*i/bnl.getLength();
-            File nextFile = new File(promptAllophonesDir
-                    +System.getProperty("file.separator")
-                    +bnl.getName(i)+".xml");
-
             System.out.println(bnl.getName(i));
-            
-            // get original xml file
-            Document doc = docBuilder.parse(nextFile);
-
-            // open destination xml file
-            Writer docDest  = new OutputStreamWriter(new FileOutputStream(xmlOutDir.getAbsolutePath() + System.getProperty("file.separator")+nextFile.getName()), "UTF-8");
-
-            // open file with manual transcription that is to be aligned
-            String manTransString;
-            try{
-
-                String trfdir = db.getProp(db.LABDIR);
-                
-                String trfname = trfdir + 
-                nextFile.getName().substring(0, nextFile.getName().length() - 4) + ".lab";
-                
-                System.out.println(trfname);
-                
-                manTransString = aligner.readLabelFile(trfname);
-                
-            } catch ( FileNotFoundException e ) {
-                System.out.println("No manual transcription found, copy original ...");
-                
-                // transform the unchanged xml-structure to a file
-                DOMSource source = new DOMSource( doc );
-                StreamResult output = new StreamResult(docDest);
-                transformer.transform(source, output);
-
-                continue;
-            }
-            
-            // align transcriptions
-            aligner.alignXmlTranscriptions(doc, manTransString);
-            
-            // write results to output
-            DOMSource source = new DOMSource( doc );
-            StreamResult output = new StreamResult(docDest);
-            transformer.transform(source, output);
+            alignTranscription(bnl.getName(i));
         }
                 
         return true;
     }
-     
+    
+    public void alignTranscription(String baseName) throws SAXException, IOException, TransformerException, ParserConfigurationException{
+        String promptAllophonesDir = db.getProp(db.PROMPTALLOPHONESDIR);
+        File nextFile = new File(promptAllophonesDir
+                +System.getProperty("file.separator")
+                +baseName+".xml");
+        // get original xml file
+        Document doc = docBuilder.parse(nextFile);
+
+        // open destination xml file
+        Writer docDest  = new OutputStreamWriter(new FileOutputStream(xmlOutDir.getAbsolutePath() + System.getProperty("file.separator")+nextFile.getName()), "UTF-8");
+
+        // open file with manual transcription that is to be aligned
+        String manTransString;
+        try{
+
+            String trfdir = db.getProp(db.LABDIR);
+            
+            String trfname = trfdir + 
+            nextFile.getName().substring(0, nextFile.getName().length() - 4) + ".lab";
+            
+            System.out.println(trfname);
+            
+            manTransString = aligner.readLabelFile(trfname);
+            
+        } catch ( FileNotFoundException e ) {
+            System.out.println("No manual transcription found, copy original ...");
+            
+            // transform the unchanged xml-structure to a file
+            DOMSource source = new DOMSource( doc );
+            StreamResult output = new StreamResult(docDest);
+            transformer.transform(source, output);
+
+            return;
+        }
+        
+        // align transcriptions
+        aligner.alignXmlTranscriptions(doc, manTransString);
+        
+        // write results to output
+        DOMSource source = new DOMSource( doc );
+        StreamResult output = new StreamResult(docDest);
+        transformer.transform(source, output);
+    }
   
 
     /**
