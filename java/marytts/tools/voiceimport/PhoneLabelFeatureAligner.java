@@ -52,6 +52,10 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import org.xml.sax.SAXException;
 
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.io.FileUtils;
@@ -70,6 +74,9 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
 {
     
     protected PhoneUnitFeatureComputer featureComputer;
+    protected AllophonesExtractor allophoneExtractor;
+    protected PhoneUnitLabelComputer labelComputer;
+    protected TranscriptionAligner transcrptionAligner;
     protected String pauseSymbol;
     
     protected DatabaseLayout db = null;
@@ -96,7 +103,10 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     
     protected void customInitialisation()
     {
-        featureComputer = new PhoneUnitFeatureComputer();
+        featureComputer = (PhoneUnitFeatureComputer) db.getComponent("PhoneUnitFeatureComputer");
+        allophoneExtractor = (AllophonesExtractor) db.getComponent("AllophonesExtractor");
+        labelComputer =  (PhoneUnitLabelComputer) db.getComponent("PhoneUnitLabelComputer");
+        transcrptionAligner = (TranscriptionAligner) db.getComponent("TranscriptionAligner"); 
         featsExt = ".pfeats";
         labExt = ".lab";
         featsDir = db.getProp(db.PHONEFEATUREDIR);
@@ -1098,8 +1108,20 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
             pw.close();
         }
         boolean edited = new EditFrameShower(maryxmlFile).display();
-        if (edited)
+        if (edited){
+            allophoneExtractor.generateAllophonesFile(basename);
+            try {
+                transcrptionAligner.alignTranscription(basename);
+            } catch (SAXException e) {
+                e.printStackTrace();
+            } catch (TransformerException e) {
+                e.printStackTrace();
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            }
+            labelComputer.computePhoneLabel(basename);
             featureComputer.computeFeaturesFor(basename);
+        }
     }
 
     
