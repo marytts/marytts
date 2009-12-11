@@ -40,7 +40,10 @@ public class HalfPhoneLabelFeatureAligner extends PhoneLabelFeatureAligner {
     @Override
     protected void customInitialisation()
     {
-        featureComputer = new HalfPhoneUnitFeatureComputer();
+        featureComputer = (HalfPhoneUnitFeatureComputer) db.getComponent("HalfPhoneUnitFeatureComputer");
+        allophoneExtractor = (AllophonesExtractor) db.getComponent("AllophonesExtractor");
+        labelComputer =  (HalfPhoneUnitLabelComputer) db.getComponent("HalfPhoneUnitLabelComputer");
+        transcrptionAligner = (TranscriptionAligner) db.getComponent("TranscriptionAligner");
         featsExt = ".hpfeats";
         labExt = ".hplab";
         featsDir = db.getProp(db.HALFPHONEFEATUREDIR);
