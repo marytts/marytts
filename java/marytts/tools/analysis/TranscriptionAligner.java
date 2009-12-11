@@ -40,6 +40,7 @@ import marytts.util.dom.MaryDomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
 import org.xml.sax.SAXException;
@@ -456,18 +457,39 @@ public class TranscriptionAligner
                 if (token != prevToken && !prevWasBoundary) {
                     betweenTokens = true;
                 }
-                prevToken = token;
-                prevWasBoundary = false;
                 if (betweenTokens) {
+                    assert !prevWasBoundary;
                     if (alignments[iAlign].trim().equals(possibleBnd)) {
                         // Need to insert a boundary before token
                         System.out.println("  inserted boundary in xml");
                         Element b = MaryXML.createElement(doc, MaryXML.BOUNDARY);
                         b.setAttribute("breakindex", "3");
                         token.getParentNode().insertBefore(b, token);
-                    }
+                    } else if (!alignments[iAlign].trim().equals("")) {
+                        // one or more phones were inserted into the transcription
+                        // -- treat them as word-final, i.e. insert them into the last syllable in prevToken
+                        Element syllable = null;
+                        Element ref = null; // insert before null = insert at the end
+                        NodeList prevSyllables = prevToken.getElementsByTagNameNS(MaryXML.getNamespace(), MaryXML.SYLLABLE);
+                        if (prevSyllables.getLength() > 0) { // insert at end of previous token
+                            syllable = (Element) prevSyllables.item(prevSyllables.getLength() - 1);
+                            ref = null;
+                        } else { // insert at beginning of current token
+                            syllable = (Element) e.getParentNode();
+                            ref = e; // insert before current phone
+                        }
+                        String[] newPh = alignments[iAlign].trim().split("\\s+");
+                        for (int i=0; i<newPh.length; i++) {
+                            Element newPhElement = MaryXML.createElement(doc, MaryXML.PHONE);
+                            newPhElement.setAttribute("p", newPh[i]);
+                            syllable.insertBefore(newPhElement, ref);
+                            System.out.println(" inserted phone from transcription: "+newPh[i]);
+                        }
+                    } // else it is an empty word boundary marker
                     iAlign++; // move beyond the marker between tokens
                 }
+                prevToken = token;
+                prevWasBoundary = false;
                 System.out.println("Ph = "+e.getAttribute("p")+", align = "+ alignments[iAlign]);
                 if (alignments[iAlign].trim().equals("")) {
                     // Need to delete the current <ph> element
