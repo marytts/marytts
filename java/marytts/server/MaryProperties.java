@@ -42,7 +42,6 @@ import javax.swing.JOptionPane;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.modules.ModuleRegistry;
 import marytts.signalproc.effects.BaseAudioEffect;
-import marytts.util.InstallationUtils;
 import marytts.util.MaryUtils;
 
 
@@ -426,52 +425,11 @@ public class MaryProperties
     {
         String requirer = reqProps.getProperty("name");
         String problem = "Component `"+missing+"' is required by `"+requirer+"',\n"+
-        "but "+message+".";
-        
-        String component = reqProps.getProperty("requires."+missing+".download.package-name", missing).trim();
-        String download = reqProps.getProperty("requires."+missing+".download");
-        if (missing.contains("voice")) {
-            int answer = JOptionPane.showConfirmDialog(null,
-                    problem+"\n"+
-                    "Would you like to download `"+ component +"'\nusing the MARY Voice Installer?",
-                    "Dependency problem",
-                    JOptionPane.YES_NO_OPTION);
-            if (answer == JOptionPane.YES_OPTION) {
-                // Try to install it via the voice installer
-                // run(), not start(), so that the code is executed in the current thread
-                //new VoiceInstaller(component, false).run();
-                JOptionPane.showMessageDialog(null, "Not yet implemented. See ticket at http://mary.opendfki.de/ticket/234.");
-            }
-        } else if (download != null) {
-            int answer = JOptionPane.showConfirmDialog(null,
-                    problem+"\n"+
-                    "Would you like to download `"+ component +"' from\n" + download + "?",
-                    "Dependency problem",
-                    JOptionPane.YES_NO_OPTION);
-            if (answer == JOptionPane.YES_OPTION) {
-                System.getProperties().setProperty("licensepanel.title", "Installing "+component);
-                try {
-                    // TODO: The AutomatedInstaller in IzPack calls System.exit(),
-                    // so this does not return -- replace with own AutomatedInstaller?
-                    //InstallationUtils.directRunInstaller(new URL(download), component);
-                    InstallationUtils.downloadAndRunInstaller(new URL(download), component);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    return null;
-                }
-                if (new File(maryBase()+"/conf/"+component+".config").exists()) {
-                    // apparently, the component has now been installed
-                    return component;
-                }
-            }
-            
-        } else {
-            // no download option, just inform.
-            JOptionPane.showMessageDialog(null,
-                    problem,
-                    "Dependency problem",
-                    JOptionPane.ERROR_MESSAGE);            
-        }
+        "but "+message+".\nTry running the MARY component installer to resolve this problem.";
+        JOptionPane.showMessageDialog(null,
+                problem,
+                "Dependency problem",
+                JOptionPane.ERROR_MESSAGE);      
         return null;
     }
     
