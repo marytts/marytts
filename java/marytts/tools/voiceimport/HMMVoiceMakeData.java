@@ -174,16 +174,48 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
       if( Integer.parseInt(getProp(LF0)) == 1 ){
           cmdLine = "cd " + voiceDir + "hts/data\nmake lf0\n";
           General.launchBatchProc(cmdLine, "", voiceDir);
-      }
-      if( Integer.parseInt(getProp(MAG)) == 1 ){
-          cmdLine = "cd " + voiceDir + "hts/data\nmake mag\n";
+      }     
+      if( Integer.parseInt(getProp(STR)) == 1 ){
+          cmdLine = "cd " + voiceDir + "hts/data\nmake str-mary\n";
           General.launchBatchProc(cmdLine, "", voiceDir);
       }
-      if( Integer.parseInt(getProp(STR)) == 1 ){
-          cmdLine = "cd " + voiceDir + "hts/data\nmake str\n";
+      if( Integer.parseInt(getProp(MAG)) == 1 ){
+          cmdLine = "cd " + voiceDir + "hts/data\nmake mag-mary\n";
           General.launchBatchProc(cmdLine, "", voiceDir);
       }
       if( Integer.parseInt(getProp(CMPMARY)) == 1 ){
+          // Check, at least, that there is data in the directories mgc, lf0, str and mag
+          System.out.println("\nConcatenating mgc, lf0, str and mag data:");
+          File dirMgc = new File(voiceDir + "hts/data/mgc");          
+          if( dirMgc.exists() && dirMgc.list().length > 0 ){ 
+            System.out.println(voiceDir + "hts/data/mgc contains files");
+          } else {            
+              throw new Exception("Error: directory " + voiceDir + "hts/data/mgc " + " does not exist or does not contain data files.\n" +
+                    "These data files can be generated setting the option HMMVoiceMakeData.makeMGC = 1" );  
+          }
+          File dirLf0 = new File(voiceDir + "hts/data/lf0");          
+          if( dirLf0.exists() && dirLf0.list().length > 0 ){ 
+            System.out.println(voiceDir + "hts/data/lf0 contains files");
+          } else {            
+              throw new Exception("Error: directory " + voiceDir + "hts/data/lf0 " + " does not exist or does not contain files.\n" +
+                    "These data files can be generated setting the option HMMVoiceMakeData.makeLF0 = 1" );  
+          }
+          File dirStr = new File(voiceDir + "hts/data/str");          
+          if( dirStr.exists() && dirStr.list().length > 0 ){ 
+            System.out.println(voiceDir + "hts/data/str contains files");
+          } else {            
+              throw new Exception("Error: directory " + voiceDir + "hts/data/str " + " does not exist or does not contain files.\n" +
+                    "These data files can be generated setting the option HMMVoiceMakeData.makeSTR = 1" );  
+          }
+          File dirMag = new File(voiceDir + "hts/data/mag");          
+          if( dirMag.exists() && dirMag.list().length > 0 ){ 
+            System.out.println(voiceDir + "hts/data/mag contains files");
+          } else {            
+              throw new Exception("Error: directory " + voiceDir + "hts/data/mag " + " does not exist or does not contain files.\n" +
+                    "These data files can be generated setting the option HMMVoiceMakeData.makeMAG = 1" );  
+          }
+          
+          // If the directories at leas contain files                 
           cmdLine = "cd " + voiceDir + "hts/data\nmake cmp-mary\n";
           General.launchBatchProc(cmdLine, "", voiceDir);
       }
