@@ -466,6 +466,43 @@ public class FeatureDefinition
     }
     
     /**
+     * Query a feature as identified by the given featureName as to whether the given featureValue
+     * is a known value of that feature. In other words, this will return true exactly if
+     * the given feature is a byte feature and getFeatureValueAsByte(featureName, featureValue) will not throw an exception
+     * or if the given feature is a short feature and getFeatureValueAsShort(featureName, featureValue) will not throw an exception.
+     * 
+     * @param featureName
+     * @param featureValue
+     * @return
+     */
+    public boolean hasFeatureValue(String featureName, String featureValue) {
+        return hasFeatureValue(getFeatureIndex(featureName), featureValue);
+    }
+    
+    /**
+     * Query a feature as identified by the given featureIndex as to whether the given featureValue
+     * is a known value of that feature. In other words, this will return true exactly if
+     * the given feature is a byte feature and getFeatureValueAsByte(featureIndex, featureValue) will not throw an exception
+     * or if the given feature is a short feature and getFeatureValueAsShort(featureIndex, featureValue) will not throw an exception.
+     * 
+     * @param featureIndex
+     * @param featureValue
+     * @return
+     */
+    public boolean hasFeatureValue(int featureIndex, String featureValue) {
+        if (featureIndex < 0) {
+            return false;
+        }
+        if (featureIndex < numByteFeatures) {
+            return byteFeatureValues[featureIndex].contains(featureValue);
+        }
+        if (featureIndex < numByteFeatures+numShortFeatures) {
+            return shortFeatureValues[featureIndex-numByteFeatures].contains(featureValue);
+        }
+        return false;
+    }
+    
+    /**
      * Determine whether the feature with the given name is a byte feature.
      * @param featureName
      * @return true if the feature is a byte feature, false if the feature
