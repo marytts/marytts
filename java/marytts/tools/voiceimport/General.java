@@ -555,6 +555,11 @@ public class General
             proctmp = Runtime.getRuntime().exec( "chmod +x "+tmpFile );
             proctmp.waitFor();
             if ( proctmp.exitValue() != 0 ) {
+                BufferedReader errReader = new BufferedReader(new InputStreamReader(proctmp.getErrorStream()));
+                while ((line = errReader.readLine()) != null) {
+                    System.err.println("ERR> "+line);
+                }
+                errReader.close();
                 throw new RuntimeException( task + " computation failed on file [" + filedir + "]!\n"
                         + "Command line was: [chmod +x " + tmpFile + "]." );
             }
@@ -579,6 +584,11 @@ public class General
             /* Wait and check the exit value */
             proc.waitFor();
             if ( proc.exitValue() != 0 ) {
+                BufferedReader errReader = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+                while ((line = errReader.readLine()) != null) {
+                    System.err.println("ERR> "+line);
+                }
+                errReader.close();
                 throw new RuntimeException( task + " computation failed on file [" + filedir + "]!\n"
                         + "Command line was: [" + cmdLine + "]." );
             }

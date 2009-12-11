@@ -340,6 +340,11 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
             /* Wait and check the exit value */
             proc.waitFor();
             if ( proc.exitValue() != 0 ) {
+                BufferedReader errReader = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+                while ((line = errReader.readLine()) != null) {
+                    System.err.println("ERR> "+line);
+                }
+                errReader.close();
                 throw new RuntimeException( task + " computation failed on file [" + voicedir + "]!\n"
                         + "Command line was: [" + cmdLine + "]." );
             }
