@@ -183,6 +183,8 @@ public class BackchannelSynthesizer {
             if( domElement.hasAttribute( featName ) ) {
                 featValue = domElement.getAttribute(featName);
             }
+            boolean hasFeature = featDef.hasFeatureValue(featName, featValue);
+            if( !hasFeature ) featValue = "0";
             
             if ( featDef.isByteFeature(i) ) {
                 byteFeatures[byteCount++]   = featDef.getFeatureValueAsByte(i, featValue);
