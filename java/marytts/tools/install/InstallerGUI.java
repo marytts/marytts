@@ -23,6 +23,7 @@ package marytts.tools.install;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -82,12 +83,35 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
     private String version = Version.specificationVersion();
     
     /** Creates new form InstallerGUI */
-    public InstallerGUI()
+    public InstallerGUI() {
+        this(null);
+    }
+    
+    
+    /**
+     * Creates new installer gui and fills it with content from the given URL.
+     * @param maryComponentURL
+     */
+    public InstallerGUI(String maryComponentURL)
     {
         this.languages = new TreeMap<String, LanguageComponentDescription>();
         this.voices = new TreeMap<String, VoiceComponentDescription>();
         initComponents();
         customInitComponents();
+        if (maryComponentURL != null) {
+            setAndUpdateFromMaryComponentURL(maryComponentURL);
+        }
+    }
+    
+    public void setAndUpdateFromMaryComponentURL(String maryComponentURL) {
+        try {
+            URL url = new URL(maryComponentURL);
+            // if this doesn't fail then it's OK, we can set it
+            tfComponentListURL.setText(maryComponentURL);
+            updateFromMaryComponentURL();
+        } catch (MalformedURLException e) {
+            // ignore, treat as unset value
+        }
     }
     
     public void addLanguagesAndVoices(InstallFileParser p)
@@ -108,7 +132,7 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
                 } else { // both not installed: show only higher version number
                     if (desc.getVersion().compareTo(existing.getVersion()) > 0) {
                         languages.put(desc.getName(), desc);
-                    }
+                    } // else leave existing as is
                 }
             } else { // no such entry yet
                 languages.put(desc.getName(), desc);
@@ -118,11 +142,19 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
             if (voices.containsKey(desc.getName())) {
                 VoiceComponentDescription existing = voices.get(desc.getName());
                 // Check if one is an update of the other
-                if (desc.isUpdateOf(existing)) {
-                    existing.setAvailableUpdate(desc);
-                } else if (existing.isUpdateOf(desc)) {
-                    desc.setAvailableUpdate(existing);
+                if (existing.getStatus() == Status.INSTALLED) {
+                    if (desc.isUpdateOf(existing)) {
+                        existing.setAvailableUpdate(desc);
+                    }
+                } else if (desc.getStatus() == Status.INSTALLED) {
                     voices.put(desc.getName(), desc);
+                    if (existing.isUpdateOf(desc)) {
+                        desc.setAvailableUpdate(existing);
+                    }
+                } else { // both not installed: show only higher version number
+                    if (desc.getVersion().compareTo(existing.getVersion()) > 0) {
+                        voices.put(desc.getName(), desc);
+                    } // else leave existing as is
                 }
             } else { // no such entry yet
                 voices.put(desc.getName(), desc);
@@ -166,6 +198,11 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
 
         pDownload.setBorder(javax.swing.BorderFactory.createTitledBorder("Download languages and voices from:"));
         tfComponentListURL.setText("http://mary.dfki.de/download/"+version+"/mary-components.xml");
+        tfComponentListURL.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tfComponentListURLActionPerformed(evt);
+            }
+        });
 
         bUpdate.setText("Update");
         bUpdate.addActionListener(new java.awt.event.ActionListener() {
@@ -315,6 +352,10 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void tfComponentListURLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfComponentListURLActionPerformed
+        updateFromMaryComponentURL();
+    }//GEN-LAST:event_tfComponentListURLActionPerformed
+
     private void miProxy1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miProxy1ActionPerformed
         ProxyPanel prp = new ProxyPanel(System.getProperty("http.proxyHost"), System.getProperty("http.proxyPort"));
         final JOptionPane optionPane = new JOptionPane(prp, JOptionPane.PLAIN_MESSAGE, JOptionPane.YES_NO_OPTION, null, new String[] {"OK", "Cancel"}, "OK");
@@ -351,6 +392,10 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
     }//GEN-LAST:event_bInstallActionPerformed
 
     private void bUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bUpdateActionPerformed
+        updateFromMaryComponentURL();
+    }//GEN-LAST:event_bUpdateActionPerformed
+
+    private void updateFromMaryComponentURL() throws HeadlessException {
         String urlString = tfComponentListURL.getText().trim().replaceAll(" ", "%20");
         try {
             URL url = new URL(urlString);
@@ -364,7 +409,7 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
             String message = sw.toString();
             JOptionPane.showMessageDialog(this, "Problem retrieving component list:\n"+message);
         }
-    }//GEN-LAST:event_bUpdateActionPerformed
+    }
 
     private void windowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_windowClosing
         confirmExit();
@@ -511,23 +556,23 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
                 // Two options for fulfilling the dependency: either it is already installed, or it is in toInstall
                 LanguageComponentDescription lcd = languages.get(depLang);
                 if (lcd == null) {
-                    unmetDependencies.put(depLang, "No such language component");
+                    unmetDependencies.put(depLang, "-- no such language component");
                 } else if (lcd.getStatus() == Status.INSTALLED) {
                     if (lcd.getVersion().compareTo(depVersion) < 0) {
                         ComponentDescription update = lcd.getAvailableUpdate();
                         if (update == null) {
-                            unmetDependencies.put(depLang, "Version "+depVersion+" is required by "+vcd.getName()+",\nbut older version "+lcd.getVersion()+" is installed and no update is available");
+                            unmetDependencies.put(depLang, "version "+depVersion+" is required by "+vcd.getName()+",\nbut older version "+lcd.getVersion()+" is installed and no update is available");
                         } else if (update.getVersion().compareTo(depVersion) < 0) {
-                            unmetDependencies.put(depLang, "Version "+depVersion+" is required by "+vcd.getName()+",\nbut only version "+update.getVersion()+" is available as an update");
+                            unmetDependencies.put(depLang, "version "+depVersion+" is required by "+vcd.getName()+",\nbut only version "+update.getVersion()+" is available as an update");
                         } else if (!toInstall.contains(lcd)) {
-                            unmetDependencies.put(depLang, "Version "+depVersion+" is required by "+vcd.getName()+",\nbut older version "+lcd.getVersion()+" is installed\nand update to version "+update.getVersion()+" is not selected for installation");
+                            unmetDependencies.put(depLang, "version "+depVersion+" is required by "+vcd.getName()+",\nbut older version "+lcd.getVersion()+" is installed\nand update to version "+update.getVersion()+" is not selected for installation");
                         }
                     }
                 } else if (!toInstall.contains(lcd)) {
                     if (lcd.getVersion().compareTo(depVersion) >= 0) {
-                        unmetDependencies.put(depLang, "Component is required  by "+vcd.getName()+"\nbut is not selected for installation");
+                        unmetDependencies.put(depLang, "is required  by "+vcd.getName()+"\nbut is not selected for installation");
                     } else {
-                        unmetDependencies.put(depLang, "Version "+depVersion+" is required by "+vcd.getName()+",\nbut only older version "+lcd.getVersion()+" is available");
+                        unmetDependencies.put(depLang, "version "+depVersion+" is required by "+vcd.getName()+",\nbut only older version "+lcd.getVersion()+" is available");
                     }
                 }
             }
@@ -536,7 +581,7 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
         if (unmetDependencies.size() > 0) {
             StringBuilder buf = new StringBuilder();
             for (String compName : unmetDependencies.keySet()) {
-                buf.append("Component ").append(compName).append(": ").append(unmetDependencies.get(compName)).append("\n");
+                buf.append("Component ").append(compName).append(" ").append(unmetDependencies.get(compName)).append("\n");
             }
             JOptionPane.showMessageDialog(this, buf.toString(), "Dependency problem", JOptionPane.WARNING_MESSAGE);
             return;
@@ -741,6 +786,10 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
             } catch (Exception exc) {
                 exc.printStackTrace();
             }
+        }
+        
+        if (args.length > 0) {
+            g.setAndUpdateFromMaryComponentURL(args[0]);
         }
         
         g.setVisible(true);
