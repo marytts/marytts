@@ -104,6 +104,9 @@
               <Connection code="&quot;http://mary.dfki.de/download/&quot;+version+&quot;/mary-components.xml&quot;" type="code"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tfComponentListURLActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="bUpdate">
           <Properties>
