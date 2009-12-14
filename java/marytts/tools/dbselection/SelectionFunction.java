@@ -91,6 +91,7 @@ public class SelectionFunction{
         stopSimpleProsody = false;
         stopClusteredProsody = false;
         //split the stopString
+        System.out.println("\nChecking stop criterion:");
         String[] split = stopString.split(" ");
         int i=0;
         while (split.length > i){
