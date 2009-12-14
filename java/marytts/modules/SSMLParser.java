@@ -47,7 +47,6 @@ public class SSMLParser extends InternalModule
     // One stylesheet can be used (read) by multiple threads:
     private static Templates stylesheet = null;
 
-    private Transformer transformer = null;
     private DocumentBuilderFactory dbFactory = null;
     private DocumentBuilder docBuilder = null;
     private boolean doWarnClient = false;
@@ -81,9 +80,6 @@ public class SSMLParser extends InternalModule
         if (docBuilder == null) {
             docBuilder = dbFactory.newDocumentBuilder();
         }
-        if (transformer == null) {
-            transformer = stylesheet.newTransformer();
-        }
         super.startup();
     }
 
@@ -92,6 +88,7 @@ public class SSMLParser extends InternalModule
     {
         DOMSource domSource = new DOMSource(d.getDocument());
 
+        Transformer transformer = stylesheet.newTransformer();
         // Log transformation errors to client:
         if (doWarnClient) {
             // Use custom error handler:

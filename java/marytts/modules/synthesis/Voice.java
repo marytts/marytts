@@ -262,7 +262,7 @@ public class Voice
     }
     
     
-    public Vector<MaryModule> getPreferredModulesAcceptingType(MaryDataType type)
+    public synchronized Vector<MaryModule> getPreferredModulesAcceptingType(MaryDataType type)
     {
         if (preferredModules == null && preferredModulesClasses != null) {
             // need to initialise the list of modules
