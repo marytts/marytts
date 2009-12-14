@@ -66,13 +66,14 @@ public class SynthesisScriptGUI extends JPanel implements TableModelListener{
     private static String tableName   = "test";
     private static String actualTableName   = locale + "_test_selectedSentences";
     // Additonal for databaseSelector
+    private static String currentDir = System.getProperty("user.dir");
     private static String tableDesc = "add here a table description";
-    private static String feaDefFile = "/project/mary/marcela/anna_wikipedia/en_US_featureDefinition.txt";
+    private static String feaDefFile = currentDir + "/" + locale + "_featureDefinition.txt";
     private static String stop = "numSentences 30 simpleDiphones simpleProsody";
-    private static String covConfFile = "/project/mary/marcela/anna_wikipedia/covDef.config";
-    private static String initFile = "/project/mary/marcela/anna_wikipedia/init.bin";
-    private static String overallLogFile = "/project/mary/marcela/anna_wikipedia/overallLog.txt";
-    private static String selecDir = "/project/mary/marcela/anna_wikipedia/selection";
+    private static String covConfFile = currentDir + "/covDef.config";
+    private static String initFile = currentDir + "/init.bin";
+    private static String overallLogFile = currentDir + "/overallLog.txt";
+    private static String selecDir = currentDir + "/selection";
     private static String vectorsOnDisk = "false";
     private static String logCovDevelopment = "false";
     private static String verbose = "false";
