@@ -128,6 +128,7 @@ public class OpenNLPPosTagger extends InternalModule
         }
     }
 
+    @SuppressWarnings("unchecked")
     public MaryData process(MaryData d)
     throws Exception
     {
@@ -142,7 +143,10 @@ public class OpenNLPPosTagger extends InternalModule
             while ((t = (Element) tokenIt.nextNode()) != null) {
                 tokens.add(MaryDomUtils.tokenText(t));
             }
-            List<String> partsOfSpeech = tagger.tag(tokens);
+            List<String> partsOfSpeech = null;
+            synchronized(this) {
+                partsOfSpeech = tagger.tag(tokens);
+            }
             tokenIt.setCurrentNode(sentence); // reset treewalker so we can walk through once again
             Iterator<String> posIt = partsOfSpeech.iterator();
             while ((t = (Element) tokenIt.nextNode()) != null) {
