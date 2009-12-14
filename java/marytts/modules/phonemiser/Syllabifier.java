@@ -107,12 +107,14 @@ public class Syllabifier
         it = phoneList.listIterator(0);
         int minSonority = 7; // one higher than possible maximum.
         int minIndex = -1; // position of the sonority minimum
+        int syllableStart = -1;
         while (it.hasNext()) {
             String s = it.next();
             if (s.equals("-")) {
                 // Forget about all valleys:
                 minSonority = 7;
                 minIndex = -1;
+                syllableStart = it.previousIndex();
             } else {
                 Allophone ph = getAllophone(s);
                 if (ph != null && ph.sonority() < minSonority) {
@@ -121,7 +123,7 @@ public class Syllabifier
                 } else if (ph != null && ph.sonority() >= 4) {
                     // Found a vowel. Now, if there is a (non-initial) sonority
                     // valley before this vowel, insert a valley marker:
-                    if (minIndex > 0) {
+                    if (minIndex > syllableStart + 1) {
                         int steps = 0;
                         while (it.nextIndex() > minIndex) {
                             steps++;
