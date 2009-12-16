@@ -19,22 +19,15 @@
  */
 package marytts.language.tib;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.WeakHashMap;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -43,6 +36,7 @@ import marytts.language.tib.datatypes.TibetanDataTypes;
 import marytts.modules.InternalModule;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
+import marytts.modules.KlattDurationModeller.KlattDurationParams;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
@@ -56,7 +50,6 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
-import org.xml.sax.SAXException;
 
 
 /**
@@ -1567,42 +1560,6 @@ public class KlattDurationModeller extends InternalModule {
             volume = value;
         }
 
-    }
-
-    public static class KlattDurationParams
-    {
-        private Map<String,Integer> inh = new HashMap<String, Integer>();
-        private Map<String,Integer> min = new HashMap<String, Integer>();
-        
-        public KlattDurationParams(String filename)
-        throws SAXException, IOException, ParserConfigurationException
-        {
-            // parse the xml file:
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setValidating(false);
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(new File(filename));
-            // In document, ignore everything that is not a segment element:
-            NodeList segElements = document.getElementsByTagName("segment");
-            for (int i=0; i<segElements.getLength(); i++) {
-                Element seg = (Element) segElements.item(i);
-                String name = seg.getAttribute("s");
-                int inherentDuration = Integer.parseInt(seg.getAttribute("inh"));
-                int minimalDuration = Integer.parseInt(seg.getAttribute("min"));
-                inh.put(name, inherentDuration);
-                min.put(name, minimalDuration);
-            }
-        }
-        
-        public int getInhDuration(String ph)
-        {
-            return inh.get(ph);
-        }
-        
-        public int getMinDuration(String ph)
-        {
-            return min.get(ph);
-        }
     }
 }
 
