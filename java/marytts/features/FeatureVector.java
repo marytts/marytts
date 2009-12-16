@@ -41,6 +41,7 @@ import java.io.IOException;
  */
 public class FeatureVector
 {
+    public enum FeatureType {byteValued, shortValued, floatValued}; 
     public final int unitIndex;
     public final byte[] byteValuedDiscreteFeatures;
     public final short[] shortValuedDiscreteFeatures;
@@ -67,6 +68,20 @@ public class FeatureVector
         return (!edgeValue.equals(FeatureDefinition.NULLVALUE));
     }
     
+    public FeatureType getFeatureType(int featureIndex) {
+        FeatureType t = null;
+        if (featureIndex < 0 || featureIndex >= byteValuedDiscreteFeatures.length + shortValuedDiscreteFeatures.length + continuousFeatures.length) {
+            throw new IllegalArgumentException("Index "+featureIndex+" is out of range [0, "+getLength()+"[");
+        }
+        if (featureIndex < byteValuedDiscreteFeatures.length) {
+            t = FeatureType.byteValued;
+        } else if (featureIndex < byteValuedDiscreteFeatures.length + shortValuedDiscreteFeatures.length) {
+            t = FeatureType.shortValued;
+        } else if (featureIndex < byteValuedDiscreteFeatures.length + shortValuedDiscreteFeatures.length + continuousFeatures.length) {
+            t = FeatureType.floatValued;
+        }
+        return t;
+    }
     
     /**
      * Get the total number of features in this feature vector.

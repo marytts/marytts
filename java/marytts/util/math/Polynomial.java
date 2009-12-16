@@ -253,6 +253,119 @@ public class Polynomial
         return new Polynomial(meanCoeffs);
     }
     
+    /**
+     * Compute the mean polynomial from the given polynomials,
+     * by building a polynomial of the averaged coefficients.
+     * @param p the polynomials from which to compute the mean. they must all have the same order
+     * @return the mean polynomial, of the same order.
+     */
+    public static double[] mean(double[][] p) {
+        int order = p[0].length - 1;
+        double[] meanCoeffs = new double[order + 1];
+        for (int k=0; k<=order; k++) {
+            for (int i=0; i<p.length; i++) {
+                meanCoeffs[k] += p[i][k];
+            }
+            meanCoeffs[k] /= p.length;
+        }
+        return meanCoeffs;
+    }
+
+    /**
+     * Compute the mean polynomial from the given polynomials,
+     * by building a polynomial of the averaged coefficients.
+     * @param p the polynomials from which to compute the mean. they must all have the same order
+     * @return the mean polynomial, of the same order.
+     */
+    public static float[] mean(float[][] p) {
+        int order = p[0].length - 1;
+        float[] meanCoeffs = new float[order + 1];
+        for (int k=0; k<=order; k++) {
+            for (int i=0; i<p.length; i++) {
+                meanCoeffs[k] += p[i][k];
+            }
+            meanCoeffs[k] /= p.length;
+        }
+        return meanCoeffs;
+    }
+
+    /**
+     * For the given collection of polynomials, for which a mean polynomial
+     * has already been computed using @see{#mean(Polynomial[])}, compute a
+     * variance as follows.
+     * 
+     * <p>
+     * <code> V = 1/(p-1) * sum i from 0 to p-1 of integral from 0 to 1 of (p[i]-mean)^2</code>;
+     * in other words, the sum of the squared distances (@see{#polynomialSquaredDistance()})
+     * between each polynomial in p and the mean, divided by (p-1).
+     * </p> 
+     *  
+     * @param p
+     * @param mean
+     * @return the variance, a single non-negative double value.
+     */
+    public static double variance(Polynomial[] p, Polynomial mean) {
+        if (p.length <= 1) {
+            return 0;
+        }
+        double variance = 0;
+        for (int i=0; i<p.length; i++) {
+            variance += polynomialSquaredDistance(mean.coeffs, p[i].coeffs);
+        }
+        return variance / (p.length - 1);
+    }
+    
+    /**
+     * For the given collection of polynomials, for which a mean polynomial
+     * has already been computed using @see{#mean(double[][])}, compute a
+     * variance as follows.
+     * 
+     * <p>
+     * <code> V = 1/(p-1) * sum i from 0 to p-1 of integral from 0 to 1 of (p[i]-mean)^2</code>;
+     * in other words, the sum of the squared distances (@see{#polynomialSquaredDistance()})
+     * between each polynomial in p and the mean, divided by (p-1).
+     * </p> 
+     *  
+     * @param p
+     * @param mean
+     * @return the variance, a single non-negative double value.
+     */
+    public static double variance(double[][] p, double[] mean) {
+        if (p.length <= 1) {
+            return 0;
+        }
+        double variance = 0;
+        for (int i=0; i<p.length; i++) {
+            variance += polynomialSquaredDistance(mean, p[i]);
+        }
+        return variance / (p.length - 1);
+    }
+
+    /**
+     * For the given collection of polynomials, for which a mean polynomial
+     * has already been computed using @see{#mean(float[][])}, compute a
+     * variance as follows.
+     * 
+     * <p>
+     * <code> V = 1/(p-1) * sum i from 0 to p-1 of integral from 0 to 1 of (p[i]-mean)^2</code>;
+     * in other words, the sum of the squared distances (@see{#polynomialSquaredDistance()})
+     * between each polynomial in p and the mean, divided by (p-1).
+     * </p> 
+     *  
+     * @param p
+     * @param mean
+     * @return the variance, a single non-negative double value.
+     */
+    public static double variance(float[][] p, float[] mean) {
+        if (p.length <= 1) {
+            return 0;
+        }
+        double variance = 0;
+        for (int i=0; i<p.length; i++) {
+            variance += polynomialSquaredDistance(mean, p[i]);
+        }
+        return variance / (p.length - 1);
+    }
 
     /**
      * Compute the integrated distance between two polynomials of same order.
