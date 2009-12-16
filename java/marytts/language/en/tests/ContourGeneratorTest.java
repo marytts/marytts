@@ -20,7 +20,7 @@
 package marytts.language.en.tests;
 
 import marytts.datatypes.MaryData;
-import marytts.language.en.ContourGenerator;
+import marytts.modules.TobiContourGenerator;
 import marytts.tests.modules.MaryModuleTestCase;
 import marytts.util.dom.DomUtils;
 
@@ -37,7 +37,7 @@ public class ContourGeneratorTest extends MaryModuleTestCase {
     public ContourGeneratorTest() throws Exception
     {
         super(true); // do need Mary startup
-        module = new ContourGenerator();
+        module = new TobiContourGenerator("en_US");
         module.startup();
     }
     
