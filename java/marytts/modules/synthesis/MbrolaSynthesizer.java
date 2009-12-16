@@ -79,7 +79,7 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
             maryxmlToMbrola.startup();
         }
         String mbrolaCallerProperty;
-        if (System.getProperty("os.name").startsWith("Windows")) {
+        if (System.getProperty("os.name").startsWith("Windows") && false) { // let's try without this, use cygwin binary instead...
             mbrolaCallerProperty = "mbrolasynthesizer.mbrolacaller.class.win32"; 
         } else {
             mbrolaCallerProperty = "mbrolasynthesizer.mbrolacaller.class";
