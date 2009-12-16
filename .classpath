@@ -11,6 +11,7 @@
 	<classpathentry kind="lib" path="java/opennlp-tools-1.4.1.jar"/>
 	<classpathentry kind="lib" path="java/Jampack.jar" sourcepath="java/Jampack.jar"/>
 	<classpathentry kind="lib" path="java/hsqldb.jar"/>
+	<classpathentry kind="lib" path="java/junit-4.7.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="build/standalone-compiler.jar" sourcepath="/Users/marc/src/IzPack-3.10.2/src/lib"/>
 	<classpathentry kind="lib" path="java/commons-collections-3.2.1.jar"/>
@@ -21,7 +22,6 @@
 	<classpathentry kind="lib" path="java/java-diff.jar"/>
 	<classpathentry kind="lib" path="java/JavaOpenAIR.jar"/>
 	<classpathentry kind="lib" path="java/jtok.jar"/>
-	<classpathentry kind="lib" path="java/junit-4.5.jar"/>
 	<classpathentry kind="lib" path="java/maxent-2.5.1.jar"/>
 	<classpathentry kind="lib" path="java/mwdumper-2008-04-13.jar"/>
 	<classpathentry kind="lib" path="java/mysql-connector-java-5.1.7-bin.jar"/>
