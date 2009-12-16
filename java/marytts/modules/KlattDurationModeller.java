@@ -20,20 +20,26 @@
 
 package marytts.modules;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.WeakHashMap;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.language.tib.KlattDurationModeller.KlattDurationParams;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
@@ -48,6 +54,7 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
+import org.xml.sax.SAXException;
 
 
 /**
@@ -59,7 +66,7 @@ import org.w3c.dom.traversal.TreeWalker;
 public class KlattDurationModeller extends InternalModule {
     private String localePrefix;
     private AllophoneSet allophoneSet;
-    private KlattDurationParams klattDurationParams;
+    private KlattDurationModeller.KlattDurationParams klattDurationParams;
     private Properties klattRuleParams;
     /** This map contains the topline-baseline frequency configurations for the
      * currently used phrase and sub-phrase prosody elements. As this is a
@@ -98,7 +105,7 @@ public class KlattDurationModeller extends InternalModule {
         klattRuleParams.load(new FileInputStream(MaryProperties.needFilename(localePrefix+".cap.klattrulefile")));
         // load phone list
         allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename(localePrefix+".allophoneset"));
-        klattDurationParams = new KlattDurationParams(MaryProperties.needFilename(localePrefix+".cap.klattdurfile"));
+        klattDurationParams = new KlattDurationModeller.KlattDurationParams(MaryProperties.needFilename(localePrefix+".cap.klattdurfile"));
         // instantiate the Map in which settings are associated with elements:
         // (when the objects serving as keys are not in ordinary use any more,
         // the key-value pairs are deleted from the WeakHashMap earlier or
@@ -1487,6 +1494,42 @@ public class KlattDurationModeller extends InternalModule {
             volume = value;
         }
 
+    }
+
+    public static class KlattDurationParams
+    {
+        private Map<String,Integer> inh = new HashMap<String, Integer>();
+        private Map<String,Integer> min = new HashMap<String, Integer>();
+        
+        public KlattDurationParams(String filename)
+        throws SAXException, IOException, ParserConfigurationException
+        {
+            // parse the xml file:
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setValidating(false);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(new File(filename));
+            // In document, ignore everything that is not a segment element:
+            NodeList segElements = document.getElementsByTagName("segment");
+            for (int i=0; i<segElements.getLength(); i++) {
+                Element seg = (Element) segElements.item(i);
+                String name = seg.getAttribute("s");
+                int inherentDuration = Integer.parseInt(seg.getAttribute("inh"));
+                int minimalDuration = Integer.parseInt(seg.getAttribute("min"));
+                inh.put(name, inherentDuration);
+                min.put(name, minimalDuration);
+            }
+        }
+        
+        public int getInhDuration(String ph)
+        {
+            return inh.get(ph);
+        }
+        
+        public int getMinDuration(String ph)
+        {
+            return min.get(ph);
+        }
     }
 
     
