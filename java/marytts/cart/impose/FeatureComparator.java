@@ -28,14 +28,15 @@ public class FeatureComparator implements Comparator<FeatureVector> {
  
     /** The index of the feature to be compared in the feature vector. */
     private int I = -1;
+    private FeatureVector.FeatureType type = null;
 
     /**
      * Constructor which initializes the feature index.
      * @param setI The index of the feature to be compared on the next
      * run of the comparator.
      */
-    public FeatureComparator( int setI ) {
-        setFeatureIdx( setI );
+    public FeatureComparator( int setI, FeatureVector.FeatureType featureType ) {
+        setFeatureIdx( setI, featureType );
     }
     
     /**
@@ -43,8 +44,9 @@ public class FeatureComparator implements Comparator<FeatureVector> {
      * @param setI The index of the feature to be compared on the next
      * run of the comparator.
      */
-    public void setFeatureIdx( int setI ) {
+    public void setFeatureIdx( int setI, FeatureVector.FeatureType featureType ) {
         I = setI;
+        type = featureType;
     }
     
     /**
@@ -69,9 +71,22 @@ public class FeatureComparator implements Comparator<FeatureVector> {
      * @see FeatureComparator#setFeatureIdx(int)
      */
     public int compare( FeatureVector a, FeatureVector b ) {
-        Comparable n1 = (Comparable)( a.getFeature( I ) );
-        Comparable n2 = (Comparable)( b.getFeature( I ) );
-        return( n1.compareTo( n2 ) );
+        switch(type) {
+        case byteValued:
+            return a.byteValuedDiscreteFeatures[I] - b.byteValuedDiscreteFeatures[I];
+        case shortValued:
+            int offset = a.byteValuedDiscreteFeatures.length;
+            return a.shortValuedDiscreteFeatures[I-offset] - b.shortValuedDiscreteFeatures[I-offset];
+        case floatValued:
+            int offset2 = a.byteValuedDiscreteFeatures.length + a.shortValuedDiscreteFeatures.length;
+            float delta = a.continuousFeatures[I-offset2] - b.continuousFeatures[I-offset2]; 
+            if (delta > 0) return 1;
+            else if (delta < 0) return -1;
+            return 0;
+        default:
+            throw new IllegalStateException("compare called with feature index "+I+" and feature type "+type);
+        }
+        
     }
     
     /**
@@ -93,7 +108,7 @@ public class FeatureComparator implements Comparator<FeatureVector> {
 class UnitIndexComparator implements Comparator<FeatureVector> {
     
     public int compare( FeatureVector a, FeatureVector b ) {
-        return( a.getUnitIndex() - b.getUnitIndex() );
+        return a.unitIndex - b.unitIndex;
     }
 
 }

@@ -36,7 +36,7 @@ public class FeatureArrayIndexer
     
     private MaryNode tree = null;
     private int[] featureSequence = null;
-    private FeatureComparator c = new FeatureComparator( -1 );
+    private FeatureComparator c = new FeatureComparator( -1, null );
     private UnitIndexComparator cui = new UnitIndexComparator();
     private FeatureVector[] featureVectors;
     private FeatureDefinition featureDefinition;
@@ -120,11 +120,12 @@ public class FeatureArrayIndexer
         }
         /* Else: */
         int currentFeature = featureSequence[currentFeatureIdx];
+        FeatureVector.FeatureType featureType = featureVectors[0].getFeatureType(currentFeature);
         /* Register the feature currently used for the splitting */
         currentNode.setFeatureIndex( currentFeature );
         /* Perform the sorting according to the currently considered feature: */
         /* 1) position the comparator onto the right feature */
-        c.setFeatureIdx( currentFeature );
+        c.setFeatureIdx( currentFeature, featureType );
         /* 2) do the sorting */
         Arrays.sort( featureVectors, currentNode.from, currentNode.to, c );
         
@@ -201,9 +202,10 @@ public class FeatureArrayIndexer
         }
         /* Else: */
         int currentFeature = currentNode.featureIndex;
+        FeatureVector.FeatureType featureType = featureVectors[0].getFeatureType(currentFeature);
         /* Perform the sorting according to the currently considered feature: */
         /* 1) position the comparator onto the right feature */
-        c.setFeatureIdx( currentFeature );
+        c.setFeatureIdx( currentFeature, featureType );
         /* 2) do the sorting */
         Arrays.sort( featureVectors, currentNode.from, currentNode.to, c );
         
