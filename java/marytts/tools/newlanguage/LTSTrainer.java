@@ -51,6 +51,7 @@ import marytts.fst.StringPair;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 
+import org.apache.log4j.BasicConfigurator;
 import org.xml.sax.SAXException;
 
 import weka.classifiers.trees.j48.BinC45ModelSelection;
@@ -105,6 +106,7 @@ public class LTSTrainer extends AlignerTrainer
         this.convertToLowercase = convertToLowercase;
         this.considerStress = considerStress;
         this.context = context;
+        BasicConfigurator.configure();
     }
     
     /**
