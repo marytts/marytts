@@ -21,10 +21,12 @@ package marytts.modules;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 import javax.sound.sampled.AudioInputStream;
 
@@ -62,7 +64,11 @@ public class MbrolaCaller extends SynthesisCallerBase {
     public MbrolaCaller() throws NoSuchPropertyException {
         super("MbrolaCaller", MaryDataType.MBROLA, MaryDataType.AUDIO);
         String basePath = System.getProperty("mary.base") + File.separator + "bin" + File.separator;
-        baseCmd = basePath + "mbrola";
+        baseCmd = findMbrolaBinary(basePath);
+        if (baseCmd == null) {
+            throw new NullPointerException("No mbrola binary found in "+basePath+" that can be run on this machine.");
+        }
+        logger.debug("Found mbrola binary in "+baseCmd);
         timeout = MaryProperties.needInteger("modules.timeout");
     }
 
@@ -136,5 +142,39 @@ public class MbrolaCaller extends SynthesisCallerBase {
         throw new IOException("Repeated timeouts -- cannot synthesise.");
     }
 
+    /**
+     * Try to find an mbrola binary that can be run on the present platform. Do this in the brute-force way:
+     * try out all things in our bin/ directory that have mbrola in their name. If we can run them, we are done.
+     * @param binPath
+     * @return the full path of a runnable mbrola binary, or null if none could be found. 
+     */
+    private String findMbrolaBinary(String binPath) {
+        if (!binPath.endsWith("/")) {
+            binPath += "/";
+        }
+        String[] mbrolas = new File(binPath).list(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                return name.toLowerCase().contains("mbrola");
+            }
+        });
+        String mbrola = null;
+        // Now go through all the files in bin/ called "*mbrola*" and try to run them:
+        for (String exe : mbrolas) {
+            try {
+                Process p = Runtime.getRuntime().exec(binPath+exe);
+                p.waitFor();
+                if (p.exitValue() == 0) {
+                    mbrola = exe;
+                    break;
+                }
+            } catch (Exception e) {
+                // no, this is not the right one
+            }
+        }
+        if (mbrola != null) {
+            return binPath + mbrola;
+        }
+        return null;
+    }
 }
 

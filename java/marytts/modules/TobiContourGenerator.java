@@ -86,13 +86,11 @@ public class TobiContourGenerator extends InternalModule {
     private Map<String, Element> tobiMap;
     private String tobirulefilePropertyName;
 
-    public TobiContourGenerator(MaryDataType inputType, MaryDataType outputType, 
-            Locale locale,
-            String phoneSetPropertyName, String tobirulefilePropertyName)
+    public TobiContourGenerator(String localeString)
     {
-        super("ContourGenerator", inputType, outputType, locale);
-        this.phoneSetPropertyName = phoneSetPropertyName;
-        this.tobirulefilePropertyName = tobirulefilePropertyName;
+        super("ContourGenerator", MaryDataType.DURATIONS, MaryDataType.ACOUSTPARAMS, MaryUtils.string2locale(localeString));
+        this.phoneSetPropertyName = localeString + ".allophoneset";
+        this.tobirulefilePropertyName = localeString + ".cap.tobirulefile";
     }
 
     public void startup() throws Exception {

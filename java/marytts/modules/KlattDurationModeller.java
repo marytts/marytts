@@ -18,7 +18,7 @@
  *
  */
 
-package marytts.language.de;
+package marytts.modules;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -34,13 +34,10 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.language.tib.KlattDurationModeller.KlattDurationParams;
-import marytts.modules.InternalModule;
-import marytts.modules.MaryModule;
-import marytts.modules.ModuleRegistry;
-import marytts.modules.Synthesis;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
+import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
@@ -60,6 +57,7 @@ import org.w3c.dom.traversal.TreeWalker;
  */
 
 public class KlattDurationModeller extends InternalModule {
+    private String localePrefix;
     private AllophoneSet allophoneSet;
     private KlattDurationParams klattDurationParams;
     private Properties klattRuleParams;
@@ -74,11 +72,12 @@ public class KlattDurationModeller extends InternalModule {
      * anymore. */
     private WeakHashMap prosodyMap;
 
-    public KlattDurationModeller() throws IOException {
+    public KlattDurationModeller(String localeString) throws IOException {
         super("KlattDurationModeller", 
                 MaryDataType.ALLOPHONES, 
                 MaryDataType.DURATIONS,
-                Locale.GERMAN);
+                MaryUtils.string2locale(localeString));
+        this.localePrefix = localeString;
     }
 
     public void startup() throws Exception {
@@ -96,10 +95,10 @@ public class KlattDurationModeller extends InternalModule {
             synthesis.startup();
         // load klatt rules
         klattRuleParams = new Properties();
-        klattRuleParams.load(new FileInputStream(MaryProperties.needFilename("german.cap.klattrulefile")));
+        klattRuleParams.load(new FileInputStream(MaryProperties.needFilename(localePrefix+".cap.klattrulefile")));
         // load phone list
-        allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename("german.allophoneset"));
-        klattDurationParams = new KlattDurationParams(MaryProperties.needFilename("german.cap.klattdurfile"));
+        allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename(localePrefix+".allophoneset"));
+        klattDurationParams = new KlattDurationParams(MaryProperties.needFilename(localePrefix+".cap.klattdurfile"));
         // instantiate the Map in which settings are associated with elements:
         // (when the objects serving as keys are not in ordinary use any more,
         // the key-value pairs are deleted from the WeakHashMap earlier or
@@ -289,11 +288,6 @@ public class KlattDurationModeller extends InternalModule {
             return; // no tokens -- what can we do?
         }
 
-        // Create the substructure of each token
-        for (int i = 0; i < tokens.getLength(); i++) {
-            Element token = (Element) tokens.item(i);
-            createSubStructure(token);
-        }
 
         // apply Klatt rules to each segment
         NodeList segments = sentence.getElementsByTagName(MaryXML.PHONE);
@@ -390,58 +384,6 @@ public class KlattDurationModeller extends InternalModule {
         }
     }
 
-    private void createSubStructure(Element token) {
-        String sampa = token.getAttribute("ph");
-        if (sampa.equals(""))
-            return; // nothing to do
-
-        StringTokenizer tok = new StringTokenizer(sampa, "-_");
-        Document document = token.getOwnerDocument();
-        Element prosody = (Element) MaryDomUtils.getAncestor(token, MaryXML.PROSODY);
-        String vq = null; // voice quality
-        if (prosody != null) {
-            ProsodicSettings settings = (ProsodicSettings) prosodyMap.get(prosody);
-            int volume = settings.volume();
-            if (volume >= 60) {
-                vq = "loud";
-            } else if (volume <= 40) {
-                vq = "soft";
-            } else {
-                vq = null;
-            }
-        }
-        while (tok.hasMoreTokens()) {
-            String sylString = tok.nextToken();
-            Element syllable = MaryXML.createElement(document, MaryXML.SYLLABLE);
-            token.appendChild(syllable);
-            // Check for stress signs:
-            String first = sylString.substring(0, 1);
-            if (first.equals("'")) {
-                syllable.setAttribute("stress", "1");
-                // The primary stressed syllable of a word
-                // inherits the accent:
-                if (token.hasAttribute("accent")) {
-                    syllable.setAttribute("accent", token.getAttribute("accent"));
-                }
-                sylString = sylString.substring(1);
-            } else if (first.equals(",")) {
-                syllable.setAttribute("stress", "2");
-                sylString = sylString.substring(1);
-            }
-            // Remember transcription without stress sign in sampa attribute:
-            syllable.setAttribute("ph", sylString);
-            // Now identify the composing segments:
-            boolean haveSeenNucleus = false;
-            Allophone[] phones = allophoneSet.splitIntoAllophones(sylString);
-            for (int i = 0; i < phones.length; i++) {
-                Element segment = MaryXML.createElement(document, MaryXML.PHONE);
-                syllable.appendChild(segment);
-                segment.setAttribute("p", phones[i].name());
-                if (vq != null && !(phones[i].name().equals("_") || phones[i].name().equals("?")))
-                    segment.setAttribute("vq", vq);
-            }
-        }
-    }
 
     //////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////
