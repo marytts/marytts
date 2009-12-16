@@ -599,15 +599,18 @@ THIS SOFTWARE.
             </jar>
         </target>
 	
-    <target name="installer" depends="packages,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
+    <!--target name="installer" depends="packages,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
     	<java dir="build" jar="build/standalone-compiler.jar" fork="true">
 			<arg line="openmary-install.xml -b .. -k webdir -o ../dist/openmary-install-${specification.version.nospace}.jar"/>
         </java>
-    </target>
+    </target-->
     <target name="standalone-installer" depends="packages,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
     	<java dir="build" jar="build/standalone-compiler.jar" fork="true">
 			<arg line="openmary-install.xml -b .. -k standard -o ../dist/openmary-standalone-install-${specification.version.nospace}.jar"/>
         </java>
     </target>
+	
+	<target name="dist" depends="standalone-installer">
+	</target>
 		
 </project>

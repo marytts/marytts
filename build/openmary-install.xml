@@ -2,7 +2,7 @@
 <installation version="1.0">
     <info>
         <appname>MARY TTS</appname>
-        <appversion>4.0 beta</appversion>
+        <appversion>4.0.0</appversion>
         <authors>
             <author name="Marc Schr&#246;der" email="schroed@dfki.de"/>
             <author name="Marcela Charfuelan" email=""/>
@@ -66,10 +66,10 @@
 <description>OpenMary Base: The base files for the OpenMary Text-to-speech server and client.
 </description>
 			<fileset dir="dist" targetdir="$INSTALL_PATH/download"
-				includes="mary-en_US-4.0beta.zip,
-					mary-en_US-4.0beta-component.xml,
-					mary-cmu-slt-hsmm-4.0beta.zip,
-					mary-cmu-slt-hsmm-4.0beta-component.xml"
+				includes="mary-en_US-4.0.0.zip,
+					mary-en_US-4.0.0-component.xml,
+					mary-cmu-slt-hsmm-4.0.0.zip,
+					mary-cmu-slt-hsmm-4.0.0-component.xml"
 			/>
 			<fileset dir="download" targetdir="$INSTALL_PATH/download"
 			    includes="license-index.txt,
@@ -139,11 +139,11 @@
 					examples/client/maryclient.pl,
 					examples/client/MaryClientUser.java,
 					examples/client/c++/Makefile,
-					examples/client/c++/mary_client.h,
-					examples/client/c++/mary_client.cc,
-					examples/client/c++/unicode.h,
-					examples/client/c++/unicode.cc,
-					examples/client/c++/demo_mary_client.cc,
+					examples/client/c++/MaryClient.h,
+					examples/client/c++/MaryClient.cc,
+					examples/client/c++/MaryClient.cc.win,
+					examples/client/c++/MaryDemo.cc,
+					examples/client/c++/README.txt,
 					examples/emospeak-applet.html,
 					log/README.txt,
 					tmp/README.txt,
@@ -230,7 +230,8 @@ This component includes GPL'ed code and is thus shipped under the GPL 3.
 						java/transcription-tool.jar,
                         java/redstart.jar,
                         java/voiceimport.jar,
-                        lib/hts/HTS-demo_for_MARY-4.0-beta.tar.gz"/>
+                        lib/external/check_install_external_programs.sh,
+                        lib/HTS-demo_for_MARY-4.0.zip"/>
             <fileset os="windows" dir="." targetdir="$INSTALL_PATH"
             	 includes="bin/redstart.bat,
             	 	voiceimport.bat"/>
