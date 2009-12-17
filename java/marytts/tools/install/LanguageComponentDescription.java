@@ -30,6 +30,10 @@ import org.w3c.dom.Element;
  */
 public class LanguageComponentDescription extends ComponentDescription {
 
+    public LanguageComponentDescription(String name, String version, String packageFilename) {
+        super(name, version, packageFilename);
+    }
+    
     /**
      * @param xmlDescription
      * @throws NullPointerException
