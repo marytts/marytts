@@ -138,7 +138,13 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         this.availableUpdate = null;
         stateChanged();
     }
-
+    
+    protected ComponentDescription(String name, String version, String packageFilename) {
+        this.name = name;
+        this.version = version;
+        this.packageFilename = packageFilename;
+    }
+    
     protected ComponentDescription(Element xmlDescription)
     throws NullPointerException
     {
@@ -163,7 +169,14 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         for (int i=0, max = locationElements.getLength(); i<max; i++) {
             Element aLocationElement = (Element) locationElements.item(i);
             try {
-                locations.add(new URL(aLocationElement.getAttribute("href").trim().replaceAll(" ", "%20")+"/"+packageFilename));
+                String urlString = aLocationElement.getAttribute("href").trim().replaceAll(" ", "%20");
+                if (!urlString.endsWith(packageFilename)) {
+                    if (!urlString.endsWith("/")) {
+                        urlString += "/";
+                    }
+                    urlString += packageFilename;
+                }
+                locations.add(new URL(urlString));
             } catch (MalformedURLException mue) {
                 new Exception("Invalid location -- ignoring", mue).printStackTrace();
             }
@@ -179,10 +192,11 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         }
     }
     
+    
     private void determineStatus()
     {
-        File installedDir = new File(System.getProperty("mary.installedDir"));
-        File downloadDir = new File(System.getProperty("mary.downloadDir"));
+        File installedDir = new File(System.getProperty("mary.installedDir", "installed"));
+        File downloadDir = new File(System.getProperty("mary.downloadDir", "download"));
 
         if (infoFile.exists()) {
             status = Status.INSTALLED;
@@ -215,6 +229,10 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         return locale;
     }
     
+    public void setLocale(Locale aLocale) {
+        this.locale = aLocale;
+    }
+    
     public String getVersion()
     {
         return version;
@@ -224,17 +242,35 @@ public class ComponentDescription extends Observable implements Comparable<Compo
     {
         return description;
     }
+
+    public void setDescription(String aDescription) {
+        this.description = aDescription;
+    }
     
+
     public URL getLicenseURL()
     {
         return license;
     }
-    
+
+    public void setLicenseURL(URL aLicense) {
+        this.license = aLicense;
+    }
+
     public List<URL> getLocations()
     {
         return locations;
     }
     
+    
+    public void addLocation(URL aLocation) {
+        if (this.locations == null) {
+            this.locations = new ArrayList<URL>();
+        }
+        locations.add(aLocation);
+    }
+    
+
     public String getPackageFilename()
     {
         return packageFilename;
@@ -245,6 +281,10 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         return packageSize;
     }
     
+    public void setPackageSize(int aSize) {
+        this.packageSize = aSize;
+    }
+
     public String getDisplayPackageSize()
     {
         return MaryUtils.toHumanReadableSize(packageSize);
@@ -255,6 +295,10 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         return packageMD5;
     }
     
+    public void setPackageMD5Sum(String aMD5) {
+        this.packageMD5 = aMD5;
+    }
+
     public boolean isSelected()
     {
         return isSelected;
@@ -462,8 +506,13 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         packageElt.setAttribute("md5sum", packageMD5);
         packageElt.setAttribute("filename", packageFilename);
         for (URL l : locations) {
+            // Serialize the location without the filename:
+            String urlString = l.toString();
+            if (urlString.endsWith(packageFilename)) {
+                urlString = urlString.substring(0, urlString.length()-packageFilename.length());
+            }
             Element lElt = (Element) packageElt.appendChild(doc.createElementNS(installerNamespaceURI, "location"));
-            lElt.setAttribute("href", l.toString());
+            lElt.setAttribute("href", urlString);
         }
         if (installedFilesNames != null) {
             Element filesElement = (Element) desc.appendChild(doc.createElementNS(installerNamespaceURI, "files"));

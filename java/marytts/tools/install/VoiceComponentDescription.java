@@ -52,6 +52,10 @@ public class VoiceComponentDescription extends ComponentDescription
         super.replaceWithUpdate();
     }
 
+    public VoiceComponentDescription(String name, String version, String packageFilename) {
+        super(name, version, packageFilename);
+    }
+
     /**
      * @param xmlDescription
      * @throws NullPointerException
@@ -80,9 +84,17 @@ public class VoiceComponentDescription extends ComponentDescription
         return gender;
     }
     
+    public void setGender(String aGender) {
+        this.gender = aGender;
+    }
+    
     public String getType()
     {
         return type;
+    }
+    
+    public void setType(String aType) {
+        this.type = aType;
     }
 
     public String getDependsLanguage()
@@ -90,9 +102,17 @@ public class VoiceComponentDescription extends ComponentDescription
         return dependsLanguage;
     }
     
+    public void setDependsLanguage(String aLanguage) {
+        this.dependsLanguage = aLanguage;
+    }
+    
     public String getDependsVersion()
     {
         return dependsVersion;
+    }
+    
+    public void setDependsVersion(String aVersion) {
+        this.dependsVersion = aVersion;
     }
 
     
