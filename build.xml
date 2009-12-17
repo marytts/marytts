@@ -491,13 +491,16 @@ THIS SOFTWARE.
 	    	java/freetts-en_us.jar
 	    	java/mary-freetts.jar
 	    	conf/en_US.config
-	    	lib/modules/en/**/*"/>
+	    	lib/modules/en/us/**/*
+	    	lib/modules/en/cap/**/*
+	    	lib/modules/en/tagger/**/*
+	    	lib/modules/en/prosody/**/*"/>
 	  </zip>
 	      <length file="dist/mary-en_US-${specification.version.nospace}.zip" property="package.filesize.en_US"/>
 	      <checksum file="dist/mary-en_US-${specification.version.nospace}.zip" format="MD5SUM" property="package.md5.en_US"/>
 	      <echoxml file="dist/mary-en_US-${specification.version.nospace}-component.xml">
 	      	<marytts-install xmlns="http://mary.dfki.de/installer">
-		      	<language locale="en-US" name="en-US" version="${specification.version}">
+		      	<language locale="en-US" name="en_US" version="${specification.version}">
 		      	  <description>
 		      	  US English language component
 		      	  </description>
@@ -510,7 +513,35 @@ THIS SOFTWARE.
 	      </echoxml>
 	</target>
 	
-    <target name="de-package">
+	<target name="en_GB-package" depends="jars">
+	  <zip destfile="dist/mary-en_GB-${specification.version.nospace}.zip">
+	    <zipfileset dir="." includes="java/mary-en.jar
+	    	java/freetts-en_us.jar
+	    	java/mary-freetts.jar
+	    	conf/en_GB.config
+	    	lib/modules/en/gb/**/*
+	    	lib/modules/en/cap/**/*
+	    	lib/modules/en/tagger/**/*
+	    	lib/modules/en/prosody/**/*"/>
+	  </zip>
+	      <length file="dist/mary-en_GB-${specification.version.nospace}.zip" property="package.filesize.en_GB"/>
+	      <checksum file="dist/mary-en_GB-${specification.version.nospace}.zip" format="MD5SUM" property="package.md5.en_GB"/>
+	      <echoxml file="dist/mary-en_GB-${specification.version.nospace}-component.xml">
+	      	<marytts-install xmlns="http://mary.dfki.de/installer">
+		      	<language locale="en-GB" name="en_GB" version="${specification.version}">
+		      	  <description>
+		      	  British English language component
+		      	  </description>
+		      	  <license href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"/>
+		      	  <package size="${package.filesize.en_GB}" md5sum="${package.md5.en_GB}" filename="mary-en_GB-${specification.version.nospace}.zip">
+		      	    <location href="http://mary.dfki.de/download/${specification.version}/"/>
+		      	  </package>
+		      	</language>
+	      	</marytts-install>
+	      </echoxml>
+	</target>
+
+	      		<target name="de-package">
       <antcall target="default-language-package">
         <param name="lang" value="de"/>
       </antcall>
@@ -530,6 +561,7 @@ THIS SOFTWARE.
 
 	
 	<target name="packages" depends="en_US-package,
+		en_GB-package,
 		de-package,
 		te-package,
 		tr-package" />
