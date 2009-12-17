@@ -66,8 +66,8 @@
 <description>OpenMary Base: The base files for the OpenMary Text-to-speech server and client.
 </description>
 			<fileset dir="dist" targetdir="$INSTALL_PATH/download"
-				includes="mary-en_US-4.0.0.zip,
-					mary-en_US-4.0.0-component.xml,
+				includes="mary-en-US-4.0.0.zip,
+					mary-en-US-4.0.0-component.xml,
 					mary-cmu-slt-hsmm-4.0.0.zip,
 					mary-cmu-slt-hsmm-4.0.0-component.xml"
 			/>
@@ -89,6 +89,9 @@
 					doc/licenses/by-nd-3.0.txt,
 					doc/licenses/by-nc-sa-3.0.txt,
 					doc/licenses/README.txt,
+					download/http___mary.dfki.de_download_voices_arctic-license.html,
+					download/http___www.gnu.org_licenses_lgpl-3.0-standalone.html,
+					download/license-index.txt,
 					lib/MaryXML.xsd,
 					lib/Sable.v0_2.mary.dtd,
 					lib/apml.dtd,
