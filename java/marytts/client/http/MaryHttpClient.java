@@ -140,7 +140,7 @@ public class MaryHttpClient extends MaryClient
             if (af.endsWith("_FILE")) {
                 String typeName = af.substring(0, af.indexOf("_"));
                 try {
-                    AudioFileFormat.Type type = MaryAudioUtils.getAudioFileFormatType(typeName);
+                    AudioFileFormat.Type type = MaryClient.getAudioFileFormatType(typeName);
                     data.audioFileFormatTypes.add(typeName+" "+type.getExtension());
                 } catch (Exception e) {}
             }
