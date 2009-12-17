@@ -69,7 +69,7 @@ public class LicenseRegistry {
         File downloadDir = new File(System.getProperty("mary.downloadDir", "."));
         File localFile = new File(downloadDir, localFilename);
         try {
-            URL localURL = localFile.toURL();
+            URL localURL = localFile.toURI().toURL();
             System.out.println("Lookup took "+(System.currentTimeMillis()-startT)+" ms");
             return localURL;
         } catch (MalformedURLException e) {

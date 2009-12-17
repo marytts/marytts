@@ -43,6 +43,7 @@ public class LicensePanel extends javax.swing.JPanel {
             licenseTextPane.setPage(licenseURL);
         } catch (IOException ioe) {
             licenseTextPane.setText("Unknown license -- only proceed if you are certain you have the right to install these components!");
+            ioe.printStackTrace();
         }
         
         
