@@ -81,12 +81,17 @@ public class UnitSelectionVoice extends Voice {
         super(new String[] {name}, locale, dbAudioFormat, synthesizer, gender);
 
         try {
+            this.name = name;
             String header = "voice."+name;
             
             domain = MaryProperties.needProperty(header+".domain");
             String exampleTextFile = null;
-            if (!domain.equals("general")){
+            if (!domain.equals("general")) { // limited domain voices must have example text;
                 exampleTextFile = MaryProperties.needFilename(header+".exampleTextFile");
+            } else { // general domain voices can have example text:
+                exampleTextFile = MaryProperties.getFilename(header+".exampleTextFile");
+            }
+            if (exampleTextFile != null) {
                 readExampleText(exampleTextFile);
             }
             
