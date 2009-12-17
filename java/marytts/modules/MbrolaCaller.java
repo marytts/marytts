@@ -161,7 +161,7 @@ public class MbrolaCaller extends SynthesisCallerBase {
         // Now go through all the files in bin/ called "*mbrola*" and try to run them:
         for (String exe : mbrolas) {
             try {
-                Process p = Runtime.getRuntime().exec(binPath+exe);
+                Process p = Runtime.getRuntime().exec(new String[] {binPath+exe});
                 p.waitFor();
                 if (p.exitValue() == 0) {
                     mbrola = exe;

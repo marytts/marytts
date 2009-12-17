@@ -563,7 +563,7 @@ THIS SOFTWARE.
 	<!-- Installable voice zip files for the component installer -->
     <target name="default-voice-package" depends="jars">
   	  <zip destfile="dist/mary-${voice}-${specification.version.nospace}.zip">
-  	    <zipfileset dir="." includes="conf/${lang}-${voice}.config
+  	    <zipfileset dir="." includes="conf/${conf}
   	    	lib/voices/${voice}/**/*"/>
   	  </zip>
       <length file="dist/mary-${voice}-${specification.version.nospace}.zip" property="package.filesize"/>
@@ -588,6 +588,7 @@ THIS SOFTWARE.
 		<antcall target="default-voice-package">
 			<param name="lang" value="en-US"/>
 			<param name="voice" value="cmu-slt-hsmm"/>
+			<param name="conf" value="en_US-cmu-slt-hsmm.config"/>
 			<param name="description" value="A female US English Hidden semi-Markov model voice, built from voice recordings provided by Carnegie Mellon University."/>
 			<param name="gender" value="female"/>
 			<param name="type" value="hsmm"/>
