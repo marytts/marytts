@@ -783,9 +783,10 @@ public class ComponentDescription extends Observable implements Comparable<Compo
                         // TODO: ugly hack: try to set executable bit on files in bin/
                         if (entry.getName().startsWith("bin/")) {
                             try {
-                                Runtime.getRuntime().exec("chmod a+x "+newFile.getAbsolutePath());
+                                Runtime.getRuntime().exec(new String[] {"chmod", "a+x", newFile.getAbsolutePath()});
                             } catch (Exception e) {
                                 // ignore, this will of course not work on windows
+                                e.printStackTrace();
                             }
                         }
                     }
