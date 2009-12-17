@@ -485,8 +485,8 @@ THIS SOFTWARE.
       </echoxml>
     </target>
 
-	<target name="en_US-package" depends="jars">
-	  <zip destfile="dist/mary-en_US-${specification.version.nospace}.zip">
+	<target name="en-US-package" depends="jars">
+	  <zip destfile="dist/mary-en-US-${specification.version.nospace}.zip">
 	    <zipfileset dir="." includes="java/mary-en.jar
 	    	java/freetts-en_us.jar
 	    	java/mary-freetts.jar
@@ -496,16 +496,16 @@ THIS SOFTWARE.
 	    	lib/modules/en/tagger/**/*
 	    	lib/modules/en/prosody/**/*"/>
 	  </zip>
-	      <length file="dist/mary-en_US-${specification.version.nospace}.zip" property="package.filesize.en_US"/>
-	      <checksum file="dist/mary-en_US-${specification.version.nospace}.zip" format="MD5SUM" property="package.md5.en_US"/>
-	      <echoxml file="dist/mary-en_US-${specification.version.nospace}-component.xml">
+	      <length file="dist/mary-en-US-${specification.version.nospace}.zip" property="package.filesize.en-US"/>
+	      <checksum file="dist/mary-en-US-${specification.version.nospace}.zip" format="MD5SUM" property="package.md5.en-US"/>
+	      <echoxml file="dist/mary-en-US-${specification.version.nospace}-component.xml">
 	      	<marytts-install xmlns="http://mary.dfki.de/installer">
-		      	<language locale="en-US" name="en_US" version="${specification.version}">
+		      	<language locale="en-US" name="en-US" version="${specification.version}">
 		      	  <description>
 		      	  US English language component
 		      	  </description>
 		      	  <license href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"/>
-		      	  <package size="${package.filesize.en_US}" md5sum="${package.md5.en_US}" filename="mary-en_US-${specification.version.nospace}.zip">
+		      	  <package size="${package.filesize.en-US}" md5sum="${package.md5.en-US}" filename="mary-en-US-${specification.version.nospace}.zip">
 		      	    <location href="http://mary.dfki.de/download/${specification.version}/"/>
 		      	  </package>
 		      	</language>
@@ -513,8 +513,8 @@ THIS SOFTWARE.
 	      </echoxml>
 	</target>
 	
-	<target name="en_GB-package" depends="jars">
-	  <zip destfile="dist/mary-en_GB-${specification.version.nospace}.zip">
+	<target name="en-GB-package" depends="jars">
+	  <zip destfile="dist/mary-en-GB-${specification.version.nospace}.zip">
 	    <zipfileset dir="." includes="java/mary-en.jar
 	    	java/freetts-en_us.jar
 	    	java/mary-freetts.jar
@@ -524,16 +524,16 @@ THIS SOFTWARE.
 	    	lib/modules/en/tagger/**/*
 	    	lib/modules/en/prosody/**/*"/>
 	  </zip>
-	      <length file="dist/mary-en_GB-${specification.version.nospace}.zip" property="package.filesize.en_GB"/>
-	      <checksum file="dist/mary-en_GB-${specification.version.nospace}.zip" format="MD5SUM" property="package.md5.en_GB"/>
-	      <echoxml file="dist/mary-en_GB-${specification.version.nospace}-component.xml">
+	      <length file="dist/mary-en-GB-${specification.version.nospace}.zip" property="package.filesize.en-GB"/>
+	      <checksum file="dist/mary-en-GB-${specification.version.nospace}.zip" format="MD5SUM" property="package.md5.en-GB"/>
+	      <echoxml file="dist/mary-en-GB-${specification.version.nospace}-component.xml">
 	      	<marytts-install xmlns="http://mary.dfki.de/installer">
-		      	<language locale="en-GB" name="en_GB" version="${specification.version}">
+		      	<language locale="en-GB" name="en-GB" version="${specification.version}">
 		      	  <description>
 		      	  British English language component
 		      	  </description>
 		      	  <license href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"/>
-		      	  <package size="${package.filesize.en_GB}" md5sum="${package.md5.en_GB}" filename="mary-en_GB-${specification.version.nospace}.zip">
+		      	  <package size="${package.filesize.en-GB}" md5sum="${package.md5.en-GB}" filename="mary-en-GB-${specification.version.nospace}.zip">
 		      	    <location href="http://mary.dfki.de/download/${specification.version}/"/>
 		      	  </package>
 		      	</language>
@@ -559,12 +559,50 @@ THIS SOFTWARE.
       </antcall>
     </target>
 
+	<!-- Installable voice zip files for the component installer -->
+    <target name="default-voice-package" depends="jars">
+  	  <zip destfile="dist/mary-${voice}-${specification.version.nospace}.zip">
+  	    <zipfileset dir="." includes="conf/${lang}-${voice}.config
+  	    	lib/voices/${voice}/**/*"/>
+  	  </zip>
+      <length file="dist/mary-${voice}-${specification.version.nospace}.zip" property="package.filesize"/>
+      <checksum file="dist/mary-${voice}-${specification.version.nospace}.zip" format="MD5SUM" property="package.md5"/>
+      <echoxml file="dist/mary-${voice}-${specification.version.nospace}-component.xml">
+      	<marytts-install xmlns="http://mary.dfki.de/installer">
+	      	<voice gender="${gender}" type="${type}" locale="${lang}" name="${voice}" version="${specification.version}">
+	      	  <description>
+	      	  ${description}
+	      	  </description>
+	      	  <license href="${license}"/>
+	      	  <package size="${package.filesize}" md5sum="${package.md5}" filename="mary-${voice}-${specification.version.nospace}.zip">
+	      	    <location href="http://mary.dfki.de/download/${specification.version}/"/>
+	      	  </package>
+	          <depends language="${lang}" version="${specification.version}"/>
+	      	</voice>
+      	</marytts-install>
+      </echoxml>
+    </target>
+
+	<target name="cmu-slt-hsmm-package">
+		<antcall target="default-voice-package">
+			<param name="lang" value="en-US"/>
+			<param name="voice" value="cmu-slt-hsmm"/>
+			<param name="description" value="A female US English Hidden semi-Markov model voice, built from voice recordings provided by Carnegie Mellon University."/>
+			<param name="gender" value="female"/>
+			<param name="type" value="hsmm"/>
+			<param name="license" value="http://mary.dfki.de/download/voices/arctic-license.html"/>
+		</antcall>
+	</target>
 	
-	<target name="packages" depends="en_US-package,
-		en_GB-package,
+	
+	
+	
+	<target name="packages" depends="en-US-package,
+		en-GB-package,
 		de-package,
 		te-package,
-		tr-package" />
+		tr-package,
+		cmu-slt-hsmm-package" />
 	
 	 
 	<target name="SpeechSynthesisTool"> 
