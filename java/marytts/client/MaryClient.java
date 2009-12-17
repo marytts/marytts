@@ -702,6 +702,42 @@ public abstract class MaryClient
 
     
 
+    
+    
+    
+    
+    /**
+     * Return an audio file format type for the given string.
+     * In addition to the built-in types, this can deal with MP3
+     * supported by tritonus.
+     * @return the audio file format type if it is known, or null.
+     * @see #canCreateMP3()
+     * @see #canCreateOgg()
+     */
+    public static AudioFileFormat.Type getAudioFileFormatType(String name)
+    {
+        AudioFileFormat.Type at;
+        if (name.equals("MP3")) 
+        {
+            // Supported by tritonus plugin
+            at = new AudioFileFormat.Type("MP3", "mp3");
+        } 
+        else if (name.equals("Vorbis")) 
+        {
+            // supported by tritonus plugin
+            at = new AudioFileFormat.Type("Vorbis", "ogg");
+        } 
+        else 
+        {
+            try {
+                at = (AudioFileFormat.Type) AudioFileFormat.Type.class.getField(name).get(null);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        
+        return at;
+    }
     /**
      * An abstraction of server info about available voices.
      * @author Marc Schr&ouml;der
