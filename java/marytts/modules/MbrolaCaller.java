@@ -149,8 +149,9 @@ public class MbrolaCaller extends SynthesisCallerBase {
      * @return the full path of a runnable mbrola binary, or null if none could be found. 
      */
     private String findMbrolaBinary(String binPath) {
-        if (!binPath.endsWith("/")) {
-            binPath += "/";
+        String fileSeparator = System.getProperty("file.separator");
+        if (!binPath.endsWith(fileSeparator)) {
+            binPath += fileSeparator;
         }
         String[] mbrolas = new File(binPath).list(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -161,9 +162,10 @@ public class MbrolaCaller extends SynthesisCallerBase {
         // Now go through all the files in bin/ called "*mbrola*" and try to run them:
         for (String exe : mbrolas) {
             try {
-                Process p = Runtime.getRuntime().exec(new String[] {binPath+exe});
+                Process p = Runtime.getRuntime().exec(new String[] {binPath+exe, "-h"});
+                p.getInputStream().close();
                 p.waitFor();
-                if (p.exitValue() == 0) {
+                if (p.exitValue() == 0  || System.getProperty("os.name").toLowerCase().startsWith("windows")) {
                     mbrola = exe;
                     break;
                 }
