@@ -138,7 +138,7 @@ public class CreateComponentXML {
             }
             zips.add(f);
             if (!haveCustomXMLFolder) {
-                xmlFolders.add(f.getParentFile());
+                xmlFolders.add(f.getAbsoluteFile().getParentFile());
             }
         }
         // Read known records
