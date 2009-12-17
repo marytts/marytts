@@ -780,6 +780,14 @@ public class ComponentDescription extends Observable implements Comparable<Compo
                         System.err.println("Extracting file: " + entry.getName());
                         copyInputStream(zipfile.getInputStream(entry),
                            new BufferedOutputStream(new FileOutputStream(newFile)));
+                        // TODO: ugly hack: try to set executable bit on files in bin/
+                        if (entry.getName().startsWith("bin/")) {
+                            try {
+                                Runtime.getRuntime().exec("chmod a+x "+newFile.getAbsolutePath());
+                            } catch (Exception e) {
+                                // ignore, this will of course not work on windows
+                            }
+                        }
                     }
                   }
                   zipfile.close();
