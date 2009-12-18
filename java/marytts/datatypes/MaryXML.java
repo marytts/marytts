@@ -55,7 +55,7 @@ public class MaryXML
     //public static final String NONVERBAL = "nvv";
     public static final String NONVERBAL = "vocalization";
     
-    private static String version = "0.4";
+    private static String version = "0.5";
     private static String namespace = "http://mary.dfki.de/2002/MaryXML";
 
     private static Logger logger = Logger.getLogger("MaryXML");
