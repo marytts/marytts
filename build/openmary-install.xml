@@ -234,7 +234,8 @@ This component includes GPL'ed code and is thus shipped under the GPL 3.
                         java/redstart.jar,
                         java/voiceimport.jar,
                         lib/external/check_install_external_programs.sh,
-                        lib/HTS-demo_for_MARY-4.0.zip"/>
+                        lib/external/HTS-demo_for_MARY-4.0.zip,
+                        lib/external/ehmm.tar.gz"/>
             <fileset os="windows" dir="." targetdir="$INSTALL_PATH"
             	 includes="bin/redstart.bat,
             	 	voiceimport.bat"/>
