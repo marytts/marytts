@@ -207,6 +207,7 @@ public class MaryGUIClient extends JPanel
         try {
             processor = new MaryHttpClient(hostAddress, false, false);
         } catch (Exception e) {
+            System.out.println("Problem creating mary client");
             e.printStackTrace();
             JOptionPane.showMessageDialog(null,
                     e.getMessage(),

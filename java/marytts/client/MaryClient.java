@@ -117,7 +117,7 @@ public abstract class MaryClient
         return m;
     }
     
-    protected MaryFormData data = new MaryFormData();
+    protected MaryFormData data;
     protected boolean beQuiet = false;
     protected boolean doProfile = false;
 
@@ -131,13 +131,14 @@ public abstract class MaryClient
     {
         boolean profile = Boolean.getBoolean("mary.client.profile");
         boolean quiet = Boolean.getBoolean("mary.client.quiet");
-        
+        data = new MaryFormData(); // will try to get server address from system properties
         initialise(profile, quiet);
     }
     
     protected MaryClient(boolean quiet) throws IOException
     {
         boolean profile = Boolean.getBoolean("mary.client.profile");
+        data = new MaryFormData(); // will try to get server address from system properties
         
         initialise(profile, quiet);
     }
@@ -159,10 +160,13 @@ public abstract class MaryClient
      */
     protected MaryClient(Address serverAddress) throws IOException
     {
-        data.hostAddress = serverAddress;
-        
         boolean profile = Boolean.getBoolean("mary.client.profile");
         boolean quiet = Boolean.getBoolean("mary.client.quiet");
+        if (serverAddress != null) {
+            data = new MaryFormData(serverAddress);
+        } else {
+            data = new MaryFormData(); // will try to get server address from system properties
+        }
         
         initialise(profile, quiet);
     }
@@ -181,8 +185,11 @@ public abstract class MaryClient
      */
     protected MaryClient(Address serverAddress, boolean profile, boolean quiet) throws IOException
     {
-        if (serverAddress != null)
-            data.hostAddress = serverAddress;
+        if (serverAddress != null) {
+            data = new MaryFormData(serverAddress);
+        } else {
+            data = new MaryFormData(); // will try to get server address from system properties
+        }
         
         initialise(profile, quiet);
     }
