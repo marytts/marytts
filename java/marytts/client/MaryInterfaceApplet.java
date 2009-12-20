@@ -38,8 +38,9 @@ public class MaryInterfaceApplet extends JApplet
     {
         String host = getCodeBase().getHost();
         if (host == null || host.equals("")) {
-            host = "cling";
+            host = "mary.dfki.de";
         }
+        System.out.println("Connecting to "+host);
         int port = 59125;
         try {
             maryExpertInterface = new MaryGUIClient(new Address(host, port), this);
