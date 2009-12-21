@@ -31,6 +31,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.adaptation.prosody.BasicProsodyModifierParams;
+import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
+import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.PitchMarks;
@@ -157,66 +159,21 @@ public class HntmSynthesizer {
         return s;
     }
 
-    public static void mainSingleFile(String wavFile) throws UnsupportedAudioFileException, IOException
+    /**
+     * 
+     * @param wavFile
+     * @param pScalesArray
+     * @param pScalesTimes
+     * @param tScalesArray
+     * @param tScalesTimes
+     * @throws UnsupportedAudioFileException
+     * @throws IOException
+     */
+    public static void mainSingleFile(String wavFile, HntmSynthesizerParams synthesisParams, 
+                                      float[][] pScalesArray, float[] pScalesTimes, float[][] tScalesArray, float[] tScalesTimes) 
+                                      throws UnsupportedAudioFileException, IOException
     {
-        /*
-        //float[] tScales = {0.3f, 0.5f, 1.0f, 1.5f, 2.5f};
-        float[] tScales = {1.0f}; //{0.6f}; {1.0f}; {2.0f};
-        //float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f, 2.5f};
-        float[] tScalesTimes = null;
-        
-        float[] pScales = {2.0f}; //{0.7f}; {1.0f}; {1.2f}; {2.0f};
-        //float[] pScalesTimes = {0.05f, 1.0f, 2.0f};
-        float[] pScalesTimes = null;
-        */
-        
-        /*
-        float[][] pScalesArray = new float[8][1];
-        float[][] tScalesArray = new float[8][1];
-        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
-        pScalesArray[1][0] = 0.8f; tScalesArray[1][0] = 1.0f;
-        pScalesArray[2][0] = 1.6f; tScalesArray[2][0] = 1.0f;
-        pScalesArray[3][0] = 1.0f; tScalesArray[3][0] = 0.7f;
-        pScalesArray[3][0] = 1.0f; tScalesArray[3][0] = 0.7f;
-        pScalesArray[4][0] = 1.0f; tScalesArray[4][0] = 1.6f;
-        pScalesArray[5][0] = 1.0f; tScalesArray[5][0] = 2.3f;
-        pScalesArray[6][0] = 2.3f; tScalesArray[6][0] = 1.0f;
-        pScalesArray[7][0] = 0.6f; tScalesArray[7][0] = 1.0f;
-        */
-        
-        /*
-        float[][] pScalesArray = new float[1][3];
-        float[][] tScalesArray = new float[1][4];
-        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 0.5f;
-        pScalesArray[0][1] = 1.6f; tScalesArray[0][1] = 0.8f;
-        pScalesArray[0][2] = 1.0f; tScalesArray[0][2] = 1.6f;
-                                   tScalesArray[0][3] = 3.0f;
-        */
-
-        //Time invariant case, only one modification set
-        float[][] pScalesArray = new float[1][1];
-        float[][] tScalesArray = new float[1][1];
-        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
-        
-        /*
-        //Time varying case, only one modification set
-        float[][] pScalesArray = new float[1][3];
-        float[][] tScalesArray = new float[1][3];
-        pScalesArray[0][0] = 2.0f; 
-        pScalesArray[0][1] = 1.5f;
-        pScalesArray[0][2] = 2.5f; 
-        tScalesArray[0][0] = 1.2f; 
-        tScalesArray[0][1] = 0.5f;
-        tScalesArray[0][2] = 1.5f; 
-        */
-
-        float[] pScalesTimes = null;
-        float[] tScalesTimes = null;
-        /*
-        float[] pScalesTimes = {0.05f, 1.0f, 1.5f};
-        float[] tScalesTimes = {0.5f, 1.0f, 1.5f, 2.0f};
-        */
-        
+               
         //File input
         AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(wavFile));
         int samplingRate = (int)inputAudio.getFormat().getSampleRate();
@@ -256,15 +213,7 @@ public class HntmSynthesizer {
         synthesisParamsBeforeNoiseAnalysis.harmonicPartSynthesisMethod = HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION;
         //synthesisParamsBeforeNoiseAnalysis.harmonicPartSynthesisMethod = HntmSynthesizerParams.QUADRATIC_PHASE_INTERPOLATION;
         //
-        
-        //Synthesis parameters
-        HntmSynthesizerParams synthesisParams = new HntmSynthesizerParams();
-        synthesisParams.harmonicPartSynthesisMethod = HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION;
-        //synthesisParams.harmonicPartSynthesisMethod = HntmSynthesizerParams.QUADRATIC_PHASE_INTERPOLATION;
-        //
-        
-        synthesisParams.overlappingHarmonicPartSynthesis = false;
-        synthesisParams.harmonicSynthesisOverlapInSeconds = 0.010f;
+                
         
         PitchReaderWriter f0 = null;
         String strPitchFile = StringUtils.modifyExtension(wavFile, ".ptc");
@@ -272,8 +221,26 @@ public class HntmSynthesizer {
         {
             f0 = new PitchReaderWriter(strPitchFile);
             //Arrays.fill(f0.contour, 100.0);
+        } else {  // if file does not exist
+            // this default values are from: marytts.tools.voiceimport.AutocorrelationPitchmarker
+            PitchFileHeader params = new PitchFileHeader();
+            
+            PitchFileHeader tmp = new PitchFileHeader();           
+            params.windowSizeInSeconds = Double.valueOf(tmp.windowSizeInSeconds); 
+            params.skipSizeInSeconds = Double.valueOf(tmp.skipSizeInSeconds);
+            params.voicingThreshold = Double.valueOf(tmp.voicingThreshold);
+            params.minimumF0 = Double.valueOf(tmp.minimumF0);
+            params.maximumF0 = Double.valueOf(tmp.maximumF0);
+            F0TrackerAutocorrelationHeuristic pitchDetector = new F0TrackerAutocorrelationHeuristic(params);
+            
+            try {
+                f0 = pitchDetector.pitchAnalyzeWavFile(wavFile, strPitchFile);
+            } catch (UnsupportedAudioFileException e) {
+                System.out.println("Error! Cannot perform pitch detection...");
+            }
         }
-        
+           
+         
         Labels labels = null;
         String strLabFile = StringUtils.modifyExtension(wavFile, ".lab"); 
         if (analysisParams.harmonicModel == HntmAnalyzerParams.HARMONICS_PLUS_TRANSIENTS_PLUS_NOISE)
@@ -297,8 +264,8 @@ public class HntmSynthesizer {
         HntmSpeechSignal hnmSignal = null;
         if (FileUtils.exists(analysisResultsFile))
         {
-            System.out.println("Warning! Analysis file found, skipping actual HNM analysis and reading from file."); 
-            System.out.println("If analysis parameters have changed, delete this file and run the program again!");
+            System.out.println("  Warning! Analysis file found, skipping actual HNM analysis and reading from file."); 
+            System.out.println("  If analysis parameters have changed, delete this file and run the program again!");
             hnmSignal = new HntmSpeechSignal(analysisResultsFile, analysisParams.noiseModel);
         }
         else
@@ -309,8 +276,9 @@ public class HntmSynthesizer {
         {
             if (hnmSignal!=null)
             {
-                //BasicProsodyModifierParams pmodParams = new BasicProsodyModifierParams(tScalesArray[n], tScalesTimesArray[n], pScalesArray[n], pScalesTimesArray[n]); //Prosody from modification factors above
-                BasicProsodyModifierParams pmodParams = new BasicProsodyModifierParams(tScalesArray[n], tScalesTimes, pScalesArray[n], pScalesTimes); //Prosody from modification factors above
+                //BasicProsodyModifierParams pmodParams = new BasicProsodyModifierParams(tScalesArray[n], tScalesTimesArray[n], pScalesArray[n], pScalesTimesArray[n]); //Prosody from modification factors above                
+                BasicProsodyModifierParams pmodParams = new BasicProsodyModifierParams(tScalesArray[n], tScalesTimes, 
+                                                                                       pScalesArray[n], pScalesTimes); //Prosody from modification factors above
                 
                 //Synthesis
                 HntmSynthesizer hs = new HntmSynthesizer();
@@ -356,6 +324,7 @@ public class HntmSynthesizer {
                     xhat.output = MathUtils.multiply(xhat.output, MathUtils.absMax(x)/MathUtils.absMax(xhat.output));
                 outFileName = wavFile.substring(0, wavFile.length()-4) + "_" + modelName + strExt + ".wav";
                 MaryAudioUtils.writeWavFile(MathUtils.divide(xhat.output,32768.0), outFileName, inputAudio.getFormat());
+                System.out.println("Ouput file: " + outFileName );
 
                 if (xhat.harmonicPart!=null && synthesisParams.writeHarmonicPartToSeparateFile)
                 {
@@ -403,8 +372,131 @@ public class HntmSynthesizer {
         System.out.println("Synthesis...done!");
     }
     
-    public static void main(String[] args) throws UnsupportedAudioFileException, IOException
+    
+    public static void mainExamplesProsodyModification(String[] args) throws UnsupportedAudioFileException, IOException
     {   
+       
+        // Synthesis parameters
+        HntmSynthesizerParams synthesisParams = new HntmSynthesizerParams();
+        synthesisParams.harmonicPartSynthesisMethod = HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION;
+        //synthesisParams.harmonicPartSynthesisMethod = HntmSynthesizerParams.QUADRATIC_PHASE_INTERPOLATION;
+        
+        synthesisParams.overlappingHarmonicPartSynthesis = false;
+        synthesisParams.harmonicSynthesisOverlapInSeconds = 0.010f;
+        /* to output just one file*/
+        synthesisParams.writeHarmonicPartToSeparateFile = false; 
+        synthesisParams.writeNoisePartToSeparateFile = false;
+        synthesisParams.writeTransientPartToSeparateFile = false;
+        synthesisParams.writeOriginalMinusHarmonicPartToSeparateFile = false;
+        
+        /* Just time variation: accelerate at the beginning and slows down at the end */
+        float[][] pScalesArray = new float[1][8];
+        float[][] tScalesArray = new float[1][8];
+        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 0.1f;
+        pScalesArray[0][1] = 1.0f; tScalesArray[0][1] = 0.2f;
+        pScalesArray[0][2] = 1.0f; tScalesArray[0][2] = 0.3f;
+        pScalesArray[0][3] = 1.0f; tScalesArray[0][3] = 0.4f;
+        pScalesArray[0][4] = 1.0f; tScalesArray[0][4] = 1.6f;
+        pScalesArray[0][5] = 1.0f; tScalesArray[0][5] = 1.8f;
+        pScalesArray[0][6] = 1.0f; tScalesArray[0][6] = 2.0f;
+        pScalesArray[0][7] = 1.0f; tScalesArray[0][7] = 2.2f;
+        float[] pScalesTimes = {0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.3f};
+        float[] tScalesTimes = {0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.3f};
+        mainSingleFile(args[0], synthesisParams, pScalesArray, pScalesTimes, tScalesArray, tScalesTimes);
+        
+        
+        /* Just pitch variation: tone normal al the begining and very high at the end */ 
+        pScalesArray = new float[1][8];
+        tScalesArray = new float[1][8];
+        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
+        pScalesArray[0][1] = 2.0f; tScalesArray[0][1] = 1.0f;
+        pScalesArray[0][2] = 3.0f; tScalesArray[0][2] = 1.0f;
+        pScalesArray[0][3] = 4.0f; tScalesArray[0][3] = 1.0f;
+        pScalesArray[0][4] = 5.0f; tScalesArray[0][4] = 1.0f;
+        pScalesArray[0][5] = 6.0f; tScalesArray[0][5] = 1.0f;
+        pScalesArray[0][6] = 7.0f; tScalesArray[0][6] = 1.0f;
+        pScalesArray[0][7] = 8.0f; tScalesArray[0][7] = 1.0f;
+        // apply to the same Scalestimes
+        mainSingleFile(args[0], synthesisParams, pScalesArray, pScalesTimes, tScalesArray, tScalesTimes);
+        
+        /* tone low at the beginning and normal at the end */ 
+        pScalesArray[0][0] = 0.3f; tScalesArray[0][0] = 1.0f;
+        pScalesArray[0][1] = 0.4f; tScalesArray[0][1] = 1.0f;
+        pScalesArray[0][2] = 0.5f; tScalesArray[0][2] = 1.0f;
+        pScalesArray[0][3] = 0.6f; tScalesArray[0][3] = 1.0f;
+        pScalesArray[0][4] = 0.7f; tScalesArray[0][4] = 1.0f;
+        pScalesArray[0][5] = 0.8f; tScalesArray[0][5] = 1.0f;
+        pScalesArray[0][6] = 0.9f; tScalesArray[0][6] = 1.0f;
+        pScalesArray[0][7] = 1.0f; tScalesArray[0][7] = 1.0f;
+        // apply to the same Scalestimes
+        mainSingleFile(args[0], synthesisParams, pScalesArray, pScalesTimes, tScalesArray, tScalesTimes);
+        
+        
+        /* No need to have the same length for modifications of pitch and time
+         * start: normal tone, fast, end: high tone, slow */ 
+        float[][] pScalesArray1 = new float[1][4];
+        float[][] tScalesArray1 = new float[1][2];
+        pScalesArray1[0][0] = 1.0f; tScalesArray1[0][0] = 0.5f;
+        pScalesArray1[0][1] = 2.0f; tScalesArray1[0][1] = 3.5f;
+        pScalesArray1[0][2] = 3.0f; 
+        pScalesArray1[0][3] = 4.0f; 
+        float[] pScalesTimes1 = {0.3f, 0.5f, 0.9f, 1.3f};
+        float[] tScalesTimes1 = {0.7f, 1.3f};
+        mainSingleFile(args[0], synthesisParams, pScalesArray1, pScalesTimes1, tScalesArray1, tScalesTimes1);
+        
+        /*  */ 
+        float[][] pScalesArray2 = new float[1][1];
+        float[][] tScalesArray2 = new float[1][1];
+        pScalesArray2[0][0] = 0.5f; tScalesArray2[0][0] = 1.5f;      
+        float[] pScalesTimes2 = {0.7f};
+        float[] tScalesTimes2 = {1.3f};
+        mainSingleFile(args[0], synthesisParams, pScalesArray2, pScalesTimes2, tScalesArray2, tScalesTimes2);
+        
+
+        //Time invariant case, only one modification set        
+        float[][] pScalesArray3 = new float[1][1];
+        float[][] tScalesArray3 = new float[1][1];
+        pScalesArray3[0][0] = 1.0f; tScalesArray3[0][0] = 1.0f;
+        float[] pScalesTimes3 = null;
+        float[] tScalesTimes3 = null;
+        mainSingleFile(args[0], synthesisParams, pScalesArray3, pScalesTimes3, tScalesArray3, tScalesTimes3);
+  
+        
+    }
+    
+    
+    /**
+     * 
+     * @param a directory containig .wav files or a wav file, in the same directory it should be a 
+     * .ptc file that can be extracted with 
+     * @throws UnsupportedAudioFileException
+     * @throws IOException
+     */
+    public static void mainProcessDirOrFile(String[] args) throws UnsupportedAudioFileException, IOException
+    {   
+        
+        // Synthesis parameters
+        HntmSynthesizerParams synthesisParams = new HntmSynthesizerParams();
+        synthesisParams.harmonicPartSynthesisMethod = HntmSynthesizerParams.LINEAR_PHASE_INTERPOLATION;
+        //synthesisParams.harmonicPartSynthesisMethod = HntmSynthesizerParams.QUADRATIC_PHASE_INTERPOLATION;
+                
+        synthesisParams.overlappingHarmonicPartSynthesis = false;
+        synthesisParams.harmonicSynthesisOverlapInSeconds = 0.010f;
+        
+        float[][] pScalesArray = new float[1][8];
+        float[][] tScalesArray = new float[1][8];
+        pScalesArray[0][0] = 1.0f; tScalesArray[0][0] = 1.0f;
+        pScalesArray[0][1] = 0.8f; tScalesArray[0][1] = 1.0f;
+        pScalesArray[0][2] = 1.6f; tScalesArray[0][2] = 1.0f;
+        pScalesArray[0][3] = 1.0f; tScalesArray[0][3] = 0.7f;
+        pScalesArray[0][4] = 1.0f; tScalesArray[0][4] = 1.6f;
+        pScalesArray[0][5] = 1.0f; tScalesArray[0][5] = 2.3f;
+        pScalesArray[0][6] = 2.3f; tScalesArray[0][6] = 1.0f;
+        pScalesArray[0][7] = 0.6f; tScalesArray[0][7] = 1.0f;
+        float[] pScalesTimes = {0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.3f};
+        float[] tScalesTimes = {0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.3f};
+        
+        
         if (FileUtils.isDirectory(args[0])) //Process folder
         {
             String[] fileList = FileUtils.getFileList(args[0], "wav");
@@ -412,7 +504,7 @@ public class HntmSynthesizer {
             {
                 for (int i=0; i<fileList.length; i++)
                 {
-                    mainSingleFile(fileList[i]);
+                    mainSingleFile(fileList[i], synthesisParams, pScalesArray, pScalesTimes, tScalesArray, tScalesTimes);
                     System.out.println("HNM processing completed for file " + String.valueOf(i+1) + " of " + String.valueOf(fileList.length));
                 }
             }
@@ -420,6 +512,18 @@ public class HntmSynthesizer {
                 System.out.println("No wav files found!");
         }
         else //Process file
-            mainSingleFile(args[0]);
+            mainSingleFile(args[0], synthesisParams, pScalesArray, pScalesTimes, tScalesArray, tScalesTimes);
     }
+    
+    
+    
+    public static void main(String[] args) throws UnsupportedAudioFileException, IOException
+    {   
+        // pass as parameter a directory containing wav files or a wav file
+        //mainProcessDirOrFile(args);
+        
+        //Process file, pass as parameter a wav file
+        mainExamplesProsodyModification(args);
+    }
+    
 }
