@@ -366,8 +366,15 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
                 adapter.fdpsolaOnline(tcMapper, wCodebook, pMap); 
         }
     }
-
+    
     public static void main(String[] args) throws IOException, UnsupportedAudioFileException 
+    {
+        // mainNeutralSad();     
+        mainQuickTest2();
+        
+    }
+
+    public static void mainNeutralSad() throws IOException, UnsupportedAudioFileException 
     {
         String emotion = "sad";
         String method = "F";
@@ -425,6 +432,77 @@ public class WeightedCodebookParallelTransformer extends WeightedCodebookTransfo
                        isDurationFromTargetFile, durationFromTargetMethod,
                        isEnergyFromTargetFile, isLsfsFromTargetFile, targetAlignmentFileType);
     }
+    
+    /**
+     * This example uses the ouput of the example: marytts.signalproc.adaptation.codebook.WeightedCodebookParallelTrainer.mainQuickTest2()
+     * Input: 
+     *   /Neutral-Spike-Conversion/codebook/neutral2angry/neutralF_X_angryF_99.pmf
+     *   /Neutral-Spike-Conversion/codebook/neutral/train_99/*.wav
+     * Ouput:
+     *   /Neutral-Spike-Conversion/codebook/neutral2angry/neutral2angryOut_codebookF3/
+     *       isSrc1_nBest15_smooth1_1_context1_5_psUtt1_tsUtt1_prosody1x0x0/*.wav  
+     * @throws IOException
+     * @throws UnsupportedAudioFileException
+     */
+    public static void mainQuickTest2() throws IOException, UnsupportedAudioFileException 
+    {
+        String emotion = "angry";
+        String method = "F";
+        String inputFolder = "/project/mary/marcela/VoiceConversion/Neutral-Spike-Conversion/codebook/neutral/train_99";
+        String outputBaseFolder = "/project/mary/marcela/VoiceConversion/Neutral-Spike-Conversion/codebook/neutral2" + emotion + "/neutral2" + emotion + "Out_codebook" + method + "3";
+        String baseFile = "/project/mary/marcela/VoiceConversion/Neutral-Spike-Conversion/codebook/neutral2"+ emotion + "/neutral"+ method + "_X_" + emotion + method + "_99";
+        
+        /*
+        //for method: L
+        boolean isSourceVocalTractSpectrumFromModel = true;
+        int numBestMatches = 15; // Number of best matches in codebook
+        boolean isTemporalSmoothing = false;
+        int smoothingNumNeighbours = 1;
+        boolean isContextBasedPreselection = false;
+        int totalContextNeighbours = 2;
+        boolean isPscaleFromFestivalUttFile = true; //false=>mean std dev tfm of pitch, true=>from target CART
+        boolean isTscaleFromFestivalUttFile = true;
+        */
+        
+        //for method: F
+        boolean isSourceVocalTractSpectrumFromModel = true;
+        int numBestMatches = 15; // Number of best matches in codebook
+        boolean isTemporalSmoothing = true;
+        int smoothingNumNeighbours = 1;
+        boolean isContextBasedPreselection = true;
+        int totalContextNeighbours = 5;
+        
+        //Note that these two can be true or false together, not yet implemented separate processing
+        boolean isPitchFromTargetFile = true; //false=>mean std dev tfm of pitch, true=>from target CART
+        int pitchFromTargetMethod = ProsodyTransformerParams.FULL_CONTOUR;
+        //int pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN;
+        //int pitchFromTargetMethod = ProsodyTransformerParams.SENTENCE_MEAN_STDDEV;
+        boolean isDurationFromTargetFile = true;
+        int durationFromTargetMethod = ProsodyTransformerParams.PHONEME_DURATIONS;
+        //int durationFromTargetMethod = ProsodyTransformerParams.TRIPHONE_DURATIONS;
+        //int durationFromTargetMethod = ProsodyTransformerParams.SENTENCE_DURATION;
+        boolean isEnergyFromTargetFile = false;
+        boolean isLsfsFromTargetFile = false;
+        int targetAlignmentFileType = BaselineTransformerParams.FESTIVAL_UTT;
+        //
+        
+        String outputFolderInfoString = "isSrc" + String.valueOf(isSourceVocalTractSpectrumFromModel ? 1:0) +
+                                        "_nBest" + String.valueOf(numBestMatches) + 
+                                        "_smooth" + String.valueOf(isTemporalSmoothing ? 1:0) + "_" + String.valueOf(smoothingNumNeighbours) +
+                                        "_context" + String.valueOf(isContextBasedPreselection ? 1:0) + "_" + String.valueOf(totalContextNeighbours) +
+                                        "_psUtt" + String.valueOf(isPitchFromTargetFile ? 1:0)+
+                                        "_tsUtt" + String.valueOf(isDurationFromTargetFile ? 1:0);
+        
+        mainParametric(inputFolder, outputBaseFolder, baseFile, outputFolderInfoString,
+                       isSourceVocalTractSpectrumFromModel,
+                       numBestMatches,
+                       isTemporalSmoothing, smoothingNumNeighbours, 
+                       isContextBasedPreselection, totalContextNeighbours,
+                       isPitchFromTargetFile, pitchFromTargetMethod, 
+                       isDurationFromTargetFile, durationFromTargetMethod,
+                       isEnergyFromTargetFile, isLsfsFromTargetFile, targetAlignmentFileType);
+    }
+
     
     public static void mainParametric(String inputFolder, String outputBaseFolder, String baseFile, String outputFolderInfoString,
                                       boolean isSourceVocalTractSpectrumFromModel,
