@@ -151,7 +151,7 @@ public class CreateComponentXML {
             });
             for (File xmlFile : xmlFiles) {
                 try {
-                    InstallFileParser ifp = new InstallFileParser(xmlFile.toURL());
+                    InstallFileParser ifp = new InstallFileParser(xmlFile.toURI().toURL());
                     for (ComponentDescription cd : ifp.getLanguageDescriptions()) {
                         knownComponents.put(cd.getName(), cd);
                     }
