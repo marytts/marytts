@@ -770,7 +770,7 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
         });
         for (File cd : componentDescriptionFiles) {
             try {
-                g.addLanguagesAndVoices(new InstallFileParser(cd.toURL()));
+                g.addLanguagesAndVoices(new InstallFileParser(cd.toURI().toURL()));
             } catch (Exception exc) {
                 exc.printStackTrace();
             }
@@ -782,7 +782,7 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
         });
         for (File cd : componentDescriptionFiles) {
             try {
-                g.addLanguagesAndVoices(new InstallFileParser(cd.toURL()));
+                g.addLanguagesAndVoices(new InstallFileParser(cd.toURI().toURL()));
             } catch (Exception exc) {
                 exc.printStackTrace();
             }
