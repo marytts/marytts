@@ -150,7 +150,7 @@ public class Wagon implements Runnable
                     // otherwise, we get problems e.g. for sentence_punc
                     String val = featureDefinition.getFeatureValueAsString(i, v);
                     if (val.indexOf('"') != -1) {
-                        StringBuffer buf = new StringBuffer();
+                        StringBuilder buf = new StringBuilder();
                         for (int c=0; c<val.length(); c++) {
                             char ch = val.charAt(c);
                             if (ch == '"') buf.append("\\\"");

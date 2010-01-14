@@ -126,7 +126,7 @@ public class SpecialCharEP extends ExpansionPattern
     /** Only needed to fill sMatchingChars from specialCharNames */
     private String createMatchingChars()
     {
-        StringBuffer sb = new StringBuffer("[");
+        StringBuilder sb = new StringBuilder("[");
         for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
             sb.append("\\" + (String) it.next());
         }
@@ -137,7 +137,7 @@ public class SpecialCharEP extends ExpansionPattern
     /** Only needed to fill sMatchingCharsSimpleString from _specialCharNames[] */
     private String createMatchingCharsSimpleString()
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
             sb.append((String)it.next());
         }
@@ -147,7 +147,7 @@ public class SpecialCharEP extends ExpansionPattern
     /** Only needed to fill sSplitAtChars from _specialCharNames[] */
     private String createSplitAtChars()
     {
-        StringBuffer sb = new StringBuffer("[");
+        StringBuilder sb = new StringBuilder("[");
         for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
             String sc = (String) it.next();
             if (((SCEntry)specialCharNames.get(sc)).splitAt) {
@@ -161,7 +161,7 @@ public class SpecialCharEP extends ExpansionPattern
     /** Only needed to fill sSplitAtCharsSimpleString from _specialCharNames[] */
     private String createSplitAtCharsSimpleString()
     {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (Iterator it = specialCharNames.keySet().iterator(); it.hasNext();) {
             String sc = (String) it.next();
             if (((SCEntry)specialCharNames.get(sc)).splitAt) {

@@ -162,7 +162,7 @@ public class Unit {
     }
     
     public String toString() {
-        StringBuffer buf = new StringBuffer(filename + " ");
+        StringBuilder buf = new StringBuilder(filename + " ");
         if (previous != null) {
             buf.append(previous.unitType + "_" + previous.unitNum + " ");
         } else {

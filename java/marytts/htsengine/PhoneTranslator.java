@@ -113,7 +113,7 @@ public class PhoneTranslator {
         //System.out.println("iNextNextPhoneme=" + iNextNextPhoneme + "  val=" + feaAsInt + "\n");
       
    
-        StringBuffer contextName = new StringBuffer();
+        StringBuilder contextName = new StringBuilder();
         contextName.append("prev_prev_phone=" + mary_prev_prev_phone);
         contextName.append("|prev_phone=" + mary_prev_phone);
         contextName.append("|phone=" + mary_phone);
@@ -153,7 +153,7 @@ public class PhoneTranslator {
         if (featureList == null) {
             featureList = new Vector<String>(Arrays.asList(def.getFeatureNames().split("\\s+")));
         }
-        StringBuffer contextName = new StringBuffer();
+        StringBuilder contextName = new StringBuilder();
         contextName.append("|");
         for (String f : featureList) {
             if (!def.hasFeature(f)) {

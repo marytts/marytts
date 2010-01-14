@@ -576,7 +576,7 @@ public class EHMMLabeler extends VoiceImportComponent {
             XPath xpath = XPathFactory.newInstance().newXPath();
             NodeList tokens = (NodeList) xpath.evaluate("//t | //ph | //boundary", doc, XPathConstants.NODESET);
             
-            StringBuffer alignBuff = new StringBuffer();
+            StringBuilder alignBuff = new StringBuilder();
             alignBuff.append(basename);
             alignBuff.append(collectTranscription(tokens));
             

@@ -414,7 +414,7 @@ public class DatabaseLayout
     private boolean checkProps(SortedMap<String,String> defaultGlobalProps,SortedMap<String,SortedMap<String,String>> defaultLocalProps){
         boolean allFine = true;
         missingProps = new TreeMap<String, Object>();
-        StringBuffer helpTextBuf = new StringBuffer();
+        StringBuilder helpTextBuf = new StringBuilder();
         helpTextBuf.append("<html>\n<head>\n<title>SETTINGS HELP</title>\n"
                 +"</head>\n<body>\n<dl>\n");
         /* check the local props */
@@ -595,7 +595,7 @@ public class DatabaseLayout
         basicprops.put(MARYSERVERPORT, "59125");
         
         
-        StringBuffer helpText = new StringBuffer();
+        StringBuilder helpText = new StringBuilder();
         helpText.append("<html>\n<head>\n<title>SETTINGS HELP</title>\n"
                 +"</head>\n<body>\n<dl>\n");
         for (Iterator<String> it=props2Help.keySet().iterator();it.hasNext();){
@@ -962,7 +962,7 @@ public class DatabaseLayout
     public Map<String,String> getComps2HelpText()
     {
         Map<String,String> comps2HelpText = new HashMap<String, String>();
-        StringBuffer helpText = new StringBuffer();
+        StringBuilder helpText = new StringBuilder();
         helpText.append("<html>\n<head>\n<title>SETTINGS HELP</title>\n"
                 +"</head>\n<body>\n<dl>\n");
         

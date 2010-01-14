@@ -379,7 +379,7 @@ public class DatabaseImportMain extends JFrame
                     //we have a group
                     //line looks like "group basic_data basic data files"
                     groups.add(lineSplit[1]);
-                    StringBuffer nameBuf = new StringBuffer();
+                    StringBuilder nameBuf = new StringBuilder();
                     for (int i=2; i<lineSplit.length; i++) {
                         nameBuf.append(lineSplit[i]+" ");
                     }

@@ -74,7 +74,7 @@ public class ByteStringTranslator
     public ByteStringTranslator(String[] strings)
     {
         if (strings.length > MAXNUM) {
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             for (int i=0; i<strings.length; i++) {
                 buf.append("\""+strings[i]+"\" ");
             }
