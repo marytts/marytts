@@ -223,7 +223,7 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
       BufferedReader inputStream = null;
       BufferedWriter outputStream = null;
       String line;
-      StringBuffer config = new StringBuffer();
+      StringBuilder config = new StringBuilder();
       try{
         inputStream = new BufferedReader(new FileReader(voicedir + "hts/scripts/Config.pm"));     
         while ((line = inputStream.readLine()) != null) {   

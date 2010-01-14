@@ -243,7 +243,7 @@ public abstract class Utt2XMLBase extends InternalModule {
             // relation.
             Item wordItem = tokenDaughter.getItemAs("Word");
             Element t = null;
-            StringBuffer sampa = new StringBuffer();
+            StringBuilder sampa = new StringBuilder();
             if (wordItem != null) {
                 t = MaryXML.createElement(doc, MaryXML.TOKEN);
                 insertHere.appendChild(t);

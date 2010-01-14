@@ -196,7 +196,7 @@ public abstract class XML2UttBase extends InternalModule
             topElement = sentence;
         }
 
-        StringBuffer sentenceBuf = new StringBuffer();
+        StringBuilder sentenceBuf = new StringBuilder();
         // Either iterate through phrases or run once through entire sentence:
         while (topElement != null) {
             NodeIterator tokenIt = ((DocumentTraversal)doc).createNodeIterator
@@ -302,7 +302,7 @@ public abstract class XML2UttBase extends InternalModule
         if (utterance.getVoice() != null) {
             maryVoice = FreeTTSVoices.getMaryVoice(utterance.getVoice());
         }
-        StringBuffer sentenceBuf = new StringBuffer();
+        StringBuilder sentenceBuf = new StringBuilder();
         List<String> phoneList = null;
         Relation tokenRelation = utterance.getRelation(Relation.TOKEN);
         assert tokenRelation != null;

@@ -203,7 +203,7 @@ public class Trie<Symbol> {
         }
         
         public String toString(){
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             
             if (this.backPointer == null){
                 sb.append(">");
@@ -337,7 +337,7 @@ public class Trie<Symbol> {
 
     public String toString() {
         
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         
         for (TrieNode r : this.reprs.keySet()){
             sb.append("\n");

@@ -148,7 +148,7 @@ public class AbbrevEP extends ExpansionPattern
             // before matching
             tryLowerCase = true;
         }
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while (!match.isEmpty()) {
             sb.setLength(0);
             Iterator it = match.iterator();
@@ -196,7 +196,7 @@ public class AbbrevEP extends ExpansionPattern
         if (!abbr.isEmpty())
             exp.addAll(expandAbbrev(abbr));
         if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
-        	StringBuffer logBuf = new StringBuffer();
+        	StringBuilder logBuf = new StringBuilder();
         	for (Iterator it = exp.iterator(); it.hasNext(); ) {
         		Element elt = (Element) it.next();
         		if (elt.getTagName().equals(MaryXML.TOKEN)) {
@@ -230,7 +230,7 @@ public class AbbrevEP extends ExpansionPattern
         // form starts with a capital letter.
         if (MaryDomUtils.isFirstOfItsKindIn((Element)match.get(0), "div") &&
             REPattern.initialLowercaseLetter.matcher(graph).find()) {
-            StringBuffer sb = new StringBuffer(graph);
+            StringBuilder sb = new StringBuilder(graph);
             sb.setCharAt(0, Character.toUpperCase(sb.charAt(0)));
             graph = sb.toString();
             // And while we're at it, correct abbrev because we need it
@@ -285,7 +285,7 @@ public class AbbrevEP extends ExpansionPattern
         }
         // Contains dot or other specialChar:
         else if (specialChar.reMatchingChars().matcher(orig).find()) {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             StringTokenizer st = new StringTokenizer(orig, specialChar.sMatchingCharsSimpleString, saySpecialChar);
             // If saySpecialChar is true, st will return specialChar signs
             // as individual tokens of length one.
@@ -312,7 +312,7 @@ public class AbbrevEP extends ExpansionPattern
     {
         if (s == null || s.length() == 0) // nothing to do
             return s;
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (int i=0; i<s.length(); i++) {
             if (specialChar.matchSpecialChar(s.substring(i, i+1))) {
                 // A specialChar character

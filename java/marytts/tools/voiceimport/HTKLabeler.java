@@ -1000,7 +1000,7 @@ public class HTKLabeler extends VoiceImportComponent {
             String phoneSeq;
             Matcher matcher;
             Pattern pattern;
-            StringBuffer alignBuff = new StringBuffer();
+            StringBuilder alignBuff = new StringBuilder();
             //alignBuff.append(basename);
             DocumentBuilderFactory factory  = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder  = factory.newDocumentBuilder();

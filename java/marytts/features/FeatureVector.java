@@ -300,7 +300,7 @@ public class FeatureVector
      */
     public String toString()
     {
-        StringBuffer out = new StringBuffer();
+        StringBuilder out = new StringBuilder();
         for (int i=0; i<byteValuedDiscreteFeatures.length; i++) {
             if (out.length() > 0) out.append(" ");
             out.append((int)byteValuedDiscreteFeatures[i]);

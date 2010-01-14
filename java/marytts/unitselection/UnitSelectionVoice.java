@@ -260,7 +260,7 @@ public class UnitSelectionVoice extends Voice {
         try {
             BufferedReader reader =
             	new BufferedReader(new InputStreamReader(new FileInputStream(new File(file)),"UTF-8"));
-        	StringBuffer sb = new StringBuffer();
+        	StringBuilder sb = new StringBuilder();
         	String line = reader.readLine();
         	while (line != null){
         	    if (!line.startsWith("***")){

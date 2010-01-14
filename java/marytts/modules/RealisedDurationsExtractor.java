@@ -53,7 +53,7 @@ public class RealisedDurationsExtractor extends InternalModule
     {
         Document doc = d.getDocument();
         MaryData result = new MaryData(outputType(), d.getLocale());
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("#\n");
         NodeIterator ni = ((DocumentTraversal)doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT,
                 new NameNodeFilter(new String[]{MaryXML.PHONE, MaryXML.BOUNDARY}),

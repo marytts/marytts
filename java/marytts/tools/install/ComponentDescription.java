@@ -758,7 +758,7 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         public void run() {
             String maryBase = System.getProperty("mary.base");
             System.out.println("Installing "+name+"-"+version+" in "+maryBase+"...");
-            StringBuffer files = new StringBuffer();
+            StringBuilder files = new StringBuilder();
             try {
                 ZipFile zipfile = new ZipFile(archiveFile);
                 Enumeration<? extends ZipEntry> entries = zipfile.entries();

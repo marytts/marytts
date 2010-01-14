@@ -447,7 +447,7 @@ public class FeatureDefinition
      */
     public String getFeatureNames()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i=0, n=getNumberOfFeatures(); i<n; i++) {
             if (buf.length() > 0) buf.append(" ");
             buf.append(featureNames.get(i));
@@ -728,7 +728,7 @@ public class FeatureDefinition
         try {
             return byteFeatureValues[featureIndex].get(value);
         } catch (IllegalArgumentException iae) {
-            StringBuffer message = new StringBuffer("Illegal value '"+value+"' for feature "+getFeatureName(featureIndex)+"; Legal values are:\n");
+            StringBuilder message = new StringBuilder("Illegal value '"+value+"' for feature "+getFeatureName(featureIndex)+"; Legal values are:\n");
             for (String v : getPossibleValues(featureIndex)) {
                 message.append(" "+v);
             }
@@ -1000,7 +1000,7 @@ public class FeatureDefinition
                 || numShortFeatures != fv.getNumberOfShortFeatures()
                 || numContinuousFeatures != fv.getNumberOfContinuousFeatures())
             throw new IllegalArgumentException("Feature vector '"+fv+"' is inconsistent with feature definition");
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i=0; i<numByteFeatures; i++) {
             if (buf.length()>0) buf.append(" ");
             buf.append(getFeatureValueAsString(i, fv.getByteFeature(i)));
@@ -1101,7 +1101,7 @@ public class FeatureDefinition
                         // otherwise, we get problems e.g. for sentence_punc
                         String val = getFeatureValueAsString(i, v);
                         if (val.indexOf('"') != -1) {
-                            StringBuffer buf = new StringBuffer();
+                            StringBuilder buf = new StringBuilder();
                             for (int c=0; c<val.length(); c++) {
                                 char ch = val.charAt(c);
                                 if (ch == '"') buf.append("\\\"");

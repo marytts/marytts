@@ -357,7 +357,7 @@ public  class Viterbi
             int[] lengthHistogram = new int[10];
             int length = 0;
             int numUnits = selectedUnits.size();
-            StringBuffer line = new StringBuffer();
+            StringBuilder line = new StringBuilder();
             for (int i=0; i<numUnits; i++) {
                 SelectedUnit u = (SelectedUnit) selectedUnits.get(i);
                 int index = u.getUnit().index;
@@ -383,7 +383,7 @@ public  class Viterbi
                     }
                     pw.println();
                     length = 1;
-                    line = new StringBuffer();
+                    line.setLength(0);
                 }
                 line.append(database.getTargetCostFunction().getFeature(u.getUnit(), "phone") + "("+ u.getUnit().index+ ")");
                 prevIndex = index;

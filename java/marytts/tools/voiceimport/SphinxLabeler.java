@@ -256,7 +256,7 @@ public class SphinxLabeler extends VoiceImportComponent {
      private String convertPhone(String phone){
          boolean uppercase = false;
          char[] phoneChars = phone.toCharArray();
-         StringBuffer convertedPhone = new StringBuffer();
+         StringBuilder convertedPhone = new StringBuilder();
          for (int i=0;i<phoneChars.length;i++){
              char phoneChar = phoneChars[i];
              if (Character.isLetter(phoneChar)){

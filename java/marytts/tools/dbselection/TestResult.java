@@ -51,9 +51,9 @@ public class TestResult{
 
 
     public TestResult(BufferedReader resultIn) throws Exception{
-        StringBuffer textBuf = new StringBuffer();
-        StringBuffer shortTextBuf = new StringBuffer();
-        StringBuffer settingBuf = new StringBuffer();
+        StringBuilder textBuf = new StringBuilder();
+        StringBuilder shortTextBuf = new StringBuilder();
+        StringBuilder settingBuf = new StringBuilder();
         // Results for 30_06_2007_18_55_49:
         String line = resultIn.readLine();        
         String[] lineSplit = line.split(" ");

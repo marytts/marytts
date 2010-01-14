@@ -231,7 +231,7 @@ public class WagonCARTWriter {
      */
     private void toWagonFormat(FeatureVectorLeafNode node, DataOutputStream out, String extension,
             PrintWriter pw) throws IOException {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         FeatureVector fv[] = node.getFeatureVectors(); 
         
         // open three brackets
@@ -311,7 +311,7 @@ public class WagonCARTWriter {
      */
     private void toWagonFormat(IntAndFloatArrayLeafNode node, DataOutputStream out, String extension,
             PrintWriter pw) throws IOException {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         int data[] = node.getIntData();
         float floats[] = node.getFloatData();
         
@@ -351,7 +351,7 @@ public class WagonCARTWriter {
      */
     private void toWagonFormat(IntArrayLeafNode node, DataOutputStream out, String extension,
             PrintWriter pw) throws IOException {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         int data[] = node.getIntData();
         
         // open three brackets

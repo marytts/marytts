@@ -442,12 +442,12 @@ public class MaryProperties
 	private static String expandPath(String path)
 	{
 		final String MARY_BASE = "MARY_BASE";
-		StringBuffer buf = null;
+		StringBuilder buf = null;
 		if (path.startsWith(MARY_BASE)) {
-			buf = new StringBuffer(maryBase);
+			buf = new StringBuilder(maryBase);
 			buf.append(path.substring(MARY_BASE.length()));
 		} else {
-			buf = new StringBuffer(path);
+			buf = new StringBuilder(path);
 		}
 		if (File.separator.equals("/")) {
 			int i = -1;

@@ -168,7 +168,7 @@ public class PromptSet {
      */
     static public String getContents(File aFile) {
         //...checks on aFile are elided
-        StringBuffer contents = new StringBuffer();
+        StringBuilder contents = new StringBuilder();
 
         //declared here only to make visible to finally clause
         BufferedReader input = null;

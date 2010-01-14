@@ -442,7 +442,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
                  continue;
             }
             //store header of label file in StringBuffer
-        	StringBuffer labelFileHeader = new StringBuffer();
+        	StringBuilder labelFileHeader = new StringBuilder();
         	while ((line = labels.readLine()) != null) {
           	  labelFileHeader.append(line+"\n");
           	  if (line.startsWith("#")) break; // line starting with "#" marks end of header
@@ -698,7 +698,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
                     continue;
                 }
                 //store header of label file in StringBuffer
-                StringBuffer labelFileHeader = new StringBuffer();
+                StringBuilder labelFileHeader = new StringBuilder();
                 while ((line = labels.readLine()) != null) {
                     labelFileHeader.append(line+"\n");
                     if (line.startsWith("#")) break; // line starting with "#" marks end of header
@@ -1016,7 +1016,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         
             BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File(labDir+ basename + labExt)), "UTF-8"));
             //store header of label file in StringBuffer
-        	StringBuffer labelFileHeader = new StringBuffer();
+        	StringBuilder labelFileHeader = new StringBuilder();
         	while ((line = labels.readLine()) != null) {
           	  labelFileHeader.append(line+"\n");
           	  if (line.startsWith("#")) break; // line starting with "#" marks end of header

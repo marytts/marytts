@@ -227,7 +227,7 @@ public class DurationCARTTrainer extends VoiceImportComponent
                         out.print("  ");
                         String val = fd.getFeatureValueAsString(i, v);
                         if (val.indexOf('"') != -1) {
-                            StringBuffer buf = new StringBuffer();
+                            StringBuilder buf = new StringBuilder();
                             for (int c=0; c<val.length(); c++) {
                                 char ch = val.charAt(c);
                                 if (ch == '"') buf.append("\\\"");

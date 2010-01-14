@@ -147,7 +147,7 @@ public class JPhonemiser extends InternalModule
                     StringTokenizer st = new StringTokenizer(text, " -");
                     while (st.hasMoreTokens()) {
                         String graph = st.nextToken();
-                        StringBuffer helper = new StringBuffer();
+                        StringBuilder helper = new StringBuilder();
                         String phon = phonemise(graph, pos, helper);
                         if (ph.length() == 0) { // first part
                             // The g2pMethod of the combined beast is
@@ -180,13 +180,13 @@ public class JPhonemiser extends InternalModule
      * @param text the textual (graphemic) form of a word.
      * @param pos the part-of-speech of the word
      * @param g2pMethod This is an awkward way to return a second
-     * String parameter via a StringBuffer. If a phonemisation of the text is
+     * String parameter via a StringBuilder. If a phonemisation of the text is
      * found, this parameter will be filled with the method of phonemisation
      * ("lexicon", ... "rules"). 
      * @return a phonemisation of the text if one can be generated, or
      * null if no phonemisation method was successful.
      */
-    public String phonemise(String text, String pos, StringBuffer g2pMethod)
+    public String phonemise(String text, String pos, StringBuilder g2pMethod)
     {
         // First, try a simple userdict and lexicon lookup:
 

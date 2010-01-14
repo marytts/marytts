@@ -175,7 +175,7 @@ public class MarySocketClient extends MaryClient
             id = Integer.parseInt(helper);
         } catch (NumberFormatException e) {
             // Whatever we read from the server, it was not a number
-            StringBuffer message = new StringBuffer("Server replied:\n");
+            StringBuilder message = new StringBuilder("Server replied:\n");
             message.append(helper);
             message.append("\n");
             while ((helper = fromServerInfo.readLine()) != null) {
@@ -394,7 +394,7 @@ public class MarySocketClient extends MaryClient
         BufferedReader fromServerInfo = new BufferedReader(new InputStreamReader(marySocket.getInputStream(), "UTF-8"));
 
         toServerInfo.println(infoCommand);
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         String line = null;
         // Read until either end of file or an empty line
         while((line = fromServerInfo.readLine()) != null && !line.equals("")) {

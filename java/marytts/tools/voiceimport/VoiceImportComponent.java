@@ -118,7 +118,7 @@ public abstract class VoiceImportComponent
     public abstract int getProgress();
     
     public String getHelpText(){
-        StringBuffer helpText = new StringBuffer();
+        StringBuilder helpText = new StringBuilder();
         helpText.append("<html>\n<head>\n<title>SETTINGS HELP</title>\n"
                 +"</head>\n<body>\n"
                 +"<h2>Settings help for component "+getName()+"</h2>\n<dl>\n");
