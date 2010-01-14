@@ -44,7 +44,7 @@ public class AudioEffectsBoxGUI {
     {
         data = new AudioEffectsBoxData(availableEffects);
         
-        if (availableEffects!=null || availableEffects!="")
+        if (availableEffects!=null && !availableEffects.equals(""))
         {
             mainPanel = new JPanel();
             effectsBoxLabel = new JLabel("Audio Effects:");
