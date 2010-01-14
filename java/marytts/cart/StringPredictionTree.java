@@ -128,7 +128,7 @@ public class StringPredictionTree extends CART {
 	public String toString(){
 		
 		// make String representation of target symbol decoding and invoke super-toString
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		
 		sb.append( ENC_LINE_START );
 		

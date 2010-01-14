@@ -407,7 +407,7 @@ public class FeatureMaker
 	protected static MaryData processSentence(String nextSentence, int textId, String feas)
 	{
 		//do a bit of normalization
-        StringBuffer docBuf = null;
+        StringBuilder docBuf = null;
 		nextSentence = nextSentence.replaceAll("\\\\","").trim();
 		nextSentence = nextSentence.replaceAll("\\s/\\s","").trim();
 		nextSentence = nextSentence.replaceAll("^/\\s","").trim();
@@ -432,7 +432,7 @@ public class FeatureMaker
 							+": \""+nextSentence+"\":\n"+d.getPlainText() + "; skipping sentence");
 				} else {
 					if (d.getDocument() != null){
-						docBuf = new StringBuffer();
+						docBuf = new StringBuilder();
 						getXMLAsString(d.getDocument(),docBuf);
 						System.out.println("Error processing sentence "
 								+": \""+nextSentence+"\":\n"+docBuf.toString() + "; skipping sentence");
@@ -481,7 +481,7 @@ public class FeatureMaker
     protected static byte[] processSentenceToFeatures(String nextSentence, int textId, TargetFeatureComputer featureComputer)
     {
         //do a bit of normalization
-        StringBuffer docBuf = null;
+        StringBuilder docBuf = null;
         nextSentence = nextSentence.replaceAll("\\\\","").trim();
         nextSentence = nextSentence.replaceAll("\\s/\\s","").trim();
         nextSentence = nextSentence.replaceAll("^/\\s","").trim();
@@ -583,7 +583,7 @@ public class FeatureMaker
 		protected static Vector<String> splitIntoSentences(String text, int id, boolean test)throws Exception{
             
             Vector<String> sentenceList = null;
-            StringBuffer sentence;
+            StringBuilder sentence;
             //index2sentences = new TreeMap<Integer,String>();
           
             Document doc = phonemiseText(text, id);
@@ -674,7 +674,7 @@ public class FeatureMaker
          *  1 if the sentence contains unknownWords (so the sentence is not useful)
          *  2 if the sentence contains strangeSymbols (so the sentence is not useful)
          */
-        protected static StringBuffer collectTokens(Node nextToken, StringBuffer sentence){
+        protected static StringBuilder collectTokens(Node nextToken, StringBuilder sentence){
             int credibility = 0; 
             String tokenText, word;
             String name = nextToken.getLocalName();
@@ -688,7 +688,7 @@ public class FeatureMaker
                       strangeSymbols = true;  
                 }
                 if (sentence == null){
-                    sentence = new StringBuffer();
+                    sentence = new StringBuilder();
                     //first word of the sentence
                      word = MaryDomUtils.tokenText((Element)nextToken);                   
                      sentence.append(word);
@@ -784,12 +784,12 @@ public class FeatureMaker
 		
 		/**
 		 * Convert the given xml-node and its subnodes to Strings
-		 * and collect them in the given Stringbuffer
+		 * and collect them in the given StringBuilder
 		 * 
 		 * @param motherNode the xml-node
-		 * @param ppText the Stringbuffer
+		 * @param ppText the StringBuilder
 		 */
-		protected static void getXMLAsString(Node motherNode,StringBuffer ppText){
+		protected static void getXMLAsString(Node motherNode,StringBuilder ppText){
 			NodeList children = motherNode.getChildNodes();
 			for (int i=0;i<children.getLength();i++){
 				Node nextChild = children.item(i);

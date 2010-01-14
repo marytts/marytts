@@ -292,7 +292,7 @@ public class NumberEP extends ExpansionPattern
         int hundreds;
         int tens;
         int rest;
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
         // Special treatment for the 0:
         if (value == 0) {
@@ -396,7 +396,7 @@ public class NumberEP extends ExpansionPattern
     {
         // String <code>number</code> must contain exactly one ',' or '.'
         long whole = 0; // the integer part of the number
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         int i=0; // index in <code>number</code>
         while(i<number.length() && Character.isDigit(number.charAt(i))) {
             whole *= 10;
@@ -422,7 +422,7 @@ public class NumberEP extends ExpansionPattern
     }
     protected String expandDigits(String digits)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i=0; i<digits.length(); i++) {
             switch(digits.charAt(i)) {
             case ',': buf.append("Komma "); break;
@@ -476,7 +476,7 @@ public class NumberEP extends ExpansionPattern
 
     protected List expandOrdinal(Document doc, long value, boolean createMtu, String orig)
     {
-        StringBuffer exp = new StringBuffer();
+        StringBuilder exp = new StringBuilder();
         int rest = (int) value % 100;
         if (Math.abs(value) >= 100) {
             exp.append(expandInteger(value - rest));

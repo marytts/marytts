@@ -589,7 +589,7 @@ public class Tokeniser extends InternalModule {
         		logger.info("Word at: "+scan);
         		Element token = MaryXML.appendChildElement(sentenceElement, MaryXML.TOKEN);
         		String[] word = (String[])wordMap.get(new Integer(scan));
-                StringBuffer tokenText = new StringBuffer();
+                StringBuilder tokenText = new StringBuilder();
         		for (int j=0;j<word.length;j++)  {
         			String sylText = word[j];
         			parseSyllable(token, sylText);
@@ -851,7 +851,7 @@ public class Tokeniser extends InternalModule {
         }
         
         
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (Iterator it=sylList.iterator(); it.hasNext();) {
             buf.append(it.next());
             buf.append(" ");

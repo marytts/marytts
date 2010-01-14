@@ -215,7 +215,7 @@ public class DemandingClient {
         }
 
         // Read input into a string:
-        StringBuffer sb = new StringBuffer(1024);
+        StringBuilder sb = new StringBuilder(1024);
         char[] buf = new char[1024];
         int nr;
         while ((nr = inputReader.read(buf)) != -1) {

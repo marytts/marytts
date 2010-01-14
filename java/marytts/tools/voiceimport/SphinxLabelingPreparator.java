@@ -332,8 +332,8 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
                 Element token = null;
                 //collect the words
                 int numTokens = 0;
-                StringBuffer trainBuff = new StringBuffer();
-                StringBuffer alignBuff = new StringBuffer();
+                StringBuilder trainBuff = new StringBuilder();
+                StringBuilder alignBuff = new StringBuilder();
                 boolean sentenceBoundary = false;
                 while ((token = (Element) tokensIt.nextNode()) != null) {
                     //get the word 
@@ -348,7 +348,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
                             //there is an error in the transcript
                             Element tokenParent = (Element) token.getParentNode();
                             if (!tokenParent.getLocalName().equals("mtu")){                                  
-                                StringBuffer xmlBuf = new StringBuffer();
+                                StringBuilder xmlBuf = new StringBuilder();
                                 getXMLAsString(doc,xmlBuf);
                                 System.out.println(xmlBuf.toString());
                                 System.out.println("Problem with token "+word
@@ -447,12 +447,12 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
     
     /**
      * Convert the given xml-node and its subnodes to Strings
-     * and collect them in the given Stringbuffer
+     * and collect them in the given StringBuilder
      * 
      * @param motherNode the xml-node
-     * @param ppText the Stringbuffer
+     * @param ppText the StringBuilder
      */
-    private void getXMLAsString(Node motherNode,StringBuffer ppText){
+    private void getXMLAsString(Node motherNode,StringBuilder ppText){
         NodeList children = motherNode.getChildNodes();
         for (int i=0;i<children.getLength();i++){
             Node nextChild = children.item(i);
@@ -555,7 +555,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
         //convert everything to uppercase
         //and mark originally uppercase characters with *
         char[] phoneChars = phone.toCharArray();
-        StringBuffer convertedPhone = new StringBuffer();
+        StringBuilder convertedPhone = new StringBuilder();
         for (int i=0;i<phoneChars.length;i++){
             char phoneChar = phoneChars[i];
             if (Character.isLetter(phoneChar)){
@@ -662,7 +662,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
         File make_feats = new File(getProp(STDIR)+"bin/make_feats.pl");
         BufferedReader bufIn = new BufferedReader(
                 new FileReader(make_feats));
-        StringBuffer stBuf = new StringBuffer();
+        StringBuilder stBuf = new StringBuilder();
         String line = bufIn.readLine();
         while (line != null){
             if (line.equals("\t \"-di wav -ei sph -do \\\"$CFG_FEATFILES_DIR\\\" \" .")){
@@ -726,7 +726,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
         BufferedReader reader = new BufferedReader(
                 new FileReader(outputDir+"/sphinx_train.cfg"));
         //StringBuffer to rewrite the file
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         String line;
         //go through lines of config file
         while ((line = reader.readLine()) != null){

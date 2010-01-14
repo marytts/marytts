@@ -77,7 +77,7 @@ public class MaryXMLToMbrola extends InternalModule
                          currentVoice.getName());
         }
         Element currentVoiceElement = null;
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         while ((element = (Element) it.nextNode()) != null) {
             Element v = (Element) MaryDomUtils.getAncestor(element, MaryXML.VOICE);
             if (v == null) {
@@ -127,7 +127,7 @@ public class MaryXMLToMbrola extends InternalModule
             throw new IllegalArgumentException("Expected an MBROLA voice, but "+voice.getName()+" is a "+voice.getClass());
 
         MbrolaVoice mbrolaVoice = (MbrolaVoice) voice;
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         // In order to test for missing diphones, we need to
         // look at two subsequent phones. General case:
         // A list of phones "in the cue":

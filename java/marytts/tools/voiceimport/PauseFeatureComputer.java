@@ -182,7 +182,7 @@ public class PauseFeatureComputer extends VoiceImportComponent
         }
         // try again:
         if (voices == null) {
-            StringBuffer buf = new StringBuffer("Mary server has no voices for locale '"+localVoice+"' -- known voices are:\n");
+            StringBuilder buf = new StringBuilder("Mary server has no voices for locale '"+localVoice+"' -- known voices are:\n");
             Vector<MaryClient.Voice> allVoices = maryClient.getVoices();
             for (MaryClient.Voice v: allVoices) {
                 buf.append(v.toString()); buf.append("\n");

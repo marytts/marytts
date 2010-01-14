@@ -225,7 +225,7 @@ public class Segmenter implements UtteranceProcessor {
         if (addenda != null && path != null){
             try{
                 String line;
-                StringBuffer addendaBuf = new StringBuffer();    
+                StringBuilder addendaBuf = new StringBuilder();
                 addendaBuf.append("# Logfile contains words that are not in the lexicon"
                         +"\n# and their transcriptions predicted by the LTS-rules"
                         +"\n# (for English)\n");

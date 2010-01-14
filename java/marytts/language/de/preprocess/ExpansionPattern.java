@@ -218,7 +218,7 @@ public abstract class ExpansionPattern {
             throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Expected t element");
         if (!expanded.isEmpty())
             throw new IllegalArgumentException("Expected empty list, but list has " + expanded.size() + " elements.");
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         int matchedType = -1;
         ArrayList candidates = new ArrayList();
         if (allowMultipleTokens()) {
@@ -297,7 +297,7 @@ public abstract class ExpansionPattern {
         if (!sayas.getTagName().equals(MaryXML.SAYAS))
             throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Expected " + MaryXML.SAYAS + " element, got " + sayas.getTagName());
         List tokens = MaryDomUtils.NodeListAsList(sayas.getElementsByTagName(MaryXML.TOKEN));
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (Iterator it = tokens.iterator(); it.hasNext();) {
             sb.append(MaryDomUtils.tokenText((Element) it.next()));
         }

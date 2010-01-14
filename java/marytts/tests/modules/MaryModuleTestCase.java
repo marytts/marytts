@@ -80,7 +80,7 @@ public class MaryModuleTestCase {
     throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(
             this.getClass().getResourceAsStream(resourceName), "UTF-8"));
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         String line;
         while ((line = br.readLine()) != null) {
             buf.append(line);

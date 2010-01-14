@@ -106,7 +106,7 @@ public class LTS
             
         syllabifier.syllabify(phoneList);
         insertGlottalStops(phoneList);
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         ListIterator it = phoneList.listIterator(0);
         while (it.hasNext()) buf.append((String) it.next());
         return buf.toString();

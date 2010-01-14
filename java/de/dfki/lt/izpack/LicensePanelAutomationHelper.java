@@ -133,7 +133,7 @@ public class LicensePanelAutomationHelper implements PanelAutomation, ActionList
         } else if (selectedPacksConcerned.size() == 1) {
             infoText = "The pack '"+ ((String)selectedPacksConcerned.get(0)) + "' is covered by the following license. Please read it carefully:";
         } else { // several
-            StringBuffer buf = new StringBuffer("The packs '");
+            StringBuilder buf = new StringBuilder("The packs '");
             Iterator it = selectedPacksConcerned.iterator();
             String name = (String) it.next();
             buf.append(name); buf.append("'");

@@ -916,7 +916,7 @@ public class StringUtils {
     {
         int s = 0;
         int e = 0;
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
     
         while ((e = str.indexOf(pattern, s)) >= 0) 
         {

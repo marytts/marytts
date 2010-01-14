@@ -205,7 +205,7 @@ public class Inflection
             if (endings.size() == 1) {
                 String ending = (String) endings.iterator().next();
                 logger.debug("...correct ending should be `e" + ending + "'");
-                StringBuffer soundsLike = new StringBuffer(toInflect.getAttribute("sounds_like"));
+                StringBuilder soundsLike = new StringBuilder(toInflect.getAttribute("sounds_like"));
                 // abbreviations don't have an "e" at the end, so add it:
                 if (toInflect.getAttribute("ending").equals("adjadv"))
                     soundsLike.append("e");

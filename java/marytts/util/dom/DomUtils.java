@@ -486,7 +486,7 @@ public class DomUtils
         } else {
             doc = n.getOwnerDocument();
         }
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         NodeIterator it = ((DocumentTraversal)doc).
             createNodeIterator(n, NodeFilter.SHOW_TEXT, null, true);
         Text text = null;

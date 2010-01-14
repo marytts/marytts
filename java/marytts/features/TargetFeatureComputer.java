@@ -154,7 +154,7 @@ public class TargetFeatureComputer
      */
     public String toStringValues(FeatureVector features)
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         byte[] bytes = features.getByteValuedDiscreteFeatures();
         short[] shorts = features.getShortValuedDiscreteFeatures();
         float[] floats = features.getContinuousFeatures();
@@ -213,7 +213,7 @@ public class TargetFeatureComputer
      */
     public String getByteValuedFeatureProcessorNames()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i=0; i < byteValuedDiscreteFeatureProcessors.length; i++) {
             if (i>0) buf.append(" ");
             buf.append(byteValuedDiscreteFeatureProcessors[i].getName());
@@ -227,7 +227,7 @@ public class TargetFeatureComputer
      */
     public String getShortValuedFeatureProcessorNames()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i=0; i < shortValuedDiscreteFeatureProcessors.length; i++) {
             if (i>0) buf.append(" ");
             buf.append(shortValuedDiscreteFeatureProcessors[i].getName());
@@ -241,7 +241,7 @@ public class TargetFeatureComputer
      */
     public String getContinuousFeatureProcessorNames()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i=0; i < continuousFeatureProcessors.length; i++) {
             if (i>0) buf.append(" ");
             buf.append(continuousFeatureProcessors[i].getName());
@@ -281,7 +281,7 @@ public class TargetFeatureComputer
      */
     public String getByteValuedFeatureProcessorNamesAndValues()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i=0; i < byteValuedDiscreteFeatureProcessors.length; i++) {
             buf.append(byteValuedDiscreteFeatureProcessors[i].getName());
             String[] values = byteValuedDiscreteFeatureProcessors[i].getValues();
@@ -303,7 +303,7 @@ public class TargetFeatureComputer
      */
     public String getShortValuedFeatureProcessorNamesAndValues()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i=0; i < shortValuedDiscreteFeatureProcessors.length; i++) {
             buf.append(shortValuedDiscreteFeatureProcessors[i].getName());
             String[] values = shortValuedDiscreteFeatureProcessors[i].getValues();
@@ -324,7 +324,7 @@ public class TargetFeatureComputer
      */
     public String getContinuousFeatureProcessorNamesAndValues()
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i=0; i < continuousFeatureProcessors.length; i++) {
             buf.append(continuousFeatureProcessors[i].getName());
             buf.append(" float\n");

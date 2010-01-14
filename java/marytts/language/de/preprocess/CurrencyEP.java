@@ -159,7 +159,7 @@ public class CurrencyEP extends ExpansionPattern
     // Only used to initialise sCurrencySymbol from _currencySymbolNames[]:
     private String getCurrencySymbols()
     {
-        StringBuffer _sCurrencySymbol = new StringBuffer("(?:\\$");
+        StringBuilder _sCurrencySymbol = new StringBuilder("(?:\\$");
         for (int i=0; i<_currencySymbolNames.length; i+=2) {
             if (!_currencySymbolNames[i].equals("$")) {
                 // $ needs to be quoted in regular expression
@@ -225,7 +225,7 @@ public class CurrencyEP extends ExpansionPattern
     protected List expandCurrency(Document doc, String s)
     {
         ArrayList exp = new ArrayList();
-		StringBuffer sb = new StringBuffer();
+	StringBuilder sb = new StringBuilder();
         String currency = null;
         String amount = null;
         Matcher reMatcher = reCurrencyLeading.matcher(s);

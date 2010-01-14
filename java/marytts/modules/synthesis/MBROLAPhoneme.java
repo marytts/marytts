@@ -53,7 +53,7 @@ public class MBROLAPhoneme
 
     public String toString()
     {
-        StringBuffer buf = new StringBuffer(symbol);
+        StringBuilder buf = new StringBuilder(symbol);
         if (vq != null && !vq.equals("")) {
             buf.append("_");
             buf.append(vq);

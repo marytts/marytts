@@ -152,7 +152,7 @@ public class MeasureEP extends ExpansionPattern
     // Only used to initialise sMeasureSymbol from _measureSymbolNames[]:
     private String getMeasureSymbols()
     {
-        StringBuffer _sMeasureSymbol = new StringBuffer("(?:");
+        StringBuilder _sMeasureSymbol = new StringBuilder("(?:");
         if (_nuDeFeMeasureSymbolNames.length > 0)
             _sMeasureSymbol.append(_nuDeFeMeasureSymbolNames[0]);
         for (int i=2; i<_nuDeFeMeasureSymbolNames.length; i+=2) {
@@ -217,7 +217,7 @@ public class MeasureEP extends ExpansionPattern
     protected List expandMeasure(Document doc, String s)
     {
         ArrayList exp = new ArrayList();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         String measure = null;
         String amount = null;
         Matcher reMatcher = reMeasure.matcher(s);

@@ -104,7 +104,7 @@ public class PAConverter
      */
     public static String sampaEnString2sampaDeString(String sEn)
     {
-    	StringBuffer result = new StringBuffer();
+    	StringBuilder result = new StringBuilder();
     	StringTokenizer st = new StringTokenizer(sEn, "-");
     	while(st.hasMoreTokens()){
     		boolean stressed = false;

@@ -244,12 +244,12 @@ public class JPhonemiser extends marytts.modules.JPhonemiser
                     // If text consists of several parts (e.g., because that was
                     // inserted into the sounds_like attribute), each part
                     // is transcribed separately.
-                    StringBuffer ph = new StringBuffer();
+                    StringBuilder ph = new StringBuilder();
                     String g2pMethod = null;
                     StringTokenizer st = new StringTokenizer(text, " -");
                     while (st.hasMoreTokens()) {
                         String graph = st.nextToken();
-                        StringBuffer helper = new StringBuffer();
+                        StringBuilder helper = new StringBuilder();
                         String phon = null;
                         if (isEnglish && usEnglishLexicon != null) {
                             phon = phonemiseEn(graph);
@@ -288,14 +288,14 @@ public class JPhonemiser extends marytts.modules.JPhonemiser
      * if nothing else was successful. 
      * @param text the textual (graphemic) form of a word.
      * @param g2pMethod This is an awkward way to return a second
-     * String parameter via a StringBuffer. If a phonemisation of the text is
+     * String parameter via a StringBuilder. If a phonemisation of the text is
      * found, this parameter will be filled with the method of phonemisation
      * ("lexicon", ... "rules"). 
      * @return a phonemisation of the text if one can be generated, or
      * null if no phonemisation method was successful.
      */
     @Override
-    public String phonemise(String text, String pos, StringBuffer g2pMethod)
+    public String phonemise(String text, String pos, StringBuilder g2pMethod)
     {
         // First, try a simple userdict and lexicon lookup:
         String result = userdictLookup(text, pos);

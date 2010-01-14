@@ -201,7 +201,7 @@ public class TimeEP extends ExpansionPattern
     protected List expandTimeHMS(Document doc, String s)
     {
         ArrayList exp = new ArrayList();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         Matcher reMatcher = reHourMinuteSecond.matcher(s);
         if (!reMatcher.find()) {
             return null;
@@ -237,7 +237,7 @@ public class TimeEP extends ExpansionPattern
     protected List expandTimeHM(Document doc, String s)
     {
         ArrayList exp = new ArrayList();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         Matcher reMatcher = reHourMinute.matcher(s);
         reMatcher.find();
         String hour = reMatcher.group(1);
@@ -368,7 +368,7 @@ public class TimeEP extends ExpansionPattern
     
     
     private String extractDigits(String s){
-    	StringBuffer sB = new StringBuffer(s);
+    	StringBuilder sB = new StringBuilder(s);
     	for (int i=0; i<sB.length(); i++)
     		if (!('0' <= sB.charAt(i) && sB.charAt(i) <= '9'))
     			sB.deleteCharAt(i--);

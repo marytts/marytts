@@ -379,7 +379,7 @@ public class FeatureMakerMaryServer{
 	 */
 	protected static MaryData processSentence(String nextSentence, int textId, String feas){
 		//do a bit of normalization
-        StringBuffer docBuf = null;
+        StringBuilder docBuf = null;
 		nextSentence = nextSentence.replaceAll("\\\\","").trim();
 		nextSentence = nextSentence.replaceAll("\\s/\\s","").trim();
 		nextSentence = nextSentence.replaceAll("^/\\s","").trim();
@@ -404,7 +404,7 @@ public class FeatureMakerMaryServer{
 							+": \""+nextSentence+"\":\n"+d.getPlainText() + "; skipping sentence");
 				} else {
 					if (d.getDocument() != null){
-						docBuf = new StringBuffer();
+						docBuf = new StringBuilder();
 						getXMLAsString(d.getDocument(),docBuf);
 						System.out.println("Error processing sentence "
 								+": \""+nextSentence+"\":\n"+docBuf.toString() + "; skipping sentence");
@@ -776,12 +776,12 @@ public class FeatureMakerMaryServer{
 		
 		/**
 		 * Convert the given xml-node and its subnodes to Strings
-		 * and collect them in the given Stringbuffer
+		 * and collect them in the given StringBuilder
 		 * 
 		 * @param motherNode the xml-node
-		 * @param ppText the Stringbuffer
+		 * @param ppText the StringBuilder
 		 */
-		protected static void getXMLAsString(Node motherNode,StringBuffer ppText){
+		protected static void getXMLAsString(Node motherNode,StringBuilder ppText){
 			NodeList children = motherNode.getChildNodes();
 			for (int i=0;i<children.getLength();i++){
 				Node nextChild = children.item(i);

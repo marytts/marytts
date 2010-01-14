@@ -1518,7 +1518,7 @@ public class DBHandler {
   // Firts filtering:
   // get first the page_title and check if it is not Image: or  Wikipedia:Votes_for_deletion/
   // maybe we can check also the length
-  public String getTextFromWikiPage(String id, int minPageLength, StringBuffer old_id, PrintWriter pw) {
+  public String getTextFromWikiPage(String id, int minPageLength, StringBuilder old_id, PrintWriter pw) {
       String pageTitle, pageLen, dbQuery, textId, text=null;
       byte[] textBytes=null;
       int len;
@@ -1916,8 +1916,8 @@ public class DBHandler {
   
   /** The following characteres should be escaped:
    * \0  An ASCII 0 (NUL) character.
-   * \'  A single quote (“'”) character.
-   * \"  A double quote (“"”) character.
+   * \'  A single quote (“'�?) character.
+   * \"  A double quote (“"�?) character.
    */
   public String mysqlEscapeCharacters(String str){
     

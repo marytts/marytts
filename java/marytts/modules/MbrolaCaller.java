@@ -96,7 +96,7 @@ public class MbrolaCaller extends SynthesisCallerBase {
             nrAttempts++;
             AudioDestination audioDestination = new AudioDestination();
             logger.debug("Keeping audio data in " + (audioDestination.isInRam() ? "RAM" : " a temp file"));
-            StringBuffer cmdString = new StringBuffer();
+            StringBuilder cmdString = new StringBuilder();
             for (int i=0; i<cmd.length; i++) {
                 cmdString.append(cmd[i]); cmdString.append(" ");
             }

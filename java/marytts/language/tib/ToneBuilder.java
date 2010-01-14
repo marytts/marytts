@@ -498,7 +498,7 @@ public class ToneBuilder extends InternalModule {
     	if (toDo.indexOf("+")!=-1){
     		//split up the actions
     		String[] actions = toDo.split("\\+");
-    		StringBuffer sb = new StringBuffer(); 
+    		StringBuilder sb = new StringBuilder();
     		//iterate over the actions
     		for (int i = 0; i< actions.length; i++){
     			//if the sampa is specified in a map
