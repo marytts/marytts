@@ -79,7 +79,7 @@ public class BaseTester {
     {
         if (signal != null)
         {
-            if (signal!=null && (outWavFile!=null || outWavFile!=""))
+            if (signal!=null && (outWavFile!=null && !outWavFile.equals("")))
             {
                 double maxVal = MathUtils.getAbsMax(signal);
                 for (int i=0; i<signal.length; i++)
@@ -97,7 +97,7 @@ public class BaseTester {
                 AudioSystem.write(outputAudio, AudioFileFormat.Type.WAVE, new File(outWavFile));
             }
             
-            if (pitchMarks != null && (outPtcFile!=null || outPtcFile!=""))
+            if (pitchMarks != null && (outPtcFile!=null && !outWavFile.equals("")))
             {
                 PitchReaderWriter.write_pitch_file(outPtcFile, f0s, ws, ss, fs);
                 //FileUtils.writeToBinaryFile(pitchMarks, outPtcFile); //Pitch mark file
