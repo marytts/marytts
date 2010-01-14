@@ -120,7 +120,7 @@ public class MultiWordEP extends ExpansionPattern
         // First, try to find longest entries in database, then shorter.
         List expanded = new ArrayList();
         ArrayList match = new ArrayList(tokens);
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         String multiword = null;
         while (!match.isEmpty()) {
             sb.setLength(0);
@@ -142,7 +142,7 @@ public class MultiWordEP extends ExpansionPattern
             logger.debug("Have found multiword in dictionary: `" + multiword + "'");
         }
         if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
-            StringBuffer logBuf = new StringBuffer();
+            StringBuilder logBuf = new StringBuilder();
             for (Iterator it = expanded.iterator(); it.hasNext(); ) {
                 Element elt = (Element) it.next();
                 if (elt.getTagName().equals(MaryXML.TOKEN)) {

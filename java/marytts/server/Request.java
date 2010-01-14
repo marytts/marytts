@@ -144,8 +144,8 @@ public class Request {
         this.outputTypeParams = outputTypeParams;
         this.inputData = null;
         this.outputData = null;
-        StringBuffer info =
-            new StringBuffer(
+        StringBuilder info =
+            new StringBuilder(
                 "New request (input type \"" + inputType.name() + "\", output type \"" + outputType.name());
         if (this.defaultVoice != null)
             info.append("\", voice \"" + this.defaultVoice.getName());

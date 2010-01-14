@@ -398,7 +398,7 @@ public class WikipediaMarkupCleaner {
                line = new StringBuffer(line.toString().replaceAll("\"", ""));
                // these quotations have a strange/problematic symbol different from "
                line = new StringBuffer(line.toString().replaceAll("“", ""));
-               line = new StringBuffer(line.toString().replaceAll("”", ""));
+               line = new StringBuffer(line.toString().replaceAll("�?", ""));
                // these symbol are also problematic, here they are changed.
                line = new StringBuffer(line.toString().replaceAll("’", "'"));
                line = new StringBuffer(line.toString().replaceAll("—", "-"));
@@ -983,7 +983,7 @@ public class WikipediaMarkupCleaner {
 
         wikiToDB.createDBConnection(mysqlHost, mysqlDB, mysqlUser, mysqlPasswd);
         String text;
-        StringBuffer textId = new StringBuffer();
+        StringBuilder textId = new StringBuilder();
         int numPagesUsed=0;
  
         PrintWriter pw = null;
@@ -1078,7 +1078,7 @@ public class WikipediaMarkupCleaner {
         if(wikiLog != null)
           pw = new PrintWriter(new FileWriter(new File(wikiLog)));
         
-        StringBuffer textId = new StringBuffer();
+        StringBuilder textId = new StringBuilder();
         int numPagesUsed=0;
         
         Vector<String> textList;

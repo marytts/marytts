@@ -506,7 +506,7 @@ public class Phonemiser extends InternalModule {
     	//get the syllables
     	NodeList syllables = token.getElementsByTagName(MaryXML.SYLLABLE);
     	//build a new buffer to store the sound of the entire token
-    	StringBuffer tokenSound = new StringBuffer();
+    	StringBuilder tokenSound = new StringBuilder();
     	//store the length of the word
     	int max = syllables.getLength();
     	//loop over the syllables
@@ -751,7 +751,7 @@ public class Phonemiser extends InternalModule {
     	if (toDo.indexOf("+")!=-1){
 	    //split up the actions
 	    String[] actions = toDo.split("\\+");
-	    StringBuffer sb = new StringBuffer(); 
+	    StringBuilder sb = new StringBuilder();
 	    //iterate over the actions
 	    for (int i = 0; i< actions.length; i++){
 		//if the sampa is specified in a map

@@ -53,7 +53,7 @@ public class FreeTTS2FestivalUtt extends InternalModule
 
     public MaryData process(MaryData d)
     {
-    	StringBuffer buf = new StringBuffer();
+    	StringBuilder buf = new StringBuilder();
     	List utts = d.getUtterances();
     	for (Iterator it = utts.iterator(); it.hasNext(); ) {
             Utterance utt = (Utterance) it.next();
@@ -72,7 +72,7 @@ public class FreeTTS2FestivalUtt extends InternalModule
      * @return a String representing utt in FESTIVAL_UTT format.
      */
     public String convertUtt(Utterance utt) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("===Utterance===\n");
         buf.append(VOICEMARKER + FreeTTSVoices.getMaryVoice(utt.getVoice()).getName() + "\n");
         // Segment relation for this utterance
@@ -105,10 +105,10 @@ public class FreeTTS2FestivalUtt extends InternalModule
         buf.append("#\n");
         Relation syllStrucRelation = utt.getRelation(Relation.SYLLABLE_STRUCTURE);
         assert syllStrucRelation != null;
-        StringBuffer word = new StringBuffer();
+        StringBuilder word = new StringBuilder();
         word.append("==Word==\n");
         word.append("#\n");
-        StringBuffer iE = new StringBuffer();
+        StringBuilder iE = new StringBuilder();
         iE.append("==IntEvent==\n");
         iE.append("#\n");
         Item syllStrucItem = syllStrucRelation.getHead();
@@ -117,7 +117,7 @@ public class FreeTTS2FestivalUtt extends InternalModule
         	float end = 0;
         	while(syllItem != null){
         		end = syllItem.getLastDaughter().getFeatures().getFloat("end");
-        		StringBuffer syllable = new StringBuffer();
+        		StringBuilder syllable = new StringBuilder();
         		Item segItem = syllItem.getDaughter();
         		while(segItem != null){
         			syllable.append(segItem.toString());

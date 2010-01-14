@@ -514,7 +514,7 @@ public class DateEP extends ExpansionPattern
         if (value >= 1100 && value <= 1999) {
             int hundreds = value / 100;
             int rest = value % 100;
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             sb.append(number.expandInteger(hundreds));
             sb.append(" Hundert");
             if (rest != 0) {

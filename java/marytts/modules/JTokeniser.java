@@ -96,7 +96,7 @@ public class JTokeniser extends InternalModule
         NodeIterator ni = ((DocumentTraversal)doc).createNodeIterator(
             doc, NodeFilter.SHOW_TEXT, null, false);
         Text textNode;
-        StringBuffer inputText = new StringBuffer();
+        StringBuilder inputText = new StringBuilder();
         // Keep this loop in sync with the second loop, below:
         while ((textNode = (Text)ni.nextNode()) != null) {
             String text = textNode.getData().trim();

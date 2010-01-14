@@ -562,7 +562,7 @@ public class DatabaseSelector
                 continue;
             }
             if (args[i].equals("-stop")){
-                StringBuffer tmp = new StringBuffer();
+                StringBuilder tmp = new StringBuilder();
                 i++;
                 while (args.length > i){                    
                     if (args[i].startsWith("-")) break;

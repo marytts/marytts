@@ -57,7 +57,7 @@ public class WikipediaDumpSplitter {
       String nextLine; 
       boolean checkSiteInfo = true;
       boolean siteInfo = false;
-      StringBuffer strInfo = new StringBuffer("");
+      StringBuilder strInfo = new StringBuilder();
       FileWriter outputStream = null;
       int num = (int)Math.round(maxPagesPerChunk * 0.50);
       

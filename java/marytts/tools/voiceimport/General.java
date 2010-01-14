@@ -61,7 +61,7 @@ public class General
      * @throws IOException on error
      */
     public static String readWord(DataInputStream dis) throws IOException {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         char c;
 
         // skip leading whitespace

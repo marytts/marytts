@@ -819,7 +819,7 @@ public class TokenToWords implements UtteranceProcessor {
 
         } else {
             /* internal single quote deleted */
-            StringBuffer buffer = new StringBuffer(tokenVal);
+            StringBuilder buffer = new StringBuilder(tokenVal);
             buffer.deleteCharAt(index);
             tokenToWords(wordRelation, tokenItem, buffer.toString());
         }
