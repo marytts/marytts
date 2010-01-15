@@ -398,7 +398,7 @@ public class WikipediaMarkupCleaner {
                line = new StringBuffer(line.toString().replaceAll("\"", ""));
                // these quotations have a strange/problematic symbol different from "
                line = new StringBuffer(line.toString().replaceAll("“", ""));
-               line = new StringBuffer(line.toString().replaceAll("�?", ""));
+               line = new StringBuffer(line.toString().replaceAll("”", ""));
                // these symbol are also problematic, here they are changed.
                line = new StringBuffer(line.toString().replaceAll("’", "'"));
                line = new StringBuffer(line.toString().replaceAll("—", "-"));
