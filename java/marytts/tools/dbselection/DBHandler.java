@@ -1916,8 +1916,8 @@ public class DBHandler {
   
   /** The following characteres should be escaped:
    * \0  An ASCII 0 (NUL) character.
-   * \'  A single quote (“'�?) character.
-   * \"  A double quote (“"�?) character.
+   * \'  A single quote (“'”) character.
+   * \"  A double quote (“"”) character.
    */
   public String mysqlEscapeCharacters(String str){
     
