@@ -2673,10 +2673,34 @@ public class SignalProcUtils {
         
         int endHarmonicIndex = numHarmonics;
         
-        return getPeakAmplitudes(sDft, f0InHz, startHarmonicIndex, endHarmonicIndex, fftSize, samplingRateInHz);
+        return getPeakAmplitudes(sDft, f0InHz, startHarmonicIndex, endHarmonicIndex, fftSize, samplingRateInHz, true);
     }
-    
-    public static double[] getPeakAmplitudes(double[] sDft, double f0InHz, int startHarmonicIndex, int endHarmonicIndex, int fftSize, double samplingRateInHz)
+
+    public static double[] getPeakAmplitudeFrequencies(double[] sDft, double f0InHz, int numHarmonics, int fftSize, double samplingRateInHz, boolean bIncludeZerothHarmonic)
+    {
+        int startHarmonicIndex;
+        if (bIncludeZerothHarmonic)
+            startHarmonicIndex = 0;
+        else
+            startHarmonicIndex = 1;
+        
+        int endHarmonicIndex = numHarmonics;
+        
+        return getPeakAmplitudes(sDft, f0InHz, startHarmonicIndex, endHarmonicIndex, fftSize, samplingRateInHz, false);
+    }
+    /**
+     * 
+     * @param sDft
+     * @param f0InHz
+     * @param startHarmonicIndex
+     * @param endHarmonicIndex
+     * @param fftSize
+     * @param samplingRateInHz
+     * @param amplitudes: if amplitudes true it returns the amplitude values, original function
+     *                    if amplitudes false it returns the amplitud frequencies where the peaks were located
+     * @return
+     */
+    public static double[] getPeakAmplitudes(double[] sDft, double f0InHz, int startHarmonicIndex, int endHarmonicIndex, int fftSize, double samplingRateInHz, boolean amplitudes)
     {
         int maxFreqIndex = (int)Math.floor(0.5*fftSize+0.5);
 
@@ -2684,19 +2708,26 @@ public class SignalProcUtils {
         int numAmps = numHarmonics;
         
         double[] amps = new double[numAmps];
+        double[] ampsFreq = new double[numAmps];
 
         int freqStartInd, freqEndInd;
         int i, k;
-
+        int zeroBasedMaxFreqIndex = fftSize/2;
+        
         for (i=startHarmonicIndex; i<=endHarmonicIndex; i++)
         {
             freqStartInd = SignalProcUtils.freq2index(i*f0InHz-0.3*f0InHz, (int)samplingRateInHz, maxFreqIndex);
             freqEndInd = SignalProcUtils.freq2index(i*f0InHz+0.3*f0InHz, (int)samplingRateInHz, maxFreqIndex);
             k = MathUtils.getMaxIndex(sDft, freqStartInd, freqEndInd);
             amps[i-startHarmonicIndex] = sDft[k];
+            if(!amplitudes)
+              ampsFreq[i-startHarmonicIndex] = SignalProcUtils.index2freq(k, (int)samplingRateInHz, zeroBasedMaxFreqIndex);
         }
         
-        return amps;
+        if(amplitudes)
+          return amps;
+        else
+          return ampsFreq;
     }
     
     //This version does linear mapping between the whole source and target signals
