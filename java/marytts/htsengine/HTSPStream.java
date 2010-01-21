@@ -179,7 +179,7 @@ public class HTSPStream {
        
        /* Global variance optimisation for MCP and LF0 */
        if( useGV ) {
-         logger.info("Generation using Global Variance");  
+         /*logger.info("Generation using Global Variance");  
          if(feaType == HMMData.MCP)  
            logger.info("GV optimization for MCP feature: ("+ m + ")"); 
          if(feaType == HMMData.LF0)  
@@ -188,7 +188,7 @@ public class HTSPStream {
              logger.info("GV optimization for STR feature: ("+ m + ")");
          if(feaType == HMMData.MAG)  
              logger.info("GV optimization for MAG feature: ("+ m + ")");
-         
+         */
          gvParmGen(m, htsData.getGVModelSet(), debug);  
        
          if(debug) 

@@ -108,6 +108,9 @@ public class HMMData {
     private boolean useGmmGV      = false; /* use global variance as a Gaussian Mixture Model */
     private boolean useUnitDurationContinuousFeature = false; /* for using external duration, so it will not be generated from HMMs*/
     private boolean useUnitLogF0ContinuousFeature = false;    /* for using external f0, so it will not be generated from HMMs*/
+    private boolean useDurationFromExternalFile = false; /* for using external duration, so it will not be generated from HMMs*/
+    private boolean useLogF0FromExternalFile = false;    /* for using external f0, so it will not be generated from HMMs*/
+    private String externalLf0File;
     
     /** variables for controling generation of speech in the vocoder                
      * these variables have default values but can be fixed and read from the      
@@ -193,6 +196,13 @@ public class HMMData {
     public boolean getUseUnitDurationContinuousFeature(){ return useUnitDurationContinuousFeature; }
     public void setUseUnitLogF0ContinuousFeature(boolean bval){ useUnitLogF0ContinuousFeature=bval; }
     public void setUseUnitDurationContinuousFeature(boolean bval){ useUnitDurationContinuousFeature=bval; }
+    
+    public boolean getUseLogF0FromExternalFile(){ return useLogF0FromExternalFile; }
+    public boolean getUseDurationFromExternalFile(){ return useDurationFromExternalFile; }
+    public void setUseLogF0FromExternalFile(boolean bval){ useLogF0FromExternalFile=bval; }
+    public void setUseDurationFromExternalFile(boolean bval){ useDurationFromExternalFile=bval; }
+    public String getExternalLf0File(){ return externalLf0File; }
+    public void setExternalLf0File(String sval){ externalLf0File = sval; } 
     
     public boolean getUseMixExc(){ return useMixExc; }
     public boolean getUseFourierMag(){ return useFourierMag; }

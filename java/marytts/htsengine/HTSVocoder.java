@@ -1815,6 +1815,8 @@ public class HTSVocoder {
        }
        mcepData.close();
        
+      
+       
        /* load str data */
        if(htsData.getUseMixExc()){
            strPst = new HTSPStream(strVsize, totalFrame, HMMData.STR);
@@ -1831,9 +1833,11 @@ public class HTSVocoder {
            magPst = new HTSPStream(magVsize, totalFrame, HMMData.MAG);     
            magData = new LEDataInputStream (new BufferedInputStream(new FileInputStream(magFile)));
            for(i=0; i<totalFrame; i++){
-             for(j=0; j<magPst.getOrder(); j++)
+             for(j=0; j<magPst.getOrder(); j++){
                magPst.setPar(i, j, magData.readFloat());
-               //System.out.println("i:" + i + "  f0=" + Math.exp(lf0Pst.getPar(i, 0)) + "  mag(1)=" + magPst.getPar(i, 0) + "  str(1)=" + strPst.getPar(i, 0) );
+               //System.out.format("mag(%d,%d)=%.2f ",i, j, magPst.getPar(i, j) );
+             }
+             //System.out.println();             
            }
            magData.close();
        }
@@ -1895,6 +1899,22 @@ public class HTSVocoder {
         //main1(args);
         
         // copy synthesis: requires parameters, see description
+        // example of parameters:
+        /*
+        0 0.45 0 16000 80 
+        /project/mary/marcela/HMM-voices/roger/hts/data/mgc/roger_5739.mgc 75 
+        /project/mary/marcela/HMM-voices/roger/hts/data/lf0/roger_5739.lf0 3 
+        /project/mary/marcela/HMM-voices/roger/vocoder_out.wav 
+        /project/mary/marcela/HMM-voices/roger/hts/data/str/roger_5739.str 15 
+        /project/mary/marcela/HMM-voices/roger/hts/data/filters/mix_excitation_filters.txt 5 48 
+        /project/mary/marcela/HMM-voices/roger/hts/data/mag/roger_5739.mag 30
+         * 
+         * example input parameters without mixed excitation:
+           0 0.45 0 16000 80 
+           /project/mary/marcela/HMM-voices/roger/hts/data/mgc/roger_5739.mgc 75 
+           /project/mary/marcela/HMM-voices/roger/hts/data/lf0/roger_5739.lf0 3 
+           /project/mary/marcela/HMM-voices/roger/vocoder_out1.wav
+         */
         HTSVocoder vocoder = new HTSVocoder();
         vocoder.htsMLSAVocoderCommand(args);
         

@@ -61,7 +61,7 @@ package marytts.htsengine;
  */
 public class HTSModel {
   
-  private String name;              /* the name of this HMM, it includes ph(-2)^ph(-1)-ph(0)+ph(1)=ph(2) + context features */
+  //private String name;              /* the name of this HMM, it includes ph(-2)^ph(-1)-ph(0)+ph(1)=ph(2) + context features */
   private String phoneName;         /* the name of the phone corresponding to this model, ph(0) in name */
   private int durPdf;               /* duration pdf index for this HMM */
   private int lf0Pdf[];             /* mel-cepstrum pdf indexes for each state of this HMM */  
@@ -84,16 +84,17 @@ public class HTSModel {
 
   private boolean voiced[];         /* voiced/unvoiced decision for each state of this HMM */
   
+  private Float unit_duration;      /* external duration value from ContinuousFeatureProcessors */
   private Float unit_logF0;         /* external lf0 value from ContinuousFeatureProcessors */
   private Float unit_logF0delta;    /* external lf0 delta value from ContinuousFeatureProcessors */
   
   /** This function also sets the phoneName */
   public void setName(String var, String aPhoneName)
   { 
-      name = var;
+      // name = var;  not used remove?
       phoneName = aPhoneName;
   }
-  public String getName(){return name;}
+  //public String getName(){return name;}
   
   public void setPhoneName(String var){ phoneName = var; }
   public String getPhoneName(){return phoneName;}
@@ -156,6 +157,8 @@ public class HTSModel {
     System.out.println("  totalDur=" + totalDur + "  totalDurMillisec=" + totalDurMillisec );      
   }
   
+  /**
+   * NOT USED -- remove?
   public String getShortPhoneName(){
     String aux;
     int l,r;
@@ -166,6 +169,7 @@ public class HTSModel {
     return aux;
     
   }
+  */
   
   public void setStrMean(int i, int j, double val){ strMean[i][j] = val; }
   public double getStrMean(int i, int j){ return strMean[i][j]; } 
@@ -186,6 +190,8 @@ public class HTSModel {
   public void setVoiced(int i, boolean val){ voiced[i] = val; }
   public boolean getVoiced(int i){ return voiced[i]; }
   
+  public void setUnit_duration(float fval){unit_duration = fval;}
+  public float getUnit_duration(){return unit_duration;}
   public void setUnit_logF0(float fval){unit_logF0 = fval;}
   public float getUnit_logF0(){return unit_logF0;}
   public void setUnit_logF0delta(float fval){unit_logF0delta = fval;}
