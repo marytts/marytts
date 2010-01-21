@@ -49,12 +49,17 @@
 
 package marytts.htsengine;
 
+import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Mfccs;
+import marytts.util.io.LEDataInputStream;
 
 import org.apache.log4j.Logger;
 
@@ -238,12 +243,16 @@ public class HTSParameterGeneration {
 	logger.info("Parameter generation for MCEP: ");
     mcepPst.mlpg(htsData, htsData.getUseGV());
 
-    /* parameter generation for lf0 */
-    logger.info("Parameter generation for LF0: ");
-    if (lf0Frame>0)
-      lf0Pst.mlpg(htsData, htsData.getUseGV());
+    /* parameter generation for lf0 */    
     if(htsData.getUseUnitLogF0ContinuousFeature())
-      loadUnitLogF0ContinuousFeature(um);
+      loadUnitLogF0ContinuousFeature(um, htsData);
+    else if(htsData.getUseLogF0FromExternalFile())
+      loadLogF0FromExternalFile(htsData.getExternalLf0File(), uttFrame);
+    else if (lf0Frame>0){
+      logger.info("Parameter generation for LF0: "); 
+      lf0Pst.mlpg(htsData, htsData.getUseGV());
+    }
+    
     
 	/* parameter generation for str */
     boolean useGV=false;
@@ -299,7 +308,7 @@ public class HTSParameterGeneration {
              if( voiced[t] ){
                data_out.writeFloat((float)Math.exp(par.getPar(i,0)));
                i++;
-             }
+             }System.out.println("GEN f0s[" + t + "]=" + Math.exp(lf0Pst.getPar(i,0)));  
              else
                data_out.writeFloat((float)0.0);
           }
@@ -400,41 +409,187 @@ public class HTSParameterGeneration {
     }    
   }
   
-  public void loadUnitLogF0ContinuousFeature(HTSUttModel um) throws Exception{
+  public void loadUnitLogF0ContinuousFeature(HTSUttModel um, HMMData htsData) throws Exception{
       int i, j, n, t;  
       // Use the ContinuousFeatureProcessors unit_logf0 and unit_logf0delta, they are saved in each model of um
       // Modify the f0 generated values according to the external ones
       logger.info("Using external prosody for lf0: using unit_logf0 and unit_logF0delta from ContinuousFeatureProcessors.");
       int totalDur=0; 
-      float externalLf0=0;
-      float externalLf0Delta=0;
+      double externalLf0=0;
+      double externalLf0Delta=0;
       int numVoiced=0;
       i=0;
+      float fperiodsec = ((float)htsData.getFperiod() / (float)htsData.getRate());
+      double genLf0Hmms[] = new double[um.getNumModel()];
+      
       boolean newVoiced[] = new boolean[um.getTotalFrame()];
       HTSPStream newLf0Pst  = new HTSPStream(3, um.getTotalFrame(), HMMData.LF0); // actually the size of lf0Pst is 
-                                                                                  // just the number of voiced frames
-      for(n=0; n<um.getNumModel(); n++){
-        externalLf0 =  um.getUttModel(n).getUnit_logF0(); 
-        externalLf0Delta = um.getUttModel(n).getUnit_logF0delta();
-        for(t=totalDur; t<(totalDur + um.getUttModel(n).getTotalDur()); t++){
-          if(externalLf0 > 0){ 
-            newVoiced[t] = true;
-            numVoiced++;
-            newLf0Pst.setPar(i, 0, (double)externalLf0);
-            //System.out.println((t+1) + " " + externalLf0  + " " + externalLf0Delta);
-            i++;
+                                                                                  // just the number of voiced frames   
+      
+      // this is the generated F0
+      String genF0 = "/project/mary/marcela/f0-hsmm-experiment/genF0.txt";
+      String extF0 = "/project/mary/marcela/f0-hsmm-experiment/extF0.txt";
+      FileWriter genFile = new FileWriter(genF0);
+      FileWriter extFile = new FileWriter(extF0);
+      
+      
+      HTSModel m;
+      numVoiced=0;
+      int state, frame, numLf0NonZero;
+      double lf0Model, durModel;
+      t=0;      
+      for(i=0; i<um.getNumUttModel(); i++){
+          m = um.getUttModel(i);   
+          lf0Model = 0;
+          durModel = 0;
+          numLf0NonZero = 0;
+          for(state=0; state<5; state++) {
+            durModel += m.getDur(state);
+            for(frame=0; frame<m.getDur(state); frame++) {                
+                genFile.write(Integer.toString(t) + " " + m.getPhoneName() + " " + Integer.toString(m.getTotalDur()) + " " 
+                        + Integer.toString(m.getDur(state)) + " " + Integer.toString(frame+1) + " ");
+                if(voiced[t]){
+                    genFile.write(Double.toString(Math.exp(lf0Pst.getPar(numVoiced,0))) + "\n");                    
+                    lf0Model = lf0Model + lf0Pst.getPar(numVoiced,0);
+                    numLf0NonZero++;
+                    numVoiced++;
+                } else {
+                  genFile.write("0.0\n");  
+                }
+                t++;
+            } // for each frame in this state 
+          } // for each state in this model
+          
+          if(numLf0NonZero == 0){
+            System.out.format("%s genDur=%.3f genF0=%.3f \n", m.getPhoneName(), durModel*fperiodsec, lf0Model);
+            genLf0Hmms[i] = lf0Model;
           }
           else{
-            newVoiced[t] = false;
-            //System.out.println((t+1) + " " + externalLf0  + " " + externalLf0Delta);
+            System.out.format("%s genDur=%.3f genF0=%.3f \n", m.getPhoneName(), durModel*fperiodsec, (lf0Model/numLf0NonZero));
+            genLf0Hmms[i] = (lf0Model/numLf0NonZero);
           }
-        }
-        totalDur += um.getUttModel(n).getTotalDur();
-      }
-     
+          
+        }  // for each model in this utterance        
+      genFile.close();
+      System.out.println("Created file:" + genF0);
+      
+      // this is how the external prosody will look like
+      numVoiced=0;
+      t=0;
+      for(i=0; i<um.getNumUttModel(); i++){
+          m = um.getUttModel(i); 
+          externalLf0 = m.getUnit_logF0(); 
+          externalLf0Delta = m.getUnit_logF0delta();
+          
+         if(genLf0Hmms[i] != 0.0 && externalLf0 == 0.0){
+            externalLf0 = genLf0Hmms[i];
+            
+          }
+          
+          
+          if(externalLf0 == 0.0)
+            System.out.format("%s  extDur=%.3f   extF0=%.3f\n", m.getPhoneName(), m.getUnit_duration(), externalLf0);
+          else
+            System.out.format("%s  extDur=%.3f   extF0=%.3f\n", m.getPhoneName(), m.getUnit_duration(), Math.exp(externalLf0));
+          for(state=0; state<5; state++) {                     
+            for(frame=0; frame<m.getDur(state); frame++) {                      
+                extFile.write(Integer.toString(t) + " " + m.getPhoneName() + " " + Integer.toString(m.getTotalDur()) + " " 
+                        + Integer.toString(m.getDur(state)) + " " + Integer.toString(frame+1) + " ");
+                if(externalLf0 > 0 ){ 
+                    newVoiced[t] = true;
+                    newLf0Pst.setPar(numVoiced, 0, externalLf0);
+                    extFile.write(Double.toString(Math.exp(newLf0Pst.getPar(numVoiced,0))) + "\n");
+                    numVoiced++;                  
+                } else {
+                    newVoiced[t] = false;
+                    extFile.write("0.0\n");  
+                }            
+                t++;
+            } // for each frame in this state 
+          } // for each state in this model 
+        }  // for each model in this utterance
+      extFile.close();
+      System.out.println("Created file:" + genF0);
+   
+      // set the external prosody as if it were generated
       setVoicedArray(newVoiced);
       setlf0Pst(newLf0Pst);  
       
   }
+  
+  
+  /***
+   * Load logf0, in HTS format, create a voiced array and set this values in pdf2par
+   * This contour should be aligned with the durations, so the total duration in frames should be the same as in the lf0 file 
+   * @param lf0File: in HTS formant 
+   * @param totalDurationFrames: the total duration in frames can be calculated as:
+   *                             totalDurationFrames = totalDurationInSeconds / (framePeriodInSamples / SamplingFrequencyInHz)
+   * @param pdf2par: HTSParameterGeneration object
+   * @throws Exception If the number of frames in the lf0 file is not the same as represented in the total duration (in frames).
+   */
+  public void loadLogF0FromExternalFile(String lf0File, int totalDurationFrames) throws Exception{
+      
+      LEDataInputStream lf0Data;
+      
+      int lf0Vsize = 3;
+      int totalFrame = 0;
+      int lf0VoicedFrame = 0;
+      float fval;  
+      lf0Data = new LEDataInputStream (new BufferedInputStream(new FileInputStream(lf0File)));
+      
+      /* First i need to know the size of the vectors */
+      try { 
+        while (true) {
+          fval = lf0Data.readFloat();
+          totalFrame++;  
+          if(fval>0)
+           lf0VoicedFrame++;
+        } 
+      } catch (EOFException e) { }
+      lf0Data.close();
+      
+      // Here we need to check that the total duration in frames is the same as the number of frames
+      // (NOTE: it can be a problem afterwards when the durations per phone are aligned to the lenght of each state
+      // in htsEngine._processUtt() )         
+      if( totalDurationFrames > totalFrame){
+        throw new Exception("The total duration in frames (" +  totalDurationFrames + ") is greater than the number of frames in the lf0File (" + 
+             totalFrame + "): " + lf0File + "\nIt can be fixed to some extend using a smaller value for the variable: newStateDurationFactor");
+      } else if( totalDurationFrames < totalFrame ){
+        if (Math.abs(totalDurationFrames-totalFrame) < 5)
+          System.out.println("Warning: The total duration in frames (" +  totalDurationFrames + ") is smaller than the number of frames in the lf0 file (" 
+            + totalFrame + "): " + lf0File + "\n         It can be fixed to some extend using a greater value for the variable: newStateDurationFactor");
+        else
+          throw new Exception("The total duration in frames (" +  totalDurationFrames + ") is smaller than the number of frames in the lf0File (" + 
+              totalFrame + "): " + lf0File + "\nIt can be fixed to some extend using a greater value for the variable: newStateDurationFactor");
+        
+      } else
+        System.out.println("totalDurationFrames = " + totalDurationFrames + "  totalF0Frames = " + totalFrame);  
+        
+     
+      voiced = new boolean[totalFrame];
+      lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0);
+      
+      /* load lf0 data */
+      /* for lf0 i just need to load the voiced values */
+      lf0VoicedFrame = 0;
+      lf0Data = new LEDataInputStream (new BufferedInputStream(new FileInputStream(lf0File)));
+      for(int i=0; i<totalFrame; i++){
+        fval = lf0Data.readFloat();  
+        if(fval < 0){
+          voiced[i] = false;
+          //System.out.println("frame: " + i + " = 0.0");
+        }
+        else{
+          voiced[i] = true;
+          lf0Pst.setPar(lf0VoicedFrame, 0, fval);
+          lf0VoicedFrame++;
+          //System.out.format("frame: %d = %.2f\n", i, fval);
+        }
+      }
+      lf0Data.close();
+      
+  }
+ 
+  
   
 } /* class ParameterGeneration */

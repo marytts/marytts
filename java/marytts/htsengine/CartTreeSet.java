@@ -168,8 +168,8 @@ public class CartTreeSet {
       
         /* check if the model is initial/final pause, if so reduce the length of the pause 
          * to 10% of the calculated value. */       
- //       if(m.getPhoneName().contentEquals("_") && (firstPh || lastPh ))
- //         data = data * 0.1;
+//        if(m.getPhoneName().contentEquals("_") && (firstPh || lastPh ))
+//          data = data * 0.1;
         
         data = data * durscale;                  
         m.setDur(s, (int)(data+dd+0.5));

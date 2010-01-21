@@ -70,6 +70,7 @@ import marytts.modules.HTSEngine;
 import marytts.signalproc.analysis.Mfccs;
 import marytts.util.data.audio.AudioPlayer;
 import marytts.util.data.text.SnackTextfileDoubleDataSource;
+import marytts.util.io.LEDataInputStream;
 
 /***
  * Several functions for running the htsEngine or other components stand alone
@@ -85,58 +86,57 @@ public class HTSEngineTest {
         
         public PhonemeDuration(String ph, float dur){
             phone = ph;
-            duration = dur;
+            duration = dur;            
         }
         
         public void setPhoneme(String str){ phone=str; }
         public void setDuration(float fval){ duration=fval; }
         public String getPhoneme(){ return phone; }
-        public float getDuration(){ return duration; }
+        public float getDuration(){ return duration; }  
         
       }
 
     
     /** 
-     * Generation of speech using external specification of duration
-     * NOTE: The use of external F0 contour is not finished yet, it needs to be aligned with the duration.
-     *       It is not clear yet which F0 contour to use, CART generated?, MARY generated?.
-     * Stand alone testing using a TARGETFEATURES file as input. 
+     * Generation of speech using external specification of duration: using ContinuousFeatureProcessors of TARGETFEATURES
+     * Input: a TARGETFEATURES (.pfeats) file, this file should contain 
+     *   ContinuousFeatureProcessors:
+     *     unit_duration float
+     *     unit_logf0 float
+     *     unit_logf0delta float
+     * The features unit_duration and unit_logf0 are used as external prosody, unit_logf0Delta is not used.
+     * The TARGETFEATURES (.pfeats) file including ContinuousFeatureProcessors values can be generated with 
+     * a unitselection voice or a mbrola voice, it can NOT be generated with HMM voices. 
      * @param args
      * @throws IOException
      */
-    public void synthesisWithExternalProsodySpecification() throws Exception{
+    public void synthesisWithContinuousFeatureProcessors() throws Exception{
        
       int i, j, n, t;  
       // context features file
-      String feaFile = "/project/mary/marcela/openmary/lib/voices/hsmm-slt/cmu_us_arctic_slt_a0001.pfeats";     
-      // external duration extracted with the voice import tools - EHMM
-      String labFile = "/project/mary/marcela/f0-hsmm-experiment/cmu_us_arctic_slt_a0001.lab";
-      // external duration obtained with MARY, there is a problem with this because it does not have an initial sil
-      //String labFile = "/project/mary/marcela/f0-hsmm-experiment/cmu_us_arctic_slt_a0001.realised_durations";
-      // external F0 contour
-      String f0File = "/project/mary/marcela/f0-hsmm-experiment/cmu_us_arctic_slt_a0001-littend.lf0";
-
+      //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/red_ball.pfeats";
+      //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/RED_ball.pfeats";      
+      String feaFile = "/project/mary/marcela/f0-hsmm-experiment/THAT_ball.pfeats";
+      //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/red_BALL.pfeats";
+      //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/THAT_BALL.pfeats";
+      
       HTSEngine hmm_tts = new HTSEngine();
       HMMData htsData = new HMMData();
       
       /* For initialise provide the name of the hmm voice and the name of its configuration file,*/     
       String MaryBase    = "/project/mary/marcela/openmary/"; /* MARY_BASE directory.*/
-      String voiceName   = "hsmm-slt";                        /* voice name */
-      String voiceConfig = "english-hsmm-slt.config";         /* voice configuration file name. */        
+      String voiceName   = "cmu-slt-hsmm";                        /* voice name */
+      String voiceConfig = "en_US-cmu-slt-hsmm.config";         /* voice configuration file name. */        
       String outWavFile  = MaryBase + "tmp/tmp.wav";          /* to save generated audio file */
       
       htsData.initHMMData(voiceName, MaryBase, voiceConfig);
       
-      // Load and set external durations    
-      //hmm_tts.setPhonemeAlignmentForDurations(false);
-      // comment the following lines if no external label file
-      //Vector<PhonemeDuration> durations = loadDurationsForAlignment(labFile);
-      //hmm_tts.setAlignDurations(durations);
+      
+      // Set these variables so the htsEngine use the ContinuousFeatureProcessors features
       htsData.setUseUnitDurationContinuousFeature(true);
       htsData.setUseUnitLogF0ContinuousFeature(true);
-      
-      
-      // The settings for using GV and MixExc can be change in this way:
+                                   
+      // The settings for using GV and MixExc can besynthesisWithExternalProsodySpecificationFiles changed in this way:
       htsData.setUseGV(true);
       htsData.setUseMixExc(true);
       htsData.setUseFourierMag(true);  // if the voice was trained with Fourier magnitudes
@@ -147,6 +147,105 @@ public class HTSEngineTest {
       HTSParameterGeneration pdf2par = new HTSParameterGeneration();        
       HTSVocoder par2speech = new HTSVocoder();
       AudioInputStream ais;
+      
+                  
+      try {
+          /* Process Mary context features file and creates UttModel um.   */
+          hmm_tts.processUttFromFile(feaFile, um, htsData);
+
+          /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */
+          /* the generated parameters will be saved in tmp.mfc and tmp.f0, including Mary header. */
+          boolean debug = false;  /* so it DOES NOT save the generated parameters in parFile */
+          pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData, null, debug);
+          
+          /* Synthesize speech waveform, generate speech out of sequence of parameters */
+          ais = par2speech.htsMLSAVocoder(pdf2par, htsData);
+     
+          System.out.println("saving to file: " + outWavFile);
+          File fileOut = new File(outWavFile);
+          
+          if (AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE,ais)) {
+            AudioSystem.write(ais, AudioFileFormat.Type.WAVE, fileOut);
+          }
+
+          System.out.println("Calling audioplayer:");
+          AudioPlayer player = new AudioPlayer(fileOut);
+          player.start();  
+          player.join();
+          System.out.println("audioplayer finished...");     
+     
+      } catch (Exception e) {
+          System.err.println("Exception: " + e.getMessage());
+      }
+    }  /* main method */
+    
+
+    /** 
+     * Generation of speech using external specification of duration: duration and logf0 in external files
+     * Input: a TARGETFEATURES (.pfeats) file
+     * 
+     * @param args
+     * @throws IOException
+     */
+    public void synthesisWithProsodySpecificationInExternalFiles() throws Exception{
+       
+      int i, j, n, t;  
+      // context features file     
+      String feaFile = "/project/mary/marcela/openmary/lib/voices/cmu-slt-hsmm/cmu_us_arctic_slt_a0001.pfeats";   
+            
+      HTSEngine hmm_tts = new HTSEngine();
+      HMMData htsData = new HMMData();
+      
+      /* For initialise provide the name of the hmm voice and the name of its configuration file,*/     
+      String MaryBase    = "/project/mary/marcela/openmary/"; /* MARY_BASE directory.*/
+      String voiceName   = "cmu-slt-hsmm";                        /* voice name */
+      String voiceConfig = "en_US-cmu-slt-hsmm.config";         /* voice configuration file name. */        
+      String outWavFile  = MaryBase + "tmp/tmp.wav";          /* to save generated audio file */
+      
+      htsData.initHMMData(voiceName, MaryBase, voiceConfig);    
+                      
+      // The settings for using GV and MixExc can be changed in this way:
+      htsData.setUseGV(true);
+      htsData.setUseMixExc(true);
+      htsData.setUseFourierMag(true);  // if the voice was trained with Fourier magnitudes
+        
+      /** The utterance model, um, is a Vector (or linked list) of Model objects. 
+       * It will contain the list of models for current label file. */
+      HTSUttModel um = new HTSUttModel();
+      HTSParameterGeneration pdf2par = new HTSParameterGeneration();        
+      HTSVocoder par2speech = new HTSVocoder();
+      AudioInputStream ais;
+      
+      
+      // Specify external files:
+      // external duration extracted with the voice import tools - EHMM
+      String labFile = "/project/mary/marcela/f0-hsmm-experiment/cmu_us_arctic_slt_a0001.lab";     
+      // external duration obtained with MARY, there is a problem with this because it does not have an initial sil
+      //String labFile = "/project/mary/marcela/f0-hsmm-experiment/cmu_us_arctic_slt_a0001.realised_durations";
+      
+      // external F0 contour obtained with SPTK during HMMs creation
+      String lf0File = "/project/mary/marcela/f0-hsmm-experiment/cmu_us_arctic_slt_a0001.lf0";       
+      
+      // Load and set external durations      
+      htsData.setUseDurationFromExternalFile(true);
+      float totalDuration;
+      int totalDurationFrames;
+      float fperiodsec = ((float)htsData.getFperiod() / (float)htsData.getRate());
+      hmm_tts.setPhonemeAlignmentForDurations(true);
+      Vector<PhonemeDuration> durations = new Vector<PhonemeDuration>(); 
+      totalDuration = loadDurationsForAlignment(labFile, durations);
+      // set the external durations
+      hmm_tts.setAlignDurations(durations);
+      totalDurationFrames = (int)((totalDuration / fperiodsec));
+      // Depending on how well aligned the durations and the lfo file are 
+      // this factor can be used to extend or shrink the durations per phoneme so 
+      // it syncronize with the number of frames in the lf0 file
+      hmm_tts.setNewStateDurationFactor(0.37); 
+      
+      // set external logf0
+      htsData.setUseLogF0FromExternalFile(true);
+      htsData.setExternalLf0File(lf0File);
+      
                   
       try {
           /* Process Mary context features file and creates UttModel um.   */
@@ -177,17 +276,19 @@ public class HTSEngineTest {
           System.err.println("Exception: " + e.getMessage());
       }
     }  /* main method */
+
     
     
     /***
-     * Load durations for phone alignment when the durations have been generated by MARY.
-     * @param fileName the format is the same as for REALISED_DURATIONS in MARY.
+     * Load durations for phone alignment when the durations have been generated by EHMMs.
+     * @param fileName the format is the same as for phonelab.
      * @return
      */
-    public Vector<PhonemeDuration> loadDurationsForAlignment(String fileName){
-        Vector<PhonemeDuration> alignDur = new Vector<PhonemeDuration>(); 
+    public float loadDurationsForAlignment(String fileName, Vector<PhonemeDuration> alignDur){
+                
         Scanner s = null;
         String line;
+        float totalDuration = 0;
         float previous=0;
         float current=0;
         try {
@@ -204,7 +305,8 @@ public class HTSEngineTest {
              else
                alignDur.add(new PhonemeDuration(val[2],(current-previous)));
            
-             System.out.println("phone = " + alignDur.get(i).getPhoneme() + " dur(" + i +")=" + alignDur.get(i).getDuration());
+             totalDuration += alignDur.get(i).getDuration();
+             System.out.println("phone = " + alignDur.get(i).getPhoneme() + " dur(" + i +")=" + alignDur.get(i).getDuration() + " totalDuration=" + totalDuration);
              i++;
              previous = current;
            }       
@@ -215,26 +317,30 @@ public class HTSEngineTest {
             e.printStackTrace();   
         } 
         
-        return alignDur;
+        //return alignDur;
+        return totalDuration; 
       }    
     
-    /***
-     * Load F0, in HTS format, create a voiced array and set this values in pdf2par
-     * (This contour is NOT aligned with the duration yet.)
-     * @param lf0File
-     * @param pdf2par
-     * @throws Exception
-     */
-     public void loadF0contour(String lf0File, HTSParameterGeneration pdf2par) throws Exception{
+   
+     /***
+      * Load logf0, in HTS format, create a voiced array and set this values in pdf2par
+      * This contour should be aligned with the durations, so the total duration in frames should be the same as in the lf0 file 
+      * @param lf0File: in HTS formant 
+      * @param totalDurationFrames: the total duration in frames can be calculated as:
+      *                             totalDurationFrames = totalDurationInSeconds / (framePeriodInSamples / SamplingFrequencyInHz)
+      * @param pdf2par: HTSParameterGeneration object
+      * @throws Exception If the number of frames in the lf0 file is not the same as represented in the total duration (in frames).
+      */
+     public void loadF0contour(String lf0File, int totalDurationFrames, HTSParameterGeneration pdf2par) throws Exception{
          HTSPStream lf0Pst=null;
          boolean [] voiced = null;
-         DataInputStream lf0Data;
+         LEDataInputStream lf0Data;
          
          int lf0Vsize = 3;
          int totalFrame = 0;
          int lf0VoicedFrame = 0;
-         float fval;
-         lf0Data = new DataInputStream (new BufferedInputStream(new FileInputStream(lf0File)));   
+         float fval;  
+         lf0Data = new LEDataInputStream (new BufferedInputStream(new FileInputStream(lf0File)));
          /* First i need to know the size of the vectors */
          try { 
            while (true) {
@@ -245,6 +351,16 @@ public class HTSEngineTest {
            } 
          } catch (EOFException e) { }
          lf0Data.close();
+         
+         // Here we need to check that the total duration in frames is the same as the number of frames
+         // (NOTE: it can be a problem afterwards when the durations per phone are aligned to the lenght of each state
+         // in htsEngine._processUtt() )         
+         if( totalDurationFrames != totalFrame){
+           System.out.println("The total duration in frames " +  totalDurationFrames + " is not the same as the number of frames " + 
+                totalFrame + " in the lf0 file: " + lf0File);
+         } else
+           System.out.println("totalDurationFrames = " + totalDurationFrames + "  totalF0Frames = " + totalFrame);  
+           
         
          voiced = new boolean[totalFrame];
          lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0);
@@ -252,16 +368,18 @@ public class HTSEngineTest {
          /* load lf0 data */
          /* for lf0 i just need to load the voiced values */
          lf0VoicedFrame = 0;
-         lf0Data = new DataInputStream (new BufferedInputStream(new FileInputStream(lf0File)));
+         lf0Data = new LEDataInputStream (new BufferedInputStream(new FileInputStream(lf0File)));
          for(int i=0; i<totalFrame; i++){
            fval = lf0Data.readFloat();  
-           //lf0Pst.setPar(i, 0, fval);
-           if(fval < 0)
+           if(fval < 0){
              voiced[i] = false;
+             System.out.println("frame: " + i + " = 0.0");
+           }
            else{
              voiced[i] = true;
              lf0Pst.setPar(lf0VoicedFrame, 0, fval);
              lf0VoicedFrame++;
+             System.out.format("frame: %d = %.2f\n", i, fval);
            }
          }
          lf0Data.close();
@@ -682,7 +800,14 @@ public class HTSEngineTest {
        //test.getSptkSnackLf0();
              
        // Synthesis with external duration and f0
-       test.synthesisWithExternalProsodySpecification();
+       // it requires ContinuousFeatureProcessors in the TARGETFEATURES file
+       //test.synthesisWithContinuousFeatureProcessors();
+       
+       // Synthesis with external duration and f0
+       // it requires two external files: labels file .lab and logf0 file .lf0
+       // The duration indicated in the lab file must correspond to the number of frames in the .lf0 file
+       // The lf0 file must be generated frame syncronous.
+       test.synthesisWithProsodySpecificationInExternalFiles();
        
      }
      
