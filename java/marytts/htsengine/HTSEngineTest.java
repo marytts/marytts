@@ -116,9 +116,12 @@ public class HTSEngineTest {
       // context features file
       //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/red_ball.pfeats";
       //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/RED_ball.pfeats";      
-      String feaFile = "/project/mary/marcela/f0-hsmm-experiment/THAT_ball.pfeats";
+      //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/THAT_ball.pfeats";
       //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/red_BALL.pfeats";
       //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/THAT_BALL.pfeats";
+      //
+      String feaFile = "/project/mary/marcela/f0-hsmm-experiment/us1-mbrola.pfeats";
+      //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/cmu-slt-unit-selection.pfeats";
       
       HTSEngine hmm_tts = new HTSEngine();
       HMMData htsData = new HMMData();
@@ -801,13 +804,13 @@ public class HTSEngineTest {
              
        // Synthesis with external duration and f0
        // it requires ContinuousFeatureProcessors in the TARGETFEATURES file
-       //test.synthesisWithContinuousFeatureProcessors();
+       test.synthesisWithContinuousFeatureProcessors();
        
        // Synthesis with external duration and f0
        // it requires two external files: labels file .lab and logf0 file .lf0
        // The duration indicated in the lab file must correspond to the number of frames in the .lf0 file
        // The lf0 file must be generated frame syncronous.
-       test.synthesisWithProsodySpecificationInExternalFiles();
+       //test.synthesisWithProsodySpecificationInExternalFiles();
        
      }
      
