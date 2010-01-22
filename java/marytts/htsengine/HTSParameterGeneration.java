@@ -243,15 +243,23 @@ public class HTSParameterGeneration {
 	logger.info("Parameter generation for MCEP: ");
     mcepPst.mlpg(htsData, htsData.getUseGV());
 
-    /* parameter generation for lf0 */    
+    /* parameter generation for lf0 */ 
+    // CHECK!!
+    // generate the parameters any way, if there is external they will be replaced
+    // for the moment these values are used with the mbrola pfeats when f0 is 0.0 and genf0 is not 0.0
+    if (lf0Frame>0){
+      logger.info("Parameter generation for LF0: "); 
+      lf0Pst.mlpg(htsData, htsData.getUseGV());
+    }   
+    
     if(htsData.getUseUnitLogF0ContinuousFeature())
       loadUnitLogF0ContinuousFeature(um, htsData);
     else if(htsData.getUseLogF0FromExternalFile())
       loadLogF0FromExternalFile(htsData.getExternalLf0File(), uttFrame);
-    else if (lf0Frame>0){
-      logger.info("Parameter generation for LF0: "); 
-      lf0Pst.mlpg(htsData, htsData.getUseGV());
-    }
+    //else if (lf0Frame>0){
+    //  logger.info("Parameter generation for LF0: "); 
+    //  lf0Pst.mlpg(htsData, htsData.getUseGV());
+    //}
     
     
 	/* parameter generation for str */
@@ -480,10 +488,11 @@ public class HTSParameterGeneration {
           m = um.getUttModel(i); 
           externalLf0 = m.getUnit_logF0(); 
           externalLf0Delta = m.getUnit_logF0delta();
-          
+         
+          // CHECK!!
+          // this is just to have non-cero values when passing a mbrola .pfeats
          if(genLf0Hmms[i] != 0.0 && externalLf0 == 0.0){
-            externalLf0 = genLf0Hmms[i];
-            
+            externalLf0 = genLf0Hmms[i];            
           }
           
           
