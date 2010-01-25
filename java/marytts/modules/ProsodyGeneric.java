@@ -143,7 +143,7 @@ public class ProsodyGeneric extends InternalModule {
         super.startup();
     }
 
-    protected void loadTobiPredRules () throws FactoryConfigurationError, ParserConfigurationException, org.xml.sax.SAXException, IOException,
+    protected synchronized void loadTobiPredRules () throws FactoryConfigurationError, ParserConfigurationException, org.xml.sax.SAXException, IOException,
     NoSuchPropertyException {
     	// parsing the xml rule file
     	DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
@@ -171,7 +171,7 @@ public class ProsodyGeneric extends InternalModule {
     }
     
     
-    protected void buildListMap() throws IOException {
+    protected synchronized void buildListMap() throws IOException {
     	Element listDefinitions = null;
     	listDefinitions = (Element) tobiPredMap.get("definitions");
     	
@@ -631,7 +631,7 @@ public class ProsodyGeneric extends InternalModule {
      * @param specialPositionType (end of vorfeld or end of paragraph)
      */
     
-    protected void getAccentPosition(Element token, NodeList tokens, int position, String sentenceType, String specialPositionType) {
+    protected synchronized void getAccentPosition(Element token, NodeList tokens, int position, String sentenceType, String specialPositionType) {
     	
     	String tokenText = MaryDomUtils.tokenText(token); // text of current token
     	
@@ -654,7 +654,8 @@ public class ProsodyGeneric extends InternalModule {
     	// if a rule fires (that is: all the conditions are fulfilled), 
     	// the accent value("tone","force" or "") is assigned and the loop stops
     	// if no rule is found, the accent value is ""
-    	                	
+
+    	
         while (!rule_fired && (rule = (Element) tw.nextNode()) != null) {
         	// rule = the whole rule
     		// currentRulePart = part of the rule (type of condition (f.e. attributes pos="NN") or action)
@@ -694,7 +695,7 @@ public class ProsodyGeneric extends InternalModule {
      * @return nucleusAssigned 
      */
     
-    protected boolean getAccentShape(Element token, NodeList tokens, int position, String sentenceType,
+    protected synchronized boolean getAccentShape(Element token, NodeList tokens, int position, String sentenceType,
     	String specialPositionType, boolean nucleusAssigned) 
     {
         String tokenText = MaryDomUtils.tokenText(token); // text of current token
@@ -780,7 +781,7 @@ public class ProsodyGeneric extends InternalModule {
      * @return firstTokenInPhrase (if a boundary was inserted, firstTokenInPhrase gets null)
      */
     
-    protected Element getBoundary(Element token, NodeList tokens, int position, String sentenceType, String specialPositionType,
+    protected synchronized Element getBoundary(Element token, NodeList tokens, int position, String sentenceType, String specialPositionType,
     	boolean invalidXML, Element firstTokenInPhrase) 
     {
         String tokenText = MaryDomUtils.tokenText(token); // text of current token
