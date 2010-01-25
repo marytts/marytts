@@ -33,7 +33,7 @@ public class ProsodyGenericFST extends ProsodyGeneric
      * @param fileName external file from which to read the list; suffix identifies
      * list format.
      * @return An Object representing the list; checkList() must be able to
-     * make sense of this. This base implementation returns an FSTLookup for
+     * make sense of this. This implementation returns an FSTLookup for
      * .fst files or a Set for .txt files.
      * @throws IllegalArgumentException if the fileName suffix cannot be
      * identified as a list file format.

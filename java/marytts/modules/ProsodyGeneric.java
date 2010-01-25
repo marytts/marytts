@@ -42,6 +42,7 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.NoSuchPropertyException;
+import marytts.fst.FSTLookup;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
@@ -77,8 +78,8 @@ public class ProsodyGeneric extends InternalModule {
     protected Properties priorities;
 	
 	protected String tobiPredFilename; // xml rule file for prosody prediction
-	protected HashMap tobiPredMap = new HashMap(); // map that will be filled with the rules
-	protected HashMap listMap = new HashMap(); // map that will contain the lists defined in the xml rule file
+	protected HashMap<String, Element> tobiPredMap = new HashMap<String, Element>(); // map that will be filled with the rules
+	protected HashMap<String, Object> listMap = new HashMap<String, Object>(); // map that will contain the lists defined in the xml rule file
 	
 	public ProsodyGeneric(){
 	    this((Locale) null); 
@@ -137,9 +138,9 @@ public class ProsodyGeneric extends InternalModule {
         } else {
             applyParagraphDeclination = false;
         }
-        super.startup();
         loadTobiPredRules(); // fill the rule map
         buildListMap(); // fill the list map
+        super.startup();
     }
 
     protected void loadTobiPredRules () throws FactoryConfigurationError, ParserConfigurationException, org.xml.sax.SAXException, IOException,
@@ -187,7 +188,7 @@ public class ProsodyGeneric extends InternalModule {
 			String name = list.getAttribute("name"); // list name
 			if(list.hasAttribute("items")) { // list is defined in the xml file (no external list)
 				String items = list.getAttribute("items"); 
-				HashSet itemSet = new HashSet(); // build a set with the elements in the list
+				HashSet<String> itemSet = new HashSet<String>(); // build a set with the elements in the list
 				StringTokenizer st;
 				if(items.contains(" ")){
 				     st = new StringTokenizer(items," ");
@@ -218,7 +219,7 @@ public class ProsodyGeneric extends InternalModule {
      * @param fileName external file from which to read the list; suffix identifies
      * list format.
      * @return An Object representing the list; checkList() must be able to
-     * make sense of this. This base implementation returns a Set.
+     * make sense of this. This base implementation returns a Set<String>.
      * @throws IllegalArgumentException if the fileName suffix cannot be
      * identified as a list file format.
      * @throws IOException if the file given in fileName cannot be found or read from
@@ -234,7 +235,7 @@ public class ProsodyGeneric extends InternalModule {
              }
              // build a set that contains every word contained in the
              // external text file
-             HashSet listSet = new HashSet(); 
+             HashSet<String> listSet = new HashSet<String>(); 
              BufferedReader in = new BufferedReader(new FileReader(txtPath));
              while (in.ready()) {
                  String line = in.readLine();
@@ -319,7 +320,7 @@ public class ProsodyGeneric extends InternalModule {
         	if(!token.getAttribute("ph").equals("")) { // first word found
         		String posFirstWord = token.getAttribute("pos");
         		// if pos value of first word in sentence is contained in set noVorfeld, vorfeld doens't exist 
-        		HashSet noVorfeld = (HashSet)listMap.get("noVorfeld");
+        		Set<String> noVorfeld = (Set<String>) listMap.get("noVorfeld");
         		if(noVorfeld != null) {
                 	if(noVorfeld.contains(posFirstWord)) {
                 		inVorfeld = false;
@@ -352,7 +353,7 @@ public class ProsodyGeneric extends InternalModule {
                		String posNextToken = nextToken.getAttribute("pos");
                		// if pos value of next token is contained in set beginOfMittelfeld, 
                		// current token is at the end of the vorfeld
-               		HashSet beginOfMittelfeld = (HashSet)listMap.get("beginOfMittelfeld"); 
+               		Set<String> beginOfMittelfeld = (Set<String>) listMap.get("beginOfMittelfeld"); 
                		if(beginOfMittelfeld != null && beginOfMittelfeld.contains(posNextToken)) {
                			//for(int z=0; z<attNodes.getLength(); z++) {
                	    		//Node el = (Node)attNodes.item(z);
@@ -505,28 +506,28 @@ public class ProsodyGeneric extends InternalModule {
                     // because we don't know where it should start)
                     if (preferred != null) {
                         if (preferred.equals("high")) {
-                        	HashSet set = (HashSet)listMap.get("high_major_boundary");
-                			Iterator it = set.iterator();
-                			while(it.hasNext()) tone = (String)it.next();
+                        	Set<String> set = (Set<String>) listMap.get("high_major_boundary");
+                			Iterator<String> it = set.iterator();
+                			while(it.hasNext()) tone = it.next();
                         } else { // low
-                        	HashSet set = (HashSet)listMap.get("low_major_boundary");
-                			Iterator it = set.iterator();
-                			while(it.hasNext()) tone = (String)it.next();
+                        	Set<String> set = (Set<String>) listMap.get("low_major_boundary");
+                			Iterator<String> it = set.iterator();
+                			while(it.hasNext()) tone = it.next();
                         }
                     } else { // there isn't any information about the tone, so we use default values specified in the xml file
                     	if (i == boundaries.getLength() - 1) { // final boundary
                     		if(sentenceType.equals("decl") || sentenceType.equals("excl")) { //declarative or exclamative sentence
-                    			HashSet set = (HashSet)listMap.get("default_IP_endOfSent");
-                    			Iterator it = set.iterator();
+                    			Set<String> set = (Set<String>) listMap.get("default_IP_endOfSent");
+                    			Iterator<String> it = set.iterator();
                     			while(it.hasNext()) tone = (String)it.next();
                     		} else {
-                    			HashSet set = (HashSet)listMap.get("default_IP_endOfInterrogSent"); // interrogative
-                    			Iterator it = set.iterator();
+                    			Set<String> set = (Set<String>) listMap.get("default_IP_endOfInterrogSent"); // interrogative
+                    			Iterator<String> it = set.iterator();
                     			while(it.hasNext()) tone = (String)it.next();
                     		}
                     	} else { // non-final boundary
-                    		HashSet set = (HashSet)listMap.get("default_IP_midOfSent"); 
-                			Iterator it = set.iterator();
+                    		Set<String> set = (Set<String>) listMap.get("default_IP_midOfSent"); 
+                			Iterator<String> it = set.iterator();
                 			while(it.hasNext()) tone = (String)it.next();
                     	}
                     }
@@ -534,17 +535,17 @@ public class ProsodyGeneric extends InternalModule {
                     // minor boundary
                     if (preferred != null) {
                         if (preferred.equals("high")) {
-                        	HashSet set = (HashSet)listMap.get("high_minor_boundary");
-                			Iterator it = set.iterator();
+                        	Set<String> set = (Set<String>) listMap.get("high_minor_boundary");
+                			Iterator<String> it = set.iterator();
                 			while(it.hasNext()) tone = (String)it.next();
                         } else { // low
-                        	HashSet set = (HashSet)listMap.get("low_minor_boundary");
-                			Iterator it = set.iterator();
+                        	Set<String> set = (Set<String>) listMap.get("low_minor_boundary");
+                			Iterator<String> it = set.iterator();
                 			while(it.hasNext()) tone = (String)it.next();
                         }
                     } else {// there is no information about the tone, so we use the default values specified in the xml file
-                    	HashSet set = (HashSet)listMap.get("default_ip"); 
-            			Iterator it = set.iterator();
+                    	Set<String> set = (Set<String>) listMap.get("default_ip"); 
+            			Iterator<String> it = set.iterator();
             			while(it.hasNext()) tone = (String)it.next();
                     }
                 }
@@ -576,8 +577,8 @@ public class ProsodyGeneric extends InternalModule {
             			String tone = null;
             			String preferred = prosody.getAttribute("preferred-accent-shape");
             			if (preferred.equals("alternating")) {
-            				HashSet set = (HashSet)listMap.get("alternating_accents");
-            				Iterator it = set.iterator();
+            				Set<String> set = (Set<String>) listMap.get("alternating_accents");
+            				Iterator<String> it = set.iterator();
             				while(it.hasNext()) {
             					String next = (String)it.next();
             					if(lastAssignedTone == null || !lastAssignedTone.equals(next)) {
@@ -585,12 +586,12 @@ public class ProsodyGeneric extends InternalModule {
             					}
             				}
             			} else if (preferred.equals("rising")) {
-            				HashSet set = (HashSet)listMap.get("rising_accents");
-            				Iterator it = set.iterator();
+            				Set<String> set = (Set<String>) listMap.get("rising_accents");
+            				Iterator<String> it = set.iterator();
             				if(it.hasNext()) tone = (String)it.next();
             			} else if (preferred.equals("falling")) {
-            				HashSet set = (HashSet)listMap.get("falling_accents");
-            				Iterator it = set.iterator();
+            				Set<String> set = (Set<String>) listMap.get("falling_accents");
+            				Iterator<String> it = set.iterator();
             				if(it.hasNext()) tone = (String)it.next();
             			}
             			token.setAttribute("accent",tone);
@@ -1292,7 +1293,7 @@ public class ProsodyGeneric extends InternalModule {
         if (listObj == null) return false; // no list found
         boolean contains;
         if (listObj instanceof Set) {
-            Set set = (Set) listObj;
+            Set<String> set = (Set) listObj;
             contains = set.contains(tokenValue);
         } else {
             throw new IllegalArgumentException("Unknown list representation: " + listObj);
@@ -1330,9 +1331,9 @@ public class ProsodyGeneric extends InternalModule {
     				Element firstToken = (Element)tokens.item(i);
             	
     				// setInterrogYN contains possible part of speechs of first word in yes-no question
-    				HashSet setInterrogYN = ((HashSet)listMap.get("firstPosInQuestionYN"));
+    				Set<String> setInterrogYN = (Set<String>) listMap.get("firstPosInQuestionYN");
     				// setInterrogW contains possible part of speechs of first word in wh-question
-    				HashSet setInterrogW = ((HashSet)listMap.get("firstPosInQuestionW"));
+    				Set<String> setInterrogW = (Set<String>) listMap.get("firstPosInQuestionW");
             	
     				String posFirstWord = firstToken.getAttribute("pos");
     				if(setInterrogYN != null && setInterrogYN.contains(posFirstWord)) {
