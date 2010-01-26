@@ -1,5 +1,5 @@
 #!/bin/sh
 BINDIR="`dirname "$0"`"
 export MARY_BASE="`(cd "$BINDIR"/.. ; pwd)`"
-java -ea -Xmx1024m -jar "$MARY_BASE"/java/voiceimport.jar
+java -ea -Xmx1024m -DMARYBASE="$MARY_BASE" -jar "$MARY_BASE"/java/voiceimport.jar
 
