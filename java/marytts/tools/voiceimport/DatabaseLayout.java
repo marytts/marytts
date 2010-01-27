@@ -449,11 +449,13 @@ public class DatabaseLayout
                         haveAllLocalProps = false;
                     }else {
                         //make sure all dir names have a / at the end
+                        // TODO verify that this way of deciding whether a key represents a path is really robust,
+                        // also consider unifying the numerous condition blocks like this into one function for maintainability 
                         if (nextKey.endsWith("Dir")){
                             String prop = nextLocalPropMap.get(nextKey);
                             if (!prop.endsWith(fileSeparator)){
                                 prop = prop+fileSeparator;
-                                nextLocalPropMap.put(key,prop);
+                                nextLocalPropMap.put(nextKey,prop);
                             }
                         }
                     }
@@ -504,8 +506,7 @@ public class DatabaseLayout
                 if (Character.isLetterOrDigit(lastChar)){
                     props.put(key,prop+fileSeparator);
                 }
-                
-            }            
+            }              
         }
         /* check the local props */
         Set<String> localPropKeys = localProps.keySet();
@@ -892,8 +893,15 @@ public class DatabaseLayout
                 if (isEditable(key))
                     setProp(key,value);
             } else {
-                //local prop: get the name of the component                
-                String compName = key.substring(0,key.indexOf('.'));
+                //local prop: get the name of the component
+                String compName = key;
+                try {
+                    compName = key.substring(0,key.indexOf('.'));
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("Found malformed property key: " + key);
+                }
                 
                 //update our representation of local props for this component
                 if (localProps.containsKey(compName)) {
