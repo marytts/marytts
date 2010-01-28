@@ -69,6 +69,7 @@ public class ESTCaller
         db = newDb;
         
         /* Read the environment variable ESTDIR from the system: */
+        // This should probably be System.getenv("ESTDIR"), but this constructor is never used anyway.
         String getESTDIR = System.getProperty("ESTDIR");
         if ( getESTDIR == null ) {
             System.out.println( "Warning: The environment variable ESTDIR was not found on your system." );
@@ -129,7 +130,7 @@ public class ESTCaller
         
         /* Check if ch_wave is present and executes with the given ESTDIR path */
         try {
-            Runtime.getRuntime().exec( ESTDIR + "/main/ch_wave -version" );
+            Runtime.getRuntime().exec( ESTDIR + "/bin/ch_wave -version" );
         }
         catch ( IOException e ) {
             /* This IOException is thrown by exec when ch_wave can't be found or can't be run. */
@@ -164,7 +165,7 @@ public class ESTCaller
             
             /* Make the command lines and launch them */
             /* - Scaling + resampling: */
-            cmdLine = ESTDIR + "/main/ch_wave -scaleN 0.9 -F 16000 "
+            cmdLine = ESTDIR + "/bin/ch_wave -scaleN 0.9 -F 16000 "
             + "-o tmp" + baseNameArray[i] + db.getProp(db.WAVEXT) + " "
             + db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT);
             General.launchProc( cmdLine, "Pitchmarks ", baseNameArray[i] );
@@ -177,7 +178,7 @@ public class ESTCaller
             }
             
             /* - Pitchmarks extraction: */
-            cmdLine = ESTDIR + "/main/pitchmark -min 0.0057 -max 0.012 -def 0.01 -wave_end -lx_lf 140 -lx_lo 111 -lx_hf 80 -lx_ho 51 -med_o 0 -fill -otype est "
+            cmdLine = ESTDIR + "/bin/pitchmark -min 0.0057 -max 0.012 -def 0.01 -wave_end -lx_lf 140 -lx_lo 111 -lx_hf 80 -lx_ho 51 -med_o 0 -fill -otype est "
             + "-o " + pitchmarksDirName + baseNameArray[i] + pitchmarksExt
             + " tmp" + baseNameArray[i] + db.getProp(db.WAVEXT);
             General.launchProc( cmdLine, "Pitchmarks ", baseNameArray[i] );
@@ -218,7 +219,7 @@ public class ESTCaller
             }
             
             /* Make the command line */
-            cmdLine = ESTDIR + "/main/sig2fv "
+            cmdLine = ESTDIR + "/bin/sig2fv "
             + "-window_type hamming -factor 3 -otype est_binary -preemph 0.95 -coefs lpc -lpc_order 16 "
             + "-pm " + correctedPitchmarksDirName + baseNameArray[i] + correctedPitchmarksExt
             + " -o " + lpcDirName + baseNameArray[i] + lpcExt + " "
@@ -259,7 +260,7 @@ public class ESTCaller
             }
             
             /* Make the command line */
-            cmdLine = ESTDIR + "main/sig2fv "
+            cmdLine = ESTDIR + "/bin/sig2fv "
             + "-window_type hamming -factor 2.5 -otype est_binary -coefs melcep -melcep_order 12 -fbank_order 24 -shift 0.01 -preemph 0.97 "
             + "-pm " + correctedPitchmarksDirName + baseNameArray[i] + correctedPitchmarksExt
             + " -o " + mcepDirName + baseNameArray[i] + mcepExt + " "
