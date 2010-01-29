@@ -77,8 +77,8 @@ public abstract class FrameBasedAnalyser<T> extends FrameProvider
     public FrameAnalysisResult<T>[] analyseAllFrames()
     {
         if (analysisResults == null) {
-            ArrayList results = new ArrayList();
-            FrameAnalysisResult oneResult;
+            ArrayList<FrameAnalysisResult<T>> results = new ArrayList<FrameAnalysisResult<T>>();
+            FrameAnalysisResult<T> oneResult;
             while ((oneResult = analyseNextFrame()) != null) {
                 results.add(oneResult);
             }
