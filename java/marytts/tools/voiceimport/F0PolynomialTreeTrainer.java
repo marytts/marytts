@@ -109,7 +109,7 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
            props.put(PROPORTIONTESTDATA, "0.1");
            
            props.put(WAGONDIR, "f0contours");
-           props.put(WAGONEXECUTABLE, System.getenv("ESTDIR")+"/main/wagon");
+           props.put(WAGONEXECUTABLE, System.getenv("ESTDIR")+"/bin/wagon");
            props.put(BALANCE, "0");
            props.put(STOP, "50");
        }

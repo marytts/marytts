@@ -894,8 +894,8 @@ public class CARTBuilder extends VoiceImportComponent {
             try {
                 long startTime = System.currentTimeMillis();
                 System.out.println(id+"> Calling wagon as follows:");
-                System.out.println(ESTDIR + "/main/wagon " + arguments);
-                Process p = Runtime.getRuntime().exec( ESTDIR + "/main/wagon " + arguments);
+                System.out.println(ESTDIR + "/bin/wagon " + arguments);
+                Process p = Runtime.getRuntime().exec( ESTDIR + "/bin/wagon " + arguments);
                 //collect the output
                 //read from error stream
                 StreamGobbler errorGobbler = new 
