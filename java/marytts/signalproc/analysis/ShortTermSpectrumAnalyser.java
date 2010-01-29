@@ -34,7 +34,7 @@ import marytts.util.math.MathUtils;
  * Implements a frame based spectrum analyser
  * 
  */
-public class ShortTermSpectrumAnalyser extends FrameBasedAnalyser
+public class ShortTermSpectrumAnalyser extends FrameBasedAnalyser<double[]>
 {
     protected double[] real;
 
@@ -68,7 +68,7 @@ public class ShortTermSpectrumAnalyser extends FrameBasedAnalyser
      * @return a double array of half the frame length
      * @throws IllegalArgumentException if frame does not have the prescribed length 
      */
-    public Object analyse(double[] frame)
+    public double[] analyse(double[] frame)
     {
         if (frame.length != getFrameLengthSamples())
             throw new IllegalArgumentException("Expected frame of length " + getFrameLengthSamples()

@@ -57,7 +57,7 @@ public class ShortTermLogSpectrumAnalyser extends ShortTermSpectrumAnalyser {
      * @return a double array of half the frame length
      * @throws IllegalArgumentException if frame does not have the prescribed length 
      */
-    public Object analyse(double[] frame)
+    public double[] analyse(double[] frame)
     {
         double[] spectrum = (double[]) super.analyse(frame);
         

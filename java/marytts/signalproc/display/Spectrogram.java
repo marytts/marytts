@@ -1,5 +1,5 @@
 /**
- * Copyright 2004-2006 DFKI GmbH.
+ * Copyright 2004-2010 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
  *
  * This file is part of MARY TTS.
@@ -90,7 +90,7 @@ public class Spectrogram  extends FunctionGraph
             new CepstrumAtCursor(),
     };
     
-    protected List spectra;
+    protected List<double[]> spectra;
     protected double spectra_max = 0.;
     protected double spectra_min = 0.;
     protected double deltaF = 0.; // distance in Hz between two spectrum samples
@@ -120,8 +120,8 @@ public class Spectrogram  extends FunctionGraph
         }
         if (!MathUtils.isPowerOfTwo(fftSize))
             throw new IllegalArgumentException("fftSize must be a power of two");
-        AudioDoubleDataSource signal = new AudioDoubleDataSource(ais);
-        initialise(signal.getAllData(), signal.getSamplingRate(), window, windowShift, fftSize, width, height);
+        AudioDoubleDataSource signalSource = new AudioDoubleDataSource(ais);
+        initialise(signalSource.getAllData(), signalSource.getSamplingRate(), window, windowShift, fftSize, width, height);
     }
     
     public Spectrogram(double[] signal, int samplingRate)
@@ -139,14 +139,14 @@ public class Spectrogram  extends FunctionGraph
         initialise(signal, samplingRate, window, windowShift, fftSize, width, height);
     }
 
-    protected void initialise(double[] signal, int samplingRate, Window window, int windowShift, int fftSize, int width, int height)
+    protected void initialise(double[] aSignal, int aSamplingRate, Window aWindow, int aWindowShift, int aFftSize, int width, int height)
     {
-        this.signal = signal;
-        this.samplingRate = samplingRate;
-        this.window = window;
-        this.windowShift = windowShift;
-        this.fftSize = fftSize;
-        super.initialise(width, height, 0, (double)windowShift/samplingRate, new double[10]);
+        this.signal = aSignal;
+        this.samplingRate = aSamplingRate;
+        this.window = aWindow;
+        this.windowShift = aWindowShift;
+        this.fftSize = aFftSize;
+        super.initialise(width, height, 0, (double)aWindowShift/aSamplingRate, new double[10]);
         update();
         initialiseDependentWindows();
     }
@@ -155,13 +155,13 @@ public class Spectrogram  extends FunctionGraph
     {
         ShortTermLogSpectrumAnalyser spectrumAnalyser = new ShortTermLogSpectrumAnalyser
             (new BufferedDoubleDataSource(signal), fftSize, window, windowShift, samplingRate);
-        spectra = new ArrayList();
+        spectra = new ArrayList<double[]>();
         // Frequency resolution of the FFT:
         deltaF = spectrumAnalyser.getFrequencyResolution(); 
         long startTime = System.currentTimeMillis();
         spectra_max = Double.NaN;
         spectra_min = Double.NaN;
-        FrameBasedAnalyser.FrameAnalysisResult[] results = spectrumAnalyser.analyseAllFrames();
+        FrameBasedAnalyser.FrameAnalysisResult<double[]>[] results = spectrumAnalyser.analyseAllFrames();
         for (int i=0; i<results.length; i++) {
             double[] spectrum = (double[]) results[i].get();
             spectra.add(spectrum);
@@ -221,10 +221,12 @@ public class Spectrogram  extends FunctionGraph
      * @param startY the start position on the Y axis (= the lower bound of the drawing area)
      * @param image_height the height of the drawable region for the y values
      */
+    @Override
     protected void drawData(Graphics2D g,
         int image_fromX, int image_toX,
         int image_refX, int image_refY,
-        int startY, int image_height)
+        int startY, int image_height,
+        double[] data, Color currentGraphColor, int currentGraphStyle, int currentDotStyle)
     {
         int index_fromX = imageX2indexX(image_fromX);
         int index_toX = imageX2indexX(image_toX);
@@ -310,7 +312,7 @@ public class Spectrogram  extends FunctionGraph
         fftSizeSlider.setMajorTickSpacing(1);
         fftSizeSlider.setPaintTicks(true);
         fftSizeSlider.setSnapToTicks(true);
-        Hashtable labelTable = new Hashtable();
+        Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
         for (int i=min; i<=max; i++) {
             int twoPowI = 1<<i; // 2^i, e.g. i==8 => twoPowI==256
             labelTable.put(new Integer(i), new JLabel(String.valueOf(twoPowI)));
@@ -323,10 +325,10 @@ public class Spectrogram  extends FunctionGraph
                 JSlider source = (JSlider)ce.getSource();
                 if (!source.getValueIsAdjusting()) {
                     int logfftSize = (int)source.getValue();
-                    int fftSize = 1<<logfftSize;
-                    if (fftSize != Spectrogram.this.fftSize) {
-                        Spectrogram.this.fftSize = fftSize;
-                        Spectrogram.this.window = Window.get(Spectrogram.this.window.type(), fftSize/4+1);
+                    int newFftSize = 1<<logfftSize;
+                    if (newFftSize != Spectrogram.this.fftSize) {
+                        Spectrogram.this.fftSize = newFftSize;
+                        Spectrogram.this.window = Window.get(Spectrogram.this.window.type(), newFftSize/4+1);
                         Spectrogram.this.update();
                     }
                 }
