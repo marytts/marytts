@@ -66,7 +66,7 @@ public class WagonCaller
         //try out if wagon runs
         try {
             System.out.print("Test call of wagon ... ");
-            Runtime.getRuntime().exec( ESTDIR + "/main/wagon -version" );
+            Runtime.getRuntime().exec( ESTDIR + "/bin/wagon -version" );
             System.out.print("Ok!\n");
         }
         catch ( IOException e ) {
@@ -95,7 +95,7 @@ public class WagonCaller
         //try out if wagon runs
         try {
             System.out.print("Test call of wagon ... ");
-            Runtime.getRuntime().exec( ESTDIR + "/main/wagon -version" );
+            Runtime.getRuntime().exec( ESTDIR + "/bin/wagon -version" );
             System.out.print("Ok!\n");
         }
         catch ( IOException e ) {
@@ -165,8 +165,8 @@ public class WagonCaller
     {
         try {
             System.out.println("Calling wagon as follows:");
-            System.out.println(ESTDIR + "/main/wagon " + arguments);
-            Process p = Runtime.getRuntime().exec( ESTDIR + "/main/wagon " + arguments);
+            System.out.println(ESTDIR + "/bin/wagon " + arguments);
+            Process p = Runtime.getRuntime().exec( ESTDIR + "/bin/wagon " + arguments);
             //collect the output
             //read from error stream
             StreamGobbler errorGobbler = new 
