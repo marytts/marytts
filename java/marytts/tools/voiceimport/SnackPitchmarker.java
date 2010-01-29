@@ -46,7 +46,7 @@ public class SnackPitchmarker extends VoiceImportComponent
     public final String MINPITCH = "SnackPitchmarker.minPitch";
     public final String MAXPITCH = "SnackPitchmarker.maxPitch";
     public final String PMDIR = "SnackPitchmarker.pmDir";  
-    public final String SNACKDIR = "SnackPitchmarker.snackDir";
+    public final String COMMAND = "SnackPitchmarker.command";
     
     protected void setupHelp()
     {
@@ -56,7 +56,7 @@ public class SnackPitchmarker extends VoiceImportComponent
             props2Help.put(MAXPITCH,"maximum value for the pitch (in Hz). Default: female 500, male 300"); 
             props2Help.put(PMDIR, "directory containing the pitchmark files. Will be created if" 
                     +"it does not exist");
-            props2Help.put(SNACKDIR, "directory of local SNACK installation");
+            props2Help.put(COMMAND, "the command that is used to launch Tcl; the Tcl installation must provide the SNACK package");
         }
     }
 
@@ -81,9 +81,9 @@ public class SnackPitchmarker extends VoiceImportComponent
                 props.put(MAXPITCH,"300");
             }
             if (MaryUtils.isWindows())
-                props.put(SNACKDIR, "c:/tcl/lib/snack2.2/");
+                props.put(COMMAND, "c:/tcl/tclsh.exe"); // TODO someone with windows, please confirm or correct
             else 
-                props.put(SNACKDIR, "/usr/lib/snack2.2/");
+                props.put(COMMAND, "/usr/bin/tclsh");
             
             props.put(PMDIR, db.getProp(db.ROOTDIR)
                     +"pm"
@@ -99,9 +99,10 @@ public class SnackPitchmarker extends VoiceImportComponent
         
         File script = new File(scriptFileName);
         
+        // What is the purpose of trunk/marytts/tools/voiceimport/pm.tcl, if it's hardcoded below here?
         if (script.exists()) script.delete();
         PrintWriter toScript = new PrintWriter(new FileWriter(script));
-        toScript.println("#!"+getProp(SNACKDIR));
+        toScript.println("#!"+getProp(COMMAND));
         toScript.println(" ");
         toScript.println("package require snack");
         toScript.println(" ");
@@ -136,12 +137,12 @@ public class SnackPitchmarker extends VoiceImportComponent
             //String correctedPmFile = getProp(PMDIR) + baseNameArray[i] + correctedPmExt;
             System.out.println("Writing pm file to "+snackFile);
 
-            boolean isWindows = true;
+            boolean isWindows = true; // TODO This is WRONG, and never used. Consider removal.
             String strTmp = scriptFileName + " " + wavFile + " " + snackFile + " " + getProp(MAXPITCH) + " " + getProp(MINPITCH);
 
             if (MaryUtils.isWindows())
                 strTmp = "cmd.exe /c " + strTmp;
-            else  strTmp = "tcl " + strTmp;
+            else  strTmp = getProp(COMMAND) + " " + strTmp;
                 
             //System.out.println("strTmp: "+strTmp);
             Process snack = Runtime.getRuntime().exec(strTmp);
