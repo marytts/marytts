@@ -46,14 +46,14 @@ to build MARY clients.</p>
 
 <h3 id="exampletext">Example texts</h3>
 <p>
-<code>exampletext?datatype=(datatype)&locale=(locale)<code>
+<code>exampletext?datatype=(datatype)&locale=(locale)</code>
 requests the example text for the given datatype and locale, e.g.:
 </p>
 
 <p><code><a href="exampletext?datatype=RAWMARYXML&locale=en_US">exampletext?datatype=RAWMARYXML&locale=en_US</a></code></p>
 
 <p>
-<code>exampletext?voice=(voicename)<code> requests the example text for the given voice.
+<code>exampletext?voice=(voicename)</code> requests the example text for the given voice.
 This makes sense in case of limited domain voices, e.g.:
 </p>
 
@@ -137,8 +137,8 @@ which may or may not be the same as for the voice's locale, e.g.:</p>
 <p>Partial processing of data: convert <code>Hello world</code> into ACOUSTPARAMS format, the full XML format used inside MARY TTS:</p>
 <p><code><a href="process?INPUT_TEXT=Hello+world&INPUT_TYPE=TEXT&OUTPUT_TYPE=ACOUSTPARAMS&LOCALE=en_US">process?INPUT_TEXT=Hello+world&INPUT_TYPE=TEXT&OUTPUT_TYPE=ACOUSTPARAMS&LOCALE=en_US</a></code></p>
 
-<p>Computation of feature vectors for <code>Hello world</code> for the features <code>phoneme stressed accented</code> for every phone:</p>
-<p><code><a href="process?INPUT_TEXT=Hello+world&INPUT_TYPE=TEXT&OUTPUT_TYPE=TARGETFEATURES&LOCALE=en_US&OUTPUT_TYPE_PARAMS=phoneme+stressed+accented">process?INPUT_TEXT=Hello+world&INPUT_TYPE=TEXT&OUTPUT_TYPE=TARGETFEATURES&LOCALE=en_US&OUTPUT_TYPE_PARAMS=phoneme+stressed+accented</a></code></p>
+<p>Computation of feature vectors for <code>Hello world</code> for the features <code>phone stressed accented</code> for every phone:</p>
+<p><code><a href="process?INPUT_TEXT=Hello+world&INPUT_TYPE=TEXT&OUTPUT_TYPE=TARGETFEATURES&LOCALE=en_US&OUTPUT_TYPE_PARAMS=phone+stressed+accented">process?INPUT_TEXT=Hello+world&INPUT_TYPE=TEXT&OUTPUT_TYPE=TARGETFEATURES&LOCALE=en_US&OUTPUT_TYPE_PARAMS=phone+stressed+accented</a></code></p>
 
 <p>Simple form containing only the required fields, as a GET request:</p>
 
