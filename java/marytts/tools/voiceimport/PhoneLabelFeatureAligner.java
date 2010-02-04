@@ -443,11 +443,19 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
             }
             //store header of label file in StringBuffer
         	StringBuilder labelFileHeader = new StringBuilder();
+        	boolean foundHeader = false;
         	while ((line = labels.readLine()) != null) {
           	  labelFileHeader.append(line+"\n");
-          	  if (line.startsWith("#")) break; // line starting with "#" marks end of header
+          	  if (line.startsWith("#")) {
+          	      foundHeader = true;
+          	      break; // line starting with "#" marks end of header
+          	  }
         	}
         
+        	if (!foundHeader) {
+        	    throw new IOException("File "+labDir+basename+labExt+" does not contain a file header!");
+        	}
+        	
         	//store units of label file in List
         	List<String> labelUnits = new ArrayList<String>();
         	while ((line = labels.readLine()) != null) {
