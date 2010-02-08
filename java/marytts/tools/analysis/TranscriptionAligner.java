@@ -27,7 +27,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
+import java.util.Vector;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -35,6 +37,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import marytts.datatypes.MaryXML;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
+import marytts.util.data.text.XwavesLabelfileDataSource;
 import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Document;
@@ -138,19 +141,19 @@ public class TranscriptionAligner
         try {
             StringBuilder result = new StringBuilder();
             
-            String line;
+            // parse Xwaves label file and store times and labels in vectors:
+            XwavesLabelfileDataSource xlds = new XwavesLabelfileDataSource(trfname);
+            Vector<Double> times = new Vector<Double>();
+            Vector<String> labels = new Vector<String>();
+            xlds.parseLabels(times, labels);
             
-            while ((line = lab.readLine()) != null){
-                if ( line.startsWith("#") ) 
-                    continue;
-                
-                String[] lineLmnts = line.split("\\s+");
-                
-               if ( lineLmnts.length != 3 )
-                   throw new IllegalArgumentException("Expected three columns in label file, got " + lineLmnts.length);
-               
-               if (result.length() > 0) result.append(entrySeparator);
-               result.append(lineLmnts[2]);
+            // iterate over labels and join them in a string, with entrySeparator as glue:
+            ListIterator<String> li = labels.listIterator();
+            result.append(li.next());
+            while (li.hasNext())
+            {
+                result.append(entrySeparator);
+                result.append(li.next());
             }
             
             // if Label File does not start with pause symbol, insert it
