@@ -45,14 +45,14 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
     protected PhoneLabelFeatureAligner aligner;
     
     protected String unitlabelExt = ".lab";
-    protected String corrPmExt = ".pm.corrected";
 
     protected DatabaseLayout db = null;
     protected int percent = 0;
     
     public String LABELDIR = "PhoneUnitfileWriter.labelDir";
     public String UNITFILE = "PhoneUnitfileWriter.unitFile";
-    public String CORRPMDIR = "PhoneUnitfileWriter.corrPmDir";
+    public String PMDIR = "db.pmDir";
+    public String PMEXT = "db.pmExtension";
     
     public String getName(){
         return "PhoneUnitfileWriter";
@@ -90,9 +90,6 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
                    +System.getProperty("file.separator"));
            props.put(UNITFILE, db.getProp(db.FILEDIR)
                    +"phoneUnits"+db.getProp(db.MARYEXT));           
-           props.put(CORRPMDIR, rootDir
-                   +"pm"
-                   +System.getProperty("file.separator"));
        }
        return props;
     }
@@ -101,7 +98,6 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
         props2Help = new TreeMap();
         props2Help.put(LABELDIR, "directory containing the phone labels");
         props2Help.put(UNITFILE, "file containing all phone units. Will be created by this module");           
-        props2Help.put(CORRPMDIR, "directory containing the corrected pitchmarks");
     }
     
     public boolean compute() throws IOException
@@ -128,8 +124,8 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
         for (int i=0; i<bnl.getLength(); i++) {
             percent = 100*i/bnl.getLength();
             /* Open the relevant pitchmark file */
-            pmFile = new ESTTrackReader(getProp(CORRPMDIR)
-                    + bnl.getName(i) +corrPmExt);
+            pmFile = new ESTTrackReader(db.getProp(PMDIR)
+                    + bnl.getName(i) + db.getProp(PMEXT));
             // Output the utterance start marker: "null" unit
             out.writeLong( globalStart ); out.writeInt(-1);
             index++;
@@ -166,7 +162,7 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
             out.writeLong( globalStart + localStart ); out.writeInt(-1);
             index++;
             /* Locate the global start of the next file:
-             * this corrects the discrpancy between the duration of the label file and the duration
+             * this corrects the discrepancy between the duration of the label file and the duration
              * of the pitchmark file (which is considered as the authority). */
             localNbrSamplesFromPM = (long)( (double)( pmFile.getTimeSpan() ) * (double)(samplingRate) );
             globalStart += localNbrSamplesFromPM;

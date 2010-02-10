@@ -50,11 +50,12 @@ public class WaveTimelineMaker extends VoiceImportComponent
 
     protected DatabaseLayout db = null;
     protected int percent = 0;
-    protected String corrPmExt = ".pm.corrected";
-    public final String CORRPMDIR = "WaveTimelineMaker.corrPmDir";
     public final String WAVETIMELINE = "WaveTimelineMaker.waveTimeline";
     
-     public final String getName(){
+    public final String PMDIR = "db.pmDir";
+    public final String PMEXT = "db.pmExtension";
+
+    public final String getName(){
         return "WaveTimelineMaker";
     }    
     
@@ -62,9 +63,6 @@ public class WaveTimelineMaker extends VoiceImportComponent
        this.db = db;
        if (props == null){
            props = new TreeMap();
-           props.put(CORRPMDIR, db.getProp(db.ROOTDIR)
-           				+"pm"
-           				+System.getProperty("file.separator"));
            props.put(WAVETIMELINE, db.getProp(db.FILEDIR)
                         +"timeline_waveforms"+db.getProp(db.MARYEXT));
        }
@@ -74,7 +72,6 @@ public class WaveTimelineMaker extends VoiceImportComponent
     
     protected void setupHelp(){
         props2Help = new TreeMap();
-        props2Help.put(CORRPMDIR,"directory containing the corrected pitchmarks");
         props2Help.put(WAVETIMELINE,"file containing all wave files. Will be created by this module");
     }
     
@@ -128,8 +125,8 @@ public class WaveTimelineMaker extends VoiceImportComponent
 
                 /* - open+load */
                 System.out.println( baseNameArray[i] );
-                pmFile = new ESTTrackReader( getProp(CORRPMDIR)
-                        		+ baseNameArray[i] + corrPmExt);
+                pmFile = new ESTTrackReader( db.getProp(PMDIR)
+                        		+ baseNameArray[i] + db.getProp(PMEXT));
                 totalDuration += pmFile.getTimeSpan();
                 wav = new WavReader( db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT) );
                 short[] wave = wav.getSamples();

@@ -47,16 +47,15 @@ public class MCEPMaker extends VoiceImportComponent {
     
     protected String mcepExt = ".mcep";
     protected String lpcExt = ".lpc";
-    protected String pmExt = ".pm";
-    protected String corrPmExt = ".pm.corrected";
     
     private final String name = "MCEPMaker";
-    public final String CORRPMDIR = name + ".corrPmDir";
-    public final String PMDIR = name + ".pmDir";
     public final String LPCDIR = name + ".lpcDir";
     public final String MCEPDIR = name + ".mcepDir";
     public final String ESTDIR = name + ".estDir";
      
+    public final String PMDIR = "db.pmDir";
+    public final String PMEXT = "db.pmExtension";
+
     public String getName(){
         return name;
     }
@@ -67,10 +66,6 @@ public class MCEPMaker extends VoiceImportComponent {
            props = new TreeMap();
            String rootDir = db.getProp(db.ROOTDIR);
            
-           props.put(CORRPMDIR, rootDir
-                   +"pm"
-                   +System.getProperty("file.separator"));
-           props.put(PMDIR, getProp(CORRPMDIR));
            /** Uncomment if you want to use this class for making lpcs
            props.put(LPCDIR, rootDir
                    +"lpc"                   
@@ -185,9 +180,9 @@ public class MCEPMaker extends VoiceImportComponent {
         System.out.println("---- Correcting the pitchmarks..." );
         
         /* Ensure the existence of the target directory */
-        File dir = new File( getProp(CORRPMDIR));
+        File dir = new File( db.getProp(PMDIR));
         if (!dir.exists()) { 
-            System.out.println( "Creating the directory [" + getProp(CORRPMDIR) + "]." );
+            System.out.println( "Creating the directory [" + db.getProp(PMDIR) + "]." );
             dir.mkdir();
         }
         
@@ -196,7 +191,7 @@ public class MCEPMaker extends VoiceImportComponent {
         //for ( int f = 0; f < 1; f++ ) {
             /* Load the pitchmark file */
             //System.out.println( baseNameArray[f] );
-            String fName = getProp(PMDIR) + baseNameArray[f] + pmExt;
+            String fName = db.getProp(PMDIR) + baseNameArray[f] + db.getProp(PMEXT);
             ESTTrackReader pmFileIn = new ESTTrackReader( fName );
             /* Wrap the primitive floats so that we can use vectors thereafter */
             float[] pmInPrimitive = pmFileIn.getTimes();
@@ -219,7 +214,7 @@ public class MCEPMaker extends VoiceImportComponent {
                 throw new RuntimeException( "For utterance [" + baseNameArray[f] + "]:" , e );
             }
             /* Export the corrected pitchmarks as an EST file */
-            fName = getProp(CORRPMDIR) + baseNameArray[f] + corrPmExt;
+            fName = db.getProp(PMDIR) + baseNameArray[f] + db.getProp(PMEXT);
             DataOutputStream dos = null;
             try {
                 dos = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( fName ) ) );
@@ -254,8 +249,8 @@ public class MCEPMaker extends VoiceImportComponent {
         System.out.println( "Computing Mel cepstra for [" + baseNameArray.length + "] utterances." );
         ESTCaller caller = new ESTCaller( db, getProp(ESTDIR) );
         caller.make_mcep( baseNameArray, 
-                getProp(CORRPMDIR),
-                corrPmExt,
+                db.getProp(PMDIR),
+                db.getProp(PMEXT),
                 getProp(MCEPDIR),
                 mcepExt);
         

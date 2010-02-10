@@ -36,8 +36,6 @@ import marytts.util.data.text.PraatTextfileDoubleDataSource;
 public class PraatPitchmarker extends VoiceImportComponent
 {
     protected DatabaseLayout db = null;
-    protected String corrPmExt = ".pm.corrected";
-    protected String pmExt = ".pm";
     protected String pointpExt = ".PointProcess";
     protected String tmpScript;
     
@@ -46,8 +44,9 @@ public class PraatPitchmarker extends VoiceImportComponent
     public final String COMMAND = "PraatPitchmarker.command";
     public final String MINPITCH = "PraatPitchmarker.minPitch";
     public final String MAXPITCH = "PraatPitchmarker.maxPitch";
-    public final String CORRPMDIR = "PraatPitchmarker.corrPmDir";
-    public final String PMDIR = "PraatPitchmarker.pmDir";
+
+    public final String PMDIR = "db.pmDir";
+    public final String PMEXT = "db.pmExtension";
 
     protected void setupHelp()
     {
@@ -56,10 +55,6 @@ public class PraatPitchmarker extends VoiceImportComponent
             props2Help.put(COMMAND, "The command that is used to launch praat");
             props2Help.put(MINPITCH,"minimum value for the pitch (in Hz). Default: female 100, male 75");
             props2Help.put(MAXPITCH,"maximum value for the pitch (in Hz). Default: female 500, male 300");            
-            props2Help.put(CORRPMDIR, "directory containing the corrected pitchmark files. Will be created if" 
-                    +"it does not exist");
-            props2Help.put(PMDIR, "directory containing the pitchmark files. Will be created if" 
-                    +"it does not exist");
         }
         
 
@@ -87,12 +82,6 @@ public class PraatPitchmarker extends VoiceImportComponent
                props.put(MAXPITCH,"300");
            }
            String rootDir = db.getProp(db.ROOTDIR);
-           props.put(CORRPMDIR, rootDir
-                   +"pm"
-                   +System.getProperty("file.separator"));
-           props.put(PMDIR, rootDir
-                   +"pm"
-                   +System.getProperty("file.separator"));
        }
        return props;
     }
@@ -207,9 +196,8 @@ public class PraatPitchmarker extends VoiceImportComponent
     private boolean praatPitchmarks(String basename) throws IOException
     {
         String wavFilename = new File(db.getProp(db.WAVDIR) + basename + db.getProp(db.WAVEXT)).getAbsolutePath();
-        String pointprocessFilename = getProp(PMDIR)+basename+pointpExt;
-        String pmFilename = getProp(PMDIR)+basename+pmExt;
-        String correctedPmFilename = getProp(CORRPMDIR) + basename + corrPmExt;
+        String pointprocessFilename = db.getProp(PMDIR)+basename+pointpExt;
+        String pmFilename = db.getProp(PMDIR) + basename + db.getProp(PMEXT);
 
         String strTmp = getProp(COMMAND)+" "+tmpScript+" "+wavFilename+" "+pointprocessFilename+" "+getProp(MAXPITCH)+" "+getProp(MINPITCH);
         
@@ -233,11 +221,11 @@ public class PraatPitchmarker extends VoiceImportComponent
             praat.waitFor();
         } catch (InterruptedException ie) {} // ignore
 
-        // Now convert the praat format into EST pm format, interpreting the file as already corrected:
+        // Now convert the praat format into EST pm format:
         double[] pm = new PraatTextfileDoubleDataSource(new FileReader(pointprocessFilename)).getAllData();
         float[] pitchmarks = new float[pm.length];
         for (int i=0; i<pitchmarks.length; i++) pitchmarks[i] = (float) pm[i];
-        new ESTTrackWriter(pitchmarks, null, "pitchmarks").doWriteAndClose(correctedPmFilename, false, false);
+        new ESTTrackWriter(pitchmarks, null, "pitchmarks").doWriteAndClose(pmFilename, false, false);
 
         return true;
     }
@@ -251,15 +239,9 @@ public class PraatPitchmarker extends VoiceImportComponent
         System.out.println( "Computing pitchmarks for " + baseNameArray.length + " utterances." );
 
         /* Ensure the existence of the target pitchmark directory */
-        File dir = new File(getProp(PMDIR));
+        File dir = new File(db.getProp(PMDIR));
         if (!dir.exists()) {
-            System.out.println( "Creating the directory [" + getProp(PMDIR) + "]." );
-            dir.mkdir();
-        }
-        /* Ensure the existence of the target directory for corrected pitchmarks */
-        dir = new File(getProp(CORRPMDIR));
-        if (!dir.exists()) { 
-            System.out.println( "Creating the directory [" + getProp(CORRPMDIR) + "]." );
+            System.out.println( "Creating the directory [" + db.getProp(PMDIR) + "]." );
             dir.mkdir();
         }
         
