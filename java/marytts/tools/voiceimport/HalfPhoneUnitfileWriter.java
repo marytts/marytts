@@ -37,10 +37,8 @@ public class HalfPhoneUnitfileWriter extends PhoneUnitfileWriter
     
     public HalfPhoneUnitfileWriter(){
         unitlabelExt = ".hplab";
-        corrPmExt = ".pm.corrected";
         LABELDIR = "HalfPhoneUnitfileWriter.labelDir";
         UNITFILE = "HalfPhoneUnitfileWriter.unitFile";
-        CORRPMDIR = "HalfPhoneUnitfileWriter.corrPmDir";
     }
     
     public void initialiseComp()
@@ -75,9 +73,6 @@ public class HalfPhoneUnitfileWriter extends PhoneUnitfileWriter
                     +System.getProperty("file.separator"));
             props.put(UNITFILE, db.getProp(db.FILEDIR)
                     +"halfphoneUnits"+db.getProp(db.MARYEXT));           
-            props.put(CORRPMDIR, rootDir
-                    +"pm"                   
-                    +System.getProperty("file.separator"));
         }
         return props;
     }
@@ -86,7 +81,6 @@ public class HalfPhoneUnitfileWriter extends PhoneUnitfileWriter
         props2Help = new TreeMap();
         props2Help.put(LABELDIR, "directory containing the halfphone labels");
         props2Help.put(UNITFILE, "file containing all halfphone units. Will be created by this module");           
-        props2Help.put(CORRPMDIR, "directory containing the corrected pitchmarks");
     }
     
 

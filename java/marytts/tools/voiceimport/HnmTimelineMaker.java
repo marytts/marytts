@@ -66,12 +66,13 @@ public class HnmTimelineMaker extends VoiceImportComponent
     protected DatabaseLayout db = null;
     protected int percent = 0;
     
-    protected String corrPmExt = ".pm.corrected";
     protected String hnmAnalysisFileExt = ".ana";
-    public final String CORRPMDIR = "HnmTimelineMaker.corrPmDir";
     public final String HNMTIMELINE = "HnmTimelineMaker.hnmTimeline";
     public final String HNMANADIR = "HnmTimelineMaker.hnmAnalysisDir";
     
+    public final String PMDIR = "db.pmDir";
+    public final String PMEXT = "db.pmExtension";
+
     public String getName(){
         return "HnmTimelineMaker";
     }
@@ -85,10 +86,6 @@ public class HnmTimelineMaker extends VoiceImportComponent
             
             props = new TreeMap<String, String>();
 
-            props.put(CORRPMDIR, db.getProp(db.ROOTDIR)
-                    +"pm"
-                    +System.getProperty("file.separator"));
-            
             props.put(HNMTIMELINE, db.getProp(db.FILEDIR)
                     +"timeline_hnm"+db.getProp(db.MARYEXT));
     
@@ -125,7 +122,6 @@ public class HnmTimelineMaker extends VoiceImportComponent
     protected void setupHelp(){         
         props2Help = new TreeMap<String, String>();
         
-        props2Help.put(CORRPMDIR,"directory containing the corrected pitchmarks");
         props2Help.put(HNMTIMELINE,"file containing all hnm noise waveform files. Will be created by this module");  
         props2Help.put(HNMANADIR,"directory to write the harmnoics plus noise analysis results for each wav file");
         
@@ -270,7 +266,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
                 System.out.println( baseNameArray[n] );
                 String wavFile = db.getProp(db.WAVDIR) + baseNameArray[n] + db.getProp(db.WAVEXT); 
                 
-                ESTTrackReader pmFile = new ESTTrackReader( getProp(CORRPMDIR) + baseNameArray[n] + corrPmExt);
+                ESTTrackReader pmFile = new ESTTrackReader( db.getProp(PMDIR) + baseNameArray[n] + db.getProp(PMEXT));
                 totalDuration += pmFile.getTimeSpan();
         
                 HntmAnalyzer ha = new HntmAnalyzer();

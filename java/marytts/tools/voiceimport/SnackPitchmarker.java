@@ -36,7 +36,6 @@ import marytts.util.signal.SignalProcUtils;
 public class SnackPitchmarker extends VoiceImportComponent
 {
     protected DatabaseLayout db = null;
-    protected String pmExt = ".pm.corrected";
     //protected String correctedPmExt = ".pm.corrected";
     protected String snackPmExt = ".snack";
     protected String scriptFileName;
@@ -45,8 +44,10 @@ public class SnackPitchmarker extends VoiceImportComponent
   
     public final String MINPITCH = "SnackPitchmarker.minPitch";
     public final String MAXPITCH = "SnackPitchmarker.maxPitch";
-    public final String PMDIR = "SnackPitchmarker.pmDir";  
     public final String COMMAND = "SnackPitchmarker.command";
+
+    public final String PMDIR = "db.pmDir";  
+    public final String PMEXT = "db.pmExtension";
     
     protected void setupHelp()
     {
@@ -54,8 +55,6 @@ public class SnackPitchmarker extends VoiceImportComponent
             props2Help = new TreeMap();
             props2Help.put(MINPITCH,"minimum value for the pitch (in Hz). Default: female 100, male 75");
             props2Help.put(MAXPITCH,"maximum value for the pitch (in Hz). Default: female 500, male 300"); 
-            props2Help.put(PMDIR, "directory containing the pitchmark files. Will be created if" 
-                    +"it does not exist");
             props2Help.put(COMMAND, "the command that is used to launch Tcl; the Tcl installation must provide the SNACK package");
         }
     }
@@ -85,9 +84,6 @@ public class SnackPitchmarker extends VoiceImportComponent
             else 
                 props.put(COMMAND, "/usr/bin/tclsh");
             
-            props.put(PMDIR, db.getProp(db.ROOTDIR)
-                    +"pm"
-                    +System.getProperty("file.separator"));
         }
         return props;
     }
@@ -122,9 +118,9 @@ public class SnackPitchmarker extends VoiceImportComponent
         System.out.println( "Computing pitchmarks for " + baseNameArray.length + " utterances." );
 
         /* Ensure the existence of the target pitchmark directory */
-        File dir = new File(getProp(PMDIR));
+        File dir = new File(db.getProp(PMDIR));
         if (!dir.exists()) {
-            System.out.println( "Creating the directory [" + getProp(PMDIR) + "]." );
+            System.out.println( "Creating the directory [" + db.getProp(PMDIR) + "]." );
             dir.mkdir();
         }        
         
@@ -132,8 +128,8 @@ public class SnackPitchmarker extends VoiceImportComponent
         for ( int i = 0; i < baseNameArray.length; i++ ) {
             percent = 100*i/baseNameArray.length;
             String wavFile = db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT);
-            String snackFile = getProp(PMDIR) + baseNameArray[i] + snackPmExt;
-            String pmFile = getProp(PMDIR) + baseNameArray[i] + pmExt;
+            String snackFile = db.getProp(PMDIR) + baseNameArray[i] + snackPmExt;
+            String pmFile = db.getProp(PMDIR) + baseNameArray[i] + db.getProp(PMEXT);
             //String correctedPmFile = getProp(PMDIR) + baseNameArray[i] + correctedPmExt;
             System.out.println("Writing pm file to "+snackFile);
 

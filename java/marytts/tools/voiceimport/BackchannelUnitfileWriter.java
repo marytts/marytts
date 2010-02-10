@@ -51,7 +51,6 @@ public class BackchannelUnitfileWriter extends VoiceImportComponent
     protected File unitlabelDir;
     protected int samplingRate;
     protected String pauseSymbol;
-    protected String corrPmExt = ".pm.corrected";
     protected String unitlabelExt = ".lab";
     
     protected DatabaseLayout db = null;
@@ -61,8 +60,10 @@ public class BackchannelUnitfileWriter extends VoiceImportComponent
     public String LABELDIR = "BackchannelUnitfileWriter.backchannelLabDir";
     public String UNITFILE = "BackchannelUnitfileWriter.unitFile";
     public String BASELIST = "BackchannelUnitfileWriter.backchannelBaseNamesList";
-    public final String CORRPMDIR = "BackchannelUnitfileWriter.corrPmDir";
-    
+
+    public final String PMDIR = "db.pmDir";
+    public final String PMEXT = "db.pmExtension";
+
     public String getName(){
         return "BackchannelUnitfileWriter";
     }
@@ -88,9 +89,6 @@ public class BackchannelUnitfileWriter extends VoiceImportComponent
        if (props == null){
            props = new TreeMap();
            String rootDir = db.getProp(db.ROOTDIR);
-           props.put(CORRPMDIR, db.getProp(db.ROOTDIR)
-                   +"pm"
-                   +System.getProperty("file.separator"));
            props.put(LABELDIR, rootDir
                    +"backchannel_lab"
                    +System.getProperty("file.separator"));
@@ -103,7 +101,6 @@ public class BackchannelUnitfileWriter extends VoiceImportComponent
     
     protected void setupHelp(){
         props2Help = new TreeMap();
-        props2Help.put(CORRPMDIR,"directory containing the corrected pitchmarks");
         props2Help.put(LABELDIR, "directory containing the phone labels");
         props2Help.put(UNITFILE, "file containing all phone units. Will be created by this module");           
     }
@@ -165,8 +162,8 @@ public class BackchannelUnitfileWriter extends VoiceImportComponent
               unitTimeSpan = new double[this.numberOfUnits];
               for(int i=0; i<this.numberOfUnits; i++){
                   String fileName =  unitlabelDir+File.separator+basenameList.getName(i)+unitlabelExt;
-                  ESTTrackReader pmFile = new ESTTrackReader( getProp(CORRPMDIR)+File.separator
-                          + basenameList.getName(i) + corrPmExt);
+                  ESTTrackReader pmFile = new ESTTrackReader( db.getProp(PMDIR)+File.separator
+                          + basenameList.getName(i) + db.getProp(PMEXT));
                   unitLabels[i]   =  readLabFile(fileName);
                   unitTimeSpan[i] = pmFile.getTimeSpan();
               }

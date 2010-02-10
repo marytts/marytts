@@ -100,6 +100,10 @@ public class DatabaseLayout
     public final String LABDIR = "db.labDir";
     //phonetic label file extension
     public final String LABEXT = "db.labExtension";
+    //pitchmark file dir
+    public final String PMDIR = "db.pmDir";
+    //pitchmark file extension
+    public final String PMEXT = "db.pmExtension";
     //pitch file dir
     public final String PTCDIR = "db.ptcDir";
     //pitch file extension
@@ -175,6 +179,7 @@ public class DatabaseLayout
         props2Help.put(TEXTEXT,"extension of the transcript files, default: \".txt\"");
         props2Help.put(VOICENAME,"the name of the voice, one word, for example: \"my_voice\"");
         props2Help.put(WAVDIR,"directory containing the wave files. If it does not exist, an Error is thrown.");
+        props2Help.put(PMDIR,"directory containing the pitchmark files. If it does not exist, an Error is thrown.");
         props2Help.put(PTCDIR,"directory containing the pitch files. If it does not exist, an Error is thrown.");
         props2Help.put(PROMPTALLOPHONESDIR, "directory containing the allophones files predicted by mary");
         props2Help.put(ALLOPHONESDIR, "directory containing allophones files aligned with (possibly manually corrected) labels");
@@ -590,6 +595,8 @@ public class DatabaseLayout
         basicprops.put(LABEXT,".lab");        
         basicprops.put(TEXTDIR, rootDir+"text"+fileSeparator);
         basicprops.put(TEXTEXT,".txt");
+        basicprops.put(PMDIR, rootDir+"pm"+fileSeparator);
+        basicprops.put(PMEXT,".pm");
         basicprops.put(PTCDIR, rootDir+"ptc"+fileSeparator);
         basicprops.put(PTCEXT,".ptc");  
         basicprops.put(MARYSERVERHOST, "localhost");
@@ -637,6 +644,8 @@ public class DatabaseLayout
             someProps.put(LABEXT,".lab");        
             someProps.put(TEXTDIR, rootDir+"text"+fileSeparator);
             someProps.put(TEXTEXT,".txt");
+            someProps.put(PMDIR, rootDir+"pm"+fileSeparator);
+            someProps.put(PMEXT,".pm");
             someProps.put(PTCDIR, rootDir+"ptc"+fileSeparator);
             someProps.put(PTCEXT,".ptc");
             someProps.put(MARYSERVERHOST, "localhost");
