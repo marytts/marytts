@@ -27,9 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
-import java.util.Vector;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -139,29 +137,18 @@ public class TranscriptionAligner
         // reader for label file.
         BufferedReader lab = new BufferedReader(new FileReader(trfname));
         try {
-            StringBuilder result = new StringBuilder();
-            
-            // parse Xwaves label file and store times and labels in vectors:
+            // get XwavesLabelfileDataSouce to parse Xwaves label file and store times and labels:
             XwavesLabelfileDataSource xlds = new XwavesLabelfileDataSource(trfname);
-            Vector<Double> times = new Vector<Double>();
-            Vector<String> labels = new Vector<String>();
-            xlds.parseLabels(times, labels);
             
-            // iterate over labels and join them in a string, with entrySeparator as glue:
-            ListIterator<String> li = labels.listIterator();
-            result.append(li.next());
-            while (li.hasNext())
-            {
-                result.append(entrySeparator);
-                result.append(li.next());
-            }
+            // join them to a string, with entrySeparator as glue:
+            String result = xlds.joinLabelsToString(entrySeparator);
             
             // if Label File does not start with pause symbol, insert it
             // as well as a pause duration of zero (...)
             if(ensureInitialBoundary && result.charAt(0) != '_') {
-                result.insert(0, "_"+entrySeparator);
+                result = "_" + entrySeparator + result;
             }
-            return result.toString();
+            return result;
         } finally {
             lab.close();
         }
