@@ -27,6 +27,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -40,17 +42,19 @@ import java.util.regex.Matcher;
 public class XwavesLabelfileDataSource {
     // main class variables (reader, times, labels, header lines)
     protected BufferedReader reader;
-    protected ArrayList<Double> times = new ArrayList<Double>();
-    protected ArrayList<String> labels = new ArrayList<String>();
-    protected ArrayList<String> header = new ArrayList<String>();
+    protected Double[] times;
+    protected String[] labels;
+    protected String[] header;
     
     /**
      * Read data from a Label file.
      * 
      * @param filename
      *            Label filename as a String
+     * @throws IOException 
      */
-    public XwavesLabelfileDataSource(String filename) throws FileNotFoundException {
+    public XwavesLabelfileDataSource(String filename)
+    throws IOException {
         this(new FileReader(filename));
     }
 
@@ -59,27 +63,28 @@ public class XwavesLabelfileDataSource {
      * 
      * @param reader
      *            Label file as a Reader
+     * @throws IOException 
      */
-    public XwavesLabelfileDataSource(Reader reader) {
+    public XwavesLabelfileDataSource(Reader reader)
+    throws IOException {
         this.reader = new BufferedReader(reader);
-        try {
-            parseLabels();
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
+        parseLabels();
     }
 
     /**
      * Read lines from the label file and parse them. As each line is parsed, the label in that line and its end time are appended
      * to the appropriate arrays, and the initial header lines are stored in a third vector.
      * 
-     * @return true if everything went well
      * @throws IOException
      */
-    private boolean parseLabels() throws IOException {
+    private void parseLabels()
+    throws IOException {
         // initialize some variables
         String line;
         boolean headerComplete = false;
+        ArrayList<Double> timesList = new ArrayList<Double>();
+        ArrayList<String> labelsList = new ArrayList<String>();
+        ArrayList<String> headersList = new ArrayList<String>();
 
         // Legend for regular expression:
         // 
@@ -118,30 +123,22 @@ public class XwavesLabelfileDataSource {
                 headerComplete = true;
 
                 // parse the line by accessing the groups captured by the regex Matcher
-                try {
-                    // the first group is the label's end time
-                    timeStr = lineMatcher.group(1);
-                    // the second group is the label itself
-                    label = lineMatcher.group(2);
-                } catch (IllegalStateException ise) {
-                    // the match was somehow not performed, is the pattern OK?
-                    throw ise;
-                } catch (IndexOutOfBoundsException ioobe) {
-                    // the match was performed, but no groups were found, is the pattern OK?
-                    throw ioobe;
-                }
+                // the first group is the label's end time
+                timeStr = lineMatcher.group(1);
+                // the second group is the label itself
+                label = lineMatcher.group(2);
 
                 try {
                     // parse the end time into a Double and append it to times
                     time = Double.parseDouble(timeStr);
-                    times.add(time);
+                    timesList.add(time);
                 } catch (NumberFormatException nfe) {
                     // number could not be parsed; this should never actually happen!
                     throw nfe;
                 }
 
                 // append label to labels
-                labels.add(label);
+                labelsList.add(label);
 
             } else {
                 // line could not be parsed by regex; are we still in the header?
@@ -151,7 +148,7 @@ public class XwavesLabelfileDataSource {
                         headerComplete = true;
                     else
                         // no hash line seen so far, line seems to be part of header
-                        header.add(line);
+                        headersList.add(line);
                 } else {
                     // header was already complete, or we are dealing with a headerless label file,
                     // but we found a line that could not be parsed!
@@ -162,9 +159,19 @@ public class XwavesLabelfileDataSource {
         }
 
         // it should never happen that times and labels do not have the same number of elements!
-        assert times.size() == labels.size() : "";
+        assert timesList.size() == labelsList.size() : "";
+        
+        times = new Double[timesList.size()];
+        int t;
+        for (t = 0; t < timesList.size(); t++) {
+            times[t] = timesList.get(t);
+        }
+        
+        labels = (String[]) labelsList.toArray(new String[0]);
+        header = (String[]) headersList.toArray(new String[0]);
+        
+        return;
 
-        return true;
     }
 
     /**
@@ -172,7 +179,7 @@ public class XwavesLabelfileDataSource {
      * 
      * @return times as ArrayList of Doubles
      */
-    public ArrayList<Double> getTimes() {
+    public Double[] getTimes() {
         return times;
     }
 
@@ -181,7 +188,7 @@ public class XwavesLabelfileDataSource {
      * 
      * @return labels as ArrayList of Strings
      */
-    public ArrayList<String> getLabels() {
+    public String[] getLabels() {
         return labels;
     }
 
@@ -190,7 +197,7 @@ public class XwavesLabelfileDataSource {
      * 
      * @return header lines as ArrayList of Strings
      */
-    public ArrayList<String> getHeader() {
+    public String[] getHeader() {
         return header;
     }
 
@@ -204,7 +211,8 @@ public class XwavesLabelfileDataSource {
      */
     public String joinLabelsToString(String glue) {
         StringBuilder sb = new StringBuilder();
-        ListIterator<String> li = labels.listIterator();
+        List<String> labelsList = Arrays.asList(labels);
+        ListIterator<String> li = labelsList.listIterator();
 
         sb.append(li.next());
         while (li.hasNext()) {
