@@ -238,7 +238,8 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
                         case REMOVE:
                             tryAgain = false;
                             bnl.remove( basename );
-                            deleteProblemsYesNo(null,basename);                          remainingProblems--;
+                            deleteProblemsYesNo(null,basename);
+                            remainingProblems--;
                             System.out.println( " -> Removed from the utterance list. OK" );
                             break;
                         
@@ -300,7 +301,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     /**
      * Let the user select if he wants to run the
      * the automatic correction of pauses.
-     * @param numProblems the number of problems
+     * @param someProblems
      * @throws IOException
      */
     protected void deleteProblemsYesNo(Map<String,String> someProblems, String basename) throws IOException
@@ -332,6 +333,10 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
                 File nextFeatFile = new File(featsDir+basename + featsExt);
                 nextFeatFile.delete();
             }
+            // before anything else happens, ensure that deleted files will not be missed later
+            // by forcing basename file to be written/updated; this is just a q&d fix!
+            String basenameFilename = db.getProp("db.basenameFile");
+            bnl.write(basenameFilename);
         }
     }
     protected void defineReplacementWindow(){
