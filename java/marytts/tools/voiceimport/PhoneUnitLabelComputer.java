@@ -54,6 +54,7 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
     
     protected DatabaseLayout db = null;
     protected int percent = 0;
+    protected int basenameIndex;
     
     public String LABELDIR = "PhoneUnitLabelComputer.labelDir";
     
@@ -110,9 +111,9 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
                 + db.getProp(db.LABDIR) + "*" + db.getProp(db.LABEXT));
         System.out.println( "To       unit label files: " 
                 + getProp(LABELDIR) + "*" + unitlabelExt );
-        for (int i=0; i<bnl.getLength(); i++) {
-            percent = 100*i/bnl.getLength();
-            computePhoneLabel(bnl.getName(i));
+        for (basenameIndex=0; basenameIndex<bnl.getLength(); basenameIndex++) {
+            percent = 100*basenameIndex/bnl.getLength();
+            computePhoneLabel(bnl.getName(basenameIndex));
         }
         System.out.println("Finished computing unit labels");
         return true;
@@ -126,6 +127,7 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
             System.out.println( "Utterance [" + baseName + "] does not have a phonetic label file." );
             System.out.println( "Removing this utterance from the base utterance list." );
             bnl.remove( baseName );
+            basenameIndex--;
         }
         else {
             BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream( labFile ), "UTF-8"));
