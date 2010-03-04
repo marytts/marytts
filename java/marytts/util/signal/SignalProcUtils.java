@@ -739,6 +739,17 @@ public class SignalProcUtils {
     {
         return 13.0*Math.atan(0.00076*freqInHz)+3.5*Math.atan((freqInHz*freqInHz/(7500*7500)));
     }
+    /**
+     * Since there is no asinh in Math, here it is used its definition:
+     * asinh(x) = ln( x + sqrt(x^2+1) )
+     * This function is used in fft2barkmx()
+     */
+    public static double hz2bark(double freqInHz)
+    {
+        // if should be: return 6 * asinh(f/600);
+        double f = freqInHz/600;
+        return 6 * Math.log( f + Math.sqrt((f*f)+1) );
+    }
     
     public static double freq2barkNew(double freqInHz)
     {
@@ -788,6 +799,66 @@ public class SignalProcUtils {
     {
         return SignalProcUtils.hz2radian(barkNew2freq(bark), samplingRateInHz);
     }
+    
+    
+    /***
+     * Java ported version of: wts = fft2barkmx(nfft, sr, nfilts, width)
+     * Generate a matrix of weights to combine FFT bins into Bark
+     * bins.  nfft defines the source FFT size at sampling rate sr.
+     * Optional nfilts specifies the number of output bands required 
+     * (else one per bark), and width is the constant width of each 
+     * band in Bark (default 1).
+     * While wts has nfft columns, the second half are all zero. 
+     * Hence, Bark spectrum is fft2barkmx(nfft,sr)*abs(fft(xincols,nfft));
+     * 2004-09-05  dpwe@ee.columbia.edu  based on rastamat/audspec.m
+     * @param nfft   FFT size
+     * @param sr     sampling rate
+     * @param nfilts number of output bark bands
+     * @param width  width of each band in Bark (default 1)
+     * @param minfreq 
+     * @param maxfreq
+     * @return
+     */
+    public static double[][] fft2barkmx(int nfft, int sr, int nfilts, int width, double minfreq, double maxfreq){
+      
+      int i,j,k;
+      double min_bark = hz2bark(minfreq);
+      double nyqbark = hz2bark(maxfreq) - min_bark;
+      
+      double wts[][] = new double[nfilts][nfft];
+      for (i=0; i<nfilts; i++)
+        wts[i] = MathUtils.zeros(nfft);
+      
+      // bark per filter
+      double step_barks = nyqbark/(nfilts-1);
+      
+      // Frequency of each FFT bin in Bark
+      int halfNfft = (nfft/2);
+      double binbarks[] = new double[(halfNfft+1)];
+      for(i=0; i<(halfNfft+1); i++){
+        binbarks[i] = hz2bark(i*sr/nfft);
+      }
+      
+      double f_bark_mid, aux;
+      double lof[] = new double[(halfNfft+1)];
+      double hif[] = new double[(halfNfft+1)];
+      for(i=1; i<=nfilts; i++){
+        f_bark_mid = min_bark + (i-1) * step_barks;
+        // Linear slopes in log-space (i.e. dB) intersect to trapezoidal window
+        for(j=0; j<(halfNfft+1); j++){
+          lof[j] = (binbarks[j]-f_bark_mid)/width - 0.5;
+          hif[j] = (binbarks[j]-f_bark_mid)/width + 0.5;
+        }
+        for(k=0; k<(halfNfft+1); k++){
+          aux = Math.min(0, Math.min(hif[k],(-2.5*lof[k])));
+          wts[i-1][k] = Math.pow(10, aux);
+        }
+      }
+      
+      return wts;
+    }
+    
+    
     
     //Convert frequency in Hz to frequency sample index
     // maxFreq corresponds to half sampling rate, i.e. sample no: fftSize/2+1 where freq sample indices are 0,1,...,maxFreq-1
