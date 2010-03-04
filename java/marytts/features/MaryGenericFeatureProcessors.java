@@ -2531,7 +2531,9 @@ public class MaryGenericFeatureProcessors
             if (seg == null) {
                 return 0;
             }
-            if (!seg.getTagName().equals(MaryXML.PHONE)) return 0;
+            if (!seg.getTagName().equals(MaryXML.PHONE)) {
+                return 0;
+            }
             // get mid position of segment wrt phone start (phone start = 0, phone end = phone duration)
             float mid;
             float phoneDuration = getDuration(seg);
@@ -2544,12 +2546,14 @@ public class MaryGenericFeatureProcessors
             } else { // phone target
                 mid =  .5f;
             }
+            
             // Now mid is the middle of the unit relative to the phone start, in percent
             Float lastPos = null; // position relative to mid, in milliseconds (negative)
             float lastF0 = 0;
             Float nextPos = null; // position relative to mid, in milliseconds
             float nextF0 = 0;
             Float[] f0values = getLogF0Values(seg);
+            
             assert f0values != null;
             // values are position, f0, position, f0, etc.; 
             // position is in percent of phone duration between 0 and 1, f0 is in Hz
@@ -2567,7 +2571,18 @@ public class MaryGenericFeatureProcessors
             if (lastPos == null) { // need to look to the left
                 float msBack = - mid * phoneDuration;
                 Element e = seg;
-                while ((e = MaryDomUtils.getPreviousSiblingElement(e)) != null) {
+                
+                // get all phone units in the same phrase
+                Element phraseElement = (Element) MaryDomUtils.getAncestor(seg, MaryXML.PHRASE);
+                TreeWalker tw = MaryDomUtils.createTreeWalker(seg.getOwnerDocument(), phraseElement, MaryXML.PHONE);
+                Element en;
+                while ((en = (Element) tw.nextNode()) != null) {
+                    if(en == seg) {
+                        break;
+                    }
+                }
+                
+                while ((e = (Element) tw.previousNode()) != null) {
                     float dur = getDuration(e);
                     f0values = getLogF0Values(e);
                     if (f0values.length == 0) {
@@ -2585,7 +2600,18 @@ public class MaryGenericFeatureProcessors
             if (nextPos == null) { // need to look to the right
                 float msForward = (1 - mid) * phoneDuration;
                 Element e = seg;
-                while ((e = MaryDomUtils.getNextSiblingElement(e)) != null) {
+                
+                // get all phone units in the same phrase
+                Element phraseElement = (Element) MaryDomUtils.getAncestor(seg, MaryXML.PHRASE);
+                TreeWalker tw = MaryDomUtils.createTreeWalker(seg.getOwnerDocument(), phraseElement, MaryXML.PHONE);
+                Element en;
+                while ((en = (Element) tw.nextNode()) != null) {
+                    if(en == seg) {
+                        break;
+                    }
+                }
+                
+                while ((e = (Element) tw.nextNode()) != null) {
                     float dur = getDuration(e);
                     f0values = getLogF0Values(e);
                     if (f0values.length == 0) {
@@ -2626,7 +2652,7 @@ public class MaryGenericFeatureProcessors
             }
             assert !Float.isNaN(f0) : "f0 is not a number";
             assert lastF0 <= f0 && nextF0 >= f0 || lastF0 >= f0 && nextF0 <= f0 : "f0 should be between last and next values";
-
+            
             if (delta) return slope;
             else return f0;
         }
