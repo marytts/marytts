@@ -251,9 +251,10 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
       double x[] = new double[windowLength];
       int fftSize = 512;
       int samplingRateInHz = 16000;
-      double X[] = null;  // spectrum of a window in dB      
+      double magf[] = null;   // spectrum of a window 
+      double X[] = null;      // spectrum of a window in dB      
       double Xpeak[] = null;  // the harmonic peaks
-      int windowType = 1; // 1: Hamming window
+      int windowType = 1;     // 1: Hamming window
       int maxFreqIndex = fftSize/2;
       double Fp, Fp2, Fp3, F1, F2, F3, F4, B1, B2, B3, B4, H1, H2, H3, F1p, F2p, F3p, F4p, A1p, A2p, A3p, A4p;
       double hatH1, hatH2, hatA1p, hatA2p, hatA3p;
@@ -277,7 +278,8 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
           // get the spectrum in dB (20*log10(F))       
           //SignalProcUtils.displayDFTSpectrumInDB(x, fftSize, windowType);
           // should be this in dB??? 
-          X = MathUtils.amp2db(SignalProcUtils.getFrameHalfMagnitudeSpectrum(x, fftSize, windowType));
+          magf = SignalProcUtils.getFrameHalfMagnitudeSpectrum(x, fftSize, windowType);
+          X = MathUtils.amp2db(magf);
           //MaryUtils.plot(X, "X");
          
           // ---These steps of finding peaks and magnitudes, need to be improved
@@ -381,7 +383,7 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
           System.out.format("RC=%.2f RCG=%.4f\n", RC,RCG);
           System.out.format("IC=%.2f\n", IC);
           
-         
+          //pause
           System.in.read();
           
         }
@@ -441,8 +443,29 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
     }
     
     
-    public static void main( String[] args ) throws Exception
+    public static void main( String[] args ) throws Exception    
     {
+        int i;
+        double val;        
+        val = SignalProcUtils.hz2bark(8000);
+        int Fs = 16000;
+        int Nfft = 512;
+        int nfilts = (int)Math.ceil(SignalProcUtils.hz2bark(Fs/2)) + 1;        
+        int minfreq = 0;
+        int maxfreq =  Fs/2;
+        int bwidth =  1;
+        double wts[][] = SignalProcUtils.fft2barkmx(Nfft, Fs, nfilts, bwidth, minfreq, maxfreq);
+        MaryUtils.plot(wts[10]);
+        /*for(int i=0; i<nfilts; i++){          
+          MaryUtils.plot(wts[i]);  
+          //pause
+          System.in.read();           
+          //for(int j=0; j<100; j++)
+            //System.out.print(wts[i][j] + " ");            
+          //System.out.println();
+        }*/
+        
+        
         int numFormants = 4;
         String wavFile = "/project/mary/marcela/HMM-voices/arctic_test/wav/curious.wav";
         String snackFile = "/project/mary/marcela/HMM-voices/arctic_test/vq/curious.snack";
@@ -457,10 +480,41 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
         WavReader wf = new WavReader(wavFile);
         int sampleRate = wf.getSampleRate();
         
+        // to test the spectrum in bark scale
+        double magf[];
+        double X[];
+        double x_signal[] = new double[wf.getNumSamples()];
+        double x[] = new double[400];
+        short xs[] = wf.getSamples();
+        
+        for(i=0; i<wf.getNumSamples(); i++)
+          x_signal[i] = (double)xs[i];
+        
+        /* Normalise the signal before return, this will normalise between 1 and -1 */
+        double MaxSample = MathUtils.getAbsMax(x_signal);
+        for (i=0; i<wf.getNumSamples(); i++)        
+          x_signal[i] = ( x_signal[i] / MaxSample );
+        
+        x_signal = MathUtils.normalizeToAbsMax(x_signal, MathUtils.getAbsMax(x_signal));
+        
+        for(i=300; i<700; i++)
+          x[i-300] = x_signal[i];
+        MaryUtils.plot(x, "x");
+        magf = SignalProcUtils.getFrameMagnitudeSpectrum(x, 512, 1);
+        MaryUtils.plot(magf, "magf");
+        X = MathUtils.amp2db(magf);
+        MaryUtils.plot(X, "X");
+        
+        double barkX[] = MathUtils.matrixProduct(wts, magf);
+        MaryUtils.plot(barkX, "barkX");
+        
+        barkX = MathUtils.amp2db(barkX);
+        MaryUtils.plot(barkX, "barkXdB");
+        
         // calculate voice quality parameters for this file
         int frameLength = 80;
         int windowLength = 240;
-        vq.calculateVoiceQuality(snackData, frameLength, windowLength, wf);
+        //vq.calculateVoiceQuality(snackData, frameLength, windowLength, wf);
         
     }
     
