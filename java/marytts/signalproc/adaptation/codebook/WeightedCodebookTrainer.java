@@ -281,7 +281,7 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
     {
         assert fcol instanceof WeightedCodebookFeatureCollection;
         
-        learnMapping(fcol, sourceTrainingSet, targetTrainingSet, map);
+        learnMapping((WeightedCodebookFeatureCollection)fcol, sourceTrainingSet, targetTrainingSet, map);
     }
     
     //This function generates the codebooks from training pairs

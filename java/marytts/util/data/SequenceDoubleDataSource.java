@@ -81,7 +81,7 @@ public class SequenceDoubleDataSource extends BaseDoubleDataSource
         for (Iterator it=sources.iterator(); it.hasNext(); ) {
             available += ((DoubleDataSource)it.next()).available();
         }
-        return available();
+        return available;
     }
     
     public int getData(double[] target, int targetPos, int length)
