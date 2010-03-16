@@ -408,6 +408,7 @@ function setVisibilities(outputType)
     	document.getElementById("PROCESS").style.display = 'none';
     	document.getElementById("SPEAK").style.display = 'inline';
     	document.getElementById("audioDestination").style.display = 'inline';
+    	document.getElementById("showHideParams").style.display = 'none';
     } else {
     	document.getElementById("outputSection").style.display = 'inline';
     	document.getElementById("audioEffectsSection").style.display = 'none';
@@ -416,8 +417,22 @@ function setVisibilities(outputType)
     	document.getElementById("PROCESS").style.display = 'inline';
     	document.getElementById("SPEAK").style.display = 'none';
     	document.getElementById("audioDestination").style.display = 'none';
+    	if (outputType == "TARGETFEATURES" || outputType == "HALFPHONE_TARGETFEATURES") {
+    		document.getElementById("showHideParams").style.display = 'inline';
+    	} else {
+    		document.getElementById("showHideParams").style.display = 'none';
+    	}
     }
 };
+
+function toggleParams()
+{
+	if (document.getElementById("SPECIFY_OUTPUT_TYPE_PARAMS").checked) {
+		document.getElementById("OUTPUT_TYPE_PARAMS").name = "OUTPUT_TYPE_PARAMS";
+	} else {
+		document.getElementById("OUTPUT_TYPE_PARAMS").name = "OUTPUT_TYPE_PARAMS_disabled";
+	}
+}
 
 function toggleEffectsVisibility()
 {
