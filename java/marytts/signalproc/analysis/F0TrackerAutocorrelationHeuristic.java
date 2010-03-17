@@ -22,6 +22,7 @@ package marytts.signalproc.analysis;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Random;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -247,11 +248,12 @@ public class F0TrackerAutocorrelationHeuristic {
         frameIndex = 0;
         Arrays.fill(f0s, 0.0);
         
+        Random random = new Random();
         for (i=0; i<numfrm; i++)
         {
             System.arraycopy(x, i*ss, pitchFrm, 0, Math.min(ws, x.length-i*ss));
             for (j=0; j<ws; j++)
-                pitchFrm[j] = (pitchFrm[j]/maxSample)*MAX_SAMPLE + 1e-50*Math.random();
+                pitchFrm[j] = (pitchFrm[j]/maxSample)*MAX_SAMPLE + 1e-50*random.nextDouble();
             
             f0s[i] = pitchFrameAutocorrelation(pitchFrm);
              
