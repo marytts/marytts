@@ -33,6 +33,7 @@ package marytts.tools.voiceimport;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.Properties;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -234,7 +235,7 @@ public class MCepTimelineMaker extends VoiceImportComponent
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
             System.out.println( "Size of the index: [" + mcepTimeline.getIndex().getNumIdx() + "] ("
                     + (mcepTimeline.getIndex().getNumIdx() * 16) + " bytes, i.e. "
-                    + ( (double)(mcepTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
+                    + Double.valueOf(new DecimalFormat("#.##").format((double)(mcepTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0)) + " megs).");
             System.out.println( "---- mcep timeline done.");
             
             mcepTimeline.close();
