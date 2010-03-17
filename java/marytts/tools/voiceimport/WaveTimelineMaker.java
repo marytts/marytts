@@ -33,6 +33,7 @@ package marytts.tools.voiceimport;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.text.DecimalFormat;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -173,7 +174,7 @@ public class WaveTimelineMaker extends VoiceImportComponent
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
             System.out.println( "Size of the index: [" + waveTimeline.getIndex().getNumIdx() + "] ("
                     + (waveTimeline.getIndex().getNumIdx() * 16) + " bytes, i.e. "
-                    + ( (double)(waveTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
+                    + Double.valueOf(new DecimalFormat("#.##").format((double)(waveTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0)) + " megs).");
             System.out.println( "---- Waveform timeline done.");
             
             waveTimeline.close();

@@ -33,6 +33,7 @@ package marytts.tools.voiceimport;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.Properties;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -407,7 +408,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
             System.out.println( "Size of the index: [" + hnmTimeline.getIndex().getNumIdx() + "] ("
                     + (hnmTimeline.getIndex().getNumIdx() * 16) + " bytes, i.e. "
-                    + ( (double)(hnmTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0) + " megs)." );
+                    + Double.valueOf(new DecimalFormat("#.##").format((double)(hnmTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0)) + " megs).");
             
             long stop = System.currentTimeMillis(); // stop timing
             System.out.println("The process took " + (stop - start)/(1000.0*60) + " minutes to complete..."); // print execution time
