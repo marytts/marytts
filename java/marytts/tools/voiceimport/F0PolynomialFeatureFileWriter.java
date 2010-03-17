@@ -35,6 +35,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -51,9 +52,13 @@ import marytts.unitselection.concat.DatagramDoubleDataSource;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.HnmTimelineReader;
+import marytts.unitselection.data.Sentence;
+import marytts.unitselection.data.SentenceIterator;
+import marytts.unitselection.data.Syllable;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
+import marytts.util.Pair;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.MaryHeader;
 import marytts.util.data.audio.AudioPlayer;
@@ -68,7 +73,6 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
 {
     protected File maryDir;
     protected FeatureFileReader features;
-    protected FeatureDefinition inFeatureDefinition;
     protected File outFeatureFile;
     protected FeatureDefinition outFeatureDefinition;
     protected UnitFileReader units;
@@ -88,17 +92,41 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
     public final String MINPITCH = name + ".minPitch";
     public final String MAXPITCH = name + ".maxPitch";
     
+    // a battery of constants intended to make the interpretation of
+    // feature vectors faster. Filled in initialiseFeatureConstants().
+    private int fiPhoneme;
+    private byte fvPhoneme_0;
+    private byte fvPhoneme_Silence;
+    private int fiLR;
+    private byte fvLR_L;
+    private byte fvLR_R;
+    private int fiSylStart;
+    private int fiSylEnd;
+    private int fiSentenceStart;
+    private int fiSentenceEnd;
+    private int fiWordStart;
+    private int fiWordEnd;
+    private int fiVowel;
+    private byte fvVowel_Plus;
+    private boolean haveUnitLogF0;
+    private int fiUnitLogF0;
+    private int fiUnitLogF0delta;
+
+    private FunctionGraph f0Graph = null;
+    private JFrame jf = null;
+
+    
     public String getName(){
         return name;
     }
    
     
-   public SortedMap<String, String> getDefaultProps(DatabaseLayout db){
-       this.db = db;
+   public SortedMap<String, String> getDefaultProps(DatabaseLayout theDb){
+       this.db = theDb;
        if (props == null){
            props = new TreeMap<String, String>();
-           String fileDir = db.getProp(db.FILEDIR);
-           String maryExt = db.getProp(db.MARYEXT);
+           String fileDir = theDb.getProp(theDb.FILEDIR);
+           String maryExt = theDb.getProp(theDb.MARYEXT);
            props.put(UNITFILE,fileDir+"halfphoneUnits"+maryExt);
            props.put(WAVETIMELINE,fileDir+"timeline_waveforms"+maryExt);
            props.put(ISHNMTIMELINE, "false"); 
@@ -107,7 +135,7 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
            props.put(POLYNOMORDER, "3");
            props.put(SHOWGRAPH, "false");
            props.put(INTERPOLATE, "true");
-           if (db.getProp(db.GENDER).equals("female")){
+           if (theDb.getProp(theDb.GENDER).equals("female")){
                props.put(MINPITCH,"100");
                props.put(MAXPITCH,"500");
            } else {
@@ -147,13 +175,16 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
         }
         units = new UnitFileReader(getProp(UNITFILE));
         audio = null;
-        if (getProp(ISHNMTIMELINE).compareToIgnoreCase("true")==0)
+        if (getProp(ISHNMTIMELINE).compareToIgnoreCase("true")==0) {
             audio = new HnmTimelineReader(getProp(WAVETIMELINE));
-        else
+        } else {
             audio = new TimelineReader(getProp(WAVETIMELINE));
+        }
         
         features = new FeatureFileReader(getProp(FEATUREFILE));
-        inFeatureDefinition = features.getFeatureDefinition();
+        // Initialise the constants that will be used later for fast interpretation of the feature vectors:
+        initialiseFeatureConstants();
+        // Create the feature definition for the polynomial feature file:
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         pw.println(FeatureDefinition.BYTEFEATURES); // no byte features
@@ -189,9 +220,259 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
         }
     }
 
-
+    /**
+     * From the given feature definition, set up a battery of instance variables
+     * intended to speed up the analysis of the feature vectors.
+     * @param featureDefinition
+     */
+    private void initialiseFeatureConstants() {
+        assert features != null : "This shouldn't be called without features";
+        FeatureDefinition featureDefinition = features.getFeatureDefinition();
+        fiPhoneme = featureDefinition.getFeatureIndex("phone");
+        fvPhoneme_0 = featureDefinition.getFeatureValueAsByte(fiPhoneme, "0");
+        fvPhoneme_Silence = featureDefinition.getFeatureValueAsByte(fiPhoneme, "_");
+        fiLR = featureDefinition.getFeatureIndex("halfphone_lr");
+        fvLR_L = featureDefinition.getFeatureValueAsByte(fiLR, "L");
+        fvLR_R = featureDefinition.getFeatureValueAsByte(fiLR, "R");
+        fiSylStart = featureDefinition.getFeatureIndex("segs_from_syl_start");
+        fiSylEnd = featureDefinition.getFeatureIndex("segs_from_syl_end");
+        fiSentenceStart = featureDefinition.getFeatureIndex("words_from_sentence_start");
+        fiSentenceEnd = featureDefinition.getFeatureIndex("words_from_sentence_end");
+        fiWordStart = featureDefinition.getFeatureIndex("segs_from_word_start");
+        fiWordEnd = featureDefinition.getFeatureIndex("segs_from_word_end");
+        fiVowel = featureDefinition.getFeatureIndex("ph_vc");
+        fvVowel_Plus = featureDefinition.getFeatureValueAsByte(fiVowel, "+");
+        
+        haveUnitLogF0 = false;
+        fiUnitLogF0 = -1;
+        fiUnitLogF0delta = -1;
+        if (featureDefinition.hasFeature("unit_logf0") && featureDefinition.hasFeature("unit_logf0delta")) {
+            haveUnitLogF0 = true;
+            fiUnitLogF0 = featureDefinition.getFeatureIndex("unit_logf0");
+            fiUnitLogF0delta = featureDefinition.getFeatureIndex("unit_logf0delta");
+        }
+    }
 
     /**
+     * Get the audio data for the given sentence
+     * @param s
+     * @return the audio data for the sentence, in double representation
+     * @throws IOException if there is a problem reading the audio data
+     */
+    private double[] getAudio(Sentence s)
+    throws IOException {
+        long tsSentenceStart = units.getUnit(s.getFirstUnitIndex()).startTime;
+        long tsSentenceEnd = units.getUnit(s.getLastUnitIndex()).startTime + units.getUnit(s.getLastUnitIndex()).duration;
+        long tsSentenceDuration = tsSentenceEnd - tsSentenceStart;
+        Datagram[] sentenceData = audio.getDatagrams(tsSentenceStart, tsSentenceDuration);
+        DatagramDoubleDataSource ddds = new DatagramDoubleDataSource(sentenceData);
+        double[] sentenceAudio = ddds.getAllData();
+        return sentenceAudio;
+    }
+    /**
+     * Play the audio for the given sentence in blocking mode
+     * (returns when finished playing)
+     * @param s
+     * @throws IOException if there is a problem reading the audio data
+     */
+    private void playAudio(Sentence s) 
+    throws IOException {
+        double[] sentenceAudio = getAudio(s);
+        AudioPlayer ap = new AudioPlayer(new DDSAudioInputStream(new BufferedDoubleDataSource(sentenceAudio), new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+                audio.getSampleRate(), // samples per second
+                16, // bits per sample
+                1, // mono
+                2, // nr. of bytes per frame
+                audio.getSampleRate(), // nr. of frames per second
+                true))); // big-endian;))
+        ap.run(); // play in same thread, i.e. blocking mode
+    }
+    
+    /**
+     * For the given sentence, obtain a log f0 contour.
+     * This implementation computes the f0 contour on the fly,
+     * using a built-in F0 tracker. 
+     * If config setting {@see #INTERPOLATE} is true, interpolate the curve
+     * across unvoiced sections, else unvoiced sections will be NaN.
+     * @param s the current sentence
+     * @param skipSizeInSeconds the sampling frequency of the F0 contour to return (e.g., 0.005 to get a value every 5 ms)
+     * @return a double array representing the F0 contour, sampled at skipSizeInSeconds,
+     * or null if no f0 contour could be computed
+     * @throws IOException if there is a problem reading the audio data
+     */
+    private double[] getLogF0Contour(Sentence s, double skipSizeInSeconds) 
+    throws IOException {
+        PitchFileHeader params = new PitchFileHeader();
+        params.fs = audio.getSampleRate();
+        params.minimumF0 = Double.parseDouble(getProp(MINPITCH));
+        params.maximumF0 = Double.parseDouble(getProp(MAXPITCH));
+        params.skipSizeInSeconds = skipSizeInSeconds;
+        F0TrackerAutocorrelationHeuristic tracker = new F0TrackerAutocorrelationHeuristic(params);
+        double[] sentenceAudio = getAudio(s);
+        tracker.pitchAnalyze(new BufferedDoubleDataSource(sentenceAudio));
+        double frameShiftTime = skipSizeInSeconds;
+        double[] f0Array = tracker.getF0Contour();
+        if (f0Array == null) {
+            return null;
+        }
+        for (int j=0; j<f0Array.length; j++) {
+            if (f0Array[j] == 0) {
+                f0Array[j] = Double.NaN;
+            }
+        }
+        if (f0Array.length >= 3) {
+            f0Array = SignalProcUtils.medianFilter(f0Array, 5);
+        }
+
+        for (int j=0; j<f0Array.length; j++) {
+            if (f0Array[j] == 0)
+                f0Array[j] = Double.NaN;
+            else
+                f0Array[j] = Math.log(f0Array[j]);
+        }
+        return f0Array;
+    }
+    
+    /**
+     * For the given log f0 contour, compute an interpolation across
+     * NaN sections
+     * @param rawLogF0Contour
+     * @return a version of the LogF0 contour for which values
+     * are interpolated across NaN regions
+     */
+    private double[] getInterpolatedLogF0Contour(double[] rawLogF0Contour) {
+        double[] interpol = new double[rawLogF0Contour.length];
+        int iLastValid = -1;
+        for (int j=0; j<rawLogF0Contour.length; j++) {
+            if (!Double.isNaN(rawLogF0Contour[j])) { // a valid value
+                interpol[j] = rawLogF0Contour[j];
+                if (iLastValid != j-1) { // need to interpolate
+                    double prevLogF0;
+                    if (iLastValid < 0) { // we don't have a previous value, use current one
+                        prevLogF0 = rawLogF0Contour[j];
+                    } else {
+                        prevLogF0 = rawLogF0Contour[iLastValid];
+                    }
+                    double delta = (rawLogF0Contour[j] - prevLogF0) / (j - iLastValid);
+                    double logF0 = prevLogF0;
+                    for (int k=iLastValid+1; k<j; k++) {
+                        logF0 += delta;
+                        interpol[k] = logF0;
+                    }
+                }
+                iLastValid = j;
+            }
+        }
+        return interpol;
+    }
+    
+    /**
+     * For a syllable that is part of a sentence, determine the position of the syllable
+     * in an array representing the full sentence.
+     * @param sentence the sentence
+     * @param syllable the syllable which must be inside the sentence
+     * @param arrayLength the length of an array representing the temporal extent of the sentence
+     * @return a pair of ints representing start (inclusive) and end position (exclusive) of the syllable in the array
+     */
+    private Pair<Integer, Integer> getSyllableIndicesInSentenceArray(Sentence s, Syllable syl, int arrayLength) {
+        long tsSentenceStart = units.getUnit(s.getFirstUnitIndex()).startTime;
+        long tsSentenceEnd = units.getUnit(s.getLastUnitIndex()).startTime + units.getUnit(s.getLastUnitIndex()).duration;
+        long tsSentenceDuration = tsSentenceEnd - tsSentenceStart;
+        long tsSylStart = units.getUnit(syl.getFirstUnitIndex()).startTime;
+        assert tsSylStart >= tsSentenceStart;
+        long tsSylEnd = units.getUnit(syl.getLastUnitIndex()).startTime + units.getUnit(syl.getLastUnitIndex()).duration;
+        assert tsSylEnd >= tsSylStart;
+        assert tsSylEnd <= tsSentenceEnd;
+        long tsSylDuration = tsSylEnd - tsSylStart;
+        // Now map time to position in logF0 array:
+        double factor = (double) arrayLength / (double) tsSentenceDuration;
+        int iSylStart = (int) (factor * (tsSylStart-tsSentenceStart));
+        int iSylEnd = (int) (factor * (tsSylEnd - tsSentenceStart));
+        return new Pair<Integer, Integer>(iSylStart, iSylEnd);
+        
+    }
+    
+    private List<Polynomial> fitPolynomialsToSyllables(Sentence s, double[] logF0, int polynomOrder) {
+        List<Polynomial> poly = new ArrayList<Polynomial>();
+        for (Syllable syl : s) {
+            Pair<Integer, Integer> syllableIndices = getSyllableIndicesInSentenceArray(s, syl, logF0.length);
+            //System.out.println(" -- from "+iSylStart+" to "+iSylEnd + " out of " + logF0.length);
+            double[] sylLogF0 = new double[syllableIndices.getSecond() - syllableIndices.getFirst()];
+            System.arraycopy(logF0, syllableIndices.getFirst(), sylLogF0, 0, sylLogF0.length);
+            // Now that we have the log F0 curve corresponding to the syllable, fit polynomial:
+            double[] coeffs = Polynomial.fitPolynomial(sylLogF0, polynomOrder);
+            if (coeffs != null) {
+                poly.add(new Polynomial(coeffs));
+            } else {
+                poly.add(null);
+            }
+        }
+        return poly;
+    }
+    
+    private double[] fillApproxFromPolynomials(Sentence s, List<Polynomial> polynomials, int len) {
+        double[] approx = new double[len];
+        Arrays.fill(approx, Double.NaN);
+        Iterator<Polynomial> polyIt = polynomials.iterator();
+        for (Syllable syl : s) {
+            Polynomial poly = polyIt.next();
+            if (poly == null) {
+                continue;
+            }
+            System.out.print(" ("+syl.getFirstUnitIndex()+"-"+syl.getSyllableNucleusIndex()+"-"+syl.getLastUnitIndex()+")");
+            Pair<Integer, Integer> syllableIndices = getSyllableIndicesInSentenceArray(s, syl, len);
+            double[] sylPred = poly.generatePolynomialValues(syllableIndices.getSecond() - syllableIndices.getFirst(), 0, 1);
+            System.arraycopy(sylPred, 0, approx, syllableIndices.getFirst(), sylPred.length);
+        }
+        System.out.println();
+        return approx;
+    }
+    
+    /**
+     * Draw or update a graph showing the different F0 curves
+     * @param logF0 the raw log F0 curve (mandatory)
+     * @param interpolatedLogF0 the interpolated log F0 curve (ignored if equal to logF0 or null)
+     * @param approximatedLogF0 the approximated log F0 curve (ignored if null)
+     * @param f0FrameSkip
+     */
+    private void drawGraph(double[] logF0, double[] interpolatedLogF0, double[] approximatedLogF0, double f0FrameSkip) {
+        if (f0Graph == null) {
+            f0Graph = new FunctionGraph(0, 1, new double[1]);
+            f0Graph.setYMinMax(50, 300);
+            f0Graph.setPrimaryDataSeriesStyle(Color.BLUE, FunctionGraph.DRAW_DOTS, FunctionGraph.DOT_FULLCIRCLE);
+            jf = f0Graph.showInJFrame("Sentence", false, true);
+        }
+        
+        double[] f0 = MathUtils.exp(logF0);
+        double[] interpol = null;
+        if (interpolatedLogF0 != null && interpolatedLogF0 != logF0 /* not the same object */) {
+            assert interpolatedLogF0.length == logF0.length : "interpol not same length";
+            interpol = MathUtils.exp(interpolatedLogF0);
+            // Only leave those values in interpol for which f0 doesn't have a value!
+            for (int j=0; j<f0.length; j++) {
+                if (!Double.isNaN(f0[j])) {
+                    interpol[j] = Double.NaN;
+                }
+            }
+        }
+        double[] approx = null;
+        if (approximatedLogF0 != null) {
+            assert approximatedLogF0.length == logF0.length : "approx not same length";
+            approx = MathUtils.exp(approximatedLogF0);
+        }
+        f0Graph.updateData(0, f0FrameSkip, f0);
+        if (interpol != null) {
+            f0Graph.addDataSeries(interpol, Color.GREEN, FunctionGraph.DRAW_DOTS, FunctionGraph.DOT_EMPTYCIRCLE);
+        }
+        if (approx != null) {
+            f0Graph.addDataSeries(approx, Color.RED, FunctionGraph.DRAW_LINE, -1);
+        }
+        jf.repaint();
+
+    }
+
+    /**
+     * Compute the polynomial unit features and write them to the given data output.
      * @param out
      * @throws IOException
      * @throws UnsupportedEncodingException
@@ -199,8 +480,6 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
      */
     protected void writeUnitFeaturesTo(DataOutput out) throws IOException, UnsupportedEncodingException, FileNotFoundException {
         int numUnits = units.getNumberOfUnits();
-        int unitSampleRate = units.getSampleRate();
-        int audioSampleRate = audio.getSampleRate();
         boolean showGraph = Boolean.parseBoolean(getProp(SHOWGRAPH));
         boolean interpolate = Boolean.parseBoolean(getProp(INTERPOLATE));
         int polynomOrder = Integer.parseInt(getProp(POLYNOMORDER));
@@ -210,257 +489,79 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
         out.writeInt( numUnits );
         logger.debug("Number of units : "+numUnits);
 
-        FeatureDefinition featureDefinition = features.getFeatureDefinition();
-        int fiPhoneme = featureDefinition.getFeatureIndex("phone");
-        byte fvPhoneme_0 = featureDefinition.getFeatureValueAsByte(fiPhoneme, "0");
-        byte fvPhoneme_Silence = featureDefinition.getFeatureValueAsByte(fiPhoneme, "_");
-        int fiLR = featureDefinition.getFeatureIndex("halfphone_lr");
-        byte fvLR_L = featureDefinition.getFeatureValueAsByte(fiLR, "L");
-        byte fvLR_R = featureDefinition.getFeatureValueAsByte(fiLR, "R");
-        int fiSylStart = featureDefinition.getFeatureIndex("segs_from_syl_start");
-        int fiSylEnd = featureDefinition.getFeatureIndex("segs_from_syl_end");
-        int fiSentenceStart = featureDefinition.getFeatureIndex("words_from_sentence_start");
-        int fiSentenceEnd = featureDefinition.getFeatureIndex("words_from_sentence_end");
-        int fiWordStart = featureDefinition.getFeatureIndex("segs_from_word_start");
-        int fiWordEnd = featureDefinition.getFeatureIndex("segs_from_word_end");
-        int fiVowel = featureDefinition.getFeatureIndex("ph_vc");
-        byte fvVowel_Plus = featureDefinition.getFeatureValueAsByte(fiVowel, "+");
+        long startTime = System.currentTimeMillis();
         
-        boolean haveUnitLogF0 = false;
-        int fiUnitLogF0 = -1;
-        int fiUnitLogF0delta = -1;
-        if (featureDefinition.hasFeature("unit_logf0") && featureDefinition.hasFeature("unit_logf0delta")) {
-            haveUnitLogF0 = true;
-            fiUnitLogF0 = featureDefinition.getFeatureIndex("unit_logf0");
-            fiUnitLogF0delta = featureDefinition.getFeatureIndex("unit_logf0delta");
-        }
+        // Overall strategy:
+        // 1. Go through the units sentence by sentence
+        // 2. For every sentence, get the f0 contour
+        // 3. For every syllable in the sentence, fit a polynomial to the f0 contour
         
-        FunctionGraph f0Graph = null;
-        JFrame jf = null;
-        int iSentenceStart = -1;
-        int iSentenceEnd = -1;
-        List<Integer> iSylStarts = new ArrayList<Integer>(); 
-        List<Integer> iSylEnds = new ArrayList<Integer>();
-        List<Integer> iSylVowels = new ArrayList<Integer>();
-        if (showGraph) {
-            f0Graph = new FunctionGraph(0, 1, new double[1]);
-            f0Graph.setYMinMax(50, 300);
-            f0Graph.setPrimaryDataSeriesStyle(Color.BLUE, FunctionGraph.DRAW_DOTS, FunctionGraph.DOT_FULLCIRCLE);
-            jf = f0Graph.showInJFrame("Sentence", false, true);
-        }
 
-        for (int i=0; i<numUnits; i++) {
-            percent = 100*i/numUnits;
-            FeatureVector fv = features.getFeatureVector(i);
-            //System.out.print(featureDefinition.getFeatureValueAsString("phone", fv));
-            //if (fv.getByteFeature(fiPhoneme) == fvPhoneme_0
-            //        || fv.getByteFeature(fiPhoneme) == fvPhoneme_Silence) continue;
-            if (iSentenceStart == -1
-                    && fv.getByteFeature(fiSentenceStart) == 0
-                    && fv.getByteFeature(fiWordStart) == 0
-                    && fv.getByteFeature(fiLR) == fvLR_L) { // first unit in sentence
-                iSentenceStart = i;
-                iSylStarts.clear();
-                iSylEnds.clear();
-                iSylVowels.clear();
-                //System.out.print(", is sentence start");
+        // 1. Go through the units sentence by sentence
+        Iterator<Sentence> sit = new SentenceIterator(features);
+        while (sit.hasNext()) {
+            Sentence s = sit.next();
+            percent = 100*s.getFirstUnitIndex()/numUnits;
+
+            // 2. For every sentence, get the f0 contour
+            double f0FrameSkip = 0.005; // 5 ms
+            double[] rawLogF0 = getLogF0Contour(s, f0FrameSkip);
+            double[] logF0;
+            if (interpolate) {
+                logF0 = getInterpolatedLogF0Contour(rawLogF0);
+            } else {
+                logF0 = rawLogF0;
             }
-            // Silence and edge units cannot be part of syllables, but they can 
-            // mark start/end of sentence:
-            if (fv.getByteFeature(fiPhoneme) != fvPhoneme_0
-                    && fv.getByteFeature(fiPhoneme) != fvPhoneme_Silence) {
-                if (fv.getByteFeature(fiSylStart) == 0 && fv.getByteFeature(fiLR) == fvLR_L) { // first segment in syllable
-                    if (iSylStarts.size() > iSylEnds.size()) {
-                        System.err.println("Syllable ends before other syllable starts!");
-                    }
-                    iSylStarts.add(i);
-                    //System.out.print(", is syl start");
+
+            // 3. For every syllable in the sentence, fit a polynomial to the f0 contour
+            List<Polynomial> polynomials = fitPolynomialsToSyllables(s, logF0, polynomOrder);
+            // Now save the coefficients as features of the respective syllable nucleus
+            Iterator<Polynomial> polyIt = polynomials.iterator(); 
+            for (Syllable syl : s) {
+                assert polyIt.hasNext();
+                Polynomial poly = polyIt.next();
+                int iSylNucleus = syl.getSyllableNucleusIndex();
+                // We write the polynomial coefficients as features of the nucleus, and zeros for the other units.
+                // First the zeros:
+                while (unitIndex < iSylNucleus) {
+                    FeatureVector outFV = outFeatureDefinition.toFeatureVector(unitIndex, null, null, zeros);
+                    outFV.writeTo(out);
+                    unitIndex++;
                 }
-                if (fv.getByteFeature(fiVowel) == fvVowel_Plus && iSylVowels.size() < iSylStarts.size()) { // first vowel unit in syllable
-                    iSylVowels.add(i);
-                    //System.out.print(", is vowel");
+                // And now the nucleus:
+                float[] fcoeffs;
+                if (poly == null) {
+                    fcoeffs = zeros;
+                } else {
+                    fcoeffs = ArrayUtils.copyDouble2Float(poly.coeffs);
                 }
-                if (fv.getByteFeature(fiSylEnd) == 0 && fv.getByteFeature(fiLR) == fvLR_R) { // last segment in syllable
-                    iSylEnds.add(i);
-                    //System.out.print(", is syl end");
-                    assert iSylStarts.size() == iSylEnds.size();
-                    if (iSylVowels.size() < iSylEnds.size()) {
-                        //System.err.println("Syllable contains no vowel -- skipping");
-                        iSylStarts.remove(iSylStarts.size() - 1);
-                        iSylEnds.remove(iSylEnds.size() - 1);
-                    }
-                }
+                FeatureVector outFV = outFeatureDefinition.toFeatureVector(unitIndex, null, null, fcoeffs);
+                outFV.writeTo(out);
+                unitIndex++;
             }
-            if (iSentenceStart != -1
-                    && fv.getByteFeature(fiSentenceEnd) == 0
-                    && fv.getByteFeature(fiWordEnd) == 0
-                    && fv.getByteFeature(fiLR) == fvLR_R) { // last unit in sentence
-                iSentenceEnd = i;
-                //System.out.print(", is sentence end");
-                if (iSylEnds.size() < iSylStarts.size()) {
-                    System.err.println("Last syllable in sentence is not properly closed");
-                    iSylEnds.add(i);
-                }
-            }
-            //System.out.println();
+            assert !polyIt.hasNext(); // as many polynomials as syllables
             
-            if (iSentenceStart >= 0 && iSentenceEnd >= iSentenceStart && iSylVowels.size() > 0) {
-                assert iSylStarts.size() == iSylEnds.size() : "Have "+iSylStarts.size()+" syllable starts, but "+iSylEnds.size()+" syllable ends!";
-                assert iSylStarts.size() == iSylVowels.size();
-                long tsSentenceStart = units.getUnit(iSentenceStart).startTime;
-                long tsSentenceEnd = units.getUnit(iSentenceEnd).startTime + units.getUnit(iSentenceEnd).duration;
-                long tsSentenceDuration = tsSentenceEnd - tsSentenceStart;
-                Datagram[] sentenceData = audio.getDatagrams(tsSentenceStart, tsSentenceDuration);
-                DatagramDoubleDataSource ddds = new DatagramDoubleDataSource(sentenceData);
-                double[] sentenceAudio = ddds.getAllData();
-                AudioPlayer ap = null;
-                if (showGraph) {
-                    ap = new AudioPlayer(new DDSAudioInputStream(new BufferedDoubleDataSource(sentenceAudio), new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                            audioSampleRate, // samples per second
-                            16, // bits per sample
-                            1, // mono
-                            2, // nr. of bytes per frame
-                            audioSampleRate, // nr. of frames per second
-                            true))); // big-endian;))
-                    ap.start();
-                }
-                PitchFileHeader params = new PitchFileHeader();
-                params.fs = audioSampleRate;
-                params.minimumF0 = Double.parseDouble(getProp(MINPITCH));
-                params.maximumF0 = Double.parseDouble(getProp(MAXPITCH));
-                F0TrackerAutocorrelationHeuristic tracker = new F0TrackerAutocorrelationHeuristic(params);
-                tracker.pitchAnalyze(new BufferedDoubleDataSource(sentenceAudio));
-                double frameShiftTime = tracker.getSkipSizeInSeconds();
-                double[] f0Array = tracker.getF0Contour();
-                if (f0Array != null) {
-                    for (int j=0; j<f0Array.length; j++) {
-                        if (f0Array[j] == 0) {
-                            f0Array[j] = Double.NaN;
-                        }
-                    }
-                    if (f0Array.length >= 3) {
-                        f0Array = SignalProcUtils.medianFilter(f0Array, 5);
-                    }
-                    if (showGraph) {
-                        f0Graph.updateData(0, tsSentenceDuration / (double) audioSampleRate /f0Array.length, f0Array);
-                        jf.repaint();
-                    }
-
-                    double[] f0AndInterpol;
-                    if (interpolate) {
-                        double[] interpol = new double[f0Array.length];
-                        Arrays.fill(interpol, Double.NaN);
-                        f0AndInterpol = new double[f0Array.length];
-                        int iLastValid = -1;
-                        for (int j=0; j<f0Array.length; j++) {
-                            if (!Double.isNaN(f0Array[j])) { // a valid value
-                                if (iLastValid == j-1) {
-                                    // no need to interpolate
-                                    f0AndInterpol[j] = f0Array[j];
-                                } else {
-                                    // need to interpolate
-                                    double prevF0;
-                                    if (iLastValid < 0) { // we don't have a previous value -- use current one
-                                        prevF0 = f0Array[j];
-                                    } else {
-                                        prevF0 = f0Array[iLastValid];
-                                    }
-                                    double delta = (f0Array[j]-prevF0)/(j-iLastValid);
-                                    double f0 = prevF0;
-                                    for (int k = iLastValid+1; k<j; k++) {
-                                        f0 += delta;
-                                        interpol[k] = f0;
-                                        f0AndInterpol[k] = f0;
-                                    }
-                                }
-                                iLastValid = j;
-                            }
-                        }
-                        if (showGraph) {
-                            f0Graph.addDataSeries(interpol, Color.GREEN, FunctionGraph.DRAW_DOTS, FunctionGraph.DOT_EMPTYCIRCLE);
-                            jf.repaint();
-                        }
-                    } else {
-                        f0AndInterpol = f0Array.clone();
-                    }
-
-                    for (int j=0; j<f0AndInterpol.length; j++) {
-                        if (f0AndInterpol[j] == 0)
-                            f0AndInterpol[j] = Double.NaN;
-                        else
-                            f0AndInterpol[j] = Math.log(f0AndInterpol[j]);
-                    }
-                    double[] approx = new double[f0Array.length];
-                    Arrays.fill(approx, Double.NaN);
-                    for (int s=0; s<iSylStarts.size(); s++) {
-                        long tsSylStart = units.getUnit(iSylStarts.get(s)).startTime;
-                        long tsSylEnd = units.getUnit(iSylEnds.get(s)).startTime + units.getUnit(iSylEnds.get(s)).duration;
-                        long tsSylDuration = tsSylEnd - tsSylStart;
-                        int iSylVowel = iSylVowels.get(s);
-                        // now map time to position in f0AndInterpol array:
-                        int iSylStart = (int) (((double)(tsSylStart-tsSentenceStart)/tsSentenceDuration)*f0AndInterpol.length);
-                        assert iSylStart >= 0;
-                        int iSylEnd = iSylStart + (int) ((double) tsSylDuration / tsSentenceDuration * f0AndInterpol.length) + 1;
-                        if (iSylEnd > f0AndInterpol.length) iSylEnd = f0AndInterpol.length;
-                        //System.out.println("Syl "+s+" from "+iSylStart+" to "+iSylEnd+" out of "+f0AndInterpol.length);
-                        double[] sylF0 = new double[iSylEnd-iSylStart];
-                        System.arraycopy(f0AndInterpol, iSylStart, sylF0, 0, sylF0.length);
-                        double[] coeffs = Polynomial.fitPolynomial(sylF0, polynomOrder);
-                        if (coeffs != null) {
-                            if (showGraph) {
-                                double[] sylPred = Polynomial.generatePolynomialValues(coeffs, sylF0.length, 0, 1);
-                                System.arraycopy(sylPred, 0, approx, iSylStart, sylPred.length);
-                            }
-                            // Write coefficients to file
-                            while (unitIndex < iSylVowel) {
-                                FeatureVector outFV = outFeatureDefinition.toFeatureVector(unitIndex, null, null, zeros);
-                                outFV.writeTo(out);
-                                unitIndex++;
-                            }
-                            float[] fcoeffs = ArrayUtils.copyDouble2Float(coeffs);
-                            //System.out.print("Polynomial values (unit "+unitIndex+") ");
-                            //for (int p=0; p<fcoeffs.length; p++) {
-                            //    System.out.print(", "+fcoeffs[p]);
-                            //}
-                            //System.out.println();
-                            FeatureVector outFV = outFeatureDefinition.toFeatureVector(unitIndex, null, null, fcoeffs);
-                            outFV.writeTo(out);
-                            unitIndex++;
-                        }
-                    }
-                    /*System.out.print("Approximation values that are zero: ");
-                    for (int j=0; j<approx.length; j++) {
-                        if (approx[j] == 0) System.out.print(j+" ");
-                    }
-                    System.out.println();
-                    */
-                    if (showGraph) {
-                        for (int j=0; j<approx.length; j++) {
-                            approx[j] = Math.exp(approx[j]);
-                        }
-                        f0Graph.addDataSeries(approx, Color.RED, FunctionGraph.DRAW_LINE, -1);
-                    }
-                    
-                }
-                if (showGraph) {
-                    try {
-                        ap.join();
-                        Thread.sleep(2000);
-                    } catch (InterruptedException ie) {}
-                }
-                iSentenceStart = -1;
-                iSentenceEnd = -1;
-                iSylStarts.clear();
-                iSylEnds.clear();
-                iSylVowels.clear();
+            // Now if user wants to see the graph, show it and play the audio:
+            if (showGraph) {
+                System.out.println("Sentence from "+s.getFirstUnitIndex()+" to "+s.getLastUnitIndex());
+                double[] approx = fillApproxFromPolynomials(s, polynomials, logF0.length);
+                drawGraph(rawLogF0, logF0, approx, f0FrameSkip);
+                playAudio(s);
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ie) {}
             }
+            
         }
+        // Write any trailing zeros after last syllable nucleus of last sentence:
         while (unitIndex < numUnits) {
             FeatureVector outFV = outFeatureDefinition.toFeatureVector(unitIndex, null, null, zeros);
             outFV.writeTo(out);
             unitIndex++;
         }
-
+        
+        long endTime = System.currentTimeMillis();
+        System.out.println("Processed "+numUnits+" units in "+(endTime-startTime)+" ms");
     
     
     
