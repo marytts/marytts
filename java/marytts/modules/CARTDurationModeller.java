@@ -73,6 +73,19 @@ public class CARTDurationModeller extends InternalModule
 
     /**
      * Constructor which can be directly called from init info in the config file.
+     * This constructor will use the registered feature processor manager for the given locale.
+     * @param locale a locale string, e.g. "en"
+     * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.duration"
+     * @throws Exception
+     */
+    public CARTDurationModeller(String locale, String propertyPrefix)
+    throws Exception {
+        this(MaryUtils.string2locale(locale), propertyPrefix,
+                FeatureRegistry.getFeatureProcessorManager(MaryUtils.string2locale(locale)));
+    }
+    
+    /**
+     * Constructor which can be directly called from init info in the config file.
      * Different languages can call this code with different settings.
      * @param locale a locale string, e.g. "en"
      * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.duration"

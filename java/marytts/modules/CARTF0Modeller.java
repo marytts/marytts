@@ -33,6 +33,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
+import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
@@ -66,6 +67,19 @@ public class CARTF0Modeller extends InternalModule
     protected TargetFeatureComputer featureComputer;
     private String propertyPrefix;
     private FeatureProcessorManager featureProcessorManager;
+    
+    /**
+     * Constructor which can be directly called from init info in the config file.
+     * This constructor will use the registered feature processor manager for the given locale.
+     * @param locale a locale string, e.g. "en"
+     * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.duration"
+     * @throws Exception
+     */
+    public CARTF0Modeller(String locale, String propertyPrefix)
+    throws Exception {
+        this(MaryUtils.string2locale(locale), propertyPrefix,
+                FeatureRegistry.getFeatureProcessorManager(MaryUtils.string2locale(locale)));
+    }
     
     /**
      * Constructor which can be directly called from init info in the config file.
