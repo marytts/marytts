@@ -238,7 +238,7 @@ public class VoiceInstaller extends VoiceImportComponent{
           General.launchBatchProc(cmdLine, "zip", filedir);
           
           System.out.println();
-          System.out.println("Created voice installation file: " + db.getProp(db.MARYBASE)+locale
+          System.out.println("Created voice installation file: " + db.getProp(db.MARYBASE) + fileSeparator + locale
                   + "-"+db.getProp(db.VOICENAME).toLowerCase() + ".zip\n");  
         }
         
@@ -359,8 +359,6 @@ public class VoiceInstaller extends VoiceImportComponent{
                           "=N->N \\\n"+"=l->l \\\n"+"i->i: \\\n"+
                           "e->e: \\\n"+"u->u: \\\n"+"o->o: \n\n");       
               }
-              configOut.println("# Language-specific feature processor manager:\n"+
-                      "featuremanager.classes.list = marytts.features.FeatureProcessorManager("+locale+")\n");
               
               //unit selection classes
               configOut.println("# Java classes to use for the various unit selection components\n"+
