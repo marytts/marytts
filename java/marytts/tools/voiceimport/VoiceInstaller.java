@@ -401,8 +401,8 @@ public class VoiceInstaller extends VoiceImportComponent{
               // And finally, determine how to predict acoustic features for this voice:
               configOut.println("# Modules to use for predicting acoustic target features for this voice:\n"+
                       voiceHeader+".preferredModules =  \\\n"+
-                      "    marytts.modules.CARTDurationModeller("+locale+","+voiceHeader+".duration.,marytts.features.FeatureProcessorManager("+locale+")) \\\n"+
-                      "    marytts.modules.CARTF0Modeller("+locale+","+voiceHeader+".f0.,marytts.features.FeatureProcessorManager("+locale+"))\n");
+                      "    marytts.modules.CARTDurationModeller("+locale+","+voiceHeader+".duration.) \\\n"+
+                      "    marytts.modules.CARTF0Modeller("+locale+","+voiceHeader+".f0.)\n");
 
               
         } catch (IOException e) {
