@@ -56,18 +56,21 @@ public class RealisedDurationsExtractor extends InternalModule
         StringBuilder buf = new StringBuilder();
         buf.append("#\n");
         NodeIterator ni = ((DocumentTraversal)doc).createNodeIterator(doc, NodeFilter.SHOW_ELEMENT,
-                new NameNodeFilter(new String[]{MaryXML.PHONE, MaryXML.BOUNDARY}),
+                new NameNodeFilter(new String[]{MaryXML.SENTENCE, MaryXML.PHONE, MaryXML.BOUNDARY}),
                 false);
         Element element = null;
         float end = 0.f;
+        float sentenceEnd = 0;
         while ((element = (Element) ni.nextNode()) != null) {
-            String sampa;
+            String sampa = null;
             String durString = null;
             String endString = null;
             if (element.getTagName().equals(MaryXML.PHONE)) {
                 sampa = element.getAttribute("p");
                 //durString = element.getAttribute("d"); // less accurate than end
                 endString = element.getAttribute("end");
+            } else if (element.getTagName().equals(MaryXML.SENTENCE)) {
+                sentenceEnd += end;
             } else {
                 assert element.getTagName().equals(MaryXML.BOUNDARY);
                 sampa = "_";
@@ -82,8 +85,8 @@ public class RealisedDurationsExtractor extends InternalModule
                 end += dur;
                 printme = true;
             }
-            if (printme) {
-                buf.append(end + " 125 "+sampa+"\n");
+            if (printme) {                
+                buf.append((end + sentenceEnd) + " 125 "+sampa+"\n");
             }
         }
 
