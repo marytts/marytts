@@ -55,6 +55,7 @@ public class DurationCARTTrainer extends VoiceImportComponent
     protected File durationDir;
     protected File durationFeatsFile;
     protected File durationDescFile;
+    protected File wagonTreeFile;
     protected DatabaseLayout db = null;
     protected int percent = 0;
     protected boolean useStepwiseTraining = false;
@@ -91,14 +92,15 @@ public class DurationCARTTrainer extends VoiceImportComponent
         }         
         this.durationFeatsFile = new File(durDir+"dur.feats");
         this.durationDescFile = new File(durDir+"dur.desc");
+        this.wagonTreeFile = new File(durDir+"dur.tree");
         this.useStepwiseTraining = Boolean.valueOf(getProp(STEPWISETRAINING)).booleanValue();
 
     }
     
-     public SortedMap getDefaultProps(DatabaseLayout db){
-        this.db = db;
+     public SortedMap<String, String> getDefaultProps(DatabaseLayout dbl){
+        this.db = dbl;
         if (props == null){
-            props = new TreeMap();
+            props = new TreeMap<String, String>();
             String fileSeparator = System.getProperty("file.separator");
             props.put(FEATUREDIR, db.getProp(db.ROOTDIR)                       
                     +"phonefeatures"
@@ -126,7 +128,7 @@ public class DurationCARTTrainer extends VoiceImportComponent
     }
      
      protected void setupHelp(){
-         props2Help = new TreeMap();
+         props2Help = new TreeMap<String, String>();
          props2Help.put(FEATUREDIR, "directory containing the phonefeatures");
          props2Help.put(LABELDIR, "directory containing the phone labels");            
          props2Help.put(STEPWISETRAINING,"\"false\" or \"true\" ???????????????????????????????????????????????????????????");
@@ -177,10 +179,10 @@ public class DurationCARTTrainer extends VoiceImportComponent
         
         boolean ok = false;
         // Now, call wagon
-        WagonCaller wagonCaller = new WagonCaller(getProp(ESTDIR),null);
-        File wagonTreeFile = new File(getProp(DURTREE));
+        WagonCaller wagonCaller = new WagonCaller(getProp(ESTDIR),null);        
         if (useStepwiseTraining) {
             // Split the data set in training and test part:
+            // hardcoded path = EVIL
             Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+durationFeatsFile.getAbsolutePath());
              try {
                 traintest.waitFor();
@@ -199,7 +201,7 @@ public class DurationCARTTrainer extends VoiceImportComponent
         if(ok){
             String destinationFile = getProp(DURTREE);
             WagonCARTReader wagonDURReader = new WagonCARTReader(LeafType.FloatLeafNode);
-            Node rootNode = wagonDURReader.load(new BufferedReader(new FileReader(destinationFile)), featureDefinition);
+            Node rootNode = wagonDURReader.load(new BufferedReader(new FileReader(wagonTreeFile)), featureDefinition);
             CART durCart = new CART(rootNode, featureDefinition);
             MaryCARTWriter wwdur = new MaryCARTWriter();
             wwdur.dumpMaryCART(durCart, destinationFile);
