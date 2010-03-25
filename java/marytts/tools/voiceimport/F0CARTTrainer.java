@@ -61,6 +61,9 @@ public class F0CARTTrainer extends VoiceImportComponent
     protected File midF0FeaturesFile;
     protected File rightF0FeaturesFile;
     protected File f0DescFile;
+    protected File wagonLeftTreeFile;
+    protected File wagonMidTreeFile;
+    protected File wagonRightTreeFile;
     protected String featureExt = ".pfeats";  
     protected String labelExt = ".lab";
     protected DatabaseLayout db = null;
@@ -105,13 +108,16 @@ public class F0CARTTrainer extends VoiceImportComponent
         this.midF0FeaturesFile = new File(f0Dir, "f0.mid.feats");
         this.rightF0FeaturesFile = new File(f0Dir, "f0.right.feats");
         this.f0DescFile = new File(f0Dir, "f0.desc");
+        this.wagonLeftTreeFile = new File(f0Dir, "f0.left.tree");
+        this.wagonMidTreeFile = new File(f0Dir, "f0.mid.tree");
+        this.wagonRightTreeFile = new File(f0Dir, "f0.right.tree");
         this.useStepwiseTraining = Boolean.valueOf(getProp(STEPWISETRAINING)).booleanValue();
     }
      
-     public SortedMap getDefaultProps(DatabaseLayout db){
-        this.db = db;
+     public SortedMap<String, String> getDefaultProps(DatabaseLayout dbl){
+        this.db = dbl;
        if (props == null){
-           props = new TreeMap();
+           props = new TreeMap<String, String>();
            String filedir = db.getProp(db.FILEDIR);
            String maryext = db.getProp(db.MARYEXT);
            props.put(FEATUREDIR, db.getProp(db.ROOTDIR)
@@ -144,7 +150,7 @@ public class F0CARTTrainer extends VoiceImportComponent
      }
      
      protected void setupHelp(){         
-         props2Help = new TreeMap();
+         props2Help = new TreeMap<String, String>();
          props2Help.put(FEATUREDIR, "directory containing the phonefeatures");
          props2Help.put(LABELDIR, "directory containing the phone label files");
          props2Help.put(STEPWISETRAINING,"\"false\" or \"true\" ????????????????????????");
@@ -253,10 +259,10 @@ public class F0CARTTrainer extends VoiceImportComponent
         
         // Now, call wagon
         WagonCaller wagonCaller = new WagonCaller(getProp(ESTDIR),null);
-        File wagonTreeFile = new File(getProp(F0LEFTTREEFILE));
         boolean ok;
         if (useStepwiseTraining) {
             // Split the data set in training and test part:
+            // hardcoded path = EVIL
             Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+leftF0FeaturesFile.getAbsolutePath());
             try {
                 traintest.waitFor();
@@ -265,18 +271,18 @@ public class F0CARTTrainer extends VoiceImportComponent
                     +" -test "+leftF0FeaturesFile.getAbsolutePath()+".test -stepwise"
                     +" -desc "+f0DescFile.getAbsolutePath()
                     +" -stop 10 "
-                    +" -output "+wagonTreeFile.getAbsolutePath());
+                    +" -output "+wagonLeftTreeFile.getAbsolutePath());
         } else {
             ok = wagonCaller.callWagon("-data "+leftF0FeaturesFile.getAbsolutePath()
                     +" -desc "+f0DescFile.getAbsolutePath()
                     +" -stop 10 "
-                    +" -output "+wagonTreeFile.getAbsolutePath());
+                    +" -output "+wagonLeftTreeFile.getAbsolutePath());
         }
         if (!ok) return false;
         percent = 40;
-        wagonTreeFile = new File(getProp(F0MIDTREEFILE));
         if (useStepwiseTraining) {
             // Split the data set in training and test part:
+            // hardcoded path = EVIL
             Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+midF0FeaturesFile.getAbsolutePath());
             try {
                 traintest.waitFor();
@@ -285,18 +291,18 @@ public class F0CARTTrainer extends VoiceImportComponent
                     +" -test "+midF0FeaturesFile.getAbsolutePath()+".test -stepwise"
                     +" -desc "+f0DescFile.getAbsolutePath()
                     +" -stop 10 "
-                    +" -output "+wagonTreeFile.getAbsolutePath());
+                    +" -output "+wagonMidTreeFile.getAbsolutePath());
         } else {
             ok = wagonCaller.callWagon("-data "+midF0FeaturesFile.getAbsolutePath()
                     +" -desc "+f0DescFile.getAbsolutePath()
                     +" -stop 10 "
-                    +" -output "+wagonTreeFile.getAbsolutePath());
+                    +" -output "+wagonMidTreeFile.getAbsolutePath());
         }
         if (!ok) return false;
         percent = 70;
-        wagonTreeFile = new File(getProp(F0RIGHTTREEFILE));
         if (useStepwiseTraining) {
             // Split the data set in training and test part:
+            // hardcoded path = EVIL
             Process traintest = Runtime.getRuntime().exec("/project/mary/Festival/festvox/src/general/traintest "+rightF0FeaturesFile.getAbsolutePath());
             try {
                 traintest.waitFor();
@@ -305,12 +311,12 @@ public class F0CARTTrainer extends VoiceImportComponent
                     +" -test "+rightF0FeaturesFile.getAbsolutePath()+".test -stepwise"
                     +" -desc "+f0DescFile.getAbsolutePath()
                     +" -stop 10 "
-                    +" -output "+wagonTreeFile.getAbsolutePath());
+                    +" -output "+wagonRightTreeFile.getAbsolutePath());
         } else {
             ok = wagonCaller.callWagon("-data "+rightF0FeaturesFile.getAbsolutePath()
                     +" -desc "+f0DescFile.getAbsolutePath()
                     +" -stop 10 "
-                    +" -output "+wagonTreeFile.getAbsolutePath());
+                    +" -output "+wagonRightTreeFile.getAbsolutePath());
         }
         
         if(ok){
@@ -318,7 +324,7 @@ public class F0CARTTrainer extends VoiceImportComponent
             // F0 Left file
             String destinationFile = getProp(F0LEFTTREEFILE);
             WagonCARTReader wagonLReader = new WagonCARTReader(LeafType.FloatLeafNode);
-            marytts.cart.Node rootLNode = wagonLReader.load(new BufferedReader(new FileReader(destinationFile)), featureDefinition);
+            marytts.cart.Node rootLNode = wagonLReader.load(new BufferedReader(new FileReader(wagonLeftTreeFile)), featureDefinition);
             CART leftF0Cart = new CART(rootLNode, featureDefinition);
             MaryCARTWriter wwl = new MaryCARTWriter();
             wwl.dumpMaryCART(leftF0Cart, destinationFile);
@@ -326,7 +332,7 @@ public class F0CARTTrainer extends VoiceImportComponent
             // F0 Mid tree
             destinationFile = getProp(F0MIDTREEFILE);
             WagonCARTReader wagonMReader = new WagonCARTReader(LeafType.FloatLeafNode);
-            marytts.cart.Node rootMNode = wagonMReader.load(new BufferedReader(new FileReader(destinationFile)), featureDefinition);
+            marytts.cart.Node rootMNode = wagonMReader.load(new BufferedReader(new FileReader(wagonMidTreeFile)), featureDefinition);
             CART midF0Cart = new CART(rootMNode, featureDefinition);
             MaryCARTWriter wwm = new MaryCARTWriter();
             wwm.dumpMaryCART(midF0Cart, destinationFile);
@@ -334,7 +340,7 @@ public class F0CARTTrainer extends VoiceImportComponent
             // F0 Right tree
             destinationFile = getProp(F0RIGHTTREEFILE);
             WagonCARTReader wagonRReader = new WagonCARTReader(LeafType.FloatLeafNode);
-            marytts.cart.Node rootRNode = wagonRReader.load(new BufferedReader(new FileReader(destinationFile)), featureDefinition);
+            marytts.cart.Node rootRNode = wagonRReader.load(new BufferedReader(new FileReader(wagonRightTreeFile)), featureDefinition);
             CART rightF0Cart = new CART(rootRNode, featureDefinition);
             MaryCARTWriter wwr = new MaryCARTWriter();
             wwr.dumpMaryCART(rightF0Cart, destinationFile);
@@ -367,7 +373,7 @@ public class F0CARTTrainer extends VoiceImportComponent
         boolean correct = true;
         int unitIndex = -1;
         float prevEnd = 0;
-        List aligned = new ArrayList();
+        List<String> aligned = new ArrayList<String>();
         while (correct) {
             unitIndex++;
             String labelLine = labels.readLine();
