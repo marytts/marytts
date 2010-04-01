@@ -171,6 +171,28 @@ public class UnitDatabase
        }
     }
 
+    /**
+     * For debugging, return the basename of the original audio file from which
+     * the unit is coming. 
+     * @param unit
+     * @return a String containing basename. If 
+     * no basenameTimeline was specified for this voice, returns the string
+     * "unknown origin".
+     */
+    public String getFilename(Unit unit)
+    {
+       if (basenameTimeline == null) return "unknown origin";
+       long[] offset = new long[1];
+       try {
+           Datagram[] datagrams = basenameTimeline.getDatagrams(unit.startTime, 1, unitReader.getSampleRate(), offset);
+           Datagram filenameData = datagrams[0];
+           String filename = new String(filenameData.getData(), "UTF-8");
+           return filename;
+       } catch (Exception e) {
+           logger.warn("Problem getting filename for unit "+unit.index, e);
+           return "unknown origin";
+       }
+    }
 
 }
 
