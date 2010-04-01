@@ -69,6 +69,7 @@ public class MaryDataType
     public static final MaryDataType MBROLA                   = new MaryDataType("MBROLA", true, true, PLAIN_TEXT);
     public static final MaryDataType PARTSOFSPEECH            = new MaryDataType("PARTSOFSPEECH", true, true, MARYXML, MaryXML.MARYXML);
     public static final MaryDataType PHONEMES                 = new MaryDataType("PHONEMES", true, true, MARYXML, MaryXML.MARYXML);
+    public static final MaryDataType PRAAT_TEXTGRID           = new MaryDataType("PRAAT_TEXTGRID", true, true, PLAIN_TEXT);
     public static final MaryDataType RAWMARYXML               = new MaryDataType("RAWMARYXML", true, true, MARYXML, MaryXML.MARYXML);
     public static final MaryDataType REALISED_ACOUSTPARAMS    = new MaryDataType("REALISED_ACOUSTPARAMS", true, true, MARYXML, MaryXML.MARYXML);
     public static final MaryDataType REALISED_DURATIONS       = new MaryDataType("REALISED_DURATIONS", true, true, PLAIN_TEXT);
