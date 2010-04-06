@@ -283,7 +283,10 @@ public class Request {
         NodeList inputDataList;
         MaryData rawmaryxml;
         // Is inputdata of a type that must be converted to RAWMARYXML?
-        if (inputType.isTextType() && inputType.name().startsWith("TEXT")
+        if (outputType.name().equals("PRAAT_TEXTGRID")) { // never chunk for PRAAT_TEXTGRID
+            outputData = processOrLookupOneChunk(inputData, outputType, outputTypeParams);
+            return;
+        } else if (inputType.isTextType() && inputType.name().startsWith("TEXT")
             || inputType.isXMLType() && !inputType.isMaryXML()) {
             // Convert to RAWMARYXML
             rawmaryxml = processOrLookupOneChunk(inputData, MaryDataType.get("RAWMARYXML"), null);
