@@ -8,7 +8,11 @@
 	<classpathentry kind="lib" path="java/freetts-en_us.jar"/>
 	<classpathentry kind="lib" path="java/freetts-de.jar"/>
 	<classpathentry kind="lib" path="java/freetts-mbrola.jar"/>
-	<classpathentry kind="lib" path="java/opennlp-tools-1.4.1.jar"/>
+	<classpathentry kind="lib" path="java/opennlp-tools-1.4.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://opennlp.sourceforge.net/api/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="java/Jampack.jar" sourcepath="java/Jampack.jar"/>
 	<classpathentry kind="lib" path="java/hsqldb.jar"/>
 	<classpathentry kind="lib" path="java/junit-4.7.jar"/>
@@ -27,7 +31,11 @@
 	<classpathentry kind="lib" path="java/java-diff.jar"/>
 	<classpathentry kind="lib" path="java/JavaOpenAIR.jar"/>
 	<classpathentry kind="lib" path="java/jtok.jar"/>
-	<classpathentry kind="lib" path="java/maxent-2.5.1.jar"/>
+	<classpathentry kind="lib" path="java/maxent-2.5.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://maxent.sourceforge.net/api/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="java/mwdumper-2008-04-13.jar"/>
 	<classpathentry kind="lib" path="java/mysql-connector-java-5.1.7-bin.jar"/>
 	<classpathentry kind="lib" path="java/sgt_v30.jar"/>
