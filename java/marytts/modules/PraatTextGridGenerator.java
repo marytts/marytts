@@ -101,6 +101,7 @@ public class PraatTextGridGenerator extends InternalModule {
                 continue; // goto next node, do not collect $200
             } else if (tagName.equals(MaryXML.PHONE)) {
                 phone = element.getAttribute("p");
+                xmin = xmax;
                 xmax = Double.parseDouble(element.getAttribute("end")) + sentenceStart; // TODO: diphone voices have end in ms!
                 duration = xmax - xmin;
                 xmin = xmax;
@@ -108,6 +109,7 @@ public class PraatTextGridGenerator extends InternalModule {
                 phone = "_"; // TODO: perhaps we should access TargetFeatureComputer.getPauseSymbol() instead
                 try {
                     duration = Double.parseDouble(element.getAttribute("duration")) / 1000.0; // duration is always in ms
+                    xmax += duration;
                 } catch (NumberFormatException nfe) {
                     continue; // HMM voices can have duration-less <boundary/> tags, which can't be processed here
                 }
@@ -115,7 +117,8 @@ public class PraatTextGridGenerator extends InternalModule {
 
             PraatInterval phoneInterval = new PraatInterval(duration, phone);
 
-            if (element.hasAttribute("units")) { // TODO: crude way of checking for unit selection voice
+            // TODO: crude way of checking for unit selection voice; also, name of attribute could change!
+            if (element.hasAttribute("units")) {
                 unitselectionProcessing(element);
                 // HACK: arbitrary threshold to detect end points in ms (in the case of diphone voice or boundary segment)
             } else if (duration > 10) {
@@ -155,11 +158,14 @@ public class PraatTextGridGenerator extends InternalModule {
     private void unitselectionProcessing(Element element) {
         String units = element.getAttribute("units");
         String[] unitStrings = units.split("; "); // boundaries have only one unit string
+        boolean differentSource = false;
+        String basename = null;
+        String unitRange = null;
         for (String unitString : unitStrings) {
             // TODO verify that unit string matches "UNITNAME BASENAME UNITINDEX UNITDURATION"
             String[] unitFields = unitString.split(" ");
             String unitName = unitFields[0];
-            String basename = unitFields[1];
+            basename = unitFields[1];
             int unitIndex = Integer.parseInt(unitFields[2]);
             Double unitDuration = Double.parseDouble(unitFields[3]);
 
@@ -172,7 +178,7 @@ public class PraatTextGridGenerator extends InternalModule {
              * Note: the following assumes that consecutive selected units are ALWAYS from the same basename! That could change if
              * basename boundaries are no longer marked by null units in the timeline.
              */
-            boolean differentSource = unitIndex != prevUnitIndex + 1; // is source unit from a different part of the timeline?;
+            differentSource = unitIndex != prevUnitIndex + 1; // is source unit from a different part of the timeline?;
             if (differentSource) {
                 // reset primary variables:
                 numberOfConsecutiveUnits = 0;
@@ -183,26 +189,21 @@ public class PraatTextGridGenerator extends InternalModule {
             basenameDuration += unitDuration;
 
             // construct unit index range string:
-            String unitRange = Integer.toString(unitIndex - numberOfConsecutiveUnits + 1);
+            unitRange = Integer.toString(unitIndex - numberOfConsecutiveUnits + 1);
             if (numberOfConsecutiveUnits > 1) {
                 unitRange = unitRange + "-" + unitIndex;
             }
 
-            if (prevUnitIndex == Integer.MIN_VALUE) { // this is the first unit
-                sourceInterval = new PraatInterval(basenameDuration);
-                sourceInterval.setText(basename + ":" + unitRange);
+            // append source intervals to source tier:
+            if (differentSource) {
+                sourceInterval = new PraatInterval(basenameDuration, basename + ": " + unitRange);
                 sourceTier.appendInterval(sourceInterval);
-            } else if (differentSource) {
-                // initialize, but do not append, source interval:
-                sourceInterval = new PraatInterval(basenameDuration);
             } else {
-                // update and append source interval:
                 sourceInterval.setDuration(basenameDuration);
-                sourceInterval.setText(basename + ":" + unitRange);
-                sourceTier.appendInterval(sourceInterval);
+                sourceInterval.setText(basename + ": " + unitRange);
             }
+
             prevUnitIndex = unitIndex;
         }
-
     }
 }
