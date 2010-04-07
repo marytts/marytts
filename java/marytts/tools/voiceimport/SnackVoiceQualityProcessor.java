@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.window.HammingWindow;
 import marytts.signalproc.window.Window;
+import marytts.signalproc.analysis.VoiceQuality;
 import marytts.tools.voiceimport.SphinxTrainer.StreamGobbler;
 import marytts.util.MaryUtils;
 import marytts.util.data.text.SnackTextfileDoubleDataSource;
@@ -183,7 +184,7 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
             
             /*
             new ESTTrackWriter(pitchmarkSeconds, null, "pitchmarks").doWriteAndClose(pmFile, false, false);
-
+            
             // And correct pitchmark locations
             //pitchmarkSeconds = adjustPitchmarks(wf, pitchmarkSeconds);
             //new ESTTrackWriter(pitchmarkSeconds, null, "pitchmarks").doWriteAndClose(correctedPmFile, false, false);
@@ -245,7 +246,7 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
      * @param windowLength: in samples
      * @param sound
      */
-    public void calculateVoiceQuality(double snack[][], int frameLength, int windowLength, WavReader sound)throws Exception{
+    public void calculateVoiceQuality(double snack[][], int frameLength, int windowLength, WavReader sound, VoiceQuality vq)throws Exception{
         
       int i, j, k, n, T, T2, index, index1, index2, index3;  
       short x_signal[] = sound.getSamples();
@@ -263,7 +264,10 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
       double hatH1, hatH2, hatA1p, hatA2p, hatA3p;
       double OQ, OQG, GO, GOG, SK, SKG, RC, RCG, IC;
       double f0;
-          
+      int f0Length = snack.length;
+      //int numVqParams = 5;  // 0:OQG, 1:GOG, 2:SKG, 3:RCG, 4:IC;
+      //double vq[][] = new double[numVqParams][f0Length];
+      
       // get a Hamming window
       Window wgt = new HammingWindow(windowLength);
       
@@ -284,7 +288,7 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
       
       //process per window
       int numFrame = 0;
-      for (n=0; n<(sound.getNumSamples() - windowLength); n=n+frameLength ){
+      for (n=0; n<(sound.getNumSamples() - windowLength) && numFrame <f0Length; n=n+frameLength ){
         
         f0 = snack[numFrame][0];
         System.out.format("\npitch=%.2f numFrame=%d n=%d \n", f0, (numFrame+1),n);
@@ -297,7 +301,7 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
           
           // apply Hamming window
           x = wgt.apply(x);
-          MaryUtils.plot(x, "x");
+          //MaryUtils.plot(x, "x");
           
           // get the spectrum in dB (20*log10(F))       
           //SignalProcUtils.displayDFTSpectrumInDB(x, fftSize, windowType);
@@ -305,9 +309,15 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
           // SPECTRUM
           magf = SignalProcUtils.getFrameMagnitudeSpectrum(x, fftSize, windowType);
           //magf = SignalProcUtils.getFrameHalfMagnitudeSpectrum(x, fftSize, windowType);
+          //MaryUtils.plot(magf, "magf");
+          //System.out.print("A=[");
+          //for(i=0; i<(fftSize/2); i++)
+          //  System.out.format("%.3f ", magf[i]);
+          //System.out.println("];\n");
+          
           // SPECTRUM dB
-          magfdB = MathUtils.amp2db(magf);
-          MaryUtils.plot(magfdB, "magfdB");
+          magfdB = MathUtils.amp2db(magf);          
+          //MaryUtils.plot(magfdB, "magfdB");
           
           // BARK SPECTRUM
           // double barkmagf[] = MathUtils.matrixProduct(wts, magf);
@@ -335,10 +345,12 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
           index3 =  SignalProcUtils.freq2index(Xpeak[2], samplingRateInHz, maxFreqIndex);
           H3 = magf[index3];
           
+          /*
           System.out.format("f0=%.2f\n", f0);
           System.out.format(" Fp=%.2f   nFp=%d\n", Fp, index1);
           System.out.format("2Fp=%.2f  nFp2=%d\n", Fp2, index2);
           System.out.format("3Fp=%.2f  nFp3=%d\n", Fp3, index3);
+          */
           
           // formants
           F1 = snack[numFrame][1];  
@@ -367,11 +379,13 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
           F4p = Xpeak[index];
           A4p = magf[index];
           
+          /*
           System.out.println("F1, B1 ori, F1p closestHarmonicPeak:");
           System.out.format("F1=%.2f F1p=%.2f A1p=%.2f B1=%.2f\n", F1, F1p, A1p, B1);
           System.out.format("F2=%.2f F2p=%.2f A2p=%.2f B2=%.2f\n", F2, F2p, A2p, B2);
           System.out.format("F3=%.2f F3p=%.2f A3p=%.2f B3=%.2f\n", F3, F3p, A3p, B3);
           System.out.format("F4=%.2f F4p=%.2f A4p=%.2f B4=%.2f\n", F4, F4p, A4p, B4);
+          */
           
           //--- need to improve previous steps to find preciselly the formants amplitudes
           
@@ -415,11 +429,13 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
           A3p = barkmagfdB[(int)(Math.ceil(F3p))];
           hatA3p = A3p - ( vocalTractCompensation(F3p,F1,B1) + vocalTractCompensation(F3p,F2,B2) + vocalTractCompensation(F3p,F4,B4) );
           
+          /*
           System.out.format("H1=%.2f hatH1=%.2f\n", H1, hatH1);
           System.out.format("H2=%.2f hatH2=%.2f\n", H2, hatH2);
           System.out.format("A1p=%.2f hatA1p=%.2f\n", A1p, hatA1p);
           System.out.format("A2p=%.2f hatA2p=%.2f\n", A2p, hatA2p);
           System.out.format("A3p=%.2f hatA3p=%.2f\n", A3p, hatA3p);
+          */
           
           // Open Quotient Gradient
           OQ = (hatH1 - hatH2);
@@ -448,15 +464,27 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
           
           // Incompleteness of Closure
           IC = B1 / F1;
-          
+
+          /*
           System.out.format("OQ=%.2f OQG=%.4f\n", OQ,OQG);
           System.out.format("GO=%.2f GOG=%.4f\n", GO,GOG);
           System.out.format("SK=%.2f SKG=%.4f\n", SK,SKG);
           System.out.format("RC=%.2f RCG=%.4f\n", RC,RCG);
           System.out.format("IC=%.2f\n", IC);
+          */
+          System.out.format("OQG=%.4f\n", OQG);
+          System.out.format("GOG=%.4f\n", GOG);
+          System.out.format("SKG=%.4f\n", SKG);
+          System.out.format("RCG=%.4f\n", RCG);
+          System.out.format("IC=%.2f\n", IC);
           
+          vq.vq[0][numFrame] = OQG;
+          vq.vq[1][numFrame] = GOG;
+          vq.vq[2][numFrame] = SKG;
+          vq.vq[3][numFrame] = RCG;
+          vq.vq[4][numFrame] = IC;
           //pause
-          System.in.read();
+          //System.in.read();
           
         }
         numFrame++;  
@@ -521,14 +549,15 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
         int numFormants = 4;
         //String wavFile = "/project/mary/marcela/HMM-voices/arctic_test/wav/curious.wav";
         //String snackFile = "/project/mary/marcela/HMM-voices/arctic_test/vq/curious.snack";
-        String wavFile = "/project/mary/marcela/HMM-voices/arctic_test/wav/a.wav";
+        String wavFile = "/project/mary/marcela/HMM-voices/arctic_test/wav-test/a.wav";
         String snackFile = "/project/mary/marcela/HMM-voices/arctic_test/vq/a.snack";
         
         
-        SnackVoiceQualityProcessor vq = new SnackVoiceQualityProcessor();
+        SnackVoiceQualityProcessor vqCalc = new SnackVoiceQualityProcessor();
+        double vqPar[][];
         
         // Read F0, formants and bandwidths
-        double[][] snackData = vq.getData(numFormants, snackFile);            
+        double[][] snackData = vqCalc.getData(numFormants, snackFile);            
         System.out.println("f0_formants size=" + snackData.length);
   
         // Read the sound file
@@ -538,7 +567,18 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
         // calculate voice quality parameters for this file
         int frameLength = 80;
         int windowLength = 400;
-        vq.calculateVoiceQuality(snackData, frameLength, windowLength, wf);
+        int numVqParams = 5;
+        
+        VoiceQuality vq = new VoiceQuality(numVqParams, snackData.length);
+        vq.params.dimension = numVqParams;
+        vq.params.numfrm = snackData.length;
+        vqCalc.calculateVoiceQuality(snackData, frameLength, windowLength, wf, vq);
+        vq.writeVqFile("/project/mary/marcela/HMM-voices/arctic_test/vq/a.vq");
+        
+        VoiceQuality vq1 = new VoiceQuality();
+        vq1.readVqFile("/project/mary/marcela/HMM-voices/arctic_test/vq/a.vq");  
+        
+        
         
         // to test the spectrum in bark scale
         /*
