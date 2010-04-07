@@ -209,9 +209,8 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
         // Propagate unit durations to XML tree:
         float endInSeconds = 0;
         float durLeftHalfInSeconds = 0;
-        String leftUnitString = "";
-        String rightUnitString = "";
         String unitString = "";
+        String unitAttrName = "units"; // name of the attribute that is added for unit selection diagnostics
         for (SelectedUnit su : selectedUnits) {
             Target t = su.getTarget();
             boolean halfphone = (t instanceof HalfPhoneTarget);
@@ -233,20 +232,17 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
             if (halfphone) {
                 if (((HalfPhoneTarget)t).isLeftHalf()) {
                     durLeftHalfInSeconds = unitDurationInSeconds;
-                    leftUnitString = unitString;
                 } else { // right half
                     // re-compute unit duration from both halves
                     float totalUnitDurInSeconds = durLeftHalfInSeconds + unitDurationInSeconds;
                     float prevEndInSeconds = endInSeconds - totalUnitDurInSeconds;
                     prevEndInMillis = (int) (1000 * prevEndInSeconds);
                     unitDurationInMillis = endInMillis - prevEndInMillis;
-                    rightUnitString = unitString;
                     durLeftHalfInSeconds = 0;
                 }
             }
             
-            
-            Element maryxmlElement = su.getTarget().getMaryxmlElement();
+            Element maryxmlElement = t.getMaryxmlElement();
             if (maryxmlElement != null) {
                 if (maryxmlElement.getNodeName().equals(MaryXML.PHONE)) {
                     if (!maryxmlElement.hasAttribute("d") || !maryxmlElement.hasAttribute("end")) {
@@ -260,7 +256,6 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
                     //int oldEnd = (int)(doubleEnd * 1000);
                     maryxmlElement.setAttribute("d", String.valueOf(unitDurationInMillis));
                     maryxmlElement.setAttribute("end", String.valueOf(endInSeconds));
-                    unitString = leftUnitString + "; " + rightUnitString;
                     // the following messes up all end values!
                     //if (oldEnd == oldD) {
                     //    // start new end computation
@@ -269,10 +264,14 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
                 } else { // not a PHONE
                     assert maryxmlElement.getNodeName().equals(MaryXML.BOUNDARY);
                     maryxmlElement.setAttribute("duration", String.valueOf(unitDurationInMillis));
-                    unitString = leftUnitString;
                 }
-                maryxmlElement.setAttribute("units", unitString);
-            } else {
+                if (maryxmlElement.hasAttribute(unitAttrName)) {
+                    String prevUnitString = maryxmlElement.getAttribute(unitAttrName);
+                    maryxmlElement.setAttribute(unitAttrName, prevUnitString + "; " + unitString);
+                } else {
+                    maryxmlElement.setAttribute(unitAttrName, unitString);
+                }
+           } else {
                 logger.debug("Unit "+su.getTarget().getName()+" of length "+unitDurationInMillis+" ms has no maryxml element.");
             }
         }
