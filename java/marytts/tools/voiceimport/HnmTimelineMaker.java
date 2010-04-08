@@ -219,7 +219,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
             String processingHeader = baos.toString("latin1");
             
             /* Instantiate the TimelineWriter: */
-            TimelineWriter hnmTimeline = new TimelineWriter( getProp(HNMTIMELINE), processingHeader, globSampleRate, 0.01 );
+            TimelineWriter hnmTimeline = new TimelineWriter( getProp(HNMTIMELINE), processingHeader, globSampleRate, 0.1 );
             
             //TO DO: Update these paratemers according to props
             HntmAnalyzerParams analysisParams = new HntmAnalyzerParams();
@@ -398,6 +398,7 @@ public class HnmTimelineMaker extends VoiceImportComponent
                 System.out.println(String.valueOf(n+1) + " of " + String.valueOf(baseNameArray.length) + " done...");
                 numDatagrams += hnmSignal.frames.length;
             }
+            hnmTimeline.close();
             
             System.out.println("---- Done." );
             
@@ -408,14 +409,13 @@ public class HnmTimelineMaker extends VoiceImportComponent
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
             System.out.println( "Size of the index: [" + hnmTimeline.getIndex().getNumIdx() + "] ("
                     + (hnmTimeline.getIndex().getNumIdx() * 16) + " bytes, i.e. "
-                    + Double.valueOf(new DecimalFormat("#.##").format((double)(hnmTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0)) + " megs).");
+                    + new DecimalFormat("#.##").format((double)(hnmTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0) + " megs).");
             
             long stop = System.currentTimeMillis(); // stop timing
             System.out.println("The process took " + (stop - start)/(1000.0*60) + " minutes to complete..."); // print execution time
             
             System.out.println( "---- hnm timeline done.");
             
-            hnmTimeline.close();
         }
         catch ( SecurityException e ) {
             System.err.println( "Error: you don't have write access to the target database directory." );

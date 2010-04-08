@@ -35,10 +35,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Vector;
 
 import marytts.unitselection.data.Datagram;
 import marytts.util.data.MaryHeader;
 import marytts.util.data.TimelineIO;
+import marytts.util.data.TimelineIO.IdxField;
 
 
 /**
@@ -46,7 +48,7 @@ import marytts.util.data.TimelineIO;
  * a Timeline data file in Mary format, and to feed new datagrams
  * to the timeline file.
  * 
- * @author sacha
+ * @author sacha, marc
  *
  */
 public class TimelineWriter extends TimelineIO {
@@ -54,6 +56,12 @@ public class TimelineWriter extends TimelineIO {
     /****************/
     /* DATA FIELDS  */
     /****************/
+    private int idxInterval;
+    private long datagramZoneBytePos;
+    private Vector<IdxField> indexData;
+    private long prevBytePos;
+    private long prevTimePos;
+    
     
     /****************/
     /* CONSTRUCTORS */
@@ -65,15 +73,16 @@ public class TimelineWriter extends TimelineIO {
      * @param fileName The file to read the timeline from.
      * @param procHdrString the string to use as a processing header.
      * @param reqSampleRate the sample rate requested to measure time in this timeline.
+     * @param setIdxIntervalInSeconds the interval between two index entries, in seconds
      */
-    public TimelineWriter( String fileName, String procHdrString, int reqSampleRate, double setIdxInterval ) {
+    public TimelineWriter( String fileName, String procHdrString, int reqSampleRate, double setIdxIntervalInSeconds ) {
         
         /* Check the arguments */
         if ( reqSampleRate <= 0 ) {
             throw new RuntimeException( "The sample rate [" + reqSampleRate + "] can't be negative or null when creating a timeline." );
         }
-        if ( setIdxInterval <= 0.0 ) {
-            throw new RuntimeException( "The index interval [" + setIdxInterval + "] can't be negative or null when creating a timeline." );
+        if ( setIdxIntervalInSeconds <= 0.0 ) {
+            throw new RuntimeException( "The index interval [" + setIdxIntervalInSeconds + "] can't be negative or null when creating a timeline." );
         }
         
         /* Open the file */
@@ -114,8 +123,12 @@ public class TimelineWriter extends TimelineIO {
             timeIdxBytePos = 0;
             raf.writeLong( 0l );
             
-            /* Make a new time index with a default spacing */
-            idx = new Index( setIdxInterval, sampleRate, datagramsBytePos );
+            // Remember important facts for index creation
+            idxInterval = (int)Math.round( setIdxIntervalInSeconds * (double)sampleRate );
+            datagramZoneBytePos = datagramsBytePos;
+            indexData = new Vector<IdxField>();
+            prevBytePos = datagramsBytePos;
+            prevTimePos = 0;
             
             /* Now we can output the datagrams. */
             
@@ -126,41 +139,7 @@ public class TimelineWriter extends TimelineIO {
     }
     
     
-    /**
-     * Constructor to open a timeline for appending datagrams.
-     * 
-     * @param fileName The file to append the datagrams to.
-     */
-    public TimelineWriter( String fileName ) {
-        
-        /* Open the file */
-        try {
-            File fid = new File( fileName );
-            raf = new RandomAccessFile( fid, "rw" );
-        }
-        catch ( FileNotFoundException e ) {
-            throw new Error("Timeline file [" + fileName + "] was not found." );
-        }
-        catch ( SecurityException e ) {
-            throw new Error("You do not have read access to the file [" + fileName + "]." );
-        }
-        
-        /* Load an existing header or make a new one */
-        try {
-            /* Load the existing header and index */
-            loadHeaderAndIndex( fileName );
-            /* strip the index from the end of the file
-             * and position the pointers after the last datagram */
-            setBytePointer( timeIdxBytePos );
-            raf.setLength( timeIdxBytePos );
-            timeIdxBytePos = 0;
-            setTimePointer( idx.getPrevTimePos() );
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( "IOException caught when constructing a VARIABLE timeline reader on file [" + fileName + "]: ", e );
-        }
-    }
-    
+
     
     /*******************/
     /* MISC. METHODS   */
@@ -180,6 +159,7 @@ public class TimelineWriter extends TimelineIO {
         /* Go to the end of the file and output the time index */
         timeIdxBytePos = raf.length();
         setBytePointer( timeIdxBytePos );
+        idx = new Index(idxInterval, indexData);
         idx.dump( raf );
         
         /* Register the index positions */
@@ -190,6 +170,35 @@ public class TimelineWriter extends TimelineIO {
         raf.close();
     }
     
+    
+    
+    /**
+     * Feeds a file position (in bytes) and a time position (in samples) from a timeline,
+     * and determines if a new index field is to be added.
+     * 
+     * @return the number of index fields after the feed.
+     */
+    private void feedIndex( long bytePosition, long timePosition ) {
+        /* Get the time associated with the yet to come index field */
+        long nextIdxTime = indexData.size() * (long)idxInterval;
+        /* If the current time position passes the next possible index field,
+         * register the PREVIOUS datagram position in the new index field */
+        while ( nextIdxTime < timePosition ) {
+//            System.out.println( "Hitting a new index at position\t[" + bytePosition + "," + timePosition + "]." );
+//            System.out.println( "The crossed index is [" + nextIdxTime + "]." );
+//            System.out.println( "The registered (previous) position is\t[" + prevBytePos + "," + prevTimePos + "]." );
+//            IdxField testField = (IdxField)field.elementAt(currentNumIdx-1);
+//            System.out.println( "The previously indexed position was\t[" + testField.bytePtr + "," + testField.timePtr + "]." );
+            
+            indexData.add( new IdxField(prevBytePos,prevTimePos) );
+            nextIdxTime += idxInterval;
+        }
+        
+        /* Memorize the observed datagram position */
+        prevBytePos = bytePosition;
+        prevTimePos = timePosition;
+    }
+
     
     /**
      * Write one datagram to the timeline.
@@ -203,7 +212,7 @@ public class TimelineWriter extends TimelineIO {
 //        System.out.println( "Feeding datagram [ " + d.data.length + " , " + d.duration + " ] at pos ( "
 //                + getBytePointer() + " , " + getTimePointer() + " )" );
         /* Filter the datagram through the index (to automatically add an index field if needed) */
-        idx.feed( getBytePointer(), getTimePointer() );
+        feedIndex( getBytePointer(), getTimePointer() );
         /* Check if the datagram needs resampling */
         if ( reqSampleRate != sampleRate ) d.setDuration(scaleTime(reqSampleRate,d.getDuration()));
         /* Then write the datagram on disk */

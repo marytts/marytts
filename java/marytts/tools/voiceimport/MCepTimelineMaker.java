@@ -183,7 +183,7 @@ public class MCepTimelineMaker extends VoiceImportComponent
             
             
             /* Instantiate the TimelineWriter: */
-            TimelineWriter mcepTimeline = new TimelineWriter( getProp(MCEPTIMELINE), processingHeader, globSampleRate, 0.01 );
+            TimelineWriter mcepTimeline = new TimelineWriter( getProp(MCEPTIMELINE), processingHeader, globSampleRate, 0.1 );
             
             
             /* 4) Write the datagrams and feed the index */
@@ -224,6 +224,7 @@ public class MCepTimelineMaker extends VoiceImportComponent
                 // System.out.println( baseNameArray[i] + " -> mcep file says [" + localTime + "] samples, wav file says ["+ wav.getNumSamples() + "] samples." );
                 
             }
+            mcepTimeline.close();
             
             System.out.println("---- Done." );
             
@@ -235,10 +236,9 @@ public class MCepTimelineMaker extends VoiceImportComponent
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
             System.out.println( "Size of the index: [" + mcepTimeline.getIndex().getNumIdx() + "] ("
                     + (mcepTimeline.getIndex().getNumIdx() * 16) + " bytes, i.e. "
-                    + Double.valueOf(new DecimalFormat("#.##").format((double)(mcepTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0)) + " megs).");
+                    + new DecimalFormat("#.##").format((double)(mcepTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0) + " megs).");
             System.out.println( "---- mcep timeline done.");
             
-            mcepTimeline.close();
         }
         catch ( SecurityException e ) {
             System.err.println( "Error: you don't have write access to the target database directory." );

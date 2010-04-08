@@ -302,23 +302,52 @@ public class TimelineIO
 
 
     /**
-     * Simple helper class to read the index part of a timeline file
+     * Simple helper class to read the index part of a timeline file.
+     * The index points to datagrams at or before a certain point in time.
+     * 
+     * Note: If no datagram starts at the exact index time, it makes sense
+     * to point to the previous datagram rather than the following one.
+     * 
+     * If one would store the location of the datagram which comes just after the index
+     * position (the currently tested datagram), there would be a possibility that
+     * a particular time request falls between the index and the datagram:
+     * 
+     * time axis --------------------------------->
+     *             INDEX <-- REQUEST
+     *               |
+     *                ---------------> DATAGRAM
+     *                
+     * This would require a subsequent backwards time hopping, which is impossible
+     * because the datagrams are a singly linked list.
+     * 
+     * By registering the location of the previous datagram, any time request will find
+     * an index which points to a datagram falling BEFORE or ON the index location:
+     * 
+     * time axis --------------------------------->
+     *             INDEX <-- REQUEST
+     *               |
+     *  DATAGRAM <---
+     * 
+     * Thus, forward hopping is always possible and the requested time can always be reached.
      * 
      * @author sacha
-     *
      */
     public  class Index 
     {
         private int idxInterval = 0;  // The fixed time interval (in samples) separating two index fields.
-        private Vector field = null;  // The actual index fields
-        private static final int INCREMENT_SIZE = 512; // The field vector's capacityIncrement
-                                                       // (see the Vector object in the Java reference).
-        private int size = 0; // The size of the field vector, to avoid resorting to the field.size() method.
-                              // (This saves a function call in speed critical parts of the code.)
         
-        /* Memory of the location of the previous unit (see feed() below.) */
-        private long prevBytePos = 0;
-        private long prevTimePos = 0;
+        /**
+         * For index field i, bytePtrs[i] is the position in bytes, from the beginning of the file,
+         * of the datagram coming on or just before that index field.
+         */
+        private long[] bytePtrs;
+        
+        /**
+         * For index field i, timePtrs[i] is the time position in samples
+         * of the datagram coming on or just before that index field.
+         */
+        private long[] timePtrs;
+                
         
         /****************/
         /* CONSTRUCTORS */
@@ -336,24 +365,18 @@ public class TimelineIO
          * Constructor which builds a new index with a specific index interval
          * and a given sample rate
          * 
-         * @param setIdxIntervalInSeconds the requested index interval, in seconds
-         * @param setSampleRate the requested sample rate
-         * @param setInitialBytePosition the byte position of the first possible datagram
-         * (i.e., the position of the datagram zone)
+         * @param idxInterval the index interval, samples
+         * @param indexFields the actual index data
          */
-        public Index( double setIdxIntervalInSeconds, int setSampleRate, long setInitialBytePosition ) {
-            if ( setSampleRate <= 0 ) {
-                throw new RuntimeException( "The index interval can't be negative or null when building a timeline index." );
+        public Index(int idxInterval, Vector<IdxField> indexFields) {
+            this.idxInterval = idxInterval;
+            bytePtrs = new long[indexFields.size()];
+            timePtrs = new long[indexFields.size()];
+            for (int i=0; i<bytePtrs.length; i++) {
+                IdxField f = indexFields.get(i);
+                bytePtrs[i] = f.bytePtr;
+                timePtrs[i] = f.timePtr;
             }
-            if ( setIdxIntervalInSeconds <= 0.0 ) {
-                throw new RuntimeException( "The index interval can't be negative or null when building a timeline index." );
-            }
-            idxInterval = (int)Math.round( setIdxIntervalInSeconds * (double)(setSampleRate) );
-            field = new Vector( 1, INCREMENT_SIZE );
-            field.add( new IdxField(setInitialBytePosition,0) ); /* Initialize the first field */
-            size = 1;
-            prevBytePos = setInitialBytePosition;
-            prevTimePos = 0;
        }
         
         
@@ -368,20 +391,21 @@ public class TimelineIO
             int numIdx = rafIn.readInt();
             idxInterval = rafIn.readInt();
             
-            field = new Vector( numIdx, INCREMENT_SIZE );
-            int numBytesToRead = IdxField.numBytesOnDisk() * numIdx + 16; // + 16 for 2 longs
+            bytePtrs = new long[numIdx];
+            timePtrs = new long[numIdx];
+            int numBytesToRead = 16 * numIdx + 16; // 2*8 bytes for each index field + 16 for prevBytePos and prevTimePos
 
             byte[] data = new byte[numBytesToRead];
             rafIn.readFully(data);
             DataInput bufIn = new DataInputStream(new ByteArrayInputStream(data));
             
             for( int i = 0; i < numIdx; i++ ) {
-                field.add( new IdxField(bufIn) );
+                bytePtrs[i] = bufIn.readLong();
+                timePtrs[i] = bufIn.readLong();
             }
-            size = field.size();
-            /* Read the "last datagram" memory */
-            prevBytePos = bufIn.readLong();
-            prevTimePos = bufIn.readLong();
+            /* Obsolete: Read the "last datagram" memory */
+            /*prevBytePos =*/ bufIn.readLong();
+            /*prevTimePos =*/ bufIn.readLong();
         }
         
         /**
@@ -392,17 +416,19 @@ public class TimelineIO
             int numIdx = getNumIdx();
             rafIn.writeInt( numIdx );      nBytes += 4;
             rafIn.writeInt( idxInterval ); nBytes += 4;
-            IdxField buffer = null;
             for( int i = 0; i < numIdx; i++ ) {
-                buffer = (IdxField)( field.elementAt(i) );
-                nBytes += buffer.write( rafIn );
+                rafIn.writeLong(bytePtrs[i]); nBytes += 8;
+                rafIn.writeLong(timePtrs[i]); nBytes += 8;
             }
-            /* Register the "last datagram" memory as an additional field */
-            rafIn.writeLong(prevBytePos);
-            rafIn.writeLong(prevTimePos);
+            // Obsolete, keep only for file format compatibility:
+            // Register the "last datagram" memory as an additional field
+            //rafIn.writeLong(prevBytePos);
+            //rafIn.writeLong(prevTimePos);
+            rafIn.writeLong(0l);
+            rafIn.writeLong(0l);
             nBytes += 16l;
             
-            return( nBytes );
+            return nBytes;
         }
         
         /**
@@ -413,101 +439,50 @@ public class TimelineIO
             int numIdx = getNumIdx();
             System.out.println( "interval = " + idxInterval );
             System.out.println( "numIdx = " + numIdx );
-            IdxField buffer = null;
             for( int i = 0; i < numIdx; i++ ) {
-                buffer = (IdxField)( field.elementAt(i) );
-                System.out.println( "( " + buffer.bytePtr + " , " + buffer.timePtr + " )" );
+                System.out.println( "( " + bytePtrs[i] + " , " + timePtrs[i] + " )" );
             }
-            /* Register the "last datagram" memory as an additional field */
-            System.out.println( "Last datagram: "
-                    + "( " + prevBytePos + " , " + prevTimePos + " )" );
+            /* Obsolete: Register the "last datagram" memory as an additional field */
+            //System.out.println( "Last datagram: "
+            //        + "( " + prevBytePos + " , " + prevTimePos + " )" );
             System.out.println( "</INDEX>" );
         }
         
         /*****************/
         /* ACCESSORS     */
         /*****************/
+        /**
+         * The number of index entries.
+         */
         public int getNumIdx() {
-            return( size );
-        }
-        public int getIdxInterval() {
-            return( idxInterval );
-        }
-        public IdxField getIdxField( int i ) {
-            if ( i < 0 ) {
-                throw new RuntimeException( "Negative index." );
-            }
-            return( (IdxField)(field.elementAt(i)) );
-        }
-        public long getPrevTimePos() {
-            return( prevTimePos );
+            return bytePtrs.length;
         }
         
-        public long getPrevBytePos() {
-            return( prevBytePos );
+        /**
+         * The interval, in samples, between two index entries.
+         * @return
+         */
+        public int getIdxInterval() {
+            return idxInterval;
         }
+        
+        public IdxField getIdxField( int i ) {
+            if ( i < 0 ) {
+                throw new IndexOutOfBoundsException( "Negative index." );
+            }
+            if (i >= bytePtrs.length) {
+                throw new IndexOutOfBoundsException("Requested index no. "+i+", but highest is "+bytePtrs.length);
+            }
+            return new IdxField(bytePtrs[i], timePtrs[i]);
+        }
+        
         
         
         /*****************/
         /* OTHER METHODS */
         /*****************/
         
-        /**
-         * Feeds a file position (in bytes) and a time position (in samples) from a timeline,
-         * and determines if a new index field is to be added.
-         * 
-         * @return the number of index fields after the feed.
-         */
-        public int feed( long bytePosition, long timePosition ) {
-            /* Get the time associated with the yet to come index field */
-            long nextIdxTime = size * idxInterval;
-            /* If the current time position passes the next possible index field,
-             * register the PREVIOUS datagram position in the new index field */
-            while ( nextIdxTime < timePosition ) {
-//                System.out.println( "Hitting a new index at position\t[" + bytePosition + "," + timePosition + "]." );
-//                System.out.println( "The crossed index is [" + nextIdxTime + "]." );
-//                System.out.println( "The registered (previous) position is\t[" + prevBytePos + "," + prevTimePos + "]." );
-//                IdxField testField = (IdxField)field.elementAt(currentNumIdx-1);
-//                System.out.println( "The previously indexed position was\t[" + testField.bytePtr + "," + testField.timePtr + "]." );
-                
-                field.add( new IdxField(prevBytePos,prevTimePos) );
-                size++;
-                nextIdxTime += idxInterval;
-            }
-            
-            /* Note:
-             * If one would store the location of the datagram which comes just after the index
-             * position (the currently tested datagram), there would be a possibility that
-             * a particular time request falls between the index and the datagram:
-             * 
-             * time axis --------------------------------->
-             *             INDEX <-- REQUEST
-             *               |
-             *                ---------------> DATAGRAM
-             *                
-             * This would require a subsequent backwards time hopping, which is impossible
-             * because the datagrams are a singly linked list.
-             * 
-             * By registering the location of the previous datagram, any time request will find
-             * an index which points to a datagram falling BEFORE or ON the index location:
-             * 
-             * time axis --------------------------------->
-             *             INDEX <-- REQUEST
-             *               |
-             *  DATAGRAM <---
-             * 
-             * Thus, forward hopping is always possible and the requested time can always be reached.
-             * 
-             * */
-            
-            /* Memorize the observed datagram position */
-            prevBytePos = bytePosition;
-            prevTimePos = timePosition;
-            
-            /* Return the (possibly new) index size */
-            return( size );
-        }
-        
+         
         /**
          * Returns the index field that comes immediately before or straight on the requested time.
          * 
@@ -524,8 +499,10 @@ public class TimelineIO
                         + "] encountered when getting index before time=[" + timePosition
                         + "] (idxInterval=[" + idxInterval + "])." );
             }
-            if ( index >= size ) { index = size - 1; } // <= Protection against ArrayIndexOutOfBounds exception due to "time out of bounds"
-            return( (IdxField)( field.elementAt( index ) ) );
+            if ( index >= bytePtrs.length ) {
+                index = bytePtrs.length - 1; // <= Protection against ArrayIndexOutOfBounds exception due to "time out of bounds"
+            }
+            return new IdxField(bytePtrs[index], timePtrs[index]);
         }
     }
 
@@ -548,24 +525,6 @@ public class TimelineIO
         public IdxField( long setBytePtr, long setTimePtr ) {
             bytePtr = setBytePtr;
             timePtr = setTimePtr;
-        }
-        public IdxField( DataInput raf ) throws IOException {
-            bytePtr = raf.readLong();
-            timePtr = raf.readLong();
-         }
-        public long write( DataOutput raf ) throws IOException {
-            raf.writeLong( bytePtr );
-            raf.writeLong( timePtr );
-            return( 16l ); // 8+8 bytes written.
-        }
-        
-        /**
-         * Number of bytes needed to represent this IdxField on disk. 
-         * @return
-         */
-        public static int numBytesOnDisk()
-        {
-            return 16; // 8+8 bytes == two longs
         }
     }
 
