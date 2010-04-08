@@ -111,7 +111,7 @@ public class WaveTimelineMaker extends VoiceImportComponent
             String processingHeader = "\n";
             
             /* Instantiate the TimelineWriter: */
-            TimelineWriter waveTimeline = new TimelineWriter( waveTimelineName, processingHeader, globSampleRate, 0.01 );
+            TimelineWriter waveTimeline = new TimelineWriter( waveTimelineName, processingHeader, globSampleRate, 0.1 );
             
             /* 3) Write the datagrams and feed the index */
             
@@ -163,6 +163,7 @@ public class WaveTimelineMaker extends VoiceImportComponent
                 }
                 // System.out.println( baseNameArray[i] + " -> pm file says [" + localTime + "] samples, wav file says ["+ wav.getNumSamples() + "] samples." );
             }
+            waveTimeline.close();
             
             System.out.println("---- Done." );
             
@@ -174,10 +175,9 @@ public class WaveTimelineMaker extends VoiceImportComponent
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
             System.out.println( "Size of the index: [" + waveTimeline.getIndex().getNumIdx() + "] ("
                     + (waveTimeline.getIndex().getNumIdx() * 16) + " bytes, i.e. "
-                    + Double.valueOf(new DecimalFormat("#.##").format((double)(waveTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0)) + " megs).");
+                    + new DecimalFormat("#.##").format((double)(waveTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0) + " megs).");
             System.out.println( "---- Waveform timeline done.");
             
-            waveTimeline.close();
         }
         catch ( SecurityException e ) {
             System.err.println( "Error: you don't have write access to the target database directory." );

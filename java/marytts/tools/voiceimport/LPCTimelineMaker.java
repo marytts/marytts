@@ -183,7 +183,7 @@ public class LPCTimelineMaker extends VoiceImportComponent
             String processingHeader = baos.toString("latin1");
             
             /* Instantiate the TimelineWriter: */
-            TimelineWriter lpcTimeline = new TimelineWriter( lpcTimelineName, processingHeader, globSampleRate, 0.01 );
+            TimelineWriter lpcTimeline = new TimelineWriter( lpcTimelineName, processingHeader, globSampleRate, 0.1 );
             
             
             /* 4) Write the datagrams and feed the index */
@@ -255,7 +255,8 @@ public class LPCTimelineMaker extends VoiceImportComponent
                 }
                 // System.out.println( baseNameArray[i] + " -> lpc file says [" + localTime + "] samples, wav file says ["+ wav.getNumSamples() + "] samples." );
             }
-            
+            lpcTimeline.close();
+
             System.out.println("---- Done." );
             
             /* 7) Print some stats and close the file */
@@ -266,10 +267,9 @@ public class LPCTimelineMaker extends VoiceImportComponent
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
             System.out.println( "Size of the index: [" + lpcTimeline.getIndex().getNumIdx() + "] ("
                     + (lpcTimeline.getIndex().getNumIdx() * 16) + " bytes, i.e. "
-                    + Double.valueOf(new DecimalFormat("#.##").format((double)(lpcTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0)) + " megs).");
+                    + new DecimalFormat("#.##").format((double)(lpcTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0) + " megs).");
             System.out.println( "---- LPC timeline done.");
             
-            lpcTimeline.close();
         }
         catch ( SecurityException e ) {
             System.err.println( "Error: you don't have write access to the target database directory." );

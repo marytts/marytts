@@ -45,7 +45,7 @@ import marytts.util.data.TimelineIO;
  * The TimelineReader class provides an interface to read regularly or variably spaced
  * datagrams from a Timeline data file in Mary format.
  * 
- * @author sacha
+ * @author sacha, marc
  *
  */
 public class TimelineReader extends TimelineIO 
@@ -405,7 +405,7 @@ public class TimelineReader extends TimelineIO
 //                + " == (" + scaledTargetTime + "," + endTime + ")@" + sampleRate );
         /* We are going to store the datagrams first in a vector, because we don't know how many datagrams we will
          * end up with, and vectors are easier to grow in size than arrays. */
-        Vector v = new Vector( 32, 32 );
+        Vector<Datagram> v = new Vector<Datagram>( 32, 32 );
         /* Let's go to the requested time... */
         gotoTime( scaledTargetTime );
         if ( returnOffset != null ) returnOffset[0] = unScaleTime( reqSampleRate, (scaledTargetTime - getTimePointer()) );
@@ -549,11 +549,12 @@ public class TimelineReader extends TimelineIO
      */
     public synchronized long getTotalTime() throws IOException {
         long bptr = getBytePointer();
-        setBytePointer( idx.getPrevBytePos() );
-        long ret = idx.getPrevTimePos();
+        IdxField lastIndexEntry = idx.getIdxField(idx.getNumIdx() - 1);
+        setBytePointer( lastIndexEntry.bytePtr );
+        long ret = lastIndexEntry.timePtr;
         Datagram next = getNextDatagram();
         if (next != null) ret += next.duration;
         setBytePointer( bptr );
-        return( ret );
+        return ret;
     }
 }

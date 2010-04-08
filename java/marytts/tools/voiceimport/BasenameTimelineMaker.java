@@ -145,6 +145,7 @@ public class BasenameTimelineMaker extends VoiceImportComponent
                 totalTime += duration;
                 numDatagrams++;
             }
+            bnTimeline.close();
             
             System.out.println("---- Done." );
             
@@ -156,10 +157,9 @@ public class BasenameTimelineMaker extends VoiceImportComponent
             System.out.println( "Number of frames: [" + numDatagrams + "]." );
             System.out.println( "Size of the index: [" + bnTimeline.getIndex().getNumIdx() + "] ("
                     + (bnTimeline.getIndex().getNumIdx() * 16) + " bytes, i.e. "
-                    + Double.valueOf(new DecimalFormat("#.##").format((double)(bnTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0)) + " megs).");
+                    + new DecimalFormat("#.##").format((double)(bnTimeline.getIndex().getNumIdx()) * 16.0 / 1048576.0) + " megs).");
             System.out.println( "---- Basename timeline done.");
             
-            bnTimeline.close();
         }
         catch ( SecurityException e ) {
             System.err.println( "Error: you don't have write access to the target database directory." );
