@@ -59,6 +59,7 @@ import java.io.IOException;
 
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Mfccs;
+import marytts.util.MaryUtils;
 import marytts.util.io.LEDataInputStream;
 
 import org.apache.log4j.Logger;
@@ -423,7 +424,8 @@ public class HTSParameterGeneration {
       // Modify the f0 generated values according to the external ones
       logger.info("Using external prosody for lf0: using unit_logf0 and unit_logF0delta from ContinuousFeatureProcessors.");
       int totalDur=0; 
-      double externalLf0=0;
+      
+      double externalLf0=0, nextExternalLf0=0;
       double externalLf0Delta=0;
       int numVoiced=0;
       i=0;
@@ -434,17 +436,23 @@ public class HTSParameterGeneration {
       HTSPStream newLf0Pst  = new HTSPStream(3, um.getTotalFrame(), HMMData.LF0); // actually the size of lf0Pst is 
                                                                                   // just the number of voiced frames   
       
+      double lf0Frame[] = new double[um.getTotalFrame()];
+      
       // this is the generated F0
-      String genF0 = "/project/mary/marcela/f0-hsmm-experiment/genF0.txt";
-      String extF0 = "/project/mary/marcela/f0-hsmm-experiment/extF0.txt";
-      FileWriter genFile = new FileWriter(genF0);
-      FileWriter extFile = new FileWriter(extF0);
+      //String genF0 = "/project/mary/marcela/f0-hsmm-experiment/genF0.txt";
+      //String extF0 = "/project/mary/marcela/f0-hsmm-experiment/extF0.txt";
+      //FileWriter genFile = new FileWriter(genF0);
+      //FileWriter extFile = new FileWriter(extF0);
       
       
       HTSModel m;
+      HTSModel mNext;
       numVoiced=0;
       int state, frame, numLf0NonZero;
+      int lastPos=0, nextPos=0;
       double lf0Model, durModel;
+      
+      /*
       t=0;      
       for(i=0; i<um.getNumUttModel(); i++){
           m = um.getUttModel(i);   
@@ -454,15 +462,15 @@ public class HTSParameterGeneration {
           for(state=0; state<5; state++) {
             durModel += m.getDur(state);
             for(frame=0; frame<m.getDur(state); frame++) {                
-                genFile.write(Integer.toString(t) + " " + m.getPhoneName() + " " + Integer.toString(m.getTotalDur()) + " " 
-                        + Integer.toString(m.getDur(state)) + " " + Integer.toString(frame+1) + " ");
+                //genFile.write(Integer.toString(t) + " " + m.getPhoneName() + " " + Integer.toString(m.getTotalDur()) + " " 
+                //        + Integer.toString(m.getDur(state)) + " " + Integer.toString(frame+1) + " ");
                 if(voiced[t]){
-                    genFile.write(Double.toString(Math.exp(lf0Pst.getPar(numVoiced,0))) + "\n");                    
+                    //genFile.write(Double.toString(Math.exp(lf0Pst.getPar(numVoiced,0))) + "\n");                    
                     lf0Model = lf0Model + lf0Pst.getPar(numVoiced,0);
                     numLf0NonZero++;
                     numVoiced++;
                 } else {
-                  genFile.write("0.0\n");  
+                  //genFile.write("0.0\n");  
                 }
                 t++;
             } // for each frame in this state 
@@ -478,50 +486,87 @@ public class HTSParameterGeneration {
           }
           
         }  // for each model in this utterance        
-      genFile.close();
-      System.out.println("Created file:" + genF0);
-      
+      //genFile.close();
+      //System.out.println("Created file:" + genF0);
+      */
+      double slope;
       // this is how the external prosody will look like
       numVoiced=0;
       t=0;
+       
+      int totalDurFrames=0;
       for(i=0; i<um.getNumUttModel(); i++){
-          m = um.getUttModel(i); 
-          externalLf0 = m.getUnit_logF0(); 
-          externalLf0Delta = m.getUnit_logF0delta();
-         
-          // CHECK!!
-          // this is just to have non-cero values when passing a mbrola .pfeats
-         if(genLf0Hmms[i] != 0.0 && externalLf0 == 0.0){
-            externalLf0 = genLf0Hmms[i];            
-          }
-          
-          
-          if(externalLf0 == 0.0)
-            System.out.format("%s  extDur=%.3f   extF0=%.3f\n", m.getPhoneName(), m.getUnit_duration(), externalLf0);
+          m = um.getUttModel(i);
+          if((i+1)<um.getNumUttModel())
+            mNext = um.getUttModel(i+1);
           else
-            System.out.format("%s  extDur=%.3f   extF0=%.3f\n", m.getPhoneName(), m.getUnit_duration(), Math.exp(externalLf0));
+            mNext=null;
+          
+          externalLf0 = m.getUnit_logF0();           
+          lastPos = totalDurFrames;
+                    
+          externalLf0Delta = m.getUnit_logF0delta();
+          if(mNext!=null){
+            if(mNext.getUnit_logF0()>0.0){
+              nextExternalLf0 = mNext.getUnit_logF0();
+              nextPos = totalDurFrames + m.getTotalDur();
+              
+              slope = (nextExternalLf0 - externalLf0) / (nextPos - lastPos);
+              
+            } else{
+              nextPos = totalDurFrames + m.getTotalDur();
+              slope = 0.0;
+            }
+          }
+          else {
+            nextExternalLf0 = 0.0;
+            slope = 0.0;
+            nextPos = um.getTotalFrame();
+          }
+          totalDurFrames += m.getTotalDur();
+          
+          /*
+          System.out.format("externalLf0=%.3f nextExternalLf0=%.3f lastPos=%d nextPos=%d slope=%.3f\n", externalLf0, nextExternalLf0, lastPos, nextPos, slope);          
+          if(externalLf0 == 0.0)
+            System.out.format("%s  extDur=%.3f(%d)   extF0=%f  extF0Delta=%f\n", m.getPhoneName(), m.getUnit_duration(), m.getTotalDurMillisec() , externalLf0,  externalLf0Delta);
+          else
+            System.out.format("%s  extDur=%.3f(%d)   extF0=%f  extF0Delta=%f\n", m.getPhoneName(), m.getUnit_duration(),  m.getTotalDurMillisec(), externalLf0,  externalLf0Delta);
+          */
+            
+          lastPos = t;          
           for(state=0; state<5; state++) {                     
             for(frame=0; frame<m.getDur(state); frame++) {                      
-                extFile.write(Integer.toString(t) + " " + m.getPhoneName() + " " + Integer.toString(m.getTotalDur()) + " " 
-                        + Integer.toString(m.getDur(state)) + " " + Integer.toString(frame+1) + " ");
+                //extFile.write(Integer.toString(t) + " " + m.getPhoneName() + " " + Integer.toString(m.getTotalDur()) + " " 
+                //        + Integer.toString(m.getDur(state)) + " " + Integer.toString(frame+1) + " ");
                 if(externalLf0 > 0 ){ 
                     newVoiced[t] = true;
-                    newLf0Pst.setPar(numVoiced, 0, externalLf0);
-                    extFile.write(Double.toString(Math.exp(newLf0Pst.getPar(numVoiced,0))) + "\n");
+                    // without slope
+                    //newLf0Pst.setPar(numVoiced, 0, externalLf0);
+                    // with slope
+                    newLf0Pst.setPar(numVoiced, 0, (externalLf0 + slope*(t-lastPos)));
+                    
+                    //extFile.write(Double.toString(Math.exp(newLf0Pst.getPar(numVoiced,0))) + "\n");
+                    lf0Frame[t] = Math.exp(newLf0Pst.getPar(numVoiced, 0));
                     numVoiced++;                  
                 } else {
                     newVoiced[t] = false;
-                    extFile.write("0.0\n");  
-                }            
+                    //extFile.write("0.0\n");
+                    lf0Frame[t] = externalLf0;
+                }   
+                
+                //System.out.format("%d  %.3f\n", t, lf0Frame[t]); 
                 t++;
             } // for each frame in this state 
           } // for each state in this model 
         }  // for each model in this utterance
-      extFile.close();
-      System.out.println("Created file:" + genF0);
+      //extFile.close();
+      //System.out.println("Created file:" + genF0);
    
       // set the external prosody as if it were generated
       setVoicedArray(newVoiced);
+           
+      //MaryUtils.plot(lf0Frame, "F0 contour");
+      
       setlf0Pst(newLf0Pst);  
       
   }
