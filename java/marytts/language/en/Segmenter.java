@@ -171,9 +171,7 @@ public class Segmenter implements UtteranceProcessor {
 		syllableList.add(phones[j]);
 		if (lex.isSyllableBoundary(syllableList, phones, j + 1))  { 
 		    sylItem =  null;
-		    if (sssyl != null) {
-			sssyl.getFeatures().setString("stress", stress);
-		    }
+                    sssyl.getFeatures().setString("stress", stress);
 		}
 	    }
 	    
