@@ -903,10 +903,8 @@ public class StringUtils {
             endIndex=stringArray.length-1;
         
         String str = "";
-        if (stringArray!=null)
-        {
-            for (int i=startIndex; i<=endIndex; i++)
-                str += stringArray[i] + System.getProperty("line.separator");
+        for (int i = startIndex; i <= endIndex; i++) {
+            str += stringArray[i] + System.getProperty("line.separator");
         }
         
         return str;
