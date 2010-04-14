@@ -796,15 +796,12 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         if(eventName.equals("save")){
          
             // First load phoneset
-            if(phoneSetFile == null){
-                
-                if(phoneSetFile == null){
-                    JOptionPane.showMessageDialog(this,
+            if (phoneSetFile == null) {
+                JOptionPane.showMessageDialog(this,
                         "Please specify phoneset for your language.",
-                            "Phoneset specification",
-                                JOptionPane.ERROR_MESSAGE);
-                    return false;
-                }
+                        "Phoneset specification",
+                        JOptionPane.ERROR_MESSAGE);
+                return false;
             }
             
             // Second load data
