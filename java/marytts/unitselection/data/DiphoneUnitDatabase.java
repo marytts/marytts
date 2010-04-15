@@ -29,9 +29,10 @@ import marytts.unitselection.select.DiphoneTarget;
 import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.viterbi.ViterbiCandidate;
+import marytts.util.dom.DomUtils;
 
 import org.apache.log4j.Logger;
-
+import org.w3c.dom.Element;
 
 public class DiphoneUnitDatabase extends UnitDatabase {
 
@@ -57,6 +58,23 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         DiphoneTarget diphoneTarget = (DiphoneTarget) target;
         HalfPhoneTarget left = diphoneTarget.left;
         HalfPhoneTarget right = diphoneTarget.right;
+        
+        // BEGIN blacklisting
+        // The point of this is to get the value of the "blacklist" attribute in the first child element of the MaryXML
+        // and store it in the blacklist String variable.
+        // This code seems rather inelegant; perhaps there is a better way to access the MaryXML from this method?
+        String blacklist = "";
+        String unitBasename = "This must never be null or the empty string!"; // otherwise candidate selection fails!
+        Element targetElement = left.getMaryxmlElement();
+        if (targetElement == null) {
+            targetElement = right.getMaryxmlElement();
+        }
+        blacklist = DomUtils.getFirstChildElement(targetElement.getOwnerDocument().getDocumentElement()).getAttribute("blacklist");
+        // The actual blacklisting is triggered in two steps further down.
+        // By commenting them out, blacklisting is technically not disabled, but has no effect.
+        // END blacklisting
+        
+        // TODO shouldn't leftName and rightName just call appropriate methods of DiphoneTarget? 
         String leftName = left.getName().substring(0, left.getName().lastIndexOf("_"));
         String rightName = right.getName().substring(0, right.getName().lastIndexOf("_"));
         int iPhoneme = targetCostFunction.getFeatureDefinition().getFeatureIndex("phone");
@@ -73,6 +91,12 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         // Now, clist is an array of halfphone unit indexes.
         for (int i = 0; i < clist.length; i++) {
             Unit unit = unitReader.units[clist[i]];
+            // Blacklisting: get basename for unit (1 of 2)
+            // WARNING: currently this cripples performance; uncomment at your peril:
+            // unitBasename = getFilename(unit);
+            if (blacklist.contains(unitBasename)) {
+                continue;
+            }
             FeatureVector fv = fvs != null ? fvs[unit.index] : targetCostFunction.getFeatureVector(unit);
             byte bunitName = fv.byteValuedDiscreteFeatures[iPhoneme];
             // force correct phone symbol:
@@ -98,6 +122,12 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         // Now, clist is an array of halfphone unit indexes.
         for (int i = 0; i < clist.length; i++) {
             Unit unit = unitReader.units[clist[i]];
+            // Blacklisting: get basename for unit (2 of 2)
+            // WARNING: currently this cripples performance; uncomment at your peril:
+            // unitBasename = getFilename(unit);
+            if (blacklist.contains(unitBasename)) {
+                continue;
+            }
             FeatureVector fv = fvs != null ? fvs[unit.index] : targetCostFunction.getFeatureVector(unit);
             byte bunitName = fv.byteValuedDiscreteFeatures[iPhoneme];
             // force correct phone symbol:
