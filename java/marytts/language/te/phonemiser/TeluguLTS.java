@@ -172,12 +172,12 @@ public class TeluguLTS {
      */
     private String getStringfromArrayList(ArrayList<String> aList) {
         Iterator<String> listrun = aList.iterator();
-        String result = "";
+        StringBuilder result = new StringBuilder();
         while(listrun.hasNext())
         {
-            result += listrun.next();
+            result.append(listrun.next());
         }
-        return result;
+        return result.toString();
     }
 
     /**

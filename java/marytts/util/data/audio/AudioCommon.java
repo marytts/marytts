@@ -70,13 +70,13 @@ public class AudioCommon
 	 */
 	public static void listSupportedTargetTypes()
 	{
-		String	strMessage = "Supported target types:";
+		StringBuilder strMessage = new StringBuilder("Supported target types:");
 		AudioFileFormat.Type[]	aTypes = AudioSystem.getAudioFileTypes();
 		for (int i = 0; i < aTypes.length; i++)
 		{
-			strMessage += " " + aTypes[i].getExtension();
+			strMessage.append(" ").append(aTypes[i].getExtension());
 		}
-		out(strMessage);
+		out(strMessage.toString());
 	}
 
 

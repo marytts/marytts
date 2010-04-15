@@ -228,7 +228,7 @@ public class FST
 	for (int i=0;i<bytes.length;i++) {
             if (bytes[i]==0) {
                 len=i-last0-1;
-                if (len==0) strings.add(new String());
+                if (len==0) strings.add("");
                 else {
                     String str;
                     if (encoding != null) 
