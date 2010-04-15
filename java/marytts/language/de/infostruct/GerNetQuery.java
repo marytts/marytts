@@ -72,7 +72,7 @@ public class GerNetQuery {
     }
 
     public String getSynString(String lex, String pos) {
-        String result = new String();
+        StringBuilder result = new StringBuilder();
         ResultSet rs = null;
         try {
             long startTime = System.currentTimeMillis();
@@ -86,14 +86,14 @@ public class GerNetQuery {
             long endTime = System.currentTimeMillis();
             logger.debug("Germanet Query took " + (endTime - startTime) + " ms.");
             while (rs.next()) {
-                result = result + "#" + rs.getString("Word");
+                result.append("#").append(rs.getString("Word"));
             } //while
         } catch (SQLException e) {
             logger.warn("Cannot access Germanet:", e);        
         } finally{
             closeResultSet(rs);
         }
-        return result;
+        return result.toString();
 
     } //getSynString
 
@@ -125,7 +125,7 @@ public class GerNetQuery {
     } //getSynVector
 
     public String getHyperString(String lex, String pos) {
-        String result = new String();
+        StringBuilder result = new StringBuilder();
         ResultSet rs = null;
         try {
             long startTime = System.currentTimeMillis();
@@ -139,14 +139,14 @@ public class GerNetQuery {
             long endTime = System.currentTimeMillis();
             logger.debug("Germanet Query took " + (endTime - startTime) + " ms.");
             while (rs.next()) {
-                result = result + "#" + rs.getString("Word");
+                result.append("#").append(rs.getString("Word"));
             } //while
         } catch (SQLException e) {
             logger.warn("Cannot access Germanet:", e);        
         } finally{
             closeResultSet(rs);
         }
-        return result;
+        return result.toString();
 
     } //getHyperString
 
@@ -176,7 +176,7 @@ public class GerNetQuery {
     } //getHyperVector
 
     public String getHypoString(String lex, String pos) {
-        String result = new String();
+        StringBuilder result = new StringBuilder();
         ResultSet rs = null;
         try {
             long startTime = System.currentTimeMillis();
@@ -190,14 +190,14 @@ public class GerNetQuery {
             long endTime = System.currentTimeMillis();
             logger.debug("Germanet Query took " + (endTime - startTime) + " ms.");
             while (rs.next()) {
-                result = result + "#" + rs.getString("Word");
+                result.append("#").append(rs.getString("Word"));
             } //while
         } catch (SQLException e) {
             logger.warn("Cannot access Germanet:", e);        
         } finally{
             closeResultSet(rs);
         }
-        return result;
+        return result.toString();
     } //getHypoString
 
     public Vector getHypoVector(String lex, String pos) {
@@ -226,7 +226,7 @@ public class GerNetQuery {
     } //getHypoVector
 
     public String getAntoString(String lex, String pos) {
-        String result = new String();
+        StringBuilder result = new StringBuilder();
         ResultSet rs = null;
         try {
             long startTime = System.currentTimeMillis();
@@ -240,14 +240,14 @@ public class GerNetQuery {
             long endTime = System.currentTimeMillis();
             logger.debug("Germanet Query took " + (endTime - startTime) + " ms.");
             while (rs.next()) {
-                result = result + "#" + rs.getString("Word");
+                result.append("#").append(rs.getString("Word"));
             } //while
         } catch (SQLException e) {
             logger.warn("Cannot access Germanet:", e);        
         } finally{
             closeResultSet(rs);
         }
-        return result;
+        return result.toString();
 
     } //getAntoString
 
