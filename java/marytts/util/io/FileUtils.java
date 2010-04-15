@@ -19,7 +19,6 @@
  */
 package marytts.util.io;
 
-import com.mysql.jdbc.ResultSet;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -39,6 +38,7 @@ import java.net.Socket;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Vector;
