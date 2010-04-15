@@ -19,6 +19,7 @@
  */
 package marytts.util.io;
 
+import com.mysql.jdbc.ResultSet;
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -37,6 +38,7 @@ import java.io.StringWriter;
 import java.net.Socket;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Vector;
@@ -82,6 +84,32 @@ public class FileUtils {
                 socket.close();
             } catch (Exception ex) {
                 Logger.getLogger(FileUtils.class.getName()).log(Level.WARN, "Couldn't close Socket.", ex);
+            }
+        }
+    }
+
+    /**
+     *  Close a PreparedStatement and a series of result sets.
+     * Use this in a finally clause.
+     * While closing the PreparedStatement supposedly closes it's resultsets,
+     * i was told that some buggy implementations don't.
+     * Exists because PreparedStatement and ResultŜet are only closeable on jdk 1.7
+     */
+    public static void close(PreparedStatement ps, ResultSet... rs) {
+        for (ResultSet c : rs) {
+            if (c != null) {
+                try {
+                    c.close();
+                } catch (Exception ex) {
+                    Logger.getLogger(FileUtils.class.getName()).log(Level.WARN, "Couldn't close ResultSet.", ex);
+                }
+            }
+        }
+        if (ps != null) {
+            try {
+                ps.close();
+            } catch (Exception ex) {
+                Logger.getLogger(FileUtils.class.getName()).log(Level.WARN, "Couldn't close PreparedStatement.", ex);
             }
         }
     }
@@ -397,19 +425,20 @@ public class FileUtils {
     }
 
     public static void copy(File source, File dest)throws IOException{
-        try { 
+        FileChannel in = null, out = null;
+        try {
             System.out.println("copying: " + source + "\n    --> " + dest);
-            FileChannel in = new FileInputStream(source).getChannel();
-            FileChannel out = new FileOutputStream(dest).getChannel();   
+            in = new FileInputStream(source).getChannel();
+            out = new FileOutputStream(dest).getChannel();   
             MappedByteBuffer buf = in.map(FileChannel.MapMode.READ_ONLY, 0, in.size());            
             out.write(buf);
-            in.close();
-            out.close();
         } catch (Exception e){
             System.out.println("Error copying file "
                     +source.getAbsolutePath()+" to "+dest.getAbsolutePath()
                     +" : "+e.getMessage());
             throw new IOException();
+        } finally {
+            FileUtils.close(in, out);
         }
     }
     
