@@ -64,6 +64,7 @@ import org.mediawiki.importer.XmlDumpWriter;
 
 import marytts.tools.dbselection.WikipediaMarkupCleaner;
 import marytts.util.Pair;
+import marytts.util.io.FileUtils;
 
 /**
  * Various functions for handling connection, inserting and querying a mysql database.
@@ -1836,82 +1837,58 @@ public class DBHandler {
       
   }
   
-  public HashMap<Integer,byte[]> getFeaturesSet(int ini, int end, int[] idList)
-  {
-      int id; 
-      int iniId = idList[ini]; 
-      int endId = idList[end];
-      byte[] f;
-      HashMap<Integer,byte[]> feas;
-      PreparedStatement psFeaturesSet = null;
-      
-      if( iniId > 0 && endId > 0) {
-          try {
-            psFeaturesSet = cn.prepareStatement("SELECT id,features FROM " + dbselectionTableName +
-                                                " WHERE reliable=true and selected=false and unwanted=false and id>=? and id<=?");
-          } catch (SQLException e) {
-              e.printStackTrace();
-          }   
-          int initialCapacity = (endId-iniId);
-          feas = new HashMap<Integer,byte[]>(initialCapacity);    
-          try {
-              psFeaturesSet.setInt(1, iniId);
-              psFeaturesSet.setInt(2, endId);
-              rs = psFeaturesSet.executeQuery();
-          } catch (Exception e) {
-              e.printStackTrace();
-          } 
-          try {   
-              while( rs.next() ) {
-                id = rs.getInt(1);
-                f = rs.getBytes(2);
-                feas.put(id, f);
-                //System .out.println("adding id=" + id);
-              }         
-              psFeaturesSet.close();
-              
-          } catch (SQLException e) {
-              e.printStackTrace();
-          } 
-      } else { // one or both ids are negative so we need to retrieve one by one
-          System.out.println("getFeaturesSet: negative indexes retrieving the features one by one....");
-          try {
-              psFeaturesSet = cn.prepareStatement("Select features FROM " + dbselectionTableName + " WHERE id=?");
-          } catch (SQLException e) {
-                e.printStackTrace();
-          }   
-          int initialCapacity = (end-ini);
-          feas = new HashMap<Integer,byte[]>(initialCapacity); 
-          
-          for(int i=ini; i<=end; i++ ){
-            if( idList[i] > 0){
-                try {
-                    psFeaturesSet.setInt(1, idList[i]);
-                    rs = psFeaturesSet.executeQuery();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } 
-                try {   
-                    while( rs.next() ) {
-                      f = rs.getBytes(1);
-                      feas.put(idList[i], f);
-                      //System .out.println("adding id=" + id);
-                    }                            
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }    
-            }                         
-          }  // end for loop
-          try {
-           psFeaturesSet.close();
-          }catch (SQLException e) {
-              e.printStackTrace();
-          }           
-      }  // end else, the indexes are negative
-      
-      return feas;
-      
-  }
+    public HashMap<Integer, byte[]> getFeaturesSet(int ini, int end, int[] idList) {
+        int id;
+        int iniId = idList[ini];
+        int endId = idList[end];
+        byte[] f;
+
+        PreparedStatement psFeaturesSet = null;
+        boolean IdInRange = iniId > 0 && endId > 0;
+        int initialCapacity = IdInRange ? endId - iniId : end - ini;
+        HashMap<Integer, byte[]> feas = new HashMap<Integer, byte[]>(initialCapacity);
+
+        try {
+            if (IdInRange) {
+                psFeaturesSet = cn.prepareStatement("SELECT id,features FROM " + dbselectionTableName
+                        + " WHERE reliable=true and selected=false and unwanted=false and id>=? and id<=?");
+                psFeaturesSet.setInt(1, iniId);
+                psFeaturesSet.setInt(2, endId);
+                rs = psFeaturesSet.executeQuery();
+
+                while (rs.next()) {
+                    id = rs.getInt(1);
+                    f = rs.getBytes(2);
+                    feas.put(id, f);
+                    //System .out.println("adding id=" + id);
+                }
+            } else { // one or both ids are negative so we need to retrieve one by one
+                System.out.println("getFeaturesSet: negative indexes retrieving the features one by one....");
+                psFeaturesSet = cn.prepareStatement("Select features FROM " + dbselectionTableName + " WHERE id=?");
+
+                for (int i = ini; i <= end; i++) {
+                    if (idList[i] > 0) {
+                        try {
+                            psFeaturesSet.setInt(1, idList[i]);
+                            rs = psFeaturesSet.executeQuery();
+                            while (rs.next()) {
+                                f = rs.getBytes(1);
+                                feas.put(idList[i], f);
+                                //System .out.println("adding id=" + id);
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }  // end for loop
+            }  // end else, the indexes are negative
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            FileUtils.close(psFeaturesSet);
+        }
+        return feas;
+    }
 
   
   /** The following characteres should be escaped:
