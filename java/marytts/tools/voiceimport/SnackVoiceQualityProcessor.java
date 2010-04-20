@@ -224,8 +224,8 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
             assert samplingRate==soundFile.getSampleRate();
             
             // calculate voice quality parameters for this file           
-            VoiceQuality vq = new VoiceQuality(numVqParams,samplingRate, frameLength/samplingRate,windowLength/samplingRate);                 
-            calculateVoiceQuality(snackData, frameLength, windowLength, soundFile, hammWin, barkMatrix, fftSize, vq, false);
+            VoiceQuality vq = new VoiceQuality(numVqParams,samplingRate, frameLength/(float)samplingRate,windowLength/(float)samplingRate);                 
+            calculateVoiceQuality(snackData, samplingRate, frameLength, windowLength, soundFile, hammWin, barkMatrix, fftSize, vq, false);
             System.out.println("Writing vq parameters to " + vqFile);
             vq.writeVqFile(vqFile);
             
@@ -286,13 +286,12 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
      * @param windowLength: in samples
      * @param sound
      */
-    public void calculateVoiceQuality(double snack[][], int frameLength, int windowLength, WavReader sound, 
+    public void calculateVoiceQuality(double snack[][], int samplingRate, int frameLength, int windowLength, WavReader sound, 
         Window hammWin, double[][] barkMatrix, int fftSize, VoiceQuality vq, boolean debug)throws Exception{
         
       int i, j, k, n, T, T2, index, index1, index2, index3;  
       short x_signal[] = sound.getSamples();      
       double x[] = new double[windowLength];
-      int samplingRateInHz = 16000;
       double magf[] = null;           // spectrum of a window 
       double magfdB[] = null;         // spectrum of a window in dB
       double barkmagfdB[] = null;     // Bark spectrum of a window in dB
@@ -370,20 +369,20 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
           //TODO: These steps of finding peaks and magnitudes, need to be improved
           // the f0 from snack not always get close to the first peak found in the spectrum calculated here, also for 2f0. 
           // get the harmonic peak frequencies
-          Xpeak = SignalProcUtils.getPeakAmplitudeFrequencies(magf, f0, 30, fftSize, samplingRateInHz, false);                                          
+          Xpeak = SignalProcUtils.getPeakAmplitudeFrequencies(magf, f0, 30, fftSize, (double)samplingRate, false);                                          
           //MaryUtils.plot(Xpeak, "Xpeak");
           //for(j=1; j<Xpeak.length; j++)
           //  System.out.println("peak[" + j + "]=" + Xpeak[j]);
           
           // Amplitude at Fp and 2Fp, it should be at the first two peak amplitude frquencies          
           Fp = Xpeak[0];
-          index1 =  SignalProcUtils.freq2index(Xpeak[0], samplingRateInHz, maxFreqIndex);
+          index1 =  SignalProcUtils.freq2index(Xpeak[0], (double)samplingRate, maxFreqIndex);
           H1 = barkmagfdB[index1];
           Fp2 = Xpeak[1];
-          index2 =  SignalProcUtils.freq2index(Xpeak[1], samplingRateInHz, maxFreqIndex);
+          index2 =  SignalProcUtils.freq2index(Xpeak[1], (double)samplingRate, maxFreqIndex);
           H2 = magf[index2];
           Fp3 = Xpeak[2];
-          index3 =  SignalProcUtils.freq2index(Xpeak[2], samplingRateInHz, maxFreqIndex);
+          index3 =  SignalProcUtils.freq2index(Xpeak[2], (double)samplingRate, maxFreqIndex);
           H3 = magf[index3];
           
           if(debug){
@@ -695,7 +694,7 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
         double barkMatrix[][] = SignalProcUtils.fft2barkmx(fftSize, samplingRate, nfilts, bwidth, minfreq, maxfreq);
         
         VoiceQuality vq = new VoiceQuality(numVqParams,sampleRate, frameLength/sampleRate,windowLength/sampleRate);                 
-        vqCalc.calculateVoiceQuality(snackData, frameLength, windowLength, sounfFile, hammWin, barkMatrix, fftSize, vq, false);
+        vqCalc.calculateVoiceQuality(snackData, sampleRate, frameLength, windowLength, sounfFile, hammWin, barkMatrix, fftSize, vq, false);
         vq.writeVqFile("/project/mary/marcela/HMM-voices/arctic_test/vq/a.vq");        
         vq.printPar();
         
