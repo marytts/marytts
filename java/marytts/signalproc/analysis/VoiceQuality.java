@@ -59,12 +59,12 @@ public class VoiceQuality {
   }
   
   public void printMeanStd(){
-    System.out.println("Mean +- Standard deviation:");
-    System.out.format("OQG: %.3f +- %.3f\n", MaryUtils.mean(vq[0]), MaryUtils.stdDev(vq[0]));
-    System.out.format("GOG: %.3f +- %.3f\n", MaryUtils.mean(vq[1]), MaryUtils.stdDev(vq[1]));
-    System.out.format("SKG: %.3f +- %.3f\n", MaryUtils.mean(vq[2]), MaryUtils.stdDev(vq[2]));
-    System.out.format("RCG: %.3f +- %.3f\n", MaryUtils.mean(vq[3]), MaryUtils.stdDev(vq[3]));
-    System.out.format("IC:  %.3f +- %.3f\n", MaryUtils.mean(vq[4]), MaryUtils.stdDev(vq[4]));
+    System.out.println("Mean +- Standard deviation:\n\tOQG\tGOG\tSKG\tRCG\tIC");
+    System.out.format("mean: %.3f\t%.3f\t%.3f\t%.3f\t%.3f\n", MaryUtils.mean(vq[0], true), MaryUtils.mean(vq[1], true),
+        MaryUtils.mean(vq[2], true), MaryUtils.mean(vq[3], true),  MaryUtils.mean(vq[4], true));
+    System.out.format("std : %.3f\t%.3f\t%.3f\t%.3f\t%.3f\n", MaryUtils.stdDev(vq[0], true), MaryUtils.stdDev(vq[1], true),
+        MaryUtils.stdDev(vq[2], true), MaryUtils.stdDev(vq[3], true),  MaryUtils.stdDev(vq[4], true));
+
   }
   
   public void readVqFile(String vqFile)
