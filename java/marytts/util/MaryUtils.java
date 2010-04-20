@@ -814,6 +814,28 @@ public class MaryUtils {
     }
 
     /**
+     * Compute the mean of all elements in the array. 
+     * If nan is true: NaN values are allowed and ignored.
+     * If nan is false: the procedure is the same as mean(double[] data) 
+     */
+    public static double mean(double[] data, boolean nan)
+    {
+      if(nan){
+        int numData = 0;
+        double mean = 0;
+        for (int i=0; i<data.length; i++) {
+            if (!Double.isNaN(data[i])){
+              mean += data[i];
+              numData++;
+            }
+        }
+        mean /= numData;
+        return mean;
+      } else        
+      return mean(data);      
+    }
+    
+    /**
      * Compute the mean of all elements in the array. No missing values (NaN) are allowed.
      * @throws IllegalArgumentException if the array contains NaN values. 
      */
@@ -856,6 +878,44 @@ public class MaryUtils {
         return Math.sqrt(S/data.length);
     }
 
+    /**
+     * Compute the standard deviation of the given data
+     * If nan is true: NaN values are allowed and ignored.
+     * If nan is false: the procedure is the same as stdDev(double[] data) 
+     * @param data
+     * @return
+     */
+    public static double stdDev(double[] data, boolean nan) {
+        // Pseudocode from wikipedia, which cites Knuth:
+        // n = 0
+        // mean = 0
+        // S = 0
+        // foreach x in data:
+        //   n = n + 1
+        //   delta = x - mean
+        //   mean = mean + delta/n
+        //   S = S + delta*(x - mean)      // This expression uses the new value of mean
+        // end for
+        // variance = S/(n - 1)
+      if(nan) {
+        double mean = 0;
+        double S = 0;
+        double numData=0;
+        for (int i=0; i< data.length; i++) {
+          if (!Double.isNaN(data[i])){
+            double delta = data[i] - mean;           
+            mean += delta / (numData+1);
+            S += delta * (data[i] - mean);
+            numData++;
+          }
+        }
+        return Math.sqrt(S/numData);
+      } else
+        return stdDev(data);
+    }
+
+    
+    
     /**
      * Compute the standard deviation of the given data
      * @param data

@@ -12,12 +12,17 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+
 import marytts.signalproc.analysis.PitchMarks;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.window.HammingWindow;
 import marytts.signalproc.window.Window;
 import marytts.signalproc.analysis.VoiceQuality;
 import marytts.tools.voiceimport.SphinxTrainer.StreamGobbler;
 import marytts.util.MaryUtils;
+import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.text.SnackTextfileDoubleDataSource;
 import marytts.util.math.FFT;
 import marytts.util.math.MathUtils;
@@ -235,7 +240,7 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
      * @return
      * @throws IOException
      */
-    public double[][] readSnackData(int numFormants, String snackFile) throws IOException
+    static double[][] readSnackData(int numFormants, String snackFile) throws IOException
     {
         double[][] snackData = null;
         BufferedReader reader = new BufferedReader(new FileReader(snackFile));
@@ -513,11 +518,11 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
           // Incompleteness of Closure
           IC = B1 / F1;
         
-          parVq[0][numFrameVq] = OQG;
-          parVq[1][numFrameVq] = GOG;
-          parVq[2][numFrameVq] = SKG;
-          parVq[3][numFrameVq] = RCG;
-          parVq[4][numFrameVq] = IC;
+          parVq[0][numFrame] = OQG;
+          parVq[1][numFrame] = GOG;
+          parVq[2][numFrame] = SKG;
+          parVq[3][numFrame] = RCG;
+          parVq[4][numFrame] = IC;
           numFrameVq++;
                     
           if(debug) {
@@ -531,17 +536,34 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
             System.in.read();
           }
           
-          } else  // if( ( (1.5*Fp) < Fp2 ) && (Fp2 < Fp3) && Fp < (F1-B1) )
+          } else {  // if( ( (1.5*Fp) < Fp2 ) && (Fp2 < Fp3) && Fp < (F1-B1) )
+            
+            // set VQ measures to NAN for voiceless frames or frames whose F0 < 60.0
+            // CHECK: not sure if this is a good solution to do not loose time info...
+            parVq[0][numFrame] = Double.NaN;
+            parVq[1][numFrame] = Double.NaN;
+            parVq[2][numFrame] = Double.NaN;
+            parVq[3][numFrame] = Double.NaN;
+            parVq[4][numFrame] = Double.NaN;
             if(debug)
               System.out.println("2,3 Lugger cond.");
-        } else // if f0 > 60.0
+          }
+        } else { // if f0 > 60.0
+          // set VQ measures to NAN for voiceless frames or frames whose F0 < 60.0
+          // CHECK: not sure if this is a good solution to do not loose time info...        
+          parVq[0][numFrame] = Double.NaN;
+          parVq[1][numFrame] = Double.NaN;
+          parVq[2][numFrame] = Double.NaN;
+          parVq[3][numFrame] = Double.NaN;
+          parVq[4][numFrame] = Double.NaN;
+
           if(debug)
             System.out.println("1 Lugger cond.");
-        
+        }
         numFrame++;  
       }
       
-      vq.allocate(numFrameVq, parVq);
+      vq.allocate(numFrame, parVq);
         
     }
     
@@ -604,25 +626,33 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
         //String wavFile = "/project/mary/marcela/HMM-voices/arctic_test/wav/a.wav";
         String whisperFile = "/project/mary/marcela/HMM-voices/arctic_test/vq/whisper.vq";
         String modalFile = "/project/mary/marcela/HMM-voices/arctic_test/vq/modal.vq";
+        String creakFile = "/project/mary/marcela/HMM-voices/arctic_test/vq/creak.vq";
         String harshFile = "/project/mary/marcela/HMM-voices/arctic_test/vq/harsh.vq";
                 
         VoiceQuality vq1 = new VoiceQuality(); 
         System.out.println("Reading: " + whisperFile);
         vq1.readVqFile(whisperFile); 
-        //vq1.printPar();
+        vq1.printPar();
         vq1.printMeanStd();
 
         VoiceQuality vq2 = new VoiceQuality();        
         System.out.println("Reading: " + modalFile);
         vq2.readVqFile(modalFile);  
-        //vq2.printPar();
+        vq2.printPar();
         vq2.printMeanStd();
         
         VoiceQuality vq3 = new VoiceQuality();
-        System.out.println("Reading: " + harshFile);
-        vq3.readVqFile(harshFile);  
-        //vq3.printPar();
+        System.out.println("Reading: " + creakFile);
+        vq3.readVqFile(creakFile);  
+        vq3.printPar();
         vq3.printMeanStd();
+        
+        VoiceQuality vq4 = new VoiceQuality();
+        System.out.println("Reading: " + harshFile);
+        vq4.readVqFile(harshFile);  
+        vq3.printPar();
+        vq4.printMeanStd();
+        
     }    
     
     // to test write and read vq files
@@ -732,6 +762,100 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
     }
     
     
+    public static void main4( String[] args ) throws Exception {
+      
+      String wavFile = "/project/mary/marcela/HMM-voices/arctic_test/wav/atapa.wav";
+      String strPitchFile = "/project/mary/marcela/HMM-voices/arctic_test/ptc/atapa.ptc";
+      String mcepFileName = "/project/mary/marcela/HMM-voices/arctic_test/mcep/atapa.mcep";
+      String pmFileName = "/project/mary/marcela/HMM-voices/arctic_test/pm/atapa.pm";
+      
+      AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(wavFile));
+      int samplingRate = (int)inputAudio.getFormat().getSampleRate();
+      AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
+      double [] x = signal.getAllData();
+      
+      //String strPitchFile = args[0].substring(0, args[0].length()-4) + ".ptc";
+      PitchReaderWriter f0 = new PitchReaderWriter(strPitchFile);
+      System.out.println("F0 contour in .ptc files");
+      for (int i=0; i<f0.contour.length; i++)
+        System.out.println(i + " f0: " + f0.contour[i]);
+      int pitchMarkOffset = 0;
+      PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0.contour, samplingRate, x.length, f0.header.windowSizeInSeconds, f0.header.skipSizeInSeconds, true, pitchMarkOffset);
+      System.out.println("pitch marks after contour2pm");
+      for (int i=0; i<pm.f0s.length; i++) 
+        System.out.println(i + ": pm=" + pm.pitchMarks[i] + "  f0=" + pm.f0s[i] );
+      
+      
+      // get the pm file
+      ESTTrackReader pmFileIn = new ESTTrackReader( pmFileName );
+      /* Wrap the primitive floats so that we can use vectors thereafter */
+      float[] pmIn = pmFileIn.getTimes();
+      System.out.println("pitch marks in pm files:");
+      for (int i=1; i<pmIn.length; i++) 
+        System.out.println(i + ": pm=" + pmIn[i] + " --> " + 1/(pmIn[i]-pmIn[i-1]));
+      
+      
+      int [] pmInSamples = SignalProcUtils.time2sample(pmIn, samplingRate);
+      double[] pmConvF0 = SignalProcUtils.pitchMarks2PitchContour(pmInSamples, (float)f0.header.windowSizeInSeconds, (float)f0.header.skipSizeInSeconds, samplingRate);
+      System.out.println("F0 after converting pitch marks in pm files:");
+      for (int i=1; i<pmConvF0.length; i++) 
+        System.out.println(i + ": F0=" + pmConvF0[i]);
+      
+      
+      
+      ESTTrackReader mcepFile;    // Structure that holds the mcep track data
+      float[] current;             // local [min,max] vector for the current mcep track file
+      float mcepMin, mcepMax, mcepRange;       // Global min/max/range values for the mcep coefficients
+      float totalDuration = 0.0f;  // Accumulator for the total timeline duration
+      long numDatagrams = 0l; // Total number of mcep datagrams in the timeline file
+      int numMCep = 0;              // Number of mcep channels, assumed from the first mcep file
+      
+      mcepFile = new ESTTrackReader(mcepFileName);
+      System.out.println("pitch marks in MFCCs files:");
+      for(int i=1; i<mcepFile.getTimes().length; i++) 
+        System.out.println(i + " pm: " + mcepFile.getTime(i) + " --> " + 1/(mcepFile.getTime(i)-mcepFile.getTime(i-1)));
+      
+     
+      
+    }
+    
+    public static void main5( String[] args ) throws Exception {
+      
+      String wavFile = "/project/mary/marcela/HMM-voices/arctic_test/wav/atapa.wav";
+      String strPitchFile = "/project/mary/marcela/HMM-voices/arctic_test/ptc/atapa.ptc";
+      String mcepFileName = "/project/mary/marcela/HMM-voices/arctic_test/mcep/atapa.mcep";
+      String pmFileName = "/project/mary/marcela/HMM-voices/arctic_test/pm/atapa.pm";
+      String snackFile = "/project/mary/marcela/HMM-voices/arctic_test/vq/atapa.snack";
+      
+      
+      AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(wavFile));
+      int samplingRate = (int)inputAudio.getFormat().getSampleRate();
+      AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
+      double [] x = signal.getAllData();
+      
+      double windowSizeInSeconds = 0.025;
+      double skipSizeInSeconds = 0.005;
+      
+      double[][] snackData = readSnackData(4, snackFile);
+      double[] f0s = new double[snackData.length];
+      
+      System.out.println("F0 contour in snack file");
+      for (int i=0; i<snackData.length; i++){
+        f0s[i] = snackData[i][0];
+        System.out.println(i + " f0: " + f0s[i]);                
+      }
+      
+      
+      int pitchMarkOffset = 0;
+      PitchMarks pm = SignalProcUtils.pitchContour2pitchMarks(f0s, samplingRate, x.length, windowSizeInSeconds, skipSizeInSeconds, true, pitchMarkOffset);
+      System.out.println("pitch marks after contour2pm");
+      for (int i=0; i<pm.f0s.length; i++) 
+        System.out.println(i + ": pm=" + pm.pitchMarks[i] + " = "+ (pm.pitchMarks[i]*1.0)/samplingRate + "  f0=" + pm.f0s[i] );
+      
+      
+      
+    }
+    
     public static void main( String[] args ) throws Exception {
       
       // to test the spectrum in bark scale
@@ -742,6 +866,10 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
       
       // to test/compare vq values of several files
       main3(args);
+      
+      //main4(args);
+      //main5(args);
+      
       
     }
     
