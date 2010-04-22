@@ -163,7 +163,9 @@ public class MbrolaCaller extends SynthesisCallerBase {
         for (String exe : mbrolas) {
             try {
                 Process p = Runtime.getRuntime().exec(new String[] {binPath+exe, "-h"});
-                p.getInputStream().close();
+                // The following line causes exitValue() to alternate randomly between 0 and 141 (SIGPIPE);
+                // the latter case leaves mbrola == null and crashes the MARY server at startup:
+                //p.getInputStream().close();
                 p.waitFor();
                 if (p.exitValue() == 0  || System.getProperty("os.name").toLowerCase().startsWith("windows")) {
                     mbrola = exe;
