@@ -200,8 +200,13 @@ public class Mary {
         if (MaryProperties.needAutoBoolean("log.tofile")) {
             String filename = MaryProperties.getFilename("log.filename", "mary.log");
             logFile = new File(filename);
+            File parentFile = logFile.getParentFile();
+            // prevent a NullPointerException in the following conditional if the user has requested a non-existing, *relative* log filename
+            if (parentFile == null) {
+                parentFile = new File(logFile.getAbsolutePath()).getParentFile();
+            }
             if (!(logFile.exists()&&logFile.canWrite() // exists and writable
-                    || logFile.getParentFile().exists() && logFile.getParentFile().canWrite())) { // parent exists and writable
+                    || parentFile.exists() && parentFile.canWrite())) { // parent exists and writable
                 // cannot write to file
                 System.err.print("\nCannot write to log file '"+filename+"' -- ");
                 File fallbackLogFile = new File(System.getProperty("user.home")+"/mary.log");
