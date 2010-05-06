@@ -154,8 +154,29 @@ public class DomUtils
         // No such ancestor.
         return null;
     }
-
-
+    
+    /**
+     * Climb through <code>node</code>'s ancestors, looking for one with an attribute named <code>attributeName</code>, 
+     * irrespective of the respective <code>ancestorName</code>, and return the attribute's value
+     * @param node
+     * @param attributeName
+     * @return value of attribute from closest ancestor with that attribute, or the empty string if no ancestor has that attribute.
+     * @author Sathish and Ingmar
+     */
+    public static String getAttributeFromClosestAncestorOfAnyKind(Node node, String attributeName) {
+        Node parentNode;
+        while ((parentNode = node.getParentNode()) != null) {
+            if (parentNode.hasAttributes()){
+                Element parentElement = (Element) parentNode;
+                if (parentElement.hasAttribute(attributeName)) {
+                    return parentElement.getAttribute(attributeName);
+                }
+            }
+            node = parentNode;
+        }
+        return "";
+    }
+    
     /**
      * If <code>node</code> has ancestors
      * with name <code>ancestorName</code>, return the one closest to the root.
