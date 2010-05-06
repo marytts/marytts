@@ -69,9 +69,7 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         if (targetElement == null) {
             targetElement = right.getMaryxmlElement();
         }
-        blacklist = DomUtils.getFirstChildElement(targetElement.getOwnerDocument().getDocumentElement()).getAttribute("blacklist");
-        // The actual blacklisting is triggered in two steps further down.
-        // By commenting them out, blacklisting is technically not disabled, but has no effect.
+        blacklist = DomUtils.getAttributeFromClosestAncestorOfAnyKind(targetElement, "blacklist");
         // END blacklisting
         
         // TODO shouldn't leftName and rightName just call appropriate methods of DiphoneTarget? 
@@ -91,12 +89,6 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         // Now, clist is an array of halfphone unit indexes.
         for (int i = 0; i < clist.length; i++) {
             Unit unit = unitReader.units[clist[i]];
-            // Blacklisting: get basename for unit (1 of 2)
-            // WARNING: currently this cripples performance; uncomment at your peril:
-            // unitBasename = getFilename(unit);
-            if (blacklist.contains(unitBasename)) {
-                continue;
-            }
             FeatureVector fv = fvs != null ? fvs[unit.index] : targetCostFunction.getFeatureVector(unit);
             byte bunitName = fv.byteValuedDiscreteFeatures[iPhoneme];
             // force correct phone symbol:
@@ -122,12 +114,6 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         // Now, clist is an array of halfphone unit indexes.
         for (int i = 0; i < clist.length; i++) {
             Unit unit = unitReader.units[clist[i]];
-            // Blacklisting: get basename for unit (2 of 2)
-            // WARNING: currently this cripples performance; uncomment at your peril:
-            // unitBasename = getFilename(unit);
-            if (blacklist.contains(unitBasename)) {
-                continue;
-            }
             FeatureVector fv = fvs != null ? fvs[unit.index] : targetCostFunction.getFeatureVector(unit);
             byte bunitName = fv.byteValuedDiscreteFeatures[iPhoneme];
             // force correct phone symbol:
@@ -145,6 +131,18 @@ public class DiphoneUnitDatabase extends UnitDatabase {
                 }
             }
         }
+        
+        // Blacklisting without crazy performance drop:
+        // just remove candidates again if their basenames are blacklisted 
+        java.util.Iterator<ViterbiCandidate> candIt = candidates.iterator();
+        while (candIt.hasNext()) {
+            ViterbiCandidate candidate = candIt.next();
+            unitBasename = getFilename(candidate.getUnit());
+            if (blacklist.contains(unitBasename)) {
+                candIt.remove();
+            }
+        }
+        
         logger.debug("Preselected "+candidates.size()+" diphone candidates for target "+target);
         return candidates;
     }
