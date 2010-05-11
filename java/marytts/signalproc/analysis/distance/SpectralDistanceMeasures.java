@@ -192,7 +192,7 @@ public class SpectralDistanceMeasures {
         int w;        
         double dist = 0.0;
         for (w=0; w<Xabs1.length; w++)
-            dist += 10*Math.log(Xabs1[w]*Xabs1[w]) - 10*Math.log10(Xabs2[w]*Xabs2[w]);
+            dist += 10*Math.log10(Xabs1[w]*Xabs1[w]) - 10*Math.log10(Xabs2[w]*Xabs2[w]);
         
         return Math.min(dist, MAX_SPECTRAL_DISTANCE);
     }

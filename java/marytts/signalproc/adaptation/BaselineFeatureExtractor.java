@@ -137,7 +137,7 @@ public class BaselineFeatureExtractor {
     
     public static void lsfAnalysis(BaselineAdaptationSet fileSet, LsfFileHeader lsfParams, boolean isForcedAnalysis) throws IOException
     {
-        System.out.println("Starting LSF analysis...");
+        System.err.println("Starting LSF analysis...");
         
         boolean bAnalyze;
         for (int i=0; i<fileSet.items.length; i++)
@@ -153,18 +153,18 @@ public class BaselineFeatureExtractor {
             if (bAnalyze)
             {
                 LsfAnalyser.lsfAnalyzeWavFile(fileSet.items[i].audioFile, fileSet.items[i].lsfFile, lsfParams);
-                System.out.println("Extracted LSFs: " + fileSet.items[i].lsfFile);
+                System.err.println("Extracted LSFs: " + fileSet.items[i].lsfFile);
             }
             else
-                System.out.println("LSF file found with identical analysis parameters: " + fileSet.items[i].lsfFile);
+                System.err.println("LSF file found with identical analysis parameters: " + fileSet.items[i].lsfFile);
         }
         
-        System.out.println("LSF analysis completed...");
+        System.err.println("LSF analysis completed...");
     }
    
     public static void f0Analysis(BaselineAdaptationSet fileSet, PitchFileHeader ptcParams, boolean isForcedAnalysis) throws UnsupportedAudioFileException, IOException
     {
-        System.out.println("Starting f0 analysis...");
+        System.err.println("Starting f0 analysis...");
         
         boolean bAnalyze;
         F0TrackerAutocorrelationHeuristic p = new F0TrackerAutocorrelationHeuristic(ptcParams);
@@ -180,18 +180,18 @@ public class BaselineFeatureExtractor {
             { 
                 p.pitchAnalyzeWavFile(fileSet.items[i].audioFile, fileSet.items[i].pitchFile);
                 
-                System.out.println("Extracted f0 contour: " + fileSet.items[i].pitchFile);
+                System.err.println("Extracted f0 contour: " + fileSet.items[i].pitchFile);
             }
             else
-                System.out.println("F0 file found with identical analysis parameters: " + fileSet.items[i].pitchFile);
+                System.err.println("F0 file found with identical analysis parameters: " + fileSet.items[i].pitchFile);
         }
         
-        System.out.println("f0 analysis completed...");
+        System.err.println("f0 analysis completed...");
     }
 
     public static void energyAnalysis(BaselineAdaptationSet fileSet, EnergyFileHeader energyParams, boolean isForcedAnalysis) throws UnsupportedAudioFileException, IOException
     {
-        System.out.println("Starting energy analysis...");
+        System.err.println("Starting energy analysis...");
         
         boolean bAnalyze;
         EnergyContourRms e = null;
@@ -207,26 +207,26 @@ public class BaselineFeatureExtractor {
             { 
                 e = new EnergyContourRms(fileSet.items[i].audioFile, fileSet.items[i].energyFile, energyParams.windowSizeInSeconds, energyParams.skipSizeInSeconds);
                 
-                System.out.println("Extracted energy contour: " + fileSet.items[i].energyFile);
+                System.err.println("Extracted energy contour: " + fileSet.items[i].energyFile);
             }
             else
-                System.out.println("Energy file found with identical analysis parameters: " + fileSet.items[i].energyFile);
+                System.err.println("Energy file found with identical analysis parameters: " + fileSet.items[i].energyFile);
         }
         
-        System.out.println("Energy analysis completed...");
+        System.err.println("Energy analysis completed...");
     }
 
     public static void checkMfccFiles(BaselineAdaptationSet fileSet, MfccFileHeader mfccParams, boolean isForcedAnalysis) throws IOException
     {
-        System.out.println("Attempting to read MFCC parameters from files...");
+        System.err.println("Attempting to read MFCC parameters from files...");
         
         for (int i=0; i<fileSet.items.length; i++)
         {
             if (!FileUtils.exists(fileSet.items[i].mfccFile))
-                System.out.println("MFCC files not found!Please use SPTK generated raw MFCC file named as " + fileSet.items[i].mfccFile);
+                System.err.println("MFCC files not found!Please use SPTK generated raw MFCC file named as " + fileSet.items[i].mfccFile);
         }
         
-        System.out.println("MFCC files verified...");
+        System.err.println("MFCC files verified...");
     }
 }
 
