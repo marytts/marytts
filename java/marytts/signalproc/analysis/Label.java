@@ -19,6 +19,8 @@
  */
 package marytts.signalproc.analysis;
 
+import java.util.Locale;
+
 /**
  * A class to keep all information on a single EST format label
  * 
@@ -110,6 +112,10 @@ public class Label {
                            "Stat=" + String.valueOf(status) + " " +
                            "Phone=" + phn + " " +
                            "Log-likelihood=" + String.valueOf(ll));
+    }
+    
+    public String toString() {
+        return String.format(Locale.US, "%.3f %s", time, phn);
     }
 }
 

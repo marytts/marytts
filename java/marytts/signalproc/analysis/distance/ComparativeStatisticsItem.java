@@ -40,7 +40,7 @@ public class ComparativeStatisticsItem {
         tmpOut[0] = referenceVsMethod1.mean;
         tmpOut[1] = referenceVsMethod1.std;
         tmpOut[2] = referenceVsMethod2.mean;
-        tmpOut[3] = referenceVsMethod1.std; 
+        tmpOut[3] = referenceVsMethod2.std; 
         tmpOut[4] = referenceVsMethod1.mean-referenceVsMethod2.mean;
 
         FileUtils.writeToTextFile(tmpOut, textFile);

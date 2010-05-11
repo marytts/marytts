@@ -100,6 +100,27 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
         
         return distances;
     }
+
+    /**
+     * Compute the distances per file
+     * @param set1
+     * @param set2
+     * @param isBark
+     * @param upperFreqInHz
+     * @param map
+     * @return an array containing, for each file, the array of frame-wise distances.
+     */
+    public double[][] getDistancesPerFile(BaselineAdaptationSet set1, BaselineAdaptationSet set2, boolean isBark, double upperFreqInHz, int[] map)
+    {
+        double[][] allDistances = new double[map.length][];
+        
+        for (int i=0; i<map.length; i++) {
+            double[] itemDistances = getItemDistances(set1.items[i], set2.items[map[i]], isBark, upperFreqInHz);
+            allDistances[i] = itemDistances;
+        }
+        return allDistances;
+    }
+
     
     public double[] getItemDistances(BaselineAdaptationItem item1, BaselineAdaptationItem item2, boolean isBark, double upperFreqInHz)
     {
@@ -219,8 +240,7 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
         
         if (count>0)
         {
-            double[] tmpFrameDistances = new double[count];
-            System.arraycopy(frameDistances, 0, tmpFrameDistances, 0, count);
+            double[] tmpFrameDistances = frameDistances;
             frameDistances = new double[count];
             System.arraycopy(tmpFrameDistances, 0, frameDistances, 0, count);
         }
@@ -400,11 +420,92 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
         System.out.println("Objective test completed...");
     }
     
+    /**
+     * Compare distances between two folders; each folder is expected to contain
+     * wav files with the same names and accompanying lab files.
+     * @param folder1
+     * @param folder2
+     * @throws IOException if any file names don't match.
+     */
+    public static void mainDistancesPerFile(String folder1, String folder2)
+    throws IOException {
+        RmsLsfDistortionComputer r = new RmsLsfDistortionComputer();
+        folder1 = StringUtils.checkLastSlash(folder1);
+        folder2 = StringUtils.checkLastSlash(folder2);
+        BaselineAdaptationSet set1 = new BaselineAdaptationSet(folder1);
+        BaselineAdaptationSet set2 = new BaselineAdaptationSet(folder2);
+        boolean isBark = true;
+        double upperFreqInHz = 8000;
+        int[] map = new int[set1.items.length];
+        for (int i=0; i<map.length; i++) {
+            if (!StringUtils.getFileName(set1.items[i].audioFile).equals(
+                    StringUtils.getFileName(set2.items[i].audioFile))) {
+                // Non-matching audio file names -- I will not have this
+                throw new IOException("Audio files in folders do not match:\n"
+                        + set1.items[i].audioFile + " doesn't match "
+                        + set2.items[i].audioFile);
+            }
+            map[i] = i;
+        }
+        double[][] allDistances = r.getDistancesPerFile(set1, set2, isBark, upperFreqInHz, map);
+        assert allDistances.length == map.length;
+        
+        System.out.println("RMSE Bark-scaled LSF distances between "+ folder1 + " and " + folder2);
+        
+        // For memory efficiency and computational precision, we compute mean and standard deviation incrementally,
+        // using the following formulae:
+        // mean[n] = mean[n-1] + (1/n) * (x[n] - mean[n-1])
+        // variance[n] = variance[n-1] + (x[n] - mean[n-1]) * (x[n] - mean[n])
+        // stddev[n] = sqrt(variance[n] / n)
+        
+        // Mean and variance accumulated across all files:
+        double allMean = 0;
+        double allPrevMean = 0;
+        double allVariance = 0;
+        long allN = 0;
+        for (int i=0; i<map.length; i++) {
+            // Mean and variance for one file:
+            double oneMean = 0;
+            double onePrevMean = 0;
+            double oneVariance = 0;
+            int oneN = 0;
+            for (int j=0; j<allDistances[i].length; j++) {
+                double x = allDistances[i][j];
+                allN++;
+                allPrevMean = allMean;
+                allMean += (x - allPrevMean) / allN;
+                allVariance += (x - allPrevMean) * (x - allMean);
+                oneN++;
+                onePrevMean = oneMean;
+                oneMean += (x - onePrevMean) / oneN;
+                oneVariance += (x - onePrevMean) * (x - oneMean);
+            }
+            double oneStddev = Math.sqrt(oneVariance / oneN);
+            System.out.println(StringUtils.getFileName(set1.items[i].audioFile)+" mean "+oneMean+" stddev "+oneStddev);
+        }
+        double allStddev = Math.sqrt(allVariance / allN);
+        System.out.println("Global mean "+allMean+" stddev "+allStddev);
+    }
+    
     public static void main(String[] args)
+    throws Exception
     {
         //mainInterspeech2008();
         
-        mainHmmVoiceConversion();
+        //mainHmmVoiceConversion();
+        
+/*        RmsLsfDistortionComputer d = new RmsLsfDistortionComputer();
+        BaselineAdaptationItem item1 = new BaselineAdaptationItem();
+        BaselineAdaptationItem item2 = new BaselineAdaptationItem();
+        item1.setFromWavFilename(args[0]);
+        item2.setFromWavFilename(args[1]);
+        double[] frameDistances = d.getItemDistances(item1, item2, true, 8000);
+        double meanDist = MathUtils.mean(frameDistances);
+        double stdDist = MathUtils.standardDeviation(frameDistances, meanDist);
+        System.out.println(item1.audioFile+"-"+item2.audioFile+" distance: "+meanDist+" (std "+stdDist+")");
+        */
+        
+        mainDistancesPerFile(args[0], args[1]);
     }
 }
 
