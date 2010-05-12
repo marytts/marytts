@@ -148,7 +148,7 @@ public class UnitDatabase
     
     /**
      * For debugging, return the basename of the original audio file from which
-     * the unit is coming, as well as the start time in that file. 
+     * the unit is coming, as well as the start time in that file.
      * @param unit
      * @return a String containing basename followed by a space and the 
      * unit's start time, in seconds, from the beginning of the file. If 
@@ -181,11 +181,9 @@ public class UnitDatabase
      */
     public String getFilename(Unit unit)
     {
-       if (basenameTimeline == null) return "unknown origin";
-       long[] offset = new long[1];
+//       if (basenameTimeline == null) return "unknown origin";
        try {
-           Datagram[] datagrams = basenameTimeline.getDatagrams(unit.startTime, 1, unitReader.getSampleRate(), offset);
-           Datagram filenameData = datagrams[0];
+           Datagram filenameData = basenameTimeline.getDatagram(unit.startTime);
            String filename = new String(filenameData.getData(), "UTF-8");
            return filename;
        } catch (Exception e) {
