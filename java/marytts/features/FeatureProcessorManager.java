@@ -60,7 +60,7 @@ public class FeatureProcessorManager
     
     /**
      * This constructor should not be used anymore. It contains hard-coded
-     * feature lists. Use @link{#FeatureProcessorManager(Locale)} instead.
+     * feature lists. Use {@link #FeatureProcessorManager(Locale)} instead.
      */
     @Deprecated
     public FeatureProcessorManager()
@@ -160,10 +160,15 @@ public class FeatureProcessorManager
         addFeatureProcessor(new MaryGenericFeatureProcessors.WordsFromPrevPunctuation());
         addFeatureProcessor(new MaryGenericFeatureProcessors.WordsToNextPunctuation());
         addFeatureProcessor(new MaryGenericFeatureProcessors.Selection_Prosody(syllable));
-        addFeatureProcessor(new MaryGenericFeatureProcessors.SentenceStyle());
+        addFeatureProcessor(new MaryGenericFeatureProcessors.Style());
+        
         addFeatureProcessor(new MaryGenericFeatureProcessors.UnitDuration());
+        addFeatureProcessor(new MaryGenericFeatureProcessors.UnitVoiceQuality());
+        addFeatureProcessor(new MaryGenericFeatureProcessors.BasenameVoiceQuality());
         addFeatureProcessor(new MaryGenericFeatureProcessors.UnitLogF0());
         addFeatureProcessor(new MaryGenericFeatureProcessors.UnitLogF0Delta());
+        
+//        addFeatureProcessor(new MaryGenericFeatureProcessors.VoiceQuality());
     }
     
     /**
