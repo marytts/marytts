@@ -583,10 +583,22 @@ public class DatabaseLayout
         }
         basicprops.put(MARYBASE,marybase);
         basicprops.put(MARYBASEVERSION, "4.0.0");
-        basicprops.put(VOICENAME,"my_voice");
-        basicprops.put(GENDER,"female");
+        String voicename = System.getProperty("VOICENAME");
+        if ( voicename == null ) {
+            voicename = "my_voice";
+        }
+        basicprops.put(VOICENAME, voicename);
+        String gender = System.getProperty("GENDER");
+        if ( gender == null ) {
+            gender = "female";
+        }
+        basicprops.put(GENDER, gender);
         basicprops.put(DOMAIN,"general");
-        basicprops.put(LOCALE,"en_US");
+        String locale = System.getProperty("LOCALE");
+        if ( locale == null ) {
+            locale = "en_US";
+        }
+        basicprops.put(LOCALE, locale);
         basicprops.put(SAMPLINGRATE,"16000");
         String rootDir = new File(System.getProperty("user.dir")).getAbsolutePath()+fileSeparator;
         basicprops.put(ROOTDIR,rootDir.substring(0,rootDir.length()-1));
@@ -632,10 +644,22 @@ public class DatabaseLayout
                 marybase = "/path/to/marybase/";
             }
             someProps.put(MARYBASE, marybase);
-            someProps.put(VOICENAME, "my_voice");
-            someProps.put(GENDER, "female");
+            String voicename = System.getProperty("VOICENAME");
+            if ( voicename == null ) {
+                voicename = "my_voice";
+            }
+            someProps.put(VOICENAME, voicename);
+            String gender = System.getProperty("GENDER");
+            if ( gender == null ) {
+                gender = "female";
+            }
+            someProps.put(GENDER, gender);
             someProps.put(DOMAIN, "general");
-            someProps.put(LOCALE, "en_US");
+            String locale = System.getProperty("LOCALE");
+            if ( locale == null ) {
+                locale = "en_US";
+            }
+            someProps.put(LOCALE, locale);
             someProps.put(SAMPLINGRATE, "16000");
             String rootDir = new File(System.getProperty("user.dir")).getAbsolutePath();
             someProps.put(ROOTDIR, rootDir.substring(0,rootDir.length()-1));
