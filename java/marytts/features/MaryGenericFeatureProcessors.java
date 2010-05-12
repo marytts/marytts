@@ -595,7 +595,7 @@ public class MaryGenericFeatureProcessors
      * @param val
      *            the value to rail
      * 
-     * @return val clipped to be betweein 0 and 19
+     * @return val clipped to be between 0 and 19
      */
     private static int rail(int val)
     {
@@ -662,33 +662,34 @@ public class MaryGenericFeatureProcessors
      *
      */
     
-    public static class SentenceStyle implements ByteValuedFeatureProcessor
+    public static class Style implements ByteValuedFeatureProcessor
     {
         protected ByteStringTranslator values;
         protected TargetElementNavigator navigator;
+        protected final String styleTagName = "style";
         /**
-         * Initialise a SentenceStyle feature processor.
+         * Initialize a speaking Style feature processor.
          */
-        public SentenceStyle()
+        public Style()
         {
             this.values = new ByteStringTranslator(new String[] {
                     "0", "neutral", "poker", "happy", "sad", "angry", "excited"
             });
             this.navigator = new SegmentNavigator();
         }
-        public String getName() { return "style"; }
+        public String getName() { return styleTagName; }
         public String[] getValues() { return values.getStringValues(); }
         public byte process(Target target)
         {
             String style = null;
             Element segment = target.getMaryxmlElement();
             if (segment != null) {
-                Element prosody = (Element) MaryDomUtils.getAncestor(segment, MaryXML.PROSODY);
+                Element prosody = (Element) MaryDomUtils.getClosestAncestorWithAttribute(segment, MaryXML.PROSODY, styleTagName);
                 if (prosody != null) {
-                    style = prosody.getAttribute("style");
+                    style = prosody.getAttribute(styleTagName);
                 }
             }
-            if(style == null || style.equals("")) style = "0";
+            if (style == null || style.equals("")) style = "0";
             return values.get(style);
         }
     }
@@ -2494,9 +2495,75 @@ public class MaryGenericFeatureProcessors
             return phoneDuration;
         }
     }
+    
+    /**
+     * Returns the voice quality of the given segment.
+     */
+    public static class UnitVoiceQuality implements ContinuousFeatureProcessor
+    {
+        public String getName() { return "unit_vq_oqg"; }
 
+        public float process(Target target)
+        {
+            if (target instanceof DiphoneTarget) {
+                DiphoneTarget diphone = (DiphoneTarget) target;
+                return process(diphone.left) + process(diphone.right);
+            }
+            Element seg = target.getMaryxmlElement();
+            if (seg == null) {
+                return 0;
+            }
+            float phoneVQ = 0;
+            String sVQ;
+            if (seg.getTagName().equals(MaryXML.PHONE)) sVQ = seg.getAttribute("vq");
+            else {
+                assert seg.getTagName().equals(MaryXML.BOUNDARY) : "segment should be a phone or a boundary, but is a "+seg.getTagName();
+                sVQ = seg.getAttribute("vq");
+            }
+            if (sVQ.equals("")) {
+                return 0;
+            }
+            try {
+                phoneVQ = Float.parseFloat(sVQ);
+            } catch (NumberFormatException nfe) {}
+            return phoneVQ;
+        }
+    }
+    
+    /**
+     * Returns the voice quality of the given segment.
+     */
+    public static class BasenameVoiceQuality implements ContinuousFeatureProcessor
+    {
+        public String getName() { return "basename_vq_oqg"; }
 
-
+        public float process(Target target)
+        {
+            if (target instanceof DiphoneTarget) {
+                DiphoneTarget diphone = (DiphoneTarget) target;
+                return process(diphone.left) + process(diphone.right);
+            }
+            Element seg = target.getMaryxmlElement();
+            if (seg == null) {
+                return 0;
+            }
+            float phoneVQ = 0;
+            String sVQ;
+            if (seg.getTagName().equals(MaryXML.PHONE)) sVQ = seg.getAttribute("vq");
+            else {
+                assert seg.getTagName().equals(MaryXML.BOUNDARY) : "segment should be a phone or a boundary, but is a "+seg.getTagName();
+                sVQ = seg.getAttribute("vq");
+            }
+            if (sVQ.equals("")) {
+                return 0;
+            }
+            try {
+                phoneVQ = Float.parseFloat(sVQ);
+            } catch (NumberFormatException nfe) {}
+            return phoneVQ;
+        }
+    }
+    
     /**
      * Calculates the log of the fundamental frequency in the middle of a unit segment.
      * This processor should be used by target items only -- for unit features during voice

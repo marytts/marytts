@@ -441,6 +441,20 @@ public class FeatureDefinition
     }
     
     /**
+     * Get names of continuous features
+     * @return an array of continuous feature name strings 
+     */
+    public String[] getContinuousFeatureNameArray() {
+        String[] continuousFeatureNames = new String[numContinuousFeatures];
+        for (int i = 0; i < numContinuousFeatures; i++) {
+            int continuousFeatureIndex = numByteFeatures + numShortFeatures + i;
+            assert isContinuousFeature(continuousFeatureIndex);
+            continuousFeatureNames[i] = getFeatureName(continuousFeatureIndex);
+        }
+        return continuousFeatureNames;
+    }    
+    
+    /**
      * List all feature names, separated by white space,
      * in their order of definition.
      * @return
