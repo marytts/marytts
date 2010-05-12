@@ -1,5 +1,5 @@
 /**
- * Copyright 2007 DFKI GmbH.
+ * Copyright 2010 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
  *
  * This file is part of MARY TTS.
@@ -34,6 +34,7 @@ import marytts.cart.io.WagonCARTReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.features.ByteValuedFeatureProcessor;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
@@ -56,18 +57,18 @@ import org.w3c.dom.traversal.TreeWalker;
 
 
 /**
- * Predict phone durations using a CART.
+ * Predict voice quality using a CART.
  *
- * @author Marc Schr&ouml;der
+ * @author Ingmar Steiner (based on CartDurationModeller by Marc Schr&ouml;der)
  */
 
-public class CARTDurationModeller extends InternalModule
+public class CARTVQModeller extends InternalModule
 {
     protected DirectedGraph cart = new CART();
     // TODO: use a simple regression tree, with FloatLeafNode, for pausetree:
-    protected StringPredictionTree pausetree;
+    protected StringPredictionTree vqtree;
     protected TargetFeatureComputer featureComputer;
-    protected TargetFeatureComputer pauseFeatureComputer;
+    protected TargetFeatureComputer vqFeatureComputer;
     private String propertyPrefix;
     private FeatureProcessorManager featureProcessorManager;
 
@@ -78,7 +79,7 @@ public class CARTDurationModeller extends InternalModule
      * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.duration"
      * @throws Exception
      */
-    public CARTDurationModeller(String locale, String propertyPrefix)
+    public CARTVQModeller(String locale, String propertyPrefix)
     throws Exception {
         this(MaryUtils.string2locale(locale), propertyPrefix,
                 FeatureRegistry.getFeatureProcessorManager(MaryUtils.string2locale(locale)));
@@ -92,7 +93,7 @@ public class CARTDurationModeller extends InternalModule
      * @param featprocClassInfo a package name for an instance of FeatureProcessorManager, e.g. "marytts.language.en.FeatureProcessorManager"
      * @throws Exception
      */
-    public CARTDurationModeller(String locale, String propertyPrefix, String featprocClassInfo)
+    public CARTVQModeller(String locale, String propertyPrefix, String featprocClassInfo)
     throws Exception
     {
         this(MaryUtils.string2locale(locale), propertyPrefix,
@@ -105,12 +106,12 @@ public class CARTDurationModeller extends InternalModule
      * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.duration"
      * @praam featureProcessorManager the manager to use when looking up feature processors.
      */
-    protected CARTDurationModeller(Locale locale,
+    protected CARTVQModeller(Locale locale,
                String propertyPrefix, FeatureProcessorManager featureProcessorManager)
     {
-        super("CARTDurationModeller",
-                MaryDataType.ALLOPHONES,
-                MaryDataType.VQ, locale);
+        super("CARTVQModeller",
+                MaryDataType.VQ,
+                MaryDataType.DURATIONS, locale);
         if (propertyPrefix.endsWith(".")) this.propertyPrefix = propertyPrefix;
         else this.propertyPrefix = propertyPrefix + ".";
         this.featureProcessorManager = featureProcessorManager;
@@ -128,16 +129,16 @@ public class CARTDurationModeller extends InternalModule
             cart = null;
         }
         
-        String pauseFilename = MaryProperties.getFilename(propertyPrefix+"pausetree");
-        if (pauseFilename != null) {
-            File pauseFile = new File(pauseFilename);
+        String vqFilename = MaryProperties.getFilename(propertyPrefix+"vqtree");
+        if (vqFilename != null) {
+            File vqFile = new File(vqFilename);
 
-            File pauseFdFile = new File(MaryProperties.needFilename(propertyPrefix+"pausefeatures"));
-            FeatureDefinition pauseFeatureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(pauseFdFile)), false);
-            pauseFeatureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, pauseFeatureDefinition.getFeatureNames());
-            pausetree = new StringPredictionTree(new BufferedReader(new FileReader(pauseFile)), pauseFeatureDefinition);
+            File vqFdFile = new File(MaryProperties.needFilename(propertyPrefix+"vqfeatures"));
+            FeatureDefinition vqFeatureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(vqFdFile)), false);
+            vqFeatureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, vqFeatureDefinition.getFeatureNames());
+            vqtree = new StringPredictionTree(new BufferedReader(new FileReader(vqFile)), vqFeatureDefinition);
         } else {
-            this.pausetree = null;
+            this.vqtree = null;
         }
     }
 
@@ -163,17 +164,17 @@ public class CARTDurationModeller extends InternalModule
             DirectedGraph currentCart = cart;
             TargetFeatureComputer currentFeatureComputer = featureComputer;
             if (maryVoice != null) {
-                DirectedGraph voiceCart = maryVoice.getDurationGraph();
+                DirectedGraph voiceCart = maryVoice.getVQGraph();
                 if (voiceCart != null) {
                     currentCart  = voiceCart;
-                    logger.debug("Using voice duration graph");
+                    logger.debug("Using voice VQ graph");
                     FeatureDefinition voiceFeatDef = voiceCart.getFeatureDefinition();
                     currentFeatureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, voiceFeatDef.getFeatureNames());
                 }
             }
             
             if (currentCart == null) {
-                throw new NullPointerException("No cart for predicting duration");
+                throw new NullPointerException("No cart for predicting VQ");
             }
             
             // cumulative duration from beginning of sentence, in seconds:
@@ -186,24 +187,24 @@ public class CARTDurationModeller extends InternalModule
                 String phone = UnitSelector.getPhoneSymbol(segmentOrBoundary);
                 Target t = new Target(phone, segmentOrBoundary);
                 t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
-                float durInSeconds;
-                if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) { // a pause
-                    durInSeconds = enterPauseDuration(segmentOrBoundary, previous, pausetree, pauseFeatureComputer);
-                } else {
-                    float[] dur = (float[])currentCart.interpret(t);
-                    assert dur != null : "Null duration";
-                    assert dur.length == 2 : "Unexpected duration length: "+dur.length;
-                    durInSeconds = dur[1];
-                    float stddevInSeconds = dur[0];
-                }
-                end += durInSeconds;
-                int durInMillis = (int) (1000 * durInSeconds);
-                if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) {
-                    segmentOrBoundary.setAttribute("duration", String.valueOf(durInMillis));
-                } else { // phone
-                    segmentOrBoundary.setAttribute("d", String.valueOf(durInMillis));
-                    segmentOrBoundary.setAttribute("end", String.valueOf(end));
-                }
+                ByteValuedFeatureProcessor[] fnord = currentFeatureComputer.getByteValuedFeatureProcessors();
+                float vq_OQG;
+//                if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) { // a pause
+//                    vq_OQG = enterPauseDuration(segmentOrBoundary, previous, vqtree, vqFeatureComputer);
+//                } else {
+                    float[] vq = (float[])currentCart.interpret(t);
+                    assert vq != null : "Null VQ";
+                    assert vq.length == 2 : "Unexpected VQ length: "+vq.length;
+                    vq_OQG = vq[1];
+                    float stddevInSeconds = vq[0];
+//                }
+//                end += vq_OQG;
+//                int durInMillis = (int) (1000 * vq_OQG);
+//                if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) {
+//                    segmentOrBoundary.setAttribute("duration", String.valueOf(durInMillis));
+//                } else { // phone
+                    segmentOrBoundary.setAttribute("vq", String.valueOf(vq_OQG));
+//                }
                 previous = segmentOrBoundary;
             }
         }
