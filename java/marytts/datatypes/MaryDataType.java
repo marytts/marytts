@@ -79,6 +79,7 @@ public class MaryDataType
     public static final MaryDataType TARGETFEATURES           = new MaryDataType("TARGETFEATURES", false, true, PLAIN_TEXT);
     public static final MaryDataType TEXT                     = new MaryDataType("TEXT", true, false, PLAIN_TEXT);
     public static final MaryDataType TOKENS                   = new MaryDataType("TOKENS", true, true, MARYXML, MaryXML.MARYXML);
+    public static final MaryDataType VQ                       = new MaryDataType("VQ", true, true, MARYXML, MaryXML.MARYXML);
     public static final MaryDataType WORDS                    = new MaryDataType("WORDS", true, true, MARYXML, MaryXML.MARYXML);
     
     // until we have moved the feature processors to XML:
