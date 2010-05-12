@@ -151,6 +151,7 @@ public class Voice
     protected DirectedGraph durationGraph;
     protected DirectedGraph f0Graph;
     protected FeatureFileReader f0ContourFeatures;
+    protected DirectedGraph vqGraph;
     
     public Voice(String[] nameArray, Locale locale, 
                  AudioFormat dbAudioFormat,
@@ -349,6 +350,11 @@ public class Voice
     public FeatureFileReader getF0ContourFeatures()
     {
         return f0ContourFeatures;
+    }
+
+    public DirectedGraph getVQGraph()
+    {
+        return vqGraph;
     }
 
     ////////// static stuff //////////
