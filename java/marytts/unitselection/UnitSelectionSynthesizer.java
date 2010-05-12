@@ -20,16 +20,19 @@
 package marytts.unitselection;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -38,17 +41,24 @@ import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.SynthesisException;
+import marytts.features.FeatureDefinition;
+import marytts.features.FeatureVector;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
 import marytts.modules.synthesis.Voice.Gender;
 import marytts.server.MaryProperties;
 import marytts.unitselection.concat.UnitConcatenator;
 import marytts.unitselection.concat.BaseUnitConcatenator.UnitData;
+import marytts.unitselection.data.DiphoneUnit;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitDatabase;
+import marytts.unitselection.select.FFRTargetCostFunction;
 import marytts.unitselection.select.HalfPhoneTarget;
+import marytts.unitselection.select.JoinCostFeatures;
+import marytts.unitselection.select.JoinCostFunction;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.unitselection.select.Target;
+import marytts.unitselection.select.TargetCostFunction;
 import marytts.unitselection.select.UnitSelector;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryNormalisedWriter;
@@ -56,53 +66,48 @@ import marytts.util.dom.NameNodeFilter;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.hamcrest.core.IsInstanceOf;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.TreeWalker;
 
-
-
 /**
  * Builds and synthesizes unit selection voices
  * 
  * @author Marc Schr&ouml;der, Anna Hunecke
- *
+ * 
  */
 
-public class UnitSelectionSynthesizer implements WaveformSynthesizer
-{
+public class UnitSelectionSynthesizer implements WaveformSynthesizer {
     /**
-     * A map with Voice objects as keys, and Lists of UtteranceProcessors as values.
-     * Idea: For a given voice, find the list of utterance processors to apply. 
+     * A map with Voice objects as keys, and Lists of UtteranceProcessors as values. Idea: For a given voice, find the list of
+     * utterance processors to apply.
      */
     private Logger logger;
 
-    public UnitSelectionSynthesizer() {}
-    
-    
-    /** 
-     * Start up the waveform synthesizer. This must be called once before
-     * calling synthesize(). 
+    public UnitSelectionSynthesizer() {
+    }
+
+    /**
+     * Start up the waveform synthesizer. This must be called once before calling synthesize().
      */
-    public void startup() throws Exception
-    {
+    public void startup() throws Exception {
         logger = Logger.getLogger("UnitSelectionSynthesizer");
         // Register UnitSelection voices:
         logger.debug("Register UnitSelection voices:");
         String voiceNames = MaryProperties.getProperty("unitselection.voices.list");
         if (voiceNames != null) { // voices present
-            for (StringTokenizer st = new StringTokenizer(voiceNames); st.hasMoreTokens(); ) {
+            for (StringTokenizer st = new StringTokenizer(voiceNames); st.hasMoreTokens();) {
                 String voiceName = st.nextToken();
-                //take the time
+                // take the time
                 long time = System.currentTimeMillis();
-                
-                Locale locale = MaryUtils.string2locale(MaryProperties.needProperty("voice."+voiceName+".locale"));
-                int samplingRate = MaryProperties.getInteger("voice."+voiceName+".samplingRate", 16000);
-                
-                Gender gender = new Gender(MaryProperties.needProperty("voice."+voiceName+".gender"));
-                AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                        samplingRate, // samples per second
+
+                Locale locale = MaryUtils.string2locale(MaryProperties.needProperty("voice." + voiceName + ".locale"));
+                int samplingRate = MaryProperties.getInteger("voice." + voiceName + ".samplingRate", 16000);
+
+                Gender gender = new Gender(MaryProperties.needProperty("voice." + voiceName + ".gender"));
+                AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, samplingRate, // samples per second
                         16, // bits per sample
                         1, // mono
                         2, // nr. of bytes per frame
@@ -110,20 +115,21 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
                         false);
                 Voice unitSelVoice = new UnitSelectionVoice(voiceName, locale, format, this, gender);
                 logger.debug("Voice '" + unitSelVoice + "'");
-                Voice.registerVoice(unitSelVoice);    
-                long newtime = System.currentTimeMillis()-time;
-                logger.info("Loading of voice "+voiceName+" took "+newtime+" milliseconds");
-            } 
+                Voice.registerVoice(unitSelVoice);
+                long newtime = System.currentTimeMillis() - time;
+                logger.info("Loading of voice " + voiceName + " took " + newtime + " milliseconds");
+            }
         }
         logger.info("started.");
     }
 
     /**
-      * Perform a power-on self test by processing some example input data.
-      * @throws Error if the module does not work properly.
-      */
-     public void powerOnSelfTest() throws Error
-     {
+     * Perform a power-on self test by processing some example input data.
+     * 
+     * @throws Error
+     *             if the module does not work properly.
+     */
+    public void powerOnSelfTest() throws Error {
         try {
             Collection myVoices = Voice.getAvailableVoices(this);
             if (myVoices.size() == 0) {
@@ -133,22 +139,22 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
             assert unitSelVoice != null;
             MaryData in = new MaryData(MaryDataType.get("ACOUSTPARAMS"), unitSelVoice.getLocale());
             if (!unitSelVoice.getDomain().equals("general")) {
-                logger.info("Cannot perform power-on self test using limited-domain voice '" + unitSelVoice.getName() + "' - skipping.");
+                logger.info("Cannot perform power-on self test using limited-domain voice '" + unitSelVoice.getName()
+                        + "' - skipping.");
                 return;
             }
             String exampleText = MaryDataType.ACOUSTPARAMS.exampleText(unitSelVoice.getLocale());
             if (exampleText != null) {
                 in.readFrom(new StringReader(exampleText));
                 in.setDefaultVoice(unitSelVoice);
-                if (in == null){
-                    System.out.println(exampleText+" is null");}
+                if (in == null) {
+                    System.out.println(exampleText + " is null");
+                }
                 List<Element> tokensAndBoundaries = new ArrayList<Element>();
-                TreeWalker tw = ((DocumentTraversal)in.getDocument()).createTreeWalker(
-                        in.getDocument(), NodeFilter.SHOW_ELEMENT,
-                        new NameNodeFilter(new String[] {MaryXML.TOKEN, MaryXML.BOUNDARY}),
-                        false);
+                TreeWalker tw = ((DocumentTraversal) in.getDocument()).createTreeWalker(in.getDocument(),
+                        NodeFilter.SHOW_ELEMENT, new NameNodeFilter(new String[] { MaryXML.TOKEN, MaryXML.BOUNDARY }), false);
                 Element el = null;
-                while ((el = (Element)tw.nextNode()) != null)
+                while ((el = (Element) tw.nextNode()) != null)
                     tokensAndBoundaries.add(el);
                 AudioInputStream ais = synthesize(tokensAndBoundaries, unitSelVoice);
                 assert ais != null;
@@ -163,18 +169,16 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
     }
 
     /**
-     * Synthesize a given part of a MaryXML document. This method is expected
-     * to be thread-safe.
-     * @param tokensAndBoundaries the part of the MaryXML document to
-     * synthesize; a list containing a number of adjacent <t> and <boundary>
-     * elements.
+     * Synthesize a given part of a MaryXML document. This method is expected to be thread-safe.
+     * 
+     * @param tokensAndBoundaries
+     *            the part of the MaryXML document to synthesize; a list containing a number of adjacent <t> and <boundary>
+     *            elements.
      * @return an AudioInputStream in synthesizer-native audio format.
-     * @throws IllegalArgumentException if the voice requested for this section
-     * is incompatible with this WaveformSynthesizer.
+     * @throws IllegalArgumentException
+     *             if the voice requested for this section is incompatible with this WaveformSynthesizer.
      */
-    public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice)
-        throws SynthesisException
-    {
+    public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice) throws SynthesisException {
         assert voice instanceof UnitSelectionVoice;
         UnitSelectionVoice v = (UnitSelectionVoice) voice;
         UnitDatabase udb = v.getDatabase();
@@ -183,34 +187,45 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
         UnitConcatenator unitConcatenator = v.getConcatenator();
         // TODO: check if we actually need to access v.getDatabase() here
         UnitDatabase database = v.getDatabase();
-        logger.debug("Selecting units with a "+unitSel.getClass().getName()+" from a "+database.getClass().getName());
+        logger.debug("Selecting units with a " + unitSel.getClass().getName() + " from a " + database.getClass().getName());
         List<SelectedUnit> selectedUnits = unitSel.selectUnits(tokensAndBoundaries, voice);
-        //if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
-          //  StringWriter sw = new StringWriter();
-           // PrintWriter pw = new PrintWriter(sw);
-            //for (Iterator selIt=selectedUnits.iterator(); selIt.hasNext(); )
-              //  pw.println(selIt.next());
-            //logger.debug("Units selected:\n"+sw.toString());
-        //}
-        
+        // if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+        // StringWriter sw = new StringWriter();
+        // PrintWriter pw = new PrintWriter(sw);
+        // for (Iterator selIt=selectedUnits.iterator(); selIt.hasNext(); )
+        // pw.println(selIt.next());
+        // logger.debug("Units selected:\n"+sw.toString());
+        // }
+
         // Concatenate:
-        logger.debug("Now creating audio with a "+unitConcatenator.getClass().getName());
+        logger.debug("Now creating audio with a " + unitConcatenator.getClass().getName());
         AudioInputStream audio = null;
         try {
             audio = unitConcatenator.getAudio(selectedUnits);
         } catch (IOException ioe) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
-            for (Iterator selIt=selectedUnits.iterator(); selIt.hasNext(); )
+            for (Iterator selIt = selectedUnits.iterator(); selIt.hasNext();)
                 pw.println(selIt.next());
-            throw new SynthesisException("Problems generating audio for unit chain: "+sw.toString(), ioe);
+            throw new SynthesisException("Problems generating audio for unit chain: " + sw.toString(), ioe);
         }
-        
+
         // Propagate unit durations to XML tree:
         float endInSeconds = 0;
         float durLeftHalfInSeconds = 0;
         String unitString = "";
         String unitAttrName = "units"; // name of the attribute that is added for unit selection diagnostics
+        TargetCostFunction tcf = database.getTargetCostFunction();
+        JoinCostFunction jcf = database.getJoinCostFunction();
+
+//        // dump debug stats:
+//        try {
+//            dumpDebugStats(selectedUnits, tcf, jcf);
+//        } catch (IOException e1) {
+//            // TODO Auto-generated catch block
+//            e1.printStackTrace();
+//        }
+
         for (SelectedUnit su : selectedUnits) {
             Target t = su.getTarget();
             boolean halfphone = (t instanceof HalfPhoneTarget);
@@ -218,7 +233,11 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
             assert concatenationData instanceof UnitData;
             UnitData unitData = (UnitData) concatenationData;
             Unit unit = su.getUnit();
-            
+            //double cost = tcf.cost(t, unit);
+            if (unit.index == 14942) {
+                int foo = 0;
+            }
+
             // For the unit durations, keep record in floats because of precision;
             // convert to millis only at export time, and re-compute duration in millis
             // from the end in millis, to avoid discrepancies due to rounding
@@ -230,7 +249,7 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
             int unitDurationInMillis = endInMillis - prevEndInMillis;
             unitString = t.getName() + " " + udb.getFilename(unit) + " " + unit.index + " " + unitDurationInSeconds;
             if (halfphone) {
-                if (((HalfPhoneTarget)t).isLeftHalf()) {
+                if (((HalfPhoneTarget) t).isLeftHalf()) {
                     durLeftHalfInSeconds = unitDurationInSeconds;
                 } else { // right half
                     // re-compute unit duration from both halves
@@ -241,26 +260,26 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
                     durLeftHalfInSeconds = 0;
                 }
             }
-            
+
             Element maryxmlElement = t.getMaryxmlElement();
             if (maryxmlElement != null) {
                 if (maryxmlElement.getNodeName().equals(MaryXML.PHONE)) {
                     if (!maryxmlElement.hasAttribute("d") || !maryxmlElement.hasAttribute("end")) {
                         throw new IllegalStateException("No duration information in MaryXML -- check log file"
-                                +" to see if you are using DummyAllophones2Acoustparams"
-                                +" instead of voice-specific acoustic feature predictors");
+                                + " to see if you are using DummyAllophones2Acoustparams"
+                                + " instead of voice-specific acoustic feature predictors");
                     }
-                    //int oldD = Integer.parseInt(maryxmlElement.getAttribute("d"));
-                    //int oldEnd = Integer.parseInt(maryxmlElement.getAttribute("end"));
-                    //double doubleEnd = Double.parseDouble(maryxmlElement.getAttribute("end"));
-                    //int oldEnd = (int)(doubleEnd * 1000);
+                    // int oldD = Integer.parseInt(maryxmlElement.getAttribute("d"));
+                    // int oldEnd = Integer.parseInt(maryxmlElement.getAttribute("end"));
+                    // double doubleEnd = Double.parseDouble(maryxmlElement.getAttribute("end"));
+                    // int oldEnd = (int)(doubleEnd * 1000);
                     maryxmlElement.setAttribute("d", String.valueOf(unitDurationInMillis));
                     maryxmlElement.setAttribute("end", String.valueOf(endInSeconds));
                     // the following messes up all end values!
-                    //if (oldEnd == oldD) {
-                    //    // start new end computation
-                    //    endInSeconds = unitDurationInSeconds;
-                    //}
+                    // if (oldEnd == oldD) {
+                    // // start new end computation
+                    // endInSeconds = unitDurationInSeconds;
+                    // }
                 } else { // not a PHONE
                     assert maryxmlElement.getNodeName().equals(MaryXML.BOUNDARY);
                     maryxmlElement.setAttribute("duration", String.valueOf(unitDurationInMillis));
@@ -271,8 +290,9 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
                 } else {
                     maryxmlElement.setAttribute(unitAttrName, unitString);
                 }
-           } else {
-                logger.debug("Unit "+su.getTarget().getName()+" of length "+unitDurationInMillis+" ms has no maryxml element.");
+            } else {
+                logger.debug("Unit " + su.getTarget().getName() + " of length " + unitDurationInMillis
+                        + " ms has no maryxml element.");
             }
         }
         if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
@@ -280,15 +300,13 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
                 MaryNormalisedWriter writer = new MaryNormalisedWriter();
                 ByteArrayOutputStream debugOut = new ByteArrayOutputStream();
                 writer.output(tokensAndBoundaries.get(0).getOwnerDocument(), debugOut);
-                logger.debug("Propagating the realised unit durations to the XML tree: \n"+debugOut.toString());
+                logger.debug("Propagating the realised unit durations to the XML tree: \n" + debugOut.toString());
             } catch (Exception e) {
-                logger.warn("Problem writing XML to logfile: "+e);
+                logger.warn("Problem writing XML to logfile: " + e);
             }
         }
 
-        
         return audio;
     }
-    
-}
 
+}
