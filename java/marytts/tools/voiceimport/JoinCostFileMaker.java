@@ -124,7 +124,7 @@ public class JoinCostFileMaker extends VoiceImportComponent {
         System.out.print("---- Making the join cost file\n");
         
         /* Export the basename list into an array of strings */
-        String[] baseNameArray = bnl.getListAsArray();
+        String[] baseNameArray = basenameList.getListAsArray();
         
         /* Read the number of mel cepstra from the first melcep file */
         ESTTrackReader firstMcepFile = new ESTTrackReader(getProp(MCEPDIR) 

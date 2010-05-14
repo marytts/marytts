@@ -41,6 +41,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Vector;
 
 /**
@@ -50,13 +51,17 @@ import java.util.Vector;
  * @author sacha
  *
  */
-public class BasenameList 
+public class BasenameList implements Iterable<String>
 { 
     private Vector bList = null;
     private String fromDir = null;
     private String fromExt = null;
     private boolean hasChanged;
     private static final int DEFAULT_INCREMENT = 128;
+    
+    public Iterator<String> iterator() {
+        return bList.iterator();
+    }
     
     /****************/
     /* CONSTRUCTORS */
@@ -177,19 +182,21 @@ public class BasenameList
         BufferedReader bfr = new BufferedReader( new InputStreamReader( new FileInputStream( fileName ), "UTF-8" ) );
         /* Make the vector */
         if ( bList == null ) bList = new Vector( DEFAULT_INCREMENT, DEFAULT_INCREMENT );
-        /* Check if the first line contains the origin information (directory+ext) */
-        String line = bfr.readLine();
-        if ( line.indexOf("FROM: ") != -1 ) {
-            line = line.substring( 6 );
-            String[] parts = new String[2];
-            parts = line.split( "\\*", 2 );
-            fromDir = parts[0];
-            fromExt = parts[1];
-        }
-        else if ( !(line.matches("^\\s*$")) ) add( line );
-        /* Add the lines to the vector, ignoring the blank ones. */
-        while ( (line = bfr.readLine()) != null ) {
-            if ( !(line.matches("^\\s*$")) ) add( line );
+        String line;
+        while ((line = bfr.readLine()) != null) {
+            line = line.trim();
+            if (fromDir == null || fromExt == null) {
+                if (line.startsWith("FROM:")) {
+                    String[] parts = line.split("\\s+", 2); // split at first whitespace
+                    String[] pathAndExt = parts[1].split("\\*", 2); // discard the first field and split into path and extension
+                    fromDir = pathAndExt[0];
+                    fromExt = pathAndExt[1];
+                    continue;
+                }
+            }
+            if (!line.startsWith("#")) {
+                add(line);
+            }
         }
     }
     

@@ -379,12 +379,12 @@ public class HTKLabeler extends VoiceImportComponent {
             // Create an input file to HTK for Feature Extraction
             file = new File(getProp(HTDIR)+File.separator+"etc"+File.separator+"featEx.list");
             pw = new PrintWriter(new FileWriter(file));
-            for (int i=0; i<bnl.getLength(); i++) {
+            for (int i=0; i<basenameList.getLength(); i++) {
                 //System.out.println( "    " + bnl.getName(i) );
                 String input = db.getProp(db.ROOTDIR)+File.separator
-                            +db.getProp(db.WAVDIR)+File.separator+bnl.getName(i)
+                            +db.getProp(db.WAVDIR)+File.separator+basenameList.getName(i)
                             +db.getProp(db.WAVEXT);
-                String output = getProp(HTDIR)+File.separator+"feat"+File.separator+bnl.getName(i)+".mfcc";
+                String output = getProp(HTDIR)+File.separator+"feat"+File.separator+basenameList.getName(i)+".mfcc";
                 pw.println(input+" "+output);
             }
             pw.flush();
@@ -393,9 +393,9 @@ public class HTKLabeler extends VoiceImportComponent {
             // creating list of training files
             file = new File(getProp(HTDIR)+File.separator+"etc"+File.separator+"htkTrain.list");
             pw = new PrintWriter(new FileWriter(file));
-            for (int i=0; i<bnl.getLength(); i++) {
+            for (int i=0; i<basenameList.getLength(); i++) {
                 //System.out.println( "    " + bnl.getName(i) );
-                String mFile = getProp(HTDIR)+File.separator+"feat"+File.separator+bnl.getName(i)+".mfcc";
+                String mFile = getProp(HTDIR)+File.separator+"feat"+File.separator+basenameList.getName(i)+".mfcc";
                 pw.println(mFile);
             }
             pw.flush();
@@ -968,13 +968,13 @@ public class HTKLabeler extends VoiceImportComponent {
             String phoneSeq; 
             transLabelOut.println("#!MLF!#");
             transLabelOut1.println("#!MLF!#");
-            for (int i=0; i<bnl.getLength(); i++) {
-                transLabelOut.println("\"*/"+bnl.getName(i)+labExt+"\"");
-                transLabelOut1.println("\"*/"+bnl.getName(i)+labExt+"\"");
+            for (int i=0; i<basenameList.getLength(); i++) {
+                transLabelOut.println("\"*/"+basenameList.getName(i)+labExt+"\"");
+                transLabelOut1.println("\"*/"+basenameList.getName(i)+labExt+"\"");
                 //phoneSeq = getSingleLine(bnl.getName(i));
-                phoneSeq = getLineFromXML(bnl.getName(i), false);
+                phoneSeq = getLineFromXML(basenameList.getName(i), false);
                 transLabelOut.println(phoneSeq.trim());
-                phoneSeq = getLineFromXML(bnl.getName(i), true);
+                phoneSeq = getLineFromXML(basenameList.getName(i), true);
                 transLabelOut1.println(phoneSeq.trim());
 
                 //System.out.println( "    " + bnl.getName(i) );
@@ -1212,9 +1212,9 @@ public class HTKLabeler extends VoiceImportComponent {
                
            }
            
-           for (int i=0; i<bnl.getLength(); i++) {
+           for (int i=0; i<basenameList.getLength(); i++) {
                
-               convertSingleLabelFile(bnl.getName(i));               
+               convertSingleLabelFile(basenameList.getName(i));               
                //System.out.println( "    " + bnl.getName(i) );
                
            }

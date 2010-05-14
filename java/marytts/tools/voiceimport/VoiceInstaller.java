@@ -53,6 +53,8 @@ public class VoiceInstaller extends VoiceImportComponent{
     public final String F0LEFTTREE = name+".f0LeftTree";
     public final String F0MIDTREE = name+".f0MidTree";
     public final String F0RIGHTTREE = name+".f0RightTree";
+    public final String BASENAMEVQOQGTREE = name+".basenameVQOQGTree";
+    public final String UNITVQOQGTREE = name+".unitVQOQGTree";
     public final String HALFPHONEFEATSAC = name+".halfPhoneFeatsAc";
     public final String HALFPHONEFEATDEFAC = name+".halfPhoneFeatDefAc";
     public final String HALFPHONEUNITS = name+".halfPhoneUnits";
@@ -87,6 +89,8 @@ public class VoiceInstaller extends VoiceImportComponent{
             props.put(F0LEFTTREE, "f0.left.tree");
             props.put(F0MIDTREE, "f0.mid.tree");
             props.put(F0RIGHTTREE, "f0.right.tree");
+            props.put(BASENAMEVQOQGTREE, "basename_vq_oqg.tree");
+            props.put(UNITVQOQGTREE, "unit_vq_oqg.tree");
             props.put(HALFPHONEFEATSAC, "halfphoneFeatures_ac"+maryext);
             props.put(HALFPHONEFEATDEFAC, "halfphoneUnitFeatureDefinition_ac.txt");
             props.put(HALFPHONEUNITS, "halfphoneUnits"+maryext);
@@ -111,6 +115,8 @@ public class VoiceInstaller extends VoiceImportComponent{
         props2Help.put(F0LEFTTREE, "file containing the left f0 CART");
         props2Help.put(F0MIDTREE, "file containing the mid f0 CART");
         props2Help.put(F0RIGHTTREE, "file containing the right f0 CART");
+        props2Help.put(BASENAMEVQOQGTREE, "file containing the CART for basename mean OQG VQ");
+        props2Help.put(UNITVQOQGTREE, "file containing the CART for unit mean OQG VQ");
         props2Help.put(HALFPHONEFEATSAC, "file containing all halfphone units and their target cost features"
 								  +"plus the acoustic target cost features");
         props2Help.put(HALFPHONEFEATDEFAC, "file containing the list of halfphone target cost features, their values and weights");
@@ -168,6 +174,12 @@ public class VoiceInstaller extends VoiceImportComponent{
             copy(in,out);   
             in = new File(filedir+getProp(F0RIGHTTREE));
             out = new File(newVoiceDir+getProp(F0RIGHTTREE));
+            copy(in,out);   
+            in = new File(filedir+getProp(BASENAMEVQOQGTREE));
+            out = new File(newVoiceDir+getProp(BASENAMEVQOQGTREE));
+            copy(in,out);   
+            in = new File(filedir+getProp(UNITVQOQGTREE));
+            out = new File(newVoiceDir+getProp(UNITVQOQGTREE));
             copy(in,out);   
             in = new File(filedir+getProp(HALFPHONEFEATSAC));
             out = new File(newVoiceDir+getProp(HALFPHONEFEATSAC));
@@ -271,7 +283,7 @@ public class VoiceInstaller extends VoiceImportComponent{
             //just take the first three transcript files as example text
             PrintWriter exampleTextOut = new PrintWriter(new FileWriter(exampleTextFile),true);
             for (int i=0;i<3;i++) {
-                String basename = bnl.getName(i);
+                String basename = basenameList.getName(i);
                 BufferedReader transIn = new BufferedReader(new InputStreamReader(
                    new FileInputStream(new File(db.getProp(db.TEXTDIR)+basename+db.getProp(db.TEXTEXT)))));
                 String text = transIn.readLine();
@@ -394,6 +406,8 @@ public class VoiceInstaller extends VoiceImportComponent{
                       voiceHeader+".f0.cart.left = MARY_BASE/lib/voices/"+voicename+"/"+getProp(F0LEFTTREE)+"\n"+
                       voiceHeader+".f0.cart.mid = MARY_BASE/lib/voices/"+voicename+"/"+getProp(F0MIDTREE)+"\n"+
                       voiceHeader+".f0.cart.right = MARY_BASE/lib/voices/"+voicename+"/"+getProp(F0RIGHTTREE)+"\n"+
+                      voiceHeader+".vq.cart.basename = MARY_BASE/lib/voices/"+voicename+"/"+getProp(BASENAMEVQOQGTREE)+"\n"+
+                      voiceHeader+".vq.cart.unit = MARY_BASE/lib/voices/"+voicename+"/"+getProp(UNITVQOQGTREE)+"\n"+
               		  voiceHeader+".f0.featuredefinition = MARY_BASE/lib/voices/"+voicename+"/"+getProp(PHONEFEATDEF)+"\n");
 
               configOut.println();
@@ -402,6 +416,7 @@ public class VoiceInstaller extends VoiceImportComponent{
               configOut.println("# Modules to use for predicting acoustic target features for this voice:\n"+
                       voiceHeader+".preferredModules =  \\\n"+
                       "    marytts.modules.CARTDurationModeller("+locale+","+voiceHeader+".duration.) \\\n"+
+                      "    marytts.modules.CARTVQModeller("+locale+","+voiceHeader+".vq.) \\\n"+
                       "    marytts.modules.CARTF0Modeller("+locale+","+voiceHeader+".f0.)\n");
 
               

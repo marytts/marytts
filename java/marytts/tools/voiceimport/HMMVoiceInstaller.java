@@ -369,7 +369,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
                 new PrintWriter(
                         new FileWriter(exampleTextFile),true);
             for (int i=0;i<3;i++){
-                String basename = bnl.getName(i);
+                String basename = basenameList.getName(i);
                 BufferedReader transIn = 
                     new BufferedReader(
                             new InputStreamReader(

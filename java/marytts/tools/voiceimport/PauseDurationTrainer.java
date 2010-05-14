@@ -140,9 +140,9 @@ public class PauseDurationTrainer extends VoiceImportComponent {
         // then discretized
         List<Integer> durs = new ArrayList<Integer>();
         
-        for (int i=0;i<bnl.getLength();i++){
+        for (int i=0;i<basenameList.getLength();i++){
             
-            VectorsAndDefinition features = this.readFeaturesFor(bnl.getName(i));
+            VectorsAndDefinition features = this.readFeaturesFor(basenameList.getName(i));
             
             if (null == features)
                 continue;
@@ -154,7 +154,7 @@ public class PauseDurationTrainer extends VoiceImportComponent {
                 data = initData(fd);
             
             // reader for label file.
-            BufferedReader lab = new BufferedReader(new FileReader(getProp(LABFILES)+bnl.getName(i)+labExt));
+            BufferedReader lab = new BufferedReader(new FileReader(getProp(LABFILES)+basenameList.getName(i)+labExt));
             
             List<String> labSyms = new ArrayList<String>();
             List<Integer> labDurs = new ArrayList<Integer>();           

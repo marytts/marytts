@@ -163,14 +163,14 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
         String outPutFile = db.getProp(db.ROOTDIR)+File.separator+getProp(ONEWORD)+getProp(PARTBASENAME)+getProp(F0POLYFILE); 
         featurePW = new PrintWriter(new FileWriter(new File(outPutFile)));
         
-        for (int i=0; i<bnl.getLength(); i++) {
-            percent = 100*i/bnl.getLength();
-            displaySentences(bnl.getName(i));
+        for (int i=0; i<basenameList.getLength(); i++) {
+            percent = 100*i/basenameList.getLength();
+            displaySentences(basenameList.getName(i));
             
         }
         featurePW.flush();
         featurePW.close();
-        System.out.println("Total Cost : "+costMeasure / (double) bnl.getLength());
+        System.out.println("Total Cost : "+costMeasure / (double) basenameList.getLength());
         
         
         //String fileName = "/home/sathish/phd/voices/en-GB-listener/vocal-polynomials/SpiVocalizationF0PolyFeatureFile.txt";

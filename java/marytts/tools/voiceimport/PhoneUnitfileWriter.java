@@ -121,16 +121,22 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
         long localNbrSamples = 0l;
         long localNbrSamplesFromPM = 0l;
         ESTTrackReader pmFile = null;
-        for (int i=0; i<bnl.getLength(); i++) {
-            percent = 100*i/bnl.getLength();
+        for (int i=0; i<basenameList.getLength(); i++) {
+            percent = 100*i/basenameList.getLength();
             /* Open the relevant pitchmark file */
             pmFile = new ESTTrackReader(db.getProp(PMDIR)
-                    + bnl.getName(i) + db.getProp(PMEXT));
+                    + basenameList.getName(i) + db.getProp(PMEXT));
             // Output the utterance start marker: "null" unit
             out.writeLong( globalStart ); out.writeInt(-1);
             index++;
             // Open the label file and reset the local time pointer
-            BufferedReader labels = new BufferedReader(new InputStreamReader(new FileInputStream(new File(unitlabelDir, bnl.getName(i) + unitlabelExt)), "UTF-8"));
+            // This barfs if any lab file cannot be found!
+            // alignment is NOT OK (see above!)
+            String bn = basenameList.getName(i) + unitlabelExt;
+            File f = new File(unitlabelDir, bn);
+            FileInputStream fis = new FileInputStream(f);
+            InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
+            BufferedReader labels = new BufferedReader(isr);
             String line;
             localNbrSamples = 0l;
             localStart = 0l;
@@ -168,7 +174,9 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
             globalStart += localNbrSamplesFromPM;
             /* Clean the house */
             labels.close();
-            System.out.println( "    " + bnl.getName(i) + " (" + index + ") (This file has [" + localNbrSamples
+            // TODO the following output is slightly misleading in that it talks (very verbosely) about "rectified" samples even when nothing is changed
+            // should be slimmed down to relevant and correct info...
+            System.out.println( "    " + basenameList.getName(i) + " (" + index + ") (This file has [" + localNbrSamples
                     + "] samples from .lab, rectified to [" + localNbrSamplesFromPM
                     + "] from the pitchmarks, diff [" + (localNbrSamplesFromPM - localNbrSamples) + "], cumul [" + globalStart + "])" );
             if ( (localNbrSamplesFromPM - localNbrSamples) < 0 ) System.out.println( "BORK BORK BORK: .lab file longer than pitchmarks !" );

@@ -42,8 +42,12 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.FeatureFileReader;
+import marytts.unitselection.data.MCepDatagram;
+import marytts.unitselection.data.MCepTimelineReader;
+import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
+import marytts.util.MaryUtils;
 import marytts.util.data.MaryHeader;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
@@ -58,11 +62,17 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
     protected File outFeatureFile;
     protected FeatureDefinition outFeatureDefinition;
     protected UnitFileReader unitFileReader;
+    protected TimelineReader basenameTimelineReader;
+    protected MCepTimelineReader vqTimelineReader;
     protected FeatureFileReader contours;
     protected DatabaseLayout db = null;
     protected int percent = 0;
     
+    protected float basenameMeanVQOQG;
+
     public final String UNITFILE = "AcousticFeatureFileWriter.unitFile";
+    public final String BASENAMETIMELINEFILE = "AcousticFeatureFileWriter.basenameTimelineFile";
+    public final String VQFILE = "AcousticFeatureFileWriter.vqFile";
     public final String CONTOURFILE = "AcousticFeatureFileWriter.contourFile";
     public final String FEATUREFILE = "AcousticFeatureFileWriter.featureFile";
     public final String ACFEATUREFILE = "AcousticFeatureFileWriter.acFeatureFile";  
@@ -82,6 +92,8 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
            String fileDir = theDb.getProp(theDb.FILEDIR);
            String maryExt = theDb.getProp(theDb.MARYEXT);
            props.put(UNITFILE,fileDir+"halfphoneUnits"+maryExt);
+           props.put(BASENAMETIMELINEFILE,fileDir+"timeline_basenames"+maryExt);
+           props.put(VQFILE,fileDir+"timeline_vq"+maryExt);
            props.put(CONTOURFILE,fileDir+"syllableF0Polynomials"+maryExt);
            props.put(FEATUREFILE,fileDir+"halfphoneFeatures"+maryExt);
            props.put(ACFEATUREFILE,fileDir+"halfphoneFeatures_ac"+maryExt);
@@ -95,10 +107,12 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
        if (props2Help ==null) {
            props2Help = new TreeMap<String, String>();
            props2Help.put(UNITFILE,"file containing all halfphone units");
+           props2Help.put(BASENAMETIMELINEFILE,"file containing all units basenames");
+           props2Help.put(VQFILE,"file containing all voice quality parameter data");
            props2Help.put(CONTOURFILE,"file containing the polynomial contours for all syllables, indexed by phone features");
            props2Help.put(FEATUREFILE,"file containing all halfphone units and their target cost features");
            props2Help.put(ACFEATUREFILE,"file containing all halfphone units and their target cost features"
-								 +" plus the acoustic target cost features. Will be created by this module.");
+                                 +" plus the acoustic target cost features. Will be created by this module.");
            props2Help.put(ACFEATDEF,"file containing the list of phone target cost features, their values and weights");
        }
    }
@@ -115,6 +129,9 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
         }
         //System.out.println("A");
         unitFileReader = new UnitFileReader(getProp(UNITFILE));
+        basenameTimelineReader = new TimelineReader(getProp(BASENAMETIMELINEFILE)); 
+        vqTimelineReader = new MCepTimelineReader(getProp(VQFILE));
+            
         //System.out.println("B");
         contours = new FeatureFileReader(getProp(CONTOURFILE));
         //System.out.println("C");
@@ -124,10 +141,13 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         inFeatureDefinition.writeTo(pw, true);
-        // And now, append the two float features for duration and f0:
+        // And now, append the float features:
         pw.println("100 linear | unit_duration");
         pw.println("100 linear | unit_logf0");
         pw.println("0 linear | unit_logf0delta");
+        // this should probably be handled in a way which can be maintained more easily:
+        pw.println("100 linear | unit_vq_oqg"); // Voice quality: Open Quotient Gradient
+        pw.println("100 linear | basename_vq_oqg"); // Voice quality: Open Quotient Gradient
         pw.close();
         String fd = sw.toString();
         System.out.println("Generated the following feature definition:");
@@ -145,7 +165,8 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
 
         //make sure we have a feature definition with acoustic features
         File featWeights = new File(getProp(ACFEATDEF));
-        if (!featWeights.exists()){
+        // featWeights should really be rebuilt from scratch when this component is run!
+        // if (!featWeights.exists()){
             try{
                 PrintWriter featWeightsOut =
                     new PrintWriter(
@@ -159,7 +180,7 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
                         +getProp(ACFEATDEF));
                 return false;
             }
-        }
+        // }
         FeatureFileReader tester = FeatureFileReader.getFeatureFileReader(getProp(ACFEATUREFILE));
         int unitsOnDisk = tester.getNumberOfUnits();
         if (unitsOnDisk == unitFileReader.getNumberOfUnits()) {
@@ -199,55 +220,92 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
         int fiSylEnd = featureDefinition.getFeatureIndex("segs_from_syl_end");
         int iSylVowel = -1;
         List<Float> unitDurs = new ArrayList<Float>();
+        List<Float> unitVQOQGs = new ArrayList<Float>();
         
         out.writeInt( numUnits );
         System.out.println("Number of units : "+numUnits);
         int iCurrent = 0;
+        
+        Datagram prevBasenameDatagram = null;
+        long basenameStart = 0;
+        
         for (int i=0; i<numUnits; i++) {
             percent = 100*i/numUnits;
             FeatureVector inFV = feats.getFeatureVector(i);
             Unit u = unitFileReader.getUnit(i);
             float dur = u.duration / (float) unitSampleRate;
+            
+            // get mean Voice Quality (OQG only for now) for unit:
+            Datagram[] unitVQs = vqTimelineReader.getDatagrams(u.startTime, u.duration);
+            double[] unitOQGs = new double[unitVQs.length];
+            for (int d = 0; d < unitVQs.length; d++) {
+                unitOQGs[d] = ((MCepDatagram) unitVQs[d]).getCoeffsAsDouble()[0]; // OQG
+            }
+            float unitMeanVQOQG = (float) MaryUtils.mean(unitOQGs, true);
+            
+            Datagram basenameDatagram = basenameTimelineReader.getDatagram(u.startTime);
+            if (prevBasenameDatagram == null || basenameDatagram != null && !basenameDatagram.equals(prevBasenameDatagram)) {                
+                long basenameDuration = basenameDatagram.getDuration();
 
+                Datagram[] basenameVQs = vqTimelineReader.getDatagrams(basenameStart, basenameDuration);
+                double[] basenameOQGs = new double[basenameVQs.length];
+                for (int d = 0; d < basenameVQs.length; d++) {
+                    basenameOQGs[d] = ((MCepDatagram) basenameVQs[d]).getCoeffsAsDouble()[0]; // OQG
+                }
+                basenameMeanVQOQG = (float) MaryUtils.mean(basenameOQGs, true);
+                
+                basenameStart += basenameDuration;
+                prevBasenameDatagram = basenameDatagram;
+            }
+            
+            // because wagon cannot handle NaN, provide utt mean as fallback:
+            if (Float.isNaN(unitMeanVQOQG)) {
+                unitMeanVQOQG = basenameMeanVQOQG;
+            }
+            
             // No syllable structure for edge and silence phone entries:
             if (inFV.getByteFeature(fiPhoneme) == fvPhoneme_0
                     || inFV.getByteFeature(fiPhoneme) == fvPhoneme_Silence) {
                 unitDurs.add(dur);
+                unitVQOQGs.add(unitMeanVQOQG);
                 continue;
             }
             // Else, unit belongs to a syllable
             if (inFV.getByteFeature(fiSylStart) == 0 && inFV.getByteFeature(fiLR) == fvLR_L) { // first segment in syllable
                 if (iCurrent < i) { // Something to output before this syllable
                     assert i-iCurrent == unitDurs.size();
-                    writeFeatureVectors(out, iCurrent, iSylVowel, i-1, unitDurs);
+                    writeFeatureVectors(out, iCurrent, iSylVowel, i-1, unitDurs, unitVQOQGs);
                 }
                 unitDurs.clear();
+                unitVQOQGs.clear();
                 iSylVowel = -1;
                 iCurrent = i;
             }
             
             unitDurs.add(dur);
+            unitVQOQGs.add(unitMeanVQOQG);
 
             if (inFV.getByteFeature(fiVowel) == fvVowel && iSylVowel == -1) { // the first vowel in the syllable
                 iSylVowel = i;
             }
             
             if (inFV.getByteFeature(fiSylEnd) == 0 && inFV.getByteFeature(fiLR) == fvLR_R) { // last segment in syllable
-                writeFeatureVectors(out, iCurrent, iSylVowel, i, unitDurs);
+                writeFeatureVectors(out, iCurrent, iSylVowel, i, unitDurs, unitVQOQGs);
                 iSylVowel = -1;
                 unitDurs.clear();
+                unitVQOQGs.clear();
                 iCurrent = i+1;
             }
             
         }
         
         assert numUnits-iCurrent == unitDurs.size();
-        writeFeatureVectors(out, iCurrent, iSylVowel, numUnits-1, unitDurs);
+        writeFeatureVectors(out, iCurrent, iSylVowel, numUnits-1, unitDurs, unitVQOQGs);
     }
 
 
     private void writeFeatureVectors(DataOutput out, int iFirst,
-            int iVowel, int iLast, List<Float> unitDurs)
+            int iVowel, int iLast, List<Float> unitDurs, List<Float> unitVQs)
             throws IOException {
         float[] coeffs = null;
         if (iVowel != -1) { // Syllable contains a vowel 
@@ -289,8 +347,10 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
                 logF0delta = (float) unitCoeffs[0];
                 //System.out.printf(" -- midF0=%.2f, slope=%.2f\n", logF0, logF0delta);
             }
+            
             FeatureVector fv = feats.getFeatureVector(iFirst+i);
-            String line = fv.toString() + " " + unitDurs.get(i) + " " + logF0 + " " + logF0delta;
+            String line = fv.toString() + " " + unitDurs.get(i) + " " + logF0 + " " + logF0delta + " " + unitVQs.get(i) + " " + basenameMeanVQOQG;
+            
             //System.out.println("fv: "+line);
             FeatureVector outFV = outFeatureDefinition.toFeatureVector(0, line);
             outFV.writeTo(out);
@@ -331,4 +391,3 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
 
 
 }
-

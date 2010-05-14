@@ -146,7 +146,7 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
         toScript.close();
 
         
-        String[] baseNameArray = bnl.getListAsArray();
+        String[] baseNameArray = basenameList.getListAsArray();
         // to test String[] baseNameArray = {"curious", "u"};
         System.out.println( "Computing voice quality for " + baseNameArray.length + " utterances." );
 
@@ -623,34 +623,41 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
         int numFormants = 4;
         //String wavFile = "/project/mary/marcela/HMM-voices/arctic_test/wav/curious.wav";
         //String wavFile = "/project/mary/marcela/HMM-voices/arctic_test/wav/a.wav";
-        String whisperFile = "/project/mary/marcela/HMM-voices/arctic_test/vq/whisper.vq";
-        String modalFile = "/project/mary/marcela/HMM-voices/arctic_test/vq/modal.vq";
-        String creakFile = "/project/mary/marcela/HMM-voices/arctic_test/vq/creak.vq";
-        String harshFile = "/project/mary/marcela/HMM-voices/arctic_test/vq/harsh.vq";
-                
+//        String whisperFile = "/project/mary/marcela/HMM-voices/arctic_test/vq/whisper.vq";
+//        String modalFile = "/project/mary/marcela/HMM-voices/arctic_test/vq/modal.vq";
+//        String creakFile = "/project/mary/marcela/HMM-voices/arctic_test/vq/creak.vq";
+//        String harshFile = "/project/mary/marcela/HMM-voices/arctic_test/vq/harsh.vq";
+//        String fnordFile = "/Users/steiner/projects/dfki-pavoque-all/vq/ne_a0001.vq";
+        String fnordFile = args[0];
+        System.out.println(fnordFile);
         VoiceQuality vq1 = new VoiceQuality(); 
-        System.out.println("Reading: " + whisperFile);
-        vq1.readVqFile(whisperFile); 
+        System.out.println("Reading: " + fnordFile);
+        vq1.readVqFile(fnordFile); 
         vq1.printPar();
-        vq1.printMeanStd();
-
-        VoiceQuality vq2 = new VoiceQuality();        
-        System.out.println("Reading: " + modalFile);
-        vq2.readVqFile(modalFile);  
-        vq2.printPar();
-        vq2.printMeanStd();
         
-        VoiceQuality vq3 = new VoiceQuality();
-        System.out.println("Reading: " + creakFile);
-        vq3.readVqFile(creakFile);  
-        vq3.printPar();
-        vq3.printMeanStd();
-        
-        VoiceQuality vq4 = new VoiceQuality();
-        System.out.println("Reading: " + harshFile);
-        vq4.readVqFile(harshFile);  
-        vq3.printPar();
-        vq4.printMeanStd();
+//        VoiceQuality vq1 = new VoiceQuality(); 
+//        System.out.println("Reading: " + whisperFile);
+//        vq1.readVqFile(whisperFile); 
+//        vq1.printPar();
+//        vq1.printMeanStd();
+//
+//        VoiceQuality vq2 = new VoiceQuality();        
+//        System.out.println("Reading: " + modalFile);
+//        vq2.readVqFile(modalFile);  
+//        vq2.printPar();
+//        vq2.printMeanStd();
+//        
+//        VoiceQuality vq3 = new VoiceQuality();
+//        System.out.println("Reading: " + creakFile);
+//        vq3.readVqFile(creakFile);  
+//        vq3.printPar();
+//        vq3.printMeanStd();
+//        
+//        VoiceQuality vq4 = new VoiceQuality();
+//        System.out.println("Reading: " + harshFile);
+//        vq4.readVqFile(harshFile);  
+//        vq3.printPar();
+//        vq4.printMeanStd();
         
     }    
     

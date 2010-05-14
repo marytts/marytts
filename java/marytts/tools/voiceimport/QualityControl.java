@@ -145,7 +145,7 @@ public class QualityControl extends VoiceImportComponent {
         String wavDir    =  db.getProp(db.WAVDIR);
         String voiceName =  db.getProp(db.VOICENAME);
         progress = 0;
-        int bnlLengthIn = bnl.getLength();
+        int bnlLengthIn = basenameList.getLength();
         System.out.println( "Searching for Suspicious Alignments (Labels) in "+ bnlLengthIn + " utterances...." );
         Map fricativeHash = createHashMaps();
         if(getProp(MHFREQEGY).equals("true")){
@@ -158,9 +158,9 @@ public class QualityControl extends VoiceImportComponent {
         allProblems = new TreeMap();
         priorityProblems = new TreeMap();
         
-        for (int i=0; i<bnl.getLength(); i++) {
-            progress = 50 + (50*i/bnl.getLength());
-            findSuspiciousAlignments(bnl.getName(i));
+        for (int i=0; i<basenameList.getLength(); i++) {
+            progress = 50 + (50*i/basenameList.getLength());
+            findSuspiciousAlignments(basenameList.getName(i));
         }
         writeProblemstoFile();
         writePrioritytoFile();
@@ -321,10 +321,10 @@ public class QualityControl extends VoiceImportComponent {
         Map fricativeHash = new HashMap();
         silenceEnergyList = new  ArrayList();
         
-        for (int baseCnt=0; baseCnt<bnl.getLength(); baseCnt++) {
+        for (int baseCnt=0; baseCnt<basenameList.getLength(); baseCnt++) {
           
-          progress = (50*baseCnt/bnl.getLength());
-          String baseName = bnl.getName(baseCnt);
+          progress = (50*baseCnt/basenameList.getLength());
+          String baseName = basenameList.getName(baseCnt);
           BufferedReader labels;
           BufferedReader features; 
           String wavDir    =  db.getProp(db.WAVDIR);
@@ -527,8 +527,8 @@ private double getSilenceThreshold(){
         
         outFileWriter = new PrintWriter(new FileWriter(new File(getProp(OUTFILE))));
         
-        for (int i=0; i<bnl.getLength(); i++) {
-           String baseName = bnl.getName(i);
+        for (int i=0; i<basenameList.getLength(); i++) {
+           String baseName = basenameList.getName(i);
            if(allProblems.containsKey(baseName)){
                //outFileWriter.println(baseName);
                ArrayList arrList = (ArrayList) allProblems.get(baseName);

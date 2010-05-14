@@ -81,7 +81,7 @@ public class Festvox2MaryTranscripts extends VoiceImportComponent
             StringTokenizer st = new StringTokenizer(line);
             String basename = st.nextToken();
             /* If the basename list asks to process this file, then write the text file */
-            if ( bnl.contains( basename ) ) {
+            if ( basenameList.contains( basename ) ) {
                 checkList.add( basename );
                 PrintWriter out = 
                     new PrintWriter( 
@@ -96,7 +96,7 @@ public class Festvox2MaryTranscripts extends VoiceImportComponent
             
         }
         /* Check if all the basenames requested in the basename list were present in the text file */
-        BasenameList diffList = bnl.duplicate();
+        BasenameList diffList = basenameList.duplicate();
         diffList.remove( checkList );
         if ( diffList.getLength() != 0 ) {
             System.out.println( "WARNING: the following utterances have not been found in the file [" 
@@ -105,7 +105,7 @@ public class Festvox2MaryTranscripts extends VoiceImportComponent
                 System.out.println( diffList.getName(i) );
             }
             System.out.println( "They will be removed from the base utterance list." );
-            bnl.remove( diffList );
+            basenameList.remove( diffList );
             return( false );
         }
         else return (true );

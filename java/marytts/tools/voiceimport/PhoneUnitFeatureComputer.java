@@ -183,11 +183,11 @@ public class PhoneUnitFeatureComputer extends VoiceImportComponent
         loadFeatureList();
         
         textDir = new File(db.getProp(db.TEXTDIR));
-        System.out.println( "Computing unit features for " + bnl.getLength() + " files" );
-        for (int i=0; i<bnl.getLength(); i++) {
-            percent = 100*i/bnl.getLength();
-            computeFeaturesFor( bnl.getName(i) );
-            System.out.println( "    " + bnl.getName(i) );
+        System.out.println( "Computing unit features for " + basenameList.getLength() + " files" );
+        for (int i=0; i<basenameList.getLength(); i++) {
+            percent = 100*i/basenameList.getLength();
+            computeFeaturesFor( basenameList.getName(i) );
+            System.out.println( "    " + basenameList.getName(i) );
         }
         System.out.println("Finished computing the unit features.");
         return true;

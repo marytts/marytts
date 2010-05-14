@@ -88,7 +88,7 @@ public class BasenameTimelineMaker extends VoiceImportComponent
         System.out.println("Base directory: " + db.getProp(db.ROOTDIR) + "\n");
         
         /* Export the basename list into an array of strings */
-        String[] baseNameArray = bnl.getListAsArray();
+        String[] baseNameArray = basenameList.getListAsArray();
         System.out.println("Processing [" + baseNameArray.length + "] utterances.\n");
         
         /* Prepare the output directory for the timelines if it does not exist */

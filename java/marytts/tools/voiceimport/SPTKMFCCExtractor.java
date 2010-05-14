@@ -100,9 +100,9 @@ public class SPTKMFCCExtractor extends VoiceImportComponent {
         }
         
         // Now process all files, one by one
-        for (int i=0; i<bnl.getLength(); i++) {
-            percent = 100*i/bnl.getLength();
-            String baseName = bnl.getName(i);
+        for (int i=0; i<basenameList.getLength(); i++) {
+            percent = 100*i/basenameList.getLength();
+            String baseName = basenameList.getName(i);
             String inFile = getProp(INWAVDIR)+File.separator+baseName+db.getProp(db.WAVEXT);
             String outFile = getProp(OUTMFCCDIR)+File.separator+baseName+mfccExt;
             getSptkMfcc(inFile,outFile);

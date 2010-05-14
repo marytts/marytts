@@ -103,8 +103,8 @@ public class AllophonesExtractor extends VoiceImportComponent {
         this.db = theDb;
         if (props == null) {
             props = new TreeMap<String, String>();
-            props.put(STYLEDEFINITIONFILE, ""); // empty string -> disabled
-//            props.put(STYLEDEFINITIONFILE, db.getProp(db.CONFIGDIR) + "styleDefinition.txt"); // disabled by default
+            // props.put(STYLEDEFINITIONFILE, ""); // empty string -> disabled
+            props.put(STYLEDEFINITIONFILE, db.getProp(db.CONFIGDIR) + "styleDefinition.txt"); // disabled by default
         }
         return props;
     }
@@ -117,8 +117,8 @@ public class AllophonesExtractor extends VoiceImportComponent {
                         "Text file defining speaking style using glob patterns &ndash; to disable styles, leave this blank."
                                 + "<p>Each line in the file should have the format:"
                                 + "<pre>GLOB = style</pre>"
-                                + "where <tt>GLOB</tt> is a glob expression (e.g. <tt>ob_*</tt> to match all basenames that start with <tt>ob_</tt>)."
-                                + "<p>Lines that are empty or start with <tt>#</tt> are ignored.");
+                                + "where <code>GLOB</code> is a glob expression (e.g. <code>ob_*</code> to match all basenames that start with <code>ob_</code>)."
+                                + "<p>Lines that are empty or start with <code>#</code> are ignored.");
     }
 
     public MaryHttpClient getMaryClient() throws IOException {
@@ -139,11 +139,11 @@ public class AllophonesExtractor extends VoiceImportComponent {
     public boolean compute() throws IOException {
         String inputDir = db.getProp(db.TEXTDIR);
         textDir = new File(inputDir);
-        System.out.println("Computing ALLOPHONES files for " + bnl.getLength() + " files");
-        for (int i = 0; i < bnl.getLength(); i++) {
-            percent = 100 * i / bnl.getLength();
-            generateAllophonesFile(bnl.getName(i));
-            System.out.println("    " + bnl.getName(i));
+        System.out.println("Computing ALLOPHONES files for " + basenameList.getLength() + " files");
+        for (int i = 0; i < basenameList.getLength(); i++) {
+            percent = 100 * i / basenameList.getLength();
+            generateAllophonesFile(basenameList.getName(i));
+            System.out.println("    " + basenameList.getName(i));
         }
         System.out.println("...Done.");
         return true;

@@ -203,8 +203,8 @@ public class TimelineWriter extends TimelineIO {
     /**
      * Write one datagram to the timeline.
      * 
-     * @param newDatagram the datagram to write.
-     * @param reqSampleTime the sample rate at which the datagram duration is expressed.
+     * @param d the datagram to write.
+     * @param reqSampleRate the sample rate at which the datagram duration is expressed.
      * 
      * @throws IOException
      */

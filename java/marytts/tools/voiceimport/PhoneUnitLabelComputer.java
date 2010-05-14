@@ -106,14 +106,14 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
         if (!phonelabelDir.exists()) throw new IOException("No such directory: "+ phonelabelDir);
         
         System.out.println( "Computing unit labels for " 
-                + bnl.getLength() + " files." );
+                + basenameList.getLength() + " files." );
         System.out.println( "From phonetic label files: " 
                 + db.getProp(db.LABDIR) + "*" + db.getProp(db.LABEXT));
         System.out.println( "To       unit label files: " 
                 + getProp(LABELDIR) + "*" + unitlabelExt );
-        for (basenameIndex=0; basenameIndex<bnl.getLength(); basenameIndex++) {
-            percent = 100*basenameIndex/bnl.getLength();
-            computePhoneLabel(bnl.getName(basenameIndex));
+        for (basenameIndex=0; basenameIndex<basenameList.getLength(); basenameIndex++) {
+            percent = 100*basenameIndex/basenameList.getLength();
+            computePhoneLabel(basenameList.getName(basenameIndex));
         }
         System.out.println("Finished computing unit labels");
         return true;
@@ -126,7 +126,7 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
         if ( !labFile.exists() ) {
             System.out.println( "Utterance [" + baseName + "] does not have a phonetic label file." );
             System.out.println( "Removing this utterance from the base utterance list." );
-            bnl.remove( baseName );
+            basenameList.remove( baseName );
             basenameIndex--;
         }
         else {

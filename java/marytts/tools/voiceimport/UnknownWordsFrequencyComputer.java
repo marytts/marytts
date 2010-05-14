@@ -140,13 +140,13 @@ public class UnknownWordsFrequencyComputer extends VoiceImportComponent
     public boolean compute() throws IOException, Exception
     {
         textDir = new File(db.getProp(db.TEXTDIR));
-        System.out.println( "Computing unit features for " + bnl.getLength() + " files" );
-        for (int i=0; i<bnl.getLength(); i++) {
-            percent = 100*i/bnl.getLength();
-            computeFeaturesFor( bnl.getName(i) );
+        System.out.println( "Computing unit features for " + basenameList.getLength() + " files" );
+        for (int i=0; i<basenameList.getLength(); i++) {
+            percent = 100*i/basenameList.getLength();
+            computeFeaturesFor( basenameList.getName(i) );
             //System.out.println( "    " + bnl.getName(i) );
         }
-        bnl.write(db.getProp(db.ROOTDIR)+File.separator+"newbaselist.txt");
+        basenameList.write(db.getProp(db.ROOTDIR)+File.separator+"newbaselist.txt");
         System.out.println("Finished computing the unit features.");
         return true;
     }
@@ -207,8 +207,8 @@ public class UnknownWordsFrequencyComputer extends VoiceImportComponent
                 String nodeText = t.getTextContent().trim();
                 if(g2p.equals("rules")){// && nodeText.equals("!")){
                     System.out.print(basename + " ----> " + nodeText);
-                    if(bnl.contains(basename))
-                        bnl.remove(basename);
+                    if(basenameList.contains(basename))
+                        basenameList.remove(basename);
                     System.out.println(" SO removing basename: "+basename); 
                     
                 }

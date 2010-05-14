@@ -116,7 +116,7 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
                             new InputStreamReader(
                                     new FileInputStream(
                                             new File(getProp(FEATUREDIR)
-                                                    +bnl.getName(0) 
+                                                    +basenameList.getName(0) 
                                                     + featureExt)), "UTF-8"));
                 FeatureDefinition featDef = 
                     new FeatureDefinition(uttFeats, false); // false: do not read weights
@@ -166,13 +166,13 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
         FeatureVector start = featureDefinition.createEdgeFeatureVector(0, true);
         FeatureVector end = featureDefinition.createEdgeFeatureVector(0, false);
         // Loop over all utterances
-        for (int i=0; i<bnl.getLength(); i++) {
-            percent = 100*i/bnl.getLength();
-            System.out.print( "    " + bnl.getName(i) + " : Entering at index (" + index + ") -- " );
-            BufferedReader uttFeats = new BufferedReader(new InputStreamReader(new FileInputStream(new File( getProp(FEATUREDIR)+ bnl.getName(i) + featureExt )), "UTF-8"));
+        for (int i=0; i<basenameList.getLength(); i++) {
+            percent = 100*i/basenameList.getLength();
+            System.out.print( "    " + basenameList.getName(i) + " : Entering at index (" + index + ") -- " );
+            BufferedReader uttFeats = new BufferedReader(new InputStreamReader(new FileInputStream(new File( getProp(FEATUREDIR)+ basenameList.getName(i) + featureExt )), "UTF-8"));
             FeatureDefinition uttFeatDefinition = new FeatureDefinition(uttFeats, false); // false: do not read weights
             if (!uttFeatDefinition.featureEquals(featureDefinition)) {
-                throw new IllegalArgumentException("Features in file "+bnl.getName(i)+" do not match definition file "+getProp(WEIGHTSFILE)
+                throw new IllegalArgumentException("Features in file "+basenameList.getName(i)+" do not match definition file "+getProp(WEIGHTSFILE)
                         + " because:\n"
                         + uttFeatDefinition.featureEqualsAnalyse(featureDefinition) );
             }
@@ -190,7 +190,7 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
             if (!unitFileReader.isEdgeUnit(index)) {
                 // System.out.println( "Unit [" + index + "] : StarTime [" + unitFileReader.getStartTime(i) + "] Duration [" + unitFileReader.getDuration(i) + "]." );
                 throw new IOException("Inconsistency between feature files and unit file: Unit "
-                        +index+" should correspond to start of file "+bnl.getName(i)
+                        +index+" should correspond to start of file "+basenameList.getName(i)
                         +", but is not an edge unit!");
             }
             start.writeTo(out);
@@ -206,7 +206,7 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
                 FeatureVector fv = featureDefinition.toFeatureVector(0, line);
                 if (unitFileReader.isEdgeUnit(index)) {
                     throw new IOException("Inconsistency between feature files and unit file: Unit "
-                            +index+"("+fv.getFeatureAsString(0,featureDefinition)+") should correspond to feature line '"+line+"' of file "+bnl.getName(i)
+                            +index+"("+fv.getFeatureAsString(0,featureDefinition)+") should correspond to feature line '"+line+"' of file "+basenameList.getName(i)
                             +", but is an edge unit!");
                 }
                 fv.writeTo(out);
@@ -219,7 +219,7 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
             }
             if (!unitFileReader.isEdgeUnit(index)) {
                 throw new IOException("Inconsistency between feature files and unit file: Unit "
-                        +index+" should correspond to end of file "+bnl.getName(i)
+                        +index+" should correspond to end of file "+basenameList.getName(i)
                         +", but is not an edge unit!");
             }
             end.writeTo(out);

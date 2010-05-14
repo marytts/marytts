@@ -114,10 +114,10 @@ public class SCostUnitFileWriter extends VoiceImportComponent
         }  
         
         ArrayList<Double> sCostList = new ArrayList<Double>();
-        for (int i=0; i<bnl.getLength(); i++) {
-            System.out.println("reading..."+ bnl.getName(i));
-            percent = 100*i/bnl.getLength();
-            String labFile = unitlabelDir +File.separator+ bnl.getName(i) + unitlabelExt;
+        for (int i=0; i<basenameList.getLength(); i++) {
+            System.out.println("reading..."+ basenameList.getName(i));
+            percent = 100*i/basenameList.getLength();
+            String labFile = unitlabelDir +File.separator+ basenameList.getName(i) + unitlabelExt;
             UnitLabel[] uttData = UnitLabel.readLabFile(labFile);
             sCostList.add(0.0);
             for(int j=0; j<uttData.length; j++){

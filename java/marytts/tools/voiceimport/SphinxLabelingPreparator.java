@@ -288,7 +288,7 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
         transLabelOut.println("*align_all*");
 
         //for the progress bar: calculate the progress of each transcription
-        long nextPercentAfter = Math.round(1/(48.0/bnl.getLength()));
+        long nextPercentAfter = Math.round(1/(48.0/basenameList.getLength()));
         int index = 1;
         
         //store the filenames
@@ -441,8 +441,8 @@ public class SphinxLabelingPreparator extends VoiceImportComponent {
         for (int i=0;i<numFiles;i++){
             filenames[i] = (String)filenameList.get(i);
         }
-        bnl.clear();
-        bnl.add(filenames);
+        basenameList.clear();
+        basenameList.add(filenames);
     }
     
     /**

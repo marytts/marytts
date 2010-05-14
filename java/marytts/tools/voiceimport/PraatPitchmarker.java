@@ -235,7 +235,7 @@ public class PraatPitchmarker extends VoiceImportComponent
      */
     public boolean compute() throws IOException {
         
-        String[] baseNameArray = bnl.getListAsArray();
+        String[] baseNameArray = basenameList.getListAsArray();
         System.out.println( "Computing pitchmarks for " + baseNameArray.length + " utterances." );
 
         /* Ensure the existence of the target pitchmark directory */
