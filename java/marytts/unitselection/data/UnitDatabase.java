@@ -31,8 +31,10 @@ import marytts.unitselection.select.StatisticalCostFunction;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.TargetCostFunction;
 import marytts.unitselection.select.viterbi.ViterbiCandidate;
+import marytts.util.dom.DomUtils;
 
 import org.apache.log4j.Logger;
+import org.w3c.dom.Element;
 
 
 /**
@@ -130,6 +132,16 @@ public class UnitDatabase
      */
     public SortedSet<ViterbiCandidate> getCandidates(Target target)
     {
+        // BEGIN blacklisting
+        // The point of this is to get the value of the "blacklist" attribute in the first child element of the MaryXML
+        // and store it in the blacklist String variable.
+        // This code seems rather inelegant; perhaps there is a better way to access the MaryXML from this method?
+        String blacklist = "";
+        String unitBasename = "This must never be null or the empty string!"; // otherwise candidate selection fails!
+        Element targetElement = target.getMaryxmlElement();
+        blacklist = DomUtils.getAttributeFromClosestAncestorOfAnyKind(targetElement, "blacklist");
+        // END blacklisting
+
         //logger.debug("Looking for candidates in cart "+target.getName());
         //get the cart tree and extract the candidates
         int[] clist = (int[]) preselectionCART.interpret(target,backtrace);
@@ -143,6 +155,18 @@ public class UnitDatabase
             Unit unit = unitReader.getUnit(clist[i]);
             candidates.add(new ViterbiCandidate(target, unit, targetCostFunction));
         }
+
+        // Blacklisting without crazy performance drop:
+        // just remove candidates again if their basenames are blacklisted 
+        java.util.Iterator<ViterbiCandidate> candIt = candidates.iterator();
+        while (candIt.hasNext()) {
+            ViterbiCandidate candidate = candIt.next();
+            unitBasename = getFilename(candidate.getUnit());
+            if (blacklist.contains(unitBasename)) {
+                candIt.remove();
+            }
+        }
+
         return candidates;
     }
     
