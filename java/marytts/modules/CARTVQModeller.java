@@ -34,7 +34,6 @@ import marytts.cart.io.WagonCARTReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.features.ByteValuedFeatureProcessor;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
@@ -57,18 +56,16 @@ import org.w3c.dom.traversal.TreeWalker;
 
 
 /**
- * Predict voice quality using a CART.
+ * Predict phone basename-mean and unit-mean voice quality using CARTs.
  *
- * @author Ingmar Steiner (based on CartDurationModeller by Marc Schr&ouml;der)
+ * @author Ingmar Steiner (based on CARTDurationModeller by Marc Schr&ouml;der)
  */
 
 public class CARTVQModeller extends InternalModule
 {
-    protected DirectedGraph cart = new CART();
-    // TODO: use a simple regression tree, with FloatLeafNode, for pausetree:
-    protected StringPredictionTree vqtree;
+    protected DirectedGraph basenameCart = new CART();
+    protected DirectedGraph unitCart = new CART();
     protected TargetFeatureComputer featureComputer;
-    protected TargetFeatureComputer vqFeatureComputer;
     private String propertyPrefix;
     private FeatureProcessorManager featureProcessorManager;
 
@@ -120,26 +117,23 @@ public class CARTVQModeller extends InternalModule
     public void startup() throws Exception
     {
         super.startup();
-        String cartFilename = MaryProperties.getFilename(propertyPrefix+"cart");
-        if (cartFilename != null) { // there is a default model for the language
-            File cartFile = new File(cartFilename);
-            cart = new DirectedGraphReader().load(cartFile.getAbsolutePath());
-            featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, cart.getFeatureDefinition().getFeatureNames());
+        String basenameCartFilename = MaryProperties.getFilename(propertyPrefix+"cart.basename");
+        if (basenameCartFilename != null) { // there is a default model for the language
+            File basenameCartFile = new File(basenameCartFilename);
+            basenameCart = new DirectedGraphReader().load(basenameCartFile.getAbsolutePath());
+            featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, basenameCart.getFeatureDefinition().getFeatureNames());
         } else {
-            cart = null;
+            basenameCart = null;
+        }
+        String unitCartFilename = MaryProperties.getFilename(propertyPrefix+"cart.unit");
+        if (unitCartFilename != null) { // there is a default model for the language
+            File unitCartFile = new File(unitCartFilename);
+            unitCart = new DirectedGraphReader().load(unitCartFile.getAbsolutePath());
+//            featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, basenameCart.getFeatureDefinition().getFeatureNames());
+        } else {
+            unitCart = null;
         }
         
-        String vqFilename = MaryProperties.getFilename(propertyPrefix+"vqtree");
-        if (vqFilename != null) {
-            File vqFile = new File(vqFilename);
-
-            File vqFdFile = new File(MaryProperties.needFilename(propertyPrefix+"vqfeatures"));
-            FeatureDefinition vqFeatureDefinition = new FeatureDefinition(new BufferedReader(new FileReader(vqFdFile)), false);
-            vqFeatureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, vqFeatureDefinition.getFeatureNames());
-            vqtree = new StringPredictionTree(new BufferedReader(new FileReader(vqFile)), vqFeatureDefinition);
-        } else {
-            this.vqtree = null;
-        }
     }
 
     public MaryData process(MaryData d)
@@ -161,106 +155,44 @@ public class CARTVQModeller extends InternalModule
                 maryVoice = Voice.getDefaultVoice(locale);
             }
 
-            DirectedGraph currentCart = cart;
+            DirectedGraph currentBasenameCart = basenameCart;
+            DirectedGraph currentUnitCart = unitCart;
             TargetFeatureComputer currentFeatureComputer = featureComputer;
-            if (maryVoice != null) {
-                DirectedGraph voiceCart = maryVoice.getVQGraph();
-                if (voiceCart != null) {
-                    currentCart  = voiceCart;
-                    logger.debug("Using voice VQ graph");
-                    FeatureDefinition voiceFeatDef = voiceCart.getFeatureDefinition();
-                    currentFeatureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, voiceFeatDef.getFeatureNames());
-                }
+            
+            if (currentBasenameCart == null) {
+                throw new NullPointerException("No cart for predicting basename-mean VQ");
+            }
+            if (currentUnitCart == null) {
+                throw new NullPointerException("No cart for predicting unit-mean VQ");
             }
             
-            if (currentCart == null) {
-                throw new NullPointerException("No cart for predicting VQ");
-            }
-            
-            // cumulative duration from beginning of sentence, in seconds:
-            float end = 0;
-
             TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.PHONE, MaryXML.BOUNDARY);
             Element segmentOrBoundary;
-            Element previous = null;
             while ((segmentOrBoundary = (Element)tw.nextNode()) != null) {
                 String phone = UnitSelector.getPhoneSymbol(segmentOrBoundary);
                 Target t = new Target(phone, segmentOrBoundary);
                 t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
-                ByteValuedFeatureProcessor[] fnord = currentFeatureComputer.getByteValuedFeatureProcessors();
-                float vq_OQG;
-//                if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) { // a pause
-//                    vq_OQG = enterPauseDuration(segmentOrBoundary, previous, vqtree, vqFeatureComputer);
-//                } else {
-                    float[] vq = (float[])currentCart.interpret(t);
-                    assert vq != null : "Null VQ";
-                    assert vq.length == 2 : "Unexpected VQ length: "+vq.length;
-                    vq_OQG = vq[1];
-                    float stddevInSeconds = vq[0];
-//                }
-//                end += vq_OQG;
-//                int durInMillis = (int) (1000 * vq_OQG);
-//                if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) {
-//                    segmentOrBoundary.setAttribute("duration", String.valueOf(durInMillis));
-//                } else { // phone
-                    segmentOrBoundary.setAttribute("vq", String.valueOf(vq_OQG));
-//                }
-                previous = segmentOrBoundary;
+
+                float[] bnvq = (float[]) currentBasenameCart.interpret(t);
+                assert bnvq != null : "Null basename VQ";
+                assert bnvq.length == 2 : "Unexpected basename VQ length: "+bnvq.length;
+                float basename_vq = bnvq[1];
+                float bn_stddevInSeconds = bnvq[0];
+
+                float[] unvq = (float[]) currentUnitCart.interpret(t);
+                assert unvq != null : "Null unit VQ";
+                assert unvq.length == 2 : "Unexpected unit VQ length: "+unvq.length;
+                float unit_vq = unvq[1];
+                float un_stddevInSeconds = unvq[0];
+
+                segmentOrBoundary.setAttribute("basename_vq", String.valueOf(basename_vq));
+                segmentOrBoundary.setAttribute("unit_vq", String.valueOf(unit_vq));
             }
         }
         MaryData output = new MaryData(outputType(), d.getLocale());
         output.setDocument(doc);
         return output;
     }
-
-    /**
-     * 
-     * This predicts and enters the pause duration for a pause segment.
-     * 
-     * @param s
-     * @param maryVoice 
-     * @return pause duration, in seconds
-     */
-    private float enterPauseDuration(Element boundary, Element previous, 
-            StringPredictionTree currentPauseTree, TargetFeatureComputer currentPauseFeatureComputer)
-    {
-        if (!boundary.getTagName().equals(MaryXML.BOUNDARY))
-            throw new IllegalArgumentException("cannot call enterPauseDuration for non-pause element");
-        
-        // If there is already a duration, keep it:
-        if (boundary.hasAttribute("duration")) {
-            try {
-                return Float.parseFloat(boundary.getAttribute("duration"))  * 0.001f;
-            } catch (NumberFormatException nfe) {}
-        }
-
-        float duration = 0.4f; // default value
-
-        if (previous == null || !previous.getTagName().equals(MaryXML.PHONE))
-            return duration;
-        
-        if (currentPauseTree == null)
-            return duration;
-        
-        assert currentPauseFeatureComputer != null;
-        String phone = previous.getAttribute("p");
-        Target t = new Target(phone, previous);
-        t.setFeatureVector(currentPauseFeatureComputer.computeFeatureVector(t));
-                
-        String durationString = currentPauseTree.getMostProbableString(t);
-        // strip off "ms"
-        durationString = durationString.substring(0, durationString.length() - 2);
-        try {
-            duration = Float.parseFloat(durationString);
-        } catch (NumberFormatException nfe) {}
-        
-        if (duration > 2) {
-            logger.debug("Cutting long duration to 2 s -- was " + duration);
-            duration = 2;
-        }
-        return duration;
-    }
-
 
 }
 
