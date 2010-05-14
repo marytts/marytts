@@ -182,7 +182,8 @@ public class PraatIntervalTier implements PraatTier {
                     interval.setXmin(prevInterval.getXmax());
                 }
                 if (interval.getDuration() == 0.0) {
-                    interval.setDuration(1e-16); // hack to sidestep problem in Praat; intervals must not be zero
+                    // hack to sidestep problem in Praat; intervals must not be zero
+                    interval.setDuration(1e-15); 
                 }
                 interval.setXmax(interval.getXmin() + interval.getDuration());
             }
