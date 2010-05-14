@@ -329,6 +329,7 @@ public class DatabaseImportMain extends JFrame
                 fc.setSelectedFile(new File( db.getProp(db.BASENAMEFILE) ));
                 int returnVal = fc.showSaveDialog(this);
                 if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    // TODO shouldn't we get user confirmation before overwriting existing basename list?
                     bnl.write( fc.getSelectedFile() );
                 } 
             }
@@ -482,7 +483,7 @@ public class DatabaseImportMain extends JFrame
         
         /* Read the list of components */
         String[][] groups2comps;
-        File importMainConfigFile = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+"./importMain.config");
+        File importMainConfigFile = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+"importMain.config");
         if (!importMainConfigFile.exists()) {
             //create config file
             BufferedReader configIn = new BufferedReader(new InputStreamReader(

@@ -72,7 +72,7 @@ public class Mary2FestvoxTranscripts extends VoiceImportComponent{
                                     new File(getProp(TRANSCRIPTFILE))),"UTF-8"));
         
         //go through the text files
-        String[] basenames = bnl.getListAsArray();
+        String[] basenames = basenameList.getListAsArray();
         String textDir = db.getProp(db.TEXTDIR);
         String textExt = db.getProp(db.TEXTEXT);
         for (int i=0;i<basenames.length;i++){
@@ -89,7 +89,7 @@ public class Mary2FestvoxTranscripts extends VoiceImportComponent{
                 fileIn.close();
                 textOut.println("( "+basenames[i]+" \""+line+"\" )");
             }catch(FileNotFoundException fnfe){
-                bnl.remove(basenames[i]);
+                basenameList.remove(basenames[i]);
                 continue;
             }
         }

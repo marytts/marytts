@@ -111,9 +111,9 @@ public class LabelPauseDeleter extends VoiceImportComponent {
         private void getProperLabelFormat() throws Exception {
             
             List<String> problems = new ArrayList<String>();
-            for (int i=0; i<bnl.getLength(); i++) {
-                progress = 100*i/bnl.getLength();
-                String basename = bnl.getName(i);
+            for (int i=0; i<basenameList.getLength(); i++) {
+                progress = 100*i/basenameList.getLength();
+                String basename = basenameList.getName(i);
                 boolean ok = convertSingleLabelFile(basename);
                 if (ok) {
                     System.out.println( "    " + basename);
@@ -123,7 +123,7 @@ public class LabelPauseDeleter extends VoiceImportComponent {
                 }
             }
             if (problems.size() > 0) {
-                System.out.println(problems.size() + " out of " + bnl.getLength() + " could not be read:");
+                System.out.println(problems.size() + " out of " + basenameList.getLength() + " could not be read:");
                 for (String b : problems) {
                     System.out.println("    "+b);
                 }

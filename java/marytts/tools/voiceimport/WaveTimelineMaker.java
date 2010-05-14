@@ -86,7 +86,7 @@ public class WaveTimelineMaker extends VoiceImportComponent
         System.out.println("---- Making a pitch synchronous waveform timeline\n\n");
         
         /* Export the basename list into an array of strings */
-        String[] baseNameArray = bnl.getListAsArray();
+        String[] baseNameArray = basenameList.getListAsArray();
         System.out.println("Processing [" + baseNameArray.length + "] utterances.\n");
         
        

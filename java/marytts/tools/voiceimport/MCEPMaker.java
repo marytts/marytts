@@ -245,7 +245,7 @@ public class MCEPMaker extends VoiceImportComponent {
      */
     public boolean compute() throws IOException {
         
-        String[] baseNameArray = bnl.getListAsArray();
+        String[] baseNameArray = basenameList.getListAsArray();
         System.out.println( "Computing Mel cepstra for [" + baseNameArray.length + "] utterances." );
         ESTCaller caller = new ESTCaller( db, getProp(ESTDIR) );
         caller.make_mcep( baseNameArray, 

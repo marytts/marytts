@@ -162,6 +162,8 @@ public class FeatureSelection extends VoiceImportComponent
             features = features.replaceFirst("unit_duration", "");
             features = features.replaceFirst("unit_logf0delta", "");
             features = features.replaceFirst("unit_logf0", "");
+            features = features.replaceFirst("hpunit_vq_oqg", "");
+            features = features.replaceFirst("basename_vq_oqg", "");
         }
 
         final JFrame frame = new JFrame("Features to use for building voice");

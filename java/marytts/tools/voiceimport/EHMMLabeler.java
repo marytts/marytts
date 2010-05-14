@@ -73,7 +73,7 @@ public class EHMMLabeler extends VoiceImportComponent {
         
         public final String EDIR = "EHMMLabeler.eDir";
         
-        // public final String EHMMDIR = "EHMMLabeler.ehmmDir";
+        public final String EHMMDIR = "EHMMLabeler.ehmmDir";
         // By removing the EHMMDIR variable, the user will not be able to change the ehmm path using the GUI
         // The ehmm path of external programs is set now using the script MARY_BASE/lib/external/check_install_external_programs.sh
         // which will try to find the path, or compile and install ehmm from the sources shipped with mary. 
@@ -97,7 +97,7 @@ public class EHMMLabeler extends VoiceImportComponent {
                if ( ehmmdir == null ) {
                    ehmmdir = "/project/mary/Festival/festvox/src/ehmm/";
                }
-               //props.put(EHMMDIR,ehmmdir);
+               props.put(EHMMDIR,ehmmdir);
                
                props.put(EDIR,db.getProp(db.ROOTDIR)
                             +"ehmm"
@@ -116,7 +116,7 @@ public class EHMMLabeler extends VoiceImportComponent {
        
        protected void setupHelp(){
            props2Help = new TreeMap();
-           //props2Help.put(EHMMDIR,"directory containing the local installation of EHMM Labeller"); 
+           props2Help.put(EHMMDIR,"directory containing the local installation of EHMM Labeller"); 
            props2Help.put(EDIR,"directory containing all files used for training and labeling. Will be created if it does not exist.");
            props2Help.put(ALLOPHONESDIR, "directory containing the IntonisedXML files.");
            props2Help.put(OUTLABDIR, "Directory to store generated lebels from EHMM.");
@@ -139,6 +139,7 @@ public class EHMMLabeler extends VoiceImportComponent {
             
             //File ehmmFile = new File(getProp(EHMMDIR)+"/bin/ehmm");
             File ehmmFile = new File(db.getExternal(db.EHMMPATH)+"/ehmm");
+            // TODO check for existence of EHMM scripts
             if (!ehmmFile.exists()) {
                 throw new IOException("EHMM path setting is wrong. Because file "+ehmmFile.getAbsolutePath()+" does not exist");
             }
@@ -537,8 +538,8 @@ public class EHMMLabeler extends VoiceImportComponent {
             // open transcription file used for labeling
             PrintWriter transLabelOut = new PrintWriter(
                     new FileOutputStream (alignFile));
-            for (int i=0; i<bnl.getLength(); i++) {
-                phoneSeq = getLineFromXML(bnl.getName(i));
+            for (int i=0; i<basenameList.getLength(); i++) {
+                phoneSeq = getLineFromXML(basenameList.getName(i));
                 transLabelOut.println(phoneSeq.trim());
             }
             transLabelOut.flush();
@@ -628,9 +629,9 @@ public class EHMMLabeler extends VoiceImportComponent {
          * @throws Exception
          */        
         private void getProperLabelFormat() throws Exception {
-            for (int i=0; i<bnl.getLength(); i++) {
-                convertSingleLabelFile(bnl.getName(i));               
-                System.out.println( "    " + bnl.getName(i) );
+            for (int i=0; i<basenameList.getLength(); i++) {
+                convertSingleLabelFile(basenameList.getName(i));               
+                System.out.println( "    " + basenameList.getName(i) );
                 
             }
         }

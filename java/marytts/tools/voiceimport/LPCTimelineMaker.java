@@ -91,7 +91,7 @@ public class LPCTimelineMaker extends VoiceImportComponent
         System.out.println("---- Importing LPC coefficients\n\n");
         
         /* Export the basename list into an array of strings */
-        String[] baseNameArray = bnl.getListAsArray();
+        String[] baseNameArray = basenameList.getListAsArray();
         System.out.println("Processing [" + baseNameArray.length + "] utterances.\n");
         
         /* Prepare the output directory for the timelines if it does not exist */

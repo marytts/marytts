@@ -39,7 +39,7 @@ import java.io.IOException;
 /**
  * EST Track file reader
  * 
- * This class interpretes a DataInputStream as an EST_Track file:
+ * This class interprets a DataInputStream as an EST_Track file:
  * it loads the whole track data in memory, and provides access methods
  * to reach each individual frame or each individual track value.
  *

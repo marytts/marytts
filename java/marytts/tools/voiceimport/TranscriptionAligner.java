@@ -146,13 +146,13 @@ public class TranscriptionAligner extends VoiceImportComponent {
     throws IOException, TransformerException, ParserConfigurationException, SAXException
     {
         
-        System.out.println("traversing through " + bnl.getLength() + " files");
+        System.out.println("traversing through " + basenameList.getLength() + " files");
        
         String promptAllophonesDir = db.getProp(db.PROMPTALLOPHONESDIR);
-        for (int i=0; i<bnl.getLength(); i++) {
-            progress = 100*i/bnl.getLength();
-            System.out.println(bnl.getName(i));
-            alignTranscription(bnl.getName(i));
+        for (int i=0; i<basenameList.getLength(); i++) {
+            progress = 100*i/basenameList.getLength();
+            System.out.println(basenameList.getName(i));
+            alignTranscription(basenameList.getName(i));
         }
                 
         return true;
@@ -161,7 +161,7 @@ public class TranscriptionAligner extends VoiceImportComponent {
     public void alignTranscription(String baseName) throws SAXException, IOException, TransformerException, ParserConfigurationException{
         String promptAllophonesDir = db.getProp(db.PROMPTALLOPHONESDIR);
         File nextFile = new File(promptAllophonesDir
-                +System.getProperty("file.separator")
+                +System.getProperty("file.separator") // isn't this redundant?
                 +baseName+".xml");
         // get original xml file
         Document doc = docBuilder.parse(nextFile);

@@ -157,7 +157,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     }
     
     /**
-     * Align labels and features. For each .unitlab file in the unit label
+     * Align labels and features. For each .lab file in the unit label
      * directory, verify whether the chain of units given is identical to
      * the chain of units in the corresponding unit feature file.
      * For those files that are not perfectly aligned, give the user the
@@ -167,19 +167,19 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
      */
     public boolean compute() throws IOException
     {
-        int bnlLengthIn = bnl.getLength();
+        int bnlLengthIn = basenameList.getLength();
         System.out.println( "Verifying feature-label alignment for "+ bnlLengthIn + " utterances." );
         problems = new TreeMap<String, String>();
         
-        for (int i=0; i<bnl.getLength(); i++) {
-            percent = 100*i/bnl.getLength();
+        for (int i=0; i<basenameList.getLength(); i++) {
+            percent = 100*i/basenameList.getLength();
             //call firstVerifyAlignment for first alignment test
-            String errorMessage = verifyAlignment(bnl.getName(i));
-            System.out.print( "    " + bnl.getName(i) );
+            String errorMessage = verifyAlignment(basenameList.getName(i));
+            System.out.print( "    " + basenameList.getName(i) );
             if (errorMessage == null) {
                 System.out.println(" OK");
             } else {
-                problems.put( bnl.getName(i), errorMessage);
+                problems.put( basenameList.getName(i), errorMessage);
                 System.out.println(" "+errorMessage);
             }
         }
@@ -237,7 +237,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
                         
                         case REMOVE:
                             tryAgain = false;
-                            bnl.remove( basename );
+                            basenameList.remove( basename );
                             deleteProblemsYesNo(null,basename);
                             remainingProblems--;
                             System.out.println( " -> Removed from the utterance list. OK" );
@@ -259,7 +259,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
             
             /* Additional management for the removeAll option: */        
             if (removeAll) {
-                bnl.remove( basename );
+                basenameList.remove( basename );
                 remainingProblems--;
             }
         }
@@ -268,9 +268,9 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
             deleteProblemsYesNo(problems,null);
         }
         
-        System.out.println( "Removed [" + (bnlLengthIn-bnl.getLength()) + "/" + bnlLengthIn
-                + "] utterances from the list, [" + bnl.getLength() + "] utterances remain,"+
-                " among which [" + remainingProblems + "/" + bnl.getLength() + "] still have problems." );
+        System.out.println( "Removed [" + (bnlLengthIn-basenameList.getLength()) + "/" + bnlLengthIn
+                + "] utterances from the list, [" + basenameList.getLength() + "] utterances remain,"+
+                " among which [" + remainingProblems + "/" + basenameList.getLength() + "] still have problems." );
         
         return remainingProblems == 0; // true exactly if all problems have been solved
     }
@@ -336,7 +336,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
             // before anything else happens, ensure that deleted files will not be missed later
             // by forcing basename file to be written/updated; this is just a q&d fix!
             String basenameFilename = db.getProp("db.basenameFile");
-            bnl.write(basenameFilename);
+            basenameList.write(basenameFilename);
         }
     }
     protected void defineReplacementWindow(){
@@ -434,9 +434,9 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         //clear the list of problems
         problems = new TreeMap<String, String>();
         //go through all files        
-        for (int l=0; l<bnl.getLength(); l++) {
-            percent = 100*l/bnl.getLength();
-            String basename = bnl.getName(l);           
+        for (int l=0; l<basenameList.getLength(); l++) {
+            percent = 100*l/basenameList.getLength();
+            String basename = basenameList.getName(l);           
             System.out.print("    " + basename );
             String line;
         
@@ -698,9 +698,9 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
             //clear the list of problems
             problems = new TreeMap<String, String>();
             //go through all files        
-            for (int l=0; l<bnl.getLength(); l++) {
-                percent = 100*l/bnl.getLength();
-                String basename = bnl.getName(l);           
+            for (int l=0; l<basenameList.getLength(); l++) {
+                percent = 100*l/basenameList.getLength();
+                String basename = basenameList.getName(l);           
                 System.out.print("    " + basename );
                 String line;
                 

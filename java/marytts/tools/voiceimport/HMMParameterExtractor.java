@@ -152,10 +152,10 @@ public class HMMParameterExtractor extends VoiceImportComponent {
         htsData.setUseMixExc(true);
         
         // Now process all files, one by one
-        for (int i=0; i<bnl.getLength(); i++) {
-            percent = 100*i/bnl.getLength();
-            generateParameters(bnl.getName(i), contextFeaDir, outputDir);
-            boolean success = createHalfPhoneLab(bnl.getName(i));
+        for (int i=0; i<basenameList.getLength(); i++) {
+            percent = 100*i/basenameList.getLength();
+            generateParameters(basenameList.getName(i), contextFeaDir, outputDir);
+            boolean success = createHalfPhoneLab(basenameList.getName(i));
             if(!success) return false;
         }
         

@@ -135,7 +135,7 @@ public class LabelledFilesInspector extends VoiceImportComponent
         File extractedPmDirFile = new File(extractedPmDir);
         if (!extractedPmDirFile.exists()) extractedPmDirFile.mkdir();
         
-        System.out.println( "Proposing for inspection " + bnl.getLength() + " files" );
+        System.out.println( "Proposing for inspection " + basenameList.getLength() + " files" );
         
         JFrame jf = new JFrame("Inspecting labelled files");
         jf.addWindowListener(new WindowAdapter() {
@@ -143,7 +143,7 @@ public class LabelledFilesInspector extends VoiceImportComponent
         });
         Container cont = jf.getContentPane();
         cont.setLayout(new FlowLayout(FlowLayout.LEFT));
-        fileList = new JList(bnl.getListAsArray());
+        fileList = new JList(basenameList.getListAsArray());
         fileList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         fileList.setVisibleRowCount(-1);
         JScrollPane fileScroll = new JScrollPane(fileList);

@@ -270,7 +270,7 @@ public class HnmVoiceInstaller extends VoiceImportComponent{
             //just take the first three transcript files as example text
             PrintWriter exampleTextOut = new PrintWriter(new FileWriter(exampleTextFile),true);
             for (int i=0;i<3;i++) {
-                String basename = bnl.getName(i);
+                String basename = basenameList.getName(i);
                 BufferedReader transIn = new BufferedReader(new InputStreamReader(
                    new FileInputStream(new File(db.getProp(db.TEXTDIR)+basename+db.getProp(db.TEXTEXT)))));
                 String text = transIn.readLine();

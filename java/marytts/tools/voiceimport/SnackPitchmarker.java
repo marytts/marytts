@@ -114,7 +114,7 @@ public class SnackPitchmarker extends VoiceImportComponent
         toScript.println(" ");
         toScript.close();
 
-        String[] baseNameArray = bnl.getListAsArray();
+        String[] baseNameArray = basenameList.getListAsArray();
         System.out.println( "Computing pitchmarks for " + baseNameArray.length + " utterances." );
 
         /* Ensure the existence of the target pitchmark directory */
@@ -163,7 +163,7 @@ public class SnackPitchmarker extends VoiceImportComponent
 
             WavReader wf = new WavReader(wavFile);
             int sampleRate = wf.getSampleRate();
-            PitchMarks snackPitchmarker = SignalProcUtils.pitchContour2pitchMarks(pm,sampleRate,wf.getNumSamples(),0.0075,0.01,false,0);
+            PitchMarks snackPitchmarker = SignalProcUtils.pitchContour2pitchMarks(pm,sampleRate,wf.getNumSamples(),0.0075,0.01,false,1);
             int[] pitchmarkSamples = snackPitchmarker.pitchMarks; 
 
             float[] pitchmarkSeconds = new float[pitchmarkSamples.length];

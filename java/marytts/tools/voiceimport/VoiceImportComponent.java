@@ -33,7 +33,7 @@ public abstract class VoiceImportComponent
 {
     protected SortedMap<String,String> props = null;
     protected SortedMap<String,String> props2Help = null;
-    protected BasenameList bnl;
+    protected BasenameList basenameList;
     protected Logger logger;
     
     protected abstract void setupHelp();
@@ -52,7 +52,7 @@ public abstract class VoiceImportComponent
     {
         //setupHelp(); this is now done by DatabaseLayout
         this.props = props;
-        this.bnl = bnl;
+        this.basenameList = bnl;
         initialiseComp();
         if (!Logger.getRootLogger().getAllAppenders().hasMoreElements()) {
             BasicConfigurator.configure();
@@ -64,8 +64,6 @@ public abstract class VoiceImportComponent
      * Initialise a voice import component:
      * component specific initialisation;
      * to be overwritten by subclasses
-     * 
-     * @param bnl the list of basenames
      */
     public void initialiseComp()
     throws Exception
