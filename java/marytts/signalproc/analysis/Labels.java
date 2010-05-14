@@ -167,7 +167,7 @@ public class Labels extends AlignmentData {
             int count = 0;
             for (i=startLine; i<=endLine; i++)
             {
-                String[] labelInfos = lines[i].split(" ");
+                String[] labelInfos = lines[i].split("\\s+");
                 if (labelInfos.length>=minimumItemsInOneLine)
                     count++;
             }
@@ -181,7 +181,7 @@ public class Labels extends AlignmentData {
                     if (tmpCount>count-1)
                         break;
 
-                    String[] labelInfos = lines[i].split(" ");
+                    String[] labelInfos = lines[i].trim().split("\\s+");
                     if (labelInfos.length>=minimumItemsInOneLine && 
                             StringUtils.isNumeric(labelInfos[0]) &&
                             StringUtils.isNumeric(labelInfos[1]))
