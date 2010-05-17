@@ -35,6 +35,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import marytts.datatypes.MaryXML;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
+import marytts.signalproc.analysis.AlignedLabels;
+import marytts.signalproc.analysis.Label;
+import marytts.signalproc.analysis.Labels;
+import marytts.util.Pair;
 import marytts.util.data.text.XwavesLabelfileDataSource;
 import marytts.util.dom.MaryDomUtils;
 
@@ -216,7 +220,7 @@ public class TranscriptionAligner
      * @param out
      * @return
      */
-    private String distanceAlign(String in, String out ) {
+    public String distanceAlign(String in, String out ) {
         String[] istr = in.split(Pattern.quote(entrySeparator));
         String[] ostr = out.split(Pattern.quote(entrySeparator));
         String delim = "#";
@@ -356,6 +360,52 @@ public class TranscriptionAligner
         
         // change the transcription in xml according to the aligned one
         this.changeTranscriptions(allophones, alignments);
+    }
+    
+    /**
+     * Align the two given sequences of labels and return a mapping array
+     * indicating which index in first should be aligned to which index in second.
+     * @param first 
+     * @param second
+     * @return an array m of integers -- for each index i in first, m[i] gives the
+     * (rightmost) corresponding index in second.
+     */
+    public AlignedLabels alignLabels(Labels first, Labels second) {
+        StringBuilder in = new StringBuilder();
+        for (int i=0; i<first.items.length; i++) {
+            if (in.length() > 0) {
+                in.append(entrySeparator);
+            }
+            in.append(first.items[i].phn);
+        }
+        StringBuilder out = new StringBuilder();
+        for (int j=0; j<second.items.length; j++) {
+            if (out.length() > 0) {
+                out.append(entrySeparator);
+            }
+            out.append(second.items[j].phn);
+        }
+        String aligned = distanceAlign(in.toString(), out.toString());
+        // Now, in aligned, the hash signs separate fields corresponding to first;
+        // the field contains the label symbols of second (space-separated)
+        // that match this index in first.
+        String[] fields = aligned.split("#");
+        assert fields.length == first.items.length;
+        int iSecond = -1; // start before first item
+        int[] map = new int[fields.length];
+        for (int i=0; i<fields.length; i++) {
+            int numLabels;
+            String f = fields[i].trim();
+            if (f.equals("")) {
+                numLabels = 0;
+            } else {
+                numLabels = f.split(" ").length;
+            }
+            iSecond += numLabels;
+            map[i] = Math.max(iSecond, 0); // if first elements in second are skipped, still map to 0, not to -1.
+        }
+        
+        return new AlignedLabels(first, second, map);
     }
     
     /**

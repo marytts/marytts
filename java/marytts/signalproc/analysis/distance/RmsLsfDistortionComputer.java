@@ -21,12 +21,16 @@ package marytts.signalproc.analysis.distance;
 
 import java.io.IOException;
 
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.signalproc.adaptation.BaselineAdaptationItem;
 import marytts.signalproc.adaptation.BaselineAdaptationSet;
 import marytts.signalproc.adaptation.BaselineFeatureExtractor;
+import marytts.signalproc.analysis.AlignedLabels;
+import marytts.signalproc.analysis.Label;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.Lsfs;
+import marytts.tools.analysis.TranscriptionAligner;
 import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
@@ -45,6 +49,7 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
     }
     
     public double[] getDistances(String folder1, String folder2, double upperFreqInHz)
+    throws IOException
     {
         folder1 = StringUtils.checkLastSlash(folder1);
         folder2 = StringUtils.checkLastSlash(folder2);
@@ -56,6 +61,7 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
     }
     
     public double[] getDistances(String folder1, String folder2, boolean isBark, double upperFreqInHz)
+    throws IOException
     {
         folder1 = StringUtils.checkLastSlash(folder1);
         folder2 = StringUtils.checkLastSlash(folder2);
@@ -67,6 +73,7 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
     }
     
     public double[] getDistances(BaselineAdaptationSet set1, BaselineAdaptationSet set2, boolean isBark, double upperFreqInHz)
+    throws IOException
     {
         int[] map = new int[Math.min(set1.items.length, set2.items.length)];
         for (int i=0; i<map.length; i++)
@@ -76,6 +83,7 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
     }
     
     public double[] getDistances(BaselineAdaptationSet set1, BaselineAdaptationSet set2, boolean isBark, double upperFreqInHz, int[] map)
+    throws IOException
     {
         double[] distances = null;
         double[] tmpDistances = null;
@@ -111,6 +119,7 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
      * @return an array containing, for each file, the array of frame-wise distances.
      */
     public double[][] getDistancesPerFile(BaselineAdaptationSet set1, BaselineAdaptationSet set2, boolean isBark, double upperFreqInHz, int[] map)
+    throws IOException
     {
         double[][] allDistances = new double[map.length][];
         
@@ -122,28 +131,78 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
     }
 
     
+    /**
+     * Return true if the time given corresponds to an initial or final silence symbol in labels, false otherwise.
+     * @param time
+     * @param labels
+     * @param silenceSymbol
+     * @return
+     */
+    private boolean isInitialOrFinalSilence(double time, Labels labels, String silenceSymbol) {
+        int i = labels.getLabelIndexAtTime(time);
+        if (i == -1) { // somehow out of range, fix it
+            if (time < 0) {
+                i = 0;
+            } else {
+                i = labels.items.length - 1;
+            }
+        }
+        assert i >= 0;
+        Label l = labels.items[i];
+        // Exclude initial and final silences:
+        return (i == 0 || i == labels.items.length - 1) && l.phn.equals(silenceSymbol);
+    }
+    
+    /**
+     * Compute the distance between two LSF frames
+     * @param l1 one lsf frame
+     * @param l2 the other lsf frame
+     * @param isBark whether to convert to bark scale before computing distance
+     * @param upperFreqInHz the highest frequency up to which to compute the distance
+     * @return the distance
+     */
+    private double computeOneFrameDistance(double[] l1, double[] l2, boolean isBark, double upperFreqInHz) {
+        int maxInd1 = MathUtils.getLargestIndexSmallerThan(l1, upperFreqInHz);
+        int maxInd2 = MathUtils.getLargestIndexSmallerThan(l2, upperFreqInHz);
+        int maxInd = Math.min(maxInd1, maxInd2);
+        
+        double[] tmp1;
+        double[] tmp2;
+        if (maxInd+1 == l1.length) {
+            tmp1 = l1;
+        } else {
+            tmp1 = new double[maxInd+1];
+            System.arraycopy(l1, 0, tmp1, 0, maxInd+1);
+        }
+        if (maxInd+1 == l2.length) {
+            tmp2 = l2;
+        } else {
+            tmp2 = new double[maxInd+1];
+            System.arraycopy(l2, 0, tmp2, 0, maxInd+1);
+        }
+
+        double distance;
+        if (!isBark) {
+            distance = SignalProcUtils.getRmsDistance(tmp1, tmp2);
+        } else {
+            distance = SignalProcUtils.getRmsDistance(SignalProcUtils.freq2bark(tmp1), SignalProcUtils.freq2bark(tmp2));
+        }
+        return distance;
+    }
+    
     public double[] getItemDistances(BaselineAdaptationItem item1, BaselineAdaptationItem item2, boolean isBark, double upperFreqInHz)
+    throws IOException
     {
         if (!FileUtils.exists(item1.lsfFile)) //Extract lsfs if necessary
         {
             LsfFileHeader lsfParams = new LsfFileHeader();
-            try {
-                BaselineFeatureExtractor.lsfAnalysis(item1, lsfParams, true);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            BaselineFeatureExtractor.lsfAnalysis(item1, lsfParams, true);
         }
         
         if (!FileUtils.exists(item2.lsfFile)) //Extract lsfs if necessary
         {
             LsfFileHeader lsfParams = new LsfFileHeader();
-            try {
-                BaselineFeatureExtractor.lsfAnalysis(item2, lsfParams, true);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            BaselineFeatureExtractor.lsfAnalysis(item2, lsfParams, true);
         }
         
         Lsfs lsfs1 = new Lsfs(item1.lsfFile);
@@ -155,88 +214,155 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
         double[] frameDistances = null;
         int count = 0;
         
-        if (labs1.items!=null && labs2.items!=null)
-        {
-            //Find the optimum alignment between the source and the target labels since the phone sequences may not be identical due to silence periods etc.
-            int[][] labelMap = StringUtils.alignLabels(labs1.items, labs2.items);
-            //
+        if (labs1.items == null || labs2.items == null) {
+            throw new IOException("Do not have labels for pair "+StringUtils.getFileName(item1.audioFile));
+        }
 
-            if (labelMap!=null)
-            {
-                int j, labInd1, labInd2, frmInd1, frmInd2;
-                double time1, time2;
-                double startTime1, endTime1, startTime2, endTime2;
-                double[] tmpLsfs1 = null;
-                double[] tmpLsfs2 = null;
-                int maxInd1, maxInd2, maxInd;
+        //Find the optimum alignment between the source and the target labels since the phone sequences may not be identical due to silence periods etc.
+        String allophoneSetFilename = System.getProperty("allophoneset");
+        if (allophoneSetFilename == null) {
+            throw new IOException("Allophone set not provided (use -Dallophoneset=/path/to/allophones.xml)");
+        }
+        AllophoneSet allophoneSet = null;
+        try {
+            allophoneSet = AllophoneSet.getAllophoneSet(allophoneSetFilename);
+        } catch (Exception e) {
+            throw new IOException("Problem reading Allophones file "+allophoneSetFilename, e);
+        }
+        String silenceSymbol = allophoneSet.getSilence().name();
+        TranscriptionAligner aligner = new TranscriptionAligner(allophoneSet);
+        AlignedLabels aligned = aligner.alignLabels(labs1, labs2);
+        assert aligned != null;
+        
+        // Now compute the frame-wise distances by mapping frames according to this label alignment;
+        // for each aligned stretch, we move through the frames of the shorter side of the alignment
+        // to make sure that dist(a,b) == dist(b,a)
+        frameDistances = new double[Math.max(lsfs1.params.numfrm, lsfs2.params.numfrm)];
 
-                labInd1 = 0;
-
-                frameDistances = new double[lsfs1.params.numfrm];
-
-                //Find the corresponding target frame index for each source frame index
-                for (j=0; j<lsfs1.params.numfrm; j++)
-                {
-                    time1 = SignalProcUtils.frameIndex2Time(j, lsfs1.params.winsize, lsfs1.params.skipsize);
-
-                    while (time1>labs1.items[labInd1].time)
-                    {
-                        labInd1++;
-                        if (labInd1>labs1.items.length-1)
-                        {
-                            labInd1 = labs1.items.length-1;
-                            break;
-                        }
+        // Make sure we don't use any frame twice:
+        int frameSeen1 = -1;
+        int frameSeen2 = -1;
+        for (AlignedLabels.AlignedTimeStretch ats : aligned.getAlignedTimeStretches()) {
+            boolean firstIsShorter = (ats.firstDuration <= ats.secondDuration);
+            if (firstIsShorter) {
+                int fromIndex = SignalProcUtils.time2frameIndex(ats.firstStart, lsfs1.params.winsize, lsfs1.params.skipsize);
+                if (fromIndex < 0) {
+                    fromIndex = 0;
+                }
+                if (frameSeen1 >= fromIndex) {
+                    fromIndex = frameSeen1 + 1;
+                }
+                int toIndex = SignalProcUtils.time2frameIndex(ats.firstStart+ats.firstDuration, lsfs1.params.winsize, lsfs1.params.skipsize);
+                if (toIndex >= lsfs1.lsfs.length) {
+                    break;
+                }
+                for (int f1=fromIndex; f1<=toIndex; f1++) {
+                    double t1 = SignalProcUtils.frameIndex2Time(f1, lsfs1.params.winsize, lsfs1.params.skipsize);
+                    double t2 = aligned.mapTimeFromFirstToSecond(t1);
+                    if (isInitialOrFinalSilence(t1, labs1, silenceSymbol)
+                            || isInitialOrFinalSilence(t2, labs2, silenceSymbol)) {
+                        continue;
                     }
-                    
-                    if (labInd1>0 && labInd1<labs1.items.length-1) //Exclude first and last label)
-                    {
-                        labInd2 = StringUtils.findInMap(labelMap, labInd1);
-
-                        if (labInd2>=0 && labs1.items[labInd1].phn.compareTo(labs2.items[labInd2].phn)==0)
-                        {
-                            if (labInd1>0)   
-                                startTime1 = labs1.items[labInd1-1].time;
-                            else
-                                startTime1 = 0.0;
-
-                            if (labInd2>0) 
-                                startTime2 = labs2.items[labInd2-1].time;
-                            else
-                                startTime2 = 0.0;
-
-                            endTime1 = labs1.items[labInd1].time;
-                            endTime2 = labs2.items[labInd2].time;
-
-                            time2 = MathUtils.linearMap(time1, startTime1, endTime1, startTime2, endTime2);
-
-                            frmInd2 = SignalProcUtils.time2frameIndex(time2, lsfs2.params.winsize, lsfs2.params.skipsize);
-                            if (frmInd2<0)
-                                frmInd2=0;
-                            if (frmInd2>lsfs2.params.numfrm-1)
-                                frmInd2=lsfs2.params.numfrm-1;
-                            
-                            maxInd1 = MathUtils.getLargestIndexSmallerThan(lsfs1.lsfs[j], upperFreqInHz);
-                            maxInd2 = MathUtils.getLargestIndexSmallerThan(lsfs2.lsfs[frmInd2], upperFreqInHz);
-                            maxInd = Math.min(maxInd1, maxInd2);
-                            
-                            tmpLsfs1 = new double[maxInd+1];
-                            tmpLsfs2 = new double[maxInd+1];
-                            System.arraycopy(lsfs1.lsfs[j], 0, tmpLsfs1, 0, maxInd+1);
-                            System.arraycopy(lsfs2.lsfs[frmInd2], 0, tmpLsfs2, 0, maxInd+1);
-
-                            if (!isBark)
-                                frameDistances[count++] = SignalProcUtils.getRmsDistance(tmpLsfs1, tmpLsfs2);
-                            else
-                                frameDistances[count++] = SignalProcUtils.getRmsDistance(SignalProcUtils.freq2bark(tmpLsfs1), SignalProcUtils.freq2bark(tmpLsfs2));
-                        } 
+                    int f2 = SignalProcUtils.time2frameIndex(t2, lsfs2.params.winsize, lsfs2.params.skipsize);
+                    if (f2 <= frameSeen2) {
+                        continue;
                     }
-                    
-                    if (count>=frameDistances.length)
+                    if (f2 >= lsfs2.lsfs.length) {
                         break;
+                    }
+                    frameDistances[count++] = computeOneFrameDistance(lsfs1.lsfs[f1], lsfs2.lsfs[f2], isBark, upperFreqInHz);
+                    //System.err.println("Compared frames "+f1+" and "+f2);
+                    frameSeen1 = f1;
+                    frameSeen2 = f2;
+                }
+            } else { // second is shorter
+                int fromIndex = SignalProcUtils.time2frameIndex(ats.secondStart, lsfs2.params.winsize, lsfs2.params.skipsize);
+                if (fromIndex < 0) {
+                    fromIndex = 0;
+                }
+                if (frameSeen2 >= fromIndex) {
+                    fromIndex = frameSeen2 + 1;
+                }
+                int toIndex = SignalProcUtils.time2frameIndex(ats.secondStart+ats.secondDuration, lsfs2.params.winsize, lsfs2.params.skipsize);
+                if (toIndex >= lsfs2.lsfs.length) {
+                    break;
+                }
+                for (int f2=fromIndex; f2<=toIndex; f2++) {
+                    double t2 = SignalProcUtils.frameIndex2Time(f2, lsfs2.params.winsize, lsfs2.params.skipsize);
+                    double t1 = aligned.mapTimeFromSecondToFirst(t2);
+                    if (isInitialOrFinalSilence(t1, labs1, silenceSymbol)
+                            || isInitialOrFinalSilence(t2, labs2, silenceSymbol)) {
+                        continue;
+                    }
+                    int f1 = SignalProcUtils.time2frameIndex(t1, lsfs1.params.winsize, lsfs1.params.skipsize);
+                    if (f1 <= frameSeen1) {
+                        continue;
+                    }
+                    if (f1 >= lsfs1.lsfs.length) {
+                        break;
+                    }
+                    frameDistances[count++] = computeOneFrameDistance(lsfs1.lsfs[f1], lsfs2.lsfs[f2], isBark, upperFreqInHz);
+                    //System.err.println("Compared frames "+f1+" and "+f2);
+                    frameSeen1 = f1;
+                    frameSeen2 = f2;
                 }
             }
         }
+        /*
+        int j, labInd1, labInd2, frmInd1, frmInd2;
+        double time1, time2;
+        double startTime1, endTime1, startTime2, endTime2;
+        double[] tmpLsfs1 = null;
+        double[] tmpLsfs2 = null;
+        int maxInd1, maxInd2, maxInd;
+
+        labInd1 = 0;
+
+
+        //Find the corresponding target frame index for each source frame index
+        for (j=0; j<lsfs1.params.numfrm; j++)
+        {
+            time1 = SignalProcUtils.frameIndex2Time(j, lsfs1.params.winsize, lsfs1.params.skipsize);
+            int i1 = labs1.getLabelIndexAtTime(time1);
+            assert i1 >= 0;
+            Label l1 = labs1.items[i1];
+            // Exclude initial and final silences:
+            if ((i1 == 0 || i1 == labs1.items.length - 1) && l1.phn.equals(silenceSymbol)) {
+                continue;
+            }
+            time2 = aligned.mapTimeFromFirstToSecond(time1);
+            int i2 = labs2.getLabelIndexAtTime(time2);
+            assert i2 >= 0;
+            Label l2 = labs2.items[i2];
+            // Exclude initial and final silences:
+            if ((i2 == 0 || i2 == labs2.items.length - 1) && l2.phn.equals(silenceSymbol)) {
+                continue;
+            }
+            
+                    frmInd2 = SignalProcUtils.time2frameIndex(time2, lsfs2.params.winsize, lsfs2.params.skipsize);
+                    if (frmInd2<0)
+                        frmInd2=0;
+                    if (frmInd2>lsfs2.params.numfrm-1)
+                        frmInd2=lsfs2.params.numfrm-1;
+                    
+                    maxInd1 = MathUtils.getLargestIndexSmallerThan(lsfs1.lsfs[j], upperFreqInHz);
+                    maxInd2 = MathUtils.getLargestIndexSmallerThan(lsfs2.lsfs[frmInd2], upperFreqInHz);
+                    maxInd = Math.min(maxInd1, maxInd2);
+                    
+                    tmpLsfs1 = new double[maxInd+1];
+                    tmpLsfs2 = new double[maxInd+1];
+                    System.arraycopy(lsfs1.lsfs[j], 0, tmpLsfs1, 0, maxInd+1);
+                    System.arraycopy(lsfs2.lsfs[frmInd2], 0, tmpLsfs2, 0, maxInd+1);
+
+                    if (!isBark)
+                        frameDistances[count++] = SignalProcUtils.getRmsDistance(tmpLsfs1, tmpLsfs2);
+                    else
+                        frameDistances[count++] = SignalProcUtils.getRmsDistance(SignalProcUtils.freq2bark(tmpLsfs1), SignalProcUtils.freq2bark(tmpLsfs2));
+                    System.err.println("Compared frames "+j+" and "+frmInd2);
+            
+            if (count>=frameDistances.length)
+                break;
+        }*/
         
         if (count>0)
         {
@@ -249,7 +375,8 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
     }
     
     public static void mainParametricInterspeech2008(String method, String emotion, boolean isBark)
-    {  
+    throws IOException
+   {  
         String baseDir = "D:/Oytun/DFKI/voices/Interspeech08_out/objective_test/";
 
         String tgtFolder = baseDir + "target/" + emotion;
@@ -308,6 +435,7 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
     
     //Put source and target wav and lab files into two folders and call this function
     public static void mainInterspeech2008()
+    throws IOException
     {
         boolean isBark = true;
         String method; //"1_codebook"; "2_frame"; "3_gmm";
@@ -335,6 +463,7 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
     }
     
     public static void mainHmmVoiceConversion(String method1, String method2, String folder1, String folder2, String referenceFolder, String outputFile, boolean isBark)
+    throws IOException
     {  
         RmsLsfDistortionComputer r = new RmsLsfDistortionComputer();
   
@@ -385,6 +514,7 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
     }
     
     public static void mainHmmVoiceConversion()
+    throws IOException
     {
         String baseInputFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest2/output/final/";
         String baseOutputFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest2/objective_test/";
