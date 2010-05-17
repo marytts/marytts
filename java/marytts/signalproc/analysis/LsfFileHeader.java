@@ -19,6 +19,7 @@
  */
 package marytts.signalproc.analysis;
 
+import java.io.DataInput;
 import java.io.IOException;
 
 import marytts.signalproc.window.Window;
@@ -80,21 +81,16 @@ public class LsfFileHeader extends FeatureFileHeader {
         return bRet;
     }
     
-    public void readHeader(MaryRandomAccessFile stream, boolean bLeaveStreamOpen) throws IOException
+    @Override
+    public void readHeader(DataInput stream) throws IOException
     {
         if (stream!=null)
         {
-            super.readHeader(stream, true);
+            super.readHeader(stream);
             
             preCoef = stream.readFloat();
             windowType = stream.readInt();
             isBarkScaled = stream.readBoolean();
-            
-            if (!bLeaveStreamOpen)
-            {
-                stream.close();
-                stream = null;
-            }
         }
     }
     

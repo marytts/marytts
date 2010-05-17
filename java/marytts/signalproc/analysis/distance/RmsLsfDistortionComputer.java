@@ -43,9 +43,32 @@ import marytts.util.string.StringUtils;
  * @author Oytun T&uumlrk
  */
 public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
+    private AllophoneSet allophoneSet;
+    private String silenceSymbol;
+    private TranscriptionAligner aligner;
+    
     public RmsLsfDistortionComputer()
+    throws IOException
     {
         super();
+        setupTranscriptionAligner();
+    }
+    
+    private void setupTranscriptionAligner()
+    throws IOException {
+        String allophoneSetFilename = System.getProperty("allophoneset");
+        if (allophoneSetFilename == null) {
+            throw new IOException("Allophone set not provided (use -Dallophoneset=/path/to/allophones.xml)");
+        }
+        allophoneSet = null;
+        try {
+            allophoneSet = AllophoneSet.getAllophoneSet(allophoneSetFilename);
+        } catch (Exception e) {
+            throw new IOException("Problem reading Allophones file "+allophoneSetFilename, e);
+        }
+        silenceSymbol = allophoneSet.getSilence().name();
+        aligner = new TranscriptionAligner(allophoneSet);
+
     }
     
     public double[] getDistances(String folder1, String folder2, double upperFreqInHz)
@@ -219,18 +242,6 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
         }
 
         //Find the optimum alignment between the source and the target labels since the phone sequences may not be identical due to silence periods etc.
-        String allophoneSetFilename = System.getProperty("allophoneset");
-        if (allophoneSetFilename == null) {
-            throw new IOException("Allophone set not provided (use -Dallophoneset=/path/to/allophones.xml)");
-        }
-        AllophoneSet allophoneSet = null;
-        try {
-            allophoneSet = AllophoneSet.getAllophoneSet(allophoneSetFilename);
-        } catch (Exception e) {
-            throw new IOException("Problem reading Allophones file "+allophoneSetFilename, e);
-        }
-        String silenceSymbol = allophoneSet.getSilence().name();
-        TranscriptionAligner aligner = new TranscriptionAligner(allophoneSet);
         AlignedLabels aligned = aligner.alignLabels(labs1, labs2);
         assert aligned != null;
         
@@ -559,6 +570,7 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
      */
     public static void mainDistancesPerFile(String folder1, String folder2)
     throws IOException {
+        long startTime = System.currentTimeMillis();
         RmsLsfDistortionComputer r = new RmsLsfDistortionComputer();
         folder1 = StringUtils.checkLastSlash(folder1);
         folder2 = StringUtils.checkLastSlash(folder2);
@@ -615,6 +627,9 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
         }
         double allStddev = Math.sqrt(allVariance / allN);
         System.out.println("Global mean "+allMean+" stddev "+allStddev);
+        
+        long timeNeeded = System.currentTimeMillis() - startTime;
+        System.err.println("Computed distances between "+map.length+" files in "+timeNeeded+" ms");
     }
     
     public static void main(String[] args)
