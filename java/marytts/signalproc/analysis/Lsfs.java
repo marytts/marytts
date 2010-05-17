@@ -19,6 +19,8 @@
  */
 package marytts.signalproc.analysis;
 
+import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.IOException;
 
 import marytts.util.io.MaryRandomAccessFile;
@@ -37,37 +39,29 @@ public class Lsfs {
     
     public Lsfs()
     {
-        this("");
+        lsfs = null;
+        params = new LsfFileHeader();
     }
     
     public Lsfs(String lsfFile)
+    throws IOException
     {
         readLsfFile(lsfFile);
     }
     
     public void readLsfFile(String lsfFile)
+    throws IOException
     {
         lsfs = null;
         params = new LsfFileHeader();
         
-        if (lsfFile!="")
+        if (!lsfFile.equals(""))
         {
-            MaryRandomAccessFile stream = null;
-            try {
-                stream = params.readHeader(lsfFile, true);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            DataInputStream stream = params.readHeader(lsfFile, true);
 
             if (stream != null)
             {
-                try {
-                    lsfs = LsfAnalyser.readLsfs(stream, params);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                lsfs = LsfAnalyser.readLsfs(stream, params);
             }
         }
     }
@@ -122,6 +116,7 @@ public class Lsfs {
     }
     
     public static void main(String[] args)
+    throws Exception
     {
         Lsfs l1 = new Lsfs();
         l1.params.dimension = 5;

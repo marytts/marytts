@@ -19,6 +19,7 @@
  */
 package marytts.signalproc.analysis;
 
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -32,6 +33,7 @@ import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.io.MaryRandomAccessFile;
+import marytts.util.io.StreamUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
@@ -573,11 +575,11 @@ public class LsfAnalyser
     public static double[][] readLsfFile(String lsfFile) throws IOException
     {
         LsfFileHeader params = new LsfFileHeader();
-        MaryRandomAccessFile stream = params.readHeader(lsfFile, true);
+        DataInputStream stream = params.readHeader(lsfFile, true);
         return readLsfs(stream, params);
     }
     
-    public static double[][] readLsfs(MaryRandomAccessFile stream, LsfFileHeader params) throws IOException
+    public static double[][] readLsfs(DataInputStream stream, LsfFileHeader params) throws IOException
     {
         double[][] lsfs = null;
         
@@ -585,9 +587,9 @@ public class LsfAnalyser
         {
             lsfs = new double[params.numfrm][];
             
-            for (int i=0; i<lsfs.length; i++)
-                lsfs[i] = stream.readDouble(params.dimension);
-            
+            for (int i=0; i<lsfs.length; i++) {
+                lsfs[i] = StreamUtils.readDoubleArray(stream, params.dimension);
+            }
             stream.close();
         }
         

@@ -46,7 +46,9 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
         params = new WeightedCodebookTrainerParams(pa);
     }
     
+    @Override
     public void learnMappingFrames(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
+    throws IOException
     {
         assert params.codebookHeader.codebookType==WeightedCodebookFileHeader.FRAMES;
 
@@ -62,12 +64,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
         {
             System.out.println("LSF mapping for pair " + String.valueOf(i+1) + " of " + String.valueOf(fcol.indexMapFiles.length) + ":");
 
-            try {
-                imap.readFromFile(fcol.indexMapFiles[i]); //imap keeps information about a single source-target pair only
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            imap.readFromFile(fcol.indexMapFiles[i]); //imap keeps information about a single source-target pair only
 
             if (imap.files!=null && sourceTrainingSet.items.length>i && targetTrainingSet.items.length>i)
             {
@@ -156,8 +153,10 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
             } 
         }
     }
-    
+
+    @Override
     public void learnMappingFrameGroups(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
+    throws IOException
     {
         assert params.codebookHeader.codebookType==WeightedCodebookFileHeader.FRAME_GROUPS;
 
@@ -194,12 +193,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
         {
             System.out.println("LSF mapping for pair " + String.valueOf(i+1) + " of " + String.valueOf(fcol.indexMapFiles.length) + ":");
 
-            try {
-                imap.readFromFile(fcol.indexMapFiles[i]); //imap keeps information about a single source-target pair only
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            imap.readFromFile(fcol.indexMapFiles[i]); //imap keeps information about a single source-target pair only
 
             if (imap.files!=null && sourceTrainingSet.items.length>i && targetTrainingSet.items.length>i)
             {
@@ -428,6 +422,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
     }
     
     public void learnMappingLabels(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
+    throws IOException
     {
         assert params.codebookHeader.codebookType==WeightedCodebookFileHeader.LABELS;
 
@@ -469,12 +464,7 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
         {
             System.out.println("LSF mapping for pair " + String.valueOf(i+1) + " of " + String.valueOf(fcol.indexMapFiles.length) + ":");
 
-            try {
-                imap.readFromFile(fcol.indexMapFiles[i]); //imap keeps information about a single source-target pair only
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            imap.readFromFile(fcol.indexMapFiles[i]); //imap keeps information about a single source-target pair only
 
             if (imap.files!=null && sourceTrainingSet.items.length>i && targetTrainingSet.items.length>i)
             {
@@ -702,11 +692,13 @@ public class WeightedCodebookLsfMapper extends WeightedCodebookFeatureMapper {
     
     //This function is identical to learnMappingLabels since the mapping is performed accordingly in previous steps
     public void learnMappingLabelGroups(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
+    throws IOException
     {
          learnMappingLabels(codebookFile, fcol, sourceTrainingSet, targetTrainingSet, map);
     }
     
     public void learnMappingSpeech(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
+    throws IOException
     {
         assert params.codebookHeader.codebookType==WeightedCodebookFileHeader.SPEECH;
 

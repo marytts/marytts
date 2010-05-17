@@ -19,6 +19,10 @@
  */
 package marytts.signalproc.analysis;
 
+import java.io.BufferedInputStream;
+import java.io.DataInput;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import marytts.util.io.MaryRandomAccessFile;
@@ -81,36 +85,28 @@ public class FeatureFileHeader {
         readHeader(file, false);
     }
     
-    public MaryRandomAccessFile readHeader(String file, boolean bLeaveStreamOpen) throws IOException
+    public DataInputStream readHeader(String file, boolean bLeaveStreamOpen) throws IOException
     {
-        MaryRandomAccessFile stream = new MaryRandomAccessFile(file, "rw");
+        DataInputStream stream = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
 
-        if (stream!=null)
-            readHeader(stream, bLeaveStreamOpen);
-        
+        if (stream!=null) {
+            readHeader(stream);
+            if (!bLeaveStreamOpen) {
+                stream.close();
+            }
+        }
         return stream;
-    }
-    
-    public void readHeader(MaryRandomAccessFile stream) throws IOException
-    {
-        readHeader(stream, true);
     }
     
     //Baseline version does nothing!
     //It is the derived class´ responsibility to do the reading and closing the file handle
-    public void readHeader(MaryRandomAccessFile stream, boolean bLeaveStreamOpen) throws IOException
+    public void readHeader(DataInput stream) throws IOException
     {
         numfrm = stream.readInt();
         dimension = stream.readInt();
         winsize = stream.readFloat();
         skipsize = stream.readFloat();
         samplingRate = stream.readInt();
-        
-        if (!bLeaveStreamOpen)
-        {
-            stream.close();
-            stream = null;
-        }
     }
     
     public void writeHeader(String file) throws IOException

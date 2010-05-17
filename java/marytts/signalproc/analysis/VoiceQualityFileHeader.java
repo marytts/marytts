@@ -26,19 +26,6 @@ public class VoiceQualityFileHeader extends FeatureFileHeader {
       return super.isIdenticalAnalysisParams(hdr);
   }
   
-  public void readHeader(MaryRandomAccessFile ler, boolean bLeaveStreamOpen) throws IOException
-  {
-      super.readHeader(ler, true);
-      
-      if (ler!=null)
-      {
-          if (!bLeaveStreamOpen)
-          {
-              ler.close();
-              ler = null;
-          }
-      }
-  }
   
   public void writeHeader(MaryRandomAccessFile ler) throws IOException
   {   

@@ -19,9 +19,11 @@
  */
 package marytts.signalproc.analysis;
 
+import java.io.DataInputStream;
 import java.io.IOException;
 
 import marytts.util.io.MaryRandomAccessFile;
+import marytts.util.io.StreamUtils;
 
 
 /**
@@ -56,7 +58,7 @@ public class Mfccs {
         
         if (mfccFile!="")
         {
-            MaryRandomAccessFile stream = null;
+            DataInputStream stream = null;
             try {
                 stream = params.readHeader(mfccFile, true);
             } catch (IOException e) {
@@ -172,11 +174,11 @@ public class Mfccs {
     public static double[][] readMfccsFromFile(String mfccFile) throws IOException
     {
         MfccFileHeader params = new MfccFileHeader();
-        MaryRandomAccessFile stream = params.readHeader(mfccFile, true);
+        DataInputStream stream = params.readHeader(mfccFile, true);
         return readMfccs(stream, params);
     }
     
-    public static double[][] readMfccs(MaryRandomAccessFile stream, MfccFileHeader params) throws IOException
+    public static double[][] readMfccs(DataInputStream stream, MfccFileHeader params) throws IOException
     {
         double[][] mfccs = null;
         
@@ -184,9 +186,9 @@ public class Mfccs {
         {
             mfccs = new double[params.numfrm][];
             
-            for (int i=0; i<mfccs.length; i++)
-                mfccs[i] = stream.readDouble(params.dimension);
-            
+            for (int i=0; i<mfccs.length; i++) {
+                mfccs[i] = StreamUtils.readDoubleArray(stream, params.dimension);
+            }
             stream.close();
         }
         
@@ -230,6 +232,7 @@ public class Mfccs {
     }
     
     public static void main(String[] args)
+    throws Exception
     {
         Mfccs l1 = new Mfccs();
         l1.params.dimension = 5;
