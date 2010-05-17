@@ -165,7 +165,7 @@ public class DomUtils
      */
     public static String getAttributeFromClosestAncestorOfAnyKind(Node node, String attributeName) {
         Node parentNode;
-        while ((parentNode = node.getParentNode()) != null) {
+        while (node != null && (parentNode = node.getParentNode()) != null) {
             if (parentNode.hasAttributes()){
                 Element parentElement = (Element) parentNode;
                 if (parentElement.hasAttribute(attributeName)) {
