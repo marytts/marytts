@@ -21,8 +21,11 @@
 package marytts.util.io;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
@@ -41,5 +44,19 @@ public class StreamUtils {
             data[i] = in.readDouble();
         }
         return data;
+    }
+    
+    
+    public static void writeDoubleArray(DataOutput stream, double[] data)
+    throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream out = new DataOutputStream(baos);
+        for (int i=0; i<data.length; i++) {
+            out.writeDouble(data[i]);
+        }
+        out.close();
+        byte[] raw = baos.toByteArray();
+        assert raw.length == data.length * Double.SIZE / 8;
+        stream.write(raw);
     }
 }

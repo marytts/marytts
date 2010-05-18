@@ -227,7 +227,7 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
             LsfFileHeader lsfParams = new LsfFileHeader();
             BaselineFeatureExtractor.lsfAnalysis(item2, lsfParams, true);
         }
-        
+                
         Lsfs lsfs1 = new Lsfs(item1.lsfFile);
         Lsfs lsfs2 = new Lsfs(item2.lsfFile);
         

@@ -19,6 +19,7 @@
  */
 package marytts.signalproc.analysis;
 
+import java.io.DataOutput;
 import java.io.IOException;
 
 import marytts.util.io.MaryRandomAccessFile;
@@ -53,8 +54,8 @@ public class MfccFileHeader extends FeatureFileHeader {
         return super.isIdenticalAnalysisParams(hdr);
     }
     
-    
-    public void writeHeader(MaryRandomAccessFile ler) throws IOException
+    @Override
+    public void writeHeader(DataOutput ler) throws IOException
     {   
         super.writeHeader(ler);
     }

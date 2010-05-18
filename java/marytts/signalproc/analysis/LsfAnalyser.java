@@ -20,6 +20,7 @@
 package marytts.signalproc.analysis;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -557,16 +558,17 @@ public class LsfAnalyser
     public static void writeLsfFile(double[][] lsfs, String lsfFileOut, LsfFileHeader params) throws IOException
     {
         params.numfrm = lsfs.length;
-        MaryRandomAccessFile stream = params.writeHeader(lsfFileOut, true);
+        DataOutputStream stream = params.writeHeader(lsfFileOut, true);
         writeLsfs(stream, lsfs);
     }
     
-    public static void writeLsfs(MaryRandomAccessFile stream, double[][] lsfs) throws IOException
+    public static void writeLsfs(DataOutputStream stream, double[][] lsfs) throws IOException
     {
         if (stream!=null && lsfs!=null && lsfs.length>0)
         {
-            for (int i=0; i<lsfs.length; i++)
-                stream.writeDouble(lsfs[i]);
+            for (int i=0; i<lsfs.length; i++) {
+                StreamUtils.writeDoubleArray(stream, lsfs[i]);
+            }
             
             stream.close();
         }
