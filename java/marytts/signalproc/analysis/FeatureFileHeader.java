@@ -20,9 +20,13 @@
 package marytts.signalproc.analysis;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import marytts.util.io.MaryRandomAccessFile;
@@ -116,9 +120,9 @@ public class FeatureFileHeader {
     
     //This version returns the file output stream for further use, i.e. if you want to write additional information
     // in the file use this version
-    public MaryRandomAccessFile writeHeader(String file, boolean bLeaveStreamOpen) throws IOException
+    public DataOutputStream writeHeader(String file, boolean bLeaveStreamOpen) throws IOException
     {
-        MaryRandomAccessFile stream = new MaryRandomAccessFile(file, "rw");
+        DataOutputStream stream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
 
         if (stream!=null)
         {
@@ -136,7 +140,7 @@ public class FeatureFileHeader {
     
     //Baseline version does nothing!
     //It is the derived class´ responsibility to do the writing and closing the file handle
-    public void writeHeader(MaryRandomAccessFile ler) throws IOException
+    public void writeHeader(DataOutput ler) throws IOException
     {   
         ler.writeInt(numfrm);
         ler.writeInt(dimension);

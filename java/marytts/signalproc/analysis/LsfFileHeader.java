@@ -20,6 +20,7 @@
 package marytts.signalproc.analysis;
 
 import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 
 import marytts.signalproc.window.Window;
@@ -94,7 +95,8 @@ public class LsfFileHeader extends FeatureFileHeader {
         }
     }
     
-    public void writeHeader(MaryRandomAccessFile ler) throws IOException
+    @Override
+    public void writeHeader(DataOutput ler) throws IOException
     {   
         super.writeHeader(ler);
         ler.writeFloat(preCoef);

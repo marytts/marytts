@@ -20,6 +20,7 @@
 package marytts.signalproc.analysis;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 import marytts.util.io.MaryRandomAccessFile;
@@ -82,7 +83,7 @@ public class Mfccs {
     {   
         if (mfccFile!="")
         {
-            MaryRandomAccessFile stream = null;
+            DataOutputStream stream = null;
             try {
                 stream = params.writeHeader(mfccFile, true);
             } catch (IOException e) {
@@ -130,7 +131,7 @@ public class Mfccs {
     public static void writeMfccFile(double[][] mfccs, String mfccFileOut, MfccFileHeader params) throws IOException
     {
         params.numfrm = mfccs.length;
-        MaryRandomAccessFile stream = params.writeHeader(mfccFileOut, true);
+        DataOutputStream stream = params.writeHeader(mfccFileOut, true);
         writeMfccs(stream, mfccs);
     }
     
@@ -149,12 +150,13 @@ public class Mfccs {
         }
     }
     
-    public static void writeMfccs(MaryRandomAccessFile stream, double[][] mfccs) throws IOException
+    public static void writeMfccs(DataOutputStream stream, double[][] mfccs) throws IOException
     {
         if (stream!=null && mfccs!=null && mfccs.length>0)
         {
-            for (int i=0; i<mfccs.length; i++)
-                stream.writeDouble(mfccs[i]);
+            for (int i=0; i<mfccs.length; i++) {
+                StreamUtils.writeDoubleArray(stream, mfccs[i]);
+            }
             
             stream.close();
         }

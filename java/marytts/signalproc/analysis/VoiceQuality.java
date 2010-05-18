@@ -1,6 +1,7 @@
 package marytts.signalproc.analysis;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 import marytts.util.io.MaryRandomAccessFile;
@@ -99,7 +100,7 @@ public class VoiceQuality {
   {   
       if (vqFile!="")
       {
-          MaryRandomAccessFile stream = null;
+          DataOutputStream stream = null;
           try {
               stream = params.writeHeader(vqFile, true);
           } catch (IOException e) {
@@ -120,13 +121,13 @@ public class VoiceQuality {
   }
   
   
-  public static void writeVqs(MaryRandomAccessFile stream, double[][] vqs) throws IOException
+  public static void writeVqs(DataOutputStream stream, double[][] vqs) throws IOException
   {
       if (stream!=null && vqs!=null && vqs.length>0)
       {
-          for (int i=0; i<vqs.length; i++)
-              stream.writeDouble(vqs[i]);
-          
+          for (int i=0; i<vqs.length; i++) {
+              StreamUtils.writeDoubleArray(stream, vqs[i]);
+          }
           stream.close();
       }
   }

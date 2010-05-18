@@ -21,6 +21,7 @@ package marytts.signalproc.analysis;
 
 import java.io.DataInput;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 import marytts.util.io.MaryRandomAccessFile;
@@ -70,7 +71,7 @@ public class Lsfs {
     {   
         if (lsfFile!="")
         {
-            MaryRandomAccessFile stream = null;
+            DataOutputStream stream = null;
             try {
                 stream = params.writeHeader(lsfFile, true);
             } catch (IOException e) {
