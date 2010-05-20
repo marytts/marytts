@@ -2515,10 +2515,12 @@ public class MaryGenericFeatureProcessors
             }
             float phoneVQ = 0;
             String sVQ;
-            if (seg.getTagName().equals(MaryXML.PHONE)) sVQ = seg.getAttribute("vq");
+            if (seg.getTagName().equals(MaryXML.PHONE)) {
+                sVQ = seg.getAttribute("unit_vq");
+            }
             else {
                 assert seg.getTagName().equals(MaryXML.BOUNDARY) : "segment should be a phone or a boundary, but is a "+seg.getTagName();
-                sVQ = seg.getAttribute("vq");
+                sVQ = seg.getAttribute("unit_vq");
             }
             if (sVQ.equals("")) {
                 return 0;
@@ -2549,17 +2551,21 @@ public class MaryGenericFeatureProcessors
             }
             float phoneVQ = 0;
             String sVQ;
-            if (seg.getTagName().equals(MaryXML.PHONE)) sVQ = seg.getAttribute("vq");
+            if (seg.getTagName().equals(MaryXML.PHONE)) {
+                sVQ = seg.getAttribute("basename_vq");
+            }
             else {
                 assert seg.getTagName().equals(MaryXML.BOUNDARY) : "segment should be a phone or a boundary, but is a "+seg.getTagName();
-                sVQ = seg.getAttribute("vq");
+                sVQ = seg.getAttribute("basename_vq");
             }
             if (sVQ.equals("")) {
                 return 0;
             }
             try {
                 phoneVQ = Float.parseFloat(sVQ);
-            } catch (NumberFormatException nfe) {}
+            } catch (NumberFormatException nfe) {
+                return 0;
+            }
             return phoneVQ;
         }
     }
