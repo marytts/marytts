@@ -389,6 +389,9 @@ public class TranscriptionAligner
         // Now, in aligned, the hash signs separate fields corresponding to first;
         // the field contains the label symbols of second (space-separated)
         // that match this index in first.
+        if (aligned.endsWith("#")) {
+            aligned = aligned + " "; // make sure that the split operation does not discard a final empty field
+        }
         String[] fields = aligned.split("#");
         assert fields.length == first.items.length;
         int iSecond = -1; // start before first item
