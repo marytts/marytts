@@ -143,7 +143,6 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         }
         
         logger.debug("Preselected "+candidateUnitSet.size()+" diphone candidates for target "+target);
-        Collections.sort(candidates);//TODO this is only for temp debugging!
         return candidates;
     }
 
