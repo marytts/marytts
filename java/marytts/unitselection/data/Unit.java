@@ -74,5 +74,21 @@ public class Unit
         return "unit "+index+" start: "+startTime+", duration: "+duration;
     }
     
+    /**
+     * inspired by http://www.artima.com/lejava/articles/equality.html
+     */
+    @Override public boolean equals(Object other) {
+        boolean result = false;
+        if (other instanceof Unit) {
+            Unit that = (Unit) other;
+            result = (this.index == that.index);
+        }
+        return result;
+    }
+
+    @Override public int hashCode() {
+        return this.index;
+    }
+
 }
 

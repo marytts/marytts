@@ -47,5 +47,24 @@ public class DiphoneUnit extends Unit
         return "diphoneunit "+index+" start: "+startTime+", duration: "+duration;
     }
 
+    /**
+     * inspired by http://www.artima.com/lejava/articles/equality.html
+     */
+    @Override public boolean equals(Object other) {
+        boolean result = false;
+        if (other instanceof DiphoneUnit) {
+            DiphoneUnit that = (DiphoneUnit) other;
+            result = (this.left.equals(that.left) && this.right.equals(that.right));
+        }
+        return result;
+    }
+
+    /**
+     * inspired by http://www.artima.com/lejava/articles/equality.html
+     */
+    @Override public int hashCode() {
+        return (41 * (41 + this.left.hashCode()) + this.right.hashCode());
+    }
+
 }
 
