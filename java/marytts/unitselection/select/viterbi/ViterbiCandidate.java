@@ -123,7 +123,7 @@ public class ViterbiCandidate implements Comparable<ViterbiCandidate>
 	 * @return the string form of this object
 	 */
 	public String toString() {
-	    return "ViterbiCandidate: target "+ target + ", unit " + unit + (bestPath != null ? ", best path score "+bestPath.score : ", no best path");
+        return "ViterbiCandidate: target "+ target + ", targetCost " + targetCost + ", unit " + unit + (bestPath != null ? ", best path score "+bestPath.score : ", no best path");
 	}
 
 	/**

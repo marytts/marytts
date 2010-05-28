@@ -31,9 +31,9 @@
  */
 package marytts.unitselection.select.viterbi;
 
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.List;
 
 import marytts.unitselection.select.Target;
 
@@ -45,8 +45,8 @@ import marytts.unitselection.select.Target;
   */
  public class ViterbiPoint {
      Target target = null;
-     SortedSet<ViterbiCandidate> candidates = null;
-     SortedSet<ViterbiPath> paths = new TreeSet<ViterbiPath>();
+     List<ViterbiCandidate> candidates = null;
+     List<ViterbiPath> paths = new ArrayList<ViterbiPath>();
      ViterbiPoint next = null;
 	
      /**
@@ -81,7 +81,7 @@ import marytts.unitselection.select.Target;
  	 * Gets the candidates of this point
  	 * @return the candidates
  	 */
-     public SortedSet<ViterbiCandidate> getCandidates()
+     public List<ViterbiCandidate> getCandidates()
      {
  	    return candidates;
  	}
@@ -90,7 +90,7 @@ import marytts.unitselection.select.Target;
       * Sets the candidates of this point
       * @param cands the candidates
       */
- 	public void setCandidates(SortedSet<ViterbiCandidate> candidates)
+ 	public void setCandidates(ArrayList<ViterbiCandidate> candidates)
  	{
  	    this.candidates = candidates;
  	}
@@ -101,7 +101,7 @@ import marytts.unitselection.select.Target;
      * score, i.e. the best path.
  	 * @return a sorted set.
  	 */
-	public SortedSet<ViterbiPath> getPaths()
+	public List<ViterbiPath> getPaths()
 	{
 	    return paths;
 	}

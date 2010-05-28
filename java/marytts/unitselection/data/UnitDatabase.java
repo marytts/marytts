@@ -22,8 +22,8 @@ package marytts.unitselection.data;
 
 
 import java.io.IOException;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import marytts.cart.CART;
 import marytts.unitselection.select.JoinCostFunction;
@@ -31,8 +31,10 @@ import marytts.unitselection.select.StatisticalCostFunction;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.TargetCostFunction;
 import marytts.unitselection.select.viterbi.ViterbiCandidate;
+import marytts.util.dom.DomUtils;
 
 import org.apache.log4j.Logger;
+import org.w3c.dom.Element;
 
 
 /**
@@ -126,29 +128,51 @@ public class UnitDatabase
      * Preselect a set of candidates that could be used to realise the
      * given target.
      * @param target a Target object representing an optimal unit
-     * @return an array of ViterbiCandidates, each containing the (same) target and a (different) Unit object
+     * @return an <span style="color:red;">unsorted</span> ArrayList of ViterbiCandidates, each containing the (same) target and a (different) Unit object
      */
-    public SortedSet<ViterbiCandidate> getCandidates(Target target)
+    public List<ViterbiCandidate> getCandidates(Target target)
     {
+        // BEGIN blacklisting
+        // The point of this is to get the value of the "blacklist" attribute in the first child element of the MaryXML
+        // and store it in the blacklist String variable.
+        // This code seems rather inelegant; perhaps there is a better way to access the MaryXML from this method?
+        String blacklist = "";
+        String unitBasename = "This must never be null or the empty string!"; // otherwise candidate selection fails!
+        Element targetElement = target.getMaryxmlElement();
+        blacklist = DomUtils.getAttributeFromClosestAncestorOfAnyKind(targetElement, "blacklist");
+        // END blacklisting
+
         //logger.debug("Looking for candidates in cart "+target.getName());
         //get the cart tree and extract the candidates
         int[] clist = (int[]) preselectionCART.interpret(target,backtrace);
         logger.debug("For target "+target+", selected " + clist.length + " units");
 
         // Now, clist is an array of unit indexes.
-        SortedSet<ViterbiCandidate> candidates = new TreeSet<ViterbiCandidate>();
+        List<ViterbiCandidate> candidates = new ArrayList<ViterbiCandidate>();
         for (int i = 0; i < clist.length; i++) {
             // The target is the same for all these candidates in the queue
             // remember the actual unit:
             Unit unit = unitReader.getUnit(clist[i]);
             candidates.add(new ViterbiCandidate(target, unit, targetCostFunction));
         }
+
+        // Blacklisting without crazy performance drop:
+        // just remove candidates again if their basenames are blacklisted 
+        java.util.Iterator<ViterbiCandidate> candIt = candidates.iterator();
+        while (candIt.hasNext()) {
+            ViterbiCandidate candidate = candIt.next();
+            unitBasename = getFilename(candidate.getUnit());
+            if (blacklist.contains(unitBasename)) {
+                candIt.remove();
+            }
+        }
+
         return candidates;
     }
     
     /**
      * For debugging, return the basename of the original audio file from which
-     * the unit is coming, as well as the start time in that file. 
+     * the unit is coming, as well as the start time in that file.
      * @param unit
      * @return a String containing basename followed by a space and the 
      * unit's start time, in seconds, from the beginning of the file. If 
@@ -181,11 +205,9 @@ public class UnitDatabase
      */
     public String getFilename(Unit unit)
     {
-       if (basenameTimeline == null) return "unknown origin";
-       long[] offset = new long[1];
+//       if (basenameTimeline == null) return "unknown origin";
        try {
-           Datagram[] datagrams = basenameTimeline.getDatagrams(unit.startTime, 1, unitReader.getSampleRate(), offset);
-           Datagram filenameData = datagrams[0];
+           Datagram filenameData = basenameTimeline.getDatagram(unit.startTime);
            String filename = new String(filenameData.getData(), "UTF-8");
            return filename;
        } catch (Exception e) {

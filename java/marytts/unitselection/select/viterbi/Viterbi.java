@@ -34,14 +34,13 @@ package marytts.unitselection.select.viterbi;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedSet;
-
 import marytts.exceptions.SynthesisException;
 import marytts.server.MaryProperties;
 import marytts.unitselection.data.DiphoneUnit;
@@ -225,7 +224,7 @@ public  class Viterbi
             // The candidates for the current item:
             // candidate selection is carried out by UnitSelector
             Target target = point.target;
-            SortedSet<ViterbiCandidate> candidates = database.getCandidates(target);
+            List<ViterbiCandidate> candidates = database.getCandidates(target);
             if (candidates.size() == 0) {
                 if (target instanceof DiphoneTarget) {
                     logger.debug("No diphone '"+target.getName()+"' -- will build from halfphones");
@@ -245,6 +244,10 @@ public  class Viterbi
                 }
             }
             assert candidates.size() > 0;
+            
+            // absolutely critical since candidates is no longer a SortedSet:
+            Collections.sort(candidates);
+            
             point.candidates = candidates;
             assert beamSize != 0; // general beam search not implemented
     
@@ -252,7 +255,7 @@ public  class Viterbi
             // for the current item;
             // tentatively extend each existing path to each of 
             // the candidates, but only retain the best one
-            SortedSet<ViterbiPath> paths = point.paths;
+            List<ViterbiPath> paths = point.paths;
             int nPaths = paths.size();
             if (beamSize != -1 && beamSize < nPaths) {
                 // beam search, look only at the best n paths:
@@ -306,7 +309,7 @@ public  class Viterbi
         ViterbiCandidate candidate = newPath.candidate;
         assert candidate != null;
         ViterbiPath bestPathSoFar = candidate.bestPath;
-        SortedSet<ViterbiPath> paths = point.getPaths();
+        List<ViterbiPath> paths = point.getPaths();
         if (bestPathSoFar == null) {
             // we don't have a path for the candidate yet, so this is best
             paths.add(newPath);
@@ -519,10 +522,14 @@ public  class Viterbi
         // previous path segment's scores. Therefore, it is
         // sufficient to find the best path from among the
         // paths for lastPoint.
-        SortedSet<ViterbiPath> paths = lastPoint.getPaths();
+        List<ViterbiPath> paths = lastPoint.getPaths();
         if (paths.isEmpty()) // no path, we failed
             return null;
-        ViterbiPath best = paths.first();
+        
+        // as paths is no longer a SortedSet, they must be explicitly sorted:  
+        Collections.sort(paths);
+        ViterbiPath best = paths.get(0);
+        
         // Set *next* pointers correctly:
         ViterbiPath path = best;
         double totalCost = best.score;
