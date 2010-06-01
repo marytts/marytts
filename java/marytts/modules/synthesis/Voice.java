@@ -268,7 +268,7 @@ public class Voice
         if (preferredModules == null && preferredModulesClasses != null) {
             // need to initialise the list of modules
             preferredModules = new Vector<MaryModule>();
-            StringTokenizer st = new StringTokenizer(preferredModulesClasses, " \t\n\r\f");
+            StringTokenizer st = new StringTokenizer(preferredModulesClasses);
             while (st.hasMoreTokens()) {
                 String moduleInfo = st.nextToken();
                 try {

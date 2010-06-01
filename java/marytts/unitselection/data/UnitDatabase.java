@@ -22,8 +22,8 @@ package marytts.unitselection.data;
 
 
 import java.io.IOException;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.List;
 
 import marytts.cart.CART;
 import marytts.unitselection.select.JoinCostFunction;
@@ -128,9 +128,9 @@ public class UnitDatabase
      * Preselect a set of candidates that could be used to realise the
      * given target.
      * @param target a Target object representing an optimal unit
-     * @return an array of ViterbiCandidates, each containing the (same) target and a (different) Unit object
+     * @return an <span style="color:red;">unsorted</span> ArrayList of ViterbiCandidates, each containing the (same) target and a (different) Unit object
      */
-    public SortedSet<ViterbiCandidate> getCandidates(Target target)
+    public List<ViterbiCandidate> getCandidates(Target target)
     {
         // BEGIN blacklisting
         // The point of this is to get the value of the "blacklist" attribute in the first child element of the MaryXML
@@ -148,7 +148,7 @@ public class UnitDatabase
         logger.debug("For target "+target+", selected " + clist.length + " units");
 
         // Now, clist is an array of unit indexes.
-        SortedSet<ViterbiCandidate> candidates = new TreeSet<ViterbiCandidate>();
+        List<ViterbiCandidate> candidates = new ArrayList<ViterbiCandidate>();
         for (int i = 0; i < clist.length; i++) {
             // The target is the same for all these candidates in the queue
             // remember the actual unit:

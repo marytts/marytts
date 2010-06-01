@@ -188,7 +188,7 @@ public class MaryProperties
         helperString = getProperty("ignore.modules.classes.list");
         if (helperString != null) {
             // allow whitespace as list delimiters
-            st = new StringTokenizer(helperString, ", \t\n\r\f");
+            st = new StringTokenizer(helperString);
             while (st.hasMoreTokens()) {
                 ignoreModuleClasses.add(st.nextToken());
             }
@@ -196,7 +196,7 @@ public class MaryProperties
         
         helperString = needProperty("modules.classes.list");
         // allow whitespace as list delimiters
-        st = new StringTokenizer(helperString, " \t\n\r\f");
+        st = new StringTokenizer(helperString);
         while (st.hasMoreTokens()) {
             String className = st.nextToken();
             if (!ignoreModuleClasses.contains(className))
@@ -205,7 +205,7 @@ public class MaryProperties
 
         helperString = needProperty("synthesizers.classes.list");
         // allow whitespace as list delimiters
-        st = new StringTokenizer(helperString, " \t\n\r\f");
+        st = new StringTokenizer(helperString);
         while (st.hasMoreTokens()) {
             synthClasses.add(st.nextToken());
         }
@@ -215,7 +215,7 @@ public class MaryProperties
         if (helperString!=null)
         {
             // allow whitespace as list delimiters
-            st = new StringTokenizer(helperString, " \t\n\r\f");
+            st = new StringTokenizer(helperString);
             while (st.hasMoreTokens()) {
                 audioEffectClassName = st.nextToken();
                 audioEffectClasses.add(audioEffectClassName);
