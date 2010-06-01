@@ -3,8 +3,16 @@
 	<classpathentry kind="src" path="java"/>
 	<classpathentry kind="lib" path="java/freetts.jar"/>
 	<classpathentry kind="lib" path="java/log4j-1.2.15.jar"/>
-	<classpathentry kind="lib" path="java/httpcore-nio-4.0.jar"/>
-	<classpathentry kind="lib" path="java/httpcore-4.0.jar"/>
+	<classpathentry kind="lib" path="java/httpcore-nio-4.0.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hc.apache.org/httpcomponents-core/httpcore-nio/apidocs/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="java/httpcore-4.0.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://hc.apache.org/httpcomponents-core/httpcore/apidocs/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="java/freetts-en_us.jar"/>
 	<classpathentry kind="lib" path="java/freetts-de.jar"/>
 	<classpathentry kind="lib" path="java/freetts-mbrola.jar"/>
