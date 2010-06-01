@@ -24,11 +24,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.lang.reflect.Method;
+import java.net.ServerSocket;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.SQLException;
@@ -411,6 +413,17 @@ public class Mary {
         if (server.equals("socket")) System.err.print("socket server...");
         else if (server.equals("http")) System.err.print("HTTP server...");
         else System.err.print("command-line application...");
+        
+        // first thing we do, let's test if the port is available:
+        int localPort = MaryProperties.needInteger("socket.port");
+        try {
+            ServerSocket serverSocket = new ServerSocket(localPort);
+            serverSocket.close();
+        } catch (IOException e) {
+            System.err.println("\nPort " + localPort + " already in use!");
+            throw e;
+        }
+        
         startup();
         System.err.println(" started in " + (System.currentTimeMillis()-startTime)/1000. + " s");
         
