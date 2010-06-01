@@ -237,6 +237,25 @@ public class Labels extends AlignmentData {
         for (int i=0; i<items.length; i++)
             items[i].print();
     }
+
+
+    /**
+     * For the given time, return the index of the label at that time, if any.
+     * @param time time in seconds
+     * @return the index of the label at that time, or -1 if there isn't any
+     */
+    public int getLabelIndexAtTime(double time) {
+        if (items == null) {
+            return -1;
+        }
+        // We return the first label whose end time is >= time:
+        for (int i=0; i<items.length; i++) {
+            if (items[i].time >= time) {
+                return i;
+            }
+        }
+        return -1;
+    }
     
     public static void main(String[] args)
     {

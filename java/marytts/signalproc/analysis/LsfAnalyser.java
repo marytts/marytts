@@ -19,6 +19,8 @@
  */
 package marytts.signalproc.analysis;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -32,6 +34,7 @@ import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.io.MaryRandomAccessFile;
+import marytts.util.io.StreamUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
@@ -555,16 +558,17 @@ public class LsfAnalyser
     public static void writeLsfFile(double[][] lsfs, String lsfFileOut, LsfFileHeader params) throws IOException
     {
         params.numfrm = lsfs.length;
-        MaryRandomAccessFile stream = params.writeHeader(lsfFileOut, true);
+        DataOutputStream stream = params.writeHeader(lsfFileOut, true);
         writeLsfs(stream, lsfs);
     }
     
-    public static void writeLsfs(MaryRandomAccessFile stream, double[][] lsfs) throws IOException
+    public static void writeLsfs(DataOutputStream stream, double[][] lsfs) throws IOException
     {
         if (stream!=null && lsfs!=null && lsfs.length>0)
         {
-            for (int i=0; i<lsfs.length; i++)
-                stream.writeDouble(lsfs[i]);
+            for (int i=0; i<lsfs.length; i++) {
+                StreamUtils.writeDoubleArray(stream, lsfs[i]);
+            }
             
             stream.close();
         }
@@ -573,11 +577,11 @@ public class LsfAnalyser
     public static double[][] readLsfFile(String lsfFile) throws IOException
     {
         LsfFileHeader params = new LsfFileHeader();
-        MaryRandomAccessFile stream = params.readHeader(lsfFile, true);
+        DataInputStream stream = params.readHeader(lsfFile, true);
         return readLsfs(stream, params);
     }
     
-    public static double[][] readLsfs(MaryRandomAccessFile stream, LsfFileHeader params) throws IOException
+    public static double[][] readLsfs(DataInputStream stream, LsfFileHeader params) throws IOException
     {
         double[][] lsfs = null;
         
@@ -585,9 +589,9 @@ public class LsfAnalyser
         {
             lsfs = new double[params.numfrm][];
             
-            for (int i=0; i<lsfs.length; i++)
-                lsfs[i] = stream.readDouble(params.dimension);
-            
+            for (int i=0; i<lsfs.length; i++) {
+                lsfs[i] = StreamUtils.readDoubleArray(stream, params.dimension);
+            }
             stream.close();
         }
         

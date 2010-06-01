@@ -1,8 +1,11 @@
 package marytts.signalproc.analysis;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 
 import marytts.util.io.MaryRandomAccessFile;
+import marytts.util.io.StreamUtils;
 import marytts.util.MaryUtils;
 
 /**
@@ -73,7 +76,7 @@ public class VoiceQuality {
       
       if (vqFile!="")
       {
-          MaryRandomAccessFile stream = null;
+          DataInputStream stream = null;
           try {
               stream = params.readHeader(vqFile, true);
           } catch (IOException e) {
@@ -97,7 +100,7 @@ public class VoiceQuality {
   {   
       if (vqFile!="")
       {
-          MaryRandomAccessFile stream = null;
+          DataOutputStream stream = null;
           try {
               stream = params.writeHeader(vqFile, true);
           } catch (IOException e) {
@@ -118,19 +121,19 @@ public class VoiceQuality {
   }
   
   
-  public static void writeVqs(MaryRandomAccessFile stream, double[][] vqs) throws IOException
+  public static void writeVqs(DataOutputStream stream, double[][] vqs) throws IOException
   {
       if (stream!=null && vqs!=null && vqs.length>0)
       {
-          for (int i=0; i<vqs.length; i++)
-              stream.writeDouble(vqs[i]);
-          
+          for (int i=0; i<vqs.length; i++) {
+              StreamUtils.writeDoubleArray(stream, vqs[i]);
+          }
           stream.close();
       }
   }
   
   
-  public static double[][] readVqs(MaryRandomAccessFile stream, VoiceQualityFileHeader params) throws IOException
+  public static double[][] readVqs(DataInputStream stream, VoiceQualityFileHeader params) throws IOException
   {
       double[][] vqs = null;
       
@@ -138,9 +141,9 @@ public class VoiceQuality {
       {
           vqs = new double[params.dimension][];
           
-          for (int i=0; i<vqs.length; i++)
-              vqs[i] = stream.readDouble(params.numfrm);
-          
+          for (int i=0; i<vqs.length; i++) {
+              vqs[i] = StreamUtils.readDoubleArray(stream, params.numfrm);
+          }
           stream.close();
       }
       
