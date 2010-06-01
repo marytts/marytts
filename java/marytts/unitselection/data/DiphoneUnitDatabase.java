@@ -20,9 +20,9 @@
 package marytts.unitselection.data;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 import marytts.features.FeatureVector;
 import marytts.unitselection.select.DiphoneTarget;
@@ -46,10 +46,10 @@ public class DiphoneUnitDatabase extends UnitDatabase {
      * Preselect a set of candidates that could be used to realise the
      * given target.
      * @param target a Target object representing an optimal unit
-     * @return an array of ViterbiCandidates, each containing the (same) target and a (different) Unit object
+     * @return an <span style="color:red;">unsorted</span> ArrayList of ViterbiCandidates, each containing the (same) target and a (different) Unit object
      */
     @Override
-    public SortedSet<ViterbiCandidate> getCandidates(Target target)
+    public List<ViterbiCandidate> getCandidates(Target target)
     {
         if (!(target instanceof DiphoneTarget))
             return super.getCandidates(target);
@@ -80,7 +80,8 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         byte brightName = targetCostFunction.getFeatureDefinition().getFeatureValueAsByte(iPhoneme, rightName);
         FeatureVector[] fvs = targetCostFunction.getFeatureVectors();
 
-        SortedSet<ViterbiCandidate> candidates = new TreeSet<ViterbiCandidate>();
+        HashSet<DiphoneUnit> candidateUnitSet = new HashSet<DiphoneUnit>();
+        
         // Pre-select candidates for the left half, but retain only
         // those that belong to appropriate diphones:
         int[] clist = (int[]) preselectionCART.interpret(left,backtrace);
@@ -101,8 +102,7 @@ public class DiphoneUnitDatabase extends UnitDatabase {
                 if (brightUnitName == brightName) {
                     // Found a diphone -- add it to candidates
                     DiphoneUnit diphoneUnit = new DiphoneUnit(unit, rightNeighbour);
-                    ViterbiCandidate c = new ViterbiCandidate(diphoneTarget, diphoneUnit, targetCostFunction);
-                    candidates.add(c);
+                    candidateUnitSet.add(diphoneUnit);
                 }
             }
         }
@@ -126,24 +126,23 @@ public class DiphoneUnitDatabase extends UnitDatabase {
                 if (bleftUnitName == bleftName) {
                     // Found a diphone -- add it to candidates
                     DiphoneUnit diphoneUnit = new DiphoneUnit(leftNeighbour, unit);
-                    ViterbiCandidate c = new ViterbiCandidate(diphoneTarget, diphoneUnit, targetCostFunction);
-                    candidates.add(c);
+                    candidateUnitSet.add(diphoneUnit);
                 }
             }
         }
         
-        // Blacklisting without crazy performance drop:
-        // just remove candidates again if their basenames are blacklisted 
-        java.util.Iterator<ViterbiCandidate> candIt = candidates.iterator();
-        while (candIt.hasNext()) {
-            ViterbiCandidate candidate = candIt.next();
-            unitBasename = getFilename(candidate.getUnit());
-            if (blacklist.contains(unitBasename)) {
-                candIt.remove();
+        // now create ArrayList of ViterbiCandidates from the candidateUnitSet, blacklisting along the way:
+        ArrayList<ViterbiCandidate> candidates = new ArrayList<ViterbiCandidate>(candidateUnitSet.size());
+        for(DiphoneUnit diphoneUnit : candidateUnitSet) {
+            ViterbiCandidate candidate = new ViterbiCandidate(diphoneTarget, diphoneUnit, targetCostFunction);
+            // Blacklisting:
+            unitBasename = getFilename(diphoneUnit);
+            if (!blacklist.contains(unitBasename)) {
+                candidates.add(candidate);
             }
         }
         
-        logger.debug("Preselected "+candidates.size()+" diphone candidates for target "+target);
+        logger.debug("Preselected "+candidateUnitSet.size()+" diphone candidates for target "+target);
         return candidates;
     }
 
