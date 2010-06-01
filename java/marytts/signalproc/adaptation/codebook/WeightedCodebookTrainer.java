@@ -278,6 +278,7 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
     }
     
     public void learnMapping(BaselineFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
+    throws IOException
     {
         assert fcol instanceof WeightedCodebookFeatureCollection;
         
@@ -286,6 +287,7 @@ public class WeightedCodebookTrainer extends BaselineTrainer {
     
     //This function generates the codebooks from training pairs
     public void learnMapping(WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
+    throws IOException
     {
         WeightedCodebookFeatureMapper featureMapper = null;
         
