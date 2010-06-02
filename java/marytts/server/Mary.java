@@ -415,13 +415,15 @@ public class Mary {
         else System.err.print("command-line application...");
         
         // first thing we do, let's test if the port is available:
-        int localPort = MaryProperties.needInteger("socket.port");
-        try {
-            ServerSocket serverSocket = new ServerSocket(localPort);
-            serverSocket.close();
-        } catch (IOException e) {
-            System.err.println("\nPort " + localPort + " already in use!");
-            throw e;
+        if (!server.equals("commandline")) {
+            int localPort = MaryProperties.needInteger("socket.port");
+            try {
+                ServerSocket serverSocket = new ServerSocket(localPort);
+                serverSocket.close();
+            } catch (IOException e) {
+                System.err.println("\nPort " + localPort + " already in use!");
+                throw e;
+            }
         }
         
         startup();
