@@ -116,7 +116,7 @@ public class HTSParameterGeneration {
   /* We actually need the inverse of the matrix of covariance, but since this matrix */ 
   /* is a diagonal matrix, then we just need to calculate the inverse of each of the  */
   /* numbers in the diagonal. */
-  private double finv(double x) {
+  static public double finv(double x) {
 	  
 	if( x >= INFTY2 ) return 0.0;
 	if( x <= -INFTY2 ) return 0.0;
