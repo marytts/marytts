@@ -45,10 +45,19 @@ import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.modules.synthesis.HMMSynthesizer;
 
-
+/***
+ * This modeller uses the HMMs of the provided hmmVoice.
+ * This modeller can be set as preferred module in the configuration file, for example:
+ * 
+ * voice.unitSelection.preferredModules =  \
+ *   marytts.modules.HMMDurationF0Modeller(local,hmmVoice)
+ *
+ * @author marcela
+ *
+ */
 public class HMMDurationF0Modeller extends InternalModule
 {
-  // In order to use this model HMM models has to be provided, they will be taken from the provided hmmVoice
+  
   private String hmmVoiceName;
   private Locale locale;
   private FeatureProcessorManager featureProcessorManager;
@@ -61,12 +70,10 @@ public class HMMDurationF0Modeller extends InternalModule
           FeatureRegistry.getFeatureProcessorManager(MaryUtils.string2locale(locale)));
   }
   
- 
   public HMMDurationF0Modeller(Locale locale, String hmmVoiceName, FeatureProcessorManager featureProcessorManager)
   {
       super("HMMDurationF0Modeller",
               MaryDataType.ALLOPHONES,
-              //MaryDataType.DURATIONS,
               MaryDataType.ACOUSTPARAMS,
               locale);
       this.hmmVoiceName = hmmVoiceName;
@@ -74,8 +81,7 @@ public class HMMDurationF0Modeller extends InternalModule
       this.featureProcessorManager = featureProcessorManager;
       
   }  
-  
-  
+   
   public void startup() throws Exception
   {
     super.startup();
@@ -93,8 +99,6 @@ public class HMMDurationF0Modeller extends InternalModule
         targetFeatureLister.startup();
       }
   }
-
-  
   
   public MaryData process(MaryData d)
   throws Exception
@@ -105,8 +109,8 @@ public class HMMDurationF0Modeller extends InternalModule
     HTSUttModel um = new HTSUttModel();
     double f0[];
     
-    /* here we need to use a HMM voice that has been trained with the same data as the unit slection
-     * for example, if this module is going to be used for the unit selection voice: en_US-cmu-slt then 
+    /* here we need to use a HMM voice that has been trained with the same data as the unit slection,
+     * for example, if this module is going to be used in the unit selection voice: en_US-cmu-slt then 
      * we should load the HMMs from the en_US-cmu-slt-hsmm */
     HMMVoice hmmVoice = (HMMVoice)Voice.getVoice(hmmVoiceName);
     String features = d.getOutputParams();
@@ -126,7 +130,6 @@ public class HMMDurationF0Modeller extends InternalModule
     String targetFeatureString = targetFeatureLister.listTargetFeatures(comp, segmentsAndBoundaries);    
 
     if(hmmVoice != null) {
-      //String context = targetFeatures.getPlainText();
       String context = targetFeatureString;
       //System.out.println("TARGETFEATURES:" + context);
           
@@ -136,11 +139,13 @@ public class HMMDurationF0Modeller extends InternalModule
       String realisedDurF0s;
       try {
         s = new Scanner(context);
+        // Create the Uttmodel list and get durations 
         realisedDurations = processUtt(s, um, hmmVoice.getHMMData(), hmmVoice.getHMMData().getCartTreeSet());
         //setActualDurations(tw, realisedDurations);
         
+        // Given the UttModel list generate the F0 parameters
         realisedDurF0s = HmmF0Generation(um, hmmVoice.getHMMData());
-        setActualDurationsF0s(tw, realisedDurF0s);
+        setActualDurationsAndF0s(tw, realisedDurF0s);
         
       } finally {
         if (s != null)
@@ -149,23 +154,16 @@ public class HMMDurationF0Modeller extends InternalModule
     } else {      
       logger.debug("No HMM voice called " + hmmVoiceName);
     }
-    
-    
-    
-    
     // the result is already in d
     return d; 
-
   }
-
-  
  
   
   /** Parse Mary context features. 
    * For each triphone model in the file, it creates a Model object in a linked list of 
    * Model objects -> UttModel um 
    * It also estimates state duration from state duration model (Gaussian).
-   * For each model in the vector, the mean and variance of the DUR, LF0, MCP, STR and MAG 
+   * For each model in the vector, the mean and variance of the DUR and LF0 
    * are searched in the ModelSet and copied in each triphone model.   */
   private String processUtt(Scanner s, HTSUttModel um, HMMData htsData, CartTreeSet cart)
     throws Exception {     
@@ -174,10 +172,6 @@ public class HMMDurationF0Modeller extends InternalModule
       String nextLine;
       double diffdurOld = 0.0;
       double diffdurNew = 0.0;
-      double mean = 0.0;
-      double var = 0.0;
-      double durationsFraction;
-      int alignDurSize=0;
       float fperiodmillisec = ((float)htsData.getFperiod() / (float)htsData.getRate()) * 1000;
       float fperiodsec = ((float)htsData.getFperiod() / (float)htsData.getRate());
       Integer dur;
@@ -188,8 +182,6 @@ public class HMMDurationF0Modeller extends InternalModule
       Integer numLab=0;
       FeatureVector fv;
       FeatureDefinition feaDef = htsData.getFeatureDefinition();
-      
-     
       
      /* Skip mary context features definition */
       while (s.hasNext()) {
@@ -203,7 +195,6 @@ public class HMMDurationF0Modeller extends InternalModule
         if (nextLine.trim().equals("")) break;
         numLines++;
       }
-         
       
       /* Parse byte values  */
       i=0;
@@ -217,13 +208,6 @@ public class HMMDurationF0Modeller extends InternalModule
           /* this function also sets the phone name, the phone between - and + */
           m.setName(fv.toString(), fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));
           
-        
-          if (htsData.getUseUnitDurationContinuousFeature()) {
-              m.setUnit_duration(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_duration")));             
-              m.setUnit_logF0(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0")));
-              m.setUnit_logF0delta(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0delta")));
-          }
-          
           if(!(s.hasNext()) )
             lastPh = true;
 
@@ -232,8 +216,7 @@ public class HMMDurationF0Modeller extends InternalModule
           diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, lastPh, diffdurOld);  
           um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());             
           
-          
-          // Set realised durations 
+          // Set realised durations in model
           m.setTotalDurMillisec((int)(fperiodmillisec * m.getTotalDur()));               
           diffdurOld = diffdurNew;            
           durSec = um.getTotalFrame() * fperiodsec;
@@ -246,18 +229,7 @@ public class HMMDurationF0Modeller extends InternalModule
           /* Find pdf for LF0, this function sets the pdf for each state. 
            * here the model (phone) is defined as voiced or unvoiced.*/ 
           cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
-   
-          /* Find pdf for MCP, this function sets the pdf for each state.  */
-          //cart.searchMcpInCartTree(m, fv, feaDef);
-
-          /* Find pdf for strengths, this function sets the pdf for each state.  */
-          //if(htsData.getTreeStrFile() != null)
-          //  cart.searchStrInCartTree(m, fv, feaDef);
-          
-          /* Find pdf for Fourier magnitudes, this function sets the pdf for each state.  */
-          //if(htsData.getTreeMagFile() != null)
-            //cart.searchMagInCartTree(m, fv, feaDef);
-          
+             
           /* increment number of models in utterance model */
           um.setNumModel(um.getNumModel()+1);
           /* update number of states */
@@ -282,7 +254,13 @@ public class HMMDurationF0Modeller extends InternalModule
   } /* method _ProcessUtt */
 
   
-  
+  /***
+   * Generate F0 values for voiced frames out of HMMs
+   * @param um HTSUttModel, linked list of model objects
+   * @param htsData HMMData
+   * @return
+   * @throws Exception
+   */
   public String HmmF0Generation(HTSUttModel um, HMMData htsData) throws Exception{
       
     int frame, uttFrame, lf0Frame;
@@ -380,7 +358,7 @@ public class HMMDurationF0Modeller extends InternalModule
         * Here I need to check if the phone, or model is voiced or not.
         * A model has five states and each state can be voiced or unvoiced, 
         * normally if the phone is voiced the majority of the states should be voiced */
-       if( checkModelVoiced(m,ms.getNumStates()) ) // if the model is unvoiced 
+       if( checkModelVoiced(m,ms.getNumStates()) ) // if the majority of the model states are voiced 
        {       
          for(int j=0; j<ms.getNumStates(); j++) {
            //System.out.print("  state=" + j);
@@ -388,14 +366,14 @@ public class HMMDurationF0Modeller extends InternalModule
            for(frame=0; frame<m.getDur(j); frame++) {
              totalFrames++;
              //System.out.format("(%d frame=%d=%.2f ) %.2f ", t, totalFrames, (totalFrames/totalDur)*100, f0s[t]);
-             if(f0s[t] > 0.0)  // there are some phonemes that contain voiced and unvoiced frames, the unvoiced frames have f0=0.0
+             if(f0s[t] > 0.0)  // there are some phoneme states that might contain voiced and unvoiced frames, the unvoiced frames have f0=0.0
                f0Values +=  "(" + Integer.toString((int)((totalFrames/totalDur)*100)) + "," + Integer.toString((int)f0s[t]) + ")";
              t++;
            } // for each frame in this hmmState
            //System.out.println();
          } // for each hmmState in this model       
          
-       } else {  // if the model is unvoiced 
+       } else {  // if the majority of the model states are unvoiced 
          t = t + m.getTotalDur();
          f0Values +=  "0";
        }
@@ -410,10 +388,8 @@ public class HMMDurationF0Modeller extends InternalModule
   }  /* method HmmF0Generation */
   
   
-  
-  
   /***
-   * 
+   * Set durations
    * @param tw
    * @param durations
    * @throws SynthesisException
@@ -476,7 +452,14 @@ public class HMMDurationF0Modeller extends InternalModule
     }  
    }
 
-  public void setActualDurationsF0s(TreeWalker tw, String durF0s) throws SynthesisException {
+  /***
+   * Set durations and f0 values
+   * The meaning of f0="(X,Y)" is: at X% of the phone duration, the F0 value is Y Hz.
+   * @param tw treewalker
+   * @param durF0s String containing in each line one phoneme its duration and its F0 values if it is voiced or 0 if it is unvoiced
+   * @throws SynthesisException
+   */
+  public void setActualDurationsAndF0s(TreeWalker tw, String durF0s) throws SynthesisException {
     int i,j, index;
     NodeList no1, no2;
     NamedNodeMap att;
@@ -511,9 +494,6 @@ public class HMMDurationF0Modeller extends InternalModule
     while ((e = (Element) tw.nextNode()) != null) {
       //System.out.println("TAG: " + e.getTagName() + " LocalName=" + e.getLocalName() + " NodeName=" + e.getNodeName());
       if( e.getTagName().equals(MaryXML.PHONE) ) {
-        // Here i should check that the f0 in the array corresponds to this phone, but will do it later
-        // also check if the phone is voiced or unvoiced
-        
         numPh++;
         
         Element phone = e;
@@ -546,7 +526,7 @@ public class HMMDurationF0Modeller extends InternalModule
     }  
    }
  
-  
+ 
   private boolean checkModelVoiced(HTSModel m, int numStates) {
     int numVoiced=0;
     int numUnvoiced=0;
