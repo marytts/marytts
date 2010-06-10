@@ -382,13 +382,7 @@ public class KlattDurationModeller extends InternalModule {
             }
         }
 
-        NodeList phrases = sentence.getElementsByTagName(MaryXML.PHRASE);
-        for (int i = 0; i < phrases.getLength(); i++) {
-            Element phrase = (Element) phrases.item(i);
-            // Now save the accumulated duration in every segment
-            // of all segments and boundaries in the phrase.
-            calculateAccumulatedDurations(phrase);
-        }
+        calculateAccumulatedDurations(sentence);
     }
 
 
@@ -751,16 +745,16 @@ public class KlattDurationModeller extends InternalModule {
     }
 
     /**
-     * For each segment in the given phrase, calculate the accumulated duration
-     * since the beginning of the phrase, including this segment's duration,
+     * For each segment in the given sentence, calculate the accumulated duration
+     * since the beginning of the sentence, including this segment's duration,
      * and save it in the segment's <code>end</code> attribute.  (This value is
      * then comparable to the <code>end</code> feature in FreeTTS, but we use
      * milliseconds, they use seconds.)
      */
-    private void calculateAccumulatedDurations(Element phrase) {
+    private void calculateAccumulatedDurations(Element sentence) {
         TreeWalker tw =
-            ((DocumentTraversal) phrase.getOwnerDocument()).createTreeWalker(
-                phrase,
+            ((DocumentTraversal) sentence.getOwnerDocument()).createTreeWalker(
+                sentence,
                 NodeFilter.SHOW_ELEMENT,
                 new NameNodeFilter(new String[] { MaryXML.PHONE, MaryXML.BOUNDARY }),
                 false);
