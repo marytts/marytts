@@ -95,7 +95,7 @@ public class PraatTextGridGenerator extends InternalModule {
             } else if (tagName.equals(MaryXML.PHONE)) {
                 phone = element.getAttribute("p");
                 xmin = xmax;
-                xmax = Double.parseDouble(element.getAttribute("end")) + sentenceStart; // TODO: diphone voices have end in ms!
+                xmax = Double.parseDouble(element.getAttribute("end")) + sentenceStart;
                 duration = xmax - xmin;
                 xmin = xmax;
             } else { // boundary
@@ -163,7 +163,7 @@ public class PraatTextGridGenerator extends InternalModule {
 
                     prevUnitIndex = unitIndex;
                 }
-                // HACK: arbitrary threshold to detect end points in ms (in the case of diphone voice or boundary segment)
+                // HACK: arbitrary threshold to detect end points in ms (in the case of boundary segment)
             } else if (duration > 10) {
                 // TODO: there is still a bug somewhere regarding boundary durations with mbrola...
                 phoneInterval.setDuration(duration / 1000.0);
