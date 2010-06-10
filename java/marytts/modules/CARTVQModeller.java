@@ -59,6 +59,7 @@ import org.w3c.dom.traversal.TreeWalker;
  * Predict phone basename-mean and unit-mean voice quality using CARTs.
  *
  * @author Ingmar Steiner (based on CARTDurationModeller by Marc Schr&ouml;der)
+ * @deprecated
  */
 
 public class CARTVQModeller extends InternalModule

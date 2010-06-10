@@ -218,14 +218,6 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer {
         TargetCostFunction tcf = database.getTargetCostFunction();
         JoinCostFunction jcf = database.getJoinCostFunction();
 
-//        // dump debug stats:
-//        try {
-//            dumpDebugStats(selectedUnits, tcf, jcf);
-//        } catch (IOException e1) {
-//            // TODO Auto-generated catch block
-//            e1.printStackTrace();
-//        }
-
         for (SelectedUnit su : selectedUnits) {
             Target t = su.getTarget();
             boolean halfphone = (t instanceof HalfPhoneTarget);

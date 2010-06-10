@@ -402,8 +402,7 @@ public class VoiceInstaller extends VoiceImportComponent{
               
               configOut.println("# Voice-specific prosody CARTs:\n"+
                       voiceHeader+".duration.cart = MARY_BASE/lib/voices/"+voicename+"/"+getProp(DURTREE)+"\n"+
-                      // the following is never used:
-                      // voiceHeader+".duration.featuredefinition = MARY_BASE/lib/voices/"+voicename+"/"+getProp(PHONEFEATDEF)+"\n"+
+                      voiceHeader+".duration.featuredefinition = MARY_BASE/lib/voices/"+voicename+"/"+getProp(PHONEFEATDEF)+"\n"+
                       voiceHeader+".f0.cart.left = MARY_BASE/lib/voices/"+voicename+"/"+getProp(F0LEFTTREE)+"\n"+
                       voiceHeader+".f0.cart.mid = MARY_BASE/lib/voices/"+voicename+"/"+getProp(F0MIDTREE)+"\n"+
                       voiceHeader+".f0.cart.right = MARY_BASE/lib/voices/"+voicename+"/"+getProp(F0RIGHTTREE)+"\n"+
