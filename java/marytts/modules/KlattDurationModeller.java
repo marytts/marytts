@@ -764,7 +764,7 @@ public class KlattDurationModeller extends InternalModule {
                 NodeFilter.SHOW_ELEMENT,
                 new NameNodeFilter(new String[] { MaryXML.PHONE, MaryXML.BOUNDARY }),
                 false);
-        int totalDuration = 0;
+        float totalDurationInSeconds = 0f;
         Element element;
         while ((element = (Element) tw.nextNode()) != null) {
             if (element.getTagName().equals(MaryXML.PHONE)) {
@@ -775,8 +775,10 @@ public class KlattDurationModeller extends InternalModule {
                 } catch (NumberFormatException e) {
                     logger.warn("Unexpected duration value `" + element.getAttribute("d") + "'");
                 }
-                totalDuration += d;
-                element.setAttribute("end", String.valueOf(totalDuration));
+
+                float durationInSeconds = 0.001f * d;
+                totalDurationInSeconds += durationInSeconds;
+                element.setAttribute("end", String.format(Locale.US, "%.3f", totalDurationInSeconds));
             } else {
                 // A boundary
                 int d = 0;
@@ -785,7 +787,8 @@ public class KlattDurationModeller extends InternalModule {
                 } catch (NumberFormatException e) {
                     logger.warn("Unexpected duration value `" + element.getAttribute("duration") + "'");
                 }
-                totalDuration += d;
+                float durationInSeconds = 0.001f * d;
+                totalDurationInSeconds += durationInSeconds;
             }
         }
     }

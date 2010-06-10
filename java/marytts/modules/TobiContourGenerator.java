@@ -408,10 +408,8 @@ public class TobiContourGenerator extends InternalModule {
         Element lastSegment = MaryDomUtils.getLastElementByTagName(phrase, MaryXML.PHONE);
         if (lastSegment != null) {
             // There ARE segments in this phrase
-            int endTime = 0;
-            try {
-                endTime = Integer.parseInt(lastSegment.getAttribute("end"));
-            } catch (NumberFormatException e) {
+            int endTime = getSegmentEndInMillis(lastSegment);
+            if (endTime == -1) {
                 logger.warn("Unexpected end time `" + lastSegment.getAttribute("end") + "'");
             }
             tbConf.setTimes(0, endTime);
@@ -463,21 +461,19 @@ public class TobiContourGenerator extends InternalModule {
         int startTime = 0;
         try {
             startTime =
-                Integer.parseInt(firstSegment.getAttribute("end")) - Integer.parseInt(firstSegment.getAttribute("d"));
+                getSegmentEndInMillis(firstSegment) - Integer.parseInt(firstSegment.getAttribute("d"));
         } catch (NumberFormatException e) {
             logger.warn(
                 "Unexpected start time `"
-                    + firstSegment.getAttribute("end")
+                    + getSegmentEndInMillis(firstSegment)
                     + "' - `"
                     + firstSegment.getAttribute("d")
                     + "'");
         }
 
         Element lastSegment = MaryDomUtils.getLastElementByTagName(prosody, MaryXML.PHONE);
-        int endTime = 0;
-        try {
-            endTime = Integer.parseInt(lastSegment.getAttribute("end"));
-        } catch (NumberFormatException e) {
+        int endTime = getSegmentEndInMillis(lastSegment);
+        if (endTime == -1) {
             logger.warn("Unexpected end time `" + lastSegment.getAttribute("end") + "'");
         }
         // Create a new TopBaseConfiguration element reflecting the
@@ -1293,10 +1289,8 @@ public class TobiContourGenerator extends InternalModule {
             } catch (NumberFormatException e) {
                 logger.warn("Unexpected duration value `" + target.segment().getAttribute("d") + "'");
             }
-            int end = 0;
-            try {
-                end = Integer.parseInt(target.segment().getAttribute("end"));
-            } catch (NumberFormatException e) {
+            int end = getSegmentEndInMillis(target.segment());
+            if (end == -1) {
                 logger.warn("Unexpected duration value `" + target.segment().getAttribute("end") + "'");
             }
             // Remember that timing is expressed as a percentage of d:
@@ -1616,6 +1610,21 @@ public class TobiContourGenerator extends InternalModule {
         }
         return seg;
     }
+    
+    /**
+     * For the given segment, provide its end time, in milliseconds.
+     * @param segment
+     * @return the end time or -1 if no end time can be determined
+     */
+    private static int getSegmentEndInMillis(Element segment) {
+        try {
+            float endInSeconds = Float.valueOf(segment.getAttribute("end"));
+            int endInMillis = (int) (endInSeconds * 1000);
+            return endInMillis;
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
 
     //////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////
@@ -1904,7 +1913,8 @@ public class TobiContourGenerator extends InternalModule {
             else
                 return "";
         }
-
+        
+        
         /**
          * Get the target time relative to the beginning of the phrase, on the
          * same scale as that used by the segment "end" attributes.
@@ -1913,10 +1923,8 @@ public class TobiContourGenerator extends InternalModule {
         int getTargetTime() {
             if (segment == null || timing == -1)
                 return -1;
-            int end = -1;
-            try {
-                end = Integer.parseInt(segment.getAttribute("end"));
-            } catch (NumberFormatException e) {
+            int end = getSegmentEndInMillis(segment);
+            if (end == -1) {
                 return -1;
             }
             int d = -1;
@@ -1946,32 +1954,32 @@ public class TobiContourGenerator extends InternalModule {
             try {
                 if (targetTime < currentTargetTime) {
                     while (seg != null
-                        && Integer.parseInt(seg.getAttribute("end")) - Integer.parseInt(seg.getAttribute("d"))
+                        && getSegmentEndInMillis(seg) - Integer.parseInt(seg.getAttribute("d"))
                             > targetTime) {
                         Element s = getPreviousSegment(seg);
                         // Check for "holes": If last start time (end-d) is too large but
                         // next end time is too small, there is a small pause between the
                         // two segments
                         // => stay at the side of the pause closer to the original
-                        if (s != null && Integer.parseInt(s.getAttribute("end")) < targetTime) {
+                        if (s != null && getSegmentEndInMillis(s) < targetTime) {
                             targetTime =
-                                Integer.parseInt(seg.getAttribute("end")) - Integer.parseInt(seg.getAttribute("d"));
+                                getSegmentEndInMillis(seg) - Integer.parseInt(seg.getAttribute("d"));
                             break; // keep seg, forget about s
                         } else {
                             seg = s;
                         }
                     }
                 } else { // targetTime > currentTargetTime
-                    while (seg != null && Integer.parseInt(seg.getAttribute("end")) < targetTime) {
+                    while (seg != null && getSegmentEndInMillis(seg) < targetTime) {
                         Element s = getNextSegment(seg);
                         // Check for "holes": If last end time is too small but
                         // next start time (end-d) is too large, there is a small pause
                         // between the two segments
                         // => stay at the side of the pause closer to the original
                         if (s != null
-                            && Integer.parseInt(s.getAttribute("end")) - Integer.parseInt(s.getAttribute("d"))
+                            && getSegmentEndInMillis(s) - Integer.parseInt(s.getAttribute("d"))
                                 > targetTime) {
-                            targetTime = Integer.parseInt(seg.getAttribute("end"));
+                            targetTime = getSegmentEndInMillis(seg);
                             break; // keep seg, forget about s
                         } else {
                             seg = s;
@@ -1982,7 +1990,7 @@ public class TobiContourGenerator extends InternalModule {
                     // newTiming = (1 - (end - targetTime) / d) * 100
                     int newTiming =
                         100
-                            - (100 * (Integer.parseInt(seg.getAttribute("end")) - targetTime))
+                            - (100 * (getSegmentEndInMillis(seg) - targetTime))
                                 / Integer.parseInt(seg.getAttribute("d"));
                     segment = seg;
                     timing = newTiming;
