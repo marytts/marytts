@@ -28,15 +28,11 @@ import java.util.IllegalFormatException;
 import java.util.List;
 import java.util.Locale;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
-import org.xml.sax.SAXException;
-
 import marytts.cart.CART;
 import marytts.cart.DirectedGraph;
 import marytts.cart.io.DirectedGraphReader;
@@ -56,7 +52,6 @@ import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.UnitSelector;
 import marytts.util.MaryUtils;
-import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 
 /**
@@ -72,6 +67,12 @@ public class AcousticModeller extends InternalModule {
     private FeatureProcessorManager featureProcessorManager;
 
     private HashMap<String, DirectedGraph> carts;
+
+    private String DURCART = "duration.cart";
+
+    private String F0CARTLEFT = "f0.cart.left", F0CARTMID = "f0.cart.mid", F0CARTRIGHT = "f0.cart.right";
+
+    private String VQCARTBASENAME = "vq.cart.basename", VQCARTUNIT = "vq.cart.unit";
 
     /**
      * Constructor which can be directly called from init info in the config file. This constructor will use the registered
@@ -130,15 +131,18 @@ public class AcousticModeller extends InternalModule {
         // mapping container for arbitrary CARTs:
         carts = new HashMap<String, DirectedGraph>();
 
-        // this list could be extended to load additional CARTs:
-        String[] cartProperties = { "duration.cart", "f0.cart.left", "f0.cart.mid", "f0.cart.right" };
+        // this String array controls which CARTs to load:
+        String[] cartProperties = { DURCART, F0CARTLEFT, F0CARTMID, F0CARTRIGHT, VQCARTBASENAME, VQCARTUNIT };
+
         // load and put CARTs into container:
         for (String cartProperty : cartProperties) {
             String cartFilename = MaryProperties.getFilename(propertyPrefix + cartProperty);
-            File cartFile = new File(cartFilename);
             try {
+                File cartFile = new File(cartFilename);
                 DirectedGraph cart = new DirectedGraphReader().load(cartFile.getAbsolutePath());
                 carts.put(cartProperty, cart);
+            } catch (NullPointerException e) {
+                logger.debug("Ignoring unavailable property " + cartProperty);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -171,7 +175,7 @@ public class AcousticModeller extends InternalModule {
             /*
              * Get CARTs for this sentence:
              */
-            DirectedGraph currentDurCart = carts.get("duration.cart");
+            DirectedGraph currentDurCart = carts.get(DURCART);
             if (maryVoice != null) {
                 DirectedGraph voiceDurCart = maryVoice.getDurationGraph();
                 if (voiceDurCart != null) {
@@ -183,9 +187,9 @@ public class AcousticModeller extends InternalModule {
                 throw new NullPointerException("No cart for predicting duration");
             }
 
-            DirectedGraph currentF0LeftCart = carts.get("f0.cart.left");
-            DirectedGraph currentF0MidCart = carts.get("f0.cart.mid");
-            DirectedGraph currentF0RightCart = carts.get("f0.cart.right");
+            DirectedGraph currentF0LeftCart = carts.get(F0CARTLEFT);
+            DirectedGraph currentF0MidCart = carts.get(F0CARTMID);
+            DirectedGraph currentF0RightCart = carts.get(F0CARTRIGHT);
             if (maryVoice instanceof UnitSelectionVoice) {
                 CART[] voiceTrees = ((UnitSelectionVoice) maryVoice).getF0Trees();
                 if (voiceTrees != null) {
@@ -221,6 +225,17 @@ public class AcousticModeller extends InternalModule {
 
             // final hack for all duration attributes:
             hackDurations(sentence);
+
+            // if configured, enrich MaryXML with voice quality features from VQ CARTs:
+            if (carts.containsKey(VQCARTBASENAME)) {
+                CARTWrapper vqBasenameCartWrapper = new CARTWrapper(carts.get(VQCARTBASENAME));
+                vqBasenameCartWrapper.enrich(sentence.segments, "basename_vq");
+            }
+            if (carts.containsKey(VQCARTUNIT)) {
+                CARTWrapper vqUnitCartWrapper = new CARTWrapper(carts.get(VQCARTUNIT));
+                vqUnitCartWrapper.enrich(sentence.toneBearingUnits, "unit_vq");
+            }
+
         }
 
         MaryData output = new MaryData(outputType(), d.getLocale());
@@ -280,6 +295,8 @@ public class AcousticModeller extends InternalModule {
 
         protected List<Element> finalTBUs;
 
+        private List<Element> toneBearingUnits;
+
         /**
          * Wrapper for this sentence.
          * 
@@ -294,6 +311,7 @@ public class AcousticModeller extends InternalModule {
             initialTBUs = new ArrayList<Element>();
             medialTBUs = new ArrayList<Element>();
             finalTBUs = new ArrayList<Element>();
+            toneBearingUnits = new ArrayList<Element>();
 
             // parse the document, filling the above element lists
             parseDocument(doc, sentenceNode);
@@ -347,6 +365,7 @@ public class AcousticModeller extends InternalModule {
                     // ...and get the corresponding allophone, which knows about its phonological features:
                     Allophone allophone = allophoneSet.getAllophone(phone);
                     if (allophone.isVoiced()) { // all and only voiced segments are TBUs
+                        toneBearingUnits.add(segmentElement);
                         if (initialTBU == null) {
                             initialTBU = segmentElement; // first TBU we find is the initial one
                         }
@@ -357,15 +376,20 @@ public class AcousticModeller extends InternalModule {
                     }
                 }
 
-                // at this point, no TBU should be null:
-                assert initialTBU != null;
-                assert medialTBU != null;
-                assert finalTBU != null;
+                try {
+                    // at this point, no TBU should be null:
+                    assert initialTBU != null;
+                    assert medialTBU != null;
+                    assert finalTBU != null;
 
-                // we have what we need, append to Lists:
-                initialTBUs.add(initialTBU);
-                medialTBUs.add(medialTBU);
-                finalTBUs.add(finalTBU);
+                    // we have what we need, append to Lists:
+                    initialTBUs.add(initialTBU);
+                    medialTBUs.add(medialTBU);
+                    finalTBUs.add(finalTBU);
+                } catch (AssertionError e) {
+                    logger.debug("WARNING: could not identify F0 anchors in malformed syllable: " + syllableOrBoundaryElement.getAttribute("ph"));
+                    e.printStackTrace();
+                }
             }
         }
 
