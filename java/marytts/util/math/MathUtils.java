@@ -666,6 +666,34 @@ public class MathUtils {
 
         return cov;
     }
+    
+    /***
+     * Sample correlation coefficient
+     * Ref: http://en.wikipedia.org/wiki/Correlation_and_dependence
+     * @return
+     */   
+    public static double correlation(double[] x, double[] y){
+      
+      if(x.length == y.length){
+        // mean
+        double mx = MathUtils.mean(x);
+        double my = MathUtils.mean(y);
+        // standard deviation
+        double sx = Math.sqrt(MathUtils.variance(x));
+        double sy = Math.sqrt(MathUtils.variance(y));
+        
+        int n = x.length;
+        double nval=0.0;
+        for(int i=0; i<n; i++){
+          nval += (x[i] - mx) * (y[i] - my);        
+        }
+        double r = nval / ( (n-1) * sx * sy);
+                
+        return r;      
+      } else
+        throw new IllegalArgumentException("vectors of different size");
+    }
+    
 
     public static double[] diagonal(double[][]x)
     {
