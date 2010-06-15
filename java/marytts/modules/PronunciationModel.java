@@ -305,7 +305,7 @@ public class PronunciationModel extends InternalModule
                 }
             }
             // Check for stress signs:
-            String first = sylString.substring(0, 1);
+            String first = sylString.trim().substring(0, 1);
             if (first.equals("'")) {
                 syllable.setAttribute("stress", "1");
                 // The primary stressed syllable of a word
