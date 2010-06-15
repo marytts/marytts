@@ -160,26 +160,25 @@ public class TrainedLTS {
     
     public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException {
 
-        //String  phFileLoc = "/home/sathish/Work/blizzard2008/lts/phone-list-en_gb.xml";
-        String  phFileLoc = "/Users/benjaminroth/Desktop/mary/english/phone-list-engba.xml";
+        if (args.length != 2) {
+            System.out.println("Usage:");
+            System.out.println("java marytts.modules.phonemiser.TrainedLTS allophones.xml lts-model.lts");
+            System.exit(0);
+        }
+        String allophoneFile = args[0];
+        String ltsFile = args[1];
         
-        TrainedLTS lts = new TrainedLTS(AllophoneSet.getAllophoneSet(phFileLoc), "/Users/benjaminroth/Desktop/mary/english/cmudict.lts");
-        
-        System.out.println(lts.predictPronunciation("tuition"));
+        TrainedLTS lts = new TrainedLTS(AllophoneSet.getAllophoneSet(allophoneFile), ltsFile);
 
-        System.out.println(lts.syllabify(lts.predictPronunciation("tuition")));
-
-        System.out.println(lts.predictPronunciation("synthesis"));
-        
-        System.out.println(lts.syllabify(lts.predictPronunciation("synthesis")));
-        
-        System.out.println(lts.predictPronunciation("autobahn"));
-        
-        System.out.println(lts.syllabify(lts.predictPronunciation("autobahn")));
-
-        System.out.println(lts.predictPronunciation("kite"));
-        
-        System.out.println(lts.syllabify(lts.predictPronunciation("kite")));
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String line;
+        while ((line = br.readLine()) != null) {
+            line = line.trim();
+            String pron = lts.predictPronunciation(line);
+            String syl = lts.syllabify(pron);
+            String sylStripped = syl.replaceAll("[-' ]+", "");
+            System.out.println(sylStripped);
+        }
     }
 
 
