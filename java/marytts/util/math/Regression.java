@@ -4,6 +4,7 @@ import Jama.Matrix;
 import Jama.EigenvalueDecomposition;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Vector;
 
@@ -30,15 +31,28 @@ public class Regression {
   private double[] residuals;       // duration(i) - predicted_duration(i)
   private double[] predictedValues; // predicted_duration(i) --> y(i)
   private double correlation;       // correlation between predicted_duration and duration
-  private Matrix X;
-  private Matrix y;
   private Matrix b;
+  private boolean b0Term;
   
   public Regression(){
     predictedValues = null;
-    X = null;
-    y = null;
     b = null;
+  }
+  
+  public double[] getResiduals(){
+    return residuals;
+  }
+  
+  public double[] getPredictedValues(){
+      return predictedValues;
+  }
+
+  /***
+   * Correlation between original values and predicted ones.
+   * @return
+   */
+  public double getCorrelation(){
+      return correlation;
   }
  
   
@@ -59,6 +73,7 @@ public class Regression {
     if (data == null) throw new NullPointerException("Null data");
     if (rows < 0 || cols < 0) throw new IllegalArgumentException("Number of rows and cols must be greater than 0");
 
+    b0Term = intercepTerm;
     Matrix dataX; 
     if(intercepTerm){ // first column of X is filled with 1s if b_0 != 0
       dataX = new Matrix(rows,cols);
@@ -91,7 +106,7 @@ public class Regression {
   
   public double[] multipleLinearRegression(double[] datay, double[][] datax, boolean intercepTerm){
     if (datay == null || datax==null) throw new NullPointerException("Null data");
-
+    b0Term = intercepTerm;
     int rows = datay.length;
     int cols = datax[0].length;
     Matrix dataX; 
@@ -119,7 +134,7 @@ public class Regression {
 
   public double[] multipleLinearRegression(Vector<Double> vectory, Vector<Double> vectorx, int rows, int cols, boolean intercepTerm){
     if (vectory == null || vectorx==null) throw new NullPointerException("Null data");
-
+    b0Term = intercepTerm;
     Matrix dataX; 
     if(intercepTerm){ // first column of X is filled with 1s if b_0 != 0
       dataX = new Matrix(rows,cols+1);
@@ -165,7 +180,7 @@ public class Regression {
     
     if (data == null) throw new NullPointerException("Null data");
     if (rows < 0 || cols < 0) throw new IllegalArgumentException("Number of rows and cols must be greater than 0");
-
+    b0Term = intercepTerm;
     Matrix dataX; 
     if(intercepTerm){ // first column of X is filled with 1s if b_0 != 0
       dataX = new Matrix(rows,cols);
@@ -196,6 +211,32 @@ public class Regression {
     return coeffs;  
    }  
 
+
+  
+  public void multipleLinearRegression(Matrix datay, Matrix dataX, boolean intercepTerm){  
+    b0Term = intercepTerm;
+    if(intercepTerm){ // first column of X is filled with 1s if b_0 != 0      
+      int row = dataX.getRowDimension();
+      int col = dataX.getColumnDimension();
+          
+      Matrix B = new Matrix(row, col+1);
+      Matrix ones = new Matrix(row, 1);
+      for(int i=0; i<row; i++)
+        ones.set(i, 0, 1.0);
+      B.setMatrix(0, row-1, 0, 0, ones);
+      B.setMatrix(0, row-1, 1, col, dataX);
+      multipleLinearRegression(datay, B);
+    }
+    else{
+      multipleLinearRegression(datay, dataX);    
+      }  
+  }
+  
+  private void multipleLinearRegression(double[] datay, Matrix dataX){
+    Matrix y = new Matrix(datay,datay.length);
+    multipleLinearRegression(y, dataX);  
+  }
+
   /***
    *  Least-square solution y = X * b where:
    *  y_i = b_0 + b_1*x_1i + b_2*x_2i + ... + b_k*x_ki  including intercep term
@@ -204,67 +245,76 @@ public class Regression {
    * @param datay
    * @param dataX 
    */
-  public void multipleLinearRegression(double[] datay, Matrix dataX){
-
-    System.out.println("X=");
-    dataX.print(dataX.getRowDimension(), 3);
+  private void multipleLinearRegression(Matrix datay, Matrix dataX){
+    Matrix X, y; 
     try {
       X = dataX;
-      y = new Matrix(datay,datay.length);
+      y = datay;
       b = X.solve(y);
       coeffs = new double[b.getRowDimension()];
       for (int j=0; j<b.getRowDimension(); j++) {
           coeffs[j] = b.get(j, 0);
-          System.out.println("coeff[" + j + "]=" + coeffs[j]);
+          //System.out.println("coeff[" + j + "]=" + coeffs[j]);
       } 
+      
+      // Residuals:
+      Matrix r = X.times(b).minus(y);
+      residuals = r.getColumnPackedCopy();
+      
+      // Predicted values
+      Matrix p = X.times(b);
+      predictedValues = p.getColumnPackedCopy();
+      
+      // Correlation between original values and predicted ones       
+      correlation = MathUtils.correlation(predictedValues, y.getColumnPackedCopy());
       
     } catch (RuntimeException re) {
         throw new Error("Error solving Least-square solution: y = X * b");
     }  
   }
   
-  public double[] getResiduals(){
-    // Residuals
-    if( X != null && y != null){
-      Matrix r = X.times(b).minus(y);
-      residuals = r.getColumnPackedCopy();
-      return residuals;
-    } else {
-       System.out.println("No values set for matrix X and y"); 
-       return null;
-    }  
+ 
+  
+  public void printCoefficients(Vector <String> factors){
+    if(coeffs != null){
+      if(b0Term){  
+        System.out.format(" %.5f\n", coeffs[0]);
+        for (int j=1; j<coeffs.length; j++) 
+          System.out.format(" %.5f (%s)\n", coeffs[j], factors.elementAt(j-1));
+      } else {
+        for (int j=0; j<coeffs.length; j++) 
+          System.out.format(" %.5f (%s)\n", coeffs[j], factors.elementAt(j-1));
+      }
+    } else 
+      System.out.println("There is no coefficients to print.");
   }
   
-  public double[] getPredictedValues(){
-    // Residuals
-    if( X != null && y != null && b != null){
-      Matrix p = X.times(b);
-      predictedValues = p.getColumnPackedCopy();
-      return predictedValues;
-    } else {
-      System.out.println("No values set for matrix X and y"); 
-      return null;      
+  public void printCoefficients(){
+    if(coeffs != null){
+        for (int j=0; j<coeffs.length; j++) 
+          System.out.format("coeff[%d]=%.5f\n",j,coeffs[j]);
+    } else 
+      System.out.println("There is no coefficients to print.");
+  }
+  
+  public void multipleLinearRegression(String fileName, boolean intercepTerm) {    
+    try {
+      BufferedReader reader = new BufferedReader(new FileReader(fileName));        
+      Matrix data = Matrix.read(reader);
+      int rows = data.getRowDimension()-1;
+      int cols = data.getColumnDimension()-1;
+    
+      Matrix indVar = data.getMatrix(0,rows,0,0); // dataVowels(:,0) -> col 0 is the independent variable
+      data = data.getMatrix(0,rows,1,cols); // dataVowels(:,1:cols) -> dependent variables
+    
+      multipleLinearRegression(indVar, data, intercepTerm);
+    
+    } catch ( Exception e ) {
+      throw new RuntimeException( "Problem reading file " + fileName, e );
     }
-  }
 
-  /***
-   * Correlation between original values and predicted ones.
-   * @return
-   */
-  public double getCorrelation(){
-    double r;
-    double oriValues[];
-    if( X != null && y != null && b != null){
-      Matrix p = X.times(b);
-      predictedValues = p.getColumnPackedCopy();
-      oriValues = y.getColumnPackedCopy();      
-      r = MathUtils.correlation(predictedValues, oriValues);
-      return r;
-    } else {
-      System.out.println("No values set for matrix X and y"); 
-      return 0.0;            
-    }    
   }
+  
   
   public static void main(String[] args) throws Exception
   {
@@ -284,9 +334,26 @@ public class Regression {
         {1.72, 3.12, 7.6},
         {1.70, 5.30, 8.2}};   
     
-    boolean intercepTerm = false;
+    
+    Matrix A = new Matrix(xvals);
+    int row = A.getRowDimension();
+    int col = A.getColumnDimension();
+    A.print(row, 3);
+        
+    Matrix B = new Matrix(row, col+1);
+    Matrix ones = new Matrix(row, 1);
+    for(int i=0; i<row; i++)
+      ones.set(i, 0, 1.0);
+    B.setMatrix(0, row-1, 0, 0, ones);
+    B.setMatrix(0, row-1, 1, col, A);
+    B.print(row, 3);
+    
+    
+    
+    boolean intercepTerm = true;
 
     double coeffs[] = reg.multipleLinearRegression(yvals, xvals, intercepTerm);
+    reg.printCoefficients();
     
     Vector<Double> y = new Vector<Double>();
     Vector<Double> x = new Vector<Double>();
@@ -309,17 +376,19 @@ public class Regression {
     }    
     System.out.println("Vectors y and x:");
     coeffs = reg.multipleLinearRegression(y, x, rows, cols, intercepTerm);  
+    reg.printCoefficients();
      
     // All the data in only one Vector<Double>
     cols = 4; // because includes the dependent variable
     rows = yvals.length;
-    System.out.println("Vector data:");
-    coeffs = reg.multipleLinearRegression(data, rows, cols, intercepTerm);  
+    System.out.println("Vector<> data:");
+    coeffs = reg.multipleLinearRegression(data, rows, cols, intercepTerm);
+    reg.printCoefficients();
     
     // array
-    System.out.println("Vector data:");
+    System.out.println("Vector array [] data:");
     coeffs = reg.multipleLinearRegression(array, rows, cols, intercepTerm);  
-    
+    reg.printCoefficients();
     
     
   }
