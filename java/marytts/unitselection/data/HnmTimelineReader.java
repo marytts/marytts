@@ -25,6 +25,7 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Properties;
 
@@ -119,24 +120,22 @@ public class HnmTimelineReader extends TimelineReader
      * 
      * @throws IOException
      */
-    public Datagram getNextDatagram() throws IOException {
+    @Override
+    protected Datagram getNextDatagram(ByteBuffer bb) throws IOException {
         
         Datagram d = null;
         
         /* If the end of the datagram zone is reached, gracefully refuse to read */
-        if ( getBytePointer() == timeIdxBytePos ) return( null );
+        if (bb.position() == timeIdxBytePos ) return( null );
         /* Else, pop the datagram out of the file */
         try {
-            d = new HnmDatagram(raf, analysisParams.noiseModel);
+            d = new HnmDatagram(bb, analysisParams.noiseModel);
         }
         /* Detect a possible EOF encounter */
         catch ( EOFException e ) {
             throw new IOException( "While reading a datagram, EOF was met before the time index position: "
                     + "you may be dealing with a corrupted timeline file." );
         }
-        
-        /* If the read was successful, update the time pointer */
-        timePtr += d.getDuration();
         
         return( d );
     }
@@ -207,7 +206,6 @@ public class HnmTimelineReader extends TimelineReader
     
     public static void main(String[] args) throws UnsupportedAudioFileException, IOException
     {        
-        long i;
         HnmTimelineReader h = new HnmTimelineReader();
         try {
             h.load("timeline_hnm.mry");
@@ -218,35 +216,27 @@ public class HnmTimelineReader extends TimelineReader
 
         LinkedList<HnmDatagram> datagrams = new LinkedList<HnmDatagram>();
         int count = 0;
-        long startDatagramIndex = 0;
-        long endDatagramIndex = h.numDatagrams-1;
-        //long endDatagramIndex = 2000;
+        long startDatagramTime = 0;
+        int numDatagrams = (int) h.numDatagrams;
+        //long numDatagrams = 2000;
         
-        for (i=startDatagramIndex; i<=endDatagramIndex; i++)
+        Datagram[] rawDatagrams = h.getDatagrams(0l, numDatagrams, h.getSampleRate());
+        for (int i=0; i< rawDatagrams.length; i++)
         {
-            HnmDatagram d = null;
-            try {
-                d = (HnmDatagram)h.getNextDatagram();
-                datagrams.add(d);
-                
-                count++;
-                System.out.println("Datagram " + String.valueOf(count) + "Noise waveform size=" + ((FrameNoisePartWaveform)(((HnmDatagram)d).frame.n)).waveform().length);
-
-                if (count>=h.numDatagrams)
-                    break;
-            } 
-            catch (IOException e) {
-            } 
+            HnmDatagram d = (HnmDatagram) rawDatagrams[i];
+            datagrams.add(d);
+            count++;
+            System.out.println("Datagram " + String.valueOf(count) + "Noise waveform size=" + ((FrameNoisePartWaveform)(((HnmDatagram)d).frame.n)).waveform().length);
         }
         
         int clusterSize = 1000;
-        int numClusters = (int)Math.floor((endDatagramIndex-startDatagramIndex+1)/((double)clusterSize)+0.5);
+        int numClusters = (int)Math.floor((numDatagrams)/((double)clusterSize)+0.5);
         int startIndex, endIndex;
         DataOutputStream output = new DataOutputStream(new FileOutputStream(new File("d:\\output.bin")));
-        for (i=0; i<numClusters; i++)
+        for (int i=0; i<numClusters; i++)
         {
             startIndex = (int)(i*clusterSize);
-            endIndex = (int)Math.min((i+1)*clusterSize-1, endDatagramIndex);
+            endIndex = (int)Math.min((i+1)*clusterSize-1, numDatagrams-1);
             testSynthesizeFromDatagrams(datagrams, startIndex, endIndex, output);
             System.out.println("Timeline cluster " + String.valueOf(i+1) + " of " + String.valueOf(numClusters) + " synthesized...");
         }

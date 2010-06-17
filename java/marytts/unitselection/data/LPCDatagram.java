@@ -25,6 +25,7 @@ import java.io.DataOutput;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 
 import marytts.tools.voiceimport.General;
 
@@ -90,6 +91,34 @@ public class LPCDatagram extends Datagram {
             quantizedCoeffs[i] = dis.readShort();
         }
         System.arraycopy(buf, 2*lpcOrder, quantizedResidual, 0, residualLength);
+    }
+
+    /**
+     * Constructor which pops a datagram from a byte buffer.
+     * 
+     * @param bb the byte buffer to pop the datagram from.
+     * 
+     * @throws IOException
+     * @throws EOFException
+     */
+    public LPCDatagram(ByteBuffer bb, int lpcOrder) throws IOException, EOFException
+    {
+        super(bb.getLong()); // duration
+        int len = bb.getInt();
+        if ( len < 0 ) {
+            throw new IOException( "Can't create a datagram with a negative data size [" + len + "]." );
+        }
+        if (len < 2*lpcOrder) {
+            throw new IOException("LPC datagram too short (len="+len+"): cannot be shorter than the space needed for lpc coefficients (2*"+lpcOrder+")");
+        }
+
+        int residualLength = len - 2*lpcOrder;
+        quantizedCoeffs = new short[lpcOrder];
+        quantizedResidual = new byte[residualLength];
+        for (int i=0; i<lpcOrder; i++) {
+            quantizedCoeffs[i] = bb.getShort();
+        }
+        bb.get(quantizedResidual);
     }
 
     /**

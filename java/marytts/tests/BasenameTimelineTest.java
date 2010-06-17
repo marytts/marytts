@@ -90,7 +90,7 @@ public class BasenameTimelineTest {
                     + "(with offset[" + offset[0] + "])." );
             String ph_name = feaDef.getFeatureValueAsString( 0, ffr.getFeatureVector( unit[i] ).getFeatureAsInt( 0 ) );
             System.out.println( "Unit [" + testUnits[i] + "] is found to be a [" + ph_name + "].\n" );
-            System.out.println( "Basename [" + basename + "] was ending at time [" + tlr.getTimePointer() + "].\n" );
+            //System.out.println( "Basename [" + basename + "] was ending at time [" + tlr.getTimePointer() + "].\n" );
             System.out.flush();
         }
         

@@ -38,9 +38,9 @@ import java.io.RandomAccessFile;
 import java.util.Vector;
 
 import marytts.unitselection.data.Datagram;
+import marytts.unitselection.data.TimelineReader;
 import marytts.util.data.MaryHeader;
-import marytts.util.data.TimelineIO;
-import marytts.util.data.TimelineIO.IdxField;
+
 
 
 /**
@@ -51,14 +51,32 @@ import marytts.util.data.TimelineIO.IdxField;
  * @author sacha, marc
  *
  */
-public class TimelineWriter extends TimelineIO {
+public class TimelineWriter  {
+
+    protected RandomAccessFile raf = null; // The file to read from
+    protected MaryHeader maryHdr = null;   // The standard Mary header
+    protected TimelineReader.ProcHeader procHdr = null;   // The processing info header
+    
+    protected TimelineReader.Index idx = null; // A global time index for the variable-sized datagrams
+
+    /* Some specific header fields: */
+    protected int sampleRate = 0;
+    protected long numDatagrams = 0;
+    
+    protected long datagramsBytePos = 0;
+    protected long timeIdxBytePos = 0;
+
+    /* Pointers to navigate the file: */
+    protected long timePtr = 0; // A time pointer to keep track of the time position in the file
+    // Note: a file pointer, keeping track of the byte position in the file, is implicitely
+    //  maintained by the browsed RandomAccessFile.
 
     /****************/
     /* DATA FIELDS  */
     /****************/
     private int idxInterval;
     private long datagramZoneBytePos;
-    private Vector<IdxField> indexData;
+    private Vector<TimelineReader.IdxField> indexData;
     private long prevBytePos;
     private long prevTimePos;
     
@@ -107,7 +125,7 @@ public class TimelineWriter extends TimelineIO {
             maryHdr.writeTo( raf );
             
             /* Make a new processing header and write it */
-            procHdr = new ProcHeader( procHdrString );
+            procHdr = new TimelineReader.ProcHeader( procHdrString );
             procHdr.dump( raf );
             
             /* Make/write the data header */
@@ -126,7 +144,7 @@ public class TimelineWriter extends TimelineIO {
             // Remember important facts for index creation
             idxInterval = (int)Math.round( setIdxIntervalInSeconds * (double)sampleRate );
             datagramZoneBytePos = datagramsBytePos;
-            indexData = new Vector<IdxField>();
+            indexData = new Vector<TimelineReader.IdxField>();
             prevBytePos = datagramsBytePos;
             prevTimePos = 0;
             
@@ -146,6 +164,75 @@ public class TimelineWriter extends TimelineIO {
     /*******************/
     
     /**
+     * Get the current byte position in the file
+     */
+    public synchronized long getBytePointer() throws IOException {
+        return( raf.getFilePointer() );
+    }
+    
+    /**
+     * Get the current time position in the file
+     */
+    public synchronized long getTimePointer() {
+        return( timePtr );
+    }
+    
+    /**
+     * Set the current byte position in the file
+     */
+    protected void setBytePointer( long bytePos ) throws IOException {
+        raf.seek( bytePos );
+    }
+    
+    /**
+     * Set the current time position in the file
+     */
+    protected void setTimePointer( long timePosition ) {
+        timePtr = timePosition;
+    }
+    
+    /**
+     * Scales a discrete time to the timeline's sample rate.
+     * 
+     * @param reqSampleRate the externally given sample rate.
+     * @param targetTimeInSamples a discrete time, with respect to the externally given sample rate.
+     * 
+     * @return a discrete time, in samples with respect to the timeline's sample rate.
+     */
+    protected long scaleTime( int reqSampleRate, long targetTimeInSamples ) {
+        if ( reqSampleRate == sampleRate ) return( targetTimeInSamples );
+        /* else */ return( (long)Math.round( (double)(reqSampleRate) * (double)(targetTimeInSamples) / (double)(sampleRate) ) );
+    }
+
+    /**
+     * Unscales a discrete time from the timeline's sample rate.
+      * 
+     * @param reqSampleRate the externally given sample rate.
+     * @param timelineTimeInSamples a discrete time, with respect to the timeline sample rate.
+     * 
+     * @return a discrete time, in samples with respect to the externally given sample rate.
+    */
+    protected long unScaleTime( int reqSampleRate, long timelineTimeInSamples ) {
+        if ( reqSampleRate == sampleRate ) return( timelineTimeInSamples );
+        /* else */ return( (long)Math.round( (double)(sampleRate) * (double)(timelineTimeInSamples) / (double)(reqSampleRate) ) );
+    }
+    
+    
+    public TimelineReader.Index getIndex()
+    {
+        return idx;
+    }
+    
+    /**
+     * Returns the position of the datagram zone
+     */
+    public long getDatagramsBytePos() {
+        return datagramsBytePos;
+    }
+    
+    
+    
+    /**
      * Output the internally maintained indexes and close the file.
      * 
      * @throws IOException
@@ -159,7 +246,7 @@ public class TimelineWriter extends TimelineIO {
         /* Go to the end of the file and output the time index */
         timeIdxBytePos = raf.length();
         setBytePointer( timeIdxBytePos );
-        idx = new Index(idxInterval, indexData);
+        idx = new TimelineReader.Index(idxInterval, indexData);
         idx.dump( raf );
         
         /* Register the index positions */
@@ -190,7 +277,7 @@ public class TimelineWriter extends TimelineIO {
 //            IdxField testField = (IdxField)field.elementAt(currentNumIdx-1);
 //            System.out.println( "The previously indexed position was\t[" + testField.bytePtr + "," + testField.timePtr + "]." );
             
-            indexData.add( new IdxField(prevBytePos,prevTimePos) );
+            indexData.add( new TimelineReader.IdxField(prevBytePos,prevTimePos) );
             nextIdxTime += idxInterval;
         }
         

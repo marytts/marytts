@@ -24,6 +24,7 @@ import java.io.DataOutput;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 
 import marytts.signalproc.analysis.RegularizedCepstrumEstimator;
 import marytts.signalproc.analysis.RegularizedPostWarpedCepstrumEstimator;
@@ -73,7 +74,25 @@ public class FrameHarmonicPart
             }
         }
     }
-    
+
+    public FrameHarmonicPart(ByteBuffer bb, int numHarmonics)
+    {
+        complexAmps = null;
+        
+        if (numHarmonics>0)
+        {
+            complexAmps = new ComplexNumber[numHarmonics];
+            for (int i=0; i<complexAmps.length; i++) 
+            {
+                try {
+                    complexAmps[i] = new ComplexNumber(bb.getFloat(), bb.getFloat());
+                } catch (Exception e) {
+                    complexAmps[i] = null;
+                }
+            }
+        }
+    }
+
     public boolean equals(FrameHarmonicPart other)
     {
         if (complexAmps!=null || other.complexAmps!=null)
