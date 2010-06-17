@@ -35,6 +35,8 @@ import java.io.DataOutput;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.BufferUnderflowException;
+import java.nio.ByteBuffer;
 
 public class Datagram  {
 
@@ -100,6 +102,26 @@ public class Datagram  {
         raf.readFully( data );
     }
     
+    /**
+     * Constructor which pops a datagram from a byte buffer.
+     * 
+     * @param bb the byte buffer to pop the datagram from.
+     * 
+     * @throws IOException if the datagram has wrong format
+     * @throws BufferUnderflowException if the datagram cannot be fully read
+     */
+    public Datagram(ByteBuffer bb) throws IOException, BufferUnderflowException {
+        duration = bb.getLong();
+        if ( duration < 0 ) {
+            throw new IOException( "Can't create a datagram with a negative duration [" + duration + "]." );
+        }
+        int len = bb.getInt();
+        if ( len < 0 ) {
+            throw new IOException( "Can't create a datagram with a negative data size [" + len + "]." );
+        }
+        data = new byte[len];
+        bb.get(data);
+    }
     
     /****************/
     /* SETTERS      */

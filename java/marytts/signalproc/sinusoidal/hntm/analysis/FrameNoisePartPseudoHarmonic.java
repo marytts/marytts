@@ -24,6 +24,7 @@ import java.io.DataOutput;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 
 import marytts.util.math.ArrayUtils;
 
@@ -71,7 +72,25 @@ public class FrameNoisePartPseudoHarmonic implements FrameNoisePart {
             }
         }
     }
-    
+
+    public FrameNoisePartPseudoHarmonic(ByteBuffer bb, int cepsLen)
+    {     
+        this();
+        
+        if (cepsLen>0)
+        {
+            ceps = new float[cepsLen];
+            for (int i=0; i<cepsLen; i++)
+            {
+                try {
+                    ceps[i] = bb.getFloat();
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("At least " + String.valueOf(cepsLen) + " cepstrum coefficients required!", e);
+                }
+            }
+        }
+    }
+
     public void write(DataOutput out) throws IOException 
     {
         int cepsLen = 0;

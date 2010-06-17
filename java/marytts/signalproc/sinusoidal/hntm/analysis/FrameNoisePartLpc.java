@@ -24,6 +24,7 @@ import java.io.DataOutput;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexNumber;
@@ -99,7 +100,29 @@ public class FrameNoisePartLpc implements FrameNoisePart {
             }
         }
     }
-    
+
+    public FrameNoisePartLpc(ByteBuffer bb, int numLpcs)
+    {
+        this();
+
+        if (numLpcs>0)
+        {
+            lpCoeffs = new float[numLpcs];
+            for (int i=0; i<numLpcs; i++) 
+            {
+                try {
+                    lpCoeffs[i] = bb.getFloat();
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("At least " + String.valueOf(numLpcs) + " LP coefficients required!", e);
+                }
+            }
+
+            lpGain = bb.getFloat();
+            origAverageSampleEnergy = bb.getFloat();
+            origNoiseStd = bb.getFloat();
+        }
+    }
+
     public void write(DataOutput out) throws IOException 
     {        
         int numLpcs = 0;

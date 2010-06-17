@@ -25,6 +25,8 @@ import java.io.DataOutput;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
 
 /**
@@ -78,6 +80,28 @@ public class HnmDatagram extends Datagram {
         frame = new HntmSpeechFrame(dis, noiseModel);
     }
 
+    /**
+     * Constructor which pops a datagram from a byte buffer.
+     * 
+     * @param bb the byte buffer to pop the datagram from.
+     * 
+     * @throws IOException
+     * @throws EOFException
+     */
+    public HnmDatagram(ByteBuffer bb, int noiseModel) throws IOException, EOFException
+    {
+        super(bb.getLong()); // duration
+        int len = bb.getInt();
+        if ( len < 0 ) {
+            throw new IOException( "Can't create a datagram with a negative data size [" + len + "]." );
+        }
+        if (len < 4*3) {
+            throw new IOException("Hnm with waveform noise datagram too short (len="+len
+                    +"): cannot be shorter than the space needed for first three Hnm parameters (4*3)");
+        }
+        
+        frame = new HntmSpeechFrame(bb, noiseModel);
+    }
     /**
      * Get the length, in bytes, of the datagram's data field.
      */

@@ -24,6 +24,7 @@ import java.io.DataOutput;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import marytts.signalproc.sinusoidal.BaseSinusoidalSpeechFrame;
@@ -117,6 +118,41 @@ public class HntmSpeechFrame extends BaseSinusoidalSpeechFrame
                 n = null;
         }
     }
+
+    public HntmSpeechFrame(ByteBuffer bb, int noiseModel) throws IOException, EOFException
+    {
+        this();
+        
+        f0InHz = bb.getFloat();
+        maximumFrequencyOfVoicingInHz = bb.getFloat();
+        tAnalysisInSeconds = bb.getFloat();
+        deltaAnalysisTimeInSeconds = bb.getFloat();
+        
+        int numHarmonics = bb.getInt();
+        if (numHarmonics>0)
+            h = new FrameHarmonicPart(bb, numHarmonics);
+
+        int vectorSize = bb.getInt();
+        if (noiseModel==HntmAnalyzerParams.LPC)
+        {
+            n = new FrameNoisePartLpc(bb, vectorSize);
+            if (((FrameNoisePartLpc)n).lpCoeffs==null)
+                n = null;
+        }
+        else if (noiseModel==HntmAnalyzerParams.PSEUDO_HARMONIC)
+        {
+            n = new FrameNoisePartPseudoHarmonic(bb, vectorSize);
+            if (((FrameNoisePartPseudoHarmonic)n).ceps==null)
+                n = null;
+        }
+        else if (noiseModel==HntmAnalyzerParams.WAVEFORM)
+        {
+            n = new FrameNoisePartWaveform(bb, vectorSize); 
+            if (((FrameNoisePartWaveform)n).waveform==null)
+                n = null;
+        }
+    }
+
     
     public void write( DataOutput out ) throws IOException 
     {
