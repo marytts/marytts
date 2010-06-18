@@ -21,7 +21,8 @@ public class PCA {
   
    private Matrix covariance;
    private double[] V;  // eigenValues or diagonal of svd;
-   private Matrix PC;   // principal components 
+   private Matrix PC;   // principal components
+   private double[] varianceProportion;  // proportion of variance of each PC
    
    public double[][] getCovariance(){
      return covariance.getArray();
@@ -49,6 +50,64 @@ public class PCA {
    public void printPricipalComponents() {
      System.out.println("PC");
      PC.print(PC.getRowDimension(), 4);  
+   }
+   
+   public void printPricipalComponents(Vector <String> factors) {
+    System.out.println("PCs:");
+    for (int j=0; j<PC.getColumnDimension(); j++){
+      System.out.println("PC(" + j + ")");
+      for (int i=0; i<PC.getRowDimension(); i++)
+        System.out.format(" %s %.5f\n", factors.elementAt(i), PC.get(i, j));
+    }
+   }
+   
+   /***
+    * 
+    * @param factors linguistic factors
+    * @param numPCA number of PC, between 1 and Max num PCs
+    */
+   public void printPricipalComponents(Vector <String> factors, int numPCA) {
+     if(numPCA >=1 && numPCA <= PC.getColumnDimension()){
+       System.out.println("Ordered PC(" + numPCA + ")");
+       numPCA = numPCA - 1;       
+       double loadings[] = new double[PC.getRowDimension()];
+
+       // Make a copy of the loadings vector
+       for (int i=0; i<PC.getRowDimension(); i++)
+         loadings[i] = Math.abs(PC.get(i, numPCA));
+     
+       // this sort is from lowest to highest
+       int indices[] = MathUtils.quickSort(loadings);
+     
+       // now print from highest to lowest
+       int index;
+       for (int i=PC.getRowDimension()-1; i>=0; i--){
+         index = indices[i]; 
+         System.out.format(" %s %.5f\n", factors.elementAt(index), PC.get(index, numPCA));
+       }
+       for (int i=PC.getRowDimension()-1; i>=0; i--){
+         index = indices[i]; 
+         System.out.format("%s\n", factors.elementAt(index));
+       }
+     } else {
+       System.out.println("PC number should be >= 1 and <= " + PC.getColumnDimension());
+     }
+     
+    }
+   
+   public void printImportanceOfComponents(){
+     System.out.println("Importance of components:");
+     for(int j=0; j<varianceProportion.length; j++)
+       System.out.format("PC(%s)=%.4f ", j+1, varianceProportion[j]);
+     System.out.println();
+   }
+   
+   public double[] getImportanceOfComponents(){
+     return varianceProportion;
+   }
+   
+   public double getImportanceOfComponents(int numPC){
+     return varianceProportion[numPC];
    }
    
    /***
@@ -98,8 +157,12 @@ public class PCA {
     double sd;
     for(int i=0; i<M; i++){
       mn = MathUtils.mean(data.getArray()[i]);
+      if(mn == 0.0)
+        throw new Error("eigenPCA: mean of dimension " + (i+1) + " is 0.0");
       if(scale){
         sd = MathUtils.standardDeviation(data.getArray()[i]);
+        if(sd == 0.0)
+          throw new Error("eigenPCA: variance of dimension " + (i+1) + " is 0.0");
         // divide by the standard deviation
         for(int j=0; j<N; j++)
           data.set(i, j, ( (data.get(i, j)-mn)/sd ));
@@ -156,6 +219,23 @@ public class PCA {
       PC.print(PC.getRowDimension(), 3);
     }
     
+    // project the original data
+    // signals = PC' * data
+    Matrix projectedData = PC.transpose().times(data);    
+    
+    // The variance for each principal component can be read off the diagonal of the covariance matrix
+    // of projected_data
+    Matrix covProjectedData = projectedData.times(projectedData.transpose());
+    // get the diagonal and sum of variance
+    varianceProportion = new double [covProjectedData.getColumnDimension()];
+    double sumPropVar = 0.0;  // sum of the proportion of variance
+    for(int j=0; j<covProjectedData.getColumnDimension(); j++){
+      varianceProportion[j] = covProjectedData.get(j, j);
+      sumPropVar += varianceProportion[j]; 
+    }
+    for(int j=0; j<covProjectedData.getColumnDimension(); j++)
+      varianceProportion[j] = varianceProportion[j]/sumPropVar;
+
  
     
   }
@@ -179,8 +259,12 @@ public class PCA {
     double sd;
     for(int i=0; i<M; i++){
       mn = MathUtils.mean(data.getArray()[i]);
+      if(mn == 0.0)
+        throw new Error("svdPCA: mean of dimension " + (i+1) + " is 0.0");
       if(scale){
         sd = MathUtils.standardDeviation(data.getArray()[i]);
+        if(sd == 0.0)
+          throw new Error("svdPCA: variance of dimension " + (i+1) + " is 0.0");
         // divide by the standard deviation
         for(int j=0; j<N; j++)
           data.set(i, j, ( (data.get(i, j)-mn)/sd ));
@@ -216,27 +300,45 @@ public class PCA {
        if(debug)
          System.out.println(V[i]);
     }
-    
-    
-    
+       
     //System.out.println("V:");
     //svd.getV().print(svd.getV().getRowDimension(), 3);
-    
-    
+ 
     //System.out.println("U:");
     //svd.getU().print(svd.getU().getRowDimension(), 3);
     
-    // project the original data
-    //signals = PC' * data
     PC = svd.getV();
     if(debug) {
       System.out.println("PC:");
       PC.print(PC.getRowDimension(), 3);
     }
     
+    // project the original data
+    // signals = PC' * data
+    Matrix projectedData = PC.transpose().times(data);    
+    
+    // The variance for each principal component can be read off the diagonal of the covariance matrix
+    // of projected_data
+    Matrix covProjectedData = projectedData.times(projectedData.transpose());
+    // get the diagonal and sum of variance
+    varianceProportion = new double [covProjectedData.getColumnDimension()];
+    double sumPropVar = 0.0;  // sum of the proportion of variance
+    for(int j=0; j<covProjectedData.getColumnDimension(); j++){
+      varianceProportion[j] = covProjectedData.get(j, j);
+      sumPropVar += varianceProportion[j]; 
+    }
+    for(int j=0; j<covProjectedData.getColumnDimension(); j++)
+      varianceProportion[j] = varianceProportion[j]/sumPropVar;
+    
   }
   
-  public void principalComponentAnalysis(String fileName, boolean scale) {    
+  /***
+   * PCA
+   * @param fileName data one column per dimension or linguistic factor
+   * @param eigen if true use eigenvalues, if false use svd (recomended)
+   * @param scale if true use z-normalisation (recomended), if false substract off the mean for ecah dimension 
+   */
+  public void principalComponentAnalysis(String fileName, boolean eigen, boolean scale) {    
     try {
       BufferedReader reader = new BufferedReader(new FileReader(fileName));        
       Matrix data = Matrix.read(reader);
@@ -245,7 +347,10 @@ public class PCA {
   
       data = data.getMatrix(0,rows,1,cols); // dataVowels(:,1:cols) -> dependent variables
     
-      svdPCA(data.transpose(), scale, false);
+      if(eigen)
+        eigenPCA(data.transpose(), scale, false);
+      else
+        svdPCA(data.transpose(), scale, false);
 
     } catch ( Exception e ) {
       throw new RuntimeException( "Problem reading file " + fileName, e );
