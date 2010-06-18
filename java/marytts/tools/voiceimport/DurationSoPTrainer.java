@@ -180,25 +180,25 @@ public class DurationSoPTrainer extends VoiceImportComponent
    // VOWELS results:
    cols = lingFactorsVowel.size();
    rows = numVowels;
-   System.out.println("\nResults for Vowels:");
+   System.out.println("\nProcessing Vowels:");
    System.out.println("Number of duration points: " + rows);
    System.out.println("Number of linguistic factors: " + cols);   
    
+   System.out.println("PCA analysis:");   
    PCA pcaVowel = new PCA();   
-   pcaVowel.principalComponentAnalysis(vowelsFile, true);
-   pcaVowel.printPricipalComponents();   
+   pcaVowel.principalComponentAnalysis(vowelsFile, false, true);
+   pcaVowel.printPricipalComponents(lingFactorsVowel, 1);   
+   pcaVowel.printImportanceOfComponents();
    
+   System.out.println("Linear regression analysis:");
    Regression regVowel = new Regression(); 
    regVowel.multipleLinearRegression(vowelsFile, true);
    regVowel.printCoefficients(lingFactorsVowel);
    System.out.println("Correlation vowels original duration / predicted duration = " + regVowel.getCorrelation());
-   
-   
-
-   
-   
+  
    //-----------------------------------------------------------------------------------------
    //CONSONANTS results:
+/*   
    cols = lingFactorsConsonant.size();  // linguistic factors plus duration
    rows = numConsonants;
    System.out.println("\nResults for Consonants:");
@@ -206,15 +206,16 @@ public class DurationSoPTrainer extends VoiceImportComponent
    System.out.println("Number of linguistic factors: " + cols);   
    
    PCA pcaConsonant = new PCA();   
-   pcaConsonant.principalComponentAnalysis(consonantsFile, true);
-   pcaConsonant.printPricipalComponents();   
+   pcaConsonant.principalComponentAnalysis(consonantsFile, false, true);
+   pcaConsonant.printPricipalComponents(lingFactorsConsonant, 1); 
+   pcaConsonant.printImportanceOfComponents();
    
    Regression regConsonant = new Regression(); 
    regConsonant.multipleLinearRegression(consonantsFile, true);
    regConsonant.printCoefficients(lingFactorsConsonant);
    System.out.println("Correlation vowels original duration / predicted duration = " + regConsonant.getCorrelation());
 
-   
+*/ 
     percent = 100;
     return true;
   }
@@ -299,11 +300,15 @@ public class DurationSoPTrainer extends VoiceImportComponent
           line = feaList[i];
           
           // CHECK: Maybe we need to exclude some features from the selection list???
-          // The following have mean value 0
+          // The following have variance 0
           if( !(line.contains("style") ||
                 line.contains("sentence_punc") ||
                 line.contains("next_punctuation") ||
                 line.contains("prev_punctuation") ||
+                line.contains("ph_cplace") ||
+                line.contains("ph_cvox") ||
+                line.contains("ph_vc") ||
+                line.contains("onsetcoda") ||
                 line.contains("edge") )) {
             
                // CHECK: here i am including arbitrarily some....
@@ -323,8 +328,8 @@ public class DurationSoPTrainer extends VoiceImportComponent
           }
               
         }
-      //-----return recommendedFeatureList + "\n" + featureList;
-      return "";
+      return recommendedFeatureList + "\n" + featureList;
+      //return "";
 
   }
  

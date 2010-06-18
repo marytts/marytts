@@ -391,6 +391,41 @@ public class MathUtils {
         mean /= inds.length;
         return mean;
     }
+    
+    /**
+     * Compute the mean of all elements in the array. this function can deal with NaNs
+     * @param data double[]
+     * @param opt 0:  arithmetic mean<p>
+                  1:  geometric mean<p>
+     */
+    public static double mean(double[] data, int opt)
+    {
+      if(opt==0){
+        int numData = 0;
+        double mean = 0;
+        for (int i=0; i<data.length; i++) {
+          if (!Double.isNaN(data[i])){
+            mean += data[i];
+            numData++;
+          }
+        }
+        mean /= numData;
+        return mean;
+      } else {
+        int numData = 0;
+        double mean = 0;
+        for (int i=0; i<data.length; i++) {
+          if (!Double.isNaN(data[i])){
+            mean += Math.log(data[i]);
+            numData++;
+          }
+        }
+        mean = mean/numData;        
+        return Math.exp(mean);        
+      }
+        
+    }
+    
 
     public static double standardDeviation(double[] data)
     {
@@ -406,7 +441,58 @@ public class MathUtils {
     {
         return Math.sqrt(variance(data, meanVal, startIndex, endIndex));
     }
+    
+    /**
+     * Compute the standard deviation of the given data, this function can deal with NaNs
+     * @param data double[]
+     * @param opt 0:  normalizes with N-1, this provides the square root of best unbiased estimator of the variance<p>
+                  1:  normalizes with N, this provides the square root of the second moment around the mean<p>
+     * @return
+     */
+    public static double standardDeviation(double[] data, int opt) {
+        if(opt==0)
+          return Math.sqrt(variance(data,opt));
+        else
+          return Math.sqrt(variance(data,opt));
+    }
 
+    /**
+     * Compute the variance in the array. This function can deal with NaNs
+     * @param data double[]
+     * @param opt 0:  normalizes with N-1, this provides the square root of best unbiased estimator of the variance<p>
+                  1:  normalizes with N, this provides the square root of the second moment around the mean<p>
+     */
+    public static double variance(double[] data, int opt)
+    {
+      // Pseudocode from wikipedia, which cites Knuth:
+      // n = 0
+      // mean = 0
+      // S = 0
+      // foreach x in data:
+      //   n = n + 1
+      //   delta = x - mean
+      //   mean = mean + delta/n
+      //   S = S + delta*(x - mean)      // This expression uses the new value of mean
+      // end for
+      // variance = S/(n - 1)
+      double mean = 0;
+      double S = 0;
+      double numData=0;
+      for (int i=0; i< data.length; i++) {
+        if (!Double.isNaN(data[i])){
+          double delta = data[i] - mean;           
+          mean += delta / (numData+1);
+          S += delta * (data[i] - mean);
+          numData++;
+        }
+      }
+      if(opt==0)
+        return (S/(numData-1));
+      else
+        return (S/numData);
+    }
+
+    
     public static double variance(double[] data)
     {
         return variance(data, mean(data));
@@ -3795,6 +3881,23 @@ public class MathUtils {
         
             return y;
         }
+    }
+    
+    
+    /***
+     * Calcualtes x_i = (x_i - mean(x)) / std(x)
+     * This function can deal with NaNs
+     * @param x
+     * @return
+     */
+    public static double[] normalizeZscore(double[] x)
+    {
+      double mn = mean(x,0);
+      double sd = standardDeviation(x, 0);
+      for(int i=0; i<x.length; i++)
+        if (!Double.isNaN(x[i]))
+          x[i] = (x[i] - mn) / sd;
+      return x;
     }
     
     public static double[] normalizeToSumUpTo(double[] x, double sumUp)

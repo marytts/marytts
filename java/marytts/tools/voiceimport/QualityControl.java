@@ -42,7 +42,8 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.filter.BandPassFilter;
-import marytts.util.MaryUtils;
+//import marytts.util.MaryUtils;
+import marytts.util.math.MathUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.signal.SignalProcUtils;
 
@@ -435,8 +436,9 @@ private Map getFricativeThresholds(Map fricativeHash){
         Map.Entry e = (Map.Entry) it.next();
         ArrayList arr = (ArrayList) e.getValue();
         double[] arrVal =  listToArray(arr);
-        double meanVal = MaryUtils.mean(arrVal);
-        double stDev = MaryUtils.stdDev(arrVal);
+        double meanVal = MathUtils.mean(arrVal);
+        double stDev = MathUtils.standardDeviation(arrVal,1);  
+
         Double threshold = (Double) (meanVal - (1.5 * stDev));
         /*if(threshold.doubleValue() < 0)
             threshold = (Double) (meanVal - (1.5 * stDev));*/
@@ -454,8 +456,8 @@ private Map getFricativeThresholds(Map fricativeHash){
 private double getSilenceThreshold(){
     
     double[] arrVal =  listToArray(silenceEnergyList);
-    double meanVal = MaryUtils.mean(arrVal);
-    double stDev = MaryUtils.stdDev(arrVal);
+    double meanVal = MathUtils.mean(arrVal);
+    double stDev = MathUtils.standardDeviation(arrVal, 1);
          
     return (meanVal + (1.5 * stDev));
 }

@@ -277,6 +277,7 @@ public class Regression {
   
   public void printCoefficients(Vector <String> factors){
     if(coeffs != null){
+      System.out.println("Linear regression:");
       if(b0Term){  
         System.out.format(" %.5f\n", coeffs[0]);
         for (int j=1; j<coeffs.length; j++) 
