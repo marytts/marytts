@@ -142,9 +142,13 @@ public class DiphoneUnitDatabase extends UnitDatabase {
             DiphoneUnit diphoneUnit = new DiphoneUnit(unitReader.units[leftIndex], unitReader.units[leftIndex+1]);
             ViterbiCandidate candidate = new ViterbiCandidate(diphoneTarget, diphoneUnit, targetCostFunction);
             // Blacklisting:
-            unitBasename = getFilename(diphoneUnit);
-            if (!blacklist.contains(unitBasename)) {
+            if (blacklist.equals("")) { // no blacklist
                 candidates.add(candidate);
+            } else { // maybe exclude candidate
+                unitBasename = getFilename(diphoneUnit);
+                if (!blacklist.contains(unitBasename)) {
+                    candidates.add(candidate);
+                }
             }
         }
         
