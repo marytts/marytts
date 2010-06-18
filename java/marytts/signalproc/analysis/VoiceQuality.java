@@ -6,7 +6,7 @@ import java.io.IOException;
 
 import marytts.util.io.MaryRandomAccessFile;
 import marytts.util.io.StreamUtils;
-import marytts.util.MaryUtils;
+import marytts.util.math.MathUtils;
 
 /**
  * A wrapper class for frame based voice quality parameters
@@ -54,6 +54,12 @@ public class VoiceQuality {
     
   }
   
+  public double[] getOQG(){ return vq[0]; }
+  public double[] getGOG(){ return vq[1]; }
+  public double[] getSKG(){ return vq[2]; }
+  public double[] getRCG(){ return vq[3]; }
+  public double[] getIC(){ return vq[4]; }
+  
   public void printPar(){
     System.out.println("Features Read:\nframe\tOQG\tGOG\tSKG\tRCG\tIC");
     for(int i=0; i<params.numfrm; i++)
@@ -63,12 +69,25 @@ public class VoiceQuality {
   
   public void printMeanStd(){
     System.out.println("Mean +- Standard deviation:\n\tOQG\tGOG\tSKG\tRCG\tIC");
-    System.out.format("mean: %.3f\t%.3f\t%.3f\t%.3f\t%.3f\n", MaryUtils.mean(vq[0], true), MaryUtils.mean(vq[1], true),
-        MaryUtils.mean(vq[2], true), MaryUtils.mean(vq[3], true),  MaryUtils.mean(vq[4], true));
-    System.out.format("std : %.3f\t%.3f\t%.3f\t%.3f\t%.3f\n", MaryUtils.stdDev(vq[0], true), MaryUtils.stdDev(vq[1], true),
-        MaryUtils.stdDev(vq[2], true), MaryUtils.stdDev(vq[3], true),  MaryUtils.stdDev(vq[4], true));
-
+    System.out.format("mean: %.3f\t%.3f\t%.3f\t%.3f\t%.3f\n", 
+        MathUtils.mean(vq[0],0), 
+        MathUtils.mean(vq[1],0),
+        MathUtils.mean(vq[2],0), 
+        MathUtils.mean(vq[3],0),  
+        MathUtils.mean(vq[4],0));
+    System.out.format("std : %.3f\t%.3f\t%.3f\t%.3f\t%.3f\n", 
+        MathUtils.standardDeviation(vq[0], 0), 
+        MathUtils.standardDeviation(vq[1], 0),
+        MathUtils.standardDeviation(vq[2], 0), 
+        MathUtils.standardDeviation(vq[3], 0),  
+        MathUtils.standardDeviation(vq[4], 0));
   }
+  
+  public void applyZscoreNormalization(){
+    for(int i=0; i<vq.length; i++)
+      vq[i] = MathUtils.normalizeZscore(vq[i]);     
+  }
+  
   
   public void readVqFile(String vqFile)
   {
