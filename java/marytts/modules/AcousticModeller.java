@@ -21,25 +21,23 @@
 package marytts.modules;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.IllegalFormatException;
 import java.util.List;
 import java.util.Locale;
+import java.util.StringTokenizer;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
-import marytts.cart.CART;
+
 import marytts.cart.DirectedGraph;
 import marytts.cart.io.DirectedGraphReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.features.FeatureVector;
@@ -55,7 +53,7 @@ import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
 /**
- * Predict duration and F0 using CARTs or other predictors
+ * Predict duration and F0 using CARTs or other models
  * 
  * @author steiner
  * 
@@ -66,13 +64,19 @@ public class AcousticModeller extends InternalModule {
 
     private FeatureProcessorManager featureProcessorManager;
 
-    private HashMap<String, DirectedGraph> carts;
+    private HashMap<String, Model> models;
 
-    private String DURCART = "duration.cart";
+    private List<Element> segments;
 
-    private String F0CARTLEFT = "f0.cart.left", F0CARTMID = "f0.cart.mid", F0CARTRIGHT = "f0.cart.right";
+    private List<Element> boundaries;
 
-    private String VQCARTBASENAME = "vq.cart.basename", VQCARTUNIT = "vq.cart.unit";
+    private List<Element> firstVoicedSegments;
+
+    private List<Element> firstVowels;
+
+    private List<Element> lastVoicedSegments;
+
+    private List<Element> voicedSegments;
 
     /**
      * Constructor which can be directly called from init info in the config file. This constructor will use the registered
@@ -125,117 +129,76 @@ public class AcousticModeller extends InternalModule {
         this.featureProcessorManager = featureProcessorManager;
     }
 
+    /**
+     * critically, this load all the Models into a Map and initializes them
+     */
     public void startup() throws Exception {
         super.startup();
 
-        // mapping container for arbitrary CARTs:
-        carts = new HashMap<String, DirectedGraph>();
+        // initialize the Model Map:
+        models = new HashMap<String, Model>();
 
-        // this String array controls which CARTs to load:
-        String[] cartProperties = { DURCART, F0CARTLEFT, F0CARTMID, F0CARTRIGHT, VQCARTBASENAME, VQCARTUNIT };
+        // add boundary "model" (which could of course be overwritten by appropriate properties in voice config):
+        models.put("boundary", new BoundaryModel("boundary", null, "duration", null));
 
-        // load and put CARTs into container:
-        for (String cartProperty : cartProperties) {
-            String cartFilename = MaryProperties.getFilename(propertyPrefix + cartProperty);
-            try {
-                File cartFile = new File(cartFilename);
-                DirectedGraph cart = new DirectedGraphReader().load(cartFile.getAbsolutePath());
-                carts.put(cartProperty, cart);
-            } catch (NullPointerException e) {
-                logger.debug("Ignoring unavailable property " + cartProperty);
-            } catch (IOException e) {
-                e.printStackTrace();
+        // iterate over the models defined in the voice config:
+        String modelsString = MaryProperties.needProperty(propertyPrefix + "acoustic-models.segmental");
+        StringTokenizer modelStrings = new StringTokenizer(modelsString);
+        do {
+            String modelName = modelStrings.nextToken();
+
+            // get more properties from voice config, depending on the model name:
+            String modelType = MaryProperties.needProperty(propertyPrefix + modelName + ".model");
+            String modelDataFileName = MaryProperties.needFilename(propertyPrefix + modelName + ".data");
+            String modelAttributeName = MaryProperties.needProperty(propertyPrefix + modelName + ".attribute");
+            // modelAttributeFormat is null if not defined; this is handled in the Model constructor:
+            String modelAttributeFormat = MaryProperties.getProperty(propertyPrefix + modelName + ".attribute.format");
+
+            // consult the ModelType enum to find appropriate Model subclass...
+            ModelType possibleModelTypes = ModelType.fromString(modelType);
+            // if modelType is not in ModelType.values(), we don't know how to handle it:
+            if (possibleModelTypes == null) {
+                logger.warn("Cannot handle unknown model type: " + modelType);
+                throw new Exception();
             }
-        }
 
+            // ...and instantiate it in a switch statement:
+            Model model = null;
+            switch (possibleModelTypes) {
+            case CART:
+                model = new CARTModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat);
+            }
+
+            // if we got this far, model should not be null:
+            assert model != null;
+
+            // otherwise, load datafile and put the model in the Model Map:
+            model.loadDataFile();
+            models.put(modelName, model);
+        } while (modelStrings.hasMoreTokens());
     }
 
     public MaryData process(MaryData d) {
+        // parse the MaryXML Document to populate Lists of relevant Elements:
         Document doc = d.getDocument();
+        parseDocument(doc);
 
-        // iterate over all sentences:
-        NodeIterator sentenceIt = MaryDomUtils.createNodeIterator(doc, MaryXML.SENTENCE);
-        Node sentenceNode = null;
-        while ((sentenceNode = sentenceIt.nextNode()) != null) {
+        // apply critical Models to Elements:
+        models.get("duration").applyTo(segments);
+        models.get("leftF0").applyTo(firstVoicedSegments, firstVowels);
+        models.get("midF0").applyTo(firstVowels);
+        models.get("rightF0").applyTo(lastVoicedSegments, firstVowels);
+        models.get("boundary").applyTo(boundaries);
 
-            /*
-             * Figure out the maryVoice for this sentence:
-             */
-            Element voice = (Element) MaryDomUtils.getAncestor(sentenceNode, MaryXML.VOICE);
-            Voice maryVoice = Voice.getVoice(voice);
-            if (maryVoice == null) {
-                maryVoice = d.getDefaultVoice();
-            }
-            if (maryVoice == null) {
-                // Determine Locale in order to use default voice
-                Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
-                maryVoice = Voice.getDefaultVoice(locale);
-            }
+        // hack duration attributes:
+        hackSegmentDurations(segments);
 
-            /*
-             * Get CARTs for this sentence:
-             */
-            DirectedGraph currentDurCart = carts.get(DURCART);
-            if (maryVoice != null) {
-                DirectedGraph voiceDurCart = maryVoice.getDurationGraph();
-                if (voiceDurCart != null) {
-                    currentDurCart = voiceDurCart;
-                    logger.debug("Using voice duration graph");
-                }
-            }
-            if (currentDurCart == null) {
-                throw new NullPointerException("No cart for predicting duration");
-            }
-
-            DirectedGraph currentF0LeftCart = carts.get(F0CARTLEFT);
-            DirectedGraph currentF0MidCart = carts.get(F0CARTMID);
-            DirectedGraph currentF0RightCart = carts.get(F0CARTRIGHT);
-            if (maryVoice instanceof UnitSelectionVoice) {
-                CART[] voiceTrees = ((UnitSelectionVoice) maryVoice).getF0Trees();
-                if (voiceTrees != null) {
-                    currentF0LeftCart = (DirectedGraph) voiceTrees[0];
-                    currentF0MidCart = (DirectedGraph) voiceTrees[1];
-                    currentF0RightCart = (DirectedGraph) voiceTrees[2];
-                    logger.debug("Using voice carts");
-                }
-            }
-            if (currentF0LeftCart == null || currentF0MidCart == null || currentF0RightCart == null) {
-                throw new NullPointerException("Do not have f0 prediction tree");
-            }
-
-            /*
-             * And now, the actual processing:
-             */
-
-            // wrap the sentence for convenient access to the relevant pieces:
-            SentenceWrapper sentence = new SentenceWrapper(doc, sentenceNode);
-
-            // wrap the CARTs for the current voice:
-            CARTWrapper durCartWrapper = new CARTWrapper(currentDurCart);
-            CARTWrapper f0LeftCartWrapper = new CARTWrapper(currentF0LeftCart);
-            CARTWrapper f0MidCartWrapper = new CARTWrapper(currentF0MidCart);
-            CARTWrapper f0RightCartWrapper = new CARTWrapper(currentF0RightCart);
-
-            // enrich the MaryXML elements with the predicted values:
-            durCartWrapper.enrich(sentence.segments, "d");
-            // Note that through the use of %.0f in the format strings, F0 values are rounded, not floored:
-            f0LeftCartWrapper.enrich(sentence.initialTBUs, "f0", "(0,%.0f)");
-            f0MidCartWrapper.enrich(sentence.medialTBUs, "f0", "(50,%.0f)");
-            f0RightCartWrapper.enrich(sentence.finalTBUs, "f0", "(100,%.0f)");
-
-            // final hack for all duration attributes:
-            hackDurations(sentence);
-
-            // if configured, enrich MaryXML with voice quality features from VQ CARTs:
-            if (carts.containsKey(VQCARTBASENAME)) {
-                CARTWrapper vqBasenameCartWrapper = new CARTWrapper(carts.get(VQCARTBASENAME));
-                vqBasenameCartWrapper.enrich(sentence.segments, "basename_vq");
-            }
-            if (carts.containsKey(VQCARTUNIT)) {
-                CARTWrapper vqUnitCartWrapper = new CARTWrapper(carts.get(VQCARTUNIT));
-                vqUnitCartWrapper.enrich(sentence.toneBearingUnits, "unit_vq");
-            }
-
+        // TODO apply other Models, such as Voice Quality CARTs, but we need some elegant way of knowing which Elements to apply
+        // the Models to, from properties in the voice config...
+        try{
+            models.get("oqg").applyTo(voicedSegments);
+        } catch (NullPointerException e){
+            // there is not Model for OQG... ignore
         }
 
         MaryData output = new MaryData(outputType(), d.getLocale());
@@ -245,14 +208,14 @@ public class AcousticModeller extends InternalModule {
 
     /**
      * Hack duration attributes so that <code>d</code> attribute values are in milliseconds, and add <code>end</code> attributes
-     * containing the cumulative end time. Also adds <code>duration</code> attributes to boundaries.
+     * containing the cumulative end time.
      * 
-     * @param sentence
-     *            SentenceWrapper
+     * @param elements
+     *            a List of segment Elements
      */
-    private void hackDurations(SentenceWrapper sentence) {
+    private void hackSegmentDurations(List<Element> elements) {
         float cumulEndInSeconds = 0;
-        for (Element segment : sentence.segments) {
+        for (Element segment : elements) {
             float durationInSeconds = Float.parseFloat(segment.getAttribute("d"));
             cumulEndInSeconds += durationInSeconds;
 
@@ -264,233 +227,307 @@ public class AcousticModeller extends InternalModule {
             String durationInMilliseconds = String.format("%.0f", (durationInSeconds * 1000));
             segment.setAttribute("d", durationInMilliseconds);
         }
-        // add a flat 400 ms as the duration of every boundary. StringPredictionTree based boundary duration prediction with
-        // pausetree and pausefeatures is ignored, because it doesn't seem to be used anymore.
-        String durAttrName = "duration";
-        for (Element boundary : sentence.boundaries) {
-            if (!boundary.hasAttribute(durAttrName)) {
-                boundary.setAttribute(durAttrName, "400");
-            }
-        }
     }
 
     /**
-     * Wrapper class for a sentence, which does all the parsing and provides convenient access to the relevant Elements
-     * <p>
-     * Apart from the <code>segments</code> and <code>boundaries</code>, for all syllables, the relevant tone-bearing units
-     * (TBUs), i.e. the first voiced segment, the first vowel, and the last voiced segment, are provided as
-     * <code>initialTBUs</code>, <code>medialTBUs</code>, <code>finalTBUs</code>, respectively.
+     * Parse the Document to populate the Lists of Elements
      * 
-     * @author steiner
-     * 
+     * @param doc
      */
-    private class SentenceWrapper {
-        protected List<Element> segments;
+    private void parseDocument(Document doc) {
+        // initialize Element Lists:
+        segments = new ArrayList<Element>();
+        voicedSegments = new ArrayList<Element>();
+        firstVoicedSegments = new ArrayList<Element>();
+        firstVowels = new ArrayList<Element>();
+        lastVoicedSegments = new ArrayList<Element>();
+        boundaries = new ArrayList<Element>();
 
-        protected List<Element> boundaries;
+        // walk over all syllables in MaryXML document:
+        TreeWalker treeWalker = MaryDomUtils.createTreeWalker(doc, MaryXML.SYLLABLE, MaryXML.BOUNDARY);
+        Node node;
+        while ((node = treeWalker.nextNode()) != null) {
+            Element element = (Element) node;
 
-        protected List<Element> initialTBUs;
+            // handle boundaries
+            if (node.getNodeName().equals(MaryXML.BOUNDARY)) {
+                boundaries.add(element);
+                continue;
+            }
 
-        protected List<Element> medialTBUs;
+            // from this point on, we should be dealing only with syllables:
+            assert node.getNodeName().equals(MaryXML.SYLLABLE);
 
-        protected List<Element> finalTBUs;
+            // get AllophoneSet for syllable
+            AllophoneSet allophoneSet = null; // TODO should this be here, or rather outside the loop?
+            try {
+                allophoneSet = AllophoneSet.determineAllophoneSet(element);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            assert allophoneSet != null;
 
-        private List<Element> toneBearingUnits;
+            // initialize some variables:
+            Element segment;
+            Element firstVoicedSegment = null;
+            Element firstVowel = null;
+            Element lastVoicedSegment = null;
 
-        /**
-         * Wrapper for this sentence.
-         * 
-         * @param doc
-         *            root MaryXML Document
-         * @param sentenceNode
-         *            root Node of the sentence to wrap, i.e. <code>&lt;s&gt;</code> tag
-         */
-        protected SentenceWrapper(Document doc, Node sentenceNode) {
-            segments = new ArrayList<Element>();
-            boundaries = new ArrayList<Element>();
-            initialTBUs = new ArrayList<Element>();
-            medialTBUs = new ArrayList<Element>();
-            finalTBUs = new ArrayList<Element>();
-            toneBearingUnits = new ArrayList<Element>();
+            // iterate over "ph" children of syllable:
+            for (segment = MaryDomUtils.getFirstElementByTagName(node, MaryXML.PHONE); segment != null; segment = MaryDomUtils
+                    .getNextOfItsKindIn(segment, element)) {
 
-            // parse the document, filling the above element lists
-            parseDocument(doc, sentenceNode);
-        }
+                // in passing, append segment to segments List:
+                segments.add(segment);
 
-        /**
-         * Main processing method of a SentenceWrapper, which parses the sentence and fills the Lists with Elements.
-         * 
-         * @param doc
-         *            root MaryXML Document, passed in from constructor
-         * @param sentenceNode
-         *            root Node of the sentence to wrap, passed in from constructor
-         */
-        private void parseDocument(Document doc, Node sentenceNode) {
-            // walk over all syllables in MaryXML document:
-            TreeWalker treeWalker = MaryDomUtils.createTreeWalker(doc, sentenceNode, MaryXML.SYLLABLE, MaryXML.BOUNDARY);
-            AllophoneSet allophoneSet = null; // TODO should this be here, or rather inside the loop?
-            Node syllableOrBoundaryNode;
-            while ((syllableOrBoundaryNode = treeWalker.nextNode()) != null) {
-                Element syllableOrBoundaryElement = (Element) syllableOrBoundaryNode;
-
-                // handle boundaries
-                if (syllableOrBoundaryNode.getNodeName().equals(MaryXML.BOUNDARY)) {
-                    boundaries.add(syllableOrBoundaryElement);
-                    continue;
-                }
-
-                // get AllophoneSet for syllable
-                try {
-                    allophoneSet = AllophoneSet.determineAllophoneSet(syllableOrBoundaryElement);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                assert allophoneSet != null;
-
-                // initialize some variables:
-                Element segmentElement;
-                Element initialTBU = null;
-                Element medialTBU = null;
-                Element finalTBU = null;
-
-                // iterate over "ph" children of syllable:
-                for (segmentElement = MaryDomUtils.getFirstElementByTagName(syllableOrBoundaryNode, MaryXML.PHONE); segmentElement != null; segmentElement = MaryDomUtils
-                        .getNextOfItsKindIn(segmentElement, syllableOrBoundaryElement)) {
-
-                    // in passing, append segment to segments List:
-                    segments.add(segmentElement);
-
-                    // get "p" attribute...
-                    String phone = UnitSelector.getPhoneSymbol(segmentElement);
-                    // ...and get the corresponding allophone, which knows about its phonological features:
-                    Allophone allophone = allophoneSet.getAllophone(phone);
-                    if (allophone.isVoiced()) { // all and only voiced segments are TBUs
-                        toneBearingUnits.add(segmentElement);
-                        if (initialTBU == null) {
-                            initialTBU = segmentElement; // first TBU we find is the initial one
-                        }
-                        if (medialTBU == null && allophone.isVowel()) {
-                            medialTBU = segmentElement; // first vowel we find is medial TBU
-                        }
-                        finalTBU = segmentElement; // keep overwriting this; finally it's the last TBU
+                // get "p" attribute...
+                String phone = UnitSelector.getPhoneSymbol(segment);
+                // ...and get the corresponding allophone, which knows about its phonological features:
+                Allophone allophone = allophoneSet.getAllophone(phone);
+                if (allophone.isVoiced()) { // all and only voiced segments are potential F0 anchors
+                    voicedSegments.add(segment);
+                    if (firstVoicedSegment == null) {
+                        firstVoicedSegment = segment;
                     }
-                }
-
-                try {
-                    // at this point, no TBU should be null:
-                    assert initialTBU != null;
-                    assert medialTBU != null;
-                    assert finalTBU != null;
-
-                    // we have what we need, append to Lists:
-                    initialTBUs.add(initialTBU);
-                    medialTBUs.add(medialTBU);
-                    finalTBUs.add(finalTBU);
-                } catch (AssertionError e) {
-                    logger.debug("WARNING: could not identify F0 anchors in malformed syllable: " + syllableOrBoundaryElement.getAttribute("ph"));
-                    e.printStackTrace();
+                    if (firstVowel == null && allophone.isVowel()) {
+                        firstVowel = segment;
+                    }
+                    lastVoicedSegment = segment; // keep overwriting this; finally it's the last voiced segment
                 }
             }
-        }
 
+            try {
+                // at this point, no TBU should be null:
+                assert firstVoicedSegment != null;
+                assert firstVowel != null;
+                assert lastVoicedSegment != null;
+
+                // we have what we need, append to Lists:
+                firstVoicedSegments.add(firstVoicedSegment);
+                firstVowels.add(firstVowel);
+                lastVoicedSegments.add(lastVoicedSegment);
+            } catch (AssertionError e) {
+                logger.debug("WARNING: could not identify F0 anchors in malformed syllable: " + element.getAttribute("ph"));
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
-     * Wrapper class to apply a CART to a list of MaryXML Elements
+     * list of known model types as constants; can be extended but needs to mesh with Model subclasses and switch statement in
+     * startUp():
      * 
      * @author steiner
      * 
      */
-    private class CARTWrapper {
+    public enum ModelType {
+        // enumerate model types here:
+        CART;
 
-        private DirectedGraph cart;
+        // get the appropriate model type from a string (which can be lower or mixed case):
+        // adapted from http://www.xefer.com/2006/12/switchonstring
+        public static ModelType fromString(String string) {
+            try {
+                ModelType modelString = valueOf(string.toUpperCase());
+                return modelString;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+    }
 
-        private TargetFeatureComputer featureComputer;
+    /**
+     * Base class for acoustic modelling; specific Models should extend this and override methods as needed.
+     * 
+     * @author steiner
+     * 
+     */
+    private class Model {
+        protected String type;
+
+        protected String dataFile;
+
+        protected String targetAttributeName;
+
+        protected String targetAttributeFormat;
 
         /**
+         * Model constructor
          * 
-         * @param cart
-         *            to wrap
+         * @param type
+         *            type of Model
+         * @param dataFileName
+         *            data file for this Model
+         * @param targetAttributeName
+         *            attribute in MaryXML to predict
+         * @param targetAttributeFormat
+         *            printf-style format String to specify the attribute value, i.e. "%.3f" to round to 3 decimal places
          */
-        private CARTWrapper(DirectedGraph cart) {
-            this.cart = cart;
+        protected Model(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat) {
+            this.type = type;
+            this.dataFile = dataFileName;
+            this.targetAttributeName = targetAttributeName;
+            if (targetAttributeFormat == null) {
+                targetAttributeFormat = "%s";
+            }
+            this.targetAttributeFormat = targetAttributeFormat;
+        }
 
-            this.featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, cart.getFeatureDefinition()
-                    .getFeatureNames());
+        protected void loadDataFile() {
+            return; // only subclasses know how to load their respective datafiles
         }
 
         /**
-         * @see #enrich(List, String, String)
+         * Apply this Model to a List of Elements, predicting from those same Elements
+         * 
          * @param elements
-         *            List of Elements to be enriched
-         * @param attrName
-         *            name of attribute with which to enrich elements
          */
-        private void enrich(List<Element> elements, String attrName) {
-            enrich(elements, attrName, "%s");
+        protected void applyTo(List<Element> elements) {
+            applyTo(elements, elements);
         }
 
         /**
-         * For each Element in the List <code>elements</code>, get the corresponding Target, use the CART to interpret it, and add
-         * the result to the element as the value of an attribute named <code>attrName</code>, formatted according to the format
-         * string <code>attrFormat</code>. If the element already has an attribute named <code>attrName</code>, append a space and
-         * the formatted result to the old attribute value.
+         * Apply this Model to a List of Elements, predicting from a different List of Elements
          * 
-         * @param elements
-         *            List of Elements to be enriched
-         * @param attrName
-         *            name of attribute with which to enrich elements
-         * @param attrFormat
-         *            format string to apply to attribute values, e.g. "%.2f" to round to two decimal places
+         * @param applicableElements
+         *            Elements to which to apply the values predicted by this Model
+         * @param predictorElements
+         *            Elements from which to predict the values
          */
-        private void enrich(List<Element> elements, String attrName, String attrFormat) {
+        protected void applyTo(List<Element> applicableElements, List<Element> predictorElements) {
+            assert applicableElements.size() == predictorElements.size();
 
-            List<Target> targets = getTargets(elements);
+            List<Target> predictorTargets = getTargets(predictorElements);
 
-            for (int e = 0, t = 0; e < elements.size() && t < targets.size(); e++, t++) {
-                Target target = targets.get(t);
-                float[] result = (float[]) cart.interpret(target);
-                float value = result[1]; // assuming result is [stdev, val]
+            for (int i = 0; i < applicableElements.size(); i++) {
+                Target target = predictorTargets.get(i);
+                float targetValue = (float) evaluate(target);
 
-                String attrValue = null;
-                try {
-                    attrValue = String.format(attrFormat, value);
-                } catch (IllegalFormatException ife) {
-                    ife.printStackTrace();
+                Element element = applicableElements.get(i);
+
+                // "evaulate" pseudo XPath syntax:
+                // TODO this need to be extended to take into account targetAttributeNames like "foo/@bar", which would add the
+                // bar attribute to the foo child of this element, creating it if not already present...
+                if (targetAttributeName.startsWith("@")) {
+                    targetAttributeName = targetAttributeName.replaceFirst("@", "");
                 }
 
-                Element element = elements.get(e);
-                // if attr is already present, append:
-                if (element.hasAttribute(attrName)) {
-                    attrValue = element.getAttribute(attrName) + " " + attrValue;
+                // format targetValue according to targetAttributeFormat
+                String formattedTargetValue = String.format(targetAttributeFormat, targetValue);
+                // if the attribute already exists for this element, append targetValue:
+                if (element.hasAttribute(targetAttributeName)) {
+                    formattedTargetValue = element.getAttribute(targetAttributeName) + " " + formattedTargetValue;
                 }
-                element.setAttribute(attrName, attrValue);
+
+                // set the new attribute value:
+                element.setAttribute(targetAttributeName, formattedTargetValue);
             }
         }
 
         /**
          * For a list of <code>PHONE</code> elements, return a list of Targets, where each Target is constructed from the
-         * corresponding element.
-         * <p>
-         * <i>Note: It would be more efficient to do this only once, when the elements are defined by
-         * {@link AcousticModeller.SentenceWrapper#parseDocument(Document, Node)}. However, that would require that all CARTs use
-         * the same feature definition! Is that really true?</i>
+         * corresponding Element.
          * 
          * @param elements
          *            List of Elements
          * @return List of Targets
          */
-        private List<Target> getTargets(List<Element> elements) {
+        protected List<Target> getTargets(List<Element> elements) {
             List<Target> targets = new ArrayList<Target>(elements.size());
             for (Element element : elements) {
                 assert element.getTagName() == MaryXML.PHONE;
                 String phone = UnitSelector.getPhoneSymbol(element);
                 Target target = new Target(phone, element);
-                FeatureVector targetFeatureVector = featureComputer.computeFeatureVector(target);
-                target.setFeatureVector(targetFeatureVector); // this is critical!
                 targets.add(target);
             }
+            return computeFeatureVectors(targets);
+        }
+
+        /**
+         * Base class does not compute feature vectors, because it doesn't know which TargetFeatureComputer to apply
+         * 
+         * @param targets
+         * @return the same targets
+         */
+        protected List<Target> computeFeatureVectors(List<Target> targets) {
             return targets;
+        }
+
+        /**
+         * Base class does not predict meaningful values
+         * 
+         * @param target
+         * @return NaN
+         */
+        protected float evaluate(Target target) {
+            return Float.NaN;
+        }
+
+    }
+
+    /**
+     * Model subclass which currently predicts only a flat 400 ms duration for each boundary Element
+     * <p>
+     * Could be replaced by a PauseTree or something else, but that would require a CARTModel instead of this.
+     * 
+     * @author steiner
+     * 
+     */
+    private class BoundaryModel extends Model {
+        protected BoundaryModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat) {
+            super(type, dataFileName, targetAttributeName, targetAttributeFormat);
+        }
+
+        protected void applyTo(List<Element> elements) {
+            for (Element element : elements) {
+                if (!element.hasAttribute(targetAttributeName)) {
+                    element.setAttribute(targetAttributeName, "400");
+                }
+            }
+        }
+    }
+
+    /**
+     * Model subclass for applying a CART to a list of Targets
+     * 
+     * @author steiner
+     * 
+     */
+    private class CARTModel extends Model {
+        private DirectedGraph cart;
+
+        protected CARTModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat) {
+            super(type, dataFileName, targetAttributeName, targetAttributeFormat);
+        }
+
+        protected void loadDataFile() {
+            this.cart = null;
+            try {
+                File cartFile = new File(dataFile);
+                cart = new DirectedGraphReader().load(cartFile.getAbsolutePath());
+            } catch (Exception e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+
+        protected List<Target> computeFeatureVectors(List<Target> targets) {
+            TargetFeatureComputer featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, cart
+                    .getFeatureDefinition().getFeatureNames());
+            for (Target target : targets) {
+                FeatureVector targetFeatureVector = featureComputer.computeFeatureVector(target);
+                target.setFeatureVector(targetFeatureVector); // this is critical!
+            }
+            return targets;
+        }
+
+        /**
+         * Apply the CART to a Target to get its predicted value
+         */
+        protected float evaluate(Target target) {
+            float[] result = (float[]) cart.interpret(target);
+            float value = result[1]; // assuming result is [stdev, val]
+            return value;
         }
     }
 }
