@@ -194,7 +194,7 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
             else
                 strTmp = db.getExternal(db.TCLPATH) + "/tclsh " + strTmp;
             
-            //System.out.println("Executing: " + strTmp);
+            System.out.println("Executing: " + strTmp);
                 
             Process snack = Runtime.getRuntime().exec(strTmp);
 

@@ -31,10 +31,11 @@ public class OctaveVoiceQualityProcessor extends VoiceImportComponent {
     
     protected DatabaseLayout db;
     private String name = "OctaveVoiceQualityProcessor";
-    
+    protected String snackExtension = ".snack";
     protected String octaveExtension = ".octave";
     protected String voiceQualityExtension = ".vq";
-    protected String scriptFileName;
+    protected String scriptSnackFileName;
+    protected String scriptOctaveFileName;
     
 
     int numVqParams = 5;           // number of voice quality parameters extracted from the sound files:
@@ -81,7 +82,8 @@ public class OctaveVoiceQualityProcessor extends VoiceImportComponent {
 
     public void initialiseComp()
     {
-        scriptFileName = db.getProp(db.TEMPDIR) + "octave_call.m";
+        scriptSnackFileName = db.getProp(db.TEMPDIR) + "snack_call.tcl";
+        scriptOctaveFileName = db.getProp(db.TEMPDIR) + "octave_call.m";
     }
 
     public SortedMap getDefaultProps(DatabaseLayout db){
@@ -111,20 +113,47 @@ public class OctaveVoiceQualityProcessor extends VoiceImportComponent {
      * The standard compute() method of the VoiceImportComponent interface.
      */
     public boolean compute() throws Exception {
-              
-        File script = new File(scriptFileName);
+        
         /* In order to get the same number of frames when calculating f0 and formants with snack, we should keep constant the following variables:
          * -maxpitch 400 for F0 calculation
          * -minpitch 60 for F0 calculation
          * -windowlength 0.03 for formants calculation
          * -framelength should be the same for f0, formants and this SnackVoiceQualityProcessor, this value can be change, ex: 0.005, 0.01 etc.
-         */        
-        if (script.exists()) script.delete();
-        PrintWriter toScript = new PrintWriter(new FileWriter(script));
-        toScript.println("arg_list = argv ();");
-        toScript.println("cd /project/mary/marcela/quality_parameters/snack/");
-        toScript.println("calculateVoiceQuality(arg_list{1}, arg_list{2}, arg_list{3}, str2num(arg_list{4}));");
-        toScript.close();
+         */            
+        File scriptSnack = new File(scriptSnackFileName);
+    
+        if (scriptSnack.exists()) scriptSnack.delete();
+        PrintWriter toScriptSnack = new PrintWriter(new FileWriter(scriptSnack));
+        toScriptSnack.println("# extracting pitch anf formants using snack");
+        toScriptSnack.println("package require snack");
+        toScriptSnack.println("snack::sound s");
+        toScriptSnack.println("s read [lindex $argv 0]");
+        toScriptSnack.println("set fd [open [lindex $argv 1] w]");
+        toScriptSnack.println("set f0 [s pitch -method esps -maxpitch [lindex $argv 2] -minpitch [lindex $argv 3] -framelength [lindex $argv 4] ]");
+        toScriptSnack.println("set f0_length [llength $f0]");
+        //toScriptSnack.println("puts \"f0 length = $f0_length\"");
+        toScriptSnack.println("set formants [s formant -numformants [lindex $argv 5] -lpcorder [lindex $argv 6] -framelength [lindex $argv 4] -windowlength 0.03]");
+        toScriptSnack.println("set formants_length [llength $formants]");
+        //toScriptSnack.println("puts \"formants length = $formants_length\"");
+        toScriptSnack.println("set n 0");
+        toScriptSnack.println("foreach line $f0 {");
+        toScriptSnack.println("puts -nonewline $fd \"[lindex $line 0] \"");
+        toScriptSnack.println("puts $fd [lindex $formants $n]");
+        toScriptSnack.println("incr n");
+        toScriptSnack.println("}");
+        toScriptSnack.println("close $fd");
+        toScriptSnack.println("exit"); 
+        toScriptSnack.close();
+
+              
+        File scriptOctave = new File(scriptOctaveFileName);
+        if (scriptOctave.exists()) scriptOctave.delete();
+        PrintWriter toScriptOctave = new PrintWriter(new FileWriter(scriptOctave));
+        toScriptOctave.println("arg_list = argv ();");        
+        toScriptOctave.println("cd " + db.getProp(db.TEMPDIR));
+        // calculateVoiceQuality(filename, filesnack, gender, par_name, debug);
+        toScriptOctave.println("calculateVoiceQuality(arg_list{1}, arg_list{2}, arg_list{3}, arg_list{4}, str2num(arg_list{5}));");
+        toScriptOctave.close();
 
         
         String[] baseNameArray = bnl.getListAsArray();
@@ -137,40 +166,56 @@ public class OctaveVoiceQualityProcessor extends VoiceImportComponent {
             System.out.println( "Creating the directory [" + getProp(VQDIR) + "]." );
             dir.mkdir();
         }        
-        
-        
+              
         // Some general parameters that apply to all the sound files
         int samplingRate = Integer.parseInt(getProp(SAMPLINGRATE));         
         // frameLength and windowLength in samples
         int frameLength = Math.round(Float.parseFloat(getProp(FRAMELENGTH)) * samplingRate);
         int windowLength = Math.round(Float.parseFloat(getProp(WINDOWLENGTH)) * samplingRate);
         
-      
-        
+            
         /* execute octave and voice quality parameters extraction */        
         for ( int i = 0; i < baseNameArray.length; i++ ) {
             percent = 100*i/baseNameArray.length;
+            
+            /* call snack for calculating f0 and formants */
             String wavFile   = db.getProp(db.WAVDIR) + baseNameArray[i] + db.getProp(db.WAVEXT);
             String octaveFile = getProp(VQDIR) + baseNameArray[i] + octaveExtension;
+            String snackFile = getProp(VQDIR) + baseNameArray[i] + snackExtension;
             String vqFile    = getProp(VQDIR) + baseNameArray[i] + voiceQualityExtension;
-            
-            System.out.println("Writing  OQG GOG SKG RCG IC to " + octaveFile);
-
+                        
+            System.out.println("Writing f0+formants+bandWidths to " + snackFile);
             boolean isWindows = true;
-            String strTmp = getProp(OCTAVEPATH) + " --silent " + scriptFileName + " " + wavFile + " " + getProp(db.GENDER) + " " + octaveFile + " 0";
-            
-            
-            System.out.println("Executing: " + strTmp);
-                
-            Process octave = Runtime.getRuntime().exec(strTmp);
-            StreamGobbler errorGobbler = new 
-            StreamGobbler(octave.getErrorStream(), "err");            
+            String strSnackTmp = scriptSnackFileName + " " + wavFile + " " + snackFile + " " + getProp(MAXPITCH) + " " + getProp(MINPITCH)
+                               + " " + getProp(FRAMELENGTH) + " " + getProp(NUMFORMANTS) + " " + getProp(LPCORDER);
+            if (MaryUtils.isWindows())
+                strSnackTmp = "cmd.exe /c " + db.getExternal(db.TCLPATH) + "/tclsh " + strSnackTmp;
+            else
+                strSnackTmp = db.getExternal(db.TCLPATH) + "/tclsh " + strSnackTmp;           
+            //System.out.println("Executing: " + strSnackTmp);                
+            Process snack = Runtime.getRuntime().exec(strSnackTmp);
+            StreamGobbler errorGobbler1 = new StreamGobbler(snack.getErrorStream(), "err");            
             //read from output stream
-            StreamGobbler outputGobbler = new 
-            StreamGobbler(octave.getInputStream(), "out");    
+            StreamGobbler outputGobbler1 = new StreamGobbler(snack.getInputStream(), "out");    
             //start reading from the streams
-            errorGobbler.start();
-            outputGobbler.start();
+            errorGobbler1.start();
+            outputGobbler1.start();
+            //close everything down
+            snack.waitFor();
+            snack.exitValue();
+            
+            /* call octave for calculating VQ parameters */            
+            System.out.println("Calculating  OQG GOG SKG RCG IC to " + octaveFile);
+            String strOctaveTmp = getProp(OCTAVEPATH) + " --silent " + scriptOctaveFileName + " " + wavFile + " " + snackFile + " " 
+                                + getProp(db.GENDER) + " " + octaveFile + " 0";            
+            //System.out.println("Executing: " + strOctaveTmp);                
+            Process octave = Runtime.getRuntime().exec(strOctaveTmp);
+            StreamGobbler errorGobbler2 = new StreamGobbler(octave.getErrorStream(), "err");            
+            //read from output stream
+            StreamGobbler outputGobbler2 = new StreamGobbler(octave.getInputStream(), "out");    
+            //start reading from the streams
+            errorGobbler2.start();
+            outputGobbler2.start();
             //close everything down
             octave.waitFor();
             octave.exitValue();
@@ -287,21 +332,19 @@ public class OctaveVoiceQualityProcessor extends VoiceImportComponent {
       vq.compute();
       */
       // values extracted with Java program
-      main1(args);
-      
-      /* 
-      
-      String file   = "/project/mary/marcela/HMM-voices/arctic_test/vq-octave/curious.vq";
+      //main1(args);
+            
+      String file   = "/project/mary/marcela/UnitSel-voices/slt-arctic/vq/curious.vq";
       VoiceQuality vq1 = new VoiceQuality(); 
       System.out.println("Reading: " + file);
       vq1.readVqFile(file); 
       vq1.printPar();
       vq1.printMeanStd();
-      MaryUtils.plot(vq1.getGOG(), "Normal");
-      vq1.applyZscoreNormalization();
-      MaryUtils.plot(vq1.getGOG(), "after z-score");
+      //MaryUtils.plot(vq1.getGOG(), "Normal");
+      //vq1.applyZscoreNormalization();
+      //MaryUtils.plot(vq1.getGOG(), "after z-score");
       
-      */    
+          
       
     }
     
