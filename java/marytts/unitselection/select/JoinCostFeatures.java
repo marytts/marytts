@@ -29,6 +29,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.channels.FileChannel;
 import java.util.Vector;
 
 import marytts.features.ByteValuedFeatureProcessor;
@@ -41,6 +44,7 @@ import marytts.unitselection.data.Unit;
 import marytts.unitselection.weightingfunctions.WeightFunc;
 import marytts.unitselection.weightingfunctions.WeightFunctionManager;
 import marytts.util.data.MaryHeader;
+import marytts.util.io.StreamUtils;
 
 import org.apache.log4j.Logger;
 
@@ -108,7 +112,19 @@ public class JoinCostFeatures implements JoinCostFunction
         load(joinFileName, joinWeightFile, precomputedJoinCostFileName, wSignal);
     }
     
-    
+    /**
+     * Load weights and values from the given file
+     * @param joinFileName the file from which to read default weights and join cost features
+     * @param weightsFileName an optional file from which to read weights, taking precedence over
+     * @param precompiledCostFileName an optional file containing precompiled join costs
+     * @param wSignal Relative weight of the signal-based join costs relative to the
+     *                phonetic join costs computed from the target 
+     */
+    public void load(String joinFileName, String weightsFileName, String precompiledCostFileName,float wSignal)
+    throws IOException
+    {
+        loadFromByteBuffer(joinFileName, weightsFileName, precompiledCostFileName, wSignal);
+    }
     
    /**
      * Load weights and values from the given file
@@ -118,7 +134,96 @@ public class JoinCostFeatures implements JoinCostFunction
      * @param wSignal Relative weight of the signal-based join costs relative to the
      *                phonetic join costs computed from the target 
      */
-    public void load(String joinFileName, String weightsFileName, String precompiledCostFileName,float wSignal)
+    private void loadFromByteBuffer(String joinFileName, String weightsFileName, String precompiledCostFileName,float wSignal)
+    throws IOException
+    {
+        if (precompiledCostFileName != null) {
+            precompiledCosts = new PrecompiledJoinCostReader(precompiledCostFileName);
+        }
+        this.wSignal = wSignal;
+        wPhonetic = 1 - wSignal;
+        /* Open the file */
+        FileInputStream fis = new FileInputStream(joinFileName);
+        FileChannel fc = fis.getChannel();
+        ByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+        /* Read the Mary header */
+        hdr = new MaryHeader(bb);
+        if ( !hdr.isMaryHeader() ) {
+            throw new IOException( "File [" + joinFileName + "] is not a valid Mary format file." );
+        }
+        if ( hdr.getType() != MaryHeader.JOINFEATS ) {
+            throw new IOException( "File [" + joinFileName + "] is not a valid Mary join features file." );
+        }
+        try {
+            /* Read the feature weights and feature processors */
+            int numberOfFeatures = bb.getInt();
+            featureWeight = new float[numberOfFeatures];
+            weightFunction = new WeightFunc[numberOfFeatures];
+            isLinear = new boolean[numberOfFeatures];
+            WeightFunctionManager wfm = new WeightFunctionManager();
+            String wfStr = null;
+            for ( int i = 0; i < numberOfFeatures; i++ ) {
+                featureWeight[i] = bb.getFloat();
+                wfStr = StreamUtils.readUTF(bb);
+                if ( "".equals( wfStr ) ) weightFunction[i] = wfm.getWeightFunction( "linear" );
+                else                      weightFunction[i] = wfm.getWeightFunction(  wfStr   );
+            }
+            // Overwrite weights and weight functions from file?
+            if (weightsFileName != null) {
+                Logger.getLogger("JoinCostFeatures").debug("Overwriting join cost weights from file "+weightsFileName);
+                Object[] weightData = readJoinCostWeightsFile(weightsFileName);
+                featureWeight = (float[]) weightData[0];
+                String[] wf = (String[])weightData[1];
+                if (featureWeight.length != numberOfFeatures)
+                    throw new IllegalArgumentException("Join cost file contains "+numberOfFeatures+" features, but weight file contains "+featureWeight.length+" feature weights!");
+                for (int i=0; i<numberOfFeatures; i++) {
+                    weightFunction[i] = wfm.getWeightFunction(wf[i]);
+                }
+            }
+            for (int i=0; i<numberOfFeatures; i++) {
+                isLinear[i] = weightFunction[i].whoAmI().equals("linear");
+            }
+            
+            
+            /* Read the left and right Join Cost Features */
+            int numberOfUnits = bb.getInt();
+            FloatBuffer fb = bb.asFloatBuffer();
+            leftJCF = new float[numberOfUnits][];
+            rightJCF = new float[numberOfUnits][];
+            for ( int i = 0; i < numberOfUnits; i++ ) {
+                //System.out.println("Reading join features for unit "+i+" out of "+numberOfUnits);
+                leftJCF[i] = new float[numberOfFeatures];
+                fb.get(leftJCF[i]);
+                rightJCF[i] = new float[numberOfFeatures];
+                fb.get(rightJCF[i]);
+            }
+        }
+        catch ( EOFException e ) {
+            IOException ioe = new IOException( "The currently read Join Cost File has prematurely reached EOF.");
+            ioe.initCause(e);
+            throw ioe;
+            
+        }
+        if (MaryProperties.getBoolean("debug.show.cost.graph")) {
+            debugShowCostGraph = true;
+            cumulWeightedSignalCosts = new double[featureWeight.length];
+            jcr = new JoinCostReporter(cumulWeightedSignalCosts);
+            jcr.showInJFrame("Average signal join costs", false, false);
+            jcr.start();
+        }
+
+    }
+
+    
+    /**
+     * Load weights and values from the given file
+     * @param joinFileName the file from which to read default weights and join cost features
+     * @param weightsFileName an optional file from which to read weights, taking precedence over
+     * @param precompiledCostFileName an optional file containing precompiled join costs
+     * @param wSignal Relative weight of the signal-based join costs relative to the
+     *                phonetic join costs computed from the target 
+     */
+    private void loadFromStream(String joinFileName, String weightsFileName, String precompiledCostFileName,float wSignal)
     throws IOException
     {
         if (precompiledCostFileName != null) {
@@ -199,6 +304,7 @@ public class JoinCostFeatures implements JoinCostFunction
         }
 
     }
+
     
     /**
      * Read the join cost weight specifications from the given file.

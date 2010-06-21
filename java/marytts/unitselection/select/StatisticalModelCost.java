@@ -69,7 +69,7 @@ public class StatisticalModelCost implements StatisticalCostFunction
     /**
      * Empty constructor; when using this, call init() separately to 
      * initialise this class.
-     * @see #load(String)
+     * @see #init(String)
      */
     public StatisticalModelCost()
     {
