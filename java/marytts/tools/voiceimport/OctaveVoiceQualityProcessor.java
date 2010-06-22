@@ -203,8 +203,9 @@ public class OctaveVoiceQualityProcessor extends VoiceImportComponent {
             
             /* call octave for calculating VQ parameters */            
             //System.out.println("Calculating  OQG GOG SKG RCG IC");
+            //TODO: gender does not appear properly
             String strOctaveTmp = getProp(OCTAVEPATH) + " --silent " + scriptOctaveFileName + " " + wavFile + " " + snackFile + " " 
-                                + getProp(db.GENDER) + " " + octaveFile + " 0";            
+                                + getProp(db.GENDER) + " " + octaveFile;            
             //System.out.println("Executing: " + strOctaveTmp);                
             Process octave = Runtime.getRuntime().exec(strOctaveTmp);
             StreamGobbler errorGobbler2 = new StreamGobbler(octave.getErrorStream(), "err");            
