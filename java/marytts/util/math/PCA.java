@@ -66,7 +66,7 @@ public class PCA {
     * @param factors linguistic factors
     * @param numPCA number of PC, between 1 and Max num PCs
     */
-   public void printPricipalComponents(Vector <String> factors, int numPCA) {
+   public void printPricipalComponents(String[] factors, int numPCA) {
      if(numPCA >=1 && numPCA <= PC.getColumnDimension()){
        System.out.println("Ordered PC(" + numPCA + ")");
        numPCA = numPCA - 1;       
@@ -83,11 +83,11 @@ public class PCA {
        int index;
        for (int i=PC.getRowDimension()-1; i>=0; i--){
          index = indices[i]; 
-         System.out.format(" %s %.5f\n", factors.elementAt(index), PC.get(index, numPCA));
+         System.out.format(" %s %.5f\n", factors[index], PC.get(index, numPCA));
        }
        for (int i=PC.getRowDimension()-1; i>=0; i--){
          index = indices[i]; 
-         System.out.format("%s\n", factors.elementAt(index));
+         System.out.format("%s\n", factors[index]);
        }
      } else {
        System.out.println("PC number should be >= 1 and <= " + PC.getColumnDimension());

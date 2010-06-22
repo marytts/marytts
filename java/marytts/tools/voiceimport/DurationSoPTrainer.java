@@ -102,8 +102,8 @@ public class DurationSoPTrainer extends VoiceImportComponent
     String durDir = db.getProp(db.TEMPDIR);
     String vowelsFile = durDir+"vowels.feats";
     String consonantsFile = durDir+"consonants.feats";
-    Vector<String> lingFactorsVowel = new Vector<String>();
-    Vector<String> lingFactorsConsonant = new Vector<String>(); 
+    String[] lingFactorsVowel;
+    String[] lingFactorsConsonant; 
       
     AllophoneSet allophoneSet;   
     String phoneXML = getProp(ALLOPHONESFILE);
@@ -120,9 +120,8 @@ public class DurationSoPTrainer extends VoiceImportComponent
     
     //System.out.println("Feature names: " + featureDefinition.getFeatureNames());
     // select features that will be used as linguistic factors on the regression
-    selectLinguisticFactors(lingFactorsVowel, featureDefinition.getFeatureNames(), "Select linguistic factors for vowels:");
-    selectLinguisticFactors(lingFactorsConsonant, featureDefinition.getFeatureNames(), "Select linguistic factors for consonants:");
-  
+    lingFactorsVowel = selectLinguisticFactors(featureDefinition.getFeatureNames(), "Select linguistic factors for vowels:");
+    lingFactorsConsonant = selectLinguisticFactors(featureDefinition.getFeatureNames(), "Select linguistic factors for consonants:");
     
     PrintWriter toVowelsFile = new PrintWriter(new FileOutputStream(vowelsFile));
     PrintWriter toConsonantsFile = new PrintWriter(new FileOutputStream(consonantsFile));
@@ -153,22 +152,19 @@ public class DurationSoPTrainer extends VoiceImportComponent
       // when phone is 0 ??
       if(fv.getByteFeature(phoneIndex) > 0 && dur >= 0.01 ){  
         if (allophoneSet.getAllophone(fv.getFeatureAsString(phoneIndex, featureDefinition)).isVowel()){
-          //toVowelsFile.print(Math.log(dur)); // first column is the dependent variable, in this case duration
-          toVowelsFile.print(dur);
-          for(int j=0; j < lingFactorsVowel.size(); j++)
-            toVowelsFile.print(" " + fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsVowel.elementAt(j))));
-          toVowelsFile.println();
+          for(int j=0; j < lingFactorsVowel.length; j++)
+            toVowelsFile.print(fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsVowel[j])) + " ");
+          //toVowelsFile.println(Math.log(dur)); // last column is the dependent variable, in this case duration
+          toVowelsFile.println(dur);
           numVowels++;
         } else {
-          //toConsonantsFile.print(Mat.log(dur)); 
-          toConsonantsFile.print(dur);
-          for(int j=0; j < lingFactorsConsonant.size(); j++)
-            toConsonantsFile.print(" " + fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsConsonant.elementAt(j))));
-          toConsonantsFile.println();
+          for(int j=0; j < lingFactorsConsonant.length; j++)
+            toConsonantsFile.print(fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsConsonant[j])) + " ");
+          //toConsonantsFile.println(Mat.log(dur)); 
+          toConsonantsFile.println(dur);
           numConsonants++;
-        }        
-      } 
-         
+        }
+      }          
    }
    toVowelsFile.close();
    toConsonantsFile.close();
@@ -178,22 +174,27 @@ public class DurationSoPTrainer extends VoiceImportComponent
    
    // -----------------------------------------------------------------------------------------
    // VOWELS results:
-   cols = lingFactorsVowel.size();
+   cols = lingFactorsVowel.length;
    rows = numVowels;
    System.out.println("\nProcessing Vowels:");
    System.out.println("Number of duration points: " + rows);
    System.out.println("Number of linguistic factors: " + cols);   
    
+   /*
    System.out.println("PCA analysis:");   
    PCA pcaVowel = new PCA();   
    pcaVowel.principalComponentAnalysis(vowelsFile, false, true);
    pcaVowel.printPricipalComponents(lingFactorsVowel, 1);   
    pcaVowel.printImportanceOfComponents();
+   */
    
    System.out.println("Linear regression analysis:");
    Regression regVowel = new Regression(); 
-   regVowel.multipleLinearRegression(vowelsFile, true);
-   regVowel.printCoefficients(lingFactorsVowel);
+   //regVowel.multipleLinearRegression(vowelsFile, true);
+   int c[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};  // the last column is always the independent variable
+   regVowel.multipleLinearRegression(vowelsFile, cols, c, lingFactorsVowel, true);
+   
+   regVowel.printCoefficients(c, lingFactorsVowel);
    System.out.println("Correlation vowels original duration / predicted duration = " + regVowel.getCorrelation());
   
    //-----------------------------------------------------------------------------------------
@@ -220,8 +221,9 @@ public class DurationSoPTrainer extends VoiceImportComponent
     return true;
   }
   
-  public boolean selectLinguisticFactors(Vector<String> lingFactors, String featureNames, String label) throws IOException
+  public String[] selectLinguisticFactors(String featureNames, String label) throws IOException
   {
+      String[] lingFactors=null;
       features = checkFeatureList(featureNames);
  
       final JFrame frame = new JFrame(label);
@@ -280,13 +282,14 @@ public class DurationSoPTrainer extends VoiceImportComponent
 
       if (success) {
           try{
-              saveFeatures(lingFactors, editPane.getText());                
+              lingFactors = saveFeatures(editPane.getText());                
           } catch (Exception ex){
               ex.printStackTrace();
               throw new Error("Error defining replacements");
           }
       }
-     return true;
+     //return true;
+      return lingFactors;
   }
 
   private String checkFeatureList(String featureNames) throws IOException
@@ -334,15 +337,17 @@ public class DurationSoPTrainer extends VoiceImportComponent
   }
  
   
-  private void saveFeatures(Vector<String> lingFactors, String newFeatures)
+  private String[] saveFeatures(String newFeatures)
   {     
      String fea[] = newFeatures.split("\n");
+     String[] lingFactors = new String[fea.length];
      System.out.print("Selected linguistic factors (" + fea.length + "):");
      for(int i=0; i<fea.length; i++){
        System.out.print(fea[i] + " ");
-       lingFactors.add(fea[i]);    
-     }
+       lingFactors[i] = fea[i];
+     }     
      System.out.println();
+     return lingFactors;
   }  
   
   
