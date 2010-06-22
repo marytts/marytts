@@ -112,9 +112,7 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
      * The standard compute() method of the VoiceImportComponent interface.
      */
     public boolean compute() throws Exception {
-        
-        
-      
+            
         File script = new File(scriptFileName);
         /* In order to get the same number of frames when calculating f0 and formants with snack, we should keep constant the following variables:
          * -maxpitch 400 for F0 calculation
@@ -194,21 +192,16 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
             else
                 strTmp = db.getExternal(db.TCLPATH) + "/tclsh " + strTmp;
             
-            System.out.println("Executing: " + strTmp);
-                
+            //System.out.println("Executing: " + strTmp);                
             Process snack = Runtime.getRuntime().exec(strTmp);
-
             StreamGobbler errorGobbler = new 
             StreamGobbler(snack.getErrorStream(), "err");            
-
             //read from output stream
             StreamGobbler outputGobbler = new 
             StreamGobbler(snack.getInputStream(), "out");    
-
             //start reading from the streams
             errorGobbler.start();
             outputGobbler.start();
-
             //close everything down
             snack.waitFor();
             snack.exitValue();
@@ -224,8 +217,11 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
             assert samplingRate==soundFile.getSampleRate();
             
             // calculate voice quality parameters for this file           
-            VoiceQuality vq = new VoiceQuality(numVqParams,samplingRate, frameLength/(float)samplingRate,windowLength/(float)samplingRate);                 
+            VoiceQuality vq = new VoiceQuality(numVqParams,samplingRate, frameLength/(float)samplingRate,windowLength/(float)samplingRate);  
+            
             calculateVoiceQuality(snackData, samplingRate, frameLength, windowLength, soundFile, hammWin, barkMatrix, fftSize, vq, false);
+            
+            
             System.out.println("Writing vq parameters to " + vqFile);
             vq.writeVqFile(vqFile);
             

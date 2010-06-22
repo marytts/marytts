@@ -52,7 +52,6 @@ public class OctaveVoiceQualityProcessor extends VoiceImportComponent {
     public final String WINDOWLENGTH = "OctaveVoiceQualityProcessor.windowLength";
     public final String NUMFORMANTS  = "OctaveVoiceQualityProcessor.numFormants";
     public final String LPCORDER     = "OctaveVoiceQualityProcessor.lpcOrder";
-    public final String FFTSIZE      = "OctaveVoiceQualityProcessor.fftSize";
     public final String VQDIR        = "OctaveVoiceQualityProcessor.vqDir";
     public final String OCTAVEPATH   = "OctaveVoiceQualityProcessor.octavePath";
     
@@ -69,8 +68,7 @@ public class OctaveVoiceQualityProcessor extends VoiceImportComponent {
             props2Help.put(LPCORDER,"Default 12, if NUMFORMANTS=4 min LPCORDER=12\n" +
                                                 "if NUMFORMANTS=5 min LPCORDER=14\n" +
                                                 "if NUMFORMANTS=6 min LPCORDER=16\n" +
-                                                "if NUMFORMANTS=7 min LPCORDER=18\n" );
-            props2Help.put(FFTSIZE,"Default 512");
+                                                "if NUMFORMANTS=7 min LPCORDER=18\n" );            
             props2Help.put(VQDIR, "directory containing the voice quality files. Will be created if it does not exist");
             props2Help.put(OCTAVEPATH, "octave executable path");
         }
@@ -102,7 +100,6 @@ public class OctaveVoiceQualityProcessor extends VoiceImportComponent {
             props.put(WINDOWLENGTH,"0.025");
             props.put(NUMFORMANTS,"4");
             props.put(LPCORDER,"12");
-            props.put(FFTSIZE, "512");
             props.put(VQDIR, db.getProp(db.ROOTDIR) + "vq" + System.getProperty("file.separator"));
             props.put(OCTAVEPATH, "/usr/bin/octave");
         }
@@ -152,7 +149,7 @@ public class OctaveVoiceQualityProcessor extends VoiceImportComponent {
         toScriptOctave.println("arg_list = argv ();");        
         toScriptOctave.println("cd " + db.getProp(db.TEMPDIR));
         // calculateVoiceQuality(filename, filesnack, gender, par_name, debug);
-        toScriptOctave.println("calculateVoiceQuality(arg_list{1}, arg_list{2}, arg_list{3}, arg_list{4}, str2num(arg_list{5}));");
+        toScriptOctave.println("calculateVoiceQuality(arg_list{1}, arg_list{2}, arg_list{3}, arg_list{4});");
         toScriptOctave.close();
 
         
@@ -184,7 +181,7 @@ public class OctaveVoiceQualityProcessor extends VoiceImportComponent {
             String snackFile = getProp(VQDIR) + baseNameArray[i] + snackExtension;
             String vqFile    = getProp(VQDIR) + baseNameArray[i] + voiceQualityExtension;
                         
-            System.out.println("Writing f0+formants+bandWidths to " + snackFile);
+            System.out.println("Writing (snack) f0+formants+bandWidths to " + snackFile);
             boolean isWindows = true;
             String strSnackTmp = scriptSnackFileName + " " + wavFile + " " + snackFile + " " + getProp(MAXPITCH) + " " + getProp(MINPITCH)
                                + " " + getProp(FRAMELENGTH) + " " + getProp(NUMFORMANTS) + " " + getProp(LPCORDER);
@@ -205,7 +202,7 @@ public class OctaveVoiceQualityProcessor extends VoiceImportComponent {
             snack.exitValue();
             
             /* call octave for calculating VQ parameters */            
-            System.out.println("Calculating  OQG GOG SKG RCG IC to " + octaveFile);
+            //System.out.println("Calculating  OQG GOG SKG RCG IC");
             String strOctaveTmp = getProp(OCTAVEPATH) + " --silent " + scriptOctaveFileName + " " + wavFile + " " + snackFile + " " 
                                 + getProp(db.GENDER) + " " + octaveFile + " 0";            
             //System.out.println("Executing: " + strOctaveTmp);                
@@ -230,7 +227,7 @@ public class OctaveVoiceQualityProcessor extends VoiceImportComponent {
             
             readOctaveData(vq, octaveFile);
            
-            System.out.println("Writing vq parameters to " + vqFile);
+            System.out.println("Writing (octave) vq parameters to " + vqFile);
             vq.writeVqFile(vqFile);
             
         }
