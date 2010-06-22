@@ -275,16 +275,16 @@ public class Regression {
   
  
   
-  public void printCoefficients(Vector <String> factors){
+  public void printCoefficients(int[] indices, String[] factors){
     if(coeffs != null){
       System.out.println("Linear regression:");
       if(b0Term){  
         System.out.format(" %.5f\n", coeffs[0]);
         for (int j=1; j<coeffs.length; j++) 
-          System.out.format(" %.5f (%s)\n", coeffs[j], factors.elementAt(j-1));
+          System.out.format(" %.5f (%s)\n", coeffs[j], factors[indices[j-1]]);
       } else {
         for (int j=0; j<coeffs.length; j++) 
-          System.out.format(" %.5f (%s)\n", coeffs[j], factors.elementAt(j-1));
+          System.out.format(" %.5f (%s)\n", coeffs[j], factors[indices[j]]);
       }
     } else 
       System.out.println("There is no coefficients to print.");
@@ -310,6 +310,32 @@ public class Regression {
     
       multipleLinearRegression(indVar, data, intercepTerm);
     
+    } catch ( Exception e ) {
+      throw new RuntimeException( "Problem reading file " + fileName, e );
+    }
+
+  }
+  
+  /***
+   * multipleLinearRegression providing index numbers for the columns in fileName, index 0 correspond to column 1
+   * @param fileName
+   * @param indVariable column number (index) of the independent variable 
+   * @param c int[] column numbers array (indices) of dependent variables
+   * @param intercepTerm
+   */
+  public void multipleLinearRegression(String fileName, int indVariable, int[] c, String[] factors, boolean intercepTerm) {    
+    try {
+      BufferedReader reader = new BufferedReader(new FileReader(fileName));        
+      Matrix data = Matrix.read(reader);
+      int rows = data.getRowDimension()-1;
+      int cols = data.getColumnDimension()-1;
+    
+      Matrix indVar = data.getMatrix(0,rows,indVariable,indVariable); // dataVowels(:,0) -> col 0 is the independent variable
+      
+      data = data.getMatrix(0, rows, c);  // the dependent variables correspond to the column indices in c
+    
+      multipleLinearRegression(indVar, data, intercepTerm);
+       
     } catch ( Exception e ) {
       throw new RuntimeException( "Problem reading file " + fileName, e );
     }
