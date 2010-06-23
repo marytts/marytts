@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -64,19 +65,9 @@ public class AcousticModeller extends InternalModule {
 
     private FeatureProcessorManager featureProcessorManager;
 
+    private HashMap<String, List<Element>> elementLists;
+
     private HashMap<String, Model> models;
-
-    private List<Element> segments;
-
-    private List<Element> boundaries;
-
-    private List<Element> firstVoicedSegments;
-
-    private List<Element> firstVowels;
-
-    private List<Element> lastVoicedSegments;
-
-    private List<Element> voicedSegments;
 
     /**
      * Constructor which can be directly called from init info in the config file. This constructor will use the registered
@@ -135,14 +126,15 @@ public class AcousticModeller extends InternalModule {
     public void startup() throws Exception {
         super.startup();
 
-        // initialize the Model Map:
+        // initialize the Element List and Model Maps:
+        elementLists = new HashMap<String, List<Element>>();
         models = new HashMap<String, Model>();
 
         // add boundary "model" (which could of course be overwritten by appropriate properties in voice config):
-        models.put("boundary", new BoundaryModel("boundary", null, "duration", null));
+        models.put("boundary", new BoundaryModel("boundary", null, "duration", null, null));
 
         // iterate over the models defined in the voice config:
-        String modelsString = MaryProperties.needProperty(propertyPrefix + "acoustic-models.segmental");
+        String modelsString = MaryProperties.needProperty(propertyPrefix + "acousticModels");
         StringTokenizer modelStrings = new StringTokenizer(modelsString);
         do {
             String modelName = modelStrings.nextToken();
@@ -151,8 +143,10 @@ public class AcousticModeller extends InternalModule {
             String modelType = MaryProperties.needProperty(propertyPrefix + modelName + ".model");
             String modelDataFileName = MaryProperties.needFilename(propertyPrefix + modelName + ".data");
             String modelAttributeName = MaryProperties.needProperty(propertyPrefix + modelName + ".attribute");
-            // modelAttributeFormat is null if not defined; this is handled in the Model constructor:
+
+            // the following are null if not defined; this is handled in the Model constructor:
             String modelAttributeFormat = MaryProperties.getProperty(propertyPrefix + modelName + ".attribute.format");
+            String modelElementList = MaryProperties.getProperty(propertyPrefix + modelName + ".scope");
 
             // consult the ModelType enum to find appropriate Model subclass...
             ModelType possibleModelTypes = ModelType.fromString(modelType);
@@ -166,7 +160,7 @@ public class AcousticModeller extends InternalModule {
             Model model = null;
             switch (possibleModelTypes) {
             case CART:
-                model = new CARTModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat);
+                model = new CARTModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList);
             }
 
             // if we got this far, model should not be null:
@@ -184,21 +178,24 @@ public class AcousticModeller extends InternalModule {
         parseDocument(doc);
 
         // apply critical Models to Elements:
-        models.get("duration").applyTo(segments);
-        models.get("leftF0").applyTo(firstVoicedSegments, firstVowels);
-        models.get("midF0").applyTo(firstVowels);
-        models.get("rightF0").applyTo(lastVoicedSegments, firstVowels);
-        models.get("boundary").applyTo(boundaries);
+        models.get("duration").applyTo(elementLists.get("segments"));
+        models.get("leftF0").applyTo(elementLists.get("firstVoicedSegments"), elementLists.get("firstVowels"));
+        models.get("midF0").applyTo(elementLists.get("firstVowels"));
+        models.get("rightF0").applyTo(elementLists.get("lastVoicedSegments"), elementLists.get("firstVowels"));
+        models.get("boundary").applyTo(elementLists.get("boundaries"));
 
         // hack duration attributes:
-        hackSegmentDurations(segments);
+        hackSegmentDurations(elementLists.get("segments"));
 
-        // TODO apply other Models, such as Voice Quality CARTs, but we need some elegant way of knowing which Elements to apply
-        // the Models to, from properties in the voice config...
-        try{
-            models.get("oqg").applyTo(voicedSegments);
-        } catch (NullPointerException e){
-            // there is not Model for OQG... ignore
+        // apply other Models:
+        for (String modelName : models.keySet()) {
+            // ignore critical Models already applied above:
+            if (!modelName.equals("duration") && !modelName.equals("leftF0") && !modelName.equals("midF0")
+                    && !modelName.equals("rightF0") && !modelName.equals("boundary")) {
+                Model model = models.get(modelName);
+                model.applyTo(elementLists.get(model.targetElementListName));
+                // remember, the Model constructor will apply the model to "segments" if the targetElementListName is null
+            }
         }
 
         MaryData output = new MaryData(outputType(), d.getLocale());
@@ -236,12 +233,12 @@ public class AcousticModeller extends InternalModule {
      */
     private void parseDocument(Document doc) {
         // initialize Element Lists:
-        segments = new ArrayList<Element>();
-        voicedSegments = new ArrayList<Element>();
-        firstVoicedSegments = new ArrayList<Element>();
-        firstVowels = new ArrayList<Element>();
-        lastVoicedSegments = new ArrayList<Element>();
-        boundaries = new ArrayList<Element>();
+        List<Element> segments = new ArrayList<Element>();
+        List<Element> boundaries = new ArrayList<Element>();
+        List<Element> firstVoicedSegments = new ArrayList<Element>();
+        List<Element> firstVowels = new ArrayList<Element>();
+        List<Element> lastVoicedSegments = new ArrayList<Element>();
+        List<Element> voicedSegments = new ArrayList<Element>();
 
         // walk over all syllables in MaryXML document:
         TreeWalker treeWalker = MaryDomUtils.createTreeWalker(doc, MaryXML.SYLLABLE, MaryXML.BOUNDARY);
@@ -311,6 +308,14 @@ public class AcousticModeller extends InternalModule {
                 e.printStackTrace();
             }
         }
+
+        // put the Element Lists into the Map:
+        elementLists.put("segments", segments);
+        elementLists.put("voicedSegments", voicedSegments);
+        elementLists.put("firstVoicedSegments", firstVoicedSegments);
+        elementLists.put("firstVowels", firstVowels);
+        elementLists.put("lastVoicedSegments", lastVoicedSegments);
+        elementLists.put("boundaries", boundaries);
     }
 
     /**
@@ -342,7 +347,7 @@ public class AcousticModeller extends InternalModule {
      * @author steiner
      * 
      */
-    private class Model {
+    private abstract class Model {
         protected String type;
 
         protected String dataFile;
@@ -350,6 +355,10 @@ public class AcousticModeller extends InternalModule {
         protected String targetAttributeName;
 
         protected String targetAttributeFormat;
+
+        protected String targetElementListName;
+
+        protected TargetFeatureComputer featureComputer;
 
         /**
          * Model constructor
@@ -363,7 +372,8 @@ public class AcousticModeller extends InternalModule {
          * @param targetAttributeFormat
          *            printf-style format String to specify the attribute value, i.e. "%.3f" to round to 3 decimal places
          */
-        protected Model(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat) {
+        protected Model(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
+                String targetElementListName) {
             this.type = type;
             this.dataFile = dataFileName;
             this.targetAttributeName = targetAttributeName;
@@ -371,11 +381,18 @@ public class AcousticModeller extends InternalModule {
                 targetAttributeFormat = "%s";
             }
             this.targetAttributeFormat = targetAttributeFormat;
+            if (targetElementListName == null) {
+                targetElementListName = "segments";
+            }
+            this.targetElementListName = targetElementListName;
+            // featureComputer should be loaded in subclasses:
+            featureComputer = null;
         }
 
-        protected void loadDataFile() {
-            return; // only subclasses know how to load their respective datafiles
-        }
+        /**
+         * Load datafile for this model; only subclasses know how to do this
+         */
+        protected abstract void loadDataFile();
 
         /**
          * Apply this Model to a List of Elements, predicting from those same Elements
@@ -406,8 +423,8 @@ public class AcousticModeller extends InternalModule {
                 Element element = applicableElements.get(i);
 
                 // "evaulate" pseudo XPath syntax:
-                // TODO this need to be extended to take into account targetAttributeNames like "foo/@bar", which would add the
-                // bar attribute to the foo child of this element, creating it if not already present...
+                // TODO this needs to be extended to take into account targetAttributeNames like "foo/@bar", which would add the
+                // bar attribute to the foo child of this element, creating the child if not already present...
                 if (targetAttributeName.startsWith("@")) {
                     targetAttributeName = targetAttributeName.replaceFirst("@", "");
                 }
@@ -440,28 +457,20 @@ public class AcousticModeller extends InternalModule {
                 Target target = new Target(phone, element);
                 targets.add(target);
             }
-            return computeFeatureVectors(targets);
-        }
-
-        /**
-         * Base class does not compute feature vectors, because it doesn't know which TargetFeatureComputer to apply
-         * 
-         * @param targets
-         * @return the same targets
-         */
-        protected List<Target> computeFeatureVectors(List<Target> targets) {
+            // compute FeatureVectors for Targets:
+            for (Target target : targets) {
+                FeatureVector targetFeatureVector = featureComputer.computeFeatureVector(target);
+                target.setFeatureVector(targetFeatureVector); // this is critical!
+            }
             return targets;
         }
 
         /**
-         * Base class does not predict meaningful values
+         * Evaluate model on a Target to obtain the target value as a float.
          * 
          * @param target
-         * @return NaN
          */
-        protected float evaluate(Target target) {
-            return Float.NaN;
-        }
+        protected abstract float evaluate(Target target);
 
     }
 
@@ -474,16 +483,34 @@ public class AcousticModeller extends InternalModule {
      * 
      */
     private class BoundaryModel extends Model {
-        protected BoundaryModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat) {
-            super(type, dataFileName, targetAttributeName, targetAttributeFormat);
+        protected BoundaryModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
+                String targetElementListName) {
+            super(type, dataFileName, targetAttributeName, targetAttributeFormat, targetElementListName);
         }
 
+        @Override
         protected void applyTo(List<Element> elements) {
             for (Element element : elements) {
                 if (!element.hasAttribute(targetAttributeName)) {
                     element.setAttribute(targetAttributeName, "400");
                 }
             }
+        }
+
+        /**
+         * For boundaries, this does nothing;
+         */
+        @Override
+        protected float evaluate(Target target) {
+            return Float.NaN;
+        }
+
+        /**
+         * For boundaries, this does nothing;
+         */
+        @Override
+        protected void loadDataFile() {
+            return;
         }
     }
 
@@ -496,10 +523,12 @@ public class AcousticModeller extends InternalModule {
     private class CARTModel extends Model {
         private DirectedGraph cart;
 
-        protected CARTModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat) {
-            super(type, dataFileName, targetAttributeName, targetAttributeFormat);
+        protected CARTModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
+                String targetElementListName) {
+            super(type, dataFileName, targetAttributeName, targetAttributeFormat, targetElementListName);
         }
 
+        @Override
         protected void loadDataFile() {
             this.cart = null;
             try {
@@ -509,21 +538,17 @@ public class AcousticModeller extends InternalModule {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-        }
-
-        protected List<Target> computeFeatureVectors(List<Target> targets) {
-            TargetFeatureComputer featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, cart
-                    .getFeatureDefinition().getFeatureNames());
-            for (Target target : targets) {
-                FeatureVector targetFeatureVector = featureComputer.computeFeatureVector(target);
-                target.setFeatureVector(targetFeatureVector); // this is critical!
+            // unless we already have a featureComputer, load the CART's:
+            if (featureComputer == null) {
+                featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, cart.getFeatureDefinition()
+                        .getFeatureNames());
             }
-            return targets;
         }
 
         /**
          * Apply the CART to a Target to get its predicted value
          */
+        @Override
         protected float evaluate(Target target) {
             float[] result = (float[]) cart.interpret(target);
             float value = result[1]; // assuming result is [stdev, val]
