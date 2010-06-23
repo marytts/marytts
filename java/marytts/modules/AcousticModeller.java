@@ -25,8 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.StringTokenizer;
-
+import java.util.Map;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -47,7 +46,6 @@ import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
-import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.UnitSelector;
 import marytts.util.MaryUtils;
@@ -65,9 +63,35 @@ public class AcousticModeller extends InternalModule {
 
     private FeatureProcessorManager featureProcessorManager;
 
-    private HashMap<String, List<Element>> elementLists;
+    private Map<String, List<Element>> elementLists;
 
-    private HashMap<String, Model> models;
+    private Map<String, Model> models;
+
+    // three constructors adapted from DummyAllophones2AcoustParams (used if this is in modules.classes.list):
+
+    public AcousticModeller() {
+        this((Locale) null);
+    }
+
+    /**
+     * Constructor to be called with instantiated objects.
+     * 
+     * @param locale
+     */
+    public AcousticModeller(String locale) {
+        this(MaryUtils.string2locale(locale));
+    }
+
+    /**
+     * Constructor to be called with instantiated objects.
+     * 
+     * @param locale
+     */
+    public AcousticModeller(Locale locale) {
+        super("AcousticModeller", MaryDataType.ALLOPHONES, MaryDataType.ACOUSTPARAMS, locale);
+    }
+
+    // three constructors adapted from CARTF0Modeller (used if this is in a voice's preferredModules):
 
     /**
      * Constructor which can be directly called from init info in the config file. This constructor will use the registered
@@ -121,10 +145,24 @@ public class AcousticModeller extends InternalModule {
     }
 
     /**
-     * critically, this load all the Models into a Map and initializes them
+     * Wait until voice is loaded, then get its acousticModels to load all the Models into a Map and initialize them
      */
-    public void startup() throws Exception {
-        super.startup();
+    public void delayedStartup(Voice voice) throws Exception {
+
+        // get featureProcessorManager
+        if (featureProcessorManager == null) {
+            Locale locale = getLocale();
+            if (locale == null) {
+                locale = voice.getLocale();
+            }
+            featureProcessorManager = FeatureRegistry.getFeatureProcessorManager(locale);
+        }
+
+        // get Model Maps from voice, if they are defined:
+        Map<String, Map<String, String>> modelMaps = voice.getAcousticModels();
+        if (modelMaps == null) {
+            return;
+        }
 
         // initialize the Element List and Model Maps:
         elementLists = new HashMap<String, List<Element>>();
@@ -133,20 +171,18 @@ public class AcousticModeller extends InternalModule {
         // add boundary "model" (which could of course be overwritten by appropriate properties in voice config):
         models.put("boundary", new BoundaryModel("boundary", null, "duration", null, null));
 
-        // iterate over the models defined in the voice config:
-        String modelsString = MaryProperties.needProperty(propertyPrefix + "acousticModels");
-        StringTokenizer modelStrings = new StringTokenizer(modelsString);
-        do {
-            String modelName = modelStrings.nextToken();
+        // iterate over the models defined in the voice:
+        for (String modelName : modelMaps.keySet()) {
+            Map<String, String> modelMap = modelMaps.get(modelName);
 
-            // get more properties from voice config, depending on the model name:
-            String modelType = MaryProperties.needProperty(propertyPrefix + modelName + ".model");
-            String modelDataFileName = MaryProperties.needFilename(propertyPrefix + modelName + ".data");
-            String modelAttributeName = MaryProperties.needProperty(propertyPrefix + modelName + ".attribute");
+            // unpack Strings from Model Map:
+            String modelType = modelMap.get(Model.TYPE);
+            String modelDataFileName = modelMap.get(Model.DATA);
+            String modelAttributeName = modelMap.get(Model.ATTRIBUTE);
 
             // the following are null if not defined; this is handled in the Model constructor:
-            String modelAttributeFormat = MaryProperties.getProperty(propertyPrefix + modelName + ".attribute.format");
-            String modelElementList = MaryProperties.getProperty(propertyPrefix + modelName + ".scope");
+            String modelAttributeFormat = modelMap.get(Model.ATTRIBUTE_FORMAT);
+            String modelElementList = modelMap.get(Model.SCOPE);
 
             // consult the ModelType enum to find appropriate Model subclass...
             ModelType possibleModelTypes = ModelType.fromString(modelType);
@@ -169,12 +205,37 @@ public class AcousticModeller extends InternalModule {
             // otherwise, load datafile and put the model in the Model Map:
             model.loadDataFile();
             models.put(modelName, model);
-        } while (modelStrings.hasMoreTokens());
+        }
     }
 
     public MaryData process(MaryData d) {
-        // parse the MaryXML Document to populate Lists of relevant Elements:
         Document doc = d.getDocument();
+        MaryData output = new MaryData(outputType(), d.getLocale());
+
+        // cascaded voice identification:
+        Element voice = (Element) doc.getElementsByTagName(MaryXML.VOICE).item(0);
+        Voice maryVoice = Voice.getVoice(voice);
+        if (maryVoice == null) {
+            maryVoice = d.getDefaultVoice();
+        }
+        if (maryVoice == null) {
+            // Determine Locale in order to use default voice
+            Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
+            maryVoice = Voice.getDefaultVoice(locale);
+        }
+
+        try {
+            if (models == null) {
+                delayedStartup(maryVoice);
+            }
+        } catch (Exception e) {
+            // unless voice provides suitable models, pass out unmodified MaryXML, just like DummyAllophones2AcoustParams:
+            logger.warn("No acoustic models defined in " + maryVoice.getName() + "; could not process!");
+            output.setDocument(doc);
+            return output;
+        }
+
+        // parse the MaryXML Document to populate Lists of relevant Elements:
         parseDocument(doc);
 
         // apply critical Models to Elements:
@@ -198,7 +259,6 @@ public class AcousticModeller extends InternalModule {
             }
         }
 
-        MaryData output = new MaryData(outputType(), d.getLocale());
         output.setDocument(doc);
         return output;
     }
@@ -347,7 +407,18 @@ public class AcousticModeller extends InternalModule {
      * @author steiner
      * 
      */
-    private abstract class Model {
+    public abstract class Model {
+
+        public static final String TYPE = "type";
+
+        public static final String DATA = "data";
+
+        public static final String ATTRIBUTE = "attribute";
+
+        public static final String ATTRIBUTE_FORMAT = "attribute.format";
+
+        public static final String SCOPE = "scope";
+
         protected String type;
 
         protected String dataFile;
@@ -533,7 +604,8 @@ public class AcousticModeller extends InternalModule {
             this.cart = null;
             try {
                 File cartFile = new File(dataFile);
-                cart = new DirectedGraphReader().load(cartFile.getAbsolutePath());
+                String cartFilePath = cartFile.getAbsolutePath();
+                cart = new DirectedGraphReader().load(cartFilePath);
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

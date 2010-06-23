@@ -55,6 +55,7 @@ import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
+import marytts.modules.AcousticModeller.Model;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.nonverbal.BackchannelSynthesizer;
@@ -152,6 +153,7 @@ public class Voice
     protected DirectedGraph f0Graph;
     protected FeatureFileReader f0ContourFeatures;
     protected DirectedGraph vqGraph;
+    protected Map<String, Map<String, String>> acousticModels;
     
     public Voice(String[] nameArray, Locale locale, 
                  AudioFormat dbAudioFormat,
@@ -220,6 +222,28 @@ public class Voice
             }
         }
         
+        // Acoustic models (moved here from AcousticModeller module to allow it to appear in modules.classes.list instead of voice config):        
+        String acousticModelsString = MaryProperties.getProperty(header + ".acousticModels");
+        if (acousticModelsString != null){
+            acousticModels = new HashMap<String, Map<String,String>>();
+            StringTokenizer acousticModelStrings = new StringTokenizer(acousticModelsString);
+            do {
+                Map<String, String> acousticModel = new HashMap<String, String>();
+
+                String acousticModelName = acousticModelStrings.nextToken();
+
+                // get more properties from voice config, depending on the model name:
+                acousticModel.put(Model.TYPE, MaryProperties.needProperty(header + "." + acousticModelName + ".model"));
+                acousticModel.put(Model.DATA, MaryProperties.needFilename(header + "." + acousticModelName + ".data"));
+                acousticModel.put(Model.ATTRIBUTE, MaryProperties.needProperty(header + "." + acousticModelName + ".attribute"));
+
+                // the following are null if not defined; this is handled in the Model constructor:
+                acousticModel.put(Model.ATTRIBUTE_FORMAT, MaryProperties.getProperty(header + "." + acousticModelName + ".attribute.format"));
+                acousticModel.put(Model.SCOPE, MaryProperties.getProperty(header + "." + acousticModelName + ".scope"));
+                
+                acousticModels.put(acousticModelName, acousticModel);
+            } while (acousticModelStrings.hasMoreTokens());
+        }
     }
 
     /**
@@ -350,6 +374,10 @@ public class Voice
     public FeatureFileReader getF0ContourFeatures()
     {
         return f0ContourFeatures;
+    }
+    
+    public Map<String, Map<String,String>> getAcousticModels() {
+        return acousticModels;
     }
 
     public DirectedGraph getVQGraph()
