@@ -111,7 +111,7 @@ public class CARTDurationModeller extends InternalModule
     {
         super("CARTDurationModeller",
                 MaryDataType.ALLOPHONES,
-                MaryDataType.VQ, locale);
+                MaryDataType.DURATIONS, locale);
         if (propertyPrefix.endsWith(".")) this.propertyPrefix = propertyPrefix;
         else this.propertyPrefix = propertyPrefix + ".";
         this.featureProcessorManager = featureProcessorManager;
