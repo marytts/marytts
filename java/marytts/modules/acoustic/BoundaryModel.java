@@ -7,7 +7,7 @@ import marytts.unitselection.select.Target;
 import org.w3c.dom.Element;
 
 /**
- * Model subclass which currently predicts only a flat 400 ms duration for each boundary Element
+ * Model which currently predicts only a flat 400 ms duration for each boundary Element
  * <p>
  * Could be replaced by a PauseTree or something else, but that would require a CARTModel instead of this.
  * 

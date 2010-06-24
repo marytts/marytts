@@ -55,7 +55,10 @@ import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
+import marytts.modules.acoustic.BoundaryModel;
+import marytts.modules.acoustic.CARTModel;
 import marytts.modules.acoustic.Model;
+import marytts.modules.acoustic.ModelType;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.nonverbal.BackchannelSynthesizer;
@@ -153,7 +156,7 @@ public class Voice
     protected DirectedGraph f0Graph;
     protected FeatureFileReader f0ContourFeatures;
     protected DirectedGraph vqGraph;
-    protected Map<String, Map<String, String>> acousticModels;
+    protected Map<String, Model> acousticModels;
     
     public Voice(String[] nameArray, Locale locale, 
                  AudioFormat dbAudioFormat,
@@ -225,23 +228,55 @@ public class Voice
         // Acoustic models (moved here from AcousticModeller module to allow it to appear in modules.classes.list instead of voice config):        
         String acousticModelsString = MaryProperties.getProperty(header + ".acousticModels");
         if (acousticModelsString != null){
-            acousticModels = new HashMap<String, Map<String,String>>();
+            acousticModels = new HashMap<String, Model>();
+
+            // cascaded identification of FeatureProcessorManager for this voice:
+            FeatureProcessorManager featureProcessorManager = FeatureRegistry.getFeatureProcessorManager(this);
+            if (featureProcessorManager == null) {
+                featureProcessorManager = FeatureRegistry.getFeatureProcessorManager(locale);
+                if (featureProcessorManager == null) {
+                    featureProcessorManager = FeatureRegistry.getFallbackFeatureProcessorManager();
+                }
+            }
+            assert featureProcessorManager != null;
+            
+            // add boundary "model" (which could of course be overwritten by appropriate properties in voice config):
+            acousticModels.put("boundary", new BoundaryModel("boundary", null, "duration", null, null));
+
             StringTokenizer acousticModelStrings = new StringTokenizer(acousticModelsString);
             do {
-                Map<String, String> acousticModel = new HashMap<String, String>();
-
-                String acousticModelName = acousticModelStrings.nextToken();
+                String modelName = acousticModelStrings.nextToken();
 
                 // get more properties from voice config, depending on the model name:
-                acousticModel.put(Model.TYPE, MaryProperties.needProperty(header + "." + acousticModelName + ".model"));
-                acousticModel.put(Model.DATA, MaryProperties.needFilename(header + "." + acousticModelName + ".data"));
-                acousticModel.put(Model.ATTRIBUTE, MaryProperties.needProperty(header + "." + acousticModelName + ".attribute"));
+                String modelType = MaryProperties.needProperty(header + "." + modelName + ".model");
+                String modelDataFileName = MaryProperties.needFilename(header + "." + modelName + ".data");
+                String modelAttributeName = MaryProperties.needProperty(header + "." + modelName + ".attribute");
 
                 // the following are null if not defined; this is handled in the Model constructor:
-                acousticModel.put(Model.ATTRIBUTE_FORMAT, MaryProperties.getProperty(header + "." + acousticModelName + ".attribute.format"));
-                acousticModel.put(Model.SCOPE, MaryProperties.getProperty(header + "." + acousticModelName + ".scope"));
+                String modelAttributeFormat = MaryProperties.getProperty(header + "." + modelName + ".attribute.format");
+                String modelElementList = MaryProperties.getProperty(header + "." + modelName + ".scope");
+
+                // consult the ModelType enum to find appropriate Model subclass...
+                ModelType possibleModelTypes = ModelType.fromString(modelType);
+                // if modelType is not in ModelType.values(), we don't know how to handle it:
+                if (possibleModelTypes == null) {
+                    logger.warn("Cannot handle unknown model type: " + modelType);
+                    throw new MaryConfigurationException();
+                }
                 
-                acousticModels.put(acousticModelName, acousticModel);
+                // ...and instantiate it in a switch statement:
+                Model model = null;
+                switch (possibleModelTypes) {
+                case CART:
+                    model = new CARTModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList, featureProcessorManager);
+                }
+
+                // if we got this far, model should not be null:
+                assert model != null;
+
+                // otherwise, load datafile and put the model in the Model Map:
+                model.loadDataFile();
+                acousticModels.put(modelName, model);
             } while (acousticModelStrings.hasMoreTokens());
         }
     }
@@ -376,8 +411,42 @@ public class Voice
         return f0ContourFeatures;
     }
     
-    public Map<String, Map<String,String>> getAcousticModels() {
+    // Several getters for acoustic models, returning null if undefined:
+    
+    public Map<String, Model> getAcousticModels() {
         return acousticModels;
+    }
+    
+    public Model getDurationModel() {
+        return acousticModels.get("duration");
+    }
+
+    public Model getLeftF0Model() {
+        return acousticModels.get("rightF0");
+    }
+
+    public Model getMidF0Model() {
+        return acousticModels.get("midF0");
+    }
+
+    public Model getRightF0Model() {
+        return acousticModels.get("rightF0");
+    }
+
+    public Model getBoundaryModel() {
+        return acousticModels.get("boundary");
+    }
+    
+    public Map<String, Model> getOtherModels() {
+        Map<String, Model> otherModels = new HashMap<String, Model>();
+        for (String modelName : acousticModels.keySet()) {
+            // ignore critical Models that have their own getters:
+            if (!modelName.equals("duration") && !modelName.equals("leftF0") && !modelName.equals("midF0")
+                    && !modelName.equals("rightF0") && !modelName.equals("boundary")) {
+                otherModels.put(modelName, acousticModels.get(modelName));
+            }
+        }
+        return otherModels;
     }
 
     public DirectedGraph getVQGraph()
