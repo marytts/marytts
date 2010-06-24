@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Vector;
+import java.io.PrintWriter;
 
 import marytts.tools.voiceimport.DurationSoPTrainer;
 import marytts.util.math.MathUtils;
@@ -273,8 +274,6 @@ public class Regression {
     }  
   }
   
- 
-  
   public void printCoefficients(int[] indices, String[] factors){
     if(coeffs != null){
       System.out.println("Linear regression:");
@@ -321,18 +320,26 @@ public class Regression {
    * @param fileName
    * @param indVariable column number (index) of the independent variable 
    * @param c int[] column numbers array (indices) of dependent variables
+   * @param rowIni and rowEnd should be given from 0 - maxData-1 
    * @param intercepTerm
    */
-  public void multipleLinearRegression(String fileName, int indVariable, int[] c, String[] factors, boolean intercepTerm) {    
+  public void multipleLinearRegression(String fileName, int indVariable, int[] c, String[] factors, boolean intercepTerm, int rowIni, int rowEnd) {    
     try {
       BufferedReader reader = new BufferedReader(new FileReader(fileName));        
       Matrix data = Matrix.read(reader);
       int rows = data.getRowDimension()-1;
       int cols = data.getColumnDimension()-1;
-    
-      Matrix indVar = data.getMatrix(0,rows,indVariable,indVariable); // dataVowels(:,0) -> col 0 is the independent variable
       
-      data = data.getMatrix(0, rows, c);  // the dependent variables correspond to the column indices in c
+      if(rowIni<0 || rowIni>rows)
+        throw new RuntimeException( "Problem reading file, rowIni=" + rowIni + "  and number of rows in file=" + rows);
+      if(rowEnd<0 || rowEnd>rows)
+        throw new RuntimeException( "Problem reading file, rowIni=" + rowIni + "  and number of rows in file=" + rows);
+      if(rowIni > rowEnd)
+        throw new RuntimeException( "Problem reading file, rowIni < rowend" + rowIni + " < " + rowEnd);
+    
+      Matrix indVar = data.getMatrix(rowIni,rowEnd,indVariable,indVariable); // dataVowels(:,0) -> last col is the independent variable
+      
+      data = data.getMatrix(rowIni, rowEnd, c);  // the dependent variables correspond to the column indices in c
     
       multipleLinearRegression(indVar, data, intercepTerm);
        
@@ -341,6 +348,74 @@ public class Regression {
     }
 
   }
+  
+  // Given a set of coefficients and data predic values applying linear equation
+  // This function can be used to test with data that was not used in training
+  public void predictValues(String fileName, int indVariable, int[] c, String[] factors, boolean intercepTerm, int rowIni, int rowEnd) {    
+    try {
+      BufferedReader reader = new BufferedReader(new FileReader(fileName));        
+      Matrix data = Matrix.read(reader);
+      
+      int rows = data.getRowDimension()-1;
+      int cols = data.getColumnDimension()-1;
+
+      if(rowIni<0 || rowIni>rows)
+        throw new RuntimeException( "Problem reading file, rowIni=" + rowIni + "  and number of rows in file=" + rows);
+      if(rowEnd<0 || rowEnd>rows)
+        throw new RuntimeException( "Problem reading file, rowIni=" + rowIni + "  and number of rows in file=" + rows);
+      if(rowIni > rowEnd)
+        throw new RuntimeException( "Problem reading file, rowIni < rowend" + rowIni + " < " + rowEnd);
+    
+      Matrix indVar = data.getMatrix(rowIni,rowEnd,indVariable,indVariable); // dataVowels(:,0) -> last col is the independent variable      
+      data = data.getMatrix(rowIni, rowEnd, c);  // the dependent variables correspond to the column indices in c
+        
+      int numCoeff;
+      if(intercepTerm)
+        numCoeff = c.length + 1;
+      else
+        numCoeff = c.length;
+
+      if(b != null) {
+        if(b.getRowDimension() == numCoeff) {
+          
+          if(intercepTerm){ // first column of X is filled with 1s if b_0 != 0      
+            int row = data.getRowDimension();
+            int col = data.getColumnDimension();
+                
+            Matrix B = new Matrix(row, col+1);
+            Matrix ones = new Matrix(row, 1);
+            for(int i=0; i<row; i++)
+              ones.set(i, 0, 1.0);
+            B.setMatrix(0, row-1, 0, 0, ones);
+            B.setMatrix(0, row-1, 1, col, data);
+            data = B;
+          }
+          
+          // Residuals:
+          Matrix r = data.times(b).minus(indVar);
+          residuals = r.getColumnPackedCopy();
+      
+          // Predicted values
+          Matrix p = data.times(b);
+          predictedValues = p.getColumnPackedCopy();
+      
+          // Correlation between original values and predicted ones       
+          correlation = MathUtils.correlation(predictedValues, indVar.getColumnPackedCopy());
+      
+          System.out.println("Correlation predicted values and real: " + correlation);
+        } else {
+          throw new RuntimeException("Number of columns of data is not the same as number of coeficients");
+        }
+      } else {
+        throw new RuntimeException("Regression coefficients are not loaded");
+      }
+       
+    } catch ( Exception e ) {
+      throw new RuntimeException( "Problem reading file " + fileName, e );
+    }
+
+  }
+  
   
   
   public static void main(String[] args) throws Exception
