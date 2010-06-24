@@ -42,10 +42,7 @@ import marytts.datatypes.MaryXML;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 
-import marytts.modules.acoustic.CARTModel;
 import marytts.modules.acoustic.Model;
-import marytts.modules.acoustic.BoundaryModel;
-import marytts.modules.acoustic.ModelType;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
@@ -65,13 +62,7 @@ import marytts.util.dom.MaryDomUtils;
  */
 public class AcousticModeller extends InternalModule {
 
-    private String propertyPrefix;
-
-    private FeatureProcessorManager featureProcessorManager;
-
     private Map<String, List<Element>> elementLists;
-
-    private Map<String, Model> models;
 
     // three constructors adapted from DummyAllophones2AcoustParams (used if this is in modules.classes.list):
 
@@ -142,76 +133,6 @@ public class AcousticModeller extends InternalModule {
      */
     protected AcousticModeller(Locale locale, String propertyPrefix, FeatureProcessorManager featureProcessorManager) {
         super("AcousticModeller", MaryDataType.ALLOPHONES, MaryDataType.ACOUSTPARAMS, locale);
-        if (propertyPrefix.endsWith(".")) {
-            this.propertyPrefix = propertyPrefix;
-        } else {
-            this.propertyPrefix = propertyPrefix + ".";
-        }
-        this.featureProcessorManager = featureProcessorManager;
-    }
-
-    /**
-     * Wait until voice is loaded, then get its acousticModels to load all the Models into a Map and initialize them
-     */
-    public void delayedStartup(Voice voice) throws Exception {
-
-        // get featureProcessorManager
-        if (featureProcessorManager == null) {
-            Locale locale = getLocale();
-            if (locale == null) {
-                locale = voice.getLocale();
-            }
-            featureProcessorManager = FeatureRegistry.getFeatureProcessorManager(locale);
-        }
-
-        // get Model Maps from voice, if they are defined:
-        Map<String, Map<String, String>> modelMaps = voice.getAcousticModels();
-        if (modelMaps == null) {
-            return;
-        }
-
-        // initialize the Element List and Model Maps:
-        elementLists = new HashMap<String, List<Element>>();
-        models = new HashMap<String, Model>();
-
-        // add boundary "model" (which could of course be overwritten by appropriate properties in voice config):
-        models.put("boundary", new BoundaryModel("boundary", null, "duration", null, null));
-
-        // iterate over the models defined in the voice:
-        for (String modelName : modelMaps.keySet()) {
-            Map<String, String> modelMap = modelMaps.get(modelName);
-
-            // unpack Strings from Model Map:
-            String modelType = modelMap.get(Model.TYPE);
-            String modelDataFileName = modelMap.get(Model.DATA);
-            String modelAttributeName = modelMap.get(Model.ATTRIBUTE);
-
-            // the following are null if not defined; this is handled in the Model constructor:
-            String modelAttributeFormat = modelMap.get(Model.ATTRIBUTE_FORMAT);
-            String modelElementList = modelMap.get(Model.SCOPE);
-
-            // consult the ModelType enum to find appropriate Model subclass...
-            ModelType possibleModelTypes = ModelType.fromString(modelType);
-            // if modelType is not in ModelType.values(), we don't know how to handle it:
-            if (possibleModelTypes == null) {
-                logger.warn("Cannot handle unknown model type: " + modelType);
-                throw new Exception();
-            }
-
-            // ...and instantiate it in a switch statement:
-            Model model = null;
-            switch (possibleModelTypes) {
-            case CART:
-                model = new CARTModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList, featureProcessorManager);
-            }
-
-            // if we got this far, model should not be null:
-            assert model != null;
-
-            // otherwise, load datafile and put the model in the Model Map:
-            model.loadDataFile();
-            models.put(modelName, model);
-        }
     }
 
     public MaryData process(MaryData d) {
@@ -219,46 +140,54 @@ public class AcousticModeller extends InternalModule {
         MaryData output = new MaryData(outputType(), d.getLocale());
 
         // cascaded voice identification:
-        Element voice = (Element) doc.getElementsByTagName(MaryXML.VOICE).item(0);
-        Voice maryVoice = Voice.getVoice(voice);
-        if (maryVoice == null) {
-            maryVoice = d.getDefaultVoice();
+        Element voiceElement = (Element) doc.getElementsByTagName(MaryXML.VOICE).item(0);
+        Voice voice = Voice.getVoice(voiceElement);
+        if (voice == null) {
+            voice = d.getDefaultVoice();
         }
-        if (maryVoice == null) {
+        if (voice == null) {
             // Determine Locale in order to use default voice
             Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
-            maryVoice = Voice.getDefaultVoice(locale);
+            voice = Voice.getDefaultVoice(locale);
         }
 
-        try {
-            if (models == null) {
-                delayedStartup(maryVoice);
-            }
-        } catch (Exception e) {
+        // get models from voice, if they are defined:
+        Map<String, Model> models = voice.getAcousticModels();
+        if (models == null) {
             // unless voice provides suitable models, pass out unmodified MaryXML, just like DummyAllophones2AcoustParams:
-            logger.warn("No acoustic models defined in " + maryVoice.getName() + "; could not process!");
+            logger.debug("No acoustic models defined in " + voice.getName() + "; could not process!");
             output.setDocument(doc);
             return output;
         }
 
+        /*
+         * Actual processing below here; applies only when Voice provides appropriate models:
+         */
+
         // parse the MaryXML Document to populate Lists of relevant Elements:
         parseDocument(doc);
 
+        // unpack elementLists from Map:
+        List<Element> segments = elementLists.get("segments");
+        List<Element> firstVoicedSegments = elementLists.get("firstVoicedSegments");
+        List<Element> firstVowels = elementLists.get("firstVowels");
+        List<Element> lastVoicedSegments = elementLists.get("lastVoicedSegments");
+        List<Element> boundaries = elementLists.get("boundaries");
+
         // apply critical Models to Elements:
-        models.get("duration").applyTo(elementLists.get("segments"));
-        models.get("leftF0").applyTo(elementLists.get("firstVoicedSegments"), elementLists.get("firstVowels"));
-        models.get("midF0").applyTo(elementLists.get("firstVowels"));
-        models.get("rightF0").applyTo(elementLists.get("lastVoicedSegments"), elementLists.get("firstVowels"));
-        models.get("boundary").applyTo(elementLists.get("boundaries"));
+        voice.getDurationModel().applyTo(segments);
+        voice.getLeftF0Model().applyTo(firstVoicedSegments, firstVowels);
+        voice.getMidF0Model().applyTo(firstVowels);
+        voice.getRightF0Model().applyTo(lastVoicedSegments, firstVowels);
+        voice.getBoundaryModel().applyTo(boundaries);
 
         // hack duration attributes:
         hackSegmentDurations(elementLists.get("segments"));
 
-        // apply other Models:
-        for (String modelName : models.keySet()) {
-            // ignore critical Models already applied above:
-            if (!modelName.equals("duration") && !modelName.equals("leftF0") && !modelName.equals("midF0")
-                    && !modelName.equals("rightF0") && !modelName.equals("boundary")) {
+        // apply other Models, if applicable:
+        Map<String, Model> otherModels = voice.getOtherModels();
+        if (!otherModels.isEmpty()) {
+            for (String modelName : otherModels.keySet()) {
                 Model model = models.get(modelName);
                 model.applyTo(elementLists.get(model.getTargetElementListName()));
                 // remember, the Model constructor will apply the model to "segments" if the targetElementListName is null
@@ -298,7 +227,9 @@ public class AcousticModeller extends InternalModule {
      * @param doc
      */
     private void parseDocument(Document doc) {
+
         // initialize Element Lists:
+        elementLists = new HashMap<String, List<Element>>();
         List<Element> segments = new ArrayList<Element>();
         List<Element> boundaries = new ArrayList<Element>();
         List<Element> firstVoicedSegments = new ArrayList<Element>();
@@ -375,7 +306,7 @@ public class AcousticModeller extends InternalModule {
             }
         }
 
-        // put the Element Lists into the Map:
+        // pack the Element Lists into the Map:
         elementLists.put("segments", segments);
         elementLists.put("voicedSegments", voicedSegments);
         elementLists.put("firstVoicedSegments", firstVoicedSegments);

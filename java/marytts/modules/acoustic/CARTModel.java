@@ -9,14 +9,13 @@ import marytts.features.FeatureRegistry;
 import marytts.unitselection.select.Target;
 
 /**
- * Model subclass for applying a CART to a list of Targets
+ * Model for applying a CART to a list of Targets
  * 
  * @author steiner
  * 
  */
 public class CARTModel extends Model {
     private DirectedGraph cart;
-    private FeatureProcessorManager featureProcessorManager;
 
     public CARTModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
             String targetElementListName, FeatureProcessorManager featureProcessorManager) {

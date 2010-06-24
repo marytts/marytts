@@ -4,9 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import marytts.cart.DirectedGraph;
-import marytts.cart.io.DirectedGraphReader;
 import marytts.datatypes.MaryXML;
+import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.features.FeatureVector;
 import marytts.features.TargetFeatureComputer;
@@ -23,16 +22,6 @@ import org.w3c.dom.Element;
  */
 public abstract class Model {
 
-    public static final String TYPE = "type";
-
-    public static final String DATA = "data";
-
-    public static final String ATTRIBUTE = "attribute";
-
-    public static final String ATTRIBUTE_FORMAT = "attribute.format";
-
-    public static final String SCOPE = "scope";
-
     protected String type;
 
     protected String dataFile;
@@ -41,7 +30,9 @@ public abstract class Model {
 
     protected String targetAttributeFormat;
 
-    private String targetElementListName;
+    protected String targetElementListName;
+
+    protected FeatureProcessorManager featureProcessorManager;
 
     protected TargetFeatureComputer featureComputer;
 
@@ -70,12 +61,13 @@ public abstract class Model {
             targetElementListName = "segments";
         }
         this.targetElementListName = targetElementListName;
-        // featureComputer should be loaded in subclasses:
+        
+        // featureComputer should be set in extension classes:
         featureComputer = null;
     }
 
     /**
-     * Load datafile for this model; only subclasses know how to do this
+     * Load datafile for this model; only extension classes know how to do this
      */
     public abstract void loadDataFile();
 
