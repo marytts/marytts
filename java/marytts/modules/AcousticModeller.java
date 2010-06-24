@@ -21,11 +21,13 @@
 package marytts.modules;
 
 import java.io.File;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -33,21 +35,25 @@ import org.w3c.dom.Node;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
 
-import marytts.cart.DirectedGraph;
-import marytts.cart.io.DirectedGraphReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
-import marytts.features.FeatureVector;
-import marytts.features.TargetFeatureComputer;
+
+import marytts.modules.acoustic.CARTModel;
+import marytts.modules.acoustic.Model;
+import marytts.modules.acoustic.BoundaryModel;
+import marytts.modules.acoustic.ModelType;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
+
 import marytts.server.MaryProperties;
-import marytts.unitselection.select.Target;
+
 import marytts.unitselection.select.UnitSelector;
+
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
@@ -196,7 +202,7 @@ public class AcousticModeller extends InternalModule {
             Model model = null;
             switch (possibleModelTypes) {
             case CART:
-                model = new CARTModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList);
+                model = new CARTModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList, featureProcessorManager);
             }
 
             // if we got this far, model should not be null:
@@ -254,7 +260,7 @@ public class AcousticModeller extends InternalModule {
             if (!modelName.equals("duration") && !modelName.equals("leftF0") && !modelName.equals("midF0")
                     && !modelName.equals("rightF0") && !modelName.equals("boundary")) {
                 Model model = models.get(modelName);
-                model.applyTo(elementLists.get(model.targetElementListName));
+                model.applyTo(elementLists.get(model.getTargetElementListName()));
                 // remember, the Model constructor will apply the model to "segments" if the targetElementListName is null
             }
         }
@@ -378,253 +384,4 @@ public class AcousticModeller extends InternalModule {
         elementLists.put("boundaries", boundaries);
     }
 
-    /**
-     * list of known model types as constants; can be extended but needs to mesh with Model subclasses and switch statement in
-     * startUp():
-     * 
-     * @author steiner
-     * 
-     */
-    public enum ModelType {
-        // enumerate model types here:
-        CART;
-
-        // get the appropriate model type from a string (which can be lower or mixed case):
-        // adapted from http://www.xefer.com/2006/12/switchonstring
-        public static ModelType fromString(String string) {
-            try {
-                ModelType modelString = valueOf(string.toUpperCase());
-                return modelString;
-            } catch (Exception e) {
-                return null;
-            }
-        }
-    }
-
-    /**
-     * Base class for acoustic modelling; specific Models should extend this and override methods as needed.
-     * 
-     * @author steiner
-     * 
-     */
-    public abstract class Model {
-
-        public static final String TYPE = "type";
-
-        public static final String DATA = "data";
-
-        public static final String ATTRIBUTE = "attribute";
-
-        public static final String ATTRIBUTE_FORMAT = "attribute.format";
-
-        public static final String SCOPE = "scope";
-
-        protected String type;
-
-        protected String dataFile;
-
-        protected String targetAttributeName;
-
-        protected String targetAttributeFormat;
-
-        protected String targetElementListName;
-
-        protected TargetFeatureComputer featureComputer;
-
-        /**
-         * Model constructor
-         * 
-         * @param type
-         *            type of Model
-         * @param dataFileName
-         *            data file for this Model
-         * @param targetAttributeName
-         *            attribute in MaryXML to predict
-         * @param targetAttributeFormat
-         *            printf-style format String to specify the attribute value, i.e. "%.3f" to round to 3 decimal places
-         */
-        protected Model(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-                String targetElementListName) {
-            this.type = type;
-            this.dataFile = dataFileName;
-            this.targetAttributeName = targetAttributeName;
-            if (targetAttributeFormat == null) {
-                targetAttributeFormat = "%s";
-            }
-            this.targetAttributeFormat = targetAttributeFormat;
-            if (targetElementListName == null) {
-                targetElementListName = "segments";
-            }
-            this.targetElementListName = targetElementListName;
-            // featureComputer should be loaded in subclasses:
-            featureComputer = null;
-        }
-
-        /**
-         * Load datafile for this model; only subclasses know how to do this
-         */
-        protected abstract void loadDataFile();
-
-        /**
-         * Apply this Model to a List of Elements, predicting from those same Elements
-         * 
-         * @param elements
-         */
-        protected void applyTo(List<Element> elements) {
-            applyTo(elements, elements);
-        }
-
-        /**
-         * Apply this Model to a List of Elements, predicting from a different List of Elements
-         * 
-         * @param applicableElements
-         *            Elements to which to apply the values predicted by this Model
-         * @param predictorElements
-         *            Elements from which to predict the values
-         */
-        protected void applyTo(List<Element> applicableElements, List<Element> predictorElements) {
-            assert applicableElements.size() == predictorElements.size();
-
-            List<Target> predictorTargets = getTargets(predictorElements);
-
-            for (int i = 0; i < applicableElements.size(); i++) {
-                Target target = predictorTargets.get(i);
-                float targetValue = (float) evaluate(target);
-
-                Element element = applicableElements.get(i);
-
-                // "evaulate" pseudo XPath syntax:
-                // TODO this needs to be extended to take into account targetAttributeNames like "foo/@bar", which would add the
-                // bar attribute to the foo child of this element, creating the child if not already present...
-                if (targetAttributeName.startsWith("@")) {
-                    targetAttributeName = targetAttributeName.replaceFirst("@", "");
-                }
-
-                // format targetValue according to targetAttributeFormat
-                String formattedTargetValue = String.format(targetAttributeFormat, targetValue);
-                // if the attribute already exists for this element, append targetValue:
-                if (element.hasAttribute(targetAttributeName)) {
-                    formattedTargetValue = element.getAttribute(targetAttributeName) + " " + formattedTargetValue;
-                }
-
-                // set the new attribute value:
-                element.setAttribute(targetAttributeName, formattedTargetValue);
-            }
-        }
-
-        /**
-         * For a list of <code>PHONE</code> elements, return a list of Targets, where each Target is constructed from the
-         * corresponding Element.
-         * 
-         * @param elements
-         *            List of Elements
-         * @return List of Targets
-         */
-        protected List<Target> getTargets(List<Element> elements) {
-            List<Target> targets = new ArrayList<Target>(elements.size());
-            for (Element element : elements) {
-                assert element.getTagName() == MaryXML.PHONE;
-                String phone = UnitSelector.getPhoneSymbol(element);
-                Target target = new Target(phone, element);
-                targets.add(target);
-            }
-            // compute FeatureVectors for Targets:
-            for (Target target : targets) {
-                FeatureVector targetFeatureVector = featureComputer.computeFeatureVector(target);
-                target.setFeatureVector(targetFeatureVector); // this is critical!
-            }
-            return targets;
-        }
-
-        /**
-         * Evaluate model on a Target to obtain the target value as a float.
-         * 
-         * @param target
-         */
-        protected abstract float evaluate(Target target);
-
-    }
-
-    /**
-     * Model subclass which currently predicts only a flat 400 ms duration for each boundary Element
-     * <p>
-     * Could be replaced by a PauseTree or something else, but that would require a CARTModel instead of this.
-     * 
-     * @author steiner
-     * 
-     */
-    private class BoundaryModel extends Model {
-        protected BoundaryModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-                String targetElementListName) {
-            super(type, dataFileName, targetAttributeName, targetAttributeFormat, targetElementListName);
-        }
-
-        @Override
-        protected void applyTo(List<Element> elements) {
-            for (Element element : elements) {
-                if (!element.hasAttribute(targetAttributeName)) {
-                    element.setAttribute(targetAttributeName, "400");
-                }
-            }
-        }
-
-        /**
-         * For boundaries, this does nothing;
-         */
-        @Override
-        protected float evaluate(Target target) {
-            return Float.NaN;
-        }
-
-        /**
-         * For boundaries, this does nothing;
-         */
-        @Override
-        protected void loadDataFile() {
-            return;
-        }
-    }
-
-    /**
-     * Model subclass for applying a CART to a list of Targets
-     * 
-     * @author steiner
-     * 
-     */
-    private class CARTModel extends Model {
-        private DirectedGraph cart;
-
-        protected CARTModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-                String targetElementListName) {
-            super(type, dataFileName, targetAttributeName, targetAttributeFormat, targetElementListName);
-        }
-
-        @Override
-        protected void loadDataFile() {
-            this.cart = null;
-            try {
-                File cartFile = new File(dataFile);
-                String cartFilePath = cartFile.getAbsolutePath();
-                cart = new DirectedGraphReader().load(cartFilePath);
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            // unless we already have a featureComputer, load the CART's:
-            if (featureComputer == null) {
-                featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, cart.getFeatureDefinition()
-                        .getFeatureNames());
-            }
-        }
-
-        /**
-         * Apply the CART to a Target to get its predicted value
-         */
-        @Override
-        protected float evaluate(Target target) {
-            float[] result = (float[]) cart.interpret(target);
-            float value = result[1]; // assuming result is [stdev, val]
-            return value;
-        }
-    }
 }

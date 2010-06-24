@@ -55,7 +55,7 @@ import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
-import marytts.modules.AcousticModeller.Model;
+import marytts.modules.acoustic.Model;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.nonverbal.BackchannelSynthesizer;
