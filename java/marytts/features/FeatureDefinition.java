@@ -24,11 +24,13 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
+import marytts.util.io.StreamUtils;
 import marytts.util.string.ByteStringTranslator;
 import marytts.util.string.IntStringTranslator;
 import marytts.util.string.ShortStringTranslator;
@@ -282,6 +284,78 @@ public class FeatureDefinition
             featureWeights[numByteFeatures+numShortFeatures+i] = input.readFloat();
             floatWeightFuncts[i] = input.readUTF();
             String featureName = input.readUTF();
+            featureNames.set(numByteFeatures+numShortFeatures+i, featureName);
+        }
+    }
+    
+    /**
+     * Create a feature definition object, reading binary data
+     * from the given byte buffer.
+     * @param input a byte buffer from which
+     * a binary feature definition can be read.
+     * @throws IOException if a reading problem occurs
+     */
+    public FeatureDefinition(ByteBuffer bb) throws IOException
+    {
+        // Section BYTEFEATURES
+        numByteFeatures = bb.getInt();
+        byteFeatureValues = new ByteStringTranslator[numByteFeatures];
+        // Initialise global arrays to byte feature length first;
+        // we have no means of knowing how many short or continuous
+        // features there will be, so we need to resize later.
+        // This will happen automatically for featureNames, but needs
+        // to be done by hand for featureWeights.
+        featureNames = new IntStringTranslator(numByteFeatures);
+        featureWeights = new float[numByteFeatures];
+        // There is no need to normalise weights here, because
+        // they have already been normalized before the binary
+        // file was written.
+        for (int i=0; i<numByteFeatures; i++) {
+            featureWeights[i] = bb.getFloat();
+            String featureName = StreamUtils.readUTF(bb);
+            featureNames.set(i, featureName);
+            byte numberOfValuesEncoded = bb.get(); // attention: this is an unsigned byte
+            int numberOfValues = numberOfValuesEncoded & 0xFF;
+            byteFeatureValues[i] = new ByteStringTranslator(numberOfValues);
+            for (int b=0; b<numberOfValues; b++) {
+                String value = StreamUtils.readUTF(bb);
+                byteFeatureValues[i].set((byte)b, value);
+            }
+        }
+        // Section SHORTFEATURES
+        numShortFeatures = bb.getInt();
+        if (numShortFeatures > 0) {
+            shortFeatureValues = new ShortStringTranslator[numShortFeatures];
+            // resize weight array:
+            float[] newWeights = new float[numByteFeatures+numShortFeatures];
+            System.arraycopy(featureWeights, 0, newWeights, 0, numByteFeatures);
+            featureWeights = newWeights;
+
+            for (int i=0; i<numShortFeatures; i++) {
+                featureWeights[numByteFeatures+i] = bb.getFloat();
+                String featureName = StreamUtils.readUTF(bb);
+                featureNames.set(numByteFeatures+i, featureName);
+                short numberOfValues = bb.getShort();
+                shortFeatureValues[i] = new ShortStringTranslator(numberOfValues);
+                for (short s=0; s<numberOfValues; s++) {
+                    String value = StreamUtils.readUTF(bb);
+                    shortFeatureValues[i].set(s, value);
+                }
+            }
+        }
+        // Section CONTINUOUSFEATURES
+        numContinuousFeatures = bb.getInt();
+        floatWeightFuncts = new String[numContinuousFeatures];
+        if (numContinuousFeatures > 0) {
+            // resize weight array:
+            float[] newWeights = new float[numByteFeatures+numShortFeatures+numContinuousFeatures];
+            System.arraycopy(featureWeights, 0, newWeights, 0, numByteFeatures+numShortFeatures);
+            featureWeights = newWeights;
+        }
+        for (int i=0; i<numContinuousFeatures; i++) {
+            featureWeights[numByteFeatures+numShortFeatures+i] = bb.getFloat();
+            floatWeightFuncts[i] = StreamUtils.readUTF(bb);
+            String featureName = StreamUtils.readUTF(bb);
             featureNames.set(numByteFeatures+numShortFeatures+i, featureName);
         }
     }
@@ -968,6 +1042,26 @@ public class FeatureDefinition
         return new FeatureVector(bytes, shorts, floats, currentUnitIndex);
     }
     
+    /**
+     * Create a feature vector consistent with this feature definition
+     * by reading the data from the byte buffer.
+     * @param bb a byte buffer to read the feature values from.
+     * @return a FeatureVector.
+     */
+    public FeatureVector readFeatureVector(int currentUnitIndex, ByteBuffer bb) throws IOException
+    {
+        byte[] bytes = new byte[numByteFeatures];
+        bb.get(bytes);
+        short[] shorts = new short[numShortFeatures];
+        for (int i=0; i<shorts.length; i++) {
+            shorts[i] = bb.getShort();
+        }
+        float[] floats = new float[numContinuousFeatures];
+        for (int i=0; i<floats.length; i++) {
+            floats[i] = bb.getFloat();
+        }
+        return new FeatureVector(bytes, shorts, floats, currentUnitIndex);
+    }
     /**
      * Create a feature vector that marks a start or end of a unit.
      * All feature values are set to the neutral value "0", except for

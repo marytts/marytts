@@ -49,6 +49,10 @@
 	<classpathentry kind="lib" path="java/sgt_v30.jar"/>
 	<classpathentry kind="lib" path="java/swing-layout-1.0.jar"/>
 	<classpathentry kind="lib" path="java/weka.jar"/>
-	<classpathentry kind="lib" path="java/trove-2.0.4.jar"/>
+	<classpathentry kind="lib" path="java/trove-2.0.4.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://trove4j.sourceforge.net/javadocs/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="java"/>
 </classpath>
