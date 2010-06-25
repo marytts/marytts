@@ -23,6 +23,8 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
@@ -44,7 +46,8 @@ public class HalfPhoneFeatureFileReader extends FeatureFileReader
         super(fileName);
     }
 
-    public void load(String fileName) throws IOException
+    @Override
+    protected void loadFromStream(String fileName) throws IOException
     {
         /* Open the file */
         DataInputStream dis = null;
@@ -69,6 +72,35 @@ public class HalfPhoneFeatureFileReader extends FeatureFileReader
         }
     }
     
+    @Override
+    protected void loadFromByteBuffer(String fileName) throws IOException
+    {
+        /* Open the file */
+        FileInputStream fis = new FileInputStream(fileName);
+        FileChannel fc = fis.getChannel();
+        ByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+        fis.close();
+
+        /* Load the Mary header */
+        hdr = new MaryHeader(bb);
+        if ( !hdr.isMaryHeader() ) {
+            throw new IOException( "File [" + fileName + "] is not a valid Mary format file." );
+        }
+        if ( hdr.getType() != MaryHeader.HALFPHONE_UNITFEATS ) {
+            throw new IOException( "File [" + fileName + "] is not a valid Mary Halfphone Features file." );
+        }
+        leftWeights = new FeatureDefinition(bb);
+        rightWeights = new FeatureDefinition(bb);
+        assert leftWeights.featureEquals(rightWeights) :
+            "Halfphone unit feature file contains incompatible feature definitions for left and right units -- this should not happen!";
+        featureDefinition = leftWeights; // one of them, for super class
+        int numberOfUnits = bb.getInt();
+        featureVectors = new FeatureVector[numberOfUnits];
+        for (int i=0; i<numberOfUnits; i++) {
+            featureVectors[i] = featureDefinition.readFeatureVector(i, bb);
+        }
+    }
+
     public FeatureDefinition getLeftWeights()
     {
         return leftWeights;

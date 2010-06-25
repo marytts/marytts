@@ -34,6 +34,10 @@ import java.net.ServerSocket;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
@@ -59,6 +63,7 @@ import marytts.modules.synthesis.Voice;
 import marytts.server.http.MaryHttpServer;
 import marytts.util.MaryCache;
 import marytts.util.MaryUtils;
+import marytts.util.Pair;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
@@ -134,22 +139,39 @@ public class Mary {
             ModuleRegistry.registerModule(m, m.getLocale(), null);
         }
         ModuleRegistry.setRegistrationComplete();
+        
+        List<Pair<MaryModule, Long>> startupTimes = new ArrayList<Pair<MaryModule,Long>>();
+        
         // Separate loop for startup allows modules to cross-reference to each
         // other via Mary.getModule(Class) even if some have not yet been
         // started.
         for (MaryModule m : ModuleRegistry.getAllModules()) {
             // Only start the modules here if in server mode: 
-            if (((MaryProperties.getProperty("server").compareTo("commandline")!=0) || m instanceof Synthesis) 
+            if (((!MaryProperties.getProperty("server").equals("commandline")) || m instanceof Synthesis) 
                     && m.getState() == MaryModule.MODULE_OFFLINE) {
+                long before = System.currentTimeMillis();
                 try {
                     m.startup();
                 } catch (Throwable t) {
                     throw new Exception("Problem starting module "+ m.name(), t);
                 }
-                
+                long after = System.currentTimeMillis();
+                startupTimes.add(new Pair<MaryModule, Long>(m, after-before));
             }
             if (MaryProperties.getAutoBoolean("modules.poweronselftest", false)) {
                 m.powerOnSelfTest();
+            }
+        }
+        
+        if (startupTimes.size() > 0) {
+            Collections.sort(startupTimes, new Comparator<Pair<MaryModule, Long>>() {
+                public int compare(Pair<MaryModule, Long> o1, Pair<MaryModule, Long> o2) {
+                    return -o1.getSecond().compareTo(o2.getSecond());
+                }
+            });
+            logger.debug("Startup times:");
+            for (Pair<MaryModule, Long> p : startupTimes) {
+                logger.debug(p.getFirst().name()+": "+p.getSecond()+" ms");
             }
         }
     }

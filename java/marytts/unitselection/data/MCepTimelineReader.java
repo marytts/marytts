@@ -22,6 +22,7 @@ package marytts.unitselection.data;
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Properties;
 
 
@@ -67,24 +68,22 @@ public class MCepTimelineReader extends TimelineReader
      * 
      * @throws IOException
      */
-    protected Datagram getNextDatagram() throws IOException {
+    @Override
+    protected Datagram getNextDatagram(ByteBuffer bb) throws IOException {
         
         Datagram d = null;
         
         /* If the end of the datagram zone is reached, gracefully refuse to read */
-        if ( getBytePointer() == timeIdxBytePos ) return( null );
+        if (bb.position() == timeIdxBytePos ) return( null );
         /* Else, pop the datagram out of the file */
         try {
-            d = new MCepDatagram( raf, order );
+            d = new MCepDatagram(bb, order );
         }
         /* Detect a possible EOF encounter */
         catch ( EOFException e ) {
             throw new IOException( "While reading a datagram, EOF was met before the time index position: "
                     + "you may be dealing with a corrupted timeline file." );
         }
-        
-        /* If the read was successful, update the time pointer */
-        timePtr += d.getDuration();
         
         return( d );
     }

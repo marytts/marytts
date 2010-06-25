@@ -25,6 +25,7 @@ import java.io.DataOutput;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 
 
 public class MCepDatagram extends Datagram {
@@ -73,6 +74,31 @@ public class MCepDatagram extends Datagram {
         }
     }
 
+    /**
+     * Constructor which pops a datagram from a byte buffer.
+     * 
+     * @param raf the byte buffer to pop the datagram from.
+     * 
+     * @throws IOException
+     * @throws EOFException
+     */
+    public MCepDatagram(ByteBuffer bb, int order) throws IOException, EOFException
+    {
+        super(bb.getLong()); // duration
+        int len = bb.getInt();
+        if ( len < 0 ) {
+            throw new IOException( "Can't create a datagram with a negative data size [" + len + "]." );
+        }
+        if (len < 4*order) {
+            throw new IOException("Mel-Cepstrum datagram too short (len="+len
+                    +"): cannot be shorter than the space needed for Mel-Cepstrum coefficients (4*"+order+")");
+        }
+        coeffs = new float[order];
+        for (int i=0; i<order; i++) {
+            coeffs[i] = bb.getFloat();
+        }
+    }
+    
     /**
      * Get the length, in bytes, of the datagram's data field.
      */

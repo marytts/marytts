@@ -37,6 +37,7 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * Common helper class to read/write a standard Mary header to/from the various
@@ -70,7 +71,6 @@ public class MaryHeader
     private int magic = MAGIC;
     private int version = VERSION;
     private int type = UNKNOWN;
-    private long byteSize = 12l; // 3 int with 4 bytes each.
 
     
     // STATIC CODE
@@ -126,7 +126,19 @@ public class MaryHeader
         this.load( input );
         if ( !isMaryHeader() ) { throw new RuntimeException( "Ill-formed Mary header!" ); }
     }
-    
+
+    /**
+     * File constructor
+     * 
+     * @param input a byte buffer to read the header from.
+     * 
+     * @throws RuntimeException if the data read does not correspond to a mary header.
+     */
+    public MaryHeader( ByteBuffer input ) {
+        this.load( input );
+        if ( !isMaryHeader() ) { throw new RuntimeException( "Ill-formed Mary header!" ); }
+    }
+
     /*****************/
     /* OTHER METHODS */
     /*****************/
@@ -166,23 +178,27 @@ public class MaryHeader
      * 
      * @author sacha
      */
-    public long load( DataInput input ) throws IOException {
+    public void load( DataInput input ) throws IOException {
         
-        long nBytes = 0;
-        
-        magic = input.readInt();   nBytes += 4;
-        version = input.readInt(); nBytes += 4;
-        type = input.readInt();    nBytes += 4;
-        byteSize = nBytes;
-        
-        return( nBytes );
+        magic = input.readInt();
+        version = input.readInt();
+        type = input.readInt();
+    }
+    
+    /**
+     * Read header from byte buffer
+     * @param input
+     */
+    public void load(ByteBuffer input) {
+        magic = input.getInt();
+        version = input.getInt();
+        type = input.getInt();
     }
     
     /* Accessors */
     public int getMagic() { return(magic); }
     public int getVersion() { return(version); }
     public int getType() { return(type); }
-    public long getByteSize() { return(byteSize); }
 
     /* Checkers */
     public boolean hasLegalMagic() { return( magic == MAGIC ); }

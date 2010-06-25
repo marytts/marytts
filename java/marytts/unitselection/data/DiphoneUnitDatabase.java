@@ -19,6 +19,8 @@
  */
 package marytts.unitselection.data;
 
+import gnu.trove.TIntHashSet;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -80,7 +82,8 @@ public class DiphoneUnitDatabase extends UnitDatabase {
         byte brightName = targetCostFunction.getFeatureDefinition().getFeatureValueAsByte(iPhoneme, rightName);
         FeatureVector[] fvs = targetCostFunction.getFeatureVectors();
 
-        HashSet<DiphoneUnit> candidateUnitSet = new HashSet<DiphoneUnit>();
+        //HashSet<DiphoneUnit> candidateUnitSet = new HashSet<DiphoneUnit>();
+        TIntHashSet candidateUnitSet = new TIntHashSet();
         
         // Pre-select candidates for the left half, but retain only
         // those that belong to appropriate diphones:
@@ -101,8 +104,9 @@ public class DiphoneUnitDatabase extends UnitDatabase {
                 byte brightUnitName = rfv.byteValuedDiscreteFeatures[iPhoneme];
                 if (brightUnitName == brightName) {
                     // Found a diphone -- add it to candidates
-                    DiphoneUnit diphoneUnit = new DiphoneUnit(unit, rightNeighbour);
-                    candidateUnitSet.add(diphoneUnit);
+                    //DiphoneUnit diphoneUnit = new DiphoneUnit(unit, rightNeighbour);
+                    //candidateUnitSet.add(diphoneUnit);
+                    candidateUnitSet.add(unit.index);
                 }
             }
         }
@@ -125,20 +129,26 @@ public class DiphoneUnitDatabase extends UnitDatabase {
                 byte bleftUnitName = lfv.byteValuedDiscreteFeatures[iPhoneme];
                 if (bleftUnitName == bleftName) {
                     // Found a diphone -- add it to candidates
-                    DiphoneUnit diphoneUnit = new DiphoneUnit(leftNeighbour, unit);
-                    candidateUnitSet.add(diphoneUnit);
+                    //DiphoneUnit diphoneUnit = new DiphoneUnit(leftNeighbour, unit);
+                    //candidateUnitSet.add(diphoneUnit);
+                    candidateUnitSet.add(leftNeighbour.index);
                 }
             }
         }
         
         // now create ArrayList of ViterbiCandidates from the candidateUnitSet, blacklisting along the way:
         ArrayList<ViterbiCandidate> candidates = new ArrayList<ViterbiCandidate>(candidateUnitSet.size());
-        for(DiphoneUnit diphoneUnit : candidateUnitSet) {
+        for (int leftIndex : candidateUnitSet.toArray()) {
+            DiphoneUnit diphoneUnit = new DiphoneUnit(unitReader.units[leftIndex], unitReader.units[leftIndex+1]);
             ViterbiCandidate candidate = new ViterbiCandidate(diphoneTarget, diphoneUnit, targetCostFunction);
             // Blacklisting:
-            unitBasename = getFilename(diphoneUnit);
-            if (!blacklist.contains(unitBasename)) {
+            if (blacklist.equals("")) { // no blacklist
                 candidates.add(candidate);
+            } else { // maybe exclude candidate
+                unitBasename = getFilename(diphoneUnit);
+                if (!blacklist.contains(unitBasename)) {
+                    candidates.add(candidate);
+                }
             }
         }
         

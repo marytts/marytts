@@ -34,6 +34,7 @@ import java.io.DataOutput;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexNumber;
@@ -80,6 +81,24 @@ public class FrameNoisePartWaveform implements FrameNoisePart
         }
     }
     
+    public FrameNoisePartWaveform(ByteBuffer bb, int waveLen)
+    {
+        this();
+        
+        if (waveLen>0)
+        {
+            waveform = new short[waveLen];
+            for (int i=0; i<waveLen; i++) 
+            {
+                try {
+                    waveform[i] = bb.getShort();
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("At least " + String.valueOf(waveLen) + " samples required!", e);
+                }
+             }
+        }
+    }
+
     public void write(DataOutput out) throws IOException 
     {
         int waveLen = 0;
