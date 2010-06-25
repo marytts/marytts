@@ -52,7 +52,9 @@ public class DurationSoPTrainer extends VoiceImportComponent
   protected DatabaseLayout db = null;
   protected int percent = 0;
   protected boolean success = true;
-  protected boolean intercepTerm = true;
+  protected boolean interceptTerm;
+  protected boolean logDuration;
+  protected int solutionSize;
   protected File unitlabelDir;
   protected File unitfeatureDir;  
   
@@ -62,16 +64,22 @@ public class DurationSoPTrainer extends VoiceImportComponent
   private final String FEATUREFILE = name+".featureFile";
   private final String UNITFILE = name+".unitFile";
   private final String ALLOPHONESFILE = name+".allophonesFile"; 
+  private final String SOLUTIONSIZE = name+".solutionSize";
+  private final String INTERCEPTTERM = name+".interceptTerm";
+  private final String LOGDURATION = name+".logDuration";
   
   public String getName(){
     return name;
-}
+  }
 
   public void initialiseComp()
   {
     this.unitlabelDir = new File(getProp(LABELDIR));
     this.unitfeatureDir = new File(getProp(FEATUREDIR));
     String rootDir = db.getProp(db.ROOTDIR);
+    this.interceptTerm =  Boolean.valueOf(getProp(INTERCEPTTERM)).booleanValue(); 
+    this.logDuration =  Boolean.valueOf(getProp(LOGDURATION)).booleanValue();
+    this.solutionSize = Integer.parseInt(getProp(SOLUTIONSIZE));   
   }
 
   public SortedMap<String, String> getDefaultProps(DatabaseLayout dbl){
@@ -84,6 +92,9 @@ public class DurationSoPTrainer extends VoiceImportComponent
       props.put(FEATUREFILE, db.getProp(db.FILEDIR) + "phoneFeatures"+db.getProp(db.MARYEXT));
       props.put(UNITFILE, db.getProp(db.FILEDIR) + "phoneUnits"+db.getProp(db.MARYEXT));
       props.put(ALLOPHONESFILE, db.getProp(db.ALLOPHONESET));
+      props.put(INTERCEPTTERM, "true");
+      props.put(LOGDURATION, "true");
+      props.put(SOLUTIONSIZE, "10");
     }
    return props; 
   }
@@ -104,6 +115,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
   
   public boolean compute() throws Exception
   {
+ 
     String durDir = db.getProp(db.TEMPDIR);
     String vowelsFile = durDir + "vowels.feats";
     String consonantsFile = durDir + "consonants.feats";
@@ -146,20 +158,26 @@ public class DurationSoPTrainer extends VoiceImportComponent
       double dur = u.duration / (float) unitFile.getSampleRate();              
       
       fv = featureFile.getFeatureVector(i); 
-      
+         
       // first select vowell phones
       if(fv.getByteFeature(phoneIndex) > 0 && dur >= 0.01 ){  
         if (allophoneSet.getAllophone(fv.getFeatureAsString(phoneIndex, featureDefinition)).isVowel()){
+          //---if (allophoneSet.getAllophone(fv.getFeatureAsString(phoneIndex, featureDefinition)).name().contentEquals("I")){
           for(int j=0; j < lingFactorsVowel.length; j++)
             toVowelsFile.print(fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsVowel[j])) + " ");
-          //toVowelsFile.println(Math.log(dur)); // last column is the dependent variable, in this case duration
-          toVowelsFile.println(dur);
+          if(logDuration)
+            toVowelsFile.println(Math.log(dur)); // last column is the dependent variable, in this case duration
+          else
+            toVowelsFile.println(dur);
           numVowels++;
+          //---}
         } else {
           for(int j=0; j < lingFactorsConsonant.length; j++)
             toConsonantsFile.print(fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsConsonant[j])) + " ");
-          //toConsonantsFile.println(Math.log(dur)); 
-          toConsonantsFile.println(dur);
+          if(logDuration)
+            toConsonantsFile.println(Math.log(dur));
+          else
+            toConsonantsFile.println(dur);
           numConsonants++;
         }
       }          
@@ -168,14 +186,11 @@ public class DurationSoPTrainer extends VoiceImportComponent
    toConsonantsFile.close();
    percent = 10; 
    int cols, rows;
-   
-   intercepTerm=true;
-   
-   
+    
    // -----------------------------------------------------------------------------------------
    // VOWELS results:
-   int vd = 5;  // desired size of the solution
-   int vD = 5; // maximum deviation allowed with respect to d
+   int vd = solutionSize;  // desired size of the solution
+   int vD = 0; // maximum deviation allowed with respect to d
    cols = lingFactorsVowel.length;
    rows = numVowels;
    int rowIniVowTrain = 0;
@@ -190,10 +205,14 @@ public class DurationSoPTrainer extends VoiceImportComponent
        + ")\nNumber of points used for testing from " + rowIniVowTest + " to " + rowEndVowTest + "(Total test=" + (rowEndVowTest-rowIniVowTest) + ")");
    System.out.println("Number of linguistic factors: " + cols);  
    System.out.println("Max number of selected features in SFFS: " + (vd+vD));
-   if(intercepTerm)
-     System.out.println("Using intercept Term for regresion" + "\n");
+   if(interceptTerm)
+     System.out.println("Using intercept Term for regression");
    else
-     System.out.println("No intercept Term for regresion" + "\n");
+     System.out.println("No intercept Term for regression");
+   if(logDuration)
+     System.out.println("Using log(duration) as independent variable" + "\n");
+   else
+     System.out.println("Using duration as independent variable" + "\n");
    // copy indexes of column features
    int vY[] = new int[lingFactorsVowel.length];
    int vX[] = {};
@@ -205,23 +224,23 @@ public class DurationSoPTrainer extends VoiceImportComponent
    
    int vowelSelectFea[] = sequentialForwardFloatingSelection(vowelsFile, lingFactorsVowel, vX, vY, vd, vD, rowIniVowTrain, rowEndVowTrain);
    Regression regVowel = new Regression(); 
-   regVowel.multipleLinearRegression(vowelsFile, cols, vowelSelectFea, lingFactorsVowel, intercepTerm, rowIniVowTrain, rowEndVowTrain);
+   regVowel.multipleLinearRegression(vowelsFile, cols, vowelSelectFea, lingFactorsVowel, interceptTerm, rowIniVowTrain, rowEndVowTrain);
    regVowel.printCoefficients(vowelSelectFea, lingFactorsVowel);
    System.out.println("Correlation vowels original duration / predicted duration = " + regVowel.getCorrelation());
    
 
    System.out.println("\nNumber points used for training=" + (rowEndVowTrain-rowIniVowTrain)); 
-   regVowel.predictValues(vowelsFile, cols, vowelSelectFea, lingFactorsVowel, intercepTerm, rowIniVowTrain, rowEndVowTrain);
+   regVowel.predictValues(vowelsFile, cols, vowelSelectFea, lingFactorsVowel, interceptTerm, rowIniVowTrain, rowEndVowTrain);
 
    
    System.out.println("\nNumber points used for testing=" + (rowEndVowTest-rowIniVowTest)); 
-   regVowel.predictValues(vowelsFile, cols, vowelSelectFea, lingFactorsVowel, intercepTerm, rowIniVowTest, rowEndVowTest);
+   regVowel.predictValues(vowelsFile, cols, vowelSelectFea, lingFactorsVowel, interceptTerm, rowIniVowTest, rowEndVowTest);
    
 
    //-----------------------------------------------------------------------------------------
    //CONSONANTS results:
-   int cd = 5;  // desired size of the solution
-   int cD = 5; // maximum deviation allowed with respect to d
+   int cd = solutionSize;  // desired size of the solution
+   int cD = 0; // maximum deviation allowed with respect to d
    cols = lingFactorsConsonant.length;  // linguistic factors plus duration
    rows = numConsonants;  
    int rowIniConTrain = 0;
@@ -236,10 +255,15 @@ public class DurationSoPTrainer extends VoiceImportComponent
      + ")\nNumber of points used for testing from " + rowIniConTest + " to " + rowEndConTest + "(Total test=" + (rowEndConTest-rowIniConTest) + ")");
    System.out.println("Number of linguistic factors: " + cols);
    System.out.println("Max number of selected features in SFFS: " + (cd+cD));
-   if(intercepTerm)
-     System.out.println("Using intercept Term for regresion" + "\n");
+   if(interceptTerm)
+     System.out.println("Using intercept Term for regression");
    else
-     System.out.println("No intercept Term for regresion" + "\n");
+     System.out.println("No intercept Term for regression");
+   if(logDuration)
+     System.out.println("Using log(duration) as independent variable" + "\n");
+   else
+     System.out.println("Using duration as independent variable" + "\n");
+
    // copy indexes of column features
    int cY[] = new int[lingFactorsConsonant.length];
    int cX[] = {};
@@ -252,17 +276,17 @@ public class DurationSoPTrainer extends VoiceImportComponent
    int consonantSelectFea[] = sequentialForwardFloatingSelection(consonantsFile, lingFactorsConsonant, cX, cY, cd, cD, rowIniConTrain, rowEndConTrain);
 
    Regression regConsonant = new Regression(); 
-   regConsonant.multipleLinearRegression(consonantsFile, cols, consonantSelectFea, lingFactorsConsonant, intercepTerm, rowIniConTrain, rowEndConTrain);
+   regConsonant.multipleLinearRegression(consonantsFile, cols, consonantSelectFea, lingFactorsConsonant, interceptTerm, rowIniConTrain, rowEndConTrain);
    regConsonant.printCoefficients(consonantSelectFea, lingFactorsConsonant);
    System.out.println("Correlation consonants original duration / predicted duration = " + regConsonant.getCorrelation());
  
 
    System.out.println("\nNumber points used for training=" + (rowEndConTrain-rowIniConTrain)); 
-   regConsonant.predictValues(consonantsFile, cols, consonantSelectFea, lingFactorsConsonant, intercepTerm, rowIniConTrain, rowEndConTrain);
+   regConsonant.predictValues(consonantsFile, cols, consonantSelectFea, lingFactorsConsonant, interceptTerm, rowIniConTrain, rowEndConTrain);
 
    
    System.out.println("\nNumber points used for testing=" + (rowEndConTest-rowIniConTest)); 
-   regConsonant.predictValues(consonantsFile, cols, consonantSelectFea, lingFactorsConsonant, intercepTerm, rowIniConTest, rowEndConTest);
+   regConsonant.predictValues(consonantsFile, cols, consonantSelectFea, lingFactorsConsonant, interceptTerm, rowIniConTest, rowEndConTest);
    
    percent = 100;
    return true;
@@ -368,7 +392,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
     double corX;
     if(X.length>0){
       Regression reg = new Regression();
-      reg.multipleLinearRegression(dataFile, indVarColNumber, X, features, intercepTerm, rowIni, rowEnd);
+      reg.multipleLinearRegression(dataFile, indVarColNumber, X, features, interceptTerm, rowIni, rowEnd);
       corX = reg.getCorrelation();
       //System.out.println("corX=" + corX);
     } else 
@@ -411,7 +435,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
     double corX;
     if(X.length > 0){
       Regression reg = new Regression();
-      reg.multipleLinearRegression(dataFile, indVarColNumber, X, features, intercepTerm, rowIni, rowEnd);
+      reg.multipleLinearRegression(dataFile, indVarColNumber, X, features, interceptTerm, rowIni, rowEnd);
       //reg.printCoefficients(X, features);
       corX = reg.getCorrelation();
       //System.out.println("corX=" + corX);
@@ -462,7 +486,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
     for(int i=0; i<X.length; i++)
       if(X[i] != x)
         Xminusx[j++] = X[i];
-    reg.multipleLinearRegression(dataFile, indVarColNumber, Xminusx, features, intercepTerm, rowIni, rowEnd);
+    reg.multipleLinearRegression(dataFile, indVarColNumber, Xminusx, features, interceptTerm, rowIni, rowEnd);
     //reg.printCoefficients(Xminusx, features);
     corXminusx = reg.getCorrelation();
     //System.out.println("corXminusx=" + corXminusx);      
@@ -494,7 +518,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
       Xplusf[i] = X[i];
     Xplusf[X.length] = y;
     
-    reg.multipleLinearRegression(dataFile, indVarColNumber, Xplusf, features, intercepTerm, rowIni, rowEnd);
+    reg.multipleLinearRegression(dataFile, indVarColNumber, Xplusf, features, interceptTerm, rowIni, rowEnd);
     //reg.printCoefficients(Xplusf, features);
     corXplusy = reg.getCorrelation();
     //System.out.println("corXplusf=" + corXplusy);      
@@ -585,6 +609,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
       for(int i=0; i<feaList.length; i++){
           line = feaList[i];
           
+          /*
           // CHECK: Maybe we need to exclude some features from the selection list???
           // The following have variance 0
           if( !(line.contains("style") ||
@@ -609,12 +634,14 @@ public class DurationSoPTrainer extends VoiceImportComponent
                   line.contentEquals("phone") ||
                   line.contentEquals("position_type") )
                     recommendedFeatureList += line + "\n";
-              else
+              else              
                  featureList += line + "\n";
           }
-              
+          */
+          featureList += line + "\n";    
         }
-      return recommendedFeatureList + "\n" + featureList;
+      //return recommendedFeatureList + "\n" + featureList;
+      return featureList;
       //return "";
 
   }
@@ -638,6 +665,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
     try {
       BufferedReader reader = new BufferedReader(new FileReader(dataFile));        
       Matrix data = Matrix.read(reader);
+      reader.close(); 
       data = data.transpose();  // then I have easy access to the columns
       int rows = data.getRowDimension()-1;
       int cols = data.getColumnDimension()-1;
@@ -654,7 +682,8 @@ public class DurationSoPTrainer extends VoiceImportComponent
       }
     } catch ( Exception e ) {
       throw new RuntimeException( "Problem reading file " + dataFile, e );
-    }    
+    }  
+    System.out.println();
     return Y;
   }
   

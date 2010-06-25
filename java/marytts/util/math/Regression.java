@@ -13,7 +13,7 @@ import marytts.tools.voiceimport.DurationSoPTrainer;
 import marytts.util.math.MathUtils;
 
 /***
- * Multiple linear regresion
+ * Multiple linear regression
  * For the case of k independent variables 
  *   x_1, x_2, ... x_k
  * the sample regression equation is given by
@@ -70,13 +70,13 @@ public class Regression {
    * @param cols number of cols including the dependent variable  
    * @return coefficients or null if problems found
    */
-  public double[] multipleLinearRegression(double[] data, int rows, int cols, boolean intercepTerm){   
+  public double[] multipleLinearRegression(double[] data, int rows, int cols, boolean interceptTerm){   
     if (data == null) throw new NullPointerException("Null data");
     if (rows < 0 || cols < 0) throw new IllegalArgumentException("Number of rows and cols must be greater than 0");
 
-    b0Term = intercepTerm;
+    b0Term = interceptTerm;
     Matrix dataX; 
-    if(intercepTerm){ // first column of X is filled with 1s if b_0 != 0
+    if(interceptTerm){ // first column of X is filled with 1s if b_0 != 0
       dataX = new Matrix(rows,cols);
       coeffs = new double[cols];
     }
@@ -89,12 +89,12 @@ public class Regression {
     // Fill the data in the matrix X (independent variables) and vector y (dependet variable)
     int n = 0;  // number of data points
     for (int i=0; i<rows; i++) {
-      if(intercepTerm) {
+      if(interceptTerm) {
         dataX.set(i, 0, 1.0);
         datay[i] = data[n++];  // first column is the dependent variable
         for (int j=1; j< cols; j++)
           dataX.set(i, j, data[n++]);
-      } else { // No intercepTerm so no need to fill the first column with 1s
+      } else { // No interceptTerm so no need to fill the first column with 1s
         datay[i] = data[n++]; // first column is the dependent variable
         for (int j=0; j< cols-1; j++)
           dataX.set(i, j, data[n++]);
@@ -105,13 +105,13 @@ public class Regression {
    }
   
   
-  public double[] multipleLinearRegression(double[] datay, double[][] datax, boolean intercepTerm){
+  public double[] multipleLinearRegression(double[] datay, double[][] datax, boolean interceptTerm){
     if (datay == null || datax==null) throw new NullPointerException("Null data");
-    b0Term = intercepTerm;
+    b0Term = interceptTerm;
     int rows = datay.length;
     int cols = datax[0].length;
     Matrix dataX; 
-    if(intercepTerm){ // first column of X is filled with 1s if b_0 != 0
+    if(interceptTerm){ // first column of X is filled with 1s if b_0 != 0
       dataX = new Matrix(rows,cols+1);
       coeffs = new double[cols+1];
     }
@@ -121,7 +121,7 @@ public class Regression {
     }
      
     // If intercept, we need to add a ones column to dataX
-    if(intercepTerm) {
+    if(interceptTerm) {
       for (int i=0; i<rows; i++) {
         dataX.set(i, 0, 1.0);
         for (int j=1; j< cols+1; j++)
@@ -133,11 +133,11 @@ public class Regression {
   }
 
 
-  public double[] multipleLinearRegression(Vector<Double> vectory, Vector<Double> vectorx, int rows, int cols, boolean intercepTerm){
+  public double[] multipleLinearRegression(Vector<Double> vectory, Vector<Double> vectorx, int rows, int cols, boolean interceptTerm){
     if (vectory == null || vectorx==null) throw new NullPointerException("Null data");
-    b0Term = intercepTerm;
+    b0Term = interceptTerm;
     Matrix dataX; 
-    if(intercepTerm){ // first column of X is filled with 1s if b_0 != 0
+    if(interceptTerm){ // first column of X is filled with 1s if b_0 != 0
       dataX = new Matrix(rows,cols+1);
       coeffs = new double[cols+1];
     }
@@ -150,13 +150,13 @@ public class Regression {
     // Fill the data in the matrix X (independent variables) and vector y (dependet variable)
     int n = 0;  // number of data points
     for (int i=0; i<rows; i++) {
-      if(intercepTerm) {
+      if(interceptTerm) {
         datay[i] = vectory.elementAt(i);  // first column is the dependent variable        
         dataX.set(i, 0, 1.0);
         for (int j=1; j< cols+1; j++) {
           dataX.set(i, j, vectorx.elementAt(n++));
         } 
-      } else { // No intercepTerm so no need to fill the first column with 1s
+      } else { // No interceptTerm so no need to fill the first column with 1s
         datay[i] = vectory.elementAt(i); // first column is the dependent variable
         for (int j=0; j< cols; j++) {
           dataX.set(i, j, vectorx.elementAt(n++));
@@ -174,16 +174,16 @@ public class Regression {
    * @param data Vector contains dependent variable first and then independent variables
    * @param rows 
    * @param cols
-   * @param intercepTerm
+   * @param interceptTerm
    * @return
    */
-  public double[] multipleLinearRegression(Vector<Double> data, int rows, int cols, boolean intercepTerm){
+  public double[] multipleLinearRegression(Vector<Double> data, int rows, int cols, boolean interceptTerm){
     
     if (data == null) throw new NullPointerException("Null data");
     if (rows < 0 || cols < 0) throw new IllegalArgumentException("Number of rows and cols must be greater than 0");
-    b0Term = intercepTerm;
+    b0Term = interceptTerm;
     Matrix dataX; 
-    if(intercepTerm){ // first column of X is filled with 1s if b_0 != 0
+    if(interceptTerm){ // first column of X is filled with 1s if b_0 != 0
       dataX = new Matrix(rows,cols);
       coeffs = new double[cols];
     }
@@ -197,12 +197,12 @@ public class Regression {
     // Fill the data in the matrix X (independent variables) and vector y (dependet variable)
     int n = 0;  // number of data points
     for (int i=0; i<rows; i++) {
-      if(intercepTerm) {
+      if(interceptTerm) {
         dataX.set(i, 0, 1.0);
         datay[i] = data.elementAt(n++);  // first column is the dependent variable
         for (int j=1; j< cols; j++)
           dataX.set(i, j, data.elementAt(n++));
-      } else { // No intercepTerm so no need to fill the first column with 1s
+      } else { // No interceptTerm so no need to fill the first column with 1s
         datay[i] = data.elementAt(n++); // first column is the dependent variable
         for (int j=0; j< cols-1; j++)
           dataX.set(i, j, data.elementAt(n++));
@@ -214,9 +214,9 @@ public class Regression {
 
 
   
-  public void multipleLinearRegression(Matrix datay, Matrix dataX, boolean intercepTerm){  
-    b0Term = intercepTerm;
-    if(intercepTerm){ // first column of X is filled with 1s if b_0 != 0      
+  public void multipleLinearRegression(Matrix datay, Matrix dataX, boolean interceptTerm){  
+    b0Term = interceptTerm;
+    if(interceptTerm){ // first column of X is filled with 1s if b_0 != 0      
       int row = dataX.getRowDimension();
       int col = dataX.getColumnDimension();
           
@@ -297,17 +297,18 @@ public class Regression {
       System.out.println("There is no coefficients to print.");
   }
   
-  public void multipleLinearRegression(String fileName, boolean intercepTerm) {    
+  public void multipleLinearRegression(String fileName, boolean interceptTerm) {    
     try {
       BufferedReader reader = new BufferedReader(new FileReader(fileName));        
       Matrix data = Matrix.read(reader);
+      reader.close(); 
       int rows = data.getRowDimension()-1;
       int cols = data.getColumnDimension()-1;
     
       Matrix indVar = data.getMatrix(0,rows,0,0); // dataVowels(:,0) -> col 0 is the independent variable
       data = data.getMatrix(0,rows,1,cols); // dataVowels(:,1:cols) -> dependent variables
     
-      multipleLinearRegression(indVar, data, intercepTerm);
+      multipleLinearRegression(indVar, data, interceptTerm);
     
     } catch ( Exception e ) {
       throw new RuntimeException( "Problem reading file " + fileName, e );
@@ -321,12 +322,13 @@ public class Regression {
    * @param indVariable column number (index) of the independent variable 
    * @param c int[] column numbers array (indices) of dependent variables
    * @param rowIni and rowEnd should be given from 0 - maxData-1 
-   * @param intercepTerm
+   * @param interceptTerm
    */
-  public void multipleLinearRegression(String fileName, int indVariable, int[] c, String[] factors, boolean intercepTerm, int rowIni, int rowEnd) {    
+  public void multipleLinearRegression(String fileName, int indVariable, int[] c, String[] factors, boolean interceptTerm, int rowIni, int rowEnd) {    
     try {
       BufferedReader reader = new BufferedReader(new FileReader(fileName));        
       Matrix data = Matrix.read(reader);
+      reader.close(); 
       int rows = data.getRowDimension()-1;
       int cols = data.getColumnDimension()-1;
       
@@ -337,12 +339,9 @@ public class Regression {
       if(rowIni > rowEnd)
         throw new RuntimeException( "Problem reading file, rowIni < rowend" + rowIni + " < " + rowEnd);
     
-      Matrix indVar = data.getMatrix(rowIni,rowEnd,indVariable,indVariable); // dataVowels(:,0) -> last col is the independent variable
-      
-      data = data.getMatrix(rowIni, rowEnd, c);  // the dependent variables correspond to the column indices in c
-    
-      multipleLinearRegression(indVar, data, intercepTerm);
-       
+      Matrix indVar = data.getMatrix(rowIni,rowEnd,indVariable,indVariable); // dataVowels(:,0) -> last col is the independent variable      
+      data = data.getMatrix(rowIni, rowEnd, c);  // the dependent variables correspond to the column indices in c    
+      multipleLinearRegression(indVar, data, interceptTerm);            
     } catch ( Exception e ) {
       throw new RuntimeException( "Problem reading file " + fileName, e );
     }
@@ -351,11 +350,11 @@ public class Regression {
   
   // Given a set of coefficients and data predic values applying linear equation
   // This function can be used to test with data that was not used in training
-  public void predictValues(String fileName, int indVariable, int[] c, String[] factors, boolean intercepTerm, int rowIni, int rowEnd) {    
+  public void predictValues(String fileName, int indVariable, int[] c, String[] factors, boolean interceptTerm, int rowIni, int rowEnd) {    
     try {
       BufferedReader reader = new BufferedReader(new FileReader(fileName));        
       Matrix data = Matrix.read(reader);
-      
+      reader.close(); 
       int rows = data.getRowDimension()-1;
       int cols = data.getColumnDimension()-1;
 
@@ -370,7 +369,7 @@ public class Regression {
       data = data.getMatrix(rowIni, rowEnd, c);  // the dependent variables correspond to the column indices in c
         
       int numCoeff;
-      if(intercepTerm)
+      if(interceptTerm)
         numCoeff = c.length + 1;
       else
         numCoeff = c.length;
@@ -378,7 +377,7 @@ public class Regression {
       if(b != null) {
         if(b.getRowDimension() == numCoeff) {
           
-          if(intercepTerm){ // first column of X is filled with 1s if b_0 != 0      
+          if(interceptTerm){ // first column of X is filled with 1s if b_0 != 0      
             int row = data.getRowDimension();
             int col = data.getColumnDimension();
                 
@@ -452,9 +451,9 @@ public class Regression {
     
     
     
-    boolean intercepTerm = true;
+    boolean interceptTerm = true;
 
-    double coeffs[] = reg.multipleLinearRegression(yvals, xvals, intercepTerm);
+    double coeffs[] = reg.multipleLinearRegression(yvals, xvals, interceptTerm);
     reg.printCoefficients();
     
     Vector<Double> y = new Vector<Double>();
@@ -477,19 +476,19 @@ public class Regression {
       }
     }    
     System.out.println("Vectors y and x:");
-    coeffs = reg.multipleLinearRegression(y, x, rows, cols, intercepTerm);  
+    coeffs = reg.multipleLinearRegression(y, x, rows, cols, interceptTerm);  
     reg.printCoefficients();
      
     // All the data in only one Vector<Double>
     cols = 4; // because includes the dependent variable
     rows = yvals.length;
     System.out.println("Vector<> data:");
-    coeffs = reg.multipleLinearRegression(data, rows, cols, intercepTerm);
+    coeffs = reg.multipleLinearRegression(data, rows, cols, interceptTerm);
     reg.printCoefficients();
     
     // array
     System.out.println("Vector array [] data:");
-    coeffs = reg.multipleLinearRegression(array, rows, cols, intercepTerm);  
+    coeffs = reg.multipleLinearRegression(array, rows, cols, interceptTerm);  
     reg.printCoefficients();
     
     
