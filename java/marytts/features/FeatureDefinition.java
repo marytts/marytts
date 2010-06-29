@@ -20,9 +20,14 @@
 package marytts.features;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -369,6 +374,8 @@ public class FeatureDefinition
      */
     public void writeBinaryTo(DataOutput out) throws IOException
     {
+        // TODO to avoid duplicate code, replace this with writeBinaryTo(out, List<Integer>()) or some such
+
         // Section BYTEFEATURES
         out.writeInt(numByteFeatures);
         for (int i=0; i<numByteFeatures; i++) {
@@ -407,6 +414,87 @@ public class FeatureDefinition
         out.writeInt(numContinuousFeatures);
         for (int i=numByteFeatures+numShortFeatures;
                 i<numByteFeatures+numShortFeatures+numContinuousFeatures; i++) {
+            if (featureWeights != null) {
+                out.writeFloat(featureWeights[i]);
+                out.writeUTF(floatWeightFuncts[i-numByteFeatures-numShortFeatures]);
+            } else {
+                out.writeFloat(0);
+                out.writeUTF("");
+            }
+            out.writeUTF(getFeatureName(i));
+        }
+    }
+    
+    /**
+     * Write this feature definition in binary format to the given
+     * output, dropping featuresToDrop
+     * @param out a DataOutputStream or RandomAccessFile to which the
+     * FeatureDefinition should be written.
+     * @param featuresToDrop List of Integers containing the indices of features to drop from DataOutputStream
+     * @throws IOException if a problem occurs while writing.
+     */
+    private void writeBinaryTo(DataOutput out, List<Integer> featuresToDrop) throws IOException
+    {
+        // how many features of each type are to be dropped
+        int droppedByteFeatures = 0;
+        int droppedShortFeatures = 0;
+        int droppedContinuousFeatures = 0;
+        for (int f : featuresToDrop) {
+            if (f < numByteFeatures) {
+                droppedByteFeatures++;
+            } else if (f < numByteFeatures + numShortFeatures) {
+                droppedShortFeatures++;
+            } else if (f < numByteFeatures + numShortFeatures + numContinuousFeatures) {
+                droppedContinuousFeatures++;
+            }            
+        }
+        // Section BYTEFEATURES
+        out.writeInt(numByteFeatures - droppedByteFeatures);
+        for (int i=0; i<numByteFeatures; i++) {
+            if (featuresToDrop.contains(i)) {
+                continue;
+            }
+            if (featureWeights != null) {
+                out.writeFloat(featureWeights[i]);
+            } else {
+                out.writeFloat(0);
+            }
+            out.writeUTF(getFeatureName(i));
+            
+            int numValues = getNumberOfValues(i);
+            byte numValuesEncoded = (byte) numValues; // an unsigned byte
+            out.writeByte(numValuesEncoded);
+            for (int b=0; b<numValues; b++) {
+                String value = getFeatureValueAsString(i, b);
+                out.writeUTF(value);
+            }
+        }
+        // Section SHORTFEATURES
+        out.writeInt(numShortFeatures - droppedShortFeatures);
+        for (int i=numByteFeatures; i<numByteFeatures+numShortFeatures; i++) {
+            if (featuresToDrop.contains(i)) {
+                continue;
+            }
+            if (featureWeights != null) {
+                out.writeFloat(featureWeights[i]);
+            } else {
+                out.writeFloat(0);
+            }
+            out.writeUTF(getFeatureName(i));
+            short numValues = (short) getNumberOfValues(i);
+            out.writeShort(numValues);
+            for (short b=0; b<numValues; b++) {
+                String value = getFeatureValueAsString(i, b);
+                out.writeUTF(value);
+            }
+        }
+        // Section CONTINUOUSFEATURES
+        out.writeInt(numContinuousFeatures - droppedContinuousFeatures);
+        for (int i=numByteFeatures+numShortFeatures;
+                i<numByteFeatures+numShortFeatures+numContinuousFeatures; i++) {
+            if (featuresToDrop.contains(i)) {
+                continue;
+            }
             if (featureWeights != null) {
                 out.writeFloat(featureWeights[i]);
                 out.writeUTF(floatWeightFuncts[i-numByteFeatures-numShortFeatures]);
@@ -513,6 +601,46 @@ public class FeatureDefinition
         }
         return( ret );
     }
+    
+    /**
+     * Get names of all features
+     * @return an array of all feature name strings 
+     */
+    public String[] getFeatureNameArray()
+    {
+        String[] names = new String[getNumberOfFeatures()];
+        for ( int i = 0; i < names.length; i++ ) {
+            names[i] = getFeatureName(i);
+        }
+        return(names);
+    }
+
+    /**
+     * Get names of byte features
+     * @return an array of byte feature name strings 
+     */
+    public String[] getByteFeatureNameArray() {
+        String[] byteFeatureNames = new String[numByteFeatures];
+        for (int i = 0; i < numByteFeatures; i++) {
+            assert isByteFeature(i);
+            byteFeatureNames[i] = getFeatureName(i);
+        }
+        return byteFeatureNames;
+    }    
+    
+    /**
+     * Get names of short features
+     * @return an array of short feature name strings 
+     */
+    public String[] getShortFeatureNameArray() {
+        String[] shortFeatureNames = new String[numShortFeatures];
+        for (int i = 0; i < numShortFeatures; i++) {
+            int shortFeatureIndex = numByteFeatures + i;
+            assert isShortFeature(shortFeatureIndex);
+            shortFeatureNames[i] = getFeatureName(shortFeatureIndex);
+        }
+        return shortFeatureNames;
+    }    
     
     /**
      * Get names of continuous features
@@ -975,6 +1103,102 @@ public class FeatureDefinition
         }
         // OK, weights are equal
         return featureEquals(other);
+    }
+    
+    /**
+     * Determine whether this FeatureDefinition is a superset of, or equal to, another FeatureDefinition.
+     * <p>
+     * Specifically,
+     * <ol>
+     * <li>every byte-valued feature in <b>other</b> must be in <b>this</b>, likewise for short-valued and continuous-valued
+     * features;</li>
+     * <li>for byte-valued and short-valued features, the possible feature values must be the same in <b>this</b> and
+     * <b>other</b>.</li>
+     * </ol>
+     * @param other FeatureDefinition
+     * @return <i>true</i> if
+     * <ol>
+     * <li>all features in <b>other</b> are also in <b>this</b>, and every feature in <b>other</b> is of the same type in
+     * <b>this</b>; and</li>
+     * <li>every feature in <b>other</b> has the same possible values as the feature in <b>this</b></li>
+     * </ol>
+     * <i>false</i> otherwise
+     * @author steiner   
+     */
+    public boolean contains(FeatureDefinition other) {
+        List<String> thisByteFeatures = Arrays.asList(this.getByteFeatureNameArray());
+        List<String> otherByteFeatures = Arrays.asList(other.getByteFeatureNameArray());
+        if (!thisByteFeatures.containsAll(otherByteFeatures)){
+            return false;
+        }
+        for (String commonByteFeature : otherByteFeatures){
+            String[] thisByteFeaturePossibleValues = this.getPossibleValues(this.getFeatureIndex(commonByteFeature));
+            String[] otherByteFeaturePossibleValues = other.getPossibleValues(other.getFeatureIndex(commonByteFeature));
+            if(!Arrays.equals(thisByteFeaturePossibleValues, otherByteFeaturePossibleValues)){
+                return false;
+            }
+        }
+        List<String> thisShortFeatures = Arrays.asList(this.getShortFeatureNameArray());
+        List<String> otherShortFeatures = Arrays.asList(other.getShortFeatureNameArray());
+        if (!thisShortFeatures.containsAll(otherShortFeatures)){
+            return false;
+        }
+        for (String commonShortFeature : otherShortFeatures){
+            String[] thisShortFeaturePossibleValues = this.getPossibleValues(this.getFeatureIndex(commonShortFeature));
+            String[] otherShortFeaturePossibleValues = other.getPossibleValues(other.getFeatureIndex(commonShortFeature));
+            if(!Arrays.equals(thisShortFeaturePossibleValues, otherShortFeaturePossibleValues)){
+                return false;
+            }
+        }
+        List<String> thisContinuousFeatures = Arrays.asList(this.getContinuousFeatureNameArray());
+        List<String> otherContinuousFeatures = Arrays.asList(other.getContinuousFeatureNameArray());
+        if (!thisContinuousFeatures.containsAll(otherContinuousFeatures)){
+            return false;
+        }
+        return true;
+    }
+    
+    /**
+     * Create a new FeatureDefinition that contains a subset of the features in this. 
+     * @param featureNamesToDrop array of Strings containing the names of the features to drop from the new FeatureDefinition
+     * @return new FeatureDefinition
+     * @author steiner
+     */
+    public FeatureDefinition subset(String[] featureNamesToDrop){
+        // construct a list of indices for the features to be dropped:
+        List<Integer> featureIndicesToDrop = new ArrayList<Integer>();
+        for (String featureName : featureNamesToDrop) {
+            int featureIndex;
+            try {
+                featureIndex = getFeatureIndex(featureName);
+                featureIndicesToDrop.add(featureIndex);
+            } catch (IllegalArgumentException e) {
+                System.err.println("WARNING: feature " + featureName + " not found in FeatureDefinition; ignoring.");
+            }
+        }
+        
+        // create a new FeatureDefinition by way of a byte array:
+        FeatureDefinition subDefinition = null;
+        try {
+            ByteArrayOutputStream toMemory = new ByteArrayOutputStream();
+            DataOutput output = new DataOutputStream(toMemory);
+            writeBinaryTo(output, featureIndicesToDrop);
+            
+            byte[] memory = toMemory.toByteArray();
+            
+            ByteArrayInputStream fromMemory = new ByteArrayInputStream(memory);
+            DataInput input = new DataInputStream(fromMemory);
+            
+            subDefinition = new FeatureDefinition(input);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        // make sure that subDefinition really is a subset of this
+        assert this.contains(subDefinition);
+        
+        return subDefinition;
     }
     
     /**
