@@ -27,6 +27,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -154,7 +157,8 @@ public class VoiceQualityCARTTrainer extends VoiceImportComponent {
 
         // FeatureDefinition featureDefinition = featureFile.getFeatureDefinition();
         FeatureDefinition featureDefinition = acFeatureFile.getFeatureDefinition();
-
+        List<String> continuousFeatures = Arrays.asList(featureDefinition.getContinuousFeatureNameArray());
+        
         // init some variables
         // int sampleRate = unitFile.getSampleRate();
         String prevBasename = ""; // whatever, as long it's not the first basename or null
@@ -173,9 +177,9 @@ public class VoiceQualityCARTTrainer extends VoiceImportComponent {
 
             // TODO nan should only be excluded where it occurs and is not ignored, but some lines will have nan only in some fields!
             FeatureVector unitFV = acFeatureFile.getFeatureVector(u);
-            float unitQV_OQG = unitFV.getContinuousFeature(vqFeatureIndex);
+            float unitVQ_OQG = unitFV.getContinuousFeature(vqFeatureIndex);
             // exclude NaN, which is not handled properly by wagon!
-            if (!Float.isNaN(unitQV_OQG)) {
+            if (!Float.isNaN(unitVQ_OQG)) {
                 /*
                  * Note: the featureString contains the continuous features at the end. We don't want any of these except the VQ
                  * values, which should should by default be at the beginning of the featureString. But instead of reordering and
@@ -213,6 +217,7 @@ public class VoiceQualityCARTTrainer extends VoiceImportComponent {
 
         // PrintWriter toDesc = new PrintWriter(new FileOutputStream(vqOQGDescFile));
         PrintWriter toDesc = new PrintWriter(new FileOutputStream(vqDescFile));
+//        featureDefinition.generateAllDotDescForWagon(toDesc);
         generateFeatureDescriptionForWagon(featureDefinition, toDesc);
         toDesc.close();
 
@@ -230,13 +235,14 @@ public class VoiceQualityCARTTrainer extends VoiceImportComponent {
              * Runtime.exec, a StringTokenizer breaks the CLI argument to -ignore, which must be a bracketed list, and wagon
              * fails. Workaround is to write ignore fields into file and give filename as -ignore arg
              */
+            ArrayList<String> ignoreFeatures = new ArrayList<String>(continuousFeatures);
+            ignoreFeatures.remove(predictee);
+
             String ignoreFilename = "ignore_fields_except_" + predictee;
             File ignoreFile = new File(tempDir + System.getProperty("file.separator") + ignoreFilename);
             PrintWriter ignoreFileWriter = new PrintWriter(ignoreFile);
-            for (String featureName : featureDefinition.getContinuousFeatureNameArray()) {
-                if (!featureName.equals(predictee)) {
-                    ignoreFileWriter.println(featureName);
-                }
+            for (String feature : ignoreFeatures) {
+                ignoreFileWriter.println(feature);
             }
             ignoreFileWriter.close();
 
@@ -252,8 +258,15 @@ public class VoiceQualityCARTTrainer extends VoiceImportComponent {
                 // String destinationFile = getProp(OQGTREE);
                 String maryTreeFile = db.getProp(db.FILEDIR) + predictee + ".tree";
                 WagonCARTReader wagonOQGReader = new WagonCARTReader(LeafType.FloatLeafNode);
+                
+                // ugly evil hack: remove halfphone_unitname and cont'features except predictee from featureDefinition:
+                // TODO should not be using ACFEATUREFILE in the first place, instead use FEATUREFILE and VQTimeline!
+                ignoreFeatures.add("halfphone_unitname");
+                String[] ignoreFeatureArray = ignoreFeatures.toArray(new String[]{});
+                FeatureDefinition phonelikeFeatureDefinition = featureDefinition.subset(ignoreFeatureArray);
+
                 Node rootNode = wagonOQGReader.load(new BufferedReader(new FileReader(wagonTreeFile)), featureDefinition);
-                CART oqgCart = new CART(rootNode, featureDefinition);
+                CART oqgCart = new CART(rootNode, phonelikeFeatureDefinition);
                 MaryCARTWriter wwoqg = new MaryCARTWriter();
                 wwoqg.dumpMaryCART(oqgCart, maryTreeFile);
             }
