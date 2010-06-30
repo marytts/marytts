@@ -17,7 +17,7 @@ import org.w3c.dom.Element;
 public class BoundaryModel extends Model {
     public BoundaryModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
             String targetElementListName) {
-        super(type, dataFileName, targetAttributeName, targetAttributeFormat, targetElementListName);
+        super(type, dataFileName, targetAttributeName, targetAttributeFormat, targetElementListName, null);
     }
 
     @Override

@@ -2497,80 +2497,6 @@ public class MaryGenericFeatureProcessors
     }
     
     /**
-     * Returns the voice quality of the given segment.
-     */
-    public static class UnitVoiceQuality implements ContinuousFeatureProcessor
-    {
-        public String getName() { return "unit_vq_oqg"; }
-
-        public float process(Target target)
-        {
-            if (target instanceof DiphoneTarget) {
-                DiphoneTarget diphone = (DiphoneTarget) target;
-                return process(diphone.left) + process(diphone.right);
-            }
-            Element seg = target.getMaryxmlElement();
-            if (seg == null) {
-                return 0;
-            }
-            float phoneVQ = 0;
-            String sVQ;
-            if (seg.getTagName().equals(MaryXML.PHONE)) {
-                sVQ = seg.getAttribute("unit_vq");
-            }
-            else {
-                assert seg.getTagName().equals(MaryXML.BOUNDARY) : "segment should be a phone or a boundary, but is a "+seg.getTagName();
-                sVQ = seg.getAttribute("unit_vq");
-            }
-            if (sVQ.equals("")) {
-                return 0;
-            }
-            try {
-                phoneVQ = Float.parseFloat(sVQ);
-            } catch (NumberFormatException nfe) {}
-            return phoneVQ;
-        }
-    }
-    
-    /**
-     * Returns the voice quality of the given segment.
-     */
-    public static class BasenameVoiceQuality implements ContinuousFeatureProcessor
-    {
-        public String getName() { return "basename_vq_oqg"; }
-
-        public float process(Target target)
-        {
-            if (target instanceof DiphoneTarget) {
-                DiphoneTarget diphone = (DiphoneTarget) target;
-                return process(diphone.left) + process(diphone.right);
-            }
-            Element seg = target.getMaryxmlElement();
-            if (seg == null) {
-                return 0;
-            }
-            float phoneVQ = 0;
-            String sVQ;
-            if (seg.getTagName().equals(MaryXML.PHONE)) {
-                sVQ = seg.getAttribute("basename_vq");
-            }
-            else {
-                assert seg.getTagName().equals(MaryXML.BOUNDARY) : "segment should be a phone or a boundary, but is a "+seg.getTagName();
-                sVQ = seg.getAttribute("basename_vq");
-            }
-            if (sVQ.equals("")) {
-                return 0;
-            }
-            try {
-                phoneVQ = Float.parseFloat(sVQ);
-            } catch (NumberFormatException nfe) {
-                return 0;
-            }
-            return phoneVQ;
-        }
-    }
-    
-    /**
      * Calculates the log of the fundamental frequency in the middle of a unit segment.
      * This processor should be used by target items only -- for unit features during voice
      * building, the actual measured values should be used.
@@ -2789,5 +2715,51 @@ public class MaryGenericFeatureProcessors
             return process(target, true);
         }
     }
+    /**
+     * Returns the value of the given feature for the given segment.
+     */
+    public static class GenericContinuousFeature implements ContinuousFeatureProcessor
+    {
+        private String name;
+        private String attributeName;
+        
+        public GenericContinuousFeature(String featureName, String attributeName) {
+            this.name = featureName;
+            this.attributeName = attributeName;
+        }
+        
+        public String getName() { return name; }
 
+        public float process(Target target)
+        {
+            if (target instanceof DiphoneTarget) {
+                DiphoneTarget diphone = (DiphoneTarget) target;
+                // return mean of left and right costs:
+                return (process(diphone.left) + process(diphone.right)) / 2.0f;
+            }
+            Element seg = target.getMaryxmlElement();
+            if (seg == null) {
+                return 0;
+            }
+            float value = 0;
+            String valueString;
+            if (seg.getTagName().equals(MaryXML.PHONE)) {
+                valueString = seg.getAttribute(attributeName);
+            }
+            else {
+                assert seg.getTagName().equals(MaryXML.BOUNDARY) : "segment should be a phone or a boundary, but is a "+seg.getTagName();
+                valueString = seg.getAttribute(attributeName);
+            }
+            if (valueString.equals("")) {
+                return 0;
+            }
+            try {
+                value = Float.parseFloat(valueString);
+            } catch (NumberFormatException nfe) {
+                return 0;
+            }
+            return value;
+        }
+    }
+ 
 }
