@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import marytts.datatypes.MaryXML;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.features.FeatureVector;
@@ -32,7 +33,7 @@ public abstract class Model {
 
     protected String targetElementListName;
 
-    protected FeatureProcessorManager featureProcessorManager;
+    protected String featureName;
 
     protected TargetFeatureComputer featureComputer;
 
@@ -47,9 +48,11 @@ public abstract class Model {
      *            attribute in MaryXML to predict
      * @param targetAttributeFormat
      *            printf-style format String to specify the attribute value, i.e. "%.3f" to round to 3 decimal places
+     * @param featureName
+     *            name of custom continuous feature, or null
      */
     protected Model(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-            String targetElementListName) {
+            String targetElementListName, String featureName) {
         this.type = type;
         this.dataFile = dataFileName;
         this.targetAttributeName = targetAttributeName;
@@ -61,9 +64,16 @@ public abstract class Model {
             targetElementListName = "segments";
         }
         this.targetElementListName = targetElementListName;
-        
-        // featureComputer should be set in extension classes:
-        featureComputer = null;
+        this.featureName = featureName;
+    }
+
+    /**
+     * Setter for the TargetFeatureComputer
+     * 
+     * @throws MaryConfigurationException
+     */
+    public void setFeatureComputer(TargetFeatureComputer featureComputer) throws MaryConfigurationException {
+        this.featureComputer = featureComputer;
     }
 
     /**
@@ -154,6 +164,20 @@ public abstract class Model {
      */
     public String getTargetElementListName() {
         return targetElementListName;
+    }
+
+    /**
+     * @return the featureName
+     */
+    public String getFeatureName() {
+        return featureName;
+    }
+
+    /**
+     * @return the targetAttributeName
+     */
+    public String getTargetAttributeName() {
+        return targetAttributeName;
     }
 
 }

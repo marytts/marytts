@@ -25,7 +25,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import marytts.exceptions.MaryConfigurationException;
+import marytts.modules.acoustic.Model;
 import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 
@@ -56,6 +59,35 @@ public class FeatureProcessorManager
                     locale+"' because allophone set cannot be loaded", e);
         }
         setupPhoneFeatureProcessors(allophoneSet, null, null, null);
+    }
+    
+    /**
+     * Constructor called from a Voice that has its own acoustic models
+     */
+    public FeatureProcessorManager(Voice voice) {
+        this(voice.getLocale());
+        
+        // finish setting up the acoustic Models, if defined:
+        for (Model model : voice.getAcousticModels().values()) {
+            // does this model predict a custom continuous feature...?
+            String modelFeatureName = model.getFeatureName();
+            if (modelFeatureName != null && !listContinuousFeatureProcessorNames().contains(modelFeatureName)) {
+                // ...then add a generic featureProcessor for the custom feature:
+                String modelAttributeName = model.getTargetAttributeName();
+                MaryFeatureProcessor featureProcessor = new MaryGenericFeatureProcessors.GenericContinuousFeature(
+                        modelFeatureName, modelAttributeName);
+                addFeatureProcessor(featureProcessor);
+            }
+
+            // set TargetFeatureComputer for the Model:
+            TargetFeatureComputer featureComputer = FeatureRegistry.getTargetFeatureComputer(voice, null);
+            try {
+                model.setFeatureComputer(featureComputer);
+            } catch (MaryConfigurationException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
     
     /**
@@ -163,12 +195,8 @@ public class FeatureProcessorManager
         addFeatureProcessor(new MaryGenericFeatureProcessors.Style());
         
         addFeatureProcessor(new MaryGenericFeatureProcessors.UnitDuration());
-        addFeatureProcessor(new MaryGenericFeatureProcessors.UnitVoiceQuality());
-        addFeatureProcessor(new MaryGenericFeatureProcessors.BasenameVoiceQuality());
         addFeatureProcessor(new MaryGenericFeatureProcessors.UnitLogF0());
         addFeatureProcessor(new MaryGenericFeatureProcessors.UnitLogF0Delta());
-        
-//        addFeatureProcessor(new MaryGenericFeatureProcessors.VoiceQuality());
     }
     
     /**

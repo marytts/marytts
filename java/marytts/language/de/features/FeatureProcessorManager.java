@@ -26,6 +26,7 @@ import java.util.Map;
 import marytts.features.MaryGenericFeatureProcessors;
 import marytts.features.MaryLanguageFeatureProcessors;
 import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 
 
@@ -41,6 +42,22 @@ public class FeatureProcessorManager extends
     public FeatureProcessorManager()
     {
         super();
+        setupAdditionalFeatureProcessors();
+    }
+    
+    /**
+     * Constructor called from a Voice in Locale DE that has its own acoustic models
+     * @param voice
+     */
+    public FeatureProcessorManager(Voice voice) {
+        super(voice);
+        setupAdditionalFeatureProcessors();
+    }
+
+    /**
+     * specific stuff, moved here so that it can be called by more than one constructor without unnecessary code duplication
+     */
+    private void setupAdditionalFeatureProcessors() {
         try{
                         
             String[] pos = {"0", "NN", "NE", "NNm", "ADJA", "ADJD", "CARD",
