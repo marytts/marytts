@@ -262,6 +262,7 @@ public class VoiceQualityCARTTrainer extends VoiceImportComponent {
                 // ugly evil hack: remove halfphone_unitname and cont'features except predictee from featureDefinition:
                 // TODO should not be using ACFEATUREFILE in the first place, instead use FEATUREFILE and VQTimeline!
                 ignoreFeatures.add("halfphone_unitname");
+                ignoreFeatures.add(predictee);
                 String[] ignoreFeatureArray = ignoreFeatures.toArray(new String[]{});
                 FeatureDefinition phonelikeFeatureDefinition = featureDefinition.subset(ignoreFeatureArray);
 
