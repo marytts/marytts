@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import marytts.signalproc.analysis.VoiceQuality;
-import marytts.unitselection.data.Datagram;
+import marytts.unitselection.data.FloatArrayDatagram;
 
 /**
  * Make a Timeline from a directory of voice quality parameter files
@@ -131,15 +131,15 @@ public class VoiceQualityTimelineMaker extends AbstractTimelineMaker {
             frameDuration = (int) (sampleRate * frameSkip);
 
             // add data frames with values for each VQ parameter (as floats):
-            dataFrames = new ArrayList<DataFrame>(numFrames);
+            datagrams = new FloatArrayDatagram[numFrames];
             for (int f = 0; f < numFrames; f++) {
                 float[] frameData = new float[numParams];
                 for (int p = 0; p < numParams; p++) {
                     frameData[p] = (float) vq.vq[p][f];
                 }
-                DataFrame dataFrame = new DataFrame(frameDuration, frameData);
-                dataFrames.add(dataFrame);
-            }
+                FloatArrayDatagram datagram = new FloatArrayDatagram(frameDuration, frameData);
+                datagrams[f] = datagram;
+            }            
         }
     }
 }
