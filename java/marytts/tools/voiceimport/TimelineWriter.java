@@ -230,7 +230,19 @@ public class TimelineWriter  {
         return datagramsBytePos;
     }
     
+    /**
+     * Returns the current number of datagrams in the timeline.
+     */
+    public long getNumDatagrams() {
+        return numDatagrams;
+    }
     
+    /**
+     * Returns the sample rate of the timeline.
+     */
+    public int getSampleRate() {
+        return sampleRate;
+    }    
     
     /**
      * Output the internally maintained indexes and close the file.
