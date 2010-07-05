@@ -492,7 +492,11 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                     {
                         if (i<datagrams.length-1)
                         {
-                            inputFrameSize = (int)datagrams[i][j].getDuration()+(int)datagrams[i+1][0].getDuration();
+                            try {
+                                inputFrameSize = (int)datagrams[i][j].getDuration()+(int)datagrams[i+1][0].getDuration();
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                e.printStackTrace();
+                            }
                             frmIn = new double[inputFrameSize];
                             
                             tmpDatagram[0] = datagrams[i][j];
@@ -520,7 +524,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 if (frmIn!=null) //We have a frame to be processed
                 {
                     //isVoiced = voicings[i][j];
-                    isVoiced = SignalProcUtils.getVoicing(frmIn, (int)(audioformat.getSampleRate()), 0.35f);
+                    isVoiced = SignalProcUtils.getVoicing(frmIn, (int)(audioformat.getSampleRate()), 0.35f); // might as well leave the 3rd argument out if it's the default...
 
                     try {
                         output = processFrame(frmIn, isVoiced, pitchScales[i][j], timeScales[i][j], escale, vscale, bLastInputFrame, currentPeriod, inputFrameSize);
@@ -744,6 +748,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         return new DDSAudioInputStream(new BufferedDoubleDataSource(yOut), audioformat);
     }
     
+    // this seems to be duplicate, but dead, code!
     //FD-PSOLA on a single concatenation unit
     public double [] processDatagram(Datagram [] datagrams, Datagram rightContext, AudioFormat audioformat, boolean [] voicings, double [] pitchScales, double [] timeScales, boolean bLastDatagram)
     {

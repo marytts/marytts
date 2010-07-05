@@ -636,6 +636,7 @@ public class SignalProcUtils {
 
     public static double getVoicingProbability(double [] windowedSpeechFrame, int samplingRateInHz)
     {   
+        // what's the point in casting the sample rate to double if it's then cast back to int?
         int maxT0 = (int)((double)samplingRateInHz/40.0);
         int minT0 = (int)((double)samplingRateInHz/400.0);
         if (maxT0>windowedSpeechFrame.length-1)
@@ -643,7 +644,7 @@ public class SignalProcUtils {
         if (minT0>maxT0)
             minT0=maxT0;
         
-        double [] R = SignalProcUtils.autocorr(windowedSpeechFrame, maxT0);
+        double [] R = SignalProcUtils.autocorr(windowedSpeechFrame, maxT0); // why the class prefix??
         
         double maxR = R[minT0];
         
@@ -660,7 +661,7 @@ public class SignalProcUtils {
     
     public static double [] autocorr(double [] x, int LPOrder)
     {
-        int N = x.length;
+        int N = x.length; // this is never used
         double [] R = new double[LPOrder+1];
         
         int n, m;

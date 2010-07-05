@@ -20,6 +20,7 @@
 package marytts.unitselection.concat;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.sound.sampled.AudioInputStream;
@@ -29,6 +30,7 @@ import marytts.signalproc.process.FDPSOLAProcessor;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.select.SelectedUnit;
+import marytts.unitselection.select.Target;
 
 
 /**
@@ -54,8 +56,11 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     
     /**
      * Get the raw audio material for each unit from the timeline.
+     * <p>
+     * TODO: this is completely equivalent to {@link OverlapUnitConcatenator#getDatagramsFromTimeline}! {{prod}}
      * @param units
      */
+    @Deprecated
     protected void getDatagramsFromTimeline(List<SelectedUnit> units) throws IOException
     {
         for (SelectedUnit unit : units) 
@@ -90,9 +95,12 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         super.determineTargetPitchmarks(units);
         
         int len = units.size();
-        datagrams = new Datagram[len][];
-        rightContexts = new Datagram[len];
-    
+//        datagrams = new Datagram[len][];
+//        rightContexts = new Datagram[len];
+        // we need something more flexible than arrays to handle Units with frameless UnitData: 
+        ArrayList<Datagram[]> datagramList = new ArrayList<Datagram[]>(len);
+        ArrayList<Datagram> rightContextList = new ArrayList<Datagram>(len);
+
         int i, j;
         SelectedUnit unit = null;
 
@@ -105,30 +113,53 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
             assert unitData != null : "Should not have null unitdata here";
             Datagram[] frames = unitData.getFrames();
             assert frames != null : "Cannot generate audio from null frames";
-            // Generate audio from frames
-            datagrams[i] = frames;
             
-            Unit nextInDB = database.getUnitFileReader().getNextUnit(unit.getUnit());
-            Unit nextSelected;
-            if (i+1==len) nextSelected = null;
-            else nextSelected = ((SelectedUnit)units.get(i+1)).getUnit();
-            if (nextInDB != null && !nextInDB.equals(nextSelected)) {
-                // Only use right context if we have a next unit in the DB is not the
-                // same as the next selected unit.
-                rightContexts[i] = unitData.getRightContextFrame(); // may be null
+            // the above assertion fails to catch when frames is an empty array, therefore:
+            if (frames.length > 0) {
+                datagramList.add(frames);
+                rightContextList.add(unitData.getRightContextFrame());
             }
+            
+            // the rest is obsolete:
+            
+            // Generate audio from frames
+//            datagrams[i] = frames;
+//            
+//            Unit nextInDB = database.getUnitFileReader().getNextUnit(unit.getUnit());
+//            Unit nextSelected;
+//            if (i+1==len) nextSelected = null;
+//            else nextSelected = ((SelectedUnit)units.get(i+1)).getUnit();
+//            if (nextInDB != null && !nextInDB.equals(nextSelected)) {
+//                // Only use right context if we have a next unit in the DB is not the
+//                // same as the next selected unit.
+//                rightContexts[i] = unitData.getRightContextFrame(); // may be null
+//            }
         }
-        //
-        getVoicings(units);
+        
+        // overwrite buggy arrays from the Lists:
+        datagrams = new Datagram[datagramList.size()][];
+        rightContexts = new Datagram[datagramList.size()];
+        for (int u = 0; u < datagramList.size(); u++) {
+            datagrams[u] = datagramList.get(u);
+            rightContexts[u] = rightContextList.get(u);
+        }
+        
+        // TODO: all of this is also done in getPitchScales; delete this?
+//        getVoicings(units);
 
+        // this seems to be the first instance of new code in this class:
         getPitchScales(units);
         
         getDurationScales(units);
     }
     
+    // TODO: this is completely overwritten in getPitchScales {{prod}}
+    @Deprecated
     private void getVoicings(List<SelectedUnit> units)
     {
         int len = units.size();
+        // actually:
+        len = datagrams.length;
         int i, j;
         
         voicings = new boolean[len][];
@@ -166,6 +197,8 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     private void getPitchScales(List<SelectedUnit> units)
     {
         int len = units.size();
+        // actually:
+        len = datagrams.length;
         int i, j;
         double averageUnitF0InHz;
         double averageTargetF0InHz;
@@ -175,6 +208,10 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         SelectedUnit prevUnit = null;
         SelectedUnit unit = null;
         SelectedUnit nextUnit = null;
+        
+        Target prevTarget = null;
+        Target target = null;
+        Target nextTarget = null;
         
         //Estimation of pitch scale modification amounts
         for (i=0; i<len; i++) 
@@ -191,6 +228,15 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
             else
                 nextUnit = null;
             
+            // get Targets for these three Units:
+            if (prevUnit != null) {
+                prevTarget = prevUnit.getTarget();
+            }
+            target = unit.getTarget();
+            if (nextUnit != null) {
+                nextTarget = nextUnit.getTarget();
+            }
+            
             Allophone allophone = unit.getTarget().getAllophone();
 
             int totalDatagrams = 0;
@@ -198,10 +244,13 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
             averageTargetF0InHz = 0.0;
             totalTargetUnits = 0;
             
-            if (i>0)
+            // so we are getting the mean F0 for each unit over a 3-unit window??
+            // don't process previous Target if it's null or silence:
+            if (i>0 && prevTarget != null && !prevTarget.isSilence())
             {
                 for (j=0; j<datagrams[i-1].length; j++)
                 {
+                    // why not use voicings?
                     if (allophone != null && (allophone.isVowel() || allophone.isVoiced()))
                     {
                         averageUnitF0InHz += ((double)timeline.getSampleRate())/((double)datagrams[i-1][j].getDuration());
@@ -209,23 +258,27 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
                     }
                 }
                 
-                averageTargetF0InHz += prevUnit.getTarget().getTargetF0InHz();
+                averageTargetF0InHz += prevTarget.getTargetF0InHz();
                 totalTargetUnits++;
             }
             
-            for (j=0; j<datagrams[i].length; j++)
-            {
-                if (allophone != null && (allophone.isVowel() || allophone.isVoiced()))
+            // don't process Target if it's null or silence:
+            if (target != null && !target.isSilence()) {
+                for (j=0; j<datagrams[i].length; j++)
                 {
-                    averageUnitF0InHz += ((double)timeline.getSampleRate())/((double)datagrams[i][j].getDuration());
-                    totalDatagrams++;
+                    if (allophone != null && (allophone.isVowel() || allophone.isVoiced()))
+                    {
+                        averageUnitF0InHz += ((double)timeline.getSampleRate())/((double)datagrams[i][j].getDuration());
+                        totalDatagrams++;
+                    }
+
+                    averageTargetF0InHz += target.getTargetF0InHz();
+                    totalTargetUnits++;
                 }
-                
-                averageTargetF0InHz += unit.getTarget().getTargetF0InHz();
-                totalTargetUnits++;
             }
-            
-            if (i<len-1)
+
+            // don't process next Target if it's null or silence:
+            if (i<len-1 && prevTarget != null && !prevTarget.isSilence())
             {
                 for (j=0; j<datagrams[i+1].length; j++)
                 {
@@ -236,12 +289,13 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
                     }
                 }
                 
-                averageTargetF0InHz += nextUnit.getTarget().getTargetF0InHz();
+                averageTargetF0InHz += nextTarget.getTargetF0InHz();
                 totalTargetUnits++;
             }
             
             averageTargetF0InHz /= totalTargetUnits;
             averageUnitF0InHz /= totalDatagrams;
+            // so what was all that for?? these average frequencies are never used...
 
             voicings[i] = new boolean[datagrams[i].length];
             pscales[i] = new double[datagrams[i].length];
@@ -264,11 +318,10 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
                 else
                 {
                     voicings[i][j] = false;
-                    pscales[i][j] = 1.0;
+                    pscales[i][j] = 0.8;
                 }
             }
         }
-        //
     }
     
     //We can try different things in this function
@@ -278,6 +331,8 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     private void getDurationScales(List<SelectedUnit> units)
     {
         int len = units.size();
+        // actually:
+        len = datagrams.length;
         
         int i, j;
         tscales = new double[len][];
@@ -312,23 +367,25 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         {
             targetDur = 0.0;
             unitDur = 0.0;
-            if (false && i>0)
-            {
-                prevUnit = (SelectedUnit) units.get(i-1);
-                targetDur += prevUnit.getTarget().getTargetDurationInSeconds();
-                unitDur += unitDurationsInSeconds[i-1];
-            }
+            // commented out dead code:
+//            if (false && i>0)
+//            {
+//                prevUnit = (SelectedUnit) units.get(i-1);
+//                targetDur += prevUnit.getTarget().getTargetDurationInSeconds();
+//                unitDur += unitDurationsInSeconds[i-1];
+//            }
             
             unit = (SelectedUnit) units.get(i);
             targetDur += unit.getTarget().getTargetDurationInSeconds();
             unitDur += unitDurationsInSeconds[i];
             
-            if (false && i<len-1)
-            {
-                nextUnit = (SelectedUnit) units.get(i+1);
-                targetDur += nextUnit.getTarget().getTargetDurationInSeconds();
-                unitDur += unitDurationsInSeconds[i+1];
-            }
+            // commented out dead code:
+//            if (false && i<len-1)
+//            {
+//                nextUnit = (SelectedUnit) units.get(i+1);
+//                targetDur += nextUnit.getTarget().getTargetDurationInSeconds();
+//                unitDur += unitDurationsInSeconds[i+1];
+//            }
             
             tscales[i] = new double[datagrams[i].length];
             
@@ -342,7 +399,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
                     tscales[i][j]=0.8;
                     */
                 
-                tscales[i][j] = 1.0;
+                tscales[i][j] = 0.8;
             }
         }
     }
