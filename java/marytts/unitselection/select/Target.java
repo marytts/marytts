@@ -23,6 +23,7 @@ import marytts.datatypes.MaryXML;
 import marytts.features.FeatureVector;
 import marytts.features.MaryGenericFeatureProcessors;
 import marytts.modules.phonemiser.Allophone;
+import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.util.dom.MaryDomUtils;
 
@@ -123,20 +124,30 @@ public class Target
     public Allophone getAllophone()
     {
         if (maryxmlElement != null) {
+            AllophoneSet allophoneSet = null;
             Element voiceElement = (Element) MaryDomUtils.getAncestor(maryxmlElement, MaryXML.VOICE);
             if (voiceElement != null) {
                 Voice v = Voice.getVoice(voiceElement);
                 if (v != null) {
-                    String sampa;
-                    if (maryxmlElement.getNodeName().equals(MaryXML.PHONE)) {
-                        sampa = maryxmlElement.getAttribute("p");
-                    } else {
-                        assert maryxmlElement.getNodeName().equals(MaryXML.BOUNDARY);
-                        sampa = "_";
-                    }
-                    return v.getAllophone(sampa);
+                    allophoneSet = v.getAllophoneSet();
                 }
             }
+            if (allophoneSet == null) {
+                try {
+                    allophoneSet = AllophoneSet.determineAllophoneSet(maryxmlElement);
+                } catch (Exception e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }                
+            String sampa;
+            if (maryxmlElement.getNodeName().equals(MaryXML.PHONE)) {
+                sampa = maryxmlElement.getAttribute("p");
+            } else {
+                assert maryxmlElement.getNodeName().equals(MaryXML.BOUNDARY);
+                sampa = "_";
+            }
+            return allophoneSet.getAllophone(sampa);
         }
         return null;
     }
