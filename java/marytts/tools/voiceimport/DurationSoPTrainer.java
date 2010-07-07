@@ -28,6 +28,8 @@ import Jama.Matrix;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
+import marytts.machinelearning.SFFS;
+import marytts.machinelearning.SoP;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.Unit;
@@ -41,9 +43,7 @@ import marytts.util.MaryUtils;
  * Modelling duration using Sum of products (SoP) 
  * SoP is modelled using multiple linear regression
  * Selection of features is performed with Sequential Floating Forward Search(SFFS):
- *   Ref: Pudil, P., J. Novovičová, and J. Kittler. 1994. Floating search methods in feature selection. Pattern Recogn. Lett. 15, no. 11: 1119-1125.
- *   (http://staff.utia.cas.cz/novovic/files/PudNovKitt_PRL94-Floating.pdf)
- *   
+ *    
  * @author marcela
  */
 public class DurationSoPTrainer extends VoiceImportComponent
@@ -56,7 +56,8 @@ public class DurationSoPTrainer extends VoiceImportComponent
   protected boolean logDuration;
   protected int solutionSize;
   protected File unitlabelDir;
-  protected File unitfeatureDir;  
+  protected File unitfeatureDir;
+  protected File sopDurFile;
   
   private final String name = "DurationSoPTrainer";
   private final String LABELDIR = name+".labelDir";
@@ -67,6 +68,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
   private final String SOLUTIONSIZE = name+".solutionSize";
   private final String INTERCEPTTERM = name+".interceptTerm";
   private final String LOGDURATION = name+".logDuration";
+ 
   
   public String getName(){
     return name;
@@ -79,7 +81,10 @@ public class DurationSoPTrainer extends VoiceImportComponent
     String rootDir = db.getProp(db.ROOTDIR);
     this.interceptTerm =  Boolean.valueOf(getProp(INTERCEPTTERM)).booleanValue(); 
     this.logDuration =  Boolean.valueOf(getProp(LOGDURATION)).booleanValue();
-    this.solutionSize = Integer.parseInt(getProp(SOLUTIONSIZE));   
+    this.solutionSize = Integer.parseInt(getProp(SOLUTIONSIZE));
+    
+    String durDir = db.getProp(db.TEMPDIR);
+    this.sopDurFile = new File(durDir, "dur.sop");
   }
 
   public SortedMap<String, String> getDefaultProps(DatabaseLayout dbl){
@@ -95,6 +100,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
       props.put(INTERCEPTTERM, "true");
       props.put(LOGDURATION, "true");
       props.put(SOLUTIONSIZE, "10");
+      
     }
    return props; 
   }
@@ -141,6 +147,10 @@ public class DurationSoPTrainer extends VoiceImportComponent
     lingFactorsVowel = selectLinguisticFactors(featureDefinition.getFeatureNames(), "Select linguistic factors for vowels:");
     lingFactorsConsonant = selectLinguisticFactors(featureDefinition.getFeatureNames(), "Select linguistic factors for consonants:");
     
+    // the final regression will be saved in this file, one line for vowels and another for consonants
+    PrintWriter toSopFile = new PrintWriter(new FileOutputStream(sopDurFile));
+    
+    // the following files contain all the feature files in columns
     PrintWriter toVowelsFile = new PrintWriter(new FileOutputStream(vowelsFile));
     PrintWriter toConsonantsFile = new PrintWriter(new FileOutputStream(consonantsFile));
  
@@ -155,10 +165,10 @@ public class DurationSoPTrainer extends VoiceImportComponent
       percent = 10*i/len;
       
       Unit u = unitFile.getUnit(i);
-      double dur = u.duration / (float) unitFile.getSampleRate();              
-      
+      double dur = u.duration / (float) unitFile.getSampleRate();    
+       
       fv = featureFile.getFeatureVector(i); 
-         
+           
       // first select vowell phones
       if(fv.getByteFeature(phoneIndex) > 0 && dur >= 0.01 ){  
         if (allophoneSet.getAllophone(fv.getFeatureAsString(phoneIndex, featureDefinition)).isVowel()){
@@ -191,7 +201,8 @@ public class DurationSoPTrainer extends VoiceImportComponent
    // VOWELS results:
    int vd = solutionSize;  // desired size of the solution
    int vD = 0; // maximum deviation allowed with respect to d
-   cols = lingFactorsVowel.length;
+   cols = lingFactorsVowel.length;  
+   int indVariable = cols; // the last column is the independent variable, in this case duration
    rows = numVowels;
    int rowIniVowTrain = 0;
    int percentVal = (int)(Math.floor((numVowels*0.7)));
@@ -222,19 +233,21 @@ public class DurationSoPTrainer extends VoiceImportComponent
    // we need to remove from vY the column features that have mean 0.0
    vY = checkMeanColumns(vowelsFile, vY, lingFactorsConsonant);
    
-   int vowelSelectFea[] = sequentialForwardFloatingSelection(vowelsFile, lingFactorsVowel, vX, vY, vd, vD, rowIniVowTrain, rowEndVowTrain);
-   Regression regVowel = new Regression(); 
-   regVowel.multipleLinearRegression(vowelsFile, cols, vowelSelectFea, lingFactorsVowel, interceptTerm, rowIniVowTrain, rowEndVowTrain);
-   regVowel.printCoefficients(vowelSelectFea, lingFactorsVowel);
-   System.out.println("Correlation vowels original duration / predicted duration = " + regVowel.getCorrelation());
+   SFFS sffsVowel = new SFFS();
+   SoP sopVowel = sffsVowel.sequentialForwardFloatingSelection(vowelsFile, indVariable, lingFactorsVowel, vX, vY, vd, vD, rowIniVowTrain, rowEndVowTrain, interceptTerm);
    
-
+   // Save selected features and coefficients 
+   // First line vowel coefficients plus factors, second line consonant coefficients plus factors
+   sopVowel.saveSelectedFeatures(toSopFile);
+   sopVowel.printCoefficients();
+   System.out.println("Correlation vowels original duration / predicted duration = " + sopVowel.getCorrelation() +  
+                      "\nRMSE (root mean square error) = " + sopVowel.getRMSE() );   
+   Regression regVowel = new Regression();
+   regVowel.setCoeffs(sopVowel.getCoeffs());
    System.out.println("\nNumber points used for training=" + (rowEndVowTrain-rowIniVowTrain)); 
-   regVowel.predictValues(vowelsFile, cols, vowelSelectFea, lingFactorsVowel, interceptTerm, rowIniVowTrain, rowEndVowTrain);
-
-   
+   regVowel.predictValues(vowelsFile, cols, sopVowel.getFactorsIndex(), interceptTerm, rowIniVowTrain, rowEndVowTrain); 
    System.out.println("\nNumber points used for testing=" + (rowEndVowTest-rowIniVowTest)); 
-   regVowel.predictValues(vowelsFile, cols, vowelSelectFea, lingFactorsVowel, interceptTerm, rowIniVowTest, rowEndVowTest);
+   regVowel.predictValues(vowelsFile, cols, sopVowel.getFactorsIndex(), interceptTerm, rowIniVowTest, rowEndVowTest);
    
 
    //-----------------------------------------------------------------------------------------
@@ -242,6 +255,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
    int cd = solutionSize;  // desired size of the solution
    int cD = 0; // maximum deviation allowed with respect to d
    cols = lingFactorsConsonant.length;  // linguistic factors plus duration
+   indVariable = cols; // the last column is the independent variable, in this case duration
    rows = numConsonants;  
    int rowIniConTrain = 0;
    percentVal = (int)(Math.floor((numConsonants*0.7)));
@@ -272,261 +286,29 @@ public class DurationSoPTrainer extends VoiceImportComponent
    
    // we need to remove from cY the column features that have mean 0.0
    cY = checkMeanColumns(consonantsFile, cY, lingFactorsConsonant);
+   SFFS sffsConsonant = new SFFS();
+   SoP sopConsonant = sffsConsonant.sequentialForwardFloatingSelection(consonantsFile, indVariable, lingFactorsConsonant, cX, cY, cd, cD, rowIniConTrain, rowEndConTrain, interceptTerm);
+   // Save selected features and coefficients 
+   // First line vowel coefficients plus factors, second line consonant coefficients plus factors
+   sopConsonant.saveSelectedFeatures(toSopFile);
+   sopConsonant.printCoefficients();
+   System.out.println("Correlation consonants original duration / predicted duration = " + sopConsonant.getCorrelation()  +  
+                      "\nRMSE (root mean square error) = " + sopConsonant.getRMSE() );
    
-   int consonantSelectFea[] = sequentialForwardFloatingSelection(consonantsFile, lingFactorsConsonant, cX, cY, cd, cD, rowIniConTrain, rowEndConTrain);
-
-   Regression regConsonant = new Regression(); 
-   regConsonant.multipleLinearRegression(consonantsFile, cols, consonantSelectFea, lingFactorsConsonant, interceptTerm, rowIniConTrain, rowEndConTrain);
-   regConsonant.printCoefficients(consonantSelectFea, lingFactorsConsonant);
-   System.out.println("Correlation consonants original duration / predicted duration = " + regConsonant.getCorrelation());
- 
-
+   Regression regConsonant = new Regression();
+   regConsonant.setCoeffs(sopConsonant.getCoeffs());
    System.out.println("\nNumber points used for training=" + (rowEndConTrain-rowIniConTrain)); 
-   regConsonant.predictValues(consonantsFile, cols, consonantSelectFea, lingFactorsConsonant, interceptTerm, rowIniConTrain, rowEndConTrain);
-
-   
+   regConsonant.predictValues(consonantsFile, cols, sopConsonant.getFactorsIndex(), interceptTerm, rowIniConTrain, rowEndConTrain);
    System.out.println("\nNumber points used for testing=" + (rowEndConTest-rowIniConTest)); 
-   regConsonant.predictValues(consonantsFile, cols, consonantSelectFea, lingFactorsConsonant, interceptTerm, rowIniConTest, rowEndConTest);
-   
+   regConsonant.predictValues(consonantsFile, cols, sopConsonant.getFactorsIndex(), interceptTerm, rowIniConTest, rowEndConTest);
+
    percent = 100;
+   
+   toSopFile.close();
    return true;
   }
   
   
-  private int[] sequentialForwardFloatingSelection(String dataFile, String[] features, int X[], int Y[], int d, int D, int rowIni, int rowEnd){
-    
-    int indVarColNumber = features.length;  // the last column is the independent variable
- 
-    int ms;  // most significant
-    int ls;  // least significant
-        
-    double forwardJ[] = new double[3];
-    forwardJ[0] = 0.0; // least significance X_k+1
-    forwardJ[1] = 0.0; // significance of X_k
-    forwardJ[2] = 0.0; // most significance of X_k+1
-    
-    double backwardJ[] = new double[3];
-    backwardJ[0] = 0.0; // least significance X_k-1
-    backwardJ[1] = 0.0; // significance X_k
-    backwardJ[2] = 0.0; // most significance of X_k-1
-    
-    int k = X.length;    
-    boolean condSFS = true;  // Forward condition to be able to select from Y a most new significant feature
-    boolean condSBS = true;  // Backward condition: X has to have at least two elements to be able to select the least significant in X
-    double corX = 0.0;
-    while(k < d+D && condSFS )
-    {          
-      // we need at least 1 feature in Y to continue
-      if( Y.length > 1) {
-        // Step 1. (Inclusion)
-        // given X_k create X_k+1 : add the most significant feature of Y to X
-        System.out.println("ForwardSelection k=" + k);
-        ms = sequentialForwardSelection(dataFile, features, indVarColNumber, X, Y, forwardJ, rowIni, rowEnd);
-        System.out.format("corXplusy=%.4f  corX=%.4f\n", forwardJ[2], forwardJ[1]);
-        corX = forwardJ[2];
-        System.out.println("Most significant new feature to add: " + features[ms]);
-        // add index to selected and remove it form Y
-        X = addIndex(X, ms);      
-        Y = removeIndex(Y, ms);
-        k = k+1; 
-      
-        // continue with a SBG step
-        condSBS = true;
- 
-        // is this the best (k-1) subset so far
-        while( condSBS && (k<=d+D) && k > 1) 
-        {     
-          if(X.length > 1){
-            // Step 3. (Continuation of conditional exclusion)
-            // Find the least significant feature x_s in the reduced X'
-            System.out.println("\n BackwardSelection k=" + k);
-            // get the least significant and check if removing it the correlation is better with or without this feature          
-            ls = sequentialBackwardSelection(dataFile, features, indVarColNumber, X, backwardJ, rowIni, rowEnd);
-            corX = backwardJ[1];
-            System.out.format(" corXminusx=%.4f  corX=%.4f\n", backwardJ[0], backwardJ[1]);
-            System.out.println(" Least significant feature to remove: " + features[ls]);
-          
-            // is this the best (k-1)-subset so far?
-            // if corXminusx > corX
-            if(backwardJ[0] >  backwardJ[1]) { // J(X_k - x_s) <= J(X_k-1)
-              // exclude xs from X'_k and set k = k-1
-              System.out.println(" better without least significant feature (removing feature)");
-              X = removeIndex(X, ls);
-              k = k-1;  
-              corX = backwardJ[0];
-              condSBS = true;  
-            } else {
-              System.out.println(" better with least significant feature (keeping feature)\n");
-              condSBS = false;
-            }
-          } else {
-            System.out.println("X has one feature, can not execute a SBS step");
-            condSBS = false;
-          }
-        }  // while SBG      
-        System.out.format("k=%d corX=%.4f   ", k, corX);
-        printSelectedFeatures(X, features);
-        System.out.println("-------------------------\n");      
-      } else {  // so X.length == 0
-        System.out.println("No more elements in Y for selection");
-        condSFS = false;
-      }    
-    } // while SFG
-    // return the set of selected features
-    return X;
-  }
-  
-   
-  /**
-   * Find the f feature in Y that maximise J(X+y) 
-   * @param dataFile
-   * @param features
-   * @return the index of Y that maximises J(X+y)
-   */
-  private int sequentialForwardSelection(String dataFile, String[] features, int indVarColNumber, int X[], int Y[], double J[], int rowIni, int rowEnd){    
-    double sig[] = new double[Y.length];
-    int sigIndex[] = new int[Y.length]; // to keep track of the corresponding feature
-    double corXplusy[] = new double[Y.length];
-    
-    // get J(X_k)
-    double corX;
-    if(X.length>0){
-      Regression reg = new Regression();
-      reg.multipleLinearRegression(dataFile, indVarColNumber, X, features, interceptTerm, rowIni, rowEnd);
-      corX = reg.getCorrelation();
-      //System.out.println("corX=" + corX);
-    } else 
-      corX=0.0;
-    
-    // Calculate the significance of a new feature y_j (y_j is not included in X)
-    //S_k+1(y_j) = J(X_k + y_j) - J(X_k)     
-    for(int i=0; i<Y.length; i++){
-      // get J(X_k + y_j)
-      corXplusy[i] = correlationOfNewFeature(dataFile, features, indVarColNumber, X, Y[i], rowIni, rowEnd);
-      sig[i] = corXplusy[i] - corX;
-      sigIndex[i] = Y[i];
-      //System.out.println("Significance of new feature[" + sigIndex[i] + "]: " + features[sigIndex[i]] + " = " + sig[i]);  
-    }
-    // find min
-    int minSig = MathUtils.getMinIndex(sig);
-    J[0] = corXplusy[minSig];
-    // J(X_k) = corX
-    J[1] = corX;
-    // find max
-    int maxSig = MathUtils.getMaxIndex(sig);
-    J[2] = corXplusy[maxSig];
-    
-    return sigIndex[maxSig];
-      
-  }
-    
-  /**
-   * Find the x feature in X that minimise J(X-x), find the least significant feature in X.
-   * @param dataFile
-   * @param features
-   * @return the x (index) that minimises J(X-x)
-   */
-  private int sequentialBackwardSelection(String dataFile, String[] features, int indVarColNumber, int X[], double J[], int rowIni, int rowEnd){    
-    double sig[] = new double[X.length];
-    double corXminusx[] = new double[X.length];
-    int sigIndex[] = new int[X.length]; // to keep track of the corresponding feature
-    
-    // get J(X_k)
-    double corX;
-    if(X.length > 0){
-      Regression reg = new Regression();
-      reg.multipleLinearRegression(dataFile, indVarColNumber, X, features, interceptTerm, rowIni, rowEnd);
-      //reg.printCoefficients(X, features);
-      corX = reg.getCorrelation();
-      //System.out.println("corX=" + corX);
-    } else 
-      corX = 0.0;
-       
-    // Calculate the significance a feature x_j (included in X)
-    // S_k-1(x_j) = J(X_k) - J(X_k - x_i) 
-    for(int i=0; i<X.length; i++){      
-      // get J(X_k - x_i)
-      corXminusx[i] = correlationOfFeature(dataFile, features, indVarColNumber, X, X[i], rowIni, rowEnd);
-      sig[i] = corX - corXminusx[i];
-      sigIndex[i] = X[i];
-      //System.out.println("Significance of current feature[" + sigIndex[i] + "]: " + features[sigIndex[i]] + " = " + sig[i]);  
-    }    
-    // find min
-    int minSig = MathUtils.getMinIndex(sig);
-    J[0] = corXminusx[minSig];
-    // J(X_k) = corX
-    J[1] = corX;
-    // find max
-    int maxSig = MathUtils.getMaxIndex(sig);
-    J[2] = corXminusx[maxSig];
-    
-    return sigIndex[minSig];
-  }
-  
-  
-  
-  /**
-   * Correlation of X minus a feature x which is part of the set X: J(X_k - x_i)
-   * @param dataFile one column per feature
-   * @param features string array with the list of feature names
-   * @param indVarColNumber number of the column that corresponds to the independent variable 
-   * @param X set of current feature indexes
-   * @param x one feature index in X
-   * @return 
-   */
-  private double correlationOfFeature(String dataFile, String[] features, int indVarColNumber, int[] X, int x, int rowIni, int rowEnd){
-
-    double corXminusx;
-    Regression reg = new Regression();
-
-    // get J(X_k - x_i)
-    // we need to remove the index x from X
-    int j=0;
-    int[] Xminusx = new int[X.length-1];
-    for(int i=0; i<X.length; i++)
-      if(X[i] != x)
-        Xminusx[j++] = X[i];
-    reg.multipleLinearRegression(dataFile, indVarColNumber, Xminusx, features, interceptTerm, rowIni, rowEnd);
-    //reg.printCoefficients(Xminusx, features);
-    corXminusx = reg.getCorrelation();
-    //System.out.println("corXminusx=" + corXminusx);      
-    //System.out.println("significance of x[" + x + "]: " + features[x] + " = " + (corX-corXminusx));  
-    
-    return corXminusx;
-    
-  }
-  
-  /**
-   * Correlation of X plus the new feature y (y is not included in X): J(X_k + y_j)
-   * @param dataFile one column per feature
-   * @param features string array with the list of feature names
-   * @param indVarColNumber number of the column that corresponds to the independent variable
-   * @param X set of current feature indexes
-   * @param y a feature index that is not in X, new feature
-   * @return
-   */
-  private double correlationOfNewFeature(String dataFile, String[] features, int indVarColNumber, int[] X, int y, int rowIni, int rowEnd){
-
-    double corXplusy;
-    Regression reg = new Regression();
-   
-    // get J(X_k + y_j)
-    // we need to add the index y to X
-    int j=0;
-    int[] Xplusf = new int[X.length+1];
-    for(int i=0; i<X.length; i++)
-      Xplusf[i] = X[i];
-    Xplusf[X.length] = y;
-    
-    reg.multipleLinearRegression(dataFile, indVarColNumber, Xplusf, features, interceptTerm, rowIni, rowEnd);
-    //reg.printCoefficients(Xplusf, features);
-    corXplusy = reg.getCorrelation();
-    //System.out.println("corXplusf=" + corXplusy);      
-    //System.out.println("significance of x[" + f + "]: " + features[f] + " = " + (corXplusf-corX));  
-    
-    return corXplusy;
-    
-  }
   
   public String[] selectLinguisticFactors(String featureNames, String label) throws IOException
   {
@@ -677,7 +459,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
         mn = MathUtils.mean(data.getArray()[i]);
         if(mn == 0.0){
           System.out.println("Removing feature: " + features[i] + " from list of features because it has mean=0.0");
-          Y = removeIndex(Y, i);
+          Y = MathUtils.removeIndex(Y, i);
         }
       }
     } catch ( Exception e ) {
@@ -688,38 +470,6 @@ public class DurationSoPTrainer extends VoiceImportComponent
   }
   
   
-  private void printSelectedFeatures(int X[], String[] features){
-    System.out.print("Features: ");
-    for(int i=0; i<X.length; i++)
-    System.out.print(features[X[i]] + "  ");
-    System.out.println();
-  }
-  
-  private void printSelectedFeatures(int X[], String[] features, PrintWriter file){
-    file.print("Features: ");
-    for(int i=0; i<X.length; i++)
-      file.print(features[X[i]] + "  ");
-    file.println();
-  }
-  
-  private int[] addIndex(int[] X, int x){
-    int newX[] = new int[X.length+1];
-    for(int i=0; i<X.length; i++)
-      newX[i] = X[i];
-    newX[X.length] = x;
-    return newX;
-  }
-  
-  private int[] removeIndex(int[] X, int x){
-    int newX[] = new int[X.length-1];
-    int j=0;
-    for(int i=0; i<X.length; i++)
-      if( X[i] != x)
-        newX[j++] = X[i];
-    return newX;
-  }  
-
-  
   public int getProgress()
   {
       return percent;
@@ -729,9 +479,40 @@ public class DurationSoPTrainer extends VoiceImportComponent
   
   public static void main(String[] args) throws Exception
   {
-      DurationSoPTrainer sop = new DurationSoPTrainer(); 
+      /*DurationSoPTrainer sop = new DurationSoPTrainer(); 
       DatabaseLayout db = new DatabaseLayout(sop);
       sop.compute();
+      */
+      String sopFileName = "/project/mary/marcela/UnitSel-voices/slt-arctic/temp/dur.sop";
+      File sopFile = new File(sopFileName);
+      
+      // Read dur.sop file 
+      // the first line corresponds to vowels and the second to consonants
+      String nextLine;
+      Scanner s = null;
+      try {
+        s = new Scanner(new BufferedReader(new FileReader(sopFileName)));
+        
+        // vowel line
+        if (s.hasNext()){
+          nextLine = s.nextLine();
+          System.out.println("line vowel = " + nextLine);
+          SoP sopVowel = new SoP(nextLine);
+          sopVowel.printCoefficients();
+        }
+        
+        // consonant line
+        if (s.hasNext()){
+          nextLine = s.nextLine();
+          System.out.println("line consonants = " + nextLine);
+          SoP sopConsonants = new SoP(nextLine);
+          sopConsonants.printCoefficients();
+        }
+                   
+      } finally {
+          if (s != null)
+            s.close();
+      }   
       
   }
 

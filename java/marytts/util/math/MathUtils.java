@@ -4714,6 +4714,36 @@ public class MathUtils {
         return y;
     }
     
+    /**
+     * Add val x to list of int X
+     * @param X
+     * @param x
+     * @return
+     */
+    static public int[] addIndex(int[] X, int x){
+      int newX[] = new int[X.length+1];
+      for(int i=0; i<X.length; i++)
+        newX[i] = X[i];
+      newX[X.length] = x;
+      return newX;
+    }
+    
+    /**
+     * Remove val x from list of int X
+     * @param X
+     * @param x
+     * @return
+     */
+    static public int[] removeIndex(int[] X, int x){
+      int newX[] = new int[X.length-1];
+      int j=0;
+      for(int i=0; i<X.length; i++)
+        if( X[i] != x)
+          newX[j++] = X[i];
+      return newX;
+    }  
+     
+    
  // This funciton is NOT an interpolation function
     // It just repeats/removes entries in x to create y that is of size newLen
     static public double [] modifySize(double [] x, int newLen)

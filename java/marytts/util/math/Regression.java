@@ -32,31 +32,37 @@ public class Regression {
   private double[] residuals;       // duration(i) - predicted_duration(i)
   private double[] predictedValues; // predicted_duration(i) --> y(i)
   private double correlation;       // correlation between predicted_duration and duration
+  private double rmse;              // root mean square error (RMSE)
   private Matrix b;
   private boolean b0Term;
+  
+  public double[] getCoeffs(){
+    return coeffs;
+  }
   
   public Regression(){
     predictedValues = null;
     b = null;
   }
   
-  public double[] getResiduals(){
-    return residuals;
+  public void setCoeffs(double coeffsVal[]){
+    coeffs = new double[coeffsVal.length];
+    for(int i=0; i<coeffs.length; i++){
+      coeffs[i] = coeffsVal[i];
+    }
+    b = new Matrix(coeffs, coeffs.length);
   }
   
-  public double[] getPredictedValues(){
-      return predictedValues;
-  }
+  public double[] getResiduals(){ return residuals; }  
+  public double[] getPredictedValues(){ return predictedValues; }  
 
-  /***
-   * Correlation between original values and predicted ones.
-   * @return
-   */
-  public double getCorrelation(){
-      return correlation;
-  }
- 
+  /* Correlation between original values and predicted ones.  */
+  public double getCorrelation(){ return correlation; }
   
+  /*RMSE: root mean square error   */
+  public double getRMSE(){ return rmse; }
+  
+   
   /***
    * 
    * @param data         dependent and independent variables
@@ -261,6 +267,8 @@ public class Regression {
       // Residuals:
       Matrix r = X.times(b).minus(y);
       residuals = r.getColumnPackedCopy();
+      //root mean square error (RMSE)
+      rmse = Math.sqrt(MathUtils.sumSquared(residuals)/residuals.length);
       
       // Predicted values
       Matrix p = X.times(b);
@@ -348,9 +356,9 @@ public class Regression {
 
   }
   
-  // Given a set of coefficients and data predic values applying linear equation
+  // Given a set of coefficients and data predict values applying linear equation
   // This function can be used to test with data that was not used in training
-  public void predictValues(String fileName, int indVariable, int[] c, String[] factors, boolean interceptTerm, int rowIni, int rowEnd) {    
+  public void predictValues(String fileName, int indVariable, int[] c, boolean interceptTerm, int rowIni, int rowEnd) {    
     try {
       BufferedReader reader = new BufferedReader(new FileReader(fileName));        
       Matrix data = Matrix.read(reader);
@@ -393,6 +401,8 @@ public class Regression {
           // Residuals:
           Matrix r = data.times(b).minus(indVar);
           residuals = r.getColumnPackedCopy();
+          //root mean square error (RMSE)
+          rmse = Math.sqrt(MathUtils.sumSquared(residuals)/residuals.length);
       
           // Predicted values
           Matrix p = data.times(b);
@@ -402,6 +412,7 @@ public class Regression {
           correlation = MathUtils.correlation(predictedValues, indVar.getColumnPackedCopy());
       
           System.out.println("Correlation predicted values and real: " + correlation);
+          System.out.println("RMSE (root mean square error): " + rmse);
         } else {
           throw new RuntimeException("Number of columns of data is not the same as number of coeficients");
         }
