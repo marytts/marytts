@@ -168,7 +168,7 @@ public class InfoRequestHandler extends BaseHttpRequestHandler
             MaryHttpServerUtils.errorMissingQueryParameter(response, "'effect'");
             return null;
         }
-        else if (request.equals("features")) {
+        else if (request.equals("features") || request.equals("features-discrete")) {
             if (queryItems != null) {
                 // List of features that can be computed for the voice
                 FeatureProcessorManager mgr = null;
@@ -209,6 +209,10 @@ public class InfoRequestHandler extends BaseHttpRequestHandler
                     }
                 }
                 if (mgr != null)
+                    if (request.equals("features-discrete")) {
+                        String discreteFeatureNames = mgr.listByteValuedFeatureProcessorNames() + mgr.listShortValuedFeatureProcessorNames(); 
+                        return discreteFeatureNames;
+                    }
                     return mgr.listFeatureProcessorNames();
             }
             MaryHttpServerUtils.errorMissingQueryParameter(response, "'voice' or 'locale'");

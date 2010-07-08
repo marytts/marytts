@@ -277,6 +277,11 @@ public class MaryHttpClient extends MaryClient
         return serverInfoRequest("features?locale="+locale, null);
     }
     
+    public String getDiscreteFeatures(String locale) throws IOException
+    {
+        return serverInfoRequest("features-discrete?locale="+locale, null);
+    }
+    
     public String getFeaturesForVoice(String voice) throws IOException
     {
         return serverInfoRequest("features?voice="+voice, null);
