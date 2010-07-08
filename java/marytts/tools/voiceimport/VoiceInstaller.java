@@ -65,6 +65,7 @@ public class VoiceInstaller extends VoiceImportComponent{
     
     public final String CREATEZIPFILE = name+".createZipFile";
     public final String ZIPCOMMAND = name+".zipCommand";
+    public final String LEGACYACOUSTICMODELS = name+".legacyAcousticModels";
 
     public String getName(){
         return name;
@@ -98,7 +99,7 @@ public class VoiceInstaller extends VoiceImportComponent{
             props.put(BASETIMELINE, "timeline_basenames"+maryext);
             props.put(CREATEZIPFILE, "false");
             props.put(ZIPCOMMAND, "/usr/bin/zip");
-
+            props.put(LEGACYACOUSTICMODELS, "false");
         }
         return props;
     }
@@ -123,7 +124,7 @@ public class VoiceInstaller extends VoiceImportComponent{
         props2Help.put(BASETIMELINE, "file containing all basenames");
         props2Help.put(CREATEZIPFILE, "create zip file for Mary voices installation (used by Mary voices administrator only).");
         props2Help.put(ZIPCOMMAND, "zip command to create a voice.zip file for voice installation.");
-        
+        props2Help.put(LEGACYACOUSTICMODELS, "create the config file using legacy acoustic modellers (instead of AcousticModeller module).");        
     }
 
     
@@ -134,13 +135,23 @@ public class VoiceInstaller extends VoiceImportComponent{
      * @return true on success, false on failure
      */
     public boolean compute() throws Exception{
+        String fileSeparator = System.getProperty("file.separator");
+        String maryBase = db.getProp(db.MARYBASE);
+
+        /* create the config file */
+        System.out.println("Creating config file ... ");
+        // Normalise locale: (e.g., if user set en-US, change it to en_US)
+        String locale = MaryUtils.string2locale(db.getProp(db.LOCALE)).toString();
+        
+        String configFileName = db.getProp(db.FILEDIR) + locale + "-" + db.getProp(db.VOICENAME).toLowerCase() + ".config";
+        createConfigFile(configFileName, locale);
+        String finalConfigFileName = configFileName.replace(db.getProp(db.FILEDIR), maryBase + fileSeparator + "conf" + fileSeparator);
+        
         System.out.println("Installing voice: ");
         /* make a new directory for the voice */
         System.out.println("Making voice directory ... ");
-        String fileSeparator = System.getProperty("file.separator");
         String filedir = db.getProp(db.FILEDIR);
         String configdir = db.getProp(db.CONFIGDIR);
-        String maryBase = db.getProp(db.MARYBASE);
         if (!maryBase.endsWith(fileSeparator)) maryBase = maryBase + fileSeparator;
         String newVoiceDir = maryBase
         					+"lib"+fileSeparator
@@ -154,6 +165,9 @@ public class VoiceInstaller extends VoiceImportComponent{
         System.out.println("Copying files ... ");
         try{
             File in, out;
+            in = new File(configFileName);
+            out = new File(finalConfigFileName);
+            copy(in, out);
             in = new File(filedir+getProp(CARTFILE));
             out = new File(newVoiceDir+getProp(CARTFILE));
             copy(in,out);   
@@ -203,19 +217,6 @@ public class VoiceInstaller extends VoiceImportComponent{
         }catch (IOException ioe){
             return false;
         }
-        
-        /* create the config file */
-        System.out.println("Creating config file ... ");
-        // Normalise locale: (e.g., if user set en-US, change it to en_US)
-        String locale = MaryUtils.string2locale(db.getProp(db.LOCALE)).toString();
-        
-        String configFileName = maryBase
-        					+"conf"+fileSeparator
-        					+locale
-        					+"-"+db.getProp(db.VOICENAME).toLowerCase()
-        					+".config";
-        createConfigFile(configFileName, newVoiceDir, locale);
-        
         
         /* create a zip file for installation */        
         if( getProp(CREATEZIPFILE).contentEquals("true") ) {
@@ -290,7 +291,7 @@ public class VoiceInstaller extends VoiceImportComponent{
     }
     
     
-    private void createConfigFile(String filename, String newVoiceDir, String locale)
+    private void createConfigFile(String filename, String locale)
     throws IOException
     {
         try {
@@ -388,22 +389,49 @@ public class VoiceInstaller extends VoiceImportComponent{
               		  voiceHeader+".exampleTextFile = MARY_BASE/lib/voices/"+voicename+"/"+getProp(EXAMPLETEXT)+"\n");
               }
               
-              configOut.println("# Voice-specific prosody CARTs:\n"+
-                      voiceHeader+".duration.cart = MARY_BASE/lib/voices/"+voicename+"/"+getProp(DURTREE)+"\n"+
-                      voiceHeader+".duration.featuredefinition = MARY_BASE/lib/voices/"+voicename+"/"+getProp(PHONEFEATDEF)+"\n"+
-                      voiceHeader+".f0.cart.left = MARY_BASE/lib/voices/"+voicename+"/"+getProp(F0LEFTTREE)+"\n"+
-                      voiceHeader+".f0.cart.mid = MARY_BASE/lib/voices/"+voicename+"/"+getProp(F0MIDTREE)+"\n"+
-                      voiceHeader+".f0.cart.right = MARY_BASE/lib/voices/"+voicename+"/"+getProp(F0RIGHTTREE)+"\n"+
-              		  voiceHeader+".f0.featuredefinition = MARY_BASE/lib/voices/"+voicename+"/"+getProp(PHONEFEATDEF)+"\n");
+              // allow creation of config entries to use legacy acoustic modeller modules (CARTF0Modeller, CARTDurationModeller)
+              // for backward compatibility:
+              if (getProp(LEGACYACOUSTICMODELS).equals("true")) {
+                  configOut.println("# Voice-specific prosody CARTs:\n"+
+                          voiceHeader+".duration.cart = MARY_BASE/lib/voices/"+voicename+"/"+getProp(DURTREE)+"\n"+
+                          voiceHeader+".duration.featuredefinition = MARY_BASE/lib/voices/"+voicename+"/"+getProp(PHONEFEATDEF)+"\n"+
+                          voiceHeader+".f0.cart.left = MARY_BASE/lib/voices/"+voicename+"/"+getProp(F0LEFTTREE)+"\n"+
+                          voiceHeader+".f0.cart.mid = MARY_BASE/lib/voices/"+voicename+"/"+getProp(F0MIDTREE)+"\n"+
+                          voiceHeader+".f0.cart.right = MARY_BASE/lib/voices/"+voicename+"/"+getProp(F0RIGHTTREE)+"\n"+
+                          voiceHeader+".f0.featuredefinition = MARY_BASE/lib/voices/"+voicename+"/"+getProp(PHONEFEATDEF)+"\n");
 
-              configOut.println();
-              
-              // And finally, determine how to predict acoustic features for this voice:
-              configOut.println("# Modules to use for predicting acoustic target features for this voice:\n"+
-                      voiceHeader+".preferredModules =  \\\n"+
-                      "    marytts.modules.CARTDurationModeller("+locale+","+voiceHeader+".duration.) \\\n"+
-                      "    marytts.modules.CARTF0Modeller("+locale+","+voiceHeader+".f0.)\n");
+                  configOut.println();
 
+                  // And finally, determine how to predict acoustic features for this voice:
+                  configOut.println("# Modules to use for predicting acoustic target features for this voice:\n"+
+                          voiceHeader+".preferredModules =  \\\n"+
+                          "    marytts.modules.CARTDurationModeller("+locale+","+voiceHeader+".duration.) \\\n"+
+                          "    marytts.modules.CARTF0Modeller("+locale+","+voiceHeader+".f0.)\n");
+              } else {
+                  // TODO this is currently hard-coded for CARTs; the various voice installer components should probably be unified...
+                  configOut.println("# Modules to use for predicting acoustic target features for this voice:");
+                  configOut.println();
+                  configOut.println(voiceHeader + ".acousticModels = duration leftF0 midF0 rightF0");
+                  configOut.println();
+                  configOut.println(voiceHeader + ".duration.model = cart");
+                  configOut.println(voiceHeader + ".duration.data = MARY_BASE/lib/voices/" + voicename + "/" + getProp(DURTREE));
+                  configOut.println(voiceHeader + ".duration.attribute = d");
+                  configOut.println();
+                  configOut.println(voiceHeader + ".leftF0.model = cart");
+                  configOut.println(voiceHeader + ".leftF0.data = MARY_BASE/lib/voices/" + voicename + "/" + getProp(F0LEFTTREE));
+                  configOut.println(voiceHeader + ".leftF0.attribute = f0");
+                  configOut.println(voiceHeader + ".leftF0.attribute.format = (0,%.0f)");
+                  configOut.println();
+                  configOut.println(voiceHeader + ".midF0.model = cart");
+                  configOut.println(voiceHeader + ".midF0.data = MARY_BASE/lib/voices/" + voicename + "/" + getProp(F0MIDTREE));
+                  configOut.println(voiceHeader + ".midF0.attribute = f0");
+                  configOut.println(voiceHeader + ".midF0.attribute.format = (50,%.0f)");
+                  configOut.println();
+                  configOut.println(voiceHeader + ".rightF0.model = cart");
+                  configOut.println(voiceHeader + ".rightF0.data = MARY_BASE/lib/voices/" + voicename+ "/" + getProp(F0RIGHTTREE));
+                  configOut.println(voiceHeader + ".rightF0.attribute = f0");
+                  configOut.println(voiceHeader + ".rightF0.attribute.format = (100,%.0f)");
+              }
               
         } catch (IOException e) {
             IOException myIOE = new IOException("Problem writing config file:");
