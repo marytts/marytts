@@ -59,6 +59,7 @@ import org.w3c.dom.traversal.TreeWalker;
  * Predict phone durations using a CART.
  *
  * @author Marc Schr&ouml;der
+ * @deprecated
  */
 
 public class CARTDurationModeller extends InternalModule
