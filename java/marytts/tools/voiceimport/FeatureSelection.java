@@ -157,11 +157,8 @@ public class FeatureSelection extends VoiceImportComponent
     {
         if (features == null) {
             mary = getMaryClient();
-            features = mary.getFeatures(locale);
+            features = mary.getDiscreteFeatures(locale);
             features = features.replaceAll(" ", "\n");
-            features = features.replaceFirst("unit_duration", "");
-            features = features.replaceFirst("unit_logf0delta", "");
-            features = features.replaceFirst("unit_logf0", "");
         }
 
         final JFrame frame = new JFrame("Features to use for building voice");
