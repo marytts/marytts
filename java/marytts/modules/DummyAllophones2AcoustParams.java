@@ -58,6 +58,7 @@ import org.w3c.dom.traversal.TreeWalker;
  * @author Sathish Pammi
  */
 
+@Deprecated
 public class DummyAllophones2AcoustParams extends InternalModule
 {
     public DummyAllophones2AcoustParams()
