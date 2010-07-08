@@ -115,7 +115,7 @@ public class PraatIntervalTier implements PraatTier {
      */
     public double getXmax() {
         try {
-            return this.intervals.lastElement().getXmax();            
+            return this.intervals.lastElement().getXmax();
         } catch (NoSuchElementException nsu) {
             return this.xmax;
         }
@@ -180,6 +180,10 @@ public class PraatIntervalTier implements PraatTier {
                     interval.setXmin(0); // preliminary; could just as well be non-zero
                 } else {
                     interval.setXmin(prevInterval.getXmax());
+                }
+                if (interval.getDuration() == 0.0) {
+                    // hack to sidestep problem in Praat; intervals must not be zero
+                    interval.setDuration(1e-15); 
                 }
                 interval.setXmax(interval.getXmin() + interval.getDuration());
             }
