@@ -52,6 +52,9 @@ import marytts.exceptions.NoSuchPropertyException;
 import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
+import marytts.features.MaryFeatureProcessor;
+import marytts.features.FeatureVector.FeatureType;
+import marytts.features.MaryGenericFeatureProcessors.GenericContinuousFeature;
 import marytts.features.TargetFeatureComputer;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
@@ -71,6 +74,7 @@ import marytts.util.MaryUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
+import com.sun.speech.freetts.FeatureProcessor;
 import com.sun.speech.freetts.en.us.CMULexicon;
 import com.sun.speech.freetts.lexicon.Lexicon;
 
@@ -229,16 +233,6 @@ public class Voice
         if (acousticModelsString != null){
             acousticModels = new HashMap<String, Model>();
 
-            // cascaded identification of FeatureProcessorManager for this voice:
-            FeatureProcessorManager featureProcessorManager = FeatureRegistry.getFeatureProcessorManager(this);
-            if (featureProcessorManager == null) {
-                featureProcessorManager = FeatureRegistry.getFeatureProcessorManager(locale);
-                if (featureProcessorManager == null) {
-                    featureProcessorManager = FeatureRegistry.getFallbackFeatureProcessorManager();
-                }
-            }
-            assert featureProcessorManager != null;
-            
             // add boundary "model" (which could of course be overwritten by appropriate properties in voice config):
             acousticModels.put("boundary", new BoundaryModel("boundary", null, "duration", null, null));
 
@@ -254,7 +248,8 @@ public class Voice
                 // the following are null if not defined; this is handled in the Model constructor:
                 String modelAttributeFormat = MaryProperties.getProperty(header + "." + modelName + ".attribute.format");
                 String modelElementList = MaryProperties.getProperty(header + "." + modelName + ".scope");
-
+                String modelFeatureName = MaryProperties.getProperty(header + "." + modelName + ".feature");
+                
                 // consult the ModelType enum to find appropriate Model subclass...
                 ModelType possibleModelTypes = ModelType.fromString(modelType);
                 // if modelType is not in ModelType.values(), we don't know how to handle it:
@@ -267,16 +262,28 @@ public class Voice
                 Model model = null;
                 switch (possibleModelTypes) {
                 case CART:
-                    model = new CARTModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList, featureProcessorManager);
+                    model = new CARTModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList, modelFeatureName);
                 }
 
                 // if we got this far, model should not be null:
                 assert model != null;
 
-                // otherwise, load datafile and put the model in the Model Map:
+                // load dataFile and put the model in the Model Map:
                 model.loadDataFile();
                 acousticModels.put(modelName, model);
             } while (acousticModelStrings.hasMoreTokens());
+            
+            // initialization of FeatureProcessorManager for this voice:
+            FeatureProcessorManager featureProcessorManager;
+            // TODO somehow reconcile that German FPM class with the rest of the code...
+            if (locale.equals(new Locale("de"))) {
+                featureProcessorManager = new marytts.language.de.features.FeatureProcessorManager(this);
+            } else {
+                featureProcessorManager = new FeatureProcessorManager(this);
+            }
+
+            // (re-)register the FeatureProcessorManager for this Voice:
+            FeatureRegistry.setFeatureProcessorManager(this, featureProcessorManager);
         }
     }
 

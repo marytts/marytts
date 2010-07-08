@@ -1,3 +1,23 @@
+/**
+ * Copyright 2010 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 package marytts.modules.acoustic;
 
 import java.io.File;
@@ -5,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import marytts.datatypes.MaryXML;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.features.FeatureVector;
@@ -32,7 +53,7 @@ public abstract class Model {
 
     protected String targetElementListName;
 
-    protected FeatureProcessorManager featureProcessorManager;
+    protected String featureName;
 
     protected TargetFeatureComputer featureComputer;
 
@@ -47,9 +68,11 @@ public abstract class Model {
      *            attribute in MaryXML to predict
      * @param targetAttributeFormat
      *            printf-style format String to specify the attribute value, i.e. "%.3f" to round to 3 decimal places
+     * @param featureName
+     *            name of custom continuous feature, or null
      */
     protected Model(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-            String targetElementListName) {
+            String targetElementListName, String featureName) {
         this.type = type;
         this.dataFile = dataFileName;
         this.targetAttributeName = targetAttributeName;
@@ -61,9 +84,16 @@ public abstract class Model {
             targetElementListName = "segments";
         }
         this.targetElementListName = targetElementListName;
-        
-        // featureComputer should be set in extension classes:
-        featureComputer = null;
+        this.featureName = featureName;
+    }
+
+    /**
+     * Setter for the TargetFeatureComputer
+     * 
+     * @throws MaryConfigurationException
+     */
+    public void setFeatureComputer(TargetFeatureComputer featureComputer) throws MaryConfigurationException {
+        this.featureComputer = featureComputer;
     }
 
     /**
@@ -154,6 +184,20 @@ public abstract class Model {
      */
     public String getTargetElementListName() {
         return targetElementListName;
+    }
+
+    /**
+     * @return the featureName
+     */
+    public String getFeatureName() {
+        return featureName;
+    }
+
+    /**
+     * @return the targetAttributeName
+     */
+    public String getTargetAttributeName() {
+        return targetAttributeName;
     }
 
 }
