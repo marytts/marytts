@@ -42,9 +42,6 @@ import marytts.unitselection.select.Target;
  *
  */
 public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
-    private boolean [][] voicings;
-    private double [][] pscales;
-    private double [][] tscales;
     private Datagram[][] datagrams;
     private Datagram[] rightContexts;
     
@@ -154,20 +151,16 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         // this seems to be the first instance of new code in this class:
         getPitchScales(units);
         
-//        getDurationScales(units);
-        getPhoneBasedDurationScales(units);
     }
     
-    // TODO: this is completely overwritten in getPitchScales {{prod}}
-    @Deprecated
-    private void getVoicings(List<SelectedUnit> units)
+    private boolean[][] getVoicings(List<SelectedUnit> units)
     {
         int len = units.size();
         // actually:
         len = datagrams.length;
         int i, j;
         
-        voicings = new boolean[len][];
+        boolean[][] voicings = new boolean[len][];
 
         SelectedUnit unit = null;
         
@@ -188,7 +181,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
                     voicings[i][j] = false;
             }
         }
-        //
+        return voicings;
     }
     
     //We can try different things in this function
@@ -199,7 +192,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     //4) Pitch segments of selected units can be shifted 
     //5) Pitch segments of target units can be shifted
     //6) Pitch slopes can be modified for better matching in concatenation boundaries
-    private void getPitchScales(List<SelectedUnit> units)
+    private double[][] getPitchScales(List<SelectedUnit> units)
     {
         int len = units.size();
         // actually:
@@ -208,8 +201,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         double averageUnitF0InHz;
         double averageTargetF0InHz;
         int totalTargetUnits;
-        voicings = new boolean[len][];
-        pscales = new double[len][];
+        double[][] pscales = new double[len][];
         SelectedUnit prevUnit = null;
         SelectedUnit unit = null;
         SelectedUnit nextUnit = null;
@@ -302,15 +294,12 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
             averageUnitF0InHz /= totalDatagrams;
             // so what was all that for?? these average frequencies are never used...
 
-            voicings[i] = new boolean[datagrams[i].length];
             pscales[i] = new double[datagrams[i].length];
             
             for (j=0; j<datagrams[i].length; j++)
             {
                 if (allophone != null && (allophone.isVowel() || allophone.isVoiced()))
                 {
-                    voicings[i][j] = true;
-                    
                     /*
                     pscales[i][j] = averageTargetF0InHz/averageUnitF0InHz;
                     if (pscales[i][j]>1.2)
@@ -322,25 +311,25 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
                 }
                 else
                 {
-                    voicings[i][j] = false;
                     pscales[i][j] = 1.0;
                 }
             }
         }
+        return pscales;
     }
     
     //We can try different things in this function
     //1) Duration modification factors can be estimated using neighbouring selected and target unit durations
     //2) Duration modification factors can be limited or even set to 1.0 for different phone classes
     //3) Duration modification factors can be limited depending on the previous/next phone class
-    private void getDurationScales(List<SelectedUnit> units)
+    private double[][] getDurationScales(List<SelectedUnit> units)
     {
         int len = units.size();
         // actually:
         len = datagrams.length;
         
         int i, j;
-        tscales = new double[len][];
+        double[][] tscales = new double[len][];
         int unitDuration;
         
         double [] unitDurationsInSeconds = new double[datagrams.length];
@@ -408,9 +397,10 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
             }
             logger.debug("time scaling factor for unit " + unit.getTarget().getName() + " -> " + targetDur/unitDur);
         }
+        return tscales;
     }
     
-    private void getPhoneBasedDurationScales(List<SelectedUnit> units) {
+    private double[][] getPhoneBasedDurationScales(List<SelectedUnit> units) {
         // List of phone segments:
         List<Phone> phones = parseIntoPhones(units);
         // list of time scale factors, one per unit:
@@ -440,13 +430,13 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         }
         
         // finally, initialize the tscales array...
-        tscales = new double[timeScaleFactors.size()][];
+        double[][] tscales = new double[timeScaleFactors.size()][];
         for (int i = 0; i < tscales.length; i++) {
             tscales[i] = new double[datagrams[i].length];
             // ...which currently provides the same time scale factor for every datagram in a selected unit:
             Arrays.fill(tscales[i], timeScaleFactors.get(i));
         }
-        return;
+        return tscales;
     }
     
     /**
@@ -501,6 +491,10 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
      */
     protected AudioInputStream generateAudioStream(List<SelectedUnit> units)
     {
+        boolean[][] voicings = getVoicings(units);
+        double[][] pscales = getPitchScales(units);
+//      double[][] tscales = getDurationScales(units);
+        double[][] tscales = getPhoneBasedDurationScales(units);
         // TODO: this does not seem thread-safe -- what happens if several threads call FDPSOLAUnitConcatenator? Store all data in units.
         return (new FDPSOLAProcessor()).process(datagrams, rightContexts, audioformat, voicings, pscales, tscales);
     }
