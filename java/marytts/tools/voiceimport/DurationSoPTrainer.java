@@ -186,8 +186,11 @@ public class DurationSoPTrainer extends VoiceImportComponent
             toPauseFile.println(dur);
           numPause++;
         } else if (allophoneSet.getAllophone(fv.getFeatureAsString(phoneIndex, featureDefinition)).isVowel()){          
-          for(int j=0; j < lingFactorsVowel.length; j++)
+          for(int j=0; j < lingFactorsVowel.length; j++){
             toVowelsFile.print(fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsVowel[j])) + " ");
+            if(lingFactorsVowel[j].contentEquals("next_vc"))
+              System.out.println("phone: " + fv.getFeatureAsString(phoneIndex, featureDefinition) + "  val = " + fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsVowel[j])));
+          }
           if(logDuration)
             toVowelsFile.println(Math.log(dur)); // last column is the dependent variable, in this case duration
           else
@@ -215,7 +218,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
    System.out.println("\n==================================\nProcessing Vowels:");
    SoP sopVowel = trainModel(lingFactorsVowel, vowelsFile, numVowels, percentToTrain);
    sopVowel.saveSelectedFeatures(toSopFile);
-   
+   /*
    System.out.println("\n==================================\nProcessing Consonants:");
    SoP sopConsonant = trainModel(lingFactorsConsonant, consonantsFile, numConsonants, percentToTrain);
    sopConsonant.saveSelectedFeatures(toSopFile);
@@ -223,7 +226,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
    System.out.println("\n==================================\nProcessing Pause:");
    SoP sopPause = trainModel(lingFactorsPause, pauseFile, numPause, percentToTrain);
    sopPause.saveSelectedFeatures(toSopFile);
-   
+   */
    toSopFile.close();
    
    percent = 100;

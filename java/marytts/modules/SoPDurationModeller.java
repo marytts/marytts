@@ -149,7 +149,8 @@ public class SoPDurationModeller extends InternalModule
  
     String phoneXML = "/project/mary/marcela/openmary/lib/modules/en/us/lexicon/allophones.en_US.xml";
     System.out.println("Reading allophones set from file: " + phoneXML);
-    allophoneSet = AllophoneSet.getAllophoneSet(phoneXML);          
+    allophoneSet = AllophoneSet.getAllophoneSet(phoneXML);
+    
 
  
   }
@@ -196,19 +197,22 @@ throws Exception
       Element previous = null;
       while ((segmentOrBoundary = (Element)tw.nextNode()) != null) {          
           String phone = UnitSelector.getPhoneSymbol(segmentOrBoundary);
-          System.out.print("PHONE: " + phone);
+          
           Target t = new Target(phone, segmentOrBoundary);                
           t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
                                        
           if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) { // a pause
               //---durInSeconds = enterPauseDuration(segmentOrBoundary, previous, pausetree, pauseFeatureComputer);
+              System.out.print("Pause PHONE: " + phone);
             durInSeconds = (float)sopPause.solve(t, voiceFeatDef);
           } else {
             if (allophoneSet.getAllophone(phone).isVowel()){
               // calculate duration with sopVowel
+              System.out.print("Vowel PHONE: " + phone);
               durInSeconds = (float)sopVowel.solve(t, voiceFeatDef);
             } else {
               // calculate duration with sopConsonant
+              System.out.print("consonant PHONE: " + phone);  
               durInSeconds = (float)sopConsonant.solve(t, voiceFeatDef);
             }
               //--float[] dur = (float[])currentCart.interpret(t);
