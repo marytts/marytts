@@ -2,15 +2,29 @@ package marytts.machinelearning;
 
 import java.io.PrintWriter;
 
+import marytts.features.FeatureDefinition;
+import marytts.unitselection.select.Target;
 
+
+/**
+ * Contains the coefficients and factors of an equation of the form:
+ * if interceptTterm = TRUE
+ *   solution = coeffs[0] + coeffs[1]*factors[0] + coeffs[2]*factors[1] + ... + coeffs[n]*factors[n-1]
+ * if interceptterm = FALSE
+ *   solution = coeffs[0]*factors[0] + coeffs[1]*factors[1] + ... + coeffs[n]*factors[n]
+ *   
+ * @author marcela
+ *
+ */
 public class SoP {
   
-  private double coeffs[];  
-  private String factors[];
+  private double coeffs[];     // coefficients of the multiple linear equation
+  private String factors[];    // variables in the multiple linear 
   private int factorsIndex[];  // original indices in factors list
   boolean interceptTerm;
   double correlation;
   double rmse;
+  double solution;
   
   public void setCorrelation(double val){ correlation = val; }
   public void setRMSE(double val){ rmse = val; }
@@ -74,7 +88,30 @@ public class SoP {
     }  
   }
   
-  
+  /**
+   * Solve the linear equation given the features (factors) in t and coeffs and factors in the SoP object
+   *  * if interceptTterm = TRUE
+   *   solution = coeffs[0] + coeffs[1]*factors[0] + coeffs[2]*factors[1] + ... + coeffs[n]*factors[n-1]
+   * if interceptterm = FALSE
+   *   solution = coeffs[0]*factors[0] + coeffs[1]*factors[1] + ... + coeffs[n]*factors[n]
+ */
+  public double solve(Target t, FeatureDefinition feaDef){
+    /*   TODO: this function can be done faster if instead of string factors we have the corresponding int feature index
+    *         maybe this setting can be done when saving the coefficients, getting just once the index values with 
+    *         feaDef.getFeatureIndex(factors[i]) */  
+    solution = 0.0f;
+    if(interceptTerm){
+      // the first factor is empty filled with "_" so it should not be used
+      solution = coeffs[0];
+      for(int i=1; i<coeffs.length; i++)        
+        solution = solution + ( coeffs[i] * t.getFeatureVector().getByteFeature(feaDef.getFeatureIndex(factors[i])) );
+    } else {
+      for(int i=0; i<coeffs.length; i++)        
+        solution = solution + ( coeffs[i] * t.getFeatureVector().getByteFeature(feaDef.getFeatureIndex(factors[i])) );
+    }
+    
+    return solution;
+  }
   
   /**
    * First line vowel coefficients plus factors, second line consonant coefficients plus factors
