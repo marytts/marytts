@@ -51,6 +51,7 @@ public class SoPDurationModeller extends InternalModule
   private String sopFileName;
   SoP sopVowel;
   SoP sopConsonant;
+  SoP sopPause;
 
   protected TargetFeatureComputer featureComputer;
   private String propertyPrefix;
@@ -130,6 +131,14 @@ public class SoPDurationModeller extends InternalModule
         sopConsonant = new SoP(nextLine);
         sopConsonant.printCoefficients();
       }
+      // pause line
+      if (s.hasNext()){
+        nextLine = s.nextLine();
+        System.out.println("line pause = " + nextLine);
+        sopPause = new SoP(nextLine);
+        sopPause.printCoefficients();
+      }
+
                  
     } finally {
         if (s != null)
@@ -138,7 +147,7 @@ public class SoPDurationModeller extends InternalModule
 
     // get allophoneset
  
-    String phoneXML = "/project/mary/marcela/openmary//lib/modules/en/us/lexicon/allophones.en_US.xml";
+    String phoneXML = "/project/mary/marcela/openmary/lib/modules/en/us/lexicon/allophones.en_US.xml";
     System.out.println("Reading allophones set from file: " + phoneXML);
     allophoneSet = AllophoneSet.getAllophoneSet(phoneXML);          
 
@@ -173,7 +182,7 @@ throws Exception
       TargetFeatureComputer currentFeatureComputer = featureComputer;
       
       System.out.println("\n\n****FILE=" + propertyPrefix+"featuredefinition" + "\nmary properties:" + MaryProperties.needFilename(propertyPrefix+"featuredefinition"));
-      // TODO: Check this will not be the case for hmm voices....
+      // TODO: Check, this will not be the case for hmm voices....
       //       need to find another way of getting a featureDefinition
       File fdFile = new File(MaryProperties.needFilename(propertyPrefix+"featuredefinition"));
       FeatureDefinition voiceFeatDef = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);
@@ -181,38 +190,38 @@ throws Exception
       
       // cumulative duration from beginning of sentence, in seconds:
       float end = 0;
-
+      float durInSeconds;
       TreeWalker tw = MaryDomUtils.createTreeWalker(sentence, MaryXML.PHONE, MaryXML.BOUNDARY);
       Element segmentOrBoundary;
       Element previous = null;
       while ((segmentOrBoundary = (Element)tw.nextNode()) != null) {          
           String phone = UnitSelector.getPhoneSymbol(segmentOrBoundary);
-          System.out.println("PHONE:" + phone);
+          System.out.print("PHONE: " + phone);
           Target t = new Target(phone, segmentOrBoundary);                
           t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
-                    
-          if (allophoneSet.getAllophone(phone).isVowel()){
-            // calculate duration with sopVowel
-            // here i need a durInSeconds = sopVowel.calDuration(Target t)
-            
-          } else {
-            // calculate duration with sopConsonant
-            
-          }
-          byte[] byteValues = t.getFeatureVector().byteValuedDiscreteFeatures;
-          
-          float durInSeconds;
+                                       
           if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) { // a pause
               //---durInSeconds = enterPauseDuration(segmentOrBoundary, previous, pausetree, pauseFeatureComputer);
-            durInSeconds = 0.5f;
+            durInSeconds = (float)sopPause.solve(t, voiceFeatDef);
           } else {
-              //float[] dur = (float[])currentCart.interpret(t);
-              float[] dur = {0.02f, 0.03f};
-              assert dur != null : "Null duration";
-              assert dur.length == 2 : "Unexpected duration length: "+dur.length;
-              durInSeconds = dur[1];
-              float stddevInSeconds = dur[0];
+            if (allophoneSet.getAllophone(phone).isVowel()){
+              // calculate duration with sopVowel
+              durInSeconds = (float)sopVowel.solve(t, voiceFeatDef);
+            } else {
+              // calculate duration with sopConsonant
+              durInSeconds = (float)sopConsonant.solve(t, voiceFeatDef);
+            }
+              //--float[] dur = (float[])currentCart.interpret(t);
+              //--float[] dur = {0.02f, 0.03f};
+              //--assert dur != null : "Null duration";
+              //--assert dur.length == 2 : "Unexpected duration length: "+dur.length;
+              //--durInSeconds = dur[1];
+              //--float stddevInSeconds = dur[0];
           }
+          // TODO: where do we check that the solution is log(duration) or duration???
+          System.out.format(" = %.3f\n", durInSeconds);
+          if(durInSeconds < 0.0)
+            durInSeconds = 0.01f;
           end += durInSeconds;
           int durInMillis = (int) (1000 * durInSeconds);
           if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) {

@@ -125,9 +125,11 @@ public class DurationSoPTrainer extends VoiceImportComponent
     String durDir = db.getProp(db.TEMPDIR);
     String vowelsFile = durDir + "vowels.feats";
     String consonantsFile = durDir + "consonants.feats";
+    String pauseFile = durDir + "pause.feats";
     
     String[] lingFactorsVowel;
-    String[] lingFactorsConsonant; 
+    String[] lingFactorsConsonant;
+    String[] lingFactorsPause;
       
     AllophoneSet allophoneSet;   
     String phoneXML = getProp(ALLOPHONESFILE);
@@ -141,22 +143,26 @@ public class DurationSoPTrainer extends VoiceImportComponent
     FeatureVector fv;
     int nUnitsVowel = 0;
     int nUnitsConsonant = 0;
+    int nUnitsPause = 0;
     
     //System.out.println("Feature names: " + featureDefinition.getFeatureNames());
     // select features that will be used as linguistic factors on the regression
     lingFactorsVowel = selectLinguisticFactors(featureDefinition.getFeatureNames(), "Select linguistic factors for vowels:");
     lingFactorsConsonant = selectLinguisticFactors(featureDefinition.getFeatureNames(), "Select linguistic factors for consonants:");
+    lingFactorsPause = selectLinguisticFactors(featureDefinition.getFeatureNames(), "Select linguistic factors for pause:");
     
-    // the final regression will be saved in this file, one line for vowels and another for consonants
+    // the final regression will be saved in this file, one line for vowels, one for consonants and another for pause
     PrintWriter toSopFile = new PrintWriter(new FileOutputStream(sopDurFile));
     
     // the following files contain all the feature files in columns
     PrintWriter toVowelsFile = new PrintWriter(new FileOutputStream(vowelsFile));
     PrintWriter toConsonantsFile = new PrintWriter(new FileOutputStream(consonantsFile));
+    PrintWriter toPauseFile = new PrintWriter(new FileOutputStream(pauseFile));
  
     int k = 0;
     int numVowels=0;
     int numConsonants=0;
+    int numPause=0;
     // index of phone
     int phoneIndex = featureDefinition.getFeatureIndex("phone");
     for (int i=0, len=unitFile.getNumberOfUnits(); i<len; i++) {
@@ -169,19 +175,25 @@ public class DurationSoPTrainer extends VoiceImportComponent
        
       fv = featureFile.getFeatureVector(i); 
            
-      // first select vowell phones
+      // first select pause, then vowell and last consonant phones
       if(fv.getByteFeature(phoneIndex) > 0 && dur >= 0.01 ){  
-        if (allophoneSet.getAllophone(fv.getFeatureAsString(phoneIndex, featureDefinition)).isVowel()){
-          //---if (allophoneSet.getAllophone(fv.getFeatureAsString(phoneIndex, featureDefinition)).name().contentEquals("I")){
+        if (allophoneSet.getAllophone(fv.getFeatureAsString(phoneIndex, featureDefinition)).isPause()){          
+          for(int j=0; j < lingFactorsPause.length; j++)
+            toPauseFile.print(fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsPause[j])) + " ");
+          if(logDuration)
+            toPauseFile.println(Math.log(dur)); // last column is the dependent variable, in this case duration
+          else
+            toPauseFile.println(dur);
+          numPause++;
+        } else if (allophoneSet.getAllophone(fv.getFeatureAsString(phoneIndex, featureDefinition)).isVowel()){          
           for(int j=0; j < lingFactorsVowel.length; j++)
             toVowelsFile.print(fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsVowel[j])) + " ");
           if(logDuration)
             toVowelsFile.println(Math.log(dur)); // last column is the dependent variable, in this case duration
           else
             toVowelsFile.println(dur);
-          numVowels++;
-          //---}
-        } else {
+          numVowels++;          
+        } else {  // everything else will be considered consonant! is this correct?
           for(int j=0; j < lingFactorsConsonant.length; j++)
             toConsonantsFile.print(fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsConsonant[j])) + " ");
           if(logDuration)
@@ -194,119 +206,86 @@ public class DurationSoPTrainer extends VoiceImportComponent
    }
    toVowelsFile.close();
    toConsonantsFile.close();
+   toPauseFile.close();
    percent = 10; 
    int cols, rows;
-    
-   // -----------------------------------------------------------------------------------------
-   // VOWELS results:
-   int vd = solutionSize;  // desired size of the solution
-   int vD = 0; // maximum deviation allowed with respect to d
-   cols = lingFactorsVowel.length;  
-   int indVariable = cols; // the last column is the independent variable, in this case duration
-   rows = numVowels;
-   int rowIniVowTrain = 0;
-   int percentVal = (int)(Math.floor((numVowels*0.7)));
-   int rowEndVowTrain = percentVal-1;
-   int rowIniVowTest = percentVal;
-   int rowEndVowTest = percentVal + (numVowels-percentVal-1) - 1;
-     
-   System.out.println("\nProcessing Vowels:");
-   System.out.println("Number of duration points: " + rows 
-       + "\nNumber of points used for training from " + rowIniVowTrain + " to " + rowEndVowTrain + "(Total train=" + (rowEndVowTrain-rowIniVowTrain) 
-       + ")\nNumber of points used for testing from " + rowIniVowTest + " to " + rowEndVowTest + "(Total test=" + (rowEndVowTest-rowIniVowTest) + ")");
-   System.out.println("Number of linguistic factors: " + cols);  
-   System.out.println("Max number of selected features in SFFS: " + (vd+vD));
-   if(interceptTerm)
-     System.out.println("Using intercept Term for regression");
-   else
-     System.out.println("No intercept Term for regression");
-   if(logDuration)
-     System.out.println("Using log(duration) as independent variable" + "\n");
-   else
-     System.out.println("Using duration as independent variable" + "\n");
-   // copy indexes of column features
-   int vY[] = new int[lingFactorsVowel.length];
-   int vX[] = {};
-   for(int j=0; j < lingFactorsVowel.length; j++)
-     vY[j] = j;
+
+   double percentToTrain = 0.7;
    
-   // we need to remove from vY the column features that have mean 0.0
-   vY = checkMeanColumns(vowelsFile, vY, lingFactorsConsonant);
-   
-   SFFS sffsVowel = new SFFS();
-   SoP sopVowel = sffsVowel.sequentialForwardFloatingSelection(vowelsFile, indVariable, lingFactorsVowel, vX, vY, vd, vD, rowIniVowTrain, rowEndVowTrain, interceptTerm);
-   
-   // Save selected features and coefficients 
-   // First line vowel coefficients plus factors, second line consonant coefficients plus factors
+   System.out.println("\n==================================\nProcessing Vowels:");
+   SoP sopVowel = trainModel(lingFactorsVowel, vowelsFile, numVowels, percentToTrain);
    sopVowel.saveSelectedFeatures(toSopFile);
-   sopVowel.printCoefficients();
-   System.out.println("Correlation vowels original duration / predicted duration = " + sopVowel.getCorrelation() +  
-                      "\nRMSE (root mean square error) = " + sopVowel.getRMSE() );   
-   Regression regVowel = new Regression();
-   regVowel.setCoeffs(sopVowel.getCoeffs());
-   System.out.println("\nNumber points used for training=" + (rowEndVowTrain-rowIniVowTrain)); 
-   regVowel.predictValues(vowelsFile, cols, sopVowel.getFactorsIndex(), interceptTerm, rowIniVowTrain, rowEndVowTrain); 
-   System.out.println("\nNumber points used for testing=" + (rowEndVowTest-rowIniVowTest)); 
-   regVowel.predictValues(vowelsFile, cols, sopVowel.getFactorsIndex(), interceptTerm, rowIniVowTest, rowEndVowTest);
    
-
-   //-----------------------------------------------------------------------------------------
-   //CONSONANTS results:
-   int cd = solutionSize;  // desired size of the solution
-   int cD = 0; // maximum deviation allowed with respect to d
-   cols = lingFactorsConsonant.length;  // linguistic factors plus duration
-   indVariable = cols; // the last column is the independent variable, in this case duration
-   rows = numConsonants;  
-   int rowIniConTrain = 0;
-   percentVal = (int)(Math.floor((numConsonants*0.7)));
-   int rowEndConTrain = percentVal-1;
-   int rowIniConTest = percentVal;
-   int rowEndConTest = percentVal + (numConsonants-percentVal-1) - 1;
-   
-   System.out.println("\nProcessing Consonants:");
-   System.out.println("Number of duration points: " + rows 
-     + "\nNumber of points used for training from " + rowIniConTrain + " to " + rowEndConTrain + "(Total train=" + (rowEndConTrain-rowIniConTrain) 
-     + ")\nNumber of points used for testing from " + rowIniConTest + " to " + rowEndConTest + "(Total test=" + (rowEndConTest-rowIniConTest) + ")");
-   System.out.println("Number of linguistic factors: " + cols);
-   System.out.println("Max number of selected features in SFFS: " + (cd+cD));
-   if(interceptTerm)
-     System.out.println("Using intercept Term for regression");
-   else
-     System.out.println("No intercept Term for regression");
-   if(logDuration)
-     System.out.println("Using log(duration) as independent variable" + "\n");
-   else
-     System.out.println("Using duration as independent variable" + "\n");
-
-   // copy indexes of column features
-   int cY[] = new int[lingFactorsConsonant.length];
-   int cX[] = {};
-   for(int j=0; j < lingFactorsConsonant.length; j++)
-     cY[j] = j;
-   
-   // we need to remove from cY the column features that have mean 0.0
-   cY = checkMeanColumns(consonantsFile, cY, lingFactorsConsonant);
-   SFFS sffsConsonant = new SFFS();
-   SoP sopConsonant = sffsConsonant.sequentialForwardFloatingSelection(consonantsFile, indVariable, lingFactorsConsonant, cX, cY, cd, cD, rowIniConTrain, rowEndConTrain, interceptTerm);
-   // Save selected features and coefficients 
-   // First line vowel coefficients plus factors, second line consonant coefficients plus factors
+   System.out.println("\n==================================\nProcessing Consonants:");
+   SoP sopConsonant = trainModel(lingFactorsConsonant, consonantsFile, numConsonants, percentToTrain);
    sopConsonant.saveSelectedFeatures(toSopFile);
-   sopConsonant.printCoefficients();
-   System.out.println("Correlation consonants original duration / predicted duration = " + sopConsonant.getCorrelation()  +  
-                      "\nRMSE (root mean square error) = " + sopConsonant.getRMSE() );
    
-   Regression regConsonant = new Regression();
-   regConsonant.setCoeffs(sopConsonant.getCoeffs());
-   System.out.println("\nNumber points used for training=" + (rowEndConTrain-rowIniConTrain)); 
-   regConsonant.predictValues(consonantsFile, cols, sopConsonant.getFactorsIndex(), interceptTerm, rowIniConTrain, rowEndConTrain);
-   System.out.println("\nNumber points used for testing=" + (rowEndConTest-rowIniConTest)); 
-   regConsonant.predictValues(consonantsFile, cols, sopConsonant.getFactorsIndex(), interceptTerm, rowIniConTest, rowEndConTest);
-
-   percent = 100;
+   System.out.println("\n==================================\nProcessing Pause:");
+   SoP sopPause = trainModel(lingFactorsPause, pauseFile, numPause, percentToTrain);
+   sopPause.saveSelectedFeatures(toSopFile);
    
    toSopFile.close();
+   
+   percent = 100;
+   
    return true;
   }
+
+  
+
+  public SoP trainModel(String[] lingFactors, String featuresFile, int numFeatures, double percentToTrain) {
+
+    int d = solutionSize;  // desired size of the solution
+    int D = 0; // maximum deviation allowed with respect to d
+    int cols = lingFactors.length;  
+    int indVariable = cols; // the last column is the independent variable, in this case duration
+    int rows = numFeatures;
+    int rowIniTrain = 0;
+    int percentVal = (int)(Math.floor((numFeatures * percentToTrain)));
+    int rowEndTrain = percentVal-1;
+    int rowIniTest = percentVal;
+    int rowEndTest = percentVal + (numFeatures-percentVal-1) - 1;
+    
+    System.out.println("Number of duration points: " + rows 
+      + "\nNumber of points used for training from " + rowIniTrain + " to " + rowEndTrain + "(Total train=" + (rowEndTrain-rowIniTrain) 
+      + ")\nNumber of points used for testing from " + rowIniTest + " to " + rowEndTest + "(Total test=" + (rowEndTest-rowIniTest) + ")");
+    System.out.println("Number of linguistic factors: " + cols);  
+    System.out.println("Max number of selected features in SFFS: " + (d+D));
+    if(interceptTerm)
+      System.out.println("Using intercept Term for regression");
+    else
+      System.out.println("No intercept Term for regression");
+    if(logDuration)
+      System.out.println("Using log(duration) as independent variable" + "\n");
+    else
+      System.out.println("Using duration as independent variable" + "\n");
+    // copy indexes of column features
+    int Y[] = new int[lingFactors.length];
+    int X[] = {};
+    for(int j=0; j < lingFactors.length; j++)
+      Y[j] = j;
+  
+    // we need to remove from Y the column features that have mean 0.0
+    System.out.println("Checking and removing columns with mean=0.0");
+    Y = checkMeanColumns(featuresFile, Y, lingFactors);
+  
+    SFFS sffs = new SFFS();
+    SoP sop = sffs.sequentialForwardFloatingSelection(featuresFile, indVariable, lingFactors, X, Y, d, D, rowIniTrain, rowEndTrain, interceptTerm);
+  
+    sop.printCoefficients();
+    System.out.println("Correlation original duration / predicted duration = " + sop.getCorrelation() +  
+                     "\nRMSE (root mean square error) = " + sop.getRMSE() );   
+    Regression reg = new Regression();
+    reg.setCoeffs(sop.getCoeffs());
+    System.out.println("\nNumber points used for training=" + (rowEndTrain-rowIniTrain)); 
+    reg.predictValues(featuresFile, cols, sop.getFactorsIndex(), interceptTerm, rowIniTrain, rowEndTrain); 
+    System.out.println("\nNumber points used for testing=" + (rowEndTest-rowIniTest)); 
+    reg.predictValues(featuresFile, cols, sop.getFactorsIndex(), interceptTerm, rowIniTest, rowEndTest);
+    
+    return sop;
+  
+  }
+  
   
   
   
