@@ -108,7 +108,7 @@ THIS SOFTWARE.
     <property name="javadocdir" value="doc/javadoc"/>
     <mkdir dir="${javadocdir}"/>
     <javadoc packagenames="marytts.*"
-             classpath="${project.classpath}"
+             classpathref="project.classpath"
              sourcepath="${src}"
              destdir="${javadocdir}"
              author="true"
