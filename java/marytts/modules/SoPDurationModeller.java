@@ -209,6 +209,10 @@ throws Exception
           }
           // TODO: where do we check that the solution is log(duration) or duration???
           System.out.format(" = %.3f\n", durInSeconds);
+          // TODO: this problem is not solved, it seems it has to do with punctuation (?)
+          if(durInSeconds < 0){
+            throw new Exception("Error generating SoP Duration: durInSeconds < 0.0 ");
+          }
           end += durInSeconds;
           int durInMillis = (int) (1000 * durInSeconds);
           if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) {

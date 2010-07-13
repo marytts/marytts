@@ -131,10 +131,20 @@ public class SoP {
     if(interceptTerm){
       // the first factor is empty filled with "_" so it should not be used
       solution = coeffs[0];
-      for(int i=1; i<coeffs.length; i++){        
-        solution = solution + ( coeffs[i] * t.getFeatureVector().getByteFeature(factorsIndex[i]) );       
-        //System.out.format("   solution:  %.3f = %.3f + %.3f * %d (%s)  featureIndex=%d\n", solution, solution, coeffs[i], 
-        //    t.getFeatureVector().getByteFeature(factorsIndex[i]), factors[i], factorsIndex[i]);        
+      System.out.format("   solution = %.3f (coeff[0])\n", coeffs[0]); 
+      for(int i=1; i<coeffs.length; i++){
+        // check if the retrieved bytevalue is allowed for the kind of feature factor
+        byte feaVal = t.getFeatureVector().getByteFeature(factorsIndex[i]);
+        String feaValStr = t.getFeatureVector().getFeatureAsString(factorsIndex[i], feaDef);
+        if(feaDef.hasFeatureValue(factorsIndex[i], feaValStr))
+        {
+          System.out.format("   %.3f + (%.3f * %d (%s) = ", solution, coeffs[i], feaVal, factors[i]);        
+          solution = solution + ( coeffs[i] * feaVal );       
+          System.out.format("%.3f  featureIndex=%d  feaValStr=%s \n", solution, factorsIndex[i], feaValStr);
+        } else {
+          System.out.format("WARNING: Feature value for %s = %s is not valid", coeffs[i], feaValStr);
+        }
+          
       }      
     } else {
       for(int i=0; i<coeffs.length; i++)        
