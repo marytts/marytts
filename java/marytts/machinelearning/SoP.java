@@ -71,13 +71,14 @@ public class SoP {
         // there is one coefficient more than factors
         coeffs = new double[numFactors+1];
         factors = new String[numFactors+1];
-        factorsIndex = new int[numFactors];
+        factorsIndex = new int[numFactors+1];
         coeffs[0] = coeffsVal[0];
         factors[0] = "_";   // if there is intercept term then the first factor is empty here indicated with _
+        factorsIndex[0] = -1;
         for(int i=1; i<(numFactors+1); i++){
           coeffs[i] = coeffsVal[i];        
           factors[i] = allFactorsList[selectedFactorsIndex[i-1]];
-          factorsIndex[i-1] = featureDefinition.getFeatureIndex(factors[i]);
+          factorsIndex[i] = featureDefinition.getFeatureIndex(factors[i]);
         }
       } else {
         coeffs = new double[numFactors];
@@ -154,7 +155,7 @@ public class SoP {
     return solution;
   }
   
-  /**
+  /***
    * First line vowel coefficients plus factors, second line consonant coefficients plus factors
    */
   public void saveSelectedFeatures(PrintWriter toSopFile)
