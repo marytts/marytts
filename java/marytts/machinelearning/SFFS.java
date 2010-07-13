@@ -14,7 +14,8 @@ import marytts.util.math.Regression;
 */
 public class SFFS {
 
-  public SoP sequentialForwardFloatingSelection(String dataFile, int indVariable, String[] features, int X[], int Y[], int d, int D, int rowIni, int rowEnd, boolean interceptTerm){
+  public void sequentialForwardFloatingSelection(String dataFile, int indVariable, String[] features, 
+      int X[], int Y[], int d, int D, int rowIni, int rowEnd, boolean interceptTerm, SoP sop) throws Exception {
     
     int indVarColNumber = features.length;  // the last column is the independent variable
  
@@ -100,12 +101,9 @@ public class SFFS {
     reg.multipleLinearRegression(dataFile, indVariable, X, features, interceptTerm, rowIni, rowEnd);
 
     // copy the coefficients and selected factors in SoP
-    SoP sop = new SoP(reg.getCoeffs(), X, features, interceptTerm);
+    sop.setCoeffsAndFactors(reg.getCoeffs(), X, features, interceptTerm);
     sop.setCorrelation(reg.getCorrelation());
-    sop.setRMSE(reg.getRMSE());
-
-    return sop;
-  
+    sop.setRMSE(reg.getRMSE());  
   }
   
    

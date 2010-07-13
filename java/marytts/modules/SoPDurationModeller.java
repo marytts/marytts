@@ -3,6 +3,7 @@ package marytts.modules;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -54,20 +55,20 @@ public class SoPDurationModeller extends InternalModule
   SoP sopPause;
 
   protected TargetFeatureComputer featureComputer;
-  private String propertyPrefix;
   private FeatureProcessorManager featureProcessorManager;
-  private AllophoneSet allophoneSet;   
+  private AllophoneSet allophoneSet;     
+  FeatureDefinition voiceFeatDef;
 
   /**
    * Constructor which can be directly called from init info in the config file.
    * This constructor will use the registered feature processor manager for the given locale.
    * @param locale a locale string, e.g. "en"
-   * @param propertyPrefix the prefix to be used when looking up entries in the config files, e.g. "english.duration"
+   * @param sopFileName 
    * @throws Exception
    */
-  public SoPDurationModeller(String locale, String propertyPrefix)
+  public SoPDurationModeller(String locale, String sopFile)
   throws Exception {
-      this(MaryUtils.string2locale(locale), propertyPrefix,
+      this(MaryUtils.string2locale(locale), sopFile,
               FeatureRegistry.getFeatureProcessorManager(MaryUtils.string2locale(locale)));
   }
   
@@ -79,10 +80,10 @@ public class SoPDurationModeller extends InternalModule
    * @param featprocClassInfo a package name for an instance of FeatureProcessorManager, e.g. "marytts.language.en.FeatureProcessorManager"
    * @throws Exception
    */
-  public SoPDurationModeller(String locale, String propertyPrefix, String featprocClassInfo)
+  public SoPDurationModeller(String locale, String sopFile, String featprocClassInfo)
   throws Exception
   {
-      this(MaryUtils.string2locale(locale), propertyPrefix,
+      this(MaryUtils.string2locale(locale), sopFile,
               (FeatureProcessorManager)MaryUtils.instantiateObject(featprocClassInfo));
   }
   
@@ -93,66 +94,68 @@ public class SoPDurationModeller extends InternalModule
    * @praam featureProcessorManager the manager to use when looking up feature processors.
    */
   protected SoPDurationModeller(Locale locale,
-             String propertyPrefix, FeatureProcessorManager featureProcessorManager)
+             String sopFile, FeatureProcessorManager featureProcessorManager)
   {
       super("SoPDurationModeller",
               MaryDataType.ALLOPHONES,
               MaryDataType.DURATIONS, locale);
-      if (propertyPrefix.endsWith(".")) this.propertyPrefix = propertyPrefix;
-      else this.propertyPrefix = propertyPrefix + ".";
+      this.sopFileName = sopFile;
       this.featureProcessorManager = featureProcessorManager;
   }
 
   public void startup() throws Exception
   {
     super.startup();
-    
-    // load equations
-    sopFileName = "/project/mary/marcela/UnitSel-voices/slt-arctic/temp/dur.sop";    
-    // Read dur.sop file 
+
+    // Read dur.sop file to load linear equations
     // the first line corresponds to vowels and the second to consonants
+    String sopFile = MaryProperties.getFilename(sopFileName);
+    //System.out.println("sopFileName: " + sopFile);
     String nextLine;
+    String strContext="";
     Scanner s = null;
     try {
-      s = new Scanner(new BufferedReader(new FileReader(sopFileName)));
+      s = new Scanner(new BufferedReader(new FileReader(sopFile)));
       
+      // The first part contains the feature definition
+      while (s.hasNext()) {
+        nextLine = s.nextLine(); 
+        if (nextLine.trim().equals("")) break;
+        else
+          strContext += nextLine + "\n";
+      }
+      // the featureDefinition is the same for vowel, consonant and Pause
+      voiceFeatDef = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false);
+ 
       // vowel line
       if (s.hasNext()){
         nextLine = s.nextLine();
         System.out.println("line vowel = " + nextLine);
-        sopVowel = new SoP(nextLine);
-        sopVowel.printCoefficients();
-      }
-      
+        sopVowel = new SoP(nextLine, voiceFeatDef);
+        //sopVowel.printCoefficients();
+      }      
       // consonant line
       if (s.hasNext()){
         nextLine = s.nextLine();
         System.out.println("line consonants = " + nextLine);
-        sopConsonant = new SoP(nextLine);
-        sopConsonant.printCoefficients();
+        sopConsonant = new SoP(nextLine, voiceFeatDef);
+        //sopConsonant.printCoefficients();
       }
       // pause line
       if (s.hasNext()){
         nextLine = s.nextLine();
         System.out.println("line pause = " + nextLine);
-        sopPause = new SoP(nextLine);
-        sopPause.printCoefficients();
-      }
-
-                 
+        sopPause = new SoP(nextLine, voiceFeatDef);
+        //sopPause.printCoefficients();
+      }               
     } finally {
         if (s != null)
           s.close();
     }   
+      
+    // get a feature computer
+    featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, voiceFeatDef.getFeatureNames());
 
-    // get allophoneset
- 
-    String phoneXML = "/project/mary/marcela/openmary/lib/modules/en/us/lexicon/allophones.en_US.xml";
-    System.out.println("Reading allophones set from file: " + phoneXML);
-    allophoneSet = AllophoneSet.getAllophoneSet(phoneXML);
-    
-
- 
   }
 
 public MaryData process(MaryData d)
@@ -165,6 +168,7 @@ throws Exception
       // Make sure we have the correct voice:
       Element voice = (Element) MaryDomUtils.getAncestor(sentence, MaryXML.VOICE);
       Voice maryVoice = Voice.getVoice(voice);
+      
       if (maryVoice == null) {                
           maryVoice = d.getDefaultVoice();
       }
@@ -173,22 +177,10 @@ throws Exception
           Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
           maryVoice = Voice.getDefaultVoice(locale);
       }
-
-      String features = d.getOutputParams();
-      if (maryVoice != null) {
-          featureComputer = FeatureRegistry.getTargetFeatureComputer(maryVoice, features);
-          
-      } 
-      assert featureComputer != null : "Cannot get a feature computer!";
+    
+      allophoneSet = maryVoice.getAllophoneSet();
       TargetFeatureComputer currentFeatureComputer = featureComputer;
-      
-      System.out.println("\n\n****FILE=" + propertyPrefix+"featuredefinition" + "\nmary properties:" + MaryProperties.needFilename(propertyPrefix+"featuredefinition"));
-      // TODO: Check, this will not be the case for hmm voices....
-      //       need to find another way of getting a featureDefinition
-      File fdFile = new File(MaryProperties.needFilename(propertyPrefix+"featuredefinition"));
-      FeatureDefinition voiceFeatDef = new FeatureDefinition(new BufferedReader(new FileReader(fdFile)), true);
-      
-      
+     
       // cumulative duration from beginning of sentence, in seconds:
       float end = 0;
       float durInSeconds;
@@ -201,9 +193,8 @@ throws Exception
           Target t = new Target(phone, segmentOrBoundary);                
           t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
                                        
-          if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) { // a pause
-              //---durInSeconds = enterPauseDuration(segmentOrBoundary, previous, pausetree, pauseFeatureComputer);
-              System.out.print("Pause PHONE: " + phone);
+          if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) { // a pause              
+            System.out.print("Pause PHONE: " + phone);
             durInSeconds = (float)sopPause.solve(t, voiceFeatDef);
           } else {
             if (allophoneSet.getAllophone(phone).isVowel()){
@@ -212,20 +203,12 @@ throws Exception
               durInSeconds = (float)sopVowel.solve(t, voiceFeatDef);
             } else {
               // calculate duration with sopConsonant
-              System.out.print("consonant PHONE: " + phone);  
+              System.out.print("Cons. PHONE: " + phone);  
               durInSeconds = (float)sopConsonant.solve(t, voiceFeatDef);
             }
-              //--float[] dur = (float[])currentCart.interpret(t);
-              //--float[] dur = {0.02f, 0.03f};
-              //--assert dur != null : "Null duration";
-              //--assert dur.length == 2 : "Unexpected duration length: "+dur.length;
-              //--durInSeconds = dur[1];
-              //--float stddevInSeconds = dur[0];
           }
           // TODO: where do we check that the solution is log(duration) or duration???
           System.out.format(" = %.3f\n", durInSeconds);
-          if(durInSeconds < 0.0)
-            durInSeconds = 0.01f;
           end += durInSeconds;
           int durInMillis = (int) (1000 * durInSeconds);
           if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) {
