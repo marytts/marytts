@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.util.Scanner;
 import java.util.TreeMap;
 import java.util.SortedMap;
@@ -27,6 +28,7 @@ import javax.swing.JScrollPane;
 import Jama.Matrix;
 
 import marytts.features.FeatureDefinition;
+import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureVector;
 import marytts.machinelearning.SFFS;
 import marytts.machinelearning.SoP;
@@ -58,6 +60,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
   protected File unitlabelDir;
   protected File unitfeatureDir;
   protected File sopDurFile;
+  
   
   private final String name = "DurationSoPTrainer";
   private final String LABELDIR = name+".labelDir";
@@ -151,9 +154,6 @@ public class DurationSoPTrainer extends VoiceImportComponent
     lingFactorsConsonant = selectLinguisticFactors(featureDefinition.getFeatureNames(), "Select linguistic factors for consonants:");
     lingFactorsPause = selectLinguisticFactors(featureDefinition.getFeatureNames(), "Select linguistic factors for pause:");
     
-    // the final regression will be saved in this file, one line for vowels, one for consonants and another for pause
-    PrintWriter toSopFile = new PrintWriter(new FileOutputStream(sopDurFile));
-    
     // the following files contain all the feature files in columns
     PrintWriter toVowelsFile = new PrintWriter(new FileOutputStream(vowelsFile));
     PrintWriter toConsonantsFile = new PrintWriter(new FileOutputStream(consonantsFile));
@@ -215,18 +215,28 @@ public class DurationSoPTrainer extends VoiceImportComponent
 
    double percentToTrain = 0.7;
    
+   // the final regression will be saved in this file, one line for vowels, one for consonants and another for pause
+   PrintWriter toSopFile = new PrintWriter(new FileOutputStream(sopDurFile));
+   
+   // Save first the features definition on the output file
+   featureDefinition.writeTo(toSopFile, false);
+   toSopFile.println();
+  
    System.out.println("\n==================================\nProcessing Vowels:");
-   SoP sopVowel = trainModel(lingFactorsVowel, vowelsFile, numVowels, percentToTrain);
+   SoP sopVowel = new SoP(featureDefinition);
+   trainModel(lingFactorsVowel, vowelsFile, numVowels, percentToTrain, sopVowel);
    sopVowel.saveSelectedFeatures(toSopFile);
-   /*
+  
    System.out.println("\n==================================\nProcessing Consonants:");
-   SoP sopConsonant = trainModel(lingFactorsConsonant, consonantsFile, numConsonants, percentToTrain);
+   SoP sopConsonant = new SoP(featureDefinition);
+   trainModel(lingFactorsConsonant, consonantsFile, numConsonants, percentToTrain, sopConsonant);
    sopConsonant.saveSelectedFeatures(toSopFile);
    
    System.out.println("\n==================================\nProcessing Pause:");
-   SoP sopPause = trainModel(lingFactorsPause, pauseFile, numPause, percentToTrain);
+   SoP sopPause = new SoP(featureDefinition);
+   trainModel(lingFactorsPause, pauseFile, numPause, percentToTrain, sopPause);
    sopPause.saveSelectedFeatures(toSopFile);
-   */
+   
    toSopFile.close();
    
    percent = 100;
@@ -236,7 +246,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
 
   
 
-  public SoP trainModel(String[] lingFactors, String featuresFile, int numFeatures, double percentToTrain) {
+  public void trainModel(String[] lingFactors, String featuresFile, int numFeatures, double percentToTrain, SoP sop) throws Exception {
 
     int d = solutionSize;  // desired size of the solution
     int D = 0; // maximum deviation allowed with respect to d
@@ -273,7 +283,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
     Y = checkMeanColumns(featuresFile, Y, lingFactors);
   
     SFFS sffs = new SFFS();
-    SoP sop = sffs.sequentialForwardFloatingSelection(featuresFile, indVariable, lingFactors, X, Y, d, D, rowIniTrain, rowEndTrain, interceptTerm);
+    sffs.sequentialForwardFloatingSelection(featuresFile, indVariable, lingFactors, X, Y, d, D, rowIniTrain, rowEndTrain, interceptTerm, sop);
   
     sop.printCoefficients();
     System.out.println("Correlation original duration / predicted duration = " + sop.getCorrelation() +  
@@ -284,9 +294,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
     reg.predictValues(featuresFile, cols, sop.getFactorsIndex(), interceptTerm, rowIniTrain, rowEndTrain); 
     System.out.println("\nNumber points used for testing=" + (rowEndTest-rowIniTest)); 
     reg.predictValues(featuresFile, cols, sop.getFactorsIndex(), interceptTerm, rowIniTest, rowEndTest);
-    
-    return sop;
-  
+   
   }
   
   
@@ -466,20 +474,31 @@ public class DurationSoPTrainer extends VoiceImportComponent
       sop.compute();
       */
       String sopFileName = "/project/mary/marcela/UnitSel-voices/slt-arctic/temp/dur.sop";
+      //String contextFile = "/project/mary/marcela/UnitSel-voices/slt-arctic/phonefeatures/arctic_a0001.pfeats";
       File sopFile = new File(sopFileName);
-      
+         
       // Read dur.sop file 
       // the first line corresponds to vowels and the second to consonants
       String nextLine;
+      String strContext="";
       Scanner s = null;
       try {
         s = new Scanner(new BufferedReader(new FileReader(sopFileName)));
+        
+        while (s.hasNext()) {
+          nextLine = s.nextLine(); 
+          if (nextLine.trim().equals("")) break;
+          else
+            strContext += nextLine + "\n";
+        }
+        // the featureDefinition is the same for vowel, consonant and Pause
+        FeatureDefinition voiceFeatDef = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false);
         
         // vowel line
         if (s.hasNext()){
           nextLine = s.nextLine();
           System.out.println("line vowel = " + nextLine);
-          SoP sopVowel = new SoP(nextLine);
+          SoP sopVowel = new SoP(nextLine, voiceFeatDef);
           sopVowel.printCoefficients();
         }
         
@@ -487,7 +506,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
         if (s.hasNext()){
           nextLine = s.nextLine();
           System.out.println("line consonants = " + nextLine);
-          SoP sopConsonants = new SoP(nextLine);
+          SoP sopConsonants = new SoP(nextLine, voiceFeatDef);
           sopConsonants.printCoefficients();
         }
                    
