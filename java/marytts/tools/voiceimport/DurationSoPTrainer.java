@@ -179,7 +179,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
       if(fv.getByteFeature(phoneIndex) > 0 && dur >= 0.01 ){  
         if (allophoneSet.getAllophone(fv.getFeatureAsString(phoneIndex, featureDefinition)).isPause()){          
           for(int j=0; j < lingFactorsPause.length; j++)
-            toPauseFile.print(fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsPause[j])) + " ");
+            toPauseFile.print(fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsPause[j])) + " ");            
           if(logDuration)
             toPauseFile.println(Math.log(dur)); // last column is the dependent variable, in this case duration
           else
@@ -187,9 +187,8 @@ public class DurationSoPTrainer extends VoiceImportComponent
           numPause++;
         } else if (allophoneSet.getAllophone(fv.getFeatureAsString(phoneIndex, featureDefinition)).isVowel()){          
           for(int j=0; j < lingFactorsVowel.length; j++){
-            toVowelsFile.print(fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsVowel[j])) + " ");
-            if(lingFactorsVowel[j].contentEquals("next_vc"))
-              System.out.println("phone: " + fv.getFeatureAsString(phoneIndex, featureDefinition) + "  val = " + fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsVowel[j])));
+            byte feaVal = fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsVowel[j]));
+            toVowelsFile.print(feaVal + " ");
           }
           if(logDuration)
             toVowelsFile.println(Math.log(dur)); // last column is the dependent variable, in this case duration
@@ -197,8 +196,10 @@ public class DurationSoPTrainer extends VoiceImportComponent
             toVowelsFile.println(dur);
           numVowels++;          
         } else {  // everything else will be considered consonant! is this correct?
-          for(int j=0; j < lingFactorsConsonant.length; j++)
-            toConsonantsFile.print(fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsConsonant[j])) + " ");
+          for(int j=0; j < lingFactorsConsonant.length; j++){
+            byte feaVal = fv.getByteFeature(featureDefinition.getFeatureIndex(lingFactorsConsonant[j]));
+            toConsonantsFile.print( feaVal + " ");
+          }
           if(logDuration)
             toConsonantsFile.println(Math.log(dur));
           else
@@ -283,7 +284,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
     Y = checkMeanColumns(featuresFile, Y, lingFactors);
   
     SFFS sffs = new SFFS();
-    sffs.sequentialForwardFloatingSelection(featuresFile, indVariable, lingFactors, X, Y, d, D, rowIniTrain, rowEndTrain, interceptTerm, sop);
+    int selectedCols[] = sffs.sequentialForwardFloatingSelection(featuresFile, indVariable, lingFactors, X, Y, d, D, rowIniTrain, rowEndTrain, interceptTerm, sop);
   
     sop.printCoefficients();
     System.out.println("Correlation original duration / predicted duration = " + sop.getCorrelation() +  
@@ -291,9 +292,9 @@ public class DurationSoPTrainer extends VoiceImportComponent
     Regression reg = new Regression();
     reg.setCoeffs(sop.getCoeffs());
     System.out.println("\nNumber points used for training=" + (rowEndTrain-rowIniTrain)); 
-    reg.predictValues(featuresFile, cols, sop.getFactorsIndex(), interceptTerm, rowIniTrain, rowEndTrain); 
+    reg.predictValues(featuresFile, cols, selectedCols, interceptTerm, rowIniTrain, rowEndTrain); 
     System.out.println("\nNumber points used for testing=" + (rowEndTest-rowIniTest)); 
-    reg.predictValues(featuresFile, cols, sop.getFactorsIndex(), interceptTerm, rowIniTest, rowEndTest);
+    reg.predictValues(featuresFile, cols, selectedCols, interceptTerm, rowIniTest, rowEndTest);
    
   }
   
