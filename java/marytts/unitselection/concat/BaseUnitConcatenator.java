@@ -228,6 +228,8 @@ public class BaseUnitConcatenator implements UnitConcatenator
     {
         protected int[] pitchmarks;
         protected Datagram[] frames;
+        protected Datagram rightContextFrame;
+        
         protected int unitDuration = -1;
 
         public UnitData()
@@ -300,14 +302,16 @@ public class BaseUnitConcatenator implements UnitConcatenator
             return frames[frameIndex];
         }
         
-        public Datagram getLeftContext() {
-            return frames[0];
+        public void setRightContextFrame(Datagram aRightContextFrame)
+        {
+            this.rightContextFrame = aRightContextFrame;
         }
         
-        public Datagram getRightContext() {
-            return frames[frames.length - 1];
+        public Datagram getRightContextFrame()
+        {
+            return rightContextFrame;
         }
-        
+
         /**
          * Set the realised duration of this unit,
          * in samples.

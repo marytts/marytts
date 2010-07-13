@@ -78,7 +78,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         Datagram[] rightContexts = new Datagram[nonEmptyUnits.size()];
         for (int i = 0; i < rightContexts.length; i++) {
             UnitData unitData = (UnitData) nonEmptyUnits.get(i).getConcatenationData();
-            rightContexts[i] = unitData.getRightContext();
+            rightContexts[i] = unitData.getRightContextFrame();
         }
         return rightContexts;
     }
