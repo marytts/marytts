@@ -42,8 +42,6 @@ import marytts.unitselection.select.Target;
  *
  */
 public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
-    private Datagram[][] datagrams;
-    private Datagram[] rightContexts;
     
     /**
      * 
@@ -54,131 +52,60 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     }
     
     /**
-     * Get the raw audio material for each unit from the timeline.
-     * <p>
-     * TODO: this is completely equivalent to {@link OverlapUnitConcatenator#getDatagramsFromTimeline}! {{prod}}
+     * Get the Datagrams from a List of SelectedUnits as an array of arrays; the number of elements in the array is equal to the number
+     * of Units, and each element contains that Unit's Datagrams as an array.
+     * 
      * @param units
+     * @return array of Datagram arrays
      */
-    @Deprecated
-    protected void getDatagramsFromTimeline(List<SelectedUnit> units) throws IOException
-    {
-        for (SelectedUnit unit : units) 
-        {
-            assert !unit.getUnit().isEdgeUnit() : "We should never have selected any edge units!";
-            OverlapUnitData unitData = new OverlapUnitData();
-            unit.setConcatenationData(unitData);
-            int nSamples = 0;
-            int unitSize = unitToTimeline(unit.getUnit().duration); // convert to timeline samples
-            long unitStart = unitToTimeline(unit.getUnit().startTime); // convert to timeline samples
-            //System.out.println("Unit size "+unitSize+", pitchmarksInUnit "+pitchmarksInUnit);
-            Datagram [] tmpDatagrams = timeline.getDatagrams(unitStart,(long)unitSize);
-            unitData.setFrames(tmpDatagrams);
-            // one right context period for windowing:
-            Datagram rightContextFrame = null;
-            Unit nextInDB = database.getUnitFileReader().getNextUnit(unit.getUnit());
-            if (nextInDB != null && !nextInDB.isEdgeUnit()) {
-                rightContextFrame = timeline.getDatagram(unitStart+unitSize);
-                unitData.setRightContextFrame(rightContextFrame);
-            }
+    private Datagram[][] getDatagrams(List<SelectedUnit> units) {
+        List<SelectedUnit> nonEmptyUnits = getNonEmptyUnits(units);
+        Datagram[][] datagrams = new Datagram[nonEmptyUnits.size()][];
+        for (int i = 0; i < nonEmptyUnits.size(); i++) {
+            UnitData unitData = (UnitData) nonEmptyUnits.get(i).getConcatenationData();
+            datagrams[i] = unitData.getFrames();
         }
+        return datagrams;
     }
     
     /**
-     * Determine target pitchmarks (= duration and f0) for each unit.
+     * Convenience method to return the rightmost Datagram from each element in a List of SelectedUnits
      * @param units
+     * @return rightmost Datagrams as an array
      */
-    protected void determineTargetPitchmarks(List<SelectedUnit> units)
-    {
-        // First, determine the target pitchmarks as usual by the parent
-        // implementation:
-        super.determineTargetPitchmarks(units);
-        
-        int len = units.size();
-//        datagrams = new Datagram[len][];
-//        rightContexts = new Datagram[len];
-        // we need something more flexible than arrays to handle Units with frameless UnitData: 
-        ArrayList<Datagram[]> datagramList = new ArrayList<Datagram[]>(len);
-        ArrayList<Datagram> rightContextList = new ArrayList<Datagram>(len);
-
-        int i, j;
-        SelectedUnit unit = null;
-
-        //Preprocessing and allocation
-        for (i=0; i<len; i++) 
-        {
-            unit = (SelectedUnit) units.get(i);
-            
-            OverlapUnitData unitData = (OverlapUnitData)unit.getConcatenationData();
-            assert unitData != null : "Should not have null unitdata here";
-            // processing down the line fails when frames are empty or duration is zero, therefore:
-            if (unitData.getUnitDuration() == 0) {
-                logger.debug("ignoring datagrams for unit " + unit.toString());
-                continue;
-            }
-            Datagram[] frames = unitData.getFrames();
-            assert frames != null : "Cannot generate audio from null frames";
-            
-            datagramList.add(frames);
-            rightContextList.add(unitData.getRightContextFrame());
-            
-            // the rest is obsolete:
-            
-            // Generate audio from frames
-//            datagrams[i] = frames;
-//            
-//            Unit nextInDB = database.getUnitFileReader().getNextUnit(unit.getUnit());
-//            Unit nextSelected;
-//            if (i+1==len) nextSelected = null;
-//            else nextSelected = ((SelectedUnit)units.get(i+1)).getUnit();
-//            if (nextInDB != null && !nextInDB.equals(nextSelected)) {
-//                // Only use right context if we have a next unit in the DB is not the
-//                // same as the next selected unit.
-//                rightContexts[i] = unitData.getRightContextFrame(); // may be null
-//            }
+    private Datagram[] getRightContexts(List<SelectedUnit> units) {
+        List<SelectedUnit> nonEmptyUnits = getNonEmptyUnits(units);
+        Datagram[] rightContexts = new Datagram[nonEmptyUnits.size()];
+        for (int i = 0; i < rightContexts.length; i++) {
+            UnitData unitData = (UnitData) nonEmptyUnits.get(i).getConcatenationData();
+            rightContexts[i] = unitData.getRightContext();
         }
-        
-        // overwrite buggy arrays from the Lists:
-        datagrams = new Datagram[datagramList.size()][];
-        rightContexts = new Datagram[datagramList.size()];
-        for (int u = 0; u < datagramList.size(); u++) {
-            datagrams[u] = datagramList.get(u);
-            rightContexts[u] = rightContextList.get(u);
-        }
-        
-        // TODO: all of this is also done in getPitchScales; delete this?
-//        getVoicings(units);
-
-        // this seems to be the first instance of new code in this class:
-        getPitchScales(units);
-        
+        return rightContexts;
     }
-    
+
+    /**
+     * Get voicing for every Datagram in a List of SelectedUnits, as an array of arrays of booleans. This queries the
+     * phonological voicedness value for the Target as defined in the AllophoneSet
+     * 
+     * @param units
+     * @return array of boolean voicing arrays
+     */
     private boolean[][] getVoicings(List<SelectedUnit> units)
     {
-        int len = units.size();
-        // actually:
-        len = datagrams.length;
-        int i, j;
+        Datagram[][] datagrams = getDatagrams(units);
         
-        boolean[][] voicings = new boolean[len][];
+        boolean[][] voicings = new boolean[datagrams.length][];
 
-        SelectedUnit unit = null;
-        
-        //Estimation of pitch scale modification amounts
-        for (i=0; i<len; i++) 
+        for (int i=0; i<datagrams.length; i++) 
         {
-            unit = (SelectedUnit) units.get(i);
-
-            Allophone allophone = unit.getTarget().getAllophone();
+            Allophone allophone = units.get(i).getTarget().getAllophone();
 
             voicings[i] = new boolean[datagrams[i].length];
             
-            for (j=0; j<datagrams[i].length; j++)
-            {
-                if (allophone != null && (allophone.isVowel() || allophone.isVoiced()))
-                    voicings[i][j] = true;
-                else
-                    voicings[i][j] = false;
+            if (allophone != null && allophone.isVoiced()) {
+                Arrays.fill(voicings[i], true);
+            } else {
+                Arrays.fill(voicings[i], false);
             }
         }
         return voicings;
@@ -194,9 +121,8 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     //6) Pitch slopes can be modified for better matching in concatenation boundaries
     private double[][] getPitchScales(List<SelectedUnit> units)
     {
-        int len = units.size();
-        // actually:
-        len = datagrams.length;
+        Datagram[][] datagrams = getDatagrams(units);
+        int len = datagrams.length;
         int i, j;
         double averageUnitF0InHz;
         double averageTargetF0InHz;
@@ -324,9 +250,8 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     //3) Duration modification factors can be limited depending on the previous/next phone class
     private double[][] getDurationScales(List<SelectedUnit> units)
     {
-        int len = units.size();
-        // actually:
-        len = datagrams.length;
+        Datagram[][] datagrams = getDatagrams(units);
+        int len = datagrams.length;
         
         int i, j;
         double[][] tscales = new double[len][];
@@ -345,9 +270,9 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
             {
                 if (j==datagrams[i].length-1)
                 {
-                    if (rightContexts!=null && rightContexts[i]!=null)
-                        unitDuration += datagrams[i][j].getDuration();//+rightContexts[i].getDuration();
-                    else
+//                    if (rightContexts!=null && rightContexts[i]!=null)
+//                        unitDuration += datagrams[i][j].getDuration();//+rightContexts[i].getDuration();
+//                    else
                         unitDuration += datagrams[i][j].getDuration();
                 }
                 else
@@ -431,12 +356,30 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         
         // finally, initialize the tscales array...
         double[][] tscales = new double[timeScaleFactors.size()][];
+        Datagram[][] datagrams = getDatagrams(units);
         for (int i = 0; i < tscales.length; i++) {
             tscales[i] = new double[datagrams[i].length];
             // ...which currently provides the same time scale factor for every datagram in a selected unit:
             Arrays.fill(tscales[i], timeScaleFactors.get(i));
         }
         return tscales;
+    }
+    
+    /**
+     * Convenience method to grep those SelectedUnits from a List which have positive duration
+     * 
+     * @param units
+     * @return units with positive duration
+     */
+    private List<SelectedUnit> getNonEmptyUnits(List<SelectedUnit> units) {
+        ArrayList<SelectedUnit> nonEmptyUnits = new ArrayList<SelectedUnit>(units.size());
+        for (SelectedUnit unit : units) {
+            UnitData unitData = (UnitData) unit.getConcatenationData();
+            if (unitData.getUnitDuration() > 0) {
+                nonEmptyUnits.add(unit);
+            }
+        }
+        return nonEmptyUnits;
     }
     
     /**
@@ -491,11 +434,12 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
      */
     protected AudioInputStream generateAudioStream(List<SelectedUnit> units)
     {
+        Datagram[][] datagrams = getDatagrams(units);
+        Datagram[] rightContexts = getRightContexts(units);
         boolean[][] voicings = getVoicings(units);
         double[][] pscales = getPitchScales(units);
 //      double[][] tscales = getDurationScales(units);
         double[][] tscales = getPhoneBasedDurationScales(units);
-        // TODO: this does not seem thread-safe -- what happens if several threads call FDPSOLAUnitConcatenator? Store all data in units.
         return (new FDPSOLAProcessor()).process(datagrams, rightContexts, audioformat, voicings, pscales, tscales);
     }
     

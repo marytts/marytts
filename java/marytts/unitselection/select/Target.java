@@ -85,6 +85,21 @@ public class Target
         }
     }
     
+    /**
+     * adapted from {@link MaryGenericFeatureProcessors.UnitDuration#process}
+     * @param newDuration
+     */
+    public void setTargetDurationInSeconds(float newDuration) {
+        if (maryxmlElement != null) {
+            if (maryxmlElement.getTagName().equals(MaryXML.PHONE)){
+                maryxmlElement.setAttribute("d", Float.toString(newDuration));
+            } else {
+                assert maryxmlElement.getTagName().equals(MaryXML.BOUNDARY) : "segment should be a phone or a boundary, but is a " + maryxmlElement.getTagName();
+                maryxmlElement.setAttribute("duration", Float.toString(newDuration));
+            }
+        }
+    }
+    
     public float getTargetF0InHz()
     {
         if (f0 != -1){
