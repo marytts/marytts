@@ -1,6 +1,10 @@
 package marytts.machinelearning;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.PrintWriter;
+
+import Jama.Matrix;
 import marytts.util.MaryUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.math.Regression;
@@ -13,9 +17,76 @@ import marytts.util.math.Regression;
 * @author marcela
 */
 public class SFFS {
+  
+  protected boolean interceptTerm = true;
+  protected boolean logSolution = false;
+  protected int solutionSize = 1;
+  
+  /**
+   * Sequential Floating Forward Search(SFFS) for selection of features
+   * @param solSize : size of the solution (default = 1)
+   * @param b0 : if true include interceptTerm or b0 in the linear equation (default = true)
+   * @param logSol : if true use log(independent variable) (default = false)
+   */
+  public SFFS(int solSize, boolean b0, boolean logSol){
+    interceptTerm = b0;
+    logSolution = logSol;
+    solutionSize = solSize;
+  }
+  
+  public void trainModel(String[] lingFactors, String featuresFile, int numFeatures, double percentToTrain, SoP sop) throws Exception {
+
+    int d = solutionSize;  // desired size of the solution
+    int D = 0; // maximum deviation allowed with respect to d
+    int cols = lingFactors.length;  
+    int indVariable = cols; // the last column is the independent variable
+    int rows = numFeatures;
+    int rowIniTrain = 0;
+    int percentVal = (int)(Math.floor((numFeatures * percentToTrain)));
+    int rowEndTrain = percentVal-1;
+    int rowIniTest = percentVal;
+    int rowEndTest = percentVal + (numFeatures-percentVal-1) - 1;
+    
+    System.out.println("Number of points: " + rows 
+      + "\nNumber of points used for training from " + rowIniTrain + " to " + rowEndTrain + "(Total train=" + (rowEndTrain-rowIniTrain) 
+      + ")\nNumber of points used for testing from " + rowIniTest + " to " + rowEndTest + "(Total test=" + (rowEndTest-rowIniTest) + ")");
+    System.out.println("Number of linguistic factors: " + cols);  
+    System.out.println("Max number of selected features in SFFS: " + (d+D));
+    if(interceptTerm)
+      System.out.println("Using intercept Term for regression");
+    else
+      System.out.println("No intercept Term for regression");
+    if(logSolution)
+      System.out.println("Using log(val) as independent variable" + "\n");
+    else
+      System.out.println("Using independent variable without log()" + "\n");
+    // copy indexes of column features
+    int Y[] = new int[lingFactors.length];
+    int X[] = {};
+    for(int j=0; j < lingFactors.length; j++)
+      Y[j] = j;
+  
+    // we need to remove from Y the column features that have mean 0.0
+    System.out.println("Checking and removing columns with mean=0.0");
+    Y = checkMeanColumns(featuresFile, Y, lingFactors);
+  
+    int selectedCols[] = sequentialForwardFloatingSelection(featuresFile, indVariable, lingFactors, X, Y, d, D, rowIniTrain, rowEndTrain, sop);
+  
+    sop.printCoefficients();
+    System.out.println("Correlation original val / predicted val = " + sop.getCorrelation() +  
+                     "\nRMSE (root mean square error) = " + sop.getRMSE() );   
+    Regression reg = new Regression();
+    reg.setCoeffs(sop.getCoeffs());
+    System.out.println("\nNumber points used for training=" + (rowEndTrain-rowIniTrain)); 
+    reg.predictValues(featuresFile, cols, selectedCols, interceptTerm, rowIniTrain, rowEndTrain); 
+    System.out.println("\nNumber points used for testing=" + (rowEndTest-rowIniTest)); 
+    reg.predictValues(featuresFile, cols, selectedCols, interceptTerm, rowIniTest, rowEndTest);
+   
+  }
+
 
   public int[] sequentialForwardFloatingSelection(String dataFile, int indVariable, String[] features, 
-      int X[], int Y[], int d, int D, int rowIni, int rowEnd, boolean interceptTerm, SoP sop) throws Exception {
+      int X[], int Y[], int d, int D, int rowIni, int rowEnd, SoP sop) throws Exception {
     
     int indVarColNumber = features.length;  // the last column is the independent variable
  
@@ -43,7 +114,7 @@ public class SFFS {
         // Step 1. (Inclusion)
         // given X_k create X_k+1 : add the most significant feature of Y to X
         System.out.println("ForwardSelection k=" + k);
-        ms = sequentialForwardSelection(dataFile, features, indVarColNumber, X, Y, forwardJ, rowIni, rowEnd, interceptTerm);
+        ms = sequentialForwardSelection(dataFile, features, indVarColNumber, X, Y, forwardJ, rowIni, rowEnd);
         System.out.format("corXplusy=%.4f  corX=%.4f\n", forwardJ[2], forwardJ[1]);
         corX = forwardJ[2];
         System.out.println("Most significant new feature to add: " + features[ms]);
@@ -63,7 +134,7 @@ public class SFFS {
             // Find the least significant feature x_s in the reduced X'
             System.out.println("\n BackwardSelection k=" + k);
             // get the least significant and check if removing it the correlation is better with or without this feature          
-            ls = sequentialBackwardSelection(dataFile, features, indVarColNumber, X, backwardJ, rowIni, rowEnd, interceptTerm);
+            ls = sequentialBackwardSelection(dataFile, features, indVarColNumber, X, backwardJ, rowIni, rowEnd);
             corX = backwardJ[1];
             System.out.format(" corXminusx=%.4f  corX=%.4f\n", backwardJ[0], backwardJ[1]);
             System.out.println(" Least significant feature to remove: " + features[ls]);
@@ -115,7 +186,7 @@ public class SFFS {
    * @param features
    * @return the index of Y that maximises J(X+y)
    */
-  private int sequentialForwardSelection(String dataFile, String[] features, int indVarColNumber, int X[], int Y[], double J[], int rowIni, int rowEnd, boolean interceptTerm){    
+  private int sequentialForwardSelection(String dataFile, String[] features, int indVarColNumber, int X[], int Y[], double J[], int rowIni, int rowEnd){    
     double sig[] = new double[Y.length];
     int sigIndex[] = new int[Y.length]; // to keep track of the corresponding feature
     double corXplusy[] = new double[Y.length];
@@ -134,7 +205,7 @@ public class SFFS {
     //S_k+1(y_j) = J(X_k + y_j) - J(X_k)     
     for(int i=0; i<Y.length; i++){
       // get J(X_k + y_j)
-      corXplusy[i] = correlationOfNewFeature(dataFile, features, indVarColNumber, X, Y[i], rowIni, rowEnd, interceptTerm);
+      corXplusy[i] = correlationOfNewFeature(dataFile, features, indVarColNumber, X, Y[i], rowIni, rowEnd);
       sig[i] = corXplusy[i] - corX;
       sigIndex[i] = Y[i];
       //System.out.println("Significance of new feature[" + sigIndex[i] + "]: " + features[sigIndex[i]] + " = " + sig[i]);  
@@ -158,7 +229,7 @@ public class SFFS {
    * @param features
    * @return the x (index) that minimises J(X-x)
    */
-  private int sequentialBackwardSelection(String dataFile, String[] features, int indVarColNumber, int X[], double J[], int rowIni, int rowEnd, boolean interceptTerm){    
+  private int sequentialBackwardSelection(String dataFile, String[] features, int indVarColNumber, int X[], double J[], int rowIni, int rowEnd){    
     double sig[] = new double[X.length];
     double corXminusx[] = new double[X.length];
     int sigIndex[] = new int[X.length]; // to keep track of the corresponding feature
@@ -178,7 +249,7 @@ public class SFFS {
     // S_k-1(x_j) = J(X_k) - J(X_k - x_i) 
     for(int i=0; i<X.length; i++){      
       // get J(X_k - x_i)
-      corXminusx[i] = correlationOfFeature(dataFile, features, indVarColNumber, X, X[i], rowIni, rowEnd, interceptTerm);
+      corXminusx[i] = correlationOfFeature(dataFile, features, indVarColNumber, X, X[i], rowIni, rowEnd);
       sig[i] = corX - corXminusx[i];
       sigIndex[i] = X[i];
       //System.out.println("Significance of current feature[" + sigIndex[i] + "]: " + features[sigIndex[i]] + " = " + sig[i]);  
@@ -206,7 +277,7 @@ public class SFFS {
    * @param x one feature index in X
    * @return 
    */
-  private double correlationOfFeature(String dataFile, String[] features, int indVarColNumber, int[] X, int x, int rowIni, int rowEnd, boolean interceptTerm){
+  private double correlationOfFeature(String dataFile, String[] features, int indVarColNumber, int[] X, int x, int rowIni, int rowEnd){
 
     double corXminusx;
     Regression reg = new Regression();
@@ -237,7 +308,7 @@ public class SFFS {
    * @param y a feature index that is not in X, new feature
    * @return
    */
-  private double correlationOfNewFeature(String dataFile, String[] features, int indVarColNumber, int[] X, int y, int rowIni, int rowEnd, boolean interceptTerm){
+  private double correlationOfNewFeature(String dataFile, String[] features, int indVarColNumber, int[] X, int y, int rowIni, int rowEnd){
 
     double corXplusy;
     Regression reg = new Regression();
@@ -274,6 +345,34 @@ public class SFFS {
       file.print(features[X[i]] + "  ");
     file.println();
   }
+
+  // remove the columns with mean = 0.0
+  private int[] checkMeanColumns(String dataFile, int Y[], String[] features){
+    try {
+      BufferedReader reader = new BufferedReader(new FileReader(dataFile));        
+      Matrix data = Matrix.read(reader);
+      reader.close(); 
+      data = data.transpose();  // then I have easy access to the columns
+      int rows = data.getRowDimension()-1;
+      int cols = data.getColumnDimension()-1;
+  
+      data = data.getMatrix(0,rows,1,cols); // dataVowels(:,1:cols) -> dependent variables
+      int M = data.getRowDimension();
+      double mn;
+      for(int i=0; i<M; i++){
+        mn = MathUtils.mean(data.getArray()[i]);
+        if(mn == 0.0){
+          System.out.println("Removing feature: " + features[i] + " from list of features because it has mean=0.0");
+          Y = MathUtils.removeIndex(Y, i);
+        }
+      }
+    } catch ( Exception e ) {
+      throw new RuntimeException( "Problem reading file " + dataFile, e );
+    }  
+    System.out.println();
+    return Y;
+  }
+  
 
   
 }

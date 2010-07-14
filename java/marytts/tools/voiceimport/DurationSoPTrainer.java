@@ -115,6 +115,9 @@ public class DurationSoPTrainer extends VoiceImportComponent
     props2Help.put(FEATUREFILE, "file containing all phone units and their target cost features");
     props2Help.put(UNITFILE, "file containing all phone units");
     props2Help.put(ALLOPHONESFILE, "allophones set file (XML format) it will be taken from ../openmary/lib/modules/language/...)");
+    props2Help.put(INTERCEPTTERM, "whether to include interceptTerm (b0) on the solution equation : b0 + b1X1 + .. bnXn");
+    props2Help.put(LOGDURATION, "whether to use log(independent variable)");
+    props2Help.put(SOLUTIONSIZE, "size of the solution, number of dependend variables");
   }
   
   protected void setSuccess(boolean val)
@@ -222,20 +225,22 @@ public class DurationSoPTrainer extends VoiceImportComponent
    // Save first the features definition on the output file
    featureDefinition.writeTo(toSopFile, false);
    toSopFile.println();
+   
+   SFFS sffs = new SFFS(solutionSize, interceptTerm, logDuration);
   
    System.out.println("\n==================================\nProcessing Vowels:");
    SoP sopVowel = new SoP(featureDefinition);
-   trainModel(lingFactorsVowel, vowelsFile, numVowels, percentToTrain, sopVowel);
+   sffs.trainModel(lingFactorsVowel, vowelsFile, numVowels, percentToTrain, sopVowel);
    sopVowel.saveSelectedFeatures(toSopFile);
   
    System.out.println("\n==================================\nProcessing Consonants:");
    SoP sopConsonant = new SoP(featureDefinition);
-   trainModel(lingFactorsConsonant, consonantsFile, numConsonants, percentToTrain, sopConsonant);
+   sffs.trainModel(lingFactorsConsonant, consonantsFile, numConsonants, percentToTrain, sopConsonant);
    sopConsonant.saveSelectedFeatures(toSopFile);
    
    System.out.println("\n==================================\nProcessing Pause:");
    SoP sopPause = new SoP(featureDefinition);
-   trainModel(lingFactorsPause, pauseFile, numPause, percentToTrain, sopPause);
+   sffs.trainModel(lingFactorsPause, pauseFile, numPause, percentToTrain, sopPause);
    sopPause.saveSelectedFeatures(toSopFile);
    
    toSopFile.close();
@@ -244,63 +249,8 @@ public class DurationSoPTrainer extends VoiceImportComponent
    
    return true;
   }
-
   
-
-  public void trainModel(String[] lingFactors, String featuresFile, int numFeatures, double percentToTrain, SoP sop) throws Exception {
-
-    int d = solutionSize;  // desired size of the solution
-    int D = 0; // maximum deviation allowed with respect to d
-    int cols = lingFactors.length;  
-    int indVariable = cols; // the last column is the independent variable, in this case duration
-    int rows = numFeatures;
-    int rowIniTrain = 0;
-    int percentVal = (int)(Math.floor((numFeatures * percentToTrain)));
-    int rowEndTrain = percentVal-1;
-    int rowIniTest = percentVal;
-    int rowEndTest = percentVal + (numFeatures-percentVal-1) - 1;
     
-    System.out.println("Number of duration points: " + rows 
-      + "\nNumber of points used for training from " + rowIniTrain + " to " + rowEndTrain + "(Total train=" + (rowEndTrain-rowIniTrain) 
-      + ")\nNumber of points used for testing from " + rowIniTest + " to " + rowEndTest + "(Total test=" + (rowEndTest-rowIniTest) + ")");
-    System.out.println("Number of linguistic factors: " + cols);  
-    System.out.println("Max number of selected features in SFFS: " + (d+D));
-    if(interceptTerm)
-      System.out.println("Using intercept Term for regression");
-    else
-      System.out.println("No intercept Term for regression");
-    if(logDuration)
-      System.out.println("Using log(duration) as independent variable" + "\n");
-    else
-      System.out.println("Using duration as independent variable" + "\n");
-    // copy indexes of column features
-    int Y[] = new int[lingFactors.length];
-    int X[] = {};
-    for(int j=0; j < lingFactors.length; j++)
-      Y[j] = j;
-  
-    // we need to remove from Y the column features that have mean 0.0
-    System.out.println("Checking and removing columns with mean=0.0");
-    Y = checkMeanColumns(featuresFile, Y, lingFactors);
-  
-    SFFS sffs = new SFFS();
-    int selectedCols[] = sffs.sequentialForwardFloatingSelection(featuresFile, indVariable, lingFactors, X, Y, d, D, rowIniTrain, rowEndTrain, interceptTerm, sop);
-  
-    sop.printCoefficients();
-    System.out.println("Correlation original duration / predicted duration = " + sop.getCorrelation() +  
-                     "\nRMSE (root mean square error) = " + sop.getRMSE() );   
-    Regression reg = new Regression();
-    reg.setCoeffs(sop.getCoeffs());
-    System.out.println("\nNumber points used for training=" + (rowEndTrain-rowIniTrain)); 
-    reg.predictValues(featuresFile, cols, selectedCols, interceptTerm, rowIniTrain, rowEndTrain); 
-    System.out.println("\nNumber points used for testing=" + (rowEndTest-rowIniTest)); 
-    reg.predictValues(featuresFile, cols, selectedCols, interceptTerm, rowIniTest, rowEndTest);
-   
-  }
-  
-  
-  
-  
   public String[] selectLinguisticFactors(String featureNames, String label) throws IOException
   {
       String[] lingFactors=null;
@@ -432,33 +382,6 @@ public class DurationSoPTrainer extends VoiceImportComponent
      System.out.println();
      return lingFactors;
   }  
-  
-  // remove the columns with mean = 0.0
-  private int[] checkMeanColumns(String dataFile, int Y[], String[] features){
-    try {
-      BufferedReader reader = new BufferedReader(new FileReader(dataFile));        
-      Matrix data = Matrix.read(reader);
-      reader.close(); 
-      data = data.transpose();  // then I have easy access to the columns
-      int rows = data.getRowDimension()-1;
-      int cols = data.getColumnDimension()-1;
-  
-      data = data.getMatrix(0,rows,1,cols); // dataVowels(:,1:cols) -> dependent variables
-      int M = data.getRowDimension();
-      double mn;
-      for(int i=0; i<M; i++){
-        mn = MathUtils.mean(data.getArray()[i]);
-        if(mn == 0.0){
-          System.out.println("Removing feature: " + features[i] + " from list of features because it has mean=0.0");
-          Y = MathUtils.removeIndex(Y, i);
-        }
-      }
-    } catch ( Exception e ) {
-      throw new RuntimeException( "Problem reading file " + dataFile, e );
-    }  
-    System.out.println();
-    return Y;
-  }
   
   
   public int getProgress()
