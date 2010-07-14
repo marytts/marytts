@@ -357,7 +357,8 @@ public class Regression {
   }
   
   // Given a set of coefficients and data predict values applying linear equation
-  // This function can be used to test with data that was not used in training
+  // This function can be used to test with data that was not used in training  
+  // c[] is the number of the columns in the file not the indexFeatures
   public void predictValues(String fileName, int indVariable, int[] c, boolean interceptTerm, int rowIni, int rowEnd) {    
     try {
       BufferedReader reader = new BufferedReader(new FileReader(fileName));        
@@ -407,6 +408,10 @@ public class Regression {
           // Predicted values
           Matrix p = data.times(b);
           predictedValues = p.getColumnPackedCopy();
+          for(int i=0; i<predictedValues.length; i++)
+            if(predictedValues[i] < 0.0)
+              System.out.println("*** WARNING predictedValue < 0.0 : predictedValues[" + i + "]=" + predictedValues[i]);
+
       
           // Correlation between original values and predicted ones       
           correlation = MathUtils.correlation(predictedValues, indVar.getColumnPackedCopy());

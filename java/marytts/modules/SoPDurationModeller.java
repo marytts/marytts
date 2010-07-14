@@ -130,21 +130,21 @@ public class SoPDurationModeller extends InternalModule
       // vowel line
       if (s.hasNext()){
         nextLine = s.nextLine();
-        System.out.println("line vowel = " + nextLine);
+        //System.out.println("line vowel = " + nextLine);
         sopVowel = new SoP(nextLine, voiceFeatDef);
         //sopVowel.printCoefficients();
       }      
       // consonant line
       if (s.hasNext()){
         nextLine = s.nextLine();
-        System.out.println("line consonants = " + nextLine);
+        //System.out.println("line consonants = " + nextLine);
         sopConsonant = new SoP(nextLine, voiceFeatDef);
         //sopConsonant.printCoefficients();
       }
       // pause line
       if (s.hasNext()){
         nextLine = s.nextLine();
-        System.out.println("line pause = " + nextLine);
+        //System.out.println("line pause = " + nextLine);
         sopPause = new SoP(nextLine, voiceFeatDef);
         //sopPause.printCoefficients();
       }               
@@ -195,23 +195,35 @@ throws Exception
                                        
           if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) { // a pause              
             System.out.print("Pause PHONE: " + phone);
-            durInSeconds = (float)sopPause.solve(t, voiceFeatDef);
+            durInSeconds = (float)sopPause.solve(t, voiceFeatDef, false);
+            if(durInSeconds < 0.0 ){
+              System.out.println("\nWARNING: duration < 0.0");
+              durInSeconds = (float)sopPause.solve(t, voiceFeatDef, true);  
+            }
           } else {
             if (allophoneSet.getAllophone(phone).isVowel()){
               // calculate duration with sopVowel
               System.out.print("Vowel PHONE: " + phone);
-              durInSeconds = (float)sopVowel.solve(t, voiceFeatDef);
+              durInSeconds = (float)sopVowel.solve(t, voiceFeatDef, false);
+              if(durInSeconds < 0.0 ){
+                System.out.println("\nWARNING: duration < 0.0");
+                durInSeconds = (float)sopVowel.solve(t, voiceFeatDef, true);  
+              }
             } else {
               // calculate duration with sopConsonant
               System.out.print("Cons. PHONE: " + phone);  
-              durInSeconds = (float)sopConsonant.solve(t, voiceFeatDef);
+              durInSeconds = (float)sopConsonant.solve(t, voiceFeatDef, false);
+              if(durInSeconds < 0.0 ){
+                System.out.println("\nWARNING: duration < 0.0");
+                durInSeconds = (float)sopConsonant.solve(t, voiceFeatDef, true);  
+              }
             }
           }
           // TODO: where do we check that the solution is log(duration) or duration???
           System.out.format(" = %.3f\n", durInSeconds);
           // TODO: this problem is not solved, it seems it has to do with punctuation (?)
           if(durInSeconds < 0){
-            throw new Exception("Error generating SoP Duration: durInSeconds < 0.0 ");
+            throw new Exception("Error generating SoP Duration: durInSeconds < 0.0 ");                     
           }
           end += durInSeconds;
           int durInMillis = (int) (1000 * durInSeconds);
