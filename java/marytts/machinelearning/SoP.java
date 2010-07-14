@@ -127,32 +127,39 @@ public class SoP {
    * if interceptterm = FALSE
    *   solution = coeffs[0]*factors[0] + coeffs[1]*factors[1] + ... + coeffs[n]*factors[n]
  */
-  public double solve(Target t, FeatureDefinition feaDef){
+  public double solve(Target t, FeatureDefinition feaDef, boolean debug){
     solution = 0.0f;
+    double lastPosSolution  = 0.0;
     if(interceptTerm){
       // the first factor is empty filled with "_" so it should not be used
       solution = coeffs[0];
-      System.out.format("   solution = %.3f (coeff[0])\n", coeffs[0]); 
+      if(debug)
+        System.out.format("   solution = %.3f (coeff[0])\n", coeffs[0]); 
       for(int i=1; i<coeffs.length; i++){
         // check if the retrieved bytevalue is allowed for the kind of feature factor
         byte feaVal = t.getFeatureVector().getByteFeature(factorsIndex[i]);
         String feaValStr = t.getFeatureVector().getFeatureAsString(factorsIndex[i], feaDef);
         if(feaDef.hasFeatureValue(factorsIndex[i], feaValStr))
         {
-          System.out.format("   %.3f + (%.3f * %d (%s) = ", solution, coeffs[i], feaVal, factors[i]);        
-          solution = solution + ( coeffs[i] * feaVal );       
-          System.out.format("%.3f  featureIndex=%d  feaValStr=%s \n", solution, factorsIndex[i], feaValStr);
+          if(debug)
+            System.out.format("   %.3f + (%.3f * %d (%s) = ", solution, coeffs[i], feaVal, factors[i]);        
+          solution = solution + ( coeffs[i] * feaVal );
+          if(debug)
+            System.out.format("%.3f  featureIndex=%d  feaValStr=%s \n", solution, factorsIndex[i], feaValStr);
         } else {
           System.out.format("WARNING: Feature value for %s = %s is not valid", coeffs[i], feaValStr);
         }
-          
+        if(solution > 0.0)
+          lastPosSolution = solution;
       }      
     } else {
       for(int i=0; i<coeffs.length; i++)        
         solution = solution + ( coeffs[i] * t.getFeatureVector().getByteFeature(factorsIndex[i]) );
     }
-    
-    return solution;
+    if(debug)
+      return lastPosSolution;
+    else
+      return solution;
   }
   
   /***
