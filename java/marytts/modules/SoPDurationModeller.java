@@ -50,14 +50,14 @@ public class SoPDurationModeller extends InternalModule
 {
 
   private String sopFileName;
-  SoP sopVowel;
-  SoP sopConsonant;
-  SoP sopPause;
+  SoP vowelSop;
+  SoP consonantSop;
+  SoP pauseSop;
 
   protected TargetFeatureComputer featureComputer;
   private FeatureProcessorManager featureProcessorManager;
   private AllophoneSet allophoneSet;     
-  FeatureDefinition voiceFeatDef;
+  private FeatureDefinition voiceFeatDef;
 
   /**
    * Constructor which can be directly called from init info in the config file.
@@ -108,7 +108,8 @@ public class SoPDurationModeller extends InternalModule
     super.startup();
 
     // Read dur.sop file to load linear equations
-    // the first line corresponds to vowels and the second to consonants
+    // The first section contains the feature definition, after one empty line, 
+    // the first line corresponds to vowels, next line to consonants and next line to pause
     String sopFile = MaryProperties.getFilename(sopFileName);
     //System.out.println("sopFileName: " + sopFile);
     String nextLine;
@@ -131,22 +132,22 @@ public class SoPDurationModeller extends InternalModule
       if (s.hasNext()){
         nextLine = s.nextLine();
         //System.out.println("line vowel = " + nextLine);
-        sopVowel = new SoP(nextLine, voiceFeatDef);
-        //sopVowel.printCoefficients();
+        vowelSop = new SoP(nextLine, voiceFeatDef);
+        //vowelSop.printCoefficients();
       }      
       // consonant line
       if (s.hasNext()){
         nextLine = s.nextLine();
         //System.out.println("line consonants = " + nextLine);
-        sopConsonant = new SoP(nextLine, voiceFeatDef);
-        //sopConsonant.printCoefficients();
+        consonantSop = new SoP(nextLine, voiceFeatDef);
+        //consonantSop.printCoefficients();
       }
       // pause line
       if (s.hasNext()){
         nextLine = s.nextLine();
         //System.out.println("line pause = " + nextLine);
-        sopPause = new SoP(nextLine, voiceFeatDef);
-        //sopPause.printCoefficients();
+        pauseSop = new SoP(nextLine, voiceFeatDef);
+        //pauseSop.printCoefficients();
       }               
     } finally {
         if (s != null)
@@ -195,27 +196,27 @@ throws Exception
                                        
           if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) { // a pause              
             System.out.print("Pause PHONE: " + phone);
-            durInSeconds = (float)sopPause.solve(t, voiceFeatDef, false);
+            durInSeconds = (float)pauseSop.solve(t, voiceFeatDef, false);
             if(durInSeconds < 0.0 ){
               System.out.println("\nWARNING: duration < 0.0");
-              durInSeconds = (float)sopPause.solve(t, voiceFeatDef, true);  
+              durInSeconds = (float)pauseSop.solve(t, voiceFeatDef, true);  
             }
           } else {
             if (allophoneSet.getAllophone(phone).isVowel()){
-              // calculate duration with sopVowel
+              // calculate duration with vowelSop
               System.out.print("Vowel PHONE: " + phone);
-              durInSeconds = (float)sopVowel.solve(t, voiceFeatDef, false);
+              durInSeconds = (float)vowelSop.solve(t, voiceFeatDef, false);
               if(durInSeconds < 0.0 ){
                 System.out.println("\nWARNING: duration < 0.0");
-                durInSeconds = (float)sopVowel.solve(t, voiceFeatDef, true);  
+                durInSeconds = (float)vowelSop.solve(t, voiceFeatDef, true);  
               }
             } else {
-              // calculate duration with sopConsonant
+              // calculate duration with consonantSop
               System.out.print("Cons. PHONE: " + phone);  
-              durInSeconds = (float)sopConsonant.solve(t, voiceFeatDef, false);
+              durInSeconds = (float)consonantSop.solve(t, voiceFeatDef, false);
               if(durInSeconds < 0.0 ){
                 System.out.println("\nWARNING: duration < 0.0");
-                durInSeconds = (float)sopConsonant.solve(t, voiceFeatDef, true);  
+                durInSeconds = (float)consonantSop.solve(t, voiceFeatDef, true);  
               }
             }
           }

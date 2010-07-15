@@ -218,9 +218,9 @@ public class F0SoPTrainer extends VoiceImportComponent
                   if(midF0 == Double.NEGATIVE_INFINITY || midF0 == Double.POSITIVE_INFINITY){
                     //System.out.println("midDatagrams.length/2 = " + midDatagrams.length/2);
                     //System.out.println("midDatagrams[midDatagrams.length/2].getDuration() = " + midDatagrams[midDatagrams.length/2].getDuration());
-                    System.out.format("Syllable at %d (length %d ): left = %.3f, mid = %.3f, right = %.3f\n", mid, (last-first+1), leftF0, midF0, rightF0);                    
+                    System.out.format("Syllable at %d (length %d ): left = %.3f, mid = %.3f, right = %.3f ", mid, (last-first+1), leftF0, midF0, rightF0);                    
                     midF0 = (leftF0 + rightF0) / 2.0;
-                    System.out.format("  mindF0 is Nan --> changed to (leftF0 + rightF0) / 2.0 = %.3f", midF0);
+                    System.out.format("mindF0 is Nan --> changed to (leftF0 + rightF0) / 2.0 = %.3f\n", midF0);
                   }
      
                   if(logF0){
