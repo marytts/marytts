@@ -19,20 +19,26 @@
  */
 package marytts.unitselection.concat;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.sound.sampled.AudioInputStream;
 
+import org.apache.commons.lang.ArrayUtils;
 import marytts.modules.phonemiser.Allophone;
+import marytts.server.MaryProperties;
 import marytts.signalproc.process.FDPSOLAProcessor;
+import marytts.unitselection.concat.BaseUnitConcatenator.UnitData;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.unitselection.select.Target;
+import marytts.util.math.MathUtils;
 
 
 /**
@@ -224,7 +230,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
             
             for (j=0; j<datagrams[i].length; j++)
             {
-                if (allophone != null && (allophone.isVowel() || allophone.isVoiced()))
+                if (allophone != null && allophone.isVoiced())
                 {
                     /*
                     pscales[i][j] = averageTargetF0InHz/averageUnitF0InHz;
@@ -362,6 +368,20 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
             // ...which currently provides the same time scale factor for every datagram in a selected unit:
             Arrays.fill(tscales[i], timeScaleFactors.get(i));
         }
+        
+        // for quick and dirty debugging, dump tscales to Praat DurationTier:
+        try {
+            ArrayList<Double> datagramDurations = new ArrayList<Double>();
+            for (int i = 0; i < datagrams.length; i++) {
+                for (int j = 0; j < datagrams[i].length; j++) {
+                    datagramDurations.add(((double) datagrams[i][j].getDuration() / timeline.getSampleRate()));
+                }
+            }
+            dumpTscalesToPraatTier(tscales, datagramDurations, MaryProperties.maryBase() + "/tscales.DurationTier");
+        } catch (IOException e) {
+            logger.warn("Could not dump tscales to file");
+        }
+        
         return tscales;
     }
     
@@ -440,7 +460,31 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         double[][] pscales = getPitchScales(units);
 //      double[][] tscales = getDurationScales(units);
         double[][] tscales = getPhoneBasedDurationScales(units);
-        return (new FDPSOLAProcessor()).process(datagrams, rightContexts, audioformat, voicings, pscales, tscales);
+        
+        return (new FDPSOLAProcessor()).processDecrufted(datagrams, rightContexts, audioformat, voicings, pscales, tscales);
+    }
+    
+    private void dumpTscalesToPraatTier(double[][] tscales, List<Double> datagramDurations, String fileName) throws IOException {
+        // for debugging, dump tscales to Praat DurationTier:
+        File durationTierFile = new File(fileName);
+        PrintWriter out = new PrintWriter(durationTierFile);
+        Double[] durations = (Double[]) datagramDurations.toArray(new Double[datagramDurations.size()]);
+        double tmax = MathUtils.sum(ArrayUtils.toPrimitive(durations));
+        
+        out.println("\"ooTextFile\"");
+        out.println("\"DurationTier\"");
+        out.println(String.format("%f %f %d", 0f, tmax, datagramDurations.size()));
+        
+        double time = 0;
+        for (int i = 0; i < tscales.length; i++) {
+            for (int j = 0; j < tscales[i].length; j++) {
+                double xmin = time;
+                time += datagramDurations.get(i);
+                double xmax = time;
+                out.println(String.format("%f %f", (xmin + xmax) / 2, tscales[i][j]));
+            }
+        }
+        out.close();
     }
     
     /**
