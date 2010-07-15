@@ -343,6 +343,116 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         }
     }
     
+    /**
+     * Functionally equivalent to {@link #process} (but with most of the cruft removed, which should make this easier to modify)
+     * 
+     * @param datagrams
+     *            array of Datagram arrays, one element per SelectedUnit
+     * @param rightContexts
+     *            array of Datagrams, one element per SelectedUnit
+     * @param audioformat
+     *            passed in from {@link BaseUnitConcatenator#load}
+     * @param voicings
+     *            array of boolean arrays, matching <b>datagrams</b>
+     * @param pitchScales
+     *            array of double arrays, matching <b>datagrams</b>, pitch modification factors
+     * @param timeScales
+     *            array of double arrays, matching <b>datagrams</b>, duration modification factors
+     * @return modified audio as a DoubleDataSource audio stream
+     * @author steiner
+     */
+    public DDSAudioInputStream processDecrufted(Datagram[][] datagrams, Datagram[] rightContexts, AudioFormat audioformat,
+            boolean[][] voicings, double[][] pitchScales, double[][] timeScales) {
+
+        // obscure dependency on several fields:
+        tscaleSingle = -1;
+        origLen = 0;
+        numfrm = 0;
+        for (int i = 0; i < datagrams.length; i++) {
+            for (int j = 0; j < datagrams[i].length; j++) {
+                origLen += datagrams[i][j].getDuration();
+                if (j == datagrams[i].length - 1 && rightContexts != null && rightContexts[i] != null) {
+                    origLen += rightContexts[i].getDuration();
+                }
+            }
+            numfrm += datagrams[i].length;
+        }
+
+        // for each unit:
+        for (int i = 0; i < datagrams.length; i++) {
+            // for each datagram in that unit:
+            for (int j = 0; j < datagrams[i].length; j++) {
+
+                // awkwardly determine next Datagram, which defaults to silence as long as this Datagram...
+                int length = datagrams[i][j].getLength();
+                Datagram nextDatagram = new Datagram(length, new byte[2 * length]);
+                // ...unless it's not the last in this unit...
+                if (j < datagrams[i].length - 1) {
+                    nextDatagram = datagrams[i][j + 1];
+                } else
+                // ...or we have a right context...
+                if (rightContexts[i] != null) {
+                    nextDatagram = rightContexts[i];
+                } else
+                // ...or we have a next unit
+                // TODO but what if that unit has no frames?
+                if (i < datagrams.length - 1) {
+                    nextDatagram = datagrams[i + 1][0];
+                }
+
+                // ARG #1, actual frame data for this and the next Datagram:
+                Datagram[] sourceDatagrams = { datagrams[i][j], nextDatagram };
+                DatagramDoubleDataSource dataSource = new DatagramDoubleDataSource(sourceDatagrams);
+                double[] frmIn = dataSource.getAllData();
+
+                // ARG #2, voicing:
+                boolean isVoiced = false;
+                // inflexible hard-coded toggle between symbolic (phonology) and signal based voicing:
+                boolean symbolicVoicing = false;
+                if (symbolicVoicing == true) {
+                    isVoiced = voicings[i][j];
+                } else {
+                    isVoiced = SignalProcUtils.getVoicing(frmIn, (int) (audioformat.getSampleRate()));
+                }
+
+                // ARGs #5-6, some obscure variables:
+                double escale = 1.0;
+                double vscale = 1.0;
+
+                // ARG #7, is this the last Datagram?
+                boolean bLastInputFrame = (i == datagrams.length - 1) && (j == datagrams[i].length - 1);
+
+                // ARG #8, duration of this Datagram:
+                int currentPeriod = (int) datagrams[i][j].getDuration();
+
+                // ARG #9, number of frames in this and the next Datagram:
+                int inputFrameSize = (int) datagrams[i][j].getDuration() + (int) nextDatagram.getDuration();
+
+                // actually process the data using the ARGs:
+                try {
+                    processFrame(frmIn, isVoiced, pitchScales[i][j], timeScales[i][j], escale, vscale, bLastInputFrame,
+                            currentPeriod, inputFrameSize);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        // initialize the output array:
+        double[] output = null;
+        try {
+            output = writeFinal();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        BufferedDoubleDataSource buffer = new BufferedDoubleDataSource(output);
+        DDSAudioInputStream stream = new DDSAudioInputStream(buffer, audioformat);
+        return stream;
+    }
+
     //FD-PSOLA using all concatenation units
     public DDSAudioInputStream process(Datagram [][] datagrams, Datagram [] rightContexts, AudioFormat audioformat, boolean [][] voicings, double [][] pitchScales, double [][] timeScales)
     {
