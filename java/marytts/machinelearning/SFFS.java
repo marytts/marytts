@@ -107,13 +107,14 @@ public class SFFS {
     boolean condSFS = true;  // Forward condition to be able to select from Y a most new significant feature
     boolean condSBS = true;  // Backward condition: X has to have at least two elements to be able to select the least significant in X
     double corX = 0.0;
+    double improvement;
     while(k < d+D && condSFS )
     {          
       // we need at least 1 feature in Y to continue
       if( Y.length > 1) {
         // Step 1. (Inclusion)
         // given X_k create X_k+1 : add the most significant feature of Y to X
-        System.out.println("ForwardSelection k=" + k);
+        System.out.println("ForwardSelection k=" + k + " remaining features=" + Y.length);
         ms = sequentialForwardSelection(dataFile, features, indVarColNumber, X, Y, forwardJ, rowIni, rowEnd);
         System.out.format("corXplusy=%.4f  corX=%.4f\n", forwardJ[2], forwardJ[1]);
         corX = forwardJ[2];
@@ -132,18 +133,20 @@ public class SFFS {
           if(X.length > 1){
             // Step 3. (Continuation of conditional exclusion)
             // Find the least significant feature x_s in the reduced X'
-            System.out.println("\n BackwardSelection k=" + k);
+            System.out.println(" BackwardSelection k=" + k);
             // get the least significant and check if removing it the correlation is better with or without this feature          
             ls = sequentialBackwardSelection(dataFile, features, indVarColNumber, X, backwardJ, rowIni, rowEnd);
             corX = backwardJ[1];
-            System.out.format(" corXminusx=%.4f  corX=%.4f\n", backwardJ[0], backwardJ[1]);
-            System.out.println(" Least significant feature to remove: " + features[ls]);
+            improvement = Math.abs(backwardJ[0] - backwardJ[1]);
+            System.out.format(" corXminusx=%.4f  corX=%.4f  difference=%.4f : ", backwardJ[0], backwardJ[1], improvement);
+            System.out.println("Least significant feature to remove: " + features[ls]);
           
             // is this the best (k-1)-subset so far?
             // if corXminusx > corX
-            if(backwardJ[0] >  backwardJ[1]) { // J(X_k - x_s) <= J(X_k-1)
+            // if the improvement is greater than 0.001 then keep the value
+            if((backwardJ[0] >  backwardJ[1]) || (improvement < 0.0001) ) { // J(X_k - x_s) <= J(X_k-1)
               // exclude xs from X'_k and set k = k-1
-              System.out.println(" better without least significant feature (removing feature)");
+              System.out.println(" better without least significant feature or improvement < 0.0001 : (removing feature)");
               X = MathUtils.removeIndex(X, ls);
               k = k-1;  
               corX = backwardJ[0];
