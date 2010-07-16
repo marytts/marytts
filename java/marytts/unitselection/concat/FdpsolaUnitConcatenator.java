@@ -99,12 +99,13 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     private boolean[][] getVoicings(List<SelectedUnit> units)
     {
         Datagram[][] datagrams = getDatagrams(units);
+        List<SelectedUnit> nonEmptyUnits = getNonEmptyUnits(units);
         
         boolean[][] voicings = new boolean[datagrams.length][];
 
         for (int i=0; i<datagrams.length; i++) 
         {
-            Allophone allophone = units.get(i).getTarget().getAllophone();
+            Allophone allophone = nonEmptyUnits.get(i).getTarget().getAllophone();
 
             voicings[i] = new boolean[datagrams[i].length];
             
