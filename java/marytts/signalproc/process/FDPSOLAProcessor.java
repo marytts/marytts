@@ -399,6 +399,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 if (i < datagrams.length - 1) {
                     nextDatagram = datagrams[i + 1][0];
                 }
+                assert nextDatagram.getDuration() > 0;
 
                 // ARG #1, actual frame data for this and the next Datagram:
                 Datagram[] sourceDatagrams = { datagrams[i][j], nextDatagram };
@@ -406,14 +407,10 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 double[] frmIn = dataSource.getAllData();
 
                 // ARG #2, voicing:
-                boolean isVoiced = false;
+                boolean symbolicVoicing = voicings[i][j];
+                boolean acousticVoicing = SignalProcUtils.getVoicing(frmIn, (int) (audioformat.getSampleRate()));
                 // inflexible hard-coded toggle between symbolic (phonology) and signal based voicing:
-                boolean symbolicVoicing = false;
-                if (symbolicVoicing == true) {
-                    isVoiced = voicings[i][j];
-                } else {
-                    isVoiced = SignalProcUtils.getVoicing(frmIn, (int) (audioformat.getSampleRate()));
-                }
+                boolean isVoiced = symbolicVoicing; // one of: symbolicVoicing, acousticVoicing
 
                 // ARGs #5-6, some obscure variables:
                 double escale = 1.0;
@@ -426,18 +423,26 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                 int currentPeriod = (int) datagrams[i][j].getDuration();
 
                 // ARG #9, number of frames in this and the next Datagram:
-                int inputFrameSize = (int) datagrams[i][j].getDuration() + (int) nextDatagram.getDuration();
+                int inputFrameSize = currentPeriod + (int) nextDatagram.getDuration();
 
                 // actually process the data using the ARGs:
                 try {
+                    int bufferStartIndex = outBuffStart;
                     processFrame(frmIn, isVoiced, pitchScales[i][j], timeScales[i][j], escale, vscale, bLastInputFrame,
                             currentPeriod, inputFrameSize);
+                    int bufferEndIndex = outBuffStart;
+                    int bufferLength = bufferEndIndex - bufferStartIndex;
+                    // extract processed samples for this datagram from buffer:
+                    double[] samples = new double[bufferLength];
+                    System.arraycopy(outBuff, bufferStartIndex - 1, samples, 0, bufferLength);
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
         }
+
+        int bufferStartIndex = outBuffStart - 1;
 
         // initialize the output array:
         double[] output = null;
@@ -448,6 +453,12 @@ public class FDPSOLAProcessor extends VocalTractModifier {
             e.printStackTrace();
         }
 
+        // final processed samples (windowed):
+        int bufferEndIndex = outBuffLen;
+        int bufferLength = bufferEndIndex - bufferStartIndex;
+        double[] samples = new double[bufferLength];
+        System.arraycopy(outBuff, bufferStartIndex, samples, 0, bufferLength);
+        
         BufferedDoubleDataSource buffer = new BufferedDoubleDataSource(output);
         DDSAudioInputStream stream = new DDSAudioInputStream(buffer, audioformat);
         return stream;
