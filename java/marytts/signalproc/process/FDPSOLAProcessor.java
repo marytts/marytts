@@ -435,6 +435,8 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                     // extract processed samples for this datagram from buffer:
                     double[] samples = new double[bufferLength];
                     System.arraycopy(outBuff, bufferStartIndex - 1, samples, 0, bufferLength);
+                    // overwrite datagram duration:
+                    datagrams[i][j].setDuration(samples.length);
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -458,6 +460,9 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         int bufferLength = bufferEndIndex - bufferStartIndex;
         double[] samples = new double[bufferLength];
         System.arraycopy(outBuff, bufferStartIndex, samples, 0, bufferLength);
+        // update final datagram duration:
+        Datagram finalDatagram = datagrams[datagrams.length - 1][datagrams[datagrams.length - 1].length - 1];
+        finalDatagram.setDuration(finalDatagram.getDuration() + samples.length);
         
         BufferedDoubleDataSource buffer = new BufferedDoubleDataSource(output);
         DDSAudioInputStream stream = new DDSAudioInputStream(buffer, audioformat);

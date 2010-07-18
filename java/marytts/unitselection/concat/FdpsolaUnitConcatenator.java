@@ -38,6 +38,7 @@ import marytts.unitselection.data.Unit;
 import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.unitselection.select.Target;
+import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.MathUtils;
 
 
@@ -65,10 +66,9 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
      * @return array of Datagram arrays
      */
     private Datagram[][] getDatagrams(List<SelectedUnit> units) {
-        List<SelectedUnit> nonEmptyUnits = getNonEmptyUnits(units);
-        Datagram[][] datagrams = new Datagram[nonEmptyUnits.size()][];
-        for (int i = 0; i < nonEmptyUnits.size(); i++) {
-            UnitData unitData = (UnitData) nonEmptyUnits.get(i).getConcatenationData();
+        Datagram[][] datagrams = new Datagram[units.size()][];
+        for (int i = 0; i < units.size(); i++) {
+            UnitData unitData = (UnitData) units.get(i).getConcatenationData();
             datagrams[i] = unitData.getFrames();
         }
         return datagrams;
@@ -80,10 +80,9 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
      * @return rightmost Datagrams as an array
      */
     private Datagram[] getRightContexts(List<SelectedUnit> units) {
-        List<SelectedUnit> nonEmptyUnits = getNonEmptyUnits(units);
-        Datagram[] rightContexts = new Datagram[nonEmptyUnits.size()];
+        Datagram[] rightContexts = new Datagram[units.size()];
         for (int i = 0; i < rightContexts.length; i++) {
-            UnitData unitData = (UnitData) nonEmptyUnits.get(i).getConcatenationData();
+            UnitData unitData = (UnitData) units.get(i).getConcatenationData();
             rightContexts[i] = unitData.getRightContextFrame();
         }
         return rightContexts;
@@ -99,13 +98,12 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     private boolean[][] getVoicings(List<SelectedUnit> units)
     {
         Datagram[][] datagrams = getDatagrams(units);
-        List<SelectedUnit> nonEmptyUnits = getNonEmptyUnits(units);
         
         boolean[][] voicings = new boolean[datagrams.length][];
 
         for (int i=0; i<datagrams.length; i++) 
         {
-            Allophone allophone = nonEmptyUnits.get(i).getTarget().getAllophone();
+            Allophone allophone = units.get(i).getTarget().getAllophone();
 
             voicings[i] = new boolean[datagrams[i].length];
             
@@ -335,6 +333,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     private double[][] getPhoneBasedDurationScales(List<SelectedUnit> units) {
         // List of phone segments:
         List<Phone> phones = parseIntoPhones(units);
+
         // list of time scale factors, one per unit:
         List<Double> timeScaleFactors = new ArrayList<Double>(units.size());
         
@@ -372,13 +371,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         
         // for quick and dirty debugging, dump tscales to Praat DurationTier:
         try {
-            ArrayList<Double> datagramDurations = new ArrayList<Double>();
-            for (int i = 0; i < datagrams.length; i++) {
-                for (int j = 0; j < datagrams[i].length; j++) {
-                    datagramDurations.add(((double) datagrams[i][j].getDuration() / timeline.getSampleRate()));
-                }
-            }
-            dumpTscalesToPraatTier(tscales, datagramDurations, MaryProperties.maryBase() + "/tscales.DurationTier");
+            dumpTscalesToPraatTier(tscales, datagrams, MaryProperties.maryBase() + "/tscales.DurationTier");
         } catch (IOException e) {
             logger.warn("Could not dump tscales to file");
         }
@@ -396,7 +389,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         ArrayList<SelectedUnit> nonEmptyUnits = new ArrayList<SelectedUnit>(units.size());
         for (SelectedUnit unit : units) {
             UnitData unitData = (UnitData) unit.getConcatenationData();
-            if (unitData.getUnitDuration() > 0) {
+            if (unitData.getUnitDuration() > 0 && unit.getTarget().getMaryxmlElement() != null) {
                 nonEmptyUnits.add(unit);
             }
         }
@@ -455,6 +448,10 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
      */
     protected AudioInputStream generateAudioStream(List<SelectedUnit> units)
     {
+        // efectively remove units with zero source or target duration, or with no MaryXML element:
+        units = getNonEmptyUnits(units);
+        
+        // gather arguments for FDPSOLA processing:
         Datagram[][] datagrams = getDatagrams(units);
         Datagram[] rightContexts = getRightContexts(units);
         boolean[][] voicings = getVoicings(units);
@@ -462,29 +459,75 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
 //      double[][] tscales = getDurationScales(units);
         double[][] tscales = getPhoneBasedDurationScales(units);
         
-        return (new FDPSOLAProcessor()).processDecrufted(datagrams, rightContexts, audioformat, voicings, pscales, tscales);
+        // process into audio stream:
+        DDSAudioInputStream stream = (new FDPSOLAProcessor()).processDecrufted(datagrams, rightContexts, audioformat, voicings, pscales, tscales);
+        
+        // update durations from processed Datagrams:
+        updateUnitDataDurations(units, datagrams);
+
+        return stream;
     }
     
-    private void dumpTscalesToPraatTier(double[][] tscales, List<Double> datagramDurations, String fileName) throws IOException {
-        // for debugging, dump tscales to Praat DurationTier:
-        File durationTierFile = new File(fileName);
-        PrintWriter out = new PrintWriter(durationTierFile);
-        Double[] durations = (Double[]) datagramDurations.toArray(new Double[datagramDurations.size()]);
-        double tmax = MathUtils.sum(ArrayUtils.toPrimitive(durations));
-        
-        out.println("\"ooTextFile\"");
-        out.println("\"DurationTier\"");
-        out.println(String.format("%f %f %d", 0f, tmax, datagramDurations.size()));
-        
+    /**
+     * Manually propagate durations of Datagrams to UnitData for each SelectedUnit; those durations are otherwise oblivious to the
+     * data they describe...
+     * 
+     * @param units
+     *            whose data should have its durations updated
+     * @param datagrams
+     *            processed array of arrays of Datagrams which had their durations updated in
+     *            {@link FDPSOLAProcessor#processDecrufted}
+     */
+    private void updateUnitDataDurations(List<SelectedUnit> units, Datagram[][] datagrams) {
+        for (int i = 0; i < datagrams.length; i++) {
+            SelectedUnit unit = units.get(i);
+            UnitData unitData = (UnitData) unit.getConcatenationData();
+            int unitDuration = 0;
+            for (int j = 0; j < datagrams[i].length; j++) {
+                int datagramDuration = (int) datagrams[i][j].getDuration();
+                unitData.getFrame(j).setDuration(datagramDuration);
+                unitDuration += datagramDuration;
+            }
+            unitData.setUnitDuration(unitDuration);
+        }
+    }
+
+    /**
+     * For debugging, dump tscales to Praat DurationTier, which can be used for analogous PSOLA-based manipulation in Praat
+     * 
+     * @param tscales
+     *            array of arrays of time scale factors, one per Datagram per Unit
+     * @param datagrams
+     *            array of Datagram arrays, used to determine the Datagram durations
+     * @param fileName
+     *            of the DurationTier to be dumped
+     * @throws IOException
+     */
+    private void dumpTscalesToPraatTier(double[][] tscales, Datagram[][] datagrams, String fileName) throws IOException {
+        ArrayList<Double> times = new ArrayList<Double>();
+        ArrayList<Double> values = new ArrayList<Double>();
+
         double time = 0;
         for (int i = 0; i < tscales.length; i++) {
             for (int j = 0; j < tscales[i].length; j++) {
-                double xmin = time;
-                time += datagramDurations.get(i);
-                double xmax = time;
-                out.println(String.format("%f %f", (xmin + xmax) / 2, tscales[i][j]));
+                double start = time;
+                time += ((double) datagrams[i][j].getDuration()) / timeline.getSampleRate();
+                double end = time;
+                times.add((start + end) / 2);
+                values.add(tscales[i][j]);
             }
         }
+
+        File durationTierFile = new File(fileName);
+        PrintWriter out = new PrintWriter(durationTierFile);
+
+        out.println("\"ooTextFile\"");
+        out.println("\"DurationTier\"");
+        out.println(String.format("0 %f %d", time, times.size()));
+        for (int i = 0; i < times.size(); i++) {
+            out.println(String.format("%f %f", times.get(i), values.get(i)));
+        }
+
         out.close();
     }
     
