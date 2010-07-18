@@ -212,17 +212,6 @@ public class BaseUnitConcatenator implements UnitConcatenator
         return (long) (time*unitToTimelineSampleRateFactor);
     }
 
-    protected void updateSegmentAndBoundaryDurations(List<SelectedUnit> units) {
-        for (SelectedUnit unit : units) {
-            float targetDuration = unit.getTarget().getTargetDurationInSeconds();
-            int unitDurationInSamples = ((UnitData) unit.getConcatenationData()).getUnitDuration();
-            float unitDuration = ((float) unitDurationInSamples) / timeline.getSampleRate();
-            if (unitDuration != targetDuration) {
-                unit.getTarget().setTargetDurationInSeconds(unitDuration);
-            }
-        }
-    }
-
     public static class UnitData
     {
         protected int[] pitchmarks;
