@@ -50,9 +50,10 @@ public class SoPDurationModeller extends InternalModule
 {
 
   private String sopFileName;
-  SoP vowelSop;
-  SoP consonantSop;
-  SoP pauseSop;
+  private SoP vowelSop;
+  private SoP consonantSop;
+  private SoP pauseSop;
+  private boolean logDuration=true;
 
   protected TargetFeatureComputer featureComputer;
   private FeatureProcessorManager featureProcessorManager;
@@ -101,6 +102,7 @@ public class SoPDurationModeller extends InternalModule
               MaryDataType.DURATIONS, locale);
       this.sopFileName = sopFile;
       this.featureProcessorManager = featureProcessorManager;
+      
   }
 
   public void startup() throws Exception
@@ -196,27 +198,27 @@ throws Exception
                                        
           if (segmentOrBoundary.getTagName().equals(MaryXML.BOUNDARY)) { // a pause              
             System.out.print("Pause PHONE: " + phone);
-            durInSeconds = (float)pauseSop.solve(t, voiceFeatDef, false);
+            durInSeconds = (float)pauseSop.solve(t, voiceFeatDef, logDuration, false);
             if(durInSeconds < 0.0 ){
               System.out.println("\nWARNING: duration < 0.0");
-              durInSeconds = (float)pauseSop.solve(t, voiceFeatDef, true);  
+              durInSeconds = (float)pauseSop.solve(t, voiceFeatDef, logDuration, true);  
             }
           } else {
             if (allophoneSet.getAllophone(phone).isVowel()){
               // calculate duration with vowelSop
               System.out.print("Vowel PHONE: " + phone);
-              durInSeconds = (float)vowelSop.solve(t, voiceFeatDef, false);
+              durInSeconds = (float)vowelSop.solve(t, voiceFeatDef, logDuration, false);
               if(durInSeconds < 0.0 ){
                 System.out.println("\nWARNING: duration < 0.0");
-                durInSeconds = (float)vowelSop.solve(t, voiceFeatDef, true);  
+                durInSeconds = (float)vowelSop.solve(t, voiceFeatDef, logDuration, true);  
               }
             } else {
               // calculate duration with consonantSop
               System.out.print("Cons. PHONE: " + phone);  
-              durInSeconds = (float)consonantSop.solve(t, voiceFeatDef, false);
+              durInSeconds = (float)consonantSop.solve(t, voiceFeatDef, logDuration, false);
               if(durInSeconds < 0.0 ){
                 System.out.println("\nWARNING: duration < 0.0");
-                durInSeconds = (float)consonantSop.solve(t, voiceFeatDef, true);  
+                durInSeconds = (float)consonantSop.solve(t, voiceFeatDef, logDuration, true);  
               }
             }
           }
