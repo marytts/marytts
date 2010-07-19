@@ -41,6 +41,7 @@ public class SoPF0Modeller extends InternalModule
   private FeatureProcessorManager featureProcessorManager;
   private AllophoneSet allophoneSet;     
   private FeatureDefinition voiceFeatDef;
+  private boolean logF0 = false;
 
   
   /**
@@ -67,8 +68,8 @@ public class SoPF0Modeller extends InternalModule
   public SoPF0Modeller(String locale, String sopFile, String featprocClassInfo)
   throws Exception
   {
-      this(MaryUtils.string2locale(locale), sopFile,
-              (FeatureProcessorManager)MaryUtils.instantiateObject(featprocClassInfo));
+      this(MaryUtils.string2locale(locale), sopFile, 
+          (FeatureProcessorManager)MaryUtils.instantiateObject(featprocClassInfo));
   }
 
   /**
@@ -218,21 +219,21 @@ public class SoPF0Modeller extends InternalModule
                   t.setFeatureVector(currentFeatureComputer.computeFeatureVector(t));
                   
                   //float[] left = (float[])currentLeftSoP.interpret(t, 0);
-                  float left = (float)currentLeftSop.solve(t, voiceFeatDef, false);
+                  float left = (float)currentLeftSop.solve(t, voiceFeatDef, logF0, false);
                   //assert left != null : "Null frequency";
                   //assert left.length == 2 : "Unexpected frequency length: "+left.length;
                   float leftF0InHz = left;
                   //float leftStddevInHz = left[0];
                   
                   //float[] mid = (float[])currentMidSoP.interpret(t, 0);
-                  float mid = (float)currentMidSop.solve(t, voiceFeatDef, false);
+                  float mid = (float)currentMidSop.solve(t, voiceFeatDef, logF0, false);
                   //assert mid != null : "Null frequency";
                   //assert mid.length == 2 : "Unexpected frequency length: "+mid.length;
                   float midF0InHz = mid;
                   //float midStddevInHz = mid[0];
                   
                   //float[] right = (float[])currentRightSoP.interpret(t, 0);
-                  float right = (float)currentRightSop.solve(t, voiceFeatDef, false);
+                  float right = (float)currentRightSop.solve(t, voiceFeatDef, logF0, false);
                   //assert right != null : "Null frequency";
                   //assert right.length == 2 : "Unexpected frequency length: "+right.length;
                   float rightF0InHz = right;

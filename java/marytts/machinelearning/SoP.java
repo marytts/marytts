@@ -127,7 +127,7 @@ public class SoP {
    * if interceptterm = FALSE
    *   solution = coeffs[0]*factors[0] + coeffs[1]*factors[1] + ... + coeffs[n]*factors[n]
  */
-  public double solve(Target t, FeatureDefinition feaDef, boolean debug){
+  public double solve(Target t, FeatureDefinition feaDef, boolean log, boolean debug){
     solution = 0.0f;
     double lastPosSolution  = 0.0;
     if(interceptTerm){
@@ -156,10 +156,18 @@ public class SoP {
       for(int i=0; i<coeffs.length; i++)        
         solution = solution + ( coeffs[i] * t.getFeatureVector().getByteFeature(factorsIndex[i]) );
     }
-    if(debug)
-      return lastPosSolution;
-    else
-      return solution;
+    if(debug){
+      if(log)
+        return Math.exp(lastPosSolution);
+      else
+        return lastPosSolution;
+    }
+    else{
+      if(log)
+        return Math.exp(solution);
+      else
+        return solution;
+    }
   }
   
   /***
