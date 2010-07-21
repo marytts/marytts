@@ -241,7 +241,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
          /* set the script as executable */
          cmdLine = "chmod +x " + getProp(WAV2RAWCOMMAND);
          General.launchProc(cmdLine, "wav2raw", voicedir);
-         cmdLine = getProp(WAV2RAWCOMMAND) + " " + voicedir + "wav " + voicedir + "hts/data/raw" ;
+         cmdLine = getProp(WAV2RAWCOMMAND) + " " + db.getExternal(db.SOXPATH) + " " + voicedir + "wav " + voicedir + "hts/data/raw" ;
          General.launchProc(cmdLine, "wav2raw", voicedir);
        } else {
            if( (!dirWav.exists() || dirWav.list().length == 0 ) && (!dirRaw.exists() || dirRaw.list().length == 0 )){
@@ -265,7 +265,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
              System.out.println("WAV DIR: " + dirWavList[i] );
              File tmp = new File("hts/data/raw/" + dirWavList[i]);
              tmp.mkdir();
-             cmdLine = getProp(WAV2RAWCOMMAND) + " " + voicedir + "wav/" + dirWavList[i] 
+             cmdLine = getProp(WAV2RAWCOMMAND)  + " " + db.getExternal(db.SOXPATH) + " " + voicedir + "wav/" + dirWavList[i] 
                                                + " " + voicedir + "hts/data/raw/" + dirWavList[i];
              General.launchProc(cmdLine, "raw2wav", voicedir);
            }
