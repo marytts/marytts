@@ -492,6 +492,7 @@ public class General
         
         Process proc = null;
         BufferedReader procStdout = null;
+        BufferedReader procStdErr = null;
         String line = null;
         // String[] cmd = null; // Java 5.0 compliant code
         
@@ -508,10 +509,12 @@ public class General
             
             /* Collect stdout and send it to System.out: */
             procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
+            procStdErr = new BufferedReader( new InputStreamReader( proc.getErrorStream() ) );
             while( true ) {
                 line = procStdout.readLine();
                 if ( line == null ) break;
                 System.out.println( line );
+                System.err.println(procStdErr.readLine());
             }
             /* Wait and check the exit value */
             proc.waitFor();
