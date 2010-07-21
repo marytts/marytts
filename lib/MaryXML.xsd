@@ -472,6 +472,7 @@ THIS SOFTWARE.
                 <xsd:union memberTypes="xsd:positiveInteger                 relative.change relative.change.st"/>
             </xsd:simpleType>
         </xsd:attribute>
+	<xsd:attribute name="contour" type="xsd:string"/>
         <xsd:attribute name="pitch-dynamics">
             <xsd:annotation>
                 <xsd:documentation>
