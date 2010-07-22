@@ -286,6 +286,25 @@ public class PronunciationModel extends InternalModule
 
         StringTokenizer tok = new StringTokenizer(phone, "-");
         Document document = token.getOwnerDocument();
+        Element prosody = (Element) MaryDomUtils.getAncestor(token, MaryXML.PROSODY);
+        String vq = null; // voice quality
+        if (prosody != null) {
+            // Ignore any effects of ancestor prosody tags for now:
+            String volumeString = prosody.getAttribute("volume");
+            int volume = -1;
+            try {
+                volume = Integer.parseInt(volumeString);
+            } catch (NumberFormatException e) {}
+            if (volume >= 0) {
+                if (volume >= 60) {
+                    vq = "loud";
+                } else if (volume <= 40) {
+                    vq = "soft";
+                } else {
+                    vq = null;
+                }
+            }
+        }
         while (tok.hasMoreTokens()) {
             String sylString = tok.nextToken();
             Allophone[] allophones = allophoneSet.splitIntoAllophones(sylString);
@@ -293,14 +312,13 @@ public class PronunciationModel extends InternalModule
             token.appendChild(syllable);
             String syllableText = "";
             for (int i = 0; i < allophones.length; i++) {
-                if(allophones[i].isTone()){
+                if(allophones[i].isTone()) {
                     syllable.setAttribute("tone", allophones[i].name());
                     continue;
                 }
-                if(i==0){
+                if(i==0) {
                     syllableText = allophones[i].name();
-                }
-                else{
+                } else {
                     syllableText = syllableText+" "+allophones[i].name();
                 }
             }
@@ -320,13 +338,15 @@ public class PronunciationModel extends InternalModule
             syllable.setAttribute("ph", syllableText);
             // Now identify the composing segments:
             for (int i = 0; i < allophones.length; i++) {
-                if(allophones[i].isTone()){
+                if (allophones[i].isTone()) {
                     continue;
                 }
                 Element segment = MaryXML.createElement(document, MaryXML.PHONE);
                 syllable.appendChild(segment);
                 segment.setAttribute("p", allophones[i].name());
-                // TODO: need to set loudness-specific voice quality attribute "vq" for de6 and de7
+                if (vq != null && !(allophones[i].name().equals("_") || allophones[i].name().equals("?"))) {
+                    segment.setAttribute("vq", vq);
+                }
             }
         }
     }

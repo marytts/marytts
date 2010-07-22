@@ -161,7 +161,7 @@ public class MaryXMLToMbrola extends InternalModule
                     i = k;
                 }
                 String vq = element.getAttribute("vq");
-                if (vq.equals("") || mbrolaVoice.hasVoiceQuality(vq)) {
+                if (vq.equals("") || !mbrolaVoice.hasVoiceQuality(vq)) {
                     vq = null;
                 }
                 MBROLAPhoneme newP = new MBROLAPhoneme(s, dur, targets, vq);
