@@ -66,6 +66,7 @@ import com.sun.speech.freetts.Utterance;
 
 public abstract class XML2UttBase extends InternalModule
 {
+    public static final String[] PROSODY_ATTRIBUTES = new String[] {"rate", "pitch", "range", "volume", "contour"}; 
 
     protected int lastTargetIndex = 0;
     protected int nextTargetIndex = 1;
@@ -650,14 +651,12 @@ public abstract class XML2UttBase extends InternalModule
          if (paragraph != null && MaryDomUtils.isAncestor(prosody, paragraph)) {
              return;
          }
-         String rateString = prosody.getAttribute("rate");
-         String pitchString = prosody.getAttribute("pitch");
-        String rangeString = prosody.getAttribute("range");
-        String volumeString = prosody.getAttribute("volume");
-        if (!rateString.equals("")) utterance.setString("rate", rateString);
-        if (!pitchString.equals("")) utterance.setString("pitch", pitchString);
-        if (!rangeString.equals("")) utterance.setString("range", rangeString);
-        if (!volumeString.equals("")) utterance.setString("volume", volumeString);
+         for (String att : PROSODY_ATTRIBUTES) {
+             String val = prosody.getAttribute(att);
+             if (!val.equals("")) {
+                 utterance.setString(att, val);
+             }
+         }
      }
 
     /**
