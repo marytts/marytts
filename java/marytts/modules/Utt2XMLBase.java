@@ -479,20 +479,25 @@ public abstract class Utt2XMLBase extends InternalModule {
     private Element insertProsodySettings(Element insertHere, Utterance utterance) {
         if (insertHere == null || utterance == null)
             throw new NullPointerException("I thoroughly dislike getting null arguments!");
-        String rateString = utterance.getString("rate");
-        String pitchString = utterance.getString("pitch");
-        String rangeString = utterance.getString("range");
-        String volumeString = utterance.getString("volume");
-        if (rateString == null && pitchString == null && rangeString == null &&
-        volumeString == null)
-            return insertHere; //no prosodic settings
+        boolean haveProsodyInfo = false;
+        for (String att : XML2UttBase.PROSODY_ATTRIBUTES) {
+            if (utterance.getString(att) != null) {
+                haveProsodyInfo = true;
+                break;
+            }
+        }
+        if (!haveProsodyInfo) {
+            return insertHere;
+        }
         Document doc = insertHere.getOwnerDocument();
         Element prosody = MaryXML.createElement(doc, MaryXML.PROSODY);
         insertHere.appendChild(prosody);
-        if (rateString != null) prosody.setAttribute("rate", rateString);
-        if (pitchString != null) prosody.setAttribute("pitch", pitchString);
-        if (rangeString != null) prosody.setAttribute("range", rangeString);
-        if (volumeString != null) prosody.setAttribute("volume", volumeString);
+        for (String att : XML2UttBase.PROSODY_ATTRIBUTES) {
+            String val = utterance.getString(att);
+            if (val != null) {
+                prosody.setAttribute(att, val);
+            }
+        }
         return prosody;
     }
 
