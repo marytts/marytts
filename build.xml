@@ -420,7 +420,9 @@ THIS SOFTWARE.
   <target name="hts" depends="compile">
 	  <zip destfile="lib/external/HTS-demo_for_MARY-4.0.zip">
 	    <zipfileset dir="lib/external/" includes="hts/**/*"
-                       excludes="**/.svn/*"/>
+                       excludes="**/.svn/*
+                                 hts/configure"/>
+		<zipfileset dir="lib/external/" includes="hts/configure" filemode="755"/>
 	  </zip>
   </target>
 
