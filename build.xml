@@ -400,7 +400,7 @@ THIS SOFTWARE.
 	  </target>
 
 	
- <target name="voiceimport.jar" depends="compile">
+ <target name="voiceimport.jar" depends="compile,hts">
 	<jar destfile="${dest}/voiceimport.jar"
              basedir="${src}"
              includes="marytts/tools/voiceimport/*.class
@@ -415,6 +415,13 @@ THIS SOFTWARE.
         <attribute name="Class-Path" value="maryclient.jar mary-common.jar signalproc.jar log4j-1.2.15.jar swing-layout-1.0.jar Jama-1.0.2.jar Jampack.jar jakarta-oro-2.0.8.jar"/>
         </manifest>
         </jar>
+  </target>
+
+  <target name="hts" depends="compile">
+	  <zip destfile="lib/external/HTS-demo_for_MARY-4.0.zip">
+	    <zipfileset dir="lib/external/" includes="hts/**/*"
+                       excludes="**/.svn/*"/>
+	  </zip>
   </target>
 
  <target name="mary-component-installer.jar" depends="compile">
