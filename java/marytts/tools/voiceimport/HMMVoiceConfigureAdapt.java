@@ -138,8 +138,9 @@ public class HMMVoiceConfigureAdapt extends VoiceImportComponent{
        if (props == null){
            props = new TreeMap<String,String>();
            String rootdir = db.getProp(db.ROOTDIR);
+           String htsDir = rootdir + "hts/";
            
-           props.put(CONFIGUREFILE, rootdir+"configure");
+           props.put(CONFIGUREFILE, htsDir + "configure");
            props.put(HTSPATH,       "/project/mary/marcela/sw/HTS_2.0.1/htk/bin");
            props.put(HTSENGINEPATH, "/project/mary/marcela/sw/HTS_2.0.1/hts_engine_API-0.95/src/bin");
            props.put(SPTKPATH,      "/project/mary/marcela/sw/SPTK-3.1/bin");
@@ -278,25 +279,26 @@ public class HMMVoiceConfigureAdapt extends VoiceImportComponent{
         System.out.println("\nChecking directories and files for running HTS ADAPT training scripts...");
         
         String filedir = db.getProp(db.ROOTDIR);
+        String htsDir = filedir + "hts";
         String cmdLine;
         boolean speech_transcriptions = true;
  
        
-       File dirWav  = new File("wav");
-       File dirText = new File("text");
-       File dirRaw  = new File("data/raw");
-       File dirUtt  = new File("data/utts");
+       File dirWav  = new File(filedir + "wav");
+       File dirText = new File(filedir + "text");
+       File dirRaw  = new File(htsDir + "/data/raw");
+       File dirUtt  = new File(htsDir + "/data/utts");
        
        /* Check if wav directory exist and have files */
 
-       if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){ 
-         System.out.println("Problem with wav and data/raw directories: wav files and raw files do not exist.");
+       if( !dirWav.exists() || dirWav.list().length == 0){ 
+         System.out.println("Problem with wav directory: wav files do not exist.");
          speech_transcriptions = false;
        }  
        
        /* check if data/raw directory exist and have files */
-       if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){
-          System.out.println("Problem with wav and data/raw directories: wav files and raw files do not exist.");
+       if(!dirRaw.exists() || dirRaw.list().length == 0 ){
+          System.out.println("Problem with data/raw directories: raw files do not exist.");
           speech_transcriptions = false;
        } 
        
@@ -311,8 +313,8 @@ public class HMMVoiceConfigureAdapt extends VoiceImportComponent{
        
        if(speech_transcriptions){
            
-       File dirFea = new File("phonefeatures");
-       File dirLab = new File("phonelab");
+       File dirFea = new File(filedir + "phonefeatures");
+       File dirLab = new File(filedir + "phonelab");
        /* Check if phonefeatures directory exist and have files */
        if(dirFea.exists() && dirFea.list().length > 0 && dirLab.exists() && dirLab.list().length > 0 ){ 
         System.out.println("\nphonefeatures directory exists and contains files.");  
@@ -321,7 +323,7 @@ public class HMMVoiceConfigureAdapt extends VoiceImportComponent{
         /* Create a phonefeatures/gen directory and copy there some examples of .pfeats
            files for testing the synthesis procedure once the models have been trained.*/
        
-       File dirGen = new File("phonefeatures/gen");
+       File dirGen = new File(dirFea + "/gen");
        if(!dirGen.exists()){
          System.out.println("\nCreating a phonefeatures/gen directory, copying some .pfeats examples for testing");  
          dirGen.mkdir();
@@ -346,14 +348,14 @@ public class HMMVoiceConfigureAdapt extends VoiceImportComponent{
          System.out.println("\nDirectory phonefeatures/gen already exist and has some files.");   
         
        /* Create symbolic links for the phonefeatures and phonelab */
-       File link = new File("data/phonefeatures");
+       File link = new File(filedir + "/phonefeatures");
        if (!link.exists()){
          System.out.println("\nCreating symbolic link for phonefeatures in data/: ");
          cmdLine = "ln -s " + filedir + "phonefeatures " + filedir + "data/phonefeatures";
          General.launchProc(cmdLine, "creating symbolic links", filedir);
        } else
          System.out.println("\nSymbolic link data/phonefeatures already exist."); 
-       link = new File("data/phonelab");
+       link = new File(filedir + "/phonelab");
        if (!link.exists()){
          System.out.println("\nCreating symbolic link for phonelab in data/: ");
          cmdLine = "ln -s " + filedir + "phonelab " + filedir + "data/phonelab";        
@@ -363,12 +365,13 @@ public class HMMVoiceConfigureAdapt extends VoiceImportComponent{
             
        /* if previous files and directories exist then run configure */
        System.out.println("Running make configure: ");
-       cmdLine = getProp(CONFIGUREFILE) +
-       " --with-tcl-search-path=" + getProp(TCLPATH) +
-       " --with-sptk-search-path=" + getProp(SPTKPATH) +
-       " --with-hts-search-path=" + getProp(HTSPATH) +
-       " --with-hts-engine-search-path=" + getProp(HTSENGINEPATH) +
-       " --with-sox-search-path=" + getProp(SOXPATH) +
+       cmdLine = "cd " + htsDir + "\n" +
+       getProp(CONFIGUREFILE) +
+       " --with-tcl-search-path=" + db.getExternal(db.TCLPATH) +
+       " --with-sptk-search-path=" + db.getExternal(db.SPTKPATH) +
+       " --with-hts-search-path=" + db.getExternal(db.HTSPATH) +
+       " --with-hts-engine-search-path=" + db.getExternal(db.HTSENGINEPATH) +
+       " --with-sox-search-path=" + db.getExternal(db.SOXPATH) +
        " SPEAKER=" + getProp(SPEAKER) +
        " DATASET=" + getProp(DATASET) +
        " TRAINSPKR=" + getProp(TRAINSPKR) + 
