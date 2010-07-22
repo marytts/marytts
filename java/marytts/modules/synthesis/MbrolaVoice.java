@@ -104,8 +104,9 @@ public class MbrolaVoice extends Voice
     public int baseEnd() { return baseEnd; }
 
     
-    public boolean hasVoiceQuality(String vq)
-    { return knownVoiceQualities.contains(vq); }
+    public boolean hasVoiceQuality(String vq) {
+        return knownVoiceQualities.contains(vq);
+    }
     
     
     
