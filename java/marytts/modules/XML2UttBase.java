@@ -630,16 +630,26 @@ public abstract class XML2UttBase extends InternalModule
 
     /**
       * For a given element, extract essential settings defined by the closest ancestor
-      * prosody element and save them into the Utterance.
+      * prosody element and save them into the Utterance. 
+      * Note that prosody settings outside of a paragraph or voice element,
+      * are not to be stored here, since they are dealt with elsewhere or are not relevant.
       * @param utterance an utterance in which to save the prosody settings 
       * @param element an element somewhere below the prosody element to convert.
       */
      private void insertProsodySettings(Utterance utterance, Element element)
      {
          Element prosody = (Element) MaryDomUtils.getAncestor(element, MaryXML.PROSODY);
-         Element voice = (Element) MaryDomUtils.getAncestor(element, MaryXML.VOICE);
-         if (prosody == null || voice != null && MaryDomUtils.isAncestor(prosody, voice))
+         if (prosody == null) {
              return;
+         }
+         Element voice = (Element) MaryDomUtils.getAncestor(element, MaryXML.VOICE);
+         if (voice != null && MaryDomUtils.isAncestor(prosody, voice)) {
+             return;
+         }
+         Element paragraph = (Element) MaryDomUtils.getAncestor(element, MaryXML.PARAGRAPH);
+         if (paragraph != null && MaryDomUtils.isAncestor(prosody, paragraph)) {
+             return;
+         }
          String rateString = prosody.getAttribute("rate");
          String pitchString = prosody.getAttribute("pitch");
         String rangeString = prosody.getAttribute("range");

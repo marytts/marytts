@@ -82,17 +82,18 @@ public abstract class Utt2XMLBase extends InternalModule {
 
     public MaryData process(MaryData d) throws Exception {
         Document doc = MaryXML.newDocument();
-        Element insertHere = doc.getDocumentElement();
+        Element root = doc.getDocumentElement();
         Locale locale = d.getLocale();
         if (locale != null) {
-            insertHere.setAttribute("xml:lang", MaryUtils.locale2xmllang(locale));
+            root.setAttribute("xml:lang", MaryUtils.locale2xmllang(locale));
         }
-        insertHere = MaryXML.appendChildElement(insertHere, MaryXML.PARAGRAPH);
+        Element paragraph = MaryXML.appendChildElement(root, MaryXML.PARAGRAPH);
 
-        List utterances = d.getUtterances();
-        Iterator it = utterances.iterator();
+        List<Utterance> utterances = d.getUtterances();
+        Iterator<Utterance> it = utterances.iterator();
         while (it.hasNext()) {
-            Utterance utterance = (Utterance) it.next();
+            Utterance utterance = it.next();
+            Element insertHere = paragraph;
 
             if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
                 StringWriter sw = new StringWriter();
@@ -121,12 +122,19 @@ public abstract class Utt2XMLBase extends InternalModule {
                         insertHere = newVoice;
                     }
                 } else {
-                    // create a new voice element, insert it as a child of this
-                    // node, and let insertHere point to it
-                    Element newVoice = MaryXML.createElement(doc, MaryXML.VOICE);
-                    insertHere.appendChild(newVoice);
-                    newVoice.setAttribute("name", maryVoice.getName());
-                    insertHere = newVoice;
+                    // Check if the last child of insertHere is a voice with the right name
+                    Element lastChild = MaryDomUtils.getLastChildElement(insertHere);
+                    if (lastChild != null && lastChild.getTagName().equals(MaryXML.VOICE)
+                            && maryVoice.hasName(lastChild.getAttribute("name"))) {
+                        insertHere = lastChild;
+                    } else {
+                        // create a new voice element, insert it as a child of this
+                        // node, and let insertHere point to it
+                        Element newVoice = MaryXML.createElement(doc, MaryXML.VOICE);
+                        insertHere.appendChild(newVoice);
+                        newVoice.setAttribute("name", maryVoice.getName());
+                        insertHere = newVoice;
+                    }
                 }
                 // Now insertHere is the correct <voice> element.
 
