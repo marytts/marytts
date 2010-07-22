@@ -163,9 +163,9 @@ public class HMMDurationF0Modeller extends InternalModule
       logger.debug("No HMM voice called " + hmmVoiceName);
     }
     
-    // the result is already in d
     applyProsodySpecifications(doc);
     
+    // the result is already in d
     return d; 
   }
   
@@ -271,6 +271,9 @@ public class HMMDurationF0Modeller extends InternalModule
               double partPhone = phoneDuration * (percent.doubleValue()/100.0);
               
               int placeIndex  = (int) Math.floor((( ((phoneEndTime - phoneDuration) - fStart ) +  partPhone ) * 100 ) / (double) duration );
+              if ( placeIndex >= 100 ) { 
+                  placeIndex = 99;
+              }
               setF0String = setF0String + "(" + percent + "," +(int) contour[placeIndex] + ")" ;          
               
           }
@@ -443,7 +446,12 @@ public class HMMDurationF0Modeller extends InternalModule
               else {
                   for ( int j=i; j < index; j++ ) {
                       //contour[j] = contour[i-1] * (index - j) + contour[index] * (j - (i-1)) / ( index - i );
-                      contour[j] = contour[j-1] + ((contour[index] - contour[i-1]) / (index - i)) ;
+                      if ( i == 0 ) {
+                          contour[j] = contour[index];
+                      }
+                      else {
+                          contour[j] = contour[j-1] + ((contour[index] - contour[i-1]) / (index - i)) ;
+                      }
                   }
                   i = index-1; 
               }
@@ -511,6 +519,9 @@ public class HMMDurationF0Modeller extends InternalModule
             Integer f0Value = f0Map.get(percent);
             double partPhone = phoneDuration * (percent.doubleValue()/100.0);
             int placeIndex  = (int) Math.floor((( ((phoneEndTime - phoneDuration) - fStart ) +  partPhone ) * 100 ) / (double) duration );
+            if ( placeIndex >= 100 ) {
+                placeIndex = 99;
+            }
             contour[placeIndex] = f0Value.doubleValue();
         }
     }
