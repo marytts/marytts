@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -37,6 +38,7 @@ import org.apache.log4j.Logger;
 public class StreamLogger extends Thread
 {
     private InputStream is;
+    private PrintStream ps;
     private Logger logger;
     private Pattern ignorePattern = null;
 
@@ -67,6 +69,11 @@ public class StreamLogger extends Thread
         }
     }
 
+    public StreamLogger(InputStream is, PrintStream ps) {
+        this.is = is;
+        this.ps = ps;
+    }
+
     public void run()
     {
         String line = null;
@@ -75,10 +82,18 @@ public class StreamLogger extends Thread
             while ((line = b.readLine()) != null) {
                 if (ignorePattern != null && ignorePattern.matcher(line).matches())
                     continue; // do not log
-                logger.info(line);
+                if (ps != null) {
+                    ps.println(line);
+                } else {
+                    logger.info(line);
+                }
             }
         } catch (IOException e) {
-            logger.warn("Cannot read from stream", e);
+            try {
+                logger.warn("Cannot read from stream", e);
+            } catch (NullPointerException npe) {
+                e.printStackTrace();
+            }
         }
     }
 }

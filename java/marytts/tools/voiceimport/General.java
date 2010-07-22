@@ -39,9 +39,12 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+
+import marytts.util.io.StreamLogger;
 
 /**
  * This class is for general purpose functions such as reading and
@@ -491,8 +494,6 @@ public class General
     public static void launchProc( String cmdLine, String task, String baseName ) {
         
         Process proc = null;
-        BufferedReader procStdout = null;
-        BufferedReader procStdErr = null;
         String line = null;
         // String[] cmd = null; // Java 5.0 compliant code
         
@@ -508,16 +509,25 @@ public class General
             proc = Runtime.getRuntime().exec( cmdLine );
             
             /* Collect stdout and send it to System.out: */
-            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
-            procStdErr = new BufferedReader( new InputStreamReader( proc.getErrorStream() ) );
-            while( true ) {
-                line = procStdout.readLine();
-                if ( line == null ) break;
-                System.out.println( line );
-                System.err.println(procStdErr.readLine());
+            InputStream procStdOut = proc.getInputStream();
+            InputStream procStdErr = proc.getErrorStream();
+            
+            Thread stdOutLogger = new Thread(new StreamLogger(procStdOut, System.out));
+            Thread stdErrLogger = new Thread(new StreamLogger(procStdErr, System.err));
+            
+            stdOutLogger.start();
+            stdErrLogger.start();
+            
+            try {
+                stdOutLogger.join();
+                stdErrLogger.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+
             /* Wait and check the exit value */
             proc.waitFor();
+            
             if ( proc.exitValue() != 0 ) {
                 throw new RuntimeException( task + " computation failed on file [" + baseName + "]!\n"
                         + "Command line was: [" + cmdLine + "]." );
@@ -577,13 +587,22 @@ public class General
             /* Java 1.0 equivalent: */
             proc = Runtime.getRuntime().exec( tmpFile );
             
-            /* Collect stdout and send it to System.out: */
-            procStdout = new BufferedReader( new InputStreamReader( proc.getInputStream() ) );
-            while( true ) {
-                line = procStdout.readLine();
-                if ( line == null ) break;
-                System.out.println( line );
+            InputStream procStdOut = proc.getInputStream();
+            InputStream procStdErr = proc.getErrorStream();
+            
+            Thread stdOutLogger = new Thread(new StreamLogger(procStdOut, System.out));
+            Thread stdErrLogger = new Thread(new StreamLogger(procStdErr, System.err));
+            
+            stdOutLogger.start();
+            stdErrLogger.start();
+            
+            try {
+                stdOutLogger.join();
+                stdErrLogger.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+
             /* Wait and check the exit value */
             proc.waitFor();
             if ( proc.exitValue() != 0 ) {
