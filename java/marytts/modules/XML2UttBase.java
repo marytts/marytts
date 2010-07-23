@@ -25,6 +25,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Stack;
 import java.util.StringTokenizer;
 
 import marytts.datatypes.MaryData;
@@ -66,7 +67,9 @@ import com.sun.speech.freetts.Utterance;
 
 public abstract class XML2UttBase extends InternalModule
 {
-    public static final String[] PROSODY_ATTRIBUTES = new String[] {"rate", "pitch", "range", "volume", "contour"}; 
+    public static final String[] PROSODY_ATTRIBUTES = new String[] {"rate", "pitch", "range", "volume", "contour"};
+    public static final String PROSODY_START = "prosody-start";
+    public static final String PROSODY_END = "prosody-end";
 
     protected int lastTargetIndex = 0;
     protected int nextTargetIndex = 1;
@@ -197,6 +200,16 @@ public abstract class XML2UttBase extends InternalModule
             topElement = sentence;
         }
 
+        // We save within-sentence prosody tags on the level of the Token items, as follows:
+        // The first token in a within-sentence <prosody> element receives the feature "prosody-start" with a non-null String value,
+        // and the attribute values listed in PROSODY_ATTRIBUTES, as String features.
+        // The last token in that prosody element gets a feature "prosody-end" with a non-null String value.
+        // NOTE: This method can even deal with embedded <prosody> tags, as long as no two prosody tags start at the same token.
+        // To know whether we are still inside a given prosody tag, we keep a stack of prosody tags that we are in.
+        Stack<Element> prosodyElements = new Stack<Element>();
+        Item previousToken = null;
+        
+        
         StringBuilder sentenceBuf = new StringBuilder();
         // Either iterate through phrases or run once through entire sentence:
         while (topElement != null) {
@@ -215,6 +228,49 @@ public abstract class XML2UttBase extends InternalModule
                 if (elementText.length() > 0 && sentenceBuf.length() > 0)
                     sentenceBuf.append(" ");
                 sentenceBuf.append(elementText);
+                
+                // Add any prosody features to the token?
+                // The following cases must be distinguished.
+                // (PA = relevant prosody ancestor, where relevant means it is a descendant of the sentence)
+                // 1. The current element has the same PA as the previous element (e.g., none)
+                //    => no need to annotate anything
+                // 2. The two have different PAs.
+                //    a) if previous PA != null, and the current PA is not a descendant of the previous PA, mark end
+                //    b) if current PA != null and the current PA is not an ancestor of the previous PA, mark start
+                Item tokenItem = tokenRelation.getTail();
+                assert tokenItem != null;
+                Element prosody = (Element) MaryDomUtils.getAncestor(element, MaryXML.PROSODY);
+                if (prosody != null && !MaryDomUtils.isAncestor(sentence, prosody)) {
+                    // Only relevant if prosody is inside sentence
+                    prosody = null;
+                }
+                Element previousProsody = (prosodyElements.empty() ? null : prosodyElements.peek());
+                if (prosody != previousProsody) { // object equality is ok
+                    if (previousProsody != null
+                            && (prosody == null || !MaryDomUtils.isAncestor(previousProsody, prosody))) {
+                        // we have moved outside of previous prosody.
+                        // need to close the previous prosody annotation on previousToken
+                        assert previousToken != null;
+                        previousToken.getFeatures().setString(PROSODY_END, "here");
+                        prosodyElements.pop();
+                    }
+                    if (prosody != null
+                            && (previousProsody == null || !MaryDomUtils.isAncestor(prosody, previousProsody))) {
+                        // We are now in a new prosody which is not simply an ancestor of a previous one
+                        prosodyElements.push(prosody);
+                        tokenItem.getFeatures().setString(PROSODY_START, "here");
+                        for (String att : PROSODY_ATTRIBUTES) {
+                            String val = prosody.getAttribute(att);
+                            if (!val.equals("")) {
+                                tokenItem.getFeatures().setString(att, val);
+                            }
+                        }
+
+                    }
+                }
+                previousToken = tokenItem;
+                
+                // Move iterator forward as appropriate:
                 if (element.getTagName().equals(MaryXML.MTU)) {
                     // skip enclosed tokens
                     Element mtu = element;
