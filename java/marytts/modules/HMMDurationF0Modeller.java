@@ -21,6 +21,7 @@ import javax.sound.sampled.AudioInputStream;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
@@ -163,9 +164,11 @@ public class HMMDurationF0Modeller extends InternalModule
       logger.debug("No HMM voice called " + hmmVoiceName);
     }
     
-    applyProsodySpecifications(doc);
-    
     // the result is already in d
+    
+    MaryDomUtils.document2File(doc, new File("/home/sathish/Desktop/BeforeProsody.xml"));
+    applyProsodySpecifications(doc);
+    MaryDomUtils.document2File(doc, new File("/home/sathish/Desktop/AfterProsody.xml"));
     return d; 
   }
   
@@ -184,27 +187,86 @@ public class HMMDurationF0Modeller extends InternalModule
           if ( "prosody".equals(e.getNodeName() ) ) {
               NodeList nl = e.getElementsByTagName("ph");
               applyNewContourSpecifications(nl, e);
+              applySpeechRateSpecifications(nl, e);
           }
       }      
  }
   
   /**
+   * Apply 'rate' requirements to ACOUSTPARAMS
+   * @param nl
+   * @param prosodyElement
+   */
+  private void applySpeechRateSpecifications(NodeList nl, Element prosodyElement) {
+    
+      String rateAttribute = null;
+      if ( !prosodyElement.hasAttribute("rate") ) {
+          return;
+      }
+      
+      rateAttribute =  prosodyElement.getAttribute("rate");
+      Pattern p = Pattern.compile("[+|-]\\d+%");
+      
+      // Split input with the pattern
+      Matcher m = p.matcher(rateAttribute);
+      if ( m.find() ) {
+          double percentage = new Integer(rateAttribute.substring(1, rateAttribute.length()-1)).doubleValue();
+          if ( rateAttribute.startsWith("+") ) {
+              setSpeechRateSpecifications(nl, percentage, -1.0);
+          }
+          else {
+              setSpeechRateSpecifications(nl, percentage, +1.0);
+          }
+      }
+  }
+
+  /**
+   * set duration specifications according to 'rate' requirements
+   * @param nl
+   * @param percentage
+   * @param incriment
+   */
+  private void setSpeechRateSpecifications(NodeList nl, double percentage, double incriment) {
+      
+      for ( int i=0; i < nl.getLength(); i++ ) {
+          Element e = (Element) nl.item(i);
+          double durAttribute = new Integer(e.getAttribute("d")).doubleValue();
+          double newDurAttribute = durAttribute + ( incriment * percentage * durAttribute / 100);
+          e.setAttribute("d", newDurAttribute+"");
+          //System.out.println(durAttribute+" = " +newDurAttribute);
+      }
+      
+      Element e = (Element) nl.item(0);
+      
+      Element rootElement = e.getOwnerDocument().getDocumentElement();
+      NodeIterator nit = MaryDomUtils.createNodeIterator(rootElement, MaryXML.PHONE, MaryXML.BOUNDARY);
+      Element nd; 
+      double duration = 0.0;
+      for ( int i=0; (nd = (Element) nit.nextNode()) != null; i++ ) {
+          if ( "boundary".equals(nd.getNodeName()) ) {
+              if ( nd.hasAttribute("duration") ) {
+                  duration += new Double(nd.getAttribute("duration")).doubleValue();
+              }
+          }
+          else {
+              if ( nd.hasAttribute("d") ) {
+                  duration += new Double(nd.getAttribute("d")).doubleValue();
+              }
+          }
+          double endTime = 0.001 * duration;
+          nd.setAttribute("end", endTime+"");
+          //System.out.println(nd.getNodeName()+" = " +nd.getAttribute("end"));
+      }
+    
+  }
+
+/**
    * 
    * @param nl
    * @param prosodyElement
    */
   private void applyNewContourSpecifications(NodeList nl, Element prosodyElement) {
       
-      double[] contour = getContiniousContour(nl);
-      contour = interpolateNonZeroValues(contour);
-      double[] coeffs     = Polynomial.fitPolynomial(contour, 1);
-      double[] polyValues = Polynomial.generatePolynomialValues(coeffs, 100, 0, 1);
-      double[] diffValues = new double[100];
-      
-      // Extract base contour from original contour
-      for ( int i=0; i < contour.length ; i++ ) {
-          diffValues[i] =  contour[i] - polyValues[i];
-      }
       
       String contourAttribute = null;
       if ( prosodyElement.hasAttribute("contour") ) {
@@ -216,6 +278,21 @@ public class HMMDurationF0Modeller extends InternalModule
           pitchAttribute =  prosodyElement.getAttribute("pitch");
       }
       
+      if ( contourAttribute == null && pitchAttribute == null ) {
+          return;
+      }
+      
+      double[] contour = getContiniousContour(nl);
+      contour = interpolateNonZeroValues(contour);
+      double[] coeffs     = Polynomial.fitPolynomial(contour, 1);
+      double[] polyValues = Polynomial.generatePolynomialValues(coeffs, 100, 0, 1);
+      double[] diffValues = new double[100];
+      
+      // Extract base contour from original contour
+      for ( int i=0; i < contour.length ; i++ ) {
+          diffValues[i] =  contour[i] - polyValues[i];
+      }
+            
       polyValues = setBaseContourModifications(polyValues, contourAttribute, pitchAttribute);
       
       // Now, imposing back the diff. contour
