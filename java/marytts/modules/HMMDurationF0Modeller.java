@@ -164,11 +164,10 @@ public class HMMDurationF0Modeller extends InternalModule
       logger.debug("No HMM voice called " + hmmVoiceName);
     }
     
-    // the result is already in d
-    
-    MaryDomUtils.document2File(doc, new File("/home/sathish/Desktop/BeforeProsody.xml"));
+    // processing 'prosody' tags
     applyProsodySpecifications(doc);
-    MaryDomUtils.document2File(doc, new File("/home/sathish/Desktop/AfterProsody.xml"));
+    
+    // the result is already in d
     return d; 
   }
   
