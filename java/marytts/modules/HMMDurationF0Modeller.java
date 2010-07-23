@@ -181,7 +181,7 @@ public class HMMDurationF0Modeller extends InternalModule
       TreeWalker tw = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.PHONE, MaryXML.BOUNDARY, MaryXML.PROSODY);
       Element e = null;
       
-      // TODO: read contours from back to start
+      // TODO: read prosody tags recursively 
       while ((e = (Element) tw.nextNode()) != null) {
           
           if ( "prosody".equals(e.getNodeName() ) ) {
@@ -229,8 +229,11 @@ public class HMMDurationF0Modeller extends InternalModule
   private void setSpeechRateSpecifications(NodeList nl, double percentage, double incriment) {
       
       for ( int i=0; i < nl.getLength(); i++ ) {
-          Element e = (Element) nl.item(i);
-          double durAttribute = new Integer(e.getAttribute("d")).doubleValue();
+          Element e = (Element) nl.item(i); 
+          if ( !e.hasAttribute("d") ) {
+              continue;
+          }
+          double durAttribute = new Double(e.getAttribute("d")).doubleValue();
           double newDurAttribute = durAttribute + ( incriment * percentage * durAttribute / 100);
           e.setAttribute("d", newDurAttribute+"");
           //System.out.println(durAttribute+" = " +newDurAttribute);
