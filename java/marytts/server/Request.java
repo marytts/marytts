@@ -300,7 +300,11 @@ public class Request {
             // other input data types are processed as a whole
             outputData = processOrLookupOneChunk(inputData, outputType, outputTypeParams);
             //assert outputData.getDefaultVoice() != null;
-            if (appendableAudioStream != null) appendableAudioStream.doneAppending();
+            if (outputType == MaryDataType.AUDIO) {
+                assert appendableAudioStream != null;
+                appendableAudioStream.append(outputData.getAudio());
+                appendableAudioStream.doneAppending();
+            }
             return;
         }
         assert rawmaryxml != null && rawmaryxml.getType().equals(MaryDataType.get("RAWMARYXML"))
