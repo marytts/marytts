@@ -50,23 +50,6 @@ public class Utt2XMLTokensEn extends Utt2XMLBase
               Locale.ENGLISH);
     }
 
-    /**
-     * Depending on the data type, find the right information in the utterance
-     * and insert it into the sentence.
-     */
-    protected void fillSentence(Element sentence, Utterance utterance)
-    {
-        Relation tokenRelation = utterance.getRelation(Relation.TOKEN);
-        if (tokenRelation == null) return;
-        Item tokenItem = tokenRelation.getHead();
-        while (tokenItem != null) {
-            insertToken(tokenItem, sentence);
-            tokenItem = tokenItem.getNext();
-        }
-    }
-
-
-
 
 }
 

@@ -22,11 +22,14 @@ package marytts.language.en;
 import java.util.Locale;
 
 import marytts.datatypes.MaryDataType;
+import marytts.datatypes.MaryXML;
 import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.Utt2XMLBase;
+import marytts.modules.XML2UttBase;
 
 import org.w3c.dom.Element;
 
+import com.sun.speech.freetts.FeatureSet;
 import com.sun.speech.freetts.Item;
 import com.sun.speech.freetts.Relation;
 import com.sun.speech.freetts.Utterance;
@@ -49,24 +52,6 @@ public class Utt2XMLWordsEn extends Utt2XMLBase
               MaryDataType.WORDS,
               Locale.ENGLISH);
     }
-
-    /**
-     * Depending on the data type, find the right information in the utterance
-     * and insert it into the sentence.
-     */
-    protected void fillSentence(Element sentence, Utterance utterance)
-    {
-        Relation tokenRelation = utterance.getRelation(Relation.TOKEN);
-        if (tokenRelation == null) return;
-        Item tokenItem = tokenRelation.getHead();
-        while (tokenItem != null) {
-            insertToken(tokenItem, sentence);
-            tokenItem = tokenItem.getNext();
-        }
-    }
-
-
-
 
 }
 

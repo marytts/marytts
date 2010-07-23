@@ -167,7 +167,67 @@ public abstract class Utt2XMLBase extends InternalModule {
      * Depending on the data type, find the right information in the utterance
      * and insert it into the sentence.
      */
-    protected abstract void fillSentence(Element sentence, Utterance utterance);
+    protected final void fillSentence(Element sentence, Utterance utterance)
+    {
+        Document doc = sentence.getOwnerDocument();
+        Relation tokenRelation = utterance.getRelation(Relation.TOKEN);
+        if (tokenRelation == null) return;
+        Item tokenItem = tokenRelation.getHead();
+        Relation phraseRelation = utterance.getRelation(Relation.PHRASE);
+        Item phraseItem = null;
+        if (phraseRelation != null) {
+            phraseItem = phraseRelation.getHead();
+            // Challenge: Bring token and phrase relations together. They have
+            // common children, which can be interpreted as Word or SylStructure
+            // items. Algorithm: For a given phrase, look at tokens. If a token's
+            // first child, interpreted in the phrase relation, has the phrase as
+            // its parent, then insert the token and all its children, and move to
+            // the next token. If not, move to the next phrase.
+            while (phraseItem != null) {
+                // The phrases:
+                Element phrase = MaryXML.createElement(doc, MaryXML.PHRASE);
+                sentence.appendChild(phrase);
+                Element insertHere = phrase;
+                // Is this token part of this phrase?
+                while (tokenItem != null &&
+                       tokenItem.getDaughter().findItem("R:Phrase.parent").equals(phraseItem)) {
+                    FeatureSet tokenFeatures = tokenItem.getFeatures();
+                    if (tokenFeatures.isPresent(XML2UttBase.PROSODY_START)) {
+                        Element prosody = insertProsodySettings(insertHere, tokenFeatures);
+                        if (prosody != null) {
+                            insertHere = prosody;
+                        }
+                    }
+                    insertToken(tokenItem, phrase, true); // create deep structure
+                    if (tokenFeatures.isPresent(XML2UttBase.PROSODY_END)) {
+                        assert insertHere.getTagName().equals(MaryXML.PROSODY);
+                        insertHere = (Element) insertHere.getParentNode();
+                    }
+                    tokenItem = tokenItem.getNext();
+                }
+                phraseItem = phraseItem.getNext();
+            }
+        } else {
+            // No phrase relation, simply create tokens.
+            Element insertHere = sentence;
+            while (tokenItem != null) {
+                FeatureSet tokenFeatures = tokenItem.getFeatures();
+                if (tokenFeatures.isPresent(XML2UttBase.PROSODY_START)) {
+                    Element prosody = insertProsodySettings(insertHere, tokenFeatures);
+                    if (prosody != null) {
+                        insertHere = prosody;
+                    }
+                }
+                insertToken(tokenItem, insertHere);
+                if (tokenFeatures.isPresent(XML2UttBase.PROSODY_END)) {
+                    assert insertHere.getTagName().equals(MaryXML.PROSODY);
+                    insertHere = (Element) insertHere.getParentNode();
+                }
+                tokenItem = tokenItem.getNext();
+            }
+
+        }
+    }
 
     /**
      * Convert an item in the Token relation into XML, inserting it at the
@@ -470,37 +530,36 @@ public abstract class Utt2XMLBase extends InternalModule {
     }
 
     /**
-       * For a given utterance, see if there are any prosodic settings defined,
+       * For a given utterance or token, see if there are any prosodic settings defined,
        * and if so, create a corresponding prosody element as a child of insertHere.
-       * @param utterance an utterance, optionally containing prosody settings 
+       * @param featureSet an utterance, optionally containing prosody settings 
        * @param insertHere an element into which to insert the new prosody element if required.
        * @return the new prosody element, or null if none was created.
        */
-    private Element insertProsodySettings(Element insertHere, Utterance utterance) {
-        if (insertHere == null || utterance == null)
+    protected Element insertProsodySettings(Element insertHere, FeatureSet featureSet) {
+        if (insertHere == null || featureSet == null)
             throw new NullPointerException("I thoroughly dislike getting null arguments!");
         boolean haveProsodyInfo = false;
         for (String att : XML2UttBase.PROSODY_ATTRIBUTES) {
-            if (utterance.getString(att) != null) {
+            if (featureSet.getString(att) != null) {
                 haveProsodyInfo = true;
                 break;
             }
         }
         if (!haveProsodyInfo) {
-            return insertHere;
+            return null;
         }
         Document doc = insertHere.getOwnerDocument();
         Element prosody = MaryXML.createElement(doc, MaryXML.PROSODY);
         insertHere.appendChild(prosody);
         for (String att : XML2UttBase.PROSODY_ATTRIBUTES) {
-            String val = utterance.getString(att);
+            String val = featureSet.getString(att);
             if (val != null) {
                 prosody.setAttribute(att, val);
             }
         }
         return prosody;
     }
-
 
     /** Converts an array of phone symbol strings 
      *  into a single phone string.
