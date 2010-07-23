@@ -62,6 +62,7 @@ import marytts.modules.acoustic.BoundaryModel;
 import marytts.modules.acoustic.CARTModel;
 import marytts.modules.acoustic.Model;
 import marytts.modules.acoustic.ModelType;
+import marytts.modules.acoustic.SoPModel;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.nonverbal.BackchannelSynthesizer;
@@ -263,7 +264,12 @@ public class Voice
                 switch (possibleModelTypes) {
                 case CART:
                     model = new CARTModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList, modelFeatureName);
-                }
+                    break;
+                    
+                case SOP:
+                    model = new SoPModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList, modelFeatureName);
+                    break;
+                } 
 
                 // if we got this far, model should not be null:
                 assert model != null;

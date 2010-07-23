@@ -30,7 +30,7 @@ package marytts.modules.acoustic;
  */
 public enum ModelType {
     // enumerate model types here:
-    CART;
+    CART, SOP;
 
     // get the appropriate model type from a string (which can be lower or mixed case):
     // adapted from http://www.xefer.com/2006/12/switchonstring

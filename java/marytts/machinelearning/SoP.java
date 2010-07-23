@@ -40,6 +40,7 @@ public class SoP {
   public int[] getFactorsIndex(){ return factorsIndex; }
   
   
+  public SoP(){}
   /**
    * Build a new empty sop with the given feature definition.
    * @param featDef
@@ -93,6 +94,73 @@ public class SoP {
     }
   }
   
+  
+  // Need to add a SoP.load() method to load the coeffs and features from a file
+  // this means that we need a sop file for each type... left, mid and righ f0
+  // for duration ???
+  // this function also set the featureDefinition for this model
+  public void load(String sopFile){
+      //System.out.println("sopFileName: " + sopFile);
+      String nextLine;
+      String strContext="";
+      Scanner s = null;
+      try {
+        s = new Scanner(new BufferedReader(new FileReader(sopFile)));
+        
+        // The first part contains the feature definition
+        while (s.hasNext()) {
+          nextLine = s.nextLine(); 
+          if (nextLine.trim().equals("")) break;
+          else
+            strContext += nextLine + "\n";
+        }
+        // the featureDefinition is the same for vowel, consonant and Pause
+        featureDefinition = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false);
+   
+        // next line should contain the coeffs and linguistic features
+        // vowel line
+        if (s.hasNext()){
+          nextLine = s.nextLine();
+          //System.out.println("line vowel = " + nextLine);
+          setCoeffsAndFactors(nextLine);
+          //printCoefficients();
+        }                           
+      } catch (Exception e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+      } finally {
+          if (s != null)
+            s.close();
+      }   
+
+  }
+  
+  public void setCoeffsAndFactors(String line){
+      
+      // features definition should be already set
+      
+      String word[] = line.split(" ");
+      int j = 0;
+      coeffs = new double[word.length/2];
+      factors = new String[word.length/2];
+      factorsIndex = new int[word.length/2];
+      interceptTerm = false;
+      for(int i=0; i<word.length; i++){
+        //System.out.println("w=" + word[i]);
+        coeffs[j] = Double.parseDouble(word[i]);
+        factors[j] = word[i+1];      
+        if(word[i+1].contentEquals("_")){
+          interceptTerm=true;
+          factorsIndex[j] = -1; 
+        }
+        else
+          factorsIndex[j] = featureDefinition.getFeatureIndex(factors[j]);
+        i++;
+        j++;
+      }     
+    } 
+  
+  // this we will not need after using acoustic modeller
   public SoP(String line, FeatureDefinition feaDef){
     
     this.featureDefinition = feaDef;
@@ -168,6 +236,12 @@ public class SoP {
       else
         return solution;
     }
+  }
+  
+  public double interpret(Target t){
+      
+      return solve(t, this.featureDefinition, false, false);
+      
   }
   
   /***
