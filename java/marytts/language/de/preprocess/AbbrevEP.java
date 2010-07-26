@@ -72,6 +72,7 @@ public class AbbrevEP extends ExpansionPattern
     {
         try {
             loadAbbrevDict();
+            int foo = 0;
         } catch(FileNotFoundException e) {
             logger.warn("Could not load abbreviation file", e);
         } catch(IOException e) {
@@ -351,7 +352,7 @@ public class AbbrevEP extends ExpansionPattern
                                  File.separator + "de" +
                                  File.separator + "preprocess" +
                                  File.separator + "abbrev.dat");
-        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(datafile), "ISO-8859-15"));
+        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(datafile)));
         String line;
         while ((line = br.readLine()) != null) {
             if (Pattern.compile("^\\#").matcher(line).find() ||
