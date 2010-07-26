@@ -54,6 +54,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -94,6 +95,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     public final String featureListFile  = name+".featureListFile";
     public final String trickyPhonesFile = name+".trickyPhonesFile";
     public final String ADAPTSCRIPTS     = name+".adaptScripts";
+    private FilenameFilter featFileFilter;
     
     
     public String getName(){
@@ -226,6 +228,13 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           cmdLine = "cd " + voiceDir + "hts/data\nmake gv\n";
           General.launchBatchProc(cmdLine, "", voiceDir);
       }
+      
+      featFileFilter = new FilenameFilter() {
+          public boolean accept(File dir, String fileName) {
+              return fileName.endsWith(".pfeats");
+          }
+      };
+      
       if( Integer.parseInt(getProp(LABELMARY)) == 1 ){
           //uses:  contextFile (example)
           //       featureListFile
@@ -354,10 +363,10 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         // select a featureListFile from phonefeatures, it will be used to get the feature definition
         
         FeatureDefinition feaDef;
-        String[] dirFeaList;
         String feaExample;
         File dirFea = new File(db.getProp(db.PHONEFEATUREDIR));
-        if(dirFea.exists() && (dirFeaList = dirFea.list()).length > 0){
+        String[] dirFeaList = dirFea.list(featFileFilter);
+        if(dirFea.exists() && dirFeaList.length > 0){
             if(getProp(ADAPTSCRIPTS).contentEquals("false")){
               feaExample = db.getProp(db.PHONEFEATUREDIR) + "/" + dirFeaList[0];
               System.out.println("phonefeatures file example for getting featureDefition = " + feaExample);
@@ -396,6 +405,9 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         System.out.println("The following are other context features used for training HMMs, they are extracted from file: " + hmmFeatureListFile);
         while (feaList.hasNext()) {
           line = feaList.nextLine();
+          if (line.trim().length() == 0) {
+              break;
+          }
               // Check if the feature exist
               if(feaDef.hasFeature(line) ){
                 featureList.add(line);
@@ -626,10 +638,10 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         String hmmFeatureListFile = voiceDir + getProp(featureListFile);
         File dirFea = new File(voiceDir + "/phonefeatures");
         File dirLab = new File(voiceDir + "/phonelab");
-        
+
         String[] feaFiles;
         if(dirFea.exists() && dirFea.list().length > 0 && dirLab.exists() && dirLab.list().length > 0 ){ 
-          feaFiles = dirFea.list();
+          feaFiles = dirFea.list(featFileFilter);
         } else {            
             throw new Exception("Error: directories " + voiceDir + "/phonefeatures and/or " + voiceDir + "/phonelab do not contain files." );  
         }
@@ -661,6 +673,9 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         System.out.println("The following are other context features used for training Hmms: ");
         while (feaList.hasNext()) {
           fea = feaList.nextLine();
+          if (fea.trim().length() == 0) {
+              break;
+          }
           // Check if the feature exist
           if( feaDef.hasFeature(fea)){
             hmmFeatureList.add(fea);
