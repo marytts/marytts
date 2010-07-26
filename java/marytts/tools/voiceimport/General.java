@@ -512,8 +512,8 @@ public class General
             InputStream procStdOut = proc.getInputStream();
             InputStream procStdErr = proc.getErrorStream();
             
-            Thread stdOutLogger = new Thread(new StreamLogger(procStdOut, System.out));
-            Thread stdErrLogger = new Thread(new StreamLogger(procStdErr, System.err));
+            StreamLogger stdOutLogger = new StreamLogger(procStdOut, System.out);
+            StreamLogger stdErrLogger = new StreamLogger(procStdErr, System.err);
             
             stdOutLogger.start();
             stdErrLogger.start();
@@ -590,8 +590,8 @@ public class General
             InputStream procStdOut = proc.getInputStream();
             InputStream procStdErr = proc.getErrorStream();
             
-            Thread stdOutLogger = new Thread(new StreamLogger(procStdOut, System.out));
-            Thread stdErrLogger = new Thread(new StreamLogger(procStdErr, System.err));
+            StreamLogger stdOutLogger = new StreamLogger(procStdOut, System.out);
+            StreamLogger stdErrLogger = new StreamLogger(procStdErr, System.err);
             
             stdOutLogger.start();
             stdErrLogger.start();
