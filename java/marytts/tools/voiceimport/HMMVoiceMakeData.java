@@ -302,7 +302,9 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
                 phonOri = it.next();
                 //System.out.println("  phon=" + phonOri);
                 for(int i=0; i<phonOri.length(); i++){
-                   if(! (marytts.util.string.StringUtils.isLetterOrModifier(phonOri.codePointAt(i))) ){
+                   if(! (marytts.util.string.StringUtils.isLetterOrModifier(phonOri.codePointAt(i)))
+                           // if this phone is not lower-case and differs from another phone only in case, it should also be considered "tricky":
+                           || (! phonOri.equals(phonOri.toLowerCase()) && phonesList.contains(phonOri.toLowerCase()))) {
                        if(numReplacements == 0 ){
                            // just if there is replacements to make then create the trickyPhones.txt file
                            outputStream = new FileWriter(trickyFile);

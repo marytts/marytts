@@ -72,7 +72,6 @@ public class AbbrevEP extends ExpansionPattern
     {
         try {
             loadAbbrevDict();
-            int foo = 0;
         } catch(FileNotFoundException e) {
             logger.warn("Could not load abbreviation file", e);
         } catch(IOException e) {
