@@ -66,7 +66,10 @@ public class FeatureProcessorManager
      */
     public FeatureProcessorManager(Voice voice) {
         this(voice.getLocale());
-        
+        registerAcousticModels(voice);
+    }
+    
+    protected void registerAcousticModels(Voice voice) {
         // finish setting up the acoustic Models, if defined:
         for (Model model : voice.getAcousticModels().values()) {
             // does this model predict a custom continuous feature...?
@@ -82,12 +85,12 @@ public class FeatureProcessorManager
             // set TargetFeatureComputer for the Model:
             TargetFeatureComputer featureComputer = FeatureRegistry.getTargetFeatureComputer(voice, null);
             try {
-                model.setFeatureComputer(featureComputer);
+                model.setFeatureComputer(featureComputer, this);
             } catch (MaryConfigurationException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-        }
+        }        
     }
     
     /**
