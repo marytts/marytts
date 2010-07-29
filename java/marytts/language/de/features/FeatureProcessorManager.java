@@ -47,11 +47,13 @@ public class FeatureProcessorManager extends
     
     /**
      * Constructor called from a Voice in Locale DE that has its own acoustic models
+     * 
      * @param voice
      */
     public FeatureProcessorManager(Voice voice) {
-        super(voice);
+        super(voice.getLocale());
         setupAdditionalFeatureProcessors();
+        registerAcousticModels(voice);
     }
 
     /**

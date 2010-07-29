@@ -26,6 +26,8 @@ import marytts.cart.DirectedGraph;
 import marytts.cart.io.DirectedGraphReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
+import marytts.features.FeatureProcessorManager;
+import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
 import marytts.unitselection.select.Target;
 
@@ -44,14 +46,17 @@ public class CARTModel extends Model {
     }
 
     @Override
-    public void setFeatureComputer(TargetFeatureComputer featureComputer) throws MaryConfigurationException {
+    public void setFeatureComputer(TargetFeatureComputer featureComputer, FeatureProcessorManager featureProcessorManager)
+            throws MaryConfigurationException {
         // ensure that this CART's FeatureDefinition is a subset of the one passed in:
         FeatureDefinition cartFeatureDefinition = cart.getFeatureDefinition();
         FeatureDefinition voiceFeatureDefinition = featureComputer.getFeatureDefinition();
         if (!voiceFeatureDefinition.contains(cartFeatureDefinition)) {
             throw new MaryConfigurationException("CART file " + dataFile + " contains extra features which are not supported!");
         }
-        // TODO should we overwrite featureComputer with one constructed from the cart's FeatureDefinition? if so, how?
+        // overwrite featureComputer with one constructed from the cart's FeatureDefinition:
+        String cartFeatureNames = cartFeatureDefinition.getFeatureNames();
+        featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, cartFeatureNames);
         this.featureComputer = featureComputer;
     }
 

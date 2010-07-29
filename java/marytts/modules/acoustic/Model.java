@@ -90,9 +90,15 @@ public abstract class Model {
     /**
      * Setter for the TargetFeatureComputer
      * 
+     * @param featureComputer
+     *            the TargetFeatureComputer
+     * @param featureProcessorManager
+     *            ignored except where a featureComputer must be overwritten from the Model's dataFile
+     * 
      * @throws MaryConfigurationException
      */
-    public void setFeatureComputer(TargetFeatureComputer featureComputer) throws MaryConfigurationException {
+    public void setFeatureComputer(TargetFeatureComputer featureComputer, FeatureProcessorManager featureProcessorManager)
+            throws MaryConfigurationException {
         this.featureComputer = featureComputer;
     }
 
