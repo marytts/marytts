@@ -195,6 +195,39 @@ public class SoP {
    * if interceptterm = FALSE
    *   solution = coeffs[0]*factors[0] + coeffs[1]*factors[1] + ... + coeffs[n]*factors[n]
  */
+  public double solve(Target t, FeatureDefinition feaDef, boolean log){
+      solution = 0.0f;
+      double lastPosSolution  = 0.0;
+      if(interceptTerm){
+        // the first factor is empty filled with "_" so it should not be used
+        solution = coeffs[0];
+        for(int i=1; i<coeffs.length; i++){
+          solution = solution + ( coeffs[i] * t.getFeatureVector().getByteFeature(factorsIndex[i]) );    
+          if(solution > 0.0)
+            lastPosSolution = solution;      
+          else
+              System.out.println("WARNING: sop solution negative");
+        }
+      } else {
+        for(int i=0; i<coeffs.length; i++){        
+          solution = solution + ( coeffs[i] * t.getFeatureVector().getByteFeature(factorsIndex[i]) );
+          if(solution > 0.0)
+            lastPosSolution = solution;
+          else
+            System.out.println("WARNING: sop solution negative");  
+        }
+      }
+      if(solution < 0.0)
+         solution = lastPosSolution;
+      
+      if(log)
+        return Math.exp(solution);
+      else
+        return solution;
+  }
+
+  
+  
   public double solve(Target t, FeatureDefinition feaDef, boolean log, boolean debug){
     solution = 0.0f;
     double lastPosSolution  = 0.0;
@@ -223,6 +256,9 @@ public class SoP {
     } else {
       for(int i=0; i<coeffs.length; i++)        
         solution = solution + ( coeffs[i] * t.getFeatureVector().getByteFeature(factorsIndex[i]) );
+      if(solution > 0.0)
+          lastPosSolution = solution;
+      
     }
     if(debug){
       if(log)
@@ -240,8 +276,8 @@ public class SoP {
   
   public double interpret(Target t){
       
-      return solve(t, this.featureDefinition, false, false);
-      
+      return solve(t, this.featureDefinition, false);
+   
   }
   
   /***

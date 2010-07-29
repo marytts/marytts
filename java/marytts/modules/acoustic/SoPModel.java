@@ -1,17 +1,33 @@
 package marytts.modules.acoustic;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
 import marytts.cart.io.DirectedGraphReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
+import marytts.features.FeatureProcessorManager;
+import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
 import marytts.machinelearning.SoP;
+import marytts.modules.phonemiser.Allophone;
 import marytts.unitselection.select.Target;
+import marytts.util.MaryUtils;
 
 public class SoPModel extends Model {
     
-    private SoP sop;
+    // If duration this map will contain several sop equations
+    // if f0 this map will contain just one sop equation
+    private Map<String, SoP> sopModels;
+    
+    FeatureDefinition sopFeatureDefinition;
 
     public SoPModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
             String targetElementListName, String modelFeatureName) {
@@ -19,33 +35,62 @@ public class SoPModel extends Model {
     }
     
     @Override
-    public void setFeatureComputer(TargetFeatureComputer featureComputer) throws MaryConfigurationException {
+    public void setFeatureComputer(TargetFeatureComputer featureComputer, FeatureProcessorManager featureProcessorManager) 
+       throws MaryConfigurationException {
         // ensure that this SoP's FeatureDefinition is a subset of the one passed in:
-        
-        // ??? this has to be call after the sop loaded the data, otherwise it does not have any featuredefinition...
-        
-        FeatureDefinition sopFeatureDefinition = sop.getFeatureDefinition();
-        
+              
         FeatureDefinition voiceFeatureDefinition = featureComputer.getFeatureDefinition();
         if (!voiceFeatureDefinition.contains(sopFeatureDefinition)) {
             throw new MaryConfigurationException("SoP file " + dataFile + " contains extra features which are not supported!");
         }
-        // TODO should we overwrite featureComputer with one constructed from the cart's FeatureDefinition? if so, how?
+        
+        // overwrite featureComputer with one constructed from the sop's FeatureDefinition:
+        String cartFeatureNames = sopFeatureDefinition.getFeatureNames();
+        featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, cartFeatureNames);
         this.featureComputer = featureComputer;
+
     }
 
     @Override
     public void loadDataFile() {
-        this.sop = new SoP();
+       
+        sopModels = new HashMap<String, SoP>();
+        
+        String nextLine, nextType;
+        String strContext="";
+        Scanner s = null;
         try {
-            File sopFile = new File(dataFile);
-            String sopFilePath = sopFile.getAbsolutePath();
-            // the feature definition of this sop will be set in load()
-            sop.load(sopFilePath);
+          s = new Scanner(new BufferedReader(new FileReader(dataFile)));
+          
+          // The first part contains the feature definition
+          while (s.hasNext()) {
+            nextLine = s.nextLine(); 
+            if (nextLine.trim().equals("")) break;
+            else
+              strContext += nextLine + "\n";
+          }
+          // the featureDefinition is the same for vowel, consonant and Pause
+          sopFeatureDefinition = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false);
+
+          while (s.hasNext()){
+            nextType = s.nextLine();
+            nextLine = s.nextLine();
+            
+            if (nextType.startsWith("f0")){                
+                sopModels.put("f0", new SoP(nextLine, sopFeatureDefinition));
+            } else {
+                sopModels.put(nextType, new SoP(nextLine, sopFeatureDefinition));    
+            }
+          }
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
+        } finally {
+            if (s != null)
+              s.close();
+        }   
+
+        
     }
 
     /**
@@ -53,9 +98,23 @@ public class SoPModel extends Model {
      */
     @Override
     protected float evaluate(Target target) {
-        float result = (float) sop.interpret(target);
-        float value = result; 
-        return value;
+        float result=0;
+        
+        if(sopModels.containsKey("f0")){            
+          result = (float) sopModels.get("f0").interpret(target);
+        } else {          
+          if(target.getAllophone().isVowel())
+            result = (float) sopModels.get("vowel").interpret(target);
+          else if(target.getAllophone().isConsonant())
+            result = (float) sopModels.get("consonant").interpret(target);
+          else if(target.getAllophone().isPause())
+              result = (float) sopModels.get("pause").interpret(target);
+          else
+            System.out.println("Warning: No SoP model for this target");
+        } 
+               
+        
+        return result;
     }    
     
     
