@@ -34,32 +34,20 @@ i.e. one tag or text token per line starting at the beginning of the line.
 
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:output method="xml" encoding="UTF-8"
-              indent="no"
+              indent="yes"
   />
-  <xsl:strip-space elements="*|text()"/>
 
-  <xsl:template match="*[count(child::text()|child::*)=0]">
+  <xsl:strip-space elements="*"/>
+
+  <xsl:template match="*|@*">
     <xsl:copy>
       <xsl:apply-templates select="*|@*|text()"/>
     </xsl:copy>
-    <xsl:text>&#10;</xsl:text>
-  </xsl:template>
-
-  <xsl:template match="*">
-    <xsl:copy>
-      <xsl:apply-templates select="@*"/>
-      <xsl:text>&#10;</xsl:text>
-      <xsl:apply-templates select="*|text()"/>
-    </xsl:copy>
-    <xsl:text>&#10;</xsl:text>
-  </xsl:template>
-
-  <xsl:template match="@*">
-    <xsl:copy/>
   </xsl:template>
 
   <xsl:template match="text()">
-    <xsl:value-of select="normalize-space(.)"/>
+    <xsl:text>&#10;</xsl:text>
+    <xsl:value-of select="normalize-space()"/>
     <xsl:text>&#10;</xsl:text>
   </xsl:template>
 
