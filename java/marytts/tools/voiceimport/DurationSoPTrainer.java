@@ -59,7 +59,6 @@ public class DurationSoPTrainer extends VoiceImportComponent
   protected int solutionSize;
   protected File unitlabelDir;
   protected File unitfeatureDir;
-  protected File sopDurFile;
   
   
   private final String name = "DurationSoPTrainer";
@@ -71,6 +70,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
   private final String SOLUTIONSIZE = name+".solutionSize";
   private final String INTERCEPTTERM = name+".interceptTerm";
   private final String LOGDURATION = name+".logDuration";
+  private final String DURSOPFILE = name+".durSopFile";
  
   
   public String getName(){
@@ -85,13 +85,11 @@ public class DurationSoPTrainer extends VoiceImportComponent
     this.interceptTerm =  Boolean.valueOf(getProp(INTERCEPTTERM)).booleanValue(); 
     this.logDuration =  Boolean.valueOf(getProp(LOGDURATION)).booleanValue();
     this.solutionSize = Integer.parseInt(getProp(SOLUTIONSIZE));
-    
-    String durDir = db.getProp(db.TEMPDIR);
-    this.sopDurFile = new File(durDir, "dur.sop");
   }
 
   public SortedMap<String, String> getDefaultProps(DatabaseLayout dbl){
     this.db = dbl;
+    String fileDir = db.getProp(db.FILEDIR);
     if (props == null){
       props = new TreeMap<String, String>();
       String fileSeparator = System.getProperty("file.separator");
@@ -103,6 +101,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
       props.put(INTERCEPTTERM, "true");
       props.put(LOGDURATION, "true");
       props.put(SOLUTIONSIZE, "10");
+      props.put(DURSOPFILE, fileDir+"dur.sop");
       
     }
    return props; 
@@ -118,6 +117,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
     props2Help.put(INTERCEPTTERM, "whether to include interceptTerm (b0) on the solution equation : b0 + b1X1 + .. bnXn");
     props2Help.put(LOGDURATION, "whether to use log(independent variable)");
     props2Help.put(SOLUTIONSIZE, "size of the solution, number of dependend variables");
+    props2Help.put(DURSOPFILE, "file containing the dur SoP model. Will be created by this module");
   }
   
   protected void setSuccess(boolean val)
@@ -129,6 +129,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
   {
  
     String durDir = db.getProp(db.TEMPDIR);
+    
     String vowelsFile = durDir + "vowels.feats";
     String consonantsFile = durDir + "consonants.feats";
     String pauseFile = durDir + "pause.feats";
@@ -220,7 +221,7 @@ public class DurationSoPTrainer extends VoiceImportComponent
    double percentToTrain = 0.7;
    
    // the final regression will be saved in this file, one line for vowels, one for consonants and another for pause
-   PrintWriter toSopFile = new PrintWriter(new FileOutputStream(sopDurFile));
+   PrintWriter toSopFile = new PrintWriter(new FileOutputStream(getProp(DURSOPFILE)));
    
    // Save first the features definition on the output file
    featureDefinition.writeTo(toSopFile, false);
@@ -231,16 +232,19 @@ public class DurationSoPTrainer extends VoiceImportComponent
    System.out.println("\n==================================\nProcessing Vowels:");
    SoP sopVowel = new SoP(featureDefinition);
    sffs.trainModel(lingFactorsVowel, vowelsFile, numVowels, percentToTrain, sopVowel);
+   toSopFile.println("vowel");
    sopVowel.saveSelectedFeatures(toSopFile);
   
    System.out.println("\n==================================\nProcessing Consonants:");
    SoP sopConsonant = new SoP(featureDefinition);
    sffs.trainModel(lingFactorsConsonant, consonantsFile, numConsonants, percentToTrain, sopConsonant);
+   toSopFile.println("consonant");
    sopConsonant.saveSelectedFeatures(toSopFile);
    
    System.out.println("\n==================================\nProcessing Pause:");
    SoP sopPause = new SoP(featureDefinition);
    sffs.trainModel(lingFactorsPause, pauseFile, numPause, percentToTrain, sopPause);
+   toSopFile.println("pause");
    sopPause.saveSelectedFeatures(toSopFile);
    
    toSopFile.close();
