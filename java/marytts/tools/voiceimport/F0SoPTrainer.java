@@ -70,7 +70,9 @@ public class F0SoPTrainer extends VoiceImportComponent
   public final String WAVETIMELINE = name+".waveTimeline";
   public final String LABELDIR = name+".labelDir";
   public final String FEATUREDIR = name+".featureDir";
-  public final String F0SoPFILE = name+".f0SoPFile";
+  public final String F0LeftSoPFILE = name+".f0LeftSoPFile";
+  public final String F0MidSoPFILE = name+".f0MidSoPFile";
+  public final String F0RightSoPFILE = name+".f0RightSoPFile";
   private final String SOLUTIONSIZE = name+".solutionSize";
   private final String INTERCEPTTERM = name+".interceptTerm";
   private final String LOGF0SOLUTION = name+".logF0";
@@ -117,7 +119,9 @@ public class F0SoPTrainer extends VoiceImportComponent
          props.put(FEATUREFILE, filedir + "phoneFeatures"+maryext);
          props.put(UNITFILE, filedir + "phoneUnits"+maryext);
          props.put(WAVETIMELINE, db.getProp(db.FILEDIR) + "timeline_waveforms"+db.getProp(db.MARYEXT));      
-         props.put(F0SoPFILE,filedir + "f0.sop");
+         props.put(F0LeftSoPFILE,filedir + "f0.left.sop");
+         props.put(F0MidSoPFILE,filedir + "f0.mid.sop");
+         props.put(F0RightSoPFILE,filedir + "f0.right.sop");
          props.put(INTERCEPTTERM, "true");
          props.put(LOGF0SOLUTION, "false");
          props.put(SOLUTIONSIZE, "5");
@@ -133,7 +137,9 @@ public class F0SoPTrainer extends VoiceImportComponent
        props2Help.put(FEATUREFILE, "file containing all phone units and their target cost features");
        props2Help.put(UNITFILE, "file containing all phone units");
        props2Help.put(WAVETIMELINE, "file containing all waveforms or models that can genarate them");   
-       props2Help.put(F0SoPFILE,"file containing the f0 SoP model. Will be created by this module");
+       props2Help.put(F0LeftSoPFILE,"file containing the f0 left SoP model. Will be created by this module");
+       props2Help.put(F0MidSoPFILE,"file containing the f0 mid SoP model. Will be created by this module");
+       props2Help.put(F0RightSoPFILE,"file containing the f0 right SoP model. Will be created by this module");
        props2Help.put(INTERCEPTTERM, "whether to include interceptTerm (b0) on the solution equation : b0 + b1X1 + .. bnXn");
        props2Help.put(LOGF0SOLUTION, "whether to use log(independent variable)");
        props2Help.put(SOLUTIONSIZE, "size of the solution, number of dependend variables");
@@ -248,32 +254,49 @@ public class F0SoPTrainer extends VoiceImportComponent
       int cols, rows;
 
       double percentToTrain = 0.9;
-      
-      // the final regression will be saved in this file, one line for vowels, one for consonants and another for pause
-      PrintWriter toSopFile = new PrintWriter(new FileOutputStream(getProp(F0SoPFILE)));
-      
-      // Save first the features definition on the output file
-      featureDefinition.writeTo(toSopFile, false);
-      toSopFile.println();
+           
       
       SFFS sffs = new SFFS(solutionSize, interceptTerm, logF0);
       
+      
       System.out.println("\n==================================\nProcessing Left F0:");
+      // the final regression will be saved in this file
+      PrintWriter toSopLeftFile = new PrintWriter(new FileOutputStream(getProp(F0LeftSoPFILE)));      
+      // Save first the features definition on the output file
+      featureDefinition.writeTo(toSopLeftFile, false);
+      toSopLeftFile.println();      
       SoP sopLeft = new SoP(featureDefinition);
       sffs.trainModel(lingFactorsToSelect, leftF0FeaturesFileName, nSyllables, percentToTrain, sopLeft);
-      sopLeft.saveSelectedFeatures(toSopFile);
+      toSopLeftFile.println("f0.left");
+      sopLeft.saveSelectedFeatures(toSopLeftFile);
+      toSopLeftFile.close();
+      
       
       System.out.println("\n==================================\nProcessing Mid F0:");
+      // the final regression will be saved in this file
+      PrintWriter toSopMidFile = new PrintWriter(new FileOutputStream(getProp(F0MidSoPFILE)));      
+      // Save first the features definition on the output file
+      featureDefinition.writeTo(toSopMidFile, false);
+      toSopMidFile.println();            
       SoP sopMid = new SoP(featureDefinition);
       sffs.trainModel(lingFactorsToSelect, midF0FeaturesFileName, nSyllables, percentToTrain, sopMid);
-      sopMid.saveSelectedFeatures(toSopFile);
+      toSopMidFile.println("f0.mid");
+      sopMid.saveSelectedFeatures(toSopMidFile);
+      toSopMidFile.close();
+      
       
       System.out.println("\n==================================\nProcessing Right F0:");
+      //the final regression will be saved in this file
+      PrintWriter toSopRightFile = new PrintWriter(new FileOutputStream(getProp(F0RightSoPFILE)));      
+      // Save first the features definition on the output file
+      featureDefinition.writeTo(toSopRightFile, false);
+      toSopRightFile.println();
       SoP sopRight = new SoP(featureDefinition);
       sffs.trainModel(lingFactorsToSelect, rightF0FeaturesFileName, nSyllables, percentToTrain, sopRight);
-      sopRight.saveSelectedFeatures(toSopFile);
+      toSopRightFile.println("f0.right");
+      sopRight.saveSelectedFeatures(toSopRightFile);
+      toSopRightFile.close();
       
-      toSopFile.close();
       
       percent = 100;
 
@@ -362,37 +385,25 @@ public class F0SoPTrainer extends VoiceImportComponent
      
       for(int i=0; i<feaList.length; i++){
           line = feaList[i];
+             
           
-          /*
-          // CHECK: Maybe we need to exclude some features from the selection list???
-          // The following have variance 0
-          if( !(line.contains("style") ||
-                line.contains("sentence_punc") ||
-                line.contains("next_punctuation") ||
-                line.contains("prev_punctuation") ||
-                line.contains("ph_cplace") ||
-                line.contains("ph_cvox") ||
-                line.contains("ph_vc") ||
-                line.contains("onsetcoda") ||
-                line.contains("edge") )) {
-            
-               // CHECK: here i am including arbitrarily some....
-              // put in front the recomended ones: "ph_vfront","ph_vrnd","position_type","pos_in_syl"                
-              if( line.contentEquals("ph_vfront") ||
-                  line.contentEquals("ph_height") ||
-                  line.contentEquals("ph_vlng") ||
-                  line.contentEquals("ph_vrnd") ||
-                  line.contentEquals("ph_cplace") ||
-                  line.contentEquals("ph_ctype") ||
-                  line.contentEquals("ph_cvox") ||
-                  line.contentEquals("phone") ||
-                  line.contentEquals("position_type") )
-                    recommendedFeatureList += line + "\n";
-              else              
-                 featureList += line + "\n";
-          }
-          */
-          featureList += line + "\n";    
+            // Exclude phone and phonological, those are by default used in makeLabes and makeQuestions
+            // Also exclude the halfphone features not used in HMM voices
+            // use this when finding the features that better predict f0, without including phonological features
+            if(! (line.contains("_vc") ||
+                  line.contains("_vlng") ||
+                  line.contains("_vheight") ||
+                  line.contains("_vfront") ||
+                  line.contains("_vrnd") ||
+                  line.contains("_ctype") ||
+                  line.contains("_cplace") ||
+                  line.contains("_cvox") ||
+                  line.contains("_phone") || 
+                  line.contains("ph_") ||
+                  line.contains("halfphone_") ||
+                  line.contentEquals("phone") )  ) {
+                featureList += line + "\n";
+            }
         }
       //return recommendedFeatureList + "\n" + featureList;
       return featureList;
