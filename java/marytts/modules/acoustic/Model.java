@@ -56,6 +56,8 @@ public abstract class Model {
     protected String featureName;
 
     protected TargetFeatureComputer featureComputer;
+    
+    protected double diffDuration; // this value is needed in the HMM model because it needs to keep the value previous phone
 
     /**
      * Model constructor
@@ -128,12 +130,23 @@ public abstract class Model {
         assert applicableElements.size() == predictorElements.size();
 
         List<Target> predictorTargets = getTargets(predictorElements);
-
+                
+        diffDuration = 0.0; // for HMM models
+                
         for (int i = 0; i < applicableElements.size(); i++) {
+            
             Target target = predictorTargets.get(i);
+            
+            byte[] byteValues = target.getFeatureVector().byteValuedDiscreteFeatures;
+            for(int k=0; k<byteValues.length; k++)
+                System.out.print(byteValues[k] + " ");
+            System.out.println();
+            
             float targetValue = (float) evaluate(target);
-
+            
             Element element = applicableElements.get(i);
+            
+            System.out.println(element.getNodeName() + "  " + element.getAttribute("p") + "  value="+ targetValue);
 
             // "evaulate" pseudo XPath syntax:
             // TODO this needs to be extended to take into account targetAttributeNames like "foo/@bar", which would add the

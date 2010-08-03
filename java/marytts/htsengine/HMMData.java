@@ -61,6 +61,7 @@ import java.util.Scanner;
 import java.util.Vector;
 
 import marytts.features.FeatureDefinition;
+import marytts.server.MaryProperties;
 
 import org.apache.log4j.Logger;
 
@@ -305,14 +306,14 @@ public class HMMData {
 	
 	/** Reads from configuration file all the data files in this class 
      * this method is used when running HTSengine stand alone. */
-	public void initHMMData(String voice, String MaryBase, String ConfigFile) throws Exception{		
+	public void initHMMData(String voice, String marybase, String configFile) throws Exception{		
         
       Properties props = new Properties();
       
       try {
-          FileInputStream fis = new FileInputStream( MaryBase+"conf/"+ConfigFile );
+          FileInputStream fis = new FileInputStream( marybase+"conf/"+configFile );
           props.load( fis );
-          fis.close();
+          fis.close();          
           
           if( props.getProperty( "voice." + voice + ".alpha" ) != null)
             alpha = Double.parseDouble(props.getProperty( "voice." + voice + ".alpha" ));
@@ -323,21 +324,21 @@ public class HMMData {
           if( props.getProperty( "voice." + voice + ".beta" ) != null)
             beta = Double.parseDouble(props.getProperty( "voice." + voice + ".beta" ));
                   
-          treeDurFile = MaryBase + props.getProperty( "voice." + voice + ".Ftd" ).substring(10);
-          treeLf0File = MaryBase + props.getProperty( "voice." + voice + ".Ftf" ).substring(10);          
-          treeMcpFile = MaryBase + props.getProperty( "voice." + voice + ".Ftm" ).substring(10);
+          treeDurFile = props.getProperty( "voice." + voice + ".Ftd" ).replace("MARY_BASE", marybase);
+          treeLf0File = props.getProperty( "voice." + voice + ".Ftf" ).replace("MARY_BASE", marybase);          
+          treeMcpFile = props.getProperty( "voice." + voice + ".Ftm" ).replace("MARY_BASE", marybase);
           if( props.getProperty( "voice." + voice + ".Fts" ) != null)
-            treeStrFile = MaryBase + props.getProperty( "voice." + voice + ".Fts" ).substring(10);
+            treeStrFile = props.getProperty( "voice." + voice + ".Fts" ).replace("MARY_BASE", marybase);
           if( props.getProperty( "voice." + voice + ".Fta" ) != null)
-            treeMagFile = MaryBase + props.getProperty( "voice." + voice + ".Fta" ).substring(10);
+            treeMagFile = props.getProperty( "voice." + voice + ".Fta" ).replace("MARY_BASE", marybase);
           
-          pdfDurFile = MaryBase + props.getProperty( "voice." + voice + ".Fmd" ).substring(10);
-          pdfLf0File = MaryBase + props.getProperty( "voice." + voice + ".Fmf" ).substring(10);           
-          pdfMcpFile = MaryBase + props.getProperty( "voice." + voice + ".Fmm" ).substring(10);
+          pdfDurFile = props.getProperty( "voice." + voice + ".Fmd" ).replace("MARY_BASE", marybase);
+          pdfLf0File = props.getProperty( "voice." + voice + ".Fmf" ).replace("MARY_BASE", marybase);           
+          pdfMcpFile = props.getProperty( "voice." + voice + ".Fmm" ).replace("MARY_BASE", marybase);
           if( props.getProperty( "voice." + voice + ".Fms" ) != null)
-            pdfStrFile = MaryBase + props.getProperty( "voice." + voice + ".Fms" ).substring(10);
+            pdfStrFile = props.getProperty( "voice." + voice + ".Fms" ).replace("MARY_BASE", marybase);
           if( props.getProperty( "voice." + voice + ".Fma" ) != null)
-            pdfMagFile = MaryBase + props.getProperty( "voice." + voice + ".Fma" ).substring(10);
+            pdfMagFile = props.getProperty( "voice." + voice + ".Fma" ).replace("MARY_BASE", marybase);
           
           if( props.getProperty( "voice." + voice + ".useExtDur" ) != null)
             useUnitDurationContinuousFeature = Boolean.valueOf(props.getProperty( "voice." + voice + ".useExtDur" )).booleanValue();
@@ -353,31 +354,31 @@ public class HMMData {
           useGmmGV  = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGmmGV" )).booleanValue();
           
           if(useGV){
-            pdfLf0GVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgvf" ).substring(10);        
-            pdfMcpGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgvm" ).substring(10);
+            pdfLf0GVFile = props.getProperty( "voice." + voice + ".Fgvf" ).replace("MARY_BASE", marybase);        
+            pdfMcpGVFile = props.getProperty( "voice." + voice + ".Fgvm" ).replace("MARY_BASE", marybase);
             if( props.getProperty( "voice." + voice + ".Fgvs" ) != null)
-              pdfStrGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgvs" ).substring(10);
+              pdfStrGVFile = props.getProperty( "voice." + voice + ".Fgvs" ).replace("MARY_BASE", marybase);
             if( props.getProperty( "voice." + voice + ".Fgva" ) != null)
-              pdfMagGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgva" ).substring(10);
+              pdfMagGVFile = props.getProperty( "voice." + voice + ".Fgva" ).replace("MARY_BASE", marybase);
           }else if(useGmmGV){
-              pdfLf0GVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgmmgvf" ).substring(10);        
-              pdfMcpGVFile = MaryBase + props.getProperty( "voice." + voice + ".Fgmmgvm" ).substring(10);
+              pdfLf0GVFile = props.getProperty( "voice." + voice + ".Fgmmgvf" ).replace("MARY_BASE", marybase);        
+              pdfMcpGVFile = props.getProperty( "voice." + voice + ".Fgmmgvm" ).replace("MARY_BASE", marybase);
           }
  
           /* Example context feature file in MARY format */
-          feaFile = MaryBase + props.getProperty( "voice." + voice + ".FeaFile" ).substring(10);
+          feaFile = props.getProperty( "voice." + voice + ".FeaFile" ).replace("MARY_BASE", marybase);
           
           /* trickyPhones file, if any. If aliases for tricky phones were used during the training of HMMs
            * then these aliases are in this file, if no aliases were used then the string is empty.
            * This file will be used during the loading of HMM trees, so aliases of tricky phone are aplied back. */
           if( props.getProperty( "voice." + voice + ".trickyPhonesFile" ) != null)
-            trickyPhonesFile = MaryBase + props.getProperty( "voice." + voice + ".trickyPhonesFile" ).substring(10);
+            trickyPhonesFile = props.getProperty( "voice." + voice + ".trickyPhonesFile" ).replace("MARY_BASE", marybase);
           else
             trickyPhonesFile = "";
           
           /* Configuration for mixed excitation */
           if( treeStrFile != null ) {
-            mixFiltersFile = MaryBase + props.getProperty( "voice." + voice + ".Fif" ).substring(10); 
+            mixFiltersFile = props.getProperty( "voice." + voice + ".Fif" ).replace("MARY_BASE", marybase); 
             numFilters     = Integer.parseInt(props.getProperty( "voice." + voice + ".in" ));
             orderFilters   = Integer.parseInt(props.getProperty( "voice." + voice + ".io" ));
             logger.info("Loading Mixed Excitation Filters File:");
@@ -415,7 +416,69 @@ public class HMMData {
 	}
 	
  
+    /** Reads from configuration file tree and pdf data for duration and f0 
+     * this method is used by HMMModel */
+    public void initHMMData(String configFile, String targetAttributeName) throws Exception{     
+        
+      Properties props = new Properties();
+      
+      try {
+          FileInputStream fis = new FileInputStream( configFile );
+          props.load( fis );
+          fis.close();
+          
+          String voice = props.getProperty("name");
+          String marybase = MaryProperties.getProperty("mary.base");
+          
+          if(targetAttributeName.contentEquals("f0")) {            
+            treeLf0File = props.getProperty( "voice." + voice + ".Ftf" ).replace("MARY_BASE", marybase);
+            pdfLf0File = props.getProperty("voice." + voice + ".Fmf" ).replace("MARY_BASE", marybase);            
+          } else if(targetAttributeName.contentEquals("d")){                     
+            treeDurFile = props.getProperty( "voice." + voice + ".Ftd" ).replace("MARY_BASE", marybase);
+            pdfDurFile = props.getProperty("voice." + voice + ".Fmd").replace("MARY_BASE", marybase);
+          } else {
+              logger.debug("targetAttributeName = " + targetAttributeName + " Not known"); 
+              throw new Exception("targetAttributeName = " + targetAttributeName + " Not known");
+          }
+                      
+          /* Example context feature file in MARY format */
+          feaFile = props.getProperty( "voice." + voice + ".FeaFile" ).replace("MARY_BASE", marybase);
+          
+          /* trickyPhones file, if any. If aliases for tricky phones were used during the training of HMMs
+           * then these aliases are in this file, if no aliases were used then the string is empty.
+           * This file will be used during the loading of HMM trees, so aliases of tricky phone are aplied back. */
+          if( props.getProperty( "voice." + voice + ".trickyPhonesFile" ) != null)
+            trickyPhonesFile = props.getProperty( "voice." + voice + ".trickyPhonesFile" ).replace("MARY_BASE", marybase);
+          else
+            trickyPhonesFile = "";
+                    
+          props.clear();
+          
+      } 
+      catch (IOException e) {
+          logger.debug("Caught IOException: " +  e.getMessage());
+      } catch (Exception e) {
+          logger.debug(e.getMessage()); 
+          throw new Exception("Error on configuration file, missing files or components...");
+      }
+      
+      try {
+        /* Load TreeSet ts and ModelSet ms for current voice*/
+        logger.info("Loading Tree Set in CARTs:");
+        setFeatureDefinition(feaFile); /* first set the feature definition with one example of context feature file */ 
+        cart.loadTreeSet(this, feaDef, trickyPhonesFile); 
+        
+      }
+      catch (Exception e) {
+          logger.debug(e.getMessage()); 
+          throw new Exception("Error loading TreeSet and ModelSet, problem on configuration file, missing files or components...");
+      }
+        
+    }
 
+    
+    
+    
     
     /** Initialisation for mixed excitation : it loads the filter taps are read from 
      * MixFilterFile specified in the configuration file. */

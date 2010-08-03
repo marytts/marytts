@@ -104,15 +104,21 @@ public class CartTreeSet {
              
         /* DUR, LF0 and MCP are required as minimum for generating voice. 
         * The duration tree has only one state.
-        * The size of the vector in duration is the number of states. */  
-        durTree = htsReader.load(1, htsData.getTreeDurFile(), htsData.getPdfDurFile(), featureDef, phTranslator);  
-        numStates = htsReader.getVectorSize();
+        * The size of the vector in duration is the number of states. */
+        if(htsData.getTreeDurFile() != null){
+          durTree = htsReader.load(1, htsData.getTreeDurFile(), htsData.getPdfDurFile(), featureDef, phTranslator);  
+          numStates = htsReader.getVectorSize();
+        }
         
-        lf0Tree = htsReader.load(numStates, htsData.getTreeLf0File(), htsData.getPdfLf0File(), featureDef, phTranslator);
-        lf0Stream = htsReader.getVectorSize();
+        if(htsData.getTreeLf0File() != null){
+          lf0Tree = htsReader.load(numStates, htsData.getTreeLf0File(), htsData.getPdfLf0File(), featureDef, phTranslator);
+          lf0Stream = htsReader.getVectorSize();
+        }
         
-        mcpTree = htsReader.load(numStates, htsData.getTreeMcpFile(), htsData.getPdfMcpFile(), featureDef, phTranslator);
-        mcepVsize = htsReader.getVectorSize();
+        if( htsData.getTreeMcpFile() != null){
+          mcpTree = htsReader.load(numStates, htsData.getTreeMcpFile(), htsData.getPdfMcpFile(), featureDef, phTranslator);
+          mcepVsize = htsReader.getVectorSize();
+        }
         
         /* STR and MAG are optional for generating mixed excitation */ 
         if( htsData.getTreeStrFile() != null){
@@ -124,6 +130,25 @@ public class CartTreeSet {
           magVsize = htsReader.getVectorSize();
         }
         
+      } catch (Exception e) {
+        throw new Exception("LoadTreeSet failed: ", e);
+      
+      }
+        
+    }
+    
+    /** Loads duration CART */
+    public void loadDurationTree(String treeDurFile, String pdfDurFile, FeatureDefinition featureDef, String trickyPhones) throws Exception {
+      try {
+        
+        // Check if there are tricky phones, and create a PhoneTranslator object
+        PhoneTranslator phTranslator = new PhoneTranslator(trickyPhones);
+             
+        /* The duration tree has only one state.
+        * The size of the vector in duration is the number of states. */  
+        durTree = htsReader.load(1, treeDurFile, pdfDurFile, featureDef, phTranslator);  
+        numStates = htsReader.getVectorSize();
+                
       } catch (Exception e) {
         throw new Exception("LoadTreeSet failed: ", e);
       
@@ -176,7 +201,7 @@ public class CartTreeSet {
         if(m.getDur(s) < 1 )
           m.setDur(s, 1);
         
-        //System.out.println("   state: " + s + " dur=" + m.getDur(s));               
+        //System.out.println("   state: " + s + " dur=" + m.getDur(s) + "  dd=" + dd);               
         m.setTotalDur(m.getTotalDur() + m.getDur(s));      
         dd = dd + ( data - (double)m.getDur(s) );       
       }
