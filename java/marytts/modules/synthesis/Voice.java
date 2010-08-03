@@ -60,6 +60,7 @@ import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.acoustic.BoundaryModel;
 import marytts.modules.acoustic.CARTModel;
+import marytts.modules.acoustic.HMMModel;
 import marytts.modules.acoustic.Model;
 import marytts.modules.acoustic.ModelType;
 import marytts.modules.acoustic.SoPModel;
@@ -243,7 +244,14 @@ public class Voice
 
                 // get more properties from voice config, depending on the model name:
                 String modelType = MaryProperties.needProperty(header + "." + modelName + ".model");
-                String modelDataFileName = MaryProperties.needFilename(header + "." + modelName + ".data");
+                
+                // I am going to change this to getFileName, because for hmm models this can be null
+                //String modelDataFileName = MaryProperties.needFilename(header + "." + modelName + ".data");
+                String modelDataFileName = MaryProperties.getFilename(header + "." + modelName + ".data");
+                // For HMM models it is required two files
+                String modelDataFileNameTree = MaryProperties.getFilename(header + "." + modelName + ".data.tree");
+                String modelDataFileNamePdf  = MaryProperties.getFilename(header + "." + modelName + ".data.pdf");
+                
                 String modelAttributeName = MaryProperties.needProperty(header + "." + modelName + ".attribute");
 
                 // the following are null if not defined; this is handled in the Model constructor:
@@ -269,6 +277,11 @@ public class Voice
                 case SOP:
                     model = new SoPModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList, modelFeatureName);
                     break;
+                    
+                case HMM:
+                    model = new HMMModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList, modelFeatureName);
+                    break;
+                    
                 } 
 
                 // if we got this far, model should not be null:

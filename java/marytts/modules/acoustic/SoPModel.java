@@ -100,7 +100,7 @@ public class SoPModel extends Model {
     protected float evaluate(Target target) {
         float result=0;
         
-        if(sopModels.containsKey("f0")){            
+        if(targetAttributeName.contentEquals("f0")){            
           result = (float) sopModels.get("f0").interpret(target);
         } else {          
           if(target.getAllophone().isVowel())
