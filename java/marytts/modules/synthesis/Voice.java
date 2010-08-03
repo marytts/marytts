@@ -434,7 +434,7 @@ public class Voice
     }
 
     public Model getLeftF0Model() {
-        return acousticModels.get("rightF0");
+        return acousticModels.get("leftF0");
     }
 
     public Model getMidF0Model() {
