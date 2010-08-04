@@ -57,7 +57,7 @@ public abstract class Model {
 
     protected TargetFeatureComputer featureComputer;
     
-    protected double diffDuration; // this value is needed in the HMM model because it needs to keep the value previous phone
+    protected double diffDuration; // this value is needed in the HMM model because it needs to keep the value of previous phone
 
     /**
      * Model constructor
@@ -130,11 +130,16 @@ public abstract class Model {
         assert applicableElements.size() == predictorElements.size();
 
         List<Target> predictorTargets = getTargets(predictorElements);
-                
-        diffDuration = 0.0; // for HMM models
-                
-        for (int i = 0; i < applicableElements.size(); i++) {
+        
+        // because for predicting F0 from HMMs it is needed the whole sequence
+        if(type.contentEquals("hmm") && targetAttributeName.contentEquals("f0")){
             
+           evaluate(applicableElements, predictorTargets);
+           
+        } else {
+                
+          diffDuration = 0.0; // for HMM models and duration                
+          for (int i = 0; i < applicableElements.size(); i++) {           
             Target target = predictorTargets.get(i);
             
             byte[] byteValues = target.getFeatureVector().byteValuedDiscreteFeatures;
@@ -164,7 +169,9 @@ public abstract class Model {
 
             // set the new attribute value:
             element.setAttribute(targetAttributeName, formattedTargetValue);
+          }
         }
+        
     }
 
     /**
@@ -197,6 +204,9 @@ public abstract class Model {
      * @param target
      */
     protected abstract float evaluate(Target target);
+
+    // CHECK: Not sure if this is a good solution ???
+    protected abstract void evaluate(List<Element> applicableElements, List<Target> predictorTargets);
 
     /**
      * @return the targetElementListName

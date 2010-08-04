@@ -89,6 +89,7 @@ public class CartTreeSet {
     HTSCARTReader htsReader = new HTSCARTReader(); 
     
     public int getNumStates(){ return numStates; }
+    public void setNumStates(int val){ numStates = val; }
     public int getLf0Stream(){ return lf0Stream; }
     public int getMcepVsize(){ return mcepVsize; }
     public int getStrVsize(){ return strVsize; }

@@ -83,6 +83,7 @@ public class HTSModel {
   private double magVariance[][];   /* variance (diag) elements of fourier magnitudes for each state of this HMM */
 
   private boolean voiced[];         /* voiced/unvoiced decision for each state of this HMM */
+  private int numVoiced;            /* number of voiced frames in this model */
   
   private Float unit_duration;      /* external duration value from ContinuousFeatureProcessors */
   private Float unit_logF0;         /* external lf0 value from ContinuousFeatureProcessors */
@@ -189,6 +190,8 @@ public class HTSModel {
   
   public void setVoiced(int i, boolean val){ voiced[i] = val; }
   public boolean getVoiced(int i){ return voiced[i]; }
+  public void setNumVoiced(int val){ numVoiced = val; }
+  public int getNumVoiced(){ return numVoiced; }
   
   public void setUnit_duration(float fval){unit_duration = fval;}
   public float getUnit_duration(){return unit_duration;}

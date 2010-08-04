@@ -56,6 +56,8 @@ public class BoundaryModel extends Model {
     protected float evaluate(Target target) {
         return Float.NaN;
     }
+    
+    protected void evaluate(List<Element> applicableElements, List<Target> predictorTargets){ }
 
     /**
      * For boundaries, this does nothing;
@@ -64,4 +66,6 @@ public class BoundaryModel extends Model {
     public void loadDataFile() {
         return;
     }
+    
+    
 }
