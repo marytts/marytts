@@ -55,6 +55,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Scanner;
@@ -62,6 +63,7 @@ import java.util.Vector;
 
 import marytts.features.FeatureDefinition;
 import marytts.server.MaryProperties;
+import marytts.unitselection.select.Target;
 
 import org.apache.log4j.Logger;
 
@@ -432,7 +434,15 @@ public class HMMData {
           
           if(targetAttributeName.contentEquals("f0")) {            
             treeLf0File = props.getProperty( "voice." + voice + ".Ftf" ).replace("MARY_BASE", marybase);
-            pdfLf0File = props.getProperty("voice." + voice + ".Fmf" ).replace("MARY_BASE", marybase);            
+            pdfLf0File = props.getProperty("voice." + voice + ".Fmf" ).replace("MARY_BASE", marybase);
+            
+            // i will load as well the duration, because i need it!!!
+            // CHECK: if it is needed to use the duration predicted by other model then we need to pass that duration 
+            //        value in the continuous features for example, this is done in: 
+            //        HMMModel.evaluate(List<Target> predictorTargets)
+            treeDurFile = props.getProperty( "voice." + voice + ".Ftd" ).replace("MARY_BASE", marybase);
+            pdfDurFile = props.getProperty("voice." + voice + ".Fmd").replace("MARY_BASE", marybase);
+            
           } else if(targetAttributeName.contentEquals("d")){                     
             treeDurFile = props.getProperty( "voice." + voice + ".Ftd" ).replace("MARY_BASE", marybase);
             pdfDurFile = props.getProperty("voice." + voice + ".Fmd").replace("MARY_BASE", marybase);
@@ -465,7 +475,11 @@ public class HMMData {
       try {
         /* Load TreeSet ts and ModelSet ms for current voice*/
         logger.info("Loading Tree Set in CARTs:");
-        setFeatureDefinition(feaFile); /* first set the feature definition with one example of context feature file */ 
+        setFeatureDefinition(feaFile); /* first set the feature definition with one example of context feature file */
+        // for loading lf0 I need to know the number of states, there is no way to know until here, because 
+        // normally the value is found after loading duration, but here we are not loading duration (other solution ???)
+        //cart.setNumStates(5);  // CHECK: how to avoid to hard code this value!!!!, one solution could be to load as well the duration models
+        // If we also load the duration files then we do not need to hard code the number of states
         cart.loadTreeSet(this, feaDef, trickyPhonesFile); 
         
       }
