@@ -134,11 +134,10 @@ public class HTSParameterGeneration {
   public void htsMaximumLikelihoodParameterGeneration(HTSUttModel um, HMMData htsData, String parFileName, boolean debug) throws Exception{
 	  
 	int frame, uttFrame, lf0Frame;
-	int state, lw, rw, k, n, i;
+	int state, lw, rw, k, n, i, numVoicedInModel;
 	boolean nobound;
     HTSModel m;
     CartTreeSet ms = htsData.getCartTreeSet();
- //---   HTSModelSet ms = htsData.getModelSet();
     
 	/* Initialisation of PStream objects */
   	/* Initialise Parameter generation using UttModel um and Modelset ms */
@@ -146,9 +145,12 @@ public class HTSParameterGeneration {
   	/* mceppst, strpst, magpst, lf0pst */
 	/* Here i should pass the window files to initialise the dynamic windows dw */
 	/* for the moment the dw are all the same and hard-coded */
-	mcepPst = new HTSPStream(ms.getMcepVsize(), um.getTotalFrame(), HMMData.MCP);
+    if( htsData.getPdfMcpFile() != null)
+	  mcepPst = new HTSPStream(ms.getMcepVsize(), um.getTotalFrame(), HMMData.MCP);
     /* for lf0 count just the number of lf0frames that are voiced or non-zero */
-    lf0Pst  = new HTSPStream(ms.getLf0Stream(), um.getLf0Frame(), HMMData.LF0);
+    if( htsData.getPdfLf0File() != null)
+      lf0Pst  = new HTSPStream(ms.getLf0Stream(), um.getLf0Frame(), HMMData.LF0);
+
     /* The following are optional in case of generating mixed excitation */
     if( htsData.getPdfStrFile() != null)
 	  strPst  = new HTSPStream(ms.getStrVsize(), um.getTotalFrame(), HMMData.STR);
@@ -160,14 +162,18 @@ public class HTSParameterGeneration {
 	voiced = new boolean[um.getTotalFrame()];
 	
 	for(i=0; i<um.getNumUttModel(); i++){
-        m = um.getUttModel(i);          		
+        m = um.getUttModel(i);
+        numVoicedInModel = 0;
         for(state=0; state<ms.getNumStates(); state++)
       	 for(frame=0; frame<m.getDur(state); frame++) {
       		voiced[uttFrame] = m.getVoiced(state);
       		uttFrame++;
-      		if(m.getVoiced(state))
+      		if(m.getVoiced(state)){
       		  lf0Frame++;
+              numVoicedInModel++;
+            }
       	 }
+        m.setNumVoiced(numVoicedInModel);
     }
 	/* mcepframe and lf0frame are used in the original code to initialise the T field */
 	/* in each pst, but here the pst are already initialised .... */
@@ -186,10 +192,12 @@ public class HTSParameterGeneration {
           //System.out.println("uttFrame=" + uttFrame + "  phone frame=" + frame + "  phone state=" + state);
              
       	  /* copy pdfs for mcep */
-      	  for(k=0; k<ms.getMcepVsize(); k++){
-      		mcepPst.setMseq(uttFrame, k, m.getMcepMean(state, k));
-      		mcepPst.setIvseq(uttFrame, k, finv(m.getMcepVariance(state, k)));
-      	  }
+          if( mcepPst !=null ) {
+      	    for(k=0; k<ms.getMcepVsize(); k++){
+      		  mcepPst.setMseq(uttFrame, k, m.getMcepMean(state, k));
+      		  mcepPst.setIvseq(uttFrame, k, finv(m.getMcepVariance(state, k)));
+      	    }
+          }
       	  
       	  /* copy pdf for str */
           if( strPst !=null ) {
@@ -207,7 +215,8 @@ public class HTSParameterGeneration {
     	    }
           }
       	  
-      	  /* copy pdfs for lf0 */ 
+      	  /* copy pdfs for lf0 */
+          if( lf0Pst != null) {
       	  for(k=0; k<ms.getLf0Stream(); k++){
       		lw = lf0Pst.getDWwidth(k, HTSPStream.WLEFT);
       		rw = lf0Pst.getDWwidth(k, HTSPStream.WRIGHT);
@@ -226,9 +235,8 @@ public class HTSParameterGeneration {
       		  else  /* the variances for dynamic feature are set to inf on v/uv boundary */
       			lf0Pst.setIvseq(lf0Frame, k, 0.0);
       		}
-      		
     	  }
-      	  
+          }
       	  if( voiced[uttFrame] )
              lf0Frame++;      	  
       	  uttFrame++;
@@ -240,15 +248,17 @@ public class HTSParameterGeneration {
 	//System.out.println("After copying pdfs to PStreams uttFrame=" + uttFrame + " lf0frame=" + lf0Frame);
 	//System.out.println("mseq[" + uttFrame + "][" + k + "]=" + mceppst.get_mseq(uttFrame, k) + "   " + m.get_mcepmean(state, k));
 		
-	/* parameter generation for mcep */    
-	logger.info("Parameter generation for MCEP: ");
-    mcepPst.mlpg(htsData, htsData.getUseGV());
+	/* parameter generation for mcep */  
+    if( mcepPst != null ) {
+	  logger.info("Parameter generation for MCEP: ");
+      mcepPst.mlpg(htsData, htsData.getUseGV());
+    }
 
     /* parameter generation for lf0 */ 
     // CHECK!!
     // generate the parameters any way, if there is external they will be replaced
     // for the moment these values are used with the mbrola pfeats when f0 is 0.0 and genf0 is not 0.0
-    if (lf0Frame>0){
+    if ( lf0Pst != null ){
       logger.info("Parameter generation for LF0: "); 
       lf0Pst.mlpg(htsData, htsData.getUseGV());
     }   

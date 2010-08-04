@@ -21,6 +21,9 @@
 package marytts.modules.acoustic;
 
 import java.io.File;
+import java.util.List;
+
+import org.w3c.dom.Element;
 
 import marytts.cart.DirectedGraph;
 import marytts.cart.io.DirectedGraphReader;
@@ -82,4 +85,6 @@ public class CARTModel extends Model {
         float value = result[1]; // assuming result is [stdev, val]
         return value;
     }
+    
+    protected void evaluate(List<Element> applicableElements, List<Target> predictorTargets){ }
 }

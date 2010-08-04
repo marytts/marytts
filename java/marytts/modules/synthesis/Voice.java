@@ -244,16 +244,8 @@ public class Voice
 
                 // get more properties from voice config, depending on the model name:
                 String modelType = MaryProperties.needProperty(header + "." + modelName + ".model");
-                
-                // I am going to change this to getFileName, because for hmm models this can be null
-                //String modelDataFileName = MaryProperties.needFilename(header + "." + modelName + ".data");
-                String modelDataFileName = MaryProperties.getFilename(header + "." + modelName + ".data");
-                // For HMM models it is required two files
-                String modelDataFileNameTree = MaryProperties.getFilename(header + "." + modelName + ".data.tree");
-                String modelDataFileNamePdf  = MaryProperties.getFilename(header + "." + modelName + ".data.pdf");
-                
+                String modelDataFileName = MaryProperties.needFilename(header + "." + modelName + ".data");
                 String modelAttributeName = MaryProperties.needProperty(header + "." + modelName + ".attribute");
-
                 // the following are null if not defined; this is handled in the Model constructor:
                 String modelAttributeFormat = MaryProperties.getProperty(header + "." + modelName + ".attribute.format");
                 String modelElementList = MaryProperties.getProperty(header + "." + modelName + ".scope");
@@ -458,16 +450,22 @@ public class Voice
         return acousticModels.get("rightF0");
     }
 
+    public Model getF0Model() {
+        return acousticModels.get("F0");  // for HMMs
+    }
+    
     public Model getBoundaryModel() {
         return acousticModels.get("boundary");
     }
+    
+
     
     public Map<String, Model> getOtherModels() {
         Map<String, Model> otherModels = new HashMap<String, Model>();
         for (String modelName : acousticModels.keySet()) {
             // ignore critical Models that have their own getters:
             if (!modelName.equals("duration") && !modelName.equals("leftF0") && !modelName.equals("midF0")
-                    && !modelName.equals("rightF0") && !modelName.equals("boundary")) {
+                    && !modelName.equals("rightF0") && !modelName.equals("F0") && !modelName.equals("boundary")) {
                 otherModels.put(modelName, acousticModels.get(modelName));
             }
         }
