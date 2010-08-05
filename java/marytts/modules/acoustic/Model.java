@@ -33,6 +33,7 @@ import marytts.features.TargetFeatureComputer;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.UnitSelector;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
@@ -57,7 +58,7 @@ public abstract class Model {
 
     protected TargetFeatureComputer featureComputer;
     
-    protected double diffDuration; // this value is needed in the HMM model because it needs to keep the value of previous phone
+    double diffDuration; // used in HMM duration calculation
 
     /**
      * Model constructor
@@ -116,6 +117,12 @@ public abstract class Model {
      */
     public void applyTo(List<Element> elements) {
         applyTo(elements, elements);
+    }    
+    public void apply(List<Element> elements) {
+        evaluate(elements);
+    }
+    public void apply(Document doc) {
+        evaluate(doc);
     }
 
     /**
@@ -130,48 +137,34 @@ public abstract class Model {
         assert applicableElements.size() == predictorElements.size();
 
         List<Target> predictorTargets = getTargets(predictorElements);
-        
-        // because for predicting F0 from HMMs it is needed the whole sequence
-        if(type.contentEquals("hmm") && targetAttributeName.contentEquals("f0")){
-            
-           evaluate(applicableElements, predictorTargets);
-           
-        } else {
-                
-          diffDuration = 0.0; // for HMM models and duration                
-          for (int i = 0; i < applicableElements.size(); i++) {           
-            Target target = predictorTargets.get(i);
-            
-            byte[] byteValues = target.getFeatureVector().byteValuedDiscreteFeatures;
-            for(int k=0; k<byteValues.length; k++)
-                System.out.print(byteValues[k] + " ");
-            System.out.println();
-            
-            float targetValue = (float) evaluate(target);
-            
-            Element element = applicableElements.get(i);
-            
-            System.out.println(element.getNodeName() + "  " + element.getAttribute("p") + "  value="+ targetValue);
+ 
+        diffDuration = 0.0; // if hmm duration
+        for (int i = 0; i < applicableElements.size(); i++) {           
+          Target target = predictorTargets.get(i);
+                  
+          float targetValue = (float) evaluate(target);
+          
+          Element element = applicableElements.get(i);
+          
+          System.out.println(element.getNodeName() + "  " + element.getAttribute("p") + "  targetValue="+ targetValue);
 
-            // "evaulate" pseudo XPath syntax:
-            // TODO this needs to be extended to take into account targetAttributeNames like "foo/@bar", which would add the
-            // bar attribute to the foo child of this element, creating the child if not already present...
-            if (targetAttributeName.startsWith("@")) {
-                targetAttributeName = targetAttributeName.replaceFirst("@", "");
-            }
-
-            // format targetValue according to targetAttributeFormat
-            String formattedTargetValue = String.format(targetAttributeFormat, targetValue);
-            // if the attribute already exists for this element, append targetValue:
-            if (element.hasAttribute(targetAttributeName)) {
-                formattedTargetValue = element.getAttribute(targetAttributeName) + " " + formattedTargetValue;
-            }
-
-            // set the new attribute value:
-            element.setAttribute(targetAttributeName, formattedTargetValue);
+          // "evaulate" pseudo XPath syntax:
+          // TODO this needs to be extended to take into account targetAttributeNames like "foo/@bar", which would add the
+          // bar attribute to the foo child of this element, creating the child if not already present...
+          if (targetAttributeName.startsWith("@")) {
+              targetAttributeName = targetAttributeName.replaceFirst("@", "");
           }
-        }
-        
+
+          // format targetValue according to targetAttributeFormat
+          String formattedTargetValue = String.format(targetAttributeFormat, targetValue);
+          // if the attribute already exists for this element, append targetValue:
+          if (element.hasAttribute(targetAttributeName)) {
+              formattedTargetValue = element.getAttribute(targetAttributeName) + " " + formattedTargetValue;
+          }
+
+          // set the new attribute value:
+          element.setAttribute(targetAttributeName, formattedTargetValue);
+        }        
     }
 
     /**
@@ -205,8 +198,14 @@ public abstract class Model {
      */
     protected abstract float evaluate(Target target);
 
-    // CHECK: Not sure if this is a good solution ???
-    protected abstract void evaluate(List<Element> applicableElements, List<Target> predictorTargets);
+    // CHECK: with Ingmar
+    // this method will be used for HMM models and other like prosody that process all the data at once
+    // because for predicting F0 from HMMs it is needed the whole sequence
+    // also for predicting duration it is used a value from previous phone
+    protected abstract void evaluate(List<Element> applicableElements);
+    // CHECK: with Ingmar and Sathish    
+    // prosody model needs access to the whole document, not sure if this can be handle in a different way ???
+    protected abstract void evaluate(Document doc);
 
     /**
      * @return the targetElementListName
