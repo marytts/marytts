@@ -63,6 +63,7 @@ import marytts.modules.acoustic.CARTModel;
 import marytts.modules.acoustic.HMMModel;
 import marytts.modules.acoustic.Model;
 import marytts.modules.acoustic.ModelType;
+import marytts.modules.acoustic.ProsodyModel;
 import marytts.modules.acoustic.SoPModel;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
@@ -244,8 +245,16 @@ public class Voice
 
                 // get more properties from voice config, depending on the model name:
                 String modelType = MaryProperties.needProperty(header + "." + modelName + ".model");
-                String modelDataFileName = MaryProperties.needFilename(header + "." + modelName + ".data");
-                String modelAttributeName = MaryProperties.needProperty(header + "." + modelName + ".attribute");
+                
+                // CHECK: with Ingmar
+                // these values in the prosody model are null so I am going to change this to getProperty
+                // ProsodyModel modifies dur and f0 therefore i did not include attribute
+                //String modelDataFileName = MaryProperties.needFilename(header + "." + modelName + ".data");
+                //String modelAttributeName = MaryProperties.needProperty(header + "." + modelName + ".attribute");                
+                String modelDataFileName = MaryProperties.getFilename(header + "." + modelName + ".data");   
+                String modelAttributeName = MaryProperties.getProperty(header + "." + modelName + ".attribute");
+                
+                
                 // the following are null if not defined; this is handled in the Model constructor:
                 String modelAttributeFormat = MaryProperties.getProperty(header + "." + modelName + ".attribute.format");
                 String modelElementList = MaryProperties.getProperty(header + "." + modelName + ".scope");
@@ -272,6 +281,10 @@ public class Voice
                     
                 case HMM:
                     model = new HMMModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList, modelFeatureName);
+                    break;
+
+                case PROSODY:
+                    model = new ProsodyModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList, modelFeatureName);
                     break;
                     
                 } 
@@ -449,11 +462,7 @@ public class Voice
     public Model getRightF0Model() {
         return acousticModels.get("rightF0");
     }
-
-    public Model getF0Model() {
-        return acousticModels.get("F0");  // for HMMs
-    }
-    
+      
     public Model getBoundaryModel() {
         return acousticModels.get("boundary");
     }
@@ -465,7 +474,7 @@ public class Voice
         for (String modelName : acousticModels.keySet()) {
             // ignore critical Models that have their own getters:
             if (!modelName.equals("duration") && !modelName.equals("leftF0") && !modelName.equals("midF0")
-                    && !modelName.equals("rightF0") && !modelName.equals("F0") && !modelName.equals("boundary")) {
+                    && !modelName.equals("rightF0") && !modelName.equals("boundary")) {
                 otherModels.put(modelName, acousticModels.get(modelName));
             }
         }
