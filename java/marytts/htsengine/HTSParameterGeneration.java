@@ -126,10 +126,19 @@ public class HTSParameterGeneration {
 	return ( 1.0 / x );
 	  
   }
+  /** HTS maximum likelihood parameter generation
+   * @param um  : utterance model sequence after processing Mary context features
+   * @param ms  : HMM pdfs model set.
+   */
+  public void htsMaximumLikelihoodParameterGeneration(HTSUttModel um, HMMData htsData) throws Exception{
+      htsMaximumLikelihoodParameterGeneration(um, htsData, "", false);
+  }
   
   /** HTS maximum likelihood parameter generation
   * @param um  : utterance model sequence after processing Mary context features
   * @param ms  : HMM pdfs model set.
+  * @param parFileName : file name to save parameters
+  * @param debug : true for more debug information
   */
   public void htsMaximumLikelihoodParameterGeneration(HTSUttModel um, HMMData htsData, String parFileName, boolean debug) throws Exception{
 	  

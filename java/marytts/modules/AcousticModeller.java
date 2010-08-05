@@ -166,7 +166,7 @@ public class AcousticModeller extends InternalModule {
 
         // parse the MaryXML Document to populate Lists of relevant Elements:
         parseDocument(doc);
-
+       
         // unpack elementLists from Map:
         List<Element> segments = elementLists.get("segments");
         List<Element> firstVoicedSegments = elementLists.get("firstVoicedSegments");
@@ -175,21 +175,44 @@ public class AcousticModeller extends InternalModule {
         List<Element> boundaries = elementLists.get("boundaries");
 
         // apply critical Models to Elements:
+        System.out.println("\nApplying DurationModel");
         voice.getDurationModel().applyTo(segments);
-        voice.getLeftF0Model().applyTo(firstVoicedSegments, firstVowels);
-        voice.getMidF0Model().applyTo(firstVowels);
-        voice.getRightF0Model().applyTo(lastVoicedSegments, firstVowels);
-        voice.getBoundaryModel().applyTo(boundaries);
-
+        
         // hack duration attributes:
+        // IMPORTANT: this hack has to be done right after predict durations, 
+        // because the dur value is used by the HMMs.
         hackSegmentDurations(elementLists.get("segments"));
+              
+        if( voice.getLeftF0Model() != null )  // if cart models were defined apply these models
+        {
+          // voice.getLeftF0 ... will return null if not defined
+          System.out.println("\nApplying LeftF0Model");
+          voice.getLeftF0Model().applyTo(firstVoicedSegments, firstVowels);
+        
+          System.out.println("\nApplying MidF0Model");
+          voice.getMidF0Model().applyTo(firstVowels);
+       
+          System.out.println("\nApplying RightF0Model");
+          voice.getRightF0Model().applyTo(lastVoicedSegments, firstVowels);
+          
+          System.out.println("\nApplying BoundaryModel");
+          voice.getBoundaryModel().applyTo(boundaries);
+        }
 
         // apply other Models, if applicable:
         Map<String, Model> otherModels = voice.getOtherModels();
         if (!otherModels.isEmpty()) {
             for (String modelName : otherModels.keySet()) {
                 Model model = models.get(modelName);
-                model.applyTo(elementLists.get(model.getTargetElementListName()));
+                // CHECK: with Ingmar and Sathish 
+                if( modelName.contentEquals("prosody")){
+                  System.out.println("\nApplying ProsodyModel");  
+                  model.apply(doc); 
+                }
+                else{  // then it will be a hmm model
+                  System.out.println("\nApplying HMMModel");  
+                  model.apply(elementLists.get(model.getTargetElementListName()));
+                }
                 // remember, the Model constructor will apply the model to "segments" if the targetElementListName is null
             }
         }
