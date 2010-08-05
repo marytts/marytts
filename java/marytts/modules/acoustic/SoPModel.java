@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import javax.swing.text.Document;
+
 import org.w3c.dom.Element;
 
 import marytts.cart.io.DirectedGraphReader;
@@ -119,6 +121,10 @@ public class SoPModel extends Model {
         return result;
     }    
     
-    protected void evaluate(List<Element> applicableElements, List<Target> predictorTargets){ }
+    @Override
+    protected void evaluate(List<Element> applicableElements){ }
+    
+    @Override
+    protected void evaluate(org.w3c.dom.Document doc){ }
     
 }

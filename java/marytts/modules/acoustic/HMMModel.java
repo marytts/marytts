@@ -3,9 +3,13 @@ package marytts.modules.acoustic;
 import java.io.File;
 import java.util.List;
 
+import javax.swing.text.Document;
+
+import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
 import marytts.cart.io.DirectedGraphReader;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.htsengine.CartTreeSet;
@@ -20,6 +24,7 @@ public class HMMModel extends Model {
     private HMMData htsData;
     private CartTreeSet cart;    
     private float fperiodsec;
+    protected static Logger logger = Logger.getLogger("HMMModel");
     
     public HMMModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
             String targetElementListName, String modelFeatureName) {
@@ -32,8 +37,7 @@ public class HMMModel extends Model {
         try {
             // the dataFile is the configuration file of the HMM voice whose hmm models will be used
             htsData.initHMMData(dataFile, targetAttributeName);
-            cart = htsData.getCartTreeSet();           
-            
+            cart = htsData.getCartTreeSet();                       
             fperiodsec = ((float)htsData.getFperiod() / (float)htsData.getRate());
             diffDuration = 0.0;
         } catch (Exception e) {
@@ -41,52 +45,47 @@ public class HMMModel extends Model {
             e.printStackTrace();
         }
     }
+    
+    
+    protected void evaluate(org.w3c.dom.Document doc){}
 
     /**
      * Apply the CART to a Target to get its predicted value
      */
     @Override
-    protected float evaluate(Target target) {
-        float result=0;
-        if(targetAttributeName.contentEquals("d")) {   
-           result = evaluateDur(target);  
-        } else {
-           //result = evaluateF0(target); 
-        }
-        return result;
-    }
-    
-    // CHECK: which module is setting the duration for _ at the ini and end
-    protected float evaluateDur(Target target) 
-    {
-        FeatureVector fv;
-        boolean firstPh = true; // not used here
-        boolean lastPh = false; // not used here       
-        double diffdurNew = 0.0;       
-        float totalDurSec = 0;
-        HTSModel m = new HTSModel(cart.getNumStates());
+    protected float evaluate(Target target) { 
         
-        fv = target.getFeatureVector();
-        m.setPhoneName(fv.getFeatureAsString(htsData.getFeatureDefinition().getFeatureIndex("phone"), htsData.getFeatureDefinition()));
-        m.setTotalDur(0);
-        try{   
-          
-          diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, lastPh, diffDuration); 
-          totalDurSec = (fperiodsec * m.getTotalDur()); 
-          
-          System.out.println("phone=" + m.getPhoneName() + " dur=" +  m.getTotalDur() + "(" + totalDurSec + ")  diffdurNew = " + diffdurNew + "  diffdurOld = " + diffDuration);
-          diffDuration = diffdurNew;  // first time it will be 0, how to reset it when finish with a sentence???? 
-          
+        FeatureVector fv;                
+        double diffdurNew = 0.0;       
+        float durSec = 0;
+        HTSModel m = new HTSModel(cart.getNumStates());
+        int i;
+        try {
+            m.setTotalDur(0);
+            fv = target.getFeatureVector();            
+            diffdurNew = cart.searchDurInCartTree(m, fv, htsData, diffDuration);           
+            durSec = (fperiodsec * m.getTotalDur());  // Duration in seconds
+            diffDuration = diffdurNew;
         } catch (Exception e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-        return totalDurSec;
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }    
+        return durSec;    
+            
     }
     
+    /**
+     * Apply the CART to a all targets to get predicted values 
+     */
+    @Override
     // For predicting f0 it is needed the whole sequence at once
-    protected void evaluate(List<Element> applicableElements, List<Target> predictorTargets) {
-      
+    // this function requires that duration is already set on the acoust params, if not then it will 
+    // generate duration from HMMs
+    protected void evaluate(List<Element> applicableElements) {
+
+     List<Element> predictorElements = applicableElements;        
+     List<Target> predictorTargets = getTargets(predictorElements);       
+        
      FeatureVector fv;
      HTSUttModel um = new HTSUttModel();
      HTSParameterGeneration pdf2par = new HTSParameterGeneration();
@@ -96,8 +95,6 @@ public class HMMModel extends Model {
      int i, k, s, t, mstate, frame, durInFrames, durStateInFrames, numVoicedInModel;
      double diffdurOld = 0.0;
      double diffdurNew = 0.0;
-     boolean firstPh = true;  // not used here
-     boolean lastPh = false;  // not used here 
      float f0s[] = null;
      
      // (1) Predict the values
@@ -105,10 +102,10 @@ public class HMMModel extends Model {
      for (i = 0; i < predictorTargets.size(); i++) {            
        fv = predictorTargets.get(i).getFeatureVector();            
        
-       byte[] byteValues = fv.byteValuedDiscreteFeatures;
+       /*byte[] byteValues = fv.byteValuedDiscreteFeatures;
        for(k=0; k<byteValues.length; k++)
          System.out.print(byteValues[k] + " ");
-       System.out.println();       
+       System.out.println(); */       
  
        um.addUttModel(new HTSModel(cart.getNumStates()));            
        m = um.getUttModel(i);
@@ -125,13 +122,15 @@ public class HMMModel extends Model {
        // get the duration in frames
        // I can use the duration that is already in the fv, but it needs to be fixed 
        // (I) this if using continuous features....
-       //duration = fv.getContinuousFeature(feaDef.getFeatureIndex("unit_duration"));
-         
+       duration = fv.getContinuousFeature(feaDef.getFeatureIndex("unit_duration"));
+                
        // (II) this if using HMM predicted duration
-       // Estimate state duration from state duration model (Gaussian)                 
-       diffdurNew = cart.searchDurInCartTree(m, fv, htsData, firstPh, lastPh, diffdurOld);
+       // Estimate state duration from state duration model (Gaussian)    
+       /*
+       diffdurNew = cart.searchDurInCartTree(m, fv, htsData, diffdurOld);
        diffdurOld = diffdurNew;
        duration  = m.getTotalDur() * fperiodsec; // in seconds
+       */
                
        durInFrames = (int)(duration / fperiodsec);
        durStateInFrames = (int)(durInFrames / cart.getNumStates()); 
@@ -141,7 +140,7 @@ public class HMMModel extends Model {
          m.setTotalDur(m.getTotalDur() + m.getDur(s));
        }
        um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());  
-       System.out.format("duration=%.3f sec. durInFrames=%d  durStateInFrames=%d  m.getTotalDur()=%d\n", duration, durInFrames, durStateInFrames, m.getTotalDur());
+       //System.out.format("duration=%.3f sec. durInFrames=%d  durStateInFrames=%d  m.getTotalDur()=%d\n", duration, durInFrames, durStateInFrames, m.getTotalDur());
        
          
        /* Find pdf for LF0, this function sets the pdf for each state. */ 
@@ -155,16 +154,17 @@ public class HMMModel extends Model {
      // voiced or unvoiced state is determined when searchLf0CartTree 
      for(i=0; i<um.getNumUttModel(); i++){
        m = um.getUttModel(i);                  
-       System.out.format("phone=%s  model(%d) dur in frames=%d\n", m.getPhoneName(), i, m.getTotalDur());
+       //System.out.format("phone=%s  model(%d) dur in frames=%d\n", m.getPhoneName(), i, m.getTotalDur());
        for(mstate=0; mstate<cart.getNumStates(); mstate++) 
        {  
          for(frame=0; frame<m.getDur(mstate); frame++)    
            if(m.getVoiced(mstate))                      
              um.setLf0Frame(um.getLf0Frame() +1);     
-         if(m.getVoiced(mstate))
+         /*if(m.getVoiced(mstate))
            System.out.format("  state(%d) : num frames(%d) : voiced\n", mstate, m.getDur(mstate));
          else
-           System.out.format("  state(%d) : num frames(%d) : unvoiced\n", mstate, m.getDur(mstate));   
+           System.out.format("  state(%d) : num frames(%d) : unvoiced\n", mstate, m.getDur(mstate));
+         */   
        }                                                       
      }                                                        
 
@@ -172,16 +172,19 @@ public class HMMModel extends Model {
      /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */  
      boolean debug = false;  /* so it does not save the generated parameters. */
      /* this function generates features just for the trees and pdf that are not null in the HMM cart*/
-     pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData,"", debug);
+     pdf2par.htsMaximumLikelihoodParameterGeneration(um, htsData);
      
      } catch (Exception e) {
          // TODO Auto-generated catch block
          e.printStackTrace();
      }
     
-     // (2) include the predicted values in  applicableElements (as it is done in Model
-     boolean voiced[] = pdf2par.getVoicedArray();    
-     assert applicableElements.size() == um.getNumModel();     
+     // (2) include the predicted values in  applicableElements (as it is done in Model)
+     boolean voiced[] = pdf2par.getVoicedArray();  
+     
+     // make sure that the number of applicable elements is the same as the predicted number of elements
+     assert applicableElements.size() == um.getNumModel();
+     
      float f0;
      String formattedTargetValue;
      t=0;
@@ -190,7 +193,7 @@ public class HMMModel extends Model {
        k = 1;
        numVoicedInModel = m.getNumVoiced();
        formattedTargetValue = "";
-       System.out.format("phone = %s dur in frames=%d num voiced frames=%d\n", m.getPhoneName(), m.getTotalDur(), numVoicedInModel);
+       System.out.format("phone = %s dur in frames=%d num voiced frames=%d : ", m.getPhoneName(), m.getTotalDur(), numVoicedInModel);
        for(mstate=0; mstate<cart.getNumStates(); mstate++) {
          for(frame=0; frame<m.getDur(mstate); frame++) {
            if( voiced[t++] ){
@@ -202,7 +205,7 @@ public class HMMModel extends Model {
            //  f0 = 0.0f;                       
          }
        }       
-       Element element = applicableElements.get(i);         
+       Element element = applicableElements.get(i);        
        // "evaulate" pseudo XPath syntax:
        // TODO this needs to be extended to take into account targetAttributeNames like "foo/@bar", which would add the
        // bar attribute to the foo child of this element, creating the child if not already present...

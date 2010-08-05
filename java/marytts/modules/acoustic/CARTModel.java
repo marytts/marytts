@@ -23,6 +23,8 @@ package marytts.modules.acoustic;
 import java.io.File;
 import java.util.List;
 
+import javax.swing.text.Document;
+
 import org.w3c.dom.Element;
 
 import marytts.cart.DirectedGraph;
@@ -86,5 +88,10 @@ public class CARTModel extends Model {
         return value;
     }
     
-    protected void evaluate(List<Element> applicableElements, List<Target> predictorTargets){ }
+    @Override
+    protected void evaluate(List<Element> applicableElements){ }
+    
+    @Override
+    protected void evaluate(org.w3c.dom.Document doc){ }
+    
 }

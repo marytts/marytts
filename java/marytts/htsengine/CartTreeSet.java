@@ -166,6 +166,9 @@ public class CartTreeSet {
      * @return duration
      * @throws Exception
      */
+    public double searchDurInCartTree(HTSModel m, FeatureVector fv, HMMData htsData, double diffdur) throws Exception {
+        return searchDurInCartTree(m, fv, htsData, false, false, diffdur);
+    }
     public double searchDurInCartTree(HTSModel m, FeatureVector fv, HMMData htsData,
             boolean firstPh, boolean lastPh, double diffdur) 
       throws Exception {     
