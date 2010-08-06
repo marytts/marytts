@@ -75,6 +75,7 @@ import marytts.modules.ModuleRegistry;
 import marytts.modules.TargetFeatureLister;
 import marytts.modules.synthesis.Voice.Gender;
 import marytts.server.MaryProperties;
+import marytts.unitselection.select.Target;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
@@ -98,6 +99,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
     private TargetFeatureLister targetFeatureLister;
     private HTSEngine htsEngine;
     private Logger logger;
+    private TargetFeatureComputer comp;
 
     public HMMSynthesizer() {
     }
@@ -221,14 +223,21 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                  in.readFrom(new StringReader(exampleText));
                  in.setDefaultVoice(v);
                  assert v instanceof HMMVoice : "Expected voice to be a HMMVoice, but it is a " + v.getClass().toString();
+                 
+                 //-- here it is set the targetFeatureComputer for this voice
                  String features = ((HMMVoice)v).getHMMData().getFeatureDefinition().getFeatureNames();
+                 comp = FeatureRegistry.getTargetFeatureComputer(v, features);
+                
+                 //--String features = ((HMMVoice)v).getHMMData().getFeatureDefinition().getFeatureNames();
                  in.setOutputParams(features);
 
                  MaryData targetFeatures = targetFeatureLister.process(in);
                  targetFeatures.setDefaultVoice(v);
-                 MaryData audio = htsEngine.process(targetFeatures);
+                 // null here is the List<Element> tokensAndBoundaries, not available here
+     //////// FOR TESTING FIX LATER!!!!!
+    /////////             MaryData audio = htsEngine.process(targetFeatures);
                  
-                 assert audio.getAudio() != null;
+    ///////             assert audio.getAudio() != null;
              } else {
                  logger.debug("No example text -- no power-on self test!");
              }
@@ -272,15 +281,23 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         }
         try {
             assert voice instanceof HMMVoice : "Expected voice to be a HMMVoice, but it is a " + voice.getClass().toString();
-            String features = ((HMMVoice)voice).getHMMData().getFeatureDefinition().getFeatureNames();
-            TargetFeatureComputer comp = FeatureRegistry.getTargetFeatureComputer(voice, features);
-            String targetFeatureString = targetFeatureLister.listTargetFeatures(comp, segmentsAndBoundaries);
-            MaryData targetFeatures = new MaryData(targetFeatureLister.outputType(), voice.getLocale());
-            targetFeatures.setPlainText(targetFeatureString);
-            targetFeatures.setDefaultVoice(voice);
-            MaryData audio = htsEngine.process(targetFeatures);     
-            setActualDurations(tokensAndBoundaries, audio.getPlainText());
+        
+            //-- This can be done just once when powerOnSelfTest() of this voice
+            //-- String features = ((HMMVoice)voice).getHMMData().getFeatureDefinition().getFeatureNames();
+            //-- TargetFeatureComputer comp = FeatureRegistry.getTargetFeatureComputer(voice, features);
+              
+            // it is not faster to pass directly a list of targets?
+            //--String targetFeatureString = targetFeatureLister.listTargetFeatures(comp, segmentsAndBoundaries);
             
+            MaryData d = new MaryData(targetFeatureLister.outputType(), voice.getLocale());
+            //--d.setPlainText(targetFeatureString);
+            d.setDefaultVoice(voice);
+            
+            List<Target> targetFeaturesList = targetFeatureLister.getListTargetFeatures(comp, segmentsAndBoundaries);
+            
+            // the actual durations are already fixed in the htsEngine.process()
+            MaryData audio = htsEngine.process(d, targetFeaturesList, segmentsAndBoundaries);     
+                 
             return audio.getAudio();           
                      
         } catch (Exception e) {
@@ -289,68 +306,6 @@ public class HMMSynthesizer implements WaveformSynthesizer {
     }
     
  
-    public void setActualDurations(List<Element> tokensAndBoundaries, String durations) 
-      throws SynthesisException {
-      int i,j, index;
-      NodeList no1, no2;
-      NamedNodeMap att;
-      Scanner s = null;
-      Vector<String> ph = new Vector<String>();
-      Vector<Integer> dur = new Vector<Integer>(); // individual durations, in millis
-      String line, str[];
-      float totalDur = 0f; // total duration, in seconds 
-
-      s = new Scanner(durations).useDelimiter("\n");
-      while(s.hasNext()) {
-         line = s.next();
-         str = line.split(" ");
-         //--- not needed ph.add(PhoneTranslator.replaceBackTrickyPhones(str[0]));
-         ph.add(str[0]);
-         dur.add(Integer.valueOf(str[1]));
-      }
-      /* the duration of the first phone includes the duration of the initial pause */
-      if(dur.size() > 1 && ph.get(0).contentEquals("_")) {
-         dur.set(1, (dur.get(1) + dur.get(0)) );
-         ph.set(0, "");
-         /* remove this element of the vector otherwise next time it will return the same */
-         ph.set(0, "");
-      }
-      
-      for (Element e : tokensAndBoundaries) {
-         //System.out.println("TAG: " + e.getTagName());
-         if( e.getTagName().equals(MaryXML.TOKEN) ) {
-             NodeIterator nIt = MaryDomUtils.createNodeIterator(e, MaryXML.PHONE);
-             Element phone;
-             while ((phone = (Element) nIt.nextNode()) != null) {
-                 String p = phone.getAttribute("p");
-                 index = ph.indexOf(p);
-                 int currentDur = dur.elementAt(index);
-                 totalDur += currentDur * 0.001f;
-                 phone.setAttribute("d", String.valueOf(currentDur));
-                 phone.setAttribute("end", String.valueOf(totalDur));
-                 // remove this element of the vector otherwise next time it will return the same
-                 ph.set(index, "");
-             }
-         } else if( e.getTagName().contentEquals(MaryXML.BOUNDARY) ) {
-             int breakindex = 0;
-             try {
-                 breakindex = Integer.parseInt(e.getAttribute("breakindex"));
-             } catch (NumberFormatException nfe) {}
-             if(e.hasAttribute("duration") || breakindex >= 3) {
-               index = ph.indexOf("_");  
-               int currentDur = dur.elementAt(index);
-               totalDur += currentDur * 0.001f;
-               e.setAttribute("duration", String.valueOf(currentDur));   
-               // remove this element of the vector otherwise next time it will return the same
-               ph.set(index, "");
-             }
-         } // else ignore whatever other label...
-            
-      }
-       
-        
-        
-    }
     
 
 }

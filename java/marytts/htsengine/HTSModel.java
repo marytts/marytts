@@ -49,6 +49,11 @@
 
 package marytts.htsengine;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * HMM model for a particular phone (or line in context feature file)
  * This model is the unit when building a utterance model sequence.
@@ -88,6 +93,7 @@ public class HTSModel {
   private Float unit_duration;      /* external duration value from ContinuousFeatureProcessors */
   private Float unit_logF0;         /* external lf0 value from ContinuousFeatureProcessors */
   private Float unit_logF0delta;    /* external lf0 delta value from ContinuousFeatureProcessors */
+  private double[] unit_logF0Array;     /* external f0 from acoustparams, it can contain more than three values */
   
   /** This function also sets the phoneName */
   public void setName(String var, String aPhoneName)
@@ -199,6 +205,31 @@ public class HTSModel {
   public float getUnit_logF0(){return unit_logF0;}
   public void setUnit_logF0delta(float fval){unit_logF0delta = fval;}
   public float getUnit_logF0delta(){return unit_logF0delta;}
+  
+  public void setUnit_logF0Array(String f0Str){
+      String tmp[] = f0Str.split("\\)");
+      if(tmp.length > 0)
+      {
+        unit_logF0Array = new double[tmp.length];
+        Pattern p = Pattern.compile("(\\d+,\\d+)");
+        double val;
+        // Split input with the pattern
+        Matcher m = p.matcher(f0Str);
+        int i=0;
+        while ( m.find() ) {
+          String[] f0Values = (m.group().trim()).split(",");
+          val = Double.parseDouble(f0Values[1]);
+          if(val>0.0)
+            unit_logF0Array[i++] = Math.log(val);
+          else
+            unit_logF0Array[i++] = 0.0;
+          
+        }
+      }     
+  }
+  
+  public double[] getUnit_logF0Array(){ return unit_logF0Array; }
+  
   
   /* Constructor */
   /* Every Model is initialised with the information in ModelSet*/

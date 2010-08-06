@@ -119,6 +119,22 @@ public class TargetFeatureLister extends InternalModule
         return out;
     }
     
+    /**
+     * Return directly the targets, and set in each target its feature vector
+     * @param featureComputer
+     * @param segmentsAndBoundaries
+     * @return
+     */
+    public List<Target> getListTargetFeatures(TargetFeatureComputer featureComputer, List<Element> segmentsAndBoundaries) 
+    {
+        String pauseSymbol = featureComputer.getPauseSymbol();
+        List<Target> targets = overridableCreateTargetsWithPauses(segmentsAndBoundaries, pauseSymbol);
+        for (Target target : targets) {
+            FeatureVector features = featureComputer.computeFeatureVector(target);
+            target.setFeatureVector(features);             
+        }
+        return targets;
+    }
 
     
     /**

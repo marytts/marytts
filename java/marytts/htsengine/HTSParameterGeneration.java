@@ -225,7 +225,7 @@ public class HTSParameterGeneration {
           }
       	  
       	  /* copy pdfs for lf0 */
-          if( lf0Pst != null) {
+          if( lf0Pst != null && !htsData.getUseUnitLogF0ContinuousFeature() ) {
       	  for(k=0; k<ms.getLf0Stream(); k++){
       		lw = lf0Pst.getDWwidth(k, HTSPStream.WLEFT);
       		rw = lf0Pst.getDWwidth(k, HTSPStream.WRIGHT);
@@ -267,15 +267,21 @@ public class HTSParameterGeneration {
     // CHECK!!
     // generate the parameters any way, if there is external they will be replaced
     // for the moment these values are used with the mbrola pfeats when f0 is 0.0 and genf0 is not 0.0
-    if ( lf0Pst != null ){
-      logger.info("Parameter generation for LF0: "); 
-      lf0Pst.mlpg(htsData, htsData.getUseGV());
-    }   
+    //if ( lf0Pst != null ){
+    //  logger.info("Parameter generation for LF0: "); 
+    //  lf0Pst.mlpg(htsData, htsData.getUseGV());
+    //}   
     
     if(htsData.getUseUnitLogF0ContinuousFeature())
-      loadUnitLogF0ContinuousFeature(um, htsData);
-    else if(htsData.getUseLogF0FromExternalFile())
-      loadLogF0FromExternalFile(htsData.getExternalLf0File(), uttFrame);
+        loadExternalF0(um, htsData);
+    else if ( lf0Pst != null ){
+        logger.info("Parameter generation for LF0: "); 
+        lf0Pst.mlpg(htsData, htsData.getUseGV());
+    }  
+        
+    
+    //else if(htsData.getUseLogF0FromExternalFile())
+    //  loadLogF0FromExternalFile(htsData.getExternalLf0File(), uttFrame);
     //else if (lf0Frame>0){
     //  logger.info("Parameter generation for LF0: "); 
     //  lf0Pst.mlpg(htsData, htsData.getUseGV());
@@ -436,6 +442,62 @@ public class HTSParameterGeneration {
         logger.info("IO exception = " + e );
     }    
   }
+ 
+  public void loadExternalF0(HTSUttModel um, HMMData htsData) throws Exception{
+      int i, j, k, n, t;  
+ 
+      logger.info("Using external prosody for f0 from acoustparams");      
+      int numVoiced, numVoicedState;      
+      boolean newVoiced[] = new boolean[um.getTotalFrame()];
+      HTSPStream newLf0Pst  = new HTSPStream(3, um.getTotalFrame(), HMMData.LF0); // actually the size of lf0Pst is 
+                                                                                  // just the number of voiced frames               
+      HTSModel m;
+      HTSModel mNext;
+      int state, frame;            
+      double[] logF0Array;
+      int f0ArraySize;      
+      numVoiced=0;
+      t=0;     
+      for(i=0; i<um.getNumUttModel(); i++){
+        m = um.getUttModel(i);
+        numVoicedState = m.getNumVoiced();
+        logF0Array = m.getUnit_logF0Array();
+        f0ArraySize = logF0Array.length;
+        System.out.format("model=%s  totalDur=%s (%d ms.) mapF0Size=%d  numVoicedFrames=%d\n", m.getPhoneName(), m.getTotalDur(), m.getTotalDurMillisec(), f0ArraySize, numVoicedState);      
+        k=0;
+        for(state=0; state<htsData.getCartTreeSet().getNumStates(); state++) {            
+          if(m.getVoiced(state)){
+            System.out.format("  state=%d  dur_state=%d voiced : ",state, m.getDur(state));            
+            for(frame=0; frame<m.getDur(state); frame++){
+              newVoiced[t++] = true;
+              if(k < f0ArraySize){
+                newLf0Pst.setPar(numVoiced, 0, logF0Array[k++]);  // i=num frames and j=0, because lf0 has only one dimension
+                System.out.format("%.2f ", Math.exp(newLf0Pst.getPar(numVoiced, 0)));
+              } else{ //repeat the last one
+                newLf0Pst.setPar(numVoiced, 0, newLf0Pst.getPar(numVoiced-1, 0));
+                System.out.format("*%.2f ", Math.exp(newLf0Pst.getPar(numVoiced, 0)));
+              }
+              numVoiced++;
+            }
+            System.out.println();
+          } // for voiced frame
+          else{              
+            System.out.format("  state=%d  dur_state=%d unvoiced\n", state, m.getDur(state));
+            for(frame=0; frame<m.getDur(state); frame++)
+                newVoiced[t++] = false; 
+          } // for unvoiced frame
+        } // for state
+      }  // for model
+      
+      // set the external prosody as if it were generated
+      setVoicedArray(newVoiced);
+           
+      //MaryUtils.plot(lf0Frame, "F0 contour");
+      
+      setlf0Pst(newLf0Pst);  
+      
+  }
+
   
   public void loadUnitLogF0ContinuousFeature(HTSUttModel um, HMMData htsData) throws Exception{
       int i, j, n, t;  
