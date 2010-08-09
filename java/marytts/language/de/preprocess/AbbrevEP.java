@@ -85,6 +85,7 @@ public class AbbrevEP extends ExpansionPattern
         super();
     }
 
+    @Override
     protected boolean isCandidate(Element t)
     {
         String str = MaryDomUtils.tokenText(t);
@@ -105,10 +106,11 @@ public class AbbrevEP extends ExpansionPattern
     
     protected boolean isAbbrev(String s)
     {
-		return REPattern.letterDot.matcher(s).find() ||
-			REPattern.nonInitialCapital.matcher(s).find() ||
-			REPattern.onlyConsonants.matcher(s).find() ||
-			abbrevDict.containsKey(s);
+        boolean isLetterDot = REPattern.letterDot.matcher(s).find();
+        boolean isNonInitialCapital = REPattern.nonInitialCapital.matcher(s).find();
+        boolean isOnlyConsonants = REPattern.onlyConsonants.matcher(s).find();
+        boolean isInDict = abbrevDict.containsKey(s) || abbrevDict.containsKey(s + ".");
+        return isLetterDot || isNonInitialCapital || isOnlyConsonants || isInDict;
     }
 
     /**
