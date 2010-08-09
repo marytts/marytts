@@ -86,6 +86,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.NodeIterator;
+import org.w3c.dom.traversal.TreeWalker;
 
 
 /**
@@ -99,7 +100,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
     private TargetFeatureLister targetFeatureLister;
     private HTSEngine htsEngine;
     private Logger logger;
-    private TargetFeatureComputer comp;
+    //private TargetFeatureComputer comp;
 
     public HMMSynthesizer() {
     }
@@ -224,20 +225,28 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                  in.setDefaultVoice(v);
                  assert v instanceof HMMVoice : "Expected voice to be a HMMVoice, but it is a " + v.getClass().toString();
                  
-                 //-- here it is set the targetFeatureComputer for this voice
+                 //-- Here it is set the targetFeatureComputer for this voice
                  String features = ((HMMVoice)v).getHMMData().getFeatureDefinition().getFeatureNames();
-                 comp = FeatureRegistry.getTargetFeatureComputer(v, features);
+                 TargetFeatureComputer comp = FeatureRegistry.getTargetFeatureComputer(v, features);
                 
-                 //--String features = ((HMMVoice)v).getHMMData().getFeatureDefinition().getFeatureNames();
                  in.setOutputParams(features);
-
-                 MaryData targetFeatures = targetFeatureLister.process(in);
-                 targetFeatures.setDefaultVoice(v);
-                 // null here is the List<Element> tokensAndBoundaries, not available here
-     //////// FOR TESTING FIX LATER!!!!!
-    /////////             MaryData audio = htsEngine.process(targetFeatures);
+                 Document doc = in.getDocument();
+                 // First, get the list of segments and boundaries in the current document
+                 TreeWalker tw = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.PHONE, MaryXML.BOUNDARY);
+                 List<Element> segmentsAndBoundaries = new ArrayList<Element>();
+                 Element e;
+                 while ((e = (Element) tw.nextNode()) != null) {
+                     segmentsAndBoundaries.add(e);
+                 }
                  
-    ///////             assert audio.getAudio() != null;
+                 List<Target> targetFeaturesList = targetFeatureLister.getListTargetFeatures(comp, segmentsAndBoundaries);
+                 
+                 // The actual durations are already fixed in the htsEngine.process()
+                 // here i pass segements and boundaries to update the realised acoustparams, dur and f0
+                 MaryData audio = htsEngine.process(in, targetFeaturesList, segmentsAndBoundaries, null);     
+                      
+                 assert audio.getAudio() != null;           
+
              } else {
                  logger.debug("No example text -- no power-on self test!");
              }
@@ -283,8 +292,9 @@ public class HMMSynthesizer implements WaveformSynthesizer {
             assert voice instanceof HMMVoice : "Expected voice to be a HMMVoice, but it is a " + voice.getClass().toString();
         
             //-- This can be done just once when powerOnSelfTest() of this voice
-            //-- String features = ((HMMVoice)voice).getHMMData().getFeatureDefinition().getFeatureNames();
-            //-- TargetFeatureComputer comp = FeatureRegistry.getTargetFeatureComputer(voice, features);
+            //-- mmmmmm it did not work, it takes the comp from the default voice
+            String features = ((HMMVoice)voice).getHMMData().getFeatureDefinition().getFeatureNames();
+            TargetFeatureComputer comp = FeatureRegistry.getTargetFeatureComputer(voice, features);
               
             // it is not faster to pass directly a list of targets?
             //--String targetFeatureString = targetFeatureLister.listTargetFeatures(comp, segmentsAndBoundaries);
@@ -296,7 +306,8 @@ public class HMMSynthesizer implements WaveformSynthesizer {
             List<Target> targetFeaturesList = targetFeatureLister.getListTargetFeatures(comp, segmentsAndBoundaries);
             
             // the actual durations are already fixed in the htsEngine.process()
-            MaryData audio = htsEngine.process(d, targetFeaturesList, segmentsAndBoundaries);     
+            // here i pass segements and boundaries to update the realised acoustparams, dur and f0
+            MaryData audio = htsEngine.process(d, targetFeaturesList, segmentsAndBoundaries, tokensAndBoundaries);     
                  
             return audio.getAudio();           
                      
