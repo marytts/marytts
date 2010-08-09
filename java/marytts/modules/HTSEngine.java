@@ -158,7 +158,8 @@ public class HTSEngine extends InternalModule
      * @return
      * @throws Exception
      */
-    public MaryData process(MaryData d)
+    // THIS FUNCTION IS NOT USED ANY MORE
+    public MaryData processKKKKK(MaryData d)
     throws Exception
     {
         /** The utterance model, um, is a Vector (or linked list) of Model objects. 
@@ -218,7 +219,7 @@ public class HTSEngine extends InternalModule
      * @return
      * @throws Exception
      */
-    public MaryData process(MaryData d, List<Target> targetFeaturesList, List<Element> segmentsAndBoundaries)
+    public MaryData process(MaryData d, List<Target> targetFeaturesList, List<Element> segmentsAndBoundaries, List<Element> tokensAndBoundaries)
     throws Exception
     {
         /** The utterance model, um, is a Vector (or linked list) of Model objects. 
@@ -265,16 +266,65 @@ public class HTSEngine extends InternalModule
        
        /* include correct durations in MaryData output */
        //output.setPlainText(um.getRealisedAcoustParams());
-       
-       // set actual durations if List<Element> tokensAndBoundaries is not null
-       //if( tokensAndBoundaries != null)
-       
+              
        // maybe here we need to re-think how to set the actualDurations in segmentsAndBoundaries
-       //setActualDurations(tokensAndBoundaries, um.getRealisedAcoustParams());
+       //setRealisedProsody(tokensAndBoundaries, um);
               
        return output;
         
     }
+ 
+    public void setRealisedProsody(List<Element> tokensAndBoundaries, HTSUttModel um) 
+    throws SynthesisException {
+      int i,j, index;
+      NodeList no1, no2;
+      NamedNodeMap att;
+      Scanner s = null;
+      String line, str[];
+      float totalDur = 0f; // total duration, in seconds 
+      HTSModel m;
+      
+      int numModel=0;
+      
+      
+      for (Element e : tokensAndBoundaries) {
+       //System.out.println("TAG: " + e.getTagName());
+       if( e.getTagName().equals(MaryXML.TOKEN) ) {
+           NodeIterator nIt = MaryDomUtils.createNodeIterator(e, MaryXML.PHONE);
+           Element phone;
+           while ((phone = (Element) nIt.nextNode()) != null) {                        
+               String p = phone.getAttribute("p");
+               
+               //index = ph.indexOf(p);
+               //int currentDur = dur.elementAt(index);
+               m = um.getUttModel(numModel++);
+               int currentDur = m.getTotalDurMillisec();
+               
+               totalDur += currentDur * 0.001f;
+               phone.setAttribute("d", String.valueOf(currentDur));
+               phone.setAttribute("end", String.valueOf(totalDur));
+               // remove this element of the vector otherwise next time it will return the same
+               
+           }
+       } else if( e.getTagName().contentEquals(MaryXML.BOUNDARY) ) {
+           int breakindex = 0;
+           try {
+               breakindex = Integer.parseInt(e.getAttribute("breakindex"));
+           } catch (NumberFormatException nfe) {}
+           if(e.hasAttribute("duration") || breakindex >= 3) {
+             /*index = ph.indexOf("_");  
+             int currentDur = dur.elementAt(index);
+             totalDur += currentDur * 0.001f;
+             e.setAttribute("duration", String.valueOf(currentDur));   
+             // remove this element of the vector otherwise next time it will return the same
+             ph.set(index, "");
+             */
+           }
+       } // else ignore whatever other label...     
+      }     
+    }
+    
+    
     
     public void setActualDurations(List<Element> tokensAndBoundaries, String durations) 
     throws SynthesisException {
@@ -629,6 +679,7 @@ public class HTSEngine extends InternalModule
       Integer dur;
       boolean firstPh = true; 
       boolean lastPh = false;
+      float durVal = 0.0f; 
       realisedDurations = "#\n";
       Float durSec;
       Integer numLab=0;
@@ -663,29 +714,30 @@ public class HTSEngine extends InternalModule
           // here i set dur and f0 from external acoustparams
           if (htsData.getUseUnitDurationContinuousFeature()) {
               String str = e.getAttribute("d");
-              float durVal;
+              
               if(str.length() > 0){
                 durVal = Float.parseFloat(str);  
-                System.out.println("dur=" + str + " milisec." + "  durFrames=" + (durVal/fperiodmillisec));                
+                //System.out.println("dur=" + str + " milisec." + "  durFrames=" + (durVal/fperiodmillisec));                
               }
               else{
-                  System.out.println("dur=" + str + " milisec." + "  durFrames=0");
+                  //System.out.println("dur=" + str + " milisec." + "  durFrames=0");
                   durVal=0;
               }
               m.setUnit_duration(durVal);
-              System.out.println("f0=" + e.getAttribute("f0")); 
+              //System.out.println("f0=" + e.getAttribute("f0")); 
               m.setUnit_logF0Array(e.getAttribute("f0"));
               
-              m.setUnit_duration(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_duration")));
+              // I am not using this continuous duration
+              //m.setUnit_duration(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_duration")));
               
               // CHECK: these times!!!!
               // CHECK: Why these values are not the same, the one from acoustparams and the one from continuous features???
               //m.setUnit_duration(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_duration"))); 
               
-              
-              float val = fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0"));
-              m.setUnit_logF0(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0")));
-              m.setUnit_logF0delta(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0delta")));
+              // I am not using any more these
+              //float val = fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0"));
+              //m.setUnit_logF0(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0")));
+              //m.setUnit_logF0delta(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_logf0delta")));
           }
           
 
@@ -698,7 +750,7 @@ public class HTSEngine extends InternalModule
             // get the sum of state durations
             for(k=0; k<htsData.getCartTreeSet().getNumStates(); k++)
               statesDuration += m.getDur(k);
-            System.out.println("sum hmm states duration = " + statesDuration + "(" + fperiodsec*statesDuration + ")");
+            //System.out.println("sum hmm states duration = " + statesDuration + "(" + fperiodsec*statesDuration + ")");
               
             // get the external duration
             if( htsData.getUseDurationFromExternalFile() && alignDur != null) { 
@@ -719,8 +771,9 @@ public class HTSEngine extends InternalModule
             } else {  // if no alignDur use ContinuousFeatureProcessors unit_duration float
                //System.out.print("  external duration=" + Math.round(fv.getContinuousFeature(feaDef.getFeatureIndex("unit_duration"))/fperiodsec) 
                //        + "(" + fv.getContinuousFeature(feaDef.getFeatureIndex("unit_duration")) + ")"); 
-               durationsFraction = fv.getContinuousFeature(feaDef.getFeatureIndex("unit_duration"))/(fperiodsec*statesDuration);
-               System.out.println("  dur_fraction = " + durationsFraction);  
+               // durationsFraction = fv.getContinuousFeature(feaDef.getFeatureIndex("unit_duration"))/(fperiodsec*statesDuration);
+                durationsFraction = durVal/(fperiodmillisec*statesDuration);;
+               //System.out.println("  dur_fraction = " + durationsFraction);  
             }
             
             m.setTotalDur(0);              
@@ -731,10 +784,10 @@ public class HTSEngine extends InternalModule
                 newStateDuration = 1;
               m.setDur(k, newStateDuration);
               m.setTotalDur(m.getTotalDur() + m.getDur(k)); 
-              System.out.println("   durNew=" + m.getDur(k));       
+              //System.out.println("   durNew=" + m.getDur(k));       
             }  
             um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
-            System.out.println("  model TotalDur=" + m.getTotalDur() + "  TotalDurMilisec=" + (fperiodmillisec * m.getTotalDur()));
+            //System.out.println("  model TotalDur=" + m.getTotalDur() + "  TotalDurMilisec=" + (fperiodmillisec * m.getTotalDur()));
               
           } else if(stateAlignmentForDurations) {  // use state alignment for duration
             // Not implemented yet  

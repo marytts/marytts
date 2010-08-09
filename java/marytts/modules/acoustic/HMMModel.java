@@ -101,7 +101,7 @@ public class HMMModel extends Model {
      try {
      for (i = 0; i < predictorTargets.size(); i++) {            
        fv = predictorTargets.get(i).getFeatureVector();            
-       
+       Element e = applicableElements.get(i);
        /*byte[] byteValues = fv.byteValuedDiscreteFeatures;
        for(k=0; k<byteValues.length; k++)
          System.out.print(byteValues[k] + " ");
@@ -122,7 +122,7 @@ public class HMMModel extends Model {
        // get the duration in frames
        // I can use the duration that is already in the fv, but it needs to be fixed 
        // (I) this if using continuous features....
-       duration = fv.getContinuousFeature(feaDef.getFeatureIndex("unit_duration"));
+       //duration = fv.getContinuousFeature(feaDef.getFeatureIndex("unit_duration"));
                 
        // (II) this if using HMM predicted duration
        // Estimate state duration from state duration model (Gaussian)    
@@ -131,6 +131,9 @@ public class HMMModel extends Model {
        diffdurOld = diffdurNew;
        duration  = m.getTotalDur() * fperiodsec; // in seconds
        */
+       
+       // (III) I can use the duration that is already in each element
+       duration = Integer.parseInt(e.getAttribute("d")) * 0.001f;
                
        durInFrames = (int)(duration / fperiodsec);
        durStateInFrames = (int)(durInFrames / cart.getNumStates()); 
@@ -193,7 +196,7 @@ public class HMMModel extends Model {
        k = 1;
        numVoicedInModel = m.getNumVoiced();
        formattedTargetValue = "";
-       System.out.format("phone = %s dur in frames=%d num voiced frames=%d : ", m.getPhoneName(), m.getTotalDur(), numVoicedInModel);
+       //System.out.format("phone = %s dur_in_frames=%d  num_voiced_frames=%d : ", m.getPhoneName(), m.getTotalDur(), numVoicedInModel);
        for(mstate=0; mstate<cart.getNumStates(); mstate++) {
          for(frame=0; frame<m.getDur(mstate); frame++) {
            if( voiced[t++] ){
@@ -224,7 +227,7 @@ public class HMMModel extends Model {
        // if the whole segment is unvoiced then f0 should not be fixed?
        if(formattedTargetValue.length() > 0)
          element.setAttribute(targetAttributeName, formattedTargetValue);
-       System.out.println(formattedTargetValue);                 
+       //System.out.println(formattedTargetValue);                 
      }
     }
 

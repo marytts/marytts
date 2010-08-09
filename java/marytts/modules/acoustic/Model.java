@@ -138,7 +138,7 @@ public abstract class Model {
 
         List<Target> predictorTargets = getTargets(predictorElements);
  
-        diffDuration = 0.0; // if hmm duration
+        diffDuration = 0.0; // this value is needed for hmm duration
         for (int i = 0; i < applicableElements.size(); i++) {           
           Target target = predictorTargets.get(i);
                   
@@ -146,7 +146,7 @@ public abstract class Model {
           
           Element element = applicableElements.get(i);
           
-          System.out.println(element.getNodeName() + "  " + element.getAttribute("p") + "  targetValue="+ targetValue);
+          //System.out.println(element.getNodeName() + "  " + element.getAttribute("p") + "  targetValue="+ targetValue);
 
           // "evaulate" pseudo XPath syntax:
           // TODO this needs to be extended to take into account targetAttributeNames like "foo/@bar", which would add the
@@ -200,8 +200,7 @@ public abstract class Model {
 
     // CHECK: with Ingmar
     // this method will be used for HMM models and other like prosody that process all the data at once
-    // because for predicting F0 from HMMs it is needed the whole sequence
-    // also for predicting duration it is used a value from previous phone
+    // for predicting F0 from HMMs it is needed the whole sequence
     protected abstract void evaluate(List<Element> applicableElements);
     // CHECK: with Ingmar and Sathish    
     // prosody model needs access to the whole document, not sure if this can be handle in a different way ???

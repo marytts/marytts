@@ -206,9 +206,11 @@ public class HTSModel {
   public void setUnit_logF0delta(float fval){unit_logF0delta = fval;}
   public float getUnit_logF0delta(){return unit_logF0delta;}
   
+  public void setUnit_logF0Array(double [] val){ unit_logF0Array = val; }
   public void setUnit_logF0Array(String f0Str){
+      // CHECK:  weak!
       String tmp[] = f0Str.split("\\)");
-      if(tmp.length > 0)
+      if(tmp.length >= 1 && f0Str.length()>0)
       {
         unit_logF0Array = new double[tmp.length];
         Pattern p = Pattern.compile("(\\d+,\\d+)");
@@ -225,7 +227,8 @@ public class HTSModel {
             unit_logF0Array[i++] = 0.0;
           
         }
-      }     
+      } else
+        unit_logF0Array = null;
   }
   
   public double[] getUnit_logF0Array(){ return unit_logF0Array; }
