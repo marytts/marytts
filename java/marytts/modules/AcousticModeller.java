@@ -202,7 +202,28 @@ public class AcousticModeller extends InternalModule {
         // apply other Models, if applicable:
         Map<String, Model> otherModels = voice.getOtherModels();
         if (!otherModels.isEmpty()) {
-            for (String modelName : otherModels.keySet()) {
+            
+            // CHECK:  we need to execute the modules in the order specified in the config file
+            // for example:
+            //   duration hmmF0 prosody
+            // if prosody needs to change f0 it has to be set beforehand!
+            
+            if( otherModels.containsKey("hmmF0")){
+                Model model = models.get("hmmF0");
+                System.out.println("\nApplying HMMModel");  
+                model.apply(elementLists.get(model.getTargetElementListName()));  
+            }
+            
+            if( otherModels.containsKey("prosody") ) {
+                Model model = models.get("prosody");
+                System.out.println("\nApplying ProsodyModel");  
+                model.apply(doc); 
+            }
+            
+            
+            
+            /* CHECK: this is problematic, it can make the process random ???
+             * for (String modelName : otherModels.keySet()) {
                 Model model = models.get(modelName);
                 // CHECK: with Ingmar and Sathish 
                 if( modelName.contentEquals("prosody")){
@@ -214,7 +235,7 @@ public class AcousticModeller extends InternalModule {
                   model.apply(elementLists.get(model.getTargetElementListName()));
                 }
                 // remember, the Model constructor will apply the model to "segments" if the targetElementListName is null
-            }
+            }*/
         }
 
         output.setDocument(doc);
