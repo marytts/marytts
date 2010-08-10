@@ -24,7 +24,7 @@ public class HMMModel extends Model {
     private HMMData htsData;
     private CartTreeSet cart;    
     private float fperiodsec;
-    protected static Logger logger = Logger.getLogger("HMMModel");
+    protected static Logger logger = Logger.getLogger("HMMModel");    
     
     public HMMModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
             String targetElementListName, String modelFeatureName) {
@@ -58,6 +58,7 @@ public class HMMModel extends Model {
         FeatureVector fv;                
         double diffdurNew = 0.0;       
         float durSec = 0;
+       
         HTSModel m = new HTSModel(cart.getNumStates());
         int i;
         try {
@@ -85,9 +86,10 @@ public class HMMModel extends Model {
 
      List<Element> predictorElements = applicableElements;        
      List<Target> predictorTargets = getTargets(predictorElements);       
-        
+     HTSUttModel um;  
      FeatureVector fv;
-     HTSUttModel um = new HTSUttModel();
+     
+     um = new HTSUttModel();
      HTSParameterGeneration pdf2par = new HTSParameterGeneration();
      HTSModel m;
      FeatureDefinition feaDef = htsData.getFeatureDefinition();
@@ -117,7 +119,7 @@ public class HMMModel extends Model {
        /* update number of states */
        um.setNumState(um.getNumState() + cart.getNumStates());
        
-       // we need to set the duration of this model per state, here it willbe set equally the amount of frames 
+       // we need to set the duration of this model per state, here it will be set equally the amount of frames 
        // among the five states
        // get the duration in frames
        // I can use the duration that is already in the fv, but it needs to be fixed 
@@ -134,7 +136,7 @@ public class HMMModel extends Model {
        
        // (III) I can use the duration that is already in each element
        duration = Integer.parseInt(e.getAttribute("d")) * 0.001f;
-               
+       // distribute the duration (in frames) among the five states, here it is done the same amount for each state        
        durInFrames = (int)(duration / fperiodsec);
        durStateInFrames = (int)(durInFrames / cart.getNumStates()); 
        m.setTotalDur(0); // reset to set new value according to duration
@@ -146,7 +148,9 @@ public class HMMModel extends Model {
        //System.out.format("duration=%.3f sec. durInFrames=%d  durStateInFrames=%d  m.getTotalDur()=%d\n", duration, durInFrames, durStateInFrames, m.getTotalDur());
        
          
-       /* Find pdf for LF0, this function sets the pdf for each state. */ 
+       /* Find pdf for LF0, this function sets the pdf for each state. 
+        * and determines, acording to the HMM models, whether the states are voiced or unvoiced, (it can be possible that some states are voiced
+        * and some unvoiced).*/ 
        cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());                       
      } 
           
@@ -191,7 +195,7 @@ public class HMMModel extends Model {
      float f0;
      String formattedTargetValue;
      t=0;
-     for (i = 0; i < applicableElements.size(); i++) {  // this will be the same as the utterace modeles set
+     for (i = 0; i < applicableElements.size(); i++) {  // this will be the same as the utterace model set
        m = um.getUttModel(i);
        k = 1;
        numVoicedInModel = m.getNumVoiced();
