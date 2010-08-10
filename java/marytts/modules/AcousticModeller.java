@@ -43,6 +43,7 @@ import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 
 import marytts.modules.acoustic.Model;
+import marytts.modules.acoustic.ProsodyModel;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
@@ -166,7 +167,8 @@ public class AcousticModeller extends InternalModule {
 
         // parse the MaryXML Document to populate Lists of relevant Elements:
         parseDocument(doc);
-       
+               
+               
         // unpack elementLists from Map:
         List<Element> segments = elementLists.get("segments");
         List<Element> firstVoicedSegments = elementLists.get("firstVoicedSegments");
@@ -180,7 +182,7 @@ public class AcousticModeller extends InternalModule {
         
         // hack duration attributes:
         // IMPORTANT: this hack has to be done right after predict durations, 
-        // because the dur value is used by the HMMs.
+        // because the dur value is used by the HMMs, in case of prediction of f0.
         hackSegmentDurations(elementLists.get("segments"));
               
         if( voice.getLeftF0Model() != null )  // if cart models were defined apply these models
@@ -197,48 +199,32 @@ public class AcousticModeller extends InternalModule {
           
           System.out.println("\nApplying BoundaryModel");
           voice.getBoundaryModel().applyTo(boundaries);
-        }
+          
+        } else {  // otherwise apply hmms -- CHECK: this does not solve the problem of using either carts, HMMs or SoP for predicting f0
 
+          System.out.println("\nApplying HMMModel to predict F0");          
+          voice.getF0Model().apply(elementLists.get("segments"));  // get the segments list again because it must have already duration
+                                                                   
+        }
+       
         // apply other Models, if applicable:
         Map<String, Model> otherModels = voice.getOtherModels();
         if (!otherModels.isEmpty()) {
-            
-            // CHECK:  we need to execute the modules in the order specified in the config file
-            // for example:
-            //   duration hmmF0 prosody
-            // if prosody needs to change f0 it has to be set beforehand!
-            
-            if( otherModels.containsKey("hmmF0")){
-                Model model = models.get("hmmF0");
-                System.out.println("\nApplying HMMModel");  
-                model.apply(elementLists.get(model.getTargetElementListName()));  
-            }
-            
-            if( otherModels.containsKey("prosody") ) {
-                Model model = models.get("prosody");
-                System.out.println("\nApplying ProsodyModel");  
-                model.apply(doc); 
-            }
-            
-            
-            
-            /* CHECK: this is problematic, it can make the process random ???
-             * for (String modelName : otherModels.keySet()) {
-                Model model = models.get(modelName);
-                // CHECK: with Ingmar and Sathish 
-                if( modelName.contentEquals("prosody")){
-                  System.out.println("\nApplying ProsodyModel");  
-                  model.apply(doc); 
-                }
-                else{  // then it will be a hmm model
-                  System.out.println("\nApplying HMMModel");  
-                  model.apply(elementLists.get(model.getTargetElementListName()));
-                }
-                // remember, the Model constructor will apply the model to "segments" if the targetElementListName is null
-            }*/
-        }
-
+          for (String modelName : otherModels.keySet()) {
+             Model model = models.get(modelName);
+             model.applyTo(elementLists.get(model.getTargetElementListName()));
+             // remember, the Model constructor will apply the model to "segments" if the targetElementListName is null
+          }
+        }        
+        
+        
+        // Once prosody values are predicted apply modifications if any    
+        System.out.println("\nApplying prosody modification if any:");        
+        ProsodyModel prosody = new ProsodyModel();
+        prosody.evaluate(doc);
+        
         output.setDocument(doc);
+        
         return output;
     }
 

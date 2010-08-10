@@ -282,10 +282,6 @@ public class Voice
                 case HMM:
                     model = new HMMModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList, modelFeatureName);
                     break;
-
-                case PROSODY:
-                    model = new ProsodyModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList, modelFeatureName);
-                    break;
                     
                 } 
 
@@ -450,6 +446,10 @@ public class Voice
     public Model getDurationModel() {
         return acousticModels.get("duration");
     }
+    
+    public Model getF0Model() {
+        return acousticModels.get("F0");
+    }
 
     public Model getLeftF0Model() {
         return acousticModels.get("leftF0");
@@ -473,7 +473,7 @@ public class Voice
         Map<String, Model> otherModels = new HashMap<String, Model>();
         for (String modelName : acousticModels.keySet()) {
             // ignore critical Models that have their own getters:
-            if (!modelName.equals("duration") && !modelName.equals("leftF0") && !modelName.equals("midF0")
+            if (!modelName.equals("duration") && !modelName.equals("F0") && !modelName.equals("leftF0") && !modelName.equals("midF0")
                     && !modelName.equals("rightF0") && !modelName.equals("boundary")) {
                 otherModels.put(modelName, acousticModels.get(modelName));
             }

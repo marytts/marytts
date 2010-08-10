@@ -32,44 +32,13 @@ import org.w3c.dom.traversal.TreeWalker;
  * This module will aply prosody modifications to the already predicted values (dur and f0) in the acoustparams
  * @author Sathish
  */
-public class ProsodyModel extends Model{
+public class ProsodyModel {
     
-    public ProsodyModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-            String targetElementListName, String modelFeatureName) {
-        super(type, dataFileName, targetAttributeName, targetAttributeFormat, targetElementListName, modelFeatureName);
-    }
-
-    @Override
-    public void setFeatureComputer(TargetFeatureComputer featureComputer, FeatureProcessorManager featureProcessorManager)
-            throws MaryConfigurationException {
-        this.featureComputer = featureComputer;
-    }
-
-    @Override
-    public void loadDataFile() {
-       // this model does not need to load data 
-    }
-
-    /**
-     * Apply the CART to a Target to get its predicted value
-     */
-    @Override
-    protected float evaluate(Target target) {
-        // this model does not predict values
-        return 0.0f;
-    }
+    public ProsodyModel(){}
     
-    @Override
-    protected void evaluate(List<Element> applicableElements){}
-    /**
-     * Here the modifications are done
-     */
-
-    @Override
-    protected void evaluate(org.w3c.dom.Document doc) {
-      
-      applyProsodySpecifications(doc);
-        
+    
+    public void evaluate(org.w3c.dom.Document doc) {
+          applyProsodySpecifications(doc);
     }
     
     /**
