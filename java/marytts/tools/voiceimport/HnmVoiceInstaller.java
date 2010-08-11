@@ -354,8 +354,6 @@ public class HnmVoiceInstaller extends VoiceImportComponent{
                           "=N->N \\\n"+"=l->l \\\n"+"i->i: \\\n"+
                           "e->e: \\\n"+"u->u: \\\n"+"o->o: \n\n");       
               }
-              configOut.println("# Language-specific feature processor manager:\n"+
-                      "featuremanager.classes.list = marytts.features.FeatureProcessorManager("+locale+")\n");
               
               //unit selection classes
               configOut.println("# Java classes to use for the various unit selection components\n"+
@@ -398,9 +396,8 @@ public class HnmVoiceInstaller extends VoiceImportComponent{
               // And finally, determine how to predict acoustic features for this voice:
               configOut.println("# Modules to use for predicting acoustic target features for this voice:\n"+
                       voiceHeader+".preferredModules =  \\\n"+
-                      "    marytts.modules.CARTDurationModeller("+locale+","+voiceHeader+".duration.,marytts.features.FeatureProcessorManager("+locale+")) \\\n"+
-                      "    marytts.modules.CARTF0Modeller("+locale+","+voiceHeader+".f0.,marytts.features.FeatureProcessorManager("+locale+"))\n");
-
+                      "    marytts.modules.CARTDurationModeller("+locale+","+voiceHeader+".duration.) \\\n"+
+                      "    marytts.modules.CARTF0Modeller("+locale+","+voiceHeader+".f0.)\n");
               
         } catch (IOException e) {
             IOException myIOE = new IOException("Problem writing config file:");

@@ -317,7 +317,9 @@ public class LEDataOutputStream implements DataOutput {
 
     public final void writeFloat( float [] v, int startPos, int len) throws IOException
     {
-        assert v.length<startPos+len;
+        // this will always fire, since 0 + v.length never be > v.length!
+        // TODO remove this assert:
+        // assert v.length<startPos+len;
         
         for (int i=startPos; i<startPos+len; i++)
             writeFloat(v[i]);
