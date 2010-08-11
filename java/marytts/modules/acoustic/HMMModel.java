@@ -110,7 +110,7 @@ public class HMMModel extends Model {
        um.addUttModel(new HTSModel(cart.getNumStates()));            
        m = um.getUttModel(i);
        /* this function also sets the phone name, the phone between - and + */
-       m.setName(fv.toString(), fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));
+       m.setPhoneName(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));
        
        /* increment number of models in utterance model */
        um.setNumModel(um.getNumModel()+1);

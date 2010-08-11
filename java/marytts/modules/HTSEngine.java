@@ -59,6 +59,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Vector;
@@ -130,8 +131,6 @@ public class HTSEngine extends InternalModule
     public void setAlignDurations(Vector<PhonemeDuration> val){ alignDur = val; }
     public void setNewStateDurationFactor(double dval){ newStateDurationFactor=dval; }
     
-    
-    
      
     public HTSEngine()
     {
@@ -153,74 +152,18 @@ public class HTSEngine extends InternalModule
     }
     
     
-    /**
-     * when calling this function HMMVoice must be initialised already.
-     * that is TreeSet and ModelSet must be loaded already.
-     * @param d
-     * @return
-     * @throws Exception
-     */
-    // THIS FUNCTION IS NOT USED ANY MORE
-    public MaryData processKKKKK(MaryData d)
-    throws Exception
-    {
-        /** The utterance model, um, is a Vector (or linked list) of Model objects. 
-         * It will contain the list of models for current label file. */
-        HTSUttModel um = new HTSUttModel();
-        HTSParameterGeneration pdf2par = new HTSParameterGeneration();
-        HTSVocoder par2speech = new HTSVocoder();
-        AudioInputStream ais;
-              
-        Voice v = d.getDefaultVoice(); /* This is the way of getting a Voice through a MaryData type */
-        assert v instanceof HMMVoice;
-        HMMVoice hmmv = (HMMVoice)v;
-        
-        String context = d.getPlainText();
-        //System.out.println("TARGETFEATURES:" + context);
-              
-        /* Process label file of Mary context features and creates UttModel um */
-        processUtt(context, um, hmmv.getHMMData());
-
-        /* Process UttModel */
-        /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */  
-        boolean debug = false;  /* so it does not save the generated parameters. */
-        pdf2par.htsMaximumLikelihoodParameterGeneration(um, hmmv.getHMMData(),"", debug);
-    
-        
-        /* set parameters for generation: f0Std, f0Mean and length, default values 1.0, 0.0 and 0.0 */
-        /* These values are fixed in HMMVoice */
-        
-        /* Process generated parameters */
-        /* Synthesize speech waveform, generate speech out of sequence of parameters */
-        ais = par2speech.htsMLSAVocoder(pdf2par, hmmv.getHMMData());
-       
-        MaryData output = new MaryData(outputType(), d.getLocale());
-        if (d.getAudioFileFormat() != null) {
-            output.setAudioFileFormat(d.getAudioFileFormat());
-            if (d.getAudio() != null) {
-               // This (empty) AppendableSequenceAudioInputStream object allows a 
-               // thread reading the audio data on the other "end" to get to our data as we are producing it.
-                assert d.getAudio() instanceof AppendableSequenceAudioInputStream;
-                output.setAudio(d.getAudio());
-            }
-        }     
-       output.appendAudio(ais);
-       
-       // no need to set actual durations in this function, because this function is called just for start up
-              
-       return output;
-        
-    }
     
     /**
-     * This functions process directly the target features list and in the end set the actual durations and f0
-     * in tokensAndBoundaries
-     * @param d
-     * @param targetFeaturesList
+     * This functions process directly the target features list: targetFeaturesList
+     * when using external prosody, duration and f0 are read from acoustparams: segmentsAndBoundaries
+     * realised durations and f0 are set in: tokensAndBoundaries
+     * when calling this function HMMVoice must be initialised already, that is TreeSet and ModelSet must be loaded already.
+     * @param d : to get the default voice and locale
+     * @param targetFeaturesList : 
      * @param tokensAndBoundaries
      * @return
      * @throws Exception
-     */
+     */        
     public MaryData process(MaryData d, List<Target> targetFeaturesList, List<Element> segmentsAndBoundaries, List<Element> tokensAndBoundaries)
     throws Exception
     {
@@ -265,11 +208,8 @@ public class HTSEngine extends InternalModule
             }
         }     
        output.appendAudio(ais);
-       
-       /* include correct durations in MaryData output */
-       //output.setPlainText(um.getRealisedAcoustParams());
-              
-       // maybe here we need to re-think how to set the actualDurations in segmentsAndBoundaries
+                     
+       // set the actualDurations in tokensAndBoundaries
        if(tokensAndBoundaries != null)
        setRealisedProsody(tokensAndBoundaries, um);
               
@@ -287,9 +227,8 @@ public class HTSEngine extends InternalModule
       float totalDur = 0f; // total duration, in seconds 
       HTSModel m;
       
-      int numModel=1;  // CHECK: model 0 is "_" and it is not in tokensandBoundaries ???
-      
-      
+      int numModel=1;  // CHECK: model 0 is "_", but ther is no sil/pause at the beginning of tokensandBoundaries ???
+            
       for (Element e : tokensAndBoundaries) {
        //System.out.println("TAG: " + e.getTagName());
        if( e.getTagName().equals(MaryXML.TOKEN) ) {
@@ -297,108 +236,38 @@ public class HTSEngine extends InternalModule
            Element phone;
            while ((phone = (Element) nIt.nextNode()) != null) {                        
                String p = phone.getAttribute("p");
-               
-               
-               //index = ph.indexOf(p);
-               //int currentDur = dur.elementAt(index);
                m = um.getUttModel(numModel++);
-               //System.out.println("realised p=" + p + "  phoneName=" + m.getPhoneName());
-               
-               int currentDur = m.getTotalDurMillisec();
-               
+               //System.out.println("realised p=" + p + "  phoneName=" + m.getPhoneName());               
+               int currentDur = m.getTotalDurMillisec();               
                totalDur += currentDur * 0.001f;
                phone.setAttribute("d", String.valueOf(currentDur));
-               phone.setAttribute("end", String.valueOf(totalDur));
-               
+               phone.setAttribute("end", String.valueOf(totalDur));               
            }
        } else if( e.getTagName().contentEquals(MaryXML.BOUNDARY) ) {
            int breakindex = 0;
            try {
                breakindex = Integer.parseInt(e.getAttribute("breakindex"));
-           } catch (NumberFormatException nfe) {
-               
-           }
-           
-           if(e.hasAttribute("duration") || breakindex >= 3) {
-               
+           } catch (NumberFormatException nfe) {              
+           }           
+           if(e.hasAttribute("duration") || breakindex >= 3) {              
              m = um.getUttModel(numModel++);
              if(m.getPhoneName().contentEquals("_")){
                int currentDur = m.getTotalDurMillisec();
                //index = ph.indexOf("_");  
                totalDur += currentDur * 0.001f;
                e.setAttribute("duration", String.valueOf(currentDur));
-             }
-             
-             
+             }                         
            }
        } // else ignore whatever other label...     
       }     
     }
     
-    
-    
-    public void setActualDurations(List<Element> tokensAndBoundaries, String durations) 
-    throws SynthesisException {
-      int i,j, index;
-      NodeList no1, no2;
-      NamedNodeMap att;
-      Scanner s = null;
-      Vector<String> ph = new Vector<String>();
-      Vector<Integer> dur = new Vector<Integer>(); // individual durations, in millis
-      String line, str[];
-      float totalDur = 0f; // total duration, in seconds 
-
-      s = new Scanner(durations).useDelimiter("\n");
-      while(s.hasNext()) {
-        line = s.next();
-        str = line.split(" ");
-        //--- not needed ph.add(PhoneTranslator.replaceBackTrickyPhones(str[0]));
-        ph.add(str[0]);
-        dur.add(Integer.valueOf(str[1]));
-      }
-      /* the duration of the first phone includes the duration of the initial pause */
-      if(dur.size() > 1 && ph.get(0).contentEquals("_")) {
-        dur.set(1, (dur.get(1) + dur.get(0)) );
-        ph.set(0, "");
-        /* remove this element of the vector otherwise next time it will return the same */
-        ph.set(0, "");
-      }
-    
-
+    public void processUttFromFile(String feaFile, HTSUttModel um, HMMData htsData) throws Exception{
+        
+      List<Target> targetFeaturesList = getTargetsFromFile(feaFile, htsData);
+      processTargetList(targetFeaturesList, null, um, htsData);
       
-      for (Element e : tokensAndBoundaries) {
-                  
-       //System.out.println("TAG: " + e.getTagName());
-       if( e.getTagName().equals(MaryXML.TOKEN) ) {
-           NodeIterator nIt = MaryDomUtils.createNodeIterator(e, MaryXML.PHONE);
-           Element phone;
-           while ((phone = (Element) nIt.nextNode()) != null) {
-               String p = phone.getAttribute("p");
-               index = ph.indexOf(p);
-               int currentDur = dur.elementAt(index);
-               totalDur += currentDur * 0.001f;
-               phone.setAttribute("d", String.valueOf(currentDur));
-               phone.setAttribute("end", String.valueOf(totalDur));
-               // remove this element of the vector otherwise next time it will return the same
-               ph.set(index, "");
-           }
-       } else if( e.getTagName().contentEquals(MaryXML.BOUNDARY) ) {
-           int breakindex = 0;
-           try {
-               breakindex = Integer.parseInt(e.getAttribute("breakindex"));
-           } catch (NumberFormatException nfe) {}
-           if(e.hasAttribute("duration") || breakindex >= 3) {
-             index = ph.indexOf("_");  
-             int currentDur = dur.elementAt(index);
-             totalDur += currentDur * 0.001f;
-             e.setAttribute("duration", String.valueOf(currentDur));   
-             // remove this element of the vector otherwise next time it will return the same
-             ph.set(index, "");
-           }
-       } // else ignore whatever other label...     
-      }     
     }
-
    
     /* For stand alone testing. */
     public AudioInputStream processStr(String context, HMMData htsData)
@@ -420,7 +289,9 @@ public class HTSEngine extends InternalModule
         //loggerHts.info("TARGETFEATURES:" + context);
         
         /* Process label file of Mary context features and creates UttModel um */
-        processUtt(context, um, htsData);
+        List<Target> targetFeaturesList = getTargetsFromText(context, htsData);
+        processTargetList(targetFeaturesList, null, um, htsData);
+        //processUtt(context, um, htsData);
 
         /* Process UttModel */
         /* Generate sequence of speech parameter vectors, generate parameters out of sequence of pdf's */ 
@@ -438,48 +309,86 @@ public class HTSEngine extends InternalModule
  
     
     /** Reads the Label file, the file which contains the Mary context features,
-     *  creates an scanner object and calls _ProcessUtt
+     *  creates an scanner object and calls getTargets
      * @param LabFile
      */
-    public void processUttFromFile(String LabFile, HTSUttModel um, HMMData htsData) throws Exception { 
+    public List<Target> getTargetsFromFile(String LabFile, HMMData htsData) throws Exception {
+        List<Target> targets=null;
         Scanner s = null;
         try {    
             /* parse text in label file */
             s = new Scanner(new BufferedReader(new FileReader(LabFile)));
-            _processUtt(s,um,htsData,htsData.getCartTreeSet());
+            targets = getTargets(s, htsData);
               
         } catch (FileNotFoundException e) {
-            System.err.println("FileNotFoundException: " + e.getMessage());
-            
+            System.err.println("FileNotFoundException: " + e.getMessage());           
         } finally {
             if (s != null)
                 s.close();
         }           
+        return targets;
     }
     
     /** Creates a scanner object with the Mary context features contained in Labtext
-     * and calls _ProcessUtt
+     * and calls getTargets
      * @param LabText
      */
-    public void processUtt(String LabText, HTSUttModel um, HMMData htsData) throws Exception {
+    public List<Target> getTargetsFromText(String LabText, HMMData htsData) throws Exception {
+        List<Target> targets;
         Scanner s = null;
         try {
           s = new Scanner(LabText);
-         _processUtt(s, um, htsData, htsData.getCartTreeSet());
+          targets = getTargets(s, htsData);
         } finally {
             if (s != null)
               s.close();
         }   
+        return targets;
     }
     
-
+    
+    public List<Target> getTargets(Scanner s, HMMData htsData){
+        int i;
+        //Scanner s = null;
+        String nextLine;
+        FeatureDefinition feaDef = htsData.getFeatureDefinition();
+        List<Target> targets = new ArrayList<Target>();
+        FeatureVector fv;
+        Target t;
+        /* Skip mary context features definition */
+        while (s.hasNext()) {
+          nextLine = s.nextLine(); 
+          if (nextLine.trim().equals("")) break;
+        }
+        /* skip until byte values */
+        int numLines=0;
+        while (s.hasNext()) {
+          nextLine = s.nextLine();          
+          if (nextLine.trim().equals("")) break;
+          numLines++;
+        }
+        /* get feature vectors from byte values  */
+        i=0;
+        while (s.hasNext()) {
+          nextLine = s.nextLine();
+          //System.out.println("STR: " + nextLine);                   
+          fv = feaDef.toFeatureVector(0, nextLine);
+          t = new Target(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef), null);
+          t.setFeatureVector(fv);              
+          targets.add(t);              
+        }                
+        return targets;
+    }
+    
+    
     
     /** Parse Mary context features. 
      * For each triphone model in the file, it creates a Model object in a linked list of 
      * Model objects -> UttModel um 
      * It also estimates state duration from state duration model (Gaussian).
      * For each model in the vector, the mean and variance of the DUR, LF0, MCP, STR and MAG 
-     * are searched in the ModelSet and copied in each triphone model.   */
+     * are searched in the ModelSet and copied in each triphone model.   
+     * @deprecated*/    
     private void _processUtt(Scanner s, HTSUttModel um, HMMData htsData, CartTreeSet cart)
       throws Exception {     
         int i, mstate,frame, k, statesDuration, newStateDuration;
@@ -539,7 +448,7 @@ public class HTSEngine extends InternalModule
             um.addUttModel(new HTSModel(cart.getNumStates()));            
             m = um.getUttModel(i);
             /* this function also sets the phone name, the phone between - and + */
-            m.setName(fv.toString(), fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));
+            m.setPhoneName(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));
             
             /*
             System.out.println("context: " + fv.getFeatureAsString(feaDef.getFeatureIndex("prev_prev_phone"), feaDef) + 
@@ -675,13 +584,21 @@ public class HTSEngine extends InternalModule
         
     } /* method _ProcessUtt */
 
-    
+    /***
+     * Process feature vectors in target list to generate a list of models for generation and realisation
+     * @param targetFeaturesList : each target must contain the corresponding feature vector
+     * @param segmentsAndBoundaries : if applying external prosody provide acoust params as a list of elements
+     * @param um : as a result of this process a utterance model list is created for generation and then realisation
+     * @param htsData : parameters and configuration of the voice
+     * @throws Exception
+     */
     private void processTargetList(List<Target> targetFeaturesList, List<Element> segmentsAndBoundaries, HTSUttModel um, HMMData htsData)
     throws Exception {          
       int i, mstate,frame, k, statesDuration, newStateDuration;
       HTSModel m;
       CartTreeSet cart = htsData.getCartTreeSet();
-      
+      realisedDurations = "#\n";
+      Integer numLab=0;
       double diffdurOld = 0.0;
       double diffdurNew = 0.0;
       double mean = 0.0;
@@ -709,20 +626,17 @@ public class HTSEngine extends InternalModule
       // process feature vectors in targetFeatureList
       i=0;
       for (Target target : targetFeaturesList) {
-          
-          Element e = segmentsAndBoundaries.get(i);
-          
+                    
           fv = target.getFeatureVector();  //feaDef.toFeatureVector(0, nextLine);
           um.addUttModel(new HTSModel(cart.getNumStates()));            
           m = um.getUttModel(i);
-          /* this function also sets the phone name, the phone between - and + */
-          m.setName(fv.toString(), fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));
-  
+          m.setPhoneName(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));  
           //System.out.println("phone=" + m.getPhoneName());
  
           // get the duration and f0 values from the acoustparams = segmentsAndBoundaries
           // if i can get these values from continuous features could be a lot better!!!!
-          if( phoneAlignmentForDurations) {
+          if( phoneAlignmentForDurations && segmentsAndBoundaries != null) {
+            Element e = segmentsAndBoundaries.get(i);
             String str = e.getAttribute("d");
             if(str.length() > 0){
              durVal = Float.parseFloat(str);  
@@ -765,13 +679,14 @@ public class HTSEngine extends InternalModule
           }
 
           um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
-          //System.out.println("  model TotalDur=" + m.getTotalDur() + "  TotalDurMilisec=" + (fperiodmillisec * m.getTotalDur()));
+          System.out.println("  model=" + m.getPhoneName() + "   TotalDurFrames=" + m.getTotalDur() + "  TotalDurMilisec=" + (fperiodmillisec * m.getTotalDur()));
                   
           // Set realised durations 
           m.setTotalDurMillisec((int)(fperiodmillisec * m.getTotalDur()));               
                     
           durSec = um.getTotalFrame() * fperiodsec;
-
+          realisedDurations += durSec.toString() +  " " + numLab.toString() + " " + m.getPhoneName() + "\n";
+          numLab++;
           diffdurOld = diffdurNew;  // to calculate the duration of next phoneme
           
           /* Find pdf for LF0, this function sets the pdf for each state. 

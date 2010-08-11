@@ -225,7 +225,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                  in.setDefaultVoice(v);
                  assert v instanceof HMMVoice : "Expected voice to be a HMMVoice, but it is a " + v.getClass().toString();
                  
-                 //-- Here it is set the targetFeatureComputer for this voice
+                 //-- Here it is set the targetFeatureComputer for this voice                
                  String features = ((HMMVoice)v).getHMMData().getFeatureDefinition().getFeatureNames();
                  TargetFeatureComputer comp = FeatureRegistry.getTargetFeatureComputer(v, features);
                 
@@ -293,6 +293,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
         
             //-- This can be done just once when powerOnSelfTest() of this voice
             //-- mmmmmm it did not work, it takes the comp from the default voice
+            //-- CHECK: do we need to do this for every call???
             String features = ((HMMVoice)voice).getHMMData().getFeatureDefinition().getFeatureNames();
             TargetFeatureComputer comp = FeatureRegistry.getTargetFeatureComputer(voice, features);
               
