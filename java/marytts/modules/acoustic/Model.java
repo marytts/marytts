@@ -58,7 +58,7 @@ public abstract class Model {
 
     protected TargetFeatureComputer featureComputer;
     
-    double diffDuration; // used in HMM duration calculation
+    protected double diffDuration; // used in HMM duration calculation
 
     /**
      * Model constructor
@@ -120,10 +120,7 @@ public abstract class Model {
     }    
     public void apply(List<Element> elements) {
         evaluate(elements);
-    }
-    public void apply(Document doc) {
-        evaluate(doc);
-    }
+    }   
 
     /**
      * Apply this Model to a List of Elements, predicting from a different List of Elements
@@ -199,13 +196,9 @@ public abstract class Model {
     protected abstract float evaluate(Target target);
 
     // CHECK: with Ingmar
-    // this method will be used for HMM models and other like prosody that process all the data at once
-    // for predicting F0 from HMMs it is needed the whole sequence
+    // this method will be used for HMM models because for predicting F0 it is needed the whole sequence
     protected abstract void evaluate(List<Element> applicableElements);
-    // CHECK: with Ingmar and Sathish    
-    // prosody model needs access to the whole document, not sure if this can be handle in a different way ???
-    protected abstract void evaluate(Document doc);
-
+ 
     /**
      * @return the targetElementListName
      */

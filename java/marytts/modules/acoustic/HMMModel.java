@@ -46,8 +46,6 @@ public class HMMModel extends Model {
         }
     }
     
-    
-    protected void evaluate(org.w3c.dom.Document doc){}
 
     /**
      * Apply the CART to a Target to get its predicted value

@@ -124,7 +124,5 @@ public class SoPModel extends Model {
     @Override
     protected void evaluate(List<Element> applicableElements){ }
     
-    @Override
-    protected void evaluate(org.w3c.dom.Document doc){ }
     
 }
