@@ -1,6 +1,7 @@
 package marytts.modules;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -62,7 +63,7 @@ import marytts.modules.synthesis.HMMSynthesizer;
  *   marytts.modules.HMMDurationF0Modeller(local,hmmVoice)
  *
  * @author marcela
- *
+ * @deprecated
  */
 public class HMMDurationF0Modeller extends InternalModule
 {
@@ -165,6 +166,9 @@ public class HMMDurationF0Modeller extends InternalModule
     }
     
     // processing 'prosody' tags
+    ByteArrayOutputStream dummy = new ByteArrayOutputStream();
+    d.writeTo(dummy);
+    
     applyProsodySpecifications(doc);
     
     // the result is already in d
@@ -677,7 +681,7 @@ public class HMMDurationF0Modeller extends InternalModule
           um.addUttModel(new HTSModel(cart.getNumStates()));            
           m = um.getUttModel(i);
           /* this function also sets the phone name, the phone between - and + */
-          m.setName(fv.toString(), fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));
+          m.setPhoneName(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));
           
           if(!(s.hasNext()) )
             lastPh = true;

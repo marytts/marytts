@@ -95,14 +95,6 @@ public class HTSModel {
   private Float unit_logF0delta;    /* external lf0 delta value from ContinuousFeatureProcessors */
   private double[] unit_logF0Array;     /* external f0 from acoustparams, it can contain more than three values */
   
-  /** This function also sets the phoneName */
-  public void setName(String var, String aPhoneName)
-  { 
-      // name = var;  not used remove?
-      phoneName = aPhoneName;
-  }
-  //public String getName(){return name;}
-  
   public void setPhoneName(String var){ phoneName = var; }
   public String getPhoneName(){return phoneName;}
   
