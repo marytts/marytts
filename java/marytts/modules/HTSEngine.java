@@ -679,7 +679,7 @@ public class HTSEngine extends InternalModule
           }
 
           um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
-          System.out.println("  model=" + m.getPhoneName() + "   TotalDurFrames=" + m.getTotalDur() + "  TotalDurMilisec=" + (fperiodmillisec * m.getTotalDur()));
+          //System.out.println("  model=" + m.getPhoneName() + "   TotalDurFrames=" + m.getTotalDur() + "  TotalDurMilisec=" + (fperiodmillisec * m.getTotalDur()));
                   
           // Set realised durations 
           m.setTotalDurMillisec((int)(fperiodmillisec * m.getTotalDur()));               
