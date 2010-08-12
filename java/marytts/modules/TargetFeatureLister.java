@@ -157,14 +157,6 @@ public class TargetFeatureLister extends InternalModule
     public static List<Target> createTargetsWithPauses(List<Element> segmentsAndBoundaries, String silenceSymbol) {
         List<Target> targets = new ArrayList<Target>();
         if (segmentsAndBoundaries.size() == 0) return targets;
-        Element first = segmentsAndBoundaries.get(0);
-        if (!first.getTagName().equals(MaryXML.BOUNDARY)) {
-            Element initialPause = MaryXML.createElement(first.getOwnerDocument(), MaryXML.BOUNDARY);
-            Element token = (Element) MaryDomUtils.getAncestor(first, MaryXML.TOKEN);
-            Element parent = (Element) token.getParentNode();
-            parent.insertBefore(initialPause, token);
-            segmentsAndBoundaries.add(0, initialPause);
-        }
         Element last = segmentsAndBoundaries.get(segmentsAndBoundaries.size()-1);
         if (!last.getTagName().equals(MaryXML.BOUNDARY)) {
             Element finalPause = MaryXML.createElement(last.getOwnerDocument(), MaryXML.BOUNDARY);
