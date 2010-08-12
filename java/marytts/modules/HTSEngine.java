@@ -227,7 +227,7 @@ public class HTSEngine extends InternalModule
       float totalDur = 0f; // total duration, in seconds 
       HTSModel m;
       
-      int numModel=1;  // CHECK: model 0 is "_", but ther is no sil/pause at the beginning of tokensandBoundaries ???
+        int numModel = 0;
             
       for (Element e : tokensAndBoundaries) {
        //System.out.println("TAG: " + e.getTagName());
