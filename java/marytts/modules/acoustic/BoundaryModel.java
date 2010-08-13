@@ -36,8 +36,8 @@ import org.w3c.dom.Element;
  */
 public class BoundaryModel extends Model {
     public BoundaryModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-            String targetElementListName) {
-        super(type, dataFileName, targetAttributeName, targetAttributeFormat, targetElementListName, null);
+            String featureName, String predictFrom, String applyTo) {
+        super(type, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
     }
 
     @Override
@@ -56,8 +56,6 @@ public class BoundaryModel extends Model {
     protected float evaluate(Target target) {
         return Float.NaN;
     }
-    
-    protected void evaluate(List<Element> applicableElements, List<Target> predictorTargets){ }
 
     /**
      * For boundaries, this does nothing;
@@ -66,9 +64,4 @@ public class BoundaryModel extends Model {
     public void loadDataFile() {
         return;
     }
-    
-    @Override
-    protected void evaluate(List<Element> applicableElements){ }
-    
-    
 }

@@ -37,7 +37,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Base class for acoustic modelling; specific Models should extend this and override methods as needed.
+ * Base class for acoustic modeling; specific Models should extend this and override methods as needed.
  * 
  * @author steiner
  * 
@@ -52,13 +52,13 @@ public abstract class Model {
 
     protected String targetAttributeFormat;
 
-    protected String targetElementListName;
-
     protected String featureName;
 
     protected TargetFeatureComputer featureComputer;
-    
-    protected double diffDuration; // used in HMM duration calculation
+
+    protected String predictFrom;
+
+    protected String applyTo;
 
     /**
      * Model constructor
@@ -70,12 +70,17 @@ public abstract class Model {
      * @param targetAttributeName
      *            attribute in MaryXML to predict
      * @param targetAttributeFormat
-     *            printf-style format String to specify the attribute value, i.e. "%.3f" to round to 3 decimal places
+     *            printf-style format String to specify the attribute value, i.e. "%.3f" to round to 3 decimal places; "%s" by
+     *            default
      * @param featureName
      *            name of custom continuous feature, or null
+     * @param predictFrom
+     *            key of Element Lists from which to predict values; "segments" by default
+     * @param applyTo
+     *            key of Element Lists to which to apply values; "segments" by default
      */
     protected Model(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-            String targetElementListName, String featureName) {
+            String featureName, String predictFrom, String applyTo) {
         this.type = type;
         this.dataFile = dataFileName;
         this.targetAttributeName = targetAttributeName;
@@ -83,11 +88,15 @@ public abstract class Model {
             targetAttributeFormat = "%s";
         }
         this.targetAttributeFormat = targetAttributeFormat;
-        if (targetElementListName == null) {
-            targetElementListName = "segments";
-        }
-        this.targetElementListName = targetElementListName;
         this.featureName = featureName;
+        if (predictFrom == null) {
+            predictFrom = "segments";
+        }
+        this.predictFrom = predictFrom;
+        if (applyTo == null) {
+            applyTo = "segments";
+        }
+        this.applyTo = applyTo;
     }
 
     /**
@@ -106,7 +115,7 @@ public abstract class Model {
     }
 
     /**
-     * Load datafile for this model; only extension classes know how to do this
+     * Load dataFile for this model; only extension classes know how to do this
      */
     public abstract void loadDataFile();
 
@@ -116,52 +125,46 @@ public abstract class Model {
      * @param elements
      */
     public void applyTo(List<Element> elements) {
-        applyTo(elements, elements);
-    }    
-    public void apply(List<Element> elements) {
-        evaluate(elements);
-    }   
+        applyFromTo(elements, elements);
+    }
 
     /**
      * Apply this Model to a List of Elements, predicting from a different List of Elements
      * 
-     * @param applicableElements
+     * @param applyToElements
      *            Elements to which to apply the values predicted by this Model
-     * @param predictorElements
+     * @param predictFromElements
      *            Elements from which to predict the values
      */
-    public void applyTo(List<Element> applicableElements, List<Element> predictorElements) {
-        assert applicableElements.size() == predictorElements.size();
+    public void applyFromTo(List<Element> predictFromElements, List<Element> applyToElements) {
+        assert predictFromElements.size() == applyToElements.size();
 
-        List<Target> predictorTargets = getTargets(predictorElements);
- 
-        diffDuration = 0.0; // this value is needed for hmm duration
-        for (int i = 0; i < applicableElements.size(); i++) {           
-          Target target = predictorTargets.get(i);
-                  
-          float targetValue = (float) evaluate(target);
-          
-          Element element = applicableElements.get(i);
-          
-          //System.out.println(element.getNodeName() + "  " + element.getAttribute("p") + "  targetValue="+ targetValue);
+        List<Target> predictFromTargets = getTargets(predictFromElements);
 
-          // "evaulate" pseudo XPath syntax:
-          // TODO this needs to be extended to take into account targetAttributeNames like "foo/@bar", which would add the
-          // bar attribute to the foo child of this element, creating the child if not already present...
-          if (targetAttributeName.startsWith("@")) {
-              targetAttributeName = targetAttributeName.replaceFirst("@", "");
-          }
+        for (int i = 0; i < applyToElements.size(); i++) {
+            Target target = predictFromTargets.get(i);
 
-          // format targetValue according to targetAttributeFormat
-          String formattedTargetValue = String.format(targetAttributeFormat, targetValue);
-          // if the attribute already exists for this element, append targetValue:
-          if (element.hasAttribute(targetAttributeName)) {
-              formattedTargetValue = element.getAttribute(targetAttributeName) + " " + formattedTargetValue;
-          }
+            float targetValue = (float) evaluate(target);
 
-          // set the new attribute value:
-          element.setAttribute(targetAttributeName, formattedTargetValue);
-        }        
+            Element element = applyToElements.get(i);
+
+            // "evaluate" pseudo XPath syntax:
+            // TODO this needs to be extended to take into account targetAttributeNames like "foo/@bar", which would add the
+            // bar attribute to the foo child of this element, creating the child if not already present...
+            if (targetAttributeName.startsWith("@")) {
+                targetAttributeName = targetAttributeName.replaceFirst("@", "");
+            }
+
+            // format targetValue according to targetAttributeFormat
+            String formattedTargetValue = String.format(targetAttributeFormat, targetValue);
+            // if the attribute already exists for this element, append targetValue:
+            if (element.hasAttribute(targetAttributeName)) {
+                formattedTargetValue = element.getAttribute(targetAttributeName) + " " + formattedTargetValue;
+            }
+
+            // set the new attribute value:
+            element.setAttribute(targetAttributeName, formattedTargetValue);
+        }
     }
 
     /**
@@ -192,19 +195,11 @@ public abstract class Model {
      * Evaluate model on a Target to obtain the target value as a float.
      * 
      * @param target
+     * @return target value
      */
     protected abstract float evaluate(Target target);
 
-    // CHECK: with Ingmar
-    // this method will be used for HMM models because for predicting F0 it is needed the whole sequence
-    protected abstract void evaluate(List<Element> applicableElements);
- 
-    /**
-     * @return the targetElementListName
-     */
-    public String getTargetElementListName() {
-        return targetElementListName;
-    }
+    // several getters:
 
     /**
      * @return the featureName
@@ -220,4 +215,17 @@ public abstract class Model {
         return targetAttributeName;
     }
 
+    /**
+     * @return the key of Element Lists from which to predict with this Model
+     */
+    public String getPredictFrom() {
+        return predictFrom;
+    }
+
+    /**
+     * @return the key of Element Lists to which to apply this Model
+     */
+    public String getApplyTo() {
+        return applyTo;
+    }
 }

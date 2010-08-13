@@ -23,8 +23,6 @@ package marytts.modules.acoustic;
 import java.io.File;
 import java.util.List;
 
-import javax.swing.text.Document;
-
 import org.w3c.dom.Element;
 
 import marytts.cart.DirectedGraph;
@@ -46,8 +44,8 @@ public class CARTModel extends Model {
     private DirectedGraph cart;
 
     public CARTModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-            String targetElementListName, String modelFeatureName) {
-        super(type, dataFileName, targetAttributeName, targetAttributeFormat, targetElementListName, modelFeatureName);
+            String featureName, String predictFrom, String applyTo) {
+        super(type, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
     }
 
     @Override
@@ -87,9 +85,4 @@ public class CARTModel extends Model {
         float value = result[1]; // assuming result is [stdev, val]
         return value;
     }
-    
-    @Override
-    protected void evaluate(List<Element> applicableElements){ }
-    
-    
 }

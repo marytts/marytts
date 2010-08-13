@@ -38,10 +38,10 @@ import org.w3c.dom.traversal.TreeWalker;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 
+import marytts.modules.acoustic.HMMModel;
 import marytts.modules.acoustic.Model;
 import marytts.modules.acoustic.ProsodyModel;
 import marytts.modules.phonemiser.Allophone;
@@ -167,64 +167,55 @@ public class AcousticModeller extends InternalModule {
 
         // parse the MaryXML Document to populate Lists of relevant Elements:
         parseDocument(doc);
-               
-               
+
         // unpack elementLists from Map:
-        List<Element> segments = elementLists.get("segments");
-        List<Element> firstVoicedSegments = elementLists.get("firstVoicedSegments");
-        List<Element> firstVowels = elementLists.get("firstVowels");
-        List<Element> lastVoicedSegments = elementLists.get("lastVoicedSegments");
-        List<Element> boundaries = elementLists.get("boundaries");
+        // these are no longer needed because the Models now have predictFrom and applyTo information, which default to "segments"
+        // List<Element> segments = elementLists.get("segments");
+        // List<Element> firstVoicedSegments = elementLists.get("firstVoicedSegments");
+        // List<Element> firstVowels = elementLists.get("firstVowels");
+        // List<Element> lastVoicedSegments = elementLists.get("lastVoicedSegments");
+        // List<Element> boundaries = elementLists.get("boundaries");
+        // TODO remove these
 
         // apply critical Models to Elements:
-        System.out.println("\nApplying DurationModel");
-        voice.getDurationModel().applyTo(segments);
-        
-        // hack duration attributes:
-        // IMPORTANT: this hack has to be done right after predict durations, 
-        // because the dur value is used by the HMMs, in case of prediction of f0.
-        hackSegmentDurations(elementLists.get("segments"));
-              
-        if( voice.getLeftF0Model() != null )  // if cart models were defined apply these models
-        {
-          // voice.getLeftF0 ... will return null if not defined
-          System.out.println("\nApplying LeftF0Model");
-          voice.getLeftF0Model().applyTo(firstVoicedSegments, firstVowels);
-        
-          System.out.println("\nApplying MidF0Model");
-          voice.getMidF0Model().applyTo(firstVowels);
-       
-          System.out.println("\nApplying RightF0Model");
-          voice.getRightF0Model().applyTo(lastVoicedSegments, firstVowels);
-          
-          System.out.println("\nApplying BoundaryModel");
-          voice.getBoundaryModel().applyTo(boundaries);
-          
-        } else {  // otherwise apply hmms -- CHECK: this does not solve the problem of using either carts, HMMs or SoP for predicting f0
+        Model durationModel = voice.getDurationModel();
+        durationModel.applyTo(elementLists.get(durationModel.getApplyTo()));
 
-          System.out.println("\nApplying HMMModel to predict F0");          
-          voice.getF0Model().apply(elementLists.get("segments"));  // get the segments list again because it must have already duration
-                                                                   
+        // hack duration attributes:
+        // IMPORTANT: this hack has to be done right after predict durations,
+        // because the dur value is used by the HMMs, in case of prediction of f0.
+        hackSegmentDurations(elementLists.get(durationModel.getApplyTo()));
+
+        // TODO this should be reduced further to the point where any HMM-specific stuff is handled opaquely within HMMModel
+        // finally we can then pass elementLists into Model.apply and the Model will know which Element Lists to process
+        Model f0Model = voice.getF0Model();
+        if (f0Model instanceof HMMModel) {
+            ((HMMModel) f0Model).evaluate(elementLists.get(f0Model.getApplyTo()));
+        } else {
+            f0Model.applyFromTo(elementLists.get(f0Model.getPredictFrom()), elementLists.get(f0Model.getApplyTo()));
         }
-       
+        voice.getBoundaryModel().applyTo(elementLists.get(voice.getBoundaryModel().getApplyTo()));
+
         // apply other Models, if applicable:
         Map<String, Model> otherModels = voice.getOtherModels();
         if (!otherModels.isEmpty()) {
-          for (String modelName : otherModels.keySet()) {
-             Model model = models.get(modelName);
-             model.applyTo(elementLists.get(model.getTargetElementListName()));
-             // remember, the Model constructor will apply the model to "segments" if the targetElementListName is null
-          }
-        }        
-        
-        
-        // Once prosody values are predicted apply modifications if any    
-        System.out.println("\nApplying prosody modification if any:");        
+            for (String modelName : otherModels.keySet()) {
+                Model model = models.get(modelName);
+                List<Element> predictFromElements = elementLists.get(model.getPredictFrom());
+                List<Element> applyToElements = elementLists.get(model.getApplyTo());
+                // TODO handle cases where wrong config causes these to be null
+                // remember, the Model constructor will predict from, and apply the model to, "segments" by default
+                model.applyFromTo(predictFromElements, applyToElements);
+            }
+        }
+
+        // Once prosody values are predicted apply modifications if any
+        System.out.println("\nApplying prosody modification if any:");
         ProsodyModel prosody = new ProsodyModel();
         prosody.evaluate(doc);
-        
+
         output.setDocument(doc);
-        
+
         return output;
     }
 

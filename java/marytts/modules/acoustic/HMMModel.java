@@ -3,8 +3,6 @@ package marytts.modules.acoustic;
 import java.io.File;
 import java.util.List;
 
-import javax.swing.text.Document;
-
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
@@ -25,10 +23,11 @@ public class HMMModel extends Model {
     private CartTreeSet cart;    
     private float fperiodsec;
     protected static Logger logger = Logger.getLogger("HMMModel");    
+    protected double diffDuration;
     
     public HMMModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-            String targetElementListName, String modelFeatureName) {
-        super(type, dataFileName, targetAttributeName, targetAttributeFormat, targetElementListName, modelFeatureName);
+            String featureName, String predictFrom, String applyTo) {
+        super(type, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
     }
     
     @Override
@@ -46,6 +45,11 @@ public class HMMModel extends Model {
         }
     }
     
+    @Override
+    public void applyFromTo(List<Element> predictFromElements, List<Element> applyToElements) {
+        diffDuration = 0.0; // this value is needed for hmm duration
+        super.applyFromTo(predictFromElements, applyToElements);
+    }
 
     /**
      * Apply the CART to a Target to get its predicted value
@@ -76,11 +80,7 @@ public class HMMModel extends Model {
     /**
      * Apply the CART to a all targets to get predicted values 
      */
-    @Override
-    // For predicting f0 it is needed the whole sequence at once
-    // this function requires that duration is already set on the acoust params, if not then it will 
-    // generate duration from HMMs
-    protected void evaluate(List<Element> applicableElements) {
+    public void evaluate(List<Element> applicableElements) {
 
      List<Element> predictorElements = applicableElements;        
      List<Target> predictorTargets = getTargets(predictorElements);       
@@ -147,7 +147,7 @@ public class HMMModel extends Model {
        
          
        /* Find pdf for LF0, this function sets the pdf for each state. 
-        * and determines, acording to the HMM models, whether the states are voiced or unvoiced, (it can be possible that some states are voiced
+        * and determines, according to the HMM models, whether the states are voiced or unvoiced, (it can be possible that some states are voiced
         * and some unvoiced).*/ 
        cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());                       
      } 
@@ -193,7 +193,7 @@ public class HMMModel extends Model {
      float f0;
      String formattedTargetValue;
      t=0;
-     for (i = 0; i < applicableElements.size(); i++) {  // this will be the same as the utterace model set
+     for (i = 0; i < applicableElements.size(); i++) {  // this will be the same as the utterance model set
        m = um.getUttModel(i);
        k = 1;
        numVoicedInModel = m.getNumVoiced();
@@ -211,7 +211,7 @@ public class HMMModel extends Model {
          }
        }       
        Element element = applicableElements.get(i);        
-       // "evaulate" pseudo XPath syntax:
+       // "evaluate" pseudo XPath syntax:
        // TODO this needs to be extended to take into account targetAttributeNames like "foo/@bar", which would add the
        // bar attribute to the foo child of this element, creating the child if not already present...
        if (targetAttributeName.startsWith("@")) {
@@ -220,10 +220,6 @@ public class HMMModel extends Model {
 
        // format targetValue according to targetAttributeFormat
        //String formattedTargetValue = String.format(targetAttributeFormat, targetValue);
-       // if the attribute already exists for this element, append targetValue:
-       if (element.hasAttribute(targetAttributeName)) {
-         formattedTargetValue = element.getAttribute(targetAttributeName) + " " + formattedTargetValue;
-       }
 
        // set the new attribute value:
        // if the whole segment is unvoiced then f0 should not be fixed?
