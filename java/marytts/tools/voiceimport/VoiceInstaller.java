@@ -411,26 +411,32 @@ public class VoiceInstaller extends VoiceImportComponent{
                   // TODO this is currently hard-coded for CARTs; the various voice installer components should probably be unified...
                   configOut.println("# Modules to use for predicting acoustic target features for this voice:");
                   configOut.println();
-                  configOut.println(voiceHeader + ".acousticModels = duration leftF0 midF0 rightF0");
+                  configOut.println(voiceHeader + ".acousticModels = duration F0 midF0 rightF0");
                   configOut.println();
                   configOut.println(voiceHeader + ".duration.model = cart");
                   configOut.println(voiceHeader + ".duration.data = MARY_BASE/lib/voices/" + voicename + "/" + getProp(DURTREE));
                   configOut.println(voiceHeader + ".duration.attribute = d");
                   configOut.println();
-                  configOut.println(voiceHeader + ".leftF0.model = cart");
-                  configOut.println(voiceHeader + ".leftF0.data = MARY_BASE/lib/voices/" + voicename + "/" + getProp(F0LEFTTREE));
-                  configOut.println(voiceHeader + ".leftF0.attribute = f0");
-                  configOut.println(voiceHeader + ".leftF0.attribute.format = (0,%.0f)");
+                  configOut.println(voiceHeader + ".F0.model = cart");
+                  configOut.println(voiceHeader + ".F0.data = MARY_BASE/lib/voices/" + voicename + "/" + getProp(F0LEFTTREE));
+                  configOut.println(voiceHeader + ".F0.attribute = f0");
+                  configOut.println(voiceHeader + ".F0.attribute.format = (0,%.0f)");
+                  configOut.println(voiceHeader + ".F0.predictFrom = firstVowels");
+                  configOut.println(voiceHeader + ".F0.applyTo = firstVoicedSegments");
                   configOut.println();
                   configOut.println(voiceHeader + ".midF0.model = cart");
                   configOut.println(voiceHeader + ".midF0.data = MARY_BASE/lib/voices/" + voicename + "/" + getProp(F0MIDTREE));
                   configOut.println(voiceHeader + ".midF0.attribute = f0");
                   configOut.println(voiceHeader + ".midF0.attribute.format = (50,%.0f)");
+                  configOut.println(voiceHeader + ".midF0.predictFrom = firstVowels");
+                  configOut.println(voiceHeader + ".midF0.applyTo = firstVowels");
                   configOut.println();
                   configOut.println(voiceHeader + ".rightF0.model = cart");
                   configOut.println(voiceHeader + ".rightF0.data = MARY_BASE/lib/voices/" + voicename+ "/" + getProp(F0RIGHTTREE));
                   configOut.println(voiceHeader + ".rightF0.attribute = f0");
                   configOut.println(voiceHeader + ".rightF0.attribute.format = (100,%.0f)");
+                  configOut.println(voiceHeader + ".rightF0.predictFrom = firstVowels");
+                  configOut.println(voiceHeader + ".rightF0.applyTo = lastVoicedSegments");
               }
               
         } catch (IOException e) {
