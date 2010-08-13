@@ -231,13 +231,13 @@ public class Voice
             }
         }
         
-        // Acoustic models (moved here from AcousticModeller module to allow it to appear in modules.classes.list instead of voice config):        
+        // Acoustic models:
         String acousticModelsString = MaryProperties.getProperty(header + ".acousticModels");
-        if (acousticModelsString != null){
+        if (acousticModelsString != null) {
             acousticModels = new HashMap<String, Model>();
 
             // add boundary "model" (which could of course be overwritten by appropriate properties in voice config):
-            acousticModels.put("boundary", new BoundaryModel("boundary", null, "duration", null, null));
+            acousticModels.put("boundary", new BoundaryModel("boundary", null, "duration", null, null, null, "boundaries"));
 
             StringTokenizer acousticModelStrings = new StringTokenizer(acousticModelsString);
             do {
@@ -245,21 +245,16 @@ public class Voice
 
                 // get more properties from voice config, depending on the model name:
                 String modelType = MaryProperties.needProperty(header + "." + modelName + ".model");
-                
-                // CHECK: with Ingmar
-                // these values in the prosody model are null so I am going to change this to getProperty
-                // ProsodyModel modifies dur and f0 therefore i did not include attribute
-                //String modelDataFileName = MaryProperties.needFilename(header + "." + modelName + ".data");
-                //String modelAttributeName = MaryProperties.needProperty(header + "." + modelName + ".attribute");                
-                String modelDataFileName = MaryProperties.getFilename(header + "." + modelName + ".data");   
-                String modelAttributeName = MaryProperties.getProperty(header + "." + modelName + ".attribute");
-                
-                
+
+                String modelDataFileName = MaryProperties.needFilename(header + "." + modelName + ".data");
+                String modelAttributeName = MaryProperties.needProperty(header + "." + modelName + ".attribute");
+
                 // the following are null if not defined; this is handled in the Model constructor:
                 String modelAttributeFormat = MaryProperties.getProperty(header + "." + modelName + ".attribute.format");
-                String modelElementList = MaryProperties.getProperty(header + "." + modelName + ".scope");
                 String modelFeatureName = MaryProperties.getProperty(header + "." + modelName + ".feature");
-                
+                String modelPredictFrom = MaryProperties.getProperty(header + "." + modelName + ".predictFrom");
+                String modelApplyTo = MaryProperties.getProperty(header + "." + modelName + ".applyTo");
+
                 // consult the ModelType enum to find appropriate Model subclass...
                 ModelType possibleModelTypes = ModelType.fromString(modelType);
                 // if modelType is not in ModelType.values(), we don't know how to handle it:
@@ -267,23 +262,25 @@ public class Voice
                     logger.warn("Cannot handle unknown model type: " + modelType);
                     throw new MaryConfigurationException();
                 }
-                
+
                 // ...and instantiate it in a switch statement:
                 Model model = null;
                 switch (possibleModelTypes) {
                 case CART:
-                    model = new CARTModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList, modelFeatureName);
+                    model = new CARTModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                            modelFeatureName, modelPredictFrom, modelApplyTo);
                     break;
-                    
+
                 case SOP:
-                    model = new SoPModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList, modelFeatureName);
+                    model = new SoPModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                            modelFeatureName, modelPredictFrom, modelApplyTo);
                     break;
-                    
+
                 case HMM:
-                    model = new HMMModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat, modelElementList, modelFeatureName);
+                    model = new HMMModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                            modelFeatureName, modelPredictFrom, modelApplyTo);
                     break;
-                    
-                } 
+                }
 
                 // if we got this far, model should not be null:
                 assert model != null;
@@ -292,7 +289,7 @@ public class Voice
                 model.loadDataFile();
                 acousticModels.put(modelName, model);
             } while (acousticModelStrings.hasMoreTokens());
-            
+
             // initialization of FeatureProcessorManager for this voice:
             FeatureProcessorManager featureProcessorManager;
             // TODO somehow reconcile that German FPM class with the rest of the code...
@@ -450,18 +447,6 @@ public class Voice
     public Model getF0Model() {
         return acousticModels.get("F0");
     }
-
-    public Model getLeftF0Model() {
-        return acousticModels.get("leftF0");
-    }
-
-    public Model getMidF0Model() {
-        return acousticModels.get("midF0");
-    }
-
-    public Model getRightF0Model() {
-        return acousticModels.get("rightF0");
-    }
       
     public Model getBoundaryModel() {
         return acousticModels.get("boundary");
@@ -473,8 +458,7 @@ public class Voice
         Map<String, Model> otherModels = new HashMap<String, Model>();
         for (String modelName : acousticModels.keySet()) {
             // ignore critical Models that have their own getters:
-            if (!modelName.equals("duration") && !modelName.equals("F0") && !modelName.equals("leftF0") && !modelName.equals("midF0")
-                    && !modelName.equals("rightF0") && !modelName.equals("boundary")) {
+            if (!modelName.equals("duration") && !modelName.equals("F0") && !modelName.equals("boundary")) {
                 otherModels.put(modelName, acousticModels.get(modelName));
             }
         }

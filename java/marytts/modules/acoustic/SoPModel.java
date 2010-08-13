@@ -34,8 +34,8 @@ public class SoPModel extends Model {
     FeatureDefinition sopFeatureDefinition;
 
     public SoPModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-            String targetElementListName, String modelFeatureName) {
-        super(type, dataFileName, targetAttributeName, targetAttributeFormat, targetElementListName, modelFeatureName);
+            String featureName, String predictFrom, String applyTo) {
+        super(type, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
     }
     
     @Override
@@ -120,9 +120,6 @@ public class SoPModel extends Model {
         
         return result;
     }    
-    
-    @Override
-    protected void evaluate(List<Element> applicableElements){ }
     
     
 }
