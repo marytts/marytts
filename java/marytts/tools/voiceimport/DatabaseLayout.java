@@ -126,6 +126,9 @@ public class DatabaseLayout
     public String PHONEFEATUREDIR = "db.phoneFeatureDir";
     public String HALFPHONELABDIR = "db.halfphoneLabDir";
     public String HALFPHONEFEATUREDIR = "db.halfphoneFeatureDir";
+    
+    public String VOCALIZATIONSDIR = "db.vocalizationsDir";
+    
     // paths used in HMM voice creation
     public String AWKPATH       = "external.awkPath";
     public String PERLPATH      = "external.perlPath";
@@ -189,7 +192,7 @@ public class DatabaseLayout
         props2Help.put(PHONELABDIR, "directory containing the phone unit labels");
         props2Help.put(HALFPHONEFEATUREDIR, "directory containing the half-phone features.");
         props2Help.put(HALFPHONELABDIR, "directory containing the half-phone unit labels");
-
+        props2Help.put(VOCALIZATIONSDIR, "directory in which all files created during listener vocal behavior creation");
         for (int i=0;i<components.length;i++) {
             components[i].setupHelp();
         }
@@ -706,6 +709,7 @@ public class DatabaseLayout
         someProps.put(PHONEFEATUREDIR, rootDir+"phonefeatures"+fileSeparator);
         someProps.put(HALFPHONELABDIR, rootDir+"halfphonelab"+fileSeparator);
         someProps.put(HALFPHONEFEATUREDIR, rootDir+"halfphonefeatures"+fileSeparator);
+        someProps.put(VOCALIZATIONSDIR, rootDir+"vocalizations"+fileSeparator);
         return someProps;
     }
     
@@ -747,6 +751,7 @@ public class DatabaseLayout
         
         checkDir(PROMPTALLOPHONESDIR);
         checkDir(ALLOPHONESDIR);
+        checkDir(VOCALIZATIONSDIR);
         
         /* check text dir */  
         //checkDir(TEXTDIR);
