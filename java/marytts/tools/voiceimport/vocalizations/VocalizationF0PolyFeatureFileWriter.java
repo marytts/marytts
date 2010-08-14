@@ -44,7 +44,6 @@ import javax.swing.JFrame;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.nonverbal.BackchannelUnitFileReader;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.signalproc.display.FunctionGraph;
@@ -65,6 +64,7 @@ import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 import marytts.util.signal.SignalProcUtils;
+import marytts.vocalizations.VocalizationUnitFileReader;
 
 /**
  * NOT COMPLETED (USEFUL FOR FUTURE)
@@ -78,7 +78,7 @@ public class VocalizationF0PolyFeatureFileWriter extends VoiceImportComponent
     protected FeatureDefinition inFeatureDefinition;
     protected File outFeatureFile;
     protected FeatureDefinition outFeatureDefinition;
-    protected BackchannelUnitFileReader listenerUnits;
+    protected VocalizationUnitFileReader listenerUnits;
     protected TimelineReader audio;
     protected DatabaseLayout db = null;
     protected int percent = 0;
@@ -149,7 +149,7 @@ public class VocalizationF0PolyFeatureFileWriter extends VoiceImportComponent
             maryDir.mkdir();
             System.out.println("Created the output directory [" + ( db.getProp(db.FILEDIR)) + "] to store the feature file." );
         }
-        listenerUnits = new BackchannelUnitFileReader(getProp(UNITFILE));
+        listenerUnits = new VocalizationUnitFileReader(getProp(UNITFILE));
         audio = new TimelineReader(getProp(WAVETIMELINE));
         
         //features = new FeatureFileReader(getProp(FEATUREFILE));

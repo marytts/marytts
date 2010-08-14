@@ -47,9 +47,6 @@ import javax.swing.JFrame;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.nonverbal.BackchannelFeatureFileReader;
-import marytts.nonverbal.BackchannelUnit;
-import marytts.nonverbal.BackchannelUnitFileReader;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.signalproc.display.FunctionGraph;
@@ -71,6 +68,9 @@ import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 import marytts.util.signal.SignalProcUtils;
+import marytts.vocalizations.VocalizationFeatureFileReader;
+import marytts.vocalizations.VocalizationUnitFileReader;
+import marytts.vocalizations.VocalizationUnit;
 import marytts.vocalizations.VocalizationAnnotationReader;
 
 /**
@@ -83,7 +83,7 @@ public class VocalizationFeatureFileWriter extends VoiceImportComponent
     
     protected File outFeatureFile;
     protected FeatureDefinition featureDefinition;
-    protected BackchannelUnitFileReader listenerUnits;
+    protected VocalizationUnitFileReader listenerUnits;
     
     protected DatabaseLayout db = null;
     protected int percent = 0;
@@ -168,7 +168,7 @@ public class VocalizationFeatureFileWriter extends VoiceImportComponent
         BufferedReader fDBfr = new BufferedReader(new FileReader(new File(getProp(FEATDEF))));
         //featureDefinition = new FeatureDefinition(fDBfr, true);
         featureDefinition = new FeatureDefinition(fDBfr, false);
-        listenerUnits = new BackchannelUnitFileReader(getProp(UNITFILE));
+        listenerUnits = new VocalizationUnitFileReader(getProp(UNITFILE));
         
         // load annotation
         VocalizationAnnotationReader annotationReader = new VocalizationAnnotationReader(getProp(MANUALFEATURES), bnlVocalizations);
@@ -182,7 +182,7 @@ public class VocalizationFeatureFileWriter extends VoiceImportComponent
         out.close();
         logger.debug("Number of processed units: " + listenerUnits.getNumberOfUnits() );
 
-        BackchannelFeatureFileReader tester = BackchannelFeatureFileReader.getFeatureFileReader(getProp(FEATUREFILE));
+        VocalizationFeatureFileReader tester = VocalizationFeatureFileReader.getFeatureFileReader(getProp(FEATUREFILE));
         int unitsOnDisk = tester.getNumberOfUnits();
         if (unitsOnDisk == listenerUnits.getNumberOfUnits()) {
             System.out.println("Can read right number of units");

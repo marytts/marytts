@@ -35,13 +35,13 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import marytts.nonverbal.BackchannelUnitFileReader;
 import marytts.tools.voiceimport.BasenameList;
 import marytts.tools.voiceimport.DatabaseLayout;
 import marytts.tools.voiceimport.ESTTrackReader;
 import marytts.tools.voiceimport.VoiceImportComponent;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.util.data.MaryHeader;
+import marytts.vocalizations.VocalizationUnitFileReader;
 
 /**
  * Back-channel unit writer
@@ -173,7 +173,7 @@ public class VocalizationUnitfileWriter extends VoiceImportComponent
         }
 
         out.close();
-        BackchannelUnitFileReader tester = new BackchannelUnitFileReader(unitFileName);
+        VocalizationUnitFileReader tester = new VocalizationUnitFileReader(unitFileName);
         int unitsOnDisk = tester.getNumberOfUnits();
         if (unitsOnDisk == numberOfBCUnits) {
             System.out.println("Can read right number of units: "+unitsOnDisk);

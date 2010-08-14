@@ -28,13 +28,13 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureVector;
 import marytts.features.TargetFeatureComputer;
-import marytts.nonverbal.BackchannelFeatureFileReader;
 import marytts.server.MaryProperties;
 import marytts.signalproc.display.Histogram;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.weightingfunctions.WeightFunc;
 import marytts.unitselection.weightingfunctions.WeightFunctionManager;
+import marytts.vocalizations.VocalizationFeatureFileReader;
 
 import org.apache.log4j.Logger;
 
@@ -47,7 +47,7 @@ public class VocalizationFFRTargetCostFunction extends FFRTargetCostFunction
     }
 
 
-    public void load(BackchannelFeatureFileReader ffr) //FeatureFileReader
+    public void load(VocalizationFeatureFileReader ffr) //FeatureFileReader
     throws IOException
     {
         this.featureDefinition = ffr.getFeatureDefinition();
