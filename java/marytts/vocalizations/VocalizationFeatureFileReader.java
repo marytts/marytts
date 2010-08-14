@@ -1,4 +1,4 @@
-package marytts.nonverbal;
+package marytts.vocalizations;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -11,19 +11,19 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.util.data.MaryHeader;
 
-public class BackchannelFeatureFileReader extends marytts.unitselection.data.FeatureFileReader {
+public class VocalizationFeatureFileReader extends marytts.unitselection.data.FeatureFileReader {
 
-    public BackchannelFeatureFileReader( String fileName ) throws IOException
+    public VocalizationFeatureFileReader( String fileName ) throws IOException
     {
         load(fileName);
     }
     
-    public static BackchannelFeatureFileReader getFeatureFileReader(String fileName) throws IOException
+    public static VocalizationFeatureFileReader getFeatureFileReader(String fileName) throws IOException
     {
         int fileType = MaryHeader.peekFileType(fileName);
         
         if (fileType == MaryHeader.LISTENERFEATS)
-            return new BackchannelFeatureFileReader(fileName);
+            return new VocalizationFeatureFileReader(fileName);
         
         throw new IOException("File "+fileName+": Type "+fileType+" is not a known unit feature file type");
     }

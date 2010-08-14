@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.nonverbal;
+package marytts.vocalizations;
 
 import marytts.unitselection.data.Unit;
 
@@ -29,12 +29,12 @@ import marytts.unitselection.data.Unit;
  * @author Sathish pammi
  *
  */
-public class BackchannelUnit extends marytts.unitselection.data.Unit
+public class VocalizationUnit extends marytts.unitselection.data.Unit
 {
     protected Unit[] units;
     protected String[] unitNames; 
     
-    public BackchannelUnit(long startTime, int duration, int index)
+    public VocalizationUnit(long startTime, int duration, int index)
     {
         super(startTime,duration,index);
     }

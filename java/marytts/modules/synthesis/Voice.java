@@ -67,12 +67,12 @@ import marytts.modules.acoustic.ProsodyModel;
 import marytts.modules.acoustic.SoPModel;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
-import marytts.nonverbal.BackchannelSynthesizer;
 import marytts.server.MaryProperties;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.interpolation.InterpolatingSynthesizer;
 import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.MaryUtils;
+import marytts.vocalizations.VocalizationSynthesizer;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
@@ -158,7 +158,7 @@ public class Voice
     private Vector<MaryModule> preferredModules;
     private Lexicon lexicon;
     private boolean backchannelSupport;
-    private BackchannelSynthesizer backchannelSynthesizer;
+    private VocalizationSynthesizer backchannelSynthesizer;
     protected DirectedGraph durationGraph;
     protected DirectedGraph f0Graph;
     protected FeatureFileReader f0ContourFeatures;
@@ -202,7 +202,7 @@ public class Voice
         lexicon = getLexicon(lexiconClass, lexiconName);
         backchannelSupport = MaryProperties.getBoolean(header+".backchannelSupport", false);
         if(backchannelSupport) {
-            backchannelSynthesizer = new BackchannelSynthesizer(this);
+            backchannelSynthesizer = new VocalizationSynthesizer(this);
         }
         
         // see if there are any voice-specific duration and f0 models to load
@@ -396,7 +396,7 @@ public class Voice
     public WaveformSynthesizer synthesizer() { return synthesizer; }
     public Gender gender() { return gender; }
     public boolean hasBackchannelSupport() { return backchannelSupport; }
-    public BackchannelSynthesizer getBackchannelSynthesizer() { return backchannelSynthesizer; }
+    public VocalizationSynthesizer getBackchannelSynthesizer() { return backchannelSynthesizer; }
 
     
 

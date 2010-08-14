@@ -52,7 +52,6 @@ import javax.swing.JFrame;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.nonverbal.KMeansClusterer;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.signalproc.analysis.distance.DistanceComputer;
@@ -75,6 +74,7 @@ import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 import marytts.util.signal.SignalProcUtils;
+import marytts.vocalizations.KMeansClusterer;
 
 
 public class VocalizationF0PolynomialInspector extends VoiceImportComponent

@@ -29,7 +29,7 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package marytts.nonverbal;
+package marytts.vocalizations;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -47,13 +47,13 @@ import marytts.util.data.MaryHeader;
  * @author sathish pammi
  *
  */
-public class BackchannelUnitFileReader 
+public class VocalizationUnitFileReader 
 {
 
     private MaryHeader hdr = null;
     private int numberOfUnits = 0;
     private int sampleRate = 0;
-    private BackchannelUnit[] backchannelUnits;
+    private VocalizationUnit[] backchannelUnits;
     
     /****************/
     /* CONSTRUCTORS */
@@ -63,7 +63,7 @@ public class BackchannelUnitFileReader
      * Empty constructor; need to call load() separately.
      * @see #load(String)
      */
-    public BackchannelUnitFileReader()
+    public VocalizationUnitFileReader()
     {
     }
     
@@ -72,7 +72,7 @@ public class BackchannelUnitFileReader
      * @param fileName the unit file to read
      * @throws IOException if a problem occurs while reading
      */
-    public BackchannelUnitFileReader( String fileName ) throws IOException 
+    public VocalizationUnitFileReader( String fileName ) throws IOException 
     {
         load(fileName);
     }
@@ -114,7 +114,7 @@ public class BackchannelUnitFileReader
                 throw new RuntimeException( "File [" + fileName + "] has a negative number sample rate. Aborting." );
             }
             
-            backchannelUnits = new BackchannelUnit[numberOfUnits];
+            backchannelUnits = new VocalizationUnit[numberOfUnits];
             
             
             /* Read the start times and durations */
@@ -137,7 +137,7 @@ public class BackchannelUnitFileReader
                 }
                 long startBCTime = units[0].startTime;
                 int bcDuration = (((int) units[noOfUnits - 1].startTime + units[noOfUnits - 1].duration) - (int)units[0].startTime);
-                backchannelUnits[i] = new BackchannelUnit(startBCTime,bcDuration,i);
+                backchannelUnits[i] = new VocalizationUnit(startBCTime,bcDuration,i);
                 backchannelUnits[i].setUnits(units);
                 backchannelUnits[i].setUnitNames(unitNames);
                 //System.out.println("BC UNIT START:"+backchannelUnits[i].getStart());
@@ -176,7 +176,7 @@ public class BackchannelUnitFileReader
      * @param i The index of the considered unit.
      * @return The considered unit.
       */
-    public BackchannelUnit getUnit( int i ) {
+    public VocalizationUnit getUnit( int i ) {
         return backchannelUnits[i];
     }
 
@@ -186,8 +186,8 @@ public class BackchannelUnitFileReader
      * @param i The indexes of the considered units.
      * @return The array of considered units.
       */
-    public BackchannelUnit[] getUnit( int[] i ) {
-        BackchannelUnit[] ret = new BackchannelUnit[i.length];
+    public VocalizationUnit[] getUnit( int[] i ) {
+        VocalizationUnit[] ret = new VocalizationUnit[i.length];
         for ( int k = 0; k < i.length; k++ ) {
             ret[k] = getUnit( i[k] );
         }
@@ -199,7 +199,7 @@ public class BackchannelUnitFileReader
      * @param u a unit
      * @return the next unit in the database, or null if there is no such unit.
      */
-    public BackchannelUnit getNextUnit(BackchannelUnit u)
+    public VocalizationUnit getNextUnit(VocalizationUnit u)
     {
         if (u == null || u.index >= backchannelUnits.length-1 || u.index < 0) return null;
         return backchannelUnits[u.index+1];
@@ -210,7 +210,7 @@ public class BackchannelUnitFileReader
      * @param u a unit
      * @return the previous unit in the database, or null if there is no such unit.
      */
-    public BackchannelUnit getPreviousUnit(BackchannelUnit u)
+    public VocalizationUnit getPreviousUnit(VocalizationUnit u)
     {
         if (u == null || u.index>=backchannelUnits.length || u.index <= 0) return null;
         return backchannelUnits[u.index-1];
@@ -229,7 +229,7 @@ public class BackchannelUnitFileReader
     
     public static void main(String[] args) throws Exception{
         String fileName = "/home/sathish/Work/dfki399/backchannel/mary_files/BCCphoneUnits.mry";
-        BackchannelUnitFileReader bcUfr = new BackchannelUnitFileReader();
+        VocalizationUnitFileReader bcUfr = new VocalizationUnitFileReader();
         bcUfr.load(fileName);
     }
 }

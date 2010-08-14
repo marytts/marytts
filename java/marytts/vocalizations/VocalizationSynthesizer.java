@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.nonverbal;
+package marytts.vocalizations;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -72,21 +72,21 @@ import org.w3c.dom.traversal.NodeIterator;
  * @author Sathish Pammi
  */
 
-public class BackchannelSynthesizer {
+public class VocalizationSynthesizer {
     
     protected TimelineReader audioTimeline;
-    protected BackchannelUnitFileReader unitFileReader;
+    protected VocalizationUnitFileReader unitFileReader;
     protected int samplingRate;
-    protected BackchannelFeatureFileReader featureFileReader;
+    protected VocalizationFeatureFileReader featureFileReader;
     final double INFINITE = 100000;
     
-    public BackchannelSynthesizer(Voice voice){
+    public VocalizationSynthesizer(Voice voice){
         try{
             String unitFileName = MaryProperties.getFilename("voice."+voice.getName()+".backchannel.unitfile");
             String timelineFile = MaryProperties.getFilename("voice."+voice.getName()+".backchannel.timeline");
             String featureFile  = MaryProperties.getFilename("voice."+voice.getName()+".backchannel.featurefile");
-            this.unitFileReader = new BackchannelUnitFileReader(unitFileName);
-            this.featureFileReader = new BackchannelFeatureFileReader(featureFile);
+            this.unitFileReader = new VocalizationUnitFileReader(unitFileName);
+            this.featureFileReader = new VocalizationFeatureFileReader(featureFile);
             this.samplingRate   = unitFileReader.getSampleRate();
             this.audioTimeline  = new TimelineReader(timelineFile);
         }
@@ -114,7 +114,7 @@ public class BackchannelSynthesizer {
             backchannelNumber = 0;
         }
         
-        BackchannelUnit bUnit = unitFileReader.getUnit(backchannelNumber);
+        VocalizationUnit bUnit = unitFileReader.getUnit(backchannelNumber);
         long start = bUnit.startTime;
         int duration  = bUnit.duration;
         Datagram[] frames = audioTimeline.getDatagrams(start, duration); 
