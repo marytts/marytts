@@ -39,12 +39,14 @@ public class PraatPitchmarker extends VoiceImportComponent
     protected String pointpExt = ".PointProcess";
     protected String tmpScript;
     
-    private int percent = 0;
+    protected int percent = 0;
     
-    public final String COMMAND = "PraatPitchmarker.command";
-    public final String MINPITCH = "PraatPitchmarker.minPitch";
-    public final String MAXPITCH = "PraatPitchmarker.maxPitch";
-
+    public final String COMMAND     = getName()+".command";
+    public final String MINPITCH    = getName()+".minPitch";
+    public final String MAXPITCH    = getName()+".maxPitch";
+    public final String PRAATPMDIR  = getName()+".pmDir";
+    public final String WAVEDIR     = getName()+".waveDir";
+    
     public final String PMDIR = "db.pmDir";
     public final String PMEXT = "db.pmExtension";
 
@@ -60,7 +62,7 @@ public class PraatPitchmarker extends VoiceImportComponent
 
     }
     
-     public final String getName(){
+    public String getName(){
         return "PraatPitchmarker";
     }
     
@@ -81,6 +83,8 @@ public class PraatPitchmarker extends VoiceImportComponent
                props.put(MINPITCH,"75");
                props.put(MAXPITCH,"300");
            }
+           props.put(WAVEDIR,db.getProp(db.WAVDIR));
+           props.put(PRAATPMDIR,db.getProp(db.PMDIR));
            String rootDir = db.getProp(db.ROOTDIR);
        }
        return props;
@@ -178,7 +182,7 @@ public class PraatPitchmarker extends VoiceImportComponent
     private float[] adjustPitchmarks( String basename, float[] pitchmarks ) throws IOException
     {
         /* Load the wav file */
-        String fName = db.getProp(db.WAVDIR) + basename + db.getProp(db.WAVEXT);
+        String fName = getProp(WAVEDIR) + basename + db.getProp(db.WAVEXT);
         WavReader wf = new WavReader( fName );
         short[] w = wf.getSamples();
         float[] pmOut = null;
@@ -193,11 +197,11 @@ public class PraatPitchmarker extends VoiceImportComponent
         return pmOut;
     }
     
-    private boolean praatPitchmarks(String basename) throws IOException
+    protected boolean praatPitchmarks(String basename) throws IOException
     {
-        String wavFilename = new File(db.getProp(db.WAVDIR) + basename + db.getProp(db.WAVEXT)).getAbsolutePath();
-        String pointprocessFilename = db.getProp(PMDIR)+basename+pointpExt;
-        String pmFilename = db.getProp(PMDIR) + basename + db.getProp(PMEXT);
+        String wavFilename = new File(getProp(WAVEDIR) + basename + db.getProp(db.WAVEXT)).getAbsolutePath();
+        String pointprocessFilename = getProp(PRAATPMDIR)+basename+pointpExt;
+        String pmFilename = getProp(PRAATPMDIR) + basename + db.getProp(PMEXT);
 
         String strTmp = getProp(COMMAND)+" "+tmpScript+" "+wavFilename+" "+pointprocessFilename+" "+getProp(MAXPITCH)+" "+getProp(MINPITCH);
         
@@ -239,9 +243,9 @@ public class PraatPitchmarker extends VoiceImportComponent
         System.out.println( "Computing pitchmarks for " + baseNameArray.length + " utterances." );
 
         /* Ensure the existence of the target pitchmark directory */
-        File dir = new File(db.getProp(PMDIR));
+        File dir = new File(getProp(PRAATPMDIR));
         if (!dir.exists()) {
-            System.out.println( "Creating the directory [" + db.getProp(PMDIR) + "]." );
+            System.out.println( "Creating the directory [" + getProp(PRAATPMDIR) + "]." );
             dir.mkdir();
         }
         
