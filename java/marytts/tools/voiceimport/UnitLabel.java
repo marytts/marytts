@@ -128,10 +128,11 @@ public class UnitLabel {
     public static void writeLabFile(UnitLabel[] ulab, String outFile)
     throws IOException
     {
+        DecimalFormat formatter = new DecimalFormat("#0.000000");
         PrintWriter pw = new PrintWriter(new FileWriter(outFile));
         pw.println("#");
         for(int i=0; i<ulab.length; i++){
-            pw.println(ulab[i].getEndTime()+" "+ulab[i].getUnitIndex()+" "+ulab[i].getUnitName());
+            pw.println(formatter.format(ulab[i].getEndTime())+" "+ulab[i].getUnitIndex()+" "+ulab[i].getUnitName());
         }
         pw.flush();
         pw.close();
