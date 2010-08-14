@@ -50,7 +50,6 @@ import marytts.features.FeatureVector;
 import marytts.nonverbal.BackchannelFeatureFileReader;
 import marytts.nonverbal.BackchannelUnit;
 import marytts.nonverbal.BackchannelUnitFileReader;
-import marytts.nvv.VocalizationAnnotationReader;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.signalproc.display.FunctionGraph;
@@ -72,6 +71,7 @@ import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 import marytts.util.signal.SignalProcUtils;
+import marytts.vocalizations.VocalizationAnnotationReader;
 
 /**
  * vocalization feature file writer
