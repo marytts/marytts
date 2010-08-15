@@ -52,10 +52,14 @@ import javax.swing.JFrame;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
+import marytts.vocalizations.KMeansClusterer;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchFileHeader;
+import marytts.signalproc.analysis.PitchReaderWriter;
+import marytts.signalproc.analysis.SPTKPitchReaderWriter;
 import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.signalproc.display.FunctionGraph;
+import marytts.tools.voiceimport.BasenameList;
 import marytts.tools.voiceimport.DatabaseLayout;
 import marytts.tools.voiceimport.VoiceImportComponent;
 import marytts.unitselection.concat.DatagramDoubleDataSource;
@@ -74,7 +78,6 @@ import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 import marytts.util.signal.SignalProcUtils;
-import marytts.vocalizations.KMeansClusterer;
 
 
 public class VocalizationF0PolynomialInspector extends VoiceImportComponent
@@ -94,6 +97,8 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
     private HashMap<String, Integer> maxF0Values;
     private Set<String> characters;
     
+    protected BasenameList bnlVocalizations;
+    
     private final String name = "VocalizationF0PolynomialInspector";
     public final String WAVEDIR = name + ".waveDir";
     public final String F0POLYFILE = name + ".f0PolynomialFeatureFile";
@@ -103,6 +108,10 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
     public final String ONEWORD = name + ".oneWordDescription";
     public final String KCLUSTERS = name + ".numberOfClusters";
     public final String POLYORDER = name + ".polynomialOrder";
+    public final String ISEXTERNALF0 = name + ".isExternalF0Usage";
+    public final String EXTERNALF0FORMAT = name + ".externalF0Format";
+    public final String EXTERNALDIR = name + ".externalF0Directory";
+    public final String EXTERNALEXT = name + ".externalF0Extention";
     
     public String getName(){
         return name;
@@ -121,6 +130,10 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
            props.put(F0MAX,"500");
            props.put(KCLUSTERS,"15");
            props.put(POLYORDER,"3");
+           props.put(ISEXTERNALF0,"false");
+           props.put(EXTERNALF0FORMAT,"ptc");
+           props.put(EXTERNALDIR, "ptc");
+           props.put(EXTERNALEXT, ".ptc");
        }
        return props;
    }
@@ -152,6 +165,23 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
        characters.add("Poppy");
        characters.add("Obadiah");
        characters.add("Prudence");
+       
+       try {
+           String basenameFile = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"basenames.lst";
+           if ( (new File(basenameFile)).exists() ) {
+               System.out.println("Loading basenames of vocalisations from '"+basenameFile+"' list...");
+               bnlVocalizations = new BasenameList(basenameFile);
+               System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in basename list");
+           }
+           else {
+               String vocalWavDir = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav";
+               System.out.println("Loading basenames of vocalisations from '"+vocalWavDir+"' directory...");
+               bnlVocalizations = new BasenameList(vocalWavDir, ".wav");
+               System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in "+ vocalWavDir + " directory");
+           }
+       } catch (IOException e) {
+           e.printStackTrace();
+       }
    }
    
     public boolean compute() throws IOException, UnsupportedAudioFileException
@@ -165,14 +195,14 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
         String outPutFile = db.getProp(db.ROOTDIR)+File.separator+getProp(ONEWORD)+getProp(PARTBASENAME)+getProp(F0POLYFILE); 
         featurePW = new PrintWriter(new FileWriter(new File(outPutFile)));
         
-        for (int i=0; i<bnl.getLength(); i++) {
-            percent = 100*i/bnl.getLength();
-            displaySentences(bnl.getName(i));
+        for (int i=0; i<bnlVocalizations.getLength(); i++) {
+            percent = 100*i/bnlVocalizations.getLength();
+            displaySentences(bnlVocalizations.getName(i));
             
         }
         featurePW.flush();
         featurePW.close();
-        System.out.println("Total Cost : "+costMeasure / (double) bnl.getLength());
+        System.out.println("Total Cost : "+costMeasure / (double) bnlVocalizations.getLength());
         
         
         //String fileName = "/home/sathish/phd/voices/en-GB-listener/vocal-polynomials/SpiVocalizationF0PolyFeatureFile.txt";
@@ -207,13 +237,14 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
             return;
         }
         
+        /*
         String targetDescription = getProp(ONEWORD).trim();
         String textFileName = db.getProp(db.TEXTDIR)+File.separator+baseName+db.getProp(db.TEXTEXT);
         String audioDescriprion  = FileUtils.getFileAsString(new File(textFileName), "UTF-8"); 
         
         if ( !"".equals(targetDescription) && !targetDescription.equals(audioDescriprion.trim())) {
             return;
-        }
+        }*/
         
         //if ( !baseName.equals("") && !baseName.contains(getProp(PARTBASENAME)) ){
         //    return;
@@ -232,14 +263,14 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
         double [] sentenceAudio = signal.getAllData(); //Copies all samples in wav file into a double buffer 
         long tsSentenceDuration = sentenceAudio.length;
         
-       
+        
         
 
         /*Datagram[] sentenceData = audio.getDatagrams(tsSentenceStart, tsSentenceDuration);
         DatagramDoubleDataSource ddds = new DatagramDoubleDataSource(sentenceData);
         double[] sentenceAudio = ddds.getAllData();*/
         
-        /* AudioPlayer ap = null;
+        AudioPlayer ap = null;
         ap = new AudioPlayer(new DDSAudioInputStream(new BufferedDoubleDataSource(sentenceAudio), new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
                 audioSampleRate, // samples per second
                 16, // bits per sample
@@ -247,7 +278,7 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
                 2, // nr. of bytes per frame
                 audioSampleRate, // nr. of frames per second
                 true))); // big-endian;))
-        ap.start();*/
+        ap.start();
         
         PitchFileHeader params = new PitchFileHeader();
         //params.minimumF0 = 50;
@@ -257,13 +288,34 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
         String character = getCharacterName(baseName);
         params.minimumF0 = (minF0Values.get(character)).doubleValue();
         params.maximumF0 = (maxF0Values.get(character)).doubleValue();
-        
         params.fs = audioSampleRate;
-        F0TrackerAutocorrelationHeuristic tracker = new F0TrackerAutocorrelationHeuristic(params);
-        tracker.pitchAnalyze(new BufferedDoubleDataSource(sentenceAudio));
-        double frameShiftTime = tracker.getSkipSizeInSeconds();
-        double[] f0Array = tracker.getF0Contour();
         
+        double[] f0Array = null;
+        
+        if ( "true".equals(getProp(ISEXTERNALF0)) ) {
+            
+            String externalFormat = getProp(EXTERNALF0FORMAT);
+            String externalDir    = getProp(EXTERNALF0FORMAT);
+            String externalExt    = getProp(EXTERNALEXT);
+            
+            if ( "sptk".equals(externalFormat) ) {
+                String fileName = db.getProp(db.ROOTDIR) + File.separator + externalDir + File.separator + getProp(externalExt);
+                SPTKPitchReaderWriter sprw = new SPTKPitchReaderWriter(fileName);
+                f0Array = sprw.getF0Contour();
+            }
+            else if ( "ptc".equals(externalFormat) ) {
+                String fileName = db.getProp(db.ROOTDIR) + File.separator + externalDir + File.separator + getProp(externalExt);
+                PitchReaderWriter sprw = new PitchReaderWriter(fileName);
+                f0Array = sprw.contour;
+            }
+        }
+        else {
+            F0TrackerAutocorrelationHeuristic tracker = new F0TrackerAutocorrelationHeuristic(params);
+            tracker.pitchAnalyze(new BufferedDoubleDataSource(sentenceAudio));
+            //double frameShiftTime = tracker.getSkipSizeInSeconds();
+            f0Array = tracker.getF0Contour();
+        }
+                
         f0Array = cutStartEndUnvoicedSegments(f0Array);
         
         if (f0Array != null) {
@@ -336,7 +388,7 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
         
             
             try {
-                //ap.join();
+                ap.join();
                 Thread.sleep(10);
             } catch (InterruptedException ie) {}
             //System.out.println();
@@ -349,6 +401,8 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
 
     private double[] cutStartEndUnvoicedSegments(double[] array) {
         
+        if(array == null) return null;
+            
         int startIndex = 0;
         int endIndex   = array.length;
         
