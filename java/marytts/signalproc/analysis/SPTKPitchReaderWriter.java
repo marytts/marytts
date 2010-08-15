@@ -73,7 +73,7 @@ public class SPTKPitchReaderWriter {
      * get f0 values in Hz (0.0 for unvoiced)
      * @return
      */
-    public double[] getF0Countour(){
+    public double[] getF0Contour(){
         return this.contour;
     }
     
@@ -176,13 +176,13 @@ public class SPTKPitchReaderWriter {
         
         String lf0File = "/home/sathish/Desktop/test/Poppy2_091.lf0";
         SPTKPitchReaderWriter sprw = new SPTKPitchReaderWriter(lf0File);
-        double[] f0contour  = sprw.getF0Countour();
+        double[] f0contour  = sprw.getF0Contour();
         PitchFileHeader hdr = sprw.getPitchFileHeader();
         SPTKPitchReaderWriter sprw1 = new SPTKPitchReaderWriter(f0contour,  hdr);
         sprw1.writeIntoSPTKLF0File("/home/sathish/Desktop/test/Dummy.lf0");
         
         SPTKPitchReaderWriter sprw2 = new SPTKPitchReaderWriter("/home/sathish/Desktop/test/Dummy.lf0");
-        f0contour  = sprw2.getF0Countour();
+        f0contour  = sprw2.getF0Contour();
         hdr = sprw2.getPitchFileHeader();
         
         for(int i=0; i<f0contour.length; i++){
