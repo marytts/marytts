@@ -192,8 +192,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                     MaryProperties.getFilename("voice."+voiceName+".FeaFile"),  /* targetfeatures file, for testing*/
                     MaryProperties.getFilename("voice."+voiceName+".trickyPhonesFile"),  /* tricky phones file, if any*/
                     MaryProperties.getFilename("voice."+voiceName+".Fif"),      /* Filter coefficients file for mixed excitation*/
-                    MaryProperties.getInteger("voice."+voiceName+".in"),        /* Number of filters */
-                    MaryProperties.getInteger("voice."+voiceName+".io"));       /* Number of taps per filter or filters order */
+                    MaryProperties.getInteger("voice."+voiceName+".in"));        /* Number of filters */                    
                 Voice.registerVoice(v);
                
             }

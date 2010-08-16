@@ -77,7 +77,7 @@ public class HMMVoice extends Voice {
             String useExtDur, String useExtLogF0,
             String useMixExc, String useFourierMag, boolean useGV, boolean useGmmGV, String Fgvf, String Fgvm, 
             String Fgvs, String Fgva, String Fgmmgvf, String Fgmmgvm, String FeaFile, String trickyPhonesFile,
-            String Fif, int nFilters, int norderFilters) throws Exception {
+            String Fif, int nFilters) throws Exception {
         super(nameArray, locale, dbAudioFormat, synthesizer, gender);
         
        if(alpha != null) 
@@ -136,7 +136,6 @@ public class HMMVoice extends Voice {
        if(Fif != null){
          this.htsData.setMixFiltersFile(Fif); 
          this.htsData.setNumFilters(nFilters);
-         this.htsData.setOrderFilters(norderFilters);
          logger.info("Loading Mixed Excitation Filters File:");
          this.htsData.readMixedExcitationFiltersFile();
        }
