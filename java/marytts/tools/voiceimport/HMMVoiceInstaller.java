@@ -93,7 +93,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
     public final String useFourierMag  = name+".useFourierMag";
     public final String mixFiltersFile = name+".Fif";
     public final String numFilters     = name+".in";
-    public final String orderFilters   = name+".io";
+//    public final String orderFilters   = name+".io";
     
    /** Example context feature file (TARGETFEATURES in MARY) */
     public String featuresFileExample = "";
@@ -147,8 +147,7 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
            props.put(useMixExc, "true");
            props.put(useFourierMag, "true");
            props.put(mixFiltersFile, "hts/data/filters/mix_excitation_filters.txt"); 
-           props.put(numFilters, "5");
-           props.put(orderFilters, "48");           
+           props.put(numFilters, "5");           
            props.put(trickyPhonesFile, "mary/trickyPhones.txt");
            props.put(createZipFile, "false");
            props.put(zipCommand, "/usr/bin/zip");
@@ -184,7 +183,6 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
         props2Help.put(useFourierMag, "Use Fourier magnitudes for pulse generation (true/false)");
         props2Help.put(mixFiltersFile, "Filter taps of bandpass filters for mixed excitation (optional: used for mixed excitation)"); 
         props2Help.put(numFilters, "Number of filters in bandpass bank, default 5 filters (optional: used for mixed excitation)");
-        props2Help.put(orderFilters, "Number of taps in bandpass filters, default 48 taps (optional: used for mixed excitation)");
         props2Help.put(trickyPhonesFile, "list of aliases for tricky phones, so HTK-HHEd command can handle them. (This file" +
                       " is created automatically by HMMVoiceMakeData if aliases are necessary, otherwise it will not be created.)");
         props2Help.put(createZipFile, "Create zip file for Mary voices installation (used by Mary voices administrator only).");
@@ -521,23 +519,10 @@ public class HMMVoiceInstaller extends VoiceImportComponent{
               
               if( new File(rootDir + getProp(treeStrFile)).exists()) {
                 configOut.println("# Filter taps of bandpass filters for mixed excitation \n" +
-                                "# File format: for example if we have 5 filters each with 48 taps \n" +
-                                "# then the taps are in a vector \n" +
-                                "# tap[1][1] \n" +
-                                "# ... \n" +
-                                "# tap[1][48] \n" +
-                                "# tap[2][1] \n" +
-                                "# ... \n" +
-                                "# tap[2][48] \n" +
-                                "# ... \n" +
-                                "# tap[5][1] \n" +
-                                "# ... \n" +
-                                "# tap[5][48] \n" +
+                                "# File format: one column with all the taps, where the number of taps per filter = numTaps/numFilters \n" +
                                 voiceHeader+".Fif = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(mixFiltersFile))+"\n"+
                                 "# Number of filters in bandpass bank, default 5 filters \n" +
-                                voiceHeader+".in = " + getProp(numFilters)+"\n" +
-                                "# Number of taps in bandpass filters, default 48 taps \n" +
-                                voiceHeader+".io = " + getProp(orderFilters) );
+                                voiceHeader+".in = " + getProp(numFilters) );                                 
               }
                      
               

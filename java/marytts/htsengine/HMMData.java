@@ -382,7 +382,6 @@ public class HMMData {
           if( treeStrFile != null ) {
             mixFiltersFile = props.getProperty( "voice." + voice + ".Fif" ).replace("MARY_BASE", marybase); 
             numFilters     = Integer.parseInt(props.getProperty( "voice." + voice + ".in" ));
-            orderFilters   = Integer.parseInt(props.getProperty( "voice." + voice + ".io" ));
             logger.info("Loading Mixed Excitation Filters File:");
             readMixedExcitationFiltersFile();
           }
@@ -494,11 +493,12 @@ public class HMMData {
     
     
     
-    /** Initialisation for mixed excitation : it loads the filter taps are read from 
+    /** Initialisation for mixed excitation : it loads the filter taps, they are read from 
      * MixFilterFile specified in the configuration file. */
     public void readMixedExcitationFiltersFile() throws Exception {
       String line;
-      mixFilters = new double[numFilters][orderFilters];  
+      // first read the taps and then divide the total amount equally among the number of filters
+      Vector<Double> taps = new Vector<Double>();
       /* get the filter coefficients */
       Scanner s = null;
         int i,j;
@@ -511,24 +511,26 @@ public class HMMData {
             line = s.nextLine(); 
             //System.out.println("comment: " + line ); 
           }
-          for(i=0; i<numFilters; i++){
-            for(j=0; j<orderFilters; j++) {                  
-              if (s.hasNextDouble()) {
-                mixFilters[i][j] = s.nextDouble();
-                //System.out.println("h["+i+"]["+j+"]="+h[i][j]);
-              }
-              else{
-                logger.debug("initMixedExcitation: not enough fiter taps in file = " + mixFiltersFile);
-                throw new Exception("initMixedExcitation: not enough fiter taps in file = " + mixFiltersFile);
-              }
-            }
-          }   
+          while (s.hasNextDouble())
+            taps.add(s.nextDouble());      
         } catch (FileNotFoundException e) {
             logger.debug("initMixedExcitation: " + e.getMessage());
             throw new FileNotFoundException("initMixedExcitation: " + e.getMessage());
         } finally {
             s.close();
-        }   
+        }
+                
+        orderFilters = (int)(taps.size() / numFilters);        
+        mixFilters = new double[numFilters][orderFilters];
+        int k=0;
+        for(i=0; i<numFilters; i++){
+          for(j=0; j<orderFilters; j++) {                  
+            mixFilters[i][j] = taps.get(k++);
+            //System.out.println("h["+i+"]["+j+"]="+h[i][j]);
+          }
+        }
+        logger.debug("initMixedExcitation: loaded filter taps from file = " + mixFiltersFile);
+        logger.debug("initMixedExcitation: numFilters = " + numFilters + "  orderFilters = " + orderFilters);
         
     } /* method readMixedExcitationFiltersFile() */
 
