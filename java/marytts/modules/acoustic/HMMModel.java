@@ -9,7 +9,10 @@ import org.w3c.dom.Element;
 import marytts.cart.io.DirectedGraphReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
+import marytts.features.FeatureProcessorManager;
+import marytts.features.FeatureRegistry;
 import marytts.features.FeatureVector;
+import marytts.features.TargetFeatureComputer;
 import marytts.htsengine.CartTreeSet;
 import marytts.htsengine.HMMData;
 import marytts.htsengine.HTSModel;
@@ -24,10 +27,28 @@ public class HMMModel extends Model {
     private float fperiodsec;
     protected static Logger logger = Logger.getLogger("HMMModel");    
     protected double diffDuration;
+    FeatureDefinition hmmFeatureDefinition;
     
     public HMMModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
             String featureName, String predictFrom, String applyTo) {
         super(type, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+    }
+    
+    @Override
+    public void setFeatureComputer(TargetFeatureComputer featureComputer, FeatureProcessorManager featureProcessorManager) 
+       throws MaryConfigurationException {
+        // ensure that this HMM's FeatureDefinition is a subset of the one passed in:
+              
+        FeatureDefinition voiceFeatureDefinition = featureComputer.getFeatureDefinition();
+        if (!voiceFeatureDefinition.contains(hmmFeatureDefinition)) {
+            throw new MaryConfigurationException("HMM file " + dataFile + " contains extra features which are not supported!");
+        }
+        
+        // overwrite featureComputer with one constructed from the HMM's FeatureDefinition:
+        String hmmFeatureNames = hmmFeatureDefinition.getFeatureNames();
+        featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, hmmFeatureNames);
+        this.featureComputer = featureComputer;
+
     }
     
     @Override
@@ -39,6 +60,7 @@ public class HMMModel extends Model {
             cart = htsData.getCartTreeSet();                       
             fperiodsec = ((float)htsData.getFperiod() / (float)htsData.getRate());
             diffDuration = 0.0;
+            hmmFeatureDefinition = htsData.getFeatureDefinition();
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
