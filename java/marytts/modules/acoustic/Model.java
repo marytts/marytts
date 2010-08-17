@@ -33,7 +33,6 @@ import marytts.features.TargetFeatureComputer;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.UnitSelector;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
@@ -131,10 +130,10 @@ public abstract class Model {
     /**
      * Apply this Model to a List of Elements, predicting from a different List of Elements
      * 
-     * @param applyToElements
-     *            Elements to which to apply the values predicted by this Model
      * @param predictFromElements
      *            Elements from which to predict the values
+     * @param applyToElements
+     *            Elements to which to apply the values predicted by this Model
      */
     public void applyFromTo(List<Element> predictFromElements, List<Element> applyToElements) {
         assert predictFromElements.size() == applyToElements.size();
@@ -200,6 +199,13 @@ public abstract class Model {
     protected abstract float evaluate(Target target);
 
     // several getters:
+    
+    /**
+     * @return the dataFile name
+     */
+    public String getDataFileName() {
+        return dataFile;
+    }
 
     /**
      * @return the featureName
