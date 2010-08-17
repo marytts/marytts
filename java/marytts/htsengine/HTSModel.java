@@ -94,6 +94,7 @@ public class HTSModel {
   private Float unit_logF0;         /* external lf0 value from ContinuousFeatureProcessors */
   private Float unit_logF0delta;    /* external lf0 delta value from ContinuousFeatureProcessors */
   private double[] unit_logF0Array;     /* external f0 from acoustparams, it can contain more than three values */
+  private String unit_f0ArrayStr;   /* the same unit_logF0Array in string format anti-log */
   
   public void setPhoneName(String var){ phoneName = var; }
   public String getPhoneName(){return phoneName;}
@@ -225,6 +226,8 @@ public class HTSModel {
   
   public double[] getUnit_logF0Array(){ return unit_logF0Array; }
   
+  public void setUnit_f0ArrayStr(String str){ unit_f0ArrayStr = str; }
+  public String getUnit_f0ArrayStr(){ return unit_f0ArrayStr; }
   
   /* Constructor */
   /* Every Model is initialised with the information in ModelSet*/
@@ -248,6 +251,8 @@ public class HTSModel {
     magPdf = new int[nstate];
 	magMean = new double[nstate][];
     magVariance = new double[nstate][];
+    
+    unit_f0ArrayStr=null;
     
   } /* method Model, initialise a Model object */
   

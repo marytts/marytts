@@ -211,7 +211,7 @@ public class HTSEngine extends InternalModule
                      
        // set the actualDurations in tokensAndBoundaries
        if(tokensAndBoundaries != null)
-       setRealisedProsody(tokensAndBoundaries, um);
+         setRealisedProsody(tokensAndBoundaries, um);
               
        return output;
         
@@ -225,9 +225,10 @@ public class HTSEngine extends InternalModule
       Scanner s = null;
       String line, str[];
       float totalDur = 0f; // total duration, in seconds 
+      double f0[];
       HTSModel m;
       
-        int numModel = 0;
+      int numModel = 0;
             
       for (Element e : tokensAndBoundaries) {
        //System.out.println("TAG: " + e.getTagName());
@@ -241,7 +242,8 @@ public class HTSEngine extends InternalModule
                int currentDur = m.getTotalDurMillisec();               
                totalDur += currentDur * 0.001f;
                phone.setAttribute("d", String.valueOf(currentDur));
-               phone.setAttribute("end", String.valueOf(totalDur));               
+               phone.setAttribute("end", String.valueOf(totalDur));
+               phone.setAttribute("f0", m.getUnit_f0ArrayStr());                   
            }
        } else if( e.getTagName().contentEquals(MaryXML.BOUNDARY) ) {
            int breakindex = 0;

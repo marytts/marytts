@@ -431,7 +431,14 @@ public class HMMData {
           String voice = props.getProperty("name");
           String marybase = MaryProperties.getProperty("mary.base");
           
-          if(targetAttributeName.contentEquals("f0")) {            
+          if(targetAttributeName.contentEquals("d f0") ){
+              treeLf0File = props.getProperty( "voice." + voice + ".Ftf" ).replace("MARY_BASE", marybase);
+              pdfLf0File = props.getProperty("voice." + voice + ".Fmf" ).replace("MARY_BASE", marybase);
+                         
+              treeDurFile = props.getProperty( "voice." + voice + ".Ftd" ).replace("MARY_BASE", marybase);
+              pdfDurFile = props.getProperty("voice." + voice + ".Fmd").replace("MARY_BASE", marybase);  
+              
+          } else if(targetAttributeName.contentEquals("f0")) {            
             treeLf0File = props.getProperty( "voice." + voice + ".Ftf" ).replace("MARY_BASE", marybase);
             pdfLf0File = props.getProperty("voice." + voice + ".Fmf" ).replace("MARY_BASE", marybase);
             
@@ -445,7 +452,8 @@ public class HMMData {
           } else if(targetAttributeName.contentEquals("d")){                     
             treeDurFile = props.getProperty( "voice." + voice + ".Ftd" ).replace("MARY_BASE", marybase);
             pdfDurFile = props.getProperty("voice." + voice + ".Fmd").replace("MARY_BASE", marybase);
-          } else {
+            
+          }  else {
               logger.debug("targetAttributeName = " + targetAttributeName + " Not known"); 
               throw new Exception("targetAttributeName = " + targetAttributeName + " Not known");
           }
