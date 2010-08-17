@@ -32,12 +32,12 @@ import org.w3c.dom.traversal.TreeWalker;
  * This module will aply prosody modifications to the already predicted values (dur and f0) in the acoustparams
  * @author Sathish
  */
-public class ProsodyModel {
+public class ProsodyElementHandler {
     
-    public ProsodyModel(){}
+    public ProsodyElementHandler(){}
     
     
-    public void evaluate(org.w3c.dom.Document doc) {
+    public void process(org.w3c.dom.Document doc) {
           applyProsodySpecifications(doc);
     }
     
