@@ -163,10 +163,8 @@ public class StreamUtils {
      * @see        java.io.FilterInputStream#in
      */
     public static int readUnsignedShort(ByteBuffer bb) throws BufferUnderflowException {
-        int ch1 = bb.get();
-        int ch2 = bb.get();
-        if ((ch1 | ch2) < 0)
-            throw new BufferUnderflowException();
+        int ch1 = bb.get() & 0xFF; // convert byte to unsigned byte
+        int ch2 = bb.get() & 0xFF; // convert byte to unsigned byte
         return (ch1 << 8) + (ch2 << 0);
     }
 }
