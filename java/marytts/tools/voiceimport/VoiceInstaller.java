@@ -53,6 +53,8 @@ public class VoiceInstaller extends VoiceImportComponent{
     public final String F0LEFTTREE = name+".f0LeftTree";
     public final String F0MIDTREE = name+".f0MidTree";
     public final String F0RIGHTTREE = name+".f0RightTree";
+    public final String CONCATENATORCLASS = name + ".concatenatorClass";
+    public final String TIMELINEREADERCLASS = name + ".timelineReaderClass";
     public final String HALFPHONEFEATSAC = name+".halfPhoneFeatsAc";
     public final String HALFPHONEFEATDEFAC = name+".halfPhoneFeatDefAc";
     public final String HALFPHONEUNITS = name+".halfPhoneUnits";
@@ -88,6 +90,8 @@ public class VoiceInstaller extends VoiceImportComponent{
             props.put(F0LEFTTREE, "f0.left.tree");
             props.put(F0MIDTREE, "f0.mid.tree");
             props.put(F0RIGHTTREE, "f0.right.tree");
+            props.put(CONCATENATORCLASS, "OverlapUnitConcatenator");
+            props.put(TIMELINEREADERCLASS, "TimelineReader");
             props.put(HALFPHONEFEATSAC, "halfphoneFeatures_ac"+maryext);
             props.put(HALFPHONEFEATDEFAC, "halfphoneUnitFeatureDefinition_ac.txt");
             props.put(HALFPHONEUNITS, "halfphoneUnits"+maryext);
@@ -112,6 +116,10 @@ public class VoiceInstaller extends VoiceImportComponent{
         props2Help.put(F0LEFTTREE, "file containing the left f0 CART");
         props2Help.put(F0MIDTREE, "file containing the mid f0 CART");
         props2Help.put(F0RIGHTTREE, "file containing the right f0 CART");
+        props2Help.put(CONCATENATORCLASS, "class of unit concatenator (default: <tt>OverlapUnitConcatenator</tt>, "
+                + "but experimental support for <tt>FdpsolaUnitConcatenator</tt> and <tt>HnmUnitConcatenator</tt>)");
+        props2Help.put(TIMELINEREADERCLASS, "class of TimelineReader (default: <tt>TimelineReader</tt>, "
+                + "but set to <tt>HnmTimelineReader</tt> for experimental HNM synthesis support)");
         props2Help.put(HALFPHONEFEATSAC, "file containing all halfphone units and their target cost features"
 								  +"plus the acoustic target cost features");
         props2Help.put(HALFPHONEFEATDEFAC, "file containing the list of halfphone target cost features, their values and weights");
@@ -365,12 +373,12 @@ public class VoiceInstaller extends VoiceImportComponent{
               configOut.println("# Java classes to use for the various unit selection components\n"+
                       voiceHeader+".databaseClass            = marytts.unitselection.data.DiphoneUnitDatabase\n"+
                       voiceHeader+".selectorClass            = marytts.unitselection.select.DiphoneUnitSelector\n"+
-                      voiceHeader+".concatenatorClass        = marytts.unitselection.concat.OverlapUnitConcatenator\n"+
+                      voiceHeader+".concatenatorClass        = marytts.unitselection.concat." + getProp(CONCATENATORCLASS) + "\n" +
                       voiceHeader+".targetCostClass          = marytts.unitselection.select.DiphoneFFRTargetCostFunction\n"+
                       voiceHeader+".joinCostClass            = marytts.unitselection.select.JoinCostFeatures\n"+
                       voiceHeader+".unitReaderClass          = marytts.unitselection.data.UnitFileReader\n"+
                       voiceHeader+".cartReaderClass          = marytts.cart.io.MARYCartReader\n"+
-              		  voiceHeader+".audioTimelineReaderClass = marytts.unitselection.data.TimelineReader\n");
+              		  voiceHeader+".audioTimelineReaderClass = marytts.unitselection.data." + getProp(TIMELINEREADERCLASS) + "\n");
              
               //voice data
               configOut.println("# Voice-specific files\n"+
