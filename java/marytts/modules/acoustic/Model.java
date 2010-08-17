@@ -144,7 +144,7 @@ public abstract class Model {
             Target target = predictFromTargets.get(i);
 
             float targetValue = (float) evaluate(target);
-
+            
             Element element = applyToElements.get(i);
 
             // "evaluate" pseudo XPath syntax:
@@ -153,9 +153,11 @@ public abstract class Model {
             if (targetAttributeName.startsWith("@")) {
                 targetAttributeName = targetAttributeName.replaceFirst("@", "");
             }
-
-            // format targetValue according to targetAttributeFormat
+            
             String formattedTargetValue = String.format(targetAttributeFormat, targetValue);
+            
+            //System.out.println("formattedTargetValue = " + formattedTargetValue);
+            
             // if the attribute already exists for this element, append targetValue:
             if (element.hasAttribute(targetAttributeName)) {
                 formattedTargetValue = element.getAttribute(targetAttributeName) + " " + formattedTargetValue;
@@ -219,6 +221,11 @@ public abstract class Model {
      */
     public String getTargetAttributeName() {
         return targetAttributeName;
+    }
+    
+    // in case the hmm model is reused this variable contain the targets
+    public void addTargetAttributeName(String str) {
+        targetAttributeName += " " + str;
     }
 
     /**

@@ -281,9 +281,12 @@ public class Voice
                     if (getDurationModel() != null && getDurationModel() instanceof HMMModel && modelName.equalsIgnoreCase("F0")
                             && modelDataFileName.equals(getDurationModel().getDataFileName())) {
                         model = getDurationModel();
+                        // set the attribute name, which is different to the already one set
+                        model.addTargetAttributeName(modelAttributeName);
                     } else if (getF0Model() != null && getF0Model() instanceof HMMModel && modelName.equalsIgnoreCase("duration")
                             && modelDataFileName.equals(getF0Model().getDataFileName())) {
                         model = getF0Model();
+                        model.addTargetAttributeName(modelAttributeName);
                     } else {
                         model = new HMMModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
                                 modelFeatureName, modelPredictFrom, modelApplyTo);

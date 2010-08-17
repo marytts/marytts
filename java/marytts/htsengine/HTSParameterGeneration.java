@@ -277,6 +277,9 @@ public class HTSParameterGeneration {
     else if ( lf0Pst != null ){
         logger.info("Parameter generation for LF0: "); 
         lf0Pst.mlpg(htsData, htsData.getUseGV());
+        // here we need set realisedF0
+        //htsData.getCartTreeSet().getNumStates()
+        setRealisedF0(lf0Pst, um, ms.getNumStates());
     }  
         
     
@@ -528,6 +531,34 @@ public class HTSParameterGeneration {
       
   }
 
+  
+  public void setRealisedF0(HTSPStream lf0Pst, HTSUttModel um, int numStates) {
+      int i, t, k, numVoicedInModel;      
+      HTSModel m;
+      int state, frame;            
+      String formattedF0; 
+      float f0;
+      t=0;      
+      for(i=0; i<um.getNumUttModel(); i++){
+        m = um.getUttModel(i);
+        numVoicedInModel = m.getNumVoiced();
+        formattedF0 = "";
+        k=1;
+        for(state=0; state<numStates; state++) {
+          for(frame=0; frame<m.getDur(state); frame++){
+            if( voiced[t++] ){
+                f0 = (float)Math.exp(lf0Pst.getPar(i,0));
+                formattedF0 += "(" + Integer.toString((int)((k*100.0)/numVoicedInModel)) + "," + Integer.toString((int)f0) + ")";
+                k++;  
+            }
+          } // for unvoiced frame                             
+        } // for state
+       if(!formattedF0.isEmpty()){ 
+         m.setUnit_f0ArrayStr(formattedF0);  
+         //System.out.println("ph=" + m.getPhoneName() + "  " + formattedF0);
+       }
+      }  // for model in utterance model list
+  }
   
   public void loadUnitLogF0ContinuousFeature(HTSUttModel um, HMMData htsData) throws Exception{
       int i, j, n, t;  

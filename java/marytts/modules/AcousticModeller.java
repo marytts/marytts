@@ -188,12 +188,15 @@ public class AcousticModeller extends InternalModule {
 
         // TODO this should be reduced further to the point where any HMM-specific stuff is handled opaquely within HMMModel
         // finally we can then pass elementLists into Model.apply and the Model will know which Element Lists to process
-        Model f0Model = voice.getF0Model();
+        /*Model f0Model = voice.getF0Model();
         if (f0Model instanceof HMMModel) {
             ((HMMModel) f0Model).evaluate(elementLists.get(f0Model.getApplyTo()));
         } else {
             f0Model.applyFromTo(elementLists.get(f0Model.getPredictFrom()), elementLists.get(f0Model.getApplyTo()));
-        }
+        }*/
+        Model f0Model = voice.getF0Model();
+        f0Model.applyFromTo(elementLists.get(f0Model.getPredictFrom()), elementLists.get(f0Model.getApplyTo()));
+        
         voice.getBoundaryModel().applyTo(elementLists.get(voice.getBoundaryModel().getApplyTo()));
 
         // apply other Models, if applicable:
