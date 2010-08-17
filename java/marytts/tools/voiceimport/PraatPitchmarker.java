@@ -268,7 +268,7 @@ public class PraatPitchmarker extends VoiceImportComponent
         // (i.e., mixed noise+periodicity regions treated more likely as periodic)
         toScript.println("sound = Filter (pass Hann band)... 0 1000 100");
         // Then determine pitch curve:
-        toScript.println("pitch = To Pitch... 0 75 300");
+        toScript.println("pitch = To Pitch... 0 minPitch maxPitch");
         // Get some debug info:
         toScript.println("min_f0 = Get minimum... 0 0 Hertz Parabolic");
         toScript.println("max_f0 = Get maximum... 0 0 Hertz Parabolic");
