@@ -92,8 +92,8 @@ public class HTSPStream {
   /* GV: Global mean and covariance (diagonal covariance only) */
   private double mean, var;  /* mean and variance for current utt eqs: (16), (17)*/
   private int maxGVIter     = 200;      /* max iterations in the speech parameter generation considering GV */
-  private double GVepsilon  = 1.0E-4;  /* convergence factor for GV iteration */
-  private double minEucNorm = 1.0E-2;  /* minimum Euclid norm of a gradient vector */ 
+  private double GVepsilon  = 1.0E-4;  //1.0E-4;  /* convergence factor for GV iteration */
+  private double minEucNorm = 1.0E-2;  //1.0E-2;  /* minimum Euclid norm of a gradient vector */ 
   private double stepInit   = 1.0;     /* initial step size */
   private double stepDec    = 0.5;     /* step size deceralation factor */
   private double stepInc    = 1.2;     /* step size acceleration factor */
@@ -104,7 +104,7 @@ public class HTSPStream {
   private Logger logger = Logger.getLogger("PStream");
   
   /* Constructor */
-  public HTSPStream(int vector_size, int utt_length, int fea_type) throws Exception {
+  public HTSPStream(int vector_size, int utt_length, int fea_type, int maxIterationsGV) throws Exception {
 	/* In the c code for each PStream there is an InitDwin() and an InitPStream() */ 
 	/* - InitDwin reads the window files passed as parameters for example: mcp.win1, mcp.win2, mcp.win3 */
 	/*   for the moment the dynamic window is the same for all MCP, LF0, STR and MAG  */
@@ -114,6 +114,7 @@ public class HTSPStream {
     vSize = vector_size;
     order = vector_size / dw.getNum(); 
     nT = utt_length;
+    maxGVIter = maxIterationsGV;
     width = 3;            /* hard-coded to 3, in the c code is:  pst->width = pst->dw.max_L*2+1;  */
                           /* pst->dw.max_L is hard-code to 1, for all windows                     */
     par = new double[nT][order];
@@ -179,22 +180,41 @@ public class HTSPStream {
        
        /* Global variance optimisation for MCP and LF0 */
        if( useGV ) {
-         /*logger.info("Generation using Global Variance");  
-         if(feaType == HMMData.MCP)  
-           logger.info("GV optimization for MCP feature: ("+ m + ")"); 
-         if(feaType == HMMData.LF0)  
+         logger.info("Generation using Global Variance maxGVIterations = " + maxGVIter);  
+         if(feaType == HMMData.MCP){
+           
+           logger.info("GV optimization for MCP feature: ("+ m + ")");
+           gvParmGen(m, htsData.getGVModelSet(), debug);
+           if(debug==false) 
+               logger.info("Total number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
+                         "  average = " + htsData.getGVModelSet().getTotalNumIter()/M + 
+                         "  first iteration = " + htsData.getGVModelSet().getFirstIter() );
+          
+         }
+         if(feaType == HMMData.LF0){
+             
              logger.info("GV optimization for LF0 feature: ("+ m + ")");
-         if(feaType == HMMData.STR)  
+             gvParmGen(m, htsData.getGVModelSet(), debug);
+             if(debug==false) 
+                 logger.info("Total number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
+                           "  average = " + htsData.getGVModelSet().getTotalNumIter()/M + 
+                           "  first iteration = " + htsData.getGVModelSet().getFirstIter() );
+                           
+             
+         }
+         if(feaType == HMMData.STR){ 
              logger.info("GV optimization for STR feature: ("+ m + ")");
-         if(feaType == HMMData.MAG)  
-             logger.info("GV optimization for MAG feature: ("+ m + ")");
-         */
-         gvParmGen(m, htsData.getGVModelSet(), debug);  
+             gvParmGen(m, htsData.getGVModelSet(), debug);
+             if(debug==false) 
+                 logger.info("Total number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
+                           "  average = " + htsData.getGVModelSet().getTotalNumIter()/M + 
+                           "  first iteration = " + htsData.getGVModelSet().getFirstIter() );
+         }
+         //if(feaType == HMMData.MAG)  
+         //    logger.info("GV optimization for MAG feature: ("+ m + ")");         
+         //gvParmGen(m, htsData.getGVModelSet(), debug);  
        
-         if(debug) 
-           logger.info("Total number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
-                     "  average = " + htsData.getGVModelSet().getTotalNumIter()/M + 
-                     "  first iteration = " + htsData.getGVModelSet().getFirstIter() );
+         
        }
 	 } 
 	 if(debug) {

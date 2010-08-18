@@ -183,6 +183,7 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                     MaryProperties.getProperty("voice."+voiceName+".useFourierMag"), /* Use Fourier magnitudes for pulse generation */
                     MaryProperties.getBoolean("voice."+voiceName+".useGV"),     /* Use Global Variance in parameter generation */
                     MaryProperties.getBoolean("voice."+voiceName+".useGmmGV"),  /* Use Global Variance as Gausian Mixture model */
+                    MaryProperties.getInteger("voice."+voiceName+".maxGVIter"), /* Max number of iterations in global variance */
                     MaryProperties.getFilename("voice."+voiceName+".Fgvf"),     /* GV Model LF0 */
                     MaryProperties.getFilename("voice."+voiceName+".Fgvm"),     /* GV Model MCP */
                     MaryProperties.getFilename("voice."+voiceName+".Fgvs"),     /* GV Model STR */

@@ -75,7 +75,7 @@ public class HMMVoice extends Voice {
             String Ftd, String Ftf, String Ftm, String Fts, String Fta, 
             String Fmd, String Fmf, String Fmm, String Fms, String Fma,
             String useExtDur, String useExtLogF0,
-            String useMixExc, String useFourierMag, boolean useGV, boolean useGmmGV, String Fgvf, String Fgvm, 
+            String useMixExc, String useFourierMag, boolean useGV, boolean useGmmGV, int maxGVIter, String Fgvf, String Fgvm, 
             String Fgvs, String Fgva, String Fgmmgvf, String Fgmmgvm, String FeaFile, String trickyPhonesFile,
             String Fif, int nFilters) throws Exception {
         super(nameArray, locale, dbAudioFormat, synthesizer, gender);
@@ -125,6 +125,10 @@ public class HMMVoice extends Voice {
          this.htsData.setPdfLf0GVFile(Fgmmgvf);        
          this.htsData.setPdfMcpGVFile(Fgmmgvm);
        }
+       if(maxGVIter > 0)
+         this.htsData.setMaxGVIter(maxGVIter);
+       else
+         this.htsData.setMaxGVIter(200); //default value
             
        /* Example context feature file in TARGETFEATURES format */
        this.htsData.setFeaFile(FeaFile);
