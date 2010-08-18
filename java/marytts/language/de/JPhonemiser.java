@@ -91,7 +91,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser
     throws IOException,  SAXException, ParserConfigurationException
     {
       	super("JPhonemiser_de",
-        GermanDataTypes.INFOSTRUCT_DE,
+        MaryDataType.PARTSOFSPEECH,
         MaryDataType.PHONEMES,
         MaryProperties.needFilename("de.allophoneset"),
         MaryProperties.getFilename("de.userdict"),

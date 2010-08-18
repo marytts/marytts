@@ -31,5 +31,5 @@ import marytts.datatypes.MaryXML;
  */
 public class GermanDataTypes 
 {
-    public static final MaryDataType INFOSTRUCT_DE = new MaryDataType("INFOSTRUCT_DE", true, true, MaryDataType.MARYXML, MaryXML.MARYXML);
+//    public static final MaryDataType INFOSTRUCT_DE = new MaryDataType("INFOSTRUCT_DE", true, true, MaryDataType.MARYXML, MaryXML.MARYXML);
 }
