@@ -334,8 +334,8 @@ public class HTSVocoder {
         /* Normalise the signal before return, this will normalise between 1 and -1 */
         double MaxSample = MathUtils.getAbsMax(audio_double);
         for (int i=0; i<audio_double.length; i++)        
-            audio_double[i] = 0.3 * ( audio_double[i] / MaxSample );
-            //audio_double[i] = ( audio_double[i] / MaxSample );
+            audio_double[i] = ( audio_double[i] / MaxSample );
+            //audio_double[i] = 0.3 * ( audio_double[i] / MaxSample );
                 
         return new DDSAudioInputStream(new BufferedDoubleDataSource(audio_double), af);
     } /* method htsMLSAVocoder() */
@@ -1560,10 +1560,10 @@ public class HTSVocoder {
        voiced = new boolean[totalFrame];
        
        /* Initialise HTSPStream-s */
-       lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0);
-       mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.MCP);
-       strPst = new HTSPStream(strVsize, totalFrame, HMMData.STR);
-       magPst = new HTSPStream(magVsize, totalFrame, HMMData.MAG);             
+       lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0, 0);
+       mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.MCP, 0);
+       strPst = new HTSPStream(strVsize, totalFrame, HMMData.STR, 0);
+       magPst = new HTSPStream(magVsize, totalFrame, HMMData.MAG, 0);             
        
        /* load lf0 data */
        /* for lf0 i just need to load the voiced values */
@@ -1822,8 +1822,8 @@ public class HTSVocoder {
        voiced = new boolean[totalFrame];
        
        /* Initialise HTSPStream-s */
-       lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0);
-       mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.MCP);
+       lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0, 0);
+       mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.MCP, 0);
        
        /* load lf0 data */
        /* for lf0 i just need to load the voiced values */
@@ -1852,7 +1852,7 @@ public class HTSVocoder {
              
        /* load str data */
        if(htsData.getUseMixExc()){
-           strPst = new HTSPStream(strVsize, totalFrame, HMMData.STR);
+           strPst = new HTSPStream(strVsize, totalFrame, HMMData.STR, 0);
            strData = new LEDataInputStream (new BufferedInputStream(new FileInputStream(strFile))); 
            for(i=0; i<totalFrame; i++){
               for(j=0; j<strPst.getOrder(); j++)
@@ -1864,7 +1864,7 @@ public class HTSVocoder {
        /* load mag data */
        n=0;
        if(htsData.getUseFourierMag()){
-           magPst = new HTSPStream(magVsize, totalFrame, HMMData.MAG);     
+           magPst = new HTSPStream(magVsize, totalFrame, HMMData.MAG, 0);     
            magData = new LEDataInputStream (new BufferedInputStream(new FileInputStream(magFile)));
            for(i=0; i<totalFrame; i++){
              //System.out.print(n + " : "); 
@@ -2017,7 +2017,7 @@ public class HTSVocoder {
         path + "lf0/" + files[i] + ".lf0", "3",
         path + "vocoder/" + files[i] + ".wav",  
         path + "str/" + files[i] + ".str", "15", 
-        path + "filters/mix_excitation_filters.txt", "5", "true"};  // the last true/false is for playing or not the generated file
+        path + "filters/mix_excitation_filters.txt", "5", "false"};  // the last true/false is for playing or not the generated file
         
         // without Mixed excitation and Fourier magnitudes
         /*

@@ -109,6 +109,7 @@ public class HMMData {
     private boolean useFourierMag = false;   /* use Fourier magnitudes for pulse generation */
     private boolean useGV         = false; /* use global variance in parameter generation */
     private boolean useGmmGV      = false; /* use global variance as a Gaussian Mixture Model */
+    private int maxGVIter         = 200;   /* Deafult number of iterations */
     private boolean useUnitDurationContinuousFeature = false; /* for using external duration, so it will not be generated from HMMs*/
     private boolean useUnitLogF0ContinuousFeature = false;    /* for using external f0, so it will not be generated from HMMs*/
     private boolean useDurationFromExternalFile = false; /* for using external duration, so it will not be generated from HMMs*/
@@ -211,6 +212,7 @@ public class HMMData {
     public boolean getUseFourierMag(){ return useFourierMag; }
     public boolean getUseGV(){ return useGV; }
     public boolean getUseGmmGV(){ return useGmmGV; }
+    public int getMaxGVIter(){ return maxGVIter; }
     public String getPdfLf0GVFile() { return pdfLf0GVFile; }   
     public String getPdfMcpGVFile() { return pdfMcpGVFile; } 
     public String getPdfStrGVFile() { return pdfStrGVFile; } 
@@ -290,6 +292,7 @@ public class HMMData {
     public void setUseFourierMag(boolean bval){ useFourierMag = bval; }
     public void setUseGV(boolean bval){ useGV = bval; }
     public void setUseGmmGV(boolean bval){ useGmmGV = bval; }
+    public void setMaxGVIter(int val){ maxGVIter = val; }
     
     public void setPdfLf0GVFile(String str) { pdfLf0GVFile = str; }   
     public void setPdfMcpGVFile(String str) { pdfMcpGVFile = str; } 
@@ -362,6 +365,10 @@ public class HMMData {
               pdfStrGVFile = props.getProperty( "voice." + voice + ".Fgvs" ).replace("MARY_BASE", marybase);
             if( props.getProperty( "voice." + voice + ".Fgva" ) != null)
               pdfMagGVFile = props.getProperty( "voice." + voice + ".Fgva" ).replace("MARY_BASE", marybase);
+            
+            if( props.getProperty( "voice." + voice + ".maxGVIter" ) != null )
+              maxGVIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxGVIter" ));
+            
           }else if(useGmmGV){
               pdfLf0GVFile = props.getProperty( "voice." + voice + ".Fgmmgvf" ).replace("MARY_BASE", marybase);        
               pdfMcpGVFile = props.getProperty( "voice." + voice + ".Fgmmgvm" ).replace("MARY_BASE", marybase);

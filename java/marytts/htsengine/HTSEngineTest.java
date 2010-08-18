@@ -115,13 +115,17 @@ public class HTSEngineTest {
       int i, j, n, t;  
       // context features file
       //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/red_ball.pfeats";
-      //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/RED_ball.pfeats";      
       //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/THAT_ball.pfeats";
+      //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/RED_ball.pfeats";         
       //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/red_BALL.pfeats";
-      //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/THAT_BALL.pfeats";
+      String feaFile = "/project/mary/marcela/f0-hsmm-experiment/THAT_BALL.pfeats";
       //
-      String feaFile = "/project/mary/marcela/f0-hsmm-experiment/us1-mbrola.pfeats";
+      //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/us1-mbrola.pfeats";
       //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/cmu-slt-unit-selection.pfeats";
+      //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/welcome.pfeats";
+      //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/canadian.pfeats";
+      //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/arctic_a0003.pfeats";
+      //String feaFile = "/project/mary/marcela/f0-hsmm-experiment/author.pfeats";
       
       HTSEngine hmm_tts = new HTSEngine();
       HMMData htsData = new HMMData();
@@ -366,7 +370,7 @@ public class HTSEngineTest {
            
         
          voiced = new boolean[totalFrame];
-         lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0);
+         lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0, 0);
          
          /* load lf0 data */
          /* for lf0 i just need to load the voiced values */

@@ -747,7 +747,7 @@ public class HMMDurationF0Modeller extends InternalModule
     CartTreeSet ms = htsData.getCartTreeSet();
 
     /* for lf0 count just the number of lf0frames that are voiced or non-zero */
-    lf0Pst  = new HTSPStream(ms.getLf0Stream(), um.getLf0Frame(), HMMData.LF0);
+    lf0Pst  = new HTSPStream(ms.getLf0Stream(), um.getLf0Frame(), HMMData.LF0, 200);
     
     uttFrame = lf0Frame = 0;
     voiced = new boolean[um.getTotalFrame()];
