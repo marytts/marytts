@@ -155,16 +155,16 @@ public class HTSParameterGeneration {
 	/* Here i should pass the window files to initialise the dynamic windows dw */
 	/* for the moment the dw are all the same and hard-coded */
     if( htsData.getPdfMcpFile() != null)
-	  mcepPst = new HTSPStream(ms.getMcepVsize(), um.getTotalFrame(), HMMData.MCP);
+	  mcepPst = new HTSPStream(ms.getMcepVsize(), um.getTotalFrame(), HMMData.MCP, htsData.getMaxGVIter());
     /* for lf0 count just the number of lf0frames that are voiced or non-zero */
     if( htsData.getPdfLf0File() != null)
-      lf0Pst  = new HTSPStream(ms.getLf0Stream(), um.getLf0Frame(), HMMData.LF0);
+      lf0Pst  = new HTSPStream(ms.getLf0Stream(), um.getLf0Frame(), HMMData.LF0, htsData.getMaxGVIter());
 
     /* The following are optional in case of generating mixed excitation */
     if( htsData.getPdfStrFile() != null)
-	  strPst  = new HTSPStream(ms.getStrVsize(), um.getTotalFrame(), HMMData.STR);
+	  strPst  = new HTSPStream(ms.getStrVsize(), um.getTotalFrame(), HMMData.STR, htsData.getMaxGVIter());
     if (htsData.getPdfMagFile() != null )
-	  magPst  = new HTSPStream(ms.getMagVsize(), um.getTotalFrame(), HMMData.MAG);
+	  magPst  = new HTSPStream(ms.getMagVsize(), um.getTotalFrame(), HMMData.MAG, htsData.getMaxGVIter());
 	   
     
 	uttFrame = lf0Frame = 0;
@@ -452,7 +452,7 @@ public class HTSParameterGeneration {
       logger.info("Using external prosody for f0 from acoustparams");      
       int numVoiced, numVoicedState;      
       boolean newVoiced[] = new boolean[um.getTotalFrame()];
-      HTSPStream newLf0Pst  = new HTSPStream(3, um.getTotalFrame(), HMMData.LF0); // actually the size of lf0Pst is 
+      HTSPStream newLf0Pst  = new HTSPStream(3, um.getTotalFrame(), HMMData.LF0, htsData.getMaxGVIter()); // actually the size of lf0Pst is 
                                                                                   // just the number of voiced frames               
       HTSModel m;
       HTSModel mNext;
@@ -553,7 +553,7 @@ public class HTSParameterGeneration {
             }
           } // for unvoiced frame                             
         } // for state
-       if(!formattedF0.isEmpty()){ 
+       if(!formattedF0.contentEquals("")){ 
          m.setUnit_f0ArrayStr(formattedF0);  
          //System.out.println("ph=" + m.getPhoneName() + "  " + formattedF0);
        }
@@ -575,7 +575,7 @@ public class HTSParameterGeneration {
       double genLf0Hmms[] = new double[um.getNumModel()];
       
       boolean newVoiced[] = new boolean[um.getTotalFrame()];
-      HTSPStream newLf0Pst  = new HTSPStream(3, um.getTotalFrame(), HMMData.LF0); // actually the size of lf0Pst is 
+      HTSPStream newLf0Pst  = new HTSPStream(3, um.getTotalFrame(), HMMData.LF0, htsData.getMaxGVIter()); // actually the size of lf0Pst is 
                                                                                   // just the number of voiced frames   
       
       double lf0Frame[] = new double[um.getTotalFrame()];
@@ -763,7 +763,7 @@ public class HTSParameterGeneration {
         
      
       voiced = new boolean[totalFrame];
-      lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0);
+      lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0, 0);
       
       /* load lf0 data */
       /* for lf0 i just need to load the voiced values */
