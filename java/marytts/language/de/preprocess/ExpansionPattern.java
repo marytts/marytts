@@ -228,11 +228,11 @@ public abstract class ExpansionPattern {
             // siblings and contain at least one of the characters occurring in
             // the pattern (as represented by the regular expression
             // reMatchingChars).
-            boolean isToken = n.getTagName().equals(MaryXML.TOKEN);
-            boolean hasNoPhAttr = !n.hasAttribute("ph");
-            boolean hasNoSoundsLikeAttr = !n.hasAttribute("sounds_like");
-            boolean isCandidate = isCandidate(n);
-            while (n != null && isToken && hasNoPhAttr && hasNoSoundsLikeAttr && isCandidate) {
+            while (n != null 
+                    && n.getTagName().equals(MaryXML.TOKEN) 
+                    && !n.hasAttribute("ph") 
+                    && !n.hasAttribute("sounds_like") 
+                    && isCandidate(n)) {
                 //System.err.println("Found candidate \"" + MaryDomUtils.tokenText(n) + "\" for " + this.getClass().getName());
                 candidates.add(n);
                 n = MaryDomUtils.getNextSiblingElement(n);
