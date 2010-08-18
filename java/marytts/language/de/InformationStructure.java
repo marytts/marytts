@@ -25,6 +25,7 @@ import marytts.fst.FSTLookup;
  *
  * @author Massimo Romanelli, Marc Schr&ouml;der
  */
+@Deprecated
 public class InformationStructure extends InternalModule {
 
     private FSTLookup stemmer;
@@ -33,7 +34,8 @@ public class InformationStructure extends InternalModule {
     public InformationStructure() {
         super("InfoStruct", 
                 MaryDataType.PARTSOFSPEECH,
-                GermanDataTypes.INFOSTRUCT_DE,
+//                GermanDataTypes.INFOSTRUCT_DE,
+                MaryDataType.PARTSOFSPEECH,
                 Locale.GERMAN);
     }
 
