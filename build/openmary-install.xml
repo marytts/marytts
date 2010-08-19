@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!-- THIS FILE SHOULD NO LONGER BE USED
+	 It has been superseded by the inline config in ../build.xml
+	 
 <installation version="1.0">
     <info>
         <appname>MARY TTS</appname>
@@ -266,3 +269,4 @@ This component includes GPL'ed code and is thus shipped under the GPL 3.
     
 </installation>
 
+-->

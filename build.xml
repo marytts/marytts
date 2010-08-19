@@ -470,7 +470,6 @@ THIS SOFTWARE.
 	</target>
 
   <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,languagejars,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar,perceptiontest.jar,voiceimport.jar,mary-component-installer.jar,transcription-tool.jar,dbselection-tool.jar"/>
-
 	
 	<!-- Installable language zip files for the component installer -->
     <target name="default-language-package" depends="jars">
@@ -686,16 +685,16 @@ THIS SOFTWARE.
 			<arg line="openmary-install.xml -b .. -k webdir -o ../dist/openmary-install-${specification.version.nospace}.jar"/>
         </java>
     </target-->
-    <target name="standalone-installer" depends="packages,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
+    <!--target name="standalone-installer" depends="packages,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
     	<java dir="build" jar="build/standalone-compiler.jar" fork="true">
 			<arg line="openmary-install.xml -b .. -k standard -o ../dist/openmary-standalone-install-${specification.version.nospace}.jar"/>
         </java>
-    </target>
+    </target-->
 	
 	<taskdef name="IzPack" classpath="${build}/standalone-compiler.jar"
          classname="com.izforge.izpack.ant.IzPackTask"/>
     
-    <target name="integrated-standalone-installer" depends="packages,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
+    <target name="standalone-installer" depends="packages,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
     	<IzPack output="dist/openmary-standalone-install-${specification.version.nospace}.jar"
     		installerType="standard"
     		basedir="${basedir}"
@@ -705,11 +704,12 @@ THIS SOFTWARE.
 <installation version="1.0">
     <info>
         <appname>MARY TTS</appname>
-        <appversion>4.0.0</appversion>
+        <appversion>@{specification.version}</appversion>
         <authors>
             <author name="Marc Schr&#246;der" email="schroed@dfki.de"/>
             <author name="Marcela Charfuelan" email=""/>
             <author name="Sathish Chandra Pammi" email=""/>
+            <author name="Ingmar Steiner" email=""/>
             <author name="Oytun Turk" email=""/>
             <author name="Benjamin Roth" email=""/>
             <author name="Anna Hunecke" email=""/>
@@ -742,6 +742,7 @@ THIS SOFTWARE.
 		<res id="shortcutSpec.xml" src="build/shortcuts-windows.xml"/>
 		<res id="Unix_shortcutSpec.xml" src="build/shortcuts-linux.xml"/>
 		<res id="ProcessPanel.Spec.xml" src="build/processpanelspec.xml"/>
+		<res id="Installer.image" src="lib/icons/maryicon.png"/>
 	</resources>
 
     <!-- For creating shortcuts under Windows -->
@@ -769,10 +770,10 @@ THIS SOFTWARE.
 <description>OpenMary Base: The base files for the OpenMary Text-to-speech server and client.
 </description>
 			<fileset dir="dist" targetdir="$INSTALL_PATH/download"
-				includes="mary-en-US-4.0.0.zip,
-					mary-en-US-4.0.0-component.xml,
-					mary-cmu-slt-hsmm-4.0.0.zip,
-					mary-cmu-slt-hsmm-4.0.0-component.xml"
+				includes="mary-en-US-@{specification.version.nospace}.zip
+					mary-en-US-@{specification.version.nospace}-component.xml,
+					mary-cmu-slt-hsmm-@{specification.version.nospace}.zip,
+					mary-cmu-slt-hsmm-@{specification.version.nospace}-component.xml"
 			/>
 			<fileset dir="download" targetdir="$INSTALL_PATH/download"
 			    includes="license-index.txt,
@@ -818,7 +819,6 @@ THIS SOFTWARE.
 					java/Jama-1.0.2.jar,
 					java/Jampack.jar,
 					java/JavaOpenAIR.jar,
-					java/commons-collections-3.2.1-sources.jar,
 					java/commons-collections-3.2.1.jar,
 					java/commons-lang-2.4.jar,
 					java/emospeak.jar,
@@ -833,7 +833,6 @@ THIS SOFTWARE.
 					java/httpcore-nio-4.0.jar,
 					java/jakarta-oro-2.0.8.jar,
 					java/mary-component-installer.jar,
-					java/mwdumper-2008-04-13.jar,
 					java/java-diff.jar,
 					java/jsresources.jar,
 					java/jtok.jar,
@@ -847,7 +846,6 @@ THIS SOFTWARE.
 					java/signalproc.jar,
 					java/swing-layout-1.0.jar,
 					java/trove-2.0.4.jar,
-					java/weka.jar,
 					examples/client/maryclient.pl,
 					examples/client/MaryClientUser.java,
 					examples/client/c++/Makefile,
@@ -910,6 +908,7 @@ THIS SOFTWARE.
 				.classpath,
 				build.xml,
 				README.usingEclipse.txt,
+				java/commons-collections-3.2.1-sources.jar,
 				netbeans/build.xml,
 				netbeans/nbproject/build-impl.xml,
 				netbeans/nbproject/genfiles.properties,
@@ -921,6 +920,7 @@ THIS SOFTWARE.
 				build/shortcuts-linux.xml,
 				build/shortcuts-windows.xml,
 				build/standalone-compiler.jar"/>
+			 <depends packname="voicebuilding"/>
         </pack>
 
 
@@ -974,7 +974,6 @@ This component includes GPL'ed code and is thus shipped under the GPL 3.
     	</IzPack>
     </target>
 
-	<target name="dist" depends="standalone-installer">
-	</target>
+	<target name="dist" depends="standalone-installer"/>
 		
 </project>
