@@ -56,6 +56,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Mfccs;
@@ -63,6 +72,7 @@ import marytts.util.MaryUtils;
 import marytts.util.io.LEDataInputStream;
 
 import org.apache.log4j.Logger;
+
 
 /**
  * Parameter generation out of trained HMMs.
@@ -262,18 +272,9 @@ public class HTSParameterGeneration {
 	  logger.info("Parameter generation for MCEP: ");
       mcepPst.mlpg(htsData, htsData.getUseGV());
     }
-
-    /* parameter generation for lf0 */ 
-    // CHECK!!
-    // generate the parameters any way, if there is external they will be replaced
-    // for the moment these values are used with the mbrola pfeats when f0 is 0.0 and genf0 is not 0.0
-    //if ( lf0Pst != null ){
-    //  logger.info("Parameter generation for LF0: "); 
-    //  lf0Pst.mlpg(htsData, htsData.getUseGV());
-    //}   
-    
+   
     if(htsData.getUseUnitLogF0ContinuousFeature())
-        loadExternalF0(um, htsData);
+        loadMaryXmlF0(um, htsData);
     else if ( lf0Pst != null ){
         logger.info("Parameter generation for LF0: "); 
         lf0Pst.mlpg(htsData, htsData.getUseGV());
@@ -281,16 +282,7 @@ public class HTSParameterGeneration {
         //htsData.getCartTreeSet().getNumStates()
         setRealisedF0(lf0Pst, um, ms.getNumStates());
     }  
-        
-    
-    //else if(htsData.getUseLogF0FromExternalFile())
-    //  loadLogF0FromExternalFile(htsData.getExternalLf0File(), uttFrame);
-    //else if (lf0Frame>0){
-    //  logger.info("Parameter generation for LF0: "); 
-    //  lf0Pst.mlpg(htsData, htsData.getUseGV());
-    //}
-    
-    
+   
 	/* parameter generation for str */
     boolean useGV=false;
     if( strPst != null ) {
@@ -446,91 +438,86 @@ public class HTSParameterGeneration {
     }    
   }
  
-  public void loadExternalF0(HTSUttModel um, HMMData htsData) throws Exception{
-      int i, j, k, l, r, n, t;  
- 
-      logger.info("Using external prosody for f0 from acoustparams");      
-      int numVoiced, numVoicedState;      
-      boolean newVoiced[] = new boolean[um.getTotalFrame()];
+  public void loadMaryXmlF0(HTSUttModel um, HMMData htsData) throws Exception{
+      logger.info("Using f0 from maryXML acoustparams");      
+      int i, t, state, frame, numVoiced;      
       HTSPStream newLf0Pst  = new HTSPStream(3, um.getTotalFrame(), HMMData.LF0, htsData.getMaxGVIter()); // actually the size of lf0Pst is 
                                                                                   // just the number of voiced frames               
       HTSModel m;
-      HTSModel mNext;
-      int state, frame;            
-      double[] logF0Array;
-      double[] realisedLogF0Array;
-      int f0ArraySize;      
+      Pattern p = Pattern.compile("(\\d+,\\d+)");     
+      double dval;
       numVoiced=0;
       t=0;     
       for(i=0; i<um.getNumUttModel(); i++){
         m = um.getUttModel(i);
-        numVoicedState = m.getNumVoiced();
         
-        logF0Array = m.getUnit_logF0Array();
-        if(logF0Array != null)
-          f0ArraySize = logF0Array.length;
-        else
-          f0ArraySize = 0;
-        //System.out.format("model=%s  totalDur=%d (%d ms.) mapF0Size=%d  numVoicedFrames=%d\n", m.getPhoneName(), m.getTotalDur(), 
-        //                                                                    m.getTotalDurMillisec(), f0ArraySize, numVoicedState);
-        // keep these values for setting them on the realised acoustparams
-        realisedLogF0Array = new double[m.getTotalDur()];
-        r=0;
-        k=0;
-        for(state=0; state<htsData.getCartTreeSet().getNumStates(); state++) {            
-          if( m.getVoiced(state) && f0ArraySize>0 ){
-            //System.out.format("  state=%d  dur_state=%d voiced : ",state, m.getDur(state));            
-            for(frame=0; frame<m.getDur(state); frame++){
-              // CHECK: The filling of f0 values when there is just one value, or few values  
-              //         need to be improved, maybe considering to put an slope as before, or centering the only one value
-              //         if there is three values (the prediction comes from carts) then split better the values....
-              newVoiced[t++] = true;
-              
-              if( f0ArraySize == 1){
-                newLf0Pst.setPar(numVoiced, 0, logF0Array[0]);  
-              }
-              else if(k < f0ArraySize){
-                newLf0Pst.setPar(numVoiced, 0, logF0Array[k++]);  // i=num frames and j=0, because lf0 has only one dimension
-                
-              } else{ //repeat the last one or the same if there is just one value
-                if(numVoiced > 1)  
+        Matcher xml=null;
+        if(m.getMaryXmlF0() != null)
+          xml = p.matcher(m.getMaryXmlF0());
+                  
+        //System.out.format("model=%s  totalDur=%d numVoicedFrames=%d F0=%s\n", m.getPhoneName(), m.getTotalDur(), m.getNumVoiced(), m.getMaryXmlF0());
+        
+        //getF0Values( m.getMaryXmlF0(), m.getNumVoiced());
+      
+        for(state=0; state<htsData.getCartTreeSet().getNumStates(); state++) {
+          for(frame=0; frame<m.getDur(state); frame++) { 
+            if( voiced[t++] ){  // numVoiced and t are not the same because voiced values can be true or false, numVoiced counts just the voiced
+               if( xml !=null && xml.find() ){
+                  //System.out.println("  " + xml.group());
+                  String[] f0Values = (xml.group().trim()).split(",");
+                  dval = Double.parseDouble(f0Values[1]);
+                  if(dval>0.0)
+                    newLf0Pst.setPar(numVoiced, 0, Math.log(dval));
+                  else
+                    newLf0Pst.setPar(numVoiced, 0, 0.0);                   
+                } else //if no  more values in xml, repeat the last one
                   newLf0Pst.setPar(numVoiced, 0, newLf0Pst.getPar(numVoiced-1, 0));
-                else
-                  newLf0Pst.setPar(numVoiced, 0, newLf0Pst.getPar(numVoiced, 0));                  
-              }
-              //System.out.format("%.2f ", Math.exp(newLf0Pst.getPar(numVoiced, 0)));
+                
+                //System.out.format("  state=%d frame=%d  f0=%f\n", state, frame, Math.exp(newLf0Pst.getPar(numVoiced, 0)));
+                numVoiced++;              
+              }//else  // this frame is not voiced, we just need to fill in the voiced segments
               
-              realisedLogF0Array[r++] = Math.exp(newLf0Pst.getPar(numVoiced, 0));
-              numVoiced++;
-            }
-            //System.out.println();
-          } // for voiced frame
-          else{              
-            //System.out.format("  state=%d  dur_state=%d unvoiced\n", state, m.getDur(state));
-            for(frame=0; frame<m.getDur(state); frame++){
-              newVoiced[t++] = false;
-              realisedLogF0Array[r++] = 0.0;  
-            }
-          } // for unvoiced frame                             
+            } // for frame
         } // for state
-        //System.out.format("numVoiced=%d  model=%d k=%d realisedLogF0: ", numVoiced, i, k);
-        //for(l=0; l < realisedLogF0Array.length; l++)
-        //  System.out.format("%.2f ", realisedLogF0Array[l]);
-        //System.out.println();
-        // set the realised f0 on this model of the utterance list
-        m.setUnit_logF0Array(realisedLogF0Array);
-        
       }  // for model in utterance model list
-      
-      // set the external prosody as if it were generated
-      setVoicedArray(newVoiced);
-           
-      //MaryUtils.plot(lf0Frame, "F0 contour");
-      
-      setlf0Pst(newLf0Pst);  
-      
+            
+      setlf0Pst(newLf0Pst);        
   }
+ 
+  // get numFrames f0 values, interpolate if necessary 
+  private void getF0Values( String maryXmlF0, int numFrames){
+      Pattern p = Pattern.compile("(\\d+,\\d+)");     
+      // i need m.getNumVoiced() values 
+      Matcher xml=null;
+      if(maryXmlF0 != null) {
+        xml = p.matcher(maryXmlF0);        
+        SortedMap<Integer,Integer> f0Map = new TreeMap<Integer, Integer>();
+        int numF0s=0;
+        while ( xml.find() ) {
+            String[] f0Values = (xml.group().trim()).split(",");
+            f0Map.put(new Integer(f0Values[0]), new Integer(f0Values[1]));
+            numF0s++;
+        }
+        
+        Set s = f0Map.entrySet();
+        Iterator if0 = s.iterator();
+        while(if0.hasNext())
+        {
+            Map.Entry mf0 =(Map.Entry)if0.next();
 
+            int key = (Integer)mf0.getKey();
+            int value=(Integer)mf0.getValue();
+
+            System.out.println("Key :"+key+"  value :"+value);
+            //SignalProcUtils.interpolate(x, D);
+            
+            //int interval = (int)((numFrames*key)/100.0);
+            //for(int i=key; i<interval; i++)
+            //  System.out.println("i=" + i + "  value :" + value);  
+        }
+
+      } 
+  }
   
   public void setRealisedF0(HTSPStream lf0Pst, HTSUttModel um, int numStates) {
       int i, t, k, numVoicedInModel;      
@@ -554,164 +541,14 @@ public class HTSParameterGeneration {
           } // for unvoiced frame                             
         } // for state
        if(!formattedF0.contentEquals("")){ 
-         m.setUnit_f0ArrayStr(formattedF0);  
+           m.setMaryXmlF0(formattedF0);
+         //m.setUnit_f0ArrayStr(formattedF0);  
          //System.out.println("ph=" + m.getPhoneName() + "  " + formattedF0);
        }
       }  // for model in utterance model list
   }
   
-  public void loadUnitLogF0ContinuousFeature(HTSUttModel um, HMMData htsData) throws Exception{
-      int i, j, n, t;  
-      // Use the ContinuousFeatureProcessors unit_logf0 and unit_logf0delta, they are saved in each model of um
-      // Modify the f0 generated values according to the external ones
-      logger.info("Using external prosody for lf0: using unit_logf0 and unit_logF0delta from ContinuousFeatureProcessors.");
-      int totalDur=0; 
-      
-      double externalLf0=0, nextExternalLf0=0;
-      double externalLf0Delta=0;
-      int numVoiced=0;
-      i=0;
-      float fperiodsec = ((float)htsData.getFperiod() / (float)htsData.getRate());
-      double genLf0Hmms[] = new double[um.getNumModel()];
-      
-      boolean newVoiced[] = new boolean[um.getTotalFrame()];
-      HTSPStream newLf0Pst  = new HTSPStream(3, um.getTotalFrame(), HMMData.LF0, htsData.getMaxGVIter()); // actually the size of lf0Pst is 
-                                                                                  // just the number of voiced frames   
-      
-      double lf0Frame[] = new double[um.getTotalFrame()];
-      
-      // this is the generated F0
-      //String genF0 = "/project/mary/marcela/f0-hsmm-experiment/genF0.txt";
-      //String extF0 = "/project/mary/marcela/f0-hsmm-experiment/extF0.txt";
-      //FileWriter genFile = new FileWriter(genF0);
-      //FileWriter extFile = new FileWriter(extF0);
-      
-      
-      HTSModel m;
-      HTSModel mNext;
-      numVoiced=0;
-      int state, frame, numLf0NonZero;
-      int lastPos=0, nextPos=0;
-      double lf0Model, durModel;
-      
-      /*
-      t=0;      
-      for(i=0; i<um.getNumUttModel(); i++){
-          m = um.getUttModel(i);   
-          lf0Model = 0;
-          durModel = 0;
-          numLf0NonZero = 0;
-          for(state=0; state<5; state++) {
-            durModel += m.getDur(state);
-            for(frame=0; frame<m.getDur(state); frame++) {                
-                //genFile.write(Integer.toString(t) + " " + m.getPhoneName() + " " + Integer.toString(m.getTotalDur()) + " " 
-                //        + Integer.toString(m.getDur(state)) + " " + Integer.toString(frame+1) + " ");
-                if(voiced[t]){
-                    //genFile.write(Double.toString(Math.exp(lf0Pst.getPar(numVoiced,0))) + "\n");                    
-                    lf0Model = lf0Model + lf0Pst.getPar(numVoiced,0);
-                    numLf0NonZero++;
-                    numVoiced++;
-                } else {
-                  //genFile.write("0.0\n");  
-                }
-                t++;
-            } // for each frame in this state 
-          } // for each state in this model
-          
-          if(numLf0NonZero == 0){
-            System.out.format("%s genDur=%.3f genF0=%.3f \n", m.getPhoneName(), durModel*fperiodsec, lf0Model);
-            genLf0Hmms[i] = lf0Model;
-          }
-          else{
-            System.out.format("%s genDur=%.3f genF0=%.3f \n", m.getPhoneName(), durModel*fperiodsec, (lf0Model/numLf0NonZero));
-            genLf0Hmms[i] = (lf0Model/numLf0NonZero);
-          }
-          
-        }  // for each model in this utterance        
-      //genFile.close();
-      //System.out.println("Created file:" + genF0);
-      */
-      double slope;
-      // this is how the external prosody will look like
-      numVoiced=0;
-      t=0;
-       
-      int totalDurFrames=0;
-      for(i=0; i<um.getNumUttModel(); i++){
-          m = um.getUttModel(i);
-          if((i+1)<um.getNumUttModel())
-            mNext = um.getUttModel(i+1);
-          else
-            mNext=null;
-          
-          externalLf0 = m.getUnit_logF0();           
-          lastPos = totalDurFrames;
-                    
-          externalLf0Delta = m.getUnit_logF0delta();
-          if(mNext!=null){
-            if(mNext.getUnit_logF0()>0.0){
-              nextExternalLf0 = mNext.getUnit_logF0();
-              nextPos = totalDurFrames + m.getTotalDur();
-              
-              slope = (nextExternalLf0 - externalLf0) / (nextPos - lastPos);
-              
-            } else{
-              nextPos = totalDurFrames + m.getTotalDur();
-              slope = 0.0;
-            }
-          }
-          else {
-            nextExternalLf0 = 0.0;
-            slope = 0.0;
-            nextPos = um.getTotalFrame();
-          }
-          totalDurFrames += m.getTotalDur();
-          
-          /*
-          System.out.format("externalLf0=%.3f nextExternalLf0=%.3f lastPos=%d nextPos=%d slope=%.3f\n", externalLf0, nextExternalLf0, lastPos, nextPos, slope);          
-          if(externalLf0 == 0.0)
-            System.out.format("%s  extDur=%.3f(%d)   extF0=%f  extF0Delta=%f\n", m.getPhoneName(), m.getUnit_duration(), m.getTotalDurMillisec() , externalLf0,  externalLf0Delta);
-          else
-            System.out.format("%s  extDur=%.3f(%d)   extF0=%f  extF0Delta=%f\n", m.getPhoneName(), m.getUnit_duration(),  m.getTotalDurMillisec(), externalLf0,  externalLf0Delta);
-          */
-            
-          lastPos = t;          
-          for(state=0; state<5; state++) {                     
-            for(frame=0; frame<m.getDur(state); frame++) {                      
-                //extFile.write(Integer.toString(t) + " " + m.getPhoneName() + " " + Integer.toString(m.getTotalDur()) + " " 
-                //        + Integer.toString(m.getDur(state)) + " " + Integer.toString(frame+1) + " ");
-                if(externalLf0 > 0 ){ 
-                    newVoiced[t] = true;
-                    // without slope
-                    //newLf0Pst.setPar(numVoiced, 0, externalLf0);
-                    // with slope
-                    newLf0Pst.setPar(numVoiced, 0, (externalLf0 + slope*(t-lastPos)));
-                    
-                    //extFile.write(Double.toString(Math.exp(newLf0Pst.getPar(numVoiced,0))) + "\n");
-                    lf0Frame[t] = Math.exp(newLf0Pst.getPar(numVoiced, 0));
-                    numVoiced++;                  
-                } else {
-                    newVoiced[t] = false;
-                    //extFile.write("0.0\n");
-                    lf0Frame[t] = externalLf0;
-                }   
-                
-                //System.out.format("%d  %.3f\n", t, lf0Frame[t]); 
-                t++;
-            } // for each frame in this state 
-          } // for each state in this model 
-        }  // for each model in this utterance
-      //extFile.close();
-      //System.out.println("Created file:" + genF0);
-   
-      // set the external prosody as if it were generated
-      setVoicedArray(newVoiced);
-           
-      //MaryUtils.plot(lf0Frame, "F0 contour");
-      
-      setlf0Pst(newLf0Pst);  
-      
-  }
+
   
   
   /***

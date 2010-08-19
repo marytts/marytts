@@ -51,6 +51,7 @@ package marytts.htsengine;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -90,12 +91,9 @@ public class HTSModel {
   private boolean voiced[];         /* voiced/unvoiced decision for each state of this HMM */
   private int numVoiced;            /* number of voiced frames in this model */
   
-  private Float unit_duration;      /* external duration value from ContinuousFeatureProcessors */
-  private Float unit_logF0;         /* external lf0 value from ContinuousFeatureProcessors */
-  private Float unit_logF0delta;    /* external lf0 delta value from ContinuousFeatureProcessors */
-  private double[] unit_logF0Array;     /* external f0 from acoustparams, it can contain more than three values */
-  private String unit_f0ArrayStr;   /* the same unit_logF0Array in string format anti-log */
-  
+  private String maryXmlDur;        /* duration in maryXML input acoustparams, format d="val" in millisec. */
+  private String maryXmlF0;         /* F0 values in maryXML input acoustparams, format f0="(1,val1)...(100,val2)" (%pos in total duration, f0 Hz)*/
+    
   public void setPhoneName(String var){ phoneName = var; }
   public String getPhoneName(){return phoneName;}
   
@@ -192,42 +190,11 @@ public class HTSModel {
   public void setNumVoiced(int val){ numVoiced = val; }
   public int getNumVoiced(){ return numVoiced; }
   
-  public void setUnit_duration(float fval){unit_duration = fval;}
-  public float getUnit_duration(){return unit_duration;}
-  public void setUnit_logF0(float fval){unit_logF0 = fval;}
-  public float getUnit_logF0(){return unit_logF0;}
-  public void setUnit_logF0delta(float fval){unit_logF0delta = fval;}
-  public float getUnit_logF0delta(){return unit_logF0delta;}
+  public void setMaryXmlDur(String str){ maryXmlDur = str;}
+  public String getMaryXmlDur(){ return maryXmlDur;}
   
-  public void setUnit_logF0Array(double [] val){ unit_logF0Array = val; }
-  public void setUnit_logF0Array(String f0Str){
-      // CHECK:  weak!
-      String tmp[] = f0Str.split("\\)");
-      if(tmp.length >= 1 && f0Str.length()>0)
-      {
-        unit_logF0Array = new double[tmp.length];
-        Pattern p = Pattern.compile("(\\d+,\\d+)");
-        double val;
-        // Split input with the pattern
-        Matcher m = p.matcher(f0Str);
-        int i=0;
-        while ( m.find() ) {
-          String[] f0Values = (m.group().trim()).split(",");
-          val = Double.parseDouble(f0Values[1]);
-          if(val>0.0)
-            unit_logF0Array[i++] = Math.log(val);
-          else
-            unit_logF0Array[i++] = 0.0;
-          
-        }
-      } else
-        unit_logF0Array = null;
-  }
-  
-  public double[] getUnit_logF0Array(){ return unit_logF0Array; }
-  
-  public void setUnit_f0ArrayStr(String str){ unit_f0ArrayStr = str; }
-  public String getUnit_f0ArrayStr(){ return unit_f0ArrayStr; }
+  public void setMaryXmlF0(String str){ maryXmlF0 = str;}
+  public String getMaryXmlF0(){ return maryXmlF0;}
   
   /* Constructor */
   /* Every Model is initialised with the information in ModelSet*/
@@ -252,7 +219,8 @@ public class HTSModel {
 	magMean = new double[nstate][];
     magVariance = new double[nstate][];
     
-    unit_f0ArrayStr=null;
+    maryXmlDur = null;
+    maryXmlF0 = null;
     
   } /* method Model, initialise a Model object */
   
