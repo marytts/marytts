@@ -89,7 +89,14 @@ public class FFRTargetCostFunction implements TargetCostFunction
             for (int i=0; i<nBytes; i++) {
                 if (weightsNonZero[i]) {
                     float weight = weightVector[i];
-                    if (targetFeatures.byteValuedDiscreteFeatures[i] != unitFeatures.byteValuedDiscreteFeatures[i]) {
+                    if ( featureDefinition.hasSimilarityMatrix(i) ) {
+                        byte targetFeatValueIndex = targetFeatures.byteValuedDiscreteFeatures[i];
+                        byte unitFeatValueIndex = unitFeatures.byteValuedDiscreteFeatures[i];
+                        float similarity = featureDefinition.getSimilarity(i, unitFeatValueIndex, targetFeatValueIndex);
+                        cost += similarity * weight;
+                        if (debugShowCostGraph) cumulWeightedCosts[i] += similarity * weight;
+                    }
+                    else if (targetFeatures.byteValuedDiscreteFeatures[i] != unitFeatures.byteValuedDiscreteFeatures[i]) {
                         cost += weight;
                         if (debugShowCostGraph) cumulWeightedCosts[i] += weight;
                     }
