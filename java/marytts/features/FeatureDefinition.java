@@ -889,7 +889,7 @@ public class FeatureDefinition
         if ( featureIndex >= this.getNumberOfByteFeatures() ) {
             return false;
         }
-        if ( this.similarityMatrices[featureIndex] != null ) {
+        if ( this.similarityMatrices != null && this.similarityMatrices[featureIndex] != null ) {
             return true;
         }
         return false;
