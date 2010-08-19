@@ -140,7 +140,7 @@ public class Request {
         } else {
             this.appendableAudioStream = null;
         }
-        this.logger = Logger.getLogger("R " + id);
+        this.logger = MaryUtils.getLogger("R " + id);
         this.outputTypeParams = outputTypeParams;
         this.inputData = null;
         this.outputData = null;

@@ -39,6 +39,7 @@ import marytts.unitselection.concat.UnitConcatenator;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.unitselection.select.UnitSelector;
+import marytts.util.MaryUtils;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
@@ -70,7 +71,7 @@ public class InterpolatingSynthesizer implements WaveformSynthesizer
      */
     public void startup() throws Exception
     {
-        logger = Logger.getLogger("InterpolatingSynthesizer");
+        logger = MaryUtils.getLogger("InterpolatingSynthesizer");
         // Register interpolating voice:
         Voice.registerVoice(new InterpolatingVoice(this, "interpolatingvoice"));    
         logger.info("started.");

@@ -34,6 +34,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioFileFormat;
 
 import marytts.util.ConversionUtils;
+import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.string.StringUtils;
@@ -54,7 +55,7 @@ import org.apache.log4j.Logger;
  */
 public class MaryHttpServerUtils 
 {
-    private static Logger logger = Logger.getLogger("http"); 
+    private static Logger logger = MaryUtils.getLogger("http"); 
     
     public static void toHttpResponse(double[] x, HttpResponse response, String contentType) throws IOException
     {   

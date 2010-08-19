@@ -57,6 +57,7 @@ import javax.sound.sampled.AudioFormat;
 
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
+import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
 
@@ -64,7 +65,7 @@ import org.apache.log4j.Logger;
 public class HMMVoice extends Voice {
  
     private HMMData htsData = new HMMData();
-    private Logger logger = Logger.getLogger("HMMVoice");
+    private Logger logger = MaryUtils.getLogger("HMMVoice");
     
    /** 
     * constructor */ 

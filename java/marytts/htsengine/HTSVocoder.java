@@ -71,6 +71,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import marytts.util.MaryUtils;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.AudioPlayer;
@@ -121,7 +122,7 @@ public class HTSVocoder {
     public static final double LTPI  = 1.83787706640935;   /* log(2*PI) */
     
     
-    private Logger logger = Logger.getLogger("Vocoder");
+    private Logger logger = MaryUtils.getLogger("Vocoder");
     
     Random rand;
     private int stage;             /* Gamma=-1/stage : if stage=0 then Gamma=0 */

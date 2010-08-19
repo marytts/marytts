@@ -22,6 +22,8 @@ package marytts.modules;
 // Log4j Logging classes
 import java.io.IOException;
 
+import marytts.util.MaryUtils;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -44,7 +46,7 @@ public class ProcessTimeoutDestroyer extends Thread
     public ProcessTimeoutDestroyer(ExternalModule module)
     {
         this.module = module;
-        logger = Logger.getLogger(module.name() + " timer");
+        logger = MaryUtils.getLogger(module.name() + " timer");
         // The timer threads must have a higher priority than the
         // normal threads, in order to make sure they are processed
         // before any other.

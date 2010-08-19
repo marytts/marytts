@@ -34,6 +34,7 @@ import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.phonemiser.Syllabifier;
 import marytts.server.MaryProperties;
+import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
@@ -44,7 +45,7 @@ import com.sun.speech.freetts.lexicon.LetterToSoundImpl;
 
 public class LTS
 {
-    private static Logger logger = Logger.getLogger("LTS");
+    private static Logger logger = MaryUtils.getLogger("LTS");
     LetterToSound letterToSound;
     Syllabifier syllabifier;
     boolean lowerCaseOnly;

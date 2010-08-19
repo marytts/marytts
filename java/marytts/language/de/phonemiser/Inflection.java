@@ -33,6 +33,7 @@ import java.util.StringTokenizer;
 import marytts.datatypes.MaryXML;
 import marytts.fst.FSTLookup;
 import marytts.server.MaryProperties;
+import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
@@ -101,7 +102,7 @@ public class Inflection
         endingTable.put("9d", ""); // with definite determiner
         endingTable.put("9i", "s"); // with indefinite determiner
         endingTable.put("9", "s"); // without determiner
-        logger = Logger.getLogger("Inflection");
+        logger = MaryUtils.getLogger("Inflection");
     }
 
     public void determineEndings(Document doc) {

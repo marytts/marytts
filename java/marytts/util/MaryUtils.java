@@ -40,6 +40,8 @@ import java.util.TimerTask;
 
 import javax.swing.JFrame;
 
+import org.apache.log4j.Logger;
+
 import marytts.modules.MaryModule;
 import marytts.server.MaryProperties;
 import marytts.signalproc.display.FunctionGraph;
@@ -53,6 +55,8 @@ import marytts.util.math.MathUtils;
  */
 
 public class MaryUtils {
+    public static final String LOGPREFIX = "marytts.";
+    
     private static long lowMemoryThreshold = -1;
     private static Timer maintenanceTimer = new Timer(true); // a daemon timer which will not prohibit system exits.
     
@@ -182,7 +186,7 @@ public class MaryUtils {
 
     
     public static String[] splitIntoSensibleXMLUnits(String s) {
-        List result = new ArrayList(); 
+        List<String> result = new ArrayList<String>(); 
         boolean inLetters = false;
         int partstart = 0;
         final String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜabcdefghijklmnopqrstuvwxyzäöüß";
@@ -991,6 +995,16 @@ public class MaryUtils {
         } else {
             return Integer.toString(byteCount);
         }
+    }
+    
+    /**
+     * Provide a Logger object whose name is built from MaryUtils.LOGPREFIX and the given nameSuffix.
+     * @param nameSuffix the suffix to use for the logger name.
+     * @return
+     */
+    public static Logger getLogger(String nameSuffix) {
+        return Logger.getLogger(LOGPREFIX+nameSuffix);
+        
     }
 }
 

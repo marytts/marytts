@@ -43,6 +43,7 @@ import marytts.unitselection.data.DiphoneUnit;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.weightingfunctions.WeightFunc;
 import marytts.unitselection.weightingfunctions.WeightFunctionManager;
+import marytts.util.MaryUtils;
 import marytts.util.data.MaryHeader;
 import marytts.util.io.StreamUtils;
 
@@ -170,7 +171,7 @@ public class JoinCostFeatures implements JoinCostFunction
             }
             // Overwrite weights and weight functions from file?
             if (weightsFileName != null) {
-                Logger.getLogger("JoinCostFeatures").debug("Overwriting join cost weights from file "+weightsFileName);
+                MaryUtils.getLogger("JoinCostFeatures").debug("Overwriting join cost weights from file "+weightsFileName);
                 Object[] weightData = readJoinCostWeightsFile(weightsFileName);
                 featureWeight = (float[]) weightData[0];
                 String[] wf = (String[])weightData[1];
@@ -258,7 +259,7 @@ public class JoinCostFeatures implements JoinCostFunction
             }
             // Overwrite weights and weight functions from file?
             if (weightsFileName != null) {
-                Logger.getLogger("JoinCostFeatures").debug("Overwriting join cost weights from file "+weightsFileName);
+                MaryUtils.getLogger("JoinCostFeatures").debug("Overwriting join cost weights from file "+weightsFileName);
                 Object[] weightData = readJoinCostWeightsFile(weightsFileName);
                 featureWeight = (float[]) weightData[0];
                 String[] wf = (String[])weightData[1];

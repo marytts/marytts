@@ -52,6 +52,7 @@ import marytts.unitselection.select.SelectedUnit;
 import marytts.unitselection.select.StatisticalCostFunction;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.TargetCostFunction;
+import marytts.util.MaryUtils;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -124,7 +125,7 @@ public  class Viterbi
 	    this.targetCostFunction = database.getTargetCostFunction();
 	    this.joinCostFunction = database.getJoinCostFunction();
 	    this.sCostFunction = database.getSCostFunction();
-        this.logger = Logger.getLogger("Viterbi");
+        this.logger = MaryUtils.getLogger("Viterbi");
         this.wTargetCosts = wTargetCosts;
         wJoinCosts = 1 - wTargetCosts;
         wSCosts = 0;
@@ -167,7 +168,7 @@ public  class Viterbi
         this.targetCostFunction = database.getTargetCostFunction();
         this.joinCostFunction = database.getJoinCostFunction();
         this.sCostFunction = database.getSCostFunction();
-        this.logger = Logger.getLogger("Viterbi");
+        this.logger = MaryUtils.getLogger("Viterbi");
         this.wTargetCosts = wTargetCosts;
         this.wSCosts = wSCosts;
         wJoinCosts = 1 - (wTargetCosts + wSCosts);

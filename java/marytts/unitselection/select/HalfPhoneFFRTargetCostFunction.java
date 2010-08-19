@@ -36,6 +36,7 @@ import marytts.unitselection.data.HalfPhoneFeatureFileReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.weightingfunctions.WeightFunc;
 import marytts.unitselection.weightingfunctions.WeightFunctionManager;
+import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
 
@@ -99,7 +100,7 @@ public class HalfPhoneFFRTargetCostFunction extends FFRTargetCostFunction
         this.featureVectors = ffr.getFeatureVectors();
 
         if (weightsFile != null) {
-            Logger.getLogger("TargetCostFeatures").debug("Overwriting target cost weights from file "+weightsFile);
+            MaryUtils.getLogger("TargetCostFeatures").debug("Overwriting target cost weights from file "+weightsFile);
             String[] weightsFiles = weightsFile.split("\\|");
             if (weightsFiles.length != 2)
                 throw new IllegalArgumentException("Parameter weightsFile should contain exactly two fields separated by a '|' character -- instead, it is: '"+weightsFile+"'");

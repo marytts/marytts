@@ -46,6 +46,7 @@ import marytts.cart.LeafNode.LeafType;
 import marytts.cart.LeafNode.StringAndFloatLeafNode;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
+import marytts.util.MaryUtils;
 import marytts.util.data.MaryHeader;
 
 import org.apache.log4j.Logger;
@@ -58,7 +59,7 @@ import org.apache.log4j.Logger;
 public class DirectedGraphWriter
 {
     
-    protected Logger logger = Logger.getLogger(this.getClass().getName());
+    protected Logger logger = MaryUtils.getLogger(this.getClass().getName());
 
     /**
      * Dump the graph in Mary format

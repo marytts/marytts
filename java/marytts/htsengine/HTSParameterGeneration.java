@@ -86,7 +86,7 @@ public class HTSParameterGeneration {
   private HTSPStream lf0Pst  = null;
   private boolean voiced[];
   
-  private Logger logger = Logger.getLogger("ParameterGeneration");
+  private Logger logger = MaryUtils.getLogger("ParameterGeneration");
   
   public double getMcep(int i, int j){ return mcepPst.getPar(i, j); }
   public int getMcepOrder(){ return mcepPst.getOrder(); }

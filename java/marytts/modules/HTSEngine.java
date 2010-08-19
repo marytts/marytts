@@ -87,6 +87,7 @@ import marytts.htsengine.HTSEngineTest.PhonemeDuration;
 import marytts.modules.synthesis.Voice;
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.unitselection.select.Target;
+import marytts.util.MaryUtils;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.data.audio.AudioPlayer;
 import marytts.util.dom.MaryDomUtils;
@@ -109,7 +110,7 @@ import marytts.signalproc.analysis.*;
  */
 public class HTSEngine extends InternalModule
 {
-    private Logger loggerHts = Logger.getLogger("HTSEngine");
+    private Logger loggerHts = MaryUtils.getLogger("HTSEngine");
     private String realisedDurations;  // HMM realised duration to be save in a file
     private boolean phoneAlignmentForDurations;
     private boolean stateAlignmentForDurations=false;   

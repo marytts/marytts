@@ -26,6 +26,7 @@ import java.util.Properties;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.select.Target;
+import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
 
@@ -42,7 +43,7 @@ import org.apache.log4j.Logger;
  */
 public class DirectedGraph 
 {
-    protected Logger logger = Logger.getLogger(this.getClass().getName());
+    protected Logger logger = MaryUtils.getLogger(this.getClass().getName());
 
     protected Node rootNode;
 

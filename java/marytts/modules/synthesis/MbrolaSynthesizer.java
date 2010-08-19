@@ -62,7 +62,7 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
     }
 
     public void startup() throws Exception {
-        logger = Logger.getLogger(this.toString());
+        logger = MaryUtils.getLogger(this.toString());
         // Try to get instances of our tools from Mary; if we cannot get them,
         // instantiate new objects.
         try{

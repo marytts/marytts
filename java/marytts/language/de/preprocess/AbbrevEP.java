@@ -37,6 +37,7 @@ import java.util.regex.Pattern;
 
 import marytts.datatypes.MaryXML;
 import marytts.server.MaryProperties;
+import marytts.util.MaryUtils;
 import marytts.util.REPattern;
 import marytts.util.dom.MaryDomUtils;
 
@@ -66,7 +67,7 @@ public class AbbrevEP extends ExpansionPattern
     private final Pattern reMatchingChars = null;
     public Pattern reMatchingChars() { return reMatchingChars; }
 
-    private static final Logger logger = Logger.getLogger("AbbrevEP");
+    private static final Logger logger = MaryUtils.getLogger("AbbrevEP");
 
     static
     {

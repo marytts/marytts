@@ -91,7 +91,7 @@ public abstract class BaseHttpRequestHandler extends SimpleNHttpRequestHandler i
     public BaseHttpRequestHandler()
     {
         super();
-        logger = Logger.getLogger("server");
+        logger = MaryUtils.getLogger("server");
         requestMap = Collections.synchronizedMap(new HashMap<String, Object[]>());
 
     }

@@ -38,6 +38,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
+import marytts.util.MaryUtils;
 import marytts.util.io.StreamLogger;
 
 import org.apache.log4j.Logger;
@@ -236,7 +237,7 @@ public class ExternalModule implements MaryModule
         setExitRequested(false);
         open();
         setNeedToRestart(false);
-        logger = Logger.getLogger(name());
+        logger = MaryUtils.getLogger(name());
         logger.info("Module started ("+inputType()+"->"+outputType()+", locale "+getLocale()+").");
         state = MODULE_RUNNING;
     }

@@ -64,6 +64,7 @@ import java.util.Vector;
 import marytts.features.FeatureDefinition;
 import marytts.server.MaryProperties;
 import marytts.unitselection.select.Target;
+import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
 
@@ -84,7 +85,7 @@ public class HMMData {
 	public static final int STR = 3;
 	public static final int MAG = 4;
 
-    private Logger logger = Logger.getLogger("HMMData");
+    private Logger logger = MaryUtils.getLogger("HMMData");
     
 	/** Global variables for some functions, initialised with default values, so these values 
 	 * can be loaded from a configuration file. */

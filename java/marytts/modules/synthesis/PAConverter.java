@@ -27,6 +27,7 @@ import java.util.StringTokenizer;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
+import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
 
@@ -41,7 +42,7 @@ import org.apache.log4j.Logger;
 
 public class PAConverter
 {
-    private static Logger logger = Logger.getLogger("PAConverter");
+    private static Logger logger = MaryUtils.getLogger("PAConverter");
 
     // The following map has as its keys Locales and as its values PhonemeSets.
     private static Map<Locale, AllophoneSet> sampa;

@@ -65,7 +65,7 @@ public class ModuleRegistry
         mkm = new MultiKeyMap();
         allModules = new LinkedList<MaryModule>();
         registrationComplete = false;
-        logger = Logger.getLogger("ModuleRegistry");
+        logger = MaryUtils.getLogger("ModuleRegistry");
     }
     
     //////////////////////////////////////////////////////////////////

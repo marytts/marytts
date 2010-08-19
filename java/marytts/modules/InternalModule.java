@@ -29,6 +29,7 @@ import javax.sound.sampled.AudioSystem;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
+import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
 
@@ -91,7 +92,7 @@ public class InternalModule implements MaryModule
         this.inputType = inputType;
         this.outputType = outputType;
         this.locale = locale;
-        logger = Logger.getLogger(name());
+        logger = MaryUtils.getLogger(name());
         this.state = MODULE_OFFLINE;
     }
 
@@ -138,7 +139,7 @@ public class InternalModule implements MaryModule
 
     public void shutdown()
     {
-        logger = Logger.getLogger(name());
+        logger = MaryUtils.getLogger(name());
         logger.info("Module shut down.");
         state = MODULE_OFFLINE;
     }

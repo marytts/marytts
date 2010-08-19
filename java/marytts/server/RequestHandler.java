@@ -85,9 +85,9 @@ public class RequestHandler extends Thread {
             throw new NullPointerException("Received null dataSocket");
         this.dataSocket = dataSocket;
         this.setName("RH " + request.getId());
-        logger = Logger.getLogger(this.getName());
+        logger = MaryUtils.getLogger(this.getName());
         this.inputReader = new LoggingReader(inputReader, logger);
-        clientLogger = Logger.getLogger(this.getName() + " client");
+        clientLogger = MaryUtils.getLogger(this.getName() + " client");
         try {
             clientLogger.addAppender(
                 new WriterAppender(
@@ -232,7 +232,7 @@ public class RequestHandler extends Thread {
             this.request = request;
             this.output = output;
             this.setName("RW " + request.getId());
-            logger = Logger.getLogger(this.getName());
+            logger = MaryUtils.getLogger(this.getName());
         }
         
         public void run()
@@ -264,7 +264,7 @@ public class RequestHandler extends Thread {
         {
               this.input = input;
               
-              logger = Logger.getLogger(this.getName());
+              logger = MaryUtils.getLogger(this.getName());
               textWriter = null;
               binaryWriter = null;
               response = null;

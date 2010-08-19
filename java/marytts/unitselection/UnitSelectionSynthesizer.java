@@ -87,7 +87,7 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
      */
     public void startup() throws Exception
     {
-        logger = Logger.getLogger("UnitSelectionSynthesizer");
+        logger = MaryUtils.getLogger("UnitSelectionSynthesizer");
         // Register UnitSelection voices:
         logger.debug("Register UnitSelection voices:");
         String voiceNames = MaryProperties.getProperty("unitselection.voices.list");

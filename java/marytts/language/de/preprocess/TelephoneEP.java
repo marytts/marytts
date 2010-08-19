@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import marytts.util.MaryUtils;
 import marytts.util.REPattern;
 import marytts.util.dom.MaryDomUtils;
 
@@ -72,7 +73,7 @@ public class TelephoneEP extends ExpansionPattern
      * the variable at the same telephone, the logger needs to be thread-safe
      * or it will produce rubbish.
      */
-    private Logger logger = Logger.getLogger("TelephoneEP");
+    private Logger logger = MaryUtils.getLogger("TelephoneEP");
 
     public TelephoneEP()
     {

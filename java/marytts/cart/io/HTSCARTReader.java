@@ -72,6 +72,7 @@ import marytts.cart.LeafNode.PdfLeafNode;
 import marytts.cart.Node;
 import marytts.features.FeatureDefinition;
 import marytts.htsengine.PhoneTranslator;
+import marytts.util.MaryUtils;
 import marytts.util.data.MaryHeader;
 
 
@@ -85,7 +86,7 @@ public class HTSCARTReader
     
     private FeatureDefinition featDef; 
     private PhoneTranslator phTrans;
-    private Logger logger = Logger.getLogger("HTSCARTReader");
+    private Logger logger = MaryUtils.getLogger("HTSCARTReader");
     private int vectorSize;   // the vector size of the mean and variance on the leaves of the tree.
     
     public int getVectorSize(){ return vectorSize; }

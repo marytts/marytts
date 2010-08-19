@@ -199,7 +199,7 @@ public class DateEP extends ExpansionPattern
      * the variable at the same time, the logger needs to be thread-safe
      * or it will produce rubbish.
      */
-    private Logger logger = Logger.getLogger("DateEP");
+    private Logger logger = MaryUtils.getLogger("DateEP");
 
     public DateEP()
     {

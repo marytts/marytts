@@ -36,6 +36,7 @@ import java.util.Vector;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.modules.phonemiser.AllophoneSet;
+import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
 
@@ -45,7 +46,7 @@ import org.apache.log4j.Logger;
  */
 public class PhoneTranslator {
     
-    private Logger logger = Logger.getLogger("PhoneTranslator");
+    private Logger logger = MaryUtils.getLogger("PhoneTranslator");
     private String contextFeatureFile, trickyPhonesFile;
     private int iPhoneme, iPrevPhoneme, iPrevPrevPhoneme, iNextPhoneme, iNextNextPhoneme;
     private Map<String,String> trickyPhones = new HashMap<String, String>();

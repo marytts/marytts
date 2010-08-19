@@ -64,6 +64,7 @@ import marytts.cart.LeafNode.PdfLeafNode;
 import marytts.cart.io.HTSCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
+import marytts.util.MaryUtils;
 
 /**
  * Set of CART trees used in HMM synthesis.
@@ -72,7 +73,7 @@ import marytts.features.FeatureVector;
  */
 public class CartTreeSet {
     
-    private Logger logger = Logger.getLogger("CartTreeSet");
+    private Logger logger = MaryUtils.getLogger("CartTreeSet");
     
     private CART[] durTree;   // CART trees for duration 
     private CART[] lf0Tree;   // CART trees for log F0 

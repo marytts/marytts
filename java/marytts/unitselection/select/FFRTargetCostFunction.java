@@ -34,6 +34,7 @@ import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.weightingfunctions.WeightFunc;
 import marytts.unitselection.weightingfunctions.WeightFunctionManager;
+import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
 
@@ -164,7 +165,7 @@ public class FFRTargetCostFunction implements TargetCostFunction
         this.featureDefinition = ffr.getFeatureDefinition();
         this.featureVectors = ffr.getFeatureVectors();
         if (weightsFile != null) {
-            Logger.getLogger("TargetCostFeatures").debug("Overwriting target cost weights from file "+weightsFile);
+            MaryUtils.getLogger("TargetCostFeatures").debug("Overwriting target cost weights from file "+weightsFile);
             // overwrite weights from file
             FeatureDefinition newWeights = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(weightsFile), "UTF-8")), true);
             if (!newWeights.featureEquals(featureDefinition)) {

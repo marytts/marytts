@@ -29,6 +29,7 @@ import marytts.exceptions.NoSuchPropertyException;
 import marytts.modules.DummyFreeTTSVoice;
 import marytts.server.MaryProperties;
 import marytts.unitselection.UnitSelectionVoice;
+import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
 
@@ -62,7 +63,7 @@ public class FreeTTSVoices
     private static Lexicon usenLexicon = null;
     private static Lexicon deLexicon = null;
     
-    protected static Logger logger = Logger.getLogger("FreeTTSVoices");
+    protected static Logger logger = MaryUtils.getLogger("FreeTTSVoices");
 
 
     /**

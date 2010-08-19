@@ -30,6 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import marytts.datatypes.MaryXML;
+import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
 import org.apache.log4j.Logger;
@@ -158,7 +159,7 @@ public abstract class ExpansionPattern {
         return specialChar.splitAtChars();
     }
 
-    private static Logger logger = Logger.getLogger("ExpansionPattern");
+    private static Logger logger = MaryUtils.getLogger("ExpansionPattern");
 
     public ExpansionPattern() {
     }
