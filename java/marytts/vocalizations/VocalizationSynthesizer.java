@@ -19,8 +19,11 @@
  */
 package marytts.vocalizations;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,14 +81,19 @@ public class VocalizationSynthesizer {
     protected VocalizationUnitFileReader unitFileReader;
     protected int samplingRate;
     protected VocalizationFeatureFileReader featureFileReader;
+    protected FeatureDefinition featureDefinition;
     final double INFINITE = 100000;
     
     public VocalizationSynthesizer(Voice voice){
         try{
-            String unitFileName = MaryProperties.getFilename("voice."+voice.getName()+".backchannel.unitfile");
-            String timelineFile = MaryProperties.getFilename("voice."+voice.getName()+".backchannel.timeline");
-            String featureFile  = MaryProperties.getFilename("voice."+voice.getName()+".backchannel.featurefile");
+            String unitFileName = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.unitfile");
+            String timelineFile = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.timeline");
+            String featureFile  = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.featurefile");
+            String featureDefinitionFile  = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.featureDefinitionFile");
+            
             this.unitFileReader = new VocalizationUnitFileReader(unitFileName);
+            BufferedReader fDBufferedReader = new BufferedReader( new FileReader( new File(featureDefinitionFile)));
+            this.featureDefinition = new FeatureDefinition(fDBufferedReader, true);
             this.featureFileReader = new VocalizationFeatureFileReader(featureFile);
             this.samplingRate   = unitFileReader.getSampleRate();
             this.audioTimeline  = new TimelineReader(timelineFile);
@@ -141,9 +149,10 @@ public class VocalizationSynthesizer {
     }
 
     private int getBestMatchingCandidate(Target targetUnit) throws IOException {
-        FeatureDefinition featDef = this.featureFileReader.getFeatureDefinition();
+        //FeatureDefinition featDef = this.featureFileReader.getFeatureDefinition();
+        FeatureDefinition featDef = this.featureDefinition;
         VocalizationFFRTargetCostFunction vffrtCostFunction = new VocalizationFFRTargetCostFunction();
-        vffrtCostFunction.load(this.featureFileReader);
+        vffrtCostFunction.load(this.featureFileReader, featDef);
         if(this.featureFileReader.getNumberOfUnits() != this.unitFileReader.getNumberOfUnits()) {
             throw new RuntimeException("Feature file reader and unit file reader is not aligned properly");
         }
@@ -165,7 +174,8 @@ public class VocalizationSynthesizer {
 
     private Target createTarget(Element domElement) {
         
-        FeatureDefinition featDef = this.featureFileReader.getFeatureDefinition();
+        //FeatureDefinition featDef = this.featureFileReader.getFeatureDefinition();
+        FeatureDefinition featDef = this.featureDefinition;
         int numFeatures = featDef.getNumberOfFeatures();
         int numByteFeatures = featDef.getNumberOfByteFeatures();
         int numShortFeatures = featDef.getNumberOfShortFeatures();
@@ -178,24 +188,34 @@ public class VocalizationSynthesizer {
         int floatCount = 0;
         
         for( int i=0; i<numFeatures; i++ ) {
+            
             String featName  = featDef.getFeatureName(i);
             String featValue = "0";
-            if( domElement.hasAttribute( featName ) ) {
-                featValue = domElement.getAttribute(featName);
-            }
-            boolean hasFeature = featDef.hasFeatureValue(featName, featValue);
-            if( !hasFeature ) featValue = "0";
             
-            if ( featDef.isByteFeature(i) ) {
-                byteFeatures[byteCount++]   = featDef.getFeatureValueAsByte(i, featValue);
-            }
-            else if ( featDef.isShortFeature(i) ) {
-                shortFeatures[shortCount++] = featDef.getFeatureValueAsShort(i, featValue);
+            if ( featDef.isByteFeature(featName) || featDef.isShortFeature(featName) ) {
+                if( domElement.hasAttribute( featName ) ) {
+                    featValue = domElement.getAttribute(featName);
+                }
+                
+                boolean hasFeature = featDef.hasFeatureValue(featName, featValue);
+                if( !hasFeature ) featValue = "0";
+                
+                if ( featDef.isByteFeature(i) ) {
+                    byteFeatures[byteCount++]   = featDef.getFeatureValueAsByte(i, featValue);
+                }
+                else if ( featDef.isShortFeature(i) ) {
+                    shortFeatures[shortCount++] = featDef.getFeatureValueAsShort(i, featValue);
+                }
             }
             else {
-                floatFeatures[floatCount++] = (new Float(featValue)).floatValue();
+                if( domElement.hasAttribute( "meaning" ) ) {
+                    featValue = domElement.getAttribute("meaning");
+                }
+                //float contFeature = getMeaningScaleValue ( featName, featValue );
+                floatFeatures[floatCount++] = getMeaningScaleValue ( featName, featValue );
             }
         }
+        
         FeatureVector newFV = featDef.toFeatureVector(0,byteFeatures, shortFeatures, floatFeatures);
         
         String name = "0";
@@ -207,6 +227,58 @@ public class VocalizationSynthesizer {
         newTarget.setFeatureVector(newFV);
                  
         return newTarget;
+    }
+    
+    
+    private float getMeaningScaleValue(String featureName, String categories) {
+        
+        if( "angry".equals(featureName) && categories.contains("angry") ) {
+            return 5;
+        }
+        else if( "sadness".equals(featureName) && categories.contains("sadness") ) {
+            return 5;
+        }
+        else if( "amusement".equals(featureName) && categories.contains("amusement") ) {
+            return 5;
+        }
+        else if( "happiness".equals(featureName) && categories.contains("happiness") ) {
+            return 5;
+        }
+        else if( "contempt".equals(featureName) && categories.contains("contempt") ) {
+            return 5;
+        }
+        else if( "solidarity".equals(featureName) && categories.contains("solidarity") ) {
+            return 5;
+        }
+        else if( "antagonism".equals(featureName) && categories.contains("antagonism") ) {
+            return 5;
+        }
+        else if( "certain".equals(featureName) && categories.contains("uncertain") ) {
+            return -2;
+        }
+        else if( "certain".equals(featureName) && categories.contains("certain") ) {
+            return 2;
+        }
+        else if( "agree".equals(featureName) && categories.contains("disagree") ) {
+            return -2;
+        }
+        else if( "agree".equals(featureName) && categories.contains("agree") ) {
+            return 2;
+        }
+        else if( "interested".equals(featureName) && categories.contains("uninterested") ) {
+            return -2;
+        }
+        else if( "interested".equals(featureName) && categories.contains("interested") ) {
+            return 2;
+        }
+        else if( "anticipation".equals(featureName) && categories.contains("unawares") ) {
+            return -2;
+        }
+        else if( "anticipation".equals(featureName) && categories.contains("anticipation") ) {
+            return 2;
+        }
+        
+        return Float.NaN;
     }
 
 }
