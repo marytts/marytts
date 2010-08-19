@@ -19,6 +19,8 @@
  */
 package marytts.language.de.infostruct;
 
+import marytts.util.MaryUtils;
+
 import org.apache.log4j.Logger;
 
 
@@ -30,7 +32,7 @@ public class Stemmer {
     private Logger logger;
 
     public Stemmer() {
-        logger = Logger.getLogger("Stemmer");
+        logger = MaryUtils.getLogger("Stemmer");
     }
 
     //extract the stemm of the original word

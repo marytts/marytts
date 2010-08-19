@@ -91,7 +91,7 @@ public class MaryData
     private AudioInputStream audio = null;
     private AudioFileFormat audioFileFormat = null;
     private List<Utterance> utterances = null;
-    private Logger logger = Logger.getLogger("IO");
+    private Logger logger = MaryUtils.getLogger("IO");
 
     // for plainText, allow additional information:
     private Voice defaultVoice = null;

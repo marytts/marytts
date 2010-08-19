@@ -140,7 +140,7 @@ public class Voice
 
     private static Map<Locale,Voice> defaultVoices = new HashMap<Locale,Voice>();
 
-    protected static Logger logger = Logger.getLogger("Voice");
+    protected static Logger logger = MaryUtils.getLogger("Voice");
 
     /** A local map of already-instantiated Lexicons */
     private static Map<String, Lexicon> lexicons = new HashMap<String, Lexicon>();

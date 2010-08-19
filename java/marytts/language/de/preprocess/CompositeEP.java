@@ -28,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import marytts.datatypes.MaryXML;
+import marytts.util.MaryUtils;
 import marytts.util.REPattern;
 import marytts.util.dom.MaryDomUtils;
 
@@ -70,7 +71,7 @@ public class CompositeEP extends ExpansionPattern
      * the variable at the same time, the logger needs to be thread-safe
      * or it will produce rubbish.
      */
-    private Logger logger = Logger.getLogger("CompositeEP");
+    private Logger logger = MaryUtils.getLogger("CompositeEP");
 
 
     public CompositeEP()

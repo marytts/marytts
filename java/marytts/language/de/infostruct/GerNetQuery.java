@@ -28,6 +28,9 @@ import java.util.Collection;
 import java.util.Vector;
 
 import java.util.logging.Level;
+
+import marytts.util.MaryUtils;
+
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
@@ -44,7 +47,7 @@ import org.apache.log4j.Logger;
 public class GerNetQuery {
     private Connection con;
     private Statement stmt;
-    private static Logger logger = Logger.getLogger("GerNetQuery");
+    private static Logger logger = MaryUtils.getLogger("GerNetQuery");
 
     public GerNetQuery(String database, String user, String password) throws ClassNotFoundException, IllegalAccessException, InstantiationException, SQLException {
         connect(database, user, password);

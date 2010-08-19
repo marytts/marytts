@@ -105,7 +105,7 @@ public class UtterancePlayRequestHandler  extends BaseHttpRequestHandler {
                 new Thread("RH "+maryRequest.getId()) {
                     public void run() 
                     {
-                        Logger myLogger = Logger.getLogger(this.getName());
+                        Logger myLogger = MaryUtils.getLogger(this.getName());
                         try {
                             maryRequest.process(waveFile);
                             myLogger.info("Streaming request processed successfully.");

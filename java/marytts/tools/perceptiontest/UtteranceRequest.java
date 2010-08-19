@@ -109,7 +109,7 @@ public class UtteranceRequest {
         if (audioFileFormat == null) 
             throw new NullPointerException("audio file format is needed for output type AUDIO");
         this.appendableAudioStream = new AppendableSequenceAudioInputStream(audioFileFormat.getFormat(), null);
-        this.logger = Logger.getLogger("R " + id);
+        this.logger = MaryUtils.getLogger("R " + id);
     }
 
     public int getId() {

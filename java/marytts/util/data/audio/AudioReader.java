@@ -54,7 +54,7 @@ public class AudioReader extends Thread
         this.audioDestination = audioDestination;
         this.endMarker = endMarker != null? endMarker.getBytes(): null;
         latestSeenTime = System.currentTimeMillis();
-        logger = Logger.getLogger("Audio reader");
+        logger = MaryUtils.getLogger("Audio reader");
     }
 
     public void run() {

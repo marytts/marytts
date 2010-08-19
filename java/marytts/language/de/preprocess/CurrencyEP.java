@@ -153,7 +153,7 @@ public class CurrencyEP extends ExpansionPattern
      * the variable at the same time, the logger needs to be thread-safe
      * or it will produce rubbish.
      */
-    private Logger logger = Logger.getLogger("CurrencyEP");
+    private Logger logger = MaryUtils.getLogger("CurrencyEP");
 
 
     // Only used to initialise sCurrencySymbol from _currencySymbolNames[]:

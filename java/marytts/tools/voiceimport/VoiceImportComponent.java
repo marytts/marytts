@@ -21,6 +21,8 @@ package marytts.tools.voiceimport;
 
 import java.util.SortedMap;
 
+import marytts.util.MaryUtils;
+
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 
@@ -57,7 +59,7 @@ public abstract class VoiceImportComponent
         if (!Logger.getRootLogger().getAllAppenders().hasMoreElements()) {
             BasicConfigurator.configure();
         }
-        logger = Logger.getLogger(getName());
+        logger = MaryUtils.getLogger(getName());
     }
     
     /**

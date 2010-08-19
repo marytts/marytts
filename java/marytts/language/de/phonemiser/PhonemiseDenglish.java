@@ -44,7 +44,7 @@ import marytts.language.de.JPhonemiser;
  */
 public class PhonemiseDenglish
 {
-		private static Logger logger = Logger.getLogger("PhonemiseDenglish");
+		private static Logger logger = MaryUtils.getLogger("PhonemiseDenglish");
 	
 		private String[] vowels = {"a", "e", "i", "o", "u" };
 		private String[] dentalPlosives = { "t", "d" };

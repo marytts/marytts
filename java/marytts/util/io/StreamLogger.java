@@ -27,6 +27,8 @@ import java.io.PrintStream;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import marytts.util.MaryUtils;
+
 import org.apache.log4j.Logger;
 
 
@@ -56,9 +58,9 @@ public class StreamLogger extends Thread
     {
         this.is = is;
         if (logCategory == null)
-            logger = Logger.getLogger("unnamed");
+            logger = MaryUtils.getLogger("unnamed");
         else
-            logger = Logger.getLogger(logCategory);
+            logger = MaryUtils.getLogger(logCategory);
         if (ignorePattern != null) {
             try {
                 this.ignorePattern = Pattern.compile(ignorePattern);

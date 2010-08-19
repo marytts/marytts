@@ -38,6 +38,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import marytts.util.MaryUtils;
 import marytts.util.io.ReaderSplitter;
 
 import org.apache.log4j.Logger;
@@ -98,7 +99,7 @@ public class MaryNormalisedWriter {
             stylesheet = tFactory.newTemplates(stylesheetStream);
         }
         if (logger == null)
-            logger = Logger.getLogger("MaryNormalisedWriter");
+            logger = MaryUtils.getLogger("MaryNormalisedWriter");
 
     }
 

@@ -146,7 +146,7 @@ public class MeasureEP extends ExpansionPattern
      * the variable at the same time, the logger needs to be thread-safe
      * or it will produce rubbish.
      */
-    private Logger logger = Logger.getLogger("MeasureEP");
+    private Logger logger = MaryUtils.getLogger("MeasureEP");
 
 
     // Only used to initialise sMeasureSymbol from _measureSymbolNames[]:

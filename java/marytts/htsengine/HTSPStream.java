@@ -49,6 +49,8 @@
 
 package marytts.htsengine;
 
+import marytts.util.MaryUtils;
+
 import org.apache.log4j.Logger;
 
 
@@ -101,7 +103,7 @@ public class HTSPStream {
   private double w2         = 1.0;     /* weight for GV output prob. */
   double norm=0.0, GVobj=0.0, HMMobj=0.0;
  
-  private Logger logger = Logger.getLogger("PStream");
+  private Logger logger = MaryUtils.getLogger("PStream");
   
   /* Constructor */
   public HTSPStream(int vector_size, int utt_length, int fea_type, int maxIterationsGV) throws Exception {

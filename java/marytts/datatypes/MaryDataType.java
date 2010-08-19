@@ -34,6 +34,7 @@ import java.util.Vector;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.synthesis.Voice;
+import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;
 
 import org.apache.log4j.Logger;
@@ -160,7 +161,7 @@ public class MaryDataType
         knownDataTypes = new LinkedList<MaryDataType>();
         dataTypesByName = new HashMap<String, MaryDataType>();
         registrationComplete = false;
-        logger = Logger.getLogger("MaryDataType");
+        logger = MaryUtils.getLogger("MaryDataType");
     }
 
     

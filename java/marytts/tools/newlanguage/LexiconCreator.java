@@ -49,6 +49,7 @@ import marytts.fst.FSTLookup;
 import marytts.fst.TransducerTrie;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.phonemiser.TrainedLTS;
+import marytts.util.MaryUtils;
 
 /**
  * The LexiconCreator is the base class for creating the files needed to run the
@@ -120,7 +121,7 @@ public class LexiconCreator
         this.convertToLowercase = convertToLowercase;
         this.predictStress = predictStress;
         this.context = context;
-        this.logger = Logger.getLogger("LexiconCreator");
+        this.logger = MaryUtils.getLogger("LexiconCreator");
     }
 
     /**

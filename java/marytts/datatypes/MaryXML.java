@@ -24,6 +24,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import marytts.util.MaryUtils;
+
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -58,7 +60,7 @@ public class MaryXML
     private static String version = "0.5";
     private static String namespace = "http://mary.dfki.de/2002/MaryXML";
 
-    private static Logger logger = Logger.getLogger("MaryXML");
+    private static Logger logger = MaryUtils.getLogger("MaryXML");
     private static DocumentBuilder docBuilder = null;
 
 

@@ -205,19 +205,39 @@ public class Mary {
     /**
      * Start the MARY system and all modules. This method must be called
      * once before any calls to {@link #process()} are possible.
+     * The method will dynamically extend the classpath to all jar files in
+     * MARY_BASE/java/*.jar. Use <code>startup(false)</code> if you do not want
+     * to automatically extend the classpath in this way.
      * @throws IllegalStateException if the system is not offline.
      * @throws Exception
      */
     public static void startup() throws Exception
     {
+        startup(true);
+    }
+    
+    
+    /**
+     * Start the MARY system and all modules. This method must be called
+     * once before any calls to {@link #process()} are possible.
+     * @param addJarsToClasspath if true, the
+     * method will dynamically extend the classpath to all jar files in
+     * MARY_BASE/java/*.jar; if false, the classpath will remain unchanged.
+     * @throws IllegalStateException if the system is not offline.
+     * @throws Exception
+     */
+    public static void startup(boolean addJarsToClasspath) throws Exception
+    {
         if (currentState != STATE_OFF) throw new IllegalStateException("Cannot start system: it is not offline");
         currentState = STATE_STARTING;
 
-        addJarsToClasspath();
+        if (addJarsToClasspath) {
+            addJarsToClasspath();
+        }
         MaryProperties.readProperties();
 
         // Configure Logging:
-        logger = Logger.getLogger("main");
+        logger = MaryUtils.getLogger("main");
         Logger.getRootLogger().setLevel(Level.toLevel(MaryProperties.needProperty("log.level")));
         PatternLayout layout = new PatternLayout("%d [%t] %-5p %-10c %m\n");
         File logFile = null;

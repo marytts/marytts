@@ -37,6 +37,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
+import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDestination;
 import marytts.util.data.audio.AudioReader;
 
@@ -219,7 +220,7 @@ public class FestivalCaller extends SynthesisCallerBase
         throws UnknownHostException, IOException
         {
             this.socket = new Socket(host, port);
-            logger = Logger.getLogger("SimpleFestivalClient");
+            logger = MaryUtils.getLogger("SimpleFestivalClient");
         }
         
         public AudioInputStream process(String request)

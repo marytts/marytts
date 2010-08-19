@@ -33,6 +33,8 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import marytts.util.MaryUtils;
+
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -93,13 +95,13 @@ public class PerceptionTestHttpServer  extends Thread {
     private int serverPort = 44547; // default
     
     public PerceptionTestHttpServer(String testXmlName, String userRatingsDirectory) {
-        logger = Logger.getLogger("server");
+        logger = MaryUtils.getLogger("server");
         this.testXmlName =  testXmlName;
         this.userRatingsDirectory = userRatingsDirectory;
     }
 
     public PerceptionTestHttpServer(String testXmlName, String userRatingsDirectory, int serverPort) {
-        logger = Logger.getLogger("server");
+        logger = MaryUtils.getLogger("server");
         this.testXmlName =  testXmlName;
         this.userRatingsDirectory = userRatingsDirectory;
         this.serverPort = serverPort;

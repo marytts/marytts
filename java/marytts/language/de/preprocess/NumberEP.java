@@ -106,7 +106,7 @@ public class NumberEP extends ExpansionPattern
      * the variable at the same time, the logger needs to be thread-safe
      * or it will produce rubbish.
      */
-    private Logger logger = Logger.getLogger("NumberEP");
+    private Logger logger = MaryUtils.getLogger("NumberEP");
 
     public NumberEP()
     {

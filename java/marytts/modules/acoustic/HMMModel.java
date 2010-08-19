@@ -19,6 +19,7 @@ import marytts.htsengine.HTSModel;
 import marytts.htsengine.HTSParameterGeneration;
 import marytts.htsengine.HTSUttModel;
 import marytts.unitselection.select.Target;
+import marytts.util.MaryUtils;
 
 public class HMMModel extends Model {
     
@@ -26,7 +27,7 @@ public class HMMModel extends Model {
     HTSUttModel um = null;
     private CartTreeSet cart;    
     private float fperiodsec;
-    protected static Logger logger = Logger.getLogger("HMMModel");    
+    protected static Logger logger = MaryUtils.getLogger("HMMModel");    
     protected double diffDuration;
     FeatureDefinition hmmFeatureDefinition;
     

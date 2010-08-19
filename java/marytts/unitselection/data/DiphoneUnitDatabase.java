@@ -31,6 +31,7 @@ import marytts.unitselection.select.DiphoneTarget;
 import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.viterbi.ViterbiCandidate;
+import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 
 import org.apache.log4j.Logger;
@@ -41,7 +42,7 @@ public class DiphoneUnitDatabase extends UnitDatabase {
     public DiphoneUnitDatabase()
     {
         super();
-        logger = Logger.getLogger("DiphoneUnitDatabase");
+        logger = MaryUtils.getLogger("DiphoneUnitDatabase");
     }
 
     /**

@@ -31,6 +31,7 @@ import marytts.unitselection.select.StatisticalCostFunction;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.TargetCostFunction;
 import marytts.unitselection.select.viterbi.ViterbiCandidate;
+import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 
 import org.apache.log4j.Logger;
@@ -54,7 +55,7 @@ public class UnitDatabase
     protected TimelineReader audioTimeline;
     protected TimelineReader basenameTimeline;
     protected int backtrace;
-    protected Logger logger = Logger.getLogger("UnitDatabase");
+    protected Logger logger = MaryUtils.getLogger("UnitDatabase");
     
     
     public UnitDatabase()

@@ -176,7 +176,7 @@ public class MaryServer {
     private Executor clients = Executors.newCachedThreadPool();
 
     public MaryServer() {
-        logger = Logger.getLogger("server");
+        logger = MaryUtils.getLogger("server");
     }
 
     public void run() throws IOException, NoSuchPropertyException {
@@ -207,7 +207,7 @@ public class MaryServer {
         }
 
         public void run() {
-            logger = Logger.getLogger("server");
+            logger = MaryUtils.getLogger("server");
             try {
                 OutputStreamWriter clientUTFOutput = new OutputStreamWriter(client.getOutputStream(), "UTF-8");
                 clientOut = new PrintWriter(clientUTFOutput, true);

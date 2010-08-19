@@ -55,6 +55,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import marytts.util.MaryUtils;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -95,7 +97,7 @@ public class GVModelSet {
   public int getFirstIter(){ return firstIter; }
   public void setFirstIter(int val){ firstIter = val; }
     
-  private Logger logger = Logger.getLogger("GVModelSet");
+  private Logger logger = MaryUtils.getLogger("GVModelSet");
   
   public int getNumMix() {return numMix;}
   public double[] getGVweightsMcp(){ return gvweightsMcp; }

@@ -19,6 +19,8 @@
  */
 package marytts.modules.synthesis;
 
+import marytts.util.MaryUtils;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -40,7 +42,7 @@ public abstract class VoiceSectioner
         this.s = s;
         this.pos = 0;
         this.currentVoice = defaultVoice;
-        this.logger = Logger.getLogger("VoiceSectioner");
+        this.logger = MaryUtils.getLogger("VoiceSectioner");
     }
     
     public abstract VoiceSection nextSection();

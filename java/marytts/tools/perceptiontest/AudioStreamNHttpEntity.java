@@ -34,6 +34,7 @@ import javax.sound.sampled.AudioSystem;
 
 import marytts.server.Request;
 import marytts.server.http.MaryHttpServerUtils;
+import marytts.util.MaryUtils;
 
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.nio.ContentEncoder;
@@ -117,7 +118,7 @@ extends AbstractHttpEntity implements ProducingNHttpEntity, Runnable
      */
     public void run()
     {
-        this.logger = Logger.getLogger(Thread.currentThread().getName());
+        this.logger = MaryUtils.getLogger(Thread.currentThread().getName());
         // We must wait until produceContent() is called:
         while (out == null) {
             synchronized(mutex) {

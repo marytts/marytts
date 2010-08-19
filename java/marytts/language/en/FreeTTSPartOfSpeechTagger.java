@@ -34,6 +34,7 @@ import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.InternalModule;
 import marytts.modules.synthesis.FreeTTSVoices;
 import marytts.server.MaryProperties;
+import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
 
@@ -70,7 +71,7 @@ public class FreeTTSPartOfSpeechTagger extends InternalModule
     public void startup() throws Exception
     {
         super.startup();
-        this.logger = Logger.getLogger("FreeTTSPOSTagger");
+        this.logger = MaryUtils.getLogger("FreeTTSPOSTagger");
         buildPosMap();
         // Initialise FreeTTS
         FreeTTSVoices.load();

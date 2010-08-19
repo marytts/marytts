@@ -213,7 +213,7 @@ public class MaryHttpServer extends Thread
     private static Logger logger;
 
     public MaryHttpServer() {
-        logger = Logger.getLogger("server");
+        logger = MaryUtils.getLogger("server");
     }
     
 

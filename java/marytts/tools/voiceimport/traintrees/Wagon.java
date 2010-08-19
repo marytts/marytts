@@ -45,6 +45,7 @@ import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.WagonCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
+import marytts.util.MaryUtils;
 
 /**
  * A class providing the functionality to interface with an external
@@ -97,7 +98,7 @@ public class Wagon implements Runnable
         if (wagonExecutable == null || !wagonExecutable.isFile()) {
             throw new IOException("No wagon executable set using Wagon.setExecutable()!");
         }
-        this.logger = Logger.getLogger("Wagon");
+        this.logger = MaryUtils.getLogger("Wagon");
         this.id = id;
         this.featureDefinition = featureDefinition;
         this.fv = featureVectors;
