@@ -201,7 +201,7 @@ public class HMMModel extends Model {
               
           // (2) include the predicted values in  applicableElements (as it is done in Model)
           boolean voiced[] = pdf2par.getVoicedArray();  
-          
+          int numVoiced = 0; 
           // make sure that the number of applicable elements is the same as the predicted number of elements
           assert applyToElements.size() == um.getNumModel();        
           float f0;
@@ -214,9 +214,9 @@ public class HMMModel extends Model {
             formattedTargetValue = "";
             //System.out.format("phone = %s dur_in_frames=%d  num_voiced_frames=%d : ", m.getPhoneName(), m.getTotalDur(), numVoicedInModel);
             for(mstate=0; mstate<cart.getNumStates(); mstate++) {
-              for(frame=0; frame<m.getDur(mstate); frame++) {
-                if( voiced[t++] ){
-                  f0 = (float)Math.exp(pdf2par.getlf0Pst().getPar(i,0));
+              for(frame=0; frame<m.getDur(mstate); frame++) { 
+                if( voiced[t++] ){  // numVoiced and t are not the same because voiced values can be true or false, numVoiced count just the voiced
+                  f0 = (float)Math.exp(pdf2par.getlf0Pst().getPar(numVoiced++,0));                  
                   formattedTargetValue += "(" + Integer.toString((int)((k*100.0)/numVoicedInModel)) + "," + Integer.toString((int)f0) + ")";
                   k++;
                 }
