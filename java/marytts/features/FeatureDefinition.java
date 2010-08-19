@@ -57,6 +57,7 @@ public class FeatureDefinition
     public static final String BYTEFEATURES = "ByteValuedFeatureProcessors";
     public static final String SHORTFEATURES = "ShortValuedFeatureProcessors";
     public static final String CONTINUOUSFEATURES = "ContinuousFeatureProcessors";
+    public static final String FEATURESIMILARITY  = "FeatureSimilarity";
     public static final char WEIGHT_SEPARATOR = '|';
     public static final String EDGEFEATURE = "edge";
     public static final String EDGEFEATURE_START = "start";
@@ -72,6 +73,7 @@ public class FeatureDefinition
     private ByteStringTranslator[] byteFeatureValues;
     private ShortStringTranslator[] shortFeatureValues;
     private String[] floatWeightFuncts; // for continuous features only
+    private float[][][] similarityMatrices = null;
     
     /**
      * Create a feature definition object, reading textual data
@@ -115,9 +117,18 @@ public class FeatureDefinition
         }
         // Section CONTINUOUSFEATURES
         List<String> continuousFeatureLines = new ArrayList<String>();
+        boolean readFeatureSimilarity = false;
         while ((line = input.readLine()) != null) { // it's OK if we hit the end of the file now
             line = line.trim();
-            if (line.equals("")) break; // empty line: end of section
+            //if (line.equals(FEATURESIMILARITY) || line.equals("")) break; // Found end of section
+            if ( line.equals(FEATURESIMILARITY) ) {
+                //readFeatureSimilarityMatrices(input);
+                readFeatureSimilarity = true;
+                break;
+            }
+            else if (line.equals("")) { // empty line: end of section
+                break;
+            }
             continuousFeatureLines.add(line);
         }
         numByteFeatures = byteFeatureLines.size();
@@ -218,9 +229,75 @@ public class FeatureDefinition
                 featureWeights[i] /= sumOfWeights;
             }
         }
+        
+        // read feature similarities here, if any
+        if ( readFeatureSimilarity ) {
+            readFeatureSimilarityMatrices(input);
+        }
+        input.close();
     }
     
-    
+    /**
+     * read similarity matrices from feature definition file
+     * @param input
+     * @throws IOException
+     */
+    private void readFeatureSimilarityMatrices(BufferedReader input) throws IOException {
+        
+        String line = null;
+        
+        similarityMatrices = new float[this.getNumberOfByteFeatures()][][];
+        for ( int i=0; i < this.getNumberOfByteFeatures(); i++ ) {
+            similarityMatrices[i] = null;
+        }
+        
+        while ( (line = input.readLine()) != null) {
+            
+            if ( "".equals(line) ) {
+                return;
+            }
+            
+            String[] featureUniqueValues = line.trim().split("\\s+");
+            String featureName =  featureUniqueValues[0];
+            
+            if ( !isByteFeature(featureName) ) {
+                throw new RuntimeException("Similarity matrix support is for bytefeatures only, but not for other feature types...");
+            }
+            
+            int featureIndex = this.getFeatureIndex(featureName);
+            int noUniqValues = featureUniqueValues.length - 1; 
+            similarityMatrices[featureIndex] = new float[noUniqValues][noUniqValues];
+            
+            
+            for ( int i=1; i <= noUniqValues; i++ ) {
+                
+                Arrays.fill(similarityMatrices[featureIndex][i-1], 0);
+                String featureValue = featureUniqueValues[i];
+                
+                String matLine = input.readLine();
+                if ( matLine == null ) {
+                    throw new RuntimeException("Feature definition file is having unexpected format...");
+                }
+                
+                String[] lines = matLine.trim().split("\\s+");
+                if( !featureValue.equals(lines[0]) ){
+                    throw new RuntimeException("Feature definition file is having unexpected format...");
+                }
+                if( lines.length != i){
+                    throw new RuntimeException("Feature definition file is having unexpected format...");
+                }
+                for ( int j=1; j < i; j++ ) {
+                    float similarity = (new Float(lines[j])).floatValue();
+                    similarityMatrices[featureIndex][i-1][j-1]  = similarity;
+                    similarityMatrices[featureIndex][j-1][i-1]  = similarity;
+                }
+                
+            }
+        }
+        
+    }
+
+
     /**
      * Create a feature definition object, reading binary data
      * from the given DataInput.
@@ -800,6 +877,45 @@ public class FeatureDefinition
         index -= numByteFeatures;
         index -= numShortFeatures;
         return 0<=index && index < numContinuousFeatures;
+    }
+    
+    /**
+     * true, if given feature index contains similarity matrix
+     * @param featureIndex
+     * @return
+     */
+    public boolean hasSimilarityMatrix(int featureIndex) {
+        
+        if ( featureIndex >= this.getNumberOfByteFeatures() ) {
+            return false;
+        }
+        if ( this.similarityMatrices[featureIndex] != null ) {
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * true, if given feature name contains similarity matrix
+     * @param featureName
+     * @return
+     */
+    public boolean hasSimilarityMatrix(String featureName) {
+        return hasSimilarityMatrix(this.getFeatureIndex(featureName));
+    }
+    
+    /**
+     * To get a similarity between two feature values
+     * @param featureIndex
+     * @param i
+     * @param j
+     * @return
+     */
+    public float getSimilarity(int featureIndex, byte i, byte j) {
+        if ( !hasSimilarityMatrix(featureIndex) ) {
+            throw new RuntimeException("the given feature index  ");
+        }
+        return this.similarityMatrices[featureIndex][i][j];
     }
 
     /**
@@ -1600,6 +1716,8 @@ public class FeatureDefinition
         
         return( ret );
     }
+
+
 
 }
 
