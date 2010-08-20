@@ -41,6 +41,13 @@ import marytts.server.MaryProperties;
 public class MaryCache
 {
     private static MaryCache maryCache;
+    
+    /**
+     * Try to get a MaryCache object. This will either return a previously
+     * created MaryCache, or if none exists, it will try to create one.
+     * @see #haveCache if you just want to check if a cache exists.
+     * @return a MaryCache object, or null if none could be created.
+     */
     public static MaryCache getCache()
     {
         if (maryCache == null) {
@@ -58,6 +65,13 @@ public class MaryCache
         return maryCache;
     }
     
+    /**
+     * Indicate whether there is a MaryCache currently available.
+     * @return true if there is a MaryCache, false otherwise.
+     */
+    public static boolean haveCache() {
+        return maryCache != null;
+    }
     
     private Connection connection;
     
