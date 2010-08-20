@@ -53,6 +53,7 @@ public class JTokeniser extends InternalModule
     public static final int TOKEN_MAXLENGTH = 100;
 
     private JTok jtok;
+    private String jtokLocale;
 
     public JTokeniser() {
         this((Locale) null);
@@ -69,8 +70,24 @@ public class JTokeniser extends InternalModule
     public JTokeniser(MaryDataType inputType, MaryDataType outputType,
             Locale locale) {
         super("JTokeniser", inputType, outputType, locale);
+        // Which language to use in the Tokenizer?
+        if (locale == null) {
+            // if locale == null, use English tokeniser as default/fallback tokeniser 
+            jtokLocale = "en";
+        } else {
+            jtokLocale = locale.getLanguage();
+        }
     }
 
+    /**
+     * Set the tokenizer language to be different from the Locale of the module.
+     * This can be useful when reusing another language's tokenizer data.
+     * @param languageCode the language-code to use, as a two-character string such as "de" or "en".
+     */
+    protected void setTokenizerLanguage(String languageCode) {
+        jtokLocale = languageCode;
+    }
+    
      public void startup() throws Exception
      {
          super.startup();
@@ -135,13 +152,7 @@ public class JTokeniser extends InternalModule
         // MaryXML document.
         // Tokenise:
         AnnotatedString tokenisedText;
-        // if locale == null, use English tokeniser as default/fallback tokeniser 
-        if(getLocale() == null){
-            tokenisedText = jtok.tokenize(inputText.toString(), "en");
-        }
-        else{
-            tokenisedText = jtok.tokenize(inputText.toString(), getLocale().getLanguage());
-        }
+        tokenisedText = jtok.tokenize(inputText.toString(), jtokLocale);
         //System.err.println("maryText: `" + maryText.toString() + "'"); 
         //System.err.println("tokenisedText: `" + tokenisedText.toString() + "'"); 
         //assert tokenisedText.toString().equals(maryText.toString());
