@@ -156,8 +156,8 @@ public class Voice
     String preferredModulesClasses;
     private Vector<MaryModule> preferredModules;
     private Lexicon lexicon;
-    private boolean backchannelSupport;
-    private VocalizationSynthesizer backchannelSynthesizer;
+    private boolean vocalizationSupport;
+    private VocalizationSynthesizer vocalizationSynthesizer;
     protected DirectedGraph durationGraph;
     protected DirectedGraph f0Graph;
     protected FeatureFileReader f0ContourFeatures;
@@ -199,9 +199,9 @@ public class Voice
         String lexiconClass = MaryProperties.getProperty(header+".lexiconClass");
         String lexiconName = MaryProperties.getProperty(header+".lexicon");
         lexicon = getLexicon(lexiconClass, lexiconName);
-        backchannelSupport = MaryProperties.getBoolean(header+".backchannelSupport", false);
-        if(backchannelSupport) {
-            backchannelSynthesizer = new VocalizationSynthesizer(this);
+        vocalizationSupport = MaryProperties.getBoolean(header+".vocalizationSupport", false);
+        if(vocalizationSupport) {
+            vocalizationSynthesizer = new VocalizationSynthesizer(this);
         }
         
         // see if there are any voice-specific duration and f0 models to load
@@ -407,8 +407,8 @@ public class Voice
     public AudioFormat dbAudioFormat() { return dbAudioFormat; }
     public WaveformSynthesizer synthesizer() { return synthesizer; }
     public Gender gender() { return gender; }
-    public boolean hasBackchannelSupport() { return backchannelSupport; }
-    public VocalizationSynthesizer getBackchannelSynthesizer() { return backchannelSynthesizer; }
+    public boolean hasVocalizationSupport() { return vocalizationSupport; }
+    public VocalizationSynthesizer getVocalizationSynthesizer() { return vocalizationSynthesizer; }
 
     
 
