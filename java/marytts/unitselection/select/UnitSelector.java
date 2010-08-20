@@ -26,6 +26,7 @@ import marytts.datatypes.MaryXML;
 import marytts.exceptions.SynthesisException;
 import marytts.unitselection.data.UnitDatabase;
 import marytts.unitselection.select.viterbi.Viterbi;
+import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
@@ -52,7 +53,7 @@ public class UnitSelector
      */
     public UnitSelector() throws Exception
     {
-        logger = Logger.getLogger(this.getClass());
+        logger = MaryUtils.getLogger(this.getClass());
     }
     
     public void load(UnitDatabase unitDatabase, float targetCostWeight, int beamSize)

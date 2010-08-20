@@ -1004,7 +1004,16 @@ public class MaryUtils {
      */
     public static Logger getLogger(String nameSuffix) {
         return Logger.getLogger(LOGPREFIX+nameSuffix);
-        
     }
+
+    /**
+     * Provide a Logger object whose name is built from MaryUtils.LOGPREFIX and the given nameSuffix.
+     * @param nameSuffix the suffix to use for the logger name.
+     * @return
+     */
+    public static Logger getLogger(Class clazz) {
+        return getLogger(clazz.getSimpleName());
+    }
+
 }
 

@@ -59,7 +59,7 @@ public class MaryCache
                 }
                 maryCache = new MaryCache(targetFile, MaryProperties.getBoolean("cache.clearOnStart", false));
             } catch (Exception e) {
-                Logger.getLogger(MaryCache.class).warn("Cannot set up cache", e);
+                MaryUtils.getLogger(MaryCache.class).warn("Cannot set up cache", e);
             }
         }
         return maryCache;

@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import marytts.util.MaryUtils;
+
 import org.apache.log4j.Logger;
 
 
@@ -132,7 +134,7 @@ public class AlignerTrainer {
         if (hasOptInfo){
             this.optInfo = new ArrayList<String>();
         }
-        this.logger = Logger.getLogger(this.getClass());
+        this.logger = MaryUtils.getLogger(this.getClass());
     }
     
     /**
