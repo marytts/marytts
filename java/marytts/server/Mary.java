@@ -352,8 +352,8 @@ public class Mary {
                 m.shutdown();
         }
         
-        MaryCache cache = MaryCache.getCache();
-        if (cache != null) {
+        if (MaryCache.haveCache()) {
+            MaryCache cache = MaryCache.getCache();
             try {
                 cache.shutdown();
             } catch (SQLException e) {
