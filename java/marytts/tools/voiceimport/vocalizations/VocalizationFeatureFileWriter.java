@@ -167,7 +167,7 @@ public class VocalizationFeatureFileWriter extends VoiceImportComponent
         // read feature definition
         BufferedReader fDBfr = new BufferedReader(new FileReader(new File(getProp(FEATDEF))));
         //featureDefinition = new FeatureDefinition(fDBfr, true);
-        featureDefinition = new FeatureDefinition(fDBfr, false);
+        featureDefinition = new FeatureDefinition(fDBfr, true);
         listenerUnits = new VocalizationUnitFileReader(getProp(UNITFILE));
         
         // load annotation
@@ -260,12 +260,14 @@ public class VocalizationFeatureFileWriter extends VoiceImportComponent
                     }
                 }
                 else if ( featureDefinition.isContinuousFeature(j) ) { // Continuous feature
-                    float contFeature = (new Float(singleAnnotation.get(fName))).floatValue();
-                    if ( !Float.isNaN(contFeature) ) {
-                        continiousFeatures[countFloatFeatures++] = contFeature;
+                    if ( !singleAnnotation.containsKey(fName) ) {
+                        continiousFeatures[countFloatFeatures++] = Float.NaN;
+                    }
+                    else if ( "NRI".equals(singleAnnotation.get(fName)) ) {
+                        continiousFeatures[countFloatFeatures++] = Float.NaN;
                     }
                     else {
-                        continiousFeatures[countFloatFeatures++] = Float.NaN;
+                        continiousFeatures[countFloatFeatures++] = (new Float(singleAnnotation.get(fName))).floatValue();
                     }
                 }
             }

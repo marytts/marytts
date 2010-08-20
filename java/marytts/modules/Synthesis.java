@@ -163,8 +163,8 @@ public class Synthesis extends InternalModule
             if(element.getNodeName().equals(MaryXML.NONVERBAL)){
                 if(v != null){
                     Voice newvoice = Voice.getVoice(v);
-                    if(newvoice != null && newvoice.hasBackchannelSupport()){
-                        AudioInputStream ais = newvoice.getBackchannelSynthesizer().synthesize(newvoice, d.getAudioFileFormat(), element);
+                    if(newvoice != null && newvoice.hasVocalizationSupport()){
+                        AudioInputStream ais = newvoice.getVocalizationSynthesizer().synthesize(newvoice, d.getAudioFileFormat(), element);
                         result.appendAudio(ais);
                     }
                 }

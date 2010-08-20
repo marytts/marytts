@@ -105,7 +105,7 @@ public class VocalizationSynthesizer {
             
     public AudioInputStream synthesize(Voice voice, AudioFileFormat aft, Element domElement) throws Exception{
         
-        if(!voice.hasBackchannelSupport()) return null;
+        if(!voice.hasVocalizationSupport()) return null;
         int numberOfBackChannels = unitFileReader.getNumberOfUnits();
         int backchannelNumber  = 0;
         
@@ -229,53 +229,76 @@ public class VocalizationSynthesizer {
         return newTarget;
     }
     
-    
-    private float getMeaningScaleValue(String featureName, String categories) {
+    /**
+     * get value on meaning scale as a float value
+     * @param featureName
+     * @param meaningAttribute
+     * @return
+     */
+    private float getMeaningScaleValue(String featureName, String meaningAttribute) {
         
-        if( "angry".equals(featureName) && categories.contains("angry") ) {
+        String[] categories = meaningAttribute.split("\\s+");
+        List<String> categoriesList = Arrays.asList(categories);
+        
+        if( "anger".equals(featureName) && categoriesList.contains("anger") ) {
             return 5;
         }
-        else if( "sadness".equals(featureName) && categories.contains("sadness") ) {
+        else if( "sadness".equals(featureName) && categoriesList.contains("sadness") ) {
             return 5;
         }
-        else if( "amusement".equals(featureName) && categories.contains("amusement") ) {
+        else if( "amusement".equals(featureName) && categoriesList.contains("amusement") ) {
             return 5;
         }
-        else if( "happiness".equals(featureName) && categories.contains("happiness") ) {
+        else if( "happiness".equals(featureName) && categoriesList.contains("happiness") ) {
             return 5;
         }
-        else if( "contempt".equals(featureName) && categories.contains("contempt") ) {
+        else if( "contempt".equals(featureName) && categoriesList.contains("contempt") ) {
             return 5;
         }
-        else if( "solidarity".equals(featureName) && categories.contains("solidarity") ) {
-            return 5;
-        }
-        else if( "antagonism".equals(featureName) && categories.contains("antagonism") ) {
-            return 5;
-        }
-        else if( "certain".equals(featureName) && categories.contains("uncertain") ) {
+        else if( "certain".equals(featureName) && categoriesList.contains("uncertain") ) {
             return -2;
         }
-        else if( "certain".equals(featureName) && categories.contains("certain") ) {
+        else if( "certain".equals(featureName) && categoriesList.contains("certain") ) {
             return 2;
         }
-        else if( "agree".equals(featureName) && categories.contains("disagree") ) {
+        else if( "agreeing".equals(featureName) && categoriesList.contains("disagreeing") ) {
             return -2;
         }
-        else if( "agree".equals(featureName) && categories.contains("agree") ) {
+        else if( "agreeing".equals(featureName) && categoriesList.contains("agreeing") ) {
             return 2;
         }
-        else if( "interested".equals(featureName) && categories.contains("uninterested") ) {
+        else if( "interested".equals(featureName) && categoriesList.contains("uninterested") ) {
             return -2;
         }
-        else if( "interested".equals(featureName) && categories.contains("interested") ) {
+        else if( "interested".equals(featureName) && categoriesList.contains("interested") ) {
             return 2;
         }
-        else if( "anticipation".equals(featureName) && categories.contains("unawares") ) {
+        else if( "anticipation".equals(featureName) && categoriesList.contains("low-anticipation") ) {
             return -2;
         }
-        else if( "anticipation".equals(featureName) && categories.contains("anticipation") ) {
+        else if( "anticipation".equals(featureName) && categoriesList.contains("anticipation") ) {
             return 2;
+        }
+        else if( "anticipation".equals(featureName) && categoriesList.contains("high-anticipation") ) {
+            return 2;
+        }
+        else if( "solidarity".equals(featureName) && categoriesList.contains("solidarity") ) {
+            return 5;
+        }
+        else if( "solidarity".equals(featureName) && categoriesList.contains("low-solidarity") ) {
+            return 1;
+        }
+        else if( "solidarity".equals(featureName) && categoriesList.contains("high-solidarity") ) {
+            return 5;
+        }
+        else if( "antagonism".equals(featureName) && categoriesList.contains("antagonism") ) {
+            return 5;
+        }
+        else if( "antagonism".equals(featureName) && categoriesList.contains("high-antagonism") ) {
+            return 5;
+        }
+        else if( "antagonism".equals(featureName) && categoriesList.contains("low-antagonism") ) {
+            return 1;
         }
         
         return Float.NaN;
