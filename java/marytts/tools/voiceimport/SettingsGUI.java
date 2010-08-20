@@ -203,16 +203,7 @@ public class SettingsGUI {
         saveButton.setMnemonic(KeyEvent.VK_S);
         saveButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int col = table.getEditingColumn();
-                if (col!=-1){
-                    TableCellEditor cellEditor =
-                        table.getColumnModel().getColumn(col).getCellEditor();
-                    if (cellEditor != null){
-                        cellEditor.stopCellEditing();
-                    } else {
-                        table.getCellEditor().stopCellEditing();
-                    }
-                }
+                stopTableEditing();
                 updateProps();
                 wasSaved = true;
                 frame.setVisible(false);
@@ -273,11 +264,26 @@ public class SettingsGUI {
         return result;        
     }
     
-    private void updateProps(){           
+    private void updateProps() {           
         db.updateProps(tableProps);
     }
     
+    private void stopTableEditing() {
+        if (table.isEditing()) {
+            TableCellEditor ed = table.getCellEditor();
+            assert ed != null;
+            boolean success = ed.stopCellEditing(); // we first try to save
+            if (!success) {
+                ed.cancelCellEditing();
+            }
+            assert !table.isEditing();
+        }
+    }
+    
     private void updateTable(String compName){
+        // First, make sure that any field that is currently being edited is saved or discarded:
+        stopTableEditing();
+        // Then, update the table model:
         String[][] currentProps = getPropsForCompName(compName);
         tableModel.setProps(currentProps);
         table.tableChanged(new TableModelEvent(tableModel));
