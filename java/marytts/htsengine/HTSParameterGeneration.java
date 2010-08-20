@@ -56,6 +56,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -437,13 +438,13 @@ public class HTSParameterGeneration {
         logger.info("IO exception = " + e );
     }    
   }
- 
+  
   public void loadMaryXmlF0(HTSUttModel um, HMMData htsData) throws Exception{
       logger.info("Using f0 from maryXML acoustparams");      
       int i, t, state, frame, numVoiced;      
       HTSPStream newLf0Pst  = new HTSPStream(3, um.getTotalFrame(), HMMData.LF0, htsData.getMaxGVIter()); // actually the size of lf0Pst is 
                                                                                   // just the number of voiced frames               
-      HTSModel m;
+      HTSModel m;      
       Pattern p = Pattern.compile("(\\d+,\\d+)");     
       double dval;
       numVoiced=0;
@@ -483,41 +484,105 @@ public class HTSParameterGeneration {
             
       setlf0Pst(newLf0Pst);        
   }
+  
  
-  // get numFrames f0 values, interpolate if necessary 
-  private void getF0Values( String maryXmlF0, int numFrames){
-      Pattern p = Pattern.compile("(\\d+,\\d+)");     
-      // i need m.getNumVoiced() values 
-      Matcher xml=null;
-      if(maryXmlF0 != null) {
-        xml = p.matcher(maryXmlF0);        
-        SortedMap<Integer,Integer> f0Map = new TreeMap<Integer, Integer>();
-        int numF0s=0;
-        while ( xml.find() ) {
-            String[] f0Values = (xml.group().trim()).split(",");
-            f0Map.put(new Integer(f0Values[0]), new Integer(f0Values[1]));
-            numF0s++;
-        }
+  public void loadMaryXmlF0New(HTSUttModel um, HMMData htsData) throws Exception{
+      logger.info("Using f0 from maryXML acoustparams");      
+      int i, t, k, tate, frame, numVoiced;      
+      HTSPStream newLf0Pst  = new HTSPStream(3, um.getTotalFrame(), HMMData.LF0, htsData.getMaxGVIter()); // actually the size of lf0Pst is 
+                                                                                  // just the number of voiced frames               
+      HTSModel m;
+      Vector<Double> f0Vector = new Vector<Double>();
+      t=0;  
+      Vector<Integer> index = new Vector<Integer>();
+      Vector<Double> value = new Vector<Double>();
+      int f=0; // number of voiced f0
+      Pattern p = Pattern.compile("(\\d+,\\d+)"); 
+      
+      int key, n, interval;
+      double valF0, lastValF0=0;              
+      int numTotalVoiced = 0;
+      for(i=0; i<um.getNumUttModel(); i++){
+        m = um.getUttModel(i);
+        System.out.format("\nmodel=%s  totalDur=%d numVoicedFrames=%d F0=%s\n", m.getPhoneName(), m.getTotalDur(), m.getNumVoiced(), m.getMaryXmlF0());
+        k = numTotalVoiced;
         
-        Set s = f0Map.entrySet();
-        Iterator if0 = s.iterator();
-        while(if0.hasNext())
-        {
-            Map.Entry mf0 =(Map.Entry)if0.next();
-
-            int key = (Integer)mf0.getKey();
-            int value=(Integer)mf0.getValue();
-
-            System.out.println("Key :"+key+"  value :"+value);
-            //SignalProcUtils.interpolate(x, D);
-            
-            //int interval = (int)((numFrames*key)/100.0);
-            //for(int i=key; i<interval; i++)
-            //  System.out.println("i=" + i + "  value :" + value);  
+        //getF0Values( m.getMaryXmlF0(), m.getNumVoiced(), f0FullVector, f0Vector);
+        String maryXmlF0 = m.getMaryXmlF0();
+        int numVoicedFrames = m.getNumVoiced();
+                      
+        if(maryXmlF0 != null) {
+          Matcher xml = p.matcher(maryXmlF0);        
+          SortedMap<Integer,Double> f0Map = new TreeMap<Integer, Double>();
+          int numF0s=0;
+          while ( xml.find() ) {
+            String[] f0Values = (xml.group().trim()).split(",");
+            f0Map.put(new Integer(f0Values[0]), new Double(f0Values[1]));
+            numF0s++;
+          }
+          
+          Set<Map.Entry<Integer,Double>> s = f0Map.entrySet();
+          Iterator<Map.Entry<Integer,Double>> if0 = s.iterator();
+          
+          if(numF0s == numVoicedFrames){
+            System.out.println("numF0s=" + numF0s);
+            while(if0.hasNext()) {              
+              Map.Entry<Integer,Double> mf0 = if0.next();
+              key   = (Integer)mf0.getKey();
+              valF0 = (Double)mf0.getValue();
+              f0Vector.add(valF0);
+              System.out.format("  n=%d  value:%.1f\n",f0Vector.size(),valF0);
+            }
+          } else {
+                    
+          while(if0.hasNext()) {              
+            Map.Entry<Integer,Double> mf0 = if0.next();
+            key   = (Integer)mf0.getKey();
+            valF0 = (Double)mf0.getValue();
+              
+            n = (int)((numVoicedFrames*key)/100.0);           
+            if(k>0)
+              k--;
+            System.out.println("k=" + k + "  n=" + n + "  (n+k)=" + (n+k) + "  Key :" + key + "  value :" + valF0 + "  f=" + f);            
+            index.add((n+k));
+            value.add(valF0);                       
+            if(f>=1){
+              interval = index.elementAt(f) - index.elementAt(f-1); 
+              if( interval > 1 ) {  
+                double slope = ((value.elementAt(f)-value.elementAt(f-1)) / interval);  
+                for(n=index.elementAt(f-1); n<index.elementAt(f); n++) {
+                  double newVal = (slope * (n-index.elementAt(f-1))) +  value.elementAt(f-1);
+                  f0Vector.add(newVal);
+                  System.out.format("  n=%d  value:%.1f\n",n,newVal);
+                }
+              } else if (interval == 1){ // if at least there is one value in between
+                 f0Vector.add(value.elementAt(f-1));
+                 System.out.format("  *n=%d  value:%.1f\n",index.elementAt(f-1),value.elementAt(f-1));
+              }
+            }
+            lastValF0 =  value.elementAt(f);          
+            f++;            
+          }
+        } 
         }
-
-      } 
+        numTotalVoiced += numVoicedFrames;
+        System.out.println("numTotalVoiced=" + numTotalVoiced);
+        
+      }  // for model in utterance model list
+      // Add the last value
+      if(lastValF0 > 0.0)
+        f0Vector.add(lastValF0);  
+      
+      for(i=0; i<f0Vector.size(); i++){
+        System.out.format("n=%d  %.2f \n", i, f0Vector.elementAt(i));
+        newLf0Pst.setPar(i, 0, Math.log(f0Vector.elementAt(i)));
+      }
+      System.out.println();
+      setlf0Pst(newLf0Pst);        
   }
+ 
+
+  
   
   public void setRealisedF0(HTSPStream lf0Pst, HTSUttModel um, int numStates) {
       int i, t, k, numVoicedInModel;      
