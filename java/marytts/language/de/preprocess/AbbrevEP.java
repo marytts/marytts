@@ -159,13 +159,20 @@ public class AbbrevEP extends ExpansionPattern
                 sb.append(MaryDomUtils.tokenText((Element)it.next()));
             }
 			logger.debug("Looking up abbreviation in dictionary: `" + sb.toString() + "'");
-            if (abbrevDict.containsKey(sb.toString()))
+            if (abbrevDict.containsKey(sb.toString())) {
                 break; // OK, found a match
+            }
             if (tryLowerCase) {
                 sb.setCharAt(0, Character.toLowerCase(sb.charAt(0)));
 				logger.debug("Looking up abbreviation in dictionary: `" + sb.toString() + "'");
                 if (abbrevDict.containsKey(sb.toString()))
                     break; // OK, found a match
+            }
+            // Try to append a dot:
+            sb.append(".");
+            logger.debug("Looking up abbreviation in dictionary: `" + sb.toString() + "'");
+            if (abbrevDict.containsKey(sb.toString())) {
+                break; // OK, found a match
             }
             match.remove(match.size() - 1); // remove last in list
         }
