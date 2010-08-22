@@ -2,6 +2,7 @@ package marytts.modules.acoustic;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,6 +22,7 @@ import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
 import marytts.unitselection.select.Target;
 import marytts.util.dom.MaryDomUtils;
+import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 
 import org.w3c.dom.Element;
@@ -29,65 +31,279 @@ import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
 
 /**
- * This module will aply prosody modifications to the already predicted values (dur and f0) in the acoustparams
- * @author Sathish
+ * This module will apply prosody modifications to the already predicted values (dur and f0) in the acoustparams
+ * This class also support SSML recommendations of 'prosody' element
+ * @author Sathish Pammi
+ * 
  */
 public class ProsodyElementHandler {
     
-    public ProsodyElementHandler(){}
+    private int F0CONTOUR_LENGTH = 101; // Assumption: the length of f0 contour of a prosody element is 101 (0,1,2....100)
+                                        // DONOT change this number as some index numbers are based on this number    
+    DecimalFormat df; 
     
-    
-    public void process(org.w3c.dom.Document doc) {
-          applyProsodySpecifications(doc);
+    public ProsodyElementHandler(){
+        df = new DecimalFormat("#0.0");
     }
     
     /**
      * A method to modify prosody modifications
      * @param doc
      */
-    private void applyProsodySpecifications(org.w3c.dom.Document doc) {
+    public void process(org.w3c.dom.Document doc) {
         
-        TreeWalker tw = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.PHONE, MaryXML.BOUNDARY, MaryXML.PROSODY);
+        TreeWalker tw = MaryDomUtils.createTreeWalker(doc, MaryXML.PROSODY);
         Element e = null;
         
-        // TODO: read prosody tags recursively 
+        // read prosody tags recursively 
         while ((e = (Element) tw.nextNode()) != null) {
             
-            if ( "prosody".equals(e.getNodeName() ) ) {
-                NodeList nl = e.getElementsByTagName("ph");
-                applyNewContourSpecifications(nl, e);
-                applySpeechRateSpecifications(nl, e);
+            boolean hasRateAttribute    = e.hasAttribute("rate");
+            boolean hasContourAttribute = e.hasAttribute("contour");
+            boolean hasPitchAttribute   = e.hasAttribute("pitch");
+            
+            NodeList nl = e.getElementsByTagName("ph");
+            
+            // if prosody element contains 'rate' attribute, apply rate specifications
+            if ( hasRateAttribute ) {
+                applySpeechRateSpecifications(nl, e.getAttribute("rate"));
             }
+            
+            // if prosody element contains any 'pitch' modifications
+            if ( hasPitchAttribute ||  hasContourAttribute ) {
+                
+                double[] f0Contour  = getF0Contour(nl);
+                double[] coeffs     = Polynomial.fitPolynomial(f0Contour, 1);
+                double[] baseF0Contour = Polynomial.generatePolynomialValues(coeffs, F0CONTOUR_LENGTH, 0, 1);
+                double[] diffF0Contour = new double[F0CONTOUR_LENGTH];
+                
+                // Extract base contour from original contour
+                for ( int i=0; i < f0Contour.length ; i++ ) {
+                    diffF0Contour[i] =  f0Contour[i] - baseF0Contour[i];
+                }
+                
+                // Set pitch modifications to base contour (first order polynomial fit contour) 
+                if ( hasPitchAttribute ) {
+                    baseF0Contour = applyPitchSpecifications( nl, baseF0Contour, e.getAttribute("pitch") );
+                }
+                
+                // Set contour modifications to base contour (first order polynomial fit contour)
+                if( hasContourAttribute ) {
+                    baseF0Contour = applyContourSpecifications( nl, baseF0Contour, e.getAttribute("contour") );
+                }
+                
+                // Now, imposing back the diff. contour
+                for ( int i=0; i < f0Contour.length ; i++ ) {
+                    f0Contour[i] =  diffF0Contour[i] + baseF0Contour[i];
+                }
+                
+                setModifiedContour(nl, f0Contour);
+            }
+            
         }      
    }
     
     /**
-     * Apply 'rate' requirements to ACOUSTPARAMS
+     * Apply 'rate' specifications to NodeList (with only 'ph' elements)
      * @param nl
      * @param prosodyElement
      */
-    private void applySpeechRateSpecifications(NodeList nl, Element prosodyElement) {
+    private void applySpeechRateSpecifications(NodeList nl, String rateAttribute) {
       
-        String rateAttribute = null;
-        if ( !prosodyElement.hasAttribute("rate") ) {
+        if ( "".equals(rateAttribute) ) { 
             return;
         }
         
-        rateAttribute =  prosodyElement.getAttribute("rate");
-        Pattern p = Pattern.compile("[+|-]\\d+%");
+        // if the format contains a fixed label 
+        boolean hasLabel = rateAttribute.equals("x-slow") || rateAttribute.equals("slow") ||  rateAttribute.equals("medium") 
+                                                   || rateAttribute.equals("fast") || rateAttribute.equals("x-fast") || rateAttribute.equals("default");
+        if ( hasLabel ) { 
+            rateAttribute = rateLabels2RelativeValues(rateAttribute);
+        }
         
+        // if the format contains a positive decimal number
+        boolean hasPositiveInteger = !rateAttribute.endsWith("%") && (!rateAttribute.startsWith("+") || !rateAttribute.startsWith("-"));
+        if ( hasPositiveInteger ) { 
+            rateAttribute = positiveInteger2RelativeValues(rateAttribute);
+        }
+        
+        // if not preceded by '+' or '-', add '+' at the beginning 
+        if ( !(rateAttribute.startsWith("+") || rateAttribute.startsWith("-")) ) {
+            rateAttribute = "+" + rateAttribute;
+        }
+        
+        //Pattern p = Pattern.compile("[+|-]\\d+%");
+        Pattern p = Pattern.compile("[+|-][0-9]+(.[0-9]+)?[%]?");
         // Split input with the pattern
         Matcher m = p.matcher(rateAttribute);
         if ( m.find() ) {
-            double percentage = new Integer(rateAttribute.substring(1, rateAttribute.length()-1)).doubleValue();
+            double percentage = new Double(rateAttribute.substring(1, rateAttribute.length()-1)).doubleValue();
             if ( rateAttribute.startsWith("+") ) {
-                setSpeechRateSpecifications(nl, percentage, -1.0);
+                modifySpeechRate(nl, percentage, -1.0);
             }
             else {
-                setSpeechRateSpecifications(nl, percentage, +1.0);
+                modifySpeechRate(nl, percentage, +1.0);
             }
         }
     }
+    
+    /**
+     * apply given pitch specifications to the base contour 
+     * @param nl
+     * @param baseF0Contour
+     * @param pitchAttribute
+     * @return
+     */
+    private double[] applyPitchSpecifications(NodeList nl, double[] baseF0Contour, String pitchAttribute) {
+        
+        if ( "".equals(pitchAttribute) ) { 
+            return baseF0Contour;
+        }
+        
+        boolean hasLabel = pitchAttribute.equals("x-low") || pitchAttribute.equals("low") ||  pitchAttribute.equals("medium") 
+                                                   || pitchAttribute.equals("high") || pitchAttribute.equals("x-high") || pitchAttribute.equals("default");
+        
+        if ( hasLabel ) { 
+            pitchAttribute = pitchLabels2RelativeValues(pitchAttribute);
+        }
+        
+        boolean hasFixedValue = pitchAttribute.endsWith("Hz") && !(pitchAttribute.startsWith("+") || pitchAttribute.startsWith("-"));
+        
+        if ( hasFixedValue ) {
+            pitchAttribute = fixedValue2RelativeValue(pitchAttribute, baseF0Contour);
+        }
+        
+        if ( pitchAttribute.startsWith("+") ) {
+            if ( pitchAttribute.endsWith("%") ) {  // type example: +20%
+                double modificationPitch = (new Float(pitchAttribute.substring(1, pitchAttribute.length()-1))).doubleValue();
+                for ( int i=0; i < baseF0Contour.length; i++ ) {
+                    baseF0Contour[i] = baseF0Contour[i] + (baseF0Contour[i] * (modificationPitch / 100.0));
+                }
+            }
+            else if ( pitchAttribute.endsWith("Hz") ) { // type example: +55Hz
+                double modificationPitch = (new Float(pitchAttribute.substring(1, pitchAttribute.length()-2))).doubleValue();
+                for ( int i=0; i < baseF0Contour.length; i++ ) {
+                    baseF0Contour[i] = baseF0Contour[i] + modificationPitch;
+                }
+            }
+            else if ( pitchAttribute.endsWith("st") ) { // type example: +12st
+                double modificationPitch = (new Float(pitchAttribute.substring(1, pitchAttribute.length()-2))).doubleValue();
+                for ( int i=0; i < baseF0Contour.length; i++ ) {
+                    baseF0Contour[i] = Math.exp(modificationPitch * Math.log(2) / 12) * baseF0Contour[i];
+                }
+            }
+        }
+        else if ( pitchAttribute.startsWith("-") ) {
+            if ( pitchAttribute.endsWith("%") ) {   // type example: -20%
+                double modificationPitch = (new Float(pitchAttribute.substring(1, pitchAttribute.length()-1))).doubleValue();
+                for ( int i=0; i < baseF0Contour.length; i++ ) {
+                    baseF0Contour[i] = baseF0Contour[i] - (baseF0Contour[i] * (modificationPitch / 100.0));
+                }
+            }
+            else if ( pitchAttribute.endsWith("Hz") ) { // type example: -88Hz
+                double modificationPitch = (new Float(pitchAttribute.substring(1, pitchAttribute.length()-2))).doubleValue();
+                for ( int i=0; i < baseF0Contour.length; i++ ) {
+                    baseF0Contour[i] = baseF0Contour[i] - modificationPitch;
+                }
+            }
+            else if ( pitchAttribute.endsWith("st") ) { // type example: -3st
+                double modificationPitch = (new Float(pitchAttribute.substring(1, pitchAttribute.length()-2))).doubleValue();
+                for ( int i=0; i < baseF0Contour.length; i++ ) {
+                    baseF0Contour[i] = Math.exp(-1 * modificationPitch * Math.log(2) / 12) * baseF0Contour[i];
+                }
+            }
+        }
+        
+      return baseF0Contour;       
+    }
+    
+
+    /**
+     * Apply given contour specifications to base f0 contour 
+     * @param nl
+     * @param prosodyElement
+     */
+    private double[] applyContourSpecifications(NodeList nl, double[] baseF0Contour, String contourAttribute) {
+        
+        if ( "".equals(contourAttribute) ) { 
+            return baseF0Contour;
+        }
+        
+        Map<String, String> f0Specifications = getContourSpecifications(contourAttribute);
+        Iterator<String> it =  f0Specifications.keySet().iterator();
+        double[] modifiedF0Values = new double[F0CONTOUR_LENGTH];
+        Arrays.fill(modifiedF0Values, 0.0);
+        
+        if ( baseF0Contour.length != modifiedF0Values.length ) {
+            throw new RuntimeException("The lengths of two arrays are not same!");
+        }
+        
+        modifiedF0Values[0] = baseF0Contour[0];
+        modifiedF0Values[ modifiedF0Values.length - 1 ] = baseF0Contour[ modifiedF0Values.length - 1 ];
+        
+        while ( it.hasNext() ) {
+        
+            String percent = it.next();
+            String f0Value = f0Specifications.get( percent );
+            
+            boolean hasLabel = f0Value.equals("x-low") || f0Value.equals("low") ||  f0Value.equals("medium") 
+                                || f0Value.equals("high") || f0Value.equals("x-high") || f0Value.equals("default");
+
+            if ( hasLabel ) {
+                f0Value = pitchLabels2RelativeValues(f0Value);
+            }
+            
+            // if not preceded by '+' or '-', add '+' at the beginning (and also not ends with 'Hz')
+            if ( (!f0Value.startsWith("+") && !f0Value.startsWith("-")) && (!f0Value.endsWith("Hz")) ) {
+                f0Value = "+" + f0Value;
+            }
+            
+            int percentDuration  =  Math.round((new Float(percent.substring(0, percent.length()-1))).floatValue());
+            if ( percentDuration > 100 ) {
+                throw new RuntimeException("Given percetage of duration ( "+ percentDuration+"%"+ " ) is illegal.. ") ;
+            }
+            
+            //System.out.println( percent  + " " + f0Value );
+            
+            if ( f0Value.startsWith("+") ) {
+                if ( f0Value.endsWith("%") ) {
+                    double f0Mod = (new Double(f0Value.substring( 1, f0Value.length()-1 ))).doubleValue();
+                    modifiedF0Values[percentDuration] = baseF0Contour[percentDuration] + (baseF0Contour[percentDuration] * (f0Mod / 100.0));
+                }
+                else if ( f0Value.endsWith("Hz") ) {
+                    float f0Mod = (new Float(f0Value.substring( 1, f0Value.length()-2 ))).floatValue();
+                    modifiedF0Values[percentDuration] = baseF0Contour[percentDuration] + f0Mod ;
+                }
+                else if ( f0Value.endsWith("st") ) {
+                    float semiTone = (new Float(f0Value.substring( 1, f0Value.length()-2 ))).floatValue();
+                    modifiedF0Values[percentDuration] = Math.exp(semiTone * Math.log(2) / 12) * baseF0Contour[percentDuration];
+                }
+            }
+            else if ( f0Value.startsWith("-") ) {
+                if ( f0Value.endsWith("%") ) {
+                    double f0Mod = (new Double(f0Value.substring( 1, f0Value.length()-1 ))).doubleValue();
+                    modifiedF0Values[percentDuration] = baseF0Contour[percentDuration] - (baseF0Contour[percentDuration] * (f0Mod / 100.0));
+                }
+                else if ( f0Value.endsWith("Hz") ) {
+                    float f0Mod = (new Float(f0Value.substring( 1, f0Value.length()-2 ))).floatValue();
+                    modifiedF0Values[percentDuration] = baseF0Contour[percentDuration] - f0Mod ;
+                }
+                else if ( f0Value.endsWith("st") ) {
+                    float semiTone = (new Float(f0Value.substring( 1, f0Value.length()-2 ))).floatValue();
+                    modifiedF0Values[percentDuration] = Math.exp(-1 * semiTone * Math.log(2) / 12) * baseF0Contour[percentDuration];
+                }
+            }
+            else {
+                if ( f0Value.endsWith("Hz") ) {
+                    float f0Mod = (new Float(f0Value.substring( 0, f0Value.length()-2 ))).floatValue();
+                    modifiedF0Values[percentDuration] = f0Mod;
+                }
+            }
+        }
+        
+      return interpolateNonZeroValues(modifiedF0Values);
+    }
+
 
     /**
      * set duration specifications according to 'rate' requirements
@@ -95,7 +311,7 @@ public class ProsodyElementHandler {
      * @param percentage
      * @param incriment
      */
-    private void setSpeechRateSpecifications(NodeList nl, double percentage, double incriment) {
+    private void modifySpeechRate(NodeList nl, double percentage, double incriment) {
         
         for ( int i=0; i < nl.getLength(); i++ ) {
             Element e = (Element) nl.item(i); 
@@ -132,49 +348,62 @@ public class ProsodyElementHandler {
       
     }
 
-  /**
-     * 
+   
+    /**
+     * get Continuous contour from "ph" nodelist
      * @param nl
-     * @param prosodyElement
+     * @return
      */
-    private void applyNewContourSpecifications(NodeList nl, Element prosodyElement) {
+    private double[] getF0Contour(NodeList nl) {
         
+      
+        /**TODO
+         * If we want to use this method as a generic method to get 'f0 contour', 
+         * a sanity check required for NodeList such that all elements in NodeList are only 'ph' elements.
+         */
         
-        String contourAttribute = null;
-        if ( prosodyElement.hasAttribute("contour") ) {
-            contourAttribute =  prosodyElement.getAttribute("contour");
+        Element firstElement =  (Element) nl.item(0);
+        Element lastElement =  (Element) nl.item(nl.getLength()-1);
+        
+        double[] contour = new double[F0CONTOUR_LENGTH]; // Assume contour has F0CONTOUR_LENGTH frames
+        Arrays.fill(contour, 0.0);
+        
+        double fEnd = (new Double(firstElement.getAttribute("end"))).doubleValue();
+        double fDuration = 0.001 * (new Double(firstElement.getAttribute("d"))).doubleValue();
+        double lEnd = (new Double(lastElement.getAttribute("end"))).doubleValue();
+        double fStart = fEnd - fDuration; // 'prosody' tag starting point
+        double duration = lEnd - fStart;  // duaration of 'prosody' modification request
+        
+        Map<Integer, Integer> f0Map;
+        
+        for ( int i=0; i < nl.getLength(); i++ ) {
+            Element e = (Element) nl.item(i);
+            String f0Attribute = e.getAttribute("f0");
+            
+            if( f0Attribute == null || "".equals(f0Attribute) ) {
+                continue;
+            }
+            
+            double phoneEndTime       = (new Double(e.getAttribute("end"))).doubleValue();
+            double phoneDuration = 0.001 * (new Double(e.getAttribute("d"))).doubleValue();
+            //double localStartTime = endTime - phoneDuration;
+            
+            f0Map = getPhoneF0Data(e.getAttribute("f0"));
+            
+            Iterator<Integer> it =  f0Map.keySet().iterator();
+            while(it.hasNext()){
+                Integer percent = it.next();
+                Integer f0Value = f0Map.get(percent);
+                double partPhone = phoneDuration * (percent.doubleValue()/100.0);
+                int placeIndex  = (int) Math.floor((( ((phoneEndTime - phoneDuration) - fStart ) +  partPhone ) * F0CONTOUR_LENGTH ) / (double) duration );
+                if ( placeIndex >= F0CONTOUR_LENGTH ) {
+                    placeIndex = F0CONTOUR_LENGTH - 1;
+                }
+                contour[placeIndex] = f0Value.doubleValue();
+            }
         }
         
-        String pitchAttribute = null;
-        if ( prosodyElement.hasAttribute("pitch") ) {
-            pitchAttribute =  prosodyElement.getAttribute("pitch");
-        }
-        
-        if ( contourAttribute == null && pitchAttribute == null ) {
-            return;
-        }
-        
-        double[] contour = getContinuousContour(nl);
-        contour = interpolateNonZeroValues(contour);
-        double[] coeffs     = Polynomial.fitPolynomial(contour, 1);
-        double[] polyValues = Polynomial.generatePolynomialValues(coeffs, 100, 0, 1);
-        double[] diffValues = new double[100];
-        
-        // Extract base contour from original contour
-        for ( int i=0; i < contour.length ; i++ ) {
-            diffValues[i] =  contour[i] - polyValues[i];
-        }
-              
-        polyValues = setBaseContourModifications(polyValues, contourAttribute, pitchAttribute);
-        
-        // Now, imposing back the diff. contour
-        for ( int i=0; i < contour.length ; i++ ) {
-            contour[i] =  diffValues[i] + polyValues[i];
-        }
-        
-        setModifiedContour(nl, contour);
-     
-        return;         
+        return interpolateNonZeroValues(contour);
     }
     
     
@@ -219,9 +448,9 @@ public class ProsodyElementHandler {
                 Integer f0Value = new Integer(f0Values[1]);
                 double partPhone = phoneDuration * (percent.doubleValue()/100.0);
                 
-                int placeIndex  = (int) Math.floor((( ((phoneEndTime - phoneDuration) - fStart ) +  partPhone ) * 100 ) / (double) duration );
-                if ( placeIndex >= 100 ) { 
-                    placeIndex = 99;
+                int placeIndex  = (int) Math.floor((( ((phoneEndTime - phoneDuration) - fStart ) +  partPhone ) * F0CONTOUR_LENGTH ) / (double) duration );
+                if ( placeIndex >= F0CONTOUR_LENGTH ) { 
+                    placeIndex = F0CONTOUR_LENGTH - 1;
                 }
                 setF0String = setF0String + "(" + percent + "," +(int) contour[placeIndex] + ")" ;          
                 
@@ -229,132 +458,9 @@ public class ProsodyElementHandler {
           
             e.setAttribute("f0", setF0String);
         }    
-  }
+   }
 
-    
-    
-    /**
-     * Set modifications to base contour (first order polynomial fit contour) 
-     * @param polyValues
-     * @param contourAttribute
-     * @param pitchAttribute
-     * @return
-     */
-    private double[] setBaseContourModifications(double[] polyValues, String contourAttribute, String pitchAttribute) {
-        
-        if(pitchAttribute != null && !"".equals(pitchAttribute) ) {
-            polyValues = setPitchSpecifications( polyValues, pitchAttribute );
-        }
-        
-        if(contourAttribute != null && !"".equals(contourAttribute) ) {
-            polyValues = setContourSpecifications( polyValues, contourAttribute );
-        }
-        
-        return polyValues;
-    }
-    
-    
-    /**
-     * Set all specifications to original contour
-     * @param polyValues
-     * @param contourAttribute
-     * @return
-     */
-    private double[] setContourSpecifications(double[] polyValues, String contourAttribute) {
-     
-        Map<String, String> f0Specifications = getContourSpecifications(contourAttribute);
-        Iterator<String> it =  f0Specifications.keySet().iterator();
-        double[] modifiedF0Values = new double[100];
-        Arrays.fill(modifiedF0Values, 0.0);
-        
-        if ( polyValues.length != modifiedF0Values.length ) {
-            throw new RuntimeException("The lengths of two arrays are not same!");
-        }
-        
-        modifiedF0Values[0] = polyValues[0];
-        modifiedF0Values[ modifiedF0Values.length - 1 ] = polyValues[ modifiedF0Values.length - 1 ];
-        
-        while ( it.hasNext() ) {
-        
-            String percent = it.next();
-            String f0Value = f0Specifications.get( percent );
-            
-            int percentDuration  =  (new Integer(percent.substring(0, percent.length()-1))).intValue();
-            
-            //System.out.println( percent  + " " + f0Value );
-            
-            if ( f0Value.startsWith("+") ) {
-                if ( f0Value.endsWith("%") ) {
-                    double f0Mod = (new Double(f0Value.substring( 1, f0Value.length()-1 ))).doubleValue();
-                    modifiedF0Values[percentDuration] = polyValues[percentDuration] + (polyValues[percentDuration] * (f0Mod / 100.0));
-                }
-                else if ( f0Value.endsWith("Hz") ) {
-                    int f0Mod = (new Integer(f0Value.substring( 1, f0Value.length()-2 ))).intValue();
-                    modifiedF0Values[percentDuration] = polyValues[percentDuration] + f0Mod ;
-                }
-            }
-            else if ( f0Value.startsWith("-") ) {
-                if ( f0Value.endsWith("%") ) {
-                    double f0Mod = (new Double(f0Value.substring( 1, f0Value.length()-1 ))).doubleValue();
-                    modifiedF0Values[percentDuration] = polyValues[percentDuration] - (polyValues[percentDuration] * (f0Mod / 100.0));
-                
-                }
-                else if ( f0Value.endsWith("Hz") ) {
-                    int f0Mod = (new Integer(f0Value.substring( 1, f0Value.length()-2 ))).intValue();
-                    modifiedF0Values[percentDuration] = polyValues[percentDuration] - f0Mod ;
-                }
-            }        
-        }
-        
-      modifiedF0Values = interpolateNonZeroValues(modifiedF0Values);
-        
-      return modifiedF0Values;
-    
-    }
 
-    
-    /**
-     * set pitch specifications: 
-     * Ex: pitch="+20%" or pitch="+50Hz"
-     * @param polyValues
-     * @param pitchAttribute
-     * @return
-     */
-    private double[] setPitchSpecifications(double[] polyValues, String pitchAttribute) {
-      
-        boolean positivePitch = pitchAttribute.startsWith("+");
-        double modificationPitch = (new Integer(pitchAttribute.substring(1, pitchAttribute.length()-1))).doubleValue();
-        
-        if ( pitchAttribute.startsWith("+") ) {
-            if ( pitchAttribute.endsWith("%") ) {
-                for ( int i=0; i < polyValues.length; i++ ) {
-                    polyValues[i] = polyValues[i] + (polyValues[i] * (modificationPitch / 100.0));
-                }
-            }
-            else if ( pitchAttribute.endsWith("Hz") ) {
-                for ( int i=0; i < polyValues.length; i++ ) {
-                    polyValues[i] = polyValues[i] + modificationPitch;
-                }
-            }
-        }
-        else if ( pitchAttribute.startsWith("-") ) {
-            if ( pitchAttribute.endsWith("%") ) {
-                for ( int i=0; i < polyValues.length; i++ ) {
-                    polyValues[i] = polyValues[i] - (polyValues[i] * (modificationPitch / 100.0));
-                }
-            }
-            else if ( pitchAttribute.endsWith("Hz") ) {
-                for ( int i=0; i < polyValues.length; i++ ) {
-                    polyValues[i] = polyValues[i] - modificationPitch;
-                }
-            }
-        }
-        
-      return polyValues;
-      
-    }
-
-    
     /**
      * to get contour specifications into MAP
      * @param attribute
@@ -363,13 +469,15 @@ public class ProsodyElementHandler {
     private Map<String, String> getContourSpecifications(String attribute) {
         
         Map<String, String> f0Map = new HashMap<String, String>();
-        Pattern p = Pattern.compile("(\\d+%,[+|-]\\d+[%|Hz])");
+        //Pattern p = Pattern.compile("(\\d+%,[+|-]\\d*[\\.]\\d*[%Hs][zt])|(\\d+%,[+|-]\\d+[%|Hz|st])");
+        Pattern p = Pattern.compile("\\([0-9]+(.[0-9]+)?[%],(x-low|low|medium|high|x-high|default|[+|-]?[0-9]+(.[0-9]+)?(%|Hz|st)?)\\)");
         
         // Split input with the pattern
         Matcher m = p.matcher(attribute);
         while ( m.find() ) {
             //System.out.println(m.group());
-            String[] f0Values = (m.group().trim()).split(",");
+            String singlePair = m.group().trim();
+            String[] f0Values = singlePair.substring(1,singlePair.length()-1).split(",");
             f0Map.put(f0Values[0], f0Values[1]);
         }
         return f0Map;
@@ -425,59 +533,6 @@ public class ProsodyElementHandler {
        return -1;
     }
 
-    
-    /**
-     * get Continuous contour from "ph" nodelist
-     * @param nl
-     * @return
-     */
-    private double[] getContinuousContour(NodeList nl) {
-      
-
-      Element firstElement =  (Element) nl.item(0);
-      Element lastElement =  (Element) nl.item(nl.getLength()-1);
-      
-      double[] contour = new double[100]; // Assume contour has 100 frames
-      Arrays.fill(contour, 0.0);
-      
-      double fEnd = (new Double(firstElement.getAttribute("end"))).doubleValue();
-      double fDuration = 0.001 * (new Double(firstElement.getAttribute("d"))).doubleValue();
-      double lEnd = (new Double(lastElement.getAttribute("end"))).doubleValue();
-      double fStart = fEnd - fDuration; // 'prosody' tag starting point
-      double duration = lEnd - fStart;  // duaration of 'prosody' modification request
-      
-      Map<Integer, Integer> f0Map;
-      
-      for ( int i=0; i < nl.getLength(); i++ ) {
-          Element e = (Element) nl.item(i);
-          String f0Attribute = e.getAttribute("f0");
-          
-          if( f0Attribute == null || "".equals(f0Attribute) ) {
-              continue;
-          }
-          
-          double phoneEndTime       = (new Double(e.getAttribute("end"))).doubleValue();
-          double phoneDuration = 0.001 * (new Double(e.getAttribute("d"))).doubleValue();
-          //double localStartTime = endTime - phoneDuration;
-          
-          f0Map = getPhoneF0Data(e.getAttribute("f0"));
-          
-          Iterator<Integer> it =  f0Map.keySet().iterator();
-          while(it.hasNext()){
-              Integer percent = it.next();
-              Integer f0Value = f0Map.get(percent);
-              double partPhone = phoneDuration * (percent.doubleValue()/100.0);
-              int placeIndex  = (int) Math.floor((( ((phoneEndTime - phoneDuration) - fStart ) +  partPhone ) * 100 ) / (double) duration );
-              if ( placeIndex >= 100 ) {
-                  placeIndex = 99;
-              }
-              contour[placeIndex] = f0Value.doubleValue();
-          }
-      }
-      
-      return contour;
-    }
-
     /**
      * Get f0 specifications in HashMap
      * @param attribute
@@ -498,6 +553,97 @@ public class ProsodyElementHandler {
       //attribute.split(regex)
       return f0Map;
       
+    }
+    
+    
+
+    /**
+     * mapping a fixed value to a relative value
+     * @param pitchAttribute
+     * @param baseF0Contour
+     * @return
+     */
+    private String fixedValue2RelativeValue(String pitchAttribute, double[] baseF0Contour) {
+        
+        pitchAttribute = pitchAttribute.substring(0,pitchAttribute.length()-2);
+        double fixedValue = (new Float(pitchAttribute)).doubleValue();
+        double meanValue = MathUtils.mean(baseF0Contour);
+        double relative = (100.0 * fixedValue) / meanValue; 
+        if ( relative > 100 ) {
+            return "+"+ df.format((relative - 100)) + "%";
+        }
+        
+        return "-"+ df.format((100 - relative)) + "%";
+    }
+    
+
+    /**
+     * mapping a positive 'rate' integer to a relative value 
+     * @param rateAttribute
+     * @return
+     */
+    private String positiveInteger2RelativeValues(String rateAttribute) {
+        
+        double positiveNumber = (new Float(rateAttribute)).doubleValue();
+        double relativePercentage = (positiveNumber * 100.0);
+        
+        if ( relativePercentage > 100 ) {
+            return "+"+ df.format((relativePercentage - 100)) + "%";
+        }
+        
+        return "-"+ df.format((100 - relativePercentage)) + "%";
+    } 
+
+    /**
+     * a look-up table for mapping rate labels to relative values
+     * @param rateAttribute
+     * @return
+     */
+    private String rateLabels2RelativeValues(String rateAttribute) {
+        
+        if (rateAttribute.equals("x-slow")) {
+            return "-50%";
+        }
+        else if (rateAttribute.equals("slow")) {
+            return "-33.3%";
+        }
+        else if (rateAttribute.equals("medium")) {
+            return "+0%";
+        }
+        else if (rateAttribute.equals("fast")) {  
+            return "+33%";  
+        }
+        else if (rateAttribute.equals("x-fast")) {
+            return "+100%";
+        }
+        
+        return "+0%";
+    }
+
+    /**
+     * a look-up for pitch labels to relative changes 
+     * @param pitchAttribute
+     * @return
+     */
+    private String pitchLabels2RelativeValues(String pitchAttribute) {
+        
+        if (pitchAttribute.equals("x-low")) {
+            return "-50%";
+        }
+        else if (pitchAttribute.equals("low")) {
+            return "-25%";
+        }
+        else if (pitchAttribute.equals("medium")) {
+            return "+0%";
+        }
+        else if (pitchAttribute.equals("high")) {  
+            return "+100%";  
+        }
+        else if (pitchAttribute.equals("x-high")) {
+            return "+200%";
+        }
+        
+        return "+0%";
     }
 
 
