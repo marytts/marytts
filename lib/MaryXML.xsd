@@ -81,6 +81,15 @@ THIS SOFTWARE.
             <xsd:pattern value="[+\-][0-9]+(.[0-9]+)?[%]?"/>
         </xsd:restriction>
     </xsd:simpleType>
+    <xsd:simpleType name="relative.change.percentage">
+        <xsd:annotation>
+            <xsd:documentation>Relative change only in percentages: e.g. 
+            +15%, -9.0%</xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="[+\-]?[0-9]+(.[0-9]+)?[%]"/>
+        </xsd:restriction>
+    </xsd:simpleType>
     <xsd:simpleType name="relative.change.st">
         <xsd:annotation>
             <xsd:documentation>Relative change in semi-tones:
@@ -97,6 +106,51 @@ THIS SOFTWARE.
         </xsd:annotation>
         <xsd:restriction base="xsd:string">
             <xsd:pattern value="[0-9]+(.[0-9]+)?st"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="absolute.value.hz">
+        <xsd:annotation>
+            <xsd:documentation>Absolute value in Hertz:
+            e.g. 10Hz, 80Hz</xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:pattern value="[0-9]+Hz"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="positive-decimal">
+  		<xsd:annotation>
+   			 <xsd:documentation>The positive-decimal type specifies a positive decimal value.</xsd:documentation>
+ 		</xsd:annotation>
+  		<xsd:restriction base="xsd:decimal">
+    		<xsd:minExclusive value="0"/>
+  		</xsd:restriction>
+	</xsd:simpleType>
+    <xsd:simpleType name="pitch.labels">
+        <xsd:annotation>
+            <xsd:documentation>pitch labels given by ssml
+            e.g. x-low, high</xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+        	<xsd:enumeration value="x-low"/>
+        	<xsd:enumeration value="low"/>
+        	<xsd:enumeration value="medium"/>
+        	<xsd:enumeration value="high"/>
+        	<xsd:enumeration value="x-high"/>
+        	<xsd:enumeration value="default"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+    <xsd:simpleType name="rate.labels">
+        <xsd:annotation>
+            <xsd:documentation>rate labels given by ssml
+            e.g. x-low, high</xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+        	<xsd:enumeration value="x-slow"/>
+        	<xsd:enumeration value="slow"/>
+        	<xsd:enumeration value="medium"/>
+        	<xsd:enumeration value="fast"/>
+        	<xsd:enumeration value="x-fast"/>
+        	<xsd:enumeration value="default"/>
         </xsd:restriction>
     </xsd:simpleType>
     <xsd:simpleType name="volume.scale">
@@ -469,10 +523,10 @@ THIS SOFTWARE.
         </xsd:choice>
         <xsd:attribute name="pitch">
             <xsd:simpleType>
-                <xsd:union memberTypes="xsd:positiveInteger                 relative.change relative.change.st"/>
+                <xsd:union memberTypes="xsd:string xsd:positiveInteger relative.change relative.change.st absolute.value.hz pitch.labels"/>
             </xsd:simpleType>
         </xsd:attribute>
-	<xsd:attribute name="contour" type="xsd:string"/>
+		<xsd:attribute name="contour" type="xsd:string"/>
         <xsd:attribute name="pitch-dynamics">
             <xsd:annotation>
                 <xsd:documentation>
@@ -526,7 +580,7 @@ THIS SOFTWARE.
 
         <xsd:attribute name="rate">
             <xsd:simpleType>
-                <xsd:union memberTypes="xsd:positiveInteger                 relative.change"/>
+                <xsd:union memberTypes="xsd:positiveInteger relative.change.percentage rate.labels positive-decimal"/>
             </xsd:simpleType>
         </xsd:attribute>
         <xsd:attribute name="number-of-pauses" type="relative.change"/>
