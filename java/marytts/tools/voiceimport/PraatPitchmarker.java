@@ -203,7 +203,7 @@ public class PraatPitchmarker extends VoiceImportComponent
         String pointprocessFilename = getProp(PRAATPMDIR)+basename+pointpExt;
         String pmFilename = getProp(PRAATPMDIR) + basename + db.getProp(PMEXT);
 
-        String strTmp = getProp(COMMAND)+" "+tmpScript+" "+wavFilename+" "+pointprocessFilename+" "+getProp(MAXPITCH)+" "+getProp(MINPITCH);
+        String strTmp = getProp(COMMAND)+" "+tmpScript+" "+wavFilename+" "+pointprocessFilename+" "+getProp(MINPITCH)+" "+getProp(MAXPITCH);
         
         if (MaryUtils.isWindows())
             strTmp = "cmd.exe /c " + strTmp;
@@ -283,7 +283,7 @@ public class PraatPitchmarker extends VoiceImportComponent
         toScript.println("printline 'baseName$'   f0 range: 'min_f0:0' - 'max_f0:0' Hz");
         toScript.close();
         
-        System.out.println("Running Praat as: "+getProp(COMMAND)+" "+tmpScript);
+        System.out.println("Running Praat as: "+getProp(COMMAND)+" "+tmpScript+" "+getProp(MINPITCH)+" "+getProp(MAXPITCH));
         for ( int i = 0; i < baseNameArray.length; i++ ) {
             percent = 100*i/baseNameArray.length;
             praatPitchmarks(baseNameArray[i]);
