@@ -173,6 +173,8 @@ public class HTSPStream {
  
      htsData.getGVModelSet().setTotalNumIter(0);
      htsData.getGVModelSet().setFirstIter(0);
+     if(useGV)
+       logger.info("Generation using Global Variance maxGVIterations = " + maxGVIter);  
      
 	 for (m=0; m<M; m++) {
 	   calcWUWandWUM( m , debug);
@@ -182,32 +184,30 @@ public class HTSPStream {
        
        /* Global variance optimisation for MCP and LF0 */
        if( useGV ) {
-         logger.info("Generation using Global Variance maxGVIterations = " + maxGVIter);  
+         //logger.info("Generation using Global Variance maxGVIterations = " + maxGVIter);  
          if(feaType == HMMData.MCP){
-           
-           logger.info("GV optimization for MCP feature: ("+ m + ")");
-           gvParmGen(m, htsData.getGVModelSet(), debug);
-           if(debug==false) 
+           gvParmGen(m, htsData.getGVModelSet(), debug);           
+           logger.info("GV optimization for MCP feature: ("+ m + ")  number of iterations=" + htsData.getGVModelSet().getTotalNumIter());           
+           if(debug) 
                logger.info("Total number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
                          "  average = " + htsData.getGVModelSet().getTotalNumIter()/M + 
                          "  first iteration = " + htsData.getGVModelSet().getFirstIter() );
           
          }
          if(feaType == HMMData.LF0){
-             
-             logger.info("GV optimization for LF0 feature: ("+ m + ")");
              gvParmGen(m, htsData.getGVModelSet(), debug);
-             if(debug==false) 
+             logger.info("GV optimization for LF0 feature: ("+ m + ")  number of iterations=" + htsData.getGVModelSet().getTotalNumIter());             
+             if(debug) 
                  logger.info("Total number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
                            "  average = " + htsData.getGVModelSet().getTotalNumIter()/M + 
                            "  first iteration = " + htsData.getGVModelSet().getFirstIter() );
                            
              
          }
-         if(feaType == HMMData.STR){ 
-             logger.info("GV optimization for STR feature: ("+ m + ")");
+         if(feaType == HMMData.STR){              
              gvParmGen(m, htsData.getGVModelSet(), debug);
-             if(debug==false) 
+             logger.info("GV optimization for STR feature: ("+ m + ")  number of iterations=" + htsData.getGVModelSet().getTotalNumIter());
+             if(debug) 
                  logger.info("Total number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
                            "  average = " + htsData.getGVModelSet().getTotalNumIter()/M + 
                            "  first iteration = " + htsData.getGVModelSet().getFirstIter() );
@@ -474,10 +474,10 @@ public class HTSPStream {
     }
     
     if( iter>maxGVIter ){
-      logger.info("");  
-      logger.info("  Number of iterations: " + maxGVIter + " GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
-      logger.info("  Optimization stopped by reaching max number of iterations = " + maxGVIter);
-      logger.info("");
+      //logger.info("");  
+      //logger.info("  Number of iterations: " + maxGVIter + " GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
+      logger.info("   optimization stopped by reaching max number of iterations (no global variance applied)");
+      //logger.info("");
 
       /* If there it does not converge, the feature parameter is not optimized */
       for(t=0; t<nT; t++){
@@ -485,6 +485,7 @@ public class HTSPStream {
       } 
       
     }
+    gv.setTotalNumIter(iter);
       
   }
   
