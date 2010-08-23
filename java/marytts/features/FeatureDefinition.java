@@ -234,7 +234,6 @@ public class FeatureDefinition
         if ( readFeatureSimilarity ) {
             readFeatureSimilarityMatrices(input);
         }
-        input.close();
     }
     
     /**
