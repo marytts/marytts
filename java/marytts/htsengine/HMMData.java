@@ -465,6 +465,13 @@ public class HMMData {
               logger.debug("targetAttributeName = " + targetAttributeName + " Not known"); 
               throw new Exception("targetAttributeName = " + targetAttributeName + " Not known");
           }
+          
+          useGV = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGV" )).booleanValue();          
+          if(useGV){
+            pdfLf0GVFile = props.getProperty( "voice." + voice + ".Fgvf" ).replace("MARY_BASE", marybase);                    
+            if( props.getProperty( "voice." + voice + ".maxGVIter" ) != null )
+              maxGVIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxGVIter" ));            
+          }
                       
           /* Example context feature file in MARY format */
           feaFile = props.getProperty( "voice." + voice + ".FeaFile" ).replace("MARY_BASE", marybase);
@@ -496,6 +503,9 @@ public class HMMData {
         //cart.setNumStates(5);  // CHECK: how to avoid to hard code this value!!!!, one solution could be to load as well the duration models
         // If we also load the duration files then we do not need to hard code the number of states
         cart.loadTreeSet(this, feaDef, trickyPhonesFile); 
+        
+        logger.info("Loading GV Model Set:");
+        gv.loadGVModelSet(this);
         
       }
       catch (Exception e) {

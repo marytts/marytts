@@ -89,11 +89,11 @@ public class GVModelSet {
   private double gvmeanMag[][];   /* global mean vector */
   private double gvcovInvMag[][]; /* global inverse diagonal covariance */
   
-  private float totalNumIter;
+  private int totalNumIter;
   private int firstIter;
-  public float getTotalNumIter(){ return totalNumIter; }
-  public void setTotalNumIter(float var){totalNumIter = var;}
-  public void incTotalNumIter(float var){totalNumIter += var;}
+  public int getTotalNumIter(){ return totalNumIter; }
+  public void setTotalNumIter(int var){totalNumIter = var;}
+  public void incTotalNumIter(int var){totalNumIter += var;}
   public int getFirstIter(){ return firstIter; }
   public void setFirstIter(int val){ firstIter = val; }
     
@@ -157,10 +157,14 @@ public class GVModelSet {
             gvweightsMcp[m] = data_in.readFloat(); /* first float of each block should be the mixture weight */
           else
             gvweightsMcp[m] = 1.0;   /* no mixtures */  
-          for ( i = 0; i < order; i++)
+          for ( i = 0; i < order; i++){
             gvmeanMcp[m][i] = data_in.readFloat();
-          for ( i = 0; i < order; i++)
+            //System.out.format("gvmeanMcp[%d][%d]=%.4f\n",m,i,gvmeanMcp[m][i]);
+          }
+          for ( i = 0; i < order; i++){
             gvcovInvMcp[m][i] = 1.0/data_in.readFloat();
+            //System.out.format("gvcovMcp[%d][%d]=%.4f\n",m,i,1.0/gvcovInvMcp[m][i]);
+          }
         }
         data_in.close (); 
       }
@@ -181,10 +185,14 @@ public class GVModelSet {
               gvweightsLf0[m] = data_in.readFloat(); /* first float of each block should be the mixture weight */
             else
               gvweightsLf0[m] = 1.0;   /* no mixtures */  
-            for ( i = 0; i < order; i++)
+            for ( i = 0; i < order; i++){
               gvmeanLf0[m][i] = data_in.readFloat();
-            for ( i = 0; i < order; i++)
+              //System.out.format("gvmeanLf0[%d][%d]=%.4f\n",m,i,gvmeanLf0[m][i]);
+            }
+            for ( i = 0; i < order; i++){
               gvcovInvLf0[m][i] = 1.0/data_in.readFloat();
+              //System.out.format("gvcovLf0[%d][%d]=%.4f\n",m,i,1.0/gvcovInvLf0[m][i]);
+            }
           }
           data_in.close ();         
       }
