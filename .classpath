@@ -42,7 +42,11 @@
 			<attribute name="javadoc_location" value="http://commons.apache.org/lang/api-2.4/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="java/fast-md5.jar"/>
+	<classpathentry kind="lib" path="java/fast-md5.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://www.twmacinta.com/myjava/fast_md5_javadocs/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="java/Jama-1.0.2.jar"/>
 	<classpathentry kind="lib" path="java/java-diff.jar"/>
 	<classpathentry kind="lib" path="java/JavaOpenAIR.jar"/>

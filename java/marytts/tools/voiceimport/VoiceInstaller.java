@@ -43,6 +43,7 @@ import marytts.util.MaryUtils;
  * @author Anna Hunecke
  *
  */
+@Deprecated
 public class VoiceInstaller extends VoiceImportComponent{
     
     private DatabaseLayout db;
