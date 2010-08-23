@@ -152,6 +152,13 @@ public class AcousticModeller extends InternalModule {
             voice = Voice.getDefaultVoice(locale);
         }
 
+        // if no voice can be found for the Locale
+        if (voice == null) {
+            logger.debug("No voice found for locale; could not process!");
+            output.setDocument(doc);
+            return output;
+        }
+
         // get models from voice, if they are defined:
         Map<String, Model> models = voice.getAcousticModels();
         if (models == null) {
