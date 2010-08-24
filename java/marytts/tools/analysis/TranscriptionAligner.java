@@ -24,8 +24,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -360,6 +362,13 @@ public class TranscriptionAligner
         
         // change the transcription in xml according to the aligned one
         this.changeTranscriptions(allophones, alignments);
+        
+        // this seems as good a place as any to assert that all alignments should be in the AllophoneSet for this locale:
+        HashSet<String> manualLabelSet = new HashSet<String>(Arrays.asList(al.trim().split("[#\\s]+")));
+        for (String label : manualLabelSet) {
+            assert allophoneSet.getAllophone(label) != null : "Label " + label + " not found in AllophoneSet for Locale "
+                    + allophoneSet.getLocale();
+        }
     }
     
     /**
