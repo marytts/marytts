@@ -66,11 +66,6 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
     
     /** Tree files and TreeSet object */
     public final String CONFIGUREFILE = name+".configureFile";
-    //public final String HTSPATH       = name+".htsPath";
-    //public final String HTSENGINEPATH = name+".htsEnginePath";
-    //public final String SPTKPATH      = name+".sptkPath";
-    //public final String TCLPATH       = name+".tclPath";
-    //public final String SOXPATH       = name+".soxPath";
     public final String SPEAKER       = name+".speaker";
     public final String DATASET       = name+".dataSet";
     public final String LOWERF0       = name+".lowerF0";
@@ -154,18 +149,12 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
         props2Help = new TreeMap<String,String>();
         
         props2Help.put(CONFIGUREFILE, "Path and name of configure file.");
-        //props2Help.put(HTSPATH,       "Path to HTS_2.1 - HTK bin directory.");
-        //props2Help.put(HTSENGINEPATH, "Path to HTS_Engine_API-1.01 path  - in Mary it is used for testing after training.");
-        //props2Help.put(SPTKPATH,      "Path to SPTK-3.1 bin directory.");
-        //props2Help.put(TCLPATH,       "Path to Tcl bin, it should support snack.");
-        //props2Help.put(SOXPATH,       "Path to sox bin.");
         props2Help.put(SPEAKER,       "speaker name (default=slt)");
         props2Help.put(DATASET,       "dataset (default=cmu_us_arctic)");
         props2Help.put(LOWERF0,       "Lower limit for F0 extraction in Hz (default slt=80 female=80, male=40)");
         props2Help.put(UPPERF0,       "Upper limit for F0 extraction in Hz (default slt=350 female=350, male=280)");
         props2Help.put(NUMTESTFILES,  "Number of test files used for testing, these are copied from phonefeatures set.");
-     
-        
+            
         props2Help.put(VER,         "version number of this setting (default=1)");
         props2Help.put(QNUM,        "question set number (default='001')");
         props2Help.put(FRAMELEN,    "Frame length in point (default=400)");

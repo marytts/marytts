@@ -424,9 +424,9 @@ public class HTSEngine extends InternalModule
       FeatureVector fv;
       FeatureDefinition feaDef = htsData.getFeatureDefinition();
        
-      if( htsData.getUseUnitDurationContinuousFeature() ){
+      if( htsData.getUseAcousticModels() ){
         phoneAlignmentForDurations = true;
-        loggerHts.info("Using external prosody from acoustparams.");
+        loggerHts.info("Using prosody from acoustparams.");
       } else {
         phoneAlignmentForDurations = false;
         loggerHts.info("Estimating state durations from (Gaussian) state duration model.");

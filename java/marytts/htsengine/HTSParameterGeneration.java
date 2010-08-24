@@ -166,16 +166,16 @@ public class HTSParameterGeneration {
 	/* Here i should pass the window files to initialise the dynamic windows dw */
 	/* for the moment the dw are all the same and hard-coded */
     if( htsData.getPdfMcpFile() != null)
-	  mcepPst = new HTSPStream(ms.getMcepVsize(), um.getTotalFrame(), HMMData.MCP, htsData.getMaxGVIter());
+	  mcepPst = new HTSPStream(ms.getMcepVsize(), um.getTotalFrame(), HMMData.MCP, htsData.getMaxMgcGvIter());
     /* for lf0 count just the number of lf0frames that are voiced or non-zero */
     if( htsData.getPdfLf0File() != null)
-      lf0Pst  = new HTSPStream(ms.getLf0Stream(), um.getLf0Frame(), HMMData.LF0, htsData.getMaxGVIter());
+      lf0Pst  = new HTSPStream(ms.getLf0Stream(), um.getLf0Frame(), HMMData.LF0, htsData.getMaxLf0GvIter());
 
     /* The following are optional in case of generating mixed excitation */
     if( htsData.getPdfStrFile() != null)
-	  strPst  = new HTSPStream(ms.getStrVsize(), um.getTotalFrame(), HMMData.STR, htsData.getMaxGVIter());
+	  strPst  = new HTSPStream(ms.getStrVsize(), um.getTotalFrame(), HMMData.STR, htsData.getMaxLf0GvIter());
     if (htsData.getPdfMagFile() != null )
-	  magPst  = new HTSPStream(ms.getMagVsize(), um.getTotalFrame(), HMMData.MAG, htsData.getMaxGVIter());
+	  magPst  = new HTSPStream(ms.getMagVsize(), um.getTotalFrame(), HMMData.MAG, htsData.getMaxLf0GvIter());
 	   
     
 	uttFrame = lf0Frame = 0;
@@ -236,7 +236,7 @@ public class HTSParameterGeneration {
           }
       	  
       	  /* copy pdfs for lf0 */
-          if( lf0Pst != null && !htsData.getUseUnitLogF0ContinuousFeature() ) {
+          if( lf0Pst != null && !htsData.getUseAcousticModels() ) {
       	  for(k=0; k<ms.getLf0Stream(); k++){
       		lw = lf0Pst.getDWwidth(k, HTSPStream.WLEFT);
       		rw = lf0Pst.getDWwidth(k, HTSPStream.WRIGHT);
@@ -274,7 +274,7 @@ public class HTSParameterGeneration {
       mcepPst.mlpg(htsData, htsData.getUseGV());
     }
    
-    if(htsData.getUseUnitLogF0ContinuousFeature())
+    if(htsData.getUseAcousticModels())
         loadMaryXmlF0(um, htsData);
     else if ( lf0Pst != null ){
         logger.info("Parameter generation for LF0: "); 
@@ -461,7 +461,7 @@ public class HTSParameterGeneration {
       interpolateSegments(f0Vector); 
       
       // create a new Lf0Pst with the values from maryXML
-      HTSPStream newLf0Pst  = new HTSPStream(3, f0Vector.size(), HMMData.LF0, htsData.getMaxGVIter());
+      HTSPStream newLf0Pst  = new HTSPStream(3, f0Vector.size(), HMMData.LF0, htsData.getMaxLf0GvIter());
       for(n=0; n<f0Vector.size(); n++)
         newLf0Pst.setPar(n, 0, Math.log(f0Vector.get(n)));
       

@@ -177,13 +177,11 @@ public class HMMSynthesizer implements WaveformSynthesizer {
                     MaryProperties.getFilename("voice."+voiceName+".Fmm"),     /* Model MCP */
                     MaryProperties.getFilename("voice."+voiceName+".Fms"),     /* Model STR */
                     MaryProperties.getFilename("voice."+voiceName+".Fma"),     /* Model MAG */        
-                    MaryProperties.getFilename("voice."+voiceName+".useExtDur"),     /* use external prosody: unit_duration targetfeature */
-                    MaryProperties.getFilename("voice."+voiceName+".useExtLogF0"),   /* use external prosody: unit_logf0 and unit_logf0delta targetfeatures */
-                    MaryProperties.getProperty("voice."+voiceName+".useMixExc"),     /* Use Mixed excitation */
-                    MaryProperties.getProperty("voice."+voiceName+".useFourierMag"), /* Use Fourier magnitudes for pulse generation */
+                    MaryProperties.getBoolean("voice."+voiceName+".useAcousticModels"), /* use AcousticModeller, so prosody modification is enabled */                    
+                    MaryProperties.getBoolean("voice."+voiceName+".useMixExc"),     /* Use Mixed excitation */
                     MaryProperties.getBoolean("voice."+voiceName+".useGV"),     /* Use Global Variance in parameter generation */
-                    MaryProperties.getBoolean("voice."+voiceName+".useGmmGV"),  /* Use Global Variance as Gausian Mixture model */
-                    MaryProperties.getInteger("voice."+voiceName+".maxGVIter"), /* Max number of iterations in global variance */
+                    MaryProperties.getInteger("voice."+voiceName+".maxMgcGvIter"),  /* Max number of iterations for MGC gv optimisation */
+                    MaryProperties.getInteger("voice."+voiceName+".maxLf0GvIter"), /* Max number of iterations for LF0 gv optimisation */
                     MaryProperties.getFilename("voice."+voiceName+".Fgvf"),     /* GV Model LF0 */
                     MaryProperties.getFilename("voice."+voiceName+".Fgvm"),     /* GV Model MCP */
                     MaryProperties.getFilename("voice."+voiceName+".Fgvs"),     /* GV Model STR */
