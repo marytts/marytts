@@ -82,7 +82,6 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     /** Tree files and TreeSet object */
     public final String MGC           = name+".makeMGC";
     public final String LF0           = name+".makeLF0";
-    public final String MAG           = name+".makeMAG";
     public final String STR           = name+".makeSTR";
     public final String CMPMARY       = name+".makeCMPMARY";
     public final String GVMARY        = name+".makeGV";
@@ -114,7 +113,6 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
            
            props.put(MGC, "1");
            props.put(LF0, "1");
-           props.put(MAG, "1");
            props.put(STR, "1");
            props.put(CMPMARY, "1");
            props.put(GVMARY, "1");
@@ -136,8 +134,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         props2Help = new TreeMap<String,String>();
         
         props2Help.put(MGC, "Extracting MGC or MGC-LSP coefficients from raw audio.");
-        props2Help.put(LF0, "Extracting log f0 sequence from raw audio.");
-        props2Help.put(MAG, "Extracting Fourier magnitudes from raw audio.");
+        props2Help.put(LF0, "Extracting log f0 sequence from raw audio.");        
         props2Help.put(STR, "Extracting strengths from 5 filtered bands from raw audio.");
         props2Help.put(CMPMARY, "Composing training data files from mgc, lf0 and str files.");
         props2Help.put(GVMARY, "Calculating GV and saving in Mary format.");
@@ -181,13 +178,9 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           cmdLine = "cd " + voiceDir + "hts/data\nmake str-mary\n";
           General.launchBatchProc(cmdLine, "", voiceDir);
       }
-      if( Integer.parseInt(getProp(MAG)) == 1 ){
-          cmdLine = "cd " + voiceDir + "hts/data\nmake mag-mary\n";
-          General.launchBatchProc(cmdLine, "", voiceDir);
-      }
       if( Integer.parseInt(getProp(CMPMARY)) == 1 ){
-          // Check, at least, that there is data in the directories mgc, lf0, str and mag
-          System.out.println("\nConcatenating mgc, lf0, str and mag data:");
+          // Check, at least, that there is data in the directories mgc, lf0 and str
+          System.out.println("\nConcatenating mgc, lf0 and str data:");
           File dirMgc = new File(voiceDir + "hts/data/mgc");          
           if( dirMgc.exists() && dirMgc.list().length > 0 ){ 
             System.out.println(voiceDir + "hts/data/mgc contains files");
@@ -208,13 +201,6 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           } else {            
               throw new Exception("Error: directory " + voiceDir + "hts/data/str " + " does not exist or does not contain files.\n" +
                     "These data files can be generated setting the option HMMVoiceMakeData.makeSTR = 1" );  
-          }
-          File dirMag = new File(voiceDir + "hts/data/mag");          
-          if( dirMag.exists() && dirMag.list().length > 0 ){ 
-            System.out.println(voiceDir + "hts/data/mag contains files");
-          } else {            
-              throw new Exception("Error: directory " + voiceDir + "hts/data/mag " + " does not exist or does not contain files.\n" +
-                    "These data files can be generated setting the option HMMVoiceMakeData.makeMAG = 1" );  
           }
           
           // If the directories at leas contain files                 

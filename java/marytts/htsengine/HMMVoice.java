@@ -75,8 +75,8 @@ public class HMMVoice extends Voice {
             String alpha, String gamma, String logGain, String beta,
             String Ftd, String Ftf, String Ftm, String Fts, String Fta, 
             String Fmd, String Fmf, String Fmm, String Fms, String Fma,
-            String useExtDur, String useExtLogF0,
-            String useMixExc, String useFourierMag, boolean useGV, boolean useGmmGV, int maxGVIter, String Fgvf, String Fgvm, 
+            boolean useAcousticModels,
+            boolean useMixExc, boolean useGV, int maxMgcGvIter, int maxLf0GvIter, String Fgvf, String Fgvm, 
             String Fgvs, String Fgva, String Fgmmgvf, String Fgmmgvm, String FeaFile, String trickyPhonesFile,
             String Fif, int nFilters) throws Exception {
         super(nameArray, locale, dbAudioFormat, synthesizer, gender);
@@ -103,33 +103,33 @@ public class HMMVoice extends Voice {
        this.htsData.setPdfStrFile(Fms);
        this.htsData.setPdfMagFile(Fma);
 
+       this.htsData.setUseAcousticModels(Boolean.valueOf(useAcousticModels).booleanValue());  
+       /*
        if(useExtDur != null)
-           this.htsData.setUseUnitDurationContinuousFeature(Boolean.valueOf(useExtDur).booleanValue());
-       
+           this.htsData.setUseUnitDurationContinuousFeature(Boolean.valueOf(useExtDur).booleanValue());       
        if(useExtLogF0 != null)
-           this.htsData.setUseUnitLogF0ContinuousFeature(Boolean.valueOf(useExtLogF0).booleanValue());
-       
+           this.htsData.setUseUnitLogF0ContinuousFeature(Boolean.valueOf(useExtLogF0).booleanValue());       
        if(useMixExc != null)
-         this.htsData.setUseMixExc(Boolean.valueOf(useMixExc).booleanValue());
-       
+         this.htsData.setUseMixExc(Boolean.valueOf(useMixExc).booleanValue());       
        if(useFourierMag != null)
            this.htsData.setUseFourierMag(Boolean.valueOf(useFourierMag).booleanValue());
-       
+       */
        this.htsData.setUseGV(useGV);
-       this.htsData.setUseGmmGV(useGmmGV);
+       //this.htsData.setUseGmmGV(useGmmGV);
        if(useGV){
          this.htsData.setPdfLf0GVFile(Fgvf);        
          this.htsData.setPdfMcpGVFile(Fgvm);
          this.htsData.setPdfStrGVFile(Fgvs);
          this.htsData.setPdfMagGVFile(Fgva);
-       } else if(useGmmGV){
+       } /*else if(useGmmGV){
          this.htsData.setPdfLf0GVFile(Fgmmgvf);        
          this.htsData.setPdfMcpGVFile(Fgmmgvm);
-       }
-       if(maxGVIter > 0)
-         this.htsData.setMaxGVIter(maxGVIter);
-       else
-         this.htsData.setMaxGVIter(200); //default value
+         }*/
+       
+       if(maxMgcGvIter > 0)
+         this.htsData.setMaxMgcGvIter(maxMgcGvIter);
+       if(maxLf0GvIter > 0)
+           this.htsData.setMaxMgcGvIter(maxLf0GvIter);
             
        /* Example context feature file in TARGETFEATURES format */
        this.htsData.setFeaFile(FeaFile);

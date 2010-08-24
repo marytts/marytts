@@ -140,8 +140,7 @@ public class HTSEngineTest {
       
       
       // Set these variables so the htsEngine use the ContinuousFeatureProcessors features
-      htsData.setUseUnitDurationContinuousFeature(true);
-      htsData.setUseUnitLogF0ContinuousFeature(true);
+      htsData.setUseAcousticModels(true);
                                    
       // The settings for using GV and MixExc can besynthesisWithExternalProsodySpecificationFiles changed in this way:
       htsData.setUseGV(true);
@@ -233,8 +232,9 @@ public class HTSEngineTest {
       // external F0 contour obtained with SPTK during HMMs creation
       String lf0File = "/project/mary/marcela/f0-hsmm-experiment/cmu_us_arctic_slt_a0001.lf0";       
       
-      // Load and set external durations      
-      htsData.setUseDurationFromExternalFile(true);
+      // Load and set external durations 
+      //---this is not working in MARY 4.1
+      //---htsData.setUseDurationFromExternalFile(true);
       float totalDuration;
       int totalDurationFrames;
       float fperiodsec = ((float)htsData.getFperiod() / (float)htsData.getRate());
@@ -250,9 +250,7 @@ public class HTSEngineTest {
       hmm_tts.setNewStateDurationFactor(0.37); 
       
       // set external logf0
-      htsData.setUseLogF0FromExternalFile(true);
-      htsData.setExternalLf0File(lf0File);
-      
+      htsData.setUseAcousticModels(true);
                   
       try {
           /* Process Mary context features file and creates UttModel um.   */

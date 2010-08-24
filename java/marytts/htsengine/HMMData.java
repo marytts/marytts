@@ -110,13 +110,11 @@ public class HMMData {
     private boolean useFourierMag = false;   /* use Fourier magnitudes for pulse generation */
     private boolean useGV         = false; /* use global variance in parameter generation */
     private boolean useGmmGV      = false; /* use global variance as a Gaussian Mixture Model */
-    private int maxGVIter         = 200;   /* Deafult number of iterations */
-    private boolean useUnitDurationContinuousFeature = false; /* for using external duration, so it will not be generated from HMMs*/
-    private boolean useUnitLogF0ContinuousFeature = false;    /* for using external f0, so it will not be generated from HMMs*/
-    private boolean useDurationFromExternalFile = false; /* for using external duration, so it will not be generated from HMMs*/
-    private boolean useLogF0FromExternalFile = false;    /* for using external f0, so it will not be generated from HMMs*/
-    private String externalLf0File;
+    private int maxMgcGvIter      = 200;   /* Deafult number of iterations for MGC */
+    private int maxLf0GvIter      = 200;   /* Deafult number of iterations for LF0*/
     
+    private boolean useAcousticModels = false; /* true is using AcousticModeller, is true for MARY 4.1 voices */
+  
     /** variables for controling generation of speech in the vocoder                
      * these variables have default values but can be fixed and read from the      
      * audio effects component.                                              [Default][min--max]   */
@@ -197,23 +195,15 @@ public class HMMData {
 	public String getPdfStrFile() { return pdfStrFile; } 
 	public String getPdfMagFile() { return pdfMagFile; } 
     
-    public boolean getUseUnitLogF0ContinuousFeature(){ return useUnitLogF0ContinuousFeature; }
-    public boolean getUseUnitDurationContinuousFeature(){ return useUnitDurationContinuousFeature; }
-    public void setUseUnitLogF0ContinuousFeature(boolean bval){ useUnitLogF0ContinuousFeature=bval; }
-    public void setUseUnitDurationContinuousFeature(boolean bval){ useUnitDurationContinuousFeature=bval; }
-    
-    public boolean getUseLogF0FromExternalFile(){ return useLogF0FromExternalFile; }
-    public boolean getUseDurationFromExternalFile(){ return useDurationFromExternalFile; }
-    public void setUseLogF0FromExternalFile(boolean bval){ useLogF0FromExternalFile=bval; }
-    public void setUseDurationFromExternalFile(boolean bval){ useDurationFromExternalFile=bval; }
-    public String getExternalLf0File(){ return externalLf0File; }
-    public void setExternalLf0File(String sval){ externalLf0File = sval; } 
+    public boolean getUseAcousticModels(){ return useAcousticModels; }
+    public void setUseAcousticModels(boolean bval){ useAcousticModels = bval; }
     
     public boolean getUseMixExc(){ return useMixExc; }
     public boolean getUseFourierMag(){ return useFourierMag; }
     public boolean getUseGV(){ return useGV; }
     public boolean getUseGmmGV(){ return useGmmGV; }
-    public int getMaxGVIter(){ return maxGVIter; }
+    public int getMaxMgcGvIter(){ return maxMgcGvIter; }
+    public int getMaxLf0GvIter(){ return maxLf0GvIter; }
     public String getPdfLf0GVFile() { return pdfLf0GVFile; }   
     public String getPdfMcpGVFile() { return pdfMcpGVFile; } 
     public String getPdfStrGVFile() { return pdfStrGVFile; } 
@@ -293,8 +283,8 @@ public class HMMData {
     public void setUseFourierMag(boolean bval){ useFourierMag = bval; }
     public void setUseGV(boolean bval){ useGV = bval; }
     public void setUseGmmGV(boolean bval){ useGmmGV = bval; }
-    public void setMaxGVIter(int val){ maxGVIter = val; }
-    
+    public void setMaxMgcGvIter(int val){ maxMgcGvIter = val; }
+    public void setMaxLf0GvIter(int val){ maxLf0GvIter = val; }
     public void setPdfLf0GVFile(String str) { pdfLf0GVFile = str; }   
     public void setPdfMcpGVFile(String str) { pdfMcpGVFile = str; } 
     public void setPdfStrGVFile(String str) { pdfStrGVFile = str; } 
@@ -346,12 +336,9 @@ public class HMMData {
           if( props.getProperty( "voice." + voice + ".Fma" ) != null)
             pdfMagFile = props.getProperty( "voice." + voice + ".Fma" ).replace("MARY_BASE", marybase);
           
-          if( props.getProperty( "voice." + voice + ".useExtDur" ) != null)
-            useUnitDurationContinuousFeature = Boolean.valueOf(props.getProperty( "voice." + voice + ".useExtDur" )).booleanValue();
-          
-          if( props.getProperty( "voice." + voice + ".useExtLogF0" ) != null)
-            useUnitLogF0ContinuousFeature = Boolean.valueOf(props.getProperty( "voice." + voice + ".useExtLogF0" )).booleanValue();
-          
+          if( props.getProperty( "voice." + voice + ".useAcousticModels" ) != null)
+              useAcousticModels = Boolean.valueOf(props.getProperty( "voice." + voice + ".useAcousticModels" )).booleanValue();
+         
           if( props.getProperty( "voice." + voice + ".useMixExc" ) != null)
             useMixExc = Boolean.valueOf(props.getProperty( "voice." + voice + ".useMixExc" )).booleanValue();
           if( props.getProperty( "voice." + voice + ".useFourierMag" ) != null)
@@ -367,8 +354,10 @@ public class HMMData {
             if( props.getProperty( "voice." + voice + ".Fgva" ) != null)
               pdfMagGVFile = props.getProperty( "voice." + voice + ".Fgva" ).replace("MARY_BASE", marybase);
             
-            if( props.getProperty( "voice." + voice + ".maxGVIter" ) != null )
-              maxGVIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxGVIter" ));
+            if( props.getProperty( "voice." + voice + ".maxMgcGvIter" ) != null )
+              maxMgcGvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxMgcGvIter" ));           
+            if( props.getProperty( "voice." + voice + ".maxLf0GvIter" ) != null )
+                maxLf0GvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxLf0GvIter" ));
             
           }else if(useGmmGV){
               pdfLf0GVFile = props.getProperty( "voice." + voice + ".Fgmmgvf" ).replace("MARY_BASE", marybase);        
@@ -439,7 +428,7 @@ public class HMMData {
           String voice = props.getProperty("name");
           String marybase = MaryProperties.getProperty("mary.base");
           
-          if(targetAttributeName.contentEquals("d f0") ){
+          if(targetAttributeName.contentEquals("d f0") || targetAttributeName.contentEquals("f0 d")){
               treeLf0File = props.getProperty( "voice." + voice + ".Ftf" ).replace("MARY_BASE", marybase);
               pdfLf0File = props.getProperty("voice." + voice + ".Fmf" ).replace("MARY_BASE", marybase);
                          
@@ -469,8 +458,8 @@ public class HMMData {
           useGV = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGV" )).booleanValue();          
           if(useGV){
             pdfLf0GVFile = props.getProperty( "voice." + voice + ".Fgvf" ).replace("MARY_BASE", marybase);                    
-            if( props.getProperty( "voice." + voice + ".maxGVIter" ) != null )
-              maxGVIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxGVIter" ));            
+            if( props.getProperty( "voice." + voice + ".maxLf0GvIter" ) != null )
+              maxLf0GvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxLf0GvIter" ));            
           }
                       
           /* Example context feature file in MARY format */
@@ -498,10 +487,7 @@ public class HMMData {
         /* Load TreeSet ts and ModelSet ms for current voice*/
         logger.info("Loading Tree Set in CARTs:");
         setFeatureDefinition(feaFile); /* first set the feature definition with one example of context feature file */
-        // for loading lf0 I need to know the number of states, there is no way to know until here, because 
-        // normally the value is found after loading duration, but here we are not loading duration (other solution ???)
-        //cart.setNumStates(5);  // CHECK: how to avoid to hard code this value!!!!, one solution could be to load as well the duration models
-        // If we also load the duration files then we do not need to hard code the number of states
+  
         cart.loadTreeSet(this, feaDef, trickyPhonesFile); 
         
         logger.info("Loading GV Model Set:");
