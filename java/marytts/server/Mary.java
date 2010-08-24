@@ -20,9 +20,11 @@
 package marytts.server;
 
 // General Java Classes
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,8 +39,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
@@ -68,11 +72,13 @@ import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
 
+import org.apache.log4j.Appender;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.apache.log4j.PropertyConfigurator;
 import org.apache.log4j.WriterAppender;
 
 
@@ -236,8 +242,81 @@ public class Mary {
         }
         MaryProperties.readProperties();
 
-        // Configure Logging:
-        logger = MaryUtils.getLogger("main");
+        configureLogging();
+        
+        logger.info("Mary starting up...");
+        logger.info("Specification version " + Version.specificationVersion());
+        logger.info("Implementation version " + Version.implementationVersion());
+        logger.info("Running on a Java " + System.getProperty("java.version")
+                + " implementation by " + System.getProperty("java.vendor")
+                + ", on a " + System.getProperty("os.name") + " platform ("
+                + System.getProperty("os.arch") + ", " + System.getProperty("os.version")
+                + ")");
+        logger.debug("MARY_BASE: "+MaryProperties.maryBase());
+        StringBuilder installedMsg = new StringBuilder();
+        for (String filename : new File(MaryProperties.maryBase()+"/installed").list()) {
+            if (installedMsg.length() > 0) {
+                installedMsg.append(", ");
+            }
+            installedMsg.append(filename);
+        }
+        logger.debug("Content of installed/ folder: "+installedMsg);
+        StringBuilder confMsg = new StringBuilder();
+        for (String filename : new File(MaryProperties.maryBase()+"/conf").list()) {
+            if (confMsg.length() > 0) {
+                confMsg.append(", ");
+            }
+            confMsg.append(filename);
+        }
+        logger.debug("Content of conf/ folder: "+confMsg);
+        logger.debug("Full dump of system properties:");
+        for (Object key : new TreeSet<Object>(System.getProperties().keySet())) {
+            logger.debug(key + " = " + System.getProperties().get(key));
+        }
+        logger.debug("XML libraries used:");
+        logger.debug("DocumentBuilderFactory: " + DocumentBuilderFactory.newInstance().getClass());
+        try {
+            Class<? extends Object> xercesVersion = Class.forName("org.apache.xerces.impl.Version");
+            logger.debug(xercesVersion.getMethod("getVersion").invoke(null));
+        } catch (Exception e) {
+            // Not xerces, no version number
+        }
+        logger.debug("TransformerFactory:     " + TransformerFactory.newInstance().getClass());
+        try {
+            // Nov 2009, Marc: This causes "[Deprecated] Xalan: org.apache.xalan.Version" to be written to the console.
+            //Class xalanVersion = Class.forName("org.apache.xalan.Version");
+            //logger.debug(xalanVersion.getMethod("getVersion").invoke(null));
+        } catch (Exception e) {
+            // Not xalan, no version number
+        }
+
+        // Essential environment checks:
+        EnvironmentChecks.check();
+        
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                shutdown();
+            }
+        });
+
+
+        setupFeatureProcessors();
+        
+        // Instantiate module classes and startup modules:
+        startModules();
+
+        logger.info("Startup complete.");
+        currentState = STATE_RUNNING;
+    }
+
+    /**
+     * Log4j initialisation, called from {@link #startup(boolean)}.
+     * @throws NoSuchPropertyException
+     * @throws IOException
+     */
+    private static void configureLogging() throws NoSuchPropertyException, IOException {
+        // Configure logging:
+/*        logger = MaryUtils.getLogger("main");
         Logger.getRootLogger().setLevel(Level.toLevel(MaryProperties.needProperty("log.level")));
         PatternLayout layout = new PatternLayout("%d [%t] %-5p %-10c %m\n");
         File logFile = null;
@@ -272,69 +351,22 @@ public class Mary {
         } else {
             BasicConfigurator.configure(new WriterAppender(layout, System.err));
         }
-        logger.info("Mary starting up...");
-        logger.info("Specification version " + Version.specificationVersion());
-        logger.info("Implementation version " + Version.implementationVersion());
-        logger.info("Running on a Java " + System.getProperty("java.version")
-                + " implementation by " + System.getProperty("java.vendor")
-                + ", on a " + System.getProperty("os.name") + " platform ("
-                + System.getProperty("os.arch") + ", " + System.getProperty("os.version")
-                + ")");
-        logger.debug("MARY_BASE: "+MaryProperties.maryBase());
-        StringBuilder installedMsg = new StringBuilder();
-        for (String filename : new File(MaryProperties.maryBase()+"/installed").list()) {
-            if (installedMsg.length() > 0) {
-                installedMsg.append(", ");
+        */
+        Properties logprops = new Properties();
+        BufferedReader propReader = new BufferedReader(new FileReader(MaryProperties.needFilename("log.config")));
+        logprops.load(propReader);
+        // Now replace MARY_BASE with the install location of MARY in every property:
+        for (Object key : logprops.keySet()) {
+            String val = (String) logprops.get(key);
+            if (val.contains("MARY_BASE")) {
+                val = val.replaceAll("MARY_BASE", MaryProperties.maryBase());
+                logprops.put(key, val);
             }
-            installedMsg.append(filename);
         }
-        logger.debug("Content of installed/ folder: "+installedMsg);
-        StringBuilder confMsg = new StringBuilder();
-        for (String filename : new File(MaryProperties.maryBase()+"/conf").list()) {
-            if (confMsg.length() > 0) {
-                confMsg.append(", ");
-            }
-            confMsg.append(filename);
-        }
-        logger.debug("Content of conf/ folder: "+confMsg);
-        logger.debug("Full dump of system properties:");
-        for (Object key : new TreeSet<Object>(System.getProperties().keySet())) {
-            logger.debug(key + " = " + System.getProperties().get(key));
-        }
-        logger.debug("XML libraries used:");
-        logger.debug("DocumentBuilderFactory: " + DocumentBuilderFactory.newInstance().getClass());
-        try {
-            Class xercesVersion = Class.forName("org.apache.xerces.impl.Version");
-            logger.debug(xercesVersion.getMethod("getVersion").invoke(null));
-        } catch (Exception e) {
-            // Not xerces, no version number
-        }
-        logger.debug("TransformerFactory:     " + TransformerFactory.newInstance().getClass());
-        try {
-            // Nov 2009, Marc: This causes "[Deprecated] Xalan: org.apache.xalan.Version" to be written to the console.
-            //Class xalanVersion = Class.forName("org.apache.xalan.Version");
-            //logger.debug(xalanVersion.getMethod("getVersion").invoke(null));
-        } catch (Exception e) {
-            // Not xalan, no version number
-        }
-
-        // Essential environment checks:
-        EnvironmentChecks.check();
+        PropertyConfigurator.configure(logprops);
         
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                shutdown();
-            }
-        });
-
-
-        setupFeatureProcessors();
+        logger = MaryUtils.getLogger("main");
         
-        // Instantiate module classes and startup modules:
-        startModules();
-
-        logger.info("Startup complete.");
-        currentState = STATE_RUNNING;
     }
 
     /**
