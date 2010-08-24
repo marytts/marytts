@@ -62,7 +62,6 @@ public class MaryProperties
     private static Properties p = null;
     // Global configuration settings independent of any particular request:
     private static String maryBase = null;
-    private static boolean logToFile = false;
     private static Vector<String> moduleInitInfo = new Vector<String>();
     private static Vector<String> synthClasses = new Vector<String>();
     private static Vector<String> audioEffectClasses = new Vector<String>();
@@ -83,8 +82,6 @@ public class MaryProperties
         }
         return maryBase; 
     }
-    /** Whether to log to the log file or to the screen */
-    public static boolean logToFile() { return logToFile; }
     /** Names of the classes to use as modules, plus optional parameter info.
      * @see marytts.modules.ModuleRegistry#instantiateModule(String) for details on expected format.
      */

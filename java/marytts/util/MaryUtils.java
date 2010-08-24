@@ -55,7 +55,7 @@ import marytts.util.math.MathUtils;
  */
 
 public class MaryUtils {
-    public static final String LOGPREFIX = "marytts.";
+    public static final String LOGPREFIX = "marytts";
     
     private static long lowMemoryThreshold = -1;
     private static Timer maintenanceTimer = new Timer(true); // a daemon timer which will not prohibit system exits.
@@ -1003,7 +1003,7 @@ public class MaryUtils {
      * @return
      */
     public static Logger getLogger(String nameSuffix) {
-        return Logger.getLogger(LOGPREFIX+nameSuffix);
+        return Logger.getLogger(LOGPREFIX+"."+nameSuffix);
     }
 
     /**
