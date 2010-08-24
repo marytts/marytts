@@ -120,8 +120,7 @@ labels: label mlf list scp
 # MARY: label and mlf are done in java with the voiceimport tools: HMMVoiceMakeData.makeLabels()
 #       questions file is done in java with the voiceimport tools: HMMVoiceMakeData.makeQuestions() 
 all-mary: analysis-mary-mix list scp
-analysis-mary-mix: mgc lf0 str-mary mag-mary cmp-mary gv-mary gv
-
+analysis-mary-mix: mgc lf0 str-mary cmp-mary gv-mary gv
 
 
 mgc:
@@ -290,8 +289,70 @@ cmp:
 	rm -f cmp/tmp*
 
 
-# Mary added str and mag for mixed excitation
+# Mary added str for mixed excitation
 cmp-mary: 
+	# Composing training data files from mgc, lf0, and str files
+	mkdir -p cmp
+	for j in 1; do \
+		MGCDIM=`expr $(MGCORDER) + 1`; \
+		LF0DIM=1; \
+                STRDIM=$(STRORDER); \
+                echo "STRDIM=$${STRDIM}"; \
+		MGCWINDIM=`expr $(NMGCWIN) \* $${MGCDIM}`; \
+		LF0WINDIM=`expr $(NLF0WIN) \* $${LF0DIM}`; \
+                STRWINDIM=`expr $(NSTRWIN) \* $${STRDIM}`; \
+                MGCPLUSLF0=`expr $${MGCWINDIM} + $${LF0WINDIM}`; \
+                echo "MGCWINDIM=$${MGCWINDIM}"; \
+                echo "LF0WINDIM=$${LF0WINDIM}"; \
+                echo "STRWINDIM=$${STRWINDIM}"; \
+                echo "MGCPLUSLF0=$${MGCPLUSLF0}"; \
+		BYTEPERFRAME=`expr 4 \* \( $${MGCWINDIM} + $${LF0WINDIM} + $${STRWINDIM} \)`; \
+                echo "BYTEPERFRAME=$${BYTEPERFRAME}"; \
+		#for mcp in mcp/*.mcp; do \
+		for mgc in mgc/*.mgc; do \
+			base=`basename $${mgc} .mgc`; \
+			MGCWINS=""; \
+			LF0WINS=""; \
+			STRWINS=""; \
+			if [ -s $${mgc} -a -s lf0/$${base}.lf0 -a -s str/$${base}.str ]; then \
+                                # for mgc \
+				i=1; \
+				echo "Composing training data (mgc+lf0+str) for $${base}"; \
+				while [ $${i} -le $(NMGCWIN) ]; do \
+					eval MGCWINS=\"$${MGCWINS} $(MGCWIN)$${i}\"; \
+					i=`expr $${i} + 1`; \
+				done; \
+				$(PERL) scripts/window.pl $${MGCDIM} $${mgc} $${MGCWINS} > cmp/tmp.mgc; \
+                                # for lf0 \
+				i=1; \
+				while [ $${i} -le $(NLF0WIN) ]; do \
+					eval LF0WINS=\"$${LF0WINS} $(LF0WIN)$${i}\"; \
+					i=`expr $${i} + 1`; \
+				done; \
+				$(PERL) scripts/window.pl $${LF0DIM} lf0/$${base}.lf0 $${LF0WINS} > cmp/tmp.lf0; \
+                                # for strengths \
+				i=1; \
+				while [ $${i} -le $(NSTRWIN) ]; do \
+					eval STRWINS=\"$${STRWINS} $(STRWIN)$${i}\"; \
+					i=`expr $${i} + 1`; \
+				done; \
+                                #echo "STRWINS=$${STRWINS}"; \
+				$(PERL) scripts/window.pl $${STRDIM} str/$${base}.str $${STRWINS} > cmp/tmp.str; \
+                                # now merge temporary files: tmp.mgc, tmp.lf0, tmp.str  \
+				$(MERGE) +f -s 0 -l $${LF0WINDIM} -L $${MGCWINDIM} cmp/tmp.mgc < cmp/tmp.lf0 > cmp/tmp.cmp1; \
+                                $(MERGE) +f -s 0 -l $${STRWINDIM} -L $${MGCPLUSLF0} cmp/tmp.cmp1 < cmp/tmp.str > cmp/tmp.cmp; \
+                                # add HTK header \
+				$(PERL) scripts/addhtkheader.pl $(SAMPFREQ) $(FRAMESHIFT) $${BYTEPERFRAME} 9 cmp/tmp.cmp > cmp/$${base}.cmp; \
+			fi; \
+		done; \
+	done
+	rm -f cmp/tmp*
+
+
+
+
+# Mary added str and mag for mixed excitation
+cmp-mag-mary: 
 	# Composing training data files from mgc, lf0, str and mag files
 	mkdir -p cmp
 	for j in 1; do \
