@@ -104,7 +104,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
            props.put(RAW2WAVCOMMAND, rootdir   + "/hts/data/scripts/raw2wav.sh");
            props.put(WAV2RAWCOMMAND, rootdir   + "/hts/data/scripts/wav2raw.sh");
            props.put(UTT2TRANSCOMMAND, rootdir + "/hts/data/scripts/utt2trans.sh");
-           props.put(HTSDEMOFORMARY, marybase  + "/lib/external/HTS-demo_for_MARY-4.0.zip");
+           props.put(HTSDEMOFORMARY, marybase  + "/lib/external/HTS-demo_for_MARY-4.1.zip");
            props.put(UNZIPCOMMAND, "/usr/bin/unzip");
        }
        return props;
