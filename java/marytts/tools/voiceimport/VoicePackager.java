@@ -370,7 +370,7 @@ public class VoicePackager extends VoiceImportComponent {
         byte[] buffer = new byte[4096];
 
         // initialize zip file:
-        String zipFileName = String.format("%s-%s.zip", getVoiceLocale(), getVoiceName());
+        String zipFileName = String.format("%s-%s.zip", getXMLCompatibleVoiceLocale(), getVoiceName());
         logger.info("Creating voice package " + zipFileName);
         File zipFile = new File(getMaryBase() + "download" + File.separator + zipFileName);
         FileOutputStream outputStream = new FileOutputStream(zipFile);
@@ -423,7 +423,7 @@ public class VoicePackager extends VoiceImportComponent {
         logger.info("Hashing voice package");
         String zipFileMd5Hash = MD5.asHex(MD5.getHash(zipFile));
 
-        String componentFileName = String.format("%s-%s-component.xml", getVoiceLocale(), getVoiceName());
+        String componentFileName = String.format("%s-%s-component.xml", getXMLCompatibleVoiceLocale(), getVoiceName());
         logger.info("Creating component file " + componentFileName);
         File componentFile = new File(getMaryBase() + File.separator + "download" + File.separator + componentFileName);
         PrintWriter out = new PrintWriter(componentFile);
@@ -432,14 +432,14 @@ public class VoicePackager extends VoiceImportComponent {
         out.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
         out.format("<marytts-install xmlns=\"http://mary.dfki.de/installer\">\n");
         out.format("    <voice gender=\"%s\" locale=\"%s\" name=\"%s\" type=\"%s\" version=\"%s\">\n", getVoiceGender(),
-                getVoiceLocale(), getVoiceName(), getProp(VOICETYPE), getMaryVersion());
+                getXMLCompatibleVoiceLocale(), getVoiceName(), getProp(VOICETYPE), getMaryVersion());
         out.format("        <description></description>\n");
         out.format("        <license href=\"%s\"/>\n", getProp(LICENSEURL));
         out.format("        <package filename=\"%s\"\n", zipFile.getName());
         out.format("            md5sum=\"%s\" size=\"%d\">\n", zipFileMd5Hash, zipFile.length());
         out.format("            <location href=\"http://mary.dfki.de/download/%s/\"/>\n", getMaryVersion());
         out.format("        </package>\n");
-        out.format("        <depends language=\"%s\" version=\"%s\"/>\n", getVoiceLocale(), getMaryVersion());
+        out.format("        <depends language=\"%s\" version=\"%s\"/>\n", getXMLCompatibleVoiceLocale(), getMaryVersion());
         out.format("    </voice>\n");
         out.format("</marytts-install>\n");
 
@@ -460,6 +460,10 @@ public class VoicePackager extends VoiceImportComponent {
 
     public String getVoiceLocale() {
         return MaryUtils.string2locale(db.getProp(db.LOCALE)).toString();
+    }
+    
+    public String getXMLCompatibleVoiceLocale() {
+        return MaryUtils.locale2xmllang(MaryUtils.string2locale(db.getProp(db.LOCALE)));
     }
 
     public String getVoiceName() {
