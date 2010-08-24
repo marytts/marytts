@@ -117,6 +117,46 @@ public class FeatureRegistry
     }
     
     
+
+    /**
+     * For the given voice, return the best feature manager. That is either
+     * the voice-specific feature manager, if any, or the locale-specific feature manager, if any,
+     * or the language-specific feature manager, if any, or the fallback feature manager. 
+     * @param voice
+     * @return a feature processor manager object. If this returns null, something is broken.
+     */
+    public static FeatureProcessorManager determineBestFeatureProcessorManager(Voice voice) {
+        FeatureProcessorManager mgr = getFeatureProcessorManager(voice);
+        if (mgr == null) {
+            mgr = determineBestFeatureProcessorManager(voice.getLocale());
+        }
+        return mgr;
+    }
+    
+
+    /**
+     * For the given locale, return the best feature manager. That is either
+     * the locale-specific feature manager, if any,
+     * or the language-specific feature manager, if any, or the fallback feature manager. 
+     * @param locale
+     * @return a feature processor manager object. If this returns null, something is broken.
+     */
+    public static FeatureProcessorManager determineBestFeatureProcessorManager(Locale locale) {
+        FeatureProcessorManager mgr = getFeatureProcessorManager(locale);
+        // Locale can have been en_US etc, i.e. language + country; let's try
+        // language only as well.
+        if (mgr == null) {
+            Locale lang = new Locale(locale.getLanguage());
+            mgr = getFeatureProcessorManager(lang);
+        }
+        if (mgr == null) {
+            mgr = getFallbackFeatureProcessorManager();
+        }
+        assert mgr != null;
+        return mgr;
+    }
+    
+    
     public static Collection<Locale> getSupportedLocales()
     {
         Collection<Locale> locales = new TreeSet<Locale>(new Comparator<Locale>() {
@@ -185,16 +225,10 @@ public class FeatureRegistry
      */
     public static TargetFeatureComputer getTargetFeatureComputer(Locale locale, String features)
     {
-        FeatureProcessorManager mgr = getFeatureProcessorManager(locale);
-        // Locale can have been en_US etc, i.e. language + country; let's try
-        // language only as well.
-        if (mgr == null) {
-            Locale lang = new Locale(locale.getLanguage());
-            mgr = getFeatureProcessorManager(lang);
-        }
-        if (mgr == null) mgr = getFallbackFeatureProcessorManager();
+        FeatureProcessorManager mgr = determineBestFeatureProcessorManager(locale);
         return getTargetFeatureComputer(mgr, features);
     }
+
     
     /**
      * Convenience method for getting a suitable target feature computer for
@@ -213,16 +247,9 @@ public class FeatureRegistry
      */
     public static TargetFeatureComputer getTargetFeatureComputer(Voice voice, String features)
     {
-        FeatureProcessorManager mgr = getFeatureProcessorManager(voice);
-        if (mgr == null) mgr = getFeatureProcessorManager(voice.getLocale());
-        // Locale can have been en_US etc, i.e. language + country; let's try
-        // language only as well.
-        if (mgr == null) {
-            Locale lang = new Locale(voice.getLocale().getLanguage());
-            mgr = getFeatureProcessorManager(lang);
-        }
-        if (mgr == null) mgr = getFallbackFeatureProcessorManager();
+        FeatureProcessorManager mgr = determineBestFeatureProcessorManager(voice);
         return getTargetFeatureComputer(mgr, features);
     }
+
 
 }

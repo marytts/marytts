@@ -195,7 +195,6 @@ public class Voice
         }
         preferredModulesClasses = MaryProperties.getProperty(header+".preferredModules");
         
-        initFeatureProcessorManager();
         String lexiconClass = MaryProperties.getProperty(header+".lexiconClass");
         String lexiconName = MaryProperties.getProperty(header+".lexicon");
         lexicon = getLexicon(lexiconClass, lexiconName);
@@ -204,6 +203,14 @@ public class Voice
             vocalizationSynthesizer = new VocalizationSynthesizer(this);
         }
         
+        loadOldStyleProsodyModels(header);
+        loadAcousticModels(header);
+        // initialization of FeatureProcessorManager for this voice, if needed:
+        initFeatureProcessorManager();
+    }
+
+    @Deprecated
+    private void loadOldStyleProsodyModels(String header) throws MaryConfigurationException {
         // see if there are any voice-specific duration and f0 models to load
         durationGraph = null;
         String durationGraphFile = MaryProperties.getFilename(header+".duration.cart");
@@ -229,7 +236,15 @@ public class Voice
                 throw new MaryConfigurationException("Cannot load f0 contour graph file '"+f0GraphFile+"'", e);
             }
         }
-        
+    }
+    
+    /**
+     * Load a flexibly configurable list of acoustic models as specified in the config file.
+     * @param header
+     * @throws MaryConfigurationException
+     * @throws NoSuchPropertyException
+     */
+    private void loadAcousticModels(String header) throws MaryConfigurationException, NoSuchPropertyException {
         // Acoustic models:
         String acousticModelsString = MaryProperties.getProperty(header + ".acousticModels");
         if (acousticModelsString != null) {
@@ -301,18 +316,6 @@ public class Voice
                 model.loadDataFile();
                 acousticModels.put(modelName, model);
             } while (acousticModelStrings.hasMoreTokens());
-
-            // initialization of FeatureProcessorManager for this voice:
-            FeatureProcessorManager featureProcessorManager;
-            // TODO somehow reconcile that German FPM class with the rest of the code...
-            if (locale.equals(new Locale("de"))) {
-                featureProcessorManager = new marytts.language.de.features.FeatureProcessorManager(this);
-            } else {
-                featureProcessorManager = new FeatureProcessorManager(this);
-            }
-
-            // (re-)register the FeatureProcessorManager for this Voice:
-            FeatureRegistry.setFeatureProcessorManager(this, featureProcessorManager);
         }
     }
 
@@ -320,18 +323,42 @@ public class Voice
      * Try to determine a feature processor manager. This will look for the voice-specific config setting
      * <code>voice.(voicename).featuremanager</code>. If a feature processor manager 
      * is found, it is initialised and entered into the {@link marytts.features.FeatureRegistry}.
+     * @throws MaryConfigurationException if the feature processor manager cannot be initialised.
      */
-    private void initFeatureProcessorManager() {
-        // First, the feature processor manager to use:
+    private void initFeatureProcessorManager() throws MaryConfigurationException {
+        FeatureProcessorManager featMgr = null;
+        
+        // Any feature processor manager settings in the config file?
         String keyVoiceFeatMgr = "voice."+getName()+".featuremanager";
         String featMgrClass = MaryProperties.getProperty(keyVoiceFeatMgr);
         if (featMgrClass != null) {
             try {
-                FeatureProcessorManager featMgr = (FeatureProcessorManager) Class.forName(featMgrClass).newInstance();
-                FeatureRegistry.setFeatureProcessorManager(this, featMgr);
+                featMgr = (FeatureProcessorManager) Class.forName(featMgrClass).newInstance();
             } catch (Exception e) {
-                throw new IllegalArgumentException("Cannot initialise voice-specific FeatureProcessorManager", e);
+                throw new MaryConfigurationException("Cannot initialise voice-specific FeatureProcessorManager "
+                        +featMgrClass+" from config file", e);
             }
+        } else if (getOtherModels() != null) {
+            // Only if there is no feature manager setting in the config file,
+            // we consider creating one from the acoustic features;
+            // We need to do this only if we have any "other" acoustic models, beyond duration and F0:
+            
+            FeatureProcessorManager genericFPM = FeatureRegistry.determineBestFeatureProcessorManager(locale);
+            // We attempt to create an FPM with same class as genericFPM via the Constructor FPM(Voice):
+            Class<? extends FeatureProcessorManager> fpmClass = genericFPM.getClass();
+            try {
+                Constructor<? extends FeatureProcessorManager> fpmVoiceConstructor = fpmClass.getConstructor(Voice.class);
+                featMgr = fpmVoiceConstructor.newInstance(this);
+            } catch (NoSuchMethodException nsme) {
+                throw new MaryConfigurationException("Cannot initialise voice-specific FeatureProcessorManager: Class "
+                        +fpmClass.getName()+" has no constructor "+fpmClass.getSimpleName()+"(Voice)");
+            } catch (Exception e) {
+                throw new MaryConfigurationException("Cannot initialise voice-specific FeatureProcessorManager", e);
+            }
+        }
+        // register the FeatureProcessorManager for this Voice:
+        if (featMgr != null) {
+            FeatureRegistry.setFeatureProcessorManager(this, featMgr);
         }
     }
     
@@ -448,31 +475,67 @@ public class Voice
     
     // Several getters for acoustic models, returning null if undefined:
     
+    /**
+     * Get the acoustic models defined for this voice.
+     * @return a Map mapping model names to models,
+     * or null if there are no such models.
+     */
     public Map<String, Model> getAcousticModels() {
         return acousticModels;
     }
     
+    /**
+     * Get the duration model for this voice.
+     * @return the model, or null if no such model is defined.
+     */
     public Model getDurationModel() {
+        if (acousticModels == null) {
+            return null;
+        }
         return acousticModels.get("duration");
     }
     
+    /**
+     * Get the F0 model for this voice.
+     * @return the model, or null if no such model is defined.
+     */
     public Model getF0Model() {
+        if (acousticModels == null) {
+            return null;
+        }
         return acousticModels.get("F0");
     }
       
+    /**
+     * Get the boundary duration model for this voice.
+     * @return the model, or null if no such model is defined.
+     */
     public Model getBoundaryModel() {
+        if (acousticModels == null) {
+            return null;
+        }
         return acousticModels.get("boundary");
     }
     
 
-    
+    /**
+     * Return any "other" acoustic models that we have.
+     * Other models are acoustic models beyond duration, F0 and boundary.
+     * @return a Map mapping the model name to the model, or null if no other models exist.
+     */
     public Map<String, Model> getOtherModels() {
+        if (acousticModels == null) {
+            return null;
+        }
         Map<String, Model> otherModels = new HashMap<String, Model>();
         for (String modelName : acousticModels.keySet()) {
             // ignore critical Models that have their own getters:
             if (!modelName.equals("duration") && !modelName.equals("F0") && !modelName.equals("boundary")) {
                 otherModels.put(modelName, acousticModels.get(modelName));
             }
+        }
+        if (otherModels.size() == 0) {
+            return null;
         }
         return otherModels;
     }
