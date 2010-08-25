@@ -20,6 +20,7 @@
 package marytts.tools.voiceimport;
 
 
+import java.util.List;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
@@ -57,6 +58,8 @@ public class HalfPhoneUnitLabelComputer extends PhoneUnitLabelComputer
                 +"Will be created if it does not exist.");
     } 
      
+    @Override
+    @Deprecated
     protected String[] toUnitLabels(String[] phoneLabels)
     {
         // We will create exactly two half phones for every phone:
@@ -82,6 +85,25 @@ public class HalfPhoneUnitLabelComputer extends PhoneUnitLabelComputer
             startTime = endTime;
         }
         return halfPhoneLabels;
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String[] toUnitLabels(List<String> labels, List<Double> times) {
+        assert labels.size() == times.size();
+        String[] unitLines = new String[labels.size() * 2];
+        double lastTime = 0;
+        for (int i = 0; i < labels.size(); i++) {
+            String label = labels.get(i);
+            double rightEndTime = times.get(i);            
+            double leftEndTime = (lastTime + rightEndTime) / 2;
+            unitLines[i * 2] = String.format("%f %d %s_L", leftEndTime, i * 2 + 1, label);
+            unitLines[i * 2 + 1] = String.format("%f %d %s_R", rightEndTime, i * 2 + 2, label);
+            lastTime = leftEndTime;
+        }
+        return unitLines;
     }
 }
 
