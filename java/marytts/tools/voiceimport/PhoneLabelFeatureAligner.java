@@ -153,15 +153,15 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     }
     
     /**
-     * Align labels and features. For each .unitlab file in the unit label
+     * Align labels and features. For each .phonelab file in the phone label
      * directory, verify whether the chain of units given is identical to
      * the chain of units in the corresponding unit feature file.
      * For those files that are not perfectly aligned, give the user the
      * opportunity to correct alignment.
      * @return a boolean indicating whether or not the database is fully aligned.
-     * @throws IOException
+     * @throws Exception 
      */
-    public boolean compute() throws IOException
+    public boolean compute() throws Exception
     {
         int bnlLengthIn = bnl.getLength();
         System.out.println( "Verifying feature-label alignment for "+ bnlLengthIn + " utterances." );
@@ -958,7 +958,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         return st.nextToken();
     }
     
-    protected int letUserCorrect(String basename, String errorMessage) throws IOException
+    protected int letUserCorrect(String basename, String errorMessage) throws Exception
     {
         String[] options;
         /*
@@ -1101,7 +1101,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         
     }
     
-    private void editMaryXML(String basename) throws IOException
+    private void editMaryXML(String basename) throws Exception
     {
         final File maryxmlFile = new File( db.getProp(db.MARYXMLDIR) 
                 				+ basename + db.getProp(db.MARYXMLEXT) );

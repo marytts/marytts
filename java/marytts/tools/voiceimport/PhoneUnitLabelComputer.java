@@ -28,7 +28,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
@@ -38,6 +40,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 import marytts.modules.phonemiser.AllophoneSet;
+import marytts.util.data.text.XwavesLabelfileDataSource;
 
 /**
  * Compute unit labels from phone labels.
@@ -99,7 +102,7 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
                 +"Will be created if it does not exist.");
     } 
     
-    public boolean compute() throws IOException
+    public boolean compute() throws Exception
     {
         
         phonelabelDir = new File(db.getProp(db.LABDIR));
@@ -119,7 +122,7 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
         return true;
     }
     
-    public void computePhoneLabel(String baseName) throws IOException{
+    public void computePhoneLabel(String baseName) throws Exception{
         File labFile = 
             new File( db.getProp(db.LABDIR) 
                     + baseName + db.getProp(db.LABEXT) );
@@ -128,57 +131,62 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
             System.out.println( "Removing this utterance from the base utterance list." );
             bnl.remove( baseName );
             basenameIndex--;
+            return;
         }
-        else {
-            BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream( labFile ), "UTF-8"));
-            String labelFile = getProp(LABELDIR)+ baseName + unitlabelExt;
-            PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(labelFile)), "UTF-8"));
-            // Merge adjacent pauses into one: In a sequence of pauses,
-            // only remember the last one.
-            String pauseLine = null;
-            String line;
-            List header = new ArrayList();
-            boolean readingHeader = true;
-            List phoneLabels = new ArrayList();
-            while ((line = in.readLine())!= null) {
-                if (readingHeader) {
-                    if (line.trim().equals("#")) {
-                        // found end of header
-                        readingHeader = false;
-                    }
-                    header.add(line);                        
-                } else {
-                    // Not reading header
-                    // Verify if this is a pause unit
-                    String phone = getPhone(line);
-                    if (pauseSymbol.equals(phone)) {
-                        pauseLine = line; // remember only the latest pause line
-                    } else { // a non-pause symbol
-                        if (pauseLine != null) {
-                            phoneLabels.add(pauseLine);
-                            pauseLine = null;
-                        }
-                        phoneLabels.add(line);
-                    }
-                }
-            }
-            if (pauseLine != null) {
-                phoneLabels.add(pauseLine);
-            }
-            String[] phoneLabelLines = (String[]) phoneLabels.toArray(new String[0]);
-            String[] unitLabelLines = toUnitLabels(phoneLabelLines);
-            out.println("format: end time, unit index, phone");
-            for (int h=0; h<header.size(); h++) {                
-                out.println(header.get(h));
-            }
-            for (int u=0; u<unitLabelLines.length; u++) {
-                out.println(unitLabelLines[u]);
-            }
-            out.flush();
-            out.close();
-            in.close();
-            System.out.println( "    " + baseName );
+
+        // parse labFile:
+        XwavesLabelfileDataSource labFileData = new XwavesLabelfileDataSource(labFile.getPath());
+        ArrayList<Double> times = new ArrayList<Double>(Arrays.asList(labFileData.getTimes()));
+        ArrayList<String> labels = new ArrayList<String>(Arrays.asList(labFileData.getLabels()));
+
+        // ensure that each labeled interval ends after the previous one:
+        ListIterator<Double> timeIterator = times.listIterator();
+        double time = timeIterator.next();
+        while (timeIterator.hasNext()) {
+            double nextTime = timeIterator.next();
+            if (time == nextTime) {
+                int index = timeIterator.previousIndex() - 1;
+                String label = labels.get(index);
+                // doesn't matter which of the two times we remove -- they're the same:
+                timeIterator.remove();
+                // but from the labels, we remove the previous one: 
+                labels.remove(index);
+                System.err.format("WARNING: labeled interval %d (%s) has zero duration; deleting it!\n", index + 1, label);
+            } else if (time > nextTime) {
+                throw new Exception("ERROR: labeled intervals are out of order; please fix the label file!");
+            }            
+            time = nextTime;
         }
+
+        // merge consecutive pauses:
+        ListIterator<String> labelIterator = labels.listIterator();
+        String label = labelIterator.next();
+        while (labelIterator.hasNext()) {
+            String nextLabel = labelIterator.next();
+            if (label.equals(nextLabel) && label.equals(pauseSymbol)) {
+                labelIterator.remove();
+                times.remove(labelIterator.previousIndex());
+            }
+            label = nextLabel;
+        }
+        
+        // convert labels to unit labels:
+        String[] unitLabelLines = toUnitLabels(labels, times);
+
+        // write to phonelab file:
+        String phoneLabFileName = getProp(LABELDIR) + baseName + unitlabelExt;
+        PrintWriter out = new PrintWriter(phoneLabFileName);
+        // header:
+        for (String headerLine : labFileData.getHeader()) {
+            out.println(headerLine);
+        }
+        out.println("format: end time, unit index, phone");
+        out.println("#");
+        // labels:
+        for (String unitLabelLine : unitLabelLines) {
+            out.println(unitLabelLine);
+        }
+        out.close();      
     }
     
     /**/
@@ -205,6 +213,7 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
      * number in the middle now denotes the unit index. This array may
      * or may not have the same number of lines as phoneLabels.
      */
+    @Deprecated
     protected String[] toUnitLabels(String[] phoneLabels)
     {
         String[] unitLabels = new String[phoneLabels.length];
@@ -222,6 +231,27 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
             unitLabels[i] = time+" "+unitIndex+" "+phone;
         }
         return unitLabels; 
+    }
+    
+    /**
+     * Generate a sequence of Strings, corresponding to the lines in an Xwaves-compatible label file, by interleaving a List of
+     * label Strings with a List of end time points.
+     * 
+     * @param labels
+     *            a List of label Strings
+     * @param times
+     *            a List of time points representing the end points of these labels
+     * @return the label files lines
+     */
+    protected String[] toUnitLabels(List<String> labels, List<Double> times) {
+        assert labels.size() == times.size();
+        String[] unitLines = new String[labels.size()];
+        for (int i = 0; i < labels.size(); i++) {
+            String label = labels.get(i);
+            Double time = times.get(i);
+            unitLines[i] = String.format("%f %d %s", time, i + 1, label);
+        }
+        return unitLines;
     }
     
     /**
