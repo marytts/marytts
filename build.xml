@@ -400,7 +400,7 @@ THIS SOFTWARE.
 	  </target>
 
 	
- <target name="voiceimport.jar" depends="compile,hts">
+ <target name="voiceimport.jar" depends="compile">
 	<jar destfile="${dest}/voiceimport.jar"
              basedir="${src}"
              includes="marytts/tools/voiceimport/*.class
@@ -416,15 +416,6 @@ THIS SOFTWARE.
         <attribute name="Class-Path" value="maryclient.jar mary-common.jar signalproc.jar log4j-1.2.15.jar swing-layout-1.0.jar Jama-1.0.2.jar Jampack.jar jakarta-oro-2.0.8.jar fast-md5.jar"/>
         </manifest>
         </jar>
-  </target>
-
-  <target name="hts" depends="compile">
-	  <zip destfile="lib/external/HTS-demo_for_MARY-4.1.zip">
-	    <zipfileset dir="lib/external/" includes="hts/**/*"
-                       excludes="**/.svn/*
-                                 hts/configure"/>
-		<zipfileset dir="lib/external/" includes="hts/configure" filemode="755"/>
-	  </zip>
   </target>
 
  <target name="mary-component-installer.jar" depends="compile">
@@ -943,7 +934,6 @@ This component includes GPL'ed code and is thus shipped under the GPL 3.
                         java/redstart.jar,
                         java/voiceimport.jar,
                         lib/external/check_install_external_programs.sh,
-                        lib/external/HTS-demo_for_MARY-4.1.zip,
                         lib/external/ehmm.tar.gz"/>
             <fileset os="windows" dir="." targetdir="$INSTALL_PATH"
             	 includes="bin/redstart.bat,
