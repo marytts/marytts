@@ -478,6 +478,47 @@ public class FileUtils {
         
     }
     
+    // this function does not copy files that start with .
+    public static void copyFolderRecursive(String sourceFolder, String targetFolder, boolean bForceDeleteTarget) throws IOException
+    {
+        String fileSeparator = System.getProperty("file.separator");
+        if (exists(sourceFolder))
+        {
+            if (exists(targetFolder) && bForceDeleteTarget)
+                delete(targetFolder);
+        
+            createDirectory(targetFolder);
+            
+            if (exists(targetFolder))
+            {                   
+                String[] fileList = new File(sourceFolder).list();
+                if (fileList!=null)
+                { 
+                    for (int i=0; i<fileList.length; i++)
+                    {
+                      if( !fileList[i].startsWith(".") ) 
+                      {
+                        String source = StringUtils.checkLastSlash(sourceFolder) + fileList[i];
+                        if(new File(source).isDirectory()) {
+                          String newTargetFolder = StringUtils.checkLastSlash(targetFolder) + fileList[i]; 
+                          copyFolderRecursive(source,  newTargetFolder, bForceDeleteTarget);                             
+                        } else {
+                          String targetFile = StringUtils.checkLastSlash(targetFolder) + fileList[i];
+                          copy(source, targetFile);
+                        }
+                      }
+                    }
+                }
+            }
+            else
+                System.out.println("Could not create target folder!");
+        }
+        else
+            System.out.println("Source folder does not exist!");
+        
+    }
+
+    
     public static void createDirectory(String trainingBaseFolder) {
         File f = new File(trainingBaseFolder);
         if (!f.exists()) {
