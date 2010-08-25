@@ -159,6 +159,7 @@ import org.apache.log4j.Logger;
  *   <li><code>audioeffect-is-hmm-effect?effect=Robot</code> requests a boolean value (plain text "yes" or "no") indicating whether or not the given effect is an effect that operates on HMM-based voices only;</li>
  *   <li><code>features?locale=de</code> requests the list of available features that can be computed for the given locale;</li>
  *   <li><code>features?voice=hmm-slt</code> requests the list of available features that can be computed for the given voice;</li>
+ *   <li><code>vocalizations?voice=dfki-poppy</code> requests the list of vocalization names that are available with the given voice;
  *   <li><code>process</code> requests the synthesis of some text (see below).</li>
  * </ul>
  * <p>
@@ -259,6 +260,7 @@ public class MaryHttpServer extends Thread
         registry.register("/audioeffect-is-hmm-effect", infoRH);
         registry.register("/features", infoRH);
         registry.register("/features-discrete", infoRH);
+        registry.register("/vocalizations", infoRH);
         registry.register("*", new FileRequestHandler());
 
 

@@ -303,6 +303,17 @@ public class VocalizationSynthesizer {
         
         return Float.NaN;
     }
+    
+    /**
+     * List the possible vocalization names that are available for the given voice.
+     * These values can be used in the "name" attribute of the vocalization tag.
+     * @return an array of Strings, each string containing one unique vocalization name.
+     */
+    public String[] listAvailableVocalizations() {
+        assert featureDefinition.hasFeature("name");
+        int nameIndex = featureDefinition.getFeatureIndex("name");
+        return featureDefinition.getPossibleValues(nameIndex);
+    }
 
 }
 
