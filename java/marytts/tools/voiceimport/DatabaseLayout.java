@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import marytts.Version;
 import marytts.util.MaryUtils;
 
 /**
@@ -585,7 +586,7 @@ public class DatabaseLayout
             marybase = "/path/to/marybase/";
         }
         basicprops.put(MARYBASE,marybase);
-        basicprops.put(MARYBASEVERSION, "4.0.0");
+        basicprops.put(MARYBASEVERSION, Version.specificationVersion());
         String voicename = System.getProperty("VOICENAME");
         if ( voicename == null ) {
             voicename = "my_voice";
