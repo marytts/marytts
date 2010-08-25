@@ -22,16 +22,10 @@ import com.twmacinta.util.MD5;
 import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;
 
-public class HMMVoicePackager extends VoiceImportComponent {
-        
-    private DatabaseLayout db;
+public class HMMVoicePackager extends VoicePackager {
+
     private String name = "HMMVoicePackager";
-    
-    protected final String VOICETYPE = name + ".voiceType";
-    protected final String EXAMPLETEXT = name + ".exampleText";
-    protected final String LICENSEURL = name + ".licenseUrl";
-    
-    
+
     /** HMM Voice-specific parameters, these are parameters used during models training
     if using MGC: 
              gamma=0  alpha=0.42 linear gain (default)
@@ -85,9 +79,7 @@ public class HMMVoicePackager extends VoiceImportComponent {
     /** Variables for allowing the use of external prosody */
     public final String useAcousticModels  = name+".useAcousticModels";
     
-    //public final String createZipFile = name+".createZipFile";
-    //public final String zipCommand = name+".zipCommand";
-
+    @Override
     public String getName(){
         return name;
     }
@@ -98,8 +90,9 @@ public class HMMVoicePackager extends VoiceImportComponent {
      * containing the default values
      * @return map of props2values
      */
-    public SortedMap<String,String> getDefaultProps(DatabaseLayout db){
-        this.db = db;
+    @Override
+    public SortedMap<String,String> getDefaultProps(DatabaseLayout databaseLayout){
+        this.db = databaseLayout;
        if (props == null){
            props = new TreeMap<String,String>();
            
@@ -137,8 +130,9 @@ public class HMMVoicePackager extends VoiceImportComponent {
        return props;
        }
     
+    @Override
     protected void setupHelp(){
-        props2Help = new TreeMap();
+        props2Help = new TreeMap<String, String>();
         
         props2Help.put(VOICETYPE, "voice type; one of <b>unit selection</b>, <b>FDPSOLA</b>, <b>HNM</b>"
                 + " (note that support for FDPSOLA and HNM are experimental!)");
@@ -173,36 +167,8 @@ public class HMMVoicePackager extends VoiceImportComponent {
         "modify prosody according to the tags in MARYXML");
         
     }
-
-    public boolean compute() {
-        // (1) gather files required by this voice in a convenient structure:
-        HashMap<String, File> files = getVoiceDataFiles();
-
-        // (2) create config file and add it to the files:
-        try {
-            File configFile = createVoiceConfig(files);
-            files.put("CONFIG", configFile);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        // (3) create zip file and component file (directly at their destination, MARYBASE/download):
-        try {
-            File zipFile = createZipFile(files);
-            createComponentFile(zipFile);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        logger.info("The voice package and component file have been successfully created and placed in " + getMaryBase()
-                + "download");
-        logger.info("IMPORTANT: You must run the MARY Component Installer to install the voice!");
-        return true;
-    }
-
     
+    @Override
     protected HashMap<String, File> getVoiceDataFiles() {
       try{  
         File in, out;
@@ -275,14 +241,7 @@ public class HMMVoicePackager extends VoiceImportComponent {
            System.out.println("Problem copying one example of context features, the directory phonefeatures/ is empty or directory does not exist.");
            throw new IOException();
         }
-           
-        /*
-        for (String property : properties) {
-            String fileName = getProperty(property);
-            File file = new File(fileName);
-            files.put(property, file);
-        }
-        */
+
         return files;
       } catch (Exception e) {
           e.printStackTrace();
@@ -291,43 +250,14 @@ public class HMMVoicePackager extends VoiceImportComponent {
       
     }
     
-
-    private void createExampleText(File exampleTextFile) throws IOException{
-        try{
-            //just take the first three transcript files as example text
-            PrintWriter exampleTextOut = new PrintWriter(new FileWriter(exampleTextFile),true);
-            for (int i=0;i<3;i++){
-                String basename = bnl.getName(i);
-                BufferedReader transIn = new BufferedReader(new InputStreamReader(new FileInputStream(new File(
-                                                   db.getProp(db.TEXTDIR) + basename+db.getProp(db.TEXTEXT)))));
-                String text = transIn.readLine();
-                transIn.close();            
-                exampleTextOut.println(text);
-            }
-            exampleTextOut.close();
-            
-        } catch (Exception e){
-            System.out.println("Error creating example text file "
-                    +exampleTextFile.getName());
-            throw new IOException();
-        }
-        
-    }
     
-    
-    private File createVoiceConfig(HashMap<String, File> files)  throws FileNotFoundException {
-        
-            
+    @Override
+    protected File createVoiceConfig(HashMap<String, File> files) throws FileNotFoundException {
             String fileSeparator = System.getProperty("file.separator");            
             
             String rootDir = db.getProp(db.ROOTDIR);
             /* create the config file */
-            //System.out.println("Creating config file ... ");
-            //Normalise locale: (e.g., if user set en-US, change it to en_US)
-            //String locale = MaryUtils.string2locale(db.getProp(db.LOCALE)).toString();
             String locale = getVoiceLocale();
-            
-            
             // open the config file for writing:
             String configFileName = String.format("%s-%s.config", getVoiceLocale(), getVoiceName());
             String configFileNameLong = "MARY_BASE" + fileSeparator + "conf" + fileSeparator + configFileName;
@@ -337,8 +267,7 @@ public class HMMVoicePackager extends VoiceImportComponent {
             PrintWriter configOut = new PrintWriter(configFile);            
             // CHECK: don't we need UTF-8?
             //PrintWriter configOut = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(configFileName)),"UTF-8"),true);
-            
-            
+                       
             File in;            
             String voicename = db.getProp(db.VOICENAME).toLowerCase();
             //print the header
@@ -406,35 +335,35 @@ public class HMMVoicePackager extends VoiceImportComponent {
                       voiceHeader+".beta = " + getProp(beta) + "\n"); 
               
               configOut.println("# HMM Voice-specific files\n# Information about trees\n"+
-                      voiceHeader+".Ftd = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(treeDurFile))+"\n"+
-                      voiceHeader+".Ftf = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(treeLf0File))+"\n"+
-                      voiceHeader+".Ftm = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(treeMcpFile)));
+                      voiceHeader+".Ftd = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(treeDurFile))+"\n"+
+                      voiceHeader+".Ftf = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(treeLf0File))+"\n"+
+                      voiceHeader+".Ftm = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(treeMcpFile)));
               if( new File(rootDir + getProp(treeStrFile)).exists())
-                configOut.println(voiceHeader+".Fts = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(treeStrFile)));
+                configOut.println(voiceHeader+".Fts = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(treeStrFile)));
               configOut.println("\n# Information about means and variances PDFs \n"+
-                      voiceHeader+".Fmd = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfDurFile))+"\n"+
-                      voiceHeader+".Fmf = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfLf0File))+"\n"+
-                      voiceHeader+".Fmm = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfMcpFile)));
+                      voiceHeader+".Fmd = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfDurFile))+"\n"+
+                      voiceHeader+".Fmf = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfLf0File))+"\n"+
+                      voiceHeader+".Fmm = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfMcpFile)));
               if( new File(rootDir + getProp(pdfStrFile)).exists())
-               configOut.println(voiceHeader+".Fms = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfStrFile)));
+               configOut.println(voiceHeader+".Fms = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfStrFile)));
               
               configOut.println("\n# Information about Global Mean and Variance PDFs");
               configOut.println(voiceHeader+".useGV = "+ getProp(useGV));
               configOut.println(voiceHeader+".maxMgcGvIter = "+ getProp(maxMgcGvIter));
               configOut.println(voiceHeader+".maxLf0GvIter = "+ getProp(maxLf0GvIter));
               if( new File(rootDir + getProp(pdfLf0GVFile)).exists())
-                  configOut.println(voiceHeader+".Fgvf = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfLf0GVFile)));
+                  configOut.println(voiceHeader+".Fgvf = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfLf0GVFile)));
               if( new File(rootDir + getProp(pdfMcpGVFile)).exists())
-                  configOut.println(voiceHeader+".Fgvm = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfMcpGVFile)));
+                  configOut.println(voiceHeader+".Fgvm = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfMcpGVFile)));
               if( new File(rootDir + getProp(pdfStrGVFile)).exists())
-                  configOut.println(voiceHeader+".Fgvs = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(pdfStrGVFile)));
+                  configOut.println(voiceHeader+".Fgvs = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfStrGVFile)));
               
               configOut.println("\n# A context features file example for start-up testing.\n" +
-                      voiceHeader+".FeaFile = MARY_BASE/lib/voices/"+voicename+"/"+getFileName(featuresFileExample));
+                      voiceHeader+".FeaFile = MARY_BASE/lib/voices/"+voicename+"/"+ FileUtils.getFileName(featuresFileExample));
               
               configOut.println("\n# Tricky phones file in case there were problematic phones during training, empty otherwise.");
               if(trickyPhones) {                 
-                 configOut.println(voiceHeader+".trickyPhonesFile = MARY_BASE/lib/voices/"+voicename+"/"+getFileName(getProp(trickyPhonesFile)));
+                 configOut.println(voiceHeader+".trickyPhonesFile = MARY_BASE/lib/voices/"+voicename+"/"+ FileUtils.getFileName(getProp(trickyPhonesFile)));
               } else {
                  configOut.println(voiceHeader+".trickyPhonesFile = ");  
               }
@@ -444,7 +373,7 @@ public class HMMVoicePackager extends VoiceImportComponent {
               if( new File(rootDir + getProp(treeStrFile)).exists()) {
                 configOut.println("# Filters for mixed excitation \n" +
                                 "# File format: one column with all the taps, where the number of taps per filter = numTaps/numFilters \n" +
-                                voiceHeader+".Fif = MARY_BASE/lib/voices/"+voicename+"/" + getFileName(getProp(mixFiltersFile))+"\n"+
+                                voiceHeader+".Fif = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(mixFiltersFile))+"\n"+
                                 "# Number of filters in bandpass bank\n" +
                                 voiceHeader+".in = " + getProp(numFilters) + "\n");                                 
               }
@@ -464,147 +393,16 @@ public class HMMVoicePackager extends VoiceImportComponent {
               configOut.println();
               
               configOut.close();
-        
-        
+          
         return configFile;
     }
-    
-    /**
-     * Create zip file containing all of the voice files (including the config file, which should be in <b>files</b>).
-     * 
-     * @param files
-     *            &lt;property, File&gt; Map, e.g. "WaveTimelineMaker.waveTimeline" &rarr;
-     *            File("VOICE_DIR/mary/timeline_waves.mry")
-     * @return the zip File object
-     * @throws Exception
-     */
-    protected File createZipFile(HashMap<String, File> files) throws Exception {
-        // TODO this should probably be optimized by using buffered Readers and Writer:
-        byte[] buffer = new byte[4096];
-
-        // initialize zip file:
-        String zipFileName = String.format("%s-%s.zip", getVoiceLocale(), getVoiceName());
-        logger.info("Creating voice package " + zipFileName);
-        File zipFile = new File(getMaryBase() + "download" + File.separator + zipFileName);
-        FileOutputStream outputStream = new FileOutputStream(zipFile);
-        ZipOutputStream zipStream = new ZipOutputStream(new FileOutputStream(zipFile));
-
-        // TODO this doesn't explicitly create each ancestor of the voicePath as a separate directory entry in the zip file, but
-        // that doesn't seem necessary:
-        String voicePath = "lib" + File.separator + "voices" + File.separator + getVoiceName() + File.separator;
-
-        // iterate over files:
-        for (String key : files.keySet()) {
-            File file = files.get(key);
-
-            // make new entry in zip file, with the appropriate target path:
-            logger.debug("Deflating file " + file);
-            if (key.equals("CONFIG")) {
-                zipStream.putNextEntry(new ZipEntry("conf" + File.separator + file.getName()));
-            } else {
-                zipStream.putNextEntry(new ZipEntry(voicePath + file.getName()));
-            }
-
-            // open data file for reading:
-            FileInputStream inputStream = new FileInputStream(file);
-            int len;
-            // and stream its contents into zip file:
-            while ((len = inputStream.read(buffer)) > 0) {
-                zipStream.write(buffer, 0, len);
-            }
-
-            // complete entry and close data file:
-            zipStream.closeEntry();
-            inputStream.close();
-        }
-
-        // close zip file:
-        zipStream.close();
-
-        return zipFile;
-    }
-    
-    /**
-     * Create component file for this voice. This includes various metadata, including the zip file name and MD5 hash, and several
-     * other attributes.
-     * 
-     * @param zipFile
-     * @throws Exception
-     */
-    protected void createComponentFile(File zipFile) throws Exception {
-
-        logger.info("Hashing voice package");
-        String zipFileMd5Hash = MD5.asHex(MD5.getHash(zipFile));
-
-        String componentFileName = String.format("%s-%s-component.xml", getVoiceLocale(), getVoiceName());
-        logger.info("Creating component file " + componentFileName);
-        File componentFile = new File(getMaryBase() + File.separator + "download" + File.separator + componentFileName);
-        PrintWriter out = new PrintWriter(componentFile);
-
-        // avoid overhead of XML handling by generating the XML with raw strings:
-        out.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-        out.format("<marytts-install xmlns=\"http://mary.dfki.de/installer\">\n");
-        out.format("    <voice gender=\"%s\" locale=\"%s\" name=\"%s\" type=\"%s\" version=\"%s\">\n", getVoiceGender(),
-                getVoiceLocale(), getVoiceName(), getProp(VOICETYPE), getMaryVersion());
-        out.format("        <description></description>\n");
-        out.format("        <license href=\"%s\"/>\n", getProp(LICENSEURL));
-        out.format("        <package filename=\"%s\"\n", zipFile.getName());
-        out.format("            md5sum=\"%s\" size=\"%d\">\n", zipFileMd5Hash, zipFile.length());
-        out.format("            <location href=\"http://mary.dfki.de/download/%s/\"/>\n", getMaryVersion());
-        out.format("        </package>\n");
-        out.format("        <depends language=\"%s\" version=\"%s\"/>\n", getVoiceLocale(), getMaryVersion());
-        out.format("    </voice>\n");
-        out.format("</marytts-install>\n");
-
-        out.close();
-    }
-
-
-    public String getVoiceLocale() {
-        return MaryUtils.string2locale(db.getProp(db.LOCALE)).toString();
-    }
-
-    public String getVoiceName() {
-        return db.getProp(db.VOICENAME).toLowerCase();
-    }
-    
-    public String getMaryBase() {
-        return db.getProp(db.MARYBASE) + File.separator;
-    }
-    
-    public String getVoiceFileDir() {
-        return db.getProp(db.FILEDIR);
-    }
-    
-    public String getMaryVersion() {
-        return db.getProp(db.MARYBASEVERSION);
-    }
-    public String getVoiceGender() {
-        return db.getProp(db.GENDER).toLowerCase();
-    }
-    
-    /**
-     * Given a file name with path it return the file name
-     * @param fileNameWithPath
-     * @return
-     */
-    private String getFileName(String fileNameWithPath) {
-       String str;
-       int i;
-       
-       i = fileNameWithPath.lastIndexOf("/");
-       str = fileNameWithPath.substring(i+1); 
-       
-       return str;
-        
-    }
-    
- 
+      
     /**
      * Provide the progress of computation, in percent, or -1 if
      * that feature is not implemented.
      * @return -1 if not implemented, or an integer between 0 and 100.
      */
+    @Override
     public int getProgress(){
         return -1;
     }
