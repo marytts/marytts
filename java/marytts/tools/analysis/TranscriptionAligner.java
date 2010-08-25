@@ -32,8 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import marytts.datatypes.MaryXML;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
@@ -50,7 +48,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
-import org.xml.sax.SAXException;
 
 /**
  * This class aligns a label file with an XML file in MARY ALLOPHONES format,
@@ -333,12 +330,10 @@ public class TranscriptionAligner
      * @param allophones the MARYXML document, in ALLOPHONES format
      * @param labels the sequence of label symbols to use, separated by the
      * entry separator as provided by getEntrySeparator().
-     * @throws ParserConfigurationException 
-     * @throws IOException 
-     * @throws SAXException 
+     * @throws Exception if a manual label is encountered that is not in the AllophoneSet
      */
     public void alignXmlTranscriptions(Document allophones, String labels)
-    throws SAXException, IOException, ParserConfigurationException
+    throws Exception
     {
         // get all t and boundary elements
         NodeIterator tokenIt = MaryDomUtils.createNodeIterator(allophones, MaryXML.TOKEN, MaryXML.BOUNDARY);
@@ -366,8 +361,9 @@ public class TranscriptionAligner
         // this seems as good a place as any to assert that all alignments should be in the AllophoneSet for this locale:
         HashSet<String> manualLabelSet = new HashSet<String>(Arrays.asList(al.trim().split("[#\\s]+")));
         for (String label : manualLabelSet) {
-            assert allophoneSet.getAllophone(label) != null : "Label " + label + " not found in AllophoneSet for Locale "
-                    + allophoneSet.getLocale();
+            if (allophoneSet.getAllophone(label) == null) {
+                throw new Exception("Label \"" + label + "\" not found in AllophoneSet for Locale " + allophoneSet.getLocale());
+            }
         }
     }
     

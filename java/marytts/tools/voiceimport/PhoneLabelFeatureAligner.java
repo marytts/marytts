@@ -52,10 +52,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
-import org.xml.sax.SAXException;
 
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.io.FileUtils;
@@ -76,7 +72,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     protected PhoneUnitFeatureComputer featureComputer;
     protected AllophonesExtractor allophoneExtractor;
     protected PhoneUnitLabelComputer labelComputer;
-    protected TranscriptionAligner transcrptionAligner;
+    protected TranscriptionAligner transcriptionAligner;
     protected String pauseSymbol;
     
     protected DatabaseLayout db = null;
@@ -106,7 +102,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         featureComputer = (PhoneUnitFeatureComputer) db.getComponent("PhoneUnitFeatureComputer");
         allophoneExtractor = (AllophonesExtractor) db.getComponent("AllophonesExtractor");
         labelComputer =  (PhoneUnitLabelComputer) db.getComponent("PhoneUnitLabelComputer");
-        transcrptionAligner = (TranscriptionAligner) db.getComponent("TranscriptionAligner"); 
+        transcriptionAligner = (TranscriptionAligner) db.getComponent("TranscriptionAligner"); 
         featsExt = ".pfeats";
         labExt = ".lab";
         featsDir = db.getProp(db.PHONEFEATUREDIR);
@@ -1124,12 +1120,8 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         if (edited){
             allophoneExtractor.generateAllophonesFile(basename);
             try {
-                transcrptionAligner.alignTranscription(basename);
-            } catch (SAXException e) {
-                e.printStackTrace();
-            } catch (TransformerException e) {
-                e.printStackTrace();
-            } catch (ParserConfigurationException e) {
+                transcriptionAligner.alignTranscription(basename);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             labelComputer.computePhoneLabel(basename);

@@ -43,7 +43,7 @@ public class HalfPhoneLabelFeatureAligner extends PhoneLabelFeatureAligner {
         featureComputer = (HalfPhoneUnitFeatureComputer) db.getComponent("HalfPhoneUnitFeatureComputer");
         allophoneExtractor = (AllophonesExtractor) db.getComponent("AllophonesExtractor");
         labelComputer =  (HalfPhoneUnitLabelComputer) db.getComponent("HalfPhoneUnitLabelComputer");
-        transcrptionAligner = (TranscriptionAligner) db.getComponent("TranscriptionAligner");
+        transcriptionAligner = (TranscriptionAligner) db.getComponent("TranscriptionAligner");
         featsExt = ".hpfeats";
         labExt = ".hplab";
         featsDir = db.getProp(db.HALFPHONEFEATUREDIR);
