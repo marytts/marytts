@@ -881,16 +881,37 @@ public class StringUtils {
         return toInputStream(str);
     }
     
+    /**
+     * Combine the elements of the given string array into a single string,
+     * containing one array element per line.
+     * @param stringArray
+     * @return
+     */
     public static String toString(String[] stringArray)
     {
         return toString(stringArray, 0);
     }
     
+    /**
+     * Combine the elements of the given string array into a single string,
+     * containing one array element per line.
+     * @param stringArray
+     * @param startIndex
+     * @return
+     */
     public static String toString(String[] stringArray, int startIndex)
     {
         return toString(stringArray, startIndex, stringArray.length-1);
     }
     
+    /**
+     * Combine the elements of the given string array into a single string,
+     * containing one array element per line.
+     * @param stringArray
+     * @param startIndex
+     * @param endIndex
+     * @return
+     */
     public static String toString(String[] stringArray, int startIndex, int endIndex)
     {
         if (startIndex<0)
@@ -902,12 +923,12 @@ public class StringUtils {
         if (endIndex>stringArray.length-1)
             endIndex=stringArray.length-1;
         
-        String str = "";
+        StringBuilder str = new StringBuilder();
         for (int i = startIndex; i <= endIndex; i++) {
-            str += stringArray[i] + System.getProperty("line.separator");
+            str.append(stringArray[i]).append(System.getProperty("line.separator"));
         }
         
-        return str;
+        return str.toString();
     }
     
     public static String replace(String str, String pattern, String replacement) 
