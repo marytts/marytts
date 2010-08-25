@@ -122,12 +122,17 @@ An empty list indicates that the voice does not support vocalizations.</p>
 <p><code><a href="vocalizations?voice=dfki-spike">vocalizations?voice=dfki-spike</a></code></p>
 <p><code><a href="vocalizations?voice=dfki-obadiah">vocalizations?voice=dfki-obadiah</a></code></p>
 
-<p>The following is an example RAWMARYXML document that requests a vocalization:</p>
+<p>The following is an example document in WORDS format that requests a vocalization:</p>
 
 <pre>
-(to be added)
+&lt;maryxml version="0.5" xmlns="http://mary.dfki.de/2002/MaryXML" xml:lang="en-GB"&gt;
+&lt;voice name="dfki-poppy"&gt;
+&lt;p&gt;
+&lt;vocalization name="yeah" meaning="uncertain" intonation="falling" voicequality="modal"/&gt;
+&lt;/p&gt;
+&lt;/voice&gt;
+&lt;/maryxml&gt;
 </pre>
-
 
 <h2 id="synthesis">Synthesis requests</h2>
 
