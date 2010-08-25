@@ -253,7 +253,7 @@ public abstract class Utt2XMLBase extends InternalModule {
         }
         Element insertHere = parent;
         boolean needMtu = false;
-        boolean insertPhones = tokenItem.getFeatures().isPresent("phones");
+        boolean insertPhonesFromToken = tokenItem.getFeatures().isPresent("phones");
         Item testWordItem = null;
         if (tokenItem.getFeatures().isPresent("precedingMarks")) {
             String marks = tokenItem.getFeatures().getString("precedingMarks");
@@ -297,10 +297,10 @@ public abstract class Utt2XMLBase extends InternalModule {
             Element t = MaryXML.createElement(doc, MaryXML.TOKEN);
             insertHere.appendChild(t);
             MaryDomUtils.setTokenText(t, tokenItem.toString());
-            if (insertPhones) {
+            if (insertPhonesFromToken) {
                 String[] phones = (String[]) tokenItem.getFeatures().getObject("phones");
                 t.setAttribute("ph", phoneArray2phoneString(maryVoice.getAllophoneSet(), phones));
-                insertPhones = false;
+                insertPhonesFromToken = false;
             }
             if (tokenFeatureSet.isPresent("accent")) {
                 t.setAttribute("accent", tokenFeatureSet.getString("accent"));
@@ -323,10 +323,14 @@ public abstract class Utt2XMLBase extends InternalModule {
                 else
                     tokenText = tokenItem.toString();
                 MaryDomUtils.setTokenText(t, tokenText);
-                if (insertPhones) {
+                if (insertPhonesFromToken) {
                     String[] phones = (String[]) tokenItem.getFeatures().getObject("phones");
                     t.setAttribute("ph", phoneArray2phoneString(maryVoice.getAllophoneSet(), phones));
-                    insertPhones = false;
+                    insertPhonesFromToken = false;
+                } else if (wordItem.getFeatures().isPresent("phones")) {
+                    // the word item has phones, take them only if there are no Token phones
+                    String[] phones = (String[]) wordItem.getFeatures().getObject("phones");
+                    t.setAttribute("ph", phoneArray2phoneString(maryVoice.getAllophoneSet(), phones));
                 }
                 if (tokenFeatureSet.isPresent("accent")) {
                     t.setAttribute("accent", tokenFeatureSet.getString("accent"));
