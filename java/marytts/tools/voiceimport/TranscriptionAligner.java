@@ -45,7 +45,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -137,13 +136,11 @@ public class TranscriptionAligner extends VoiceImportComponent {
      * corrected ones.
      * 
      * XML-Version: this changes mary xml-files (PHONEMISED)
-     * @throws TransformerException 
-     * @throws ParserConfigurationException 
-     * @throws SAXException 
+     * @throws Exception 
      * @throws XPathExpressionException 
      */
     public boolean compute()
-    throws IOException, TransformerException, ParserConfigurationException, SAXException
+    throws Exception
     {
         
         System.out.println("traversing through " + bnl.getLength() + " files");
@@ -158,7 +155,7 @@ public class TranscriptionAligner extends VoiceImportComponent {
         return true;
     }
     
-    public void alignTranscription(String baseName) throws SAXException, IOException, TransformerException, ParserConfigurationException{
+    public void alignTranscription(String baseName) throws Exception{
         String promptAllophonesDir = db.getProp(db.PROMPTALLOPHONESDIR);
         File nextFile = new File(promptAllophonesDir
                 +System.getProperty("file.separator")
@@ -181,20 +178,13 @@ public class TranscriptionAligner extends VoiceImportComponent {
             System.out.println(trfname);
             
             manTransString = aligner.readLabelFile(trfname);
-            
-        } catch ( FileNotFoundException e ) {
-            System.out.println("No manual transcription found, copy original ...");
-            
-            // transform the unchanged xml-structure to a file
-            DOMSource source = new DOMSource( doc );
-            StreamResult output = new StreamResult(docDest);
-            transformer.transform(source, output);
 
-            return;
+            // align transcriptions
+            aligner.alignXmlTranscriptions(doc, manTransString);            
+        } catch ( FileNotFoundException e ) {
+            // transform the unchanged xml-structure to a file
+            System.out.println("No manual transcription found, copy original ...");
         }
-        
-        // align transcriptions
-        aligner.alignXmlTranscriptions(doc, manTransString);
         
         // write results to output
         DOMSource source = new DOMSource( doc );
