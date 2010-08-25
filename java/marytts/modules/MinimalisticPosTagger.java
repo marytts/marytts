@@ -101,7 +101,10 @@ public class MinimalisticPosTagger extends InternalModule
     public void startup() throws Exception
     {
         super.startup();
-        posFST = new FSTLookup(MaryProperties.needFilename(propertyPrefix+"fst"));
+        String posFSTFilename = MaryProperties.getFilename(propertyPrefix+"fst");
+        if (posFSTFilename != null) {
+            posFST = new FSTLookup(posFSTFilename);
+        }
         punctuationList = MaryProperties.getProperty(propertyPrefix+"punctuation", ",.?!;");
     }
 
