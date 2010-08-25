@@ -363,6 +363,13 @@ public class Mary {
                 logprops.put(key, val);
             }
         }
+        // And allow MaryProperties (and thus System properties) to overwrite the single entry
+        // log4j.logger.marytts:
+        String loggerMaryttsKey = "log4j.logger.marytts";
+        String loggerMaryttsValue = MaryProperties.getProperty(loggerMaryttsKey);
+        if (loggerMaryttsValue != null) {
+            logprops.setProperty(loggerMaryttsKey, loggerMaryttsValue);
+        }
         PropertyConfigurator.configure(logprops);
         
         logger = MaryUtils.getLogger("main");
