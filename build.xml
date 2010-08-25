@@ -685,7 +685,7 @@ THIS SOFTWARE.
 	<taskdef name="IzPack" classpath="${build}/standalone-compiler.jar"
          classname="com.izforge.izpack.ant.IzPackTask"/>
     
-    <target name="standalone-installer" depends="packages,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
+    <target name="standalone-installer" depends="packages,javadoc,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
     	<IzPack output="dist/openmary-standalone-install-${specification.version.nospace}.jar"
     		installerType="standard"
     		basedir="${basedir}"
