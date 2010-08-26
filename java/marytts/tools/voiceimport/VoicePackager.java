@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -98,7 +100,7 @@ public class VoicePackager extends VoiceImportComponent {
     @Override
     protected void setupHelp() {
         props2Help = new TreeMap<String, String>();
-        props2Help.put(VOICETYPE, "voice type; one of <b>unit selection</b>, <b>FDPSOLA</b>, <b>HNM</b>"
+        props2Help.put(VOICETYPE, "voice type; one of <b>unit selection</b>, <b>HSMM</b>, <b>FDPSOLA</b>, <b>HNM</b>"
                 + " (note that support for FDPSOLA and HNM are experimental!)");
         props2Help.put(EXAMPLETEXT, "file containing example text (for limited domain voices only)");
         props2Help.put(LICENSEURL, "URL of the license agreement for this voice"
@@ -130,9 +132,14 @@ public class VoicePackager extends VoiceImportComponent {
 
     /**
      * {@inheritDoc}
+     * 
+     * @throws Exception
      */
     @Override
-    public boolean compute() {
+    public boolean compute() throws Exception {
+        // (0) ensure that properties have valid values:
+        validateProperties();
+
         // (1) gather files required by this voice in a convenient structure:
         HashMap<String, File> files = getVoiceDataFiles();
 
@@ -158,6 +165,24 @@ public class VoicePackager extends VoiceImportComponent {
                 + "download");
         logger.info("IMPORTANT: You must run the MARY Component Installer to install the voice!");
         return true;
+    }
+
+    /**
+     * Check various properties for invalid values
+     * 
+     * @throws Exception
+     */
+    protected void validateProperties() throws Exception {
+        // ensure that voice type is supported:
+        if (!getProp(VOICETYPE).toLowerCase().matches("(unit selection|fdpsola|hnm|hsmm)")) {
+            throw new Exception("Unsupported voice type: " + getProp(VOICETYPE));
+        }
+        // check for valid license URL:
+        try {
+            new URL(getProp(LICENSEURL));
+        } catch (MalformedURLException e) {
+            throw new MalformedURLException(getProp(LICENSEURL) + " is not a valid URL!");
+        }
     }
 
     /**
@@ -461,7 +486,7 @@ public class VoicePackager extends VoiceImportComponent {
     public String getVoiceLocale() {
         return MaryUtils.string2locale(db.getProp(db.LOCALE)).toString();
     }
-    
+
     public String getXMLCompatibleVoiceLocale() {
         return MaryUtils.locale2xmllang(MaryUtils.string2locale(db.getProp(db.LOCALE)));
     }
