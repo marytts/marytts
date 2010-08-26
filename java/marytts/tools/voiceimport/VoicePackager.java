@@ -52,7 +52,7 @@ import marytts.util.MaryUtils;
  */
 public class VoicePackager extends VoiceImportComponent {
 
-    private String name = "VoicePackager";
+    protected String name;
 
     protected DatabaseLayout db;
 
@@ -94,6 +94,17 @@ public class VoicePackager extends VoiceImportComponent {
 
     protected final String BASETIMELINE = "BasenameTimelineMaker.timelineFile";
 
+    
+    public VoicePackager() {
+        this("VoicePackager");
+    }
+    
+    protected VoicePackager(String name) {
+        super();
+        this.name = name;
+        VOICETYPE = name + ".voiceType";
+    }
+    
     /**
      * {@inheritDoc}
      */

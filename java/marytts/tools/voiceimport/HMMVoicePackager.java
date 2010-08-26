@@ -24,7 +24,6 @@ import marytts.util.io.FileUtils;
 
 public class HMMVoicePackager extends VoicePackager {
 
-    private String name = "HMMVoicePackager";
 
     /** HMM Voice-specific parameters, these are parameters used during models training
     if using MGC: 
@@ -33,7 +32,7 @@ public class HMMVoicePackager extends VoicePackager {
         LSP: gamma=1  alpha=0.0  linear gain/log gain 
     Mel-LSP: gamma=1  alpha=0.42 log gain
     MGC-LSP: gamma=3  alpha=0.42 log gain  */
-    public final String alpha   = name+".alpha";
+    private String alpha;
     public final String gamma   = name+".gamma";    
     public final String logGain = name+".logGain";
 
@@ -79,6 +78,11 @@ public class HMMVoicePackager extends VoicePackager {
     /** Variables for allowing the use of external prosody */
     public final String useAcousticModels  = name+".useAcousticModels";
     
+    public HMMVoicePackager() {
+        super("HMMVoicePackager");
+        alpha   = name+".alpha";
+    }
+
     /**
      * Get the map of properties2values
      * containing the default values
