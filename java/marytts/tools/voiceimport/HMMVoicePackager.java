@@ -124,6 +124,14 @@ public class HMMVoicePackager extends VoicePackager {
        return props;
        }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getName() {
+        return this.name;
+    }
+
     @Override
     protected void setupHelp(){
         props2Help = new TreeMap<String, String>();
