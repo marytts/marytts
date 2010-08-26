@@ -412,14 +412,19 @@ public class HMMVoicePackager extends VoicePackager {
               configOut.println("# Information about acousticModels (if true allows prosody modification specified in MARYXML input)");
               configOut.println(voiceHeader+".useAcousticModels = "+ getProp(useAcousticModels) + "\n");
                            
-              configOut.println("# acoustic models to use (HMM models or carts from other voices can be specified)\n"+
-                      voiceHeader+".acousticModels = duration F0\n\n" +
-                      voiceHeader+".duration.model = hmm\n"+
-                      voiceHeader+".duration.data = " + configFileNameLong + "\n"+
-                      voiceHeader+".duration.attribute = d\n\n" +
-                      voiceHeader+".F0.model = hmm\n"+
-                      voiceHeader+".F0.data = " + configFileNameLong + "\n"+
-                      voiceHeader+".F0.attribute = f0\n");        
+              configOut.println("# acoustic models to use (HMM models or carts from other voices can be specified)\n" +
+                                "#(uncoment to allow prosody modification specified in MARYXML input)");
+              if( Boolean.valueOf(getProp(useAcousticModels)).booleanValue() )
+                configOut.println(voiceHeader+".acousticModels = duration F0\n");
+              else                           
+                configOut.println("#" + voiceHeader+".acousticModels = duration F0\n");
+        
+              configOut.println(voiceHeader+".duration.model = hmm\n"+
+                          voiceHeader+".duration.data = " + configFileNameLong + "\n"+
+                          voiceHeader+".duration.attribute = d\n\n" +
+                          voiceHeader+".F0.model = hmm\n"+
+                          voiceHeader+".F0.data = " + configFileNameLong + "\n"+
+                          voiceHeader+".F0.attribute = f0");                
               
               configOut.println();
               
