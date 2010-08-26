@@ -33,54 +33,79 @@ public class HMMVoicePackager extends VoicePackager {
     Mel-LSP: gamma=1  alpha=0.42 log gain
     MGC-LSP: gamma=3  alpha=0.42 log gain  */
     private String alpha;
-    public final String gamma   = name+".gamma";    
-    public final String logGain = name+".logGain";
+    private String gamma;    
+    private String logGain;
 
     /** Parameter beta for postfiltering  */    
-    public final String beta    = name+".beta";
+    private String beta;
        
     /** Tree files and TreeSet object */
-    public final String treeDurFile = name+".Ftd";
-    public final String treeLf0File = name+".Ftf";
-    public final String treeMcpFile = name+".Ftm";
-    public final String treeStrFile = name+".Fts";
+    private String treeDurFile;
+    private String treeLf0File;
+    private String treeMcpFile;
+    private String treeStrFile;
         
     /** HMM pdf model files and ModelSet object */
-    public final String pdfDurFile = name+".Fmd";
-    public final String pdfLf0File = name+".Fmf";
-    public final String pdfMcpFile = name+".Fmm";
-    public final String pdfStrFile = name+".Fms";
+    private String pdfDurFile;
+    private String pdfLf0File;
+    private String pdfMcpFile;
+    private String pdfStrFile;
     
     /** GV pdf files*/
     /** Global variance file, it contains one global mean vector and one global diagonal covariance vector */
-    public final String useGV        = name+".useGV";
-    public final String maxMgcGvIter = name+".maxMgcGvIter";
-    public final String maxLf0GvIter = name+".maxLf0GvIter";
-    public final String pdfLf0GVFile = name+".Fgvf"; 
-    public final String pdfMcpGVFile = name+".Fgvm";  
-    public final String pdfStrGVFile = name+".Fgvs";  
+    private String useGV;
+    private String maxMgcGvIter;
+    private String maxLf0GvIter;
+    private String pdfLf0GVFile; 
+    private String pdfMcpGVFile;  
+    private String pdfStrGVFile;  
             
     /** Variables for mixed excitation */
-    public final String useMixExc      = name+".useMixExc";
-    public final String mixFiltersFile = name+".Fif";
-    public final String numFilters     = name+".in";
+    private String useMixExc;
+    private String mixFiltersFile;
+    private String numFilters;
     
    /** Example context feature file (TARGETFEATURES in MARY) */
-    public String featuresFileExample = "";
+    public String featuresFileExample;
     
-    public final String FeaFile = name+".FeaFile";
+    private String FeaFile;
     /** trickyPhones file if any, this file could have been created durin makeQuestions and makeLabels
      * if it was created, because there are tricky phones in the allophones set, then it should be in
      * voiceDIR/mary/trickyPhones.txt */
-    public final String trickyPhonesFile = name+".trickyPhonesFile";
-    public boolean trickyPhones = false;
+    private String trickyPhonesFile;
+    private boolean trickyPhones;
     
     /** Variables for allowing the use of external prosody */
-    public final String useAcousticModels  = name+".useAcousticModels";
+    private String useAcousticModels;
     
     public HMMVoicePackager() {
         super("HMMVoicePackager");
-        alpha   = name+".alpha";
+        alpha = name + ".alpha";
+        gamma = name + ".gamma";
+        logGain = name + ".logGain";
+        beta = name + ".beta";
+        treeDurFile = name + ".Ftd";
+        treeLf0File = name + ".Ftf";
+        treeMcpFile = name + ".Ftm";
+        treeStrFile = name + ".Fts";
+        pdfDurFile = name + ".Fmd";
+        pdfLf0File = name + ".Fmf";
+        pdfMcpFile = name + ".Fmm";
+        pdfStrFile = name + ".Fms";
+        useGV = name + ".useGV";
+        maxMgcGvIter = name + ".maxMgcGvIter";
+        maxLf0GvIter = name + ".maxLf0GvIter";
+        pdfLf0GVFile = name + ".Fgvf";
+        pdfMcpGVFile = name + ".Fgvm";
+        pdfStrGVFile = name + ".Fgvs";
+        useMixExc = name + ".useMixExc";
+        mixFiltersFile = name + ".Fif";
+        numFilters = name + ".in";
+        featuresFileExample = "";
+        FeaFile = name + ".FeaFile";
+        trickyPhonesFile = name + ".trickyPhonesFile";
+        trickyPhones = false;
+        useAcousticModels = name + ".useAcousticModels";
     }
 
     /**

@@ -56,11 +56,11 @@ public class VoicePackager extends VoiceImportComponent {
 
     protected DatabaseLayout db;
 
-    protected final String VOICETYPE = name + ".voiceType";
+    protected String VOICETYPE;
 
-    protected final String EXAMPLETEXT = name + ".exampleText";
+    protected String EXAMPLETEXT;
 
-    protected final String LICENSEURL = name + ".licenseUrl";
+    protected String LICENSEURL;
 
     // constants to access filenames in database component properties and organize file list:
 
@@ -103,6 +103,8 @@ public class VoicePackager extends VoiceImportComponent {
         super();
         this.name = name;
         VOICETYPE = name + ".voiceType";
+        EXAMPLETEXT = name + ".exampleText";
+        LICENSEURL = name + ".licenseUrl";
     }
     
     /**
