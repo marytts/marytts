@@ -241,6 +241,9 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
        /* if previous files and directories exist then run configure */
        /* first it should go to the hts directory and there run ./configure*/
        System.out.println("Running make configure: ");
+       cmdLine = "chmod +x " + getProp(CONFIGUREFILE);
+       General.launchProc(cmdLine, "configure", filedir);
+       
        cmdLine = "cd " + filedir + "hts\n" + 
        getProp(CONFIGUREFILE) +
        " --with-tcl-search-path="        + db.getExternal(db.TCLPATH) +
@@ -274,6 +277,7 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
        " NSTATE=" + getProp(NSTATE) +
        " NITER=" + getProp(NITER) +
        " WFLOOR=" + getProp(WFLOOR);
+       
        
        General.launchBatchProc(cmdLine, "Configure", filedir);
        
