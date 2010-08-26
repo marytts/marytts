@@ -632,6 +632,9 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
         }
         // Now show license for each group
         for (URL licenseURL : licenseGroups.keySet()) {
+            if (licenseURL == null) {
+                continue;
+            }
             URL localURL = LicenseRegistry.getLicense(licenseURL);
             SortedSet<ComponentDescription> comps = licenseGroups.get(licenseURL);
             System.out.println("Showing license "+licenseURL+ " for "+comps.size()+" components");

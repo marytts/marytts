@@ -500,7 +500,9 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         Element descriptionElt = (Element) desc.appendChild(doc.createElementNS(installerNamespaceURI, "description"));
         descriptionElt.setTextContent(description);
         Element licenseElt = (Element) desc.appendChild(doc.createElementNS(installerNamespaceURI, "license"));
-        licenseElt.setAttribute("href", license.toString());
+        if (license != null) {
+            licenseElt.setAttribute("href", license.toString());
+        }
         Element packageElt = (Element) desc.appendChild(doc.createElementNS(installerNamespaceURI, "package"));
         packageElt.setAttribute("size", Integer.toString(packageSize));
         packageElt.setAttribute("md5sum", packageMD5);

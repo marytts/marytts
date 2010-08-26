@@ -79,12 +79,6 @@ public class HMMVoicePackager extends VoicePackager {
     /** Variables for allowing the use of external prosody */
     public final String useAcousticModels  = name+".useAcousticModels";
     
-    @Override
-    public String getName(){
-        return name;
-    }
-
-    
     /**
      * Get the map of properties2values
      * containing the default values
@@ -134,7 +128,7 @@ public class HMMVoicePackager extends VoicePackager {
     protected void setupHelp(){
         props2Help = new TreeMap<String, String>();
         
-        props2Help.put(VOICETYPE, "voice type; one of <b>unit selection</b>, <b>FDPSOLA</b>, <b>HNM</b>"
+        props2Help.put(VOICETYPE, "voice type; one of <b>unit selection</b>, <b>HSMM</b>, <b>FDPSOLA</b>, <b>HNM</b>"
                 + " (note that support for FDPSOLA and HNM are experimental!)");
         props2Help.put(EXAMPLETEXT, "file containing example text (for limited domain voices only)");
         props2Help.put(LICENSEURL, "URL of the license agreement for this voice"
@@ -396,16 +390,4 @@ public class HMMVoicePackager extends VoicePackager {
           
         return configFile;
     }
-      
-    /**
-     * Provide the progress of computation, in percent, or -1 if
-     * that feature is not implemented.
-     * @return -1 if not implemented, or an integer between 0 and 100.
-     */
-    @Override
-    public int getProgress(){
-        return -1;
-    }
-
-
 }
