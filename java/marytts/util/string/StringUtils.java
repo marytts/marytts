@@ -185,6 +185,18 @@ public class StringUtils {
         return strOut;
     }
     
+    /**
+     * Purge non-breaking spaces from <b>input</b> by replacing them with regular spaces.
+     * 
+     * @param input
+     *            to purge
+     * @return purged <b>input</b>
+     */
+    public static String purgeNonBreakingSpaces(String input) {
+        String output = input.replaceAll("\\xA0", " ");
+        return output;
+    }
+    
    //Check first file extension separator character and add it if it does not exist
     public static String checkFirstDot(String strIn)
     {
