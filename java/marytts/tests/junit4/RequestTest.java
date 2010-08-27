@@ -116,7 +116,7 @@ public class RequestTest {
         // ask for an impossible conversion:
         Request r = new Request(MaryDataType.INTONATION, MaryDataType.TOKENS, Locale.US, null, "", "", 1, null);
         MaryData md = new MaryData(MaryDataType.INTONATION, Locale.US);
-        md.readFrom(new StringReader(MaryDataType.INTONATION.exampleText(Locale.US)), null);
+        md.setData(MaryDataType.INTONATION.exampleText(Locale.US));
         r.setInputData(md);
         try {
             r.process();
@@ -176,7 +176,7 @@ public class RequestTest {
     public void testWriteOutputData1() throws Exception {
         Request r = new Request(MaryDataType.RAWMARYXML, MaryDataType.RAWMARYXML, null, null, "", "", 1, null);
         MaryData md = new MaryData(MaryDataType.RAWMARYXML, null);
-        md.readFrom(new StringReader(MaryDataType.RAWMARYXML.exampleText(Locale.US)), null);
+        md.setData(MaryDataType.RAWMARYXML.exampleText(Locale.US));
         r.setInputData(md);
         r.process();
         try {

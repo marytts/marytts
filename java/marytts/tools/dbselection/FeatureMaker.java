@@ -493,7 +493,7 @@ public class FeatureMaker
         Locale localeObj = MaryUtils.string2locale(locale);
         try {
             Request request = new Request(inputType, outputType, localeObj, null, null, null, textId, null);
-            request.readInputData(new StringReader(nextSentence));
+            request.setInputData(nextSentence);
             request.process();
             MaryData result = request.getOutputData();
             Document doc = result.getDocument();
@@ -556,7 +556,7 @@ public class FeatureMaker
             MaryDataType outputType = MaryDataType.get("PHONEMES");
             Locale localeObj = MaryUtils.string2locale(locale);
             Request request = new Request(inputType, outputType, localeObj, null, null, null, id, null);
-            request.readInputData(new StringReader(textString));
+            request.setInputData(textString);
             request.process();
             MaryData result = request.getOutputData();
             return result.getDocument();
