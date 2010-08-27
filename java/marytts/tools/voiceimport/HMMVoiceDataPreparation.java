@@ -129,7 +129,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
        scriptsDir = dataDir + "scripts" + sep;
  
        // 1. copy from $MARY_TTS/lib/external/hts directory in the voice building directory
-       String sourceFolder = marybase + "lib" + sep + "external" + sep + "hts";
+       String sourceFolder = marybase + sep + "lib" + sep + "external" + sep + "hts";
        String htsFolder = voiceDir + sep + "hts";
        FileUtils.copyFolderRecursive(sourceFolder, htsFolder, false);
        
