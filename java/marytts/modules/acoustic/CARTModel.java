@@ -21,6 +21,7 @@
 package marytts.modules.acoustic;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -43,37 +44,21 @@ import marytts.unitselection.select.Target;
 public class CARTModel extends Model {
     private DirectedGraph cart;
 
-    public CARTModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-            String featureName, String predictFrom, String applyTo) {
-        super(type, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+    public CARTModel(FeatureProcessorManager featureManager, String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
+            String featureName, String predictFrom, String applyTo)
+    throws MaryConfigurationException {
+        super(featureManager, type, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+        load();
     }
 
-    @Override
-    public void setFeatureComputer(TargetFeatureComputer featureComputer, FeatureProcessorManager featureProcessorManager)
-            throws MaryConfigurationException {
-        // ensure that this CART's FeatureDefinition is a subset of the one passed in:
-        FeatureDefinition cartFeatureDefinition = cart.getFeatureDefinition();
-        FeatureDefinition voiceFeatureDefinition = featureComputer.getFeatureDefinition();
-        if (!voiceFeatureDefinition.contains(cartFeatureDefinition)) {
-            throw new MaryConfigurationException("CART file " + dataFile + " contains extra features which are not supported!");
-        }
-        // overwrite featureComputer with one constructed from the cart's FeatureDefinition:
-        String cartFeatureNames = cartFeatureDefinition.getFeatureNames();
-        featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, cartFeatureNames);
-        this.featureComputer = featureComputer;
-    }
 
     @Override
-    public void loadDataFile() {
+    protected void loadDataFile() throws IOException {
         this.cart = null;
-        try {
-            File cartFile = new File(dataFile);
-            String cartFilePath = cartFile.getAbsolutePath();
-            cart = new DirectedGraphReader().load(cartFilePath);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        File cartFile = new File(dataFile);
+        String cartFilePath = cartFile.getAbsolutePath();
+        cart = new DirectedGraphReader().load(cartFilePath);
+        predictionFeatureNames = cart.getFeatureDefinition().getFeatureNames();
     }
 
     /**

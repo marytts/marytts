@@ -246,13 +246,16 @@ public class Voice
      * @throws NoSuchPropertyException
      */
     private void loadAcousticModels(String header) throws MaryConfigurationException, NoSuchPropertyException {
+        // The feature processor manager that all acoustic models will use to predict their acoustics:
+        FeatureProcessorManager symbolicFPM = FeatureRegistry.determineBestFeatureProcessorManager(getLocale());
+        
         // Acoustic models:
         String acousticModelsString = MaryProperties.getProperty(header + ".acousticModels");
         if (acousticModelsString != null) {
             acousticModels = new HashMap<String, Model>();
 
             // add boundary "model" (which could of course be overwritten by appropriate properties in voice config):
-            acousticModels.put("boundary", new BoundaryModel("boundary", null, "duration", null, null, null, "boundaries"));
+            acousticModels.put("boundary", new BoundaryModel(symbolicFPM, "boundary", null, "duration", null, null, null, "boundaries"));
 
             StringTokenizer acousticModelStrings = new StringTokenizer(acousticModelsString);
             do {
@@ -274,20 +277,19 @@ public class Voice
                 ModelType possibleModelTypes = ModelType.fromString(modelType);
                 // if modelType is not in ModelType.values(), we don't know how to handle it:
                 if (possibleModelTypes == null) {
-                    logger.warn("Cannot handle unknown model type: " + modelType);
-                    throw new MaryConfigurationException();
+                    throw new MaryConfigurationException("Cannot handle unknown model type: " + modelType);
                 }
 
                 // ...and instantiate it in a switch statement:
                 Model model = null;
                 switch (possibleModelTypes) {
                 case CART:
-                    model = new CARTModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                    model = new CARTModel(symbolicFPM, modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
                             modelFeatureName, modelPredictFrom, modelApplyTo);
                     break;
 
                 case SOP:
-                    model = new SoPModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                    model = new SoPModel(symbolicFPM, modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
                             modelFeatureName, modelPredictFrom, modelApplyTo);
                     break;
 
@@ -304,7 +306,7 @@ public class Voice
                         model = getF0Model();
                         model.addTargetAttributeName(modelAttributeName);
                     } else {
-                        model = new HMMModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                        model = new HMMModel(symbolicFPM, modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
                                 modelFeatureName, modelPredictFrom, modelApplyTo);
                     }
                     break;
@@ -313,8 +315,7 @@ public class Voice
                 // if we got this far, model should not be null:
                 assert model != null;
 
-                // load dataFile and put the model in the Model Map:
-                model.loadDataFile();
+                // put the model in the Model Map:
                 acousticModels.put(modelName, model);
             } while (acousticModelStrings.hasMoreTokens());
         }
@@ -339,7 +340,7 @@ public class Voice
                 throw new MaryConfigurationException("Cannot initialise voice-specific FeatureProcessorManager "
                         +featMgrClass+" from config file", e);
             }
-        } else if (getOtherModels() != null || (this instanceof HMMVoice)) {
+        } else if (getOtherModels() != null) {
             // Only if there is no feature manager setting in the config file,
             // we consider creating one from the acoustic features;
             // We need to do this only if we have any "other" acoustic models, beyond duration and F0:

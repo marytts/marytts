@@ -21,11 +21,13 @@
 package marytts.modules.acoustic;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
+import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.features.FeatureVector;
@@ -43,16 +45,41 @@ import org.w3c.dom.Element;
  */
 public abstract class Model {
 
+    // TODO: is this needed?
     protected String type;
 
+    /**
+     * The file name from which we will read our acoustic model.
+     */
     protected String dataFile;
 
+    /**
+     * The attribute into which the predicted acoustic feature should be written.
+     */
     protected String targetAttributeName;
 
     protected String targetAttributeFormat;
 
+    /**
+     * The name of the predicted acoustic feature, if any.
+     * The feature processor that will be created from this will read the value from {@link #targetAttributeName}.
+     */
     protected String featureName;
 
+    /**
+     * The feature processors used for prediction.
+     */
+    protected FeatureProcessorManager featureManager;
+
+    /**
+     * The names of the features used for prediction.
+     */
+    protected String predictionFeatureNames;
+
+    /**
+     * The producer of feature vectors for the features in {@link #predictionFeatureNames}
+     * as computed by the feature processors in {@link #featureManager}.
+     */
     protected TargetFeatureComputer featureComputer;
 
     protected String predictFrom;
@@ -61,7 +88,8 @@ public abstract class Model {
 
     /**
      * Model constructor
-     * 
+     * @param featureManager
+     *           the feature processor manager used to compute the symbolic features used for prediction
      * @param type
      *            type of Model
      * @param dataFileName
@@ -72,14 +100,15 @@ public abstract class Model {
      *            printf-style format String to specify the attribute value, i.e. "%.3f" to round to 3 decimal places; "%s" by
      *            default
      * @param featureName
-     *            name of custom continuous feature, or null
+     *            name of the custom continuous feature predicted by this model, or null
      * @param predictFrom
      *            key of Element Lists from which to predict values; "segments" by default
      * @param applyTo
      *            key of Element Lists to which to apply values; "segments" by default
      */
-    protected Model(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
+    protected Model(FeatureProcessorManager featureManager, String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
             String featureName, String predictFrom, String applyTo) {
+        this.featureManager = featureManager;
         this.type = type;
         this.dataFile = dataFileName;
         this.targetAttributeName = targetAttributeName;
@@ -99,25 +128,41 @@ public abstract class Model {
     }
 
     /**
-     * Setter for the TargetFeatureComputer
-     * 
-     * @param featureComputer
-     *            the TargetFeatureComputer
-     * @param featureProcessorManager
-     *            ignored except where a featureComputer must be overwritten from the Model's dataFile
-     * 
-     * @throws MaryConfigurationException
+     * Try to load this model and set the target feature computer appropriately.
+     * This must be called from the constructor of subclasses, so that
+     * the subclass implementation of loadDataFile() is visible.
+     * @throws MaryConfigurationException if the model cannot be set up properly.
      */
-    public void setFeatureComputer(TargetFeatureComputer featureComputer, FeatureProcessorManager featureProcessorManager)
-            throws MaryConfigurationException {
-        this.featureComputer = featureComputer;
+    protected final void load() throws MaryConfigurationException {
+        try {
+            loadDataFile();
+        }  catch (IOException ioe) {
+            throw new MaryConfigurationException("Cannot load model file '"+dataFile+"'", ioe);
+        }
+        setupFeatureComputer();
     }
+
 
     /**
      * Load dataFile for this model; only extension classes know how to do this
+     * @throws IOException if any files cannot be properly read
+     * @throws MaryConfigurationException if files can be read but contain problematic content
      */
-    public abstract void loadDataFile();
+    protected abstract void loadDataFile() throws IOException, MaryConfigurationException;
 
+    
+    protected final void setupFeatureComputer() throws MaryConfigurationException {
+        try {
+            featureComputer = FeatureRegistry.getTargetFeatureComputer(featureManager, predictionFeatureNames);
+        } catch (IllegalArgumentException iae) {
+            throw new MaryConfigurationException("Incompatible features between model and feature processor manager.\n"
+                    + "The model from "+dataFile+" needs the following features:\n"
+                    + predictionFeatureNames + "\n"
+                    + "The FeatureProcessorManager for locale "+featureManager.getLocale()+" ("+featureManager.getClass().toString()+") can produce the following features:\n"
+                    + featureManager.listFeatureProcessorNames(), iae);
+        }
+    }
+    
     /**
      * Apply this Model to a List of Elements, predicting from those same Elements
      * 
