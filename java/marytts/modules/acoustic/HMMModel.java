@@ -143,7 +143,7 @@ public class HMMModel extends Model {
             duration  = m.getTotalDur() * fperiodsec; // in seconds
    
             um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());  
-            //System.out.format("duration=%.3f sec. durInFrames=%d  durStateInFrames=%d  m.getTotalDur()=%d\n", duration, durInFrames, durStateInFrames, m.getTotalDur());
+            //System.out.format("phone=%s  duration=%.3f sec. m.getTotalDur()=%d\n", m.getPhoneName(), duration, m.getTotalDur());
               
             /* Find pdf for LF0, this function sets the pdf for each state. 
              * and determines, according to the HMM models, whether the states are voiced or unvoiced, (it can be possible that some states are voiced

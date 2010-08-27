@@ -56,6 +56,7 @@ import marytts.features.MaryFeatureProcessor;
 import marytts.features.FeatureVector.FeatureType;
 import marytts.features.MaryGenericFeatureProcessors.GenericContinuousFeature;
 import marytts.features.TargetFeatureComputer;
+import marytts.htsengine.HMMVoice;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.acoustic.BoundaryModel;
@@ -338,7 +339,7 @@ public class Voice
                 throw new MaryConfigurationException("Cannot initialise voice-specific FeatureProcessorManager "
                         +featMgrClass+" from config file", e);
             }
-        } else if (getOtherModels() != null) {
+        } else if (getOtherModels() != null || (this instanceof HMMVoice)) {
             // Only if there is no feature manager setting in the config file,
             // we consider creating one from the acoustic features;
             // We need to do this only if we have any "other" acoustic models, beyond duration and F0:

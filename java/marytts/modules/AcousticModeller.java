@@ -208,7 +208,7 @@ public class AcousticModeller extends InternalModule {
 
         // apply other Models, if applicable:
         Map<String, Model> otherModels = voice.getOtherModels();
-        if (!otherModels.isEmpty()) {
+        if ( otherModels!= null && !otherModels.isEmpty() ) {
             for (String modelName : otherModels.keySet()) {
                 Model model = models.get(modelName);
                 List<Element> predictFromElements = elementLists.get(model.getPredictFrom());
