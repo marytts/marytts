@@ -63,6 +63,10 @@ public class ProsodyElementHandler {
             boolean hasPitchAttribute   = e.hasAttribute("pitch");
             
             NodeList nl = e.getElementsByTagName("ph");
+            // guard against degenerate phrases without any <ph> elements:
+            if (nl.getLength() == 0) {
+                continue;
+            }
             
             // if prosody element contains 'rate' attribute, apply rate specifications
             if ( hasRateAttribute ) {
