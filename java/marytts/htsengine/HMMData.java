@@ -428,31 +428,15 @@ public class HMMData {
           fis.close();
           
           String voice = props.getProperty("name");
-          String marybase = MaryProperties.getProperty("mary.base");
+          String marybase = MaryProperties.getProperty("mary.base");         
           
-          if(targetAttributeName.contentEquals("d f0") || targetAttributeName.contentEquals("f0 d")){
-              treeLf0File = props.getProperty( "voice." + voice + ".Ftf" ).replace("MARY_BASE", marybase);
-              pdfLf0File = props.getProperty("voice." + voice + ".Fmf" ).replace("MARY_BASE", marybase);
-                         
+          if(targetAttributeName.contentEquals("d") || targetAttributeName.contentEquals("f0")){                         
               treeDurFile = props.getProperty( "voice." + voice + ".Ftd" ).replace("MARY_BASE", marybase);
-              pdfDurFile = props.getProperty("voice." + voice + ".Fmd").replace("MARY_BASE", marybase);  
+              pdfDurFile = props.getProperty("voice." + voice + ".Fmd").replace("MARY_BASE", marybase);
               
-          } else if(targetAttributeName.contentEquals("f0")) {            
-            treeLf0File = props.getProperty( "voice." + voice + ".Ftf" ).replace("MARY_BASE", marybase);
-            pdfLf0File = props.getProperty("voice." + voice + ".Fmf" ).replace("MARY_BASE", marybase);
-            
-            // i will load as well the duration, because i need it!!!
-            // CHECK: if it is needed to use the duration predicted by other model then we need to pass that duration 
-            //        value in the continuous features for example, this is done in: 
-            //        HMMModel.evaluate(List<Target> predictorTargets)
-            treeDurFile = props.getProperty( "voice." + voice + ".Ftd" ).replace("MARY_BASE", marybase);
-            pdfDurFile = props.getProperty("voice." + voice + ".Fmd").replace("MARY_BASE", marybase);
-            
-          } else if(targetAttributeName.contentEquals("d")){                     
-            treeDurFile = props.getProperty( "voice." + voice + ".Ftd" ).replace("MARY_BASE", marybase);
-            pdfDurFile = props.getProperty("voice." + voice + ".Fmd").replace("MARY_BASE", marybase);
-            
-          }  else {
+              treeLf0File = props.getProperty( "voice." + voice + ".Ftf" ).replace("MARY_BASE", marybase);
+              pdfLf0File = props.getProperty("voice." + voice + ".Fmf" ).replace("MARY_BASE", marybase);              
+          } else {
               throw new MaryConfigurationException("targetAttributeName = " + targetAttributeName + " Not known");
           }
           
