@@ -934,6 +934,7 @@ This component includes GPL'ed code and is thus shipped under the GPL 3.
 						java/transcription-tool.jar,
                         java/redstart.jar,
                         java/voiceimport.jar,
+    					lib/external/hts,
                         lib/external/check_install_external_programs.sh,
                         lib/external/ehmm.tar.gz"/>
             <fileset os="windows" dir="." targetdir="$INSTALL_PATH"
