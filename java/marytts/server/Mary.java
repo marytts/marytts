@@ -453,7 +453,7 @@ public class Mary {
         }
         
         Request request = new Request(inputType, outputType, locale, voice, effects, style, 1, audioFileFormat, false, outputTypeParams);
-        request.readInputData(new StringReader(input));
+        request.setInputData(input);
         request.process();
         request.writeOutputData(output);
 
