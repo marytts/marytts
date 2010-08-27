@@ -61,6 +61,7 @@ import java.util.Properties;
 import java.util.Scanner;
 import java.util.Vector;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.server.MaryProperties;
 import marytts.unitselection.select.Target;
@@ -416,7 +417,8 @@ public class HMMData {
  
     /** Reads from configuration file tree and pdf data for duration and f0 
      * this method is used by HMMModel */
-    public void initHMMData(String configFile, String targetAttributeName) throws Exception{     
+    public void initHMMData(String configFile, String targetAttributeName) 
+    throws MaryConfigurationException {     
         
       Properties props = new Properties();
       
@@ -451,8 +453,7 @@ public class HMMData {
             pdfDurFile = props.getProperty("voice." + voice + ".Fmd").replace("MARY_BASE", marybase);
             
           }  else {
-              logger.debug("targetAttributeName = " + targetAttributeName + " Not known"); 
-              throw new Exception("targetAttributeName = " + targetAttributeName + " Not known");
+              throw new MaryConfigurationException("targetAttributeName = " + targetAttributeName + " Not known");
           }
           
           useGV = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGV" )).booleanValue();          
@@ -474,13 +475,8 @@ public class HMMData {
             trickyPhonesFile = "";
                     
           props.clear();
-          
-      } 
-      catch (IOException e) {
-          logger.debug("Caught IOException: " +  e.getMessage());
       } catch (Exception e) {
-          logger.debug(e.getMessage()); 
-          throw new Exception("Error on configuration file, missing files or components...");
+          throw new MaryConfigurationException("Problem with configuration file "+configFile+": missing files or components...", e);
       }
       
       try {
@@ -493,10 +489,8 @@ public class HMMData {
         logger.info("Loading GV Model Set:");
         gv.loadGVModelSet(this);
         
-      }
-      catch (Exception e) {
-          logger.debug(e.getMessage()); 
-          throw new Exception("Error loading TreeSet and ModelSet, problem on configuration file, missing files or components...");
+      } catch (Exception e) {
+          throw new MaryConfigurationException("Error loading TreeSet and ModelSet, problem on configuration file, missing files or components...", e);
       }
         
     }
