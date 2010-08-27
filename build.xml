@@ -776,6 +776,7 @@ THIS SOFTWARE.
 				    lgpl-3.0.txt,
 				    gpl-3.0.txt,
 					conf/marybase.config,
+					conf/log4j.properties,
 					doc/licenses/apache-software-license.txt,
 					doc/licenses/CPL.txt,
 					doc/licenses/freetts-license.txt,
