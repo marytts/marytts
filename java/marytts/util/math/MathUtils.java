@@ -4875,6 +4875,17 @@ public class MathUtils {
         return MathUtils.multiply(x, (floatMax-floatMin)/256.0f);
     }
     
+    /**
+     * Trim the given value so that it is in the closed interval [min, max].
+     * @param untrimmedValue
+     * @param min
+     * @param max
+     * @return min if untrimmedValue is less than min; max if untrimmedValue is more than max; untrimmedValue otherwise.
+     */
+    public static double trimToRange(double untrimmedValue, double min, double max) {
+        return Math.max(min, Math.min(max, untrimmedValue));
+    }
+    
     
     
     public static void writeTextFile(ComplexNumber[][] x, String filename)
