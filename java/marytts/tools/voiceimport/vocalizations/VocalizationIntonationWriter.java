@@ -78,11 +78,11 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
     
     public void initialiseComp() {
         
-        String timelineDir = db.getProp(db.VOCALIZATIONSDIR) + File.separator + "timelines";
+        String timelineDir = db.getProp(db.VOCALIZATIONSDIR) + File.separator + "files";
         if (!(new File(timelineDir)).exists()) {
-            System.out.println("vocalisations/timelines directory does not exist; ");
+            System.out.println("vocalisations/files directory does not exist; ");
             if (!(new File(timelineDir)).mkdir()) {
-                throw new Error("Could not create vocalisations/timelines");
+                throw new Error("Could not create vocalisations/files");
             }
             System.out.println("Created successfully.\n");
         }
@@ -110,15 +110,15 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
        if (props == null){
            props = new TreeMap<String, String>();
            props.put(WAVEDIR,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav");
-           props.put(UNITFILE,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"timelines"+File.separator+"vocalization_units_timeline"+db.getProp(db.MARYEXT));
+           props.put(UNITFILE,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"files"+File.separator+"vocalization_units"+db.getProp(db.MARYEXT));
            props.put(POLYORDER,"3");
-           props.put(ISEXTERNALF0,"false");
-           props.put(EXTERNALF0FORMAT,"ptc");
-           props.put(EXTERNALEXT, ".ptc");
+           props.put(ISEXTERNALF0,"true");
+           props.put(EXTERNALF0FORMAT,"sptk");
+           props.put(EXTERNALEXT, ".lf0");
            props.put(PITCHDIR,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"lf0");
            props.put(SKIPSIZE, "0.005");
            props.put(WINDOWSIZE, "0.005");
-           props.put(F0TIMELINE, db.getProp(db.VOCALIZATIONSDIR)+File.separator+"timelines"+File.separator+"vocalization_intonation_timeline"+db.getProp(db.MARYEXT));
+           props.put(F0TIMELINE, db.getProp(db.VOCALIZATIONSDIR)+File.separator+"files"+File.separator+"vocalization_intonation"+db.getProp(db.MARYEXT));
        }
        return props;
     }
@@ -174,7 +174,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
             double[] f0Array = null;
             
             try {
-                f0Array = getVocalizationF0(bnlVocalizations.getName(i));
+                f0Array = getVocalizationF0(bnlVocalizations.getName(i), false);
             } catch (UnsupportedAudioFileException e) {
                 e.printStackTrace();
             }
@@ -211,7 +211,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
      * @throws UnsupportedAudioFileException
      * @throws IOException
      */
-     private double[] getVocalizationF0(String baseName) throws UnsupportedAudioFileException, IOException {
+     private double[] getVocalizationF0(String baseName, boolean doInterpolate) throws UnsupportedAudioFileException, IOException {
      
          double[] f0Array = null;
          
@@ -219,7 +219,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
              
              String externalFormat = getProp(EXTERNALF0FORMAT);
              String externalExt    = getProp(EXTERNALEXT);
-             //System.out.println("Exteral f0 : "+externalExt);
+             System.out.println("Loading f0 contour from file : "+ getProp(PITCHDIR) + File.separator + baseName + externalExt);
              if ( "sptk".equals(externalFormat) ) {
                  String fileName = getProp(PITCHDIR) + File.separator + baseName + externalExt;
                  SPTKPitchReaderWriter sprw = new SPTKPitchReaderWriter(fileName);
@@ -235,6 +235,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
              PitchFileHeader params = new PitchFileHeader();
              F0TrackerAutocorrelationHeuristic tracker = new F0TrackerAutocorrelationHeuristic(params);
              String waveFile = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav"+baseName+db.getProp(db.WAVEXT);
+             System.out.println("Computing f0 contour from wave file: "+ waveFile);
              AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(waveFile));
              
              // Enforce PCM_SIGNED encoding
@@ -248,6 +249,10 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
              tracker.pitchAnalyze(new BufferedDoubleDataSource(sentenceAudio));
              //double frameShiftTime = tracker.getSkipSizeInSeconds();
              f0Array = tracker.getF0Contour();
+         }
+         
+         if ( doInterpolate ) {
+             return interpolateF0Array(f0Array); 
          }
          
          return f0Array;

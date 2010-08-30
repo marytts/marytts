@@ -40,12 +40,12 @@ public class VocalizationTimelineMaker extends VoiceImportComponent {
     
     public void initialiseComp()
     {
-        String timelineDir = db.getProp(db.VOCALIZATIONSDIR) + File.separator + "timelines";
+        String timelineDir = db.getProp(db.VOCALIZATIONSDIR) + File.separator + "files";
         if (!(new File(timelineDir)).exists()) {
         
-            System.out.println("vocalisations/timelines directory does not exist; ");
+            System.out.println("vocalisations/files directory does not exist; ");
             if (!(new File(timelineDir)).mkdir()) {
-                throw new Error("Could not create vocalisations/timelines");
+                throw new Error("Could not create vocalisations/files");
             }
             System.out.println("Created successfully.\n");
             
@@ -76,7 +76,7 @@ public class VocalizationTimelineMaker extends VoiceImportComponent {
            props.put(WAVEDIR,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav");
            props.put(PMARKDIR,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"pm");
            props.put(WAVETIMELINE, db.getProp(db.VOCALIZATIONSDIR) + File.separator
-                   + "timelines" + File.separator + "vocalization.wave.timeline"+db.getProp(db.MARYEXT));
+                   + "files" + File.separator + "vocalization_wave_timeline"+db.getProp(db.MARYEXT));
            //vocalizationsDir = db.getProp(db.ROOTDIR)+File.separator+"vocalizations";
        }
        return props;

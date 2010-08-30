@@ -87,12 +87,12 @@ public class VocalizationUnitfileWriter extends VoiceImportComponent
         unitFileName = getProp(UNITFILE);
         unitlabelDir = new File(getProp(LABELDIR));
         
-        String timelineDir = db.getProp(db.VOCALIZATIONSDIR) + File.separator + "timelines";
+        String timelineDir = db.getProp(db.VOCALIZATIONSDIR) + File.separator + "files";
         if (!(new File(timelineDir)).exists()) {
         
-            System.out.println("vocalisations/timelines directory does not exist; ");
+            System.out.println("vocalisations/files directory does not exist; ");
             if (!(new File(timelineDir)).mkdir()) {
-                throw new Error("Could not create vocalisations/timelines");
+                throw new Error("Could not create vocalisations/files");
             }
             System.out.println("Created successfully.\n");
             
@@ -125,8 +125,8 @@ public class VocalizationUnitfileWriter extends VoiceImportComponent
            props.put(LABELDIR, vocalizationsrootDir + File.separator
                    +"lab"
                    +System.getProperty("file.separator"));
-           props.put(UNITFILE, vocalizationsrootDir + File.separator + "timelines" + File.separator
-                   +"vocalization_units_timeline"+db.getProp(db.MARYEXT));           
+           props.put(UNITFILE, vocalizationsrootDir + File.separator + "files" + File.separator
+                   +"vocalization_units"+db.getProp(db.MARYEXT));           
            props.put(PMARKDIR,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"pm");
            //props.put(BASELIST, "backchannel.lst");
        }
