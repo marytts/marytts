@@ -70,8 +70,8 @@ public class VocalizationFFRTargetCostFunction extends FFRTargetCostFunction
     public void load(VocalizationFeatureFileReader ffr, FeatureDefinition fDef) //FeatureFileReader
     throws IOException
     {
+        this.featureVectors = ffr.featureVectorMapping(fDef);
         this.featureDefinition = fDef;
-        this.featureVectors = ffr.getFeatureVectors();
         
         weightFunction = new WeightFunc[featureDefinition.getNumberOfContinuousFeatures()];
         WeightFunctionManager wfm = new WeightFunctionManager();
