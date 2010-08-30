@@ -305,7 +305,7 @@ public class ProsodyElementHandler {
             }
         }
         
-      return interpolateNonZeroValues(modifiedF0Values);
+      return MathUtils.interpolateNonZeroValues(modifiedF0Values);
     }
 
 
@@ -407,7 +407,7 @@ public class ProsodyElementHandler {
             }
         }
         
-        return interpolateNonZeroValues(contour);
+        return MathUtils.interpolateNonZeroValues(contour);
     }
     
     
@@ -487,55 +487,6 @@ public class ProsodyElementHandler {
         return f0Map;
     }
 
-    /**
-     * To interpolate Zero values with respect to NonZero values
-     * @param contour
-     * @return
-     */
-    private double[] interpolateNonZeroValues( double[] contour ) {
-        
-        for ( int i=0; i < contour.length ; i++ ) {
-            if ( contour[i] == 0 ) {
-                int index = findNextIndexNonZero( contour, i );
-                //System.out.println("i: "+i+"index: "+index);
-                if( index == -1 ) {
-                    for ( int j=i; j < contour.length; j++ ) {
-                        contour[j] = contour[j-1];
-                    }
-                    break;
-                }
-                else {
-                    for ( int j=i; j < index; j++ ) {
-                        //contour[j] = contour[i-1] * (index - j) + contour[index] * (j - (i-1)) / ( index - i );
-                        if ( i == 0 ) {
-                            contour[j] = contour[index];
-                        }
-                        else {
-                            contour[j] = contour[j-1] + ((contour[index] - contour[i-1]) / (index - i)) ;
-                        }
-                    }
-                    i = index-1; 
-                }
-            }
-        }
-        
-        return contour;
-    }
-    
-    /**
-     * To find next NonZero index
-     * @param contour
-     * @param current
-     * @return
-     */
-    private int findNextIndexNonZero(double[] contour, int current) {
-        for ( int i=current+1; i < contour.length ; i++ ) {
-            if ( contour[i] != 0 ) {
-                return i;
-            }
-        }
-       return -1;
-    }
 
     /**
      * Get f0 specifications in HashMap
