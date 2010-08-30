@@ -144,6 +144,63 @@ public class FeatureFileReader
     {
        return featureVectors; 
     }
+    
+    /**
+     * feature vector mapping according to new feature definition
+     * Note: The new feature definition should be a subset of original feature definition
+     * @param newFeatureDefinition
+     * @return
+     */
+    public FeatureVector[] featureVectorMapping(FeatureDefinition newFeatureDefinition) {
+        
+        if(!this.featureDefinition.contains(newFeatureDefinition)){
+            throw new RuntimeException("the new feature definition is not a subset of original feature definition");
+        }
+        
+        int numberOfFeatures = newFeatureDefinition.getNumberOfFeatures();
+        int noByteFeatures = newFeatureDefinition.getNumberOfByteFeatures();
+        int noShortFeatures = newFeatureDefinition.getNumberOfShortFeatures();
+        int noContiniousFeatures = newFeatureDefinition.getNumberOfContinuousFeatures();
+        
+        if( numberOfFeatures != (noByteFeatures+noShortFeatures+noContiniousFeatures) ) {
+            throw new RuntimeException("The sum of byte, short and continious features are not equal to number of features");
+        }
+        
+        String[] featureNames = new String[numberOfFeatures]; 
+        for ( int j=0; j < numberOfFeatures; j++ ) {
+            featureNames[j] = newFeatureDefinition.getFeatureName(j);
+        }
+        int[] featureIndexes = featureDefinition.getFeatureIndexArray(featureNames);
+        FeatureVector[] newFV = new FeatureVector[this.getNumberOfUnits()];
+        
+        for ( int i=0; i<this.getNumberOfUnits(); i++ ) {
+            
+            // create features array
+            byte[]  byteFeatures  = new byte[noByteFeatures];
+            short[] shortFeatures = new short[noShortFeatures];
+            float[] continiousFeatures = new float[noContiniousFeatures];
+            
+            int countByteFeatures = 0;
+            int countShortFeatures = 0;
+            int countFloatFeatures = 0;
+            
+            for ( int j=0; j < featureIndexes.length; j++ ) {
+                if( newFeatureDefinition.isByteFeature(j) ) {
+                    byteFeatures[countByteFeatures++] = featureVectors[i].getByteFeature(featureIndexes[j]);
+                }
+                else if( newFeatureDefinition.isShortFeature(j) ) {
+                    shortFeatures[countShortFeatures++] = featureVectors[i].getShortFeature(featureIndexes[j]); 
+                }
+                else if( newFeatureDefinition.isContinuousFeature(j) ) {
+                    continiousFeatures[countFloatFeatures++] = featureVectors[i].getContinuousFeature(featureIndexes[j]);
+                }
+            }
+            
+            newFV[i] = newFeatureDefinition.toFeatureVector(i, byteFeatures, shortFeatures, continiousFeatures);
+        }
+        
+        return newFV;
+    }
 
     /**
      * Get the unit feature vector for the given unit. 
