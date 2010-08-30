@@ -46,6 +46,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
@@ -102,31 +103,36 @@ public class VocalizationSynthesizer {
             
     final double INFINITE = 100000;
     
-    public VocalizationSynthesizer(Voice voice) throws IOException {
-        String unitFileName = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.unitfile");
-        String timelineFile = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.timeline");
-        String featureFile  = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.featurefile");
-        String featureDefinitionFile  = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.featureDefinitionFile");
-        f0ContourImposeSupport = MaryProperties.getBoolean("voice."+voice.getName()+".f0ContourImposeSupport", false);
-        
-        this.unitFileReader = new VocalizationUnitFileReader(unitFileName);
-        BufferedReader fDBufferedReader = new BufferedReader( new FileReader( new File(featureDefinitionFile)));
-        this.featureDefinition = new FeatureDefinition(fDBufferedReader, true);
-        this.featureFileReader = new VocalizationFeatureFileReader(featureFile);
-        this.samplingRate   = unitFileReader.getSampleRate();
-        this.audioTimeline  = new TimelineReader(timelineFile);
-        vffrtCostFunction = new VocalizationFFRTargetCostFunction();
-        vffrtCostFunction.load(this.featureFileReader, this.featureDefinition);
-                
-        if ( f0ContourImposeSupport ) {
-            String intonationFDFile = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.intonation.featureDefinitionFile");
-            String intonationFile = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.intonationfile");
-            BufferedReader f0FDBufferedReader = new BufferedReader( new FileReader( new File(intonationFDFile)));
-            f0FeatureDefinition = new FeatureDefinition(f0FDBufferedReader, true);
-            vIntonationReader = new VocalizationIntonationReader(intonationFile);
-            noOfSuitableUnits = MaryProperties.getInteger("voice."+voice.getName()+".vocalization.intonation.numberOfSuitableUnits");
-            vffrtIntonationCostFunction = new VocalizationFFRTargetCostFunction();
-            vffrtIntonationCostFunction.load(this.featureFileReader, this.f0FeatureDefinition);
+    public VocalizationSynthesizer(Voice voice) throws MaryConfigurationException {
+        try {
+            String unitFileName = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.unitfile");
+            String timelineFile = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.timeline");
+            String featureFile  = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.featurefile");
+            String featureDefinitionFile  = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.featureDefinitionFile");
+            f0ContourImposeSupport = MaryProperties.getBoolean("voice."+voice.getName()+".f0ContourImposeSupport", false);
+            
+            this.unitFileReader = new VocalizationUnitFileReader(unitFileName);
+            BufferedReader fDBufferedReader = new BufferedReader( new FileReader( new File(featureDefinitionFile)));
+            this.featureDefinition = new FeatureDefinition(fDBufferedReader, true);
+            this.featureFileReader = new VocalizationFeatureFileReader(featureFile);
+            this.samplingRate   = unitFileReader.getSampleRate();
+            this.audioTimeline  = new TimelineReader(timelineFile);
+            vffrtCostFunction = new VocalizationFFRTargetCostFunction();
+            vffrtCostFunction.load(this.featureFileReader, this.featureDefinition);
+                    
+            if ( f0ContourImposeSupport ) {
+                String intonationFDFile = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.intonation.featureDefinitionFile");
+                String intonationFile = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.intonationfile");
+                BufferedReader f0FDBufferedReader = new BufferedReader( new FileReader( new File(intonationFDFile)));
+                f0FeatureDefinition = new FeatureDefinition(f0FDBufferedReader, true);
+                vIntonationReader = new VocalizationIntonationReader(intonationFile);
+                noOfSuitableUnits = MaryProperties.getInteger("voice."+voice.getName()+".vocalization.intonation.numberOfSuitableUnits");
+                vffrtIntonationCostFunction = new VocalizationFFRTargetCostFunction();
+                vffrtIntonationCostFunction.load(this.featureFileReader, this.f0FeatureDefinition);
+            }
+
+        } catch (IOException ioe) {
+            throw new MaryConfigurationException("Problem loading vocalization files for voice "+voice.getName(), ioe);
         }
     }
     
