@@ -4896,6 +4896,91 @@ public class MathUtils {
         FileUtils.writeTextFile(StringUtils.toStringLines(x), filename);
     }
     
+
+    /**
+     * To interpolate Zero values with respect to NonZero values
+     * @param contour
+     * @return
+     */
+    public static double[] interpolateNonZeroValues( double[] contour ) {
+        
+        for ( int i=0; i < contour.length ; i++ ) {
+            if ( contour[i] == 0 ) {
+                int index = findNextIndexNonZero( contour, i );
+                //System.out.println("i: "+i+"index: "+index);
+                if( index == -1 ) {
+                    for ( int j=i; j < contour.length; j++ ) {
+                        contour[j] = contour[j-1];
+                    }
+                    break;
+                }
+                else {
+                    for ( int j=i; j < index; j++ ) {
+                        //contour[j] = contour[i-1] * (index - j) + contour[index] * (j - (i-1)) / ( index - i );
+                        if ( i == 0 ) {
+                            contour[j] = contour[index];
+                        }
+                        else {
+                            contour[j] = contour[j-1] + ((contour[index] - contour[i-1]) / (index - i)) ;
+                        }
+                    }
+                    i = index-1; 
+                }
+            }
+        }
+        
+        return contour;
+    }
+    
+    /**
+     * To find next NonZero index in a given array
+     * @param contour
+     * @param current
+     * @return
+     */
+    public static int findNextIndexNonZero(double[] contour, int current) {
+        for ( int i=current+1; i < contour.length ; i++ ) {
+            if ( contour[i] != 0 ) {
+                return i;
+            }
+        }
+       return -1;
+    }
+    
+    /**
+     * array resize to target size using linear interpolation
+     * @param data
+     * @param targetSize
+     * @return
+     */
+    public static double[] arrayResize( double[] source, int targetSize ) {
+        
+        if( source.length ==  targetSize ) {
+            return source;
+        }
+        
+        int sourceSize = source.length;
+        double fraction = (double)source.length / (double)targetSize;
+        double[] newSignal = new double[targetSize];
+        
+        for(int i=0;i<targetSize;i++){
+                double posIdx =  fraction * i;
+                int nVal = (int) Math.floor(posIdx);
+                double diffVal = posIdx - nVal;
+                
+                if( nVal >= sourceSize-1 ){
+                    newSignal[i] = source[sourceSize-1];
+                    continue;
+                }
+                // Linear Interpolation 
+                //newSignal[i] = (diffVal * samples[nVal+1]) + ((1 - diffVal) * samples[nVal]);
+                //System.err.println("i "+i+" fraction "+fraction+" posIdx "+posIdx+" nVal "+nVal+" diffVal "+diffVal+" !!");
+                double fVal = (diffVal * source[nVal+1]) + ((1 - diffVal) * source[nVal]);
+                newSignal[i] = fVal;
+        }
+        return newSignal;
+    }
+    
     public static void main(String[] args)
     {
         ComplexNumber[][] x1 = new ComplexNumber[2][2];
