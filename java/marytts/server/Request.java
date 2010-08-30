@@ -226,7 +226,7 @@ public class Request {
         if (defaultVoice == null) {
             defaultVoice = Voice.getSuitableVoice(inputData);
         }
-        assert defaultVoice != null;
+        //assert defaultVoice != null;
 
         if (inputData.getDefaultVoice() == null) {
             inputData.setDefaultVoice(defaultVoice);
@@ -786,7 +786,10 @@ public class Request {
         }
         newRoot.setAttribute("xml:lang", language);
         MaryData md = new MaryData(maryxml.getType(), MaryUtils.string2locale(language));
-        md.setDefaultVoice(maryxml.getDefaultVoice());
+        Voice dVoice = maryxml.getDefaultVoice();
+        if (dVoice != null) {
+            md.setDefaultVoice(dVoice);
+        }
         //md.setAudioEffects(maryxml.getAudioEffects());
         md.setDocument(newDoc);
         return md;

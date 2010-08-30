@@ -29,6 +29,7 @@ import java.util.ListIterator;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
@@ -53,7 +54,7 @@ public class LTS
     AllophoneSet allophoneSet;
 
     public LTS()
-    throws SAXException, IOException, ParserConfigurationException, NoSuchPropertyException
+    throws IOException, MaryConfigurationException
     {
         //        URL letterToSoundURL = new URL("file:///project/cl/mary/work/lts_with_stress/flite/mary1_lts.txt");
         URL letterToSoundURL = this.getClass().getResource("mary_lts.txt");

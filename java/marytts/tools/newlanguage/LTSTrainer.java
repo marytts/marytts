@@ -45,6 +45,7 @@ import marytts.cart.CART;
 import marytts.cart.DecisionNode;
 import marytts.cart.Node;
 import marytts.cart.io.MaryCARTWriter;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.fst.AlignerTrainer;
 import marytts.fst.StringPair;
@@ -416,7 +417,7 @@ public class LTSTrainer extends AlignerTrainer
         this.addAlreadySplit(new String[]{"null"}, new String[]{""});
     }
     
-    public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
+    public static void main(String[] args) throws IOException, MaryConfigurationException {
 
         
         String  phFileLoc = "/Users/benjaminroth/Desktop/mary/english/phone-list-engba.xml";

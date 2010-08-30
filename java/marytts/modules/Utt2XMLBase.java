@@ -251,6 +251,10 @@ public abstract class Utt2XMLBase extends InternalModule {
         if (tokenItem.getUtterance().getVoice() != null) {
             maryVoice = FreeTTSVoices.getMaryVoice(tokenItem.getUtterance().getVoice());
         }
+        AllophoneSet allophoneSet = (AllophoneSet) tokenItem.getUtterance().getObject("allophoneset");
+        if (allophoneSet == null) {
+            throw new NullPointerException("Utterance does not have an AllophoneSet -- should have been set in XML2UttBase.process()");
+        }
         Element insertHere = parent;
         boolean needMtu = false;
         boolean insertPhonesFromToken = tokenItem.getFeatures().isPresent("phones");
@@ -299,7 +303,7 @@ public abstract class Utt2XMLBase extends InternalModule {
             MaryDomUtils.setTokenText(t, tokenItem.toString());
             if (insertPhonesFromToken) {
                 String[] phones = (String[]) tokenItem.getFeatures().getObject("phones");
-                t.setAttribute("ph", phoneArray2phoneString(maryVoice.getAllophoneSet(), phones));
+                t.setAttribute("ph", phoneArray2phoneString(allophoneSet, phones));
                 insertPhonesFromToken = false;
             }
             if (tokenFeatureSet.isPresent("accent")) {
@@ -325,12 +329,12 @@ public abstract class Utt2XMLBase extends InternalModule {
                 MaryDomUtils.setTokenText(t, tokenText);
                 if (insertPhonesFromToken) {
                     String[] phones = (String[]) tokenItem.getFeatures().getObject("phones");
-                    t.setAttribute("ph", phoneArray2phoneString(maryVoice.getAllophoneSet(), phones));
+                    t.setAttribute("ph", phoneArray2phoneString(allophoneSet, phones));
                     insertPhonesFromToken = false;
                 } else if (wordItem.getFeatures().isPresent("phones")) {
                     // the word item has phones, take them only if there are no Token phones
                     String[] phones = (String[]) wordItem.getFeatures().getObject("phones");
-                    t.setAttribute("ph", phoneArray2phoneString(maryVoice.getAllophoneSet(), phones));
+                    t.setAttribute("ph", phoneArray2phoneString(allophoneSet, phones));
                 }
                 if (tokenFeatureSet.isPresent("accent")) {
                     t.setAttribute("accent", tokenFeatureSet.getString("accent"));

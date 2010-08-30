@@ -405,8 +405,9 @@ public class MaryData
     }
 
     public void setDefaultVoice(Voice voice) {
-        if (voice == null)
-            logger.warn("received null default voice");
+        if (voice == null) {
+            return;
+        }
         // check that voice locale fits before accepting the voice:
         Locale voiceLocale = null;
         if (voice != null) voiceLocale = voice.getLocale();

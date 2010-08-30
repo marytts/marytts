@@ -236,9 +236,9 @@ public class FreeTTSVoices
         }
         if (freetts2maryVoices != null) {
             marytts.modules.synthesis.Voice maryVoice = (marytts.modules.synthesis.Voice) freetts2maryVoices.get(freeTTSVoice);
-            if (maryVoice == null) {
+            /*if (maryVoice == null) {
                 throw new NoSuchPropertyException("No Mary voice available for the FreeTTS voice \"" + freeTTSVoice + "\"");
-            }
+            }*/
             return maryVoice;
         }
         return null;

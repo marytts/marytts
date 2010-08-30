@@ -54,6 +54,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import marytts.datatypes.MaryXML;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.dom.MaryDomUtils;
@@ -93,7 +94,7 @@ public class TranscriptionAligner extends VoiceImportComponent {
     }
     
     public void initialiseComp()
-    throws ParserConfigurationException, IOException, SAXException, TransformerConfigurationException
+    throws ParserConfigurationException, IOException, SAXException, TransformerConfigurationException, MaryConfigurationException
     {
         aligner = new marytts.tools.analysis.TranscriptionAligner(AllophoneSet.getAllophoneSet(db.getProp(db.ALLOPHONESET)));
         aligner.SetEnsureInitialBoundary(true);

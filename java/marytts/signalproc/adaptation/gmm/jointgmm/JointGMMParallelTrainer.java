@@ -25,6 +25,7 @@ import java.util.Arrays;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.xml.parsers.ParserConfigurationException;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.machinelearning.ContextualGMMParams;
 import marytts.machinelearning.GMM;
@@ -255,7 +256,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         System.out.println("Joint source-target GMM training completed...");
     }
 
-    public static void main(String[] args) throws UnsupportedAudioFileException, IOException
+    public static void main(String[] args) throws UnsupportedAudioFileException, IOException, MaryConfigurationException
     {
         //mainIEEE_TASLP_2009_rap(args);
         
@@ -267,7 +268,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         mainQuickTest2(args);
     }
     
-    public static void mainIEEE_TASLP_2009_rap(String[] args) throws UnsupportedAudioFileException, IOException
+    public static void mainIEEE_TASLP_2009_rap(String[] args) throws UnsupportedAudioFileException, IOException, MaryConfigurationException
     {   
         String wavBaseFolder = "D:/Oytun/Papers/IEEE_Transaction_VT/musicVC/final_gmm/";
         
@@ -437,7 +438,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
     //Testing voice conversion as a post-processor to enhance HMM based synthesis output
     //The idea is to train a voice conversion function between HMM outputs and natural recordings
     //Then, any HMM output is to be transformed with the voice conversion function to make it closer to original recordings
-    public static void mainHmmVoiceConversion(String[] args) throws UnsupportedAudioFileException, IOException
+    public static void mainHmmVoiceConversion(String[] args) throws UnsupportedAudioFileException, IOException, MaryConfigurationException
     {
         //String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/hsmmMfcc_25Dimensional/";
         //String wavBaseFolder = "D:/Oytun/DFKI/voices/hmmVoiceConversionTest/lsp_21Dimensional/";
@@ -610,7 +611,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
         t.run();
     }
     
-    public static void mainInterspeech2008(String[] args) throws UnsupportedAudioFileException, IOException
+    public static void mainInterspeech2008(String[] args) throws UnsupportedAudioFileException, IOException, MaryConfigurationException
     {   
         String emotion = "angry";
         String method = "F";
@@ -635,7 +636,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
     
     public static void mainParametric(int numTrainingFiles, int[] numComponents, 
                                       boolean isContextualGMMs, int contextClassificationType, 
-                                      String sourceTag, String targetTag, String method) throws UnsupportedAudioFileException, IOException
+                                      String sourceTag, String targetTag, String method) throws UnsupportedAudioFileException, IOException, MaryConfigurationException
     {
         BaselinePreprocessor pp = new BaselinePreprocessor();
         BaselineFeatureExtractor fe = new BaselineFeatureExtractor();
@@ -789,7 +790,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
     //Testing voice conversion as a post-processor to enhance HMM based synthesis output
     //The idea is to train a voice conversion function between HMM outputs and natural recordings
     //Then, any HMM output is to be transformed with the voice conversion function to make it closer to original recordings
-    public static void mainQuickTest(String[] args) throws UnsupportedAudioFileException, IOException
+    public static void mainQuickTest(String[] args) throws UnsupportedAudioFileException, IOException, MaryConfigurationException
     {   
         String wavBaseFolder = "D:/quickTest/";
         
@@ -975,7 +976,7 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
      * @throws UnsupportedAudioFileException
      * @throws IOException
      */
-    public static void mainQuickTest2(String[] args) throws UnsupportedAudioFileException, IOException
+    public static void mainQuickTest2(String[] args) throws UnsupportedAudioFileException, IOException, MaryConfigurationException
     {   
         String wavBaseFolder = "/project/mary/marcela/VoiceConversion/Neutral-Spike-Conversion/";
         
@@ -1148,30 +1149,11 @@ public class JointGMMParallelTrainer extends JointGMMTrainer {
 
     
     public static ContextualGMMParams getContextualGMMParams(String phoneSetFile, GMMTrainerParams[] params, int contextClassificationType)
+    throws MaryConfigurationException
     {
-        ContextualGMMParams cg = null;
-        AllophoneSet allophoneSet = null;
-        
-        try {
-            try {
-                allophoneSet = AllophoneSet.getAllophoneSet(phoneSetFile);
-            } catch (NoSuchPropertyException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (SAXException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (ParserConfigurationException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        if (allophoneSet!=null)
-            cg = new ContextualGMMParams(allophoneSet, params, contextClassificationType);
+        AllophoneSet allophoneSet = AllophoneSet.getAllophoneSet(phoneSetFile);
+        assert allophoneSet != null;
+        ContextualGMMParams cg = new ContextualGMMParams(allophoneSet, params, contextClassificationType);
 
         return cg;
     }
