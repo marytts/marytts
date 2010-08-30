@@ -99,7 +99,6 @@ public class VocalizationSynthesizer {
     protected int noOfSuitableUnits = 1;
     protected VocalizationFFRTargetCostFunction vffrtCostFunction = null;
     protected VocalizationFFRTargetCostFunction vffrtIntonationCostFunction = null;
-    protected FDPSOLAProcessor fdpsolaProcessor;
             
     final double INFINITE = 100000;
     
@@ -118,7 +117,6 @@ public class VocalizationSynthesizer {
         this.audioTimeline  = new TimelineReader(timelineFile);
         vffrtCostFunction = new VocalizationFFRTargetCostFunction();
         vffrtCostFunction.load(this.featureFileReader, this.featureDefinition);
-        fdpsolaProcessor = new FDPSOLAProcessor();
                 
         if ( f0ContourImposeSupport ) {
             String intonationFDFile = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.intonation.featureDefinitionFile");
