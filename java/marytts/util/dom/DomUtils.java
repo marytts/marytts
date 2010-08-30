@@ -63,6 +63,7 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
+import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -75,42 +76,32 @@ import org.xml.sax.SAXParseException;
  */
 public class DomUtils
 {
-    private static DocumentBuilder docBuilder = null;
-    private static DocumentBuilder validatingDocBuilder = null;
+    private static DocumentBuilderFactory factory;
+    private static DocumentBuilderFactory validatingFactory;
+    private static EntityResolver entityResolver;
+    
     private static Logger logger = MaryUtils.getLogger("DomUtils");
     // Static constructor:
     static {
-        try{
-            docBuilder = initialiseXMLParser(false);
-            validatingDocBuilder = initialiseXMLParser(true);
-        } catch (ParserConfigurationException e) {
-            logger.error("Cannot start up XML parser", e);
-        }
-    }
-
-    private static DocumentBuilder initialiseXMLParser(boolean validating) throws ParserConfigurationException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory = DocumentBuilderFactory.newInstance();
         factory.setExpandEntityReferences(true);
         factory.setNamespaceAware(true);
-        factory.setValidating(validating);
-        if (validating) {
-            factory.setIgnoringElementContentWhitespace(true);
-            try {
-                factory.setAttribute(
-                    "http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-                    "http://www.w3.org/2001/XMLSchema");
-                // Specify other factory configuration settings
-                factory.setAttribute(
-                    "http://java.sun.com/xml/jaxp/properties/schemaSource",
+        validatingFactory = DocumentBuilderFactory.newInstance();
+        validatingFactory.setExpandEntityReferences(true);
+        validatingFactory.setNamespaceAware(true);
+        validatingFactory.setIgnoringElementContentWhitespace(true);
+        try {
+            validatingFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
+                "http://www.w3.org/2001/XMLSchema");
+            // Specify other factory configuration settings
+            validatingFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
                     MaryProperties.localSchemas());
-            } catch (Exception x) {
-                // This can happen if the parser does not support JAXP 1.2
-                logger.warn("Cannot use Schema validation -- turning off validation.");
-                factory.setValidating(false);
-            }
+        } catch (Exception x) {
+            // This can happen if the parser does not support JAXP 1.2
+            logger.warn("Cannot use Schema validation -- turning off validation.");
+            validatingFactory.setValidating(false);
         }
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        builder.setEntityResolver(new org.xml.sax.EntityResolver() {
+        entityResolver = new EntityResolver() {
             public InputSource resolveEntity (String publicId, String systemId)
             {
                 if (systemId.equals("http://mary.dfki.de/lib/Sable.v0_2.dtd")) {
@@ -142,9 +133,9 @@ public class DomUtils
                 // else, use the default behaviour:
                 return null;
             }
-        });
-        return builder;
+        };
     }
+
 
     /**
      * Parse XML data into a DOM representation, taking local resources and Schemas into account.
@@ -154,7 +145,8 @@ public class DomUtils
      * @throws SAXException
      * @throws IOException
      */
-    public static Document parseDocument(String inputData, boolean validating) throws SAXException, IOException {
+    public static Document parseDocument(String inputData, boolean validating)
+    throws ParserConfigurationException, SAXException, IOException {
         return parseDocument(new StringReader(inputData), validating);
     }
     
@@ -166,11 +158,16 @@ public class DomUtils
      * @throws SAXException
      * @throws IOException
      */
-    public static Document parseDocument(Reader inputData, boolean validating) throws SAXException, IOException {
+    public static Document parseDocument(Reader inputData, boolean validating)
+    throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilder builder;
         if (validating) {
-            return validatingDocBuilder.parse(new InputSource(inputData));
+            builder = validatingFactory.newDocumentBuilder();
+            builder.setEntityResolver(entityResolver);
+        } else {
+            builder = factory.newDocumentBuilder();
         }
-        return docBuilder.parse(new InputSource(inputData));
+        return builder.parse(new InputSource(inputData));
     }
     
     /**
@@ -181,7 +178,8 @@ public class DomUtils
      * @throws SAXException
      * @throws IOException
      */
-    public static Document parseDocument(File file, boolean validating) throws SAXException, IOException {
+    public static Document parseDocument(File file, boolean validating)
+    throws ParserConfigurationException, SAXException, IOException {
         return parseDocument(new FileInputStream(file), validating);
     }
     
@@ -193,11 +191,16 @@ public class DomUtils
      * @throws SAXException
      * @throws IOException
      */
-    public static Document parseDocument(InputStream is, boolean validating) throws SAXException, IOException {
+    public static Document parseDocument(InputStream is, boolean validating)
+    throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilder builder;
         if (validating) {
-            return validatingDocBuilder.parse(is);
+            builder = validatingFactory.newDocumentBuilder();
+            builder.setEntityResolver(entityResolver);
+        } else {
+            builder = factory.newDocumentBuilder();
         }
-        return docBuilder.parse(is);
+        return builder.parse(is);
     }
     
     /**
@@ -207,7 +210,8 @@ public class DomUtils
      * @throws SAXException
      * @throws IOException
      */
-    public static Document parseDocument(String inputData) throws SAXException, IOException {
+    public static Document parseDocument(String inputData)
+    throws ParserConfigurationException, SAXException, IOException {
         return parseDocument(inputData, false);
     }
     
@@ -218,7 +222,8 @@ public class DomUtils
      * @throws SAXException
      * @throws IOException
      */
-    public static Document parseDocument(Reader inputData) throws SAXException, IOException {
+    public static Document parseDocument(Reader inputData)
+    throws ParserConfigurationException, SAXException, IOException {
         return parseDocument(inputData, false);
     }
 
@@ -229,7 +234,8 @@ public class DomUtils
      * @throws SAXException
      * @throws IOException
      */
-    public static Document parseDocument(File file) throws SAXException, IOException {
+    public static Document parseDocument(File file)
+    throws ParserConfigurationException, SAXException, IOException {
         return parseDocument(file, false);
     }
 
@@ -240,7 +246,8 @@ public class DomUtils
      * @throws SAXException
      * @throws IOException
      */
-    public static Document parseDocument(InputStream inputData) throws SAXException, IOException {
+    public static Document parseDocument(InputStream inputData)
+    throws ParserConfigurationException, SAXException, IOException {
         return parseDocument(inputData, false);
     }
 
