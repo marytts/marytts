@@ -21,6 +21,7 @@ package marytts.language.en;
 
 import java.util.Locale;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.XML2UttBase;
 
@@ -39,8 +40,7 @@ import com.sun.speech.freetts.Utterance;
 
 public class XML2UttPausesEn extends XML2UttBase
 {
-    public XML2UttPausesEn()
-    {
+    public XML2UttPausesEn() {
         super("XML2Utt PausesEn",
               USEnglishDataTypes.PAUSES_US,
               USEnglishDataTypes.FREETTS_PAUSES,

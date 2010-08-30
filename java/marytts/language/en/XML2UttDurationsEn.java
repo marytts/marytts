@@ -22,6 +22,7 @@ package marytts.language.en;
 import java.util.Locale;
 
 import marytts.datatypes.MaryDataType;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.XML2UttBase;
 
@@ -40,8 +41,7 @@ import com.sun.speech.freetts.Utterance;
 
 public class XML2UttDurationsEn extends XML2UttBase
 {
-    public XML2UttDurationsEn()
-    {
+    public XML2UttDurationsEn() {
         super("XML2Utt DurationsEn",
               MaryDataType.DURATIONS,
               USEnglishDataTypes.FREETTS_DURATIONS,

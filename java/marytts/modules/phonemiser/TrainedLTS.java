@@ -35,6 +35,7 @@ import marytts.cart.LeafNode;
 import marytts.cart.LeafNode.StringAndFloatLeafNode;
 import marytts.cart.io.MaryCARTReader;
 import marytts.cart.io.WagonCARTReader;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.tools.newlanguage.LTSTrainer;
@@ -158,7 +159,7 @@ public class TrainedLTS {
         return sfr.syllabify(phones);
     }
     
-    public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException {
+    public static void main(String[] args) throws IOException, MaryConfigurationException {
 
         if (args.length != 2) {
             System.out.println("Usage:");

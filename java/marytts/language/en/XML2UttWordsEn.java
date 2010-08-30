@@ -22,6 +22,7 @@ package marytts.language.en;
 import java.util.Locale;
 
 import marytts.datatypes.MaryDataType;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.XML2UttBase;
 
@@ -40,8 +41,7 @@ import com.sun.speech.freetts.Utterance;
 
 public class XML2UttWordsEn extends XML2UttBase
 {
-    public XML2UttWordsEn()
-    {
+    public XML2UttWordsEn() {
         super("XML2Utt WordsEn",
               MaryDataType.WORDS,
               USEnglishDataTypes.FREETTS_WORDS,

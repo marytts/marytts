@@ -44,6 +44,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.language.de.datatypes.GermanDataTypes;
 import marytts.language.de.phonemiser.Inflection;
 import marytts.language.de.phonemiser.LTS;
@@ -88,7 +89,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser
     private String basePath;
 
     public JPhonemiser()
-    throws IOException,  SAXException, ParserConfigurationException
+    throws IOException,  MaryConfigurationException
     {
       	super("JPhonemiser_de",
         MaryDataType.PARTSOFSPEECH,
