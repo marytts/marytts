@@ -620,7 +620,9 @@ public class TranscriptionAligner
                 tPh.append(" "+syl.getAttribute("tone"));
             }
         }
-        token.setAttribute("ph", tPh.toString());
+        if (tPh.toString().length() > 0) { 
+            token.setAttribute("ph", tPh.toString());
+        }
     }
 
 
