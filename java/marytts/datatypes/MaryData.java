@@ -196,7 +196,8 @@ public class MaryData
      * in the appropriate way as determined by our <code>type</code>.
      * Only XML and Text data can be read from a reader, audio data cannot.
      */
-    public void readFrom(Reader from) throws SAXException, IOException {
+    public void readFrom(Reader from)
+    throws ParserConfigurationException, SAXException, IOException {
         String inputData = FileUtils.getReaderAsString(from);
         setData(inputData);
     }
@@ -215,7 +216,8 @@ public class MaryData
      * end-of-file; if it is non-null, read up to (and including) the first line containing
      * the end marker string.
      */
-    public void readFrom(Reader from, String endMarker) throws SAXException, IOException {
+    public void readFrom(Reader from, String endMarker)
+    throws ParserConfigurationException, SAXException, IOException {
         // For the case that the data to be read it is not
         // followed by end-of-file, we use a ReaderSplitter which
         // provides a reader artificially "inserting" an end-of-file
@@ -237,7 +239,8 @@ public class MaryData
      * @throws SAXException 
      * @throws IllegalArgumentException if this method is called for MaryDataTypes that are neither text nor XML.
      */
-    public void setData(String dataString) throws SAXException, IOException {
+    public void setData(String dataString)
+    throws ParserConfigurationException, SAXException, IOException {
         // First, some data cleanup:
         dataString = StringUtils.purgeNonBreakingSpaces(dataString);
         // Now, deal with it.
