@@ -116,14 +116,14 @@ public class VocalizationFeatureFileWriter extends VoiceImportComponent
        this.db = db;
        if (props == null){
            props = new TreeMap<String, String>();
-           String fileDir = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"timelines"+File.separator;
+           String fileDir = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"files"+File.separator;
            String maryExt = db.getProp(db.MARYEXT);
-           props.put(UNITFILE,fileDir+"vocalization_units_timeline"+maryExt);
-           props.put(FEATUREFILE,fileDir+"vocalization_features_timeline"+maryExt);
+           props.put(UNITFILE,fileDir+"vocalization_units"+maryExt);
+           props.put(FEATUREFILE,fileDir+"vocalization_features"+maryExt);
            props.put(MANUALFEATURES,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"features"
                    +File.separator+"annotation_vocalizations_features.txt");
            props.put(FEATDEF,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"features"
-                   +File.separator+"annotation_feature_definition.txt");
+                   +File.separator+"vocalization_feature_definition.txt");
        }
        return props;
    }
