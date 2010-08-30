@@ -124,7 +124,7 @@ public class MCepTimelineMaker extends VoiceImportComponent
             if (!first.canRead()) {
                 throw new IOException("File " + first.getAbsolutePath() + " not readable!");
             }
-            mcepFile = new ESTTrackReader(first.getName());
+            mcepFile = new ESTTrackReader(first.getAbsolutePath());
             /* - get the min and the max */
             current = mcepFile.getMinMax();
             mcepMin = current[0];
