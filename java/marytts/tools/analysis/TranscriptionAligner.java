@@ -518,8 +518,12 @@ public class TranscriptionAligner
                         // -- treat them as word-final, i.e. insert them into the last syllable in prevToken
                         Element syllable = null;
                         Element ref = null; // insert before null = insert at the end
-                        NodeList prevSyllables = prevToken.getElementsByTagNameNS(MaryXML.getNamespace(), MaryXML.SYLLABLE);
-                        if (prevSyllables.getLength() > 0) { // insert at end of previous token
+                        NodeList prevSyllables = null;
+                        // if there is an insertion at the beginning, we don't have a prevToken!
+                        if (prevToken != null) {
+                            prevSyllables = prevToken.getElementsByTagNameNS(MaryXML.getNamespace(), MaryXML.SYLLABLE);
+                        }
+                        if (prevSyllables != null && prevSyllables.getLength() > 0) { // insert at end of previous token
                             syllable = (Element) prevSyllables.item(prevSyllables.getLength() - 1);
                             ref = null;
                         } else { // insert at beginning of current token
