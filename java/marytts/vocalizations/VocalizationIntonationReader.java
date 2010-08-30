@@ -169,6 +169,14 @@ public class VocalizationIntonationReader
         return this.contours[unitIndexNumber];
     }
     
+    public double getWindowSizeInSeconds() {
+        return this.windowSize;
+    }    
+    
+    public double getSkipSizeInSeconds() {
+        return this.skipSize;
+    }    
+    
     /**
      * get an intonation polynomial coeffs
      * @param unitIndexNumber
