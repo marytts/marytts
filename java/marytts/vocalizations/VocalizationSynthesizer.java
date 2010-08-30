@@ -63,6 +63,7 @@ import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.VocalizationFFRTargetCostFunction;
+import marytts.util.MaryUtils;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioPlayer;
@@ -74,6 +75,8 @@ import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 import marytts.util.signal.SignalProcUtils;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.DocumentTraversal;
@@ -100,6 +103,11 @@ public class VocalizationSynthesizer {
     protected int noOfSuitableUnits = 1;
     protected VocalizationFFRTargetCostFunction vffrtCostFunction = null;
     protected VocalizationFFRTargetCostFunction vffrtIntonationCostFunction = null;
+    
+    protected float maxCandidateCost;
+    protected float maxF0Cost;
+    
+    protected Logger logger = MaryUtils.getLogger("Vocalization");
             
     final double INFINITE = 100000;
     
@@ -231,10 +239,16 @@ public class VocalizationSynthesizer {
         VocalizationCost[] suitableF0Candidates = new VocalizationCost[noOfSuitableUnits];
         System.arraycopy(vIntonationCosts, 0, suitableF0Candidates, 0, noOfSuitableUnits);
         
+        if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
+            debugLogCandidates(targetUnit, suitableCandidates, suitableF0Candidates);
+        }
+        
         ImposeIntonationData[] sortedImposeF0Data = vocalizationF0DistanceComputer(suitableCandidates, suitableF0Candidates);
         
         int targetIndex = sortedImposeF0Data[0].targetUnitIndex;
         int sourceIndex = sortedImposeF0Data[0].sourceUnitIndex;
+        
+        logger.debug("Synthesizing candidate "+sourceIndex+" with intonation contour "+targetIndex);
         
         if ( targetIndex == sourceIndex ) {
             return synthesizeSelectedVocalization(sourceIndex, aft, domElement);
@@ -242,18 +256,80 @@ public class VocalizationSynthesizer {
         
         return imposeF0ContourOnVocalization(sourceIndex, targetIndex, aft, domElement);
     }
+
+    /**
+     * @param targetUnit
+     * @param suitableCandidates
+     * @param suitableF0Candidates
+     */
+    private void debugLogCandidates(Target targetUnit, VocalizationCost[] suitableCandidates,
+            VocalizationCost[] suitableF0Candidates) {
+        FeatureVector targetFeatures = targetUnit.getFeatureVector();
+        FeatureDefinition fd = featureFileReader.getFeatureDefinition();
+        int fiName = fd.getFeatureIndex("name");
+        int fiIntonation = fd.getFeatureIndex("intonation");
+        int fiVQ = fd.getFeatureIndex("voicequality");
+        for (int i=0; i<noOfSuitableUnits; i++) {
+            int unitIndex = suitableCandidates[i].unitIndex;
+            FeatureVector fv = featureFileReader.getFeatureVector(unitIndex);
+            StringBuilder sb = new StringBuilder();
+            sb.append("Candidate ").append(i).append(": ").append(unitIndex).append(" -- ");
+            byte bName = fv.getByteFeature(fiName);
+            if (fv.getByteFeature(fiName) != 0 && targetFeatures.getByteFeature(fiName) != 0) {
+                sb.append(" ").append(fv.getFeatureAsString(fiName, fd));
+            }
+            if (fv.getByteFeature(fiVQ) != 0 && targetFeatures.getByteFeature(fiName) != 0) {
+                sb.append(" ").append(fv.getFeatureAsString(fiVQ, fd));
+            }
+            if (fv.getByteFeature(fiIntonation) != 0 && targetFeatures.getByteFeature(fiIntonation) != 0) {
+                sb.append(" ").append(fv.getFeatureAsString(fiIntonation, fd));
+            }
+            for (int j=0; j<targetFeatures.getLength(); j++) {
+                if (targetFeatures.isContinuousFeature(j) && !Float.isNaN((Float)targetFeatures.getFeature(j))
+                        && !Float.isNaN((Float)fv.getFeature(j))) {
+                    String featureName = fd.getFeatureName(j);
+                    sb.append(" ").append(featureName).append("=").append(fv.getFeature(j));
+                }
+            }
+            logger.debug(sb.toString());
+        }
+        for (int i=0; i<noOfSuitableUnits; i++) {
+            int unitIndex = suitableF0Candidates[i].unitIndex;
+            FeatureVector fv = featureFileReader.getFeatureVector(unitIndex);
+            StringBuilder sb = new StringBuilder();
+            sb.append("F0 Candidate ").append(i).append(": ").append(unitIndex).append(" -- ");
+            byte bName = fv.getByteFeature(fiName);
+            if (fv.getByteFeature(fiName) != 0 && targetFeatures.getByteFeature(fiName) != 0) {
+                sb.append(" ").append(fv.getFeatureAsString(fiName, fd));
+            }
+            if (fv.getByteFeature(fiVQ) != 0 && targetFeatures.getByteFeature(fiName) != 0) {
+                sb.append(" ").append(fv.getFeatureAsString(fiVQ, fd));
+            }
+            if (fv.getByteFeature(fiIntonation) != 0 && targetFeatures.getByteFeature(fiIntonation) != 0) {
+                sb.append(" ").append(fv.getFeatureAsString(fiIntonation, fd));
+            }
+            for (int j=0; j<targetFeatures.getLength(); j++) {
+                if (targetFeatures.isContinuousFeature(j) && !Float.isNaN((Float)targetFeatures.getFeature(j))
+                        && !Float.isNaN((Float)fv.getFeature(j))) {
+                    String featureName = fd.getFeatureName(j);
+                    sb.append(" ").append(featureName).append("=").append(fv.getFeature(j));
+                }
+            }
+            logger.debug(sb.toString());
+        }
+    }
     
     /**
-     * Impose on target unit f0 contour on source unit
-     * @param sourceIndex
-     * @param targetIndex
+     * Impose a target f0 contour onto a (source) unit
+     * @param targetIndex unit index of unit providing f0 contour
+     * @param sourceIndex unit index of unit to be generated with the given contour
      * @param aft
      * @param domElement
      * @return
      * @throws IOException
      * @throws UnsupportedAudioFileException
      */
-    private AudioInputStream imposeF0ContourOnVocalization(int sourceIndex, int targetIndex, AudioFileFormat aft,
+    private AudioInputStream imposeF0ContourOnVocalization(int targetIndex, int sourceIndex, AudioFileFormat aft,
             Element domElement) throws IOException, UnsupportedAudioFileException {
         
         int numberOfBackChannels = unitFileReader.getNumberOfUnits();
@@ -292,11 +368,13 @@ public class VocalizationSynthesizer {
         double skipSize = this.vIntonationReader.getSkipSizeInSeconds();
         
         boolean[] voicings = new boolean[sourceF0Contour.length];
-        double[] tScales= {1.0};
+        //double[] tScales= {1.0};
+        double[] tScales = new double[sourceF0Contour.length];
         double[] eScales= {1.0};
         double[] vScales= {1.0};
         double[] pScales = new double[sourceF0Contour.length];
         for( int i=0; i<sourceF0Contour.length; i++ ){
+            tScales[i] = 1.0;
             pScales[i] = targetF0Contour[i] / sourceF0Contour[i];
             if (sourceF0Contour[i] == 0) {
                 voicings[i] = false;
@@ -399,7 +477,11 @@ public class VocalizationSynthesizer {
                 else {
                     double[] targetCoeffs = vIntonationReader.getIntonationCoeffs(targetIndex);
                     double[] sourceCoeffs = vIntonationReader.getIntonationCoeffs(sourceIndex);
-                    distance = Polynomial.polynomialDistance(sourceCoeffs, targetCoeffs);
+                    if (targetCoeffs != null && sourceCoeffs != null && targetCoeffs.length == sourceCoeffs.length) {
+                        distance = Polynomial.polynomialDistance(sourceCoeffs, targetCoeffs);
+                    } else {
+                        distance = Double.MAX_VALUE;
+                    }
                 }
                 imposeF0Data[count++] = new ImposeIntonationData(sourceIndex, targetIndex, distance);
             }
@@ -759,6 +841,11 @@ public class VocalizationSynthesizer {
             VocalizationCost other = (VocalizationCost) dc;
             if (cost == other.cost) return true;
             return false;
+        }
+        
+        @Override
+        public String toString() {
+            return unitIndex+" "+cost;
         }
     }
 
