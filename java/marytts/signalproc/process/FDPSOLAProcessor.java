@@ -80,7 +80,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
     protected static int FROM_FILE = 1;
     protected static int FROM_TARGET = 2;
     
-    public boolean bSilent;
+    public boolean bSilent = true;
     protected LEDataOutputStream dout; //Output stream for big-endian wav tests
     protected LEDataInputStream din; //Input stream for big-endian wav tests
     protected DynamicWindow windowIn;
@@ -272,7 +272,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         if (bContinue)
         {
             tmpvsc = new double[1];
-            bSilent = false;
+            //bSilent = false;
 
             if (outputFile != null)
                 tempOutBinaryFile = outputFile + ".bin";
