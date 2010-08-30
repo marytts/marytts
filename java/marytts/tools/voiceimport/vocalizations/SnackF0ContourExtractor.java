@@ -1,9 +1,12 @@
 package marytts.tools.voiceimport.vocalizations;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -13,7 +16,6 @@ import marytts.tools.voiceimport.BasenameList;
 import marytts.tools.voiceimport.DatabaseLayout;
 import marytts.tools.voiceimport.PraatPitchmarker;
 import marytts.tools.voiceimport.VoiceImportComponent;
-import marytts.tools.voiceimport.SphinxTrainer.StreamGobbler;
 import marytts.util.MaryUtils;
 import marytts.util.data.text.SnackTextfileDoubleDataSource;
 
@@ -204,6 +206,33 @@ public class SnackF0ContourExtractor extends VoiceImportComponent {
             props2Help.put(COMMAND, "The command that is used to launch snack");
             props2Help.put(MINPITCH,"minimum value for the pitch (in Hz). Default: female 100, male 75");
             props2Help.put(MAXPITCH,"maximum value for the pitch (in Hz). Default: female 500, male 300");            
+        }
+    }
+    
+    private static class StreamGobbler extends Thread
+    {
+        InputStream is;
+        String type;
+        
+        public StreamGobbler(InputStream is, String type)
+        {
+            this.is = is;
+            this.type = type;
+        }
+        
+        public void run()
+        {
+            try
+            {
+                InputStreamReader isr = new InputStreamReader(is);
+                BufferedReader br = new BufferedReader(isr);
+                String line=null;
+                while ( (line = br.readLine()) != null)
+                    System.out.println(type + ">" + line);    
+                } catch (IOException ioe)
+                  {
+                    ioe.printStackTrace();  
+                  }
         }
     }
 
