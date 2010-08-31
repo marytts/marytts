@@ -259,8 +259,6 @@ public class CARTBuilder extends VoiceImportComponent {
              //convert the top-level CART to Wagon Format
              System.out.println("Building CART from tree ...");
              topLevelCART = new FeatureVectorCART(topLevelTree, fai);
-             PrintWriter pw = new PrintWriter(new FileWriter(new File("./test.txt")));
-             wr.toTextOut(topLevelCART, pw);
              System.out.println(" ... done!");
          } else {
              /* read in the top-level tree from file */
