@@ -61,6 +61,8 @@ public class VoicePackager extends VoiceImportComponent {
     protected String EXAMPLETEXT;
 
     protected String LICENSEURL;
+    
+    protected String VOICEDESCRIPTION;
 
     // constants to access filenames in database component properties and organize file list:
 
@@ -105,6 +107,7 @@ public class VoicePackager extends VoiceImportComponent {
         VOICETYPE = name + ".voiceType";
         EXAMPLETEXT = name + ".exampleText";
         LICENSEURL = name + ".licenseUrl";
+        VOICEDESCRIPTION = name + ".voiceDescription";
     }
     
     /**
@@ -118,6 +121,7 @@ public class VoicePackager extends VoiceImportComponent {
         props2Help.put(EXAMPLETEXT, "file containing example text (for limited domain voices only)");
         props2Help.put(LICENSEURL, "URL of the license agreement for this voice"
                 + " (<a href=\"http://creativecommons.org/licenses/by-nd/3.0/\">cc-by-nd</a> by default)");
+        props2Help.put(VOICEDESCRIPTION, "short text describing this voice");
     }
 
     /**
@@ -128,9 +132,14 @@ public class VoicePackager extends VoiceImportComponent {
         this.db = databaseLayout;
         if (props == null) {
             props = new TreeMap<String, String>();
-            props.put(VOICETYPE, "unit selection");
-            props.put(EXAMPLETEXT, "examples.text");
-            props.put(LICENSEURL, "http://creativecommons.org/licenses/by-nd/3.0/");
+            String voiceType = System.getProperty("VOICETYPE", "unit selection");
+            props.put(VOICETYPE, voiceType);
+            String exampleText = System.getProperty("EXAMPLETEXT", "examples.text");
+            props.put(EXAMPLETEXT, exampleText);
+            String licenseUrl = System.getProperty("LICENSEURL", "http://mary.dfki.de/download/by-nd-3.0.html");
+            props.put(LICENSEURL, licenseUrl);
+            String voiceDescription = System.getProperty("VOICEDESCRIPTION", "");
+            props.put(VOICEDESCRIPTION, voiceDescription);
         }
         return props;
     }
@@ -471,7 +480,7 @@ public class VoicePackager extends VoiceImportComponent {
         out.format("<marytts-install xmlns=\"http://mary.dfki.de/installer\">\n");
         out.format("    <voice gender=\"%s\" locale=\"%s\" name=\"%s\" type=\"%s\" version=\"%s\">\n", getVoiceGender(),
                 getXMLCompatibleVoiceLocale(), getVoiceName(), getProp(VOICETYPE), getMaryVersion());
-        out.format("        <description></description>\n");
+        out.format("        <description>%s</description>\n", getProp(VOICEDESCRIPTION));
         out.format("        <license href=\"%s\"/>\n", getProp(LICENSEURL));
         out.format("        <package filename=\"%s\"\n", zipFile.getName());
         out.format("            md5sum=\"%s\" size=\"%d\">\n", zipFileMd5Hash, zipFile.length());
