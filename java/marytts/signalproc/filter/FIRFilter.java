@@ -116,6 +116,7 @@ public class FIRFilter implements InlineDataProcessor {
     public class FIROutput extends BlockwiseDoubleDataSource
     {
         protected FrameProvider frameProvider;
+        protected int nTailCutoff;
 
         public FIROutput(DoubleDataSource inputSource)
         {
@@ -127,21 +128,50 @@ public class FIRFilter implements InlineDataProcessor {
             DoubleDataSource padding = new BufferedDoubleDataSource(new double[impulseResponseLength]);
             DoubleDataSource paddedSource = new SequenceDoubleDataSource(new DoubleDataSource[] {padding, inputSource});
             this.frameProvider = new FrameProvider(paddedSource, null, frameLength, sliceLength, 1, false);
+            // discard the initial padding of impulseResponseLength/2:
+            int nHeadCutoff = impulseResponseLength/2;
+            nTailCutoff = impulseResponseLength - nHeadCutoff;
+            getData(nHeadCutoff); // and discard
         }
         
+        @Override
         public boolean hasMoreData()
         {
-            return frameProvider.hasMoreData();
+            return currentlyInBuffer() > 0 || frameProvider.hasMoreData();
+        }
+        
+
+        /**
+         * This implementation of getData() will cut off a tail corresponding to half of the FIR filter.
+         */
+        @Override
+        public int getData(double[] target, int targetPos, int length) {
+            //if (target.length < targetPos+length)
+            //    throw new IllegalArgumentException("Not enough space left in target array");
+            int toRead = length + nTailCutoff;
+            if (currentlyInBuffer() < toRead) { // first need to try and read some more data
+                readIntoBuffer(toRead-currentlyInBuffer());
+            }
+            int toDeliver = length;
+            if (currentlyInBuffer() < toRead) {
+                toDeliver = currentlyInBuffer() - nTailCutoff;
+                writePos -= nTailCutoff;
+            }
+            System.arraycopy(buf, readPos, target, targetPos, toDeliver);
+            readPos += toDeliver;
+            assert readPos <= writePos;
+            return toDeliver;
         }
 
+        
         /**
          * Try to get a block of getBlockSize() doubles from this DoubleDataSource, and copy them into target, starting from targetPos.
          * @param target the double array to write into
          * @param targetPos position in target where to start writing
-         * @return the amount of data actually delivered, which will be either length or 0. If 0 is returned,
+         * @return the amount of data actually delivered. If 0 is returned,
          * all further calls will also return 0 and not copy anything.
-         * @throws IllegalArgumentException if length!=getBlockSize();
          */
+        @Override
         protected int readBlock(double[] target, int targetPos)
         {
             double[] frame = frameProvider.getNextFrame();
