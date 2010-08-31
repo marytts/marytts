@@ -208,23 +208,8 @@ public class PraatPitchmarker extends VoiceImportComponent
         if (MaryUtils.isWindows())
             strTmp = "cmd.exe /c " + strTmp;
         
-        Process praat = Runtime.getRuntime().exec(strTmp);
-
-        final BufferedReader fromPraat = new BufferedReader(new InputStreamReader(praat.getInputStream()));
-        new Thread() {
-            public void run() {
-                String line;
-                try {
-                    while ((line = fromPraat.readLine()) != null) {
-                        System.out.println(line);
-                    }
-                } catch (IOException e) {} // fail silently 
-            }
-        }.start();
-        try {
-            praat.waitFor();
-        } catch (InterruptedException ie) {} // ignore
-
+        General.launchProc(strTmp, "PraatPitchmarker", basename);
+        
         // Now convert the praat format into EST pm format:
         double[] pm = new PraatTextfileDoubleDataSource(new FileReader(pointprocessFilename)).getAllData();
         float[] pitchmarks = new float[pm.length];
@@ -267,8 +252,14 @@ public class PraatPitchmarker extends VoiceImportComponent
         // First, low-pass filter the speech signal to make it more robust against noise
         // (i.e., mixed noise+periodicity regions treated more likely as periodic)
         toScript.println("sound = Filter (pass Hann band)... 0 1000 100");
+        // check for available Pitch file:
+        toScript.println("pitchFile$ = pointpFile$ - \"PointProcess\" + \"Pitch\"");
+        toScript.println("if fileReadable(pitchFile$)");
+        toScript.println("  pitch = Read from file... 'pitchFile$'");
+        toScript.println("else");
         // Then determine pitch curve:
-        toScript.println("pitch = To Pitch... 0 minPitch maxPitch");
+        toScript.println("  pitch = To Pitch... 0 minPitch maxPitch");
+        toScript.println("endif");
         // Get some debug info:
         toScript.println("min_f0 = Get minimum... 0 0 Hertz Parabolic");
         toScript.println("max_f0 = Get maximum... 0 0 Hertz Parabolic");
@@ -283,7 +274,7 @@ public class PraatPitchmarker extends VoiceImportComponent
         toScript.println("printline 'baseName$'   f0 range: 'min_f0:0' - 'max_f0:0' Hz");
         toScript.close();
         
-        System.out.println("Running Praat as: "+getProp(COMMAND)+" "+tmpScript+" "+getProp(MINPITCH)+" "+getProp(MAXPITCH));
+        System.out.println("Running Praat as: "+getProp(COMMAND)+" "+tmpScript+" <WavFile> <PointProcessFile> "+getProp(MINPITCH)+" "+getProp(MAXPITCH));
         for ( int i = 0; i < baseNameArray.length; i++ ) {
             percent = 100*i/baseNameArray.length;
             praatPitchmarks(baseNameArray[i]);
@@ -301,6 +292,5 @@ public class PraatPitchmarker extends VoiceImportComponent
     {
         return percent;
     }
-
 }
 
