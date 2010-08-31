@@ -697,7 +697,7 @@ THIS SOFTWARE.
         <appname>MARY TTS</appname>
         <appversion>@{specification.version}</appversion>
         <authors>
-            <author name="Marc Schr&#246;der" email="schroed@dfki.de"/>
+            <author name="Marc Schr&#246;der" email="marc.schroeder@dfki.de"/>
             <author name="Marcela Charfuelan" email=""/>
             <author name="Sathish Chandra Pammi" email=""/>
             <author name="Ingmar Steiner" email=""/>
@@ -883,36 +883,6 @@ THIS SOFTWARE.
 
         </pack>
 
-        <pack name="sources" required="no" preselected="no">
-<description>OpenMary source code and javadoc.
-</description>
-            <file src="doc/javadoc" targetdir="$INSTALL_PATH/doc"/> <!-- Reccursive adding -->
-            <fileset dir="." targetdir="$INSTALL_PATH"
-            includes="java/**/*.java,
-				java/**/*.xsl,
-				java/**/*.txt,
-				java/**/*.html,
-				src/**/*,
-				examples,
-				.project,
-				.classpath,
-				build.xml,
-				README.usingEclipse.txt,
-				java/commons-collections-3.2.1-sources.jar,
-				netbeans/build.xml,
-				netbeans/nbproject/build-impl.xml,
-				netbeans/nbproject/genfiles.properties,
-				netbeans/nbproject/project.properties,
-				netbeans/nbproject/project.xml,
-				build/openmary-install.xml,
-				build/getstarted-info.txt,
-				build/installer-info.txt,
-				build/shortcuts-linux.xml,
-				build/shortcuts-windows.xml,
-				build/standalone-compiler.jar"/>
-			 <depends packname="voicebuilding"/>
-        </pack>
-
 
         <pack name="voicebuilding" required="no" preselected="no">
 <description>OpenMary Voice building tools.
@@ -954,6 +924,38 @@ This component includes GPL'ed code and is thus shipped under the GPL 3.
             <executable os="mac" targetfile="$INSTALL_PATH/bin/voiceimport" stage="never"/>
         </pack>
 
+    	
+    	<pack name="sources" required="no" preselected="no">
+    	<description>OpenMary source code and javadoc.
+    	</description>
+    	            <file src="doc/javadoc" targetdir="$INSTALL_PATH/doc"/> <!-- Reccursive adding -->
+    	            <fileset dir="." targetdir="$INSTALL_PATH"
+    	            includes="java/**/*.java,
+    					java/**/*.xsl,
+    					java/**/*.txt,
+    					java/**/*.html,
+    					src/**/*,
+    					examples,
+    					.project,
+    					.classpath,
+    					.settings/*.prefs,
+    					build.xml,
+    					README.usingEclipse.txt,
+    					java/commons-collections-3.2.1-sources.jar,
+    					netbeans/build.xml,
+    					netbeans/nbproject/build-impl.xml,
+    					netbeans/nbproject/genfiles.properties,
+    					netbeans/nbproject/project.properties,
+    					netbeans/nbproject/project.xml,
+    					build/openmary-install.xml,
+    					build/getstarted-info.txt,
+    					build/installer-info.txt,
+    					build/shortcuts-linux.xml,
+    					build/shortcuts-windows.xml,
+    					build/standalone-compiler.jar"/>
+    				 <depends packname="voicebuilding"/>
+    	        </pack>
+    
     </packs>
 
     
