@@ -103,7 +103,7 @@ public class FFTTest extends TestCase
     {
         double[] signal = new double[length];
         for (int i=0; i<length; i++) {
-            signal[i] = Math.round(10000 * Math.sin(2*Math.PI*i/length));
+            signal[i] = Math.round(10000 * Math.sin(2*Math.PI*i/length)) / 32768.0;
         }
         return signal;
     }
