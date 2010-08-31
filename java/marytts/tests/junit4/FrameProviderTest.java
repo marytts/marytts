@@ -17,9 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.signalproc.tests;
+package marytts.tests.junit4;
 
-import junit.framework.TestCase;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 import marytts.signalproc.process.FrameProvider;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.math.MathUtils;
@@ -28,8 +31,9 @@ import marytts.util.math.MathUtils;
  * @author Marc Schr&ouml;der
  *
  */
-public class FrameProviderTest extends TestCase
+public class FrameProviderTest
 {
+    @Test
     public void testIdentity1()
     {
         // Signal length not a multiple of the frame length/shift:
@@ -51,6 +55,7 @@ public class FrameProviderTest extends TestCase
         assertTrue("Error: " + err, err < 1.E-20);
     }
 
+    @Test
     public void testIdentity2()
     {
         // Signal length not a multiple of the frame length/shift:
@@ -73,6 +78,7 @@ public class FrameProviderTest extends TestCase
         assertTrue("Error: " + err, err < 1.E-20);
     }
 
+    @Test
     public void testIdentity3()
     {
         // Signal length a multiple of the frame length/shift:
@@ -94,6 +100,7 @@ public class FrameProviderTest extends TestCase
         assertTrue("Error: " + err, err < 1.E-20);
     }
 
+    @Test
     public void testIdentity4()
     {
         // Signal length a multiple of the frame length/shift:

@@ -17,12 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.signalproc.tests;
+package marytts.tests.junit4;
 
 import javax.sound.sampled.AudioFormat;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.Assert;
+
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
@@ -32,9 +33,9 @@ import marytts.util.math.MathUtils;
  * @author Marc Schr&ouml;der
  *
  */
-public class AudioDoubleDataSourceTest extends TestCase
+public class AudioDoubleDataSourceTest
 {
-
+    @Test
     public void testGetAllData1()
     {
         int samplingRate = 16000;
@@ -45,6 +46,7 @@ public class AudioDoubleDataSourceTest extends TestCase
         Assert.assertTrue(result.length == testSignal.length);
     }
 
+    @Test
     public void testGetAllData2()
     {
         int samplingRate = 16000;
