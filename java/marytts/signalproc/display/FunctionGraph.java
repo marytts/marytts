@@ -167,6 +167,12 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
     */
    public void updateData(double newX0, double newXStep, double[] data)
    {
+       if (newXStep <= 0) {
+           throw new IllegalArgumentException("newXStep must be >0");
+       }
+       if (data == null || data.length == 0) {
+           throw new IllegalArgumentException("No data");
+       }
        this.x0 = newX0;
         this.xStep = newXStep;
         double[] series = new double[data.length];

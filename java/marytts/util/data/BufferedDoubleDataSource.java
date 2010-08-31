@@ -106,6 +106,7 @@ public class BufferedDoubleDataSource extends BaseDoubleDataSource {
      * @return the amount of data actually delivered. If the returned value is less than length,
      * only that many data items have been copied into target; further calls will return 0 and not copy anything.
      */
+    @Override
     public int getData(double[] target, int targetPos, int length) {
         //if (target.length < targetPos+length)
         //    throw new IllegalArgumentException("Not enough space left in target array");
