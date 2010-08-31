@@ -58,10 +58,10 @@ public class VoicePackager extends VoiceImportComponent {
 
     protected String VOICETYPE;
 
-    protected String EXAMPLETEXT;
+    protected String EXAMPLETEXTFILE;
 
     protected String LICENSEURL;
-    
+
     protected String VOICEDESCRIPTION;
 
     // constants to access filenames in database component properties and organize file list:
@@ -96,20 +96,19 @@ public class VoicePackager extends VoiceImportComponent {
 
     protected final String BASETIMELINE = "BasenameTimelineMaker.timelineFile";
 
-    
     public VoicePackager() {
         this("VoicePackager");
     }
-    
+
     protected VoicePackager(String name) {
         super();
         this.name = name;
         VOICETYPE = name + ".voiceType";
-        EXAMPLETEXT = name + ".exampleText";
+        EXAMPLETEXTFILE = name + ".exampleTextFile";
         LICENSEURL = name + ".licenseUrl";
         VOICEDESCRIPTION = name + ".voiceDescription";
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -118,7 +117,7 @@ public class VoicePackager extends VoiceImportComponent {
         props2Help = new TreeMap<String, String>();
         props2Help.put(VOICETYPE, "voice type; one of <b>unit selection</b>, <b>HSMM</b>, <b>FDPSOLA</b>, <b>HNM</b>"
                 + " (note that support for FDPSOLA and HNM are experimental!)");
-        props2Help.put(EXAMPLETEXT, "file containing example text (for limited domain voices only)");
+        props2Help.put(EXAMPLETEXTFILE, "file containing example text (for limited domain voices only), leave blank for default");
         props2Help.put(LICENSEURL, "URL of the license agreement for this voice"
                 + " (<a href=\"http://creativecommons.org/licenses/by-nd/3.0/\">cc-by-nd</a> by default)");
         props2Help.put(VOICEDESCRIPTION, "short text describing this voice");
@@ -134,8 +133,8 @@ public class VoicePackager extends VoiceImportComponent {
             props = new TreeMap<String, String>();
             String voiceType = System.getProperty("VOICETYPE", "unit selection");
             props.put(VOICETYPE, voiceType);
-            String exampleText = System.getProperty("EXAMPLETEXT", "examples.text");
-            props.put(EXAMPLETEXT, exampleText);
+            String exampleText = System.getProperty("EXAMPLETEXT", "");
+            props.put(EXAMPLETEXTFILE, exampleText);
             String licenseUrl = System.getProperty("LICENSEURL", "http://mary.dfki.de/download/by-nd-3.0.html");
             props.put(LICENSEURL, licenseUrl);
             String voiceDescription = System.getProperty("VOICEDESCRIPTION", "");
@@ -227,7 +226,7 @@ public class VoicePackager extends VoiceImportComponent {
         }
 
         String[] properties = { CARTFILE, DURTREE, F0LEFTTREE, F0MIDTREE, F0RIGHTTREE, HALFPHONEFEATSAC, HALFPHONEFEATDEFAC,
-                HALFPHONEUNITS, JOINCOSTFEATS, JOINCOSTFEATDEF, PHONEFEATDEF, TIMELINE, BASETIMELINE };
+                HALFPHONEUNITS, JOINCOSTFEATS, JOINCOSTFEATDEF, PHONEFEATDEF, TIMELINE, BASETIMELINE, EXAMPLETEXTFILE };
 
         for (String property : properties) {
             String fileName = getProperty(property);
@@ -359,11 +358,10 @@ public class VoicePackager extends VoiceImportComponent {
         out.format("voice.%s.basenameTimeline  = MARY_BASE/lib/voices/%s/%s\n\n", getVoiceName(), getVoiceName(),
                 files.get(BASETIMELINE).getName());
 
-        // TODO is this ever used anymore?
-        if (getVoiceDomain().equalsIgnoreCase("limited")) {
+        if (getVoiceDomain().equalsIgnoreCase("limited") || getProp(EXAMPLETEXTFILE).length() != 0) {
             out.format("# Location of example text\n");
-            out.format("voice.%s.exampleTextFile = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(),
-                    getProp(EXAMPLETEXT));
+            out.format("voice.%s.exampleTextFile = MARY_BASE/lib/voices/%s/%s\n\n", getVoiceName(), getVoiceName(),
+                    files.get(EXAMPLETEXTFILE).getName());
         }
 
         out.format("# Modules to use for predicting acoustic target features for this voice:\n\n");
@@ -431,6 +429,21 @@ public class VoicePackager extends VoiceImportComponent {
         for (String key : files.keySet()) {
             File file = files.get(key);
 
+            // open data file for reading:
+            FileInputStream inputStream = null;
+            try {
+                inputStream = new FileInputStream(file);
+            } catch (FileNotFoundException e) {
+                if (key.equals(EXAMPLETEXTFILE) && getProp(EXAMPLETEXTFILE).length() == 0
+                        && !getVoiceDomain().equalsIgnoreCase("limited")) {
+                    logger.debug("Example text file " + getProp(EXAMPLETEXTFILE) + " not found, ignoring.");
+                    continue;
+                } else {
+                    logger.error("File " + file + " not found!");
+                    throw e;
+                }
+            }
+
             // make new entry in zip file, with the appropriate target path:
             logger.debug("Deflating file " + file);
             if (key.equals("CONFIG")) {
@@ -439,10 +452,8 @@ public class VoicePackager extends VoiceImportComponent {
                 zipStream.putNextEntry(new ZipEntry(voicePath + file.getName()));
             }
 
-            // open data file for reading:
-            FileInputStream inputStream = new FileInputStream(file);
             int len;
-            // and stream its contents into zip file:
+            // stream file contents into zip file:
             while ((len = inputStream.read(buffer)) > 0) {
                 zipStream.write(buffer, 0, len);
             }
