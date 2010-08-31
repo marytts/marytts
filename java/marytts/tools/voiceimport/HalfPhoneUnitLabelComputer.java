@@ -101,7 +101,7 @@ public class HalfPhoneUnitLabelComputer extends PhoneUnitLabelComputer
             double leftEndTime = (lastTime + rightEndTime) / 2;
             unitLines[i * 2] = String.format("%f %d %s_L", leftEndTime, i * 2 + 1, label);
             unitLines[i * 2 + 1] = String.format("%f %d %s_R", rightEndTime, i * 2 + 2, label);
-            lastTime = leftEndTime;
+            lastTime = rightEndTime;
         }
         return unitLines;
     }
