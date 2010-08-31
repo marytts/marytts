@@ -321,19 +321,14 @@ public class AcousticModeller extends InternalModule {
                 }
             }
 
-            try {
-                // at this point, no TBU should be null:
-                assert firstVoicedSegment != null;
-                assert firstVowel != null;
-                assert lastVoicedSegment != null;
-
+            // at this point, no TBU should be null:
+            if (firstVoicedSegment == null || firstVowel == null || lastVoicedSegment == null) {
+                logger.debug("WARNING: could not identify F0 anchors in malformed syllable: " + element.getAttribute("ph"));
+            } else {
                 // we have what we need, append to Lists:
                 firstVoicedSegments.add(firstVoicedSegment);
                 firstVowels.add(firstVowel);
                 lastVoicedSegments.add(lastVoicedSegment);
-            } catch (AssertionError e) {
-                logger.debug("WARNING: could not identify F0 anchors in malformed syllable: " + element.getAttribute("ph"));
-                e.printStackTrace();
             }
         }
 
