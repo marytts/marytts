@@ -847,11 +847,9 @@ THIS SOFTWARE.
 					examples/client/c++/MaryDemo.cc,
 					examples/client/c++/README.txt,
 					examples/emospeak-applet.html,
-					log/README.txt,
 					tmp/README.txt,
 					lib/icons/mary.ico,
-					lib/icons/maryicon.png,
-					README.txt"/>
+					lib/icons/maryicon.png"/>
             <fileset dir="build" targetdir="$INSTALL_PATH" includes="getstarted-info.txt"/>
             <fileset os="windows" dir="." targetdir="$INSTALL_PATH"
 				includes="bin/maryserver.bat,
