@@ -220,8 +220,9 @@ public abstract class Utt2XMLBase extends InternalModule {
                 }
                 insertToken(tokenItem, insertHere);
                 if (tokenFeatures.isPresent(XML2UttBase.PROSODY_END)) {
-                    assert insertHere.getTagName().equals(MaryXML.PROSODY);
-                    insertHere = (Element) insertHere.getParentNode();
+                    if (insertHere.getTagName().equals(MaryXML.PROSODY)) {
+                        insertHere = (Element) insertHere.getParentNode();
+                    } // else, we are looking at an empty prosody tag with no arguments, which is being deleted right now.
                 }
                 tokenItem = tokenItem.getNext();
             }
