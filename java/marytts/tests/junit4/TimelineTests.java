@@ -163,7 +163,7 @@ public class TimelineTests extends TimelineReader {
         
         tlr.timeline.position(tlr.datagramsBytePos);
         for ( int i = 0; i < NUMDATAGRAMS; i++ ) {
-            readDatagrams[i] = tlr.getNextDatagram(timeline);
+            readDatagrams[i] = tlr.getNextDatagram(tlr.timeline);
             Assert.assertTrue( "Datagram [" + i + "] is out of sync.", areEqual( origDatagrams[i].getData(), readDatagrams[i].getData() ) );
             Assert.assertEquals( "Time for datagram [" + i + "] is out of sync.", origDatagrams[i].getDuration(), readDatagrams[i].getDuration() );
         }
