@@ -122,8 +122,7 @@ public class HMMVoicePackager extends VoicePackager {
            String rootdir = db.getProp(db.ROOTDIR);
            
            props.put(VOICETYPE, "hsmm");
-           props.put(EXAMPLETEXT, "examples.text");
-           props.put(LICENSEURL, "http://creativecommons.org/licenses/by-nd/3.0/");
+           props.put(LICENSEURL, "http://mary.dfki.de/download/by-nd-3.0.html");
            
            props.put(alpha, "0.42");
            props.put(beta, "0.0");
@@ -167,7 +166,6 @@ public class HMMVoicePackager extends VoicePackager {
         
         props2Help.put(VOICETYPE, "voice type; one of <b>unit selection</b>, <b>HSMM</b>, <b>FDPSOLA</b>, <b>HNM</b>"
                 + " (note that support for FDPSOLA and HNM are experimental!)");
-        props2Help.put(EXAMPLETEXT, "file containing example text (for limited domain voices only)");
         props2Help.put(LICENSEURL, "URL of the license agreement for this voice"
                 + " (<a href=\"http://creativecommons.org/licenses/by-nd/3.0/\">cc-by-nd</a> by default)");
         
@@ -287,6 +285,7 @@ public class HMMVoicePackager extends VoicePackager {
             String fileSeparator = System.getProperty("file.separator");            
             
             String rootDir = db.getProp(db.ROOTDIR);
+            String maryVersion = db.getProp(db.MARYBASEVERSION);
             /* create the config file */
             String locale = getVoiceLocale();
             // open the config file for writing:
@@ -306,8 +305,8 @@ public class HMMVoicePackager extends VoicePackager {
             //print name and version info
              configOut.println("name = " + voicename);
              
-             configOut.println(locale+"-voice.version = "+db.getProp(db.MARYBASEVERSION)+"\n");
-             configOut.println("voice.version = "+db.getProp(db.MARYBASEVERSION)+"\n");
+             configOut.println(locale+"-voice.version = " + maryVersion + "\n");
+             configOut.println("voice.version = " + maryVersion + "\n");
              
              //print providing info
              configOut.println("# Declare \"group names\" as component that other components can require.\n"+
@@ -319,10 +318,10 @@ public class HMMVoicePackager extends VoicePackager {
                      "# We can require a component by name or by an abstract \"group name\"\n"+ 
                      "# as listed under the \"provides\" element.\n"+
                      "requires = \\\n   "+locale+" \\\n   marybase \n");
-             configOut.println("requires.marybase.version = 4.0.0\n"+
-                     "requires."+locale+".version = 4.0.0\n"+
+             configOut.println("requires.marybase.version = " + maryVersion + "\n"+
+                     "requires."+locale+".version = " + maryVersion + "\n"+
                      "requires."+locale+".download = http://mary.dfki.de/download/mary-install-4.x.x.jar\n"+
-                     "requires.hmm.version = 4.0.0\n");
+                     "requires.hmm.version = " + maryVersion + "\n");
                 
              //now follow the module settings
               configOut.println("####################################################################\n"+

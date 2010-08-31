@@ -417,7 +417,7 @@ public class VoicePackager extends VoiceImportComponent {
         byte[] buffer = new byte[4096];
 
         // initialize zip file:
-        String zipFileName = String.format("%s-%s.zip", getXMLCompatibleVoiceLocale(), getVoiceName());
+        String zipFileName = String.format("mary-%s-%s.zip", getVoiceName(), getMaryVersion());
         logger.info("Creating voice package " + zipFileName);
         File zipFile = new File(getMaryBase() + "download" + File.separator + zipFileName);
         FileOutputStream outputStream = new FileOutputStream(zipFile);
@@ -470,7 +470,7 @@ public class VoicePackager extends VoiceImportComponent {
         logger.info("Hashing voice package");
         String zipFileMd5Hash = MD5.asHex(MD5.getHash(zipFile));
 
-        String componentFileName = String.format("%s-%s-component.xml", getXMLCompatibleVoiceLocale(), getVoiceName());
+        String componentFileName = String.format("mary-%s-%s-component.xml", getVoiceName(), getMaryVersion());
         logger.info("Creating component file " + componentFileName);
         File componentFile = new File(getMaryBase() + File.separator + "download" + File.separator + componentFileName);
         PrintWriter out = new PrintWriter(componentFile);
