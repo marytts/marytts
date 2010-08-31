@@ -21,10 +21,13 @@ import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
 import marytts.unitselection.select.Target;
+import marytts.util.MaryUtils;
+import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.NodeIterator;
@@ -40,7 +43,8 @@ public class ProsodyElementHandler {
     
     private int F0CONTOUR_LENGTH = 101; // Assumption: the length of f0 contour of a prosody element is 101 (0,1,2....100)
                                         // DONOT change this number as some index numbers are based on this number    
-    DecimalFormat df; 
+    private DecimalFormat df; 
+    private Logger logger = MaryUtils.getLogger("ProsodyElementHandler");
     
     public ProsodyElementHandler(){
         df = new DecimalFormat("#0.0");
@@ -57,7 +61,7 @@ public class ProsodyElementHandler {
         
         // read prosody tags recursively 
         while ((e = (Element) tw.nextNode()) != null) {
-            
+            logger.debug("Found prosody element around '"+DomUtils.getPlainTextBelow(e)+"'");
             boolean hasRateAttribute    = e.hasAttribute("rate");
             boolean hasContourAttribute = e.hasAttribute("contour");
             boolean hasPitchAttribute   = e.hasAttribute("pitch");
@@ -264,7 +268,7 @@ public class ProsodyElementHandler {
             
             int percentDuration  =  Math.round((new Float(percent.substring(0, percent.length()-1))).floatValue());
             if ( percentDuration > 100 ) {
-                throw new RuntimeException("Given percetage of duration ( "+ percentDuration+"%"+ " ) is illegal.. ") ;
+                throw new RuntimeException("Given percentage of duration ( "+ percentDuration+"%"+ " ) is illegal.. ") ;
             }
             
             //System.out.println( percent  + " " + f0Value );
@@ -474,7 +478,7 @@ public class ProsodyElementHandler {
         
         Map<String, String> f0Map = new HashMap<String, String>();
         //Pattern p = Pattern.compile("(\\d+%,[+|-]\\d*[\\.]\\d*[%Hs][zt])|(\\d+%,[+|-]\\d+[%|Hz|st])");
-        Pattern p = Pattern.compile("\\([0-9]+(.[0-9]+)?[%],(x-low|low|medium|high|x-high|default|[+|-]?[0-9]+(.[0-9]+)?(%|Hz|st)?)\\)");
+        Pattern p = Pattern.compile("\\(\\s*[0-9]+(.[0-9]+)?[%]\\s*,\\s*(x-low|low|medium|high|x-high|default|[+|-]?[0-9]+(.[0-9]+)?(%|Hz|st)?)\\s*\\)");
         
         // Split input with the pattern
         Matcher m = p.matcher(attribute);
@@ -482,7 +486,7 @@ public class ProsodyElementHandler {
             //System.out.println(m.group());
             String singlePair = m.group().trim();
             String[] f0Values = singlePair.substring(1,singlePair.length()-1).split(",");
-            f0Map.put(f0Values[0], f0Values[1]);
+            f0Map.put(f0Values[0].trim(), f0Values[1].trim());
         }
         return f0Map;
     }

@@ -32,7 +32,7 @@ THIS SOFTWARE.
                 xmlns:ssml="http://www.w3.org/2001/10/synthesis"
                 xmlns="http://mary.dfki.de/2002/MaryXML">
   <xsl:output method="xml"
-              encoding="ISO-8859-15"
+              encoding="UTF-8"
               indent="yes"/>
   <xsl:strip-space elements="*|text()"/>
 
@@ -41,7 +41,7 @@ THIS SOFTWARE.
   <xsl:template match="ssml:speak">
     <maryxml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xml:lang="{@xml:lang}"
-             version="0.4">
+             version="0.5">
       <xsl:apply-templates/>
     </maryxml>
   </xsl:template>
@@ -420,9 +420,13 @@ THIS SOFTWARE.
         <xsl:otherwise>50</xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
-
-    <!-- duration: the desired time to take to read the element contents. -->
+    
     <!-- contour: the pitch contour -->
+    <xsl:variable name="contour">
+	  <xsl:value-of select="@contour"/>
+	</xsl:variable>
+	
+    <!-- duration: the desired time to take to read the element contents. -->
 
     <prosody>
       <xsl:if test="@pitch">
@@ -444,6 +448,11 @@ THIS SOFTWARE.
         <xsl:attribute name="volume">
           <xsl:value-of select="$volume"/>
         </xsl:attribute>
+      </xsl:if>
+      <xsl:if test="@contour">
+      	<xsl:attribute name="contour">
+      	  <xsl:value-of select="$contour"/>
+      	</xsl:attribute>
       </xsl:if>
       <xsl:apply-templates/>
     </prosody>
