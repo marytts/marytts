@@ -20,6 +20,7 @@
 package marytts.server;
 
 // General Java Classes
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -353,8 +354,9 @@ public class Mary {
         }
         */
         Properties logprops = new Properties();
-        BufferedReader propReader = new BufferedReader(new FileReader(MaryProperties.needFilename("log.config")));
-        logprops.load(propReader);
+        InputStream propIS = new BufferedInputStream(new FileInputStream(MaryProperties.needFilename("log.config")));
+        logprops.load(propIS);
+        propIS.close();
         // Now replace MARY_BASE with the install location of MARY in every property:
         for (Object key : logprops.keySet()) {
             String val = (String) logprops.get(key);

@@ -115,7 +115,7 @@ public class BasenameClassificationDefinitionFileReader {
             // ...trimming whitespace:
             line = line.trim();
             // ignore lines that are empty or start with #:
-            if (line.isEmpty() || line.startsWith("#")) {
+            if (line.equals("") || line.startsWith("#")) {
                 continue;
             } else {
                 // split lines into fields

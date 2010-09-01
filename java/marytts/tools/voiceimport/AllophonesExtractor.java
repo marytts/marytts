@@ -86,7 +86,7 @@ public class AllophonesExtractor extends VoiceImportComponent {
 
         // if styleDefinitionFileName is provided, try to initialize StyleDefinitionFileReader:
         String styleDefinitionFileName = getProp(STYLEDEFINITIONFILE);
-        if (!styleDefinitionFileName.isEmpty()) {
+        if (!styleDefinitionFileName.equals("")) {
             try {
                 styleDefinition = new BasenameClassificationDefinitionFileReader(styleDefinitionFileName);
                 if (!styleDefinition.fileOK) {
@@ -168,7 +168,7 @@ public class AllophonesExtractor extends VoiceImportComponent {
             String prosodyClosingTag = "";
             if (styleDefinition != null) {
                 String style = getStyleFromStyleDefinition(basename);
-                if (!style.isEmpty()) {
+                if (!style.equals("")) {
                     prosodyOpeningTag = "<prosody style=\"" + style + "\">\n";
                     prosodyClosingTag = "</prosody>";
                 }
