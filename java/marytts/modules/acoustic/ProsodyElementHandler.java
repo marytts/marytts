@@ -129,15 +129,21 @@ public class ProsodyElementHandler {
             rateAttribute = rateLabels2RelativeValues(rateAttribute);
         }
         
+        // if the value is non-negative percentage (as described in W3C SSML)
+        if ( !(rateAttribute.startsWith("+") || rateAttribute.startsWith("-")) && rateAttribute.endsWith("%")) {
+            double absolutePercentage = new Double(rateAttribute.substring(0, rateAttribute.length()-1)).doubleValue();
+            if ( absolutePercentage == 100 ) { // no change
+                return;
+            }
+            else {
+                rateAttribute = df.format(absolutePercentage / 100);
+            }
+        }
+        
         // if the format contains a positive decimal number
         boolean hasPositiveInteger = !rateAttribute.endsWith("%") && (!rateAttribute.startsWith("+") || !rateAttribute.startsWith("-"));
         if ( hasPositiveInteger ) { 
             rateAttribute = positiveInteger2RelativeValues(rateAttribute);
-        }
-        
-        // if not preceded by '+' or '-', add '+' at the beginning 
-        if ( !(rateAttribute.startsWith("+") || rateAttribute.startsWith("-")) ) {
-            rateAttribute = "+" + rateAttribute;
         }
         
         //Pattern p = Pattern.compile("[+|-]\\d+%");
