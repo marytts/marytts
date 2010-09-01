@@ -34,6 +34,7 @@ import java.util.TreeMap;
 import marytts.signalproc.analysis.SPTKPitchReaderWriter;
 import marytts.tools.voiceimport.BasenameList;
 import marytts.tools.voiceimport.DatabaseLayout;
+import marytts.tools.voiceimport.General;
 import marytts.tools.voiceimport.PraatPitchmarker;
 import marytts.tools.voiceimport.VoiceImportComponent;
 import marytts.util.MaryUtils;
@@ -69,9 +70,9 @@ public class SnackF0ContourExtractor extends VoiceImportComponent {
         scriptFileName = db.getProp(db.VOCALIZATIONSDIR)+"script.snack";
         if (!(new File(getProp(LF0DIR))).exists()) {
         
-            System.out.println("vocalisations/pm directory does not exist; ");
+            System.out.println("vocalizations/lf0 directory does not exist; ");
             if (!(new File(getProp(LF0DIR))).mkdirs()) {
-                throw new Error("Could not create vocalisations/pm");
+                throw new Error("Could not create vocalizations/lf0");
             }
             System.out.println("Created successfully.\n");
             
@@ -80,13 +81,13 @@ public class SnackF0ContourExtractor extends VoiceImportComponent {
         try {
             String basenameFile = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"basenames.lst";
             if ( (new File(basenameFile)).exists() ) {
-                System.out.println("Loading basenames of vocalisations from '"+basenameFile+"' list...");
+                System.out.println("Loading basenames of vocalizations from '"+basenameFile+"' list...");
                 bnlVocalizations = new BasenameList(basenameFile);
                 System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in basename list");
             }
             else {
                 String vocalWavDir = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav";
-                System.out.println("Loading basenames of vocalisations from '"+vocalWavDir+"' directory...");
+                System.out.println("Loading basenames of vocalizations from '"+vocalWavDir+"' directory...");
                 bnlVocalizations = new BasenameList(vocalWavDir, ".wav");
                 System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in "+ vocalWavDir + " directory");
             }
@@ -180,23 +181,7 @@ public class SnackF0ContourExtractor extends VoiceImportComponent {
                 strTmp = "cmd.exe /c " + strTmp;
             else  strTmp = getProp(COMMAND) + " " + strTmp;
                 
-            //System.out.println("strTmp: "+strTmp);
-            Process snack = Runtime.getRuntime().exec(strTmp);
-
-            StreamGobbler errorGobbler = new 
-            StreamGobbler(snack.getErrorStream(), "err");            
-
-            //read from output stream
-            StreamGobbler outputGobbler = new 
-            StreamGobbler(snack.getInputStream(), "out");    
-
-            //start reading from the streams
-            errorGobbler.start();
-            outputGobbler.start();
-
-            //close everything down
-            snack.waitFor();
-            snack.exitValue();
+            General.launchProc(strTmp, "SnackF0ContourExtractor", baseNameArray[i]);
 
             // Now convert the snack format into EST pm format
             double[] pm = new SnackTextfileDoubleDataSource(new FileReader(snackFile)).getAllData();
