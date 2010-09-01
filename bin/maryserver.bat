@@ -3,7 +3,7 @@
 rem Set the Mary base installation directory in an environment variable:
 set BINDIR=%~dp0%
 
-set MARY_BASE=%BINDIR%..
+set MARY_BASE=%BINDIR%\..
 
 set PATH=%MARY_BASE%\lib\windows;%PATH%
 
