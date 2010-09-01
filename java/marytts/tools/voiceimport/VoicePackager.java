@@ -265,171 +265,171 @@ public class VoicePackager extends VoiceImportComponent {
         PrintWriter out = new PrintWriter(configFile);
 
         // generate the config file contents, line by line:
-        out.format("# Auto-generated config file for voice %s\n\n", getVoiceName());
+        out.format("# Auto-generated config file for voice %s\r\n\r\n", getVoiceName());
 
-        out.format("name = %s\n", getVoiceName());
-        out.format("# Declare \"group names\" as component that other components can require.\n");
-        out.format("# These correspond to abstract \"groups\" of which this component is an instance.\n");
-        out.format("provides = \\\n\t%s-voice\n\n", getVoiceLocale());
+        out.format("name = %s\r\n", getVoiceName());
+        out.format("# Declare \"group names\" as component that other components can require.\r\n");
+        out.format("# These correspond to abstract \"groups\" of which this component is an instance.\r\n");
+        out.format("provides = \\\r\n\t%s-voice\r\n\r\n", getVoiceLocale());
 
         // TODO these seem to be ignored by MaryProperties, are they really needed?
-        out.format("%s-voice.version = %s\n\n", getVoiceLocale(), getMaryVersion());
-        out.format("voice.version = %s\n\n", getMaryVersion());
+        out.format("%s-voice.version = %s\r\n\r\n", getVoiceLocale(), getMaryVersion());
+        out.format("voice.version = %s\r\n\r\n", getMaryVersion());
 
-        out.format("# List the dependencies, as a whitespace-separated list.\n");
-        out.format("# For each required component, an optional minimum version and an optional\n");
-        out.format("# download url can be given.\n");
-        out.format("# We can require a component by name or by an abstract \"group name\"\n");
-        out.format("# as listed under the \"provides\" element.\n");
-        out.format("requires = \\\n\t%s \\\n\tmarybase\n\n", getVoiceLocale());
+        out.format("# List the dependencies, as a whitespace-separated list.\r\n");
+        out.format("# For each required component, an optional minimum version and an optional\r\n");
+        out.format("# download url can be given.\r\n");
+        out.format("# We can require a component by name or by an abstract \"group name\"\r\n");
+        out.format("# as listed under the \"provides\" element.\r\n");
+        out.format("requires = \\\r\n\t%s \\\r\n\tmarybase\r\n\r\n", getVoiceLocale());
 
-        out.format("requires.marybase.version = %s\n", getMaryVersion());
-        out.format("requires.%s.version = %s\n", getVoiceLocale(), getMaryVersion());
+        out.format("requires.marybase.version = %s\r\n", getMaryVersion());
+        out.format("requires.%s.version = %s\r\n", getVoiceLocale(), getMaryVersion());
         // TODO: this is obviously a placeholder url; do we really need this?
-        out.format("requires.%s.download = http://mary.dfki.de/download/mary-install-4.x.x.jar\n", getVoiceLocale());
+        out.format("requires.%s.download = http://mary.dfki.de/download/mary-install-4.x.x.jar\r\n", getVoiceLocale());
 
-        out.format("####################################################################\n");
-        out.format("####################### Module settings  ###########################\n");
-        out.format("####################################################################\n");
-        out.format("# For keys ending in \".list\", values will be appended across config files,\n");
-        out.format("# so that .list keys can occur in several config files.\n");
-        out.format("# For all other keys, values will be copied to the global config, so\n");
-        out.format("# keys should be unique across config files.\n");
+        out.format("####################################################################\r\n");
+        out.format("####################### Module settings  ###########################\r\n");
+        out.format("####################################################################\r\n");
+        out.format("# For keys ending in \".list\", values will be appended across config files,\r\n");
+        out.format("# so that .list keys can occur in several config files.\r\n");
+        out.format("# For all other keys, values will be copied to the global config, so\r\n");
+        out.format("# keys should be unique across config files.\r\n");
 
-        out.format("# If this setting is not present, a default value of 0 is assumed.\n");
-        out.format("voice.%s.wants.to.be.default = 20\n\n", getVoiceName());
+        out.format("# If this setting is not present, a default value of 0 is assumed.\r\n");
+        out.format("voice.%s.wants.to.be.default = 20\r\n\r\n", getVoiceName());
 
-        out.format("# Add your voice to the list of Unit Selection Voices\n");
-        out.format("unitselection.voices.list = \\\n\t%s\n\n", getVoiceName());
+        out.format("# Add your voice to the list of Unit Selection Voices\r\n");
+        out.format("unitselection.voices.list = \\\r\n\t%s\r\n\r\n", getVoiceName());
 
-        out.format("# Set your voice specifications\n");
-        out.format("voice.%s.gender = %s\n", getVoiceName(), getVoiceGender());
-        out.format("voice.%s.locale = %s\n", getVoiceName(), getVoiceLocale());
-        out.format("voice.%s.domain = %s\n", getVoiceName(), getVoiceDomain());
-        out.format("voice.%s.samplingRate = %d\n\n", getVoiceName(), getVoiceSamplingRate());
+        out.format("# Set your voice specifications\r\n");
+        out.format("voice.%s.gender = %s\r\n", getVoiceName(), getVoiceGender());
+        out.format("voice.%s.locale = %s\r\n", getVoiceName(), getVoiceLocale());
+        out.format("voice.%s.domain = %s\r\n", getVoiceName(), getVoiceDomain());
+        out.format("voice.%s.samplingRate = %d\r\n\r\n", getVoiceName(), getVoiceSamplingRate());
 
-        out.format("# Relative weight of the target cost function vs. the join cost function\n");
-        out.format("voice.bits3v2-hnm.viterbi.wTargetCosts = 0.7\n\n");
+        out.format("# Relative weight of the target cost function vs. the join cost function\r\n");
+        out.format("voice.bits3v2-hnm.viterbi.wTargetCosts = 0.7\r\n\r\n");
 
-        out.format("# Beam size in dynamic programming: smaller => faster but worse quality.\n");
-        out.format("# (set to -1 to disable beam search; very slow but best available quality)\n");
-        out.format("voice.bits3v2-hnm.viterbi.beamsize = 100\n\n");
+        out.format("# Beam size in dynamic programming: smaller => faster but worse quality.\r\n");
+        out.format("# (set to -1 to disable beam search; very slow but best available quality)\r\n");
+        out.format("voice.bits3v2-hnm.viterbi.beamsize = 100\r\n\r\n");
 
         // TODO surely this should be dependent on having locale == "de"?
-        out.format("# Sampa mapping for German voices \n");
-        out.format("voice.%s.sampamap = \\\n", getVoiceName());
-        out.format("\t=6->6 \\\n");
-        out.format("\t=n->n \\\n");
-        out.format("\t=m->m \\\n");
-        out.format("\t=N->N \\\n");
-        out.format("\t=l->l \\\n");
-        out.format("\ti->i: \\\n");
-        out.format("\te->e: \\\n");
-        out.format("\tu->u: \\\n");
-        out.format("\to->o: \n\n");
+        out.format("# Sampa mapping for German voices \r\n");
+        out.format("voice.%s.sampamap = \\\r\n", getVoiceName());
+        out.format("\t=6->6 \\\r\n");
+        out.format("\t=n->n \\\r\n");
+        out.format("\t=m->m \\\r\n");
+        out.format("\t=N->N \\\r\n");
+        out.format("\t=l->l \\\r\n");
+        out.format("\ti->i: \\\r\n");
+        out.format("\te->e: \\\r\n");
+        out.format("\tu->u: \\\r\n");
+        out.format("\to->o: \r\n\r\n");
 
-        out.format("# Java classes to use for the various unit selection components\n");
-        out.format("voice.%s.databaseClass            = marytts.unitselection.data.DiphoneUnitDatabase\n", getVoiceName());
-        out.format("voice.%s.selectorClass            = marytts.unitselection.select.DiphoneUnitSelector\n", getVoiceName());
+        out.format("# Java classes to use for the various unit selection components\r\n");
+        out.format("voice.%s.databaseClass            = marytts.unitselection.data.DiphoneUnitDatabase\r\n", getVoiceName());
+        out.format("voice.%s.selectorClass            = marytts.unitselection.select.DiphoneUnitSelector\r\n", getVoiceName());
         if (getProp(VOICETYPE).equalsIgnoreCase("HNM")) {
-            out.format("voice.%s.concatenatorClass        = marytts.unitselection.concat.HnmUnitConcatenator\n", getVoiceName());
+            out.format("voice.%s.concatenatorClass        = marytts.unitselection.concat.HnmUnitConcatenator\r\n", getVoiceName());
         } else if (getProp(VOICETYPE).equalsIgnoreCase("FDPSOLA")) {
-            out.format("voice.%s.concatenatorClass        = marytts.unitselection.concat.FdpsolaUnitConcatenator\n",
+            out.format("voice.%s.concatenatorClass        = marytts.unitselection.concat.FdpsolaUnitConcatenator\r\n",
                     getVoiceName());
         } else {
-            out.format("voice.%s.concatenatorClass        = marytts.unitselection.concat.OverlapUnitConcatenator\n",
+            out.format("voice.%s.concatenatorClass        = marytts.unitselection.concat.OverlapUnitConcatenator\r\n",
                     getVoiceName());
         }
-        out.format("voice.%s.targetCostClass          = marytts.unitselection.select.DiphoneFFRTargetCostFunction\n",
+        out.format("voice.%s.targetCostClass          = marytts.unitselection.select.DiphoneFFRTargetCostFunction\r\n",
                 getVoiceName());
-        out.format("voice.%s.joinCostClass            = marytts.unitselection.select.JoinCostFeatures\n", getVoiceName());
-        out.format("voice.%s.unitReaderClass          = marytts.unitselection.data.UnitFileReader\n", getVoiceName());
-        out.format("voice.%s.cartReaderClass          = marytts.cart.io.MARYCartReader\n", getVoiceName());
+        out.format("voice.%s.joinCostClass            = marytts.unitselection.select.JoinCostFeatures\r\n", getVoiceName());
+        out.format("voice.%s.unitReaderClass          = marytts.unitselection.data.UnitFileReader\r\n", getVoiceName());
+        out.format("voice.%s.cartReaderClass          = marytts.cart.io.MARYCartReader\r\n", getVoiceName());
         if (getProp(VOICETYPE).equalsIgnoreCase("HNM")) {
-            out.format("voice.%s.audioTimelineReaderClass = marytts.unitselection.data.HnmTimelineReader\n\n", getVoiceName());
+            out.format("voice.%s.audioTimelineReaderClass = marytts.unitselection.data.HnmTimelineReader\r\n\r\n", getVoiceName());
         } else {
-            out.format("voice.%s.audioTimelineReaderClass = marytts.unitselection.data.TimelineReader\n\n", getVoiceName());
+            out.format("voice.%s.audioTimelineReaderClass = marytts.unitselection.data.TimelineReader\r\n\r\n", getVoiceName());
         }
 
-        out.format("# Voice-specific files\n");
-        out.format("voice.%s.featureFile       = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(),
+        out.format("# Voice-specific files\r\n");
+        out.format("voice.%s.featureFile       = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(),
                 files.get(HALFPHONEFEATSAC).getName());
-        out.format("voice.%s.targetCostWeights = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(),
+        out.format("voice.%s.targetCostWeights = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(),
                 files.get(HALFPHONEFEATDEFAC).getName());
-        out.format("voice.%s.joinCostFile      = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(),
+        out.format("voice.%s.joinCostFile      = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(),
                 files.get(JOINCOSTFEATS).getName());
-        out.format("voice.%s.joinCostWeights   = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(),
+        out.format("voice.%s.joinCostWeights   = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(),
                 files.get(JOINCOSTFEATDEF).getName());
-        out.format("voice.%s.unitsFile         = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(),
+        out.format("voice.%s.unitsFile         = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(),
                 files.get(HALFPHONEUNITS).getName());
-        out.format("voice.%s.cartFile          = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(),
+        out.format("voice.%s.cartFile          = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(),
                 files.get(CARTFILE).getName());
-        out.format("voice.%s.audioTimelineFile = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(),
+        out.format("voice.%s.audioTimelineFile = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(),
                 files.get(TIMELINE).getName());
-        out.format("voice.%s.basenameTimeline  = MARY_BASE/lib/voices/%s/%s\n\n", getVoiceName(), getVoiceName(),
+        out.format("voice.%s.basenameTimeline  = MARY_BASE/lib/voices/%s/%s\r\n\r\n", getVoiceName(), getVoiceName(),
                 files.get(BASETIMELINE).getName());
 
         if (getVoiceDomain().equalsIgnoreCase("limited") || getProp(EXAMPLETEXTFILE).length() != 0) {
-            out.format("# Location of example text\n");
-            out.format("voice.%s.exampleTextFile = MARY_BASE/lib/voices/%s/%s\n\n", getVoiceName(), getVoiceName(),
-                    files.get(EXAMPLETEXTFILE).getName());
+            out.format("# Location of example text\r\n");
+            out.format("voice.%s.exampleTextFile = MARY_BASE/lib/voices/%s/%s\r\n\r\n", getVoiceName(), getVoiceName(), files
+                    .get(EXAMPLETEXTFILE).getName());
         }
 
-        out.format("# Modules to use for predicting acoustic target features for this voice:\n\n");
+        out.format("# Modules to use for predicting acoustic target features for this voice:\r\n\r\n");
 
-        out.format("voice.%s.acousticModels = duration F0 midF0 rightF0\n\n", getVoiceName());
+        out.format("voice.%s.acousticModels = duration F0 midF0 rightF0\r\n\r\n", getVoiceName());
 
-        out.format("voice.%s.duration.model = cart\n", getVoiceName());
-        out.format("voice.%s.duration.data = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(), files.get(DURTREE)
+        out.format("voice.%s.duration.model = cart\r\n", getVoiceName());
+        out.format("voice.%s.duration.data = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(), files.get(DURTREE)
                 .getName());
-        out.format("voice.%s.duration.attribute = d\n\n", getVoiceName());
+        out.format("voice.%s.duration.attribute = d\r\n\r\n", getVoiceName());
 
-        out.format("voice.%s.F0.model = cart\n", getVoiceName());
-        out.format("voice.%s.F0.data = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(), files.get(F0LEFTTREE)
+        out.format("voice.%s.F0.model = cart\r\n", getVoiceName());
+        out.format("voice.%s.F0.data = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(), files.get(F0LEFTTREE)
                 .getName());
-        out.format("voice.%s.F0.attribute = f0\n", getVoiceName());
-        out.format("voice.%s.F0.attribute.format = (0,%%.0f)\n", getVoiceName());
-        out.format("voice.%s.F0.predictFrom = firstVowels\n", getVoiceName());
-        out.format("voice.%s.F0.applyTo = firstVoicedSegments\n\n", getVoiceName());
+        out.format("voice.%s.F0.attribute = f0\r\n", getVoiceName());
+        out.format("voice.%s.F0.attribute.format = (0,%%.0f)\r\n", getVoiceName());
+        out.format("voice.%s.F0.predictFrom = firstVowels\r\n", getVoiceName());
+        out.format("voice.%s.F0.applyTo = firstVoicedSegments\r\n\r\n", getVoiceName());
 
-        out.format("voice.%s.midF0.model = cart\n", getVoiceName());
-        out.format("voice.%s.midF0.data = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(), files.get(F0MIDTREE)
+        out.format("voice.%s.midF0.model = cart\r\n", getVoiceName());
+        out.format("voice.%s.midF0.data = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(), files.get(F0MIDTREE)
                 .getName());
-        out.format("voice.%s.midF0.attribute = f0\n", getVoiceName());
-        out.format("voice.%s.midF0.attribute.format = (50,%%.0f)\n", getVoiceName());
-        out.format("voice.%s.midF0.predictFrom = firstVowels\n", getVoiceName());
-        out.format("voice.%s.midF0.applyTo = firstVowels\n\n", getVoiceName());
+        out.format("voice.%s.midF0.attribute = f0\r\n", getVoiceName());
+        out.format("voice.%s.midF0.attribute.format = (50,%%.0f)\r\n", getVoiceName());
+        out.format("voice.%s.midF0.predictFrom = firstVowels\r\n", getVoiceName());
+        out.format("voice.%s.midF0.applyTo = firstVowels\r\n\r\n", getVoiceName());
 
-        out.format("voice.%s.rightF0.model = cart\n", getVoiceName());
-        out.format("voice.%s.rightF0.data = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(), files.get(F0RIGHTTREE)
-                .getName());
-        out.format("voice.%s.rightF0.attribute = f0\n", getVoiceName());
-        out.format("voice.%s.rightF0.attribute.format = (100,%%.0f)\n", getVoiceName());
-        out.format("voice.%s.rightF0.predictFrom = firstVowels\n", getVoiceName());
-        out.format("voice.%s.rightF0.applyTo = lastVoicedSegments\n", getVoiceName());
+        out.format("voice.%s.rightF0.model = cart\r\n", getVoiceName());
+        out.format("voice.%s.rightF0.data = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(),
+                files.get(F0RIGHTTREE).getName());
+        out.format("voice.%s.rightF0.attribute = f0\r\n", getVoiceName());
+        out.format("voice.%s.rightF0.attribute.format = (100,%%.0f)\r\n", getVoiceName());
+        out.format("voice.%s.rightF0.predictFrom = firstVowels\r\n", getVoiceName());
+        out.format("voice.%s.rightF0.applyTo = lastVoicedSegments\r\n", getVoiceName());
 
         // vocalization support, if available:
         File vocalizationDir = new File(getProperty(db.VOCALIZATIONSDIR));
         if (vocalizationDir.exists()) {
-            out.format("\n# support for synthesis of vocalizations\n");
-            out.format("voice.%s.vocalizationSupport = true\n", getVoiceName());
-            out.format("voice.%s.vocalization.unitfile = MARY_BASE/lib/voices/%s/vocalization_units.mry\n", getVoiceName(),
+            out.format("\r\n# support for synthesis of vocalizations\r\n");
+            out.format("voice.%s.vocalizationSupport = true\r\n", getVoiceName());
+            out.format("voice.%s.vocalization.unitfile = MARY_BASE/lib/voices/%s/vocalization_units.mry\r\n", getVoiceName(),
                     getVoiceName());
-            out.format("voice.%s.vocalization.timeline = MARY_BASE/lib/voices/%s/vocalization_wave_timeline.mry\n",
+            out.format("voice.%s.vocalization.timeline = MARY_BASE/lib/voices/%s/vocalization_wave_timeline.mry\r\n",
                     getVoiceName(), getVoiceName());
-            out.format("voice.%s.vocalization.featurefile = MARY_BASE/lib/voices/%s/vocalization_features.mry\n", getVoiceName(),
-                    getVoiceName());
+            out.format("voice.%s.vocalization.featurefile = MARY_BASE/lib/voices/%s/vocalization_features.mry\r\n",
+                    getVoiceName(), getVoiceName());
             out.format(
-                    "voice.%s.vocalization.featureDefinitionFile = MARY_BASE/lib/voices/%s/vocalization_feature_definition.txt\n\n",
+                    "voice.%s.vocalization.featureDefinitionFile = MARY_BASE/lib/voices/%s/vocalization_feature_definition.txt\r\n\r\n",
                     getVoiceName(), getVoiceName());
 
-            out.format("voice.%s.f0ContourImposeSupport = false\n", getVoiceName());
+            out.format("voice.%s.f0ContourImposeSupport = false\r\n", getVoiceName());
             out.format(
-                    "voice.%s.vocalization.intonation.featureDefinitionFile = MARY_BASE/lib/voices/%s/vocalization_f0_feature_definition.txt\n",
+                    "voice.%s.vocalization.intonation.featureDefinitionFile = MARY_BASE/lib/voices/%s/vocalization_f0_feature_definition.txt\r\n",
                     getVoiceName(), getVoiceName());
-            out.format("voice.%s.vocalization.intonationfile = MARY_BASE/lib/voices/%s/vocalization_intonation.mry\n",
+            out.format("voice.%s.vocalization.intonationfile = MARY_BASE/lib/voices/%s/vocalization_intonation.mry\r\n",
                     getVoiceName(), getVoiceName());
-            out.format("voice.%s.vocalization.intonation.numberOfSuitableUnits = 10\n", getVoiceName());
+            out.format("voice.%s.vocalization.intonation.numberOfSuitableUnits = 10\r\n", getVoiceName());
         }
 
         out.close();
