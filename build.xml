@@ -101,11 +101,19 @@ THIS SOFTWARE.
     </junit>
     <echo>See log/TEST-*.txt and log/junittest.mary.log for details.</echo>
   </target>
-
-  <target name="javadoc" depends="compile">
+	
+  <target name="check-javadoc" depends="compile">
+    <property name="javadocdir" value="doc/javadoc"/>
+  	<uptodate targetfile="${javadocdir}/index.html" property="javadoc.uptodate">
+  	  <srcfiles dir="${src}">
+  	    <include name="marytts/**/*.java"/>
+  	  </srcfiles>
+    </uptodate>
+  </target>
+	
+  <target name="javadoc" depends="check-javadoc" unless="javadoc.uptodate">
     <!-- Create the javadoc documentation and put it into the -->
     <!-- javadoc directory -->
-    <property name="javadocdir" value="doc/javadoc"/>
     <mkdir dir="${javadocdir}"/>
     <javadoc packagenames="marytts.*"
              classpathref="project.classpath"
@@ -712,6 +720,7 @@ THIS SOFTWARE.
         </authors>
         <url>http://mary.dfki.de</url>
         <javaversion>1.5</javaversion>
+    	<run-privileged condition="izpack.windowsinstall"/>
         <webdir>http://mary.dfki.de/download</webdir>
     </info>
 
@@ -734,6 +743,7 @@ THIS SOFTWARE.
 		<res id="Unix_shortcutSpec.xml" src="build/shortcuts-linux.xml"/>
 		<res id="ProcessPanel.Spec.xml" src="build/processpanelspec.xml"/>
 		<res id="Installer.image" src="lib/icons/maryicon.png"/>
+    	<res id="TargetPanel.dir.windows" src="build/windowstargetdir.txt"/>
 	</resources>
 
     <!-- For creating shortcuts under Windows -->
