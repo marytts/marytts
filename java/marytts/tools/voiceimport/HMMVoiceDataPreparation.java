@@ -152,7 +152,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
          raw = true;
        } else {
          // check if the user has provided a raw directory  
-         if( !userRawDirName.isEmpty() ) {
+         if( !userRawDirName.equals("") ) {
            File userRawDir  = new File(userRawDirName);
          
            // check if user provided raw dir contains files
@@ -188,7 +188,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
        } else {   
          // check if the user has provided a utterance directory
          String userUttDirName = getProp(USERUTTDIR);
-         if( !userUttDirName.isEmpty() ) {
+         if( !userUttDirName.equals("") ) {
            // check if user provided utt dir contains files
            if( existWithFiles(userUttDirName) ) {
              // convert utt --> text (transcriptions festival format --> MARY format)

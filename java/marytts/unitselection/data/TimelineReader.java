@@ -218,8 +218,10 @@ public class TimelineReader
         try {
             bb.position(bb.position() + datagramSize);
         } catch (IllegalArgumentException iae) {
-            throw new IOException( "Failed to skip an expected datagram: "
-                    + "you may be dealing with a corrupted timeline file.", iae);
+            IOException e = new IOException( "Failed to skip an expected datagram: "
+                    + "you may be dealing with a corrupted timeline file.");
+            e.initCause(iae);
+            throw e;
         }
         
         return datagramDuration;
