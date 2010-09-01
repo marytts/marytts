@@ -47,9 +47,9 @@ public class VocalizationPitchmarker extends PraatPitchmarker {
         
         if (!(new File(getProp(PRAATPMDIR))).exists()) {
         
-            System.out.println("vocalisations/pm directory does not exist; ");
+            System.out.println("vocalizations/pm directory does not exist; ");
             if (!(new File(getProp(PRAATPMDIR))).mkdirs()) {
-                throw new Error("Could not create vocalisations/pm");
+                throw new Error("Could not create vocalizations/pm");
             }
             System.out.println("Created successfully.\n");
             
@@ -58,13 +58,13 @@ public class VocalizationPitchmarker extends PraatPitchmarker {
         try {
             String basenameFile = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"basenames.lst";
             if ( (new File(basenameFile)).exists() ) {
-                System.out.println("Loading basenames of vocalisations from '"+basenameFile+"' list...");
+                System.out.println("Loading basenames of vocalizations from '"+basenameFile+"' list...");
                 bnlVocalizations = new BasenameList(basenameFile);
                 System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in basename list");
             }
             else {
                 String vocalWavDir = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav";
-                System.out.println("Loading basenames of vocalisations from '"+vocalWavDir+"' directory...");
+                System.out.println("Loading basenames of vocalizations from '"+vocalWavDir+"' directory...");
                 bnlVocalizations = new BasenameList(vocalWavDir, ".wav");
                 System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in "+ vocalWavDir + " directory");
             }

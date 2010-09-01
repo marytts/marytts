@@ -63,9 +63,9 @@ public class VocalizationTimelineMaker extends VoiceImportComponent {
         String timelineDir = db.getProp(db.VOCALIZATIONSDIR) + File.separator + "files";
         if (!(new File(timelineDir)).exists()) {
         
-            System.out.println("vocalisations/files directory does not exist; ");
+            System.out.println("vocalizations/files directory does not exist; ");
             if (!(new File(timelineDir)).mkdirs()) {
-                throw new Error("Could not create vocalisations/files");
+                throw new Error("Could not create vocalizations/files");
             }
             System.out.println("Created successfully.\n");
             
@@ -74,13 +74,13 @@ public class VocalizationTimelineMaker extends VoiceImportComponent {
         try {
             String basenameFile = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"basenames.lst";
             if ( (new File(basenameFile)).exists() ) {
-                System.out.println("Loading basenames of vocalisations from '"+basenameFile+"' list...");
+                System.out.println("Loading basenames of vocalizations from '"+basenameFile+"' list...");
                 bnlVocalizations = new BasenameList(basenameFile);
                 System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in basename list");
             }
             else {
                 String vocalWavDir = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav";
-                System.out.println("Loading basenames of vocalisations from '"+vocalWavDir+"' directory...");
+                System.out.println("Loading basenames of vocalizations from '"+vocalWavDir+"' directory...");
                 bnlVocalizations = new BasenameList(vocalWavDir, ".wav");
                 System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in "+ vocalWavDir + " directory");
             }
