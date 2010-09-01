@@ -146,7 +146,7 @@ public class VocalizationF0PolyFeatureFileWriter extends VoiceImportComponent
 
         maryDir = new File( db.getProp(db.FILEDIR));
         if (!maryDir.exists()) {
-            maryDir.mkdir();
+            maryDir.mkdirs();
             System.out.println("Created the output directory [" + ( db.getProp(db.FILEDIR)) + "] to store the feature file." );
         }
         listenerUnits = new VocalizationUnitFileReader(getProp(UNITFILE));

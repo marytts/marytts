@@ -37,6 +37,8 @@ import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import com.twmacinta.util.MD5;
 
 import marytts.util.MaryUtils;
@@ -228,6 +230,15 @@ public class VoicePackager extends VoiceImportComponent {
         String[] properties = { CARTFILE, DURTREE, F0LEFTTREE, F0MIDTREE, F0RIGHTTREE, HALFPHONEFEATSAC, HALFPHONEFEATDEFAC,
                 HALFPHONEUNITS, JOINCOSTFEATS, JOINCOSTFEATDEF, PHONEFEATDEF, TIMELINE, BASETIMELINE, EXAMPLETEXTFILE };
 
+        // vocalization files, if available:
+        File vocalizationDir = new File(getProperty(db.VOCALIZATIONSDIR));
+        if (vocalizationDir.exists()) {
+            String[] vocalizationProperties = { "VocalizationFeatureFileWriter.featureDefinition",
+                    "VocalizationTimelineMaker.waveTimeline", "VocalizationFeatureFileWriter.featureFile",
+                    "VocalizationUnitfileWriter.unitFile", "VocalizationIntonationWriter.intonationTimeLineFile" };
+            properties = (String[]) ArrayUtils.addAll(properties, vocalizationProperties);
+        }
+
         for (String property : properties) {
             String fileName = getProperty(property);
             File file = new File(fileName);
@@ -397,6 +408,30 @@ public class VoicePackager extends VoiceImportComponent {
         out.format("voice.%s.rightF0.predictFrom = firstVowels\n", getVoiceName());
         out.format("voice.%s.rightF0.applyTo = lastVoicedSegments\n", getVoiceName());
 
+        // vocalization support, if available:
+        File vocalizationDir = new File(getProperty(db.VOCALIZATIONSDIR));
+        if (vocalizationDir.exists()) {
+            out.format("\n# support for synthesis of vocalizations\n");
+            out.format("voice.%s.vocalizationSupport = true\n", getVoiceName());
+            out.format("voice.%s.vocalization.unitfile = MARY_BASE/lib/voices/%s/vocalization_units.mry\n", getVoiceName(),
+                    getVoiceName());
+            out.format("voice.%s.vocalization.timeline = MARY_BASE/lib/voices/%s/vocalization_wave_timeline.mry\n",
+                    getVoiceName(), getVoiceName());
+            out.format("voice.%s.vocalization.featurefile = MARY_BASE/lib/voices/%s/vocalization_features.mry\n", getVoiceName(),
+                    getVoiceName());
+            out.format(
+                    "voice.%s.vocalization.featureDefinitionFile = MARY_BASE/lib/voices/%s/vocalization_feature_definition.txt\n\n",
+                    getVoiceName(), getVoiceName());
+
+            out.format("voice.%s.f0ContourImposeSupport = false\n", getVoiceName());
+            out.format(
+                    "voice.%s.vocalization.intonation.featureDefinitionFile = MARY_BASE/lib/voices/%s/vocalization_f0_feature_definition.txt\n",
+                    getVoiceName(), getVoiceName());
+            out.format("voice.%s.vocalization.intonationfile = MARY_BASE/lib/voices/%s/vocalization_intonation.mry\n",
+                    getVoiceName(), getVoiceName());
+            out.format("voice.%s.vocalization.intonation.numberOfSuitableUnits = 10\n", getVoiceName());
+        }
+
         out.close();
         return configFile;
     }
@@ -564,7 +599,7 @@ public class VoicePackager extends VoiceImportComponent {
 
         String value;
         if (component.equals("db")) {
-            value = db.getProp(property);
+            value = db.getProp(propertyName);
         } else {
             VoiceImportComponent voiceImportComponent = db.getComponent(component);
             value = voiceImportComponent.getProp(propertyName);

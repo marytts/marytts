@@ -91,7 +91,7 @@ public class VocalizationUnitfileWriter extends VoiceImportComponent
         if (!(new File(timelineDir)).exists()) {
         
             System.out.println("vocalisations/files directory does not exist; ");
-            if (!(new File(timelineDir)).mkdir()) {
+            if (!(new File(timelineDir)).mkdirs()) {
                 throw new Error("Could not create vocalisations/files");
             }
             System.out.println("Created successfully.\n");
@@ -143,7 +143,7 @@ public class VocalizationUnitfileWriter extends VoiceImportComponent
     {
         if (!unitlabelDir.exists()){
             System.out.print(LABELDIR+" "+getProp(LABELDIR)+" does not exist; ");
-            throw new Error("Could not create LABELDIR");
+            throw new Error("LABELDIR not found");
         }  
        
         System.out.println("Back channel unitfile writer started...");

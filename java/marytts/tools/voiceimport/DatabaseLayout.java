@@ -752,7 +752,6 @@ public class DatabaseLayout
         
         checkDir(PROMPTALLOPHONESDIR);
         checkDir(ALLOPHONESDIR);
-        checkDir(VOCALIZATIONSDIR);
         
         /* check text dir */  
         //checkDir(TEXTDIR);
