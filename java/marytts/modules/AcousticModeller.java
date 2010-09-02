@@ -188,7 +188,6 @@ public class AcousticModeller extends InternalModule {
         Model durationModel = voice.getDurationModel();
         durationModel.applyTo(elementLists.get(durationModel.getApplyTo()));
 
-        System.err.println("DOCUMENT BEFORE HACKSEGDUR:\n"+DomUtils.document2String(doc));
         // hack duration attributes:
         // IMPORTANT: this hack has to be done right after predict durations,
         // because the dur value is used by the HMMs, in case of prediction of f0.
