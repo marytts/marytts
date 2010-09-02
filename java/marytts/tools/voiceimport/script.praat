@@ -15,8 +15,14 @@ Subtract mean
 # (i.e., mixed noise+periodicity regions treated more likely as periodic)
 sound = Filter (pass Hann band)... 0 1000 100
 
+# check for available Pitch file:
+pitchFile$ = pointpFile$ - "PointProcess" + "Pitch"
+if fileReadable(pitchFile$)
+  pitch = Read from file... 'pitchFile$'
+else
 # Then determine pitch curve:
-pitch = To Pitch... 0 75 300
+  pitch = To Pitch... 0 minPitch maxPitch
+endif
 
 # Get some debug info: 
 min_f0 = Get minimum... 0 0 Hertz Parabolic
