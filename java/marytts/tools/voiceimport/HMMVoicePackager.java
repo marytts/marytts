@@ -120,10 +120,12 @@ public class HMMVoicePackager extends VoicePackager {
            props = new TreeMap<String,String>();
            
            String rootdir = db.getProp(db.ROOTDIR);
+           String voiceDescription = "A " + db.getProp(db.GENDER) + " " + db.getProp(db.LOCALE) + " Hidden semi-Markov model voice";
+           //"A [gender], [language (expressive)] Hidden semi-Markov model voice: (name of the speaker)."
            
            props.put(VOICETYPE, "hsmm");
            props.put(LICENSEURL, "http://mary.dfki.de/download/by-nd-3.0.html");
-           
+           props.put(VOICEDESCRIPTION, voiceDescription);
            props.put(alpha, "0.42");
            props.put(beta, "0.0");
            props.put(gamma, "0");
@@ -168,7 +170,7 @@ public class HMMVoicePackager extends VoicePackager {
                 + " (note that support for FDPSOLA and HNM are experimental!)");
         props2Help.put(LICENSEURL, "URL of the license agreement for this voice"
                 + " (<a href=\"http://creativecommons.org/licenses/by-nd/3.0/\">cc-by-nd</a> by default)");
-        
+        props2Help.put(VOICEDESCRIPTION, "short text describing this voice");
         props2Help.put(alpha, "Training parameter: Frequency wrapping coefficient. 0.42 for mel frequency.");
         props2Help.put(beta, "Postfiltering coefficient, -0.8 - 0.8");
         props2Help.put(gamma, "Training parameter: gamma=0 for MGC, gamma>0 for LSP");
