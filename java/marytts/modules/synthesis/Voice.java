@@ -300,11 +300,11 @@ public class Voice
                             && modelDataFileName.equals(getDurationModel().getDataFileName())) {
                         model = getDurationModel();
                         // set the attribute name, which is different to the already one set
-                        model.addTargetAttributeName(modelAttributeName);
+                        ((HMMModel)model).addTargetAttributeName(modelAttributeName);
                     } else if (getF0Model() != null && getF0Model() instanceof HMMModel && modelName.equalsIgnoreCase("duration")
                             && modelDataFileName.equals(getF0Model().getDataFileName())) {
                         model = getF0Model();
-                        model.addTargetAttributeName(modelAttributeName);
+                        ((HMMModel)model).addTargetAttributeName(modelAttributeName);
                     } else {
                         model = new HMMModel(symbolicFPM, modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
                                 modelFeatureName, modelPredictFrom, modelApplyTo);
