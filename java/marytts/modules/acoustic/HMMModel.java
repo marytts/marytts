@@ -3,6 +3,9 @@ package marytts.modules.acoustic;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.WeakHashMap;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
@@ -25,22 +28,41 @@ import marytts.util.MaryUtils;
 public class HMMModel extends Model {
     
     private HMMData htsData = null;
-    HTSUttModel um = null;
     private CartTreeSet cart;    
     private float fperiodsec;
     protected static Logger logger = MaryUtils.getLogger("HMMModel");    
-    protected double diffDuration;
     FeatureDefinition hmmFeatureDefinition;
-    
+    private boolean predictDuration = false;
+    private boolean predictF0 = false;
+    private Map<List<Element>, HTSUttModel> uttModels = new WeakHashMap<List<Element>, HTSUttModel>();
     
     public HMMModel(FeatureProcessorManager featureManager, String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
             String featureName, String predictFrom, String applyTo)
     throws MaryConfigurationException {
         super(featureManager, type, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
         load();
+        updateWhatToPredict();
+    }
+
+    
+    private void updateWhatToPredict() {
+        for(StringTokenizer st = new StringTokenizer(targetAttributeName); st.hasMoreTokens(); ) {
+            String s = st.nextToken();
+            if (s.equals("d")) {
+                predictDuration = true;
+            } else if (s.equals("f0")) {
+                predictF0 = true;
+            }
+        }
+    }
+
+    // in case the hmm model is reused this variable contain the targets
+    public void addTargetAttributeName(String str) {
+        // TODO: this is a hack, it needs cleaning up
+        targetAttributeName += " " + str;
+        updateWhatToPredict();
     }
     
-
     @Override
     protected void loadDataFile() throws IOException, MaryConfigurationException {
         if(htsData==null)
@@ -49,48 +71,37 @@ public class HMMModel extends Model {
         htsData.initHMMData(dataFile, targetAttributeName);
         cart = htsData.getCartTreeSet();                       
         fperiodsec = ((float)htsData.getFperiod() / (float)htsData.getRate());
-        diffDuration = 0.0;
         predictionFeatureNames = htsData.getFeatureDefinition().getFeatureNames();
     }
     
     @Override
     public void applyTo(List<Element> elements) {
-      logger.debug("predicting duration");  
-      if( targetAttributeName.contentEquals("d f0") || targetAttributeName.contentEquals("f0 d"))
-          predictAndSet(elements, elements);          
-      else { // then it needs to predict and set Duration
-             // targetAttributeName must be "d"          
-          diffDuration = 0;  
-          super.applyFromTo(elements, elements); // so here it will execute evaluate()      
-      }  
+        assert predictDuration : "This method should never be called if we are not predicting duration";
+        logger.debug("predicting duration");
+        HTSUttModel um = predictAndSetDuration(elements, elements);
+        if (predictF0) { // this same model will be used for predicting F0 -- remember um
+            uttModels.put(elements, um);
+        }
     }
     
     
     @Override
     public void applyFromTo(List<Element> predictFromElements, List<Element> applyToElements) {
-      logger.debug("predicting F0");  
-      if( targetAttributeName.contentEquals("d f0") || targetAttributeName.contentEquals("f0 d"))  
-        predictAndSet(predictFromElements, applyToElements);
-      else { // then it needs to predict and set F0 from the durations already set in predictFromElements
-             // targetAttributeName must be "f0" 
-          //set um with the duration in elements and call predictAndSetF0 
-          setUttModel(predictFromElements, applyToElements);
-          predictAndSetF0(applyToElements);
-      }
-          
-        
-    }
-    
-    private void predictAndSet(List<Element> predictFromElements, List<Element> applyToElements) {
-        if(um == null) {
-            predictAndSetDuration(predictFromElements, applyToElements); 
-        } else {
-            predictAndSetF0(applyToElements);
+        assert predictF0 : "This method should never be called if we are not predicting F0";
+        logger.debug("predicting F0");  
+        // Two possibilities: Either we have an uttModel due to a previous call to applyTo()
+        // (in which case the lookup key should be applyToElements),
+        // or we don't -- in which case we must create an uttModel from the XML.
+        HTSUttModel um = uttModels.get(applyToElements);
+        if (um == null) {
+            um = createUttModel(predictFromElements, applyToElements);
         }
+        assert um != null;
+        predictAndSetF0(applyToElements, um);
     }
     
     
-    private void predictAndSetDuration(List<Element> predictFromElements, List<Element> applyToElements){
+    private HTSUttModel predictAndSetDuration(List<Element> predictFromElements, List<Element> applyToElements){
         int i, k, s, t, mstate, frame, durInFrames, durStateInFrames, numVoicedInModel;
         HTSModel m;
         try {     
@@ -98,7 +109,7 @@ public class HMMModel extends Model {
           List<Element> predictorElements = predictFromElements;        
           List<Target> predictorTargets = getTargets(predictorElements);                
           FeatureVector fv;       
-          um = new HTSUttModel();                
+          HTSUttModel um = new HTSUttModel();                
           FeatureDefinition feaDef = htsData.getFeatureDefinition();
           float duration;       
           double diffdurOld = 0.0;
@@ -160,16 +171,17 @@ public class HMMModel extends Model {
 
             // set the new attribute value:
             element.setAttribute(durAttributeName, formattedTargetValue);
-            
           }
+          return um;
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
          }
+        return null;
         
     }
     
-    private void predictAndSetF0(List<Element> applyToElements){
+    private void predictAndSetF0(List<Element> applyToElements, HTSUttModel um) {
       int i, k, s, t, mstate, frame, numVoicedInModel;
       HTSModel m;
       try {
@@ -231,7 +243,7 @@ public class HMMModel extends Model {
         
     }
     
-    private void setUttModel(List<Element> predictFromElements, List<Element> applyToElements){
+    private HTSUttModel createUttModel(List<Element> predictFromElements, List<Element> applyToElements){
         int i, k, s, t, mstate, frame, durInFrames, durStateInFrames, numVoicedInModel;
         HTSModel m;
         try {     
@@ -239,7 +251,7 @@ public class HMMModel extends Model {
           List<Element> predictorElements = predictFromElements;        
           List<Target> predictorTargets = getTargets(predictorElements);                
           FeatureVector fv;       
-          um = new HTSUttModel();                
+          HTSUttModel um = new HTSUttModel();                
           FeatureDefinition feaDef = htsData.getFeatureDefinition();
           float duration;       
           double diffdurOld = 0.0;
@@ -286,11 +298,12 @@ public class HMMModel extends Model {
                   um.setLf0Frame(um.getLf0Frame() +1);     
             }           
           }
+          return um;
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
          }
-
+        return null;
     }
     
 
@@ -300,25 +313,7 @@ public class HMMModel extends Model {
      */
     @Override
     protected float evaluate(Target target) { 
-        
-        FeatureVector fv;                
-        double diffdurNew = 0.0;       
-        float durSec = 0;
-       
-        HTSModel m = new HTSModel(cart.getNumStates());
-        int i;
-        try {
-            m.setTotalDur(0);
-            fv = target.getFeatureVector();            
-            diffdurNew = cart.searchDurInCartTree(m, fv, htsData, diffDuration);           
-            durSec = (fperiodsec * m.getTotalDur());  // Duration in seconds
-            diffDuration = diffdurNew;
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }    
-        return durSec;    
-            
+        throw new RuntimeException("This method should never be called");
     }
     
 

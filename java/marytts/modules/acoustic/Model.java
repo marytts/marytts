@@ -268,10 +268,7 @@ public abstract class Model {
         return targetAttributeName;
     }
     
-    // in case the hmm model is reused this variable contain the targets
-    public void addTargetAttributeName(String str) {
-        targetAttributeName += " " + str;
-    }
+
 
     /**
      * @return the key of Element Lists from which to predict with this Model

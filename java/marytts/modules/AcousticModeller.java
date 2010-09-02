@@ -53,6 +53,7 @@ import marytts.server.MaryProperties;
 import marytts.unitselection.select.UnitSelector;
 
 import marytts.util.MaryUtils;
+import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 
 /**
@@ -63,7 +64,6 @@ import marytts.util.dom.MaryDomUtils;
  */
 public class AcousticModeller extends InternalModule {
 
-    private Map<String, List<Element>> elementLists;
 
     // three constructors adapted from DummyAllophones2AcoustParams (used if this is in modules.classes.list):
 
@@ -173,7 +173,7 @@ public class AcousticModeller extends InternalModule {
          */
 
         // parse the MaryXML Document to populate Lists of relevant Elements:
-        parseDocument(doc);
+        Map<String, List<Element>> elementLists = parseDocument(doc);
 
         // unpack elementLists from Map:
         // these are no longer needed because the Models now have predictFrom and applyTo information, which default to "segments"
@@ -188,6 +188,7 @@ public class AcousticModeller extends InternalModule {
         Model durationModel = voice.getDurationModel();
         durationModel.applyTo(elementLists.get(durationModel.getApplyTo()));
 
+        System.err.println("DOCUMENT BEFORE HACKSEGDUR:\n"+DomUtils.document2String(doc));
         // hack duration attributes:
         // IMPORTANT: this hack has to be done right after predict durations,
         // because the dur value is used by the HMMs, in case of prediction of f0.
@@ -257,10 +258,10 @@ public class AcousticModeller extends InternalModule {
      * 
      * @param doc
      */
-    private void parseDocument(Document doc) {
+    private Map<String, List<Element>> parseDocument(Document doc) {
 
         // initialize Element Lists:
-        elementLists = new HashMap<String, List<Element>>();
+        Map<String, List<Element>> elementLists = new HashMap<String, List<Element>>();
         List<Element> segments = new ArrayList<Element>();
         List<Element> boundaries = new ArrayList<Element>();
         List<Element> firstVoicedSegments = new ArrayList<Element>();
@@ -339,6 +340,7 @@ public class AcousticModeller extends InternalModule {
         elementLists.put("firstVowels", firstVowels);
         elementLists.put("lastVoicedSegments", lastVoicedSegments);
         elementLists.put("boundaries", boundaries);
+        return elementLists;
     }
 
 }
