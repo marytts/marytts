@@ -37,6 +37,11 @@
 			<attribute name="javadoc_location" value="http://jakarta.apache.org/oro/api/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="java/commons-io-1.4.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://commons.apache.org/io/api-release/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="build/standalone-compiler.jar"/>
 	<classpathentry kind="lib" path="java/commons-collections-3.2.1.jar"/>

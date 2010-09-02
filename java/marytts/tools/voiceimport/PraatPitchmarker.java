@@ -19,15 +19,16 @@
  */
 package marytts.tools.voiceimport;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.InputStream;
+import java.io.Writer;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import org.apache.commons.io.IOUtils;
 
 import marytts.util.MaryUtils;
 import marytts.util.data.text.PraatTextfileDoubleDataSource;
@@ -234,45 +235,11 @@ public class PraatPitchmarker extends VoiceImportComponent
             dir.mkdir();
         }
         
-        // script.praat is provided as template. Perhaps it could be used instead of hardcoding the following:
-        File script = new File(tmpScript);
-        
-        if (script.exists()) script.delete();
-        PrintWriter toScript = new PrintWriter(new FileWriter(script));
-        // use Praat form to provide ARGV (NOTE: these must be explicitly given during call to Praat!)
-        toScript.println("form Provide arguments");
-        toScript.println("  sentence wavFile input.wav");
-        toScript.println("  sentence pointpFile output.PointProcess");
-        toScript.println("  real minPitch 75");
-        toScript.println("  real maxPitch 600");
-        toScript.println("endform");
-        toScript.println("Read from file... 'wavFile$'");
-        // Remove DC offset, if present:
-        toScript.println("Subtract mean");
-        // First, low-pass filter the speech signal to make it more robust against noise
-        // (i.e., mixed noise+periodicity regions treated more likely as periodic)
-        toScript.println("sound = Filter (pass Hann band)... 0 1000 100");
-        // check for available Pitch file:
-        toScript.println("pitchFile$ = pointpFile$ - \"PointProcess\" + \"Pitch\"");
-        toScript.println("if fileReadable(pitchFile$)");
-        toScript.println("  pitch = Read from file... 'pitchFile$'");
-        toScript.println("else");
-        // Then determine pitch curve:
-        toScript.println("  pitch = To Pitch... 0 minPitch maxPitch");
-        toScript.println("endif");
-        // Get some debug info:
-        toScript.println("min_f0 = Get minimum... 0 0 Hertz Parabolic");
-        toScript.println("max_f0 = Get maximum... 0 0 Hertz Parabolic");
-        // And convert to pitch marks:
-        toScript.println("plus sound");
-        toScript.println("To PointProcess (cc)");
-        // Fill in 100 Hz pseudo-pitchmarks in unvoiced regions:
-        toScript.println("Voice... 0.01 0.02000000001");
-        toScript.println("Write to short text file... 'pointpFile$'");
-        toScript.println("lastSlash = rindex(wavFile$, \"/\")");
-        toScript.println("baseName$ = right$(wavFile$, length(wavFile$) - lastSlash) - \".wav\"");
-        toScript.println("printline 'baseName$'   f0 range: 'min_f0:0' - 'max_f0:0' Hz");
-        toScript.close();
+        // script.praat is provided as template.
+        InputStream scriptResource = getClass().getResourceAsStream("script.praat");
+        FileWriter scriptWriter = new FileWriter(tmpScript);
+        IOUtils.copy(scriptResource, scriptWriter);
+        scriptWriter.close();
         
         System.out.println("Running Praat as: "+getProp(COMMAND)+" "+tmpScript+" <WavFile> <PointProcessFile> "+getProp(MINPITCH)+" "+getProp(MAXPITCH));
         for ( int i = 0; i < baseNameArray.length; i++ ) {

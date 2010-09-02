@@ -416,12 +416,13 @@ THIS SOFTWARE.
                        marytts/tools/voiceimport/*.config
                        marytts/tools/voiceimport/*.png
                        marytts/tools/voiceimport/*.html
+                       marytts/tools/voiceimport/script.praat
                        marytts/tools/analysis/TranscriptionAligner.class">
         <manifest>
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Main-Class"
          value="marytts.tools.voiceimport.DatabaseImportMain"/>
-        <attribute name="Class-Path" value="maryclient.jar mary-common.jar signalproc.jar log4j-1.2.15.jar swing-layout-1.0.jar Jama-1.0.2.jar Jampack.jar jakarta-oro-2.0.8.jar fast-md5.jar commons-lang-2.4.jar"/>
+        <attribute name="Class-Path" value="maryclient.jar mary-common.jar signalproc.jar log4j-1.2.15.jar swing-layout-1.0.jar Jama-1.0.2.jar Jampack.jar jakarta-oro-2.0.8.jar fast-md5.jar commons-lang-2.4.jar commons-io-1.4.jar"/>
         </manifest>
         </jar>
   </target>
@@ -912,6 +913,7 @@ This component includes GPL'ed code and is thus shipped under the GPL 3.
 						java/transcription-tool.jar,
                         java/redstart.jar,
                         java/voiceimport.jar,
+                        java/commons-io-1.4.jar,
     					lib/external/hts/**,
                         lib/external/check_install_external_programs.sh,
                         lib/external/ehmm.tar.gz"/>
