@@ -24,14 +24,15 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Writer;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import marytts.util.MaryUtils;
 import marytts.util.data.text.PraatTextfileDoubleDataSource;
+import marytts.util.math.ArrayUtils;
 
 
 public class PraatPitchmarker extends VoiceImportComponent
@@ -198,11 +199,11 @@ public class PraatPitchmarker extends VoiceImportComponent
         return pmOut;
     }
     
+    @Deprecated
     protected boolean praatPitchmarks(String basename) throws IOException
     {
         String wavFilename = new File(getProp(WAVEDIR) + basename + db.getProp(db.WAVEXT)).getAbsolutePath();
         String pointprocessFilename = getProp(PRAATPMDIR)+basename+pointpExt;
-        String pmFilename = getProp(PRAATPMDIR) + basename + db.getProp(PMEXT);
 
         String strTmp = getProp(COMMAND)+" "+tmpScript+" "+wavFilename+" "+pointprocessFilename+" "+getProp(MINPITCH)+" "+getProp(MAXPITCH);
         
@@ -210,20 +211,34 @@ public class PraatPitchmarker extends VoiceImportComponent
             strTmp = "cmd.exe /c " + strTmp;
         
         General.launchProc(strTmp, "PraatPitchmarker", basename);
-        
+
         // Now convert the praat format into EST pm format:
-        double[] pm = new PraatTextfileDoubleDataSource(new FileReader(pointprocessFilename)).getAllData();
-        float[] pitchmarks = new float[pm.length];
-        for (int i=0; i<pitchmarks.length; i++) pitchmarks[i] = (float) pm[i];
-        new ESTTrackWriter(pitchmarks, null, "pitchmarks").doWriteAndClose(pmFilename, false, false);
+        estPitchmarks(basename);
 
         return true;
+    }
+    
+    /**
+     * Convert Praat PointProcess files to EST pm files
+     * 
+     * @param basename of files to process
+     * @throws IOException
+     */
+    protected void estPitchmarks(String basename) throws IOException {
+        String pointprocessFilename = getProp(PRAATPMDIR) + basename + pointpExt;
+        String pmFilename = getProp(PRAATPMDIR) + basename + db.getProp(PMEXT);
+        FileReader pmReader = new FileReader(pointprocessFilename);
+        double[] pm = new PraatTextfileDoubleDataSource(pmReader).getAllData();
+        pmReader.close();
+        float[] pitchmarks = ArrayUtils.copyDouble2Float(pm);
+        new ESTTrackWriter(pitchmarks, null, "pitchmarks").doWriteAndClose(pmFilename, false, false);
     }
     
     /**
      * The standard compute() method of the VoiceImportComponent interface.
      */
     public boolean compute() throws IOException {
+        percent = 0;
         
         String[] baseNameArray = bnl.getListAsArray();
         System.out.println( "Computing pitchmarks for " + baseNameArray.length + " utterances." );
@@ -241,10 +256,23 @@ public class PraatPitchmarker extends VoiceImportComponent
         IOUtils.copy(scriptResource, scriptWriter);
         scriptWriter.close();
         
-        System.out.println("Running Praat as: "+getProp(COMMAND)+" "+tmpScript+" <WavFile> <PointProcessFile> "+getProp(MINPITCH)+" "+getProp(MAXPITCH));
+        // ensure that basenames.lst is up to date:
+        String baseNameListFileName = db.getProp("db.basenameFile");
+        bnl.write(baseNameListFileName);
+
+        // run Praat process:
+        String praatCommand = StringUtils.join(new String[] { getProp(COMMAND), tmpScript, baseNameListFileName,
+                getProp(WAVEDIR), getProp(PRAATPMDIR), getProp(MINPITCH), getProp(MAXPITCH) }, " ");
+        System.out.println("Running Praat as: " + praatCommand);
+        if (MaryUtils.isWindows()) {
+            praatCommand = "cmd.exe /c " + praatCommand;
+        }
+        General.launchProc(praatCommand, getName(), "");
+        
+        // convert to EST format
         for ( int i = 0; i < baseNameArray.length; i++ ) {
             percent = 100*i/baseNameArray.length;
-            praatPitchmarks(baseNameArray[i]);
+            estPitchmarks(baseNameArray[i]);
         }
 
         return true;
@@ -257,6 +285,20 @@ public class PraatPitchmarker extends VoiceImportComponent
      */
     public int getProgress()
     {
+        // hack to get progress from Praat through file I/O:
+        File percentFile = new File(db.getProp(db.TEMPDIR) + "percent");
+        if (percentFile.exists()) {
+            percent = -1;
+            try {
+                FileReader percentReader = new FileReader(percentFile);
+                String percentString = IOUtils.toString(percentReader);
+                percent = Integer.parseInt(percentString);
+                percentReader.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
         return percent;
     }
 }
