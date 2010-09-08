@@ -21,6 +21,8 @@ package marytts.tests.junit4;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.BufferUnderflowException;
+import java.nio.ByteBuffer;
 import java.util.Random;
 
 import org.junit.AfterClass;
@@ -31,6 +33,7 @@ import org.junit.Test;
 import marytts.tools.voiceimport.TimelineWriter;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;
+import marytts.util.Pair;
 
 /**
  * Provides the actual timeline test case for the timeline reading/writing symmetry.
@@ -123,30 +126,35 @@ public class TimelineTests extends TimelineReader {
     public void testSkip() throws IOException {
         System.out.println( "READ INDEX:" );
         tlr.getIndex().print();
-        
         /* Testing skip */
         System.out.println( "Testing skip..." );
         Datagram[] readDatagrams = new Datagram[NUMDATAGRAMS];
         long timeNow = 0;
-        long timeBefore = 0l;
-        tlr.timeline.position(tlr.datagramsBytePos);
-        int byteNow = tlr.timeline.position();
+        long timeBefore = 0;
+        Pair<ByteBuffer, Long> p = tlr.getByteBufferAtTime(timeNow);
+        ByteBuffer bb = p.getFirst();
+        int byteNow = bb.position();
         int byteBefore = 0;
         for ( int i = 0; i < NUMDATAGRAMS; i++ ) {
             timeBefore = timeNow;
             byteBefore = byteNow;
-            long skippedDuration = tlr.skipNextDatagram(tlr.timeline);
-            timeNow += skippedDuration;
-            byteNow = tlr.timeline.position();
+            try {
+                long skippedDuration = tlr.skipNextDatagram(bb);
+                timeNow += skippedDuration;
+            } catch (BufferUnderflowException e) {
+                // reached end of byte buffer
+                break;
+            }
+            byteNow = bb.position();
             Assert.assertEquals( "Skipping fails on datagram [" + i + "].", (long)(origDatagrams[i].getLength()) + 12l, (byteNow - byteBefore) );
             Assert.assertEquals( "Time is out of sync after skipping datagram [" + i + "].", origDatagrams[i].getDuration(), (timeNow - timeBefore) );
         }
         
         /* Testing the EOF trap for skip */
         try {
-            tlr.skipNextDatagram(tlr.timeline);
-            Assert.fail("should have thrown IndexOutOfBoundsException to indicate end of datagram zone");
-        } catch(IndexOutOfBoundsException e) {
+            tlr.skipNextDatagram(bb);
+            Assert.fail("should have thrown BufferUnderflowException to indicate end of byte buffer");
+        } catch(BufferUnderflowException e) {
             // OK, expected
         }
 
@@ -160,21 +168,23 @@ public class TimelineTests extends TimelineReader {
         /* Testing get */
         System.out.println( "Testing get..." );
         Datagram[] readDatagrams = new Datagram[NUMDATAGRAMS];
-        
-        tlr.timeline.position(tlr.datagramsBytePos);
+        Pair<ByteBuffer, Long> p = tlr.getByteBufferAtTime(0);
+        ByteBuffer bb = p.getFirst();
         for ( int i = 0; i < NUMDATAGRAMS; i++ ) {
-            readDatagrams[i] = tlr.getNextDatagram(tlr.timeline);
+            readDatagrams[i] = tlr.getNextDatagram(bb);
+            if (readDatagrams[i] == null) {
+                System.err.println("Could read "+i+" datagrams");
+                break;
+            }
             Assert.assertTrue( "Datagram [" + i + "] is out of sync.", areEqual( origDatagrams[i].getData(), readDatagrams[i].getData() ) );
             Assert.assertEquals( "Time for datagram [" + i + "] is out of sync.", origDatagrams[i].getDuration(), readDatagrams[i].getDuration() );
         }
         /* Testing the EOF trap for get */
-        Assert.assertEquals( null, tlr.getNextDatagram(tlr.timeline) );
+        Assert.assertEquals( null, tlr.getNextDatagram(bb) );
     }
     
     @Test
     public void timeDrivenAccess() throws IOException {
-        tlr.timeline.position(tlr.datagramsBytePos);
-
         /* Testing the time-driven access */
         final int testIdx = NUMDATAGRAMS / 2;
         long onTime = 0l;
@@ -185,23 +195,18 @@ public class TimelineTests extends TimelineReader {
         long midTime = onTime + ((afterTime - onTime) / 2);
         
         System.out.println( "Testing gotoTime 1 ..." );
-        tlr.gotoTime(tlr.timeline, onTime, sampleRate );
-        // System.out.println( "Position after gotoTime 1 : ( " + tlr.getBytePointer() + " , " + tlr.getTimePointer() + " )" );
-        Datagram d = tlr.getNextDatagram(tlr.timeline);
+        ByteBuffer bb = tlr.getByteBufferAtTime(onTime).getFirst();
+        Datagram d = tlr.getNextDatagram(bb);
         Assert.assertTrue( d.equals( origDatagrams[testIdx] ) );
         
         System.out.println( "Testing gotoTime 2 ..." );
-        tlr.timeline.position(tlr.datagramsBytePos);
-        tlr.gotoTime(tlr.timeline, midTime, sampleRate );
-        // System.out.println( "Position after gotoTime 2 : ( " + tlr.getBytePointer() + " , " + tlr.getTimePointer() + " )" );
-        d = tlr.getNextDatagram(tlr.timeline);
+        bb = tlr.getByteBufferAtTime(midTime).getFirst();
+        d = tlr.getNextDatagram(bb);
         Assert.assertTrue( d.equals( origDatagrams[testIdx] ) );
         
         System.out.println( "Testing gotoTime 3 ..." );
-        tlr.timeline.position(tlr.datagramsBytePos);
-        tlr.gotoTime(tlr.timeline, afterTime, sampleRate );
-        // System.out.println( "Position after gotoTime 3 : ( " + tlr.getBytePointer() + " , " + tlr.getTimePointer() + " )" );
-         d = tlr.getNextDatagram(tlr.timeline);
+         bb = tlr.getByteBufferAtTime(afterTime).getFirst();
+         d = tlr.getNextDatagram(bb);
         Assert.assertTrue( d.equals( origDatagrams[testIdx+1] ) );
 
         /* Testing time-spanned access */
@@ -209,7 +214,6 @@ public class TimelineTests extends TimelineReader {
         Datagram[] D = null;
         long span = origDatagrams[testIdx].getDuration();
         long[] offset = new long[1];
-        tlr.timeline.position(tlr.datagramsBytePos);
         D = tlr.getDatagrams( onTime, span, sampleRate, offset );
         Assert.assertEquals( 1, D.length );
         Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
@@ -217,21 +221,18 @@ public class TimelineTests extends TimelineReader {
         
         System.out.println( "Testing getDatagrams  2 ..." );
         span = origDatagrams[testIdx].getDuration() / 2;
-        tlr.timeline.position(tlr.datagramsBytePos);
         D = tlr.getDatagrams( onTime, span, sampleRate );
         Assert.assertEquals( 1, D.length );
         Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
         
         System.out.println( "Testing getDatagrams  3 ..." );
         span = origDatagrams[testIdx].getDuration() / 2;
-        tlr.timeline.position(tlr.datagramsBytePos);
         D = tlr.getDatagrams( midTime, span, sampleRate );
         Assert.assertEquals( 1, D.length );
         Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
         
         System.out.println( "Testing getDatagrams  4 ..." );
         span = origDatagrams[testIdx].getDuration() + 1;
-        tlr.timeline.position(tlr.datagramsBytePos);
         D = tlr.getDatagrams( onTime, span, sampleRate );
         Assert.assertEquals( 2, D.length );
         Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
@@ -239,7 +240,6 @@ public class TimelineTests extends TimelineReader {
         
         System.out.println( "Testing getDatagrams  5 ..." );
         span = origDatagrams[testIdx].getDuration() + origDatagrams[testIdx+1].getDuration();
-        tlr.timeline.position(tlr.datagramsBytePos);
         D = tlr.getDatagrams( onTime, span, sampleRate );
         Assert.assertEquals( 2, D.length );
         Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
@@ -247,7 +247,6 @@ public class TimelineTests extends TimelineReader {
         
         System.out.println( "Testing getDatagrams  6 ..." );
         span = origDatagrams[testIdx].getDuration() + origDatagrams[testIdx+1].getDuration();
-        tlr.timeline.position(tlr.datagramsBytePos);
         D = tlr.getDatagrams( onTime+1, span, sampleRate, offset );
         Assert.assertEquals( 3, D.length );
         Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
@@ -257,7 +256,6 @@ public class TimelineTests extends TimelineReader {
         
         System.out.println( "Testing getDatagrams  7 ..." );
         span = origDatagrams[testIdx].getDuration() / 2;
-        tlr.timeline.position(tlr.datagramsBytePos);
         D = tlr.getDatagrams( midTime, 2, sampleRate, offset );
         Assert.assertEquals( 2, D.length );
         Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
@@ -267,10 +265,10 @@ public class TimelineTests extends TimelineReader {
         /* Testing time-spanned access with alternate sample rate */
         System.out.println( "Testing getDatagrams with alternate sample rate ..." );
         span = origDatagrams[testIdx].getDuration();
-        tlr.timeline.position(tlr.datagramsBytePos);
         D = tlr.getDatagrams( onTime*2, span*2, sampleRate/2 );
         Assert.assertEquals( 1, D.length );
-        Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
+        Assert.assertTrue( areEqual(D[0].getData(), origDatagrams[testIdx].getData()));
+        Assert.assertTrue( D[0].getDuration() != origDatagrams[testIdx].getDuration());
         
     }
 
