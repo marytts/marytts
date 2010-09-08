@@ -159,7 +159,7 @@ public class TimelineReader
         try {
             mappedBB = fc.map(FileChannel.MapMode.READ_ONLY, datagramsBytePos, timeIdxBytePos-datagramsBytePos);
             file.close(); // if map() succeeded, we don't need the file anymore.
-        } catch (OutOfMemoryError ome) {
+        } catch (IOException ome) {
             MaryUtils.getLogger("Timeline").warn("Cannot use memory mapping for timeline file '"+fileName+"' -- falling back to piecewise reading");
         }
         if (mappedBB == null) {
