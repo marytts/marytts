@@ -303,134 +303,134 @@ public class HMMVoicePackager extends VoicePackager {
             File in;            
             String voicename = db.getProp(db.VOICENAME).toLowerCase();
             //print the header
-            configOut.println("#Auto-generated config file for voice "+voicename+"\n");
+            configOut.println("#Auto-generated config file for voice "+voicename+"\r\n\r");
             //print name and version info
-             configOut.println("name = " + voicename);
-             
-             configOut.println(locale+"-voice.version = " + maryVersion + "\n");
-             configOut.println("voice.version = " + maryVersion + "\n");
-             
-             //print providing info
-             configOut.println("# Declare \"group names\" as component that other components can require.\n"+
-                        "# These correspond to abstract \"groups\" of which this component is an instance.\n"+
-                        "provides = \\\n         "+locale+"-voice \\\n" + "         hmm-voice\n");             
-             configOut.println("# List the dependencies, as a whitespace-separated list.\n"+
-                     "# For each required component, an optional minimum version and an optional\n"+
-                     "# download url can be given.\n"+
-                     "# We can require a component by name or by an abstract \"group name\"\n"+ 
-                     "# as listed under the \"provides\" element.\n"+
-                     "requires = \\\n   "+locale+" \\\n   marybase \n");
-             configOut.println("requires.marybase.version = " + maryVersion + "\n"+
-                     "requires."+locale+".version = " + maryVersion + "\n"+
-                     "requires."+locale+".download = http://mary.dfki.de/download/mary-install-4.x.x.jar\n"+
-                     "requires.hmm.version = " + maryVersion + "\n");
-                
-             //now follow the module settings
-              configOut.println("####################################################################\n"+
-                      "####################### Module settings  ###########################\n"+
-                      "####################################################################\n"+
-                      "# For keys ending in \".list\", values will be appended across config files,\n"+
-                      "# so that .list keys can occur in several config files.\n"+
-                      "# For all other keys, values will be copied to the global config, so\n"+
-                      "# keys should be unique across config files.\n");              
-              configOut.println("hmm.voices.list = \\\n   " + voicename + "\n");
-              
-              
-              String voiceHeader = "voice."+voicename;
-              
-              //wants-to-be-default value
-              configOut.println("# If this setting is not present, a default value of 0 is assumed.\n"+
-                      voiceHeader+".wants.to.be.default = 0\n");
-      
-              //properties of the voice
-              configOut.println("# Set your voice specifications\n"+
-                      voiceHeader+".gender = "+db.getProp(db.GENDER).toLowerCase()+"\n"+
-                      voiceHeader+".locale = "+ locale +"\n"+
-                      voiceHeader+".domain = "+db
-                      .getProp(db.DOMAIN).toLowerCase()+"\n"+
-                      voiceHeader+".samplingRate = "+db.getProp(db.SAMPLINGRATE)+"\n");
-              
-                     
-              //voice data
-              configOut.println("# HMM Voice-specific parameters \n" +
-                    "# parameters used during models training \n" +
-                    "# MGC: stage=gamma=0 alpha=0.42 linear gain (default) \n" +
-                    "# LSP: gamma>0  \n" +
-                    "#          LSP: gamma=1 alpha=0.0  linear gain/log gain \n" +
-                    "#      Mel-LSP: gamma=1 alpha=0.42 log gain \n" +
-                    "#      MGC-LSP: gamma=3 alpha=0.42 log gain \n" +
-                    voiceHeader+".alpha = " + getProp(alpha) + "\n" +
-                    voiceHeader+".gamma = " + getProp(gamma) + "\n" +
-                    voiceHeader+".logGain = " + getProp(logGain) + "\n");
-              
-              configOut.println("# Parameter beta for postfiltering \n" +
-                      voiceHeader+".beta = " + getProp(beta) + "\n"); 
-              
-              configOut.println("# HMM Voice-specific files\n# Information about trees\n"+
-                      voiceHeader+".Ftd = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(treeDurFile))+"\n"+
-                      voiceHeader+".Ftf = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(treeLf0File))+"\n"+
-                      voiceHeader+".Ftm = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(treeMcpFile)));
-              if( new File(rootDir + getProp(treeStrFile)).exists())
-                configOut.println(voiceHeader+".Fts = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(treeStrFile)));
-              configOut.println("\n# Information about means and variances PDFs \n"+
-                      voiceHeader+".Fmd = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfDurFile))+"\n"+
-                      voiceHeader+".Fmf = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfLf0File))+"\n"+
-                      voiceHeader+".Fmm = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfMcpFile)));
-              if( new File(rootDir + getProp(pdfStrFile)).exists())
-               configOut.println(voiceHeader+".Fms = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfStrFile)));
-              
-              configOut.println("\n# Information about Global Mean and Variance PDFs");
-              configOut.println(voiceHeader+".useGV = "+ getProp(useGV));
-              configOut.println(voiceHeader+".maxMgcGvIter = "+ getProp(maxMgcGvIter));
-              configOut.println(voiceHeader+".maxLf0GvIter = "+ getProp(maxLf0GvIter));
-              if( new File(rootDir + getProp(pdfLf0GVFile)).exists())
-                  configOut.println(voiceHeader+".Fgvf = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfLf0GVFile)));
-              if( new File(rootDir + getProp(pdfMcpGVFile)).exists())
-                  configOut.println(voiceHeader+".Fgvm = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfMcpGVFile)));
-              if( new File(rootDir + getProp(pdfStrGVFile)).exists())
-                  configOut.println(voiceHeader+".Fgvs = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfStrGVFile)));
-              
-              configOut.println("\n# A context features file example for start-up testing.\n" +
-                      voiceHeader+".FeaFile = MARY_BASE/lib/voices/"+voicename+"/"+ FileUtils.getFileName(featuresFileExample));
-              
-              configOut.println("\n# Tricky phones file in case there were problematic phones during training, empty otherwise.");
-              if(trickyPhones) {                 
-                 configOut.println(voiceHeader+".trickyPhonesFile = MARY_BASE/lib/voices/"+voicename+"/"+ FileUtils.getFileName(getProp(trickyPhonesFile)));
-              } else {
-                 configOut.println(voiceHeader+".trickyPhonesFile = ");  
-              }
-              
-              configOut.println("\n# Information about Mixed Excitation");
-              configOut.println(voiceHeader + ".useMixExc = " + getProp(useMixExc) + "\n");
-              if( new File(rootDir + getProp(treeStrFile)).exists()) {
-                configOut.println("# Filters for mixed excitation \n" +
-                                "# File format: one column with all the taps, where the number of taps per filter = numTaps/numFilters \n" +
-                                voiceHeader+".Fif = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(mixFiltersFile))+"\n"+
-                                "# Number of filters in bandpass bank\n" +
-                                voiceHeader+".in = " + getProp(numFilters) + "\n");                                 
-              }
-              
-              configOut.println("# Information about acousticModels (if true allows prosody modification specified in MARYXML input)");
-              configOut.println(voiceHeader+".useAcousticModels = "+ getProp(useAcousticModels) + "\n");
-                           
-              configOut.println("# acoustic models to use (HMM models or carts from other voices can be specified)\n" +
-                                "#(uncoment to allow prosody modification specified in MARYXML input)");
-              if( Boolean.valueOf(getProp(useAcousticModels)).booleanValue() )
-                configOut.println(voiceHeader+".acousticModels = duration F0\n");
-              else                           
-                configOut.println("#" + voiceHeader+".acousticModels = duration F0\n");
-        
-              configOut.println(voiceHeader+".duration.model = hmm\n"+
-                          voiceHeader+".duration.data = " + configFileNameLong + "\n"+
-                          voiceHeader+".duration.attribute = d\n\n" +
-                          voiceHeader+".F0.model = hmm\n"+
-                          voiceHeader+".F0.data = " + configFileNameLong + "\n"+
-                          voiceHeader+".F0.attribute = f0");                
-              
-              configOut.println();
-              
-              configOut.close();
-          
+            configOut.println("name = " + voicename + "\r");
+
+            configOut.println(locale+"-voice.version = " + maryVersion + "\r\n\r");
+            configOut.println("voice.version = " + maryVersion + "\r\n\r");
+
+            //print providing info
+            configOut.println("# Declare \"group names\" as component that other components can require.\r\n"+
+                    "# These correspond to abstract \"groups\" of which this component is an instance.\r\n"+
+                    "provides = \\\r\n         "+locale+"-voice \\\r\n" + "         hmm-voice\r\n\r");             
+            configOut.println("# List the dependencies, as a whitespace-separated list.\r\n"+
+                    "# For each required component, an optional minimum version and an optional\r\n"+
+                    "# download url can be given.\r\n"+
+                    "# We can require a component by name or by an abstract \"group name\"\r\n"+ 
+                    "# as listed under the \"provides\" element.\r\n"+
+                    "requires = \\\r\n   "+locale+" \\\r\n   marybase \r\n\r");
+            configOut.println("requires.marybase.version = " + maryVersion + "\r\n"+
+                    "requires."+locale+".version = " + maryVersion + "\r\n"+
+                    "requires."+locale+".download = http://mary.dfki.de/download/mary-install-4.x.x.jar\r\n"+
+                    "requires.hmm.version = " + maryVersion + "\r\n\r");
+
+            //now follow the module settings
+            configOut.println("####################################################################\r\n"+
+                    "####################### Module settings  ###########################\r\n"+
+                    "####################################################################\r\n"+
+                    "# For keys ending in \".list\", values will be appended across config files,\r\n"+
+                    "# so that .list keys can occur in several config files.\r\n"+
+                    "# For all other keys, values will be copied to the global config, so\r\n"+
+            "# keys should be unique across config files.\r\n\r");              
+            configOut.println("hmm.voices.list = \\\r\n   " + voicename + "\r\n\r");
+
+
+            String voiceHeader = "voice."+voicename;
+
+            //wants-to-be-default value
+            configOut.println("# If this setting is not present, a default value of 0 is assumed.\r\n"+
+                    voiceHeader+".wants.to.be.default = 0\r\n\r");
+
+            //properties of the voice
+            configOut.println("# Set your voice specifications\r\n"+
+                    voiceHeader+".gender = "+db.getProp(db.GENDER).toLowerCase()+"\r\n"+
+                    voiceHeader+".locale = "+ locale +"\r\n"+
+                    voiceHeader+".domain = "+db
+                    .getProp(db.DOMAIN).toLowerCase()+"\r\n"+
+                    voiceHeader+".samplingRate = "+db.getProp(db.SAMPLINGRATE)+"\r\n\r");
+
+
+            //voice data
+            configOut.println("# HMM Voice-specific parameters \r\n" +
+                    "# parameters used during models training \r\n" +
+                    "# MGC: stage=gamma=0 alpha=0.42 linear gain (default) \r\n" +
+                    "# LSP: gamma>0  \r\n" +
+                    "#          LSP: gamma=1 alpha=0.0  linear gain/log gain \r\n" +
+                    "#      Mel-LSP: gamma=1 alpha=0.42 log gain \r\n" +
+                    "#      MGC-LSP: gamma=3 alpha=0.42 log gain \r\n" +
+                    voiceHeader+".alpha = " + getProp(alpha) + "\r\n" +
+                    voiceHeader+".gamma = " + getProp(gamma) + "\r\n" +
+                    voiceHeader+".logGain = " + getProp(logGain) + "\r\n\r");
+
+            configOut.println("# Parameter beta for postfiltering \r\n" +
+                    voiceHeader+".beta = " + getProp(beta) + "\r\n\r"); 
+
+            configOut.println("# HMM Voice-specific files\r\n# Information about trees\r\n"+
+                    voiceHeader+".Ftd = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(treeDurFile))+"\r\n"+
+                    voiceHeader+".Ftf = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(treeLf0File))+"\r\n"+
+                    voiceHeader+".Ftm = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(treeMcpFile))+"\r");
+            if( new File(rootDir + getProp(treeStrFile)).exists())
+                configOut.println(voiceHeader+".Fts = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(treeStrFile))+"\r");
+            configOut.println("\r\n# Information about means and variances PDFs \r\n"+
+                    voiceHeader+".Fmd = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfDurFile))+"\r\n"+
+                    voiceHeader+".Fmf = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfLf0File))+"\r\n"+
+                    voiceHeader+".Fmm = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfMcpFile))+"\r");
+            if( new File(rootDir + getProp(pdfStrFile)).exists())
+                configOut.println(voiceHeader+".Fms = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfStrFile))+"\r");
+
+            configOut.println("\r\n# Information about Global Mean and Variance PDFs\r");
+            configOut.println(voiceHeader+".useGV = "+ getProp(useGV)+"\r");
+            configOut.println(voiceHeader+".maxMgcGvIter = "+ getProp(maxMgcGvIter)+"\r");
+            configOut.println(voiceHeader+".maxLf0GvIter = "+ getProp(maxLf0GvIter)+"\r");
+            if( new File(rootDir + getProp(pdfLf0GVFile)).exists())
+                configOut.println(voiceHeader+".Fgvf = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfLf0GVFile))+"\r");
+            if( new File(rootDir + getProp(pdfMcpGVFile)).exists())
+                configOut.println(voiceHeader+".Fgvm = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfMcpGVFile))+"\r");
+            if( new File(rootDir + getProp(pdfStrGVFile)).exists())
+                configOut.println(voiceHeader+".Fgvs = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfStrGVFile))+"\r");
+
+            configOut.println("\r\n# A context features file example for start-up testing.\r\n" +
+                    voiceHeader+".FeaFile = MARY_BASE/lib/voices/"+voicename+"/"+ FileUtils.getFileName(featuresFileExample)+"\r");
+
+            configOut.println("\r\n# Tricky phones file in case there were problematic phones during training, empty otherwise.\r");
+            if(trickyPhones) {                 
+                configOut.println(voiceHeader+".trickyPhonesFile = MARY_BASE/lib/voices/"+voicename+"/"+ FileUtils.getFileName(getProp(trickyPhonesFile))+"\r");
+            } else {
+                configOut.println(voiceHeader+".trickyPhonesFile = \r");  
+            }
+
+            configOut.println("\r\n# Information about Mixed Excitation\r");
+            configOut.println(voiceHeader + ".useMixExc = " + getProp(useMixExc) + "\r\n\r");
+            if( new File(rootDir + getProp(treeStrFile)).exists()) {
+                configOut.println("# Filters for mixed excitation \r\n" +
+                        "# File format: one column with all the taps, where the number of taps per filter = numTaps/numFilters \r\n" +
+                        voiceHeader+".Fif = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(mixFiltersFile))+"\r\n"+
+                        "# Number of filters in bandpass bank\r\n" +
+                        voiceHeader+".in = " + getProp(numFilters) + "\r\n\r");                                 
+            }
+
+            configOut.println("# Information about acousticModels (if true allows prosody modification specified in MARYXML input)\r");
+            configOut.println(voiceHeader+".useAcousticModels = "+ getProp(useAcousticModels) + "\r\n\r");
+
+            configOut.println("# acoustic models to use (HMM models or carts from other voices can be specified)\r\n" +
+            "#(uncoment to allow prosody modification specified in MARYXML input)\r");
+            if( Boolean.valueOf(getProp(useAcousticModels)).booleanValue() )
+                configOut.println(voiceHeader+".acousticModels = duration F0\r\n\r");
+            else                           
+                configOut.println("#" + voiceHeader+".acousticModels = duration F0\r\n\r");
+
+            configOut.println(voiceHeader+".duration.model = hmm\r\n"+
+                    voiceHeader+".duration.data = " + configFileNameLong + "\r\n"+
+                    voiceHeader+".duration.attribute = d\r\n\r\n" +
+                    voiceHeader+".F0.model = hmm\r\n"+
+                    voiceHeader+".F0.data = " + configFileNameLong + "\r\n"+
+                    voiceHeader+".F0.attribute = f0\r");                
+
+            configOut.println("\r");
+
+            configOut.close();
+
         return configFile;
     }
 }
