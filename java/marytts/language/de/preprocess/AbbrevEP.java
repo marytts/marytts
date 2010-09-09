@@ -361,7 +361,7 @@ public class AbbrevEP extends ExpansionPattern
                                  File.separator + "de" +
                                  File.separator + "preprocess" +
                                  File.separator + "abbrev.dat");
-        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(datafile)));
+        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(datafile), "UTF-8"));
         String line;
         while ((line = br.readLine()) != null) {
             if (Pattern.compile("^\\#").matcher(line).find() ||
