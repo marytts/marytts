@@ -41,7 +41,7 @@ import org.junit.Test;
 public class MaryCacheTest
 {
     private static MaryCache c;
-    private static File maryCacheFile = new File("testfiles-deleteme");
+    private static File maryCacheFile = new File("tmp/testfiles-deleteme");
     private static String inputtype = "TEXT";
     private static String outputtype = "RAWMARYXML";
     private static String locale = "de";
