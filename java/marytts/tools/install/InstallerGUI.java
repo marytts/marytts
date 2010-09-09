@@ -535,7 +535,7 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
     
     public void installSelectedLanguagesAndVoices()
     {
-        int downloadSize = 0;
+        long downloadSize = 0;
         List<ComponentDescription> toInstall = getComponentsSelectedForInstallation();
         if (toInstall.size() == 0) {
             JOptionPane.showMessageDialog(this, "You have not selected any installable components");
