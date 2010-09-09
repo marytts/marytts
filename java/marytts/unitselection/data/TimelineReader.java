@@ -339,6 +339,9 @@ public class TimelineReader
         } else { // we must load a chunk of data from the FileChannel
             long bytePos = idxFieldBefore.bytePtr;
             int bufSize = 0x10000; // 64k
+            if (bytePos + bufSize > timeIdxBytePos) { // must not read index data as datagrams
+                bufSize = (int) (timeIdxBytePos - bytePos);
+            }
             bb = ByteBuffer.allocate(bufSize);
             fileChannel.read(bb, bytePos); // this will block if another thread is currently reading from fileChannel
             bb.limit(bb.position());
