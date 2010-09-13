@@ -105,7 +105,7 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
     {
         //make sure that we have a featureweightsfile
         File featWeights = new File(getProp(WEIGHTSFILE));
-        if (!featWeights.exists()){
+        if (!featWeights.exists() || featWeights.length() == 0){
             try{
                 PrintWriter featWeightsOut =
                     new PrintWriter(
