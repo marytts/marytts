@@ -271,9 +271,10 @@ public class VocalizationSynthesizer {
         int fiVQ = fd.getFeatureIndex("voicequality");
         for (int i=0; i<noOfSuitableUnits; i++) {
             int unitIndex = suitableCandidates[i].unitIndex;
+            double unitCost = suitableCandidates[i].cost;
             FeatureVector fv = featureFileReader.getFeatureVector(unitIndex);
             StringBuilder sb = new StringBuilder();
-            sb.append("Candidate ").append(i).append(": ").append(unitIndex).append(" -- ");
+            sb.append("Candidate ").append(i).append(": ").append(unitIndex).append(" ( "+unitCost+" ) ").append(" -- ");
             byte bName = fv.getByteFeature(fiName);
             if (fv.getByteFeature(fiName) != 0 && targetFeatures.getByteFeature(fiName) != 0) {
                 sb.append(" ").append(fv.getFeatureAsString(fiName, fd));
@@ -295,9 +296,10 @@ public class VocalizationSynthesizer {
         }
         for (int i=0; i<noOfSuitableUnits; i++) {
             int unitIndex = suitableF0Candidates[i].unitIndex;
+            double unitCost = suitableF0Candidates[i].cost;
             FeatureVector fv = featureFileReader.getFeatureVector(unitIndex);
             StringBuilder sb = new StringBuilder();
-            sb.append("F0 Candidate ").append(i).append(": ").append(unitIndex).append(" -- ");
+            sb.append("F0 Candidate ").append(i).append(": ").append(unitIndex).append(" ( "+unitCost+" ) ").append(" -- ");
             byte bName = fv.getByteFeature(fiName);
             if (fv.getByteFeature(fiName) != 0 && targetFeatures.getByteFeature(fiName) != 0) {
                 sb.append(" ").append(fv.getFeatureAsString(fiName, fd));
@@ -508,7 +510,7 @@ public class VocalizationSynthesizer {
         int numberUnits = this.unitFileReader.getNumberOfUnits();
         double minCost = INFINITE;
         int index = 0;
-        for( int i=0; i<numberUnits; i++ ) {
+        for( int i=0; i<numberUnits-1; i++ ) {
             Unit singleUnit = this.unitFileReader.getUnit(i);
             double cost = vffrtCostFunction.cost(targetUnit, singleUnit);
             if( cost < minCost ) {
@@ -534,8 +536,8 @@ public class VocalizationSynthesizer {
         }
         
         int numberUnits = this.unitFileReader.getNumberOfUnits();
-        VocalizationCost[] vocalizationCost = new VocalizationCost[numberUnits];
-        for( int i=0; i<numberUnits; i++ ) {
+        VocalizationCost[] vocalizationCost = new VocalizationCost[numberUnits-1];
+        for( int i=0; i<numberUnits-1; i++ ) {
             Unit singleUnit = this.unitFileReader.getUnit(i);
             double cost = vffrtCostFunction.cost(targetUnit, singleUnit);
             vocalizationCost[i] = new VocalizationCost(i,cost);
