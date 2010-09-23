@@ -123,7 +123,7 @@ public class MaryCache
         st.close();
     }
     
-    public synchronized void insertText(String inputtype, String outputtype, String locale, String voice, String inputtext, String outputtext)
+    public void insertText(String inputtype, String outputtype, String locale, String voice, String inputtext, String outputtext)
     throws SQLException
     {
         insertText(inputtype, outputtype, locale, voice, null, null, null, inputtext, outputtext);
@@ -132,6 +132,12 @@ public class MaryCache
     public synchronized void insertText(String inputtype, String outputtype, String locale, String voice, String outputparams, String style, String effects, String inputtext, String outputtext)
     throws SQLException
     {
+        // Need to verify, here in the synchronized code, once again that really we don't have this entry already.
+        // If we do, we ignore this call.
+        if (lookupText(inputtype, outputtype, locale, voice, outputparams, style, effects, inputtext) != null) {
+            return;
+        }
+
         String query = "INSERT INTO MARYCACHE (inputtype, outputtype, locale, voice, outputparams, style, effects, inputtext, outputtext) VALUES ('"
             +inputtype+"','"+outputtype+"','"+locale+"','"+voice+"','"+outputparams+"','"+style+"','"+effects+"',?,?)";
 
@@ -143,7 +149,7 @@ public class MaryCache
         st.close();
     }
     
-    public synchronized void insertAudio(String inputtype, String locale, String voice, String inputtext, byte[] audio)
+    public void insertAudio(String inputtype, String locale, String voice, String inputtext, byte[] audio)
     throws SQLException
     {
         insertAudio(inputtype, locale, voice, null, null, null, inputtext, audio);
@@ -152,6 +158,12 @@ public class MaryCache
     public synchronized void insertAudio(String inputtype, String locale, String voice, String outputparams, String style, String effects, String inputtext, byte[] audio)
     throws SQLException
     {
+        // Need to verify, here in the synchronized code, once again that really we don't have this entry already.
+        // If we do, we ignore this call.
+        if (lookupAudio(inputtype, locale, voice, outputparams, style, effects, inputtext) != null) {
+            return;
+        }
+        
         String query = "INSERT INTO MARYCACHE (inputtype, outputtype, locale, voice, outputparams, style, effects, inputtext, outputaudio) VALUES('"
             +inputtype+"','AUDIO','"+locale+"','"+voice+"','"+outputparams+"','"+style+"','"+effects+"',?,?)";
 
@@ -162,7 +174,7 @@ public class MaryCache
         st.close();
     }
 
-    public synchronized String lookupText(String inputtype, String outputtype, String locale, String voice, String inputtext)
+    public String lookupText(String inputtype, String outputtype, String locale, String voice, String inputtext)
     throws SQLException
     {
         return lookupText(inputtype, outputtype, locale, voice, null, null, null, inputtext);
@@ -191,7 +203,7 @@ public class MaryCache
         return outputtext;
     }
     
-    public synchronized byte[] lookupAudio(String inputtype, String locale, String voice, String inputtext)
+    public byte[] lookupAudio(String inputtype, String locale, String voice, String inputtext)
     throws SQLException
     {
         return lookupAudio(inputtype, locale, voice, null, null, null, inputtext);
