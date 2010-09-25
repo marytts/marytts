@@ -678,6 +678,7 @@ public class DatabaseLayout
             someProps.put(PTCEXT,".ptc");
             someProps.put(MARYSERVERHOST, "localhost");
             someProps.put(MARYSERVERPORT, "59125");
+            someProps.put(MARYBASEVERSION, Version.specificationVersion());
         }        
         String rootDir = getProp(ROOTDIR);
         char lastChar = rootDir.charAt(rootDir.length()-1);
