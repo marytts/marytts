@@ -26,6 +26,9 @@ package marytts.util.math;
  */
 public class ArrayUtils
 {
+    /**
+     * @deprecated use {@link org.apache.commons.lang.ArrayUtils.clone} instead 
+     */
     public static double[] copy(double[] orig)
     {
         if (orig!=null)
@@ -34,8 +37,10 @@ public class ArrayUtils
             return null;
     }
     
-    
-    public static byte[] copy(byte[] orig)
+    /**
+     * @deprecated use {@link org.apache.commons.lang.ArrayUtils.clone} instead 
+     */
+   public static byte[] copy(byte[] orig)
     {
         if (orig!=null)
             return subarray(orig, 0, orig.length);
@@ -43,6 +48,9 @@ public class ArrayUtils
             return null;
     }
     
+   /**
+    * @deprecated use {@link org.apache.commons.lang.ArrayUtils.clone} instead 
+    */
     public static short[] copy(short[] orig)
     {
         if (orig!=null)
@@ -51,6 +59,9 @@ public class ArrayUtils
             return null;
     }
     
+    /**
+     * @deprecated use {@link org.apache.commons.lang.ArrayUtils.clone} instead 
+     */
     public static float[] copy(float[] orig)
     {
         if (orig!=null)
@@ -59,6 +70,9 @@ public class ArrayUtils
             return null;
     }
     
+    /**
+     * @deprecated use {@link org.apache.commons.lang.ArrayUtils.clone} instead 
+     */
     public static char[] copy(char[] orig)
     {
         if (orig!=null)
@@ -67,6 +81,9 @@ public class ArrayUtils
             return null;
     }
     
+    /**
+     * @deprecated use {@link org.apache.commons.lang.ArrayUtils.clone} instead 
+     */
     public static int[] copy(int[] orig)
     {
         if (orig!=null)
@@ -441,7 +458,11 @@ public class ArrayUtils
         return arrayOut;
     }
     
-    //Returns the vector [x y]
+    /**
+     * Returns the vector [x y]
+     * 
+     * @deprecated use {@link org.apache.commons.lang.ArrayUtils.addAll} instead
+     */
     public static float[] combine(float[] x, float[] y)
     {
         int len = 0;
@@ -470,7 +491,11 @@ public class ArrayUtils
         return z;
     }
     
-    //Returns the vector [x y]
+    /**
+     * Returns the vector [x y]
+     * 
+     * @deprecated use {@link org.apache.commons.lang.ArrayUtils.addAll} instead
+     */
     public static double[] combine(double[] x, double[] y)
     {
         int len = 0;
