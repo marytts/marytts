@@ -416,20 +416,21 @@ public class HntmProsodyModifier {
 
                             kStart = Math.max(0, synthesisStartInd);
                             
-                            if (!invert)
-                            {
-                                for (k=kStart; k<=Math.min(synthesisEndInd, noiseWaveformLenMod-1); k++)
-                                {
-                                    noisePartWaveformMod[k] += noisePartWaveform[k-kStart+analysisStartInd]*wgt[k-kStart];
-                                    winWgtSum[k] += wgt[k-kStart];
+                            for (k = kStart; k <= Math.min(synthesisEndInd, noiseWaveformLenMod - 1); k++) {
+                                int kIndex;
+                                if (invert) {
+                                    kIndex = analysisEndInd - (k - kStart);
+                                } else {
+                                    kIndex = k - kStart + analysisStartInd;
                                 }
-                            }
-                            else
-                            {
-                                for (k=kStart; k<=Math.min(synthesisEndInd, noiseWaveformLenMod-1); k++)
-                                {
-                                    noisePartWaveformMod[k] += noisePartWaveform[analysisEndInd-(k-kStart)]*wgt[k-kStart];
-                                    winWgtSum[k] += wgt[k-kStart];
+                                
+                                int noisePartWaveformSize = noisePartWaveform.length;
+                                
+                                try {
+                                    noisePartWaveformMod[k] += noisePartWaveform[kIndex] * wgt[k - kStart];
+                                } catch (ArrayIndexOutOfBoundsException e) {
+                                    // value of analysisEndInd seems to be 1 too large *sometimes*
+                                    noisePartWaveformMod[k] += noisePartWaveform[kIndex-1] * wgt[k - kStart];
                                 }
                             }
                         }
