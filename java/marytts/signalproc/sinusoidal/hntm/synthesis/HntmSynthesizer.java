@@ -96,6 +96,7 @@ public class HntmSynthesizer {
                                             HntmAnalyzerParams analysisParams,
                                             HntmSynthesizerParams synthesisParams)
     {
+        // this is never used:
         BasicProsodyModifierParams pmodParamsOrig = new BasicProsodyModifierParams(pmodParams);
         
         //Handle time and pitch scaling by adjusting synthesis times
@@ -132,7 +133,7 @@ public class HntmSynthesizer {
         else if (analysisParams.noiseModel == HntmAnalyzerParams.PSEUDO_HARMONIC)
             s.noisePart = NoisePartPseudoHarmonicSynthesizer.synthesize(prosodyModified.hntmSignal, analysisParams, synthesisParams, referenceFile);
         else if (analysisParams.noiseModel == HntmAnalyzerParams.WAVEFORM)
-            s.noisePart = NoisePartWaveformSynthesizer.synthesize(prosodyModified.hntmSignal, leftContexts, rightContexts, analysisParams);
+            s.noisePart = NoisePartWaveformSynthesizer.synthesize(prosodyModified.hntmSignal, prosodyModified.leftContexts, prosodyModified.rightContexts, analysisParams);
         else if (analysisParams.noiseModel == HntmAnalyzerParams.VOICEDNOISE_LPC_UNVOICEDNOISE_WAVEFORM ||
                  analysisParams.noiseModel == HntmAnalyzerParams.UNVOICEDNOISE_LPC_VOICEDNOISE_WAVEFORM 
                 )
