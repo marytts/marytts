@@ -288,6 +288,9 @@ public class HnmTimelineMaker extends VoiceImportComponent
                     else
                     {
                         PitchFileHeader pitchDetectorParams = new PitchFileHeader();
+                        // default values are problematic; for now, re-use the parameters from PraatPitchmarker:
+                        pitchDetectorParams.minimumF0 = Double.parseDouble(db.getProperty("PraatPitchmarker.minPitch"));
+                        pitchDetectorParams.maximumF0 = Double.parseDouble(db.getProperty("PraatPitchmarker.maxPitch"));
                         F0TrackerAutocorrelationHeuristic pitchDetector = new F0TrackerAutocorrelationHeuristic(pitchDetectorParams);
                         f0 = pitchDetector.pitchAnalyzeWavFile(wavFile, ptcFile);
                     }
