@@ -506,6 +506,7 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
             // 2. For every sentence, get the f0 contour
             double f0FrameSkip = 0.005; // 5 ms
             double[] rawLogF0 = getLogF0Contour(s, f0FrameSkip);
+            // TODO: act appropriately if rawLogF0 is null
             double[] logF0;
             if (interpolate) {
                 logF0 = getInterpolatedLogF0Contour(rawLogF0);
