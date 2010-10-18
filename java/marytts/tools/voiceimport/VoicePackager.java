@@ -231,7 +231,7 @@ public class VoicePackager extends VoiceImportComponent {
                 HALFPHONEUNITS, JOINCOSTFEATS, JOINCOSTFEATDEF, PHONEFEATDEF, TIMELINE, BASETIMELINE, EXAMPLETEXTFILE };
 
         // vocalization files, if available:
-        File vocalizationDir = new File(getProperty(db.VOCALIZATIONSDIR));
+        File vocalizationDir = new File(db.getProperty(db.VOCALIZATIONSDIR));
         if (vocalizationDir.exists()) {
             String[] vocalizationProperties = { "VocalizationFeatureFileWriter.featureDefinition",
                     "VocalizationTimelineMaker.waveTimeline", "VocalizationFeatureFileWriter.featureFile",
@@ -240,7 +240,12 @@ public class VoicePackager extends VoiceImportComponent {
         }
 
         for (String property : properties) {
-            String fileName = getProperty(property);
+            String fileName;
+            try {
+                fileName = db.getProperty(property);
+            } catch (NullPointerException e) {
+                throw e;
+            }
             File file = new File(fileName);
             files.put(property, file);
         }
@@ -309,11 +314,11 @@ public class VoicePackager extends VoiceImportComponent {
         out.format("voice.%s.samplingRate = %d\r\n\r\n", getVoiceName(), getVoiceSamplingRate());
 
         out.format("# Relative weight of the target cost function vs. the join cost function\r\n");
-        out.format("voice.bits3v2-hnm.viterbi.wTargetCosts = 0.7\r\n\r\n");
+        out.format("voice.%s.viterbi.wTargetCosts = 0.7\r\n\r\n", getVoiceName());
 
         out.format("# Beam size in dynamic programming: smaller => faster but worse quality.\r\n");
         out.format("# (set to -1 to disable beam search; very slow but best available quality)\r\n");
-        out.format("voice.bits3v2-hnm.viterbi.beamsize = 100\r\n\r\n");
+        out.format("voice.%s.viterbi.beamsize = 100\r\n\r\n", getVoiceName());
 
         // TODO surely this should be dependent on having locale == "de"?
         out.format("# Sampa mapping for German voices \r\n");
@@ -409,7 +414,7 @@ public class VoicePackager extends VoiceImportComponent {
         out.format("voice.%s.rightF0.applyTo = lastVoicedSegments\r\n", getVoiceName());
 
         // vocalization support, if available:
-        File vocalizationDir = new File(getProperty(db.VOCALIZATIONSDIR));
+        File vocalizationDir = new File(db.getProperty(db.VOCALIZATIONSDIR));
         if (vocalizationDir.exists()) {
             out.format("\r\n# support for synthesis of vocalizations\r\n");
             out.format("voice.%s.vocalizationSupport = true\r\n", getVoiceName());
@@ -581,33 +586,6 @@ public class VoicePackager extends VoiceImportComponent {
 
     public int getVoiceSamplingRate() {
         return Integer.parseInt(db.getProp(db.SAMPLINGRATE));
-    }
-
-    /**
-     * Get the value of a property from the voice building DatabaseLayout, or from a VoiceImportComponent.
-     * 
-     * @param propertyName
-     *            (e.g. "db.MARYBASE" or "VoicePackager.voiceType")
-     * @return the property value
-     * @throws NullPointerException
-     *             if <b>propertyName</b> cannot be resolved
-     */
-    public String getProperty(String propertyName) {
-        String[] propertyNameParts = propertyName.split("\\.");
-        String component = propertyNameParts[0];
-        String property = propertyNameParts[1];
-
-        String value;
-        if (component.equals("db")) {
-            value = db.getProp(propertyName);
-        } else {
-            VoiceImportComponent voiceImportComponent = db.getComponent(component);
-            value = voiceImportComponent.getProp(propertyName);
-        }
-        if (value == null) {
-            throw new NullPointerException(propertyName + " cannot be resolved!");
-        }
-        return value;
     }
 
     public String getMaryBase() {
