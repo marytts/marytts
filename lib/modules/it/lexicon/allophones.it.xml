@@ -2,9 +2,9 @@
 		features="vlng vheight vfront vrnd stressed ctype cplace cvox long">
 	<silence ph="_"/>
 
-	<vowel ph="i" vlng="s" vheight="1" vfront="1" vrnd="-" />
+	<vowel ph="i" vlng="s" vheight="1" vfront="1" vrnd="-" stressed="-"/>
 	
 
-	<consonant ph="p" ctype="s" cplace="l" cvox="-"/>
+	<consonant ph="p" ctype="s" cplace="l" cvox="-" long="-"/>
 	
 </allophones>
