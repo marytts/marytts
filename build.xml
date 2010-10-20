@@ -942,10 +942,8 @@ This component includes GPL'ed code and is thus shipped under the GPL 3.
     	</description>
     	            <file src="doc/javadoc" targetdir="$INSTALL_PATH/doc"/> <!-- Reccursive adding -->
     	            <fileset dir="." targetdir="$INSTALL_PATH"
-    	            includes="java/**/*.java,
-    					java/**/*.xsl,
-    					java/**/*.txt,
-    					java/**/*.html,
+    	            excludes="java/**/*.class"
+    	            includes="java/**,
     					src/**/*,
     					examples,
     					.project,
