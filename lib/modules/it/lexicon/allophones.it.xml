@@ -1,5 +1,5 @@
 <allophones name="sampa" xml:lang="it"
-		features="vlng vheight vfront vrnd ctype cplace cvox">
+		features="vlng vheight vfront vrnd stressed ctype cplace cvox long">
 	<silence ph="_"/>
 
 	<vowel ph="i" vlng="s" vheight="1" vfront="1" vrnd="-" />
