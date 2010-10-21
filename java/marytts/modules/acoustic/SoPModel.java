@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import javax.swing.text.Document;
-
 import org.w3c.dom.Element;
 
 import marytts.cart.io.DirectedGraphReader;
@@ -33,10 +31,10 @@ public class SoPModel extends Model {
     private Map<String, SoP> sopModels;
     
 
-    public SoPModel(FeatureProcessorManager featureManager, String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
+    public SoPModel(FeatureProcessorManager featureManager, String dataFileName, String targetAttributeName, String targetAttributeFormat,
             String featureName, String predictFrom, String applyTo)
     throws MaryConfigurationException {
-        super(featureManager, type, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+        super(featureManager, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
         load();
     }
     

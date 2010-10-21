@@ -255,7 +255,7 @@ public class Voice
             acousticModels = new HashMap<String, Model>();
 
             // add boundary "model" (which could of course be overwritten by appropriate properties in voice config):
-            acousticModels.put("boundary", new BoundaryModel(symbolicFPM, "boundary", null, "duration", null, null, null, "boundaries"));
+            acousticModels.put("boundary", new BoundaryModel(symbolicFPM, null, "duration", null, null, null, "boundaries"));
 
             StringTokenizer acousticModelStrings = new StringTokenizer(acousticModelsString);
             do {
@@ -284,12 +284,12 @@ public class Voice
                 Model model = null;
                 switch (possibleModelTypes) {
                 case CART:
-                    model = new CARTModel(symbolicFPM, modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                    model = new CARTModel(symbolicFPM, modelDataFileName, modelAttributeName, modelAttributeFormat,
                             modelFeatureName, modelPredictFrom, modelApplyTo);
                     break;
 
                 case SOP:
-                    model = new SoPModel(symbolicFPM, modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                    model = new SoPModel(symbolicFPM, modelDataFileName, modelAttributeName, modelAttributeFormat,
                             modelFeatureName, modelPredictFrom, modelApplyTo);
                     break;
 
@@ -306,7 +306,7 @@ public class Voice
                         model = getF0Model();
                         ((HMMModel)model).addTargetAttributeName(modelAttributeName);
                     } else {
-                        model = new HMMModel(symbolicFPM, modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                        model = new HMMModel(symbolicFPM, modelDataFileName, modelAttributeName, modelAttributeFormat,
                                 modelFeatureName, modelPredictFrom, modelApplyTo);
                     }
                     break;

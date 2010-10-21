@@ -36,9 +36,9 @@ import org.w3c.dom.Element;
  * 
  */
 public class BoundaryModel extends Model {
-    public BoundaryModel(FeatureProcessorManager featureManager, String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-            String featureName, String predictFrom, String applyTo) {
-        super(featureManager, type, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+    public BoundaryModel(FeatureProcessorManager featureManager, String dataFileName, String targetAttributeName,
+            String targetAttributeFormat, String featureName, String predictFrom, String applyTo) {
+        super(featureManager, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
     }
 
     @Override

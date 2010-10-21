@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.text.Document;
-
 import marytts.cart.io.DirectedGraphReader;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
@@ -28,6 +26,7 @@ import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.NodeIterator;
@@ -54,7 +53,7 @@ public class ProsodyElementHandler {
      * A method to modify prosody modifications
      * @param doc
      */
-    public void process(org.w3c.dom.Document doc) {
+    public void process(Document doc) {
         
         TreeWalker tw = MaryDomUtils.createTreeWalker(doc, MaryXML.PROSODY);
         Element e = null;
@@ -362,13 +361,17 @@ public class ProsodyElementHandler {
       
     }
 
-   
+    // we need a public getter with variable array size to call from unitselection.analysis
+    private double[] getF0Contour(NodeList nl) {
+        return getF0Contour(nl, F0CONTOUR_LENGTH); // Assume contour has F0CONTOUR_LENGTH frames
+    }
+    
     /**
      * get Continuous contour from "ph" nodelist
      * @param nl
      * @return
      */
-    private double[] getF0Contour(NodeList nl) {
+    public double[] getF0Contour(NodeList nl, int arraysize) {
         
       
         /**TODO
@@ -379,7 +382,7 @@ public class ProsodyElementHandler {
         Element firstElement =  (Element) nl.item(0);
         Element lastElement =  (Element) nl.item(nl.getLength()-1);
         
-        double[] contour = new double[F0CONTOUR_LENGTH]; // Assume contour has F0CONTOUR_LENGTH frames
+        double[] contour = new double[arraysize];
         Arrays.fill(contour, 0.0);
         
         double fEnd = (new Double(firstElement.getAttribute("end"))).doubleValue();
@@ -409,9 +412,9 @@ public class ProsodyElementHandler {
                 Integer percent = it.next();
                 Integer f0Value = f0Map.get(percent);
                 double partPhone = phoneDuration * (percent.doubleValue()/100.0);
-                int placeIndex  = (int) Math.floor((( ((phoneEndTime - phoneDuration) - fStart ) +  partPhone ) * F0CONTOUR_LENGTH ) / (double) duration );
-                if ( placeIndex >= F0CONTOUR_LENGTH ) {
-                    placeIndex = F0CONTOUR_LENGTH - 1;
+                int placeIndex  = (int) Math.floor((( ((phoneEndTime - phoneDuration) - fStart ) +  partPhone ) * arraysize ) / (double) duration );
+                if ( placeIndex >= arraysize ) {
+                    placeIndex = arraysize - 1;
                 }
                 contour[placeIndex] = f0Value.doubleValue();
             }
