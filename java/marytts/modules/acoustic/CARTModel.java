@@ -22,17 +22,11 @@ package marytts.modules.acoustic;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-
-import org.w3c.dom.Element;
 
 import marytts.cart.DirectedGraph;
 import marytts.cart.io.DirectedGraphReader;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
-import marytts.features.FeatureRegistry;
-import marytts.features.TargetFeatureComputer;
 import marytts.unitselection.select.Target;
 
 /**
@@ -44,30 +38,52 @@ import marytts.unitselection.select.Target;
 public class CARTModel extends Model {
     private DirectedGraph cart;
 
-    public CARTModel(FeatureProcessorManager featureManager, String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-            String featureName, String predictFrom, String applyTo)
-    throws MaryConfigurationException {
-        super(featureManager, type, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+    public CARTModel(FeatureProcessorManager featureManager, String dataFileName, String targetAttributeName,
+            String targetAttributeFormat, String featureName, String predictFrom, String applyTo)
+            throws MaryConfigurationException {
+        super(featureManager, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
         load();
     }
 
-
+    /**
+     * Load CART from file for this Model
+     */
     @Override
     protected void loadDataFile() throws IOException {
         this.cart = null;
         File cartFile = new File(dataFile);
         String cartFilePath = cartFile.getAbsolutePath();
         cart = new DirectedGraphReader().load(cartFilePath);
-        predictionFeatureNames = cart.getFeatureDefinition().getFeatureNames();
+        try {
+            predictionFeatureNames = cart.getFeatureDefinition().getFeatureNames();
+        } catch (NullPointerException e) {
+            throw new IOException("Could not get FeatureDefinition from CART", e);
+        }
+        if (predictionFeatureNames.length() == 0) { // isEmpty
+            throw new IOException("Could not get prediction feature names");
+        }
     }
 
     /**
      * Apply the CART to a Target to get its predicted value
      */
     @Override
-    protected float evaluate(Target target) {
-        float[] result = (float[]) cart.interpret(target);
-        float value = result[1]; // assuming result is [stdev, val]
+    protected float evaluate(Target target) throws Exception {
+        assert target != null;
+
+        float[] result = null;
+        try {
+            result = (float[]) cart.interpret(target);
+        } catch (IllegalArgumentException e) {
+            throw new Exception("Could not interpret target '" + target + "'", e);
+        }
+
+        float value = 0;
+        try {
+            value = result[1]; // assuming result is [stdev, val]
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new Exception("Could not handle predicted value: '" + value + "'", e);
+        }
         return value;
     }
 }

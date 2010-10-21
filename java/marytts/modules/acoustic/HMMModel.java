@@ -36,10 +36,10 @@ public class HMMModel extends Model {
     private boolean predictF0 = false;
     private Map<List<Element>, HTSUttModel> uttModels = new WeakHashMap<List<Element>, HTSUttModel>();
     
-    public HMMModel(FeatureProcessorManager featureManager, String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
+    public HMMModel(FeatureProcessorManager featureManager, String dataFileName, String targetAttributeName, String targetAttributeFormat,
             String featureName, String predictFrom, String applyTo)
     throws MaryConfigurationException {
-        super(featureManager, type, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+        super(featureManager, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
         load();
         updateWhatToPredict();
     }
@@ -309,7 +309,7 @@ public class HMMModel extends Model {
 
     
     /**
-     * Apply the CART to a Target to get its predicted value
+     * Apply the HMM to a Target to get its predicted value
      */
     @Override
     protected float evaluate(Target target) { 

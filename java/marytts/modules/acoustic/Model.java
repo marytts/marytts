@@ -23,6 +23,7 @@ package marytts.modules.acoustic;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.IllegalFormatException;
 import java.util.List;
 
 import marytts.datatypes.MaryXML;
@@ -45,9 +46,6 @@ import org.w3c.dom.Element;
  */
 public abstract class Model {
 
-    // TODO: is this needed?
-    protected String type;
-
     /**
      * The file name from which we will read our acoustic model.
      */
@@ -61,8 +59,8 @@ public abstract class Model {
     protected String targetAttributeFormat;
 
     /**
-     * The name of the predicted acoustic feature, if any.
-     * The feature processor that will be created from this will read the value from {@link #targetAttributeName}.
+     * The name of the predicted acoustic feature, if any. The feature processor that will be created from this will read the
+     * value from {@link #targetAttributeName}.
      */
     protected String featureName;
 
@@ -77,8 +75,8 @@ public abstract class Model {
     protected String predictionFeatureNames;
 
     /**
-     * The producer of feature vectors for the features in {@link #predictionFeatureNames}
-     * as computed by the feature processors in {@link #featureManager}.
+     * The producer of feature vectors for the features in {@link #predictionFeatureNames} as computed by the feature processors
+     * in {@link #featureManager}.
      */
     protected TargetFeatureComputer featureComputer;
 
@@ -88,10 +86,9 @@ public abstract class Model {
 
     /**
      * Model constructor
+     * 
      * @param featureManager
-     *           the feature processor manager used to compute the symbolic features used for prediction
-     * @param type
-     *            type of Model
+     *            the feature processor manager used to compute the symbolic features used for prediction
      * @param dataFileName
      *            data file for this Model
      * @param targetAttributeName
@@ -106,10 +103,9 @@ public abstract class Model {
      * @param applyTo
      *            key of Element Lists to which to apply values; "segments" by default
      */
-    protected Model(FeatureProcessorManager featureManager, String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-            String featureName, String predictFrom, String applyTo) {
+    protected Model(FeatureProcessorManager featureManager, String dataFileName, String targetAttributeName,
+            String targetAttributeFormat, String featureName, String predictFrom, String applyTo) {
         this.featureManager = featureManager;
-        this.type = type;
         this.dataFile = dataFileName;
         this.targetAttributeName = targetAttributeName;
         if (targetAttributeFormat == null) {
@@ -128,47 +124,52 @@ public abstract class Model {
     }
 
     /**
-     * Try to load this model and set the target feature computer appropriately.
-     * This must be called from the constructor of subclasses, so that
-     * the subclass implementation of loadDataFile() is visible.
-     * @throws MaryConfigurationException if the model cannot be set up properly.
+     * Try to load this model and set the target feature computer appropriately. This must be called from the constructor of
+     * subclasses, so that the subclass implementation of loadDataFile() is visible.
+     * 
+     * @throws MaryConfigurationException
+     *             if the model cannot be set up properly.
      */
     protected final void load() throws MaryConfigurationException {
         try {
             loadDataFile();
-        }  catch (IOException ioe) {
-            throw new MaryConfigurationException("Cannot load model file '"+dataFile+"'", ioe);
+        } catch (IOException ioe) {
+            throw new MaryConfigurationException("Cannot load model file '" + dataFile + "'", ioe);
         }
         setupFeatureComputer();
     }
 
-
     /**
      * Load dataFile for this model; only extension classes know how to do this
-     * @throws IOException if any files cannot be properly read
-     * @throws MaryConfigurationException if files can be read but contain problematic content
+     * 
+     * @throws IOException
+     *             if any files cannot be properly read
+     * @throws MaryConfigurationException
+     *             if files can be read but contain problematic content
      */
     protected abstract void loadDataFile() throws IOException, MaryConfigurationException;
 
-    
     protected final void setupFeatureComputer() throws MaryConfigurationException {
         try {
             featureComputer = FeatureRegistry.getTargetFeatureComputer(featureManager, predictionFeatureNames);
         } catch (IllegalArgumentException iae) {
             throw new MaryConfigurationException("Incompatible features between model and feature processor manager.\n"
-                    + "The model from "+dataFile+" needs the following features:\n"
-                    + predictionFeatureNames + "\n"
-                    + "The FeatureProcessorManager for locale "+featureManager.getLocale()+" ("+featureManager.getClass().toString()+") can produce the following features:\n"
+                    + "The model from " + dataFile + " needs the following features:\n" + predictionFeatureNames + "\n"
+                    + "The FeatureProcessorManager for locale " + featureManager.getLocale() + " ("
+                    + featureManager.getClass().toString() + ") can produce the following features:\n"
                     + featureManager.listFeatureProcessorNames(), iae);
         }
     }
-    
+
     /**
      * Apply this Model to a List of Elements, predicting from those same Elements
      * 
      * @param elements
+     *            Elements for which to predict the values
+     * @throws MaryConfigurationException
+     *             if attribute values cannot be predicted because of an invalid voice configuration
      */
-    public void applyTo(List<Element> elements) {
+    public void applyTo(List<Element> elements) throws MaryConfigurationException {
         applyFromTo(elements, elements);
     }
 
@@ -179,8 +180,12 @@ public abstract class Model {
      *            Elements from which to predict the values
      * @param applyToElements
      *            Elements to which to apply the values predicted by this Model
+     * @throws MaryConfigurationException
+     *             if attribute values cannot be predicted because of an invalid voice configuration
      */
-    public void applyFromTo(List<Element> predictFromElements, List<Element> applyToElements) {
+    public void applyFromTo(List<Element> predictFromElements, List<Element> applyToElements) throws MaryConfigurationException {
+        assert predictFromElements != null;
+        assert applyToElements != null;
         assert predictFromElements.size() == applyToElements.size();
 
         List<Target> predictFromTargets = getTargets(predictFromElements);
@@ -188,8 +193,13 @@ public abstract class Model {
         for (int i = 0; i < applyToElements.size(); i++) {
             Target target = predictFromTargets.get(i);
 
-            float targetValue = (float) evaluate(target);
-            
+            float targetValue;
+            try {
+                targetValue = (float) evaluate(target);
+            } catch (Exception e) {
+                throw new MaryConfigurationException("Could not predict value for target: '" + target + "'", e);
+            }
+
             Element element = applyToElements.get(i);
 
             // "evaluate" pseudo XPath syntax:
@@ -198,11 +208,17 @@ public abstract class Model {
             if (targetAttributeName.startsWith("@")) {
                 targetAttributeName = targetAttributeName.replaceFirst("@", "");
             }
-            
-            String formattedTargetValue = String.format(targetAttributeFormat, targetValue);
-            
-            //System.out.println("formattedTargetValue = " + formattedTargetValue);
-            
+
+            String formattedTargetValue = null;
+            try {
+                formattedTargetValue = String.format(targetAttributeFormat, targetValue);
+            } catch (Exception e) {
+                throw new MaryConfigurationException("Could not format target value '" + targetValue + "' using format '"
+                        + targetAttributeFormat + "'", e);
+            }
+
+            // System.out.println("formattedTargetValue = " + formattedTargetValue);
+
             // if the attribute already exists for this element, append targetValue:
             if (element.hasAttribute(targetAttributeName)) {
                 formattedTargetValue = element.getAttribute(targetAttributeName) + " " + formattedTargetValue;
@@ -242,11 +258,13 @@ public abstract class Model {
      * 
      * @param target
      * @return target value
+     * @throws Exception
+     *             if the target value cannot be predicted
      */
-    protected abstract float evaluate(Target target);
+    protected abstract float evaluate(Target target) throws Exception;
 
     // several getters:
-    
+
     /**
      * @return the dataFile name
      */
@@ -267,8 +285,6 @@ public abstract class Model {
     public String getTargetAttributeName() {
         return targetAttributeName;
     }
-    
-
 
     /**
      * @return the key of Element Lists from which to predict with this Model
