@@ -34,6 +34,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import marytts.exceptions.SynthesisException;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.PitchMarks;
@@ -342,7 +343,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
             //
         }
     }
-    
+
     /**
      * Functionally equivalent to {@link #process} (but with most of the cruft removed, which should make this easier to modify)
      * 
@@ -360,9 +361,11 @@ public class FDPSOLAProcessor extends VocalTractModifier {
      *            array of double arrays, matching <b>datagrams</b>, duration modification factors
      * @return modified audio as a DoubleDataSource audio stream
      * @author steiner
+     * @throws IOException
+     *             if frames cannot be processed
      */
     public DDSAudioInputStream processDecrufted(Datagram[][] datagrams, Datagram[] rightContexts, AudioFormat audioformat,
-            boolean[][] voicings, double[][] pitchScales, double[][] timeScales) {
+            boolean[][] voicings, double[][] pitchScales, double[][] timeScales) throws IOException {
 
         // obscure dependency on several fields:
         tscaleSingle = -1;
@@ -438,8 +441,8 @@ public class FDPSOLAProcessor extends VocalTractModifier {
                     // overwrite datagram duration:
                     datagrams[i][j].setDuration(samples.length);
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    // TODO how can we throw just e, but attach our message?
+                    throw new IOException("Frames could not be processed!", e);
                 }
             }
         }
