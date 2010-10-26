@@ -1038,6 +1038,41 @@ public class MathUtils {
         return c;        
     }
     
+    /**
+     * Returns the multiplicative inverse (element-wise 1/x) of an array
+     * 
+     * @param a
+     *            array to invert
+     * @return a new array of the same size as <b>a</b>, in which each element is equal to the multiplicative inverse of the
+     *         corresponding element in <b>a</b>
+     * @throws IllegalArgumentException
+     *             if the array is null
+     */
+    public static double[] invert(double[] a) throws IllegalArgumentException {
+        if (a == null) {
+            throw new IllegalArgumentException("Argument cannot be null");
+        }
+        double[] c = new double[a.length];
+        for (int i = 0; i < a.length; i++) {
+            c[i] = 1.0 / a[i];
+        }
+        return c;
+    }
+
+    /**
+     * @see #invert(double[])
+     */
+    public static float[] invert(float[] a) {
+        if (a == null) {
+            throw new IllegalArgumentException("Argument cannot be null");
+        }
+        float[] c = new float[a.length];
+        for (int i = 0; i < a.length; i++) {
+            c[i] = 1.0f / a[i];
+        }
+        return c;
+    }
+    
     public static ComplexNumber[] multiplyComplex(ComplexNumber[] a, double b)
     {
         ComplexNumber[] c = new ComplexNumber[a.length];
@@ -1272,7 +1307,7 @@ public class MathUtils {
     
     public static double[] divide(double[] a, double[] b)
     {
-        if (a.length != b.length) {
+        if (a == null || b == null || a.length != b.length) {
             throw new IllegalArgumentException("Arrays must be equal length");
         }
         double[] c = new double[a.length];
@@ -4816,6 +4851,22 @@ public class MathUtils {
                 return true;
         }
         
+        return false;
+    }
+    
+    /**
+     * Check whether x contains Infinity
+     * 
+     * @param x
+     *            the array to check
+     * @return true if at least one value in x is Infinity, false otherwise
+     */
+    public static boolean isAnyInfinity(double[] x) {
+        for (double value : x) {
+            if (Double.isInfinite(value)) {
+                return true;
+            }
+        }
         return false;
     }
     

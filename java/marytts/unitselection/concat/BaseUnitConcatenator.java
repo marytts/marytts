@@ -39,6 +39,7 @@ import java.util.List;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
+import marytts.unitselection.analysis.ProsodyAnalyzer;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.UnitDatabase;
@@ -65,7 +66,7 @@ public class BaseUnitConcatenator implements UnitConcatenator
     protected AudioFormat audioformat;
     protected double unitToTimelineSampleRateFactor;
     
-    
+    protected ProsodyAnalyzer prosodyAnalyzer;
 
     /**
      * Empty Constructor; need to call load(UnitDatabase) separately
@@ -118,6 +119,13 @@ public class BaseUnitConcatenator implements UnitConcatenator
         
         // 2. Determine target pitchmarks (= duration and f0) for each unit
         determineTargetPitchmarks(units);
+        
+        // 2a. Analyze SelectedUnits wrt predicted vs. realized prosody
+        try {
+            prosodyAnalyzer = new ProsodyAnalyzer(units, timeline.getSampleRate());
+        } catch (Exception e) {
+            throw new IOException("Could not analyze prosody!", e);
+        }
         
         // 3. Generate audio to match the target pitchmarks as closely as possible
         return generateAudioStream(units);
@@ -175,8 +183,9 @@ public class BaseUnitConcatenator implements UnitConcatenator
      * Generate audio to match the target pitchmarks as closely as possible.
      * @param units
      * @return
+     * @throws IOException 
      */
-    protected AudioInputStream generateAudioStream(List<SelectedUnit> units)
+    protected AudioInputStream generateAudioStream(List<SelectedUnit> units) throws IOException
     {
         LinkedList<Datagram> datagrams = new LinkedList<Datagram>();
         for (SelectedUnit unit : units) {
@@ -228,6 +237,7 @@ public class BaseUnitConcatenator implements UnitConcatenator
          * Set the array of to-be-realised pitchmarks for the realisation of the selected unit.
          * @param pitchmarks
          */
+        // TODO why is this never used?
         public void setPitchmarks(int[] pitchmarks)
         {
             this.pitchmarks = pitchmarks;
