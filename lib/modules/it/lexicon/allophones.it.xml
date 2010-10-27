@@ -1,10 +1,29 @@
 <allophones name="sampa" xml:lang="it"
-		features="vlng vheight vfront vrnd stressed ctype cplace cvox long">
-	<silence ph="_"/>
+	features="vheight vfront vrnd stressed ctype cplace cvox long">
 
-	<vowel ph="i" vlng="s" vheight="1" vfront="1" vrnd="-" stressed="-"/>
-	
+	<!--vheight:[1,4]; vfront:[1,3]; vrnd:(-,+); stressed:(-,+) -->
+	<!--ctype: consonant type: stop fricative affricative nasal liquid approximant -->
 
-	<consonant ph="p" ctype="s" cplace="l" cvox="-" long="-"/>
-	
+
+	<silence ph="_" />
+
+	<vowel ph="i" vheight="1" vfront="1" vrnd="-" stressed="-" />
+	<vowel ph="e" vheight="2" vfront="1" vrnd="-" stressed="-" />
+	<vowel ph="E" vheight="3" vfront="1" vrnd="-" stressed="-" />
+	<vowel ph="a" vheight="4" vfront="2" vrnd="-" stressed="-" />
+	<vowel ph="o" vheight="2" vfront="3" vrnd="+" stressed="-" />
+	<vowel ph="O" vheight="3" vfront="3" vrnd="+" stressed="-" />
+	<vowel ph="u" vheight="1" vfront="3" vrnd="+" stressed="-" />
+
+	<vowel ph="i1" vheight="1" vfront="1" vrnd="-" stressed="+" />
+	<vowel ph="e1" vheight="2" vfront="1" vrnd="-" stressed="+" />
+	<vowel ph="E1" vheight="3" vfront="1" vrnd="-" stressed="+" />
+	<vowel ph="a1" vheight="4" vfront="2" vrnd="-" stressed="+" />
+	<vowel ph="o1" vheight="2" vfront="3" vrnd="+" stressed="+" />
+	<vowel ph="O1" vheight="3" vfront="3" vrnd="+" stressed="+" />
+	<vowel ph="u1" vheight="1" vfront="3" vrnd="+" stressed="+" />
+
+	<consonant ph="p" ctype="s" cplace="l" cvox="-" long="-" />
+
+
 </allophones>
