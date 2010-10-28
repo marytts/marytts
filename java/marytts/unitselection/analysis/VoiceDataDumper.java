@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.BufferUnderflowException;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.server.MaryProperties;
@@ -89,7 +90,7 @@ public class VoiceDataDumper {
      * @return TimelineReader
      * @throws IOException
      */
-    protected TimelineReader loadAudioTimeline(String fileName) throws IOException {
+    protected TimelineReader loadAudioTimeline(String fileName) throws IOException, MaryConfigurationException {
         return new TimelineReader(fileName);
     }
 
@@ -105,7 +106,7 @@ public class VoiceDataDumper {
      * @throws IOException
      */
     protected void loadUnitDatabase(String audioTimelineFileName, String basenameTimelineFileName, String unitFileName)
-            throws IOException {
+            throws IOException, MaryConfigurationException {
         unitDB = new UnitDatabase();
         UnitFileReader unitFileReader = new UnitFileReader(unitFileName);
         TimelineReader audioTimelineReader = loadAudioTimeline(audioTimelineFileName);
@@ -120,7 +121,8 @@ public class VoiceDataDumper {
      *            to load
      * @throws IOException
      */
-    protected void loadFeatureFile(String fileName) throws IOException {
+    protected void loadFeatureFile(String fileName)
+    throws IOException, MaryConfigurationException {
         featureFileReader = new FeatureFileReader(fileName);
         featureDefinition = featureFileReader.getFeatureDefinition();
         phoneFeatureIndex = featureDefinition.getFeatureIndex("phone");

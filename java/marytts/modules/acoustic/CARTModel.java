@@ -49,7 +49,7 @@ public class CARTModel extends Model {
      * Load CART from file for this Model
      */
     @Override
-    protected void loadDataFile() throws IOException {
+    protected void loadDataFile() throws IOException, MaryConfigurationException {
         this.cart = null;
         File cartFile = new File(dataFile);
         String cartFilePath = cartFile.getAbsolutePath();

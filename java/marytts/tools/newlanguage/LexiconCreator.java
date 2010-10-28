@@ -44,6 +44,7 @@ import marytts.cart.CART;
 import marytts.cart.io.MaryCARTReader;
 import marytts.cart.io.MaryCARTWriter;
 import marytts.cart.io.WagonCARTWriter;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.AlignerTrainer;
 import marytts.fst.FSTLookup;
 import marytts.fst.TransducerTrie;
@@ -270,7 +271,7 @@ public class LexiconCreator
     }
     
     protected void testLTS()
-    throws IOException
+    throws IOException, MaryConfigurationException
     {
         List<String> testGraphemes = new ArrayList<String>();
         List<String> testAllophones = new ArrayList<String>();

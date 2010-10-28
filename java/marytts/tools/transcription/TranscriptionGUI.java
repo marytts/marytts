@@ -775,8 +775,13 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         if(phoneSetFile != null && loadTranscription && treeAbsolutePath == null){
             saveAsToFileActionPerformed(evt);
         }
-        if(treeAbsolutePath != null){
-            simplePanel.trainPredict(treeAbsolutePath);
+        if(treeAbsolutePath != null) {
+            try {
+                simplePanel.trainPredict(treeAbsolutePath);
+            } catch (Exception e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, e.getMessage()+" -- see console for details", "Problem occurred", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }//GEN-LAST:event_trainPredictActionPerformed
     

@@ -209,7 +209,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
      * train and predict module
      * @param treeAbsolutePath
      */
-    public void trainPredict(String treeAbsolutePath){
+    public void trainPredict(String treeAbsolutePath) throws MaryConfigurationException {
         Object[][] tableData = transcriptionModel.getData();
         boolean[] hasManualVerify = transcriptionModel.getManualVerifiedList();
         boolean[] hasCorrectSyntax = transcriptionModel.getCorrectSyntaxList();

@@ -35,6 +35,7 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.tools.voiceimport.BasenameList;
 import marytts.tools.voiceimport.DatabaseLayout;
 import marytts.tools.voiceimport.ESTTrackReader;
@@ -139,7 +140,8 @@ public class VocalizationUnitfileWriter extends VoiceImportComponent
         props2Help.put(UNITFILE, "file containing all phone units. Will be created by this module");           
     }
     
-    public boolean compute() throws IOException
+    @Override
+    public boolean compute() throws IOException, MaryConfigurationException
     {
         if (!unitlabelDir.exists()){
             System.out.print(LABELDIR+" "+getProp(LABELDIR)+" does not exist; ");

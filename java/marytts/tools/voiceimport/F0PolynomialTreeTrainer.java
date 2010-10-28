@@ -50,6 +50,7 @@ import marytts.cart.CART;
 import marytts.cart.DirectedGraph;
 import marytts.cart.io.DirectedGraphWriter;
 import marytts.cart.io.MaryCARTWriter;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
@@ -132,9 +133,9 @@ public class F0PolynomialTreeTrainer extends VoiceImportComponent
            props2Help.put(STOP, "the wagon stop criterion (min number of items in leaf)");
        }
    }
-  
-   
-    public boolean compute() throws IOException
+
+    @Override
+    public boolean compute() throws IOException, MaryConfigurationException
     {
         logger.info("F0 polynomial tree trainer started.");
 

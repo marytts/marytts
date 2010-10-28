@@ -39,9 +39,9 @@ public class FeatureArrayIndexerTest {
      * MAIN!
      * 
      * @param args
-     * @throws IOException
+     * @throws Exception
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         
         /* Load a target feature file */
         String feaFile = "/home/cl-home/sacha/disk/cmu_us_bdl_arctic/mary/targetFeatures.bin";

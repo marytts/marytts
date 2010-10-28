@@ -37,6 +37,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.unitselection.data.Unit;
 import marytts.util.data.MaryHeader;
 
@@ -72,7 +73,7 @@ public class VocalizationUnitFileReader
      * @param fileName the unit file to read
      * @throws IOException if a problem occurs while reading
      */
-    public VocalizationUnitFileReader( String fileName ) throws IOException 
+    public VocalizationUnitFileReader( String fileName ) throws IOException, MaryConfigurationException
     {
         load(fileName);
     }
@@ -82,7 +83,7 @@ public class VocalizationUnitFileReader
      * @param fileName the unit file to read
      * @throws IOException if a problem occurs while reading
      */
-    public void load(String fileName) throws IOException
+    public void load(String fileName) throws IOException, MaryConfigurationException
     {
         /* Open the file */
         DataInputStream dis = null;
@@ -95,9 +96,6 @@ public class VocalizationUnitFileReader
         try {
             /* Load the Mary header */
             hdr = new MaryHeader( dis );
-            if ( !hdr.isMaryHeader() ) {
-                throw new IOException( "File [" + fileName + "] is not a valid Mary format file." );
-            }
             if ( hdr.getType() != MaryHeader.LISTENERUNITS ) {
                 throw new RuntimeException( "File [" + fileName + "] is not a valid Mary Units file." );
             }

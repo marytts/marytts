@@ -70,7 +70,8 @@ public class TrainedLTS {
      * @throws IOException 
      * 
      */
-    public TrainedLTS(AllophoneSet aPhonSet, String treeFilename) throws IOException {
+    public TrainedLTS(AllophoneSet aPhonSet, String treeFilename)
+    throws IOException, MaryConfigurationException {
         this.allophoneSet = aPhonSet;
         this.loadTree(treeFilename);
     }
@@ -93,7 +94,7 @@ public class TrainedLTS {
      * @param treeFilename
      * @throws IOException
      */
-    public void loadTree(String treeFilename) throws IOException
+    public void loadTree(String treeFilename) throws IOException, MaryConfigurationException
     {
         MaryCARTReader cartReader = new MaryCARTReader();
         this.tree = cartReader.load(treeFilename);

@@ -43,6 +43,7 @@ import java.util.TreeMap;
 import javax.sound.sampled.AudioFormat;
 import javax.swing.JFrame;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
@@ -164,7 +165,8 @@ public class F0PolynomialFeatureFileWriter extends VoiceImportComponent
    }
   
    
-    public boolean compute() throws IOException
+    @Override
+    public boolean compute() throws IOException, MaryConfigurationException
     {
         logger.info("F0 polynomial feature file writer started.");
 

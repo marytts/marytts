@@ -26,6 +26,7 @@ import java.lang.annotation.Inherited;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
@@ -60,7 +61,8 @@ public class HnmVoiceDataDumper extends VoiceDataDumper {
      * Also set the audioFormat needed in {@link #getSamples(Datagram[])}
      */
     @Override
-    protected HnmTimelineReader loadAudioTimeline(String fileName) throws IOException {
+    protected HnmTimelineReader loadAudioTimeline(String fileName)
+    throws IOException, MaryConfigurationException {
         HnmTimelineReader audioTimeline = new HnmTimelineReader(fileName);
         int sampleRate = audioTimeline.getSampleRate();
         this.audioformat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, // encoding

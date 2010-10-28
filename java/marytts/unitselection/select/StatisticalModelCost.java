@@ -31,6 +31,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.ByteValuedFeatureProcessor;
 import marytts.features.MaryGenericFeatureProcessors;
 import marytts.modules.phonemiser.Allophone;
@@ -81,11 +82,15 @@ public class StatisticalModelCost implements StatisticalCostFunction
      * @param configPrefix the prefix for the (voice-specific) config entries
      * to use when looking up files to load.
      */
-    public void init(String configPrefix) throws IOException
+    public void init(String configPrefix) throws MaryConfigurationException
     {
-        String sCostFileName = MaryProperties.needFilename(configPrefix+".sCostFile");
-        sCostWeight = Float.parseFloat(MaryProperties.getProperty(configPrefix+".sCostWeight", "1.0"));
-        sCostReader = new SCostFileReader(sCostFileName);
+        try {
+            String sCostFileName = MaryProperties.needFilename(configPrefix+".sCostFile");
+            sCostWeight = Float.parseFloat(MaryProperties.getProperty(configPrefix+".sCostWeight", "1.0"));
+            sCostReader = new SCostFileReader(sCostFileName);
+        } catch (Exception e) {
+            throw new MaryConfigurationException("Cannot initialise scost model", e);
+        }
     }
      
     /*****************/

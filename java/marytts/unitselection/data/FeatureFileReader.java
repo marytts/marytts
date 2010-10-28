@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.util.data.MaryHeader;
@@ -37,15 +38,21 @@ public class FeatureFileReader
     protected FeatureDefinition featureDefinition;
     protected FeatureVector[] featureVectors;
     
-    
-    public static FeatureFileReader getFeatureFileReader(String fileName) throws IOException
+    /**
+     * Get a feature file reader representing the given feature file. 
+     * @param fileName the filename of a valid feature file.
+     * @return a feature file object representing the given file.
+     * @throws IOException if there was a problem reading the file
+     * @throws MaryConfigurationException if the file is not a valid feature file.
+     */
+    public static FeatureFileReader getFeatureFileReader(String fileName) throws IOException, MaryConfigurationException
     {
         int fileType = MaryHeader.peekFileType(fileName);
         if (fileType == MaryHeader.UNITFEATS)
             return new FeatureFileReader(fileName);
         else if (fileType == MaryHeader.HALFPHONE_UNITFEATS)
             return new HalfPhoneFeatureFileReader(fileName);
-        throw new IOException("File "+fileName+": Type "+fileType+" is not a known unit feature file type");
+        throw new MaryConfigurationException("File "+fileName+": Type "+fileType+" is not a known unit feature file type");
     }
     
     
@@ -57,17 +64,17 @@ public class FeatureFileReader
     {
     }
     
-    public FeatureFileReader( String fileName ) throws IOException
+    public FeatureFileReader( String fileName ) throws IOException, MaryConfigurationException
     {
         load(fileName);
     }
     
-    public void load(String fileName) throws IOException
+    public void load(String fileName) throws IOException, MaryConfigurationException
     {
         loadFromByteBuffer(fileName);
     }
 
-    protected void loadFromStream(String fileName) throws IOException
+    protected void loadFromStream(String fileName) throws IOException, MaryConfigurationException
     {
         /* Open the file */
         DataInputStream dis = null;
@@ -75,9 +82,6 @@ public class FeatureFileReader
         
         /* Load the Mary header */
         hdr = new MaryHeader( dis );
-        if ( !hdr.isMaryHeader() ) {
-            throw new IOException( "File [" + fileName + "] is not a valid Mary format file." );
-        }
         if ( hdr.getType() != MaryHeader.UNITFEATS 
                 && hdr.getType() != MaryHeader.HALFPHONE_UNITFEATS) {
             throw new IOException( "File [" + fileName + "] is not a valid Mary feature file." );
@@ -91,7 +95,7 @@ public class FeatureFileReader
 
     }
     
-    protected void loadFromByteBuffer(String fileName) throws IOException
+    protected void loadFromByteBuffer(String fileName) throws IOException, MaryConfigurationException
     {
         /* Open the file */
         FileInputStream fis = new FileInputStream(fileName);
@@ -101,12 +105,9 @@ public class FeatureFileReader
         
         /* Load the Mary header */
         hdr = new MaryHeader(bb);
-        if ( !hdr.isMaryHeader() ) {
-            throw new IOException( "File [" + fileName + "] is not a valid Mary format file." );
-        }
         if ( hdr.getType() != MaryHeader.UNITFEATS 
                 && hdr.getType() != MaryHeader.HALFPHONE_UNITFEATS) {
-            throw new IOException( "File [" + fileName + "] is not a valid Mary feature file." );
+            throw new MaryConfigurationException( "File [" + fileName + "] is not a valid Mary feature file." );
         }
         featureDefinition = new FeatureDefinition(bb);
         int numberOfUnits = bb.getInt();

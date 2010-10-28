@@ -41,6 +41,7 @@ import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.DirectedGraphWriter;
 import marytts.cart.io.MaryCARTWriter;
 import marytts.cart.io.WagonCARTReader;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.tools.voiceimport.traintrees.AgglomerativeClusterer;
@@ -104,9 +105,9 @@ public class DurationTreeTrainer extends VoiceImportComponent
          props2Help.put(PROPORTIONTESTDATA, "the proportion of the data to use as test data (choose so that 1/value is an integer)");
      }
 
-
-    public boolean compute() throws IOException
-    {
+     @Override
+     public boolean compute() throws IOException, MaryConfigurationException
+     {
         logger.info("Duration tree trainer started.");
         FeatureFileReader featureFile = 
             FeatureFileReader.getFeatureFileReader(getProp(FEATUREFILE));

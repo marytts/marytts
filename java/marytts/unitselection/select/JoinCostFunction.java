@@ -21,6 +21,7 @@ package marytts.unitselection.select;
 
 import java.io.IOException;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.unitselection.data.Unit;
 
 
@@ -47,8 +48,9 @@ public interface JoinCostFunction
      * from the MaryProperties using the given configPrefix.
      * @param configPrefix the prefix for the (voice-specific) config entries
      * to use when looking up files to load.
+     * @throws MaryConfigurationException if there is a configuration problem
      */
-    public void init(String configPrefix) throws IOException;
+    public void init(String configPrefix) throws MaryConfigurationException;
     
     /**
      * Load weights and values from the given file
@@ -59,7 +61,8 @@ public interface JoinCostFunction
      *                phonetic join costs computed from the target 
      */
     @Deprecated
-    public void load(String joinFileName, String weightsFileName, String precompiledCostFileName,float wSignal) throws IOException;
+    public void load(String joinFileName, String weightsFileName, String precompiledCostFileName,float wSignal)
+    throws IOException, MaryConfigurationException;
     
 }
 

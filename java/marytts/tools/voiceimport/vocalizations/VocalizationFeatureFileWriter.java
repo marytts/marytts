@@ -45,6 +45,7 @@ import java.util.TreeMap;
 import javax.sound.sampled.AudioFormat;
 import javax.swing.JFrame;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
@@ -161,8 +162,8 @@ public class VocalizationFeatureFileWriter extends VoiceImportComponent
        }
    }
   
-   
-    public boolean compute() throws IOException
+    @Override
+    public boolean compute() throws IOException, MaryConfigurationException
     {
         // read feature definition
         BufferedReader fDBfr = new BufferedReader(new FileReader(new File(getProp(FEATDEF))));
@@ -182,7 +183,7 @@ public class VocalizationFeatureFileWriter extends VoiceImportComponent
         out.close();
         logger.debug("Number of processed units: " + listenerUnits.getNumberOfUnits() );
 
-        VocalizationFeatureFileReader tester = VocalizationFeatureFileReader.getFeatureFileReader(getProp(FEATUREFILE));
+        VocalizationFeatureFileReader tester = new VocalizationFeatureFileReader(getProp(FEATUREFILE));
         int unitsOnDisk = tester.getNumberOfUnits();
         if (unitsOnDisk == listenerUnits.getNumberOfUnits()) {
             System.out.println("Can read right number of units");
