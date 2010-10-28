@@ -43,6 +43,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureVector;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.FeatureFileReader;
@@ -119,7 +120,8 @@ public class JoinCostFileMaker extends VoiceImportComponent {
         
     }
     
-    public boolean compute() throws IOException
+    @Override
+    public boolean compute() throws IOException, MaryConfigurationException
     {
         System.out.print("---- Making the join cost file\n");
         
@@ -133,27 +135,14 @@ public class JoinCostFileMaker extends VoiceImportComponent {
         firstMcepFile = null; // Free the memory taken by the file
         
         /* Make a new join cost file to write to */
-        DataOutputStream jcf = null;
-        try {
-            jcf = new DataOutputStream( new BufferedOutputStream( new FileOutputStream(getProp(JOINCOSTFILE)) ) );
-        }
-        catch ( FileNotFoundException e ) {
-            throw new RuntimeException( "Can't create the join cost file [" 
-                    + getProp(JOINCOSTFILE)
-                    + "]. The path is probably wrong.", e );
-        }
+        DataOutputStream jcf = new DataOutputStream( new BufferedOutputStream( new FileOutputStream(getProp(JOINCOSTFILE)) ) );
         
         /**********/
         /* HEADER */
         /**********/
         /* Make a new mary header and ouput it */
         MaryHeader hdr = new MaryHeader( MaryHeader.JOINFEATS );
-        try {
-            hdr.writeTo( jcf );
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( "An IOException happened when writing the Mary header to the Join Cost file.", e );
-        }
+        hdr.writeTo( jcf );
         hdr = null;
         
         /****************************/
@@ -167,15 +156,10 @@ public class JoinCostFileMaker extends VoiceImportComponent {
         int numberOfProsodyFeatures = 2; 
         
         /* Output those vectors */
-        try {
-            jcf.writeInt( fw.length );
-            for ( int i = 0; i < fw.length; i++ ) {
-                jcf.writeFloat( fw[i] );
-                jcf.writeUTF( wfun[i] );
-            }
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( "An IOException happened when writing the weighting specifications to the Join Cost file.", e );
+        jcf.writeInt( fw.length );
+        for ( int i = 0; i < fw.length; i++ ) {
+            jcf.writeFloat( fw[i] );
+            jcf.writeUTF( wfun[i] );
         }
         /* Clean the house */
         fw = null;
@@ -195,92 +179,87 @@ public class JoinCostFileMaker extends VoiceImportComponent {
         FeatureFileReader features = new FeatureFileReader(getProp(FEATUREFILE));
         
         /* Start writing the features: */
-        try {
-            /* - write the number of features: */
-            jcf.writeInt( ufr.getNumberOfUnits() );
-            int unitSampleFreq = ufr.getSampleRate();
-            if (unitSampleFreq != mcep.getSampleRate()) {
-                throw new IllegalArgumentException("Cannot currently deal with different sample rates in unit and mcep files.");
-            }
-            long unitPosition = 0l;
-            int unitDuration = 0;
-            
-            /* Check the consistency between the number of join cost features
-             * and the number of Mel-cepstrum coefficients */
-            Datagram dat = mcep.getDatagram( 0 );
-            if ( dat.getData().length != (4*(numberOfFeatures-numberOfProsodyFeatures)) ) {
-                throw new RuntimeException( "The number of join cost features [" + numberOfFeatures
-                        + "] read from the join cost weight config file [" + getProp(WEIGHTSFILE)
-                        + "] does not match the number of Mel Cepstra [" + (dat.getData().length / 4)
-                        + "] found in the Mel-Cepstrum timeline file [" + getProp(MCEPTIMELINE)
-                        + "], plus ["+numberOfProsodyFeatures+"] for the prosody features." );
-            }
-            
-            /* Loop through the units */
-            int fiLogF0 = features.getFeatureDefinition().getFeatureIndex("unit_logf0");
-            int fiLogF0Delta = features.getFeatureDefinition().getFeatureIndex("unit_logf0delta");
-            for ( int i = 0; i < ufr.getNumberOfUnits(); i++ ) {
-                percent = 100*i/ufr.getNumberOfUnits();
 
-                FeatureVector fv = features.getFeatureVector(i);
-                float logf0 = fv.getContinuousFeature(fiLogF0);
-                float logf0Delta = fv.getContinuousFeature(fiLogF0Delta);
-                
-                // logf0 is the value in the middle, i.e.
-                // leftF0 + 0.5 * logf0Delta == logf0, and
-                // logf0 + 0.5 * logf0Delta == rightF0
-                float leftLogF0 = logf0 - 0.5f * logf0Delta;
-                float rightLogF0 = logf0 + 0.5f * logf0Delta;
-                
-                /* Read the unit */
-                unitPosition = ufr.getUnit(i).startTime;
-                unitDuration = ufr.getUnit(i).duration;
-                
-                /* If the unit is not a START or END marker
-                 * and has length > 0: */
-                if ( unitDuration != -1 && unitDuration > 0 ) {
-                    
-                    Datagram leftMCEP = mcep.getDatagram(unitPosition);
-                    jcf.write(leftMCEP.getData());
-                    jcf.writeFloat(leftLogF0);
-                    jcf.writeFloat(logf0Delta);
-                    
-                    /* -- COMPUTE the RIGHT JCFs: */
-                    Datagram rightMCEP;
-                    boolean useRightContext = false;
-
-                    if (useRightContext) {
-                        // the right context datagram:
-                        rightMCEP = mcep.getDatagram(unitPosition+unitDuration);
-                    } else {
-                        /* Crawl along the datagrams until we trespass the end of the unit: */
-                        long endPoint = unitPosition;
-                        dat = mcep.getDatagram(endPoint);
-                        while (endPoint + dat.getDuration() < unitPosition+unitDuration) {
-                            endPoint += dat.getDuration();
-                            dat = mcep.getDatagram(endPoint);
-                        }
-                        rightMCEP = dat;
-                    }
-                    jcf.write(rightMCEP.getData());
-                    jcf.writeFloat(rightLogF0);
-                    jcf.writeFloat(logf0Delta);
-                }
-                
-                /* If the unit is a START or END marker, output NaN for all features */
-                else {
-                    for (int j=0; j<2*numberOfFeatures; j++) {
-                        jcf.writeFloat(Float.NaN);
-                    }
-                }                
-            }
-            
-            jcf.close();
+        /* - write the number of features: */
+        jcf.writeInt( ufr.getNumberOfUnits() );
+        int unitSampleFreq = ufr.getSampleRate();
+        if (unitSampleFreq != mcep.getSampleRate()) {
+            throw new MaryConfigurationException("Cannot currently deal with different sample rates in unit and mcep files.");
         }
-        catch ( IOException e ) {
-            throw new RuntimeException( "An IOException happened when writing the features to the Join Cost file.", e );
+        long unitPosition = 0l;
+        int unitDuration = 0;
+        
+        /* Check the consistency between the number of join cost features
+         * and the number of Mel-cepstrum coefficients */
+        Datagram dat = mcep.getDatagram( 0 );
+        if ( dat.getData().length != (4*(numberOfFeatures-numberOfProsodyFeatures)) ) {
+            throw new MaryConfigurationException( "The number of join cost features [" + numberOfFeatures
+                    + "] read from the join cost weight config file [" + getProp(WEIGHTSFILE)
+                    + "] does not match the number of Mel Cepstra [" + (dat.getData().length / 4)
+                    + "] found in the Mel-Cepstrum timeline file [" + getProp(MCEPTIMELINE)
+                    + "], plus ["+numberOfProsodyFeatures+"] for the prosody features." );
         }
         
+        /* Loop through the units */
+        int fiLogF0 = features.getFeatureDefinition().getFeatureIndex("unit_logf0");
+        int fiLogF0Delta = features.getFeatureDefinition().getFeatureIndex("unit_logf0delta");
+        for ( int i = 0; i < ufr.getNumberOfUnits(); i++ ) {
+            percent = 100*i/ufr.getNumberOfUnits();
+
+            FeatureVector fv = features.getFeatureVector(i);
+            float logf0 = fv.getContinuousFeature(fiLogF0);
+            float logf0Delta = fv.getContinuousFeature(fiLogF0Delta);
+            
+            // logf0 is the value in the middle, i.e.
+            // leftF0 + 0.5 * logf0Delta == logf0, and
+            // logf0 + 0.5 * logf0Delta == rightF0
+            float leftLogF0 = logf0 - 0.5f * logf0Delta;
+            float rightLogF0 = logf0 + 0.5f * logf0Delta;
+            
+            /* Read the unit */
+            unitPosition = ufr.getUnit(i).startTime;
+            unitDuration = ufr.getUnit(i).duration;
+            
+            /* If the unit is not a START or END marker
+             * and has length > 0: */
+            if ( unitDuration != -1 && unitDuration > 0 ) {
+                
+                Datagram leftMCEP = mcep.getDatagram(unitPosition);
+                jcf.write(leftMCEP.getData());
+                jcf.writeFloat(leftLogF0);
+                jcf.writeFloat(logf0Delta);
+                
+                /* -- COMPUTE the RIGHT JCFs: */
+                Datagram rightMCEP;
+                boolean useRightContext = false;
+
+                if (useRightContext) {
+                    // the right context datagram:
+                    rightMCEP = mcep.getDatagram(unitPosition+unitDuration);
+                } else {
+                    /* Crawl along the datagrams until we trespass the end of the unit: */
+                    long endPoint = unitPosition;
+                    dat = mcep.getDatagram(endPoint);
+                    while (endPoint + dat.getDuration() < unitPosition+unitDuration) {
+                        endPoint += dat.getDuration();
+                        dat = mcep.getDatagram(endPoint);
+                    }
+                    rightMCEP = dat;
+                }
+                jcf.write(rightMCEP.getData());
+                jcf.writeFloat(rightLogF0);
+                jcf.writeFloat(logf0Delta);
+            }
+            
+            /* If the unit is a START or END marker, output NaN for all features */
+            else {
+                for (int j=0; j<2*numberOfFeatures; j++) {
+                    jcf.writeFloat(Float.NaN);
+                }
+            }                
+        }
+        
+        jcf.close();
         System.out.println("---- Join Cost file done.\n\n");
         System.out.println("Number of processed units: " + ufr.getNumberOfUnits() );
         

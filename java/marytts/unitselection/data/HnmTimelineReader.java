@@ -32,7 +32,9 @@ import java.util.Properties;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.signalproc.adaptation.prosody.BasicProsodyModifierParams;
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartWaveform;
@@ -60,15 +62,14 @@ import marytts.util.string.StringUtils;
  */
 public class HnmTimelineReader extends TimelineReader {
     public HntmAnalyzerParams analysisParams;
-
-    public HnmTimelineReader() {
+    public HnmTimelineReader(String fileName) throws IOException, MaryConfigurationException
+    {
+        super();
+        load(fileName);
     }
 
-    public HnmTimelineReader(String fileName) throws IOException {
-        super(fileName);
-    }
-
-    public void load(String fileName) throws IOException {
+    protected void load(String fileName) throws IOException, MaryConfigurationException
+    {
         super.load(fileName);
         // Now make sense of the processing header
         Properties props = new Properties();
@@ -111,11 +112,11 @@ public class HnmTimelineReader extends TimelineReader {
         analysisParams.hpfBeforeNoiseAnalysis = Boolean.parseBoolean(props.getProperty("hnm.hpfBeforeNoiseAnalysis"));
         analysisParams.numPeriodsHarmonicsExtraction = Float.parseFloat(props.getProperty("hnm.harmNumPer"));
     }
-
-    private void ensurePresent(Properties props, String key) throws IOException {
+    
+    private void ensurePresent(Properties props, String key) throws MaryConfigurationException
+    {
         if (!props.containsKey(key))
-            throw new IOException("Processing header does not contain required field '" + key + "'");
-
+            throw new MaryConfigurationException("Processing header does not contain required field '"+key+"'");
     }
 
     /**
@@ -225,13 +226,9 @@ public class HnmTimelineReader extends TimelineReader {
      *            </ol>
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException {
-        HnmTimelineReader h = new HnmTimelineReader();
-        try {
-            h.load(args[0]);
-        } catch (IOException e) {
-            throw e;
-        }
+    public static void main(String[] args) throws UnsupportedAudioFileException, IOException, MaryConfigurationException
+    {
+        HnmTimelineReader h = new HnmTimelineReader(args[0]);
 
         LinkedList<HnmDatagram> datagrams = new LinkedList<HnmDatagram>();
         int count = 0;

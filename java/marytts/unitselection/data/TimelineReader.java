@@ -46,6 +46,7 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Vector;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.util.MaryUtils;
 import marytts.util.Pair;
 import marytts.util.data.MaryHeader;
@@ -83,35 +84,50 @@ public class TimelineReader
     /****************/
     /* CONSTRUCTORS */
     /****************/
-    
+        
     /**
-     * Empty constructor; need to call load() separately.
-     * @see #load(String)
-     */
-    public TimelineReader()
-    {
-    }
-    
-    /**
-     * Constructor from a file name.
+     * Construct a timeline from the given file name.
      * 
-     * @param fileName The file to read the timeline from
-     * @throws IOException if a problem occurs during reading
+     * Aiming for the fundamental guarantee: If an instance of this class is created, it is usable.
+     * 
+     * @param fileName The file to read the timeline from. 
+     * Must be non-null and point to a valid timeline file.
+     * @throws NullPointerException if null argument is given
+     * @throws MaryConfigurationException if no timeline reader can be instantiated from fileName
      */
-    public TimelineReader( String fileName ) throws IOException
+    public TimelineReader( String fileName ) throws MaryConfigurationException
     {
-        load(fileName);
+        if (fileName == null) {
+            throw new NullPointerException("Filename is null");
+        }
+        try {
+            load(fileName);
+        } catch (Exception e) {
+            throw new MaryConfigurationException("Cannot load timeline file from "+fileName, e);
+        }
     }
+    
+    /**
+     * Only subclasses can instantiate a TimelineReader object that doesn't call {@link #load(String)}.
+     * It is their responsibility then to ensure the fundamental guarantee.
+     */
+    protected TimelineReader() {}
 
 
     
     /**
      * Load a timeline from a file.
      * 
-     * @param fileName The file to read the timeline from
+     * @param fileName The file to read the timeline from.
+     * Must be non-null and point to a valid timeline file.
+     * 
      * @throws IOException if a problem occurs during reading
+     * @throws BufferUnderflowException if a problem occurs during reading
+     * @throws MaryConfigurationException if fileName does not point to a valid timeline file
      */
-    public void load(String fileName) throws IOException {
+    protected void load(String fileName) throws IOException, BufferUnderflowException, MaryConfigurationException, NullPointerException {
+        assert fileName != null : "filename is null";
+        
         RandomAccessFile file = new RandomAccessFile( fileName, "r" );
         FileChannel fc = file.getChannel();
         // Expect header to be no bigger than 64k bytes
@@ -120,31 +136,20 @@ public class TimelineReader
         headerBB.limit(headerBB.position());
         headerBB.position(0);
         
-        try {
-            /* Load the Mary header */
-            maryHdr = new MaryHeader(headerBB);
-            if ( !maryHdr.isMaryHeader() ) {
-                throw new IOException( "File is not a valid Mary format file." );
-            }
-            if ( maryHdr.getType() != MaryHeader.TIMELINE ) {
-                throw new RuntimeException( "File is not a valid timeline file." );
-            }
-
-            /* Load the processing info header */
-            procHdr = new ProcHeader(headerBB);
-            
-            /* Load the timeline dimensions */
-            sampleRate = headerBB.getInt();
-            numDatagrams = headerBB.getLong();
-            
-            /* Load the positions of the various subsequent components */
-            datagramsBytePos = (int) headerBB.getLong();
-            timeIdxBytePos = (int) headerBB.getLong();
-        } catch (IOException ioe) {
-            IOException myioe = new IOException("Problem loading headers of file "+fileName);
-            myioe.initCause(ioe);
-            throw myioe;
+        maryHdr = new MaryHeader(headerBB);
+        if ( maryHdr.getType() != MaryHeader.TIMELINE ) {
+            throw new MaryConfigurationException( "File is not a valid timeline file." );
         }
+        /* Load the processing info header */
+        procHdr = new ProcHeader(headerBB);
+        
+        /* Load the timeline dimensions */
+        sampleRate = headerBB.getInt();
+        numDatagrams = headerBB.getLong();
+        
+        /* Load the positions of the various subsequent components */
+        datagramsBytePos = (int) headerBB.getLong();
+        timeIdxBytePos = (int) headerBB.getLong();
         
         /* Go fetch the time index at the end of the file */
         fc.position(timeIdxBytePos);
@@ -167,6 +172,11 @@ public class TimelineReader
             assert fileChannel != null;
             // and leave file open
         }
+        
+        // postconditions:
+        assert idx != null;
+        assert procHdr != null;
+        assert fileChannel == null && mappedBB != null || fileChannel != null && mappedBB == null;
     }
 
     /**
@@ -650,14 +660,26 @@ public class TimelineReader
         /****************/
         
         /**
-         * File constructor: load the index from a data input stream or random access file.
-         * 
-         * */
-        public Index( DataInput raf ) throws IOException {
+         * Construct an index from a data input stream or random access file.
+         * @param bb byte buffer from which to read the index.
+         * Must not be null, and read position must be at start of index.
+         * @throws BufferUnderflowException if there is a problem reading.
+         * Note there is currently no verification that the index is reasonable.
+         */
+        private Index( DataInput raf ) throws IOException {
+            assert raf != null : "null argument";
             load( raf );
         }
         
-        public Index(ByteBuffer bb) throws BufferUnderflowException {
+        /**
+         * Construct an index from a byte buffer.
+         * @param rafIn data input from which to read the index.
+         * Must not be null, and read position must be at start of index.
+         * @throws BufferUnderflowException if there is a problem reading.
+         * Note there is currently no verification that the index is reasonable.
+         */
+        private Index(ByteBuffer bb) throws BufferUnderflowException {
+            assert bb != null : "null argument";
             load(bb);
         }
         
@@ -686,7 +708,11 @@ public class TimelineReader
         
         /**
          * Method which loads an index from a data input (random access file or data input stream).
-         * */
+         * @param rafIn data input from which to read the index.
+         * Must not be null, and read position must be at start of index.
+         * @throws IOException if there is a problem reading.
+         * Note there is currently no verification that the index is reasonable.
+         */
         public void load( DataInput rafIn ) throws IOException {
             int numIdx = rafIn.readInt();
             idxInterval = rafIn.readInt();
@@ -710,8 +736,12 @@ public class TimelineReader
 
         /**
          * Method which loads an index from a byte buffer.
-         * */
-        public void load(ByteBuffer bb) {
+         * @param bb byte buffer from which to read the index.
+         * Must not be null, and read position must be at start of index.
+         * @throws BufferUnderflowException if there is a problem reading.
+         * Note there is currently no verification that the index is reasonable.
+         */
+        private void load(ByteBuffer bb) throws BufferUnderflowException {
             int numIdx = bb.getInt();
             idxInterval = bb.getInt();
             
@@ -866,13 +896,24 @@ public class TimelineReader
         /****************/
         
         /**
-         *  Constructor which loads the procHeader from a RandomAccessFile
-         *  */
-        public ProcHeader( RandomAccessFile raf )  throws IOException {
+         * Constructor which loads the procHeader from a RandomAccessFile
+         * @param raf input from which to load the processing header.
+         * Must not be null and must be positioned so that a processing header can be read from it.
+         *
+         *  @throws IOException if no proc header can be read at the current position.
+         */
+        private ProcHeader( RandomAccessFile raf )  throws IOException {
             loadProcHeader( raf );
         }
         
-        public ProcHeader(ByteBuffer bb) throws BufferUnderflowException, UTFDataFormatException {
+        /**
+         * Constructor which loads the procHeader from a RandomAccessFile
+         * @param raf input from which to load the processing header.
+         * Must not be null and must be positioned so that a processing header can be read from it.
+         *
+         *  @throws BufferUnderflowException, UTFDataFormatException if no proc header can be read at the current position.
+         */
+        private ProcHeader(ByteBuffer bb) throws BufferUnderflowException, UTFDataFormatException {
             loadProcHeader(bb);
         }
         
@@ -901,14 +942,19 @@ public class TimelineReader
         
         /**
          *  Method which loads the header from a RandomAccessFile.
-         *  */
+         *  @param rafIn file to read from, must not be null.
+         *  @throws IOException if no proc header can be read at the current position.
+         */
         private void loadProcHeader( RandomAccessFile rafIn ) throws IOException {
+            assert rafIn != null : "null argument";
             procHeader = rafIn.readUTF();
         }
         
         /**
          *  Method which loads the header from a byte buffer.
-         *  */
+         *  @param bb byte buffer to read from, must not be null.
+         *  @throws BufferUnderflowException, UTFDataFormatException if no proc header can be read at the current position.
+         */
         private void loadProcHeader(ByteBuffer bb) throws BufferUnderflowException, UTFDataFormatException {
             procHeader = StreamUtils.readUTF(bb);
         }

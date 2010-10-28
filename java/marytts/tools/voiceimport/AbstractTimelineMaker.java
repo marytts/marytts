@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;
 
@@ -89,7 +90,7 @@ public abstract class AbstractTimelineMaker extends VoiceImportComponent {
      * @throws IOException
      */
     @Override
-    public boolean compute() throws IOException {
+    public boolean compute() throws IOException, MaryConfigurationException {
         System.out.println("---- Importing data files");
         System.out.println("Base directory: " + db.getProp(db.ROOTDIR));
 

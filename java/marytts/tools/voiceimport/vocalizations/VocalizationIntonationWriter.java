@@ -42,6 +42,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureVector;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchFileHeader;
@@ -152,7 +153,8 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
      *  Reads and concatenates a list of waveforms into one single timeline file.
      * @throws IOException 
      */
-    public boolean compute() throws IOException {
+    @Override
+    public boolean compute() throws IOException, MaryConfigurationException {
         
         listenerUnits = new VocalizationUnitFileReader(getProp(UNITFILE));
         

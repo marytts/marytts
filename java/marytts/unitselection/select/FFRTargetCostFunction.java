@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureVector;
@@ -150,10 +151,11 @@ public class FFRTargetCostFunction implements TargetCostFunction
      * @param featProc a feature processor manager which can provide feature processors
      * to compute the features for a target at run time
      * @throws IOException
+     * @throws MaryConfigurationException 
      */
     public void load(String featureFileName, String weightsFile,
             FeatureProcessorManager featProc)
-    throws IOException
+    throws IOException, MaryConfigurationException
     {
         FeatureFileReader ffr = FeatureFileReader.getFeatureFileReader(featureFileName);
         load(ffr, weightsFile, featProc);

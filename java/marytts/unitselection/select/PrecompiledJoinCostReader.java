@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.server.MaryProperties;
 import marytts.unitselection.data.Unit;
 import marytts.util.data.MaryHeader;
@@ -72,7 +73,7 @@ public class PrecompiledJoinCostReader implements JoinCostFunction
      * @param fileName the file to read
      * @throws IOException if a problem occurs while reading
      */
-    public PrecompiledJoinCostReader( String fileName ) throws IOException 
+    public PrecompiledJoinCostReader( String fileName ) throws IOException, MaryConfigurationException 
     {
         load(fileName, null, null, 0);
     }
@@ -83,10 +84,14 @@ public class PrecompiledJoinCostReader implements JoinCostFunction
      * @param configPrefix the prefix for the (voice-specific) config entries
      * to use when looking up files to load.
      */
-    public void init(String configPrefix) throws IOException
+    public void init(String configPrefix) throws MaryConfigurationException
     {
         String precomputedJoinCostFileName = MaryProperties.getFilename(configPrefix+".precomputedJoinCostFile");
-        load(precomputedJoinCostFileName, null, null, 0);
+        try {
+            load(precomputedJoinCostFileName, null, null, 0);
+        } catch (IOException ioe) {
+            throw new MaryConfigurationException("Problem loading join file "+precomputedJoinCostFileName, ioe);
+        }
     }
     
     
@@ -97,48 +102,34 @@ public class PrecompiledJoinCostReader implements JoinCostFunction
      * @param dummy2 not used, just used to fulfil the join cost function interface
      * @throws IOException if a problem occurs while reading
      */
-    public void load(String fileName, String dummy, String dummy2, float dummy3) throws IOException
+    public void load(String fileName, String dummy, String dummy2, float dummy3) throws IOException, MaryConfigurationException
     {
         /* Open the file */
-        DataInputStream dis = null;
-        try {
-            dis = new DataInputStream( new BufferedInputStream( new FileInputStream( fileName ) ) );
+        DataInputStream dis = new DataInputStream( new BufferedInputStream( new FileInputStream( fileName ) ) );
+        hdr = new MaryHeader( dis );
+        if ( hdr.getType() != MaryHeader.PRECOMPUTED_JOINCOSTS ) {
+            throw new MaryConfigurationException( "File [" + fileName + "] is not a valid Mary precompiled join costs file." );
         }
-        catch ( FileNotFoundException e ) {
-            throw new RuntimeException( "File [" + fileName + "] was not found." );
+        /* Read the number of units */
+        int numberOfLeftUnits = dis.readInt();
+        if ( numberOfLeftUnits < 0 ) {
+            throw new MaryConfigurationException( "File [" + fileName + "] has a negative number of units. Aborting." );
         }
-        try {
-            /* Load the Mary header */
-            hdr = new MaryHeader( dis );
-            if ( !hdr.isMaryHeader() ) {
-                throw new IOException( "File [" + fileName + "] is not a valid Mary format file." );
-            }
-            if ( hdr.getType() != MaryHeader.PRECOMPUTED_JOINCOSTS ) {
-                throw new RuntimeException( "File [" + fileName + "] is not a valid Mary precompiled join costs file." );
-            }
-            /* Read the number of units */
-            int numberOfLeftUnits = dis.readInt();
-            if ( numberOfLeftUnits < 0 ) {
-                throw new RuntimeException( "File [" + fileName + "] has a negative number of units. Aborting." );
-            }
-            
-            left = new HashMap();
-            /* Read the start times and durations */
-            for ( int i = 0; i < numberOfLeftUnits; i++ ) {
-                int leftIndex = dis.readInt();
-                int numberOfRightUnits = dis.readInt();
-                Map right = new HashMap();
-                left.put(new Integer(leftIndex), right);
-                for (int j=0; j<numberOfRightUnits; j++) {
-                    int rightIndex = dis.readInt();
-                    float cost = dis.readFloat();
-                    right.put(new Integer(rightIndex), new Float(cost));
-                }
+        
+        left = new HashMap();
+        /* Read the start times and durations */
+        for ( int i = 0; i < numberOfLeftUnits; i++ ) {
+            int leftIndex = dis.readInt();
+            int numberOfRightUnits = dis.readInt();
+            Map right = new HashMap();
+            left.put(new Integer(leftIndex), right);
+            for (int j=0; j<numberOfRightUnits; j++) {
+                int rightIndex = dis.readInt();
+                float cost = dis.readFloat();
+                right.put(new Integer(rightIndex), new Float(cost));
             }
         }
-        catch ( IOException e ) {
-            throw new RuntimeException( "Reading the Mary header from file [" + fileName + "] failed.", e );
-        }
+
     }
     
     /**

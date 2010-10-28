@@ -11,6 +11,7 @@ import marytts.cart.LeafNode.IntArrayLeafNode;
 import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.MaryCARTReader;
 import marytts.cart.io.MaryCARTWriter;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.data.Datagram;
@@ -106,8 +107,8 @@ public class SanityChecker extends VoiceImportComponent {
     }
 
     
-   public void computeCoverage(String inFile) throws IOException{
-        
+   public void computeCoverage(String inFile) throws IOException, MaryConfigurationException
+   {
         FeatureFileReader ffr = FeatureFileReader.getFeatureFileReader(inFile);
         FeatureVector[] fVCopy = ffr.getCopyOfFeatureVectors();
         FeatureDefinition feaDef = ffr.getFeatureDefinition();

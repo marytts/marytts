@@ -35,6 +35,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
 import java.util.Locale;
 
 import javax.sound.sampled.AudioFormat;
@@ -144,8 +145,12 @@ public class UnitSelectionVoice extends Voice {
             logger.debug("...loading audio time line...");
             String timelineReaderClass = MaryProperties.needProperty(header+".audioTimelineReaderClass");
             String timelineFile = MaryProperties.needFilename(header+".audioTimelineFile");
-            TimelineReader timelineReader = (TimelineReader) Class.forName(timelineReaderClass).newInstance();
-            timelineReader.load(timelineFile);
+            Class<? extends TimelineReader> theClass = Class.forName(timelineReaderClass).asSubclass(TimelineReader.class);
+            // Now invoke Constructor with one String argument
+            Class<String>[] constructorArgTypes = new Class[] { String.class };
+            Object[] args = new Object[] { timelineFile };
+            Constructor<? extends TimelineReader> constructor = (Constructor<? extends TimelineReader>) theClass.getConstructor(constructorArgTypes);
+            TimelineReader timelineReader = constructor.newInstance(args);
 
             // optionally, get basename timeline
             String basenameTimelineFile = MaryProperties.getFilename(header+".basenameTimeline");

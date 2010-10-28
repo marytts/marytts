@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.data.FeatureFileReader;
@@ -94,7 +95,8 @@ public class JoinCostPrecomputer extends VoiceImportComponent
         props2Help.put(UNITFILE,"file containing all halfphone units");
     }
     
-    public boolean compute() throws IOException
+    @Override
+    public boolean compute() throws IOException, MaryConfigurationException
     {
         System.out.println("---- Precomputing join costs");
         int retainPercent = Integer.getInteger("joincostprecomputer.retainpercent", 10).intValue();
@@ -102,25 +104,14 @@ public class JoinCostPrecomputer extends VoiceImportComponent
         System.out.println("Will retain the top "+retainPercent+"% (but at least "+retainMin+") of all joins within a phone");
         
         /* Make a new join cost file to write to */
-        DataOutputStream jc = null;
-        try {
-            jc = new DataOutputStream( new BufferedOutputStream( new FileOutputStream(getProp(JOINCOSTFILE))));
-        }
-        catch ( FileNotFoundException e ) {
-            throw new RuntimeException( "Can't create the join cost file [" + getProp(JOINCOSTFILE) + "]. The path is probably wrong.", e );
-        }
+        DataOutputStream jc = new DataOutputStream( new BufferedOutputStream( new FileOutputStream(getProp(JOINCOSTFILE))));
         
         /**********/
         /* HEADER */
         /**********/
         /* Make a new mary header and ouput it */
         MaryHeader hdr = new MaryHeader( MaryHeader.PRECOMPUTED_JOINCOSTS );
-        try {
-            hdr.writeTo( jc );
-        }
-        catch ( IOException e ) {
-            throw new RuntimeException( "An IOException occurred when writing the Mary header to the Join Cost file.", e );
-        }
+        hdr.writeTo( jc );
         hdr = null;
         
         FeatureFileReader unitFeatures = FeatureFileReader.getFeatureFileReader(getProp(UNITFEATURESFILE));

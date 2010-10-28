@@ -21,6 +21,7 @@ package marytts.unitselection.select;
 
 import java.io.IOException;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.htsengine.PhoneTranslator;
@@ -71,14 +72,18 @@ public class JoinModelCost implements JoinCostFunction
      * @param configPrefix the prefix for the (voice-specific) config entries
      * to use when looking up files to load.
      */
-    public void init(String configPrefix) throws IOException
+    public void init(String configPrefix) throws MaryConfigurationException
     {
         String joinFileName = MaryProperties.needFilename(configPrefix+".joinCostFile");
         String joinPdfFileName = MaryProperties.needFilename(configPrefix + ".joinPdfFile");
         String joinTreeFileName = MaryProperties.needFilename(configPrefix + ".joinTreeFile");
         //CHECK not tested the trickyPhonesFile needs to be added into the configuration file
         String trickyPhonesFileName = MaryProperties.needFilename(configPrefix + ".trickyPhonesFile");
-        load(joinFileName, joinPdfFileName, joinTreeFileName, trickyPhonesFileName);
+        try {
+            load(joinFileName, joinPdfFileName, joinTreeFileName, trickyPhonesFileName);
+        } catch (IOException ioe) {
+            throw new MaryConfigurationException("Problem loading join file "+joinFileName, ioe);
+        }
     }
     
     @Deprecated
@@ -95,7 +100,7 @@ public class JoinModelCost implements JoinCostFunction
      * @param joinTreeFileName the file from which to read the Tree, in HTS format.
      */
     public void load(String joinFileName, String joinPdfFileName, String joinTreeFileName, String trickyPhonesFile)
-    throws IOException
+    throws IOException, MaryConfigurationException
     {
         jcf = new JoinCostFeatures(joinFileName);
 

@@ -34,6 +34,7 @@ import marytts.cart.Node;
 import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.MaryCARTWriter;
 import marytts.cart.io.WagonCARTReader;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.HnmTimelineReader;
@@ -140,8 +141,8 @@ public class DurationCARTTrainer extends VoiceImportComponent
          props2Help.put(DURTREE,"file containing the duration CART. Will be created by this module");
      }
 
-
-    public boolean compute() throws IOException
+    @Override
+    public boolean compute() throws IOException, MaryConfigurationException
     {
         FeatureFileReader featureFile = 
             FeatureFileReader.getFeatureFileReader(getProp(FEATUREFILE));
