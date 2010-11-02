@@ -30,6 +30,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.tools.voiceimport.TimelineWriter;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;
@@ -272,7 +273,60 @@ public class TimelineTests extends TimelineReader {
         
     }
 
- 
+
+    @Test
+    public void getLastDatagram() throws MaryConfigurationException, IOException {
+        long totalDur = tlr.getTotalDuration();
+        Assert.assertTrue(totalDur > 0);
+        
+        Datagram d = tlr.getDatagram(totalDur - 1);
+        Assert.assertTrue(d != null);
+        
+        long dur = d.getDuration();
+        
+        d = tlr.getDatagram(totalDur - dur);
+        Assert.assertTrue(d != null);
+    }
+    
+    @Test
+    public void getLastDatagrams() throws MaryConfigurationException, IOException {
+        long totalDur = tlr.getTotalDuration();
+        Assert.assertTrue(totalDur > 0);
+        
+        Datagram[] ds = tlr.getDatagrams(totalDur - 1, 1);
+        Assert.assertTrue(ds != null);
+        Assert.assertTrue(ds.length == 1);
+
+        ds = tlr.getDatagrams(totalDur - 1, 2);
+        Assert.assertTrue(ds != null);
+        Assert.assertTrue(ds.length == 1);
+    }
+
+    @Test
+    public void cannotGetAfterLastDatagram() throws MaryConfigurationException, IOException {
+        long totalDur = tlr.getTotalDuration();
+        Assert.assertTrue(totalDur > 0);
+
+        try {
+            Datagram d = tlr.getDatagram(totalDur);
+            Assert.fail("Should have thrown a BufferUnderflowException");
+        } catch (BufferUnderflowException e) {
+            // OK, expected
+        }
+    }
+
+    @Test
+    public void cannotGetAfterLastDatagrams() throws MaryConfigurationException, IOException {
+        long totalDur = tlr.getTotalDuration();
+        Assert.assertTrue(totalDur > 0);
+
+        try {
+            Datagram[] ds = tlr.getDatagrams(totalDur, 1);
+            Assert.fail("Should have thrown a BufferUnderflowException");
+        } catch (BufferUnderflowException e) {
+            // OK, expected
+        }
+    }
 
     @AfterClass
     public static void tearDown() throws IOException {
@@ -283,7 +337,7 @@ public class TimelineTests extends TimelineReader {
         /* ----------- */
         System.out.println("End of the timeline symmetry test.");
    }
-    
+
     
     
     
