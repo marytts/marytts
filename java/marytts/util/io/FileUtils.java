@@ -163,7 +163,9 @@ public class FileUtils {
      * @param file
      * @param encoding
      * @return
+     * @deprecated use {@link org.apache.commons.io.FileUtils#readFileToString(File, String)} instead
      */
+    @Deprecated
     public static String getFileAsString(File file, String encoding) throws IOException {
         FileInputStream fis = new FileInputStream(file);
         try {

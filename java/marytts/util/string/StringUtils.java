@@ -288,6 +288,14 @@ public class StringUtils {
         return strNewname;
     }
     
+    /**
+     * 
+     * @param strFilename
+     * @param isIncludeDot
+     * @return
+     * @deprecated use {@link org.apache.commons.io.FilenameUtils#getExtension(String)} instead
+     */
+    @Deprecated
     public static String getFileExtension(String strFilename, boolean isIncludeDot)
     {
         int lastDotIndex = strFilename.lastIndexOf('.');
@@ -529,6 +537,13 @@ public class StringUtils {
         return getFileName(fullpathFilename, true);
     }
     
+    /**
+     * 
+     * @param fullpathFilename
+     * @return
+     * @deprecated use {@link org.apache.commons.io.FilenameUtils#getFullPath(String)} instead
+     */
+    @Deprecated
     public static String getFolderName(String fullpathFilename)
     {
         String foldername = "";
@@ -582,7 +597,14 @@ public class StringUtils {
         return entries;
     }
     
-    //Read text file as a single concatenated string
+    /**
+     * Read text file as a single concatenated string
+     * @param textFile
+     * @param encoding
+     * @return
+     * @deprecated use {@link org.apache.commons.io.FileUtils#readFileToString(File, String)} instead
+     */
+    @Deprecated
     public static String readTextFileIntoString(String textFile, String encoding)
     {
         String allText = null;

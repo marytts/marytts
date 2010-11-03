@@ -5043,6 +5043,26 @@ public class MathUtils {
         return newSignal;
     }
     
+    /**
+     * Get first-order discrete difference along adjacent values in an array
+     * 
+     * @param a
+     * @return array of differences between adjacent values in <b>a</b>, length is <code>a.length-1</code>; otherwise return null if <b>a</b> is
+     *         null, or [] if the length of <b>a</b> is less than 2.
+     */
+    public static double[] diff(double[] a) {
+        if (a == null) {
+            return null;
+        } else if (a.length < 2) {
+            return new double[0];
+        }
+        double[] b = new double[a.length - 1];
+        for (int i = 0; i < a.length - 1; i++) {
+            b[i] = a[i + 1] - a[i];
+        }
+        return b;
+    }
+    
     public static void main(String[] args)
     {
         ComplexNumber[][] x1 = new ComplexNumber[2][2];

@@ -37,44 +37,45 @@ import marytts.util.signal.SignalProcUtils;
  * @author Oytun T&uumlrk
  */
 public class EnergyContourRms {
-    EnergyFileHeader header;
+    public EnergyFileHeader header;
     public double[] contour;
 
-    public EnergyContourRms()
+    public EnergyContourRms() throws IOException
     {
-        this("");
+        this(null);
     }
     
-    public EnergyContourRms(String wavFile)
+    public EnergyContourRms(String wavFile) throws IOException
     {
-        this(wavFile, 0.020, 0.010);
+        this(wavFile, null);
     }
     
-    public EnergyContourRms(String wavFileIn, double windowSizeInSecondsIn, double skipSizeInSecondsIn)
+    public EnergyContourRms(String wavFile, String energyFile) throws IOException
+    {
+        this(wavFile, energyFile, EnergyFileHeader.DEFAULT_WINDOW_SIZE, EnergyFileHeader.DEFAULT_SKIP_SIZE);
+    }
+    
+    public EnergyContourRms(String wavFileIn, double windowSizeInSecondsIn, double skipSizeInSecondsIn) throws IOException
     {   
-        this(wavFileIn, "", windowSizeInSecondsIn, skipSizeInSecondsIn);
+        this(wavFileIn, null, windowSizeInSecondsIn, skipSizeInSecondsIn);
     }
     
-    public EnergyContourRms(String wavFileIn, String energyFileOut, double windowSizeInSecondsIn, double skipSizeInSecondsIn)
+    public EnergyContourRms(String wavFileIn, String energyFileOut, double windowSizeInSecondsIn, double skipSizeInSecondsIn) throws IOException
     {   
         header = new EnergyFileHeader();
         
         header.windowSizeInSeconds = windowSizeInSecondsIn;
         header.skipSizeInSeconds = skipSizeInSecondsIn;
         
-        if (wavFileIn!=null && wavFileIn!="")
+        if (wavFileIn!=null)
         {
             AudioInputStream inputAudio = null;
             try {
                 inputAudio = AudioSystem.getAudioInputStream(new File(wavFileIn));
             } catch (UnsupportedAudioFileException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
+                throw new IOException("Unsupported audio file: " + wavFileIn);
+            } 
+            
             if (inputAudio!=null)
             {
                 header.samplingRate = (int)inputAudio.getFormat().getSampleRate();
@@ -85,13 +86,14 @@ public class EnergyContourRms {
                 
                 header.totalFrames = contour.length;
 
-                if (energyFileOut!=null && energyFileOut!="")
+                if (energyFileOut!=null && energyFileOut!=null) {                    
                     WriteEnergyFile(this, energyFileOut);
+                }
             }
         }
     }
     
-    public static void WriteEnergyFile(EnergyContourRms en, String energyFile)
+    public static void WriteEnergyFile(EnergyContourRms en, String energyFile) throws IOException
     {
         if (en.contour!=null)
         {
@@ -100,62 +102,34 @@ public class EnergyContourRms {
             MaryRandomAccessFile ler = null;
             try {
                 ler = new MaryRandomAccessFile(energyFile, "rw");
-            } catch (FileNotFoundException e1) {
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
+            } catch (FileNotFoundException e) {
+                throw new IOException("File not found: " + energyFile);
             }
             
-            if (ler!=null)
-            {
-                en.header.write(ler);
+            en.header.write(ler);
             
-                try {
-                    ler.writeDouble(en.contour);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            
-                try {
-                    ler.close();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
+            ler.writeDouble(en.contour);
+                
+            ler.close();
         }
     }
 
-    public static EnergyContourRms ReadEnergyFile(String energyFile)
+    public static EnergyContourRms ReadEnergyFile(String energyFile) throws IOException
     {
         EnergyContourRms en = null;
         MaryRandomAccessFile ler = null;
         try {
             ler = new MaryRandomAccessFile(energyFile, "r");
-        } catch (FileNotFoundException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+        } catch (FileNotFoundException e) {
+            throw new IOException("File not found: " + energyFile);
         }
 
-        if (ler!=null)
-        {
-            en = new EnergyContourRms();
-            en.header.read(ler, true);
+        en = new EnergyContourRms();
+        en.header.read(ler, true);
 
-            try {
-                en.contour = ler.readDouble(en.header.totalFrames);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        en.contour = ler.readDouble(en.header.totalFrames);
 
-            try {
-                ler.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+        ler.close();
         
         return en;
     }
