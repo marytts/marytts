@@ -274,7 +274,7 @@ public class BasicProsodyModifierParams implements Serializable
         }
     }
     
-    public BasicProsodyModifierParams readObject(String fileName) throws IOException, ClassNotFoundException {
+    public static BasicProsodyModifierParams readObject(String fileName) throws IOException, ClassNotFoundException {
         try {
             File file = new File(fileName);
             FileInputStream fis = new FileInputStream(file);
