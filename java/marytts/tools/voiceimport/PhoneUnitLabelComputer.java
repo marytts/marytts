@@ -136,11 +136,11 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
 
         // parse labFile:
         XwavesLabelfileDataSource labFileData = new XwavesLabelfileDataSource(labFile.getPath());
-        ArrayList<Double> times = new ArrayList<Double>(Arrays.asList(labFileData.getTimes()));
+        ArrayList<Double> endTimes = new ArrayList<Double>(Arrays.asList(labFileData.getTimes()));
         ArrayList<String> labels = new ArrayList<String>(Arrays.asList(labFileData.getLabels()));
 
         // ensure that each labeled interval ends after the previous one:
-        ListIterator<Double> timeIterator = times.listIterator();
+        ListIterator<Double> timeIterator = endTimes.listIterator();
         double time = timeIterator.next();
         while (timeIterator.hasNext()) {
             double nextTime = timeIterator.next();
@@ -165,13 +165,16 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
             String nextLabel = labelIterator.next();
             if (label.equals(nextLabel) && label.equals(pauseSymbol)) {
                 labelIterator.remove();
-                times.remove(labelIterator.previousIndex());
+                endTimes.remove(labelIterator.previousIndex());
             }
             label = nextLabel;
         }
         
+        // get midtimes:
+        List<Double> midTimes = getMidTimes(labels, endTimes);
+        
         // convert labels to unit labels:
-        String[] unitLabelLines = toUnitLabels(labels, times);
+        String[] unitLabelLines = toUnitLabels(labels, endTimes, midTimes);
 
         // write to phonelab file:
         String phoneLabFileName = getProp(LABELDIR) + baseName + unitlabelExt;
@@ -189,7 +192,22 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
         out.close();      
     }
     
+    /**
+     * Get mid points for an utterance, given a list its phone labels and a list of corresponding end points.
+     * 
+     * @param labels
+     *            of the phones
+     * @param endTimes
+     *            of the phones
+     * @return a list of midpoint times (in seconds) for the phones
+     */
+    protected List<Double> getMidTimes(List<String> labels, List<Double> endTimes) {
+        // in this class, we don't actually need any midpoint times, so return null:
+        return null;
+    }
+
     /**/
+    // TODO dead code, remove?
     private String getPhone(String line)
     {
         StringTokenizer st = new StringTokenizer(line.trim());
@@ -239,19 +257,32 @@ public class PhoneUnitLabelComputer extends VoiceImportComponent
      * 
      * @param labels
      *            a List of label Strings
-     * @param times
+     * @param endTimes
      *            a List of time points representing the end points of these labels
+     * @param midTimes
+     *            a List of time points representing the mid points of these labels (can be null)
      * @return the label files lines
      */
-    protected String[] toUnitLabels(List<String> labels, List<Double> times) {
-        assert labels.size() == times.size();
-        String[] unitLines = new String[labels.size()];
+    protected String[] toUnitLabels(List<String> labels, List<Double> endTimes, List<Double> midTimes) {
+        assert labels.size() == endTimes.size();
+        if (midTimes != null) {
+            assert midTimes.size() == endTimes.size();
+        }
+        
+        ArrayList<String> unitLines = new ArrayList<String>(labels.size());
+        
         for (int i = 0; i < labels.size(); i++) {
             String label = labels.get(i);
-            Double time = times.get(i);
-            unitLines[i] = String.format("%f %d %s", time, i + 1, label);
+            double endTime = endTimes.get(i);
+            if (midTimes != null) {
+                double midTime = midTimes.get(i);
+                unitLines.add(String.format("%f %d %s_L", midTime, unitLines.size() + 1, label));
+                unitLines.add(String.format("%f %d %s_R", endTime, unitLines.size() + 1, label));
+            } else {
+                unitLines.add(String.format("%f %d %s", endTime, unitLines.size() + 1, label));
+            }
         }
-        return unitLines;
+        return (String[]) unitLines.toArray(new String[unitLines.size()]);
     }
     
     /**
