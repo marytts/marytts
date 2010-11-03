@@ -776,7 +776,7 @@ public class TimelineReader
         /**
          * Construct an index from a data input stream or random access file.
          * Fundamental guarantee: Once created, the index is guaranteed to contain a positive index interval and
-         * strictly monotonously rising byte and time pointers.
+         * monotonously rising byte and time pointers.
          * @param bb byte buffer from which to read the index.
          * Must not be null, and read position must be at start of index.
          * @throws IOException if there is a problem reading.
@@ -790,7 +790,7 @@ public class TimelineReader
         /**
          * Construct an index from a byte buffer.
          * Fundamental guarantee: Once created, the index is guaranteed to contain a positive index interval and
-         * strictly monotonously rising byte and time pointers.
+         * monotonously rising byte and time pointers.
          * @param rafIn data input from which to read the index.
          * Must not be null, and read position must be at start of index.
          * @throws BufferUnderflowException if there is a problem reading.
@@ -805,7 +805,7 @@ public class TimelineReader
          * Constructor which builds a new index with a specific index interval
          * and a given sample rate.
          * Fundamental guarantee: Once created, the index is guaranteed to contain a positive index interval and
-         * strictly monotonously rising byte and time pointers.
+         * monotonously rising byte and time pointers.
          * 
          * @param idxInterval the index interval, in samples. Must be a positive number.
          * @param indexFields the actual index data. Must not be null.
@@ -827,7 +827,7 @@ public class TimelineReader
                 bytePtrs[i] = f.bytePtr;
                 timePtrs[i] = f.timePtr;
                 if (i > 0) {
-                    if (bytePtrs[i] <= bytePtrs[i-1] || timePtrs[i] <= timePtrs[i-1]) {
+                    if (bytePtrs[i] < bytePtrs[i-1] || timePtrs[i] < timePtrs[i-1]) {
                         throw new IllegalArgumentException ("Pointer positions in index fields must be strictly monotonously rising");
                     }
                 }
@@ -865,7 +865,7 @@ public class TimelineReader
                 bytePtrs[i] = bufIn.readLong();
                 timePtrs[i] = bufIn.readLong();
                 if (i > 0) {
-                    if (bytePtrs[i] <= bytePtrs[i-1] || timePtrs[i] <= timePtrs[i-1]) {
+                    if (bytePtrs[i] < bytePtrs[i-1] || timePtrs[i] < timePtrs[i-1]) {
                         throw new MaryConfigurationException("File seems corrupt: Pointer positions in index fields are not strictly monotonously rising");
                     }
                 }
@@ -896,7 +896,7 @@ public class TimelineReader
                 bytePtrs[i] = bb.getLong();
                 timePtrs[i] = bb.getLong();
                 if (i > 0) {
-                    if (bytePtrs[i] <= bytePtrs[i-1] || timePtrs[i] <= timePtrs[i-1]) {
+                    if (bytePtrs[i] < bytePtrs[i-1] || timePtrs[i] < timePtrs[i-1]) {
                         throw new MaryConfigurationException("File seems corrupt: Pointer positions in index fields are not strictly monotonously rising");
                     }
                 }
