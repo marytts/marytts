@@ -290,12 +290,87 @@ public class ProsodyGeneric extends InternalModule {
                 }
             }            
         }
+        convertTOBIAccents2ProsodyContour(doc);
         MaryData result = new MaryData(outputType(), d.getLocale());
         result.setDocument(doc);
         return result;
     }
 
+    /**
+     * Method to convert TOBI Accents to Prosody contour 
+     * @param doc
+     */
+    private void convertTOBIAccents2ProsodyContour(Document doc) {
+        TreeWalker tw = MaryDomUtils.createTreeWalker(doc, MaryXML.TOKEN);
+        Element tokenElement = (Element) tw.nextNode();
+        
+        while ( tokenElement != null ) {
+            
+            boolean hasAccentAttribute = tokenElement.hasAttribute("accent");
+            if ( hasAccentAttribute ) {
+                String accentAttribute = tokenElement.getAttribute("accent");
+                
+                boolean isDefined = isDefinedAccent(accentAttribute);
+                if ( !isDefined ) {
+                    tokenElement = (Element) tw.nextNode();
+                    continue;
+                }
+                
+                String contourValue = getAccentContour(accentAttribute);
+                assert contourValue != null;
+                Node tokenAncestor = tokenElement.getParentNode();
+                Element prosody = MaryXML.createElement(doc, MaryXML.PROSODY);
+                prosody.setAttribute("contour", contourValue);
+                prosody.appendChild(tokenElement.cloneNode(true));
+                tokenAncestor.insertBefore(prosody, tokenElement);
+                Element nextTokenElement = (Element) tw.nextNode();
+                if ( nextTokenElement == null ) {
+                    tokenAncestor.removeChild(tokenElement);
+                    break;
+                }
+                tokenAncestor.removeChild(tokenElement);
+                tokenElement = nextTokenElement;
+                continue;
+            }
+            tokenElement = (Element) tw.nextNode();
+        }        
+    }
     
+    /**
+     * lookup for defined accents 
+     * @param accentAttribute
+     * @return true if given accent defined
+     *         false if given accent not defined
+     */
+    private boolean isDefinedAccent(String accentAttribute){
+        
+        if("H*".equals(accentAttribute)) return true;
+        if("L*".equals(accentAttribute)) return true;
+        if("L*+H".equals(accentAttribute)) return true;
+        if("L*+!H".equals(accentAttribute)) return true;
+        if("L+H*".equals(accentAttribute)) return true;
+        if("!H*".equals(accentAttribute)) return true;
+        
+        return false;
+    }
+    
+    /**
+     * accent to contour lookup 
+     * @param accentAttribute
+     * @return null if not defined in lookup
+     */
+    private String getAccentContour(String accentAttribute){
+                
+        if("H*".equals(accentAttribute)) return "(4%, +10%)(18%,+20%)(34%,+26%)(50%,+30%)(66%,+26%)(82%,+20%)(96%,+10%)";
+        if("L*".equals(accentAttribute)) return "(4%, -7%)(18%,-13%)(34%,-17%)(50%,-20%)(66%,-17%)(82%,-13%)(96%,-7%)";
+        if("L*+H".equals(accentAttribute)) return "(2%, -7%)(18%,-16%)(34%,-19%)(50%,-20%)(66%,-15%)(82%,-4%)(100%,+25%)";
+        if("L*+!H".equals(accentAttribute)) return "(0%, +5%)(4%, -7%)(18%,-16%)(34%,-20%)(48%, -7%)(52%, +10%)(66%,+20%)(82%,+26%)(100%,+30%)";
+        if("L+H*".equals(accentAttribute)) return "(0%, -20%)(18%,-19%)(34%,-17%)(45%, -7%)(55%, +10%)(66%,+25%)(82%,+28%)(100%,+30%)";
+        if("!H*".equals(accentAttribute)) return "(0%, +30%)(18%,+10%)(34%,+5%)(50%,0%)(66%,-13%)(82%,-17%)(100%,-20%)";
+        
+        return null;
+    }
+
     protected void processSentence (Element sentence)  {
     	
         NodeList tokens = sentence.getElementsByTagName(MaryXML.TOKEN);
