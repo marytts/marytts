@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import marytts.cart.io.DirectedGraphReader;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
+import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
@@ -51,7 +52,8 @@ public class ProsodyElementHandler {
     
     /**
      * A method to modify prosody modifications
-     * @param doc
+     * @param doc - MARY XML Document
+     * 
      */
     public void process(Document doc) {
         
@@ -111,9 +113,9 @@ public class ProsodyElementHandler {
    }
     
     /**
-     * Apply 'rate' specifications to NodeList (with only 'ph' elements)
-     * @param nl
-     * @param prosodyElement
+     * To apply 'rate' specifications to NodeList (with only 'ph' elements)
+     * @param nl - NodeList of 'ph' elements
+     * @param rateAttribute - Speech rate attribute
      */
     private void applySpeechRateSpecifications(NodeList nl, String rateAttribute) {
       
@@ -319,15 +321,21 @@ public class ProsodyElementHandler {
 
 
     /**
-     * set duration specifications according to 'rate' requirements
-     * @param nl
+     * To set duration specifications according to 'rate' requirements
+     * @param nl - NodeList of 'ph' elements
      * @param percentage
      * @param incriment
+     * @throws IllegalArgumentException if NodeList contains elements other than 'ph' elements 
      */
     private void modifySpeechRate(NodeList nl, double percentage, double incriment) {
         
         for ( int i=0; i < nl.getLength(); i++ ) {
             Element e = (Element) nl.item(i); 
+            
+            if ( !"ph".equals(e.getNodeName()) ){
+                throw new IllegalArgumentException("NodeList should contain 'ph' elements only");
+            }
+            
             if ( !e.hasAttribute("d") ) {
                 continue;
             }
@@ -367,17 +375,24 @@ public class ProsodyElementHandler {
     }
     
     /**
-     * get Continuous contour from "ph" nodelist
-     * @param nl
-     * @return
+     * To get a continuous pitch contour from nodelist of "ph" elements
+     * @param nl - NodeList of 'ph' elements; All elements in this NodeList should be 'ph' elements only
+     * @return a double array of pitch contour
+     * @throws IllegalArgumentException if NodeList is null or it contains elements other than 'ph' elements
      */
     public double[] getF0Contour(NodeList nl, int arraysize) {
         
-      
-        /**TODO
-         * If we want to use this method as a generic method to get 'f0 contour', 
-         * a sanity check required for NodeList such that all elements in NodeList are only 'ph' elements.
-         */
+        if ( nl == null || nl.getLength() == 0 ) {
+            throw new IllegalArgumentException("Input NodeList should not be null or zero length list"); 
+        }
+        
+        // A sanity checker for NodeList: for 'ph' elements only condition
+        for ( int i=0; i < nl.getLength(); i++ ) {
+            Element e = (Element) nl.item(i);
+            if ( !"ph".equals(e.getNodeName()) ) {
+                throw new  IllegalArgumentException("Input NodeList should contain 'ph' elements only");
+            }
+        }
         
         Element firstElement =  (Element) nl.item(0);
         Element lastElement =  (Element) nl.item(nl.getLength()-1);
@@ -479,9 +494,9 @@ public class ProsodyElementHandler {
 
 
     /**
-     * to get contour specifications into MAP
-     * @param attribute
-     * @return
+     * To get prosody contour specifications by parsing 'contour' attribute values
+     * @param attribute - 'contour' attribute
+     * @return HashMap that contains prosody contour specifications
      */
     private Map<String, String> getContourSpecifications(String attribute) {
         
@@ -502,9 +517,9 @@ public class ProsodyElementHandler {
 
 
     /**
-     * Get f0 specifications in HashMap
-     * @param attribute
-     * @return
+     * To parse 'f0' attribute and to get f0 specifications
+     * @param attribute - 'f0' attribute of 'ph' element
+     * @return a HashMap which contains f0 specifications
      */
     private Map<Integer, Integer> getPhoneF0Data(String attribute) {
       
