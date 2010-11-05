@@ -49,6 +49,7 @@ import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -297,49 +298,60 @@ public class ProsodyGeneric extends InternalModule {
     }
 
     /**
-     * Method to convert TOBI Accents to Prosody contour 
-     * @param doc
+     * To convert all TOBI accents given in MARYXML document to suitable pitch contour shapes:
+     * 
+     * e.g. Input : <t accent="H*"> ball </t>
+     *      
+     *      Output: <prosody contour="(4%, +10%)(18%,+20%)(34%,+26%)(50%,+30%)(66%,+26%)(82%,+20%)(96%,+10%)"> 
+     *               <t accent="H*"> ball </t>
+     *              </prosody>    
+     *    
+     * @param MARYXML Document
+     * @throws Exception when XML processing fails   
      */
-    private void convertTOBIAccents2ProsodyContour(Document doc) {
-        TreeWalker tw = MaryDomUtils.createTreeWalker(doc, MaryXML.TOKEN);
-        Element tokenElement = (Element) tw.nextNode();
+    private void convertTOBIAccents2ProsodyContour(Document doc) throws Exception {
         
-        while ( tokenElement != null ) {
+            TreeWalker tw = MaryDomUtils.createTreeWalker(doc, MaryXML.TOKEN);
+            Element tokenElement = (Element) tw.nextNode();
             
-            boolean hasAccentAttribute = tokenElement.hasAttribute("accent");
-            if ( hasAccentAttribute ) {
-                String accentAttribute = tokenElement.getAttribute("accent");
+            while ( tokenElement != null ) {
                 
-                boolean isDefined = isDefinedAccent(accentAttribute);
-                if ( !isDefined ) {
-                    tokenElement = (Element) tw.nextNode();
+                boolean hasAccentAttribute = tokenElement.hasAttribute("accent");
+                if ( hasAccentAttribute ) {
+                    String accentAttribute = tokenElement.getAttribute("accent");
+                    
+                    boolean isDefined = isDefinedAccent(accentAttribute);
+                    if ( !isDefined ) {
+                        tokenElement = (Element) tw.nextNode();
+                        continue;
+                    }
+                    
+                    String contourValue = getAccentContour(accentAttribute);
+                    
+                    assert contourValue != null : "contour attribute should not be null";
+                    
+                    Node tokenAncestor = tokenElement.getParentNode();
+                    Element prosody = MaryXML.createElement(doc, MaryXML.PROSODY);
+                    prosody.setAttribute("contour", contourValue);
+                    prosody.appendChild(tokenElement.cloneNode(true));
+                    tokenAncestor.insertBefore(prosody, tokenElement);
+                    Element nextTokenElement = (Element) tw.nextNode();
+                    if ( nextTokenElement == null ) {
+                        tokenAncestor.removeChild(tokenElement);
+                        break;
+                    }
+                    tokenAncestor.removeChild(tokenElement);
+                    tokenElement = nextTokenElement;
                     continue;
                 }
-                
-                String contourValue = getAccentContour(accentAttribute);
-                assert contourValue != null;
-                Node tokenAncestor = tokenElement.getParentNode();
-                Element prosody = MaryXML.createElement(doc, MaryXML.PROSODY);
-                prosody.setAttribute("contour", contourValue);
-                prosody.appendChild(tokenElement.cloneNode(true));
-                tokenAncestor.insertBefore(prosody, tokenElement);
-                Element nextTokenElement = (Element) tw.nextNode();
-                if ( nextTokenElement == null ) {
-                    tokenAncestor.removeChild(tokenElement);
-                    break;
-                }
-                tokenAncestor.removeChild(tokenElement);
-                tokenElement = nextTokenElement;
-                continue;
-            }
-            tokenElement = (Element) tw.nextNode();
-        }        
+                tokenElement = (Element) tw.nextNode();
+            }    
     }
     
     /**
-     * lookup for defined accents 
-     * @param accentAttribute
-     * @return true if given accent defined
+     * To verify whether the 'accent' contour shape defined or not  
+     * @param accentAttribute - TOBI accent
+     * @return true if given accent defined 
      *         false if given accent not defined
      */
     private boolean isDefinedAccent(String accentAttribute){
@@ -355,9 +367,11 @@ public class ProsodyGeneric extends InternalModule {
     }
     
     /**
-     * accent to contour lookup 
-     * @param accentAttribute
-     * @return null if not defined in lookup
+     * A method to return pitch contour specification for given 'accent' which maintains a 'accent' to 'contour' lookup
+     * Note: If you add new accent pitch contour shape into lookup, do not forget to define in method isDefinedAccent(..)
+     * @param accentAttribute - TOBI accent
+     * @return  A suitable pitch contour specification for the given 'accent'
+     *          or null if not defined in lookup
      */
     private String getAccentContour(String accentAttribute){
                 
