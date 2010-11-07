@@ -17,6 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # #########################################################################
+α '?al-fa:
+β 'bE-ta:
+γ 'ga-ma:
 AG ?a:-'ge:
 ASEAN '?a-ze:-a:n
 Aa '?a:-'?a:
@@ -1774,7 +1777,7 @@ Brisé bRi:-'se:
 Briten 'bRi:-t@n
 Broadway 'bROd-vEI
 Broadwayproduktion 'bROd-vEI-pRo:-dUk-tsjo:n
-Broke 'bRo:-k@
+Broke 'br@Uk
 Brontosaurus bROn-to:-'zaU-RUs
 Bronzezeit 'bRo~-s@-tsaIt
 Brook 'bRo:k
@@ -2007,7 +2010,7 @@ C 'tse:
 CIA si:-?aI-'?EI
 CVJM tse:-faU-jOt-'?Em
 Cabinet ka-bI-'nEt
-Cabot ka-'bo~
+Cabot 'kE-bOt
 Cabrero ka-'bre:-ro:
 Caerdydd 'kE6-dId
 Caesar 'tsE:-za:6
@@ -2163,7 +2166,7 @@ Chruschtschow 'kRUS-tSOf
 Chruschtschows 'kRUS-tSOfs
 Chryseis kRy:-'se:-jIs
 Chrysler 'kraIs-l6
-Chueca 'CU-E-ka:
+Chueca tSu-'E-ka
 Chungyus 'CUN-y:-Us
 Churchill 'tS96-tSIl
 Chuzpe 'xUts-p@
@@ -2505,7 +2508,7 @@ Deutschlandfunk 'dOYtS-lant-fUNk
 Deutschlands 'dOYtS-lants
 Deutschlandtournee 'dOYtS-lan-tU6-ne:
 Deutschrap 'dOYtS-rEp
-Deutschsprachig 'dOYt-SpRa:-xIC
+Deutschsprachig 'dOYtS-SpRa:-xIC
 Deutschtümelei 'dOYtS-ty:-m@-laI
 Deuö 'd2:
 Devereux de:-v@-'R2:
@@ -3145,7 +3148,7 @@ England '?EN-lant
 Englands '?EN-lants
 Englisch '?EN-lIS
 Englische '?EN-lI-S@
-Englischsprachig 'EN-lI-SpRa:-xIC
+Englischsprachig '?EN-lIS-SpRa:-xIC
 Engpass '?EN-pas
 Enlais '?En-laIs
 Enner '?E-n6
@@ -5367,7 +5370,7 @@ Individualität ?In-di:-vi:-du:-a-li:-'tE:t
 Individualitäten ?In-di:-vi:-du:-a-li:-'tE:-t@n
 Individualpsychologie ?In-di:-vi:-du:-'a:l-psy:-Co:-lo:-gi:
 Individualrecht ?In-di:-vi:-du:-'a:l-RECt
-Individualrechte ?In-di:-vi:-du:-':al-REC-t@
+Individualrechte ?In-di:-vi:-du:-'a:l-REC-t@
 Individualrechten ?In-di:-vi:-du:-'a:l-REC-t@n
 Individualrechtes ?In-di:-vi:-du:-'a:l-REC-t@s
 Individualrechts ?In-di:-vi:-du:-'a:l-RECts
@@ -9532,7 +9535,7 @@ Ranking 'rEN-kIN
 Rankings 'rEN-kINs
 Rap 'rE:p
 Rapeinlagen 'rE:p-?aIn-la:-g@n
-Rapids Ra-'pi:ts
+Rapids 'rE-pIdz
 Rappelkopf 'Ra-p@l-kOpf
 Rapper 'rE:-p6
 Rapssorten 'Rap-zO6-t@n
@@ -9995,7 +9998,8 @@ Romantiker Ro:-'man-ti:-k6
 Romero Ro:-'me:-Ro:
 Roms 'Ro:ms
 Ron 'ROn
-RonspergBöhmen 'ROns-pE6k-b2:-m@n
+Ronsperg 'ROns-pE6k
+Böhmen 'b2:-m@n
 Room 'ru:m
 Roosevelt 'ru:-z@-vElt
 Roosevelts 'ru:-z@-vElts
@@ -11912,7 +11916,7 @@ Terrarium tE-'Ra:-Ri:-Um
 Territorialität tE-Ri:-to:-Ri:-a:-li:-'tE:t
 Territorium tE-Ri-'to-Ri-Um
 Territoriums tE-Ri:-'to:-Ri:-Ums
-Terror 'tE-RO:6
+Terror 'tE-Ro6
 Terrorismus tE-Ro:-'RIs-mUs
 Terry 'tE-RI
 Tertia 'tE6-tsja:
@@ -11997,7 +12001,7 @@ These 'te:-z@
 Thiudareiks ti:-'u:-da:-RaIks
 Tholeyer 'to:-laI-6
 Thomas 'to:-mas
-Thoreaus To:-'rOuS
+Thoreaus To-'r@Uz
 Thorp 'To:6p
 Thriller 'TrI-l@
 Thron 'tRo:n
@@ -12950,7 +12954,8 @@ Volleyballer 'vO-le:-ba-l6
 Vollkommenheit fOl-'kO-m@n-haIt
 Volltreffer 'fOl-tRE-f6
 Vollziehung fOl-'tsi:-UN
-Voltaires vOl-'tE:6
+Voltaire vOl-'tE:6
+Voltaires vOl-'tE:6s
 Volumens vo:-'lu:-m@ns
 Volvo 'vOl-vo:
 Vom 'fOm
@@ -13133,7 +13138,7 @@ Was 'vas
 Waschbär 'vaS-bE:6
 Washington 'wO-SIN-t@n
 Washingtoner 'wO-SIN-tO-n6
-Washingtons 'wO-SIN-t@n
+Washingtons 'wO-SIN-t@ns
 Wasser 'va-s6
 Wasserbassin 'va-s6-ba-se~
 Wasserbassins 'va-s6-ba-se~s
@@ -13416,7 +13421,6 @@ Wintersemester 'vIn-t6-ze:-mEs-t6
 Wipfel 'vI-pf@l
 Wir 'vI6
 Wirbelsäule 'vI6-b@l-zOY-l@
-Wird 'vIRt
 Wirklich 'vIR-klIC
 Wirklichkeit 'vIR-klIC-kaIt
 Wirkung 'vIR-kUN
@@ -15569,8 +15573,8 @@ deutsch 'dOYtS
 deutsche 'dOY-tS@
 deutschen 'dOY-tS@n
 deutscher 'dOY-tS6
-deutschsprachige 'dOYtS-SpRa:x-i:-g@
-deutschsprachigen 'dOYtS-SpRa:x-i:-g@n
+deutschsprachige 'dOYtS-SpRa:-xI-g@
+deutschsprachigen 'dOYtS-SpRa:-xI-g@n
 diabetisch di:-a-'be:-tIS
 diabolisch di:-a-'bo:-lIS
 diachron di:-a-'kRo:n
@@ -15961,7 +15965,7 @@ eisenbeschlagenem '?aI-z@n-b@-Sla:-g@-n@m
 eisern '?aI-z6n
 eiskalt ?aIs-'kalt
 eitel '?aI-t@l
-eius 'aI-Us
+eius '?e:-jUs
 ejus '?e:-jUs
 ekelerregend '?e:-k@l-?E6-Re:-g@nt
 el 'El
@@ -21462,7 +21466,7 @@ willst 'vIlst
 windsurft 'vInt-s96ft
 winkte 'vINk-t@
 wir 'vi:6
-wird 'vIt6
+wird 'vI6t
 wirft 'vIRft
 wirke 'vI6-k@
 wirken 'vI6-k@n
@@ -22268,7 +22272,8 @@ zünftig 'tsYnf-tIC
 Ökonom ?2:-ko:-'no:m
 Ökonomie ?2:-ko:-no:-'mi:
 Ökonomische ?2:-ko:-'no:-mI-S@
-Ökumeneökumenisch '2:-ku:-m@-n@-2:-ku:-me:-nIS
+Ökumene ?2:-ku-'m@-n@
+ökumenisch ?2:-ku-'me:-nIS
 Öl '?2:l
 Ölfeld '?2:l-fElt
 Ölfelder '?2:l-fEl-d6
