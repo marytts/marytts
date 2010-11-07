@@ -249,6 +249,11 @@ public class WagonCARTReader {
             if (value.startsWith("\"") && value.endsWith("\"") && value.length() > 2)
                 value = value.substring(1, value.length() - 1);
 
+            // a literal double quote is escaped by backslash, so unescape it:
+            if (value.contains("\\\"")) {
+                value = value.replaceAll("\\\\\"", "\"");
+            }
+
             // build new node depending on type
 
             Node nextNode;
@@ -348,7 +353,9 @@ public class WagonCARTReader {
                 index++;
             }
             // for debugging
-            int nodeIndex = nextNode.getNodeIndex();
+            if (nextNode != null) {
+                int nodeIndex = nextNode.getNodeIndex();
+            }
 
         }
     }
