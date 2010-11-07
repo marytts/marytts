@@ -494,5 +494,43 @@ public class Polynomial
         if (order == 4) return dist;
         throw new IllegalArgumentException("Order greater than 4 not supported");
     }
+    
+    /**
+     * Compute one minus the Pearson product moment correlation between two polynomials of same order.
+     * Equation : D = 1 - corr(F1, F2)
+     * purpose: the distance should be less for contours that have a similar shape, 
+     * so differences in pitch height or pitch range should not be included in the distance measure.
+     * @param coeffs1
+     * @param coeffs2
+     * @return double distance between two polynomial coefficients
+     * @throws NullPointerException if recieved polynomial coeffs null
+     * @throws IllegalArgumentException if the length of coeffs are not equal
+     */
+    public static double polynomialPearsonProductMomentCorr(double[] coeffs1, double[] coeffs2)
+    {
+        if (coeffs1 == null || coeffs2 == null)
+            throw new NullPointerException("Received null argument");
+        if (coeffs1.length != coeffs2.length)
+            throw new IllegalArgumentException("Can only compare polynomials with same order");
+        
+        double[] contour1 = Polynomial.generatePolynomialValues(coeffs1, 25, 0, 1);
+        double[] contour2 = Polynomial.generatePolynomialValues(coeffs2, 25, 0, 1);
+        double meanF01 = MathUtils.mean(contour1);
+        double meanF02 = MathUtils.mean(contour2);
+        double diffF01Sum = 0;
+        double diffF02Sum = 0;
+        double diffProductSum = 0;
+        
+        for ( int i=0; i<contour1.length; i++ ) {
+            double diffF01 = (contour1[i] - meanF01);
+            double diffF02 = (contour2[i] - meanF02);
+            double diffProduct =  diffF01 * diffF02;
+            diffF01Sum += (diffF01*diffF01);
+            diffF02Sum += (diffF02*diffF02);
+            diffProductSum +=  diffProduct;
+        }
+        
+        return 1.0 - (diffProductSum / Math.sqrt(diffF01Sum*diffF02Sum));
+    }
 
 }
