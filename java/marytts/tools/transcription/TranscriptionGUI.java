@@ -50,7 +50,8 @@ public class TranscriptionGUI extends javax.swing.JFrame {
     String baseName = null;
     String suffix = null;
     String locale = null;
-    boolean loadTranscription = false;  
+    boolean loadTranscription = false;
+    private static File baseDir;  
     
     /** Creates new form TranscriptionGUI */
     public TranscriptionGUI() {
@@ -532,12 +533,13 @@ public class TranscriptionGUI extends javax.swing.JFrame {
 
     private void addWordsFromFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addWordsFromFileActionPerformed
         if(!checkNecessaryEvents("load")) return;
-        JFileChooser fc = new JFileChooser(new File("."));
+        JFileChooser fc = new JFileChooser(baseDir);
         fc.setDialogTitle("Open word list to append to current transcription file");
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int returnVal = fc.showOpenDialog(TranscriptionGUI.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
+            baseDir = fc.getCurrentDirectory();
             simplePanel.addWordsToTranscription(file.getAbsolutePath());
         }
 
@@ -673,12 +675,13 @@ public class TranscriptionGUI extends javax.swing.JFrame {
 
     private void loadPhoneSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadPhoneSetActionPerformed
         if(!checkNecessaryEvents("phoneset")) return;
-        JFileChooser fc = new JFileChooser(new File("."));
+        JFileChooser fc = new JFileChooser(baseDir);
         fc.setDialogTitle("Load phoneset file");
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int returnVal = fc.showOpenDialog(TranscriptionGUI.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
+            baseDir = fc.getCurrentDirectory();
             phoneSetFile  = file.getAbsolutePath();
             
             if(phoneSetFile != null) {
@@ -701,11 +704,12 @@ public class TranscriptionGUI extends javax.swing.JFrame {
 
     private void saveAsToFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsToFileActionPerformed
         if(!checkNecessaryEvents("save")) return;
-        JFileChooser fc = new JFileChooser();
+        JFileChooser fc = new JFileChooser(baseDir);
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int returnVal = fc.showSaveDialog(TranscriptionGUI.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
+            baseDir = fc.getCurrentDirectory();
             fileNametoSave = file.getAbsolutePath();
             File saveFile = new File(fileNametoSave);
             dirName = saveFile.getParentFile().getAbsolutePath();
@@ -725,12 +729,13 @@ public class TranscriptionGUI extends javax.swing.JFrame {
 
     private void loadFromFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromFileActionPerformed
         if(!checkNecessaryEvents("load")) return;
-        JFileChooser fc = new JFileChooser(new File("."));
+        JFileChooser fc = new JFileChooser(baseDir);
         fc.setDialogTitle("Open transcription file");
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int returnVal = fc.showOpenDialog(TranscriptionGUI.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
+            baseDir = fc.getCurrentDirectory();
             simplePanel.loadTranscription(file.getAbsolutePath());
             fileNametoSave = file.getAbsolutePath();
             File saveFile = new File(fileNametoSave);
@@ -842,6 +847,13 @@ public class TranscriptionGUI extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+        try {
+            String baseDirName = args[0];
+            baseDir = new File(baseDirName);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // ignore
+        }
+        
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new TranscriptionGUI().setVisible(true);
