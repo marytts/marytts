@@ -29,7 +29,6 @@ import java.util.Random;
 
 import javax.swing.JFrame;
 
-import marytts.machinelearning.Hierarchical.Cluster;
 import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.util.math.MathUtils;
