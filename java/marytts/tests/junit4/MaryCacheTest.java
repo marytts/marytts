@@ -95,7 +95,7 @@ public class MaryCacheTest
     }
     
     @Test
-    public void cannotInsertAgain() throws Exception
+    public void canInsertAgain() throws Exception
     {
         int numExceptions = 0;
         try {
@@ -108,7 +108,7 @@ public class MaryCacheTest
         } catch (SQLException e) {
             numExceptions++;
         }
-        assertEquals(2, numExceptions);
+        assertEquals(0, numExceptions);
     }
     
     @Test
