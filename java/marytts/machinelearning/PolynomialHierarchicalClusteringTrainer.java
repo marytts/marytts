@@ -21,17 +21,14 @@ package marytts.machinelearning;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Random;
 
 import javax.swing.JFrame;
 
 import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.signalproc.display.FunctionGraph;
-import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 
 
@@ -59,8 +56,9 @@ public class PolynomialHierarchicalClusteringTrainer {
     
     /**
      * Constructor of the Hierarchical trainer
-     * @param polynomials - polynomial coefficients
+     * @param polynomials - array of polynomial coefficients ( minimum length of polynomials should be three ) 
      * @throws NullPointerException if input polynomial array is null
+     * @throws IllegalArgumentException if length of array of polynomial coefficients is less than three
      */
     public PolynomialHierarchicalClusteringTrainer(Polynomial[] polynomials){
         
@@ -85,12 +83,12 @@ public class PolynomialHierarchicalClusteringTrainer {
     
     /**
      * To find distance between two clusters
-     * @param xCluster cluster one
-     * @param yCluster cluster two
-     * @param linkageType  
+     * @param xCluster a cluster that contains a set of polynomial coeffs. 
+     * @param yCluster a cluster that contains a set of polynomial coeffs. 
+     * @param linkageType the linkage type used for Hierarchical clustering. possible values: 'Complete', 'Average' or 'Short'
      * @return distance between two clusters
      * @throws NullPointerException if received clusters are null
-     * @throws IllegalArgumentException if linkageType is other 'Complete', 'Average' or 'Short'
+     * @throws IllegalArgumentException if linkageType is other than 'Complete', 'Average' or 'Short'
      */
     private double getClusterDistance(Cluster xCluster, Cluster yCluster, String linkageType) {
         
@@ -158,7 +156,9 @@ public class PolynomialHierarchicalClusteringTrainer {
      *    
      */
     private void initializeClustering() {
-        assert dataPointSet == null;
+        assert dataPointSet != null;
+        assert clusterList != null;
+        
         Iterator<String> it = dataPointSet.iterator();
         while(it.hasNext()){
             ArrayList<String> dataSet = new ArrayList<String>();
@@ -173,7 +173,11 @@ public class PolynomialHierarchicalClusteringTrainer {
      */
     private void computeSampleDistances() {
         
-        assert polynomials == null;
+        assert polynomials != null;
+        assert polynomials.length > 2;
+        assert dataPointSet != null;
+        assert distanceTableMap != null;
+        
         int observations = polynomials.length;
         int polynomialOrder = polynomials[0].getOrder();
         int[] clusterIndices = new int[observations];
@@ -183,7 +187,6 @@ public class PolynomialHierarchicalClusteringTrainer {
         for( int i=0; i < observations; i++ ) {
             dataPointSet.add(""+i);
             for( int j=0; j < observations; j++ ) {
-                //dist[i][j] = polynomials[i].polynomialDistance(polynomials[j]);
                 dist[i][j] = Polynomial.polynomialPearsonProductMomentCorr(polynomials[i].coeffs, polynomials[j].coeffs);
                 distanceTableMap.put(i+"_"+j, (new Double(dist[i][j])));
             }
@@ -191,9 +194,9 @@ public class PolynomialHierarchicalClusteringTrainer {
     }
     
     /**
-     * To get the type of measure used for distance metric 
-     * @return true  - similarity metric
-     *         false - dissimilarity metric 
+     * To get the type of measure used for cluster data 
+     * @return true, if similarity metric used to cluster the data
+     *         false, if dissimilarity metric used to cluster the data
      */
     private boolean hasSimilarityMeasure(){
         return this.isSimilarityMeasure;
@@ -201,8 +204,8 @@ public class PolynomialHierarchicalClusteringTrainer {
     
     /**
      * To compute distance between to two clusters
-     * @param xCluster
-     * @param yCluster
+     * @param xCluster cluster one that contains a set of polynomial coeffs. 
+     * @param yCluster cluster two that contains a set of polynomial coeffs. 
      * @return double - distance between two clusters
      *         By default, it uses 'average' approach to compute distance 
      * @throws IllegalArgumentException if input clusters are null 
@@ -213,14 +216,17 @@ public class PolynomialHierarchicalClusteringTrainer {
     
     
     /**
-     * default clustering with target cluster size = 5.
+     * clustering with default target cluster size and default linkage type
+     * It uses 'Average' linkage clustering approach as default 
      */
     private void clustering(){
         clustering(CLUSTER_DEFAULT_SIZE, "Average");
     }
     
     /**
-     * default clustering with target cluster size = 5.
+     * clustering with default linkage type
+     * It uses 'Average' linkage clustering approach as default
+     * @param tagetClusterSize target cluster size 
      */
     private void clustering(int tagetClusterSize){
         clustering(tagetClusterSize, "Average");
@@ -228,9 +234,13 @@ public class PolynomialHierarchicalClusteringTrainer {
     
     /**
      * Clustering with user-defined target cluster size
-     * @param tagetClusterSize
+     * @param tagetClusterSize target cluster size
+     * @param linkageType the linkage type used for Hierarchical clustering. 
+     *        Possible values are 'Average', 'Complete', and 'Short' 
      */
     private void clustering(int tagetClusterSize, String linkageType){
+        
+        assert clusterList != null;
         
         int minClusterOne = 0;
         int minClusterTwo = 0;
@@ -276,6 +286,8 @@ public class PolynomialHierarchicalClusteringTrainer {
      */
     private void printClusterData() {
         
+        assert clusterList != null;
+        
         System.out.println("Total No of Clusters: "+clusterList.size());
         Iterator<Cluster> it = clusterList.iterator();
         for ( int noCluster = 1; it.hasNext(); noCluster++ ){
@@ -291,10 +303,9 @@ public class PolynomialHierarchicalClusteringTrainer {
     }
     
     /**
-     * set the type of measure 
-     * if true  - the measure used to cluster the data is a similarity measure
-     *    false - the measure used to cluster the data is a dissimilarity measure
-     * @param isSimilarityMeasure
+     * Set the type of measure used to cluster the data
+     * @param isSimilarityMeasure whether the measure is a similarity measure (value true) 
+     * or a dissimilarity measure (value false) 
      */
     private void setSimilarityMeasure( boolean isSimilarityMeasure ){
         this.isSimilarityMeasure = isSimilarityMeasure;
@@ -317,7 +328,7 @@ public class PolynomialHierarchicalClusteringTrainer {
      * @param tagetClusterSize the target cluster size 
      * @param linkageType the linkage type used for Hierarchical clustering ('Average', 'Complete', or 'Short') 
      *          
-     * @return the trained clusters 
+     * @return the trained clusters  
      * @throws IllegalArgumentException if target cluster size is not less than initialized number of samples 
      */
     public PolynomialCluster[] train(int tagetClusterSize, String linkageType) {
@@ -339,7 +350,7 @@ public class PolynomialHierarchicalClusteringTrainer {
         int noClusters = clusterList.size();
         
         // if below condition fails, it is a BUG
-        assert clusterList.size() != tagetClusterSize : "After clustering, number of clusters and the target cluster size should be same, but now the number of clusters are "+clusterList.size();
+        assert clusterList.size() == tagetClusterSize : "After clustering, number of clusters and the target cluster size should be same, but now the number of clusters are "+clusterList.size();
         
         for ( int i=0; i < tagetClusterSize; i++ ) {
             
@@ -444,7 +455,7 @@ public class PolynomialHierarchicalClusteringTrainer {
         
         /**
          * Given cluster will be merged into this cluster
-         * @param xCluster
+         * @param xCluster a cluster that contains a set of polynomial coeffs. 
          * @throws NullPointerException if given cluster is null
          */
         public void mergeCluster( Cluster xCluster ) {
