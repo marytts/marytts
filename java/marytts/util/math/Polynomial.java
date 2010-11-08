@@ -500,10 +500,11 @@ public class Polynomial
      * Equation : D = 1 - corr(F1, F2)
      * purpose: the distance should be less for contours that have a similar shape, 
      * so differences in pitch height or pitch range should not be included in the distance measure.
-     * @param coeffs1
-     * @param coeffs2
+     * @param coeffs1 polynomial coefficients that are not null  
+     * @param coeffs2 polynomial coefficients that are not null  
+     *        coeffs1, coeffs2 are expected to be coefficients of same order polynomials 
      * @return double distance between two polynomial coefficients
-     * @throws NullPointerException if recieved polynomial coeffs null
+     * @throws NullPointerException if received polynomial coeffs null
      * @throws IllegalArgumentException if the length of coeffs are not equal
      */
     public static double polynomialPearsonProductMomentCorr(double[] coeffs1, double[] coeffs2)
