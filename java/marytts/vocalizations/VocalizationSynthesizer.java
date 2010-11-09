@@ -145,12 +145,14 @@ public class VocalizationSynthesizer {
     }
     
     /**
-     * Handle a synthesize request
-     * @param voice
-     * @param aft
-     * @param domElement
-     * @return
-     * @throws Exception
+     * Handle a request for synthesis of vocalization
+     * @param voice the selected voice 
+     * @param aft AudioFileFormat of the output AudioInputStream
+     * @param domElement target xml element ('vocalization' element)
+     * @return AudioInputStream of requested vocalization
+     *         it returns null if the voice doesn't support synthesis of vocalizations  
+     * @throws IllegalArgumentException if domElement contains 'variant' attribute value 
+     *         is greater than available number of vocalizations  
      */
     public AudioInputStream synthesize(Voice voice, AudioFileFormat aft, Element domElement) throws Exception{
         
@@ -168,14 +170,24 @@ public class VocalizationSynthesizer {
     }
     
     /**
-     * Synthesize a "variant" vocalization 
-     * @param voice
-     * @param aft
-     * @param domElement
-     * @return
-     * @throws Exception
+     * To get number of available vocalizations for this voice
+     * @return integer available number of vocalizations
      */
-    public AudioInputStream synthesizeVariant(Voice voice, AudioFileFormat aft, Element domElement) throws Exception{
+    public int getNumberOfVocalizations() {
+       assert unitFileReader != null;
+       return unitFileReader.getNumberOfUnits();
+    }
+    
+    /**
+     * Synthesize a "variant" vocalization 
+     * @param voice the selected voice 
+     * @param aft AudioFileFormat of the output AudioInputStream
+     * @param domElement target 'vocalization' xml element
+     * @return AudioInputStream of requested vocalization
+     * @throws IllegalArgumentException if domElement contains 'variant' attribute value 
+     *         is greater than available number of vocalizations 
+     */
+    private AudioInputStream synthesizeVariant(Voice voice, AudioFileFormat aft, Element domElement) throws Exception{
         
         int numberOfBackChannels = unitFileReader.getNumberOfUnits();
         int backchannelNumber  = 0;
@@ -185,7 +197,7 @@ public class VocalizationSynthesizer {
         }
 
         if(backchannelNumber >= numberOfBackChannels){
-            throw new RuntimeException("This voice has only "+numberOfBackChannels+ " backchannels. but it doesn't support unit number "+backchannelNumber);
+            throw new IllegalArgumentException("This voice has "+numberOfBackChannels+ " backchannels only. so it doesn't support unit number "+backchannelNumber);
         }
         
         return synthesizeSelectedVocalization(backchannelNumber, aft, domElement);
@@ -194,22 +206,20 @@ public class VocalizationSynthesizer {
     /**
      * Synthesize a vocalization which fits better for given target 
      * @param voice
-     * @param aft
-     * @param domElement
+     * @param aft AudioFileFormat of the output AudioInputStream
+     * @param domElement target 'vocalization' xml element
      * @return
      * @throws Exception
      */
-    public AudioInputStream synthesizeVocalization(Voice voice, AudioFileFormat aft, Element domElement) throws Exception{
+    private AudioInputStream synthesizeVocalization(Voice voice, AudioFileFormat aft, Element domElement) throws Exception{
         
         int numberOfBackChannels = unitFileReader.getNumberOfUnits();
         
         // create target 
         Target targetUnit = createTarget(domElement);
         int backchannelNumber = getBestMatchingCandidate(targetUnit);
-        
-        if(backchannelNumber >= numberOfBackChannels){
-            throw new RuntimeException("This voice has only "+numberOfBackChannels+ " backchannels. but it doesn't support unit number "+backchannelNumber);
-        }
+        // here it is a bug, if getBestMatchingCandidate select a backchannelNumber greater than numberOfBackChannels
+        assert backchannelNumber < numberOfBackChannels : "This voice has "+numberOfBackChannels+ " backchannels only. so it doesn't support unit number "+backchannelNumber;
         
         return synthesizeSelectedVocalization(backchannelNumber, aft, domElement);
     }
@@ -218,12 +228,12 @@ public class VocalizationSynthesizer {
      * Synthesize a vocalization which fits better for given target, 
      * in addition, impose intonation from closest best vocalization according to given feature definition for intonation selection  
      * @param voice
-     * @param aft
-     * @param domElement
+     * @param aft AudioFileFormat of the output AudioInputStream
+     * @param domElement target 'vocalization' xml element
      * @return
      * @throws Exception
      */
-    public AudioInputStream synthesizeImposedIntonation(Voice voice, AudioFileFormat aft, Element domElement) throws Exception{
+    private AudioInputStream synthesizeImposedIntonation(Voice voice, AudioFileFormat aft, Element domElement) throws Exception{
         
         // create targets 
         Target targetUnit = createTarget(domElement);
@@ -271,10 +281,9 @@ public class VocalizationSynthesizer {
         int fiVQ = fd.getFeatureIndex("voicequality");
         for (int i=0; i<noOfSuitableUnits; i++) {
             int unitIndex = suitableCandidates[i].unitIndex;
-            double unitCost = suitableCandidates[i].cost;
             FeatureVector fv = featureFileReader.getFeatureVector(unitIndex);
             StringBuilder sb = new StringBuilder();
-            sb.append("Candidate ").append(i).append(": ").append(unitIndex).append(" ( "+unitCost+" ) ").append(" -- ");
+            sb.append("Candidate ").append(i).append(": ").append(unitIndex).append(" -- ");
             byte bName = fv.getByteFeature(fiName);
             if (fv.getByteFeature(fiName) != 0 && targetFeatures.getByteFeature(fiName) != 0) {
                 sb.append(" ").append(fv.getFeatureAsString(fiName, fd));
@@ -296,10 +305,9 @@ public class VocalizationSynthesizer {
         }
         for (int i=0; i<noOfSuitableUnits; i++) {
             int unitIndex = suitableF0Candidates[i].unitIndex;
-            double unitCost = suitableF0Candidates[i].cost;
             FeatureVector fv = featureFileReader.getFeatureVector(unitIndex);
             StringBuilder sb = new StringBuilder();
-            sb.append("F0 Candidate ").append(i).append(": ").append(unitIndex).append(" ( "+unitCost+" ) ").append(" -- ");
+            sb.append("F0 Candidate ").append(i).append(": ").append(unitIndex).append(" -- ");
             byte bName = fv.getByteFeature(fiName);
             if (fv.getByteFeature(fiName) != 0 && targetFeatures.getByteFeature(fiName) != 0) {
                 sb.append(" ").append(fv.getFeatureAsString(fiName, fd));
@@ -325,23 +333,19 @@ public class VocalizationSynthesizer {
      * Impose a target f0 contour onto a (source) unit
      * @param targetIndex unit index of unit providing f0 contour
      * @param sourceIndex unit index of unit to be generated with the given contour
-     * @param aft
-     * @param domElement
-     * @return
-     * @throws IOException
-     * @throws UnsupportedAudioFileException
+     * @param aft AudioFileFormat of the output AudioInputStream
+     * @param domElement target 'vocalization' xml element
+     * @return AudioInputStream of requested vocalization
+     * @throws IOException if no data can be read at the given target time
+     * @throws UnsupportedAudioFileException if audio processing fails
      */
     private AudioInputStream imposeF0ContourOnVocalization(int targetIndex, int sourceIndex, AudioFileFormat aft,
             Element domElement) throws IOException, UnsupportedAudioFileException {
         
         int numberOfBackChannels = unitFileReader.getNumberOfUnits();
-        if(sourceIndex >= numberOfBackChannels){
-            throw new RuntimeException("This voice has only "+numberOfBackChannels+ " backchannels. but it doesn't support unit number "+sourceIndex);
-        }
-        if(targetIndex >= numberOfBackChannels){
-            throw new RuntimeException("This voice has only "+numberOfBackChannels+ " backchannels. but it doesn't support unit number "+targetIndex);
-        }
-        
+        assert sourceIndex < numberOfBackChannels : "This voice has "+numberOfBackChannels+ " backchannels only. so it doesn't support unit number "+sourceIndex;
+        assert targetIndex < numberOfBackChannels : "This voice has "+numberOfBackChannels+ " backchannels only. so it doesn't support unit number "+targetIndex;
+                
         VocalizationUnit bUnit = unitFileReader.getUnit(sourceIndex);
         long start = bUnit.startTime;
         int duration  = bUnit.duration;
@@ -416,16 +420,16 @@ public class VocalizationSynthesizer {
     /**
      * Synthesize a selected vocalization
      * @param backchannelNumber
-     * @param aft
-     * @param domElement
+     * @param aft AudioFileFormat of the output AudioInputStream
+     * @param domElement target 'vocalization' xml element
      * @return
      * @throws IOException
      */
-    public AudioInputStream synthesizeSelectedVocalization(int backchannelNumber, AudioFileFormat aft, Element domElement) throws IOException {
+    private AudioInputStream synthesizeSelectedVocalization(int backchannelNumber, AudioFileFormat aft, Element domElement) throws IOException {
         
         int numberOfBackChannels = unitFileReader.getNumberOfUnits();
         if(backchannelNumber >= numberOfBackChannels){
-            throw new RuntimeException("This voice has only "+numberOfBackChannels+ " backchannels. but it doesn't support unit number "+backchannelNumber);
+            throw new IllegalArgumentException("This voice has "+numberOfBackChannels+ " backchannels only. so it doesn't support unit number "+backchannelNumber);
         }
         
         VocalizationUnit bUnit = unitFileReader.getUnit(backchannelNumber);
@@ -504,13 +508,13 @@ public class VocalizationSynthesizer {
         //FeatureDefinition featDef = this.featureFileReader.getFeatureDefinition();
        
         if(this.featureFileReader.getNumberOfUnits() != this.unitFileReader.getNumberOfUnits()) {
-            throw new RuntimeException("Feature file reader and unit file reader is not aligned properly");
+            throw new IllegalArgumentException("Feature file reader and unit file reader is not aligned properly");
         }
         
         int numberUnits = this.unitFileReader.getNumberOfUnits();
         double minCost = INFINITE;
         int index = 0;
-        for( int i=0; i<numberUnits-1; i++ ) {
+        for( int i=0; i<numberUnits; i++ ) {
             Unit singleUnit = this.unitFileReader.getUnit(i);
             double cost = vffrtCostFunction.cost(targetUnit, singleUnit);
             if( cost < minCost ) {
@@ -532,12 +536,12 @@ public class VocalizationSynthesizer {
         //FeatureDefinition featDef = this.featureFileReader.getFeatureDefinition();
         
         if(this.featureFileReader.getNumberOfUnits() != this.unitFileReader.getNumberOfUnits()) {
-            throw new RuntimeException("Feature file reader and unit file reader is not aligned properly");
+            throw new IllegalArgumentException("Feature file reader and unit file reader is not aligned properly");
         }
         
         int numberUnits = this.unitFileReader.getNumberOfUnits();
-        VocalizationCost[] vocalizationCost = new VocalizationCost[numberUnits-1];
-        for( int i=0; i<numberUnits-1; i++ ) {
+        VocalizationCost[] vocalizationCost = new VocalizationCost[numberUnits];
+        for( int i=0; i<numberUnits; i++ ) {
             Unit singleUnit = this.unitFileReader.getUnit(i);
             double cost = vffrtCostFunction.cost(targetUnit, singleUnit);
             vocalizationCost[i] = new VocalizationCost(i,cost);
@@ -557,7 +561,7 @@ public class VocalizationSynthesizer {
     private VocalizationCost[] getBestIntonationCandidates(Target targetUnit) throws IOException {
         
         if(this.featureFileReader.getNumberOfUnits() != this.unitFileReader.getNumberOfUnits()) {
-            throw new RuntimeException("Feature file reader and unit file reader is not aligned properly");
+            throw new IllegalArgumentException("Feature file reader and unit file reader is not aligned properly");
         }
         
         int numberUnits = this.unitFileReader.getNumberOfUnits();
