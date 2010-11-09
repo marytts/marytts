@@ -281,9 +281,10 @@ public class VocalizationSynthesizer {
         int fiVQ = fd.getFeatureIndex("voicequality");
         for (int i=0; i<noOfSuitableUnits; i++) {
             int unitIndex = suitableCandidates[i].unitIndex;
+            double unitCost = suitableCandidates[i].cost; 
             FeatureVector fv = featureFileReader.getFeatureVector(unitIndex);
             StringBuilder sb = new StringBuilder();
-            sb.append("Candidate ").append(i).append(": ").append(unitIndex).append(" -- ");
+            sb.append("Candidate ").append(i).append(": ").append(unitIndex).append(" ( "+unitCost+" ) ").append(" -- "); 
             byte bName = fv.getByteFeature(fiName);
             if (fv.getByteFeature(fiName) != 0 && targetFeatures.getByteFeature(fiName) != 0) {
                 sb.append(" ").append(fv.getFeatureAsString(fiName, fd));
@@ -305,9 +306,10 @@ public class VocalizationSynthesizer {
         }
         for (int i=0; i<noOfSuitableUnits; i++) {
             int unitIndex = suitableF0Candidates[i].unitIndex;
+            double unitCost = suitableCandidates[i].cost;
             FeatureVector fv = featureFileReader.getFeatureVector(unitIndex);
             StringBuilder sb = new StringBuilder();
-            sb.append("F0 Candidate ").append(i).append(": ").append(unitIndex).append(" -- ");
+            sb.append("F0 Candidate ").append(i).append(": ").append(unitIndex).append(" ( "+unitCost+" ) ").append(" -- ");
             byte bName = fv.getByteFeature(fiName);
             if (fv.getByteFeature(fiName) != 0 && targetFeatures.getByteFeature(fiName) != 0) {
                 sb.append(" ").append(fv.getFeatureAsString(fiName, fd));
