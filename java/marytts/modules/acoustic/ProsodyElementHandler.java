@@ -154,10 +154,10 @@ public class ProsodyElementHandler {
         if ( m.find() ) {
             double percentage = new Double(rateAttribute.substring(1, rateAttribute.length()-1)).doubleValue();
             if ( rateAttribute.startsWith("+") ) {
-                modifySpeechRate(nl, percentage, -1.0);
+                modifySpeechRate(nl, percentage, true);
             }
             else {
-                modifySpeechRate(nl, percentage, +1.0);
+                modifySpeechRate(nl, percentage, false);
             }
         }
     }
@@ -322,25 +322,31 @@ public class ProsodyElementHandler {
 
     /**
      * To set duration specifications according to 'rate' requirements
-     * @param nl - NodeList of 'ph' elements
-     * @param percentage
-     * @param incriment
-     * @throws IllegalArgumentException if NodeList contains elements other than 'ph' elements 
+     * @param nl - NodeList of 'ph' elements; All elements in this NodeList should be 'ph' elements only
+     *             All these 'ph' elements should contain 'd', 'end' attributes 
+     * @param percentage the percentage of increment or decrement in speech rate
+     * @param increaseSpeechRate whether the request is to increase (value true) or decrease (value false) to speech rate     *  
      */
-    private void modifySpeechRate(NodeList nl, double percentage, double incriment) {
+    private void modifySpeechRate(NodeList nl, double percentage, boolean increaseSpeechRate) {
+        
+        assert nl != null;
         
         for ( int i=0; i < nl.getLength(); i++ ) {
             Element e = (Element) nl.item(i); 
-            
-            if ( !"ph".equals(e.getNodeName()) ){
-                throw new IllegalArgumentException("NodeList should contain 'ph' elements only");
-            }
-            
+            assert "ph".equals(e.getNodeName()) : "NodeList should contain 'ph' elements only";
             if ( !e.hasAttribute("d") ) {
                 continue;
             }
+            
             double durAttribute = new Double(e.getAttribute("d")).doubleValue();
-            double newDurAttribute = durAttribute + ( incriment * percentage * durAttribute / 100);
+            double newDurAttribute;
+            
+            if ( increaseSpeechRate ) {
+                newDurAttribute = durAttribute - (percentage * durAttribute / 100);
+            } else {
+                newDurAttribute = durAttribute + (percentage * durAttribute / 100);
+            }
+            
             e.setAttribute("d", newDurAttribute+"");
             //System.out.println(durAttribute+" = " +newDurAttribute);
         }
@@ -377,20 +383,30 @@ public class ProsodyElementHandler {
     /**
      * To get a continuous pitch contour from nodelist of "ph" elements
      * @param nl - NodeList of 'ph' elements; All elements in this NodeList should be 'ph' elements only
+     *             All these 'ph' elements should contain 'd', 'end' attributes  
+     * @param arraysize the length of the output pitch contour array (arraysize > 0)
      * @return a double array of pitch contour
      * @throws IllegalArgumentException if NodeList is null or it contains elements other than 'ph' elements
+     * @throws IllegalArgumentException if given 'ph' elements do not contain 'd' or 'end' attributes
+     * @throws IllegalArgumentException if given arraysize is not greater than zero
      */
     public double[] getF0Contour(NodeList nl, int arraysize) {
         
         if ( nl == null || nl.getLength() == 0 ) {
             throw new IllegalArgumentException("Input NodeList should not be null or zero length list"); 
         }
+        if ( arraysize <= 0 ) {
+            throw new IllegalArgumentException("Given arraysize should be is greater than zero"); 
+        }
         
         // A sanity checker for NodeList: for 'ph' elements only condition
         for ( int i=0; i < nl.getLength(); i++ ) {
             Element e = (Element) nl.item(i);
             if ( !"ph".equals(e.getNodeName()) ) {
-                throw new  IllegalArgumentException("Input NodeList should contain 'ph' elements only");
+                throw new IllegalArgumentException("Input NodeList should contain 'ph' elements only");
+            }
+            if ( !e.hasAttribute("d") || !e.hasAttribute("end") ) {
+                throw new IllegalArgumentException("All 'ph' elements should contain 'd' and 'end' attributes");
             }
         }
         
@@ -416,7 +432,7 @@ public class ProsodyElementHandler {
                 continue;
             }
             
-            double phoneEndTime       = (new Double(e.getAttribute("end"))).doubleValue();
+            double phoneEndTime  = (new Double(e.getAttribute("end"))).doubleValue();
             double phoneDuration = 0.001 * (new Double(e.getAttribute("d"))).doubleValue();
             //double localStartTime = endTime - phoneDuration;
             
@@ -495,13 +511,17 @@ public class ProsodyElementHandler {
 
     /**
      * To get prosody contour specifications by parsing 'contour' attribute values
-     * @param attribute - 'contour' attribute
+     * @param attribute - 'contour' attribute, it should not be null
+     *        Expected format: '(0%, +10%)(50%,+30%)(95%,-10%)'  
      * @return HashMap that contains prosody contour specifications
+     *         it returns empty map if given attribute is not in expected format
      */
     private Map<String, String> getContourSpecifications(String attribute) {
         
+        assert attribute != null;
+        assert !"".equals(attribute) : "given attribute should not be empty string";
+                
         Map<String, String> f0Map = new HashMap<String, String>();
-        //Pattern p = Pattern.compile("(\\d+%,[+|-]\\d*[\\.]\\d*[%Hs][zt])|(\\d+%,[+|-]\\d+[%|Hz|st])");
         Pattern p = Pattern.compile("\\(\\s*[0-9]+(.[0-9]+)?[%]\\s*,\\s*(x-low|low|medium|high|x-high|default|[+|-]?[0-9]+(.[0-9]+)?(%|Hz|st)?)\\s*\\)");
         
         // Split input with the pattern
@@ -519,23 +539,28 @@ public class ProsodyElementHandler {
     /**
      * To parse 'f0' attribute and to get f0 specifications
      * @param attribute - 'f0' attribute of 'ph' element
+     *        Expected format: "(5,248)(47,258)(100,433)"
      * @return a HashMap which contains f0 specifications
+     *         it returns empty map if given attribute is not in expected format
      */
     private Map<Integer, Integer> getPhoneF0Data(String attribute) {
-      
-      Map<Integer, Integer> f0Map = new HashMap<Integer, Integer>();
-      Pattern p = Pattern.compile("(\\d+,\\d+)");
-      
-      // Split input with the pattern
-      Matcher m = p.matcher(attribute);
-      while ( m.find() ) {
-          String[] f0Values = (m.group().trim()).split(",");
-          f0Map.put(new Integer(f0Values[0]), new Integer(f0Values[1]));
-      }
 
-      //attribute.split(regex)
-      return f0Map;
-      
+        assert attribute != null;
+        assert !"".equals(attribute) : "given attribute should not be empty string";
+
+        Map<Integer, Integer> f0Map = new HashMap<Integer, Integer>();
+        Pattern p = Pattern.compile("(\\d+,\\d+)");
+
+        // Split input with the pattern
+        Matcher m = p.matcher(attribute);
+        while ( m.find() ) {
+            String[] f0Values = (m.group().trim()).split(",");
+            f0Map.put(new Integer(f0Values[0]), new Integer(f0Values[1]));
+        }
+
+        //attribute.split(regex)
+        return f0Map;
+
     }
     
     
