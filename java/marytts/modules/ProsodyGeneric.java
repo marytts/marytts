@@ -81,6 +81,7 @@ public class ProsodyGeneric extends InternalModule {
 	protected String tobiPredFilename; // xml rule file for prosody prediction
 	protected HashMap<String, Element> tobiPredMap = new HashMap<String, Element>(); // map that will be filled with the rules
 	protected HashMap<String, Object> listMap = new HashMap<String, Object>(); // map that will contain the lists defined in the xml rule file
+    private boolean convertToBI2Contour;
 	
 	public ProsodyGeneric(){
 	    this((Locale) null); 
@@ -141,6 +142,7 @@ public class ProsodyGeneric extends InternalModule {
         }
         loadTobiPredRules(); // fill the rule map
         buildListMap(); // fill the list map
+        convertToBI2Contour = MaryProperties.getBoolean("prosody.convertToBI2Contour", false);
         super.startup();
     }
 
@@ -291,7 +293,9 @@ public class ProsodyGeneric extends InternalModule {
                 }
             }            
         }
-        convertTOBIAccents2ProsodyContour(doc);
+        if (convertToBI2Contour) {
+            convertTOBIAccents2ProsodyContour(doc);
+        }        
         MaryData result = new MaryData(outputType(), d.getLocale());
         result.setDocument(doc);
         return result;
