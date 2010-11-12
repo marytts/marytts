@@ -857,6 +857,33 @@ public class DatabaseLayout
         }
     }
     
+    /**
+     * Get the value of a property from the voice building DatabaseLayout, or from a VoiceImportComponent.
+     * 
+     * @param propertyName
+     *            (e.g. "db.MARYBASE" or "VoicePackager.voiceType")
+     * @return the property value
+     * @throws NullPointerException
+     *             if <b>propertyName</b> cannot be resolved
+     */
+    public String getProperty(String propertyName) {
+        String[] propertyNameParts = propertyName.split("\\.");
+        String component = propertyNameParts[0];
+        String property = propertyNameParts[1];
+
+        String value;
+        if (component.equals("db")) {
+            value = this.getProp(propertyName);
+        } else {
+            VoiceImportComponent voiceImportComponent = this.getComponent(component);
+            value = voiceImportComponent.getProp(propertyName);
+        }
+        if (value == null) {
+            throw new NullPointerException(propertyName + " cannot be resolved!");
+        }
+        return value;
+    }
+    
     public String getProp(String prop)
     {
         return props.get(prop);
