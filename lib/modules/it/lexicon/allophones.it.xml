@@ -49,9 +49,11 @@
 	<consonant ph="S" ctype="f" cplace="p" cvox="-" long="-" />
 	<consonant ph="v" ctype="f" cplace="b" cvox="+" long="-" />
 	<consonant ph="z" ctype="f" cplace="a" cvox="+" long="-" />
-	<consonant ph="Z" ctype="f" cplace="p" cvox="+" long="-" /> <!-- Not present in the official Italian sampa, i.e. 'garage' or 'pegeut' -->
 
-	<consonant ph="ff" ctype="f" cplace="b" cvox="-" long="+" />
+	<!--<consonant ph="Z" ctype="f" cplace="p" cvox="+" long="-" /> -->
+	<!-- Not present in the official Italian sampa, i.e. 'garage' or 'pegeut' -->
+
+	--><consonant ph="ff" ctype="f" cplace="b" cvox="-" long="+" />
 	<consonant ph="ss" ctype="f" cplace="a" cvox="-" long="+" />
 	<consonant ph="SS" ctype="f" cplace="p" cvox="-" long="+" />
 	<consonant ph="vv" ctype="f" cplace="b" cvox="+" long="+" />
@@ -71,8 +73,9 @@
 	<consonant ph="m" ctype="n" cplace="l" cvox="+" long="-" />
 	<consonant ph="n" ctype="n" cplace="a" cvox="+" long="-" />
 	<consonant ph="J" ctype="n" cplace="p" cvox="+" long="-" />
-	<consonant ph="ng" ctype="n" cplace="v" cvox="+" long="-" /> <!-- Not present in the official Italian sampa, i.e. 'pungiglione' -->
-	<consonant ph="nf" ctype="n" cplace="b" cvox="+" long="-" /> <!-- Not present in the official Italian sampa, i.e. 'confrontare' -->
+	<consonant ph="NG" ctype="n" cplace="v" cvox="+" long="-" /> <!-- Not present in the official Italian sampa, i.e. 'pungiglione' -->
+	<consonant ph="NF" ctype="n" cplace="b" cvox="+" long="-" /> <!-- Not present in the official Italian sampa, i.e. 'confrontare' (n prima 
+		di f e v) -->
 
 	<consonant ph="mm" ctype="n" cplace="l" cvox="+" long="+" />
 	<consonant ph="nn" ctype="n" cplace="a" cvox="+" long="+" />
