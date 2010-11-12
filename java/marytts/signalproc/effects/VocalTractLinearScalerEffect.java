@@ -25,6 +25,8 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 
+import org.apache.commons.io.FilenameUtils;
+
 import marytts.signalproc.process.FrameOverlapAddSource;
 import marytts.signalproc.process.VocalTractScalingProcessor;
 import marytts.signalproc.window.Window;
@@ -128,7 +130,7 @@ public class VocalTractLinearScalerEffect extends BaseAudioEffect {
         VocalTractLinearScalerEffect effect = new VocalTractLinearScalerEffect((int) format.getSampleRate());
         DoubleDataSource output = effect.apply(input, "amount:"+factor);
         DDSAudioInputStream audioOut = new DDSAudioInputStream(output, format);
-        String outFilename = FileUtils.getBasename(filename)+"_"+factor+".wav";
+        String outFilename = FilenameUtils.removeExtension(filename)+"_"+factor+".wav";
         AudioSystem.write(audioOut, AudioFileFormat.Type.WAVE, new File(outFilename));
         System.out.println("Created file "+outFilename);
     }
