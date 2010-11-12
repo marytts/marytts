@@ -576,6 +576,21 @@ public class FileUtils {
         
     }
     
+    /**
+     * For the given filename, return the basename, i.e. the filename without extension.
+     * If the filename contains a path, that path is preserved.
+     * If the filename does not contain an extension, the filename is returned.
+     * @param filename
+     * @return the basename, which may be the original filename if there is no dot in filename.
+     */
+    public static String getBasename(String filename) {
+        int dot = filename.lastIndexOf('.');
+        if (dot != -1) {
+            return filename.substring(0, dot);
+        }
+        return filename;
+    }
+    
 
     //Gets filenames only without paths!
     public static String[] getFileNameList(String directory, String extension) {
