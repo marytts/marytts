@@ -573,7 +573,12 @@ public class VoicePackager extends VoiceImportComponent {
     }
 
     public String getMaryVersion() {
-        return db.getProp(db.MARYBASEVERSION);
+        // TODO temporary workaround for ticket:360
+        String compatibleVersion = db.getProp(db.MARYBASEVERSION);
+        if (compatibleVersion.equals("trunk")) {
+            compatibleVersion = "4.0.0";
+        }
+        return compatibleVersion;
     }
 
     public String getVoiceGender() {
