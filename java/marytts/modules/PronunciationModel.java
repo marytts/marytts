@@ -284,6 +284,10 @@ public class PronunciationModel extends InternalModule
         if (phone.equals(""))
             return; // nothing to do
 
+        if (token.getElementsByTagName(MaryXML.SYLLABLE).getLength() > 0) {
+            return; // there is already a substructure under this token; nothing to do
+        }
+        
         StringTokenizer tok = new StringTokenizer(phone, "-");
         Document document = token.getOwnerDocument();
         Element prosody = (Element) MaryDomUtils.getAncestor(token, MaryXML.PROSODY);
