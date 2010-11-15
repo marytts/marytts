@@ -419,20 +419,17 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     private boolean[][] getRealizedVoicings(List<Phone> phones) {
         List<boolean[]> voicingList = new ArrayList<boolean[]>();
         for (Phone phone: phones) {
+            boolean voiced = phone.isVoiced();
             if (phone.getLeftTargetDuration() > 0) {
                 int leftNumberOfFrames = phone.getNumberOfLeftUnitFrames();
-                Allophone leftAllophone = phone.getLeftTarget().getAllophone();
-                boolean leftVoiced = leftAllophone.isVoiced();
                 boolean[] leftVoiceds = new boolean[leftNumberOfFrames];
-                Arrays.fill(leftVoiceds, leftVoiced);
+                Arrays.fill(leftVoiceds, voiced);
                 voicingList.add(leftVoiceds);
             }
             if (phone.getRightTargetDuration() > 0) {
                 int rightNumberOfFrames = phone.getNumberOfRightUnitFrames();
-                Allophone rightAllophone = phone.getRightTarget().getAllophone();
-                boolean rightVoiced = rightAllophone.isVoiced();
                 boolean[] rightVoiceds = new boolean[rightNumberOfFrames];
-                Arrays.fill(rightVoiceds, rightVoiced);
+                Arrays.fill(rightVoiceds, voiced);
                 voicingList.add(rightVoiceds);
             }
         }
@@ -453,6 +450,9 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
             if (phone.getRightTargetDuration() > 0) {
                 int rightNumberOfFrames = phone.getNumberOfRightUnitFrames();
                 double rightDurationFactor = phone.getRightDurationFactor();
+                if (phone.isTransient()) {
+                    rightDurationFactor = 1; // never modify the duration of a burst
+                }
                 double[] rightDurationFactors = new double[rightNumberOfFrames];
                 Arrays.fill(rightDurationFactors, rightDurationFactor);
                 durationFactorList.add(rightDurationFactors);
