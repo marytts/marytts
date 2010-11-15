@@ -1890,6 +1890,7 @@ public class FDPSOLAProcessor extends VocalTractModifier {
         fd.fdpsolaOnline();
     }
     
+    @SuppressWarnings("unused")
     public static void main(String[] args) throws Exception
     {  
         if (true) //Test with only one setting

@@ -28,7 +28,6 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.ArrayUtils;
 
 import marytts.exceptions.MaryConfigurationException;
@@ -53,7 +52,7 @@ public class HalfPhoneUnitLabelComputer extends PhoneUnitLabelComputer
     private String energyExt = ".energy";
     // these could be user configurable properties, but at this stage, it's too easy to screw up:
     private double windowSizeInSeconds = 0.005;
-    private double skipSizeInSeconds = 0.01;
+    private double skipSizeInSeconds = 0.0025;
 
     public String getName(){
         return "HalfPhoneUnitLabelComputer";      
@@ -105,13 +104,13 @@ public class HalfPhoneUnitLabelComputer extends PhoneUnitLabelComputer
             String label = labels.get(i);
             double endTime = endTimes.get(i);
 
-            boolean isPlosive = false;
+            boolean isTransient = false;
             double peakTime = Double.NaN;
             if (energyBasedTransientSplitting) {
                 try {
                     Allophone allophone = allophoneSet.getAllophone(label);
-                    isPlosive = allophone.isPlosive();
-                    if (isPlosive) {
+                    isTransient = allophone.isPlosive() || allophone.isAffricate();
+                    if (isTransient) {
                         peakTime = getEnergyPeak(startTime, endTime);
                     }
                 } catch (NullPointerException e) {
@@ -122,7 +121,7 @@ public class HalfPhoneUnitLabelComputer extends PhoneUnitLabelComputer
             }
 
             double midTime;
-            if (isPlosive && !Double.isNaN(peakTime)) {
+            if (isTransient && !Double.isNaN(peakTime)) {
                 midTime = peakTime;
             } else {
                 midTime = (startTime + endTime) / 2;
@@ -155,7 +154,7 @@ public class HalfPhoneUnitLabelComputer extends PhoneUnitLabelComputer
         String baseName = bnl.getName(basenameIndex);
         String wavExt = db.getProperty(db.WAVEXT);
         String wavFileName = wavDir + baseName + wavExt;
-        String energyFileName = FilenameUtils.removeExtension(wavFileName) + energyExt;
+        String energyFileName = getProp(LABELDIR) + baseName + energyExt;
         
         // load or create energy analysis file:
         EnergyContourRms energyContourRMS;

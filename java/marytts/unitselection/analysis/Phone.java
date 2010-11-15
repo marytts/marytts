@@ -22,6 +22,7 @@ package marytts.unitselection.analysis;
 
 import java.util.Arrays;
 
+import marytts.modules.phonemiser.Allophone;
 import marytts.unitselection.concat.BaseUnitConcatenator.UnitData;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.select.HalfPhoneTarget;
@@ -670,6 +671,46 @@ public class Phone {
      */
     public double[] getF0Factors() {
         return ArrayUtils.addAll(getLeftF0Factors(), getRightF0Factors());
+    }
+    
+    /**
+     * Get the Allophone represented by this
+     * 
+     * @return the Allophone
+     */
+    private Allophone getAllophone() {
+        if (leftTarget != null) {
+            return leftTarget.getAllophone();
+        } else if (rightTarget != null) {
+            return rightTarget.getAllophone();
+        }
+        return null;
+    }
+    
+    /**
+     * Determine whether this is a transient phone (i.e. a plosive)
+     * @return true if this is a plosive, false otherwise
+     */
+    public boolean isTransient() {
+        Allophone allophone = getAllophone();
+        if (allophone.isPlosive() || allophone.isAffricate()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Determine whether this is a voiced phone
+     * @return true if this is voiced, false otherwise
+     */
+    public boolean isVoiced() {
+        Allophone allophone = getAllophone();
+        if (allophone.isVoiced()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
