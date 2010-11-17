@@ -40,8 +40,8 @@ import marytts.util.io.FileUtils;
 
 /**
  * 
- * LTSLexiconPOSCreator, has the same functionalities of TRANSCRIPTION TOOL but without GUI (better for a remote use for large
- * lexicon and for scripting) This class is light version of TranscriptionTable
+ * LTSLexiconPOSCreator has the same functionalities of TRANSCRIPTION TOOL but without GUI (better for a remote use for large
+ * lexicon and for scripting). This class is a light version of TranscriptionTable
  * 
  * Train Letter-to-sound(LTS) rules, create FST dictionary and POS tagger
  * 
@@ -57,26 +57,33 @@ public class LTSLexiconPOSCreator {
 
     private AllophoneSet phoneSet;
 
-    boolean trainPredict = false;
-
     String locale;
 
-    public LTSLexiconPOSCreator() throws Exception {
+    public LTSLexiconPOSCreator(String phoneSetFileName, String transcriptionFileName) throws Exception {
+        loadPhoneSet(phoneSetFileName);
         transcriptionModel = new TranscriptionTableModel();
+        loadTranscription(transcriptionFileName);
+    }
+
+    /**
+     * load phoneset
+     * 
+     * @param filePath
+     * @throws MaryConfigurationException
+     */
+    private void loadPhoneSet(String filePath) throws MaryConfigurationException {
+        phoneSet = AllophoneSet.getAllophoneSet(filePath);
+        locale = phoneSet.getLocale().toString();
     }
 
     /**
      * Load transcription from file
      * 
      * @param fileName
+     * @throws Exception
      */
-    public void loadTranscription(String fileName) {
-        try {
-            this.transcriptionModel.loadTranscription(fileName, false);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+    private void loadTranscription(String fileName) throws Exception {
+        transcriptionModel.loadTranscription(fileName, false);
         checkTranscription();
     }
 
@@ -103,8 +110,9 @@ public class LTSLexiconPOSCreator {
      * train and predict module
      * 
      * @param treeAbsolutePath
+     * @throws IOException
      */
-    public void trainPredict(String treeAbsolutePath) {
+    public void trainPredict(String treeAbsolutePath) throws IOException {
         Object[][] tableData = transcriptionModel.getData();
         boolean[] hasManualVerify = transcriptionModel.getManualVerifiedList();
         boolean[] hasCorrectSyntax = transcriptionModel.getCorrectSyntaxList();
@@ -120,25 +128,20 @@ public class LTSLexiconPOSCreator {
             return;
         }
 
-        try {
-            LTSTrainer tp = this.trainLTS(treeAbsolutePath);
-            TrainedLTS trainedLTS = new TrainedLTS(phoneSet, treeAbsolutePath);
-            for (int i = 0; i < tableData.length; i++) {
-                if (!(hasManualVerify[i] && hasCorrectSyntax[i])) {
-                    String grapheme = (String) tableData[i][1];
-                    if (grapheme == null)
-                        continue;
-                    String phone = trainedLTS.syllabify(trainedLTS.predictPronunciation(grapheme));
-                    transcriptionModel.setValueAt(phone.replaceAll("\\s+", ""), i, 2);
-                    transcriptionModel.setAsCorrectSyntax(i, true);
-                    transcriptionModel.setAsManualVerify(i, false);
-                }
+        trainLTS(treeAbsolutePath);
+        TrainedLTS trainedLTS = new TrainedLTS(phoneSet, treeAbsolutePath);
+        for (int i = 0; i < tableData.length; i++) {
+            if (!(hasManualVerify[i] && hasCorrectSyntax[i])) {
+                String grapheme = (String) tableData[i][1];
+                if (grapheme == null)
+                    continue;
+                String phone = trainedLTS.syllabify(trainedLTS.predictPronunciation(grapheme));
+                transcriptionModel.setValueAt(phone.replaceAll("\\s+", ""), i, 2);
+                transcriptionModel.setAsCorrectSyntax(i, true);
+                transcriptionModel.setAsManualVerify(i, false);
             }
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
-        trainPredict = true;
+
     }
 
     private LTSTrainer trainLTS(String treeAbsolutePath) throws IOException {
@@ -173,59 +176,41 @@ public class LTSLexiconPOSCreator {
         return tp;
     }
 
-    /**
-     * load phoneset
-     * 
-     * @param filePath
-     */
-    public void loadPhoneSet(String filePath) {
-        try {
-            phoneSet = AllophoneSet.getAllophoneSet(filePath);
-            locale = phoneSet.getLocale().toString();
-        } catch (MaryConfigurationException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public String getLocaleString() {
+    private String getLocaleString() {
         return locale;
     }
 
     /**
-     * save transcrption into file
+     * save transcription into file
      * 
      * @param fileName
+     * @throws Exception
      */
-    public void saveTranscription(String fileName) {
-        try {
-            this.transcriptionModel.saveTranscription(fileName);
-            // File parentDir = (new File(fileName)).getParentFile();
-            // String parentPath = parentDir.getAbsolutePath();
-            File saveFile = new File(fileName);
-            String dirName = saveFile.getParentFile().getAbsolutePath();
-            String filename = saveFile.getName();
-            String baseName, suffix;
-            if (filename.lastIndexOf(".") == -1) {
-                baseName = filename;
-                suffix = "";
-            } else {
-                baseName = filename.substring(0, filename.lastIndexOf("."));
-                suffix = filename.substring(filename.lastIndexOf("."), filename.length());
-            }
-            String lexiconFile = dirName + File.separator + baseName + "_lexicon.dict";
-            String fstFile = dirName + File.separator + baseName + "_lexicon.fst";
-            String posFile = dirName + File.separator + baseName + "_pos.list";
-            String posFst = dirName + File.separator + baseName + "_pos.fst";
+    public void saveTranscription(String fileName) throws Exception {
 
-            transcriptionModel.saveSampaLexiconFormat(lexiconFile, phoneSet);
-            transcriptionModel.createLexicon(lexiconFile, fstFile);
-            transcriptionModel.saveFunctionalWords(posFile);
-            transcriptionModel.createPOSFst(posFile, posFst);
-            // trainLTS(treeAbsolutePath);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        this.transcriptionModel.saveTranscription(fileName);
+        // File parentDir = (new File(fileName)).getParentFile();
+        // String parentPath = parentDir.getAbsolutePath();
+        File saveFile = new File(fileName);
+        String dirName = saveFile.getParentFile().getAbsolutePath();
+        String filename = saveFile.getName();
+        String baseName, suffix;
+        if (filename.lastIndexOf(".") == -1) {
+            baseName = filename;
+        } else {
+            baseName = filename.substring(0, filename.lastIndexOf("."));
         }
+        String lexiconFile = dirName + File.separator + baseName + "_lexicon.dict";
+        String fstFile = dirName + File.separator + baseName + "_lexicon.fst";
+        String posFile = dirName + File.separator + baseName + "_pos.list";
+        String posFst = dirName + File.separator + baseName + "_pos.fst";
+
+        transcriptionModel.saveSampaLexiconFormat(lexiconFile, phoneSet);
+        transcriptionModel.createLexicon(lexiconFile, fstFile);
+        transcriptionModel.saveFunctionalWords(posFile);
+        transcriptionModel.createPOSFst(posFile, posFst);
+        // trainLTS(treeAbsolutePath);
+
     }
 
     /**
@@ -233,43 +218,49 @@ public class LTSLexiconPOSCreator {
      *            first argument, PhoneSet file name; second argument, Transcriptions file name
      */
     public static void main(String[] args) throws Exception {
-        LTSLexiconPOSCreator myLTSLexiconPOSCreator = new LTSLexiconPOSCreator();
-        String phoneSetFileName = args[0];
-        String transcriptionsFileName = args[1];
+        try {
+            // Get filenames from args
+            String phoneSetFileName = args[0];
+            String transcriptionsFileName = args[1];
 
-        // Splitting of dirName baseName suffix
-        String dirName = null;
-        String baseName = null;
-        String suffix = null;
-        File transcriptionFile = new File(transcriptionsFileName);
-        dirName = transcriptionFile.getParentFile().getAbsolutePath();
-        String filename = transcriptionFile.getName();
-        if (filename.lastIndexOf(".") == -1) {
-            baseName = filename;
-            suffix = "";
-        } else {
-            baseName = filename.substring(0, filename.lastIndexOf("."));
-            suffix = filename.substring(filename.lastIndexOf("."), filename.length());
+            // Create object from files
+            LTSLexiconPOSCreator myLTSLexiconPOSCreator = new LTSLexiconPOSCreator(phoneSetFileName, transcriptionsFileName);
+
+            // Splitting of dirName baseName suffix
+            String dirName = null;
+            String baseName = null;
+            String suffix = null;
+            File transcriptionFile = new File(transcriptionsFileName);
+            dirName = transcriptionFile.getParentFile().getAbsolutePath();
+            String filename = transcriptionFile.getName();
+            if (filename.lastIndexOf(".") == -1) {
+                baseName = filename;
+            } else {
+                baseName = filename.substring(0, filename.lastIndexOf("."));
+            }
+
+            String treeAbsolutePath = dirName + File.separator + baseName + ".lts";
+            String lexout = dirName + File.separator + baseName + ".lextxt";
+
+            // Procedure
+            System.out.println("trainPredict ...");
+            myLTSLexiconPOSCreator.trainPredict(treeAbsolutePath);
+            System.out.println("... done.");
+
+            System.out.println("saveTranscription ...");
+            myLTSLexiconPOSCreator.saveTranscription(lexout);
+            System.out.println("... done.");
+
+        } catch (Exception e) {
+            System.out.println("Problem processing the following input:");
+            System.out.println("args[0]:"+args[0]);
+            System.out.println("args[1]:"+args[1]);
+            System.out.println("\n");
+            e.printStackTrace();
+            System.out.println("");
+            System.out.println("Failure exit");
+            System.exit(-1);
         }
 
-        // Procedure
-        System.out.println("loadPhoneSet ...");
-        myLTSLexiconPOSCreator.loadPhoneSet(phoneSetFileName);
-        System.out.println("... done.");
-
-        String treeAbsolutePath = dirName + File.separator + baseName + ".lts";
-        String lexout = dirName + File.separator + baseName + ".lextxt";
-
-        System.out.println("loadTranscription ...");
-        myLTSLexiconPOSCreator.loadTranscription(transcriptionsFileName);
-        System.out.println("... done.");
-
-        System.out.println("trainPredict ...");
-        myLTSLexiconPOSCreator.trainPredict(treeAbsolutePath);
-        System.out.println("... done.");
-
-        System.out.println("saveTranscription ...");
-        myLTSLexiconPOSCreator.saveTranscription(lexout);
-        System.out.println("... done.");
     }
 }
