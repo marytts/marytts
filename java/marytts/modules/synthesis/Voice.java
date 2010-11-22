@@ -296,11 +296,11 @@ public class Voice
                 case HMM:
                     // if we already have a HMM duration or F0 model, and if this is the other of the two, and if so,
                     // and they use the same dataFile, then let them be the same instance:
+                    // if this is the case set the boolean variable predictDurAndF0 to true in HMMModel
                     if (getDurationModel() != null && getDurationModel() instanceof HMMModel && modelName.equalsIgnoreCase("F0")
                             && modelDataFileName.equals(getDurationModel().getDataFileName())) {
                         model = getDurationModel();
-                        // set the attribute name, which is different to the already one set
-                        ((HMMModel)model).setPredictDurAndF0(true);
+                        ((HMMModel)model).setPredictDurAndF0(true);  
                     } else if (getF0Model() != null && getF0Model() instanceof HMMModel && modelName.equalsIgnoreCase("duration")
                             && modelDataFileName.equals(getF0Model().getDataFileName())) {
                         model = getF0Model();
