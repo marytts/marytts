@@ -76,9 +76,17 @@ public class MLSAFeatureFileComputer extends VoiceImportComponent {
 
     @Override
     protected void setupHelp() {
-        // TODO Auto-generated method stub
         if (props2Help ==null){
             props2Help = new TreeMap();
+            props2Help.put(WAVEDIR, "directory that contains vocalization wave files ");
+            props2Help.put(SCRIPTSDIR, "directory that contains external scripts used to compute MGC, LF0 and MGC features");
+            props2Help.put(MLSADIR, "mlsa features directory");
+            props2Help.put(RAWDIR, "raw files directory");
+            props2Help.put(TCLCOMMAND, "tcl executable command");
+            props2Help.put(SOXCOMMAND, "sox executable command");
+            props2Help.put(SPTKPATH, "Path that contains SPTK executables");
+            props2Help.put(LOWERLF0, "lowest pitch value specification");
+            props2Help.put(UPPERLF0, "highest pitch value specification");
         }
 
     }
