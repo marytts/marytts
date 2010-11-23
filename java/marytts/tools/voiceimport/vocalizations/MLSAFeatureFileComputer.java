@@ -108,7 +108,7 @@ public class MLSAFeatureFileComputer extends VoiceImportComponent {
 
     /**
      * Initialize this component
-     * @throws Exception 
+     * @throws MaryConfigurationException if there is problem with basename list
      */
     public void initialiseComp() throws Exception {
 
