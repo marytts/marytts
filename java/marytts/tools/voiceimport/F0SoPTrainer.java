@@ -45,6 +45,38 @@ import marytts.unitselection.data.UnitFileReader;
 import marytts.util.math.MathUtils;
 import marytts.util.string.PrintfFormat;
 
+
+
+/**
+ * 
+ * Example of how to use SoP modules in a voice configuration file:
+ * 
+ * #Modules to use for predicting acoustic target features for this voice:
+ * #this are the names that will be used to identify diferent models of the same type, sop, cart or hmm
+ * voice.cmu-slt-hsmm.acousticModels = duration F0 midF0 rightF0
+
+ * voice.cmu-slt-hsmm.duration.model = sop
+ * voice.cmu-slt-hsmm.duration.data = MARY_BASE/lib/voices/cmu-slt-hsmm/dur.sop
+ * voice.cmu-slt-hsmm.duration.attribute = d
+
+ * voice.cmu-slt-hsmm.leftF0.model = sop
+ * voice.cmu-slt-hsmm.leftF0.data = MARY_BASE/lib/voices/cmu-slt-hsmm/f0.left.sop
+ * voice.cmu-slt-hsmm.leftF0.attribute = f0
+ * voice.cmu-slt-hsmm.leftF0.attribute.format = (0,%.0f)
+
+ * voice.cmu-slt-hsmm.midF0.model = sop
+ * voice.cmu-slt-hsmm.midF0.data = MARY_BASE/lib/voices/cmu-slt-hsmm/f0.mid.sop
+ * voice.cmu-slt-hsmm.midF0.attribute = f0
+ * voice.cmu-slt-hsmm.midF0.attribute.format = (50,%.0f)
+
+ * voice.cmu-slt-hsmm.rightF0.model = sop
+ * voice.cmu-slt-hsmm.rightF0.data = MARY_BASE/lib/voices/cmu-slt-hsmm/f0.right.sop
+ * voice.cmu-slt-hsmm.rightF0.attribute = f0
+ * voice.cmu-slt-hsmm.rightF0.attribute.format = (100,%.0f)
+ * 
+ * @author marcela
+ *
+ */
 public class F0SoPTrainer extends VoiceImportComponent
 {
   protected File f0Dir;
