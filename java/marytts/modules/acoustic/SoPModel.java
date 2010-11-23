@@ -52,11 +52,23 @@ import marytts.util.MaryUtils;
  */
 public class SoPModel extends Model {
     
-    // If duration this map will contain several sop equations
-    // if f0 this map will contain just one sop equation
+    /**
+     * The SopModels map contains one SoP model for F0 and three SoP models duration: vowel, consonant and pause.
+     */
     private Map<String, SoP> sopModels;
     
-
+    /**
+     * Model constructor
+     * @param featureManager the feature processor manager used to compute the symbolic features used for prediction
+     * @param dataFileName data file containing the sop data
+     * @param targetAttributeName attribute in MARYXML to predict
+     * @param targetAttributeFormat print style
+     * @param featureName not used in SoP model
+     * @param predictFrom not used in SoP model
+     * @param applyTo not used in SoP model
+     * 
+     * @throws MaryConfigurationException  if there are missing files.
+     */
     public SoPModel(FeatureProcessorManager featureManager, String dataFileName, String targetAttributeName, String targetAttributeFormat,
             String featureName, String predictFrom, String applyTo)
     throws MaryConfigurationException {
@@ -64,13 +76,18 @@ public class SoPModel extends Model {
         load();
     }
     
-
+    /**
+     * Load SoP data.
+     * 
+     * @throws IOException if data can not be read.
+     */
     @Override
     protected void loadDataFile() throws IOException {
         sopModels = new HashMap<String, SoP>();
         String nextLine, nextType;
         String strContext="";
         Scanner s = null;
+        try {
         s = new Scanner(new BufferedReader(new FileReader(dataFile)));
 
         // The first part contains the feature definition
@@ -95,10 +112,16 @@ public class SoPModel extends Model {
             }
         }
         s.close();
+        
+        } catch (Exception e) {
+            throw new IOException("Error reading SoP data file: " + dataFile,  e);
+        }
     }
 
     /**
      * Apply the SoP to a Target to get its predicted value
+     * @param target target from where to predict
+     * @return result predicted value
      */
     @Override
     protected float evaluate(Target target) {
