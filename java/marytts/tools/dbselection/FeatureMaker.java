@@ -763,7 +763,17 @@ public class FeatureMaker
                                 //System.out.println("   unknownwords: method other than lexicon, userdict, phonemiseDenglish or compound -> unreliable");
                             } //else method is phonemiseDenglish or compound -> credible                        
                         }
-                    }// else method is lexicon or userdict -> credible           
+                    } else {
+                        // method is lexicon or userdict -> credible
+                        if (t.getFirstChild().getNodeValue().contains("-")) {
+                            if (strictReliability) {
+                                // very strict Reliability
+                                // word contains hyphen -> unreliable
+                                newUsefulSentence = 1;
+                                // System.out.println("  word contains hyphen -> unreliable");
+                            }
+                        }
+                    }  
                 } //else no method -> preprocessed -> credible          
             } else {      
                 //we dont have a transcription
