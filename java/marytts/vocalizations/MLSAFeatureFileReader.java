@@ -64,18 +64,20 @@ public class MLSAFeatureFileReader
     private double[][][] mgc;
 
     /**
-     * Create a unit file reader from the given unit file
+     * Create a feature file reader from the given MLSA feature file
      * @param fileName the unit file to read
      * @throws IOException if a problem occurs while reading
+     * @throws MaryConfigurationException if runtime configuration fails
      */
     public MLSAFeatureFileReader( String fileName ) throws IOException, MaryConfigurationException {
         load(fileName);
     }
 
     /**
-     * Load the given unit file
-     * @param fileName the unit file to read
+     * Load the given feature file
+     * @param fileName the feature file to read
      * @throws IOException if a problem occurs while reading
+     * @throws MaryConfigurationException if runtime configuration fails
      */
     private void load(String fileName) throws IOException, MaryConfigurationException
     {
@@ -165,7 +167,7 @@ public class MLSAFeatureFileReader
     /**
      * get boolean array of voiced frame information: true, if voiced; false if unvoiced;
      * @param unitnumber unit index number
-     * @return boolean array
+     * @return boolean[] boolean array of voiced frames
      * @throws IllegalArgumentException if given index number is not less than available units
      */
     public boolean[] getVoicedFrames( int unitnumber ) {
@@ -174,11 +176,11 @@ public class MLSAFeatureFileReader
         }
         return this.voiced[unitnumber];
     }
-    
+
     /**
      * get array of logf0 features
      * @param unitnumber unit index number
-     * @return double[]
+     * @return double[] array of logf0 values
      * @throws IllegalArgumentException if given index number is not less than available units
      */
     public double[] getUnitLF0( int unitnumber ) {
@@ -187,11 +189,11 @@ public class MLSAFeatureFileReader
         }
         return this.logf0[unitnumber];
     }
-    
+
     /**
      * get double array of MGC features
      * @param unitnumber unit index number
-     * @return double[][]
+     * @return double[][] array of mgc vectors
      * @throws IllegalArgumentException if given index number is not less than available units
      */
     public double[][] getUnitMGCs( int unitnumber ) {
@@ -200,11 +202,11 @@ public class MLSAFeatureFileReader
         }
         return this.mgc[unitnumber];
     }
-    
+
     /**
      * get double array of strength features
      * @param unitnumber unit index number
-     * @return double[][]
+     * @return double[][] array of strength vectors
      * @throws IllegalArgumentException if given index number is not less than available units
      */
     public double[][] getUnitStrengths( int unitnumber ) {
@@ -213,26 +215,26 @@ public class MLSAFeatureFileReader
         }
         return this.strengths[unitnumber];
     }
-    
+
     /**
      * get vector size of MGC features
-     * @return
+     * @return int mgc vector size
      */
     public int getMGCVectorSize() {
         return this.MGCVECTORSIZE;
     }
-    
+
     /**
      * get vector size of LF0 features
-     * @return
+     * @return int lf0 vector size
      */
     public int getLF0VectorSize() {
         return this.LF0VECTORSIZE;
     }
-    
+
     /**
      * get vector size of strength features
-     * @return
+     * @return int strengths vector size
      */
     public int getSTRVectorSize() {
         return this.STRVECTORSIZE;
