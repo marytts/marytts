@@ -80,7 +80,6 @@ public class HMMVoicePackager extends VoicePackager {
     private String trickyPhonesFile;
     private String hmmFeaturesMapFile;
     private boolean trickyPhones;
-    private boolean extraFeaturesMap;
     
     /** Variables for allowing the use of external prosody */
     private String useAcousticModels;
@@ -285,12 +284,6 @@ public class HMMVoicePackager extends VoicePackager {
           files.put(trickyPhonesFile, in);  
           trickyPhones = true;
         }
-        // if there is a hmmFeaturesMap.txt file
-        in = new File(rootDir + getProp(hmmFeaturesMapFile));
-        if(in.exists()){
-          files.put(hmmFeaturesMapFile, in); 
-          extraFeaturesMap = true;
-        }
         
         /* copy one example of MARY context features file, it can be one of the 
          * files used for testing in phonefeatures/*.pfeats*/
@@ -433,14 +426,7 @@ public class HMMVoicePackager extends VoicePackager {
             } else {
                 configOut.println(voiceHeader+".trickyPhonesFile = \r");  
             }
-            if(extraFeaturesMap) {                 
-                configOut.println(voiceHeader+".hmmFeaturesMapFile = MARY_BASE/lib/voices/"+voicename+"/"+ FileUtils.getFileName(getProp(hmmFeaturesMapFile))+"\r");
-            } else {
-                configOut.println(voiceHeader+".hmmFeaturesMapFile = \r");  
-            }
-                        
             
-
             configOut.println("\r\n# Information about Mixed Excitation\r");
             configOut.println(voiceHeader + ".useMixExc = " + getProp(useMixExc) + "\r\n\r");
             if( new File(rootDir + getProp(treeStrFile)).exists()) {
