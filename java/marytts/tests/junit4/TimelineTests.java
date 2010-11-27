@@ -334,7 +334,7 @@ public class TimelineTests extends TimelineReader {
         long midTime = onTime + ((afterTime - onTime) / 2);
         Datagram[] D = null;
         long dur = origDatagrams[testIdx].getDuration();
-        long span = dur;
+        long span = dur - dur/2 + 1;
         long[] offset = new long[1];
         // exercise
         D = tlr.getDatagrams( midTime, span, sampleRate, offset );
