@@ -19,69 +19,22 @@
  */
 package marytts.vocalizations;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
 import marytts.modules.synthesis.Voice;
-import marytts.modules.synthesis.WaveformSynthesizer;
 import marytts.server.MaryProperties;
-import marytts.signalproc.analysis.PitchMarks;
-import marytts.signalproc.effects.EffectsApplier;
-import marytts.signalproc.process.FDPSOLAProcessor;
-import marytts.unitselection.concat.DatagramDoubleDataSource;
-import marytts.unitselection.data.Datagram;
-import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.Unit;
-import marytts.unitselection.data.UnitFileReader;
-import marytts.unitselection.select.Target;
-import marytts.unitselection.select.VocalizationFFRTargetCostFunction;
 import marytts.util.MaryUtils;
-import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.DoubleDataSource;
-import marytts.util.data.audio.AudioPlayer;
-import marytts.util.data.audio.DDSAudioInputStream;
-import marytts.util.data.audio.MaryAudioUtils;
-import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
-import marytts.util.math.MathUtils;
-import marytts.util.math.Polynomial;
-import marytts.util.signal.SignalProcUtils;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
-import org.w3c.dom.traversal.NodeIterator;
 
 
 /**
