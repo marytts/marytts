@@ -81,6 +81,7 @@ THIS SOFTWARE.
 
 
   <target name="tests" depends="compile">
+    <mkdir dir="log/test-reports"/>
     <junit printsummary="on" haltonfailure="no" fork="on" forkmode="once">
     	<classpath>
   	        <pathelement location="${dest}"/>
@@ -91,8 +92,8 @@ THIS SOFTWARE.
       <sysproperty key="modules.poweronselftest" value="false"/>
       <sysproperty key="log.tofile" value="true"/>
       <sysproperty key="log.filename" value="log/junittest.mary.log"/>
-      <formatter type="plain"/>
-    	<batchtest todir="log">
+      <formatter type="xml"/>
+    	<batchtest todir="log/test-reports">
     		<fileset dir="${src}">
     		      <include name="marytts/tests/junit4/*.java"/>
   		      <!--include name="marytts/tests/junit4/language/**/*.java"/-->			
