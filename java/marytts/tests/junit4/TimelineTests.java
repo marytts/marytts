@@ -27,6 +27,7 @@ import java.util.Random;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
+import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -185,92 +186,196 @@ public class TimelineTests extends TimelineReader {
     }
     
     @Test
-    public void timeDrivenAccess() throws IOException {
-        /* Testing the time-driven access */
+    public void gotoTime1() throws IOException {
+        // setup
         final int testIdx = NUMDATAGRAMS / 2;
+        long onTime = getTimeOfIndex(testIdx);
+        // exercise
+        ByteBuffer bb = tlr.getByteBufferAtTime(onTime).getFirst();
+        Datagram d = tlr.getNextDatagram(bb);
+        // verify
+        assertEquals(origDatagrams[testIdx], d);
+    }
+    
+    @Test
+    public void gotoTime2() throws IOException {
+        // setup
+        final int testIdx = NUMDATAGRAMS / 2;
+        long onTime = getTimeOfIndex(testIdx);
+        long afterTime = onTime + origDatagrams[testIdx].getDuration();
+        long midTime = onTime + ((afterTime - onTime) / 2);
+        // exercise
+        ByteBuffer bb = tlr.getByteBufferAtTime(midTime).getFirst();
+        Datagram d = tlr.getNextDatagram(bb);
+        // verify
+        assertEquals(origDatagrams[testIdx], d);
+    }
+    
+    @Test
+    public void gotoTime3() throws IOException {
+        // setup
+        final int testIdx = NUMDATAGRAMS / 2;
+        long onTime = getTimeOfIndex(testIdx);
+        long afterTime = onTime + origDatagrams[testIdx].getDuration();
+        // exercise
+        ByteBuffer bb = tlr.getByteBufferAtTime(afterTime).getFirst();
+        Datagram d = tlr.getNextDatagram(bb);
+        // verify
+        assertEquals(origDatagrams[testIdx+1], d);
+    }
+
+    @Test
+    public void getDatagrams1() throws IOException {
+        // setup
+        final int testIdx = NUMDATAGRAMS / 2;
+        long onTime = getTimeOfIndex(testIdx);
+        Datagram[] D = null;
+        long span = origDatagrams[testIdx].getDuration();
+        long[] offset = new long[1];
+        // exercise
+        D = tlr.getDatagrams( onTime, span, sampleRate, offset );
+        // verify
+        assertEquals( 1, D.length );
+        assertEquals( origDatagrams[testIdx], D[0] );
+        assertEquals( 0l, offset[0] );
+    }
+    
+
+    @Test
+    public void getDatagrams2() throws IOException {
+        // setup
+        final int testIdx = NUMDATAGRAMS / 2;
+        long onTime = getTimeOfIndex(testIdx);
+        Datagram[] D = null;
+        long span = origDatagrams[testIdx].getDuration() / 2;
+        long[] offset = new long[1];
+        // exercise
+        D = tlr.getDatagrams( onTime, span, sampleRate, offset );
+        // verify
+        assertEquals( 1, D.length );
+        assertEquals( origDatagrams[testIdx], D[0] );
+        assertEquals( 0l, offset[0] );
+    }
+
+    @Test
+    public void getDatagrams3() throws IOException {
+        // setup
+        final int testIdx = NUMDATAGRAMS / 2;
+        long onTime = getTimeOfIndex(testIdx);
+        long afterTime = onTime + origDatagrams[testIdx].getDuration();
+        long midTime = onTime + ((afterTime - onTime) / 2);
+        Datagram[] D = null;
+        long span = origDatagrams[testIdx].getDuration() / 2;
+        // exercise
+        D = tlr.getDatagrams( midTime, span, sampleRate);
+        // verify
+        assertEquals( 1, D.length );
+        assertEquals( origDatagrams[testIdx], D[0] );
+    }
+
+    @Test
+    public void getDatagrams4() throws IOException {
+        // setup
+        final int testIdx = NUMDATAGRAMS / 2;
+        long onTime = getTimeOfIndex(testIdx);
+        Datagram[] D = null;
+        long span = origDatagrams[testIdx].getDuration() + 1;
+        long[] offset = new long[1];
+        // exercise
+        D = tlr.getDatagrams( onTime, span, sampleRate, offset );
+        // verify
+        assertEquals( 2, D.length );
+        assertEquals( origDatagrams[testIdx], D[0] );
+        assertEquals( origDatagrams[testIdx+1], D[1] );
+        assertEquals( 0l, offset[0] );
+    }
+    
+    @Test
+    public void getDatagrams5() throws IOException {
+        // setup
+        final int testIdx = NUMDATAGRAMS / 2;
+        long onTime = getTimeOfIndex(testIdx);
+        Datagram[] D = null;
+        long span = origDatagrams[testIdx].getDuration() + origDatagrams[testIdx+1].getDuration();
+        long[] offset = new long[1];
+        // exercise
+        D = tlr.getDatagrams( onTime, span, sampleRate, offset );
+        // verify
+        assertEquals( 2, D.length );
+        assertEquals( origDatagrams[testIdx], D[0] );
+        assertEquals( origDatagrams[testIdx+1], D[1] );
+        assertEquals( 0l, offset[0] );
+    }
+    
+    @Test
+    public void getDatagrams6() throws IOException {
+        // setup
+        final int testIdx = NUMDATAGRAMS / 2;
+        long onTime = getTimeOfIndex(testIdx);
+        Datagram[] D = null;
+        long span = origDatagrams[testIdx].getDuration() + origDatagrams[testIdx+1].getDuration();
+        long[] offset = new long[1];
+        // exercise
+        D = tlr.getDatagrams( onTime+1, span, sampleRate, offset );
+        // verify
+        assertEquals( 3, D.length );
+        assertEquals( origDatagrams[testIdx], D[0] );
+        assertEquals( origDatagrams[testIdx+1], D[1] );
+        assertEquals( origDatagrams[testIdx+2], D[2] );
+        assertEquals( 1l, offset[0] );
+    }
+    
+    @Test
+    public void getDatagrams7() throws IOException {
+        // setup
+        final int testIdx = NUMDATAGRAMS / 2;
+        long onTime = getTimeOfIndex(testIdx);
+        long afterTime = onTime + origDatagrams[testIdx].getDuration();
+        long midTime = onTime + ((afterTime - onTime) / 2);
+        Datagram[] D = null;
+        long dur = origDatagrams[testIdx].getDuration();
+        long span = dur;
+        long[] offset = new long[1];
+        // exercise
+        D = tlr.getDatagrams( midTime, span, sampleRate, offset );
+        // verify
+        assertEquals( 2, D.length );
+        assertEquals( origDatagrams[testIdx], D[0] );
+        assertEquals( origDatagrams[testIdx+1], D[1] );
+        assertEquals( dur/2, offset[0] );
+    }
+    
+    
+    @Test
+    public void otherSampleRate() throws IOException {
+        // setup
+        final int testIdx = NUMDATAGRAMS / 2;
+        long onTime = getTimeOfIndex(testIdx);
+        long afterTime = onTime + origDatagrams[testIdx].getDuration();
+        long midTime = onTime + ((afterTime - onTime) / 2);
+        Datagram[] D = null;
+        long dur = origDatagrams[testIdx].getDuration();
+        long span = dur;
+        long[] offset = new long[1];
+        // exercise
+        D = tlr.getDatagrams( onTime*2, span*2, sampleRate/2 );
+        // verify
+        assertEquals( 1, D.length );
+        Assert.assertTrue( areEqual(D[0].getData(), origDatagrams[testIdx].getData()));
+        Assert.assertTrue( D[0].getDuration() != origDatagrams[testIdx].getDuration());
+        
+    }
+
+    /**
+     * @param testIdx
+     * @return
+     */
+    private long getTimeOfIndex(final int testIdx) {
         long onTime = 0l;
         for( int i = 0; i < testIdx; i++ ) {
             onTime += origDatagrams[i].getDuration();
         }
-        long afterTime = onTime + origDatagrams[testIdx].getDuration();
-        long midTime = onTime + ((afterTime - onTime) / 2);
-        
-        System.out.println( "Testing gotoTime 1 ..." );
-        ByteBuffer bb = tlr.getByteBufferAtTime(onTime).getFirst();
-        Datagram d = tlr.getNextDatagram(bb);
-        Assert.assertTrue( d.equals( origDatagrams[testIdx] ) );
-        
-        System.out.println( "Testing gotoTime 2 ..." );
-        bb = tlr.getByteBufferAtTime(midTime).getFirst();
-        d = tlr.getNextDatagram(bb);
-        Assert.assertTrue( d.equals( origDatagrams[testIdx] ) );
-        
-        System.out.println( "Testing gotoTime 3 ..." );
-         bb = tlr.getByteBufferAtTime(afterTime).getFirst();
-         d = tlr.getNextDatagram(bb);
-        Assert.assertTrue( d.equals( origDatagrams[testIdx+1] ) );
-
-        /* Testing time-spanned access */
-        System.out.println( "Testing getDatagrams  1 ..." );
-        Datagram[] D = null;
-        long span = origDatagrams[testIdx].getDuration();
-        long[] offset = new long[1];
-        D = tlr.getDatagrams( onTime, span, sampleRate, offset );
-        Assert.assertEquals( 1, D.length );
-        Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
-        Assert.assertEquals( 0l, offset[0] );
-        
-        System.out.println( "Testing getDatagrams  2 ..." );
-        span = origDatagrams[testIdx].getDuration() / 2;
-        D = tlr.getDatagrams( onTime, span, sampleRate );
-        Assert.assertEquals( 1, D.length );
-        Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
-        
-        System.out.println( "Testing getDatagrams  3 ..." );
-        span = origDatagrams[testIdx].getDuration() / 2;
-        D = tlr.getDatagrams( midTime, span, sampleRate );
-        Assert.assertEquals( 1, D.length );
-        Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
-        
-        System.out.println( "Testing getDatagrams  4 ..." );
-        span = origDatagrams[testIdx].getDuration() + 1;
-        D = tlr.getDatagrams( onTime, span, sampleRate );
-        Assert.assertEquals( 2, D.length );
-        Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
-        Assert.assertTrue( D[1].equals( origDatagrams[testIdx+1] ) );
-        
-        System.out.println( "Testing getDatagrams  5 ..." );
-        span = origDatagrams[testIdx].getDuration() + origDatagrams[testIdx+1].getDuration();
-        D = tlr.getDatagrams( onTime, span, sampleRate );
-        Assert.assertEquals( 2, D.length );
-        Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
-        Assert.assertTrue( D[1].equals( origDatagrams[testIdx+1] ) );
-        
-        System.out.println( "Testing getDatagrams  6 ..." );
-        span = origDatagrams[testIdx].getDuration() + origDatagrams[testIdx+1].getDuration();
-        D = tlr.getDatagrams( onTime+1, span, sampleRate, offset );
-        Assert.assertEquals( 3, D.length );
-        Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
-        Assert.assertTrue( D[1].equals( origDatagrams[testIdx+1] ) );
-        Assert.assertTrue( D[2].equals( origDatagrams[testIdx+2] ) );
-        Assert.assertEquals( 1l, offset[0] );
-        
-        System.out.println( "Testing getDatagrams  7 ..." );
-        span = origDatagrams[testIdx].getDuration() / 2;
-        D = tlr.getDatagrams( midTime, 2, sampleRate, offset );
-        Assert.assertEquals( 2, D.length );
-        Assert.assertTrue( D[0].equals( origDatagrams[testIdx] ) );
-        Assert.assertTrue( D[1].equals( origDatagrams[testIdx+1] ) );
-        Assert.assertEquals( ((afterTime - onTime) / 2), offset[0] );
-        
-        /* Testing time-spanned access with alternate sample rate */
-        System.out.println( "Testing getDatagrams with alternate sample rate ..." );
-        span = origDatagrams[testIdx].getDuration();
-        D = tlr.getDatagrams( onTime*2, span*2, sampleRate/2 );
-        Assert.assertEquals( 1, D.length );
-        Assert.assertTrue( areEqual(D[0].getData(), origDatagrams[testIdx].getData()));
-        Assert.assertTrue( D[0].getDuration() != origDatagrams[testIdx].getDuration());
-        
+        return onTime;
     }
 
 
