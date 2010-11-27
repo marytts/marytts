@@ -209,7 +209,12 @@ public class Datagram  {
     /**
      * Tests if this datagram is equal to another datagram.
      */
-    public boolean equals( Datagram other ) {
+    @Override
+    public boolean equals( Object obj) {
+        if (!(obj instanceof Datagram)) {
+            return false;
+        }
+        Datagram other = (Datagram) obj;
         if ( this.duration != other.duration ) return( false );
         if ( this.data.length != other.data.length ) return( false );
         for ( int i = 0; i < this.data.length; i++ ) {
