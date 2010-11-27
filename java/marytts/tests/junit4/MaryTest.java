@@ -144,18 +144,18 @@ public class MaryTest {
     
 
     @Test
-    public void testDefaultGermanVoiceAvailable() throws Exception {
-        assertTrue(Voice.getDefaultVoice(Locale.GERMAN) != null);
+    public void testDefaultUSVoiceAvailable() throws Exception {
+        assertTrue(Voice.getDefaultVoice(Locale.US) != null);
     }
 
 
     @Test
-    public void testTextToSpeechPossibleGerman() {
+    public void testTextToSpeechPossibleUS() {
         List<MaryModule> modules =
             ModuleRegistry.modulesRequiredForProcessing(
                 MaryDataType.TEXT,
                 MaryDataType.AUDIO,
-                Locale.GERMAN);
+                Locale.US);
         assertTrue(modules != null && !modules.isEmpty());
     }
 
