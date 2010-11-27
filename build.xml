@@ -95,7 +95,7 @@ THIS SOFTWARE.
     	<batchtest todir="log">
     		<fileset dir="${src}">
     		      <include name="marytts/tests/junit4/*.java"/>
-	  		      <include name="marytts/tests/junit4/language/**/*.java"/>			
+  		      <!--include name="marytts/tests/junit4/language/**/*.java"/-->			
     		</fileset>
     	</batchtest>
     </junit>
