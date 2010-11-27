@@ -7,10 +7,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.w3c.dom.Element;
-
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
@@ -21,6 +17,10 @@ import marytts.unitselection.select.Target;
 import marytts.unitselection.select.VocalizationFFRTargetCostFunction;
 import marytts.util.MaryUtils;
 import marytts.util.math.Polynomial;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Element;
 
 /**
  * Select suitable vocalization for a given target using a cost function 
