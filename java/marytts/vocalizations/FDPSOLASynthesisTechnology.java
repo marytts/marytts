@@ -19,6 +19,7 @@
  */
 package marytts.vocalizations;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -26,9 +27,11 @@ import java.util.LinkedList;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
+import marytts.modules.synthesis.Voice;
 import marytts.signalproc.process.FDPSOLAProcessor;
 import marytts.unitselection.concat.DatagramDoubleDataSource;
 import marytts.unitselection.data.Datagram;
@@ -147,6 +150,10 @@ public class FDPSOLASynthesisTechnology extends VocalizationSynthesisTechnology 
             throw new IllegalArgumentException("sourceIndex("+sourceIndex+") and targetIndex("+targetIndex+") are should be less than number of available units ("+numberOfUnits+")");
         }
         
+        if ( sourceIndex == targetIndex ) {
+            return reSynthesize(sourceIndex, aft); 
+        }
+        
         double[] sourceF0 = this.vIntonationReader.getContour(sourceIndex);
         double[] targetF0coeffs = this.vIntonationReader.getIntonationCoeffs(targetIndex);
         double[] sourceF0coeffs = this.vIntonationReader.getIntonationCoeffs(sourceIndex);
@@ -205,11 +212,11 @@ public class FDPSOLASynthesisTechnology extends VocalizationSynthesisTechnology 
         } 
         assert frames != null : "Cannot generate audio from null frames";
         
-        boolean[] voicings = vIntonationReader.getVoicings(backchannelNumber);
-        assert voicings.length == pScalesArray.length;
-        assert voicings.length == tScalesArray.length;
+        pScalesArray = MathUtils.arrayResize(pScalesArray, frames.length);
+        tScalesArray = MathUtils.arrayResize(tScalesArray, frames.length);
         
-        
+        assert tScalesArray.length == pScalesArray.length;
+        assert frames.length == tScalesArray.length;
         
         AudioFormat af;
         if ( aft == null ) { // default audio format
@@ -223,7 +230,7 @@ public class FDPSOLASynthesisTechnology extends VocalizationSynthesisTechnology 
             af = aft.getFormat();
         }
         
-        double[] audio_double = (new FDPSOLAProcessor()).processDatagram(frames, null, aft.getFormat(), voicings, pScalesArray, tScalesArray, false);
+        double[] audio_double = (new FDPSOLAProcessor()).processDatagram(frames, null, aft.getFormat(), null, pScalesArray, tScalesArray, false);
         /* Normalise the signal before return, this will normalise between 1 and -1 */
         double MaxSample = MathUtils.getAbsMax(audio_double);
         for (int i=0; i<audio_double.length; i++) {
