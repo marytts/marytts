@@ -1950,7 +1950,7 @@ Buttero bU-'te:-ro:
 Bußgeld 'bu:s-gElt
 Bypass 'baI-pas
 Byte 'baIt
-Byzanz 'by:-tsants
+Byzanz by:-'tsants
 Báthori ba-'to:-Ri:
 Bähung 'bE:-UN
 Bähungen 'bE:-U-N@n
@@ -8588,8 +8588,8 @@ Palais pa-'lE:
 Paliochora pa-li:-o:-'ko:-Ra:
 Palliation pa-li:-ja-'tsjo:n
 Palmen 'pal-m@n
-Paläographie pa-lE-o:-gRa-'fi:
-Paläontologie pa-lE-On-to:-lo:-'gi:
+Paläographie pa-lE:-o:-gRa-'fi:
+Paläontologie pa-lE:-On-to:-lo:-'gi:
 Paläozoikum pa-lE:-o:-'tso:-i:-kUm
 Palästina pa-lEs-'ti:-na:
 Palästinenser pa-lEs-ti:-'nEn-z6
@@ -12579,11 +12579,11 @@ VIP 'vIp
 Vaganten va-'gan-t@n
 Vajra 'vaj-Ra
 Vakua 'va:-ku:-a:
-Vakuum 'va:-ku:-Um
-Vakuummeter 'va:-ku:-Um-me:-t6
-Vakuummetern 'va:-ku:-Um-me:-t6n
-Vakuummeters 'va:-ku:-Um-me:-t6s
-Vakuums 'va:-ku:-Ums
+Vakuum 'va:-ku:-?Um
+Vakuummeter 'va:-ku:-?Um-me:-t6
+Vakuummetern 'va:-ku:-?Um-me:-t6n
+Vakuummeters 'va:-ku:-?Um-me:-t6s
+Vakuums 'va:-ku:-?Ums
 Valais va-'lE
 Valdez val-'dEs
 Valentine va-lEn-'ti:-n@
