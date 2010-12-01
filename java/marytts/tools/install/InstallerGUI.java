@@ -39,6 +39,7 @@ import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -486,6 +487,20 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
         
     }
     
+    private HashSet<ComponentDescription> getAllInstalledComponents() {
+        HashSet<ComponentDescription> components = new HashSet<ComponentDescription>();
+        for (ComponentDescription component : languages.values()) {
+            if (component.getStatus().equals(Status.INSTALLED)) {
+                components.add(component);
+            }
+        }
+        for (ComponentDescription component : voices.values()) {
+            if (component.getStatus().equals(Status.INSTALLED)) {
+                components.add(component);
+            }
+        }
+        return components;
+    }
     
     private List<VoiceComponentDescription> getVoicesForLanguage(LanguageComponentDescription language)
     {
@@ -684,7 +699,42 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
                 }
             }
         }
+        findAndStoreSharedFiles(toUninstall);
         return toUninstall;
+    }
+    
+    /**
+     * For all components to be uninstalled, find any shared files required by components that will <i>not</i> be uninstalled, and
+     * store them in the component (using {@link ComponentDescription#setSharedFiles(List)}).
+     * {@link ComponentDescription#uninstall()} can then check and refrain from removing those shared files.
+     * 
+     * @param uninstallComponents
+     *            selected for uninstallation
+     */
+    private void findAndStoreSharedFiles(List<ComponentDescription> uninstallComponents) {
+        // first, find out which components are *not* selected for removal:
+        Set<ComponentDescription> retainComponents = getAllInstalledComponents();
+        retainComponents.removeAll(uninstallComponents);
+
+        // if all components are selected for removal, there is nothing to do here:
+        if (retainComponents.isEmpty()) {
+            return;
+        }
+
+        // otherwise, list all unique files required by retained components:
+        Set<String> retainFiles = new TreeSet<String>();
+        for (ComponentDescription retainComponent : retainComponents) {
+            retainFiles.addAll(retainComponent.getInstalledFileNames());
+        }
+
+        // finally, store shared files in components to be removed (queried later):
+        for (ComponentDescription uninstallComponent : uninstallComponents) {
+            Set<String> sharedFiles = new HashSet<String>(uninstallComponent.getInstalledFileNames());
+            sharedFiles.retainAll(retainFiles);
+            if (!sharedFiles.isEmpty()) {
+                uninstallComponent.setSharedFiles(sharedFiles);
+            }
+        }
     }
     
     public void uninstallSelectedLanguagesAndVoices()

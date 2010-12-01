@@ -44,6 +44,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Observable;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -98,6 +99,7 @@ public class ComponentDescription extends Observable implements Comparable<Compo
     private int downloaded = 0;
     private int size = -1;
     private String installedFilesNames = null; // must be != null for installed components
+    private Set<String> sharedFileNames;
     
     /**
      * An available update is non-null in the following circumstance:
@@ -317,6 +319,22 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         return status;
     }
     
+    public LinkedList<String> getInstalledFileNames() {
+        LinkedList<String> files = new LinkedList<String>();
+        StringTokenizer st = new StringTokenizer(installedFilesNames, ",");
+        while (st.hasMoreTokens()) {
+            String next = st.nextToken().trim();
+            if (!"".equals(next)) {
+                files.addFirst(next); // i.e., reverse order
+            }
+        }
+        return files;
+    }
+    
+    public void setSharedFiles(Set<String> fileList) {
+        sharedFileNames = fileList;
+    }
+    
     public String toString()
     {
         return name;
@@ -410,16 +428,13 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         try {
             String maryBase = System.getProperty("mary.base");
             System.out.println("Removing "+name+"-"+version+" from "+maryBase+"...");
-            LinkedList<String> files = new LinkedList<String>();
-            StringTokenizer st = new StringTokenizer(installedFilesNames, ",");
-            while (st.hasMoreTokens()) {
-                String next = st.nextToken().trim();
-                if (!"".equals(next)) {
-                    files.addFirst(next); // i.e., reverse order
-                }
-            }
+            LinkedList<String> files = getInstalledFileNames();
             for (String file: files) {
                 if (file.trim().equals("")) continue; // skip empty lines
+                if (sharedFileNames != null && sharedFileNames.contains(file)) {
+                    System.out.println("Keeping shared file: " + file);
+                    continue; // don't uninstall shared files!
+                }
                 File f = new File(maryBase+"/"+file);
                 if (f.isDirectory()) {
                     String[] kids = f.list();
