@@ -230,7 +230,7 @@ public class FDPSOLASynthesisTechnology extends VocalizationSynthesisTechnology 
             af = aft.getFormat();
         }
         
-        double[] audio_double = (new FDPSOLAProcessor()).processDatagram(frames, null, aft.getFormat(), null, pScalesArray, tScalesArray, false);
+        double[] audio_double = (new FDPSOLAProcessor()).processDatagram(frames, null, af, null, pScalesArray, tScalesArray, false);
         /* Normalise the signal before return, this will normalise between 1 and -1 */
         double MaxSample = MathUtils.getAbsMax(audio_double);
         for (int i=0; i<audio_double.length; i++) {
@@ -238,6 +238,6 @@ public class FDPSOLASynthesisTechnology extends VocalizationSynthesisTechnology 
         }
         return (new DDSAudioInputStream(new BufferedDoubleDataSource(audio_double), af));
     }
-
+    
 }
 
