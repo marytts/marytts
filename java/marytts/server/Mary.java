@@ -362,7 +362,11 @@ public class Mary {
             for (Object key : logprops.keySet()) {
                 String val = (String) logprops.get(key);
                 if (val.contains("MARY_BASE")) {
-                    val = val.replaceAll("MARY_BASE", MaryProperties.maryBase());
+                    String maryBase = MaryProperties.maryBase();
+                    if (maryBase.contains("\\")) {
+                        maryBase = maryBase.replaceAll("\\\\", "/");
+                    }
+                    val = val.replaceAll("MARY_BASE", maryBase);
                     logprops.put(key, val);
                 }
             }
