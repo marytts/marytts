@@ -19,11 +19,13 @@
  */
 package marytts.vocalizations;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
@@ -166,7 +168,11 @@ public class MLSASynthesisTechnology extends VocalizationSynthesisTechnology {
             if ( targetF0coeffs.length == 0 || sourceF0coeffs.length == 0 ) {
                 return reSynthesize(sourceIndex, aft);
             }
-            lf0 = Polynomial.generatePolynomialValues(targetF0coeffs, voiced.length, 0, 1);
+            double[] f0Contour = Polynomial.generatePolynomialValues(targetF0coeffs, voiced.length, 0, 1);
+            lf0 =  new double[f0Contour.length];
+            for ( int i=0; i < f0Contour.length; i++ ) {
+                lf0[i] = Math.log(f0Contour[i]);
+            }
         }
 
         return synthesizeUsingMLSAVocoder(mgc, strengths, lf0, voiced, aft);
@@ -176,21 +182,28 @@ public class MLSASynthesisTechnology extends VocalizationSynthesisTechnology {
      * Synthesize using MLSA vocoder
      * @param mgc mgc features
      * @param strengths strengths
-     * @param lf0 lf0 features
+     * @param lf0 logf0 features
      * @param voiced voiced frames 
      * @param aft audio file format
      * @return AudioInputStream of synthesized vocalization
      * @throws SynthesisException if failed to synthesize vocalization
+     * @throws SynthesisException if log f0 values for voiced frames are not in the natural pitch range ( 30 to 1000 in Hertzs) 
      */
     private AudioInputStream synthesizeUsingMLSAVocoder(double[][] mgc, double[][] strengths, 
             double[] lf0, boolean[] voiced, AudioFileFormat aft) throws SynthesisException {
 
+        assert lf0.length == mgc.length;
+        assert mgc.length == strengths.length;
+        
+        for ( int i=0; i < lf0.length; i++ ) {
+            if ( lf0[i] > 0 && (Math.log(30) > lf0[i] || Math.log(1000) < lf0[i]) ) {
+                throw new SynthesisException("given log f0 values should be in the natural pitch range ");
+            }
+        }
+        
         int mcepVsize =  vMLSAFeaturesReader.getMGCVectorSize();
         int lf0Vsize = vMLSAFeaturesReader.getLF0VectorSize();
         int strVsize = vMLSAFeaturesReader.getSTRVectorSize();
-
-        assert lf0.length == mgc.length;
-        assert mgc.length == strengths.length;
 
         HTSPStream lf0Pst  = null; 
         HTSPStream mcepPst = null;
@@ -248,6 +261,6 @@ public class MLSASynthesisTechnology extends VocalizationSynthesisTechnology {
 
         return new DDSAudioInputStream(new BufferedDoubleDataSource(audio_double), af);
     }
-
+    
 }
 
