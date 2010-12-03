@@ -20,8 +20,13 @@
 package marytts.signalproc.analysis;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
+import java.util.Locale;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -549,6 +554,113 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
         return (double[][])stretches.toArray(new double[0][0]);
     }
     
+    
+
+    /**
+     * Segment a WAVE file by energy, ideally one word per segment (the result might contain more); 
+     * the result is saved in a file in transcriber format so the segmentation can be easily inspected and corrected.
+     * The parameters in: EnergyAnalyser.getSpeechStretchesUsingEnergyHistory():
+     *    signalproc.minsilenceduration
+     *    signalproc.minspeechduration
+     * can be tuned to get better segmentation.
+     * 
+     * @param args : first argument is the directory where the wav files are, next arguments in the list are the files for segmenting.
+     * @throws Exception: IOException, UnsupportedAudioFile exception and IllegalArgumentException when the file is not mono, it just handles mono audio signals.
+     */
+    public static void energySegmentation(String[] args) throws Exception
+    {
+        // First argument is the directory where the files are
+        String wavDirectory = args[0];
+        String fileNameNoExt;
+        String segmentationFileName;
+        float duration;
+        int i;
+        Date today;
+        String currentDate;
+        SimpleDateFormat formatter;
+        formatter = new SimpleDateFormat("yyMMdd");
+        today = new Date();
+        currentDate = formatter.format(today);   
+        
+        if (args.length > 0) {
+            for (int file=1; file<args.length; file++) {
+                System.out.println("\nProcessing file: " + args[file]);
+                AudioInputStream ais = AudioSystem.getAudioInputStream(new File(wavDirectory + "/" + args[file]));
+                if (!ais.getFormat().getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
+                    ais = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, ais);
+                }
+                if (ais.getFormat().getChannels() > 1) {
+                    throw new IllegalArgumentException("Can only deal with mono audio signals");
+                }
+                int samplingRate = (int) ais.getFormat().getSampleRate();
+                DoubleDataSource signal = new AudioDoubleDataSource(ais);
+                int framelength = (int)(0.01 /*seconds*/ * samplingRate);
+                EnergyAnalyser ea = new EnergyAnalyser(signal, framelength, framelength, samplingRate);
+                double[][] speechStretches1 = ea.getSpeechStretches();
+                int energyBufferLength = 30;
+                double speechStartLikelihood = 0.6;   
+                double speechEndLikelihood = 0.2;    
+                double shiftFromMinimumEnergyCenter = 0.1; 
+                int numClusters = 5;
+                double[][] speechStretches2 = ea.getSpeechStretchesUsingEnergyHistory(energyBufferLength, speechStartLikelihood, speechEndLikelihood, 
+                                                                                      shiftFromMinimumEnergyCenter, numClusters);
+                              
+                System.out.println("Speech stretches1 in "+args[file]+":");
+                PrintfFormat format = new PrintfFormat("%.4f");
+                for (i=0; i<speechStretches1.length; i++) {
+                    System.out.println(format.sprintf(speechStretches1[i][0]) + " " + format.sprintf(speechStretches1[i][1]));
+                }
+               
+                fileNameNoExt = args[file];
+                fileNameNoExt = fileNameNoExt.replace(".wav", "");
+                segmentationFileName = wavDirectory + "/" + fileNameNoExt + ".trs";
+                PrintWriter toList = new PrintWriter(new FileWriter(segmentationFileName));
+                
+                toList.println("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n" +
+                               "<!DOCTYPE Trans SYSTEM \"trans-14.dtd\">");
+                toList.println("<Trans scribe=\"MARY (automatic)\" audio_filename=\"" + fileNameNoExt + "\" version=\"1\" version_date=\"" + currentDate + "\">");
+                
+                // length in samples
+                ais.getFrameLength();
+                duration = ais.getFrameLength() / ais.getFormat().getFrameRate();
+                
+                toList.println("<Speakers>");
+                toList.println("<Speaker id=\"spk1\" name=\"word\" check=\"no\" dialect=\"native\" accent=\"\" scope=\"local\"/>");
+                toList.println("</Speakers>");
+                             
+                toList.println("<Episode>");
+                toList.println("<Section type=\"report\" startTime=\"0\" endTime=\"" + format.sprintf(duration) + "\">");
+                toList.println("<Turn startTime=\"0\" endTime=\"" + format.sprintf(speechStretches2[0][0]) + "\">");
+                toList.println("<Sync time=\"0\"/>");
+                toList.println("");
+                toList.println("</Turn>");
+                
+                System.out.println("Speech stretches2 in "+args[file]+":");
+                for (i=0; i<speechStretches2.length; i++) {
+                    System.out.println(format.sprintf(speechStretches2[i][0]) +" "+format.sprintf(speechStretches2[i][1]));
+                    
+                    toList.println("<Turn speaker=\"spk1\" startTime=\"" + format.sprintf(speechStretches2[i][0]) 
+                                                      + "0\" endTime=\"" + format.sprintf(speechStretches2[i][1]) + "\">");
+
+                    toList.println("<Sync time=\"" + format.sprintf(speechStretches2[i][0]) +"\"/>");
+                    toList.println("");
+                    toList.println("</Turn>");
+                }
+                toList.println("</Section>");
+                toList.println("</Episode>");
+                toList.println("</Trans>");
+                toList.close();
+
+                System.out.println("list of Speech stretches2 in " + segmentationFileName + "  num=" + i + "  dur=" + duration);
+            }
+            
+        } else {
+            System.out.println("No arguments provided: \n Usage: EnergyAnalyser wav_directory wav1 wav2 ... wavN");
+
+        }
+            
+    }
+
     public static void main(String[] args) throws Exception
     {
         if (args.length > 0) {
@@ -612,5 +724,7 @@ public class EnergyAnalyser extends FrameBasedAnalyser<Double> {
         }
             
     }
+    
+
 }
 
