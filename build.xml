@@ -75,7 +75,7 @@ THIS SOFTWARE.
 
   <target name="compile" depends="version">
     <!-- Compile the java code from ${src} -->
-    <javac srcdir="${src}" classpathref="project.classpath" source="1.5"
+    <javac srcdir="${src}" classpathref="project.classpath" includeantruntime="false" source="1.5"
            target="1.5" encoding="UTF-8" debug="on" fork="true" memoryInitialSize="64m" memoryMaximumSize="256m"/>
   </target>
 
@@ -645,7 +645,7 @@ THIS SOFTWARE.
               <fileset dir="${dest}" includes="de/dfki/lt/izpack/LicensePanel*.class"/>
             </delete>
             <javac srcdir="${src}" includes="de/dfki/lt/izpack/LicensePanel*.java" 
-                   classpathref="project.classpath" source="1.4"
+                   classpathref="project.classpath" includeantruntime="false" source="1.4"
                    target="1.4" encoding="UTF-8" debug="on"/>
 	    <jar destfile="build/bin/panels/de.dfki.lt.izpack.LicensePanel.jar"
 	         basedir="${src}"
@@ -666,7 +666,7 @@ THIS SOFTWARE.
               <fileset dir="${dest}" includes="de/dfki/lt/izpack/AutomatedInstaller*.class"/>
             </delete>
             <javac srcdir="${src}" includes="de/dfki/lt/izpack/AutomatedInstaller*.java" 
-                   classpathref="project.classpath" source="1.4"
+                   classpathref="project.classpath" includeantruntime="false" source="1.4"
                    target="1.4" encoding="UTF-8" debug="on"/>
             <jar destfile="build/de.dfki.lt.izpack.AutomatedInstaller.jar"
                  basedir="${src}"
