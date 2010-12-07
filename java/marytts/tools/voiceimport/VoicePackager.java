@@ -428,8 +428,9 @@ public class VoicePackager extends VoiceImportComponent {
             out.format(
                     "voice.%s.vocalization.featureDefinitionFile = MARY_BASE/lib/voices/%s/vocalization_feature_definition.txt\r\n",
                     getVoiceName(), getVoiceName());
-            out.format("voice.%s.vocalization.intonationfile = MARY_BASE/lib/voices/%s/vocalization_intonation.mry\r\n\r\n",
+            out.format("voice.%s.vocalization.intonationfile = MARY_BASE/lib/voices/%s/vocalization_intonation.mry\r\n",
                     getVoiceName(), getVoiceName());
+            out.format("voice.%s.vocalization.synthesisTechnology = fdpsola\r\n\r\n", getVoiceName());
 
             out.format("voice.%s.f0ContourImposeSupport = true\r\n", getVoiceName());
             out.format("voice.%s.vocalization.usePrecondition = true\r\n", getVoiceName());
