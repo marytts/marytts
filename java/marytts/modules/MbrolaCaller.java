@@ -64,7 +64,19 @@ public class MbrolaCaller extends SynthesisCallerBase {
     public MbrolaCaller() throws NoSuchPropertyException {
         super("MbrolaCaller", MaryDataType.MBROLA, MaryDataType.AUDIO);
         String basePath = System.getProperty("mary.base") + File.separator + "bin" + File.separator;
-        baseCmd = findMbrolaBinary(basePath);
+        String osName = System.getProperty("os.name");
+        if (osName.startsWith("Windows")) {
+            baseCmd = basePath + "mbrola_cygwin.exe";
+        } else if (osName.equals("Linux")) {
+            baseCmd = basePath + "mbrola-linux-i386";
+        } else if (osName.startsWith("Mac OS")) {
+            baseCmd = basePath + "mbrola-darwin-ppc";
+        } else if (osName.equals("Solaris") || osName.equals("SunOS")) {
+            baseCmd = basePath + "mbrola-solaris";
+        } else {
+            // fallback to fragile agnostic brute-force search:
+            baseCmd = findMbrolaBinary(basePath);
+        }
         if (baseCmd == null) {
             throw new NullPointerException("No mbrola binary found in "+basePath+" that can be run on this machine.");
         }
@@ -167,6 +179,7 @@ public class MbrolaCaller extends SynthesisCallerBase {
                 // the latter case leaves mbrola == null and crashes the MARY server at startup:
                 //p.getInputStream().close();
                 p.waitFor();
+                // I don't see how this was intended to work; were we just assuming that the first runnable exe is the right one for Windows?
                 if (p.exitValue() == 0  || System.getProperty("os.name").toLowerCase().startsWith("windows")) {
                     mbrola = exe;
                     break;
