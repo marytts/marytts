@@ -235,7 +235,8 @@ public class VoicePackager extends VoiceImportComponent {
         if (vocalizationDir.exists()) {
             String[] vocalizationProperties = { "VocalizationFeatureFileWriter.featureDefinition",
                     "VocalizationTimelineMaker.waveTimeline", "VocalizationFeatureFileWriter.featureFile",
-                    "VocalizationUnitfileWriter.unitFile", "VocalizationIntonationWriter.intonationTimeLineFile" };
+                    "VocalizationUnitfileWriter.unitFile", "VocalizationIntonationWriter.intonationTimeLineFile", 
+                    "HNMFeatureFileWriter.hnmAnalysisTimelineFile", "VocalizationIntonationWriter.intonationFeatureDefinition"};
             properties = (String[]) ArrayUtils.addAll(properties, vocalizationProperties);
         }
 
@@ -425,16 +426,19 @@ public class VoicePackager extends VoiceImportComponent {
             out.format("voice.%s.vocalization.featurefile = MARY_BASE/lib/voices/%s/vocalization_features.mry\r\n",
                     getVoiceName(), getVoiceName());
             out.format(
-                    "voice.%s.vocalization.featureDefinitionFile = MARY_BASE/lib/voices/%s/vocalization_feature_definition.txt\r\n\r\n",
+                    "voice.%s.vocalization.featureDefinitionFile = MARY_BASE/lib/voices/%s/vocalization_feature_definition.txt\r\n",
+                    getVoiceName(), getVoiceName());
+            out.format("voice.%s.vocalization.intonationfile = MARY_BASE/lib/voices/%s/vocalization_intonation.mry\r\n\r\n",
                     getVoiceName(), getVoiceName());
 
-            out.format("voice.%s.f0ContourImposeSupport = false\r\n", getVoiceName());
+            out.format("voice.%s.f0ContourImposeSupport = true\r\n", getVoiceName());
+            out.format("voice.%s.vocalization.usePrecondition = true\r\n", getVoiceName());
+            out.format("voice.%s.vocalization.contourCostWeight = 0.05\r\n", getVoiceName());
             out.format(
                     "voice.%s.vocalization.intonation.featureDefinitionFile = MARY_BASE/lib/voices/%s/vocalization_f0_feature_definition.txt\r\n",
                     getVoiceName(), getVoiceName());
-            out.format("voice.%s.vocalization.intonationfile = MARY_BASE/lib/voices/%s/vocalization_intonation.mry\r\n",
-                    getVoiceName(), getVoiceName());
-            out.format("voice.%s.vocalization.intonation.numberOfSuitableUnits = 10\r\n", getVoiceName());
+            
+            out.format("voice.%s.vocalization.intonation.numberOfSuitableUnits = 5\r\n", getVoiceName());
         }
 
         out.close();
