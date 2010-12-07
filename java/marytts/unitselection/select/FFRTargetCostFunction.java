@@ -144,6 +144,85 @@ public class FFRTargetCostFunction implements TargetCostFunction
     }
     
     /**
+     * Compute the goodness-of-fit between given unit and given target for a given feature
+     * @param target target unit
+     * @param unit candidate unit
+     * @param featureName feature name
+     * @return a non-negative number; smaller values mean better fit, i.e. smaller cost.
+     * @throws IllegalArgumentException if featureName not available in featureDefinition
+     */
+    public double featureCost(Target target, Unit unit, String featureName){
+        return featureCost(target, unit, featureName, featureDefinition, weightFunction);
+    }
+    
+    protected double featureCost(Target target, Unit unit, String featureName, FeatureDefinition weights, WeightFunc[] weightFunctions)
+    {
+        if ( !this.featureDefinition.hasFeature(featureName) ) {
+            throw new IllegalArgumentException("this feature does not exists in feature definition");
+        }
+        
+        FeatureVector targetFeatures = target.getFeatureVector(); 
+        assert targetFeatures != null: "Target "+target+" does not have pre-computed feature vector";
+        FeatureVector unitFeatures = featureVectors[unit.index];
+        int nBytes = targetFeatures.byteValuedDiscreteFeatures.length;
+        int nShorts = targetFeatures.shortValuedDiscreteFeatures.length;
+        int nFloats = targetFeatures.continuousFeatures.length;
+        assert nBytes == unitFeatures.byteValuedDiscreteFeatures.length;
+        assert nShorts == unitFeatures.shortValuedDiscreteFeatures.length;
+        assert nFloats == unitFeatures.continuousFeatures.length;
+        
+        int featureIndex = this.featureDefinition.getFeatureIndex(featureName);
+        float[] weightVector = weights.getFeatureWeights();
+        double cost = 0;
+
+        if ( featureIndex < nBytes ) {
+            if (weightsNonZero[featureIndex]) {
+                float weight = weightVector[featureIndex];
+                if ( featureDefinition.hasSimilarityMatrix(featureIndex) ) {
+                    byte targetFeatValueIndex = targetFeatures.byteValuedDiscreteFeatures[featureIndex];
+                    byte unitFeatValueIndex = unitFeatures.byteValuedDiscreteFeatures[featureIndex];
+                    float similarity = featureDefinition.getSimilarity(featureIndex, unitFeatValueIndex, targetFeatValueIndex);
+                    cost = similarity * weight;
+                    if (debugShowCostGraph) cumulWeightedCosts[featureIndex] += similarity * weight;
+                }
+                else if (targetFeatures.byteValuedDiscreteFeatures[featureIndex] != unitFeatures.byteValuedDiscreteFeatures[featureIndex]) {
+                    cost = weight;
+                    if (debugShowCostGraph) cumulWeightedCosts[featureIndex] += weight;
+                }
+            }
+        } else if (featureIndex < nShorts+nBytes) {
+            if (weightsNonZero[featureIndex]) {
+                float weight = weightVector[featureIndex];
+                //if (targetFeatures.getShortFeature(i) != unitFeatures.getShortFeature(i)) {
+                if (targetFeatures.shortValuedDiscreteFeatures[featureIndex-nBytes] != unitFeatures.shortValuedDiscreteFeatures[featureIndex-nBytes]) {
+                    cost = weight;
+                    if (debugShowCostGraph) cumulWeightedCosts[featureIndex] += weight;
+                }
+            }
+        } else {
+            int nDiscrete = nBytes+nShorts;
+            if (weightsNonZero[featureIndex]) {
+                float weight = weightVector[featureIndex];
+                //float a = targetFeatures.getContinuousFeature(i);
+                float a = targetFeatures.continuousFeatures[featureIndex-nDiscrete];
+                //float b = unitFeatures.getContinuousFeature(i);
+                float b = unitFeatures.continuousFeatures[featureIndex-nDiscrete];
+                //if (!Float.isNaN(a) && !Float.isNaN(b)) {
+                // Implementation of isNaN() is: (v != v).
+                if (!(a != a) && !(b != b)) {
+                    double myCost = weightFunctions[featureIndex-nDiscrete].cost(a, b); 
+                    cost = weight * myCost;
+                    if (debugShowCostGraph) {
+                        cumulWeightedCosts[featureIndex] += weight * myCost;
+                    }
+                } // and if it is NaN, simply compute no cost
+            }
+        }
+        return cost;
+    }
+        
+
+    /**
      * Initialise the data needed to do a target cost computation.
      * @param featureFileName name of a file containing the unit features
      * @param weightsFile an optional weights file -- if non-null, contains
