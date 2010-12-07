@@ -917,6 +917,7 @@ This component includes GPL'ed code and is thus shipped under the GPL 3.
                         java/voiceimport.jar,
                         java/commons-io-1.4.jar,
     					lib/external/hts/**,
+    					lib/external/vocalizations/**,
                         lib/external/check_install_external_programs.sh,
                         lib/external/ehmm.tar.gz"/>
             <fileset os="windows" dir="." targetdir="$INSTALL_PATH"
