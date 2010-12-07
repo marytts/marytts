@@ -436,7 +436,7 @@ THIS SOFTWARE.
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Main-Class"
          value="marytts.tools.install.InstallerGUI"/>
-        <attribute name="Class-Path" value="fast-md5.jar swing-layout-1.0.jar mary-common.jar log4j-1.2.15.jar"/>
+        <attribute name="Class-Path" value="fast-md5.jar swing-layout-1.0.jar mary-common.jar log4j-1.2.15.jar commons-lang-2.4.jar"/>
         </manifest>
         </jar>
   </target>
@@ -843,6 +843,7 @@ THIS SOFTWARE.
 					java/junit-4.7.jar,
 					java/log4j-1.2.15.jar,
 					java/mary-common.jar,
+					java/mary-mbrola.jar,
 					java/maryclient.jar,
 					java/maxent-2.5.1.jar,
 					java/opennlp-tools-1.4.1.jar,
