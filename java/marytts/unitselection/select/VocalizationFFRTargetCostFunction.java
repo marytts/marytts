@@ -38,38 +38,28 @@ import marytts.vocalizations.VocalizationFeatureFileReader;
 
 import org.apache.log4j.Logger;
 
-
+/**
+ * FFRTargetCostFunction for vocalization selection
+ * @author sathish pammi
+ *
+ */
 public class VocalizationFFRTargetCostFunction extends FFRTargetCostFunction 
 {
         
-    public VocalizationFFRTargetCostFunction()
-    {
+    public VocalizationFFRTargetCostFunction(VocalizationFeatureFileReader ffr) {
+        this(ffr, ffr.getFeatureDefinition());
     }
 
-
-    public void load(VocalizationFeatureFileReader ffr) //FeatureFileReader
-    throws IOException
-    {
-        this.featureDefinition = ffr.getFeatureDefinition();
-        this.featureVectors = ffr.getFeatureVectors();
-        
-        weightFunction = new WeightFunc[featureDefinition.getNumberOfContinuousFeatures()];
-        WeightFunctionManager wfm = new WeightFunctionManager();
-        int nDiscreteFeatures = featureDefinition.getNumberOfByteFeatures()+featureDefinition.getNumberOfShortFeatures();
-        for ( int i = 0; i < weightFunction.length; i++ ) {
-            String weightFunctionName = featureDefinition.getWeightFunctionName(nDiscreteFeatures+i);
-            if ( "".equals( weightFunctionName ) )
-                weightFunction[i] = wfm.getWeightFunction( "linear" );
-            else
-                weightFunction[i] = wfm.getWeightFunction(weightFunctionName);
-        }
-        
-        rememberWhichWeightsAreNonZero();
+    public VocalizationFFRTargetCostFunction(VocalizationFeatureFileReader ffr, FeatureDefinition fDef) {
+        load(ffr, fDef);
     }
     
-    public void load(VocalizationFeatureFileReader ffr, FeatureDefinition fDef) //FeatureFileReader
-    throws IOException
-    {
+    /**
+     * load feature file reader and  feature definition for a cost function
+     * @param ffr feature file reader
+     * @param fDef feature definition
+     */
+    private void load(VocalizationFeatureFileReader ffr, FeatureDefinition fDef) {
         this.featureVectors = ffr.featureVectorMapping(fDef);
         this.featureDefinition = fDef;
         
@@ -86,8 +76,5 @@ public class VocalizationFFRTargetCostFunction extends FFRTargetCostFunction
         
         rememberWhichWeightsAreNonZero();
     }
-
-
-    
 }
 
