@@ -86,7 +86,7 @@ public class MLSASynthesisTechnology extends VocalizationSynthesisTechnology {
             htsData.setF0Mean(0.0); // variable for f0 control, add f0           [0.0][0.0--100.0]
         }
         catch (Exception e) {
-            throw new MaryConfigurationException("htsData initialization failed.. ");
+            throw new MaryConfigurationException("htsData initialization failed.. ", e);
         }
 
         par2speech = new HTSVocoder();
