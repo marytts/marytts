@@ -154,7 +154,7 @@ public class VocalizationSelector {
      * compute a threshold according to precondition and 
      * get number of contours above computed threshold
      * 
-     * formula : for all CC(j) <= CCmax 
+     * formula : for all CC(j) < CCmax 
      * where j1, j2, j3 ... are contour candidates    
      * CCmax (threshold) = min (CC(i1), CC(i2), CC(i3)....)
      * where i1, i2, i3 .. are unit candidates
@@ -181,7 +181,7 @@ public class VocalizationSelector {
         double threshold = MathUtils.min(costs);
         int contourSetSize = 0;
         for ( int i=0; i<vIntonationCosts.length; i++ ) {
-            if (vIntonationCosts[i].cost <= threshold) {
+            if (vIntonationCosts[i].cost < threshold) {
                 contourSetSize = i+1;
             }
             else {
