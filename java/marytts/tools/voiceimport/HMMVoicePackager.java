@@ -40,6 +40,8 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import com.twmacinta.util.MD5;
 
 import marytts.cart.DecisionNode;
@@ -89,6 +91,7 @@ public class HMMVoicePackager extends VoicePackager {
     private String mixFiltersFile;
     private String numFilters;
     
+    private String vocalizationSupport;
    /** Example context feature file (TARGETFEATURES in MARY) */
     public String featuresFileExample;
     
@@ -137,6 +140,7 @@ public class HMMVoicePackager extends VoicePackager {
         trickyPhones = false;
         hmmFeaturesMapFile = name + ".hmmFeaturesMapFile";        
         useAcousticModels = name + ".useAcousticModels";
+        vocalizationSupport = name + ".vocalizationSupport";
     }
 
     /**
@@ -181,6 +185,7 @@ public class HMMVoicePackager extends VoicePackager {
            props.put(numFilters, "5");           
            props.put(trickyPhonesFile, "mary/trickyPhones.txt");
            props.put(hmmFeaturesMapFile, "mary/hmmFeaturesMap.txt");
+           props.put(vocalizationSupport, "false");
            
        }
        return props;
@@ -230,7 +235,7 @@ public class HMMVoicePackager extends VoicePackager {
         " is created automatically by HMMVoiceMakeData and it is located in mary/hmmFeaturesMap.txt.)");
         props2Help.put(useAcousticModels, "Use useAcousticModels: (true/alse), if true it will generate prosody parameters using the specified acoustic models and it allows to " +
         "modify prosody according to the tags in MARYXML");
-        
+        props2Help.put(vocalizationSupport, "if true package vocalization files with voice and set corresponding configuration settings");
     }
     
     @Override
@@ -302,6 +307,28 @@ public class HMMVoicePackager extends VoicePackager {
         if(in.exists()){
           files.put(trickyPhonesFile, in);  
           trickyPhones = true;
+        }
+        
+        if ( "true".equals( getProp(vocalizationSupport) ) ) {
+            
+            String[] vocalizationProperties = { 
+                    "VocalizationFeatureFileWriter.featureDefinition",
+                    "VocalizationFeatureFileWriter.featureFile",
+                    "VocalizationUnitfileWriter.unitFile", 
+                    "VocalizationIntonationWriter.intonationTimeLineFile", 
+                    "VocalizationIntonationWriter.intonationFeatureDefinition",
+                    "MLSAFeatureFileWriter.mlsaOutputFile" };
+            
+            for (String property : vocalizationProperties) {
+                String fileName;
+                try {
+                    fileName = db.getProperty(property);
+                } catch (NullPointerException e) {
+                    throw e;
+                }
+                File file = new File(fileName);
+                files.put(property, file);
+            }
         }
         
         /* copy one example of MARY context features file, it can be one of the 
@@ -474,6 +501,26 @@ public class HMMVoicePackager extends VoicePackager {
                     voiceHeader+".F0.attribute = f0\r");                
 
             configOut.println("\r");
+            
+            if ( "true".equals( getProp(vocalizationSupport) ) ) {
+                configOut.println("\r");
+                configOut.println("# support for synthesis of vocalizations\r");
+                configOut.println(voiceHeader+ ".vocalizationSupport = true\r");
+                configOut.println(voiceHeader+ ".vocalization.unitfile = MARY_BASE/lib/voices/"+voicename+"/vocalization_units.mry\r");
+                configOut.println(voiceHeader+ ".vocalization.featurefile = MARY_BASE/lib/voices/"+voicename+"/vocalization_features.mry\r");
+                configOut.println(voiceHeader+ ".vocalization.featureDefinitionFile = MARY_BASE/lib/voices/"+voicename+"/vocalization_feature_definition.txt\r");
+                configOut.println(voiceHeader+ ".vocalization.intonationfile = MARY_BASE/lib/voices/"+voicename+"/vocalization_intonation.mry\r");
+                configOut.println(voiceHeader+ ".vocalization.synthesisTechnology = mlsa\r");
+                configOut.println("\r");
+                configOut.println(voiceHeader+ ".f0ContourImposeSupport = true\r");
+                configOut.println(voiceHeader+ ".vocalization.usePrecondition = true\r");
+                configOut.println(voiceHeader+ ".vocalization.contourCostWeight = 0.05\r");
+                configOut.println(voiceHeader+ ".vocalization.imposePolynomialContour = true\r");
+                configOut.println(voiceHeader+ ".vocalization.mlsafeaturefile = MARY_BASE/lib/voices/"+voicename+"/vocalization_mlsa_features.mry\r");
+                configOut.println(voiceHeader+ ".vocalization.mixedexcitationfilter = MARY_BASE/lib/voices/"+voicename+"/mix_excitation_filters.txt\r");
+                configOut.println(voiceHeader+ ".vocalization.intonation.featureDefinitionFile = MARY_BASE/lib/voices/"+voicename+"/vocalization_f0_feature_definition.txt\r");
+                configOut.println(voiceHeader+ ".vocalization.intonation.numberOfSuitableUnits = 5\r");
+            }
 
             configOut.close();
 
