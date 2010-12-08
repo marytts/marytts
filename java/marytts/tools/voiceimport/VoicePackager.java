@@ -66,6 +66,8 @@ public class VoicePackager extends VoiceImportComponent {
 
     protected String VOICEDESCRIPTION;
 
+    protected String VOCALIZATIONSUPPORT;
+    
     // constants to access filenames in database component properties and organize file list:
 
     protected final String CARTFILE = "CARTBuilder.cartFile";
@@ -97,7 +99,7 @@ public class VoicePackager extends VoiceImportComponent {
     protected final String WAVETIMELINE = "WaveTimelineMaker.waveTimeline";
 
     protected final String BASETIMELINE = "BasenameTimelineMaker.timelineFile";
-
+    
     public VoicePackager() {
         this("VoicePackager");
     }
@@ -109,6 +111,7 @@ public class VoicePackager extends VoiceImportComponent {
         EXAMPLETEXTFILE = name + ".exampleTextFile";
         LICENSEURL = name + ".licenseUrl";
         VOICEDESCRIPTION = name + ".voiceDescription";
+        VOCALIZATIONSUPPORT = name + ".vocalizationSupport";
     }
 
     /**
@@ -123,6 +126,7 @@ public class VoicePackager extends VoiceImportComponent {
         props2Help.put(LICENSEURL, "URL of the license agreement for this voice"
                 + " (<a href=\"http://creativecommons.org/licenses/by-nd/3.0/\">cc-by-nd</a> by default)");
         props2Help.put(VOICEDESCRIPTION, "short text describing this voice");
+        props2Help.put(VOCALIZATIONSUPPORT, "if true package vocalization files with voice and set corresponding configuration settings");
     }
 
     /**
@@ -141,6 +145,7 @@ public class VoicePackager extends VoiceImportComponent {
             props.put(LICENSEURL, licenseUrl);
             String voiceDescription = System.getProperty("VOICEDESCRIPTION", "");
             props.put(VOICEDESCRIPTION, voiceDescription);
+            props.put(VOCALIZATIONSUPPORT, "false");
         }
         return props;
     }
@@ -231,8 +236,7 @@ public class VoicePackager extends VoiceImportComponent {
                 HALFPHONEUNITS, JOINCOSTFEATS, JOINCOSTFEATDEF, PHONEFEATDEF, TIMELINE, BASETIMELINE, EXAMPLETEXTFILE };
 
         // vocalization files, if available:
-        File vocalizationDir = new File(db.getProperty(db.VOCALIZATIONSDIR));
-        if (vocalizationDir.exists()) {
+        if ( "true".equals( getProp(VOCALIZATIONSUPPORT) ) ) {
             String[] vocalizationProperties = { "VocalizationFeatureFileWriter.featureDefinition",
                     "VocalizationTimelineMaker.waveTimeline", "VocalizationFeatureFileWriter.featureFile",
                     "VocalizationUnitfileWriter.unitFile", "VocalizationIntonationWriter.intonationTimeLineFile", 
@@ -415,8 +419,7 @@ public class VoicePackager extends VoiceImportComponent {
         out.format("voice.%s.rightF0.applyTo = lastVoicedSegments\r\n", getVoiceName());
 
         // vocalization support, if available:
-        File vocalizationDir = new File(db.getProperty(db.VOCALIZATIONSDIR));
-        if (vocalizationDir.exists()) {
+        if ( "true".equals( getProp(VOCALIZATIONSUPPORT) ) ) {
             out.format("\r\n# support for synthesis of vocalizations\r\n");
             out.format("voice.%s.vocalizationSupport = true\r\n", getVoiceName());
             out.format("voice.%s.vocalization.unitfile = MARY_BASE/lib/voices/%s/vocalization_units.mry\r\n", getVoiceName(),
