@@ -507,7 +507,9 @@ public class HMMData {
             logger.debug("initMixedExcitation: " + e.getMessage());
             throw new FileNotFoundException("initMixedExcitation: " + e.getMessage());
         } finally {
-            s.close();
+            if (s != null) {
+                s.close();
+            }
         }
                 
         orderFilters = (int)(taps.size() / numFilters);        
