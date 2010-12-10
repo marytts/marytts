@@ -67,12 +67,12 @@ public class VocalizationSynthesizer {
             throw new MaryConfigurationException("can't read unit file");
         }
         
-        String timelineFile = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.timeline");
         String intonationFile = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.intonationfile");
         String technology = MaryProperties.getProperty("voice."+voice.getName()+".vocalization.synthesisTechnology", "fdpsola");
         f0ContourImposeSupport = MaryProperties.getBoolean("voice."+voice.getName()+".f0ContourImposeSupport", false);
         
         if ( "fdpsola".equals(technology) ) {
+            String timelineFile = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.timeline");
             vSynthesizer = new FDPSOLASynthesisTechnology(timelineFile, unitFileName, intonationFile, f0ContourImposeSupport);
         } 
         else if ("mlsa".equals(technology) ) {
@@ -82,6 +82,7 @@ public class VocalizationSynthesizer {
             vSynthesizer = new MLSASynthesisTechnology(mlsaFeatureFile, intonationFile, mixedExcitationFilter, imposePolynomialContour);
         } 
         else if ("hnm".equals(technology) ) {
+            String timelineFile = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.timeline");
             String hnmFeatureFile = MaryProperties.getFilename("voice."+voice.getName()+".vocalization.hnmfeaturefile");
             vSynthesizer = new HNMSynthesisTechnology(timelineFile, unitFileName, hnmFeatureFile, intonationFile, f0ContourImposeSupport);
         } 
