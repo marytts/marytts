@@ -92,6 +92,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
     public final String SKIPSIZE = getName()+".skipSize";
     public final String WINDOWSIZE = getName()+".windowSize";
     public final String F0TIMELINE = getName()+".intonationTimeLineFile";
+    public final String F0FEATDEF = getName()+".intonationFeatureDefinition";
     
     public String getName() {
         return "VocalizationIntonationWriter";
@@ -140,6 +141,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
            props.put(SKIPSIZE, "0.005");
            props.put(WINDOWSIZE, "0.005");
            props.put(F0TIMELINE, db.getProp(db.VOCALIZATIONSDIR)+File.separator+"files"+File.separator+"vocalization_intonation"+db.getProp(db.MARYEXT));
+           props.put(F0FEATDEF, db.getProp(db.VOCALIZATIONSDIR)+File.separator+"features"+File.separator+"vocalization_f0_feature_definition.txt");
        }
        return props;
     }
