@@ -21,14 +21,18 @@ package marytts.tools.dbselection;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -38,8 +42,24 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.traversal.TreeWalker;
+import org.xml.sax.SAXException;
+
+import marytts.client.MaryClient;
+import marytts.client.http.Address;
+import marytts.datatypes.MaryData;
+import marytts.datatypes.MaryDataType;
+import marytts.datatypes.MaryXML;
 import marytts.features.FeatureDefinition;
 import marytts.util.Pair;
+import marytts.util.dom.MaryDomUtils;
 import marytts.util.io.FileUtils;
 
 
@@ -729,6 +749,9 @@ public class DatabaseSelector
         System.out.println(" selected sentences will be saved in ./selected.log");
         PrintWriter selectedLog = new PrintWriter(new FileWriter(new File("./selected.log")));
         
+        System.out.println(" selected sentences and transcriptions will be saved in  ./selected_text_transcription.log");
+        PrintWriter selected_tra_Log = new PrintWriter(new FileWriter(new File("./selected_text_transcription.log")));
+        
         System.out.println(" unwanted sentences will be saved in ./unwanted.log");
         PrintWriter unwantedLog = new PrintWriter(new FileWriter(new File("./unwanted.log")));
         
@@ -748,9 +771,15 @@ public class DatabaseSelector
                   unwantedLog.println(sel[i] + " " + str);
                 } else if( s.contentEquals("y")){
                   selectedLog.println(sel[i] + " " + str);
+                  
+                  selected_tra_Log.println(sel[i] + " " + str);
+                  selected_tra_Log.println(sel[i] + " <" + transcribe(str,locale) + ">");
                 } else{
                   unwantedLog.close();
                   selectedLog.close();
+                
+                  selected_tra_Log.close();
+                  
                   break;
                 }          
           }
@@ -763,6 +792,41 @@ public class DatabaseSelector
         
     }
     
+    private static String transcribe(String ptext, String plocale) throws IOException, UnknownHostException,
+            UnsupportedAudioFileException, InterruptedException, ParserConfigurationException, SAXException,
+            TransformerConfigurationException, TransformerException {
+        String serverHost = System.getProperty("server.host", "localhost");
+        int serverPort = Integer.getInteger("server.port", 59125).intValue();
+        MaryClient mary = MaryClient.getMaryClient(new Address(serverHost, serverPort));
+        String inputType = "TEXT";
+        String outputType = "ALLOPHONES";
+        String audioType = null;
+        String defaultVoiceName = null;
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        mary.process(ptext, inputType, outputType, plocale, audioType, defaultVoiceName, baos);
+
+        // read into mary data object
+        MaryData maryData = new MaryData(MaryDataType.ALLOPHONES, null);
+        maryData.readFrom(new ByteArrayInputStream(baos.toByteArray()));
+        Document doc = maryData.getDocument();
+        assert doc != null : "null sentence";
+
+        TreeWalker phWalker = MaryDomUtils.createTreeWalker(doc, doc, MaryXML.PHONE);
+        Element ph;
+        String lTranscription = "";
+        while ((ph = (Element) phWalker.nextNode()) != null) {
+            lTranscription = lTranscription + ph.getAttribute("p") + ' ';
+        }
+        lTranscription = lTranscription.substring(0, lTranscription.length() - 1);
+        //System.out.println('<' + lTranscription + '>');
+        return lTranscription;
+    }
+        
+        
+        
+
+
     /**
      * Add a list of sentences to the cover
      * Here the already selected sentences are added to the cover and the indexes removed
