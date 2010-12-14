@@ -77,6 +77,7 @@ public class EHMMLabeler extends VoiceImportComponent {
         public final String OUTLABDIR = "EHMMLabeler.outputLabDir";
         public final String INITEHMMDIR = "EHMMLabeler.startEHMMModelDir";
         public final String RETRAIN = "EHMMLabeler.reTrainFlag";
+        public final String NONDETENDFLAG = "EHMMLabeler.nonDetEndFlag";
         
         public final String getName(){
             return "EHMMLabeler";
@@ -107,6 +108,7 @@ public class EHMMLabeler extends VoiceImportComponent {
                        +System.getProperty("file.separator"));
                props.put(INITEHMMDIR,"/");
                props.put(RETRAIN,"false");
+               props.put(NONDETENDFLAG,"0");
            }
            return props;
        }
@@ -119,6 +121,8 @@ public class EHMMLabeler extends VoiceImportComponent {
            props2Help.put(OUTLABDIR, "Directory to store generated lebels from EHMM.");
            props2Help.put(INITEHMMDIR,"If you provide a path to previous EHMM Directory, Models will intialize with those models. other wise EHMM Models will build with Flat-Start Initialization");
            props2Help.put(RETRAIN,"true - Do re-training by initializing with given models. false - Do just Decoding");
+           props2Help.put(NONDETENDFLAG,"(0,1) - Viterbi decoding with non deterministic ending (festvox 2.4)");
+           
        }
         
         public void initialiseComp()
@@ -475,7 +479,8 @@ public class EHMMLabeler extends VoiceImportComponent {
                  +outputDir+"/"+"ehmm"+".align.int 1 "
                  +ehmm.getAbsolutePath()+"/feat ft "
                  +outputDir+"/"+"ehmm"+".featSettings "
-                 +ehmm.getAbsolutePath()+"/mod >> log.txt"
+                 +ehmm.getAbsolutePath()+"/mod "
+                 + getProp(NONDETENDFLAG) + " " +ehmm.getAbsolutePath()+"/lab >> log.txt"
                  +"; perl "+getProp(EHMMDIR)+"/bin/sym2nm.pl "
                  +ehmm.getAbsolutePath()+"/lab "
                  +outputDir+"/"+"ehmm"+".phoneList.int >> log.txt"
@@ -487,7 +492,8 @@ public class EHMMLabeler extends VoiceImportComponent {
                  +outputDir+"/"+"ehmm"+".align.int 1 "
                  +ehmm.getAbsolutePath()+"/feat ft "
                  +outputDir+"/"+"ehmm"+".featSettings "
-                 +ehmm.getAbsolutePath()+"/mod >> log.txt"
+                 +ehmm.getAbsolutePath()+"/mod "
+                 + getProp(NONDETENDFLAG) + " " +ehmm.getAbsolutePath()+"/lab >> log.txt"
                  +"; perl "+getProp(EHMMDIR)+"/bin/sym2nm.pl "
                  +ehmm.getAbsolutePath()+"/lab "
                  +outputDir+"/"+"ehmm"+".phoneList.int >> log.txt"
