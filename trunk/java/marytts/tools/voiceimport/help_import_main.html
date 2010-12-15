@@ -1,0 +1,201 @@
+<html>
+<head>
+<title>IMPORT MAIN HELP</title>
+</head>
+<body>
+
+<h1>Import Main Help File</h1>
+The following file describes the available modules of the voice import tool.
+Running all the modules successively from top to bottom will create 
+a new voice from your database. However, you might not need to run all of 
+them. The modules that are absolutely neccessary for the voice building
+are marked with a star (*).
+<p>
+<h2>Modules processing the raw acoustic data:</h2>
+<dl>
+<dt><strong>*PraatPitchmarker:</strong></dt> 
+<dd>Computes the pitchmarks with the help of praat. 
+  Requires a valid praat-installation. You can download praat from here:
+<a href="http://www.fon.hum.uva.nl/praat/">http://www.fon.hum.uva.nl/praat/</a></dd>
+<dt><strong>*MCEPMaker:</strong></dt> 
+<dd>Computes the Mel-Cepstrum-Coefficients. You need the 
+  Edinburgh Speech Tools for this. You can get them here:
+<a href="http://www.cstr.ed.ac.uk/projects/speech_tools/">http://www.cstr.ed.ac.uk/projects/speech_tools/</a></dd>
+</dl>
+</p>
+<p>
+<h2>Modules processing unit labels and features:</h2>
+<dl>
+<dt><strong>Mary2FestvoxTranscripts:</strong></dt> 
+<dd>Produces a transcript file in the Festvox style 
+  from the transcript files used by Mary. This file is needed for the 
+  SphinxLabelingPreparator.</dd>
+<dt><strong>SphinxLabelingPreparator:</strong></dt>
+<dd>Prepares the labeling with Sphinxtrain. For this,
+  you need Sphinxtrain and Sphinx2. You can download these programs here:
+<a href="http://cmusphinx.sourceforge.net/webpage/html/download.php">http://cmusphinx.sourceforge.net/webpage/html/download.php</a>
+Furthermore you need the Edinburgh Speech tools. You can get them here:
+<a href="http://www.cstr.ed.ac.uk/projects/speech_tools/">http://www.cstr.ed.ac.uk/projects/speech_tools/</a>
+  This module requires a running 
+  Maryserver, per default on the same machine using port 59125. You can 
+  connect to a different server by altering the settings. See the settings
+  help for more information on this.</dd>
+<dt><strong>SphinxTrainer:</strong></dt>
+<dd>Trains the models used for labeling with Sphinxtrain. 
+  Depending on the size of the data, this can take a long time.</dd>
+<dt><strong>SphinxLabeler:</strong></dt>
+<dd>Produces labels with the help of the modules built by the 
+  SphinxTrainer. Uses Sphinx2.</dd>
+
+<dt><strong>MRPALabelConverter:</strong></dt>
+<dd>If you have labeled data in the Festvox format and using
+  the MRPA-Phoneset, use this module to convert the phones into the phoneset
+  used by Mary.</dd>
+<dt><strong>Festvox2MaryTranscripts:</strong></dt>
+<dd>Converts a transcript in the Festvox style into
+  the Mary format: individual text files, each containing one sentence.</dd>
+
+<dt><strong>LabelledFilesInspector:</strong></dt>
+<dd>Allows you to browse through your labels and listen
+  to the corresponding wave file.</dd>
+
+<dt><strong>*PhoneUnitLabelComputer/HalfPhoneUnitLabelComputer:</strong></dt>
+<dd>Converts the label files 
+  into the label files used by Mary. PhoneUnitLabelComputer produces phone 
+  labels, HalfPhoneUnitLabelComputer produces halfphone labels. You will need 
+  both to build the voice.</dd>
+<dt><strong>*PhoneUnitFeatureComputer/HalfPhoneUnitFeatureComputer:</strong></dt>
+<dd>Computes the 
+  features of the phone/halfphone units. This module requires a running 
+  Maryserver, per default on the same machine using port 59125. You can 
+  connect to a different server by altering the settings. See the settings
+  help for more information on this.<br>
+  It depends on your server which features are computed: The configuration 
+  files in the Marybase/conf/ directory ending on "targetfeatures" determine 
+  which features will be computed. "english-halfphone-targetfeatures.config", 
+  for example, determines which features are used for english halfphone targets.</dd>
+<dt><strong>*PhoneLabelFeatureAligner/HalfPhoneLabelFeatureAligner:</strong></dt>
+<dd>Tries to align the 
+  labels and the features. If alignment fails, you can start the automatic pause 
+  correction.<br>
+  This works as follows:<br> 
+  - pauses, that are in the label file but not in the feature file 
+    are deleted in the label file, and the durations of the previous
+    and next labels are stretched.<br>
+  - pauses that are in the feature file but not in the label file 
+    are inserted into the label file with length zero.<br>
+  If there are still errors after the pause correction, you are prompted for each 
+  error. You can skip the error or remove the corresponding file from the 
+  basename list (the list of files that are used for your voice). "skip all" 
+  and "remove all" does this for all problematic files. "Edit unit labels" allows 
+  you to edit the label file. "Edit RAWMARYXML" lets you edit the maryxml that is 
+  the input for computing the features. You have to have a Maryserver running in 
+  order to recompute the features from the maryxml. You can alter the host and 
+  port settings for the server by altering the settings for the 
+  UnitFeatureComputer.</dd>
+</dl>
+</p>
+<p>                
+<h2>Modules producing basic data files:</h2>
+<dl>
+<dt><strong>*WaveTimelineMaker:</strong></dt>
+<dd>Produces a file containing all wave files. This file is 
+  needed for various voice building steps and for synthesis.</dd>
+<dt><strong>BasenameTimelineMaker:</strong></dt>
+<dd>Produces a file containing all basenames and the
+  absolute times.</dd>
+<dt><strong>*MCepTimelineMaker:</strong></dt> 
+<dd>Produces a file containing all mcep files. The file is 
+  used for the join cost computation.</dd>
+</dl>
+</p>
+<p>
+<h2>Modules building acoustic models:</h2>
+<dl>
+<dt><strong>*PhoneUnitfileWriter:</strong></dt>
+<dd>Produces a file containing all phone sized units.</dd>
+<dt><strong>*PhoneFeatureFileWriter:</strong></dt> 
+<dd>Produces a file containing all the target cost 
+  features for the phone sized units. The module needs a file defining which 
+  features are to be used and what weights are given to them. They must be 
+  the same features as the ones that the PhoneFeatureComputer used. If you
+  do not have a feature definition, the module tries to create one. For 
+  more information, see the example file: 
+  Marybase/modules/import/examples/PhoneUnitFeatureDefinition.txt</dd>
+<dt><strong>*DurationCARTTrainer:</strong></dt> 
+<dd>Builds an acoustic model of durations in the database
+  using the program "wagon" from the Edinburgh Speech tools. You can get them 
+  from here:
+<a href="http://www.cstr.ed.ac.uk/projects/speech_tools/">http://www.cstr.ed.ac.uk/projects/speech_tools/</a>
+  Furthermore, the files produced by the two previous components are needed.</dd>
+<dt><strong>*F0CARTTrainer:</strong></dt> 
+<dd>Builds acoustic models of F0 in the database. Like for the
+  DurationCARTTrainer, the program "wagon" and the files produced by 
+  PhoneUnitfileWriter and PhoneFeatureFileWriter.</dd>
+</dl>
+</p>
+<p>
+<h2>Modules building unit selection files:</h2>
+<dl>
+<dt><strong>*HalfPhoneUnitfileWriter:</strong></dt> 
+<dd>Produces a file containing all halfphone sized units.</dd>
+<dt><strong>*HalfPhoneFeatureFileWriter:</strong></dt> 
+<dd>Produces a file containing all the target cost 
+  features for the phone sized units. The module needs a file defining which 
+  features are to be used and what weights are given to them. They must be 
+  the same features as the ones that the PhoneFeatureComputer used. If you
+  do not have a feature definition, the module tries to create one. For 
+  more information, see the example file: 
+  Marybase/modules/import/examples/HalfPhoneUnitFeatureDefinition.txt</dd>
+<dt><strong>*JoinCostFileMaker:</strong></dt> 
+<dd>Produces a file containing all the join cost features for the 
+  halfphone sized units.</dd>
+<dt><strong>JoinCostPrecomputer:</strong></dt> 
+<dd>Precomputes the join costs for each unit pair. Use of this 
+  module is discouraged, since it does not speed up the synthesis.</dd>
+<dt><strong>*AcousticFeatureFileWriter:</strong></dt> 
+<dd>Produces a file containing all the target cost features 
+  plus two acoustic target cost features for the halfphone sized units. Also produces
+  a feature definition containing those features.</dd>
+<dt><strong>*CARTBuilder:</strong></dt> 
+<dd>Builds a preselection tree for the target cost features using the 
+  program "wagon" from the Edinburgh Speech tools. You can get them from here:
+<a href="http://www.cstr.ed.ac.uk/projects/speech_tools/">http://www.cstr.ed.ac.uk/projects/speech_tools/</a> <br>
+  Additionally, you need to specify either a feature sequence or a top level tree. 
+  They are used to built a basic tree that is extendend by wagon. This way, wagon runs
+  several times on smaller subsets of units rather than the whole set. It might still take
+  some time to run this module. <br>
+  - Feature sequence: a file containing a list of features for which to build the tree.<br>
+  - Top level tree: a file containing the basic tree. <br>
+  For more information on these two possibilities of specifying the basic tree,
+  see the example files in Marybase/lib/modules/import/examples/.
+  If you give the CARTBuilder neither a feature sequence nor a top level tree file, 
+  a default feature sequence is created which only contains "mary_phoneme" as feature.
+  If the basic tree contains leaves that are contain more units than the maximum number
+  of units allowed, the leaves are pruned and a warning message is printed. It is recommended that
+  you make sure that there are no leaves that are too big.</dd>
+<dt><strong>*CARTPruner:</strong></dt> 
+<dd>Prunes the preselection tree. This module removes outliers from the preselection tree.</dd>
+</dl>
+</p>
+<p>
+<h2>Module installing the voice:</h2>
+<dl>
+<dt><strong>VoiceInstaller:</strong></dt>
+<dd>Copies all the necessary files to a new subdirectory 
+  in the lib/voices/ directory of your Mary installation. Furthermore, 
+  a file that specifies the properties of the voice is created and
+  stored in the conf/ directory of your Mary installation. Next time
+  you start the Mary server, the voice is loaded. You can also do this by
+  hand if you know what you are doing.</dd>
+</dl>
+</p>
+<p>
+<h2>If you have problems:</h2>
+- Take a look at the README file: Marybase/modules/import/README<br>
+- write to the Mary mailing list: mary-users@dfki.de<br>
+</p>
+<br>
+<cite>Anna Hunecke, June 2007.</cite>
+</body>
+</html>

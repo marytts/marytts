@@ -1,0 +1,348 @@
+CARTAnalyzer - Getting Started
+------------------------------
+
+This document was written by Maximilian Kwapil
+during an internship at the DFKI language technology lab
+during spring 2007
+
+1.)What is a CART?
+
+A CART is the final part of the unit selection process where
+everything that has been done before by various algorithms
+comes together.
+
+It stands for 
+Classification
+And
+Regression
+Tree
+
+For us, the TREE part is the most important one.
+
+2.) ... What?
+
+When you choose any unit selection voice for text input,
+the text is of course thoroughly analysed.
+Each single, smallest part/sound of the speech that is to be spoken
+(a unit) is then selected from the voice recordings
+(thus unit selection) by the CART.
+The CART itself contains all recorded units in its leaves.
+Above the leaves, there are many many decision nodes that
+classify (thus ClassificationTree) a given unit by
+several (phonetic) criteria like
+
+	- what phoneme does the unit represent
+	- is it a vowel or a consonant
+	- is it stressed or accented
+	- how many syllables does the current word contain
+	.
+So, when the text is actually synthesized, MARY knows for every
+unit how it should sound and goes through the CART of the voice,
+using the decision nodes to reach all the way down to the most
+fitting leaf.
+
+3.) What is a leaf? What does a leaf contain?
+
+A leaf contains several units that best fit the desired sound.
+For example a leaf could contain 10 units that should sound like
+an "a", unstressed, with 3 words until the end of the sentence
+(and the sentence is actually a question).
+
+The CARTBuilder makes sure that no leaf contains too many units,
+so usually there are about 50-70 units per leaf average.
+
+4.) So what, the concept of the CART and its usage seem flawless 
+    and ideal for unit selection purposes !?
+    
+It is, I'm afraid, not that easy.
+After all, nothing is perfect and nor are our algorithms and
+those that we use.
+
+In the audio timeline, the units could have been labelled wrong,
+(unit) durations could have been miscalculated.
+There are many possible causes for errors along the 
+voice building way.
+
+One of the consequences of that is that some of the units
+that are stored in the leafs of the CART are in a place
+where they should not be.
+
+For example, we do not want an "a" unit in a leaf that is supposed
+to represent an "o", regardless of their other (phonetic) properties.
+We also would not want any kind of sound where there should be silence,
+etc etc.
+The differences may be really really small sometimes but in a homogenous
+(ideal) leaf, it still matters.
+
+5.) I suppose now that the CARTAnalyzer can help me with that?
+
+Well yes, that's what it was designed for.
+The CARTAnalyzer was programmed to go through the leafs of the tree of 
+a unit selection voice and spot and erase those units that do not 
+belong there (outliers).
+We hope that the sound of the voice will improve when MARY doesn't even
+have the chance to choose any outliers for the synthesization process.
+
+6.) How can the CARTAnalyzer help?
+
+At the moment, there are two things that can be used for
+detecting and erasing outliers:
+
+- Probability values (or float values):
+
+The FESTVOX Wagon format that we currently use for building our CARTs
+assigns a calculated float value to every single unit in each leaf of 
+the tree.
+In the past we just dismissed those values but they seem vital to
+detecting outliers. 
+We guess that the floats measure some kind of "acoustic similarity"
+or "acoustic distance".
+We use these in the CARTAnalyzer, since we assume that
+(acoustic) outliers would be the most distant ones to all the other units.
+Thus, those units with an interestingly high float/p-value should be
+cut immediately.
+
+- Energy level (new, under development):
+
+One of the main goals of this tool is finding sounds where there should
+not be any, particularly finding any kind of sound 
+in a leaf that should represent silence.
+For this purpose, energy seems to be the best criterion for the units,
+since silence is the absence of energy/sound and the smallest "noise"
+would have significantly high energy levels compared to the
+absolute zero of silence.
+For that, we use our signal processing tools, particularly
+the EnergyAnalyser and the DatagramDoubleDataSource.
+
+7.) I am confused and I do not know how to use this tool. Help!
+
+No problem. That's why this wonderful "Getting started" guide was written.
+Let's go through these few simple steps together, shall we?
+
+Step 1:
+
+Make sure all mary files for the voice that you want to work on
+have already been created by the voice import tool.
+Also, since we want the float values for all units in the leaves,
+the cart.mry file must have been built by the new modified CARTBuilder.
+(When a search for "ExtendedClassificationTree" succeeds in your
+ CARTBuilder.java then that is the right version for our purposes.)
+ 
+Step 2:
+
+As soon as you have all your voice files ready, you can start the
+program in the main voice directory (i.e. ..../full_voice, ..../arctic_voice etc).
+Make sure to include the proper classpath and give it some memory to use.
+Here is a sample shell script that you can copy to and execute in your
+proper voice directory (replace $MARY_BASE with your openmary directory):
+
+	java -cp $MARY_BASE/java/mary-common.jar:$MARY_BASE/java/log4j-1.2.8.jar:$MARY_BASE/java/jsresources.jar:
+	$MARY_BASE/java/signalproc.jar
+	-ea -Xms40m -Xmx1024m $* de.dfki.lt.mary.gizmos.CARTAnalyzer
+	
+Step 3:
+
+Immediately after execution, the program should output something like
+	CARTAnalyzer started.
+	Initializing...
+Depending on the size of the voice, several seconds will pass until
+	CART loaded from ....../xyz_voice/mary_files/cart.mry
+	[some statistical output as to how many leafs and units there are]
+	ca:cL:1 ?>
+	
+If you can see all this and you are in the main command line (ca:cL:x ?>):
+Congratulations, the CARTAnalyzer has initialized perfectly.
+
+By default, as you can see, the CARTAnalyzer (ca) loads the cart.mry
+in the mary_files directory (the one usually created by CARTBuilder)
+automatically.
+Also, since we navigate through the leaves of the tree, the index number
+of the current leaf is also shown in every command line (cL:x).
+
+For the next step, you have three options:
+
+Option a)
+
+This is the easiest option of them all. Use it if you don't have the time
+or just want the whole job done by the program itself.
+It is as easy as that: Punch in the following and hit enter:
+
+	ca:cL:1 ?> analyze auto abc.log xyz.mry
+	OR
+	ca:cL:1 ?> a auto abc.log xyz.mry
+	
+This command tells the program the following:
+- a[nalyze]: Let's analyze the whole tree...
+- auto: ... but I'll let you do all the work for me...
+- abc.log: ... when you're done, I'll be able to read and check everthing
+	       that you did with the tree in the logfile abc.log...
+- xyz.mry: ... and the final CART will be stored in xyz.mry.
+
+After that, hit enter three times in a row, or, if you want to experiment,
+enter "no" for the specified units that you do NOT wish to cut.
+
+Note that of course you may use other names that abc.log and xyz.mry.
+Note also that both the logfile and the cart file are stored in the voice
+directory that you started the program in.
+Thus, if you want the CART to be stored directly in the mary_files directory,
+you may write something like:
+
+	a auto test.log mary_files/testcart.mry
+	
+That's all there is to it. 
+You won't even have to go get a cup of coffee because the algorithm
+usually takes less than a second to complete.
+(Which of course, if you want to change your copy of the CARTAnalyzer,
+allows for creating dozens and hundreds of different(ly) pruned CARTs...)
+
+PLEASE NOTE THAT WHEN BACK IN THE COMMAND LINE, YOU ARE STILL USING THE
+PRUNED CART (IT IS NOT RESET). BY EXITTING, THE CHANGES WILL NOT BE SAVED
+TO THE ORIGINAL CART, SO IF YOU WANT TO REDO SOMETHING OR HAVE THE ORIGINAL
+CART BACK, JUST a) RESTART THE PROGRAM or b) TYPE "load mary_files/cart.mry"!
+THIS APPLIES TO ALL OPTIONS!
+
+Option b)
+
+If you wish for some more control in the whole process and still do not want
+to touch the ca code, this is the right option for you. 
+But be warned: This WILL take some time to get used to, so if you
+just want a quick job, go for option a) instead!
+That said, this option is really neat since you can listen to all the units
+in every leaf (the audio data), you can view every single leaf and have a list
+of the units that the leaf contains and their respective float value
+as described above.
+The command is this:
+
+	ca:cL:1 ?> analyze user abc.log xyz.mry
+	OR
+	ca:cL:1 ?> a user abc.log xyz.mry
+
+This command tells the program the following:
+- a[nalyze]: Let's analyze the whole tree...
+- user: ... and let me be the one to control everything and decide which units
+	    should be cut from which leaves ...
+- abc.log: ... when you're done, I'll be able to read and check everthing
+	       that I did with the tree in the logfile abc.log...
+- xyz.mry: ... and the final CART will be stored in xyz.mry.
+
+Please note that this mode can take a very, VERY long time depending on the
+size of the voice.
+
+After you hit enter, you will be taken to a second command line which looks
+like this:
+
+	ca:aa:cL:1 ?> 
+	
+You will also be shown a lot of information, including the main commands you can use
+for viewing the leafs, listening to them and cutting the units.
+Also, the decision path will be shown for each leaf.
+(The decision path tells you the path that MARY would go in this tree for this
+ particular leaf/sound as described at the beginning of this document, it looks
+ something like this: mary_phoneme==A - mary_stressed==1 - mary_xyz==x)
+
+Note that you can resume your work in this mode and therefore it's not really
+necessary to give a cart file when you run this mode for the first time.
+When you type exit in this mode, your current progress will be saved and you
+can resume from there later on or even weeks later by typing
+
+	ca:cL:1 ?> a resume
+	
+or by typing "yes" when you repeat the a user abc xyz command.
+
+I used to think that this mode is close to self-explaining but I will now try to
+explain the main point of it to you:
+
+
+IMPORTANT NOTE: Help files
+In the main(!) command line you can type
+	ca:cL:x ?> help [about/command]
+Without parameters, the help file will show you all available commands for the main
+command line, help about will display a short about text and help command goes into
+details for the command that you want help for.
+
+Option c) (not recommended)
+
+This is the option that you probably do not want to use, ever.
+You can, theoretically, do all the work in the main command line.
+As already mentioned, I do not recommend this mode, but it does have
+some nice features like text dumping of the cart, saving it to either
+.mry or in CA format, or have an in-depth statistic about
+the leaves and their units (particularly their float values)
+logged to a file.
+
+If you really want this (or you just want some diagnosis data), type
+"help" in the command line and look what's right for you.
+
+The last step:
+
+If you haven't already had the new CART dumped in something like xyz.mry,
+you can now do by typing "dump xyz.mry", if you want to work on it again
+some time later, type "save xyz" (you can use "load xyz" to load it after that).
+
+So when all is done and the CART has been successfully pruned, you just may
+want to try it out by (for example) renaming the original cart to something
+like cart.mry.bak and your new one to cart.mry in the mary_files directory.
+
+Congratulations! 
+That's it.
+If you experience trouble, read the following ultra-short troubleshooting guide or
+contact me at yukido@web.de (also feel free to contact me if you want to further understand 
+the code and/or change/improve it, I will be happy to help as much as I can)
+
+TROUBLESHOOTING:
+
+1) The automatic mode didn't cut any units / All units in every leaf have a float value of 0.0
+
+   You are probably using a non-float/old/MARY version of the cart. Try rebuilding the CART of the
+   voice with the new and improved CARTBuilder (search for ExtendedClassificationTree, see above).
+   Note that this program can load both versions of a CART and you can still f.e. print the statistics
+   for the MARY cart or textdump it.
+   
+2) When I want to listen to a leaf, the program throws some strange Exception
+
+   For audio playback we are currently using the ClipPlayer by jsresources.org (java sound resources).
+   Sadly, it does have its limits and if there are too many units in the leaf (some hundreds)
+   it just will not play them back.
+   Try playing back the outliers only (see help file) or implement some other method to play back 
+   the audio by yourself ;)
+   Also, sometimes, it says something about "could not find a line" which I don't really know about.
+   In that case, check your system's sound configuration and the usual other audio programs stuff.
+ 
+3) Help! There's a "test.wav" in my voice directory (that I do not want there)!
+
+   I CAN EXPLAIN...!
+   Everytime that you listen to the units of a leaf or just any audio that you can listen to
+   with the CARTAnalyzer, temporary wav data is stored in the test.wav.
+   That's what it is. 
+   You can delete it. Nothing bad will happen. I promise.   
+     
+4) I am still confused by all this.
+
+   Don't panic. Read this and the help files over and over, play with the program 
+   (as long as you don't overwrite the mary_files/cart.mry everything should be just fine),
+   read the log files, read the code (it is not that much after all).
+   You'll get used to the program relatively fast with the learning-by-doing method
+   I guess.
+   
+5) You suck.
+
+   a) I know.
+   b) Get over it.
+   c) yukido@web.de
+   
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+

@@ -1,0 +1,6 @@
+[default]
+title=Setup Preferences Action
+
+[actions]
+action.audio=traverse_to:string:speech_synthesis_tool/process
+action.text=traverse_to:string:speech_synthesis_output

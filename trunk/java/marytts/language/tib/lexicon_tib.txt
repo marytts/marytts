@@ -1,0 +1,166 @@
+##########################################################################
+# Copyright (C) 2000-2006 DFKI GmbH.
+# All rights reserved. Use is subject to license terms.
+#
+# Permission is hereby granted, free of charge, to use and distribute
+# this software and its documentation without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of this work, and to
+# permit persons to whom this work is furnished to do so, subject to
+# the following conditions:
+# 
+#  1. The code must retain the above copyright notice, this list of
+#     conditions and the following disclaimer.
+#  2. Any modifications must be clearly marked as such.
+#  3. Original authors' names are not deleted.
+#  4. The authors' names are not used to endorse or promote products
+#     derived from this software without specific prior written
+#     permission.
+# 
+# DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH 
+# REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF 
+# MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE 
+# CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL 
+# DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR 
+# PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS 
+# ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF 
+# THIS SOFTWARE.
+##########################################################################
+# This file is the lexicon of the Tibetan phonemiser.
+#
+# File format:
+# Empty lines and lines starting with '#' are ignored.
+# Each content line contains three fields separated by a backslash:
+# 1) the wylie form of a word, with empty spaces marking syllable endings
+# 2) the phonemic (transcribed) form of the word, in SAMPA notation, with 
+# '#' marking syllable endings
+# 3) the tone of the word; if there are more than one syllable in a word, the different 
+#    tones of the syllables are separated by "#"; 
+#    only tones specified in the toneRules.xml file could be assigned, if a new tone
+#    is introduced, that tone must be added to the listPossibleContents list
+#    if no special tone is added to the syllable, the 3rd possition should get a "-"
+# 4) the English translation
+#
+# So far, all the words are taken from Goldstein: "Essentials of modern literary Tibetan"  
+# Example:
+# bkra shis bde legs\tra#Si#de#leg\hello
+
+mi\mi\-\person
+chu\tS_hu\-\water
+lo\lo\-\year
+tshe\ts_he\-\life
+me\me\-\fire
+bu\bu\-\son
+tho\t_ho\-\list
+na\na\-\if
+cha\tS_ha\-\tea
+zu\zu\-\who
+pho\p_ho\-\male
+kho\k_ho\-\he
+khong\k_hoN\-\he(polite term)
+khong ki\k_hoN#k_hi\-\his(polite term)
+nga\Na\-\I
+nga'i\NE:\-\my
+dam\dam\-\question particle
+deb\dep\-\book
+nag po\nak#po\-\black
+nang ba\naN#pa\-\Buddhist
+nor bu\nO:#pu\-\proper noun
+pad ma\pE:#ma\-\proper noun
+pas\pE:\-\question particle
+pu mo\po#mo\-\girl, daughter
+pos ba\p2#pa\-\Tibetan
+tshong ba\ts_hoN#pa\-\trader
+zhing ba\ZiN#p@\-\farmer
+zhra mo\Za#mo\-\hat
+yin\jin\-\is
+red\re:\-\is
+shad\SE:\-\the vertical line marking the end of clauses
+ser bo\se:#po\-\yellow
+yin ba red\jim#p@#re:\-\is
+dkar po\ka:#po\-\white
+kha shas\k_ha#SE\-\several, a few
+khang pa\k_haN#pa\-\house
+khong\k_hoN\-\he
+khyi\k_hi\-\dog
+khri gcig\tri#tSi:\-\ten thousand
+ga gi\k@#ki\-\which
+ga dus\k@#ty:\-\when
+ga 'dra\k@n#trE\-\how
+ga na\ka#na\-\where
+ga nas\k@#nE:\-\from where
+ga par\ka#pa:\-\where
+ga tshod\k@#ts2:\-\how much
+ga tshad\k@#tsE:\-\how much
+ga ru\k@#ru\-\where
+ga re\ka#re\-\what
+ga la\ka#la\-\where
+gang\kaN\-\what
+gang du\kaN#tu\-\where
+gang na\kaN#na\-\where
+gang nas\kaN#nE:\-\from where
+gang tsam\kaN#tsam\-\how much
+gang la\kaN#la\-\from where
+gam\kam\-\question particle
+gar\kar\-\where
+gas\kE\-\question particle
+gong\ko~\-\price
+gra pa\tra#pa\-\monk
+dge rgan\ke#kEn\-\teacher
+dgon pa\kom#pa\-\monastery
+rgan khog\kEn#kO:\-\old
+rgjal po\kyE:#po\-\king
+sngas ma\NE:#ma\high\formerly, in the past
+ci\tSi\-\what
+ci tsam\tSi#tsam\-\how much
+cig\tSi\-\one, a
+gcig\tSi\-\one, a
+chung chung\tS_hu~#tSu~\-\small
+chen po\tS_hem#po\-\big
+ji tsam\tSe#tsam\-\how much
+nyung nyung\Ju~#Ju~\-\few, small amount
+gnyis\Ji:\-\two
+da lta\tan#ta\-\now
+de ring\te#riN\-\today
+'di\ti\-\this
+'dug\tu:\-\existential verb
+tu\tu\-\dative-locative particle
+du\tu\-\dative-locative particle
+rdo rje\tO:#tSe\-\p.n., Dorje
+nas\nE\-\from
+dpe cha\pe#tSa\-\Tibetan style book
+phun tshogs\p_hyn#tsO:\-\p.n.
+bod\p2:\-\Tibet
+byang thang\tSaN#taN\-\p.n., "Northern Plateau"
+bla ma\la#ma\high\lama
+'bras spungs\trE#pu~\-\Drepung monastery
+'brog pa\trok#pa\-\nomad
+ma\ma\-\mother, negative particle
+mang po\m@N#ku\-\many
+mi\mi\-\person, negative particle
+min\mE~\-\negative particle
+me mda'\men#ta\-\gun
+med\me:\-\negative particle
+dmag mi\m@#mi\-\soldier
+dmar mo\ma:#mo\-\red
+sman khang\mEn#ka~\high\hospital
+tsha po\ts_ha#po\-\hot
+zhig\Sik\-\one, a
+gzhon nu\S2n#nu\-\youth
+yul\jy:\-\place, area, region, country
+yod pa red\j2#pa#re:\-\existential verb
+g.yag\ja:\-\yak
+ra\ra\-\dative-locative particle
+ru\ru\-\dative-locative particle
+la\la\-\dative-locative particle
+shig\Sik\-\one,a
+su\su\-\dative-locative particle, who
+su'i\sy:\-\whose
+so\so\-\tooth
+slob gra\lap#tra\-\school
+slob gra ba\lop#tra#wa\-\student
+gsar pa\sa:#pa\-\new
+gsum\sum\-\three
+lha khang\la#ka~\high\temple
+lha sa\lE:#sa\high\Lhasa
+a me ri ka\@#me#ri#k@\-\America

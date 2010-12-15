@@ -1,0 +1,5 @@
+[default]
+title=Setup Preferences Action
+
+[actions]
+action.success=traverse_to:string:speech_synthesis_preferences

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	 xmlns:ssml="http://www.w3.org/2001/10/synthesis" 
+         xml:lang="en-US" version="0.4">
+<prosody rate="+10%">
+Welcome to the <ssml:emphasis>world</ssml:emphasis> of speech synthesis!
+</prosody>
+</maryxml>

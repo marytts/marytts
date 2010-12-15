@@ -1,0 +1,150 @@
+<html>
+  <head>
+    <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      <title>MARY Web Client</title>
+      <script language="javascript" src="mary.js">
+      </script>
+    </head>
+
+    <body onload="initForm();">
+      <font STYLE="font-family: Verdana">
+      <noscript style="color:red;">JavaScript seems to be disabled! Please enable it to use this interface to MARY!</noscript>
+
+      <table>
+        <tr>
+          <td><img src="favicon.ico"></td>
+          <td>
+            <table>
+              <tr>
+                <td></td>
+              </tr>
+
+            <tr>
+              <td><h1><font STYLE="color:#587D9D">MARY Web Client</font></h1></td>
+            </tr>
+
+            <tr>
+              <td></td>
+            </tr>
+          </table>
+        </td>
+
+      </tr>
+    </table>
+
+
+    <form id="maryWebClient" action="process" method="post">
+    <table>
+      <tr>
+        <td>Input Type:
+          <select id="INPUT_TYPE" name="INPUT_TYPE" size="1" onChange="inputTypeChanged();">
+          </select>
+        </td>
+        
+        <td>Output Type:
+          <select id="OUTPUT_TYPE" name="OUTPUT_TYPE" size="1"  onChange="outputTypeChanged();">
+          </select>
+        </td>
+      </tr>
+
+      <tr>
+          <td>
+            <div>Input Text:</div>
+            <textarea id="INPUT_TEXT" name="INPUT_TEXT" rows="30" cols="45"></textarea>
+          </td>
+
+          <td>
+            <span id="outputSection">
+              <div id="hideOutputText">Output Text:</div>
+              <textarea id="OUTPUT_TEXT" name="OUTPUT_TEXT" rows="30" cols="45" readonly="true"></textarea>
+            </span>
+			<span id="audioEffectsSection">
+			  <span id="innerAudioEffectsSection" style="display:none;">
+			  <table>
+			   <tr>
+			    <td>
+	              <table id="effectsTable">
+	                <tr>
+	                  <td> </td>
+	                  <td><div id="hideEffects">Effects</div></td> 
+	                  <td><div id="hideParameters">Parameters</div></td>
+	                </tr>
+	              </table>
+	            </td>
+	            <td>
+	              <span id="helpSection">
+	                <table>
+	                  <tr><td><div id="hideHelpTextTitle">Help Text:</div></td></tr>
+	                  <tr><td><textarea name="HELP_TEXT" id="HELP_TEXT" rows="15" cols="50" readonly="true"></textarea></td></tr>
+	                </table>
+	              </span>
+	            </td>
+	           </tr>
+	          </table>
+	          </span>
+            </span>
+          </td>
+
+        </tr>
+      </table>
+      <table>
+        <tr>
+          <td>&nbsp;</td>
+          <td>
+            <select id="exampleTexts" name="exampleTexts" size="1" onChange="exampleChanged();" style="display:none;">
+            </select>
+        	<div id="showHideParams">
+		  		<input type="checkbox" id="SPECIFY_OUTPUT_TYPE_PARAMS" onChange="toggleParams()">
+		  		Specify Output Type Params:
+		  		<input type="text" value="phone stressed accented" id="OUTPUT_TYPE_PARAMS" name="OUTPUT_TYPE_PARAMS_disabled">
+			</div>
+          </td>
+        </tr>
+        <tr>
+          <td>Voice:</td>
+          <td>
+            <select id="VOICE_SELECTIONS" name="VOICE_SELECTIONS" size="1" onChange="voiceChanged();">
+            </select>
+          </td>
+          <td width="50">
+          </td>
+          <td>
+          	  <div id="showHideEffectsButton">
+                <input type="button" value="Show Audio Effects" id="TOGGLE_EFFECTS" onClick="toggleEffectsVisibility();">
+			  </div>
+          
+          </td>
+        </tr>
+
+        <tr>
+            <td><div id="hideAudioOut">Audio-Out:</div></td>
+            <td>
+              <select name="AUDIO_OUT" id="AUDIO_OUT" size="1" onChange="audioOutChanged();">
+              </select>
+            </td>
+        </tr>
+        <tr>
+          <td>
+             <input type="button" value="PROCESS" id="PROCESS" STYLE="font-size:11pt; font-weight:bold;" onClick="requestSynthesis();">
+             <input type="button" value="SPEAK" id="SPEAK" STYLE="font-size:11pt; font-weight:bold;" onClick="requestSynthesis();">
+          </td>
+          <td></td>
+
+        </tr>
+
+        <input type="hidden" id="LOCALE" name="LOCALE" value="">
+        <input type="hidden" id="VOICE" name="VOICE" value="">
+        <input type="hidden" id="AUDIO" name="AUDIO" value="">
+
+
+
+    </table>
+  </form>
+  <div id="audioDestination"></div>
+
+
+<small><a href="documentation.html">Interactive documentation of the HTTP interface to MARY TTS</a></small> 
+
+  </font>
+</body>
+</html>

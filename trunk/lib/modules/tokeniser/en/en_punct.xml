@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This contains the punctuation description for english. -->
+<PUNCTUATION_DESCRIPTION>
+
+  <!-- This defines the specific punctuation elements. The regexp -->
+  <!-- attribute is the regular expression used to match -->
+  <!-- the punctuation. -->
+  <!-- ATTENTION! Because the regex package we use always -->
+  <!-- stops at the first disjunct that could be matched, the -->
+  <!-- order of the definition with a class is critical! So make -->
+  <!-- sure that punctuations with the potentially longer match -->
+  <!-- stand BEFORE others, e.g. use the order `abc|ab|a' -->
+  <!-- instead of `a|ab|abc' -->
+  <DEFINITIONS>  
+    
+    <!-- possible terminal punctuation -->
+    <PERIOD regexp="\." class="TERM_PUNCT_P"/>
+
+    <!-- terminal punctuation -->
+    <EXCLAM regexp="!" class="TERM_PUNCT"/>
+    <QUEST regexp="\?" class="TERM_PUNCT"/>
+
+    <!-- opening punctuation -->
+    <OINF regexp="&lt;&lt;+" class="OPEN_PUNCT"/>    
+    <RSQUOTE_L regexp="`" class="OPEN_PUNCT"/>
+    <OHYPHEN1 regexp="&#xAB;" class="OPEN_PUNCT"/>
+    <OPAR regexp="\(" class="OPEN_PUNCT"/>
+    <OPAR2 regexp="\{" class="OPEN_PUNCT"/>
+    <OCROCHE regexp="\[" class="OPEN_PUNCT"/>
+
+    <!-- closing punctuation -->
+    <CSUP regexp="&gt;&gt;+" class="CLOSE_PUNCT"/>      
+    <RSQUOTE_R regexp="'" class="CLOSE_PUNCT"/>
+    <CHYPHEN1 regexp="&#xBB;" class="CLOSE_PUNCT"/>
+    <CPAR regexp="\)" class="CLOSE_PUNCT"/>
+    <CPAR2 regexp="\}" class="CLOSE_PUNCT"/>
+    <CCROCHE regexp="\]" class="CLOSE_PUNCT"/>   
+
+    <!-- ambigue opening/closing punctuation -->
+    <OCQUOTE regexp="\&quot;" class="OPENCLOSE_PUNCT"/>      
+
+    <!-- this is a matcher for the special case when two internal -->
+    <!-- punctuations don't cause a split; it's used for -->
+    <!-- enclitics after abbreviations like in L.A.'s -->
+    <!-- and abbreviations in composita. -->
+    <SPECIAL_INT regexp="\.'|\.-" class="PUNCTUATION"/>
+
+    <!-- other punctuation -->
+    <LT regexp="&lt;" class="PUNCTUATION"/>
+    <GT regexp="&gt;" class="PUNCTUATION"/>
+    <EQ regexp="=" class="PUNCTUATION"/>
+    <OCHYPHEN regexp="--+" class="PUNCTUATION"/>
+    <!-- only match a hyphen when it's not followed by a digit -->
+    <!-- because it's part of a signed digit then, like in -1 -->
+    <HYPHEN regexp="-(?!\d)" class="PUNCTUATION"/>
+    <SCOLON regexp=";" class="PUNCTUATION"/>
+    <COLON regexp=":" class="PUNCTUATION"/>
+    <!-- only match a comma when it's not followed by a digit -->
+    <!-- because it's then digit internal, like in 3,5 -->
+    <COMMA regexp=",(?!\d)" class="PUNCTUATION"/>
+    <SLASH regexp="\/" class="PUNCTUATION"/>
+    <BSLASH regexp="\\" class="PUNCTUATION"/>
+    <PIPE regexp="\|" class="PUNCTUATION"/>
+    <STAR regexp="\*" class="PUNCTUATION"/>
+    <TILDE regexp="\~" class="PUNCTUATION"/>
+    <AMP regexp="\&amp;" class="PUNCTUATION"/>
+
+    <NBL regexp="@" class="PUNCTUATION"/>
+
+  </DEFINITIONS>
+
+  <!-- These are the mandatory rules defined as -->
+  <!-- regular expressions with the definitions above. -->
+  <!-- Rule names may not be altered! -->
+  <!-- The default behavior is to treat the punctuation -->
+  <!-- defined above as breaking punctuation, that is -->
+  <!-- this punctuations are always used as separator -->
+  <!-- and never as part of clitics or abbreviation. -->
+  <RULES>
+
+    <!-- The all-rule is used for basic splitting of strings -->
+    <!-- into punctuation and non-punctuation parts. -->
+    <!-- It's basically a disjunction of the punctuations -->
+    <!-- defined above. -->
+    <!-- ATTENTION! Because the regex package we use always -->
+    <!-- stops at the first disjunct that could be matched, the -->
+    <!-- order of the disjuncts in the rule is critical! So make -->
+    <!-- sure that punctuations with the potentially longer match -->
+    <!-- stand BEFORE others, e.g. use the order `abc|ab|a' -->
+    <!-- instead of `a|ab|abc' -->
+    <ALL_PUNCT_RULE>
+      (<SPECIAL_INT/>)(?=\w)|<PERIOD/>|<OINF/>|<LT/>|<CSUP/>|<GT/>|<EQ/>|<OCHYPHEN/>|<HYPHEN/>|<RSQUOTE_L/>|<RSQUOTE_R/>|<OHYPHEN1/>|<CHYPHEN1/>|<OPAR/>|<CPAR/>|<OPAR2/>|<CPAR2/>|<OCROCHE/>|<CCROCHE/>|<OCQUOTE/>|<EXCLAM/>|<QUEST/>|<SCOLON/>|<COLON/>|<COMMA/>|<SLASH/>|<BSLASH/>|<PIPE/>|<STAR/>|<TILDE/>|<AMP/>|<NBL/>
+    </ALL_PUNCT_RULE>
+
+    <!-- punctuation which can mark clitics; this rule is used -->
+    <!-- to check if closer clitics examination is needed -->
+    <CLITIC_PUNCT_RULE>
+      <RSQUOTE_R/>
+    </CLITIC_PUNCT_RULE>
+
+    <!-- punctuation which can be found in compounds -->
+    <INTERNAL_PUNCT_RULE>
+      <SPECIAL_INT/>|<RSQUOTE_R/>|<HYPHEN/>|<PERIOD/>
+    </INTERNAL_PUNCT_RULE>
+
+    <!-- non-breaking punctuation on the left side of a token; -->
+    <!-- use the beginning-of-input matcher \A to easily -->
+    <!-- identify this punctuation -->
+    <NON_BREAKING_LEFT_PUNCT_RULE class="PUNCTUATION">
+      \A(<NBL/>)
+    </NON_BREAKING_LEFT_PUNCT_RULE>
+
+    <!-- non-breaking punctuation on the right side of a token; -->
+    <!-- use the end-of-input matcher \Z to easily -->
+    <!-- identify this punctuation -->
+    <NON_BREAKING_RIGHT_PUNCT_RULE class="TERM_PUNCT_P">
+      <PERIOD/>\Z
+    </NON_BREAKING_RIGHT_PUNCT_RULE>
+
+    <!-- punctuation which can be found only within sentences -->
+    <INTERNAL_TU_PUNCT_RULE>
+      <COMMA/>|<SCOLON/>|<COLON/>
+    </INTERNAL_TU_PUNCT_RULE>
+
+  </RULES>
+    
+</PUNCTUATION_DESCRIPTION>

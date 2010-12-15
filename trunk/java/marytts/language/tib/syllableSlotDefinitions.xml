@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+Copyright 2000-2006 DFKI GmbH.
+All Rights Reserved.  Use is subject to license terms.
+
+Permission is hereby granted, free of charge, to use and distribute
+this software and its documentation without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of this work, and to
+permit persons to whom this work is furnished to do so, subject to
+the following conditions:
+
+1. The code must retain the above copyright notice, this list of
+   conditions and the following disclaimer.
+2. Any modifications must be clearly marked as such.
+3. Original authors' names are not deleted.
+4. The authors' names are not used to endorse or promote products
+   derived from this software without specific prior written
+   permission.
+
+DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE
+CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+-->
+<!-- 
+This file contains the categorisation of Tibetan consonants into the slots of
+a syllable that they can occur in. Furthermore, it contains the delimiters of 
+tibetan sentences and syllables. As such the file is used for segmentation of tibetan text 
+by the Tokeniser-class of the Tibetan MARY-System.
+
+At program start the general symbols lists (general) are read in as well as the 
+slot-lists (definitions). The former contains the tibetan alphabet, additionally subdivided
+into vowels and consonants while the latter contains the categorisation of the
+consonants according to the slot they occur in as well as possible delimiters. The 
+delimiters are in the definitions-section because what they actually delimit is a matter
+of interpretation and comparison to our language and may not generally be said to hold true.
+
+All Lists in this xml-File contain single items that are separated by a %-sign.
+-->
+
+<syllableRules>
+
+<general>
+
+  <!-- the wylie symbols allowed -->
+  <list name="wylie_symbols" items="k%kh%g%ng%c%ch%j%ny%t%th%d%n%p%ph%b%m%ts%tsh%dz%w%zh%z%'%y%r%l%sh%s%h%a%i%u%e%o%A%I%U%ai%au%."/>
+
+  <!-- the wylie vowels -->
+  <list name="vowels" items="a%i%u%e%o"/>
+
+  <!-- the wylie consonants -->
+  <list name="consonants" items="k%kh%g%ng%c%ch%j%ny%t%th%d%d%n%p%ph%b%m%ts%tsh%dz%w%zh%sh%z%s%'%a%y%r%l%h%h"/>
+
+</general>
+
+<definitions>
+
+  <!-- Syllable slots and their potential fillers -->
+
+  <!-- the consonants in slot 1 -->
+  <list name="slot1_consonants" items="g%d%b%m%'"/>
+
+  <!-- the consonants in slot 2 -->
+  <list name="slot2_consonants" items="r%l%s"/>
+
+  <!-- the consonants in slot 3 -->
+  <list name="slot3_consonants" items="y%r%l%"/>
+
+  <!-- the consonants in slot 4 -->
+  <list name="slot4_consonants" items="n%ng%g%d%b%m%'%r%l%s"/>
+  
+  <!-- the consonants in slot 5 -->
+  <list name="slot5_consonants" items="s"/>
+  
+  <!-- the punctuation items according to our assumptions -->
+
+  <!-- syllable delimiters, note that the star has to be backslashed in order not to be taken as RegExp operator -->
+  <list name="syllable_separators" items="\s%\*%"/>
+	
+  <!-- sentence delimiters -->
+  <list name="sentence_separators" items="/%_"/>
+
+  <!-- items marking the start of a paragraph -->
+  <list name="paragraph_start" items="#%@"/>
+
+  <!-- items marking the end of a paragraph (this one only as a pair) -->
+  <list name="paragraph_end" items="/"/>
+
+
+</definitions>
+
+</syllableRules>

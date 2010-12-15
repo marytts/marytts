@@ -1,0 +1,559 @@
+##########################################################################
+# Copyright 2000-2010 DFKI GmbH.
+# All Rights Reserved.  Use is subject to license terms.
+#
+# This file is part of MARY TTS.
+#
+# MARY TTS is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+##########################################################################
+# This is abbrev.dat, the abbreviation expansion data file of
+# the Mary TtS synthesis system.
+##########################################################################
+#
+# Author: Marc Schroeder
+# Date: 02.02.2000
+# Last changed: 26.07.2010
+# Encoding: UTF-8
+#
+# Format
+# ------
+#
+# Every line is one entry and consists of three fields separated by / (slash):
+# 1. The abbreviation to be matched in Input. It must not contain spaces.
+#    When matching with input, dots are treated as optional token boundaries,
+#    i.e. they may, but need not, be followed by token boundaries.
+#
+# 2. The type of inflection behavior of the replacing expanded form.
+#    This only applies to single-word expansions.
+#    Possible types of inflection behavior are:
+#    (provisional list, certainly incomplete and possibly containing errors):
+#	noun	can take plural -en ending (reduced to -n if stem ends in -e)
+#	noun_in	can take feminin form -in
+#	adjadv	regular adjective or adverb
+#
+# 3. The expanded form replacing the abbreviation. It may contain spaces.
+#    Spaces are interpreted as token boundaries. However, expansions into
+#    several tokens are marked as a multi-token unit and will (should) be
+#    realised as one prosodic word.
+#    If it is necessary to provide a pronounciation for certain
+#    expanded forms, it is optionally added after the graphemic form,
+#    enclosed in square brackets and WITHOUT whitespace in between:
+#    circa['tsIr-ka].
+#
+# Please note: In order to increase readibility, each of these fields may
+# contain leading and/or trailing whitespace, which will be removed by the
+# program.
+
+Abb.	/noun	/Abbildung
+Abf.	/noun	/Abfahrt
+Abk.	/noun	/Abkürzung
+Abs.	/	/Absender
+Abschn.	/	/Abschnitt
+Abt.	/noun	/Abteilung
+Abz.	/	/Abzeichen
+abzgl.	/	/abzüglich
+abzügl.	/	/abzüglich
+a.d.	/	/an der
+A.D.	/	/Anno Domini
+a.D.	/	/außer Dienst
+Adm.	/noun	/Administration
+Adr.	/noun	/Adresse
+afrik.	/adjadv	/afrikanisch
+afrikan.	/adjadv	/afrikanisch
+AIDS	/	/Aids['EIts]
+akad.	/adjadv	/akademisch
+allg.	/adjadv	/allgemein
+a.M.	/	/am Main
+amtl.	/adjadv	/amtlich
+Anf.	/noun_in	/Anfänger
+Anh.	/	/Anhang
+Ank.	/	/Ankunft
+Anl.	/noun	/Anlage
+Anm.	/noun	/Anmerkung
+Anm.d.Red.	/	/Anmerkung der Redaktion
+anschl.	/adjadv	/anschließend
+Anz.	/	/Anzahl
+a.o.Prof.	/	/außerordentlicher Professor
+APO	/	/Apo
+#App.	/	/Appartment
+arab.	/adjadv	/arabisch
+a.Rh.	/	/am Rhein
+#Art.	/	/Artikel
+ARTE	/	/Arte
+ASEAN	/	/ASEAN['a:-ze:-an]
+AStA	/	/AStA['?as-ta:]
+#Aug.	/	/August
+Ausg.	/noun	/Ausgabe
+Ausk.	/	/Auskunft
+Ausl.	/	/Ausland
+ausl.	/adjadv	/ausländisch
+ausr.	/adjadv	/ausreichend
+Az.	/	/Aktenzeichen
+#b.	/	/bei
+#bay.	/adjadv	/bayrisch
+bayr.	/adjadv	/bayrisch
+BBC	/	/BBC[bi:-bi:-'si:]
+Bd.	/	/Band
+Bde.	/	/Bünde
+beh.	/adjadv	/behindert
+#beil.	/adjadv	/beiliegend
+Bem.	/noun	/Bemerkung
+bes.	/	/besonders
+Best.Nr.	/	/Bestellnummer
+Best.-Nr.	/	/Bestellnummer
+Betr.	/	/Betreff
+betr.	/	/betrifft
+Bev.	/noun	/Bevölkerung
+Bhf.	/	/Bahnhof
+BILD	/	/Bild
+biol.	/adjadv	/biologisch
+BIZ	/	/BIZ['bIts]
+Bj.	/	/Baujahr
+BLZ	/noun	/Bankleitzahl
+brit.	/adjadv	/britisch
+bsd.	/	/besonders
+Bsp.	/	/Beispiel
+bspw.	/	/beispielsweise
+Bw.	/noun	/Bundeswehr
+b.w.	/	/bitte wenden
+bzgl.	/	/bezüglich
+bzw.	/	/beziehungsweise
+ca.	/	/circa['tsI6-ka]
+CeBIT	/	/CeBIT['tse:-bIt]
+cf.	/	/vergleiche
+Chr.	/	/Christus['kRIs-tUs]
+CIA	/	/CIA[si:-aI-'?EI]
+Cie.	/	/Kompanie
+cm	/	/Zentimeter
+CO2	/	/CO2[tse:-?o:-'tsvaI]
+Co.	/	/Co.['ko:]
+Corp.	/	/Corporation
+d.ä.	/	/der ältere
+dän.	/adjadv	/dänisch
+DASA	/	/DASA['da:-za:]
+DAX	/	/DAX['daks]
+ders.	/	/derselbe
+desgl.	/	/desgleichen
+Dez.	/	/Dezember
+dfki	/	/DFKI[de:-?Ef-ka:-'?i:]
+dgl.	/	/desgleichen
+d.Gr.	/	/der Große
+d.h.	/	/das heißt
+d.i.	/	/das ist
+#Di.	/	/Dienstag
+DIN	/	/DIN['di:n]
+Dipl.	/	/Diplom
+Dipl.-Ing.	/	/Diplom-Ingenieur
+#conflicts with sentence-final polite personal pronoun "Dir":
+#Dir.	/noun_in	/Direktor
+d.M.	/	/dieses Monats
+d.O.	/	/das Obige
+Do.	/	/Donnerstag
+Doz.	/	/Dozent
+Dr.	/noun_in	/Doktor
+d.Red.	/	/die Redaktion
+Dr.jur.	/	/Doktor jur
+Dr.med.	/	/Doktor med
+Dr.phil.	/	/Doktor phil['fIl]
+Dr.rer.nat.	/	/Doktor rer['RER] nat
+Dr.theol.	/	/Doktor theol
+dt.	/adjadv	/deutsch
+Dtld.	/	/Deutschland
+dto.	/	/dito
+Dtschld.	/	/Deutschland
+Dtzd.	/	/Dutzend
+#e.	/	/ein
+ebd.	/	/ebenda
+Ed.	/	/Edition
+e.h.	/	/ehrenhalber
+ehem.	/adjadv	/ehemalig
+eidg.	/adjadv	/eidgenössisch
+eigtl.	/adjadv	/eigentlich
+einschl.	/	/einschließlich
+Eintr.	/	/Eintrag
+EnBW	/	/EnBW['?En-be:-ve:]
+engl.	/adjadv	/englisch
+entspr.	/adjadv	/entsprechend
+EON	/	/EON['?e:-On]
+e.on	/	/e.on['?e:-On]
+erb.	/adjadv	/erbaut
+erm.	/adjadv	/ermäßigt
+erw.	/adjadv	/erwachsen
+Erw.	/	/Erwachsene
+ETA	/	/ETA['?E:-ta:]
+etc.	/	/et[e:] cetera['tsE-t@-Ra]
+etw.	/	/etwas
+EURO	/	/Euro
+europ.	/adjadv	/europäisch
+ev.	/adjadv	/evangelisch
+evang.	/adjadv	/evangelisch
+evtl.	/	/eventuell
+Exam.	/	/Examen
+exkl.	/	/exklusive
+Expl.	/	/Exemplar
+ext.	/adjadv	/extern
+#f.	/	/für
+#Fa.	/	/Firma
+fachl.	/adjadv	/fachlich
+Fam.	/noun	/Familie
+FBI	/	/FBI[?Ef-bi:-'?aI]
+Feb.	/	/Februar
+ff.	/	/folgende
+Ffm.	/	/Frankfurt am Main
+FIFA	/	/FIFA['fi:-fa:]
+Fig.	/noun	/Figur
+#finn.	/adjadv	/finnisch
+folg.	/adjadv	/folgend
+Forts.	/noun	/Fortsetzung
+Forts.f.	/	/Fortsetzung folgt
+Fr.	/noun	/Frau
+franz.	/adjadv	/französisch
+Frl.	/	/Fräulein
+frz.	/adjadv	/französisch
+GATT	/	/GATT['gat]
+GAU	/	/Gau
+geb.	/adjadv	/geboren
+Gebr.	/	/Gebrüder
+gegr.	/adjadv	/gegründet
+gek.	/adjadv	/gekürzt
+GEMA	/	/GEMA['ge:-ma:]
+geöffn.	/adjadv	/geöffnet
+Ges.	/noun	/Gesellschaft
+ges.gesch.	/	/gesetzlich geschützt
+gest.	/adjadv	/gestorben
+Gew.	/	/Gewicht
+gez.	/adjadv	/gezeichnet
+ggf.	/	/gegebenenfalls
+ggfs.	/	/gegebenenfalls
+GHz	/	/Giga-Hertz
+#gr.	/adjadv	/groß
+griech.	/adjadv	/griechisch
+Hbf.	/	/Hauptbahnhof
+Hg.	/noun_in	/Herausgeber
+hg.	/adjadv	/herausgegeben
+HiFi	/	/HiFi['haI-fi:]
+HIFI	/	/HIFI['haI-fi:]
+hins.	/	/hinsichtlich
+höfl.	/adjadv	/höflich
+holl.	/adjadv	/holländisch
+hpts.	/adjadv	/hauptsächlich
+Hr.	/noun	/Herr
+Hrn.	/	/Herrn
+Hrsg.	/noun_in	/Herausgeber
+hrsg.	/adjadv	/herausgegeben
+Hz	/	/Hertz
+#i.	/	/in
+i.A.	/	/im Auftrag
+i.a.	/	/im allgemeinen
+i.b.	/	/im besonderen
+i.d.	/	/in der
+i.D.	/	/im Durchschnitt
+ident.	/adjadv	/identisch
+i.d.R.	/	/in der Regel
+i.H.	/	/im Hause
+incl.	/	/inklusive
+Ing.	/noun_in	/Ingenieur
+Inh.	/noun_in	/Inhaber
+inkl.	/	/inklusive
+indon.	/adjadv	/indonesisch
+insbes.	/	/insbesondere
+i.R.	/	/im Ruhestand
+ital.	/adjadv	/italienisch
+i.V.	/	/in Vertretung
+#Jan.	/	/Januar
+jed.	/	/jede
+jew.	/	/jeweils
+Jg.	/	/Jahrgang
+Jh.	/	/Jahrhundert
+Jhdt.	/	/Jahrhundert
+jhrl.	/adjadv	/jährlich
+jun.	/	/junior
+jur.	/adjadv	/juristisch
+jr.	/	/junior
+kanad.	/adjadv	/kanadisch
+Kap.	/	/Kapitel
+kath.	/adjadv	/katholisch
+Kfm.	/	/Kaufmann
+kfm.	/adjadv	/kaufmännisch
+Kfz.	/	/Kraftfahrzeug
+kHz	/	/Kilo-Hertz
+Ki.	/	/Kind
+Kl.	/noun	/Klasse
+kl.	/adjadv	/klein
+klimat.	/adjadv	/klimatisch
+komf.	/adjadv	/komfortabel
+kompl.	/adjadv	/komplett
+kostenl.	/adjadv	/kostenlos
+kpl.	/adjadv	/komplett
+kreat.	/adjadv	/kreativ
+Kto.	/	/Konto
+kuban.	/adjadv	/kubanisch
+K.u.K.	/	/K und K
+k.u.k.	/	/k und k
+lat.	/adjadv	/lateinisch
+ländl.	/adjadv	/ländlich
+led.	/adjadv	/ledig
+Lekt.	/noun	/Lektion
+lfd.	/adjadv	/laufend
+lfd.Nr.	/	/laufende Nummer
+Lfg.	/noun	/Lieferung
+Lfrg.	/noun	/Lieferung
+lit.	/adjadv	/literarisch
+lt.	/	/laut
+ltd.	/adjadv	/leitend
+Ltg.	/noun	/Leitung
+luth.	/adjadv	/lutherisch
+männl.	/adjadv	/männlich
+#max.	/adjadv	/maximal
+m.b.H.	/	/mit beschränkter Haftung
+mbH	/	/mit beschränkter Haftung
+MDAX	/	/MDAX['?Em-daks]
+MdB	/	/Mitglied des Bundestages
+M.d.B.	/	/Mitglied des Bundestages
+MdL	/	/Mitglied des Landtages
+M.d.L.	/	/Mitglied des Landtages
+mdl.	/adjadv	/mündlich
+m.E.	/	/meines Erachtens
+#med.	/adjadv	/medizinisch
+Mehrw.St.	/	/Mehrwertsteuer
+mexikan.	/adjadv	/mexikanisch
+mgl.	/adjadv	/möglich
+MHz	/	/Mega-Hertz
+#Mi.	/	/Mittwoch
+Mill.	/noun	/Million
+#Min.	/noun	/Minute
+#min.	/adjadv	/minimal
+mind.	/	/mindestens
+Mio.	/noun	/Million
+Mitw.	/noun	/Mitwirkung
+mtl.	/adjadv	/monatlich
+Mo.	/	/Montag
+möbl.	/adjadv	/möbliert
+#mod.	/adjadv	/modern
+mögl.	/adjadv	/möglich
+m.o.w.	/	/mehr oder weniger
+Mrd	/noun	/Milliarde
+Mrd.	/noun	/Milliarde
+Mrz.	/	/März
+mtl.	/adjadv	/monatlich
+m.W.	/	/meines Wissens
+MWSt.	/	/Mehrwertsteuer
+MwSt.	/	/Mehrwertsteuer
+#n.	/	/nach
+Nachf.	/noun_in	/Nachfolger
+nachm.	/	/nachmittags
+näml.	/adjadv	/nämlich
+#nat.	/adjadv	/natürlich
+NASA	/	/NASA['na:-za:]
+NATO	/	/NATO['na:-to:]
+N.B.	/	/nota bene['be:-n@]
+NBA	/	/NBA[?En-bi:-'?EI]
+Nchf.	/noun_in	/Nachfolger
+n.Chr.	/	/nach Christus
+NEMAX	/	/NEMAX['ne:-maks]
+nördl.	/adjadv	/nördlich
+Nov.	/	/November
+Nr.	/	/Nummer
+N.Y.	/	/New['nu] York['jOrk]
+o.ä.	/	/oder ähnlich
+o.B.	/	/ohne Befund
+#ob.	/adjadv	/obig
+Obb.	/	/Oberbayern
+o.B.d.A.	/	/ohne Beschränkung der Allgemeinheit
+o.g.	/	/oben genannte
+od.	/	/oder
+öff.	/adjadv	/öffentlich
+öffentl.	/adjadv	/öffentlich
+offiz.	/adjadv	/offiziell
+ökol.	/adjadv	/ökologisch
+Okt.	/	/Oktober
+OPAC	/	/OPAC['?o-pak]
+OPEC	/	/OPEC['?o-pEk]
+o.Prof.	/	/ordentlicher Professor
+oriental.	/	/orientalisch
+Orig.	/	/Original
+orth.	/adjadv	/orthodox
+österr.	/adjadv	/österreichisch
+östl.	/adjadv	/östlich
+#p.	/	/pro
+p.A.	/	/per Annum
+PAL	/	/PAL['pa:l]
+PD	/noun_in	/Privatdozent
+pers.	/adjadv	/persönlich
+Pers.	/	/Person
+Pf	/	/Pfennig
+Pf.	/	/Postfach
+Pfd.	/	/Pfund
+Pfg.	/	/Pfennig
+phil.	/	/phil.['fIl]
+Pkt.	/	/Punkt
+Pl.	/	/Platz
+Plz.	/noun	/Postleitzahl
+PLZ	/noun	/Postleitzahl
+polit.	/adjadv	/politisch
+poln.	/adjadv	/polnisch
+Postf.	/	/Postfach
+priv.	/adjadv	/privat
+Priv.	/	/privat
+# need Pro in so that Pro7 is recognized correctly:
+Pro	/	/Pro
+Pro7	/	/Pro Sieben
+Prof.	/noun_in	/Professor
+promov.	/adjadv	/promoviert
+qm	/	/Quadratmeter
+qkm	/	/Quadratkilometer
+RAI	/	/RAI['RaI]
+RAM	/	/RAM['Ram]
+rd.	/	/rund
+Red.	/noun	/Redaktion
+Reg.Bez.	/	/Regierungsbezirk
+Reg.-Bez.	/	/Regierungsbezirk
+Rel.	/noun	/Religion
+rel.	/adjadv	/relativ
+Rep.	/noun	/Republik
+resp.	/	/respektive
+RIAS	/	/RIAS['Ri:-as]
+rk.	/adjadv	/römisch-katholisch
+r.-k.	/adjadv	/römisch-katholisch
+röm.	/adjadv	/römisch
+ROM	/	/ROM['ROm]
+rsp.	/	/respektive
+#S.	/noun	/Seite
+#s.	/	/siehe
+s.a.	/	/siehe auch
+Sa.	/	/Samstag
+SAT1	/	/Sat Eins
+schwed.	/adjadv	/schwedisch
+SECAM	/	/SECAM['ze:-kam]
+Sen.	/	/senior
+Sept.	/	/September
+s.o.	/	/siehe oben
+#So.	/	/Sonntag
+sog.	/adjadv	/sogenannt
+soz.	/adjadv	/sozial
+span.	/adjadv	/spanisch
+St.	/	/Stück
+Stck.	/	/Stück
+Std.	/noun	/Stunde
+Stde.	/noun	/Stunde
+stdl.	/adjadv	/stündlich
+stellv.	/adjadv	/stellvertretend
+StGB	/	/Strafgesetzbuch
+StPO	/	/Strafprozessordnung
+Str.	/noun	/Straße
+Stud.	/noun	/Student
+stud.	/adjadv	/studentisch
+s.u.	/	/siehe unten
+süddt.	/adjadv	/süddeutsch
+südl.	/adjadv	/südlich
+tägl.	/adjadv	/täglich
+TAZ	/	/TAZ['tats]
+techn.	/adjadv	/technisch
+Tel.	/	/Telefon
+tel.	/adjadv	/telefonisch
+Tel.nr.	/	/Telefonnummer
+tgl.	/adjadv	/täglich
+TOP	/	/Tagesordnungspunkt
+T.O.P.	/	/Tagesordnungspunkt
+trad.	/adjadv	/traditionell
+tschech.	/adjadv	/tschechisch
+Tsd.	/	/Tausend
+TUI	/	/TUI['tu:-i:]
+türk.	/adjadv	/türkisch
+TÜV	/	/TüV['tYf]
+#u.	/	/und
+u.a.	/	/unter anderem
+u.a.m.	/	/und anderes mehr
+u.A.w.g.	/	/um Antwort wird gebeten
+u.dgl.	/	/und dergleichen
+u.dgl.m.	/	/und dergleichen mehr
+u.d.M.	/	/unter dem Meeresspiegel
+ü.d.M.	/	/über dem Meeresspiegel
+UEFA	/	/UEFA[u:-'?e:-fa:]
+unmögl.	/adjadv	/unmöglich
+UNESCO	/	/UNESCO[?u:-'nEs-ko:]
+UNICEF	/	/UNICEF[?u:-ni:-'tsEf]
+UNITA	/	/UNITA[?u:-'ni:-ta:]
+UNO	/	/UNO['?u:-no:]
+UNPROFOR	/	/UNPROFOR['?u:n-pRo:-fo:6]
+urspr.	/adjadv	/ursprünglich
+usf.	/	/und so fort
+usw.	/	/und so weiter
+u.U.	/	/unter Umständen
+u.v.a.	/	/und vieles andere
+u.v.a.m.	/	/und vieles andere mehr
+u.v.m.	/	/und vieles mehr
+u.zw.	/	/und zwar
+u.ä.	/	/und ähnliche
+#v.	/	/von
+v.a.	/	/vor allem
+VB	/	/Verhandlungsbasis
+VHB	/	/Verhandlungsbasis
+v.C.	/	/vor Christus
+v.Chr.	/	/vor Christus
+v.D.	/	/vom Dienst
+veget.	/adjadv	/vegetativ
+Verf.	/noun_in	/Verfasser
+vergl.	/	/vergleiche
+verh.	/adjadv	/verheiratet
+Verl.	/	/Verlag
+Verm.	/	/Vermerk
+versch.	/adjadv	/verschieden
+verw.	/adjadv	/verwitwet
+Vf.	/noun_in	/Verfasser
+vgl.	/	/vergleiche
+v.H.	/	/von Hundert
+VIP	/	/VIP[vi:-aI-'pi:]
+VIP-Lounge	/	/VIP-Lounge['vIp-laUndZ]
+v.J.	/	/vorigen Jahres
+v.M.	/	/vorigen Monats
+VP	/	/Voll-Pension
+vorl.	/adjadv	/vorläufig
+#vorm.	/	/vormittags
+#Vors.	/	/Vorsitzende
+VOX	/	/VOX['vOks]
+vs.	/	/versus
+v.T.	/	/von Tausend
+v.u.	/	/von unten
+Wdh.	/noun	/Wiederholung
+Wdhlg.	/noun	/Wiederholung
+weibl.	/adjadv	/weiblich
+westl.	/adjadv	/westlich
+Wfl.	/noun	/Wohnfläche
+wg.	/	/wegen
+Wg.	/noun	/Wohnung
+Whg.	/noun	/Wohnung
+#Wo.	/noun	/Woche
+wöch.	/adjadv	/wöchentlich
+WS	/	/Wintersemester
+Wz.	/	/Warenzeichen
+#z.	/	/zu
+z.B.	/	/zum Beispiel
+zeitgen.	/adjadv	/zeitgenössisch
+zentr.	/adjadv	/zentral
+z.H.	/	/zu Händen
+z.Hd.	/	/zu Händen
+Zi.	/	/Zimmer
+z.T.	/	/zum Teil
+Zt.	/noun	/Zeit
+Ztg.	/noun	/Zeitung
+Ztschr.	/noun	/Zeitschrift
+zul.	/adjadv	/zulässig
+#zur.	/	/zurück
+zus.	/	/zusammen
+zuzgl.	/	/zuzüglich
+zw.	/	/zwischen
+z.Z.	/	/zur Zeit
+zzgl.	/	/zuzüglich
+z.Zt.	/	/zur Zeit

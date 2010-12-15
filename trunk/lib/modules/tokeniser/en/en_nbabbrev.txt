@@ -1,0 +1,55 @@
+# This contains a list of english non-breaking abbreviations, 
+# words which are usually not abbreviated when they appear at the 
+# end of a sentence. Thus we consider the period is unambiguous.
+# The list only contains abbreviations that are not matched 
+# by the rules defined in en_abbrev.xml
+
+a.m.    #am	
+adm.    #administration	
+al.     #et al.
+Ave.    #avenue	
+Cal.    #California	
+Capt.   #captain	
+Cie.    #company	
+cmdr.   #cmdr	
+Co.     #company	
+Col.    #colonel	
+Corp.   #corporation	
+cpl.    #cpl	
+Dr.     #doctor	
+e.g.    #eg	
+ESq.    #esquire	
+etc.    #etc	
+Gen.    #general	
+Gov.    #governor	
+i.e.    #ie	
+Hon.    #honorable	
+Inc.    #incorporated	
+inst.   #this month	
+Jr.     #junior	
+L.A.    #la	
+Lat.    #latitude	
+Long.   #longitude	
+lt.     #lt	
+ltd.    #limited	
+Maj.    #major	
+Mr.     #mr	
+MR.     #mister	
+Mrs.    #misses	
+Ms.     #ms	
+No.     #number	
+Nos.    #numbers	
+Ph.d.   #phd	
+Ph.D.   #phd
+p.m.    #pm	
+Prof.   #professor	
+rep.    #rep	
+Rev.    #reverand	
+sen.    #sen	
+seq.    #seq	
+SFr.    #swiss francs	
+Sgt.    #sergeant	
+sovs.   #sovereigns	
+St.     #street/saint	
+v.      #versus or von	
+

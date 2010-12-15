@@ -1,0 +1,984 @@
+
+<!-- Mary TTS -->
+<!-- This is the main build file for the system. -->
+<!--
+Copyright 2000-2008 DFKI GmbH.
+All Rights Reserved.  Use is subject to license terms.
+
+Permission is hereby granted, free of charge, to use and distribute
+this software and its documentation without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of this work, and to
+permit persons to whom this work is furnished to do so, subject to
+the following conditions:
+
+1. The code must retain the above copyright notice, this list of
+   conditions and the following disclaimer.
+2. Any modifications must be clearly marked as such.
+3. Original authors' names are not deleted.
+4. The authors' names are not used to endorse or promote products
+   derived from this software without specific prior written
+   permission.
+
+DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE
+CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+-->
+
+<project name="mary" default="jars" basedir=".">
+
+  <!-- set global properties for this build -->
+  <property name="src" value="java"/>
+  <property name="dest" value="java"/>
+  <property name="build" value="build"/>
+  <property name="mary.base" value="."/>
+
+  <path id="project.classpath">
+    <fileset dir="${dest}" includes="*.jar"/>
+    <fileset dir="${build}" includes="standalone-compiler.jar"/>
+  </path>
+
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <mkdir dir="log"/>
+    <mkdir dir="tmp"/>
+    <mkdir dir="dist"/>
+  </target>
+
+  <target name="version" depends="init">
+    <!-- Determine version information -->
+    <loadfile property="specification.version"
+              srcFile="${src}/marytts/specification-version.txt">
+      <filterchain>
+        <striplinebreaks/>
+      </filterchain>
+    </loadfile>
+    <loadfile property="specification.version.nospace"
+              srcFile="${src}/marytts/specification-version.txt">
+      <filterchain>
+        <striplinebreaks/>
+      	<deletecharacters chars=" "/>
+      </filterchain>
+    </loadfile>
+    <property name="implementation.version"
+              value="${DSTAMP}"/>
+    <echo file="${src}/marytts/implementation-version.txt"
+          message="${implementation.version}"/>
+    <echo>Building OpenMary version '${specification.version}'</echo>
+  </target>
+
+  <target name="compile" depends="version">
+    <!-- Compile the java code from ${src} -->
+    <javac srcdir="${src}" classpathref="project.classpath" includeantruntime="false" source="1.5"
+           target="1.5" encoding="UTF-8" debug="on" fork="true" memoryInitialSize="64m" memoryMaximumSize="256m"/>
+  </target>
+
+
+  <target name="tests" depends="compile">
+    <mkdir dir="log/test-reports"/>
+    <junit printsummary="on" haltonfailure="no" fork="on" forkmode="once">
+    	<classpath>
+  	        <pathelement location="${dest}"/>
+    		<fileset dir="${dest}" includes="*.jar"/>
+        </classpath>
+    	<jvmarg value="-Xmx1g"/>
+      <sysproperty key="mary.base" value="${mary.base}"/>
+      <sysproperty key="modules.poweronselftest" value="false"/>
+      <sysproperty key="log.tofile" value="true"/>
+      <sysproperty key="log.filename" value="log/junittest.mary.log"/>
+      <formatter type="xml"/>
+    	<batchtest todir="log/test-reports">
+    		<fileset dir="${src}">
+    		      <include name="marytts/tests/junit4/*.java"/>
+  		      <!--include name="marytts/tests/junit4/language/**/*.java"/-->			
+    		</fileset>
+    	</batchtest>
+    </junit>
+    <echo>See log/TEST-*.txt and log/junittest.mary.log for details.</echo>
+  </target>
+	
+  <target name="check-javadoc" depends="compile">
+    <property name="javadocdir" value="doc/javadoc"/>
+  	<uptodate targetfile="${javadocdir}/index.html" property="javadoc.uptodate">
+  	  <srcfiles dir="${src}">
+  	    <include name="marytts/**/*.java"/>
+  	  </srcfiles>
+    </uptodate>
+  </target>
+	
+  <target name="javadoc" depends="check-javadoc" unless="javadoc.uptodate">
+    <!-- Create the javadoc documentation and put it into the -->
+    <!-- javadoc directory -->
+    <mkdir dir="${javadocdir}"/>
+    <javadoc packagenames="marytts.*"
+             classpathref="project.classpath"
+             sourcepath="${src}"
+             destdir="${javadocdir}"
+             author="true"
+             version="true"
+             use="true"
+             source="1.5"
+             access="protected"
+             encoding="UTF-8"
+             overview="${src}/marytts/overview.html"
+             doctitle="The Mary Text-to-Speech Synthesis system, version ${specification.version}"
+             windowtitle="Mary Java API"
+    		 maxmemory="256m"
+     />
+  </target>
+
+  <target name="mary-common.jar" depends="compile,version">
+    <jar destfile="${dest}/mary-common.jar"
+         basedir="${src}"
+         includes="marytts/**/*.class
+                   marytts/util/dom/normalise-maryxml.xsl
+                   marytts/modules/ssml-to-mary.xsl
+                   marytts/modules/sable-to-mary.xsl
+                   marytts/modules/apml-to-mary.xsl
+                   marytts/modules/emotion-to-mary.xsl
+                   marytts/specification-version.txt
+                   marytts/implementation-version.txt
+                   marytts/server/http/index.html
+                   marytts/server/http/documentation.html
+                   marytts/server/http/mary.js
+                   marytts/server/http/favicon.ico"
+        excludes="marytts/modules/synthesis/FreeTTSSynthesizer.class
+		   	  marytts/modules/synthesis/FreeTTSVoices.class
+			  marytts/modules/DummyFreeTTSVoice.class
+	          marytts/modules/FreeTTS2FestivalUtt.class
+              marytts/datatypes/FREETTS*_Definer.class
+              marytts/datatypes/*_EN_Definer.class
+              marytts/datatypes/*_TIB_Definer.class
+              **/*Mbrola* **/*MBROLA*
+	    	  marytts/language/**/*
+    	      marytts/tools/**/*
+    	      marytts/signalproc/**/*">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Specification-Version" value="${specification.version}"/>
+        <attribute name="Implementation-Version" value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="mary-freetts.jar" depends="compile,version">
+    <jar destfile="${dest}/mary-freetts.jar"
+         basedir="${src}"
+         includes="marytts/modules/synthesis/FreeTTSSynthesizer.class
+		   	marytts/modules/synthesis/FreeTTSVoices.class
+	    	marytts/modules/DummyFreeTTSVoice.class
+            marytts/modules/FreeTTS2FestivalUtt.class
+		    marytts/datatypes/FREETTS_ACOUSTPARAMS_Definer.class">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Specification-Version" value="${specification.version}"/>
+        <attribute name="Implementation-Version" value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target>  	
+
+
+  <target name="mary-mbrola.jar" depends="compile,version">
+    <jar destfile="${dest}/mary-mbrola.jar"
+         basedir="${src}"
+         includes="marytts/datatypes/MBROLA_Definer.class
+                   marytts/modules/MaryXMLToMbrola.class
+                   marytts/modules/MbrolaCaller*.class
+                   marytts/modules/MbrolaJniCaller.class
+                   marytts/modules/MbrolaPhoneme.class
+                   marytts/modules/synthesis/MbrolaSynthesizer.class
+                   marytts/modules/synthesis/MbrolaVoiceSectioner.class
+                   marytts/modules/synthesis/MBROLAPhoneme.class
+                   marytts/modules/synthesis/MbrolaVoice.class">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Specification-Version" value="${specification.version}"/>
+        <attribute name="Implementation-Version" value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <!-- English language modules --> 
+  <target name="mary-en.jar" depends="compile,version">
+    <jar destfile="${dest}/mary-en.jar"
+         basedir="${src}"
+         includes="marytts/language/en/**/*.class
+                   marytts/language/en_US/**/*.class
+                   marytts/language/en/datatypes/*.example
+			       marytts/language/en_GB/datatypes/*.example
+                   marytts/language/en_US/datatypes/*.example">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Specification-Version" value="${specification.version}"/>
+        <attribute name="Implementation-Version" value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <!-- German language modules -->
+  <target name="mary-de.jar" depends="compile,version">
+    <jar destfile="${dest}/mary-de.jar"
+         basedir="${src}"
+         includes="marytts/language/de/**/*.class
+                   marytts/language/de/datatypes/*.example">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Specification-Version" value="${specification.version}"/>
+        <attribute name="Implementation-Version" value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target>
+
+	  <!-- Turkish language modules -->
+	  <target name="mary-tr.jar" depends="compile,version">
+	    <jar destfile="${dest}/mary-tr.jar"
+	         basedir="${src}"
+	         includes="marytts/language/tr/**/*.class
+	                   marytts/language/tr/datatypes/*.example">
+	      <manifest>
+	        <attribute name="Built-By" value="${user.name}"/>
+	        <attribute name="Specification-Version" value="${specification.version}"/>
+	        <attribute name="Implementation-Version" value="${implementation.version}"/>
+	      </manifest>
+	    </jar>
+	  </target>
+
+	  <!-- Telugu language modules -->
+	  <target name="mary-te.jar" depends="compile,version">
+	    <jar destfile="${dest}/mary-te.jar"
+	         basedir="${src}"
+	         includes="marytts/language/te/**/*.class
+	                   marytts/language/te/datatypes/*.example">
+	      <manifest>
+	        <attribute name="Built-By" value="${user.name}"/>
+	        <attribute name="Specification-Version" value="${specification.version}"/>
+	        <attribute name="Implementation-Version" value="${implementation.version}"/>
+	      </manifest>
+	    </jar>
+	  </target>
+
+
+  <!-- Commenting out the Tibetan component until we have a voice for it --> 
+  <!--target name="mary-tibetan.jar" depends="compile,version">
+    <jar destfile="${dest}/mary-tibetan.jar"
+         basedir="${src}"
+         includes="marytts/datatypes/*_TIB_Definer.class
+                   marytts/language/tib/**/*.class
+			       marytts/language/tib/**/*.txt
+                   marytts/language/tib/**/*.xml">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Specification-Version" value="${specification.version}"/>
+        <attribute name="Implementation-Version" value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target-->
+
+  <target name="languagejars" depends="mary-en.jar,mary-de.jar,mary-tr.jar,mary-te.jar"/>
+
+
+
+
+
+
+  <target name="maryclient.jar" depends="compile,version">
+    <jar destfile="${dest}/maryclient.jar"
+         basedir="${src}"
+         includes="marytts/client/*.class
+                   marytts/client/http/*.class
+                   marytts/util/MaryUtils*.class
+                   marytts/util/io/FileUtils.class
+                   marytts/util/string/StringUtils.class
+    	           marytts/util/data/audio/AudioPlayer*.class
+                   marytts/util/data/audio/MonoAudioInputStream.class
+                   marytts/util/data/audio/StereoAudioInputStream.class
+                   marytts/Version.class
+                   marytts/specification-version.txt
+                   marytts/implementation-version.txt">
+      <zipfileset src="${src}/freetts.jar"
+          includes="com/sun/speech/freetts/audio/AudioPlayer.class
+			      	com/sun/speech/freetts/util/Utilities.class
+      				com/sun/speech/freetts/util/BulkTimer.class
+					com/sun/speech/freetts/util/Timer.class
+      				com/sun/speech/freetts/audio/JavaStreamingAudioPlayer*.class"/>
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Main-Class"
+                   value="marytts.client.MaryGUIClient"/>
+        <attribute name="Class-Path"
+                   value="java-diff.jar log4j-1.2.15.jar"/>
+        <attribute name="Specification-Version"
+                   value="${specification.version}"/>
+        <attribute name="Implementation-Version"
+                   value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="emospeak.jar" depends="compile">
+    <jar destfile="${dest}/emospeak.jar"
+         basedir="${src}"
+         includes="marytts/tools/emospeak/*.class
+				   marytts/tools/emospeak/*.txt
+                   marytts/tools/emospeak/emotion-to-mary.xsl"
+         excludes="marytts/tools/emospeak/EmoSpeakApplet*.class">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+	<attribute name="Main-Class"
+         value="marytts.tools.emospeak.EmoSpeak"/>
+	 <attribute name="Class-Path" value="maryclient.jar java-diff.jar log4j-1.2.15.jar"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="emospeakapplet.jar" depends="compile">
+    <jar destfile="${dest}/emospeakapplet.jar"
+         basedir="${src}"
+         includes="marytts/tools/emospeak/*.class
+				   marytts/tools/emospeak/*.txt
+                   marytts/tools/emospeak/emotion-to-mary.xsl"
+         excludes="marytts/tools/emospeak/EmoSpeak.class
+    	marytts/tools/emospeak/EmoSpeak$*.class">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+	<attribute name="Main-Class"
+         value="marytts.tools.emospeak.EmoSpeakApplet"/>
+		 <attribute name="Class-Path" value="maryclient.jar java-diff.jar"/>
+      </manifest>
+    </jar>
+  </target>
+
+
+  <target name="signalproc.jar" depends="compile,version">
+    <jar destfile="${dest}/signalproc.jar"
+         basedir="${src}"
+         includes="marytts/signalproc/**/*.class
+                   marytts/util/data/audio/**/*.class
+                   marytts/util/*.class">
+      <manifest>
+        <attribute name="Main-Class" value="marytts.signalproc.display.MultiDisplay"/>
+        <attribute name="Class-Path" value="jsresources.jar mary-common.jar"/>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Specification-Version"
+                   value="${specification.version}"/>
+        <attribute name="Implementation-Version"
+                   value="${implementation.version}"/>
+      </manifest>
+    </jar>
+  </target>
+	
+  <target name="redstart.jar" depends="compile">
+	    <jar destfile="${dest}/redstart.jar"
+	         basedir="${src}"
+	         includes="marytts/tools/redstart/**/*.class
+	                   marytts/tools/redstart/**/*.wav
+	                   marytts/tools/redstart/**/*.options
+			   marytts/tools/redstart/**/*.jpg
+	                   marytts/tools/redstart/**/*.png">
+	      <manifest>
+	        <attribute name="Built-By" value="${user.name}"/>
+	        <attribute name="Main-Class"
+	                   value="marytts.tools.redstart.Redstart"/>
+	        <attribute name="Class-Path"
+	                   value="signalproc.jar swing-layout-1.0.jar mary-common.jar log4j-1.2.15.jar"/>
+
+	      </manifest>
+	    </jar>
+  </target>
+
+	<target name="perceptiontest.jar" depends="compile">
+		<jar destfile="${dest}/perceptiontest.jar"
+			basedir="${src}"
+			includes="marytts/tools/perceptiontest/**/*.class
+		                   marytts/tools/perceptiontest/**/*.html
+		                   marytts/tools/perceptiontest/**/*.js">
+			<manifest>
+				<attribute name="Built-By" value="${user.name}"/>
+		        <attribute name="Main-Class"
+		                   value="marytts.tools.perceptiontest.PerceptionTest"/>
+		        <attribute name="Class-Path"
+		                   value="signalproc.jar swing-layout-1.0.jar mary-common.jar log4j-1.2.15.jar httpcore-4.0.jar httpcore-nio-4.0.jar"/>
+		      </manifest>
+		    </jar>
+	  </target>
+
+	
+ <target name="voiceimport.jar" depends="compile">
+	<jar destfile="${dest}/voiceimport.jar"
+             basedir="${src}"
+             includes="marytts/tools/voiceimport/*.class
+					   marytts/tools/voiceimport/vocalizations/*.class
+                       marytts/tools/voiceimport/*.config
+                       marytts/tools/voiceimport/*.png
+                       marytts/tools/voiceimport/*.html
+                       marytts/tools/voiceimport/script.praat
+                       marytts/tools/analysis/TranscriptionAligner.class">
+        <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Main-Class"
+         value="marytts.tools.voiceimport.DatabaseImportMain"/>
+        <attribute name="Class-Path" value="maryclient.jar mary-common.jar signalproc.jar log4j-1.2.15.jar swing-layout-1.0.jar Jama-1.0.2.jar Jampack.jar jakarta-oro-2.0.8.jar fast-md5.jar commons-lang-2.4.jar commons-io-1.4.jar"/>
+        </manifest>
+        </jar>
+  </target>
+
+ <target name="mary-component-installer.jar" depends="compile">
+        <jar destfile="${dest}/mary-component-installer.jar"
+             basedir="${src}"
+             includes="marytts/tools/install/*.class">
+        <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+        <attribute name="Main-Class"
+         value="marytts.tools.install.InstallerGUI"/>
+        <attribute name="Class-Path" value="fast-md5.jar swing-layout-1.0.jar mary-common.jar log4j-1.2.15.jar commons-lang-2.4.jar"/>
+        </manifest>
+        </jar>
+  </target>
+
+	 <target name="transcription-tool.jar" depends="compile">
+	        <jar destfile="${dest}/transcription-tool.jar"
+	             basedir="${src}"
+	             includes="marytts/tools/newlanguage/**/*.class
+	        	           marytts/tools/transcription/*.class
+	        	           marytts/tools/transcription/*.html
+	        	           weka/**/*.class">
+	        <manifest>
+	        <attribute name="Built-By" value="${user.name}"/>
+	        <attribute name="Main-Class"
+	         value="marytts.tools.transcription.TranscriptionGUI"/>
+	        <attribute name="Class-Path" value="swing-layout-1.0.jar mary-common.jar log4j-1.2.15.jar weka.jar voiceimport.jar mysql-connector-java-5.1.7-bin.jar dbselection-tool.jar mwdumper-2008-04-13.jar"/>
+	        </manifest>
+	        </jar>
+	  </target>
+
+
+	<target name="dbselection-tool.jar" depends="compile">
+		<jar destfile="${dest}/dbselection-tool.jar"
+			basedir="${src}"
+			includes="marytts/tools/dbselection/**/*.class">
+		    <manifest>
+			<attribute name="Built-By" value="${user.name}"/>
+			<!--attribute name="Main-Class" value="..."-->
+			<attribute name="Class-Path" value="mysql-connector-java-5.1.7-bin.jar mwdumper-2008-04-13.jar"/>
+		    </manifest>
+		</jar>
+	</target>
+
+  <target name="jars" depends="mary-common.jar,mary-freetts.jar,maryclient.jar,languagejars,mary-mbrola.jar,signalproc.jar,emospeak.jar,emospeakapplet.jar,redstart.jar,perceptiontest.jar,voiceimport.jar,mary-component-installer.jar,transcription-tool.jar,dbselection-tool.jar"/>
+	
+	<!-- Installable language zip files for the component installer -->
+    <target name="default-language-package" depends="jars">
+  	  <zip destfile="dist/mary-${lang}-${specification.version.nospace}.zip">
+  	    <zipfileset dir="." includes="java/mary-${lang}.jar
+  	    	conf/${lang}.config
+  	    	lib/modules/${lang}/**/*"/>
+  	  </zip>
+      <length file="dist/mary-${lang}-${specification.version.nospace}.zip" property="package.filesize"/>
+      <checksum file="dist/mary-${lang}-${specification.version.nospace}.zip" format="MD5SUM" property="package.md5"/>
+      <echoxml file="dist/mary-${lang}-${specification.version.nospace}-component.xml">
+      	<marytts-install xmlns="http://mary.dfki.de/installer">
+	      	<language locale="${lang}" name="${lang}" version="${specification.version}">
+	      	  <description>
+	      	  ${lang} language component
+	      	  </description>
+	      	  <license href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"/>
+	      	  <package size="${package.filesize}" md5sum="${package.md5}" filename="mary-${lang}-${specification.version.nospace}.zip">
+	      	    <location href="http://mary.dfki.de/download/${specification.version}/"/>
+	      	  </package>
+	      	</language>
+      	</marytts-install>
+      </echoxml>
+    </target>
+
+	<target name="en-US-package" depends="jars">
+	  <zip destfile="dist/mary-en-US-${specification.version.nospace}.zip">
+	    <zipfileset dir="." includes="java/mary-en.jar
+	    	java/freetts-en_us.jar
+	    	java/mary-freetts.jar
+	    	conf/en_US.config
+	    	lib/modules/en/us/**/*
+	    	lib/modules/en/cap/**/*
+	    	lib/modules/en/tagger/**/*
+	    	lib/modules/en/prosody/**/*"/>
+	  </zip>
+	      <length file="dist/mary-en-US-${specification.version.nospace}.zip" property="package.filesize.en-US"/>
+	      <checksum file="dist/mary-en-US-${specification.version.nospace}.zip" format="MD5SUM" property="package.md5.en-US"/>
+	      <echoxml file="dist/mary-en-US-${specification.version.nospace}-component.xml">
+	      	<marytts-install xmlns="http://mary.dfki.de/installer">
+		      	<language locale="en-US" name="en-US" version="${specification.version}">
+		      	  <description>
+		      	  US English language component
+		      	  </description>
+		      	  <license href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"/>
+		      	  <package size="${package.filesize.en-US}" md5sum="${package.md5.en-US}" filename="mary-en-US-${specification.version.nospace}.zip">
+		      	    <location href="http://mary.dfki.de/download/${specification.version}/"/>
+		      	  </package>
+		      	</language>
+	      	</marytts-install>
+	      </echoxml>
+	</target>
+	
+	<target name="en-GB-package" depends="jars">
+	  <zip destfile="dist/mary-en-GB-${specification.version.nospace}.zip">
+	    <zipfileset dir="." includes="java/mary-en.jar
+	    	java/freetts-en_us.jar
+	    	java/mary-freetts.jar
+	    	conf/en_GB.config
+	    	lib/modules/en/gb/**/*
+	    	lib/modules/en/cap/**/*
+	    	lib/modules/en/tagger/**/*
+	    	lib/modules/en/prosody/**/*"/>
+	  </zip>
+	      <length file="dist/mary-en-GB-${specification.version.nospace}.zip" property="package.filesize.en-GB"/>
+	      <checksum file="dist/mary-en-GB-${specification.version.nospace}.zip" format="MD5SUM" property="package.md5.en-GB"/>
+	      <echoxml file="dist/mary-en-GB-${specification.version.nospace}-component.xml">
+	      	<marytts-install xmlns="http://mary.dfki.de/installer">
+		      	<language locale="en-GB" name="en-GB" version="${specification.version}">
+		      	  <description>
+		      	  British English language component
+		      	  </description>
+		      	  <license href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"/>
+		      	  <package size="${package.filesize.en-GB}" md5sum="${package.md5.en-GB}" filename="mary-en-GB-${specification.version.nospace}.zip">
+		      	    <location href="http://mary.dfki.de/download/${specification.version}/"/>
+		      	  </package>
+		      	</language>
+	      	</marytts-install>
+	      </echoxml>
+	</target>
+
+	      		<target name="de-package">
+      <antcall target="default-language-package">
+        <param name="lang" value="de"/>
+      </antcall>
+    </target>
+
+    <target name="te-package">
+      <antcall target="default-language-package">
+        <param name="lang" value="te"/>
+      </antcall>
+    </target>
+
+    <target name="tr-package">
+      <antcall target="default-language-package">
+        <param name="lang" value="tr"/>
+      </antcall>
+    </target>
+
+	<!-- Installable voice zip files for the component installer -->
+    <target name="default-voice-package" depends="jars">
+  	  <zip destfile="dist/mary-${voice}-${specification.version.nospace}.zip">
+  	    <zipfileset dir="." includes="conf/${conf}
+  	    	lib/voices/${voice}/**/*"/>
+  	  </zip>
+      <length file="dist/mary-${voice}-${specification.version.nospace}.zip" property="package.filesize"/>
+      <checksum file="dist/mary-${voice}-${specification.version.nospace}.zip" format="MD5SUM" property="package.md5"/>
+      <echoxml file="dist/mary-${voice}-${specification.version.nospace}-component.xml">
+      	<marytts-install xmlns="http://mary.dfki.de/installer">
+	      	<voice gender="${gender}" type="${type}" locale="${lang}" name="${voice}" version="${specification.version}">
+	      	  <description>
+	      	  ${description}
+	      	  </description>
+	      	  <license href="${license}"/>
+	      	  <package size="${package.filesize}" md5sum="${package.md5}" filename="mary-${voice}-${specification.version.nospace}.zip">
+	      	    <location href="http://mary.dfki.de/download/${specification.version}/"/>
+	      	  </package>
+	          <depends language="${lang}" version="${specification.version}"/>
+	      	</voice>
+      	</marytts-install>
+      </echoxml>
+    </target>
+
+	<target name="cmu-slt-hsmm-package">
+		<antcall target="default-voice-package">
+			<param name="lang" value="en-US"/>
+			<param name="voice" value="cmu-slt-hsmm"/>
+			<param name="conf" value="en_US-cmu-slt-hsmm.config"/>
+			<param name="description" value="A female US English Hidden semi-Markov model voice, built from voice recordings provided by Carnegie Mellon University."/>
+			<param name="gender" value="female"/>
+			<param name="type" value="hsmm"/>
+			<param name="license" value="http://mary.dfki.de/download/voices/arctic-license.html"/>
+		</antcall>
+	</target>
+	
+	
+	
+	
+	<target name="packages" depends="en-US-package,
+		en-GB-package,
+		de-package,
+		te-package,
+		tr-package,
+		cmu-slt-hsmm-package" />
+	
+	 
+	<target name="SpeechSynthesisTool"> 
+	   <loadfile property="speechsynthesistool.version" 
+	 	        srcFile="examples/client/SpeechSynthesisTool/version.txt"> 
+	         <filterchain> 
+	               <striplinebreaks/> 
+	         </filterchain> 
+	   </loadfile> 
+	   <zip destfile="dist/SpeechSynthesisTool-${speechsynthesistool.version}.zip"> 
+		   <zipfileset prefix="SpeechSynthesisTool" 
+				   dir="examples/client/SpeechSynthesisTool" 
+	                excludes="**/.svn/*"/> 
+	   </zip> 
+	</target> 
+
+
+  <target name="clean">
+    <!-- Delete all .class files -->
+    <delete>
+      <fileset dir="${dest}" includes="**/*.class"/>
+    </delete>
+  </target>
+
+	<target name="de.dfki.lt.izpack.LicensePanel.jar">
+           <!-- As of version 3.10.2, izpack requires java 1.4 class files -->
+            <delete>
+              <fileset dir="${dest}" includes="de/dfki/lt/izpack/LicensePanel*.class"/>
+            </delete>
+            <javac srcdir="${src}" includes="de/dfki/lt/izpack/LicensePanel*.java" 
+                   classpathref="project.classpath" includeantruntime="false" source="1.4"
+                   target="1.4" encoding="UTF-8" debug="on"/>
+	    <jar destfile="build/bin/panels/de.dfki.lt.izpack.LicensePanel.jar"
+	         basedir="${src}"
+	         includes="de/dfki/lt/izpack/LicensePanel*.class">
+	      <manifest>
+	        <attribute name="Built-By" value="${user.name}"/>
+	        <attribute name="Specification-Version"
+	                   value="${specification.version}"/>
+	        <attribute name="Implementation-Version"
+	                   value="${implementation.version}"/>
+	      </manifest>
+	    </jar>
+	  </target>
+
+       <target name="de.dfki.lt.izpack.AutomatedInstaller.jar" depends="compile">
+           <!-- As of version 3.10.2, izpack requires java 1.4 class files -->
+            <delete>
+              <fileset dir="${dest}" includes="de/dfki/lt/izpack/AutomatedInstaller*.class"/>
+            </delete>
+            <javac srcdir="${src}" includes="de/dfki/lt/izpack/AutomatedInstaller*.java" 
+                   classpathref="project.classpath" includeantruntime="false" source="1.4"
+                   target="1.4" encoding="UTF-8" debug="on"/>
+            <jar destfile="build/de.dfki.lt.izpack.AutomatedInstaller.jar"
+                 basedir="${src}"
+                 includes="de/dfki/lt/izpack/AutomatedInstaller*.class">
+              <manifest>
+                <attribute name="Built-By" value="${user.name}"/>
+                <attribute name="Specification-Version"
+                           value="${specification.version}"/>
+                <attribute name="Implementation-Version"
+                           value="${implementation.version}"/>
+              </manifest>
+            </jar>
+        </target>
+	
+    <!--target name="installer" depends="packages,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
+    	<java dir="build" jar="build/standalone-compiler.jar" fork="true">
+			<arg line="openmary-install.xml -b .. -k webdir -o ../dist/openmary-install-${specification.version.nospace}.jar"/>
+        </java>
+    </target-->
+    <!--target name="standalone-installer" depends="packages,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
+    	<java dir="build" jar="build/standalone-compiler.jar" fork="true">
+			<arg line="openmary-install.xml -b .. -k standard -o ../dist/openmary-standalone-install-${specification.version.nospace}.jar"/>
+        </java>
+    </target-->
+	
+	<taskdef name="IzPack" classpath="${build}/standalone-compiler.jar"
+         classname="com.izforge.izpack.ant.IzPackTask"/>
+    
+    <target name="standalone-installer" depends="packages,javadoc,de.dfki.lt.izpack.LicensePanel.jar,de.dfki.lt.izpack.AutomatedInstaller.jar">
+    	<IzPack output="dist/openmary-standalone-install-${specification.version.nospace}.jar"
+    		installerType="standard"
+    		basedir="${basedir}"
+    		IzPackDir="${build}">
+    		<config><![CDATA[
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<installation version="1.0">
+    <info>
+        <appname>MARY TTS</appname>
+        <appversion>@{specification.version}</appversion>
+        <authors>
+            <author name="Marc Schr&#246;der" email="marc.schroeder@dfki.de"/>
+            <author name="Marcela Charfuelan" email=""/>
+            <author name="Sathish Chandra Pammi" email=""/>
+            <author name="Ingmar Steiner" email=""/>
+            <author name="Oytun Turk" email=""/>
+            <author name="Benjamin Roth" email=""/>
+            <author name="Anna Hunecke" email=""/>
+            <author name="Mat Wilson" email=""/>
+            <author name="Sacha Krstulovic" email=""/>
+            <author name="Jochen Steigner" email=""/>
+            <author name="Stefanie Becker" email=""/>
+            <author name="...and many others!" email=""/>
+        </authors>
+        <url>http://mary.dfki.de</url>
+        <javaversion>1.5</javaversion>
+    	<run-privileged condition="izpack.windowsinstall"/>
+        <webdir>http://mary.dfki.de/download</webdir>
+    </info>
+
+    <guiprefs width="800" height="600" resizable="yes"/>
+
+    <locale>
+        <langpack iso3="eng"/>
+    </locale>
+
+    <variables>
+      <variable name="LicensePanel.packsCovered.0" value="marybase sources"/>
+      <variable name="LicensePanel.packsCovered.1" value="voicebuilding"/>
+    </variables>
+    <resources>
+        <res id="LicensePanel.license.0" src="MARY_software_user_agreement.txt" encoding="UTF-8"/>
+        <res id="LicensePanel.license.1" src="gpl-3.0.txt" encoding="UTF-8"/>
+        <res id="InfoPanel.info" src="build/installer-info.txt"/>
+        <!--res id="XInfoPanel.info" src="build/getstarted-info.txt"/-->
+		<res id="shortcutSpec.xml" src="build/shortcuts-windows.xml"/>
+		<res id="Unix_shortcutSpec.xml" src="build/shortcuts-linux.xml"/>
+		<res id="ProcessPanel.Spec.xml" src="build/processpanelspec.xml"/>
+		<res id="Installer.image" src="lib/icons/maryicon.png"/>
+    	<res id="TargetPanel.dir.windows" src="build/windowstargetdir.txt"/>
+	</resources>
+
+    <!-- For creating shortcuts under Windows -->
+    <native type="izpack" name="ShellLink.dll"/>
+
+    <panels>
+        <panel classname="HelloPanel"/>
+        <panel classname="InfoPanel"/>
+        <panel classname="TargetPanel"/> 
+        <panel classname="PacksPanel"/>
+        <panel classname="de.dfki.lt.izpack.LicensePanel"/>
+        <panel classname="de.dfki.lt.izpack.LicensePanel"/>
+        <panel classname="InstallPanel"/>
+        <panel classname="ShortcutPanel"/>
+        <!--panel classname="XInfoPanel"/-->
+        <panel classname="ProcessPanel"/>
+        <panel classname="SimpleFinishPanel"/>
+        <!--panel classname="FinishPanel"/-->
+    </panels>
+
+    <packs>
+		<!-- ***************** OpenMary Components ****************** -->
+
+        <pack name="marybase" required="yes" preselected="yes">
+<description>OpenMary Base: The base files for the OpenMary Text-to-speech server and client.
+</description>
+			<fileset dir="dist" targetdir="$INSTALL_PATH/download"
+				includes="mary-en-US-@{specification.version.nospace}.zip
+					mary-en-US-@{specification.version.nospace}-component.xml,
+					mary-cmu-slt-hsmm-@{specification.version.nospace}.zip,
+					mary-cmu-slt-hsmm-@{specification.version.nospace}-component.xml"
+			/>
+			<fileset dir="download" targetdir="$INSTALL_PATH/download"
+			    includes="license-index.txt,
+			    	http___mary.dfki.de_download_voices_arctic-license.html,
+			    	http___www.gnu.org_licenses_lgpl-3.0-standalone.html"
+			/>
+            <fileset dir="." targetdir="$INSTALL_PATH"
+				includes="MARY_software_user_agreement.txt,
+				    lgpl-3.0.txt,
+				    gpl-3.0.txt,
+					conf/marybase.config,
+					conf/log4j.properties,
+					doc/licenses/apache-software-license.txt,
+					doc/licenses/CPL.txt,
+					doc/licenses/freetts-license.txt,
+					doc/licenses/jsresources-license.txt,
+					doc/licenses/LGPL.txt,
+					doc/licenses/by-nd-3.0.txt,
+					doc/licenses/by-nc-sa-3.0.txt,
+					doc/licenses/README.txt,
+					download/http___mary.dfki.de_download_voices_arctic-license.html,
+					download/http___www.gnu.org_licenses_lgpl-3.0-standalone.html,
+					download/license-index.txt,
+					lib/MaryXML.xsd,
+					lib/Sable.v0_2.mary.dtd,
+					lib/apml.dtd,
+					lib/sable-latin.ent,
+					lib/xml.xsd,
+					lib/modules/tokeniser/jtok.cfg,
+					lib/modules/tokeniser/de/de_abbrev.xml,
+					lib/modules/tokeniser/de/de_classes.xml,
+					lib/modules/tokeniser/de/de_clitics.xml,
+					lib/modules/tokeniser/de/de_nbabbrev.txt,
+					lib/modules/tokeniser/de/de_numbers.xml,
+					lib/modules/tokeniser/de/de_punct.xml,
+					lib/modules/tokeniser/en/en_abbrev.xml,
+					lib/modules/tokeniser/en/en_classes.xml,
+					lib/modules/tokeniser/en/en_clitics.xml,
+					lib/modules/tokeniser/en/en_nbabbrev.txt,
+					lib/modules/tokeniser/en/en_numbers.xml,
+					lib/modules/tokeniser/en/en_punct.xml,
+					lib/modules/fallback/prosody/POSAccentPriorities.properties,
+					lib/modules/fallback/prosody/tobipredparams.xml,
+					java/Jama-1.0.2.jar,
+					java/Jampack.jar,
+					java/JavaOpenAIR.jar,
+					java/commons-collections-3.2.1.jar,
+					java/commons-io-1.4.jar,
+					java/commons-lang-2.4.jar,
+					java/emospeak.jar,
+					java/emospeakapplet.jar,
+					java/fast-md5.jar,
+					java/freetts.jar,
+					java/freetts-mbrola.jar,
+					java/freetts-de.jar,
+					java/freetts-en_us.jar,
+					java/hsqldb.jar,
+					java/httpcore-4.0.jar,
+					java/httpcore-nio-4.0.jar,
+					java/jakarta-oro-2.0.8.jar,
+					java/mary-component-installer.jar,
+					java/java-diff.jar,
+					java/jsresources.jar,
+					java/jtok.jar,
+					java/junit-4.7.jar,
+					java/log4j-1.2.15.jar,
+					java/mary-common.jar,
+					java/mary-mbrola.jar,
+					java/maryclient.jar,
+					java/maxent-2.5.1.jar,
+					java/opennlp-tools-1.4.1.jar,
+					java/sgt_v30.jar,
+					java/signalproc.jar,
+					java/swing-layout-1.0.jar,
+					java/trove-2.0.4.jar,
+					examples/client/maryclient.pl,
+					examples/client/MaryClientUser.java,
+					examples/client/c++/Makefile,
+					examples/client/c++/MaryClient.h,
+					examples/client/c++/MaryClient.cc,
+					examples/client/c++/MaryClient.cc.win,
+					examples/client/c++/MaryDemo.cc,
+					examples/client/c++/README.txt,
+					examples/emospeak-applet.html,
+					tmp/README.txt,
+					lib/icons/mary.ico,
+					lib/icons/maryicon.png"/>
+            <fileset dir="build" targetdir="$INSTALL_PATH" includes="getstarted-info.txt"/>
+            <fileset os="windows" dir="." targetdir="$INSTALL_PATH"
+				includes="bin/maryserver.bat,
+					bin/maryclient.bat,
+					bin/emospeak.bat,
+					bin/mary-component-installer.bat"/>
+            <executable os="windows" targetfile="$INSTALL_PATH/bin/maryserver.bat" stage="never"/>
+            <executable os="windows" targetfile="$INSTALL_PATH/bin/maryclient.bat" stage="never"/>
+            <executable os="windows" targetfile="$INSTALL_PATH/bin/emospeak.bat" stage="never"/>
+            <executable os="windows" targetfile="$INSTALL_PATH/bin/mary-component-installer.bat" stage="never"/>
+
+            <fileset os="unix" dir="." targetdir="$INSTALL_PATH" 
+            	includes="bin/maryserver,
+            		bin/maryclient,
+            		bin/emospeak,
+            		bin/mary-component-installer"/>
+			<executable os="unix" targetfile="$INSTALL_PATH/bin/maryserver" stage="never"/>
+		    <executable os="unix" targetfile="$INSTALL_PATH/bin/maryclient" stage="never"/>
+		    <executable os="unix" targetfile="$INSTALL_PATH/bin/emospeak" stage="never"/>
+		    <executable os="unix" targetfile="$INSTALL_PATH/bin/mary-component-installer" stage="never"/>
+
+            <fileset os="mac" dir="." targetdir="$INSTALL_PATH" 
+            	includes="bin/maryserver,
+            		bin/maryclient,
+            		bin/emospeak,
+            		bin/mary-component-installer"/>
+			<executable os="mac" targetfile="$INSTALL_PATH/bin/maryserver" stage="never"/>
+		    <executable os="mac" targetfile="$INSTALL_PATH/bin/maryclient" stage="never"/>
+		    <executable os="mac" targetfile="$INSTALL_PATH/bin/emospeak" stage="never"/>
+		    <executable os="mac" targetfile="$INSTALL_PATH/bin/mary-component-installer" stage="never"/>
+
+        </pack>
+
+
+        <pack name="voicebuilding" required="no" preselected="no">
+<description>OpenMary Voice building tools.
+This includes Redstart, a tool for recording voices for speech synthesis,
+and a collection of tools for creating a synthesis voice from recordings.
+For details, see
+http://mary.opendfki.de/wiki/NewLanguageSupport and
+http://mary.opendfki.de/wiki/VoiceImportToolsTutorial
+
+This component includes GPL'ed code and is thus shipped under the GPL 3.
+</description>
+            <fileset dir="." targetdir="$INSTALL_PATH"
+                includes="java/mwdumper-2008-04-13.jar,
+						java/mysql-connector-java-5.1.7-bin.jar,
+						java/weka.jar,
+						java/dbselection-tool.jar,
+						java/transcription-tool.jar,
+                        java/redstart.jar,
+                        java/voiceimport.jar,
+    					lib/external/hts/**,
+    					lib/external/vocalizations/**,
+                        lib/external/check_install_external_programs.sh,
+                        lib/external/ehmm.tar.gz"/>
+            <fileset os="windows" dir="." targetdir="$INSTALL_PATH"
+            	 includes="bin/redstart.bat,
+            	 	voiceimport.bat"/>
+            <executable os="windows" targetfile="$INSTALL_PATH/bin/redstart.bat" stage="never"/>
+            <executable os="windows" targetfile="$INSTALL_PATH/bin/voiceimport.bat" stage="never"/>
+
+            <fileset os="unix" dir="." targetdir="$INSTALL_PATH"
+            	 includes="bin/redstart,
+            	 	bin/voiceimport"/>
+            <executable os="unix" targetfile="$INSTALL_PATH/bin/redstart" stage="never"/>
+            <executable os="unix" targetfile="$INSTALL_PATH/bin/voiceimport" stage="never"/>
+
+            <fileset os="mac" dir="." targetdir="$INSTALL_PATH"
+            	 includes="bin/redstart,
+            	 	bin/voiceimport"/>
+            <executable os="mac" targetfile="$INSTALL_PATH/bin/redstart" stage="never"/>
+            <executable os="mac" targetfile="$INSTALL_PATH/bin/voiceimport" stage="never"/>
+        </pack>
+
+    	
+    	<pack name="sources" required="no" preselected="no">
+    	<description>OpenMary source code and javadoc.
+    	</description>
+    	            <file src="doc/javadoc" targetdir="$INSTALL_PATH/doc"/> <!-- Reccursive adding -->
+    	            <fileset dir="." targetdir="$INSTALL_PATH"
+    	            excludes="java/**/*.class"
+    	            includes="java/**,
+    					src/**/*,
+    					examples,
+    					.project,
+    					.classpath,
+    					.settings/*.prefs,
+    					build.xml,
+    					README.usingEclipse.txt,
+    					java/commons-collections-3.2.1-sources.jar,
+    					netbeans/build.xml,
+    					netbeans/nbproject/build-impl.xml,
+    					netbeans/nbproject/genfiles.properties,
+    					netbeans/nbproject/project.properties,
+    					netbeans/nbproject/project.xml,
+    					build/openmary-install.xml,
+    					build/getstarted-info.txt,
+    					build/installer-info.txt,
+    					build/shortcuts-linux.xml,
+    					build/shortcuts-windows.xml,
+    					build/standalone-compiler.jar"/>
+    				 <depends packname="voicebuilding"/>
+    	        </pack>
+    
+    </packs>
+
+    
+</installation>
+
+    		]]>
+    		</config>
+    	</IzPack>
+    </target>
+
+	<target name="dist" depends="standalone-installer"/>
+		
+</project>

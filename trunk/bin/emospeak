@@ -1,0 +1,5 @@
+#!/bin/sh
+BINDIR="`dirname "$0"`"
+export MARY_BASE="`(cd "$BINDIR"/.. ; pwd)`"
+java -ea -Dserver.host=localhost $* -jar "$MARY_BASE"/java/emospeak.jar
+

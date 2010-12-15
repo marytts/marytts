@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Mapping for terminal voicing in German -->
+<!-- xml File for MorphologyReader.java -->
+<!-- key/value pairs as data for Hashtable -->
+
+<entries>
+<entry>
+<key>
+t
+</key>
+<value>
+d
+</value>
+</entry>
+</entries>

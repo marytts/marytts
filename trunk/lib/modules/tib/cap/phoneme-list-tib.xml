@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+Copyright 2000-2006 DFKI GmbH.
+All Rights Reserved.  Use is subject to license terms.
+
+Permission is hereby granted, free of charge, to use and distribute
+this software and its documentation without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of this work, and to
+permit persons to whom this work is furnished to do so, subject to
+the following conditions:
+
+1. The code must retain the above copyright notice, this list of
+   conditions and the following disclaimer.
+2. Any modifications must be clearly marked as such.
+3. Original authors' names are not deleted.
+4. The authors' names are not used to endorse or promote products
+   derived from this software without specific prior written
+   permission.
+
+DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE
+CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+-->
+<!--
+ The following table serves as input to the CAP Module in the Mary project.
+ It contains a first estimation of phone symbols in Tibetan, duration
+ values are not used and unchanged from German.
+
+ The phone symbols are given according to the SAMPA phonetic alphabet
+ as used in the MARY system.
+
+ Some binary phonological features are given for each phone symbol.
+ The phonological features are the following:
+ (V)owel, (S)yllabic, (v)oiced, (s)onorant,
+ (l)iquid, (n)asal, (g)lide, (p)losive. p(a)use
+ (only one segment is to be marked as a pause segment; it will be used to
+ insert pauses)
+
+ Authors: Marc Schroeder, Lars Jungjohann
+
+-->
+
+<segment_list>
+
+<segment s="?"  inh="52"  min="20" phonology="-------++" sonority="1" ex="(glottal stop)"/>
+
+<!-- Plosives -->
+<segment s="p"  inh="68"  min="30" phonology="-------+-" sonority="1" ex="Nr13,Bet"/>
+<segment s="p_h"  inh="98"  min="40" phonology="-------+-" sonority="1" ex="Nr14,Pat"/>
+<segment s="t"  inh="57"  min="30" phonology="-------+-" sonority="1" ex="Nr9,Dig"/>
+<segment s="t_h"  inh="81"  min="30" phonology="-------+-" sonority="1" ex="Nr10,Tap"/>
+<segment s="k"  inh="70" min="30" phonology="-------+-" sonority="1" ex="Nr1,Gone"/>
+<segment s="k_h"  inh="108" min="40" phonology="-------+-" sonority="1" ex="Nr2,Kill"/>
+
+<!-- Fricatives -->
+<segment s="S"  inh="104" min="50" phonology="---------" sonority="2" ex="Nr27,Ship"/>
+<segment s="s"  inh="97"  min="50" phonology="---------" sonority="2" ex="Nr28,Sit"/>
+<segment s="h"  inh="61"  min="30" phonology="------+--" sonority="2" ex="Nr29,Hit"/>
+
+<!-- Affricates -->
+<segment s="tS" inh="103" min="50" phonology="-------+-" sonority="2" ex="Nr5,Jar"/>
+<segment s="tS_h" inh="103" min="50" phonology="-------+-" sonority="2" ex="Nr6,CHamp"/>
+<segment s="ts" inh="103" min="50" phonology="-------+-" sonority="2" ex="Nr17,aDDS"/>
+<segment s="ts_h" inh="103" min="50" phonology="-------+-" sonority="2" ex="Nr18,paTSy"/>
+
+<!-- Nasals -->
+<segment s="m"  inh="70"  min="30" phonology="--++-+---" sonority="3" ex="Nr16,Met"/>
+<segment s="n"  inh="62"  min="30" phonology="--++-+---" sonority="3" ex="Nr12,Now"/>
+<segment s="N"  inh="73"  min="30" phonology="--++-+---" sonority="3" ex="Nr4,sinG-A-long"/>
+<segment s="J"  inh="78"  min="40" phonology="--++--+--" sonority="3" ex="Nr8,canyon"/>
+
+<!-- Liquids ( Laterals, Rhotics ) -->
+<segment s="l"  inh="60"  min="30" phonology="--+++----" sonority="3" ex="Nr26,Let"/>
+<segment s="r"  inh="60"  min="30" phonology="--+++-+--" sonority="3" ex="Nr25,Red"/>
+
+<!-- Semivowels -->
+<segment s="j"  inh="78"  min="40" phonology="--++--+--" sonority="3" ex="Nr24,yet"/>
+<segment s="w"  inh="78"  min="40" phonology="--++--+--" sonority="3" ex="Nr20,War"/>
+
+<!-- Vowels -->
+<segment s="@"  inh="62"  min="50" phonology="++-------" sonority="4" ex="sehEn, bEsagt"/>
+<segment s="@:"  inh="90"  min="60" phonology="++-------" sonority="4" ex="werte_erfunden"/>
+<segment s="i"  inh="67"  min="30" phonology="++-------" sonority="5" ex="zIvil"/>
+<segment s="i:" inh="85"  min="40" phonology="++-------" sonority="6" ex="Igel, bIEten"/>
+<segment s="y"  inh="83"  min="40" phonology="++-------" sonority="5" ex="XYlophon"/>
+<segment s="y:" inh="120" min="60" phonology="++-------" sonority="6" ex="�bung, h�ten"/>
+<segment s="e"  inh="91"  min="40" phonology="++-------" sonority="5" ex="rEgEnerativ"/>
+<segment s="e:" inh="119" min="60" phonology="++-------" sonority="6" ex="bEten, schnEE"/>
+<segment s="E"  inh="91"  min="40" phonology="++-------" sonority="5" ex="bEtten, g�ste"/>
+<segment s="E:" inh="152" min="80" phonology="++-------" sonority="6" ex="�sen, gebl�se"/>
+<segment s="2"  inh="104" min="50" phonology="++-------" sonority="5" ex=""/>
+<segment s="2:" inh="143" min="70" phonology="++-------" sonority="6" ex="�fen, m�gen"/>
+<segment s="u"  inh="81"  min="40" phonology="++-------" sonority="5" ex="IlUsion"/>
+<segment s="u:" inh="95"  min="50" phonology="++-------" sonority="6" ex="bUHlen, gUt"/>
+<segment s="o"  inh="86"  min="40" phonology="++-------" sonority="5" ex="desillusiOnieren"/>
+<segment s="o:" inh="121" min="60" phonology="++-------" sonority="6" ex="Ofen, kOHl"/>
+<segment s="O"  inh="86"  min="40" phonology="++-------" sonority="5" ex="Offen, tOpf"/>
+<segment s="O:"  inh="121"  min="60" phonology="++-------" sonority="5" ex="Werte_erfunden"/>
+<segment s="a"  inh="92"  min="40" phonology="++-------" sonority="5" ex="An, kAnn"/>
+<segment s="a:" inh="131" min="70" phonology="++-------" sonority="6" ex="wAr, wAHr"/>
+
+<!-- Nasalised consonants -->
+<segment s="i~"  inh="67"  min="30" phonology="++---+---" sonority="5"/>
+<segment s="y~"  inh="83"  min="40" phonology="++---+---" sonority="5"/>
+<segment s="e~"  inh="91"  min="40" phonology="++---+---" sonority="5"/>
+<segment s="E~"  inh="91"  min="40" phonology="++---+---" sonority="5"/>
+<segment s="2~"  inh="104" min="50" phonology="++---+---" sonority="5"/>
+<segment s="u~"  inh="81"  min="40" phonology="++---+---" sonority="5"/>
+<segment s="o~"  inh="86"  min="40" phonology="++---+---" sonority="5"/>
+<segment s="O~"  inh="86"  min="40" phonology="++---+---" sonority="5"/>
+<segment s="a~"  inh="92"  min="40" phonology="++---+---" sonority="5"/>
+
+
+</segment_list>
+
+
+
+

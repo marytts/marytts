@@ -1,0 +1,61 @@
+NOTE: This file is no longer actively maintained and included only for historic reasons.
+
+Please see http://mary.opendfki.de/#Whatsnew for the Release Notes/Changelog of more recent versions of Mary.  
+
+Changelog
+---------
+
+3.5.0 Feature release, December 2007
+* installer slimmed down to just over 30 MB, including some voices;
+* separate voice installer tool, allowing you to download voices comfortably
+  and with an integrity verification prior to installation;
+* new synthesis technology: Marcela Charfuelan ported the excellent HMM-based
+  synthesis code from the HTS project (http://hts.sp.nitech.ac.jp/) to Java --
+  several HMM-based voices already ship with MARY;
+* audio effects: Oytun Turk implemented a range of audio effects that can be
+  applied to the MARY voices, and can be controlled through the MARYGUIClient;
+* voice creation toolkit: Sathish Chandra Pammi and Anna Hunecke have
+  cleaned up and documented the tool we use for building new synthesis voices,
+  and it now ships with the distribution for the first time;
+* voice recording tool "Redstart": Mat Wilson has programmed a very nice GUI 
+  for recording new voices, also part of the distribution now;
+* OGG Vorbis support: under Linux, the MARY server can now generate audio in
+  OGG Vorbis format.
+
+3.1.0 Feature release, August 2007
+    * state of the art unit selection (English and German);
+    * support for two more platforms: 64 bit Linux and Mac OS X on Intel platforms;
+    * a voice creation toolkit (work in progress, see http://mary.opendfki.de/browser/tags/3.1.0/lib/modules/import/README for preliminary documentation if you want to try it out).
+
+
+3.0.3 Bugfix release, October 2006
+      Most relevant changes:
+      * fixed standalone mode for running MARY (ticket 80)
+      * improved control over prosody using ToBI tags (tickets 59, 60)
+      * Several minor improvements of German synthesis (tickets 44, 49, 57, 78)
+      * MBROLA to AUDIO conversion fixed (tickets 54, 55)
+      See also the full list of bugs fixed:
+      http://mary.opendfki.de/query?milestone=3.0.3
+
+
+3.0.2 Bugfix release, April 2006
+      Most relevant changes:
+      * WAV audio can now (really) be saved with proper audio headers (ticket 38)
+      * several bugs related to failing validation of intermediate processing results (due to an outdated MaryXML Schema) were fixed (tickets  40, 41, 43)
+      * Synthesizing APML was improved (tickets  51, 52)
+      * Pronunciation for German compounds was improved (ticket 36)
+
+      See also the full list of bugs fixed:
+      http://mary.opendfki.de/query?milestone=3.0.2
+
+
+3.0.1 Bugfix release, March 2006
+      Most relevant changes:
+
+      * Audio can now be saved with proper audio headers (ticket 32)
+      * Mary GUI client is now accessible via the keyboard (ticket 3)
+
+      See also the full list of bugs fixed:
+      http://mary.opendfki.de/query?milestone=3.0.1
+
+3.0.0	initial open-source release, February 2006

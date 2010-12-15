@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="ISO-8859-15"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xml:lang="en-US" version="0.4">
+Welcome
+<prosody volume="50" fricative-duration="+0%" plosive-duration="+0%" liquid-duration="+0%" nasal-duration="+0%" vowel-duration="+0%" pause-duration="+0%" number-of-pauses="+0%" rate="+0%" preferred-boundary-type="high" accent-prominence="+0%" accent-slope="+0%" preferred-accent-shape="rising" range-dynamics="-40%" range="4st" pitch-dynamics="-15%" pitch="+0%">
+in the world, strange as it is, of speech synthesis!
+</prosody>
+</maryxml>

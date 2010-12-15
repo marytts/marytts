@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+Copyright 2000-2006 DFKI GmbH.
+All Rights Reserved.  Use is subject to license terms.
+
+Permission is hereby granted, free of charge, to use and distribute
+this software and its documentation without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of this work, and to
+permit persons to whom this work is furnished to do so, subject to
+the following conditions:
+
+1. The code must retain the above copyright notice, this list of
+   conditions and the following disclaimer.
+2. Any modifications must be clearly marked as such.
+3. Original authors' names are not deleted.
+4. The authors' names are not used to endorse or promote products
+   derived from this software without specific prior written
+   permission.
+
+DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE
+CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+-->
+<!--
+ This table is a quick adaptation of the german table for English. Duration
+ values are not used and unchanged from German.
+
+ Some binary phonological features are given for each phone symbol.
+ The phonological features are the following:
+ (V)owel, (S)yllabic, (v)oiced, (s)onorant,
+ (l)iquid, (n)asal, (g)lide, (p)losive. p(a)use
+ (only one segment is to be marked as a pause segment; it will be used to
+ insert pauses)
+
+
+ Marc Schröder, 2003
+-->
+
+<segment_list>
+
+<segment s="_"  inh="52"  min="20" phonology="-------++" sonority="1" ex="(glottal stop)"/>
+
+<segment s="p"  inh="98"  min="40" phonology="-------+-" sonority="1" ex="Pier, aB"/>
+<segment s="b"  inh="68"  min="30" phonology="--+----+-" sonority="1" ex="Bier, KraBBe"/>
+<segment s="t"  inh="81"  min="30" phonology="-------+-" sonority="1" ex="Tier, GraD"/>
+<segment s="d"  inh="57"  min="30" phonology="--+----+-" sonority="1" ex="Dir, eDel"/>
+<segment s="k"  inh="108" min="40" phonology="-------+-" sonority="1" ex="Kasse, taG"/>
+<segment s="g"  inh="70"  min="30" phonology="--+----+-" sonority="1" ex="Gasse, eGal"/>
+
+<segment s="f"  inh="99"  min="40" phonology="---------" sonority="2" ex="Vogel, schlaF"/>
+<segment s="v"  inh="54"  min="20" phonology="--+------" sonority="2" ex="Wasser, eVentuell"/>
+<segment s="s"  inh="97"  min="50" phonology="---------" sonority="2" ex="aSt, haSS"/>
+<segment s="z"  inh="76"  min="30" phonology="--+------" sonority="2" ex="Sieb, beSen"/>
+<segment s="S"  inh="104" min="50" phonology="---------" sonority="2" ex="Spät, aSCHe"/>
+<segment s="Z"  inh="68"  min="30" phonology="--+------" sonority="2" ex="Genie, DSCHungel"/>
+<segment s="h"  inh="61"  min="30" phonology="------+--" sonority="2" ex="Hut, aHorn"/>
+<segment s="D"  inh="76"  min="30" phonology="--+------" sonority="2" ex="THough, moTHer"/>
+<segment s="T"  inh="97"  min="50" phonology="---------" sonority="2" ex="THunder, baTHroom"/>
+
+<segment s="tS" inh="103" min="50" phonology="-------+-" sonority="2" ex="kuTSCHe, Cello"/>
+<segment s="dZ" inh="103" min="50" phonology="--+----+-" sonority="2" ex="kuTSCHe, Cello"/>
+
+<segment s="m"  inh="70"  min="30" phonology="--++-+---" sonority="3" ex="Mut, haMMer"/>
+<segment s="n"  inh="62"  min="30" phonology="--++-+---" sonority="3" ex="Nase, kaNNe"/>
+<segment s="N"  inh="73"  min="30" phonology="--++-+---" sonority="3" ex="eNG, baNGe"/>
+<segment s="l"  inh="60"  min="30" phonology="--+++----" sonority="3" ex="Liebe, haLLe"/>
+<segment s="r"  inh="60"  min="30" phonology="--+++-+--" sonority="3" ex="Reagan, dRive"/>
+<segment s="j"  inh="78"  min="40" phonology="--++--+--" sonority="3" ex="Jetzt, Jagd"/>
+<segment s="w"  inh="78"  min="40" phonology="--++--+--" sonority="3" ex="what, how"/>
+
+<segment s="i" inh="85"  min="40" phonology="++-------" sonority="6" ex="Igel, bIEten"/>
+<segment s="A" inh="141" min="70" phonology="++-------" sonority="6" ex="wAr, wAHr"/>
+<segment s="O"  inh="86"  min="40" phonology="++-------" sonority="5" ex="Offen, tOpf"/>
+<segment s="u" inh="95"  min="50" phonology="++-------" sonority="6" ex="bUHlen, gUt"/>
+<segment s="I"  inh="67"  min="30" phonology="++-------" sonority="5" ex="In, bItten"/>
+<segment s="E"  inh="91"  min="40" phonology="++-------" sonority="5" ex="bEtten, gÄste"/>
+<segment s="{"  inh="91"  min="40" phonology="++-------" sonority="5" ex="bEtten, gÄste"/>
+<segment s="V"  inh="92"  min="40" phonology="++-------" sonority="5" ex="An, kAnn"/>
+<segment s="U"  inh="81"  min="40" phonology="++-------" sonority="5" ex="lUstig, bUtter"/>
+<segment s="@"  inh="62"  min="50" phonology="++-------" sonority="4" ex="sehEn, bEsagt"/>
+
+<segment s="OI" inh="147" min="80" phonology="++-------" sonority="6" ex="ÄUßerung, nEU"/>
+<segment s="EI" inh="150" min="80" phonology="++-------" sonority="6" ex=""/>
+<segment s="AI" inh="139" min="80" phonology="++-------" sonority="6" ex="EIns, kAIser"/>
+<segment s="@U" inh="149" min="80" phonology="++-------" sonority="6" ex="AUf, schAU"/>
+<segment s="aU" inh="149" min="80" phonology="++-------" sonority="6" ex="AUf, schAU"/>
+
+<segment s="r=" inh="143" min="70" phonology="++-------" sonority="6" ex="Öfen, mÖgen"/>
+
+</segment_list>
+
+
+
+

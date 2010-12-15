@@ -1,0 +1,24 @@
+<html>
+    <head>
+        <title>Instructions for Transcription Tool</title>
+    </head>
+    <body>
+        <h2>Instructions for Transcription Tool</h2>
+<ol>
+<li>Prepare phoneset for your language. For example, phoneset for English (locale: en_US):  <a href="http://mary.opendfki.de/wiki/TranscriptionTool/allophones_en-US.xml">http://mary.opendfki.de/wiki/TranscriptionTool/allophones_en-US.xml</a>  </li>
+<li>Specify phoneset (allophones.xml) file using menu item 'specify phoneset'</li>
+<li>Load your data for transcription <br>(two options: 1. Open (MenuItem) 2. Load from MySql database (list of words as a table) )</li>
+<li>Save your data to a specified location. (then 'TrainPredict' button will be enable)</li>
+<li>If you transcribe some data, click 'trainpredict' button to predict transcription for remaining words. you have to manually correct predicted transcription.</li>
+<li>Description of colors:
+<ul>
+<li>Black	-  Manually written or manually corrected</li>
+<li>Red	  	-  Transcription syntax is not permitted (eg: user written transcription is incorrect)</li>
+<li>LightGray	-  Predicted by 'TrainPredict' (predicted based on manual transcription)</li>
+</ul>
+ </li>
+</ol>
+
+        
+    </body>
+</html>

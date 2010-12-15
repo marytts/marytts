@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ISO-8859-1"?><!--Copyright 2000-2006 DFKI GmbH.All Rights Reserved.  Use is subject to license terms.Permission is hereby granted, free of charge, to use and distributethis software and its documentation without restriction, includingwithout limitation the rights to use, copy, modify, merge, publish,distribute, sublicense, and/or sell copies of this work, and topermit persons to whom this work is furnished to do so, subject tothe following conditions:1. The code must retain the above copyright notice, this list of   conditions and the following disclaimer.2. Any modifications must be clearly marked as such.3. Original authors' names are not deleted.4. The authors' names are not used to endorse or promote products   derived from this software without specific prior written   permission.DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITHREGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OFMERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THECONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIALDAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA ORPROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUSACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OFTHIS SOFTWARE.-->
+
+<!-- This file contains rules for the articulation of Tibetan syllables.
+It is used in the phonemizer module of the Tibetan MARY-System.
+
+The rules are read at program start. The meaning of the rules is described in the accompanying comments.
+
+The file contains four parts:
+a) general: defines, which symbols are allowed
+b) definitions: definitions of lists and maps that are needed for parsing of letters into slots.
+c) rules: slots?
+
+Every rule contains excatly one "attribute" statement. Its attributes 
+can also be found in the MARYXML input. The values are either wylie-strings, 
+or refer to wylie-strings in a map or a list.
+The 2nd statement of a rule may be a "condition" statement, that checks, 
+if certain attributes are in the XML input. So far, OR (x1 v x2 v ... v xn) 
+and NOTOR (~(x1 v x2 v ... xn)) can be used.
+The last statement of a rule is the "action" statement, that defines 
+which slot is the result.
+-->
+
+<syllableRules>
+
+<general>
+  <!-- the wylie symbols allowed -->
+  <list name="wylie_symbols" items="k#kh#g#ng#c#ch#j#ny#t#th#d#n#p#ph#b#m#ts#tsh#dz#w#zh#z#'#y#r#l#sh#s#h#a#i#u#e#o#A#I#U#ai#au"/>
+  <!-- the vowel symbols -->
+  <list name="vowels" items="a#i#u#e#o"/>
+  <!-- the conditions defined -->
+  <list name="consonants" items="k#kh#g#ng#c#ch#j#ny#t#th#d#d#n#p#ph#b#m#ts#tsh#dz#w#zh#sh#z#s#'#a#y#r#l#h#h"/>
+</general>
+
+<definitions>
+
+  <!-- the consonants in slot 1-->
+  <list name="slot1_consonants" items="g#d#b#m#'"/>
+
+  <!-- the consonants in slot 2-->
+  <list name="slot2_consonants" items="r#l#s"/>
+
+  <!-- the consonants in slot 3-->
+  <list name="slot3_consonants" items="y#r#l#w#'"/>
+
+  <!-- the consonants in slot 4-->
+  <list name="slot4_consonants" items="n#ng#g#d#b#m#'#r#l#s"/>
+  
+  <!-- the consonants in slot 5-->
+  <list name="slot5_consonants" items="s"/>
+  
+</definitions>
+
+<rhyme>
+ 
+ <rule num="r2"> <!-- ba or pa with a-->
+    <attributes slot4="b" vowel="a"/>
+    <action slot="slot2"/>
+  </rule>
+</rhyme>
+
+</syllableRules>

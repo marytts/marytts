@@ -1,0 +1,70 @@
+<!ELEMENT apml (turnallocation?, performative*, turnallocation?)>
+
+<!ELEMENT turnallocation (performative)>
+<!ATTLIST turnallocation type (take|give) #REQUIRED>
+
+<!ELEMENT performative (theme|rheme)+>
+<!ATTLIST performative 
+type (implore|order|suggest|propose|warn|approve|praise|recognize|disagree|
+agree|criticize|accept|advice|confirm|incite|refuse|question|ask|inform|request|
+announce|beg|greet|paraphrase|none) #REQUIRED
+		duration CDATA "100%"
+		delay CDATA "100%"
+		intensity CDATA "1"
+		onset CDATA "0"
+		offset CDATA "0"
+		>
+
+<!ELEMENT theme (#PCDATA|emphasis|boundary)*>
+<!ATTLIST theme affect 
+(anger|disgust|joy|distress|fear|sadness|surprise|embarrassment|happy-for|gloating|
+resentment|relief|jealousy|envy|sorry-for|hope|satisfaction|fear-confirmed|disappointment|
+pride|shame|reproach|liking|disliking|gratitude|gratification|remorse|love|hate) #IMPLIED
+                belief-relation
+(gen-spec|cause-effect|solutionhood|suggestion|modifier|justification|contrast) #IMPLIED
+                certainty 
+(certain|uncertain|certainly_not) #IMPLIED
+                meta-cognitive
+(planning|thinking|remembering) #IMPLIED
+		duration CDATA "100%"
+		delay CDATA "100%"
+		intensity CDATA "1"
+		onset CDATA "0"
+		offset CDATA "0"
+		> 
+
+<!ELEMENT rheme (#PCDATA|emphasis|boundary)*>
+<!ATTLIST rheme affect (anger|disgust|joy|distress|fear|sadness|surprise|embarrassment|happy-for|gloating|
+resentment|relief|jealousy|envy|sorry-for|hope|satisfaction|fear-confirmed|disappointment|
+pride|shame|reproach|liking|disliking|gratitude|gratification|remorse|love|hate) #IMPLIED
+                belief-relation
+(gen-spec|cause-effect|solutionhood|suggestion|modifier|justification|contrast) #IMPLIED
+                certainty 
+(certain|uncertain|certainly_not) #IMPLIED
+                meta-cognitive
+(planning|thinking|remembering) #IMPLIED
+		duration CDATA "100%"
+		delay CDATA "100%"
+		intensity CDATA "1"
+		onset CDATA "0"
+		offset CDATA "0"
+		> 
+
+<!ELEMENT emphasis (#PCDATA)>
+<!ATTLIST emphasis type (theme|rheme) #IMPLIED
+                   level (strong|medium|weak) "medium"
+                   x-pitchaccent (Hstar|Lstar|LplusHstar|LstarplusH|HstarplusL|HplusLstar) "Hstar"
+                   deictic CDATA #IMPLIED
+                   adjectival (small|subtle|tiny|difficult|big|long|large|great) #IMPLIED
+                   duration CDATA "100%"
+                   delay CDATA "100%"
+                   intensity CDATA "1"
+		   onset CDATA "0"
+		   offset CDATA "0"
+		   >
+
+<!ELEMENT boundary EMPTY>
+<!ATTLIST boundary type (L|H|LL|HH|LH|HL) "LL">
+
+<!ELEMENT pause EMPTY>
+<!ATTLIST pause sec CDATA #REQUIRED>

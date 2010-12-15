@@ -1,0 +1,142 @@
+<html>
+
+  <head>
+    <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>MARY Web Client</title>
+    
+    <script language="javascript">
+		function initForm() 
+		{
+       		maryWebClient.inputtype.selectedIndex = 0;
+       		maryWebClient.outputtype.selectedIndex = maryWebClient.outputtype.options.length-1;
+       		maryWebClient.format.selectedIndex = maryWebClient.format.options.length-1;
+       		hideDiv();
+    	} 
+    	function hideDiv()
+    	{
+    	    <-- document.getElementById('hideable').style.display = 'none'; -->
+    	    <-- document.getElementById('inputtext').style.display = 'none'; -->
+    	}
+    	</script>
+    	
+  </head>
+    
+
+    	
+  <body onload="initForm()">
+    <font STYLE="font-family: Verdana">
+    <table>
+      <tr>
+          <td><img src="http://mary.dfki.de/favicon.ico"/></td>  
+          <td>        
+            <table>
+              <tr>
+                <td></td>
+              </tr>
+	          
+	          <tr>
+                <td><h1><font STYLE="color:#587D9D">MARY Web Client</font></h1></td>
+              </tr>
+              
+              <tr>
+                <td></td>
+              </tr>
+	        </table>
+          </td>
+        </tr>
+    </table>
+
+    <table>
+      <form id="defaultSettingsLoader" action="http://localhost:59125" method="post">
+         <tr>
+           <td><input type="submit" value="Default" STYLE="font-size:11pt;"></td>
+           <td>Click to load default client settings from server</td>
+         </tr>
+      </form>
+    </table>
+    
+    <table>
+      <form id="maryWebClient" action="http://localhost:59125" method="post">
+    
+        <tr>
+          <td></td>
+          <td>Input Type:
+              <select name="inputtype" size="1">
+                <option>TEXT</option>
+                <option>RAWMARYXML</option>
+              </select>
+          </td>
+          <td>Output Type:
+              <select name="outputtype" size="1">
+                <option>MBROLA</option>
+                <option>AUDIO</option>
+              </select>
+          </td>     
+        </tr>
+
+        <tr>
+          <td><div id="hideable">Input Text:</div></td>
+          <td><textarea name="inputtext" id="inputtext" rows="15" cols="45">Show input text here...</textarea>
+          </td> 
+
+          <td> 
+            <table>
+              <tr> <td> </td> <td>Effects</td> <td>Parameters</td></tr>
+              <tr> <td><input type="checkbox" name="volume"></td> <td>Volume</td> <td><textarea name="volume_inputtext" rows="1" cols="25">amount=1.0</textarea></td> <td><input type="button" name="volume_help" value="Help"></td> </tr>
+              <tr> <td><input type="checkbox" name="tractscaler"></td> <td>TractScaler</td> <td><textarea name="tractscaler_inputtext" rows="1" cols="25">amount=1.0</textarea></td> <td><input type="button" name="tractscaler_help" value="Help"></td> </tr>
+              <tr> <td><input type="checkbox" name="f0scale"></td> <td>F0Scale</td> <td><textarea name="f0scale_inputtext" rows="1" cols="25">amount=1.0</textarea></td> <td><input type="button" name="f0scale_help" value="Help"></td> </tr>
+              <tr> <td><input type="checkbox" name="f0add"></td> <td>F0Add</td> <td><textarea name="f0add_inputtext" rows="1" cols="25">amount=1.0</textarea></td> <td><input type="button" name="f0add_help" value="Help"></td> </tr>
+              <tr> <td><input type="checkbox" name="rate"></td> <td>Rate</td> <td><textarea name="rate_inputtext" rows="1" cols="25">amount=1.0</textarea></td> <td><input type="button" name="rate_help" value="Help"></td> </tr>
+              <tr> <td><input type="checkbox" name="robot"></td> <td>Robot</td> <td><textarea name="robot_inputtext" rows="1" cols="25">amount=1.0</textarea></td> <td><input type="button" name="robot_help" value="Help"></td> </tr>
+              </font>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td>Example:</td>
+          <td><select name="exampletext" size="1">
+                <option>Welcome to the world of speech synthesis!</option>
+                <option>Welcome!</option>
+              </select>
+          </td>
+        </tr>
+        
+        <tr>
+          <td>Voice:</td>
+          <td><select name="voice" size="1">
+                <option>time-awb(English, male, limited)</option>
+                <option>hsmm-slt(English, female)</option>
+              </select>
+          </td>
+        </tr>
+        
+        <tr>
+          <td>Format:</td>
+          <td><select name="format" size="1">
+                <option>WAV</option>
+                <option>MP3</option>
+                <option>AIF</option>
+              </select>
+          </td>
+        </tr>
+     
+        <tr>
+          <td><input type="submit" value="SPEAK" STYLE="font-size:11pt; font-weight=bold;"></td>
+          <td>Click to send synthesis request to MARY server</td>
+          <td><input type="button" value="TEST" onclick="return hideDiv();"></td>
+          <embed src="d:\\a.wav" autostart="true" repeat="false" width=200 height=40></td>
+          <EMBED SRC="http://www.htmlcodetutorial.com/embeddedobjects/graphics/sounds/1812over.mid" HEIGHT=60 WIDTH=144>
+        </tr>
+        
+        
+        
+      
+      </form>
+      
+    </table>
+    
+    </font>
+
+  </body>
+</html>

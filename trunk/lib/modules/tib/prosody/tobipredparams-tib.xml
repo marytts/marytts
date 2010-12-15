@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+Copyright 2000-2006 DFKI GmbH.
+All Rights Reserved.  Use is subject to license terms.
+
+Permission is hereby granted, free of charge, to use and distribute
+this software and its documentation without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of this work, and to
+permit persons to whom this work is furnished to do so, subject to
+the following conditions:
+
+1. The code must retain the above copyright notice, this list of
+   conditions and the following disclaimer.
+2. Any modifications must be clearly marked as such.
+3. Original authors' names are not deleted.
+4. The authors' names are not used to endorse or promote products
+   derived from this software without specific prior written
+   permission.
+
+DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE
+CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+-->
+<!-- This file contains the rules for the prediction of boundaries in the Tibetan MARY text-to-speech synthesis system. 
+The rules are read at program start. The meaning of the rules is described in the accompanying comments.
+Available linguistic information that can be used in the rules are:
+type of punctuation, text of a token, number of following/preceding tokens/words, prosodic position(prenuclear, postnuclear or nuclear position), end of vorfeld(only relevant for languages with Vorfeld(German)), end of paragraph, sentence type and every arbitrary MaryXML attribute like pos(part of speech), syn_phrase(chunk phrases), given(givenness of a token), contrast(contrastiveness of a token) etc.
+
+The file contains four parts: 
+a) definitions: definitions of (locally defined or external) lists that are needed for the prosody prediction rules
+b) accent position rules: rules that determine for every token in a sentence, if it will receive a tone accent, a force accent or if it doesn't receive any accent.
+c) accent shape rules: rules that determine the accent type (a concrete GToBI accent) for every token receiving an accent according to the rules in b))
+d) boundary rules: rules that determine position, break index and tone of minor and major boundaries (Tones of boundaries are not included in this version of the Tibetan MARY text-to-speech synthesis system). A major boundary (i.e. a <phrase> tag is set) is inserted whenever a breakindex between 4 and 6 (including 4 and 6) is specified. 
+
+At the current state of the Tibetan MARY text-to-speech synthesis system only part d) is used. All the other parts are not supported by the system but might be included in later versions. 
+
+Every rule contains an arbitrary number of conditions and exactly one "action"
+statement(obligatory), which defines the consequence of the rule that will be applied if every condition is satisfied. 
+
+Types of possible conditions that can be used right now:
+a) condition with tag "attributes","nextAttributes","nextPlusXAttributes"(X is an arbitrary number),"previousAttributes","previousMinusXAttributes": 
+defines MaryXML attributes and values that are required for the application of a rule
+Example: <rule>
+           <attributes pos="NN"/>
+	   			 <nextAttributes pos="NN"/>
+	   			 <action accent=""/>
+         </rule>
+Values can also be negated or contain a reference to a list.
+Example: <attributes pos="!NN"/>
+         <attributes pos="INLIST:pos_tonal_accent"/>
+Special attribute values are ""(value of attribute doesn't matter, but attribute has to be present) and "!" (attribute must not be present). If there isn't any token at the specified position, then the condition is not satisfied.
+
+b) condition with tag "folTokens" or "prevTokens" and attribute "num": defines the number of tokens that must follow or precede the current token (not only words, also punctuation marks).
+Possible values are: "X"(X is an arbitrary number), "X+"(at least X), "X-"(not more than X)
+Example: for a rule that should be applied only at the end of a sentence:
+<folTokens num="0"/>
+
+c) condition with tag "folWords" or "prevWords" and attribute "num": defines the number of tokens that must follow or precede the current token (only words, no punctuation marks).
+Possible values are: "X"(X is an arbitrary number), "X+"(at least X), "X-"(not more than X)
+
+d) condition with tag "sentence" and attribute "type": defines the required sentence type for the application of the rule.
+Possible values are: "decl", "excl", "interrog", "interrogW", "interrogYN" and their negations.
+
+e) condition with tag "text","nextText","nextPlusXText","previousText","previousMinusXText" and attribute "word": determines the required text of a token.
+Possible values are a word and a reference to a local or external list and their negations.
+Example: <nextPlus3Text word="INLIST:lib/modules/prosody/accentedWords.txt"/>
+
+f) condition with tag "prosodicPosition" and attribute "type": determines the position of a token with respect to the nucleus. Only available in the accentshape rule part.
+Possible values are "prenuclear", "postnuclear", "nuclearParagraphFinal" and "nuclearNonParagraphFinal" and their negation.
+
+g) condition with tag "specialPosition" and attribute "type":  
+Possible values are only: "enfofpar"(end of paragraph) and "endofvorfeld"(end of the Vorfeld in German or other language with Vorfeld) and their negations.
+-->
+
+
+<tobipredparams>
+
+<definitions>
+</definitions>
+
+<!-- the accentposition rules determine if a token gets a tone accent, a force accent or if it doesn't receive any accent -->
+<accentposition>
+</accentposition>
+
+<!-- the accentshape rules determine the type of accent for words with accent="tone" or "force" -->
+<accentshape>
+</accentshape>
+
+
+<!-- the boundaries rules determine if a boundary has to be inserted after the current token; the rules also determine break index and boundary tone -->
+<boundaries>
+
+<!-- set a breakindex of 6 at the end of a paragraph -->
+<rule>
+  <specialPosition type="endofpar" />
+	<action bi="6"/>
+</rule>
+
+<!-- set a breakindex of 5 at the end of a sentence -->
+<rule>
+  <folTokens num="0"/>
+  <action bi="5"/>
+</rule>
+
+
+</boundaries>
+</tobipredparams>

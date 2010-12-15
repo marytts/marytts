@@ -1,0 +1,19 @@
+#Settings for Redstart Recording Session Manager
+#Thu May 28 09:19:08 CEST 2009
+pauseAfterSynth=0
+samplingRate=44100
+speakerBitsPerSample=16
+expertOutputIndex=0
+audioSourceIndex=1
+expertBitsPerSample=16
+speakerMonoStereo=stereo
+pauseBetweenRec=70
+showPromptCount=true
+printTestOutput=true
+bufferAdded=2000
+bitsPerSample=16
+silenceDuration=2000
+expertMonoStereo=stereo
+systemLookAndFeel=false
+speakerOutputIndex=0
+monoStereo=mono

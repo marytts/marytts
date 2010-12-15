@@ -1,0 +1,104 @@
+MARY Software User Agreement
+23 January 2009
+
+MARY is licensed under the following terms.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, version 3 of the License.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+
+
+Applicable Licenses
+
+MARY is built upon a number of other open source technologies and products.  
+Here is a list of those products with links to their licenses.
+
+freetts: MARY uses code from FreeTTS (http://freetts.sf.net) for various
+processing modules and as the source of one method for waveform synthesis.
+FreeTTS is licensed under the (BSD-style) FreeTTS license, see 
+doc/licenses/freetts-license.txt.
+(files concerned: java/freetts*.jar)
+
+arctic: MARY can optionally use unit selection voices derived from the
+CMU ARCTIC databases (http://www.festvox.org/cmu_arctic). The CMU ARCTIC
+databases are licensed under the (BSD-style) ARCTIC license, see
+doc/licenses/arctic-license.txt
+(files concerned: lib/voices/*arctic/*)
+
+JTok: The JTok tokenizer from http://heartofgold.dfki.de is distributed
+under the GNU Lesser General Public License, see http://www.gnu.org or
+doc/licenses/LGPL.txt.
+(files concerned: java/jtok.jar and files below lib/modules/tokeniser).
+
+jsresources.jar: A few utility classes from http://www.jsresources.org
+are distributed under the terms of the jsresources license, see
+doc/licenses/jsresources-license.txt.
+(files concerned: java/jsresources.jar)
+
+tritonus: MARY uses tritonus (http://www.tritonus.org) for some java sound
+api functions, including sample rate conversion and mp3 decoding and encoding.
+tritonus is distributed under the GNU Lesser General Public License, see 
+http://www.gnu.org or doc/licenses/LGPL.txt.
+(files concerned: java/tritonus*.jar; lib/windows/lametritonus.dll; 
+lib/linux/liblametritonus.so)
+
+LAME: tritonus uses LAME for mp3 encoding (http://www.mp3dev.org). LAME is
+distributed under the GNU Lesser General Public License, see 
+http://www.gnu.org or doc/licenses/LGPL.txt.
+(files concerned: lib/windows/lame_enc.dll; lib/linux/libmp3lame.so.0)
+
+JavaLayer: tritonus uses JLayer for mp3 decoding 
+(http://www.javazoom.net/javalayer/javalayer.html). JLayer is distributed
+under the GNU Lesser General Public License, see http://www.gnu.org or
+doc/licenses/LGPL.txt.
+(files concerned: java/jl1.0.jar)
+
+log4j: MARY uses log4j (http://logging.apache.org/log4j) as a logging
+mechanism. log4j is distributed under the Apache Software License, see
+http://www.apache.org or doc/licenses/apache-software-license.txt
+(files concerned: java/log4j*.jar)
+
+Xalan and Xerces: For backwards compatibility with Java 1.4, MARY ships with
+XML libraries from the Apache projects Xalan and Xerces
+(http://xml.apache.org). These XML libraries are distributed under the Apache
+Software License, see http://www.apache.org or doc/licenses/apache-software-license.txt
+(files concerned: lib/endorsed/*.jar)
+
+JUnit: For unit testing of the java source, mary uses JUnit
+(http://junit.org). JUnit is licensed under the Common Public License, see
+http://junit.org or doc/licenses/CPL.txt.
+(files concerned: java/junit.jar)
+
+java-diff: A java diff implementation from http://www.incava.org/projects/java-diff for input-output-comparisons in the
+Mary Expert Interface. java-diff is licensed under the GNU Lesser General
+Public License, see http://www.gnu.org or doc/licenses/LGPL.txt.
+(files concerned: java/java-diff.jar)
+
+fast-md5: A fast md5 checksum implementation from http://www.twmacinta.com/myjava/fast_md5.php
+used for computing checksums after downloading voices. fast-md5 is licensed under
+the GNU Lerrer General Public License, see http://www.gnu.org or doc/licenses/LGPL.txt.
+(files concerned: java/fast-md5.jar)
+
+JavaOpenAIR: MARY can optionally be used as an OpenAIR component,
+building on the JavaOpenAIR reference implementation from 
+http://www.mindmakers.org, which is licensed under the 
+(BSD-style) JavaOpenAIR license, see doc/licenses/JavaOpenAIR-license.txt
+(files concerned: java/JavaOpenAIR.jar)
+
+mwdumper: A tool for extracting sets of pages from a MediaWiki dump file.
+mwdumper is MIT-style like licensed, see http://www.mediawiki.org/wiki/Mwdumper
+and for the license http://en.wikipedia.org/wiki/MIT_License.
+(files concerned: java/mwdumper-2008-04-13.jar)
+ 
+IT IS YOUR OBLIGATION TO READ AND ACCEPT ALL SUCH TERMS
+AND CONDITIONS PRIOR TO USE OF THIS CONTENT.

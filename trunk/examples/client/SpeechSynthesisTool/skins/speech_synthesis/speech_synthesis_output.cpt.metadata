@@ -1,0 +1,6 @@
+[default]
+title=Speech Synthesis Output
+
+
+[actions]
+action.success=traverse_to:string:speech_synthesis

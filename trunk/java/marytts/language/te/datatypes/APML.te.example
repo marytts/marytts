@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<!DOCTYPE apml SYSTEM "http://mary.dfki.de/lib/apml.dtd" []>
+<apml xml:lang="te">
+<performative  type="announce">
+<theme affect="joy">
+స్పీచ్ సిన్తసిస్ ప్రపంచానికి స్వాగతము!
+<boundary type="LL"/>!
+</theme>
+</performative>
+</apml>

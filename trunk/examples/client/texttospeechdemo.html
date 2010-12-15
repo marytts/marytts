@@ -1,0 +1,81 @@
+<html>
+<!--
+Copyright 2000-2006 DFKI GmbH.
+All Rights Reserved.  Use is subject to license terms.
+
+Permission is hereby granted, free of charge, to use and distribute
+this software and its documentation without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of this work, and to
+permit persons to whom this work is furnished to do so, subject to
+the following conditions:
+
+1. The code must retain the above copyright notice, this list of
+   conditions and the following disclaimer.
+2. Any modifications must be clearly marked as such.
+3. Original authors' names are not deleted.
+4. The authors' names are not used to endorse or promote products
+   derived from this software without specific prior written
+   permission.
+
+DFKI GMBH AND THE CONTRIBUTORS TO THIS WORK DISCLAIM ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL DFKI GMBH NOR THE
+CONTRIBUTORS BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL
+DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
+ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
+THIS SOFTWARE.
+-->
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel=stylesheet type="text/css" href="mary.css">
+<script type="text/javascript">
+</head>
+<body>
+<h1 align="center">The MARY Text-to-Speech System: Online Demo</h1>
+<div align="center">
+<p>Synthesise any text online (max. 5000 characters):
+</p>
+<form name="InputForm" method="get" action="maryclient.cgi">
+  <!-- Set the language of your input here: TEXT_DE=German, TEXT_EN=English... -->
+  <input type="hidden" name="in" value="TEXT"/>
+  <input type="hidden" name="out" value="AUDIO"/>
+  <p>Input text:</p>
+  <textarea name="inputtext" rows=8 cols=50 wrap=virtual>
+Welcome to the world of speech synthesis!
+  </textarea><br>
+  <table align="center">
+  <tr>
+  <td>
+    Voice:
+    <select name="voice">
+      <option value="us1">us1 (American English, female)</option>
+      <option value="us2">us2 (American English, male)</option>
+    </select>
+  </td><td>
+    Audio format:
+    <select name="audiotype">
+      <option value="AU">Sun Audio, 16 bit</option>
+      <option value="AIFF">AIFF, 16 bit</option>
+      <option value="WAVE" selected>WAV, 16 bit</option>
+      <option value="MP3">mp3</option>
+    </select>
+  </td>
+  </tr>
+  <tr>
+  <td align="right">
+    <input type=submit value="Speak">
+  </td><td align="left">
+    <input type=reset value="Reset">
+  </td>
+  </tr>
+  </table>
+  <p>
+  <input type=radio name="save_to_disk" value="0" checked>Hear directly
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <input type=radio name="save_to_disk" value="1">Save to disk
+</form>
+</div>
+</body>
+</html>

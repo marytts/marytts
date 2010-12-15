@@ -1,0 +1,114 @@
+##########################################################################
+# Copyright 2000-2009 DFKI GmbH.
+# All Rights Reserved.  Use is subject to license terms.
+#
+# This file is part of MARY TTS.
+#
+# MARY TTS is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Lesser General Public License as published by
+# the Free Software Foundation, version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+##########################################################################
+# This is multiword.dat, the multiword expansion data file of
+# the Mary TtS synthesis system.
+##########################################################################
+#
+# Author: Marc Schroeder
+# Date: 15.04.2004
+# Last changed:
+# 21.12.2007, adding entries for recordings from PAVOQUE project
+#
+# Format
+# ------
+#
+# Every line is one entry and consists of two fields separated by / (slash):
+# 1. The multiword to be matched in Input. It may contain spaces.
+#
+# 2. The expanded form replacing the multiword. It may contain spaces.
+#    Spaces are interpreted as token boundaries. Expansions into
+#    several tokens are marked as a multi-token unit and will (should) be
+#    realised as one prosodic word.
+#    If it is necessary to provide a pronounciation for certain
+#    expanded forms, it is optionally added after the graphemic form,
+#    enclosed in square brackets and WITHOUT whitespace in between:
+#    circa['tsIr-ka].
+#
+# Please note: In order to increase readibility, each of these fields may
+# contain leading and/or trailing whitespace, which will be removed by the
+# program.
+
+George W. Bush / George W.['da-b@l-ju:] Bush
+Michael Jackson / Michael['maI-k@l] Jackson['dZEk-s@n]
+Jean-Claude / Jean-Claude[Zo~-'klod]
+E-Mail / E-Mail['?i:-mEIl]
+T-Shirt / T-Shirt['ti:-S96t]
+Los Angeles / Los['lOs] Angeles['?En-Z@-l@s]
+Tina Turner / Tina Turner['t96-n6]
+McDonalds / McDonalds[mEk-'dO-n@lts]
+Saudi-Arabien / Saudi-Arabien[zaU-di:-?a-'Ra:-bi:-@n]
+Jane Fonda / Jane['dZEIn] Fonda
+Woody Allen / Woody Allen['?E-l@n]
+Ronald Reagan / Ronald['rO_nElt] Reagan
+Michael Jordan / Michael['maI-k@l] Jordan['dZO6-d@n]
+Andy Warhol / Andy['?En-di:] Warhol
+Ahmed Schah Massud / Ahmed['?a:-mEt] Schah Massud
+Alan Iljitsch Dudajew / Alan Iljitsch Dudajew[du:-'da:-jEf]
+Antoni Tajdus / Antoni Tajdus[taI-'dUS]
+Arbatskije Worota / Arbatskije['?a:6-ba:ts-kj@] Worota[vo:-'Ro:-ta:]
+At Tayyib / at['?at] Tayyib['ta:-jIb]
+Audrey Richards / Audrey Richards['rI-tS@ds]
+Charlie Kaufman / Charlie Kaufman['kaUf-mEn]
+Chinese Language /  Chinese['tSaI-ni:s] Language
+Chris Cooper / Chris['krIs] Cooper
+Conservative Party / Conservative[k@n-'s96-v@-tIf] Party['pa:-ti:]
+De Neve / De Neve['ne:-v@]
+Eric Judy / Eric['?E-rIk] Judy['dZu:-di:]
+Fabien Barthez / Fabien[fa:-bi:-'jEn] Barthez[ba:6-'tEs]
+Faye Dunaway / Faye Dunaway['da-n@-wEI]
+George Michael / George Michael['maI-k@l]
+Georges Bidault / Georges['ZORZ] Bidault[bi:-'do:]
+Grand Chef / Grand['gRa~] Chef
+Grand Palais / Grand['gRa~] Palais
+Guus Hiddink / Guus['gu:s] Hiddink['hI-dINk]
+Hommage à Chagall / Hommage[?o:-'ma:S] à Chagall
+Jacques Clement / Jacques Clement[kle-'ma~]
+Jay Roach / Jay['dZEI] Roach
+Jean Paul / Jean Paul['pOl]
+Jean de Berry / Jean de Berry[be:-'Ri:]
+Jean-Claude van Damme / Jean-Claude van Damme['dam]
+Jeffrey Wright / Jeffrey['dZEf-rEI] Wright['raIt]
+John Wickart / John  Wickart['wI-kE6t] 
+Keanu Reeves / Keanu[ki:-'E-nu:] Reeves
+San Juan / San['san] Juan
+Liberal Party / Liberal['lI-b@-r@l] Party['pa:-ti:]
+Major Label / Major['mEI-dZ6] Label
+Mao Zedongs / Mao Zedongs[tse:-'dONs]
+Maung Aye / Maung Aye['?a:-j@]
+Meryl Streep / Meryl['mE-rIl] Streep['stri:p]
+Nicolas Cage / Nicolas['nI-k@-l@s] Cage
+Paul Rutherford / Paul['pOl] Rutherford['ra-D@-fO6d]
+Peter Heyworth / Peter['pi:-t@] Heyworth
+Raymond Loewy / Raymond['rEI-m@nt] Loewy['l2:-vi:]
+Reverend Gary Davis / Reverend['rE-v6-r@nd] Gary['gE-ri:] Davis
+Ring of fire / Ring['rIN] of['Of] Fire
+Royal Flush / Royal['rOY-@l] Flush
+Ruth Elizabeth Davis / Ruth['ruT] Elizabeth Davis
+Saddam Hussein / Saddam['sa-dam] Hussein
+Samuel Humphreys / Samuel['sEm-ju-@l] Humphreys
+San Cetteo / San['san] Cetteo[tSe-'te:-o]
+Sean Connery / Sean Connery['kO-n@-ri:]
+Sergei Rublewski / Sergei[sEr-'gEI] Rublewski[rU-'blEf-skI]
+Shirley Temple / Shirley Temple['tEm-p@l]
+Steve Redgrave / Steve Redgrave['rEt-grEIf]
+Theodore Roosevelt / Theodore['Ti:-o:-dO6] Roosevelt 
+Train Europe / Train Europe['?2:-ROp]
+are not / are['a:] not['nOt]
+are you / are['a:] you

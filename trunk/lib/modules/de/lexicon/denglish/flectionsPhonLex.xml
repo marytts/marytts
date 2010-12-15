@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- transcription of flection endings for language: german -->
+<!-- xml File for MorphologyReader.java -->
+<!-- key/value pairs as data for Hashtable -->
+
+<entries>
+<entry>
+ <key>
+n
+ </key>
+ <value>
+n
+ </value>
+</entry>
+
+<entry>
+ <key>
+en
+ </key>
+ <value>
+@n
+ </value>
+</entry>
+
+<entry>
+ <key>
+e
+ </key>
+ <value>
+@
+ </value>
+</entry>
+
+<entry>
+ <key>
+st
+ </key>
+ <value>
+st
+ </value>
+</entry>
+
+<entry>
+ <key>
+est
+ </key>
+ <value>
+@st
+ </value>
+</entry>
+
+<entry>
+ <key>
+t
+ </key>
+ <value>
+t
+ </value>
+</entry>
+
+<entry>
+ <key>
+et
+ </key>
+ <value>
+@t
+ </value>
+</entry>
+
+<entry>
+ <key>
+ed
+ </key>
+ <value>
+@t
+ </value>
+</entry>
+
+
+
+<entry>
+ <key>
+te
+ </key>
+ <value>
+t@
+ </value>
+</entry>
+
+<entry>
+ <key>
+test
+ </key>
+ <value>
+t@st
+ </value>
+</entry>
+
+<entry>
+ <key>
+ten
+ </key>
+ <value>
+t@n
+ </value>
+</entry>
+
+<entry>
+ <key>
+tet
+ </key>
+ <value>
+t@t
+ </value>
+</entry>
+
+<entry>
+ <key>
+end
+ </key>
+ <value>
+@nt
+ </value>
+</entry>
+
+<entry>
+<key>
+s
+</key>
+<value>
+s
+</value>
+</entry>
+
+<entry>
+<key>
+er
+</key>
+<value>
+6
+</value>
+</entry>
+
+<entry>
+<key>
+em
+</key>
+<value>
+@m
+</value>
+</entry>
+
+<entry>
+<key>
+es
+</key>
+<value>
+@s
+</value>
+</entry>
+
+<entry>
+<key>
+endem
+</key>
+<value>
+@n-d@m
+</value>
+</entry>
+
+<entry>
+<key>
+enden
+</key>
+<value>
+@n-d@n
+</value>
+</entry>
+
+<entry>
+<key>
+ender
+</key>
+<value>
+@n-d6
+</value>
+</entry>
+
+<entry>
+<key>
+endes
+</key>
+<value>
+@n-d@s
+</value>
+</entry>
+
+<entry>
+<key>
+ende
+</key>
+<value>
+@n-d@
+</value>
+</entry>
+
+<entry>
+<key>
+ere
+</key>
+<value>
+6-R@
+</value>
+</entry>
+
+<entry>
+<key>
+erem
+</key>
+<value>
+6-R@m
+</value>
+</entry>
+
+<entry>
+<key>
+eren
+</key>
+<value>
+6-r@n
+</value>
+</entry>
+
+<entry>
+<key>
+erer
+</key>
+<value>
+6-R6
+</value>
+</entry>
+
+<entry>
+<key>
+eres
+</key>
+<value>
+6-R@s
+</value>
+</entry>
+
+<entry>
+<key>
+ste
+</key>
+<value>
+-st@
+</value>
+</entry>
+
+<entry>
+<key>
+stem
+</key>
+<value>
+-st@m
+</value>
+</entry>
+
+<entry>
+<key>
+sten
+</key>
+<value>
+-st@n
+</value>
+</entry>
+
+<entry>
+<key>
+ster
+</key>
+<value>
+-st6
+</value>
+</entry>
+
+<entry>
+<key>
+stes
+</key>
+<value>
+-st@s
+</value>
+</entry>
+
+<entry>
+<key>
+ete
+</key>
+<value>
+@-t@
+</value>
+</entry>
+
+<entry>
+<key>
+eten
+</key>
+<value>
+@-t@n
+</value>
+</entry>
+
+<entry>
+<key>
+etet
+</key>
+<value>
+@-t@t
+</value>
+</entry>
+
+<entry>
+<key>
+este
+</key>
+<value>
+@s-t@
+</value>
+</entry>
+
+<entry>
+<key>
+estem
+</key>
+<value>
+@s-t@m
+</value>
+</entry>
+
+<entry>
+<key>
+esten
+</key>
+<value>
+@s-t@n
+</value>
+</entry>
+
+<entry>
+<key>
+ester
+</key>
+<value>
+@s-t6
+</value>
+</entry>
+
+<entry>
+<key>
+estes
+</key>
+<value>
+@s-t@s
+</value>
+</entry>
+
+<entry>
+<key>
+etest
+</key>
+<value>
+@-t@st
+</value>
+</entry>
+</entries>

@@ -1,0 +1,61 @@
+<html xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      i18n:domain="plone"
+      metal:use-macro="here/main_template/macros/master">
+
+<body>
+
+<metal:block fill-slot="top_slot"
+             tal:define="dummy python:request.set('enable_border',1)" />
+
+  <div metal:fill-slot="main"
+       tal:define="input python:request.get('input', '');
+                   selectedLanguage python:request.get('lang', '');
+                   selectedVoice python:request.get('voice', '');
+                   inputType python:request.get('inputType', '');
+                   outputType python:request.get('outputType', '');
+                   audioType python:request.get('audioType', '');
+                   output python:context.speech_synthesis_tool.process(input, inputType, outputType);
+                   errors options/state/getErrors;">
+
+  <form method="post"
+        tal:attributes="action template/id;">
+
+    <h1>
+      Speech Synthesis Output: <span tal:replace="outputType">outputtype</span>
+    </h1>
+
+    <fieldset>
+
+      <input type="hidden" name="insideTTS" value="True"/>
+      <input type="hidden" name="lang" value="" tal:attributes="value selectedLanguage;"/>
+      <!-- Output type for this request is the input type for the new request if user clicks "edit" button -->
+      <input type="hidden" name="inputType" value="" tal:attributes="value outputType;"/>
+      <input type="hidden" name="input" value="" tal:attributes="value output;"/>
+      <input type="hidden" name="outputType" value="AUDIO"/>
+      <input type="hidden" name="voice" value="" tal:attributes="value selectedVoice;"/>
+      <input type="hidden" name="audioType" value="" tal:attributes="value audioType;"/>
+
+	<pre tal:content="output">Output
+	</pre>
+
+    <div class="formControls">
+      <input class="context" type="submit" name="form.button.Submit" value="Edit"
+             tal:attributes="tabindex tabindex/next;" />
+    </div>
+
+    </fieldset>
+
+
+    <input type="hidden" name="form.submitted" value="1" />
+
+  </form>
+  <div style="font-size:x-small; text-align:right;">Powered by 
+    <a href="http://mary.dfki.de" tal:content="context/speech_synthesis_tool/getServerVersionInfo">MARY TTS</a>
+  </div>
+
+  </div>
+
+</body>
+
+</html>

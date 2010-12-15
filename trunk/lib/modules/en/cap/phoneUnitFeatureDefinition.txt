@@ -1,0 +1,131 @@
+# This file lists the features and their weights to be used for
+# creating the MARY features file.
+# The same file can also be used to override weights in a run-time system.
+# Three sections are distinguished: Byte-valued, Short-valued, and
+# Continuous features.
+#
+# Lines starting with '#' are ignored; they can be used for comments
+# anywhere in the file. Empty lines are also ignored.
+# Entries must have the following form:
+# 
+# <weight definition> | <feature definition>
+# 
+# For byte and short features, <weight definition> is simply the 
+# (float) number representing the weight.
+# For continuous features, <weight definition> is the
+# (float) number representing the weight, followed by an optional
+# weighting function including arguments.
+#
+# The <feature definition> is the feature name, which in the case of
+# byte and short features is followed by the full list of feature values.
+#
+# Note that the feature definitions must be identical between this file
+# and all unit feature files for individual database utterances.
+# THIS FILE WAS GENERATED AUTOMATICALLY
+
+ByteValuedFeatureProcessors
+10 | phoneme 0 V i I U { @ r= A O u E EI AI OI aU @U j h N S T Z D tS dZ _ p t k b d g f s v z m n l r w
+0 | edge 0 start end
+10 | ph_vc 0 + -
+5 | ph_cplace 0 l a p b d v g
+5 | ph_ctype 0 s f a n l r
+5 | ph_cvox 0 + -
+5 | ph_vfront 0 1 2 3
+5 | ph_vheight 0 1 2 3
+5 | ph_vlng 0 s l d a
+5 | ph_vrnd 0 + -
+10 | prev_phoneme 0 V i I U { @ r= A O u E EI AI OI aU @U j h N S T Z D tS dZ _ p t k b d g f s v z m n l r w
+5 | prev_vc 0 + -
+5 | prev_cplace 0 l a p b d v g
+5 | prev_ctype 0 s f a n l r
+5 | prev_cvox 0 + -
+5 | prev_vfront 0 1 2 3
+5 | prev_vheight 0 1 2 3
+5 | prev_vlng 0 s l d a
+5 | prev_vrnd 0 + -
+0 | prev_prev_phoneme 0 V i I U { @ r= A O u E EI AI OI aU @U j h N S T Z D tS dZ _ p t k b d g f s v z m n l r w
+5 | prev_prev_vc 0 + -
+5 | prev_prev_cplace 0 l a p b d v g
+5 | prev_prev_ctype 0 s f a n l r
+5 | prev_prev_cvox 0 + -
+5 | prev_prev_vfront 0 1 2 3
+5 | prev_prev_vheight 0 1 2 3
+5 | prev_prev_vlng 0 s l d a
+5 | prev_prev_vrnd 0 + -
+10 | next_phoneme 0 V i I U { @ r= A O u E EI AI OI aU @U j h N S T Z D tS dZ _ p t k b d g f s v z m n l r w
+5 | next_vc 0 + -
+5 | next_cplace 0 l a p b d v g
+5 | next_ctype 0 s f a n l r
+5 | next_cvox 0 + -
+5 | next_vfront 0 1 2 3
+5 | next_vheight 0 1 2 3
+5 | next_vlng 0 s l d a
+5 | next_vrnd 0 + -
+0 | next_next_phoneme 0 V i I U { @ r= A O u E EI AI OI aU @U j h N S T Z D tS dZ _ p t k b d g f s v z m n l r w
+5 | next_next_vc 0 + -
+5 | next_next_cplace 0 l a p b d v g
+5 | next_next_ctype 0 s f a n l r
+5 | next_next_cvox 0 + -
+5 | next_next_vfront 0 1 2 3
+5 | next_next_vheight 0 1 2 3
+5 | next_next_vlng 0 s l d a
+5 | next_next_vrnd 0 + -
+10 | stressed 0 1
+0 | pos_in_syl 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+10 | syl_break 0 1 unused 3 4
+10 | prev_syl_break 0 1 unused 3 4
+0 | position_type 0 single final initial mid
+10 | next_is_pause 0 1
+10 | prev_is_pause 0 1
+0 | gpos 0 in to det md cc wp pps aux punc content
+0 | tobi_accent 0 * H* !H* ^H* L* L+H* L*+H L+!H* L*+!H L+^H* L*+^H H+L* H+!H* H+^H* !H+!H* ^H+!H* ^H+^H* H*+L !H*+L
+0 | tobi_endtone 0 H- !H- L- H-% !H-% H-^H% !H-^H% L-H% L-% L-L% H-H% H-L%
+0 | next_tobi_accent 0 * H* !H* ^H* L* L+H* L*+H L+!H* L*+!H L+^H* L*+^H H+L* H+!H* H+^H* !H+!H* ^H+!H* ^H+^H* H*+L !H*+L
+0 | next_tobi_endtone 0 H- !H- L- H-% !H-% H-^H% !H-^H% L-H% L-% L-L% H-H% H-L%
+0 | nextnext_tobi_accent 0 * H* !H* ^H* L* L+H* L*+H L+!H* L*+!H L+^H* L*+^H H+L* H+!H* H+^H* !H+!H* ^H+!H* ^H+^H* H*+L !H*+L
+0 | nextnext_tobi_endtone 0 H- !H- L- H-% !H-% H-^H% !H-^H% L-H% L-% L-L% H-H% H-L%
+0 | sentence_punc 0 . , ; : ( ) ? ! "
+0 | accented 0 1
+0 | sentence_numphrases 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | phrases_from_sentence_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | phrases_from_sentence_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | sentence_numwords 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | words_from_sentence_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | words_from_sentence_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | phrase_numwords 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | words_from_phrase_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | words_from_phrase_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | phrase_numsyls 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | syls_from_phrase_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | syls_from_phrase_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | stressed_syls_from_phrase_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | stressed_syls_from_phrase_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | accented_syls_from_phrase_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | accented_syls_from_phrase_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | word_numsyls 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | syls_from_word_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | syls_from_word_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | word_numsegs 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | segs_from_word_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | segs_from_word_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | syl_numsegs 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | segs_from_syl_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | segs_from_syl_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | syls_from_prev_stressed 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | syls_to_next_stressed 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | syls_from_prev_accent 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | syls_to_next_accent 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | phrase_endtone 0 H- !H- L- H-% !H-% H-^H% !H-^H% L-H% L-% L-L% H-H% H-L%
+0 | prev_phrase_endtone 0 H- !H- L- H-% !H-% H-^H% !H-^H% L-H% L-% L-L% H-H% H-L%
+0 | next_accent 0 * H* !H* ^H* L* L+H* L*+H L+!H* L*+!H L+^H* L*+^H H+L* H+!H* H+^H* !H+!H* ^H+!H* ^H+^H* H*+L !H*+L
+0 | prev_accent 0 * H* !H* ^H* L* L+H* L*+H L+!H* L*+!H L+^H* L*+^H H+L* H+!H* H+^H* !H+!H* ^H+!H* ^H+^H* H*+L !H*+L
+0 | prev_punctuation 0 . , ; : ( ) ? ! "
+0 | next_punctuation 0 . , ; : ( ) ? ! "
+0 | words_from_prev_punctuation 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | words_to_next_punctuation 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | word_frequency 0 1 2 3 4 5 6 7 8 9
+0 | selection_prosody 0 stressed pre-nuclear nuclear finalHigh finalLow final
+ShortValuedFeatureProcessors
+ContinuousFeatureProcessors
+0 linear | unit_duration
+0 linear | unit_logf0

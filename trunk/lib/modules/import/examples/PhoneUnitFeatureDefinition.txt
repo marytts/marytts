@@ -1,0 +1,111 @@
+# This file lists the features and their weights to be used for
+# creating the MARY features file.
+# The same file can also be used to override weights in a run-time system.
+# Three sections are distinguished: Byte-valued, Short-valued, and
+# Continuous features.
+#
+# Lines starting with '#' are ignored; they can be used for comments
+# anywhere in the file. Empty lines are also ignored.
+# Entries must have the following form:
+# 
+# <weight definition> | <feature definition>
+# 
+# For byte and short features, <weight definition> is simply the 
+# (float) number representing the weight.
+# For continuous features, <weight definition> is the
+# (float) number representing the weight, followed by an optional
+# weighting function including arguments.
+#
+# The <feature definition> is the feature name, which in the case of
+# byte and short features is followed by the full list of feature values.
+#
+# Note that the feature definitions must be identical between this file
+# and all unit feature files for individual database utterances.
+#
+# Author: Marc Schroeder, September 2006, March 2007
+
+ByteValuedFeatureProcessors
+10 | mary_phoneme 0 V i I U { @ r= A O u E EI AI OI aU @U j h N S T Z D tS dZ _ p t k b d g f s v z m n l r w
+0 | mary_edge 0 start end
+0 | mary_ph_vc 0 + -
+0 | mary_ph_cplace 0 l a p b d v g
+0 | mary_ph_ctype 0 s f a n l r
+0 | mary_ph_cvox 0 + -
+0 | mary_ph_vfront 0 1 2 3
+0 | mary_ph_vheight 0 1 2 3
+0 | mary_ph_vlng 0 s l d a
+0 | mary_ph_vrnd 0 + -
+0 | mary_prev_phoneme 0 V i I U { @ r= A O u E EI AI OI aU @U j h N S T Z D tS dZ _ p t k b d g f s v z m n l r w
+0 | mary_prev_vc 0 + -
+0 | mary_prev_cplace 0 l a p b d v g
+0 | mary_prev_ctype 0 s f a n l r
+0 | mary_prev_cvox 0 + -
+0 | mary_prev_vfront 0 1 2 3
+0 | mary_prev_vheight 0 1 2 3
+0 | mary_prev_vlng 0 s l d a
+0 | mary_prev_vrnd 0 + -
+0 | mary_next_phoneme 0 V i I U { @ r= A O u E EI AI OI aU @U j h N S T Z D tS dZ _ p t k b d g f s v z m n l r w
+0 | mary_next_vc 0 + -
+0 | mary_next_cplace 0 l a p b d v g
+0 | mary_next_ctype 0 s f a n l r
+0 | mary_next_cvox 0 + -
+0 | mary_next_vfront 0 1 2 3
+0 | mary_next_vheight 0 1 2 3
+0 | mary_next_vlng 0 s l d a
+0 | mary_next_vrnd 0 + -
+1 | mary_stressed 0 1
+0 | mary_pos_in_syl 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+1 | mary_syl_break 0 1 unused 3 4
+1 | mary_prev_syl_break 0 1 unused 3 4
+0 | mary_position_type 0 single final initial mid
+1 | mary_next_is_pause 0 1
+1 | mary_prev_is_pause 0 1
+1 | mary_gpos 0 in to det md cc wp pps aux punc content
+1 | mary_tobi_accent 0 * H* !H* ^H* L* L+H* L*+H L+!H* L*+!H L+^H* L*+^H H+L* H+!H* H+^H* !H+!H* ^H+!H* ^H+^H* H*+L !H*+L
+1 | mary_tobi_endtone 0 H- !H- L- H-% !H-% H-^H% !H-^H% L-H% L-% L-L% H-H% H-L%
+1 | mary_next_tobi_accent 0 * H* !H* ^H* L* L+H* L*+H L+!H* L*+!H L+^H* L*+^H H+L* H+!H* H+^H* !H+!H* ^H+!H* ^H+^H* H*+L !H*+L
+1 | mary_next_tobi_endtone 0 H- !H- L- H-% !H-% H-^H% !H-^H% L-H% L-% L-L% H-H% H-L%
+1 | mary_nextnext_tobi_accent 0 * H* !H* ^H* L* L+H* L*+H L+!H* L*+!H L+^H* L*+^H H+L* H+!H* H+^H* !H+!H* ^H+!H* ^H+^H* H*+L !H*+L
+1 | mary_nextnext_tobi_endtone 0 H- !H- L- H-% !H-% H-^H% !H-^H% L-H% L-% L-L% H-H% H-L%
+1 | mary_sentence_punc 0 . , ; : ( ) ? ! "
+1 | mary_accented 0 1
+0 | mary_sentence_numphrases 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_phrases_from_sentence_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_phrases_from_sentence_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_sentence_numwords 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_words_from_sentence_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_words_from_sentence_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_phrase_numwords 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_words_from_phrase_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_words_from_phrase_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_phrase_numsyls 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_syls_from_phrase_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_syls_from_phrase_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_stressed_syls_from_phrase_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_stressed_syls_from_phrase_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_accented_syls_from_phrase_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_accented_syls_from_phrase_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_word_numsyls 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_syls_from_word_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_syls_from_word_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_word_numsegs 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_segs_from_word_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_segs_from_word_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_syl_numsegs 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_segs_from_syl_start 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_segs_from_syl_end 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_syls_from_prev_stressed 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_syls_to_next_stressed 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_syls_from_prev_accent 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_syls_to_next_accent 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_phrase_endtone 0 H- !H- L- H-% !H-% H-^H% !H-^H% L-H% L-% L-L% H-H% H-L%
+0 | mary_prev_phrase_endtone 0 H- !H- L- H-% !H-% H-^H% !H-^H% L-H% L-% L-L% H-H% H-L%
+0 | mary_next_accent 0 * H* !H* ^H* L* L+H* L*+H L+!H* L*+!H L+^H* L*+^H H+L* H+!H* H+^H* !H+!H* ^H+!H* ^H+^H* H*+L !H*+L
+0 | mary_prev_accent 0 * H* !H* ^H* L* L+H* L*+H L+!H* L*+!H L+^H* L*+^H H+L* H+!H* H+^H* !H+!H* ^H+!H* ^H+^H* H*+L !H*+L
+0 | mary_prev_punctuation 0 . , ; : ( ) ? ! "
+1 | mary_next_punctuation 0 . , ; : ( ) ? ! "
+0 | mary_words_from_prev_punctuation 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+0 | mary_words_to_next_punctuation 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19
+1 | mary_word_frequency 0 1 2 3 4 5 6 7 8 9
+ShortValuedFeatureProcessors
+ContinuousFeatureProcessors
