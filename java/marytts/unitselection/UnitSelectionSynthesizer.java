@@ -173,7 +173,12 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
         UnitDatabase udb = v.getDatabase();
         // Select:
         UnitSelector unitSel = v.getUnitSelector();
-        UnitConcatenator unitConcatenator = v.getConcatenator();
+        UnitConcatenator unitConcatenator;
+        if (outputParams != null && outputParams.contains("MODIFICATION")) {
+            unitConcatenator = v.getModificationConcatenator();
+        } else {
+            unitConcatenator = v.getConcatenator();
+        }
         // TODO: check if we actually need to access v.getDatabase() here
         UnitDatabase database = v.getDatabase();
         logger.debug("Selecting units with a "+unitSel.getClass().getName()+" from a "+database.getClass().getName());

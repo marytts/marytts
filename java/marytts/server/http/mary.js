@@ -412,7 +412,7 @@ function setVisibilities(outputType)
     	document.getElementById("PROCESS").style.display = 'none';
     	document.getElementById("SPEAK").style.display = 'inline';
     	document.getElementById("audioDestination").style.display = 'inline';
-    	document.getElementById("showHideParams").style.display = 'none';
+    	document.getElementById("showHideTargetFeatures").style.display = 'none';
     } else {
     	document.getElementById("outputSection").style.display = 'inline';
     	document.getElementById("audioEffectsSection").style.display = 'none';
@@ -422,21 +422,12 @@ function setVisibilities(outputType)
     	document.getElementById("SPEAK").style.display = 'none';
     	document.getElementById("audioDestination").style.display = 'none';
     	if (outputType == "TARGETFEATURES" || outputType == "HALFPHONE_TARGETFEATURES") {
-    		document.getElementById("showHideParams").style.display = 'inline';
+    		document.getElementById("showHideTargetFeatures").style.display = 'inline';
     	} else {
-    		document.getElementById("showHideParams").style.display = 'none';
+    		document.getElementById("showHideTargetFeatures").style.display = 'none';
     	}
     }
 };
-
-function toggleParams()
-{
-	if (document.getElementById("SPECIFY_OUTPUT_TYPE_PARAMS").checked) {
-		document.getElementById("OUTPUT_TYPE_PARAMS").name = "OUTPUT_TYPE_PARAMS";
-	} else {
-		document.getElementById("OUTPUT_TYPE_PARAMS").name = "OUTPUT_TYPE_PARAMS_disabled";
-	}
-}
 
 function toggleEffectsVisibility()
 {
@@ -554,10 +545,33 @@ function requestSynthesis()
 				value = "";
 			}
 		}
-		else if (element.getAttribute("type") == "checkbox")
-		    value = element.checked ? "on" : "";
-		else
+		else if (element.getAttribute("type") == "checkbox") {
+			// some special checkboxes that have nothing to do with effects:
+			if (element.id == "modification") {
+				// if modification is visible and selected, set OUTPUT_TYPE_PARAMS:
+				if (document.getElementById("showHideModification").style.display != 'none' && element.checked) {
+					key = "OUTPUT_TYPE_PARAMS";
+					value = "MODIFICATION";
+				}
+			} else if (element.id == "specifyTargetFeatures") {
+				// if target features is visible and selected and not empty, set OUTPUT_TYPE_PARAMS:
+				if (document.getElementById("showHideTargetFeatures").style.display != 'none' && element.checked) {
+					var targetFeatures = document.getElementById("targetFeatureList").value;
+					if (targetFeatures.length > 0) {
+						key = "OUTPUT_TYPE_PARAMS";
+						value = targetFeatures;
+					}
+				}
+			} else {
+		    	value = element.checked ? "on" : "";
+		    }
+		} else {
 		    value = element.value;
+		}
+		
+		if (key.length == 0) {
+			continue; // don't add keyless params!
+		}
 		
     	if (param.length > 0) param = param + "&";
         param = param + key + "=" + encodeURIComponent(value);
