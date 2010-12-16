@@ -78,6 +78,7 @@ function fillVoices()
 							voiceElt.value = items[0];
 							localeElt.value = items[1];
 							updateInputText(true);
+							setModificationVisibility(null, "AUDIO"); // AUDIO is default on load
 		            	}
 	            	}
 	            }
@@ -388,14 +389,17 @@ function updateInputText(replaceInput)
     }
 }
 
-
-
+function getOutputType() {
+	var select = document.getElementById("OUTPUT_TYPE");
+    var outputType = select.options[select.selectedIndex].text;
+	return outputType;
+}
 
 function outputTypeChanged()
 {
-	var select = document.getElementById("OUTPUT_TYPE");
-    var outputType = select.options[select.selectedIndex].text;
+	var outputType = getOutputType();
 	setVisibilities(outputType);
+    setModificationVisibility(null, outputType);
 }
 
 function setVisibilities(outputType)
@@ -446,12 +450,55 @@ function toggleEffectsVisibility()
 	}
 }
 
+/**
+ * Set visibility of the modification checkbox so that it is shown if the selected voice is of type 
+ * "unitselection" and the selected output type is one that requires AUDIO, and hidden otherwise.
+ * 
+ * @param {} voiceType "unitselection", "hmm", etc. will be filled if null
+ * @param {} outputType "AUDIO", etc. will be filled if null
+ * @return 
+ * @type 
+ */
+function setModificationVisibility(voiceType, outputType) {
+	// check for unitselection voice:
+	if (voiceType == null) {
+		voiceType = getVoiceItems()[3];
+	}
+	if (voiceType != "unitselection") {
+		document.getElementById("showHideModification").style.display = 'none';
+		return;
+	}
+	
+	// otherwise check for output type requiring AUDIO:
+	if (outputType == null) {
+		outputType = getOutputType();
+	}
+	// TODO: as long as there is no InfoRequestHandler that returns the output types which require AUDIO, just do:
+	var outputTypesWithAudio = new Array("AUDIO", "REALISED_ACOUSTPARAMS", "REALISED_DURATIONS", "PRAAT_TEXTGRID");
+	var isOutputTypeWithAudio = false;
+	for (var i = 0; i < outputTypesWithAudio.length; i++) {
+		if (outputTypesWithAudio[i] == outputType) {
+			isOutputTypeWithAudio = true;
+			break;
+		}
+	}
+	if (isOutputTypeWithAudio) {
+		document.getElementById("showHideModification").style.display = 'inline';
+	} else {
+		document.getElementById("showHideModification").style.display = 'none';
+	}
+}
+
+function getVoiceItems() {
+	var select = document.getElementById('VOICE_SELECTIONS');
+	var voice = select.options[select.selectedIndex].text;
+	var items = voice.split(' ');
+	return items;
+}
 
 function voiceChanged()
 {
-	var select = document.getElementById('VOICE_SELECTIONS');
-	var voice = select.options[select.selectedIndex].text;
-	var items = voice.split(' ', 2);
+	var items = getVoiceItems();
 	document.getElementById('VOICE').value = items[0];
 	var newLocale = items[1];
 	var prevLocale = document.getElementById('LOCALE').value;
@@ -461,6 +508,8 @@ function voiceChanged()
 	} else {
 		updateInputText(false); // do not replace input
 	}
+	var voiceType = items[3];
+	setModificationVisibility(voiceType, null);
 };
 
 function exampleChanged()
@@ -514,8 +563,7 @@ function requestSynthesis()
         param = param + key + "=" + encodeURIComponent(value);
     }
 	
-	var select = document.getElementById("OUTPUT_TYPE");
-	var outputType = select.options[select.selectedIndex].text;
+	var outputType = getOutputType();
 	if (outputType == "AUDIO") {
         //doSubmit();
         url = url + "?" + param;

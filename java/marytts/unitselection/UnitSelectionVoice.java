@@ -51,6 +51,7 @@ import marytts.features.FeatureRegistry;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
 import marytts.server.MaryProperties;
+import marytts.unitselection.concat.FdpsolaUnitConcatenator;
 import marytts.unitselection.concat.UnitConcatenator;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.UnitDatabase;
@@ -70,6 +71,8 @@ public class UnitSelectionVoice extends Voice {
     protected UnitDatabase database;
     protected UnitSelector unitSelector;
     protected UnitConcatenator concatenator;
+    protected UnitConcatenator concatenator1;
+    protected UnitConcatenator concatenator2;
     protected String domain;
     protected String name;
     protected CART[] f0Carts;
@@ -189,6 +192,9 @@ public class UnitSelectionVoice extends Voice {
             String concatenatorClass = MaryProperties.needProperty(header+".concatenatorClass");
             concatenator = (UnitConcatenator) Class.forName(concatenatorClass).newInstance();
             concatenator.load(database);
+            concatenator1 = concatenator;
+            concatenator2 = new FdpsolaUnitConcatenator();
+            concatenator2.load(database);
             
             
             // see if there are any voice-specific duration and f0 models to load
@@ -240,6 +246,14 @@ public class UnitSelectionVoice extends Voice {
     public UnitConcatenator getConcatenator()
     {
         return concatenator;
+    }
+    
+    public void switchConcatenator(boolean primary) {
+        if (primary) {
+            concatenator = concatenator1;
+        } else {
+            concatenator = concatenator2;
+        }
     }
     
     /**

@@ -37,10 +37,14 @@ import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
 import marytts.server.MaryProperties;
 import marytts.signalproc.effects.EffectsApplier;
+import marytts.unitselection.UnitSelectionVoice;
+import marytts.unitselection.concat.FdpsolaUnitConcatenator;
+import marytts.unitselection.concat.UnitConcatenator;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
+import org.hamcrest.core.IsInstanceOf;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.DocumentTraversal;
@@ -254,6 +258,18 @@ public class Synthesis extends InternalModule
         //HMM-only effects need to get their parameters prior to synthesis
         ef.setHMMEffectParameters(voice, currentEffect);
         //
+        
+        // if Modification is selected, switch the Voice's Synthesizer's UnitConcatenator to use FD-PSOLA:
+        if (voice instanceof marytts.unitselection.UnitSelectionVoice) {
+            UnitConcatenator concatenator = ((UnitSelectionVoice) voice).getConcatenator();
+            if (concatenator instanceof marytts.unitselection.concat.OverlapUnitConcatenator) {
+                if (currentEffect.equals("Modification")) {
+                    ((UnitSelectionVoice) voice).switchConcatenator(false);
+                } else {
+                    ((UnitSelectionVoice) voice).switchConcatenator(true);
+                }
+            }
+        }
         
         AudioInputStream ais = null;
         ais = voice.synthesize(tokensAndBoundaries);
