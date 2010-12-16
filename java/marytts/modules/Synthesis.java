@@ -44,7 +44,6 @@ import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
-import org.hamcrest.core.IsInstanceOf;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.DocumentTraversal;
@@ -127,6 +126,7 @@ public class Synthesis extends InternalModule
         String defaultStyle = d.getDefaultStyle();
         String defaultEffects = d.getDefaultEffects();
         Locale locale = d.getLocale();
+        String outputParams = d.getOutputParams();
         
         if (defaultVoice == null) {
             defaultVoice = Voice.getDefaultVoice(locale);
@@ -181,7 +181,7 @@ public class Synthesis extends InternalModule
                     // We have just left a voice section
                     if (!elements.isEmpty()) {
                         AudioInputStream ais = synthesizeOneSection
-                            (elements, currentVoice, currentStyle, currentEffect, targetFormat);
+                            (elements, currentVoice, currentStyle, currentEffect, targetFormat, outputParams);
                         if (ais != null) {
                             result.appendAudio(ais);
                         }
@@ -198,7 +198,7 @@ public class Synthesis extends InternalModule
                 // We have just entered a new voice section
                 if (!elements.isEmpty()) {
                     AudioInputStream ais = synthesizeOneSection
-                        (elements, currentVoice, currentStyle, currentEffect, targetFormat);
+                        (elements, currentVoice, currentStyle, currentEffect, targetFormat, outputParams);
                     if (ais != null) {
                         result.appendAudio(ais);
                     }
@@ -223,7 +223,7 @@ public class Synthesis extends InternalModule
             if (s != currentSentence) {
                 if (!elements.isEmpty()) {
                     AudioInputStream ais = synthesizeOneSection
-                        (elements, currentVoice, currentStyle, currentEffect, targetFormat);
+                        (elements, currentVoice, currentStyle, currentEffect, targetFormat, outputParams);
                     if (ais != null) {
                         result.appendAudio(ais);
                     }
@@ -235,7 +235,7 @@ public class Synthesis extends InternalModule
         }
         
         if (!elements.isEmpty()) {
-            AudioInputStream ais = synthesizeOneSection(elements, currentVoice, currentStyle, currentEffect, targetFormat);
+            AudioInputStream ais = synthesizeOneSection(elements, currentVoice, currentStyle, currentEffect, targetFormat, outputParams);
             
             if (ais != null) {
                 result.appendAudio(ais);
@@ -250,7 +250,7 @@ public class Synthesis extends InternalModule
      * given voice, to the given target audio format.
      */
     private AudioInputStream synthesizeOneSection
-        (List<Element> tokensAndBoundaries, Voice voice, String currentStyle, String currentEffect, AudioFormat targetFormat)
+        (List<Element> tokensAndBoundaries, Voice voice, String currentStyle, String currentEffect, AudioFormat targetFormat, String outputParams)
     throws SynthesisException, UnsupportedAudioFileException
     {            
         EffectsApplier ef = new EffectsApplier(MaryProperties.effectClasses(), MaryProperties.effectSampleParams());
@@ -272,7 +272,7 @@ public class Synthesis extends InternalModule
         }
         
         AudioInputStream ais = null;
-        ais = voice.synthesize(tokensAndBoundaries);
+        ais = voice.synthesize(tokensAndBoundaries, outputParams);
         if (ais == null) return null;
         // Conversion to targetFormat required?
         if (!ais.getFormat().matches(targetFormat)) {

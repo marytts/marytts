@@ -150,7 +150,7 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
                 Element el = null;
                 while ((el = (Element)tw.nextNode()) != null)
                     tokensAndBoundaries.add(el);
-                AudioInputStream ais = synthesize(tokensAndBoundaries, unitSelVoice);
+                AudioInputStream ais = synthesize(tokensAndBoundaries, unitSelVoice, null);
                 assert ais != null;
             } else {
                 logger.debug("No example text -- no power-on self test!");
@@ -162,17 +162,10 @@ public class UnitSelectionSynthesizer implements WaveformSynthesizer
         logger.info("Power-on self test complete.");
     }
 
-    /**
-     * Synthesize a given part of a MaryXML document. This method is expected
-     * to be thread-safe.
-     * @param tokensAndBoundaries the part of the MaryXML document to
-     * synthesize; a list containing a number of adjacent <t> and <boundary>
-     * elements.
-     * @return an AudioInputStream in synthesizer-native audio format.
-     * @throws IllegalArgumentException if the voice requested for this section
-     * is incompatible with this WaveformSynthesizer.
-     */
-    public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice)
+     /**
+      * {@inheritDoc}
+      */
+    public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice, String outputParams)
         throws SynthesisException
     {
         assert voice instanceof UnitSelectionVoice;
