@@ -1038,6 +1038,41 @@ public class MathUtils {
         return c;        
     }
     
+    /**
+     * Returns the multiplicative inverse (element-wise 1/x) of an array
+     * 
+     * @param a
+     *            array to invert
+     * @return a new array of the same size as <b>a</b>, in which each element is equal to the multiplicative inverse of the
+     *         corresponding element in <b>a</b>
+     * @throws IllegalArgumentException
+     *             if the array is null
+     */
+    public static double[] invert(double[] a) throws IllegalArgumentException {
+        if (a == null) {
+            throw new IllegalArgumentException("Argument cannot be null");
+        }
+        double[] c = new double[a.length];
+        for (int i = 0; i < a.length; i++) {
+            c[i] = 1.0 / a[i];
+        }
+        return c;
+    }
+
+    /**
+     * @see #invert(double[])
+     */
+    public static float[] invert(float[] a) {
+        if (a == null) {
+            throw new IllegalArgumentException("Argument cannot be null");
+        }
+        float[] c = new float[a.length];
+        for (int i = 0; i < a.length; i++) {
+            c[i] = 1.0f / a[i];
+        }
+        return c;
+    }
+    
     public static ComplexNumber[] multiplyComplex(ComplexNumber[] a, double b)
     {
         ComplexNumber[] c = new ComplexNumber[a.length];
@@ -1272,7 +1307,7 @@ public class MathUtils {
     
     public static double[] divide(double[] a, double[] b)
     {
-        if (a.length != b.length) {
+        if (a == null || b == null || a.length != b.length) {
             throw new IllegalArgumentException("Arrays must be equal length");
         }
         double[] c = new double[a.length];
@@ -4819,6 +4854,22 @@ public class MathUtils {
         return false;
     }
     
+    /**
+     * Check whether x contains Infinity
+     * 
+     * @param x
+     *            the array to check
+     * @return true if at least one value in x is Infinity, false otherwise
+     */
+    public static boolean isAnyInfinity(double[] x) {
+        for (double value : x) {
+            if (Double.isInfinite(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public static boolean allZeros(double[] x)
     {
         boolean bRet = true;
@@ -4875,6 +4926,17 @@ public class MathUtils {
         return MathUtils.multiply(x, (floatMax-floatMin)/256.0f);
     }
     
+    /**
+     * Trim the given value so that it is in the closed interval [min, max].
+     * @param untrimmedValue
+     * @param min
+     * @param max
+     * @return min if untrimmedValue is less than min; max if untrimmedValue is more than max; untrimmedValue otherwise.
+     */
+    public static double trimToRange(double untrimmedValue, double min, double max) {
+        return Math.max(min, Math.min(max, untrimmedValue));
+    }
+    
     
     
     public static void writeTextFile(ComplexNumber[][] x, String filename)
@@ -4894,6 +4956,111 @@ public class MathUtils {
     public static void writeTextFile(ComplexArray x, String filename)
     {
         FileUtils.writeTextFile(StringUtils.toStringLines(x), filename);
+    }
+    
+
+    /**
+     * To interpolate Zero values with respect to NonZero values
+     * @param contour
+     * @return
+     */
+    public static double[] interpolateNonZeroValues( double[] contour ) {
+        
+        for ( int i=0; i < contour.length ; i++ ) {
+            if ( contour[i] == 0 ) {
+                int index = findNextIndexNonZero( contour, i );
+                //System.out.println("i: "+i+"index: "+index);
+                if( index == -1 ) {
+                    for ( int j=i; j < contour.length; j++ ) {
+                        contour[j] = contour[j-1];
+                    }
+                    break;
+                }
+                else {
+                    for ( int j=i; j < index; j++ ) {
+                        //contour[j] = contour[i-1] * (index - j) + contour[index] * (j - (i-1)) / ( index - i );
+                        if ( i == 0 ) {
+                            contour[j] = contour[index];
+                        }
+                        else {
+                            contour[j] = contour[j-1] + ((contour[index] - contour[i-1]) / (index - i)) ;
+                        }
+                    }
+                    i = index-1; 
+                }
+            }
+        }
+        
+        return contour;
+    }
+    
+    /**
+     * To find next NonZero index in a given array
+     * @param contour
+     * @param current
+     * @return
+     */
+    public static int findNextIndexNonZero(double[] contour, int current) {
+        for ( int i=current+1; i < contour.length ; i++ ) {
+            if ( contour[i] != 0 ) {
+                return i;
+            }
+        }
+       return -1;
+    }
+    
+    /**
+     * array resize to target size using linear interpolation
+     * @param data
+     * @param targetSize
+     * @return
+     */
+    public static double[] arrayResize( double[] source, int targetSize ) {
+        
+        if( source.length ==  targetSize ) {
+            return source;
+        }
+        
+        int sourceSize = source.length;
+        double fraction = (double)source.length / (double)targetSize;
+        double[] newSignal = new double[targetSize];
+        
+        for(int i=0;i<targetSize;i++){
+                double posIdx =  fraction * i;
+                int nVal = (int) Math.floor(posIdx);
+                double diffVal = posIdx - nVal;
+                
+                if( nVal >= sourceSize-1 ){
+                    newSignal[i] = source[sourceSize-1];
+                    continue;
+                }
+                // Linear Interpolation 
+                //newSignal[i] = (diffVal * samples[nVal+1]) + ((1 - diffVal) * samples[nVal]);
+                //System.err.println("i "+i+" fraction "+fraction+" posIdx "+posIdx+" nVal "+nVal+" diffVal "+diffVal+" !!");
+                double fVal = (diffVal * source[nVal+1]) + ((1 - diffVal) * source[nVal]);
+                newSignal[i] = fVal;
+        }
+        return newSignal;
+    }
+    
+    /**
+     * Get first-order discrete difference along adjacent values in an array
+     * 
+     * @param a
+     * @return array of differences between adjacent values in <b>a</b>, length is <code>a.length-1</code>; otherwise return null if <b>a</b> is
+     *         null, or [] if the length of <b>a</b> is less than 2.
+     */
+    public static double[] diff(double[] a) {
+        if (a == null) {
+            return null;
+        } else if (a.length < 2) {
+            return new double[0];
+        }
+        double[] b = new double[a.length - 1];
+        for (int i = 0; i < a.length - 1; i++) {
+            b[i] = a[i + 1] - a[i];
+        }
+        return b;
     }
     
     public static void main(String[] args)

@@ -35,6 +35,7 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.tools.voiceimport.BasenameList;
 import marytts.tools.voiceimport.DatabaseLayout;
 import marytts.tools.voiceimport.ESTTrackReader;
@@ -87,12 +88,12 @@ public class VocalizationUnitfileWriter extends VoiceImportComponent
         unitFileName = getProp(UNITFILE);
         unitlabelDir = new File(getProp(LABELDIR));
         
-        String timelineDir = db.getProp(db.VOCALIZATIONSDIR) + File.separator + "timelines";
+        String timelineDir = db.getProp(db.VOCALIZATIONSDIR) + File.separator + "files";
         if (!(new File(timelineDir)).exists()) {
         
-            System.out.println("vocalisations/timelines directory does not exist; ");
-            if (!(new File(timelineDir)).mkdir()) {
-                throw new Error("Could not create vocalisations/timelines");
+            System.out.println("vocalizations/files directory does not exist; ");
+            if (!(new File(timelineDir)).mkdirs()) {
+                throw new Error("Could not create vocalizations/files");
             }
             System.out.println("Created successfully.\n");
             
@@ -101,13 +102,13 @@ public class VocalizationUnitfileWriter extends VoiceImportComponent
         try {
             String basenameFile = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"basenames.lst";
             if ( (new File(basenameFile)).exists() ) {
-                System.out.println("Loading basenames of vocalisations from '"+basenameFile+"' list...");
+                System.out.println("Loading basenames of vocalizations from '"+basenameFile+"' list...");
                 bnlVocalizations = new BasenameList(basenameFile);
                 System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in basename list");
             }
             else {
                 String vocalWavDir = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav";
-                System.out.println("Loading basenames of vocalisations from '"+vocalWavDir+"' directory...");
+                System.out.println("Loading basenames of vocalizations from '"+vocalWavDir+"' directory...");
                 bnlVocalizations = new BasenameList(vocalWavDir, ".wav");
                 System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in "+ vocalWavDir + " directory");
             }
@@ -125,8 +126,8 @@ public class VocalizationUnitfileWriter extends VoiceImportComponent
            props.put(LABELDIR, vocalizationsrootDir + File.separator
                    +"lab"
                    +System.getProperty("file.separator"));
-           props.put(UNITFILE, vocalizationsrootDir + File.separator + "timelines" + File.separator
-                   +"vocalization_units_timeline"+db.getProp(db.MARYEXT));           
+           props.put(UNITFILE, vocalizationsrootDir + File.separator + "files" + File.separator
+                   +"vocalization_units"+db.getProp(db.MARYEXT));           
            props.put(PMARKDIR,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"pm");
            //props.put(BASELIST, "backchannel.lst");
        }
@@ -139,11 +140,12 @@ public class VocalizationUnitfileWriter extends VoiceImportComponent
         props2Help.put(UNITFILE, "file containing all phone units. Will be created by this module");           
     }
     
-    public boolean compute() throws IOException
+    @Override
+    public boolean compute() throws IOException, MaryConfigurationException
     {
         if (!unitlabelDir.exists()){
             System.out.print(LABELDIR+" "+getProp(LABELDIR)+" does not exist; ");
-            throw new Error("Could not create LABELDIR");
+            throw new Error("LABELDIR not found");
         }  
        
         System.out.println("Back channel unitfile writer started...");

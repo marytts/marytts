@@ -1,3 +1,23 @@
+/**
+ * Copyright 2010 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 package marytts.tools.voiceimport.vocalizations;
 
 import java.io.File;
@@ -27,9 +47,9 @@ public class VocalizationPitchmarker extends PraatPitchmarker {
         
         if (!(new File(getProp(PRAATPMDIR))).exists()) {
         
-            System.out.println("vocalisations/pm directory does not exist; ");
-            if (!(new File(getProp(PRAATPMDIR))).mkdir()) {
-                throw new Error("Could not create vocalisations/pm");
+            System.out.println("vocalizations/pm directory does not exist; ");
+            if (!(new File(getProp(PRAATPMDIR))).mkdirs()) {
+                throw new Error("Could not create vocalizations/pm");
             }
             System.out.println("Created successfully.\n");
             
@@ -38,13 +58,13 @@ public class VocalizationPitchmarker extends PraatPitchmarker {
         try {
             String basenameFile = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"basenames.lst";
             if ( (new File(basenameFile)).exists() ) {
-                System.out.println("Loading basenames of vocalisations from '"+basenameFile+"' list...");
+                System.out.println("Loading basenames of vocalizations from '"+basenameFile+"' list...");
                 bnlVocalizations = new BasenameList(basenameFile);
                 System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in basename list");
             }
             else {
                 String vocalWavDir = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav";
-                System.out.println("Loading basenames of vocalisations from '"+vocalWavDir+"' directory...");
+                System.out.println("Loading basenames of vocalizations from '"+vocalWavDir+"' directory...");
                 bnlVocalizations = new BasenameList(vocalWavDir, ".wav");
                 System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in "+ vocalWavDir + " directory");
             }
@@ -84,7 +104,7 @@ public class VocalizationPitchmarker extends PraatPitchmarker {
         File dir = new File(getProp(PRAATPMDIR));
         if (!dir.exists()) {
             System.out.println( "Creating the directory [" + getProp(PRAATPMDIR) + "]." );
-            dir.mkdir();
+            dir.mkdirs();
         }
         
         // script.praat is provided as template. Perhaps it could be used instead of hardcoding the following:
@@ -106,7 +126,7 @@ public class VocalizationPitchmarker extends PraatPitchmarker {
         // (i.e., mixed noise+periodicity regions treated more likely as periodic)
         toScript.println("sound = Filter (pass Hann band)... 0 1000 100");
         // Then determine pitch curve:
-        toScript.println("pitch = To Pitch... 0 75 300");
+        toScript.println("pitch = To Pitch... 0 minPitch maxPitch");
         // Get some debug info:
         toScript.println("min_f0 = Get minimum... 0 0 Hertz Parabolic");
         toScript.println("max_f0 = Get maximum... 0 0 Hertz Parabolic");

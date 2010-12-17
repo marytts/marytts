@@ -21,6 +21,7 @@ package marytts.unitselection.select;
 
 import java.io.IOException;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.unitselection.data.Unit;
 
 
@@ -40,7 +41,7 @@ public interface StatisticalCostFunction
      * @param configPrefix the prefix for the (voice-specific) config entries
      * to use when looking up files to load.
      */
-    public void init(String configPrefix) throws IOException;
+    public void init(String configPrefix) throws MaryConfigurationException;
     
     
     

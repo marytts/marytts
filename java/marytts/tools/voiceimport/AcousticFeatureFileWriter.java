@@ -38,6 +38,7 @@ import java.util.Random;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.data.Datagram;
@@ -103,8 +104,8 @@ public class AcousticFeatureFileWriter extends VoiceImportComponent
        }
    }
   
-   
-    public boolean compute() throws IOException
+   @Override
+    public boolean compute() throws IOException, MaryConfigurationException
     {
         System.out.println("Acoustic feature file writer started.");
 

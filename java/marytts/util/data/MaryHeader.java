@@ -37,7 +37,10 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
+
+import marytts.exceptions.MaryConfigurationException;
 
 /**
  * Common helper class to read/write a standard Mary header to/from the various
@@ -78,20 +81,24 @@ public class MaryHeader
     /**
      * For the given file, look inside and determine the file type.
      * @param fileName
-     * @throws IOException if the file is not a MARY file.
+     * @return the file type, or -1 if the file does not have a valid MARY header.
+     * @throws IOException if the file cannot be read
      */
     public static int peekFileType(String fileName) throws IOException
     {
         DataInputStream dis = null;
         dis = new DataInputStream( new BufferedInputStream( new FileInputStream( fileName ) ) );
         /* Load the Mary header */
-        MaryHeader hdr = new MaryHeader( dis );
-        if ( !hdr.isMaryHeader() ) {
-            throw new IOException( "File [" + fileName + "] is not a valid Mary format file." );
+        try {
+            MaryHeader hdr = new MaryHeader( dis );
+            int type = hdr.getType();
+            return type;
+        } catch (MaryConfigurationException e) {
+            // not a valid MARY header
+            return -1;
+        } finally {
+            dis.close();
         }
-        int type = hdr.getType();
-        dis.close();
-        return type;
 
     }
     
@@ -101,65 +108,89 @@ public class MaryHeader
     /****************/
     
     /**
-     * Plain constructor
+     * Consruct a MaryHeader from scratch.
      * 
-     * @param newType The standard type of the Mary file, to be chosen among:
-     * MaryHeader.CARTS, MaryHeader.UNITS, MaryHeader.UNITFEATS, MaryHeader.JOINFEATS, MaryHeader.TIMELINE.
+     * Fundamental guarantee: after construction, the MaryHeader has a valid magic number and a valid type.
      * 
-     * @throws RuntimeException if the input type is unknown.
+     * @param newType The type of MaryHeader to create. See public final constants in this class.
+     * 
+     * @throws IllegalArgumentException if the input type is unknown.
      */
     public MaryHeader( int newType ) {
         if ( (newType > TIMELINE) || (newType < UNKNOWN) ) {
-            throw new RuntimeException( "Unauthorized Mary file type [" + type + "]." );
+            throw new IllegalArgumentException( "Unauthorized Mary file type [" + type + "]." );
         }
-        type = newType;    
+        type = newType;
+        
+        // post-conditions:
+        assert version == VERSION;
+        assert hasLegalMagic();
+        assert hasLegalType();
     }
     
     /**
-     * File constructor
+     * Construct a MaryHeader by reading from a file.
+     * Fundamental guarantee: after construction, the MaryHeader has a valid magic number and a valid type.
      * 
      * @param input a DataInputStream or RandomAccessFile to read the header from.
      * 
-     * @throws IOException if the input type is unknown.
+     * @throws MaryConfigurationException if no mary header can be read from input.
      */
-    public MaryHeader( DataInput input ) throws IOException {
-        this.load( input );
-        if ( !isMaryHeader() ) { throw new RuntimeException( "Ill-formed Mary header!" ); }
+    public MaryHeader( DataInput input ) throws MaryConfigurationException {
+        try {
+            this.load( input );
+        } catch (IOException e) {
+            throw new MaryConfigurationException("Cannot load mary header", e);
+        }
+        if ( !hasLegalMagic() || !hasLegalType() ) {
+            throw new MaryConfigurationException( "Ill-formed Mary header!" );
+        }
+
+        // post-conditions:
+        assert hasLegalMagic();
+        assert hasLegalType();
     }
 
     /**
-     * File constructor
+     * Construct a MaryHeader by reading from a file.
+     * Fundamental guarantee: after construction, the MaryHeader has a valid magic number and a valid type.
      * 
      * @param input a byte buffer to read the header from.
      * 
-     * @throws RuntimeException if the data read does not correspond to a mary header.
+     * @throws MaryConfigurationException if no mary header can be read from input.
      */
-    public MaryHeader( ByteBuffer input ) {
-        this.load( input );
-        if ( !isMaryHeader() ) { throw new RuntimeException( "Ill-formed Mary header!" ); }
+    public MaryHeader( ByteBuffer input ) throws MaryConfigurationException  {
+        try {
+            this.load( input );
+        } catch (BufferUnderflowException e) {
+            throw new MaryConfigurationException("Cannot load mary header", e);
+        }
+        if ( !hasLegalMagic() || !hasLegalType() ) {
+            throw new MaryConfigurationException( "Ill-formed Mary header!" );
+        }
+
+        // post-conditions:
+        assert hasLegalMagic();
+        assert hasLegalType();
     }
 
     /*****************/
     /* OTHER METHODS */
     /*****************/
     
-    /** Static Mary header writer
+    /** Mary header writer
      * 
      * @param output The DataOutputStream or RandomAccessFile to write to
      * 
      * @return the number of written bytes.
      * 
      * @throws IOException if the file type is unknown.
-     * 
-     * @author sacha
      */
     public long writeTo( DataOutput output ) throws IOException {
         
         long nBytes = 0;
         
-        if ( !this.hasLegalType() ) {
-            throw new RuntimeException( "Unknown Mary file type [" + type + "]." );
-        }
+        assert this.hasLegalType() : "Unknown Mary file type [" + type + "].";
         
         output.writeInt( magic );   nBytes += 4;
         output.writeInt( version ); nBytes += 4;
@@ -168,17 +199,13 @@ public class MaryHeader
         return( nBytes );
     }
         
-    /** Static Mary header writer
+    /** Load a mary header.
      * 
      * @param input The data input (DataInputStream or RandomAccessFile) to read from.
      * 
-     * @return the number of read bytes.
-     * 
-     * @throws IOException (forwarded from the random access file read operations)
-     * 
-     * @author sacha
+     * @throws IOException if the header data cannot be read
      */
-    public void load( DataInput input ) throws IOException {
+    private void load( DataInput input ) throws IOException {
         
         magic = input.readInt();
         version = input.readInt();
@@ -186,10 +213,12 @@ public class MaryHeader
     }
     
     /**
-     * Read header from byte buffer
-     * @param input
+     * Load a mary header.
+     *
+     * @param input the byte buffer from which to read the mary header.
+     * @throws BufferUnderflowException if the header data cannot be read
      */
-    public void load(ByteBuffer input) {
+    private void load(ByteBuffer input) {
         magic = input.getInt();
         version = input.getInt();
         type = input.getInt();
@@ -201,10 +230,12 @@ public class MaryHeader
     public int getType() { return(type); }
 
     /* Checkers */
-    public boolean hasLegalMagic() { return( magic == MAGIC ); }
     public boolean hasCurrentVersion() { return( version == VERSION ); }
-    public boolean hasBadType() { return( (type > TIMELINE) || (type <= UNKNOWN) ); }
-    public boolean hasLegalType() { return( !hasBadType() ); }
-    public boolean isMaryHeader() { return( hasLegalMagic() && hasLegalType() ); }
+    private boolean hasLegalType() { 
+        return (type <= TIMELINE) && (type > UNKNOWN) ; 
+    }
+    private boolean hasLegalMagic() { 
+        return( magic == MAGIC );
+    }
 
 }

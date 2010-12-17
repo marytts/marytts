@@ -50,6 +50,7 @@ import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.string.StringUtils;
+import marytts.vocalizations.VocalizationSynthesizer;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -311,6 +312,25 @@ public abstract class BaseHttpRequestHandler extends SimpleNHttpRequestHandler i
         if (v instanceof marytts.unitselection.UnitSelectionVoice)
             return ((marytts.unitselection.UnitSelectionVoice)v).getExampleText();
         return "";
+    }
+    
+    /**
+     * For the voice with the given name, return the list of vocalizations supported by this voice,
+     * one vocalization per line.
+     * These values can be used in the "name" attribute of the vocalization tag.
+     * @param voiceName
+     * @return the list of vocalizations, or the empty string if the voice does not support vocalizations.
+     */
+    public String getVocalizations(String voiceName) {
+        Voice v = Voice.getVoice(voiceName);
+        if (v == null || !v.hasVocalizationSupport()) {
+            return "";
+        }
+        VocalizationSynthesizer vs = v.getVocalizationSynthesizer();
+        assert vs != null;
+        String[] vocalizations = vs.listAvailableVocalizations();
+        assert vocalizations != null;
+        return StringUtils.toString(vocalizations);
     }
 
     public String getDefaultAudioEffects()

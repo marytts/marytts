@@ -52,6 +52,7 @@ import marytts.cart.io.MaryCARTReader;
 import marytts.cart.io.MaryCARTWriter;
 import marytts.cart.io.WagonCARTReader;
 import marytts.cart.io.WagonCARTWriter;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.data.Datagram;
@@ -259,8 +260,6 @@ public class CARTBuilder extends VoiceImportComponent {
              //convert the top-level CART to Wagon Format
              System.out.println("Building CART from tree ...");
              topLevelCART = new FeatureVectorCART(topLevelTree, fai);
-             PrintWriter pw = new PrintWriter(new FileWriter(new File("./test.txt")));
-             wr.toTextOut(topLevelCART, pw);
              System.out.println(" ... done!");
          } else {
              /* read in the top-level tree from file */
@@ -343,28 +342,22 @@ public class CARTBuilder extends VoiceImportComponent {
      */
     public CART importCART(String filename,
                             FeatureDefinition featDef)
-    throws IOException
+    throws IOException, MaryConfigurationException
     {
-        try{
-            //open CART-File
-            System.out.println("Reading CART from "+filename+" ...");
-            
-            // create a wagon cart reader for this class of tree
-            WagonCARTReader wagonReader = new WagonCARTReader(LeafType.IntAndFloatArrayLeafNode);
-            
-            //build and return CART
-            // old: CART cart = new ExtendedClassificationTree();
-            CART cart = new CART();        
-            // old: cart.load(filename,featDef,null);
-            cart.setRootNode(wagonReader.load(filename, featDef, null));
-            
-            System.out.println(" ... done!");
-            return cart;
-        } catch (IOException ioe){
-            IOException newIOE = new IOException("Error reading CART");
-            newIOE.initCause(ioe);
-            throw newIOE;
-        }
+        //open CART-File
+        System.out.println("Reading CART from "+filename+" ...");
+        
+        // create a wagon cart reader for this class of tree
+        WagonCARTReader wagonReader = new WagonCARTReader(LeafType.IntAndFloatArrayLeafNode);
+        
+        //build and return CART
+        // old: CART cart = new ExtendedClassificationTree();
+        CART cart = new CART();        
+        // old: cart.load(filename,featDef,null);
+        cart.setRootNode(wagonReader.load(filename, featDef, null));
+        
+        System.out.println(" ... done!");
+        return cart;
     }
        
  
@@ -378,9 +371,8 @@ public class CARTBuilder extends VoiceImportComponent {
      * @param topLevelCART the CART
      * @param featureDefinition the definition of the features
      */
-    public boolean replaceLeaves(CART cart,
-            				FeatureDefinition featureDefinition)
-    throws IOException
+    public boolean replaceLeaves(CART cart, FeatureDefinition featureDefinition)
+    throws IOException, MaryConfigurationException
     {
         try {
             System.out.println("Replacing Leaves ...");
@@ -541,8 +533,8 @@ public class CARTBuilder extends VoiceImportComponent {
      * @param featureVectors the feature vectors of the units
      * @param filename the filename
      */
-    public void buildAndDumpDistanceTables (FeatureVector[] featureVectors, String filename,
-            FeatureDefinition featDef ) throws IOException {
+    public void buildAndDumpDistanceTables (FeatureVector[] featureVectors, String filename, FeatureDefinition featDef )
+    throws IOException, MaryConfigurationException {
         /* Load the MelCep timeline and the unit file */
         if (mcepTimeline == null) {
             try {

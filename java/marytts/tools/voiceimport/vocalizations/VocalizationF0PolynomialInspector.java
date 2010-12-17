@@ -122,7 +122,7 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
        this.db = db;
        if (props == null){
            props = new TreeMap<String, String>();
-           props.put(WAVEDIR,db.getProp(db.WAVDIR));
+           props.put(WAVEDIR,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav");
            props.put(F0POLYFILE,"VocalizationF0PolyFeatureFile.txt");
            props.put(PARTBASENAME,"");
            props.put(ONEWORD,"");
@@ -130,10 +130,10 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
            props.put(F0MAX,"500");
            props.put(KCLUSTERS,"15");
            props.put(POLYORDER,"3");
-           props.put(ISEXTERNALF0,"false");
-           props.put(EXTERNALF0FORMAT,"ptc");
-           props.put(EXTERNALDIR, "ptc");
-           props.put(EXTERNALEXT, ".ptc");
+           props.put(ISEXTERNALF0,"true");
+           props.put(EXTERNALF0FORMAT,"sptk");
+           props.put(EXTERNALDIR, "lf0");
+           props.put(EXTERNALEXT, ".lf0");
        }
        return props;
    }
@@ -169,13 +169,13 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
        try {
            String basenameFile = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"basenames.lst";
            if ( (new File(basenameFile)).exists() ) {
-               System.out.println("Loading basenames of vocalisations from '"+basenameFile+"' list...");
+               System.out.println("Loading basenames of vocalizations from '"+basenameFile+"' list...");
                bnlVocalizations = new BasenameList(basenameFile);
                System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in basename list");
            }
            else {
                String vocalWavDir = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav";
-               System.out.println("Loading basenames of vocalisations from '"+vocalWavDir+"' directory...");
+               System.out.println("Loading basenames of vocalizations from '"+vocalWavDir+"' directory...");
                bnlVocalizations = new BasenameList(vocalWavDir, ".wav");
                System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in "+ vocalWavDir + " directory");
            }
@@ -295,16 +295,16 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
         if ( "true".equals(getProp(ISEXTERNALF0)) ) {
             
             String externalFormat = getProp(EXTERNALF0FORMAT);
-            String externalDir    = getProp(EXTERNALF0FORMAT);
+            String externalDir    = getProp(EXTERNALDIR);
             String externalExt    = getProp(EXTERNALEXT);
             
             if ( "sptk".equals(externalFormat) ) {
-                String fileName = db.getProp(db.ROOTDIR) + File.separator + externalDir + File.separator + getProp(externalExt);
+                String fileName = db.getProp(db.VOCALIZATIONSDIR) + File.separator + externalDir + File.separator + baseName + externalExt;
                 SPTKPitchReaderWriter sprw = new SPTKPitchReaderWriter(fileName);
                 f0Array = sprw.getF0Contour();
             }
             else if ( "ptc".equals(externalFormat) ) {
-                String fileName = db.getProp(db.ROOTDIR) + File.separator + externalDir + File.separator + getProp(externalExt);
+                String fileName = db.getProp(db.ROOTDIR) + File.separator + externalDir + File.separator + baseName + externalExt;
                 PitchReaderWriter sprw = new PitchReaderWriter(fileName);
                 f0Array = sprw.contour;
             }
@@ -316,7 +316,7 @@ public class VocalizationF0PolynomialInspector extends VoiceImportComponent
             f0Array = tracker.getF0Contour();
         }
                 
-        f0Array = cutStartEndUnvoicedSegments(f0Array);
+        //f0Array = cutStartEndUnvoicedSegments(f0Array);
         
         if (f0Array != null) {
             for (int j=0; j<f0Array.length; j++) {

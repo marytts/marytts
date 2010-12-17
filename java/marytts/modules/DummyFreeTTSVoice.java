@@ -32,6 +32,7 @@
 package marytts.modules;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import marytts.modules.synthesis.MbrolaVoice;
 
@@ -50,10 +51,7 @@ import com.sun.speech.freetts.util.BulkTimer;
  */
 public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
     protected marytts.modules.synthesis.Voice maryVoice;
-    protected boolean useBinaryIO =
-    System.getProperty("com.sun.speech.freetts.useBinaryIO",
-        "true").equals("true");
-
+    protected boolean useBinaryIO = System.getProperty("com.sun.speech.freetts.useBinaryIO", "true").equals("true");
     /**
      * Creates a simple voice containing a reference to a
      * <code>marytts.modules.synthesis.Voice</code>.
@@ -61,8 +59,9 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
      * This default constructor must be followed by a meaningful
      * call to initialise().
      */
-    public DummyFreeTTSVoice()
+    public DummyFreeTTSVoice(Locale locale)
     {
+        super.setLocale(locale);
     }
 
     /**
@@ -91,6 +90,9 @@ public class DummyFreeTTSVoice extends com.sun.speech.freetts.Voice {
     public void initialise(marytts.modules.synthesis.Voice aMaryVoice,
             String lexiconClassName) {
         this.maryVoice = aMaryVoice;
+        if (maryVoice != null) {
+            super.setLocale(maryVoice.getLocale());
+        }
         if (lexiconClassName != null) {
             try {
                 Lexicon lex = (Lexicon)Class.forName(lexiconClassName).newInstance();

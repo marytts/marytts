@@ -17,10 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.signalproc.tests;
+package marytts.tests.junit4;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.Assert;
+
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.filter.FIRFilter;
 import marytts.util.data.BufferedDoubleDataSource;
@@ -32,7 +35,7 @@ import marytts.util.math.MathUtils;
  * @author Marc Schr&ouml;der
  *
  */
-public class FFTTest extends TestCase
+public class FFTTest
 {
     protected int LEN=1024;
     protected int ONE=LEN/10;
@@ -47,7 +50,8 @@ public class FFTTest extends TestCase
         try { Thread.sleep(1000); } catch (InterruptedException e) {}
         return graph;
     }
-
+    
+    @Before
     public void setUp()
     {
         x1 = new double[ONE];
@@ -60,6 +64,7 @@ public class FFTTest extends TestCase
 
     }
 
+    @Test
     public void testTransform()
     {
         double[] signal = getSampleSignal(1024);
@@ -72,16 +77,24 @@ public class FFTTest extends TestCase
         Assert.assertTrue("Error: "+err, err<1.E-16);
     }
     
+    @Test
     public void testConvolution()
     {
         Assert.assertTrue(y.length==x1.length+x2.length);
     }
 
+    @Test
     public void testFIRConvolution()
     {
         double[] signal = x2;
         double[] ir = x1;
-        double[] resultingSignal = new double[signal.length+ir.length];
+        double[] resultingSignal = new double[signal.length];
+        double[] reference = new double[signal.length];
+        int initialTrim = ir.length/2;
+        int finalTrim = ir.length - initialTrim;
+        // reference is convolution trimmed by the impulse response length:
+        System.arraycopy(y, initialTrim, reference, 0, reference.length);
+        assert reference.length == y.length - initialTrim - finalTrim;
         int shift = LEN/2 - ir.length;
         FIRFilter filter = new FIRFilter(ir, shift);
         DoubleDataSource filtered = filter.apply(new BufferedDoubleDataSource(signal));
@@ -95,7 +108,15 @@ public class FFTTest extends TestCase
         for (int i=0; i<resultingSignal.length; i++) {
             resultingSignal[i] *= 1./ONE;
         }
-        double err = MathUtils.sumSquaredError(y, resultingSignal);
+        /*
+        showGraph(resultingSignal, "resultingSignal");
+        showGraph(y, "y");
+        showGraph(ir, "impulse response");
+        showGraph(signal, "signal");
+
+        try {Thread.sleep(100000);}catch(Exception e) {}*/
+        
+        double err = MathUtils.sumSquaredError(reference, resultingSignal);
         Assert.assertTrue("Error: "+err, err<1.E-20);
     }
     
@@ -103,7 +124,16 @@ public class FFTTest extends TestCase
     {
         double[] signal = new double[length];
         for (int i=0; i<length; i++) {
-            signal[i] = Math.round(10000 * Math.sin(2*Math.PI*i/length));
+            signal[i] = Math.round(10000 * Math.sin(2*Math.PI*i/length)) / 32768.0;
+        }
+        return signal;
+    }
+    
+    public static double[] getSampleSignal(int lengthInSamples, int samplingFrequency, int signalFrequency) {
+        double[] signal = new double[lengthInSamples];
+        for (int i=0; i<lengthInSamples; i++) {
+            double factor = MathUtils.TWOPI * signalFrequency / samplingFrequency;
+            signal[i] = Math.round(10000 * Math.sin(factor * i)) / 32768.0;
         }
         return signal;
     }

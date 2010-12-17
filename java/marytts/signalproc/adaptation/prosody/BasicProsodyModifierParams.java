@@ -29,6 +29,14 @@
 
 package marytts.signalproc.adaptation.prosody;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
@@ -44,7 +52,7 @@ import marytts.util.string.StringUtils;
  * @author oytun.turk
  *
  */
-public class BasicProsodyModifierParams 
+public class BasicProsodyModifierParams implements Serializable
 {
     public float[] tScales; //Time scale factors
     public float[] tScalesTimes; //Instants that the time scale factors are effective. 
@@ -56,10 +64,11 @@ public class BasicProsodyModifierParams
     
     public BasicProsodyModifierParams()
     {
-        tScales = null;
-        tScalesTimes = null;
-        pScales = null;
-        pScalesTimes = null;
+//        this has no effect:
+//        tScales = null;
+//        tScalesTimes = null;
+//        pScales = null;
+//        pScalesTimes = null;
     }
     
     public BasicProsodyModifierParams(BasicProsodyModifierParams existing)
@@ -251,5 +260,32 @@ public class BasicProsodyModifierParams
         }
         
         return false;
+    }
+    
+    public void writeObject(String fileName) throws IOException {
+        try {
+            File file = new File(fileName);
+            FileOutputStream fos = new FileOutputStream(fileName);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(this);
+            oos.close();
+        } catch (IOException e) {
+            throw e;
+        }
+    }
+    
+    public static BasicProsodyModifierParams readObject(String fileName) throws IOException, ClassNotFoundException {
+        try {
+            File file = new File(fileName);
+            FileInputStream fis = new FileInputStream(file);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            BasicProsodyModifierParams bpmp = (BasicProsodyModifierParams) ois.readObject();
+            ois.close();
+            return bpmp;
+        } catch (IOException e) {
+            throw e;
+        } catch (ClassNotFoundException e) {
+            throw e;
+        }
     }
 }

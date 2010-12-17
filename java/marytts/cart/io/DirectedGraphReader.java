@@ -36,6 +36,7 @@ import marytts.cart.DirectedGraphNode;
 import marytts.cart.LeafNode;
 import marytts.cart.Node;
 import marytts.cart.LeafNode.IntAndFloatArrayLeafNode;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.util.data.MaryHeader;
 
@@ -62,19 +63,16 @@ public class DirectedGraphReader
      *            the feature definition
      * @param dummy
      *            unused, just here for compatibility with the FeatureFileIndexer.
-     * @throws IOException
+     * @throws IOException, {@link MaryConfigurationException}
      *             if a problem occurs while loading
      */
     public DirectedGraph load(String fileName)
-    throws IOException
+    throws IOException, MaryConfigurationException
     {
         // open the CART-File and read the header
         DataInput raf = new DataInputStream(new BufferedInputStream(new FileInputStream(fileName)));
         
         MaryHeader maryHeader = new MaryHeader(raf);
-        if (!maryHeader.hasLegalMagic()) {
-            throw new IOException("No MARY database file!");
-        }
         if (!maryHeader.hasCurrentVersion()) {
             throw new IOException("Wrong version of database file");
         }

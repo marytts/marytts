@@ -37,6 +37,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.util.data.MaryHeader;
 
 
@@ -71,7 +72,7 @@ public class UnitFileReader
      * @param fileName the unit file to read
      * @throws IOException if a problem occurs while reading
      */
-    public UnitFileReader( String fileName ) throws IOException 
+    public UnitFileReader( String fileName ) throws IOException, MaryConfigurationException 
     {
         load(fileName);
     }
@@ -81,47 +82,32 @@ public class UnitFileReader
      * @param fileName the unit file to read
      * @throws IOException if a problem occurs while reading
      */
-    public void load(String fileName) throws IOException
+    public void load(String fileName) throws IOException, MaryConfigurationException
     {
         /* Open the file */
-        DataInputStream dis = null;
-        try {
-            dis = new DataInputStream( new BufferedInputStream( new FileInputStream( fileName ) ) );
+        DataInputStream dis = new DataInputStream( new BufferedInputStream( new FileInputStream( fileName ) ) );
+        /* Load the Mary header */
+        hdr = new MaryHeader( dis );
+        if ( hdr.getType() != MaryHeader.UNITS ) {
+            throw new MaryConfigurationException( "File [" + fileName + "] is not a valid Mary Units file." );
         }
-        catch ( FileNotFoundException e ) {
-            throw new RuntimeException( "File [" + fileName + "] was not found." );
+        /* Read the number of units */
+        numberOfUnits = dis.readInt();
+        if ( numberOfUnits < 0 ) {
+            throw new MaryConfigurationException( "File [" + fileName + "] has a negative number of units. Aborting." );
         }
-        try {
-            /* Load the Mary header */
-            hdr = new MaryHeader( dis );
-            if ( !hdr.isMaryHeader() ) {
-                throw new IOException( "File [" + fileName + "] is not a valid Mary format file." );
-            }
-            if ( hdr.getType() != MaryHeader.UNITS ) {
-                throw new RuntimeException( "File [" + fileName + "] is not a valid Mary Units file." );
-            }
-            /* Read the number of units */
-            numberOfUnits = dis.readInt();
-            if ( numberOfUnits < 0 ) {
-                throw new RuntimeException( "File [" + fileName + "] has a negative number of units. Aborting." );
-            }
-            /* Read the sample rate */
-            sampleRate = dis.readInt();
-            if ( sampleRate < 0 ) {
-                throw new RuntimeException( "File [" + fileName + "] has a negative number sample rate. Aborting." );
-            }
-            units = new Unit[numberOfUnits];
-            /* Read the start times and durations */
-            for ( int i = 0; i < numberOfUnits; i++ ) {
-                long startTime = dis.readLong();
-                int duration = dis.readInt();
-                units[i] = new Unit(startTime, duration, i);
-            }
+        /* Read the sample rate */
+        sampleRate = dis.readInt();
+        if ( sampleRate < 0 ) {
+            throw new MaryConfigurationException( "File [" + fileName + "] has a negative number sample rate. Aborting." );
         }
-        catch ( IOException e ) {
-            throw new RuntimeException( "Reading the Mary header from file [" + fileName + "] failed.", e );
+        units = new Unit[numberOfUnits];
+        /* Read the start times and durations */
+        for ( int i = 0; i < numberOfUnits; i++ ) {
+            long startTime = dis.readLong();
+            int duration = dis.readInt();
+            units[i] = new Unit(startTime, duration, i);
         }
-        
     }
     
     /*****************/

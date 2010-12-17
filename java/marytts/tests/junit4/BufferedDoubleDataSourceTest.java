@@ -17,10 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.signalproc.tests;
+package marytts.tests.junit4;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.math.MathUtils;
 
@@ -28,8 +30,9 @@ import marytts.util.math.MathUtils;
  * @author Marc Schr&ouml;der
  *
  */
-public class BufferedDoubleDataSourceTest extends TestCase
+public class BufferedDoubleDataSourceTest
 {
+    @Test
     public void testGetAllData1()
     {
         double[] signal = FFTTest.getSampleSignal(10000);
@@ -37,6 +40,7 @@ public class BufferedDoubleDataSourceTest extends TestCase
         Assert.assertTrue(signal.length == result.length);
     }
     
+    @Test
     public void testGetAllData2()
     {
         double[] signal = FFTTest.getSampleSignal(10000);

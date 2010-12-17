@@ -389,7 +389,7 @@ public class SignalProcUtils {
         int ind;
         double T0;
         
-        assert offset>0;
+        assert offset>=0;
         
         for (int i=1; i<=len; i++)
         {

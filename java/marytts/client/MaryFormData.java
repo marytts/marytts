@@ -210,13 +210,13 @@ public class MaryFormData
         
         if (serverVersionInfo!=null)
         {
-            StringTokenizer st = new StringTokenizer(serverVersionInfo);
-            while (st.hasMoreTokens()) {
-                String t = st.nextToken();
-                if (t.matches("^[0-9].*")) {
-                    serverVersionNo = t;
-                    break;
-                }
+            String[] parts = serverVersionInfo.split(" ");
+            if (parts[0].equals("Mary")
+                    && parts[1].equals("TTS")
+                    && parts[2].equals("server")
+                    && parts.length >= 4) {
+                // then parts[3] is the version number
+                serverVersionNo = parts[3];
             }
         }
 

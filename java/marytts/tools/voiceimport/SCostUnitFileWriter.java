@@ -35,6 +35,7 @@ import java.util.TreeMap;
 import java.util.List;
 import java.util.Iterator;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.unitselection.data.SCostFileReader;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.util.data.MaryHeader;
@@ -105,8 +106,8 @@ public class SCostUnitFileWriter extends VoiceImportComponent
         props2Help.put(SCOSTFILE, "file containing scost of halfphone units. Will be created by this module");
     }
     
-    
-    public boolean compute() throws IOException
+    @Override
+    public boolean compute() throws IOException, MaryConfigurationException
     {
         if (!unitlabelDir.exists()){
             System.out.print(LABELDIR+" "+getProp(LABELDIR)+" does not exist; ");

@@ -44,6 +44,7 @@ import marytts.util.io.FileUtils;
  * @author Anna Hunecke, Marcela Charfuelan (modifications for creating hmm voice config file)
  *
  */
+@Deprecated
 public class HMMVoiceInstaller extends VoiceImportComponent{
     
     private DatabaseLayout db;

@@ -44,6 +44,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.language.de.datatypes.GermanDataTypes;
 import marytts.language.de.phonemiser.Inflection;
 import marytts.language.de.phonemiser.LTS;
@@ -58,6 +59,7 @@ import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 
+import org.apache.commons.io.FileUtils;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -88,7 +90,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser
     private String basePath;
 
     public JPhonemiser()
-    throws IOException,  SAXException, ParserConfigurationException
+    throws IOException,  MaryConfigurationException
     {
       	super("JPhonemiser_de",
         MaryDataType.PARTSOFSPEECH,
@@ -112,10 +114,19 @@ public class JPhonemiser extends marytts.modules.JPhonemiser
         if (MaryProperties.getBoolean("de.phonemiser.logunknown")) {
         	String logBasepath = MaryProperties.maryBase() + File.separator +
             "log" + File.separator;
-        	logUnknownFileName = MaryProperties.getFilename("de.phonemiser.logunknown.filename",logBasepath+"de_unknown.txt");
-        	unknown2Frequency = new HashMap<String, Integer>();
-            logEnglishFileName = MaryProperties.getFilename("de.phonemiser.logenglish.filename", logBasepath+"de_english-words.txt");
-            english2Frequency = new HashMap<String, Integer>();
+        	File logDir = new File(logBasepath);
+        	try {
+        	    if (!logDir.isDirectory()) {
+        	        logger.info("Creating log directory " + logDir.getCanonicalPath());
+        	        FileUtils.forceMkdir(logDir);
+        	    }
+        	    logUnknownFileName = MaryProperties.getFilename("de.phonemiser.logunknown.filename",logBasepath+"de_unknown.txt");
+        	    unknown2Frequency = new HashMap<String, Integer>();
+        	    logEnglishFileName = MaryProperties.getFilename("de.phonemiser.logenglish.filename", logBasepath+"de_english-words.txt");
+        	    english2Frequency = new HashMap<String, Integer>();
+        	} catch (IOException e) {
+        	    logger.info("Could not create log directory " + logDir.getCanonicalPath() + " Logging disabled!", e);
+        	}
         }
         if (MaryProperties.getBoolean("de.phonemiser.useenglish")) {
             String englishLexiconFilename = MaryProperties.getFilename("en_US.lexicon");
@@ -131,6 +142,7 @@ public class JPhonemiser extends marytts.modules.JPhonemiser
 
     public void shutdown()
     {
+        if (logUnknownFileName != null || logEnglishFileName != null) {
         try {
             /* print unknown words */
             
@@ -200,8 +212,8 @@ public class JPhonemiser extends marytts.modules.JPhonemiser
             
             
         }catch (Exception e){
-            e.printStackTrace();
-            System.out.println("Error printing log files for english and unknown words");
+            logger.info("Error printing log files for english and unknown words", e);
+        }
         }
     }
     

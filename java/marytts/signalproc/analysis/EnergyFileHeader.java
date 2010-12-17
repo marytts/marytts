@@ -75,80 +75,33 @@ public class EnergyFileHeader {
         totalFrames = totalFramesIn;
     }
     
-    public void write(MaryRandomAccessFile ler)
-    {
+    public void write(MaryRandomAccessFile ler) throws IOException {
         try {
             ler.writeInt(samplingRate);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        try {
             ler.writeDouble(windowSizeInSeconds);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        try {
             ler.writeDouble(skipSizeInSeconds);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        try {
             ler.writeInt(totalFrames);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw e;
         }
     }
     
-    public void read(MaryRandomAccessFile ler)
-    {
+    // TODO dead code, remove?
+    public void read(MaryRandomAccessFile ler) throws IOException {
         read(ler, false);
     }
     
-    public void read(MaryRandomAccessFile ler, boolean bLeaveOpen)
-    {
+    public void read(MaryRandomAccessFile ler, boolean bLeaveOpen) throws IOException {
         try {
             samplingRate = ler.readInt();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        try {
             windowSizeInSeconds = ler.readDouble();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        try {
             skipSizeInSeconds = ler.readDouble();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        try {
             totalFrames = ler.readInt();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        if (!bLeaveOpen)
-        {
-            try {
+            if (!bLeaveOpen) {
                 ler.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
             }
+        } catch (IOException e) {
+            throw e;
         }
     }
 }

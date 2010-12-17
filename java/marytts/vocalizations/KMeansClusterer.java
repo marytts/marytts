@@ -1,3 +1,22 @@
+/**
+ * Copyright 2010 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package marytts.vocalizations;
 
 import java.awt.Color;
@@ -99,7 +118,7 @@ public class KMeansClusterer {
         
         // Visualise:
         FunctionGraph clusterGraph = new FunctionGraph(0, 1, new double[1]);
-        clusterGraph.setYMinMax(50, 500);
+        clusterGraph.setYMinMax(-550, 500);
         clusterGraph.setPrimaryDataSeriesStyle(Color.BLUE, FunctionGraph.DRAW_DOTS, FunctionGraph.DOT_FULLCIRCLE);
         JFrame jf = clusterGraph.showInJFrame("", false, true);
         for (int i=0; i<clusters.length; i++) {
@@ -115,7 +134,7 @@ public class KMeansClusterer {
                 System.out.print(baseName+" ");
                 jf.repaint();
                 
-                String waveFile = "/home/sathish/phd/voices/en-GB-listener/wav/"+File.separator+baseName+".wav";
+                String waveFile = "/home/sathish/Work/phd/voices/f0desc-listener/vocalizations/wav/"+File.separator+baseName+".wav";
                 AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(waveFile));
                 
                 // Enforce PCM_SIGNED encoding
@@ -137,7 +156,7 @@ public class KMeansClusterer {
                 
                 try {
                     ap.join();
-                    Thread.sleep(100);
+                    Thread.sleep(10);
                 } catch (InterruptedException ie) {}
                 
             }
@@ -146,7 +165,7 @@ public class KMeansClusterer {
             jf.repaint();
             
             try {
-                Thread.sleep(25000);
+                Thread.sleep(5000);
             } catch (InterruptedException ie) {}
         }
     }

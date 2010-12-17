@@ -1,5 +1,5 @@
 ##########################################################################
-# Copyright 2000-2009 DFKI GmbH.
+# Copyright 2000-2010 DFKI GmbH.
 # All Rights Reserved.  Use is subject to license terms.
 #
 # This file is part of MARY TTS.
@@ -86,28 +86,28 @@ anschl.	/adjadv	/anschließend
 Anz.	/	/Anzahl
 a.o.Prof.	/	/außerordentlicher Professor
 APO	/	/Apo
-App.	/	/Appartment
+#App.	/	/Appartment
 arab.	/adjadv	/arabisch
 a.Rh.	/	/am Rhein
-Art.	/	/Artikel
+#Art.	/	/Artikel
 ARTE	/	/Arte
 ASEAN	/	/ASEAN['a:-ze:-an]
 AStA	/	/AStA['?as-ta:]
-Aug.	/	/August
+#Aug.	/	/August
 Ausg.	/noun	/Ausgabe
 Ausk.	/	/Auskunft
 Ausl.	/	/Ausland
 ausl.	/adjadv	/ausländisch
 ausr.	/adjadv	/ausreichend
 Az.	/	/Aktenzeichen
-b.	/	/bei
-bay.	/adjadv	/bayrisch
+#b.	/	/bei
+#bay.	/adjadv	/bayrisch
 bayr.	/adjadv	/bayrisch
 BBC	/	/BBC[bi:-bi:-'si:]
 Bd.	/	/Band
 Bde.	/	/Bünde
 beh.	/adjadv	/behindert
-beil.	/adjadv	/beiliegend
+#beil.	/adjadv	/beiliegend
 Bem.	/noun	/Bemerkung
 bes.	/	/besonders
 Best.Nr.	/	/Bestellnummer
@@ -151,7 +151,7 @@ dgl.	/	/desgleichen
 d.Gr.	/	/der Große
 d.h.	/	/das heißt
 d.i.	/	/das ist
-Di.	/	/Dienstag
+#Di.	/	/Dienstag
 DIN	/	/DIN['di:n]
 Dipl.	/	/Diplom
 Dipl.-Ing.	/	/Diplom-Ingenieur
@@ -173,7 +173,7 @@ Dtld.	/	/Deutschland
 dto.	/	/dito
 Dtschld.	/	/Deutschland
 Dtzd.	/	/Dutzend
-e.	/	/ein
+#e.	/	/ein
 ebd.	/	/ebenda
 Ed.	/	/Edition
 e.h.	/	/ehrenhalber
@@ -203,8 +203,8 @@ Exam.	/	/Examen
 exkl.	/	/exklusive
 Expl.	/	/Exemplar
 ext.	/adjadv	/extern
-f.	/	/für
-Fa.	/	/Firma
+#f.	/	/für
+#Fa.	/	/Firma
 fachl.	/adjadv	/fachlich
 Fam.	/noun	/Familie
 FBI	/	/FBI[?Ef-bi:-'?aI]
@@ -213,7 +213,7 @@ ff.	/	/folgende
 Ffm.	/	/Frankfurt am Main
 FIFA	/	/FIFA['fi:-fa:]
 Fig.	/noun	/Figur
-finn.	/adjadv	/finnisch
+#finn.	/adjadv	/finnisch
 folg.	/adjadv	/folgend
 Forts.	/noun	/Fortsetzung
 Forts.f.	/	/Fortsetzung folgt
@@ -237,7 +237,7 @@ gez.	/adjadv	/gezeichnet
 ggf.	/	/gegebenenfalls
 ggfs.	/	/gegebenenfalls
 GHz	/	/Giga-Hertz
-gr.	/adjadv	/groß
+#gr.	/adjadv	/groß
 griech.	/adjadv	/griechisch
 Hbf.	/	/Hauptbahnhof
 Hg.	/noun_in	/Herausgeber
@@ -253,7 +253,7 @@ Hrn.	/	/Herrn
 Hrsg.	/noun_in	/Herausgeber
 hrsg.	/adjadv	/herausgegeben
 Hz	/	/Hertz
-i.	/	/in
+#i.	/	/in
 i.A.	/	/im Auftrag
 i.a.	/	/im allgemeinen
 i.b.	/	/im besonderen
@@ -271,7 +271,7 @@ insbes.	/	/insbesondere
 i.R.	/	/im Ruhestand
 ital.	/adjadv	/italienisch
 i.V.	/	/in Vertretung
-Jan.	/	/Januar
+#Jan.	/	/Januar
 jed.	/	/jede
 jew.	/	/jeweils
 Jg.	/	/Jahrgang
@@ -301,6 +301,7 @@ Kto.	/	/Konto
 kuban.	/adjadv	/kubanisch
 K.u.K.	/	/K und K
 k.u.k.	/	/k und k
+lat.	/adjadv	/lateinisch
 ländl.	/adjadv	/ländlich
 led.	/adjadv	/ledig
 Lekt.	/noun	/Lektion
@@ -314,7 +315,7 @@ ltd.	/adjadv	/leitend
 Ltg.	/noun	/Leitung
 luth.	/adjadv	/lutherisch
 männl.	/adjadv	/männlich
-max.	/adjadv	/maximal
+#max.	/adjadv	/maximal
 m.b.H.	/	/mit beschränkter Haftung
 mbH	/	/mit beschränkter Haftung
 MDAX	/	/MDAX['?Em-daks]
@@ -324,22 +325,22 @@ MdL	/	/Mitglied des Landtages
 M.d.L.	/	/Mitglied des Landtages
 mdl.	/adjadv	/mündlich
 m.E.	/	/meines Erachtens
-med.	/adjadv	/medizinisch
+#med.	/adjadv	/medizinisch
 Mehrw.St.	/	/Mehrwertsteuer
 mexikan.	/adjadv	/mexikanisch
 mgl.	/adjadv	/möglich
 MHz	/	/Mega-Hertz
-Mi.	/	/Mittwoch
+#Mi.	/	/Mittwoch
 Mill.	/noun	/Million
-Min.	/noun	/Minute
-min.	/adjadv	/minimal
+#Min.	/noun	/Minute
+#min.	/adjadv	/minimal
 mind.	/	/mindestens
 Mio.	/noun	/Million
 Mitw.	/noun	/Mitwirkung
 mtl.	/adjadv	/monatlich
 Mo.	/	/Montag
 möbl.	/adjadv	/möbliert
-mod.	/adjadv	/modern
+#mod.	/adjadv	/modern
 mögl.	/adjadv	/möglich
 m.o.w.	/	/mehr oder weniger
 Mrd	/noun	/Milliarde
@@ -349,11 +350,11 @@ mtl.	/adjadv	/monatlich
 m.W.	/	/meines Wissens
 MWSt.	/	/Mehrwertsteuer
 MwSt.	/	/Mehrwertsteuer
-n.	/	/nach
+#n.	/	/nach
 Nachf.	/noun_in	/Nachfolger
 nachm.	/	/nachmittags
 näml.	/adjadv	/nämlich
-nat.	/adjadv	/natürlich
+#nat.	/adjadv	/natürlich
 NASA	/	/NASA['na:-za:]
 NATO	/	/NATO['na:-to:]
 N.B.	/	/nota bene['be:-n@]
@@ -367,7 +368,7 @@ Nr.	/	/Nummer
 N.Y.	/	/New['nu] York['jOrk]
 o.ä.	/	/oder ähnlich
 o.B.	/	/ohne Befund
-ob.	/adjadv	/obig
+#ob.	/adjadv	/obig
 Obb.	/	/Oberbayern
 o.B.d.A.	/	/ohne Beschränkung der Allgemeinheit
 o.g.	/	/oben genannte
@@ -385,7 +386,7 @@ Orig.	/	/Original
 orth.	/adjadv	/orthodox
 österr.	/adjadv	/österreichisch
 östl.	/adjadv	/östlich
-p.	/	/pro
+#p.	/	/pro
 p.A.	/	/per Annum
 PAL	/	/PAL['pa:l]
 PD	/noun_in	/Privatdozent
@@ -428,8 +429,8 @@ r.-k.	/adjadv	/römisch-katholisch
 röm.	/adjadv	/römisch
 ROM	/	/ROM['ROm]
 rsp.	/	/respektive
-S.	/noun	/Seite
-s.	/	/siehe
+#S.	/noun	/Seite
+#s.	/	/siehe
 s.a.	/	/siehe auch
 Sa.	/	/Samstag
 SAT1	/	/Sat Eins
@@ -438,7 +439,7 @@ SECAM	/	/SECAM['ze:-kam]
 Sen.	/	/senior
 Sept.	/	/September
 s.o.	/	/siehe oben
-So.	/	/Sonntag
+#So.	/	/Sonntag
 sog.	/adjadv	/sogenannt
 soz.	/adjadv	/sozial
 span.	/adjadv	/spanisch
@@ -471,7 +472,7 @@ Tsd.	/	/Tausend
 TUI	/	/TUI['tu:-i:]
 türk.	/adjadv	/türkisch
 TÜV	/	/TüV['tYf]
-u.	/	/und
+#u.	/	/und
 u.a.	/	/unter anderem
 u.a.m.	/	/und anderes mehr
 u.A.w.g.	/	/um Antwort wird gebeten
@@ -495,7 +496,7 @@ u.v.a.m.	/	/und vieles andere mehr
 u.v.m.	/	/und vieles mehr
 u.zw.	/	/und zwar
 u.ä.	/	/und ähnliche
-v.	/	/von
+#v.	/	/von
 v.a.	/	/vor allem
 VB	/	/Verhandlungsbasis
 VHB	/	/Verhandlungsbasis
@@ -519,8 +520,8 @@ v.J.	/	/vorigen Jahres
 v.M.	/	/vorigen Monats
 VP	/	/Voll-Pension
 vorl.	/adjadv	/vorläufig
-vorm.	/	/vormittags
-Vors.	/	/Vorsitzende
+#vorm.	/	/vormittags
+#Vors.	/	/Vorsitzende
 VOX	/	/VOX['vOks]
 vs.	/	/versus
 v.T.	/	/von Tausend
@@ -533,11 +534,11 @@ Wfl.	/noun	/Wohnfläche
 wg.	/	/wegen
 Wg.	/noun	/Wohnung
 Whg.	/noun	/Wohnung
-Wo.	/noun	/Woche
+#Wo.	/noun	/Woche
 wöch.	/adjadv	/wöchentlich
 WS	/	/Wintersemester
 Wz.	/	/Warenzeichen
-z.	/	/zu
+#z.	/	/zu
 z.B.	/	/zum Beispiel
 zeitgen.	/adjadv	/zeitgenössisch
 zentr.	/adjadv	/zentral
@@ -549,7 +550,7 @@ Zt.	/noun	/Zeit
 Ztg.	/noun	/Zeitung
 Ztschr.	/noun	/Zeitschrift
 zul.	/adjadv	/zulässig
-zur.	/	/zurück
+#zur.	/	/zurück
 zus.	/	/zusammen
 zuzgl.	/	/zuzüglich
 zw.	/	/zwischen

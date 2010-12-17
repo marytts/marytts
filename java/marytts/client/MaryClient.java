@@ -109,7 +109,7 @@ public abstract class MaryClient
                 m = new MarySocketClient(serverAddress, profile, quiet);
             } catch (IOException ioe2) {
                 IOException ioe3 = new IOException("Cannot connect either to a HTTP nor to a Socket MARY server at "
-                        +serverAddress.getFullAddress());
+                        +(serverAddress != null ? serverAddress.getFullAddress() : "default location"));
                 ioe3.initCause(ioe2);
                 throw ioe3;
             }

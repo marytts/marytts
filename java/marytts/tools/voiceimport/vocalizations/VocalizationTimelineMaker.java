@@ -1,3 +1,23 @@
+/**
+ * Copyright 2010 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 package marytts.tools.voiceimport.vocalizations;
 
 import java.io.ByteArrayOutputStream;
@@ -40,12 +60,12 @@ public class VocalizationTimelineMaker extends VoiceImportComponent {
     
     public void initialiseComp()
     {
-        String timelineDir = db.getProp(db.VOCALIZATIONSDIR) + File.separator + "timelines";
+        String timelineDir = db.getProp(db.VOCALIZATIONSDIR) + File.separator + "files";
         if (!(new File(timelineDir)).exists()) {
         
-            System.out.println("vocalisations/timelines directory does not exist; ");
-            if (!(new File(timelineDir)).mkdir()) {
-                throw new Error("Could not create vocalisations/timelines");
+            System.out.println("vocalizations/files directory does not exist; ");
+            if (!(new File(timelineDir)).mkdirs()) {
+                throw new Error("Could not create vocalizations/files");
             }
             System.out.println("Created successfully.\n");
             
@@ -54,13 +74,13 @@ public class VocalizationTimelineMaker extends VoiceImportComponent {
         try {
             String basenameFile = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"basenames.lst";
             if ( (new File(basenameFile)).exists() ) {
-                System.out.println("Loading basenames of vocalisations from '"+basenameFile+"' list...");
+                System.out.println("Loading basenames of vocalizations from '"+basenameFile+"' list...");
                 bnlVocalizations = new BasenameList(basenameFile);
                 System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in basename list");
             }
             else {
                 String vocalWavDir = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav";
-                System.out.println("Loading basenames of vocalisations from '"+vocalWavDir+"' directory...");
+                System.out.println("Loading basenames of vocalizations from '"+vocalWavDir+"' directory...");
                 bnlVocalizations = new BasenameList(vocalWavDir, ".wav");
                 System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in "+ vocalWavDir + " directory");
             }
@@ -76,7 +96,7 @@ public class VocalizationTimelineMaker extends VoiceImportComponent {
            props.put(WAVEDIR,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav");
            props.put(PMARKDIR,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"pm");
            props.put(WAVETIMELINE, db.getProp(db.VOCALIZATIONSDIR) + File.separator
-                   + "timelines" + File.separator + "vocalization.wave.timeline"+db.getProp(db.MARYEXT));
+                   + "files" + File.separator + "vocalization_wave_timeline"+db.getProp(db.MARYEXT));
            //vocalizationsDir = db.getProp(db.ROOTDIR)+File.separator+"vocalizations";
        }
        return props;

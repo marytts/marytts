@@ -45,6 +45,7 @@ import java.util.TreeMap;
 import javax.sound.sampled.AudioFormat;
 import javax.swing.JFrame;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
@@ -116,14 +117,14 @@ public class VocalizationFeatureFileWriter extends VoiceImportComponent
        this.db = db;
        if (props == null){
            props = new TreeMap<String, String>();
-           String fileDir = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"timelines"+File.separator;
+           String fileDir = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"files"+File.separator;
            String maryExt = db.getProp(db.MARYEXT);
-           props.put(UNITFILE,fileDir+"vocalization_units_timeline"+maryExt);
-           props.put(FEATUREFILE,fileDir+"vocalization_features_timeline"+maryExt);
+           props.put(UNITFILE,fileDir+"vocalization_units"+maryExt);
+           props.put(FEATUREFILE,fileDir+"vocalization_features"+maryExt);
            props.put(MANUALFEATURES,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"features"
                    +File.separator+"annotation_vocalizations_features.txt");
            props.put(FEATDEF,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"features"
-                   +File.separator+"annotation_feature_definition.txt");
+                   +File.separator+"vocalization_feature_definition.txt");
        }
        return props;
    }
@@ -146,13 +147,13 @@ public class VocalizationFeatureFileWriter extends VoiceImportComponent
        try {
            String basenameFile = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"basenames.lst";
            if ( (new File(basenameFile)).exists() ) {
-               System.out.println("Loading basenames of vocalisations from '"+basenameFile+"' list...");
+               System.out.println("Loading basenames of vocalizations from '"+basenameFile+"' list...");
                bnlVocalizations = new BasenameList(basenameFile);
                System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in basename list");
            }
            else {
                String vocalWavDir = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav";
-               System.out.println("Loading basenames of vocalisations from '"+vocalWavDir+"' directory...");
+               System.out.println("Loading basenames of vocalizations from '"+vocalWavDir+"' directory...");
                bnlVocalizations = new BasenameList(vocalWavDir, ".wav");
                System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in "+ vocalWavDir + " directory");
            }
@@ -161,8 +162,8 @@ public class VocalizationFeatureFileWriter extends VoiceImportComponent
        }
    }
   
-   
-    public boolean compute() throws IOException
+    @Override
+    public boolean compute() throws IOException, MaryConfigurationException
     {
         // read feature definition
         BufferedReader fDBfr = new BufferedReader(new FileReader(new File(getProp(FEATDEF))));
@@ -182,7 +183,7 @@ public class VocalizationFeatureFileWriter extends VoiceImportComponent
         out.close();
         logger.debug("Number of processed units: " + listenerUnits.getNumberOfUnits() );
 
-        VocalizationFeatureFileReader tester = VocalizationFeatureFileReader.getFeatureFileReader(getProp(FEATUREFILE));
+        VocalizationFeatureFileReader tester = new VocalizationFeatureFileReader(getProp(FEATUREFILE));
         int unitsOnDisk = tester.getNumberOfUnits();
         if (unitsOnDisk == listenerUnits.getNumberOfUnits()) {
             System.out.println("Can read right number of units");

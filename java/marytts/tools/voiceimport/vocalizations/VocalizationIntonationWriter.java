@@ -1,3 +1,23 @@
+/**
+ * Copyright 2010 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 package marytts.tools.voiceimport.vocalizations;
 
 import java.io.BufferedOutputStream;
@@ -22,6 +42,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureVector;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchFileHeader;
@@ -71,6 +92,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
     public final String SKIPSIZE = getName()+".skipSize";
     public final String WINDOWSIZE = getName()+".windowSize";
     public final String F0TIMELINE = getName()+".intonationTimeLineFile";
+    public final String F0FEATDEF = getName()+".intonationFeatureDefinition";
     
     public String getName() {
         return "VocalizationIntonationWriter";
@@ -78,11 +100,11 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
     
     public void initialiseComp() {
         
-        String timelineDir = db.getProp(db.VOCALIZATIONSDIR) + File.separator + "timelines";
+        String timelineDir = db.getProp(db.VOCALIZATIONSDIR) + File.separator + "files";
         if (!(new File(timelineDir)).exists()) {
-            System.out.println("vocalisations/timelines directory does not exist; ");
-            if (!(new File(timelineDir)).mkdir()) {
-                throw new Error("Could not create vocalisations/timelines");
+            System.out.println("vocalizations/files directory does not exist; ");
+            if (!(new File(timelineDir)).mkdirs()) {
+                throw new Error("Could not create vocalizations/files");
             }
             System.out.println("Created successfully.\n");
         }
@@ -90,13 +112,13 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
         try {
             String basenameFile = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"basenames.lst";
             if ( (new File(basenameFile)).exists() ) {
-                System.out.println("Loading basenames of vocalisations from '"+basenameFile+"' list...");
+                System.out.println("Loading basenames of vocalizations from '"+basenameFile+"' list...");
                 bnlVocalizations = new BasenameList(basenameFile);
                 System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in basename list");
             }
             else {
                 String vocalWavDir = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav";
-                System.out.println("Loading basenames of vocalisations from '"+vocalWavDir+"' directory...");
+                System.out.println("Loading basenames of vocalizations from '"+vocalWavDir+"' directory...");
                 bnlVocalizations = new BasenameList(vocalWavDir, ".wav");
                 System.out.println("Found "+bnlVocalizations.getLength()+ " vocalizations in "+ vocalWavDir + " directory");
             }
@@ -110,15 +132,16 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
        if (props == null){
            props = new TreeMap<String, String>();
            props.put(WAVEDIR,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav");
-           props.put(UNITFILE,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"timelines"+File.separator+"vocalization_units_timeline"+db.getProp(db.MARYEXT));
+           props.put(UNITFILE,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"files"+File.separator+"vocalization_units"+db.getProp(db.MARYEXT));
            props.put(POLYORDER,"3");
-           props.put(ISEXTERNALF0,"false");
-           props.put(EXTERNALF0FORMAT,"ptc");
-           props.put(EXTERNALEXT, ".ptc");
+           props.put(ISEXTERNALF0,"true");
+           props.put(EXTERNALF0FORMAT,"sptk");
+           props.put(EXTERNALEXT, ".lf0");
            props.put(PITCHDIR,db.getProp(db.VOCALIZATIONSDIR)+File.separator+"lf0");
            props.put(SKIPSIZE, "0.005");
            props.put(WINDOWSIZE, "0.005");
-           props.put(F0TIMELINE, db.getProp(db.VOCALIZATIONSDIR)+File.separator+"timelines"+File.separator+"vocalization_intonation_timeline"+db.getProp(db.MARYEXT));
+           props.put(F0TIMELINE, db.getProp(db.VOCALIZATIONSDIR)+File.separator+"files"+File.separator+"vocalization_intonation"+db.getProp(db.MARYEXT));
+           props.put(F0FEATDEF, db.getProp(db.VOCALIZATIONSDIR)+File.separator+"features"+File.separator+"vocalization_f0_feature_definition.txt");
        }
        return props;
     }
@@ -132,7 +155,8 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
      *  Reads and concatenates a list of waveforms into one single timeline file.
      * @throws IOException 
      */
-    public boolean compute() throws IOException {
+    @Override
+    public boolean compute() throws IOException, MaryConfigurationException {
         
         listenerUnits = new VocalizationUnitFileReader(getProp(UNITFILE));
         
@@ -174,7 +198,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
             double[] f0Array = null;
             
             try {
-                f0Array = getVocalizationF0(bnlVocalizations.getName(i));
+                f0Array = getVocalizationF0(bnlVocalizations.getName(i), false);
             } catch (UnsupportedAudioFileException e) {
                 e.printStackTrace();
             }
@@ -211,7 +235,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
      * @throws UnsupportedAudioFileException
      * @throws IOException
      */
-     private double[] getVocalizationF0(String baseName) throws UnsupportedAudioFileException, IOException {
+     private double[] getVocalizationF0(String baseName, boolean doInterpolate) throws UnsupportedAudioFileException, IOException {
      
          double[] f0Array = null;
          
@@ -219,7 +243,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
              
              String externalFormat = getProp(EXTERNALF0FORMAT);
              String externalExt    = getProp(EXTERNALEXT);
-             //System.out.println("Exteral f0 : "+externalExt);
+             System.out.println("Loading f0 contour from file : "+ getProp(PITCHDIR) + File.separator + baseName + externalExt);
              if ( "sptk".equals(externalFormat) ) {
                  String fileName = getProp(PITCHDIR) + File.separator + baseName + externalExt;
                  SPTKPitchReaderWriter sprw = new SPTKPitchReaderWriter(fileName);
@@ -235,6 +259,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
              PitchFileHeader params = new PitchFileHeader();
              F0TrackerAutocorrelationHeuristic tracker = new F0TrackerAutocorrelationHeuristic(params);
              String waveFile = db.getProp(db.VOCALIZATIONSDIR)+File.separator+"wav"+baseName+db.getProp(db.WAVEXT);
+             System.out.println("Computing f0 contour from wave file: "+ waveFile);
              AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(waveFile));
              
              // Enforce PCM_SIGNED encoding
@@ -248,6 +273,10 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
              tracker.pitchAnalyze(new BufferedDoubleDataSource(sentenceAudio));
              //double frameShiftTime = tracker.getSkipSizeInSeconds();
              f0Array = tracker.getF0Contour();
+         }
+         
+         if ( doInterpolate ) {
+             return interpolateF0Array(f0Array); 
          }
          
          return f0Array;

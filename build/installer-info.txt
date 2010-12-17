@@ -1,6 +1,6 @@
 MARY TTS is an open-source Text-To-Speech platform written in Pure Java.
 
-Requires Java 1.5 or newer.
+Requires Java 1.6 or newer.
 
 Getting started:
 	- start MARY server

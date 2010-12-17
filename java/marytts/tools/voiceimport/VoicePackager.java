@@ -29,11 +29,15 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import org.apache.commons.lang.ArrayUtils;
 
 import com.twmacinta.util.MD5;
 
@@ -50,16 +54,20 @@ import marytts.util.MaryUtils;
  */
 public class VoicePackager extends VoiceImportComponent {
 
-    private String name = "VoicePackager";
+    protected String name;
 
     protected DatabaseLayout db;
 
-    protected final String VOICETYPE = name + ".voiceType";
+    protected String VOICETYPE;
 
-    protected final String EXAMPLETEXT = name + ".exampleText";
+    protected String EXAMPLETEXTFILE;
 
-    protected final String LICENSEURL = name + ".licenseUrl";
+    protected String LICENSEURL;
 
+    protected String VOICEDESCRIPTION;
+
+    protected String VOCALIZATIONSUPPORT;
+    
     // constants to access filenames in database component properties and organize file list:
 
     protected final String CARTFILE = "CARTBuilder.cartFile";
@@ -91,6 +99,20 @@ public class VoicePackager extends VoiceImportComponent {
     protected final String WAVETIMELINE = "WaveTimelineMaker.waveTimeline";
 
     protected final String BASETIMELINE = "BasenameTimelineMaker.timelineFile";
+    
+    public VoicePackager() {
+        this("VoicePackager");
+    }
+
+    protected VoicePackager(String name) {
+        super();
+        this.name = name;
+        VOICETYPE = name + ".voiceType";
+        EXAMPLETEXTFILE = name + ".exampleTextFile";
+        LICENSEURL = name + ".licenseUrl";
+        VOICEDESCRIPTION = name + ".voiceDescription";
+        VOCALIZATIONSUPPORT = name + ".vocalizationSupport";
+    }
 
     /**
      * {@inheritDoc}
@@ -98,11 +120,13 @@ public class VoicePackager extends VoiceImportComponent {
     @Override
     protected void setupHelp() {
         props2Help = new TreeMap<String, String>();
-        props2Help.put(VOICETYPE, "voice type; one of <b>unit selection</b>, <b>FDPSOLA</b>, <b>HNM</b>"
+        props2Help.put(VOICETYPE, "voice type; one of <b>unit selection</b>, <b>HSMM</b>, <b>FDPSOLA</b>, <b>HNM</b>"
                 + " (note that support for FDPSOLA and HNM are experimental!)");
-        props2Help.put(EXAMPLETEXT, "file containing example text (for limited domain voices only)");
+        props2Help.put(EXAMPLETEXTFILE, "file containing example text (for limited domain voices only), leave blank for default");
         props2Help.put(LICENSEURL, "URL of the license agreement for this voice"
                 + " (<a href=\"http://creativecommons.org/licenses/by-nd/3.0/\">cc-by-nd</a> by default)");
+        props2Help.put(VOICEDESCRIPTION, "short text describing this voice");
+        props2Help.put(VOCALIZATIONSUPPORT, "if true package vocalization files with voice and set corresponding configuration settings");
     }
 
     /**
@@ -113,9 +137,15 @@ public class VoicePackager extends VoiceImportComponent {
         this.db = databaseLayout;
         if (props == null) {
             props = new TreeMap<String, String>();
-            props.put(VOICETYPE, "unit selection");
-            props.put(EXAMPLETEXT, "examples.text");
-            props.put(LICENSEURL, "http://creativecommons.org/licenses/by-nd/3.0/");
+            String voiceType = System.getProperty("VOICETYPE", "unit selection");
+            props.put(VOICETYPE, voiceType);
+            String exampleText = System.getProperty("EXAMPLETEXT", "");
+            props.put(EXAMPLETEXTFILE, exampleText);
+            String licenseUrl = System.getProperty("LICENSEURL", "http://mary.dfki.de/download/by-nd-3.0.html");
+            props.put(LICENSEURL, licenseUrl);
+            String voiceDescription = System.getProperty("VOICEDESCRIPTION", "");
+            props.put(VOICEDESCRIPTION, voiceDescription);
+            props.put(VOCALIZATIONSUPPORT, "false");
         }
         return props;
     }
@@ -130,9 +160,14 @@ public class VoicePackager extends VoiceImportComponent {
 
     /**
      * {@inheritDoc}
+     * 
+     * @throws Exception
      */
     @Override
-    public boolean compute() {
+    public boolean compute() throws Exception {
+        // (0) ensure that properties have valid values:
+        validateProperties();
+
         // (1) gather files required by this voice in a convenient structure:
         HashMap<String, File> files = getVoiceDataFiles();
 
@@ -161,6 +196,24 @@ public class VoicePackager extends VoiceImportComponent {
     }
 
     /**
+     * Check various properties for invalid values
+     * 
+     * @throws Exception
+     */
+    protected void validateProperties() throws Exception {
+        // ensure that voice type is supported:
+        if (!getProp(VOICETYPE).toLowerCase().matches("(unit selection|fdpsola|hnm|hsmm)")) {
+            throw new Exception("Unsupported voice type: " + getProp(VOICETYPE));
+        }
+        // check for valid license URL:
+        try {
+            new URL(getProp(LICENSEURL));
+        } catch (MalformedURLException e) {
+            throw new MalformedURLException(getProp(LICENSEURL) + " is not a valid URL!");
+        }
+    }
+
+    /**
      * Get the data files for this voice (which go into <tt>MARYBASE/lib/voices</tt>) and put them in a &lt;property, File&gt; Map
      * so that they can be accessed individually by the corresponding property key, e.g. "WaveTimelineMaker.waveTimeline" &rarr;
      * File("VOICE_DIR/mary/timeline_waves.mry")
@@ -180,10 +233,24 @@ public class VoicePackager extends VoiceImportComponent {
         }
 
         String[] properties = { CARTFILE, DURTREE, F0LEFTTREE, F0MIDTREE, F0RIGHTTREE, HALFPHONEFEATSAC, HALFPHONEFEATDEFAC,
-                HALFPHONEUNITS, JOINCOSTFEATS, JOINCOSTFEATDEF, PHONEFEATDEF, TIMELINE, BASETIMELINE };
+                HALFPHONEUNITS, JOINCOSTFEATS, JOINCOSTFEATDEF, PHONEFEATDEF, TIMELINE, BASETIMELINE, EXAMPLETEXTFILE };
+
+        // vocalization files, if available:
+        if ( "true".equals( getProp(VOCALIZATIONSUPPORT) ) ) {
+            String[] vocalizationProperties = { "VocalizationFeatureFileWriter.featureDefinition",
+                    "VocalizationTimelineMaker.waveTimeline", "VocalizationFeatureFileWriter.featureFile",
+                    "VocalizationUnitfileWriter.unitFile", "VocalizationIntonationWriter.intonationTimeLineFile", 
+                    "HNMFeatureFileWriter.hnmAnalysisTimelineFile", "VocalizationIntonationWriter.intonationFeatureDefinition"};
+            properties = (String[]) ArrayUtils.addAll(properties, vocalizationProperties);
+        }
 
         for (String property : properties) {
-            String fileName = getProperty(property);
+            String fileName;
+            try {
+                fileName = db.getProperty(property);
+            } catch (NullPointerException e) {
+                throw e;
+            }
             File file = new File(fileName);
             files.put(property, file);
         }
@@ -208,149 +275,175 @@ public class VoicePackager extends VoiceImportComponent {
         PrintWriter out = new PrintWriter(configFile);
 
         // generate the config file contents, line by line:
-        out.format("# Auto-generated config file for voice %s\n\n", getVoiceName());
+        out.format("# Auto-generated config file for voice %s\r\n\r\n", getVoiceName());
 
-        out.format("name = %s\n", getVoiceName());
-        out.format("# Declare \"group names\" as component that other components can require.\n");
-        out.format("# These correspond to abstract \"groups\" of which this component is an instance.\n");
-        out.format("provides = \\\n\t%s-voice\n\n", getVoiceLocale());
+        out.format("name = %s\r\n", getVoiceName());
+        out.format("# Declare \"group names\" as component that other components can require.\r\n");
+        out.format("# These correspond to abstract \"groups\" of which this component is an instance.\r\n");
+        out.format("provides = \\\r\n\t%s-voice\r\n\r\n", getVoiceLocale());
 
         // TODO these seem to be ignored by MaryProperties, are they really needed?
-        out.format("%s-voice.version = %s\n\n", getVoiceLocale(), getMaryVersion());
-        out.format("voice.version = %s\n\n", getMaryVersion());
+        out.format("%s-voice.version = %s\r\n\r\n", getVoiceLocale(), getMaryVersion());
+        out.format("voice.version = %s\r\n\r\n", getMaryVersion());
 
-        out.format("# List the dependencies, as a whitespace-separated list.\n");
-        out.format("# For each required component, an optional minimum version and an optional\n");
-        out.format("# download url can be given.\n");
-        out.format("# We can require a component by name or by an abstract \"group name\"\n");
-        out.format("# as listed under the \"provides\" element.\n");
-        out.format("requires = \\\n\t%s \\\n\tmarybase\n\n", getVoiceLocale());
+        out.format("# List the dependencies, as a whitespace-separated list.\r\n");
+        out.format("# For each required component, an optional minimum version and an optional\r\n");
+        out.format("# download url can be given.\r\n");
+        out.format("# We can require a component by name or by an abstract \"group name\"\r\n");
+        out.format("# as listed under the \"provides\" element.\r\n");
+        out.format("requires = \\\r\n\t%s \\\r\n\tmarybase\r\n\r\n", getVoiceLocale());
 
-        out.format("requires.marybase.version = %s\n", getMaryVersion());
-        out.format("requires.%s.version = %s\n", getVoiceLocale(), getMaryVersion());
+        out.format("requires.marybase.version = %s\r\n", getMaryVersion());
+        out.format("requires.%s.version = %s\r\n", getVoiceLocale(), getMaryVersion());
         // TODO: this is obviously a placeholder url; do we really need this?
-        out.format("requires.%s.download = http://mary.dfki.de/download/mary-install-4.x.x.jar\n", getVoiceLocale());
+        out.format("requires.%s.download = http://mary.dfki.de/download/mary-install-4.x.x.jar\r\n", getVoiceLocale());
 
-        out.format("####################################################################\n");
-        out.format("####################### Module settings  ###########################\n");
-        out.format("####################################################################\n");
-        out.format("# For keys ending in \".list\", values will be appended across config files,\n");
-        out.format("# so that .list keys can occur in several config files.\n");
-        out.format("# For all other keys, values will be copied to the global config, so\n");
-        out.format("# keys should be unique across config files.\n");
+        out.format("####################################################################\r\n");
+        out.format("####################### Module settings  ###########################\r\n");
+        out.format("####################################################################\r\n");
+        out.format("# For keys ending in \".list\", values will be appended across config files,\r\n");
+        out.format("# so that .list keys can occur in several config files.\r\n");
+        out.format("# For all other keys, values will be copied to the global config, so\r\n");
+        out.format("# keys should be unique across config files.\r\n");
 
-        out.format("# If this setting is not present, a default value of 0 is assumed.\n");
-        out.format("voice.%s.wants.to.be.default = 20\n\n", getVoiceName());
+        out.format("# If this setting is not present, a default value of 0 is assumed.\r\n");
+        out.format("voice.%s.wants.to.be.default = 20\r\n\r\n", getVoiceName());
 
-        out.format("# Add your voice to the list of Unit Selection Voices\n");
-        out.format("unitselection.voices.list = \\\n\t%s\n\n", getVoiceName());
+        out.format("# Add your voice to the list of Unit Selection Voices\r\n");
+        out.format("unitselection.voices.list = \\\r\n\t%s\r\n\r\n", getVoiceName());
 
-        out.format("# Set your voice specifications\n");
-        out.format("voice.%s.gender = %s\n", getVoiceName(), getVoiceGender());
-        out.format("voice.%s.locale = %s\n", getVoiceName(), getVoiceLocale());
-        out.format("voice.%s.domain = %s\n", getVoiceName(), getVoiceDomain());
-        out.format("voice.%s.samplingRate = %d\n\n", getVoiceName(), getVoiceSamplingRate());
+        out.format("# Set your voice specifications\r\n");
+        out.format("voice.%s.gender = %s\r\n", getVoiceName(), getVoiceGender());
+        out.format("voice.%s.locale = %s\r\n", getVoiceName(), getVoiceLocale());
+        out.format("voice.%s.domain = %s\r\n", getVoiceName(), getVoiceDomain());
+        out.format("voice.%s.samplingRate = %d\r\n\r\n", getVoiceName(), getVoiceSamplingRate());
 
-        out.format("# Relative weight of the target cost function vs. the join cost function\n");
-        out.format("voice.bits3v2-hnm.viterbi.wTargetCosts = 0.7\n\n");
+        out.format("# Relative weight of the target cost function vs. the join cost function\r\n");
+        out.format("voice.%s.viterbi.wTargetCosts = 0.7\r\n\r\n", getVoiceName());
 
-        out.format("# Beam size in dynamic programming: smaller => faster but worse quality.\n");
-        out.format("# (set to -1 to disable beam search; very slow but best available quality)\n");
-        out.format("voice.bits3v2-hnm.viterbi.beamsize = 100\n\n");
+        out.format("# Beam size in dynamic programming: smaller => faster but worse quality.\r\n");
+        out.format("# (set to -1 to disable beam search; very slow but best available quality)\r\n");
+        out.format("voice.%s.viterbi.beamsize = 100\r\n\r\n", getVoiceName());
 
         // TODO surely this should be dependent on having locale == "de"?
-        out.format("# Sampa mapping for German voices \n");
-        out.format("voice.%s.sampamap = \\\n", getVoiceName());
-        out.format("\t=6->6 \\\n");
-        out.format("\t=n->n \\\n");
-        out.format("\t=m->m \\\n");
-        out.format("\t=N->N \\\n");
-        out.format("\t=l->l \\\n");
-        out.format("\ti->i: \\\n");
-        out.format("\te->e: \\\n");
-        out.format("\tu->u: \\\n");
-        out.format("\to->o: \n\n");
+        out.format("# Sampa mapping for German voices \r\n");
+        out.format("voice.%s.sampamap = \\\r\n", getVoiceName());
+        out.format("\t=6->6 \\\r\n");
+        out.format("\t=n->n \\\r\n");
+        out.format("\t=m->m \\\r\n");
+        out.format("\t=N->N \\\r\n");
+        out.format("\t=l->l \\\r\n");
+        out.format("\ti->i: \\\r\n");
+        out.format("\te->e: \\\r\n");
+        out.format("\tu->u: \\\r\n");
+        out.format("\to->o: \r\n\r\n");
 
-        out.format("# Java classes to use for the various unit selection components\n");
-        out.format("voice.%s.databaseClass            = marytts.unitselection.data.DiphoneUnitDatabase\n", getVoiceName());
-        out.format("voice.%s.selectorClass            = marytts.unitselection.select.DiphoneUnitSelector\n", getVoiceName());
+        out.format("# Java classes to use for the various unit selection components\r\n");
+        out.format("voice.%s.databaseClass            = marytts.unitselection.data.DiphoneUnitDatabase\r\n", getVoiceName());
+        out.format("voice.%s.selectorClass            = marytts.unitselection.select.DiphoneUnitSelector\r\n", getVoiceName());
         if (getProp(VOICETYPE).equalsIgnoreCase("HNM")) {
-            out.format("voice.%s.concatenatorClass        = marytts.unitselection.concat.HnmUnitConcatenator\n", getVoiceName());
+            out.format("voice.%s.concatenatorClass        = marytts.unitselection.concat.HnmUnitConcatenator\r\n", getVoiceName());
         } else if (getProp(VOICETYPE).equalsIgnoreCase("FDPSOLA")) {
-            out.format("voice.%s.concatenatorClass        = marytts.unitselection.concat.FdpsolaUnitConcatenator\n",
+            out.format("voice.%s.concatenatorClass        = marytts.unitselection.concat.FdpsolaUnitConcatenator\r\n",
                     getVoiceName());
         } else {
-            out.format("voice.%s.concatenatorClass        = marytts.unitselection.concat.OverlapUnitConcatenator\n",
+            out.format("voice.%s.concatenatorClass        = marytts.unitselection.concat.OverlapUnitConcatenator\r\n",
                     getVoiceName());
         }
-        out.format("voice.%s.targetCostClass          = marytts.unitselection.select.DiphoneFFRTargetCostFunction\n",
+        out.format("voice.%s.targetCostClass          = marytts.unitselection.select.DiphoneFFRTargetCostFunction\r\n",
                 getVoiceName());
-        out.format("voice.%s.joinCostClass            = marytts.unitselection.select.JoinCostFeatures\n", getVoiceName());
-        out.format("voice.%s.unitReaderClass          = marytts.unitselection.data.UnitFileReader\n", getVoiceName());
-        out.format("voice.%s.cartReaderClass          = marytts.cart.io.MARYCartReader\n", getVoiceName());
+        out.format("voice.%s.joinCostClass            = marytts.unitselection.select.JoinCostFeatures\r\n", getVoiceName());
+        out.format("voice.%s.unitReaderClass          = marytts.unitselection.data.UnitFileReader\r\n", getVoiceName());
+        out.format("voice.%s.cartReaderClass          = marytts.cart.io.MARYCartReader\r\n", getVoiceName());
         if (getProp(VOICETYPE).equalsIgnoreCase("HNM")) {
-            out.format("voice.%s.audioTimelineReaderClass = marytts.unitselection.data.HnmTimelineReader\n\n", getVoiceName());
+            out.format("voice.%s.audioTimelineReaderClass = marytts.unitselection.data.HnmTimelineReader\r\n\r\n", getVoiceName());
         } else {
-            out.format("voice.%s.audioTimelineReaderClass = marytts.unitselection.data.TimelineReader\n\n", getVoiceName());
+            out.format("voice.%s.audioTimelineReaderClass = marytts.unitselection.data.TimelineReader\r\n\r\n", getVoiceName());
         }
 
-        out.format("# Voice-specific files\n");
-        out.format("voice.%s.featureFile       = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(),
+        out.format("# Voice-specific files\r\n");
+        out.format("voice.%s.featureFile       = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(),
                 files.get(HALFPHONEFEATSAC).getName());
-        out.format("voice.%s.targetCostWeights = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(),
+        out.format("voice.%s.targetCostWeights = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(),
                 files.get(HALFPHONEFEATDEFAC).getName());
-        out.format("voice.%s.joinCostFile      = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(),
+        out.format("voice.%s.joinCostFile      = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(),
                 files.get(JOINCOSTFEATS).getName());
-        out.format("voice.%s.joinCostWeights   = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(),
+        out.format("voice.%s.joinCostWeights   = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(),
                 files.get(JOINCOSTFEATDEF).getName());
-        out.format("voice.%s.unitsFile         = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(),
+        out.format("voice.%s.unitsFile         = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(),
                 files.get(HALFPHONEUNITS).getName());
-        out.format("voice.%s.cartFile          = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(),
+        out.format("voice.%s.cartFile          = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(),
                 files.get(CARTFILE).getName());
-        out.format("voice.%s.audioTimelineFile = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(),
+        out.format("voice.%s.audioTimelineFile = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(),
                 files.get(TIMELINE).getName());
-        out.format("voice.%s.basenameTimeline  = MARY_BASE/lib/voices/%s/%s\n\n", getVoiceName(), getVoiceName(),
+        out.format("voice.%s.basenameTimeline  = MARY_BASE/lib/voices/%s/%s\r\n\r\n", getVoiceName(), getVoiceName(),
                 files.get(BASETIMELINE).getName());
 
-        // TODO is this ever used anymore?
-        if (getVoiceDomain().equalsIgnoreCase("limited")) {
-            out.format("# Location of example text\n");
-            out.format("voice.%s.exampleTextFile = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(),
-                    getProp(EXAMPLETEXT));
+        if (getVoiceDomain().equalsIgnoreCase("limited") || getProp(EXAMPLETEXTFILE).length() != 0) {
+            out.format("# Location of example text\r\n");
+            out.format("voice.%s.exampleTextFile = MARY_BASE/lib/voices/%s/%s\r\n\r\n", getVoiceName(), getVoiceName(), files
+                    .get(EXAMPLETEXTFILE).getName());
         }
 
-        out.format("# Modules to use for predicting acoustic target features for this voice:\n\n");
+        out.format("# Modules to use for predicting acoustic target features for this voice:\r\n\r\n");
 
-        out.format("voice.%s.acousticModels = duration F0 midF0 rightF0\n\n", getVoiceName());
+        out.format("voice.%s.acousticModels = duration F0 midF0 rightF0\r\n\r\n", getVoiceName());
 
-        out.format("voice.%s.duration.model = cart\n", getVoiceName());
-        out.format("voice.%s.duration.data = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(), files.get(DURTREE)
+        out.format("voice.%s.duration.model = cart\r\n", getVoiceName());
+        out.format("voice.%s.duration.data = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(), files.get(DURTREE)
                 .getName());
-        out.format("voice.%s.duration.attribute = d\n\n", getVoiceName());
+        out.format("voice.%s.duration.attribute = d\r\n\r\n", getVoiceName());
 
-        out.format("voice.%s.F0.model = cart\n", getVoiceName());
-        out.format("voice.%s.F0.data = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(), files.get(F0LEFTTREE)
+        out.format("voice.%s.F0.model = cart\r\n", getVoiceName());
+        out.format("voice.%s.F0.data = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(), files.get(F0LEFTTREE)
                 .getName());
-        out.format("voice.%s.F0.attribute = f0\n", getVoiceName());
-        out.format("voice.%s.F0.attribute.format = (0,%%.0f)\n", getVoiceName());
-        out.format("voice.%s.F0.predictFrom = firstVowels\n", getVoiceName());
-        out.format("voice.%s.F0.applyTo = firstVoicedSegments\n\n", getVoiceName());
+        out.format("voice.%s.F0.attribute = f0\r\n", getVoiceName());
+        out.format("voice.%s.F0.attribute.format = (0,%%.0f)\r\n", getVoiceName());
+        out.format("voice.%s.F0.predictFrom = firstVowels\r\n", getVoiceName());
+        out.format("voice.%s.F0.applyTo = firstVoicedSegments\r\n\r\n", getVoiceName());
 
-        out.format("voice.%s.midF0.model = cart\n", getVoiceName());
-        out.format("voice.%s.midF0.data = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(), files.get(F0MIDTREE)
+        out.format("voice.%s.midF0.model = cart\r\n", getVoiceName());
+        out.format("voice.%s.midF0.data = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(), files.get(F0MIDTREE)
                 .getName());
-        out.format("voice.%s.midF0.attribute = f0\n", getVoiceName());
-        out.format("voice.%s.midF0.attribute.format = (50,%%.0f)\n", getVoiceName());
-        out.format("voice.%s.midF0.predictFrom = firstVowels\n", getVoiceName());
-        out.format("voice.%s.midF0.applyTo = firstVowels\n\n", getVoiceName());
+        out.format("voice.%s.midF0.attribute = f0\r\n", getVoiceName());
+        out.format("voice.%s.midF0.attribute.format = (50,%%.0f)\r\n", getVoiceName());
+        out.format("voice.%s.midF0.predictFrom = firstVowels\r\n", getVoiceName());
+        out.format("voice.%s.midF0.applyTo = firstVowels\r\n\r\n", getVoiceName());
 
-        out.format("voice.%s.rightF0.model = cart\n", getVoiceName());
-        out.format("voice.%s.rightF0.data = MARY_BASE/lib/voices/%s/%s\n", getVoiceName(), getVoiceName(), files.get(F0RIGHTTREE)
-                .getName());
-        out.format("voice.%s.rightF0.attribute = f0\n", getVoiceName());
-        out.format("voice.%s.rightF0.attribute.format = (100,%%.0f)\n", getVoiceName());
-        out.format("voice.%s.rightF0.predictFrom = firstVowels\n", getVoiceName());
-        out.format("voice.%s.rightF0.applyTo = lastVoicedSegments\n", getVoiceName());
+        out.format("voice.%s.rightF0.model = cart\r\n", getVoiceName());
+        out.format("voice.%s.rightF0.data = MARY_BASE/lib/voices/%s/%s\r\n", getVoiceName(), getVoiceName(),
+                files.get(F0RIGHTTREE).getName());
+        out.format("voice.%s.rightF0.attribute = f0\r\n", getVoiceName());
+        out.format("voice.%s.rightF0.attribute.format = (100,%%.0f)\r\n", getVoiceName());
+        out.format("voice.%s.rightF0.predictFrom = firstVowels\r\n", getVoiceName());
+        out.format("voice.%s.rightF0.applyTo = lastVoicedSegments\r\n", getVoiceName());
+
+        // vocalization support, if available:
+        if ( "true".equals( getProp(VOCALIZATIONSUPPORT) ) ) {
+            out.format("\r\n# support for synthesis of vocalizations\r\n");
+            out.format("voice.%s.vocalizationSupport = true\r\n", getVoiceName());
+            out.format("voice.%s.vocalization.unitfile = MARY_BASE/lib/voices/%s/vocalization_units.mry\r\n", getVoiceName(),
+                    getVoiceName());
+            out.format("voice.%s.vocalization.timeline = MARY_BASE/lib/voices/%s/vocalization_wave_timeline.mry\r\n",
+                    getVoiceName(), getVoiceName());
+            out.format("voice.%s.vocalization.featurefile = MARY_BASE/lib/voices/%s/vocalization_features.mry\r\n",
+                    getVoiceName(), getVoiceName());
+            out.format(
+                    "voice.%s.vocalization.featureDefinitionFile = MARY_BASE/lib/voices/%s/vocalization_feature_definition.txt\r\n",
+                    getVoiceName(), getVoiceName());
+            out.format("voice.%s.vocalization.intonationfile = MARY_BASE/lib/voices/%s/vocalization_intonation.mry\r\n",
+                    getVoiceName(), getVoiceName());
+            out.format("voice.%s.vocalization.synthesisTechnology = fdpsola\r\n\r\n", getVoiceName());
+
+            out.format("voice.%s.f0ContourImposeSupport = true\r\n", getVoiceName());
+            out.format("voice.%s.vocalization.usePrecondition = true\r\n", getVoiceName());
+            out.format("voice.%s.vocalization.contourCostWeight = 0.05\r\n", getVoiceName());
+            out.format(
+                    "voice.%s.vocalization.intonation.featureDefinitionFile = MARY_BASE/lib/voices/%s/vocalization_f0_feature_definition.txt\r\n",
+                    getVoiceName(), getVoiceName());
+            
+            out.format("voice.%s.vocalization.intonation.numberOfSuitableUnits = 5\r\n", getVoiceName());
+        }
 
         out.close();
         return configFile;
@@ -370,7 +463,7 @@ public class VoicePackager extends VoiceImportComponent {
         byte[] buffer = new byte[4096];
 
         // initialize zip file:
-        String zipFileName = String.format("%s-%s.zip", getXMLCompatibleVoiceLocale(), getVoiceName());
+        String zipFileName = String.format("mary-%s-%s.zip", getVoiceName(), getMaryVersion());
         logger.info("Creating voice package " + zipFileName);
         File zipFile = new File(getMaryBase() + "download" + File.separator + zipFileName);
         FileOutputStream outputStream = new FileOutputStream(zipFile);
@@ -384,6 +477,21 @@ public class VoicePackager extends VoiceImportComponent {
         for (String key : files.keySet()) {
             File file = files.get(key);
 
+            // open data file for reading:
+            FileInputStream inputStream = null;
+            try {
+                inputStream = new FileInputStream(file);
+            } catch (FileNotFoundException e) {
+                if (key.equals(EXAMPLETEXTFILE) && getProp(EXAMPLETEXTFILE).length() == 0
+                        && !getVoiceDomain().equalsIgnoreCase("limited")) {
+                    logger.debug("Example text file " + getProp(EXAMPLETEXTFILE) + " not found, ignoring.");
+                    continue;
+                } else {
+                    logger.error("File " + file + " not found!");
+                    throw e;
+                }
+            }
+
             // make new entry in zip file, with the appropriate target path:
             logger.debug("Deflating file " + file);
             if (key.equals("CONFIG")) {
@@ -392,10 +500,8 @@ public class VoicePackager extends VoiceImportComponent {
                 zipStream.putNextEntry(new ZipEntry(voicePath + file.getName()));
             }
 
-            // open data file for reading:
-            FileInputStream inputStream = new FileInputStream(file);
             int len;
-            // and stream its contents into zip file:
+            // stream file contents into zip file:
             while ((len = inputStream.read(buffer)) > 0) {
                 zipStream.write(buffer, 0, len);
             }
@@ -423,7 +529,7 @@ public class VoicePackager extends VoiceImportComponent {
         logger.info("Hashing voice package");
         String zipFileMd5Hash = MD5.asHex(MD5.getHash(zipFile));
 
-        String componentFileName = String.format("%s-%s-component.xml", getXMLCompatibleVoiceLocale(), getVoiceName());
+        String componentFileName = String.format("mary-%s-%s-component.xml", getVoiceName(), getMaryVersion());
         logger.info("Creating component file " + componentFileName);
         File componentFile = new File(getMaryBase() + File.separator + "download" + File.separator + componentFileName);
         PrintWriter out = new PrintWriter(componentFile);
@@ -433,7 +539,7 @@ public class VoicePackager extends VoiceImportComponent {
         out.format("<marytts-install xmlns=\"http://mary.dfki.de/installer\">\n");
         out.format("    <voice gender=\"%s\" locale=\"%s\" name=\"%s\" type=\"%s\" version=\"%s\">\n", getVoiceGender(),
                 getXMLCompatibleVoiceLocale(), getVoiceName(), getProp(VOICETYPE), getMaryVersion());
-        out.format("        <description></description>\n");
+        out.format("        <description>%s</description>\n", getProp(VOICEDESCRIPTION));
         out.format("        <license href=\"%s\"/>\n", getProp(LICENSEURL));
         out.format("        <package filename=\"%s\"\n", zipFile.getName());
         out.format("            md5sum=\"%s\" size=\"%d\">\n", zipFileMd5Hash, zipFile.length());
@@ -461,7 +567,7 @@ public class VoicePackager extends VoiceImportComponent {
     public String getVoiceLocale() {
         return MaryUtils.string2locale(db.getProp(db.LOCALE)).toString();
     }
-    
+
     public String getXMLCompatibleVoiceLocale() {
         return MaryUtils.locale2xmllang(MaryUtils.string2locale(db.getProp(db.LOCALE)));
     }
@@ -475,7 +581,12 @@ public class VoicePackager extends VoiceImportComponent {
     }
 
     public String getMaryVersion() {
-        return db.getProp(db.MARYBASEVERSION);
+        // TODO temporary workaround for ticket:360
+        String compatibleVersion = db.getProp(db.MARYBASEVERSION);
+        if (compatibleVersion.equals("trunk")) {
+            compatibleVersion = "4.0.0";
+        }
+        return compatibleVersion;
     }
 
     public String getVoiceGender() {
@@ -488,33 +599,6 @@ public class VoicePackager extends VoiceImportComponent {
 
     public int getVoiceSamplingRate() {
         return Integer.parseInt(db.getProp(db.SAMPLINGRATE));
-    }
-
-    /**
-     * Get the value of a property from the voice building DatabaseLayout, or from a VoiceImportComponent.
-     * 
-     * @param propertyName
-     *            (e.g. "db.MARYBASE" or "VoicePackager.voiceType")
-     * @return the property value
-     * @throws NullPointerException
-     *             if <b>propertyName</b> cannot be resolved
-     */
-    public String getProperty(String propertyName) {
-        String[] propertyNameParts = propertyName.split("\\.");
-        String component = propertyNameParts[0];
-        String property = propertyNameParts[1];
-
-        String value;
-        if (component.equals("db")) {
-            value = db.getProp(property);
-        } else {
-            VoiceImportComponent voiceImportComponent = db.getComponent(component);
-            value = voiceImportComponent.getProp(propertyName);
-        }
-        if (value == null) {
-            throw new NullPointerException(propertyName + " cannot be resolved!");
-        }
-        return value;
     }
 
     public String getMaryBase() {

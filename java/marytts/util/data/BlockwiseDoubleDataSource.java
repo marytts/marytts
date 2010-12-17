@@ -40,6 +40,7 @@ public class BlockwiseDoubleDataSource extends BufferedDoubleDataSource {
      * @param minLength the amount of data to get from the input source
      * @return true if the requested amount could be read, false if none or less data could be read.
      */
+    @Override
     protected boolean readIntoBuffer(int minLength)
     {
         if (bufferSpaceLeft()<minLength) {
@@ -60,6 +61,9 @@ public class BlockwiseDoubleDataSource extends BufferedDoubleDataSource {
                 increaseBufferSize(writePos+blockSize);
             }
             int read = readBlock(buf, writePos);
+            if (read == 0) {
+                break; // cannot read any more blocks
+            }
             writePos += read;
             readSum += read;
         }

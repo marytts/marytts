@@ -32,23 +32,21 @@ import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.exceptions.MaryConfigurationException;
+import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 
-import marytts.modules.acoustic.HMMModel;
 import marytts.modules.acoustic.Model;
 import marytts.modules.acoustic.ProsodyElementHandler;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
-
-import marytts.server.MaryProperties;
 
 import marytts.unitselection.select.UnitSelector;
 
@@ -62,8 +60,6 @@ import marytts.util.dom.MaryDomUtils;
  * 
  */
 public class AcousticModeller extends InternalModule {
-
-    private Map<String, List<Element>> elementLists;
 
     // three constructors adapted from DummyAllophones2AcoustParams (used if this is in modules.classes.list):
 
@@ -136,7 +132,7 @@ public class AcousticModeller extends InternalModule {
         super("AcousticModeller", MaryDataType.ALLOPHONES, MaryDataType.ACOUSTPARAMS, locale);
     }
 
-    public MaryData process(MaryData d) {
+    public MaryData process(MaryData d) throws SynthesisException {
         Document doc = d.getDocument();
         MaryData output = new MaryData(outputType(), d.getLocale());
 
@@ -158,6 +154,7 @@ public class AcousticModeller extends InternalModule {
             output.setDocument(doc);
             return output;
         }
+        assert voice != null;
 
         // get models from voice, if they are defined:
         Map<String, Model> models = voice.getAcousticModels();
@@ -167,61 +164,97 @@ public class AcousticModeller extends InternalModule {
             output.setDocument(doc);
             return output;
         }
+        assert models != null;
 
         /*
          * Actual processing below here; applies only when Voice provides appropriate models:
          */
 
         // parse the MaryXML Document to populate Lists of relevant Elements:
-        parseDocument(doc);
-
-        // unpack elementLists from Map:
-        // these are no longer needed because the Models now have predictFrom and applyTo information, which default to "segments"
-        // List<Element> segments = elementLists.get("segments");
-        // List<Element> firstVoicedSegments = elementLists.get("firstVoicedSegments");
-        // List<Element> firstVowels = elementLists.get("firstVowels");
-        // List<Element> lastVoicedSegments = elementLists.get("lastVoicedSegments");
-        // List<Element> boundaries = elementLists.get("boundaries");
-        // TODO remove these
+        Map<String, List<Element>> elementLists = parseDocument(doc);
 
         // apply critical Models to Elements:
         Model durationModel = voice.getDurationModel();
-        durationModel.applyTo(elementLists.get(durationModel.getApplyTo()));
+        if (durationModel == null) {
+            throw new SynthesisException("No duration model available for voice " + voice);
+        }
+        List<Element> durationElements = elementLists.get(durationModel.getApplyTo());
+        if (durationElements == null) {
+            throw new SynthesisException("Could not determine to which Elements to apply duration model!");
+        }
+        try {
+            durationModel.applyTo(durationElements); // Note that this assumes that Elements always predict their own duration!
+        } catch (MaryConfigurationException e) {
+            throw new SynthesisException("Duration model could not be applied", e);
+        }
 
         // hack duration attributes:
         // IMPORTANT: this hack has to be done right after predict durations,
         // because the dur value is used by the HMMs, in case of prediction of f0.
-        hackSegmentDurations(elementLists.get(durationModel.getApplyTo()));
+        hackSegmentDurations(durationElements);
 
         // TODO this should be reduced further to the point where any HMM-specific stuff is handled opaquely within HMMModel
         // finally we can then pass elementLists into Model.apply and the Model will know which Element Lists to process
-        /*Model f0Model = voice.getF0Model();
-        if (f0Model instanceof HMMModel) {
-            ((HMMModel) f0Model).evaluate(elementLists.get(f0Model.getApplyTo()));
-        } else {
-            f0Model.applyFromTo(elementLists.get(f0Model.getPredictFrom()), elementLists.get(f0Model.getApplyTo()));
-        }*/
+        /*
+         * Model f0Model = voice.getF0Model(); if (f0Model instanceof HMMModel) { ((HMMModel)
+         * f0Model).evaluate(elementLists.get(f0Model.getApplyTo())); } else {
+         * f0Model.applyFromTo(elementLists.get(f0Model.getPredictFrom()), elementLists.get(f0Model.getApplyTo())); }
+         */
         Model f0Model = voice.getF0Model();
-        f0Model.applyFromTo(elementLists.get(f0Model.getPredictFrom()), elementLists.get(f0Model.getApplyTo()));
-        
-        voice.getBoundaryModel().applyTo(elementLists.get(voice.getBoundaryModel().getApplyTo()));
+        if (f0Model == null) {
+            throw new SynthesisException("No F0 model available for voice " + voice);
+        }
+        try {
+            List<Element> predictFromElements = elementLists.get(f0Model.getPredictFrom());
+            List<Element> applyToElements = elementLists.get(f0Model.getApplyTo());
+            if (predictFromElements == null || applyToElements == null) {
+                throw new SynthesisException("Could not determine to which Elements to apply F0 model!");
+            }
+            f0Model.applyFromTo(predictFromElements, applyToElements);
+        } catch (MaryConfigurationException e) {
+            throw new SynthesisException("Could not apply F0 model", e);
+        }
+
+        Model boundaryModel = voice.getBoundaryModel();
+        if (boundaryModel == null) {
+            throw new SynthesisException("No boundary model available for voice " + voice);
+        }
+        try {
+            List<Element> boundaryElements = elementLists.get(boundaryModel.getApplyTo());
+            if (boundaryElements == null) {
+                throw new SynthesisException("Could not determine to which Elements to apply boundary model!");
+            }
+            voice.getBoundaryModel().applyTo(boundaryElements);
+        } catch (MaryConfigurationException e) {
+            throw new SynthesisException("Could not apply boundary model", e);
+        }
 
         // apply other Models, if applicable:
         Map<String, Model> otherModels = voice.getOtherModels();
-        if (!otherModels.isEmpty()) {
+        if (otherModels != null && !otherModels.isEmpty()) {
             for (String modelName : otherModels.keySet()) {
                 Model model = models.get(modelName);
-                List<Element> predictFromElements = elementLists.get(model.getPredictFrom());
-                List<Element> applyToElements = elementLists.get(model.getApplyTo());
-                // TODO handle cases where wrong config causes these to be null
-                // remember, the Model constructor will predict from, and apply the model to, "segments" by default
-                model.applyFromTo(predictFromElements, applyToElements);
+                if (model == null) {
+                    throw new SynthesisException("Cannot apply invalid model");
+                }
+                try {
+                    List<Element> predictFromElements = elementLists.get(model.getPredictFrom());
+                    List<Element> applyToElements = elementLists.get(model.getApplyTo());
+                    if (predictFromElements == null || applyToElements == null) {
+                        throw new SynthesisException("Could not determine to which Elements to apply model '" + modelName + "'");
+                    }
+                    // remember, the Model constructor will predict from, and apply the model to, "segments" by default
+                    model.applyFromTo(predictFromElements, applyToElements);
+                } catch (MaryConfigurationException e) {
+                    throw new SynthesisException("Could not apply model '" + modelName + "'", e);
+                }
             }
         }
 
         // Once prosody values are predicted apply modifications if any
         logger.debug("\nApplying prosody modification if any:");
         ProsodyElementHandler prosodyHandler = new ProsodyElementHandler();
+        // TODO catch exceptions thrown by prosodyHandler:
         prosodyHandler.process(doc);
 
         output.setDocument(doc);
@@ -237,6 +270,7 @@ public class AcousticModeller extends InternalModule {
      *            a List of segment Elements
      */
     private void hackSegmentDurations(List<Element> elements) {
+        assert elements != null;
         float cumulEndInSeconds = 0;
         for (Element segment : elements) {
             float durationInSeconds = Float.parseFloat(segment.getAttribute("d"));
@@ -256,11 +290,15 @@ public class AcousticModeller extends InternalModule {
      * Parse the Document to populate the Lists of Elements
      * 
      * @param doc
+     *            the Document to parse
+     * @return A Map of Lists of Elements, accessible by keys such as "segments", etc.
+     * @throws SynthesisException
+     *             if the Document or some of the relevant Elements cannot be parsed properly
      */
-    private void parseDocument(Document doc) {
+    private Map<String, List<Element>> parseDocument(Document doc) throws SynthesisException {
 
         // initialize Element Lists:
-        elementLists = new HashMap<String, List<Element>>();
+        Map<String, List<Element>> elementLists = new HashMap<String, List<Element>>();
         List<Element> segments = new ArrayList<Element>();
         List<Element> boundaries = new ArrayList<Element>();
         List<Element> firstVoicedSegments = new ArrayList<Element>();
@@ -269,9 +307,15 @@ public class AcousticModeller extends InternalModule {
         List<Element> voicedSegments = new ArrayList<Element>();
 
         // walk over all syllables in MaryXML document:
-        TreeWalker treeWalker = MaryDomUtils.createTreeWalker(doc, MaryXML.SYLLABLE, MaryXML.BOUNDARY);
+        TreeWalker treeWalker = null;
+        try {
+            treeWalker = MaryDomUtils.createTreeWalker(doc, MaryXML.SYLLABLE, MaryXML.BOUNDARY);
+        } catch (DOMException e) {
+            throw new SynthesisException("Could not parse XML Document", e);
+        }
         Node node;
         while ((node = treeWalker.nextNode()) != null) {
+            assert node != null;
             Element element = (Element) node;
 
             // handle boundaries
@@ -287,8 +331,8 @@ public class AcousticModeller extends InternalModule {
             AllophoneSet allophoneSet = null; // TODO should this be here, or rather outside the loop?
             try {
                 allophoneSet = AllophoneSet.determineAllophoneSet(element);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (MaryConfigurationException e) {
+                throw new SynthesisException("Could not determine AllophoneSet", e);
             }
             assert allophoneSet != null;
 
@@ -298,17 +342,26 @@ public class AcousticModeller extends InternalModule {
             Element firstVowel = null;
             Element lastVoicedSegment = null;
 
-            // iterate over "ph" children of syllable:
+            // iterate over "ph" children of syllable
             for (segment = MaryDomUtils.getFirstElementByTagName(node, MaryXML.PHONE); segment != null; segment = MaryDomUtils
                     .getNextOfItsKindIn(segment, element)) {
+                assert segment != null;
 
                 // in passing, append segment to segments List:
                 segments.add(segment);
 
                 // get "p" attribute...
                 String phone = UnitSelector.getPhoneSymbol(segment);
+                if (phone.length() == 0) {
+                    throw new SynthesisException("No phone found for segment " + segment);
+                }
+
                 // ...and get the corresponding allophone, which knows about its phonological features:
                 Allophone allophone = allophoneSet.getAllophone(phone);
+                if (allophone == null) {
+                    throw new SynthesisException("No Allophone found for phone '" + phone + "'");
+                }
+
                 if (allophone.isVoiced()) { // all and only voiced segments are potential F0 anchors
                     voicedSegments.add(segment);
                     if (firstVoicedSegment == null) {
@@ -321,19 +374,14 @@ public class AcousticModeller extends InternalModule {
                 }
             }
 
-            try {
-                // at this point, no TBU should be null:
-                assert firstVoicedSegment != null;
-                assert firstVowel != null;
-                assert lastVoicedSegment != null;
-
+            // at this point, no TBU should be null:
+            if (firstVoicedSegment == null || firstVowel == null || lastVoicedSegment == null) {
+                logger.debug("WARNING: could not identify F0 anchors in malformed syllable: '" + element.getAttribute("ph") + "'");
+            } else {
                 // we have what we need, append to Lists:
                 firstVoicedSegments.add(firstVoicedSegment);
                 firstVowels.add(firstVowel);
                 lastVoicedSegments.add(lastVoicedSegment);
-            } catch (AssertionError e) {
-                logger.debug("WARNING: could not identify F0 anchors in malformed syllable: " + element.getAttribute("ph"));
-                e.printStackTrace();
             }
         }
 
@@ -344,6 +392,7 @@ public class AcousticModeller extends InternalModule {
         elementLists.put("firstVowels", firstVowels);
         elementLists.put("lastVoicedSegments", lastVoicedSegments);
         elementLists.put("boundaries", boundaries);
+        return elementLists;
     }
 
 }

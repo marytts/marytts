@@ -60,6 +60,7 @@ import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
+import marytts.util.io.FileUtils;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -225,7 +226,7 @@ public class Request {
         if (defaultVoice == null) {
             defaultVoice = Voice.getSuitableVoice(inputData);
         }
-        assert defaultVoice != null;
+        //assert defaultVoice != null;
 
         if (inputData.getDefaultVoice() == null) {
             inputData.setDefaultVoice(defaultVoice);
@@ -240,6 +241,12 @@ public class Request {
      * Read the input data from a Reader.
      */
     public void readInputData(Reader inputReader) throws Exception {
+        String inputText = FileUtils.getReaderAsString(inputReader);
+        setInputData(inputText);
+    }
+
+    public void setInputData(String inputText) throws Exception
+    {
         inputData = new MaryData(inputType, defaultLocale);
         inputData.setWarnClient(true); // log warnings to client
         // For RAWMARYXML, a validating parse is not possible
@@ -250,7 +257,7 @@ public class Request {
         } else if (inputType.isMaryXML()) {
             inputData.setValidating(MaryProperties.getBoolean("maryxml.validate.input"));
         }
-        inputData.readFrom(inputReader, null); // null = read until end-of-file
+        inputData.setData(inputText);
         if (defaultVoice == null) {
             defaultVoice = Voice.getSuitableVoice(inputData);
         }
@@ -258,11 +265,6 @@ public class Request {
         inputData.setDefaultVoice(defaultVoice);
         inputData.setDefaultStyle(defaultStyle);
         inputData.setDefaultEffects(defaultEffects);
-    }
-
-    public void setInputData(String inputText) throws Exception
-    {
-        readInputData(new StringReader(inputText));
     }
     
     /**
@@ -784,7 +786,10 @@ public class Request {
         }
         newRoot.setAttribute("xml:lang", language);
         MaryData md = new MaryData(maryxml.getType(), MaryUtils.string2locale(language));
-        md.setDefaultVoice(maryxml.getDefaultVoice());
+        Voice dVoice = maryxml.getDefaultVoice();
+        if (dVoice != null) {
+            md.setDefaultVoice(dVoice);
+        }
         //md.setAudioEffects(maryxml.getAudioEffects());
         md.setDocument(newDoc);
         return md;

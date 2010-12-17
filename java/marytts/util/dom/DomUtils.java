@@ -24,10 +24,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +44,9 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import marytts.server.MaryProperties;
+import marytts.util.MaryUtils;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.DOMImplementation;
@@ -57,7 +63,9 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
+import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -68,6 +76,185 @@ import org.xml.sax.SAXParseException;
  */
 public class DomUtils
 {
+    private static DocumentBuilderFactory factory;
+    private static DocumentBuilderFactory validatingFactory;
+    private static EntityResolver entityResolver;
+    
+    private static Logger logger = MaryUtils.getLogger("DomUtils");
+    // Static constructor:
+    static {
+        factory = DocumentBuilderFactory.newInstance();
+        factory.setExpandEntityReferences(true);
+        factory.setNamespaceAware(true);
+        validatingFactory = DocumentBuilderFactory.newInstance();
+        validatingFactory.setExpandEntityReferences(true);
+        validatingFactory.setNamespaceAware(true);
+        validatingFactory.setIgnoringElementContentWhitespace(true);
+        try {
+            validatingFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
+                "http://www.w3.org/2001/XMLSchema");
+            // Specify other factory configuration settings
+            validatingFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
+                    MaryProperties.localSchemas());
+        } catch (Exception x) {
+            // This can happen if the parser does not support JAXP 1.2
+            logger.warn("Cannot use Schema validation -- turning off validation.");
+            validatingFactory.setValidating(false);
+        }
+        entityResolver = new EntityResolver() {
+            public InputSource resolveEntity (String publicId, String systemId)
+            {
+                if (systemId.equals("http://mary.dfki.de/lib/Sable.v0_2.dtd")) {
+                    try {
+                        // return a local copy of the sable dtd:
+                        String localSableDTD = MaryProperties.maryBase() + "/lib/Sable.v0_2.mary.dtd";
+                        return new InputSource(new FileReader(localSableDTD));
+                    } catch (FileNotFoundException e) {
+                        logger.warn("Cannot find local Sable.v0_2.mary.dtd");
+                    }
+                } else if (systemId.equals("http://mary.dfki.de/lib/sable-latin.ent")) {
+                    try {
+                        // return a local copy of the sable dtd:
+                        String localFilename = MaryProperties.maryBase() + "/lib/sable-latin.ent";
+                        return new InputSource(new FileReader(localFilename));
+                    } catch (FileNotFoundException e) {
+                        logger.warn("Cannot find local sable-latin.ent");
+                    }
+                } else if (systemId.equals("http://mary.dfki.de/lib/apml.dtd")
+                        || !systemId.startsWith("http")&&systemId.endsWith("apml.dtd")) {
+                    try {
+                        // return a local copy of the apml dtd:
+                        String localFilename = MaryProperties.maryBase() + "/lib/apml.dtd";
+                        return new InputSource(new FileReader(localFilename));
+                    } catch (FileNotFoundException e) {
+                        logger.warn("Cannot find local apml.dtd");
+                    }
+                }
+                // else, use the default behaviour:
+                return null;
+            }
+        };
+    }
+
+
+    /**
+     * Parse XML data into a DOM representation, taking local resources and Schemas into account.
+     * @param inputData a string representation of the XML data to be parsed.
+     * @param validating whether to Schema-validate the XML data
+     * @return
+     * @throws SAXException
+     * @throws IOException
+     */
+    public static Document parseDocument(String inputData, boolean validating)
+    throws ParserConfigurationException, SAXException, IOException {
+        return parseDocument(new StringReader(inputData), validating);
+    }
+    
+    /**
+     * Parse XML data into a DOM representation, taking local resources and Schemas into account.
+     * @param inputData a reader from which the XML data is to be read.
+     * @param validating whether to Schema-validate the XML data
+     * @return
+     * @throws SAXException
+     * @throws IOException
+     */
+    public static Document parseDocument(Reader inputData, boolean validating)
+    throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilder builder;
+        if (validating) {
+            builder = validatingFactory.newDocumentBuilder();
+            builder.setEntityResolver(entityResolver);
+        } else {
+            builder = factory.newDocumentBuilder();
+        }
+        return builder.parse(new InputSource(inputData));
+    }
+    
+    /**
+     * Parse XML data into a DOM representation, taking local resources and Schemas into account.
+     * @param file a file from which the XML data is to be read.
+     * @param validating whether to Schema-validate the XML data
+     * @return
+     * @throws SAXException
+     * @throws IOException
+     */
+    public static Document parseDocument(File file, boolean validating)
+    throws ParserConfigurationException, SAXException, IOException {
+        return parseDocument(new FileInputStream(file), validating);
+    }
+    
+    /**
+     * Parse XML data into a DOM representation, taking local resources and Schemas into account.
+     * @param is an input stream from which the XML data is to be read.
+     * @param validating whether to Schema-validate the XML data
+     * @return
+     * @throws SAXException
+     * @throws IOException
+     */
+    public static Document parseDocument(InputStream is, boolean validating)
+    throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilder builder;
+        if (validating) {
+            builder = validatingFactory.newDocumentBuilder();
+            builder.setEntityResolver(entityResolver);
+        } else {
+            builder = factory.newDocumentBuilder();
+        }
+        return builder.parse(is);
+    }
+    
+    /**
+     * DOM-parse the given input data. Namespace-aware but non-validating.
+     * @param inputData
+     * @return
+     * @throws SAXException
+     * @throws IOException
+     */
+    public static Document parseDocument(String inputData)
+    throws ParserConfigurationException, SAXException, IOException {
+        return parseDocument(inputData, false);
+    }
+    
+    /**
+     * DOM-parse the given input data. Namespace-aware but non-validating.
+     * @param inputData
+     * @return
+     * @throws SAXException
+     * @throws IOException
+     */
+    public static Document parseDocument(Reader inputData)
+    throws ParserConfigurationException, SAXException, IOException {
+        return parseDocument(inputData, false);
+    }
+
+    /**
+     * DOM-parse the given input data. Namespace-aware but non-validating.
+     * @param file
+     * @return
+     * @throws SAXException
+     * @throws IOException
+     */
+    public static Document parseDocument(File file)
+    throws ParserConfigurationException, SAXException, IOException {
+        return parseDocument(file, false);
+    }
+
+    /**
+     * DOM-parse the given input data. Namespace-aware but non-validating.
+     * @param inputData
+     * @return
+     * @throws SAXException
+     * @throws IOException
+     */
+    public static Document parseDocument(InputStream inputData)
+    throws ParserConfigurationException, SAXException, IOException {
+        return parseDocument(inputData, false);
+    }
+
+    
+    
+    
+    
     /** Verify if <code>ancestor</code> is an ancestor of <code>node</code> */
     public static boolean isAncestor(Node ancestor, Node node)
     {
@@ -720,35 +907,6 @@ public class DomUtils
 
 
 
-    /**
-     * DOM-parse the given file. Namespace-aware but non-validating.
-     * @param is
-     * @return
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException
-     */
-    public static Document parseDocument(File file)
-    throws ParserConfigurationException, SAXException, IOException
-    {
-        return parseDocument(new FileInputStream(file));
-    }
-    
-    /**
-     * DOM-parse the given input stream. Namespace-aware but non-validating.
-     * @param is
-     * @return
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException
-     */
-    public static Document parseDocument(InputStream is)
-    throws ParserConfigurationException, SAXException, IOException
-    {
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-        dbf.setNamespaceAware(true);
-        DocumentBuilder builder = dbf.newDocumentBuilder();
-        return builder.parse(is);
-    }
+
 }
 

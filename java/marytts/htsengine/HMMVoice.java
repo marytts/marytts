@@ -129,7 +129,7 @@ public class HMMVoice extends Voice {
        if(maxMgcGvIter > 0)
          this.htsData.setMaxMgcGvIter(maxMgcGvIter);
        if(maxLf0GvIter > 0)
-           this.htsData.setMaxMgcGvIter(maxLf0GvIter);
+           this.htsData.setMaxLf0GvIter(maxLf0GvIter);
             
        /* Example context feature file in TARGETFEATURES format */
        this.htsData.setFeaFile(FeaFile);

@@ -19,6 +19,7 @@
  */
 package marytts.server;
 
+import java.awt.HeadlessException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -423,10 +424,14 @@ public class MaryProperties
         String requirer = reqProps.getProperty("name");
         String problem = "Component `"+missing+"' is required by `"+requirer+"',\n"+
         "but "+message+".\nTry running the MARY component installer to resolve this problem.";
-        JOptionPane.showMessageDialog(null,
+        try {
+            JOptionPane.showMessageDialog(null,
                 problem,
                 "Dependency problem",
-                JOptionPane.ERROR_MESSAGE);      
+                JOptionPane.ERROR_MESSAGE);
+        } catch (HeadlessException e) {
+            System.err.println("Dependency problem: " + problem);
+        }
         return null;
     }
     

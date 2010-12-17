@@ -61,6 +61,7 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.SortedMap;
@@ -70,6 +71,7 @@ import java.util.Vector;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.htsengine.PhoneTranslator;
+import marytts.modules.acoustic.Model;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.io.FileUtils;
 import marytts.util.string.*;
@@ -92,6 +94,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
     public final String questionsFile    = name+".questionsFile";
     public String allophonesFile         = name+".allophonesFile";
     public final String featureListFile  = name+".featureListFile";
+    public final String featureListMapFile  = name+".featureListMapFile";
     public final String trickyPhonesFile = name+".trickyPhonesFile";
     public final String ADAPTSCRIPTS     = name+".adaptScripts";
     private FilenameFilter featFileFilter;
@@ -124,6 +127,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
            
            props.put(allophonesFile, db.getProp(db.ALLOPHONESET));
            props.put(featureListFile, "mary/hmmFeatures.txt");
+           props.put(featureListMapFile, "mary/hmmFeaturesMap.txt");
            props.put(trickyPhonesFile, "mary/trickyPhones.txt");
            props.put(ADAPTSCRIPTS, "false");
        }
@@ -146,6 +150,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         props2Help.put(allophonesFile, "allophones set file (XML format) it will be taken from ../openmary/lib/modules/language/...)");
         props2Help.put(featureListFile, "A file that contains additional context features used for training HMMs, normally it" +
         " should be a subset of mary/features.txt. This file is automatically created by the HMMVoiceFeatureSelection component.");
+        props2Help.put(featureListMapFile, "A map of features, so the training is not done with long names but aliases, this file contains the names and aliases used.");
         props2Help.put(trickyPhonesFile, "list of aliases for tricky phones, so the HTK-HHEd command can handle them. (This file" +
                 " will be created automatically if aliases are necessary.)");
         props2Help.put(ADAPTSCRIPTS, "ADAPTSCRIPTS=false: speaker dependent scripts, ADAPTSCRIPTS=true: " +
@@ -387,23 +392,28 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         
         // list of additional context features used for training
         // Since the features are provided by the user, it should be checked that the feature exist
-        Set <String> featureList = new HashSet<String>();        
+        //Set <String> featureList = new HashSet<String>();
+        Map<String, String> hmmFeatureList = new HashMap<String, String>();
         Scanner feaList = new Scanner(new BufferedReader(new FileReader(hmmFeatureListFile)));
-        String line;
+        String fea, aliasFea;
+        String prefix = "f";
+        int numFea = 0;
         System.out.println("The following are other context features used for training HMMs, they are extracted from file: " + hmmFeatureListFile);
         while (feaList.hasNext()) {
-          line = feaList.nextLine();
-          if (line.trim().length() == 0) {
+          fea = feaList.nextLine();
+          if (fea.trim().length() == 0) {
               break;
           }
-              // Check if the feature exist
-              if(feaDef.hasFeature(line) ){
-                featureList.add(line);
-                System.out.println("  Added to featureList = " + line);
-              }
-              else{
-                throw new Exception("Error: feature \"" + line + "\" in feature list file: " + hmmFeatureListFile + " does not exist in FeatureDefinition.");
-              }
+          // Check if the feature exist
+          if(feaDef.hasFeature(fea) ){
+            aliasFea = prefix + Integer.toString(numFea);  
+            hmmFeatureList.put(fea, aliasFea);  
+            System.out.println("  Added to featureList = " + fea + "  " + aliasFea);
+            numFea++;
+          }
+          else{
+            throw new Exception("Error: feature \"" + fea + "\" in feature list file: " + hmmFeatureListFile + " does not exist in FeatureDefinition.");
+          }
         }
         feaList.close();
          
@@ -561,23 +571,26 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           writePhonologicalFeatures("cvox", val_cvox, mary_cvox, out);
        
         // Questions for other features, the additional features used for trainning.
-        it = featureList.iterator();
-        String fea;
-        while (it.hasNext() ){
-            fea = it.next();
-            String val_fea[] = feaDef.getPossibleValues(feaDef.getFeatureIndex(fea));
-            // write the feature value as string
-            for(i=0; i<val_fea.length; i++){
-              if(fea.contains("sentence_punc") || fea.contains("prev_punctuation") || fea.contains("next_punctuation"))
-                  out.write("QS \"" + fea + "=" + phTranslator.replacePunc(val_fea[i]) + 
-                         "\" \t{*|" + fea + "=" + phTranslator.replacePunc(val_fea[i]) + "|*}\n");
-              else if(fea.contains("tobi_"))
-                  out.write("QS \"" + fea + "=" + phTranslator.replaceToBI(val_fea[i]) + 
-                         "\" \t{*|" + fea + "=" + phTranslator.replaceToBI(val_fea[i]) + "|*}\n");  
-              else
-                  out.write("QS \"" + fea + "=" + val_fea[i] + "\" \t{*|" + fea + "=" + val_fea[i] + "|*}\n");
-            }            
-            out.write("\n");            
+        String hmmfea, hmmfeaAlias;
+        int hmmfeaValInt;
+        Iterator ite = hmmFeatureList.entrySet().iterator();
+        while (ite.hasNext() ){
+          Map.Entry pairs = (Map.Entry)ite.next();
+          hmmfea = (String)pairs.getKey();
+          hmmfeaAlias = (String)pairs.getValue();
+          String val_fea[] = feaDef.getPossibleValues(feaDef.getFeatureIndex(hmmfea));
+          // write the feature value as string
+          for(i=0; i<val_fea.length; i++){
+            if(hmmfea.contains("sentence_punc") || hmmfea.contains("prev_punctuation") || hmmfea.contains("next_punctuation"))
+                out.write("QS \"" + hmmfeaAlias + "=" + phTranslator.replacePunc(val_fea[i]) + 
+                       "\" \t{*|" + hmmfeaAlias + "=" + phTranslator.replacePunc(val_fea[i]) + "|*}\n");
+            else if(hmmfea.contains("tobi_"))
+                out.write("QS \"" + hmmfeaAlias + "=" + phTranslator.replaceToBI(val_fea[i]) + 
+                       "\" \t{*|" + hmmfeaAlias + "=" + phTranslator.replaceToBI(val_fea[i]) + "|*}\n");  
+            else
+                out.write("QS \"" + hmmfeaAlias + "=" + val_fea[i] + "\" \t{*|" + hmmfeaAlias + "=" + val_fea[i] + "|*}\n");
+          }            
+          out.write("\n");            
         }
         
         out.close();
@@ -624,6 +637,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         
         System.out.println("\n Making labels:");
         String hmmFeatureListFile = voiceDir + getProp(featureListFile);
+        String hmmFeatureListMapFile = voiceDir + getProp(featureListMapFile);
         File dirFea = new File(voiceDir + "/phonefeatures");
         File dirLab = new File(voiceDir + "/phonelab");
 
@@ -654,11 +668,15 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         FeatureDefinition feaDef = new FeatureDefinition(new BufferedReader(new StringReader(strContext)), false);
         
         // list of context features used for creating HTS context features --> features used for training HMMs
-        // Since the features are provided by the user, it should be checked that the features exist
-        Set <String> hmmFeatureList = new HashSet<String>();        
+        // Since the features are provided by the user, it should be checked that the features exist        
+        Map<String, String> hmmFeatureList = new HashMap<String, String>();
+        FileWriter outFeaMap = new FileWriter(hmmFeatureListMapFile);
+        
         Scanner feaList = new Scanner(new BufferedReader(new FileReader(hmmFeatureListFile)));
-        String fea;
+        String fea, feaAlias;
         System.out.println("The following are other context features used for training Hmms: ");
+        String prefix = "f";
+        int numFea = 0;
         while (feaList.hasNext()) {
           fea = feaList.nextLine();
           if (fea.trim().length() == 0) {
@@ -666,13 +684,20 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           }
           // Check if the feature exist
           if( feaDef.hasFeature(fea)){
-            hmmFeatureList.add(fea);
-            System.out.println("  " + fea);
+            feaAlias = prefix + Integer.toString(numFea);  
+            hmmFeatureList.put(fea, feaAlias);
+            System.out.println("  " + fea + "  " + feaAlias);
+            // we need to keep this maping in a file
+            outFeaMap.write(fea + " " + feaAlias + "\n");
+            numFea++;
           }
           else
             throw new Exception("Error: feature \"" + fea + "\" in feature list file: " + hmmFeatureListFile + " does not exist in FeatureDefinition.");
         }
         feaList.close();
+        outFeaMap.close();
+        // Save now features and alias in hmmFeaturesMap, this map should be used again as the trickiPhones, when reading the trees
+        
         System.out.println("The previous context features were extracted from file: " + hmmFeatureListFile);
         
         
@@ -791,15 +816,18 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         
         // list of context features used for creating HTS context features --> features used for training HMMs
         // Since the features are provided by the user, it should be checked that the features exist
-        Set <String> hmmFeatureList = new HashSet<String>();        
+        //Set <String> hmmFeatureList = new HashSet<String>(); 
+        Map<String, String> hmmFeatureList = new HashMap<String, String>();
         Scanner feaList = new Scanner(new BufferedReader(new FileReader(hmmFeatureListFile)));
         String fea;
         System.out.println("The following are other context features used for training Hmms: ");
+        String prefix = "f";
+        int numFea = 0;
         while (feaList.hasNext()) {
           fea = feaList.nextLine();
           // Check if the feature exist
           if( feaDef.hasFeature(fea)){
-            hmmFeatureList.add(fea);
+              hmmFeatureList.put(fea, prefix + Integer.toString(numFea));
             System.out.println("  " + fea);
           }
           else
@@ -883,7 +911,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
                   voiceDir + "/hts/data/labels/mono/" + speakers[j] + "/" + basename + ".lab",
                   feaDef,
                   phTranslator,
-                  hmmFeatureList);          
+                  hmmFeatureList);  // CHECK: correct here null should not be there         
           }
           System.out.println("Processed " + feaFilesSpeaker.length + " files.");     
           System.out.println("Created directories: \n  " + voiceDir + "hts/data/labels/full/" + speakers[j] + "\n  " 
@@ -924,7 +952,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
      */
     private void extractMonophoneAndFullContextLabels(String feaFileName, String labFileName, 
             String outFeaFileName, String outLabFileName,  
-            FeatureDefinition feaDef, PhoneTranslator phTranslator, Set <String> hmmFeatureList ) throws Exception {
+            FeatureDefinition feaDef, PhoneTranslator phTranslator, Map<String, String> hmmFeatureList) throws Exception {
       
       FileWriter outFea = new FileWriter(outFeaFileName);
       FileWriter outLab = new FileWriter(outLabFileName);
@@ -981,22 +1009,24 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
                 phTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("next_phone"), feaDef))      + "=" +
                 phTranslator.replaceTrickyPhones(fv.getFeatureAsString(feaDef.getFeatureIndex("next_next_phone"), feaDef)) + "|");         
           
-              String hmmfea, hmmfeaVal;
+              String hmmfea, hmmfeaVal, hmmfeaAlias;
               int hmmfeaValInt;
-              Iterator<String> it = hmmFeatureList.iterator();
+              Iterator it = hmmFeatureList.entrySet().iterator();
               while (it.hasNext() ){
-                hmmfea = it.next();
+                Map.Entry pairs = (Map.Entry)it.next();
+                hmmfea = (String)pairs.getKey();
+                hmmfeaAlias = (String)pairs.getValue();
                 hmmfeaVal = fv.getFeatureAsString(feaDef.getFeatureIndex(hmmfea), feaDef);
                 // If the string is longer than 2048 chars then the feature names need to be shorten (phTranslator.shortenPfeat
                 // can be used, but then when reading the HMMs the names have to be lengthen back in the HTSCARTReader).
                 // if using punctuation features like: sentence_punc, next_punctuation or prev_punctuation or tobi features
                 // the values need to be mapped otherwise HTK-HHEd complains.
                 if(hmmfea.contains("sentence_punc") || hmmfea.contains("prev_punctuation") || hmmfea.contains("next_punctuation"))
-                  outFea.write("|" + hmmfea + "=" + phTranslator.replacePunc(hmmfeaVal));
+                  outFea.write("|" + hmmfeaAlias + "=" + phTranslator.replacePunc(hmmfeaVal));
                 else if(hmmfea.contains("tobi_"))
-                  outFea.write("|" + hmmfea + "=" + phTranslator.replaceToBI(hmmfeaVal));
+                  outFea.write("|" + hmmfeaAlias + "=" + phTranslator.replaceToBI(hmmfeaVal));
                 else
-                  outFea.write("|" + hmmfea + "=" + hmmfeaVal);
+                  outFea.write("|" + hmmfeaAlias + "=" + hmmfeaVal);
               }
               outFea.write("||\n");    
               i++; // next label

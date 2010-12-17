@@ -58,38 +58,44 @@ public class Datagram  {
     /****************/
     /**
      * Constructor for subclasses which want to represent data in a different format.
+     * @param setDuration the datagram duration, in samples. Must be non-negative.
+     * @throws IllegalArgumentException if duration is negative
      */
-    public Datagram(long duration)
+    protected Datagram(long duration)
     {
         if ( duration < 0 ) {
             throw new IllegalArgumentException( "Can't create a datagram with the negative duration [" + duration + "]." );
         }
         this.duration = duration;
     }
+    
     /**
      * Constructor from external data.
      * 
-     * @param setDuration the datagram duration, in samples.
-     * @param setBuff the address of a byte buffer to use as the datagram's data field.
-     * WARNING: the contents of the given byte array is NOT deep-copied.
+     * @param setDuration the datagram duration, in samples. Must be non-negative.
+     * @param setBuff the byte buffer to use as the datagram's data field. Must not be null.
+     * @throws IllegalArgumentException if duration is negative
+     * @throws NullPointerException if setData is null.
      */
     public Datagram( long setDuration, byte[] setData ) {
         if ( setDuration < 0 ) {
             throw new IllegalArgumentException( "Can't create a datagram with the negative duration [" + setDuration + "]." );
+        }
+        if (setData == null) {
+            throw new NullPointerException("null argument");
         }
         duration = setDuration;
         data = setData;
     }
     
     /**
-     * Constructor which pops a datagram from a random access file.
+     * Constructor which reads a datagram from a random access file.
      * 
-     * @param raf the random access file to pop the datagram from.
+     * @param raf the random access file to read the datagram from.
      * 
-     * @throws IOException
-     * @throws EOFException
+     * @throws IOException if there is a problem initialising the datagram from the file
      */
-    public Datagram( RandomAccessFile raf ) throws IOException, EOFException {
+    public Datagram( RandomAccessFile raf ) throws IOException {
         duration = raf.readLong();
         if ( duration < 0 ) {
             throw new IOException( "Can't create a datagram with a negative duration [" + duration + "]." );
@@ -103,9 +109,9 @@ public class Datagram  {
     }
     
     /**
-     * Constructor which pops a datagram from a byte buffer.
+     * Constructor which reads a datagram from a byte buffer.
      * 
-     * @param bb the byte buffer to pop the datagram from.
+     * @param bb the byte buffer to read the datagram from.
      * 
      * @throws IOException if the datagram has wrong format
      * @throws BufferUnderflowException if the datagram cannot be fully read
@@ -129,10 +135,15 @@ public class Datagram  {
     
     /**
      * Set the new duration.
+     * @param setDuration the datagram duration, in samples. Must be non-negative.
+     * @throws IllegalArgumentException if duration is negative
      */
-    public void setDuration(long duration)
+    public void setDuration(long setDuration)
     {
-        this.duration = duration;
+        if ( setDuration < 0 ) {
+            throw new IllegalArgumentException( "Can't create a datagram with the negative duration [" + setDuration + "]." );
+        }
+        this.duration = setDuration;
     }
     
     
@@ -142,8 +153,16 @@ public class Datagram  {
     
     /**
      * Write this datagram to a random access file or data output stream.
+     * Must only be called if data is not null.
+     * @param raf the data output to write to.
+     * @throws IllegalStateException if called when data is null.
+     * @throws IOException if a write error occurs.
      */
     public void write( DataOutput raf ) throws IOException {
+        assert duration >= 0;
+        if (data == null) {
+            throw new IllegalStateException("This method can only be called for data that is not null");
+        }
         raf.writeLong( duration );
         raf.writeInt( data.length );
         raf.write( data );
@@ -155,24 +174,32 @@ public class Datagram  {
     
     /**
      * Get the datagram duration, in samples. Note: the sample rate has to be provided  externally.
+     * @return the non-negative duration.
      */
     public long getDuration() {
-        return( duration );
+        assert duration >= 0;
+        return duration;
     }
     
     /**
      * Get the length, in bytes, of the datagram's data field.
+     * Must only be called if data is not null.
+     * @return a non-negative integer representing the number of bytes in the data field.
+     * @throws IllegalStateException if called when data is null.
      */
     public int getLength() {
-        return( data.length );
+        if (data == null) {
+            throw new IllegalStateException("This method must not be called if data is null");
+        }
+        return data.length;
     }
     
     /**
-     * Get the address of the datagram's data field. Warning: the returned byte array is NOT newly allocated,
-     * and keeps on pointing at the datagram's data field.
+     * Get the datagram's data field.
+     * @return the data in this Datagram, or null if there is no such data (should be the case only for subclasses).
      */
     public byte[] getData() {
-        return( data );
+        return data;
     }
     
     /****************/
@@ -182,7 +209,12 @@ public class Datagram  {
     /**
      * Tests if this datagram is equal to another datagram.
      */
-    public boolean equals( Datagram other ) {
+    @Override
+    public boolean equals( Object obj) {
+        if (!(obj instanceof Datagram)) {
+            return false;
+        }
+        Datagram other = (Datagram) obj;
         if ( this.duration != other.duration ) return( false );
         if ( this.data.length != other.data.length ) return( false );
         for ( int i = 0; i < this.data.length; i++ ) {

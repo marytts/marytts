@@ -185,6 +185,18 @@ public class StringUtils {
         return strOut;
     }
     
+    /**
+     * Purge non-breaking spaces from <b>input</b> by replacing them with regular spaces.
+     * 
+     * @param input
+     *            to purge
+     * @return purged <b>input</b>
+     */
+    public static String purgeNonBreakingSpaces(String input) {
+        String output = input.replaceAll("\\xA0", " ");
+        return output;
+    }
+    
    //Check first file extension separator character and add it if it does not exist
     public static String checkFirstDot(String strIn)
     {
@@ -276,6 +288,14 @@ public class StringUtils {
         return strNewname;
     }
     
+    /**
+     * 
+     * @param strFilename
+     * @param isIncludeDot
+     * @return
+     * @deprecated use {@link org.apache.commons.io.FilenameUtils#getExtension(String)} instead
+     */
+    @Deprecated
     public static String getFileExtension(String strFilename, boolean isIncludeDot)
     {
         int lastDotIndex = strFilename.lastIndexOf('.');
@@ -517,6 +537,13 @@ public class StringUtils {
         return getFileName(fullpathFilename, true);
     }
     
+    /**
+     * 
+     * @param fullpathFilename
+     * @return
+     * @deprecated use {@link org.apache.commons.io.FilenameUtils#getFullPath(String)} instead
+     */
+    @Deprecated
     public static String getFolderName(String fullpathFilename)
     {
         String foldername = "";
@@ -570,7 +597,14 @@ public class StringUtils {
         return entries;
     }
     
-    //Read text file as a single concatenated string
+    /**
+     * Read text file as a single concatenated string
+     * @param textFile
+     * @param encoding
+     * @return
+     * @deprecated use {@link org.apache.commons.io.FileUtils#readFileToString(File, String)} instead
+     */
+    @Deprecated
     public static String readTextFileIntoString(String textFile, String encoding)
     {
         String allText = null;
@@ -881,16 +915,37 @@ public class StringUtils {
         return toInputStream(str);
     }
     
+    /**
+     * Combine the elements of the given string array into a single string,
+     * containing one array element per line.
+     * @param stringArray
+     * @return
+     */
     public static String toString(String[] stringArray)
     {
         return toString(stringArray, 0);
     }
     
+    /**
+     * Combine the elements of the given string array into a single string,
+     * containing one array element per line.
+     * @param stringArray
+     * @param startIndex
+     * @return
+     */
     public static String toString(String[] stringArray, int startIndex)
     {
         return toString(stringArray, startIndex, stringArray.length-1);
     }
     
+    /**
+     * Combine the elements of the given string array into a single string,
+     * containing one array element per line.
+     * @param stringArray
+     * @param startIndex
+     * @param endIndex
+     * @return
+     */
     public static String toString(String[] stringArray, int startIndex, int endIndex)
     {
         if (startIndex<0)
@@ -902,12 +957,12 @@ public class StringUtils {
         if (endIndex>stringArray.length-1)
             endIndex=stringArray.length-1;
         
-        String str = "";
+        StringBuilder str = new StringBuilder();
         for (int i = startIndex; i <= endIndex; i++) {
-            str += stringArray[i] + System.getProperty("line.separator");
+            str.append(stringArray[i]).append(System.getProperty("line.separator"));
         }
         
-        return str;
+        return str.toString();
     }
     
     public static String replace(String str, String pattern, String replacement) 

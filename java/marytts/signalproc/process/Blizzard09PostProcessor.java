@@ -43,6 +43,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
@@ -542,7 +543,7 @@ public class Blizzard09PostProcessor {
         }
     }
     
-    public static void main(String[] args) throws UnsupportedAudioFileException, IOException
+    public static void main(String[] args) throws UnsupportedAudioFileException, IOException, MaryConfigurationException
     {
         if (args.length<3)
         {
@@ -553,25 +554,7 @@ public class Blizzard09PostProcessor {
         else
         {
             String phoneSetFile = args[2];
-            AllophoneSet allophoneSet = null;
-            
-            try {
-                try {
-                    allophoneSet = AllophoneSet.getAllophoneSet(phoneSetFile);
-                } catch (NoSuchPropertyException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (SAXException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (ParserConfigurationException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            AllophoneSet allophoneSet = AllophoneSet.getAllophoneSet(phoneSetFile);
             
             Set<String> tmpPhonemes = allophoneSet.getAllophoneNames();
             int count = 0;

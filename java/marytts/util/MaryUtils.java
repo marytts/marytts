@@ -30,6 +30,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -40,6 +41,7 @@ import java.util.TimerTask;
 
 import javax.swing.JFrame;
 
+import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import marytts.modules.MaryModule;
@@ -987,13 +989,13 @@ public class MaryUtils {
         out.println(commentChar+" #########################################################################");
     }
 
-    public static String toHumanReadableSize(int byteCount) {
+    public static String toHumanReadableSize(long byteCount) {
         if (byteCount >= 10*1024*1024) {
             return (byteCount/(1024*1024))+"MB";
         } else if (byteCount >= 10*1024) {
             return (byteCount/1024)+"kB";
         } else {
-            return Integer.toString(byteCount);
+            return Long.toString(byteCount);
         }
     }
     
@@ -1014,6 +1016,22 @@ public class MaryUtils {
     public static Logger getLogger(Class clazz) {
         return getLogger(clazz.getSimpleName());
     }
+    
+    /**
+     * Returns true if it appears that log4j have been previously configured. This code
+     * checks to see if there are any appenders defined for log4j which is the
+     * definitive way to tell if log4j is already initialized
+     */
+    @SuppressWarnings("unchecked")
+    public static boolean isLog4jConfigured() {
+        Enumeration appenders = LogManager.getRootLogger().getAllAppenders();
+    if (appenders.hasMoreElements()) {
+        return true;
+    }
+    return false;
+}
+    
+    
 
 }
 

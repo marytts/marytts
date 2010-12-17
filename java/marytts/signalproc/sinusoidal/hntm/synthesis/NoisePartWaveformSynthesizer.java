@@ -132,7 +132,7 @@ public class NoisePartWaveformSynthesizer
                     existsLeftContexts = false;
                 
                 boolean existsRightContexts = true;
-                if (rightContexts==null) //Take the previous frame parameters as left context (i.e. the HNM signal is a continuous one, not concatenated one
+                if (rightContexts==null) //Take the previous frame parameters as right context (i.e. the HNM signal is a continuous one, not concatenated one
                     existsRightContexts = false;
                     
                 currentLeftContext = null;
@@ -189,8 +189,9 @@ public class NoisePartWaveformSynthesizer
             }
             else
             {
-                if (currentLeftContext!=null)
+                if (currentLeftContext!=null && currentLeftContext.n != null) {
                     leftContextWaveform = ArrayUtils.copy(((FrameNoisePartWaveform)currentLeftContext.n).waveform2Doubles());
+                }
                 else
                 {
                     leftContextWaveform = new double[frameWaveform.length];
@@ -213,8 +214,9 @@ public class NoisePartWaveformSynthesizer
             }
             else
             {
-                if (currentRightContext!=null)
+                if (currentRightContext!=null && currentRightContext.n != null) {
                     rightContextWaveform = ArrayUtils.copy(((FrameNoisePartWaveform)currentRightContext.n).waveform2Doubles());
+                }
                 else
                 {
                     rightContextWaveform = new double[frameWaveform.length];

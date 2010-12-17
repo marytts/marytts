@@ -46,7 +46,7 @@ public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
         params = new WeightedCodebookTrainerParams(pa);
     }
     
-    public void learnMappingFrames(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
+    public void learnMappingFrames(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map) throws IOException
     {
         assert params.codebookHeader.codebookType==WeightedCodebookFileHeader.FRAMES;
 
@@ -156,7 +156,7 @@ public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
         }
     }
     
-    public void learnMappingFrameGroups(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
+    public void learnMappingFrameGroups(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map) throws IOException
     {
         assert params.codebookHeader.codebookType==WeightedCodebookFileHeader.FRAME_GROUPS;
 
@@ -426,7 +426,7 @@ public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
         }
     }
     
-    public void learnMappingLabels(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
+    public void learnMappingLabels(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map) throws IOException
     {
         assert params.codebookHeader.codebookType==WeightedCodebookFileHeader.LABELS;
 
@@ -700,7 +700,7 @@ public class WeightedCodebookMfccMapper extends WeightedCodebookFeatureMapper {
     }
     
     //This function is identical to learnMappingLabels since the mapping is performed accordingly in previous steps
-    public void learnMappingLabelGroups(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map)
+    public void learnMappingLabelGroups(WeightedCodebookFile codebookFile, WeightedCodebookFeatureCollection fcol, BaselineAdaptationSet sourceTrainingSet, BaselineAdaptationSet targetTrainingSet, int [] map) throws IOException
     {
          learnMappingLabels(codebookFile, fcol, sourceTrainingSet, targetTrainingSet, map);
     }

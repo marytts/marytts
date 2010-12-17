@@ -17,9 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.signalproc.tests;
+package marytts.tests.junit4;
 
-import junit.framework.TestCase;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 import marytts.signalproc.process.FrameOverlapAddSource;
 import marytts.signalproc.process.NaiveVocoder;
 import marytts.util.data.BufferedDoubleDataSource;
@@ -29,9 +32,9 @@ import marytts.util.math.MathUtils;
  * @author Marc Schr&ouml;der
  *
  */
-public class FrameOverlapAddTest extends TestCase
+public class FrameOverlapAddTest
 {
-
+    @Test
     public void testIdentity()
     {
         double[] signal =  FFTTest.getSampleSignal(16000);

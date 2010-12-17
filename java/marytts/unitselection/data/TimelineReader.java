@@ -43,8 +43,12 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Vector;
 
+import marytts.exceptions.MaryConfigurationException;
+import marytts.util.MaryUtils;
+import marytts.util.Pair;
 import marytts.util.data.MaryHeader;
 import marytts.util.io.StreamUtils;
 
@@ -59,8 +63,6 @@ import marytts.util.io.StreamUtils;
  */
 public class TimelineReader 
 {
-//    protected RandomAccessFile raf = null; // The file to read from
-    protected MappedByteBuffer timeline = null;
     protected MaryHeader maryHdr = null;   // The standard Mary header
     protected ProcHeader procHdr = null;   // The processing info header
     
@@ -69,524 +71,226 @@ public class TimelineReader
     /* Some specific header fields: */
     protected int sampleRate = 0;
     protected long numDatagrams = 0;
+    /**
+     * The total duration of the timeline data, in samples.
+     * This is only computed upon request.
+     */
+    protected long totalDuration = -1;
     
     protected int datagramsBytePos = 0;
     protected int timeIdxBytePos = 0;
     
-    /* Pointers to navigate the file: */
-    // protected long timePtr = 0; // A time pointer to keep track of the time position in the file
-    // Note: a file pointer, keeping track of the byte position in the file, is implicitely
-    //  maintained by the browsed RandomAccessFile.
+    // exactly one of the two following variables will be non-null after load():
+    private MappedByteBuffer mappedBB = null;
+    private FileChannel fileChannel = null;
+    
+    
     
     /****************/
     /* CONSTRUCTORS */
     /****************/
-    
+        
     /**
-     * Empty constructor; need to call load() separately.
-     * @see #load(String)
-     */
-    public TimelineReader()
-    {
-    }
-    
-    /**
-     * Constructor from a file name.
+     * Construct a timeline from the given file name.
      * 
-     * @param fileName The file to read the timeline from
-     * @throws IOException if a problem occurs during reading
+     * Aiming for the fundamental guarantee: If an instance of this class is created, it is usable.
+     * 
+     * @param fileName The file to read the timeline from. 
+     * Must be non-null and point to a valid timeline file.
+     * @throws NullPointerException if null argument is given
+     * @throws MaryConfigurationException if no timeline reader can be instantiated from fileName
      */
-    public TimelineReader( String fileName ) throws IOException
+    public TimelineReader( String fileName ) throws MaryConfigurationException
     {
-        load(fileName);
+        if (fileName == null) {
+            throw new NullPointerException("Filename is null");
+        }
+        try {
+            load(fileName);
+        } catch (Exception e) {
+            throw new MaryConfigurationException("Cannot load timeline file from "+fileName, e);
+        }
     }
+    
+    /**
+     * Only subclasses can instantiate a TimelineReader object that doesn't call {@link #load(String)}.
+     * It is their responsibility then to ensure the fundamental guarantee.
+     */
+    protected TimelineReader() {}
+
+
     
     /**
      * Load a timeline from a file.
      * 
-     * @param fileName The file to read the timeline from
+     * @param fileName The file to read the timeline from.
+     * Must be non-null and point to a valid timeline file.
+     * 
      * @throws IOException if a problem occurs during reading
+     * @throws BufferUnderflowException if a problem occurs during reading
+     * @throws MaryConfigurationException if fileName does not point to a valid timeline file
      */
-    public void load(String fileName) throws IOException
-    {
-        // Load the headers and the info, the position the file pointer to the beginning of the datagram zone
-        // and the time pointer to 0.
-        /* Open the file */
+    protected void load(String fileName) throws IOException, BufferUnderflowException, MaryConfigurationException, NullPointerException {
+        assert fileName != null : "filename is null";
+        
         RandomAccessFile file = new RandomAccessFile( fileName, "r" );
         FileChannel fc = file.getChannel();
-        timeline = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-        file.close();
+        // Expect header to be no bigger than 64k bytes
+        ByteBuffer headerBB = ByteBuffer.allocate(0x10000);
+        fc.read(headerBB);
+        headerBB.limit(headerBB.position());
+        headerBB.position(0);
         
-        /* Load the Mary header */
-        maryHdr = new MaryHeader(timeline);
-        if ( !maryHdr.isMaryHeader() ) {
-            throw new IOException( "File [" + fileName + "] is not a valid Mary format file." );
-        }
+        maryHdr = new MaryHeader(headerBB);
         if ( maryHdr.getType() != MaryHeader.TIMELINE ) {
-            throw new RuntimeException( "File [" + fileName + "] is not a valid timeline file." );
+            throw new MaryConfigurationException( "File is not a valid timeline file." );
         }
-
         /* Load the processing info header */
-        procHdr = new ProcHeader(timeline);
+        procHdr = new ProcHeader(headerBB);
         
         /* Load the timeline dimensions */
-        sampleRate = timeline.getInt();
-        numDatagrams = timeline.getLong();
+        sampleRate = headerBB.getInt();
+        numDatagrams = headerBB.getLong();
+        if (sampleRate <= 0 || numDatagrams < 0) {
+            throw new MaryConfigurationException("Illegal values in timeline file.");
+        }
         
         /* Load the positions of the various subsequent components */
-        datagramsBytePos = (int) timeline.getLong();
-        timeIdxBytePos = (int) timeline.getLong();
+        datagramsBytePos = (int) headerBB.getLong();
+        timeIdxBytePos = (int) headerBB.getLong();
+        if (timeIdxBytePos < datagramsBytePos) {
+            throw new MaryConfigurationException("File seems corrupt: index is expected after data, not before");
+        }
         
-        /* Go fetch the time index at the end of the file, and come back to the datagram zone */
-        timeline.position((int)timeIdxBytePos);
-        idx = new Index(timeline);
-        timeline.position((int)datagramsBytePos);
+        /* Go fetch the time index at the end of the file */
+        fc.position(timeIdxBytePos);
+        ByteBuffer indexBB = ByteBuffer.allocate((int)(fc.size() - timeIdxBytePos));
+        fc.read(indexBB);
+        indexBB.limit(indexBB.position());
+        indexBB.position(0);
+        idx = new Index(indexBB);
+
         
-        /* Make sure the time pointer is zero */
-        //setTimePointer( 0l );
+        // Try if we can use a mapped byte buffer:
+        try {
+            mappedBB = fc.map(FileChannel.MapMode.READ_ONLY, datagramsBytePos, timeIdxBytePos-datagramsBytePos);
+            file.close(); // if map() succeeded, we don't need the file anymore.
+        } catch (IOException ome) {
+            MaryUtils.getLogger("Timeline").warn("Cannot use memory mapping for timeline file '"+fileName+"' -- falling back to piecewise reading");
+        }
+        if (mappedBB == null) {
+            fileChannel = fc;
+            assert fileChannel != null;
+            // and leave file open
+        }
+        
+        // postconditions:
+        assert idx != null;
+        assert procHdr != null;
+        assert fileChannel == null && mappedBB != null || fileChannel != null && mappedBB == null;
     }
-    
+
     /**
-     * Return the content of the processing header as a String
+     * Return the content of the processing header as a String.
+     * @return a non-null string representing the proc header.
      */
     public String getProcHeaderContents() {
-        return( procHdr.getString() );
+        return procHdr.getString();
     }
     
     /**
-     * Returns the current number of datagrams in the timeline.
+     * Returns the number of datagrams in the timeline.
      * 
-     * @return the number of datagrams, as a long. Warning: you may have to cast this
-     * value into an int if you want to use it to create an array.
+     * @return the (non-negative) number of datagrams, as a long.
      */
     public long getNumDatagrams() {
-        return( numDatagrams );
+        assert numDatagrams >= 0;
+        return numDatagrams;
     }
     
     /**
-     * Returns the position of the datagram zone
+     * Returns the position of the datagram zone in the original file.
+     * @return the byte position of the datagram zone.
      */
-    public long getDatagramsBytePos() {
-        return( datagramsBytePos );
+    protected long getDatagramsBytePos() {
+        return datagramsBytePos;
     }
     
     /**
      * Returns the timeline's sample rate.
+     * @return the sample rate as a positive integer.
      */
     public int getSampleRate() {
+        assert sampleRate > 0;
         return sampleRate;
     }
     
+    /**
+     * Return the total duration of all data in this timeline.
+     * Implementation note: this is an expensive operation that should not be used in production.
+     * @return a non-negative long representing the accumulated duration of all datagrams.
+     * @throws MaryConfigurationException if the duration cannot be obtained.
+     */
+    public long getTotalDuration() throws MaryConfigurationException {
+        if (totalDuration == -1) {
+            computeTotalDuration();
+        }
+        assert totalDuration >= 0;
+        return totalDuration;
+    }
+    
+    /**
+     * Compute the total duration of a timeline. This is an expensive method, since it goes through
+     * all datagrams to compute this duration. It should not normally be used in production.
+     * @throws MaryConfigurationException if the duration could not be computed.
+     */
+    protected void computeTotalDuration() throws MaryConfigurationException {
+        long time = 0;
+        long nRead = 0;
+        boolean haveReadAll = false;
+        try {
+            Pair<ByteBuffer, Long> p = getByteBufferAtTime(0);
+            ByteBuffer bb = p.getFirst();
+            assert p.getSecond() == 0;
+            while (!haveReadAll) {
+                Datagram dat = getNextDatagram(bb);
+                if (dat == null) {
+                    // we may have reached the end of the current byte buffer... try reading another:
+                    p = getByteBufferAtTime(time);
+                    bb = p.getFirst();
+                    assert p.getSecond() == time;
+                    dat = getNextDatagram(bb);
+                    if (dat == null) { // no, indeed we cannot read any more
+                        break; // abort, we could not read all
+                    }
+                }
+                assert dat != null;
+                time += dat.getDuration(); // duration in timeline sample rate
+                nRead++; // number of datagrams read
+                if (nRead == numDatagrams) {
+                    haveReadAll = true;
+                }
+            }
+        } catch (Exception e) {
+            throw new MaryConfigurationException("Could not compute total duration", e);
+        }
+        if (!haveReadAll) {
+            throw new MaryConfigurationException("Could not read all datagrams to compute total duration");
+        }
+        totalDuration = time;
+    }
+    
+    /**
+     * The index object.
+     * @return the non-null index object.
+     */
     public Index getIndex() {
+        assert idx != null;
         return idx;
     }
     
     
-    /******************/
-    /* DATA ACCESSORS */
-    /******************/
-    
-    /**
-     * Skip the upcoming datagram at the current position of the byte buffer.
-     * 
-     * @return the duration of the datagram we skipped
-     * @throws IOException
-     * @throws IndexOutOfBoundsException if reached end of datagram zone
-     */
-    protected long skipNextDatagram(ByteBuffer bb) throws IOException {
-        
-        long datagramDuration = 0;
-        int datagramSize = 0;
-        
-        /* If the end of the datagram zone is reached, refuse to skip */
-        if ( bb.position() == timeIdxBytePos ) {
-            throw new IndexOutOfBoundsException( "Byte pointer out of bounds: you are trying to skip further" +
-                    " than the end of the datagram zone." );
-        }
-        /* else: */
-        try {
-            datagramDuration = bb.getLong();
-            datagramSize = bb.getInt();
-        }
-        /* Detect a possible EOF encounter */
-        catch ( BufferUnderflowException e ) {
-            throw new IOException( "While skipping a datagram, EOF was met before the time index position: "
-                    + "you may be dealing with a corrupted timeline file." );
-        }
-        
-        /* Skip the data field. */
-        try {
-            bb.position(bb.position() + datagramSize);
-        } catch (IllegalArgumentException iae) {
-            throw new IOException( "Failed to skip an expected datagram: "
-                    + "you may be dealing with a corrupted timeline file.", iae);
-        }
-        
-        return datagramDuration;
-        
-    }
-    
-    /**
-     * Read and return the upcoming datagram from the given byte buffer.
-     * @param bb the timeline byte buffer to read from
-     * 
-     * @return the current datagram, or null if EOF was encountered; internally updates the time pointer.
-     * 
-     * @throws IOException
-     */
-    protected Datagram getNextDatagram(ByteBuffer bb) throws IOException {
-        
-        Datagram d = null;
-
-        /* If the end of the datagram zone is reached, refuse to read */
-        if (bb.position() == timeIdxBytePos ) {
-            //throw new IndexOutOfBoundsException( "Time out of bounds: you are trying to read a datagram at" +
-            //        " a time which is bigger than the total timeline duration." );
-            return null;
-        }
-        /* Else, pop the datagram out of the file */
-        try {
-            d = new Datagram(bb);
-        }
-        /* Detect a possible EOF encounter */
-        catch ( EOFException e ) {
-            throw new IOException( "While reading a datagram, EOF was met before the time index position: "
-                    + "you may be dealing with a corrupted timeline file." );
-        }
-   
-        return d;
-    }
-    
-
-    
-    /**
-     * Return an array of datagrams from the given byte buffer.
-     * 
-     * @param bb the timeline byte buffer to read from.
-     * 
-     * @param nDatagrams the number of datagrams to read.
-     * 
-     * @return an array of datagrams; internally updates the time pointer.
-     * 
-     * @throws IOException
-     */
-    protected Datagram[] getNextDatagrams(ByteBuffer bb, int nDatagrams) throws IOException {
-        Datagram[] buff = new Datagram[nDatagrams];
-        for ( int i = 0; i < nDatagrams; i++ ) {
-            buff[i] = getNextDatagram(bb);
-        }
-        return buff;
-    }
-    
-    
-    /**
-     * Hop the datagrams in the given byte buffer until the one which begins or contains the desired time
-     * (time is in samples; the sample rate is assumed to be that of the timeline).
-     * 
-     * @param bb the timeline byte buffer to use
-     * @param currentTimeInSamples the time position corresponding to the current position of the byte buffer
-     * @param targetTimeInSamples the time location to reach.
-     * 
-     * @return the actual time at which we end up after hopping. This is less than or equal to targetTimeInSamples, never greater than it.
-     * @throws IOException
-     */
-    private long hopToTime(ByteBuffer bb, long currentTimeInSamples, long targetTimeInSamples ) throws IOException {
-        /* If the requested time is before the current time location, we cannot hop backwards to reach it;
-         * send an error case. */
-        if ( currentTimeInSamples > targetTimeInSamples ) {
-            throw new IllegalArgumentException("Cannot hop back from time "+currentTimeInSamples+" to time "+targetTimeInSamples);
-        }
-        
-        /* If the current time position is the requested time
-         * do nothing, you are already at the right position */
-        if (currentTimeInSamples == targetTimeInSamples) {
-            return currentTimeInSamples;
-        }
-        /* Else hop: */
-        int byteBefore = bb.position();
-        long timeBefore = currentTimeInSamples;
-        /* Hop until the datagram which comes just after the requested time */
-        while ( currentTimeInSamples <= targetTimeInSamples ) { // Stop after the requested time, we will step back
-            // to the correct time in case of equality
-            timeBefore = currentTimeInSamples;
-            byteBefore = bb.position();
-            long skippedDuration = skipNextDatagram(bb);
-            currentTimeInSamples += skippedDuration;
-            // System.out.println( "Et hop: ( " + byteBefore + " , " + timeBefore + " ) TO ( " + getBytePointer() + " , " + getTimePointer() + " )" );
-        }
-        /* Do one step back so that the pointed datagram contains the requested time */
-        bb.position(byteBefore);
-        return timeBefore;
-        // System.out.println( "Hopping finish: ( " + getBytePointer() + " , " + getTimePointer() + " )" );
-    }
-    
-    
-    /**
-     * Hop the datagrams until the desired time.
-     * 
-     * @param bb the timeline byte buffer to use
-     * @param currentTimeInSamples the time position corresponding to the current position of the byte buffer
-     * @param targetTimeInSamples the desired target time, in samples relative to reqSampleRate.
-     * @param reqSampleRate the sample rate for the time specification.
-     * 
-     * @return the actual time at which we end up after hopping. This is less than or equal to targetTimeInSamples, never greater than it.
-     * 
-     * @throws IOException
-     */
-    private long hopToTime(ByteBuffer bb, long currentTimeInSamples, long targetTimeInSamples, int reqSampleRate ) throws IOException {
-        /* Resample the requested time location, and call the regular hopToTime() function */
-        return( hopToTime(bb, currentTimeInSamples, scaleTime(reqSampleRate,targetTimeInSamples) ) );
-    }
-    
-
-    
-    /**
-     * In the given byte buffer, go to the datagram which contains the requested time location
-     * (time is in samples; the sample rate is assumed to be that of the timeline).
-     * 
-     * @param bb the timeline byte buffer to use
-     * @param targetTimeInSamples the requested time location, in samples relative to the timeline's sample rate.
-     * 
-     * @return the actual time at which we end up. This is less than or equal to targetTimeInSamples, never greater than it.
-     * @throws IOException
-     */
-    private long gotoTime(ByteBuffer bb, long targetTimeInSamples ) throws IOException {
-        /* Seek for the time index which comes just before the requested time */
-        IdxField idxFieldBefore = idx.getIdxFieldBefore( targetTimeInSamples );
-        // System.out.println( "IDXFIELDBEF = ( " + idxFieldBefore.bytePtr + " , " + idxFieldBefore.timePtr + " )" );
-        /* Then jump to the indexed datagram */
-        long time = idxFieldBefore.timePtr;
-        bb.position((int)idxFieldBefore.bytePtr);
-        /* Then hop until the closest datagram: */
-        time = hopToTime(bb, time, targetTimeInSamples );
-        // System.out.println( "Position after hopping: ( " + getBytePointer() + " , " + getTimePointer() + " )" );
-        return time;
-    }
-    
-    /**
-     * Go to the datagram which contains the requested time location.
-     * 
-     * @param targetTimeInSamples the requested time location, in samples relative to reqSampleRate.
-     * @param reqSampleRate the sample rate for the requested time.
-     * 
-     * @return the actual time (in reqSampleRate) at which we end up after hopping. This is less than or equal to targetTimeInSamples, never greater than it.
-     * @throws IOException
-     */
-    protected long gotoTime(ByteBuffer bb, long targetTimeInSamples, int reqSampleRate ) throws IOException {
-        /* Resample the requested time location, in case the sample times are different between
-         * the request and the timeline */
-        long scaledTargetTime = scaleTime(reqSampleRate,targetTimeInSamples);
-        /* Then go to the requested location */
-        long resultingTime = gotoTime(bb, scaledTargetTime );
-        return unScaleTime(reqSampleRate, resultingTime);
-    }
-    
-    /**
-     * Get the datagrams spanning a particular time range from a particular time location.
-     * 
-     * @param targetTimeInSamples the requested position, in samples.
-     * @param timeSpanInSamples the requested time span, in samples.
-     * @param reqSampleRate the sample rate for the requested times.
-     * 
-     * @return an array of datagrams
-     */
-    public Datagram[] getDatagrams(long targetTimeInSamples, long timeSpanInSamples, int reqSampleRate ) throws IOException {
-        return( getDatagrams(targetTimeInSamples, timeSpanInSamples, reqSampleRate, null ) );
-    }
-
-    /**
-     * Get the datagrams spanning a particular time range from a particular time location,
-     * given in the timeline's sampling rate.
-     * 
-     * @param targetTimeInSamples the requested position, in samples given
-     * the timeline's sample rate.
-     * @param timeSpanInSamples the requested time span, in samples given
-     * the timeline's sample rate.
-     * 
-     * @return an array of datagrams
-     * @see TimelineIO#getSampleRate()
-     */
-    public Datagram[] getDatagrams(long targetTimeInSamples, long timeSpanInSamples) throws IOException {
-        return( getDatagrams(targetTimeInSamples, timeSpanInSamples, sampleRate, null ) );
-    }
-
-    /**
-     * Get the datagrams spanning a particular time range from a particular time location,
-     * and return the time offset between the time request and the actual location of the first
-     * returned datagram.
-     * 
-     * @param targetTimeInSamples the requested position, in samples.
-     * @param timeSpanInSamples the requested time span, in samples.
-     * @param reqSampleRate the sample rate for the requested and returned times.
-     * @param returnOffset the time difference, in samples, between the time request
-     * and the actual beginning of the first datagram.
-     * 
-     * @return an array of datagrams
-     */
-    public Datagram[] getDatagrams(long targetTimeInSamples, long timeSpanInSamples, int reqSampleRate, long[] returnOffset ) throws IOException {
-        ByteBuffer bb = timeline.duplicate();
-        /* Check the input arguments */
-        if ( targetTimeInSamples < 0 ) {
-            throw new IllegalArgumentException( "Can't get a datagram from a negative time position (given time position was [" + targetTimeInSamples + "])." );
-        }
-        if ( timeSpanInSamples < 0 ) {
-            /* If the timeSapn is negative, return one datagram nonetheless,
-             * the one beginning at targetTimeInSamples */
-            timeSpanInSamples = 1;
-        }
-        /* Resample the requested time location, in case the sample times are different between
-         * the request and the timeline */
-        long scaledTargetTime = scaleTime( reqSampleRate, targetTimeInSamples );
-        long endTime = scaleTime( reqSampleRate, (targetTimeInSamples+timeSpanInSamples) );
-//        System.out.println( "Asked: (" + targetTimeInSamples + "," + (targetTimeInSamples+timeSpanInSamples) + ")@" + reqSampleRate
-//                + " == (" + scaledTargetTime + "," + endTime + ")@" + sampleRate );
-        /* We are going to store the datagrams first in a vector, because we don't know how many datagrams we will
-         * end up with, and vectors are easier to grow in size than arrays. */
-        Vector<Datagram> v = new Vector<Datagram>( 32, 32 );
-        /* Let's go to the requested time... */
-        long time = gotoTime(bb, scaledTargetTime);
-        if ( returnOffset != null ) returnOffset[0] = unScaleTime( reqSampleRate, (scaledTargetTime - time) );
-        /* ... and read datagrams across the requested timeSpan: */
-        boolean readMore = true;
-        while(readMore && time < endTime) {
-            Datagram dat = getNextDatagram(bb);
-            if (dat == null) readMore = false;
-            else {
-                time += dat.getDuration();
-                //if ( reqSampleRate != sampleRate ) dat.setDuration(unScaleTime( reqSampleRate, dat.getDuration() )); // => Don't forget to stay time-consistent!
-                v.add( dat );
-            }
-        }
-        
-        /* Cast the vector into an array of datagrams (an array of byte arrays),
-         * and return it */
-        return( (Datagram[])( v.toArray( new Datagram[0] ) ) );
-    }
-    
-    /**
-     * Get the datagrams spanning a particular unit.
-     * 
-     * @param unit The requested speech unit, containing its own position and duration.
-     * @param reqSampleRate the sample rate for the requested times, as specified in the "unit space".
-     * 
-     * @return an array of datagrams
-     */
-    public Datagram[] getDatagrams( Unit unit, int reqSampleRate ) throws IOException {
-        return( getDatagrams( unit, reqSampleRate, null ) );
-    }
-
-    /**
-     * Get the datagrams spanning a particular unit, and return the time offset between the unit request
-     * and the actual location of the first returned datagram.
-     * 
-     * @param unit The requested speech unit, containing its own position and duration.
-     * @param reqSampleRate the sample rate for the requested times, as specified in the "unit space".
-     * @param returnOffset the time difference, in samples, between the requested unit
-     * and the actual beginning of the first returned datagram.
-     * 
-     * @return an array of datagrams
-     */
-    public Datagram[] getDatagrams( Unit unit, int reqSampleRate, long[] returnOffset ) throws IOException {
-        return( getDatagrams( unit.startTime, (long)(unit.duration), reqSampleRate, returnOffset ) );
-    }
-
-    /**
-     * Get a given number of datagrams from a particular time location.
-     * 
-     * @param targetTimeInSamples the requested position, in samples.
-     * @param number the requested number of datagrams.
-     * @param reqSampleRate the sample rate for the requested times.
-     * 
-     * @return an array of datagrams
-     */
-    public Datagram[] getDatagrams( long targetTimeInSamples, int number, int reqSampleRate ) throws IOException {
-        ByteBuffer bb = timeline.duplicate();
-        /* Resample the requested time location, in case the sample times are different between
-         * the request and the timeline */
-        long scaledTargetTime = scaleTime( reqSampleRate, targetTimeInSamples );
-        /* Let's go to the requested time... */
-        gotoTime(bb, scaledTargetTime );
-        /* ... and return the requested number of datagrams. */
-        Datagram[] buff = getNextDatagrams(bb, number);
-        if ( reqSampleRate != sampleRate ) {
-            for ( int i = 0; i < buff.length; i++ ) {
-                buff[i].setDuration( unScaleTime( reqSampleRate, buff[i].getDuration() )); // => Don't forget to stay time-consistent!
-            }
-        }
-        return( buff );
-    }
-    
-    /**
-     * Get a single datagram from a particular time location.
-     * 
-     * @param targetTimeInSamples the requested position, in samples.
-     * @param reqSampleRate the sample rate for the requested times.
-     * 
-     * @return a datagram.
-     */
-    public Datagram getDatagram( long targetTimeInSamples, int reqSampleRate ) throws IOException {
-        ByteBuffer bb = timeline.duplicate();
-        /* Resample the requested time location, in case the sample times are different between
-         * the request and the timeline */
-        long scaledTargetTime = scaleTime( reqSampleRate, targetTimeInSamples );
-        /* Let's go to the requested time... */
-        gotoTime(bb, scaledTargetTime);
-        /* ... and return a single datagram. */
-        Datagram dat = getNextDatagram(bb);
-        if (dat == null) 
-            return null;
-        if ( reqSampleRate != sampleRate ) dat.setDuration(unScaleTime( reqSampleRate, dat.getDuration() )); // => Don't forget to stay time-consistent!
-        return( dat );
-    }
-    
-    /**
-     * Get a single datagram from a particular time location,
-     * given in the timeline's sampling rate.
-     * 
-     * @param targetTimeInSamples the requested position, in samples.
-     * 
-     * @return a datagram.
-     */
-    public Datagram getDatagram( long targetTimeInSamples) throws IOException {
-        /* Resample the requested time location, in case the sample times are different between
-         * the request and the timeline */
-        return getDatagram(targetTimeInSamples, sampleRate);
-    }
-
-    /**
-     * Get a given number of datagrams from a particular time location,
-     * and return the time offset between the time request and the actual location of the first
-     * returned datagram.
-     * 
-     * @param targetTimeInSamples the requested position, in samples.
-     * @param number the requested number of datagrams.
-     * @param reqSampleRate the sample rate for the requested times.
-     * @param returnOffset the time difference, in samples, between the time request
-     * and the actual beginning of the first datagram.
-     * 
-     * @return an array of datagrams
-     */
-    public Datagram[] getDatagrams( long targetTimeInSamples, int number, int reqSampleRate, long[] returnOffset ) throws IOException {
-        ByteBuffer bb = timeline.duplicate();
-        /* Resample the requested time location, in case the sample times are different between
-         * the request and the timeline */
-        long scaledTargetTime = scaleTime( reqSampleRate, targetTimeInSamples );
-        /* Let's go to the requested time... */
-        long time = gotoTime(bb, scaledTargetTime );
-        if ( returnOffset != null ) {
-            returnOffset[0] = unScaleTime( reqSampleRate, (scaledTargetTime - time) );
-        }
-        /* ... and return the requested number of datagrams. */
-        Datagram[] buff = getNextDatagrams(bb, number);
-        if ( reqSampleRate != sampleRate ) {
-            for ( int i = 0; i < buff.length; i++ ) {
-                buff[i].setDuration(unScaleTime( reqSampleRate, buff[i].getDuration() )); // => Don't forget to stay time-consistent!
-            }
-        }
-        return( buff );
-    }
-    
- 
+    // Helper methods
     
     /**
      * Scales a discrete time to the timeline's sample rate.
@@ -615,6 +319,403 @@ public class TimelineReader
     }
     
     
+
+    
+    /******************/
+    /* DATA ACCESSORS */
+    /******************/
+    
+    /**
+     * Skip the upcoming datagram at the current position of the byte buffer.
+     * 
+     * @return the duration of the datagram we skipped
+     * @throws BufferUnderflowException if we cannot skip another datagram because we have reached the end of the byte buffer
+     */
+    protected long skipNextDatagram(ByteBuffer bb) throws BufferUnderflowException {
+        long datagramDuration = bb.getLong();
+        int datagramSize = bb.getInt();
+        bb.position(bb.position() + datagramSize);
+        return datagramDuration;
+    }
+    
+    /**
+     * Read and return the upcoming datagram from the given byte buffer.
+     * Subclasses should override this method to create subclasses of Datagram.
+     * 
+     * @param bb the timeline byte buffer to read from
+     * 
+     * @return the current datagram, or null if EOF was encountered
+     * @throws IOException, BufferUnderflowException if data could be read at the current position of bb,
+     * but no datagram could be created from that data.
+     */
+    protected Datagram getNextDatagram(ByteBuffer bb) throws IOException, BufferUnderflowException {
+        
+        Datagram d = null;
+
+        // If the end of the datagram zone is reached, refuse to read
+        if (bb.position() == bb.limit() ) {
+            return null;
+        }
+        // Else, read the datagram from the file
+        try {
+            d = new Datagram(bb);
+        } catch ( Exception e ) {
+            throw (IOException) new IOException( "While reading a datagram, EOF was met before the time index position: "
+                    + "you may be dealing with a corrupted timeline file." ).initCause(e);
+        }
+   
+        return d;
+    }
+    
+
+    
+    /**
+     * Hop the datagrams in the given byte buffer until the one which begins at or contains the desired time
+     * (time is in samples; the sample rate is assumed to be that of the timeline).
+     * 
+     * @param bb the timeline byte buffer to use. Must not be null.
+     * @param currentTimeInSamples the time position corresponding to the current position of the byte buffer.
+     * Must not be negative.
+     * @param targetTimeInSamples the time location to reach. Must not be less than currentTimeInSamples
+     * 
+     * @return the actual time at which we end up after hopping. This is less than or equal to targetTimeInSamples, never greater than it.
+     * @throws IOException if there is a problem skipping the datagrams
+     * @throws IllegalArgumentException if targetTimeInSamples is less than currentTimeInSamples
+     */
+    protected long hopToTime(ByteBuffer bb, long currentTimeInSamples, long targetTimeInSamples ) throws IOException, IllegalArgumentException {
+        assert bb != null;
+        assert currentTimeInSamples >= 0;
+        assert targetTimeInSamples >= currentTimeInSamples 
+            : "Cannot hop back from time "+currentTimeInSamples+" to time "+targetTimeInSamples;
+        
+        /* If the current time position is the requested time
+         * do nothing, you are already at the right position */
+        if (currentTimeInSamples == targetTimeInSamples) {
+            return currentTimeInSamples;
+        }
+        /* Else hop: */
+        int byteBefore = bb.position();
+        long timeBefore = currentTimeInSamples;
+        /* Hop until the datagram which comes just after the requested time */
+        while ( currentTimeInSamples <= targetTimeInSamples ) { // Stop after the requested time, we will step back
+            // to the correct time in case of equality
+            timeBefore = currentTimeInSamples;
+            byteBefore = bb.position();
+            long skippedDuration = skipNextDatagram(bb);
+            currentTimeInSamples += skippedDuration;
+        }
+        /* Do one step back so that the pointed datagram contains the requested time */
+        bb.position(byteBefore);
+        return timeBefore;
+    }
+    
+
+
+    /**
+     * This method produces a new byte buffer whose current position
+     * represents the requested positionInFile. It cannot be assumed that
+     * a call to byteBuffer.position() produces any meaningful values. The byte buffer may represent
+     * only a part of the available data. If no further data can be read from it, a new byte buffer must
+     * be obtained by calling this method again with a new target time.
+     * @param targetTimeInSamples the time position in the file which should be accessed as a byte buffer, in samples.
+     * Must be non-negative and less than the total duration of the timeline.
+     * @return a pair representing the byte buffer from which to read, and the exact time corresponding to the
+     * current position of the byte buffer. No assumptions should be made regarding that position; 
+     * the time is guaranteed to be less than or equal to targetTimeInSamples. 
+     * @throws IOException, BufferUnderflowException if no byte buffer can be obtained for the requested time.
+     */
+    protected Pair<ByteBuffer, Long> getByteBufferAtTime(long targetTimeInSamples) throws IOException, BufferUnderflowException {
+        /* Seek for the time index which comes just before the requested time */
+        IdxField idxFieldBefore = idx.getIdxFieldBefore( targetTimeInSamples );
+        long time = idxFieldBefore.timePtr;
+        ByteBuffer bb;
+        if (mappedBB != null) {
+            int bytePos = (int) (idxFieldBefore.bytePtr - datagramsBytePos);
+            bb = mappedBB.duplicate();
+            bb.position(bytePos);
+        } else { // we must load a chunk of data from the FileChannel
+            long bytePos = idxFieldBefore.bytePtr;
+            int bufSize = 0x10000; // 64k
+            if (bytePos + bufSize > timeIdxBytePos) { // must not read index data as datagrams
+                bufSize = (int) (timeIdxBytePos - bytePos);
+            }
+            bb = ByteBuffer.allocate(bufSize);
+            fileChannel.read(bb, bytePos); // this will block if another thread is currently reading from fileChannel
+            bb.limit(bb.position());
+            bb.position(0);
+        }
+        time = hopToTime(bb, time, targetTimeInSamples);
+        return new Pair<ByteBuffer, Long>(bb, time);
+    }
+
+    
+    
+    
+    /**
+     * Get a single datagram from a particular time location,
+     * given in the timeline's sampling rate.
+     * 
+     * @param targetTimeInSamples the requested position, in samples. Must be non-negative and
+     * less than the total duration of the timeline.
+     * 
+     * @return the datagram starting at or overlapping the given time, or null if end-of-file was encountered
+     * @throws IOException, BufferUnderflowException if no datagram could be created from the data at the given time.
+     */
+    public Datagram getDatagram( long targetTimeInSamples) throws IOException {
+        Pair<ByteBuffer, Long> p = getByteBufferAtTime(targetTimeInSamples);
+        ByteBuffer bb = p.getFirst();
+        return getNextDatagram(bb);
+    }
+    
+    /**
+     * Get a single datagram from a particular time location.
+     * 
+     * @param targetTimeInSamples the requested position, in samples. Must be non-negative and
+     * less than the total duration of the timeline.
+     * @param reqSampleRate the sample rate for the requested times.
+     * 
+     * @return the datagram starting at or overlapping the given time, or null if end-of-file was encountered
+     * @throws IOException if no datagram could be created from the data at the given time.
+     */
+    public Datagram getDatagram( long targetTimeInSamples, int reqSampleRate ) throws IOException {
+        /* Resample the requested time location, in case the sample times are different between
+         * the request and the timeline */
+        long scaledTargetTime = scaleTime( reqSampleRate, targetTimeInSamples );
+        Datagram dat = getDatagram(scaledTargetTime);
+        if (dat == null) 
+            return null;
+        if ( reqSampleRate != sampleRate ) dat.setDuration(unScaleTime( reqSampleRate, dat.getDuration() )); // => Don't forget to stay time-consistent!
+        return dat;
+    }
+
+
+    /**
+     * Get the datagrams spanning a particular time range from a particular time location,
+     * and return the time offset between the time request and the actual location of the first
+     * returned datagram. Irrespective of the values of nDatagrams and timeSpanInSamples, at least
+     * one datagram is always returned.
+     * 
+     * @param targetTimeInSamples the requested position, in samples. Must be non-negative and
+     * less than the total duration of the timeline.
+     * @param nDatagrams the number of datagrams to read. Ignored if timeSpanInSamples is positive.
+     * @param timeSpanInSamples the requested time span, in samples. If positive, then datagrams are selected by the given time span.
+     * @param reqSampleRate the sample rate for the requested and returned times. Must be positive.
+     * @param returnOffset an optional output field. 
+     * If it is not null, then after the call it must have length of at least 1, 
+     * and the first array field will contain the time difference, in samples, between the time request
+     * and the actual beginning of the first datagram.
+     * 
+     * @return an array of datagrams containing at least one datagram. If less than the requested amount of datagrams
+     * can be read, the number of datagrams that can be read is returned.
+     * @throws IllegalArgumentException if targetTimeInSamples is negative, or if a returnOffset of length 0 is given.
+     * @throws IOException if no data can be read at the given target time
+     */
+    private Datagram[] getDatagrams(long targetTimeInSamples, int nDatagrams, long timeSpanInSamples, int reqSampleRate, long[] returnOffset) 
+    throws IllegalArgumentException, IOException {
+        /* Check the input arguments */
+        if ( targetTimeInSamples < 0 ) {
+            throw new IllegalArgumentException( "Can't get a datagram from a negative time position (given time position was [" + targetTimeInSamples + "])." );
+        }
+        if ( reqSampleRate <= 0 ) {
+            throw new IllegalArgumentException( "sample rate must be positive, but is "+reqSampleRate );
+        }
+        // Get the datagrams by number or by time span?
+        boolean byNumber;
+        if ( timeSpanInSamples > 0 ) {
+            byNumber = false;
+        } else {
+            byNumber = true;
+            if (nDatagrams <= 0) {
+                nDatagrams = 1; // return at least one datagram
+            }
+        }
+        
+        /* Resample the requested time location, in case the sample times are different between
+         * the request and the timeline */
+        long scaledTargetTime = scaleTime( reqSampleRate, targetTimeInSamples );
+        
+        Pair<ByteBuffer, Long> p = getByteBufferAtTime(scaledTargetTime);
+        ByteBuffer bb = p.getFirst();
+        long time = p.getSecond();
+        if ( returnOffset != null ) { // return offset between target and actual start time
+            if (returnOffset.length == 0) {
+                throw new IllegalArgumentException("If returnOffset is given, it must have length of at least 1");
+            }
+            returnOffset[0] = unScaleTime( reqSampleRate, (scaledTargetTime - time) );
+        }
+
+        ArrayList<Datagram> datagrams = new ArrayList<Datagram>(byNumber ? nDatagrams : 10);
+        // endTime is stop criterion if reading by time scale:
+        long endTime = byNumber ? -1 : scaleTime( reqSampleRate, (targetTimeInSamples+timeSpanInSamples) );
+        int nRead = 0;
+        boolean haveReadAll = false;
+        while (!haveReadAll) {
+            Datagram dat = getNextDatagram(bb);
+            if (dat == null) {
+                // we may have reached the end of the current byte buffer... try reading another:
+                try {
+                    p = getByteBufferAtTime(time);
+                } catch (Exception ioe) {
+                    // cannot get another byte buffer -- stop reading.
+                    break;
+                }
+                bb = p.getFirst();
+                dat = getNextDatagram(bb);
+                if (dat == null) { // no, indeed we cannot read any more
+                    break; // abort, we could not read all
+                }
+            }
+            assert dat != null;
+            time += dat.getDuration(); // duration in timeline sample rate
+            nRead++; // number of datagrams read
+            if (reqSampleRate != sampleRate) {
+                dat.setDuration(unScaleTime(reqSampleRate, dat.getDuration())); // convert duration into reqSampleRate
+            }
+            datagrams.add(dat);
+            if (byNumber && nRead == nDatagrams || !byNumber && time >= endTime) {
+                haveReadAll = true;
+            }
+        }
+        return (Datagram[])datagrams.toArray(new Datagram[0]);
+    }
+    
+    
+    /////////////////////// Convenience methods: variants of getDatagrams() ///////////////////////
+
+
+    /////////////////////// by time span ////////////////////////////
+    
+    /**
+     * Get the datagrams spanning a particular time range from a particular time location,
+     * and return the time offset between the time request and the actual location of the first
+     * returned datagram. Irrespective of the value of timeSpanInSamples, at least
+     * one datagram is always returned.
+     * 
+     * @param targetTimeInSamples the requested position, in samples. Must be non-negative and
+     * less than the total duration of the timeline.
+     * @param timeSpanInSamples the requested time span, in samples. If positive, then datagrams are selected by the given time span.
+     * @param reqSampleRate the sample rate for the requested and returned times. Must be positive.
+     * @param returnOffset an optional output field. 
+     * If it is not null, then after the call it must have length of at least 1, 
+     * and the first array field will contain the time difference, in samples, between the time request
+     * and the actual beginning of the first datagram.
+     * 
+     * @return an array of datagrams containing at least one datagram. If less than the requested amount of datagrams
+     * can be read, the number of datagrams that can be read is returned.
+     * @throws IllegalArgumentException if targetTimeInSamples is negative, or if a returnOffset of length 0 is given.
+     * @throws IOException, BufferUnderflowException if no data can be read at the given target time
+     */
+    public Datagram[] getDatagrams(long targetTimeInSamples, long timeSpanInSamples, int reqSampleRate, long[] returnOffset ) throws IOException {
+        return getDatagrams(targetTimeInSamples, -1, timeSpanInSamples, reqSampleRate, returnOffset);
+    }
+    
+    /**
+     * Get the datagrams spanning a particular time range from a particular time location.
+     * Irrespective of the value of timeSpanInSamples, at least
+     * one datagram is always returned.
+     * 
+     * @param targetTimeInSamples the requested position, in samples. Must be non-negative and
+     * less than the total duration of the timeline.
+     * @param timeSpanInSamples the requested time span, in samples. If positive, then datagrams are selected by the given time span.
+     * @param reqSampleRate the sample rate for the requested and returned times. Must be positive.
+     * 
+     * @return an array of datagrams containing at least one datagram. If less than the requested amount of datagrams
+     * can be read, the number of datagrams that can be read is returned.
+     * @throws IllegalArgumentException if targetTimeInSamples is negative, or if a returnOffset of length 0 is given.
+     * @throws IOException if no data can be read at the given target time
+     */
+    public Datagram[] getDatagrams(long targetTimeInSamples, long timeSpanInSamples, int reqSampleRate ) throws IOException {
+        return getDatagrams(targetTimeInSamples, timeSpanInSamples, reqSampleRate, null);
+    }
+    
+
+    /**
+     * Get a given number of datagrams from a particular time location.
+     * 
+     * @param targetTimeInSamples the requested position, in samples. Must be non-negative and
+     * less than the total duration of the timeline.
+     * @param number the number of datagrams to read. Even if this is <= 0, at least one datagram is always returned.
+     * @param reqSampleRate the sample rate for the requested and returned times. Must be positive.
+     * 
+     * @return an array of datagrams containing at least one datagram. If less than the requested amount of datagrams
+     * can be read, the number of datagrams that can be read is returned.
+     * @throws IllegalArgumentException if targetTimeInSamples is negative, or if a returnOffset of length 0 is given.
+     * @throws IOException if no data can be read at the given target time
+     */
+    public Datagram[] getDatagrams(long targetTimeInSamples, long timeSpanInSamples) throws IOException {
+        return getDatagrams(targetTimeInSamples, timeSpanInSamples, sampleRate, null);
+    }
+
+
+    /////////////////////// by number of datagrams ////////////////////////////
+
+    
+    /**
+     * Get a given number of datagrams from a particular time location,
+     * and return the time offset between the time request and the actual location of the first
+     * returned datagram.
+     * 
+     * @param targetTimeInSamples the requested position, in samples. Must be non-negative and
+     * less than the total duration of the timeline.
+     * @param number the number of datagrams to read. Even if this is <= 0, at least one datagram is always returned.
+     * @param reqSampleRate the sample rate for the requested and returned times. Must be positive.
+     * @param returnOffset an optional output field. 
+     * If it is not null, then after the call it must have length of at least 1, 
+     * and the first array field will contain the time difference, in samples, between the time request
+     * and the actual beginning of the first datagram.
+     * 
+     * @return an array of datagrams containing at least one datagram. If less than the requested amount of datagrams
+     * can be read, the number of datagrams that can be read is returned.
+     * @throws IllegalArgumentException if targetTimeInSamples is negative, or if a returnOffset of length 0 is given.
+     * @throws IOException if no data can be read at the given target time
+     */
+    public Datagram[] getDatagrams( long targetTimeInSamples, int number, int reqSampleRate, long[] returnOffset ) throws IOException {
+        return getDatagrams(targetTimeInSamples, number, -1, reqSampleRate, returnOffset);
+    }
+
+
+    
+    /////////////////////// by unit ////////////////////////////
+    
+    /**
+     * Get the datagrams spanning a particular unit,
+     * and return the time offset between the unit request and the actual location of the first
+     * returned datagram. Irrespective of the unit duration, at least
+     * one datagram is always returned.
+     * 
+     * @param unit The requested speech unit, containing its own position and duration.
+     * @param reqSampleRate the sample rate for the requested and returned times. Must be positive.
+     * @param returnOffset an optional output field. 
+     * If it is not null, then after the call it must have length of at least 1, 
+     * and the first array field will contain the time difference, in samples, between the time request
+     * and the actual beginning of the first datagram.
+     * 
+     * @return an array of datagrams containing at least one datagram. If less than the requested amount of datagrams
+     * can be read, the number of datagrams that can be read is returned.
+     * @throws IllegalArgumentException if targetTimeInSamples is negative, or if a returnOffset of length 0 is given.
+     * @throws IOException if no data can be read at the given target time
+     */
+    public Datagram[] getDatagrams( Unit unit, int reqSampleRate, long[] returnOffset ) throws IOException {
+        return getDatagrams( unit.startTime, (long)(unit.duration), reqSampleRate, returnOffset );
+    }
+    
+
+    /**
+     * Get the datagrams spanning a particular unit. Irrespective of the unit duration, at least
+     * one datagram is always returned.
+     * 
+     * @param unit The requested speech unit, containing its own position and duration.
+     * @param reqSampleRate the sample rate for the requested and returned times. Must be positive.
+     * 
+     * @return an array of datagrams containing at least one datagram. If less than the requested amount of datagrams
+     * can be read, the number of datagrams that can be read is returned.
+     * @throws IllegalArgumentException if targetTimeInSamples is negative, or if a returnOffset of length 0 is given.
+     * @throws IOException if no data can be read at the given target time
+     */
+    public Datagram[] getDatagrams( Unit unit, int reqSampleRate ) throws IOException {
+        return getDatagrams( unit, reqSampleRate, null );
+    }
+
     /*****************************************/
     /* HELPER CLASSES                        */
     /*****************************************/
@@ -673,25 +774,51 @@ public class TimelineReader
         /****************/
         
         /**
-         * File constructor: load the index from a data input stream or random access file.
-         * 
-         * */
-        public Index( DataInput raf ) throws IOException {
+         * Construct an index from a data input stream or random access file.
+         * Fundamental guarantee: Once created, the index is guaranteed to contain a positive index interval and
+         * monotonously rising byte and time pointers.
+         * @param bb byte buffer from which to read the index.
+         * Must not be null, and read position must be at start of index.
+         * @throws IOException if there is a problem reading.
+         * @throws MaryConfigurationException if the index is not well-formed.
+         */
+        private Index( DataInput raf ) throws IOException, MaryConfigurationException {
+            assert raf != null : "null argument";
             load( raf );
         }
         
-        public Index(ByteBuffer bb) throws BufferUnderflowException {
+        /**
+         * Construct an index from a byte buffer.
+         * Fundamental guarantee: Once created, the index is guaranteed to contain a positive index interval and
+         * monotonously rising byte and time pointers.
+         * @param rafIn data input from which to read the index.
+         * Must not be null, and read position must be at start of index.
+         * @throws BufferUnderflowException if there is a problem reading.
+         * @throws MaryConfigurationException if the index is not well-formed.
+         */
+        private Index(ByteBuffer bb) throws BufferUnderflowException, MaryConfigurationException {
+            assert bb != null : "null argument";
             load(bb);
         }
         
         /**
          * Constructor which builds a new index with a specific index interval
-         * and a given sample rate
+         * and a given sample rate.
+         * Fundamental guarantee: Once created, the index is guaranteed to contain a positive index interval and
+         * monotonously rising byte and time pointers.
          * 
-         * @param idxInterval the index interval, samples
-         * @param indexFields the actual index data
+         * @param idxInterval the index interval, in samples. Must be a positive number.
+         * @param indexFields the actual index data. Must not be null.
+         * @throws IllegalArgumentException if the index data given is not well-formed.
+         * @throws NullPointerException if indexFields are null.
          */
-        public Index(int idxInterval, Vector<IdxField> indexFields) {
+        public Index(int idxInterval, Vector<IdxField> indexFields) throws IllegalArgumentException, NullPointerException {
+            if (idxInterval <= 0) {
+                throw new IllegalArgumentException("got index interval <= 0");
+            }
+            if (indexFields == null) {
+                throw new NullPointerException("null argument");
+            }
             this.idxInterval = idxInterval;
             bytePtrs = new long[indexFields.size()];
             timePtrs = new long[indexFields.size()];
@@ -699,6 +826,11 @@ public class TimelineReader
                 IdxField f = indexFields.get(i);
                 bytePtrs[i] = f.bytePtr;
                 timePtrs[i] = f.timePtr;
+                if (i > 0) {
+                    if (bytePtrs[i] < bytePtrs[i-1] || timePtrs[i] < timePtrs[i-1]) {
+                        throw new IllegalArgumentException ("Pointer positions in index fields must be strictly monotonously rising");
+                    }
+                }
             }
        }
         
@@ -709,10 +841,17 @@ public class TimelineReader
         
         /**
          * Method which loads an index from a data input (random access file or data input stream).
-         * */
-        public void load( DataInput rafIn ) throws IOException {
+         * @param rafIn data input from which to read the index.
+         * Must not be null, and read position must be at start of index.
+         * @throws IOException if there is a problem reading.
+         * @throws MaryConfigurationException if the index is not well-formed.
+         */
+        public void load( DataInput rafIn ) throws IOException, MaryConfigurationException {
             int numIdx = rafIn.readInt();
             idxInterval = rafIn.readInt();
+            if (idxInterval <= 0) {
+                throw new MaryConfigurationException("read negative index interval -- file seems corrupt");
+            }
             
             bytePtrs = new long[numIdx];
             timePtrs = new long[numIdx];
@@ -725,6 +864,11 @@ public class TimelineReader
             for( int i = 0; i < numIdx; i++ ) {
                 bytePtrs[i] = bufIn.readLong();
                 timePtrs[i] = bufIn.readLong();
+                if (i > 0) {
+                    if (bytePtrs[i] < bytePtrs[i-1] || timePtrs[i] < timePtrs[i-1]) {
+                        throw new MaryConfigurationException("File seems corrupt: Pointer positions in index fields are not strictly monotonously rising");
+                    }
+                }
             }
             /* Obsolete: Read the "last datagram" memory */
             /*prevBytePos =*/ bufIn.readLong();
@@ -733,10 +877,17 @@ public class TimelineReader
 
         /**
          * Method which loads an index from a byte buffer.
-         * */
-        public void load(ByteBuffer bb) {
+         * @param bb byte buffer from which to read the index.
+         * Must not be null, and read position must be at start of index.
+         * @throws BufferUnderflowException if there is a problem reading.
+         * @throws MaryConfigurationException if the index is not well-formed.
+         */
+        private void load(ByteBuffer bb) throws BufferUnderflowException, MaryConfigurationException {
             int numIdx = bb.getInt();
             idxInterval = bb.getInt();
+            if (idxInterval <= 0) {
+                throw new MaryConfigurationException("read negative index interval -- file seems corrupt");
+            }
             
             bytePtrs = new long[numIdx];
             timePtrs = new long[numIdx];
@@ -744,6 +895,11 @@ public class TimelineReader
             for( int i = 0; i < numIdx; i++ ) {
                 bytePtrs[i] = bb.getLong();
                 timePtrs[i] = bb.getLong();
+                if (i > 0) {
+                    if (bytePtrs[i] < bytePtrs[i-1] || timePtrs[i] < timePtrs[i-1]) {
+                        throw new MaryConfigurationException("File seems corrupt: Pointer positions in index fields are not strictly monotonously rising");
+                    }
+                }
             }
             /* Obsolete: Read the "last datagram" memory */
             /*prevBytePos =*/ bb.getLong();
@@ -829,10 +985,14 @@ public class TimelineReader
         /**
          * Returns the index field that comes immediately before or straight on the requested time.
          * 
-         * @param timePosition
-         * @return
+         * @param timePosition the non-negative time 
+         * @return an index field representing the index position just before or straight on the requested time.
+         * @throws IllegalArgumentException if the given timePosition is negtive
          */
         public IdxField getIdxFieldBefore( long timePosition ) {
+            if (timePosition < 0) {
+                throw new IllegalArgumentException("Negative time given");
+            }
             int index = (int)( timePosition / idxInterval ); /* <= This is an integer division between two longs,
                                                             *    implying a flooring operation on the decimal result. */
             // System.out.println( "TIMEPOS=" + timePosition + " IDXINT=" + idxInterval + " IDX=" + idx );
@@ -889,21 +1049,40 @@ public class TimelineReader
         /****************/
         
         /**
-         *  Constructor which loads the procHeader from a RandomAccessFile
-         *  */
-        public ProcHeader( RandomAccessFile raf )  throws IOException {
+         * Constructor which loads the procHeader from a RandomAccessFile.
+         * Fundamental guarantee: after creation, the ProcHeader object has a non-null (but possibly empty) string content.
+         * @param raf input from which to load the processing header.
+         * Must not be null and must be positioned so that a processing header can be read from it.
+         *
+         *  @throws IOException if no proc header can be read at the current position.
+         */
+        private ProcHeader( RandomAccessFile raf )  throws IOException {
             loadProcHeader( raf );
         }
         
-        public ProcHeader(ByteBuffer bb) throws BufferUnderflowException, UTFDataFormatException {
+        /**
+         * Constructor which loads the procHeader from a RandomAccessFile
+         * Fundamental guarantee: after creation, the ProcHeader object has a non-null (but possibly empty) string content.
+         * @param raf input from which to load the processing header.
+         * Must not be null and must be positioned so that a processing header can be read from it.
+         *
+         *  @throws BufferUnderflowException, UTFDataFormatException if no proc header can be read at the current position.
+         */
+        private ProcHeader(ByteBuffer bb) throws BufferUnderflowException, UTFDataFormatException {
             loadProcHeader(bb);
         }
         
         /**
-         *  Constructor which makes the procHeader from a String
+         *  Constructor which makes the procHeader from a String.
+         * Fundamental guarantee: after creation, the ProcHeader object has a non-null (but possibly empty) string content.
+         *  @param procStr a non-null string representing the contents of the ProcHeader.
+         *  @throws NullPointerException if procStr is null
          *  */
         public ProcHeader( String procStr ) 
         {
+            if (procStr == null) {
+                throw new NullPointerException("null argument");
+            }
             procHeader = procStr;
         }
         
@@ -911,11 +1090,22 @@ public class TimelineReader
         /* ACCESSORS    */
         /****************/
 
+        /**
+         * Return the string length of the proc header.
+         * @return a non-negative int representling the string length of the proc header.
+         */
         public int getCharSize() {
-            return( procHeader.length() );
+            assert procHeader != null;
+            return procHeader.length();
         }
+        
+        /**
+         * Get the string content of the proc header.
+         * @return a non-null string representing the string content of the proc header.
+         */
         public String getString() {
-            return( procHeader );
+            assert procHeader != null;
+            return procHeader;
         }
         
         /*****************/
@@ -924,20 +1114,27 @@ public class TimelineReader
         
         /**
          *  Method which loads the header from a RandomAccessFile.
-         *  */
+         *  @param rafIn file to read from, must not be null.
+         *  @throws IOException if no proc header can be read at the current position.
+         */
         private void loadProcHeader( RandomAccessFile rafIn ) throws IOException {
+            assert rafIn != null : "null argument";
             procHeader = rafIn.readUTF();
+            assert procHeader != null;
         }
         
         /**
          *  Method which loads the header from a byte buffer.
-         *  */
+         *  @param bb byte buffer to read from, must not be null.
+         *  @throws BufferUnderflowException, UTFDataFormatException if no proc header can be read at the current position.
+         */
         private void loadProcHeader(ByteBuffer bb) throws BufferUnderflowException, UTFDataFormatException {
             procHeader = StreamUtils.readUTF(bb);
+            assert procHeader != null;
         }
         
         /**
-         *  Method which writes the header to a RandomAccessFile.
+         *  Method which writes the proc header to a RandomAccessFile.
          *  
          *  @return the number of written bytes.
          *  */
