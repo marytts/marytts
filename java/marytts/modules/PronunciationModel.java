@@ -311,6 +311,9 @@ public class PronunciationModel extends InternalModule
         }
         while (tok.hasMoreTokens()) {
             String sylString = tok.nextToken();
+            if (sylString.trim().isEmpty()) {
+                continue;
+            }
             Allophone[] allophones = allophoneSet.splitIntoAllophones(sylString);
             Element syllable = MaryXML.createElement(document, MaryXML.SYLLABLE);
             token.appendChild(syllable);
