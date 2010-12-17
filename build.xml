@@ -583,6 +583,12 @@ THIS SOFTWARE.
       </antcall>
     </target>
 
+    <target name="ru-package">
+      <antcall target="default-language-package">
+        <param name="lang" value="ru"/>
+      </antcall>
+    </target>
+
 	<!-- Installable voice zip files for the component installer -->
     <target name="default-voice-package" depends="jars">
   	  <zip destfile="dist/mary-${voice}-${specification.version.nospace}.zip">
@@ -627,6 +633,7 @@ THIS SOFTWARE.
 		de-package,
 		te-package,
 		tr-package,
+		ru-package,
 		cmu-slt-hsmm-package" />
 	
 	 
