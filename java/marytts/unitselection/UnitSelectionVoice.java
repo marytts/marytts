@@ -251,8 +251,24 @@ public class UnitSelectionVoice extends Voice {
      */
     public UnitConcatenator getModificationConcatenator() {
         if (modificationConcatenator == null) {
-            logger.debug("Initializing FD-PSOLA unit concatenator");
-            modificationConcatenator = new FdpsolaUnitConcatenator();
+            // get sensible minimum and maximum values:
+            try {
+                // initialize with values from properties:
+                double minTimeScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name + ".prosody.modification.duration.factor.minimum"));
+                double maxTimeScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name + ".prosody.modification.duration.factor.maximum"));
+                double minPitchScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name + ".prosody.modification.f0.factor.minimum"));
+                double maxPitchScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name + ".prosody.modification.f0.factor.maximum"));
+                logger.debug("Initializing FD-PSOLA unit concatenator with the following parameter thresholds:");
+                logger.debug("minimum duration modification factor: " + minTimeScaleFactor);
+                logger.debug("maximum duration modification factor: " + maxTimeScaleFactor);
+                logger.debug("minimum F0 modification factor: " + minPitchScaleFactor);
+                logger.debug("maximum F0 modification factor: " + maxPitchScaleFactor);
+                modificationConcatenator = new FdpsolaUnitConcatenator(minTimeScaleFactor, maxTimeScaleFactor, minPitchScaleFactor, maxPitchScaleFactor);
+            } catch (Exception e) {
+                // ignore -- defaults will be used
+                logger.debug("Initializing FD-PSOLA unit concatenator with default parameter thresholds.");
+                modificationConcatenator = new FdpsolaUnitConcatenator();
+            }
             modificationConcatenator.load(database);
         }
         return modificationConcatenator;
