@@ -132,18 +132,31 @@ public class TranscriptionTableModel extends AbstractTableModel {
      * @throws Exception
      */
     public void saveTranscription(String fileName) throws Exception {
-        
         PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8"));
         // Save copyright notice first
         MaryUtils.writeCopyrightNotice(out, "#");
-        for(int i=0; i < data.length; i++){
-            
-            String line =  (String) data[i][1];
-            if(!((String)data[i][2]).equals("") && this.hasManualVerification[i] && this.hasCorrectSyntax[i]){
-                line += " "+(String)data[i][2];
+        // If any transcriptions include spaces, save using | as separator, else use space
+        boolean transContainsSpace = false;
+        for (int i=0; i<data.length; i++) {
+            String trans = (String) data[i][2];
+            if (trans.contains(" ")) {
+                transContainsSpace = true;
+                break;
             }
-            if((Boolean)data[i][3]){
-                line += " functional";
+        }
+        String separatorChar = transContainsSpace ? "|" : " ";
+        
+        for(int i=0; i < data.length; i++){
+            String word = (String) data[i][1];
+            String trans = (String) data[i][2];
+            boolean isFunctional = (Boolean)data[i][3];
+            StringBuilder line = new StringBuilder();
+            line.append(word);
+            if (!trans.equals("") && this.hasManualVerification[i] && this.hasCorrectSyntax[i]) {
+                line.append(separatorChar).append(trans);
+            }
+            if (isFunctional) {
+                line.append(separatorChar).append("functional");
             }
             out.println(line);
         }
@@ -171,6 +184,10 @@ public class TranscriptionTableModel extends AbstractTableModel {
             if (line.equals("") || line.startsWith("#")) continue;
             lines.add(line);
         }
+        if (lines.size() == 0) {
+            return;
+        }
+
         int offset;
         Set<String> currentWords = new HashSet<String>();
         if (keepCurrentData && this.data != null) {
@@ -195,16 +212,25 @@ public class TranscriptionTableModel extends AbstractTableModel {
         }
         
         int pos = offset;
-        for(int i=0; i < lines.size(); i++){
-            String[]  words = lines.get(i).split("\\s+");
-            String word = words[0];
+        // Accept input in two types of format:
+        // 1. space-separated (in which case the transcription is not supposed to contain any space characters);
+        // 2. fields separated by a "pipe" symbol ("|"), as in userdict.
+        String separatorRE;
+        if (lines.get(0).contains("|")) {
+            separatorRE = "\\|";
+        } else {
+            separatorRE = "\\s+";
+        }
+        for(int i=0; i < lines.size(); i++) {
+            String[]  words = lines.get(i).split(separatorRE);
+            String word = words[0].trim();
             if (currentWords.contains(word)) continue; // do not add new words already contained in old list
             data[pos][0] = Integer.toString(pos);
-            data[pos][1] = words[0];
+            data[pos][1] = words[0].trim();
             if(lines.get(i).endsWith("functional")){
                 data[pos][3] = Boolean.TRUE;
                 if(words.length == 3){
-                    data[pos][2] = words[1];
+                    data[pos][2] = words[1].trim();
                     setAsManualVerify(pos, true);
                     setAsCorrectSyntax(pos, true);
                 }
@@ -215,7 +241,7 @@ public class TranscriptionTableModel extends AbstractTableModel {
             } else {
                 data[pos][3] = Boolean.FALSE;
                 if(words.length >= 2){
-                    data[pos][2] = words[1];
+                    data[pos][2] = words[1].trim();
                     setAsManualVerify(pos, true);
                     setAsCorrectSyntax(pos, true);
                 } else {
