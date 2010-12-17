@@ -69,9 +69,16 @@ public class FeatureProcessorManager
         registerAcousticModels(voice);
     }
     
+    /**
+     * Create any additional feature processors for acoustic models.
+     * @param voice
+     */
     protected void registerAcousticModels(Voice voice) {
-        // finish setting up the acoustic Models, if defined:
-        for (Model model : voice.getAcousticModels().values()) {
+        Map<String, Model> acousticModels = voice.getAcousticModels();
+        if (acousticModels == null) {
+            return;
+        }
+        for (Model model : acousticModels.values()) {
             // does this model predict a custom continuous feature...?
             String modelFeatureName = model.getFeatureName();
             if (modelFeatureName != null && !listContinuousFeatureProcessorNames().contains(modelFeatureName)) {
@@ -80,15 +87,6 @@ public class FeatureProcessorManager
                 MaryFeatureProcessor featureProcessor = new MaryGenericFeatureProcessors.GenericContinuousFeature(
                         modelFeatureName, modelAttributeName);
                 addFeatureProcessor(featureProcessor);
-            }
-
-            // set TargetFeatureComputer for the Model:
-            TargetFeatureComputer featureComputer = FeatureRegistry.getTargetFeatureComputer(voice, null);
-            try {
-                model.setFeatureComputer(featureComputer, this);
-            } catch (MaryConfigurationException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
             }
         }        
     }

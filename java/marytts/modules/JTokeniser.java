@@ -64,11 +64,10 @@ public class JTokeniser extends InternalModule
     }
     
     public JTokeniser(Locale locale) {
-        super("JTokeniser", MaryDataType.RAWMARYXML, MaryDataType.TOKENS, locale);
+        this(MaryDataType.RAWMARYXML, MaryDataType.TOKENS, locale);
     }
     
-    public JTokeniser(MaryDataType inputType, MaryDataType outputType,
-            Locale locale) {
+    public JTokeniser(MaryDataType inputType, MaryDataType outputType, Locale locale) {
         super("JTokeniser", inputType, outputType, locale);
         // Which language to use in the Tokenizer?
         if (locale == null) {

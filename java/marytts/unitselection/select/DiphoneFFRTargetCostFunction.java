@@ -21,6 +21,7 @@ package marytts.unitselection.select;
 
 import java.io.IOException;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureVector;
@@ -49,7 +50,7 @@ public class DiphoneFFRTargetCostFunction implements TargetCostFunction
      * @throws IOException
      */
     public void load(String featureFileName, String weightsFile,
-            FeatureProcessorManager featProc) throws IOException
+            FeatureProcessorManager featProc) throws IOException, MaryConfigurationException
     {
         FeatureFileReader ffr = FeatureFileReader.getFeatureFileReader(featureFileName);
         load(ffr, weightsFile, featProc);

@@ -35,6 +35,7 @@ import marytts.cart.LeafNode;
 import marytts.cart.LeafNode.StringAndFloatLeafNode;
 import marytts.cart.io.MaryCARTReader;
 import marytts.cart.io.WagonCARTReader;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.tools.newlanguage.LTSTrainer;
@@ -69,7 +70,8 @@ public class TrainedLTS {
      * @throws IOException 
      * 
      */
-    public TrainedLTS(AllophoneSet aPhonSet, String treeFilename) throws IOException {
+    public TrainedLTS(AllophoneSet aPhonSet, String treeFilename)
+    throws IOException, MaryConfigurationException {
         this.allophoneSet = aPhonSet;
         this.loadTree(treeFilename);
     }
@@ -92,7 +94,7 @@ public class TrainedLTS {
      * @param treeFilename
      * @throws IOException
      */
-    public void loadTree(String treeFilename) throws IOException
+    public void loadTree(String treeFilename) throws IOException, MaryConfigurationException
     {
         MaryCARTReader cartReader = new MaryCARTReader();
         this.tree = cartReader.load(treeFilename);
@@ -158,7 +160,7 @@ public class TrainedLTS {
         return sfr.syllabify(phones);
     }
     
-    public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException {
+    public static void main(String[] args) throws IOException, MaryConfigurationException {
 
         if (args.length != 2) {
             System.out.println("Usage:");

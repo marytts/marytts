@@ -159,8 +159,9 @@ public class OverlapUnitConcatenator extends BaseUnitConcatenator {
      * Generate audio to match the target pitchmarks as closely as possible.
      * @param units
      * @return
+     * @throws IOException 
      */
-    protected AudioInputStream generateAudioStream(List<SelectedUnit> units)
+    protected AudioInputStream generateAudioStream(List<SelectedUnit> units) throws IOException
     {
         int len = units.size();
         Datagram[][] datagrams = new Datagram[len][];

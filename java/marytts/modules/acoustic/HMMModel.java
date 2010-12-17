@@ -1,7 +1,31 @@
+/**
+ * Copyright 2010 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 package marytts.modules.acoustic;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.WeakHashMap;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
@@ -21,112 +45,164 @@ import marytts.htsengine.HTSUttModel;
 import marytts.unitselection.select.Target;
 import marytts.util.MaryUtils;
 
+/**
+ * Model for predicting duration and F0 from HMMs
+ * 
+ * @author marcela
+ *
+ */
 public class HMMModel extends Model {
-    
+    /**
+     * Configuration information of the model
+     */
     private HMMData htsData = null;
-    HTSUttModel um = null;
-    private CartTreeSet cart;    
+    /**
+     * HMM trees and pdfs for this model.
+     */
+    private CartTreeSet cart; 
+    /**
+     * Feature definition used when training HMMs. 
+     */       
+    FeatureDefinition hmmFeatureDefinition;    
+    /**
+     * to calculate duration in seconds.
+     */
     private float fperiodsec;
-    protected static Logger logger = MaryUtils.getLogger("HMMModel");    
-    protected double diffDuration;
-    FeatureDefinition hmmFeatureDefinition;
+    
+    protected static Logger logger = MaryUtils.getLogger("HMMModel");
     
     
-    public HMMModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-            String featureName, String predictFrom, String applyTo) {
-        super(type, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+    /**
+     * If the model is instantiated because the same HHMModel is used
+     * for predicting both F0 and duration, set this variable true;
+     * this is done in Voice.loadAcousticModels(), when creating the models.
+     */
+    private boolean predictDurAndF0 = false;
+    
+    /**
+     * This list keeps a copy of the utterance model, this is done when the same HMMModel is used for predicting durations and F0,
+     * the idea is to keep in the utterance model list the state durations predicted together with duration, these state durations are 
+     * used when predicting F0, so the same state duration is applied.
+     */
+    private Map<List<Element>, HTSUttModel> uttModels = new WeakHashMap<List<Element>, HTSUttModel>();
+    
+    /**
+     * Model constructor
+     * @param featureManager the feature processor manager used to compute the symbolic features used for prediction
+     * @param dataFileName in HMM models this data file corresponds to the configuration file of the HMM voice
+     * @param targetAttributeName attribute in MARYXML to predict
+     * @param targetAttributeFormat print style, not used in HMM models
+     * @param featureName not used in HMMModel
+     * @param predictFrom not used in HMMModel
+     * @param applyTo not used in HMMModel
+     * 
+     * @throws MaryConfigurationException  if there are missing files or problems loading trees and pdf files.
+     */
+    public HMMModel(FeatureProcessorManager featureManager, String dataFileName, String targetAttributeName, String targetAttributeFormat,
+            String featureName, String predictFrom, String applyTo)
+    throws MaryConfigurationException {
+        super(featureManager, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+        load();
     }
-    
-    @Override
-    public void setFeatureComputer(TargetFeatureComputer featureComputer, FeatureProcessorManager featureProcessorManager) 
-       throws MaryConfigurationException {
-        // ensure that this HMM's FeatureDefinition is a subset of the one passed in:
-              
-        FeatureDefinition voiceFeatureDefinition = featureComputer.getFeatureDefinition();
-        if (!voiceFeatureDefinition.contains(hmmFeatureDefinition)) {
-            throw new MaryConfigurationException("HMM file " + dataFile + " contains extra features which are not supported!");
-        }
-        
-        // overwrite featureComputer with one constructed from the HMM's FeatureDefinition:
-        String hmmFeatureNames = hmmFeatureDefinition.getFeatureNames();
-        featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, hmmFeatureNames);
-        this.featureComputer = featureComputer;
 
+    /**
+     * This variable is set to true whenever the same HMMModel is used to predict both duration and F0.
+     * by default the variable is false, so that means that two different HMMModels are used for predicting duration and F0, in this case
+     * there is no state durations information to predict F0.
+     * @param bval
+     */
+    public void setPredictDurAndF0(boolean bval){
+        predictDurAndF0 = bval;
     }
     
+    /**
+     * Load trees and pdfs, from HMM configuration file.
+     * 
+     * @throws MaryConfigurationException  if there are missing files or problems loading trees and pdf files.
+     */
     @Override
-    public void loadDataFile() {
+    protected void loadDataFile() throws IOException, MaryConfigurationException {
         if(htsData==null)
           htsData = new HMMData();
-        try {
-            // the dataFile is the configuration file of the HMM voice whose hmm models will be used
-            htsData.initHMMData(dataFile, targetAttributeName);
-            cart = htsData.getCartTreeSet();                       
-            fperiodsec = ((float)htsData.getFperiod() / (float)htsData.getRate());
-            diffDuration = 0.0;
-            hmmFeatureDefinition = htsData.getFeatureDefinition();
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        // the dataFile is the configuration file of the HMM voice whose hmm models will be used
+        htsData.initHMMData(dataFile, targetAttributeName);
+        cart = htsData.getCartTreeSet();                       
+        fperiodsec = ((float)htsData.getFperiod() / (float)htsData.getRate());
+        predictionFeatureNames = htsData.getFeatureDefinition().getFeatureNames();
+    }
+    
+    /**
+     * Predict duration for the list of elements. If the same HMMModel is used to predict duration and F0 then a utterance model is 
+     * created and kept in a WeakHashMap, so the next call to this module, for predicting F0, can use that utterance model.
+     * @param elements elements from MaryXML for which to predict the values
+     * 
+     * @throws MaryConfigurationException if error searching in HMM trees.
+     */    
+    @Override
+    public void applyTo(List<Element> elements) throws MaryConfigurationException{
+        logger.debug("predicting duration");
+        HTSUttModel um = predictAndSetDuration(elements, elements);
+        if (predictDurAndF0) { // this same model will be used for predicting F0 -- remember um
+            uttModels.put(elements, um);
         }
     }
     
+    /**
+     * Predict F0 for the list of elements and apply to another list of elements. If the same HMMModel is used to predict 
+     * duration and F0 then there must be a utterance model created in a previous call to this module, that will be used
+     * to predict F0. If there is no previously created utterance model then one is created.
+     * @param predictFromElements elements from MaryXML for which to predict the values
+     * @param applyToElements elements from MaryXML for which to apply the predicted values
+     * 
+     * @throws MaryConfigurationException if error searching in HMM trees.
+     */    
     @Override
-    public void applyTo(List<Element> elements) {
-      logger.debug("predicting duration");  
-      if( targetAttributeName.contentEquals("d f0") || targetAttributeName.contentEquals("f0 d"))
-          predictAndSet(elements, elements);          
-      else { // then it needs to predict and set Duration
-             // targetAttributeName must be "d"          
-          diffDuration = 0;  
-          super.applyFromTo(elements, elements); // so here it will execute evaluate()      
-      }  
-    }
-    
-    
-    @Override
-    public void applyFromTo(List<Element> predictFromElements, List<Element> applyToElements) {
-      logger.debug("predicting F0");  
-      if( targetAttributeName.contentEquals("d f0") || targetAttributeName.contentEquals("f0 d"))  
-        predictAndSet(predictFromElements, applyToElements);
-      else { // then it needs to predict and set F0 from the durations already set in predictFromElements
-             // targetAttributeName must be "f0" 
-          //set um with the duration in elements and call predictAndSetF0 
-          setUttModel(predictFromElements, applyToElements);
-          predictAndSetF0(applyToElements);
-      }
-          
-        
-    }
-    
-    private void predictAndSet(List<Element> predictFromElements, List<Element> applyToElements) {
-        if(um == null) {
-            predictAndSetDuration(predictFromElements, applyToElements); 
-        } else {
-            predictAndSetF0(applyToElements);
+    public void applyFromTo(List<Element> predictFromElements, List<Element> applyToElements) throws MaryConfigurationException{
+        logger.debug("predicting F0");  
+        // Two possibilities: Either we have an uttModel due to a previous call to applyTo()
+        // (in which case the lookup key should be applyToElements),
+        // or we don't -- in which case we must create an uttModel from the XML.
+        HTSUttModel um;
+        if (predictDurAndF0){
+          logger.debug("using already created utterance model, it contains predicted state durations.");
+          um = uttModels.get(applyToElements); // it must be already created so get it from the uttModels Map
         }
+        else {
+          logger.debug("creating utterance model with equal values for state durations.");
+          um = createUttModel(predictFromElements); // create a um, state durations are set equal for all states
+        }
+        assert um != null;
+        predictAndSetF0(applyToElements, um);
     }
     
-    
-    private void predictAndSetDuration(List<Element> predictFromElements, List<Element> applyToElements){
+    /**
+     * Predict durations and state durations from predictFromElements and apply durations to applyToElements. 
+     * A utterance model is created that contains the predicted state durations.
+     * @param predictFromElements elements to predict from
+     * @param applyToElements elements to apply predicted durations
+     * 
+     * @return HTSUttModel a utterance model
+     * 
+     * @throws MaryConfigurationException if error searching in HMM trees.
+     */
+    private HTSUttModel predictAndSetDuration(List<Element> predictFromElements, List<Element> applyToElements)
+    throws MaryConfigurationException{
         int i, k, s, t, mstate, frame, durInFrames, durStateInFrames, numVoicedInModel;
         HTSModel m;
+        List<Element> predictorElements = predictFromElements;        
+        List<Target> predictorTargets = getTargets(predictorElements);                
+        FeatureVector fv = null;       
+        HTSUttModel um = new HTSUttModel();                
+        FeatureDefinition feaDef = htsData.getFeatureDefinition();
+        float duration;       
+        double diffdurOld = 0.0;
+        double diffdurNew = 0.0;
+        float f0s[] = null;
+        String durAttributeName = "d";
         try {     
-        // first time this is called um is null           
-          List<Element> predictorElements = predictFromElements;        
-          List<Target> predictorTargets = getTargets(predictorElements);                
-          FeatureVector fv;       
-          um = new HTSUttModel();                
-          FeatureDefinition feaDef = htsData.getFeatureDefinition();
-          float duration;       
-          double diffdurOld = 0.0;
-          double diffdurNew = 0.0;
-          float f0s[] = null;
-          String durAttributeName = "d";
-          
           // (1) Predict the values       
           for (i = 0; i < predictorTargets.size(); i++) {            
-            fv = predictorTargets.get(i).getFeatureVector();                        
+            fv = predictorTargets.get(i).getFeatureVector();             
             um.addUttModel(new HTSModel(cart.getNumStates()));            
             m = um.getUttModel(i);
             /* this function also sets the phone name, the phone between - and + */
@@ -143,22 +219,19 @@ public class HMMModel extends Model {
             duration  = m.getTotalDur() * fperiodsec; // in seconds
    
             um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());  
-            //System.out.format("duration=%.3f sec. durInFrames=%d  durStateInFrames=%d  m.getTotalDur()=%d\n", duration, durInFrames, durStateInFrames, m.getTotalDur());
+            //System.out.format("phone=%s  duration=%.3f sec. m.getTotalDur()=%d\n", m.getPhoneName(), duration, m.getTotalDur());
               
             /* Find pdf for LF0, this function sets the pdf for each state. 
              * and determines, according to the HMM models, whether the states are voiced or unvoiced, (it can be possible that some states are voiced
              * and some unvoiced).*/ 
-            //if( targetAttributeName.contentEquals("d f0")  ) {
-            // since this is done for both dur and f0...
-              cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
-              for(mstate=0; mstate<cart.getNumStates(); mstate++) 
-              {  
-                for(frame=0; frame<m.getDur(mstate); frame++)    
-                  if(m.getVoiced(mstate))                      
-                    um.setLf0Frame(um.getLf0Frame() +1);     
-              }
-            //}
-            
+            cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
+            for(mstate=0; mstate<cart.getNumStates(); mstate++) 
+            {  
+              for(frame=0; frame<m.getDur(mstate); frame++)    
+                if(m.getVoiced(mstate))                      
+                  um.setLf0Frame(um.getLf0Frame() +1);     
+            }
+
             // set the value in elements
             Element element = applyToElements.get(i);
             // "evaluate" pseudo XPath syntax:
@@ -178,16 +251,21 @@ public class HMMModel extends Model {
 
             // set the new attribute value:
             element.setAttribute(durAttributeName, formattedTargetValue);
-            
           }
+          return um;
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new MaryConfigurationException("Error searching in tree when predicting duration. ",  e);
          }
-        
     }
     
-    private void predictAndSetF0(List<Element> applyToElements){
+    /**
+     * Predict F0 from the utterance model and apply to elements
+     * @param applyToElements elements to apply predicted F0s
+     * @param um utterance model that contains the set of elements (phonemes) and state durations for generating F0.
+     * 
+     * @throws MaryConfigurationException if error generating F0 out of HMMs trees and pdfs.
+     */
+    private void predictAndSetF0(List<Element> applyToElements, HTSUttModel um) throws MaryConfigurationException{
       int i, k, s, t, mstate, frame, numVoicedInModel;
       HTSModel m;
       try {
@@ -240,31 +318,36 @@ public class HMMModel extends Model {
             //System.out.println(formattedTargetValue);                 
           }
           // once finished re-set to null um
-          um = null;
+          //um = null;
               
         } catch (Exception e) {
-           // TODO Auto-generated catch block
-           e.printStackTrace();
+            throw new MaryConfigurationException("Error generating F0 out of HMMs trees and pdfs. ",  e);
         }     
         
     }
     
-    private void setUttModel(List<Element> predictFromElements, List<Element> applyToElements){
+    /**
+     * Create a utterance model list from feature vectors predicted from elements.
+     * @param predictFromElements elements from MaryXML from where to get feature vectors.
+     * 
+     * @return Utterance model um containing state durations and pdfs already searched on the trees to generate F0.
+     * 
+     * @throws MaryConfigurationException if error searching in HMM trees.
+     */
+    private HTSUttModel createUttModel(List<Element> predictFromElements)
+    throws MaryConfigurationException {
         int i, k, s, t, mstate, frame, durInFrames, durStateInFrames, numVoicedInModel;
         HTSModel m;
+        List<Element> predictorElements = predictFromElements;        
+        List<Target> predictorTargets = getTargets(predictorElements);                
+        FeatureVector fv;       
+        HTSUttModel um = new HTSUttModel();                
+        FeatureDefinition feaDef = htsData.getFeatureDefinition();
+        float duration;       
+        double diffdurOld = 0.0;
+        double diffdurNew = 0.0;
+        float f0s[] = null;
         try {     
-        // first time this is called um is null           
-          List<Element> predictorElements = predictFromElements;        
-          List<Target> predictorTargets = getTargets(predictorElements);                
-          FeatureVector fv;       
-          um = new HTSUttModel();                
-          FeatureDefinition feaDef = htsData.getFeatureDefinition();
-          float duration;       
-          double diffdurOld = 0.0;
-          double diffdurNew = 0.0;
-          float f0s[] = null;
-          String durAttributeName = "d";
-          
           // (1) Predict the values       
           for (i = 0; i < predictorTargets.size(); i++) {            
             fv = predictorTargets.get(i).getFeatureVector();  
@@ -294,8 +377,6 @@ public class HMMModel extends Model {
             /* Find pdf for LF0, this function sets the pdf for each state. 
              * and determines, according to the HMM models, whether the states are voiced or unvoiced, (it can be possible that some states are voiced
              * and some unvoiced).*/ 
-            //if( targetAttributeName.contentEquals("d f0")  ) {
-            // since this is done for both dur and f0...
             cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());
             for(mstate=0; mstate<cart.getNumStates(); mstate++) 
             {  
@@ -304,39 +385,20 @@ public class HMMModel extends Model {
                   um.setLf0Frame(um.getLf0Frame() +1);     
             }           
           }
+          return um;
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new MaryConfigurationException("Error searching in tree when creating utterance model. ",  e);
          }
-
     }
-    
-
-    
+        
     /**
-     * Apply the CART to a Target to get its predicted value
+     * Apply the HMM to a Target to get its predicted value, this method is not used in HMMModel.
+     * 
+     * @throws RuntimeException if this method is called.
      */
     @Override
     protected float evaluate(Target target) { 
-        
-        FeatureVector fv;                
-        double diffdurNew = 0.0;       
-        float durSec = 0;
-       
-        HTSModel m = new HTSModel(cart.getNumStates());
-        int i;
-        try {
-            m.setTotalDur(0);
-            fv = target.getFeatureVector();            
-            diffdurNew = cart.searchDurInCartTree(m, fv, htsData, diffDuration);           
-            durSec = (fperiodsec * m.getTotalDur());  // Duration in seconds
-            diffDuration = diffdurNew;
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }    
-        return durSec;    
-            
+        throw new RuntimeException("This method should never be called");
     }
     
 

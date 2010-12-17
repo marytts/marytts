@@ -22,6 +22,7 @@ package marytts.modules.acoustic;
 
 import java.util.List;
 
+import marytts.features.FeatureProcessorManager;
 import marytts.unitselection.select.Target;
 
 import org.w3c.dom.Element;
@@ -35,9 +36,9 @@ import org.w3c.dom.Element;
  * 
  */
 public class BoundaryModel extends Model {
-    public BoundaryModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-            String featureName, String predictFrom, String applyTo) {
-        super(type, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+    public BoundaryModel(FeatureProcessorManager featureManager, String dataFileName, String targetAttributeName,
+            String targetAttributeFormat, String featureName, String predictFrom, String applyTo) {
+        super(featureManager, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
     }
 
     @Override

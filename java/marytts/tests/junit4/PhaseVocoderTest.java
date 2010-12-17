@@ -17,9 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.signalproc.tests;
+package marytts.tests.junit4;
 
-import junit.framework.TestCase;
+import java.awt.Color;
+
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+import marytts.signalproc.display.FunctionGraph;
+import marytts.signalproc.display.SignalGraph;
 import marytts.signalproc.process.PhaseVocoder;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.math.MathUtils;
@@ -28,9 +34,9 @@ import marytts.util.math.MathUtils;
  * @author Marc Schr&ouml;der
  *
  */
-public class PhaseVocoderTest extends TestCase
+public class PhaseVocoderTest
 {
-
+    @Test
     public void testIdentity()
     {
         double[] signal =  FFTTest.getSampleSignal(16000);
@@ -38,9 +44,16 @@ public class PhaseVocoderTest extends TestCase
         PhaseVocoder pv = new PhaseVocoder(new BufferedDoubleDataSource(signal), samplingRate, 1);
         double[] result = pv.getAllData();
         double err = MathUtils.sumSquaredError(signal, result);
+        if (err > 1.E-20) {
+            SignalGraph graph = new SignalGraph(signal, 16000);
+            graph.addDataSeries(result, Color.RED, FunctionGraph.DRAW_LINE, -1);
+            graph.showInJFrame("Test signal", true, true);
+            try {Thread.sleep(100000);} catch(Exception e) {}
+        }
         assertTrue("Error: "+err, err<1.E-15);
     }
 
+    @Test
     public void testStretch1()
     {
         double[] signal =  FFTTest.getSampleSignal(16000);
@@ -53,6 +66,7 @@ public class PhaseVocoderTest extends TestCase
                 result.length == expectedLength);
     }
 
+    @Test
     public void testStretch2()
     {
         double[] signal =  FFTTest.getSampleSignal(16000);

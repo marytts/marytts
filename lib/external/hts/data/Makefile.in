@@ -308,14 +308,13 @@ cmp-mary:
                 echo "MGCPLUSLF0=$${MGCPLUSLF0}"; \
 		BYTEPERFRAME=`expr 4 \* \( $${MGCWINDIM} + $${LF0WINDIM} + $${STRWINDIM} \)`; \
                 echo "BYTEPERFRAME=$${BYTEPERFRAME}"; \
-		#for mcp in mcp/*.mcp; do \
 		for mgc in mgc/*.mgc; do \
 			base=`basename $${mgc} .mgc`; \
 			MGCWINS=""; \
 			LF0WINS=""; \
 			STRWINS=""; \
 			if [ -s $${mgc} -a -s lf0/$${base}.lf0 -a -s str/$${base}.str ]; then \
-                                # for mgc \
+                                $(# echo "for mgc"; )\
 				i=1; \
 				echo "Composing training data (mgc+lf0+str) for $${base}"; \
 				while [ $${i} -le $(NMGCWIN) ]; do \
@@ -323,25 +322,25 @@ cmp-mary:
 					i=`expr $${i} + 1`; \
 				done; \
 				$(PERL) scripts/window.pl $${MGCDIM} $${mgc} $${MGCWINS} > cmp/tmp.mgc; \
-                                # for lf0 \
+                                $(# echo "for lf0"; ) \
 				i=1; \
 				while [ $${i} -le $(NLF0WIN) ]; do \
 					eval LF0WINS=\"$${LF0WINS} $(LF0WIN)$${i}\"; \
 					i=`expr $${i} + 1`; \
 				done; \
 				$(PERL) scripts/window.pl $${LF0DIM} lf0/$${base}.lf0 $${LF0WINS} > cmp/tmp.lf0; \
-                                # for strengths \
+                                $(# echo "for strengths"; ) \
 				i=1; \
 				while [ $${i} -le $(NSTRWIN) ]; do \
 					eval STRWINS=\"$${STRWINS} $(STRWIN)$${i}\"; \
 					i=`expr $${i} + 1`; \
 				done; \
-                                #echo "STRWINS=$${STRWINS}"; \
+                                $(# echo "STRWINS=$${STRWINS}"; ) \
 				$(PERL) scripts/window.pl $${STRDIM} str/$${base}.str $${STRWINS} > cmp/tmp.str; \
-                                # now merge temporary files: tmp.mgc, tmp.lf0, tmp.str  \
+                                $(# echo "now merge temporary files: tmp.mgc, tmp.lf0, tmp.str"; )  \
 				$(MERGE) +f -s 0 -l $${LF0WINDIM} -L $${MGCWINDIM} cmp/tmp.mgc < cmp/tmp.lf0 > cmp/tmp.cmp1; \
                                 $(MERGE) +f -s 0 -l $${STRWINDIM} -L $${MGCPLUSLF0} cmp/tmp.cmp1 < cmp/tmp.str > cmp/tmp.cmp; \
-                                # add HTK header \
+                                $(# echo "add HTK header"; ) \
 				$(PERL) scripts/addhtkheader.pl $(SAMPFREQ) $(FRAMESHIFT) $${BYTEPERFRAME} 9 cmp/tmp.cmp > cmp/$${base}.cmp; \
 			fi; \
 		done; \

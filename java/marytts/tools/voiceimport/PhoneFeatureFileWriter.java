@@ -35,6 +35,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.data.FeatureFileReader;
@@ -100,39 +101,23 @@ public class PhoneFeatureFileWriter extends VoiceImportComponent
          props2Help.put(WEIGHTSFILE, "file containing the list of phone target cost features, their values and weights");
          
      }
-     
-    public boolean compute() throws IOException
+    
+    @Override
+    public boolean compute() throws IOException, MaryConfigurationException
     {
         //make sure that we have a featureweightsfile
         File featWeights = new File(getProp(WEIGHTSFILE));
-        if (!featWeights.exists()){
-            try{
-                PrintWriter featWeightsOut =
-                    new PrintWriter(
-                            new OutputStreamWriter(
-                                    new FileOutputStream(featWeights),"UTF-8"),true);
-                BufferedReader uttFeats = 
-                    new BufferedReader(
-                            new InputStreamReader(
-                                    new FileInputStream(
-                                            new File(getProp(FEATUREDIR)
-                                                    +bnl.getName(0) 
-                                                    + featureExt)), "UTF-8"));
-                FeatureDefinition featDef = 
-                    new FeatureDefinition(uttFeats, false); // false: do not read weights
-                uttFeats.close();
-                featDef.generateFeatureWeightsFile(featWeightsOut);                
-            }catch (Exception e){
-                throw new Error("No phone feature weights file "
-                        +getProp(WEIGHTSFILE)
-                        +"; "+name+" will not run.");
-
-            }
+        if (!featWeights.exists() || featWeights.length() == 0){
+            PrintWriter featWeightsOut = new PrintWriter(new OutputStreamWriter(new FileOutputStream(featWeights), "UTF-8"), true);
+            BufferedReader uttFeats = new BufferedReader(new InputStreamReader(new FileInputStream(new File(getProp(FEATUREDIR)
+                    + bnl.getName(0) + featureExt)), "UTF-8"));
+            FeatureDefinition featDef = new FeatureDefinition(uttFeats, false); // false: do not read weights
+            uttFeats.close();
+            featDef.generateFeatureWeightsFile(featWeightsOut);
         }
         System.out.println("Featurefile writer started.");
         unitFileReader = new UnitFileReader( getProp(UNITFILE) );
         featureDefinition = new FeatureDefinition(new BufferedReader(new InputStreamReader(new FileInputStream(getProp(WEIGHTSFILE)), "UTF-8")), true); // true: read weights
-        assert featureDefinition != null : "Feature definition not set!";
 
         DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(getProp(FEATUREFILE))));
         writeHeaderTo(out);

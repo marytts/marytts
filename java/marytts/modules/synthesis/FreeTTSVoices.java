@@ -234,8 +234,13 @@ public class FreeTTSVoices
         if (freeTTSVoice == null) {
             throw new NullPointerException("Received null voice");
         }
-        if (freetts2maryVoices != null)
-            return (marytts.modules.synthesis.Voice) freetts2maryVoices.get(freeTTSVoice);
+        if (freetts2maryVoices != null) {
+            marytts.modules.synthesis.Voice maryVoice = (marytts.modules.synthesis.Voice) freetts2maryVoices.get(freeTTSVoice);
+            /*if (maryVoice == null) {
+                throw new NoSuchPropertyException("No Mary voice available for the FreeTTS voice \"" + freeTTSVoice + "\"");
+            }*/
+            return maryVoice;
+        }
         return null;
     }
 

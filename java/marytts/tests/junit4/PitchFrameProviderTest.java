@@ -17,14 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.signalproc.tests;
+package marytts.tests.junit4;
 
 import java.io.InputStreamReader;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import junit.framework.TestCase;
 import marytts.signalproc.process.PitchFrameProvider;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
@@ -33,12 +32,17 @@ import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.text.ESTTextfileDoubleDataSource;
 import marytts.util.math.MathUtils;
 
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+
 /**
  * @author Marc Schr&ouml;der
  *  
  */
-public class PitchFrameProviderTest extends TestCase
+public class PitchFrameProviderTest
 {
+    @Test
     public void testIdentity1() throws Exception
     {
         AudioInputStream ais = AudioSystem.getAudioInputStream(PitchFrameProviderTest.class.getResourceAsStream("arctic_a0123.wav"));
@@ -68,6 +72,7 @@ public class PitchFrameProviderTest extends TestCase
         assertTrue("Error: " + err, err < 1.E-20);
     }
     
+    @Test
     public void testIdentity2() throws Exception
     {
         AudioInputStream ais = AudioSystem.getAudioInputStream(PitchFrameProviderTest.class.getResourceAsStream("arctic_a0123.wav"));

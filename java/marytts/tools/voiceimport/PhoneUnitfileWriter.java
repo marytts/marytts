@@ -100,7 +100,7 @@ public class PhoneUnitfileWriter extends VoiceImportComponent
         props2Help.put(UNITFILE, "file containing all phone units. Will be created by this module");           
     }
     
-    public boolean compute() throws IOException
+    public boolean compute() throws Exception
     {
         
         System.out.println("Unitfile writer started.");

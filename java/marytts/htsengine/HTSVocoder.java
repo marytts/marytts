@@ -1672,6 +1672,7 @@ public class HTSVocoder {
      *         Mel-LSP: gamma=1 alpha=0.42 <p>
      *         MGC-LSP: gamma=3 alpha=0.42 <p>
      * @param useLoggain: 0  (1:true 0:false)
+     * @param beta: 0.0   0.0 --> 1.0 (postfiltering)
      * @param rate: 16000
      * @param fperiod: 80 (5 milisec) 
      * @param mcepFile: filename
@@ -1693,7 +1694,7 @@ public class HTSVocoder {
      *     @param magVsize: vector size (30 if using a file from a hmm voice training data, otherwise specify)
      *      
      * <p>example iput parameters: <p>
-     *    0 0.45 0 16000 80 
+     *    0 0.45 0 0.0 16000 80 
      *    cmu_us_arctic_slt_a0001.mgc 75 
      *    cmu_us_arctic_slt_a0001.lf0 3
      *    vocoder_out.wav
@@ -1701,7 +1702,7 @@ public class HTSVocoder {
      *    mix_excitation_filters.txt 5 48
      *    cmu_us_arctic_slt_a0001.mag 30         
      * <p>example input parameters without mixed excitation:<p>
-     *    0 0.45 0 16000 80 
+     *    0 0.45 0 0.0 16000 80 
      *    cmu_us_arctic_slt_a0001.mgc 75 
      *    cmu_us_arctic_slt_a0001.lf0 3
      *    vocoder_out.wav 
@@ -1721,11 +1722,12 @@ public class HTSVocoder {
        // Type of features:
        int ind=0;
        htsData.setStage(Integer.parseInt(args[ind++]));  // sets gamma
-       htsData.setAlpha(Float.parseFloat(args[ind++]));  // set alpha
+       htsData.setAlpha(Float.parseFloat(args[ind++]));  // set alpha       
        if( args[ind++].contentEquals("1") )
            htsData.setUseLogGain(true);                  // use log gain
        else
            htsData.setUseLogGain(false);  
+       htsData.setBeta(Float.parseFloat(args[ind++]));  // set beta: for postfiltering
        htsData.setRate(Integer.parseInt(args[ind++]));    // rate
        htsData.setFperiod(Integer.parseInt(args[ind++])); // period
        
@@ -1988,8 +1990,13 @@ public class HTSVocoder {
     
     public void vocoderList(String[] args) throws IOException, InterruptedException, Exception{
       
-      String path = "/project/mary/marcela/HMM-voices/prudence/hts/data/";
+      //String path = "/project/mary/marcela/HMM-voices/SEMAINE/prudence/hts/data/";
       //String path = "/project/mary/marcela/HMM-voices/arctic_test/hts/data/";  
+      String path = "/project/mary/marcela/HMM-voices/SEMAINE/spike/hts/data/";
+      
+      File outDir = new File(path + "vocoder");
+      if(!outDir.exists())
+        outDir.mkdir();
       File directory = new File(path + "raw");        
       String files[] = FileUtils.listBasenames(directory, ".raw");
       HTSVocoder vocoder = new HTSVocoder();
@@ -2003,7 +2010,7 @@ public class HTSVocoder {
         //MGC     stage=0.0 alpha=0.42 logGain=0 (false)
         //MGC-LSP stage=3.0 alpha=0.42 loggain=1 (true)   
         /*
-        String args1[] = {"0", "0.42", "0", "16000", "80", 
+        String args1[] = {"0", "0.42", "0", "0.0", "16000", "80", 
         path + "mgc/" + files[i] + ".mgc", "75", 
         path + "lf0/" + files[i] + ".lf0", "3",
         path + "vocoder/" + files[i] + ".wav",  
@@ -2011,18 +2018,18 @@ public class HTSVocoder {
         path + "filters/mix_excitation_filters.txt", "5", 
         path + "mag/" + files[i] + ".mag", "30", "true"};  // the last true/false is for playing or not the generated file
         */
-        // without Fourier magnitudes
         
-        String args1[] = {"0", "0.42", "0", "16000", "80", 
+        // without Fourier magnitudes        
+        String args1[] = {"0", "0.42", "0", "0.25", "16000", "80", 
         path + "mgc/" + files[i] + ".mgc", "75", 
         path + "lf0/" + files[i] + ".lf0", "3",
         path + "vocoder/" + files[i] + ".wav",  
         path + "str/" + files[i] + ".str", "15", 
-        path + "filters/mix_excitation_filters.txt", "5", "false"};  // the last true/false is for playing or not the generated file
+        path + "filters/mix_excitation_filters.txt", "5", "true"};  // the last true/false is for playing or not the generated file
         
         // without Mixed excitation and Fourier magnitudes
         /*
-        String args1[] = {"0", "0.42", "0", "16000", "80", 
+        String args1[] = {"0", "0.42", "0", "0.0", "16000", "80", 
         path + "mgc/" + files[i] + ".mgc", "75", 
         path + "lf0/" + files[i] + ".lf0", "3",
         path + "vocoder/" + files[i] + ".wav", "true"};  // the last true/false is for playing or not the generated file

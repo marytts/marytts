@@ -45,6 +45,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import marytts.cart.CART;
 import marytts.cart.StringPredictionTree;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.fst.AlignerTrainer;
 import marytts.fst.StringPair;
@@ -208,7 +209,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
      * train and predict module
      * @param treeAbsolutePath
      */
-    public void trainPredict(String treeAbsolutePath){
+    public void trainPredict(String treeAbsolutePath) throws MaryConfigurationException {
         Object[][] tableData = transcriptionModel.getData();
         boolean[] hasManualVerify = transcriptionModel.getManualVerifiedList();
         boolean[] hasCorrectSyntax = transcriptionModel.getCorrectSyntaxList();
@@ -364,14 +365,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
         try {
             phoneSet = AllophoneSet.getAllophoneSet(filePath);
             locale = phoneSet.getLocale().toString();
-        } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ParserConfigurationException e) {
-            // TODO Auto-generated catch block
+        } catch (MaryConfigurationException e) {
             e.printStackTrace();
         }
     }

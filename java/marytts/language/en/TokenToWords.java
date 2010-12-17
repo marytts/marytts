@@ -10,7 +10,9 @@
  */
 package marytts.language.en;
 
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -121,6 +123,9 @@ public class TokenToWords implements UtteranceProcessor {
 
     private static final String SECTION_TYPES = "sectionTypes";
 
+
+    private static final Map<String,String[]> postrophes;
+    
     // Hashtable initialization
     static {
         for (int i = 0; i < kingNames.length; i++) {
@@ -132,9 +137,15 @@ public class TokenToWords implements UtteranceProcessor {
         for (int i = 0; i < sectionTypes.length; i++) {
             kingSectionLikeHash.put(sectionTypes[i], SECTION_TYPES);
         }
+        postrophes = new HashMap<String, String[]>();
+        postrophes.put("'s", new String[] {"z"});
+        postrophes.put("'ll", new String[] {"l"});
+        postrophes.put("'ve", new String[] {"v"});
+        postrophes.put("'d", new String[] {"d"});
+        postrophes.put("'m", new String[] {"m"});
+        postrophes.put("'re", new String[] {"r"});
     }
 
-    private static final String[] postrophes = { "'s", "'ll", "'ve", "'d" };
 
     // Finite state machines to check if a Token is pronounceable
     private PronounceableFSM prefixFSM = null;
@@ -807,16 +818,13 @@ public class TokenToWords implements UtteranceProcessor {
         int index = tokenVal.indexOf('\'');
         String bbb = tokenVal.substring(index).toLowerCase();
 
-        if (inStringArray(bbb, postrophes)) {
+        String[] postrophePhones = postrophes.get(bbb);
+        if (postrophePhones != null) {
             String aaa = tokenVal.substring(0, index);
             tokenToWords(wordRelation, tokenItem, aaa);
             wordRelation.addWord(tokenItem,bbb);
-
-        } else if (bbb.equals("'tve")) {
-            String aaa = tokenVal.substring(0, index - 2);
-            tokenToWords(wordRelation, tokenItem, aaa);
-            wordRelation.addWord(tokenItem,"'ve");
-
+            Item wordItem = wordRelation.getTail();
+            wordItem.getFeatures().setObject("phones", postrophePhones);
         } else {
             /* internal single quote deleted */
             StringBuilder buffer = new StringBuilder(tokenVal);

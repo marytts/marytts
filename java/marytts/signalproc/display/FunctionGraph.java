@@ -158,8 +158,21 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
        dotStyle.add(DOT_FULLCIRCLE);
    }
    
+   /**
+    * Replace the previous data with the given new data.
+    * Any secondary data series added using {{@link #addDataSeries(double[], Color, int, int)} are removed.
+    * @param newX0 x position of first data point
+    * @param newXStep distance between data points on X axis
+    * @param data all data points
+    */
    public void updateData(double newX0, double newXStep, double[] data)
    {
+       if (newXStep <= 0) {
+           throw new IllegalArgumentException("newXStep must be >0");
+       }
+       if (data == null || data.length == 0) {
+           throw new IllegalArgumentException("No data");
+       }
        this.x0 = newX0;
         this.xStep = newXStep;
         double[] series = new double[data.length];
@@ -232,6 +245,15 @@ public class FunctionGraph extends JPanel implements CursorSource, CursorListene
        }
    }
    
+   /**
+    * Add a secondary data series to this graph.
+    * @param data the function data, which must be of same length as the original data. {@link #updateData(double, double, double[])}
+    * @param newGraphColor a colour
+    * @param newGraphStyle the style for painting this data series. One of {@link #DRAW_LINE}, {@link #DRAW_DOTS}, {@value #DRAW_LINEWITHDOTS}, {@link #DRAW_HISTOGRAM}.
+    * @param newDotStyle the shape of any dots to use (meaningful only with newGraphStyle == {@link #DRAW_DOTS} or {@link #DRAW_LINEWITHDOTS}).
+    * One of {@link #DOT_EMPTYCIRCLE}, {@link #DOT_EMPTYDIAMOND}, {@link #DOT_EMPTYSQUARE}, {@link #DOT_FULLCIRCLE}, {@link #DOT_FULLDIAMOND}, {@link #DOT_FULLSQUARE}.
+    * For other graph styles, this is ignored, and it is recommended to set it to -1 for clarity.
+    */
    public void addDataSeries(double[] data, Color newGraphColor, int newGraphStyle, int newDotStyle)
    {
        if (data == null) throw new NullPointerException("Cannot add null data");

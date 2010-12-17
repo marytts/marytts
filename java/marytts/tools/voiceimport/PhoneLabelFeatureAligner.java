@@ -52,10 +52,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-
-import org.xml.sax.SAXException;
 
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.io.FileUtils;
@@ -76,7 +72,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     protected PhoneUnitFeatureComputer featureComputer;
     protected AllophonesExtractor allophoneExtractor;
     protected PhoneUnitLabelComputer labelComputer;
-    protected TranscriptionAligner transcrptionAligner;
+    protected TranscriptionAligner transcriptionAligner;
     protected String pauseSymbol;
     
     protected DatabaseLayout db = null;
@@ -106,7 +102,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         featureComputer = (PhoneUnitFeatureComputer) db.getComponent("PhoneUnitFeatureComputer");
         allophoneExtractor = (AllophonesExtractor) db.getComponent("AllophonesExtractor");
         labelComputer =  (PhoneUnitLabelComputer) db.getComponent("PhoneUnitLabelComputer");
-        transcrptionAligner = (TranscriptionAligner) db.getComponent("TranscriptionAligner"); 
+        transcriptionAligner = (TranscriptionAligner) db.getComponent("TranscriptionAligner"); 
         featsExt = ".pfeats";
         labExt = ".lab";
         featsDir = db.getProp(db.PHONEFEATUREDIR);
@@ -157,15 +153,15 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
     }
     
     /**
-     * Align labels and features. For each .unitlab file in the unit label
+     * Align labels and features. For each .phonelab file in the phone label
      * directory, verify whether the chain of units given is identical to
      * the chain of units in the corresponding unit feature file.
      * For those files that are not perfectly aligned, give the user the
      * opportunity to correct alignment.
      * @return a boolean indicating whether or not the database is fully aligned.
-     * @throws IOException
+     * @throws Exception 
      */
-    public boolean compute() throws IOException
+    public boolean compute() throws Exception
     {
         int bnlLengthIn = bnl.getLength();
         System.out.println( "Verifying feature-label alignment for "+ bnlLengthIn + " utterances." );
@@ -962,7 +958,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         return st.nextToken();
     }
     
-    protected int letUserCorrect(String basename, String errorMessage) throws IOException
+    protected int letUserCorrect(String basename, String errorMessage) throws Exception
     {
         String[] options;
         /*
@@ -1105,7 +1101,7 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         
     }
     
-    private void editMaryXML(String basename) throws IOException
+    private void editMaryXML(String basename) throws Exception
     {
         final File maryxmlFile = new File( db.getProp(db.MARYXMLDIR) 
                 				+ basename + db.getProp(db.MARYXMLEXT) );
@@ -1124,12 +1120,8 @@ public class PhoneLabelFeatureAligner extends VoiceImportComponent
         if (edited){
             allophoneExtractor.generateAllophonesFile(basename);
             try {
-                transcrptionAligner.alignTranscription(basename);
-            } catch (SAXException e) {
-                e.printStackTrace();
-            } catch (TransformerException e) {
-                e.printStackTrace();
-            } catch (ParserConfigurationException e) {
+                transcriptionAligner.alignTranscription(basename);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             labelComputer.computePhoneLabel(basename);

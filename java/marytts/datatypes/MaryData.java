@@ -52,9 +52,12 @@ import marytts.util.MaryUtils;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.data.audio.SequenceAudioInputStream;
 import marytts.util.data.text.UncloseableBufferedReader;
+import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryNormalisedWriter;
+import marytts.util.io.FileUtils;
 import marytts.util.io.LoggingErrorHandler;
 import marytts.util.io.ReaderSplitter;
+import marytts.util.string.StringUtils;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.nio.entity.NByteArrayEntity;
@@ -101,9 +104,6 @@ public class MaryData
     // The following XML I/O helpers are only initialised
     // if actually needed.
     private MaryNormalisedWriter writer = null;
-    private DocumentBuilderFactory factory = null;
-    private DocumentBuilder docBuilder = null;
-    private StringBuffer buf = null;
 
     private boolean doValidate;
     private boolean doWarnClient = false;
@@ -129,103 +129,18 @@ public class MaryData
         return doValidate;
     }
     public void setValidating(boolean doValidate) throws ParserConfigurationException {
-        if (doValidate != this.doValidate) {
-            this.doValidate = doValidate;
-            if (factory != null) {
-                initialiseXMLParser(); // re-initialise
-            }
-        }
+        this.doValidate = doValidate;
     }
 
+    @Deprecated
     public boolean getWarnClient() {
         return doWarnClient;
     }
+    
+    @Deprecated
     public void setWarnClient(boolean doWarnClient) {
-        if (doWarnClient != this.doWarnClient) {
-            this.doWarnClient = doWarnClient;
-            if (docBuilder != null) {
-                // Following code copied from initialiseXMLParser():
-                if (doWarnClient) {
-                    // Use custom error handler:
-                    docBuilder.setErrorHandler(
-                        new LoggingErrorHandler(
-                            Thread.currentThread().getName() + " client." + type.name() + " parser"));
-                } else {
-                    docBuilder.setErrorHandler(null);
-                }
-            }
-        }
     }
 
-    private void initialiseXMLParser() throws ParserConfigurationException {
-        factory = DocumentBuilderFactory.newInstance();
-        factory.setExpandEntityReferences(true);
-        factory.setNamespaceAware(true);
-        factory.setValidating(doValidate);
-        if (doValidate) {
-            factory.setIgnoringElementContentWhitespace(true);
-            try {
-                factory.setAttribute(
-                    "http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-                    "http://www.w3.org/2001/XMLSchema");
-                // Specify other factory configuration settings
-                factory.setAttribute(
-                    "http://java.sun.com/xml/jaxp/properties/schemaSource",
-                    MaryProperties.localSchemas());
-            } catch (Exception x) {
-                // This can happen if the parser does not support JAXP 1.2
-                logger.warn("Cannot use Schema validation -- turning off validation.");
-                factory.setValidating(false);
-            }
-        }
-        docBuilder = factory.newDocumentBuilder();
-        docBuilder.setEntityResolver(new org.xml.sax.EntityResolver() {
-            public InputSource resolveEntity (String publicId, String systemId)
-            {
-                if (systemId.equals("http://mary.dfki.de/lib/Sable.v0_2.dtd")) {
-                    try {
-                        // return a local copy of the sable dtd:
-                        String localSableDTD = MaryProperties.maryBase() +
-                            File.separator + "lib" +
-                            File.separator + "Sable.v0_2.mary.dtd";
-                        return new InputSource(new FileReader(localSableDTD));
-                    } catch (FileNotFoundException e) {
-                        logger.warn("Cannot find local Sable.v0_2.mary.dtd");
-                    }
-                } else if (systemId.equals("http://mary.dfki.de/lib/sable-latin.ent")) {
-                    try {
-                        // return a local copy of the sable dtd:
-                        String localFilename = MaryProperties.maryBase() +
-                            File.separator + "lib" +
-                            File.separator + "sable-latin.ent";
-                        return new InputSource(new FileReader(localFilename));
-                    } catch (FileNotFoundException e) {
-                        logger.warn("Cannot find local sable-latin.ent");
-                    }
-                } else if (systemId.equals("http://mary.dfki.de/lib/apml.dtd")
-                		|| !systemId.startsWith("http")&&systemId.endsWith("apml.dtd")) {
-                    try {
-                        // return a local copy of the apml dtd:
-                        String localFilename = MaryProperties.maryBase() +
-                            File.separator + "lib" +
-                            File.separator + "apml.dtd";
-                        return new InputSource(new FileReader(localFilename));
-                    } catch (FileNotFoundException e) {
-                        logger.warn("Cannot find local apml.dtd");
-                    }
-                }
-                // else, use the default behaviour:
-                return null;
-            }
-        });
-        if (doWarnClient) {
-            // Use custom error handler:
-            docBuilder.setErrorHandler(
-                new LoggingErrorHandler(Thread.currentThread().getName() + " client." + type.name() + " parser"));
-        } else {
-            docBuilder.setErrorHandler(null);
-        }
-    }
 
     public MaryDataType getType() {
         return type;
@@ -280,20 +195,11 @@ public class MaryData
      * Read data from reader <code>r</code>
      * in the appropriate way as determined by our <code>type</code>.
      * Only XML and Text data can be read from a reader, audio data cannot.
-     * "Helpers" needed to read the data, such as XML parser objects,
-     * are created when they are needed.
-     * If doWarnClient is set to true, warning and error messages related
-     * to XML parsing are logged to the log category connected to the client
-     * from which this request originated.
      */
     public void readFrom(Reader from)
-        throws
-            ParserConfigurationException,
-            SAXException,
-            IOException,
-            TransformerConfigurationException,
-            TransformerException {
-        readFrom(from, null);
+    throws ParserConfigurationException, SAXException, IOException {
+        String inputData = FileUtils.getReaderAsString(from);
+        setData(inputData);
     }
 
     /**
@@ -311,15 +217,7 @@ public class MaryData
      * the end marker string.
      */
     public void readFrom(Reader from, String endMarker)
-        throws
-            ParserConfigurationException,
-            SAXException,
-            IOException,
-            TransformerConfigurationException,
-            TransformerException {
-        if (type.isUtterances())
-            throw new IOException("Cannot read into utterance-based data type!");
-
+    throws ParserConfigurationException, SAXException, IOException {
         // For the case that the data to be read it is not
         // followed by end-of-file, we use a ReaderSplitter which
         // provides a reader artificially "inserting" an end-of-file
@@ -329,47 +227,35 @@ public class MaryData
             ReaderSplitter fromSplitter = new ReaderSplitter(from, endMarker);
             r = fromSplitter.nextReader();
         }
+        readFrom(r);
+
+    }
+    
+    /**
+     * Set the content data of this MaryData object from the given String.
+     * For XML data ({@link MaryDataType#isXMLType()}), parse the String representation of the data into a DOM tree.
+     * @param dataString string representation of the input data.
+     * @throws IOException 
+     * @throws SAXException 
+     * @throws IllegalArgumentException if this method is called for MaryDataTypes that are neither text nor XML.
+     */
+    public void setData(String dataString)
+    throws ParserConfigurationException, SAXException, IOException {
+        // First, some data cleanup:
+        dataString = StringUtils.purgeNonBreakingSpaces(dataString);
+        // Now, deal with it.
         if (type.isXMLType()) {
-            if (factory == null) {
-                initialiseXMLParser();
-            }
-            // The XML parser closes its input stream when it reads EOF.
-            // In the case of a socket, this closes the socket altogether,
-            // so we cannot send data back! Therefore, use a subclass of
-            // BufferedReader that simply ignores the close() call.
-            UncloseableBufferedReader ubr = new UncloseableBufferedReader(r);
-            if (doValidate) {
-                logger.debug("Reading XML input (validating)...");
-            } else {
-                logger.debug("Reading XML input (non-validating)...");
-            }
-            xmlDocument = docBuilder.parse(new InputSource(ubr));
-            if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
-                if (writer == null)
-                    writer = new MaryNormalisedWriter();
-                ByteArrayOutputStream debugOut = new ByteArrayOutputStream();
-                writer.output(xmlDocument, debugOut);
-                logger.debug("Read XML input:\n" + debugOut.toString());
-            }
+            logger.debug("Parsing XML input ("+(doValidate ? "" : "non-")+"validating): "+dataString);
+            xmlDocument = DomUtils.parseDocument(dataString, doValidate);
         } else if (type.isTextType()) {
-            // Plain text is read until end-of-file?
-            if (buf == null)
-                buf = new StringBuffer(1000);
-            else
-                buf.setLength(0);
-            BufferedReader br = new BufferedReader(r);
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                buf.append(line);
-                buf.append(System.getProperty("line.separator"));
-                logger.debug("Reading text input: " + line);
-            }
-            plainText = buf.toString();
-        } else { // audio -- cannot read this from a reader
-            throw new IOException("Illegal attempt to read audio data from a character Reader");
+                logger.debug("Setting text input: "+dataString);
+                plainText = dataString;
+        } else {
+            throw new IllegalArgumentException("Cannot set data of type "+type+" from a string");
         }
     }
 
+    
     /**
      * Write our internal representation to output stream <code>os</code>,
      * in the appropriate way as determined by our <code>type</code>.
@@ -519,8 +405,9 @@ public class MaryData
     }
 
     public void setDefaultVoice(Voice voice) {
-        if (voice == null)
-            logger.warn("received null default voice");
+        if (voice == null) {
+            return;
+        }
         // check that voice locale fits before accepting the voice:
         Locale voiceLocale = null;
         if (voice != null) voiceLocale = voice.getLocale();
@@ -532,7 +419,6 @@ public class MaryData
         if (docLocale != null && voiceLocale != null &&
                 !(MaryUtils.subsumes(docLocale, voiceLocale) || MaryUtils.subsumes(voiceLocale, docLocale))) {
             logger.warn("Voice `"+voice.getName()+"' does not match document locale `"+docLocale+"' -- ignoring!");
-            return;
         }
         this.defaultVoice = voice;
     }

@@ -44,7 +44,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Observable;
+import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -58,6 +62,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.DOMConfiguration;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -98,6 +103,7 @@ public class ComponentDescription extends Observable implements Comparable<Compo
     private int downloaded = 0;
     private int size = -1;
     private String installedFilesNames = null; // must be != null for installed components
+    private Set<String> sharedFileNames;
     
     /**
      * An available update is non-null in the following circumstance:
@@ -317,6 +323,22 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         return status;
     }
     
+    public LinkedList<String> getInstalledFileNames() {
+        LinkedList<String> files = new LinkedList<String>();
+        StringTokenizer st = new StringTokenizer(installedFilesNames, ",");
+        while (st.hasMoreTokens()) {
+            String next = st.nextToken().trim();
+            if (!"".equals(next)) {
+                files.addFirst(next); // i.e., reverse order
+            }
+        }
+        return files;
+    }
+    
+    public void setSharedFiles(Set<String> fileList) {
+        sharedFileNames = fileList;
+    }
+    
     public String toString()
     {
         return name;
@@ -410,16 +432,13 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         try {
             String maryBase = System.getProperty("mary.base");
             System.out.println("Removing "+name+"-"+version+" from "+maryBase+"...");
-            LinkedList<String> files = new LinkedList<String>();
-            StringTokenizer st = new StringTokenizer(installedFilesNames, ",");
-            while (st.hasMoreTokens()) {
-                String next = st.nextToken().trim();
-                if (!"".equals(next)) {
-                    files.addFirst(next); // i.e., reverse order
-                }
-            }
+            LinkedList<String> files = getInstalledFileNames();
             for (String file: files) {
                 if (file.trim().equals("")) continue; // skip empty lines
+                if (sharedFileNames != null && sharedFileNames.contains(file)) {
+                    System.out.println("Keeping shared file: " + file);
+                    continue; // don't uninstall shared files!
+                }
                 File f = new File(maryBase+"/"+file);
                 if (f.isDirectory()) {
                     String[] kids = f.list();
@@ -500,7 +519,9 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         Element descriptionElt = (Element) desc.appendChild(doc.createElementNS(installerNamespaceURI, "description"));
         descriptionElt.setTextContent(description);
         Element licenseElt = (Element) desc.appendChild(doc.createElementNS(installerNamespaceURI, "license"));
-        licenseElt.setAttribute("href", license.toString());
+        if (license != null) {
+            licenseElt.setAttribute("href", license.toString());
+        }
         Element packageElt = (Element) desc.appendChild(doc.createElementNS(installerNamespaceURI, "package"));
         packageElt.setAttribute("size", Integer.toString(packageSize));
         packageElt.setAttribute("md5sum", packageMD5);
@@ -758,21 +779,61 @@ public class ComponentDescription extends Observable implements Comparable<Compo
         public void run() {
             String maryBase = System.getProperty("mary.base");
             System.out.println("Installing "+name+"-"+version+" in "+maryBase+"...");
-            StringBuilder files = new StringBuilder();
+            ArrayList<String> files = new ArrayList<String>();
             try {
                 ZipFile zipfile = new ZipFile(archiveFile);
                 Enumeration<? extends ZipEntry> entries = zipfile.entries();
                 while(entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
-                    if (files.length() > 0) {
-                        files.append(", ");
-                    }
-                    files.append(entry.getName());
+                    files.add(entry.getName()); // add to installed filelist; rely on uninstaller retaining shared files
+                    File newFile = new File(maryBase+"/"+entry.getName());
                     if(entry.isDirectory()) {
                       System.err.println("Extracting directory: " + entry.getName());
-                      (new File(maryBase+"/"+entry.getName())).mkdir();
+                      newFile.mkdir();
                     } else {
-                        File newFile = new File(maryBase+"/"+entry.getName());
+                        if (newFile.exists()) {
+                            // is existing file newer?
+                            boolean existingIsNewer = false;
+                            try {
+                                // existing JAR:
+                                JarFile existingJar = new JarFile(newFile);
+                                Manifest existingManifest = existingJar.getManifest();
+                                String existingVersion = existingManifest.getMainAttributes().getValue("Specification-Version");
+                                // packaged JAR:
+                                JarInputStream packagedJar = new JarInputStream(zipfile.getInputStream(entry));
+                                Manifest packagedManifest = packagedJar.getManifest();
+                                String packagedVersion = packagedManifest.getMainAttributes().getValue("Specification-Version");
+                                // compare the version strings:
+                                // TODO: this should handle "trunk" as always being newer until we have more sophisticated version string handling
+                                if (existingVersion.equals("trunk") || existingVersion.compareTo(packagedVersion) > 0) {
+                                    existingIsNewer = true;
+                                    // if we don't overwrite a newer existing JAR, then never log it as installed, otherwise we lose it during uninstall!
+                                    files.remove(entry.getName()); 
+                                }
+                            } catch (Exception e) {
+                                // we're not dealing with a JAR file
+                                // TODO disabled this block on short notice because installed files are touched and will therefore always be newer:
+//                                long existingDate;
+//                                // fall back to last modification time:
+//                                try {
+//                                    existingDate = newFile.lastModified();
+//                                } catch (SecurityException f) {
+//                                    // WTF, we can't get the date from the existing file!?
+//                                    e.printStackTrace();
+//                                    // assume it's outdated, to trigger reinstall (which may well fail): 
+//                                    existingDate = Long.MIN_VALUE;
+//                                }
+//                                long packagedDate = entry.getTime();
+//                                if (existingDate > packagedDate) {
+//                                    existingIsNewer = true;
+//                                }
+                            }
+                            // do not overwrite existing files if they are newer:
+                            if (existingIsNewer) {
+                                System.err.println("NOT overwriting existing newer file: " + entry.getName());
+                                continue;
+                            }
+                        }
                         if (!newFile.getParentFile().isDirectory()) {
                             System.err.println("Creating directory tree: "+newFile.getParentFile().getAbsolutePath());
                             newFile.getParentFile().mkdirs();
@@ -780,19 +841,20 @@ public class ComponentDescription extends Observable implements Comparable<Compo
                         System.err.println("Extracting file: " + entry.getName());
                         copyInputStream(zipfile.getInputStream(entry),
                            new BufferedOutputStream(new FileOutputStream(newFile)));
-                        // TODO: ugly hack: try to set executable bit on files in bin/
+                        // better hack: try to set executable bit on files in bin/
                         if (entry.getName().startsWith("bin/")) {
                             try {
-                                Runtime.getRuntime().exec(new String[] {"chmod", "a+x", newFile.getAbsolutePath()});
-                            } catch (Exception e) {
-                                // ignore, this will of course not work on windows
-                                e.printStackTrace();
+                                if (newFile.setExecutable(true, false)) {
+                                    System.err.println("Setting executable bit on file: " + entry.getName());
+                                }
+                            } catch (SecurityException e) {
+                                e.printStackTrace(); // but ignore
                             }
                         }
                     }
                   }
                   zipfile.close();
-                  installedFilesNames = files.toString();
+                  installedFilesNames = StringUtils.join(files, ", ");
                   writeInstalledComponentXML();
             } catch (Exception e) {
                 System.err.println("... installation failed:");

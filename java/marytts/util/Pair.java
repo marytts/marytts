@@ -37,14 +37,13 @@ public class Pair<X,Y>
 {
     private final X first;
     private final Y second;
-    private final int hash; 
+    private int hash; 
+    private boolean haveComputedHash = false;
     
     public Pair(X first, Y second)
     {
         this.first = first;
         this.second = second;
-        this.hash = (first == null ? 0 : first.hashCode() * 31)
-            + (second == null ? 0 : second.hashCode());
     }
 
     public X getFirst()
@@ -60,6 +59,11 @@ public class Pair<X,Y>
     @Override
     public int hashCode()
     {
+        if (!haveComputedHash) {
+            hash = (first == null ? 0 : first.hashCode() * 31)
+                + (second == null ? 0 : second.hashCode());
+            haveComputedHash = true;
+        }
         return hash;
     }
     

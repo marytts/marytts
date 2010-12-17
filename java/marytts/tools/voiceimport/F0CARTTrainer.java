@@ -38,6 +38,7 @@ import marytts.cart.CART;
 import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.MaryCARTWriter;
 import marytts.cart.io.WagonCARTReader;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.data.Datagram;
@@ -166,9 +167,9 @@ public class F0CARTTrainer extends VoiceImportComponent
    
 
      
-    /**/
-    public boolean compute() throws IOException
-    {
+     @Override
+     public boolean compute() throws IOException, MaryConfigurationException
+     {
         FeatureFileReader featureFile = 
             FeatureFileReader.getFeatureFileReader(getProp(FEATUREFILE));
         UnitFileReader unitFile = new UnitFileReader(getProp(UNITFILE));

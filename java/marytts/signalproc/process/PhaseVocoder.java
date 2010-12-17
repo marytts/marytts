@@ -25,6 +25,10 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import marytts.signalproc.display.FunctionGraph;
+import marytts.signalproc.display.SignalGraph;
+import marytts.signalproc.display.SignalSpectrum;
+import marytts.signalproc.display.Spectrogram;
 import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
@@ -59,7 +63,8 @@ public class PhaseVocoder extends FrameOverlapAddSource
         while ((s*=2)<=44100) frameLength /= 2;
         //System.err.println("PhaseVocoder: for samplingRate "+samplingRate+", using framelength "+frameLength);
         initialise(inputSource, Window.HANNING, true, frameLength, samplingRate, null);
-        processor = new PhaseUnwrapper(frameLength);
+        // TODO: The phrase unwrapper causes marytts.signalproc.tests.PhaseVocoderTests to fail. Should investigate at some stage.
+        //processor = new PhaseUnwrapper(frameLength);
     }
 
     protected int getInputFrameshift(int outputFrameshift)
@@ -145,7 +150,7 @@ public class PhaseVocoder extends FrameOverlapAddSource
             assert phi.length == prevPhi.length;
             for (int i=0; i<phi.length; i++) {
                 deltaPhi[i] = omega[i] + MathUtils.angleToDefaultAngle(phi[i]-prevPhi[i]-omega[i]);
-                //if (i==123) System.err.println("i="+i+": phi="+phi[i]+" prevPhi="+prevPhi[i]+" diff in defaultrange="+MathUtils.angleToDefaultAngle(phi[i]-prevPhi[i]-omega[i])+" omega="+omega[i]+" deltaPhi="+deltaPhi[i]);
+                if (i==123) System.err.println("i="+i+": phi="+phi[i]+" prevPhi="+prevPhi[i]+" diff in defaultrange="+MathUtils.angleToDefaultAngle(phi[i]-prevPhi[i]-omega[i])+" omega="+omega[i]+" deltaPhi="+deltaPhi[i]);
             }
             System.arraycopy(phi, 0, prevPhi, 0, phi.length);
             for (int i=0; i<phi.length; i++) {
@@ -162,31 +167,32 @@ public class PhaseVocoder extends FrameOverlapAddSource
         for (int i=1; i<args.length; i++) {
             AudioInputStream inputAudio = AudioSystem.getAudioInputStream(new File(args[i]));
             int samplingRate = (int)inputAudio.getFormat().getSampleRate();
-            AudioDoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
-            //double[] signal =  new AudioDoubleDataSource(inputAudio).getAllData();
-            //FunctionGraph signalGraph = new SignalGraph(signal, samplingRate);
-            //signalGraph.showInJFrame("signal", true, true);
-            //SignalSpectrum signalSpectrum = new SignalSpectrum(signal, samplingRate);
-            //signalSpectrum.showInJFrame("signal", true, true);
+            DoubleDataSource signal = new AudioDoubleDataSource(inputAudio);
+            double[] signalData =  new AudioDoubleDataSource(inputAudio).getAllData();
+            FunctionGraph signalGraph = new SignalGraph(signalData, samplingRate);
+            signalGraph.showInJFrame("signal", true, true);
+            SignalSpectrum signalSpectrum = new SignalSpectrum(signalData, samplingRate);
+            signalSpectrum.showInJFrame("signal", true, true);
+            signal = new BufferedDoubleDataSource(signalData);
             PhaseVocoder pv = new PhaseVocoder(signal, samplingRate, Double.parseDouble(args[0]));
-            //double[] result = pv.getAllData();
-            //FunctionGraph resultGraph = new SignalGraph(result, samplingRate);
-            //resultGraph.showInJFrame("result", true, true);
-            //Spectrogram resultSpectrogram = new Spectrogram(result, samplingRate);
-            //resultSpectrogram.showInJFrame("result", true, true);
-            //SignalSpectrum resultSpectrum = new SignalSpectrum(result, samplingRate);
-            //resultSpectrum.showInJFrame("result", true, true);
-            //System.err.println("Signal has length " + signal.length + ", result " + result.length);
-            //if (signal.length == result.length){
-            //    double err = MathUtils.sumSquaredError(signal, result);
-            //    System.err.println("Sum squared error: " + err);
-                //double[] difference = MathUtils.substract(signal, result);
-                //FunctionGraph diffGraph = new SignalGraph(difference, samplingRate);
-                //diffGraph.showInJFrame("difference", true, true);
-            //}
-            //double meanSignalEnergy = MathUtils.mean(MathUtils.multiply(signal, signal));
-            //double meanResultEnergy = MathUtils.mean(MathUtils.multiply(result, result));
-            //System.err.println("Mean result energy: " + (meanResultEnergy/meanSignalEnergy*100) + "% of mean signal energy");
+            double[] result = pv.getAllData();
+            FunctionGraph resultGraph = new SignalGraph(result, samplingRate);
+            resultGraph.showInJFrame("result", true, true);
+            Spectrogram resultSpectrogram = new Spectrogram(result, samplingRate);
+            resultSpectrogram.showInJFrame("result", true, true);
+            SignalSpectrum resultSpectrum = new SignalSpectrum(result, samplingRate);
+            resultSpectrum.showInJFrame("result", true, true);
+            System.err.println("Signal has length " + signalData.length + ", result " + result.length);
+            if (signalData.length == result.length){
+                double err = MathUtils.sumSquaredError(signalData, result);
+                System.err.println("Sum squared error: " + err);
+                double[] difference = MathUtils.subtract(signalData, result);
+                FunctionGraph diffGraph = new SignalGraph(difference, samplingRate);
+                diffGraph.showInJFrame("difference", true, true);
+            }
+            double meanSignalEnergy = MathUtils.mean(MathUtils.multiply(signalData, signalData));
+            double meanResultEnergy = MathUtils.mean(MathUtils.multiply(result, result));
+            System.err.println("Mean result energy: " + (meanResultEnergy/meanSignalEnergy*100) + "% of mean signal energy");
             
             DDSAudioInputStream outputAudio = new DDSAudioInputStream(new BufferedDoubleDataSource(pv), inputAudio.getFormat());
             String outFileName = args[i].substring(0, args[i].length()-4) + "_stretched_by_"+args[0]+".wav";

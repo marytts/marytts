@@ -33,6 +33,7 @@ package marytts.tools.voiceimport;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Properties;
 import java.util.SortedMap;
@@ -119,8 +120,11 @@ public class MCepTimelineMaker extends VoiceImportComponent
             /* Initialize with the first file: */
             /* - open and load */
             // System.out.println( baseNameArray[0] );
-            mcepFile = new ESTTrackReader(getProp(MCEPDIR) 
-                    + baseNameArray[0] + mcepExt);
+            File first = new File(getProp(MCEPDIR) + baseNameArray[0] + mcepExt);
+            if (!first.canRead()) {
+                throw new IOException("File " + first.getAbsolutePath() + " not readable!");
+            }
+            mcepFile = new ESTTrackReader(first.getAbsolutePath());
             /* - get the min and the max */
             current = mcepFile.getMinMax();
             mcepMin = current[0];
@@ -242,10 +246,12 @@ public class MCepTimelineMaker extends VoiceImportComponent
         }
         catch ( SecurityException e ) {
             System.err.println( "Error: you don't have write access to the target database directory." );
+            return false;
         }
         catch (Exception e) {
             e.printStackTrace();
             System.err.println(e);
+            return false;
         }
         
         return( true );

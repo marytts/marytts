@@ -61,6 +61,7 @@ import java.util.Properties;
 import java.util.Scanner;
 import java.util.Vector;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.server.MaryProperties;
 import marytts.unitselection.select.Target;
@@ -416,7 +417,8 @@ public class HMMData {
  
     /** Reads from configuration file tree and pdf data for duration and f0 
      * this method is used by HMMModel */
-    public void initHMMData(String configFile, String targetAttributeName) throws Exception{     
+    public void initHMMData(String configFile, String targetAttributeName) 
+    throws MaryConfigurationException {     
         
       Properties props = new Properties();
       
@@ -426,33 +428,16 @@ public class HMMData {
           fis.close();
           
           String voice = props.getProperty("name");
-          String marybase = MaryProperties.getProperty("mary.base");
+          String marybase = MaryProperties.getProperty("mary.base");         
           
-          if(targetAttributeName.contentEquals("d f0") || targetAttributeName.contentEquals("f0 d")){
-              treeLf0File = props.getProperty( "voice." + voice + ".Ftf" ).replace("MARY_BASE", marybase);
-              pdfLf0File = props.getProperty("voice." + voice + ".Fmf" ).replace("MARY_BASE", marybase);
-                         
+          if(targetAttributeName.contentEquals("d") || targetAttributeName.contentEquals("f0")){                         
               treeDurFile = props.getProperty( "voice." + voice + ".Ftd" ).replace("MARY_BASE", marybase);
-              pdfDurFile = props.getProperty("voice." + voice + ".Fmd").replace("MARY_BASE", marybase);  
+              pdfDurFile = props.getProperty("voice." + voice + ".Fmd").replace("MARY_BASE", marybase);
               
-          } else if(targetAttributeName.contentEquals("f0")) {            
-            treeLf0File = props.getProperty( "voice." + voice + ".Ftf" ).replace("MARY_BASE", marybase);
-            pdfLf0File = props.getProperty("voice." + voice + ".Fmf" ).replace("MARY_BASE", marybase);
-            
-            // i will load as well the duration, because i need it!!!
-            // CHECK: if it is needed to use the duration predicted by other model then we need to pass that duration 
-            //        value in the continuous features for example, this is done in: 
-            //        HMMModel.evaluate(List<Target> predictorTargets)
-            treeDurFile = props.getProperty( "voice." + voice + ".Ftd" ).replace("MARY_BASE", marybase);
-            pdfDurFile = props.getProperty("voice." + voice + ".Fmd").replace("MARY_BASE", marybase);
-            
-          } else if(targetAttributeName.contentEquals("d")){                     
-            treeDurFile = props.getProperty( "voice." + voice + ".Ftd" ).replace("MARY_BASE", marybase);
-            pdfDurFile = props.getProperty("voice." + voice + ".Fmd").replace("MARY_BASE", marybase);
-            
-          }  else {
-              logger.debug("targetAttributeName = " + targetAttributeName + " Not known"); 
-              throw new Exception("targetAttributeName = " + targetAttributeName + " Not known");
+              treeLf0File = props.getProperty( "voice." + voice + ".Ftf" ).replace("MARY_BASE", marybase);
+              pdfLf0File = props.getProperty("voice." + voice + ".Fmf" ).replace("MARY_BASE", marybase);              
+          } else {
+              throw new MaryConfigurationException("targetAttributeName = " + targetAttributeName + " Not known");
           }
           
           useGV = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGV" )).booleanValue();          
@@ -474,13 +459,8 @@ public class HMMData {
             trickyPhonesFile = "";
                     
           props.clear();
-          
-      } 
-      catch (IOException e) {
-          logger.debug("Caught IOException: " +  e.getMessage());
       } catch (Exception e) {
-          logger.debug(e.getMessage()); 
-          throw new Exception("Error on configuration file, missing files or components...");
+          throw new MaryConfigurationException("Problem with configuration file "+configFile+": missing files or components...", e);
       }
       
       try {
@@ -493,10 +473,8 @@ public class HMMData {
         logger.info("Loading GV Model Set:");
         gv.loadGVModelSet(this);
         
-      }
-      catch (Exception e) {
-          logger.debug(e.getMessage()); 
-          throw new Exception("Error loading TreeSet and ModelSet, problem on configuration file, missing files or components...");
+      } catch (Exception e) {
+          throw new MaryConfigurationException("Error loading TreeSet and ModelSet, problem on configuration file, missing files or components...", e);
       }
         
     }
@@ -529,7 +507,9 @@ public class HMMData {
             logger.debug("initMixedExcitation: " + e.getMessage());
             throw new FileNotFoundException("initMixedExcitation: " + e.getMessage());
         } finally {
-            s.close();
+            if (s != null) {
+                s.close();
+            }
         }
                 
         orderFilters = (int)(taps.size() / numFilters);        

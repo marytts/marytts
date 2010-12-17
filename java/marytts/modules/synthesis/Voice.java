@@ -56,6 +56,7 @@ import marytts.features.MaryFeatureProcessor;
 import marytts.features.FeatureVector.FeatureType;
 import marytts.features.MaryGenericFeatureProcessors.GenericContinuousFeature;
 import marytts.features.TargetFeatureComputer;
+import marytts.htsengine.HMMVoice;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.acoustic.BoundaryModel;
@@ -245,13 +246,16 @@ public class Voice
      * @throws NoSuchPropertyException
      */
     private void loadAcousticModels(String header) throws MaryConfigurationException, NoSuchPropertyException {
+        // The feature processor manager that all acoustic models will use to predict their acoustics:
+        FeatureProcessorManager symbolicFPM = FeatureRegistry.determineBestFeatureProcessorManager(getLocale());
+        
         // Acoustic models:
         String acousticModelsString = MaryProperties.getProperty(header + ".acousticModels");
         if (acousticModelsString != null) {
             acousticModels = new HashMap<String, Model>();
 
             // add boundary "model" (which could of course be overwritten by appropriate properties in voice config):
-            acousticModels.put("boundary", new BoundaryModel("boundary", null, "duration", null, null, null, "boundaries"));
+            acousticModels.put("boundary", new BoundaryModel(symbolicFPM, null, "duration", null, null, null, "boundaries"));
 
             StringTokenizer acousticModelStrings = new StringTokenizer(acousticModelsString);
             do {
@@ -273,37 +277,36 @@ public class Voice
                 ModelType possibleModelTypes = ModelType.fromString(modelType);
                 // if modelType is not in ModelType.values(), we don't know how to handle it:
                 if (possibleModelTypes == null) {
-                    logger.warn("Cannot handle unknown model type: " + modelType);
-                    throw new MaryConfigurationException();
+                    throw new MaryConfigurationException("Cannot handle unknown model type: " + modelType);
                 }
 
                 // ...and instantiate it in a switch statement:
                 Model model = null;
                 switch (possibleModelTypes) {
                 case CART:
-                    model = new CARTModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                    model = new CARTModel(symbolicFPM, modelDataFileName, modelAttributeName, modelAttributeFormat,
                             modelFeatureName, modelPredictFrom, modelApplyTo);
                     break;
 
                 case SOP:
-                    model = new SoPModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                    model = new SoPModel(symbolicFPM, modelDataFileName, modelAttributeName, modelAttributeFormat,
                             modelFeatureName, modelPredictFrom, modelApplyTo);
                     break;
 
                 case HMM:
                     // if we already have a HMM duration or F0 model, and if this is the other of the two, and if so,
                     // and they use the same dataFile, then let them be the same instance:
+                    // if this is the case set the boolean variable predictDurAndF0 to true in HMMModel
                     if (getDurationModel() != null && getDurationModel() instanceof HMMModel && modelName.equalsIgnoreCase("F0")
                             && modelDataFileName.equals(getDurationModel().getDataFileName())) {
                         model = getDurationModel();
-                        // set the attribute name, which is different to the already one set
-                        model.addTargetAttributeName(modelAttributeName);
+                        ((HMMModel)model).setPredictDurAndF0(true);  
                     } else if (getF0Model() != null && getF0Model() instanceof HMMModel && modelName.equalsIgnoreCase("duration")
                             && modelDataFileName.equals(getF0Model().getDataFileName())) {
                         model = getF0Model();
-                        model.addTargetAttributeName(modelAttributeName);
+                        ((HMMModel)model).setPredictDurAndF0(true);
                     } else {
-                        model = new HMMModel(modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                        model = new HMMModel(symbolicFPM, modelDataFileName, modelAttributeName, modelAttributeFormat,
                                 modelFeatureName, modelPredictFrom, modelApplyTo);
                     }
                     break;
@@ -312,8 +315,7 @@ public class Voice
                 // if we got this far, model should not be null:
                 assert model != null;
 
-                // load dataFile and put the model in the Model Map:
-                model.loadDataFile();
+                // put the model in the Model Map:
                 acousticModels.put(modelName, model);
             } while (acousticModelStrings.hasMoreTokens());
         }

@@ -1,5 +1,9 @@
 @echo off
-set BINDIR=%~dp0%
-set MARY_BASE=%BINDIR%\..
-java -ea "%*" -jar "$MARY_BASE"\java\redstart.jar
+set BINDIR=%~dp0
+call :RESOLVE "%BINDIR%\.." MARY_BASE
+java -ea "%*" -jar "%MARY_BASE%"\java\redstart.jar
+goto :EOF
 
+:RESOLVE
+set %2=%~f1
+goto :EOF

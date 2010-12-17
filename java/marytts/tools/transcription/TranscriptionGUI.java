@@ -1,3 +1,23 @@
+/**
+ * Copyright 2009 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 /*
  * TranscriptionGUI.java
  *
@@ -50,7 +70,8 @@ public class TranscriptionGUI extends javax.swing.JFrame {
     String baseName = null;
     String suffix = null;
     String locale = null;
-    boolean loadTranscription = false;  
+    boolean loadTranscription = false;
+    private static File baseDir;  
     
     /** Creates new form TranscriptionGUI */
     public TranscriptionGUI() {
@@ -532,12 +553,13 @@ public class TranscriptionGUI extends javax.swing.JFrame {
 
     private void addWordsFromFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addWordsFromFileActionPerformed
         if(!checkNecessaryEvents("load")) return;
-        JFileChooser fc = new JFileChooser(new File("."));
+        JFileChooser fc = new JFileChooser(baseDir);
         fc.setDialogTitle("Open word list to append to current transcription file");
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int returnVal = fc.showOpenDialog(TranscriptionGUI.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
+            baseDir = fc.getCurrentDirectory();
             simplePanel.addWordsToTranscription(file.getAbsolutePath());
         }
 
@@ -673,12 +695,13 @@ public class TranscriptionGUI extends javax.swing.JFrame {
 
     private void loadPhoneSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadPhoneSetActionPerformed
         if(!checkNecessaryEvents("phoneset")) return;
-        JFileChooser fc = new JFileChooser(new File("."));
+        JFileChooser fc = new JFileChooser(baseDir);
         fc.setDialogTitle("Load phoneset file");
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int returnVal = fc.showOpenDialog(TranscriptionGUI.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
+            baseDir = fc.getCurrentDirectory();
             phoneSetFile  = file.getAbsolutePath();
             
             if(phoneSetFile != null) {
@@ -701,11 +724,12 @@ public class TranscriptionGUI extends javax.swing.JFrame {
 
     private void saveAsToFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveAsToFileActionPerformed
         if(!checkNecessaryEvents("save")) return;
-        JFileChooser fc = new JFileChooser();
+        JFileChooser fc = new JFileChooser(baseDir);
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int returnVal = fc.showSaveDialog(TranscriptionGUI.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
+            baseDir = fc.getCurrentDirectory();
             fileNametoSave = file.getAbsolutePath();
             File saveFile = new File(fileNametoSave);
             dirName = saveFile.getParentFile().getAbsolutePath();
@@ -725,12 +749,13 @@ public class TranscriptionGUI extends javax.swing.JFrame {
 
     private void loadFromFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadFromFileActionPerformed
         if(!checkNecessaryEvents("load")) return;
-        JFileChooser fc = new JFileChooser(new File("."));
+        JFileChooser fc = new JFileChooser(baseDir);
         fc.setDialogTitle("Open transcription file");
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int returnVal = fc.showOpenDialog(TranscriptionGUI.this);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
+            baseDir = fc.getCurrentDirectory();
             simplePanel.loadTranscription(file.getAbsolutePath());
             fileNametoSave = file.getAbsolutePath();
             File saveFile = new File(fileNametoSave);
@@ -775,8 +800,13 @@ public class TranscriptionGUI extends javax.swing.JFrame {
         if(phoneSetFile != null && loadTranscription && treeAbsolutePath == null){
             saveAsToFileActionPerformed(evt);
         }
-        if(treeAbsolutePath != null){
-            simplePanel.trainPredict(treeAbsolutePath);
+        if(treeAbsolutePath != null) {
+            try {
+                simplePanel.trainPredict(treeAbsolutePath);
+            } catch (Exception e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, e.getMessage()+" -- see console for details", "Problem occurred", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }//GEN-LAST:event_trainPredictActionPerformed
     
@@ -837,6 +867,13 @@ public class TranscriptionGUI extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+        try {
+            String baseDirName = args[0];
+            baseDir = new File(baseDirName);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // ignore
+        }
+        
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new TranscriptionGUI().setVisible(true);

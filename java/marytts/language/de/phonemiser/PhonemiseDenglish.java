@@ -177,7 +177,8 @@ public class PhonemiseDenglish
 				return transcription;
 			}
 			// try removing prefix:
-			int maxPrefLen = Math.min(this.maxPrefixLength, word.getToBePhonemised().length());
+			// Enforce at least 3 characters in the stem (the part of the word that comes after the prefix):
+			int maxPrefLen = Math.min(this.maxPrefixLength, word.getToBePhonemised().length()-3);
 			for (int i=maxPrefLen; i>0; i--) {
 				String prefix = word.getToBePhonemised().substring(0, i).toLowerCase();
 				String prefixPhon = prefixLexiconLookup(prefix);
@@ -272,7 +273,7 @@ public class PhonemiseDenglish
 			// in the lexicon. Any part must have a minimum length of 3 -> 2!! characters.
 			logger.debug("compoundAnalysis is starting with: "+word.getToBePhonemised());
         
-			for (int i=word.getToBePhonemised().length()-2; i >= 2; i--) { //-3!!! >= 3!!!
+			for (int i=word.getToBePhonemised().length()-3; i >= 3; i--) { //-3!!! >= 3!!!
 				
 				String firstPhon = null;
 				String fugePhon = null;

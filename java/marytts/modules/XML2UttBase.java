@@ -31,6 +31,7 @@ import java.util.StringTokenizer;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.language.en.DummyFreeTTSVoice;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
@@ -75,8 +76,7 @@ public abstract class XML2UttBase extends InternalModule
     protected int nextTargetIndex = 1;
     
     
-    public XML2UttBase(String name, MaryDataType input, MaryDataType output, Locale locale)
-    {
+    public XML2UttBase(String name, MaryDataType input, MaryDataType output, Locale locale) {
         super(name, input, output, locale);
     }
 
@@ -93,6 +93,7 @@ public abstract class XML2UttBase extends InternalModule
     throws Exception
     {
         Document doc = d.getDocument();
+        Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
 
         if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
             logger.debug("Converting the following XML structure into Utterances:");
@@ -115,26 +116,33 @@ public abstract class XML2UttBase extends InternalModule
                 maryVoice = d.getDefaultVoice();
             }
             if (maryVoice == null) {
-                // Determine Locale in order to use default voice
-                Locale locale = MaryUtils.string2locale(doc.getDocumentElement().getAttribute("xml:lang"));
                 maryVoice = Voice.getDefaultVoice(locale);
             }
             com.sun.speech.freetts.Voice freettsVoice;
+            AllophoneSet allophoneSet;
             if (maryVoice != null) {
                 freettsVoice = FreeTTSVoices.getFreeTTSVoice(maryVoice);
-            } else if (d.getLocale() != null && d.getLocale().equals(Locale.US)) {
-                freettsVoice = new marytts.language.en.DummyFreeTTSVoice();
+                allophoneSet = maryVoice.getAllophoneSet();
             } else {
-                freettsVoice = new marytts.modules.DummyFreeTTSVoice();
+                if (Locale.US.equals(locale)) {
+                    freettsVoice = new marytts.language.en.DummyFreeTTSVoice();
+                } else {
+                    freettsVoice = new marytts.modules.DummyFreeTTSVoice(d.getLocale());
+                }
+                allophoneSet = AllophoneSet.determineAllophoneSet(locale);
             }
             if (freettsVoice == null) {
                 throw new NullPointerException("No FreeTTS voice for mary voice " + maryVoice.getName());
+            }
+            if (allophoneSet == null) {
+                throw new MaryConfigurationException("Cannot get allophone set for voice "+maryVoice+" / locale "+locale);
             }
             Utterance utterance = new Utterance(freettsVoice);
             if (voice != null && voice.hasAttribute("style")) {
                 String style = voice.getAttribute("style");
                 utterance.setString("style", style);
             }
+            utterance.setObject("allophoneset", allophoneSet);
             // Any prosodic settings present?
             insertProsodySettings(utterance, sentence);
 
@@ -348,17 +356,20 @@ public abstract class XML2UttBase extends InternalModule
      * @param createSylStructRelation
      * @param createTargetRelation
      * @return a string containing the text in this element, or an empty string 
+     * @throws MaryConfigurationException 
      */
     protected String addOneElement(Utterance utterance, Element element,
         boolean createWordRelation,
         boolean createSylStructRelation,
         boolean createTargetRelation)
-         
     {
         Voice maryVoice = null;
         if (utterance.getVoice() != null) {
             maryVoice = FreeTTSVoices.getMaryVoice(utterance.getVoice());
         }
+        AllophoneSet allophoneSet = (AllophoneSet) utterance.getObject("allophoneset");
+        assert allophoneSet != null; // set in process()
+        
         StringBuilder sentenceBuf = new StringBuilder();
         List<String> phoneList = null;
         Relation tokenRelation = utterance.getRelation(Relation.TOKEN);
@@ -412,9 +423,8 @@ public abstract class XML2UttBase extends InternalModule
                         Item segItem = segmentRelation.appendItem();
                         segItem.getFeatures().setObject("maryxmlElement", element);
                         // Silence symbol in voice-specific phonetic alphabet:
-                        String silence = maryVoice.getAllophoneSet().getSilence().name();
-                        assert silence != null;
-                        logger.debug("In voice '"+maryVoice.getName()+"', silence symbol is '"+silence+"'");
+                        String silence = allophoneSet.getSilence().name();
+                        logger.debug("In voice '"+maryVoice+"', silence symbol is '"+silence+"'");
                         segItem.getFeatures().setString("name", silence);
                         segItem.getFeatures().setInt("mbr_dur", dur);
                         segItem.getFeatures().setFloat("end", end);
@@ -463,7 +473,7 @@ public abstract class XML2UttBase extends InternalModule
                         // sampa attribute, the concatenated sampa
                         // attribute values will be used as the
                         // pronunciation of the entire <mtu>.
-                        List<String> onePhoneList = phoneString2phoneList(maryVoice.getAllophoneSet(), t.getAttribute("ph"));
+                        List<String> onePhoneList = phoneString2phoneList(allophoneSet, t.getAttribute("ph"));
                         if (phoneList == null) {
                             phoneList = onePhoneList;
                         } else {
@@ -503,7 +513,7 @@ public abstract class XML2UttBase extends InternalModule
                     tokenItem.getFeatures().setString("precedingMarks", mark);
                 if (!createSylStructRelation) {
                     if (t.hasAttribute("ph")) {
-                        phoneList = phoneString2phoneList(maryVoice.getAllophoneSet(), t.getAttribute("ph"));
+                        phoneList = phoneString2phoneList(allophoneSet, t.getAttribute("ph"));
                     }
                     if (t.hasAttribute("accent")) {
                         tokenItem.getFeatures().setString("accent", t.getAttribute("accent"));

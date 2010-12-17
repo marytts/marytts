@@ -64,7 +64,9 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
         try {
             allophoneSet = AllophoneSet.getAllophoneSet(allophoneSetFilename);
         } catch (Exception e) {
-            throw new IOException("Problem reading Allophones file "+allophoneSetFilename, e);
+            IOException ioe = new IOException("Problem reading Allophones file "+allophoneSetFilename);
+            ioe.initCause(e);
+            throw ioe;
         }
         silenceSymbol = allophoneSet.getSilence().name();
         aligner = new TranscriptionAligner(allophoneSet);

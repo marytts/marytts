@@ -20,6 +20,7 @@
 package marytts.server;
 
 // General Java Classes
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -315,55 +316,69 @@ public class Mary {
      * @throws IOException
      */
     private static void configureLogging() throws NoSuchPropertyException, IOException {
-        // Configure logging:
-/*        logger = MaryUtils.getLogger("main");
-        Logger.getRootLogger().setLevel(Level.toLevel(MaryProperties.needProperty("log.level")));
-        PatternLayout layout = new PatternLayout("%d [%t] %-5p %-10c %m\n");
-        File logFile = null;
-        if (MaryProperties.needAutoBoolean("log.tofile")) {
-            String filename = MaryProperties.getFilename("log.filename", "mary.log");
-            logFile = new File(filename);
-            File parentFile = logFile.getParentFile();
-            // prevent a NullPointerException in the following conditional if the user has requested a non-existing, *relative* log filename
-            if (parentFile == null) {
-                parentFile = new File(logFile.getAbsolutePath()).getParentFile();
-            }
-            if (!(logFile.exists()&&logFile.canWrite() // exists and writable
-                    || parentFile.exists() && parentFile.canWrite())) { // parent exists and writable
-                // cannot write to file
-                System.err.print("\nCannot write to log file '"+filename+"' -- ");
-                File fallbackLogFile = new File(System.getProperty("user.home")+"/mary.log");
-                if (fallbackLogFile.exists()&&fallbackLogFile.canWrite() // exists and writable 
-                        || fallbackLogFile.exists()&&fallbackLogFile.canWrite()) { // parent exists and writable
-                    // fallback log file is OK
-                    System.err.println("will log to '"+fallbackLogFile.getAbsolutePath()+"' instead.");
-                    logFile = fallbackLogFile;
-                } else {
-                    // cannot write to fallback log either
-                    System.err.println("will log to standard output instead.");
-                    logFile = null;
+        if (!MaryUtils.isLog4jConfigured()) { // maybe log4j has been externally configured already?
+            // Configure logging:
+            /*        logger = MaryUtils.getLogger("main");
+                    Logger.getRootLogger().setLevel(Level.toLevel(MaryProperties.needProperty("log.level")));
+                    PatternLayout layout = new PatternLayout("%d [%t] %-5p %-10c %m\n");
+                    File logFile = null;
+                    if (MaryProperties.needAutoBoolean("log.tofile")) {
+                        String filename = MaryProperties.getFilename("log.filename", "mary.log");
+                        logFile = new File(filename);
+                        File parentFile = logFile.getParentFile();
+                        // prevent a NullPointerException in the following conditional if the user has requested a non-existing, *relative* log filename
+                        if (parentFile == null) {
+                            parentFile = new File(logFile.getAbsolutePath()).getParentFile();
+                        }
+                        if (!(logFile.exists()&&logFile.canWrite() // exists and writable
+                                || parentFile.exists() && parentFile.canWrite())) { // parent exists and writable
+                            // cannot write to file
+                            System.err.print("\nCannot write to log file '"+filename+"' -- ");
+                            File fallbackLogFile = new File(System.getProperty("user.home")+"/mary.log");
+                            if (fallbackLogFile.exists()&&fallbackLogFile.canWrite() // exists and writable 
+                                    || fallbackLogFile.exists()&&fallbackLogFile.canWrite()) { // parent exists and writable
+                                // fallback log file is OK
+                                System.err.println("will log to '"+fallbackLogFile.getAbsolutePath()+"' instead.");
+                                logFile = fallbackLogFile;
+                            } else {
+                                // cannot write to fallback log either
+                                System.err.println("will log to standard output instead.");
+                                logFile = null;
+                            }
+                        }
+                        if (logFile != null && logFile.exists()) logFile.delete();
+                    }
+                    if (logFile != null) {
+                        BasicConfigurator.configure(new FileAppender(layout, logFile.getAbsolutePath()));
+                    } else {
+                        BasicConfigurator.configure(new WriterAppender(layout, System.err));
+                    }
+                    */
+            Properties logprops = new Properties();
+            InputStream propIS = new BufferedInputStream(new FileInputStream(MaryProperties.needFilename("log.config")));
+            logprops.load(propIS);
+            propIS.close();
+            // Now replace MARY_BASE with the install location of MARY in every property:
+            for (Object key : logprops.keySet()) {
+                String val = (String) logprops.get(key);
+                if (val.contains("MARY_BASE")) {
+                    String maryBase = MaryProperties.maryBase();
+                    if (maryBase.contains("\\")) {
+                        maryBase = maryBase.replaceAll("\\\\", "/");
+                    }
+                    val = val.replaceAll("MARY_BASE", maryBase);
+                    logprops.put(key, val);
                 }
             }
-            if (logFile != null && logFile.exists()) logFile.delete();
-        }
-        if (logFile != null) {
-            BasicConfigurator.configure(new FileAppender(layout, logFile.getAbsolutePath()));
-        } else {
-            BasicConfigurator.configure(new WriterAppender(layout, System.err));
-        }
-        */
-        Properties logprops = new Properties();
-        BufferedReader propReader = new BufferedReader(new FileReader(MaryProperties.needFilename("log.config")));
-        logprops.load(propReader);
-        // Now replace MARY_BASE with the install location of MARY in every property:
-        for (Object key : logprops.keySet()) {
-            String val = (String) logprops.get(key);
-            if (val.contains("MARY_BASE")) {
-                val = val.replaceAll("MARY_BASE", MaryProperties.maryBase());
-                logprops.put(key, val);
+            // And allow MaryProperties (and thus System properties) to overwrite the single entry
+            // log4j.logger.marytts:
+            String loggerMaryttsKey = "log4j.logger.marytts";
+            String loggerMaryttsValue = MaryProperties.getProperty(loggerMaryttsKey);
+            if (loggerMaryttsValue != null) {
+                logprops.setProperty(loggerMaryttsKey, loggerMaryttsValue);
             }
+            PropertyConfigurator.configure(logprops);
         }
-        PropertyConfigurator.configure(logprops);
         
         logger = MaryUtils.getLogger("main");
         
@@ -446,7 +461,7 @@ public class Mary {
         }
         
         Request request = new Request(inputType, outputType, locale, voice, effects, style, 1, audioFileFormat, false, outputTypeParams);
-        request.readInputData(new StringReader(input));
+        request.setInputData(input);
         request.process();
         request.writeOutputData(output);
 

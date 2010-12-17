@@ -69,6 +69,7 @@ public class XwavesLabelfileDataSource {
     throws IOException {
         this.reader = new BufferedReader(reader);
         parseLabels();
+        reader.close();
     }
 
     /**

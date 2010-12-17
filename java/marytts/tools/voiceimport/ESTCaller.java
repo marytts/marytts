@@ -271,6 +271,7 @@ public class ESTCaller
              * for the meaning of the command line parameters. */
             
             /* Launch the relevant process */
+            System.out.println(baseNameArray[i]); // some feedback is always nice
             General.launchProc( cmdLine, "Mel-Cepstrum ", baseNameArray[i] );
         }
         System.out.println("---- Mel-Cepstrum coefficients done." );

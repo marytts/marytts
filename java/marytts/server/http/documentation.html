@@ -108,6 +108,32 @@ which may or may not be the same as for the voice's locale, e.g.:</p>
 <p><code><a href="audioeffect-is-hmm-effect?effect=Robot">audioeffect-is-hmm-effect?effect=Robot</a></code></p>
 
 
+<h3 id="vocalizations">Vocalizations</h3>
+
+<p>Some voices can generate non-verbal or listener vocalizations such as "(laughter)", "yeah", "hmm" etc. The list of vocalizations that can be generated depends on the voice.
+An empty list indicates that the voice does not support vocalizations.</p>
+
+<p><code>vocalizations?voice=(voicename)</code> requests the list of vocalizations available for a given voice.</p>
+
+<p>For example:</p>
+
+<p><code><a href="vocalizations?voice=dfki-poppy">vocalizations?voice=dfki-poppy</a></code></p>
+<p><code><a href="vocalizations?voice=dfki-prudence">vocalizations?voice=dfki-prudence</a></code></p>
+<p><code><a href="vocalizations?voice=dfki-spike">vocalizations?voice=dfki-spike</a></code></p>
+<p><code><a href="vocalizations?voice=dfki-obadiah">vocalizations?voice=dfki-obadiah</a></code></p>
+
+<p>The following is an example document in WORDS format that requests a vocalization:</p>
+
+<pre>
+&lt;maryxml version="0.5" xmlns="http://mary.dfki.de/2002/MaryXML" xml:lang="en-GB"&gt;
+&lt;voice name="dfki-poppy"&gt;
+&lt;p&gt;
+&lt;vocalization name="yeah" meaning="uncertain" intonation="falling" voicequality="modal"/&gt;
+&lt;/p&gt;
+&lt;/voice&gt;
+&lt;/maryxml&gt;
+</pre>
+
 <h2 id="synthesis">Synthesis requests</h2>
 
 <p><code>process</code> requests the synthesis of some text.</p>

@@ -106,7 +106,14 @@ public class Allophone
         return "f".equals(features.get("ctype"));
     }
 
-    public boolean isPlosive() { return "s".equals(features.get("ctype")); }
+    public boolean isPlosive() {
+        return "s".equals(features.get("ctype"));
+    }
+    
+    public boolean isAffricate() {
+        return "a".equals(features.get("ctype"));
+    }
+    
     public boolean isPause()
     {
         return "0".equals(features.get("vc")) &&

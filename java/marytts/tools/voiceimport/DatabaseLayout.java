@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import marytts.Version;
 import marytts.util.MaryUtils;
 
 /**
@@ -585,7 +586,7 @@ public class DatabaseLayout
             marybase = "/path/to/marybase/";
         }
         basicprops.put(MARYBASE,marybase);
-        basicprops.put(MARYBASEVERSION, "4.0.0");
+        basicprops.put(MARYBASEVERSION, Version.specificationVersion());
         String voicename = System.getProperty("VOICENAME");
         if ( voicename == null ) {
             voicename = "my_voice";
@@ -677,6 +678,7 @@ public class DatabaseLayout
             someProps.put(PTCEXT,".ptc");
             someProps.put(MARYSERVERHOST, "localhost");
             someProps.put(MARYSERVERPORT, "59125");
+            someProps.put(MARYBASEVERSION, Version.specificationVersion());
         }        
         String rootDir = getProp(ROOTDIR);
         char lastChar = rootDir.charAt(rootDir.length()-1);
@@ -751,7 +753,6 @@ public class DatabaseLayout
         
         checkDir(PROMPTALLOPHONESDIR);
         checkDir(ALLOPHONESDIR);
-        checkDir(VOCALIZATIONSDIR);
         
         /* check text dir */  
         //checkDir(TEXTDIR);
@@ -854,6 +855,33 @@ public class DatabaseLayout
             SortedMap<String,String> nextProps = localProps.get(compNames[i]);
             components[i].initialise(bnl,nextProps);
         }
+    }
+    
+    /**
+     * Get the value of a property from the voice building DatabaseLayout, or from a VoiceImportComponent.
+     * 
+     * @param propertyName
+     *            (e.g. "db.MARYBASE" or "VoicePackager.voiceType")
+     * @return the property value
+     * @throws NullPointerException
+     *             if <b>propertyName</b> cannot be resolved
+     */
+    public String getProperty(String propertyName) {
+        String[] propertyNameParts = propertyName.split("\\.");
+        String component = propertyNameParts[0];
+        String property = propertyNameParts[1];
+
+        String value;
+        if (component.equals("db")) {
+            value = this.getProp(propertyName);
+        } else {
+            VoiceImportComponent voiceImportComponent = this.getComponent(component);
+            value = voiceImportComponent.getProp(propertyName);
+        }
+        if (value == null) {
+            throw new NullPointerException(propertyName + " cannot be resolved!");
+        }
+        return value;
     }
     
     public String getProp(String prop)

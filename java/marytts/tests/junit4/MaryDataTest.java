@@ -126,7 +126,7 @@ public class MaryDataTest {
     @Test
     public void testTextRead1() throws Exception {
         MaryData md = new MaryData(MaryDataType.TEXT, Locale.GERMAN);
-        md.readFrom(new StringReader(textString), null);
+        md.setData(textString);
         assertTrue(md.getPlainText().trim().equals(textString.trim()));
     }
 
@@ -134,7 +134,7 @@ public class MaryDataTest {
     @Test
     public void testTextWrite() throws Exception {
         MaryData md = new MaryData(MaryDataType.TEXT, Locale.GERMAN);
-        md.readFrom(new StringReader(textString), null);
+        md.setData(textString);
         StringWriter sw = new StringWriter();
         md.writeTo(sw);
         assertTrue(sw.toString().trim().equals(textString.trim()));
@@ -143,7 +143,7 @@ public class MaryDataTest {
     @Test
     public void testXMLRead1() throws Exception {
         MaryData md = new MaryData(MaryDataType.TOKENS, Locale.GERMAN);
-        md.readFrom(new StringReader(maryxmlString), null);
+        md.setData(maryxmlString);
         assertTrue(md.getDocument() != null);
     }
 
@@ -151,7 +151,7 @@ public class MaryDataTest {
     @Test
     public void testXMLWrite() throws Exception {
         MaryData md = new MaryData(MaryDataType.TOKENS, Locale.GERMAN);
-        md.readFrom(new StringReader(maryxmlString), null);
+        md.setData(maryxmlString);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         md.writeTo(baos);
         assertTrue(!baos.toString().equals(""));

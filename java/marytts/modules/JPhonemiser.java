@@ -44,6 +44,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.FSTLookup;
 import marytts.modules.InternalModule;
 import marytts.modules.phonemiser.AllophoneSet;
@@ -78,7 +79,7 @@ public class JPhonemiser extends InternalModule
     protected AllophoneSet allophoneSet;
 
     public JPhonemiser(String propertyPrefix)
-    throws IOException,  SAXException, ParserConfigurationException
+    throws IOException,  MaryConfigurationException
     {
         this("JPhonemiser", MaryDataType.PARTSOFSPEECH, MaryDataType.PHONEMES,
                 MaryProperties.needFilename(propertyPrefix+"allophoneset"),
@@ -99,7 +100,7 @@ public class JPhonemiser extends InternalModule
     public JPhonemiser(String componentName, 
             MaryDataType inputType, MaryDataType outputType,
             String allophonesFilename, String userdictFilename, String lexiconFilename, String ltsFilename)
-    throws IOException,  SAXException, ParserConfigurationException
+    throws IOException, MaryConfigurationException
     {
         super(componentName, inputType, outputType,
                 AllophoneSet.getAllophoneSet(allophonesFilename).getLocale());

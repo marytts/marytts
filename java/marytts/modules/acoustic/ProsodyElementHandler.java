@@ -1,3 +1,22 @@
+/**
+ * Copyright 2010 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package marytts.modules.acoustic;
 
 import java.io.ByteArrayOutputStream;
@@ -11,20 +30,23 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.text.Document;
-
 import marytts.cart.io.DirectedGraphReader;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
+import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
 import marytts.unitselection.select.Target;
+import marytts.util.MaryUtils;
+import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.NodeIterator;
@@ -40,7 +62,8 @@ public class ProsodyElementHandler {
     
     private int F0CONTOUR_LENGTH = 101; // Assumption: the length of f0 contour of a prosody element is 101 (0,1,2....100)
                                         // DONOT change this number as some index numbers are based on this number    
-    DecimalFormat df; 
+    private DecimalFormat df; 
+    private Logger logger = MaryUtils.getLogger("ProsodyElementHandler");
     
     public ProsodyElementHandler(){
         df = new DecimalFormat("#0.0");
@@ -48,21 +71,26 @@ public class ProsodyElementHandler {
     
     /**
      * A method to modify prosody modifications
-     * @param doc
+     * @param doc - MARY XML Document
+     * 
      */
-    public void process(org.w3c.dom.Document doc) {
+    public void process(Document doc) {
         
         TreeWalker tw = MaryDomUtils.createTreeWalker(doc, MaryXML.PROSODY);
         Element e = null;
         
         // read prosody tags recursively 
         while ((e = (Element) tw.nextNode()) != null) {
-            
+            logger.debug("Found prosody element around '"+DomUtils.getPlainTextBelow(e)+"'");
             boolean hasRateAttribute    = e.hasAttribute("rate");
             boolean hasContourAttribute = e.hasAttribute("contour");
             boolean hasPitchAttribute   = e.hasAttribute("pitch");
             
             NodeList nl = e.getElementsByTagName("ph");
+            // guard against degenerate phrases without any <ph> elements:
+            if (nl.getLength() == 0) {
+                continue;
+            }
             
             // if prosody element contains 'rate' attribute, apply rate specifications
             if ( hasRateAttribute ) {
@@ -104,9 +132,9 @@ public class ProsodyElementHandler {
    }
     
     /**
-     * Apply 'rate' specifications to NodeList (with only 'ph' elements)
-     * @param nl
-     * @param prosodyElement
+     * To apply 'rate' specifications to NodeList (with only 'ph' elements)
+     * @param nl - NodeList of 'ph' elements
+     * @param rateAttribute - Speech rate attribute
      */
     private void applySpeechRateSpecifications(NodeList nl, String rateAttribute) {
       
@@ -121,15 +149,21 @@ public class ProsodyElementHandler {
             rateAttribute = rateLabels2RelativeValues(rateAttribute);
         }
         
+        // if the value is non-negative percentage (as described in W3C SSML)
+        if ( !(rateAttribute.startsWith("+") || rateAttribute.startsWith("-")) && rateAttribute.endsWith("%")) {
+            double absolutePercentage = new Double(rateAttribute.substring(0, rateAttribute.length()-1)).doubleValue();
+            if ( absolutePercentage == 100 ) { // no change
+                return;
+            }
+            else {
+                rateAttribute = df.format(absolutePercentage / 100);
+            }
+        }
+        
         // if the format contains a positive decimal number
         boolean hasPositiveInteger = !rateAttribute.endsWith("%") && (!rateAttribute.startsWith("+") || !rateAttribute.startsWith("-"));
         if ( hasPositiveInteger ) { 
             rateAttribute = positiveInteger2RelativeValues(rateAttribute);
-        }
-        
-        // if not preceded by '+' or '-', add '+' at the beginning 
-        if ( !(rateAttribute.startsWith("+") || rateAttribute.startsWith("-")) ) {
-            rateAttribute = "+" + rateAttribute;
         }
         
         //Pattern p = Pattern.compile("[+|-]\\d+%");
@@ -139,10 +173,10 @@ public class ProsodyElementHandler {
         if ( m.find() ) {
             double percentage = new Double(rateAttribute.substring(1, rateAttribute.length()-1)).doubleValue();
             if ( rateAttribute.startsWith("+") ) {
-                modifySpeechRate(nl, percentage, -1.0);
+                modifySpeechRate(nl, percentage, true);
             }
             else {
-                modifySpeechRate(nl, percentage, +1.0);
+                modifySpeechRate(nl, percentage, false);
             }
         }
     }
@@ -260,7 +294,7 @@ public class ProsodyElementHandler {
             
             int percentDuration  =  Math.round((new Float(percent.substring(0, percent.length()-1))).floatValue());
             if ( percentDuration > 100 ) {
-                throw new RuntimeException("Given percetage of duration ( "+ percentDuration+"%"+ " ) is illegal.. ") ;
+                throw new RuntimeException("Given percentage of duration ( "+ percentDuration+"%"+ " ) is illegal.. ") ;
             }
             
             //System.out.println( percent  + " " + f0Value );
@@ -301,25 +335,37 @@ public class ProsodyElementHandler {
             }
         }
         
-      return interpolateNonZeroValues(modifiedF0Values);
+      return MathUtils.interpolateNonZeroValues(modifiedF0Values);
     }
 
 
     /**
-     * set duration specifications according to 'rate' requirements
-     * @param nl
-     * @param percentage
-     * @param incriment
+     * To set duration specifications according to 'rate' requirements
+     * @param nl - NodeList of 'ph' elements; All elements in this NodeList should be 'ph' elements only
+     *             All these 'ph' elements should contain 'd', 'end' attributes 
+     * @param percentage the percentage of increment or decrement in speech rate
+     * @param increaseSpeechRate whether the request is to increase (value true) or decrease (value false) to speech rate     *  
      */
-    private void modifySpeechRate(NodeList nl, double percentage, double incriment) {
+    private void modifySpeechRate(NodeList nl, double percentage, boolean increaseSpeechRate) {
+        
+        assert nl != null;
         
         for ( int i=0; i < nl.getLength(); i++ ) {
             Element e = (Element) nl.item(i); 
+            assert "ph".equals(e.getNodeName()) : "NodeList should contain 'ph' elements only";
             if ( !e.hasAttribute("d") ) {
                 continue;
             }
+            
             double durAttribute = new Double(e.getAttribute("d")).doubleValue();
-            double newDurAttribute = durAttribute + ( incriment * percentage * durAttribute / 100);
+            double newDurAttribute;
+            
+            if ( increaseSpeechRate ) {
+                newDurAttribute = durAttribute - (percentage * durAttribute / 100);
+            } else {
+                newDurAttribute = durAttribute + (percentage * durAttribute / 100);
+            }
+            
             e.setAttribute("d", newDurAttribute+"");
             //System.out.println(durAttribute+" = " +newDurAttribute);
         }
@@ -348,24 +394,45 @@ public class ProsodyElementHandler {
       
     }
 
-   
-    /**
-     * get Continuous contour from "ph" nodelist
-     * @param nl
-     * @return
-     */
+    // we need a public getter with variable array size to call from unitselection.analysis
     private double[] getF0Contour(NodeList nl) {
+        return getF0Contour(nl, F0CONTOUR_LENGTH); // Assume contour has F0CONTOUR_LENGTH frames
+    }
+    
+    /**
+     * To get a continuous pitch contour from nodelist of "ph" elements
+     * @param nl - NodeList of 'ph' elements; All elements in this NodeList should be 'ph' elements only
+     *             All these 'ph' elements should contain 'd', 'end' attributes  
+     * @param arraysize the length of the output pitch contour array (arraysize > 0)
+     * @return a double array of pitch contour
+     * @throws IllegalArgumentException if NodeList is null or it contains elements other than 'ph' elements
+     * @throws IllegalArgumentException if given 'ph' elements do not contain 'd' or 'end' attributes
+     * @throws IllegalArgumentException if given arraysize is not greater than zero
+     */
+    public double[] getF0Contour(NodeList nl, int arraysize) {
         
-      
-        /**TODO
-         * If we want to use this method as a generic method to get 'f0 contour', 
-         * a sanity check required for NodeList such that all elements in NodeList are only 'ph' elements.
-         */
+        if ( nl == null || nl.getLength() == 0 ) {
+            throw new IllegalArgumentException("Input NodeList should not be null or zero length list"); 
+        }
+        if ( arraysize <= 0 ) {
+            throw new IllegalArgumentException("Given arraysize should be is greater than zero"); 
+        }
+        
+        // A sanity checker for NodeList: for 'ph' elements only condition
+        for ( int i=0; i < nl.getLength(); i++ ) {
+            Element e = (Element) nl.item(i);
+            if ( !"ph".equals(e.getNodeName()) ) {
+                throw new IllegalArgumentException("Input NodeList should contain 'ph' elements only");
+            }
+            if ( !e.hasAttribute("d") || !e.hasAttribute("end") ) {
+                throw new IllegalArgumentException("All 'ph' elements should contain 'd' and 'end' attributes");
+            }
+        }
         
         Element firstElement =  (Element) nl.item(0);
         Element lastElement =  (Element) nl.item(nl.getLength()-1);
         
-        double[] contour = new double[F0CONTOUR_LENGTH]; // Assume contour has F0CONTOUR_LENGTH frames
+        double[] contour = new double[arraysize];
         Arrays.fill(contour, 0.0);
         
         double fEnd = (new Double(firstElement.getAttribute("end"))).doubleValue();
@@ -384,7 +451,7 @@ public class ProsodyElementHandler {
                 continue;
             }
             
-            double phoneEndTime       = (new Double(e.getAttribute("end"))).doubleValue();
+            double phoneEndTime  = (new Double(e.getAttribute("end"))).doubleValue();
             double phoneDuration = 0.001 * (new Double(e.getAttribute("d"))).doubleValue();
             //double localStartTime = endTime - phoneDuration;
             
@@ -395,15 +462,15 @@ public class ProsodyElementHandler {
                 Integer percent = it.next();
                 Integer f0Value = f0Map.get(percent);
                 double partPhone = phoneDuration * (percent.doubleValue()/100.0);
-                int placeIndex  = (int) Math.floor((( ((phoneEndTime - phoneDuration) - fStart ) +  partPhone ) * F0CONTOUR_LENGTH ) / (double) duration );
-                if ( placeIndex >= F0CONTOUR_LENGTH ) {
-                    placeIndex = F0CONTOUR_LENGTH - 1;
+                int placeIndex  = (int) Math.floor((( ((phoneEndTime - phoneDuration) - fStart ) +  partPhone ) * arraysize ) / (double) duration );
+                if ( placeIndex >= arraysize ) {
+                    placeIndex = arraysize - 1;
                 }
                 contour[placeIndex] = f0Value.doubleValue();
             }
         }
         
-        return interpolateNonZeroValues(contour);
+        return MathUtils.interpolateNonZeroValues(contour);
     }
     
     
@@ -462,15 +529,19 @@ public class ProsodyElementHandler {
 
 
     /**
-     * to get contour specifications into MAP
-     * @param attribute
-     * @return
+     * To get prosody contour specifications by parsing 'contour' attribute values
+     * @param attribute - 'contour' attribute, it should not be null
+     *        Expected format: '(0%, +10%)(50%,+30%)(95%,-10%)'  
+     * @return HashMap that contains prosody contour specifications
+     *         it returns empty map if given attribute is not in expected format
      */
     private Map<String, String> getContourSpecifications(String attribute) {
         
+        assert attribute != null;
+        assert !"".equals(attribute) : "given attribute should not be empty string";
+                
         Map<String, String> f0Map = new HashMap<String, String>();
-        //Pattern p = Pattern.compile("(\\d+%,[+|-]\\d*[\\.]\\d*[%Hs][zt])|(\\d+%,[+|-]\\d+[%|Hz|st])");
-        Pattern p = Pattern.compile("\\([0-9]+(.[0-9]+)?[%],(x-low|low|medium|high|x-high|default|[+|-]?[0-9]+(.[0-9]+)?(%|Hz|st)?)\\)");
+        Pattern p = Pattern.compile("\\(\\s*[0-9]+(.[0-9]+)?[%]\\s*,\\s*(x-low|low|medium|high|x-high|default|[+|-]?[0-9]+(.[0-9]+)?(%|Hz|st)?)\\s*\\)");
         
         // Split input with the pattern
         Matcher m = p.matcher(attribute);
@@ -478,81 +549,37 @@ public class ProsodyElementHandler {
             //System.out.println(m.group());
             String singlePair = m.group().trim();
             String[] f0Values = singlePair.substring(1,singlePair.length()-1).split(",");
-            f0Map.put(f0Values[0], f0Values[1]);
+            f0Map.put(f0Values[0].trim(), f0Values[1].trim());
         }
         return f0Map;
     }
 
-    /**
-     * To interpolate Zero values with respect to NonZero values
-     * @param contour
-     * @return
-     */
-    private double[] interpolateNonZeroValues( double[] contour ) {
-        
-        for ( int i=0; i < contour.length ; i++ ) {
-            if ( contour[i] == 0 ) {
-                int index = findNextIndexNonZero( contour, i );
-                //System.out.println("i: "+i+"index: "+index);
-                if( index == -1 ) {
-                    for ( int j=i; j < contour.length; j++ ) {
-                        contour[j] = contour[j-1];
-                    }
-                    break;
-                }
-                else {
-                    for ( int j=i; j < index; j++ ) {
-                        //contour[j] = contour[i-1] * (index - j) + contour[index] * (j - (i-1)) / ( index - i );
-                        if ( i == 0 ) {
-                            contour[j] = contour[index];
-                        }
-                        else {
-                            contour[j] = contour[j-1] + ((contour[index] - contour[i-1]) / (index - i)) ;
-                        }
-                    }
-                    i = index-1; 
-                }
-            }
-        }
-        
-        return contour;
-    }
-    
-    /**
-     * To find next NonZero index
-     * @param contour
-     * @param current
-     * @return
-     */
-    private int findNextIndexNonZero(double[] contour, int current) {
-        for ( int i=current+1; i < contour.length ; i++ ) {
-            if ( contour[i] != 0 ) {
-                return i;
-            }
-        }
-       return -1;
-    }
 
     /**
-     * Get f0 specifications in HashMap
-     * @param attribute
-     * @return
+     * To parse 'f0' attribute and to get f0 specifications
+     * @param attribute - 'f0' attribute of 'ph' element
+     *        Expected format: "(5,248)(47,258)(100,433)"
+     * @return a HashMap which contains f0 specifications
+     *         it returns empty map if given attribute is not in expected format
      */
     private Map<Integer, Integer> getPhoneF0Data(String attribute) {
-      
-      Map<Integer, Integer> f0Map = new HashMap<Integer, Integer>();
-      Pattern p = Pattern.compile("(\\d+,\\d+)");
-      
-      // Split input with the pattern
-      Matcher m = p.matcher(attribute);
-      while ( m.find() ) {
-          String[] f0Values = (m.group().trim()).split(",");
-          f0Map.put(new Integer(f0Values[0]), new Integer(f0Values[1]));
-      }
 
-      //attribute.split(regex)
-      return f0Map;
-      
+        assert attribute != null;
+        assert !"".equals(attribute) : "given attribute should not be empty string";
+
+        Map<Integer, Integer> f0Map = new HashMap<Integer, Integer>();
+        Pattern p = Pattern.compile("(\\d+,\\d+)");
+
+        // Split input with the pattern
+        Matcher m = p.matcher(attribute);
+        while ( m.find() ) {
+            String[] f0Values = (m.group().trim()).split(",");
+            f0Map.put(new Integer(f0Values[0]), new Integer(f0Values[1]));
+        }
+
+        //attribute.split(regex)
+        return f0Map;
+
     }
     
     

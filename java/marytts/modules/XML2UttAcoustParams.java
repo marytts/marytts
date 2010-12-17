@@ -22,6 +22,7 @@ package marytts.modules;
 import java.util.List;
 
 import marytts.datatypes.MaryDataType;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.synthesis.FreeTTSVoices;
 import marytts.modules.synthesis.Voice;
 
@@ -42,8 +43,7 @@ import com.sun.speech.freetts.Utterance;
 
 public class XML2UttAcoustParams extends XML2UttBase
 {
-    public XML2UttAcoustParams()
-    {
+    public XML2UttAcoustParams() {
         super("XML2Utt AcoustParams",
               MaryDataType.ACOUSTPARAMS,
               MaryDataType.FREETTS_ACOUSTPARAMS,

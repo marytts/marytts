@@ -38,9 +38,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import marytts.datatypes.MaryXML;
+import marytts.exceptions.MaryConfigurationException;
+import marytts.exceptions.NoSuchPropertyException;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
+import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Document;
@@ -55,9 +58,12 @@ public class AllophoneSet
 
     /** Return the allophone set specified by the given filename.
      * It will only be loaded if it was not loaded before.
+     * @param filename
+     * @return the allophone set, if one can be created. This method will never return null.
+     * @throws MaryConfigurationException if no allophone set can be loaded from the given file.
      */
     public static AllophoneSet getAllophoneSet(String filename)
-    throws SAXException, IOException, ParserConfigurationException
+    throws MaryConfigurationException
     {
         AllophoneSet as = allophoneSets.get(filename);
         if (as == null) {
@@ -65,6 +71,7 @@ public class AllophoneSet
             as = new AllophoneSet(filename);
             allophoneSets.put(filename, as);
         }
+        assert as != null;
         return as;
     }
 
@@ -74,10 +81,10 @@ public class AllophoneSet
      * then if that fails, go by locale.
      * @param e
      * @return an allophone set if there is any way of determining it, or null.
+     * @throws MaryConfigurationException if a suitable allophone set exists in principle, but there were problems loading it.
      */
-    public static AllophoneSet determineAllophoneSet(Element e)
-    throws SAXException, IOException, ParserConfigurationException
-    {
+    public static AllophoneSet determineAllophoneSet(Element e) 
+    throws MaryConfigurationException {
         AllophoneSet allophoneSet = null;
         Element voice = (Element) MaryDomUtils.getAncestor(e, MaryXML.VOICE);
         Voice maryVoice = Voice.getVoice(voice);
@@ -90,12 +97,26 @@ public class AllophoneSet
             allophoneSet = maryVoice.getAllophoneSet();
         } else {
             Locale locale = MaryUtils.string2locale(e.getOwnerDocument().getDocumentElement().getAttribute("xml:lang"));
-            String propertyPrefix = MaryProperties.localePrefix(locale);
-            if (propertyPrefix != null) {
-                String propertyName = propertyPrefix + ".allophoneset";
-                String filename = MaryProperties.needFilename(propertyName);
-                allophoneSet = AllophoneSet.getAllophoneSet(filename);
-            }
+            allophoneSet = determineAllophoneSet(locale);
+        }
+        return allophoneSet;
+    }
+
+    /**
+     * Try to determine the Allophone set to use for the given locale.
+     * @param allophoneSet
+     * @param locale
+     * @return the allophone set defined for the given locale, or null if no such allophone set can be determined.
+     * @throws MaryConfigurationException if an allophone set exists for the given locale in principle, but there were problems loading it.
+     */
+    public static AllophoneSet determineAllophoneSet(Locale locale)
+    throws MaryConfigurationException {
+        AllophoneSet allophoneSet = null;
+        String propertyPrefix = MaryProperties.localePrefix(locale);
+        if (propertyPrefix != null) {
+            String propertyName = propertyPrefix + ".allophoneset";
+            String filename = MaryProperties.needFilename(propertyName);
+            allophoneSet = AllophoneSet.getAllophoneSet(filename);
         }
         return allophoneSet;
     }
@@ -115,14 +136,16 @@ public class AllophoneSet
     private int maxAllophoneSymbolLength = 1;
 
     private AllophoneSet(String filename)
-    throws SAXException, IOException, ParserConfigurationException
+    throws MaryConfigurationException
     {
         allophones = new TreeMap<String, Allophone>();
         // parse the xml file:
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setValidating(false);
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document document = builder.parse(new File(filename));
+        Document document;
+        try {
+            document = DomUtils.parseDocument(new File(filename));
+        } catch (Exception e) {
+            throw new MaryConfigurationException("Cannot parse allophone file '"+filename+"'", e);
+        }
         Element root = document.getDocumentElement();
         name = root.getAttribute("name");
         String xmlLang = root.getAttribute("xml:lang");
@@ -133,11 +156,11 @@ public class AllophoneSet
         while ((a = (Element) ni.nextNode()) != null) {
             Allophone ap = new Allophone(a, featureNames);
             if (allophones.containsKey(ap.name()))
-                throw new IllegalArgumentException("File "+filename+" contains duplicate definition of allophone '"+ap.name()+"'!");
+                throw new MaryConfigurationException("File "+filename+" contains duplicate definition of allophone '"+ap.name()+"'!");
             allophones.put(ap.name(), ap);
             if (ap.isPause()) {
                 if (silence != null)
-                    throw new IllegalArgumentException("File "+filename+" contains more than one silence symbol: '"+silence.name()+"' and '"+ap.name()+"'!");
+                    throw new MaryConfigurationException("File "+filename+" contains more than one silence symbol: '"+silence.name()+"' and '"+ap.name()+"'!");
                 silence = ap;
             }
             int len = ap.name().length();
@@ -146,7 +169,7 @@ public class AllophoneSet
             }
         }
         if (silence == null)
-            throw new IllegalArgumentException("File "+filename+" does not contain a silence symbol");
+            throw new MaryConfigurationException("File "+filename+" does not contain a silence symbol");
         // Fill the list of possible values for all features
         // such that "0" comes first and all other values are sorted alphabetically
         featureValueMap = new TreeMap<String, String[]>();
@@ -180,16 +203,19 @@ public class AllophoneSet
 
 
     /**
-     * Get the allophone with the given name, or null if there is no such allophone.
+     * Get the Allophone with the given name
+     * 
      * @param ph
-     * @return
+     *            name of Allophone to get
+     * @return the Allophone, or null if there is no such Allophone.
      */
-    public Allophone getAllophone(String ph)
-    {
-        if (ph == null) return null;
+    public Allophone getAllophone(String ph) {
+        if (ph == null) {
+            return null;
+        }
         return allophones.get(ph);
     }
-    
+
     /**
      * Obtain the silence allophone in this AllophoneSet
      * @return

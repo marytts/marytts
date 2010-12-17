@@ -45,8 +45,7 @@ import com.sun.speech.freetts.util.BulkTimer;
  * actually call the UtteranceProcessors. It only serves as a collection of
  * data, such as the lexicon, and some reference values.
  */
-public class DummyFreeTTSVoice extends
-        marytts.modules.DummyFreeTTSVoice
+public class DummyFreeTTSVoice extends marytts.modules.DummyFreeTTSVoice
 {
     /**
      * Creates a simple voice containing a reference to a
@@ -57,6 +56,7 @@ public class DummyFreeTTSVoice extends
      */
     public DummyFreeTTSVoice()
     {
+        super(Locale.US);
     }
 
     /**

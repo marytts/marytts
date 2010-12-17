@@ -220,8 +220,9 @@ public abstract class Utt2XMLBase extends InternalModule {
                 }
                 insertToken(tokenItem, insertHere);
                 if (tokenFeatures.isPresent(XML2UttBase.PROSODY_END)) {
-                    assert insertHere.getTagName().equals(MaryXML.PROSODY);
-                    insertHere = (Element) insertHere.getParentNode();
+                    if (insertHere.getTagName().equals(MaryXML.PROSODY)) {
+                        insertHere = (Element) insertHere.getParentNode();
+                    } // else, we are looking at an empty prosody tag with no arguments, which is being deleted right now.
                 }
                 tokenItem = tokenItem.getNext();
             }
@@ -251,9 +252,13 @@ public abstract class Utt2XMLBase extends InternalModule {
         if (tokenItem.getUtterance().getVoice() != null) {
             maryVoice = FreeTTSVoices.getMaryVoice(tokenItem.getUtterance().getVoice());
         }
+        AllophoneSet allophoneSet = (AllophoneSet) tokenItem.getUtterance().getObject("allophoneset");
+        if (allophoneSet == null) {
+            throw new NullPointerException("Utterance does not have an AllophoneSet -- should have been set in XML2UttBase.process()");
+        }
         Element insertHere = parent;
         boolean needMtu = false;
-        boolean insertPhones = tokenItem.getFeatures().isPresent("phones");
+        boolean insertPhonesFromToken = tokenItem.getFeatures().isPresent("phones");
         Item testWordItem = null;
         if (tokenItem.getFeatures().isPresent("precedingMarks")) {
             String marks = tokenItem.getFeatures().getString("precedingMarks");
@@ -297,10 +302,10 @@ public abstract class Utt2XMLBase extends InternalModule {
             Element t = MaryXML.createElement(doc, MaryXML.TOKEN);
             insertHere.appendChild(t);
             MaryDomUtils.setTokenText(t, tokenItem.toString());
-            if (insertPhones) {
+            if (insertPhonesFromToken) {
                 String[] phones = (String[]) tokenItem.getFeatures().getObject("phones");
-                t.setAttribute("ph", phoneArray2phoneString(maryVoice.getAllophoneSet(), phones));
-                insertPhones = false;
+                t.setAttribute("ph", phoneArray2phoneString(allophoneSet, phones));
+                insertPhonesFromToken = false;
             }
             if (tokenFeatureSet.isPresent("accent")) {
                 t.setAttribute("accent", tokenFeatureSet.getString("accent"));
@@ -323,10 +328,14 @@ public abstract class Utt2XMLBase extends InternalModule {
                 else
                     tokenText = tokenItem.toString();
                 MaryDomUtils.setTokenText(t, tokenText);
-                if (insertPhones) {
+                if (insertPhonesFromToken) {
                     String[] phones = (String[]) tokenItem.getFeatures().getObject("phones");
-                    t.setAttribute("ph", phoneArray2phoneString(maryVoice.getAllophoneSet(), phones));
-                    insertPhones = false;
+                    t.setAttribute("ph", phoneArray2phoneString(allophoneSet, phones));
+                    insertPhonesFromToken = false;
+                } else if (wordItem.getFeatures().isPresent("phones")) {
+                    // the word item has phones, take them only if there are no Token phones
+                    String[] phones = (String[]) wordItem.getFeatures().getObject("phones");
+                    t.setAttribute("ph", phoneArray2phoneString(allophoneSet, phones));
                 }
                 if (tokenFeatureSet.isPresent("accent")) {
                     t.setAttribute("accent", tokenFeatureSet.getString("accent"));

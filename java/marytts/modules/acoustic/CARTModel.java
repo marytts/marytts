@@ -21,17 +21,12 @@
 package marytts.modules.acoustic;
 
 import java.io.File;
-import java.util.List;
-
-import org.w3c.dom.Element;
+import java.io.IOException;
 
 import marytts.cart.DirectedGraph;
 import marytts.cart.io.DirectedGraphReader;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
-import marytts.features.FeatureRegistry;
-import marytts.features.TargetFeatureComputer;
 import marytts.unitselection.select.Target;
 
 /**
@@ -43,36 +38,29 @@ import marytts.unitselection.select.Target;
 public class CARTModel extends Model {
     private DirectedGraph cart;
 
-    public CARTModel(String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
-            String featureName, String predictFrom, String applyTo) {
-        super(type, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
-    }
-
-    @Override
-    public void setFeatureComputer(TargetFeatureComputer featureComputer, FeatureProcessorManager featureProcessorManager)
+    public CARTModel(FeatureProcessorManager featureManager, String dataFileName, String targetAttributeName,
+            String targetAttributeFormat, String featureName, String predictFrom, String applyTo)
             throws MaryConfigurationException {
-        // ensure that this CART's FeatureDefinition is a subset of the one passed in:
-        FeatureDefinition cartFeatureDefinition = cart.getFeatureDefinition();
-        FeatureDefinition voiceFeatureDefinition = featureComputer.getFeatureDefinition();
-        if (!voiceFeatureDefinition.contains(cartFeatureDefinition)) {
-            throw new MaryConfigurationException("CART file " + dataFile + " contains extra features which are not supported!");
-        }
-        // overwrite featureComputer with one constructed from the cart's FeatureDefinition:
-        String cartFeatureNames = cartFeatureDefinition.getFeatureNames();
-        featureComputer = FeatureRegistry.getTargetFeatureComputer(featureProcessorManager, cartFeatureNames);
-        this.featureComputer = featureComputer;
+        super(featureManager, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+        load();
     }
 
+    /**
+     * Load CART from file for this Model
+     */
     @Override
-    public void loadDataFile() {
+    protected void loadDataFile() throws IOException, MaryConfigurationException {
         this.cart = null;
+        File cartFile = new File(dataFile);
+        String cartFilePath = cartFile.getAbsolutePath();
+        cart = new DirectedGraphReader().load(cartFilePath);
         try {
-            File cartFile = new File(dataFile);
-            String cartFilePath = cartFile.getAbsolutePath();
-            cart = new DirectedGraphReader().load(cartFilePath);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            predictionFeatureNames = cart.getFeatureDefinition().getFeatureNames();
+        } catch (NullPointerException e) {
+            throw new IOException("Could not get FeatureDefinition from CART", e);
+        }
+        if (predictionFeatureNames.length() == 0) { // isEmpty
+            throw new IOException("Could not get prediction feature names");
         }
     }
 
@@ -80,9 +68,22 @@ public class CARTModel extends Model {
      * Apply the CART to a Target to get its predicted value
      */
     @Override
-    protected float evaluate(Target target) {
-        float[] result = (float[]) cart.interpret(target);
-        float value = result[1]; // assuming result is [stdev, val]
+    protected float evaluate(Target target) throws Exception {
+        assert target != null;
+
+        float[] result = null;
+        try {
+            result = (float[]) cart.interpret(target);
+        } catch (IllegalArgumentException e) {
+            throw new Exception("Could not interpret target '" + target + "'", e);
+        }
+
+        float value = 0;
+        try {
+            value = result[1]; // assuming result is [stdev, val]
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new Exception("Could not handle predicted value: '" + value + "'", e);
+        }
         return value;
     }
 }

@@ -25,6 +25,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureVector;
@@ -82,7 +83,7 @@ public class HalfPhoneFFRTargetCostFunction extends FFRTargetCostFunction
      */
     public void load(String featureFileName, String weightsFile,
             FeatureProcessorManager featProc)
-    throws IOException
+    throws IOException, MaryConfigurationException
     {
         HalfPhoneFeatureFileReader ffr = new HalfPhoneFeatureFileReader(featureFileName);
         load(ffr, weightsFile, featProc);

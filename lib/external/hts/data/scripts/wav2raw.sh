@@ -10,7 +10,7 @@ if [ $# -ne 3 ] ; then
 else
   for file in $2/*.wav; do
     file_name=`basename $file .wav`
-    echo $sox_cmd " " $2/$file_name.wav" --> "$3/$file_name.raw
+    echo $sox_cmd $2/$file_name.wav" --> "$3/$file_name.raw
     $sox_cmd $2/$file_name.wav $3/$file_name.raw
   done
 fi
