@@ -740,6 +740,10 @@ THIS SOFTWARE.
             <author name="Jochen Steigner" email=""/>
             <author name="Stefanie Becker" email=""/>
             <author name="...and many others!" email=""/>
+    		<author name="" email=""/>
+    		<author name="Special thanks to:" email=""/>
+    		<author name="Nickolay Shmyrev for providing Russian support!" email=""/>
+       		<author name="" email=""/>
         </authors>
         <url>http://mary.dfki.de</url>
         <javaversion>1.5</javaversion>
