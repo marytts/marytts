@@ -32,6 +32,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import marytts.exceptions.MaryConfigurationException;
+import marytts.tests.junit4.util.TestableTimelineReader;
 import marytts.tools.voiceimport.TimelineWriter;
 import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;
@@ -40,8 +41,8 @@ import marytts.util.Pair;
 /**
  * Provides the actual timeline test case for the timeline reading/writing symmetry.
  */
-public class TimelineTests extends TimelineReader {
-    private static TimelineTests tlr;
+public class TimelineTests {
+    private static TestableTimelineReader tlr;
     private static String hdrContents;
     private static int NUMDATAGRAMS;
     private static int MAXDATAGRAMBYTESIZE;
@@ -50,9 +51,6 @@ public class TimelineTests extends TimelineReader {
     private static Datagram[] origDatagrams;
     private static final String tlFileName = "timelineTest.bin";
     
-    public TimelineTests() throws Exception {
-        super(tlFileName);
-    }
     
     @BeforeClass
     public static void setUp() throws Exception {
@@ -74,8 +72,13 @@ public class TimelineTests extends TimelineReader {
         long lenCumul = 74;
         long durCumul = 0l;
         for ( int i = 0; i < NUMDATAGRAMS; i++ ) {
-            /* Make a random length */
-            len = rand.nextInt(MAXDATAGRAMBYTESIZE) + 1;
+            /* Make the first datagram very long, for special tests */
+            if (i==0) {
+                len = 1234567;
+            } else {
+                /* Make a random length */
+                len = rand.nextInt(MAXDATAGRAMBYTESIZE) + 1;
+            }
             lenCumul += (len + 12);
             /* Allocate the corresponding byte array */
             byte[] buff = new byte[len];
@@ -84,7 +87,7 @@ public class TimelineTests extends TimelineReader {
                 buff[l] = (byte) i;
             }
             /* Make a random datagram duration */
-            dur = (long)( rand.nextInt(MAXDATAGRAMDURATION) + 1 );
+            dur = (long)( rand.nextInt(MAXDATAGRAMDURATION) + 2 );
             durCumul += dur;
             /* Store the datagram */
             origDatagrams[i] = new Datagram( dur, buff );
@@ -107,7 +110,7 @@ public class TimelineTests extends TimelineReader {
         /* Testing the readonly file opening */
         System.out.println( "Testing the TimelineReader construction..." );
         /* Re-read the datagrams */
-        tlr = new TimelineTests();
+        tlr = new TestableTimelineReader(tlFileName, true);
     }
     
     
@@ -130,7 +133,6 @@ public class TimelineTests extends TimelineReader {
         tlr.getIndex().print();
         /* Testing skip */
         System.out.println( "Testing skip..." );
-        Datagram[] readDatagrams = new Datagram[NUMDATAGRAMS];
         long timeNow = 0;
         long timeBefore = 0;
         Pair<ByteBuffer, Long> p = tlr.getByteBufferAtTime(timeNow);
@@ -318,7 +320,9 @@ public class TimelineTests extends TimelineReader {
         // exercise
         D = tlr.getDatagrams( onTime+1, span, sampleRate, offset );
         // verify
-        assertEquals( 3, D.length );
+        assertEquals("textIdx="+testIdx+", span="+span+", dur["+testIdx+"]="+origDatagrams[testIdx].getDuration()
+                +", dur["+(testIdx+1)+"]="+origDatagrams[testIdx+1].getDuration()+", offset="+offset[0],
+                3, D.length );
         assertEquals( origDatagrams[testIdx], D[0] );
         assertEquals( origDatagrams[testIdx+1], D[1] );
         assertEquals( origDatagrams[testIdx+2], D[2] );
@@ -351,12 +355,9 @@ public class TimelineTests extends TimelineReader {
         // setup
         final int testIdx = NUMDATAGRAMS / 2;
         long onTime = getTimeOfIndex(testIdx);
-        long afterTime = onTime + origDatagrams[testIdx].getDuration();
-        long midTime = onTime + ((afterTime - onTime) / 2);
         Datagram[] D = null;
         long dur = origDatagrams[testIdx].getDuration();
         long span = dur;
-        long[] offset = new long[1];
         // exercise
         D = tlr.getDatagrams( onTime*2, span*2, sampleRate/2 );
         // verify
@@ -432,6 +433,26 @@ public class TimelineTests extends TimelineReader {
             // OK, expected
         }
     }
+    
+    
+    @Test
+    public void canReadLongDatagram() throws MaryConfigurationException, IOException {
+        // setup custom fixture for this method
+        TimelineReader timeline = new TimelineReader(tlFileName, false); // do not try memory mapping
+        // exercise
+        Datagram d = timeline.getDatagram(0);
+        // verify
+        Assert.assertEquals(origDatagrams[0].getLength(), d.getLength());
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     @AfterClass
     public static void tearDown() throws IOException {

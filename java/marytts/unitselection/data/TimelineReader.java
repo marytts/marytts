@@ -89,7 +89,7 @@ public class TimelineReader
     /****************/
     /* CONSTRUCTORS */
     /****************/
-        
+    
     /**
      * Construct a timeline from the given file name.
      * 
@@ -102,11 +102,28 @@ public class TimelineReader
      */
     public TimelineReader( String fileName ) throws MaryConfigurationException
     {
+        this(fileName, true);
+    }
+        
+    /**
+     * Construct a timeline from the given file name.
+     * 
+     * Aiming for the fundamental guarantee: If an instance of this class is created, it is usable.
+     * 
+     * @param fileName The file to read the timeline from. 
+     * Must be non-null and point to a valid timeline file.
+     * @param tryMemoryMapping if true, will attempt to read audio data via a memory map, and fall back to piecewise reading.
+     * If false, will immediately go for piecewise reading using a RandomAccessFile.
+     * @throws NullPointerException if null argument is given
+     * @throws MaryConfigurationException if no timeline reader can be instantiated from fileName
+     */
+    public TimelineReader( String fileName, boolean tryMemoryMapping ) throws MaryConfigurationException
+    {
         if (fileName == null) {
             throw new NullPointerException("Filename is null");
         }
         try {
-            load(fileName);
+            load(fileName, tryMemoryMapping);
         } catch (Exception e) {
             throw new MaryConfigurationException("Cannot load timeline file from "+fileName, e);
         }
@@ -119,7 +136,6 @@ public class TimelineReader
     protected TimelineReader() {}
 
 
-    
     /**
      * Load a timeline from a file.
      * 
@@ -131,6 +147,20 @@ public class TimelineReader
      * @throws MaryConfigurationException if fileName does not point to a valid timeline file
      */
     protected void load(String fileName) throws IOException, BufferUnderflowException, MaryConfigurationException, NullPointerException {
+        load(fileName, true);
+    }
+    
+    /**
+     * Load a timeline from a file.
+     * 
+     * @param fileName The file to read the timeline from.
+     * Must be non-null and point to a valid timeline file.
+     * 
+     * @throws IOException if a problem occurs during reading
+     * @throws BufferUnderflowException if a problem occurs during reading
+     * @throws MaryConfigurationException if fileName does not point to a valid timeline file
+     */
+    protected void load(String fileName, boolean tryMemoryMapping) throws IOException, BufferUnderflowException, MaryConfigurationException, NullPointerException {
         assert fileName != null : "filename is null";
         
         RandomAccessFile file = new RandomAccessFile( fileName, "r" );
@@ -171,14 +201,16 @@ public class TimelineReader
         idx = new Index(indexBB);
 
         
-        // Try if we can use a mapped byte buffer:
-        try {
-            mappedBB = fc.map(FileChannel.MapMode.READ_ONLY, datagramsBytePos, timeIdxBytePos-datagramsBytePos);
-            file.close(); // if map() succeeded, we don't need the file anymore.
-        } catch (IOException ome) {
-            MaryUtils.getLogger("Timeline").warn("Cannot use memory mapping for timeline file '"+fileName+"' -- falling back to piecewise reading");
+        if (tryMemoryMapping) {
+            // Try if we can use a mapped byte buffer:
+            try {
+                mappedBB = fc.map(FileChannel.MapMode.READ_ONLY, datagramsBytePos, timeIdxBytePos-datagramsBytePos);
+                file.close(); // if map() succeeded, we don't need the file anymore.
+            } catch (IOException ome) {
+                MaryUtils.getLogger("Timeline").warn("Cannot use memory mapping for timeline file '"+fileName+"' -- falling back to piecewise reading");
+            }
         }
-        if (mappedBB == null) {
+        if (!tryMemoryMapping || mappedBB == null) { // use piecewise reading
             fileChannel = fc;
             assert fileChannel != null;
             // and leave file open
@@ -345,26 +377,16 @@ public class TimelineReader
      * @param bb the timeline byte buffer to read from
      * 
      * @return the current datagram, or null if EOF was encountered
-     * @throws IOException, BufferUnderflowException if data could be read at the current position of bb,
+     * @throws IOException if data could be read at the current position of bb,
      * but no datagram could be created from that data.
      */
-    protected Datagram getNextDatagram(ByteBuffer bb) throws IOException, BufferUnderflowException {
-        
-        Datagram d = null;
-
+    protected Datagram getNextDatagram(ByteBuffer bb) throws IOException {
         // If the end of the datagram zone is reached, refuse to read
         if (bb.position() == bb.limit() ) {
             return null;
         }
         // Else, read the datagram from the file
-        try {
-            d = new Datagram(bb);
-        } catch ( Exception e ) {
-            throw (IOException) new IOException( "While reading a datagram, EOF was met before the time index position: "
-                    + "you may be dealing with a corrupted timeline file." ).initCause(e);
-        }
-   
-        return d;
+        return new Datagram(bb);
     }
     
 
@@ -410,7 +432,6 @@ public class TimelineReader
     }
     
 
-
     /**
      * This method produces a new byte buffer whose current position
      * represents the requested positionInFile. It cannot be assumed that
@@ -425,6 +446,24 @@ public class TimelineReader
      * @throws IOException, BufferUnderflowException if no byte buffer can be obtained for the requested time.
      */
     protected Pair<ByteBuffer, Long> getByteBufferAtTime(long targetTimeInSamples) throws IOException, BufferUnderflowException {
+        return getByteBufferAtTime(targetTimeInSamples, 0x10000); // max 64k buffer size per default.
+    }
+
+    /**
+     * This method produces a new byte buffer whose current position
+     * represents the requested positionInFile. It cannot be assumed that
+     * a call to byteBuffer.position() produces any meaningful values. The byte buffer may represent
+     * only a part of the available data. If no further data can be read from it, a new byte buffer must
+     * be obtained by calling this method again with a new target time.
+     * @param targetTimeInSamples the time position in the file which should be accessed as a byte buffer, in samples.
+     * Must be non-negative and less than the total duration of the timeline.
+     * @param bufSize the amount of data to provide in the byte buffer
+     * @return a pair representing the byte buffer from which to read, and the exact time corresponding to the
+     * current position of the byte buffer. No assumptions should be made regarding that position; 
+     * the time is guaranteed to be less than or equal to targetTimeInSamples. 
+     * @throws IOException, BufferUnderflowException if no byte buffer can be obtained for the requested time.
+     */
+    protected Pair<ByteBuffer, Long> getByteBufferAtTime(long targetTimeInSamples, int bufSize) throws IOException, BufferUnderflowException {
         /* Seek for the time index which comes just before the requested time */
         IdxField idxFieldBefore = idx.getIdxFieldBefore( targetTimeInSamples );
         long time = idxFieldBefore.timePtr;
@@ -435,7 +474,6 @@ public class TimelineReader
             bb.position(bytePos);
         } else { // we must load a chunk of data from the FileChannel
             long bytePos = idxFieldBefore.bytePtr;
-            int bufSize = 0x10000; // 64k
             if (bytePos + bufSize > timeIdxBytePos) { // must not read index data as datagrams
                 bufSize = (int) (timeIdxBytePos - bytePos);
             }
@@ -462,9 +500,22 @@ public class TimelineReader
      * @throws IOException, BufferUnderflowException if no datagram could be created from the data at the given time.
      */
     public Datagram getDatagram( long targetTimeInSamples) throws IOException {
-        Pair<ByteBuffer, Long> p = getByteBufferAtTime(targetTimeInSamples);
-        ByteBuffer bb = p.getFirst();
-        return getNextDatagram(bb);
+        try {
+            Pair<ByteBuffer, Long> p = getByteBufferAtTime(targetTimeInSamples);
+            ByteBuffer bb = p.getFirst();
+            return getNextDatagram(bb);
+        } catch (IOException e) {
+            // Maybe the datagram is too long
+            Pair<ByteBuffer, Long> p = getByteBufferAtTime(targetTimeInSamples);
+            ByteBuffer bb = p.getFirst();
+            Datagram dummy = new Datagram(bb, false);
+            if (dummy.getLength() > bb.limit()-bb.position()) { // need a bigger byte buffer
+                ByteBuffer bigBB = getByteBufferAtTime(targetTimeInSamples, dummy.getLength()+Datagram.NUM_HEADER_BYTES).getFirst();
+                return getNextDatagram(bigBB);
+            } else {
+                throw e;
+            }
+        }
     }
     
     /**
