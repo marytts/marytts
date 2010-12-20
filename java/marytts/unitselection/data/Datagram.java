@@ -40,6 +40,7 @@ import java.nio.ByteBuffer;
 
 public class Datagram  {
 
+    public static final int NUM_HEADER_BYTES = (Long.SIZE+Integer.SIZE)/Byte.SIZE; // the duration and the length
     /****************/
     /* DATA FIELDS  */
     /****************/
@@ -113,10 +114,21 @@ public class Datagram  {
      * 
      * @param bb the byte buffer to read the datagram from.
      * 
-     * @throws IOException if the datagram has wrong format
-     * @throws BufferUnderflowException if the datagram cannot be fully read
+     * @throws IOException if the datagram has wrong format or if the datagram cannot be fully read
      */
-    public Datagram(ByteBuffer bb) throws IOException, BufferUnderflowException {
+    public Datagram(ByteBuffer bb) throws IOException {
+        this(bb, true);
+    }
+    
+    /**
+     * Constructor which reads a datagram from a byte buffer.
+     * 
+     * @param bb the byte buffer to read the datagram from.
+     * @param readData whether to try and read the actual data
+     * 
+     * @throws IOException if the datagram has wrong format or if the datagram cannot be fully read
+     */
+    public Datagram(ByteBuffer bb, boolean readData) throws IOException {
         duration = bb.getLong();
         if ( duration < 0 ) {
             throw new IOException( "Can't create a datagram with a negative duration [" + duration + "]." );
@@ -126,6 +138,12 @@ public class Datagram  {
             throw new IOException( "Can't create a datagram with a negative data size [" + len + "]." );
         }
         data = new byte[len];
+        if (!readData) {
+            return;
+        }
+        if (bb.limit()-bb.position() < len) {
+            throw new IOException("Not enough data in byte buffer to read the full datagram: datagram length is "+len+", but can read only "+(bb.limit()-bb.position()));
+        }
         bb.get(data);
     }
     
