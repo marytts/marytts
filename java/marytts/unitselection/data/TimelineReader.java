@@ -361,11 +361,14 @@ public class TimelineReader
      * Skip the upcoming datagram at the current position of the byte buffer.
      * 
      * @return the duration of the datagram we skipped
-     * @throws BufferUnderflowException if we cannot skip another datagram because we have reached the end of the byte buffer
+     * @throws IOException if we cannot skip another datagram because we have reached the end of the byte buffer
      */
-    protected long skipNextDatagram(ByteBuffer bb) throws BufferUnderflowException {
+    protected long skipNextDatagram(ByteBuffer bb) throws IOException {
         long datagramDuration = bb.getLong();
         int datagramSize = bb.getInt();
+        if (bb.position()+datagramSize > bb.limit()) {
+            throw new IOException("cannot skip datagram: it is not fully contained in byte buffer");
+        }
         bb.position(bb.position() + datagramSize);
         return datagramDuration;
     }
@@ -381,6 +384,7 @@ public class TimelineReader
      * but no datagram could be created from that data.
      */
     protected Datagram getNextDatagram(ByteBuffer bb) throws IOException {
+        assert bb != null;
         // If the end of the datagram zone is reached, refuse to read
         if (bb.position() == bb.limit() ) {
             return null;
@@ -388,8 +392,6 @@ public class TimelineReader
         // Else, read the datagram from the file
         return new Datagram(bb);
     }
-    
-
     
     /**
      * Hop the datagrams in the given byte buffer until the one which begins at or contains the desired time
@@ -436,57 +438,103 @@ public class TimelineReader
      * This method produces a new byte buffer whose current position
      * represents the requested positionInFile. It cannot be assumed that
      * a call to byteBuffer.position() produces any meaningful values. The byte buffer may represent
-     * only a part of the available data. If no further data can be read from it, a new byte buffer must
+     * only a part of the available data; however, at least one datagram can be read from the byte buffer.
+     * If no further data can be read from it, a new byte buffer must
      * be obtained by calling this method again with a new target time.
      * @param targetTimeInSamples the time position in the file which should be accessed as a byte buffer, in samples.
      * Must be non-negative and less than the total duration of the timeline.
      * @return a pair representing the byte buffer from which to read, and the exact time corresponding to the
-     * current position of the byte buffer. No assumptions should be made regarding that position; 
-     * the time is guaranteed to be less than or equal to targetTimeInSamples. 
+     * current position of the byte buffer. The position as such is not meaningful; 
+     * the time is guaranteed to be less than or equal to targetTimeInSamples.
      * @throws IOException, BufferUnderflowException if no byte buffer can be obtained for the requested time.
      */
     protected Pair<ByteBuffer, Long> getByteBufferAtTime(long targetTimeInSamples) throws IOException, BufferUnderflowException {
-        return getByteBufferAtTime(targetTimeInSamples, 0x10000); // max 64k buffer size per default.
+        if (mappedBB != null) {
+            return getMappedByteBufferAtTime(targetTimeInSamples);
+        } else { 
+            return loadByteBufferAtTime(targetTimeInSamples);
+        }
     }
 
-    /**
-     * This method produces a new byte buffer whose current position
-     * represents the requested positionInFile. It cannot be assumed that
-     * a call to byteBuffer.position() produces any meaningful values. The byte buffer may represent
-     * only a part of the available data. If no further data can be read from it, a new byte buffer must
-     * be obtained by calling this method again with a new target time.
-     * @param targetTimeInSamples the time position in the file which should be accessed as a byte buffer, in samples.
-     * Must be non-negative and less than the total duration of the timeline.
-     * @param bufSize the amount of data to provide in the byte buffer
-     * @return a pair representing the byte buffer from which to read, and the exact time corresponding to the
-     * current position of the byte buffer. No assumptions should be made regarding that position; 
-     * the time is guaranteed to be less than or equal to targetTimeInSamples. 
-     * @throws IOException, BufferUnderflowException if no byte buffer can be obtained for the requested time.
-     */
-    protected Pair<ByteBuffer, Long> getByteBufferAtTime(long targetTimeInSamples, int bufSize) throws IOException, BufferUnderflowException {
+
+    protected Pair<ByteBuffer, Long> getMappedByteBufferAtTime(long targetTimeInSamples) throws IllegalArgumentException, IOException {
+        assert mappedBB != null;
         /* Seek for the time index which comes just before the requested time */
         IdxField idxFieldBefore = idx.getIdxFieldBefore( targetTimeInSamples );
         long time = idxFieldBefore.timePtr;
-        ByteBuffer bb;
-        if (mappedBB != null) {
-            int bytePos = (int) (idxFieldBefore.bytePtr - datagramsBytePos);
-            bb = mappedBB.duplicate();
-            bb.position(bytePos);
-        } else { // we must load a chunk of data from the FileChannel
-            long bytePos = idxFieldBefore.bytePtr;
-            if (bytePos + bufSize > timeIdxBytePos) { // must not read index data as datagrams
-                bufSize = (int) (timeIdxBytePos - bytePos);
-            }
-            bb = ByteBuffer.allocate(bufSize);
-            fileChannel.read(bb, bytePos); // this will block if another thread is currently reading from fileChannel
-            bb.limit(bb.position());
-            bb.position(0);
-        }
+        int bytePos = (int) (idxFieldBefore.bytePtr - datagramsBytePos);
+        ByteBuffer bb = mappedBB.duplicate();
+        bb.position(bytePos);
         time = hopToTime(bb, time, targetTimeInSamples);
         return new Pair<ByteBuffer, Long>(bb, time);
     }
-
     
+    
+    protected Pair<ByteBuffer, Long> loadByteBufferAtTime(long targetTimeInSamples) throws IOException {
+        assert fileChannel != null;
+        // we must load a chunk of data from the FileChannel
+        int bufSize = 0x10000; // 64 kB
+        /* Seek for the time index which comes just before the requested time */
+        IdxField idxFieldBefore = idx.getIdxFieldBefore( targetTimeInSamples );
+        long time = idxFieldBefore.timePtr;
+        long bytePos = idxFieldBefore.bytePtr;
+        if (bytePos + bufSize > timeIdxBytePos) { // must not read index data as datagrams
+            bufSize = (int) (timeIdxBytePos - bytePos);
+        }
+        ByteBuffer bb = loadByteBuffer(bytePos, bufSize);
+
+        while (true) {
+            if (!canReadDatagramHeader(bb)) {
+                bb = loadByteBuffer(bytePos, bufSize);
+                assert canReadDatagramHeader(bb);
+            }
+            int posBefore = bb.position();
+            Datagram d = new Datagram(bb, false);
+            if (time + d.getDuration() > targetTimeInSamples) { // d is our datagram
+                bb.position(posBefore);
+                int datagramNumBytes = Datagram.NUM_HEADER_BYTES+d.getLength();
+                // need to make sure we return a byte buffer from which d can be read
+                if (!canReadAmount(bb, datagramNumBytes)) {
+                    bb = loadByteBuffer(bytePos, Math.max(datagramNumBytes, bufSize));
+                }
+                assert canReadAmount(bb, datagramNumBytes);
+                break;
+            } else {
+                // keep on skipping
+                time += d.getDuration();
+                if (canReadAmount(bb, d.getLength())) {
+                    bb.position(bb.position()+d.getLength());
+                } else {
+                    bytePos += bb.position();
+                    bytePos += d.getLength();
+                    bb = loadByteBuffer(bytePos, bufSize);
+                }
+            }
+        }
+        return new Pair<ByteBuffer, Long>(bb, time);
+    }
+
+    /**
+     * @param bytePos position in fileChannel from which to load the byte buffer
+     * @param bufSize size of the byte buffer
+     * @return the byte buffer, loaded and set such that limit is bufSize and position is 0
+     * @throws IOException if the data cannot be read from fileChannel
+     */
+    private ByteBuffer loadByteBuffer(long bytePos, int bufSize) throws IOException {
+        ByteBuffer bb = ByteBuffer.allocate(bufSize);
+        fileChannel.read(bb, bytePos); // this will block if another thread is currently reading from fileChannel
+        bb.limit(bb.position());
+        bb.position(0);
+        return bb;
+    }
+    
+    private boolean canReadDatagramHeader(ByteBuffer bb) {
+        return canReadAmount(bb, Datagram.NUM_HEADER_BYTES);
+    }
+    
+    private boolean canReadAmount(ByteBuffer bb, int amount) {
+        return bb.limit() - bb.position() >= amount;
+    }
     
     
     /**
@@ -500,22 +548,9 @@ public class TimelineReader
      * @throws IOException, BufferUnderflowException if no datagram could be created from the data at the given time.
      */
     public Datagram getDatagram( long targetTimeInSamples) throws IOException {
-        try {
-            Pair<ByteBuffer, Long> p = getByteBufferAtTime(targetTimeInSamples);
-            ByteBuffer bb = p.getFirst();
-            return getNextDatagram(bb);
-        } catch (IOException e) {
-            // Maybe the datagram is too long
-            Pair<ByteBuffer, Long> p = getByteBufferAtTime(targetTimeInSamples);
-            ByteBuffer bb = p.getFirst();
-            Datagram dummy = new Datagram(bb, false);
-            if (dummy.getLength() > bb.limit()-bb.position()) { // need a bigger byte buffer
-                ByteBuffer bigBB = getByteBufferAtTime(targetTimeInSamples, dummy.getLength()+Datagram.NUM_HEADER_BYTES).getFirst();
-                return getNextDatagram(bigBB);
-            } else {
-                throw e;
-            }
-        }
+        Pair<ByteBuffer, Long> p = getByteBufferAtTime(targetTimeInSamples);
+        ByteBuffer bb = p.getFirst();
+        return getNextDatagram(bb);
     }
     
     /**

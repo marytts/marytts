@@ -52,7 +52,7 @@ public class TestableTimelineReader extends TimelineReader {
     }
 
     @Override
-    public long skipNextDatagram(ByteBuffer bb) throws BufferUnderflowException {
+    public long skipNextDatagram(ByteBuffer bb) throws IOException {
         return super.skipNextDatagram(bb);
     }
 
