@@ -499,7 +499,7 @@ THIS SOFTWARE.
       	<marytts-install xmlns="http://mary.dfki.de/installer">
 	      	<language locale="${lang}" name="${lang}" version="${specification.version}">
 	      	  <description>
-	      	  ${lang} language component
+	      	  ${lang-fullname} language component
 	      	  </description>
 	      	  <license href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"/>
 	      	  <package size="${package.filesize}" md5sum="${package.md5}" filename="mary-${lang}-${specification.version.nospace}.zip">
@@ -566,27 +566,31 @@ THIS SOFTWARE.
 	      </echoxml>
 	</target>
 
-	      		<target name="de-package">
+    <target name="de-package">
       <antcall target="default-language-package">
         <param name="lang" value="de"/>
+        <param name="lang-fullname" value="German"/>
       </antcall>
     </target>
 
     <target name="te-package">
       <antcall target="default-language-package">
         <param name="lang" value="te"/>
+        <param name="lang-fullname" value="Telugu"/>
       </antcall>
     </target>
 
     <target name="tr-package">
       <antcall target="default-language-package">
         <param name="lang" value="tr"/>
+        <param name="lang-fullname" value="Turkish"/>
       </antcall>
     </target>
 
     <target name="ru-package">
       <antcall target="default-language-package">
         <param name="lang" value="ru"/>
+        <param name="lang-fullname" value="Russian"/>
       </antcall>
     </target>
 
