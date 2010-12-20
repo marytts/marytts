@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.tests.junit4;
+package marytts.tests.junit4.util;
 
 import java.io.File;
 import java.io.IOException;
