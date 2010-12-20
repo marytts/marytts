@@ -1,7 +1,7 @@
 @echo off
 set BINDIR=%~dp0
 call :RESOLVE "%BINDIR%\.." MARY_BASE
-java -ea -Dserver.host=localhost -jar "%MARY_BASE%"\java\emospeak.jar
+java -showversion -ea -Dserver.host=localhost -jar "%MARY_BASE%"\java\emospeak.jar
 goto :EOF
 
 :RESOLVE
