@@ -75,8 +75,8 @@ THIS SOFTWARE.
 
   <target name="compile" depends="version">
     <!-- Compile the java code from ${src} -->
-    <javac srcdir="${src}" classpathref="project.classpath" includeantruntime="false" source="1.5"
-           target="1.5" encoding="UTF-8" debug="on" fork="true" memoryInitialSize="64m" memoryMaximumSize="256m"/>
+    <javac srcdir="${src}" classpathref="project.classpath" includeantruntime="false" source="1.6"
+           target="1.6" encoding="UTF-8" debug="on" fork="true" memoryInitialSize="64m" memoryMaximumSize="256m"/>
   </target>
 
 
@@ -123,7 +123,7 @@ THIS SOFTWARE.
              author="true"
              version="true"
              use="true"
-             source="1.5"
+             source="1.6"
              access="protected"
              encoding="UTF-8"
              overview="${src}/marytts/overview.html"
@@ -746,7 +746,7 @@ THIS SOFTWARE.
        		<author name="" email=""/>
         </authors>
         <url>http://mary.dfki.de</url>
-        <javaversion>1.5</javaversion>
+        <javaversion>1.6</javaversion>
     	<run-privileged condition="izpack.windowsinstall"/>
         <webdir>http://mary.dfki.de/download</webdir>
     </info>
