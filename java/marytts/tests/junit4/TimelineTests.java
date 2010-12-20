@@ -73,7 +73,7 @@ public class TimelineTests {
         long durCumul = 0l;
         for ( int i = 0; i < NUMDATAGRAMS; i++ ) {
             /* Make the first datagram very long, for special tests */
-            if (i==0) {
+            if (i==0 || i==2) {
                 len = 1234567;
             } else {
                 /* Make a random length */
@@ -448,7 +448,7 @@ public class TimelineTests {
     
     
     @Test
-    public void canReadLongDatagrams() throws MaryConfigurationException, IOException {
+    public void canReadLongDatagrams1() throws MaryConfigurationException, IOException {
         // setup custom fixture for this method
         TimelineReader timeline = new TimelineReader(tlFileName, false); // do not try memory mapping
         // exercise
@@ -458,6 +458,16 @@ public class TimelineTests {
         Assert.assertEquals(origDatagrams[0].getLength(), ds[0].getLength());
     }
     
+    @Test
+    public void canReadLongDatagrams2() throws MaryConfigurationException, IOException {
+        // setup custom fixture for this method
+        TimelineReader timeline = new TimelineReader(tlFileName, false); // do not try memory mapping
+        // exercise
+        Datagram[] ds = timeline.getDatagrams(origDatagrams[0].getDuration(), origDatagrams[1].getDuration()+1);
+        // verify
+        Assert.assertEquals(2, ds.length);
+        Assert.assertEquals(origDatagrams[1].getLength(), ds[0].getLength());
+    }
     
     
     

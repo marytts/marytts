@@ -57,7 +57,7 @@ public class TestableTimelineReader extends TimelineReader {
     }
 
     @Override
-    public Datagram getNextDatagram(ByteBuffer bb) throws IOException, BufferUnderflowException {
+    public Datagram getNextDatagram(ByteBuffer bb) {
         return super.getNextDatagram(bb);
     }
 

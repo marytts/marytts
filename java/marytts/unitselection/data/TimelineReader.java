@@ -380,17 +380,19 @@ public class TimelineReader
      * @param bb the timeline byte buffer to read from
      * 
      * @return the current datagram, or null if EOF was encountered
-     * @throws IOException if data could be read at the current position of bb,
-     * but no datagram could be created from that data.
      */
-    protected Datagram getNextDatagram(ByteBuffer bb) throws IOException {
+    protected Datagram getNextDatagram(ByteBuffer bb)  {
         assert bb != null;
         // If the end of the datagram zone is reached, refuse to read
         if (bb.position() == bb.limit() ) {
             return null;
         }
         // Else, read the datagram from the file
-        return new Datagram(bb);
+        try {
+            return new Datagram(bb);
+        } catch (IOException ioe) {
+            return null;
+        }
     }
     
     /**
