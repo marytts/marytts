@@ -447,6 +447,18 @@ public class TimelineTests {
     
     
     
+    @Test
+    public void canReadLongDatagrams() throws MaryConfigurationException, IOException {
+        // setup custom fixture for this method
+        TimelineReader timeline = new TimelineReader(tlFileName, false); // do not try memory mapping
+        // exercise
+        Datagram[] ds = timeline.getDatagrams(0, origDatagrams[0].getDuration()+1);
+        // verify
+        Assert.assertEquals(2, ds.length);
+        Assert.assertEquals(origDatagrams[0].getLength(), ds[0].getLength());
+    }
+    
+    
     
     
     
