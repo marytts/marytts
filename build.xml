@@ -249,6 +249,20 @@ THIS SOFTWARE.
 	    </jar>
 	  </target>
 
+	  <!-- Russian language modules -->
+	  <target name="mary-ru.jar" depends="compile,version">
+	    <jar destfile="${dest}/mary-ru.jar"
+	         basedir="${src}"
+	         includes="marytts/language/ru/**/*.class
+	                   marytts/language/ru/datatypes/*.example">
+	      <manifest>
+	        <attribute name="Built-By" value="${user.name}"/>
+	        <attribute name="Specification-Version" value="${specification.version}"/>
+	        <attribute name="Implementation-Version" value="${implementation.version}"/>
+	      </manifest>
+	    </jar>
+	  </target>
+
 	  <!-- Telugu language modules -->
 	  <target name="mary-te.jar" depends="compile,version">
 	    <jar destfile="${dest}/mary-te.jar"
@@ -280,7 +294,7 @@ THIS SOFTWARE.
     </jar>
   </target-->
 
-  <target name="languagejars" depends="mary-en.jar,mary-de.jar,mary-tr.jar,mary-te.jar"/>
+  <target name="languagejars" depends="mary-en.jar,mary-de.jar,mary-tr.jar,mary-te.jar,mary-ru.jar"/>
 
 
 
@@ -570,6 +584,12 @@ THIS SOFTWARE.
       </antcall>
     </target>
 
+    <target name="ru-package">
+      <antcall target="default-language-package">
+        <param name="lang" value="ru"/>
+      </antcall>
+    </target>
+
 	<!-- Installable voice zip files for the component installer -->
     <target name="default-voice-package" depends="jars">
   	  <zip destfile="dist/mary-${voice}-${specification.version.nospace}.zip">
@@ -614,6 +634,7 @@ THIS SOFTWARE.
 		de-package,
 		te-package,
 		tr-package,
+		ru-package,
 		cmu-slt-hsmm-package" />
 	
 	 
