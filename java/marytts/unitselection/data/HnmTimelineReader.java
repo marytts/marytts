@@ -123,7 +123,7 @@ public class HnmTimelineReader extends TimelineReader {
      * {@inheritDoc}
      */
     @Override
-    protected Datagram getNextDatagram(ByteBuffer bb) throws IOException {
+    protected Datagram getNextDatagram(ByteBuffer bb) {
 
         Datagram d = null;
 
@@ -138,9 +138,8 @@ public class HnmTimelineReader extends TimelineReader {
             d = new HnmDatagram(bb, analysisParams.noiseModel);
         }
         /* Detect a possible EOF encounter */
-        catch (Exception e) {
-            throw (IOException) new IOException("While reading a datagram, EOF was met before the time index position: "
-                    + "you may be dealing with a corrupted timeline file.").initCause(e);
+        catch (IOException e) {
+           return null;
         }
 
         return d;

@@ -79,7 +79,7 @@ public class LPCTimelineReader extends TimelineReader
      * @throws IOException
      */
     @Override
-    protected Datagram getNextDatagram(ByteBuffer bb) throws IOException {
+    protected Datagram getNextDatagram(ByteBuffer bb) {
         
         Datagram d = null;
         
@@ -90,9 +90,8 @@ public class LPCTimelineReader extends TimelineReader
             d = new LPCDatagram(bb, lpcOrder );
         }
         /* Detect a possible EOF encounter */
-        catch ( EOFException e ) {
-            throw new IOException( "While reading a datagram, EOF was met before the time index position: "
-                    + "you may be dealing with a corrupted timeline file." );
+        catch ( IOException e ) {
+           return null;
         }
         
         return( d );
