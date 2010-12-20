@@ -465,6 +465,8 @@ public class ProsodyElementHandler {
                 int placeIndex  = (int) Math.floor((( ((phoneEndTime - phoneDuration) - fStart ) +  partPhone ) * arraysize ) / (double) duration );
                 if ( placeIndex >= arraysize ) {
                     placeIndex = arraysize - 1;
+                } else if ( placeIndex < 0) {
+                    placeIndex = 0;
                 }
                 contour[placeIndex] = f0Value.doubleValue();
             }
