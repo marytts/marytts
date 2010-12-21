@@ -75,8 +75,8 @@ THIS SOFTWARE.
 
   <target name="compile" depends="version">
     <!-- Compile the java code from ${src} -->
-    <javac srcdir="${src}" classpathref="project.classpath" includeantruntime="false" source="1.5"
-           target="1.5" encoding="UTF-8" debug="on" fork="true" memoryInitialSize="64m" memoryMaximumSize="256m"/>
+    <javac srcdir="${src}" classpathref="project.classpath" includeantruntime="false" source="1.6"
+           target="1.6" encoding="UTF-8" debug="on" fork="true" memoryInitialSize="64m" memoryMaximumSize="256m"/>
   </target>
 
 
@@ -123,7 +123,7 @@ THIS SOFTWARE.
              author="true"
              version="true"
              use="true"
-             source="1.5"
+             source="1.6"
              access="protected"
              encoding="UTF-8"
              overview="${src}/marytts/overview.html"
@@ -499,7 +499,7 @@ THIS SOFTWARE.
       	<marytts-install xmlns="http://mary.dfki.de/installer">
 	      	<language locale="${lang}" name="${lang}" version="${specification.version}">
 	      	  <description>
-	      	  ${lang} language component
+	      	  ${lang-fullname} language component
 	      	  </description>
 	      	  <license href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"/>
 	      	  <package size="${package.filesize}" md5sum="${package.md5}" filename="mary-${lang}-${specification.version.nospace}.zip">
@@ -566,27 +566,31 @@ THIS SOFTWARE.
 	      </echoxml>
 	</target>
 
-	      		<target name="de-package">
+    <target name="de-package">
       <antcall target="default-language-package">
         <param name="lang" value="de"/>
+        <param name="lang-fullname" value="German"/>
       </antcall>
     </target>
 
     <target name="te-package">
       <antcall target="default-language-package">
         <param name="lang" value="te"/>
+        <param name="lang-fullname" value="Telugu"/>
       </antcall>
     </target>
 
     <target name="tr-package">
       <antcall target="default-language-package">
         <param name="lang" value="tr"/>
+        <param name="lang-fullname" value="Turkish"/>
       </antcall>
     </target>
 
     <target name="ru-package">
       <antcall target="default-language-package">
         <param name="lang" value="ru"/>
+        <param name="lang-fullname" value="Russian"/>
       </antcall>
     </target>
 
@@ -740,9 +744,13 @@ THIS SOFTWARE.
             <author name="Jochen Steigner" email=""/>
             <author name="Stefanie Becker" email=""/>
             <author name="...and many others!" email=""/>
+    		<author name="" email=""/>
+    		<author name="Special thanks to:" email=""/>
+    		<author name="Nickolay Shmyrev for providing Russian support!" email=""/>
+       		<author name="" email=""/>
         </authors>
         <url>http://mary.dfki.de</url>
-        <javaversion>1.5</javaversion>
+        <javaversion>1.6</javaversion>
     	<run-privileged condition="izpack.windowsinstall"/>
         <webdir>http://mary.dfki.de/download</webdir>
     </info>

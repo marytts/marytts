@@ -78,6 +78,7 @@ function fillVoices()
 							voiceElt.value = items[0];
 							localeElt.value = items[1];
 							updateInputText(true);
+							setModificationVisibility(null, "AUDIO"); // AUDIO is default on load
 		            	}
 	            	}
 	            }
@@ -388,14 +389,17 @@ function updateInputText(replaceInput)
     }
 }
 
-
-
+function getOutputType() {
+	var select = document.getElementById("OUTPUT_TYPE");
+    var outputType = select.options[select.selectedIndex].text;
+	return outputType;
+}
 
 function outputTypeChanged()
 {
-	var select = document.getElementById("OUTPUT_TYPE");
-    var outputType = select.options[select.selectedIndex].text;
+	var outputType = getOutputType();
 	setVisibilities(outputType);
+    setModificationVisibility(null, outputType);
 }
 
 function setVisibilities(outputType)
@@ -408,7 +412,7 @@ function setVisibilities(outputType)
     	document.getElementById("PROCESS").style.display = 'none';
     	document.getElementById("SPEAK").style.display = 'inline';
     	document.getElementById("audioDestination").style.display = 'inline';
-    	document.getElementById("showHideParams").style.display = 'none';
+    	document.getElementById("showHideTargetFeatures").style.display = 'none';
     } else {
     	document.getElementById("outputSection").style.display = 'inline';
     	document.getElementById("audioEffectsSection").style.display = 'none';
@@ -418,21 +422,12 @@ function setVisibilities(outputType)
     	document.getElementById("SPEAK").style.display = 'none';
     	document.getElementById("audioDestination").style.display = 'none';
     	if (outputType == "TARGETFEATURES" || outputType == "HALFPHONE_TARGETFEATURES") {
-    		document.getElementById("showHideParams").style.display = 'inline';
+    		document.getElementById("showHideTargetFeatures").style.display = 'inline';
     	} else {
-    		document.getElementById("showHideParams").style.display = 'none';
+    		document.getElementById("showHideTargetFeatures").style.display = 'none';
     	}
     }
 };
-
-function toggleParams()
-{
-	if (document.getElementById("SPECIFY_OUTPUT_TYPE_PARAMS").checked) {
-		document.getElementById("OUTPUT_TYPE_PARAMS").name = "OUTPUT_TYPE_PARAMS";
-	} else {
-		document.getElementById("OUTPUT_TYPE_PARAMS").name = "OUTPUT_TYPE_PARAMS_disabled";
-	}
-}
 
 function toggleEffectsVisibility()
 {
@@ -446,12 +441,55 @@ function toggleEffectsVisibility()
 	}
 }
 
+/**
+ * Set visibility of the modification checkbox so that it is shown if the selected voice is of type 
+ * "unitselection" and the selected output type is one that requires AUDIO, and hidden otherwise.
+ * 
+ * @param {} voiceType "unitselection", "hmm", etc. will be filled if null
+ * @param {} outputType "AUDIO", etc. will be filled if null
+ * @return 
+ * @type 
+ */
+function setModificationVisibility(voiceType, outputType) {
+	// check for unitselection voice:
+	if (voiceType == null) {
+		voiceType = getVoiceItems()[3];
+	}
+	if (voiceType != "unitselection") {
+		document.getElementById("showHideModification").style.display = 'none';
+		return;
+	}
+	
+	// otherwise check for output type requiring AUDIO:
+	if (outputType == null) {
+		outputType = getOutputType();
+	}
+	// TODO: as long as there is no InfoRequestHandler that returns the output types which require AUDIO, just do:
+	var outputTypesWithAudio = new Array("AUDIO", "REALISED_ACOUSTPARAMS", "REALISED_DURATIONS", "PRAAT_TEXTGRID");
+	var isOutputTypeWithAudio = false;
+	for (var i = 0; i < outputTypesWithAudio.length; i++) {
+		if (outputTypesWithAudio[i] == outputType) {
+			isOutputTypeWithAudio = true;
+			break;
+		}
+	}
+	if (isOutputTypeWithAudio) {
+		document.getElementById("showHideModification").style.display = 'inline';
+	} else {
+		document.getElementById("showHideModification").style.display = 'none';
+	}
+}
+
+function getVoiceItems() {
+	var select = document.getElementById('VOICE_SELECTIONS');
+	var voice = select.options[select.selectedIndex].text;
+	var items = voice.split(' ');
+	return items;
+}
 
 function voiceChanged()
 {
-	var select = document.getElementById('VOICE_SELECTIONS');
-	var voice = select.options[select.selectedIndex].text;
-	var items = voice.split(' ', 2);
+	var items = getVoiceItems();
 	document.getElementById('VOICE').value = items[0];
 	var newLocale = items[1];
 	var prevLocale = document.getElementById('LOCALE').value;
@@ -461,6 +499,8 @@ function voiceChanged()
 	} else {
 		updateInputText(false); // do not replace input
 	}
+	var voiceType = items[3];
+	setModificationVisibility(voiceType, null);
 };
 
 function exampleChanged()
@@ -505,17 +545,39 @@ function requestSynthesis()
 				value = "";
 			}
 		}
-		else if (element.getAttribute("type") == "checkbox")
-		    value = element.checked ? "on" : "";
-		else
+		else if (element.getAttribute("type") == "checkbox") {
+			// some special checkboxes that have nothing to do with effects:
+			if (element.id == "modification") {
+				// if modification is visible and selected, set OUTPUT_TYPE_PARAMS:
+				if (document.getElementById("showHideModification").style.display != 'none' && element.checked) {
+					key = "OUTPUT_TYPE_PARAMS";
+					value = "MODIFICATION";
+				}
+			} else if (element.id == "specifyTargetFeatures") {
+				// if target features is visible and selected and not empty, set OUTPUT_TYPE_PARAMS:
+				if (document.getElementById("showHideTargetFeatures").style.display != 'none' && element.checked) {
+					var targetFeatures = document.getElementById("targetFeatureList").value;
+					if (targetFeatures.length > 0) {
+						key = "OUTPUT_TYPE_PARAMS";
+						value = targetFeatures;
+					}
+				}
+			} else {
+		    	value = element.checked ? "on" : "";
+		    }
+		} else {
 		    value = element.value;
+		}
+		
+		if (key.length == 0) {
+			continue; // don't add keyless params!
+		}
 		
     	if (param.length > 0) param = param + "&";
         param = param + key + "=" + encodeURIComponent(value);
     }
 	
-	var select = document.getElementById("OUTPUT_TYPE");
-	var outputType = select.options[select.selectedIndex].text;
+	var outputType = getOutputType();
 	if (outputType == "AUDIO") {
         //doSubmit();
         url = url + "?" + param;

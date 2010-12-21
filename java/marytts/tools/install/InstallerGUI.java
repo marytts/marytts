@@ -198,6 +198,10 @@ public class InstallerGUI extends javax.swing.JFrame implements VoiceUpdateListe
         });
 
         pDownload.setBorder(javax.swing.BorderFactory.createTitledBorder("Download languages and voices from:"));
+        // hack so that SVN checkout from "trunk" will look for "latest" directory on server:
+        if (version.equals("trunk")) {
+            version = "latest";
+        }
         tfComponentListURL.setText("http://mary.dfki.de/download/"+version+"/mary-components.xml");
         tfComponentListURL.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

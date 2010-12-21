@@ -1,5 +1,5 @@
 #!/bin/sh
 BINDIR="`dirname "$0"`"
 export MARY_BASE="`(cd "$BINDIR"/.. ; pwd)`"
-java -ea $* -jar "$MARY_BASE"/java/redstart.jar
+java -showversion -ea $* -jar "$MARY_BASE"/java/redstart.jar
 

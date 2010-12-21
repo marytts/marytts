@@ -4077,8 +4077,32 @@ public class MathUtils {
                 x[i] = 0.5*(maxVal+minVal);
         }
     }
-    //
 
+    /**
+     * Adjust values in x so that all values smaller than minVal are set to minVal, and all values greater than maxVal are set to maxVal
+     * 
+     * @param x array of doubles to adjust; if x is null, nothing happens
+     * @param minVal minimum of all values in x after adjustment
+     * @param maxVal maximum of all values in x after adjustment
+     * @return true if one or more values in x were modified, false if x is unchanged
+     */
+    public static boolean clipRange(double[] x, double minVal, double maxVal) {
+        boolean modified = false;
+        if (x == null) {
+            return modified;
+        }
+        for (int i = 0; i < x.length; i++) {
+            if (x[i] < minVal) {
+                x[i] = minVal;
+                modified = true;
+            } else if (x[i] > maxVal) {
+                x[i] = maxVal;
+                modified = true;
+            }
+        }
+        return modified;
+    }
+    
     public static double median(double[] x)
     {
         if (x!=null && x.length>0)

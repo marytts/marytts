@@ -537,7 +537,8 @@ public class Request {
                 currentData.setAudioFileFormat(audioFileFormat);
                 currentData.setAudio(new AppendableSequenceAudioInputStream(audioFileFormat.getFormat(), null));
             }
-            if (m.outputType() == oneOutputType) {
+            // TODO: The following hack makes sure that the Synthesis module gets outputParams. Make this more general and robust. 
+            if (m.outputType() == oneOutputType || m.outputType() == MaryDataType.AUDIO) {
                 currentData.setOutputParams(outputParams);
             }
             if (logger.getEffectiveLevel().equals(Level.DEBUG)

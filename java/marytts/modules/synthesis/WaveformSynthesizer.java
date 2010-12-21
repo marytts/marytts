@@ -49,11 +49,13 @@ public interface WaveformSynthesizer
      * @param tokensAndBoundaries the part of the MaryXML document to
      * synthesize; a list containing a number of adjacent <t> and <boundary>
      * elements.
+     * @param voice the Voice to use for synthesis
+     * @param outputParams any specified output parameters; may be null
      * @return an AudioInputStream in synthesizer-native audio format.
      * @throws IllegalArgumentException if the voice requested for this section
      * is incompatible with this WaveformSynthesizer.
      */
-    public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice)
+    public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice, String outputParams)
         throws SynthesisException;
 }
 
