@@ -93,10 +93,10 @@
           <td>
             <select id="exampleTexts" name="exampleTexts" size="1" onChange="exampleChanged();" style="display:none;">
             </select>
-        	<div id="showHideParams">
-		  		<input type="checkbox" id="SPECIFY_OUTPUT_TYPE_PARAMS" onChange="toggleParams()">
-		  		Specify Output Type Params:
-		  		<input type="text" value="phone stressed accented" id="OUTPUT_TYPE_PARAMS" name="OUTPUT_TYPE_PARAMS_disabled">
+        	<div id="showHideTargetFeatures">
+		  		<input type="checkbox" id="specifyTargetFeatures">
+		  		Specify target features:
+		  		<input type="text" value="phone stressed accented" id="targetFeatureList">
 			</div>
           </td>
         </tr>
@@ -121,6 +121,10 @@
             <td>
               <select name="AUDIO_OUT" id="AUDIO_OUT" size="1" onChange="audioOutChanged();">
               </select>
+              <div id="showHideModification" style="display:none;">
+            	<input type="checkbox" id="modification">
+            	Apply prosody modification
+              </div>
             </td>
         </tr>
         <tr>

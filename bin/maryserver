@@ -57,4 +57,4 @@ else
   export LD_LIBRARY_PATH="$MARY_BASE/lib/native:$LD_LIBRARY_PATH"
 fi
 
-java -ea -Xms40m -Xmx1g -cp "$CLASSPATH" -Dmary.base="$MARY_BASE" $* marytts.server.Mary
+java -showversion -ea -Xms40m -Xmx1g -cp "$CLASSPATH" -Dmary.base="$MARY_BASE" $* marytts.server.Mary

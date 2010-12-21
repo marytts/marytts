@@ -1,7 +1,7 @@
 @echo off
 set BINDIR=%~dp0
 call :RESOLVE "%BINDIR%\.." MARY_BASE
-java -ea -Dmary.base="%MARY_BASE%" -jar "%MARY_BASE%"\java\mary-component-installer.jar
+java -showversion -ea -Dmary.base="%MARY_BASE%" -jar "%MARY_BASE%"\java\mary-component-installer.jar
 goto :EOF
 
 :RESOLVE

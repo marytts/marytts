@@ -444,11 +444,12 @@ public class Voice
     /**
      * Synthesize a list of tokens and boundaries with the waveform synthesizer
      * providing this voice.
+     * @param outputParams 
      */
-    public AudioInputStream synthesize(List<Element> tokensAndBoundaries)
+    public AudioInputStream synthesize(List<Element> tokensAndBoundaries, String outputParams)
         throws SynthesisException
     {
-        return synthesizer.synthesize(tokensAndBoundaries, this);
+        return synthesizer.synthesize(tokensAndBoundaries, this, outputParams);
     }
     
     /**

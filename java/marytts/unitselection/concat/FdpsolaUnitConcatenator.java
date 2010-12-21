@@ -38,6 +38,7 @@ import marytts.unitselection.data.Datagram;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.unitselection.select.Target;
 import marytts.util.data.audio.DDSAudioInputStream;
+import marytts.util.math.MathUtils;
 
 /**
  * A unit concatenator that supports FD-PSOLA based prosody modifications during speech synthesis
@@ -47,6 +48,12 @@ import marytts.util.data.audio.DDSAudioInputStream;
  */
 public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     
+    // modification value ranges with hard-coded defaults:
+    private double minTimeScaleFactor = 0.5;
+    private double maxTimeScaleFactor = 2.0;
+    private double minPitchScaleFactor = 0.5;
+    private double maxPitchScaleFactor = 2.0;
+
     /**
      * 
      */
@@ -55,6 +62,23 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         super();
     }
     
+    /**
+     * Alternative constructor that allows overriding the modification value ranges
+     *  
+     * @param minTimeScaleFactor minimum duration scale factor
+     * @param maxTimeScaleFactor maximum duration scale factor
+     * @param minPitchScaleFactor minimum F0 scale factor
+     * @param maxPitchScaleFactor maximum F0 scale factor
+     */
+    public FdpsolaUnitConcatenator(double minTimeScaleFactor, double maxTimeScaleFactor, double minPitchScaleFactor,
+            double maxPitchScaleFactor) {
+        super();
+        this.minTimeScaleFactor = minTimeScaleFactor;
+        this.maxTimeScaleFactor = maxTimeScaleFactor;
+        this.minPitchScaleFactor = minPitchScaleFactor;
+        this.maxPitchScaleFactor = maxPitchScaleFactor;
+    }
+
     /**
      * Get the Datagrams from a List of SelectedUnits as an array of arrays; the number of elements in the array is equal to the number
      * of Units, and each element contains that Unit's Datagrams as an array.
@@ -443,6 +467,18 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
             if (phone.getLeftTargetDuration() > 0) {
                 int leftNumberOfFrames = phone.getNumberOfLeftUnitFrames();
                 double leftDurationFactor = phone.getLeftDurationFactor();
+                // scale the factor to reasonably safe values:
+                if (leftDurationFactor < minTimeScaleFactor) {
+                    String message = "Left duration factor (" + leftDurationFactor + ") for phone " + phone + " too small;";
+                    leftDurationFactor = minTimeScaleFactor;
+                    message += " clipped to " + leftDurationFactor;
+                    logger.debug(message);
+                } else if (leftDurationFactor > maxTimeScaleFactor) {
+                    String message = "Left duration factor (" + leftDurationFactor + ") for phone " + phone + " too large;";
+                    leftDurationFactor = maxTimeScaleFactor;
+                    message += " clipped to " + leftDurationFactor;
+                    logger.debug(message);
+                }
                 double[] leftDurationFactors = new double[leftNumberOfFrames];
                 Arrays.fill(leftDurationFactors, leftDurationFactor);
                 durationFactorList.add(leftDurationFactors);
@@ -453,6 +489,18 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
                 if (phone.isTransient()) {
                     rightDurationFactor = 1; // never modify the duration of a burst
                 }
+                // scale the factor to reasonably safe values:
+                if (rightDurationFactor < minTimeScaleFactor) {
+                    String message = "Right duration factor (" + rightDurationFactor + ") for phone " + phone + " too small;";
+                    rightDurationFactor = minTimeScaleFactor;
+                    message += " clipped to " + rightDurationFactor;
+                    logger.debug(message);
+                } else if (rightDurationFactor > maxTimeScaleFactor) {
+                    String message = "Right duration factor (" + rightDurationFactor + ") for phone " + phone + " too large;";
+                    rightDurationFactor = maxTimeScaleFactor;
+                    message += " clipped to " + rightDurationFactor;
+                    logger.debug(message);
+                }
                 double[] rightDurationFactors = new double[rightNumberOfFrames];
                 Arrays.fill(rightDurationFactors, rightDurationFactor);
                 durationFactorList.add(rightDurationFactors);
@@ -461,18 +509,28 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         double[][] durationFactorArray = durationFactorList.toArray(new double[durationFactorList.size()][]);
         return durationFactorArray;
     }
-    
+
     private double[][] getRealizedPitchScales(List<Phone> phones) {
         List<double[]> f0FactorList = new ArrayList<double[]>(phones.size());
         for (Phone phone : phones) {
             if (phone.getLeftTargetDuration() > 0) {
                 int leftNumberOfFrames = phone.getNumberOfLeftUnitFrames();
                 double[] leftF0Factors = phone.getLeftF0Factors();
+                boolean clipped = MathUtils.clipRange(leftF0Factors, minPitchScaleFactor, maxPitchScaleFactor);
+                if (clipped) {
+                    logger.debug("Left F0 factors for phone " + phone + " contained out-of-range values; clipped to [" + minPitchScaleFactor + ", "
+                            + maxPitchScaleFactor + "]");
+                }
                 f0FactorList.add(leftF0Factors);
             }
             if (phone.getRightTargetDuration() > 0) {
                 int rightNumberOfFrames = phone.getNumberOfRightUnitFrames();
                 double[] rightF0Factors = phone.getRightF0Factors();
+                boolean clipped = MathUtils.clipRange(rightF0Factors, minPitchScaleFactor, maxPitchScaleFactor);
+                if (clipped) {
+                    logger.debug("Left F0 factors for phone " + phone + " contained out-of-range values; clipped to [" + minPitchScaleFactor + ", "
+                            + maxPitchScaleFactor + "]");
+                }
                 f0FactorList.add(rightF0Factors);
             }
         }

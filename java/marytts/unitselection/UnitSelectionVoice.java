@@ -51,6 +51,7 @@ import marytts.features.FeatureRegistry;
 import marytts.modules.synthesis.Voice;
 import marytts.modules.synthesis.WaveformSynthesizer;
 import marytts.server.MaryProperties;
+import marytts.unitselection.concat.FdpsolaUnitConcatenator;
 import marytts.unitselection.concat.UnitConcatenator;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.UnitDatabase;
@@ -70,6 +71,7 @@ public class UnitSelectionVoice extends Voice {
     protected UnitDatabase database;
     protected UnitSelector unitSelector;
     protected UnitConcatenator concatenator;
+    protected UnitConcatenator modificationConcatenator;
     protected String domain;
     protected String name;
     protected CART[] f0Carts;
@@ -241,7 +243,37 @@ public class UnitSelectionVoice extends Voice {
     {
         return concatenator;
     }
-    
+
+    /**
+     * Get the modification UnitConcatenator of this voice
+     * 
+     * @return the modifying UnitConcatenator
+     */
+    public UnitConcatenator getModificationConcatenator() {
+        if (modificationConcatenator == null) {
+            // get sensible minimum and maximum values:
+            try {
+                // initialize with values from properties:
+                double minTimeScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name + ".prosody.modification.duration.factor.minimum"));
+                double maxTimeScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name + ".prosody.modification.duration.factor.maximum"));
+                double minPitchScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name + ".prosody.modification.f0.factor.minimum"));
+                double maxPitchScaleFactor = Double.parseDouble(MaryProperties.getProperty("voice." + name + ".prosody.modification.f0.factor.maximum"));
+                logger.debug("Initializing FD-PSOLA unit concatenator with the following parameter thresholds:");
+                logger.debug("minimum duration modification factor: " + minTimeScaleFactor);
+                logger.debug("maximum duration modification factor: " + maxTimeScaleFactor);
+                logger.debug("minimum F0 modification factor: " + minPitchScaleFactor);
+                logger.debug("maximum F0 modification factor: " + maxPitchScaleFactor);
+                modificationConcatenator = new FdpsolaUnitConcatenator(minTimeScaleFactor, maxTimeScaleFactor, minPitchScaleFactor, maxPitchScaleFactor);
+            } catch (Exception e) {
+                // ignore -- defaults will be used
+                logger.debug("Initializing FD-PSOLA unit concatenator with default parameter thresholds.");
+                modificationConcatenator = new FdpsolaUnitConcatenator();
+            }
+            modificationConcatenator.load(database);
+        }
+        return modificationConcatenator;
+    }
+
     /**
      * Gets the domain of this voice
      * @return the domain
