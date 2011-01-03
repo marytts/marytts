@@ -7,14 +7,66 @@
   <version>5.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>marytts</name>
+  <name>MARY TTS</name>
   <url>http://mary.dfki.de</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
+<!-- The following snipped automatically activates maven-site-plugin 3.x when run with Maven 3.x -->
+<profiles>
+    <profile>
+      <id>maven-3</id>
+      <activation>
+        <file>
+          <!--  This employs that the basedir expression is only recognized by Maven 3.x (see MNG-2363) -->
+          <exists>${basedir}</exists>
+        </file>
+      </activation>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-site-plugin</artifactId>
+              <version>3.0-beta-3</version>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+        <plugins>
+          <plugin>
+            <artifactId>maven-site-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-descriptor</id>
+                <goals>
+                  <goal>attach-descriptor</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
 <build>
+    <!-- To define the plugin version in your parent POM -->
+    <pluginManagement>
+      <plugins>
+        <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-site-plugin</artifactId>
+           <version>2.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>findbugs-maven-plugin</artifactId>
+          <version>2.3.1</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   <plugins>
     <plugin>
       <groupId>org.apache.maven.plugins</groupId>
@@ -40,6 +92,12 @@
             <exclude>**/modules/MaryModuleTestCase.java</exclude>            
           </excludes>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>2.3.1</version>
       </plugin>
 
   </plugins>
@@ -281,4 +339,61 @@
     
     
   </dependencies>
+  
+  <reporting>
+    <plugins>
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-project-info-reports-plugin</artifactId>
+		<version>2.2</version>
+	  </plugin>
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-javadoc-plugin</artifactId>
+		<version>2.7</version>
+	  </plugin>
+      <plugin>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <version>2.5</version>
+        <configuration>
+                <linkXref>true</linkXref>
+                <sourceEncoding>UTF-8</sourceEncoding>
+                <minimumTokens>30</minimumTokens>
+                <targetJdk>1.6</targetJdk>
+				<reportSets>
+				  <reportSet>
+					<reports>
+					  <!--report>pmd</report-->
+					  <report>cpd</report>
+					</reports>
+				  </reportSet>
+				</reportSets>
+        </configuration>
+      </plugin>
+      <!--plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.6</version>
+      </plugin-->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>2.3.1</version>
+        <configuration>
+          <findbugsXmlOutput>true</findbugsXmlOutput>
+          <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+          <xmlOutput>true</xmlOutput>
+          <!--excludeFilterFile>findbugs-excludes.xml</excludeFilterFile-->
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>emma-maven-plugin</artifactId>
+        <version>1.0-alpha-3</version>
+      </plugin>
+
+    </plugins>
+  </reporting>
+
+  
 </project>
