@@ -340,18 +340,22 @@
     
   </dependencies>
   
+  <!-- Reports generated when executing 'mvn site' -->
   <reporting>
     <plugins>
+      <!-- Generate a number of generic site description pages: -->
 	  <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-project-info-reports-plugin</artifactId>
 		<version>2.2</version>
 	  </plugin>
+	  <!-- Generate javadoc: -->
 	  <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-javadoc-plugin</artifactId>
 		<version>2.7</version>
 	  </plugin>
+	  <!-- Look for duplicate code (CPD): -->
       <plugin>
         <artifactId>maven-pmd-plugin</artifactId>
         <version>2.5</version>
@@ -370,11 +374,13 @@
 				</reportSets>
         </configuration>
       </plugin>
+      <!-- Check style guidelines -->
       <!--plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <version>2.6</version>
       </plugin-->
+      <!-- Look for typical programming mistakes: -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
@@ -386,11 +392,19 @@
           <!--excludeFilterFile>findbugs-excludes.xml</excludeFilterFile-->
         </configuration>
       </plugin>
+      <!-- Measure the test code coverage: -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>emma-maven-plugin</artifactId>
         <version>1.0-alpha-3</version>
       </plugin>
+      <!-- Web page presenting unit test results: -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>2.7.1</version>
+      </plugin>
+
 
     </plugins>
   </reporting>
