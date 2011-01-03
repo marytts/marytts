@@ -1,0 +1,267 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>marytts</groupId>
+  <artifactId>marytts</artifactId>
+  <version>5.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>marytts</name>
+  <url>http://mary.dfki.de</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>2.3.2</version>
+      <configuration>
+        <source>1.6</source>
+        <target>1.6</target>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
+
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.8.2</version>
+      <!--scope>test</scope-->
+      <scope>compile</scope>
+    </dependency>
+    
+    
+    
+    
+    
+    
+    
+    <!-- System dependencies - to be replaced where possible -->
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy1</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/Jama-1.0.2.jar</systemPath>
+    </dependency> 
+    
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy2</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/Jampack.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy3</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/JavaOpenAIR.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy4</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/commons-collections-3.2.1.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy5</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/commons-io-1.4.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy6</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/commons-lang-2.4.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy7</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/fast-md5.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy8</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/freetts-de.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy9</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/freetts-en_us.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy10</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/freetts-mbrola.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy11</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/freetts.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy12</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/hsqldb.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy13</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/httpcore-4.0.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy14</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/httpcore-nio-4.0.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy15</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/jakarta-oro-2.0.8.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy16</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/java-diff.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy17</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/jsresources.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy18</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/jtok.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy19</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/log4j-1.2.15.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy20</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/maxent-2.5.1.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy21</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/mwdumper-2008-04-13.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy22</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/mysql-connector-java-5.1.7-bin.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy23</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/opennlp-tools-1.4.1.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy24</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/sgt_v30.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy25</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/swing-layout-1.0.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy26</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/trove-2.0.4.jar</systemPath>
+    </dependency> 
+
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy27</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/java/weka.jar</systemPath>
+    </dependency> 
+
+    
+    
+  </dependencies>
+</project>
