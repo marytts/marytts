@@ -41,7 +41,7 @@ import marytts.util.Pair;
 /**
  * Provides the actual timeline test case for the timeline reading/writing symmetry.
  */
-public class TimelineTests {
+public class TimelineTest {
     private static TestableTimelineReader tlr;
     private static String hdrContents;
     private static int NUMDATAGRAMS;
