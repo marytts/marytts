@@ -47,7 +47,7 @@ import org.w3c.dom.traversal.DocumentTraversal;
  *
  *
  */
-public class EnvironmentTests {
+public class EnvironmentTest {
 
     @Test
     public void testJavaVersion() {

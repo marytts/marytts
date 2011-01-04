@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="java"/>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="src" path="src/test/resources"/>
 	<classpathentry kind="lib" path="java/freetts.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://freetts.sourceforge.net/javadoc/"/>
@@ -75,5 +78,5 @@
 			<attribute name="javadoc_location" value="http://trove4j.sourceforge.net/javadocs/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="output" path="java"/>
+	<classpathentry kind="output" path="classes"/>
 </classpath>
