@@ -203,16 +203,19 @@ public class AllophoneSet
 
 
     /**
-     * Get the allophone with the given name, or null if there is no such allophone.
+     * Get the Allophone with the given name
+     * 
      * @param ph
-     * @return
+     *            name of Allophone to get
+     * @return the Allophone, or null if there is no such Allophone.
      */
-    public Allophone getAllophone(String ph)
-    {
-        if (ph == null) return null;
+    public Allophone getAllophone(String ph) {
+        if (ph == null) {
+            return null;
+        }
         return allophones.get(ph);
     }
-    
+
     /**
      * Obtain the silence allophone in this AllophoneSet
      * @return

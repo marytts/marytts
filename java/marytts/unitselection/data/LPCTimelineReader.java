@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Properties;
 
+import marytts.exceptions.MaryConfigurationException;
+
 
 public class LPCTimelineReader extends TimelineReader
 {
@@ -32,16 +34,14 @@ public class LPCTimelineReader extends TimelineReader
     protected float lpcMin;
     protected float lpcRange;
 
-    public LPCTimelineReader()
+    public LPCTimelineReader(String fileName) throws IOException, MaryConfigurationException
     {
+        super();
+        load(fileName);
     }
 
-    public LPCTimelineReader(String fileName) throws IOException
-    {
-        super(fileName);
-    }
-
-    public void load(String fileName) throws IOException
+    @Override
+    protected void load(String fileName) throws IOException, MaryConfigurationException
     {
         super.load(fileName);
         // Now make sense of the processing header
@@ -79,7 +79,7 @@ public class LPCTimelineReader extends TimelineReader
      * @throws IOException
      */
     @Override
-    protected Datagram getNextDatagram(ByteBuffer bb) throws IOException {
+    protected Datagram getNextDatagram(ByteBuffer bb) {
         
         Datagram d = null;
         
@@ -90,9 +90,8 @@ public class LPCTimelineReader extends TimelineReader
             d = new LPCDatagram(bb, lpcOrder );
         }
         /* Detect a possible EOF encounter */
-        catch ( EOFException e ) {
-            throw new IOException( "While reading a datagram, EOF was met before the time index position: "
-                    + "you may be dealing with a corrupted timeline file." );
+        catch ( IOException e ) {
+           return null;
         }
         
         return( d );

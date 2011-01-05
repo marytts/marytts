@@ -1,3 +1,23 @@
+/**
+ * Copyright 2010 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 package marytts.modules.acoustic;
 
 import java.io.BufferedReader;
@@ -10,8 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-
-import javax.swing.text.Document;
 
 import org.w3c.dom.Element;
 
@@ -26,27 +44,50 @@ import marytts.modules.phonemiser.Allophone;
 import marytts.unitselection.select.Target;
 import marytts.util.MaryUtils;
 
+/**
+ * Model for predicting duration and F0 from SoP models
+ * 
+ * @author marcela
+ *
+ */
 public class SoPModel extends Model {
     
-    // If duration this map will contain several sop equations
-    // if f0 this map will contain just one sop equation
+    /**
+     * The SopModels map contains one SoP model for F0 and three SoP models duration: vowel, consonant and pause.
+     */
     private Map<String, SoP> sopModels;
     
-
-    public SoPModel(FeatureProcessorManager featureManager, String type, String dataFileName, String targetAttributeName, String targetAttributeFormat,
+    /**
+     * Model constructor
+     * @param featureManager the feature processor manager used to compute the symbolic features used for prediction
+     * @param dataFileName data file containing the sop data
+     * @param targetAttributeName attribute in MARYXML to predict
+     * @param targetAttributeFormat print style
+     * @param featureName not used in SoP model
+     * @param predictFrom not used in SoP model
+     * @param applyTo not used in SoP model
+     * 
+     * @throws MaryConfigurationException  if there are missing files.
+     */
+    public SoPModel(FeatureProcessorManager featureManager, String dataFileName, String targetAttributeName, String targetAttributeFormat,
             String featureName, String predictFrom, String applyTo)
     throws MaryConfigurationException {
-        super(featureManager, type, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
+        super(featureManager, dataFileName, targetAttributeName, targetAttributeFormat, featureName, predictFrom, applyTo);
         load();
     }
     
-
+    /**
+     * Load SoP data.
+     * 
+     * @throws IOException if data can not be read.
+     */
     @Override
     protected void loadDataFile() throws IOException {
         sopModels = new HashMap<String, SoP>();
         String nextLine, nextType;
         String strContext="";
         Scanner s = null;
+        try {
         s = new Scanner(new BufferedReader(new FileReader(dataFile)));
 
         // The first part contains the feature definition
@@ -71,10 +112,16 @@ public class SoPModel extends Model {
             }
         }
         s.close();
+        
+        } catch (Exception e) {
+            throw new IOException("Error reading SoP data file: " + dataFile,  e);
+        }
     }
 
     /**
      * Apply the SoP to a Target to get its predicted value
+     * @param target target from where to predict
+     * @return result predicted value
      */
     @Override
     protected float evaluate(Target target) {

@@ -75,6 +75,7 @@ public class BatchSynth
         File globalOutputDir = new File(args[0]);
         MaryHttpClient mary = new MaryHttpClient();
         String voice = System.getProperty("voice", "us1");
+        boolean haveBasename = "true".equals(System.getProperty("lines-contain-basename", "true")); // default: true, for backward compatibility
         String inputFormat = "TEXT";
         String locale = System.getProperty("locale", "en_US");
         String outputFormat = System.getProperty("output.type", "AUDIO");
@@ -98,8 +99,16 @@ public class BatchSynth
                    line = line.substring(line.indexOf("(")+1, line.lastIndexOf(")"));
                }
                StringTokenizer st = new StringTokenizer(line);
-               String basename = st.nextToken();
-               String sentence = line.substring(line.indexOf(basename)+basename.length()+1).trim();
+               String basename;
+               String sentence;
+               if (haveBasename) {
+                   basename = st.nextToken();
+                   sentence = line.substring(line.indexOf(basename)+basename.length()+1).trim();
+               } else {
+                   basename = genre + genreCounter;
+                   sentence = line.trim();
+               }
+               
                //remove all backslashes
                sentence = sentence.replaceAll("\\\\","");
                FileOutputStream audio = new FileOutputStream(outputDir+"/"+basename+extension);

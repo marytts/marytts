@@ -1,3 +1,7 @@
+NOTE: This file is no longer actively maintained and included only for historic reasons.
+
+Please see http://mary.opendfki.de/#Whatsnew for the Release Notes/Changelog of more recent versions of Mary.  
+
 Changelog
 ---------
 

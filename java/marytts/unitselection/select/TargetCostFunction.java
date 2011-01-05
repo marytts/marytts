@@ -21,6 +21,7 @@ package marytts.unitselection.select;
 
 import java.io.IOException;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureVector;
@@ -44,9 +45,10 @@ public interface TargetCostFunction
      * @param featProc a feature processor manager which can provide feature processors
      * to compute the features for a target at run time
      * @throws IOException
+     * @throws MaryConfigurationException if a configuration problem is detected while loading the data 
      */
     public void load(String featureFileName, String weightsFile,
-            FeatureProcessorManager featProc) throws IOException;
+            FeatureProcessorManager featProc) throws IOException, MaryConfigurationException;
 
     /**
      * Initialise the data needed to do a target cost computation.

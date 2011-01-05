@@ -28,28 +28,32 @@ import java.util.List;
 
 import javax.sound.sampled.AudioInputStream;
 
-import org.apache.commons.lang.ArrayUtils;
 import marytts.modules.phonemiser.Allophone;
 import marytts.server.MaryProperties;
 import marytts.signalproc.process.FDPSOLAProcessor;
+import marytts.unitselection.analysis.Phone;
+import marytts.unitselection.analysis.ProsodyAnalyzer;
 import marytts.unitselection.concat.BaseUnitConcatenator.UnitData;
 import marytts.unitselection.data.Datagram;
-import marytts.unitselection.data.Unit;
-import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.unitselection.select.Target;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.MathUtils;
 
-
 /**
  * A unit concatenator that supports FD-PSOLA based prosody modifications during speech synthesis
  * 
- * @author Oytun T&uumlrk
+ * @author Oytun T&uuml;rk, modified by steiner
  *
  */
 public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     
+    // modification value ranges with hard-coded defaults:
+    private double minTimeScaleFactor = 0.5;
+    private double maxTimeScaleFactor = 2.0;
+    private double minPitchScaleFactor = 0.5;
+    private double maxPitchScaleFactor = 2.0;
+
     /**
      * 
      */
@@ -58,6 +62,23 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         super();
     }
     
+    /**
+     * Alternative constructor that allows overriding the modification value ranges
+     *  
+     * @param minTimeScaleFactor minimum duration scale factor
+     * @param maxTimeScaleFactor maximum duration scale factor
+     * @param minPitchScaleFactor minimum F0 scale factor
+     * @param maxPitchScaleFactor maximum F0 scale factor
+     */
+    public FdpsolaUnitConcatenator(double minTimeScaleFactor, double maxTimeScaleFactor, double minPitchScaleFactor,
+            double maxPitchScaleFactor) {
+        super();
+        this.minTimeScaleFactor = minTimeScaleFactor;
+        this.maxTimeScaleFactor = maxTimeScaleFactor;
+        this.minPitchScaleFactor = minPitchScaleFactor;
+        this.maxPitchScaleFactor = maxPitchScaleFactor;
+    }
+
     /**
      * Get the Datagrams from a List of SelectedUnits as an array of arrays; the number of elements in the array is equal to the number
      * of Units, and each element contains that Unit's Datagrams as an array.
@@ -82,7 +103,8 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     private Datagram[] getRightContexts(List<SelectedUnit> units) {
         Datagram[] rightContexts = new Datagram[units.size()];
         for (int i = 0; i < rightContexts.length; i++) {
-            UnitData unitData = (UnitData) units.get(i).getConcatenationData();
+            SelectedUnit unit = units.get(i);
+            UnitData unitData = (UnitData) unit.getConcatenationData();
             rightContexts[i] = unitData.getRightContextFrame();
         }
         return rightContexts;
@@ -120,7 +142,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
     //1) Pitch of the selected units can  be smoothed without using the target pitch values at all. 
     //   This will involve creating the target f0 values for each frame by ensuing small adjustments and yet reduce pitch discontinuity
     //2) Pitch of the selected units can be modified to match the specified target where those target values are smoothed
-    //3) A mixture of (1) and (2) can be deviced, i.e. to minimize the amount of pitch modification one of the two methods can be selected for a given unit
+    //3) A mixture of (1) and (2) can be devised, i.e. to minimize the amount of pitch modification one of the two methods can be selected for a given unit
     //4) Pitch segments of selected units can be shifted 
     //5) Pitch segments of target units can be shifted
     //6) Pitch slopes can be modified for better matching in concatenation boundaries
@@ -248,7 +270,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         }
         return pscales;
     }
-    
+        
     //We can try different things in this function
     //1) Duration modification factors can be estimated using neighbouring selected and target unit durations
     //2) Duration modification factors can be limited or even set to 1.0 for different phone classes
@@ -330,35 +352,22 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         return tscales;
     }
     
+//    private double[][] getSyllableBasedPitchScales(List<SelectedUnit> units) {
+//        List<Phone> phones = ProsodyAnalyzer.parseIntoPhones(units, timeline.getSampleRate());
+//        List<Syllable> syllables = Syllable.parseIntoSyllables(phones);
+//        ListIterator<Syllable> syllableIterator = syllables.listIterator();
+//        while (syllableIterator.hasNext()) {
+//            if (!syllableIterator.hasPrevious()) {
+//                continue;
+//            }
+//            // TODO unfinished!
+//        }
+//        return null;
+//    }
+    
     private double[][] getPhoneBasedDurationScales(List<SelectedUnit> units) {
-        // List of phone segments:
-        List<Phone> phones = parseIntoPhones(units);
-
-        // list of time scale factors, one per unit:
-        List<Double> timeScaleFactors = new ArrayList<Double>(units.size());
         
-        // iterate over phone segments:
-        for (Phone phone : phones) {
-            // time scaling factor is the ratio of predicted and realized phone durations:
-            double scalingFactor = phone.getTargetDuration() / phone.getUnitDuration();
-            // get predicted and realized halfphone unit durations:
-            double leftTargetDuration = phone.getLeftTargetDuration();
-            double leftUnitDuration = phone.getLeftUnitDuration();
-            double rightTargetDuration = phone.getRightTargetDuration();
-            double rightUnitDuration = phone.getRightUnitDuration();
-            // if left halfphone unit has nonzero predicted and realized duration...
-            if (leftUnitDuration > 0 && leftTargetDuration > 0) {
-                // ...add the scaling factor to the list:
-                timeScaleFactors.add(scalingFactor);
-                logger.debug("time scaling factor for unit " + phone.getLeftUnit().getTarget().getName() + " -> " + scalingFactor);
-            }
-            // if right halfphone unit has nonzero predicted and realized duration...
-            if (rightUnitDuration > 0 && rightTargetDuration > 0) {
-                // ...add the scaling factor to the list:
-                timeScaleFactors.add(scalingFactor);
-                logger.debug("time scaling factor for unit " + phone.getRightUnit().getTarget().getName() + " -> " + scalingFactor);
-            }
-        }
+        List<Double> timeScaleFactors = prosodyAnalyzer.getDurationFactors();
         
         // finally, initialize the tscales array...
         double[][] tscales = new double[timeScaleFactors.size()][];
@@ -371,7 +380,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         
         // for quick and dirty debugging, dump tscales to Praat DurationTier:
         try {
-            dumpTscalesToPraatTier(tscales, datagrams, MaryProperties.maryBase() + "/tscales.DurationTier");
+            prosodyAnalyzer.writePraatDurationTier(MaryProperties.maryBase() + "/tscales.DurationTier");
         } catch (IOException e) {
             logger.warn("Could not dump tscales to file");
         }
@@ -385,6 +394,7 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
      * @param units
      * @return units with positive duration
      */
+    @Deprecated
     private List<SelectedUnit> getNonEmptyUnits(List<SelectedUnit> units) {
         ArrayList<SelectedUnit> nonEmptyUnits = new ArrayList<SelectedUnit>(units.size());
         for (SelectedUnit unit : units) {
@@ -396,80 +406,173 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
         return nonEmptyUnits;
     }
     
-    /**
-     * Convenience method to parse a list of selected units into the corresponding phone segments
-     * 
-     * @param units to parse
-     * @return List of Phones
-     * @author steiner
-     */
-    private List<Phone> parseIntoPhones(List<SelectedUnit> units) {
-        // initialize List of Phones:
-        List<Phone> phones = new ArrayList<Phone>(units.size() / 2);
-        // iterate through the units:
-        int u = 0;
-        while (u < units.size()) {
-            // get unit...
-            SelectedUnit unit = units.get(u);
-            // ...and its target as a HalfPhoneTarget, so that we can...
-            HalfPhoneTarget target = (HalfPhoneTarget) unit.getTarget();
-            // ...query its position in the phone:
-            if (target.isLeftHalf()) {
-                // if this is the left half of a phone...
-                if (u < units.size() - 1) {
-                    // ...and there is a next unit in the list...
-                    SelectedUnit nextUnit = units.get(u + 1);
-                    HalfPhoneTarget nextTarget = (HalfPhoneTarget) nextUnit.getTarget();
-                    if (nextTarget.isRightHalf()) {
-                        // ...and the next unit's target is the right half of the phone, add the phone:
-                        phones.add(new Phone(unit, nextUnit));
-                        u++;
-                    } else {
-                        // otherwise, add a degenerate phone with no right halfphone:
-                        phones.add(new Phone(unit, null));
-                    }
-                } else {
-                    // otherwise, add a degenerate phone with no right halfphone:
-                    phones.add(new Phone(unit, null));
-                }
-            } else {
-                // otherwise, add a degenerate phone with no left halfphone:
-                phones.add(new Phone(null, unit));
+    protected Datagram[][] getRealizedDatagrams(List<Phone> phones) {
+        List<Datagram[]> datagramList = new ArrayList<Datagram[]>();
+        for (Phone phone : phones) {
+            if (phone.getLeftTargetDuration() > 0) {
+                Datagram[] leftDatagrams = phone.getLeftUnitFrames();
+                datagramList.add(leftDatagrams);
             }
-            u++;
+            if (phone.getRightTargetDuration() > 0) {
+                Datagram[] rightDatagrams = phone.getRightUnitFrames();
+                datagramList.add(rightDatagrams);
+            }
         }
-        return phones;
+        Datagram[][] datagramArray = datagramList.toArray(new Datagram[datagramList.size()][]);
+        return datagramArray;
+    }
+    
+    protected Datagram[] getRealizedRightContexts(List<Phone> phones) {
+        List<Datagram> datagramList = new ArrayList<Datagram>();
+        for (Phone phone: phones) {
+            if (phone.getLeftTargetDuration() > 0) {
+                UnitData leftUnitData = phone.getLeftUnitData();
+                Datagram leftRightContext = leftUnitData.getRightContextFrame();
+                datagramList.add(leftRightContext);
+            }
+            if (phone.getRightTargetDuration() > 0) {
+                UnitData rightUnitData = phone.getRightUnitData();
+                Datagram rightRightContext = rightUnitData.getRightContextFrame();
+                datagramList.add(rightRightContext);
+            }
+        }
+        Datagram[] datagramArray = datagramList.toArray(new Datagram[datagramList.size()]);
+        return datagramArray;
+    }
+    
+    private boolean[][] getRealizedVoicings(List<Phone> phones) {
+        List<boolean[]> voicingList = new ArrayList<boolean[]>();
+        for (Phone phone: phones) {
+            boolean voiced = phone.isVoiced();
+            if (phone.getLeftTargetDuration() > 0) {
+                int leftNumberOfFrames = phone.getNumberOfLeftUnitFrames();
+                boolean[] leftVoiceds = new boolean[leftNumberOfFrames];
+                Arrays.fill(leftVoiceds, voiced);
+                voicingList.add(leftVoiceds);
+            }
+            if (phone.getRightTargetDuration() > 0) {
+                int rightNumberOfFrames = phone.getNumberOfRightUnitFrames();
+                boolean[] rightVoiceds = new boolean[rightNumberOfFrames];
+                Arrays.fill(rightVoiceds, voiced);
+                voicingList.add(rightVoiceds);
+            }
+        }
+        boolean[][] voicingArray = voicingList.toArray(new boolean[voicingList.size()][]);
+        return voicingArray;
+    }
+    
+    private double[][] getRealizedTimeScales(List<Phone> phones) {
+        List<double[]> durationFactorList = new ArrayList<double[]>(phones.size());
+        for (Phone phone : phones) {
+            if (phone.getLeftTargetDuration() > 0) {
+                int leftNumberOfFrames = phone.getNumberOfLeftUnitFrames();
+                double leftDurationFactor = phone.getLeftDurationFactor();
+                // scale the factor to reasonably safe values:
+                if (leftDurationFactor < minTimeScaleFactor) {
+                    String message = "Left duration factor (" + leftDurationFactor + ") for phone " + phone + " too small;";
+                    leftDurationFactor = minTimeScaleFactor;
+                    message += " clipped to " + leftDurationFactor;
+                    logger.debug(message);
+                } else if (leftDurationFactor > maxTimeScaleFactor) {
+                    String message = "Left duration factor (" + leftDurationFactor + ") for phone " + phone + " too large;";
+                    leftDurationFactor = maxTimeScaleFactor;
+                    message += " clipped to " + leftDurationFactor;
+                    logger.debug(message);
+                }
+                double[] leftDurationFactors = new double[leftNumberOfFrames];
+                Arrays.fill(leftDurationFactors, leftDurationFactor);
+                durationFactorList.add(leftDurationFactors);
+            }
+            if (phone.getRightTargetDuration() > 0) {
+                int rightNumberOfFrames = phone.getNumberOfRightUnitFrames();
+                double rightDurationFactor = phone.getRightDurationFactor();
+                if (phone.isTransient()) {
+                    rightDurationFactor = 1; // never modify the duration of a burst
+                }
+                // scale the factor to reasonably safe values:
+                if (rightDurationFactor < minTimeScaleFactor) {
+                    String message = "Right duration factor (" + rightDurationFactor + ") for phone " + phone + " too small;";
+                    rightDurationFactor = minTimeScaleFactor;
+                    message += " clipped to " + rightDurationFactor;
+                    logger.debug(message);
+                } else if (rightDurationFactor > maxTimeScaleFactor) {
+                    String message = "Right duration factor (" + rightDurationFactor + ") for phone " + phone + " too large;";
+                    rightDurationFactor = maxTimeScaleFactor;
+                    message += " clipped to " + rightDurationFactor;
+                    logger.debug(message);
+                }
+                double[] rightDurationFactors = new double[rightNumberOfFrames];
+                Arrays.fill(rightDurationFactors, rightDurationFactor);
+                durationFactorList.add(rightDurationFactors);
+            }
+        }
+        double[][] durationFactorArray = durationFactorList.toArray(new double[durationFactorList.size()][]);
+        return durationFactorArray;
+    }
+
+    private double[][] getRealizedPitchScales(List<Phone> phones) {
+        List<double[]> f0FactorList = new ArrayList<double[]>(phones.size());
+        for (Phone phone : phones) {
+            if (phone.getLeftTargetDuration() > 0) {
+                int leftNumberOfFrames = phone.getNumberOfLeftUnitFrames();
+                double[] leftF0Factors = phone.getLeftF0Factors();
+                boolean clipped = MathUtils.clipRange(leftF0Factors, minPitchScaleFactor, maxPitchScaleFactor);
+                if (clipped) {
+                    logger.debug("Left F0 factors for phone " + phone + " contained out-of-range values; clipped to [" + minPitchScaleFactor + ", "
+                            + maxPitchScaleFactor + "]");
+                }
+                f0FactorList.add(leftF0Factors);
+            }
+            if (phone.getRightTargetDuration() > 0) {
+                int rightNumberOfFrames = phone.getNumberOfRightUnitFrames();
+                double[] rightF0Factors = phone.getRightF0Factors();
+                boolean clipped = MathUtils.clipRange(rightF0Factors, minPitchScaleFactor, maxPitchScaleFactor);
+                if (clipped) {
+                    logger.debug("Left F0 factors for phone " + phone + " contained out-of-range values; clipped to [" + minPitchScaleFactor + ", "
+                            + maxPitchScaleFactor + "]");
+                }
+                f0FactorList.add(rightF0Factors);
+            }
+        }
+        double[][] f0FactorArray = f0FactorList.toArray(new double[f0FactorList.size()][]);
+        return f0FactorArray;
     }
 
     /**
      * Generate audio to match the target pitchmarks as closely as possible.
      * @param units
      * @return
+     * @throws IOException 
      */
-    protected AudioInputStream generateAudioStream(List<SelectedUnit> units)
-    {
-        // efectively remove units with zero source or target duration, or with no MaryXML element:
-        units = getNonEmptyUnits(units);
-        
+    protected AudioInputStream generateAudioStream(List<SelectedUnit> units) throws IOException
+    {        
         // gather arguments for FDPSOLA processing:
-        Datagram[][] datagrams = getDatagrams(units);
-        Datagram[] rightContexts = getRightContexts(units);
-        boolean[][] voicings = getVoicings(units);
-        double[][] pscales = getPitchScales(units);
+//        Datagram[][] datagrams = getDatagrams(units);
+//        Datagram[] rightContexts = getRightContexts(units);
+//        boolean[][] voicings = getVoicings(units);
+//        double[][] pscales = getPitchScales(units);
 //      double[][] tscales = getDurationScales(units);
-        double[][] tscales = getPhoneBasedDurationScales(units);
+//        double[][] tscales = getPhoneBasedDurationScales(units);
+        
+        List<Phone> realizedPhones = prosodyAnalyzer.getRealizedPhones();
+        Datagram[][] datagrams = getRealizedDatagrams(realizedPhones);
+        Datagram[] rightContexts = getRealizedRightContexts(realizedPhones);
+        boolean[][] voicings = getRealizedVoicings(realizedPhones);
+        double[][] tscales = getRealizedTimeScales(realizedPhones);
+        double[][] pscales = getRealizedPitchScales(realizedPhones);
         
         // process into audio stream:
         DDSAudioInputStream stream = (new FDPSOLAProcessor()).processDecrufted(datagrams, rightContexts, audioformat, voicings, pscales, tscales);
         
         // update durations from processed Datagrams:
-        updateUnitDataDurations(units, datagrams);
+//        updateUnitDataDurations(units, datagrams);
+        updateRealizedUnitDataDurations(realizedPhones, datagrams);
 
         return stream;
     }
     
     /**
-     * Manually propagate durations of Datagrams to UnitData for each SelectedUnit; those durations are otherwise oblivious to the
+     * Explicitly propagate durations of Datagrams to UnitData for each SelectedUnit; those durations are otherwise oblivious to the
      * data they describe...
      * 
      * @param units
@@ -491,179 +594,32 @@ public class FdpsolaUnitConcatenator extends OverlapUnitConcatenator {
             unitData.setUnitDuration(unitDuration);
         }
     }
-
-    /**
-     * For debugging, dump tscales to Praat DurationTier, which can be used for analogous PSOLA-based manipulation in Praat
-     * 
-     * @param tscales
-     *            array of arrays of time scale factors, one per Datagram per Unit
-     * @param datagrams
-     *            array of Datagram arrays, used to determine the Datagram durations
-     * @param fileName
-     *            of the DurationTier to be dumped
-     * @throws IOException
-     */
-    private void dumpTscalesToPraatTier(double[][] tscales, Datagram[][] datagrams, String fileName) throws IOException {
-        ArrayList<Double> times = new ArrayList<Double>();
-        ArrayList<Double> values = new ArrayList<Double>();
-
-        double time = 0;
-        for (int i = 0; i < tscales.length; i++) {
-            for (int j = 0; j < tscales[i].length; j++) {
-                double start = time;
-                time += ((double) datagrams[i][j].getDuration()) / timeline.getSampleRate();
-                double end = time;
-                times.add((start + end) / 2);
-                values.add(tscales[i][j]);
-            }
-        }
-
-        File durationTierFile = new File(fileName);
-        PrintWriter out = new PrintWriter(durationTierFile);
-
-        out.println("\"ooTextFile\"");
-        out.println("\"DurationTier\"");
-        out.println(String.format("0 %f %d", time, times.size()));
-        for (int i = 0; i < times.size(); i++) {
-            out.println(String.format("%f %f", times.get(i), values.get(i)));
-        }
-
-        out.close();
-    }
     
-    /**
-     * Convenience class containing the selected units and targets of a phone segment
-     * 
-     * @author steiner
-     *
-     */
-    private class Phone {
-        private HalfPhoneTarget leftTarget;
-        private HalfPhoneTarget rightTarget;
-        private SelectedUnit leftUnit;
-        private SelectedUnit rightUnit;
-        
-        /**
-         * Main constructor
-         * 
-         * @param leftUnit which can be null
-         * @param rightUnit which can be null
-         */
-        Phone(SelectedUnit leftUnit, SelectedUnit rightUnit) {
-            this.leftUnit = leftUnit;
-            this.rightUnit = rightUnit;
-            // targets are extracted from the units for easier access:
-            if (leftUnit != null) {
-                this.leftTarget = (HalfPhoneTarget) leftUnit.getTarget();
-            } else {
-                this.leftTarget = null;
+    private void updateRealizedUnitDataDurations(List<Phone> phones, Datagram[][] datagrams) {
+        int phIndex = 0;
+        for (Phone phone : phones) {
+            if (phone.getLeftTargetDuration() > 0) {
+                UnitData leftUnitData = phone.getLeftUnitData();
+                int leftUnitDataDuration = 0;
+                for (int dg = 0; dg < datagrams[phIndex].length; dg++) {
+                    int datagramDuration = (int) datagrams[phIndex][dg].getDuration();
+                    leftUnitData.getFrame(dg).setDuration(datagramDuration);
+                    leftUnitDataDuration += datagramDuration;
+                }
+                phIndex++;
+                leftUnitData.setUnitDuration(leftUnitDataDuration);
             }
-            if (rightUnit != null) {
-                this.rightTarget = (HalfPhoneTarget) rightUnit.getTarget();
-            } else {
-                this.rightTarget = null;
+            if (phone.getRightTargetDuration() > 0) {
+                UnitData rightUnitData = phone.getRightUnitData();
+                int rightUnitDataDuration = 0;
+                for (int dg = 0; dg < datagrams[phIndex].length; dg++) {
+                    int datagramDuration = (int) datagrams[phIndex][dg].getDuration();
+                    rightUnitData.getFrame(dg).setDuration(datagramDuration);
+                    rightUnitDataDuration += datagramDuration;
+                }
+                phIndex++;
+                rightUnitData.setUnitDuration(rightUnitDataDuration);
             }
-        }
-        
-        /**
-         * get the selected unit of the left halfphone
-         * 
-         * @return the left unit
-         */
-        public SelectedUnit getLeftUnit() {
-            return leftUnit;
-        }
-        
-        /**
-         * get the selected unit of the right halfphone
-         * 
-         * @return the right unit
-         */
-        public SelectedUnit getRightUnit() {
-            return rightUnit;
-        }
-        
-        /**
-         * get the predicted duration of the left halfphone, or 0 if there is no left halfphone
-         * 
-         * @return the left target duration, in seconds
-         */
-        public double getLeftTargetDuration() {
-            if (leftTarget != null) {
-                return leftTarget.getTargetDurationInSeconds();
-            }
-            return 0;
-        }
-        
-        /**
-         * get the predicted duration of the right halfphone, or 0 if there is no right halfphone
-         * 
-         * @return the right target duration, in seconds
-         */
-        public double getRightTargetDuration() {
-            if (rightTarget != null) {
-                return rightTarget.getTargetDurationInSeconds();
-            }
-            return 0;
-        }
-        
-        /**
-         * get the predicted overall duration of the phone
-         * 
-         * @return the combined target duration, in seconds
-         */
-        public double getTargetDuration() {
-            return getLeftTargetDuration() + getRightTargetDuration();
-        }
-        
-        /**
-         * get the realized duration of the left halfphone, or 0 if there is no left halfphone
-         * 
-         * @return the left unit duration, in seconds
-         */
-        public double getLeftUnitDuration() {
-            if (leftUnit != null) {
-                int durationInSamples = ((UnitData) leftUnit.getConcatenationData()).getUnitDuration();
-                return ((double) durationInSamples) / timeline.getSampleRate();
-            }
-            return 0;
-        }
-        
-        /**
-         * get the realized duration of the right halfphone, or 0 if there is no right halfphone
-         * 
-         * @return the right unit duration, in seconds
-         */
-        public double getRightUnitDuration() {
-            if (rightUnit != null) {
-                int durationInSamples = ((UnitData) rightUnit.getConcatenationData()).getUnitDuration();
-                return ((double) durationInSamples) / timeline.getSampleRate();
-            }
-            return 0;
-        }
-        
-        /**
-         * get the realized overall duration of the phone
-         * 
-         * @return the combined unit duration, in seconds
-         */
-        public double getUnitDuration() {
-            return getLeftUnitDuration() + getRightUnitDuration();
-        }
-        
-        /**
-         * for debugging, provide the names of the left and right targets as the string representation of this class
-         */
-        public String toString() {
-            String string = "";
-            if (leftTarget != null) {
-                string += " " + leftTarget.getName();
-            }
-            if (rightTarget != null) {
-                string += " " + rightTarget.getName();
-            }
-            return string;
         }
     }
 }
-

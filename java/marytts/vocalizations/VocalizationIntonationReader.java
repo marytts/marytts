@@ -36,7 +36,9 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.unitselection.data.Unit;
 import marytts.util.data.MaryHeader;
 
@@ -56,25 +58,19 @@ public class VocalizationIntonationReader
     private double skipSize   = 0.0;
     private double[][] contours;
     private double[][] coeffs;
+    private boolean[][] voiced;
     
     /****************/
     /* CONSTRUCTORS */
     /****************/
 
-    /**
-     * Empty constructor; need to call load() separately.
-     * @see #load(String)
-     */
-    public VocalizationIntonationReader()
-    {
-    }
     
     /**
      * Create a unit file reader from the given unit file
      * @param fileName the unit file to read
      * @throws IOException if a problem occurs while reading
      */
-    public VocalizationIntonationReader( String fileName ) throws IOException 
+    public VocalizationIntonationReader( String fileName ) throws IOException, MaryConfigurationException
     {
         load(fileName);
     }
@@ -84,7 +80,7 @@ public class VocalizationIntonationReader
      * @param fileName the unit file to read
      * @throws IOException if a problem occurs while reading
      */
-    public void load(String fileName) throws IOException
+    public void load(String fileName) throws IOException, MaryConfigurationException
     {
         /* Open the file */
         DataInputStream dis = null;
@@ -99,9 +95,6 @@ public class VocalizationIntonationReader
         try {
             /* Load the Mary header */
             hdr = new MaryHeader( dis );
-            if ( !hdr.isMaryHeader() ) {
-                throw new IOException( "File [" + fileName + "] is not a valid Mary format file." );
-            }
             if ( hdr.getType() != MaryHeader.LISTENERFEATS ) {
                 throw new RuntimeException( "File [" + fileName + "] is not a valid Mary Units file." );
             }
@@ -125,6 +118,7 @@ public class VocalizationIntonationReader
             
             contours = new double[numberOfUnits][];
             coeffs = new double[numberOfUnits][];
+            voiced = new boolean[numberOfUnits][];
             
             for ( int i=0; i < numberOfUnits; i++ ) {
                 
@@ -138,8 +132,14 @@ public class VocalizationIntonationReader
                 // read f0 contour
                 int f0ContourLength = dis.readInt();
                 contours[i] = new  double[f0ContourLength];
+                
+                voiced[i] = new boolean[f0ContourLength];
+                Arrays.fill(voiced[i], false);
                 for ( int j=0; j < f0ContourLength; j++ ) {
                     contours[i][j] = dis.readFloat();
+                    if ( contours[i][j] > 0 ) {
+                        voiced[i][j] = true;
+                    }
                 }
             }
         } catch ( IOException e ) {
@@ -169,6 +169,10 @@ public class VocalizationIntonationReader
         return this.contours[unitIndexNumber];
     }
     
+    public boolean[] getVoicings( int unitIndexNumber ) {
+        return this.voiced[unitIndexNumber];
+    }
+    
     public double getWindowSizeInSeconds() {
         return this.windowSize;
     }    
@@ -188,7 +192,7 @@ public class VocalizationIntonationReader
     
     public static void main(String[] args) throws Exception{
         String fileName = "/home/sathish/Work/phd/voices/listener/vocalizations/timelines/vocalization_intonation_timeline.mry";
-        VocalizationIntonationReader bcUfr = new VocalizationIntonationReader();
-        bcUfr.load(fileName);
+        VocalizationIntonationReader bcUfr = new VocalizationIntonationReader(fileName);
+        //bcUfr.load(fileName);
     }
 }

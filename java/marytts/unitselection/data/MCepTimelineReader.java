@@ -25,21 +25,22 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Properties;
 
+import marytts.exceptions.MaryConfigurationException;
+
 
 public class MCepTimelineReader extends TimelineReader
 {
     protected int order;
     
-    public MCepTimelineReader()
+
+    public MCepTimelineReader(String fileName) throws IOException, MaryConfigurationException
     {
+        super();
+        load(fileName);
     }
 
-    public MCepTimelineReader(String fileName) throws IOException
-    {
-        super(fileName);
-    }
-
-    public void load(String fileName) throws IOException
+    @Override
+    protected void load(String fileName) throws IOException, MaryConfigurationException
     {
         super.load(fileName);
         // Now make sense of the processing header
@@ -66,10 +67,9 @@ public class MCepTimelineReader extends TimelineReader
      * 
      * @return the current datagram, or null if EOF was encountered; internally updates the time pointer.
      * 
-     * @throws IOException
      */
     @Override
-    protected Datagram getNextDatagram(ByteBuffer bb) throws IOException {
+    protected Datagram getNextDatagram(ByteBuffer bb) {
         
         Datagram d = null;
         
@@ -80,9 +80,8 @@ public class MCepTimelineReader extends TimelineReader
             d = new MCepDatagram(bb, order );
         }
         /* Detect a possible EOF encounter */
-        catch ( EOFException e ) {
-            throw new IOException( "While reading a datagram, EOF was met before the time index position: "
-                    + "you may be dealing with a corrupted timeline file." );
+        catch ( IOException e ) {
+           return null;
         }
         
         return( d );

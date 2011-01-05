@@ -19,11 +19,22 @@
  */
 package marytts.signalproc.effects;
 
+import java.io.File;
+
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+
+import org.apache.commons.io.FilenameUtils;
+
 import marytts.signalproc.process.FrameOverlapAddSource;
 import marytts.signalproc.process.VocalTractScalingProcessor;
 import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
+import marytts.util.data.audio.AudioDoubleDataSource;
+import marytts.util.data.audio.DDSAudioInputStream;
+import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
@@ -96,6 +107,32 @@ public class VocalTractLinearScalerEffect extends BaseAudioEffect {
 
     public String getName() {
         return "TractScaler";
+    }
+    
+    /**
+     * Command line interface to the vocal tract linear scaler effect.
+     * 
+     * @param args the command line arguments. Exactly two arguments are expected:
+     * (1) the factor by which to scale the vocal tract (between 0.25 = very long and 4.0 = very short vocal tract);
+     * (2) the filename of the wav file to modify.
+     * Will produce a file basename_factor.wav, where basename is the filename without the extension.
+     * @throws Exception if processing fails for some reason.
+     */
+    public static void main(String[] args) throws Exception {
+        if (args.length != 2) {
+            System.err.println("Usage: java "+VocalTractLinearScalerEffect.class.getName()+" <factor> <filename>");
+            System.exit(1);
+        }
+        float factor = Float.parseFloat(args[0]);
+        String filename = args[1];
+        AudioDoubleDataSource input = new AudioDoubleDataSource(AudioSystem.getAudioInputStream(new File(filename)));
+        AudioFormat format = input.getAudioFormat();
+        VocalTractLinearScalerEffect effect = new VocalTractLinearScalerEffect((int) format.getSampleRate());
+        DoubleDataSource output = effect.apply(input, "amount:"+factor);
+        DDSAudioInputStream audioOut = new DDSAudioInputStream(output, format);
+        String outFilename = FilenameUtils.removeExtension(filename)+"_"+factor+".wav";
+        AudioSystem.write(audioOut, AudioFileFormat.Type.WAVE, new File(outFilename));
+        System.out.println("Created file "+outFilename);
     }
 }
 

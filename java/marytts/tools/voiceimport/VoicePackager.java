@@ -66,6 +66,8 @@ public class VoicePackager extends VoiceImportComponent {
 
     protected String VOICEDESCRIPTION;
 
+    protected String VOCALIZATIONSUPPORT;
+    
     // constants to access filenames in database component properties and organize file list:
 
     protected final String CARTFILE = "CARTBuilder.cartFile";
@@ -97,7 +99,7 @@ public class VoicePackager extends VoiceImportComponent {
     protected final String WAVETIMELINE = "WaveTimelineMaker.waveTimeline";
 
     protected final String BASETIMELINE = "BasenameTimelineMaker.timelineFile";
-
+    
     public VoicePackager() {
         this("VoicePackager");
     }
@@ -109,6 +111,7 @@ public class VoicePackager extends VoiceImportComponent {
         EXAMPLETEXTFILE = name + ".exampleTextFile";
         LICENSEURL = name + ".licenseUrl";
         VOICEDESCRIPTION = name + ".voiceDescription";
+        VOCALIZATIONSUPPORT = name + ".vocalizationSupport";
     }
 
     /**
@@ -123,6 +126,7 @@ public class VoicePackager extends VoiceImportComponent {
         props2Help.put(LICENSEURL, "URL of the license agreement for this voice"
                 + " (<a href=\"http://creativecommons.org/licenses/by-nd/3.0/\">cc-by-nd</a> by default)");
         props2Help.put(VOICEDESCRIPTION, "short text describing this voice");
+        props2Help.put(VOCALIZATIONSUPPORT, "if true package vocalization files with voice and set corresponding configuration settings");
     }
 
     /**
@@ -141,6 +145,7 @@ public class VoicePackager extends VoiceImportComponent {
             props.put(LICENSEURL, licenseUrl);
             String voiceDescription = System.getProperty("VOICEDESCRIPTION", "");
             props.put(VOICEDESCRIPTION, voiceDescription);
+            props.put(VOCALIZATIONSUPPORT, "false");
         }
         return props;
     }
@@ -231,16 +236,21 @@ public class VoicePackager extends VoiceImportComponent {
                 HALFPHONEUNITS, JOINCOSTFEATS, JOINCOSTFEATDEF, PHONEFEATDEF, TIMELINE, BASETIMELINE, EXAMPLETEXTFILE };
 
         // vocalization files, if available:
-        File vocalizationDir = new File(getProperty(db.VOCALIZATIONSDIR));
-        if (vocalizationDir.exists()) {
+        if ( "true".equals( getProp(VOCALIZATIONSUPPORT) ) ) {
             String[] vocalizationProperties = { "VocalizationFeatureFileWriter.featureDefinition",
                     "VocalizationTimelineMaker.waveTimeline", "VocalizationFeatureFileWriter.featureFile",
-                    "VocalizationUnitfileWriter.unitFile", "VocalizationIntonationWriter.intonationTimeLineFile" };
+                    "VocalizationUnitfileWriter.unitFile", "VocalizationIntonationWriter.intonationTimeLineFile", 
+                    "HNMFeatureFileWriter.hnmAnalysisTimelineFile", "VocalizationIntonationWriter.intonationFeatureDefinition"};
             properties = (String[]) ArrayUtils.addAll(properties, vocalizationProperties);
         }
 
         for (String property : properties) {
-            String fileName = getProperty(property);
+            String fileName;
+            try {
+                fileName = db.getProperty(property);
+            } catch (NullPointerException e) {
+                throw e;
+            }
             File file = new File(fileName);
             files.put(property, file);
         }
@@ -309,11 +319,11 @@ public class VoicePackager extends VoiceImportComponent {
         out.format("voice.%s.samplingRate = %d\r\n\r\n", getVoiceName(), getVoiceSamplingRate());
 
         out.format("# Relative weight of the target cost function vs. the join cost function\r\n");
-        out.format("voice.bits3v2-hnm.viterbi.wTargetCosts = 0.7\r\n\r\n");
+        out.format("voice.%s.viterbi.wTargetCosts = 0.7\r\n\r\n", getVoiceName());
 
         out.format("# Beam size in dynamic programming: smaller => faster but worse quality.\r\n");
         out.format("# (set to -1 to disable beam search; very slow but best available quality)\r\n");
-        out.format("voice.bits3v2-hnm.viterbi.beamsize = 100\r\n\r\n");
+        out.format("voice.%s.viterbi.beamsize = 100\r\n\r\n", getVoiceName());
 
         // TODO surely this should be dependent on having locale == "de"?
         out.format("# Sampa mapping for German voices \r\n");
@@ -409,8 +419,7 @@ public class VoicePackager extends VoiceImportComponent {
         out.format("voice.%s.rightF0.applyTo = lastVoicedSegments\r\n", getVoiceName());
 
         // vocalization support, if available:
-        File vocalizationDir = new File(getProperty(db.VOCALIZATIONSDIR));
-        if (vocalizationDir.exists()) {
+        if ( "true".equals( getProp(VOCALIZATIONSUPPORT) ) ) {
             out.format("\r\n# support for synthesis of vocalizations\r\n");
             out.format("voice.%s.vocalizationSupport = true\r\n", getVoiceName());
             out.format("voice.%s.vocalization.unitfile = MARY_BASE/lib/voices/%s/vocalization_units.mry\r\n", getVoiceName(),
@@ -420,16 +429,20 @@ public class VoicePackager extends VoiceImportComponent {
             out.format("voice.%s.vocalization.featurefile = MARY_BASE/lib/voices/%s/vocalization_features.mry\r\n",
                     getVoiceName(), getVoiceName());
             out.format(
-                    "voice.%s.vocalization.featureDefinitionFile = MARY_BASE/lib/voices/%s/vocalization_feature_definition.txt\r\n\r\n",
-                    getVoiceName(), getVoiceName());
-
-            out.format("voice.%s.f0ContourImposeSupport = false\r\n", getVoiceName());
-            out.format(
-                    "voice.%s.vocalization.intonation.featureDefinitionFile = MARY_BASE/lib/voices/%s/vocalization_f0_feature_definition.txt\r\n",
+                    "voice.%s.vocalization.featureDefinitionFile = MARY_BASE/lib/voices/%s/vocalization_feature_definition.txt\r\n",
                     getVoiceName(), getVoiceName());
             out.format("voice.%s.vocalization.intonationfile = MARY_BASE/lib/voices/%s/vocalization_intonation.mry\r\n",
                     getVoiceName(), getVoiceName());
-            out.format("voice.%s.vocalization.intonation.numberOfSuitableUnits = 10\r\n", getVoiceName());
+            out.format("voice.%s.vocalization.synthesisTechnology = fdpsola\r\n\r\n", getVoiceName());
+
+            out.format("voice.%s.f0ContourImposeSupport = true\r\n", getVoiceName());
+            out.format("voice.%s.vocalization.usePrecondition = true\r\n", getVoiceName());
+            out.format("voice.%s.vocalization.contourCostWeight = 0.05\r\n", getVoiceName());
+            out.format(
+                    "voice.%s.vocalization.intonation.featureDefinitionFile = MARY_BASE/lib/voices/%s/vocalization_f0_feature_definition.txt\r\n",
+                    getVoiceName(), getVoiceName());
+            
+            out.format("voice.%s.vocalization.intonation.numberOfSuitableUnits = 5\r\n", getVoiceName());
         }
 
         out.close();
@@ -568,7 +581,12 @@ public class VoicePackager extends VoiceImportComponent {
     }
 
     public String getMaryVersion() {
-        return db.getProp(db.MARYBASEVERSION);
+        // TODO temporary workaround for ticket:360
+        String compatibleVersion = db.getProp(db.MARYBASEVERSION);
+        if (compatibleVersion.equals("trunk")) {
+            compatibleVersion = "4.0.0";
+        }
+        return compatibleVersion;
     }
 
     public String getVoiceGender() {
@@ -581,33 +599,6 @@ public class VoicePackager extends VoiceImportComponent {
 
     public int getVoiceSamplingRate() {
         return Integer.parseInt(db.getProp(db.SAMPLINGRATE));
-    }
-
-    /**
-     * Get the value of a property from the voice building DatabaseLayout, or from a VoiceImportComponent.
-     * 
-     * @param propertyName
-     *            (e.g. "db.MARYBASE" or "VoicePackager.voiceType")
-     * @return the property value
-     * @throws NullPointerException
-     *             if <b>propertyName</b> cannot be resolved
-     */
-    public String getProperty(String propertyName) {
-        String[] propertyNameParts = propertyName.split("\\.");
-        String component = propertyNameParts[0];
-        String property = propertyNameParts[1];
-
-        String value;
-        if (component.equals("db")) {
-            value = db.getProp(propertyName);
-        } else {
-            VoiceImportComponent voiceImportComponent = db.getComponent(component);
-            value = voiceImportComponent.getProp(propertyName);
-        }
-        if (value == null) {
-            throw new NullPointerException(propertyName + " cannot be resolved!");
-        }
-        return value;
     }
 
     public String getMaryBase() {

@@ -284,6 +284,10 @@ public class PronunciationModel extends InternalModule
         if (phone.equals(""))
             return; // nothing to do
 
+        if (token.getElementsByTagName(MaryXML.SYLLABLE).getLength() > 0) {
+            return; // there is already a substructure under this token; nothing to do
+        }
+        
         StringTokenizer tok = new StringTokenizer(phone, "-");
         Document document = token.getOwnerDocument();
         Element prosody = (Element) MaryDomUtils.getAncestor(token, MaryXML.PROSODY);
@@ -307,6 +311,9 @@ public class PronunciationModel extends InternalModule
         }
         while (tok.hasMoreTokens()) {
             String sylString = tok.nextToken();
+            if (sylString.trim().isEmpty()) {
+                continue;
+            }
             Allophone[] allophones = allophoneSet.splitIntoAllophones(sylString);
             Element syllable = MaryXML.createElement(document, MaryXML.SYLLABLE);
             token.appendChild(syllable);

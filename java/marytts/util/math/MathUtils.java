@@ -1038,6 +1038,41 @@ public class MathUtils {
         return c;        
     }
     
+    /**
+     * Returns the multiplicative inverse (element-wise 1/x) of an array
+     * 
+     * @param a
+     *            array to invert
+     * @return a new array of the same size as <b>a</b>, in which each element is equal to the multiplicative inverse of the
+     *         corresponding element in <b>a</b>
+     * @throws IllegalArgumentException
+     *             if the array is null
+     */
+    public static double[] invert(double[] a) throws IllegalArgumentException {
+        if (a == null) {
+            throw new IllegalArgumentException("Argument cannot be null");
+        }
+        double[] c = new double[a.length];
+        for (int i = 0; i < a.length; i++) {
+            c[i] = 1.0 / a[i];
+        }
+        return c;
+    }
+
+    /**
+     * @see #invert(double[])
+     */
+    public static float[] invert(float[] a) {
+        if (a == null) {
+            throw new IllegalArgumentException("Argument cannot be null");
+        }
+        float[] c = new float[a.length];
+        for (int i = 0; i < a.length; i++) {
+            c[i] = 1.0f / a[i];
+        }
+        return c;
+    }
+    
     public static ComplexNumber[] multiplyComplex(ComplexNumber[] a, double b)
     {
         ComplexNumber[] c = new ComplexNumber[a.length];
@@ -1272,7 +1307,7 @@ public class MathUtils {
     
     public static double[] divide(double[] a, double[] b)
     {
-        if (a.length != b.length) {
+        if (a == null || b == null || a.length != b.length) {
             throw new IllegalArgumentException("Arrays must be equal length");
         }
         double[] c = new double[a.length];
@@ -4042,8 +4077,32 @@ public class MathUtils {
                 x[i] = 0.5*(maxVal+minVal);
         }
     }
-    //
 
+    /**
+     * Adjust values in x so that all values smaller than minVal are set to minVal, and all values greater than maxVal are set to maxVal
+     * 
+     * @param x array of doubles to adjust; if x is null, nothing happens
+     * @param minVal minimum of all values in x after adjustment
+     * @param maxVal maximum of all values in x after adjustment
+     * @return true if one or more values in x were modified, false if x is unchanged
+     */
+    public static boolean clipRange(double[] x, double minVal, double maxVal) {
+        boolean modified = false;
+        if (x == null) {
+            return modified;
+        }
+        for (int i = 0; i < x.length; i++) {
+            if (x[i] < minVal) {
+                x[i] = minVal;
+                modified = true;
+            } else if (x[i] > maxVal) {
+                x[i] = maxVal;
+                modified = true;
+            }
+        }
+        return modified;
+    }
+    
     public static double median(double[] x)
     {
         if (x!=null && x.length>0)
@@ -4819,6 +4878,22 @@ public class MathUtils {
         return false;
     }
     
+    /**
+     * Check whether x contains Infinity
+     * 
+     * @param x
+     *            the array to check
+     * @return true if at least one value in x is Infinity, false otherwise
+     */
+    public static boolean isAnyInfinity(double[] x) {
+        for (double value : x) {
+            if (Double.isInfinite(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public static boolean allZeros(double[] x)
     {
         boolean bRet = true;
@@ -4990,6 +5065,26 @@ public class MathUtils {
                 newSignal[i] = fVal;
         }
         return newSignal;
+    }
+    
+    /**
+     * Get first-order discrete difference along adjacent values in an array
+     * 
+     * @param a
+     * @return array of differences between adjacent values in <b>a</b>, length is <code>a.length-1</code>; otherwise return null if <b>a</b> is
+     *         null, or [] if the length of <b>a</b> is less than 2.
+     */
+    public static double[] diff(double[] a) {
+        if (a == null) {
+            return null;
+        } else if (a.length < 2) {
+            return new double[0];
+        }
+        double[] b = new double[a.length - 1];
+        for (int i = 0; i < a.length - 1; i++) {
+            b[i] = a[i + 1] - a[i];
+        }
+        return b;
     }
     
     public static void main(String[] args)

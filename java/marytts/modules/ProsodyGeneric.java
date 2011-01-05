@@ -41,10 +41,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
-import marytts.fst.FSTLookup;
 import marytts.server.MaryProperties;
-import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
@@ -80,6 +79,8 @@ public class ProsodyGeneric extends InternalModule {
 	protected String tobiPredFilename; // xml rule file for prosody prediction
 	protected HashMap<String, Element> tobiPredMap = new HashMap<String, Element>(); // map that will be filled with the rules
 	protected HashMap<String, Object> listMap = new HashMap<String, Object>(); // map that will contain the lists defined in the xml rule file
+    private boolean convertToBI2Contour;
+    protected HashMap<String, String> toBI2ContourMap;
 	
 	public ProsodyGeneric(){
 	    this((Locale) null); 
@@ -125,7 +126,11 @@ public class ProsodyGeneric extends InternalModule {
     	priorities = new Properties();
     	if (accentPriorities != null) {
     	    String fileName = MaryProperties.needFilename(accentPriorities);
-    	    priorities.load(new FileInputStream(fileName));
+    	    try {
+                priorities.load(new FileInputStream(fileName));
+            } catch (IOException e) {
+                throw new MaryConfigurationException("can't load accent prioroties file "+fileName, e);
+            }
         }
         
     	if (syllableAccents != null) {
@@ -138,8 +143,30 @@ public class ProsodyGeneric extends InternalModule {
         } else {
             applyParagraphDeclination = false;
         }
-        loadTobiPredRules(); // fill the rule map
-        buildListMap(); // fill the list map
+        
+        try {
+            loadTobiPredRules(); // fill the rule map
+            buildListMap(); // fill the list map
+        } catch (Exception e) {
+            throw new MaryConfigurationException("Can't fill prosody maps ", e);
+        }
+        
+        convertToBI2Contour = MaryProperties.getBoolean("prosody.convertToBI2Contour", false);
+        if (convertToBI2Contour) {
+            boolean externalToBI2Contour = MaryProperties.getBoolean("prosody.externalToBI2Contour", false);
+            if (externalToBI2Contour) {
+                String externalFileName = MaryProperties.getFilename("prosody.ToBI2ContourMapFile");
+                try {
+                    toBI2ContourMap = getToBI2ContourMap(externalFileName);
+                } catch (IOException e) {
+                    throw new MaryConfigurationException("can't read ToBI2Contour lookup file: "+externalFileName, e);
+                }
+            } 
+            else {
+                toBI2ContourMap = getToBI2ContourMap();
+            }
+        }
+        
         super.startup();
     }
 
@@ -290,11 +317,148 @@ public class ProsodyGeneric extends InternalModule {
                 }
             }            
         }
+        if (convertToBI2Contour) {
+            convertTOBIAccents2ProsodyContour(doc);
+        }        
         MaryData result = new MaryData(outputType(), d.getLocale());
         result.setDocument(doc);
         return result;
     }
 
+    /**
+     * To convert all TOBI accents given in MARYXML document to suitable pitch contour shapes:
+     * 
+     * e.g. Input : <t accent="H*"> ball </t>
+     *      
+     *      Output: <prosody contour="(4%, +10%)(18%,+20%)(34%,+26%)(50%,+30%)(66%,+26%)(82%,+20%)(96%,+10%)"> 
+     *               <t accent="H*"> ball </t>
+     *              </prosody>    
+     *    
+     * @param MARYXML Document
+     * @throws Exception when XML processing fails   
+     */
+    private void convertTOBIAccents2ProsodyContour(Document doc) throws Exception {
+        
+            TreeWalker tw = MaryDomUtils.createTreeWalker(doc, MaryXML.TOKEN);
+            Element tokenElement = (Element) tw.nextNode();
+            
+            while ( tokenElement != null ) {
+                
+                boolean hasAccentAttribute = tokenElement.hasAttribute("accent");
+                if ( hasAccentAttribute ) {
+                    String accentAttribute = tokenElement.getAttribute("accent");
+                    
+                    boolean isDefined = this.toBI2ContourMap.containsKey(accentAttribute);
+                    if ( !isDefined ) {
+                        tokenElement = (Element) tw.nextNode();
+                        continue;
+                    }
+                    
+                    String contourValue = this.toBI2ContourMap.get(accentAttribute);
+                    assert contourValue != null : "contour attribute should not be null";
+                    
+                    Node tokenAncestor = tokenElement.getParentNode();
+                    Element prosody = MaryXML.createElement(doc, MaryXML.PROSODY);
+                    prosody.setAttribute("contour", contourValue);
+                    prosody.appendChild(tokenElement.cloneNode(true));
+                    tokenAncestor.insertBefore(prosody, tokenElement);
+                    Element nextTokenElement = (Element) tw.nextNode();
+                    if ( nextTokenElement == null ) {
+                        tokenAncestor.removeChild(tokenElement);
+                        break;
+                    }
+                    tokenAncestor.removeChild(tokenElement);
+                    tokenElement = nextTokenElement;
+                    continue;
+                }
+                tokenElement = (Element) tw.nextNode();
+            }    
+    }
+    
+    /**
+     * To verify whether the 'accent' contour shape defined or not  
+     * @param accentAttribute - TOBI accent
+     * @return true if given accent defined 
+     *         false if given accent not defined
+     */
+    @Deprecated
+    private boolean isDefinedAccent(String accentAttribute){
+        
+        if("H*".equals(accentAttribute)) return true;
+        if("L*".equals(accentAttribute)) return true;
+        if("L*+H".equals(accentAttribute)) return true;
+        if("L*+!H".equals(accentAttribute)) return true;
+        if("L+H*".equals(accentAttribute)) return true;
+        if("!H*".equals(accentAttribute)) return true;
+        
+        return false;
+    }
+    
+    /**
+     * A method to return pitch contour specification for given 'accent' which maintains a 'accent' to 'contour' lookup
+     * Note: If you add new accent pitch contour shape into lookup, do not forget to define in method isDefinedAccent(..)
+     * @param accentAttribute - TOBI accent
+     * @return  A suitable pitch contour specification for the given 'accent'
+     *          or null if not defined in lookup
+     */
+    @Deprecated
+    private String getAccentContour(String accentAttribute){
+                
+        if("H*".equals(accentAttribute)) return "(4%, +10%)(18%,+20%)(34%,+26%)(50%,+30%)(66%,+26%)(82%,+20%)(96%,+10%)";
+        if("L*".equals(accentAttribute)) return "(4%, -10%)(18%,-20%)(34%,-26%)(50%,-30%)(66%,-26%)(82%,-20%)(96%,-10%)";
+        if("L*+H".equals(accentAttribute)) return "(2%, -7%)(18%,-16%)(34%,-19%)(50%,-20%)(66%,-15%)(82%,-4%)(100%,+25%)";
+        if("L*+!H".equals(accentAttribute)) return "(0%, +5%)(4%, -7%)(18%,-16%)(34%,-20%)(48%, -7%)(52%, +10%)(66%,+20%)(82%,+26%)(100%,+30%)";
+        if("L+H*".equals(accentAttribute)) return "(0%, -20%)(18%,-19%)(34%,-17%)(45%, -7%)(55%, +10%)(66%,+25%)(82%,+28%)(100%,+30%)";
+        if("!H*".equals(accentAttribute)) return "(0%, +30%)(18%,+10%)(34%,+5%)(50%,0%)(66%,-13%)(82%,-17%)(100%,-20%)";
+        
+        return null;
+    }
+    
+    /**
+     * Get a default ToBI to Contour Map
+     * @return HashMap<String, String> TOBI to contour map
+     */
+    private HashMap<String, String> getToBI2ContourMap() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put("H*","(4%, +10%)(18%,+20%)(34%,+26%)(50%,+30%)(66%,+26%)(82%,+20%)(96%,+10%)");
+        map.put("L*","(4%, -10%)(18%,-20%)(34%,-26%)(50%,-30%)(66%,-26%)(82%,-20%)(96%,-10%)");
+        map.put("L*+H","(2%, -7%)(18%,-16%)(34%,-19%)(50%,-20%)(66%,-15%)(82%,-4%)(100%,+25%)");
+        map.put("L*+!H","(0%, +5%)(4%, -7%)(18%,-16%)(34%,-20%)(48%, -7%)(52%, +10%)(66%,+20%)(82%,+26%)(100%,+30%)");
+        map.put("L+H*", "(0%, -20%)(18%,-19%)(34%,-17%)(45%, -7%)(55%, +10%)(66%,+25%)(82%,+28%)(100%,+30%)");
+        map.put("!H*", "(0%, +30%)(18%,+10%)(34%,+5%)(50%,0%)(66%,-13%)(82%,-17%)(100%,-20%)");
+        return map;
+    }
+    
+    /**
+     * Read pitch contour specification into a map which maintains a 'accent' to 'contour' lookup
+     * @param externalFileName external lookup file
+     * @return HashMap<String, String> lookup map
+     * @throws IOException when reading external file fails
+     */
+    private HashMap<String, String> getToBI2ContourMap(String externalFileName) throws IOException {
+        
+        BufferedReader bfr = new BufferedReader( new FileReader( new File(externalFileName)));
+        HashMap<String, String> map = new HashMap<String, String>();
+        
+        String line;
+        while ( (line = bfr.readLine()) != null) {
+            
+            line = line.trim();
+            // skip lines start with '#'
+            if ( "".equals(line) || line.startsWith("#") ) {
+                continue;
+            }
+            
+            if (line.contains("|")) {
+                String[] words = line.split("\\|");
+                if (words.length == 2) {
+                    map.put(words[0], words[1]);
+                }
+            }
+        }
+        
+        return map;
+    }
     
     protected void processSentence (Element sentence)  {
     	

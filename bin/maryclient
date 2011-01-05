@@ -50,4 +50,4 @@ if [ $cygwin = 1 ] ; then
   CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
 fi
 
-java -ea -Dserver.host=localhost $* marytts.client.MaryGUIClient
+java -showversion -ea -Dserver.host=localhost $* marytts.client.MaryGUIClient

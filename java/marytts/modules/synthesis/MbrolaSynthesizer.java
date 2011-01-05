@@ -188,7 +188,10 @@ public class MbrolaSynthesizer implements WaveformSynthesizer {
         return "MbrolaSynthesizer";
     }
 
-    public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice)
+    /**
+     * {@inheritDoc}
+     */
+    public AudioInputStream synthesize(List<Element> tokensAndBoundaries, Voice voice, String outputParams)
         throws SynthesisException {
         if (!voice.synthesizer().equals(this)) {
             throw new IllegalArgumentException(

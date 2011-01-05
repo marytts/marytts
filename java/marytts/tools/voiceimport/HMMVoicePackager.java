@@ -1,3 +1,22 @@
+/**
+ * Copyright 2010 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 package marytts.tools.voiceimport;
 
 import java.io.BufferedReader;
@@ -5,20 +24,27 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 import java.util.SortedMap;
+import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import com.twmacinta.util.MD5;
 
+import marytts.cart.DecisionNode;
 import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;
 
@@ -65,6 +91,7 @@ public class HMMVoicePackager extends VoicePackager {
     private String mixFiltersFile;
     private String numFilters;
     
+    private String vocalizationSupport;
    /** Example context feature file (TARGETFEATURES in MARY) */
     public String featuresFileExample;
     
@@ -73,10 +100,16 @@ public class HMMVoicePackager extends VoicePackager {
      * if it was created, because there are tricky phones in the allophones set, then it should be in
      * voiceDIR/mary/trickyPhones.txt */
     private String trickyPhonesFile;
+    private String hmmFeaturesMapFile;
     private boolean trickyPhones;
     
     /** Variables for allowing the use of external prosody */
     private String useAcousticModels;
+    
+    /**
+     * Mapping in case of using alias names for extra features during training */
+    Map<String,String> actualFeatureNames = new HashMap<String, String>();
+    
     
     public HMMVoicePackager() {
         super("HMMVoicePackager");
@@ -105,7 +138,9 @@ public class HMMVoicePackager extends VoicePackager {
         FeaFile = name + ".FeaFile";
         trickyPhonesFile = name + ".trickyPhonesFile";
         trickyPhones = false;
+        hmmFeaturesMapFile = name + ".hmmFeaturesMapFile";        
         useAcousticModels = name + ".useAcousticModels";
+        vocalizationSupport = name + ".vocalizationSupport";
     }
 
     /**
@@ -149,6 +184,8 @@ public class HMMVoicePackager extends VoicePackager {
            props.put(mixFiltersFile, "hts/data/filters/mix_excitation_filters.txt"); 
            props.put(numFilters, "5");           
            props.put(trickyPhonesFile, "mary/trickyPhones.txt");
+           props.put(hmmFeaturesMapFile, "mary/hmmFeaturesMap.txt");
+           props.put(vocalizationSupport, "false");
            
        }
        return props;
@@ -194,9 +231,11 @@ public class HMMVoicePackager extends VoicePackager {
         props2Help.put(numFilters, "Number of filters in bandpass bank, default 5 filters (optional: used for mixed excitation)");
         props2Help.put(trickyPhonesFile, "list of aliases for tricky phones, so HTK-HHEd command can handle them. (This file" +
                       " is created automatically by HMMVoiceMakeData if aliases are necessary, otherwise it will not be created.)");
+        props2Help.put(hmmFeaturesMapFile, "list of aliases (mapping) for extra features used for training, so HTK-HHEd command can handle long string model names. This file" +
+        " is created automatically by HMMVoiceMakeData and it is located in mary/hmmFeaturesMap.txt.)");
         props2Help.put(useAcousticModels, "Use useAcousticModels: (true/alse), if true it will generate prosody parameters using the specified acoustic models and it allows to " +
         "modify prosody according to the tags in MARYXML");
-        
+        props2Help.put(vocalizationSupport, "if true package vocalization files with voice and set corresponding configuration settings");
     }
     
     @Override
@@ -205,6 +244,20 @@ public class HMMVoicePackager extends VoicePackager {
         File in, out;
         String rootDir = db.getProp(db.ROOTDIR);
         HashMap<String, File> files = new HashMap<String, File>();
+        
+        // Before setting the tree files, we need to check if they contain aliases for the extra features used for training
+        // if so there must be a file mary/hmmFeaturesMap.txt which has to be used to convert back the feature names
+        // Check if features map was used
+        System.out.println("Checking if aliases for extra features used for training were used");
+        File featuresMap = new File(rootDir + getProp(hmmFeaturesMapFile));
+        if(featuresMap.exists()) {
+          // convert back the features in all tree files: treeDurFile, treeLf0File, treeMcpFile, treeStrFile
+          loadFeaturesMap(rootDir + getProp(hmmFeaturesMapFile));
+          replaceBackFeatureNames(rootDir + getProp(treeDurFile));
+          replaceBackFeatureNames(rootDir + getProp(treeLf0File));
+          replaceBackFeatureNames(rootDir + getProp(treeMcpFile));
+          replaceBackFeatureNames(rootDir + getProp(treeStrFile));
+        }        
         
         in = new File(rootDir + getProp(treeDurFile));
         files.put(treeDurFile, in);
@@ -252,10 +305,30 @@ public class HMMVoicePackager extends VoicePackager {
         // if there is a trickyPhones file
         in = new File(rootDir + getProp(trickyPhonesFile));
         if(in.exists()){
-          //out = new File(newVoiceDir + getFileName(getProp(trickyPhonesFile)));
-          //FileUtils.copy(in,out);
           files.put(trickyPhonesFile, in);  
           trickyPhones = true;
+        }
+        
+        if ( "true".equals( getProp(vocalizationSupport) ) ) {
+            
+            String[] vocalizationProperties = { 
+                    "VocalizationFeatureFileWriter.featureDefinition",
+                    "VocalizationFeatureFileWriter.featureFile",
+                    "VocalizationUnitfileWriter.unitFile", 
+                    "VocalizationIntonationWriter.intonationTimeLineFile", 
+                    "VocalizationIntonationWriter.intonationFeatureDefinition",
+                    "MLSAFeatureFileWriter.mlsaOutputFile" };
+            
+            for (String property : vocalizationProperties) {
+                String fileName;
+                try {
+                    fileName = db.getProperty(property);
+                } catch (NullPointerException e) {
+                    throw e;
+                }
+                File file = new File(fileName);
+                files.put(property, file);
+            }
         }
         
         /* copy one example of MARY context features file, it can be one of the 
@@ -399,7 +472,7 @@ public class HMMVoicePackager extends VoicePackager {
             } else {
                 configOut.println(voiceHeader+".trickyPhonesFile = \r");  
             }
-
+            
             configOut.println("\r\n# Information about Mixed Excitation\r");
             configOut.println(voiceHeader + ".useMixExc = " + getProp(useMixExc) + "\r\n\r");
             if( new File(rootDir + getProp(treeStrFile)).exists()) {
@@ -428,9 +501,143 @@ public class HMMVoicePackager extends VoicePackager {
                     voiceHeader+".F0.attribute = f0\r");                
 
             configOut.println("\r");
+            
+            if ( "true".equals( getProp(vocalizationSupport) ) ) {
+                configOut.println("\r");
+                configOut.println("# support for synthesis of vocalizations\r");
+                configOut.println(voiceHeader+ ".vocalizationSupport = true\r");
+                configOut.println(voiceHeader+ ".vocalization.unitfile = MARY_BASE/lib/voices/"+voicename+"/vocalization_units.mry\r");
+                configOut.println(voiceHeader+ ".vocalization.featurefile = MARY_BASE/lib/voices/"+voicename+"/vocalization_features.mry\r");
+                configOut.println(voiceHeader+ ".vocalization.featureDefinitionFile = MARY_BASE/lib/voices/"+voicename+"/vocalization_feature_definition.txt\r");
+                configOut.println(voiceHeader+ ".vocalization.intonationfile = MARY_BASE/lib/voices/"+voicename+"/vocalization_intonation.mry\r");
+                configOut.println(voiceHeader+ ".vocalization.synthesisTechnology = mlsa\r");
+                configOut.println("\r");
+                configOut.println(voiceHeader+ ".f0ContourImposeSupport = true\r");
+                configOut.println(voiceHeader+ ".vocalization.usePrecondition = true\r");
+                configOut.println(voiceHeader+ ".vocalization.contourCostWeight = 0.05\r");
+                configOut.println(voiceHeader+ ".vocalization.imposePolynomialContour = true\r");
+                configOut.println(voiceHeader+ ".vocalization.mlsafeaturefile = MARY_BASE/lib/voices/"+voicename+"/vocalization_mlsa_features.mry\r");
+                configOut.println(voiceHeader+ ".vocalization.mixedexcitationfilter = MARY_BASE/lib/voices/"+voicename+"/mix_excitation_filters.txt\r");
+                configOut.println(voiceHeader+ ".vocalization.intonation.featureDefinitionFile = MARY_BASE/lib/voices/"+voicename+"/vocalization_f0_feature_definition.txt\r");
+                configOut.println(voiceHeader+ ".vocalization.intonation.numberOfSuitableUnits = 5\r");
+            }
 
             configOut.close();
 
         return configFile;
     }
+    
+    /**
+     * Replace the aliases for features used during training
+     * @param treeFileName a HTS tree file
+     * @throws IOException
+     */
+    private void replaceBackFeatureNames(String treeFileName) throws IOException{
+      
+      int i, j, length, state;
+      BufferedReader s = null; 
+      FileWriter outputStream;
+      
+      //---outputStream.write(hmm_tts.getRealisedDurations());
+      //---outputStream.close();
+      String line, aux;
+      // read the file until the symbol the delimits an state is found
+      try {   
+        // output file to copy the result
+        outputStream = new FileWriter(treeFileName + ".tmp");
+        
+        // read lines of tree-*.inf fileName 
+        s = new BufferedReader(new InputStreamReader(new FileInputStream(treeFileName)));
+        logger.info("load: reading " + treeFileName);
+            
+        // skip questions section, but copy the lines on the temporary output
+        while((line = s.readLine()) != null) {
+          outputStream.write(line + "\n");
+          if (line.indexOf("QS") < 0 ) break;   /* a new state is indicated by {*}[2], {*}[3], ... */
+        }
+        
+        StringTokenizer sline;
+        String buf1, buf2, buf3, buf4;
+        while((line = s.readLine()) != null) {
+          //System.out.println("line: " + line);
+          if(line.indexOf("{") >= 0 || line.indexOf("}") >= 0 || line.length()==0){ /* this is the indicator of a new state-tree */
+            outputStream.write(line + "\n");           
+          } else {              
+            sline = new StringTokenizer(line);
+            buf1 = sline.nextToken();
+            buf2 = sline.nextToken();            
+            String [] fea = buf2.split("=");            
+            buf3 = sline.nextToken();            
+            buf4 = sline.nextToken();
+            //System.out.format("newLine:  %s %s=%s\t\t%s\t%s\n", buf1, replaceBack(fea[0]), fea[1], buf3, buf4);            
+            outputStream.write(" " + buf1 + " " + replaceBack(fea[0]) + "=" + fea[1] + "\t\t" + buf3 + "\t" + buf4 + "\n");            
+          }
+        }
+        outputStream.close();
+        System.out.println("Features alises replaced in file: " + treeFileName + ".tmp");  
+        // now replace the file
+        FileUtils.copy(treeFileName + ".tmp", treeFileName); 
+        System.out.println("Copied file: " + treeFileName + ".tmp" + "  to: " + treeFileName + "\n"); 
+        
+       } catch (IOException e) {
+              logger.debug("FileNotFoundException: " + e.getMessage());
+              throw new IOException("LoadTreeSet: " + e.getMessage());
+      }
+   
+    }
+    
+    /**
+     * Load mapping of features from file
+     * @param fileName 
+     * @throws FileNotFoundException
+     */
+    private Map<String,String> loadFeaturesMap(String fileName) throws FileNotFoundException{
+        
+        Scanner aliasList = null;
+        try {
+          aliasList = new Scanner(new BufferedReader(new FileReader(fileName)));
+          String line;
+          logger.info("loading features map from file: " + fileName);
+          while (aliasList.hasNext()) {
+            line = aliasList.nextLine();
+            String[] fea = line.split(" ");
+                      
+            actualFeatureNames.put(fea[1], fea[0]);
+            logger.info("  " + fea[0] + " -->  " + fea[1]);             
+          }
+          if (aliasList != null) { 
+            aliasList.close();
+          }       
+        } catch (FileNotFoundException e) {
+            logger.debug("loadTrickyPhones:  " + e.getMessage());
+             throw new FileNotFoundException();
+        } 
+        return actualFeatureNames;
+    }
+ 
+
+    
+    /**
+     * Replace label with information in the global map list actualFeatureNames
+     * @param lab replaced label
+     * @return
+     */
+    public String replaceBack(String lab){
+      
+      String s = lab;
+        
+      if( actualFeatureNames.containsKey(lab)){
+         s = actualFeatureNames.get(lab); 
+      } 
+      return s;        
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }

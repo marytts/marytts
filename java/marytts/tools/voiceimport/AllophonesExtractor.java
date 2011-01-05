@@ -29,12 +29,22 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.io.FileUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
 import marytts.client.MaryClient;
 import marytts.client.http.Address;
 import marytts.client.http.MaryHttpClient;
+import marytts.datatypes.MaryXML;
 import marytts.util.MaryUtils;
 import marytts.util.data.text.BasenameClassificationDefinitionFileReader;
-import marytts.util.io.FileUtils;
+import marytts.util.dom.DomUtils;
 
 /**
  * For the given texts, compute allophones, especially boundary tags.
@@ -156,27 +166,53 @@ public class AllophonesExtractor extends VoiceImportComponent {
         String outputDir = promptAllophonesDir.getAbsolutePath();
         String fullFileName = inputDir + File.separator + basename + db.getProp(db.TEXTEXT);
 
+        // this string controls whether style attributes are inserted into the prompt_allophones ("" -> disabled):
+        String style = "";
+        if (styleDefinition != null) {
+            style = getStyleFromStyleDefinition(basename);
+        }
+
         File textFile = new File(fullFileName);
-        String text = FileUtils.getFileAsString(textFile, "UTF-8");
+        String text = FileUtils.readFileToString(textFile, "UTF-8");
 
         // First, test if there is a corresponding .rawmaryxml file in textdir:
         File rawmaryxmlFile = new File(db.getProp(db.MARYXMLDIR) + File.separator + basename + db.getProp(db.MARYXMLEXT));
         if (rawmaryxmlFile.exists()) {
-            text = FileUtils.getFileAsString(rawmaryxmlFile, "UTF-8");
+            if (style.isEmpty()) {
+                // just pass through the raw file:
+                text = FileUtils.readFileToString(rawmaryxmlFile, "UTF-8");
+            } else {
+                // parse the .rawmaryxml file:
+                Document document = null;
+                try {
+                    document = DomUtils.parseDocument(rawmaryxmlFile);
+                } catch (ParserConfigurationException e) {
+                    throw new IOException("Error parsing RAWMARYXML file: " + rawmaryxmlFile.getName(), e);
+                } catch (SAXException e) {
+                    throw new IOException("Error parsing RAWMARYXML file: " + rawmaryxmlFile.getName(), e);
+                }
+
+                // get the <maryxml> node:
+                Node maryXmlNode = document.getDocumentElement();
+                Node firstMaryXmlChild = maryXmlNode.getFirstChild();
+                Node lastMaryXmlChild = maryXmlNode.getLastChild();
+                // wrap the <maryxml>'s content in new <prosody> element...
+                Element topLevelProsody = DomUtils.encloseNodesWithNewElement(firstMaryXmlChild, lastMaryXmlChild,
+                        MaryXML.PROSODY);
+                // ...and set its style attribute:
+                topLevelProsody.setAttribute("style", style);
+
+                // convert the document to the text string:
+                text = DomUtils.document2String(document);
+            }
         } else {
             String prosodyOpeningTag = "";
             String prosodyClosingTag = "";
-            if (styleDefinition != null) {
-                String style = getStyleFromStyleDefinition(basename);
-                if (!style.equals("")) {
-                    prosodyOpeningTag = "<prosody style=\"" + style + "\">\n";
-                    prosodyClosingTag = "</prosody>";
-                }
+            if (!style.isEmpty()) {
+                prosodyOpeningTag = String.format("<%s style=\"%s\">\n", MaryXML.PROSODY, style);
+                prosodyClosingTag = String.format("</%s>\n", MaryXML.PROSODY);
             }
-            text = getMaryXMLHeaderWithInitialBoundary(xmlLocale) + prosodyOpeningTag
-                    + FileUtils.getFileAsString(new File(inputDir + basename + db.getProp(db.TEXTEXT)), "UTF-8")
-                    + prosodyClosingTag + "</maryxml>";
-
+            text = getMaryXMLHeaderWithInitialBoundary(xmlLocale) + prosodyOpeningTag + text + prosodyClosingTag + "</maryxml>";
         }
 
         OutputStream os = new BufferedOutputStream(new FileOutputStream(new File(outputDir, basename + featsExt)));

@@ -255,7 +255,7 @@ public class Voice
             acousticModels = new HashMap<String, Model>();
 
             // add boundary "model" (which could of course be overwritten by appropriate properties in voice config):
-            acousticModels.put("boundary", new BoundaryModel(symbolicFPM, "boundary", null, "duration", null, null, null, "boundaries"));
+            acousticModels.put("boundary", new BoundaryModel(symbolicFPM, null, "duration", null, null, null, "boundaries"));
 
             StringTokenizer acousticModelStrings = new StringTokenizer(acousticModelsString);
             do {
@@ -284,29 +284,29 @@ public class Voice
                 Model model = null;
                 switch (possibleModelTypes) {
                 case CART:
-                    model = new CARTModel(symbolicFPM, modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                    model = new CARTModel(symbolicFPM, modelDataFileName, modelAttributeName, modelAttributeFormat,
                             modelFeatureName, modelPredictFrom, modelApplyTo);
                     break;
 
                 case SOP:
-                    model = new SoPModel(symbolicFPM, modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                    model = new SoPModel(symbolicFPM, modelDataFileName, modelAttributeName, modelAttributeFormat,
                             modelFeatureName, modelPredictFrom, modelApplyTo);
                     break;
 
                 case HMM:
                     // if we already have a HMM duration or F0 model, and if this is the other of the two, and if so,
                     // and they use the same dataFile, then let them be the same instance:
+                    // if this is the case set the boolean variable predictDurAndF0 to true in HMMModel
                     if (getDurationModel() != null && getDurationModel() instanceof HMMModel && modelName.equalsIgnoreCase("F0")
                             && modelDataFileName.equals(getDurationModel().getDataFileName())) {
                         model = getDurationModel();
-                        // set the attribute name, which is different to the already one set
-                        ((HMMModel)model).addTargetAttributeName(modelAttributeName);
+                        ((HMMModel)model).setPredictDurAndF0(true);  
                     } else if (getF0Model() != null && getF0Model() instanceof HMMModel && modelName.equalsIgnoreCase("duration")
                             && modelDataFileName.equals(getF0Model().getDataFileName())) {
                         model = getF0Model();
-                        ((HMMModel)model).addTargetAttributeName(modelAttributeName);
+                        ((HMMModel)model).setPredictDurAndF0(true);
                     } else {
-                        model = new HMMModel(symbolicFPM, modelType, modelDataFileName, modelAttributeName, modelAttributeFormat,
+                        model = new HMMModel(symbolicFPM, modelDataFileName, modelAttributeName, modelAttributeFormat,
                                 modelFeatureName, modelPredictFrom, modelApplyTo);
                     }
                     break;
@@ -444,11 +444,12 @@ public class Voice
     /**
      * Synthesize a list of tokens and boundaries with the waveform synthesizer
      * providing this voice.
+     * @param outputParams 
      */
-    public AudioInputStream synthesize(List<Element> tokensAndBoundaries)
+    public AudioInputStream synthesize(List<Element> tokensAndBoundaries, String outputParams)
         throws SynthesisException
     {
-        return synthesizer.synthesize(tokensAndBoundaries, this);
+        return synthesizer.synthesize(tokensAndBoundaries, this, outputParams);
     }
     
     /**

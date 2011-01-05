@@ -34,6 +34,7 @@ import java.nio.FloatBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Vector;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.ByteValuedFeatureProcessor;
 import marytts.features.MaryGenericFeatureProcessors;
 import marytts.modules.phonemiser.Allophone;
@@ -93,7 +94,7 @@ public class JoinCostFeatures implements JoinCostFunction
     /**
      * Constructor which read a Mary Join Cost file.
      */
-    public JoinCostFeatures( String fileName ) throws IOException
+    public JoinCostFeatures( String fileName ) throws IOException, MaryConfigurationException
     {
         load(fileName, null, null,(float)0.5);
     }
@@ -104,13 +105,17 @@ public class JoinCostFeatures implements JoinCostFunction
      * @param configPrefix the prefix for the (voice-specific) config entries
      * to use when looking up files to load.
      */
-    public void init(String configPrefix) throws IOException
+    public void init(String configPrefix) throws MaryConfigurationException
     {
         String joinFileName = MaryProperties.needFilename(configPrefix+".joinCostFile");
         String joinWeightFile = MaryProperties.getFilename(configPrefix + ".joinCostWeights");
         String precomputedJoinCostFileName = MaryProperties.getFilename(configPrefix+".precomputedJoinCostFile");
         float wSignal = Float.parseFloat(MaryProperties.getProperty(configPrefix+".joincostfunction.wSignal", "1.0"));
-        load(joinFileName, joinWeightFile, precomputedJoinCostFileName, wSignal);
+        try {
+            load(joinFileName, joinWeightFile, precomputedJoinCostFileName, wSignal);
+        } catch (IOException ioe) {
+            throw new MaryConfigurationException("Problem loading join file "+joinFileName, ioe);
+        }
     }
     
     /**
@@ -122,7 +127,7 @@ public class JoinCostFeatures implements JoinCostFunction
      *                phonetic join costs computed from the target 
      */
     public void load(String joinFileName, String weightsFileName, String precompiledCostFileName,float wSignal)
-    throws IOException
+    throws IOException, MaryConfigurationException
     {
         loadFromByteBuffer(joinFileName, weightsFileName, precompiledCostFileName, wSignal);
     }
@@ -136,7 +141,7 @@ public class JoinCostFeatures implements JoinCostFunction
      *                phonetic join costs computed from the target 
      */
     private void loadFromByteBuffer(String joinFileName, String weightsFileName, String precompiledCostFileName,float wSignal)
-    throws IOException
+    throws IOException, MaryConfigurationException
     {
         if (precompiledCostFileName != null) {
             precompiledCosts = new PrecompiledJoinCostReader(precompiledCostFileName);
@@ -149,9 +154,6 @@ public class JoinCostFeatures implements JoinCostFunction
         ByteBuffer bb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
         /* Read the Mary header */
         hdr = new MaryHeader(bb);
-        if ( !hdr.isMaryHeader() ) {
-            throw new IOException( "File [" + joinFileName + "] is not a valid Mary format file." );
-        }
         if ( hdr.getType() != MaryHeader.JOINFEATS ) {
             throw new IOException( "File [" + joinFileName + "] is not a valid Mary join features file." );
         }
@@ -225,7 +227,7 @@ public class JoinCostFeatures implements JoinCostFunction
      *                phonetic join costs computed from the target 
      */
     private void loadFromStream(String joinFileName, String weightsFileName, String precompiledCostFileName,float wSignal)
-    throws IOException
+    throws IOException, MaryConfigurationException
     {
         if (precompiledCostFileName != null) {
             precompiledCosts = new PrecompiledJoinCostReader(precompiledCostFileName);
@@ -237,11 +239,8 @@ public class JoinCostFeatures implements JoinCostFunction
         DataInput raf = new DataInputStream(new BufferedInputStream(new FileInputStream( fid )));
         /* Read the Mary header */
         hdr = new MaryHeader( raf );
-        if ( !hdr.isMaryHeader() ) {
-            throw new IOException( "File [" + joinFileName + "] is not a valid Mary format file." );
-        }
         if ( hdr.getType() != MaryHeader.JOINFEATS ) {
-            throw new IOException( "File [" + joinFileName + "] is not a valid Mary join features file." );
+            throw new MaryConfigurationException( "File [" + joinFileName + "] is not a valid Mary join features file." );
         }
         try {
             /* Read the feature weights and feature processors */

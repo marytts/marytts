@@ -75,12 +75,13 @@ THIS SOFTWARE.
 
   <target name="compile" depends="version">
     <!-- Compile the java code from ${src} -->
-    <javac srcdir="${src}" classpathref="project.classpath" source="1.5"
-           target="1.5" encoding="UTF-8" debug="on" fork="true" memoryInitialSize="64m" memoryMaximumSize="256m"/>
+    <javac srcdir="${src}" classpathref="project.classpath" includeantruntime="false" source="1.6"
+           target="1.6" encoding="UTF-8" debug="on" fork="true" memoryInitialSize="64m" memoryMaximumSize="256m"/>
   </target>
 
 
   <target name="tests" depends="compile">
+    <mkdir dir="log/test-reports"/>
     <junit printsummary="on" haltonfailure="no" fork="on" forkmode="once">
     	<classpath>
   	        <pathelement location="${dest}"/>
@@ -91,11 +92,11 @@ THIS SOFTWARE.
       <sysproperty key="modules.poweronselftest" value="false"/>
       <sysproperty key="log.tofile" value="true"/>
       <sysproperty key="log.filename" value="log/junittest.mary.log"/>
-      <formatter type="plain"/>
-    	<batchtest todir="log">
+      <formatter type="xml"/>
+    	<batchtest todir="log/test-reports">
     		<fileset dir="${src}">
     		      <include name="marytts/tests/junit4/*.java"/>
-	  		      <include name="marytts/tests/junit4/language/**/*.java"/>			
+  		      <!--include name="marytts/tests/junit4/language/**/*.java"/-->			
     		</fileset>
     	</batchtest>
     </junit>
@@ -122,7 +123,7 @@ THIS SOFTWARE.
              author="true"
              version="true"
              use="true"
-             source="1.5"
+             source="1.6"
              access="protected"
              encoding="UTF-8"
              overview="${src}/marytts/overview.html"
@@ -248,6 +249,20 @@ THIS SOFTWARE.
 	    </jar>
 	  </target>
 
+	  <!-- Russian language modules -->
+	  <target name="mary-ru.jar" depends="compile,version">
+	    <jar destfile="${dest}/mary-ru.jar"
+	         basedir="${src}"
+	         includes="marytts/language/ru/**/*.class
+	                   marytts/language/ru/datatypes/*.example">
+	      <manifest>
+	        <attribute name="Built-By" value="${user.name}"/>
+	        <attribute name="Specification-Version" value="${specification.version}"/>
+	        <attribute name="Implementation-Version" value="${implementation.version}"/>
+	      </manifest>
+	    </jar>
+	  </target>
+
 	  <!-- Telugu language modules -->
 	  <target name="mary-te.jar" depends="compile,version">
 	    <jar destfile="${dest}/mary-te.jar"
@@ -279,7 +294,7 @@ THIS SOFTWARE.
     </jar>
   </target-->
 
-  <target name="languagejars" depends="mary-en.jar,mary-de.jar,mary-tr.jar,mary-te.jar"/>
+  <target name="languagejars" depends="mary-en.jar,mary-de.jar,mary-tr.jar,mary-te.jar,mary-ru.jar"/>
 
 
 
@@ -435,7 +450,7 @@ THIS SOFTWARE.
         <attribute name="Built-By" value="${user.name}"/>
         <attribute name="Main-Class"
          value="marytts.tools.install.InstallerGUI"/>
-        <attribute name="Class-Path" value="fast-md5.jar swing-layout-1.0.jar mary-common.jar log4j-1.2.15.jar"/>
+        <attribute name="Class-Path" value="fast-md5.jar swing-layout-1.0.jar mary-common.jar log4j-1.2.15.jar commons-lang-2.4.jar"/>
         </manifest>
         </jar>
   </target>
@@ -484,7 +499,7 @@ THIS SOFTWARE.
       	<marytts-install xmlns="http://mary.dfki.de/installer">
 	      	<language locale="${lang}" name="${lang}" version="${specification.version}">
 	      	  <description>
-	      	  ${lang} language component
+	      	  ${lang-fullname} language component
 	      	  </description>
 	      	  <license href="http://www.gnu.org/licenses/lgpl-3.0-standalone.html"/>
 	      	  <package size="${package.filesize}" md5sum="${package.md5}" filename="mary-${lang}-${specification.version.nospace}.zip">
@@ -551,21 +566,31 @@ THIS SOFTWARE.
 	      </echoxml>
 	</target>
 
-	      		<target name="de-package">
+    <target name="de-package">
       <antcall target="default-language-package">
         <param name="lang" value="de"/>
+        <param name="lang-fullname" value="German"/>
       </antcall>
     </target>
 
     <target name="te-package">
       <antcall target="default-language-package">
         <param name="lang" value="te"/>
+        <param name="lang-fullname" value="Telugu"/>
       </antcall>
     </target>
 
     <target name="tr-package">
       <antcall target="default-language-package">
         <param name="lang" value="tr"/>
+        <param name="lang-fullname" value="Turkish"/>
+      </antcall>
+    </target>
+
+    <target name="ru-package">
+      <antcall target="default-language-package">
+        <param name="lang" value="ru"/>
+        <param name="lang-fullname" value="Russian"/>
       </antcall>
     </target>
 
@@ -613,6 +638,7 @@ THIS SOFTWARE.
 		de-package,
 		te-package,
 		tr-package,
+		ru-package,
 		cmu-slt-hsmm-package" />
 	
 	 
@@ -644,7 +670,7 @@ THIS SOFTWARE.
               <fileset dir="${dest}" includes="de/dfki/lt/izpack/LicensePanel*.class"/>
             </delete>
             <javac srcdir="${src}" includes="de/dfki/lt/izpack/LicensePanel*.java" 
-                   classpathref="project.classpath" source="1.4"
+                   classpathref="project.classpath" includeantruntime="false" source="1.4"
                    target="1.4" encoding="UTF-8" debug="on"/>
 	    <jar destfile="build/bin/panels/de.dfki.lt.izpack.LicensePanel.jar"
 	         basedir="${src}"
@@ -665,7 +691,7 @@ THIS SOFTWARE.
               <fileset dir="${dest}" includes="de/dfki/lt/izpack/AutomatedInstaller*.class"/>
             </delete>
             <javac srcdir="${src}" includes="de/dfki/lt/izpack/AutomatedInstaller*.java" 
-                   classpathref="project.classpath" source="1.4"
+                   classpathref="project.classpath" includeantruntime="false" source="1.4"
                    target="1.4" encoding="UTF-8" debug="on"/>
             <jar destfile="build/de.dfki.lt.izpack.AutomatedInstaller.jar"
                  basedir="${src}"
@@ -718,9 +744,13 @@ THIS SOFTWARE.
             <author name="Jochen Steigner" email=""/>
             <author name="Stefanie Becker" email=""/>
             <author name="...and many others!" email=""/>
+    		<author name="" email=""/>
+    		<author name="Special thanks to:" email=""/>
+    		<author name="Nickolay Shmyrev for providing Russian support!" email=""/>
+       		<author name="" email=""/>
         </authors>
         <url>http://mary.dfki.de</url>
-        <javaversion>1.5</javaversion>
+        <javaversion>1.6</javaversion>
     	<run-privileged condition="izpack.windowsinstall"/>
         <webdir>http://mary.dfki.de/download</webdir>
     </info>
@@ -823,6 +853,7 @@ THIS SOFTWARE.
 					java/Jampack.jar,
 					java/JavaOpenAIR.jar,
 					java/commons-collections-3.2.1.jar,
+					java/commons-io-1.4.jar,
 					java/commons-lang-2.4.jar,
 					java/emospeak.jar,
 					java/emospeakapplet.jar,
@@ -842,6 +873,7 @@ THIS SOFTWARE.
 					java/junit-4.7.jar,
 					java/log4j-1.2.15.jar,
 					java/mary-common.jar,
+					java/mary-mbrola.jar,
 					java/maryclient.jar,
 					java/maxent-2.5.1.jar,
 					java/opennlp-tools-1.4.1.jar,
@@ -913,8 +945,8 @@ This component includes GPL'ed code and is thus shipped under the GPL 3.
 						java/transcription-tool.jar,
                         java/redstart.jar,
                         java/voiceimport.jar,
-                        java/commons-io-1.4.jar,
     					lib/external/hts/**,
+    					lib/external/vocalizations/**,
                         lib/external/check_install_external_programs.sh,
                         lib/external/ehmm.tar.gz"/>
             <fileset os="windows" dir="." targetdir="$INSTALL_PATH"
@@ -942,10 +974,8 @@ This component includes GPL'ed code and is thus shipped under the GPL 3.
     	</description>
     	            <file src="doc/javadoc" targetdir="$INSTALL_PATH/doc"/> <!-- Reccursive adding -->
     	            <fileset dir="." targetdir="$INSTALL_PATH"
-    	            includes="java/**/*.java,
-    					java/**/*.xsl,
-    					java/**/*.txt,
-    					java/**/*.html,
+    	            excludes="java/**/*.class"
+    	            includes="java/**,
     					src/**/*,
     					examples,
     					.project,

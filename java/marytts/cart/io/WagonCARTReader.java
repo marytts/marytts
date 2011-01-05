@@ -33,6 +33,7 @@ import java.util.StringTokenizer;
 import marytts.cart.DecisionNode;
 import marytts.cart.LeafNode;
 import marytts.cart.Node;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.util.data.MaryHeader;
@@ -168,15 +169,12 @@ public class WagonCARTReader {
      */
    // TODO: CHECK! do we need that String[] dummy???
     public Node load(String fileName, FeatureDefinition featDefinition, String[] dummy )
-            throws IOException {
+            throws IOException, MaryConfigurationException {
         cleadReader();
         //System.out.println("Loading file");
         // open the CART-File and read the header
         DataInput raf = new DataInputStream(new BufferedInputStream(new FileInputStream(fileName)));
         MaryHeader maryHeader = new MaryHeader(raf);
-        if (!maryHeader.hasLegalMagic()) {
-            throw new IOException("No MARY database file!");
-        }
         if (!maryHeader.hasCurrentVersion()) {
             throw new IOException("Wrong version of database file");
         }
@@ -250,6 +248,11 @@ public class WagonCARTReader {
             // some values are enclosed in double quotes:
             if (value.startsWith("\"") && value.endsWith("\"") && value.length() > 2)
                 value = value.substring(1, value.length() - 1);
+
+            // a literal double quote is escaped by backslash, so unescape it:
+            if (value.contains("\\\"")) {
+                value = value.replaceAll("\\\\\"", "\"");
+            }
 
             // build new node depending on type
 
@@ -350,7 +353,9 @@ public class WagonCARTReader {
                 index++;
             }
             // for debugging
-            int nodeIndex = nextNode.getNodeIndex();
+            if (nextNode != null) {
+                int nodeIndex = nextNode.getNodeIndex();
+            }
 
         }
     }

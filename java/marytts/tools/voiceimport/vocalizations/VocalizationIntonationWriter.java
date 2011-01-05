@@ -42,6 +42,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureVector;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchFileHeader;
@@ -91,6 +92,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
     public final String SKIPSIZE = getName()+".skipSize";
     public final String WINDOWSIZE = getName()+".windowSize";
     public final String F0TIMELINE = getName()+".intonationTimeLineFile";
+    public final String F0FEATDEF = getName()+".intonationFeatureDefinition";
     
     public String getName() {
         return "VocalizationIntonationWriter";
@@ -139,6 +141,7 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
            props.put(SKIPSIZE, "0.005");
            props.put(WINDOWSIZE, "0.005");
            props.put(F0TIMELINE, db.getProp(db.VOCALIZATIONSDIR)+File.separator+"files"+File.separator+"vocalization_intonation"+db.getProp(db.MARYEXT));
+           props.put(F0FEATDEF, db.getProp(db.VOCALIZATIONSDIR)+File.separator+"features"+File.separator+"vocalization_f0_feature_definition.txt");
        }
        return props;
     }
@@ -152,7 +155,8 @@ public class VocalizationIntonationWriter extends VoiceImportComponent {
      *  Reads and concatenates a list of waveforms into one single timeline file.
      * @throws IOException 
      */
-    public boolean compute() throws IOException {
+    @Override
+    public boolean compute() throws IOException, MaryConfigurationException {
         
         listenerUnits = new VocalizationUnitFileReader(getProp(UNITFILE));
         
