@@ -411,6 +411,12 @@
 			</reportSet>
 		</reportSets>
       </plugin>
+   	  <!-- Number of lines of code: -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>javancss-maven-plugin</artifactId>
+        <version>2.0</version>
+      </plugin>
 
 
     </plugins>
