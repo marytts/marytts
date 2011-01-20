@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>marytts</groupId>
+  <artifactId>marytts</artifactId>
+  <version>5.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>MARY TTS</name>
+  <url>http://mary.dfki.de</url>
+
+  <modules>
+    <module>marytts-signalproc</module>
+    <module>marytts-jungle</module>
+    <module>marytts-common</module>
+  </modules>
+
+<!--
+  <modules>
+    <module>marytts-signalproc</module>
+    <module>marytts-common</module>
+    <module>marytts-client</module>
+    <module>marytts-server</module>
+    <module>marytts-de</module>
+    <module>marytts-en</module>
+    <module>marytts-en-US</module>
+    <module>marytts-en-GB</module>
+    <module>marytts-te</module>
+    <module>marytts-tr</module>
+    <module>marytts-ru</module>
+  </modules>
+-->
+
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- For 'mvn eclipse:eclipse': -->
+    <!--downloadJavadocs>true</downloadJavadocs-->
+    <downloadSources>true</downloadSources>
+  </properties>
+
+<!-- The following snipped automatically activates maven-site-plugin 3.x when run with Maven 3.x -->
+<profiles>
+    <profile>
+      <id>maven-3</id>
+      <activation>
+        <file>
+          <!--  This employs that the basedir expression is only recognized by Maven 3.x (see MNG-2363) -->
+          <exists>${basedir}</exists>
+        </file>
+      </activation>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-site-plugin</artifactId>
+              <version>3.0-beta-3</version>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+        <plugins>
+          <plugin>
+            <artifactId>maven-site-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-descriptor</id>
+                <goals>
+                  <goal>attach-descriptor</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+<build>
+    <!-- To define the plugin version in your parent POM -->
+    <pluginManagement>
+      <plugins>
+        <plugin>
+           <groupId>org.apache.maven.plugins</groupId>
+           <artifactId>maven-site-plugin</artifactId>
+           <version>2.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>findbugs-maven-plugin</artifactId>
+          <version>2.3.1</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>2.3.2</version>
+      <configuration>
+        <source>1.6</source>
+        <target>1.6</target>
+      </configuration>
+    </plugin>
+    
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.7.1</version>
+        <configuration>
+		  <forkMode>pertest</forkMode>
+		  <argLine>-Xms256m -Xmx512m</argLine>
+		  <excludes>
+            <exclude>**/util/**/*.java</exclude>
+            <exclude>**/language/de/PreprocessorTest.java</exclude>
+            <exclude>**/language/de/JTokeniserTest.java</exclude>
+            <exclude>**/modules/MaryModuleTestCase.java</exclude>            
+          </excludes>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>2.3.1</version>
+      </plugin>
+
+  </plugins>
+</build>
+
+  
+  <!-- Reports generated when executing 'mvn site' -->
+  <reporting>
+    <plugins>
+      <!-- Generate a number of generic site description pages: -->
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-project-info-reports-plugin</artifactId>
+		<version>2.2</version>
+	  </plugin>
+	  <!-- Generate javadoc: -->
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-javadoc-plugin</artifactId>
+		<version>2.7</version>
+	  </plugin>
+	  <!-- Look for duplicate code (CPD): -->
+      <plugin>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <version>2.5</version>
+        <configuration>
+                <linkXref>true</linkXref>
+                <sourceEncoding>UTF-8</sourceEncoding>
+                <minimumTokens>30</minimumTokens>
+                <targetJdk>1.6</targetJdk>
+				<reportSets>
+				  <reportSet>
+					<reports>
+					  <!--report>pmd</report-->
+					  <report>cpd</report>
+					</reports>
+				  </reportSet>
+				</reportSets>
+        </configuration>
+      </plugin>
+      <!-- Check style guidelines -->
+      <!--plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>2.6</version>
+      </plugin-->
+      <!-- Look for typical programming mistakes: -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>2.3.1</version>
+        <configuration>
+          <findbugsXmlOutput>true</findbugsXmlOutput>
+          <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+          <xmlOutput>true</xmlOutput>
+          <!--excludeFilterFile>findbugs-excludes.xml</excludeFilterFile-->
+        </configuration>
+      </plugin>
+      <!-- Measure the test code coverage: -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>emma-maven-plugin</artifactId>
+        <version>1.0-alpha-3</version>
+      </plugin>
+      <!-- Web page presenting unit test results: -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>2.7.1</version>
+		<reportSets>
+			<reportSet>
+				<reports>
+					<report>report-only</report>
+				</reports>
+			</reportSet>
+		</reportSets>
+      </plugin>
+   	  <!-- Number of lines of code: -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>javancss-maven-plugin</artifactId>
+        <version>2.0</version>
+      </plugin>
+
+
+    </plugins>
+  </reporting>
+
+
+</project>
