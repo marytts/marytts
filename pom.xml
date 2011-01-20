@@ -1,116 +1,44 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>marytts</artifactId>
+    <groupId>marytts</groupId>
+    <version>5.0-SNAPSHOT</version>
+  </parent>
 
   <groupId>marytts</groupId>
-  <artifactId>marytts</artifactId>
+  <artifactId>marytts-jungle</artifactId>
   <version>5.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>MARY TTS</name>
+  <name>marytts-jungle</name>
   <url>http://mary.dfki.de</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-<!-- The following snipped automatically activates maven-site-plugin 3.x when run with Maven 3.x -->
-<profiles>
-    <profile>
-      <id>maven-3</id>
-      <activation>
-        <file>
-          <!--  This employs that the basedir expression is only recognized by Maven 3.x (see MNG-2363) -->
-          <exists>${basedir}</exists>
-        </file>
-      </activation>
-      <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-site-plugin</artifactId>
-              <version>3.0-beta-3</version>
-            </plugin>
-          </plugins>
-        </pluginManagement>
-        <plugins>
-          <plugin>
-            <artifactId>maven-site-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-descriptor</id>
-                <goals>
-                  <goal>attach-descriptor</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-
-<build>
-    <!-- To define the plugin version in your parent POM -->
-    <pluginManagement>
-      <plugins>
-        <plugin>
-           <groupId>org.apache.maven.plugins</groupId>
-           <artifactId>maven-site-plugin</artifactId>
-           <version>2.2</version>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>findbugs-maven-plugin</artifactId>
-          <version>2.3.1</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  <plugins>
-    <plugin>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-compiler-plugin</artifactId>
-      <version>2.3.2</version>
-      <configuration>
-        <source>1.6</source>
-        <target>1.6</target>
-      </configuration>
-    </plugin>
-    
-    <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.7.1</version>
-        <configuration>
-		  <forkMode>pertest</forkMode>
-		  <argLine>-Xms256m -Xmx512m</argLine>
-		  <excludes>
-            <exclude>**/util/**/*.java</exclude>
-            <exclude>**/language/de/PreprocessorTest.java</exclude>
-            <exclude>**/language/de/JTokeniserTest.java</exclude>
-            <exclude>**/modules/MaryModuleTestCase.java</exclude>            
-          </excludes>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>2.3.1</version>
-      </plugin>
-
-  </plugins>
-</build>
 
 
   <dependencies>
+
+    <dependency>
+      <groupId>marytts</groupId>
+      <artifactId>marytts-common</artifactId>
+      <version>5.0-SNAPSHOT</version>
+    </dependency>  
+    <dependency>
+      <groupId>marytts</groupId>
+      <artifactId>marytts-signalproc</artifactId>
+      <version>5.0-SNAPSHOT</version>
+    </dependency>
+  
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.8.2</version>
       <scope>test</scope>
-      <!--scope>compile</scope-->
     </dependency>
     
     
