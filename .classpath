@@ -4,6 +4,7 @@
   <classpathentry kind="src" path="src/main/java" including="**/*.java"/>
   <classpathentry kind="src" path="src/main/resources" excluding="**/*.java"/>
   <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="var" path="M2_REPO/commons-io/commons-io/2.0.1/commons-io-2.0.1.jar" sourcepath="M2_REPO/commons-io/commons-io/2.0.1/commons-io-2.0.1-sources.jar"/>
   <classpathentry kind="lib" path="java/Jama-1.0.2.jar"/>
   <classpathentry kind="lib" path="java/freetts-mbrola.jar"/>
   <classpathentry kind="lib" path="java/freetts.jar"/>

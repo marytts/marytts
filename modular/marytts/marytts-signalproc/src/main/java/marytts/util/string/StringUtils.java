@@ -31,9 +31,8 @@ import java.net.URLEncoder;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import marytts.modules.phonemiser.Allophone;
-import marytts.signalproc.analysis.Label;
-import marytts.util.io.FileUtils;
+import org.apache.commons.io.FileUtils;
+
 import marytts.util.math.ComplexArray;
 import marytts.util.math.ComplexNumber;
 
@@ -312,166 +311,6 @@ public class StringUtils {
     }
     
     
-    //This version assumes that there can only be insertions and deletions but no substitutions 
-    // (i.e. text based alignment with possible differences in pauses only)
-    public static int[][] alignLabels(Label[] seq1, Label[] seq2)
-    {
-        return alignLabels(seq1, seq2, 0.05, 0.05, 0.05);
-    }
-    
-    public static int[][] alignLabels(Label[] labs1, Label[] labs2, double PDeletion, double PInsertion, double PSubstitution)
-    {
-        double PCorrect = 1.0-(PDeletion+PInsertion+PSubstitution);
-        int n = labs1.length;
-        int m = labs2.length;
-        double D;
-        int[][] labelMap = null;
-
-        if (n==0 || m==0)
-        {
-            D=m;
-            return labelMap;
-        }
-
-        int i, j;
-        double[][] d = new double[n+1][m+1];
-        for (i=0; i<d.length; i++)
-        {
-            for (j=0; j<d[i].length; j++)
-                d[i][j] = 0.0;
-        }
-
-        int[][] p = new int[n+1][m+1];
-        for (i=0; i<p.length; i++)
-        {
-            for (j=0; j<p[i].length; j++)
-                p[i][j] = 0;
-        }
-
-        double z = 1;
-        d[0][0] = z;
-        for (i=1; i<=n; i++)
-            d[i][0] = d[i-1][0]*PDeletion;
-
-        for (j=1; j<=m; j++)
-            d[0][j] = d[0][j-1]*PInsertion;
-
-        String strEvents = "DISC";
-        double c;
-        double tmp;
-        for (i=1; i<=n; i++)
-        {
-            for (j=1; j<=m; j++)
-            {
-                if (labs1[i-1].phn.compareTo(labs2[j-1].phn)==0)
-                    c = PCorrect;
-                else
-                    c = PSubstitution;
-
-                int ind = 1;
-                d[i][j] = d[i-1][j]*PDeletion;
-                tmp = d[i][j-1]*PInsertion;
-                if (tmp>d[i][j])
-                {
-                    d[i][j] = tmp;
-                    ind = 2;
-                }
-
-                tmp = d[i-1][j-1]*c;
-                if (tmp>d[i][j])
-                {
-                    d[i][j] = tmp;
-                    ind = 3;
-                }
-
-                if (ind==3 && labs1[i-1].phn.compareTo(labs2[j-1].phn)==0)
-                    ind = 4;
-
-                //Events 1:Deletion, 2:Insertion, 3:Substitution, 4:Correct
-                p[i][j] = ind;
-            }
-        }
-
-        //Backtracking
-        D = d[n][m];
-        int k = 1;
-        int[] E = new int[m*n];
-        E[k-1] = p[n][m];
-        i=n+1;
-        j=m+1;
-        int t=m;
-        while (true)
-        {
-            if (E[k-1]==3 || E[k-1]==4)
-            {
-                i=i-1;
-                j=j-1;
-            }
-            else if (E[k-1]==2)
-                j=j-1;
-            else if (E[k-1]==1)
-                i=i-1;
-
-            if (p[i-1][j-1]==0)
-            {
-                while (j>1)
-                {    
-                    k=k+1;
-                    j=j-1;
-                    E[k-1]=2;
-                }
-                break;
-            }
-            else
-            {
-                k=k+1;
-                E[k-1]=p[i-1][j-1];
-            }
-            t=t-1;
-        }
-
-        //Reverse the order
-        int[] Events = new int[k];
-        for (t=k; t>=1; t--)
-            Events[t-1] = E[k-t];
-        
-        int[][] tmpLabelMap = new int[n*m][2];
-        int ind = 0;
-        int ind1 = 0;
-        int ind2 = 0;
-        for (t=1; t<=k; t++)
-        {
-            if (Events[t-1]==3 || Events[t-1]==4) //Substitution or correct
-            {
-                tmpLabelMap[ind][0] = ind1;
-                tmpLabelMap[ind][1] = ind2;
-                ind1++;
-                ind2++;
-                ind++;
-            }
-            else if (Events[t-1]==1) //An item in seq1 is deleted in seq2
-            {
-                ind1++;
-            }
-            else if (Events[t-1]==2) //An item is inserted in seq2
-            {
-                ind2++;
-            }
-        }
-        
-        if (ind>0)
-        {
-            labelMap = new int[ind][2];
-            for (i=0; i<labelMap.length; i++)
-            {
-                labelMap[i][0] = tmpLabelMap[i][0];
-                labelMap[i][1] = tmpLabelMap[i][1];
-            }
-        }
-
-        return labelMap;
-    }
-    
     public static int findInMap(int[][] map, int ind0)
     {
         for (int i=0; i<map.length; i++)
@@ -560,18 +399,12 @@ public class StringUtils {
     }
     
     //Reads all rows as one String
-    public static String[] readTextFile(String textFile)
+    public static String[] readTextFile(String textFile) throws IOException
     {
-        String[][] tmp = readTextFileInRows(textFile, "ASCII", 1);
-        
-        String[] strRet = new String[tmp.length];
-        for (int i=0; i<tmp.length; i++)
-            strRet[i] = tmp[i][0];
-        
-        return strRet;
+        return readTextFile(textFile, "ASCII");
     }
     
-    public static String[] readTextFile(String textFile, String encoding)
+    public static String[] readTextFile(String textFile, String encoding) throws IOException
     {
         String[][] tmp = readTextFileInRows(textFile, encoding, 1);
         
@@ -582,10 +415,10 @@ public class StringUtils {
         return strRet;
     }
     
-    public static String[][] readTextFileInRows(String textFile, String encoding, int minimumItemsInOneLine)
+    public static String[][] readTextFileInRows(String textFile, String encoding, int minimumItemsInOneLine) throws IOException
     {
         String[][] entries = null;
-        String allText = readTextFileIntoString(textFile, encoding);
+        String allText = FileUtils.readFileToString(new File(textFile), encoding);
         
         if (allText!=null)
         {
@@ -597,26 +430,7 @@ public class StringUtils {
         return entries;
     }
     
-    /**
-     * Read text file as a single concatenated string
-     * @param textFile
-     * @param encoding
-     * @return
-     * @deprecated use {@link org.apache.commons.io.FileUtils#readFileToString(File, String)} instead
-     */
-    @Deprecated
-    public static String readTextFileIntoString(String textFile, String encoding)
-    {
-        String allText = null;
-        try {
-            allText = FileUtils.getFileAsString(new File(textFile), encoding);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        return allText;
-    }
+
    
     public static String[][] parseFromLines(String[] lines, int minimumItemsInOneLine, int startLine, int endLine)
     {
@@ -1191,7 +1005,7 @@ public class StringUtils {
         return y;
     }
 
-    public static void main(String[] args)
+    public static void main(String[] args) throws Exception
     {
         String[] items1 = readTextFile("D:\\items.txt", "ASCII");
         int[] inds1 = StringUtils.getDifferentItemsIndices(items1);

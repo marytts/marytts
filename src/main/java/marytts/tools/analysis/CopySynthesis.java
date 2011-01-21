@@ -34,6 +34,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.NodeIterator;
@@ -122,7 +123,7 @@ public class CopySynthesis
         aligner.SetEnsureInitialBoundary(false);
         String labels = aligner.readLabelFile(labFilename);
         MaryHttpClient mary = new MaryHttpClient();
-        String text = StringUtils.readTextFileIntoString(textFilename, "ASCII");
+        String text = FileUtils.readFileToString(new File(textFilename), "ASCII");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         mary.process(text, "TEXT", "ALLOPHONES", locale, null, null, baos);
         ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());

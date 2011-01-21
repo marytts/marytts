@@ -1094,7 +1094,12 @@ public class AdminWindow extends javax.swing.JFrame {
         File file = fc.getSelectedFile();
         if (file == null)
             return;
-        String[] lines = StringUtils.readTextFile(file.getAbsolutePath(), "UTF-8");
+        String[] lines = null;
+        try {
+            lines = StringUtils.readTextFile(file.getAbsolutePath(), "UTF-8");
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
         if (lines == null || lines.length == 0) return;
         Object[] options = new Object[] {"Keep first column", "Discard first column"};
         int answer = JOptionPane.showOptionDialog(this, 
