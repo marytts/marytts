@@ -34,8 +34,14 @@
       <scope>test</scope>
     </dependency>
     
-    
-    
+    <!-- System dependencies - to be replaced where possible -->
+    <dependency>
+      <groupId>Jama</groupId>
+      <artifactId>Jama</artifactId>
+      <version>1.0.2</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/Jama-1.0.2.jar</systemPath>
+    </dependency>     
     
   </dependencies>
 </project>

@@ -20,15 +20,11 @@
 package marytts.util.math;
 
 import Jama.Matrix;
-import Jama.EigenvalueDecomposition;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Vector;
-import java.io.PrintWriter;
 
-import marytts.tools.voiceimport.DurationSoPTrainer;
 import marytts.util.math.MathUtils;
 
 /***
