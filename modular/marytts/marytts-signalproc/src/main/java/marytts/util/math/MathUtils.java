@@ -5080,8 +5080,67 @@ public class MathUtils {
         
         ComplexNumber[][] y = matrixProduct(x1, x2);
         
-        System.out.print(StringUtils.toString(y));
+        System.out.print(MathUtils.toString(y));
 
         System.out.println("Test completed...");
     }
+
+	public static String[] toStringLines(ComplexNumber[] x)
+	{
+	    String[] y = null;
+	    
+	    if (x!=null && x.length>0)
+	    {
+	        y = new String[x.length];
+	        for (int i=0; i<x.length; i++)
+	        {
+	            if (x[i].imag>=0)
+	                y[i] = String.valueOf(x[i].real) + "+i*" + String.valueOf(x[i].imag);
+	            else
+	                y[i] = String.valueOf(x[i].real) + "-i*" + String.valueOf(Math.abs(x[i].imag)); 
+	        }
+	    }
+	    
+	    return y;
+	}
+
+	public static String[] toStringLines(ComplexArray x)
+	{
+	    String[] y = null;
+	    
+	    if (x!=null && x.real.length>0 && x.imag.length>0)
+	    {
+	        assert x.real.length==x.imag.length;
+	        y = new String[x.real.length];
+	        for (int i=0; i<x.real.length; i++)
+	        {
+	            if (x.imag[i]>=0)
+	                y[i] = String.valueOf(x.real[i]) + "+i*" + String.valueOf(x.imag[i]);
+	            else
+	                y[i] = String.valueOf(x.real[i]) + "-i*" + String.valueOf(Math.abs(x.imag[i])); 
+	        }
+	    }
+	    
+	    return y;
+	}
+
+	public static String toString(ComplexNumber[][] array)
+	{
+	    String str = "";
+	    int i, j;
+	    for (i=0; i<array.length; i++)
+	    {
+	        for (j=0; j<array[i].length; j++)
+	        {
+	            str += array[i][j].toString();
+	            if (j<array[i].length-1)
+	                str += " ";
+	        }
+	        str += System.getProperty("line.separator");
+	    }
+	    
+	    str += System.getProperty("line.separator");
+	    
+	    return str;
+	}
 }

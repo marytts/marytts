@@ -33,7 +33,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
-import marytts.util.io.LoggingErrorHandler;
+import marytts.util.dom.LoggingErrorHandler;
 
 import org.w3c.dom.Document;
 
