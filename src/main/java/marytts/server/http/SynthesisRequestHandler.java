@@ -166,11 +166,11 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler
             if (audioFileFormatType == null) {
                 MaryHttpServerUtils.errorWrongQueryParameterValue(response, "AUDIO", queryItems.get("AUDIO"), null);
                 return;
-            } else if (audioFileFormatType.toString().equals("MP3") && !MaryAudioUtils.canCreateMP3()) { 
+            } else if (audioFileFormatType.toString().equals("MP3") && !MaryServerUtils.canCreateMP3()) { 
                 MaryHttpServerUtils.errorWrongQueryParameterValue(response, "AUDIO", queryItems.get("AUDIO"), "Conversion to MP3 not supported.");
                 return;
             } 
-            else if (audioFileFormatType.toString().equals("Vorbis") && !MaryAudioUtils.canCreateOgg()) {
+            else if (audioFileFormatType.toString().equals("Vorbis") && !MaryServerUtils.canCreateOgg()) {
                 MaryHttpServerUtils.errorWrongQueryParameterValue(response, "AUDIO", queryItems.get("AUDIO"), "Conversion to OGG Vorbis format not supported.");
                 return;
             }
@@ -227,9 +227,9 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler
         }
         AudioFormat audioFormat;
         if (audioFileFormatType.toString().equals("MP3")) {
-            audioFormat = MaryAudioUtils.getMP3AudioFormat();
+            audioFormat = MaryServerUtils.getMP3AudioFormat();
         } else if (audioFileFormatType.toString().equals("Vorbis")) {
-            audioFormat = MaryAudioUtils.getOggAudioFormat();
+            audioFormat = MaryServerUtils.getOggAudioFormat();
         } else if (voice != null) {
             audioFormat = voice.dbAudioFormat();
         } else {

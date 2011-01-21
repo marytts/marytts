@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.util.data.text;
+package marytts.util;
 
 import java.io.BufferedReader;
 import java.io.Reader;

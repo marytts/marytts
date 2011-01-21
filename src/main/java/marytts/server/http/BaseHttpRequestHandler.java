@@ -47,8 +47,8 @@ import marytts.signalproc.effects.BaseAudioEffect;
 import marytts.signalproc.effects.EffectsApplier;
 import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.interpolation.InterpolatingVoice;
+import marytts.util.MaryServerUtils;
 import marytts.util.MaryUtils;
-import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.string.StringUtils;
 import marytts.vocalizations.VocalizationSynthesizer;
 
@@ -276,7 +276,7 @@ public abstract class BaseHttpRequestHandler extends SimpleNHttpRequestHandler i
 
     public String getAudioFileFormatTypes()
     {
-        return MaryAudioUtils.getAudioFileFormatTypes();
+        return MaryServerUtils.getAudioFileFormatTypes();
     }
 
     public String getExampleText(String datatype, Locale locale)

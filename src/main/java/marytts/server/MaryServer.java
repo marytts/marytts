@@ -53,6 +53,7 @@ import marytts.signalproc.effects.BaseAudioEffect;
 import marytts.signalproc.effects.EffectsApplier;
 import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.interpolation.InterpolatingVoice;
+import marytts.util.MaryServerUtils;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 
@@ -388,15 +389,15 @@ public class MaryServer {
 
             AudioFormat audioFormat = voice.dbAudioFormat();
             if (audioFileFormatType.toString().equals("MP3")) {
-                if (!MaryAudioUtils.canCreateMP3()) {
+                if (!MaryServerUtils.canCreateMP3()) {
                     throw new UnsupportedAudioFileException("Conversion to MP3 not supported.");
                 }
-                audioFormat = MaryAudioUtils.getMP3AudioFormat();
+                audioFormat = MaryServerUtils.getMP3AudioFormat();
             } else if (audioFileFormatType.toString().equals("Vorbis")) {
-                if (!MaryAudioUtils.canCreateOgg()) {
+                if (!MaryServerUtils.canCreateOgg()) {
                     throw new UnsupportedAudioFileException("Conversion to OGG Vorbis format not supported.");
                 }
-                audioFormat = MaryAudioUtils.getOggAudioFormat();
+                audioFormat = MaryServerUtils.getOggAudioFormat();
             }
 
             AudioFileFormat audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
@@ -564,7 +565,7 @@ public class MaryServer {
 
         private boolean listAudioFileFormatTypes()
         {
-            String info = MaryAudioUtils.getAudioFileFormatTypes();
+            String info = MaryServerUtils.getAudioFileFormatTypes();
             clientOut.println(info);
             // Empty line marks end of info:
             clientOut.println();
