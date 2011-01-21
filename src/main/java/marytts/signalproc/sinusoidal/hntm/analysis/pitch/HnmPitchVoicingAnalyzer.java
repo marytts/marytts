@@ -33,8 +33,8 @@ import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.window.HanningWindow;
 import marytts.signalproc.window.Window;
-import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
+import marytts.util.display.DisplayUtils;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.FFT;
@@ -927,8 +927,8 @@ public class HnmPitchVoicingAnalyzer {
         for (int i=0; i<f0s.length; i++)
             System.out.println(String.valueOf(i*params.mvfAnalysisSkipSizeInSeconds+0.5f*params.mvfAnalysisWindowSizeInSeconds) + " sec. InitialF0=" + String.valueOf(initialF0s[i]) + " RefinedF0="+ String.valueOf(f0s[i]));
         
-        MaryUtils.plot(initialF0s);
-        MaryUtils.plot(f0s);
+        DisplayUtils.plot(initialF0s);
+        DisplayUtils.plot(f0s);
     }
 }
 

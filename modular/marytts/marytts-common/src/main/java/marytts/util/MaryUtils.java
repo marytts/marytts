@@ -24,8 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,15 +37,10 @@ import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.JFrame;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import marytts.modules.MaryModule;
-import marytts.server.MaryProperties;
-import marytts.signalproc.display.FunctionGraph;
-import marytts.util.math.MathUtils;
 
 
 /**
@@ -59,7 +52,6 @@ import marytts.util.math.MathUtils;
 public class MaryUtils {
     public static final String LOGPREFIX = "marytts";
     
-    private static long lowMemoryThreshold = -1;
     private static Timer maintenanceTimer = new Timer(true); // a daemon timer which will not prohibit system exits.
     
     /**
@@ -74,63 +66,6 @@ public class MaryUtils {
         return m;
     }
 
-    /**
-     * Instantiate an object by calling one of its constructors.
-     * @param objectInitInfo a string description of the object to instantiate.
-     * The objectInitInfo is expected to have one of the following forms:
-     * <ol>
-     *   <li> my.cool.Stuff</li>
-     *   <li> my.cool.Stuff(any,string,args,without,spaces)</li>
-     *   <li>my.cool.Stuff(arguments,$my.special.property,other,args)</li>
-     * </ol>
-     * where 'my.special.property' is a property in one of the MARY config files.
-     * @return the newly instantiated object.
-     * @throws ClassNotFoundException
-     * @throws IllegalArgumentException
-     * @throws InstantiationException
-     * @throws IllegalAccessException
-     * @throws InvocationTargetException
-     * @throws SecurityException
-     * @throws NoSuchMethodException
-     */
-    public static Object instantiateObject(String objectInitInfo)
-    throws ClassNotFoundException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException
-    {
-        Object obj = null;
-        String[] args = null;
-        String className = null;
-        if (objectInitInfo.contains("(")) { // arguments
-            int firstOpenBracket = objectInitInfo.indexOf('(');
-            className = objectInitInfo.substring(0, firstOpenBracket);
-            int lastCloseBracket = objectInitInfo.lastIndexOf(')');
-            args = objectInitInfo.substring(firstOpenBracket+1, lastCloseBracket).split(",");
-            for (int i=0; i<args.length; i++) {
-                if (args[i].startsWith("$")) {
-                    // replace value with content of property named after the $
-                    args[i] = MaryProperties.getProperty(args[i].substring(1));
-                }
-                args[i] = args[i].trim();
-            }
-        } else { // no arguments
-            className = objectInitInfo;
-        }
-        Class<? extends Object> theClass = Class.forName(className).asSubclass(Object.class);
-        // Now invoke Constructor with args.length String arguments
-        if (args != null) {
-            Class<String>[] constructorArgTypes = new Class[args.length];
-            Object[] constructorArgs = new Object[args.length];
-            for (int i=0; i<args.length; i++) {
-                constructorArgTypes[i] = String.class;
-                constructorArgs[i] = args[i];
-            }
-            Constructor<? extends Object> constructor = (Constructor<? extends Object>) theClass.getConstructor(constructorArgTypes);
-            obj = constructor.newInstance(constructorArgs);
-        } else {
-            obj = theClass.newInstance();
-        }
-        return obj;
-    }
-    
     public static Character[] StringToCharacterArray(String s) {
         Character[] cArray = new Character[s.length()];
         for (int i = 0; i < s.length(); i++) {
@@ -533,39 +468,6 @@ public class MaryUtils {
     }
 
     /**
-     * Verify if the java virtual machine is in a low memory condition.
-     * The memory is considered low if less than a specified value is
-     * still available for processing. "Available" memory is calculated using
-     * <code>availableMemory()</code>.The threshold value can be specified
-     * as the Mary property mary.lowmemory (in bytes). It defaults to 20000000 bytes.
-     * @return a boolean indicating whether or not the system is in low memory condition.
-     */
-    public static boolean lowMemoryCondition()
-    {
-        return availableMemory() < lowMemoryThreshold();
-    }
-
-    /**
-     * Verify if the java virtual machine is in a very low memory condition.
-     * The memory is considered very low if less than half a specified value is
-     * still available for processing. "Available" memory is calculated using
-     * <code>availableMemory()</code>.The threshold value can be specified
-     * as the Mary property mary.lowmemory (in bytes). It defaults to 20000000 bytes.
-     * @return a boolean indicating whether or not the system is in very low memory condition.
-     */
-    public static boolean veryLowMemoryCondition()
-    {
-        return availableMemory() < lowMemoryThreshold()/2;
-    }
-
-    private static long lowMemoryThreshold()
-    {
-        if (lowMemoryThreshold < 0) // not yet initialised
-            lowMemoryThreshold = (long) MaryProperties.getInteger("mary.lowmemory", 10000000);
-        return lowMemoryThreshold;
-    }
-
-    /**
      * Create a temporary file that will be deleted after a specified number of seconds.
      * The file will be deleted regardless of whether it is still used or not,
      * so be sure to specify a sufficiently large value.
@@ -745,171 +647,6 @@ public class MaryUtils {
         return osName.indexOf("windows")!=-1;
     }
 
-    public static void plot(float [] x)
-    {
-        if (x!=null)
-            plot(x, 0, x.length-1);
-    }
-    
-    public static void plot(double [] x)
-    {
-        if (x!=null)
-            plot(x, 0, x.length-1);
-    }
-    
-    public static void plot(float[] x, int startInd, int endInd)
-    {
-        plot(x, startInd, endInd, "");
-    }
-    
-    public static void plot(double[] x, int startInd, int endInd)
-    {
-        plot(x, startInd, endInd, "");
-    }
-    
-    public static void plot(float[] x, String strTitle)
-    {
-        if (x!=null)
-            plot(x, 0, x.length-1, strTitle, false);
-    }
-    
-    public static void plot(double [] x, String strTitle)
-    {
-        if (x!=null)
-            plot(x, 0, x.length-1, strTitle, false);
-    }
-    
-    public static void plot(float[] x, int startInd, int endInd, String strTitle)
-    {
-        plot(x, startInd, endInd, strTitle, false);
-    }
-    
-    public static void plot(double[] x, int startInd, int endInd, String strTitle)
-    {
-        plot(x, startInd, endInd, strTitle, false);
-    }
-    
-    public static void plot(float[] x, int startInd, int endInd, String strTitle, boolean bAutoClose)
-    {
-        plot(x, startInd, endInd, strTitle, bAutoClose, 3000);
-    }
-    
-    public static void plot(double[] x, int startInd, int endInd, String strTitle, boolean bAutoClose)
-    {
-        plot(x, startInd, endInd, strTitle, bAutoClose, 3000);
-    }
-    
-    public static void plotZoomed(float[] x, String strTitle, double minVal)
-    {
-        plotZoomed(x, strTitle, minVal, MathUtils.getMax(x));
-    }
-    
-    public static void plotZoomed(double[] x, String strTitle, double minVal)
-    {
-        if (x!=null)
-            plotZoomed(x, strTitle, minVal, MathUtils.getMax(x));
-    }
-    
-    public static void plotZoomed(float[] x, String strTitle, double minVal, double maxVal)
-    {
-        plotZoomed(x, strTitle, minVal, maxVal, false);
-    }
-    
-    public static void plotZoomed(double[] x, String strTitle, double minVal, double maxVal)
-    {
-        plotZoomed(x, strTitle, minVal, maxVal, false);
-    }
-    
-    public static void plotZoomed(float[] x, String strTitle, double minVal, double maxVal, boolean bAutoClose)
-    {
-        plotZoomed(x, strTitle, minVal, maxVal, bAutoClose, 3000);
-    }
-    
-    public static void plotZoomed(double[] x, String strTitle, double minVal, double maxVal, boolean bAutoClose)
-    {
-        plotZoomed(x, strTitle, minVal, maxVal, bAutoClose, 3000);
-    }
-    
-    public static void plotZoomed(float[] x, String strTitle, double minVal, double maxVal, boolean bAutoClose, int milliSecondsToClose)
-    {
-        if (x!=null)
-        {
-            double[] xd = new double[x.length];
-            for (int i=0; i<x.length; i++)
-                xd[i] = x[i];
-        
-            plotZoomed(xd, strTitle, minVal, maxVal, bAutoClose, milliSecondsToClose);
-        }
-    }
-    
-    public static void plotZoomed(double [] x, String strTitle, double minVal, double maxVal, boolean bAutoClose, int milliSecondsToClose)
-    {
-        if (x!=null)
-        {
-            double[] y = null;
-            if (minVal>maxVal)
-            {
-                double tmp = minVal;
-                minVal = maxVal;
-                maxVal = tmp;
-            }
-            y = new double[x.length];
-            for (int i=0; i<x.length; i++)
-            {
-                y[i] = x[i];
-                if (y[i]<minVal)
-                    y[i] = minVal;
-                else if (y[i]>maxVal)
-                    y[i] = maxVal;
-            }
-                
-            plot(y, 0, y.length-1, strTitle, bAutoClose, milliSecondsToClose);
-        }
-    }
-    
-    public static void plot(float[] xIn, int startInd, int endInd, String strTitle, boolean bAutoClose, int milliSecondsToClose)
-    {
-        if (xIn!=null)
-        {
-            double[] xd = new double[endInd-startInd+1];
-            for (int i=startInd; i<=endInd; i++)
-                xd[i-startInd] = xIn[i];
-
-            FunctionGraph graph = new FunctionGraph(400, 200, 0, 1, xd);
-            JFrame frame = graph.showInJFrame(strTitle, 500, 300, true, false);
-
-            if (bAutoClose)
-            {
-                try { Thread.sleep(milliSecondsToClose); } catch (InterruptedException e) {}
-                frame.dispose();
-            }
-        }
-    }
-    
-    // Plots the values in x
-    // If bAutoClose is specified, the figure is closed after milliSecondsToClose milliseconds
-    // milliSecondsToClose: has no effect if bAutoClose is false
-    public static void plot(double [] xIn, int startInd, int endInd, String strTitle, boolean bAutoClose, int milliSecondsToClose)
-    {
-        if (xIn!=null)
-        {
-            endInd = MathUtils.CheckLimits(endInd, 0, xIn.length-1);
-            startInd = MathUtils.CheckLimits(startInd, 0, endInd);
-
-            double[] x = new double[endInd-startInd+1];
-            System.arraycopy(xIn, startInd, x, 0, x.length);
-
-            FunctionGraph graph = new FunctionGraph(400, 200, 0, 1, x);
-            JFrame frame = graph.showInJFrame(strTitle, 500, 300, true, false);
-
-            if (bAutoClose)
-            {
-                try { Thread.sleep(milliSecondsToClose); } catch (InterruptedException e) {}
-                frame.dispose();
-            }
-        }
-    }
-    
     public static boolean isLittleEndian()
     {
         ByteOrder b = ByteOrder.nativeOrder();

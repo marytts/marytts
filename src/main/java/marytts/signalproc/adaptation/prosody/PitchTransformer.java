@@ -19,7 +19,7 @@
  */
 package marytts.signalproc.adaptation.prosody;
 
-import marytts.util.MaryUtils;
+import marytts.util.display.DisplayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
@@ -324,8 +324,8 @@ public class PitchTransformer {
         
         if (false && param.pitchTransformationMethod!=ProsodyTransformerParams.NO_TRANSFORMATION)
         {
-            MaryUtils.plotZoomed(f0s, "Input", 50.0);
-            MaryUtils.plotZoomed(targetF0s, "Tranformed", 50.0);
+            DisplayUtils.plotZoomed(f0s, "Input", 50.0);
+            DisplayUtils.plotZoomed(targetF0s, "Tranformed", 50.0);
         }
         
         return targetF0s;

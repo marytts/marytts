@@ -7,9 +7,7 @@
     <groupId>marytts</groupId>
     <version>5.0-SNAPSHOT</version>
   </parent>
-  <groupId>marytts</groupId>
   <artifactId>marytts-common</artifactId>
-  <version>5.0-SNAPSHOT</version>
   <name>marytts-common</name>
   <url>http://mary.dfki.de</url>
   <properties>
@@ -24,5 +22,10 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+    	<groupId>log4j</groupId>
+    	<artifactId>log4j</artifactId>
+    	<version>1.2.16</version>
+    </dependency>
   </dependencies>
 </project>
