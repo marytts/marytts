@@ -46,13 +46,6 @@
     
     
     <!-- System dependencies - to be replaced where possible -->
-    <dependency>
-      <groupId>dummy</groupId>
-      <artifactId>dummy1</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/java/Jama-1.0.2.jar</systemPath>
-    </dependency> 
     
     <dependency>
       <groupId>dummy</groupId>
@@ -76,14 +69,6 @@
       <version>1.0</version>
       <scope>system</scope>
       <systemPath>${basedir}/java/commons-collections-3.2.1.jar</systemPath>
-    </dependency> 
-
-    <dependency>
-      <groupId>dummy</groupId>
-      <artifactId>dummy5</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/java/commons-io-1.4.jar</systemPath>
     </dependency> 
 
     <dependency>

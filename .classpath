@@ -5,7 +5,6 @@
   <classpathentry kind="src" path="src/main/resources" excluding="**/*.java"/>
   <classpathentry kind="output" path="target/classes"/>
   <classpathentry kind="var" path="M2_REPO/commons-io/commons-io/2.0.1/commons-io-2.0.1.jar" sourcepath="M2_REPO/commons-io/commons-io/2.0.1/commons-io-2.0.1-sources.jar"/>
-  <classpathentry kind="lib" path="java/Jama-1.0.2.jar"/>
   <classpathentry kind="lib" path="java/freetts-mbrola.jar"/>
   <classpathentry kind="lib" path="java/freetts.jar"/>
   <classpathentry kind="lib" path="java/hsqldb.jar"/>
@@ -27,11 +26,11 @@
   <classpathentry kind="lib" path="java/weka.jar"/>
   <classpathentry kind="lib" path="java/JavaOpenAIR.jar"/>
   <classpathentry kind="lib" path="java/commons-collections-3.2.1.jar"/>
-  <classpathentry kind="lib" path="java/commons-io-1.4.jar"/>
   <classpathentry kind="lib" path="java/commons-lang-2.4.jar"/>
   <classpathentry kind="lib" path="java/fast-md5.jar"/>
   <classpathentry kind="lib" path="java/freetts-de.jar"/>
   <classpathentry kind="lib" path="java/freetts-en_us.jar"/>
+  <classpathentry kind="lib" path="modular/marytts/marytts-signalproc/lib/Jama-1.0.2.jar"/>
   <classpathentry kind="var" path="M2_REPO/junit/junit/4.8.2/junit-4.8.2.jar" sourcepath="M2_REPO/junit/junit/4.8.2/junit-4.8.2-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.16/log4j-1.2.16.jar" sourcepath="M2_REPO/log4j/log4j/1.2.16/log4j-1.2.16-sources.jar"/>
   <classpathentry kind="src" path="/marytts-common"/>
