@@ -32,6 +32,7 @@ import java.util.Locale;
 import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
+import marytts.util.MaryServerUtils;
 import marytts.util.MaryUtils;
 
 import org.apache.commons.collections.map.MultiKeyMap;
@@ -88,7 +89,7 @@ public class ModuleRegistry
     InvocationTargetException, NoSuchMethodException
     {
         logger.info("Now initiating mary module '"+moduleInitInfo+"'");
-        MaryModule m = (MaryModule) MaryUtils.instantiateObject(moduleInitInfo);
+        MaryModule m = (MaryModule) MaryServerUtils.instantiateObject(moduleInitInfo);
         return m;
     }
     

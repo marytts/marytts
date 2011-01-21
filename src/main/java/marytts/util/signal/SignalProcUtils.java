@@ -44,9 +44,9 @@ import marytts.signalproc.filter.RecursiveFilter;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartLpc;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.window.*;
-import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.MaryAudioUtils;
+import marytts.util.display.DisplayUtils;
 import marytts.util.io.AlignLabelsTempUtils;
 import marytts.util.io.FileUtils;
 import marytts.util.math.ArrayUtils;
@@ -2532,7 +2532,7 @@ public class SignalProcUtils {
             frameDft = FFTMixedRadix.fftComplex(frameDft);
   
         
-        MaryUtils.plot(MathUtils.magnitudeComplex(frameDft));
+        DisplayUtils.plot(MathUtils.magnitudeComplex(frameDft));
     }
     
     public static void displayDFTSpectrumInDBNoWindowing(double[] frame)
@@ -2578,7 +2578,7 @@ public class SignalProcUtils {
         
         int maxFreqInd = (int)Math.floor(0.5*fftSize+0.5);
         
-        MaryUtils.plot(MathUtils.amp2db(MathUtils.magnitudeComplex(frameDft)), 0, maxFreqInd);
+        DisplayUtils.plot(MathUtils.amp2db(MathUtils.magnitudeComplex(frameDft)), 0, maxFreqInd);
     }
 
     public static double[] getFrameHalfMagnitudeSpectrum(double[] frame, int fftSize)
@@ -2668,13 +2668,13 @@ public class SignalProcUtils {
     public static void displayLPSpectrumLinear(double[] alpha, double lpGain, int fftSize)
     {
         double[] lpSpec = LpcAnalyser.calcSpecLinear(alpha, lpGain, fftSize);
-        MaryUtils.plot(lpSpec);
+        DisplayUtils.plot(lpSpec);
     }
     
     public static void displayLPSpectrumInDB(double[] alpha, double lpGain, int fftSize)
     {
         double[] lpSpecInDB = MathUtils.amp2db(LpcAnalyser.calcSpecLinear(alpha, lpGain, fftSize));
-        MaryUtils.plot(lpSpecInDB);
+        DisplayUtils.plot(lpSpecInDB);
     }
     
     //Shifts an array by N points (to right if N is positive, to left if negative)

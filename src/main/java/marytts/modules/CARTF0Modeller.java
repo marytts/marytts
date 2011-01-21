@@ -41,6 +41,7 @@ import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.select.Target;
+import marytts.util.MaryServerUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
@@ -94,7 +95,7 @@ public class CARTF0Modeller extends InternalModule
     throws Exception
     {
         this(MaryUtils.string2locale(locale), propertyPrefix,
-                (FeatureProcessorManager)MaryUtils.instantiateObject(featprocClassInfo));
+                (FeatureProcessorManager)MaryServerUtils.instantiateObject(featprocClassInfo));
     }
 
     /**

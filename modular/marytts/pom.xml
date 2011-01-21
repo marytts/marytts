@@ -39,6 +39,8 @@
     <!--downloadJavadocs>true</downloadJavadocs-->
     <downloadSources>true</downloadSources>
   </properties>
+  
+  
 
 <!-- The following snipped automatically activates maven-site-plugin 3.x when run with Maven 3.x -->
 <profiles>
@@ -101,9 +103,9 @@
       <configuration>
         <source>1.6</source>
         <target>1.6</target>
+        <encoding>${project.build.sourceEncoding}</encoding>
       </configuration>
     </plugin>
-    
     <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>

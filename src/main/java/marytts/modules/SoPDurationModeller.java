@@ -54,6 +54,7 @@ import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.UnitSelector;
+import marytts.util.MaryServerUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.machinelearning.SoP;
@@ -104,7 +105,7 @@ public class SoPDurationModeller extends InternalModule
   throws Exception
   {
       this(MaryUtils.string2locale(locale), sopFile,
-              (FeatureProcessorManager)MaryUtils.instantiateObject(featprocClassInfo));
+              (FeatureProcessorManager)MaryServerUtils.instantiateObject(featprocClassInfo));
   }
   
   /**

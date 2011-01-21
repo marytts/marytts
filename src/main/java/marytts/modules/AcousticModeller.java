@@ -50,6 +50,7 @@ import marytts.modules.synthesis.Voice;
 
 import marytts.unitselection.select.UnitSelector;
 
+import marytts.util.MaryServerUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
@@ -115,7 +116,7 @@ public class AcousticModeller extends InternalModule {
      * @throws Exception
      */
     public AcousticModeller(String locale, String propertyPrefix, String featprocClassInfo) throws Exception {
-        this(MaryUtils.string2locale(locale), propertyPrefix, (FeatureProcessorManager) MaryUtils
+        this(MaryUtils.string2locale(locale), propertyPrefix, (FeatureProcessorManager) MaryServerUtils
                 .instantiateObject(featprocClassInfo));
     }
 

@@ -67,6 +67,7 @@ import marytts.modules.Synthesis;
 import marytts.modules.synthesis.Voice;
 import marytts.server.http.MaryHttpServer;
 import marytts.util.MaryCache;
+import marytts.util.MaryServerUtils;
 import marytts.util.MaryUtils;
 import marytts.util.Pair;
 import marytts.util.data.audio.MaryAudioUtils;
@@ -195,7 +196,7 @@ public class Mary {
             String fpmInitInfo = st.nextToken();
             try {
 
-                FeatureProcessorManager mgr = (FeatureProcessorManager) MaryUtils.instantiateObject(fpmInitInfo);
+                FeatureProcessorManager mgr = (FeatureProcessorManager) MaryServerUtils.instantiateObject(fpmInitInfo);
                 Locale locale = mgr.getLocale();
                 if (locale != null) {
                     FeatureRegistry.setFeatureProcessorManager(locale, mgr);

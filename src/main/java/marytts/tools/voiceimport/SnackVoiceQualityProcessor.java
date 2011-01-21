@@ -43,6 +43,7 @@ import marytts.tools.voiceimport.SphinxTrainer.StreamGobbler;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.text.SnackTextfileDoubleDataSource;
+import marytts.util.display.DisplayUtils;
 import marytts.util.math.FFT;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
@@ -732,7 +733,7 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
         int maxfreq =  Fs/2;
         int bwidth =  1;
         double wts[][] = SignalProcUtils.fft2barkmx(Nfft, Fs, nfilts, bwidth, minfreq, maxfreq);
-        MaryUtils.plot(wts[10]);
+        DisplayUtils.plot(wts[10]);
         //for(int i=0; i<nfilts; i++){          
           //MaryUtils.plot(wts[i]);  
           //pause
@@ -761,17 +762,17 @@ public class SnackVoiceQualityProcessor extends VoiceImportComponent {
         
         for(i=300; i<700; i++)
           x[i-300] = x_signal[i];
-        MaryUtils.plot(x, "x");
+        DisplayUtils.plot(x, "x");
         magf = SignalProcUtils.getFrameMagnitudeSpectrum(x, 512, 1);
-        MaryUtils.plot(magf, "magf");
+        DisplayUtils.plot(magf, "magf");
         X = MathUtils.amp2db(magf);
-        MaryUtils.plot(X, "X");
+        DisplayUtils.plot(X, "X");
         
         double barkX[] = MathUtils.matrixProduct(wts, magf);
-        MaryUtils.plot(barkX, "barkX");
+        DisplayUtils.plot(barkX, "barkX");
         
         barkX = MathUtils.amp2db(barkX);
-        MaryUtils.plot(barkX, "barkXdB");
+        DisplayUtils.plot(barkX, "barkXdB");
         
     }
     

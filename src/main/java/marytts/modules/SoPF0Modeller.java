@@ -42,6 +42,7 @@ import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.select.Target;
+import marytts.util.MaryServerUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
@@ -88,7 +89,7 @@ public class SoPF0Modeller extends InternalModule
   throws Exception
   {
       this(MaryUtils.string2locale(locale), sopFile, 
-          (FeatureProcessorManager)MaryUtils.instantiateObject(featprocClassInfo));
+          (FeatureProcessorManager)MaryServerUtils.instantiateObject(featprocClassInfo));
   }
 
   /**

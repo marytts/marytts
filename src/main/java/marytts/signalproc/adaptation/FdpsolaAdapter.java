@@ -58,11 +58,11 @@ import marytts.signalproc.process.PsolaFrameProvider;
 import marytts.signalproc.process.VoiceModificationParametersPreprocessor;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.signalproc.window.Window;
-import marytts.util.MaryUtils;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
+import marytts.util.display.DisplayUtils;
 import marytts.util.io.FileUtils;
 import marytts.util.io.LEDataInputStream;
 import marytts.util.io.LEDataOutputStream;
@@ -887,7 +887,7 @@ public class FdpsolaAdapter {
                 {
                     tmpComp = new ComplexArray(inputDft);
                     tmpSpec = MathUtils.dft2ampdb(tmpComp, 0, maxFreq);
-                    MaryUtils.plot(tmpSpec, "1.Input DFT");
+                    DisplayUtils.plot(tmpSpec, "1.Input DFT");
                 }
                 //
 
@@ -945,7 +945,7 @@ public class FdpsolaAdapter {
                     tmpSpec = new double[maxFreq];
                     System.arraycopy(inputVocalTractSpectrum, 0, tmpSpec, 0, tmpSpec.length);
                     tmpSpec = MathUtils.amp2db(tmpSpec);
-                    MaryUtils.plot(tmpSpec, "2.Input Vocal Tract");
+                    DisplayUtils.plot(tmpSpec, "2.Input Vocal Tract");
                     FileUtils.writeToTextFile(inputVocalTractSpectrum, "d:/hmmTest_inputVT.txt");
                 }
                 //
@@ -956,7 +956,7 @@ public class FdpsolaAdapter {
                     tmpSpec = new double[maxFreq];
                     System.arraycopy(sourceVocalTractSpectrumEstimate, 0, tmpSpec, 0, tmpSpec.length);
                     tmpSpec = MathUtils.amp2db(tmpSpec);
-                    MaryUtils.plot(tmpSpec, "3.Source Vocal Tract Estimate");
+                    DisplayUtils.plot(tmpSpec, "3.Source Vocal Tract Estimate");
                     FileUtils.writeToTextFile(sourceVocalTractSpectrumEstimate, "d:/hmmTest_estimateVT.txt");
                 }
                 //
@@ -975,7 +975,7 @@ public class FdpsolaAdapter {
                 {
                     tmpComp = new ComplexArray(inputResidual);
                     tmpSpec = MathUtils.dft2ampdb(tmpComp, 0, maxFreq-1);
-                    MaryUtils.plot(tmpSpec, "4.Input Residual");
+                    DisplayUtils.plot(tmpSpec, "4.Input Residual");
                 }
                 //
 
@@ -1064,7 +1064,7 @@ public class FdpsolaAdapter {
                     tmpSpec = new double[newMaxFreq];
                     System.arraycopy(targetVocalTractSpectrumEstimate, 0, tmpSpec, 0, tmpSpec.length);
                     tmpSpec = MathUtils.amp2db(tmpSpec);
-                    MaryUtils.plot(tmpSpec, "5.Target Vocal Tract Estimate");
+                    DisplayUtils.plot(tmpSpec, "5.Target Vocal Tract Estimate");
                 }
                 //
 
@@ -1123,7 +1123,7 @@ public class FdpsolaAdapter {
                                 tmpSpec = new double[newMaxFreq];
                                 System.arraycopy(transformationFilter, 0, tmpSpec, 0, tmpSpec.length);
                                 tmpSpec = MathUtils.amp2db(tmpSpec);
-                                MaryUtils.plot(tmpSpec, "6.Transformation filter");
+                                DisplayUtils.plot(tmpSpec, "6.Transformation filter");
                             }
                         }
                         else if (baseParams.smoothingState==SmoothingDefinitions.TRANSFORMING_TO_SMOOTHED_VOCAL_TRACT)  
@@ -1145,7 +1145,7 @@ public class FdpsolaAdapter {
                                 tmpSpec = new double[newMaxFreq];
                                 System.arraycopy(smoothedVocalTract[smoothedInd], 0, tmpSpec, 0, tmpSpec.length);
                                 tmpSpec = MathUtils.amp2db(tmpSpec);
-                                MaryUtils.plot(tmpSpec, "6.Smoothed transformation filter");
+                                DisplayUtils.plot(tmpSpec, "6.Smoothed transformation filter");
                             }
                         }
                         else
@@ -1156,7 +1156,7 @@ public class FdpsolaAdapter {
                                 tmpSpec = new double[newMaxFreq];
                                 System.arraycopy(transformationFilter, 0, tmpSpec, 0, tmpSpec.length);
                                 tmpSpec = MathUtils.amp2db(tmpSpec);
-                                MaryUtils.plot(tmpSpec, "6.Transformation filter");
+                                DisplayUtils.plot(tmpSpec, "6.Transformation filter");
                             }
                         }
                     }
@@ -1168,7 +1168,7 @@ public class FdpsolaAdapter {
                             tmpSpec = new double[newMaxFreq];
                             System.arraycopy(transformationFilter, 0, tmpSpec, 0, tmpSpec.length);
                             tmpSpec = MathUtils.amp2db(tmpSpec);
-                            MaryUtils.plot(tmpSpec, "6.Transformation filter");
+                            DisplayUtils.plot(tmpSpec, "6.Transformation filter");
                         }
                     }
                 }
@@ -1245,7 +1245,7 @@ public class FdpsolaAdapter {
                 {
                     tmpComp = new ComplexArray(outputResidual);
                     tmpSpec = MathUtils.dft2ampdb(tmpComp, 0, newMaxFreq-1);
-                    MaryUtils.plot(tmpSpec, "7.Output Residual");
+                    DisplayUtils.plot(tmpSpec, "7.Output Residual");
                 }
                 //
 
@@ -1273,7 +1273,7 @@ public class FdpsolaAdapter {
                     tmpSpec = new double[newMaxFreq];
                     System.arraycopy(outputVocalTractSpectrum, 0, tmpSpec, 0, tmpSpec.length);
                     tmpSpec = MathUtils.amp2db(tmpSpec);
-                    MaryUtils.plot(tmpSpec, "8.Output Vocal Tract");
+                    DisplayUtils.plot(tmpSpec, "8.Output Vocal Tract");
                 }
                 //
 
@@ -1294,7 +1294,7 @@ public class FdpsolaAdapter {
                 {
                     tmpComp = new ComplexArray(outputDft);
                     tmpSpec = MathUtils.dft2ampdb(tmpComp, 0, newMaxFreq);
-                    MaryUtils.plot(tmpSpec, "9.Output DFT");
+                    DisplayUtils.plot(tmpSpec, "9.Output DFT");
                     bShowSpectralPlots = false;
                 }
                 //

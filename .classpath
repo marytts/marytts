@@ -33,6 +33,7 @@
   <classpathentry kind="lib" path="java/freetts-de.jar"/>
   <classpathentry kind="lib" path="java/freetts-en_us.jar"/>
   <classpathentry kind="var" path="M2_REPO/junit/junit/4.8.2/junit-4.8.2.jar" sourcepath="M2_REPO/junit/junit/4.8.2/junit-4.8.2-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.16/log4j-1.2.16.jar" sourcepath="M2_REPO/log4j/log4j/1.2.16/log4j-1.2.16-sources.jar"/>
   <classpathentry kind="src" path="/marytts-common"/>
   <classpathentry kind="src" path="/marytts-signalproc"/>
   <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>

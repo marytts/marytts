@@ -35,6 +35,7 @@ import javax.swing.JFrame;
 
 import marytts.server.MaryProperties;
 import marytts.signalproc.display.FunctionGraph;
+import marytts.util.MaryServerUtils;
 import marytts.util.MaryUtils;
 
 
@@ -62,7 +63,7 @@ public class AudioDestination
         if (audiostoreProperty.equals("ram")) ram = true;
         else if (audiostoreProperty.equals("file")) ram = false;
         else // auto
-            if (MaryUtils.lowMemoryCondition()) ram = false;
+            if (MaryServerUtils.lowMemoryCondition()) ram = false;
             else ram = true;
         if (ram) {
             os = new ByteArrayOutputStream();

@@ -55,6 +55,7 @@ import marytts.modules.ModuleRegistry;
 import marytts.modules.synthesis.Voice;
 import marytts.server.http.MaryHttpServerUtils;
 import marytts.util.MaryCache;
+import marytts.util.MaryServerUtils;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.dom.DomUtils;
@@ -571,7 +572,7 @@ public class Request {
                 timingInfo.put(m, new Long(soFar.longValue()+delta));
             else
                 timingInfo.put(m, new Long(delta));
-            if (MaryUtils.veryLowMemoryCondition()) {
+            if (MaryServerUtils.veryLowMemoryCondition()) {
                 logger.info("Very low memory condition detected (only " + MaryUtils.availableMemory() + " bytes left). Triggering garbage collection.");
                 Runtime.getRuntime().gc();
                 logger.info("After garbage collection: " + MaryUtils.availableMemory() + " bytes available.");

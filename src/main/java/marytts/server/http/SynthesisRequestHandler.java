@@ -57,6 +57,7 @@ import marytts.server.Request;
 import marytts.server.RequestHandler.StreamingOutputPiper;
 import marytts.server.RequestHandler.StreamingOutputWriter;
 import marytts.util.ConversionUtils;
+import marytts.util.MaryServerUtils;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.io.LoggingReader;
@@ -316,7 +317,7 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler
             logger.info("Request handled successfully.");
         else
             logger.info("Request couldn't be handled successfully.");
-        if (MaryUtils.lowMemoryCondition()) {
+        if (MaryServerUtils.lowMemoryCondition()) {
             logger.info("Low memory condition detected (only " + MaryUtils.availableMemory() + " bytes left). Triggering garbage collection.");
             Runtime.getRuntime().gc();
             logger.info("After garbage collection: " + MaryUtils.availableMemory() + " bytes available.");
