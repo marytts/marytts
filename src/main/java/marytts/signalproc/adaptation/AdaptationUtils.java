@@ -23,6 +23,7 @@ import marytts.signalproc.analysis.FeatureFileHeader;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.MfccFileHeader;
+import marytts.util.io.AlignLabelsTempUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
@@ -69,7 +70,7 @@ public class AdaptationUtils {
         if (hdr1!=null && hdr2!=null && sourceLabels.items!=null && targetLabels.items!=null)
         {
             //Find the optimum alignment between the source and the target labels since the phone sequences may not be identical due to silence periods etc.
-            int[][] labelMap = StringUtils.alignLabels(sourceLabels.items, targetLabels.items);
+            int[][] labelMap = AlignLabelsTempUtils.alignLabels(sourceLabels.items, targetLabels.items);
             //
 
             if (labelMap!=null)
@@ -175,7 +176,7 @@ public class AdaptationUtils {
         if (hdr1!=null && hdr2!=null && sourceLabels.items!=null && targetLabels.items!=null)
         {
             //Find the optimum alignment between the source and the target labels since the phone sequences may not be identical due to silence periods etc.
-            int[][] labelMap = StringUtils.alignLabels(sourceLabels.items, targetLabels.items);
+            int[][] labelMap = AlignLabelsTempUtils.alignLabels(sourceLabels.items, targetLabels.items);
             //
 
             if (labelMap!=null)
@@ -280,7 +281,7 @@ public class AdaptationUtils {
         if (hdr1!=null && hdr2!=null && sourceLabels.items!=null && targetLabels.items!=null)
         {
             //Find the optimum alignment between the source and the target labels since the phone sequences may not be identical due to silence periods etc.
-            int[][] labelMap = StringUtils.alignLabels(sourceLabels.items, targetLabels.items);
+            int[][] labelMap = AlignLabelsTempUtils.alignLabels(sourceLabels.items, targetLabels.items);
             //
 
             if (labelMap!=null)
@@ -367,7 +368,7 @@ public class AdaptationUtils {
         if (hdr1!=null && hdr2!=null && sourceLabels.items!=null && targetLabels.items!=null)
         {
             //Find the optimum alignment between the source and the target labels since the phone sequences may not be identical due to silence periods etc.
-            int[][] labelMap = StringUtils.alignLabels(sourceLabels.items, targetLabels.items);
+            int[][] labelMap = AlignLabelsTempUtils.alignLabels(sourceLabels.items, targetLabels.items);
             //
 
             if (labelMap!=null)

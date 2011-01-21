@@ -47,6 +47,7 @@ import marytts.signalproc.window.*;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.MaryAudioUtils;
+import marytts.util.io.AlignLabelsTempUtils;
 import marytts.util.io.FileUtils;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.ComplexArray;
@@ -1477,7 +1478,7 @@ public class SignalProcUtils {
     
     public static double sourceTime2targetTime(double sourceTime, Labels sourceLabels, Labels targetLabels)
     {
-        int[][] map = StringUtils.alignLabels(sourceLabels.items, targetLabels.items);
+        int[][] map = AlignLabelsTempUtils.alignLabels(sourceLabels.items, targetLabels.items);
         
         return sourceTime2targetTime(sourceTime, sourceLabels, targetLabels, map);
     }
@@ -3039,7 +3040,7 @@ public class SignalProcUtils {
                                         int numFrmTarget, Labels tgtLabs, double tgtWindowSizeInSeconds, double tgtSkipSizeInSeconds)
     {
         int[] mappedInds = null;
-        int[][] mappedLabelInds = StringUtils.alignLabels(srcLabs.items, tgtLabs.items);
+        int[][] mappedLabelInds = AlignLabelsTempUtils.alignLabels(srcLabs.items, tgtLabs.items);
         
         if (numfrmSource>0)
         {

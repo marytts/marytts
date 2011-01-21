@@ -29,6 +29,7 @@
 
 package marytts.signalproc.adaptation.test;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -54,6 +55,7 @@ public class IeeeTaslp2009MaryResultsPreprocessor
     //Search for all .txt files, read them, extract test results, and write all results to a separate, single file
     //Also compute total time it took for each .txt file to be completed by the subject
     public static void combineResults(String[] folders, String completeResultsFile, String totalDurationsFile)
+    throws IOException
     {
         String strTmp;
         String strOut;
@@ -121,7 +123,7 @@ public class IeeeTaslp2009MaryResultsPreprocessor
     /**
      * @param args
      */
-    public static void main(String[] args) 
+    public static void main(String[] args) throws Exception
     {    
         //Emotion
         String[] emoResultsFolders = {"D:/publications/IEEE_TASLP/2009/expressiveVC/listening_test_results/EmotionA", 

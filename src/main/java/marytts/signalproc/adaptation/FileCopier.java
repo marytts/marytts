@@ -63,6 +63,7 @@ public class FileCopier {
                      String targetInputBaseDir,    //Input
                      String sourceTrainingBaseDir, //Output
                      String targetTrainingBaseDir) //Output
+    throws IOException
     {
         String[][] stNameMap = StringUtils.readTextFileInRows(sourceTargetFile, "UTF-8", 2);
         int i;
@@ -204,7 +205,7 @@ public class FileCopier {
         
     }
     
-    public static void main(String[] args)
+    public static void main(String[] args) throws Exception
     {
         FileCopier f = new FileCopier();
         String sourceTargetFile, sourceInputBaseDir, targetInputBaseDir, sourceTrainingBaseDir, targetTrainingBaseDir;
