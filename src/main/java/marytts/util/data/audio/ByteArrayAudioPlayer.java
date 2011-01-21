@@ -46,6 +46,7 @@ import com.sun.speech.freetts.util.Utilities;
  * all audio data to the bit bucket. The <code>ByteArrayAudioPlayer</code>
  * is a helper, targeted at obtaining a byte array from the audio stream.
  */
+@Deprecated
 public class ByteArrayAudioPlayer implements AudioPlayer {
 
     private float volume = 1.0f;

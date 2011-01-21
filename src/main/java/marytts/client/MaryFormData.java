@@ -34,6 +34,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.AudioFileFormat.Type;
 
 import marytts.client.http.Address;
+import marytts.util.MaryServerUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.string.StringUtils;
@@ -360,8 +361,8 @@ public class MaryFormData
                 String typeName = allTypes[i].substring(spaceInd+1);
                 Type audioType = null;
                 boolean isSupported = true;
-                if (typeName.equals("MP3")) isSupported = MaryAudioUtils.canCreateMP3();
-                else if (typeName.equals("Vorbis")) isSupported = MaryAudioUtils.canCreateOgg();
+                if (typeName.equals("MP3")) isSupported = MaryServerUtils.canCreateMP3();
+                else if (typeName.equals("Vorbis")) isSupported = MaryServerUtils.canCreateOgg();
                 try {
                     audioType = MaryAudioUtils.getAudioFileFormatType(typeName);
                 } catch (Exception e) {

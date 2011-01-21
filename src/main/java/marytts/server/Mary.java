@@ -450,9 +450,9 @@ public class Mary {
             audioType = MaryAudioUtils.getAudioFileFormatType(audioTypeName);
             AudioFormat audioFormat = null;
             if (audioTypeName.equals("MP3")) {
-                audioFormat = MaryAudioUtils.getMP3AudioFormat();
+                audioFormat = MaryServerUtils.getMP3AudioFormat();
             } else if (audioTypeName.equals("Vorbis")) {
-                audioFormat = MaryAudioUtils.getOggAudioFormat();
+                audioFormat = MaryServerUtils.getOggAudioFormat();
             } else if (voice != null) {
                 audioFormat = voice.dbAudioFormat();
             } else {

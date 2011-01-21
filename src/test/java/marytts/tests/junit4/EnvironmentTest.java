@@ -35,7 +35,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import marytts.datatypes.MaryXML;
-import marytts.util.data.audio.MaryAudioUtils;
+import marytts.util.MaryServerUtils;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -89,7 +89,7 @@ public class EnvironmentTest {
                 false);
         AudioInputStream waveStream = AudioSystem.getAudioInputStream(this.getClass().getResourceAsStream("test.wav"));
         // Now attempt conversion:
-        if (MaryAudioUtils.canCreateMP3()) {
+        if (MaryServerUtils.canCreateMP3()) {
             assertTrue(AudioSystem.isConversionSupported(mp3af, waveStream.getFormat()));
             AudioInputStream mp3Stream = AudioSystem.getAudioInputStream(mp3af, waveStream);
         } else {
