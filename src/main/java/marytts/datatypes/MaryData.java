@@ -53,9 +53,9 @@ import marytts.util.UncloseableBufferedReader;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
 import marytts.util.data.audio.SequenceAudioInputStream;
 import marytts.util.dom.DomUtils;
+import marytts.util.dom.LoggingErrorHandler;
 import marytts.util.dom.MaryNormalisedWriter;
 import marytts.util.io.FileUtils;
-import marytts.util.io.LoggingErrorHandler;
 import marytts.util.io.ReaderSplitter;
 import marytts.util.string.StringUtils;
 

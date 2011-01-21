@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.util.io;
+package marytts.util.dom;
 
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.TransformerException;
