@@ -62,6 +62,8 @@ import java.util.Locale;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import marytts.util.io.General;
+
 public class HMMVoiceMakeVoiceAdapt extends VoiceImportComponent{
     
     private DatabaseLayout db;

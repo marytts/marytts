@@ -32,12 +32,12 @@ import java.util.TreeMap;
 
 import marytts.tools.voiceimport.BasenameList;
 import marytts.tools.voiceimport.DatabaseLayout;
-import marytts.tools.voiceimport.ESTTrackReader;
 import marytts.tools.voiceimport.PraatPitchmarker;
 import marytts.tools.voiceimport.TimelineWriter;
 import marytts.tools.voiceimport.VoiceImportComponent;
 import marytts.tools.voiceimport.WavReader;
 import marytts.unitselection.data.Datagram;
+import marytts.util.data.ESTTrackReader;
 
 public class VocalizationTimelineMaker extends VoiceImportComponent {
 

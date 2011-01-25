@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 
 import marytts.util.MaryUtils;
 import marytts.util.io.FileUtils;
+import marytts.util.io.General;
 
 /**
  * Install a voice by copying the voice data to marybase/lib/voices/voicename/

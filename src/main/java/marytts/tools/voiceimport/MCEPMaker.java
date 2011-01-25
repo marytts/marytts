@@ -41,6 +41,8 @@ import java.lang.reflect.Array;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import marytts.util.data.ESTTrackReader;
+
 public class MCEPMaker extends VoiceImportComponent {
     
     protected DatabaseLayout db = null;

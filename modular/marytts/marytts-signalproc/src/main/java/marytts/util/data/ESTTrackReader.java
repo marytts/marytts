@@ -29,12 +29,14 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package marytts.tools.voiceimport;
+package marytts.util.data;
 
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+
+import marytts.util.io.General;
 
 /**
  * EST Track file reader

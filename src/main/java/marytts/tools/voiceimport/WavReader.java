@@ -36,6 +36,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import marytts.util.io.General;
+
 /**
  * File reader for a wave (RIFF) waveform
  */

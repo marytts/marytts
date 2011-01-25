@@ -29,7 +29,7 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package marytts.tools.voiceimport;
+package marytts.util.io;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -44,7 +44,6 @@ import java.io.InputStreamReader;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
-import marytts.util.io.StreamLogger;
 
 /**
  * This class is for general purpose functions such as reading and

@@ -74,6 +74,7 @@ import marytts.htsengine.PhoneTranslator;
 import marytts.modules.acoustic.Model;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.io.FileUtils;
+import marytts.util.io.General;
 import marytts.util.string.*;
 
 public class HMMVoiceMakeData extends VoiceImportComponent{

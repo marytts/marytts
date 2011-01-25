@@ -38,9 +38,9 @@ import java.util.TreeMap;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.tools.voiceimport.BasenameList;
 import marytts.tools.voiceimport.DatabaseLayout;
-import marytts.tools.voiceimport.ESTTrackReader;
 import marytts.tools.voiceimport.VoiceImportComponent;
 import marytts.unitselection.data.UnitFileReader;
+import marytts.util.data.ESTTrackReader;
 import marytts.util.data.MaryHeader;
 import marytts.vocalizations.VocalizationUnitFileReader;
 

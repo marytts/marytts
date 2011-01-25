@@ -36,6 +36,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import marytts.util.io.General;
+
 /**
  * The ESTCaller class emulates the behaviour of the EST-calling shell scripts
  * for the calculation of pitchmarks, lpc, mel-cepstrum etc.
