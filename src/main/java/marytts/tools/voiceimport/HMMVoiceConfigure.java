@@ -57,6 +57,8 @@ import java.io.InputStreamReader;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import marytts.util.io.General;
+
 
 
 public class HMMVoiceConfigure extends VoiceImportComponent{

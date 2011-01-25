@@ -41,6 +41,7 @@ import marytts.signalproc.window.Window;
 import marytts.signalproc.analysis.VoiceQuality;
 import marytts.tools.voiceimport.SphinxTrainer.StreamGobbler;
 import marytts.util.MaryUtils;
+import marytts.util.data.ESTTrackReader;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.text.SnackTextfileDoubleDataSource;
 import marytts.util.display.DisplayUtils;

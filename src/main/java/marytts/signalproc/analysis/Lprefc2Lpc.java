@@ -33,8 +33,8 @@ package marytts.signalproc.analysis;
 
 import java.io.IOException;
 
-import marytts.tools.voiceimport.ESTTrackReader;
 import marytts.tools.voiceimport.ESTTrackWriter;
+import marytts.util.data.ESTTrackReader;
 
 /**
  * 

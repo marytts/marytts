@@ -29,9 +29,9 @@ import marytts.exceptions.ExecutionException;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.tools.voiceimport.BasenameList;
 import marytts.tools.voiceimport.DatabaseLayout;
-import marytts.tools.voiceimport.General;
 import marytts.tools.voiceimport.VoiceImportComponent;
 import marytts.util.io.FileUtils;
+import marytts.util.io.General;
 
 /**
  * MLSA feature files extractor for vocalizations. It extracts mgc features, strengths and logf0 features 
