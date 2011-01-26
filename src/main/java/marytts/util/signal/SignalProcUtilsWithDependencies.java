@@ -33,9 +33,9 @@ import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.window.HammingWindow;
 import marytts.signalproc.window.Window;
+import marytts.util.data.AlignLabelsUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.MaryAudioUtils;
-import marytts.util.io.AlignLabelsTempUtils;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.FFTMixedRadix;
 import marytts.util.math.MathUtils;
@@ -49,7 +49,7 @@ public class SignalProcUtilsWithDependencies {
 
     public static double sourceTime2targetTime(double sourceTime, Labels sourceLabels, Labels targetLabels)
     {
-        int[][] map = AlignLabelsTempUtils.alignLabels(sourceLabels.items, targetLabels.items);
+        int[][] map = AlignLabelsUtils.alignLabels(sourceLabels.items, targetLabels.items);
         
         return sourceTime2targetTime(sourceTime, sourceLabels, targetLabels, map);
     }
@@ -90,7 +90,7 @@ public class SignalProcUtilsWithDependencies {
                                         int numFrmTarget, Labels tgtLabs, double tgtWindowSizeInSeconds, double tgtSkipSizeInSeconds)
     {
         int[] mappedInds = null;
-        int[][] mappedLabelInds = AlignLabelsTempUtils.alignLabels(srcLabs.items, tgtLabs.items);
+        int[][] mappedLabelInds = AlignLabelsUtils.alignLabels(srcLabs.items, tgtLabs.items);
         
         if (numfrmSource>0)
         {

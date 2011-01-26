@@ -55,11 +55,11 @@ import marytts.cart.io.WagonCARTWriter;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.MCepDatagram;
 import marytts.unitselection.data.MCepTimelineReader;
 import marytts.unitselection.data.UnitFileReader;
+import marytts.util.data.Datagram;
 
 public class CARTBuilder extends VoiceImportComponent {
     

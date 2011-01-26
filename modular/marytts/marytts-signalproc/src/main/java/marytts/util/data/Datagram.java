@@ -29,7 +29,7 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package marytts.unitselection.data;
+package marytts.util.data;
 
 import java.io.DataOutput;
 import java.io.EOFException;

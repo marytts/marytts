@@ -40,12 +40,13 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
 import marytts.unitselection.analysis.ProsodyAnalyzer;
-import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.UnitDatabase;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.util.MaryUtils;
 import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.Datagram;
+import marytts.util.data.DatagramDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
 

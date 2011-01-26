@@ -29,7 +29,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import marytts.unitselection.data.Datagram;
+import marytts.util.data.Datagram;
 
 /**
  * Abstract class to wrap a data file in a manner suitable for feeding it as {@link Datagram}s into an

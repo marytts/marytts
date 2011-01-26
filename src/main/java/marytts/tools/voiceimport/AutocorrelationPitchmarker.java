@@ -36,6 +36,7 @@ import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.util.MaryUtils;
+import marytts.util.data.ESTTrackWriter;
 import marytts.util.data.text.PraatTextfileDoubleDataSource;
 import marytts.util.io.FileUtils;
 import marytts.util.signal.SignalProcUtils;

@@ -26,6 +26,7 @@ import java.nio.ByteBuffer;
 import java.util.Properties;
 
 import marytts.exceptions.MaryConfigurationException;
+import marytts.util.data.Datagram;
 
 
 public class LPCTimelineReader extends TimelineReader

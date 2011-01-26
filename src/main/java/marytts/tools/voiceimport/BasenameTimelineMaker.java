@@ -36,7 +36,7 @@ import java.text.DecimalFormat;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import marytts.unitselection.data.Datagram;
+import marytts.util.data.Datagram;
 import marytts.util.data.ESTTrackReader;
 
 

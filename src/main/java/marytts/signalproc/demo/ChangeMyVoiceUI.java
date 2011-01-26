@@ -46,7 +46,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
-import marytts.client.SimpleFileFilter;
 import marytts.signalproc.filter.BandPassFilter;
 import marytts.signalproc.filter.LowPassFilter;
 import marytts.signalproc.process.AudioMixer;
@@ -59,6 +58,7 @@ import marytts.signalproc.process.VocalTractScalingProcessor;
 import marytts.signalproc.process.VocalTractScalingSimpleProcessor;
 import marytts.signalproc.process.VoiceModificationParameters;
 import marytts.util.data.audio.AudioRecorder.BufferingRecorder;
+import marytts.util.io.SimpleFileFilter;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 

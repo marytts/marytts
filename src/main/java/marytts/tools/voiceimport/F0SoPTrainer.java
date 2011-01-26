@@ -56,11 +56,11 @@ import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.machinelearning.SFFS;
 import marytts.machinelearning.SoP;
-import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.HnmTimelineReader;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.UnitFileReader;
+import marytts.util.data.Datagram;
 import marytts.util.math.MathUtils;
 import marytts.util.string.PrintfFormat;
 

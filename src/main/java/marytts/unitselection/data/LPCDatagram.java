@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
+import marytts.util.data.Datagram;
 import marytts.util.io.General;
 
 

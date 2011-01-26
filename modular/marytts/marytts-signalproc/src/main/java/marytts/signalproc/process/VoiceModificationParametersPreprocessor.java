@@ -34,9 +34,9 @@ import marytts.signalproc.analysis.F0ReaderWriter;
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.FestivalUtt;
 import marytts.signalproc.analysis.Labels;
+import marytts.util.data.AlignLabelsUtils;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.io.AlignLabelsTempUtils;
 import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
@@ -225,7 +225,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
                 {
                     if (((FestivalUtt)ad).keys[i].compareTo("==Segment==")==0 && durationMap==null)
                     {
-                        durationMap = AlignLabelsTempUtils.alignLabels(sourceLabels.items, ((FestivalUtt)ad).labels[i].items);
+                        durationMap = AlignLabelsUtils.alignLabels(sourceLabels.items, ((FestivalUtt)ad).labels[i].items);
                         targetDurationLabels = new Labels(((FestivalUtt)ad).labels[i]);
                     }
                     else if (((FestivalUtt)ad).keys[i].compareTo("==Target==")==0)
@@ -234,7 +234,7 @@ public class VoiceModificationParametersPreprocessor extends VoiceModificationPa
             }
             else if (ad instanceof Labels)
             {
-                durationMap = AlignLabelsTempUtils.alignLabels(sourceLabels.items, ((Labels)ad).items);
+                durationMap = AlignLabelsUtils.alignLabels(sourceLabels.items, ((Labels)ad).items);
                 targetDurationLabels = new Labels((Labels)ad);
                 targetPitchLabels = new Labels((Labels)ad);
             }

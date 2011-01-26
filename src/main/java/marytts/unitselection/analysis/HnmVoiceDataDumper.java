@@ -33,10 +33,10 @@ import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizedSignal;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizer;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizerParams;
-import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.HnmDatagram;
 import marytts.unitselection.data.HnmTimelineReader;
 import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.Datagram;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.MathUtils;
 

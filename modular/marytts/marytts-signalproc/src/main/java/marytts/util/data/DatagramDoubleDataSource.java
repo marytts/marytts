@@ -17,13 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.unitselection.concat;
+package marytts.util.data;
 
 import java.util.LinkedList;
 
-import marytts.unitselection.data.Datagram;
-import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.DoubleDataSource;
 
 
 public class DatagramDoubleDataSource extends BufferedDoubleDataSource

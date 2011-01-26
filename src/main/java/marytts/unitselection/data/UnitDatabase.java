@@ -32,6 +32,7 @@ import marytts.unitselection.select.Target;
 import marytts.unitselection.select.TargetCostFunction;
 import marytts.unitselection.select.viterbi.ViterbiCandidate;
 import marytts.util.MaryUtils;
+import marytts.util.data.Datagram;
 import marytts.util.dom.DomUtils;
 
 import org.apache.log4j.Logger;

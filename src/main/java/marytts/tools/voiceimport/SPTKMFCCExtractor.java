@@ -33,12 +33,12 @@ import marytts.cart.io.MaryCARTWriter;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.signalproc.analysis.Mfccs;
-import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.MCepDatagram;
 import marytts.unitselection.data.MCepTimelineReader;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.util.MaryUtils;
+import marytts.util.data.Datagram;
 import marytts.util.io.General;
 
 
