@@ -36,7 +36,7 @@ import marytts.tools.voiceimport.PraatPitchmarker;
 import marytts.tools.voiceimport.TimelineWriter;
 import marytts.tools.voiceimport.VoiceImportComponent;
 import marytts.tools.voiceimport.WavReader;
-import marytts.unitselection.data.Datagram;
+import marytts.util.data.Datagram;
 import marytts.util.data.ESTTrackReader;
 
 public class VocalizationTimelineMaker extends VoiceImportComponent {

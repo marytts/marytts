@@ -21,8 +21,8 @@ package marytts.unitselection.concat;
 
 import marytts.signalproc.window.DynamicTwoHalvesWindow;
 import marytts.signalproc.window.Window;
-import marytts.unitselection.data.Datagram;
 import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.Datagram;
 import marytts.util.data.DoubleDataSource;
 
 

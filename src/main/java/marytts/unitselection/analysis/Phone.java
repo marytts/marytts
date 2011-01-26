@@ -24,9 +24,9 @@ import java.util.Arrays;
 
 import marytts.modules.phonemiser.Allophone;
 import marytts.unitselection.concat.BaseUnitConcatenator.UnitData;
-import marytts.unitselection.data.Datagram;
 import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.SelectedUnit;
+import marytts.util.data.Datagram;
 import marytts.util.math.MathUtils;
 
 import org.apache.commons.lang.ArrayUtils;

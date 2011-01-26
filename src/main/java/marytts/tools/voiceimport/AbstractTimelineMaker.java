@@ -28,8 +28,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;
+import marytts.util.data.Datagram;
 
 public abstract class AbstractTimelineMaker extends VoiceImportComponent {
 

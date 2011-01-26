@@ -18,15 +18,16 @@
  *
  */
 
-package marytts.util.io;
+package marytts.util.data;
 
 import marytts.signalproc.analysis.Label;
+
 
 /**
  * @author marc
  *
  */
-public class AlignLabelsTempUtils {
+public class AlignLabelsUtils {
 
     public static int[][] alignLabels(Label[] labs1, Label[] labs2, double PDeletion, double PInsertion, double PSubstitution)
     {

@@ -30,10 +30,10 @@ import marytts.tools.voiceimport.DatabaseLayout;
 import marytts.tools.voiceimport.HalfPhoneFeatureFileWriter;
 import marytts.tools.voiceimport.VoiceImportComponent;
 import marytts.tools.voiceimport.WaveTimelineMaker;
-import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.UnitFileReader;
+import marytts.util.data.Datagram;
 import marytts.util.data.audio.WavWriter;
 
 public class ListenToPreselection {

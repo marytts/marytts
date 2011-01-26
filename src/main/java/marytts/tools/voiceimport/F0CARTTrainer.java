@@ -41,11 +41,11 @@ import marytts.cart.io.WagonCARTReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.HnmTimelineReader;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.UnitFileReader;
+import marytts.util.data.Datagram;
 import marytts.util.string.PrintfFormat;
 
 

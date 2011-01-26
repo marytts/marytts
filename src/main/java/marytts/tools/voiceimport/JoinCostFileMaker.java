@@ -45,12 +45,12 @@ import java.util.Vector;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureVector;
-import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.TimelineReader;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.unitselection.select.JoinCostFeatures;
 import marytts.util.MaryUtils;
+import marytts.util.data.Datagram;
 import marytts.util.data.ESTTrackReader;
 import marytts.util.data.MaryHeader;
 

@@ -24,10 +24,10 @@ import java.util.List;
 
 import javax.sound.sampled.AudioInputStream;
 
-import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.util.data.BufferedDoubleDataSource;
+import marytts.util.data.Datagram;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
 

@@ -31,6 +31,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import marytts.util.MaryUtils;
+import marytts.util.data.ESTTrackWriter;
 import marytts.util.data.text.PraatTextfileDoubleDataSource;
 import marytts.util.io.General;
 import marytts.util.math.ArrayUtils;

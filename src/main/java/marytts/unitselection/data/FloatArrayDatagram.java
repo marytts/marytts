@@ -22,6 +22,8 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import marytts.util.data.Datagram;
+
 /**
  * Extension of Datagram to provide a float array instead of (actually alongside) a byte array
  * 

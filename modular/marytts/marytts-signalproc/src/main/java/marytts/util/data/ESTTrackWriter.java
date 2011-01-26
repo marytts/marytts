@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.tools.voiceimport;
+package marytts.util.data;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;

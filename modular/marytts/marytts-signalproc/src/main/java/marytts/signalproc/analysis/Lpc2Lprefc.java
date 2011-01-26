@@ -33,65 +33,67 @@ package marytts.signalproc.analysis;
 
 import java.io.IOException;
 
-import marytts.tools.voiceimport.ESTTrackWriter;
 import marytts.util.data.ESTTrackReader;
+import marytts.util.data.ESTTrackWriter;
 
 /**
  * 
- * Internally does the conversion between LPCCs and LPCs.
+ * Internally does the conversion between LPCs and reflection coefficients.
  *
  */
-public class Lpcc2Lpc {
-    private static float[][] convertData( float[][] lpcc, int lpcOrder ) {
+
+public class Lpc2Lprefc {    
+    private static float[][] convertData( float[][] lpc ) {
         
-        int nCep = lpcc[0].length;
-        double[] c = new double[nCep];
-        double[] a = new double[lpcOrder+1];
-        float[][] lpc = new float[lpcc.length][lpcOrder+1];
+        int nLPC = lpc[0].length;
+        int nK = nLPC - 1;
+        double[] a = new double[nLPC];
+        a[0] = 1.0; // Set a[0] to 1.0 once and for all
+        double[] k = new double[nK];
+        float[][] lprefc = new float[lpc.length][nK];
         
         // For each LPC vector:
-        for ( int i = 0; i < lpcc.length; i++ ) {
-            // Cast the LPCC coeffs from float to double
-            for ( int k = 0; k < nCep; k++ ) {
-                c[k] = (double)( lpcc[i][k] );
+        for ( int i = 0; i < lpc.length; i++ ) {
+            // Cast the LPC coeffs from float to double
+            // Note: a[0] has been permanently set to one in the above.
+            for ( int j = 1; j < nLPC; j++ ) {
+                a[j] = (double)( lpc[i][j] );
             }
             // Do the conversion
-            a = CepstrumLPCAnalyser.lpcc2lpc( c, lpcOrder );
-            // Recover the energy from the cepstrum vector
-            lpc[i][0] = (float)( Math.exp( c[0] ) );
-            // Cast the LPCs back to floats
-            for ( int k = 1; k <= lpcOrder; k++ ) {
-                lpc[i][k] = (float)( a[k] );
+            k = ReflectionCoefficients.lpc2lprefc( a );
+            // Cast the reflection coefficients back to floats
+            for ( int j = 0; j < nK; j++ ) {
+                lprefc[i][j] = (float)( k[j] );
             }
         }
-        return( lpc );
+        return( lprefc );
     }
     
     /**
-     * A method to convert between two files, from LPCs to LPCCs in EST format.
+     * A method to convert between two files, from LPCs to reflection coeffs in EST format.
      * 
-     * @param cepstrumOrder The requested cepstrum order.
      * @param inFileName The name of the input file.
      * @param outFileName The name of the output file.
      * 
      * @throws IOException
      */
-    public static void convert( String inFileName, String outFileName, int lpcOrder ) throws IOException {
+    public static void convert( String inFileName, String outFileName ) throws IOException {
         // Load the input file
         ESTTrackReader etr = new ESTTrackReader( inFileName );
         // Convert
-        float[][] lpc = convertData( etr.getFrames(), lpcOrder );
+        float[][] lprefc = convertData( etr.getFrames() );
         // Output the lpcc
-        ESTTrackWriter etw = new ESTTrackWriter( etr.getTimes(), lpc, "lpc" );
+        ESTTrackWriter etw = new ESTTrackWriter( etr.getTimes(), lprefc, "lprefc" );
         etw.doWriteAndClose( outFileName, etr.isBinary(), etr.isBigEndian() );
+        
     }
-
+    
     /**
      * @param args
      */
     public static void main(String[] args) throws IOException {
-        // Usage: ESTlpccToESTlpc lpcOrder inFileName outFileName
-        convert( args[1], args[2], new Integer( args[0] ).intValue() );
+        // Usage: ESTlpcToESTlprefc inFileName outFileName
+        convert( args[0], args[1] );
     }
 
 }

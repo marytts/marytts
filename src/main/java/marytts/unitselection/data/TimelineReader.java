@@ -49,6 +49,7 @@ import java.util.Vector;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.util.MaryUtils;
 import marytts.util.Pair;
+import marytts.util.data.Datagram;
 import marytts.util.data.MaryHeader;
 import marytts.util.io.StreamUtils;
 

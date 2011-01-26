@@ -37,8 +37,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Vector;
 
-import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;
+import marytts.util.data.Datagram;
 import marytts.util.data.MaryHeader;
 
 

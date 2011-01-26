@@ -34,9 +34,9 @@ import org.junit.Test;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.tests.junit4.util.TestableTimelineReader;
 import marytts.tools.voiceimport.TimelineWriter;
-import marytts.unitselection.data.Datagram;
 import marytts.unitselection.data.TimelineReader;
 import marytts.util.Pair;
+import marytts.util.data.Datagram;
 
 /**
  * Provides the actual timeline test case for the timeline reading/writing symmetry.
