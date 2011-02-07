@@ -388,13 +388,9 @@ public class ProsodyElementHandler {
                 }
             }
             double endTime = 0.001 * duration;
-            if (nd.getNodeName().equals(MaryXML.BOUNDARY)) {
+            if (!nd.getNodeName().equals(MaryXML.BOUNDARY)) {
                 // setting "end" attr for boundaries does not have the intended effect, since elsewhere, only the "duration" attr
                 // is used for boundaries
-                nd.setAttribute("duration", String.valueOf(endTime));
-            } else {
-                // i.e. we're dealing with a PHONE node
-                assert nd.getNodeName().equals(MaryXML.PHONE);
                 nd.setAttribute("end", String.valueOf(endTime));
             }
             //System.out.println(nd.getNodeName()+" = " +nd.getAttribute("end"));
