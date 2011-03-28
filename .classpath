@@ -6,7 +6,7 @@
 			<attribute name="javadoc_location" value="http://freetts.sourceforge.net/javadoc/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="java/log4j-1.2.15.jar">
+	<classpathentry kind="lib" path="java/log4j-1.2.15.jar" sourcepath="/Users/steiner/.m2/repository/log4j/log4j/1.2.15/log4j-1.2.15-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://logging.apache.org/log4j/1.2/apidocs/"/>
 		</attributes>
