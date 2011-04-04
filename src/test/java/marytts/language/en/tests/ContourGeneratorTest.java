@@ -22,7 +22,7 @@ package marytts.language.en.tests;
 import marytts.datatypes.MaryData;
 import marytts.modules.TobiContourGenerator;
 import marytts.tests.modules.MaryModuleTestCase;
-import marytts.util.dom.DomUtils;
+import marytts.util.dom.MaryDomUtils;
 
 import static org.junit.Assert.*;
 
@@ -46,7 +46,7 @@ public class ContourGeneratorTest extends MaryModuleTestCase {
         inData.readFrom(this.getClass().getResourceAsStream("downstep_in_mtu.postprocessed"), null);
         MaryData outData = module.process(inData);
         try {
-            DomUtils.verifySchemaValid(outData.getDocument()); // throws Exception upon failure
+            MaryDomUtils.verifySchemaValid(outData.getDocument()); // throws Exception upon failure
         } catch (Exception e) {
             e.printStackTrace();
             fail();        

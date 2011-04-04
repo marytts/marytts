@@ -53,7 +53,7 @@ import marytts.signalproc.effects.BaseAudioEffect;
 import marytts.signalproc.effects.EffectsApplier;
 import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.interpolation.InterpolatingVoice;
-import marytts.util.MaryServerUtils;
+import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 
@@ -168,7 +168,7 @@ import org.apache.log4j.Logger;
  * @see RequestHandler
  * @author Marc Schr&ouml;der
  */
-public class MaryServer {
+public class MaryServer implements Runnable {
 
     private ServerSocket server;
     private Logger logger;
@@ -180,17 +180,20 @@ public class MaryServer {
         logger = MaryUtils.getLogger("server");
     }
 
-    public void run() throws IOException, NoSuchPropertyException {
+    public void run() {
         logger.info("Starting server.");
+        try {
+            server = new ServerSocket(MaryProperties.needInteger("socket.port"));
 
-        server = new ServerSocket(MaryProperties.needInteger("socket.port"));
-
-        while (true) {
-            logger.info("Waiting for client to connect on port " + server.getLocalPort());
-            Socket client = server.accept();
-            logger.info(
-                    "Connection from " + client.getInetAddress().getHostName() + " (" + client.getInetAddress().getHostAddress() + ").");
-            clients.execute(new ClientHandler(client));
+            while (true) {
+                logger.info("Waiting for client to connect on port " + server.getLocalPort());
+                Socket client = server.accept();
+                logger.info(
+                        "Connection from " + client.getInetAddress().getHostName() + " (" + client.getInetAddress().getHostAddress() + ").");
+                clients.execute(new ClientHandler(client));
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -389,15 +392,15 @@ public class MaryServer {
 
             AudioFormat audioFormat = voice.dbAudioFormat();
             if (audioFileFormatType.toString().equals("MP3")) {
-                if (!MaryServerUtils.canCreateMP3()) {
+                if (!MaryRuntimeUtils.canCreateMP3()) {
                     throw new UnsupportedAudioFileException("Conversion to MP3 not supported.");
                 }
-                audioFormat = MaryServerUtils.getMP3AudioFormat();
+                audioFormat = MaryRuntimeUtils.getMP3AudioFormat();
             } else if (audioFileFormatType.toString().equals("Vorbis")) {
-                if (!MaryServerUtils.canCreateOgg()) {
+                if (!MaryRuntimeUtils.canCreateOgg()) {
                     throw new UnsupportedAudioFileException("Conversion to OGG Vorbis format not supported.");
                 }
-                audioFormat = MaryServerUtils.getOggAudioFormat();
+                audioFormat = MaryRuntimeUtils.getOggAudioFormat();
             }
 
             AudioFileFormat audioFileFormat = new AudioFileFormat(audioFileFormatType, audioFormat, AudioSystem.NOT_SPECIFIED);
@@ -565,7 +568,7 @@ public class MaryServer {
 
         private boolean listAudioFileFormatTypes()
         {
-            String info = MaryServerUtils.getAudioFileFormatTypes();
+            String info = MaryRuntimeUtils.getAudioFileFormatTypes();
             clientOut.println(info);
             // Empty line marks end of info:
             clientOut.println();

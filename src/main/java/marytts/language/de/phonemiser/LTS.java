@@ -71,7 +71,7 @@ public class LTS
         else
             knowUmlauts = true;
         allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename("german.allophoneset"));
-        syllabifier = allophoneSet.getSyllabifier();
+        syllabifier = new Syllabifier(allophoneSet);
     }
 
 

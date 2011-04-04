@@ -20,7 +20,21 @@
       <artifactId>marytts-common</artifactId>
       <version>5.0-SNAPSHOT</version>
     </dependency>
-    
+    <dependency>
+      <groupId>marytts</groupId>
+      <artifactId>marytts-signalproc</artifactId>
+      <version>5.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>marytts</groupId>
+      <artifactId>marytts-runtime</artifactId>
+      <version>5.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>marytts</groupId>
+      <artifactId>marytts-client</artifactId>
+      <version>5.0-SNAPSHOT</version>
+    </dependency>
     
 
     
@@ -30,6 +44,34 @@
       <version>4.8.2</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+      <version>2.0.8</version>
+    </dependency>
+    <dependency>
+      <groupId>org.swinglabs</groupId>
+      <artifactId>swing-layout</artifactId>
+      <version>1.0.3</version>
+    </dependency>
+    
+    <!-- System dependencies - to be replaced where possible -->
+    <dependency>
+      <groupId>weka</groupId>
+      <artifactId>weka</artifactId>
+      <version>3</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/weka.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy24</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/sgt_v30.jar</systemPath>
+    </dependency>
 
+    
+    
   </dependencies>
 </project>
