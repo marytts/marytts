@@ -42,7 +42,7 @@ import marytts.server.RequestHandler.StreamingOutputWriter;
 
 import marytts.server.http.BaseHttpRequestHandler;
 import marytts.server.http.MaryHttpServerUtils;
-import marytts.util.MaryServerUtils;
+import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
 /**
@@ -182,7 +182,7 @@ public class UtterancePlayRequestHandler  extends BaseHttpRequestHandler {
             logger.info("Request handled successfully.");
         else
             logger.info("Request couldn't be handled successfully.");
-        if (MaryServerUtils.lowMemoryCondition()) {
+        if (MaryRuntimeUtils.lowMemoryCondition()) {
             logger.info("Low memory condition detected (only " + MaryUtils.availableMemory() + " bytes left). Triggering garbage collection.");
             Runtime.getRuntime().gc();
             logger.info("After garbage collection: " + MaryUtils.availableMemory() + " bytes available.");

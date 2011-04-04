@@ -57,7 +57,7 @@ import marytts.server.Request;
 import marytts.server.RequestHandler.StreamingOutputPiper;
 import marytts.server.RequestHandler.StreamingOutputWriter;
 import marytts.util.ConversionUtils;
-import marytts.util.MaryServerUtils;
+import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.io.LoggingReader;
@@ -166,11 +166,11 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler
             if (audioFileFormatType == null) {
                 MaryHttpServerUtils.errorWrongQueryParameterValue(response, "AUDIO", queryItems.get("AUDIO"), null);
                 return;
-            } else if (audioFileFormatType.toString().equals("MP3") && !MaryServerUtils.canCreateMP3()) { 
+            } else if (audioFileFormatType.toString().equals("MP3") && !MaryRuntimeUtils.canCreateMP3()) { 
                 MaryHttpServerUtils.errorWrongQueryParameterValue(response, "AUDIO", queryItems.get("AUDIO"), "Conversion to MP3 not supported.");
                 return;
             } 
-            else if (audioFileFormatType.toString().equals("Vorbis") && !MaryServerUtils.canCreateOgg()) {
+            else if (audioFileFormatType.toString().equals("Vorbis") && !MaryRuntimeUtils.canCreateOgg()) {
                 MaryHttpServerUtils.errorWrongQueryParameterValue(response, "AUDIO", queryItems.get("AUDIO"), "Conversion to OGG Vorbis format not supported.");
                 return;
             }
@@ -227,9 +227,9 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler
         }
         AudioFormat audioFormat;
         if (audioFileFormatType.toString().equals("MP3")) {
-            audioFormat = MaryServerUtils.getMP3AudioFormat();
+            audioFormat = MaryRuntimeUtils.getMP3AudioFormat();
         } else if (audioFileFormatType.toString().equals("Vorbis")) {
-            audioFormat = MaryServerUtils.getOggAudioFormat();
+            audioFormat = MaryRuntimeUtils.getOggAudioFormat();
         } else if (voice != null) {
             audioFormat = voice.dbAudioFormat();
         } else {
@@ -317,7 +317,7 @@ public class SynthesisRequestHandler extends BaseHttpRequestHandler
             logger.info("Request handled successfully.");
         else
             logger.info("Request couldn't be handled successfully.");
-        if (MaryServerUtils.lowMemoryCondition()) {
+        if (MaryRuntimeUtils.lowMemoryCondition()) {
             logger.info("Low memory condition detected (only " + MaryUtils.availableMemory() + " bytes left). Triggering garbage collection.");
             Runtime.getRuntime().gc();
             logger.info("After garbage collection: " + MaryUtils.availableMemory() + " bytes available.");

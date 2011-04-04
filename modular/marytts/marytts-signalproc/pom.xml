@@ -33,6 +33,11 @@
       <version>4.8.2</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.swinglabs</groupId>
+      <artifactId>swing-layout</artifactId>
+      <version>1.0.3</version>
+    </dependency>
     
     <!-- System dependencies - to be replaced where possible -->
     <dependency>
@@ -41,6 +46,13 @@
       <version>1.0.2</version>
       <scope>system</scope>
       <systemPath>${basedir}/lib/Jama-1.0.2.jar</systemPath>
+    </dependency>     
+    <dependency>
+      <groupId>Jampack</groupId>
+      <artifactId>Jampack</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/Jampack.jar</systemPath>
     </dependency>     
     
   </dependencies>
