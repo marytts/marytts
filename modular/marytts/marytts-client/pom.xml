@@ -21,9 +21,12 @@
       <artifactId>marytts-common</artifactId>
       <version>5.0-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>marytts</groupId>
+      <artifactId>marytts-signalproc</artifactId>
+      <version>5.0-SNAPSHOT</version>
+    </dependency>
     
-    
-
     
     <dependency>
       <groupId>junit</groupId>
@@ -32,5 +35,22 @@
       <scope>test</scope>
     </dependency>
 
+
+    <dependency>
+      <groupId>freetts</groupId>
+      <artifactId>freetts</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/freetts.jar</systemPath>
+    </dependency> 
+    
+    <dependency>
+      <groupId>org.incava</groupId>
+      <artifactId>util.diff</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/java-diff.jar</systemPath>
+    </dependency> 
+    
   </dependencies>
 </project>
