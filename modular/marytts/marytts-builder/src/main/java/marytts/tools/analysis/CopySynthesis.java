@@ -119,7 +119,7 @@ public class CopySynthesis
         if (textFilename == null) {
             throw new IllegalArgumentException("No text file given");
         }
-        TranscriptionAligner aligner = new TranscriptionAligner();
+        MaryTranscriptionAligner aligner = new MaryTranscriptionAligner();
         aligner.SetEnsureInitialBoundary(false);
         String labels = aligner.readLabelFile(labFilename);
         MaryHttpClient mary = new MaryHttpClient();

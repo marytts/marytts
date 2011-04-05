@@ -19,7 +19,7 @@
  */
 package marytts.signalproc.adaptation;
 
-import marytts.tools.voiceimport.BasenameList;
+import marytts.util.io.BasenameList;
 
 /**
  * Baseline class for speaker specific voice conversion training set

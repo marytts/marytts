@@ -30,7 +30,6 @@ import java.text.DecimalFormat;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import marytts.tools.voiceimport.BasenameList;
 import marytts.tools.voiceimport.DatabaseLayout;
 import marytts.tools.voiceimport.PraatPitchmarker;
 import marytts.tools.voiceimport.TimelineWriter;
@@ -38,6 +37,7 @@ import marytts.tools.voiceimport.VoiceImportComponent;
 import marytts.tools.voiceimport.WavReader;
 import marytts.util.data.Datagram;
 import marytts.util.data.ESTTrackReader;
+import marytts.util.io.BasenameList;
 
 public class VocalizationTimelineMaker extends VoiceImportComponent {
 

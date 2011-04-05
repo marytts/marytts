@@ -23,23 +23,20 @@ package marytts.util.data.audio;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
+
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFileChooser;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+
 import marytts.signalproc.analysis.EnergyAnalyser;
 import marytts.signalproc.analysis.EnergyAnalyser_dB;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;

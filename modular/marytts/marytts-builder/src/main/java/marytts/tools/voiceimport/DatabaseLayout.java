@@ -40,6 +40,7 @@ import java.util.TreeMap;
 
 import marytts.Version;
 import marytts.util.MaryUtils;
+import marytts.util.io.BasenameList;
 
 /**
  * The DatabaseLayout class registers the base directory of a voice database,

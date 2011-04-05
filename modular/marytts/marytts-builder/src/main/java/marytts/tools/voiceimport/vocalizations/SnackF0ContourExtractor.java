@@ -32,12 +32,12 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import marytts.signalproc.analysis.SPTKPitchReaderWriter;
-import marytts.tools.voiceimport.BasenameList;
 import marytts.tools.voiceimport.DatabaseLayout;
 import marytts.tools.voiceimport.PraatPitchmarker;
 import marytts.tools.voiceimport.VoiceImportComponent;
 import marytts.util.MaryUtils;
 import marytts.util.data.text.SnackTextfileDoubleDataSource;
+import marytts.util.io.BasenameList;
 import marytts.util.io.General;
 
 public class SnackF0ContourExtractor extends VoiceImportComponent {

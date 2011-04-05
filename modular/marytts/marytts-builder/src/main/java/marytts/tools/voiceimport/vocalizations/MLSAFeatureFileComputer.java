@@ -27,9 +27,9 @@ import java.util.TreeMap;
 
 import marytts.exceptions.ExecutionException;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.tools.voiceimport.BasenameList;
 import marytts.tools.voiceimport.DatabaseLayout;
 import marytts.tools.voiceimport.VoiceImportComponent;
+import marytts.util.io.BasenameList;
 import marytts.util.io.FileUtils;
 import marytts.util.io.General;
 

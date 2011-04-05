@@ -27,9 +27,9 @@ import java.io.PrintWriter;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import marytts.tools.voiceimport.BasenameList;
 import marytts.tools.voiceimport.DatabaseLayout;
 import marytts.tools.voiceimport.PraatPitchmarker;
+import marytts.util.io.BasenameList;
 
 public class VocalizationPitchmarker extends PraatPitchmarker {
 
