@@ -22,6 +22,7 @@ package marytts.tools.voiceimport;
 import java.util.SortedMap;
 
 import marytts.util.MaryUtils;
+import marytts.util.io.BasenameList;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;

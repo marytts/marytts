@@ -27,11 +27,11 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.tools.voiceimport.BasenameList;
 import marytts.tools.voiceimport.UnitLabel;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.MaryAudioUtils;
+import marytts.util.io.BasenameList;
 
 public class VocalisationLabelInspector {
 

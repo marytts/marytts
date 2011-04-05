@@ -42,7 +42,7 @@ import marytts.signalproc.adaptation.prosody.ProsodyTransformerParams;
 import marytts.signalproc.adaptation.smoothing.SmoothingDefinitions;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.MfccFileHeader;
-import marytts.tools.voiceimport.BasenameList;
+import marytts.util.io.BasenameList;
 import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
 

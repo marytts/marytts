@@ -29,7 +29,7 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
  * THIS SOFTWARE.
  */
-package marytts.tools.voiceimport;
+package marytts.util.io;
 
 import java.io.BufferedReader;
 import java.io.File;

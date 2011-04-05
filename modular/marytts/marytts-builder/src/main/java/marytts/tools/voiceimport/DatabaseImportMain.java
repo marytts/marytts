@@ -72,6 +72,8 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 
+import marytts.util.io.BasenameList;
+
 
 /**
  * The single purpose of the DatabaseImportMain class is to provide a main

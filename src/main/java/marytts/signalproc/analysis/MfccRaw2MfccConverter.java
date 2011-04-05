@@ -23,7 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import marytts.tools.voiceimport.BasenameList;
+import marytts.util.io.BasenameList;
 import marytts.util.io.FileUtils;
 import marytts.util.io.MaryRandomAccessFile;
 import marytts.util.string.StringUtils;

@@ -33,10 +33,10 @@ import java.util.TreeMap;
 
 import marytts.util.math.MathUtils;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.tools.voiceimport.BasenameList;
 import marytts.tools.voiceimport.DatabaseLayout;
 import marytts.tools.voiceimport.VoiceImportComponent;
 import marytts.util.data.MaryHeader;
+import marytts.util.io.BasenameList;
 import marytts.util.io.General;
 import marytts.util.io.LEDataInputStream;
 import marytts.vocalizations.MLSAFeatureFileReader;

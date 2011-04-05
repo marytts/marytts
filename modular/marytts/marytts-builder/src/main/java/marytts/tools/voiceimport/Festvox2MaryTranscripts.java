@@ -31,6 +31,8 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
+import marytts.util.io.BasenameList;
+
 /**
  * A class which converts a text file in festvox format
  * into a one-file-per-utterance format in a given directory.

@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import marytts.tools.voiceimport.BasenameList;
+import marytts.util.io.BasenameList;
 
 /**
  * Reader class for manual annotation of vocalizations
