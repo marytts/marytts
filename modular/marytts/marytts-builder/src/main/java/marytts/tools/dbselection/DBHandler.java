@@ -21,50 +21,37 @@ package marytts.tools.dbselection;
 
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.PreparedStatement;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.Map;
-import java.util.ArrayList;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.ClassLoader;
+import marytts.util.Pair;
+import marytts.util.io.FileUtils;
 
 import org.mediawiki.importer.DumpWriter;
-import org.mediawiki.importer.MultiWriter;
 import org.mediawiki.importer.SqlServerStream;
 import org.mediawiki.importer.SqlStream;
 import org.mediawiki.importer.SqlWriter;
 import org.mediawiki.importer.SqlWriter15;
 import org.mediawiki.importer.XmlDumpReader;
-import org.mediawiki.importer.XmlDumpWriter;
-
-
-import marytts.tools.dbselection.WikipediaMarkupCleaner;
-import marytts.util.Pair;
-import marytts.util.io.FileUtils;
 
 /**
  * Various functions for handling connection, inserting and querying a mysql database.

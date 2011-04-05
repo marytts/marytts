@@ -37,7 +37,7 @@ import marytts.signalproc.analysis.Labels;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
-import marytts.util.signal.SignalProcUtilsWithDependencies;
+
 
 /**
  * @author oytun.turk
@@ -52,7 +52,7 @@ public class TargetLsfCopyMapper extends VocalTractTransformationFunction {
     
     public LsfMatch transform(double sourceTime, Labels sourceLabels, Labels targetLabels, double[][] targetLsfs, double targetLsfAnalysisWindowSizeInSeconds, double targetLsfAnalysisSkipSizeInSeconds)
     {
-        double targetTime = SignalProcUtilsWithDependencies.sourceTime2targetTime(sourceTime, sourceLabels, targetLabels);
+        double targetTime = SignalProcUtils.sourceTime2targetTime(sourceTime, sourceLabels, targetLabels);
         
         int targetInd = SignalProcUtils.time2frameIndex(targetTime, targetLsfAnalysisWindowSizeInSeconds, targetLsfAnalysisSkipSizeInSeconds);
         

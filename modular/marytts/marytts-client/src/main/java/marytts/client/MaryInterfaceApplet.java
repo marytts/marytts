@@ -24,7 +24,7 @@ import java.io.IOException;
 
 import javax.swing.JApplet;
 
-import marytts.client.http.Address;
+import marytts.util.http.Address;
 
 /**
  * @author Marc Schr&ouml;der

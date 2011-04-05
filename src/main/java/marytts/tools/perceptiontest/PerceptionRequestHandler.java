@@ -37,10 +37,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 
-import marytts.client.http.Address;
 import marytts.server.http.BaseHttpRequestHandler;
 import marytts.server.http.FileRequestHandler;
 import marytts.server.http.MaryHttpServerUtils;
+import marytts.util.http.Address;
 import marytts.util.io.FileUtils;
 
 import org.apache.http.Header;

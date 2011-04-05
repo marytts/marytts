@@ -7,6 +7,7 @@
   <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6.jar" sourcepath="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6-sources.jar"/>
   <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/jtok.jar"/>
   <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/maxent-2.5.1.jar"/>
+  <classpathentry kind="lib" path="lib/mwdumper-2008-04-13.jar"/>
   <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/opennlp-tools-1.4.1.jar"/>
   <classpathentry kind="lib" path="lib/sgt_v30.jar"/>
   <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/trove-2.0.4.jar"/>

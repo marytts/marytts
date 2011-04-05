@@ -43,13 +43,13 @@ import java.util.StringTokenizer;
 import java.util.TreeMap;
 
 import marytts.client.MaryClient;
-import marytts.client.http.Address;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
+import marytts.util.http.Address;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

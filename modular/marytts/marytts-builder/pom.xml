@@ -70,6 +70,14 @@
       <scope>system</scope>
       <systemPath>${basedir}/lib/sgt_v30.jar</systemPath>
     </dependency>
+    <dependency>
+      <groupId>dummy</groupId>
+      <artifactId>dummy21</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${basedir}/lib/mwdumper-2008-04-13.jar</systemPath>
+    </dependency> 
+
 
     
     

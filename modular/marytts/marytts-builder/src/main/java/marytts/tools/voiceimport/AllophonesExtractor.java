@@ -39,12 +39,12 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import marytts.client.MaryClient;
-import marytts.client.http.Address;
 import marytts.client.http.MaryHttpClient;
 import marytts.datatypes.MaryXML;
 import marytts.util.MaryUtils;
 import marytts.util.data.text.BasenameClassificationDefinitionFileReader;
 import marytts.util.dom.DomUtils;
+import marytts.util.http.Address;
 
 /**
  * For the given texts, compute allophones, especially boundary tags.

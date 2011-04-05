@@ -6,6 +6,7 @@
     <project>marytts-client</project>
     <project>marytts-common</project>
     <project>marytts-runtime</project>
+    <project>marytts-server</project>
     <project>marytts-signalproc</project>
   </projects>
   <buildSpec>

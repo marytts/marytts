@@ -31,7 +31,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.client.MaryClient;
-import marytts.client.http.Address;
+import marytts.util.http.Address;
 
 
 /**

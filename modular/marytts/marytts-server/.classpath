@@ -14,6 +14,8 @@
   <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/freetts-de.jar"/>
   <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/freetts-en_us.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/hsqldb/hsqldb/2.0.0/hsqldb-2.0.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/httpcomponents/httpcore/4.1/httpcore-4.1.jar" sourcepath="M2_REPO/org/apache/httpcomponents/httpcore/4.1/httpcore-4.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/httpcomponents/httpcore-nio/4.1/httpcore-nio-4.1.jar" sourcepath="M2_REPO/org/apache/httpcomponents/httpcore-nio/4.1/httpcore-nio-4.1-sources.jar"/>
   <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-signalproc/lib/Jama-1.0.2.jar"/>
   <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-signalproc/lib/Jampack.jar"/>
   <classpathentry kind="var" path="M2_REPO/junit/junit/4.8.2/junit-4.8.2.jar" sourcepath="M2_REPO/junit/junit/4.8.2/junit-4.8.2-sources.jar"/>

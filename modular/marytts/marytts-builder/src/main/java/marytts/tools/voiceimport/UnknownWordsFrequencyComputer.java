@@ -30,11 +30,11 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import marytts.client.MaryClient;
-import marytts.client.http.Address;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.util.dom.NameNodeFilter;
+import marytts.util.http.Address;
 import marytts.util.io.FileUtils;
 import marytts.util.MaryUtils;
 

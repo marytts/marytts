@@ -30,7 +30,7 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import marytts.client.MaryClient;
-import marytts.client.http.Address;
+import marytts.util.http.Address;
 import marytts.util.io.FileUtils;
 import marytts.util.MaryUtils;
 

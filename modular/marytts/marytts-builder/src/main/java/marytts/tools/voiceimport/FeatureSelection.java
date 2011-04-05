@@ -45,9 +45,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import marytts.client.MaryClient;
-import marytts.client.http.Address;
 import marytts.client.http.MaryHttpClient;
 import marytts.util.MaryUtils;
+import marytts.util.http.Address;
 import marytts.util.io.FileUtils;
 
 

@@ -46,6 +46,11 @@
       <artifactId>marytts-runtime</artifactId>
       <version>5.0-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>marytts</groupId>
+      <artifactId>marytts-server</artifactId>
+      <version>5.0-SNAPSHOT</version>
+    </dependency>
     
     <dependency>
       <groupId>junit</groupId>
@@ -76,25 +81,7 @@
       <version>1.0</version>
       <scope>system</scope>
       <systemPath>${basedir}/java/freetts-mbrola.jar</systemPath>
-    </dependency> 
-
-
-    <dependency>
-      <groupId>dummy</groupId>
-      <artifactId>dummy13</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/java/httpcore-4.0.jar</systemPath>
-    </dependency> 
-
-    <dependency>
-      <groupId>dummy</groupId>
-      <artifactId>dummy14</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/java/httpcore-nio-4.0.jar</systemPath>
-    </dependency> 
-
+    </dependency>
 
 
 
@@ -107,13 +94,6 @@
     </dependency> 
 
 
-    <dependency>
-      <groupId>dummy</groupId>
-      <artifactId>dummy21</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/java/mwdumper-2008-04-13.jar</systemPath>
-    </dependency> 
 
     <dependency>
       <groupId>dummy</groupId>

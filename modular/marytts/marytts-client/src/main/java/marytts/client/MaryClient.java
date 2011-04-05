@@ -53,9 +53,9 @@ import marytts.Version;
 import marytts.client.AudioEffectControlData;
 import marytts.client.AudioEffectsBoxData;
 import marytts.client.MaryClient;
-import marytts.client.http.Address;
 import marytts.client.http.MaryHttpClient;
 import marytts.util.data.audio.MaryAudioUtils;
+import marytts.util.http.Address;
 import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
 
