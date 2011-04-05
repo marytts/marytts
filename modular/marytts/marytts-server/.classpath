@@ -1,28 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-  <classpathentry kind="src" path="src/test/java" output="target/test-classes" including="**/*.java"/>
-  <classpathentry kind="src" path="src/main/java" including="**/*.java"/>
-  <classpathentry kind="output" path="target/classes"/>
-  <classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar" sourcepath="M2_REPO/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/commons-io/commons-io/2.0.1/commons-io-2.0.1.jar" sourcepath="M2_REPO/commons-io/commons-io/2.0.1/commons-io-2.0.1-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6.jar" sourcepath="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6-sources.jar"/>
-  <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/jtok.jar"/>
-  <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/maxent-2.5.1.jar"/>
-  <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/opennlp-tools-1.4.1.jar"/>
-  <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/trove-2.0.4.jar"/>
-  <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/fast-md5.jar"/>
-  <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/freetts.jar"/>
-  <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/freetts-de.jar"/>
-  <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/freetts-en_us.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/hsqldb/hsqldb/2.0.0/hsqldb-2.0.0.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/httpcomponents/httpcore/4.1/httpcore-4.1.jar" sourcepath="M2_REPO/org/apache/httpcomponents/httpcore/4.1/httpcore-4.1-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/httpcomponents/httpcore-nio/4.1/httpcore-nio-4.1.jar" sourcepath="M2_REPO/org/apache/httpcomponents/httpcore-nio/4.1/httpcore-nio-4.1-sources.jar"/>
-  <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-signalproc/lib/Jama-1.0.2.jar"/>
-  <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-signalproc/lib/Jampack.jar"/>
-  <classpathentry kind="var" path="M2_REPO/junit/junit/4.8.2/junit-4.8.2.jar" sourcepath="M2_REPO/junit/junit/4.8.2/junit-4.8.2-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.16/log4j-1.2.16.jar" sourcepath="M2_REPO/log4j/log4j/1.2.16/log4j-1.2.16-sources.jar"/>
-  <classpathentry kind="src" path="/marytts-common"/>
-  <classpathentry kind="src" path="/marytts-runtime"/>
-  <classpathentry kind="src" path="/marytts-signalproc"/>
-  <classpathentry kind="var" path="M2_REPO/org/swinglabs/swing-layout/1.0.3/swing-layout-1.0.3.jar" sourcepath="M2_REPO/org/swinglabs/swing-layout/1.0.3/swing-layout-1.0.3-sources.jar"/>
-  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry including="**/*.java" kind="src" output="target/test-classes" path="src/test/java"/>
+	<classpathentry including="**/*.java" kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar" sourcepath="M2_REPO/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-io/commons-io/2.0.1/commons-io-2.0.1.jar" sourcepath="M2_REPO/commons-io/commons-io/2.0.1/commons-io-2.0.1-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6.jar" sourcepath="M2_REPO/commons-lang/commons-lang/2.6/commons-lang-2.6-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/jtok.jar"/>
+	<classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/maxent-2.5.1.jar"/>
+	<classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/opennlp-tools-1.4.1.jar"/>
+	<classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/trove-2.0.4.jar"/>
+	<classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/fast-md5.jar"/>
+	<classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/freetts.jar"/>
+	<classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/freetts-de.jar"/>
+	<classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-runtime/lib/freetts-en_us.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/hsqldb/hsqldb/2.0.0/hsqldb-2.0.0.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/httpcomponents/httpcore/4.1/httpcore-4.1.jar" sourcepath="M2_REPO/org/apache/httpcomponents/httpcore/4.1/httpcore-4.1-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/org/apache/httpcomponents/httpcore-nio/4.1/httpcore-nio-4.1.jar" sourcepath="M2_REPO/org/apache/httpcomponents/httpcore-nio/4.1/httpcore-nio-4.1-sources.jar"/>
+	<classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-signalproc/lib/Jama-1.0.2.jar"/>
+	<classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-signalproc/lib/Jampack.jar"/>
+	<classpathentry kind="var" path="M2_REPO/junit/junit/4.8.2/junit-4.8.2.jar" sourcepath="M2_REPO/junit/junit/4.8.2/junit-4.8.2-sources.jar"/>
+	<classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.16/log4j-1.2.16.jar" sourcepath="M2_REPO/log4j/log4j/1.2.16/log4j-1.2.16-sources.jar"/>
+	<classpathentry kind="src" path="/marytts-common"/>
+	<classpathentry kind="src" path="/marytts-runtime"/>
+	<classpathentry kind="src" path="/marytts-signalproc"/>
+	<classpathentry kind="var" path="M2_REPO/org/swinglabs/swing-layout/1.0.3/swing-layout-1.0.3.jar" sourcepath="M2_REPO/org/swinglabs/swing-layout/1.0.3/swing-layout-1.0.3-sources.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="target/classes"/>
 </classpath>
