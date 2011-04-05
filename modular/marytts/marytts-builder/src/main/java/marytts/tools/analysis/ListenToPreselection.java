@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.util;
+package marytts.tools.analysis;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

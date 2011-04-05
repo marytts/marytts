@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.util;
+package marytts.language.de.preprocess;
 
 import java.util.regex.Pattern;
 
