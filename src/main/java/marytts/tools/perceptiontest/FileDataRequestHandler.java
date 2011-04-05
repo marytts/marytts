@@ -32,10 +32,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import marytts.client.http.Address;
 import marytts.server.http.BaseHttpRequestHandler;
 import marytts.server.http.FileRequestHandler;
 import marytts.server.http.MaryHttpServerUtils;
+import marytts.util.http.Address;
 import marytts.util.io.FileUtils;
 
 import org.apache.http.Header;

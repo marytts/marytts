@@ -78,9 +78,9 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-import marytts.client.http.Address;
 import marytts.client.http.MaryHttpClient;
 import marytts.util.MaryUtils;
+import marytts.util.http.Address;
 import marytts.util.io.SimpleFileFilter;
 
 import org.incava.util.diff.Diff;

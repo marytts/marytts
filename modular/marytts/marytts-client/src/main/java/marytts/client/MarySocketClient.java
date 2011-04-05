@@ -50,8 +50,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.AudioFormat.Encoding;
 
 import marytts.Version;
-import marytts.client.http.Address;
 import marytts.util.data.audio.MaryAudioUtils;
+import marytts.util.http.Address;
 import marytts.util.string.StringUtils;
 
 

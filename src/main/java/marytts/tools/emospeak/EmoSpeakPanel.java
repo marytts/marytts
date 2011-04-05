@@ -45,7 +45,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
 
 import marytts.client.MaryClient;
-import marytts.client.http.Address;
+import marytts.util.http.Address;
 
 
 /**

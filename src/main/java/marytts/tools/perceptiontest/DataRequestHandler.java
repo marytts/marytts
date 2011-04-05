@@ -50,7 +50,6 @@ import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import marytts.Version;
-import marytts.client.http.Address;
 import marytts.datatypes.MaryDataType;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
@@ -63,6 +62,7 @@ import marytts.signalproc.effects.EffectsApplier;
 import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.MaryUtils;
+import marytts.util.http.Address;
 import marytts.util.string.StringUtils;
 
 /**

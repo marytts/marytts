@@ -34,7 +34,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.log4j.Logger;
 
-import marytts.client.http.Address;
 import marytts.modules.synthesis.Voice;
 import marytts.server.Request;
 import marytts.server.RequestHandler.StreamingOutputPiper;
@@ -44,6 +43,7 @@ import marytts.server.http.BaseHttpRequestHandler;
 import marytts.server.http.MaryHttpServerUtils;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
+import marytts.util.http.Address;
 
 /**
  * This handler class handles audio requests from Http clients  

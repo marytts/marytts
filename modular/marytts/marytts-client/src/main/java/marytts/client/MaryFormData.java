@@ -28,8 +28,8 @@ import java.util.Vector;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.AudioFileFormat.Type;
 
-import marytts.client.http.Address;
 import marytts.util.data.audio.MaryAudioUtils;
+import marytts.util.http.Address;
 import marytts.util.math.MathUtils;
 import marytts.util.string.StringUtils;
 
