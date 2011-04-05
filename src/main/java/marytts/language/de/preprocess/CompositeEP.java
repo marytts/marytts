@@ -29,7 +29,6 @@ import java.util.regex.Pattern;
 
 import marytts.datatypes.MaryXML;
 import marytts.util.MaryUtils;
-import marytts.util.REPattern;
 import marytts.util.dom.MaryDomUtils;
 
 import org.apache.log4j.Logger;
