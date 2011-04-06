@@ -72,7 +72,7 @@
       <artifactId>dummy3</artifactId>
       <version>1.0</version>
       <scope>system</scope>
-      <systemPath>${basedir}/java/JavaOpenAIR.jar</systemPath>
+      <systemPath>${basedir}/lib/JavaOpenAIR.jar</systemPath>
     </dependency>
 
     <dependency>
@@ -80,7 +80,7 @@
       <artifactId>dummy10</artifactId>
       <version>1.0</version>
       <scope>system</scope>
-      <systemPath>${basedir}/java/freetts-mbrola.jar</systemPath>
+      <systemPath>${basedir}/lib/freetts-mbrola.jar</systemPath>
     </dependency>
 
 
@@ -90,7 +90,7 @@
       <artifactId>dummy17</artifactId>
       <version>1.0</version>
       <scope>system</scope>
-      <systemPath>${basedir}/java/jsresources.jar</systemPath>
+      <systemPath>${basedir}/lib/jsresources.jar</systemPath>
     </dependency> 
 
 
@@ -100,7 +100,7 @@
       <artifactId>dummy22</artifactId>
       <version>1.0</version>
       <scope>system</scope>
-      <systemPath>${basedir}/java/mysql-connector-java-5.1.7-bin.jar</systemPath>
+      <systemPath>${basedir}/lib/mysql-connector-java-5.1.7-bin.jar</systemPath>
     </dependency> 
 
   </dependencies>
