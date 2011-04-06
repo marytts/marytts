@@ -111,11 +111,15 @@
 		  <!--forkMode>pertest</forkMode-->
 		  <argLine>-Xms256m -Xmx512m</argLine>
 		  <excludes>
-            <exclude>**/util/**/*.java</exclude>
+            <!--exclude>**/util/**/*.java</exclude-->
             <exclude>**/language/de/PreprocessorTest.java</exclude>
             <exclude>**/language/de/JTokeniserTest.java</exclude>
             <exclude>**/modules/MaryModuleTestCase.java</exclude>            
           </excludes>
+          <systemPropertyVariables>
+            <!-- The MARY installation directory, as seen from our subproject's perspective: -->
+            <mary.base>${basedir}/../../..</mary.base>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
 

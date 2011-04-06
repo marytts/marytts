@@ -3,6 +3,7 @@
 	<classpathentry including="**/*.java" kind="src" output="target/test-classes" path="src/test/java"/>
 	<classpathentry including="**/*.java" kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="src" path="src/test/resources"/>
 	<classpathentry kind="var" path="M2_REPO/commons-io/commons-io/2.0.1/commons-io-2.0.1.jar" sourcepath="M2_REPO/commons-io/commons-io/2.0.1/commons-io-2.0.1-sources.jar"/>
 	<classpathentry kind="lib" path="lib/freetts.jar"/>
 	<classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-signalproc/lib/Jama-1.0.2.jar"/>
