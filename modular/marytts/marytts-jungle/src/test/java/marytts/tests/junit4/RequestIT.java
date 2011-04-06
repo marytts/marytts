@@ -56,7 +56,7 @@ import org.junit.Test;
  *
  *
  */
-public class RequestTest {
+public class RequestIT {
     @BeforeClass
     public static void setUp() throws Exception {
         BasicConfigurator.configure();
