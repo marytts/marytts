@@ -42,42 +42,29 @@
       <version>4.8.2</version>
       <scope>test</scope>
     </dependency>
-<!--
-    <dependency>
-      <groupId>oro</groupId>
-      <artifactId>oro</artifactId>
-      <version>2.0.8</version>
-    </dependency>
     <dependency>
       <groupId>org.swinglabs</groupId>
       <artifactId>swing-layout</artifactId>
       <version>1.0.3</version>
     </dependency>
--->
-
-    <!-- System dependencies - to be replaced where possible -->
-<!--
-<dependency>
-      <groupId>weka</groupId>
-      <artifactId>weka</artifactId>
-      <version>3</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/weka.jar</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>dummy</groupId>
-      <artifactId>dummy24</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/sgt_v30.jar</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>dummy</groupId>
-      <artifactId>dummy21</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/mwdumper-2008-04-13.jar</systemPath>
-    </dependency> 
--->
   </dependencies>
+
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.3.1</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>marytts.tools.transcription.TranscriptionGUI</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
