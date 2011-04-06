@@ -77,9 +77,45 @@
       <scope>system</scope>
       <systemPath>${basedir}/lib/mwdumper-2008-04-13.jar</systemPath>
     </dependency> 
-
-
-    
-    
   </dependencies>
+  
+  
+    <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.3.1</version>
+        <executions>
+          <execution>
+            <id>redstart</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <classifier>redstart</classifier>
+              <includes>
+                <include>marytts/tools/redstart/*</include>
+              </includes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>transcription</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <classifier>transcription</classifier>
+              <includes>
+                <include>marytts/tools/transcription/*</include>
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>
