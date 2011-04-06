@@ -48,7 +48,7 @@ import marytts.server.MaryProperties;
 import marytts.server.Request;
 
 
-public class MaryTest {
+public class MaryIT {
     @BeforeClass
     public static void setUp() throws Exception {
         BasicConfigurator.configure();
