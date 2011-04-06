@@ -11,13 +11,15 @@
   <url>http://mary.dfki.de</url>
 
   <modules>
-    <module>marytts-signalproc</module>
-    <module>marytts-jungle</module>
     <module>marytts-common</module>
+    <module>marytts-signalproc</module>
+    <module>marytts-runtime</module>
     <module>marytts-server</module>
     <module>marytts-client</module>
     <module>marytts-builder</module>
-    <module>marytts-runtime</module>
+    <module>marytts-redstart</module>
+    <module>marytts-transcription</module>
+    <module>marytts-jungle</module>
   </modules>
 
 <!--

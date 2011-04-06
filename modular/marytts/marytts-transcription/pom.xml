@@ -8,13 +8,12 @@
     <version>5.0-SNAPSHOT</version>
   </parent>
   <groupId>marytts</groupId>
-  <artifactId>marytts-builder</artifactId>
-  <name>marytts-builder</name>
+  <artifactId>marytts-transcription</artifactId>
+  <name>marytts-transcription</name>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <dependencies>
-
     <dependency>
       <groupId>marytts</groupId>
       <artifactId>marytts-common</artifactId>
@@ -32,10 +31,9 @@
     </dependency>
     <dependency>
       <groupId>marytts</groupId>
-      <artifactId>marytts-client</artifactId>
+      <artifactId>marytts-builder</artifactId>
       <version>5.0-SNAPSHOT</version>
     </dependency>
-    
 
     
     <dependency>
@@ -44,6 +42,7 @@
       <version>4.8.2</version>
       <scope>test</scope>
     </dependency>
+<!--
     <dependency>
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
@@ -54,9 +53,11 @@
       <artifactId>swing-layout</artifactId>
       <version>1.0.3</version>
     </dependency>
-    
+-->
+
     <!-- System dependencies - to be replaced where possible -->
-    <dependency>
+<!--
+<dependency>
       <groupId>weka</groupId>
       <artifactId>weka</artifactId>
       <version>3</version>
@@ -77,5 +78,6 @@
       <scope>system</scope>
       <systemPath>${basedir}/lib/mwdumper-2008-04-13.jar</systemPath>
     </dependency> 
+-->
   </dependencies>
 </project>
