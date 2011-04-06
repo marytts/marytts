@@ -51,7 +51,6 @@ import marytts.signalproc.filter.LowPassFilter;
 import marytts.signalproc.process.AudioMixer;
 import marytts.signalproc.process.Chorus;
 import marytts.signalproc.process.InlineDataProcessor;
-import marytts.signalproc.process.LPCCrossSynthesisOnline;
 import marytts.signalproc.process.LPCWhisperiser;
 import marytts.signalproc.process.Robotiser;
 import marytts.signalproc.process.VocalTractScalingProcessor;

@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.signalproc.process;
+package marytts.signalproc.demo;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +29,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
-import marytts.signalproc.demo.ChangeMyVoiceUI;
+import marytts.signalproc.process.FrameProvider;
+import marytts.signalproc.process.LPCAnalysisResynthesis;
 import marytts.signalproc.window.Window;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
