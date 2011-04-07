@@ -51,6 +51,31 @@
       <artifactId>marytts-server</artifactId>
       <version>5.0-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>marytts</groupId>
+      <artifactId>marytts-lang-de</artifactId>
+      <version>5.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>marytts</groupId>
+      <artifactId>marytts-lang-en</artifactId>
+      <version>5.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>marytts</groupId>
+      <artifactId>marytts-lang-ru</artifactId>
+      <version>5.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>marytts</groupId>
+      <artifactId>marytts-lang-te</artifactId>
+      <version>5.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>marytts</groupId>
+      <artifactId>marytts-lang-tr</artifactId>
+      <version>5.0-SNAPSHOT</version>
+    </dependency>
     
     <dependency>
       <groupId>junit</groupId>

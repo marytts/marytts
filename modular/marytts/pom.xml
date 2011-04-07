@@ -20,17 +20,17 @@
     <module>marytts-redstart</module>
     <module>marytts-transcription</module>
     <module>marytts-jungle</module>
+    <module>marytts-lang-de</module>
+    <module>marytts-lang-en</module>
+    <module>marytts-lang-te</module>
+    <module>marytts-lang-tr</module>
+    <module>marytts-lang-ru</module>
   </modules>
 
 <!--
   <modules>
-    <module>marytts-de</module>
-    <module>marytts-en</module>
     <module>marytts-en-US</module>
     <module>marytts-en-GB</module>
-    <module>marytts-te</module>
-    <module>marytts-tr</module>
-    <module>marytts-ru</module>
   </modules>
 -->
 
