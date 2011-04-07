@@ -1,0 +1,481 @@
+<html>
+<head>
+<title> The Jampack Owners Manual: Decompositions</title>
+</head>
+
+<body bgcolor=white>
+<h2> Decompositions </h2>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>.
+
+<h3> Contents </h3>
+<dl>
+   <dt> <a href="#ludpp"> The LU decomposition (Zludpp) </a>
+   <dt> <a href="#chol"> The Cholesky decomposition (Zchol) </a>
+   <dt> <a href="#qrd"> The QR decomposition (Zqrd, Zhqrd) </a>
+   <dt> <a href="#spec"> The spectral decomposition of a
+                         Hermitian matrix (Zspec) </a>
+   <dt> <a href="#svd"> The singular value decomposition (Zsvd) </a>
+   <dt> <a href="#hess"> Hessenberg form (Zhess) </a>
+   <dt> <a href="#schur"> Schur form (Schur) </a>
+   <dt> <a href="#eig"> Eigenvalue-vector form (Eig) </a>
+
+</dl>
+
+<p>A matrix decomposition is a factorization of a matrix into the
+product of simpler matrices.  For example, Gaussian elimination with
+partial pivoting when applied to a matrix A produces a
+factorization of the form
+
+<blockquote>
+A = PLU,
+</blockquote>
+
+where P is a permutation matrix, L is a lower triangular matrix, and U
+is an upper triangular matrix.  This decomposition is widely used in
+the solution of linear systems--especially by the Solve suite.
+
+<p>At the heart of most computations with dense matrices is a
+decomposition.  Jampack provides classes implementing the more
+commonly used decompositions.  The computation of the decomposition is
+done by the class constructor.
+
+<p>The uses of a particular decomposition are too varied to be
+exhausted by a fixed set of methods.  Consequently, Jampack's
+decomposition classes (with the exception of Zhqrd) have no methods of
+their own, and its members are public for ready access.
+
+<p>Certain matrix decompositions (ludpp, chol, and hqrd) are
+distinguished by the fact that they can be saved for further use on
+the history list of the matrix.  In particular the Solve suite makes
+heavy use of this feature.  While a decomposition is on the history
+list, it is hidden from applications outside the Jampack package.  For
+more see <a href="02_Parameters.html#history"> Parameters.History </a> and
+<a href="04_Matrices.html#history"> Matrices.Zmat</a>.
+
+<h3> <a name="ludpp"></a> The LU decomposition (Zludpp) </h3>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="10_Decomp.html"> Top of section</a>.
+
+<p>The LU decomposition with partial pivoting is the decomposition
+computed by Gaussian elimination with partial pivoting.
+Specifically, any matrix A can be factored in the form
+
+<blockquote>
+A = PLU,
+</blockquote>
+
+where
+<blockquote>
+<dl>
+   <p><dt> P is a permutation matrix,
+   <p><dt> L is a lower triangular matrix with ones on its diagonal
+        and with its subdiagonal elements less than one in magnitude,
+   <p><dt> U is upper triangular.
+</dl>
+</blockquote>
+
+This decomposition is widely used in computing solutions to linear
+systems.
+
+<p>The pivoted LU decomposition is implemented by the class Zludpp.
+The matrix can be a general mxn Zmat, although square matrices are the
+rule in most applications.  If m&gt;n, the L-factor is lower trapezoidal;
+if m&lt;n, the U-factor is upper trapezoidal.
+
+<p>The action of the permutation matrix P is specified by an integer
+vector of pivot indices.  For more see the <a
+href=11_Trans.html#pivot>Pivot suite</a>.
+
+<p>The members of Zlupp are all public.
+
+<blockquote>
+<dl>
+   <p><dt> public int nrl
+      <dd>The number of rows in L
+
+   <p><dt> public int ncl
+      <dd>The number of columns in L
+
+   <p><dt> public int nru
+      <dd>The number of rows in U
+
+   <p><dt> public int ncu
+      <dd>The number of columns in U
+
+   <p><dt> public int pvt[]
+      <dd> The pivot array
+
+   <p><dt> public Zltmat L
+      <dd> The L factor
+
+   <p><dt> public Zutmat U
+      <dd> The U factor
+</dl>
+</blockquote>
+
+<p>Note that L and U are of class Zltmat and Zutmat, subclasses
+of Zmat that tag them as representing lower and upper triangular
+matrices.
+
+
+<p>The decomposition itself is computed in the constructor for Zlupp.
+
+<blockquote>
+<dl>
+   <q><dt> Zludpp(Zmat A)
+      <dd> Returns the Zludpp of A.
+</dl>
+</blockquote>
+
+<p>A caution.  The pivoted LU decomposition is always well defined,
+hence Zludpp does not return and exception.  However, if A is
+singular, the matrix U will be singular (or numerically will have
+small diagonal elements), which may cause problems later.
+
+<h3> <a name="chol"></a> The Cholesky decomposition (Zchol) </h3>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="10_Decomp.html"> Top of section</a>.
+
+<p> If A is a (Hermitian) positive semi-definite matrix, then
+A can be factored in the form
+
+<blockquote>
+A = R<sup>H</sup>R,
+</blockquote>
+
+where R is upper triangular.  This factorization is called the
+Cholesky decomposition of A.  The class Zchol implements the Cholesky
+decomposition.
+
+<p> The Cholesky decomposition is defined only if A is Hermitian and
+satisfies x<sup>T</sup>Ax &gt;= 0 for all x.  The first condition is
+checked by Zchol before any significant calculations can begin.  The
+second condition is signaled by a failure of the algorithm for
+computing the Cholesky decomposition.  The failure of either condition
+causes a JampackExcpetion to be thrown.
+
+<p>Here are the specifications for the Cholesky decomposition.
+
+<blockquote>
+<dl>
+   <p><dt> public int n
+      <dd> The order of A and R
+
+   <p><dt> public Zutmat R
+      <dd> The Cholesky factor of A
+
+   <p><dt> public Zchol(Zmat A)
+      <dd> Returns the Cholesky decomposition of A. <br>
+           Throws JampackException if A is not Hermitian. <br>
+           Throws JampackExcpetion if the decomposition does
+           not exits
+</dl>
+</blockquote>
+
+<h3> <a name="qrd"></a> The QR decomposition (Zqrd, Zhqrd) </h3>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="10_Decomp.html"> Top of section</a>.
+
+<p>For any mxn matrix A there is a unitary matrix Q such
+
+<blockquote>
+Q<sup>H</sup>A = R,
+</blockquote>
+
+where R is zero below its main diagonal.  Jampack provides two versions
+of this QR decomposition.  The first is an explicit version in
+which Q and R are returned as matrices.  The second version represents
+Q as a product of Householder transformations.
+
+<p>The explicit QR decomposition of an matrix mxn A is computed by the
+class Zqrd.  Its data fields and constructor are
+
+<blockquote>
+<dl>
+   <p><dt> public Zmat Q
+      <dd> The Q factor of A
+
+   <p><dt> public Zmat R
+      <dd> The R factor of A
+
+   <p><dt> public Zqrd(Zmat A)
+      <dd> Returns the QR decomposition of A.
+</dl>
+</blockquote>
+
+<p> The factored form of the QR decomposition of a mxn matrix A is
+computed by the class Zhqrd (the "h" stands for Householder).  The
+matrix Q is represented as the product of min(m,n) Householder
+transformations, whose generating vectors are stored in an array of
+Z1s.  Moreover, if m&gt;n, the the matrix R is made square by
+stripping it of its trailing m-n rows.  Here are the specifications for
+Zhqrd
+
+<blockquote>
+<dl>
+   <p><dt> public int nrow
+      <dd> The number of rows in A
+
+   <p><dt> public int ncol
+      <dd> The number of columns in A
+
+   <p><dt> public int ntran
+      <dd> the number of Householder transformations into
+           which Q is factored
+
+   <p><dt> public int Z1[] U
+      <dd> An array containing the ntran vectors generating
+           the Householder transformations.
+
+   <p><dt> public Zutmat R
+      <dd> The R-factor of A.  If nrow&gt;ncol then R is square
+           of order ncol.  Otherwise R has the same dimensions as A.
+
+   <p><dt> public Zhqrd(Zmat A)
+      <dd> Returns the Householder QR decomposition of A.
+</dl>
+</blockquote>
+
+<p>Because the Q-factor produced by Zhqrd is in factored form, the
+class provides four methods for multiplying Q and its conjugate
+transpose into a matrix.
+
+<blockquote>
+<dl>
+   <p><dt> public Zmat qb(Zmat B)
+      <dd> Returns QB.
+
+   <p><dt> public Zmat qhb(Zmat B)
+      <dd> Returns Q<sup>H</sup>B.
+
+   <p><dt> public Zmat bq(Zmat B)
+      <dd> Returns BQ.
+
+   <p><dt> public Zmat bqh(Zmat B)
+      <dd> Returns BQ<sup>H</sup>.
+</dl>
+</blockquote>
+
+<h3> <a name="spec"></a> The spectral decomposition of a
+     Hermitian matrix (Zspec )</h3>
+   
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="10_Decomp.html"> Top of section</a>.
+
+<p>For any Hermitian matrix A, there is a unitary matrix U such
+that
+
+<blockquote>
+U<sup>H</sup>AU = D,
+</blockquote>
+
+where D is a real diagonal matrix.  The columns of U are eigenvectors
+of A.  The corresponding diagonal elements of D are their eigenvalues.
+The decomposition is called the spectral decomposition of A.  This
+decomposition is implemented by the class Zspec.
+
+<blockquote>
+<dl>
+   <p><dt> public Zmat U
+      <dd> The unitary matrix of eigenvectors of A
+
+   <p><dt> public Zdiagmat D
+      <dd> The diagonal matrix of eigenvalues of A
+
+   <p><dt> public Zspec (Zmat A)
+      <dd> Returns the spectral decomposition of A. <br>
+           Throws a JampackException if A is not Hermitian.
+</dl>
+</blockquote>
+
+<p>Note that when real matrices are implemented, D will become a
+Ddiagmat.
+
+<h3> <a name="svd"></a>The singular value decomposition (Zsvd) </h3>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="10_Decomp.html"> Top of section</a>.
+
+
+<p>Let A be an mxn matrix m&gt;=n there are unitary matrices U and V
+such that
+
+<blockquote>
+<pre>
+U<sup>H</sup>AV = | S |
+       | 0 |
+</pre>
+</blockquote>
+
+where S = diag(s<sub>1</sub>,...,s<sub>n</sub>) with
+
+<blockquote>
+     s<sub>1</sub> &gt;= s<sub>2</sub> &gt;= ... &gt;= s<sub>n</sub> &gt;= 0.
+</blockquote>
+
+If m&lt;n the decomposition has the form
+
+<blockquote>
+<pre>
+U<sup>H</sup>AV = | S  0 |,
+</pre>
+</blockquote>
+where S is diagonal of order n.
+
+<p>The diagonals of S are the singular values of A.  The columns of U
+are the left singular vectors of A and the columns of V are the right
+singular vectors.
+
+<p>The singular value decomposition is implemented by the class
+Zsvd.
+
+<blockquote>
+<dl>
+   <p><dt> static int MAXITER = 30
+      <dd> Limits the number of iterations in the SVD algorithm.
+
+   <p><dt> public Zmat U
+      <dd> The matrix of left singular vectors of X
+
+   <p><dt> public Zmat V
+      <dd> The matrix of right singular vectors of X
+
+   <p><dt> public Zdiagmat S
+      <dd> The diagonal matrix of singular values of X
+
+   <p><dt> public Zsvd(Zmat A)
+      <dd> Returns the SVD of A. <br>
+           Throws a JampackException if MAXITER is exceeded.
+</dl>
+</blockquote>
+
+<h3> <a name="hess"></a>Hessenberg form (Zhess) </h3>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="10_Decomp.html"> Top of section</a>.
+
+
+<p>If A is a matrix of order n, there is a a unitary matrix
+U such that
+
+<blockquote>
+H = U<sup>H</sup>AU
+</blockquote>
+
+is upper Hessenberg; that is, H has the form illustrated below for
+n = 6.
+
+<blockquote>
+<pre>
+    | X X X X X X |
+    | X X X X X X |
+H = | O X X X X X |.
+    | O O X X X X |
+    | O O O X X X |
+    | O O O O X X |
+</pre>
+</blockquote>
+This reduction to Hessenberg form is implemented by the class Zhess.
+
+<blockquote>
+<dl>
+   <p><dt> public Zmat H
+      <dd> The Hessenberg form of A
+
+   <p><dt> public Zmat U
+      <dd> The unitary transformation that reduces A to H
+
+   <p><dt> public Zhess(Zmat A)
+      <dd> Returns the Hessenberg form of A. <br>
+           Throws a JampackException if A is not square.
+</dl>
+</blockquote>
+
+<h3> <a name="schur"></a>Schur form (Schur) </h3>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="10_Decomp.html"> Top of section</a>.
+
+
+<p> If A is a matrix of order n, there is a unitary matrix U
+such that
+
+<blockquote>
+T = U<sup>H</sup>AU
+</blockquote>
+
+is upper triangular.  The matrix T is called a Schur form of A.  The
+diagonals of T are eigenvalues of A and the corresponding columns of U
+are its Schur vectors.  The decomposition is not unique--the order of
+the eigenvalues on the diagonal of T can vary.  However, in most
+applications any Schur form is sufficient.
+
+<p> The class Schur implements this decomposition.
+
+<blockquote>
+<dl>
+   <p><dt> public Zmat T
+      <dd> A Schur form of A
+
+   <p><dt> public Zmat U
+      <dd> The unitary  transformation that reduces A to T
+
+   <p><dt> public static MAXITER = 30
+      <dd> Limits the number of iterations in the QR algorithm
+
+   <p><dt> public Schur(Zmat A)
+      <dd> Returns a Schur form of A. <br>
+           Throws a JampackException if A is not square.
+</dl>
+</blockquote>
+
+<h3> <a name="eig"></a>Eigenvalue-vector form (Eig) </h3>
+
+<p>Back to:
+<a href="00_Manual.html#mancont"> Main contents</a>,
+<a href="10_Decomp.html"> Top of section</a>.
+
+
+<p>Given a diagonalizable matrix A of order n, there is a nonsingular
+matrix X such that
+
+<blockquote>
+D = X<sup>-1</sup>AX
+</blockquote>
+
+is diagonal.  The columns of X are eigenvectors of A corresponding to
+the diagonal elements of D.  Eig implements this eigenvalue-vector
+decomposition.
+
+<blockquote>
+<dl>
+   <p><dt> public Zmat X
+      <dd> The matrix of eigenvectors of A
+
+   <p><dt> public Zdiagmat D
+      <dd> The matrix of eigenvalues of A
+
+   <p><dt> public Eig(Zmat A)
+      <dd> Returns an eigenvalue-vector decomposition of A.</br>
+           Throws a JampackException if A is not square.
+</dl>
+</blockquote>
+
+The user should be aware that the eigenvalue-vector decomposition is
+not necessarily stable.  In particular, the matrix X of eigenvectors
+may be ill conditioned.
+
+</body>
+</html>

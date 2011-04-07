@@ -1,0 +1,121 @@
+<html>
+<head>
+<title>THE JAMPACK OWNER'S MANUAL </title>
+</head>
+
+<body bgcolor=white>
+<center>
+<h1> THE JAMPACK OWNER'S MANUAL </h1>
+G. W. Stewart
+<p>
+<a href="http://www.cs.umd.edu/">
+Department of Computer Science</a><br>
+<a href="http://www.umiacs.umd.edu/">
+Institute for Advanced Computer Studies</a><br>
+University of Maryland<br><br>
+<a href="http://math.nist.gov/mcsd/">
+Mathematical and Computations Sciences Division</a><br>
+NIST
+<p> <a href="mailto:stewart@cs.umd.edu">
+stewart@cs.umd.edu
+</a><br>
+<a href="http://www.cs.umd.edu/~stewart/">
+http://www.cs.umd.edu/~stewart/</a>
+</center>
+
+
+<p>This document describes a pre-alpha release of Jampack--a package
+for manipulating matrices in Java.  It is not a tutorial and assumes
+that the reader is familiar with matrices and Java programming.
+Nontheless it should serve to get you started.
+
+
+
+
+<p>Jampack, like its author, has one foot in the University of Maryland
+and the other in NIST.  In preparing Jampack, I have been particularly
+indebted to my friends at NIST--Ron Boisvert, Bruce Miller, Roldan
+Pozo, and Karen Remmington.  There willingness to listen to my ideas
+and their helpful advice turned what might have been a long, lonely
+slog of coding into a stimulating project.
+
+<h2> <a name="mancont"></a> Contents </h2>
+
+<multicol cols=2>
+<dl>
+   <dt> <a href="01_Overview.html"> Overview </a>
+      <dd> <a href="01_Overview.html#what"> What is Jampack? </a>
+      <dd> <a href="01_Overview.html#classes"> The classes of Jampack </a>
+      <dd> <a href="01_Overview.html#indexing"> Indexing </a>
+      <dd> <a href="01_Overview.html#history"> History </a>
+      <dd> <a href="01_Overview.html#io"> I/O </a>
+   <dt> <a href="02_Parameters.html"> Parameters </a>
+      <dd> <a href="02_Parameters.html#base"> The base index </a>
+      <dd> <a href="02_Parameters.html#history"> History </a>
+      <dd> <a href="02_Parameters.html#printing"> Printing </a>
+   <dt> <a href="03_Complex.html"> Complex numbers and arithmetic (the
+           class Z) </a>
+      <dd> <a href="03_Complex.html#numbers"> Complex numbers </a>
+      <dd> <a href="03_Complex.html#arithmetic"> Complex arithmetic </a>
+      <dd> <a href="03_Complex.html#z1"> Complex arrays (the class Z1) </a>
+   <dt> <a href="04_Matrices.html"> Matrix classes </a>
+      <dd> <a href="04_Matrices.html#base"> The base index and looping </a>
+      <dd> <a href="04_Matrices.html#zmat"> The class Zmat </a>
+      <dd> <a href="04_Matrices.html#tag"> The tag classes (Zutmat,
+              Zltmat, Zpsdmat)</a>
+      <dd> <a href="04_Matrices.html#diag"> The class Zdiagmat </a>
+   <dt> <a href="05_Operations.html"> Operations </a>
+      <dd> <a href="05_Operations.html#plus"> The Plus suite </a>
+      <dd> <a href="05_Operations.html#minus"> The Minus suite </a>
+      <dd> <a href="05_Operations.html#times"> The Times suite </a>
+      <dd> <a href="05_Operations.html#h"> The H suite </a>
+   <dt> <a href="06_Linsys.html"> Linear Systems </a>
+      <dd> <a href="06_Linsys.html#inverses"> Inverses and linear systems </a>
+      <dd> <a href="06_Linsys.html#solve"> The Solve suite </a>
+   <dt> <a href="07_Functions.html"> Matrix Functions </a>
+      <dd> <a href="07_Functions.html#inverse"> The matrix inverse
+           (the Inv Suit)</a>
+      <dd> <a href="07_Functions.html#norm"> The Norm suite </a>
+      <dd> <a href="07_Functions.html#trace"> The trace </a>
+   <dt> <a href="08_Newmats.html"> New Matrices </a>
+      <dd> <a href="08_Newmats.html#eye">
+              Identity matrices (the Eye suite) </a>
+      <dd> <a href="08_Newmats.html#block">
+              Partitioning matrices (the Block suite) </a>
+      <dd> <a href="08_Newmats.html#merge">
+              Concatenating matrices (the Merge suite) </a>
+      <dd> <a href="08_Newmats.html#rand">
+              Random matrices (the Rand suite) </a>
+   <dt> <a href="09_IO.html"> Input/Output </a>
+      <dd> <a href="09_IO.html#print">
+              The Print suite </a>
+   <dt> <a href="10_Decomp.html"> Decompositions </a>
+      <dd> <a href="10_Decomp.html#ludpp">
+              The LU decomposition (Zludpp) </a>
+      <dd> <a href="10_Decomp.html#chol">
+              The Cholesky decomposition (Zchol) </a>
+      <dd> <a href="10_Decomp.html#qrd">
+              The QR decomposition  (Zqrd, Zhqrd)</a>
+      <dd> <a href="10_Decomp.html#spec"> 
+              The spectral decomposition of a
+               Hermitian matrix (Zspec )</a>
+      <dd> <a href="10_Decomp.html#svd">
+              The singular value decomposition (Zsvd) </a>
+      <dd> <a href="10_Decomp.html#hess"> Hessenberg form (Zhess) </a>
+      <dd> <a href="10_Decomp.html#schur"> Schur form (Schur) </a>
+      <dd> <a href="10_Decomp.html#eig"> Eigenvalue-vector form (Eig) </a>
+   <dt> <a href="11_Trans.html"> Transformations </a>
+      <dd> <a href="11_Trans.html#house">
+              Householder Transformations
+                 (The House Suite) </a>
+      <dd><a href="11_Trans.html#pivot">Pivoting (the Pivot suite)</a>
+      <dd><a href="11_Trans.html#rot"> Plane rotations (the Rot suite) </a>
+      <dd><a href="11_Trans.html#swap"> Swapping Rows and Columns
+             (the Swap suite) </a>
+   <dt> <a href="12_ClassIndex.html"> Class index with pointer to java
+        and javadoc files and manual entries) </a>
+</dl>
+</multicol>
+
+</body>
+</html>

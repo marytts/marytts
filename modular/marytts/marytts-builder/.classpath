@@ -19,6 +19,7 @@
   <classpathentry kind="var" path="M2_REPO/org/hsqldb/hsqldb/2.0.0/hsqldb-2.0.0.jar"/>
   <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-signalproc/lib/Jama-1.0.2.jar"/>
   <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-signalproc/lib/Jampack.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/incava/java-diff/1.1/java-diff-1.1.jar" sourcepath="M2_REPO/org/incava/java-diff/1.1/java-diff-1.1-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/junit/junit/4.8.2/junit-4.8.2.jar" sourcepath="M2_REPO/junit/junit/4.8.2/junit-4.8.2-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/log4j/log4j/1.2.16/log4j-1.2.16.jar" sourcepath="M2_REPO/log4j/log4j/1.2.16/log4j-1.2.16-sources.jar"/>
   <classpathentry kind="src" path="/marytts-client"/>
@@ -27,7 +28,6 @@
   <classpathentry kind="src" path="/marytts-signalproc"/>
   <classpathentry kind="var" path="M2_REPO/oro/oro/2.0.8/oro-2.0.8.jar" sourcepath="M2_REPO/oro/oro/2.0.8/oro-2.0.8-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/swinglabs/swing-layout/1.0.3/swing-layout-1.0.3.jar" sourcepath="M2_REPO/org/swinglabs/swing-layout/1.0.3/swing-layout-1.0.3-sources.jar"/>
-  <classpathentry kind="lib" path="/Users/marc/OpenMary-maven/modular/marytts/marytts-client/lib/java-diff.jar"/>
   <classpathentry kind="lib" path="lib/weka.jar"/>
   <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 </classpath>
