@@ -49,6 +49,11 @@
       <artifactId>hsqldb</artifactId>
       <version>2.0.0</version>
     </dependency>
+    <dependency>
+      <groupId>net.sf.trove4j</groupId>
+      <artifactId>trove4j</artifactId>
+      <version>2.0.2</version>
+    </dependency>
     
     <!-- System dependencies - to be replaced where possible -->
     <dependency>
@@ -73,13 +78,6 @@
       <systemPath>${basedir}/lib/freetts-en_us.jar</systemPath>
     </dependency>
     <dependency>
-      <groupId>dummy</groupId>
-      <artifactId>dummy26</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/trove-2.0.4.jar</systemPath>
-    </dependency> 
-        <dependency>
       <groupId>dummy</groupId>
       <artifactId>dummy18</artifactId>
       <version>1.0</version>
@@ -109,4 +107,30 @@
     </dependency> 
     
   </dependencies>
+  
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2.1</version>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+
+      </plugin>
+    </plugins>
+  </build>
+  
 </project>
