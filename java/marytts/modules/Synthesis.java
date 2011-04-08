@@ -252,7 +252,7 @@ public class Synthesis extends InternalModule
     {     
         // sanity check: are there any tokens containing phone descendants?
         if (!containsPhoneDescendants(tokensAndBoundaries)) {
-            logger.error("No PHONE segments found in this section; will not attempt to synthesize it!");
+            logger.warn("No PHONE segments found in this section; will not attempt to synthesize it!");
             return null;
         }
         
