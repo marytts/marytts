@@ -245,6 +245,12 @@ public class MCEPMaker extends VoiceImportComponent {
      */
     public boolean compute() throws IOException {
         
+        // do not attempt to launch ESTCaller if bnl is empty
+        if (bnl.getLength() < 1) {
+            logger.error("BaseNameList is empty, cannot proceed!");
+            return false;
+        }
+        
         String[] baseNameArray = bnl.getListAsArray();
         System.out.println( "Computing Mel cepstra for [" + baseNameArray.length + "] utterances." );
         ESTCaller caller = new ESTCaller( db, getProp(ESTDIR) );
