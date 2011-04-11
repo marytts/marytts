@@ -14,6 +14,37 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+  
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2.1</version>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <archive>
+            <manifest>
+              <mainClass>marytts.client.MaryGUIClient</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+
+      </plugin>
+    </plugins>
+  </build>
+    
+
   <dependencies>
 
     <dependency>
@@ -27,7 +58,6 @@
       <version>5.0-SNAPSHOT</version>
     </dependency>
     
-    
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -40,14 +70,5 @@
       <version>1.1</version>
     </dependency>
 
-    <!-- System dependencies - to be replaced where possible -->
-    <dependency>
-      <groupId>freetts</groupId>
-      <artifactId>freetts</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/freetts.jar</systemPath>
-    </dependency> 
-    
   </dependencies>
 </project>
