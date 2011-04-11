@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +40,7 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.signalproc.effects.BaseAudioEffect;
 
@@ -712,6 +714,33 @@ public class MaryProperties
         return filename;
     }
 
+	/**
+	 * For the named property, attempt to get an open input stream.
+	 * If the property value starts with "jar:", the remainder of the value is interpreted
+	 * as an absolute path in the classpath. Otherwise it is interpreted as a file name. 
+	 * @param propertyName the name of a property defined in one of the mary config files.
+	 * @return
+	 * @throws NoSuchPropertyException
+	 * @throws FileNotFoundException
+	 */
+	public static InputStream needStream(String propertyName)
+	throws NoSuchPropertyException, FileNotFoundException, MaryConfigurationException {
+		InputStream accentStream;
+		String propertyValue = MaryProperties.needProperty(propertyName);
+		if (propertyValue.startsWith("jar:")) { // read from classpath
+			String classpathLocation = propertyValue.substring("jar:".length());
+			accentStream = MaryProperties.class.getResourceAsStream(classpathLocation);
+			if (accentStream == null) {
+				throw new MaryConfigurationException("For property '"+propertyName+"', no classpath resource available at '"+classpathLocation+"'");
+			}
+		} else {
+			String fileName = MaryProperties.needFilename(propertyName);
+			accentStream = new FileInputStream(fileName);
+		}
+		return accentStream;
+	}
+
+    
 	/**
 	 * Get a Class property from the underlying properties, throwing an exception if
      * it is not defined.  

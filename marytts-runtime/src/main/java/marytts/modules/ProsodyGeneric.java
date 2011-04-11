@@ -22,8 +22,10 @@ package marytts.modules;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -125,11 +127,13 @@ public class ProsodyGeneric extends InternalModule {
     public void startup() throws Exception {
     	priorities = new Properties();
     	if (accentPriorities != null) {
-    	    String fileName = MaryProperties.needFilename(accentPriorities);
+    		InputStream accentStream = MaryProperties.needStream(accentPriorities);
     	    try {
-                priorities.load(new FileInputStream(fileName));
+                priorities.load(accentStream);
             } catch (IOException e) {
-                throw new MaryConfigurationException("can't load accent prioroties file "+fileName, e);
+                throw new MaryConfigurationException("can't load accent priorities from "+MaryProperties.getProperty(accentPriorities), e);
+            } finally {
+            	accentStream.close();
             }
         }
         
@@ -170,13 +174,21 @@ public class ProsodyGeneric extends InternalModule {
         super.startup();
     }
 
-    protected synchronized void loadTobiPredRules () throws FactoryConfigurationError, ParserConfigurationException, org.xml.sax.SAXException, IOException,
-    NoSuchPropertyException {
+
+    protected synchronized void loadTobiPredRules ()
+    throws FactoryConfigurationError, ParserConfigurationException, org.xml.sax.SAXException, IOException,
+    NoSuchPropertyException, MaryConfigurationException {
     	// parsing the xml rule file
     	DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
     	f.setValidating(false);
     	DocumentBuilder b = f.newDocumentBuilder();
-    	Document tobiPredRules = b.parse(new FileInputStream(MaryProperties.needFilename(tobiPredFilename)));
+    	InputStream tobiruleStream = MaryProperties.needStream(tobiPredFilename);
+    	Document tobiPredRules = null;
+    	try {
+    		tobiPredRules = b.parse(tobiruleStream);
+    	} finally {
+    		tobiruleStream.close();
+    	}
     	
     	Element root = tobiPredRules.getDocumentElement();
     	for (Element e = MaryDomUtils.getFirstChildElement(root);
