@@ -50,7 +50,7 @@ import org.w3c.dom.traversal.NodeIterator;
 
 
 
-public class FeatureProcessorTest 
+public class FeatureProcessorIT 
 {
     private static MaryData acoustparams;
     private static List<Target> phoneTargets;
@@ -63,7 +63,7 @@ public class FeatureProcessorTest
         BasicConfigurator.configure();
 
         acoustparams = new MaryData(MaryDataType.ACOUSTPARAMS, Locale.ENGLISH);
-        acoustparams.readFrom(FeatureProcessorTest.class.getResourceAsStream("test1.acoustparams"));
+        acoustparams.readFrom(FeatureProcessorIT.class.getResourceAsStream("test1.acoustparams"));
         phoneTargets = new ArrayList<Target>();
         halfphoneTargets = new ArrayList<Target>();
         Document doc = acoustparams.getDocument();
