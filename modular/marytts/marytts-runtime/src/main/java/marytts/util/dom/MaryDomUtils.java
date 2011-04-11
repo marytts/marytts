@@ -22,8 +22,6 @@ package marytts.util.dom;
 // DOM classes
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Locale;
 
@@ -33,7 +31,6 @@ import javax.xml.transform.TransformerException;
 
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 
 import org.w3c.dom.DOMException;
@@ -43,8 +40,6 @@ import org.w3c.dom.Text;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 
@@ -83,39 +78,6 @@ public class MaryDomUtils extends DomUtils
             logger.warn("Cannot use Schema validation -- disabling validating parser factory.");
             validatingFactory = null;
         }
-        entityResolver = new EntityResolver() {
-            public InputSource resolveEntity (String publicId, String systemId)
-            {
-                if (systemId.equals("http://mary.dfki.de/lib/Sable.v0_2.dtd")) {
-                    try {
-                        // return a local copy of the sable dtd:
-                        String localSableDTD = MaryProperties.maryBase() + "/lib/Sable.v0_2.mary.dtd";
-                        return new InputSource(new FileReader(localSableDTD));
-                    } catch (FileNotFoundException e) {
-                        logger.warn("Cannot find local Sable.v0_2.mary.dtd");
-                    }
-                } else if (systemId.equals("http://mary.dfki.de/lib/sable-latin.ent")) {
-                    try {
-                        // return a local copy of the sable dtd:
-                        String localFilename = MaryProperties.maryBase() + "/lib/sable-latin.ent";
-                        return new InputSource(new FileReader(localFilename));
-                    } catch (FileNotFoundException e) {
-                        logger.warn("Cannot find local sable-latin.ent");
-                    }
-                } else if (systemId.equals("http://mary.dfki.de/lib/apml.dtd")
-                        || !systemId.startsWith("http")&&systemId.endsWith("apml.dtd")) {
-                    try {
-                        // return a local copy of the apml dtd:
-                        String localFilename = MaryProperties.maryBase() + "/lib/apml.dtd";
-                        return new InputSource(new FileReader(localFilename));
-                    } catch (FileNotFoundException e) {
-                        logger.warn("Cannot find local apml.dtd");
-                    }
-                }
-                // else, use the default behaviour:
-                return null;
-            }
-        };
 	}
 
     /**
@@ -270,32 +232,6 @@ public class MaryDomUtils extends DomUtils
         	return false;
         }
         return true;
-        /*
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setExpandEntityReferences(true);
-        factory.setNamespaceAware(true);
-        factory.setValidating(true);
-        factory.setIgnoringElementContentWhitespace(true);
-        try {
-            factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
-            // Specify other factory configuration settings
-            Object[] schemas = new Object[] {
-            		MaryDomUtils.class.getResourceAsStream("xml.xsd"),
-            		MaryDomUtils.class.getResourceAsStream("MaryXML.xsd")
-            };
-            factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource", schemas);
-        } catch (Exception x) {
-            // This can happen if the parser does not support JAXP 1.2
-            throw new MaryConfigurationException("Parser does not seem to support Schema validation", x);
-        }
-        try {
-            DocumentBuilder docBuilder = factory.newDocumentBuilder();
-            docBuilder.parse(new ByteArrayInputStream(baos.toByteArray()));
-        } catch (IOException ioe) {
-        	throw new MaryConfigurationException("IOException should not occur but it does", ioe);
-        } catch (ParserConfigurationException e) {
-        	throw new MaryConfigurationException("Cannot create parser", e);
-		}*/
     }
 
 }
