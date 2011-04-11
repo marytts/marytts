@@ -21,12 +21,8 @@ package marytts.client.http;
 
 // General Java Classes
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
@@ -35,7 +31,6 @@ import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Timer;
@@ -46,16 +41,10 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.AudioFormat.Encoding;
 
-import marytts.Version;
-import marytts.client.AudioEffectControlData;
-import marytts.client.AudioEffectsBoxData;
 import marytts.client.MaryClient;
-import marytts.client.MaryFormData;
 import marytts.client.MaryGUIClient;
-import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.http.Address;
 import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
@@ -467,11 +456,8 @@ public class MaryHttpClient extends MaryClient
                           Object output, long timeout, boolean streamingAudio, String outputTypeParams, AudioPlayerListener playerListener)
     throws IOException
     {
-        boolean isFreettsAudioPlayer = false;
         boolean isMaryAudioPlayer = false;
-        if (output instanceof com.sun.speech.freetts.audio.AudioPlayer) {
-            isFreettsAudioPlayer = true;
-        } else if (output instanceof marytts.util.data.audio.AudioPlayer) {
+        if (output instanceof marytts.util.data.audio.AudioPlayer) {
             isMaryAudioPlayer = true;
         } else if (output instanceof OutputStream) {
         } else {
@@ -505,58 +491,7 @@ public class MaryHttpClient extends MaryClient
             timer.schedule(timerTask, timeout);
         }
 
-        if (isFreettsAudioPlayer) 
-        {
-            final com.sun.speech.freetts.audio.AudioPlayer player = (com.sun.speech.freetts.audio.AudioPlayer) output;
-            final AudioPlayerListener listener = playerListener;
-            Thread t = new Thread() {
-                public void run() 
-                {
-                    try {
-                        AudioPlayerWriter apw = new AudioPlayerWriter(player, fromServerStream, startTime);
-                        apw.write();
-                        
-                        if (timer != null)
-                            timer.cancel();
-                        
-                        if (listener != null) listener.playerFinished();
-
-                        //toServerInfo.close();
-                        //fromServerInfo.close();
-                        //maryInfoSocket.close();
-                        //toServerData.close();
-                        //maryDataSocket.close();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }                    
-
-                    //try {
-                    //    warningReader.join();
-                    //} catch (InterruptedException ie) {}
-                    //if (warningReader.getWarnings().length() > 0) { // there are warnings
-                    //    String warnings = warningReader.getWarnings(); 
-                    //    System.err.println(warnings);
-                    //    if (listener != null) 
-                    //        listener.playerException(new IOException(warnings));
-                    //}
-
-                    if (doProfile) 
-                    {
-                        long endTime = System.currentTimeMillis();
-                        long processingTime = endTime - startTime;
-                        System.err.println("Processed request in " + processingTime + " ms.");
-                    }
-                }
-            };
-            if (streamingAudio) {
-                t.start();
-            } else {
-                
-                t.run(); // execute code in the current thread
-                
-            }
-        } 
-        else if (isMaryAudioPlayer) 
+        if (isMaryAudioPlayer) 
         {
             final marytts.util.data.audio.AudioPlayer player = (marytts.util.data.audio.AudioPlayer) output;
             final AudioPlayerListener listener = playerListener;
@@ -567,11 +502,6 @@ public class MaryHttpClient extends MaryClient
                         InputStream in = fromServerStream;
                         if (doProfile)
                             System.err.println("After "+(System.currentTimeMillis()-startTime)+" ms: Trying to read data from server");
-                        while (false && in.available() < 46) { // at least the audio header should be there
-                            Thread.yield();
-                        }
-                        if (doProfile)
-                            System.err.println("After "+(System.currentTimeMillis()-startTime)+" ms: Got at least the header");
                         in = new BufferedInputStream(in);
                         in.mark(1000);
                         AudioInputStream fromServerAudio = AudioSystem.getAudioInputStream(in);

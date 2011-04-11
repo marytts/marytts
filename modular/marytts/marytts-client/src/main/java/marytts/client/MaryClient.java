@@ -20,44 +20,21 @@
 package marytts.client;
 
 // General Java Classes
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Vector;
 
 import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.sound.sampled.AudioFormat.Encoding;
 
 import marytts.Version;
-import marytts.client.AudioEffectControlData;
-import marytts.client.AudioEffectsBoxData;
-import marytts.client.MaryClient;
 import marytts.client.http.MaryHttpClient;
-import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.http.Address;
-import marytts.util.io.FileUtils;
-import marytts.util.string.StringUtils;
 
 /**
  * An HTTP client implementing the MARY protocol.
@@ -809,80 +786,6 @@ public abstract class MaryClient
         public String toString() { return name; }
     }
 
-    
-    
-    
-    public class AudioPlayerWriter
-    {
-        protected com.sun.speech.freetts.audio.AudioPlayer player;
-        protected InputStream in;
-        protected long startTime;
-        public AudioPlayerWriter(com.sun.speech.freetts.audio.AudioPlayer player, InputStream in)
-        {
-            this.player = player;
-            this.in = in;
-            this.startTime = System.currentTimeMillis();
-        }
-        public AudioPlayerWriter(com.sun.speech.freetts.audio.AudioPlayer player, InputStream in, long startTime)
-        {
-            this.player = player;
-            this.in = in;
-            this.startTime = startTime;
-        }
-        
-        public void write() throws IOException, UnsupportedAudioFileException
-        {
-            // Read from Server and copy into audio player:
-            if (doProfile)
-                System.err.println("After "+(System.currentTimeMillis()-startTime)+" ms: Trying to read data from server");
-            while (false && in.available() < 46) { // at least the audio header should be there
-                Thread.yield();
-            }
-            if (doProfile)
-                System.err.println("After "+(System.currentTimeMillis()-startTime)+" ms: Got at least the header");
-            in = new BufferedInputStream(in);
-            in.mark(1000);
-             AudioInputStream fromServerAudio = AudioSystem.getAudioInputStream(in);
-             if (fromServerAudio.getFrameLength() == 0) { // weird bug under Java 1.4
-                 //in.reset();
-                 fromServerAudio = new AudioInputStream(in, fromServerAudio.getFormat(), AudioSystem.NOT_SPECIFIED);
-             }
-             //System.out.println("Audio framelength: "+fromServerAudio.getFrameLength());
-             //System.out.println("Audio frame size: "+fromServerAudio.getFormat().getFrameSize());
-             //System.out.println("Audio format: "+fromServerAudio.getFormat());
-             if (doProfile)
-                 System.err.println("After "+(System.currentTimeMillis()-startTime)+" ms: Audio available: "+fromServerAudio.available());
-             AudioFormat audioFormat = fromServerAudio.getFormat();
-             if (!audioFormat.getEncoding().equals(Encoding.PCM_SIGNED)) { // need conversion, e.g. for mp3
-                 audioFormat = new AudioFormat(fromServerAudio.getFormat().getSampleRate(), 16, 1, true, false);
-                 fromServerAudio = AudioSystem.getAudioInputStream(audioFormat, fromServerAudio);
-             }
-             player.reset();
-             player.setAudioFormat(audioFormat);
-             player.setVolume(0.9f);
-             // number of bytes to be written:
-             player.begin(AudioSystem.NOT_SPECIFIED); // bytes per frame
-             int nr;
-             byte[] bbuf = new byte[1024];
-             boolean ok = true;
-             if (doProfile)
-                 System.err.println("After "+(System.currentTimeMillis()-startTime)+" ms: Start playing");
-             boolean first = true;
-             while (ok && (nr = fromServerAudio.read(bbuf, 0, bbuf.length)) != -1) {
-                 if (doProfile && first) {
-                     first = false;
-                     System.err.println("Time to audio: "+(System.currentTimeMillis()-startTime)+" ms");
-                 }
-                 ok = player.write(bbuf, 0, nr);
-             }
-             if (ok) {
-                 ok = player.end();
-             }
-             
-             player.drain();
-        }
-    }
-    
     /**
      * A means of letting a caller code know
      * that the audioplayer has finished.
