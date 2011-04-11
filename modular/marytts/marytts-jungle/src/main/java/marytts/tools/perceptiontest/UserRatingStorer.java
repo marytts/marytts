@@ -38,6 +38,7 @@ import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.SAXException;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.util.dom.DomUtils;
 
 /**
@@ -102,7 +103,7 @@ public class UserRatingStorer {
     }
     
     public void writeSampleResult(String eMailID, int presentSampleNumber, 
-            String baseName, String result ) throws ParserConfigurationException, SAXException, IOException, ClassCastException, TransformerFactoryConfigurationError, TransformerException, ClassNotFoundException, InstantiationException, IllegalAccessException{
+            String baseName, String result ) throws ParserConfigurationException, SAXException, IOException, ClassCastException, TransformerFactoryConfigurationError, TransformerException, ClassNotFoundException, InstantiationException, IllegalAccessException, MaryConfigurationException {
         
         if ( !isEmailIDExists(eMailID) ) {
             createResultFile(eMailID);
@@ -164,22 +165,7 @@ public class UserRatingStorer {
         try {
             urs.writeSampleResult("satt@gmail.com", 2, 
                     "0014", "friendly" );
-        } catch (ClassCastException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (TransformerFactoryConfigurationError e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

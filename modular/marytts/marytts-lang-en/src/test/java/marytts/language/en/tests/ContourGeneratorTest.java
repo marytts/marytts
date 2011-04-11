@@ -46,7 +46,7 @@ public class ContourGeneratorTest extends MaryModuleTestCase {
         inData.readFrom(this.getClass().getResourceAsStream("downstep_in_mtu.postprocessed"), null);
         MaryData outData = module.process(inData);
         try {
-            MaryDomUtils.verifySchemaValid(outData.getDocument()); // throws Exception upon failure
+            MaryDomUtils.isSchemaValid(outData.getDocument()); // throws Exception upon failure
         } catch (Exception e) {
             e.printStackTrace();
             fail();        

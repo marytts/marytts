@@ -38,6 +38,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.util.MaryUtils;
 import marytts.util.io.ReaderSplitter;
 
@@ -64,13 +65,15 @@ public class MaryNormalisedWriter {
      *  @see #startup().
      */
     public MaryNormalisedWriter()
-    throws TransformerFactoryConfigurationError, TransformerConfigurationException
+    throws MaryConfigurationException
     {
-        // startup every time:
-        //if (tFactory == null) { // need to startup()
-        startup();
-        //}
-        transformer = stylesheet.newTransformer();
+    	try {
+    		// startup every time:
+    		startup();
+        	transformer = stylesheet.newTransformer();
+    	} catch (Exception e) {
+    		throw new MaryConfigurationException("Cannot initialise XML writing code", e);
+    	}
     }
 
     // Methods
@@ -84,7 +87,7 @@ public class MaryNormalisedWriter {
      *  @exception TransformerConfigurationException
      *      if the templates stylesheet cannot be generated.
      */
-    public static void startup()
+    private static void startup()
     throws TransformerFactoryConfigurationError, TransformerConfigurationException
     {
         // only start the stuff if it hasn't been started yet.

@@ -111,23 +111,7 @@ public class StoreRatingRequestHandler extends BaseHttpRequestHandler
         
         try {
             userRatingRH.writeSampleResult(eMailID, presentSampleNumber, baseName, result);
-        } catch (ClassCastException e) {
-            e.printStackTrace();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (TransformerFactoryConfigurationError e) {
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
