@@ -55,7 +55,7 @@ public class TimelineTest {
     public static void setUp() throws Exception {
         Random rand = new Random(); // New random number generator
         
-        NUMDATAGRAMS = rand.nextInt( 87 ) + 4; // Number of datagrams to test with, between 4 and 100.
+        NUMDATAGRAMS = rand.nextInt( 87 ) + 6; // Number of datagrams to test with, between 6 and 100.
         System.out.println( "Testing with [" + NUMDATAGRAMS + "] random datagrams." );
         MAXDATAGRAMBYTESIZE = 64; // Maximum datagram length in bytes
         MAXDATAGRAMDURATION = 20; // Maximum datagram duration (in samples)
