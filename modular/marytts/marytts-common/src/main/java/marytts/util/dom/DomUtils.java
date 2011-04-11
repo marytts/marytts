@@ -58,7 +58,6 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
-import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -73,7 +72,6 @@ public class DomUtils
 {
     protected static DocumentBuilderFactory factory;
     protected static DocumentBuilderFactory validatingFactory;
-    protected static EntityResolver entityResolver;
     
     protected static Logger logger = MaryUtils.getLogger("DomUtils");
 
@@ -169,7 +167,6 @@ public class DomUtils
         	}
             builder = validatingFactory.newDocumentBuilder();
             assert builder.isValidating();
-            builder.setEntityResolver(entityResolver);
             builder.setErrorHandler(new ErrorHandler() {
                 public void error(SAXParseException e) throws SAXParseException { throw e; }  
                 public void fatalError(SAXParseException e) throws SAXParseException { throw e; }  

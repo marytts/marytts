@@ -3,15 +3,14 @@
  */
 package marytts.util.dom;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
-
-import static org.junit.Assert.*;
 
 /**
  * @author marc
