@@ -41,6 +41,7 @@ import org.xml.sax.SAXException;
 import marytts.client.MaryClient;
 import marytts.client.http.MaryHttpClient;
 import marytts.datatypes.MaryXML;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.util.MaryUtils;
 import marytts.util.data.text.BasenameClassificationDefinitionFileReader;
 import marytts.util.dom.DomUtils;
@@ -146,7 +147,7 @@ public class AllophonesExtractor extends VoiceImportComponent {
         return mary;
     }
 
-    public boolean compute() throws IOException {
+    public boolean compute() throws IOException, MaryConfigurationException {
         String inputDir = db.getProp(db.TEXTDIR);
         textDir = new File(inputDir);
         System.out.println("Computing ALLOPHONES files for " + bnl.getLength() + " files");
@@ -159,7 +160,13 @@ public class AllophonesExtractor extends VoiceImportComponent {
         return true;
     }
 
-    public void generateAllophonesFile(String basename) throws IOException {
+    /**
+     * 
+     * @param basename
+     * @throws IOException
+     */
+    public void generateAllophonesFile(String basename)
+    throws IOException, MaryConfigurationException {
         Locale localVoice = MaryUtils.string2locale(locale);
         String xmlLocale = MaryUtils.locale2xmllang(localVoice);
         String inputDir = db.getProp(db.TEXTDIR);
@@ -186,9 +193,7 @@ public class AllophonesExtractor extends VoiceImportComponent {
                 Document document = null;
                 try {
                     document = DomUtils.parseDocument(rawmaryxmlFile);
-                } catch (ParserConfigurationException e) {
-                    throw new IOException("Error parsing RAWMARYXML file: " + rawmaryxmlFile.getName(), e);
-                } catch (SAXException e) {
+                } catch (Exception e) {
                     throw new IOException("Error parsing RAWMARYXML file: " + rawmaryxmlFile.getName(), e);
                 }
 
@@ -202,7 +207,7 @@ public class AllophonesExtractor extends VoiceImportComponent {
                 // ...and set its style attribute:
                 topLevelProsody.setAttribute("style", style);
 
-                // convert the document to the text string:
+                // convert the document to the text string: 
                 text = DomUtils.document2String(document);
             }
         } else {

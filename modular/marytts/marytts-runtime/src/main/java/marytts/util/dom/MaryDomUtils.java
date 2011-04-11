@@ -24,12 +24,15 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Locale;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import marytts.datatypes.MaryXML;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 
@@ -41,9 +44,8 @@ import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.EntityResolver;
-import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXParseException;
+import org.xml.sax.SAXException;
 
 
 /** A collection of utilities for MaryXML DOM manipulation or analysis.
@@ -63,16 +65,23 @@ public class MaryDomUtils extends DomUtils
 	 * 
 	 */
 	protected static void setup2() {
-		try {
-            validatingFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage",
-                "http://www.w3.org/2001/XMLSchema");
+        validatingFactory = DocumentBuilderFactory.newInstance();
+        validatingFactory.setExpandEntityReferences(true);
+        validatingFactory.setNamespaceAware(true);
+        validatingFactory.setIgnoringElementContentWhitespace(true);
+        validatingFactory.setValidating(true);
+        try {
+            validatingFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
             // Specify other factory configuration settings
-            validatingFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource",
-                    MaryProperties.localSchemas());
+            Object[] schemas = new Object[] {
+            		MaryDomUtils.class.getResourceAsStream("xml.xsd"),
+            		MaryDomUtils.class.getResourceAsStream("MaryXML.xsd")
+            };
+            validatingFactory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource", schemas);
         } catch (Exception x) {
             // This can happen if the parser does not support JAXP 1.2
-            logger.warn("Cannot use Schema validation -- turning off validation.");
-            validatingFactory.setValidating(false);
+            logger.warn("Cannot use Schema validation -- disabling validating parser factory.");
+            validatingFactory = null;
         }
         entityResolver = new EntityResolver() {
             public InputSource resolveEntity (String publicId, String systemId)
@@ -230,18 +239,38 @@ public class MaryDomUtils extends DomUtils
     }
 
     /**
-     * Verify whether a given document is valid in the sense of Schema
-     * XML validation.
+     * Verify whether a given document is valid in the sense of Schema XML validation.
+     * Note that this implementation will merely return false if the document is not valid,
+     * but will not provide any details. Use a combination of document2String() and parseDocument()
+     * to get the detailed error message.
      * @param doc The document to verify.
-     * @throws Exception if the document cannot be Schema validated.
+     * @throws MaryConfigurationException if the validation cannot be carried out
+     * @return true if the document is Schema valid, false if not.
      */
-    public static void verifySchemaValid(Document doc) throws Exception {
+    public static boolean isSchemaValid(Document doc)
+    throws MaryConfigurationException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         // The MaryNormalisedWriter works also for non-maryxml documents
         // and gives (because of XSLT) a more standardised form than
         // an XMLSerializer does.
         MaryNormalisedWriter mnw = new MaryNormalisedWriter();
-        mnw.output(doc, baos);
+        try {
+        	mnw.output(doc, baos);
+        } catch (TransformerException te) {
+        	throw new MaryConfigurationException("Cannot serialize document for Schema-valid parsing", te);
+        }
+        try {
+        	parseDocument(new ByteArrayInputStream(baos.toByteArray()), true /*validating*/);
+        } catch (ParserConfigurationException pce) {
+        	throw new MaryConfigurationException("Problem setting up parser", pce);
+        } catch (IOException ioe) {
+        	throw new MaryConfigurationException("IOException should not occur but it does", ioe);
+        } catch (SAXException se) {
+        	// document is not schema valid
+        	return false;
+        }
+        return true;
+        /*
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setExpandEntityReferences(true);
         factory.setNamespaceAware(true);
@@ -250,18 +279,23 @@ public class MaryDomUtils extends DomUtils
         try {
             factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaLanguage", "http://www.w3.org/2001/XMLSchema");
             // Specify other factory configuration settings
-            factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource", MaryProperties.localSchemas());
+            Object[] schemas = new Object[] {
+            		MaryDomUtils.class.getResourceAsStream("xml.xsd"),
+            		MaryDomUtils.class.getResourceAsStream("MaryXML.xsd")
+            };
+            factory.setAttribute("http://java.sun.com/xml/jaxp/properties/schemaSource", schemas);
         } catch (Exception x) {
             // This can happen if the parser does not support JAXP 1.2
-            throw new Exception("Parser does not seem to support Schema validation", x);
+            throw new MaryConfigurationException("Parser does not seem to support Schema validation", x);
         }
-        DocumentBuilder docBuilder = factory.newDocumentBuilder();
-        docBuilder.setErrorHandler(new ErrorHandler() {
-            public void error(SAXParseException e) throws SAXParseException { throw e; }  
-            public void fatalError(SAXParseException e) throws SAXParseException { throw e; }  
-            public void warning(SAXParseException e) throws SAXParseException { throw e; }  
-        });
-        docBuilder.parse(new ByteArrayInputStream(baos.toByteArray()));
+        try {
+            DocumentBuilder docBuilder = factory.newDocumentBuilder();
+            docBuilder.parse(new ByteArrayInputStream(baos.toByteArray()));
+        } catch (IOException ioe) {
+        	throw new MaryConfigurationException("IOException should not occur but it does", ioe);
+        } catch (ParserConfigurationException e) {
+        	throw new MaryConfigurationException("Cannot create parser", e);
+		}*/
     }
 
 }

@@ -20,29 +20,25 @@
 package marytts.util.dom;
 
 // DOM classes
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactoryConfigurationError;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
@@ -94,10 +90,7 @@ public class DomUtils
 		factory = DocumentBuilderFactory.newInstance();
         factory.setExpandEntityReferences(true);
         factory.setNamespaceAware(true);
-        validatingFactory = DocumentBuilderFactory.newInstance();
-        validatingFactory.setExpandEntityReferences(true);
-        validatingFactory.setNamespaceAware(true);
-        validatingFactory.setIgnoringElementContentWhitespace(true);
+        validatingFactory = null;
 	}
 
 
@@ -105,9 +98,10 @@ public class DomUtils
      * Parse XML data into a DOM representation, taking local resources and Schemas into account.
      * @param inputData a string representation of the XML data to be parsed.
      * @param validating whether to Schema-validate the XML data
-     * @return
-     * @throws SAXException
-     * @throws IOException
+     * @return the DOM document resulting from the parse 
+     * @throws ParserConfigurationException if no parser could be created
+     * @throws SAXException if there was a parse error
+     * @throws IOException if there was a problem reading from the string
      */
     public static Document parseDocument(String inputData, boolean validating)
     throws ParserConfigurationException, SAXException, IOException {
@@ -118,19 +112,14 @@ public class DomUtils
      * Parse XML data into a DOM representation, taking local resources and Schemas into account.
      * @param inputData a reader from which the XML data is to be read.
      * @param validating whether to Schema-validate the XML data
-     * @return
-     * @throws SAXException
-     * @throws IOException
+     * @return the DOM document resulting from the parse 
+     * @throws ParserConfigurationException if no parser could be created
+     * @throws SAXException if there was a parse error
+     * @throws IOException if there was a problem reading from the reader
      */
     public static Document parseDocument(Reader inputData, boolean validating)
     throws ParserConfigurationException, SAXException, IOException {
-        DocumentBuilder builder;
-        if (validating) {
-            builder = validatingFactory.newDocumentBuilder();
-            builder.setEntityResolver(entityResolver);
-        } else {
-            builder = factory.newDocumentBuilder();
-        }
+        DocumentBuilder builder = createDocumentBuilder(validating);
         return builder.parse(new InputSource(inputData));
     }
     
@@ -138,9 +127,10 @@ public class DomUtils
      * Parse XML data into a DOM representation, taking local resources and Schemas into account.
      * @param file a file from which the XML data is to be read.
      * @param validating whether to Schema-validate the XML data
-     * @return
-     * @throws SAXException
-     * @throws IOException
+     * @return the DOM document resulting from the parse 
+     * @throws ParserConfigurationException if no parser could be created
+     * @throws SAXException if there was a parse error
+     * @throws IOException if there was a problem reading from the file
      */
     public static Document parseDocument(File file, boolean validating)
     throws ParserConfigurationException, SAXException, IOException {
@@ -151,21 +141,45 @@ public class DomUtils
      * Parse XML data into a DOM representation, taking local resources and Schemas into account.
      * @param is an input stream from which the XML data is to be read.
      * @param validating whether to Schema-validate the XML data
-     * @return
-     * @throws SAXException
-     * @throws IOException
+     * @return the DOM document resulting from the parse 
+     * @throws ParserConfigurationException if no parser could be created
+     * @throws SAXException if there was a parse error
+     * @throws IOException if there was a problem reading from the stream
      */
     public static Document parseDocument(InputStream is, boolean validating)
     throws ParserConfigurationException, SAXException, IOException {
-        DocumentBuilder builder;
-        if (validating) {
+        DocumentBuilder builder = createDocumentBuilder(validating);
+        return builder.parse(is);
+    }
+
+
+	/**
+	 * @param validating
+	 * @return
+	 * @throws ParserConfigurationException
+	 */
+	private static DocumentBuilder createDocumentBuilder(boolean validating)
+			throws ParserConfigurationException {
+		DocumentBuilder builder;
+		if (validating) {
+        	if (validatingFactory == null) {
+        		throw new ParserConfigurationException("No validating parser factory available");
+        	} else if (!validatingFactory.isValidating()) {
+            	throw new ParserConfigurationException("factory should be validating but isn't");
+        	}
             builder = validatingFactory.newDocumentBuilder();
+            assert builder.isValidating();
             builder.setEntityResolver(entityResolver);
+            builder.setErrorHandler(new ErrorHandler() {
+                public void error(SAXParseException e) throws SAXParseException { throw e; }  
+                public void fatalError(SAXParseException e) throws SAXParseException { throw e; }  
+                public void warning(SAXParseException e) throws SAXParseException { throw e; }  
+            });
         } else {
             builder = factory.newDocumentBuilder();
         }
-        return builder.parse(is);
-    }
+		return builder;
+	}
     
     /**
      * DOM-parse the given input data. Namespace-aware but non-validating.
@@ -636,9 +650,9 @@ public class DomUtils
         return newElement;
     } // encloseElementsWithNewElement
 
-    public static List NodeListAsList(NodeList nl)
+    public static List<Node> getNodeListAsList(NodeList nl)
     {
-        ArrayList l = new ArrayList();
+        ArrayList<Node> l = new ArrayList<Node>();
         for (int i=0; i<nl.getLength(); i++) {
             l.add(nl.item(i));
         }
@@ -708,7 +722,8 @@ public class DomUtils
      * @param b
      * @return true if equal, false otherwise.
      */
-    public static boolean areEqual(Document a, Document b) {
+    public static boolean areEqual(Document a, Document b)
+    throws MaryConfigurationException {
         if (a == null || b == null) {
             return a == null && b == null;
         }
@@ -737,20 +752,32 @@ public class DomUtils
         return baos.toString();
     }
     
-    public static String document2String(Document document)
+    /**
+     * Write a DOM document into a string.
+     * @param document the document to be written
+     * @throws MaryConfigurationException if the DOM document cannot be serialized
+     * @return the string containing the DOM document
+     */
+    public static String document2String(Document document) throws MaryConfigurationException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        document2Stream(document, baos);
         try {
-            document2Stream(document, baos);
-            return new String(baos.toByteArray(), "UTF-8");
-        } catch (Exception e) {
-            // silently ignore
+        	return new String(baos.toByteArray(), "UTF-8");
+        } catch (UnsupportedEncodingException uee) {
+        	throw new MaryConfigurationException("oops", uee);
         }
-        return "";
     }
 
+    /**
+     * Write a DOM document into a file.
+     * @param document the document to be written
+     * @param target where to write it.
+     * @throws MaryConfigurationException if the DOM document cannot be serialized
+     * @throws IOException if there is a problem accessing the file
+     */
     public static void document2File(Document document, File file)
-    throws IOException, TransformerFactoryConfigurationError, TransformerException, ClassCastException, ClassNotFoundException, InstantiationException, IllegalAccessException
+    throws MaryConfigurationException, IOException
     {
         FileOutputStream fos = null;
         try {
@@ -763,14 +790,24 @@ public class DomUtils
         }
     }
     
+    /**
+     * Write a DOM document into an output stream.
+     * @param document the document to be written
+     * @param target where to write it.
+     * @throws MaryConfigurationException if the DOM document cannot be serialized
+     */
     public static void document2Stream(Document document, OutputStream target)
-    throws TransformerFactoryConfigurationError, TransformerException, ClassCastException, ClassNotFoundException, InstantiationException, IllegalAccessException
+    throws MaryConfigurationException
     {
         LSSerializer serializer = null;
         DOMImplementationLS domImplLS = null;
+        try {
         DOMImplementation implementation = DOMImplementationRegistry.newInstance().getDOMImplementation("XML 3.0");
         if (implementation != null) {
             domImplLS = (DOMImplementationLS) implementation.getFeature("LS", "3.0");
+        }
+        } catch (Exception iae) {
+        	throw new MaryConfigurationException("Cannot access dom impl registry", iae);
         }
         if (domImplLS != null) {
             serializer = domImplLS.createLSSerializer();
@@ -789,7 +826,11 @@ public class DomUtils
             serializer.write(document, output);
         } else { // revert to older serialisation code
             MaryNormalisedWriter mnw = new MaryNormalisedWriter();
-            mnw.output(document, target);
+            try {
+            	mnw.output(document, target);
+            } catch (TransformerException te) {
+            	throw new MaryConfigurationException("Problem writing document with legacy writer", te);
+            }
         }
     }
 

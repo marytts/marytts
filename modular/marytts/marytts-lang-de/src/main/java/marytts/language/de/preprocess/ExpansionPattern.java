@@ -297,7 +297,7 @@ public abstract class ExpansionPattern {
     public void match(Element sayas, String typeString) throws DOMException {
         if (!sayas.getTagName().equals(MaryXML.SAYAS))
             throw new DOMException(DOMException.INVALID_ACCESS_ERR, "Expected " + MaryXML.SAYAS + " element, got " + sayas.getTagName());
-        List tokens = MaryDomUtils.NodeListAsList(sayas.getElementsByTagName(MaryXML.TOKEN));
+        List tokens = MaryDomUtils.getNodeListAsList(sayas.getElementsByTagName(MaryXML.TOKEN));
         StringBuilder sb = new StringBuilder();
         for (Iterator it = tokens.iterator(); it.hasNext();) {
             sb.append(MaryDomUtils.tokenText((Element) it.next()));
