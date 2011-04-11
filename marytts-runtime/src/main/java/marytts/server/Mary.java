@@ -118,6 +118,8 @@ public class Mary {
      */
     protected static void addJarsToClasspath() throws Exception
     {
+    	if (true) return;
+    	// TODO: clean this up when the new modularity mechanism is in place
         if (jarsAdded) return; // have done this already
         File jarDir = new File(MaryProperties.maryBase()+"/java");
         File[] jarFiles = jarDir.listFiles(new FilenameFilter() {
