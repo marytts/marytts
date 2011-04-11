@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,9 +40,7 @@ import java.util.Vector;
 import javax.swing.JOptionPane;
 
 import marytts.exceptions.NoSuchPropertyException;
-import marytts.modules.ModuleRegistry;
 import marytts.signalproc.effects.BaseAudioEffect;
-import marytts.util.MaryUtils;
 
 
 /**
@@ -70,8 +67,6 @@ public class MaryProperties
     private static Vector<String> audioEffectSampleParams = new Vector<String>();
     private static Vector<String> audioEffectHelpTexts = new Vector<String>();
     
-    private static Object[] localSchemas;
-
     /** The mary base directory, e.g. /usr/local/mary */
     public static String maryBase()
     {
@@ -97,8 +92,6 @@ public class MaryProperties
     public static Vector<String> effectSampleParams() { return audioEffectSampleParams; }
     /** Help text of audio effects. */
     public static Vector<String> effectHelpTexts() { return audioEffectHelpTexts; }
-    /** An Object[] containing File objects referencing local Schema files */
-    public static Object[] localSchemas() { return localSchemas; }
     
     /**
      * Read the properties from property files and command line.
@@ -241,21 +234,6 @@ public class MaryProperties
                 audioEffectHelpText = ae.getHelpText();
                 audioEffectHelpTexts.add(audioEffectHelpText);
             }
-        }
-
-        helperString = getProperty("schema.local");
-        if (helperString!=null)
-        {
-            st = new StringTokenizer(helperString);
-            Vector<File> v = new Vector<File>();
-            while (st.hasMoreTokens()) {
-                String schemaFilename = expandPath(st.nextToken());
-                File schemaFile = new File(schemaFilename);
-                if (!schemaFile.canRead())
-                    throw new Exception("Cannot read Schema file: " + schemaFilename);
-                v.add(schemaFile);
-            }
-            localSchemas = v.toArray();
         }
 
     }
