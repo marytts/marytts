@@ -38,6 +38,7 @@ public class ProsodyGenericFST extends ProsodyGeneric
      * @throws IllegalArgumentException if the fileName suffix cannot be
      * identified as a list file format.
      */
+    @Override
     protected Object readListFromFile(String fileName) throws IOException
     {
         String suffix = fileName.substring(fileName.length() - 4, fileName.length()); 
@@ -62,6 +63,7 @@ public class ProsodyGenericFST extends ProsodyGeneric
      * @param tokenValue value to look up in the list
      * @return whether or not tokenValue is contained in the list.
      */
+    @Override
     protected boolean checkList(String currentVal, String tokenValue) {
         if (currentVal == null || tokenValue == null) {
             throw new NullPointerException("Received null argument");

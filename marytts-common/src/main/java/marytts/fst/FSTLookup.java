@@ -49,7 +49,7 @@ public class FSTLookup
 
     /**
      * Initialise the finite state transducer lookup. This constructor will
-     * assume that the file uses the system default encoding.
+     * assume that the file contains a header indicating the proper encoding.
      * @param fileName the name of the file from which to load the FST.
      * @throws IOException if the FST cannot be loaded from the given file.
      */
