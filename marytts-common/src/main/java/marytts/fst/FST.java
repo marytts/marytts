@@ -24,6 +24,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -49,9 +50,18 @@ public class FST
     
     public FST(String fileName) throws IOException
     {
-            load(fileName);
+    	FileInputStream fis = new FileInputStream(fileName);
+    	try {
+    		load(fis);
+    	} finally {
+    		fis.close();
+    	}
     }
 
+    public FST(InputStream inStream) throws IOException {
+    	load(inStream);
+    }
+    
     /**
      * Initialise the finite state transducer. This constructor will
      * assume that the file uses the system default encoding.
@@ -118,13 +128,13 @@ public class FST
         loadHeaderless(fileName, encoding, verbose);
     }
     
-    private void load(String fileName)
+    private void load(InputStream inStream)
     throws IOException, UnsupportedEncodingException
     {
-        File f=new File(fileName);
         int i;
-        DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(f)));
-        int fileSize= (int) f.length();
+        DataInputStream in = new DataInputStream(new BufferedInputStream(inStream));
+        //int fileSize= (int) f.length();
+        int fileSize = in.available(); // TODO: how robust is this??
         
         int encLen = in.readInt(); 
         byte[] encBytes = new byte[encLen];
@@ -171,6 +181,7 @@ public class FST
         mapping=new int[nBytes];
         bytes = new byte[nBytes];
         in.readFully(bytes);
+        assert in.available() == 0 : "Partial file read... not good";
 
         in.close();
         createMapping(mapping, bytes, encoding);

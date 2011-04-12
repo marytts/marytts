@@ -20,7 +20,9 @@
 package marytts.fst;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -53,13 +55,26 @@ public class FSTLookup
      * @param fileName the name of the file from which to load the FST.
      * @throws IOException if the FST cannot be loaded from the given file.
      */
-    public FSTLookup(String fileName) throws IOException
-    {
-        fst = knownFSTs.get(fileName);
+    public FSTLookup(String fileName) throws IOException {
+    	InputStream inStream = new FileInputStream(fileName);
+    	try {
+    		init(inStream, fileName);
+    	} finally {
+    		inStream.close();
+    	}
+    }
+
+    public FSTLookup(InputStream inStream, String identifier) throws IOException {
+    	init(inStream, identifier);
+    }
+    
+    private void init(InputStream inStream, String identifier) throws IOException {
+        fst = knownFSTs.get(identifier);
         if (fst == null) {
-            fst = new FST(fileName);
-            knownFSTs.put(fileName, fst);
+            fst = new FST(inStream);
+            knownFSTs.put(identifier, fst);
         }
+
     }
 
     /**
