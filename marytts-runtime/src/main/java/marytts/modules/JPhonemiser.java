@@ -24,6 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -82,10 +83,10 @@ public class JPhonemiser extends InternalModule
     throws IOException,  MaryConfigurationException
     {
         this("JPhonemiser", MaryDataType.PARTSOFSPEECH, MaryDataType.PHONEMES,
-                MaryProperties.needFilename(propertyPrefix+"allophoneset"),
-                MaryProperties.getFilename(propertyPrefix+"userdict"),
-                MaryProperties.needFilename(propertyPrefix+"lexicon"),
-                MaryProperties.needFilename(propertyPrefix+"lettertosound"));
+        		propertyPrefix+"allophoneset",
+                propertyPrefix+"userdict",
+                propertyPrefix+"lexicon",
+                propertyPrefix+"lettertosound");
     }
     
     
@@ -99,21 +100,33 @@ public class JPhonemiser extends InternalModule
      */
     public JPhonemiser(String componentName, 
             MaryDataType inputType, MaryDataType outputType,
-            String allophonesFilename, String userdictFilename, String lexiconFilename, String ltsFilename)
+            String allophonesProperty, String userdictProperty, String lexiconProperty, String ltsProperty)
     throws IOException, MaryConfigurationException
     {
         super(componentName, inputType, outputType,
-                AllophoneSet.getAllophoneSet(allophonesFilename).getLocale());
-        allophoneSet = AllophoneSet.getAllophoneSet(allophonesFilename);
+        		getAllophoneSet(allophonesProperty).getLocale());
+        allophoneSet = getAllophoneSet(allophonesProperty);
         // userdict is optional
+        String userdictFilename = MaryProperties.getFilename(userdictProperty); // may be null
         if (userdictFilename != null)
             userdict = readLexicon(userdictFilename);
-        lexicon = new FSTLookup(lexiconFilename);
+        InputStream lexiconStream = MaryProperties.needStream(lexiconProperty);
+        lexicon = new FSTLookup(lexiconStream, lexiconProperty);
+        String ltsFilename = MaryProperties.needFilename(ltsProperty);
         lts = new TrainedLTS(allophoneSet, ltsFilename);
     }
     
     
-    public MaryData process(MaryData d)
+    
+    private static AllophoneSet getAllophoneSet(String allophonesProperty)
+    throws MaryConfigurationException {
+    	String allophonesFilename = MaryProperties.needFilename(allophonesProperty);
+    	AllophoneSet allophones = AllophoneSet.getAllophoneSet(allophonesFilename);
+    	return allophones;
+	}
+
+
+	public MaryData process(MaryData d)
         throws Exception
     {
         Document doc = d.getDocument();
