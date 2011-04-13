@@ -95,10 +95,10 @@ public class JPhonemiser extends marytts.modules.JPhonemiser
       	super("JPhonemiser_de",
         MaryDataType.PARTSOFSPEECH,
         MaryDataType.PHONEMES,
-        MaryProperties.needFilename("de.allophoneset"),
-        MaryProperties.getFilename("de.userdict"),
-        MaryProperties.needFilename("de.lexicon"),
-        MaryProperties.needFilename("de.lettertosound"));
+        "de.allophoneset",
+        "de.userdict",
+        "de.lexicon",
+        "de.lettertosound");
     }
 
     
