@@ -249,7 +249,13 @@ public class Synthesis extends InternalModule
     private AudioInputStream synthesizeOneSection
         (List<Element> tokensAndBoundaries, Voice voice, String currentStyle, String currentEffect, AudioFormat targetFormat, String outputParams)
     throws SynthesisException, UnsupportedAudioFileException
-    {            
+    {     
+        // sanity check: are there any tokens containing phone descendants?
+        if (!containsPhoneDescendants(tokensAndBoundaries)) {
+            logger.warn("No PHONE segments found in this section; will not attempt to synthesize it!");
+            return null;
+        }
+        
         EffectsApplier ef = new EffectsApplier(MaryProperties.effectClasses(), MaryProperties.effectSampleParams());
 
         //HMM-only effects need to get their parameters prior to synthesis
@@ -294,6 +300,22 @@ public class Synthesis extends InternalModule
             ais = ef.apply(ais, currentEffect); 
         }
         return ais;
+    }
+    
+    /**
+     * Check if the List of Elements contains any TOKENS that have PHONE descendants
+     * 
+     * @param tokensAndBoundaries
+     *            the List of Elements to check for PHONE elements
+     * @return true once a PHONE has been found within a TOKEN, false if this never happens
+     */
+    private boolean containsPhoneDescendants(List<Element> tokensAndBoundaries) {
+        for (Element element : tokensAndBoundaries) {
+            if (element.getTagName().equals(MaryXML.TOKEN) && element.getElementsByTagName(MaryXML.PHONE).getLength() > 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

@@ -570,7 +570,7 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
      * @param folder2
      * @throws IOException if any file names don't match.
      */
-    public static void mainDistancesPerFile(String folder1, String folder2)
+    public void mainDistancesPerFile(String folder1, String folder2)
     throws IOException {
         long startTime = System.currentTimeMillis();
         RmsLsfDistortionComputer r = new RmsLsfDistortionComputer();
@@ -652,7 +652,7 @@ public class RmsLsfDistortionComputer extends BaselineDistortionComputer {
         System.out.println(item1.audioFile+"-"+item2.audioFile+" distance: "+meanDist+" (std "+stdDist+")");
         */
         
-        mainDistancesPerFile(args[0], args[1]);
+        new RmsLsfDistortionComputer().mainDistancesPerFile(args[0], args[1]);
     }
 }
 
