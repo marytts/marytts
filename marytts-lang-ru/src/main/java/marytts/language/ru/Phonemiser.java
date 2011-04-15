@@ -52,6 +52,7 @@ import marytts.modules.InternalModule;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.phonemiser.TrainedLTS;
 import marytts.server.MaryProperties;
+import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
@@ -73,7 +74,8 @@ import org.xml.sax.SAXException;
 
 public class Phonemiser extends InternalModule
 {
-
+	// TODO: This reads the userdict only. Replace with a mechanism that can deal with FST lexicon and LTS rules
+	
     protected Map<String, List<String>> userdict;
     protected FSTLookup lexicon;
 
@@ -83,8 +85,8 @@ public class Phonemiser extends InternalModule
     throws IOException,  SAXException, ParserConfigurationException, MaryConfigurationException
     {
         this("Phonemiser", MaryDataType.PARTSOFSPEECH, MaryDataType.PHONEMES,
-                MaryProperties.needFilename(propertyPrefix+"allophoneset"),
-                MaryProperties.getFilename(propertyPrefix+"userdict"));
+                propertyPrefix+"allophoneset",
+                propertyPrefix+"userdict");
     }
     
     
@@ -98,13 +100,15 @@ public class Phonemiser extends InternalModule
      */
     public Phonemiser(String componentName, 
             MaryDataType inputType, MaryDataType outputType,
-            String allophonesFilename, String userdictFilename)
+            String allophonesProperty, String userdictProperty)
     throws IOException,  SAXException, ParserConfigurationException, MaryConfigurationException
     {
         super(componentName, inputType, outputType,
-                AllophoneSet.getAllophoneSet(allophonesFilename).getLocale());
-        allophoneSet = AllophoneSet.getAllophoneSet(allophonesFilename);
+                MaryRuntimeUtils.needAllophoneSet(allophonesProperty).getLocale());
+        allophoneSet = MaryRuntimeUtils.needAllophoneSet(allophonesProperty);
         // userdict is optional
+        // Actually here, the user dict is the only source of information we have, so it is not optional:
+        String userdictFilename = MaryProperties.needFilename(userdictProperty); 
         if (userdictFilename != null)
             userdict = readLexicon(userdictFilename);
     }

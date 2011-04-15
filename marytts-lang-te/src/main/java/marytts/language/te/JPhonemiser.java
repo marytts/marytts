@@ -53,6 +53,7 @@ import marytts.modules.InternalModule;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.phonemiser.TrainedLTS;
 import marytts.server.MaryProperties;
+import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
@@ -85,9 +86,9 @@ public class JPhonemiser extends InternalModule
     throws IOException,  MaryConfigurationException
     {
         this("JPhonemiser", MaryDataType.PARTSOFSPEECH, MaryDataType.PHONEMES,
-                MaryProperties.needFilename(propertyPrefix+"allophoneset"),
-                MaryProperties.getFilename(propertyPrefix+"userdict"),
-                MaryProperties.getFilename(propertyPrefix+"utf8toit3map"));
+                propertyPrefix+"allophoneset",
+                propertyPrefix+"userdict",
+                propertyPrefix+"utf8toit3map");
     }
     
     
@@ -101,15 +102,17 @@ public class JPhonemiser extends InternalModule
      */
     public JPhonemiser(String componentName, 
             MaryDataType inputType, MaryDataType outputType,
-            String allophonesFilename, String userdictFilename, String utf8toit3map)
+            String allophonesProperty, String userdictProperty, String utf8toit3mapProperty)
     throws IOException,  MaryConfigurationException
     {
         super(componentName, inputType, outputType,
-                AllophoneSet.getAllophoneSet(allophonesFilename).getLocale());
-        allophoneSet = AllophoneSet.getAllophoneSet(allophonesFilename);
+                MaryRuntimeUtils.needAllophoneSet(allophonesProperty).getLocale());
+        allophoneSet = MaryRuntimeUtils.needAllophoneSet(allophonesProperty);
         // userdict is optional
+        String userdictFilename = MaryProperties.getFilename(userdictProperty);
         if (userdictFilename != null)
             userdict = readLexicon(userdictFilename);
+        String utf8toit3map = MaryProperties.needFilename(utf8toit3mapProperty);
         lts = new TeluguLTS(utf8toit3map);
     }
     

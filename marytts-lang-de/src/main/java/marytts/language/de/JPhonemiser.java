@@ -20,17 +20,13 @@
 
 package marytts.language.de;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -40,36 +36,23 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.language.de.datatypes.GermanDataTypes;
+import marytts.fst.FSTLookup;
 import marytts.language.de.phonemiser.Inflection;
-import marytts.language.de.phonemiser.LTS;
 import marytts.language.de.phonemiser.PhonemiseDenglish;
 import marytts.language.de.phonemiser.Result;
-import marytts.modules.InternalModule;
-import marytts.modules.phonemiser.AllophoneSet;
-import marytts.modules.phonemiser.TrainedLTS;
 import marytts.modules.synthesis.PAConverter;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
 
 import org.apache.commons.io.FileUtils;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
-import org.xml.sax.SAXException;
-
-import marytts.fst.FSTLookup;
 
 
 /**

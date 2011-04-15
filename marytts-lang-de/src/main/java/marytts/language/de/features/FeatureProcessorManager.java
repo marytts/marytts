@@ -23,11 +23,13 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import marytts.exceptions.MaryConfigurationException;
 import marytts.features.MaryGenericFeatureProcessors;
 import marytts.features.MaryLanguageFeatureProcessors;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
+import marytts.util.MaryRuntimeUtils;
 
 
 public class FeatureProcessorManager extends
@@ -50,7 +52,8 @@ public class FeatureProcessorManager extends
      * 
      * @param voice
      */
-    public FeatureProcessorManager(Voice voice) {
+    public FeatureProcessorManager(Voice voice)
+    throws MaryConfigurationException {
         super(voice.getLocale());
         setupAdditionalFeatureProcessors();
         registerAcousticModels(voice);
@@ -80,8 +83,8 @@ public class FeatureProcessorManager extends
             Map<String,String> posConverter = new HashMap<String, String>();
             addFeatureProcessor(new MaryLanguageFeatureProcessors.Gpos(posConverter));
 
-            //property is set in german.config
-            AllophoneSet allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename("de.allophoneset"));
+            //property is set in de.config
+            AllophoneSet allophoneSet = MaryRuntimeUtils.needAllophoneSet("de.allophoneset");
             
             // Phonetic features of the current segment:
             String[] phones = allophoneSet.getAllophoneNames().toArray(new String[0]);

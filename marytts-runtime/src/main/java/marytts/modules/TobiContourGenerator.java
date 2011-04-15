@@ -45,6 +45,7 @@ import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.MbrolaVoice;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
+import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
@@ -106,7 +107,7 @@ public class TobiContourGenerator extends InternalModule {
          if (synthesis.getState() == MaryModule.MODULE_OFFLINE)
              synthesis.startup();
         // load phone list
-        allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename(phoneSetPropertyName));
+        allophoneSet = MaryRuntimeUtils.needAllophoneSet(phoneSetPropertyName);
         // load tobi rules
         tobiMap = new HashMap<String, Element>();
         loadTobiRules();

@@ -71,6 +71,7 @@ import marytts.server.MaryProperties;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.interpolation.InterpolatingSynthesizer;
 import marytts.unitselection.interpolation.InterpolatingVoice;
+import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.vocalizations.VocalizationSynthesizer;
 
@@ -181,18 +182,15 @@ public class Voice
         // Read settings from config file:
         String header = "voice."+getName();
         this.wantToBeDefault = MaryProperties.getInteger(header+".wants.to.be.default", 0);
-        String allphonesetFilename = MaryProperties.getFilename(header+".allophoneset");
-        if (allphonesetFilename == null && getLocale() != null) {
-            // No specific phone set for voice, use locale default
-            allphonesetFilename = MaryProperties.getFilename(MaryProperties.localePrefix(getLocale())+".allophoneset");
-        }
-        if (allphonesetFilename == null) {
-            throw new MaryConfigurationException("No allophone set specified -- neither for voice '"+getName()+"' nor for locale '"+getLocale()+"'");
-        }
         try {
-            allophoneSet = AllophoneSet.getAllophoneSet(allphonesetFilename);
-        } catch (Exception e) {
-            throw new MaryConfigurationException("Cannot load allophone set", e);
+        	allophoneSet = MaryRuntimeUtils.needAllophoneSet(header+".allophoneset");
+        } catch (MaryConfigurationException e) {
+        	// no allophone set for voice, try for locale
+        	try {
+        		allophoneSet = MaryRuntimeUtils.needAllophoneSet(MaryProperties.localePrefix(getLocale())+".allophoneset");
+        	} catch (MaryConfigurationException e2) {
+                throw new MaryConfigurationException("No allophone set specified -- neither for voice '"+getName()+"' nor for locale '"+getLocale()+"'", e2);
+        	}
         }
         preferredModulesClasses = MaryProperties.getProperty(header+".preferredModules");
         

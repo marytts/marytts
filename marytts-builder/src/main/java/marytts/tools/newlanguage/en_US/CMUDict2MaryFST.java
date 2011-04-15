@@ -75,13 +75,15 @@ import marytts.tools.newlanguage.LexiconCreator;
  */
 public class CMUDict2MaryFST extends LexiconCreator
 {
+	private static final String LEXPATH = "lib/modules/en/us/lexicon/";
+	
     public CMUDict2MaryFST()
     throws Exception
     {
-        super(AllophoneSet.getAllophoneSet("lib/modules/en/us/lexicon/allophones.en_US.xml"),
-                "lib/modules/en/us/lexicon/cmudictSampa.txt",
-                "lib/modules/en/us/lexicon/cmudict.fst",
-                "lib/modules/en/us/lexicon/cmudict.lts",
+        super(AllophoneSet.getAllophoneSet(LEXPATH + "allophones.en_US.xml"),
+                LEXPATH + "cmudictSampa.txt",
+                LEXPATH + "cmudict.fst",
+                LEXPATH + "cmudict.lts",
                 true, // convert to lowercase
                 true, // predict stress
                 3 // number of characters to the left and to the right to use for prediction
@@ -92,10 +94,10 @@ public class CMUDict2MaryFST extends LexiconCreator
     protected void prepareLexicon()
     throws IOException
     {
-        File cmudict = new File("lib/modules/en/us/lexicon/cmu/cmudict-0.4.scm");
+        File cmudict = new File(LEXPATH + "cmu/cmudict-0.4.scm");
         if (!cmudict.exists())
             throw new IllegalStateException("This program should be called from the MARY base directory.");
-        File extensions = new File("lib/modules/en/us/lexicon/cmu/cmudict_extensions.scm");
+        File extensions = new File(LEXPATH + "cmu/cmudict_extensions.scm");
         File cmudictSampa = new File(lexiconFilename);
         
         // Convert to SAMPA text dictionary

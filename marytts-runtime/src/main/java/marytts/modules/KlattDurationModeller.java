@@ -43,6 +43,7 @@ import marytts.datatypes.MaryXML;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.server.MaryProperties;
+import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
@@ -104,7 +105,7 @@ public class KlattDurationModeller extends InternalModule {
         klattRuleParams = new Properties();
         klattRuleParams.load(new FileInputStream(MaryProperties.needFilename(localePrefix+".cap.klattrulefile")));
         // load phone list
-        allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename(localePrefix+".allophoneset"));
+        allophoneSet = MaryRuntimeUtils.needAllophoneSet(localePrefix+".allophoneset");
         klattDurationParams = new KlattDurationModeller.KlattDurationParams(MaryProperties.needFilename(localePrefix+".cap.klattdurfile"));
         // instantiate the Map in which settings are associated with elements:
         // (when the objects serving as keys are not in ordinary use any more,
