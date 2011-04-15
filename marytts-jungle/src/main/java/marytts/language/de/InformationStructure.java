@@ -20,6 +20,7 @@
 package marytts.language.de;
 // JAVA classes
 import java.io.File;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -59,22 +60,10 @@ public class InformationStructure extends InternalModule {
     }
 
     public void startup() throws Exception {
-        String basePath =
-            MaryProperties.maryBase()
-                + File.separator
-                + "lib"
-                + File.separator
-                + "modules"
-                + File.separator
-                + "de"
-                + File.separator
-                + "infostruct"
-                + File.separator;
-        String fstFilename = basePath + "stemmer.fst";
-        File fstFile = new File(fstFilename);
-        if (fstFile.exists()) {
-            stemmer = new FSTLookup(fstFilename);
-        }
+    	InputStream stemmerStream = MaryProperties.getStream("de.infostruct.stemmer");
+    	if (stemmerStream != null) {
+    		stemmer = new FSTLookup(stemmerStream, MaryProperties.getProperty("de.infostruct.stemmer"));
+    	}
         gerNetQuery = null;
         if (MaryProperties.getBoolean("de.infostruct.usegermanet"))
             gerNetQuery =

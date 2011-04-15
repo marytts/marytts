@@ -719,27 +719,45 @@ public class MaryProperties
 	 * If the property value starts with "jar:", the remainder of the value is interpreted
 	 * as an absolute path in the classpath. Otherwise it is interpreted as a file name. 
 	 * @param propertyName the name of a property defined in one of the mary config files.
-	 * @return
-	 * @throws NoSuchPropertyException
-	 * @throws FileNotFoundException
+	 * @return an InputStream representing the given resource
+	 * @throws NoSuchPropertyException if the property is not defined
+	 * @throws FileNotFoundException if the property value is a file name and the file cannot be opened
+	 * @throws MaryConfigurationException if the property value is a classpath entry which cannot be opened
 	 */
 	public static InputStream needStream(String propertyName)
 	throws NoSuchPropertyException, FileNotFoundException, MaryConfigurationException {
-		InputStream accentStream;
-		String propertyValue = MaryProperties.needProperty(propertyName);
-		if (propertyValue.startsWith("jar:")) { // read from classpath
+		MaryProperties.needProperty(propertyName); // to throw exceptions if not defined
+		return getStream(propertyName);
+	}
+
+	/**
+	 * For the named property, attempt to get an open input stream.
+	 * If the property value starts with "jar:", the remainder of the value is interpreted
+	 * as an absolute path in the classpath. Otherwise it is interpreted as a file name. 
+	 * @param propertyName the name of a property defined in one of the mary config files.
+	 * @return an InputStream representing the given resource, or null if the property was not defined.
+	 * @throws FileNotFoundException if the property value is a file name and the file cannot be opened
+	 * @throws MaryConfigurationException if the property value is a classpath entry which cannot be opened
+	 */
+	public static InputStream getStream(String propertyName)
+	throws FileNotFoundException, MaryConfigurationException {
+		InputStream stream;
+		String propertyValue = MaryProperties.getProperty(propertyName);
+		if (propertyValue == null) {
+			return null;
+		} else if (propertyValue.startsWith("jar:")) { // read from classpath
 			String classpathLocation = propertyValue.substring("jar:".length());
-			accentStream = MaryProperties.class.getResourceAsStream(classpathLocation);
-			if (accentStream == null) {
+			stream = MaryProperties.class.getResourceAsStream(classpathLocation);
+			if (stream == null) {
 				throw new MaryConfigurationException("For property '"+propertyName+"', no classpath resource available at '"+classpathLocation+"'");
 			}
 		} else {
-			String fileName = MaryProperties.needFilename(propertyName);
-			accentStream = new FileInputStream(fileName);
+			String fileName = MaryProperties.getFilename(propertyName);
+			stream = new FileInputStream(fileName);
 		}
-		return accentStream;
+		return stream;
+		
 	}
-
     
 	/**
 	 * Get a Class property from the underlying properties, throwing an exception if

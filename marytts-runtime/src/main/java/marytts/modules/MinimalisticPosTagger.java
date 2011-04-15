@@ -19,49 +19,18 @@
  */
 package marytts.modules;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.io.InputStream;
 
-import marytts.cart.CART;
-import marytts.cart.StringPredictionTree;
-import marytts.cart.io.WagonCARTReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureProcessorManager;
-import marytts.features.TargetFeatureComputer;
 import marytts.fst.FSTLookup;
-import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
-import marytts.unitselection.UnitSelectionVoice;
-import marytts.unitselection.select.Target;
-import marytts.unitselection.select.UnitSelector;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
-
-import opennlp.maxent.MaxentModel;
-import opennlp.maxent.io.SuffixSensitiveGISModelReader;
-import opennlp.tools.postag.DefaultPOSContextGenerator;
-import opennlp.tools.postag.POSDictionary;
-import opennlp.tools.postag.POSTaggerME;
-import opennlp.tools.postag.TagDictionary;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
 
@@ -101,9 +70,9 @@ public class MinimalisticPosTagger extends InternalModule
     public void startup() throws Exception
     {
         super.startup();
-        String posFSTFilename = MaryProperties.getFilename(propertyPrefix+"fst");
-        if (posFSTFilename != null) {
-            posFST = new FSTLookup(posFSTFilename);
+        InputStream posFSTStream = MaryProperties.getStream(propertyPrefix+"fst");
+        if (posFSTStream != null) {
+            posFST = new FSTLookup(posFSTStream, MaryProperties.getProperty(propertyPrefix+"fst"));
         }
         punctuationList = MaryProperties.getProperty(propertyPrefix+"punctuation", ",.?!;");
     }

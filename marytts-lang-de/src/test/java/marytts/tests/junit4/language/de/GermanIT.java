@@ -5,8 +5,6 @@ package marytts.tests.junit4.language.de;
 
 import static org.junit.Assert.*;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 
 import marytts.fst.FSTLookup;
@@ -43,5 +41,6 @@ public class GermanIT {
 		assertEquals("wrong transcription for '"+word2+"':", "' S 2: n", phone2[0]);
 	}
 	
+
 
 }
