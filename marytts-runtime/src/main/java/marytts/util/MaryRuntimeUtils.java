@@ -20,7 +20,9 @@
 
 package marytts.util;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Locale;
@@ -255,8 +257,7 @@ public class MaryRuntimeUtils {
         String propertyPrefix = MaryProperties.localePrefix(locale);
         if (propertyPrefix != null) {
             String propertyName = propertyPrefix + ".allophoneset";
-            String filename = MaryProperties.needFilename(propertyName);
-            allophoneSet = AllophoneSet.getAllophoneSet(filename);
+            allophoneSet = needAllophoneSet(propertyName);
         }
         return allophoneSet;
     }
@@ -283,4 +284,29 @@ public class MaryRuntimeUtils {
         return new AudioDestination(ram);
     }
 
+    /**
+     * Convenience method to access the allophone set referenced in the MARY property with the given name.
+     * @param propertyName name of the property referring to the allophone set
+     * @throws MaryConfigurationException if the allophone set cannot be obtained
+     * @return the requested allophone set. This method will never return null; if it cannot
+     * get the allophone set, it throws an exception.
+     */
+    public static AllophoneSet needAllophoneSet(String propertyName)
+    throws MaryConfigurationException {
+    	String propertyValue = MaryProperties.getProperty(propertyName);
+    	if (propertyValue == null) {
+    		throw new MaryConfigurationException("No such property: "+propertyName);
+    	}
+    	if (AllophoneSet.hasAllophoneSet(propertyValue)) {
+    		return AllophoneSet.getAllophoneSetById(propertyValue);
+    	}
+    	InputStream alloStream;
+    	try {
+    		alloStream = MaryProperties.needStream(propertyName);
+    	} catch (FileNotFoundException e) {
+    		throw new MaryConfigurationException("Cannot open allophone stream for property "+propertyName, e);
+    	}
+    	assert alloStream != null;
+    	return AllophoneSet.getAllophoneSet(alloStream, propertyValue);
+    }
 }

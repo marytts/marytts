@@ -30,6 +30,7 @@ import marytts.modules.acoustic.Model;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
+import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
 public class FeatureProcessorManager 
@@ -41,30 +42,26 @@ public class FeatureProcessorManager
     protected Locale locale;
     
     public FeatureProcessorManager(String localeString)
+    throws MaryConfigurationException
     {
         this(MaryUtils.string2locale(localeString));
     }
     
     public FeatureProcessorManager(Locale locale)
+    throws MaryConfigurationException
     {
         this.locale = locale;
         setupGenericFeatureProcessors();
         
-        AllophoneSet allophoneSet = null;
-        try {
-            allophoneSet = AllophoneSet.getAllophoneSet(
-                MaryProperties.needFilename(MaryProperties.localePrefix(locale)+".allophoneset"));
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot set up feature processor manager for locale '"+
-                    locale+"' because allophone set cannot be loaded", e);
-        }
+        AllophoneSet allophoneSet = MaryRuntimeUtils.needAllophoneSet(MaryProperties.localePrefix(locale)+".allophoneset");
         setupPhoneFeatureProcessors(allophoneSet, null, null, null);
     }
     
     /**
      * Constructor called from a Voice that has its own acoustic models
      */
-    public FeatureProcessorManager(Voice voice) {
+    public FeatureProcessorManager(Voice voice)
+    throws MaryConfigurationException {
         this(voice.getLocale());
         registerAcousticModels(voice);
     }

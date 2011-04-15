@@ -51,6 +51,7 @@ import marytts.modules.InternalModule;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.phonemiser.TrainedLTS;
 import marytts.server.MaryProperties;
+import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
@@ -104,8 +105,8 @@ public class JPhonemiser extends InternalModule
     throws IOException, MaryConfigurationException
     {
         super(componentName, inputType, outputType,
-        		getAllophoneSet(allophonesProperty).getLocale());
-        allophoneSet = getAllophoneSet(allophonesProperty);
+        		MaryRuntimeUtils.needAllophoneSet(allophonesProperty).getLocale());
+        allophoneSet = MaryRuntimeUtils.needAllophoneSet(allophonesProperty);
         // userdict is optional
         String userdictFilename = MaryProperties.getFilename(userdictProperty); // may be null
         if (userdictFilename != null)
@@ -115,15 +116,6 @@ public class JPhonemiser extends InternalModule
         String ltsFilename = MaryProperties.needFilename(ltsProperty);
         lts = new TrainedLTS(allophoneSet, ltsFilename);
     }
-    
-    
-    
-    private static AllophoneSet getAllophoneSet(String allophonesProperty)
-    throws MaryConfigurationException {
-    	String allophonesFilename = MaryProperties.needFilename(allophonesProperty);
-    	AllophoneSet allophones = AllophoneSet.getAllophoneSet(allophonesFilename);
-    	return allophones;
-	}
 
 
 	public MaryData process(MaryData d)

@@ -63,7 +63,28 @@ public class AllophoneSet
     	}
     	assert fis != null;
     	return getAllophoneSet(fis, filename);
-
+    }
+    
+    /**
+     * Determine whether the registry of previously loaded allophone sets already contains
+     * an allophone set with the given identifier.
+     * If this returns true, then a call to {@link #getAllophoneSetById(String)}
+     * with the same identifier will return a non-null Allophone set.
+     * @param identifier the identifier of the allophone set to test. 
+     * @return true if the registry already contains the given allophone set, false otherwise.
+     */
+    public static boolean hasAllophoneSet(String identifier) {
+    	return allophoneSets.containsKey(identifier);
+    }
+    
+    /**
+     * Get a previously loaded allophone set by its identifier.
+     * The method will make no attempt to load the allophone set if it is not yet available.
+     * @param identifier the identifier of the allophone set
+     * @return the allophone set if available, null otherwise.
+     */
+    public static AllophoneSet getAllophoneSetById(String identifier) {
+    	return allophoneSets.get(identifier);
     }
     
     /** Return the allophone set that can be read from the given input stream,

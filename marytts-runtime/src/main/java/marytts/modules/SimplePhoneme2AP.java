@@ -33,6 +33,7 @@ import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.MbrolaVoice;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
+import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
 import org.w3c.dom.Document;
@@ -69,7 +70,7 @@ public class SimplePhoneme2AP extends InternalModule
 
     public void startup() throws Exception
     {
-        allophoneSet = AllophoneSet.getAllophoneSet(MaryProperties.needFilename(MaryProperties.localePrefix(getLocale())+".allophoneset"));
+        allophoneSet = MaryRuntimeUtils.needAllophoneSet(MaryProperties.localePrefix(getLocale())+".allophoneset");
         if (factory == null) {
             factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);

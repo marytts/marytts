@@ -26,7 +26,7 @@ import java.util.StringTokenizer;
 
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
-import marytts.server.MaryProperties;
+import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
@@ -53,15 +53,13 @@ public class PAConverter
     static {
         sampa = new HashMap<Locale, AllophoneSet>();
         try {
-            AllophoneSet usenSampa = AllophoneSet.getAllophoneSet
-                (MaryProperties.needFilename("en_US.allophoneset"));
+            AllophoneSet usenSampa = MaryRuntimeUtils.needAllophoneSet("en_US.allophoneset");
             sampa.put(Locale.US, usenSampa);
         } catch (Exception e) {
             logger.warn("Cannot load US English allophone set", e);
         }
         try {
-            AllophoneSet deSampa = AllophoneSet.getAllophoneSet
-                (MaryProperties.needFilename("de.allophoneset"));
+            AllophoneSet deSampa = MaryRuntimeUtils.needAllophoneSet("de.allophoneset");
             sampa.put(Locale.GERMAN, deSampa);
         } catch (Exception e) {
             logger.warn("Cannot load German allophone set", e);
