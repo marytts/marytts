@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -129,12 +130,12 @@ public class JPhonemiser extends marytts.modules.JPhonemiser
         	}
         }
         if (MaryProperties.getBoolean("de.phonemiser.useenglish")) {
-            String englishLexiconFilename = MaryProperties.getFilename("en_US.lexicon");
-            if (englishLexiconFilename != null) {
+            InputStream usLexStream = MaryProperties.getStream("en_US.lexicon");
+            if (usLexStream != null) {
                 try {
-                    usEnglishLexicon = new FSTLookup(englishLexiconFilename);
+                    usEnglishLexicon = new FSTLookup(usLexStream, MaryProperties.getProperty("en_US.lexicon"));
                 } catch (Exception e) {
-                    logger.info("Cannot load English lexicon '"+englishLexiconFilename+"'", e);
+                    logger.info("Cannot load English lexicon '"+MaryProperties.getProperty("en_US.lexicon")+"'", e);
                 }
             }
         }
