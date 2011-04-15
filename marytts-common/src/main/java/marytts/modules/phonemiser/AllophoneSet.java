@@ -19,7 +19,9 @@
  */
 package marytts.modules.phonemiser;
 
-import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -53,14 +55,46 @@ public class AllophoneSet
     public static AllophoneSet getAllophoneSet(String filename)
     throws MaryConfigurationException
     {
-        AllophoneSet as = allophoneSets.get(filename);
-        if (as == null) {
-            // Need to load it:
-            as = new AllophoneSet(filename);
-            allophoneSets.put(filename, as);
-        }
-        assert as != null;
-        return as;
+    	InputStream fis = null;
+    	try {
+    		fis = new FileInputStream(filename);
+    	} catch (IOException e) {
+    		throw new MaryConfigurationException("Problem reading allophone file "+filename, e);
+    	}
+    	assert fis != null;
+    	return getAllophoneSet(fis, filename);
+
+    }
+    
+    /** Return the allophone set that can be read from the given input stream,
+     * identified by the given identifier.
+     * It will only be loaded if it was not loaded before.
+     * @param inStream an open stream from which the allophone set can be loaded. it will be closed when this method returns.
+     * @param identifier a unique identifier for this allophone set.
+     * @return the allophone set, if one can be created. This method will never return null.
+     * @throws MaryConfigurationException if no allophone set can be loaded from the given file.
+     */
+
+    public static AllophoneSet getAllophoneSet(InputStream inStream, String identifier) 
+    throws MaryConfigurationException {
+    	AllophoneSet as = allophoneSets.get(identifier);
+    	if (as == null) {
+    		// Need to load it:
+    		try {
+    			as = new AllophoneSet(inStream);
+    		} catch (MaryConfigurationException e) {
+    			throw new MaryConfigurationException("Problem loading allophone set from "+identifier, e);
+    		}
+    		allophoneSets.put(identifier, as);
+    	} else {
+    		try {
+    			inStream.close();
+    		} catch (IOException e) {
+    			// ignore
+    		}
+    	}
+    	assert as != null;
+    	return as;
     }
 
 
@@ -78,16 +112,22 @@ public class AllophoneSet
     // The number of characters in the longest Allophone symbol
     private int maxAllophoneSymbolLength = 1;
 
-    private AllophoneSet(String filename)
+    private AllophoneSet(InputStream inputStream)
     throws MaryConfigurationException
     {
         allophones = new TreeMap<String, Allophone>();
         // parse the xml file:
         Document document;
         try {
-            document = DomUtils.parseDocument(new File(filename));
+            document = DomUtils.parseDocument(inputStream);
         } catch (Exception e) {
-            throw new MaryConfigurationException("Cannot parse allophone file '"+filename+"'", e);
+            throw new MaryConfigurationException("Cannot parse allophone file", e);
+        } finally {
+        	try {
+        		inputStream.close();
+        	} catch (IOException ioe) {
+        		// ignore
+        	}
         }
         Element root = document.getDocumentElement();
         name = root.getAttribute("name");
@@ -99,11 +139,11 @@ public class AllophoneSet
         while ((a = (Element) ni.nextNode()) != null) {
             Allophone ap = new Allophone(a, featureNames);
             if (allophones.containsKey(ap.name()))
-                throw new MaryConfigurationException("File "+filename+" contains duplicate definition of allophone '"+ap.name()+"'!");
+                throw new MaryConfigurationException("File contains duplicate definition of allophone '"+ap.name()+"'!");
             allophones.put(ap.name(), ap);
             if (ap.isPause()) {
                 if (silence != null)
-                    throw new MaryConfigurationException("File "+filename+" contains more than one silence symbol: '"+silence.name()+"' and '"+ap.name()+"'!");
+                    throw new MaryConfigurationException("File contains more than one silence symbol: '"+silence.name()+"' and '"+ap.name()+"'!");
                 silence = ap;
             }
             int len = ap.name().length();
@@ -112,7 +152,7 @@ public class AllophoneSet
             }
         }
         if (silence == null)
-            throw new MaryConfigurationException("File "+filename+" does not contain a silence symbol");
+            throw new MaryConfigurationException("File does not contain a silence symbol");
         // Fill the list of possible values for all features
         // such that "0" comes first and all other values are sorted alphabetically
         featureValueMap = new TreeMap<String, String[]>();
