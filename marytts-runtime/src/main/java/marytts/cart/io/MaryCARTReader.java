@@ -25,6 +25,7 @@ import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Properties;
@@ -62,15 +63,19 @@ public class MaryCARTReader
     public CART load(String fileName)
     throws IOException, MaryConfigurationException
     {
-        return loadFromStream(fileName);
-        //return loadFromByteBuffer(fileName);
+    	FileInputStream fis = new FileInputStream(fileName);
+    	try {
+    		return loadFromStream(fis);
+    	} finally {
+    		fis.close();
+    	}
     }
     
     /**
      * Load the cart from the given file
      * 
-     * @param fileName
-     *            the file to load the cart from
+     * @param inStream
+     *            the stream to load the cart from
      * @param featDefinition
      *            the feature definition
      * @param dummy
@@ -78,11 +83,11 @@ public class MaryCARTReader
      * @throws IOException
      *             if a problem occurs while loading
      */
-    private CART loadFromStream(String fileName)
+    public CART loadFromStream(InputStream inStream)
     throws IOException, MaryConfigurationException
     {
         // open the CART-File and read the header
-        DataInput raf = new DataInputStream(new BufferedInputStream(new FileInputStream(fileName)));
+        DataInput raf = new DataInputStream(new BufferedInputStream(inStream));
         
         MaryHeader maryHeader = new MaryHeader(raf);
         if (!maryHeader.hasCurrentVersion()) {

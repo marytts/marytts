@@ -762,13 +762,26 @@ public class MaryUtils {
     @SuppressWarnings("unchecked")
     public static boolean isLog4jConfigured() {
         Enumeration appenders = LogManager.getRootLogger().getAllAppenders();
-    if (appenders.hasMoreElements()) {
-        return true;
+        if (appenders.hasMoreElements()) {
+        	return true;
+        }
+        return false;
     }
-    return false;
-}
     
-    
+    /**
+     * From the given throwable or its cause, or cause's cause, etc.,
+     * get the first one that has a non-empty message, and return that message.
+     * @param t 
+     * @return the first non-empty message string, or null.
+     */
+    public static String getFirstMeaningfulMessage(Throwable t) {
+    	if (t== null) return null;
+    	String m = t.getMessage();
+    	if (m != null && !m.isEmpty()) {
+    		return m;
+    	}
+    	return getFirstMeaningfulMessage(t.getCause());
+    }
 
 }
 

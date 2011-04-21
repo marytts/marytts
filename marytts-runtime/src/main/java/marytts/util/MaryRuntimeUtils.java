@@ -30,10 +30,6 @@ import java.util.Locale;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.AudioFileFormat.Type;
-import javax.sound.sampled.AudioFormat.Encoding;
-
-import org.w3c.dom.Element;
 
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
@@ -43,6 +39,8 @@ import marytts.server.MaryProperties;
 import marytts.util.data.audio.AudioDestination;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.dom.MaryDomUtils;
+
+import org.w3c.dom.Element;
 
 /**
  * @author marc
@@ -70,40 +68,45 @@ public class MaryRuntimeUtils {
      * @throws NoSuchMethodException
      */
     public static Object instantiateObject(String objectInitInfo)
-    throws ClassNotFoundException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException, SecurityException, NoSuchMethodException
+    throws MaryConfigurationException
     {
         Object obj = null;
         String[] args = null;
         String className = null;
-        if (objectInitInfo.contains("(")) { // arguments
-            int firstOpenBracket = objectInitInfo.indexOf('(');
-            className = objectInitInfo.substring(0, firstOpenBracket);
-            int lastCloseBracket = objectInitInfo.lastIndexOf(')');
-            args = objectInitInfo.substring(firstOpenBracket+1, lastCloseBracket).split(",");
-            for (int i=0; i<args.length; i++) {
-                if (args[i].startsWith("$")) {
-                    // replace value with content of property named after the $
-                    args[i] = MaryProperties.getProperty(args[i].substring(1));
-                }
-                args[i] = args[i].trim();
-            }
-        } else { // no arguments
-            className = objectInitInfo;
-        }
-        Class<? extends Object> theClass = Class.forName(className).asSubclass(Object.class);
-        // Now invoke Constructor with args.length String arguments
-        if (args != null) {
-            Class<String>[] constructorArgTypes = new Class[args.length];
-            Object[] constructorArgs = new Object[args.length];
-            for (int i=0; i<args.length; i++) {
-                constructorArgTypes[i] = String.class;
-                constructorArgs[i] = args[i];
-            }
-            Constructor<? extends Object> constructor = (Constructor<? extends Object>) theClass.getConstructor(constructorArgTypes);
-            obj = constructor.newInstance(constructorArgs);
-        } else {
-            obj = theClass.newInstance();
-        }
+        try {
+	        if (objectInitInfo.contains("(")) { // arguments
+	            int firstOpenBracket = objectInitInfo.indexOf('(');
+	            className = objectInitInfo.substring(0, firstOpenBracket);
+	            int lastCloseBracket = objectInitInfo.lastIndexOf(')');
+	            args = objectInitInfo.substring(firstOpenBracket+1, lastCloseBracket).split(",");
+	            for (int i=0; i<args.length; i++) {
+	                if (args[i].startsWith("$")) {
+	                    // replace value with content of property named after the $
+	                    args[i] = MaryProperties.getProperty(args[i].substring(1));
+	                }
+	                args[i] = args[i].trim();
+	            }
+	        } else { // no arguments
+	            className = objectInitInfo;
+	        }
+	        Class<? extends Object> theClass = Class.forName(className).asSubclass(Object.class);
+	        // Now invoke Constructor with args.length String arguments
+	        if (args != null) {
+	            Class<String>[] constructorArgTypes = new Class[args.length];
+	            Object[] constructorArgs = new Object[args.length];
+	            for (int i=0; i<args.length; i++) {
+	                constructorArgTypes[i] = String.class;
+	                constructorArgs[i] = args[i];
+	            }
+	            Constructor<? extends Object> constructor = (Constructor<? extends Object>) theClass.getConstructor(constructorArgTypes);
+	            	obj = constructor.newInstance(constructorArgs);
+	        } else {
+	            obj = theClass.newInstance();
+	        }
+	    } catch (Exception e) {
+	    	// try to make e's message more informative if possible
+	    	throw new MaryConfigurationException("Cannot instantiate object from '"+objectInitInfo+"': "+MaryUtils.getFirstMeaningfulMessage(e), e);
+	    }
         return obj;
     }
 

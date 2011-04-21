@@ -113,8 +113,8 @@ public class JPhonemiser extends InternalModule
             userdict = readLexicon(userdictFilename);
         InputStream lexiconStream = MaryProperties.needStream(lexiconProperty);
         lexicon = new FSTLookup(lexiconStream, lexiconProperty);
-        String ltsFilename = MaryProperties.needFilename(ltsProperty);
-        lts = new TrainedLTS(allophoneSet, ltsFilename);
+        InputStream ltsStream = MaryProperties.needStream(ltsProperty);
+        lts = new TrainedLTS(allophoneSet, ltsStream);
     }
 
 

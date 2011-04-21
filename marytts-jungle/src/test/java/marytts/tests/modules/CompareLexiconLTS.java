@@ -41,7 +41,7 @@ public class CompareLexiconLTS {
         String ltsFile = args[1];
         String dictFile = args[2];
         
-        TrainedLTS lts = new TrainedLTS(AllophoneSet.getAllophoneSet(allophoneFile), ltsFile);
+        TrainedLTS lts = new TrainedLTS(AllophoneSet.getAllophoneSet(allophoneFile), new FileInputStream(ltsFile));
 
         int count = 0;
         int correct = 0;

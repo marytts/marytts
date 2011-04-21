@@ -20,20 +20,11 @@
 package marytts.language.te.phonemiser;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CodingErrorAction;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,9 +45,8 @@ public class TeluguLTS {
      * @param utf8toit3map
      * @throws IOException
      */
-    public TeluguLTS(String utf8toit3map) throws IOException{
-        this.loadPhoneSymbols(utf8toit3map);
-        this.loadPhoneTypes(utf8toit3map);
+    public TeluguLTS(InputStream utf8toit3mapStream) throws IOException{
+        this.loadPhoneSymbolsAndTypes(utf8toit3mapStream);
     }
     
     /**
@@ -197,30 +187,21 @@ public class TeluguLTS {
     }
 
     
-    private void loadPhoneSymbols(String filename) throws IOException
+    private void loadPhoneSymbolsAndTypes(InputStream inStream) throws IOException
     {
         String line;
-        BufferedReader bfr = new BufferedReader(new FileReader(new File(filename)));
+        BufferedReader bfr = new BufferedReader(new InputStreamReader(inStream, "UTF-8"));
         UTF8toPhoneSymbols = new HashMap<String, String>();
-        while ( (line = bfr.readLine()) != null )
-        {
-            String[] words = line.split("\\|");
-            UTF8toPhoneSymbols.put(words[0],words[1]);
-        }
-    }
-    
-    private void loadPhoneTypes(String filename) throws IOException
-    {
-        String line;
-        BufferedReader bfr = new BufferedReader(new FileReader(new File(filename)));
         UTF8toPhoneTypes = new HashMap<String, String>();
         while ( (line = bfr.readLine()) != null )
         {
             String[] words = line.split("\\|");
+            UTF8toPhoneSymbols.put(words[0],words[1]);
             UTF8toPhoneTypes.put(words[0],words[2]);
         }
+        bfr.close();
     }
-    
+        
    
     public ArrayList<String> readUTF8String(String word) throws IOException
     {
@@ -428,7 +409,7 @@ public class TeluguLTS {
      */
     public static void main(String[] args) throws IOException {
         
-        TeluguLTS utf8r = new  TeluguLTS("~/openmary/lib/modules/te/lexicon/UTF8phone.te.list");
+        TeluguLTS utf8r = new  TeluguLTS(new FileInputStream("~/openmary/lib/modules/te/lexicon/UTF8phone.te.list"));
         
         //utf8r.makeProperIt3("/home/sathish/Desktop/telugu-utf8-txt.done.data");
         //String nameString = "\u0C05\u0C38\u0C1F\u0C08\u0C05\u0C37";

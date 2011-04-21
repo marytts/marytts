@@ -225,8 +225,10 @@ public class TranscriptionTable extends JPanel implements ActionListener {
         }
         
         try {
-            LTSTrainer tp = this.trainLTS(treeAbsolutePath); 
-            TrainedLTS trainedLTS = new TrainedLTS(phoneSet,treeAbsolutePath);
+            LTSTrainer tp = this.trainLTS(treeAbsolutePath);
+            FileInputStream fis = new FileInputStream(treeAbsolutePath);
+            TrainedLTS trainedLTS = new TrainedLTS(phoneSet, fis);
+        	fis.close();
             for(int i=0;i<tableData.length; i++){
                 if(!(hasManualVerify[i] && hasCorrectSyntax[i])){
                     String grapheme = (String) tableData[i][1];
@@ -245,8 +247,7 @@ public class TranscriptionTable extends JPanel implements ActionListener {
                 transcriptionModel.setAsManualVerify(itsRow, false);
             }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        	throw new MaryConfigurationException("Problem training/predicting", e);
         }
         trainPredict = true;
     }
