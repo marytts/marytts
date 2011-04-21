@@ -58,6 +58,7 @@ import javax.xml.transform.TransformerFactory;
 
 import marytts.Version;
 import marytts.datatypes.MaryDataType;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
@@ -317,7 +318,7 @@ public class Mary {
      * @throws NoSuchPropertyException
      * @throws IOException
      */
-    private static void configureLogging() throws NoSuchPropertyException, IOException {
+    private static void configureLogging() throws MaryConfigurationException, IOException {
         if (!MaryUtils.isLog4jConfigured()) { // maybe log4j has been externally configured already?
             // Configure logging:
             /*        logger = MaryUtils.getLogger("main");
@@ -357,7 +358,7 @@ public class Mary {
                     }
                     */
             Properties logprops = new Properties();
-            InputStream propIS = new BufferedInputStream(new FileInputStream(MaryProperties.needFilename("log.config")));
+            InputStream propIS = new BufferedInputStream(MaryProperties.needStream("log.config"));
             logprops.load(propIS);
             propIS.close();
             // Now replace MARY_BASE with the install location of MARY in every property:
