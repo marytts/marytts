@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Locale;
 import java.util.Properties;
@@ -70,10 +71,10 @@ public class TrainedLTS {
      * @throws IOException 
      * 
      */
-    public TrainedLTS(AllophoneSet aPhonSet, String treeFilename)
+    public TrainedLTS(AllophoneSet aPhonSet, InputStream treeStream)
     throws IOException, MaryConfigurationException {
         this.allophoneSet = aPhonSet;
-        this.loadTree(treeFilename);
+        this.loadTree(treeStream);
     }
     
     public TrainedLTS(AllophoneSet aPhonSet, CART predictionTree) {
@@ -89,15 +90,15 @@ public class TrainedLTS {
     
     /**
      * 
-     * Convenience method to load tree from file
+     * Convenience method to load tree from an inputstream
      * 
-     * @param treeFilename
+     * @param treeStream
      * @throws IOException
      */
-    public void loadTree(String treeFilename) throws IOException, MaryConfigurationException
+    public void loadTree(InputStream treeStream) throws IOException, MaryConfigurationException
     {
         MaryCARTReader cartReader = new MaryCARTReader();
-        this.tree = cartReader.load(treeFilename);
+        this.tree = cartReader.loadFromStream(treeStream);
         this.featureDefinition = tree.getFeatureDefinition();
         this.indexPredictedFeature = featureDefinition.getFeatureIndex(PREDICTED_STRING_FEATURENAME);
         this.convertToLowercase = false;
@@ -170,7 +171,7 @@ public class TrainedLTS {
         String allophoneFile = args[0];
         String ltsFile = args[1];
         
-        TrainedLTS lts = new TrainedLTS(AllophoneSet.getAllophoneSet(allophoneFile), ltsFile);
+        TrainedLTS lts = new TrainedLTS(AllophoneSet.getAllophoneSet(allophoneFile), new FileInputStream(ltsFile));
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String line;

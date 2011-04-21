@@ -19,8 +19,6 @@
  */
 package marytts.modules;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -30,8 +28,8 @@ import java.util.List;
 import java.util.Locale;
 
 import marytts.datatypes.MaryDataType;
+import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.synthesis.Voice;
-import marytts.server.MaryProperties;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 
@@ -83,10 +81,10 @@ public class ModuleRegistry
      *   <li>my.class.which.extends.MaryModule(arguments,$my.special.property,other,args)</li>
      * </ol>
      * where 'my.special.property' is a property in the property file.
+     * @throws MaryConfigurationException if the module cannot be instantiated
      */
     public static MaryModule instantiateModule(String moduleInitInfo)
-    throws ClassNotFoundException, InstantiationException, IllegalAccessException,
-    InvocationTargetException, NoSuchMethodException
+    throws MaryConfigurationException
     {
         logger.info("Now initiating mary module '"+moduleInitInfo+"'");
         MaryModule m = (MaryModule) MaryRuntimeUtils.instantiateObject(moduleInitInfo);
