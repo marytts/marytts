@@ -4,7 +4,7 @@
 #           http://hts.sp.nitech.ac.jp/                             #
 # ----------------------------------------------------------------- #
 #                                                                   #
-#  Copyright (c) 2001-2008  Nagoya Institute of Technology          #
+#  Copyright (c) 2001-2011  Nagoya Institute of Technology          #
 #                           Department of Computer Science          #
 #                                                                   #
 #                2001-2008  Tokyo Institute of Technology           #
@@ -184,7 +184,7 @@
     printf "=%s",   ($2 == "pau") ? "x" : $42
 
 #  position in major phrase (phrase)
-    printf "@";
+    printf "^";
     printf "%s", $44 + 1
     printf "=%s", $48 - $44
 
