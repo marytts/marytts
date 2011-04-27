@@ -1,13 +1,9 @@
 # Process this file with autoconf to produce a configure script.
 #  ---------------------------------------------------------------  #
-# Modified by Sacha Krstulovic (DFKI) 2006 to use  Mary system      #
-#   instead of Festival as text analyser, so it uses phonefeatures  #
-#   and phonelab created with Mary.                                 #
-# Modified by Marcela Charfuelan (DFKI) 2008 to allow training      #
-#   strengths and Fourier magnitudes for mixed excitation.          #
+# Modified by Marcela Charfuelan (DFKI) 2011 to use MARY system     #
 #  ---------------------------------------------------------------  #
-AC_INIT(HTS-demo_CMU-ARCTIC-SLT,2.1,hts-users@sp.nitech.ac.jp)
-AC_COPYRIGHT(Copyright 2001-2008 Nagoya Institute of Technology)
+AC_INIT(HTS-demo_CMU-ARCTIC-SLT,2.2beta,hts-users@sp.nitech.ac.jp)
+AC_COPYRIGHT(Copyright 2001-2011 Nagoya Institute of Technology)
 AC_COPYRIGHT(Copyright 2001-2008 Tokyo Institute of Technology)
 
 
@@ -30,7 +26,7 @@ fi
 # tclsh search path
 AC_ARG_WITH(tcl-search-path,
 		AS_HELP_STRING([--with-tcl-search-path],[specify the additional tclsh (with snack) search path]),
- 		[tcl_search_path=$withval])
+		[tcl_search_path=$withval])
 
 AC_PATH_PROG([TCLSH], [tclsh], [:], [${tcl_search_path}:$PATH])
 if test ! -f "$TCLSH"; then
@@ -57,14 +53,21 @@ if test ! -f "$WC"; then
 	AC_MSG_ERROR(Can't find wc)
 fi
 
+# tee
+AC_PATH_PROG([TEE], [tee], [/usr/bin], [$PATH:/usr/bin])
+if test ! -f "$TEE"; then
+	AC_MSG_ERROR(Can't find tee)
+fi
+
+
 
 # festival
 # festival search path
-AC_ARG_WITH(fest-search-path,
-		AS_HELP_STRING([--with-fest-search-path],[specify the additional festival search path]),
- 		[fest_search_path=$withval])
-
 # comented because is not used in MARY HMM voices
+#AC_ARG_WITH(fest-search-path,
+#		AS_HELP_STRING([--with-fest-search-path],[specify the additional festival search path]),
+#		[fest_search_path=$withval])
+
 # dumpfeats (festival)
 #AC_PATH_PROG([DUMPFEATS], [dumpfeats], [:], [${fest_search_path}:$PATH])
 #if test ! -f "$DUMPFEATS"; then
@@ -72,17 +75,12 @@ AC_ARG_WITH(fest-search-path,
 #fi
 
 
+
 # SPTK commands
 # SPTK search path
 AC_ARG_WITH(sptk-search-path,
 		AS_HELP_STRING([--with-sptk-search-path],[specify the additional SPTK binary search path]),
- 		[sptk_search_path=$withval])
-
-# swab
-AC_PATH_PROG([SWAB], [swab], [:], [${sptk_search_path}:$PATH])
-if test ! -f "$SWAB"; then
-	AC_MSG_ERROR(Can't find swab of SPTK)
-fi
+		[sptk_search_path=$withval])
 
 # x2x
 AC_PATH_PROG([X2X], [x2x], [:], [${sptk_search_path}:$PATH])
@@ -105,8 +103,26 @@ fi
 # mgcep
 if test -z "$GAMMA"; then
 	AC_PATH_PROG([MGCEP], [mcep], [:], [${sptk_search_path}:$PATH])
+	if test ! -f "$MGCEP"; then
+		AC_MSG_ERROR(Can't find mcep of SPTK)
+	fi
+	version=`$MGCEP -h 2>&1 | grep "version" | sed -e "s/.* //g"`
+	if test -z "$version"; then
+		AC_MSG_ERROR(mcep in SPTK version 3.2 or later is required.)
+	elif test `echo "$version < 3.2" | $BC` = 1; then
+		AC_MSG_ERROR(mcep in SPTK version 3.2 or later is required.)
+	fi
 elif test $GAMMA -eq 0; then
 	AC_PATH_PROG([MGCEP], [mcep], [:], [${sptk_search_path}:$PATH])
+	if test ! -f "$MGCEP"; then
+		AC_MSG_ERROR(Can't find mcep of SPTK)
+	fi
+	version=`$MGCEP -h 2>&1 | grep "version" | sed -e "s/.* //g"`
+	if test -z "$version"; then
+		AC_MSG_ERROR(mcep in SPTK version 3.2 or later is required.)
+	elif test `echo "$version < 3.2" | $BC` = 1; then
+		AC_MSG_ERROR(mcep in SPTK version 3.2 or later is required.)
+	fi
 else
 	AC_PATH_PROG([MGCEP], [mgcep], [:], [${sptk_search_path}:$PATH])
 	if test ! -f "$MGCEP"; then
@@ -114,24 +130,11 @@ else
 	fi
 	version=`$MGCEP -h 2>&1 | grep "version" | sed -e "s/.* //g"`
 	if test -z "$version"; then
-		AC_MSG_ERROR(mgcep in SPTK version 3.1 or later is required.)
-	elif test `echo "$version < 3.1" | $BC` = 1; then
-		AC_MSG_ERROR(mgcep in SPTK version 3.1 or later is required.)
+		AC_MSG_ERROR(mgcep in SPTK version 3.2 or later is required.)
+	elif test `echo "$version < 3.2" | $BC` = 1; then
+		AC_MSG_ERROR(mgcep in SPTK version 3.2 or later is required.)
 	fi
 fi
-
-# gcep
-AC_PATH_PROG([GCEP], [gcep], [:], [${sptk_search_path}:$PATH])
-if test ! -f "$GCEP"; then
-	AC_MSG_ERROR(Can't find gcep of SPTK)
-fi
-
-# iglsadf
-AC_PATH_PROG([IGLSADF], [iglsadf], [:], [${sptk_search_path}:$PATH])
-if test ! -f "$IGLSADF"; then
-	AC_MSG_ERROR(Can't find iglsadf of SPTK)
-fi
-
 
 # lpc2lsp
 AC_PATH_PROG([LPC2LSP], [lpc2lsp], [:], [${sptk_search_path}:$PATH])
@@ -140,9 +143,9 @@ if test ! -f "$LPC2LSP"; then
 fi
 version=`$LPC2LSP -h 2>&1 | grep "version" | sed -e "s/.* //g"`
 if test -z "$version"; then
-	AC_MSG_ERROR(lpc2lsp in SPTK version 3.1 or later is required.)
-elif test `echo "$version < 3.1" | $BC` = 1; then
-	AC_MSG_ERROR(lpc2lsp in SPTK version 3.1 or later is required.)
+	AC_MSG_ERROR(lpc2lsp in SPTK version 3.2 or later is required.)
+elif test `echo "$version < 3.2" | $BC` = 1; then
+	AC_MSG_ERROR(lpc2lsp in SPTK version 3.2 or later is required.)
 fi
 
 # nan
@@ -151,16 +154,22 @@ if test ! -f "$NAN"; then
 	AC_MSG_ERROR(Can't find nan of SPTK)
 fi
 
+# bcut
+AC_PATH_PROG([BCUT], [bcut], [:], [${sptk_search_path}:$PATH])
+if test ! -f "$BCUT"; then
+	AC_MSG_ERROR(Can't find bcut of SPTK)
+fi
+
 # nrand
 AC_PATH_PROG([NRAND], [nrand], [:], [${sptk_search_path}:$PATH])
-	if test ! -f "$NRAND"; then
-AC_MSG_ERROR(Can't find nrand of SPTK)
+if test ! -f "$NRAND"; then
+	AC_MSG_ERROR(Can't find nrand of SPTK)
 fi
 version=`$NRAND -h 2>&1 | grep "version" | sed -e "s/.* //g"`
 if test -z "$version"; then
-	AC_MSG_ERROR(nrand in SPTK version 3.1 or later is required.)
-elif test `echo "$version < 3.1" | $BC` = 1; then
-	AC_MSG_ERROR(nrand in SPTK version 3.1 or later is required.)
+	AC_MSG_ERROR(nrand in SPTK version 3.2 or later is required.)
+elif test `echo "$version < 3.2" | $BC` = 1; then
+	AC_MSG_ERROR(nrand in SPTK version 3.2 or later is required.)
 fi
 
 # vstat
@@ -176,9 +185,9 @@ if test ! -f "$STEP"; then
 fi
 version=`$STEP -h 2>&1 | grep "version" | sed -e "s/.* //g"`
 if test -z "$version"; then
-	AC_MSG_ERROR(step in SPTK version 3.1 or later is required.)
-elif test `echo "$version < 3.1" | $BC` = 1; then
-	AC_MSG_ERROR(step in SPTK version 3.1 or later is required.)
+	AC_MSG_ERROR(step in SPTK version 3.2 or later is required.)
+elif test `echo "$version < 3.2" | $BC` = 1; then
+	AC_MSG_ERROR(step in SPTK version 3.2 or later is required.)
 fi
 
 # sopr
@@ -224,9 +233,9 @@ if test ! -f "$MERGE"; then
 fi
 version=`$MERGE -h 2>&1 | grep "version" | sed -e "s/.* //g"`
 if test -z "$version"; then
-	AC_MSG_ERROR(merge in SPTK version 3.1 or later is required.)
-elif test `echo "$version < 3.1" | $BC` = 1; then
-	AC_MSG_ERROR(merge in SPTK version 3.1 or later is required.)
+	AC_MSG_ERROR(merge in SPTK version 3.2 or later is required.)
+elif test `echo "$version < 3.2" | $BC` = 1; then
+	AC_MSG_ERROR(merge in SPTK version 3.2 or later is required.)
 fi
 
 # bcp
@@ -248,9 +257,9 @@ if test ! -f "$LSP2LPC"; then
 fi
 version=`$LSP2LPC -h 2>&1 | grep "version" | sed -e "s/.* //g"`
 if test -z "$version"; then
-	AC_MSG_ERROR(lsp2lsp in SPTK version 3.1 or later is required.)
-elif test `echo "$version < 3.1" | $BC` = 1; then
-	AC_MSG_ERROR(lpc2lsp in SPTK version 3.1 or later is required.)
+	AC_MSG_ERROR(lsp2lpc in SPTK version 3.2 or later is required.)
+elif test `echo "$version < 3.2" | $BC` = 1; then
+	AC_MSG_ERROR(lsp2lpc in SPTK version 3.2 or later is required.)
 fi
 
 # lspcheck
@@ -272,9 +281,21 @@ if test ! -f "$MGLSADF"; then
 fi
 version=`$MGLSADF -h 2>&1 | grep "version" | sed -e "s/.* //g"`
 if test -z "$version"; then
-	AC_MSG_ERROR(mglsadf in SPTK version 3.1 or later is required.)
-elif test `echo "$version < 3.1" | $BC` = 1; then
-	AC_MSG_ERROR(mglsadf in SPTK version 3.1 or later is required.)
+	AC_MSG_ERROR(mglsadf in SPTK version 3.2 or later is required.)
+elif test `echo "$version < 3.2" | $BC` = 1; then
+	AC_MSG_ERROR(mglsadf in SPTK version 3.2 or later is required.)
+fi
+
+# dfs
+AC_PATH_PROG([DFS], [dfs], [:], [${sptk_search_path}:$PATH])
+if test ! -f "$DFS"; then
+	AC_MSG_ERROR(Can't find dfs of SPTK)
+fi
+
+# minmax
+AC_PATH_PROG([MINMAX], [minmax], [:], [${sptk_search_path}:$PATH])
+if test ! -f "$MINMAX"; then
+	AC_MSG_ERROR(Can't find minmax of SPTK)
 fi
 
 
@@ -283,13 +304,24 @@ fi
 # sox search path
 AC_ARG_WITH(sox-search-path,
 		AS_HELP_STRING([--with-sox-search-path],[specify the additional sox (Sound eXchange) search path]),
- 		[sox_search_path=$withval])
+		[sox_search_path=$withval])
 
 # sox
 AC_PATH_PROG([SOX], [sox], [:], [${sox_search_path}:$PATH])
 if test ! -f "$SOX"; then
 	AC_MSG_ERROR(Can't find sox)
 fi
+
+# sox option
+$SOX -h > sox.option 2>&1
+soxversion=`head -1 sox.option | sed -e s/v//g | awk '{printf "%d\n",$NF}'`
+if test $soxversion -gt 13; then
+	SOXOPTION=2
+else
+	SOXOPTION=w
+fi
+rm -f sox.option
+AC_SUBST(SOXOPTION)
 
 
 
@@ -309,6 +341,12 @@ fi
 AC_PATH_PROG([HCOMPV], [HCompV], [:], [${hts_search_path}:$PATH])
 if test ! -f "$HCOMPV"; then
 	AC_MSG_ERROR(Can't find HCompV of HTS)
+fi
+
+# HList
+AC_PATH_PROG([HLIST],  [HList],  [:], [${hts_search_path}:$PATH])
+if test ! -f "$HLIST"; then
+	AC_MSG_ERROR(Can't find HList of HTS)
 fi
 
 # HInit
@@ -335,6 +373,12 @@ if test ! -f "$HHED"; then
 	AC_MSG_ERROR(Can't find HHEd of HTS)
 fi
 
+# HSMMAlign
+AC_PATH_PROG([HSMMALIGN],   [HSMMAlign],   [:], [${hts_search_path}:$PATH])
+if test ! -f "$HSMMALIGN"; then
+	AC_MSG_ERROR(Can't find HSMMAlign of HTS)
+fi
+
 
 
 # hts_engine API
@@ -354,12 +398,6 @@ if test -z "$version"; then
 elif test `echo "$version < 0.95" | $BC` = 1; then
 	AC_MSG_ERROR(hts_engine using hts_engine API version 0.95 or later is required.)
 fi
-
-
-
-# check endianness
-AC_C_BIGENDIAN(BYTESWAP="1",BYTESWAP="0", AC_MSG_ERROR(Can't determine endianness))
-AC_SUBST(BYTESWAP)
 
 
 
@@ -404,32 +442,31 @@ AC_SUBST(PWD)
 
 # setting of mel-generalized cepstral analysis, F0 extraction, and postfiltering related settings
 # parse command-line arguments
-AC_ARG_VAR([FRAMELEN],[Frame length in point (default=400)])
-AC_ARG_VAR([FRAMESHIFT],[Frame shift in point (default=80)])
+AC_ARG_VAR([FRAMELEN],[Frame length in point (default=1200)])
+AC_ARG_VAR([FRAMESHIFT],[Frame shift in point (default=240)])
 AC_ARG_VAR([WINDOWTYPE],[Window type -> 0: Blackman  1: Hamming  2: Hanning (default=1)])
 AC_ARG_VAR([NORMALIZE],[Normalization -> 0: none  1: by power  2: by magnitude (default=1)])
-AC_ARG_VAR([FFTLEN],[FFT length in point (default=512)])
-AC_ARG_VAR([FREQWARP],[Frequency warping factor (default=0.42)])
+AC_ARG_VAR([FFTLEN],[FFT length in point (default=2048)])
+AC_ARG_VAR([FREQWARP],[Frequency warping factor (default=0.55)])
 AC_ARG_VAR([GAMMA],[Pole/Zero weight factor (0: mel-cepstral analysis  1: LPC analysis  2,3,...,N: mel-generalized cepstral (MGC) analysis) (default=0)])
-AC_ARG_VAR([MGCLSP],[Use MGC-LSPs instead of MGC coefficients (default=0)])
-AC_ARG_VAR([MGCORDER],[Order of MGC analysis (default=24 for cepstral form, default=12 for LSP form)])
+AC_ARG_VAR([MGCORDER],[Order of MGC analysis (default=34 for cepstral form, default=12 for LSP form)])
 AC_ARG_VAR([STRORDER],[Order of strengths analysis (default=5 for 5 filter bands)])
 AC_ARG_VAR([MAGORDER],[Order of Fourier magnitudes analysis (default=10 for 10 pitch harmonics)])
 AC_ARG_VAR([LNGAIN],[Use logarithmic gain instead of linear gain (default=0)])
-AC_ARG_VAR([LOWERF0],[Lower limit for F0 extraction in Hz (default=50)])
-AC_ARG_VAR([UPPERF0],[Upper limit for F0 extraction in Hz (default=350)])
+AC_ARG_VAR([LOWERF0],[Lower limit for F0 extraction in Hz (default=110)])
+AC_ARG_VAR([UPPERF0],[Upper limit for F0 extraction in Hz (default=280)])
 AC_ARG_VAR([NOISEMASK],[Standard deviation of white noise to mask noise in f0 extraction (default=50)])
 AC_ARG_VAR([PSTFILTER],[Postfiltering factor (default=1.4)])
 AC_ARG_VAR([IMPLEN],[Length of impulse response (default=4096)])
-AC_ARG_VAR([SAMPFREQ],[Sampling frequency in Hz (default=16000)])
+AC_ARG_VAR([SAMPFREQ],[Sampling frequency in Hz (default=48000)])
 
 # default values
 if test -z "$FRAMELEN"; then
-	FRAMELEN=400
+	FRAMELEN=1200
 fi
 
 if test -z "$FRAMESHIFT"; then
-	FRAMESHIFT=80
+	FRAMESHIFT=240
 fi
 
 if test -z "$WINDOWTYPE"; then
@@ -441,11 +478,11 @@ if test -z "$NORMALIZE"; then
 fi
 
 if test -z "$FFTLEN"; then
-	FFTLEN=512
+	FFTLEN=2048
 fi
 
 if test -z "$SAMPFREQ"; then
-	SAMPFREQ=16000
+	SAMPFREQ=48000
 fi
 
 if test -z "$FREQWARP"; then
@@ -454,7 +491,11 @@ if test -z "$FREQWARP"; then
 		10000) FREQWARP=0.35 ;;
 		12000) FREQWARP=0.37 ;;
 		16000) FREQWARP=0.42 ;;
-		*)     FREQWARP=0.50 ;;
+		22050) FREQWARP=0.45 ;;
+		32000) FREQWARP=0.45 ;;
+		44100) FREQWARP=0.53 ;;
+		48000) FREQWARP=0.55 ;;
+		*)     FREQWARP=0.00 ;;
 	esac
 fi
 
@@ -462,13 +503,9 @@ if test -z "$GAMMA"; then
 	GAMMA=0
 fi
 
-if test -z "$MGCLSP"; then
-	MGCLSP=0
-fi
-
 if test -z "$MGCORDER"; then
-	if test $MGCLSP -eq 0; then
-		MGCORDER=24
+	if test $GAMMA -eq 0; then
+		MGCORDER=34
 	else
 		MGCORDER=12
 	fi
@@ -487,11 +524,11 @@ if test -z "$LNGAIN"; then
 fi
 
 if test -z "$LOWERF0"; then
-	LOWERF0=50
+	LOWERF0=110
 fi 
 
 if test -z "$UPPERF0"; then
-	UPPERF0=350
+	UPPERF0=280
 fi 
 
 if test -z "$NOISEMASK"; then
@@ -508,12 +545,8 @@ fi
 
 MGCVSIZE=`expr $MGCORDER + 1`
 
-if test $GAMMA -eq 0 -a $MGCLSP -eq 1; then
-	AC_MSG_ERROR(Cannot convert MGC coefficients into LSP form if GAMMA=0!)
-fi
-
-if test $GAMMA -ne 0 -a $MGCLSP -eq 0; then
-	AC_MSG_ERROR(Cannot use MGC coefficients directly if GAMMA>0!  Convert into the LSP form by setting MGCLSP=1!)
+if test $GAMMA -lt 0; then
+	AC_MSG_ERROR(Cannot use MGC coefficients if GAMMA<0!)
 fi
 
 if test -z "$STRVSIZE"; then
@@ -523,6 +556,7 @@ fi
 if test -z "$MAGVSIZE"; then
 	MAGVSIZE=$MAGORDER
 fi
+
 
 
 # substitute variables
@@ -536,7 +570,6 @@ AC_SUBST(GAMMA)
 AC_SUBST(MGCORDER)
 AC_SUBST(STRORDER)
 AC_SUBST(MAGORDER)
-AC_SUBST(MGCLSP)
 AC_SUBST(LOWERF0)
 AC_SUBST(UPPERF0)
 AC_SUBST(NOISEMASK)
@@ -555,7 +588,6 @@ AC_ARG_VAR([NMGCWIN],[number of delta windows for MGC coefficients (default=3)])
 AC_ARG_VAR([NSTRWIN],[number of delta windows for STR coefficients (default=3)])
 AC_ARG_VAR([NMAGWIN],[number of delta windows for MAG coefficients (default=3)])
 AC_ARG_VAR([NLF0WIN],[number of delta windows for log F0 values (default=3)])
-
 
 # default values
 if test -z "$NMGCWIN"; then
@@ -589,14 +621,17 @@ AC_SUBST(F0STREN)
 # parse command-line arguments
 AC_ARG_VAR([NSTATE],[number of HMM states (default=5)])
 AC_ARG_VAR([NITER],[number of iterations of embedded training (default=5)])
-AC_ARG_VAR([WFLOOR],[mixture weight flooring scale (default=3)])
+AC_ARG_VAR([WFLOOR],[mixture weight flooring scale (default=5000)])
+AC_ARG_VAR([DAEM],[DAEM algorithm for parameter estimation (0:off or 1:on, default=0)])
+AC_ARG_VAR([DAEMNITER],[number of iterations of DAEM-based embedded training (default=10)])
+AC_ARG_VAR([DAEMALPHA],[schedule of updating temperature parameter for DAEM (default=1.0)])
 AC_ARG_VAR([MAXDEV],[maximum duration scaling factor (default=10)])
 AC_ARG_VAR([MINDUR],[minimum duration to be evaluated (default=5)])
 AC_ARG_VAR([NMGCTRANSBLK],[number of blocks for MGC transforms (default=3)])
 AC_ARG_VAR([NSTRTRANSBLK],[number of blocks for STR transforms (default=3)])
 AC_ARG_VAR([NMAGTRANSBLK],[number of blocks for MAG transforms (default=3)])
 AC_ARG_VAR([NLF0TRANSBLK],[number of blocks for log F0 transforms (default=1)])
-AC_ARG_VAR([MGCBANDWIDTH],[band width for MGC transforms (default=24 for cepstral form, derault=2 for LSP form)])
+AC_ARG_VAR([MGCBANDWIDTH],[band width for MGC transforms (default=35 for cepstral form, derault=2 for LSP form)])
 AC_ARG_VAR([STRBANDWIDTH],[band width for STR transforms (default=5)])
 AC_ARG_VAR([MAGBANDWIDTH],[band width for MAG transforms (default=10)])
 AC_ARG_VAR([LF0BANDWIDTH],[band width for log F0 transforms (default=1)])
@@ -611,7 +646,19 @@ if test -z "$NITER"; then
 fi
 
 if test -z "$WFLOOR"; then
-	WFLOOR=3
+	WFLOOR=5000
+fi
+
+if test -z "$DAEM"; then
+	DAEM=0
+fi
+
+if test -z "$DAEMNITER"; then
+	DAEMNITER=10
+fi
+
+if test -z "$DAEMALPHA"; then
+	DAEMALPHA=1.0
 fi
 
 if test -z "$MAXDEV"; then
@@ -639,8 +686,8 @@ if test -z "$NLF0TRANSBLK"; then
 fi
 
 if test -z "$MGCBANDWIDTH"; then
-	if test $MGCLSP -eq 0; then
-		MGCBANDWIDTH=$MGCORDER
+	if test $GAMMA -eq 0; then
+		MGCBANDWIDTH=$MGCVSIZE
 	else
 		MGCBANDWIDTH=2
 	fi
@@ -655,13 +702,16 @@ if test -z "$MAGBANDWIDTH"; then
 fi
 
 if test -z "$LF0BANDWIDTH"; then
-	LF0BANDWIDTH=0
+	LF0BANDWIDTH=1
 fi
 
 # substitute variables
 AC_SUBST(NSTATE)
 AC_SUBST(NITER)
 AC_SUBST(WFLOOR)
+AC_SUBST(DAEM)
+AC_SUBST(DAEMNITER)
+AC_SUBST(DAEMALPHA)
 AC_SUBST(MAXDEV)
 AC_SUBST(MINDUR)
 AC_SUBST(NMGCTRANSBLK)
@@ -672,7 +722,6 @@ AC_SUBST(MGCBANDWIDTH)
 AC_SUBST(STRBANDWIDTH)
 AC_SUBST(MAGBANDWIDTH)
 AC_SUBST(LF0BANDWIDTH)
-
 
 
 # parameter generation algorithm settings
@@ -689,6 +738,8 @@ AC_ARG_VAR([STEPDEC],[step size deceleration factor (default=0.5)])
 AC_ARG_VAR([HMMWEIGHT],[weight for HMM output prob. (default=1.0)])
 AC_ARG_VAR([GVWEIGHT],[weight for GV output prob. (default=1.0)])
 AC_ARG_VAR([OPTKIND],[optimization method (STEEPEST, NEWTON, or LBFGS) (default=NEWTON)])
+AC_ARG_VAR([NOSILGV],[turn on GV without silent and pause phoneme (0:off or 1:on, default=1)])
+AC_ARG_VAR([CDGV],[turn on context-dependent GV (0:off or 1:on, default=1)])
 
 # default values
 if test -z "$MAXEMITER"; then
@@ -739,6 +790,14 @@ if test -z "$OPTKIND"; then
 	OPTKIND=NEWTON
 fi
 
+if test -z "$NOSILGV"; then
+	NOSILGV=1
+fi
+
+if test -z "$CDGV"; then
+	CDGV=1
+fi
+
 # substitute variables
 AC_SUBST(MAXEMITER)
 AC_SUBST(EMEPSILON)
@@ -752,9 +811,10 @@ AC_SUBST(STEPDEC)
 AC_SUBST(HMMWEIGHT)
 AC_SUBST(GVWEIGHT)
 AC_SUBST(OPTKIND)
+AC_SUBST(NOSILGV)
+AC_SUBST(CDGV)
 
 
 
 # output data/Makefile and scripts/Config.pm
 AC_OUTPUT(data/Makefile scripts/Config.pm Makefile)
-

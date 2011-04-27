@@ -5,7 +5,7 @@
 #           http://hts.sp.nitech.ac.jp/                             #
 # ----------------------------------------------------------------- #
 #                                                                   #
-#  Copyright (c) 2001-2008  Nagoya Institute of Technology          #
+#  Copyright (c) 2001-2011  Nagoya Institute of Technology          #
 #                           Department of Computer Science          #
 #                                                                   #
 #                2001-2008  Tokyo Institute of Technology           #
@@ -43,7 +43,7 @@
 # POSSIBILITY OF SUCH DAMAGE.                                       #
 # ----------------------------------------------------------------- #
 
-if (@ARGV<5) {
+if ( @ARGV < 5 ) {
    print "addhtkheader.pl sampling_rate frame_shift byte_per_frame HTK_feature_type infile\n";
    exit(0);
 }
@@ -55,24 +55,24 @@ $type       = $ARGV[3];
 $infile     = $ARGV[4];
 
 # make HTK header
-open(INPUT,"$infile") || die "Cannot open file: $infile";
+open( INPUT, "$infile" ) || die "Cannot open file: $infile";
 @STAT = stat(INPUT);
-read(INPUT,$DATA,$STAT[7]);
-$nframe = $STAT[7]/$byte;
+read( INPUT, $DATA, $STAT[7] );
+$nframe = $STAT[7] / $byte;
 close(INPUT);
 
 # number of frames in long
-$NFRAME = pack("l", $nframe);
+$NFRAME = pack( "l", $nframe );
 
 # frame shift in long
-$frameshift = 10000000 * $frameshift/$samprate;
-$FRAMESHIFT = pack("l", $frameshift);
+$frameshift = 10000000 * $frameshift / $samprate;
+$FRAMESHIFT = pack( "l", $frameshift );
 
 # bytes of each frame in short
-$BYTE = pack("s", $byte);
+$BYTE = pack( "s", $byte );
 
 # HTK feature type in short
-$TYPE = pack("s", $type);
+$TYPE = pack( "s", $type );
 
 # output header and data
 print $NFRAME;
@@ -80,4 +80,3 @@ print $FRAMESHIFT;
 print $BYTE;
 print $TYPE;
 print $DATA;
-
