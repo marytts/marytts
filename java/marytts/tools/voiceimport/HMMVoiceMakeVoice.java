@@ -43,7 +43,7 @@
 # POSSIBILITY OF SUCH DAMAGE.                                       #
 # ----------------------------------------------------------------- #  
 *
-* Portions Copyright 2007 DFKI GmbH.
+* Portions Copyright 2011 DFKI GmbH.
 * All Rights Reserved.  Use is subject to license terms.
 *
 * This file is part of MARY TTS.
