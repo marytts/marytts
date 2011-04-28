@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="de">
+<p>
+<s>
+<t pos="NN">
+Willkommen
+</t>
+<t pos="APPR">
+in
+</t>
+<t pos="ART">
+der
+</t>
+<t pos="NN">
+Welt
+</t>
+<t pos="ART">
+der
+</t>
+<t pos="NN">
+Sprachsynthese
+</t>
+<t pos="$.">
+!
+</t>
+</s>
+</p>
+</maryxml>
