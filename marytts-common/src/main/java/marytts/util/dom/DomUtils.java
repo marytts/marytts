@@ -713,25 +713,6 @@ public class DomUtils
         }
     }
 
-    /**
-     * Compare two DOM XML documents. This method simply converts both
-     *  Documents into Strings as with serializeToString(), and compares these
-     *  Strings. 
-     * @param a
-     * @param b
-     * @return true if equal, false otherwise.
-     */
-    public static boolean areEqual(Document a, Document b)
-    throws MaryConfigurationException {
-        if (a == null || b == null) {
-            return a == null && b == null;
-        }
-        Document a1 = (Document) a.cloneNode(true);
-        Document b1 = (Document) b.cloneNode(true);
-        trimAllTextNodes(a1);
-        trimAllTextNodes(b1);
-        return (document2String(a1).equals(document2String(b1)));
-    }
 
     /**
      * Serialize a Document to a String.

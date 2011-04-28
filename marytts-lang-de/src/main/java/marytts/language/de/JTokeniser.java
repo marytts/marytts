@@ -43,7 +43,7 @@ import org.w3c.dom.traversal.NodeIterator;
  */
 public class JTokeniser extends marytts.modules.JTokeniser {
 
-	protected static final Set nonAbbrevs = new HashSet(Arrays.asList(new String[] {
+	protected static final Set<String> nonAbbrevs = new HashSet<String>(Arrays.asList(new String[] {
         // Measure symbols
         "m",
 		"km",

@@ -19,16 +19,12 @@
  */
 package marytts.modules;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.Locale;
 import java.util.Properties;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.server.MaryProperties;
-import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
 
@@ -90,11 +86,9 @@ public class JTokeniser extends InternalModule
      public void startup() throws Exception
      {
          super.startup();
-         String tokeniserRoot = MaryProperties.needFilename("tokeniser.root");
          Properties jtokProperties = new Properties();
-         System.setProperty("tokenizer.root", tokeniserRoot);
-         jtokProperties.load(new FileInputStream(
-            tokeniserRoot + File.separator + "jtok.cfg"));
+         jtokProperties.setProperty("languages", jtokLocale);
+         jtokProperties.setProperty(jtokLocale, "jtok/"+jtokLocale);
          jtok = new JTok(jtokProperties);
      }
 
