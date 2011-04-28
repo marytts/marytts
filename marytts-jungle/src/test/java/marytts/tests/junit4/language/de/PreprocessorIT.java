@@ -16,9 +16,9 @@ import marytts.language.de.Preprocess;
  *
  *
  */
-public class PreprocessorIt extends MaryModuleTestCase {
+public class PreprocessorIT extends MaryModuleTestCase {
 
-    public PreprocessorIt() throws Exception
+    public PreprocessorIT() throws Exception
     {
         super(true); // need mary startup
         module = ModuleRegistry.getModule(Preprocess.class);
