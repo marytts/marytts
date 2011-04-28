@@ -65,30 +65,25 @@
       <artifactId>opennlp-tools</artifactId>
       <version>1.5.1-incubating</version>
     </dependency>
+
+    <dependency>
+      <groupId>com.sun.speech.freetts</groupId>
+      <artifactId>freetts</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.speech.freetts</groupId>
+      <artifactId>freetts-de</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.speech.freetts</groupId>
+      <artifactId>freetts-en_us</artifactId>
+      <version>1.0</version>
+    </dependency>
     
     
     <!-- System dependencies - to be replaced where possible -->
-    <dependency>
-      <groupId>freetts</groupId>
-      <artifactId>freetts</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/freetts.jar</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>freetts</groupId>
-      <artifactId>freetts.de</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/freetts-de.jar</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>freetts</groupId>
-      <artifactId>freetts.en_us</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/freetts-en_us.jar</systemPath>
-    </dependency>
     <dependency>
       <groupId>dummy</groupId>
       <artifactId>dummy18</artifactId>
@@ -96,13 +91,7 @@
       <scope>system</scope>
       <systemPath>${basedir}/lib/jtok.jar</systemPath>
     </dependency>
-    <dependency>
-      <groupId>dummy</groupId>
-      <artifactId>dummy7</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/fast-md5.jar</systemPath>
-    </dependency> 
+
     
   </dependencies>
   
