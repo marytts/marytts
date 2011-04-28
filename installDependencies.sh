@@ -33,6 +33,7 @@ installJtok() {
   cd $MARYBASE/tmp
   svn checkout https://heartofgold.opendfki.de/repos/tags/jtok/release_1.9 jtok
   cd jtok
+  patch -p0 < ../../dependencies/jtok1.9-capitalization-fix.diff
   mvn install
 }
 
