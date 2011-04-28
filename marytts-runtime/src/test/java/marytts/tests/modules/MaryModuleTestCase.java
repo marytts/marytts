@@ -53,7 +53,9 @@ public class MaryModuleTestCase {
 
     public MaryModuleTestCase(boolean needMaryStarted) throws Exception
     {
-        BasicConfigurator.configure();
+    	if (!MaryUtils.isLog4jConfigured()) {
+    		BasicConfigurator.configure();
+    	}
         Logger.getRootLogger().setLevel(Level.DEBUG);
         if (System.getProperty("mary.base") == null) {
             System.setProperty("mary.base", ".");
@@ -104,18 +106,19 @@ public class MaryModuleTestCase {
         targetOut.readFrom(this.getClass().getResourceAsStream(basename + "." + outputEnding()), null);
         MaryData processedOut = module.process(input);
         try {
-            assertTrue(DomUtils.areEqual(targetOut.getDocument(), processedOut.getDocument()));
-        } catch (AssertionError afe) {
-            System.err.println("==========target:=============");
+            DomUtils.compareNodes(targetOut.getDocument(), processedOut.getDocument(), true);
+        } catch (Exception afe) {
+        	StringBuilder msg = new StringBuilder();
+        	msg.append("XML documents are not equal\n");
+        	msg.append("==========target:=============\n");
             Document target = (Document) targetOut.getDocument().cloneNode(true);
             DomUtils.trimAllTextNodes(target);
-            System.err.println(DomUtils.document2String(target));
-            System.err.println();
-            System.err.println("==========processed:============");
+            msg.append(DomUtils.document2String(target)).append("\n\n");
+            msg.append("==========processed:============\n");
             Document processed = (Document) processedOut.getDocument().cloneNode(true);
             DomUtils.trimAllTextNodes(processed);
-            System.err.println(DomUtils.document2String(processed));
-            throw afe;
+            msg.append(DomUtils.document2String(processed)).append("\n");
+            throw new Exception(msg.toString(), afe);
         }
     } 
     

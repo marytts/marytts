@@ -81,6 +81,12 @@
       <artifactId>freetts-en_us</artifactId>
       <version>1.0</version>
     </dependency>
+    <!--dependency>
+      <groupId>de.dfki.lt.jtok</groupId>
+      <artifactId>jtok-core</artifactId>
+      <version>1.9</version>
+    </dependency-->
+      
     
     
     <!-- System dependencies - to be replaced where possible -->

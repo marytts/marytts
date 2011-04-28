@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="de">
+<p>
+<s>
+<mtu accent="last" orig="10£">
+<t>
+zehn
+</t>
+<t>
+Pfund
+</t>
+</mtu>
+<t>
+oder
+</t>
+<mtu accent="last" orig="20¥">
+<t>
+zwanzig
+</t>
+<t ph="'jEn">
+Yen
+</t>
+</mtu>
+<t>
+,
+</t>
+<t>
+bei
+</t>
+<mtu accent="last" orig="30°C">
+<t>
+dreißig
+</t>
+<t>
+Grad
+</t>
+<t ph="'tsEl-zi:-Us">
+Celsius
+</t>
+</mtu>
+<t>
+oder
+</t>
+<mtu accent="last" orig="40°F">
+<t>
+vierzig
+</t>
+<t>
+Grad
+</t>
+<t>
+Fahrenheit
+</t>
+</mtu>
+<t>
+.
+</t>
+</s>
+</p>
+</maryxml>
