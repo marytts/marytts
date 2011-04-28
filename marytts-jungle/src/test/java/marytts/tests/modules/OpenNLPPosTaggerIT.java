@@ -38,8 +38,6 @@ public class OpenNLPPosTaggerIT extends MaryModuleTestCase {
 	 */
 	public OpenNLPPosTaggerIT() throws Exception {
 		super(true); // start MARY
-		module = new OpenNLPPosTagger("de", "de.pos");
-		module.startup();
 		
 	}
 	
@@ -55,7 +53,25 @@ public class OpenNLPPosTaggerIT extends MaryModuleTestCase {
 	
 	@Test
 	public void posExample1() throws Exception {
+		// setup SUT:
+        module = new OpenNLPPosTagger("de", "de.pos");
+        module.startup();
+        // exercise:
 		processAndCompare("example1-de", Locale.GERMAN);
+		// teardown:
+		module.shutdown();
+		module = null;
 	}
 
+	   @Test
+	    public void posExample2() throws Exception {
+	        // setup SUT:
+	        module = new OpenNLPPosTagger("en", "en.pos");
+	        module.startup();
+	        // exercise:
+	        processAndCompare("example2-en_US", Locale.US);
+	        // teardown:
+	        module.shutdown();
+	        module = null;
+	    }
 }
