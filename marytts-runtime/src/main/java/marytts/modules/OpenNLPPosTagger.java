@@ -20,8 +20,6 @@
 package marytts.modules;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -37,14 +35,8 @@ import marytts.datatypes.MaryXML;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
-import opennlp.model.AbstractModel;
-import opennlp.model.MaxentModel;
-import opennlp.maxent.io.SuffixSensitiveGISModelReader;
-import opennlp.tools.postag.DefaultPOSContextGenerator;
-import opennlp.tools.postag.POSDictionary;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
-import opennlp.tools.postag.TagDictionary;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
