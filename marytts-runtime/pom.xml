@@ -81,23 +81,11 @@
       <artifactId>freetts-en_us</artifactId>
       <version>1.0</version>
     </dependency>
-    <!--dependency>
+    <dependency>
       <groupId>de.dfki.lt.jtok</groupId>
       <artifactId>jtok-core</artifactId>
       <version>1.9</version>
-    </dependency-->
-      
-    
-    
-    <!-- System dependencies - to be replaced where possible -->
-    <dependency>
-      <groupId>dummy</groupId>
-      <artifactId>dummy18</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/jtok.jar</systemPath>
     </dependency>
-
     
   </dependencies>
   

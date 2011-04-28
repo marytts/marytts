@@ -28,6 +28,14 @@ installFreetts() {
 
 
 
+installJtok() {
+  echo "Installing Jtok from source..."
+  cd $MARYBASE/tmp
+  svn checkout https://heartofgold.opendfki.de/repos/tags/jtok/release_1.9 jtok
+  cd jtok
+  mvn install
+}
+
 
 
 
@@ -47,6 +55,7 @@ for dep in $deps ; do
   case "$dep" in 
     opennlp) installOpennlp ;;
     freetts) installFreetts ;;
+    jtok) installJtok ;;
     *) echo "Ignoring unknown module '$dep'" ;;
   esac
 done

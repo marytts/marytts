@@ -157,18 +157,19 @@ public class RequestIT {
         MaryData targetOut = new MaryData(rawmaryxml, null);
         targetOut.readFrom(this.getClass().getResourceAsStream("test2_result.maryxml"), null);
         try {
-            assertTrue(DomUtils.areEqual(targetOut.getDocument(), processedOut.getDocument()));
-        } catch (AssertionError afe) {
-            System.err.println("==========target:=============");
+            DomUtils.compareNodes(targetOut.getDocument(), processedOut.getDocument(), true);
+        } catch (Exception afe) {
+            StringBuilder msg = new StringBuilder();
+            msg.append("XML documents are not equal\n");
+            msg.append("==========target:=============\n");
             Document target = (Document) targetOut.getDocument().cloneNode(true);
             DomUtils.trimAllTextNodes(target);
-            System.err.println(DomUtils.document2String(target));
-            System.err.println();
-            System.err.println("==========processed:============");
+            msg.append(DomUtils.document2String(target)).append("\n\n");
+            msg.append("==========processed:============\n");
             Document processed = (Document) processedOut.getDocument().cloneNode(true);
             DomUtils.trimAllTextNodes(processed);
-            System.err.println(DomUtils.document2String(processed));
-            throw afe;
+            msg.append(DomUtils.document2String(processed)).append("\n");
+            throw new Exception(msg.toString(), afe);
         }
 
     }
