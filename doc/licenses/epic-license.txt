@@ -1,0 +1,11 @@
+﻿U.S. Department of Commerce (DOC)
+Software License for EPIC Software
+
+    Scope of License. Subject to all the terms and conditions of this license, DOC grants USER the royalty-free, nonexclusive, nontransferable, and worldwide rights to reproduce, modify, and distribute EPIC Software, herein referred to as the Product.
+
+    Conditions and Limitations of Use Warranties. Neither the U.S. Government, nor any agency or employee thereof, makes any warranties, expressed or implied, with respect to the Product provided under this License, including but not limited to the implied warranties or merchantability and fitness for any particular purpose. Liability. In no event shall the U.S. Government, nor any agency or employee thereof, be liable for any direct, indirect, or consequential damages flowing from the use of the Product provided under this License. Non-Assignment. Neither this License nor any rights granted hereunder are transferable or assignable without the explicit prior written consent of DOC. Names and Logos. USER shall not substitute its name or logo for the name or logo of DOC, or any of its agencies, in identification of the Product. Export of technology. USER shall comply with all U.S. laws and regulations restricting the export of the Product to other countries. Governing Law. This License shall be governed by the laws of United States as interpreted and applied by the Federal courts in the District of Columbia.
+
+    Term of License. This License shall remain in effect as long as USER uses the Product in accordance with Paragraphs 1 and 2.
+
+
+See also original at http://www.epic.noaa.gov/java/license.html

@@ -2,7 +2,7 @@
 
 
 
-all="opennlp jtok freetts"
+all="opennlp jtok freetts sgt"
 
 ############## individual installer functions #############
 
@@ -39,6 +39,12 @@ installJtok() {
 
 
 
+installSgt() {
+  echo "Installing sgt jar file..."
+  cd $MARYBASE
+  mvn install:install-file -DgroupId=gov.noaa.pmel.sgt -DartifactId=sgt -Dversion=3.0 -Dpackaging=jar -Dfile=dependencies/sgt_v30.jar -Dsources=dependencies/sgt_src_v30.jar
+}
+
 
 
 ################# main program ###################
@@ -57,6 +63,7 @@ for dep in $deps ; do
     opennlp) installOpennlp ;;
     freetts) installFreetts ;;
     jtok) installJtok ;;
+    sgt) installSgt ;;
     *) echo "Ignoring unknown module '$dep'" ;;
   esac
 done
