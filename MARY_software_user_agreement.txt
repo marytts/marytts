@@ -35,7 +35,6 @@ doc/licenses/freetts-license.txt.
 JTok: The JTok tokenizer from http://heartofgold.dfki.de is distributed
 under the GNU Lesser General Public License, see http://www.gnu.org or
 doc/licenses/LGPL.txt.
-(files concerned: jtok.jar and files below lib/modules/tokeniser).
 
 jsresources.jar: A few utility classes from http://www.jsresources.org
 are distributed under the terms of the jsresources license, see
@@ -68,5 +67,8 @@ mwdumper is MIT-style like licensed, see http://www.mediawiki.org/wiki/Mwdumper
 and for the license http://en.wikipedia.org/wiki/MIT_License.
 (files concerned: mwdumper-2008-04-13.jar)
  
+
+sgt: The Scientific Graphics Toolkit (sgt) is provided by the NOAA/PMEL/EPIC group (see http://www.epic.noaa.gov/java/sgt/) under the BSD-style EPIC license, see doc/licenses/epic-license.txt. 
+
 IT IS YOUR OBLIGATION TO READ AND ACCEPT ALL SUCH TERMS
 AND CONDITIONS PRIOR TO USE OF THIS CONTENT.

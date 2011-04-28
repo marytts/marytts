@@ -54,6 +54,11 @@
       <artifactId>swing-layout</artifactId>
       <version>1.0.3</version>
     </dependency>
+    <dependency>
+      <groupId>gov.noaa.pmel.sgt</groupId>
+      <artifactId>sgt</artifactId>
+      <version>3.0</version>
+    </dependency>
     
     <!-- System dependencies - to be replaced where possible -->
     <dependency>
@@ -62,13 +67,6 @@
       <version>3</version>
       <scope>system</scope>
       <systemPath>${basedir}/lib/weka.jar</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>dummy</groupId>
-      <artifactId>dummy24</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/sgt_v30.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>dummy</groupId>
