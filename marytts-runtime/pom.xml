@@ -55,6 +55,19 @@
       <version>2.0.2</version>
     </dependency>
     
+    <!--
+    <dependency>
+      <groupId>org.apache.opennlp</groupId>
+      <artifactId>opennlp-maxent</artifactId>
+      <version>3.0.1-incubating</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.opennlp</groupId>
+      <artifactId>opennlp-tools</artifactId>
+      <version>1.5.1-incubating</version>
+    </dependency>-->
+    
+    
     <!-- System dependencies - to be replaced where possible -->
     <dependency>
       <groupId>freetts</groupId>
@@ -111,6 +124,19 @@
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.3.1</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>2.2.1</version>

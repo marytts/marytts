@@ -31,10 +31,10 @@ import static org.junit.Assert.*;
  *
  *
  */
-public class ContourGeneratorTest extends MaryModuleTestCase {
+public class ContourGeneratorIT extends MaryModuleTestCase {
 
 
-    public ContourGeneratorTest() throws Exception
+    public ContourGeneratorIT() throws Exception
     {
         super(true); // do need Mary startup
         module = new TobiContourGenerator("en_US");
