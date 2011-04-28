@@ -22,6 +22,7 @@ package marytts.modules;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,10 +37,12 @@ import marytts.datatypes.MaryXML;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
-import opennlp.maxent.MaxentModel;
+import opennlp.model.AbstractModel;
+import opennlp.model.MaxentModel;
 import opennlp.maxent.io.SuffixSensitiveGISModelReader;
 import opennlp.tools.postag.DefaultPOSContextGenerator;
 import opennlp.tools.postag.POSDictionary;
+import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.postag.TagDictionary;
 
@@ -83,21 +86,14 @@ public class OpenNLPPosTagger extends InternalModule
     {
         super.startup();
         
-        String modelFile = MaryProperties.needFilename(propertyPrefix+"model");
-        String tagdict = MaryProperties.getFilename(propertyPrefix+"tagdict");
-        boolean caseSensitive = MaryProperties.getBoolean(propertyPrefix+"tagdict.isCaseSensitive", true);
-        String posMapperFile = MaryProperties.getFilename(propertyPrefix+"posMap");
+        InputStream modelStream = MaryProperties.needStream(propertyPrefix+"model");
+        InputStream posMapperStream = MaryProperties.getStream(propertyPrefix+"posMap");
 
-        MaxentModel model = new SuffixSensitiveGISModelReader(new File(modelFile)).getModel();
-        if (tagdict != null) {
-            TagDictionary dict = new POSDictionary(tagdict,caseSensitive);
-            tagger = new POSTaggerME(model, new DefaultPOSContextGenerator(null),dict);
-        } else {
-            tagger = new POSTaggerME(model, new DefaultPOSContextGenerator(null));
-        }
-        if (posMapperFile != null) {
+        tagger = new POSTaggerME(new POSModel(modelStream));
+        modelStream.close();
+        if (posMapperStream != null) {
             posMapper = new HashMap<String, String>();
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(posMapperFile), "UTF-8"));
+            BufferedReader br = new BufferedReader(new InputStreamReader(posMapperStream, "UTF-8"));
             String line;
             while ((line = br.readLine()) != null) {
                 // skip comments and empty lines
@@ -108,6 +104,7 @@ public class OpenNLPPosTagger extends InternalModule
                 String gpos = st.nextToken();
                 posMapper.put(pos, gpos);
             }
+            posMapperStream.close();
         }
     }
 

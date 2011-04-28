@@ -55,7 +55,6 @@
       <version>2.0.2</version>
     </dependency>
     
-    <!--
     <dependency>
       <groupId>org.apache.opennlp</groupId>
       <artifactId>opennlp-maxent</artifactId>
@@ -65,7 +64,7 @@
       <groupId>org.apache.opennlp</groupId>
       <artifactId>opennlp-tools</artifactId>
       <version>1.5.1-incubating</version>
-    </dependency>-->
+    </dependency>
     
     
     <!-- System dependencies - to be replaced where possible -->
@@ -96,20 +95,6 @@
       <version>1.0</version>
       <scope>system</scope>
       <systemPath>${basedir}/lib/jtok.jar</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>dummy</groupId>
-      <artifactId>dummy23</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/opennlp-tools-1.4.1.jar</systemPath>
-    </dependency>
-    <dependency>
-      <groupId>dummy</groupId>
-      <artifactId>dummy20</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/maxent-2.5.1.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>dummy</groupId>
