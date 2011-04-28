@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="de">
+<p>
+<s>
+<t>
+Er
+</t>
+<t>
+hat
+</t>
+<mtu accent="last" orig="3GHz">
+<t>
+drei
+</t>
+<t>
+GigaHertz
+</t>
+</mtu>
+<t>
+.
+</t>
+</s>
+<s>
+<t>
+Das
+</t>
+<t>
+ist
+</t>
+<t>
+schnell
+</t>
+<t>
+!
+</t>
+</s>
+</p>
+</maryxml>

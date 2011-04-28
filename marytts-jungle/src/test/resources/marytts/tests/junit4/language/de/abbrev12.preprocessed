@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="de">
+<p>
+<s>
+<mtu accent="first" orig="Luxus-PCs">
+<t>
+Luxus
+</t>
+<prosody rate="-20%">
+<phonology precision="precise">
+<mtu accent="last" orig="PCs">
+<t accent="unknown">
+P
+</t>
+<t accent="unknown" ph="*s">
+C
+</t>
+</mtu>
+</phonology>
+</prosody>
+</mtu>
+</s>
+</p>
+</maryxml>

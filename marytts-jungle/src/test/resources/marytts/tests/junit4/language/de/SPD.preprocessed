@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="de">
+<p>
+<s>
+<prosody rate="-20%">
+<phonology precision="precise">
+<mtu accent="last" orig="SPD">
+<t accent="unknown">
+S
+</t>
+<t accent="unknown">
+P
+</t>
+<t accent="unknown">
+D
+</t>
+</mtu>
+</phonology>
+</prosody>
+</s>
+</p>
+</maryxml>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<maryxml xmlns="http://mary.dfki.de/2002/MaryXML" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="0.5" xml:lang="de">
+<p>
+<s>
+<t>
+Dies
+</t>
+<t>
+ist
+</t>
+<t>
+der
+</t>
+<t>
+1.
+</t>
+<t>
+Versuch
+</t>
+<t>
+.
+</t>
+</s>
+</p>
+</maryxml>
