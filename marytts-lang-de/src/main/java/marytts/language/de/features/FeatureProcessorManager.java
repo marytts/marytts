@@ -19,6 +19,7 @@
  */
 package marytts.language.de.features;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -101,9 +102,10 @@ public class FeatureProcessorManager extends
             String pauseSymbol = allophoneSet.getSilence().name();
             setupPhoneFeatureProcessors(allophoneSet, phoneValues, pauseSymbol, phonefeatures2values);
             
-            String wordFrequencyFilename = MaryProperties.getFilename("german.wordFrequency.fst");
-            String wordFrequencyEncoding = MaryProperties.getProperty("german.wordFrequency.encoding");
-            addFeatureProcessor(new MaryLanguageFeatureProcessors.WordFrequency(wordFrequencyFilename, wordFrequencyEncoding));
+            String wordFrequencyFilename = MaryProperties.getProperty("de.wordFrequency.fst");
+            InputStream wordFrequencyStream = MaryProperties.getStream("de.wordFrequency.fst");
+            String wordFrequencyEncoding = MaryProperties.getProperty("de.wordFrequency.encoding");
+            addFeatureProcessor(new MaryLanguageFeatureProcessors.WordFrequency(wordFrequencyStream, wordFrequencyFilename, wordFrequencyEncoding));
 
             
             /* for database selection*/ 
