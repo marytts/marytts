@@ -28,10 +28,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import marytts.datatypes.MaryXML;
-import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
 
@@ -59,7 +57,7 @@ public class CompositeEP extends ExpansionPattern
     Pattern reLettersAndDigits = Pattern.compile
         ("(?:(?:[A-ZÄÖÜa-zäöüß]+[0-9]+)|(?:[0-9]+[A-ZÄÖÜa-zäöüß]+))[A-ZÄÖÜa-zäöüß0-9]*");
 
-    public List knownTypes() { return new ArrayList(); }
+    public List<String> knownTypes() { return new ArrayList<String>(); }
 
     private final Pattern reMatchingChars = Pattern.compile("");
     public Pattern reMatchingChars() { return reMatchingChars; }
@@ -70,7 +68,7 @@ public class CompositeEP extends ExpansionPattern
      * the variable at the same time, the logger needs to be thread-safe
      * or it will produce rubbish.
      */
-    private Logger logger = MaryUtils.getLogger("CompositeEP");
+    //private Logger logger = MaryUtils.getLogger("CompositeEP");
 
 
     public CompositeEP()
@@ -85,16 +83,16 @@ public class CompositeEP extends ExpansionPattern
      * of the expanded form (or unexpanded form if no expansion is possible)
      * of all the tokens.
      */
-    private List process(List tokens)
+    private List<Element> process(List<Element> tokens)
     {
-        List result = new ArrayList();
-        for (Iterator it = tokens.iterator(); it.hasNext(); )
+        List<Element> result = new ArrayList<Element>();
+        for (Iterator<Element> it = tokens.iterator(); it.hasNext(); )
         {
             Element t = (Element) it.next();
             if (!t.getTagName().equals(MaryXML.TOKEN))
             throw new DOMException(DOMException.INVALID_ACCESS_ERR,
                                    "Expected t element");
-            List expanded = new ArrayList();
+            List<Element> expanded = new ArrayList<Element>();
             process(t, expanded);
             if (expanded.isEmpty()) // no expansion
                 result.add(t);
@@ -118,7 +116,7 @@ public class CompositeEP extends ExpansionPattern
      * necessary. CompositeEP always returns false, in order to have other
      * ExpansionPatterns look at the components as well.
      */
-    public boolean process(Element t, final List expanded)
+    public boolean process(Element t, final List<Element> expanded)
     {
         if (t == null || expanded == null)
             throw new NullPointerException("Received null argument");
@@ -149,7 +147,7 @@ public class CompositeEP extends ExpansionPattern
         if (reLettersDigitsAndHyphens.matcher(s).matches()) {
             // OK, a hyphen between parts containing letters and/or digits.
             // In pseudo-composita, accent is on the first component:
-            Element mtu = MaryDomUtils.encloseWithMTU(t, s, "first");
+            MaryDomUtils.encloseWithMTU(t, s, "first");
             StringTokenizer st = new StringTokenizer(s, "-");
             assert st.hasMoreTokens();
             MaryDomUtils.setTokenText(t, st.nextToken());
@@ -162,7 +160,7 @@ public class CompositeEP extends ExpansionPattern
             // Token consists only of letters and digits.
             // Split between letters and digits.
             // In pseudo-composita, accent is on the first component:
-            Element mtu = MaryDomUtils.encloseWithMTU(t, s, "first");
+            MaryDomUtils.encloseWithMTU(t, s, "first");
             String s1 = s;
             boolean isFirst = true;
             while (s1.length() > 0) {
@@ -197,7 +195,7 @@ public class CompositeEP extends ExpansionPattern
                        || REPattern.digit.matcher(s).find())) {
             // Split into parts, keeping each special char as one part
             // For special characters, accent is on the last component:
-            Element mtu = MaryDomUtils.encloseWithMTU(t, s, "last");
+            MaryDomUtils.encloseWithMTU(t, s, "last");
             StringTokenizer st = new StringTokenizer
                 (s, ExpansionPattern.getSplitAtChars(),
                  true); // return delimiters
@@ -210,7 +208,7 @@ public class CompositeEP extends ExpansionPattern
         }
         // iterative call:
         if (expanded.size() > 0) {
-            List newExpanded = process(expanded);
+            List<Element> newExpanded = process(expanded);
             expanded.clear();
             expanded.addAll(newExpanded);
         }
@@ -229,7 +227,7 @@ public class CompositeEP extends ExpansionPattern
         throw new RuntimeException("This method should not be called.");
     }
 
-    protected List expand(List tokens, String text, int typeCode)
+    protected List<Element> expand(List<Element> tokens, String text, int typeCode)
     {
         throw new RuntimeException("This method should not be called.");
     }

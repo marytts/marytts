@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -55,8 +54,8 @@ public class CurrencyEP extends ExpansionPattern
      * (<code>knownTypes[0]</code>) is expected to be the most general one,
      * of which the others are specialisations.
      */
-    private final List knownTypes = Arrays.asList(_knownTypes);
-    public List knownTypes() { return knownTypes; }
+    private final List<String> knownTypes = Arrays.asList(_knownTypes);
+    public List<String> knownTypes() { return knownTypes; }
 
     private final String[] _currencySymbolNames = {
         "DM", "Mark",
@@ -90,8 +89,8 @@ public class CurrencyEP extends ExpansionPattern
         "SEK", "schwedische Kronen",
         "CHF", "Franken",
     };
-    private final Map currencySymbolNames =
-        MaryUtils.ArrayToMap(_currencySymbolNames);
+    private final Map<String, String> currencySymbolNames =
+        MaryUtils.arrayToMap(_currencySymbolNames);
 
     private final String[] _currencySymbolNamesSingular = {
         "DM", "eine Mark",
@@ -124,8 +123,8 @@ public class CurrencyEP extends ExpansionPattern
         "SEK", "eine schwedische Krone",
         "CHF", "ein Franken",
     };
-    private final Map currencySymbolNamesSingular =
-        MaryUtils.ArrayToMap(_currencySymbolNamesSingular);
+    private final Map<String, String> currencySymbolNamesSingular =
+        MaryUtils.arrayToMap(_currencySymbolNamesSingular);
 
     // Domain-specific primitives:
     protected final String sCurrencySymbol = getCurrencySymbols();
@@ -153,7 +152,7 @@ public class CurrencyEP extends ExpansionPattern
      * the variable at the same time, the logger needs to be thread-safe
      * or it will produce rubbish.
      */
-    private Logger logger = MaryUtils.getLogger("CurrencyEP");
+    //private Logger logger = MaryUtils.getLogger("CurrencyEP");
 
 
     // Only used to initialise sCurrencySymbol from _currencySymbolNames[]:
@@ -199,7 +198,7 @@ public class CurrencyEP extends ExpansionPattern
         return -1;
     }
 
-    protected List expand(List tokens, String s, int type)
+    protected List<Element> expand(List<Element> tokens, String s, int type)
     {
         if (tokens == null) 
             throw new NullPointerException("Received null argument");
@@ -207,7 +206,7 @@ public class CurrencyEP extends ExpansionPattern
             throw new IllegalArgumentException("Received empty list");
         Document doc = ((Element)tokens.get(0)).getOwnerDocument();
         // we expect type to be one of the return values of match():
-        List expanded = null;
+        List<Element> expanded = null;
         switch (type) {
         case 0:
             expanded = expandCurrency(doc, s);
@@ -222,9 +221,9 @@ public class CurrencyEP extends ExpansionPattern
         return reCurrencyLeading.matcher(s).matches() || reCurrencyTrailing.matcher(s).matches();
     }
 
-    protected List expandCurrency(Document doc, String s)
+    protected List<Element> expandCurrency(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
 	StringBuilder sb = new StringBuilder();
         String currency = null;
         String amount = null;

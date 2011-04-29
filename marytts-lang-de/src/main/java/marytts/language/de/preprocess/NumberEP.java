@@ -60,8 +60,8 @@ public class NumberEP extends ExpansionPattern
      * (<code>knownTypes[0]</code>) is expected to be the most general one,
      * of which the others are specialisations.
      */
-    private final List knownTypes = Arrays.asList(_knownTypes);
-    public List knownTypes() { return knownTypes; }
+    private final List<String> knownTypes = Arrays.asList(_knownTypes);
+    public List<String> knownTypes() { return knownTypes; }
 
     // Domain-specific primitives:
     // (floats and integers are recognised up to hundreds of millions (nine digits))
@@ -190,7 +190,7 @@ public class NumberEP extends ExpansionPattern
     }
 
 
-    protected List expand(List tokens, String s, int type)
+    protected List<Element> expand(List<Element> tokens, String s, int type)
     {
         if (tokens == null) 
             throw new NullPointerException("Received null argument");
@@ -198,7 +198,7 @@ public class NumberEP extends ExpansionPattern
             throw new IllegalArgumentException("Received empty list");
         Document doc = ((Element)tokens.get(0)).getOwnerDocument();
         // we expect type to be one of the return values of match():
-        List expanded = null;
+        List<Element> expanded = null;
         switch (type) {
         case 1:
             expanded = expandFloat(doc, s, true);
@@ -246,7 +246,7 @@ public class NumberEP extends ExpansionPattern
     }
 
 
-    protected List expandInteger(Document doc, String s, boolean createMtu)
+    protected List<Element> expandInteger(Document doc, String s, boolean createMtu)
     {
         long value;
         // In canDealWith(), we have made a commitment to deal with
@@ -265,7 +265,7 @@ public class NumberEP extends ExpansionPattern
         return expandInteger(doc, value, createMtu, s);
     }
 
-    protected List expandInteger(Document doc, long value, boolean createMtu, String orig)
+    protected List<Element> expandInteger(Document doc, long value, boolean createMtu, String orig)
     {
         String expString = expandInteger(value);
         return makeNewTokens(doc, expString, createMtu, orig);
@@ -387,7 +387,7 @@ public class NumberEP extends ExpansionPattern
      * This seems to be convenient in cases where "some number",
      * i.e. integer or float, was matched, and needs to be expanded.
      */
-    protected List expandFloat(Document doc, String s, boolean createMtu)
+    protected List<Element> expandFloat(Document doc, String s, boolean createMtu)
     {
         String expString = expandFloat(s);
         return makeNewTokens(doc, expString, createMtu, s);
@@ -415,7 +415,7 @@ public class NumberEP extends ExpansionPattern
         return buf.toString().trim();
     }
 
-    protected List expandDigits(Document doc, String s, boolean createMtu)
+    protected List<Element> expandDigits(Document doc, String s, boolean createMtu)
     {
         String expString = expandDigits(s);
         return makeNewTokens(doc, expString, createMtu, s);
@@ -450,7 +450,7 @@ public class NumberEP extends ExpansionPattern
    * and keep the surface form. This is for the POS tagger to tell a later
    * module whether the ordinal is adverbial or adjectival.
    */
-    protected List expandOrdinal(Document doc, String s, boolean createMtu)
+    protected List<Element> expandOrdinal(Document doc, String s, boolean createMtu)
     {
         long value;
         // In canDealWith(), we have made a commitment to deal with
@@ -474,7 +474,7 @@ public class NumberEP extends ExpansionPattern
         return expandOrdinal(doc, value, createMtu, s);
     }
 
-    protected List expandOrdinal(Document doc, long value, boolean createMtu, String orig)
+    protected List<Element> expandOrdinal(Document doc, long value, boolean createMtu, String orig)
     {
         StringBuilder exp = new StringBuilder();
         int rest = (int) value % 100;
@@ -507,7 +507,7 @@ public class NumberEP extends ExpansionPattern
         t.setAttribute("sounds_like", exp.toString());
         t.setAttribute("ending", "ordinal");
         t.setAttribute("pos", "ADJA"); // part-of-speech: adjective
-        List result = new ArrayList();
+        List<Element> result = new ArrayList<Element>();
         if (createMtu) {
             // create mtu element enclosing the expanded tokens:
             Element mtu = MaryXML.createElement(doc, MaryXML.MTU);
@@ -520,7 +520,7 @@ public class NumberEP extends ExpansionPattern
         return result;
     }
 
-    protected List expandRoman(Document doc, String number, boolean createMtu)
+    protected List<Element> expandRoman(Document doc, String number, boolean createMtu)
     {
         // First, find out whether it is an ordinal or a simple integer:
         boolean isOrdinal = false;
@@ -531,7 +531,7 @@ public class NumberEP extends ExpansionPattern
         return expandRoman(doc, number, createMtu, isOrdinal);
     }
 
-    protected List expandRoman(Document doc, String number, boolean createMtu, boolean isOrdinal)
+    protected List<Element> expandRoman(Document doc, String number, boolean createMtu, boolean isOrdinal)
     {
         // First make sure there is no dot at the end of number:
         // (here, we consider the dot an artefact of the fact that

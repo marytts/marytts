@@ -58,8 +58,8 @@ public class MaryUtils {
      * Create a map from an Object array which contains paired entries
      * (key, value, key, value, ....).
      */
-    public static Map ArrayToMap(Object[] a) {
-        Map m = new HashMap();
+    public static Map<String, String> arrayToMap(String[] a) {
+        Map<String, String> m = new HashMap<String, String>();
         for (int i = 0; i < a.length; i += 2) {
             m.put(a[i], a[i + 1]);
         }

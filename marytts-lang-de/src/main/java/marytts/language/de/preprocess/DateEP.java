@@ -63,8 +63,8 @@ public class DateEP extends ExpansionPattern
      * (<code>knownTypes[0]</code>) is expected to be the most general one,
      * of which the others are specialisations.
      */
-    private final List knownTypes = Arrays.asList(_knownTypes);
-    public List knownTypes() { return knownTypes; }
+    private final List<String> knownTypes = Arrays.asList(_knownTypes);
+    public List<String> knownTypes() { return knownTypes; }
 
     private final String[] _monthabbr = {
         "Jan", "Januar",
@@ -92,7 +92,7 @@ public class DateEP extends ExpansionPattern
         "11", "November",
         "12", "Dezember"
     };
-    private final Map monthabbr = MaryUtils.ArrayToMap(_monthabbr);
+    private final Map<String, String> monthabbr = MaryUtils.arrayToMap(_monthabbr);
 
     // Domain-specific primitives:
     protected final String sDay = "(?:0?[1-9]|[12][0-9]|3[01])";
@@ -256,7 +256,7 @@ public class DateEP extends ExpansionPattern
         return -1;
     }
 
-    protected List expand(List tokens, String s, int type)
+    protected List<Element> expand(List<Element> tokens, String s, int type)
     {
         if (tokens == null) 
             throw new NullPointerException("Received null argument");
@@ -264,7 +264,7 @@ public class DateEP extends ExpansionPattern
             throw new IllegalArgumentException("Received empty list");
         Document doc = ((Element)tokens.get(0)).getOwnerDocument();
         // we expect type to be one of the return values of match():
-        List expanded = null;
+        List<Element> expanded = null;
         switch (type) {
         case 1:
             expanded = expandDateDMY(doc, s);
@@ -360,9 +360,9 @@ public class DateEP extends ExpansionPattern
     
     
     
-    protected List expandDateDMY(Document doc, String s)
+    protected List<Element> expandDateDMY(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         Matcher reMatcher = reDayMonthYear.matcher(s);
         boolean found = reMatcher.find();
         int monthType = 1; // month == (0)1, (0)2, ... , 12
@@ -395,9 +395,9 @@ public class DateEP extends ExpansionPattern
         return exp;
     }
 
-    protected List expandDateYMD(Document doc, String s)
+    protected List<Element> expandDateYMD(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         Matcher reMatcher = reYearMonthDay.matcher(s);
         boolean found = reMatcher.find();
         int monthType = 1; // month == (0)1, (0)2, ... , 12
@@ -430,9 +430,9 @@ public class DateEP extends ExpansionPattern
         return exp;
     }
 
-    protected List expandDateDM(Document doc, String s)
+    protected List<Element> expandDateDM(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         Matcher reMatcher = reDayMonth.matcher(s);
         boolean found = reMatcher.find();
         int monthType = 1; // month == (0)1, (0)2, ... , 12
@@ -463,9 +463,9 @@ public class DateEP extends ExpansionPattern
         return exp;
     }
 
-    protected List expandDateMY(Document doc, String s)
+    protected List<Element> expandDateMY(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         Matcher reMatcher = reMonthYear.matcher(s);
         boolean found = reMatcher.find();
         int monthType = 1; // month == (0)1, (0)2, ... , 12
@@ -501,9 +501,9 @@ public class DateEP extends ExpansionPattern
         return exp;
     }
 
-    protected List expandDateYear(Document doc, String s)
+    protected List<Element> expandDateYear(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         int value;
         try {
             value = Integer.decode(s).intValue();
@@ -530,9 +530,9 @@ public class DateEP extends ExpansionPattern
         return exp;
     }
     
-    protected List expandDateMonth(Document doc, String s)
+    protected List<Element> expandDateMonth(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         Matcher reMatcher = reMonth.matcher(s);
         boolean found = reMatcher.find();
         int monthType = 1; // month == (0)1, (0)2, ... , 12
@@ -563,9 +563,9 @@ public class DateEP extends ExpansionPattern
         return exp;
     }
     
-    protected List expandDateDay(Document doc, String s)
+    protected List<Element> expandDateDay(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         Matcher reMatcher = reDay.matcher(s);
         boolean found = reMatcher.find();
         if (!found) {
@@ -579,9 +579,9 @@ public class DateEP extends ExpansionPattern
         return exp;
     }
     
-    protected List expandDateMD(Document doc, String s)
+    protected List<Element> expandDateMD(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         Matcher reMatcher = reMonthDay.matcher(s);
         boolean found = reMatcher.find();
         int monthType = 1; // month == (0)1, (0)2, ... , 12
@@ -621,9 +621,9 @@ public class DateEP extends ExpansionPattern
         return exp;
     }
     
-    protected List expandDateMDY(Document doc, String s)
+    protected List<Element> expandDateMDY(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         Matcher reMatcher = reMonthDayYear.matcher(s);
         boolean found = reMatcher.find();
         int monthType = 1; // month == (0)1, (0)2, ... , 12

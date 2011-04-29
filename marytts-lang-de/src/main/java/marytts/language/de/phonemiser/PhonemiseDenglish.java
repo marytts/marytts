@@ -1,5 +1,5 @@
 /**
- * Copyright 2005 DFKI GmbH.
+ * Copyright 2005, 2011 DFKI GmbH.
  * All Rights Reserved.  Use is subject to license terms.
  *
  * This file is part of MARY TTS.
@@ -26,18 +26,13 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Locale;
 
-import marytts.fst.FSTLookup;
+import marytts.language.de.JPhonemiser;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
-import marytts.modules.phonemiser.Syllabifier;
-import marytts.modules.synthesis.PAConverter;
-import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
-
-import marytts.language.de.JPhonemiser;
 
 /**
  * @author steigner
@@ -59,27 +54,22 @@ public class PhonemiseDenglish
 		private Locale locale;
 		private JPhonemiser jphon = null;//building an instance of JPhonemiser for using
 		//lexiconLookup method and transducers from this class
-		
-		private String basePath = MaryProperties.maryBase() + File.separator +
-				"lib" + File.separator + "modules" + File.separator + "de" + File.separator + "lexicon" +
-				File.separator;
-				
+						
 		private MorphologyReader mr = new MorphologyReader();
 		
 		public PhonemiseDenglish(JPhonemiser jphon) throws Exception{
 			
 			this.jphon = jphon;
-			String morphologyPath = "denglish" + File.separator;
-			String morphologyBasePath = basePath + morphologyPath;
-			this.flectionToPhon = mr.loadInputModel(morphologyBasePath+"flectionsPhonLex.xml");
-			this.prefixLexicon = mr.loadInputModel(morphologyBasePath+"PrefixLex.xml");
+			String classpathPrefix = "/marytts/language/de/lexicon/denglish/";
+			this.flectionToPhon = mr.loadInputModel(getClass().getResourceAsStream(classpathPrefix+"flectionsPhonLex.xml"));
+			this.prefixLexicon = mr.loadInputModel(getClass().getResourceAsStream(classpathPrefix+"PrefixLex.xml"));
 			for (Iterator<String> prefixIt = prefixLexicon.keySet().iterator(); prefixIt.hasNext(); ) {
 				String prefix = prefixIt.next();
 				if (prefix.length() > this.maxPrefixLength)
 					this.maxPrefixLength = prefix.length();
 			}
-			this.endingsAndAffixes = mr.loadInputModel(morphologyBasePath+"germanEndings.xml");
-			this.terminalVoicings = mr.loadInputModel(morphologyBasePath+"terminal_voicing_for_german.xml");
+			this.endingsAndAffixes = mr.loadInputModel(getClass().getResourceAsStream(classpathPrefix+"germanEndings.xml"));
+			this.terminalVoicings = mr.loadInputModel(getClass().getResourceAsStream(classpathPrefix+"terminal_voicing_for_german.xml"));
 			String[] endingList = getEndingsAndAffixes("flections");//list of flection endings of a specific language
 			if (endingList != null) {
 				this.endingSet = new HashSet<String>(50);//

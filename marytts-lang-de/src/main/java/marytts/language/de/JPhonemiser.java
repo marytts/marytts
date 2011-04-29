@@ -71,8 +71,6 @@ public class JPhonemiser extends marytts.modules.JPhonemiser
     private Map<String,Integer> english2Frequency = null;
     private PhonemiseDenglish phonemiseDenglish;
     
-    private String basePath;
-
     public JPhonemiser()
     throws IOException,  MaryConfigurationException
     {
@@ -90,9 +88,6 @@ public class JPhonemiser extends marytts.modules.JPhonemiser
     {
         super.startup();
         phonemiseDenglish = new PhonemiseDenglish(this);
-        basePath = MaryProperties.maryBase() + File.separator +
-            "lib" + File.separator + "modules" + File.separator + "de" + File.separator + "lexicon" +
-            File.separator;
         inflection = new Inflection();      
           
         if (MaryProperties.getBoolean("de.phonemiser.logunknown")) {
