@@ -31,6 +31,7 @@
  */
 package marytts.features;
 
+import java.io.InputStream;
 import java.util.Map;
 
 import marytts.datatypes.MaryXML;
@@ -387,12 +388,12 @@ public class MaryLanguageFeatureProcessors extends MaryGenericFeatureProcessors
         protected ByteStringTranslator values;
         protected FSTLookup wordFrequencies;
         
-        public WordFrequency(String fstFilename, String encoding)
+        public WordFrequency(InputStream inStream, String identifier, String encoding)
         {
             this.navigator = new WordNavigator();
             try {
-                if (fstFilename != null) 
-                    this.wordFrequencies = new FSTLookup(fstFilename, encoding);
+                if (inStream != null) 
+                    this.wordFrequencies = new FSTLookup(inStream, identifier, encoding);
                 else
                     this.wordFrequencies = null;
             } catch (Exception e) {
