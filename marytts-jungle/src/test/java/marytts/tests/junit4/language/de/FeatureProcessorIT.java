@@ -48,7 +48,9 @@ public class FeatureProcessorIT {
     
     @BeforeClass
     public static void setupClass() throws Exception {
-        Mary.startup();
+        if (Mary.currentState() == Mary.STATE_OFF) {
+            Mary.startup();
+        }
         fpm = FeatureRegistry.determineBestFeatureProcessorManager(Locale.GERMAN);
     }
     
