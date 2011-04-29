@@ -64,7 +64,7 @@ installMwdumper() {
 
 
 ################# main program ###################
-MARYBASE="`dirname "$0"`"
+MARYBASE=$( cd $( dirname "$0" ) ; pwd )
 
 if [ $# -gt 0 ] ; then
   deps=$*
