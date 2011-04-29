@@ -13,7 +13,7 @@ function announceAndHandleError {
 
 function installOpennlp {
   announceAndHandleError "opennlp"
-  cd $MARYBASE/tmp
+  cd "$MARYBASE/tmp"
   svn checkout https://svn.apache.org/repos/asf/incubator/opennlp/tags/opennlp-1.5.1-incubating-rc7 opennlp
   cd opennlp/opennlp
   mvn install -Dmaven.test.skip=true
@@ -23,7 +23,7 @@ function installOpennlp {
 
 function installFreetts {
   announceAndHandleError "freetts"
-  cd $MARYBASE
+  cd "$MARYBASE"
   mvn install:install-file -DgroupId=com.sun.speech.freetts -DartifactId=freetts -Dversion=1.0 -Dpackaging=jar -Dfile=dependencies/freetts.jar
   mvn install:install-file -DgroupId=com.sun.speech.freetts -DartifactId=freetts-de -Dversion=1.0 -Dpackaging=jar -Dfile=dependencies/freetts-de.jar
   mvn install:install-file -DgroupId=com.sun.speech.freetts -DartifactId=freetts-en_us -Dversion=1.0 -Dpackaging=jar -Dfile=dependencies/freetts-en_us.jar
@@ -34,7 +34,7 @@ function installFreetts {
 
 function installJtok {
   announceAndHandleError "jtok"
-  cd $MARYBASE/tmp
+  cd "$MARYBASE/tmp"
   svn checkout https://heartofgold.opendfki.de/repos/tags/jtok/release_1.9 jtok
   cd jtok
   patch -p0 < ../../dependencies/jtok1.9-capitalization-fix.diff
@@ -45,7 +45,7 @@ function installJtok {
 
 function installSgt {
   announceAndHandleError "sgt"
-  cd $MARYBASE
+  cd "$MARYBASE"
   mvn install:install-file -DgroupId=gov.noaa.pmel.sgt -DartifactId=sgt -Dversion=3.0 -Dpackaging=jar -Dfile=dependencies/sgt_v30.jar -Dsources=dependencies/sgt_src_v30.jar
 }
 
@@ -53,14 +53,14 @@ function installSgt {
 
 function installWeka {
   announceAndHandleError "weka"
-  cd $MARYBASE
+  cd "$MARYBASE"
   mvn install:install-file -DgroupId=nz.ac.waikato.cs.ml -DartifactId=weka -Dversion=3.7.3 -Dpackaging=jar -Dfile=dependencies/weka-3.7.3.jar -Dsources=dependencies/weka-3.7.3-src.jar
 }
 
 
 function installMwdumper {
   announceAndHandleError "mwdumper"
-  cd $MARYBASE/tmp
+  cd "$MARYBASE/tmp"
   svn checkout -r 87118 http://svn.wikimedia.org/svnroot/mediawiki/trunk/mwdumper
   cd mwdumper
   mvn install
