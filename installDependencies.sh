@@ -2,7 +2,7 @@
 
 
 
-all="opennlp jtok freetts sgt"
+all="opennlp jtok freetts sgt weka"
 
 ############## individual installer functions #############
 
@@ -47,6 +47,15 @@ installSgt() {
 
 
 
+installWeka() {
+  echo "Installing weka jar file..."
+  cd $MARYBASE
+  mvn install:install-file -DgroupId=nz.ac.waikato.cs.ml -DartifactId=weka -Dversion=3.7.3 -Dpackaging=jar -Dfile=dependencies/weka-3.7.3.jar -Dsources=dependencies/weka-3.7.3-src.jar
+}
+
+
+
+
 ################# main program ###################
 MARYBASE="`dirname "$0"`"
 
@@ -64,6 +73,7 @@ for dep in $deps ; do
     freetts) installFreetts ;;
     jtok) installJtok ;;
     sgt) installSgt ;;
+    weka) installWeka ;;
     *) echo "Ignoring unknown module '$dep'" ;;
   esac
 done
