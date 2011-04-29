@@ -65,7 +65,7 @@ Possible values are only: "enfofpar"(end of paragraph), "vorfeld", "endofvorfeld
   <list name="pos_force_accent"  items="VVFIN:VVIMP:VVINF:VVIZU:VVPP:VMFIN:VMINF:VMPP"/>
   
   <!-- reference to externally defined FST that determines which verbs get accentuated -->
-  <list name="accented_verbs" file="lib/modules/de/prosody/accentedVerbs.fst"/>
+  <list name="accented_verbs" file="accentedVerbs.fst"/>
   
   <!-- list of part of speechs for punctuation (used in boundary rules)-->
   <list name="pos_punctuation" items="$.:$,:$("/>
@@ -86,7 +86,7 @@ Possible values are only: "enfofpar"(end of paragraph), "vorfeld", "endofvorfeld
   <list name="conj_phrases" items="CNP:CAP"/>
 
    <!-- external file which contains focus words (f.e. "nur", "ausschliesslich"); focus words often trigger an accent on the following word -->
-  <list name="focus_words" file="lib/modules/de/prosody/focusWords.txt"/>
+  <list name="focus_words" file="focusWords.txt"/>
 
   <!-- pronouns that get an acccent if they are preceded by a focus word -->
   <list name="focus_pronouns" items="PPER:PDS:PPOSS:PRF"/>

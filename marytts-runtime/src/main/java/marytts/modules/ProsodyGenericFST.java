@@ -5,6 +5,7 @@ package marytts.modules;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Locale;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -30,7 +31,7 @@ public class ProsodyGenericFST extends ProsodyGeneric
     /**
      * Read a list from an external file. This implementation
      * can read from finite state transducer files (filenames ending in <code>.fst</code>).
-     * @param fileName external file from which to read the list; suffix identifies
+     * @param resourceName resource file in classpath from which to read the list; suffix identifies
      * list format.
      * @return An Object representing the list; checkList() must be able to
      * make sense of this. This implementation returns an FSTLookup for
@@ -39,19 +40,15 @@ public class ProsodyGenericFST extends ProsodyGeneric
      * identified as a list file format.
      */
     @Override
-    protected Object readListFromFile(String fileName) throws IOException
+    protected Object readListFromResource(String resourceName) throws IOException
     {
-        String suffix = fileName.substring(fileName.length() - 4, fileName.length()); 
+        String suffix = resourceName.substring(resourceName.length() - 4, resourceName.length()); 
          if (suffix.equals(".fst")) { // FST file
-             StringTokenizer st = new StringTokenizer(fileName, "/");
-             String fstPath = MaryProperties.maryBase();
-             while (st.hasMoreTokens()) {
-                 fstPath = fstPath + File.separator + st.nextToken();
-             }
+             InputStream resourceStream = this.getClass().getResourceAsStream("prosody/"+resourceName);
              // put the external FST on the map
-             return new FSTLookup(fstPath, "ISO-8859-1");
+             return new FSTLookup(resourceStream, resourceName, "ISO-8859-1");
          } else {
-             return super.readListFromFile(fileName);
+             return super.readListFromResource(resourceName);
          }
      }
 

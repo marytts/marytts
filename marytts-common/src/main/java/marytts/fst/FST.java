@@ -58,28 +58,19 @@ public class FST
     	}
     }
 
+    /**
+     * Load the fst from the given input stream. Assumes header.
+     * @param inStream
+     * @throws IOException
+     */
     public FST(InputStream inStream) throws IOException {
     	load(inStream);
     }
     
-    /**
-     * Initialise the finite state transducer. This constructor will
-     * assume that the file uses the system default encoding.
-     * @param fileName the name of the file from which to load the FST.
-     * @throws IOException if the FST cannot be loaded from the given file.
-     */
-    /*public FST(String fileName) throws IOException
-    {
-        try {
-            load(fileName, null, false);
-        } catch (UnsupportedEncodingException e) {
-            // default encoding not supported?! shouldn't happen
-            e.printStackTrace();
-        }
-    }*/
+
 
     /**
-     * Initialise the finite state transducer.
+     * Initialise the finite state transducer. Loads from headerless legacy file format.
      * @param fileName the name of the file from which to load the FST.
      * @param encoding the name of the encoding used in the file (e.g., UTF-8
      * or ISO-8859-1).
@@ -89,7 +80,7 @@ public class FST
     public FST(String fileName, String encoding)
     throws IOException, UnsupportedEncodingException
     {
-        loadHeaderless(fileName, encoding, false);
+    	this(fileName, encoding, false);
     }
 
     /**
@@ -101,12 +92,7 @@ public class FST
      */
     public FST(String fileName, boolean verbose) throws IOException
     {
-        try {
-            loadHeaderless(fileName, null, verbose);
-        } catch (UnsupportedEncodingException e) {
-            // default encoding not supported?! shouldn't happen
-            e.printStackTrace();
-        }
+        this(fileName, null, verbose);
     }
 
     /**
@@ -125,7 +111,23 @@ public class FST
     public FST(String fileName, String encoding, boolean verbose)
     throws IOException, UnsupportedEncodingException
     {
-        loadHeaderless(fileName, encoding, verbose);
+    	FileInputStream fis = new FileInputStream(fileName);
+    	try {
+            loadHeaderless(fis, encoding, verbose);
+    	} finally {
+    		fis.close();
+    	}
+    }
+    
+    /**
+     * Load the fst from the given input stream. Assumes headerless legacy file format.
+     * @param inStream
+     * @param encoding
+     * @throws IOException
+     * @throws UnsupportedEncodingException
+     */
+    public FST(InputStream inStream, String encoding) throws IOException, UnsupportedEncodingException {
+    	loadHeaderless(inStream, encoding, false);
     }
     
     private void load(InputStream inStream)
@@ -187,13 +189,13 @@ public class FST
         createMapping(mapping, bytes, encoding);
     }
 
-    private void loadHeaderless(String fileName, String encoding, boolean verbose)
+    private void loadHeaderless(InputStream inStream, String encoding, boolean verbose)
     throws IOException, UnsupportedEncodingException
     {
-        File f=new File(fileName);
         int i;
-        DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(f)));
-        int fileSize= (int) f.length();
+        DataInputStream in = new DataInputStream(new BufferedInputStream(inStream));
+        //int fileSize= (int) f.length();
+        int fileSize = in.available(); // TODO: how robust is this??
         int nArcs=in.readInt();
         // arcs = new int[nArcs];
         
@@ -223,7 +225,7 @@ public class FST
                                + fileSize + " Bytes, "
                                + nArcs + " Arcs, " 
                                + nPairs + " Labels)"
-                               + " loaded from " + fileName);
+                               + " loaded");
         }
         in.close();
         createMapping(mapping, bytes, encoding);

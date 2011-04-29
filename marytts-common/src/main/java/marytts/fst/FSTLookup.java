@@ -64,6 +64,13 @@ public class FSTLookup
     	}
     }
 
+    /**
+     * Initialise the finite state transducer lookup. This constructor will
+     * assume that the stream contains a header indicating the proper encoding.
+     * @param inStream the stream from which to load the FST.
+     * @param identifier an identifier by which the FST lookup can be retrieved.
+     * @throws IOException if the FST cannot be loaded from the given file.
+     */
     public FSTLookup(InputStream inStream, String identifier) throws IOException {
     	init(inStream, identifier);
     }
@@ -79,6 +86,7 @@ public class FSTLookup
 
     /**
      * Initialise the finite state transducer lookup.
+     * This is a constructor for  legacy headerless FST files.
      * @param fileName the name of the file from which to load the FST.
      * @param encoding the name of the encoding used in the file (e.g., UTF-8
      * or ISO-8859-1).
@@ -88,14 +96,39 @@ public class FSTLookup
     public FSTLookup(String fileName, String encoding)
     throws IOException, UnsupportedEncodingException
     {
-        String key = fileName+" "+encoding;
+    	InputStream inStream = new FileInputStream(fileName);
+    	try {
+    		init(inStream, fileName, encoding);
+    	} finally {
+    		inStream.close();
+    	}
+    }
+
+    /**
+     * Initialise the finite state transducer lookup.
+     * This is a constructor for  legacy headerless FST files.
+     * @param inStream the stream from which to load the FST.
+     * @param identifier an identifier by which the FST lookup can be retrieved.
+     * @param encoding the name of the encoding used in the file (e.g., UTF-8
+     * or ISO-8859-1).
+     * @throws IOException if the FST cannot be loaded from the given file.
+     * @throws UnsupportedEncodingException if the encoding is not supported.
+     */
+    public FSTLookup(InputStream inStream, String identifier, String encoding)
+    throws IOException, UnsupportedEncodingException {
+    	init(inStream, identifier, encoding);
+    }
+    
+    private void init(InputStream inStream, String identifier, String encoding)
+    throws IOException, UnsupportedEncodingException {
+        String key = identifier+" "+encoding;
         fst = knownFSTs.get(key);
         if (fst == null) {
-            fst = new FST(fileName, encoding);
+            fst = new FST(inStream, encoding);
             knownFSTs.put(key, fst);
         }
     }
-
+    
     /**
      * Look up a word in the FST. The FST runs in normal mode, i.e. it
      * generates the expanded forms from the original forms. This method is

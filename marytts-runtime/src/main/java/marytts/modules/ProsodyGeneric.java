@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -244,7 +245,7 @@ public class ProsodyGeneric extends InternalModule {
 			
 			if(list.hasAttribute("file")) { // external list definition
                 String fileName = list.getAttribute("file");
-                listMap.put(name, readListFromFile(fileName));
+                listMap.put(name, readListFromResource(fileName));
 			}
     	}
     }
@@ -255,7 +256,7 @@ public class ProsodyGeneric extends InternalModule {
      * Subclasses may override this class to provide additional file formats.
      * They must make sure that <code>checkList()</code> can deal with all
      * list formats.
-     * @param fileName external file from which to read the list; suffix identifies
+     * @param resourceName resource file in classpath from which to read the list; suffix identifies
      * list format.
      * @return An Object representing the list; checkList() must be able to
      * make sense of this. This base implementation returns a Set<String>.
@@ -263,23 +264,20 @@ public class ProsodyGeneric extends InternalModule {
      * identified as a list file format.
      * @throws IOException if the file given in fileName cannot be found or read from
      */
-    protected Object readListFromFile(String fileName) throws IOException
+    protected Object readListFromResource(String resourceName) throws IOException
     {
-        String suffix = fileName.substring(fileName.length() - 4, fileName.length()); 
+        String suffix = resourceName.substring(resourceName.length() - 4, resourceName.length()); 
          if (suffix.equals(".txt")) { // txt file
-             StringTokenizer st = new StringTokenizer(fileName, "/");
-             String txtPath = MaryProperties.maryBase();
-             while (st.hasMoreTokens()) {
-                 txtPath = txtPath + File.separator + st.nextToken();
-             }
+        	 InputStream resourceStream = this.getClass().getResourceAsStream("prosody/"+resourceName);
              // build a set that contains every word contained in the
              // external text file
              HashSet<String> listSet = new HashSet<String>(); 
-             BufferedReader in = new BufferedReader(new FileReader(txtPath));
+             BufferedReader in = new BufferedReader(new InputStreamReader(resourceStream, "UTF-8"));
              while (in.ready()) {
                  String line = in.readLine();
                  listSet.add(line);
              }
+             in.close();
              return listSet; // put the set on the map
          } else {
              throw new IllegalArgumentException("Unknown list file format: " + suffix);
