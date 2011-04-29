@@ -20,30 +20,21 @@
 package marytts.tools.newlanguage;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.regex.Pattern;
-
-import javax.xml.parsers.ParserConfigurationException;
 
 import marytts.cart.CART;
 import marytts.cart.DecisionNode;
-import marytts.cart.Node;
 import marytts.cart.io.MaryCARTWriter;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
@@ -54,13 +45,12 @@ import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.phonemiser.TrainedLTS;
 
 import org.apache.log4j.BasicConfigurator;
-import org.xml.sax.SAXException;
 
 import weka.classifiers.trees.j48.BinC45ModelSelection;
 import weka.classifiers.trees.j48.C45PruneableClassifierTree;
 import weka.classifiers.trees.j48.TreeConverter;
 import weka.core.Attribute;
-import weka.core.FastVector;
+import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -177,21 +167,21 @@ public class LTSTrainer extends AlignerTrainer
             
             logger.debug("      Training decision tree for: " + gr);
             
-            FastVector attributeDeclarations = new FastVector();
+            ArrayList<Attribute> attributeDeclarations = new ArrayList<Attribute>();
             
             // attributes with values
             for (int att = 1; att <= context*2 + 1; att++){
                 
                 // ...collect possible values
-                FastVector attVals = new FastVector();
+                ArrayList<String> attVals = new ArrayList<String>();
                                 
                 String featureName = "att"+att;
                 
                 for (String usableGrapheme:fd.getPossibleValues(fd.getFeatureIndex(featureName))){
-                    attVals.addElement(usableGrapheme);
+                    attVals.add(usableGrapheme);
                 }
                 
-                attributeDeclarations.addElement(new Attribute(featureName, attVals) );
+                attributeDeclarations.add(new Attribute(featureName, attVals) );
             }
             
             List<String[]> datapoints = grapheme2align.get(gr);
@@ -204,11 +194,11 @@ public class LTSTrainer extends AlignerTrainer
             
             // targetattribute
             // ...collect possible values
-            FastVector targetVals = new FastVector();
+            ArrayList<String> targetVals = new ArrayList<String>();
             for (String phc : graphSpecPh){// todo: use either fd of phChains
-                targetVals.addElement(phc);
+                targetVals.add(phc);
             }
-            attributeDeclarations.addElement(new Attribute(TrainedLTS.PREDICTED_STRING_FEATURENAME, targetVals) );
+            attributeDeclarations.add(new Attribute(TrainedLTS.PREDICTED_STRING_FEATURENAME, targetVals) );
 
             // now, create the dataset adding the datapoints
             Instances data = new Instances(gr, attributeDeclarations, 0);
@@ -216,7 +206,7 @@ public class LTSTrainer extends AlignerTrainer
             // datapoints
             for (String[] point : datapoints){
                 
-                Instance currInst = new Instance( data.numAttributes()  );
+                Instance currInst = new DenseInstance( data.numAttributes()  );
                 currInst.setDataset(data);
                 
                 for (int i = 0; i < point.length; i++){
@@ -232,10 +222,10 @@ public class LTSTrainer extends AlignerTrainer
             
             // build the tree without using the J48 wrapper class
             // standard parameters are: 
-            //binary split selection with minimum x instances at the leaves, tree is pruned, confidenced value, subtree raising, cleanup
+            //binary split selection with minimum x instances at the leaves, tree is pruned, confidenced value, subtree raising, cleanup, don't collapse
             C45PruneableClassifierTree decisionTree;
             try {
-                decisionTree = new C45PruneableClassifierTree(new BinC45ModelSelection(minLeafData,data),true,0.25f,true,true);
+                decisionTree = new C45PruneableClassifierTree(new BinC45ModelSelection(minLeafData,data,true),true,0.25f,true,true, false);
                 decisionTree.buildClassifier(data);
             } catch (Exception e) {
                 throw new RuntimeException("couldn't train decisiontree using weka: " + e);
@@ -271,7 +261,6 @@ public class LTSTrainer extends AlignerTrainer
      * @throws IOException
      */
     public void save(CART tree, String saveTreefile) throws IOException{
-        FileOutputStream outFile = new FileOutputStream(saveTreefile);
         MaryCARTWriter mcw = new MaryCARTWriter();
         mcw.dumpMaryCART(tree, saveTreefile);
     }
@@ -378,7 +367,6 @@ public class LTSTrainer extends AlignerTrainer
      */
     public void readLexicon(HashMap<String, String> lexicon) {
         
-        String line;
         Iterator<String> it = lexicon.keySet().iterator();
         while (it.hasNext()){
             String graphStr = it.next(); 

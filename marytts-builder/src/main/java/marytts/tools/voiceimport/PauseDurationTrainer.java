@@ -40,7 +40,7 @@ import weka.classifiers.trees.j48.BinC45ModelSelection;
 import weka.classifiers.trees.j48.C45PruneableClassifierTree;
 import weka.classifiers.trees.j48.TreeConverter;
 import weka.core.Attribute;
-import weka.core.FastVector;
+import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -94,10 +94,10 @@ public class PauseDurationTrainer extends VoiceImportComponent {
     {      
     }
     
-    public SortedMap getDefaultProps(DatabaseLayout db){
+    public SortedMap<String, String> getDefaultProps(DatabaseLayout db){
         this.db = db;
         if (props == null){
-            props = new TreeMap();
+            props = new TreeMap<String, String>();
             
             // dir with pause feature files 
             String pauseFv = System.getProperty(FVFILES);
@@ -242,8 +242,8 @@ public class PauseDurationTrainer extends VoiceImportComponent {
         
         // build the tree without using the J48 wrapper class
         // standard parameters are: 
-        //binary split selection with minimum x instances at the leaves, tree is pruned, confidence value, subtree raising, cleanup
-        C45PruneableClassifierTree decisionTree = new C45PruneableClassifierTree(new BinC45ModelSelection(2,data),true,0.25f,true,true);        
+        //binary split selection with minimum x instances at the leaves, tree is pruned, confidence value, subtree raising, cleanup, don't collapse
+        C45PruneableClassifierTree decisionTree = new C45PruneableClassifierTree(new BinC45ModelSelection(2,data,true),true,0.25f,true,true,false);        
        
         decisionTree.buildClassifier(data);
         
@@ -261,10 +261,10 @@ public class PauseDurationTrainer extends VoiceImportComponent {
         GmmDiscretizer discr = GmmDiscretizer.trainDiscretizer(durs, 6, true);
         
         // used to store the collected values
-        FastVector targetVals = new FastVector();
+        ArrayList<String> targetVals = new ArrayList<String>();
         
         for (int mappedDur : discr.getPossibleValues() ){
-            targetVals.addElement(mappedDur + "ms");
+            targetVals.add(mappedDur + "ms");
         }
         
         //FastVector attributeDeclarations = data.;
@@ -291,7 +291,7 @@ public class PauseDurationTrainer extends VoiceImportComponent {
 
     private Instance createInstance(Instances data, FeatureDefinition fd, FeatureVector fv) {
         // relevant features + one target
-        Instance currInst = new Instance( data.numAttributes()  );
+        Instance currInst = new DenseInstance( data.numAttributes()  );
         currInst.setDataset(data);
         
         // read only relevant features
@@ -307,7 +307,7 @@ public class PauseDurationTrainer extends VoiceImportComponent {
 
     private Instances initData(FeatureDefinition fd) {
         // this stores the attributes together with allowed values
-        FastVector attributeDeclarations = new FastVector();
+        ArrayList<Attribute> attributeDeclarations = new ArrayList<Attribute>();
         
         // first declare all the relevant attributes.
         // Assume that the feature definition and relevant features of the first 
@@ -323,12 +323,12 @@ public class PauseDurationTrainer extends VoiceImportComponent {
             }
 
             // ...collect possible values
-            FastVector attVals = new FastVector();
+            ArrayList<String> attVals = new ArrayList<String>();
             for (String value : fd.getPossibleValues(attribute)){
-                attVals.addElement(value);
+                attVals.add(value);
             }
             
-            attributeDeclarations.addElement(new Attribute(attName, attVals) );
+            attributeDeclarations.add(new Attribute(attName, attVals) );
 
         }
                        
@@ -420,7 +420,7 @@ public class PauseDurationTrainer extends VoiceImportComponent {
     }
 
     protected void setupHelp() {
-        props2Help = new TreeMap();
+        props2Help = new TreeMap<String, String>();
         props2Help.put(FVFILES,"Directory containing the pause feature files.");
         props2Help.put(LABFILES, "Directory containing label files from which pause durations are taken.");
         props2Help.put(TRAINEDTREE, "Result of training.");
