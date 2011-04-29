@@ -2,7 +2,7 @@
 
 
 
-all="opennlp jtok freetts sgt weka"
+all="opennlp jtok freetts sgt weka mwdumper"
 
 ############## individual installer functions #############
 
@@ -53,6 +53,13 @@ installWeka() {
   mvn install:install-file -DgroupId=nz.ac.waikato.cs.ml -DartifactId=weka -Dversion=3.7.3 -Dpackaging=jar -Dfile=dependencies/weka-3.7.3.jar -Dsources=dependencies/weka-3.7.3-src.jar
 }
 
+installMwdumper() {
+  echo "Installing MWdumper from source..."
+  cd $MARYBASE/tmp
+  svn checkout -r 87118 http://svn.wikimedia.org/svnroot/mediawiki/trunk/mwdumper
+  cd mwdumper
+  mvn install
+}
 
 
 
@@ -74,6 +81,7 @@ for dep in $deps ; do
     jtok) installJtok ;;
     sgt) installSgt ;;
     weka) installWeka ;;
+    mwdumper) installMwdumper ;;
     *) echo "Ignoring unknown module '$dep'" ;;
   esac
 done

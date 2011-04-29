@@ -69,15 +69,11 @@
       <artifactId>weka</artifactId>
       <version>3.7.3</version>
     </dependency>
-
-    <!-- System dependencies - to be replaced where possible -->
-
     <dependency>
-      <groupId>dummy</groupId>
-      <artifactId>dummy21</artifactId>
-      <version>1.0</version>
-      <scope>system</scope>
-      <systemPath>${basedir}/lib/mwdumper-2008-04-13.jar</systemPath>
-    </dependency> 
+	  <groupId>org.wikimedia</groupId>
+	  <artifactId>mwdumper</artifactId>
+	  <version>1.16</version>
+    </dependency>
+
   </dependencies>
 </project>
