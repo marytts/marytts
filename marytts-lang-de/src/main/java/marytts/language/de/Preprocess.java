@@ -109,12 +109,12 @@ public class Preprocess extends InternalModule
                 // ignore token
                 continue;
             }
-            Iterator it = ExpansionPattern.allPatterns().iterator();
+            Iterator<ExpansionPattern> it = ExpansionPattern.allPatterns().iterator();
             boolean fullyExpanded = false;
             while (!fullyExpanded && it.hasNext()) {
                 ExpansionPattern ep = (ExpansionPattern)it.next();
                 logger.debug("Now applying ep " + ep + " to token " + MaryDomUtils.getPlainTextBelow(t));
-                List expanded = new ArrayList();
+                List<Element> expanded = new ArrayList<Element>();
                 fullyExpanded = ep.process(t, expanded);
                 // Element replacements may have been caused by ep.process());
                 // Update t and tw accordingly: the next position to look at is
@@ -155,7 +155,7 @@ public class Preprocess extends InternalModule
      * @param l a list of elements
      * @return the last token, or null if no such token can be found
      */
-    private Element getLastToken(List l) {
+    private Element getLastToken(List<Element> l) {
         if (l == null) throw new NullPointerException("Received null argument");
         if (l.isEmpty()) throw new IllegalArgumentException("Received empty list");
         for (int i=l.size()-1; i>=0; i--) {
@@ -180,7 +180,7 @@ public class Preprocess extends InternalModule
      * @param l a list of elements
      * @return the first token, or null if no such token can be found
      */
-    private Element getFirstToken(List l) {
+    private Element getFirstToken(List<Element> l) {
         if (l == null) throw new NullPointerException("Received null argument");
         if (l.isEmpty()) throw new IllegalArgumentException("Received empty list");
         for (int i=0; i<l.size(); i++) {

@@ -26,9 +26,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import marytts.util.MaryUtils;
-
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -56,8 +53,8 @@ public class DurationEP extends ExpansionPattern
      * (<code>knownTypes[0]</code>) is expected to be the most general one,
      * of which the others are specialisations.
      */
-    private final List knownTypes = Arrays.asList(_knownTypes);
-    public List knownTypes() { return knownTypes; }
+    private final List<String> knownTypes = Arrays.asList(_knownTypes);
+    public List<String> knownTypes() { return knownTypes; }
 
     // Domain-specific primitives:
     protected final String sHour = "(?:0?[0-9]|1[0-9]|2[0-4])";
@@ -84,7 +81,7 @@ public class DurationEP extends ExpansionPattern
      * the variable at the same time, the logger needs to be thread-safe
      * or it will produce rubbish.
      */
-    private Logger logger = MaryUtils.getLogger("DurationEP");
+    //private Logger logger = MaryUtils.getLogger("DurationEP");
 
     public DurationEP()
     {
@@ -118,7 +115,7 @@ public class DurationEP extends ExpansionPattern
         return -1;
     }
 
-    protected List expand(List tokens, String s, int type)
+    protected List<Element> expand(List<Element> tokens, String s, int type)
     {
         if (tokens == null) 
             throw new NullPointerException("Received null argument");
@@ -126,7 +123,7 @@ public class DurationEP extends ExpansionPattern
             throw new IllegalArgumentException("Received empty list");
         Document doc = ((Element)tokens.get(0)).getOwnerDocument();
         // we expect type to be one of the return values of match():
-        List expanded = null;
+        List<Element> expanded = null;
         switch (type) {
         case 1:
             expanded = expandDurationHMS(doc, s);
@@ -157,9 +154,9 @@ public class DurationEP extends ExpansionPattern
         return reHour.matcher(s).matches();
     }
 
-    protected List expandDurationHMS(Document doc, String s)
+    protected List<Element> expandDurationHMS(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         Matcher reMatcher = reHourMinuteSecond.matcher(s);
         if (!reMatcher.find()) {
             return null;
@@ -196,9 +193,9 @@ public class DurationEP extends ExpansionPattern
         return exp;
     }
 
-    protected List expandDurationHM(Document doc, String s)
+    protected List<Element> expandDurationHM(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         Matcher reMatcher = reHourMinute.matcher(s);
         reMatcher.find();
         String hour = reMatcher.group(1);
@@ -221,9 +218,9 @@ public class DurationEP extends ExpansionPattern
         return exp;
     }
 
-    protected List expandDurationH(Document doc, String s)
+    protected List<Element> expandDurationH(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         Matcher reMatcher = reHour.matcher(s);
         reMatcher.find();
         String hour = reMatcher.group(1); // first bracket pair in reHour: hour

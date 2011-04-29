@@ -30,7 +30,6 @@ import java.util.regex.Pattern;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -55,8 +54,8 @@ public class MeasureEP extends ExpansionPattern
      * (<code>knownTypes[0]</code>) is expected to be the most general one,
      * of which the others are specialisations.
      */
-    private final List knownTypes = Arrays.asList(_knownTypes);
-    public List knownTypes() { return knownTypes; }
+    private final List<String> knownTypes = Arrays.asList(_knownTypes);
+    public List<String> knownTypes() { return knownTypes; }
 
     
     // number-dependent-feminine measure-symbol-names
@@ -118,11 +117,11 @@ public class MeasureEP extends ExpansionPattern
         };
     
     
-    private final Map nuDeFeMeasureSymbolNames =
-        MaryUtils.ArrayToMap(_nuDeFeMeasureSymbolNames);
+    private final Map<String, String> nuDeFeMeasureSymbolNames =
+        MaryUtils.arrayToMap(_nuDeFeMeasureSymbolNames);
     
-    private final Map maMeasureSymbolNames =
-        MaryUtils.ArrayToMap(_maMeasureSymbolNames);
+    private final Map<String, String> maMeasureSymbolNames =
+        MaryUtils.arrayToMap(_maMeasureSymbolNames);
     
     
     // Domain-specific primitives:
@@ -146,7 +145,7 @@ public class MeasureEP extends ExpansionPattern
      * the variable at the same time, the logger needs to be thread-safe
      * or it will produce rubbish.
      */
-    private Logger logger = MaryUtils.getLogger("MeasureEP");
+    //private Logger logger = MaryUtils.getLogger("MeasureEP");
 
 
     // Only used to initialise sMeasureSymbol from _measureSymbolNames[]:
@@ -196,7 +195,7 @@ public class MeasureEP extends ExpansionPattern
         return -1;
     }
 
-    protected List expand(List tokens, String s, int type)
+    protected List<Element> expand(List<Element> tokens, String s, int type)
     {
         if (tokens == null) 
             throw new NullPointerException("Received null argument");
@@ -204,7 +203,7 @@ public class MeasureEP extends ExpansionPattern
             throw new IllegalArgumentException("Received empty list");
         Document doc = ((Element)tokens.get(0)).getOwnerDocument();
         // we expect type to be one of the return values of match():
-        List expanded = null;
+        List<Element> expanded = null;
         switch (type) {
         case 0:
             expanded = expandMeasure(doc, s);
@@ -214,9 +213,9 @@ public class MeasureEP extends ExpansionPattern
         return expanded;
     }
 
-    protected List expandMeasure(Document doc, String s)
+    protected List<Element> expandMeasure(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         StringBuilder sb = new StringBuilder();
         String measure = null;
         String amount = null;

@@ -26,9 +26,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -55,8 +56,8 @@ public class NetEP extends ExpansionPattern
      * (<code>knownTypes[0]</code>) is expected to be the most general one,
      * of which the others are specialisations.
      */
-    private final List knownTypes = Arrays.asList(_knownTypes);
-    public List knownTypes() { return knownTypes; }
+    private final List<String> knownTypes = Arrays.asList(_knownTypes);
+    public List<String> knownTypes() { return knownTypes; }
 
     // Domain-specific primitives:
     /* Email syntax is specified in http://www.faqs.org/rfcs/rfc2822.html
@@ -93,7 +94,7 @@ public class NetEP extends ExpansionPattern
      * the variable at the same time, the logger needs to be thread-safe
      * or it will produce rubbish.
      */
-    private Category logger = Category.getInstance("NetEP");
+    private Logger logger = MaryUtils.getLogger("NetEP");
 
 
     public NetEP()
@@ -145,7 +146,7 @@ public class NetEP extends ExpansionPattern
         return -1;
     }
 
-    protected List expand(List tokens, String s, int type)
+    protected List<Element> expand(List<Element> tokens, String s, int type)
     {
         if (tokens == null) 
             throw new NullPointerException("Received null argument");
@@ -154,7 +155,7 @@ public class NetEP extends ExpansionPattern
         Element firstOld = (Element) tokens.get(0);
         Document doc = firstOld.getOwnerDocument();
         // we expect type to be one of the return values of match():
-        List expanded = null;
+        List<Element> expanded = null;
         switch (type) {
         case 1:
             expanded = expandNetEmail(doc, s);
@@ -181,9 +182,9 @@ public class NetEP extends ExpansionPattern
         return reNetUri.matcher(s).matches();
     }
 
-    protected List expandNetEmail(Document doc, String s)
+    protected List<Element> expandNetEmail(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         Matcher reMatcher = reNetEmail.matcher(s);
         if (!reMatcher.find()) return null;
         String localPart = reMatcher.group(1);
@@ -205,9 +206,9 @@ public class NetEP extends ExpansionPattern
         return exp;
     }
 
-    protected List expandNetUri(Document doc, String s)
+    protected List<Element> expandNetUri(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         Matcher reMatcher = reNetUri.matcher(s);
         if (!reMatcher.find()) return null;
         String domain = reMatcher.group(1);
@@ -226,10 +227,10 @@ public class NetEP extends ExpansionPattern
         return exp;
     }
 
-    private List expandDomain(Document doc, String domain)
+    private List<Element> expandDomain(Document doc, String domain)
     {
         logger.debug("Expanding domain `" + domain + "'");
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         String domainSuffix = null;
         String toExpand;
         if (domain.endsWith(".com")) {

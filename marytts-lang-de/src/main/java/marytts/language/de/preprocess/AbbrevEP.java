@@ -21,10 +21,9 @@
 package marytts.language.de.preprocess;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,7 +35,6 @@ import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import marytts.datatypes.MaryXML;
-import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
@@ -57,10 +55,10 @@ public class AbbrevEP extends ExpansionPattern
     private final String[] _knownTypes = {
         "acronym"
     };
-    private final List knownTypes = Arrays.asList(_knownTypes);
-    public List knownTypes() { return knownTypes; }
+    private final List<String> knownTypes = Arrays.asList(_knownTypes);
+    public List<String> knownTypes() { return knownTypes; }
 
-    private static final Map abbrevDict = new HashMap();
+    private static final Map<String, String[]> abbrevDict = new HashMap<String, String[]>();
 
     // We don't use sMatchingChars here, but override isCandidate().
     private final Pattern reMatchingChars = null;
@@ -118,15 +116,14 @@ public class AbbrevEP extends ExpansionPattern
      * replace them by <code>mtu</code> structures
      * (for multi-token abbreviations).
      */
-    protected List expand(List tokens, String s, int type)
+    protected List<Element> expand(List<Element> tokens, String s, int type)
     {
         if (tokens == null) 
             throw new NullPointerException("Received null argument");
         if (tokens.isEmpty()) 
             throw new IllegalArgumentException("Received empty list");
-        Document doc = ((Element)tokens.get(0)).getOwnerDocument();
         // we expect type to be one of the return values of match():
-        List expanded = null;
+        List<Element> expanded = null;
         expanded = expandAbbrev(tokens);
         replaceTokens(tokens, expanded);
         return expanded;
@@ -138,11 +135,11 @@ public class AbbrevEP extends ExpansionPattern
      * If no entry was found, expand by rule.
      * Return the list of newly created, but not yet attached tokens.
      */
-    private List expandAbbrev(List abbrTokens)
+    private List<Element> expandAbbrev(List<Element> abbrTokens)
     {
-        ArrayList exp = new ArrayList();
-        ArrayList abbr = new ArrayList(abbrTokens);
-        ArrayList match = new ArrayList(abbr);
+        ArrayList<Element> exp = new ArrayList<Element>();
+        ArrayList<Element> abbr = new ArrayList<Element>(abbrTokens);
+        ArrayList<Element> match = new ArrayList<Element>(abbr);
         boolean tryLowerCase = false;
         if (MaryDomUtils.isFirstOfItsKindIn((Element)abbr.get(0), MaryXML.SENTENCE) &&
             REPattern.initialCapitalLetter.matcher(MaryDomUtils.tokenText((Element)abbr.get(0))).find()) {
@@ -153,7 +150,7 @@ public class AbbrevEP extends ExpansionPattern
         StringBuilder sb = new StringBuilder();
         while (!match.isEmpty()) {
             sb.setLength(0);
-            Iterator it = match.iterator();
+            Iterator<Element> it = match.iterator();
             while (it.hasNext()) {
                 sb.append(MaryDomUtils.tokenText((Element)it.next()));
             }
@@ -206,7 +203,7 @@ public class AbbrevEP extends ExpansionPattern
             exp.addAll(expandAbbrev(abbr));
         if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
         	StringBuilder logBuf = new StringBuilder();
-        	for (Iterator it = exp.iterator(); it.hasNext(); ) {
+        	for (Iterator<Element> it = exp.iterator(); it.hasNext(); ) {
         		Element elt = (Element) it.next();
         		if (elt.getTagName().equals(MaryXML.TOKEN)) {
 					logBuf.append(MaryDomUtils.tokenText(elt));
@@ -228,10 +225,10 @@ public class AbbrevEP extends ExpansionPattern
      * Tokens for the expanded form are created, but not yet attached to the
      * dom tree.
      */
-    private List dictionaryExpandAbbrev(List match, String abbrev)
+    private List<Element> dictionaryExpandAbbrev(List<Element> match, String abbrev)
     {
         Document doc = ((Element)match.get(0)).getOwnerDocument();
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         String[] value = (String[]) abbrevDict.get(abbrev);
         String flex = value[0]; // inflection info
         String graph = value[1]; // expanded form, possibly with pronunciation
@@ -271,7 +268,7 @@ public class AbbrevEP extends ExpansionPattern
         return exp;
     }
 
-    protected List ruleExpandAbbrev(Element token)
+    protected List<Element> ruleExpandAbbrev(Element token)
     {
         Document doc = token.getOwnerDocument();
         String orig = MaryDomUtils.tokenText(token);
@@ -354,13 +351,8 @@ public class AbbrevEP extends ExpansionPattern
     private static void loadAbbrevDict()
         throws FileNotFoundException, IOException
     {
-        File datafile = new File(MaryProperties.maryBase() +
-                                 File.separator + "lib" +
-                                 File.separator + "modules" +
-                                 File.separator + "de" +
-                                 File.separator + "preprocess" +
-                                 File.separator + "abbrev.dat");
-        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(datafile), "UTF-8"));
+        InputStream abbrevStream = AbbrevEP.class.getResourceAsStream("abbrev.dat"); 
+        BufferedReader br = new BufferedReader(new InputStreamReader(abbrevStream, "UTF-8"));
         String line;
         while ((line = br.readLine()) != null) {
             if (Pattern.compile("^\\#").matcher(line).find() ||
@@ -382,7 +374,7 @@ public class AbbrevEP extends ExpansionPattern
             graph = graph.replaceAll("\\s+", " ");
             // Now key should not contain any whitespace:
             if (Pattern.compile("\\s").matcher(key).find()) {
-                logger.info("In " + datafile.getName() + ": Abbreviation \"" +
+                logger.info("In abbrev.dat: Abbreviation \"" +
                              key + "\" contains whitespace. Ignoring.");
                 continue;
             }

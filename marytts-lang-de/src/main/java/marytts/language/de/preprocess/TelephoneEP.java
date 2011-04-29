@@ -26,10 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -54,8 +52,8 @@ public class TelephoneEP extends ExpansionPattern
      * (<code>knownTypes[0]</code>) is expected to be the most general one,
      * of which the others are specialisations.
      */
-    private final List knownTypes = Arrays.asList(_knownTypes);
-    public List knownTypes() { return knownTypes; }
+    private final List<String> knownTypes = Arrays.asList(_knownTypes);
+    public List<String> knownTypes() { return knownTypes; }
 
     // Domain-specific primitives:
     protected final String sTelephone = "(?:[0+][0-9/\\-\\.]+)";
@@ -72,7 +70,7 @@ public class TelephoneEP extends ExpansionPattern
      * the variable at the same telephone, the logger needs to be thread-safe
      * or it will produce rubbish.
      */
-    private Logger logger = MaryUtils.getLogger("TelephoneEP");
+    //private Logger logger = MaryUtils.getLogger("TelephoneEP");
 
     public TelephoneEP()
     {
@@ -89,7 +87,7 @@ public class TelephoneEP extends ExpansionPattern
         return -1;
     }
 
-    protected List expand(List tokens, String s, int type)
+    protected List<Element> expand(List<Element> tokens, String s, int type)
     {
         if (tokens == null) 
             throw new NullPointerException("Received null argument");
@@ -97,7 +95,7 @@ public class TelephoneEP extends ExpansionPattern
             throw new IllegalArgumentException("Received empty list");
         Document doc = ((Element)tokens.get(0)).getOwnerDocument();
         // we expect type to be one of the return values of match():
-        List expanded = null;
+        List<Element> expanded = null;
         switch (type) {
         case 0:
             expanded = expandTelephone(doc, tokens);
@@ -128,7 +126,7 @@ public class TelephoneEP extends ExpansionPattern
      * often done using whitespace, information that would be lost
      * if the whitespace-free string was used.
      */
-    protected List expandTelephone(Document doc, List tokens)
+    protected List<Element> expandTelephone(Document doc, List<Element> tokens)
     {
         // Before expansion, split into parts as follows:
         // - token boundaries are separators
@@ -138,8 +136,8 @@ public class TelephoneEP extends ExpansionPattern
         //   2-2-...-2 (even number of digits) digit parts.
         if (tokens == null || tokens.size() == 0)
             return null;
-        ArrayList exp = new ArrayList();
-        ArrayList parts = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
+        ArrayList<String> parts = new ArrayList<String>();
         // The very first character in the telephone number may be a +
         // (for international area code).
         Element firstToken = (Element) tokens.get(0);
@@ -149,7 +147,7 @@ public class TelephoneEP extends ExpansionPattern
             exp.addAll(makeNewTokens(doc, "Plus"));
             MaryDomUtils.setTokenText(firstToken, firstText.substring(1)); // remove + sign
         }
-        for (Iterator it = tokens.iterator(); it.hasNext(); ) {
+        for (Iterator<Element> it = tokens.iterator(); it.hasNext(); ) {
             Element t = (Element) it.next();
             String s = MaryDomUtils.tokenText(t);
             if (!REPattern.digit.matcher(s).find()) // no digits in this token
@@ -199,7 +197,7 @@ public class TelephoneEP extends ExpansionPattern
             }
         }
         // Now parts contains the groups we are to speak.
-        for (Iterator it=parts.iterator(); it.hasNext(); ) {
+        for (Iterator<String> it=parts.iterator(); it.hasNext(); ) {
             exp.addAll(number.expandDigits(doc, (String)it.next(), true));
             // Force accent on last token in mtu:
             Element mtu = (Element)exp.get(exp.size()-1);

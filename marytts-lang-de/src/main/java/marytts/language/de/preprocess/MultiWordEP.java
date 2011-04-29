@@ -21,10 +21,10 @@
 package marytts.language.de.preprocess;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -37,7 +37,6 @@ import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import marytts.datatypes.MaryXML;
-import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
 
@@ -58,11 +57,11 @@ public class MultiWordEP extends ExpansionPattern
     private final String[] _knownTypes = {
         "multiword"
     };
-    private final List knownTypes = Arrays.asList(_knownTypes);
-    public List knownTypes() { return knownTypes; }
+    private final List<String> knownTypes = Arrays.asList(_knownTypes);
+    public List<String> knownTypes() { return knownTypes; }
 
-    private static final Map multiWordDict = new HashMap();
-    private static final Set constituentWordSet = new HashSet();
+    private static final Map<String, String> multiWordDict = new HashMap<String, String>();
+    private static final Set<String> constituentWordSet = new HashSet<String>();
 
     // We don't use sMatchingChars here, but override isCandidate().
     private final Pattern reMatchingChars = null;
@@ -110,7 +109,7 @@ public class MultiWordEP extends ExpansionPattern
      * Expand multiwords and eventually
      * replace them with <code>mtu</code> structures.
      */
-    protected List expand(List tokens, String s, int type)
+    protected List<Element> expand(List<Element> tokens, String s, int type)
     {
         if (tokens == null) 
             throw new NullPointerException("Received null argument");
@@ -118,13 +117,13 @@ public class MultiWordEP extends ExpansionPattern
             throw new IllegalArgumentException("Received empty list");
         // Expand the list of potential multi-token words.
         // First, try to find longest entries in database, then shorter.
-        List expanded = new ArrayList();
-        ArrayList match = new ArrayList(tokens);
+        List<Element> expanded = new ArrayList<Element>();
+        ArrayList<Element> match = new ArrayList<Element>(tokens);
         StringBuilder sb = new StringBuilder();
         String multiword = null;
         while (!match.isEmpty()) {
             sb.setLength(0);
-            Iterator it = match.iterator();
+            Iterator<Element> it = match.iterator();
             while (it.hasNext()) {
                 sb.append(MaryDomUtils.tokenText((Element)it.next()));
                 sb.append(" ");
@@ -143,7 +142,7 @@ public class MultiWordEP extends ExpansionPattern
         }
         if (logger.getEffectiveLevel().equals(Level.DEBUG)) {
             StringBuilder logBuf = new StringBuilder();
-            for (Iterator it = expanded.iterator(); it.hasNext(); ) {
+            for (Iterator<Element> it = expanded.iterator(); it.hasNext(); ) {
                 Element elt = (Element) it.next();
                 if (elt.getTagName().equals(MaryXML.TOKEN)) {
                     logBuf.append(MaryDomUtils.tokenText(elt));
@@ -167,10 +166,10 @@ public class MultiWordEP extends ExpansionPattern
      * Tokens for the expanded form are created, but not yet attached to the
      * dom tree.
      */
-    private List dictionaryExpandMultiWord(List match, String multiword)
+    private List<Element> dictionaryExpandMultiWord(List<Element> match, String multiword)
     {
         Document doc = ((Element)match.get(0)).getOwnerDocument();
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         String graph = (String) multiWordDict.get(multiword);
         // graph = expanded form, possibly with pronunciation
          exp.addAll(makeNewTokens(doc, graph, true, multiword));
@@ -180,13 +179,8 @@ public class MultiWordEP extends ExpansionPattern
     private static void loadMultiWordDict()
         throws FileNotFoundException, IOException
     {
-        File datafile = new File(MaryProperties.maryBase() +
-                                 File.separator + "lib" +
-                                 File.separator + "modules" +
-                                 File.separator + "de" +
-                                 File.separator + "preprocess" +
-                                 File.separator + "multiword.dat");
-        BufferedReader br = new BufferedReader(new FileReader(datafile));
+        InputStream mwStream = MultiWordEP.class.getResourceAsStream("multiword.dat");
+        BufferedReader br = new BufferedReader(new InputStreamReader(mwStream, "UTF-8"));
         String line;
         while ((line = br.readLine()) != null) {
             if (Pattern.compile("^\\#").matcher(line).find() ||

@@ -26,9 +26,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import marytts.util.MaryUtils;
-
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -58,8 +55,8 @@ public class TimeEP extends ExpansionPattern
      * (<code>knownTypes[0]</code>) is expected to be the most general one,
      * of which the others are specialisations.
      */
-    private final List knownTypes = Arrays.asList(_knownTypes);
-    public List knownTypes() { return knownTypes; }
+    private final List<String> knownTypes = Arrays.asList(_knownTypes);
+    public List<String> knownTypes() { return knownTypes; }
 
     // Domain-specific primitives:
     protected final String sHour = "(?:0?[0-9]|1[0-9]|2[0-4])";
@@ -88,7 +85,7 @@ public class TimeEP extends ExpansionPattern
      * the variable at the same time, the logger needs to be thread-safe
      * or it will produce rubbish.
      */
-    private Logger logger = MaryUtils.getLogger("TimeEP");
+    //private Logger logger = MaryUtils.getLogger("TimeEP");
 
     public TimeEP()
     {
@@ -155,7 +152,7 @@ public class TimeEP extends ExpansionPattern
         return -1;
     }
     
-    protected List expand(List tokens, String s, int type)
+    protected List<Element> expand(List<Element> tokens, String s, int type)
     {
         if (tokens == null) 
             throw new NullPointerException("Received null argument");
@@ -163,7 +160,7 @@ public class TimeEP extends ExpansionPattern
             throw new IllegalArgumentException("Received empty list");
         Document doc = ((Element)tokens.get(0)).getOwnerDocument();
         // we expect type to be one of the return values of match():
-        List expanded = null;
+        List<Element> expanded = null;
         switch (type) {
         case 1:
             expanded = expandTimeHMS(doc, s);
@@ -200,9 +197,9 @@ public class TimeEP extends ExpansionPattern
         return reHour.matcher(s).matches();
     }
 
-    protected List expandTimeHMS(Document doc, String s)
+    protected List<Element> expandTimeHMS(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         StringBuilder sb = new StringBuilder();
         Matcher reMatcher = reHourMinuteSecond.matcher(s);
         if (!reMatcher.find()) {
@@ -236,9 +233,9 @@ public class TimeEP extends ExpansionPattern
         return exp;
     }
 
-    protected List expandTimeHM(Document doc, String s)
+    protected List<Element> expandTimeHM(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         StringBuilder sb = new StringBuilder();
         Matcher reMatcher = reHourMinute.matcher(s);
         reMatcher.find();
@@ -259,9 +256,9 @@ public class TimeEP extends ExpansionPattern
         return exp;
     }
 
-    protected List expandTimeH(Document doc, String s)
+    protected List<Element> expandTimeH(Document doc, String s)
     {
-        ArrayList exp = new ArrayList();
+        ArrayList<Element> exp = new ArrayList<Element>();
         Matcher reMatcher = reHour.matcher(s);
         reMatcher.find();
         String hour = reMatcher.group(1); // first bracket pair in reHour: hour
@@ -284,7 +281,7 @@ public class TimeEP extends ExpansionPattern
     	return containsOneOrMoreDigits(s);
     }
     
-    protected List expandTimeHMS12(Document doc, String s)
+    protected List<Element> expandTimeHMS12(Document doc, String s)
     {
     	boolean isAfternoon = isAfternoon(s); 
 		s = extractDigits(s);
@@ -307,7 +304,7 @@ public class TimeEP extends ExpansionPattern
     	return expandTimeHMS12or24(doc, s);
     }
 	   
-    protected List expandTimeHMS24(Document doc, String s){
+    protected List<Element> expandTimeHMS24(Document doc, String s){
     	s = extractDigits(s);
 		if (s.length() == 0)
 			return null; // alternatively it could return "Null Uhr"
@@ -318,7 +315,7 @@ public class TimeEP extends ExpansionPattern
 		return expandTimeHMS12or24(doc, s);
     }
     
-    private List expandTimeHMS12or24(Document doc, String s){
+    private List<Element> expandTimeHMS12or24(Document doc, String s){
     	// insert seperators:
 		for (int i=s.length()-1; i>1; i--){
 			if (i % 2 == 0)
