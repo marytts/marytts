@@ -52,10 +52,15 @@ public class ComplexNumber {
         this.imag = (float)imagIn;
     }
     
-    public boolean equals(ComplexNumber other)
+    @Override
+    public boolean equals(Object other)
     {
-        if (real!=other.real) return false;
-        if (imag!=other.imag) return false;
+    	if (!(other instanceof ComplexNumber)) {
+    		return false;
+    	}
+    	ComplexNumber cn = (ComplexNumber) other;
+        if (real!=cn.real) return false;
+        if (imag!=cn.imag) return false;
         
         return true;
     }
