@@ -19,6 +19,10 @@
  */
 package marytts.datatypes;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -27,21 +31,11 @@ import java.util.Locale;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-
-import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
-
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-
-import static org.junit.Assert.*;
-
 import org.apache.log4j.BasicConfigurator;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 public class MaryDataTest {
     String textString = "Hallöchen Welt!";

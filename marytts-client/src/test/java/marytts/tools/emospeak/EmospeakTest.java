@@ -25,12 +25,8 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 
-import marytts.tools.emospeak.EmoTransformer;
-
-import org.w3c.dom.Document;
-
-
 import org.junit.Test;
+import org.w3c.dom.Document;
 
 
 /**

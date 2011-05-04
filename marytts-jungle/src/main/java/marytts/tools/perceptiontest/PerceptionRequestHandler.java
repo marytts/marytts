@@ -19,41 +19,19 @@
  */
 package marytts.tools.perceptiontest;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import marytts.server.http.BaseHttpRequestHandler;
-import marytts.server.http.FileRequestHandler;
-import marytts.server.http.MaryHttpServerUtils;
 import marytts.util.http.Address;
-import marytts.util.io.FileUtils;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.MethodNotSupportedException;
-import org.apache.http.ParseException;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.nio.entity.NStringEntity;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
 import org.xml.sax.SAXException;
 
 /**

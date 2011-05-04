@@ -23,10 +23,8 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.xml.parsers.ParserConfigurationException;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.exceptions.NoSuchPropertyException;
 import marytts.machinelearning.ContextualGMMParams;
 import marytts.machinelearning.GMM;
 import marytts.machinelearning.GMMTrainer;
@@ -46,8 +44,6 @@ import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.signalproc.window.Window;
 import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;
-
-import org.xml.sax.SAXException;
 
 
 /**

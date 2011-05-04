@@ -21,18 +21,14 @@
 package marytts.tools.perceptiontest;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.server.Request;
 import marytts.server.http.MaryHttpServerUtils;
 import marytts.util.MaryUtils;
 
@@ -41,7 +37,6 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.ContentOutputStream;
 import org.apache.http.nio.entity.ProducingNHttpEntity;
-import org.apache.http.nio.util.DirectByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.nio.util.SharedOutputBuffer;
 import org.apache.log4j.Logger;

@@ -26,7 +26,6 @@
 
 package marytts.tools.install;
 
-import java.awt.event.ItemEvent;
 import java.util.Locale;
 
 /**

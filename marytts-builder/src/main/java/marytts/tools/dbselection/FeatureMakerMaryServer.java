@@ -24,8 +24,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -36,18 +34,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.Vector;
-import java.util.HashMap;
 
-import marytts.client.MaryClient;
 import marytts.client.http.MaryHttpClient;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.features.FeatureDefinition;
-import marytts.htsengine.HTSModel;
 import marytts.util.dom.MaryDomUtils;
 
 import org.w3c.dom.Document;

@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import java.util.StringTokenizer;
 import java.util.WeakHashMap;
 
 import javax.xml.parsers.DocumentBuilder;

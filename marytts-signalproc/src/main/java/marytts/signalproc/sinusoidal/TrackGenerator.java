@@ -19,8 +19,6 @@
  */
 package marytts.signalproc.sinusoidal;
 
-import marytts.util.MaryUtils;
-import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**

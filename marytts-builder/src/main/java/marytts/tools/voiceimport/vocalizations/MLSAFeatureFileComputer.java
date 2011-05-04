@@ -20,7 +20,6 @@
 package marytts.tools.voiceimport.vocalizations;
 
 import java.io.File;
-import java.io.FilePermission;
 import java.io.IOException;
 import java.util.SortedMap;
 import java.util.TreeMap;

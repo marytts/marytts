@@ -36,9 +36,9 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import java.util.Vector;
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -46,18 +46,15 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.Version;
 import marytts.datatypes.MaryDataType;
-import marytts.exceptions.NoSuchPropertyException;
 import marytts.htsengine.HMMVoice;
 import marytts.modules.synthesis.Voice;
 import marytts.signalproc.effects.BaseAudioEffect;
-import marytts.signalproc.effects.EffectsApplier;
 import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.MaryAudioUtils;
 
-import marytts.util.io.FileUtils;
 import org.apache.log4j.Logger;
 
 /**

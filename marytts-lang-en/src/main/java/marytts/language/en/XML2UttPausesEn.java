@@ -21,7 +21,6 @@ package marytts.language.en;
 
 import java.util.Locale;
 
-import marytts.exceptions.MaryConfigurationException;
 import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.XML2UttBase;
 

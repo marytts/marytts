@@ -30,7 +30,6 @@
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
 import java.io.DataInputStream;
-import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;

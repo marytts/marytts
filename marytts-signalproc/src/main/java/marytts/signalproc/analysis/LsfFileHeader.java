@@ -24,7 +24,6 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import marytts.signalproc.window.Window;
-import marytts.util.io.MaryRandomAccessFile;
 
 /**
  * Implements a structured header with file I/O functionality 

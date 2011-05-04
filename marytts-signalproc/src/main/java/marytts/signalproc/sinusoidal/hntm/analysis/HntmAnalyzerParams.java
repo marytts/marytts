@@ -38,7 +38,6 @@ import java.io.IOException;
 
 import marytts.signalproc.analysis.RegularizedCepstrumEstimator;
 import marytts.signalproc.sinusoidal.hntm.analysis.pitch.HnmPitchVoicingAnalyzerParams;
-import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizer;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizerParams;
 import marytts.signalproc.window.Window;
 

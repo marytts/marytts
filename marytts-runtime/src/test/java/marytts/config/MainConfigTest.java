@@ -4,11 +4,12 @@
 package marytts.config;
 
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import marytts.exceptions.MaryConfigurationException;
 
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 /**
  * @author marc
  *

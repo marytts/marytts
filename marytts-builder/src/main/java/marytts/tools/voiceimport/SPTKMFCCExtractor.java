@@ -19,26 +19,17 @@
  */
 package marytts.tools.voiceimport;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.Vector;
 
-import marytts.cart.*;
-import marytts.cart.LeafNode.FeatureVectorLeafNode;
-import marytts.cart.LeafNode.FloatLeafNode;
-import marytts.cart.LeafNode.IntAndFloatArrayLeafNode;
-import marytts.cart.LeafNode.IntArrayLeafNode;
-import marytts.cart.LeafNode.LeafType;
-import marytts.cart.io.MaryCARTReader;
-import marytts.cart.io.MaryCARTWriter;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
 import marytts.signalproc.analysis.Mfccs;
-import marytts.unitselection.data.FeatureFileReader;
-import marytts.unitselection.data.MCepDatagram;
-import marytts.unitselection.data.MCepTimelineReader;
-import marytts.unitselection.data.UnitFileReader;
-import marytts.util.MaryUtils;
-import marytts.util.data.Datagram;
 import marytts.util.io.General;
 
 

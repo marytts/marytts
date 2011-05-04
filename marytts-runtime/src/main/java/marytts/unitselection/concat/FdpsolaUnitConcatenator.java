@@ -19,9 +19,7 @@
  */
 package marytts.unitselection.concat;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,8 +30,6 @@ import marytts.modules.phonemiser.Allophone;
 import marytts.server.MaryProperties;
 import marytts.signalproc.process.FDPSOLAProcessor;
 import marytts.unitselection.analysis.Phone;
-import marytts.unitselection.analysis.ProsodyAnalyzer;
-import marytts.unitselection.concat.BaseUnitConcatenator.UnitData;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.unitselection.select.Target;
 import marytts.util.data.Datagram;

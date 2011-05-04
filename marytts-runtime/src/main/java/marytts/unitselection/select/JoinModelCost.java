@@ -21,14 +21,14 @@ package marytts.unitselection.select;
 
 import java.io.IOException;
 
-import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
-import marytts.htsengine.PhoneTranslator;
 import marytts.cart.CART;
 import marytts.cart.Node;
 import marytts.cart.LeafNode.PdfLeafNode;
 import marytts.cart.io.HTSCARTReader;
+import marytts.exceptions.MaryConfigurationException;
+import marytts.features.FeatureDefinition;
+import marytts.features.FeatureVector;
+import marytts.htsengine.PhoneTranslator;
 import marytts.server.MaryProperties;
 import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.unitselection.data.DiphoneUnit;

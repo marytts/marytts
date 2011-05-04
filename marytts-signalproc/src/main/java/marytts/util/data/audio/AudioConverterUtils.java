@@ -31,7 +31,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.signalproc.analysis.EnergyAnalyser;
-import marytts.signalproc.filter.HighPassFilter;
 import marytts.signalproc.filter.LowPassFilter;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;

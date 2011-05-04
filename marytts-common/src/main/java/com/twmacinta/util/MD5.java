@@ -1,6 +1,10 @@
 package com.twmacinta.util;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Fast implementation of RSA's MD5 hash generator in Java JDK Beta-2 or higher.

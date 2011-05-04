@@ -39,15 +39,10 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.exceptions.NoSuchPropertyException;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
-import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.LsfAnalyser;
@@ -55,7 +50,6 @@ import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.signalproc.filter.HighPassFilter;
 import marytts.signalproc.window.HammingWindow;
 import marytts.signalproc.window.Window;
-import marytts.util.MaryUtils;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;

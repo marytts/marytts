@@ -29,11 +29,9 @@
 
 package marytts.signalproc.analysis;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 
 import marytts.util.io.FileUtils;
 import marytts.util.string.StringUtils;

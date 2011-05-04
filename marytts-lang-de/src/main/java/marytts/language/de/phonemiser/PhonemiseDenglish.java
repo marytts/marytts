@@ -20,7 +20,6 @@
 
 package marytts.language.de.phonemiser;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -29,7 +28,6 @@ import java.util.Locale;
 import marytts.language.de.JPhonemiser;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
-import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;

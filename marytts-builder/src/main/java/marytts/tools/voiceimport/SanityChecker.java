@@ -19,26 +19,27 @@
  */
 package marytts.tools.voiceimport;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
-import marytts.cart.*;
-import marytts.cart.LeafNode.FeatureVectorLeafNode;
-import marytts.cart.LeafNode.FloatLeafNode;
-import marytts.cart.LeafNode.IntAndFloatArrayLeafNode;
-import marytts.cart.LeafNode.IntArrayLeafNode;
-import marytts.cart.LeafNode.LeafType;
+import marytts.cart.CART;
+import marytts.cart.LeafNode;
 import marytts.cart.io.MaryCARTReader;
-import marytts.cart.io.MaryCARTWriter;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.data.FeatureFileReader;
-import marytts.unitselection.data.MCepDatagram;
-import marytts.unitselection.data.MCepTimelineReader;
-import marytts.unitselection.data.UnitFileReader;
-import marytts.util.MaryUtils;
-import marytts.util.data.Datagram;
 
 class DiphoneCount implements Comparable<DiphoneCount>
 {

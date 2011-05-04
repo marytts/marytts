@@ -3,8 +3,9 @@
  */
 package marytts.util.math;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  * @author marc

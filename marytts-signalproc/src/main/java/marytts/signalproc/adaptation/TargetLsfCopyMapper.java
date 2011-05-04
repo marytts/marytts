@@ -29,12 +29,7 @@
 
 package marytts.signalproc.adaptation;
 
-import java.util.Arrays;
-
-import marytts.signalproc.adaptation.gmm.jointgmm.JointGMM;
-import marytts.signalproc.adaptation.gmm.jointgmm.JointGMMMatch;
 import marytts.signalproc.analysis.Labels;
-import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 

@@ -41,8 +41,6 @@ import java.util.Locale;
 import javax.sound.sampled.AudioFormat;
 
 import marytts.cart.CART;
-import marytts.cart.DirectedGraph;
-import marytts.cart.io.DirectedGraphReader;
 import marytts.cart.io.MaryCARTReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;

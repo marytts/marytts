@@ -27,10 +27,7 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import marytts.exceptions.MaryConfigurationException;
-import marytts.exceptions.NoSuchPropertyException;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.phonemiser.Syllabifier;
@@ -38,7 +35,6 @@ import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
-import org.xml.sax.SAXException;
 
 import com.sun.speech.freetts.lexicon.LetterToSound;
 import com.sun.speech.freetts.lexicon.LetterToSoundImpl;

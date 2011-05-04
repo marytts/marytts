@@ -22,8 +22,6 @@ package marytts.unitselection.data;
 import gnu.trove.TIntHashSet;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
 import marytts.features.FeatureVector;
@@ -34,7 +32,6 @@ import marytts.unitselection.select.viterbi.ViterbiCandidate;
 import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 
-import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
 public class DiphoneUnitDatabase extends UnitDatabase {

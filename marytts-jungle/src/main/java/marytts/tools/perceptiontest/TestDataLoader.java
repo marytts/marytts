@@ -27,17 +27,16 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import marytts.util.dom.DomUtils;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.w3c.dom.traversal.DocumentTraversal;
 import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.xml.sax.SAXException;
-
-import marytts.util.dom.DomUtils;
 
 /**
  * The class loads the perception test stimuli

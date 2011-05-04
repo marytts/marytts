@@ -24,21 +24,11 @@ import java.io.IOException;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.analysis.EnergyAnalyser;
-import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioConverterUtils;
-import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.io.BasenameList;
 import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
 
 
 

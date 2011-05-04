@@ -50,10 +50,7 @@
 package marytts.htsengine;
 
 
-import java.util.Scanner;
 import java.util.Vector;
-import java.io.File;
-import java.io.IOException;
 
 /**
  * list of Model objects for current utterance.

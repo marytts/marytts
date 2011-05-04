@@ -20,23 +20,15 @@
 
 package marytts.modules.acoustic;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.WeakHashMap;
 
-import org.apache.log4j.Logger;
-import org.w3c.dom.Element;
-
-import marytts.cart.io.DirectedGraphReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
-import marytts.features.FeatureRegistry;
 import marytts.features.FeatureVector;
-import marytts.features.TargetFeatureComputer;
 import marytts.htsengine.CartTreeSet;
 import marytts.htsengine.HMMData;
 import marytts.htsengine.HTSModel;
@@ -44,6 +36,9 @@ import marytts.htsengine.HTSParameterGeneration;
 import marytts.htsengine.HTSUttModel;
 import marytts.unitselection.select.Target;
 import marytts.util.MaryUtils;
+
+import org.apache.log4j.Logger;
+import org.w3c.dom.Element;
 
 /**
  * Model for predicting duration and F0 from HMMs

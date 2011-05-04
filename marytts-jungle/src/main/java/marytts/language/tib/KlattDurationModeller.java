@@ -28,7 +28,6 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.WeakHashMap;
 
-
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;

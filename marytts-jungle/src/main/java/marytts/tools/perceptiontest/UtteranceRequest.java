@@ -19,24 +19,9 @@
  */
 package marytts.tools.perceptiontest;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -44,37 +29,12 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
 
-import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
-import marytts.datatypes.MaryDataTypeWithParams;
-import marytts.datatypes.MaryXML;
-import marytts.modules.MaryModule;
-import marytts.modules.ModuleRegistry;
-import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
-import marytts.server.Request;
-import marytts.server.http.MaryHttpServerUtils;
-import marytts.util.MaryCache;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
-import marytts.util.dom.DomUtils;
-import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
-import org.w3c.dom.traversal.TreeWalker;
 
 
 /**

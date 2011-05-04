@@ -30,7 +30,6 @@
 package marytts.signalproc.sinusoidal.hntm.modification;
 
 import java.util.Arrays;
-import java.util.Vector;
 
 import marytts.signalproc.adaptation.prosody.BasicProsodyModifierParams;
 import marytts.signalproc.analysis.RegularizedCepstrumEstimator;
@@ -39,20 +38,15 @@ import marytts.signalproc.analysis.RegularizedPreWarpedCepstrumEstimator;
 import marytts.signalproc.process.TDPSOLAInstants;
 import marytts.signalproc.process.TDPSOLAProcessor;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
-import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerNoisePartWaveformSynthesizer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmPlusTransientsSpeechSignal;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignalWithContext;
 import marytts.signalproc.sinusoidal.hntm.analysis.TransientSegment;
-import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizedSignal;
-import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizer;
 import marytts.signalproc.sinusoidal.hntm.synthesis.NoisePartWaveformSynthesizer;
 import marytts.signalproc.window.Window;
-import marytts.util.MaryUtils;
 import marytts.util.math.ArrayUtils;
-import marytts.util.math.ComplexNumber;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 

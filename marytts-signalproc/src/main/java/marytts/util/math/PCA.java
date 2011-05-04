@@ -24,8 +24,8 @@ import java.io.FileReader;
 import java.util.Vector;
 
 import Jama.EigenvalueDecomposition;
-import Jama.SingularValueDecomposition;
 import Jama.Matrix;
+import Jama.SingularValueDecomposition;
 
 /***
  * Principal component analysis

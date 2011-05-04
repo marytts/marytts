@@ -42,9 +42,8 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
 import marytts.signalproc.filter.BandPassFilter;
-//import marytts.util.MaryUtils;
-import marytts.util.math.MathUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
+import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 

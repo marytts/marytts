@@ -21,16 +21,8 @@ package marytts.language.en;
 
 import java.util.Locale;
 
-import marytts.datatypes.MaryXML;
 import marytts.language.en_US.datatypes.USEnglishDataTypes;
 import marytts.modules.Utt2XMLBase;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import com.sun.speech.freetts.Item;
-import com.sun.speech.freetts.Relation;
-import com.sun.speech.freetts.Utterance;
 
 
 

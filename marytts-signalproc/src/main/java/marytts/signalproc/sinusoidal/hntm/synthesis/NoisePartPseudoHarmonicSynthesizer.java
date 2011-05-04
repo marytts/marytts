@@ -42,7 +42,6 @@ import marytts.signalproc.analysis.RegularizedCepstrumEstimator;
 import marytts.signalproc.analysis.RegularizedPostWarpedCepstrumEstimator;
 import marytts.signalproc.analysis.RegularizedPreWarpedCepstrumEstimator;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartPseudoHarmonic;
-import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.window.Window;

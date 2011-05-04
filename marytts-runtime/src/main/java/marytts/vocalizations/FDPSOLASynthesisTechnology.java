@@ -19,7 +19,6 @@
  */
 package marytts.vocalizations;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -27,11 +26,9 @@ import java.util.LinkedList;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
-import marytts.modules.synthesis.Voice;
 import marytts.signalproc.process.FDPSOLAProcessor;
 import marytts.unitselection.data.TimelineReader;
 import marytts.util.data.BufferedDoubleDataSource;

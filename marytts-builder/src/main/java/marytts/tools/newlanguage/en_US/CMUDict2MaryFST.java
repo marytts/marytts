@@ -19,44 +19,24 @@
  */
 package marytts.tools.newlanguage.en_US;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.phonemiser.Syllabifier;
+import marytts.tools.newlanguage.LexiconCreator;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.PatternLayout;
-
-import marytts.cart.CART;
-import marytts.cart.LeafNode.LeafType;
-import marytts.cart.io.MaryCARTReader;
-import marytts.cart.io.MaryCARTWriter;
-import marytts.cart.io.WagonCARTReader;
-import marytts.cart.io.WagonCARTWriter;
-import marytts.features.FeatureDefinition;
-import marytts.fst.AlignerTrainer;
-import marytts.fst.FSTLookup;
-import marytts.fst.TransducerTrie;
-import marytts.modules.phonemiser.AllophoneSet;
-import marytts.modules.phonemiser.Syllabifier;
-import marytts.modules.phonemiser.TrainedLTS;
-import marytts.server.MaryProperties;
-import marytts.tools.newlanguage.LTSTrainer;
-import marytts.tools.newlanguage.LexiconCreator;
 
 /**
  * This class does a one-time, offline conversion from the CMUDict in Festival format

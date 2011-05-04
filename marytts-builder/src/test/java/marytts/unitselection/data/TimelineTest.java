@@ -19,23 +19,23 @@
  */
 package marytts.unitselection.data;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.util.Random;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import static org.junit.Assert.*;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import marytts.exceptions.MaryConfigurationException;
 import marytts.tools.voiceimport.TimelineWriter;
-import marytts.unitselection.data.TimelineReader;
 import marytts.util.Pair;
 import marytts.util.data.Datagram;
+
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /**
  * Provides the actual timeline test case for the timeline reading/writing symmetry.

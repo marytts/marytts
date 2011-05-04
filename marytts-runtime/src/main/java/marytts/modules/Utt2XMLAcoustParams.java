@@ -20,14 +20,6 @@
 package marytts.modules;
 
 import marytts.datatypes.MaryDataType;
-import marytts.datatypes.MaryXML;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import com.sun.speech.freetts.Item;
-import com.sun.speech.freetts.Relation;
-import com.sun.speech.freetts.Utterance;
 
 
 

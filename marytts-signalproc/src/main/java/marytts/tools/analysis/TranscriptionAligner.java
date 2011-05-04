@@ -31,9 +31,7 @@ import java.util.regex.Pattern;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.signalproc.analysis.AlignedLabels;
-import marytts.signalproc.analysis.Label;
 import marytts.signalproc.analysis.Labels;
-import marytts.util.Pair;
 import marytts.util.data.text.XwavesLabelfileDataSource;
 
 

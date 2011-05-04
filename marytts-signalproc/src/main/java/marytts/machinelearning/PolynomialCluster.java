@@ -19,8 +19,6 @@
  */
 package marytts.machinelearning;
 
-import java.util.Arrays;
-
 import marytts.util.math.Polynomial;
 
 /**

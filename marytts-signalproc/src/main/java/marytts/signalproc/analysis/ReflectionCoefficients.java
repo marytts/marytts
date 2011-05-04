@@ -19,13 +19,8 @@
  */
 package marytts.signalproc.analysis;
 
-import java.util.Arrays;
-
-import marytts.signalproc.window.Window;
-import marytts.util.MaryUtils;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
 
 /**
  * 

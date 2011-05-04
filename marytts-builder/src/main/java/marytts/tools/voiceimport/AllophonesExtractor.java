@@ -27,18 +27,7 @@ import java.io.OutputStream;
 import java.util.Locale;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.Vector;
 
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.apache.commons.io.FileUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
-import marytts.client.MaryClient;
 import marytts.client.http.MaryHttpClient;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
@@ -46,6 +35,11 @@ import marytts.util.MaryUtils;
 import marytts.util.data.text.BasenameClassificationDefinitionFileReader;
 import marytts.util.dom.DomUtils;
 import marytts.util.http.Address;
+
+import org.apache.commons.io.FileUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 /**
  * For the given texts, compute allophones, especially boundary tags.

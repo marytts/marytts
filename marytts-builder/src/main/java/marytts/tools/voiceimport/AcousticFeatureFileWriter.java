@@ -44,10 +44,8 @@ import marytts.features.FeatureVector;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
-import marytts.util.data.Datagram;
 import marytts.util.data.MaryHeader;
 import marytts.util.math.ArrayUtils;
-import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 
 

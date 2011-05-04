@@ -41,8 +41,6 @@ import marytts.util.MaryUtils;
 import marytts.util.io.LoggingReader;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.entity.InputStreamEntity;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;

@@ -20,26 +20,16 @@
 package marytts.tools.voiceimport.vocalizations;
 
 import java.awt.Color;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -51,8 +41,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 
 import marytts.features.FeatureDefinition;
-import marytts.features.FeatureVector;
-import marytts.vocalizations.KMeansClusterer;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.signalproc.analysis.PitchReaderWriter;
@@ -62,22 +50,16 @@ import marytts.signalproc.display.FunctionGraph;
 import marytts.tools.voiceimport.DatabaseLayout;
 import marytts.tools.voiceimport.VoiceImportComponent;
 import marytts.unitselection.data.FeatureFileReader;
-import marytts.unitselection.data.HnmTimelineReader;
 import marytts.unitselection.data.TimelineReader;
-import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.Datagram;
-import marytts.util.data.DatagramDoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.AudioPlayer;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.io.BasenameList;
-import marytts.util.io.FileUtils;
-import marytts.util.math.ArrayUtils;
-import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 import marytts.util.signal.SignalProcUtils;
+import marytts.vocalizations.KMeansClusterer;
 
 
 public class VocalizationF0PolynomialInspector extends VoiceImportComponent

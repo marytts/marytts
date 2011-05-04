@@ -19,12 +19,13 @@
  */
 package marytts.signalproc.process;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.InputStreamReader;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.process.PitchFrameProvider;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.SequenceDoubleDataSource;
@@ -33,7 +34,6 @@ import marytts.util.data.text.ESTTextfileDoubleDataSource;
 import marytts.util.math.MathUtils;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 
 /**

@@ -20,27 +20,18 @@
 package marytts.modules.phonemiser;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Locale;
 import java.util.Properties;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import marytts.cart.CART;
-import marytts.cart.LeafNode;
 import marytts.cart.LeafNode.StringAndFloatLeafNode;
 import marytts.cart.io.MaryCARTReader;
-import marytts.cart.io.WagonCARTReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-
-import org.xml.sax.SAXException;
 
 
 

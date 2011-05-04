@@ -23,33 +23,29 @@ package marytts.tools.analysis;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import marytts.client.http.MaryHttpClient;
+import marytts.datatypes.MaryXML;
+import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
+import marytts.signalproc.analysis.PitchFileHeader;
+import marytts.signalproc.analysis.PitchReaderWriter;
+import marytts.util.data.audio.AudioDoubleDataSource;
+import marytts.util.data.text.LabelfileDoubleDataSource;
+import marytts.util.dom.DomUtils;
+import marytts.util.dom.MaryDomUtils;
 
 import org.apache.commons.io.FileUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.traversal.NodeIterator;
-
-import marytts.client.http.MaryHttpClient;
-import marytts.datatypes.MaryXML;
-import marytts.signalproc.analysis.PitchReaderWriter;
-import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
-import marytts.signalproc.analysis.PitchFileHeader;
-import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.data.text.LabelfileDoubleDataSource;
-import marytts.util.dom.DomUtils;
-import marytts.util.dom.MaryDomUtils;
-import marytts.util.string.StringUtils;
 
 /**
  * @author marc

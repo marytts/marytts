@@ -3,7 +3,8 @@
  */
 package marytts.tests.junit4.language.de;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 

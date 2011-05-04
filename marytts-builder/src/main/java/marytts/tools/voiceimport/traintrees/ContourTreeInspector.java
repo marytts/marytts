@@ -20,20 +20,14 @@
 package marytts.tools.voiceimport.traintrees;
 
 import java.awt.Color;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Random;
 
 import javax.swing.JFrame;
 
-import marytts.cart.CART;
 import marytts.cart.DirectedGraph;
 import marytts.cart.LeafNode;
-import marytts.cart.LeafNode.IntAndFloatArrayLeafNode;
 import marytts.cart.LeafNode.IntArrayLeafNode;
 import marytts.cart.io.DirectedGraphReader;
-import marytts.cart.io.DirectedGraphWriter;
-import marytts.cart.io.MaryCARTReader;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.util.math.ArrayUtils;

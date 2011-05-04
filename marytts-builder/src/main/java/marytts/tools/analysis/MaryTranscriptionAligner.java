@@ -8,16 +8,16 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import marytts.datatypes.MaryXML;
+import marytts.modules.phonemiser.AllophoneSet;
+import marytts.util.dom.MaryDomUtils;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
-
-import marytts.datatypes.MaryXML;
-import marytts.modules.phonemiser.AllophoneSet;
-import marytts.util.dom.MaryDomUtils;
 
 /**
  * @author marc

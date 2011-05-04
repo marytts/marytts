@@ -20,35 +20,19 @@
 package marytts.modules;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
-import java.util.Vector;
 
-import marytts.cart.CART;
-import marytts.cart.DirectedGraph;
-import marytts.cart.StringPredictionTree;
-import marytts.cart.io.DirectedGraphReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
-import marytts.features.FeatureVector;
 import marytts.features.TargetFeatureComputer;
-import marytts.htsengine.CartTreeSet;
-import marytts.htsengine.HMMData;
-import marytts.htsengine.HMMVoice;
-import marytts.htsengine.HTSModel;
-import marytts.htsengine.HTSPStream;
-import marytts.htsengine.HTSParameterGeneration;
-import marytts.htsengine.HTSUttModel;
+import marytts.machinelearning.SoP;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
@@ -57,12 +41,9 @@ import marytts.unitselection.select.UnitSelector;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
-import marytts.machinelearning.SoP;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
 

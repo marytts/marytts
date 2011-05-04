@@ -20,7 +20,6 @@
 package marytts.tools.voiceimport;
 
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,15 +27,14 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import org.apache.commons.lang.ArrayUtils;
-
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.signalproc.analysis.EnergyContourRms;
-import marytts.signalproc.analysis.EnergyFileHeader;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
+
+import org.apache.commons.lang.ArrayUtils;
 
 /**
  * Compute unit labels from phone labels.

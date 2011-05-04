@@ -40,7 +40,6 @@ import java.io.IOException;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
-import marytts.unitselection.data.Unit;
 import marytts.util.data.MaryHeader;
 
 

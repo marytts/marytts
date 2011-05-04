@@ -19,8 +19,6 @@
  */
 package marytts.unitselection.select;
 
-import java.io.IOException;
-
 import marytts.exceptions.MaryConfigurationException;
 import marytts.unitselection.data.Unit;
 

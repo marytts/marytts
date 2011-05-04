@@ -23,12 +23,9 @@ import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import marytts.signalproc.sinusoidal.BaseSinusoidalSpeechFrame;
-import marytts.util.math.ArrayUtils;
 
 /**
  * @author oytun.turk

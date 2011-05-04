@@ -20,20 +20,13 @@
 package marytts.tools.voiceimport;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.SortedMap;
-import java.util.StringTokenizer;
 import java.util.TreeMap;
-import java.util.List;
-import java.util.Iterator;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.unitselection.data.SCostFileReader;

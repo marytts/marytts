@@ -44,7 +44,6 @@ import marytts.cart.CART;
 import marytts.cart.FeatureVectorCART;
 import marytts.cart.LeafNode;
 import marytts.cart.Node;
-import marytts.cart.LeafNode.FeatureVectorLeafNode;
 import marytts.cart.LeafNode.LeafType;
 import marytts.cart.impose.FeatureArrayIndexer;
 import marytts.cart.impose.MaryNode;

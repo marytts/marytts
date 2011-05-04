@@ -25,9 +25,7 @@ import java.io.FileReader;
 import java.util.Locale;
 
 import marytts.cart.CART;
-import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.MaryCARTReader;
-import marytts.cart.io.WagonCARTReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
@@ -44,12 +42,9 @@ import marytts.unitselection.select.Target;
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
-import marytts.util.dom.NameNodeFilter;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.traversal.DocumentTraversal;
-import org.w3c.dom.traversal.NodeFilter;
 import org.w3c.dom.traversal.NodeIterator;
 import org.w3c.dom.traversal.TreeWalker;
 

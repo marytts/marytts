@@ -31,14 +31,11 @@
  */
 package marytts.cart;
 
-import java.util.List;
 import java.util.Properties;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.unitselection.select.Target;
-
-import org.apache.log4j.Logger;
 
 /**
  * A tree is a specific kind of directed graph in which 

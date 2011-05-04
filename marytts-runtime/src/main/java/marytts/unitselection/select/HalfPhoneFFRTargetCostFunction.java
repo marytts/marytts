@@ -39,8 +39,6 @@ import marytts.unitselection.weightingfunctions.WeightFunc;
 import marytts.unitselection.weightingfunctions.WeightFunctionManager;
 import marytts.util.MaryUtils;
 
-import org.apache.log4j.Logger;
-
 
 public class HalfPhoneFFRTargetCostFunction extends FFRTargetCostFunction
 {

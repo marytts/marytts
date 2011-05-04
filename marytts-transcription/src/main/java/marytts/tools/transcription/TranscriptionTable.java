@@ -19,67 +19,38 @@
  */
 package marytts.tools.transcription;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import marytts.cart.CART;
-import marytts.cart.StringPredictionTree;
-import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
-import marytts.fst.AlignerTrainer;
-import marytts.fst.StringPair;
-import marytts.modules.phonemiser.AllophoneSet;
-import marytts.modules.phonemiser.TrainedLTS;
-import marytts.tools.dbselection.DBHandler;
-import marytts.tools.newlanguage.LTSTrainer;
-import marytts.util.io.FileUtils;
-
-import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-import javax.swing.text.Element;
-import javax.swing.text.TableView.TableRow;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
-import org.xml.sax.SAXException;
-
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.Dimension;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.swing.BoxLayout;
+import javax.swing.CellEditor;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableColumn;
+
+import marytts.cart.CART;
+import marytts.exceptions.MaryConfigurationException;
+import marytts.modules.phonemiser.AllophoneSet;
+import marytts.modules.phonemiser.TrainedLTS;
+import marytts.tools.newlanguage.LTSTrainer;
 
 /**
  * 

@@ -20,7 +20,6 @@
 package marytts.signalproc.sinusoidal.hntm.synthesis;
 
 import marytts.util.math.ArrayUtils;
-import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**

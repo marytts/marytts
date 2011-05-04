@@ -1,8 +1,5 @@
 package marytts.language.en;
 
-import java.io.IOException;
-import java.util.Locale;
-
 import marytts.config.LanguageConfig;
 import marytts.exceptions.MaryConfigurationException;
 

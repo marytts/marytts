@@ -27,17 +27,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
 import marytts.datatypes.MaryXML;
 import marytts.modules.acoustic.ProsodyElementHandler;
 import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.util.MaryUtils;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * Class to provide high-level, phone-based access to the predicted and realized prosodic parameters in a given unit-selection

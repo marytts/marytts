@@ -37,11 +37,8 @@ import marytts.signalproc.sinusoidal.SinusoidalAnalysisParams;
 import marytts.signalproc.sinusoidal.SinusoidalTrack;
 import marytts.signalproc.sinusoidal.SinusoidalTracks;
 import marytts.signalproc.sinusoidal.TrackGenerator;
-import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
-import marytts.signalproc.sinusoidal.hntm.modification.HntmProsodyModifier;
-import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizedSignal;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 

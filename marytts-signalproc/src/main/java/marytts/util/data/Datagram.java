@@ -32,10 +32,8 @@
 package marytts.util.data;
 
 import java.io.DataOutput;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 
 public class Datagram  {

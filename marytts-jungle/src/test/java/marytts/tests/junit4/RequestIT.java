@@ -19,12 +19,14 @@
  */
 package marytts.tests.junit4;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.util.Locale;
-
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -37,19 +39,13 @@ import marytts.server.Mary;
 import marytts.server.Request;
 import marytts.util.dom.DomUtils;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import static org.junit.Assert.*;
-
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * @author Marc Schr&ouml;der

@@ -31,19 +31,9 @@ import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-
-import marytts.signalproc.analysis.PitchMarks;
-import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.VoiceQuality;
-import marytts.signalproc.window.HammingWindow;
-import marytts.signalproc.window.Window;
 import marytts.tools.voiceimport.SphinxTrainer.StreamGobbler;
 import marytts.util.MaryUtils;
-import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
 
 
 public class OctaveVoiceQualityProcessor extends VoiceImportComponent {

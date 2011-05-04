@@ -19,35 +19,19 @@
  */
 package marytts.modules;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Iterator;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.sound.sampled.AudioInputStream;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.traversal.NodeIterator;
-import org.w3c.dom.traversal.TreeWalker;
-
-import marytts.cart.StringPredictionTree;
-import marytts.cart.io.DirectedGraphReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
@@ -64,15 +48,17 @@ import marytts.htsengine.HTSModel;
 import marytts.htsengine.HTSPStream;
 import marytts.htsengine.HTSParameterGeneration;
 import marytts.htsengine.HTSUttModel;
-import marytts.htsengine.HTSVocoder;
 import marytts.modules.synthesis.Voice;
-import marytts.server.MaryProperties;
 import marytts.util.MaryUtils;
-import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;
-import marytts.util.math.ArrayUtils;
 import marytts.util.math.Polynomial;
-import marytts.modules.synthesis.HMMSynthesizer;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.traversal.NodeIterator;
+import org.w3c.dom.traversal.TreeWalker;
 
 /***
  * This modeller uses the HMMs of the provided hmmVoice.

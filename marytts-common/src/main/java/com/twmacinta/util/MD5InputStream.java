@@ -1,6 +1,10 @@
 package com.twmacinta.util;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /** 
  * MD5InputStream, a subclass of FilterInputStream implementing MD5

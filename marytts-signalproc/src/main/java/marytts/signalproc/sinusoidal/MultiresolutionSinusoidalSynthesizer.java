@@ -27,8 +27,8 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.PitchMarks;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.filter.FIRWaveletFilterBankAnalyser;
 import marytts.signalproc.filter.FIRWaveletFilterBankSynthesiser;
 import marytts.signalproc.filter.FilterBankAnalyserBase;

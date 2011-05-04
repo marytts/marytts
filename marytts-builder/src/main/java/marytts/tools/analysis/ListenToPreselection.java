@@ -20,7 +20,6 @@
 package marytts.tools.analysis;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 import marytts.cart.impose.FeatureArrayIndexer;
 import marytts.cart.impose.FeatureFileIndexingResult;

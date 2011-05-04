@@ -19,7 +19,6 @@
  */
 package marytts.signalproc.sinusoidal;
 
-import java.util.Arrays;
 
 /**
  * A basic implementation of overlap-add sinusoidal synthesis.

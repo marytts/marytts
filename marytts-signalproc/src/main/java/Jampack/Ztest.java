@@ -1,7 +1,5 @@
 package Jampack;
 
-import java.io.InputStreamReader;
-import java.io.StreamTokenizer;
 
 class Ztest{
 

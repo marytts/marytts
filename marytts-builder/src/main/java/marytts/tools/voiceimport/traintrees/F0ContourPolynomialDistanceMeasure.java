@@ -20,7 +20,6 @@
 
 package marytts.tools.voiceimport.traintrees;
 
-import java.io.File;
 import java.io.IOException;
 
 import marytts.features.FeatureVector;

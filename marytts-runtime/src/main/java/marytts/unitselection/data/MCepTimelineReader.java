@@ -20,7 +20,6 @@
 package marytts.unitselection.data;
 
 import java.io.ByteArrayInputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Properties;

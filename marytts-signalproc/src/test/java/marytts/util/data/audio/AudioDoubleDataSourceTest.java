@@ -21,14 +21,12 @@ package marytts.util.data.audio;
 
 import javax.sound.sampled.AudioFormat;
 
-import org.junit.Test;
-import org.junit.Assert;
-
-import marytts.util.math.FFTTest;
 import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.data.audio.DDSAudioInputStream;
+import marytts.util.math.FFTTest;
 import marytts.util.math.MathUtils;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * @author Marc Schr&ouml;der

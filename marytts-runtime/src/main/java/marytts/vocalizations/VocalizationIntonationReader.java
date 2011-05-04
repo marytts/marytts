@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.unitselection.data.Unit;
 import marytts.util.data.MaryHeader;
 
 

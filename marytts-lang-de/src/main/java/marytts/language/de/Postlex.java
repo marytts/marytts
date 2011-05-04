@@ -25,12 +25,9 @@ import java.util.List;
 import java.util.Locale;
 
 import marytts.datatypes.MaryData;
-import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
 import marytts.language.de.postlex.PhonologicalRules;
-import marytts.modules.InternalModule;
 import marytts.modules.PronunciationModel;
-import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.dom.MaryDomUtils;
 import marytts.util.dom.NameNodeFilter;
 

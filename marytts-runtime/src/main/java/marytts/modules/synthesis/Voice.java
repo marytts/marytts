@@ -52,11 +52,6 @@ import marytts.exceptions.NoSuchPropertyException;
 import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
-import marytts.features.MaryFeatureProcessor;
-import marytts.features.FeatureVector.FeatureType;
-import marytts.features.MaryGenericFeatureProcessors.GenericContinuousFeature;
-import marytts.features.TargetFeatureComputer;
-import marytts.htsengine.HMMVoice;
 import marytts.modules.MaryModule;
 import marytts.modules.ModuleRegistry;
 import marytts.modules.acoustic.BoundaryModel;
@@ -78,7 +73,6 @@ import marytts.vocalizations.VocalizationSynthesizer;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 
-import com.sun.speech.freetts.FeatureProcessor;
 import com.sun.speech.freetts.en.us.CMULexicon;
 import com.sun.speech.freetts.lexicon.Lexicon;
 

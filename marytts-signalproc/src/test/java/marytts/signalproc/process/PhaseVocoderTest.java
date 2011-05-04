@@ -19,17 +19,17 @@
  */
 package marytts.signalproc.process;
 
-import java.awt.Color;
+import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.awt.Color;
 
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.display.SignalGraph;
-import marytts.signalproc.process.PhaseVocoder;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.math.FFTTest;
 import marytts.util.math.MathUtils;
+
+import org.junit.Test;
 
 /**
  * @author Marc Schr&ouml;der

@@ -55,7 +55,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Scanner;
@@ -64,7 +63,6 @@ import java.util.Vector;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.server.MaryProperties;
-import marytts.unitselection.select.Target;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;

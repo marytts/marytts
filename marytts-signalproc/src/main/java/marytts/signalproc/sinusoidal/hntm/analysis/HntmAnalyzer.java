@@ -19,63 +19,33 @@
  */
 package marytts.signalproc.sinusoidal.hntm.analysis;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
-
-import marytts.machinelearning.ContextualGMMParams;
-import marytts.modules.phonemiser.Allophone;
-import marytts.modules.phonemiser.AllophoneSet;
-import marytts.signalproc.analysis.CepstrumSpeechAnalyser;
-import marytts.signalproc.analysis.PitchFileHeader;
-import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.PitchMarks;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.RegularizedCepstrumEstimator;
 import marytts.signalproc.analysis.RegularizedPostWarpedCepstrumEstimator;
 import marytts.signalproc.analysis.RegularizedPreWarpedCepstrumEstimator;
-import marytts.signalproc.analysis.SeevocAnalyser;
-import marytts.signalproc.analysis.SpectrumWithPeakIndices;
 import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
-import marytts.signalproc.filter.HighPassFilter;
-import marytts.signalproc.sinusoidal.BaseSinusoidalSpeechSignal;
 import marytts.signalproc.sinusoidal.NonharmonicSinusoidalSpeechFrame;
-import marytts.signalproc.sinusoidal.NonharmonicSinusoidalSpeechSignal;
 import marytts.signalproc.sinusoidal.PeakMatchedSinusoidalSynthesizer;
-import marytts.signalproc.sinusoidal.PitchSynchronousSinusoidalAnalyzer;
 import marytts.signalproc.sinusoidal.SinusoidalAnalysisParams;
 import marytts.signalproc.sinusoidal.SinusoidalAnalyzer;
 import marytts.signalproc.sinusoidal.SinusoidalTracks;
 import marytts.signalproc.sinusoidal.hntm.analysis.pitch.HnmPitchVoicingAnalyzer;
-import marytts.signalproc.sinusoidal.hntm.analysis.pitch.VoicingAnalysisOutputData;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HarmonicPartLinearPhaseInterpolatorSynthesizer;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizedSignal;
-import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizer;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizerParams;
 import marytts.signalproc.sinusoidal.hntm.synthesis.hybrid.HarmonicsToTrackConverter;
 import marytts.signalproc.window.GaussWindow;
-import marytts.signalproc.window.HammingWindow;
 import marytts.signalproc.window.Window;
-import marytts.util.MaryUtils;
-import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.io.FileUtils;
 import marytts.util.math.ArrayUtils;
-import marytts.util.math.ComplexArray;
 import marytts.util.math.ComplexNumber;
-import marytts.util.math.FFT;
-import marytts.util.math.FFTMixedRadix;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
-import marytts.util.string.StringUtils;
-
 import Jampack.H;
 import Jampack.Inv;
 import Jampack.JampackException;

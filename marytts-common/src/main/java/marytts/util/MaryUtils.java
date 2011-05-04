@@ -26,7 +26,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -36,7 +35,6 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
-
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
