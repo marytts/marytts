@@ -1,6 +1,7 @@
 package com.twmacinta.io;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Copyright (c) 2001, 2002 by Pensamos Digital, Inc., All Rights Reserved.<p>

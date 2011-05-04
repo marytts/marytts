@@ -21,49 +21,19 @@ package marytts.tools.perceptiontest;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.Vector;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioSystem;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.MethodNotSupportedException;
-import org.apache.http.ParseException;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
-import org.apache.http.nio.entity.NStringEntity;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
-import org.xml.sax.SAXException;
-
-import marytts.Version;
-import marytts.datatypes.MaryDataType;
-import marytts.features.FeatureProcessorManager;
-import marytts.features.FeatureRegistry;
-import marytts.htsengine.HMMVoice;
-import marytts.modules.synthesis.Voice;
-import marytts.server.MaryProperties;
 import marytts.server.http.BaseHttpRequestHandler;
-import marytts.signalproc.effects.BaseAudioEffect;
-import marytts.signalproc.effects.EffectsApplier;
-import marytts.unitselection.UnitSelectionVoice;
-import marytts.unitselection.interpolation.InterpolatingVoice;
 import marytts.util.MaryUtils;
 import marytts.util.http.Address;
-import marytts.util.string.StringUtils;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.nio.entity.NStringEntity;
+import org.xml.sax.SAXException;
 
 /**
  * 

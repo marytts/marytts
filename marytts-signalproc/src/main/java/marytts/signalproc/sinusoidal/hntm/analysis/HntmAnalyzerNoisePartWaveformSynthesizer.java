@@ -34,7 +34,6 @@ import java.util.Arrays;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizerParams;
 import marytts.signalproc.window.Window;
 import marytts.util.math.ArrayUtils;
-import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 
 /**

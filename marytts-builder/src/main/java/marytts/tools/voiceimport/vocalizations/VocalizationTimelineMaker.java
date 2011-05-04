@@ -23,15 +23,12 @@ package marytts.tools.voiceimport.vocalizations;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import marytts.tools.voiceimport.DatabaseLayout;
-import marytts.tools.voiceimport.PraatPitchmarker;
 import marytts.tools.voiceimport.TimelineWriter;
 import marytts.tools.voiceimport.VoiceImportComponent;
 import marytts.tools.voiceimport.WavReader;

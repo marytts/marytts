@@ -22,7 +22,6 @@ package marytts.modules;
 import java.util.List;
 
 import marytts.datatypes.MaryDataType;
-import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.synthesis.FreeTTSVoices;
 import marytts.modules.synthesis.Voice;
 

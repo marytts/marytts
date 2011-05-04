@@ -22,8 +22,6 @@ package marytts.signalproc.analysis;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import marytts.util.io.MaryRandomAccessFile;
-
 public class VoiceQualityFileHeader extends FeatureFileHeader {
   
   public VoiceQualityFileHeader()

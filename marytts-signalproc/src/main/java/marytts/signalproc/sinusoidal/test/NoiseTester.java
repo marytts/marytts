@@ -22,7 +22,6 @@ package marytts.signalproc.sinusoidal.test;
 import java.io.IOException;
 import java.util.Arrays;
 
-import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 

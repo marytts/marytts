@@ -51,7 +51,6 @@
 package marytts.htsengine;
 
 import java.util.Locale;
-import java.util.Vector;
 
 import javax.sound.sampled.AudioFormat;
 

@@ -19,7 +19,6 @@
  */
 package marytts.signalproc.analysis;
 
-import marytts.util.MaryUtils;
 import marytts.util.data.ESTTrackReader;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;

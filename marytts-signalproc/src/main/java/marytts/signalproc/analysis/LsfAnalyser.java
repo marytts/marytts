@@ -33,7 +33,6 @@ import marytts.signalproc.Defaults;
 import marytts.signalproc.analysis.LpcAnalyser.LpCoeffs;
 import marytts.signalproc.window.DynamicWindow;
 import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.io.MaryRandomAccessFile;
 import marytts.util.io.StreamUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;

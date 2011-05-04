@@ -20,19 +20,15 @@
 package marytts.signalproc.sinusoidal;
 
 import java.io.File;
-import java.io.IOException;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.PitchMarks;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.filter.FilterBankAnalyserBase;
-import marytts.signalproc.process.OverlapAddEnergyNormalizer;
 import marytts.signalproc.window.Window;
-import marytts.util.MaryUtils;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;

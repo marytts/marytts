@@ -22,8 +22,6 @@ package marytts.signalproc.analysis;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import marytts.util.io.MaryRandomAccessFile;
-
 /**
  * Implements a structured header with file I/O functionality 
  * for binary files that store frame based mel frequency cepstral coefficient vectors 

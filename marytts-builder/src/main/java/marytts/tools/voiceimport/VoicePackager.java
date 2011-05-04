@@ -24,11 +24,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -37,11 +33,11 @@ import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import marytts.util.MaryUtils;
+
 import org.apache.commons.lang.ArrayUtils;
 
 import com.twmacinta.util.MD5;
-
-import marytts.util.MaryUtils;
 
 /**
  * Package all of the data files required for the voice in a zip file and generate a component file with the corresponding

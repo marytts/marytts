@@ -26,10 +26,10 @@ import marytts.signalproc.adaptation.BaselineAdaptationSet;
 import marytts.signalproc.adaptation.Context;
 import marytts.signalproc.adaptation.IndexMap;
 import marytts.signalproc.analysis.EnergyContourRms;
-import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Labels;
 import marytts.signalproc.analysis.LsfFileHeader;
 import marytts.signalproc.analysis.Lsfs;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 

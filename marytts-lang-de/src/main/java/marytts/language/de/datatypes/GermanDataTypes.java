@@ -19,8 +19,6 @@
  */
 package marytts.language.de.datatypes;
 
-import marytts.datatypes.MaryDataType;
-import marytts.datatypes.MaryXML;
 
 /**
  * This class will register the data types that are specific for the

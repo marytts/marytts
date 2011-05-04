@@ -19,24 +19,16 @@
  */
 package marytts.tests.junit4;
 
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
-
-
-import static org.junit.Assert.*;
-
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -46,6 +38,12 @@ import marytts.modules.synthesis.Voice;
 import marytts.server.Mary;
 import marytts.server.MaryProperties;
 import marytts.server.Request;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 
 public class MaryIT {

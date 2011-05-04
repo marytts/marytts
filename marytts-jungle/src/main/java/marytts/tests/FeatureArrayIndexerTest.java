@@ -19,9 +19,7 @@
  */
 package marytts.tests;
 
-import java.io.IOException;
 import java.util.Random;
-
 
 import marytts.cart.impose.FeatureArrayIndexer;
 import marytts.features.FeatureDefinition;

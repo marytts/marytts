@@ -19,7 +19,6 @@
  */
 package marytts.language.de;
 // JAVA classes
-import java.io.File;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Locale;
@@ -29,7 +28,7 @@ import java.util.Vector;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.language.de.datatypes.GermanDataTypes;
+import marytts.fst.FSTLookup;
 import marytts.language.de.infostruct.GerNetQuery;
 import marytts.modules.InternalModule;
 import marytts.server.MaryProperties;
@@ -38,8 +37,6 @@ import marytts.util.dom.MaryDomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-
-import marytts.fst.FSTLookup;
 /**
  * Try to recognise the information structure from chunked text.
  *

@@ -31,9 +31,9 @@ import marytts.signalproc.adaptation.BaselineTransformerParams;
 import marytts.signalproc.adaptation.prosody.ProsodyTransformerParams;
 import marytts.signalproc.analysis.AlignmentData;
 import marytts.signalproc.analysis.F0ReaderWriter;
-import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.FestivalUtt;
 import marytts.signalproc.analysis.Labels;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.util.data.AlignLabelsUtils;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
@@ -41,7 +41,6 @@ import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
-import marytts.util.MaryUtils;
 
 /**
  * @author Oytun T&uumlrk

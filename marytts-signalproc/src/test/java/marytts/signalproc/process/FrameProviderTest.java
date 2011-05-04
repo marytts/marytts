@@ -20,13 +20,12 @@
 package marytts.signalproc.process;
 
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-
-import marytts.signalproc.process.FrameProvider;
+import static org.junit.Assert.assertTrue;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.math.FFTTest;
 import marytts.util.math.MathUtils;
+
+import org.junit.Test;
 
 /**
  * @author Marc Schr&ouml;der

@@ -20,16 +20,10 @@
 package marytts.tools.voiceimport;
 
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import marytts.cart.CART;
 import marytts.cart.DecisionNode;
 import marytts.cart.DirectedGraph;
 import marytts.cart.DirectedGraphNode;
@@ -37,19 +31,12 @@ import marytts.cart.LeafNode;
 import marytts.cart.Node;
 import marytts.cart.LeafNode.FeatureVectorLeafNode;
 import marytts.cart.LeafNode.FloatLeafNode;
-import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.DirectedGraphWriter;
-import marytts.cart.io.MaryCARTWriter;
-import marytts.cart.io.WagonCARTReader;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.tools.voiceimport.traintrees.AgglomerativeClusterer;
 import marytts.tools.voiceimport.traintrees.DurationDistanceMeasure;
-import marytts.tools.voiceimport.traintrees.F0ContourPolynomialDistanceMeasure;
 import marytts.unitselection.data.FeatureFileReader;
-import marytts.unitselection.data.TimelineReader;
-import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.util.math.MathUtils;
 

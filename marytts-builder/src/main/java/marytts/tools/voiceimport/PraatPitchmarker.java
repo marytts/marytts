@@ -27,14 +27,14 @@ import java.io.InputStream;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-
 import marytts.util.MaryUtils;
 import marytts.util.data.ESTTrackWriter;
 import marytts.util.data.text.PraatTextfileDoubleDataSource;
 import marytts.util.io.General;
 import marytts.util.math.ArrayUtils;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 
 public class PraatPitchmarker extends VoiceImportComponent

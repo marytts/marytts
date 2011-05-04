@@ -27,11 +27,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.sinusoidal.SinusoidalAnalyzer;
-import marytts.signalproc.sinusoidal.NonharmonicSinusoidalSpeechFrame;
-import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
-import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
-import marytts.signalproc.window.HanningWindow;
 import marytts.signalproc.window.Window;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.display.DisplayUtils;

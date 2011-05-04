@@ -26,8 +26,6 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import marytts.signalproc.analysis.F0Tracker;
-import marytts.signalproc.analysis.F0TrackerAutocorrelationDP;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.util.data.BufferedDoubleDataSource;

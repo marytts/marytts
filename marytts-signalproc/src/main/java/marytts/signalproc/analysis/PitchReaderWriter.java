@@ -31,7 +31,6 @@ import marytts.util.io.LEDataOutputStream;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
-import marytts.util.string.StringUtils;
 
 /**
  * File I/O for binary pitch contour files

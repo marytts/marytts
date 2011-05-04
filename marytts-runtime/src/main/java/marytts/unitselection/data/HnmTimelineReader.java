@@ -21,7 +21,6 @@ package marytts.unitselection.data;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,14 +28,10 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Properties;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.signalproc.adaptation.prosody.BasicProsodyModifierParams;
-import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartWaveform;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
@@ -44,16 +39,10 @@ import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizedSignal;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizer;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizerParams;
-import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.Datagram;
-import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.io.FileUtils;
 import marytts.util.math.ArrayUtils;
-import marytts.util.math.ComplexNumber;
 import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
-import marytts.util.string.StringUtils;
 
 /**
  * A reader class for the harmonics plus noise timeline file.

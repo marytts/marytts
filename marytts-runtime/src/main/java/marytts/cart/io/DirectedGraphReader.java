@@ -26,16 +26,12 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.Vector;
 
-import marytts.cart.CART;
 import marytts.cart.DecisionNode;
 import marytts.cart.DirectedGraph;
 import marytts.cart.DirectedGraphNode;
 import marytts.cart.LeafNode;
 import marytts.cart.Node;
-import marytts.cart.LeafNode.IntAndFloatArrayLeafNode;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.util.data.MaryHeader;

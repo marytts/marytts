@@ -28,22 +28,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 
 import marytts.cart.CART;
 import marytts.cart.io.MaryCARTReader;
 import marytts.cart.io.MaryCARTWriter;
-import marytts.cart.io.WagonCARTWriter;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.fst.AlignerTrainer;
 import marytts.fst.FSTLookup;
@@ -51,6 +43,11 @@ import marytts.fst.TransducerTrie;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.phonemiser.TrainedLTS;
 import marytts.util.MaryUtils;
+
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 
 /**
  * The LexiconCreator is the base class for creating the files needed to run the

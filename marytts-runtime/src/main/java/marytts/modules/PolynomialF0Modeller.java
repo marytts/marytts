@@ -19,17 +19,10 @@
  */
 package marytts.modules;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.util.Locale;
 
-import marytts.cart.CART;
 import marytts.cart.DirectedGraph;
-import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.DirectedGraphReader;
-import marytts.cart.io.MaryCARTReader;
-import marytts.cart.io.WagonCARTReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
@@ -40,7 +33,6 @@ import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
-import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.select.Target;
 import marytts.util.MaryRuntimeUtils;

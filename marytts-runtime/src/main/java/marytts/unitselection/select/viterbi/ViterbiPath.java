@@ -31,7 +31,6 @@
  */
 package marytts.unitselection.select.viterbi;
 
-import java.util.LinkedHashMap;
  /**
   * Describes a Viterbi path.
   */

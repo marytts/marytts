@@ -19,13 +19,8 @@
  */
 package marytts.tools.voiceimport;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -35,10 +30,7 @@ import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.signalproc.analysis.PitchMarks;
 import marytts.signalproc.analysis.PitchReaderWriter;
-import marytts.util.MaryUtils;
 import marytts.util.data.ESTTrackWriter;
-import marytts.util.data.text.PraatTextfileDoubleDataSource;
-import marytts.util.io.FileUtils;
 import marytts.util.signal.SignalProcUtils;
 
 

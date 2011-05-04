@@ -37,7 +37,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.HashMap;
@@ -60,7 +59,6 @@ import marytts.htsengine.PhoneTranslator;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.unitselection.select.JoinCostFeatures;
-import marytts.unitselection.select.JoinModelCost;
 import marytts.util.io.General;
 import marytts.util.math.MathUtils;
 

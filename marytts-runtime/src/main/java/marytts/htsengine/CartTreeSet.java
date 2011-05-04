@@ -49,22 +49,15 @@
 
 package marytts.htsengine;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-
-import org.apache.log4j.Logger;
-
 import marytts.cart.CART;
-import marytts.cart.DecisionNode;
 import marytts.cart.Node;
-import marytts.cart.LeafNode;
 import marytts.cart.LeafNode.PdfLeafNode;
 import marytts.cart.io.HTSCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.util.MaryUtils;
+
+import org.apache.log4j.Logger;
 
 /**
  * Set of CART trees used in HMM synthesis.

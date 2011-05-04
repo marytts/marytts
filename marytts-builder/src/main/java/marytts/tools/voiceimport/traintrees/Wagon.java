@@ -22,10 +22,8 @@ package marytts.tools.voiceimport.traintrees;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
-import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -36,16 +34,15 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
 import marytts.cart.CART;
 import marytts.cart.LeafNode;
-import marytts.cart.Node;
 import marytts.cart.LeafNode.LeafType;
 import marytts.cart.io.WagonCARTReader;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.util.MaryUtils;
+
+import org.apache.log4j.Logger;
 
 /**
  * A class providing the functionality to interface with an external

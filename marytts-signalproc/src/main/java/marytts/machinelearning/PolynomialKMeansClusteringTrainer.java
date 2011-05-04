@@ -21,11 +21,9 @@ package marytts.machinelearning;
 
 import java.awt.Color;
 import java.util.Arrays;
-import java.util.Random;
 
 import javax.swing.JFrame;
 
-import marytts.signalproc.analysis.distance.DistanceComputer;
 import marytts.signalproc.display.FunctionGraph;
 import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;

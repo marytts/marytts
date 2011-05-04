@@ -67,8 +67,6 @@ import java.util.Vector;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.swing.text.Document;
-
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -76,16 +74,15 @@ import marytts.datatypes.MaryXML;
 import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
+import marytts.htsengine.CartTreeSet;
 import marytts.htsengine.HMMData;
 import marytts.htsengine.HMMVoice;
 import marytts.htsengine.HTSModel;
 import marytts.htsengine.HTSParameterGeneration;
-import marytts.htsengine.CartTreeSet;
 import marytts.htsengine.HTSUttModel;
 import marytts.htsengine.HTSVocoder;
 import marytts.htsengine.HTSEngineTest.PhonemeDuration;
 import marytts.modules.synthesis.Voice;
-import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.unitselection.select.Target;
 import marytts.util.MaryUtils;
 import marytts.util.data.audio.AppendableSequenceAudioInputStream;
@@ -97,8 +94,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.traversal.NodeIterator;
-
-import marytts.signalproc.analysis.*;
 
 
 /**

@@ -1,10 +1,21 @@
 package Jama.test;
-import Jama.*;
-import java.io.*;
-import java.util.zip.GZIPInputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
+
+import Jama.CholeskyDecomposition;
+import Jama.EigenvalueDecomposition;
+import Jama.LUDecomposition;
+import Jama.Matrix;
+import Jama.QRDecomposition;
+import Jama.SingularValueDecomposition;
 
 /** TestMatrix tests the functionality of the Jama Matrix class and associated decompositions.
 <P>

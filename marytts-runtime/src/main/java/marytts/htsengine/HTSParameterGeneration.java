@@ -54,10 +54,7 @@ import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -67,8 +64,8 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Mfccs;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.util.MaryUtils;
 import marytts.util.io.LEDataInputStream;
 

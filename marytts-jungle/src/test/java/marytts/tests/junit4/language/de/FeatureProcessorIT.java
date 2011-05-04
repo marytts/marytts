@@ -20,13 +20,14 @@
 
 package marytts.tests.junit4.language.de;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Locale;
 
 import marytts.datatypes.MaryXML;
 import marytts.features.ByteValuedFeatureProcessor;
-import marytts.features.FeatureRegistry;
 import marytts.features.FeatureProcessorManager;
-import marytts.features.MaryFeatureProcessor;
+import marytts.features.FeatureRegistry;
 import marytts.server.Mary;
 import marytts.unitselection.select.Target;
 import marytts.util.dom.MaryDomUtils;
@@ -35,8 +36,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import static org.junit.Assert.*;
 
 /**
  * @author marc

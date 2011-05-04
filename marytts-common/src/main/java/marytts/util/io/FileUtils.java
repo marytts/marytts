@@ -43,16 +43,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Vector;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.util.MaryUtils;
 import marytts.util.string.StringUtils;
 
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 /**
  * A collection of public static utility methods, doing

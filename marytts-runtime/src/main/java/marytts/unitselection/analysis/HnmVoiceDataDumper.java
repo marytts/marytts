@@ -21,10 +21,8 @@
 package marytts.unitselection.analysis;
 
 import java.io.IOException;
-import java.lang.annotation.Inherited;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;

@@ -34,15 +34,13 @@ package marytts.unitselection.select.viterbi;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import marytts.exceptions.SynthesisException;
-import marytts.server.MaryProperties;
 import marytts.unitselection.data.DiphoneUnit;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitDatabase;

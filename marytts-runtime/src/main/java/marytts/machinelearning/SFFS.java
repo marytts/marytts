@@ -23,10 +23,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.PrintWriter;
 
-import Jama.Matrix;
-import marytts.util.MaryUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.math.Regression;
+import Jama.Matrix;
 
 /***
 * Sequential Floating Forward Search(SFFS) for selection of features

@@ -47,14 +47,10 @@ import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizerParams;
 import marytts.unitselection.data.HnmDatagram;
-import marytts.unitselection.data.MCepDatagram;
-import marytts.util.MaryUtils;
 import marytts.util.data.ESTTrackReader;
 import marytts.util.io.FileUtils;
-import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
-import marytts.util.string.StringUtils;
 
 
 /**

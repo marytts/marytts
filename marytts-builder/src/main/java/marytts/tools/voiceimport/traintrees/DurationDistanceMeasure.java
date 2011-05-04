@@ -20,14 +20,10 @@
 
 package marytts.tools.voiceimport.traintrees;
 
-import java.io.File;
 import java.io.IOException;
 
-import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.UnitFileReader;
-import marytts.util.math.Polynomial;
 
 /**
  * @author marc

@@ -31,14 +31,10 @@ package marytts.signalproc.sinusoidal.hntm.analysis;
 
 import java.io.DataInputStream;
 import java.io.DataOutput;
-import java.io.EOFException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 
 import marytts.util.math.ArrayUtils;
-import marytts.util.math.ComplexNumber;
-import marytts.util.math.MathUtils;
 
 /**
  * @author oytun.turk

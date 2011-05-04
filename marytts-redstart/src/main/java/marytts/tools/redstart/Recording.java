@@ -32,7 +32,6 @@ import marytts.signalproc.analysis.EnergyAnalyser;
 import marytts.signalproc.analysis.EnergyAnalyser_dB;
 import marytts.signalproc.analysis.FrameBasedAnalyser.FrameAnalysisResult;
 import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.audio.AudioConverterUtils;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.AudioProcessor;
 import marytts.util.data.audio.AudioRecorder;

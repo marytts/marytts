@@ -19,13 +19,8 @@
  */
 package marytts.tools.voiceimport;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,10 +29,6 @@ import java.util.ListIterator;
 import java.util.SortedMap;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
-
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.xml.sax.SAXException;
 
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.data.text.XwavesLabelfileDataSource;

@@ -23,11 +23,9 @@ package marytts.tools.install;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -36,13 +34,13 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import marytts.util.MaryUtils;
+import marytts.util.dom.DomUtils;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import com.twmacinta.util.MD5;
-
-import marytts.util.MaryUtils;
-import marytts.util.dom.DomUtils;
 
 /**
  * @author marc

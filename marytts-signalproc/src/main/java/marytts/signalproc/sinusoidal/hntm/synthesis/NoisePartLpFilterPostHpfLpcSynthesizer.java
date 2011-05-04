@@ -35,12 +35,9 @@ import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartLpc;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.window.Window;
-import marytts.util.MaryUtils;
-import marytts.util.io.FileUtils;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
-import marytts.util.string.StringUtils;
 
 /**
  * A time-domain LP synthesis filter based version of the HNM noise part synthesis algorithm

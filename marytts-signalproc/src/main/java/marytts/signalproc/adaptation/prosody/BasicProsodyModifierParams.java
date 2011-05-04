@@ -37,14 +37,11 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.Labels;
-import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
-import marytts.util.io.FileUtils;
+import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
-import marytts.util.string.StringUtils;
 
 /**
  * A basic class that contains prosody modification information and corresponding time instants

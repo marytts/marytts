@@ -29,8 +29,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import marytts.util.io.MaryRandomAccessFile;
-
 /**
  * Generic file header for binary acoustic feature files
  * 

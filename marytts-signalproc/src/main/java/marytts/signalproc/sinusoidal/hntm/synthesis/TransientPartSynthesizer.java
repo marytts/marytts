@@ -31,8 +31,6 @@ package marytts.signalproc.sinusoidal.hntm.synthesis;
 
 import java.util.Arrays;
 
-import marytts.signalproc.adaptation.prosody.BasicProsodyModifierParams;
-import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmPlusTransientsSpeechSignal;
 import marytts.signalproc.window.HammingWindow;

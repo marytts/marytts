@@ -19,7 +19,6 @@
  */
 package marytts.server.http;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,19 +29,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioFileFormat;
 
 import marytts.util.ConversionUtils;
 import marytts.util.MaryUtils;
-import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.MaryAudioUtils;
 import marytts.util.string.StringUtils;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.nio.entity.BufferingNHttpEntity;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.entity.NFileEntity;
 import org.apache.http.nio.entity.NStringEntity;

@@ -20,14 +20,11 @@
 package marytts.modules;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.StringReader;
 import java.util.Locale;
 import java.util.Scanner;
 
-import marytts.cart.CART;
-import marytts.cart.io.MaryCARTReader;
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;

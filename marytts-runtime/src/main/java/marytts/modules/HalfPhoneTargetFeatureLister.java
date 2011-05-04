@@ -24,8 +24,6 @@ import java.util.List;
 
 import marytts.datatypes.MaryDataType;
 import marytts.datatypes.MaryXML;
-import marytts.features.TargetFeatureComputer;
-import marytts.modules.synthesis.Voice;
 import marytts.unitselection.select.HalfPhoneTarget;
 import marytts.unitselection.select.Target;
 import marytts.unitselection.select.UnitSelector;

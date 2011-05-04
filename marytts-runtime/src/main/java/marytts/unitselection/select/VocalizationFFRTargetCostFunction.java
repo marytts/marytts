@@ -19,24 +19,12 @@
  */
 package marytts.unitselection.select;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
 import marytts.features.FeatureDefinition;
-import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureVector;
-import marytts.features.TargetFeatureComputer;
-import marytts.server.MaryProperties;
-import marytts.signalproc.display.Histogram;
-import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.weightingfunctions.WeightFunc;
 import marytts.unitselection.weightingfunctions.WeightFunctionManager;
 import marytts.vocalizations.VocalizationFeatureFileReader;
-
-import org.apache.log4j.Logger;
 
 /**
  * FFRTargetCostFunction for vocalization selection

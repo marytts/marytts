@@ -20,17 +20,9 @@
 package marytts.tools.voiceimport;
 
 import java.awt.Color;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -51,7 +43,6 @@ import marytts.signalproc.display.FunctionGraph;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.HnmTimelineReader;
 import marytts.unitselection.data.TimelineReader;
-import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.Datagram;
@@ -59,7 +50,6 @@ import marytts.util.data.DatagramDoubleDataSource;
 import marytts.util.data.audio.AudioPlayer;
 import marytts.util.data.audio.DDSAudioInputStream;
 import marytts.util.math.ArrayUtils;
-import marytts.util.math.MathUtils;
 import marytts.util.math.Polynomial;
 import marytts.util.signal.SignalProcUtils;
 

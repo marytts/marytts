@@ -24,7 +24,6 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.util.StringTokenizer;
 
 import javax.swing.JTable;
 import javax.swing.JTextPane;

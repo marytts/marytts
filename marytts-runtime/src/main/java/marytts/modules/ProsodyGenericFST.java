@@ -3,16 +3,12 @@
  */
 package marytts.modules;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import marytts.datatypes.MaryDataType;
-import marytts.modules.ProsodyGeneric;
-import marytts.server.MaryProperties;
 import marytts.fst.FSTLookup;
 
 public class ProsodyGenericFST extends ProsodyGeneric

@@ -21,19 +21,12 @@
 package marytts.tools.voiceimport.vocalizations;
 
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.text.DecimalFormat;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -43,25 +36,18 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureVector;
 import marytts.signalproc.analysis.F0TrackerAutocorrelationHeuristic;
 import marytts.signalproc.analysis.PitchFileHeader;
 import marytts.signalproc.analysis.PitchReaderWriter;
 import marytts.signalproc.analysis.SPTKPitchReaderWriter;
 import marytts.tools.voiceimport.DatabaseLayout;
-import marytts.tools.voiceimport.PraatPitchmarker;
-import marytts.tools.voiceimport.TimelineWriter;
 import marytts.tools.voiceimport.VoiceImportComponent;
-import marytts.tools.voiceimport.WavReader;
 import marytts.util.data.BufferedDoubleDataSource;
-import marytts.util.data.Datagram;
-import marytts.util.data.ESTTrackReader;
 import marytts.util.data.MaryHeader;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.io.BasenameList;
 import marytts.util.math.Polynomial;
 import marytts.util.signal.SignalProcUtils;
-import marytts.vocalizations.VocalizationFeatureFileReader;
 import marytts.vocalizations.VocalizationIntonationReader;
 import marytts.vocalizations.VocalizationUnitFileReader;
 

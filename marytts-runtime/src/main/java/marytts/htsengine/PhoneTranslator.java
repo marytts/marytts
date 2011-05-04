@@ -23,19 +23,14 @@ package marytts.htsengine;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.Vector;
 
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.modules.phonemiser.AllophoneSet;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;

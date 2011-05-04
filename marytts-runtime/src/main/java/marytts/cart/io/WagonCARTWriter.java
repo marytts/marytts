@@ -33,8 +33,6 @@ import marytts.cart.LeafNode.FeatureVectorLeafNode;
 import marytts.cart.LeafNode.FloatLeafNode;
 import marytts.cart.LeafNode.IntAndFloatArrayLeafNode;
 import marytts.cart.LeafNode.IntArrayLeafNode;
-import marytts.cart.LeafNode.StringAndFloatLeafNode;
-import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
 import marytts.util.data.MaryHeader;
 

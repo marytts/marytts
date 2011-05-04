@@ -29,23 +29,12 @@
 
 package marytts.signalproc.sinusoidal.hntm.synthesis;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
-import marytts.signalproc.analysis.ReflectionCoefficients;
 import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartLpc;
-import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.window.Window;
-import marytts.util.MaryUtils;
-import marytts.util.data.audio.AudioDoubleDataSource;
-import marytts.util.math.ArrayUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 

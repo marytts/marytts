@@ -20,16 +20,14 @@
 package marytts.util.math;
 
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.Assert;
-
 import marytts.signalproc.display.FunctionGraph;
 import marytts.signalproc.filter.FIRFilter;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
-import marytts.util.math.FFT;
-import marytts.util.math.MathUtils;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author Marc Schr&ouml;der

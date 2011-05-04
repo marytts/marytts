@@ -27,8 +27,6 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.Vector;
 
-import java.util.logging.Level;
-
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.BasicConfigurator;

@@ -26,10 +26,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import marytts.cart.CART;
@@ -41,10 +38,8 @@ import marytts.cart.LeafNode;
 import marytts.cart.Node;
 import marytts.cart.LeafNode.FeatureVectorLeafNode;
 import marytts.cart.impose.FeatureArrayIndexer;
-import marytts.cart.impose.MaryNode;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureVector;
-import marytts.unitselection.data.FeatureFileReader;
 
 /**
  * @author marc

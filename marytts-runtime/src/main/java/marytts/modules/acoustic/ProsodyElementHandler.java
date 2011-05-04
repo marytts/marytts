@@ -19,26 +19,15 @@
  */
 package marytts.modules.acoustic;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import marytts.cart.io.DirectedGraphReader;
 import marytts.datatypes.MaryXML;
-import marytts.exceptions.MaryConfigurationException;
-import marytts.exceptions.SynthesisException;
-import marytts.features.FeatureDefinition;
-import marytts.features.FeatureProcessorManager;
-import marytts.features.FeatureRegistry;
-import marytts.features.TargetFeatureComputer;
-import marytts.unitselection.select.Target;
 import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 import marytts.util.dom.MaryDomUtils;

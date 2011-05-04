@@ -5,11 +5,11 @@ package marytts.tests.junit4.language.de;
 
 import java.util.Locale;
 
-import org.junit.Test;
-
+import marytts.language.de.JTokeniser;
 import marytts.modules.ModuleRegistry;
 import marytts.tests.modules.MaryModuleTestCase;
-import marytts.language.de.JTokeniser;
+
+import org.junit.Test;
 
 /**
  * @author Marc Schr&ouml;der

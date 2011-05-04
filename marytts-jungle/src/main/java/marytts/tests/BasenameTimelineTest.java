@@ -19,8 +19,6 @@
  */
 package marytts.tests;
 
-import java.io.IOException;
-
 import marytts.features.FeatureDefinition;
 import marytts.tools.voiceimport.BasenameTimelineMaker;
 import marytts.tools.voiceimport.DatabaseLayout;

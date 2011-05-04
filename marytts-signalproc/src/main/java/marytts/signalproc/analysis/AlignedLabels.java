@@ -23,8 +23,6 @@ package marytts.signalproc.analysis;
 import java.util.ArrayList;
 import java.util.List;
 
-import marytts.util.Pair;
-
 /**
  * @author marc
  *

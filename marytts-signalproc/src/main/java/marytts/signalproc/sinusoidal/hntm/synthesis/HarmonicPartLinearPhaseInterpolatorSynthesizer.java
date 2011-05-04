@@ -38,12 +38,9 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import marytts.signalproc.analysis.LpcAnalyser;
 import marytts.signalproc.analysis.RegularizedCepstrumEstimator;
 import marytts.signalproc.analysis.RegularizedPostWarpedCepstrumEstimator;
 import marytts.signalproc.analysis.RegularizedPreWarpedCepstrumEstimator;
-import marytts.signalproc.sinusoidal.PitchSynchronousSinusoidalAnalyzer;
-import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzer;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
@@ -54,7 +51,6 @@ import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
-import marytts.util.MaryUtils;
 
 /**
  * Synthesizes the harmonic part using the linear phase interpolation and phase unwrapping technique described in:

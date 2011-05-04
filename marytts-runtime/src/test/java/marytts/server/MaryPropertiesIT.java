@@ -3,7 +3,7 @@
  */
 package marytts.server;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.InputStream;
 

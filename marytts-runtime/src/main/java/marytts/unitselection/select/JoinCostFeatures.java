@@ -48,8 +48,6 @@ import marytts.util.MaryUtils;
 import marytts.util.data.MaryHeader;
 import marytts.util.io.StreamUtils;
 
-import org.apache.log4j.Logger;
-
 
 public class JoinCostFeatures implements JoinCostFunction
 {

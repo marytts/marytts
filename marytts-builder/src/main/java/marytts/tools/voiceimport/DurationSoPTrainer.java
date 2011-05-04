@@ -27,16 +27,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.Scanner;
-import java.util.TreeMap;
 import java.util.SortedMap;
-import java.util.Vector;
+import java.util.TreeMap;
 
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
@@ -44,10 +42,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import Jama.Matrix;
-
 import marytts.features.FeatureDefinition;
-import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureVector;
 import marytts.machinelearning.SFFS;
 import marytts.machinelearning.SoP;
@@ -55,10 +50,6 @@ import marytts.modules.phonemiser.AllophoneSet;
 import marytts.unitselection.data.FeatureFileReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.data.UnitFileReader;
-import marytts.util.math.MathUtils;
-import marytts.util.math.PCA;
-import marytts.util.math.Regression;
-import marytts.util.MaryUtils;
 
 /***
  * Modelling duration using Sum of products (SoP) 

@@ -50,7 +50,6 @@ package marytts.cart.io;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -60,20 +59,18 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.Scanner;
 import java.util.StringTokenizer;
-import java.util.Vector;
-
-import org.apache.log4j.Logger;
 
 import marytts.cart.CART;
 import marytts.cart.DecisionNode;
-import marytts.cart.DecisionNode.BinaryByteDecisionNode;
 import marytts.cart.LeafNode;
-import marytts.cart.LeafNode.PdfLeafNode;
 import marytts.cart.Node;
+import marytts.cart.DecisionNode.BinaryByteDecisionNode;
+import marytts.cart.LeafNode.PdfLeafNode;
 import marytts.features.FeatureDefinition;
 import marytts.htsengine.PhoneTranslator;
 import marytts.util.MaryUtils;
-import marytts.util.data.MaryHeader;
+
+import org.apache.log4j.Logger;
 
 
 /**

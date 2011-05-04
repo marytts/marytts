@@ -52,7 +52,6 @@ package marytts.htsengine;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.File;
@@ -65,7 +64,6 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.Scanner;
 
-
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -76,12 +74,12 @@ import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.AudioPlayer;
 import marytts.util.data.audio.DDSAudioInputStream;
+import marytts.util.io.FileUtils;
+import marytts.util.io.LEDataInputStream;
 import marytts.util.math.ComplexArray;
 import marytts.util.math.FFT;
 import marytts.util.math.FFTMixedRadix;
 import marytts.util.math.MathUtils;
-import marytts.util.io.LEDataInputStream;
-import marytts.util.io.FileUtils;
 
 import org.apache.log4j.Logger;
 

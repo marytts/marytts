@@ -21,26 +21,17 @@
 package marytts.modules.acoustic;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import org.w3c.dom.Element;
-
-import marytts.cart.io.DirectedGraphReader;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
-import marytts.features.FeatureRegistry;
-import marytts.features.TargetFeatureComputer;
 import marytts.machinelearning.SoP;
-import marytts.modules.phonemiser.Allophone;
 import marytts.unitselection.select.Target;
 import marytts.util.MaryUtils;
 

@@ -20,15 +20,12 @@
 
 package marytts.modules.acoustic;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.IllegalFormatException;
 import java.util.List;
 
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
-import marytts.features.FeatureDefinition;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
 import marytts.features.FeatureVector;

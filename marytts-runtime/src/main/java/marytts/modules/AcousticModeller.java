@@ -20,19 +20,11 @@
 
 package marytts.modules;
 
-import java.io.File;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.traversal.TreeWalker;
 
 import marytts.datatypes.MaryData;
 import marytts.datatypes.MaryDataType;
@@ -41,18 +33,21 @@ import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureProcessorManager;
 import marytts.features.FeatureRegistry;
-
 import marytts.modules.acoustic.Model;
 import marytts.modules.acoustic.ProsodyElementHandler;
 import marytts.modules.phonemiser.Allophone;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
-
 import marytts.unitselection.select.UnitSelector;
-
 import marytts.util.MaryRuntimeUtils;
 import marytts.util.MaryUtils;
 import marytts.util.dom.MaryDomUtils;
+
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.traversal.TreeWalker;
 
 /**
  * Predict duration and F0 using CARTs or other models

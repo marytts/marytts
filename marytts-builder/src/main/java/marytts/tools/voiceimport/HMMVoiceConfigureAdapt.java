@@ -50,11 +50,7 @@
 
 package marytts.tools.voiceimport;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.SortedMap;
 import java.util.TreeMap;
 

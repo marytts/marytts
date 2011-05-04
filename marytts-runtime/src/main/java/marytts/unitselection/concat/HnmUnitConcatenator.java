@@ -30,34 +30,24 @@
 package marytts.unitselection.concat;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.sound.sampled.AudioInputStream;
 
 import marytts.signalproc.adaptation.prosody.BasicProsodyModifierParams;
-import marytts.signalproc.analysis.PitchReaderWriter;
-import marytts.signalproc.sinusoidal.hntm.analysis.FrameNoisePartWaveform;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmAnalyzerParams;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechFrame;
 import marytts.signalproc.sinusoidal.hntm.analysis.HntmSpeechSignal;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizedSignal;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizer;
 import marytts.signalproc.sinusoidal.hntm.synthesis.HntmSynthesizerParams;
-import marytts.unitselection.concat.BaseUnitConcatenator.UnitData;
-import marytts.unitselection.concat.OverlapUnitConcatenator.OverlapUnitData;
 import marytts.unitselection.data.HnmDatagram;
-import marytts.unitselection.data.HnmTimelineReader;
 import marytts.unitselection.data.Unit;
 import marytts.unitselection.select.SelectedUnit;
 import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.Datagram;
-import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
-import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
 
 /**
  * A unit concatenator for harmonics plus noise based speech synthesis

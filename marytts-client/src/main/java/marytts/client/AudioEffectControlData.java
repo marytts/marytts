@@ -19,10 +19,6 @@
  */
 package marytts.client;
 
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 /**
  * Data for an audio effect control.

@@ -19,17 +19,8 @@
  */
 package marytts.signalproc.analysis;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
-import marytts.util.io.FileUtils;
-import marytts.util.io.LEDataInputStream;
-import marytts.util.io.LEDataOutputStream;
-import marytts.util.math.MathUtils;
-import marytts.util.signal.SignalProcUtils;
 import marytts.util.string.StringUtils;
 
 /**

@@ -49,11 +49,6 @@
 
 package marytts.htsengine;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * HMM model for a particular phone (or line in context feature file)

@@ -19,13 +19,11 @@
  */
 package marytts.util.math;
 
-import Jama.Matrix;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Vector;
 
-import marytts.util.math.MathUtils;
+import Jama.Matrix;
 
 /***
  * Multiple linear regression

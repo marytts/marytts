@@ -25,8 +25,6 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 
-import org.apache.commons.io.FilenameUtils;
-
 import marytts.signalproc.process.FrameOverlapAddSource;
 import marytts.signalproc.process.VocalTractScalingProcessor;
 import marytts.signalproc.window.Window;
@@ -34,9 +32,10 @@ import marytts.util.data.BufferedDoubleDataSource;
 import marytts.util.data.DoubleDataSource;
 import marytts.util.data.audio.AudioDoubleDataSource;
 import marytts.util.data.audio.DDSAudioInputStream;
-import marytts.util.io.FileUtils;
 import marytts.util.math.MathUtils;
 import marytts.util.signal.SignalProcUtils;
+
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * @author Oytun T&uumlrk
