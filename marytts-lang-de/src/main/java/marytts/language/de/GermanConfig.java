@@ -17,31 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.config;
+package marytts.language.de;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
+import marytts.config.LanguageConfig;
+import marytts.exceptions.MaryConfigurationException;
 
 
-/**
- * @author marc
- *
- */
-public class MaryConfigTest {
-
-	@Test
-	public void canCountConfigs() {
-		// exercise
-		int num = MaryConfig.countConfigs();
-		// verify
-		assertTrue(num >= 0);
-	}
-	
-	@Test
-	public void haveMainConfig() {
-		MaryConfig m = MaryConfig.getMainConfig();
-		assertNotNull(m);
+public class GermanConfig extends LanguageConfig {
+	public GermanConfig() throws MaryConfigurationException {
+		super(GermanConfig.class.getResourceAsStream("de.config"));
 	}
 }
