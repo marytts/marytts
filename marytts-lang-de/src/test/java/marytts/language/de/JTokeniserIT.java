@@ -1,7 +1,7 @@
 /**
  *Copyright (C) 2003 DFKI GmbH. All rights reserved.
  */
-package marytts.tests.junit4.language.de;
+package marytts.language.de;
 
 import java.util.Locale;
 

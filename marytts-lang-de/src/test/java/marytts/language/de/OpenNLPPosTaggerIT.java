@@ -17,11 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package marytts.tests.modules;
+package marytts.language.de;
 
 import java.util.Locale;
 
 import marytts.modules.OpenNLPPosTagger;
+import marytts.tests.modules.MaryModuleTestCase;
 
 import org.junit.Test;
 
@@ -62,15 +63,4 @@ public class OpenNLPPosTaggerIT extends MaryModuleTestCase {
 		module = null;
 	}
 
-	   @Test
-	    public void posExample2() throws Exception {
-	        // setup SUT:
-	        module = new OpenNLPPosTagger("en", "en.pos");
-	        module.startup();
-	        // exercise:
-	        processAndCompare("example2-en_US", Locale.US);
-	        // teardown:
-	        module.shutdown();
-	        module = null;
-	    }
 }
