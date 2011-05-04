@@ -18,7 +18,7 @@
  *
  */
 
-package marytts.tests.junit4.language.de;
+package marytts.language.de;
 
 import static org.junit.Assert.assertEquals;
 

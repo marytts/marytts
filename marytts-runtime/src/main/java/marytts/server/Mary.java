@@ -196,6 +196,7 @@ public class Mary {
         }
     }
     
+    
     /**
      * Start the MARY system and all modules. This method must be called
      * once before any calls to {@link #process()} are possible.

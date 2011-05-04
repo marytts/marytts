@@ -61,12 +61,24 @@ public abstract class MaryConfig {
 	}
 	
 	
-	public static MaryConfig getLanguageConfig(Locale locale) {
+	public static LanguageConfig getLanguageConfig(Locale locale) {
 		for (MaryConfig mc : configLoader) {
 			if (mc.isLanguageConfig()) {
 				LanguageConfig lc = (LanguageConfig) mc;
 				if (lc.getLocales().contains(locale)) {
-					return mc;
+					return lc;
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static VoiceConfig getVoiceConfig(String voiceName) {
+		for (MaryConfig mc : configLoader) {
+			if (mc.isVoiceConfig()) {
+				VoiceConfig vc = (VoiceConfig) mc;
+				if (vc.getName().equals(voiceName)) {
+					return vc;
 				}
 			}
 		}
@@ -97,6 +109,10 @@ public abstract class MaryConfig {
 	}
 	
 	public boolean isLanguageConfig() {
+		return false;
+	}
+	
+	public boolean isVoiceConfig() {
 		return false;
 	}
 	

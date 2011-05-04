@@ -117,10 +117,11 @@ public class MaryProperties
         
         if (p != null) // we have done this already
             return;
-        
+        p = new Properties();
+        /*
         File confDir = new File(maryBase()+"/conf");
         if (!confDir.exists()) {
-            throw new FileNotFoundException("Configuration directory not found: "+ confDir.getPath());
+        	throw new FileNotFoundException("Configuration directory not found: "+ confDir.getPath());
         }
         File[] configFiles = confDir.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
@@ -137,11 +138,10 @@ public class MaryProperties
 
         // Add properties from individual config files to global properties:
         // Global mary properties
-        p = new Properties();
         for (Properties oneP : allConfigs) {
             insertOnePropIntoAllProps(oneP, p);
         }
-        
+        */
         
         for (MaryConfig config : MaryConfig.getConfigs()) {
         	insertOnePropIntoAllProps(config.getProperties(), p);

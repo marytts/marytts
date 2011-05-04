@@ -25,6 +25,7 @@
     <module>marytts-lang-te</module>
     <module>marytts-lang-tr</module>
     <module>marytts-lang-ru</module>
+    <module>voice-cmu-slt-hsmm</module>
   </modules>
 
 <!--
