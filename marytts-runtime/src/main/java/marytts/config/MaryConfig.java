@@ -3,10 +3,12 @@
  */
 package marytts.config;
 
+import java.io.InputStream;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.ServiceLoader;
 
-import marytts.util.MaryUtils;
+import marytts.exceptions.MaryConfigurationException;
 
 /**
  * @author marc
@@ -47,9 +49,7 @@ public abstract class MaryConfig {
 		for (MaryConfig mc : configLoader) {
 			if (mc.isLanguageConfig()) {
 				LanguageConfig lc = (LanguageConfig) mc;
-				Locale general = lc.getLocale();
-				Locale specific = locale;
-				if (MaryUtils.subsumes(general, specific)) {
+				if (lc.getLocales().contains(locale)) {
 					return mc;
 				}
 			}
@@ -62,12 +62,27 @@ public abstract class MaryConfig {
 	
 	//////////// Non-static / base class methods //////////////
 	
+	private Properties props;
+	
+	protected MaryConfig(InputStream propertyStream) throws MaryConfigurationException {
+		props = new Properties();
+		try {
+			props.load(propertyStream);
+		} catch (Exception e) {
+			throw new MaryConfigurationException("cannot load properties", e);
+		}
+	}
+	
 	public boolean isMainConfig() {
 		return false;
 	}
 	
 	public boolean isLanguageConfig() {
 		return false;
+	}
+	
+	public Properties getProperties() {
+		return props;
 	}
 	
 }

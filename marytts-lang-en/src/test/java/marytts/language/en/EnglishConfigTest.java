@@ -3,11 +3,16 @@
  */
 package marytts.language.en;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.Locale;
+import java.util.Properties;
 
 import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
+import marytts.exceptions.MaryConfigurationException;
 
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -18,7 +23,7 @@ import static org.junit.Assert.*;
 public class EnglishConfigTest {
 
 	@Test
-	public void isNotMainConfig() {
+	public void isNotMainConfig() throws MaryConfigurationException {
 		MaryConfig m = new EnglishConfig();
 		assertFalse(m.isMainConfig());
 	}
@@ -30,15 +35,31 @@ public class EnglishConfigTest {
 	
 	@Test
 	public void canGet() {
-		MaryConfig m = MaryConfig.getLanguageConfig(Locale.ENGLISH);
+		MaryConfig m = MaryConfig.getLanguageConfig(Locale.US);
 		assertNotNull(m);
-		assertEquals(Locale.ENGLISH, ((LanguageConfig)m).getLocale());
+		assertTrue(((LanguageConfig)m).getLocales().contains(Locale.US));
 	}
 	
 	
 	@Test
-	public void hasEnglishLocale() {
+	public void hasEnglishLocale() throws MaryConfigurationException {
 		LanguageConfig e = new EnglishConfig();
-		assertEquals(Locale.ENGLISH, e.getLocale());
+		assertTrue(e.getLocales().contains(Locale.US));
 	}
+	
+	@Test(expected=MaryConfigurationException.class)
+	public void requireLocale1() throws MaryConfigurationException {
+		new LanguageConfig(new ByteArrayInputStream(new byte[0]));
+	}
+	
+	@Test(expected=MaryConfigurationException.class)
+	public void requireLocale2() throws MaryConfigurationException, IOException {
+		Properties p = new Properties();
+		p.setProperty("a", "b");
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		p.store(baos, "");
+		// exercise:
+		new LanguageConfig(new ByteArrayInputStream(baos.toByteArray()));
+	}
+	
 }

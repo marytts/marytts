@@ -3,6 +3,9 @@
  */
 package marytts.config;
 
+
+import marytts.exceptions.MaryConfigurationException;
+
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -15,12 +18,17 @@ public class MainConfigTest {
 	private MaryConfig mc;
 	
 	@Before
-	public void setUp() {
+	public void setUp() throws MaryConfigurationException {
 		mc = new MainConfig();
 	}
 	
 	@Test
 	public void isMainConfig() {
 		assertTrue(mc.isMainConfig());
+	}
+	
+	@Test
+	public void hasProperties() {
+		assertNotNull(mc.getProperties()); 
 	}
 }
