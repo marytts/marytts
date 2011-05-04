@@ -40,6 +40,7 @@ import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
+import marytts.config.MaryConfig;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
 import marytts.signalproc.effects.BaseAudioEffect;
@@ -138,23 +139,15 @@ public class MaryProperties
         // Global mary properties
         p = new Properties();
         for (Properties oneP : allConfigs) {
-            for (Iterator keyIt=oneP.keySet().iterator(); keyIt.hasNext(); ) {
-                String key = (String) keyIt.next();
-                // Ignore dependency-related properties:
-                if (key.equals("name") || key.equals("provides") || key.startsWith("requires")) {
-                    continue;
-                }
-                String value = oneP.getProperty(key);
-                // Properties with keys ending in ".list" are to be appended in global properties.
-                if (key.endsWith(".list")) {
-                    String prevValue = p.getProperty(key);
-                    if (prevValue != null) {
-                        value = prevValue + " " + value;
-                    }
-                }
-                p.setProperty(key, value);
-            }
+            insertOnePropIntoAllProps(oneP, p);
         }
+        
+        
+        for (MaryConfig config : MaryConfig.getConfigs()) {
+        	insertOnePropIntoAllProps(config.getProperties(), p);
+        }
+        
+        
         // Overwrite settings from config files with those set on the
         // command line (System properties):
         p.putAll(System.getProperties());
@@ -239,6 +232,27 @@ public class MaryProperties
         }
 
     }
+	/**
+	 * @param oneP
+	 */
+	private static void insertOnePropIntoAllProps(Properties oneP, Properties allPs) {
+		for (Iterator keyIt=oneP.keySet().iterator(); keyIt.hasNext(); ) {
+		    String key = (String) keyIt.next();
+		    // Ignore dependency-related properties:
+		    if (key.equals("name") || key.equals("provides") || key.startsWith("requires")) {
+		        continue;
+		    }
+		    String value = oneP.getProperty(key);
+		    // Properties with keys ending in ".list" are to be appended in global properties.
+		    if (key.endsWith(".list")) {
+		        String prevValue = allPs.getProperty(key);
+		        if (prevValue != null) {
+		            value = prevValue + " " + value;
+		        }
+		    }
+		    allPs.setProperty(key, value);
+		}
+	}
 
     /**
      * Read the config files from the config directory and return them
