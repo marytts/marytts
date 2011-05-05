@@ -90,8 +90,9 @@ public class HMMData {
     
 	/** Global variables for some functions, initialised with default values, so these values 
 	 * can be loaded from a configuration file. */
-	private int rate       = 16000; /* sampling rate                              */
-	private int fperiod    = 80;    /* frame period (point)                       */
+	//private int rate       = 16000; /* sampling rate                              */
+    private int rate       = 48000; /* sampling rate */
+	private int fperiod    = 240;    /* frame period (point)                       */
 	private double rho     = 0.0;   /* variable for speaking rate control         */
     
     /* MGC: stage=gamma=0.0 alpha=0.42 linear gain  
@@ -100,7 +101,7 @@ public class HMMData {
      * Mel-LSP: gamma=1.0 alpha=0.42 
      * MGC-LSP: gamma=3.0 alpha=0.42 */
     private int stage          = 0;      /* defines gamma=-1/stage : if stage=0 then Gamma=0 */
-    private double alpha       = 0.42;   /* variable for frequency warping parameter   */
+    private double alpha       = 0.55; //0.42;   /* variable for frequency warping parameter   */
     private double beta        = 0.0;    /* variable for postfiltering                 */
     private boolean useLogGain = false;  /* log gain flag (for LSP) */
     
@@ -110,13 +111,13 @@ public class HMMData {
     private boolean useMixExc     = true;  /* use Mixed Excitation */
     private boolean useFourierMag = false;   /* use Fourier magnitudes for pulse generation */
     private boolean useGV         = false; /* use global variance in parameter generation */
-    private boolean useGmmGV      = false; /* use global variance as a Gaussian Mixture Model */
-    private int maxMgcGvIter      = 200;   /* Deafult number of iterations for MGC */
-    private int maxLf0GvIter      = 200;   /* Deafult number of iterations for LF0*/
+    //private boolean useGmmGV      = false; /* use global variance as a Gaussian Mixture Model */
+    private int maxMgcGvIter      = 200;   /* Default number of iterations for MGC */
+    private int maxLf0GvIter      = 200;   /* Default number of iterations for LF0*/
     
     private boolean useAcousticModels = false; /* true is using AcousticModeller, is true for MARY 4.1 voices */
   
-    /** variables for controling generation of speech in the vocoder                
+    /** variables for controlling generation of speech in the vocoder                
      * these variables have default values but can be fixed and read from the      
      * audio effects component.                                              [Default][min--max]   */
     private double f0Std   = 1.0;   /* variable for f0 control, multiply f0      [1.0][0.0--5.0]   */
@@ -151,6 +152,10 @@ public class HMMData {
     private String pdfMcpGVFile; /* Mcp GV pdf file */ 
     private String pdfStrGVFile; /* Str GV pdf file */ 
     private String pdfMagGVFile; /* Mag GV pdf file */ 
+    private String switchGVFile; /* File for allowing context dependent GV.  */ 
+                                     /* This file contains the phones, sil or pause, for which GV is not calculated */
+                                     /* this tree does not have a corresponding pdf file, because it just indicate which labels in context to avoid for GV. */
+                                       
     
     /** GVModelSet contains the global covariance and mean for lf0, mcp, str and mag */
     private GVModelSet gv = new GVModelSet();
@@ -202,13 +207,13 @@ public class HMMData {
     public boolean getUseMixExc(){ return useMixExc; }
     public boolean getUseFourierMag(){ return useFourierMag; }
     public boolean getUseGV(){ return useGV; }
-    public boolean getUseGmmGV(){ return useGmmGV; }
     public int getMaxMgcGvIter(){ return maxMgcGvIter; }
     public int getMaxLf0GvIter(){ return maxLf0GvIter; }
     public String getPdfLf0GVFile() { return pdfLf0GVFile; }   
     public String getPdfMcpGVFile() { return pdfMcpGVFile; } 
     public String getPdfStrGVFile() { return pdfStrGVFile; } 
     public String getPdfMagGVFile() { return pdfMagGVFile; }
+    public String getSwitchGVFile() { return switchGVFile; }
     public String getFeaFile() { return feaFile; }
     public String getTrickyPhonesFile() { return trickyPhonesFile; }
 	
@@ -283,13 +288,15 @@ public class HMMData {
     public void setUseMixExc(boolean bval){ useMixExc = bval; }
     public void setUseFourierMag(boolean bval){ useFourierMag = bval; }
     public void setUseGV(boolean bval){ useGV = bval; }
-    public void setUseGmmGV(boolean bval){ useGmmGV = bval; }
     public void setMaxMgcGvIter(int val){ maxMgcGvIter = val; }
     public void setMaxLf0GvIter(int val){ maxLf0GvIter = val; }
     public void setPdfLf0GVFile(String str) { pdfLf0GVFile = str; }   
     public void setPdfMcpGVFile(String str) { pdfMcpGVFile = str; } 
     public void setPdfStrGVFile(String str) { pdfStrGVFile = str; } 
-    public void setPdfMagGVFile(String str) { pdfMagGVFile = str; } 
+    public void setPdfMagGVFile(String str) { pdfMagGVFile = str; }
+    public void setSwitchGVFile(String str) { switchGVFile = str; }
+    
+    
     public void setFeaFile(String str) { feaFile = str; }
     public void setTrickyPhonesFile(String str) { trickyPhonesFile = str; }
     
@@ -299,7 +306,7 @@ public class HMMData {
      
     public void loadCartTreeSet() throws Exception { cart.loadTreeSet(this, feaDef, trickyPhonesFile); } 
       
-    public void loadGVModelSet() throws Exception { gv.loadGVModelSet(this); } 
+    public void loadGVModelSet() throws Exception { gv.loadGVModelSet(this, feaDef, trickyPhonesFile); } 
 	
 	/** Reads from configuration file all the data files in this class 
      * this method is used when running HTSengine stand alone. */
@@ -345,7 +352,6 @@ public class HMMData {
           if( props.getProperty( "voice." + voice + ".useFourierMag" ) != null)
             useFourierMag = Boolean.valueOf(props.getProperty( "voice." + voice + ".useFourierMag" )).booleanValue();
           useGV     = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGV" )).booleanValue();
-          useGmmGV  = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGmmGV" )).booleanValue();
           
           if(useGV){
             pdfLf0GVFile = props.getProperty( "voice." + voice + ".Fgvf" ).replace("MARY_BASE", marybase);        
@@ -354,15 +360,14 @@ public class HMMData {
               pdfStrGVFile = props.getProperty( "voice." + voice + ".Fgvs" ).replace("MARY_BASE", marybase);
             if( props.getProperty( "voice." + voice + ".Fgva" ) != null)
               pdfMagGVFile = props.getProperty( "voice." + voice + ".Fgva" ).replace("MARY_BASE", marybase);
+            if( props.getProperty( "voice." + voice + ".FgvSwitch" ) != null)
+                switchGVFile = props.getProperty( "voice." + voice + ".FgvSwitch" ).replace("MARY_BASE", marybase);
             
             if( props.getProperty( "voice." + voice + ".maxMgcGvIter" ) != null )
               maxMgcGvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxMgcGvIter" ));           
             if( props.getProperty( "voice." + voice + ".maxLf0GvIter" ) != null )
                 maxLf0GvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxLf0GvIter" ));
             
-          }else if(useGmmGV){
-              pdfLf0GVFile = props.getProperty( "voice." + voice + ".Fgmmgvf" ).replace("MARY_BASE", marybase);        
-              pdfMcpGVFile = props.getProperty( "voice." + voice + ".Fgmmgvm" ).replace("MARY_BASE", marybase);
           }
  
           /* Example context feature file in MARY format */
@@ -401,7 +406,7 @@ public class HMMData {
         cart.loadTreeSet(this, feaDef, trickyPhonesFile); 
         
         logger.info("Loading GV Model Set:");
-        gv.loadGVModelSet(this);
+        gv.loadGVModelSet(this, feaDef, trickyPhonesFile);
       
         /* Load (un-commented) context feature list from featureListFile */
         logger.info("Loading Feature List:");
@@ -471,7 +476,7 @@ public class HMMData {
         cart.loadTreeSet(this, feaDef, trickyPhonesFile); 
         
         logger.info("Loading GV Model Set:");
-        gv.loadGVModelSet(this);
+        gv.loadGVModelSet(this, feaDef, trickyPhonesFile);
         
       } catch (Exception e) {
           throw new MaryConfigurationException("Error loading TreeSet and ModelSet, problem on configuration file, missing files or components...", e);

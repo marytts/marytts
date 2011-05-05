@@ -97,18 +97,20 @@ public class HMMVoiceMakeVoice extends VoiceImportComponent{
         this.db = db;
        if (props == null){
            props = new TreeMap<String,String>();
-           props.put("executing command:", "perl hts/scripts/Training.pl hts/scripts/Config.pm");
+           //props.put("command:", "perl hts/scripts/Training.pl hts/scripts/Config.pm");
        }
        return props;
        }
     
     protected void setupHelp(){
         props2Help = new TreeMap<String,String>();
-        props2Help.put("executing command:", "This command can be executed on the command line by: " +
+        /*props2Help.put("command:", "This command can be executed on the command line by: " +
         		"first going to the directory: /your_voice/hts/ " +
         		"and in this directory execute: " +
         		"\"make voice\" " +
         		"a log file is created in this directory.");
+       */
+        		
     }
  
     
