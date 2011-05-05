@@ -20,10 +20,7 @@
 package marytts.config;
 
 import java.io.InputStream;
-import java.util.HashSet;
 import java.util.Locale;
-import java.util.Set;
-import java.util.StringTokenizer;
 
 import marytts.exceptions.MaryConfigurationException;
 import marytts.util.MaryUtils;
@@ -37,6 +34,12 @@ public class VoiceConfig extends MaryConfig {
 	
 	public VoiceConfig(InputStream propertyStream) throws MaryConfigurationException {
 		super(propertyStream);
+		if (getName() == null) {
+			throw new MaryConfigurationException("Voice does not have a name");
+		}
+		if (getLocale() == null) {
+			throw new MaryConfigurationException("Voice '"+getName()+"' does not have a locale");
+		}
 	}
 	
 	@Override
@@ -44,8 +47,23 @@ public class VoiceConfig extends MaryConfig {
 		return true;
 	}
 	
+	/**
+	 * The voice's name. Guaranteed not to be null.
+	 * @return
+	 */
 	public String getName() {
 		return getProperties().getProperty("name");
 	}
 	
+	/**
+	 * The voice's locale. Guaranteed not to be null.
+	 * @return
+	 */
+	public Locale getLocale() {
+		String localeString = getProperties().getProperty("locale");
+		if (localeString == null) {
+			return null;
+		}
+		return MaryUtils.string2locale(localeString);
+	}
 }

@@ -35,7 +35,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
-import java.util.Vector;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -48,6 +47,8 @@ import marytts.Version;
 import marytts.datatypes.MaryDataType;
 import marytts.htsengine.HMMVoice;
 import marytts.modules.synthesis.Voice;
+import marytts.signalproc.effects.AudioEffect;
+import marytts.signalproc.effects.AudioEffects;
 import marytts.signalproc.effects.BaseAudioEffect;
 import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.interpolation.InterpolatingVoice;
@@ -527,15 +528,6 @@ public class MaryServer implements Runnable {
             return true;
         }
 
-        private BaseAudioEffect getBaseAudioEffect(int number) {
-            try {
-                return (BaseAudioEffect) Class.forName(MaryProperties.effectClasses().elementAt(number)).newInstance();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
         private boolean handleVersion() {
             // Write version information to client.
             clientOut.println("Mary TTS server " + Version.specificationVersion() + " (impl. " + Version.implementationVersion() + ")");
@@ -545,22 +537,17 @@ public class MaryServer implements Runnable {
         }
 
         private boolean isHMMAudioEffect(String inputLine) {
-            List<String> effectNames = MaryProperties.effectNames();
-            for (int i = 0; i < effectNames.size(); i++) {
-                int tmpInd = inputLine.indexOf("MARY VOICE ISHMMAUDIOEFFECT " + effectNames.get(i));
-                if (tmpInd > -1) {
-                    //the request is about the parameters of a specific audio effect
-                    logger.debug("InfoRequest " + inputLine);
-                    BaseAudioEffect ae = getBaseAudioEffect(i);
-                    if (ae != null) {
-                        clientOut.println(ae.isHMMEffect() ? "yes" : "no");
-                    }
-                    // upon failure, simply return nothing
-                    clientOut.println();
-                    return true;
-                }
-            }
-            return false;
+        	String prefix = "MARY VOICE ISHMMAUDIOEFFECT ";
+        	assert inputLine.startsWith(prefix);
+        	String effectName = inputLine.substring(prefix.length());
+        	AudioEffect effect = AudioEffects.getEffect(effectName);
+        	if (effect == null) {
+        		return false;
+        	}
+        	logger.debug("InfoRequest " + inputLine);
+        	clientOut.println(effect.isHMMEffect() ? "yes" : "no");
+        	clientOut.println();
+            return true;
         }
 
         private boolean listAudioFileFormatTypes()
@@ -665,125 +652,64 @@ public class MaryServer implements Runnable {
 
         private boolean voiceGetDefaultAudioEffects(String inputLine)
         {
-            /*
-            // <EffectSeparator>charEffectSeparator</EffectSeparator>
-            // <Effect>
-            //   <Name>effectÂ´s name</Name>
-            //   <SampleParam>example parameters string</SampleParam>
-            //   <HelpText>help text string</HelpText>
-            // </Effect>
-            // <Effect>
-            //   <Name>effectÂ´s name</effectName>
-            //   <SampleParam>example parameters string</SampleParam>
-            //   <HelpText>help text string</HelpText>
-            // </Effect>
-            // ...
-            // <Effect>
-            //   <Name>effectÂ´s name</effectName>
-            //   <SampleParam>example parameters string</SampleParam>
-            //   <HelpText>help text string</HelpText>
-            // </Effect>
-            String audioEffectClass = "<EffectSeparator>" + EffectsApplier.chEffectSeparator + "</EffectSeparator>";
-
-            for (int i = 0; i < MaryProperties.effectClasses().size(); i++) {
-                audioEffectClass += "<Effect>";
-                audioEffectClass += "<Name>" + MaryProperties.effectNames().elementAt(i) + "</Name>";
-                audioEffectClass += "<Param>" + MaryProperties.effectSampleParams().elementAt(i) + "</Param>";
-                audioEffectClass += "<SampleParam>" + MaryProperties.effectSampleParams().elementAt(i) + "</SampleParam>";
-                audioEffectClass += "<HelpText>" + MaryProperties.effectHelpTexts().elementAt(i) + "</HelpText>";
-                audioEffectClass += "</Effect>";
-            }
-*/
-
             // Marc, 8.1.09: Simplified format
             // name params
             StringBuilder sb = new StringBuilder();
-            Vector<String> names = MaryProperties.effectNames();
-            Vector<String> params = MaryProperties.effectSampleParams();
-            for (int i=0; i<MaryProperties.effectClasses().size(); i++) {
-                sb.append(names.elementAt(i)).append(" ").append(params.elementAt(i)).append("\n");
+            for (AudioEffect effect : AudioEffects.getEffects()) {
+            	sb.append(effect.getName()).append(" ").append(effect.getExampleParameters()).append("\n");
             }
             clientOut.println(sb.toString());
-            // upon failure, simply return nothing
             clientOut.println();
             return true;
         }
 
         private boolean getAudioEffectDefaultParameters(String inputLine) {
-            for (int i = 0; i < MaryProperties.effectNames().size(); i++) {
-                int tmpInd = inputLine.indexOf("MARY VOICE GETAUDIOEFFECTDEFAULTPARAM " + MaryProperties.effectNames().elementAt(i));
-                if (tmpInd > -1) {
-                    //the request is about the parameters of a specific audio effect
-                    logger.debug("InfoRequest " + inputLine);
-                    BaseAudioEffect ae = getBaseAudioEffect(i);
-                    if (ae != null) {
-                        String audioEffectParams = ae.getExampleParameters();
-                        clientOut.println(audioEffectParams.trim());
-                    }
-                    // upon failure, simply return nothing
-                    clientOut.println();
-                    return true;
-                }
-            }
-            return false;
+        	String prefix = "MARY VOICE GETAUDIOEFFECTDEFAULTPARAM ";
+        	assert inputLine.startsWith(prefix);
+        	String effectName = inputLine.substring(prefix.length()).trim();
+        	AudioEffect effect = AudioEffects.getEffect(effectName);
+        	if (effect == null) {
+        		return false;
+        	}
+        	clientOut.println(effect.getExampleParameters().trim());
+            clientOut.println();
+            return true;
         }
 
         private boolean voiceGetFullAudioEffect(String inputLine) {
-            StringTokenizer tt = new StringTokenizer(inputLine);
-            tt.nextToken();
-            tt.nextToken();
-            tt.nextToken();
-            String effectName;
-            if (tt.hasMoreTokens()) {
-                effectName = tt.nextToken();
-            } else {
+        	String prefix = "MARY VOICE GETFULLAUDIOEFFECT ";
+        	assert inputLine.startsWith(prefix);
+        	String effectPlusParams = inputLine.substring(prefix.length()).trim();
+        	String[] parts = effectPlusParams.split("\\s", 2);
+        	String effectName = parts[0];
+        	String params = "";
+        	if (parts.length > 1) {
+        		params = parts[1]; // request contains effect params
+        	}
+        	AudioEffect effect = AudioEffects.getEffect(effectName);
+        	if (effect == null) {
                 logger.error("Effect name missing in request!");
                 return false;
-            }
-            String currentEffectParams = ""; //Some effects might have no parameters
-            while (tt.hasMoreTokens()) {
-                currentEffectParams += tt.nextToken();
-            }
-
-            List<String> effectNames = MaryProperties.effectNames();
-            for (int i = 0; i < effectNames.size(); i++) {
-                if (effectName.equals(effectNames.get(i))) {
-                    //the request is about the parameters of a specific audio effect
-                    logger.debug("InfoRequest " + inputLine);
-
-                    BaseAudioEffect ae = getBaseAudioEffect(i);
-                    if (ae != null) {
-                        ae.setParams(currentEffectParams);
-                        String audioEffectFull = ae.getFullEffectAsString();
-                        clientOut.println(audioEffectFull);
-                    }
-                    // upon failure, simply return nothing
-                    clientOut.println();
-                    return true;
-                }
-            }
-            return false;
+        	}
+        	//the request is about the parameters of a specific audio effect
+            logger.debug("InfoRequest " + inputLine);
+            effect.setParams(params);
+            clientOut.println(effect.getFullEffectAsString());
+            clientOut.println();
+            return true;
         }
 
         private boolean getAudioEffectHelpText(String inputLine) {
-            List<String> effectNames = MaryProperties.effectNames();
-            for (int i = 0; i < effectNames.size(); i++) {
-                int tmpInd = inputLine.indexOf("MARY VOICE GETAUDIOEFFECTHELPTEXT " + effectNames.get(i));
-                if (tmpInd > -1) {
-                    //the request is about the parameters of a specific audio effect
-                    logger.debug("InfoRequest " + inputLine);
-
-                    BaseAudioEffect ae = getBaseAudioEffect(i);
-                    if (ae != null) {
-                        String helpText = ae.getHelpText();
-                        clientOut.println(helpText.trim());
-                    }
-                    // upon failure, simply return nothing
-                    clientOut.println();
-                    return true;
-                }
-            }
-            return false;
+        	String prefix = "MARY VOICE GETAUDIOEFFECTHELPTEXT ";
+        	assert inputLine.startsWith(prefix);
+        	String effectName = inputLine.substring(prefix.length());
+        	AudioEffect effect = AudioEffects.getEffect(effectName);
+        	if (effect == null) {
+        		return false;
+        	}
+        	clientOut.println(effect.getHelpText().trim());
+            clientOut.println();
+            return true;
         }
     }
 }

@@ -38,6 +38,8 @@ import marytts.datatypes.MaryDataType;
 import marytts.htsengine.HMMVoice;
 import marytts.modules.synthesis.Voice;
 import marytts.server.MaryProperties;
+import marytts.signalproc.effects.AudioEffect;
+import marytts.signalproc.effects.AudioEffects;
 import marytts.signalproc.effects.BaseAudioEffect;
 import marytts.unitselection.UnitSelectionVoice;
 import marytts.unitselection.interpolation.InterpolatingVoice;
@@ -325,45 +327,11 @@ public abstract class BaseHttpRequestHandler extends SimpleNHttpRequestHandler i
 
     public String getDefaultAudioEffects()
     {
-        // <EffectSeparator>charEffectSeparator</EffectSeparator>
-        // <Effect>
-        //   <Name>effect´s name</Name> 
-        //   <SampleParam>example parameters string</SampleParam>
-        //   <HelpText>help text string</HelpText>
-        // </Effect>
-        // <Effect>
-        //   <Name>effect´s name</effectName> 
-        //   <SampleParam>example parameters string</SampleParam>
-        //   <HelpText>help text string</HelpText>
-        // </Effect>
-        // ...
-        // <Effect>
-        //   <Name>effect´s name</effectName> 
-        //   <SampleParam>example parameters string</SampleParam>
-        //   <HelpText>help text string</HelpText>
-        // </Effect>
-        /*
-        String audioEffectClass = "<EffectSeparator>" + EffectsApplier.chEffectSeparator + "</EffectSeparator>";
-
-        for (int i=0; i<MaryProperties.effectClasses().size(); i++)
-        {
-            audioEffectClass += "<Effect>";
-            audioEffectClass += "<Name>" + MaryProperties.effectNames().elementAt(i) + "</Name>";
-            audioEffectClass += "<Param>" + MaryProperties.effectSampleParams().elementAt(i) + "</Param>";
-            audioEffectClass += "<SampleParam>" + MaryProperties.effectSampleParams().elementAt(i) + "</SampleParam>";
-            audioEffectClass += "<HelpText>" + MaryProperties.effectHelpTexts().elementAt(i) + "</HelpText>";
-            audioEffectClass += "</Effect>";
-        }
-
-        return audioEffectClass;
-        */
         // Marc, 8.1.09: Simplified format
         // name params
         StringBuilder sb = new StringBuilder();
-        Vector<String> names = MaryProperties.effectNames();
-        Vector<String> params = MaryProperties.effectSampleParams();
-        for (int i=0; i<MaryProperties.effectClasses().size(); i++) {
-            sb.append(names.elementAt(i)).append(" ").append(params.elementAt(i)).append("\n");
+        for (AudioEffect effect : AudioEffects.getEffects()) {
+        	sb.append(effect.getName()).append(" ").append(effect.getExampleParameters()).append("\n");
         }
         return sb.toString();
     }
@@ -371,120 +339,39 @@ public abstract class BaseHttpRequestHandler extends SimpleNHttpRequestHandler i
 
     public String getAudioEffectDefaultParam(String effectName)
     {
-        String output = "";
-        boolean bFound = false;
-        for (int i=0; i<MaryProperties.effectNames().size(); i++)
-        {
-            //int tmpInd = inputLine.indexOf(MaryProperties.effectNames().elementAt(i));
-            //if (tmpInd>-1)
-            if (effectName.compareTo(MaryProperties.effectNames().elementAt(i))==0)
-            {   
-                //the request is about the parameters of a specific audio effect
-                BaseAudioEffect ae = null;
-                try {
-                    ae = (BaseAudioEffect)Class.forName(MaryProperties.effectClasses().elementAt(i)).newInstance();
-                } catch (InstantiationException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-                if (ae!=null)
-                {
-                    String audioEffectParams = ae.getExampleParameters();
-                    output = audioEffectParams.trim();
-                }
-
-                break;
-            }
-        }
-
-        return output;
+    	AudioEffect effect = AudioEffects.getEffect(effectName);
+    	if (effect == null) {
+    		return "";
+    	}
+    	return effect.getExampleParameters().trim();
     }
     
     public String getFullAudioEffect(String effectName, String currentEffectParams)
     {
-        String output = "";
-
-        for (int i=0; i<MaryProperties.effectNames().size(); i++)
-        {
-            if (effectName.compareTo(MaryProperties.effectNames().elementAt(i))==0)
-            {   
-                //the request is about the parameters of a specific audio effect
-                BaseAudioEffect ae = null;
-                try {
-                    ae = (BaseAudioEffect)Class.forName(MaryProperties.effectClasses().elementAt(i)).newInstance();
-                } catch (InstantiationException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
-                if (ae!=null)
-                {
-                    ae.setParams(currentEffectParams);
-                    output = ae.getFullEffectAsString();
-                }
-
-                break;
-            }
-        }
-        return output;
+    	AudioEffect effect = AudioEffects.getEffect(effectName);
+    	if (effect == null) {
+    		return "";
+    	}
+        effect.setParams(currentEffectParams);
+        return effect.getFullEffectAsString();
     }
 
     public String getAudioEffectHelpText(String effectName)
     {
-        for (int i=0; i<MaryProperties.effectNames().size(); i++) {
-            if (effectName.equals(MaryProperties.effectNames().elementAt(i))) {   
-                BaseAudioEffect ae = null;
-                try {
-                    ae = (BaseAudioEffect)Class.forName(MaryProperties.effectClasses().elementAt(i)).newInstance();
-                } catch (InstantiationException e) {
-                } catch (IllegalAccessException e) {
-                } catch (ClassNotFoundException e) {
-                }
-
-                if (ae!=null) {
-                    return ae.getHelpText().trim();
-                }
-            }
-        }
-        return "";
+    	AudioEffect effect = AudioEffects.getEffect(effectName);
+    	if (effect == null) {
+    		return "";
+    	}
+    	return effect.getHelpText().trim();
     }
 
     public String isHmmAudioEffect(String effectName)
     {
-        String output = "";
-
-        for (int i=0; i<MaryProperties.effectNames().size(); i++) {
-            if (effectName.equals(MaryProperties.effectNames().elementAt(i))) {   
-                BaseAudioEffect ae = null;
-                try {
-                    ae = (BaseAudioEffect)Class.forName(MaryProperties.effectClasses().elementAt(i)).newInstance();
-                } catch (InstantiationException e) {
-                } catch (IllegalAccessException e) {
-                } catch (ClassNotFoundException e) {
-                }
-
-                if (ae!=null) {
-                    output = "no";
-                    if (ae.isHMMEffect())
-                        output = "yes";
-                }
-                break;
-            }
-        }
-        return output;
+    	AudioEffect effect = AudioEffects.getEffect(effectName);
+    	if (effect == null) {
+    		return "";
+    	}
+    	return effect.isHMMEffect() ? "yes" : "no";
     }
     
   

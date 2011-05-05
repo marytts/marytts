@@ -46,16 +46,10 @@ public class EffectsApplier {
     public int [] optimumEffectIndices;
     public static char chEffectSeparator = '+';
     private ArrayList<String> optimumOrderedEffectNames;
-    private ArrayList<String> optimumOrderedEffectParams;
     
     public EffectsApplier()
     {
-         this(null, null);
-    }
-    
-    public EffectsApplier(Vector<String> optimumClassNames, Vector<String>optimumClassParams)
-    {
-         getOptimizedEffectOrdering(optimumClassNames, optimumClassParams);
+         getOptimizedEffectOrdering();
     }
     
     public AudioInputStream apply(AudioInputStream input, String param)
@@ -298,50 +292,11 @@ public class EffectsApplier {
     //Get optimized effect ordering from marybase.config in case of multiple effects being applied one after another
     //The "optimal" ordering should be determined by testing and the audioeffects.classes.list entry in marybase.config 
     // should be arranged in the same order
-    public void getOptimizedEffectOrdering(Vector<String> optimumClassNames, Vector<String>optimumClassParams)
-    {
+    public void getOptimizedEffectOrdering() {
         //Get optimal ordering from .config file
-        if (optimumClassNames!=null && optimumClassNames.size()>0 && optimumClassParams!=null && optimumClassParams.size()>0 && optimumClassNames.size()==optimumClassParams.size())
-        {
-            String effectClassName, effectParams;
-            optimumOrderedEffectNames = new ArrayList<String>();
-            optimumOrderedEffectParams = new ArrayList<String>();
-            
-            int count = 0;
-            for (Iterator it = optimumClassNames.iterator(); it.hasNext();) 
-            {
-                effectClassName = (String)it.next();
-                effectParams = optimumClassParams.elementAt(count++);
-                BaseAudioEffect ae = null;
-                try {
-                    ae = (BaseAudioEffect)Class.forName(effectClassName).newInstance();
-                } catch (InstantiationException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                
-                if (ae!=null)
-                {
-                    optimumOrderedEffectNames.add(ae.getName());
-                    optimumOrderedEffectParams.add(effectParams);
-                }
-                else
-                {
-                    optimumOrderedEffectNames.add(effectClassName);
-                    optimumOrderedEffectParams.add(effectParams);
-                }
-            }
-        }
-        else
-        {
-            optimumOrderedEffectNames = null;
-            optimumOrderedEffectParams = null;
+    	optimumOrderedEffectNames = new ArrayList<String>();
+        for (AudioEffect effect : AudioEffects.getEffects()) {
+        	optimumOrderedEffectNames.add(effect.getName());
         }
     }
     

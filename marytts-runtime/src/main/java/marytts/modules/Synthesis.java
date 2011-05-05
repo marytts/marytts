@@ -56,7 +56,7 @@ import org.w3c.dom.traversal.NodeIterator;
 
 public class Synthesis extends InternalModule
 {
-    private List waveformSynthesizers;
+    private List<WaveformSynthesizer> waveformSynthesizers;
     private EffectsApplier effects;
     
     public Synthesis()
@@ -76,12 +76,9 @@ public class Synthesis extends InternalModule
     private void startupSynthesizers()
         throws ClassNotFoundException, InstantiationException, Exception
    {
-        waveformSynthesizers = new ArrayList();
-        for (Iterator it = MaryProperties.synthesizerClasses().iterator();
-        it.hasNext(); ) {
-            String synthClassName = (String)it.next();
-            WaveformSynthesizer ws = (WaveformSynthesizer)
-            Class.forName(synthClassName).newInstance();
+        waveformSynthesizers = new ArrayList<WaveformSynthesizer>();
+        for (String synthClassName : MaryProperties.synthesizerClasses()) {
+            WaveformSynthesizer ws = (WaveformSynthesizer) Class.forName(synthClassName).newInstance();
             ws.startup();
             waveformSynthesizers.add(ws);
         }
@@ -250,7 +247,7 @@ public class Synthesis extends InternalModule
         (List<Element> tokensAndBoundaries, Voice voice, String currentStyle, String currentEffect, AudioFormat targetFormat, String outputParams)
     throws SynthesisException, UnsupportedAudioFileException
     {            
-        EffectsApplier ef = new EffectsApplier(MaryProperties.effectClasses(), MaryProperties.effectSampleParams());
+        EffectsApplier ef = new EffectsApplier();
 
         //HMM-only effects need to get their parameters prior to synthesis
         ef.setHMMEffectParameters(voice, currentEffect);
@@ -266,8 +263,7 @@ public class Synthesis extends InternalModule
             logger.info("Audio format conversion required for voice " +
                          voice.getName());
             try {
-                AudioInputStream intermedStream = AudioSystem.
-                    getAudioInputStream(targetFormat, ais);
+                AudioInputStream intermedStream = AudioSystem.getAudioInputStream(targetFormat, ais);
                 ais = intermedStream;
             } catch (IllegalArgumentException iae) { // conversion not supported
                 boolean solved = false;
