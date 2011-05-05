@@ -93,7 +93,10 @@ public class HTSModel {
   
   private String maryXmlDur;        /* duration in maryXML input acoustparams, format d="val" in millisec. */
   private String maryXmlF0;         /* F0 values in maryXML input acoustparams, format f0="(1,val1)...(100,val2)" (%pos in total duration, f0 Hz)*/
-    
+  
+  private boolean gvSwitch;         /* GV switch, applies to all the states of this model */
+  
+  
   public void setPhoneName(String var){ phoneName = var; }
   public String getPhoneName(){return phoneName;}
   
@@ -138,15 +141,33 @@ public class HTSModel {
   public void setMcepMean(int i, double val[]){ mcepMean[i] = val; }
   public void setMcepVariance(int i, double val[]){ mcepVariance[i] = val; }
   
-  
+  /**
+   * Print mean and variance of each state
+   */
   public void printMcepMean(){  
-	for(int i=0; i<mcepMean.length; i++) {
-	  System.out.print("mcepMean[" + i + "]: ");
-	  for(int j=0; j<mcepMean[i].length; j++)
-		  System.out.print(mcepMean[i][j] + "  ");
-	  System.out.println();
-	}
+    printVectors(mcepMean, mcepVariance);
   }
+  /**
+   * Print mean and variance of each state
+   */
+  public void printLf0Mean(){
+      printVectors(lf0Mean, lf0Variance);
+    }
+  /**
+   * Print mean and variance vectors
+   */
+  public void printVectors(double m[][], double v[][]){  
+      for(int i=0; i<v.length; i++) {
+        System.out.print("  mean[" + i + "]: ");
+        for(int j=0; j<m[i].length; j++)
+            System.out.format("%.6f ", m[i][j]);
+        System.out.print("\n  vari[" + i + "]: ");
+        for(int j=0; j<v[i].length; j++)
+            System.out.format("%.6f ", v[i][j]);
+        System.out.println();
+      }
+    }
+  
   
   public void printDuration(int numStates){
     System.out.print("phoneName: " + phoneName + "\t");
@@ -196,6 +217,9 @@ public class HTSModel {
   public void setMaryXmlF0(String str){ maryXmlF0 = str;}
   public String getMaryXmlF0(){ return maryXmlF0;}
   
+  public void setGvSwitch(boolean bv){ gvSwitch = bv; }
+  public boolean getGvSwitch(){return gvSwitch;}
+  
   /* Constructor */
   /* Every Model is initialised with the information in ModelSet*/
   public HTSModel(int nstate){
@@ -221,6 +245,8 @@ public class HTSModel {
     
     maryXmlDur = null;
     maryXmlF0 = null;
+    
+    gvSwitch = true; 
     
   } /* method Model, initialise a Model object */
   

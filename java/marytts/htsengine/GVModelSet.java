@@ -50,11 +50,18 @@
 package marytts.htsengine;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
+import marytts.cart.CART;
+import marytts.cart.DecisionNode;
+import marytts.cart.DecisionNode.BinaryByteDecisionNode;
+import marytts.features.FeatureDefinition;
 import marytts.util.MaryUtils;
 
 import org.apache.log4j.Logger;
@@ -72,22 +79,18 @@ public class GVModelSet {
   
   /* ____________________ GV related variables ____________________*/
   /* GV: Global mean and covariance (diagonal covariance only) */
-  int numMix;                     /* Number of mixtures */
-  private double gvweightsMcp[];  /* weights for each mixture */
-  private double gvmeanMcp[][];   /* global mean vector */
-  private double gvcovInvMcp[][]; /* global inverse diagonal covariance */
+
+  private double gvmeanMcp[];   /* global mean vector */
+  private double gvcovInvMcp[]; /* global inverse diagonal covariance */
   
-  private double gvweightsLf0[];  /* weights for each mixture */
-  private double gvmeanLf0[][];   /* global mean vector */
-  private double gvcovInvLf0[][]; /* global inverse diagonal covariance */
+  private double gvmeanLf0[];   /* global mean vector */
+  private double gvcovInvLf0[]; /* global inverse diagonal covariance */
   
-  private double gvweightsStr[];  /* weights for each mixture */
-  private double gvmeanStr[][];   /* global mean vector */
-  private double gvcovInvStr[][]; /* global inverse diagonal covariance */
+  private double gvmeanStr[];   /* global mean vector */
+  private double gvcovInvStr[]; /* global inverse diagonal covariance */
   
-  private double gvweightsMag[];  /* weights for each mixture */
-  private double gvmeanMag[][];   /* global mean vector */
-  private double gvcovInvMag[][]; /* global inverse diagonal covariance */
+  private double gvmeanMag[];   /* global mean vector */
+  private double gvcovInvMag[]; /* global inverse diagonal covariance */
   
   private int totalNumIter;
   private int firstIter;
@@ -99,158 +102,52 @@ public class GVModelSet {
     
   private Logger logger = MaryUtils.getLogger("GVModelSet");
   
-  public int getNumMix() {return numMix;}
-  public double[] getGVweightsMcp(){ return gvweightsMcp; }
-  public double[][] getGVmeanMcp(){ return gvmeanMcp; }
-  public double[][] getGVcovInvMcp(){ return gvcovInvMcp; }
+  public double[] getGVmeanMcp(){ return gvmeanMcp; }
+  public double[] getGVcovInvMcp(){ return gvcovInvMcp; }
   
-  public double[] getGVweightsLf0(){ return gvweightsLf0; }
-  public double[][] getGVmeanLf0(){ return gvmeanLf0; }
-  public double[][] getGVcovInvLf0(){ return gvcovInvLf0; }
+  public double[] getGVmeanLf0(){ return gvmeanLf0; }
+  public double[] getGVcovInvLf0(){ return gvcovInvLf0; }
   
-  public double[] getGVweightsStr(){ return gvweightsStr; }
-  public double[][] getGVmeanStr(){ return gvmeanStr; }
-  public double[][] getGVcovInvStr(){ return gvcovInvStr; }
+  public double[] getGVmeanStr(){ return gvmeanStr; }
+  public double[] getGVcovInvStr(){ return gvcovInvStr; }
   
-  public double[] getGVweightsMag(){ return gvweightsMag; }
-  public double[][] getGVmeanMag(){ return gvmeanMag; }
-  public double[][] getGVcovInvMag(){ return gvcovInvMag; }
+  public double[] getGVmeanMag(){ return gvmeanMag; }
+  public double[] getGVcovInvMag(){ return gvcovInvMag; }
   
   
-  public void loadGVModelSet(HMMData htsData) throws Exception {
+  public void loadGVModelSet(HMMData htsData, FeatureDefinition featureDef, String trickyPhones) throws Exception {
     
     /* allocate memory for the arrays and load the data from file */
-
+    int numMSDFlag, numStream, vectorSize, numDurPdf;
     double gvcov;
-    int order;
     DataInputStream data_in;
     String gvFile;
-    
-    /* If using Gaussian mixture models the format of the gv files should
-     * include the number of gaussians, if not using GmmGV then 1 single gaussian is assumed. */
-    boolean useGmmGV = htsData.getUseGmmGV();
-    
-    if( htsData.getUseGV() && useGmmGV ){
-        logger.debug("GVModelSet: error useGV and useGmmGV are both true, just one can be true, the format of gmm-gv and gv files is diferent");
-        throw new Exception("GVModelSet: error useGV and useGmmGV are both true, just one can be true, the format of gmm-gv and gv files is diferent");  
-    }
-    
+        
     /* Here global variance vectors are loaded from corresponding files */
     int m, i,nmix;
     try { 
-     if(htsData.getUseGV() || htsData.getUseGmmGV() ){
-      /* GV for Mcp */   
-      if( (gvFile=htsData.getPdfMcpGVFile()) != null){     
-        data_in = new DataInputStream (new BufferedInputStream(new FileInputStream(gvFile)));
-        logger.info("LoadGVModelSet reading: " + gvFile);
-      
-        if(useGmmGV)
-          numMix = data_in.readShort();   /* first short is the number of mixtures in Gaussian model */
-        else
-          numMix = 1;                   /* no mixtures */  
-        order = data_in.readShort();    /* second short is the order of static vector */
-        gvweightsMcp = new double[numMix];
-        gvmeanMcp = new double[numMix][order];  /* allocate memory of this size */
-        gvcovInvMcp = new double[numMix][order];
-        for (m = 0; m < numMix; m++){
-          if(useGmmGV)
-            gvweightsMcp[m] = data_in.readFloat(); /* first float of each block should be the mixture weight */
-          else
-            gvweightsMcp[m] = 1.0;   /* no mixtures */  
-          for ( i = 0; i < order; i++){
-            gvmeanMcp[m][i] = data_in.readFloat();
-            //System.out.format("gvmeanMcp[%d][%d]=%.4f\n",m,i,gvmeanMcp[m][i]);
-          }
-          for ( i = 0; i < order; i++){
-            gvcovInvMcp[m][i] = 1.0/data_in.readFloat();
-            //System.out.format("gvcovMcp[%d][%d]=%.4f\n",m,i,1.0/gvcovInvMcp[m][i]);
-          }
-        }
-        data_in.close (); 
-      }
-      /* GV for Lf0 */
-      if( (gvFile=htsData.getPdfLf0GVFile()) != null){     
-          data_in = new DataInputStream (new BufferedInputStream(new FileInputStream(gvFile)));
-          logger.info("LoadGVModelSet reading: " + gvFile);
-          if(useGmmGV)
-            numMix = data_in.readShort();   /* first short is the number of mixtures in Gaussian model */
-          else
-            numMix = 1;                     /* no mixtures */     
-          order = data_in.readShort();      /* second short is the order of static vector */
-          gvweightsLf0 = new double[numMix];
-          gvmeanLf0 = new double[numMix][order];  /* allocate memory of this size */
-          gvcovInvLf0 = new double[numMix][order];
-          for (m = 0; m < numMix; m++){
-            if(useGmmGV)
-              gvweightsLf0[m] = data_in.readFloat(); /* first float of each block should be the mixture weight */
-            else
-              gvweightsLf0[m] = 1.0;   /* no mixtures */  
-            for ( i = 0; i < order; i++){
-              gvmeanLf0[m][i] = data_in.readFloat();
-              //System.out.format("gvmeanLf0[%d][%d]=%.4f\n",m,i,gvmeanLf0[m][i]);
-            }
-            for ( i = 0; i < order; i++){
-              gvcovInvLf0[m][i] = 1.0/data_in.readFloat();
-              //System.out.format("gvcovLf0[%d][%d]=%.4f\n",m,i,1.0/gvcovInvLf0[m][i]);
-            }
-          }
-          data_in.close ();         
-      }
-      /* No mixtures for str and mag */
-      useGmmGV = false;
-      /* GV for Str */   
-      if( (gvFile=htsData.getPdfStrGVFile()) != null){     
-          data_in = new DataInputStream (new BufferedInputStream(new FileInputStream(gvFile)));
-          logger.info("LoadGVModelSet reading: " + gvFile);
-        
-          if(useGmmGV)
-            numMix = data_in.readShort();   /* first short is the number of mixtures in Gaussian model */
-          else
-            numMix = 1;  /* no mixtures */      
-          order = data_in.readShort();    /* second short is the order of static vector */
-          gvweightsStr = new double[numMix];
-          gvmeanStr = new double[numMix][order];  /* allocate memory of this size */
-          gvcovInvStr = new double[numMix][order];
-          for (m = 0; m < numMix; m++){
-            if(useGmmGV)
-              gvweightsLf0[m] = data_in.readFloat(); /* first float of each block should be the mixture weight */
-            else
-              gvweightsLf0[m] = 1.0;   /* no mixtures */  
-            for ( i = 0; i < order; i++)
-              gvmeanStr[m][i] = data_in.readFloat();
-            for ( i = 0; i < order; i++)
-              gvcovInvStr[m][i] = 1.0/data_in.readFloat();
-          }
-          data_in.close ();         
-      }
+     if(htsData.getUseGV()){
+      // GV for Mcp             
+      if( (gvFile=htsData.getPdfMcpGVFile()) != null)
+        loadGvFromFile(gvFile, "mcp");
    
-      /* GV for Mag */   
-      if( (gvFile=htsData.getPdfMagGVFile()) != null){     
-          data_in = new DataInputStream (new BufferedInputStream(new FileInputStream(gvFile)));
-          logger.info("LoadGVModelSet reading: " + gvFile);
-        
-          if(useGmmGV)
-            numMix = data_in.readShort();   /* first short is the number of mixtures in Gaussian model */
-          else
-            numMix = 1;  /* no mixtures */         
-          order = data_in.readShort();    /* second short is the order of static vector */
-          gvweightsMag = new double[numMix];
-          gvmeanMag = new double[numMix][order];  /* allocate memory of this size */
-          gvcovInvMag = new double[numMix][order];
-          for (m = 0; m < numMix; m++){
-            if(useGmmGV)
-              gvweightsLf0[m] = data_in.readFloat(); /* first float of each block should be the mixture weight */
-            else
-              gvweightsLf0[m] = 1.0;   /* no mixtures */  
-            for ( i = 0; i < order; i++)
-              gvmeanMag[m][i] = data_in.readFloat();
-            for ( i = 0; i < order; i++)
-              gvcovInvMag[m][i] = 1.0/data_in.readFloat();
-          }
-          data_in.close ();         
-      }
+      // GV for Lf0
+      if( (gvFile=htsData.getPdfLf0GVFile()) != null)
+        loadGvFromFile(gvFile, "lf0");
+
+      // GV for Str   
+      if( (gvFile=htsData.getPdfStrGVFile()) != null)
+        loadGvFromFile(gvFile, "str");      
+   
+      // GV for Mag  
+      if( (gvFile=htsData.getPdfMagGVFile()) != null)
+        loadGvFromFile(gvFile, "mag");  
       
-    } /* if UseGV or useGmmGV */
+      // gv-switch
+     // if( (gvFile=htsData.getSwitchGVFile()) != null)
+     //   loadSwitchGvFromFile(gvFile, featureDef, trickyPhones);      
+      
+    } 
 
       } catch (FileNotFoundException e) {
           logger.debug("GVModelSet: " + e.getMessage());
@@ -260,7 +157,133 @@ public class GVModelSet {
           throw new IOException("GVModelSet: " + e.getMessage());
       } 
 
-  }  /* loadGlobalVariance method */
+  }
+  
+  
+  private void loadGvFromFile(String gvFile, String par) throws Exception {
+          
+    int numMSDFlag, numStream, vectorSize, numDurPdf;
+    DataInputStream data_in;
+    int m, i;
     
+    data_in = new DataInputStream (new BufferedInputStream(new FileInputStream(gvFile)));
+    logger.info("LoadGVModelSet reading: " + gvFile);
+                       
+    numMSDFlag = data_in.readInt();
+    numStream = data_in.readInt();  
+    vectorSize = data_in.readInt();
+    numDurPdf = data_in.readInt();
+    
+    if(par.contentEquals("mcp")){
+      gvmeanMcp = new double[vectorSize];  
+      gvcovInvMcp = new double[vectorSize];
+      for ( i = 0; i < vectorSize; i++){
+        gvmeanMcp[i] = data_in.readFloat();
+        gvcovInvMcp[i] = data_in.readFloat();
+      }
+    } else if(par.contentEquals("lf0")){
+        gvmeanLf0 = new double[vectorSize];  
+        gvcovInvLf0 = new double[vectorSize];
+        for ( i = 0; i < vectorSize; i++){
+          gvmeanLf0[i] = data_in.readFloat();
+          gvcovInvLf0[i] = data_in.readFloat();
+        }
+    } else if(par.contentEquals("str")){
+        gvmeanStr = new double[vectorSize];  
+        gvcovInvStr = new double[vectorSize];
+        for ( i = 0; i < vectorSize; i++){
+          gvmeanStr[i] = data_in.readFloat();
+          gvcovInvStr[i] = data_in.readFloat();
+        }
+    } else if(par.contentEquals("mag")){
+        gvmeanMag = new double[vectorSize];  
+        gvcovInvMag = new double[vectorSize];
+        for ( i = 0; i < vectorSize; i++){
+          gvmeanMag[i] = data_in.readFloat();
+          gvcovInvMag[i] = data_in.readFloat();
+        }
+    } 
+    data_in.close ();     
+  }  
+  
+  
+  public void loadSwitchGvFromFile(String gvFile, FeatureDefinition featDef, String trickyPhones)
+  throws Exception {
+   
+   //featDef = featDefinition;
+   //phTrans = phoneTranslator;
+   PhoneTranslator phTrans = new PhoneTranslator(trickyPhones);      
+      
+   int i, j, length, state, feaIndex;
+   BufferedReader s = null;
+   String line, buf, aux;
+   StringTokenizer sline;
+   //phTrans = phTranslator;
+   
+           
+   assert featDef != null : "Feature Definition was not set";
+       
+   try {   
+     /* read lines of tree-*.inf fileName */ 
+     s = new BufferedReader(new InputStreamReader(new FileInputStream(gvFile)));
+     logger.info("load: reading " + gvFile);
+     
+     // skip questions section
+     while((line = s.readLine()) != null) {
+         if (line.indexOf("QS") < 0 ) break;   /* a new state is indicated by {*}[2], {*}[3], ... */
+     }
+     
+     while((line = s.readLine()) != null) {            
+       if(line.indexOf("{*}") >= 0 ){  /* this is the indicator of a new state-tree */
+         aux = line.substring(line.indexOf("[")+1, line.indexOf("]")); 
+         state = Integer.parseInt(aux);
+         
+         sline = new StringTokenizer(aux);
+         
+         /* 1:  gets index node and looks for the node whose idx = buf */
+         buf = sline.nextToken();   
+         
+         /* 2: gets question name and question name val */
+         buf = sline.nextToken();
+         String [] fea_val = buf.split("=");   /* splits featureName=featureValue*/
+         feaIndex = featDef.getFeatureIndex(fea_val[0]);
+        
+         /* Replace back punctuation values */
+         /* what about tricky phones, if using halfphones it would not be necessary */
+         if(fea_val[0].contentEquals("sentence_punc") || fea_val[0].contentEquals("prev_punctuation") || fea_val[0].contentEquals("next_punctuation")){
+             //System.out.print("CART replace punc: " + fea_val[0] + " = " + fea_val[1]);
+             fea_val[1] = phTrans.replaceBackPunc(fea_val[1]);
+             //System.out.println(" --> " + fea_val[0] + " = " + fea_val[1]);
+         }
+         else if(fea_val[0].contains("tobi_") ){
+             //System.out.print("CART replace tobi: " + fea_val[0] + " = " + fea_val[1]);
+             fea_val[1] = phTrans.replaceBackToBI(fea_val[1]);
+             //System.out.println(" --> " + fea_val[0] + " = " + fea_val[1]);
+         }
+         else if(fea_val[0].contains("phone") ){
+             //System.out.print("CART replace phone: " + fea_val[0] + " = " + fea_val[1]);
+             fea_val[1] = phTrans.replaceBackTrickyPhones(fea_val[1]);
+             //System.out.println(" --> " + fea_val[0] + " = " + fea_val[1]);
+         }
+         
+         // add featureName and featureValue to the switch off gv phones          
+                  
+       }         
+     } /* while */  
+     if (s != null)
+       s.close();
+     
+   } catch (FileNotFoundException e) {
+       logger.debug("FileNotFoundException: " + e.getMessage());
+       throw new FileNotFoundException("LoadTreeSet: " + e.getMessage());
+   }
+  
+}
+  
+  
+  
+  
+  
+  
     
 }

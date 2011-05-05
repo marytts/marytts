@@ -439,7 +439,10 @@ public class HTSEngine extends InternalModule
           fv = target.getFeatureVector();  //feaDef.toFeatureVector(0, nextLine);
           um.addUttModel(new HTSModel(cart.getNumStates()));            
           m = um.getUttModel(i);
-          m.setPhoneName(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef));  
+          m.setPhoneName(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef)); 
+// set gvSwitch if the phone is silence
+//          if(m.getPhoneName().contentEquals("_"))
+//              m.setGvSwitch(false);
           //System.out.println("phone=" + m.getPhoneName());
  
           // get the duration and f0 values from the acoustparams = segmentsAndBoundaries
@@ -491,7 +494,7 @@ public class HTSEngine extends InternalModule
           }
 
           um.setTotalFrame(um.getTotalFrame() + m.getTotalDur());
-          //System.out.println("   model=" + m.getPhoneName() + "   TotalDurFrames=" + m.getTotalDur() + "  TotalDurMilisec=" + (fperiodmillisec * m.getTotalDur()) + "\n");
+          //System.out.println("model=" + m.getPhoneName() + "   TotalDurFrames=" + m.getTotalDur() + "  TotalDurMilisec=" + (fperiodmillisec * m.getTotalDur()));
                   
           // Set realised durations 
           m.setTotalDurMillisec((int)(fperiodmillisec * m.getTotalDur()));               
@@ -503,16 +506,18 @@ public class HTSEngine extends InternalModule
           
           diffdurOld = diffdurNew;  // to calculate the duration of next phoneme
           
+ 
+          
           /* Find pdf for LF0, this function sets the pdf for each state. 
            * here it is also set whether the model is voiced or not */ 
           // if ( ! htsData.getUseUnitDurationContinuousFeature() )
           // Here according to the HMM models it is decided whether the states of this model are voiced or unvoiced
           // even if f0 is taken from maryXml here we need to set the voived/unvoiced values per model and state
           cart.searchLf0InCartTree(m, fv, feaDef, htsData.getUV());    
-   
+ 
           /* Find pdf for MCP, this function sets the pdf for each state.  */
           cart.searchMcpInCartTree(m, fv, feaDef);
-
+         
           /* Find pdf for strengths, this function sets the pdf for each state.  */
           if(htsData.getTreeStrFile() != null)
             cart.searchStrInCartTree(m, fv, feaDef);
@@ -529,6 +534,8 @@ public class HTSEngine extends InternalModule
           
           if(firstPh)
             firstPh = false;
+          
+          //System.out.println();
       }
       
       if(phoneAlignmentForDurations && alignDur != null)
@@ -589,13 +596,28 @@ public class HTSEngine extends InternalModule
       //String voiceConfig = "en_GB-roger-hsmm.config";         /* voice configuration file name. */
       //String voiceName   = "dfki-poppy-hsmm";                        /* voice name */
       //String voiceConfig = "en_GB-dfki-poppy-hsmm.config";         /* voice configuration file name. */
+      
       //String voiceName   = "cmu-slt-hsmm";                        /* voice name */
       //String voiceConfig = "en_US-cmu-slt-hsmm.config";         /* voice configuration file name. */
-      String voiceName   = "prudence-hsmm-v7";                        /* voice name */
-      String voiceConfig = "en_GB-prudence-hsmm-v7.config";         /* voice configuration file name. */
+      
+      String voiceName   = "arctic-new";                        /* voice name */
+      String voiceConfig = "en_US-arctic-new.config";         /* voice configuration file name. */
+
+      
+      //String voiceName   = "prudence-hsmm-v7";                        /* voice name */
+      //String voiceConfig = "en_GB-prudence-hsmm-v7.config";         /* voice configuration file name. */
+      //String voiceName   = "dfki-pavoque-neutral-hsmm";                        /* voice name */
+      //String voiceConfig = "de-dfki-pavoque-neutral-hsmm.config";         /* voice configuration file name. */
       
       //String voiceName   = "hsmm-ot";                        /* voice name */
       //String voiceConfig = "tr-hsmm-ot.config";         /* voice configuration file name. */
+
+      //String voiceName   = "cbmodal-hsmm";                        /* voice name */
+      //String voiceConfig = "de-cbmodal-hsmm.config";         /* voice configuration file name. */
+      
+      //String voiceName   = "cbloud-hsmm";                        /* voice name */
+      //String voiceConfig = "de-cbloud-hsmm.config";         /* voice configuration file name. */
+      
       String durFile     = MaryBase + "tmp/tmp.lab";          /* to save realised durations in .lab format */
       String parFile     = MaryBase + "tmp/tmp";              /* to save generated parameters tmp.mfc and tmp.f0 in Mary format */
       String outWavFile  = MaryBase + "tmp/tmp.wav";          /* to save generated audio file */
@@ -604,7 +626,9 @@ public class HTSEngine extends InternalModule
       htsData.initHMMData(voiceName, MaryBase, voiceConfig);
       htsData.setUseGV(true);
       htsData.setUseMixExc(true);
-      htsData.setUseFourierMag(true);  // if the voice was trained with Fourier magnitudes
+      //htsData.setBeta(0.1);
+      //htsData.setUseFourierMag(true);  // if the voice was trained with Fourier magnitudes
+      htsData.setUseAcousticModels(false);  // for using the hts engine stand alone then the acoustic model is not used
       
        
       /** The utterance model, um, is a Vector (or linked list) of Model objects. 
@@ -615,13 +639,19 @@ public class HTSEngine extends InternalModule
       AudioInputStream ais;
                
       /** Example of context features file */
-      //String feaFile = htsData.getFeaFile();
+      String feaFile = htsData.getFeaFile();
+      //String feaFile = "/project/mary/marcela/HMM-voices/cb_neca/cbmodal/phonefeatures/de_1115.pfeats";
+      //String feaFile = "/project/mary/marcela/HMM-voices/cb_neca/cbloud/phonefeatures/lt_1115.pfeats";
+      
+      
+      
       //String feaFile = "/project/mary/marcela/HMM-voices/poppy/phonefeatures/w0130.pfeats";
       // "Accept a father's blessing, and with it, this."
       //String feaFile = "/project/mary/marcela/HMM-voices/roger/phonefeatures/roger_5739.pfeats";
       // "It seems like a strange pointing of the hand of God."
       //String feaFile = "/project/mary/marcela/HMM-voices/roger/phonefeatures/roger_5740.pfeats";
-      String feaFile = "/project/mary/marcela/HMM-voices/prudence/phonefeatures/pru009.pfeats";
+      //String feaFile = "/project/mary/marcela/HMM-voices/prudence/phonefeatures/pru009.pfeats";
+
       
       try {
           /* Process Mary context features file and creates UttModel um, a linked             
@@ -647,7 +677,7 @@ public class HTSEngine extends InternalModule
           System.out.println("Saving to file: " + outWavFile);
           System.out.println("Realised durations saved to file: " + durFile);
           File fileOut = new File(outWavFile);
-          
+           
           if (AudioSystem.isFileTypeSupported(AudioFileFormat.Type.WAVE,ais)) {
             AudioSystem.write(ais, AudioFileFormat.Type.WAVE, fileOut);
           }

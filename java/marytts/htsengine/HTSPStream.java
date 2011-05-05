@@ -50,6 +50,7 @@
 package marytts.htsengine;
 
 import marytts.util.MaryUtils;
+import java.util.Arrays;
 
 import org.apache.log4j.Logger;
 
@@ -96,12 +97,15 @@ public class HTSPStream {
   private int maxGVIter     = 200;      /* max iterations in the speech parameter generation considering GV */
   private double GVepsilon  = 1.0E-4;  //1.0E-4;  /* convergence factor for GV iteration */
   private double minEucNorm = 1.0E-2;  //1.0E-2;  /* minimum Euclid norm of a gradient vector */ 
-  private double stepInit   = 1.0;     /* initial step size */
+  private double stepInit   = 0.1;     /* initial step size */  
   private double stepDec    = 0.5;     /* step size deceralation factor */
   private double stepInc    = 1.2;     /* step size acceleration factor */
   private double w1         = 1.0;     /* weight for HMM output prob. */
   private double w2         = 1.0;     /* weight for GV output prob. */
+  private double lzero      = (-1.0e+10);  /* ~log(0) */
   double norm=0.0, GVobj=0.0, HMMobj=0.0;
+  private boolean gvSwitch[];          /* GV flag sequence, to consider or not the frame in gv */
+  private int gvLength;                /* this will be the number of frames for which gv can be calculated */
  
   private Logger logger = MaryUtils.getLogger("PStream");
   
@@ -127,6 +131,12 @@ public class HTSPStream {
 	g = new double[nT];
 	wuw = new double[nT][width];
 	wum = new double[nT];   
+	
+	/* GV Switch sequence initialisation */
+	gvSwitch = new boolean[nT];
+	for(int i=0; i<nT; i++)
+	  gvSwitch[i] = true;  
+	gvLength = nT;  /* at initialisation, all the frames can be used for gv */
     
   }
 
@@ -157,6 +167,12 @@ public class HTSPStream {
   
   public int getDWwidth(int i, int j){ return dw.getWidth(i,j); }
   
+  public void setGvSwitch(int i, boolean bv){
+    if(bv == false)
+      gvLength--;
+    gvSwitch[i] = bv;
+  }
+  
   private void printWUW(int t){
 	for(int i=0; i<width; i++)
 	  System.out.print("WUW[" + t + "][" + i + "]=" + wuw[t][i] + "  ");
@@ -167,27 +183,42 @@ public class HTSPStream {
   /* mlpg: generate sequence of speech parameter vector maximizing its output probability for 
    * given pdf sequence */
   public void mlpg(HMMData htsData, boolean useGV) {
-	 int m,t;
+	 int m;
 	 int M = order;
 	 boolean debug=false;
  
      htsData.getGVModelSet().setTotalNumIter(0);
      htsData.getGVModelSet().setFirstIter(0);
-     if(useGV)
-       logger.info("Generation using Global Variance maxGVIterations = " + maxGVIter);  
      
+     //if(useGV)
+     //  logger.info("Generation using Global Variance maxGVIterations = " + maxGVIter);  
+     /*
+     for(int t=0; t<nT; t++){
+       System.out.format("t=%d  ",t);
+       for(int j=0; j<vSize; j++)
+         System.out.format("(%d)%f ",  j,ivseq[t][j]);
+       System.out.format("\n");
+     }
+     System.out.format("\n");
+     */
+     
+     //System.out.println("\ngvLength = "+ gvLength + "  maxGVIterations = " + maxGVIter);
 	 for (m=0; m<M; m++) {
+	   //System.out.println("m=" + m);  
+	     
 	   calcWUWandWUM( m , debug);
 	   ldlFactorization(debug);   /* LDL factorization                               */
 	   forwardSubstitution();     /* forward substitution in Cholesky decomposition  */
 	   backwardSubstitution(m);   /* backward substitution in Cholesky decomposition */
-       
+	          
        /* Global variance optimisation for MCP and LF0 */
-       if( useGV ) {
-         //logger.info("Generation using Global Variance maxGVIterations = " + maxGVIter);  
+       if( useGV && gvLength>0) {
+           
+         
+         
          if(feaType == HMMData.MCP){
            gvParmGen(m, htsData.getGVModelSet(), debug);           
-           logger.info("GV optimization for MCP feature: ("+ m + ")  number of iterations=" + htsData.getGVModelSet().getTotalNumIter());           
+           //logger.info("GV optimization for MCP feature: ("+ m + ")  number of iterations=" + htsData.getGVModelSet().getTotalNumIter());           
            if(debug) 
                logger.info("Total number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
                          "  average = " + htsData.getGVModelSet().getTotalNumIter()/M + 
@@ -196,7 +227,7 @@ public class HTSPStream {
          }
          if(feaType == HMMData.LF0){
              gvParmGen(m, htsData.getGVModelSet(), debug);
-             logger.info("GV optimization for LF0 feature: ("+ m + ")  number of iterations=" + htsData.getGVModelSet().getTotalNumIter());             
+             //logger.info("GV optimization for LF0 feature: ("+ m + ")  number of iterations=" + htsData.getGVModelSet().getTotalNumIter());             
              if(debug) 
                  logger.info("Total number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
                            "  average = " + htsData.getGVModelSet().getTotalNumIter()/M + 
@@ -206,7 +237,7 @@ public class HTSPStream {
          }
          if(feaType == HMMData.STR){              
              gvParmGen(m, htsData.getGVModelSet(), debug);
-             logger.info("GV optimization for STR feature: ("+ m + ")  number of iterations=" + htsData.getGVModelSet().getTotalNumIter());
+             //logger.info("GV optimization for STR feature: ("+ m + ")  number of iterations=" + htsData.getGVModelSet().getTotalNumIter());
              if(debug) 
                  logger.info("Total number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
                            "  average = " + htsData.getGVModelSet().getTotalNumIter()/M + 
@@ -219,15 +250,16 @@ public class HTSPStream {
          
        }
 	 } 
-	 if(debug) {
-	   for(m=0; m<M; m++){
-	     for(t=0; t<4; t++)
-		   System.out.print("par[" + t + "][" + m + "]=" + par[t][m] + " ");
-	     System.out.println();
+/*	 
+	 if(debug==false) {
+	   for(int t=0; t<200; t=t+20){
+	     System.out.format("par Frame %d:  ",t);
+	     for(int j=0; j<M; j++)
+	        System.out.format("%f ",  par[t][j]);
+	     System.out.format("\n");
 	   }
-	   System.out.println();
 	 }
-     
+ */    
 	
 	 
   }  /* method mlpg */
@@ -267,38 +299,37 @@ public class HTSPStream {
 	  
 	  /* calc WUW & WUM, U is already inverse  */
 	    for(i=0; i<dw.getNum(); i++) {
-	      if(debug)
-	        System.out.println("WIN: " + i);
 	      iorder = i*order+m;
 	      for( j = dw.getWidth(i, WLEFT); j <= dw.getWidth(i, WRIGHT); j++) {
-	    	 if(debug) 
-	    	   System.out.println("  j=" + j + " t+j=" + (t+j) + " iorder=" + iorder + " coef["+i+"]["+(-j)+"]="+dw.getCoef(i,-j));
-			 if( ( t+j>=0 ) && ( t+j<nT ) && ( dw.getCoef(i,-j)!=0.0 )  ) {
+
+	          if( ( t+j>=0 ) && ( t+j<nT ) && ( dw.getCoef(i,-j)!=0.0 )  ) {
+	             
+	             //System.out.format("coef[%d,%d]=%f  ivseq[%d][%d]=%f  ", i, -j, dw.getCoef(i,-j),t+j,iorder, ivseq[t+j][iorder]); 
+	              
 				 WU = dw.getCoef(i,-j) * ivseq[t+j][iorder];
-				 if(debug)
-				   System.out.println("  WU = coef[" + i +"][" + j + "] * ivseq[" + (t+j) + "][" + iorder + "]"); 
+				 
 				 wum[t] += WU * mseq[t+j][iorder];
-				 if(debug)
-				   System.out.println("  WUM[" + t + "] += WU * mseq[" + t+j + "][" + iorder + "]   WU*mseq=" + WU * mseq[t+j][iorder]); 
+				 
+				 //System.out.format("wu=%f wum[%d]=%f iorder=%d\n", WU, t, wum[t], iorder);
 				 
 				 for(k=0; ( k<width ) && ( t+k<nT ); k++)
 				   if( ( k-j<=dw.getWidth(i, 1) ) && ( dw.getCoef(i,(k-j)) != 0.0 ) ) {
 				     wuw[t][k] += WU * dw.getCoef(i,(k-j));
 				     val = WU * dw.getCoef(i,(k-j));
-				     if(debug)
-				       System.out.println("  WUW[" + t + "][" + k + "] += WU * coef[" + i + "][" + (k-j) + "]   WU*coef=" + val);
 				   }
 			  }
 		  }		  
-	    }  /* for i */
-	    if(debug) {
-	      System.out.println("------------\nWUM[" + t + "]=" + wum[t]); 
-	      printWUW(t);
-	      System.out.println("------------\n");
-	    }
-	    
+	    }  /* for i */	    
 	}  /* for t */
-	  
+	if(debug){ 
+	for(t=0; t<nT; t++) {
+	  System.out.format("t=%d wum=%f  wuw:", t, wum[t]); 
+      for(k=0; k<wuw[t].length; k++)
+        System.out.format("%f ", wuw[t][k]);
+      System.out.format("\n");
+	}
+	System.out.format("\n");
+	}
   }
   
   
@@ -344,7 +375,10 @@ public class HTSPStream {
 		 g[t] -= wuw[t-i][i+1-1] * g[t-i];  /* i as index should be i-1 */
 	   //System.out.println("  g[" + t + "]=" + g[t]);
 	 }
-	 
+	 /*
+	 for(t=0; t<nT; t++)
+	   System.out.format("%f ", g[t]);
+	 System.out.println(); */
   }
   
   /* backward_Substitution */
@@ -363,50 +397,44 @@ public class HTSPStream {
 
   
   /*----------------- GV functions  -----------------------------*/
-  
- // private void gvParmGen(int m, int numMix, double gvmean[][], double gvcovInv[][]){
-  private void gvParmGen(int m, GVModelSet gv, boolean debug){
-      
+  private void gvParmGen(int m, GVModelSet gv, boolean debug){    
     int t,iter;
-    double step=stepInit;
-    double obj=0.0, prev=0.0;
+    double step = stepInit;
+    double prev = -lzero;
+    double obj=0.0;
     double diag[] = new double[nT];
     double par_ori[] = new double[nT];
     mean=0.0;
     var=0.0;
     int numDown = 0;
-    int nmix;
-    double gvweights[];
-    double gvmean[][];
-    double gvcovInv[][];
+    double gvmean[];
+    double gvcovInv[];
     
     /* make a copy in case there is problems during optimisation */
     for(t=0; t<nT; t++){
       g[t] = 0.0;
       par_ori[t] = par[t][m];  
     }
-    nmix = gv.getNumMix();
+    
     if( feaType == HMMData.MCP){
-      gvweights = gv.getGVweightsMcp();
       gvmean = gv.getGVmeanMcp();
       gvcovInv = gv.getGVcovInvMcp();
     } else if( feaType == HMMData.LF0){
-      gvweights = gv.getGVweightsLf0();
       gvmean = gv.getGVmeanLf0();
       gvcovInv = gv.getGVcovInvLf0();
     } else if( feaType == HMMData.STR){
-      gvweights = gv.getGVweightsStr();
       gvmean = gv.getGVmeanStr();
       gvcovInv = gv.getGVcovInvStr();
     } else {//if( feaType == HMMData.MAG) 
-      gvweights = gv.getGVweightsMag();
       gvmean = gv.getGVmeanMag();
       gvcovInv = gv.getGVcovInvMag();
     } 
     
-    
+    //for (t=0; t<gvmean.length; t++)
+    //  System.out.format("gvmean=%f  gvvar=%f\n", gvmean[t], gvcovInv[t]);  
+       
     /* first convert c (c=par) according to GV pdf and use it as the initial value */
-    convGV(m, nmix, gvmean);
+    convGV(m, gvmean);
     
     /* recalculate R=WUW and r=WUM */
     calcWUWandWUM(m, false);
@@ -414,84 +442,138 @@ public class HTSPStream {
     /* iteratively optimize c */
     for (iter=1; iter<=maxGVIter; iter++) {
       /* calculate GV objective and its derivative with respect to c */
-      obj = calcGradient(m, nmix, gvweights, gvmean, gvcovInv);
-    
-      /* accelerate/decelerate step size */
-      if(iter > 1) {
-  
-        /* objective function improved -> increase step size */
-        if (obj > prev){
-          step *= stepInc;
-          //logger.info("+++ obj > prev iter=" + iter +"  obj=" + obj + "  > prev=" + prev);
-          numDown = 0;
-        }
+      obj = calcGradient(m, gvmean, gvcovInv);   
+      
+      /* objective function improved -> increase step size */
+      if (obj > prev)
+        step *= stepDec;
+               
+      /* objective function degraded -> go back c and decrese step size */
+      if (obj < prev) 
+         step *= stepInc;
         
-        /* objective function degraded -> go back c and decrese step size */
-        if (obj < prev) {
-           for (t=0; t<nT; t++)  /* go back c=par to that at the previous iteration */
-              par[t][m] -= step * diag[t];
-           step *= stepDec;
-           for (t=0; t<nT; t++)  /* gradient c */
-              par[t][m] += step * diag[t];
-           iter--;
-           numDown++;
-           //logger.info("--- obj < prev iter=" + iter +"  obj=" + obj + "  < prev=" + prev +"  numDown=" + numDown);
-           if(numDown < 100)
-            continue;
-           else {
-             logger.info("  ***Convergence problems....optimization stopped. Number of iterations: " + iter );
-             break;
-           }
-        }
-          
-      } else {
-       if(debug)   
-         logger.info("  First iteration:  GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
-      }
-      
-      /* convergence check (Euclid norm, objective function) */
-      if(norm < minEucNorm || (iter > 1 && Math.abs(obj-prev) < GVepsilon )){
-        if(debug)  
-          logger.info("  Number of iterations: [   " + iter + "   ] GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
-        gv.incTotalNumIter(iter);
-        if(m==0)
-          gv.setFirstIter(iter);
-        if(debug){
-          if(iter > 1 )  
-            logger.info("  Converged (norm=" + norm + ", change=" + Math.abs(obj-prev) + ")");
-          else            
-            logger.info("  Converged (norm=" + norm + ")");
-        }
-        break;
-      }
-      
       /* steepest ascent and quasy Newton  c(i+1) = c(i) + alpha * grad(c(i)) */
-      for(t=0; t<nT; t++){
+      for(t=0; t<nT; t++)
         par[t][m] += step * g[t];
-        diag[t] = g[t];
-      }
-      prev = obj;       
+      
+      //System.out.format("iter=%d  prev=%f  obj=%f \n", iter, prev, obj);
+      prev = obj;
     }
-    
-    if( iter>maxGVIter ){
-      //logger.info("");  
-      //logger.info("  Number of iterations: " + maxGVIter + " GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
-      logger.info("   optimization stopped by reaching max number of iterations (no global variance applied)");
-      //logger.info("");
 
-      /* If there it does not converge, the feature parameter is not optimized */
-      for(t=0; t<nT; t++){
-        par[t][m] = par_ori[t];  
-      } 
-      
-    }
-    gv.setTotalNumIter(iter);
-      
-  }
+ }
+
   
-  private double calcGradient(int m, int nmix, double gvweights[], double gvmean[][], double gvcovInv[][]){
+  private void gvParmGenOLD(int m, GVModelSet gv, boolean debug){    
+      int t,iter;
+      double step=stepInit;
+      double obj=0.0, prev=0.0;
+      double diag[] = new double[nT];
+      double par_ori[] = new double[nT];
+      mean=0.0;
+      var=0.0;
+      int numDown = 0;
+      double gvmean[];
+      double gvcovInv[];
+      
+      /* make a copy in case there is problems during optimisation */
+      for(t=0; t<nT; t++){
+        g[t] = 0.0;
+        par_ori[t] = par[t][m];  
+      }
+      
+      if( feaType == HMMData.MCP){
+        gvmean = gv.getGVmeanMcp();
+        gvcovInv = gv.getGVcovInvMcp();
+      } else if( feaType == HMMData.LF0){
+        gvmean = gv.getGVmeanLf0();
+        gvcovInv = gv.getGVcovInvLf0();
+      } else if( feaType == HMMData.STR){
+        gvmean = gv.getGVmeanStr();
+        gvcovInv = gv.getGVcovInvStr();
+      } else {//if( feaType == HMMData.MAG) 
+        gvmean = gv.getGVmeanMag();
+        gvcovInv = gv.getGVcovInvMag();
+      } 
+         
+      /* first convert c (c=par) according to GV pdf and use it as the initial value */
+      convGV(m, gvmean);
+      
+      /* recalculate R=WUW and r=WUM */
+      calcWUWandWUM(m, false);
+      
+      /* iteratively optimize c */
+      for (iter=1; iter<=maxGVIter; iter++) {
+        /* calculate GV objective and its derivative with respect to c */
+        obj = calcGradient(m, gvmean, gvcovInv);   
+        /* accelerate/decelerate step size */
+        if(iter > 1) { 
+          /* objective function improved -> increase step size */
+          if (obj > prev){
+            step *= stepInc;
+            //logger.info("+++ obj > prev iter=" + iter +"  obj=" + obj + "  > prev=" + prev);
+            numDown = 0;
+          }      
+          /* objective function degraded -> go back c and decrese step size */
+          if (obj < prev) {
+             for (t=0; t<nT; t++)  /* go back c=par to that at the previous iteration */
+                par[t][m] -= step * diag[t];
+             step *= stepDec;
+             for (t=0; t<nT; t++)  /* gradient c */
+                par[t][m] += step * diag[t];
+             iter--;
+             numDown++;
+             //logger.info("--- obj < prev iter=" + iter +"  obj=" + obj + "  < prev=" + prev +"  numDown=" + numDown);
+             if(numDown < 100)
+              continue;
+             else {
+               logger.info("  ***Convergence problems....optimization stopped. Number of iterations: " + iter );
+               break;
+             }
+          }         
+        } else {
+         if(debug)   
+           logger.info("  First iteration:  GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
+        }     
+        /* convergence check (Euclid norm, objective function) */
+        if(norm < minEucNorm || (iter > 1 && Math.abs(obj-prev) < GVepsilon )){
+          if(debug)  
+            logger.info("  Number of iterations: [   " + iter + "   ] GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
+          gv.incTotalNumIter(iter);
+          if(m==0)
+            gv.setFirstIter(iter);
+          if(debug){
+            if(iter > 1 )  
+              logger.info("  Converged (norm=" + norm + ", change=" + Math.abs(obj-prev) + ")");
+            else            
+              logger.info("  Converged (norm=" + norm + ")");
+          }
+          break;
+        }    
+        /* steepest ascent and quasy Newton  c(i+1) = c(i) + alpha * grad(c(i)) */
+        for(t=0; t<nT; t++){
+          par[t][m] += step * g[t];
+          diag[t] = g[t];
+        }
+        prev = obj;       
+      }   
+      if( iter>maxGVIter ){
+        //logger.info("");  
+        //logger.info("  Number of iterations: " + maxGVIter + " GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
+        logger.info("   optimization stopped by reaching max number of iterations (no global variance applied)");
+        //logger.info("");
+
+        /* If there it does not converge, the feature parameter is not optimized */
+        for(t=0; t<nT; t++){
+          par[t][m] = par_ori[t];  
+        }      
+      }
+      gv.setTotalNumIter(iter);     
+    }
+ 
+  
+  private double calcGradientOLD(int m, double gvmean[], double gvcovInv[]){
    int t, i,k; 
-   double vd[] = new double[nmix];
+   double vd;
    double h, aux;
    double w = 1.0 / (dw.getNum() * nT);
    
@@ -500,11 +582,8 @@ public class HTSPStream {
    
    /* GV objective function and its derivative with respect to c */
    /* -1/2 * v(c)' U^-1 v(c) + v(c)' U^-1 mu + K  --> second part of eq (20) in Toda and Tokuda IEICE-2007 paper.*/
-   GVobj = 0.0;
-   for(k=0; k<nmix; k++){
-     GVobj += gvweights[k] * -0.5 * w2 * (var - gvmean[k][m]) * gvcovInv[k][m] * (var - gvmean[k][m]);
-     vd[k] = gvcovInv[k][m] * (var - gvmean[k][m]);
-   }
+   GVobj =  -0.5 * w2 * (var - gvmean[m]) * gvcovInv[m] * (var - gvmean[m]);
+   vd = gvcovInv[m] * (var - gvmean[m]);
      
    /* calculate g = R*c = WUW*c*/
    for(t=0; t<nT; t++) {
@@ -514,11 +593,9 @@ public class HTSPStream {
          g[t] += wuw[t][i-1] * par[t+i-1][m];      /* i as index should be i-1 */
        if( t-i+1 >= 0 )
          g[t] += wuw[t-i+1][i-1] * par[t-i+1][m];  /* i as index should be i-1 */
-     }
-     
+     }   
    }
-   
-   
+      
    for(t=0, HMMobj=0.0, norm=0.0; t<nT; t++) {
        
      HMMobj += -0.5 * w1 * w * par[t][m] * (g[t] - 2.0 * wum[t]); 
@@ -527,53 +604,90 @@ public class HTSPStream {
      //h = 1.0;
      /* case NEWTON */
      /* only diagonal elements of Hessian matrix are used */
-     h = 0.0;
-     for(k=0; k<nmix; k++)
-       h += gvweights[k] * ( ( nT-1) * vd[k] + 2.0 * gvcovInv[k][m] * (par[t][m] - mean) * (par[t][m] - mean) );
+     h = ( ( nT-1) * vd + 2.0 * gvcovInv[m] * (par[t][m] - mean) * (par[t][m] - mean) );
      h = -w1 * w * wuw[t][1-1] - w2 * 2.0 / (nT*nT) * h;
      
      h = -1.0/h;
        
      /* gradient vector */
-     aux = 0.0;
-     for(k=0; k<nmix; k++)
-       aux += gvweights[k] * (par[t][m] - mean ) * vd[k];   
-     
-     g[t] = h * ( w1 * w *(-g[t] + wum[t]) + w2 * -2.0/nT * aux ); 
+     if(gvSwitch[t]) {
+       aux = (par[t][m] - mean ) * vd;        
+       g[t] = h * ( w1 * w *(-g[t] + wum[t]) + w2 * -2.0/nT * aux );
+     } else 
+       g[t] = h * ( w1 * w *(-g[t] + wum[t]) );  
      
      /*  Euclidian norm of gradient vector */  
      norm += g[t]*g[t];
        
    }
-   
-   
+     
    norm = Math.sqrt(norm);
    //logger.info("HMMobj=" + HMMobj + "  GVobj=" + GVobj + "  norm=" + norm);
    
    return(HMMobj+GVobj);  
    
   }
+
+  private double calcGradient(int m, double gvmean[], double gvcovInv[]){
+      int t, i,k; 
+      double vd;
+      double h, aux;
+      double w = 1.0 / (dw.getNum() * nT);
+      
+      /* recalculate GV of the current c = par */
+      calcGV(m);   
+      
+      /* GV objective function and its derivative with respect to c */
+      /* -1/2 * v(c)' U^-1 v(c) + v(c)' U^-1 mu + K  --> second part of eq (20) in Toda and Tokuda IEICE-2007 paper.*/
+      GVobj =  -0.5 * w2 * var * gvcovInv[m] * (var - 2.0 * gvmean[m]);
+      vd = -2.0 * gvcovInv[m] * (var - gvmean[m])/nT;
+      //System.out.format("GVobj=%f  vd=%f \n", GVobj, vd);  
+      
+      /* calculate g = R*c = WUW*c*/
+      for(t=0; t<nT; t++) {
+        g[t] = wuw[t][0] * par[t][m];
+        for(i=2; i<=width; i++){   /* width goes from 0 to 2  width=3 */
+          if( t+i-1 < nT)
+            g[t] += wuw[t][i-1] * par[t+i-1][m];      /* i as index should be i-1 */
+          if( t-i+1 >= 0 )
+            g[t] += wuw[t-i+1][i-1] * par[t-i+1][m];  /* i as index should be i-1 */
+        }   
+      }
+         
+      for(t=0, HMMobj=0.0; t<nT; t++) {
+          
+        HMMobj += w1 * w * par[t][m] * (wum[t] - 0.5 * g[t]); 
+ 
+        h = -w1 * w * wuw[t][1-1] - w2 * 2.0 / (nT*nT) * ( (nT-1) * gvcovInv[m] * (var - gvmean[m]) + 2.0 * gvcovInv[m] * (par[t][m] - mean) * (par[t][m] - mean) ); 
   
-  private void convGV(int m, int nmix, double gvmean[][]){
+        //System.out.format("HMMobj=%f  h=%f \n", HMMobj, h);
+        /* gradient vector */
+        if(gvSwitch[t]) {
+          g[t] = 1.0 / h * ( w1 * w *(-g[t] + wum[t]) + w2 * vd * (par[t][m] - mean) );  
+
+        } else 
+          g[t] = 1.0 / h * ( w1 * w *(-g[t] + wum[t]) );  
+                  
+      }
+              
+      return(-(HMMobj+GVobj));  
+      
+     }
+  
+  
+  private void convGV(int m, double gvmean[]){
     int t, k;
     double ratio, mixmean; 
     /* calculate GV of c */
     calcGV(m);
-     
-    /* calculate the mean of mixtures */
-    mixmean=0.0; 
-    for(k=0; k<nmix; k++)
-      mixmean += gvmean[k][m];
-    mixmean = mixmean / nmix;   
-    
+       
+    ratio = Math.sqrt(gvmean[m] / var);
+    //System.out.format("    mean=%f vari=%f ratio=%f \n", mean, var, ratio);
    
-    /* ratio between GV mean and variance of c */
-    ratio = Math.sqrt(mixmean / var);
-   
-    /* c'[t][d] = ratio * (c[t][d]-mean[d]) + mean[d]  eq. (34) in Toda and Tokuda IEICE-2007 paper. */
-    
+    /* c'[t][d] = ratio * (c[t][d]-mean[d]) + mean[d]  eq. (34) in Toda and Tokuda IEICE-2007 paper. */  
     for(t=0; t<nT; t++){
-     par[t][m] = ratio * ( par[t][m]-mean ) + mean;
+     if( gvSwitch[t] )
+       par[t][m] = ratio * ( par[t][m]-mean ) + mean;
     }
       
   }
@@ -585,13 +699,18 @@ public class HTSPStream {
  
     /* mean */
     for(t=0; t<nT; t++)
-      mean += par[t][m];
-    mean = mean / nT;
+      if(gvSwitch[t]){
+        mean += par[t][m];
+        //System.out.format("%f ", par[t][m]);
+      }
+    //System.out.format("\n");
+    mean = mean / gvLength;
       
     /* variance */  
     for(t=0; t<nT; t++)
-      var += (par[t][m] - mean) * (par[t][m] - mean);
-    var = var / nT;
+      if(gvSwitch[t])
+        var += (par[t][m] - mean) * (par[t][m] - mean);
+    var = var / gvLength;
       
   }
   

@@ -96,6 +96,8 @@ public class HTSParameterGeneration {
   private HTSPStream magPst  = null;
   private HTSPStream lf0Pst  = null;
   private boolean voiced[];
+  private int totalUttFrame;   // total number of frames in a mcep, str or mag Pst
+  private int totalLf0Frame;   // total number of f0 voiced frames in a lf0 Pst
   
   private Logger logger = MaryUtils.getLogger("ParameterGeneration");
   
@@ -155,7 +157,7 @@ public class HTSParameterGeneration {
 	  
 	int frame, uttFrame, lf0Frame;
 	int state, lw, rw, k, n, i, numVoicedInModel;
-	boolean nobound;
+	boolean nobound, gvSwitch;
     HTSModel m;
     CartTreeSet ms = htsData.getCartTreeSet();
     
@@ -198,13 +200,15 @@ public class HTSParameterGeneration {
 	/* mcepframe and lf0frame are used in the original code to initialise the T field */
 	/* in each pst, but here the pst are already initialised .... */
 	logger.debug("utteranceFrame=" + uttFrame + " lf0frame=" + lf0Frame);
-	
-	
+	totalUttFrame = uttFrame;
+	totalLf0Frame = lf0Frame;
 	uttFrame = 0;
 	lf0Frame = 0;
+	
 	/* copy pdfs */
 	for(i=0; i<um.getNumUttModel(); i++){
-      m = um.getUttModel(i);          		
+      m = um.getUttModel(i);
+      gvSwitch = m.getGvSwitch();
       for(state=0; state<ms.getNumStates(); state++) {
     	         
       	for(frame=0; frame<m.getDur(state); frame++) {
@@ -215,24 +219,44 @@ public class HTSParameterGeneration {
           if( mcepPst !=null ) {
       	    for(k=0; k<ms.getMcepVsize(); k++){
       		  mcepPst.setMseq(uttFrame, k, m.getMcepMean(state, k));
-      		  mcepPst.setIvseq(uttFrame, k, finv(m.getMcepVariance(state, k)));
+      		  // check the borders, if frame is bound or not
+      		  if( (uttFrame == 0 || uttFrame == (totalUttFrame-1) ) && k >= mcepPst.getOrder() )
+      		    mcepPst.setIvseq(uttFrame, k, 0.0);
+      		  else
+      		    mcepPst.setIvseq(uttFrame, k, finv(m.getMcepVariance(state, k)));
       	    }
+      	    if(!gvSwitch) 
+      	      mcepPst.setGvSwitch(uttFrame, false);
           }
       	  
       	  /* copy pdf for str */
           if( strPst !=null ) {
       	    for(k=0; k<ms.getStrVsize(); k++){
       		  strPst.setMseq(uttFrame, k, m.getStrMean(state, k));
-      		  strPst.setIvseq(uttFrame, k, finv(m.getStrVariance(state, k)));
+      		  
+      		  // check the borders, if frame is bound or not
+              if( (uttFrame == 0 || uttFrame == (totalUttFrame-1) ) && k >= strPst.getOrder() )
+                strPst.setIvseq(uttFrame, k, 0.0);
+              else
+                strPst.setIvseq(uttFrame, k, finv(m.getStrVariance(state, k)));
       	    }
+      	    if(!gvSwitch) 
+              strPst.setGvSwitch(uttFrame, false);
           }
       	  
       	  /* copy pdf for mag */
           if( magPst != null ) {
       	    for(k=0; k<ms.getMagVsize(); k++){
       		  magPst.setMseq(uttFrame, k, m.getMagMean(state, k));
-      		  magPst.setIvseq(uttFrame, k, finv(m.getMagVariance(state, k)));
+      		  
+      		  // check the borders, if frame is bound or not
+              if( (uttFrame == 0 || uttFrame == (totalUttFrame-1) ) && k >= magPst.getOrder() )
+                magPst.setIvseq(uttFrame, k, 0.0);
+              else
+                magPst.setIvseq(uttFrame, k, finv(m.getMagVariance(state, k)));
     	    }
+      	    if(!gvSwitch) 
+              magPst.setGvSwitch(uttFrame, false);
           }
       	  
       	  /* copy pdfs for lf0 */
@@ -256,9 +280,12 @@ public class HTSParameterGeneration {
       			lf0Pst.setIvseq(lf0Frame, k, 0.0);
       		}
     	  }
-          }
-      	  if( voiced[uttFrame] )
-             lf0Frame++;      	  
+          }         
+      	  if( voiced[uttFrame] ){
+      	    if(!gvSwitch) 
+                lf0Pst.setGvSwitch(lf0Frame, false); 
+             lf0Frame++;      	 
+      	  }
       	  uttFrame++;
       	  
       	} /* for each frame in this state */
@@ -303,10 +330,10 @@ public class HTSParameterGeneration {
     }
 	   
     if(debug) {
-        // saveParam(parFileName+"mcep.bin", mcepPst, HMMData.MCP);  // no header
-        // saveParam(parFileName+"lf0.bin", lf0Pst, HMMData.LF0);    // no header
-        saveParamMaryFormat(parFileName, mcepPst, HMMData.MCP);
-        saveParamMaryFormat(parFileName, lf0Pst, HMMData.LF0);
+        saveParam(parFileName+"mcep.bin", mcepPst, HMMData.MCP);  // no header
+        saveParam(parFileName+"lf0.bin", lf0Pst, HMMData.LF0);    // no header
+        //saveParamMaryFormat(parFileName, mcepPst, HMMData.MCP);
+        //saveParamMaryFormat(parFileName, lf0Pst, HMMData.LF0);
      }
 
 	  

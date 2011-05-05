@@ -206,7 +206,7 @@ public class CartTreeSet {
         if(m.getDur(s) < 1 )
           m.setDur(s, 1);
         
-        //System.out.println("   state: " + s + " dur=" + m.getDur(s) + "  dd=" + dd);               
+        //System.out.format("   state=%d  dur=%d  dd=%f  mean=%f  vari=%f \n", s, m.getDur(s), dd, meanVector[s], varVector[s]);               
         m.setTotalDur(m.getTotalDur() + m.getDur(s));      
         dd = dd + ( data - (double)m.getDur(s) );       
       }
@@ -231,7 +231,7 @@ public class CartTreeSet {
       for(s=0; s<numStates; s++) {          
         node = lf0Tree[s].interpretToNode(fv, 1);
         if ( node instanceof PdfLeafNode ) {       
-          m.setLf0Mean(s, ((PdfLeafNode)node).getMean());
+          m.setLf0Mean(s, ((PdfLeafNode)node).getMean());         
           m.setLf0Variance(s, ((PdfLeafNode)node).getVariance());
         } else 
             throw new Exception("searchLf0InCartTree: The node must be a PdfLeafNode");       
@@ -241,6 +241,7 @@ public class CartTreeSet {
         else
             m.setVoiced(s,false);       
       }
+      //m.printLf0Mean();
     }
       
     
@@ -259,11 +260,12 @@ public class CartTreeSet {
       for(s=0; s<numStates; s++) {         
         node = mcpTree[s].interpretToNode(fv, 1);       
         if ( node instanceof PdfLeafNode ) {       
-          m.setMcepMean(s,((PdfLeafNode)node).getMean());
+          m.setMcepMean(s,((PdfLeafNode)node).getMean());         
           m.setMcepVariance(s, ((PdfLeafNode)node).getVariance());
         } else
             throw new Exception("searchMcpInCartTree: The node must be a PdfLeafNode");
       }
+      //m.printMcepMean();
     }
     
     /***
