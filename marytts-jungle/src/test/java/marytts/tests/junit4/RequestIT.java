@@ -37,6 +37,7 @@ import marytts.datatypes.MaryDataType;
 import marytts.modules.synthesis.Voice;
 import marytts.server.Mary;
 import marytts.server.Request;
+import marytts.util.MaryUtils;
 import marytts.util.dom.DomUtils;
 
 import org.apache.log4j.BasicConfigurator;
@@ -55,8 +56,10 @@ import org.w3c.dom.Element;
 public class RequestIT {
     @BeforeClass
     public static void setUp() throws Exception {
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.DEBUG);
+        if (!MaryUtils.isLog4jConfigured()) {
+            BasicConfigurator.configure();
+            Logger.getRootLogger().setLevel(Level.DEBUG);
+        }
         if (System.getProperty("mary.base") == null) {
             System.setProperty("mary.base", ".");
             Logger.getRootLogger().warn("System property 'mary.base' is not defined -- trying "+new File(".").getAbsolutePath()

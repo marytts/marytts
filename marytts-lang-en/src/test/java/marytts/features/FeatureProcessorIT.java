@@ -84,7 +84,6 @@ public class FeatureProcessorIT
                 Logger.global.warning("System property 'mary.base' is not defined -- trying "+new File(".").getAbsolutePath()
                         +" -- if this fails, please start this using VM property \"-Dmary.base=/path/to/mary/runtime\"!");
             }
-            MaryProperties.readProperties();
             mgr = new marytts.features.FeatureProcessorManager("en_US");
         } catch (Exception e) {
             e.printStackTrace();

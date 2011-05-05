@@ -228,7 +228,6 @@ public class LTS
      */
     public static void main(String[] args) throws Exception
     {
-        MaryProperties.readProperties();
         LTS ltsTest = new LTS();
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         String line = null;

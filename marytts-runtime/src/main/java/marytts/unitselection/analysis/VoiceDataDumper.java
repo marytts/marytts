@@ -318,7 +318,6 @@ public class VoiceDataDumper {
      * @throws Exception
      */
     protected void dumpData(String voiceName) throws Exception {
-        MaryProperties.readProperties();
 
         String audioTimelineFileName = MaryProperties.needFilename("voice." + voiceName + ".audioTimelineFile");
         String basenameTimelineFileName = MaryProperties.needFilename("voice." + voiceName + ".basenameTimeline");

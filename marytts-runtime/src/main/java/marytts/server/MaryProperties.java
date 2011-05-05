@@ -19,31 +19,21 @@
  */
 package marytts.server;
 
-import java.awt.HeadlessException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.Vector;
 
-import javax.swing.JOptionPane;
+import org.apache.commons.lang.StringUtils;
 
 import marytts.config.MaryConfig;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.exceptions.NoSuchPropertyException;
-import marytts.signalproc.effects.BaseAudioEffect;
 
 
 /**
@@ -59,31 +49,50 @@ import marytts.signalproc.effects.BaseAudioEffect;
 
 public class MaryProperties
 {
-    // The underlying Properties object
-    private static Properties p = null;
-    // Global configuration settings independent of any particular request:
-    private static String maryBase = null;
-
     /** The mary base directory, e.g. /usr/local/mary */
     public static String maryBase()
     {
-        if (maryBase == null) {
-            maryBase = System.getProperty("mary.base");
-            if (maryBase == null)
-                throw new RuntimeException("System property mary.base not defined");
-            maryBase = expandPath(maryBase);
-        }
-        return maryBase; 
+    	return needFilename("mary.base");
     }
     
     
-    private static List<String> getList(String propName) {
+    public static List<String> getList(String propName) {
     	assert propName.endsWith(".list");
     	List<String> vals = new ArrayList<String>();
+    	// First, anything from system properties:
+    	String val = System.getProperty(propName);
+    	if (val != null) {
+    		vals.addAll(Arrays.asList(StringUtils.split(val)));
+    	}
+    	// Then, anything from the configs:
     	for (MaryConfig mc : MaryConfig.getConfigs()) {
     		vals.addAll(mc.getList(propName));
     	}
     	return vals;
+    }
+
+
+
+    /**
+     * Get a property from the underlying config files.  
+     * @param property the property requested
+     * @param defaultValue the value to return if the property is not defined
+     * @return the property value if found, defaultValue otherwise.
+     */
+    public static String getProperty(String property, String defaultValue) {
+    	// First, try system properties:
+    	String val = System.getProperty(property);
+    	if (val != null) {
+    		return val;
+    	}
+    	// Then, try the configs. First one wins:
+    	for (MaryConfig mc : MaryConfig.getConfigs()) {
+    		val = mc.getProperties().getProperty(property);
+    		if (val != null) {
+    			return val;
+    		}
+    	}
+    	return defaultValue;
     }
     
     /** Names of the classes to use as modules, plus optional parameter info.
@@ -104,63 +113,7 @@ public class MaryProperties
     }
     
     
-    /**
-     * Read the properties from property files and command line.
-     * Properties are read from
-     * <ul>
-     * <li> the System properties, as specified on the command line; </li>
-     * <li> MARY_BASE/conf/*.config </li>
-     * </ul>
-     * The system properties settings have precedence,
-     * i.e. it is possible to override single config settings on the
-     * command line.
-     * <br>
-     * This method will also do dependency checking, and propose to download
-     * missing packages from the MARY installer.
-     */
-    public static void readProperties()
-        throws Exception {
-        // Throws all sorts of exceptions, each of them should lead to
-        // a program halt: We cannot start up properly.
-        
-        if (p != null) // we have done this already
-            return;
-        p = new Properties();
- 
-        for (MaryConfig config : MaryConfig.getConfigs()) {
-        	insertOnePropIntoAllProps(config.getProperties(), p);
-        }
-        
-        
-        // Overwrite settings from config files with those set on the
-        // command line (System properties):
-        p.putAll(System.getProperties());
-    }
-    
-	/**
-	 * @param oneP
-	 */
-	private static void insertOnePropIntoAllProps(Properties oneP, Properties allPs) {
-		for (Iterator keyIt=oneP.keySet().iterator(); keyIt.hasNext(); ) {
-		    String key = (String) keyIt.next();
-		    // Ignore dependency-related properties:
-		    if (key.equals("name") || key.equals("provides") || key.startsWith("requires")) {
-		        continue;
-		    }
-		    String value = oneP.getProperty(key);
-		    // Properties with keys ending in ".list" are to be appended in global properties.
-		    if (key.endsWith(".list")) {
-		        String prevValue = allPs.getProperty(key);
-		        if (prevValue != null) {
-		            value = prevValue + " " + value;
-		        }
-		    }
-		    allPs.setProperty(key, value);
-		}
-	}
 
-
-    
     
 	/**
 	 * From a path entry in the properties, create an expanded form.
@@ -172,7 +125,7 @@ public class MaryProperties
 		final String MARY_BASE = "MARY_BASE";
 		StringBuilder buf = null;
 		if (path.startsWith(MARY_BASE)) {
-			buf = new StringBuilder(maryBase);
+			buf = new StringBuilder(maryBase());
 			buf.append(path.substring(MARY_BASE.length()));
 		} else {
 			buf = new StringBuilder(path);
@@ -246,17 +199,6 @@ public class MaryProperties
     }
 
 
-    /**
-     * Get a property from the underlying properties.  
-     * @param property the property requested
-     * @param defaultValue the value to return if the property is not defined
-     * @return the property value if found, defaultValue otherwise.
-     */
-    public static String getProperty(String property, String defaultValue)
-    {
-        if (p == null) return defaultValue;
-        return p.getProperty(property, defaultValue);
-    }
 
     /**
      * Get a boolean property from the underlying properties.  
@@ -266,8 +208,7 @@ public class MaryProperties
      */
     public static boolean getBoolean(String property, boolean defaultValue)
     {
-        if (p == null) return defaultValue;
-        String value = p.getProperty(property);
+        String value = getProperty(property);
         if (value == null)
             return defaultValue;
         try {
@@ -287,12 +228,11 @@ public class MaryProperties
      */
     public static boolean getAutoBoolean(String property, boolean defaultValue)
     {
-      if (p == null) return defaultValue;
-      String value = p.getProperty(property);
+      String value = getProperty(property);
         if (value == null)
             return defaultValue;
         if (value.equals("auto")) {
-            return ((getProperty("server").compareTo("commandline")==0) ? false:true);
+            return (getProperty("server").equals("commandline") ? false:true);
         } else {
             return getBoolean(property, defaultValue);
         }
@@ -306,10 +246,10 @@ public class MaryProperties
      */
     public static int getInteger(String property, int defaultValue)
     {
-        if (p == null) return defaultValue;
-        String value = p.getProperty(property);
-        if (value == null)
+        String value = getProperty(property);
+        if (value == null) {
             return defaultValue;
+        }
         try {
             return Integer.decode(value).intValue();
         } catch (NumberFormatException e) {
@@ -327,10 +267,10 @@ public class MaryProperties
      */
     public static String getFilename(String property, String defaultValue)
     {
-        if (p == null) return defaultValue;
-        String filename = p.getProperty(property);
-        if (filename == null)
+        String filename = getProperty(property);
+        if (filename == null) {
             return defaultValue;
+        }
         return expandPath(filename);
     }
 
@@ -345,9 +285,10 @@ public class MaryProperties
      */
     public static String needProperty(String property) throws NoSuchPropertyException
     {
-        String value = p.getProperty(property);
-        if (value == null)
+        String value = getProperty(property);
+        if (value == null) {
             throw new NoSuchPropertyException("Missing value `" + property + "' in configuration files");
+        }
         return value;
     }
 
@@ -360,9 +301,10 @@ public class MaryProperties
      */
     public static boolean needBoolean(String property) throws NoSuchPropertyException
     {
-        String value = p.getProperty(property);
-        if (value == null)
+        String value = getProperty(property);
+        if (value == null) {
             throw new NoSuchPropertyException("Missing property `" + property + "' in configuration files");
+        }
         try {
             return Boolean.valueOf(value).booleanValue();
         } catch (NumberFormatException e) {
@@ -382,11 +324,12 @@ public class MaryProperties
     public static boolean needAutoBoolean(String property)
     throws NoSuchPropertyException
     {
-        String value = p.getProperty(property);
-        if (value == null)
+        String value = getProperty(property);
+        if (value == null) {
             throw new NoSuchPropertyException("Missing property `" + property + "' in configuration files");
+        }
         if (value.equals("auto")) {
-            return ((needProperty("server").compareTo("commandline")==0) ? false:true);
+            return (needProperty("server").equals("commandline") ? false:true);
         } else {
             return needBoolean(property);
         }
@@ -402,9 +345,10 @@ public class MaryProperties
      */
     public static int needInteger(String property) throws NoSuchPropertyException
     {
-        String value = p.getProperty(property);
-        if (value == null)
+        String value = getProperty(property);
+        if (value == null) {
             throw new NoSuchPropertyException("Missing property `" + property + "' in configuration files");
+        }
         try {
             return Integer.decode(value).intValue();
         } catch (NumberFormatException e) {
@@ -460,7 +404,7 @@ public class MaryProperties
 	public static InputStream getStream(String propertyName)
 	throws FileNotFoundException, MaryConfigurationException {
 		InputStream stream;
-		String propertyValue = MaryProperties.getProperty(propertyName);
+		String propertyValue = getProperty(propertyName);
 		if (propertyValue == null) {
 			return null;
 		} else if (propertyValue.startsWith("jar:")) { // read from classpath
