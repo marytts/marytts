@@ -24,15 +24,16 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.Set;
 
 import marytts.config.LanguageConfig;
 import marytts.config.MaryConfig;
 import marytts.exceptions.MaryConfigurationException;
 
-import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.Test;
 
 /**
@@ -51,7 +52,14 @@ public class EnglishConfigTest {
 	public void haveLanguageConfig() {
 		assertTrue(MaryConfig.countLanguageConfigs() > 0);
 	}
-	
+
+	@Test
+	public void haveLanguageConfig2() {
+		Iterable<LanguageConfig> lcs = MaryConfig.getLanguageConfigs();
+		assertNotNull(lcs);
+		assertTrue(lcs.iterator().hasNext());
+	}
+
 	@Test
 	public void canGet() {
 		MaryConfig m = MaryConfig.getLanguageConfig(Locale.US);
@@ -66,19 +74,5 @@ public class EnglishConfigTest {
 		assertTrue(e.getLocales().contains(Locale.US));
 	}
 	
-	@Test(expected=MaryConfigurationException.class)
-	public void requireLocale1() throws MaryConfigurationException {
-		new LanguageConfig(new ByteArrayInputStream(new byte[0]));
-	}
-	
-	@Test(expected=MaryConfigurationException.class)
-	public void requireLocale2() throws MaryConfigurationException, IOException {
-		Properties p = new Properties();
-		p.setProperty("a", "b");
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		p.store(baos, "");
-		// exercise:
-		new LanguageConfig(new ByteArrayInputStream(baos.toByteArray()));
-	}
 	
 }

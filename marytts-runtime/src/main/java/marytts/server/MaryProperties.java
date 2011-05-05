@@ -63,13 +63,7 @@ public class MaryProperties
     private static Properties p = null;
     // Global configuration settings independent of any particular request:
     private static String maryBase = null;
-    private static Vector<String> moduleInitInfo = new Vector<String>();
-    private static Vector<String> synthClasses = new Vector<String>();
-    private static Vector<String> audioEffectClasses = new Vector<String>();
-    private static Vector<String> audioEffectNames = new Vector<String>();
-    private static Vector<String> audioEffectSampleParams = new Vector<String>();
-    private static Vector<String> audioEffectHelpTexts = new Vector<String>();
-    
+
     /** The mary base directory, e.g. /usr/local/mary */
     public static String maryBase()
     {
@@ -81,20 +75,34 @@ public class MaryProperties
         }
         return maryBase; 
     }
+    
+    
+    private static List<String> getList(String propName) {
+    	assert propName.endsWith(".list");
+    	List<String> vals = new ArrayList<String>();
+    	for (MaryConfig mc : MaryConfig.getConfigs()) {
+    		vals.addAll(mc.getList(propName));
+    	}
+    	return vals;
+    }
+    
     /** Names of the classes to use as modules, plus optional parameter info.
      * @see marytts.modules.ModuleRegistry#instantiateModule(String) for details on expected format.
      */
-    public static Vector<String> moduleInitInfo() { return moduleInitInfo; }
+    public static List<String> moduleInitInfo() {
+    	return getList("modules.classes.list");
+    }
+    
     /** Names of the classes to use as waveform synthesizers. */
-    public static Vector<String> synthesizerClasses() { return synthClasses; }
+    public static List<String> synthesizerClasses() {
+    	return getList("synthesizers.classes.list"); 
+    }
+    
     /** Names of the classes to use as audio effects. */
-    public static Vector<String> effectClasses() { return audioEffectClasses; }
-    /** Names of audio effects. */
-    public static Vector<String> effectNames() { return audioEffectNames; }
-    /** Sample Parameters of audio effects. */
-    public static Vector<String> effectSampleParams() { return audioEffectSampleParams; }
-    /** Help text of audio effects. */
-    public static Vector<String> effectHelpTexts() { return audioEffectHelpTexts; }
+    public static Vector<String> effectClasses() {
+    	return new Vector<String>(getList("audioeffects.classes.list"));
+    }
+    
     
     /**
      * Read the properties from property files and command line.
@@ -118,31 +126,7 @@ public class MaryProperties
         if (p != null) // we have done this already
             return;
         p = new Properties();
-        /*
-        File confDir = new File(maryBase()+"/conf");
-        if (!confDir.exists()) {
-        	throw new FileNotFoundException("Configuration directory not found: "+ confDir.getPath());
-        }
-        File[] configFiles = confDir.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.endsWith(".config");
-            }
-        });
-        assert configFiles != null;
-        if (configFiles.length == 0) {
-            throw new FileNotFoundException("No configuration files found in directory: "+ confDir.getPath()); 
-        }
-        List<Properties> allConfigs = readConfigFiles(configFiles);
-        boolean allThere = checkDependencies(allConfigs);
-        if (!allThere) System.exit(1);
-
-        // Add properties from individual config files to global properties:
-        // Global mary properties
-        for (Properties oneP : allConfigs) {
-            insertOnePropIntoAllProps(oneP, p);
-        }
-        */
-        
+ 
         for (MaryConfig config : MaryConfig.getConfigs()) {
         	insertOnePropIntoAllProps(config.getProperties(), p);
         }
@@ -151,87 +135,8 @@ public class MaryProperties
         // Overwrite settings from config files with those set on the
         // command line (System properties):
         p.putAll(System.getProperties());
-
-        // Reciprocally, put all settings in p into the system properties
-        // (to allow for non-Mary config settings, e.g. for tritonus).
-        // If one day we find this to be too unflexible, we can also
-        // identify a subset of properties to put into the System properties,
-        // e.g. by prepending them with a "system." prefix. For now, this seems 
-        // unnecessary.
-        System.getProperties().putAll(p);
-
-        // OK, now the individual settings
-        // If necessary, derive shprot.base from mary.base:
-        if (getProperty("shprot.base") == null) {
-            p.setProperty("shprot.base", maryBase + File.separator + "lib" +
-                File.separator + "modules" + File.separator + "shprot");
-            System.setProperty("shprot.base", getProperty("shprot.base"));
-        }
-        String helperString;
-        StringTokenizer st;
-
-        Set<String> ignoreModuleClasses = new HashSet<String>();
-        helperString = getProperty("ignore.modules.classes.list");
-        if (helperString != null) {
-            // allow whitespace as list delimiters
-            st = new StringTokenizer(helperString);
-            while (st.hasMoreTokens()) {
-                ignoreModuleClasses.add(st.nextToken());
-            }
-        }
-        
-        helperString = needProperty("modules.classes.list");
-        // allow whitespace as list delimiters
-        st = new StringTokenizer(helperString);
-        while (st.hasMoreTokens()) {
-            String className = st.nextToken();
-            if (!ignoreModuleClasses.contains(className))
-                moduleInitInfo.add(className);
-        }
-
-        helperString = needProperty("synthesizers.classes.list");
-        // allow whitespace as list delimiters
-        st = new StringTokenizer(helperString);
-        while (st.hasMoreTokens()) {
-            synthClasses.add(st.nextToken());
-        }
-
-        String audioEffectClassName, audioEffectName, audioEffectParam, audioEffectSampleParam, audioEffectHelpText;
-        helperString = getProperty("audioeffects.classes.list");
-        if (helperString!=null)
-        {
-            // allow whitespace as list delimiters
-            st = new StringTokenizer(helperString);
-            while (st.hasMoreTokens()) {
-                audioEffectClassName = st.nextToken();
-                audioEffectClasses.add(audioEffectClassName);
-                
-                BaseAudioEffect ae = null;
-                try {
-                    ae = (BaseAudioEffect)Class.forName(audioEffectClassName).newInstance();
-                } catch (InstantiationException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                
-                ae.setParams(ae.getExampleParameters());
-                
-                audioEffectName = ae.getName();
-                audioEffectNames.add(audioEffectName);
-                audioEffectSampleParam = ae.getExampleParameters();
-                audioEffectSampleParams.add(audioEffectSampleParam);
-                audioEffectHelpText = ae.getHelpText();
-                audioEffectHelpTexts.add(audioEffectHelpText);
-            }
-        }
-
     }
+    
 	/**
 	 * @param oneP
 	 */
@@ -254,180 +159,7 @@ public class MaryProperties
 		}
 	}
 
-    /**
-     * Read the config files from the config directory and return them
-     * as a list of Property objects
-     * @return a list of property objects, each representing a config file.
-     * Each property object has one key/value pair added: "configfile", which
-     * points to the path on the filesystem from where the config file was loaded.
-     * @throws Exception if problem occurred that impairs a proper system startup 
-     */
-    private static List<Properties> readConfigFiles(File[] configFiles) throws Exception
-    {
-        
-        /////////////////// Read config files ////////////////////
-        List<Properties> allConfigs = new LinkedList<Properties>();
-        for (int i=0; i<configFiles.length; i++) {
-            // Ignore config file?
-            if (System.getProperty("ignore."+configFiles[i].getName()) != null) 
-                continue;
-            String path = configFiles[i].getPath();
-            // Properties for one config file
-            Properties oneP = new Properties();
-            oneP.setProperty("configfile", path);
-            oneP.load(new FileInputStream(configFiles[i]));
-            allConfigs.add(oneP);
-        }
-        return allConfigs;
-    }
 
-    /**
-     * Check dependencies between components, and try to download and install components
-     * that are missing.
-     * @param allConfigs a list of Properties objects as loaded by readConfigFiles().
-     * @return true if all dependencies are OK
-     * @throws Exception if a problem occurs
-     */
-    private static boolean checkDependencies(List<Properties> allConfigs)
-    throws Exception
-    {
-        // Keep track of "requires" and "provides" settings, in order to check if
-        // all requirements are satisfied.
-        Map<String,List<Properties>> requiresMap = new HashMap<String,List<Properties>>(); // map a requirement to a list of components that have it
-        Map<String,List<Properties>> providesMap = new HashMap<String,List<Properties>>(); // map a provided item to a list of components providing it
-        for (Properties oneP : allConfigs) {
-            // Build up dependency lists
-            String name = oneP.getProperty("name");
-            if (name == null) {
-                throw new NoSuchPropertyException("In config file `"+oneP.getProperty("configfile")+"': property `name' missing.");
-            }
-            addToMapList(providesMap, name, oneP);
-            String provides = oneP.getProperty("provides");
-            if (provides != null) {
-                StringTokenizer st = new StringTokenizer(provides);
-                while (st.hasMoreTokens()) {
-                    addToMapList(providesMap, st.nextToken(), oneP);
-                }
-            }
-            String requires = oneP.getProperty("requires");
-            if (requires != null) {
-                StringTokenizer st = new StringTokenizer(requires);
-                while (st.hasMoreTokens()) {
-                    addToMapList(requiresMap, st.nextToken(), oneP);
-                }
-            }
-        }
-
-        // Resolve dependencies
-        boolean allThere = true;
-        for (String requirement : requiresMap.keySet()) {
-            List<Properties> requirers = requiresMap.get(requirement);
-            for (Properties requirer : requirers) {
-                if (!providesMap.containsKey(requirement)) {
-                    // Missing dependency
-                    String component = tryToSolveDependencyProblem(requirement, requirer, "component is missing");
-                    if (component != null) { // could solve one
-                        // update classpath, in case a new jar file was installed
-                        Mary.addJarsToClasspath();
-                        // add new config file, re-check
-                        File configFile = new File(maryBase+"/conf/"+component+".config");
-                        assert configFile.exists();
-                        allConfigs.addAll(readConfigFiles(new File[] {configFile}));
-                        // recursive call
-                        return checkDependencies(allConfigs);
-                    } else { // failed, cannot solve
-                        allThere = false;
-                    }
-                } else { // Component is there
-                    // Check version
-                    String reqVersion = requirer.getProperty("requires."+requirement+".version");
-                    List<Properties> providers = providesMap.get(requirement);
-                    for (Properties provider : providers) {
-                        if (reqVersion != null) {
-                            String version =  provider.getProperty(requirement+".version");
-                            String problem = null;
-                            if (version == null) { // bad configuration
-                                problem = "no version number";
-                            } else if (version.compareTo(reqVersion) < 0) { // version too small
-                                problem = "version `"+version+"'"; 
-                            } // else version OK
-                            if (problem != null) {
-                                String component = tryToSolveDependencyProblem(requirement, requirer,
-                                        "version number "+reqVersion+" is required, and component `"+provider.getProperty("name")+"' provides "+problem);
-                                if (component != null) { // could solve one
-                                    // update classpath, in case a new jar file was installed
-                                    Mary.addJarsToClasspath();
-                                    // add new config file, re-check
-                                    File configFile = new File(maryBase+"/conf/"+component+".config");
-                                    assert configFile.exists();
-                                    allConfigs.addAll(readConfigFiles(new File[] {configFile}));
-                                    // recursive call
-                                    allThere = checkDependencies(allConfigs);
-                                } else { // failed, cannot solve
-                                    allThere = false;
-                                }
-                            }
-                        }
-                        // Try to make sure that each provider is listed *before*
-                        // the requirer in allConfigs -- this will affect the order
-                        // in which modules are loaded.
-                        int iProvider = allConfigs.indexOf(provider);
-                        int iRequirer = allConfigs.indexOf(requirer);
-                        assert iProvider >= 0;
-                        assert iRequirer >= 0;
-                        if (iProvider > iRequirer) {
-                            allConfigs.remove(provider);
-                            allConfigs.add(iRequirer, provider);
-                        }
-                    }
-                }
-            }
-        }
-        return allThere;
-    }
-
-    
-    /**
-     * Helper to map one key to a list of values.
-     * @param map
-     * @param key
-     * @param listValue
-     */
-    private static final void addToMapList(Map<String,List<Properties>> map, String key, Properties listValue)
-    {
-        List<Properties> list;
-        if (map.containsKey(key)) {
-            list = map.get(key);
-        } else {
-            list = new ArrayList<Properties>();
-            map.put(key, list);
-        }
-        list.add(listValue);
-    }
-    
-    /**
-     * For a missing component, try to solve the dependency problem.
-     * @param missing name of the missing component
-     * @param reqProps properties of the requirer
-     * @param message description of the problem
-     * @return a String representing the new component name if the problem could be fixed, e.g. by
-     * installing the missing component; null on failure.
-     */
-    private static final String tryToSolveDependencyProblem(String missing, Properties reqProps, String message)
-    {
-        String requirer = reqProps.getProperty("name");
-        String problem = "Component `"+missing+"' is required by `"+requirer+"',\n"+
-        "but "+message+".\nTry running the MARY component installer to resolve this problem.";
-        try {
-            JOptionPane.showMessageDialog(null,
-                problem,
-                "Dependency problem",
-                JOptionPane.ERROR_MESSAGE);
-        } catch (HeadlessException e) {
-            System.err.println("Dependency problem: " + problem);
-        }
-        return null;
-    }
     
     
 	/**
@@ -513,15 +245,6 @@ public class MaryProperties
         return getFilename(property, null);
     }
 
-	/**
-	 * Get a Class property from the underlying properties.  
-	 * @param property the property requested
-	 * @return the Class property value if found and valid, null otherwise.
-	 */
-	public static Class getClass(String property)
-	{
-		return getClass(property, null);
-	}
 
     /**
      * Get a property from the underlying properties.  
@@ -611,26 +334,7 @@ public class MaryProperties
         return expandPath(filename);
     }
 
-	/**
-	 * Get a Class property from the underlying properties.  
-	 * @param property the property requested
-	 * @param defaultValue the value to return if the property is not defined
-	 * @return the property value if found, defaultValue otherwise.
-	 */
-	public static Class getClass(String property, Class defaultValue)
-	{
-        if (p == null) return defaultValue;
-		String value = p.getProperty(property);
-		if (value == null)
-			return defaultValue;
-		Class c = null;
-		try {
-			c = Class.forName(value);
-		} catch (ClassNotFoundException e) {
-			return defaultValue;
-		}
-		return c;
-	}
+
 
     /**
      * Get a property from the underlying properties, throwing an exception if

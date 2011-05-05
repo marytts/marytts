@@ -20,6 +20,9 @@
 package marytts.voice.CmuSltHsmm;
 
 import static org.junit.Assert.*;
+
+import java.util.Set;
+
 import marytts.config.MaryConfig;
 import marytts.config.VoiceConfig;
 import marytts.exceptions.MaryConfigurationException;
@@ -57,4 +60,18 @@ public class CmuSltHsmmConfigTest {
 		assertNotNull(m);
 		assertEquals(voiceName, m.getName());
 	}
+	
+	@Test
+	public void hasVoiceConfigs() throws MaryConfigurationException {
+		assertTrue(MaryConfig.countVoiceConfigs() > 0);
+	}
+
+	@Test
+	public void hasVoiceConfigs2() throws MaryConfigurationException {
+		Iterable<VoiceConfig> vcs = MaryConfig.getVoiceConfigs();
+		assertNotNull(vcs);
+		assertTrue(vcs.iterator().hasNext());
+	}
+
+
 }
