@@ -19,10 +19,6 @@ import org.junit.Test;
  *
  */
 public class GermanIT {
-	@BeforeClass
-	public static void loadMaryProperties() throws Exception {
-		MaryProperties.readProperties();
-	}
 	
 	@Test
 	public void loadLexiconStream() throws Exception {

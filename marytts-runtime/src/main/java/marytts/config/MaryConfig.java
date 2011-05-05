@@ -21,6 +21,7 @@ package marytts.config;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -28,6 +29,8 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.StringTokenizer;
+
+import org.apache.commons.lang.StringUtils;
 
 import marytts.exceptions.MaryConfigurationException;
 
@@ -181,19 +184,25 @@ public abstract class MaryConfig {
 	}
 	
 	/**
+	 * Get the given property.  If it is not defined, the defaultValue is returned.
+	 * @param property name of the property to retrieve
+	 * @param defaultValue value to return if the property is not defined.
+	 * @return 
+	 */
+	public String getProperty(String property, String defaultValue) {
+		return props.getProperty(property, defaultValue);
+	}
+	
+	/**
 	 * For the given property name, return the value of that property as a list of items (interpreting the property value as a space-separated list).
 	 * @param propertyName
 	 * @return the list of items, or an empty list if the property is not defined or contains no items
 	 */
 	public List<String> getList(String propertyName) {
 		String val = props.getProperty(propertyName);
-		List<String> items = new ArrayList<String>();
-		if (val != null) {
-			for (StringTokenizer st = new StringTokenizer(val); st.hasMoreTokens(); ) {
-				items.add(st.nextToken());
-			}
-		}
-		return items;
+		if (val == null) return new ArrayList<String>();
+		return Arrays.asList(StringUtils.split(val));
+
 	}
 	
 }

@@ -21,10 +21,6 @@ import org.junit.Test;
  */
 public class MaryPropertiesIT {
 
-	@BeforeClass
-	public static void readProperties() throws Exception {
-		MaryProperties.readProperties();
-	}
 	
 	@Test(expected = NoSuchPropertyException.class) 
 	public void failOnNonexistingProperty() throws Exception {

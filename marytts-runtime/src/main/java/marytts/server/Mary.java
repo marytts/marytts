@@ -173,13 +173,7 @@ public class Mary {
     private static void setupFeatureProcessors()
     throws Exception
     {
-        String featureProcessorManagers = MaryProperties.getProperty("featuremanager.classes.list");
-        if (featureProcessorManagers == null) {
-            throw new NoSuchPropertyException("Expected list property 'featuremanager.classes.list' is missing.");
-        }
-        StringTokenizer st = new StringTokenizer(featureProcessorManagers);
-        while (st.hasMoreTokens()) {
-            String fpmInitInfo = st.nextToken();
+        for (String fpmInitInfo : MaryProperties.getList("featuremanager.classes.list")) {
             try {
 
                 FeatureProcessorManager mgr = (FeatureProcessorManager) MaryRuntimeUtils.instantiateObject(fpmInitInfo);
@@ -229,7 +223,6 @@ public class Mary {
         if (addJarsToClasspath) {
             addJarsToClasspath();
         }
-        MaryProperties.readProperties();
 
         configureLogging();
         
@@ -483,7 +476,6 @@ public class Mary {
         long startTime = System.currentTimeMillis();
 
         addJarsToClasspath();
-        MaryProperties.readProperties();
 
         String server = MaryProperties.needProperty("server");
         System.err.print("MARY server " + Version.specificationVersion() + " starting as a ");
