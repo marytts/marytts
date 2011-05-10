@@ -1,3 +1,4 @@
+#!/bin/bash
 # Copyright 2007 DFKI GmbH.
 # All Rights Reserved.  Use is subject to license terms.
 #
