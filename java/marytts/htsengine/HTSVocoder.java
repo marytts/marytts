@@ -429,8 +429,8 @@ public class HTSVocoder {
       
       if( fourierMagnitudes && htsData.getPdfMagFile() != null)
         logger.info("Pulse generated with Fourier Magnitudes.");
-      else
-        logger.info("Pulse generated as a unit pulse.");
+      //else
+      //  logger.info("Pulse generated as a unit pulse.");
       
       if(beta != 0.0)
         logger.info("Postfiltering applied with beta=" + beta);

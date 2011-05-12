@@ -92,14 +92,6 @@ public class GVModelSet {
   private double gvmeanMag[];   /* global mean vector */
   private double gvcovInvMag[]; /* global inverse diagonal covariance */
   
-  private int totalNumIter;
-  private int firstIter;
-  public int getTotalNumIter(){ return totalNumIter; }
-  public void setTotalNumIter(int var){totalNumIter = var;}
-  public void incTotalNumIter(int var){totalNumIter += var;}
-  public int getFirstIter(){ return firstIter; }
-  public void setFirstIter(int val){ firstIter = val; }
-    
   private Logger logger = MaryUtils.getLogger("GVModelSet");
   
   public double[] getGVmeanMcp(){ return gvmeanMcp; }
@@ -179,28 +171,32 @@ public class GVModelSet {
       gvcovInvMcp = new double[vectorSize];
       for ( i = 0; i < vectorSize; i++){
         gvmeanMcp[i] = data_in.readFloat();
-        gvcovInvMcp[i] = data_in.readFloat();
+        //gvcovInvMcp[i] = data_in.readFloat();     // case Derivative
+        gvcovInvMcp[i] = 1/data_in.readFloat();  // case NEWTON in gv optimization
       }
     } else if(par.contentEquals("lf0")){
         gvmeanLf0 = new double[vectorSize];  
         gvcovInvLf0 = new double[vectorSize];
         for ( i = 0; i < vectorSize; i++){
           gvmeanLf0[i] = data_in.readFloat();
-          gvcovInvLf0[i] = data_in.readFloat();
+          //gvcovInvLf0[i] = data_in.readFloat();     // case Derivative  
+          gvcovInvLf0[i] = 1/data_in.readFloat(); // case NEWTON in gv optimization
         }
     } else if(par.contentEquals("str")){
         gvmeanStr = new double[vectorSize];  
         gvcovInvStr = new double[vectorSize];
         for ( i = 0; i < vectorSize; i++){
           gvmeanStr[i] = data_in.readFloat();
-          gvcovInvStr[i] = data_in.readFloat();
+          //gvcovInvStr[i] = data_in.readFloat();     // case Derivative
+          gvcovInvStr[i] = 1/data_in.readFloat(); // case NEWTON in gv optimization
         }
     } else if(par.contentEquals("mag")){
         gvmeanMag = new double[vectorSize];  
         gvcovInvMag = new double[vectorSize];
         for ( i = 0; i < vectorSize; i++){
           gvmeanMag[i] = data_in.readFloat();
-          gvcovInvMag[i] = data_in.readFloat();
+          //gvcovInvMag[i] = data_in.readFloat();     // case Derivative
+          gvcovInvMag[i] = 1/data_in.readFloat(); // case NEWTON in gv optimization
         }
     } 
     data_in.close ();     

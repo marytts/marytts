@@ -230,7 +230,8 @@ public class CartTreeSet {
       Node node;
       for(s=0; s<numStates; s++) {          
         node = lf0Tree[s].interpretToNode(fv, 1);
-        if ( node instanceof PdfLeafNode ) {       
+        if ( node instanceof PdfLeafNode ) { 
+          //System.out.format("  state=%d  node_index=%d \n", s, ((PdfLeafNode)node).getUniqueLeafId());
           m.setLf0Mean(s, ((PdfLeafNode)node).getMean());         
           m.setLf0Variance(s, ((PdfLeafNode)node).getVariance());
         } else 

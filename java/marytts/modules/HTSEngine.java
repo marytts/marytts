@@ -441,8 +441,8 @@ public class HTSEngine extends InternalModule
           m = um.getUttModel(i);
           m.setPhoneName(fv.getFeatureAsString(feaDef.getFeatureIndex("phone"), feaDef)); 
 // set gvSwitch if the phone is silence
-//          if(m.getPhoneName().contentEquals("_"))
-//              m.setGvSwitch(false);
+          if(m.getPhoneName().contentEquals("_"))
+              m.setGvSwitch(false);
           //System.out.println("phone=" + m.getPhoneName());
  
           // get the duration and f0 values from the acoustparams = segmentsAndBoundaries
@@ -597,7 +597,7 @@ public class HTSEngine extends InternalModule
       //String voiceName   = "dfki-poppy-hsmm";                        /* voice name */
       //String voiceConfig = "en_GB-dfki-poppy-hsmm.config";         /* voice configuration file name. */
       
-      //String voiceName   = "cmu-slt-hsmm";                        /* voice name */
+      //tring voiceName   = "cmu-slt-hsmm";                        /* voice name */
       //String voiceConfig = "en_US-cmu-slt-hsmm.config";         /* voice configuration file name. */
       
       String voiceName   = "arctic-new";                        /* voice name */
