@@ -273,7 +273,7 @@ public class HTSParameterGeneration {
       			 nobound = ( nobound && voiced[uttFrame+n] );
       		/* copy pdfs */
       		if( voiced[uttFrame] ) {
-      		  lf0Pst.setMseq(lf0Frame, k, m.getLf0Mean(state, k));
+      		  lf0Pst.setMseq(lf0Frame, k, m.getLf0Mean(state, k));      		 
       		  if( nobound || k==0 )
       			lf0Pst.setIvseq(lf0Frame, k, finv(m.getLf0Variance(state, k)));
       		  else  /* the variances for dynamic feature are set to inf on v/uv boundary */
@@ -298,13 +298,17 @@ public class HTSParameterGeneration {
 	/* parameter generation for mcep */  
     if( mcepPst != null ) {
 	  logger.info("Parameter generation for MCEP: ");
+	  if(htsData.getUseGV())
+	    mcepPst.setGvMeanVar(htsData.getGVModelSet().getGVmeanMcp(), htsData.getGVModelSet().getGVcovInvMcp()); 
       mcepPst.mlpg(htsData, htsData.getUseGV());
     }
    
     if(htsData.getUseAcousticModels())
         loadMaryXmlF0(um, htsData);
     else if ( lf0Pst != null ){
-        logger.info("Parameter generation for LF0: "); 
+        logger.info("Parameter generation for LF0: ");
+        if(htsData.getUseGV())
+          lf0Pst.setGvMeanVar(htsData.getGVModelSet().getGVmeanLf0(), htsData.getGVModelSet().getGVcovInvLf0()); 
         lf0Pst.mlpg(htsData, htsData.getUseGV());
         // here we need set realisedF0
         //htsData.getCartTreeSet().getNumStates()
@@ -315,8 +319,10 @@ public class HTSParameterGeneration {
     boolean useGV=false;
     if( strPst != null ) {
       logger.info("Parameter generation for STR ");
-      if(htsData.getUseGV() && (htsData.getPdfStrGVFile() != null) )
+      if(htsData.getUseGV() && (htsData.getPdfStrGVFile() != null) ){
         useGV = true;
+        strPst.setGvMeanVar(htsData.getGVModelSet().getGVmeanStr(), htsData.getGVModelSet().getGVcovInvStr());
+      }
       strPst.mlpg(htsData, useGV);
     }
 
@@ -324,8 +330,10 @@ public class HTSParameterGeneration {
     useGV = false;
     if( magPst != null ) {
       logger.info("Parameter generation for MAG ");
-      if(htsData.getUseGV() && (htsData.getPdfMagGVFile() != null) )
-        useGV = true;  
+      if(htsData.getUseGV() && (htsData.getPdfMagGVFile() != null) ){
+        useGV = true;
+        magPst.setGvMeanVar(htsData.getGVModelSet().getGVmeanMag(), htsData.getGVModelSet().getGVcovInvMag());
+      }
 	  magPst.mlpg(htsData, useGV);
     }
 	   

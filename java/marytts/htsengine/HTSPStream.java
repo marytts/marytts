@@ -103,9 +103,14 @@ public class HTSPStream {
   private double w1         = 1.0;     /* weight for HMM output prob. */
   private double w2         = 1.0;     /* weight for GV output prob. */
   private double lzero      = (-1.0e+10);  /* ~log(0) */
-  double norm=0.0, GVobj=0.0, HMMobj=0.0;
+  private double norm       = 0.0; 
+  private double GVobj      = 0.0;
+  private double HMMobj     = 0.0;
+  private double gvmean[];
+  private double gvcovInv[];
   private boolean gvSwitch[];          /* GV flag sequence, to consider or not the frame in gv */
   private int gvLength;                /* this will be the number of frames for which gv can be calculated */
+
  
   private Logger logger = MaryUtils.getLogger("PStream");
   
@@ -167,6 +172,11 @@ public class HTSPStream {
   
   public int getDWwidth(int i, int j){ return dw.getWidth(i,j); }
   
+  public void setGvMeanVar(double[] mean, double[] ivar){
+      gvmean = mean;
+      gvcovInv = ivar;
+  }
+  
   public void setGvSwitch(int i, boolean bv){
     if(bv == false)
       gvLength--;
@@ -186,9 +196,6 @@ public class HTSPStream {
 	 int m;
 	 int M = order;
 	 boolean debug=false;
- 
-     htsData.getGVModelSet().setTotalNumIter(0);
-     htsData.getGVModelSet().setFirstIter(0);
      
      //if(useGV)
      //  logger.info("Generation using Global Variance maxGVIterations = " + maxGVIter);  
@@ -196,13 +203,14 @@ public class HTSPStream {
      for(int t=0; t<nT; t++){
        System.out.format("t=%d  ",t);
        for(int j=0; j<vSize; j++)
-         System.out.format("(%d)%f ",  j,ivseq[t][j]);
+           System.out.format("(%d)%f ",  j,mseq[t][j]);  
+         //System.out.format("(%d)%f ",  j,ivseq[t][j]);
        System.out.format("\n");
      }
      System.out.format("\n");
      */
      
-     //System.out.println("\ngvLength = "+ gvLength + "  maxGVIterations = " + maxGVIter);
+     logger.info("gvLength = "+ gvLength + "  maxGVIterations = " + maxGVIter);
 	 for (m=0; m<M; m++) {
 	   //System.out.println("m=" + m);  
 	     
@@ -212,41 +220,14 @@ public class HTSPStream {
 	   backwardSubstitution(m);   /* backward substitution in Cholesky decomposition */
 	          
        /* Global variance optimisation for MCP and LF0 */
-       if( useGV && gvLength>0) {
-           
-         
-         
-         if(feaType == HMMData.MCP){
-           gvParmGen(m, htsData.getGVModelSet(), debug);           
-           //logger.info("GV optimization for MCP feature: ("+ m + ")  number of iterations=" + htsData.getGVModelSet().getTotalNumIter());           
-           if(debug) 
-               logger.info("Total number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
-                         "  average = " + htsData.getGVModelSet().getTotalNumIter()/M + 
-                         "  first iteration = " + htsData.getGVModelSet().getFirstIter() );
-          
-         }
-         if(feaType == HMMData.LF0){
-             gvParmGen(m, htsData.getGVModelSet(), debug);
-             //logger.info("GV optimization for LF0 feature: ("+ m + ")  number of iterations=" + htsData.getGVModelSet().getTotalNumIter());             
-             if(debug) 
-                 logger.info("Total number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
-                           "  average = " + htsData.getGVModelSet().getTotalNumIter()/M + 
-                           "  first iteration = " + htsData.getGVModelSet().getFirstIter() );
-                           
-             
-         }
-         if(feaType == HMMData.STR){              
-             gvParmGen(m, htsData.getGVModelSet(), debug);
-             //logger.info("GV optimization for STR feature: ("+ m + ")  number of iterations=" + htsData.getGVModelSet().getTotalNumIter());
-             if(debug) 
-                 logger.info("Total number of iterations = " + htsData.getGVModelSet().getTotalNumIter() + 
-                           "  average = " + htsData.getGVModelSet().getTotalNumIter()/M + 
-                           "  first iteration = " + htsData.getGVModelSet().getFirstIter() );
-         }
-         //if(feaType == HMMData.MAG)  
-         //    logger.info("GV optimization for MAG feature: ("+ m + ")");         
-         //gvParmGen(m, htsData.getGVModelSet(), debug);  
-       
+       if( useGV && gvLength>0) {              
+         gvParmGenGradient(m, debug);      // this is the previous method we have in MARY, using the Gradient as in the Paper of Toda et. al. IEICE 2007
+                                           // if using this method the variances have to be inverse (see note in GVModel set: case NEWTON in gv optimization)
+                                           // this method seems to give a better result
+                                           // TODO: handle the loading of variances according to the GV method used.
+                                           
+         //gvParmGenDerivative(m, debug);  // this is the method in the hts_engine 1.04 the variances are not inverse   
+
          
        }
 	 } 
@@ -267,15 +248,6 @@ public class HTSPStream {
   
   /*----------------- HTS parameter generation fuctions  -----------------------------*/
   
-  /* Calc_WUW_and_WUM: calculate W'U^{-1}W and W'U^{-1}M      
-  * W is size W[T][width] , width is width of dynamic window 
-  * for the Cholesky decomposition:  A'Ax = A'b              
-  * W'U^{-1}W C = W'U^{-1}M                                  
-  *        A  C = B   where A = LL'                          
-  *  Ly = B , solve for y using forward elimination          
-  * L'C = y , solve for C using backward substitution        
-  * So having A and B we can find the parameters C.          
-  * U^{-1} = inverse covariance : inseq[][]                  */
   /*------ HTS parameter generation fuctions                  */
   /* Calc_WUW_and_WUM: calculate W'U^{-1}W and W'U^{-1}M      */
   /* W is size W[T][width] , width is width of dynamic window */
@@ -333,7 +305,6 @@ public class HTSPStream {
   }
   
   
-  /* ldlFactorization: Factorize W'*U^{-1}*W to L*D*L' (L: lower triangular, D: diagonal) */
   /* ldlFactorization: Factorize W'*U^{-1}*W to L*D*L' (L: lower triangular, D: diagonal) */
   private void ldlFactorization(boolean debug) {
 	int t,i,j;
@@ -397,7 +368,7 @@ public class HTSPStream {
 
   
   /*----------------- GV functions  -----------------------------*/
-  private void gvParmGen(int m, GVModelSet gv, boolean debug){    
+  private void gvParmGenDerivative(int m, boolean debug){    
     int t,iter;
     double step = stepInit;
     double prev = -lzero;
@@ -407,34 +378,15 @@ public class HTSPStream {
     mean=0.0;
     var=0.0;
     int numDown = 0;
-    double gvmean[];
-    double gvcovInv[];
     
     /* make a copy in case there is problems during optimisation */
     for(t=0; t<nT; t++){
       g[t] = 0.0;
       par_ori[t] = par[t][m];  
     }
-    
-    if( feaType == HMMData.MCP){
-      gvmean = gv.getGVmeanMcp();
-      gvcovInv = gv.getGVcovInvMcp();
-    } else if( feaType == HMMData.LF0){
-      gvmean = gv.getGVmeanLf0();
-      gvcovInv = gv.getGVcovInvLf0();
-    } else if( feaType == HMMData.STR){
-      gvmean = gv.getGVmeanStr();
-      gvcovInv = gv.getGVcovInvStr();
-    } else {//if( feaType == HMMData.MAG) 
-      gvmean = gv.getGVmeanMag();
-      gvcovInv = gv.getGVcovInvMag();
-    } 
-    
-    //for (t=0; t<gvmean.length; t++)
-    //  System.out.format("gvmean=%f  gvvar=%f\n", gvmean[t], gvcovInv[t]);  
        
     /* first convert c (c=par) according to GV pdf and use it as the initial value */
-    convGV(m, gvmean);
+    convGV(m);
     
     /* recalculate R=WUW and r=WUM */
     calcWUWandWUM(m, false);
@@ -442,7 +394,7 @@ public class HTSPStream {
     /* iteratively optimize c */
     for (iter=1; iter<=maxGVIter; iter++) {
       /* calculate GV objective and its derivative with respect to c */
-      obj = calcGradient(m, gvmean, gvcovInv);   
+      obj = calcDerivative(m);   
       
       /* objective function improved -> increase step size */
       if (obj > prev)
@@ -456,14 +408,14 @@ public class HTSPStream {
       for(t=0; t<nT; t++)
         par[t][m] += step * g[t];
       
-      //System.out.format("iter=%d  prev=%f  obj=%f \n", iter, prev, obj);
+      System.out.format("iter=%d  prev=%f  obj=%f \n", iter, prev, obj);
       prev = obj;
     }
 
  }
 
   
-  private void gvParmGenOLD(int m, GVModelSet gv, boolean debug){    
+  private void gvParmGenGradient(int m, boolean debug){    
       int t,iter;
       double step=stepInit;
       double obj=0.0, prev=0.0;
@@ -472,31 +424,17 @@ public class HTSPStream {
       mean=0.0;
       var=0.0;
       int numDown = 0;
-      double gvmean[];
-      double gvcovInv[];
+      int totalNumIter = 0;
+      int firstIter = 0;
       
       /* make a copy in case there is problems during optimisation */
       for(t=0; t<nT; t++){
         g[t] = 0.0;
         par_ori[t] = par[t][m];  
       }
-      
-      if( feaType == HMMData.MCP){
-        gvmean = gv.getGVmeanMcp();
-        gvcovInv = gv.getGVcovInvMcp();
-      } else if( feaType == HMMData.LF0){
-        gvmean = gv.getGVmeanLf0();
-        gvcovInv = gv.getGVcovInvLf0();
-      } else if( feaType == HMMData.STR){
-        gvmean = gv.getGVmeanStr();
-        gvcovInv = gv.getGVcovInvStr();
-      } else {//if( feaType == HMMData.MAG) 
-        gvmean = gv.getGVmeanMag();
-        gvcovInv = gv.getGVcovInvMag();
-      } 
-         
+              
       /* first convert c (c=par) according to GV pdf and use it as the initial value */
-      convGV(m, gvmean);
+      convGV(m);
       
       /* recalculate R=WUW and r=WUM */
       calcWUWandWUM(m, false);
@@ -504,7 +442,7 @@ public class HTSPStream {
       /* iteratively optimize c */
       for (iter=1; iter<=maxGVIter; iter++) {
         /* calculate GV objective and its derivative with respect to c */
-        obj = calcGradient(m, gvmean, gvcovInv);   
+        obj = calcGradient(m);   
         /* accelerate/decelerate step size */
         if(iter > 1) { 
           /* objective function improved -> increase step size */
@@ -538,9 +476,9 @@ public class HTSPStream {
         if(norm < minEucNorm || (iter > 1 && Math.abs(obj-prev) < GVepsilon )){
           if(debug)  
             logger.info("  Number of iterations: [   " + iter + "   ] GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
-          gv.incTotalNumIter(iter);
+          totalNumIter++; //gv.incTotalNumIter(iter);
           if(m==0)
-            gv.setFirstIter(iter);
+            firstIter = iter;//gv.setFirstIter(iter);
           if(debug){
             if(iter > 1 )  
               logger.info("  Converged (norm=" + norm + ", change=" + Math.abs(obj-prev) + ")");
@@ -557,21 +495,20 @@ public class HTSPStream {
         prev = obj;       
       }   
       if( iter>maxGVIter ){
-        //logger.info("");  
-        //logger.info("  Number of iterations: " + maxGVIter + " GVobj=" + obj + " (HMMobj=" + HMMobj + "  GVobj=" + GVobj + ")");
         logger.info("   optimization stopped by reaching max number of iterations (no global variance applied)");
-        //logger.info("");
 
         /* If there it does not converge, the feature parameter is not optimized */
         for(t=0; t<nT; t++){
           par[t][m] = par_ori[t];  
         }      
       }
-      gv.setTotalNumIter(iter);     
+      totalNumIter = iter; 
+      
+      logger.info("GV optimization for eature: ("+ m + ")  number of iterations=" + totalNumIter);
     }
  
   
-  private double calcGradientOLD(int m, double gvmean[], double gvcovInv[]){
+  private double calcGradient(int m){
    int t, i,k; 
    double vd;
    double h, aux;
@@ -628,7 +565,7 @@ public class HTSPStream {
    
   }
 
-  private double calcGradient(int m, double gvmean[], double gvcovInv[]){
+  private double calcDerivative(int m){
       int t, i,k; 
       double vd;
       double h, aux;
@@ -675,7 +612,7 @@ public class HTSPStream {
      }
   
   
-  private void convGV(int m, double gvmean[]){
+  private void convGV(int m){
     int t, k;
     double ratio, mixmean; 
     /* calculate GV of c */
@@ -701,15 +638,18 @@ public class HTSPStream {
     for(t=0; t<nT; t++)
       if(gvSwitch[t]){
         mean += par[t][m];
-        //System.out.format("%f ", par[t][m]);
-      }
-    //System.out.format("\n");
+        //System.out.format("(%d)%f ", t, par[t][m]);
+      }    
     mean = mean / gvLength;
+    //System.out.format("  --- gvlength=%d  mean=%f\n", gvLength, mean);
       
     /* variance */  
     for(t=0; t<nT; t++)
-      if(gvSwitch[t])
+      if(gvSwitch[t]){
         var += (par[t][m] - mean) * (par[t][m] - mean);
+        //System.out.format("(%d)%f ", t, var);
+      }
+    //System.out.format("\n");
     var = var / gvLength;
       
   }
