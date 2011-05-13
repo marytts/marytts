@@ -1,51 +1,65 @@
-/**   
-*           The HMM-Based Speech Synthesis System (HTS)             
-*                       HTS Working Group                           
-*                                                                   
-*                  Department of Computer Science                   
-*                  Nagoya Institute of Technology                   
-*                               and                                 
-*   Interdisciplinary Graduate School of Science and Engineering    
-*                  Tokyo Institute of Technology                    
-*                                                                   
-*                Portions Copyright (c) 2001-2006                       
-*                       All Rights Reserved.
-*                         
-*              Portions Copyright 2000-2007 DFKI GmbH.
-*                      All Rights Reserved.                  
-*                                                                   
-*  Permission is hereby granted, free of charge, to use and         
-*  distribute this software and its documentation without           
-*  restriction, including without limitation the rights to use,     
-*  copy, modify, merge, publish, distribute, sublicense, and/or     
-*  sell copies of this work, and to permit persons to whom this     
-*  work is furnished to do so, subject to the following conditions: 
-*                                                                   
-*    1. The source code must retain the above copyright notice,     
-*       this list of conditions and the following disclaimer.       
-*                                                                   
-*    2. Any modifications to the source code must be clearly        
-*       marked as such.                                             
-*                                                                   
-*    3. Redistributions in binary form must reproduce the above     
-*       copyright notice, this list of conditions and the           
-*       following disclaimer in the documentation and/or other      
-*       materials provided with the distribution.  Otherwise, one   
-*       must contact the HTS working group.                         
-*                                                                   
-*  NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF TECHNOLOGY,   
-*  HTS WORKING GROUP, AND THE CONTRIBUTORS TO THIS WORK DISCLAIM    
-*  ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL       
-*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   
-*  SHALL NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF         
-*  TECHNOLOGY, HTS WORKING GROUP, NOR THE CONTRIBUTORS BE LIABLE    
-*  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY        
-*  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,  
-*  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTUOUS   
-*  ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR          
-*  PERFORMANCE OF THIS SOFTWARE.                                    
-*                                                                   
-*/
+/* ----------------------------------------------------------------- */
+/*           The HMM-Based Speech Synthesis Engine "hts_engine API"  */
+/*           developed by HTS Working Group                          */
+/*           http://hts-engine.sourceforge.net/                      */
+/* ----------------------------------------------------------------- */
+/*                                                                   */
+/*  Copyright (c) 2001-2010  Nagoya Institute of Technology          */
+/*                           Department of Computer Science          */
+/*                                                                   */
+/*                2001-2008  Tokyo Institute of Technology           */
+/*                           Interdisciplinary Graduate School of    */
+/*                           Science and Engineering                 */
+/*                                                                   */
+/* All rights reserved.                                              */
+/*                                                                   */
+/* Redistribution and use in source and binary forms, with or        */
+/* without modification, are permitted provided that the following   */
+/* conditions are met:                                               */
+/*                                                                   */
+/* - Redistributions of source code must retain the above copyright  */
+/*   notice, this list of conditions and the following disclaimer.   */
+/* - Redistributions in binary form must reproduce the above         */
+/*   copyright notice, this list of conditions and the following     */
+/*   disclaimer in the documentation and/or other materials provided */
+/*   with the distribution.                                          */
+/* - Neither the name of the HTS working group nor the names of its  */
+/*   contributors may be used to endorse or promote products derived */
+/*   from this software without specific prior written permission.   */
+/*                                                                   */
+/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND            */
+/* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,       */
+/* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF          */
+/* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE          */
+/* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS */
+/* BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,          */
+/* EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED   */
+/* TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,     */
+/* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON */
+/* ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,   */
+/* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY    */
+/* OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE           */
+/* POSSIBILITY OF SUCH DAMAGE.                                       */
+/* ----------------------------------------------------------------- */
+/**
+ * Copyright 2011 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 package marytts.htsengine;
 
@@ -92,7 +106,7 @@ import org.apache.log4j.Logger;
  * Synthesis of speech out of speech parameters.
  * Mixed excitation MLSA vocoder. 
  * 
- * Java port and extension of HTS engine version 2.0
+ * Java port and extension of HTS engine API version 1.04
  * Extension: mixed excitation
  * @author Marcela Charfuelan 
  */
@@ -191,7 +205,7 @@ public class HTSVocoder {
         
         rand = new Random();
 
-        if(stage == 0 ){  /* for MCP */
+        if(stage == 0 ){  /* for MGC */
             
           /* mcep_order=74 and pd=PADEORDER=5 (if no HTS_EMBEDDED is used) */
           vector_size = (mcep_vsize * ( 3 + PADEORDER) + 5 * PADEORDER + 6) - (3 * (mcep_order+1));
@@ -314,7 +328,7 @@ public class HTSVocoder {
     public AudioInputStream htsMLSAVocoder(HTSParameterGeneration pdf2par, HMMData htsData) 
     throws Exception {
         
-        float sampleRate = 48000.0F;  //8000,11025,16000,22050,44100,48000
+        float sampleRate = htsData.getRate();  //8000,11025,16000,22050,44100,48000
         int sampleSizeInBits = 16;  //8,16
         int channels = 1;     //1,2
         boolean signed = true;    //true,false
@@ -361,14 +375,7 @@ public class HTSVocoder {
       boolean aperiodicFlag = false;
       
       double d[];                        /* used in the lpc vocoder */
-      /*double pulse[] = new double[80];
-      double noise[] = new double[80];
-      double source[] = new double[80];
-      */
-      // IF SAMPLINGFREQ=48000 !!!!
-      double pulse[] = new double[240];
-      double noise[] = new double[240];
-      double source[] = new double[240];
+
       
       /* --------------------------------------------------------------------------------
        * these variables for allow saving excitation and mixed excitation in a binary file 
@@ -392,7 +399,9 @@ public class HTSVocoder {
       m = mcepPst.getOrder();
       mc = new double[m];
       initVocoder(m-1, mcepPst.getVsize()-1, htsData);
-      
+      double pulse[] = new double[fprd];
+      double noise[] = new double[fprd];
+      double source[] = new double[fprd];
       
       d = new double[m];
       if(lpcVocoder){
@@ -474,7 +483,7 @@ public class HTSVocoder {
       magPulseSize = 0;
       for(mcepframe=0,lf0frame=0; mcepframe<mcepPst.getT(); mcepframe++) {
        
-        /* get current feature vector mcp */ 
+        /* get current feature vector mgc */ 
         for(i=0; i<m; i++)
           mc[i] = mcepPst.getPar(mcepframe, i); 
    
@@ -540,7 +549,7 @@ public class HTSVocoder {
         
         if(stage == 0){         
           /* postfiltering, this is done if beta>0.0 */
-          postfilter_mcp(mc, (m-1), alpha, beta);
+          postfilter_mgc(mc, (m-1), alpha, beta);
           /* mc2b: transform mel-cepstrum to MLSA digital filter coefficients */   
           mc2b(mc, CC, (m-1), alpha);
           for(i=0; i<m; i++)
@@ -1193,7 +1202,7 @@ public class HTSVocoder {
     
     
     /** posfilter: postfilter for mel-cepstrum. It uses alpha and beta defined in HMMData */
-    private void postfilter_mcp(double mcp[], int m, double alpha, double beta) {
+    private void postfilter_mgc(double mgc[], int m, double alpha, double beta) {
         
       double e1, e2;
       int k;
@@ -1203,15 +1212,15 @@ public class HTSVocoder {
           postfilter_buff = new double[m+1];
           postfilter_size = m;
         }
-        mc2b(mcp, postfilter_buff, m, alpha);
+        mc2b(mgc, postfilter_buff, m, alpha);
         e1 = b2en(postfilter_buff, m, alpha);
         
-        postfilter_buff[1] -= beta * alpha * mcp[2];
+        postfilter_buff[1] -= beta * alpha * mgc[2];
         for(k = 2; k < m; k++)
           postfilter_buff[k] *= (1.0 +beta);
         e2 = b2en(postfilter_buff, m, alpha);
         postfilter_buff[0] += Math.log(e1/e2) / 2;
-        b2mc(postfilter_buff, mcp, m, alpha);
+        b2mc(postfilter_buff, mgc, m, alpha);
           
       }
             
@@ -1417,7 +1426,7 @@ public class HTSVocoder {
       int sample = 0;
       for(mcepframe=0,lf0frame=0; mcepframe<mcepPst.getT(); mcepframe++) {
        
-        /* get current feature vector mcp */ 
+        /* get current feature vector mgc */ 
         for(i=0; i<m; i++)
           mc[i] = mcepPst.getPar(mcepframe, i); 
    
@@ -1446,7 +1455,7 @@ public class HTSVocoder {
         
         if(stage == 0){         
           /* postfiltering, this is done if beta>0.0 */
-          postfilter_mcp(mc, (m-1), alpha, beta);
+          postfilter_mgc(mc, (m-1), alpha, beta);
           /* mc2b: transform mel-cepstrum to MLSA digital filter coefficients */   
           mc2b(mc, CC, (m-1), alpha);
           for(i=0; i<m; i++)
@@ -1590,7 +1599,7 @@ public class HTSVocoder {
        
        /* Initialise HTSPStream-s */
        lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0, 0);
-       mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.MCP, 0);
+       mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.MGC, 0);
        strPst = new HTSPStream(strVsize, totalFrame, HMMData.STR, 0);
        magPst = new HTSPStream(magVsize, totalFrame, HMMData.MAG, 0);             
        
@@ -1638,7 +1647,7 @@ public class HTSVocoder {
        magData.close();
              
        
-       float sampleRate = 48000.0F;  //8000,11025,16000,22050,44100, 48000
+       float sampleRate = 16000.0F;  //8000,11025,16000,22050,44100, 48000
        int sampleSizeInBits = 16;  //8,16
        int channels = 1;     //1,2
        boolean signed = true;    //true,false
@@ -1923,7 +1932,7 @@ public class HTSVocoder {
        
        /* Initialise HTSPStream-s */
        lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0, 0);
-       mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.MCP, 0);
+       mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.MGC, 0);
        
        /* load lf0 data */
        /* for lf0 i just need to load the voiced values */
@@ -1999,7 +2008,7 @@ public class HTSVocoder {
        }
              
       
-       float sampleRate = 48000.0F;  //8000,11025,16000,22050,44100,48000
+       float sampleRate = 16000.0F;  //8000,11025,16000,22050,44100,48000
        int sampleSizeInBits = 16;  //8,16
        int channels = 1;     //1,2
        boolean signed = true;    //true,false

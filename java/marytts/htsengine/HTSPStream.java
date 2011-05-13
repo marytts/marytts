@@ -1,51 +1,65 @@
-/**   
-*           The HMM-Based Speech Synthesis System (HTS)             
-*                       HTS Working Group                           
-*                                                                   
-*                  Department of Computer Science                   
-*                  Nagoya Institute of Technology                   
-*                               and                                 
-*   Interdisciplinary Graduate School of Science and Engineering    
-*                  Tokyo Institute of Technology                    
-*                                                                   
-*                Portions Copyright (c) 2001-2006                       
-*                       All Rights Reserved.
-*                         
-*              Portions Copyright 2000-2007 DFKI GmbH.
-*                      All Rights Reserved.                  
-*                                                                   
-*  Permission is hereby granted, free of charge, to use and         
-*  distribute this software and its documentation without           
-*  restriction, including without limitation the rights to use,     
-*  copy, modify, merge, publish, distribute, sublicense, and/or     
-*  sell copies of this work, and to permit persons to whom this     
-*  work is furnished to do so, subject to the following conditions: 
-*                                                                   
-*    1. The source code must retain the above copyright notice,     
-*       this list of conditions and the following disclaimer.       
-*                                                                   
-*    2. Any modifications to the source code must be clearly        
-*       marked as such.                                             
-*                                                                   
-*    3. Redistributions in binary form must reproduce the above     
-*       copyright notice, this list of conditions and the           
-*       following disclaimer in the documentation and/or other      
-*       materials provided with the distribution.  Otherwise, one   
-*       must contact the HTS working group.                         
-*                                                                   
-*  NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF TECHNOLOGY,   
-*  HTS WORKING GROUP, AND THE CONTRIBUTORS TO THIS WORK DISCLAIM    
-*  ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL       
-*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   
-*  SHALL NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF         
-*  TECHNOLOGY, HTS WORKING GROUP, NOR THE CONTRIBUTORS BE LIABLE    
-*  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY        
-*  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,  
-*  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTUOUS   
-*  ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR          
-*  PERFORMANCE OF THIS SOFTWARE.                                    
-*                                                                   
-*/
+/* ----------------------------------------------------------------- */
+/*           The HMM-Based Speech Synthesis Engine "hts_engine API"  */
+/*           developed by HTS Working Group                          */
+/*           http://hts-engine.sourceforge.net/                      */
+/* ----------------------------------------------------------------- */
+/*                                                                   */
+/*  Copyright (c) 2001-2010  Nagoya Institute of Technology          */
+/*                           Department of Computer Science          */
+/*                                                                   */
+/*                2001-2008  Tokyo Institute of Technology           */
+/*                           Interdisciplinary Graduate School of    */
+/*                           Science and Engineering                 */
+/*                                                                   */
+/* All rights reserved.                                              */
+/*                                                                   */
+/* Redistribution and use in source and binary forms, with or        */
+/* without modification, are permitted provided that the following   */
+/* conditions are met:                                               */
+/*                                                                   */
+/* - Redistributions of source code must retain the above copyright  */
+/*   notice, this list of conditions and the following disclaimer.   */
+/* - Redistributions in binary form must reproduce the above         */
+/*   copyright notice, this list of conditions and the following     */
+/*   disclaimer in the documentation and/or other materials provided */
+/*   with the distribution.                                          */
+/* - Neither the name of the HTS working group nor the names of its  */
+/*   contributors may be used to endorse or promote products derived */
+/*   from this software without specific prior written permission.   */
+/*                                                                   */
+/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND            */
+/* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,       */
+/* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF          */
+/* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE          */
+/* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS */
+/* BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,          */
+/* EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED   */
+/* TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,     */
+/* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON */
+/* ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,   */
+/* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY    */
+/* OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE           */
+/* POSSIBILITY OF SUCH DAMAGE.                                       */
+/* ----------------------------------------------------------------- */
+/**
+ * Copyright 2011 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 package marytts.htsengine;
 
@@ -196,53 +210,31 @@ public class HTSPStream {
 	 int m;
 	 int M = order;
 	 boolean debug=false;
+  
+     if(htsData.getUseContextDependentGV())
+       logger.info("Context-dependent global variance optimization: gvLength = "+ gvLength );
+     else
+       logger.info("Global variance optimization");
      
-     //if(useGV)
-     //  logger.info("Generation using Global Variance maxGVIterations = " + maxGVIter);  
-     /*
-     for(int t=0; t<nT; t++){
-       System.out.format("t=%d  ",t);
-       for(int j=0; j<vSize; j++)
-           System.out.format("(%d)%f ",  j,mseq[t][j]);  
-         //System.out.format("(%d)%f ",  j,ivseq[t][j]);
-       System.out.format("\n");
-     }
-     System.out.format("\n");
-     */
-     
-     logger.info("gvLength = "+ gvLength + "  maxGVIterations = " + maxGVIter);
 	 for (m=0; m<M; m++) {
-	   //System.out.println("m=" + m);  
-	     
 	   calcWUWandWUM( m , debug);
 	   ldlFactorization(debug);   /* LDL factorization                               */
 	   forwardSubstitution();     /* forward substitution in Cholesky decomposition  */
 	   backwardSubstitution(m);   /* backward substitution in Cholesky decomposition */
 	          
+
        /* Global variance optimisation for MCP and LF0 */
-       if( useGV && gvLength>0) {              
-         gvParmGenGradient(m, debug);      // this is the previous method we have in MARY, using the Gradient as in the Paper of Toda et. al. IEICE 2007
+       if( useGV && gvLength>0) {           
+        if(htsData.getGvMethodGradient())
+          gvParmGenGradient(m, debug);      // this is the previous method we have in MARY, using the Gradient as in the Paper of Toda et. al. IEICE 2007
                                            // if using this method the variances have to be inverse (see note in GVModel set: case NEWTON in gv optimization)
                                            // this method seems to give a better result
-                                           // TODO: handle the loading of variances according to the GV method used.
-                                           
-         //gvParmGenDerivative(m, debug);  // this is the method in the hts_engine 1.04 the variances are not inverse   
+        else
+          gvParmGenDerivative(m, debug);  // this is the method in the hts_engine 1.04 the variances are not inverse   
 
          
        }
-	 } 
-/*	 
-	 if(debug==false) {
-	   for(int t=0; t<200; t=t+20){
-	     System.out.format("par Frame %d:  ",t);
-	     for(int j=0; j<M; j++)
-	        System.out.format("%f ",  par[t][j]);
-	     System.out.format("\n");
-	   }
-	 }
- */    
-	
-	 
+	 }  
   }  /* method mlpg */
   
   
@@ -408,9 +400,10 @@ public class HTSPStream {
       for(t=0; t<nT; t++)
         par[t][m] += step * g[t];
       
-      System.out.format("iter=%d  prev=%f  obj=%f \n", iter, prev, obj);
+      //System.out.format("iter=%d  prev=%f  obj=%f \n", iter, prev, obj);
       prev = obj;
     }
+    logger.info("Derivative GV optimization for feature: ("+ m + ")  number of iterations=" + (iter-1) );
 
  }
 
@@ -504,7 +497,7 @@ public class HTSPStream {
       }
       totalNumIter = iter; 
       
-      logger.info("GV optimization for eature: ("+ m + ")  number of iterations=" + totalNumIter);
+      logger.info("Gradient GV optimization for feature: ("+ m + ")  number of iterations=" + totalNumIter);
     }
  
   
