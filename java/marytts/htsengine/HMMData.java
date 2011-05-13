@@ -1,51 +1,65 @@
-/**   
-*           The HMM-Based Speech Synthesis System (HTS)             
-*                       HTS Working Group                           
-*                                                                   
-*                  Department of Computer Science                   
-*                  Nagoya Institute of Technology                   
-*                               and                                 
-*   Interdisciplinary Graduate School of Science and Engineering    
-*                  Tokyo Institute of Technology                    
-*                                                                   
-*                Portions Copyright (c) 2001-2006                       
-*                       All Rights Reserved.
-*                         
-*              Portions Copyright 2000-2007 DFKI GmbH.
-*                      All Rights Reserved.                  
-*                                                                   
-*  Permission is hereby granted, free of charge, to use and         
-*  distribute this software and its documentation without           
-*  restriction, including without limitation the rights to use,     
-*  copy, modify, merge, publish, distribute, sublicense, and/or     
-*  sell copies of this work, and to permit persons to whom this     
-*  work is furnished to do so, subject to the following conditions: 
-*                                                                   
-*    1. The source code must retain the above copyright notice,     
-*       this list of conditions and the following disclaimer.       
-*                                                                   
-*    2. Any modifications to the source code must be clearly        
-*       marked as such.                                             
-*                                                                   
-*    3. Redistributions in binary form must reproduce the above     
-*       copyright notice, this list of conditions and the           
-*       following disclaimer in the documentation and/or other      
-*       materials provided with the distribution.  Otherwise, one   
-*       must contact the HTS working group.                         
-*                                                                   
-*  NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF TECHNOLOGY,   
-*  HTS WORKING GROUP, AND THE CONTRIBUTORS TO THIS WORK DISCLAIM    
-*  ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL       
-*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   
-*  SHALL NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF         
-*  TECHNOLOGY, HTS WORKING GROUP, NOR THE CONTRIBUTORS BE LIABLE    
-*  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY        
-*  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,  
-*  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTUOUS   
-*  ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR          
-*  PERFORMANCE OF THIS SOFTWARE.                                    
-*                                                                   
-*/
+/* ----------------------------------------------------------------- */
+/*           The HMM-Based Speech Synthesis Engine "hts_engine API"  */
+/*           developed by HTS Working Group                          */
+/*           http://hts-engine.sourceforge.net/                      */
+/* ----------------------------------------------------------------- */
+/*                                                                   */
+/*  Copyright (c) 2001-2010  Nagoya Institute of Technology          */
+/*                           Department of Computer Science          */
+/*                                                                   */
+/*                2001-2008  Tokyo Institute of Technology           */
+/*                           Interdisciplinary Graduate School of    */
+/*                           Science and Engineering                 */
+/*                                                                   */
+/* All rights reserved.                                              */
+/*                                                                   */
+/* Redistribution and use in source and binary forms, with or        */
+/* without modification, are permitted provided that the following   */
+/* conditions are met:                                               */
+/*                                                                   */
+/* - Redistributions of source code must retain the above copyright  */
+/*   notice, this list of conditions and the following disclaimer.   */
+/* - Redistributions in binary form must reproduce the above         */
+/*   copyright notice, this list of conditions and the following     */
+/*   disclaimer in the documentation and/or other materials provided */
+/*   with the distribution.                                          */
+/* - Neither the name of the HTS working group nor the names of its  */
+/*   contributors may be used to endorse or promote products derived */
+/*   from this software without specific prior written permission.   */
+/*                                                                   */
+/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND            */
+/* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,       */
+/* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF          */
+/* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE          */
+/* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS */
+/* BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,          */
+/* EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED   */
+/* TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,     */
+/* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON */
+/* ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,   */
+/* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY    */
+/* OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE           */
+/* POSSIBILITY OF SUCH DAMAGE.                                       */
+/* ----------------------------------------------------------------- */
+/**
+ * Copyright 2011 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 package marytts.htsengine;
 
@@ -72,7 +86,7 @@ import org.apache.log4j.Logger;
 /**
  * Configuration files and global variables for HTS engine.
  * 
- * Java port and extension of HTS engine version 2.0
+ * Java port and extension of HTS engine API version 1.04
  * Extension: mixed excitation
  * @author Marcela Charfuelan
  */
@@ -82,7 +96,7 @@ public class HMMData {
 	public static final int HTS_NUMMTYPE = 5;
 	public static final int DUR = 0;
 	public static final int LF0 = 1;
-	public static final int MCP = 2;
+	public static final int MGC = 2;
 	public static final int STR = 3;
 	public static final int MAG = 4;
 
@@ -90,10 +104,9 @@ public class HMMData {
     
 	/** Global variables for some functions, initialised with default values, so these values 
 	 * can be loaded from a configuration file. */
-	//private int rate       = 16000; /* sampling rate                              */
-    private int rate       = 48000; /* sampling rate */
-	private int fperiod    = 240;    /* frame period (point)                       */
-	private double rho     = 0.0;   /* variable for speaking rate control         */
+	private int rate       = 16000;  /* sampling rate default: 16Khz                             */
+	private int fperiod    = 80;    /* frame period or frame shift (point) default: 0.005sec = rate*0.005 = 80  */
+	private double rho     = 0.0;    /* variable for speaking rate control         */
     
     /* MGC: stage=gamma=0.0 alpha=0.42 linear gain  
      * LSP: gamma>0.0 
@@ -109,11 +122,24 @@ public class HMMData {
 	private boolean algnst        = false; /* use state level alignment for duration     */
 	private boolean algnph        = false; /* use phone level alignment for duration   */
     private boolean useMixExc     = true;  /* use Mixed Excitation */
-    private boolean useFourierMag = false;   /* use Fourier magnitudes for pulse generation */
-    private boolean useGV         = false; /* use global variance in parameter generation */
-    //private boolean useGmmGV      = false; /* use global variance as a Gaussian Mixture Model */
-    private int maxMgcGvIter      = 200;   /* Default number of iterations for MGC */
-    private int maxLf0GvIter      = 200;   /* Default number of iterations for LF0*/
+    private boolean useFourierMag = false; /* use Fourier magnitudes for pulse generation */
+    
+    /** Global variance (GV) settings */
+    private boolean useGV                 = false; /* use global variance in parameter generation */    
+    private boolean useContextDependentGV = false; /* Variable for allowing context-dependent GV for sil  */
+    private boolean gvMethodGradient      = true;  /* GV method: gradient or derivative (default gradient) */
+
+    /* Max number of GV iterations when using gradient method, for derivative 5 is used by default */
+    private int maxMgcGvIter = 100;
+    private int maxLf0GvIter = 100;
+    private int maxStrGvIter = 100;
+    private int maxMagGvIter = 100;
+
+    /* GV weights for each parameter: between 0.0-2.0 */
+    private double gvWeightMgc = 1.0;
+    private double gvWeightLf0 = 1.0;
+    private double gvWeightStr = 1.0;
+    private double gvWeightMag = 1.0;
     
     private boolean useAcousticModels = false; /* true is using AcousticModeller, is true for MARY 4.1 voices */
   
@@ -129,12 +155,12 @@ public class HMMData {
 	/** Tree files and TreeSet object */
 	private String treeDurFile;         /* durations tree file */
 	private String treeLf0File;         /* lf0 tree file */
-	private String treeMcpFile;         /* MCP tree file */
+	private String treeMgcFile;         /* Mgc tree file */
 	private String treeStrFile;         /* Strengths tree file */
 	private String treeMagFile;         /* Fourier magnitudes tree file */   
     private FeatureDefinition feaDef;   /* The feature definition is used for loading the tree using questions in MARY format */
     
-     /** CartTreeSet contains the tree-xxx.inf, xxx: dur, lf0, mcp, str and mag 
+     /** CartTreeSet contains the tree-xxx.inf, xxx: dur, lf0, Mgc, str and mag 
      * these are all the trees trained for a particular voice. 
      * the Cart tree also contains the corresponding pdfs. */
     private CartTreeSet cart = new CartTreeSet();
@@ -142,22 +168,22 @@ public class HMMData {
     /** HMM pdf model files and ModelSet object */
 	private String pdfDurFile;  /* durations Pdf file */
 	private String pdfLf0File;  /* lf0 Pdf file */
-	private String pdfMcpFile;  /* MCP Pdf file */
+	private String pdfMgcFile;  /* Mgc Pdf file */
 	private String pdfStrFile;  /* Strengths Pdf file */
 	private String pdfMagFile;  /* Fourier magnitudes Pdf file */
     
     /** GV pdf files*/
     /** Global variance file, it contains one global mean vector and one global diagonal covariance vector */
     private String pdfLf0GVFile; /* lf0 GV pdf file */  
-    private String pdfMcpGVFile; /* Mcp GV pdf file */ 
+    private String pdfMgcGVFile; /* Mgc GV pdf file */ 
     private String pdfStrGVFile; /* Str GV pdf file */ 
     private String pdfMagGVFile; /* Mag GV pdf file */ 
     private String switchGVFile; /* File for allowing context dependent GV.  */ 
-                                     /* This file contains the phones, sil or pause, for which GV is not calculated */
-                                     /* this tree does not have a corresponding pdf file, because it just indicate which labels in context to avoid for GV. */
+                                 /* This file contains the phones, sil or pause, for which GV is not calculated (not used yet)*/
+                                 /* this tree does not have a corresponding pdf file, because it just indicate which labels in context to avoid for GV. */
                                        
     
-    /** GVModelSet contains the global covariance and mean for lf0, mcp, str and mag */
+    /** GVModelSet contains the global covariance and mean for lf0, mgc, str and mag */
     private GVModelSet gv = new GVModelSet();
 
 	/** Variables for mixed excitation */
@@ -166,10 +192,10 @@ public class HMMData {
 	private int orderFilters;
     private double mixFilters[][];      /* filters for mixed excitation */
 	 
-    /* Example CONTEXTFEATURE file in MARY format */
+    /** Example CONTEXTFEATURE file in MARY format */
     private String feaFile;
     
-    /* tricky phones file if generated during training of HMMs. */
+    /** tricky phones file if generated during training of HMMs. */
     private String trickyPhonesFile;
 	
 	public int getRate() { return rate; }
@@ -190,14 +216,14 @@ public class HMMData {
     
 	public String getTreeDurFile() { return treeDurFile; } 
 	public String getTreeLf0File() { return treeLf0File; } 
-	public String getTreeMcpFile() { return treeMcpFile; }  
+	public String getTreeMgcFile() { return treeMgcFile; }  
 	public String getTreeStrFile() { return treeStrFile; } 
 	public String getTreeMagFile() { return treeMagFile; }  
     public FeatureDefinition getFeatureDefinition() { return feaDef; }
 	
 	public String getPdfDurFile() { return pdfDurFile; }   
 	public String getPdfLf0File() { return pdfLf0File; }   
-	public String getPdfMcpFile() { return pdfMcpFile; } 
+	public String getPdfMgcFile() { return pdfMgcFile; } 
 	public String getPdfStrFile() { return pdfStrFile; } 
 	public String getPdfMagFile() { return pdfMagFile; } 
     
@@ -207,10 +233,21 @@ public class HMMData {
     public boolean getUseMixExc(){ return useMixExc; }
     public boolean getUseFourierMag(){ return useFourierMag; }
     public boolean getUseGV(){ return useGV; }
+    public boolean getUseContextDependentGV(){ return useContextDependentGV; }
+    public boolean getGvMethodGradient(){ return gvMethodGradient; }
+    
     public int getMaxMgcGvIter(){ return maxMgcGvIter; }
     public int getMaxLf0GvIter(){ return maxLf0GvIter; }
+    public int getMaxStrGvIter(){ return maxStrGvIter; }
+    public int getMaxMagGvIter(){ return maxMagGvIter; }
+    
+    public double getGvWeightMgc(){ return gvWeightMgc; }
+    public double getGvWeightLf0(){ return gvWeightLf0; }
+    public double getGvWeightStr(){ return gvWeightStr; }
+    public double getGvWeightMag(){ return gvWeightMag; }
+    
     public String getPdfLf0GVFile() { return pdfLf0GVFile; }   
-    public String getPdfMcpGVFile() { return pdfMcpGVFile; } 
+    public String getPdfMgcGVFile() { return pdfMgcGVFile; } 
     public String getPdfStrGVFile() { return pdfStrGVFile; } 
     public String getPdfMagGVFile() { return pdfMagGVFile; }
     public String getSwitchGVFile() { return switchGVFile; }
@@ -261,7 +298,7 @@ public class HMMData {
  
     public void setTreeDurFile(String str) { treeDurFile = str; } 
     public void setTreeLf0File(String str) { treeLf0File = str; } 
-    public void setTreeMcpFile(String str) { treeMcpFile = str; }  
+    public void setTreeMgcFile(String str) { treeMgcFile = str; }  
     public void setTreeStrFile(String str) { treeStrFile = str; } 
     public void setTreeMagFile(String str) { treeMagFile = str; }  
     public void setFeatureDefinition(String contextFile) /* this file should include next, next_next, prev, prev_prev phone features */
@@ -281,17 +318,28 @@ public class HMMData {
     
     public void setPdfDurFile(String str) { pdfDurFile = str; }   
     public void setPdfLf0File(String str) { pdfLf0File = str; }   
-    public void setPdfMcpFile(String str) { pdfMcpFile = str; } 
+    public void setPdfMgcFile(String str) { pdfMgcFile = str; } 
     public void setPdfStrFile(String str) { pdfStrFile = str; } 
     public void setPdfMagFile(String str) { pdfMagFile = str; } 
     
     public void setUseMixExc(boolean bval){ useMixExc = bval; }
     public void setUseFourierMag(boolean bval){ useFourierMag = bval; }
     public void setUseGV(boolean bval){ useGV = bval; }
+    public void setUseContextDepenendentGV(boolean bval){ useContextDependentGV = bval; }
+    public void setGvMethod(String sval){ 
+      if(sval.contentEquals("gradient"))
+        gvMethodGradient = true;
+      else
+        gvMethodGradient = false; // then simple derivative method is used  
+    }
     public void setMaxMgcGvIter(int val){ maxMgcGvIter = val; }
     public void setMaxLf0GvIter(int val){ maxLf0GvIter = val; }
+    public void setMaxStrGvIter(int val){ maxStrGvIter = val; }
+    public void setGvWeightMgc(double dval){ gvWeightMgc = dval; }
+    public void setGvWeightLf0(double dval){ gvWeightLf0 = dval; }
+    public void setGvWeightStr(double dval){ gvWeightStr = dval; }
     public void setPdfLf0GVFile(String str) { pdfLf0GVFile = str; }   
-    public void setPdfMcpGVFile(String str) { pdfMcpGVFile = str; } 
+    public void setPdfMgcGVFile(String str) { pdfMgcGVFile = str; } 
     public void setPdfStrGVFile(String str) { pdfStrGVFile = str; } 
     public void setPdfMagGVFile(String str) { pdfMagGVFile = str; }
     public void setSwitchGVFile(String str) { switchGVFile = str; }
@@ -318,7 +366,10 @@ public class HMMData {
           FileInputStream fis = new FileInputStream( marybase+"conf/"+configFile );
           props.load( fis );
           fis.close();          
-          
+          if( props.getProperty( "voice." + voice + ".samplingRate" ) != null)
+            rate = Integer.parseInt(props.getProperty( "voice." + voice + ".samplingRate" ));
+          if( props.getProperty( "voice." + voice + ".framePeriod" ) != null)
+            fperiod = Integer.parseInt(props.getProperty( "voice." + voice + ".framePeriod" ));
           if( props.getProperty( "voice." + voice + ".alpha" ) != null)
             alpha = Double.parseDouble(props.getProperty( "voice." + voice + ".alpha" ));
           if( props.getProperty( "voice." + voice + ".gamma" ) != null)
@@ -330,7 +381,7 @@ public class HMMData {
                   
           treeDurFile = props.getProperty( "voice." + voice + ".Ftd" ).replace("MARY_BASE", marybase);
           treeLf0File = props.getProperty( "voice." + voice + ".Ftf" ).replace("MARY_BASE", marybase);          
-          treeMcpFile = props.getProperty( "voice." + voice + ".Ftm" ).replace("MARY_BASE", marybase);
+          treeMgcFile = props.getProperty( "voice." + voice + ".Ftm" ).replace("MARY_BASE", marybase);
           if( props.getProperty( "voice." + voice + ".Fts" ) != null)
             treeStrFile = props.getProperty( "voice." + voice + ".Fts" ).replace("MARY_BASE", marybase);
           if( props.getProperty( "voice." + voice + ".Fta" ) != null)
@@ -338,36 +389,59 @@ public class HMMData {
           
           pdfDurFile = props.getProperty( "voice." + voice + ".Fmd" ).replace("MARY_BASE", marybase);
           pdfLf0File = props.getProperty( "voice." + voice + ".Fmf" ).replace("MARY_BASE", marybase);           
-          pdfMcpFile = props.getProperty( "voice." + voice + ".Fmm" ).replace("MARY_BASE", marybase);
+          pdfMgcFile = props.getProperty( "voice." + voice + ".Fmm" ).replace("MARY_BASE", marybase);
           if( props.getProperty( "voice." + voice + ".Fms" ) != null)
             pdfStrFile = props.getProperty( "voice." + voice + ".Fms" ).replace("MARY_BASE", marybase);
           if( props.getProperty( "voice." + voice + ".Fma" ) != null)
             pdfMagFile = props.getProperty( "voice." + voice + ".Fma" ).replace("MARY_BASE", marybase);
           
           if( props.getProperty( "voice." + voice + ".useAcousticModels" ) != null)
-              useAcousticModels = Boolean.valueOf(props.getProperty( "voice." + voice + ".useAcousticModels" )).booleanValue();
+            useAcousticModels = Boolean.valueOf(props.getProperty( "voice." + voice + ".useAcousticModels" )).booleanValue();
          
           if( props.getProperty( "voice." + voice + ".useMixExc" ) != null)
             useMixExc = Boolean.valueOf(props.getProperty( "voice." + voice + ".useMixExc" )).booleanValue();
           if( props.getProperty( "voice." + voice + ".useFourierMag" ) != null)
             useFourierMag = Boolean.valueOf(props.getProperty( "voice." + voice + ".useFourierMag" )).booleanValue();
-          useGV     = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGV" )).booleanValue();
+          
+          if( props.getProperty( "voice." + voice + ".useGV" ) != null)
+            useGV = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGV" )).booleanValue();
           
           if(useGV){
-            pdfLf0GVFile = props.getProperty( "voice." + voice + ".Fgvf" ).replace("MARY_BASE", marybase);        
-            pdfMcpGVFile = props.getProperty( "voice." + voice + ".Fgvm" ).replace("MARY_BASE", marybase);
+            if( props.getProperty( "voice." + voice + ".useContextDependentGV" ) != null )
+              useContextDependentGV = Boolean.valueOf(props.getProperty( "voice." + voice + ".useContextDependentGV" )).booleanValue();
+            
+            if( props.getProperty( "voice." + voice + ".gvMethod" ) != null ){
+                String sval = props.getProperty( "voice." + voice + ".gvMethod" );
+                setGvMethod(sval);  
+            }
+            // Number of iteration for GV Gradient method
+            if( props.getProperty( "voice." + voice + ".maxMgcGvIter" ) != null )
+              maxMgcGvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxMgcGvIter" ));           
+            if( props.getProperty( "voice." + voice + ".maxLf0GvIter" ) != null )
+              maxLf0GvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxLf0GvIter" ));
+            if( props.getProperty( "voice." + voice + ".maxStrGvIter" ) != null )
+              maxStrGvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxStrGvIter" ));
+            if( props.getProperty( "voice." + voice + ".maxMagGvIter" ) != null )
+              maxMagGvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxMagGvIter" ));
+            // weights for GV
+            if( props.getProperty( "voice." + voice + ".gvWeightMgc" ) != null )
+              gvWeightMgc = Double.parseDouble(props.getProperty( "voice." + voice + ".gvWeightMgc" ));
+            if( props.getProperty( "voice." + voice + ".gvWeightLf0" ) != null )
+              gvWeightLf0 = Double.parseDouble(props.getProperty( "voice." + voice + ".gvWeightLf0" ));
+            if( props.getProperty( "voice." + voice + ".gvWeightStr" ) != null )
+              gvWeightStr = Double.parseDouble(props.getProperty( "voice." + voice + ".gvWeightStr" ));            
+            // GV pdf files: mean and variance (diagonal covariance)            
+            if( props.getProperty( "voice." + voice + ".Fgvm" ) != null)
+              pdfMgcGVFile = props.getProperty( "voice." + voice + ".Fgvm" ).replace("MARY_BASE", marybase);
+            if( props.getProperty( "voice." + voice + ".Fgvf" ) != null)
+              pdfLf0GVFile = props.getProperty( "voice." + voice + ".Fgvf" ).replace("MARY_BASE", marybase);
             if( props.getProperty( "voice." + voice + ".Fgvs" ) != null)
               pdfStrGVFile = props.getProperty( "voice." + voice + ".Fgvs" ).replace("MARY_BASE", marybase);
             if( props.getProperty( "voice." + voice + ".Fgva" ) != null)
               pdfMagGVFile = props.getProperty( "voice." + voice + ".Fgva" ).replace("MARY_BASE", marybase);
             if( props.getProperty( "voice." + voice + ".FgvSwitch" ) != null)
-                switchGVFile = props.getProperty( "voice." + voice + ".FgvSwitch" ).replace("MARY_BASE", marybase);
-            
-            if( props.getProperty( "voice." + voice + ".maxMgcGvIter" ) != null )
-              maxMgcGvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxMgcGvIter" ));           
-            if( props.getProperty( "voice." + voice + ".maxLf0GvIter" ) != null )
-                maxLf0GvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxLf0GvIter" ));
-            
+              switchGVFile = props.getProperty( "voice." + voice + ".FgvSwitch" ).replace("MARY_BASE", marybase);
+                       
           }
  
           /* Example context feature file in MARY format */
@@ -447,9 +521,24 @@ public class HMMData {
           
           useGV = Boolean.valueOf(props.getProperty( "voice." + voice + ".useGV" )).booleanValue();          
           if(useGV){
+            if( props.getProperty( "voice." + voice + ".useContextDependentGV" ) != null )
+              useContextDependentGV = Boolean.valueOf(props.getProperty( "voice." + voice + ".useContextDependentGV" )).booleanValue();
+                
+            if( props.getProperty( "voice." + voice + ".gvMethod" ) != null ){
+              String sval = props.getProperty( "voice." + voice + ".gvMethod" );
+              setGvMethod(sval);  
+            }
+            if( props.getProperty( "voice." + voice + ".maxLf0GvIter" ) != null )
+                maxLf0GvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxLf0GvIter" ));
+            
+            if( props.getProperty( "voice." + voice + ".gvWeightLf0" ) != null )
+                gvWeightLf0 = Double.parseDouble(props.getProperty( "voice." + voice + ".gvWeightLf0" ));
+            
             pdfLf0GVFile = props.getProperty( "voice." + voice + ".Fgvf" ).replace("MARY_BASE", marybase);                    
             if( props.getProperty( "voice." + voice + ".maxLf0GvIter" ) != null )
-              maxLf0GvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxLf0GvIter" ));            
+              maxLf0GvIter = Integer.parseInt(props.getProperty( "voice." + voice + ".maxLf0GvIter" ));
+            
+            
           }
                       
           /* Example context feature file in MARY format */
