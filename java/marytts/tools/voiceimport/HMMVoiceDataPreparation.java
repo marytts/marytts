@@ -150,6 +150,9 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
        String userRawDirName = getProp(USERRAWDIR);  
        if( existWithFiles(rawDirName) ) {
          raw = true;
+         // the raw files should be the same as in wav file, if wav file empty convert from raw --> wav
+         if( !existWithFiles(wavDirName))
+           convertRaw2Wav(rawDirName, wavDirName);             
        } else {
          // check if the user has provided a raw directory  
          if( !userRawDirName.equals("") ) {
@@ -279,6 +282,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
     }
 
     private void convertRaw2Wav(String rawDirName, String wavDirName) {
+        String Fs = db.getProperty(db.SAMPLINGRATE);
         String cmdLine;
         String raw2wavCmd   = scriptsDir + "raw2wav.sh";
         System.out.println("Converting raw files to wav from: " + rawDirName + "  to: " + wavDirName);
@@ -287,7 +291,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
             wavDir.mkdir();
         cmdLine = "chmod +x " + raw2wavCmd;
         General.launchProc(cmdLine, "raw2wav", voiceDir);
-        cmdLine = raw2wavCmd + " " + soxPath + " " + rawDirName + " " + wavDirName ;
+        cmdLine = raw2wavCmd + " " + soxPath + " " + rawDirName + " " + wavDirName + " " + Fs;
         General.launchProc(cmdLine, "raw2wav", voiceDir);  
     }
     
