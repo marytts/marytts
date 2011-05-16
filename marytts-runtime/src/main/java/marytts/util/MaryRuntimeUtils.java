@@ -31,10 +31,12 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 
+import marytts.config.MaryConfig;
 import marytts.datatypes.MaryXML;
 import marytts.exceptions.MaryConfigurationException;
 import marytts.modules.phonemiser.AllophoneSet;
 import marytts.modules.synthesis.Voice;
+import marytts.server.Mary;
 import marytts.server.MaryProperties;
 import marytts.util.data.audio.AudioDestination;
 import marytts.util.data.audio.MaryAudioUtils;
@@ -48,6 +50,14 @@ import org.w3c.dom.Element;
  */
 public class MaryRuntimeUtils {
 
+	public static void ensureMaryStarted() throws Exception {
+		synchronized (MaryConfig.getMainConfig()) {
+			if (Mary.currentState() == Mary.STATE_OFF) {
+				Mary.startup();
+			}
+		}
+	}
+	
     /**
      * Instantiate an object by calling one of its constructors.
      * @param objectInitInfo a string description of the object to instantiate.
