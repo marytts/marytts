@@ -27,18 +27,22 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import marytts.features.FeatureDefinition;
 
@@ -136,17 +140,11 @@ public class CoverageDefinition
     /* the number of sentences in the corpus */
     private int numSentences;
     /* the phones that are not in the corpus and have to be ignored*/
-    private List<Integer> phonesToIgnore;
-    /* the sentence ids (positions in this array match vectorArray) */
-    private final int[] sentenceIDs;
-    /* the vectors */
-    private final byte[][] vectorArray;   
+    private Set<Integer> phonesToIgnore;
     /* the possible phone values */
     private String[] possiblePhoneArray;
     /* the possible next phone values */
     private String[] possibleNextPhoneArray;
-    /* the possible next phone values */
-    private String[] possibleNextPhoneClassArray;
     /* the possible next phone values */
     private String[] possibleProsodyArray;
     private String[][] possibleDiphones;
@@ -155,6 +153,8 @@ public class CoverageDefinition
     private int[][] diphoneFrequencies;
     private int[] phoneFrequencies;
 
+    private CoverageFeatureProvider cfProvider;
+    
     /**
      * Build a new coverage definition
      * and read in the config file
@@ -162,23 +162,40 @@ public class CoverageDefinition
      * @param readConfigFile if true, read the config file,
      *                       else use default values
      * @param featDef the feature definition for the vectors
-     * @param configFile the coverage config file name
      * @param holdVectorsInMemory if true, vectors are stored in memory
+     * @param configFile optionally, the coverage config file name. if this is null, default settings will be used.
+     * 
      */
     public CoverageDefinition(FeatureDefinition featDef,
-            String configFile,
-            int[] sentenceIDs,
-            byte[][] vectorArray) 
+            CoverageFeatureProvider cfProvider,
+            String configFile) 
     throws Exception
     {
-        this.sentenceIDs = sentenceIDs;
-        this.vectorArray = vectorArray;
         this.featDef = featDef;
+        this.cfProvider = cfProvider;
+        
+        readConfigFile(featDef, configFile); 
+        setupFeatureIndexes();
+        initializeVariables();
+    }
 
-        //read config file             
-        try{
+
+	/**
+	 * @param featDef
+	 * @param configFile
+	 * @throws Exception
+	 */
+	private void readConfigFile(FeatureDefinition featDef, String configFile)
+			throws Exception {
+		try{
+			InputStream inStream;
+			if (configFile != null) {
+				inStream = new FileInputStream(new File(configFile));
+			} else {
+				inStream = getClass().getResourceAsStream("covDef.config");
+			}
             BufferedReader configIn = new BufferedReader(new InputStreamReader(
-                                new FileInputStream(new File(configFile)),"UTF-8"));
+                                inStream,"UTF-8"));
             String line;
             int numparams = 0;
             //loop over the lines of the config file
@@ -231,7 +248,8 @@ public class CoverageDefinition
                     }                       
                     if (key.equals("missingPhones")){
                         
-                        phonesToIgnore = new ArrayList<Integer>();
+                        phonesToIgnore = new HashSet<Integer>();
+                        phonesToIgnore.add(0); // The non-existing phone "0"
                    //     phoneFeatIndex = featDef.getFeatureIndex("phone");
                    //     phonesToIgnore.add(
                    //             new Integer(featDef.getFeatureValueAsByte(phoneFeatIndex,value)));
@@ -254,26 +272,15 @@ public class CoverageDefinition
         } catch (Exception e){
             e.printStackTrace();
             throw new Exception("Could not read coverage Definition Config File: " + configFile);
-        } 
-
-    }
-
-
-    /**
-     * Compute the coverage of the corpus,
-     * build and fill the cover sets
-     * 
-     * @throws IOException
-     */
-      public void initialiseCoverage(DBHandler wikiToDB, boolean verbose,
-              boolean considerOnlyReliableSentences)
-      throws IOException
-      {
-          //stuff used for counting the phones and diphones
-          possiblePhoneTypes = new HashSet<String>();
-          Set<String> simpleFeatVectTypes = new HashSet<String>();
-
-          System.out.println("TARGETFEATURES to initialise coverage:");
+        }
+	}
+	
+	
+	/**
+	 * 
+	 */
+	private void setupFeatureIndexes() {
+		System.out.println("TARGETFEATURES used:");
           numTargetFeaturesUsed=0;
           for(int i=0; i<featDef.getNumberOfFeatures(); i++){
               if(featDef.getFeatureName(i).contentEquals("phone")){
@@ -294,24 +301,15 @@ public class CoverageDefinition
               else
                   System.out.println("  NO implementation in CoverageDefinition for the feature =" + featDef.getFeatureName(i));
           }
-
+          
           numPhoneValues = featDef.getNumberOfValues(phoneFeatIndex);
           numPhoneValuesMinusIgnored = numPhoneValues-phonesToIgnore.size()-1;
-
+          numPossibleSimpleDiphones = numPhoneValuesMinusIgnored*(numPhoneValuesMinusIgnored+1);
           numProsodyValues = featDef.getNumberOfValues(prosodyIndex);
 
-          int numPhoneTypes = 0;
-          numSimpleDiphoneTypes = 0;
-          numTokens = 0;
-          averageSentLength = 0.0; maxSentLength = 0; minSentLength = 20; 
-
-          //get the features for the values
           possiblePhoneArray = featDef.getPossibleValues(phoneFeatIndex);
           possibleNextPhoneArray = featDef.getPossibleValues(diphoneFeatIndex);
           possibleProsodyArray = featDef.getPossibleValues(prosodyIndex);
-
-          phoneFrequencies = new int[possiblePhoneArray.length];
-          diphoneFrequencies = new int[possiblePhoneArray.length][possibleNextPhoneArray.length];
           
           // For efficiency, we build all strings once -- much better than doing it all the time:
           possibleDiphones = new String[possiblePhoneArray.length][possibleNextPhoneArray.length];
@@ -325,21 +323,64 @@ public class CoverageDefinition
                   }
               }
           }
+	}
+
+	/**
+	 * 
+	 */
+	private void initializeVariables() {
+		//initialise several variables
+          numSelectedFeatVects = 0;
+          numSentencesInCover = 0;
+          maxSentLengthInCover = 0;
+          minSentLengthInCover = 20;
+          phoneCoverageInTime = new ArrayList();
+          diphoneCoverageInTime = new ArrayList();
+          overallCoverageInTime = new ArrayList();
+          phonesInCover = new HashSet<String>();
+          simpleDiphonesInCover = new HashSet<String>();
+          numSimpleFeatVectsInCover = 0;
+	}
+
+    /**
+     * Compute the coverage of the corpus,
+     * build and fill the cover sets.
+     * This will iterate once through the entire corpus, to compute
+     * the maximally achieveable coverage with this corpus.
+     * 
+     * @throws IOException
+     */
+      public void initialiseCoverage()
+      throws IOException {
+          //stuff used for counting the phones and diphones
+          possiblePhoneTypes = new HashSet<String>();
+          Set<String> simpleFeatVectTypes = new HashSet<String>();
+
+
+
+          int numPhoneTypes = 0;
+          numSimpleDiphoneTypes = 0;
+          numTokens = 0;
+          averageSentLength = 0.0;
+          maxSentLength = 0;
+          minSentLength = 20; 
+
+
+          phoneFrequencies = new int[possiblePhoneArray.length];
+          diphoneFrequencies = new int[possiblePhoneArray.length][possibleNextPhoneArray.length];
+          
           
           //build Cover
           buildCover();
 
-          numSentences = sentenceIDs.length;
+          numSentences = cfProvider.getNumSentences();
 
-          int tenPercent = numSentences/10;
+          int tenPercent = Math.max(numSentences/10, 1);
 
 
           //loop over the feature vectors
-          int id;
           System.out.println("\nAnalysing feature vectors of " + numSentences + " sentences:");
           for (int index=0; index<numSentences; index++) {
-
-              id = sentenceIDs[index];
 
               if ((index % tenPercent) == 0 && index!=0){
                   int percentage = index/tenPercent;
@@ -348,18 +389,12 @@ public class CoverageDefinition
               //for each vector, get the values for the relevant features
               //add them to the list of possible values   
 
-              byte[] vectorBuf;
-              int numFeatVects=0;
-              if (vectorArray != null) {
-                  vectorBuf = vectorArray[index];
-              } else { // read individually for now, even though that is inefficient
-                  vectorBuf = wikiToDB.getFeatures(id);
-              }
-              if (vectorBuf == null) {
-                  System.err.println("WARNING: null features for sentence id "+id+" -- skipping");
+              byte[] features = cfProvider.getCoverageFeatures(index); // the feature vectors of one sentence
+              if (features == null) {
+                  System.err.println("WARNING: null features for sentence id "+cfProvider.getID(index)+" -- skipping");
                   continue;
               }
-              numFeatVects = vectorBuf.length / numTargetFeaturesUsed;
+              int numFeatVects = features.length / numTargetFeaturesUsed;
 
               //compute statistics of sentence length
               averageSentLength += numFeatVects;
@@ -368,11 +403,8 @@ public class CoverageDefinition
               if(numFeatVects<minSentLength)
                   minSentLength=numFeatVects;
 
-              int myphoneFeatIndex = featDef.getFeatureIndex("phone");
 
-              /* loop over the feature vectors of size[4] NEW: size[3] */
-              if(verbose)
-                  System.out.println("Analysing feature vectors of id=" + id + ":  numFeatVects=" + numFeatVects);
+              //System.out.println("Analysing feature vectors of sentence id " + cfProvider.getID(index) + ":  numFeatVects=" + numFeatVects);
 
               // Loop over all feature vectors in current sentence:
               for (int i=0; i<numFeatVects; i++) {
@@ -380,7 +412,7 @@ public class CoverageDefinition
 
                   //first deal with current phone
                   //byte nextPhonebyte = getVectorValue(vectorBuf,i,phoneFeatIndex);
-                  byte nextPhonebyte = vectorBuf[i*numTargetFeaturesUsed+phoneFeatIndex];
+                  byte nextPhonebyte = features[i*numTargetFeaturesUsed+phoneFeatIndex];
                   
                   //System.out.println("i=" + i + " phone=" 
                   //        + featDef.getFeatureValueAsString(myphoneFeatIndex,nextPhonebyte));
@@ -390,7 +422,7 @@ public class CoverageDefinition
 
                   //deal with current diphone
                   //byte nextnextPhonebyte = getVectorValue(vectorBuf,i,diphoneFeatIndex);
-                  byte nextnextPhonebyte = vectorBuf[i*numTargetFeaturesUsed+diphoneFeatIndex];
+                  byte nextnextPhonebyte = features[i*numTargetFeaturesUsed+diphoneFeatIndex];
                   String simpleDiphone = possibleDiphones[nextPhonebyte][nextnextPhonebyte];
 
                   //add 1 to the frequency value of the diphone
@@ -398,7 +430,7 @@ public class CoverageDefinition
 
                   //deal with current diphone
                   //byte prosodyValue = getVectorValue(vectorBuf,i,prosodyIndex);
-                  byte prosodyValue = vectorBuf[i*numTargetFeaturesUsed+prosodyIndex];
+                  byte prosodyValue = features[i*numTargetFeaturesUsed+prosodyIndex];
                   simpleFeatVectTypes.add(possibleDiphonesProsody[nextPhonebyte][nextnextPhonebyte][prosodyValue]);
 
                   //save feature vector in simple diphone tree                
@@ -409,14 +441,10 @@ public class CoverageDefinition
 
               } 
           }
+          System.out.println(" 100% ");
           
           // count phones
-          numPhoneTypes = 0;
-          for (int i=0; i<phoneFrequencies.length; i++) {
-              if (phoneFrequencies[i] > 0) {
-                  numPhoneTypes++;
-              }
-          }
+          numPhoneTypes = getPhonesInCorpus().size();
 
           // count diphones
           numSimpleDiphoneTypes = 0;
@@ -448,19 +476,10 @@ public class CoverageDefinition
               computeRelativeFrequency(simpleCover,numTokens);
           }
 
-          //initialise several variables
-          numSelectedFeatVects = 0;
-          numSentencesInCover = 0;
-          maxSentLengthInCover = 0;
-          minSentLengthInCover = 20;
-          phoneCoverageInTime = new ArrayList();
-          diphoneCoverageInTime = new ArrayList();
-          overallCoverageInTime = new ArrayList();
-          phonesInCover = new HashSet<String>();
-          simpleDiphonesInCover = new HashSet<String>();
-          numSimpleFeatVectsInCover = 0;
-
       }
+
+
+
 
     /**
      * Build the trees that represent the cover sets
@@ -509,9 +528,59 @@ public class CoverageDefinition
 
     }
 
+    /**
+     * Get descriptive statistics for the full corpus.
+     * These values are independent of the selection of any sentences.
+     * @return
+     */
+    public CoverageStatistics getCorpusStatistics() {
+    	CoverageStatistics cs = new CoverageStatistics();
+    	cs.coveredPhones = getPhonesInCorpus();
+    	cs.allPhones = getAllPhones();
+    	cs.coveredDiphones = getDiphonesInCorpus();
+        cs.numPossibleDiphones = numPossibleSimpleDiphones;
+    	cs.numCoveredDiphonesWithProsody = numSimpleFeatVectTypes;
+    	cs.numPossibleDiphonesWithProsody = numSimpleLeaves;
+    	cs.numTokens = numTokens;
+    	return cs;
+    }
 
 
+    public Set<String> getPhonesInCorpus() {
+    	Set<String> phones = new TreeSet<String>();
+    	int phoneFeatureIndex = featDef.getFeatureIndex("phone");
+    	for (int i=0; i<phoneFrequencies.length; i++) {
+    		if (phoneFrequencies[i] > 0) {
+    			phones.add(featDef.getFeatureValueAsString(phoneFeatureIndex, i));
+    		}
+    	}
+    	return phones;
+    }
 
+    public Set<String> getAllPhones() {
+    	Set<String> phones = new TreeSet<String>();
+    	int phoneFeatureIndex = featDef.getFeatureIndex("phone");
+    	int i=0;
+    	for (String ph : featDef.getPossibleValues(phoneFeatureIndex)) {
+			if (!phonesToIgnore.contains(i)) {
+				phones.add(ph);
+			}
+			i++;
+    	}
+    	return phones;
+    }
+
+    public Set<String> getDiphonesInCorpus() {
+    	Set<String> diphones = new HashSet<String>();
+    	for (int i=0; i<phoneFrequencies.length; i++) {
+    		for (int j=0; j<phoneFrequencies.length; j++) {
+        		if (diphoneFrequencies[i][j] > 0) {
+        			diphones.add(possibleDiphones[i][j]);
+        		}
+    		}
+    	}
+    	return diphones;
+    }
 
     /**
      * Go down the cover tree according to the values
@@ -617,14 +686,10 @@ public class CoverageDefinition
      * Print a statistic of the unit distribution
      * in the corpus
      * 
-     * @param filename the file to print to
+     * @param out the print writer to print to
      */
-    public void printTextCorpusStatistics(String filename)throws Exception{
+    public void printTextCorpusStatistics(PrintWriter out) throws Exception {
         DecimalFormat df = new DecimalFormat("0.00000");
-        PrintWriter out =  
-            new PrintWriter(
-                    new FileWriter(
-                            new File(filename)),true);
         out.println("*********************"+
                 "\n* Unit distribution *"+
         "\n*********************\n\n");
@@ -636,34 +701,9 @@ public class CoverageDefinition
         out.println("Minimum sentence length : "+minSentLength);
 
         /* print out coverage statistics */ 
-        out.println("\nSimple Coverage:");
-        out.println("phones: "+df.format(possiblePhoneCoverage));
-        out.println("diphones: "+df.format(possibleSimpleDiphoneCoverage));
-        out.println("overall: "+df.format(possibleOverallSimpleCoverage));
+        CoverageStatistics stats = getCorpusStatistics();
+        out.println(stats);
 
-        /*
-        out.println("\nClustered Coverage:");
-        out.println("phones: "+df.format(possiblePhoneCoverage));
-        out.println("diphones: "+df.format(possibleClusteredDiphoneCoverage));
-        out.println("overall: "+df.format(possibleOverallClusteredCoverage)+"\n\n");
-        */
-        
-        if (possiblePhoneCoverage<100){
-            out.println("The following phones are missing: ");
-            for (int k=1;k<possiblePhoneArray.length;k++){
-                String nextPhone = possiblePhoneArray[k]; 
-                if (phonesToIgnore.contains(new Integer(k))) continue;
-                if (!possiblePhoneTypes.contains(nextPhone)){
-                    out.print(nextPhone+" ");
-                }
-            }
-            out.print("\n");           
-        }
-
-        /* print out the diphone statistics */
-        out.println("\n");
-        out.println("Number of diphones           : "+numTokens);
-        out.println("Number of different diphones : "+numSimpleDiphoneTypes);
 
         out.println("\n\nDiphones and their frequencies :\n");
         out.println("Simple diphones:\n");
@@ -884,31 +924,28 @@ public class CoverageDefinition
 
 
     /**
-     * Add the given feature vectors to the cover
+     * Add the feature vectors for one sentence to the cover
      * 
-     * @param coveredFVs the feature vectors to add 
+     * @param features the feature vectors to add 
      */
-    public void updateCover(byte[] coveredFVs)
+    public void updateCover(byte[] features)
     {
-        //int numNewFeatVects = coveredFVs.length/4;
-        int numNewFeatVects = coveredFVs.length/numTargetFeaturesUsed;
-        int newPhones = 0;
-        int newDiphones = 0;
+        int numFeatVects = features.length/numTargetFeaturesUsed;
         //loop through the feature vectors
-        for (int i=0;i<numNewFeatVects;i++){
+        for (int i=0;i<numFeatVects;i++){
 
             /* update simpleCover */
-            CoverLeaf leaf = goDownTree(coveredFVs,i,true);
+            CoverLeaf leaf = goDownTree(features,i,true);
             //if this is the first feature vector in this leaf
             //decrease cover size
             if (leaf.getNumFeatureVectors()==0){
                 numSimpleFeatVectsInCover++;
             }
             leaf.addFeatureVector();
-            String phone = possiblePhoneArray[getVectorValue(coveredFVs,i,phoneFeatIndex)];
+            String phone = possiblePhoneArray[getVectorValue(features,i,phoneFeatIndex)];
             //update coverage statistics
             String diphone = phone+"_"
-            +possibleNextPhoneArray[getVectorValue(coveredFVs,i,diphoneFeatIndex)];
+            +possibleNextPhoneArray[getVectorValue(features,i,diphoneFeatIndex)];
 
             phonesInCover.add(phone);
             simpleDiphonesInCover.add(diphone);
@@ -928,11 +965,11 @@ public class CoverageDefinition
         }
         //compute statistics of sentence length
         numSentencesInCover ++;
-        if (numNewFeatVects>maxSentLengthInCover)
-            maxSentLengthInCover = numNewFeatVects;
-        if(numNewFeatVects<minSentLengthInCover)
-            minSentLengthInCover=numNewFeatVects;
-        numSelectedFeatVects += numNewFeatVects;
+        if (numFeatVects>maxSentLengthInCover)
+            maxSentLengthInCover = numFeatVects;
+        if(numFeatVects<minSentLengthInCover)
+            minSentLengthInCover=numFeatVects;
+        numSelectedFeatVects += numFeatVects;
     }
 
 
@@ -1030,8 +1067,8 @@ public class CoverageDefinition
     }
 
 
-    public byte[][] getVectorArray(){
-        return vectorArray;
+    public CoverageFeatureProvider getCoverageFeatureProvider(){
+        return cfProvider;
     }
 
     public byte getVectorValue(byte[] vectors,int vectorIndex, int valueIndex){
@@ -1122,53 +1159,9 @@ public class CoverageDefinition
      * @throws Exception
      */
  //   public void readCoverageBin(String filename, FeatureDefinition fDef, String[] basenames)throws Exception{
-      public void readCoverageBin(DBHandler wikiToDB, String filename, FeatureDefinition fDef, int[] idSentenceList)
+      public void readCoverageBin(String filename, int[] idSentenceList)
       throws Exception
       {
-          System.out.println("TARGETFEATURES used in the cover sets:");
-          numTargetFeaturesUsed=0;
-          for(int i=0; i<fDef.getNumberOfFeatures(); i++){
-              if(fDef.getFeatureName(i).contentEquals("phone")){
-                  phoneFeatIndex = fDef.getFeatureIndex("phone");
-                  numTargetFeaturesUsed++;
-                  System.out.println("  feature(" + i + ")=" + fDef.getFeatureName(i));
-              }
-              else if(fDef.getFeatureName(i).contentEquals("next_phone")){  
-                  diphoneFeatIndex = fDef.getFeatureIndex("next_phone");
-                  numTargetFeaturesUsed++;
-                  System.out.println("  feature(" + i + ")=" + fDef.getFeatureName(i));
-              }
-              else if(fDef.getFeatureName(i).contentEquals("selection_prosody")){  
-                  prosodyIndex = fDef.getFeatureIndex("selection_prosody");
-                  numTargetFeaturesUsed++;
-                  System.out.println("  feature(" + i + ")=" + fDef.getFeatureName(i));
-              }
-              else
-                  System.out.println("  NO implementation in CoverageDefinition for the feature =" + fDef.getFeatureName(i));
-
-          }
-
-          //        numPhoneClasses = featDef.getNumberOfValues(phoneClassesIndex);
-          numPhoneValues = featDef.getNumberOfValues(phoneFeatIndex);
-          numPhoneValuesMinusIgnored = numPhoneValues-phonesToIgnore.size()-1;
-          numPossibleSimpleDiphones = numPhoneValuesMinusIgnored*(numPhoneValuesMinusIgnored+1);
-
-          possiblePhoneArray = featDef.getPossibleValues(phoneFeatIndex);
-          possibleNextPhoneArray = featDef.getPossibleValues(diphoneFeatIndex);
-          //        possibleNextPhoneClassArray = featDef.getPossibleValues(phoneClassesIndex);
-          possibleProsodyArray = featDef.getPossibleValues(prosodyIndex);
-
-          //initialise several variables
-          numSelectedFeatVects = 0;
-          numSentencesInCover = 0;
-          maxSentLengthInCover = 0;
-          minSentLengthInCover = 20;
-          phoneCoverageInTime = new ArrayList();
-          diphoneCoverageInTime = new ArrayList();
-          overallCoverageInTime = new ArrayList();
-          phonesInCover = new HashSet<String>();
-          simpleDiphonesInCover = new HashSet<String>();
-          numSimpleFeatVectsInCover = 0;
 
           DataInputStream in =
               new DataInputStream(
@@ -1191,6 +1184,8 @@ public class CoverageDefinition
           in.close();
           System.out.print("Num Tokens: "+numTokens+"\n");
       }
+
+
 
 
     /**
@@ -1492,6 +1487,53 @@ public class CoverageDefinition
         public int maxNumFeatVects(){
             return maxNumFeatVects;
         }        
+    }
+    
+    
+    public static class CoverageStatistics {
+    	public Set<String> coveredPhones;
+    	public Set<String> allPhones;
+    	public Set<String> coveredDiphones;
+    	public int numPossibleDiphones;
+    	public int numCoveredDiphonesWithProsody;
+    	public int numPossibleDiphonesWithProsody;
+    	public int numTokens;
+    	
+    	@Override
+    	public String toString() {
+    		StringWriter sw = new StringWriter();
+    		PrintWriter out = new PrintWriter(sw);
+            out.println("\nSimple Coverage:");
+            out.printf(Locale.US, "phones: %.5f\n", coveredPhones.size() / (double) allPhones.size());
+            out.printf(Locale.US, "diphones: %.5f\n", coveredDiphones.size() / (double) numPossibleDiphones);
+            out.printf(Locale.US, "overall: %.5f\n", numCoveredDiphonesWithProsody / (double) numPossibleDiphonesWithProsody);
+
+            
+            if (coveredPhones.size() < allPhones.size()){
+                out.println("The following phones are missing: ");
+                for (String ph : allPhones) {
+                    if (!coveredPhones.contains(ph)) {
+                        out.print(ph+" ");
+                    }
+                }
+                out.println();     
+                out.println("The following phones are present: ");
+                for (String ph : coveredPhones) {
+                	out.print(ph+" ");
+                }
+                out.println();
+            }
+            
+            /* print out the diphone statistics */
+            out.println("\n");
+            out.println("Number of diphones seen      : "+numTokens);
+            out.println("Number of different diphones : "+coveredDiphones.size()+" out of a theoretical "+numPossibleDiphones);
+
+            
+            out.close();
+            return sw.toString();
+
+    	}
     }
 }
 

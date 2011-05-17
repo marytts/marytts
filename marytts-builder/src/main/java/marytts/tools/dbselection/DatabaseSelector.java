@@ -91,29 +91,19 @@ public class DatabaseSelector
      * @param args the command line args (see printUsage for details)
      */
     public static void main(String[] args)throws Exception{      
-          main2(args,null);
-          // main1(args);
+          main2(args);
     }
 
-    
-    public static void main1(String[] args)throws Exception{
-      byte[][] vecArray = main2(args,null);     
-      main2(args,vecArray);
-    }
-    
-    
+        
     /**
      * Main method to be run from the directory where the data is.
      * Expects already computed unit features in directory unitfeatures.
-     * Can be given an array of feature vectors - this is useful if the 
-     * program is run several times with the same feature vectors.
      * 
      * @param args the command line args (see printUsage for details)
-     * @param vectorArray the array of feature vectors
      * 
      * @return the array of feature vectors used in the current pass
      */
-    public static byte[][] main2(String[] args,byte[][] vectorArray)
+    public static void main2(String[] args)
     throws Exception
     {
         /* Sort out the filenames and dirs for the logfiles */
@@ -187,30 +177,30 @@ public class DatabaseSelector
           throw new Exception("Error opening featureDefinition file");
         }
         
-        /* Load the feature vectors from the database */
-        boolean loadFeatureVectors = (vectorArray == null && holdVectorsInMemory);
         
         System.out.println("Getting a list of ids for all the sentences in the DB...");
-        if (loadFeatureVectors) System.out.println("Will also load feature vectors into memory (increase memory if this fails)");
         System.out.println("(if the number of sentences is large, this can take a while)");
         System.out.println();
         String condition = null;
         if (considerOnlyReliableSentences) {
             condition = "reliable=true";
         }
-        int sentenceIDs[] = null;
-        if (loadFeatureVectors) {
+        CoverageFeatureProvider cfp;
+        if (holdVectorsInMemory) {
+            /* Load the feature vectors from the database */
+            System.out.println("Will also load feature vectors into memory (increase memory if this fails)");
             Pair<int[], byte[][]> pair = wikiToDB.getIdsAndFeatureVectors("dbselection", condition);
-            sentenceIDs = pair.getFirst();
-            vectorArray = pair.getSecond();
+            int[] sentenceIDs = pair.getFirst();
+            byte[][] vectorArray = pair.getSecond();
+            cfp = new InMemoryCFProvider(vectorArray, sentenceIDs);
         } else {
-            sentenceIDs = wikiToDB.getIdListOfType("dbselection", condition);
+        	cfp = new DatabaseCFProvider(wikiToDB, condition);
         }
         
         
         /* Initialise the coverage definition */
         System.out.println("\nInitiating coverage...");
-        CoverageDefinition covDef = new CoverageDefinition(featDef,covDefConfigFileName,sentenceIDs,vectorArray);
+        CoverageDefinition covDef = new CoverageDefinition(featDef, cfp, covDefConfigFileName);
         
         // If the selectedSentencesTable is new, (does not exist) then a new table
         // will be created, the selected field in the dbselection table will be initialised to selected=false. 
@@ -223,11 +213,10 @@ public class DatabaseSelector
         long startTime = System.currentTimeMillis();
         File covSetFile = new File(initFileName);
         boolean readCovFromFile = true;
-        boolean vectorArrayNull = (vectorArray == null);
         if (!covSetFile.exists()){
             //coverage has to be initialised
             readCovFromFile = false;
-            covDef.initialiseCoverage(wikiToDB, verbose, considerOnlyReliableSentences); 
+            covDef.initialiseCoverage(); 
             System.out.println("\nWriting coverage to file "+initFileName);
             covDef.writeCoverageBin(initFileName);
         } else {
@@ -236,10 +225,9 @@ public class DatabaseSelector
                 condition = "reliable=true";
             }
             int[] idSentenceList = wikiToDB.getIdListOfType("dbselection", condition);
-            covDef.readCoverageBin(wikiToDB, initFileName,featDef,idSentenceList);
+            covDef.readCoverageBin(initFileName,idSentenceList);
         }
         
-        if (vectorArrayNull) vectorArray = covDef.getVectorArray();
         
         /* add already selected sentences to cover */
         System.out.println("\nAdd to cover already selected sentences marked as unwanted=false.");
@@ -260,12 +248,16 @@ public class DatabaseSelector
         if (!readCovFromFile){
             //only print if we did not read from file
             filename = selectionDirName+"textcorpus_distribution.txt";
-            System.out.println("Printing text corpus statistics to "+filename+"...");       
+            System.out.println("Printing text corpus statistics to "+filename+"...");
+            PrintWriter out = null;
             try{
-                covDef.printTextCorpusStatistics(filename);
+                out = new PrintWriter(new FileWriter(new File(filename)),true);
+                covDef.printTextCorpusStatistics(out);
             } catch (Exception e){
                 e.printStackTrace();
                 throw new Exception("Error printing statistics");
+            } finally {
+            	out.close();
             }
         }
 
@@ -276,7 +268,7 @@ public class DatabaseSelector
         System.out.println("\nSelecting sentences...");
        
         //selFunc.select(selectedSents,covDef,logOut,basenameList,holdVectorsInMemory,verbose);
-        selFunc.select(selectedIdSents,unwantedIdSents,covDef,logOut,sentenceIDs,holdVectorsInMemory,verbose,wikiToDB);
+        selFunc.select(selectedIdSents,unwantedIdSents,covDef,logOut,cfp,verbose,wikiToDB);
 
         /* Store list of selected files */
         filename = selectionDirName+dateDir + "/selectionResult_" + dateString + ".txt";
@@ -301,7 +293,7 @@ public class DatabaseSelector
             overallLogOut.println("*******************************\n" + "Results for "+dateString+":");
             
             //overallLogOut.println("number of basenames "+basenameList.length);
-            overallLogOut.println("number of basenames "+sentenceIDs.length);
+            overallLogOut.println("number of basenames "+cfp.getNumSentences());
             
             overallLogOut.println("Stop criterion "+stopCriterion);
             covDef.printResultToLog(overallLogOut);
@@ -323,8 +315,7 @@ public class DatabaseSelector
             System.out.println("\nERROR: Problems with connection to the DB, please check the mysql parameters.");
             throw new Exception("ERROR: Problems with connection to the DB, please check the mysql parameters.");
         }
-        
-        return vectorArray;
+
     }
 
     /**

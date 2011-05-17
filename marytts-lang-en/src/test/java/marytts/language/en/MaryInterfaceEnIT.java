@@ -23,6 +23,9 @@ package marytts.language.en;
 
 import marytts.MaryInterface;
 import marytts.datatypes.MaryDataType;
+import marytts.features.FeatureDefinition;
+import marytts.features.FeatureRegistry;
+import marytts.util.FeatureUtils;
 
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -50,10 +53,21 @@ public class MaryInterfaceEnIT {
 		// setup
 		MaryInterface mary = MaryInterface.getLocalMaryInterface();
 		mary.setOutputType(MaryDataType.TARGETFEATURES);
-		mary.setOutputTypeParams("phone stressed");
 		String tf = mary.generateText("Hello world");
 		assertNotNull(tf);
 	}
 	
+	@Test
+	public void canSelectTargetfeatures() throws Exception {
+		// setup
+		MaryInterface mary = MaryInterface.getLocalMaryInterface();
+		mary.setOutputType(MaryDataType.TARGETFEATURES);
+		String featureNames = "phone stressed";
+		mary.setOutputTypeParams(featureNames);
+		String tf = mary.generateText("Hello world");
+		FeatureDefinition expected = FeatureRegistry.getTargetFeatureComputer(mary.getLocale(), featureNames).getFeatureDefinition(); 
+		FeatureDefinition actual = FeatureUtils.readFeatureDefinition(tf);
+		assertEquals(expected.featureEqualsAnalyse(actual), expected, actual);
+	}
 	
 }

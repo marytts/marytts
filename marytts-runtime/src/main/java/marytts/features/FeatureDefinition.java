@@ -1189,8 +1189,11 @@ public class FeatureDefinition
      * @return true if all features, values and weights are identical, false otherwise
      * @see #featureEquals(FeatureDefinition)
      */
-    public boolean equals(FeatureDefinition other)
+    @Override
+    public boolean equals(Object obj)
     {
+    	if (!(obj instanceof FeatureDefinition)) return false;
+    	FeatureDefinition other = (FeatureDefinition) obj;
         if (featureWeights == null) {
             if (other.featureWeights != null) return false;
             // Both are null

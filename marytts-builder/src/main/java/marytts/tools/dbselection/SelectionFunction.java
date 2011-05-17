@@ -49,6 +49,8 @@ public class SelectionFunction{
     //the filename of the sentence that is selected next
     //private String selectedBasename;
     private int selectedIdSentence;
+    // the usefulness of the selected sentence
+    private double selectedUsefulness;
     
     //if true, algorithm stop after maxNumSents are selected
     private boolean stopNumSentences;
@@ -159,18 +161,11 @@ public class SelectionFunction{
                 Set<Integer>unwantedIdSents,
                 CoverageDefinition coverageDefinition,
                 PrintWriter logFile,
-                int[] idSentenceList,
-                boolean holdVectorsInMemory,
+                CoverageFeatureProvider cfProvider,
                 boolean verboseSelect,
                 DBHandler wikiToDB)throws IOException{
               
         this.verbose = verboseSelect;
-        //get the array of vectors if they are loaded in memory
-        byte[][] vectorArray = null;
-        if (holdVectorsInMemory){
-            vectorArray = coverageDefinition.getVectorArray();
-        }
-        byte[][] featVects = null;
         int sentIndex = selectedIdSents.size()+1;
         selectedVectors = null;  
         DateFormat fullDate = new SimpleDateFormat("HH_mm_ss");
@@ -181,11 +176,20 @@ public class SelectionFunction{
             
             //select the next sentence  
             //selectNext(coverageDefinition, logFile, sentIndex, basenameList, vectorArray);
-            selectNext(selectedIdSents, unwantedIdSents, coverageDefinition, logFile, sentIndex, idSentenceList, vectorArray, wikiToDB);
+            boolean haveSelected = selectNext(selectedIdSents, unwantedIdSents, coverageDefinition, cfProvider);
 
-            //check if we selected something
-            //if (selectedBasename == null){
-            if (selectedIdSentence < 0){
+            if (haveSelected) {
+            	assert selectedIdSentence >= 0;
+                selectedIdSents.add(selectedIdSentence);
+                
+                //print information
+                String msg = "Sentence "+sentIndex+" ("+selectedIdSentence+"), score: "+selectedUsefulness;
+                if (verbose) {
+                  System.out.println(msg);  
+                }
+                logFile.println(msg);
+                logFile.flush();
+            } else {
                 //nothing more to select
                 //System.out.println("Nothing more to select");
                 logFile.println("Nothing more to select");
@@ -247,134 +251,70 @@ public class SelectionFunction{
      * @param vectorArray the array of vectors or null
      *                    if the vectors are on disk
      * @throws IOException
+     * @return true if a sentence was selected, false otherwise
      */
-    private void selectNext(Set<Integer>selectedIdSents,
+    private boolean selectNext(Set<Integer>selectedIdSents,
                 Set<Integer>unwantedIdSents,
                 CoverageDefinition coverageDefinition,
-                PrintWriter logFile,
-                int sentenceIndex,
-                int[] idSentenceList,
-                byte[][] vectorArray,
-                DBHandler wikiToDB)throws IOException{
-             
+                CoverageFeatureProvider cfProvider)
+    throws IOException {
+        // TODO: MS, May 2011 -- I have refactored this code but could not test it. Bad me.
+    	
         selectedIdSentence = -1;
-        double highestUsefulness = -1;
-        double usefulness;
-        int selectedSentenceIndex = 0;
-        int numSentsInBasenames = 0;
-        HashMap<Integer,byte[]> feas;
-        
-        int i, j, k, n, maxNum=100000;
-        int id;
-        // loop over the ids
-        if( vectorArray != null) {  // so the vectors are in memory
-          for (i=0;i<idSentenceList.length;i++){
-            id = idSentenceList[i];
-        
-            //if the next sentence was already selected, continue
-            // the ids = -1 correspond to sentences already selected
-            //if (id < 0) continue;
-            if( selectedIdSents.contains(id) || unwantedIdSents.contains(id) ) continue;
-            
-            numSentsInBasenames++;
-            //get the next feature vector
-            byte[] nextFeatVects = vectorArray[i];
-           
-            //calculate how useful the feature vectors are
-            usefulness = coverageDefinition.usefulnessOfFVs(nextFeatVects);
-           
-            if(usefulness > highestUsefulness){                         
-                //the current sentence is (currently) the best sentence to add
-                selectedIdSentence = id;
-                selectedVectors = nextFeatVects;
-                highestUsefulness = usefulness;     
-                selectedSentenceIndex = i;
-            }           
-            if (usefulness == -1.0){
-              unwantedIdSents.add(id);
-              // idSentenceList[i] = -1;     // Here the sentence should be marked as unwanted?
-              //System.out.println("unwanted id=" + id);
-            }
-             
-                
-          }  // end loop over all idsentence list
-          
-        } else { //The vectors are not in memory but will be loaded in groups
-            //System.out.println("idSentenceList.length=" + idSentenceList.length);
-            int numIdSent = idSentenceList.length;
-            for(j=0; j<numIdSent; j+=maxNum){
-              
-              // load in memory maxNum features from the DB   
-              if( (j+maxNum) >= numIdSent ){
-                //System.out.println("Processing from j=" + j + " (" + idSentenceList[j] + ")  --> j=" + (j+maxNum) + " (" + idSentenceList[(numIdSent-1)] + ")");                  
-                feas = wikiToDB.getFeaturesSet(j, (numIdSent-1), idSentenceList);
-              }
-              else {
-                //System.out.println("Processing from j=" + j + " (" + idSentenceList[j] + ")  --> j=" + (j+maxNum) + " (" + idSentenceList[(j+maxNum)] + ")");                   
-                feas = wikiToDB.getFeaturesSet(j, (j+maxNum), idSentenceList);
-              }
-              
-             for (k=j; k<(j+maxNum) && k<numIdSent; k++){
-                id = idSentenceList[k];
-                //if the next sentence was already selected, continue
-                // the ids = -1 correspond to sentences already selected
-                //if (id < 0) continue;
-                if( selectedIdSents.contains(id) || unwantedIdSents.contains(id) ) continue;
-                
-                numSentsInBasenames++;
-                //get the next feature vector
-                byte[] nextFeatVects = feas.get(id);
-                if(nextFeatVects == null){
-                  System.out.println("Warning id not found k=" + k + " id=" + idSentenceList[k]);
-                  usefulness = -1.0;
-                } else {                
-                   //calculate how useful the feature vectors are
-                  usefulness = coverageDefinition.usefulnessOfFVs(nextFeatVects);
-                }               
-                if(usefulness > highestUsefulness){                         
-                    //the current sentence is (currently) the best sentence to add
-                    selectedIdSentence = id;
-                    selectedVectors = nextFeatVects;
-                    highestUsefulness = usefulness;     
-                    selectedSentenceIndex = k;
-                }           
-                if (usefulness == -1.0){
-                  unwantedIdSents.add(id);
-                  //System.out.println("unwanted id=" + id);                
-                 //idSentenceList[k] = -1;     // Here the sentence should be marked as unwanted?
-                }
-              }  // end loop over one group 
-              feas = null;
-              
-            }  // end loop of processing groups of maxNum  
-            
-        }  // end else the vectors are not in mm
-        // end loop over all idsentence list 
-        
-   
-        // end loop over all idsentence list 
-        // System.out.println(numSentsInBasenames+" sentences left");
-       
-        
-        //if (selectedBasename != null){
-        if (selectedIdSentence > 0){
-            //if we selected something,
-            //remove selected filename from basename list
-            //basenameList[selectedSentenceIndex] = null;
-            //idSentenceList[selectedSentenceIndex] = -1;  
-            selectedIdSents.add(selectedIdSentence);
-            
-            //print information
-            if (verbose){
-              //System.out.println("sentence "+sentenceIndex+" ("+selectedBasename+"), score: "+highestUsefulness);
-              System.out.println("sentence "+sentenceIndex+" ("+selectedIdSentence+"), score: "+highestUsefulness);  
-            }
-            //logFile.println("Sentence "+sentenceIndex+" ("+selectedBasename+"), score: "+highestUsefulness);
-            logFile.println("Sentence "+sentenceIndex+" ("+selectedIdSentence+"), score: "+highestUsefulness);
-            logFile.flush();
-        }   
-        
+        selectedUsefulness = -1;        
+
+        // Loop over all sentences in the cfProvider to find the most useful one.
+        // For speed reasons, we need to be a bit smart: if coverage features are not in memory,
+        // we bulk-load a chunk of them at a time.
+        if (cfProvider instanceof InMemoryCFProvider) {
+        	// already in memory, can loop through all
+        	determineMostUsefulSentence(selectedIdSents, unwantedIdSents, coverageDefinition, cfProvider);
+        } else {
+        	assert cfProvider instanceof DatabaseCFProvider;
+        	DatabaseCFProvider dbCfProvider = (DatabaseCFProvider) cfProvider;
+        	int chunkSize = 100000;
+        	for (int c=0, max=dbCfProvider.getNumSentences(); c<max; c+= chunkSize) {
+        		int len = Math.min(chunkSize, max-c);
+        		CoverageFeatureProvider chunk = dbCfProvider.getFeaturesInMemory(c, len);
+        		determineMostUsefulSentence(selectedIdSents, unwantedIdSents, coverageDefinition, chunk);
+        	}
+        }
+        return selectedIdSentence >= 0;
     }
+
+	/**
+	 * @param selectedIdSents
+	 * @param unwantedIdSents
+	 * @param coverageDefinition
+	 * @param cfProvider
+	 */
+	private void determineMostUsefulSentence(Set<Integer> selectedIdSents,
+			Set<Integer> unwantedIdSents,
+			CoverageDefinition coverageDefinition,
+			CoverageFeatureProvider cfProvider) {
+		for (int l=0, num=cfProvider.getNumSentences(); l<num; l++) {
+			int id = cfProvider.getID(l);
+			// skip previously selected or excluded sentences:
+			if (selectedIdSents.contains(id) || unwantedIdSents.contains(id)) {
+				continue;
+			}
+			byte[] nextFeatVects = cfProvider.getCoverageFeatures(l);
+		    //calculate how useful the feature vectors are
+		    double usefulness = coverageDefinition.usefulnessOfFVs(nextFeatVects);
+		   
+		    if (usefulness > selectedUsefulness) {                         
+		        //the current sentence is (currently) the best sentence to add
+		        selectedIdSentence = id;
+		        selectedVectors = nextFeatVects;
+		        selectedUsefulness = usefulness;     
+		    }           
+		    if (usefulness == -1.0){
+		      unwantedIdSents.add(id);
+		      // idSentenceList[i] = -1;     // Here the sentence should be marked as unwanted?
+		      //System.out.println("unwanted id=" + id);
+		    }
+		}
+	}
     
     
     /**

@@ -1824,6 +1824,23 @@ public class DBHandler {
       
   }
   
+  /**
+   * Bulk load a set of features as identified by their IDs. 
+   * @param ids a sorted array of feature IDs.
+   * @return an array of coverage features, of the same length as the input array.
+   */
+  public byte[][] getFeaturesBulk(int[] ids) {
+	  HashMap<Integer, byte[]> featuresSet = getFeaturesSet(0, ids.length-1, ids);
+	  byte[][] data = new byte[ids.length][];
+	  for (int i=0; i<ids.length; i++) {
+		  data[i] = featuresSet.get(ids[i]);
+		  if (data[i] == null) {
+			  throw new NullPointerException("Could not get features for sentence ID "+ids[i]);
+		  }
+	  }
+	  return data;
+  }
+  
     public HashMap<Integer, byte[]> getFeaturesSet(int ini, int end, int[] idList) {
         int id;
         int iniId = idList[ini];

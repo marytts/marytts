@@ -21,6 +21,7 @@ package marytts.tools.dbselection;
 
 import java.util.Locale;
 
+import marytts.exceptions.SynthesisException;
 import marytts.features.FeatureDefinition;
 import marytts.features.FeatureRegistry;
 import marytts.features.TargetFeatureComputer;
@@ -90,7 +91,7 @@ public class CoverageUtilsIT {
 		assertFeaturesMatchTarget(data, featureNames);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected=SynthesisException.class)
 	public void willRejectUnknownFeature() throws Exception {
 		// setup
 		String featureNames = "unknown";
