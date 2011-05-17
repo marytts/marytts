@@ -175,7 +175,7 @@ public class MaryInterface {
 	
 	
 	protected MaryData _process(MaryData in) throws SynthesisException {		
-		Request r = new Request(inputType, outputType, locale, null, null, null, 1, audioFileFormat, false, null);
+		Request r = new Request(inputType, outputType, locale, null, null, null, 1, audioFileFormat, false, outputTypeParams);
 		r.setInputData(in);
 		try {
 			r.process();

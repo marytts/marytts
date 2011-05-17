@@ -759,6 +759,7 @@ public class MaryUtils {
      */
     @SuppressWarnings("unchecked")
     public static boolean isLog4jConfigured() {
+    	System.setProperty("log4j.defaultInitOverride", "true");
         Enumeration appenders = LogManager.getRootLogger().getAllAppenders();
         if (appenders.hasMoreElements()) {
         	return true;

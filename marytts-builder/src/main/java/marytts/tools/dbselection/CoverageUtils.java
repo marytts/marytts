@@ -42,11 +42,25 @@ public class CoverageUtils {
 			throw new UnsupportedOperationException("Not implemented");
 		}
 		MaryInterface mary = MaryInterface.getLocalMaryInterface();
+		mary.setLocale(locale);
 		mary.setOutputType(MaryDataType.TARGETFEATURES);
 		mary.setOutputTypeParams(featureNames);
 		String targetFeatureData = mary.generateText(sentence);
-		FeatureDefinition def = FeatureUtils.readFeatureDefinition(targetFeatureData); 
+		FeatureDefinition def = FeatureUtils.readFeatureDefinition(targetFeatureData);
 		FeatureVector[] featureVectors = FeatureUtils.readFeatureVectors(targetFeatureData);
+		byte[] data = toCoverageFeatures(featureNames, def, featureVectors);
+		return data;
+	}
+
+	/**
+	 * Convert the given feature vectors to the coverage features format, containing all byte features in a single byte array.
+	 * @param featureNames
+	 * @param def
+	 * @param featureVectors
+	 * @return
+	 */
+	public static byte[] toCoverageFeatures(String featureNames,
+			FeatureDefinition def, FeatureVector[] featureVectors) {
 		String[] featureNameArray = featureNames.split(" ");
 		int numFeatures = featureNameArray.length;
 		byte[] data = new byte[featureVectors.length * featureNameArray.length];
