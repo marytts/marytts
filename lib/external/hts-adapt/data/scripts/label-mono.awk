@@ -41,31 +41,15 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE           #
 # POSSIBILITY OF SUCH DAMAGE.                                       #
 # ----------------------------------------------------------------- #
-# Modified by Marcela Charfuelan (DFKI) 2011 to use  MARY system    #
-# ----------------------------------------------------------------- #
-all: data voice
 
-data:
-	@ (cd data ; $(MAKE) all-mary)
+{
+##############################
+###  SEGMENT
 
-voice:
-	echo "Running a training/synthesis perl script (Training.pl) in background...."
-	@PERL@ scripts/Training.pl scripts/Config.pm > log-`date +%F-%T` 2>&1 &
+#  boundary
+    printf "%10.0f %10.0f ", 1e7 * $65, 1e7 * $66
 
-clean: clean-data clean-voice
-
-clean-data:
-	@ (cd data ; $(MAKE) clean)
-
-clean-voice:
-	rm -rf configs edfiles gen models proto stats trees voices gv
-
-distclean: clean
-	@ (cd data; $(MAKE) distclean)
-	rm -f scripts/Config.pm
-	rm -f Makefile
-	rm -f config.log
-	rm -f config.status
-	rm -rf autom4te.cache
-
-.PHONY: data voice clean distclean
+#  c.name
+    printf "%s", $2
+    printf "\n"
+}

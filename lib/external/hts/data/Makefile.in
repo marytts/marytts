@@ -43,7 +43,7 @@
 # ----------------------------------------------------------------- #
 # Modified by Marcela Charfuelan (DFKI) 2011 to use  MARY system    #
 #  - Generates voicing strengths and Fourier Magnitudes for mixed   #
-#    exitation.                                                     # 
+#    exitation. (mag not used in this version)                      # 
 #  - label and mlf are done in java with the voiceimport tools:     #
 #    HMMVoiceMakeData.makeLabels()                                  #
 #  - questions file is done in java with the voiceimport tools:     #
