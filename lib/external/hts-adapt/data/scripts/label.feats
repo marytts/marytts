@@ -1,0 +1,191 @@
+;; ----------------------------------------------------------------- ;;
+;;           The HMM-Based Speech Synthesis System (HTS)             ;;
+;;           developed by HTS Working Group                          ;;
+;;           http://hts.sp.nitech.ac.jp/                             ;;
+;; ----------------------------------------------------------------- ;;
+;;                                                                   ;;
+;;  Copyright (c) 2001-2011  Nagoya Institute of Technology          ;;
+;;                           Department of Computer Science          ;;
+;;                                                                   ;;
+;;                2001-2008  Tokyo Institute of Technology           ;;
+;;                           Interdisciplinary Graduate School of    ;;
+;;                           Science and Engineering                 ;;
+;;                                                                   ;;
+;; All rights reserved.                                              ;;
+;;                                                                   ;;
+;; Redistribution and use in source and binary forms, with or        ;;
+;; without modification, are permitted provided that the following   ;;
+;; conditions are met:                                               ;;
+;;                                                                   ;;
+;; - Redistributions of source code must retain the above copyright  ;;
+;;   notice, this list of conditions and the following disclaimer.   ;;
+;; - Redistributions in binary form must reproduce the above         ;;
+;;   copyright notice, this list of conditions and the following     ;;
+;;   disclaimer in the documentation and/or other materials provided ;;
+;;   with the distribution.                                          ;;
+;; - Neither the name of the HTS working group nor the names of its  ;;
+;;   contributors may be used to endorse or promote products derived ;;
+;;   from this software without specific prior written permission.   ;;
+;;                                                                   ;;
+;; THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND            ;;
+;; CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,       ;;
+;; INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF          ;;
+;; MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE          ;;
+;; DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS ;;
+;; BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,          ;;
+;; EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED   ;;
+;; TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,     ;;
+;; DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ;;
+;; ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,   ;;
+;; OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY    ;;
+;; OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE           ;;
+;; POSSIBILITY OF SUCH DAMAGE.                                       ;;
+;; ----------------------------------------------------------------- ;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; SEGMENT
+
+;; {p, c, n}.name
+    p.name                                                  ;  1 
+    name                                                    ;  2 
+    n.name                                                  ;  3
+
+;; position in syllable (segment)
+    pos_in_syl                                              ;  4
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; SYLLABLE
+
+;; {p, c, n}.stress
+    R:SylStructure.parent.R:Syllable.p.stress               ;  5
+    R:SylStructure.parent.R:Syllable.stress                 ;  6
+    R:SylStructure.parent.R:Syllable.n.stress               ;  7
+
+;; {p, c, n}.accent
+    R:SylStructure.parent.R:Syllable.p.accented             ; 8
+    R:SylStructure.parent.R:Syllable.accented               ; 9
+    R:SylStructure.parent.R:Syllable.n.accented             ; 10
+
+;; {p, c, n}.length (segment)
+    R:SylStructure.parent.R:Syllable.p.syl_numphones        ; 11
+    R:SylStructure.parent.R:Syllable.syl_numphones          ; 12
+    R:SylStructure.parent.R:Syllable.n.syl_numphones        ; 13
+
+;; position in word (syllable)
+    R:SylStructure.parent.R:Syllable.pos_in_word            ; 14
+
+;; position in phrase (syllable)
+    R:SylStructure.parent.R:Syllable.syl_in                 ; 15
+    R:SylStructure.parent.R:Syllable.syl_out                ; 16
+
+;; position in phrase (stressed syllable)
+    R:SylStructure.parent.R:Syllable.ssyl_in                ; 17
+    R:SylStructure.parent.R:Syllable.ssyl_out               ; 18
+
+;; position in phrase (accented syllable)
+    R:SylStructure.parent.R:Syllable.asyl_in                ; 19
+    R:SylStructure.parent.R:Syllable.asyl_out               ; 20
+
+;; distance from stressed syllable                 
+    R:SylStructure.parent.R:Syllable.lisp_distance_to_p_stress   ; 21
+    R:SylStructure.parent.R:Syllable.lisp_distance_to_n_stress   ; 22
+
+;; distance to accented syllable (syllable)                 
+    R:SylStructure.parent.R:Syllable.lisp_distance_to_p_accent   ; 23
+    R:SylStructure.parent.R:Syllable.lisp_distance_to_n_accent   ; 24  
+
+;; name of the vowel of syllable
+    R:SylStructure.parent.R:Syllable.syl_vowel              ; 25
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; WORD
+
+;; {p, c, n}.gpos
+    R:SylStructure.parent.parent.R:Word.p.gpos              ; 26
+    R:SylStructure.parent.parent.R:Word.gpos                ; 27
+    R:SylStructure.parent.parent.R:Word.n.gpos              ; 28
+
+;; {p, c, n}.length (syllable)
+    R:SylStructure.parent.parent.R:Word.p.word_numsyls      ; 29
+    R:SylStructure.parent.parent.R:Word.word_numsyls        ; 30
+    R:SylStructure.parent.parent.R:Word.n.word_numsyls      ; 31
+
+;; position in phrase (word)
+    R:SylStructure.parent.parent.R:Word.pos_in_phrase       ; 32
+    R:SylStructure.parent.parent.R:Word.words_out           ; 33
+
+;; position in phrase (content word)
+    R:SylStructure.parent.parent.R:Word.content_words_in    ; 34
+    R:SylStructure.parent.parent.R:Word.content_words_out   ; 35
+
+;; distance to content word (word)
+    R:SylStructure.parent.parent.R:Word.lisp_distance_to_p_content ; 36
+    R:SylStructure.parent.parent.R:Word.lisp_distance_to_n_content ; 37
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; PHRASE
+
+;; {p, c, n}.length (syllable)
+    R:SylStructure.parent.parent.R:Phrase.parent.p.lisp_num_syls_in_phrase ; 38
+    R:SylStructure.parent.parent.R:Phrase.parent.lisp_num_syls_in_phrase   ; 39
+    R:SylStructure.parent.parent.R:Phrase.parent.n.lisp_num_syls_in_phrase ; 40
+
+;; {p, c, n}.length (word)
+    R:SylStructure.parent.parent.R:Phrase.parent.p.lisp_num_words_in_phrase; 41
+    R:SylStructure.parent.parent.R:Phrase.parent.lisp_num_words_in_phrase  ; 42
+    R:SylStructure.parent.parent.R:Phrase.parent.n.lisp_num_words_in_phrase; 43
+
+;; position in major phrase (phrase)
+    R:SylStructure.parent.R:Syllable.sub_phrases            ; 44
+
+;; type of end tone of this phrase
+    R:SylStructure.parent.parent.R:Phrase.parent.daughtern.R:SylStructure.daughtern.tobi_endtone ; 45
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; UTTERANCE
+
+;; length (syllable)
+    lisp_total_syls                                         ; 46
+
+;; length (word)
+    lisp_total_words                                        ; 47
+
+;; length (phrase)
+    lisp_total_phrases                                      ; 48
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; for "pau"
+
+    p.R:SylStructure.parent.R:Syllable.stress               ; 49
+    n.R:SylStructure.parent.R:Syllable.stress               ; 50
+
+    p.R:SylStructure.parent.R:Syllable.accented             ; 51
+    n.R:SylStructure.parent.R:Syllable.accented             ; 52
+
+    p.R:SylStructure.parent.R:Syllable.syl_numphones        ; 53
+    n.R:SylStructure.parent.R:Syllable.syl_numphones        ; 54
+
+    p.R:SylStructure.parent.parent.R:Word.gpos              ; 55
+    n.R:SylStructure.parent.parent.R:Word.gpos              ; 56
+
+    p.R:SylStructure.parent.parent.R:Word.word_numsyls      ; 57
+    n.R:SylStructure.parent.parent.R:Word.word_numsyls      ; 58
+
+    p.R:SylStructure.parent.parent.R:Phrase.parent.lisp_num_syls_in_phrase ; 59
+    n.R:SylStructure.parent.parent.R:Phrase.parent.lisp_num_syls_in_phrase ; 60
+
+    p.R:SylStructure.parent.parent.R:Phrase.parent.lisp_num_words_in_phrase ; 61
+    n.R:SylStructure.parent.parent.R:Phrase.parent.lisp_num_words_in_phrase ; 62
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; additional feature
+
+;; for quinphone
+
+    p.p.name                                                ; 63
+    n.n.name                                                ; 64
+
+;; boundary
+
+    segment_start                                           ; 65
+    segment_end                                             ; 66

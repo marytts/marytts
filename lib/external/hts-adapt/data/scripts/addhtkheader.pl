@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 # ----------------------------------------------------------------- #
 #           The HMM-Based Speech Synthesis System (HTS)             #
 #           developed by HTS Working Group                          #
@@ -41,31 +42,41 @@
 # OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE           #
 # POSSIBILITY OF SUCH DAMAGE.                                       #
 # ----------------------------------------------------------------- #
-# Modified by Marcela Charfuelan (DFKI) 2011 to use  MARY system    #
-# ----------------------------------------------------------------- #
-all: data voice
 
-data:
-	@ (cd data ; $(MAKE) all-mary)
+if ( @ARGV < 5 ) {
+   print "addhtkheader.pl sampling_rate frame_shift byte_per_frame HTK_feature_type infile\n";
+   exit(0);
+}
 
-voice:
-	echo "Running a training/synthesis perl script (Training.pl) in background...."
-	@PERL@ scripts/Training.pl scripts/Config.pm > log-`date +%F-%T` 2>&1 &
+$samprate   = $ARGV[0];
+$frameshift = $ARGV[1];
+$byte       = $ARGV[2];
+$type       = $ARGV[3];
+$infile     = $ARGV[4];
 
-clean: clean-data clean-voice
+# make HTK header
+open( INPUT, "$infile" ) || die "Cannot open file: $infile";
+@STAT = stat(INPUT);
+read( INPUT, $DATA, $STAT[7] );
+$nframe = $STAT[7] / $byte;
+close(INPUT);
 
-clean-data:
-	@ (cd data ; $(MAKE) clean)
+# number of frames in long
+$NFRAME = pack( "l", $nframe );
 
-clean-voice:
-	rm -rf configs edfiles gen models proto stats trees voices gv
+# frame shift in long
+$frameshift = 10000000 * $frameshift / $samprate;
+$FRAMESHIFT = pack( "l", $frameshift );
 
-distclean: clean
-	@ (cd data; $(MAKE) distclean)
-	rm -f scripts/Config.pm
-	rm -f Makefile
-	rm -f config.log
-	rm -f config.status
-	rm -rf autom4te.cache
+# bytes of each frame in short
+$BYTE = pack( "s", $byte );
 
-.PHONY: data voice clean distclean
+# HTK feature type in short
+$TYPE = pack( "s", $type );
+
+# output header and data
+print $NFRAME;
+print $FRAMESHIFT;
+print $BYTE;
+print $TYPE;
+print $DATA;

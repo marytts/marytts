@@ -12,6 +12,9 @@
 #                           Interdisciplinary Graduate School of    #
 #                           Science and Engineering                 #
 #                                                                   #
+#                2008       University of Edinburgh                 #
+#                           Centre for Speech Technology Research   #
+#                                                                   #
 # All rights reserved.                                              #
 #                                                                   #
 # Redistribution and use in source and binary forms, with or        #
@@ -46,6 +49,7 @@
 # ----------------------------------------------------------------- #
 
 # Settings ==============================
+$spkr = '@ADAPTSPKR@';
 $qnum = '@QNUM@';
 $ver  = '@VER@';
 
@@ -115,16 +119,6 @@ $ref{'dur'} = \@dur;
 	 'str' => '@NSTRWIN@',
          'dur' => '0');
 
-%nblk = ('mgc' => '@NMGCTRANSBLK@', # number of blocks for transforms
-         'lf0' => '@NLF0TRANSBLK@',
-         'str' => '@NSTRTRANSBLK@',
-         'dur' => '1');
-
-%band = ('mgc' => '@MGCBANDWIDTH@', # band width for transforms
-         'lf0' => '@LF0BANDWIDTH@',
-         'str' => '@STRBANDWIDTH@',
-         'dur' => '0');
-
 %gvthr  = ('mgc' => '000',          # minimum likelihood gain in clustering for GV
            'lf0' => '000',
            'str' => '000');
@@ -140,7 +134,7 @@ $ref{'dur'} = \@dur;
 # Festival
 #@slnt = ('pau','h#','brth');        # silent and pause phoneme
 # MARY
-@slnt = ('_','_');        # silent and pause phoneme
+@slnt = ('_');        # silent and pause phoneme
 
 #%mdcp = ('dy' => 'd',              # model copy
 #         'A'  => 'a',
@@ -165,6 +159,49 @@ $fl = @IMPLEN@;    # length of impulse response
 $co = 2047;        # order of cepstrum to approximate mel-generalized cepstrum
 
 
+# Speaker adaptation Setting ============
+%adpt    = ('mgc' => '@MGCOCCTHRESH@',    # occupancy thresholds for adaptation
+            'lf0' => '@LF0OCCTHRESH@',
+            'str' => '@STROCCTHRESH@',
+            'dur' => '@DUROCCTHRESH@');
+
+%satt    = ('mgc' => '@SATMGCOCCTHRESH@', # occupancy thresholds for adaptive training
+            'lf0' => '@SATLF0OCCTHRESH@',
+            'str' => '@SATSTROCCTHRESH@',
+            'dur' => '@SATDUROCCTHRESH@');
+
+%nblk    = ('mgc' => '@NMGCTRANSBLK@',    # number of blocks for transforms
+            'lf0' => '@NLF0TRANSBLK@',
+            'str' => '@NSTRTRANSBLK@',
+            'dur' => '1');
+
+%band    = ('mgc' => '@MGCBANDWIDTH@',    # band width for transforms
+            'lf0' => '@LF0BANDWIDTH@',
+            'str' => '@STRBANDWIDTH@',
+            'dur' => '0');
+
+%aknd    = ('adp' => 'TREE',              # adaptation method (TREE or BASE)
+            'sat' => 'TREE');
+
+%tknd    = ('adp' => '@TREEKIND@',        # tree kind (reg or dec)
+            'sat' => '@TREEKIND@');       # dec -> decision tree,  reg -> regression tree (k-means)
+
+%tran    = ('adp' => '@TRANSKIND@',       # transformation kind (mean, cov, or feat)
+            'sat' => '@TRANSKIND@');      # mean -> MLLRMEAN,  cov -> MLLRCOV,  feat -> CMLLR
+
+$bias{'cmp'} = '@CMPBIAS@';               # use bias term for MLLRMEAN/CMLLR
+$bias{'dur'} = '@DURBIAS@';
+$dcov    = '@USEDCOV@';                   # use diagonal covariance transform for MLLRMEAN
+$smap    = '@USESMAP@';                   # use SMAP criterion for MLLR adaptation with regression class tree
+$sigma   = @SMAPSIGMA@;                   # hyper-parameter for SMAPLR adaptation
+$spkrPat = "\"*/@DATASET@_%%%_*\"";       # speaker name pattern
+$nClass  = 32;                            # number of regression classes
+$nAdapt  = @NUMADAPT@;                    # number of iterations to reestimate adaptation xforms
+$nSAT    = @NUMSAT@;                      # number of SAT iterations
+$addMAP  = @ADDMAP@;                      # apply additional MAP estimation after MLLR adaptation
+$maptau{'cmp'} = @CMPMAPTAU@;             # hyper-parameters for MAP adaptation
+$maptau{'dur'} = @DURMAPTAU@;
+
 # Modeling/Generation Setting ==============
 # modeling
 $nState     = @NSTATE@;        # number of states
@@ -178,6 +215,7 @@ $daem_nIte  = @DAEMNITER@;     # number of iterations of DAEM-based embedded tra
 $daem_alpha = @DAEMALPHA@;     # schedule of updating temperature parameter for DAEM
 
 # generation
+$pgtype     = @PGTYPE@;     # parameter generation algorithm (0 -> Cholesky,  1 -> MixHidden,  2 -> StateHidden)
 $maxEMiter  = @MAXEMITER@;  # max EM iteration
 $EMepsilon  = @EMEPSILON@;  # convergence factor for EM iteration
 $useGV      = @USEGV@;      # turn on GV
@@ -260,19 +298,23 @@ $ERST4 = 1; # embedded reestimation (re-clustered)
 $FALGN = 1; # forced alignment for no-silent GV
 $MCDGV = 1; # making global variance
 $MKUNG = 1; # making unseen models (GV)
-$MKUN1 = 1; # making unseen models (1mix)
-$PGEN1 = 1; # generating speech parameter sequences (1mix)
-$WGEN1 = 1; # synthesizing waveforms (1mix)
+$MKUN1 = 1; # making unseen models (speaker independent)
+$PGEN1 = 1; # generating speech parameter sequences (speaker independent)
+$WGEN1 = 1; # synthesizing waveforms (speaker independent)
+$REGTR = 1; # building regression-class trees for adaptation
+$ADPT1 = 1; # speaker adaptation (speaker independent)
+$MAPE1 = 1; # additional MAP estimation
+$PGEN2 = 1; # generating speech parameter sequences (speaker adapted)
+$WGEN2 = 1; # synthesizing waveforms (speaker adapted)
+$SPKAT = 1; # speaker adaptive training (SAT)
+$MKUN2 = 1; # making unseen models (SAT)
+$PGEN3 = 1; # generating speech parameter sequences (SAT)
+$WGEN3 = 1; # synthesizing waveforms (SAT)
+$ADPT2 = 1; # speaker adaptation (SAT)
+$MAPE2 = 1; # additional MAP estimation
+$PGEN4 = 1; # generate speech parameter sequences (SAT+adaptation)
+$WGEN4 = 1; # synthesizing waveforms (SAT+adaptation)
 $CONVM = 1; # converting mmfs to the hts_engine file format
 $ENGIN = 1; # synthesizing waveforms using hts_engine
-$SEMIT = 1; # semi-tied covariance matrices
-$MKUNS = 1; # making unseen models (stc)
-$PGENS = 1; # generating speech parameter sequences (stc)
-$WGENS = 1; # synthesizing waveforms (stc)
-$UPMIX = 1; # increasing the number of mixture components (1mix -> 2mix)
-$ERST5 = 1; # embedded reestimation (2mix)
-$MKUN2 = 1; # making unseen models (2mix)
-$PGEN2 = 1; # generating speech parameter sequences (2mix)
-$WGEN2 = 1; # synthesizing waveforms (2mix)
 
 1;
