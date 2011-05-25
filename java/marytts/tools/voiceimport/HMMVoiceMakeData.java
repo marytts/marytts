@@ -618,10 +618,34 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
         System.out.println("Generating questions utterance file for GV: " + voiceDir + getProp(questionsUttFile));
         System.out.println("Features used:");
         String hmmFeasForGv[] = {"phrase_numsyls", "phrase_numwords", "sentence_numwords", "sentence_numphrases"};
+        
+        // the folowing in case we need to add alias for the hmmFeasFor Gv
+        int numFeaGv = 0;
+        String prefixGv = "fgv";
+        String hmmFeatureListMapFile = voiceDir + getProp(featureListMapFile);
+        FileWriter outFeaMap = new FileWriter(hmmFeatureListMapFile, true);
+        
+        
         for(i=0; i<hmmFeasForGv.length; i++){
-          System.out.println("  " + hmmFeasForGv[i]);  
-          hmmfeaAlias = hmmFeatureList.get(hmmFeasForGv[i]);
-          String val_fea[] = feaDef.getPossibleValues(feaDef.getFeatureIndex(hmmFeasForGv[i]));
+          fea = hmmFeasForGv[i];
+          System.out.println("  " + fea);  
+          hmmfeaAlias = hmmFeatureList.get(fea);
+          // if the feature for utterance question is NOT in the hmmFeatureList, then there is not yet an alias for this feature
+          // here we will added first to the hmmFeatureList assigning an alias
+          if(hmmfeaAlias == null) {
+            // Check if the feature exist
+            if(feaDef.hasFeature(fea) ){
+              hmmfeaAlias = prefixGv + Integer.toString(numFeaGv);  
+              hmmFeatureList.put(fea, hmmfeaAlias);  
+              System.out.println("  Added to featureList = " + fea + "  " + hmmfeaAlias);
+              numFeaGv++;
+              outFeaMap.append(fea + " " + hmmfeaAlias + "\n");
+            }
+            else{
+              throw new Exception("Error: feature \"" + fea + "\" in feature list file: " + hmmFeatureListFile + " does not exist in FeatureDefinition.");
+            }                
+          }           
+          String val_fea[] = feaDef.getPossibleValues(feaDef.getFeatureIndex(fea)); 
           // write the feature value as string
           for(j=0; j<val_fea.length; j++){
             outUtt.write("QS \"" + hmmfeaAlias + "=" + val_fea[j] + "\" \t{*|" + hmmfeaAlias + "=" + val_fea[j] + "|*}\n");
@@ -629,6 +653,7 @@ public class HMMVoiceMakeData extends VoiceImportComponent{
           outUtt.write("\n");
         }         
         outUtt.close();
+        outFeaMap.close();
         System.out.println("Created question file for GV: " + voiceDir + getProp(questionsUttFile) + "\n");
     }
     

@@ -111,14 +111,14 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
     public final String NITER         = name+".numIterations";
     
     /** settings for HTS ADAPT training scripts */
-    public final String TRAINSPKR     = name+".trainSpkr";
-    public final String ADAPTSPKR     = name+".adaptSpkr";
-    public final String F0_RANGES     = name+".f0Ranges";
-    public final String SPKRMASK      = name+".spkrMask";
-    public final String ADAPTHEAD     = name+".adaptHead"; 
+    public final String ADAPTTRAINSPKR = name+".adaptTrainSpkr";
+    public final String ADAPTSPKR      = name+".adaptSpkr";
+    public final String ADAPTF0_RANGES = name+".adaptF0Ranges";
+    public final String ADAPTSPKRMASK  = name+".adaptSpkrMask";
+    public final String ADAPTHEAD      = name+".adaptHead"; 
     
-    public final String TREEKIND      = name+".treeKind";
-    public final String TRANSKIND     = name+".transKind";
+    public final String ADAPTTREEKIND  = name+".adaptTreeKind";
+    public final String ADAPTTRANSKIND = name+".adaptTransKind";
 
      
     
@@ -168,16 +168,16 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
            props.put(NITER,       "5"); 
              
            /** settings for HTS ADAPT training scripts */
-           props.put(TRAINSPKR,     "'awb bdl clb jmk rms'");
+           props.put(ADAPTTRAINSPKR,     "'awb bdl clb jmk rms'");
            props.put(ADAPTSPKR,     "slt");           
            //props.put(F0_RANGES,     "'awb 40 280  bdl 40 280  clb 80 350  jmk 40 280  rms 40 280  slt 80 350'");
-           props.put(F0_RANGES,     "'bdl 40 210 clb 130 260 jmk 50 180 rms 40 200 slt 110 280'");
-           props.put(SPKRMASK,      "*/cmu_us_arctic_%%%_*");
+           props.put(ADAPTF0_RANGES,     "'bdl 40 210 clb 130 260 jmk 50 180 rms 40 200 slt 110 280'");
+           props.put(ADAPTSPKRMASK,      "*/cmu_us_arctic_%%%_*");
            props.put(ADAPTHEAD,     "b05");
            props.put(NUMTESTFILES,  "5");
                
-           props.put(TREEKIND,        "dec");
-           props.put(TRANSKIND,       "feat");  
+           props.put(ADAPTTREEKIND,        "dec");
+           props.put(ADAPTTRANSKIND,       "feat");  
            
            props.put(ADAPTSCRIPTS, "false");
        }
@@ -227,15 +227,15 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
         props2Help.put(NITER,       "number of iterations of embedded training (default=5)");        
         
         // for scripts adapt
-        props2Help.put(TRAINSPKR,     "only ADAPTSCRIPTS: speakers for training (default='awb bdl clb jmk rms')");
+        props2Help.put(ADAPTTRAINSPKR,"only ADAPTSCRIPTS: speakers for training (default='awb bdl clb jmk rms')");
         props2Help.put(ADAPTSPKR,     "only ADAPTSCRIPTS: speakers for adaptation (default=slt)");
-        props2Help.put(SPKRMASK,      "only ADAPTSCRIPTS: speaker name pattern (mask for file names, -h option in HERest) (default=*/cmu_us_arctic_%%%_*)");
+        props2Help.put(ADAPTSPKRMASK, "only ADAPTSCRIPTS: speaker name pattern (mask for file names, -h option in HERest) (default=*/cmu_us_arctic_%%%_*)");
         props2Help.put(ADAPTHEAD,     "only ADAPTSCRIPTS: file name header for adaptation data (default=b05)");      
-        props2Help.put(F0_RANGES,     "only ADAPTSCRIPTS: F0 search ranges (spkr1 lower1 upper1  spkr2 lower2 upper2...). " +
+        props2Help.put(ADAPTF0_RANGES,"only ADAPTSCRIPTS: F0 search ranges (spkr1 lower1 upper1  spkr2 lower2 upper2...). " +
                                       "only ADAPTSCRIPTS: Order of speakers in F0_RANGES should be equal to that in ALLSPKR=$(TRAINSPKR) $(ADAPTSPKR)" +
                                       "(default='bdl 40 210 clb 130 260 jmk 50 180 rms 40 200 slt 110 280')");        
-        props2Help.put(TREEKIND,      "only ADAPTSCRIPTS: regression class tree kind (dec: decision tree, reg: regression tree, default=dec)");
-        props2Help.put(TRANSKIND,     "only ADAPTSCRIPTS: adaptation transform kind (mean: MLLRMEAN, cov: MLLRCOV, feat: CMLLR, default=feat)");
+        props2Help.put(ADAPTTREEKIND, "only ADAPTSCRIPTS: regression class tree kind (dec: decision tree, reg: regression tree, default=dec)");
+        props2Help.put(ADAPTTRANSKIND,"only ADAPTSCRIPTS: adaptation transform kind (mean: MLLRMEAN, cov: MLLRCOV, feat: CMLLR, default=feat)");
 
            
         props2Help.put(ADAPTSCRIPTS, "ADAPTSCRIPTS=false: speaker dependent scripts, ADAPTSCRIPTS=true: speaker adaptation/adaptive scripts.  ");     
@@ -265,32 +265,32 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
        File dirLab  = new File(filedir + "phonelab");
 
        if(getProp(ADAPTSCRIPTS).contentEquals("false")) { 
-       // Check if wav directory exist and have files
-       if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){ 
-         System.out.println("Problem with wav and hts/data/raw directories: wav files and raw files do not exist" +
+         // Check if wav directory exist and have files
+         if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){ 
+           System.out.println("Problem with wav and hts/data/raw directories: wav files and raw files do not exist" +
                 " in current directory: " + filedir);
-         speech_transcriptions = false;
-       }        
-       // check if hts/data/raw directory exist and have files
-       if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){
-          System.out.println("Problem with wav and hts/data/raw directories: wav files and raw files do not exist" +
+           speech_transcriptions = false;
+         }        
+         // check if hts/data/raw directory exist and have files
+         if( !dirWav.exists() || dirWav.list().length == 0 || !dirRaw.exists() || dirRaw.list().length == 0 ){
+           System.out.println("Problem with wav and hts/data/raw directories: wav files and raw files do not exist" +
                 " in current directory: " + filedir);
-          speech_transcriptions = false;
-       }        
-       // Check if text directory exist and have files
-       if( ( !dirText.exists() || dirText.list().length == 0 ) && ( !dirUtt.exists() || dirUtt.list().length == 0 ) ){
-         System.out.println("Problem with transcription directories text or hts/data/utts (Festival format): utts files and text files do not exist" +
+           speech_transcriptions = false;
+         }        
+         // Check if text directory exist and have files
+         if( ( !dirText.exists() || dirText.list().length == 0 ) && ( !dirUtt.exists() || dirUtt.list().length == 0 ) ){
+           System.out.println("Problem with transcription directories text or hts/data/utts (Festival format): utts files and text files do not exist" +
                 " in current directory: " + filedir);
-         System.out.println(" the transcriptions in the directory text will be used to generate the phonelab directory, if there are no hts/data/utts files" +
+           System.out.println(" the transcriptions in the directory text will be used to generate the phonelab directory, if there are no hts/data/utts files" +
                    "(in Festival format), please provide the transcriptions of the files you are going to use for trainning.");
-         speech_transcriptions = false;
-       } 
-       // Check if phonefeatures and phonelab directory exist and have files
-       if( ( !dirFea.exists() || dirFea.list().length == 0 ) && ( !dirLab.exists() || dirLab.list().length == 0 ) ){
-         System.out.println("Problems with directories phonefeatures or phonelab, they do not exist or they are empty.");
-         speech_transcriptions = false;
-       }
-       } else {
+           speech_transcriptions = false;
+         } 
+         // Check if phonefeatures and phonelab directory exist and have files
+         if( ( !dirFea.exists() || dirFea.list().length == 0 ) && ( !dirLab.exists() || dirLab.list().length == 0 ) ){
+           System.out.println("Problems with directories phonefeatures or phonelab, they do not exist or they are empty.");
+           speech_transcriptions = false;
+         }
+       } else {  // configuration for ADAPTSCRIPT
            // Get the speakers directories
            File dirSpeakersFea = new File(filedir + "/phonefeatures");
            File dirSpeakersLab = new File(filedir + "/phonelab");
@@ -298,11 +298,22 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
            String[] speakers;
            if(dirSpeakersFea.exists() && dirSpeakersFea.list().length > 0 && dirSpeakersLab.exists() && dirSpeakersLab.list().length > 0 ){ 
                speakers = dirSpeakersFea.list();
+               for(int i=0; i<speakers.length; i++){
+                 File dirSpeakerFea = new File(filedir + "/phonefeatures/" + speakers[i]);
+                 File dirSpeakerLab = new File(filedir + "/phonelab/" + speakers[i]);
+                 if(dirSpeakerFea.exists() && dirSpeakerFea.list().length > 0 && dirSpeakerLab.exists() && dirSpeakerLab.list().length > 0 ){
+                   speech_transcriptions = true;     
+                 } else {
+                   System.out.println("Error: directories " + filedir + "/phonefeatures/" + speakers[i] + 
+                           " and/or " + filedir + "/phonelab/" + speakers[i] + " do not contain files." );
+                   speech_transcriptions = false;
+                   break;
+                 }
+               }
            } else {            
                System.out.println("Error: directories " + filedir + "phonefeatures and/or " + filedir + "phonelab do not contain files." );
                speech_transcriptions = false;
-           }    
-           // TODO: missing to check the speakers directories....
+           }               
        }
        
        if(speech_transcriptions){
@@ -358,10 +369,10 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
              " --with-sox-search-path="        + db.getExternal(db.SOXPATH) +
              " SPEAKER=" + getProp(SPEAKER) +
              " DATASET=" + getProp(DATASET) +
-             " TRAINSPKR=" + getProp(TRAINSPKR) + 
+             " TRAINSPKR=" + getProp(ADAPTTRAINSPKR) + 
              " ADAPTSPKR=" + getProp(ADAPTSPKR) + 
-             " F0_RANGES=" + getProp(F0_RANGES) + 
-             " SPKRMASK=" + getProp(SPKRMASK) + 
+             " F0_RANGES=" + getProp(ADAPTF0_RANGES) + 
+             " SPKRMASK=" + getProp(ADAPTSPKRMASK) + 
              " ADAPTHEAD=" + getProp(ADAPTHEAD) +          
              " VER=" + getProp(VER) +
              " QNUM=" + getProp(QNUM) +
@@ -383,8 +394,8 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
              " MGCBANDWIDTH=" + getProp(MGCBANDWIDTH) +
              " STRBANDWIDTH=" + getProp(STRBANDWIDTH) +
              " LF0BANDWIDTH=" + getProp(LF0BANDWIDTH) +
-             " TREEKIND=" + getProp(TREEKIND) +
-             " TRANSKIND=" + getProp(TRANSKIND);
+             " TREEKIND=" + getProp(ADAPTTREEKIND) +
+             " TRANSKIND=" + getProp(ADAPTTRANSKIND);
          }
               
          General.launchBatchProc(cmdLine, "Configure", filedir);
