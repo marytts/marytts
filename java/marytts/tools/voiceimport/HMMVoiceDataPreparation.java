@@ -81,7 +81,7 @@ import marytts.util.io.FileUtils;
  * This program was modified from previous version to:
  * 1. copy $MARY_BASE/lib/external/hts directory to the voice building directory
  * 2. check again that all the external necessary programs are installed.
- * 3. check as before that wav and text directories exist and make convertions:
+ * 3. check as before that wav and text directories exist and make conversions:
  *    voiceDir/wav -> voiceDir/hts/data/raw 
  *    userProvidedDir/utts (festival format) -> voiceDir/text (one file per transcription)
  *    userProvidedDir/raw move to voiceDir/hts/data/raw
@@ -92,8 +92,9 @@ import marytts.util.io.FileUtils;
 public class HMMVoiceDataPreparation extends VoiceImportComponent{
     private DatabaseLayout db;
     private String name = "HMMVoiceDataPreparation";
-    public final String USERRAWDIR = name + ".userRawDirectory";
-    public final String USERUTTDIR = name + ".userUttDirectory";        
+    public final String ADAPTSCRIPTS  = name + ".adaptScripts";
+    public final String USERRAWDIR    = name + ".userRawDirectory";
+    public final String USERUTTDIR    = name + ".userUttDirectory";        
     private String marybase; 
     private String voiceDir;
     private String soxPath;
@@ -116,7 +117,8 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
        if (props == null){
            props = new TreeMap<String,String>();           
            props.put(USERRAWDIR, "");
-           props.put(USERUTTDIR, "");           
+           props.put(USERUTTDIR, "");
+           props.put(ADAPTSCRIPTS, "false");          
        }
        return props;
        }
@@ -124,7 +126,8 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
     protected void setupHelp(){
         props2Help = new TreeMap<String,String>();                
         props2Help.put(USERRAWDIR, "raw files directory, user provided directory (default empty)");
-        props2Help.put(USERUTTDIR, "utterance directory (transcriptions in festival format), user provided directory (default empty)");        
+        props2Help.put(USERUTTDIR, "utterance directory (transcriptions in festival format), user provided directory (default empty)");   
+        props2Help.put(ADAPTSCRIPTS, "ADAPTSCRIPTS=false: speaker dependent scripts, ADAPTSCRIPTS=true: speaker adaptation/adaptive scripts.  "); 
     }
 
        
@@ -136,32 +139,37 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
     public boolean compute() throws Exception{
        boolean raw = false;
        boolean text = false;
+       boolean wav = false;
        marybase   = db.getProp(db.MARYBASE); 
        voiceDir   = db.getProp(db.ROOTDIR);
        soxPath    = db.getExternal(db.SOXPATH);
-       sep        = System.getProperty("file.separator");
+       sep        = System.getProperty("file.separator");       
        dataDir    = voiceDir + "hts" + sep + "data" + sep;
        scriptsDir = dataDir + "scripts" + sep;
+       
+       // For both speaker indep. or adapt scripts the programs are the same
+       // check again that all the external necessary programs are installed.
+       System.out.println("\nHMMVoiceDataPreparation:\nChecking paths of external programs");
+       if( !checkExternalPaths() )
+           return false;
+
  
+       if(getProp(ADAPTSCRIPTS).contentEquals("false")) { 
+                 
        // 1. copy from $MARY_TTS/lib/external/hts directory in the voice building directory
        String sourceFolder = marybase + sep + "lib" + sep + "external" + sep + "hts";
        String htsFolder = voiceDir + sep + "hts";
        FileUtils.copyFolderRecursive(sourceFolder, htsFolder, false);
-       
-       // 2. check again that all the external necessary programs are installed.
-       System.out.println("\nHMMVoiceDataPreparation:\nChecking paths of external programs");
-       if( !checkExternalPaths() )
-           return false;
-       
-       // 3. check as before that wav, raw and text directories exist and are in the correct place     
-       System.out.println("\nChecking directories and files for running HTS training scripts...");
+              
+       // 2. check as before that wav, raw and text directories exist and are in the correct place     
+       System.out.println("\nChecking wav/raw and text directories and files for running HTS speaker independent training scripts...");
                             
        // default locations of directories:
        String wavDirName  = voiceDir + "wav";           
        String textDirName = voiceDir + "text";
        String rawDirName  = dataDir + "raw";
        
-       // 3.1 check raw and wav files:
+       // 2.1 check raw and wav files:
        String userRawDirName = getProp(USERRAWDIR);  
        if( existWithFiles(rawDirName) ) {
          raw = true;
@@ -200,7 +208,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
          }
        } 
        
-       // 3.2 check text files:
+       // 2.2 check text files:
        if( existWithFiles(textDirName) ) {
          text = true;
        } else {   
@@ -220,12 +228,56 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
        
        if( raw && text ){
          System.out.println("\nHMMVoiceDataPreparation finished:\n" +
-                "HTS scripts copied in current voice building directory\n" +
+                "HTS speaker independent scripts copied in current voice building directory --> hts\n" +
                 "wav/raw and text directories in place.");  
          return true;
        }
        else
          return false;
+       
+       } else {  // ADAPTSCRIPTS == true
+           
+           // Here it is checked that the raw files are in data/raw, wav, phonelab and phonefeatures must be 
+           // provided by the user...
+           // 1. copy from $MARY_TTS/lib/external/hts-adapt directory in the voice building directory
+           String sourceFolder = marybase + sep + "lib" + sep + "external" + sep + "hts-adapt";
+           String htsFolder = voiceDir + sep + "hts";          
+           FileUtils.copyFolderRecursive(sourceFolder, htsFolder, false);
+           
+           
+           // 2. check as before that wav, raw and text directories exist and are in the correct place     
+           //System.out.println("\nChecking raw directory for running HTS adaptive training scripts...");
+
+           File dirSpeakersRaw = new File(dataDir + "/raw");
+           
+           String[] speakers;
+           if(dirSpeakersRaw.exists() && dirSpeakersRaw.list().length > 0){ 
+               speakers = dirSpeakersRaw.list();
+               for(int i=0; i<speakers.length; i++){
+                 File dirSpeakerRaw = new File(dataDir + "/raw/" + speakers[i]);
+                 if(dirSpeakerRaw.exists() && dirSpeakerRaw.list().length > 0  ){
+                   raw = true;
+                 } else {
+                   System.out.println("Error: directory " + voiceDir + "/raw/" + speakers[i] + " does not contain files." );
+                   raw = false;
+                   break;
+                 }
+               }
+           } else {            
+               System.out.println("Error: directory " + voiceDir + "/raw does not contain files." );
+               raw = false;
+           }
+           
+           if( raw){
+               System.out.println("\nHMMVoiceDataPreparation finished:\n" +
+                      "HTS adapt scripts copied in current voice building directory --> hts\n" +
+                      "raw directory in place.");  
+               return true;
+             }
+             else
+               return false;
+           
+       }
        
     }
     
