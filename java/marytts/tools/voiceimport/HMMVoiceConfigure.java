@@ -168,7 +168,7 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
            props.put(NITER,       "5"); 
              
            /** settings for HTS ADAPT training scripts */
-           props.put(ADAPTTRAINSPKR,     "'awb bdl clb jmk rms'");
+           props.put(ADAPTTRAINSPKR,     "'bdl clb jmk rms'");
            props.put(ADAPTSPKR,     "slt");           
            //props.put(F0_RANGES,     "'awb 40 280  bdl 40 280  clb 80 350  jmk 40 280  rms 40 280  slt 80 350'");
            props.put(ADAPTF0_RANGES,     "'bdl 40 210 clb 130 260 jmk 50 180 rms 40 200 slt 110 280'");
@@ -236,8 +236,7 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
                                       "(default='bdl 40 210 clb 130 260 jmk 50 180 rms 40 200 slt 110 280')");        
         props2Help.put(ADAPTTREEKIND, "only ADAPTSCRIPTS: regression class tree kind (dec: decision tree, reg: regression tree, default=dec)");
         props2Help.put(ADAPTTRANSKIND,"only ADAPTSCRIPTS: adaptation transform kind (mean: MLLRMEAN, cov: MLLRCOV, feat: CMLLR, default=feat)");
-
-           
+          
         props2Help.put(ADAPTSCRIPTS, "ADAPTSCRIPTS=false: speaker dependent scripts, ADAPTSCRIPTS=true: speaker adaptation/adaptive scripts.  ");     
     }
 
