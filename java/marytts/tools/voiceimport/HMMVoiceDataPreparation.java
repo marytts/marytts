@@ -168,6 +168,7 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
        String wavDirName  = voiceDir + "wav";           
        String textDirName = voiceDir + "text";
        String rawDirName  = dataDir + "raw";
+       String uttsDirName = dataDir + "utts";
        
        // 2.1 check raw and wav files:
        String userRawDirName = getProp(USERRAWDIR);  
@@ -211,6 +212,9 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
        // 2.2 check text files:
        if( existWithFiles(textDirName) ) {
          text = true;
+       } else if( existWithFiles(uttsDirName) ) {
+           convertUtt2Text(uttsDirName, textDirName);
+           text = true;             
        } else {   
          // check if the user has provided a utterance directory
          String userUttDirName = getProp(USERUTTDIR);
@@ -222,8 +226,10 @@ public class HMMVoiceDataPreparation extends VoiceImportComponent{
              text = true;
            } else
              System.out.println("User provided utterance directory: " + userUttDirName + " does not exist or does not contain files\n");
-         } else                
-           System.out.println("\nThere are no text files in " + textDirName);  
+         } else {
+           System.out.println("\nThere are no text files in " + textDirName);
+           text = false;
+         }
        }
        
        if( raw && text ){
