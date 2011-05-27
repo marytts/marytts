@@ -104,8 +104,6 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
     public final String LF0BANDWIDTH  = name+".lf0BandWidth";
     
     public final String LNGAIN        = name+".lnGain";
-    public final String PSTFILTER     = name+".pstFilter";
-    public final String IMPLEN        = name+".impulseLen";
     public final String SAMPFREQ      = name+".sampfreq";
     public final String NSTATE        = name+".numState";
     public final String NITER         = name+".numIterations";
@@ -142,16 +140,28 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
            props.put(DATASET,       "cmu_us_arctic");
            props.put(LOWERF0,       "110");
            props.put(UPPERF0,       "280");
-           props.put(NUMTESTFILES,  "10");
-           
+           props.put(NUMTESTFILES,  "10");          
            props.put(VER,         "1");
            props.put(QNUM,        "001");
-           props.put(SAMPFREQ,    "48000");
-           props.put(FRAMELEN,    "1200");
-           props.put(FRAMESHIFT,  "240");
+           
+           //Frame period in point 80 for 16Khz; 240 for 48Khz (Frame period in point = sampRate*0.005sec)");
+           int sampRate = Integer.parseInt(db.getProp(db.SAMPLINGRATE));
+           int frameLen   = (int) Math.round(sampRate*0.025);
+           int frameShift = (int) Math.round(sampRate*0.005);           
+           props.put(SAMPFREQ,    db.getProp(db.SAMPLINGRATE));
+           props.put(FRAMELEN,    Integer.toString(frameLen)); 
+           props.put(FRAMESHIFT,  Integer.toString(frameShift));
+           if(sampRate >= 48000)
+             props.put(FFTLEN, "2048");
+           else if(sampRate >= 32000)
+               props.put(FFTLEN, "1024");
+           else if(sampRate >= 16000)
+             props.put(FFTLEN, "512");
+           else
+             props.put(FFTLEN, "256");  
+           
            props.put(WINDOWTYPE,  "1");
-           props.put(NORMALIZE,   "1");
-           props.put(FFTLEN,      "2048");
+           props.put(NORMALIZE,   "1");           
            props.put(FREQWARP,    "0.55");
            props.put(GAMMA,       "0");           
            props.put(MGCORDER,    "34");
@@ -162,8 +172,6 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
            props.put(LF0BANDWIDTH,    "1");
           
            props.put(LNGAIN,      "1");
-           props.put(PSTFILTER,   "1.4");
-           props.put(IMPLEN,      "4096");
            props.put(NSTATE,      "5");
            props.put(NITER,       "5"); 
              
@@ -221,8 +229,6 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
         props2Help.put(LF0BANDWIDTH,    "band width for log F0 transforms (default=1)");
         
         props2Help.put(LNGAIN,      "Use logarithmic gain instead of linear gain (default=0)");
-        props2Help.put(PSTFILTER,   "Postfiltering factor (default=1.4)");
-        props2Help.put(IMPLEN,      "Length of impulse response (default=4096)");
         props2Help.put(NSTATE,      "number of HMM states (default=5)");
         props2Help.put(NITER,       "number of iterations of embedded training (default=5)");        
         
@@ -347,8 +353,6 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
          " MGCORDER=" + getProp(MGCORDER) +
          " STRORDER=" + getProp(STRORDER) +
          " LNGAIN=" + getProp(LNGAIN) +
-         " PSTFILTER=" + getProp(PSTFILTER) +
-         " IMPLEN=" + getProp(IMPLEN) +
          " SAMPFREQ=" + getProp(SAMPFREQ) +
          " NSTATE=" + getProp(NSTATE) +
          " NITER=" + getProp(NITER);
@@ -385,8 +389,6 @@ public class HMMVoiceConfigure extends VoiceImportComponent{
              " MGCORDER=" + getProp(MGCORDER) +
              " STRORDER=" + getProp(STRORDER) +
              " LNGAIN=" + getProp(LNGAIN) +
-             " PSTFILTER=" + getProp(PSTFILTER) +
-             " IMPLEN=" + getProp(IMPLEN) +
              " SAMPFREQ=" + getProp(SAMPFREQ) +
              " NSTATE=" + getProp(NSTATE) +
              " NITER=" + getProp(NITER) +
