@@ -66,6 +66,7 @@ public class HMMVoicePackager extends VoicePackager {
     private String beta;
     
     /** Sampling frequency and frame period have to be specified (sampling freq is included in the general config) */
+    private String samplingRate;
     private String framePeriod;
        
     /** Tree files and TreeSet object */
@@ -126,6 +127,7 @@ public class HMMVoicePackager extends VoicePackager {
         gamma = name + ".gamma";
         logGain = name + ".logGain";
         beta = name + ".beta";
+        samplingRate = name + ".samplingRate";
         framePeriod = name + ".framePeriod";
         treeDurFile = name + ".Ftd";
         treeLf0File = name + ".Ftf";
@@ -182,8 +184,12 @@ public class HMMVoicePackager extends VoicePackager {
            props.put(alpha, "0.55");
            props.put(beta, "0.1");
            props.put(gamma, "0");
-           props.put(logGain, "true");
-           props.put(framePeriod, "240");
+           props.put(logGain, "true");           
+           props.put(samplingRate, db.getProp(db.SAMPLINGRATE));
+           int fs = Integer.parseInt(db.getProp(db.SAMPLINGRATE));           
+           int fperiod = (int) Math.round(fs*0.005);             
+           props.put(framePeriod, Integer.toString(fperiod));
+           
            props.put(treeDurFile, "hts/voices/qst001/ver1/tree-dur.inf"); 
            props.put(treeLf0File, "hts/voices/qst001/ver1/tree-lf0.inf");
            props.put(treeMcpFile, "hts/voices/qst001/ver1/tree-mgc.inf");
@@ -237,6 +243,7 @@ public class HMMVoicePackager extends VoicePackager {
         props2Help.put(beta, "Postfiltering coefficient, -0.8 - 0.8");
         props2Help.put(gamma, "Training parameter: gamma=0 for MGC, gamma>0 for LSP");
         props2Help.put(logGain, "Training parameter: use log gain / linear gain, default for MGC logGain=false");
+        props2Help.put(samplingRate, "Sampling rate 48KHz, used for training cmu-slt");
         props2Help.put(framePeriod, "Frame period in point 80 for 16Khz; 240 for 48Khz (Frame period in point = Fs*0.005sec)");
         props2Help.put(treeDurFile, "durations tree file"); 
         props2Help.put(treeLf0File, "log F0 tree file");
@@ -451,7 +458,7 @@ public class HMMVoicePackager extends VoicePackager {
                     voiceHeader+".gender = "+db.getProp(db.GENDER).toLowerCase()+"\r\n"+
                     voiceHeader+".locale = "+ locale +"\r\n"+
                     voiceHeader+".domain = "+ db.getProp(db.DOMAIN).toLowerCase()+"\r\n"+
-                    voiceHeader+".samplingRate = "+db.getProp(db.SAMPLINGRATE)+"\r\n"+
+                    voiceHeader+".samplingRate = "+ getProp(samplingRate)+"\r\n"+
                     voiceHeader+".framePeriod = "+getProp(framePeriod)+"\r\n\r");
 
 
