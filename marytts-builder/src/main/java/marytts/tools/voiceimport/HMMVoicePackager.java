@@ -49,10 +49,14 @@ public class HMMVoicePackager extends VoicePackager {
     MGC-LSP: gamma=3  alpha=0.42 log gain  */
     private String alpha;
     private String gamma;    
-    private String logGain;
+    private String logGain;    
 
     /** Parameter beta for postfiltering  */    
     private String beta;
+    
+    /** Sampling frequency and frame period have to be specified (sampling freq is included in the general config) */
+    private String samplingRate;
+    private String framePeriod;
        
     /** Tree files and TreeSet object */
     private String treeDurFile;
@@ -69,11 +73,17 @@ public class HMMVoicePackager extends VoicePackager {
     /** GV pdf files*/
     /** Global variance file, it contains one global mean vector and one global diagonal covariance vector */
     private String useGV;
+    private String useContextDependentGV;
+    private String gvMethod;
     private String maxMgcGvIter;
     private String maxLf0GvIter;
+    private String maxStrGvIter;
     private String pdfLf0GVFile; 
     private String pdfMcpGVFile;  
-    private String pdfStrGVFile;  
+    private String pdfStrGVFile;
+    private String gvWeightMgc;
+    private String gvWeightLf0;
+    private String gvWeightStr;
             
     /** Variables for mixed excitation */
     private String useMixExc;
@@ -106,6 +116,8 @@ public class HMMVoicePackager extends VoicePackager {
         gamma = name + ".gamma";
         logGain = name + ".logGain";
         beta = name + ".beta";
+        samplingRate = name + ".samplingRate";
+        framePeriod = name + ".framePeriod";
         treeDurFile = name + ".Ftd";
         treeLf0File = name + ".Ftf";
         treeMcpFile = name + ".Ftm";
@@ -114,12 +126,20 @@ public class HMMVoicePackager extends VoicePackager {
         pdfLf0File = name + ".Fmf";
         pdfMcpFile = name + ".Fmm";
         pdfStrFile = name + ".Fms";
+        
         useGV = name + ".useGV";
+        useContextDependentGV = name + ".useContextDependentGV";
+        gvMethod = name + ".gvMethod";
         maxMgcGvIter = name + ".maxMgcGvIter";
         maxLf0GvIter = name + ".maxLf0GvIter";
+        maxStrGvIter = name + ".maxStrGvIter";
         pdfLf0GVFile = name + ".Fgvf";
         pdfMcpGVFile = name + ".Fgvm";
         pdfStrGVFile = name + ".Fgvs";
+        gvWeightMgc  = name + ".gvWeightMgc";
+        gvWeightLf0  = name + ".gvWeightLf0";
+        gvWeightStr  = name + ".gvWeightStr";
+        
         useMixExc = name + ".useMixExc";
         mixFiltersFile = name + ".Fif";
         numFilters = name + ".in";
@@ -150,10 +170,15 @@ public class HMMVoicePackager extends VoicePackager {
            props.put(VOICETYPE, "hsmm");
            props.put(LICENSEURL, "http://mary.dfki.de/download/by-nd-3.0.html");
            props.put(VOICEDESCRIPTION, voiceDescription);
-           props.put(alpha, "0.42");
-           props.put(beta, "0.0");
+           props.put(alpha, "0.55");
+           props.put(beta, "0.1");
            props.put(gamma, "0");
-           props.put(logGain, "false");
+           props.put(logGain, "true");           
+           props.put(samplingRate, db.getProp(db.SAMPLINGRATE));
+           int fs = Integer.parseInt(db.getProp(db.SAMPLINGRATE));           
+           int fperiod = (int) Math.round(fs*0.005);             
+           props.put(framePeriod, Integer.toString(fperiod));
+           
            props.put(treeDurFile, "hts/voices/qst001/ver1/tree-dur.inf"); 
            props.put(treeLf0File, "hts/voices/qst001/ver1/tree-lf0.inf");
            props.put(treeMcpFile, "hts/voices/qst001/ver1/tree-mgc.inf");
@@ -163,11 +188,17 @@ public class HMMVoicePackager extends VoicePackager {
            props.put(pdfMcpFile, "hts/voices/qst001/ver1/mgc.pdf"); 
            props.put(pdfStrFile, "hts/voices/qst001/ver1/str.pdf");
            props.put(useGV, "true");
-           props.put(maxMgcGvIter, "200");
-           props.put(maxLf0GvIter, "200");
-           props.put(pdfLf0GVFile, "hts/data/gv/gv-lf0-littend.pdf"); 
-           props.put(pdfMcpGVFile, "hts/data/gv/gv-mgc-littend.pdf"); 
-           props.put(pdfStrGVFile, "hts/data/gv/gv-str-littend.pdf");
+           props.put(useContextDependentGV, "true");
+           props.put(gvMethod, "gradient");
+           props.put(maxMgcGvIter, "100");
+           props.put(maxLf0GvIter, "100");
+           props.put(maxStrGvIter, "100");
+           props.put(gvWeightMgc, "1.0");
+           props.put(gvWeightLf0, "1.0");
+           props.put(gvWeightStr, "1.0");
+           props.put(pdfLf0GVFile, "hts/voices/qst001/ver1/gv-lf0.pdf"); 
+           props.put(pdfMcpGVFile, "hts/voices/qst001/ver1/gv-mgc.pdf"); 
+           props.put(pdfStrGVFile, "hts/voices/qst001/ver1/gv-str.pdf");                            
            props.put(useAcousticModels, "true");
            props.put(useMixExc, "true");
            props.put(mixFiltersFile, "hts/data/filters/mix_excitation_filters.txt"); 
@@ -197,10 +228,12 @@ public class HMMVoicePackager extends VoicePackager {
         props2Help.put(LICENSEURL, "URL of the license agreement for this voice"
                 + " (<a href=\"http://creativecommons.org/licenses/by-nd/3.0/\">cc-by-nd</a> by default)");
         props2Help.put(VOICEDESCRIPTION, "short text describing this voice");
-        props2Help.put(alpha, "Training parameter: Frequency wrapping coefficient. 0.42 for mel frequency.");
+        props2Help.put(alpha, "Training parameter: Frequency warping factor 0.42 for 16Khz;  0.55 for 48Khz.");
         props2Help.put(beta, "Postfiltering coefficient, -0.8 - 0.8");
         props2Help.put(gamma, "Training parameter: gamma=0 for MGC, gamma>0 for LSP");
         props2Help.put(logGain, "Training parameter: use log gain / linear gain, default for MGC logGain=false");
+        props2Help.put(samplingRate, "Sampling rate 48KHz, used for training cmu-slt");
+        props2Help.put(framePeriod, "Frame period in point 80 for 16Khz; 240 for 48Khz (Frame period in point = Fs*0.005sec)");
         props2Help.put(treeDurFile, "durations tree file"); 
         props2Help.put(treeLf0File, "log F0 tree file");
         props2Help.put(treeMcpFile, "Mel-cepstral (mcp or Mel-generalized cepstral mgc, HTS Version 2.0.1 used mgc) tree file");
@@ -210,8 +243,14 @@ public class HMMVoicePackager extends VoicePackager {
         props2Help.put(pdfMcpFile, "Mel-cepstral (or Mel-generalized cepstral mgc) means and variances PDF file"); 
         props2Help.put(pdfStrFile, "Bandpass voicing strengths means and variances PDF file (optional: used for mixed excitation)");
         props2Help.put(useGV, "Use global variance in parameter generation (true/false)");
-        props2Help.put(maxMgcGvIter, "max. number of iterations for MGC optimisation (200)");
-        props2Help.put(maxLf0GvIter, "max. number of iterations for LF0 optimisation (200)");
+        props2Help.put(useContextDependentGV, "Use context-dependent GV (true/false)");
+        props2Help.put(gvMethod, "GV method: gradient or derivative (default gradient)");
+        props2Help.put(maxMgcGvIter, "max. number of iterations for MGC optimisation (100)");
+        props2Help.put(maxLf0GvIter, "max. number of iterations for LF0 optimisation (100)");
+        props2Help.put(maxStrGvIter, "max. number of iterations for STR optimisation (100)");
+        props2Help.put(gvWeightMgc, "GV weights for Mgc: between 0.0-2.0");
+        props2Help.put(gvWeightLf0, "GV weights for Lf0: between 0.0-2.0");
+        props2Help.put(gvWeightStr, "GV weights for Str: between 0.0-2.0");
         props2Help.put(pdfLf0GVFile, "Global variance for Log F0, mean and (diagonal) variance PDF file"); 
         props2Help.put(pdfMcpGVFile, "Global variance for Mel-cepstral (or Mel-generalized cepstral mgc) mean and (diagonal) variance PDF file"); 
         props2Help.put(pdfStrGVFile, "Global variance for Bandpass voicing strengths mean and (diagonal) variance PDF file (optional: used for mixed excitation)");
@@ -397,7 +436,6 @@ public class HMMVoicePackager extends VoicePackager {
             "# keys should be unique across config files.\r\n\r");              
             configOut.println("hmm.voices.list = \\\r\n   " + voicename + "\r\n\r");
 
-
             String voiceHeader = "voice."+voicename;
 
             //wants-to-be-default value
@@ -408,15 +446,15 @@ public class HMMVoicePackager extends VoicePackager {
             configOut.println("# Set your voice specifications\r\n"+
                     voiceHeader+".gender = "+db.getProp(db.GENDER).toLowerCase()+"\r\n"+
                     voiceHeader+".locale = "+ locale +"\r\n"+
-                    voiceHeader+".domain = "+db
-                    .getProp(db.DOMAIN).toLowerCase()+"\r\n"+
-                    voiceHeader+".samplingRate = "+db.getProp(db.SAMPLINGRATE)+"\r\n\r");
+                    voiceHeader+".domain = "+ db.getProp(db.DOMAIN).toLowerCase()+"\r\n"+
+                    voiceHeader+".samplingRate = "+ getProp(samplingRate)+"\r\n"+
+                    voiceHeader+".framePeriod = "+getProp(framePeriod)+"\r\n\r");
 
 
             //voice data
             configOut.println("# HMM Voice-specific parameters \r\n" +
                     "# parameters used during models training \r\n" +
-                    "# MGC: stage=gamma=0 alpha=0.42 linear gain (default) \r\n" +
+                    "# MGC: stage=gamma=0 alpha=0.42 16KHz linear gain; alpha=0.55 48Khz log gain (default) \r\n" +
                     "# LSP: gamma>0  \r\n" +
                     "#          LSP: gamma=1 alpha=0.0  linear gain/log gain \r\n" +
                     "#      Mel-LSP: gamma=1 alpha=0.42 log gain \r\n" +
@@ -443,8 +481,24 @@ public class HMMVoicePackager extends VoicePackager {
 
             configOut.println("\r\n# Information about Global Mean and Variance PDFs\r");
             configOut.println(voiceHeader+".useGV = "+ getProp(useGV)+"\r");
+            
+            configOut.println("\r\n# Variable for allowing context-dependent GV (without sil)\r");
+            configOut.println(voiceHeader+".useContextDependentGV = "+ getProp(useContextDependentGV)+"\r");
+            
+            configOut.println("\r\n# GV method: gradient or derivative (default gradient)\r");
+            configOut.println(voiceHeader+".gvMethod = "+ getProp(gvMethod)+"\r");
+
+            configOut.println("\r\n# Max number of GV iterations\r");
             configOut.println(voiceHeader+".maxMgcGvIter = "+ getProp(maxMgcGvIter)+"\r");
             configOut.println(voiceHeader+".maxLf0GvIter = "+ getProp(maxLf0GvIter)+"\r");
+            configOut.println(voiceHeader+".maxStrGvIter = "+ getProp(maxStrGvIter)+"\r");
+            
+            configOut.println("\r\n# GV weights for each parameter: between 0.0-2.0\r");
+            configOut.println(voiceHeader+".gvweightMgc = "+ getProp(gvWeightMgc)+"\r");
+            configOut.println(voiceHeader+".gvweightLf0 = "+ getProp(gvWeightLf0)+"\r");
+            configOut.println(voiceHeader+".gvweightStr = "+ getProp(gvWeightStr)+"\r");
+            
+            configOut.println("\r\n# Mean and variance files for GV\r");
             if( new File(rootDir + getProp(pdfLf0GVFile)).exists())
                 configOut.println(voiceHeader+".Fgvf = MARY_BASE/lib/voices/"+voicename+"/" + FileUtils.getFileName(getProp(pdfLf0GVFile))+"\r");
             if( new File(rootDir + getProp(pdfMcpGVFile)).exists())

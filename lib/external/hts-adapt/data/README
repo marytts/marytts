@@ -1,0 +1,32 @@
+Directory structure
+
+cmp: Training data in HTK data format (natural endian).
+     You can see these files as HList -C hlist.conf cmp/slt/cmu_us_arctic_slt_a0001.cmp.
+
+labels: Context-independent and -dependent labels in HTK label format (ascii).
+
+lf0: Log fundamental frequency values extracted by getf0.tcl (4-byte float, natural endian).
+
+lists: Context-independent and -dependent model lists (ascii).
+
+mgc: Mel-generalized cepstral (MGC) coefficients or MGC-LSPs extracted by SPTK (4-byte float, natural endian).
+
+questions: Question files for decision tree-based context clustering (ascii).
+
+raw: 48kHz raw audio (2-byte short, little endian).
+
+scp: Data path files (ascii).
+
+scripts: shell, perl, and tcl scripts (ascii).
+
+utts: Utterance information files in Festival utt format (ascii).
+
+win: windows coefficients to calculate dynamic features (ascii).
+
+
+Acknowledgment
+
+This demonstration uses a part of the CMU ARCTIC database.
+Audio files are up-sampled by using speech tools and SPTK commands: ch_wave -c 0 -F 32000 -otype raw in.wav | x2x +sf | interpolate -p 2 -d | ds -s 43 | x2x +fs > out.raw
+See COPYING for copyright of this database.
+If you want to know its detail, please visit <http://festvox.org/cmu_arctic/index.html>.

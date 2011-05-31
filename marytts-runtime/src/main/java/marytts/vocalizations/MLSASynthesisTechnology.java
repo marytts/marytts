@@ -209,7 +209,7 @@ public class MLSASynthesisTechnology extends VocalizationSynthesisTechnology {
 
         try {
             lf0Pst = new HTSPStream(lf0Vsize*3, lf0.length, HMMData.LF0, 0); // multiplied by 3 required for real-time synthesis
-            mcepPst = new HTSPStream(mcepVsize*3, mgc.length, HMMData.MCP, 0);
+            mcepPst = new HTSPStream(mcepVsize*3, mgc.length, HMMData.MGC, 0);
             strPst = new HTSPStream(strVsize*3, strengths.length, HMMData.STR, 0);
         } catch (Exception e) {
             throw new SynthesisException("HTSPStream initialiaztion failed.. "+e);

@@ -1,51 +1,66 @@
-/**   
-*           The HMM-Based Speech Synthesis System (HTS)             
-*                       HTS Working Group                           
-*                                                                   
-*                  Department of Computer Science                   
-*                  Nagoya Institute of Technology                   
-*                               and                                 
-*   Interdisciplinary Graduate School of Science and Engineering    
-*                  Tokyo Institute of Technology                    
-*                                                                   
-*                Portions Copyright (c) 2001-2006                       
-*                       All Rights Reserved.
-*                         
-*              Portions Copyright 2000-2007 DFKI GmbH.
-*                      All Rights Reserved.                  
-*                                                                   
-*  Permission is hereby granted, free of charge, to use and         
-*  distribute this software and its documentation without           
-*  restriction, including without limitation the rights to use,     
-*  copy, modify, merge, publish, distribute, sublicense, and/or     
-*  sell copies of this work, and to permit persons to whom this     
-*  work is furnished to do so, subject to the following conditions: 
-*                                                                   
-*    1. The source code must retain the above copyright notice,     
-*       this list of conditions and the following disclaimer.       
-*                                                                   
-*    2. Any modifications to the source code must be clearly        
-*       marked as such.                                             
-*                                                                   
-*    3. Redistributions in binary form must reproduce the above     
-*       copyright notice, this list of conditions and the           
-*       following disclaimer in the documentation and/or other      
-*       materials provided with the distribution.  Otherwise, one   
-*       must contact the HTS working group.                         
-*                                                                   
-*  NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF TECHNOLOGY,   
-*  HTS WORKING GROUP, AND THE CONTRIBUTORS TO THIS WORK DISCLAIM    
-*  ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL       
-*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   
-*  SHALL NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF         
-*  TECHNOLOGY, HTS WORKING GROUP, NOR THE CONTRIBUTORS BE LIABLE    
-*  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY        
-*  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,  
-*  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTUOUS   
-*  ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR          
-*  PERFORMANCE OF THIS SOFTWARE.                                    
-*                                                                   
-*/
+/* ----------------------------------------------------------------- */
+/*           The HMM-Based Speech Synthesis Engine "hts_engine API"  */
+/*           developed by HTS Working Group                          */
+/*           http://hts-engine.sourceforge.net/                      */
+/* ----------------------------------------------------------------- */
+/*                                                                   */
+/*  Copyright (c) 2001-2010  Nagoya Institute of Technology          */
+/*                           Department of Computer Science          */
+/*                                                                   */
+/*                2001-2008  Tokyo Institute of Technology           */
+/*                           Interdisciplinary Graduate School of    */
+/*                           Science and Engineering                 */
+/*                                                                   */
+/* All rights reserved.                                              */
+/*                                                                   */
+/* Redistribution and use in source and binary forms, with or        */
+/* without modification, are permitted provided that the following   */
+/* conditions are met:                                               */
+/*                                                                   */
+/* - Redistributions of source code must retain the above copyright  */
+/*   notice, this list of conditions and the following disclaimer.   */
+/* - Redistributions in binary form must reproduce the above         */
+/*   copyright notice, this list of conditions and the following     */
+/*   disclaimer in the documentation and/or other materials provided */
+/*   with the distribution.                                          */
+/* - Neither the name of the HTS working group nor the names of its  */
+/*   contributors may be used to endorse or promote products derived */
+/*   from this software without specific prior written permission.   */
+/*                                                                   */
+/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND            */
+/* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,       */
+/* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF          */
+/* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE          */
+/* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS */
+/* BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,          */
+/* EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED   */
+/* TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,     */
+/* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON */
+/* ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,   */
+/* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY    */
+/* OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE           */
+/* POSSIBILITY OF SUCH DAMAGE.                                       */
+/* ----------------------------------------------------------------- */
+/**
+ * Copyright 2011 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 
 package marytts.htsengine;
 
@@ -75,7 +90,7 @@ import org.apache.log4j.Logger;
 /**
  * Parameter generation out of trained HMMs.
  * 
- * Java port and extension of HTS engine version 2.0
+ * Java port and extension of HTS engine API version 1.04
  * Extension: mixed excitation
  * @author Marcela Charfuelan
  */
@@ -93,6 +108,8 @@ public class HTSParameterGeneration {
   private HTSPStream magPst  = null;
   private HTSPStream lf0Pst  = null;
   private boolean voiced[];
+  private int totalUttFrame;   // total number of frames in a mcep, str or mag Pst
+  private int totalLf0Frame;   // total number of f0 voiced frames in a lf0 Pst
   
   private Logger logger = MaryUtils.getLogger("ParameterGeneration");
   
@@ -152,7 +169,7 @@ public class HTSParameterGeneration {
 	  
 	int frame, uttFrame, lf0Frame;
 	int state, lw, rw, k, n, i, numVoicedInModel;
-	boolean nobound;
+	boolean nobound, gvSwitch;
     HTSModel m;
     CartTreeSet ms = htsData.getCartTreeSet();
     
@@ -162,17 +179,17 @@ public class HTSParameterGeneration {
   	/* mceppst, strpst, magpst, lf0pst */
 	/* Here i should pass the window files to initialise the dynamic windows dw */
 	/* for the moment the dw are all the same and hard-coded */
-    if( htsData.getPdfMcpFile() != null)
-	  mcepPst = new HTSPStream(ms.getMcepVsize(), um.getTotalFrame(), HMMData.MCP, htsData.getMaxMgcGvIter());
+    if( htsData.getPdfMgcFile() != null)
+	  mcepPst = new HTSPStream(ms.getMcepVsize(), um.getTotalFrame(), HMMData.MGC, htsData.getMaxMgcGvIter());
     /* for lf0 count just the number of lf0frames that are voiced or non-zero */
     if( htsData.getPdfLf0File() != null)
       lf0Pst  = new HTSPStream(ms.getLf0Stream(), um.getLf0Frame(), HMMData.LF0, htsData.getMaxLf0GvIter());
 
     /* The following are optional in case of generating mixed excitation */
     if( htsData.getPdfStrFile() != null)
-	  strPst  = new HTSPStream(ms.getStrVsize(), um.getTotalFrame(), HMMData.STR, htsData.getMaxLf0GvIter());
+	  strPst  = new HTSPStream(ms.getStrVsize(), um.getTotalFrame(), HMMData.STR, htsData.getMaxStrGvIter());
     if (htsData.getPdfMagFile() != null )
-	  magPst  = new HTSPStream(ms.getMagVsize(), um.getTotalFrame(), HMMData.MAG, htsData.getMaxLf0GvIter());
+	  magPst  = new HTSPStream(ms.getMagVsize(), um.getTotalFrame(), HMMData.MAG, htsData.getMaxMagGvIter());
 	   
     
 	uttFrame = lf0Frame = 0;
@@ -195,13 +212,15 @@ public class HTSParameterGeneration {
 	/* mcepframe and lf0frame are used in the original code to initialise the T field */
 	/* in each pst, but here the pst are already initialised .... */
 	logger.debug("utteranceFrame=" + uttFrame + " lf0frame=" + lf0Frame);
-	
-	
+	totalUttFrame = uttFrame;
+	totalLf0Frame = lf0Frame;
 	uttFrame = 0;
 	lf0Frame = 0;
+	
 	/* copy pdfs */
 	for(i=0; i<um.getNumUttModel(); i++){
-      m = um.getUttModel(i);          		
+      m = um.getUttModel(i);
+      gvSwitch = m.getGvSwitch();
       for(state=0; state<ms.getNumStates(); state++) {
     	         
       	for(frame=0; frame<m.getDur(state); frame++) {
@@ -212,24 +231,44 @@ public class HTSParameterGeneration {
           if( mcepPst !=null ) {
       	    for(k=0; k<ms.getMcepVsize(); k++){
       		  mcepPst.setMseq(uttFrame, k, m.getMcepMean(state, k));
-      		  mcepPst.setIvseq(uttFrame, k, finv(m.getMcepVariance(state, k)));
+      		  // check the borders, if frame is bound or not
+      		  if( (uttFrame == 0 || uttFrame == (totalUttFrame-1) ) && k >= mcepPst.getOrder() )
+      		    mcepPst.setIvseq(uttFrame, k, 0.0);
+      		  else
+      		    mcepPst.setIvseq(uttFrame, k, finv(m.getMcepVariance(state, k)));
       	    }
+      	    if(!gvSwitch) 
+      	      mcepPst.setGvSwitch(uttFrame, false);
           }
       	  
       	  /* copy pdf for str */
           if( strPst !=null ) {
       	    for(k=0; k<ms.getStrVsize(); k++){
       		  strPst.setMseq(uttFrame, k, m.getStrMean(state, k));
-      		  strPst.setIvseq(uttFrame, k, finv(m.getStrVariance(state, k)));
+      		  
+      		  // check the borders, if frame is bound or not
+              if( (uttFrame == 0 || uttFrame == (totalUttFrame-1) ) && k >= strPst.getOrder() )
+                strPst.setIvseq(uttFrame, k, 0.0);
+              else
+                strPst.setIvseq(uttFrame, k, finv(m.getStrVariance(state, k)));
       	    }
+      	    if(!gvSwitch) 
+              strPst.setGvSwitch(uttFrame, false);
           }
       	  
       	  /* copy pdf for mag */
           if( magPst != null ) {
       	    for(k=0; k<ms.getMagVsize(); k++){
       		  magPst.setMseq(uttFrame, k, m.getMagMean(state, k));
-      		  magPst.setIvseq(uttFrame, k, finv(m.getMagVariance(state, k)));
+      		  
+      		  // check the borders, if frame is bound or not
+              if( (uttFrame == 0 || uttFrame == (totalUttFrame-1) ) && k >= magPst.getOrder() )
+                magPst.setIvseq(uttFrame, k, 0.0);
+              else
+                magPst.setIvseq(uttFrame, k, finv(m.getMagVariance(state, k)));
     	    }
+      	    if(!gvSwitch) 
+              magPst.setGvSwitch(uttFrame, false);
           }
       	  
       	  /* copy pdfs for lf0 */
@@ -246,35 +285,39 @@ public class HTSParameterGeneration {
       			 nobound = ( nobound && voiced[uttFrame+n] );
       		/* copy pdfs */
       		if( voiced[uttFrame] ) {
-      		  lf0Pst.setMseq(lf0Frame, k, m.getLf0Mean(state, k));
+      		  lf0Pst.setMseq(lf0Frame, k, m.getLf0Mean(state, k));      		 
       		  if( nobound || k==0 )
       			lf0Pst.setIvseq(lf0Frame, k, finv(m.getLf0Variance(state, k)));
       		  else  /* the variances for dynamic feature are set to inf on v/uv boundary */
       			lf0Pst.setIvseq(lf0Frame, k, 0.0);
       		}
     	  }
-          }
-      	  if( voiced[uttFrame] )
-             lf0Frame++;      	  
+          }         
+      	  if( voiced[uttFrame] ){
+      	    if(!gvSwitch) 
+                lf0Pst.setGvSwitch(lf0Frame, false); 
+             lf0Frame++;      	 
+      	  }
       	  uttFrame++;
       	  
       	} /* for each frame in this state */
       } /* for each state in this model */
 	}  /* for each model in this utterance */ 
-	
-	//System.out.println("After copying pdfs to PStreams uttFrame=" + uttFrame + " lf0frame=" + lf0Frame);
-	//System.out.println("mseq[" + uttFrame + "][" + k + "]=" + mceppst.get_mseq(uttFrame, k) + "   " + m.get_mcepmean(state, k));
-		
+			
 	/* parameter generation for mcep */  
     if( mcepPst != null ) {
-	  logger.info("Parameter generation for MCEP: ");
+	  logger.info("Parameter generation for MGC: ");
+	  if(htsData.getUseGV())
+	    mcepPst.setGvMeanVar(htsData.getGVModelSet().getGVmeanMgc(), htsData.getGVModelSet().getGVcovInvMgc()); 
       mcepPst.mlpg(htsData, htsData.getUseGV());
     }
    
     if(htsData.getUseAcousticModels())
         loadMaryXmlF0(um, htsData);
     else if ( lf0Pst != null ){
-        logger.info("Parameter generation for LF0: "); 
+        logger.info("Parameter generation for LF0: ");
+        if(htsData.getUseGV())
+          lf0Pst.setGvMeanVar(htsData.getGVModelSet().getGVmeanLf0(), htsData.getGVModelSet().getGVcovInvLf0()); 
         lf0Pst.mlpg(htsData, htsData.getUseGV());
         // here we need set realisedF0
         //htsData.getCartTreeSet().getNumStates()
@@ -285,8 +328,10 @@ public class HTSParameterGeneration {
     boolean useGV=false;
     if( strPst != null ) {
       logger.info("Parameter generation for STR ");
-      if(htsData.getUseGV() && (htsData.getPdfStrGVFile() != null) )
+      if(htsData.getUseGV() && (htsData.getPdfStrGVFile() != null) ){
         useGV = true;
+        strPst.setGvMeanVar(htsData.getGVModelSet().getGVmeanStr(), htsData.getGVModelSet().getGVcovInvStr());
+      }
       strPst.mlpg(htsData, useGV);
     }
 
@@ -294,16 +339,18 @@ public class HTSParameterGeneration {
     useGV = false;
     if( magPst != null ) {
       logger.info("Parameter generation for MAG ");
-      if(htsData.getUseGV() && (htsData.getPdfMagGVFile() != null) )
-        useGV = true;  
+      if(htsData.getUseGV() && (htsData.getPdfMagGVFile() != null) ){
+        useGV = true;
+        magPst.setGvMeanVar(htsData.getGVModelSet().getGVmeanMag(), htsData.getGVModelSet().getGVcovInvMag());
+      }
 	  magPst.mlpg(htsData, useGV);
     }
 	   
     if(debug) {
-        // saveParam(parFileName+"mcep.bin", mcepPst, HMMData.MCP);  // no header
-        // saveParam(parFileName+"lf0.bin", lf0Pst, HMMData.LF0);    // no header
-        saveParamMaryFormat(parFileName, mcepPst, HMMData.MCP);
-        saveParamMaryFormat(parFileName, lf0Pst, HMMData.LF0);
+        saveParam(parFileName+"mcep.bin", mcepPst, HMMData.MGC);  // no header
+        saveParam(parFileName+"lf0.bin", lf0Pst, HMMData.LF0);    // no header
+        //saveParamMaryFormat(parFileName, mcepPst, HMMData.MGC);
+        //saveParamMaryFormat(parFileName, lf0Pst, HMMData.LF0);
      }
 
 	  
@@ -358,7 +405,7 @@ public class HTSParameterGeneration {
          PitchReaderWriter.write_pitch_file(fileName, f0s, (float)(ws), (float)(ss), fs);
           
           
-      } else if(type == HMMData.MCP ){
+      } else if(type == HMMData.MGC ){
           
         int numfrm =  par.getT();
         int dimension = par.getOrder();
@@ -418,7 +465,7 @@ public class HTSParameterGeneration {
           }
           data_out.close();
           
-      } else if(type == HMMData.MCP ){
+      } else if(type == HMMData.MGC ){
         fileName += ".mgc";
         DataOutputStream data_out = new DataOutputStream (new FileOutputStream (fileName));  
         for(t=0; t<par.getT(); t++)

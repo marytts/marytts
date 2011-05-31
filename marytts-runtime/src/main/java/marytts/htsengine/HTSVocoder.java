@@ -1,51 +1,65 @@
-/**   
-*           The HMM-Based Speech Synthesis System (HTS)             
-*                       HTS Working Group                           
-*                                                                   
-*                  Department of Computer Science                   
-*                  Nagoya Institute of Technology                   
-*                               and                                 
-*   Interdisciplinary Graduate School of Science and Engineering    
-*                  Tokyo Institute of Technology                    
-*                                                                   
-*                Portions Copyright (c) 2001-2006                       
-*                       All Rights Reserved.
-*                         
-*              Portions Copyright 2000-2007 DFKI GmbH.
-*                      All Rights Reserved.                  
-*                                                                   
-*  Permission is hereby granted, free of charge, to use and         
-*  distribute this software and its documentation without           
-*  restriction, including without limitation the rights to use,     
-*  copy, modify, merge, publish, distribute, sublicense, and/or     
-*  sell copies of this work, and to permit persons to whom this     
-*  work is furnished to do so, subject to the following conditions: 
-*                                                                   
-*    1. The source code must retain the above copyright notice,     
-*       this list of conditions and the following disclaimer.       
-*                                                                   
-*    2. Any modifications to the source code must be clearly        
-*       marked as such.                                             
-*                                                                   
-*    3. Redistributions in binary form must reproduce the above     
-*       copyright notice, this list of conditions and the           
-*       following disclaimer in the documentation and/or other      
-*       materials provided with the distribution.  Otherwise, one   
-*       must contact the HTS working group.                         
-*                                                                   
-*  NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF TECHNOLOGY,   
-*  HTS WORKING GROUP, AND THE CONTRIBUTORS TO THIS WORK DISCLAIM    
-*  ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL       
-*  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT   
-*  SHALL NAGOYA INSTITUTE OF TECHNOLOGY, TOKYO INSTITUTE OF         
-*  TECHNOLOGY, HTS WORKING GROUP, NOR THE CONTRIBUTORS BE LIABLE    
-*  FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY        
-*  DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,  
-*  WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTUOUS   
-*  ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR          
-*  PERFORMANCE OF THIS SOFTWARE.                                    
-*                                                                   
-*/
+/* ----------------------------------------------------------------- */
+/*           The HMM-Based Speech Synthesis Engine "hts_engine API"  */
+/*           developed by HTS Working Group                          */
+/*           http://hts-engine.sourceforge.net/                      */
+/* ----------------------------------------------------------------- */
+/*                                                                   */
+/*  Copyright (c) 2001-2010  Nagoya Institute of Technology          */
+/*                           Department of Computer Science          */
+/*                                                                   */
+/*                2001-2008  Tokyo Institute of Technology           */
+/*                           Interdisciplinary Graduate School of    */
+/*                           Science and Engineering                 */
+/*                                                                   */
+/* All rights reserved.                                              */
+/*                                                                   */
+/* Redistribution and use in source and binary forms, with or        */
+/* without modification, are permitted provided that the following   */
+/* conditions are met:                                               */
+/*                                                                   */
+/* - Redistributions of source code must retain the above copyright  */
+/*   notice, this list of conditions and the following disclaimer.   */
+/* - Redistributions in binary form must reproduce the above         */
+/*   copyright notice, this list of conditions and the following     */
+/*   disclaimer in the documentation and/or other materials provided */
+/*   with the distribution.                                          */
+/* - Neither the name of the HTS working group nor the names of its  */
+/*   contributors may be used to endorse or promote products derived */
+/*   from this software without specific prior written permission.   */
+/*                                                                   */
+/* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND            */
+/* CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,       */
+/* INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF          */
+/* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE          */
+/* DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS */
+/* BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,          */
+/* EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED   */
+/* TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,     */
+/* DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON */
+/* ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,   */
+/* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY    */
+/* OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE           */
+/* POSSIBILITY OF SUCH DAMAGE.                                       */
+/* ----------------------------------------------------------------- */
+/**
+ * Copyright 2011 DFKI GmbH.
+ * All Rights Reserved.  Use is subject to license terms.
+ *
+ * This file is part of MARY TTS.
+ *
+ * MARY TTS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 
 package marytts.htsengine;
 
@@ -80,6 +94,9 @@ import marytts.util.math.ComplexArray;
 import marytts.util.math.FFT;
 import marytts.util.math.FFTMixedRadix;
 import marytts.util.math.MathUtils;
+import marytts.util.signal.SignalProcUtils;
+import marytts.util.io.LEDataInputStream;
+import marytts.util.io.FileUtils;
 
 import org.apache.log4j.Logger;
 
@@ -89,7 +106,7 @@ import org.apache.log4j.Logger;
  * Synthesis of speech out of speech parameters.
  * Mixed excitation MLSA vocoder. 
  * 
- * Java port and extension of HTS engine version 2.0
+ * Java port and extension of HTS engine API version 1.04
  * Extension: mixed excitation
  * @author Marcela Charfuelan 
  */
@@ -188,7 +205,7 @@ public class HTSVocoder {
         
         rand = new Random();
 
-        if(stage == 0 ){  /* for MCP */
+        if(stage == 0 ){  /* for MGC */
             
           /* mcep_order=74 and pd=PADEORDER=5 (if no HTS_EMBEDDED is used) */
           vector_size = (mcep_vsize * ( 3 + PADEORDER) + 5 * PADEORDER + 6) - (3 * (mcep_order+1));
@@ -311,7 +328,7 @@ public class HTSVocoder {
     public AudioInputStream htsMLSAVocoder(HTSParameterGeneration pdf2par, HMMData htsData) 
     throws Exception {
         
-        float sampleRate = 16000.0F;  //8000,11025,16000,22050,44100
+        float sampleRate = htsData.getRate();  //8000,11025,16000,22050,44100,48000
         int sampleSizeInBits = 16;  //8,16
         int channels = 1;     //1,2
         boolean signed = true;    //true,false
@@ -358,6 +375,7 @@ public class HTSVocoder {
       boolean aperiodicFlag = false;
       
       double d[];                        /* used in the lpc vocoder */
+
       
       /* --------------------------------------------------------------------------------
        * these variables for allow saving excitation and mixed excitation in a binary file 
@@ -381,7 +399,9 @@ public class HTSVocoder {
       m = mcepPst.getOrder();
       mc = new double[m];
       initVocoder(m-1, mcepPst.getVsize()-1, htsData);
-      
+      double pulse[] = new double[fprd];
+      double noise[] = new double[fprd];
+      double source[] = new double[fprd];
       
       d = new double[m];
       if(lpcVocoder){
@@ -418,8 +438,8 @@ public class HTSVocoder {
       
       if( fourierMagnitudes && htsData.getPdfMagFile() != null)
         logger.info("Pulse generated with Fourier Magnitudes.");
-      else
-        logger.info("Pulse generated as a unit pulse.");
+      //else
+      //  logger.info("Pulse generated as a unit pulse.");
       
       if(beta != 0.0)
         logger.info("Postfiltering applied with beta=" + beta);
@@ -463,7 +483,7 @@ public class HTSVocoder {
       magPulseSize = 0;
       for(mcepframe=0,lf0frame=0; mcepframe<mcepPst.getT(); mcepframe++) {
        
-        /* get current feature vector mcp */ 
+        /* get current feature vector mgc */ 
         for(i=0; i<m; i++)
           mc[i] = mcepPst.getPar(mcepframe, i); 
    
@@ -481,15 +501,20 @@ public class HTSVocoder {
         /* if mixed excitation get shaping filters for this frame 
          * the strength of pulse, is taken from the predicted value, which can be maximum 1.0, 
          * and the strength of noise is the rest -> 1.0 - strPulse */
+        double str=0.0;
         if(mixedExcitation){
           for(j=0; j<orderM; j++) {
             hp[j] = hn[j] = 0.0;
             for(i=0; i<numM; i++) {              
-              hp[j] += strPst.getPar(mcepframe, i) * h[i][j];
-              hn[j] += ( 1 - strPst.getPar(mcepframe, i) ) * h[i][j];
+              //hp[j] += strPst.getPar(mcepframe, i) * h[i][j];
+              //hn[j] += ( 1 - strPst.getPar(mcepframe, i) ) * h[i][j];
               //System.out.format("str=%.2f  h[i][j]=%.5f  hp[j]=%.4f  hn[j]=%.4f  sum=%.4f\n",strPst.getPar(mcepframe, i), h[i][j],hp[j],hn[j], (hp[j]+hn[j]));
-              //hp[j] += (0.2 + strPst.getPar(mcepframe, i)) * h[i][j];
-              // hn[j] += ( 0.9 - strPst.getPar(mcepframe, i) ) * h[i][j];
+              
+              str =  strPst.getPar(mcepframe, i); 
+              hp[j] += str * h[i][j];
+              hn[j] += ( 1 - str ) * h[i][j];
+              
+              
               //hp[j] += strPst.getPar(mcepframe, i) * h[i][j];
               //hn[j] += ( 0.9 - strPst.getPar(mcepframe, i) ) * h[i][j];
             }
@@ -519,13 +544,12 @@ public class HTSVocoder {
             gnorm(C, C, (m-1), gamma);
             for(i=1; i<m; i++)
               C[i] *= gamma;   
-          }
-          
+          }          
         }
         
         if(stage == 0){         
           /* postfiltering, this is done if beta>0.0 */
-          postfilter_mcp(mc, (m-1), alpha, beta);
+          postfilter_mgc(mc, (m-1), alpha, beta);
           /* mc2b: transform mel-cepstrum to MLSA digital filter coefficients */   
           mc2b(mc, CC, (m-1), alpha);
           for(i=0; i<m; i++)
@@ -547,6 +571,7 @@ public class HTSVocoder {
         } 
           
         /* p=f0 in c code!!! */
+        
         if( p1 != 0.0 && f0 != 0.0 ) {
           inc = (f0 - p1) * (double)iprd/(double)fprd;
           //System.out.println("  inc=(f0-p1)/80=" + inc );
@@ -640,7 +665,11 @@ public class HTSVocoder {
           
             /* x is a pulse noise excitation and mix is mixed excitation */
             mix = fxp+fxn;
-      
+            pulse[j] = fxp;
+            noise[j] = fxn;
+            source[j] = mix;
+            //System.out.format("%d = %f \n", j, mix); 
+            
             if(debug){
               data_out.writeFloat((float)x);
               data_out_mix.writeFloat((float)mix);
@@ -649,7 +678,8 @@ public class HTSVocoder {
             /* comment this line if no mixed excitation, just pulse and noise */
             x = mix;   /* excitation sample */
           }
-           
+          
+          
           if(lpcVocoder){
             // LPC filter  C[k=0] = gain is not used!
             if(!NGAIN)
@@ -673,7 +703,7 @@ public class HTSVocoder {
           }
         
         
-          
+          //System.out.format("%f ", x);  
           audio_double[s_double] = x;
           s_double++;
           
@@ -688,10 +718,19 @@ public class HTSVocoder {
          // System.out.println("  i=" + i + "  inc=" + inc + "  pc=" + pc + "  p1=" + p1);
           
         } /* for each sample in a period fprd */
+        //System.out.format("\n");
         
-       // System.out.println();
+        /********* For debuging
+        if(voiced[mcepframe]) {
+          double magf[] = SignalProcUtils.getFrameHalfMagnitudeSpectrum(source, 512, 1);        
+          MaryUtils.plot(magf, "magf");
+        }
+        System.out.format("str=%.2f\n", str);
+        */
+        
         
         p1 = f0;
+       
      
         
         /* move elements in c */
@@ -1163,7 +1202,7 @@ public class HTSVocoder {
     
     
     /** posfilter: postfilter for mel-cepstrum. It uses alpha and beta defined in HMMData */
-    private void postfilter_mcp(double mcp[], int m, double alpha, double beta) {
+    private void postfilter_mgc(double mgc[], int m, double alpha, double beta) {
         
       double e1, e2;
       int k;
@@ -1173,15 +1212,15 @@ public class HTSVocoder {
           postfilter_buff = new double[m+1];
           postfilter_size = m;
         }
-        mc2b(mcp, postfilter_buff, m, alpha);
+        mc2b(mgc, postfilter_buff, m, alpha);
         e1 = b2en(postfilter_buff, m, alpha);
         
-        postfilter_buff[1] -= beta * alpha * mcp[2];
+        postfilter_buff[1] -= beta * alpha * mgc[2];
         for(k = 2; k < m; k++)
           postfilter_buff[k] *= (1.0 +beta);
         e2 = b2en(postfilter_buff, m, alpha);
         postfilter_buff[0] += Math.log(e1/e2) / 2;
-        b2mc(postfilter_buff, mcp, m, alpha);
+        b2mc(postfilter_buff, mgc, m, alpha);
           
       }
             
@@ -1387,7 +1426,7 @@ public class HTSVocoder {
       int sample = 0;
       for(mcepframe=0,lf0frame=0; mcepframe<mcepPst.getT(); mcepframe++) {
        
-        /* get current feature vector mcp */ 
+        /* get current feature vector mgc */ 
         for(i=0; i<m; i++)
           mc[i] = mcepPst.getPar(mcepframe, i); 
    
@@ -1416,7 +1455,7 @@ public class HTSVocoder {
         
         if(stage == 0){         
           /* postfiltering, this is done if beta>0.0 */
-          postfilter_mcp(mc, (m-1), alpha, beta);
+          postfilter_mgc(mc, (m-1), alpha, beta);
           /* mc2b: transform mel-cepstrum to MLSA digital filter coefficients */   
           mc2b(mc, CC, (m-1), alpha);
           for(i=0; i<m; i++)
@@ -1560,7 +1599,7 @@ public class HTSVocoder {
        
        /* Initialise HTSPStream-s */
        lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0, 0);
-       mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.MCP, 0);
+       mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.MGC, 0);
        strPst = new HTSPStream(strVsize, totalFrame, HMMData.STR, 0);
        magPst = new HTSPStream(magVsize, totalFrame, HMMData.MAG, 0);             
        
@@ -1608,7 +1647,7 @@ public class HTSVocoder {
        magData.close();
              
        
-       float sampleRate = 16000.0F;  //8000,11025,16000,22050,44100
+       float sampleRate = 16000.0F;  //8000,11025,16000,22050,44100, 48000
        int sampleSizeInBits = 16;  //8,16
        int channels = 1;     //1,2
        boolean signed = true;    //true,false
@@ -1714,8 +1753,59 @@ public class HTSVocoder {
        
        String lf0File, mcepFile, strFile="", magFile="", outDir, outFile;
        int mcepVsize, lf0Vsize, strVsize=0, magVsize=0;
-              
-        
+       //-----------------------------------
+       // Values for FEMALE:
+       // LOUD:
+       float f0LoudFemale = 0.01313791f;
+       float strLoudFemale[] = { -0.002995137f, -0.042511885f,  0.072285673f,  0.127030178f,  0.006603170f };
+       float magLoudFemale[] = {  0.0417336550f,  0.0002531457f,-0.0436839922f,-0.0335192265f, -0.0217501786f, 
+               -0.0166272925f, -0.0424825309f, -0.0460119758f, -0.0307114900f, -0.0327369397f  };       
+       float mcepLoudFemale[] = { -0.245401838f, -0.062825965f, -0.360973095f,  0.117120506f,  0.917223265f,  0.138920770f,
+               0.338553265f, -0.004857140f,  0.285192007f, -0.358292740f, -0.062907335f, -0.008040502f, 
+               0.029470562f, -0.485079992f, -0.006727651f, -1.313869583f, -0.353797651f,  0.797097747f,
+              -0.164614609f, -0.311173881f, -0.205134527f, -0.478116992f, -0.311340181f, -1.485855332f, -0.045632626f};
+       // SOFT: 
+       float f0SoftFemale = 0.3107256f;
+       float strSoftFemale[] = {  0.22054621f,  0.11091616f,  0.06378487f,  0.02110654f, -0.05118725f};
+       float magSoftFemale[] = {0.5747024f, 0.3248238f, 0.2356782f, 0.2441387f, 0.2702851f, 
+               0.2895966f, 0.2437654f, 0.2959747f, 0.2910529f, 0.2508167f };       
+       float mcepSoftFemale[] = {   -0.103318169f, 0.315698439f, 0.170000964f, 0.223589719f, 0.262139649f, 
+               -0.062646758f, -4.998160141f,  0.008026212f,  1.742740835f,  1.990719666f, 
+                0.548177521f,  0.999093856f,  0.262868363f,  1.755019406f,  0.330058590f, 
+               -5.241305159f, -0.021005177f, -5.890942393f,  0.344385084f,  0.242179454f, 
+                0.200936671f, -1.630683357f,  0.110674201f, -53.525043676f,  -0.223682764f  };
+       
+       //-----------------------------------
+       // Values for MALE:
+       // LOUD:
+       float f0LoudMale = -0.08453168f;
+       float strLoudMale[] = {0.07092900f,  0.41149292f,  0.24479925f,  0.01326785f, -0.01517731f};
+       float magLoudMale[] = {-0.21923620f, -0.11031120f, -0.02786084f, -0.10640244f, -0.12020442f, -0.08508762f,
+               -0.08171423f, -0.08000552f, -0.07291968f, -0.09478534f };
+       float mcepLoudMale[] = {  0.15335238f,   0.30880292f,  -0.22922052f,  -0.01116095f,   1.04088351f,  -0.31693632f, 
+               -19.36510752f,  -0.12210441f,   0.81743415f,  -0.19799409f,   0.44572112f,  -0.24845725f,
+                -1.39545409f,  -0.88788491f,   8.83006358f,  -1.26623882f,   0.52428102f,  -1.02615700f,
+                -0.28092043f,  -0.82543015f,   0.33081815f,   0.39498874f,   0.20100945f,   0.60890790f, -0.37892217f};
+       // SOFT:
+       float f0SoftMale = 0.05088677f;
+       float strSoftMale[] = {0.07595702f,  0.02348965f, -0.02038628f, -0.08572970f, -0.06090386f};
+       float magSoftMale[] = {0.08869109f, 0.05517088f, 0.08902098f, 0.09263865f, 0.04866824f, 0.04554406f, 0.04937004f, 
+               0.05082076f, 0.04988959f, 0.03459440f};
+       float mcepSoftMale[] = { 0.098129393f,  0.124686819f,  0.195709008f, -0.007066379f, -1.795620578f,  0.089982916f, 
+               15.371711686f, -0.051023831f, -0.213521945f,  0.009725292f,  0.361488718f,  0.118609995f, 
+                1.794143134f,  0.100130942f,  0.005999542f, -0.593128934f, -0.165385304f,  0.101705681f, 
+                0.175534153f,  0.049246302f,  0.009530379f, -0.272557042f, -0.043030771f,  0.158694874f, 0.099107970f };
+       
+       
+       
+       
+       
+       
+       float f0Trans = 0f;
+       float strTrans[] = null;
+       float magTrans[] = null;
+       float mcepTrans[] = null;
+             
        // set values that the vocoder needs      
        // Type of features:
        int ind=0;
@@ -1765,7 +1855,25 @@ public class HTSVocoder {
        }
       
        // last argument true or false to play the file
-       boolean play = Boolean.parseBoolean(args[ind]);
+       boolean play = Boolean.parseBoolean(args[ind++]);
+       
+       boolean trans = true;       
+       if(args[ind].contentEquals("loud")){
+           f0Trans = f0LoudFemale;
+           strTrans = strLoudFemale;
+           magTrans = magLoudFemale;
+           mcepTrans = mcepLoudFemale;
+           System.out.println("Generating loud voice");
+         } else if(args[ind].contentEquals("soft")) {
+           f0Trans = f0SoftFemale;
+           strTrans = strSoftFemale;
+           magTrans = magSoftFemale;
+           mcepTrans = mcepSoftFemale;
+           System.out.println("Generating soft voice");
+         } else {
+            trans = false;
+            System.out.println("Generating modal voice");
+         }
        
        //Change these for voice effects:
        //                                                                   [min][max]
@@ -1824,7 +1932,7 @@ public class HTSVocoder {
        
        /* Initialise HTSPStream-s */
        lf0Pst = new HTSPStream(lf0Vsize, totalFrame, HMMData.LF0, 0);
-       mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.MCP, 0);
+       mcepPst = new HTSPStream(mcepVsize, totalFrame, HMMData.MGC, 0);
        
        /* load lf0 data */
        /* for lf0 i just need to load the voiced values */
@@ -1837,6 +1945,13 @@ public class HTSVocoder {
            voiced[i] = false;
          else{
            voiced[i] = true;
+           
+           // apply here the change to loud
+           if(trans) {
+             fval = (float)Math.exp(fval);
+             fval = fval + (fval * f0Trans);
+             fval = (float)Math.log(fval);
+           }
            lf0Pst.setPar(lf0VoicedFrame, 0, fval);
            lf0VoicedFrame++;
          }
@@ -1846,8 +1961,13 @@ public class HTSVocoder {
        /* load mgc data */
        mcepData = new LEDataInputStream (new BufferedInputStream(new FileInputStream(mcepFile)));
        for(i=0; i<totalFrame; i++){
-         for(j=0; j<mcepPst.getOrder(); j++)
-           mcepPst.setPar(i, j, mcepData.readFloat());
+         for(j=0; j<mcepPst.getOrder(); j++){
+           // apply here the change to loud
+           fval =  mcepData.readFloat();
+           if (trans & j<4)
+             fval = fval + (fval * mcepTrans[j]);
+           mcepPst.setPar(i, j, fval);
+         }
        }
        mcepData.close();
              
@@ -1856,8 +1976,13 @@ public class HTSVocoder {
            strPst = new HTSPStream(strVsize, totalFrame, HMMData.STR, 0);
            strData = new LEDataInputStream (new BufferedInputStream(new FileInputStream(strFile))); 
            for(i=0; i<totalFrame; i++){
-              for(j=0; j<strPst.getOrder(); j++)
-              strPst.setPar(i, j, strData.readFloat());
+              for(j=0; j<strPst.getOrder(); j++){
+                // apply here the change to loud/soft  
+                fval = strData.readFloat();
+                if(trans)
+                  fval = fval + (fval * strTrans[j]);
+                strPst.setPar(i, j, fval);
+              }
            }
            strData.close();
        }
@@ -1871,7 +1996,10 @@ public class HTSVocoder {
              //System.out.print(n + " : "); 
              for(j=0; j<magPst.getOrder(); j++){
                n++;
-               magPst.setPar(i, j, magData.readFloat());
+               fval = magData.readFloat();
+               if(trans)
+                 fval = fval + (fval * magTrans[j]);
+               magPst.setPar(i, j, fval);
                //System.out.format("mag(%d,%d)=%.2f ",i, j, magPst.getPar(i, j) );
              }
              //System.out.println();             
@@ -1880,7 +2008,7 @@ public class HTSVocoder {
        }
              
       
-       float sampleRate = 16000.0F;  //8000,11025,16000,22050,44100
+       float sampleRate = 16000.0F;  //8000,11025,16000,22050,44100,48000
        int sampleSizeInBits = 16;  //8,16
        int channels = 1;     //1,2
        boolean signed = true;    //true,false
@@ -1979,10 +2107,48 @@ public class HTSVocoder {
         vocoder.htsMLSAVocoderCommand(args2);
         */
         
-        
+        /*        
+        String path = "/project/mary/marcela/HMM-voices/BITS/bits1/hts/data/";
+        String args3[] = {"0", "0.42", "0.05", "0.3", "16000", "80", 
+                          path + "mgc/US10010046_0.mgc",  "75", 
+                          path + "lf0-100-270/US10010046_0.lf0", "3", 
+                          path + "vocoder_out-100-270.wav", 
+                          path + "str-100-270/US10010046_0.str", "15", 
+                          path + "filters/mix_excitation_filters.txt", "5", "true"};                 
         HTSVocoder vocoder = new HTSVocoder();
-        vocoder.vocoderList(args);
+        vocoder.htsMLSAVocoderCommand(args3);
+        */
+        /*
+        String path = "/project/mary/marcela/quality_parameters/necadbs/hts/data/";
+        String args3[] = {"0", "0.42", "0.05", "0.15", "16000", "80", 
+                          path + "mgc/modal0001.mgc",  "75", 
+                          path + "lf0/modal0001.lf0", "3", 
+                          path + "vocoder_out-modal-soft.wav", 
+                          path + "str/soft0001.str", "15", 
+                          path + "filters/mix_excitation_filters.txt", "5", "true"};                 
+        HTSVocoder vocoder = new HTSVocoder();
+        vocoder.htsMLSAVocoderCommand(args3);
+        */
         
+        String path = "/project/mary/marcela/HMM-voices/arctic_slt/hts/data/";
+        String fileName = "modal0002";
+        //String fileName = "de_0001";
+        String args4[] = {"0", "0.42", "0.05", "0.25", "16000", "80", 
+                          path + "mgc/" + fileName + ".mgc",  "75", 
+                          path + "lf0/" + fileName + ".lf0", "3", 
+                          path + "vocoder/" + fileName + "_vocoder_soft.wav", 
+                          path + "str/" + fileName + ".str", "15", 
+                          path + "filters/mix_excitation_filters.txt", "5", 
+                          path + "mag/" + fileName + ".mag", "30", "true", "soft"};                 
+        HTSVocoder vocoder = new HTSVocoder();
+        vocoder.htsMLSAVocoderCommand(args4);
+                
+        
+        /* Use this for running HTSVocoder for a list, see vocoderList for the parameters */  
+        
+        /*HTSVocoder vocoder = new HTSVocoder();
+        vocoder.vocoderList(args);
+        */
         
     }
     
@@ -1990,7 +2156,10 @@ public class HTSVocoder {
       
       //String path = "/project/mary/marcela/HMM-voices/SEMAINE/prudence/hts/data/";
       //String path = "/project/mary/marcela/HMM-voices/arctic_test/hts/data/";  
-      String path = "/project/mary/marcela/HMM-voices/SEMAINE/spike/hts/data/";
+      //String path = "/project/mary/marcela/HMM-voices/SEMAINE/spike/hts/data/";
+      //String path = "/project/mary/marcela/HMM-voices/arctic_slt/hts/data/";
+      //  String path = "/project/mary/marcela/HMM-voices/BITS/bits1/hts/data/";
+      String path = "/project/mary/marcela/quality_parameters/necadbs/hts/data/";
       
       File outDir = new File(path + "vocoder");
       if(!outDir.exists())
@@ -2007,8 +2176,9 @@ public class HTSVocoder {
  
         //MGC     stage=0.0 alpha=0.42 logGain=0 (false)
         //MGC-LSP stage=3.0 alpha=0.42 loggain=1 (true)   
+        
         /*
-        String args1[] = {"0", "0.42", "0", "0.0", "16000", "80", 
+        String args1[] = {"0", "0.42", "0", "0.15", "16000", "80", 
         path + "mgc/" + files[i] + ".mgc", "75", 
         path + "lf0/" + files[i] + ".lf0", "3",
         path + "vocoder/" + files[i] + ".wav",  
@@ -2017,13 +2187,15 @@ public class HTSVocoder {
         path + "mag/" + files[i] + ".mag", "30", "true"};  // the last true/false is for playing or not the generated file
         */
         
+        
         // without Fourier magnitudes        
-        String args1[] = {"0", "0.42", "0", "0.25", "16000", "80", 
+        String args1[] = {"0", "0.42", "0.05", "0.15", "16000", "80", 
         path + "mgc/" + files[i] + ".mgc", "75", 
         path + "lf0/" + files[i] + ".lf0", "3",
         path + "vocoder/" + files[i] + ".wav",  
         path + "str/" + files[i] + ".str", "15", 
         path + "filters/mix_excitation_filters.txt", "5", "true"};  // the last true/false is for playing or not the generated file
+        
         
         // without Mixed excitation and Fourier magnitudes
         /*
